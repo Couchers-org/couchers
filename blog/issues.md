@@ -60,9 +60,13 @@ It would be easy to write this off as a product of there being a lot of creepy p
 
 In the most obvious case of creepy behaviour, it is extremely common for women to be inundated with [creepy requests and messages](https://www.reddit.com/r/couchsurfing/comments/2inf3j/okay_im_really_sick_of_people_using_cs_as_a/) from men. This is amplified when women [post public trips](https://www.reddit.com/r/couchsurfing/comments/5zmxgs/is_anyone_else_getting_creepy_messages_on/). There are many ways that CouchSurfing could approach fixing this. Automatic filters could control explicit messages. Users could have the option to alter message settings in different situations. For instance, someone could opt to not accept messages from unrated or unverified users that find them from public trips. However these aren't trivial to implement and don't yield profit.
 
-Possibly more worrying is the more insidious case of users who act inapropriately only in person, after agreeing to meet up. 
+Possibly more worrying is the more insidious case of users who act inapropriately only in person, after agreeing to meet up. There are countless stories of users who have been hit on by their hosts/surfers in a way that makes them feel uncomfortable. Users, especially men, do not recognise the power inbalance of those situations. The way this pans out is a spectrum of someone being comfortable handling the situation at one end to sexual assault at the other, with most cases falling somewhere in the middle. In some cases, people will just be uncomfortable and stick it out. In others, surfers will sleep with their hosts out of a sense of obligation. Although a technically consensual result, it will likely be a bad experience for the surfer, make them less trusting, and turn them away from couch-surfing. This kind of situation is widespread, it is not uncommon for women to be hit on by all of their male surfers/guests.
 
+Establishing 
 
+## Host Matching
+
+Host distribution 
 
 ## The Build
 
