@@ -1,8 +1,8 @@
 <template>
   <div>
-        <nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation">
+    <nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation">
       <div class="navbar-brand">
-        <a class="navbar-item" href="https://opendoors.io">
+        <a class="navbar-item" href="/">
           OpenDoors
         </a>
 
@@ -15,7 +15,7 @@
 
       <div id="navbarBasicExample" class="navbar-menu">
         <div class="navbar-start">
-          <a class="navbar-item">
+          <a class="navbar-item" href="/">
             Home
           </a>
 
@@ -43,7 +43,7 @@
             </div>
           </div>
 
-          <a class="navbar-item">
+          <a class="navbar-item" href="/team">
             Our team
           </a>
         </div>
