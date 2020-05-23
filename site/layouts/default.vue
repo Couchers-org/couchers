@@ -2,8 +2,8 @@
   <div>
         <nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation">
       <div class="navbar-brand">
-        <a class="navbar-item" href="https://bulma.io">
-          <img src="https://bulma.io/images/bulma-logo.png" width="112" height="28">
+        <a class="navbar-item" href="https://opendoors.io">
+          OpenDoors
         </a>
 
         <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
@@ -19,31 +19,33 @@
             Home
           </a>
 
-          <a class="navbar-item">
-            Documentation
-          </a>
-
           <div class="navbar-item has-dropdown is-hoverable">
             <a class="navbar-link">
-              More
+              Why OpenDoors?
             </a>
 
             <div class="navbar-dropdown">
-              <a class="navbar-item">
-                About
+              <a href="/" class="navbar-item">
+                Profit and Incentives
               </a>
-              <a class="navbar-item">
-                Jobs
+              <a href="/" class="navbar-item">
+                Communities and Trust
               </a>
-              <a class="navbar-item">
-                Contact
+              <a href="/" class="navbar-item">
+                Creeps and Freeloaders
               </a>
-              <hr class="navbar-divider">
-              <a class="navbar-item">
-                Report an issue
+              <a href="/" class="navbar-item">
+                Host Matching
+              </a>
+              <a href="/" class="navbar-item">
+                The Build
               </a>
             </div>
           </div>
+
+          <a class="navbar-item">
+            Our team
+          </a>
         </div>
 
         <div class="navbar-end">
@@ -51,9 +53,6 @@
             <div class="buttons">
               <a class="button is-primary">
                 <strong>Sign up</strong>
-              </a>
-              <a class="button is-light">
-                Log in
               </a>
             </div>
           </div>
