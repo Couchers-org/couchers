@@ -1,4 +1,7 @@
-# Communities and Trust
+---
+title: Communities and Trust
+author: Itsi
+---
 
 Perhaps the biggest success of the early days of CouchSurfing was that it facilitated the interactions and formation of communities. Any word cloud of articles about CouchSurfing has "community" in huge letters at the center. Communities are usually divided into two:
 
