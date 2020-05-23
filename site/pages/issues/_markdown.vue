@@ -12,10 +12,7 @@
 <script>
 export default {
     async asyncData({params}) {
-        console.log(`${params.markdown}`)
-        let thingo = await import(`@/markdown/issues/${params.markdown}.md`)
-        console.log(thingo)
-        return thingo
+        return await import(`@/markdown/issues/${params.markdown}.md`)
     }
 }
 </script>
