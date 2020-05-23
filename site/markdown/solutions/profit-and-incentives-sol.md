@@ -1,8 +1,6 @@
 ---
-title: Revenue Models
+title: Non-Profit Revenue Models
 ---
-
-# Revenue Models
 
 It is clear that the [profit structure](/issues/profit-and-incentives) that CouchSurfing uses doesn't work. Building this next iteration of couch-surfing, we can choose something better. Trying to make a profit out of couch-surfing is a bad idea, because it undermines the societal good by distorting the incentives and because it fundamentally isn't monetizable. The only sense here is to structure it as a non-profit. However we still need to deal with a revenue model to cover the costs.
 
@@ -13,6 +11,11 @@ There are different revenue models that we can adopt. They all have their advant
 ### Donations
 
 We hope to attract donations from users of this platform. Many users of CouchSurfing have expressed that they would rather pay donations rather than the forced contributions that have been demanded now. Donations are an excellent source of income in that they incentivise the platform into making a better experience for its users. The better the experience, the more likely it is that they donate. The downside is they can be unpredictable and unreliable.
+
+
+### Grants
+
+We may be able to find organisations or governmental programs that give grants to non-profits. However they may prove extremely difficult to find, require substantial effort and time to secure, require some fulfilment by the platform, and may just be a one-off payment.
 
 
 ### Advertising and selling user data
