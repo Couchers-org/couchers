@@ -1,6 +1,5 @@
 ---
 title: Communities and Trust
-author: Itsi
 ---
 
 Perhaps the biggest success of the early days of CouchSurfing was that it facilitated the interactions and formation of communities. Any word cloud of articles about CouchSurfing has "community" in huge letters at the center. Communities are usually divided into two:
@@ -20,6 +19,12 @@ Couch-surfing is an experience that requires a huge degree of trust. Whether you
 
 The review system has become a bit meaningless. The norm is to leave a good review, which is completely understandable, especially in situations where a host has generously let you stay in their home and treated you well. Bad (and previously neutral) reviews are reserved for extremely damning situations. There is a surface level problem in that whether you have a great experience or one that is just adequate, you'd usually give a positive review in either case, so reviews don't cater for capturing members who are a great asset to the community. More worryingly though, is that because people are hesitant to leave publically damning reviews, the threshold for them is far too high, and so the vast majority of negative (yet not absolutely horrid) experiences are never reported and do not factor into the public rating of a user. [People](https://www.reddit.com/r/couchsurfing/comments/coknjp/is_it_justified_to_post_this_negative_reference/) [are](https://www.reddit.com/r/couchsurfing/comments/erd3yl/should_i_write_a_negative_review_for_this_person/) [confused](https://www.reddit.com/r/couchsurfing/comments/fczu80/when_to_write_a_bad_review/) about when to write negative reviews, especially in situations where they are made to feel uncomfortable, but nothing has happened which could be objectively and undoubtedly pointed to for concrete evidence. In many situations, they might not leave a review, or sometimes even leave a good review. There is encouragement for people to use negative or neutral reviews more, but [incentives were never aligned to make them commonly used](https://www.reddit.com/r/couchsurfing/comments/214p4j/anyone_else_a_little_bothered_by_the_review/cg9mcq1/). The topic of the review system [being broken](https://www.reddit.com/r/couchsurfing/comments/bjsv7h/the_reference_system_of_cs_looks_somehow_broken/) comes up frequently, and has led people to [not trust reviews](https://www.reddit.com/r/couchsurfing/comments/adlq58/recent_experiences_with_good_profiles_are_making/) to judge users, even if they [have many of them](https://www.reddit.com/r/couchsurfing/comments/7nzrxv/confused_about_people_who_had_bad_experiences/).
 
+
+(review with how I explained it to Marlies)
+
 When CouchSurfing merged verification with its monetization method, it altered the meaning of verification. Currently, if someone has a 'verified' tag next to their name, it just means they have paid for the upgraded version of CouchSurfing, or earned it through hosting. Conversely, someone who doesn't pay cannot be verified, which is around 95% of the users. This has in effect removed verification as a method of trust.
 
+
 You need trust for the communities and the users, not for the profits. The site has been fine generating revenue (pre-coronavirus) as it mostly relies on new signups. The profit incentives work to get people onto the site, but not improve the experience once they're on it. The erosion of trust has been fine for CouchSurfing as a company, but not for the health and longetivity of its communities.
+
+(Advertising relies on people staying on the app, we may not necessarily want that)

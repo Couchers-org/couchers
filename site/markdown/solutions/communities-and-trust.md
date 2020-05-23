@@ -1,3 +1,6 @@
+---
+title: Communities and Trust
+---
 
 
 # Verification
