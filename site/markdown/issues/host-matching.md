@@ -2,11 +2,12 @@
 title: Host Matching and the Super-Host Effect
 ---
 
-S-H Effect
-Feedback loop:
- - 95% of users have limitted messages, so they are incentivised to message high-rated accounts
- - The high-rated accounts grow in ratings
- - other hosts receive far less requests and so become inactive
- - The host pool shrinks and the community is damaged
+There is a prevalence of super-hosts on the CouchSurfing platform, which are hosts in certain areas that have far more reviews than other hosts. While very active hosts can be extremely beneficial for the community, when combined with the message restrictions of 10 per week for 95% of the users and the host matching system, the effect is detrimental. Here's how it works.
 
-Host distribution 
+A surfer is looking for a host in a new city for two nights, but she is restricted to only sending 10 messages per week so she might only send three or so messages to potential hosts. To maximise her chance of getting an offer to stay, she only messages hosts who are active and have a lot of references. Someone agrees to host her, great! 
+
+What happens here though is that it incentivises surfers into only contacting well-established hosts, which makes them even more established. New hosts find it harder to start hosting and hosts with less references drop out of the community as they get less and less requests. The host pool shrinks to just a small handfull of super-hosts. With less people in the community, there are also less organised events. In the worst cases, [predatory hosts](/issues/creeps-and-freeloaders) gain a foothold, reducing communities to only a small group of male hosts who exclusively host young, attractive women.
+
+What's important to look at here is the host distribution in each city. In the super-host case, there are a small group of people who do most of the hosting. However in a healthy community, there should be a much more even spread of surfers throughout the hosts, which would promote more hosts to be active and so a larger active community. CouchSurfing has not done much to address this and try to incentivise healthy communities. This is likely because addressing it would involve removing the message restrictions which is a key part of their revenue stream.
+
+The host matching system also encourages the super-host effect. The current system is largely built on the number of reviews a person has. While [number of reviews isn't and is not considered a good measure of trust or community standing](/issues/creeps-and-freeloaders), it is the only information that users have access to. Mix in a [poorly built filter system](/issues/the-build), and that acounts for most of how surfers find hosts. If there were metrics other than reviews that users could use, it would mean that number of reviews were less important and so there would be less steepening of the host distribution. Other metrics could be used such as shared values and community standing from a broader range of activities (hosting/surfing/organising/hangouts etc.).
