@@ -1,3 +1,0 @@
----
-title: Profit and Incentives
----
