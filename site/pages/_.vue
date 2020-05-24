@@ -11,8 +11,8 @@
 
 <script>
 export default {
-    async asyncData({params}) {
-        return await import(`@/markdown/solutions/${params.markdown}.md`)
-    }
+  async asyncData({params}) {
+    return await import(`@/markdown/${params.pathMatch}.md`)
+  }
 }
 </script>
