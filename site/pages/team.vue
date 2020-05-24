@@ -7,7 +7,9 @@
             The OpenDoors team
           </h1>
           <h2 class="subtitle">
-            We are a group of software engineers, ML, math, community memebers...
+            We are a group of hosts and surfers who are also a mix of software engineers, data scientists, mathematicians and experienced community members and leaders. We've all gotten a lot of joy out ofcouch surfing and would like to make that experience even better.
+
+We'd love to have you on the team, whether you have an expertise, some great ideas, or just want to see this done right.
           </h2>
         </div>
       </div>
@@ -15,7 +17,6 @@
     <section class="section">
       <div class="container">
         <h2 class="title is-2">Who we are</h2>
-        <p class="content">We aren't just a bunch of randos of the internet. We promise.</p>
         <div class="columns">
           <div class="column">
             <div class="card">
@@ -38,8 +39,9 @@
                 </div>
 
                 <div class="content">
-                  Itsi is a pretty badass dude. <a href="https://github.com/itsiw">@itsiw</a> on GitHub.<br />
-                  Some fun info regarding CouchSurfing and travel...
+                  Itsi is a data scientist and community organiser from Sydney, Australia. He has tons of experience in community and event management in non-profits. He has mathematical expertise in network effects and game theory, and has taught mathematical modelling at the Melbourne Business School. 
+
+First time couchsurfing: Pueabla, Mexico. My host took me to a birthday party to meet all her friends. They found out I hadn't had proper Mexican tequila yet and thought it was their duty to correct that.<a href="https://github.com/itsiw">@itsiw</a> on GitHub.<br />
                 </div>
               </div>
             </div>
