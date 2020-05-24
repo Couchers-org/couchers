@@ -6,7 +6,7 @@ title: Communities and Trust
 
 In the couch-surfing world, we have the global community and many local communities that have sprung up. The aim should be to foster more couch-surfing by serving and growing the global community while creating and enlarging local communities. We want more people sharing the value of non-transactional experiences globally, and more people connecting and feeling like they belong to local communities, whether they be where they live, where they visit, groups they stay in touch with or any others that grow.
 
-The first step in this process is opening communication channels with the global community, and committing to keeping them open. That involves directly allowing the public to input ideas and steer decision making. It also involves going through the thousands of articles and forum posts that have already been written by members of other couch-surfing services, and incorporating their complaints and ideas.
+The first step in this process is opening communication channels with the global community, and committing to keeping them open. That involves directly allowing the public to input ideas and steer decision making. It also involves going through the thousands of articles and forum posts that have already been written by members of other couch-surfing services and incorporating their complaints and ideas.
 
 # Improving trust
 
@@ -18,7 +18,7 @@ We strongly believe in user privacy, and so we designed a verification system th
 
 As a new, unverified member, you will have the opportunity to meet other members through the platform. Many users will not agree to let you host or surf with them, but it will be easy enough to meet other members at hangouts and events. When you meet new people, you may explain to them that you are a new member, and if they agree to verify you, you may show them a form of ID. That member will scan a QR phone from your app to verify that the ID is yours, what type of ID it is, and record the last few digits on your ID.
 
-Having a community member verify your account willadd some percentage to your verification score, and you can repeat this a couple more times and other events and hangouts, preferably with different IDs. Your score will increase more if
+Having a community member verify your account will add some percentage to your verification score, and you can repeat this a couple more times and other events and hangouts, preferably with different IDs. Your score will increase more if
  - The verification score of the member verifying you is 100%
  - The ID you've presented is different than another you've presented before
  - The member verifying you is from a different city and does not know the people that have verified you before
@@ -32,6 +32,6 @@ Users should be able to trust that other users are who they say they are. This i
 
 CouchSurfing smashed together their verification and payment methods in a way that disincentivised verification and [undermined trust in the community](/issues/communities-and-trust). By reseparating verification and stressing its importance, it will be utilised as an important element of trust in our platform. 
 
-Having members verify each other in person means we can keep information offline, apart from a few digits to uniquely tag the piece of ID for future reference to other IDs. Having the verification increase dependent on the member performing the verification will be able to anchor the network to a verified hub through all the verification actions. Prefering separate IDs makes it easier for real people to be verified faster, while making it harder for people with fake IDs.
+Having members verify each other in person means we can keep information offline, apart from a few digits to uniquely tag the piece of ID for future reference to other IDs. Having the verification increase dependent on the member performing the verification will be able to anchor the network to a verified hub through all the verification actions. Preferring separate IDs makes it easier for real people to be verified faster while making it harder for people with fake IDs.
 
-Critically, it will be necessary for people from different parts of the global network to verify a new user. We need cross-polination from different communities. This prevents people from making 50 new accounts that all verify each other, as that would form a closed network, resulting in a small verification score. An account that is verified by well trusted people from different places is much more likely to be a real person.
+Critically, it will be necessary for people from different parts of the global network to verify a new user. We need cross-pollination from different communities. This prevents people from making 50 new accounts that all verify each other, as that would form a closed network, resulting in a small verification score. An account that is verified by well-trusted people from different places is much more likely to be a real person.
