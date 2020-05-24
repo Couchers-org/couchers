@@ -66,10 +66,7 @@ export default {
     extend (config, ctx) {
       config.module.rules.push({
         test: /\.md$/,
-        loader: 'frontmatter-markdown-loader',
-        options: {
-          name: '[path][name].[ext]'
-        }
+        loader: 'frontmatter-markdown-loader'
       })
     }
   }
