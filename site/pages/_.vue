@@ -11,8 +11,12 @@
 
 <script>
 export default {
-  async asyncData({params}) {
-    return await import(`@/markdown/${params.pathMatch}.md`)
+  async asyncData({params, error}) {
+    try {
+      return await import(`@/markdown/${params.pathMatch}.md`)
+    } catch (err) {
+      error({ statusCode: 404, message: 'Page not found' })
+    }
   }
 }
 </script>
