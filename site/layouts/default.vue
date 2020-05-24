@@ -31,6 +31,9 @@
               <a href="/issues/communities-and-trust" class="navbar-item">
                 Communities and Trust
               </a>
+              <a href="/issues/reviews" class="navbar-item">
+                The Review System
+              </a>
               <a href="/issues/creeps-and-freeloaders" class="navbar-item">
                 Creeps and Freeloaders
               </a>
@@ -38,6 +41,33 @@
                 Host Matching
               </a>
               <a href="/issues/the-build" class="navbar-item">
+                The Build
+              </a>
+            </div>
+          </div>
+
+          <div class="navbar-item has-dropdown is-hoverable">
+            <a class="navbar-link">
+              Our solutions
+            </a>
+
+            <div class="navbar-dropdown">
+              <a href="/solutions/profit-and-incentives" class="navbar-item">
+                Profit and Incentives
+              </a>
+              <a href="/solutions/communities-and-trust" class="navbar-item">
+                Communities and Trust
+              </a>
+              <a href="/solutions/reviews" class="navbar-item">
+                The Review System
+              </a>
+              <a href="/solutions/creeps-and-freeloaders" class="navbar-item">
+                Creeps and Freeloaders
+              </a>
+              <a href="/solutions/host-matching" class="navbar-item">
+                Host Matching
+              </a>
+              <a href="/solutions/the-build" class="navbar-item">
                 The Build
               </a>
             </div>
