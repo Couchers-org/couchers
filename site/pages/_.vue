@@ -13,7 +13,11 @@
 export default {
   async asyncData({params, error}) {
     try {
-      return await import(`@/markdown/${params.pathMatch}.md`)
+      let filename = params.pathMatch
+      if (filename.substring(filename.length - 1) === "/") {
+        filename = filename.substring(0, filename.length - 1)
+      }
+      return await import(`@/markdown/${filename}.md`)
     } catch (err) {
       error({ statusCode: 404, message: 'Page not found' })
     }
