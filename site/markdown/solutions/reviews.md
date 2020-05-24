@@ -1,5 +1,5 @@
 ---
-title: Community Standing: Improving the Reference System
+title: "Community Standing: Improving the Reference System"
 ---
 
 Trust is critical to couch-surfing communities. Our trust model is based on two important measurements on all users' profiles: Community Verification and Community Standing. Community Standing tells users how beneficial you are for the community and indicates if people have found you safe to be around. Verification tells users whether to trust who you say you are, [and you can read about the new verification system here](/solutions/communities-and-trust).
