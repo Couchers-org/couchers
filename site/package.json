@@ -9,7 +9,10 @@
     "build": "nuxt build",
     "start": "nuxt start",
     "generate": "nuxt generate",
-    "lint": "eslint --ext .js,.vue --ignore-path .gitignore ."
+    "lint": "eslint --ext .js,.vue --ignore-path .gitignore .",
+    "css-build": "node-sass --omit-source-map-url assets/sass/styles.scss static/css/styles.css",
+    "css-watch": "yarn css-build -- --watch",
+    "generate-all": "yarn css-build && yarn generate"
   },
   "dependencies": {
     "@nuxtjs/bulma": "^1.2.1",
@@ -23,6 +26,8 @@
     "@nuxtjs/eslint-module": "^1.0.0",
     "babel-eslint": "^10.0.1",
     "eslint": "^6.1.0",
-    "eslint-plugin-nuxt": ">=0.4.2"
+    "eslint-plugin-nuxt": ">=0.4.2",
+    "node-sass": "^4.14.1",
+    "sass-loader": "^8.0.2"
   }
 }
