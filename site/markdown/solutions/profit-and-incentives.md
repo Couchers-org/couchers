@@ -25,9 +25,9 @@ We hope to attract donations from users of this platform. Many users of CouchSur
 We may be able to find organisations or government programs that give grants to non-profits. However, they may prove extremely difficult to find, require substantial effort and time to secure, require some fulfilment by the platform, and may just be a one-off payment.
 
 
-### Advertising and selling user data
+### Advertising
 
-An option available is to run ads on the website and phone apps. This is a common approach for many free online services because it is a predictable, reliable income stream. The downsides are that it interferes to some degree with the usability of the service, ads are annoying, and companies trying to get users' money runs against the ethos of couch-surfing. Similarly, user data could be sold to advertising companies. There is a slightly worrying clash of incentives here in that advertising revenue increases with the time that users spend on the app, whereas that is not a goal of this platform, and may even run counter to its goals.
+An option available is to run ads on the website and phone apps. This is a common approach for many free online services because it is a predictable, reliable income stream. The downsides are that it interferes to some degree with the usability of the service, ads are annoying, and companies trying to get users' money runs against the ethos of couch-surfing. There is a slightly worrying clash of incentives here in that advertising revenue increases with the time that users spend on the app, whereas that is not a goal of this platform, and may even run counter to its goals.
 
 
 ### Co-operative structure

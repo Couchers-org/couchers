@@ -1,5 +1,5 @@
 ---
-title: Communities and Trust
+title: Community-first Structure and Improved Verification
 ---
 
 # Focusing on communities

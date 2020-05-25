@@ -1,5 +1,5 @@
 ---
-title: Improving Women's Safety and Filtering Out Freeloaders
+title: Improving Members' Safety and Filtering Out Freeloaders
 ---
 
 Three key safety features will be built into the platform: accountability, informed choice, and education. Actively policing members leads to all kinds of issues and isn't scalable. Rather, we will empower the community to moderate itself.

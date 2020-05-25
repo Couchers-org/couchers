@@ -17,6 +17,8 @@
         <div class="container">
           <h2 class="title is-2">What's this all about?</h2>
           <p class="content"> We are a group of couch-surfers who are commited to building a new online platform for the couch-surfing community. We aim to build you a product that is community focussed and non-profit, and with an emphasis on being useful, modern, well-built and able to evolve based on the community's needs. Our intention is to become the most popular hospitality exchange platform, scaling appropriately to introduce new members properly into the community.</p>
+          <p class="content"> This is verion 0 of our platform. Here we will explain in detail what we believe is wrong with CouchSurfing as the world's largest hospitality exchange platform, and our solutions for fixing it.</p>
+          <p class="content"> [Sign-up to volunteer here](/signup)</p>
         </div>
       </section>
       <section class="section">
@@ -30,7 +32,7 @@
                   <article class="tile is-child notification is-primary">
                     <p class="subtitle">Problem</p>
                     <p><a class="title" href = "/issues/profit-and-incentives">Profit incentives</a></p>
-                    <p class="content">CouchSurfing needs to prioritise returns for investors at the expense of the community.</p>
+                    <p class="content">CouchSurfing needs to prioritise returns for investors at the expense of the community</p>
                     <p class="subtitle">Our Answer</p>
                     <p><a class="title" href = "/solutions/profit-and-incentives">Non-profit structure</p>
                     <p class="content">We will be a non-profit and explore various revnue models. There are many successful non-profits. We do not need investors.</p>
@@ -40,10 +42,10 @@
                   <article class="tile is-child notification is-link">
                     <p class="subtitle">Problem</p>
                     <p><a class="title" href = "/issues/communities-and-trust">Damaged communities</a></p>
-                    <p class="content">The community has been ignored, too many users have been pushed onto the platform, trust between members has been eroded.</p>
+                    <p class="content">The community has been ignored, too many users pushed onto the platform, trust between members has been eroded.</p>
                     <p class="subtitle">Our Answer</p>
                     <p><a class="title" href = "/solutions/communities-and-trust">Community-first structure</p>
-                    <p class="content">We will prioritise community at the foundation, and improve trust through an improved verification and reference system.</p>
+                    <p class="content">Prioritise community at the foundation, improve trust with an improved verification and reference system.</p>
                   </article>
                 </div>
                 <div class="tile is-parent">
@@ -53,17 +55,17 @@
                     <p class="content">There are far too many bugs and problems with the CouchSurfing platform</p>
                     <p class="subtitle">Our Answer</p>
                     <p><a class="title" href = "/solutions/the-build">Build it right</p>
-                    <p class="content">Our platform is developer-led. We will build this right, make it scalable, and listen to the community to fix bugs.</p>
+                    <p class="content">Our platform is developer-led. We will build this right, make it scalable, and listen to the community to fix bugs</p>
                   </article>
                 </div>
                 <div class="tile is-parent">
                   <article class="tile is-child notification is-warning">
                     <p class="subtitle">Problem</p>
                     <p><a class="title" href = "/issues/creeps-and-freeloaders">Safety and freeloaders</a></p>
-                    <p class="content">There is a widespread safety issue, especially for women, with predatory users using the platfom for sex. Freeloaders abound.</p>
+                    <p class="content">There is a widespread safety issue, especially for women, with predatory users using the platfom for sex. Freeloaders abound</p>
                     <p class="subtitle">Our Answer</p>
-                    <p><a class="title" href = "/solutions/creeps-and-freeloaders">Community-first structure</p>
-                    <p class="content">We will institute public accountability, so members will know who they can trust, and the community can filter out detrimental people.</p>
+                    <p><a class="title" href = "/solutions/creeps-and-freeloaders">Accountability</p>
+                    <p class="content">Institute public accountability: members will know who they can trust, the community can filter out detrimental people</p>
                   </article>
                 </div>
               </div>
@@ -75,7 +77,7 @@
                     <p class="content">Local communities have been shrinking to just small groups of super-hosts (it's not their fault)</p>
                     <p class="subtitle">Our Answer</p>
                     <p><a class="title" href = "/solutions/host-matching">Better host finding</p>
-                    <p class="content">Incentivise spread out hosting in each city, remove the message cap.</p>
+                    <p class="content">Incentivise spread out hosting in each city, remove the message cap</p>
                   </article>
                 </div>
 		<div class="tile is-parent">
@@ -85,7 +87,7 @@
                     <p class="content">The reference system doesn't work as a way to trust people</p>
                     <p class="subtitle">Our Answer</p>
                     <p><a class="title" href = "/solutions/reviews">Community standing</p>
-                    <p class="content">A new score that more reflects if people are trustworthy and good for the community. Anonymous reviews. Destigmatise negative reviews.</p>
+                    <p class="content">Anonymous reviews, destigmatise negative reviews, a new score that more reflects if people are trustworthy and good for the community</p>
                   </article>
                 </div>
               </div>
