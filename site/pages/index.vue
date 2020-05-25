@@ -17,7 +17,7 @@
         <div class="container">
           <h2 class="title is-2">What's this all about?</h2>
           <p class="content">We are a group of couch-surfers who are commited to building a new online platform for the couch-surfing community. We aim to build you a product that is community focussed and non-profit, and with an emphasis on being useful, modern, well-built and able to evolve based on the community's needs. Our intention is to become the most popular hospitality exchange platform, scaling appropriately to introduce new members properly into the community.</p>
-          <p class="content">This is verion 0 of our platform. Here we will explain in detail what we believe is wrong with CouchSurfing as the biggest player, and our solutions for fixing it. We are actively looking for volunteers with a wide range of experience and expertise. If seeing this come to life interests you, you think you could contribute, or you just want to see it done right, please sign up.</p>
+          <p class="content">This is version 0 of our platform. Here we will explain in detail what we believe is wrong with CouchSurfing as the biggest player, and our solutions for fixing it. We are actively looking for volunteers with a wide range of experience and expertise. If seeing this come to life interests you, you think you could contribute, or you just want to see it done right, please sign up.</p>
           <p><a class="button is-primary is-medium" href="/signup">Sign up</a></p>
         </div>
       </section>
@@ -32,7 +32,7 @@
                   <article class="tile is-child notification is-success">
                     <p class="subtitle">Our plan</p>
                     <h3 class="title is-3"><a href="/solutions/profit-and-incentives">Non-profit structure</a></h3>
-                    <p class="content">We will be a non-profit and explore various revnue models. There are many successful non-profits. We do not need investors.</p>
+                    <p class="content">We will be a non-profit and explore various revenue models. There are many successful non-profits. We do not need investors.</p>
                     <p class="subtitle">To fix</p>
                     <h3 class="title is-3"><a href="/issues/profit-and-incentives">Profit incentives</a></h3>
                     <p class="content">CouchSurfing needs to prioritise returns for investors at the expense of the community.</p>
