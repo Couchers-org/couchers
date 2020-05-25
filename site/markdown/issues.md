@@ -28,7 +28,7 @@ There are countless bugs and problems with the platform that we've gotten used t
 
 There are many people on the platform that leach on or are detrimental to the community. Mostly creeps and freeloaders. There is a safety problem for members, especially women. There is a lack of accountability so users get away with being sexually aggressive or taking advantage of hosts.
 
-### [The reference system is broken](/issues/reviews)
+### [The broken reference system](/issues/reviews)
 
 The reference system currently isn't a great way to work out who is trustable. It discourages negative reviews, so everyone looks equally positive. It's hard to work out who's an awesome member of the community and who's a creep.
 
