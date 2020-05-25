@@ -33,40 +33,40 @@
                 <div class="tile is-parent">
                   <article class="tile is-child notification is-primary">
                     <p class="subtitle">Problem</p>
-                    <p><a class="title" href = "/issues/profit-and-incentives">Profit incentives</a></p>
+                    <p><a class="title" href="/issues/profit-and-incentives">Profit incentives</a></p>
                     <p class="content">CouchSurfing needs to prioritise returns for investors at the expense of the community</p>
                     <p class="subtitle">Our Answer</p>
-                    <p><a class="title" href = "/solutions/profit-and-incentives">Non-profit structure</p>
+                    <p><a class="title" href="/solutions/profit-and-incentives">Non-profit structure</a></p>
                     <p class="content">We will be a non-profit and explore various revnue models. There are many successful non-profits. We do not need investors.</p>
                   </article>
                 </div>
                 <div class="tile is-parent">
                   <article class="tile is-child notification is-link">
                     <p class="subtitle">Problem</p>
-                    <p><a class="title" href = "/issues/communities-and-trust">Damaged communities</a></p>
+                    <p><a class="title" href="/issues/communities-and-trust">Damaged communities</a></p>
                     <p class="content">The community has been ignored, too many users pushed onto the platform, trust between members has been eroded</p>
                     <p class="subtitle">Our Answer</p>
-                    <p><a class="title" href = "/solutions/communities-and-trust">Community-first structure</p>
+                    <p><a class="title" href="/solutions/communities-and-trust">Community-first structure</a></p>
                     <p class="content">Prioritise community at the foundation, improve trust with an improved verification and reference system</p>
                   </article>
                 </div>
                 <div class="tile is-parent">
                   <article class="tile is-child notification is-danger">
                     <p class="subtitle">Problem</p>
-                    <p><a class="title" href = "/issues/the-build">The bugs and app issues</a></p>
+                    <p><a class="title" href="/issues/the-build">The bugs and app issues</a></p>
                     <p class="content">There are far too many bugs and problems with the CouchSurfing platform</p>
                     <p class="subtitle">Our Answer</p>
-                    <p><a class="title" href = "/solutions/the-build">Build it right</p>
+                    <p><a class="title" href="/solutions/the-build">Build it right</a></p>
                     <p class="content">Our platform is developer-led. We will build this right, make it scalable, and listen to the community to fix bugs</p>
                   </article>
                 </div>
                 <div class="tile is-parent">
                   <article class="tile is-child notification is-warning">
                     <p class="subtitle">Problem</p>
-                    <p><a class="title" href = "/issues/creeps-and-freeloaders">Safety and freeloaders</a></p>
+                    <p><a class="title" href="/issues/creeps-and-freeloaders">Safety and freeloaders</a></p>
                     <p class="content">There is a widespread safety issue, especially for women, with predatory users using the platfom for sex. Freeloaders abound.</p>
                     <p class="subtitle">Our Answer</p>
-                    <p><a class="title" href = "/solutions/creeps-and-freeloaders">Member accountability</p>
+                    <p><a class="title" href="/solutions/creeps-and-freeloaders">Member accountability</a></p>
                     <p class="content">Institute public accountability: members will know who they can trust, the community can filter out detrimental people</p>
                   </article>
                 </div>
@@ -74,10 +74,10 @@
 		<div class="tile is-parent">
                   <article class="tile is-child notification is-danger">
                     <p class="subtitle">Problem</p>
-                    <p><a class="title" href = "/issues/reviews">Disfunctional reference system</a></p>
+                    <p><a class="title" href="/issues/reviews">Disfunctional reference system</a></p>
                     <p class="content">The reference system doesn't work as a way to trust people</p>
                     <p class="subtitle">Our Answer</p>
-                    <p><a class="title" href = "/solutions/reviews">Improved review system</p>
+                    <p><a class="title" href="/solutions/reviews">Improved review system</a></p>
                     <p class="content">Anonymous reviews, destigmatise negative reviews, a new score that more reflects if people are trustworthy and good for the community</p>
                   </article>
                 </div>
@@ -85,10 +85,10 @@
                 <div class="tile is-parent">
                   <article class="tile is-child notification is-success">
                     <p class="subtitle">Problem</p>
-                    <p><a class="title" href = "/issues/host-matching">Super-host effect</a></p>
+                    <p><a class="title" href="/issues/host-matching">Super-host effect</a></p>
                     <p class="content">Local communities have been shrinking to just small groups of super-hosts (it's not their fault)</p>
                     <p class="subtitle">Our Answer</p>
-                    <p><a class="title" href = "/solutions/host-matching">Better host finding</p>
+                    <p><a class="title" href="/solutions/host-matching">Better host finding</a></p>
                     <p class="content">Incentivise spread out hosting in each city, remove the message cap</p>
                   </article>
                 </div>
