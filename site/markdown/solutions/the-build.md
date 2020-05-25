@@ -1,5 +1,5 @@
 ---
-title: The Build
+title: Building it Right
 ---
 
 We have yet to finalised the full software architecture, but the general plan is to use proven technologies to build a robust, scalable design that will maximise developer velocity while allowing us to optimise the physical backend configuration to reduce hosting costs. We will implement this with modern development practices such as code review, unit testing, and CI/CD to minimise both the number of bugs that slip into the codebase, as well as allowing a larger number of less experienced developers to contribute small bugfixes and features.

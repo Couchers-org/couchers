@@ -1,5 +1,5 @@
 ---
-title: Communities and Trust
+title: Community-first Structure and Improved Verification
 ---
 
 # Focusing on communities
@@ -7,6 +7,8 @@ title: Communities and Trust
 In the couch-surfing world, we have the global community and many local communities that have sprung up. The aim of a platform for couch-surfers ought to be to foster the very act of couch-surfing by serving and growing the global community while creating and enlarging local communities. Our hope is to facilitate more people joining and sharing the value of non-transactional experiences globally, and more people ocnnecting and feeling like they belong to their local communities. These communities grow out of many purposes, some are formed based on where we live, some by where we travel, and some communities form as we stay in touch with other after travels and grow together.
 
 The first step in this process is opening communication channels with the global community, and committing to keeping them open. That involves directly allowing the public to put forward their ideas and steer the decision making process. It also involves going through and studying the countless articles and forum posts that have already been written by members CouchSurfing and of other services, incorporating their complaints and ideas into a combined solution.
+
+We aim to incorporate the community into the structure of this platform through its [governance structure](/governance).
 
 # Improving trust
 

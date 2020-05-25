@@ -1,5 +1,5 @@
 ---
-title: Women's Safety and Freeloaders
+title: Member Safety and Freeloaders
 ---
 
 **Note: this article discussed predatory behaviour, sexual assault and harassment.**
