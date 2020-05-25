@@ -33,30 +33,30 @@
                 <div class="tile is-parent">
                   <article class="tile is-child notification is-primary">
                     <p class="subtitle">Our plan</p>
-                    <p><a class="title" href="/solutions/profit-and-incentives">Non-profit structure</a></p>
+                    <h3 class="title is-3"><a href="/solutions/profit-and-incentives">Non-profit structure</a></h3>
                     <p class="content">We will be a non-profit and explore various revnue models. There are many successful non-profits. We do not need investors.</p>
                     <p class="subtitle">To fix</p>
-                    <p><a class="title" href="/issues/profit-and-incentives">Profit incentives</a></p>
+                    <h3 class="title is-3"><a href="/issues/profit-and-incentives">Profit incentives</a></h3>
                     <p class="content">CouchSurfing needs to prioritise returns for investors at the expense of the community</p>
                   </article>
                 </div>
                 <div class="tile is-parent">
                   <article class="tile is-child notification is-link">
                     <p class="subtitle">Our plan</p>
-                    <p><a class="title" href="/solutions/communities-and-trust">Community-first structure</a></p>
+                    <h3 class="title is-3"><a href="/solutions/communities-and-trust">Community-first structure</a></h3>
                     <p class="content">Prioritise community at the foundation, improve trust with an improved verification and reference system</p>
                     <p class="subtitle">To fix</p>
-                    <p><a class="title" href="/issues/communities-and-trust">Neglected communities</a></p>
+                    <h3 class="title is-3"><a href="/issues/communities-and-trust">Neglected communities</a></h3>
                     <p class="content">The community has been ignored, too many users pushed onto the platform, trust between members has been eroded</p>
                   </article>
                 </div>
                 <div class="tile is-parent">
                   <article class="tile is-child notification is-danger">
                     <p class="subtitle">Our plan</p>
-                    <p><a class="title" href="/solutions/the-build">Build it right</a></p>
+                    <h3 class="title is-3"><a href="/solutions/the-build">Build it right</a></h3>
                     <p class="content">Our platform is developer-led. We will build this right, make it scalable, and listen to the community to fix bugs</p>
                     <p class="subtitle">To fix</p>
-                    <p><a class="title" href="/issues/the-build">The bugs and app issues</a></p>
+                    <h3 class="title is-3"><a href="/issues/the-build">The bugs and app issues</a></h3>
                     <p class="content">There are far too many bugs and problems with the CouchSurfing platform</p>
                   </article>
                 </div>
@@ -65,30 +65,30 @@
                 <div class="tile is-parent">
                   <article class="tile is-child notification is-warning">
                     <p class="subtitle">Our plan</p>
-                    <p><a class="title" href="/solutions/creeps-and-freeloaders">Member accountability</a></p>
+                    <h3 class="title is-3"><a href="/solutions/creeps-and-freeloaders">Member accountability</a></h3>
                     <p class="content">Institute public accountability: members will know who they can trust, the community can filter out detrimental people</p>
                     <p class="subtitle">To fix</p>
-                    <p><a class="title" href="/issues/creeps-and-freeloaders">Safety and freeloaders</a></p>
+                    <h3 class="title is-3"><a href="/issues/creeps-and-freeloaders">Safety and freeloaders</a></h3>
                     <p class="content">There is a widespread safety issue, especially for women, with predatory users using the platfom for sex. Freeloaders abound.</p>
                   </article>
                 </div>
                 <div class="tile is-parent">
                   <article class="tile is-child notification is-danger">
                     <p class="subtitle">Our plan</p>
-                    <p><a class="title" href="/solutions/reviews">Improved review system</a></p>
+                    <h3 class="title is-3"><a href="/solutions/reviews">Improved review system</a></h3>
                     <p class="content">Anonymous reviews, destigmatise negative reviews, a new score that more reflects if people are trustworthy and good for the community</p>
                     <p class="subtitle">To fix</p>
-                    <p><a class="title" href="/issues/reviews">Disfunctional reference system</a></p>
+                    <h3 class="title is-3"><a href="/issues/reviews">Disfunctional reference system</a></h3>
                     <p class="content">The reference system doesn't work as a way to trust people</p>
                   </article>
                 </div>
                 <div class="tile is-parent">
                   <article class="tile is-child notification is-success">
                     <p class="subtitle">Our plan</p>
-                    <p><a class="title" href="/solutions/host-matching">Better host finding</a></p>
+                    <h3 class="title is-3"><a href="/solutions/host-matching">Better host finding</a></h3>
                     <p class="content">Incentivise spread out hosting in each city, remove the message cap</p>
                     <p class="subtitle">To fix</p>
-                    <p><a class="title" href="/issues/host-matching">Super-host effect</a></p>
+                    <h3 class="title is-3"><a href="/issues/host-matching">Super-host effect</a></h3>
                     <p class="content">Local communities have been shrinking to just small groups of super-hosts (it's not their fault)</p>
                   </article>
                 </div>
