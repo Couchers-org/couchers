@@ -17,8 +17,8 @@
         <div class="navbar-start">
 
           <div class="navbar-item has-dropdown is-hoverable">
-            <a class="navbar-link">
-              CouchSurfing Issues
+            <a class="navbar-link" href="/issues/index">
+              CouchSurfing issues
             </a>
 
             <div class="navbar-dropdown">
@@ -44,7 +44,7 @@
           </div>
 
           <div class="navbar-item has-dropdown is-hoverable">
-            <a class="navbar-link">
+            <a class="navbar-link" href="solutions/index">
               Our difference
             </a>
 
