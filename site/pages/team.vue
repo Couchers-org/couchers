@@ -4,7 +4,7 @@
       <div class="hero-body">
         <div class="container">
           <h1 class="title is-1">
-            The OpenDoors team
+            The $SiteName team
           </h1>
           <h2 class="subtitle">
             We are a group of hosts and surfers who are also a mix of software engineers, data scientists, mathematicians and experienced community members and leaders. We've all gotten a lot of joy out of couch surfing and would like to make that experience even better.
