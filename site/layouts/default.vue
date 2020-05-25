@@ -18,7 +18,7 @@
 
           <div class="navbar-item has-dropdown is-hoverable">
             <a href="/solutions" class="navbar-link">
-              Our solutions
+              Our plan
             </a>
 
             <div class="navbar-dropdown">

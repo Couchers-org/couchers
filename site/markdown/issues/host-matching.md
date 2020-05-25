@@ -1,5 +1,5 @@
 ---
-title: Host Matching and the Super-Host Effect
+title: Host Finding and the Super-Host Effect
 ---
 
 There is a prevalence of super-hosts on the CouchSurfing platform. These are hosts which have far more references than other hosts in their area. While very active hosts can be extremely beneficial for the community, unfortunately when combined with the message restrictions (10 per week for 95% of the users) and the host matching system, the effect is detrimental and cause both "couch-surfing fatique" for the super-host, or other hosts not receiving any requests. Here's how it works.
