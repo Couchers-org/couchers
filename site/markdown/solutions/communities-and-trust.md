@@ -8,6 +8,8 @@ In the couch-surfing world, we have the global community and many local communit
 
 The first step in this process is opening communication channels with the global community, and committing to keeping them open. That involves directly allowing the public to input ideas and steer decision making. It also involves going through the thousands of articles and forum posts that have already been written by members of other couch-surfing services and incorporating their complaints and ideas.
 
+We aim to incorporate the community into the structure of this platform through its [governance structure](/governance).
+
 # Improving trust
 
 Communities are built on trust between people, especially in this setting. Our trust model is based on two important measurements: Community Verification and Community Standing. Community Standing tells users how beneficial you are for the community and indicates if people have found you safe to be around, [you can read about Community Standing here](/solutions/reviews). Verification tells users whether to trust who you say you are.

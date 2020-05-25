@@ -12,6 +12,8 @@ By [redesigning the review system](/solutions/reviews), we make users more likel
 
 Given that a member's score now accurately reflects their actions and holds them accountable, people can make informed choices. Everyone has different tolerances for what makes them uncomfortable or makes them feel unsafe, and so everyone can choose individually what members they choose to interact with by filtering by their score. Further, there will be the ability to filter by sub-community. For instance, women may want to see the community standing of a male host just amongst other female surfers. This way, predatory hosts can be filtered out of the community.
 
+There will still need to be [moderators](/governance) to deal with cases such as explicit harassment and assault. To prevent these kind of users from reentering the platform by creating a new account, we have introduced a better [verification system](/solutions/communities-and-trust).
+
 Similarly, if you receive a creepy message, you will be able to flag it which will reduce the users' score. You may filter messages able to be sent to you by score, eliminating creeps from your inbox.
 
 Education will be important and we are exploring how this will be implemented. The key messages to prominently get across is that the platform is not a dating or hook-up app and that people should be aware of the vulnerabilities and power imbalances that are created when people stay in each others' homes. This may take the form of messages that appear when signing up or displaying messages throughout the app. 
