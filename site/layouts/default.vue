@@ -17,7 +17,34 @@
         <div class="navbar-start">
 
           <div class="navbar-item has-dropdown is-hoverable">
-            <a class="navbar-link" href="/issues/index">
+            <a href="/solutions" class="navbar-link">
+              Our solutions
+            </a>
+
+            <div class="navbar-dropdown">
+              <a href="/solutions/profit-and-incentives" class="navbar-item">
+                Non-Profit Structure
+              </a>
+              <a href="/solutions/communities-and-trust" class="navbar-item">
+                Community-First Structure
+              </a>
+              <a href="/solutions/the-build" class="navbar-item">
+                Building it Right
+              </a>
+              <a href="/solutions/creeps-and-freeloaders" class="navbar-item">
+                Member Accountability
+              </a>
+              <a href="/solutions/reviews" class="navbar-item">
+                Improved Review System
+              </a>
+              <a href="/solutions/host-matching" class="navbar-item">
+                Better Host Finding
+              </a>
+            </div>
+          </div>
+
+          <div class="navbar-item has-dropdown is-hoverable">
+            <a href="/issues" class="navbar-link">
               CouchSurfing issues
             </a>
 
@@ -39,33 +66,6 @@
               </a>
               <a href="/issues/host-matching" class="navbar-item">
                 The Super-Host Effect
-              </a>
-            </div>
-          </div>
-
-          <div class="navbar-item has-dropdown is-hoverable">
-            <a class="navbar-link" href="solutions/index">
-              Our difference
-            </a>
-
-            <div class="navbar-dropdown">
-              <a href="/solutions/profit-and-incentives" class="navbar-item">
-                Non-Profit Structure
-              </a>
-              <a href="/solutions/communities-and-trust" class="navbar-item">
-                Community-First Structure
-              </a>
-              <a href="/solutions/the-build" class="navbar-item">
-                Building it Right
-              </a>
-              <a href="/solutions/creeps-and-freeloaders" class="navbar-item">
-                Member Accountability
-              </a>
-              <a href="/solutions/reviews" class="navbar-item">
-                Improved Review System
-              </a>
-              <a href="/solutions/host-matching" class="navbar-item">
-                Better Host Finding
               </a>
             </div>
           </div>
