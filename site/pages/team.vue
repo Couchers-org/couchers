@@ -7,7 +7,7 @@
             The OpenDoors team
           </h1>
           <h2 class="subtitle">
-            We are a group of hosts and surfers who are also a mix of software engineers, data scientists, mathematicians and experienced community members and leaders. We've all gotten a lot of joy out ofcouch surfing and would like to make that experience even better.
+            We are a group of hosts and surfers who are also a mix of software engineers, data scientists, mathematicians and experienced community members and leaders. We've all gotten a lot of joy out of couch surfing and would like to make that experience even better.
 
 We'd love to have you on the team, whether you have an expertise, some great ideas, or just want to see this done right.
           </h2>
