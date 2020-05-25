@@ -17,8 +17,10 @@
         <div class="container">
           <h2 class="title is-2">What's this all about?</h2>
           <p class="content"> We are a group of couch-surfers who are commited to building a new online platform for the couch-surfing community. We aim to build you a product that is community focussed and non-profit, and with an emphasis on being useful, modern, well-built and able to evolve based on the community's needs. Our intention is to become the most popular hospitality exchange platform, scaling appropriately to introduce new members properly into the community.</p>
-          <p class="content"> This is verion 0 of our platform. Here we will explain in detail what we believe is wrong with CouchSurfing as the world's largest hospitality exchange platform, and our solutions for fixing it.</p>
-          <p class="content"> [Sign up to volunteer here](/signup)</p>
+          <p class="content"> This is verion 0 of our platform. Here we will explain in detail what we believe is wrong with CouchSurfing as the biggest player, and our solutions for fixing it.</p>
+          <p><a class="button is-light" href = "/signup">
+          	<strong>Sign up</strong>
+          </a></p>
         </div>
       </section>
       <section class="section">

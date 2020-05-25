@@ -49,22 +49,22 @@
             </a>
 
             <div class="navbar-dropdown">
-              <a href="/issues/profit-and-incentives" class="navbar-item">
+              <a href="/solutions/profit-and-incentives" class="navbar-item">
                 Non-Profit Structure
               </a>
-              <a href="/issues/communities-and-trust" class="navbar-item">
+              <a href="/solutions/communities-and-trust" class="navbar-item">
                 Community-First Structure
               </a>
-              <a href="/issues/the-build" class="navbar-item">
+              <a href="/solutions/the-build" class="navbar-item">
                 Building it Right
               </a>
-              <a href="/issues/creeps-and-freeloaders" class="navbar-item">
-                User Accountability
+              <a href="/solutions/creeps-and-freeloaders" class="navbar-item">
+                Member Accountability
               </a>
-              <a href="/issues/reviews" class="navbar-item">
+              <a href="/solutions/reviews" class="navbar-item">
                 Improved Review System
               </a>
-              <a href="/issues/host-matching" class="navbar-item">
+              <a href="/solutions/host-matching" class="navbar-item">
                 Better Host Finding
               </a>
             </div>
