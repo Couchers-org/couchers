@@ -16,25 +16,24 @@
       <section class="section">
         <div class="container">
           <h2 class="title is-2">What's this all about?</h2>
-          <p class="content">A one-paragraph explanation of who we are and what we're about to do and why, etc.</p>
+          <p class="content"> We are a group of couch surfers who are commited to building a new online platform for the couch-surfing community. We aim to build you a product that is community focussed and non-profit, and with an emphasis on being useful, modern, well-built and able to evolve based on the community's needs.</p>
         </div>
       </section>
       <section class="section">
         <div class="container">
-          <h2 class="title is-2">The issues with CouchSurfing (these probably need logos?)</h2>
-          <p class="content">The current landscape for platforms and apps that facilitate couch-surfing across the world are lacking in several ways. Here's out analysis, along with our proposed solutions.</p>
+          <h2 class="title is-2">The key problems with CouchSurfing</h2>
+          <p class="content"> While CouchSurfing has brought us many positive experiences and we've stuck with it for years, it's no secret that it has its problems. Here are the main issues we think that it has, and our answers for how we could fix these through building something better.</p>
           <div class="tile is-ancestor">
             <div class="tile is-vertical">
               <div class="tile">
                 <div class="tile is-parent">
                   <article class="tile is-child notification is-primary">
-                    <p class="subtitle">Issue</p>
-                    <p class="title">Profit and Incentives</p>
-                    <p class="content">Short explanation of the problem</p>
-                    <p class="subtitle">The solution</p>
-                    <p class="title">Our solution to Profit and Incentives</p>
-                    <p class="content">Short explanation of the solution</p>
-                    <p><a class="button is-light is-link" href="/">Read our analysis</a></p>
+                    <p class="subtitle">Problem</p>
+                    <p><a class="title" href = "/issues/profit-and-incentives">Profit incentives</a></p>
+                    <p class="content">CouchSurfing needs to prioritise returns for investors at the expense of the community.</p>
+                    <p class="subtitle">Our Answer</p>
+                    <p><a class="title" href = "/solutions/profit-and-incentives">Non-profit structure</p>
+                    <p class="content">We will be a non-profit and explore various revnue models. There are many successful non-profits. We do not need investors.</p>
                   </article>
                 </div>
                 <div class="tile is-parent">
