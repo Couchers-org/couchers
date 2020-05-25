@@ -3,7 +3,7 @@
     <nav class="navbar is-fixed-top is-primary" role="navigation" aria-label="main navigation">
       <div class="navbar-brand">
         <a class="navbar-item" href="/">
-          OpenDoors
+          $SiteName
         </a>
 
         <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
@@ -94,7 +94,7 @@
     <footer class="footer">
       <div class="content has-text-centered">
         <p>
-          <strong>OpenDoors</strong> by <a href="/team">the <b>OpenDoors team</b></a>. The next iteration in couch-surfing.
+          <strong>$SiteName</strong> by <a href="/team">the <b>$SiteName team</b></a>. The next iteration in couch-surfing.
         </p>
       </div>
     </footer>
