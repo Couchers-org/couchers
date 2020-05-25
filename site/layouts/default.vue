@@ -15,63 +15,64 @@
 
       <div id="navbarBasicExample" class="navbar-menu">
         <div class="navbar-start">
-          <a class="navbar-item" href="/">
-            Home
-          </a>
 
           <div class="navbar-item has-dropdown is-hoverable">
             <a class="navbar-link">
-              Why OpenDoors?
+              CouchSurfing Issues
             </a>
 
             <div class="navbar-dropdown">
               <a href="/issues/profit-and-incentives" class="navbar-item">
-                Profit and Incentives
+                Profit Incentives
               </a>
               <a href="/issues/communities-and-trust" class="navbar-item">
-                Communities and Trust
-              </a>
-              <a href="/issues/reviews" class="navbar-item">
-                The Review System
-              </a>
-              <a href="/issues/creeps-and-freeloaders" class="navbar-item">
-                Creeps and Freeloaders
-              </a>
-              <a href="/issues/host-matching" class="navbar-item">
-                Host Matching
+                Damaged Communities
               </a>
               <a href="/issues/the-build" class="navbar-item">
-                The Build
+                The Bugs and App Issues
+              </a>
+              <a href="/issues/creeps-and-freeloaders" class="navbar-item">
+                Safety and Freeloaders
+              </a>
+              <a href="/issues/reviews" class="navbar-item">
+                The Reference System
+              </a>
+              <a href="/issues/host-matching" class="navbar-item">
+                The Super-Host Effect
               </a>
             </div>
           </div>
 
           <div class="navbar-item has-dropdown is-hoverable">
             <a class="navbar-link">
-              Our solutions
+              Our difference
             </a>
 
             <div class="navbar-dropdown">
-              <a href="/solutions/profit-and-incentives" class="navbar-item">
-                Profit and Incentives
+              <a href="/issues/profit-and-incentives" class="navbar-item">
+                Non-Profit Structure
               </a>
-              <a href="/solutions/communities-and-trust" class="navbar-item">
-                Communities and Trust
+              <a href="/issues/communities-and-trust" class="navbar-item">
+                Community-First Structure
               </a>
-              <a href="/solutions/reviews" class="navbar-item">
-                The Review System
+              <a href="/issues/the-build" class="navbar-item">
+                Building it Right
               </a>
-              <a href="/solutions/creeps-and-freeloaders" class="navbar-item">
-                Creeps and Freeloaders
+              <a href="/issues/creeps-and-freeloaders" class="navbar-item">
+                User Accountability
               </a>
-              <a href="/solutions/host-matching" class="navbar-item">
-                Host Matching
+              <a href="/issues/reviews" class="navbar-item">
+                Improved Review System
               </a>
-              <a href="/solutions/the-build" class="navbar-item">
-                The Build
+              <a href="/issues/host-matching" class="navbar-item">
+                Better Host Finding
               </a>
             </div>
           </div>
+
+          <a class="navbar-item" href="/faq">
+            FAQ
+          </a>
 
           <a class="navbar-item" href="/team">
             Our team
@@ -81,7 +82,7 @@
         <div class="navbar-end">
           <div class="navbar-item">
             <div class="buttons">
-              <a class="button is-light">
+              <a class="button is-light" href = "/signup">
                 <strong>Sign up</strong>
               </a>
             </div>
