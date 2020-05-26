@@ -14,5 +14,5 @@ phases:
       - yarn generate-all
   post_build:
     commands:
-      - cp -r dist ../build
+      - aws s3 sync dist/ s3://coucher.org
       - echo "Done."
