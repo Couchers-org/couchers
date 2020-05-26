@@ -191,7 +191,11 @@
 export default {
   head () {
     return {
-      title: "The team"
+      title: 'The team',
+      meta: [
+        { hid: 'og:title', name: 'og:title', content: 'The team' },
+        { hid: 'twitter:title', name: 'twitter:title', content: 'The team' },
+      ]
     }
   }
 }
