@@ -4,7 +4,7 @@
       <div class="hero-body">
         <div class="container">
           <h2 class="title is-2">
-            The $SiteName team
+            The Couchers.org team
           </h2>
           <p class="content">We are a group of hosts and surfers who are also a mix of software engineers, data scientists, mathematicians and experienced community members and leaders. We've all gotten a lot of joy out of couch surfing and would like to make that experience even better.</p>
 	  <p class="content">We are actively looking for people to join the team, we need a broad range of experiences and expertise. Please consider joining us, whether you have skills, ideas, complaints, or just want to see this done right.</p>
@@ -185,7 +185,7 @@
     </section>
     <section class="section">
       <h4 class="title is-4">Have skills you want to contribute?</h4>
-      <p class="subtitle is-6">$SiteName is a community project, build by folks like you for the benefit of the global couch-surfing community. If you would like to be a part of this great new project, or leave your feedback on our ideas, click the button below and fill out the short form.</p>
+      <p class="subtitle is-6">Couchers.org is a community project, build by folks like you for the benefit of the global couch-surfing community. If you would like to be a part of this great new project, or leave your feedback on our ideas, click the button below and fill out the short form.</p>
       <p><a class="button is-primary" href = "/signup">Join our team</a></p>
     </section>
   </div>

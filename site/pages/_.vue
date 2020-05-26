@@ -3,7 +3,7 @@
     <section class="section">
       <nav class="breadcrumb" aria-label="breadcrumbs">
         <ul>
-          <li><a href="/">$SiteName</a></li>
+          <li><a href="/">Couchers.org</a></li>
           <li v-for="item in breadcrumbs" :key="item.key">
             <a :href="item.path">{{ item.value }}</a>
           </li>
@@ -14,7 +14,7 @@
     </section>
     <section class="section">
       <h4 class="title is-4">Have some thoughts or ideas on how we could make this even better?</h4>
-      <p class="subtitle is-6">$SiteName is a community project, build by folks like you for the benefit of the global couch-surfing community. If you would like to be a part of this great new project, or leave your feedback on our ideas, click the button below and fill out the short form.</p>
+      <p class="subtitle is-6">Couchers.org is a community project, build by folks like you for the benefit of the global couch-surfing community. If you would like to be a part of this great new project, or leave your feedback on our ideas, click the button below and fill out the short form.</p>
       <p><a class="button is-primary" href = "/signup">Tell us what you think!</a></p>
     </section>
   </div>
@@ -35,7 +35,6 @@ export default {
     }
 
     const split_items = filename.split("/")
-    console.log(split_items)
     let items = []
     for (let i = 0; i < split_items.length; i++) {
       const item = split_items[i]
@@ -45,7 +44,6 @@ export default {
         path: (i == 0 ? "" : items[i-1].path) + "/" + item
       })
     }
-    console.log(items)
     return {...md, breadcrumbs: items }
   },
   head () {
