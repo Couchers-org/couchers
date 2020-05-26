@@ -22,7 +22,7 @@
             <div class="card">
               <div class="card-image">
                 <figure class="image is-3by3 headshot">
-                  <img src="/img/itsi-head.jpg" alt="Photo of Itsi with CouchSurfing friends">
+                  <img src="/img/itsi-friends.jpg" alt="Photo of Itsi with CouchSurfing friends">
                 </figure>
               </div>
               <div class="card-content">
