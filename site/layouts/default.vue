@@ -2,9 +2,7 @@
   <div>
     <nav class="navbar is-fixed-top is-primary" role="navigation" aria-label="main navigation">
       <div class="navbar-brand">
-        <a class="navbar-item" href="/">
-          Couchers.org
-        </a>
+        <a class="navbar-item brand" href="/">Couchers.org</a>
 
         <a role="button" class="navbar-burger burger" v-bind:class="{ 'is-active': burger_active }" v-on:click="toggle_burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
           <span aria-hidden="true"></span>
@@ -147,3 +145,9 @@ export default {
   }
 }
 </script>
+
+<style>
+.brand {
+  font-weight: 700;
+}
+</style>
