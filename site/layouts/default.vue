@@ -94,8 +94,9 @@
     <footer class="footer">
       <div class="content has-text-centered">
         <p>
-          <strong>$SiteName</strong> by <a href="/team">the <b>$SiteName team</b></a>. The next iteration in couch-surfing.
+          <strong>$SiteName</strong> by <a href="/team">the <b>$SiteName team</b></a>.
         </p>
+        <p>It's like CouchSurfing, but better.</p>
       </div>
     </footer>
   </div>
