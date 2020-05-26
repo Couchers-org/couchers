@@ -15,3 +15,5 @@ Many of us put up with the bugs and broken features since the community was so i
 **Our group includes developers with experience in architecting modern, production grade systems.** Read our [solutions page](/solutions/the-build) to learn about the architecture we've started to design and the core technical guidelines that we will use when building this new and exciting platform for the community.
 
 <a name="fn1">1</a>: There's probably not much value in linking to the numerous examples on the CouchSurfing forums, as people are locked out of their accounts.
+
+# Our plan to fix it: [Building it right](/solutions/the-build)

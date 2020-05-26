@@ -22,7 +22,7 @@
             <div class="card">
               <div class="card-image">
                 <figure class="image is-3by3 headshot">
-                  <img src="/img/itsi-head.jpg" alt="Photo of Itsi with CouchSurfing friends">
+                  <img src="/img/itsi-friends.jpg" alt="Photo of Itsi with CouchSurfing friends">
                 </figure>
               </div>
               <div class="card-content">
@@ -34,14 +34,14 @@
                   </div>
                   <div class="media-content">
                     <p class="title is-4">Itsi Weinstock</p>
-                    <p class="subtitle is-6">Community Organizer</p>
+                    <p class="subtitle is-6">Community Manager</p>
                   </div>
                 </div>
 
                 <div class="content">
-                  Itsi is a data scientist and community organiser from Sydney, Australia. He has tons of experience in community and event management in non-profits. He has mathematical expertise in network effects and game theory, and has taught mathematical modelling at the Melbourne Business School. 
+                  Itsi is a data scientist and community organiser from Sydney, Australia. He has years of leadership experience in community and event management in non-profits. He has mathematical expertise in networks, algorithms, and mathematical modelling. 
 
-                  First time couch-surfing: Puebla, Mexico. My host took me to a birthday party to meet all her friends. They found out I hadn't had proper Mexican tequila yet and thought it was their duty to correct that. <a href="https://github.com/itsiw">@itsiw</a> on GitHub.
+		  Random couch-surfing story: Zemo Alvani, Georgia. A man invites me for dinner while I wait for my host. I have to navigate drinking enough homemade wine to not be rude and not drinking too much for when I meet my host. Didn't go well but after a sleep-in we still managed to drive up a very dangerous road for hours to hang out with my host's cowboy buddies in the mountains. <a href="https://github.com/itsiw">@itsiw</a> on GitHub.
                 </div>
               </div>
             </div>
@@ -78,24 +78,24 @@
             <div class="card">
               <div class="card-image">
                 <figure class="image is-3by3 headshot">
-                  <img src="https://bulma.io/images/placeholders/480x480.png" alt="Photo of Itsi with CouchSurfing friends">
+                  <img src="/img/marlies-friends.jpg" alt="Photo of Marlies with CouchSurfing friends">
                 </figure>
               </div>
               <div class="card-content">
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-48x48">
-                      <img class="is-rounded" src="https://bulma.io/images/placeholders/128x128.png" alt="Headshot of Itsi">
+                      <img class="is-rounded" src="/img/marlies-head.jpg" alt="Headshot of Marlies">
                     </figure>
                   </div>
                   <div class="media-content">
-                    <p class="title is-4">Marlies</p>
+                    <p class="title is-4">Marlies Iserlohe</p>
                     <p class="subtitle is-6">Community Organizer</p>
                   </div>
                 </div>
 
                 <div class="content">
-                  ...
+		  Marlies is a grants administrator and global health student from Melbourne, Australia. She has backpacked through over 40 countries in her travels, spending the last year in South America learning Spanish and starting to appreciate why bananas go with every meal. Having been introduced to couch-surfing in 2015, Marlies loves being dragged into various activities in a new city and prides herself on being the host who introduced 2 surfers that are now engaged.
                 </div>
               </div>
             </div>
