@@ -14,5 +14,6 @@ phases:
       - yarn generate-all
   post_build:
     commands:
-      - aws s3 sync dist/ s3://couchers.org --acl public-read
+      - aws s3 sync dist/ s3://${BUCKET_NAME} --acl public-read
       - echo "Done."
+      - aws cloudfront create-invalidation --distribution-id "${DISTRIBUTION_ID}" --paths "/*"
