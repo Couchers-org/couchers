@@ -78,24 +78,24 @@
             <div class="card">
               <div class="card-image">
                 <figure class="image is-3by3 headshot">
-                  <img src="https://bulma.io/images/placeholders/480x480.png" alt="Photo of Itsi with CouchSurfing friends">
+                  <img src="/img/marlies-friends.jpg" alt="Photo of Marlies with CouchSurfing friends">
                 </figure>
               </div>
               <div class="card-content">
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-48x48">
-                      <img class="is-rounded" src="https://bulma.io/images/placeholders/128x128.png" alt="Headshot of Itsi">
+                      <img class="is-rounded" src="/img/marlies-head.jpg" alt="Headshot of Marlies">
                     </figure>
                   </div>
                   <div class="media-content">
-                    <p class="title is-4">Marlies</p>
+                    <p class="title is-4">Marlies Iserlohe</p>
                     <p class="subtitle is-6">Community Organizer</p>
                   </div>
                 </div>
 
                 <div class="content">
-                  ...
+		  Marlies is a grants administrator and global health student from Melbourne, Australia. She has backpacked through over 40 countries in her travels, spending the last year in South America learning Spanish and starting to appreciate why bananas go with every meal. Having been introduced to couch-surfing in 2015, Marlies loves being dragged into various activities in a new city and prides herself on being the host who introduced 2 surfers that are now engaged.
                 </div>
               </div>
             </div>
