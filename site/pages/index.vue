@@ -7,7 +7,7 @@
             $SiteName
           </h1>
           <h2 class="subtitle">
-            Some hipstery, catchy phrase or something.
+            Like CouchSurfing but better
           </h2>
         </div>
       </div>
@@ -15,18 +15,22 @@
     <div class="container">
       <section class="section">
         <div class="container">
-          <h2 class="title is-2">What's this all about?</h2>
-          <p class="content"> We are a group of couch-surfers who are commited to building a new online platform for the couch-surfing community that will always be free to use. We aim to build you a product that is community-focussed and non-profit, and with an emphasis on being useful, modern, well-built and able to evolve based on the community's needs. Our intention is to become the most popular hospitality exchange platform, scaling appropriately to introduce new members properly into the community.</p>
-          <p class="content"> This is version 0 of our platform. Here we will explain in detail what we believe is wrong with CouchSurfing as the current most popular platform, and our solutions for fixing it. We are actively looking for volunteers with a wide range of experience and expertise. If seeing this come to life interests you, you think you could contribute with your skills or ideas, or you just want to see it done right, please sign up!</p>
+	  <h2 class="title is-2">$Sitename: help build an online platform for couch-surfing</h2>
+	  <h3 class="title is-3">Non-profit. Community-focussed. Well built.</h3>
+	  <p class="content">We are building a new platform that takes all the best features from existing platforms while tackling their main issues. Free for everyone to use forever. Modern, useful, and evolving with the community's needs. We will need your expertise and ideas to bring this project to the rest of the community.</p>
           <p><a class="button is-light" href = "/signup">
-          	<strong>Sign up</strong>
+          	<strong>Join our team</strong>
           </a></p>
         </div>
       </section>
       <section class="section">
         <div class="container">
-          <h2 class="title is-2">The key problems with CouchSurfing</h2>
-          <p class="content">While CouchSurfing has brought us many positive experiences and we've stuck with it for years, it's no secret that it has its problems. Here are the main issues we think that it has, and our answers for how we could fix these through building something better.</p>
+          <h2 class="title is-2">Our plan: fix the problems with CouchSurfing</h2>
+          <p class="content"> We're sure that you, like all of us, have had great experiences that couldn't have happened without CouchSurfing. But we all know it's got its issues. For the next generation in couch-surfing apps, we need to fix those issues.</p>
+	  <p class = "content">If there's any problems you've found with CouchSurfing or any other platforms, we'd love to hear about it so we can try to fix them.</p>
+          <p><a class="button is-light" href = "/signup">
+          	<strong>Let us know your problems with CouchSurfing</strong>
+          </a></p>
           <div class="tile is-ancestor">
             <div class="tile is-vertical">
               <div class="tile">
