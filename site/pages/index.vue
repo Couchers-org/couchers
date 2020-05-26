@@ -14,7 +14,7 @@
       <section class="section">
         <div class="container">
           <h2 class="title is-2">Join us as we build the new online platform for couch-surfers</h2>
-          <p class="subtitle is-4">Non-profit. Community-focussed. Well built.</p>
+          <p class="subtitle is-4">Non-profit. Community-focused. Well built.</p>
           <p class="content">We are building a new platform that takes all the best features from existing platforms while tackling their main issues. Free for everyone to use forever. Modern, useful, and evolving with the community's needs. We will need your expertise and ideas to bring this project to the rest of the community.</p>
           <p><a class="button is-primary" href = "/signup">Sign up for $SiteName</a></p>
         </div>
@@ -74,7 +74,7 @@
                   <article class="tile is-child notification is-danger">
                     <p class="subtitle">Our plan</p>
                     <h3 class="title is-3"><a href="/solutions/reviews">Improved review system</a></h3>
-                    <p class="content">Anonymous reviews, destigmatise negative reviews, a new score that more reflects if people are trustworthy and good for the community.</p>
+                    <p class="content">Anonymous reviews, destigmatization of negative reviews, a new score that more reflects if people are trustworthy and good for the community.</p>
                     <p class="subtitle">To fix</p>
                     <h3 class="title is-3"><a href="/issues/reviews">Disfunctional reference system</a></h3>
                     <p class="content">The reference system doesn't work as a way to trust people.</p>
@@ -84,7 +84,7 @@
                   <article class="tile is-child notification is-success">
                     <p class="subtitle">Our plan</p>
                     <h3 class="title is-3"><a href="/solutions/host-matching">Better host finding</a></h3>
-                    <p class="content">Incentivise spread out hosting in each city, remove the message cap.</p>
+                    <p class="content">Better balanced local communities by removing 'request to stay' limit and spread out hosting opportunities.</p>
                     <p class="subtitle">To fix</p>
                     <h3 class="title is-3"><a href="/issues/host-matching">Super-host effect</a></h3>
                     <p class="content">Local communities have been shrinking to just small groups of super-hosts (it's not their fault).</p>

@@ -4,9 +4,9 @@ title: Frequently asked questions
 
 ## How will you prevent this platform from ever becoming a for-profit like CouchSurfing did?
 
-We strongly believe that [driving profit out of couch-surfing is a bad idea](/issues/profit-and-incentives). It would introduce incentives that damage the community and would not make financial sense as the idea, based on non-transactional experiences is not monetizable. This is about societal value, not monetary value.
+We strongly believe that [driving profit out of couch-surfing is a bad idea](/issues/profit-and-incentives). It would introduce incentives that damage the community and would not make financial sense as the idea, based on non-transactional experiences, is not monetizable. This is about societal value, not monetary value.
 
-While we haven't solidified the plan just yet, the plan is to [build the community into the functioning](/solutions/communities-and-trust) of the platform, and you can look at some potential ideas for how we'll achieve this in our [governance models](/governance) discussion. We do encourage you to sign up and contribute ideas for how we could achieve this as best as possible.
+While we haven't solidified it just yet, the plan is to [build the community into the functioning](/solutions/communities-and-trust) of the platform, and you can look at some potential ideas for how we'll achieve this in our [governance models](/governance) discussion. We do encourage you to sign up and contribute ideas for how we could achieve this as best as possible.
 
 
 ## Why are you working on this? What are you getting out of it?
@@ -42,7 +42,7 @@ We believe moderation can be built into the system where necessary so that more 
 
 On the development end, we will initially handle the [build and development](/solutions/the-build) of the platform ourselves and have committed time to complete it. Over time, we wish to onboard more volunteers, and as time goes by, hope to hand over a number of development and maintenance tasks to individuals from the community, according to our [governance model](/governance).
 
-Server hosting will be our main cost, but we believe we will easily be able to cover the cost of hosting through donations from the community, and we also believe CouchSurfing is [built poorly](/issues/the-build) increasing the hosting costs. We believe that if we build a great platform for the community, the community will be willing to pitch in enough to keep it going.
+Server hosting will be our main cost, but we believe we will easily be able to cover the cost of hosting through donations from the community. We also believe CouchSurfing was [built poorly](/issues/the-build), increasing the hosting costs. We believe that if we build a great platform for the community, the community will be willing to pitch in enough to keep it going.
 
 
 ## How can you remain competitive or even build something good if you're so focused on not making money?
@@ -52,4 +52,4 @@ There are many companies that are not profit-seeking that perform far better tha
 
 ## When do you think this will be ready to launch?
 
-We have a bit of flexibility as people aren't travelling so much right now. Our aim is to have it ready by the time people are travelling again.
+We have a bit of flexibility as people aren't travelling so much right now. Our aim is to have it ready by the time people are on the road again.
