@@ -4,13 +4,15 @@ phases:
   install:
     runtime-versions:
       nodejs: 12.x
-  pre_build:
     commands:
       - cd site
+  pre_build:
+    commands:
       - yarn install
   build:
     commands:
       - yarn generate-all
   post_build:
     commands:
+      - cp -r dist ../build
       - echo "Done."
