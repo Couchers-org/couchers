@@ -24,11 +24,11 @@ These are the key concepts that we will build into the foundation of the platfor
 
 We will be structured as a non-profit. There is no need for investors. We will explore various revenue models with the community.
 
-### [Community-first structure and improved verification](/solutions/communities-and-trust)
+### [Community-first with an improved verification system](/solutions/communities-and-trust)
 
 We will prioritise communities by building them into the foundation of the platform. We will open communication channels wherever we can. We will also incorporate an improved verification method to reinstitute so members can better trust each other.
 
-### [Build it right](/solutions/the-build)
+### [Built right](/solutions/the-build)
 
 Our platform is developer-led, and we will prioritise building it well and scaleable from the start. Having open communication channels with the broader community will allow us to prioritise and tackle bugs and other issues.
 
@@ -40,8 +40,6 @@ The community can be made to be safer by introducing an accountability measures.
 
 We want reviews to be more accurate reflections of people, letting members know if others are assets to the community or potentially harmful. In order to make people accountable, negative reviews must be destigmatised. While keeping the system simple, we introduce a new score called Community Standing that reflects these ideas better.
 
-### [Better host finding](/solutions/host-matching)
+### [Better host matching](/solutions/host-matching)
 
 We will build a system that encourages a healthy spread of surfers with different hosts in order to make local communities larger and more active. We will also explore methods of pairing surfers and hosts with better personality fits, and give members more flexibility in filtering their searches for other users.
-
-
