@@ -23,6 +23,13 @@ We are approaching this from a different angle. BeWelcome and TrustRoots have bu
 There are also some core ideas that we want to build into the foundations, and that requires something new. We fundamentally believe that some of the actions taken by CouchSurfing in the design of its platform have damaged communities, but we also believe that the reverse can also be true. With good architecture and design we can encourage healthy communities, user's safety, filter out creeps and freeloaders, and make the experience a better one for all users. You can read about our [ideas for the design](/solutions/) to achieve this.
 
 
+## This sounds great! Can I donate some money to help out?
+
+We'd rather you hold onto you money for now. We've put up some funds for the initial costs, but we don't believe that we should accept donations until we have a useful product, at which point we'll start asking for donations to cover the server costs.
+
+If you still want to help out though, you can [join our team](/signup).
+
+
 ## How do you plan on funding this? Doesn't it cost a lot of money?
 
 There are three main costs that CouchSurfing needs to cover that we will need to replicate:

@@ -53,7 +53,7 @@
                 Profit Incentives
               </a>
               <a href="/issues/communities-and-trust" class="navbar-item">
-                Damaged Communities
+                Neglected Communities
               </a>
               <a href="/issues/the-build" class="navbar-item">
                 The Bugs and App Issues
