@@ -3,7 +3,7 @@
     <nav class="navbar is-fixed-top is-primary" role="navigation" aria-label="main navigation">
       <div class="navbar-brand">
         <a class="navbar-item" href="/">
-          $SiteName
+          Couchers.org
         </a>
 
         <a role="button" class="navbar-burger burger" v-bind:class="{ 'is-active': burger_active }" v-on:click="toggle_burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
@@ -94,7 +94,7 @@
     <footer class="footer">
       <div class="content has-text-centered">
         <p>
-          <strong>$SiteName</strong> by <a href="/team">the <b>$SiteName team</b></a>.
+          <strong>Couchers.org</strong> by <a href="/team">the <b>Couchers.org team</b></a>.
         </p>
         <p>It's like CouchSurfing, but better.</p>
       </div>
@@ -115,20 +115,20 @@ export default {
     }
   },
   head () {
-    const description = "$SiteName is the new platform for couch-surfers. Non-profit. Community-focussed. Well built."
+    const description = "Couchers.org is the new platform for couch-surfers. Non-profit. Community-focussed. Well built."
     return {
       title: "Home",
-      titleTemplate: '%s | $SiteName',
+      titleTemplate: '%s | Couchers.org',
       meta: [
         {
           property: 'og:title',
-          template: chunk => (chunk ? chunk + ' | ' : '') + '$SiteName',
+          template: chunk => (chunk ? chunk + ' | ' : '') + 'Couchers.org',
           hid: 'og:title'
         },
 
         {
           property: 'twitter:title',
-          template: chunk => (chunk ? chunk + ' | ' : '') + '$SiteName',
+          template: chunk => (chunk ? chunk + ' | ' : '') + 'Couchers.org',
           hid: 'twitter:title'
         },
 
@@ -139,7 +139,7 @@ export default {
         { hid: 'og:image', property: 'og:image', content: 'TODO' },
         { hid: 'twitter:image', name: 'twitter:image', content: 'TODO' },
 
-        { hid: 'og:url', property: 'og:url', content: 'https://$SiteName.org' },
+        { hid: 'og:url', property: 'og:url', content: 'https://Couchers.org.org' },
         { hid: 'og:type', property: 'og:type', content: 'website' },
         { hid: 'twitter:card', name: 'twitter:card', content: 'summary_large_image' }
       ]

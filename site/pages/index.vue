@@ -4,7 +4,7 @@
       <div class="hero-body">
         <div class="container">
           <div class="box">
-            <h1 class="title is-1">$SiteName</h1>
+            <h1 class="title is-1">Couchers.org</h1>
             <p class="subtitle is-3">Like CouchSurfing, but better</p>
           </div>
         </div>
@@ -16,7 +16,7 @@
           <h2 class="title is-2">Join us as we build the new online platform for couch-surfers</h2>
           <p class="subtitle is-4">Non-profit. Community-focussed. Well built.</p>
           <p class="content">We are building a new platform that takes all the best features from existing platforms while tackling their main issues. Free for everyone to use forever. Modern, useful, and evolving with the community's needs. We will need your expertise and ideas to bring this project to the rest of the community.</p>
-          <p><a class="button is-primary" href = "/signup">Sign up for $SiteName</a></p>
+          <p><a class="button is-primary" href = "/signup">Sign up for Couchers.org</a></p>
         </div>
       </div>
     </section>
