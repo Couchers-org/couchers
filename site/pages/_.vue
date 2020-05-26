@@ -12,6 +12,11 @@
         </nav>
         <h1 class="title is-1">{{ attributes.title }}</h1>
         <div class="content" v-html="html"></div>
+        <div class="thoughts">
+          <h4 class="title is-4">Have some thoughts or ideas on how we could make this even better?</h4>
+          <p class="subtitle is-6">$SiteName is a community project, build by folks like you for the benefit of the global couch-surfing community. If you would like to be a part of this great new project, or leave your feedback on our ideas, click the button below and fill out the short form.</p>
+          <p><a class="button is-primary" href = "/signup">Tell us what you think!</a></p>
+        </div>
       </div>
     </section>
   </div>
@@ -64,3 +69,9 @@ export default {
   }
 }
 </script>
+
+<style>
+.thoughts {
+  padding-top: 2em;
+}
+</style>
