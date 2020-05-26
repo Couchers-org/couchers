@@ -3,34 +3,28 @@
     <section class="hero">
       <div class="hero-body">
         <div class="container">
-          <h1 class="title is-1">
-            $SiteName
-          </h1>
-          <h2 class="subtitle">
-            Like CouchSurfing but better
-          </h2>
+          <div class="box">
+            <h1 class="title is-1">$SiteName</h1>
+            <p class="subtitle is-3">Like CouchSurfing, but better</p>
+          </div>
         </div>
       </div>
     </section>
     <div class="container">
       <section class="section">
         <div class="container">
-	  <h2 class="title is-2">$Sitename: help build the next online platform for couch-surfing</h2>
-	  <h3 class="title is-3">Non-profit. Community-focussed. Well built.</h3>
-	  <p class="content">We are building a new platform that takes all the best features from existing platforms while tackling their main issues. Free for everyone to use forever. Modern, useful, and evolving with the community's needs. We will need your expertise and ideas to bring this project to the rest of the community.</p>
-          <p><a class="button is-light" href = "/signup">
-          	<strong>Join our team</strong>
-          </a></p>
+          <h2 class="title is-2">Join us as we build the new online platform for couch-surfers</h2>
+          <p class="subtitle is-4">Non-profit. Community-focussed. Well built.</p>
+          <p class="content">We are building a new platform that takes all the best features from existing platforms while tackling their main issues. Free for everyone to use forever. Modern, useful, and evolving with the community's needs. We will need your expertise and ideas to bring this project to the rest of the community.</p>
+          <p><a class="button is-primary" href = "/signup">Sign up for $SiteName</a></p>
         </div>
       </section>
       <section class="section">
         <div class="container">
           <h2 class="title is-2">Our plan: fix the problems with CouchSurfing</h2>
-          <p class="content"> We're sure that you, like all of us, have had great experiences that couldn't have happened without CouchSurfing. But we all know it's got its issues. For the next generation in couch-surfing apps, we need to fix those issues.</p>
-	  <p class = "content">If there's any problems you've found with CouchSurfing or any other platforms, we'd love to hear about it so we can try to fix them.</p>
-          <p><a class="button is-light" href = "/signup">
-          	<strong>Let us know your problems with CouchSurfing</strong>
-          </a></p>
+          <p class="content">We're sure that you, like all of us, have had great experiences that couldn't have happened without CouchSurfing. But we all know it's got its issues. For the next generation in couch-surfing apps, we need to fix those issues.</p>
+          <p class="content">If there's any problems you've found with CouchSurfing or any other platforms, we'd love to hear about it so we can try to fix them.</p>
+          <p class="content"><a class="button is-primary" href = "/signup">Tell us what you think</a></p>
           <div class="tile is-ancestor">
             <div class="tile is-vertical">
               <div class="tile">
@@ -112,12 +106,6 @@
   </div>
 </template>
 
-<script lang="ts">
-import Vue from 'vue'
-
-export default Vue.extend({})
-</script>
-
 <style>
 .hero {
   background: no-repeat url("/img/hero.jpg");
@@ -125,5 +113,9 @@ export default Vue.extend({})
 
   padding-top: 14em;
   padding-bottom: 12em;
+}
+
+.box {
+  padding: 2em;
 }
 </style>

@@ -6,14 +6,14 @@
           $SiteName
         </a>
 
-        <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+        <a role="button" class="navbar-burger burger" v-bind:class="{ 'is-active': burger_active }" v-on:click="toggle_burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
           <span aria-hidden="true"></span>
           <span aria-hidden="true"></span>
           <span aria-hidden="true"></span>
         </a>
       </div>
 
-      <div id="navbarBasicExample" class="navbar-menu">
+      <div id="navbarBasicExample" class="navbar-menu" v-bind:class="{ 'is-active': burger_active }">
         <div class="navbar-start">
 
           <div class="navbar-item has-dropdown is-hoverable">
@@ -83,7 +83,7 @@
           <div class="navbar-item">
             <div class="buttons">
               <a class="button is-light" href = "/signup">
-                <strong>Join the team</strong>
+                <strong>Join now!</strong>
               </a>
             </div>
           </div>
@@ -94,9 +94,56 @@
     <footer class="footer">
       <div class="content has-text-centered">
         <p>
-          <strong>$SiteName</strong> by <a href="/team">the <b>$SiteName team</b></a>. The next iteration in couch-surfing.
+          <strong>$SiteName</strong> by <a href="/team">the <b>$SiteName team</b></a>.
         </p>
+        <p>It's like CouchSurfing, but better.</p>
       </div>
     </footer>
   </div>
 </template>
+
+<script>
+export default {
+  data: () => {
+    return {
+      burger_active: false
+    }
+  },
+  methods: {
+    toggle_burger: function () {
+      this.burger_active = !this.burger_active
+    }
+  },
+  head () {
+    const description = "$SiteName is the new platform for couch-surfers. Non-profit. Community-focussed. Well built."
+    return {
+      title: "Home",
+      titleTemplate: '%s | $SiteName',
+      meta: [
+        {
+          property: 'og:title',
+          template: chunk => (chunk ? chunk + ' | ' : '') + '$SiteName',
+          hid: 'og:title'
+        },
+
+        {
+          property: 'twitter:title',
+          template: chunk => (chunk ? chunk + ' | ' : '') + '$SiteName',
+          hid: 'twitter:title'
+        },
+
+        { hid: 'description', name: 'description', content: description },
+        { hid: 'og:description', property: 'og:description', content: description },
+        { hid: 'twitter:description', name: 'twitter:description', content: description },
+
+        { hid: 'og:image', property: 'og:image', content: 'TODO' },
+        { hid: 'twitter:image', name: 'twitter:image', content: 'TODO' },
+
+        { hid: 'og:url', property: 'og:url', content: 'https://$SiteName.org' },
+        { hid: 'og:type', property: 'og:type', content: 'website' },
+        { hid: 'twitter:card', name: 'twitter:card', content: 'summary_large_image' }
+      ]
+    }
+  }
+}
+</script>
