@@ -21,6 +21,20 @@ export default {
     } catch (err) {
       error({ statusCode: 404, message: 'Page not found' })
     }
+  },
+  head () {
+    let metas = []
+    if (this.attributes.description) {
+      metas.push(
+        { hid: 'description', name: 'description', content: this.attributes.description },
+        { hid: 'og-description', property: 'og:description', content: this.attributes.description },
+        { hid: 'twitter-description', name: 'twitter:description', content: this.attributes.description }
+      )
+    }
+    return {
+      title: this.attributes.title,
+      meta: metas
+    }
   }
 }
 </script>

@@ -113,6 +113,29 @@ export default {
     toggle_burger: function () {
       this.burger_active = !this.burger_active
     }
+  },
+  head () {
+    const description = "$SiteName is the new platform for couch-surfers. Non-profit. Community-focussed. Well built."
+    return {
+      title: "Home",
+      titleTemplate: '%s | $SiteName',
+      meta: [
+        { hid: 'og-title', property: 'og:title', content: '$SiteName' },
+        { hid: 'twitter-title', name: 'twitter:title', content: '$SiteName' },
+
+        { hid: 'description', name: 'description', content: description },
+        { hid: 'og-description', property: 'og:description', content: description },
+        { hid: 'twitter-description', name: 'twitter:description', content: description },
+
+        { hid: 'og-image', property: 'og:image', content: 'TODO' },
+        { hid: 'twitter-image', name: 'twitter:image', content: 'TODO' },
+
+        { hid: 'og-url', property: 'og:url', content: 'https://$SiteName.org' },
+        { hid: 'og-type', property: 'og:type', content: 'website' },
+        { hid: 'twitter-card', name: 'twitter:card', content: 'summary_large_image' }
+
+      ]
+    }
   }
 }
 </script>
