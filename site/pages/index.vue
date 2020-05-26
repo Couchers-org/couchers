@@ -11,7 +11,7 @@
       </div>
     </section>
     <div class="container">
-      <section class="section">
+      <section class="section second-box">
         <div class="container">
           <h2 class="title is-2">Join us as we build the new online platform for couch-surfers</h2>
           <p class="subtitle is-4">Non-profit. Community-focussed. Well built.</p>
@@ -113,6 +113,12 @@
 
   padding-top: 14em;
   padding-bottom: 12em;
+  min-height: 60vh;
+}
+
+.second-box {
+  padding-top: 5vh;
+  min-height: 40vh;
 }
 
 .box {
