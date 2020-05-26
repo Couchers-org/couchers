@@ -6,14 +6,14 @@
           $SiteName
         </a>
 
-        <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+        <a role="button" class="navbar-burger burger" v-bind:class="{ 'is-active': burger_active }" v-on:click="toggle_burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
           <span aria-hidden="true"></span>
           <span aria-hidden="true"></span>
           <span aria-hidden="true"></span>
         </a>
       </div>
 
-      <div id="navbarBasicExample" class="navbar-menu">
+      <div id="navbarBasicExample" class="navbar-menu" v-bind:class="{ 'is-active': burger_active }">
         <div class="navbar-start">
 
           <div class="navbar-item has-dropdown is-hoverable">
@@ -100,3 +100,18 @@
     </footer>
   </div>
 </template>
+
+<script>
+export default {
+  data: () => {
+    return {
+      burger_active: false
+    }
+  },
+  methods: {
+    toggle_burger: function () {
+      this.burger_active = !this.burger_active
+    }
+  }
+}
+</script>
