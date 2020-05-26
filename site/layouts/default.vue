@@ -83,7 +83,7 @@
           <div class="navbar-item">
             <div class="buttons">
               <a class="button is-light" href = "/signup">
-                <strong>Sign up</strong>
+                <strong>Join the team</strong>
               </a>
             </div>
           </div>
