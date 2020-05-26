@@ -35,7 +35,6 @@ export default {
     }
 
     const split_items = filename.split("/")
-    console.log(split_items)
     let items = []
     for (let i = 0; i < split_items.length; i++) {
       const item = split_items[i]
@@ -45,7 +44,6 @@ export default {
         path: (i == 0 ? "" : items[i-1].path) + "/" + item
       })
     }
-    console.log(items)
     return {...md, breadcrumbs: items }
   },
   head () {
