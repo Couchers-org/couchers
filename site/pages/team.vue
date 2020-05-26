@@ -187,21 +187,3 @@ First time couchsurfing: Puebla, Mexico. My host took me to a birthday party to 
     
   </div>
 </template>
-
-<script lang="ts">
-import Vue from 'vue'
-import Logo from '~/components/Logo.vue'
-
-export default Vue.extend({
-  components: {
-    Logo
-  }
-})
-</script>
-
-<style>
-.hero {
-  margin-top: 10em;
-  margin-bottom: 10em;
-}
-</style>
