@@ -2,10 +2,12 @@
 title: Better ways to find hosts
 ---
 
+# Our plan to fix the problem of [the Super-host effect](/issues/host-matching)
+
 For the new system of searching for hosts, we want to achieve two things:
 
 1. Make it easier to find people you will want to stay with
-2. Spread hosting amongst more people to negate the [super-host effect](/issues/host-matching)
+2. Spread hosting amongst more people to negate the super-host effect
 
 **There will be no cap on the number of requests you can send.** Not needing to rely on only 2 or 3 potential hosts means you can send messages to a more varied group including people with fewer references. We will still incentivise personalised requests so this system isn't abused.
 

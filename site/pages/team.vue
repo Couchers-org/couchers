@@ -34,14 +34,14 @@
                   </div>
                   <div class="media-content">
                     <p class="title is-4">Itsi Weinstock</p>
-                    <p class="subtitle is-6">Community Organizer</p>
+                    <p class="subtitle is-6">Community Manager</p>
                   </div>
                 </div>
 
                 <div class="content">
-                  Itsi is a data scientist and community organiser from Sydney, Australia. He has tons of experience in community and event management in non-profits. He has mathematical expertise in network effects and game theory, and has taught mathematical modelling at the Melbourne Business School. 
+                  Itsi is a data scientist and community organiser from Sydney, Australia. He has years of leadership experience in community and event management in non-profits. He has mathematical expertise in networks, algorithms, and mathematical modelling. 
 
-                  First time couch-surfing: Puebla, Mexico. My host took me to a birthday party to meet all her friends. They found out I hadn't had proper Mexican tequila yet and thought it was their duty to correct that. <a href="https://github.com/itsiw">@itsiw</a> on GitHub.
+		  Random couch-surfing story: Zemo Alvani, Georgia. A man invites me for dinner while I wait for my host. I have to navigate drinking enough homemade wine to not be rude and not drinking too much for when I meet my host. Didn't go well but after a sleep-in we still managed to drive up a very dangerous road for hours to hang out with my host's cowboy buddies in the mountains. <a href="https://github.com/itsiw">@itsiw</a> on GitHub.
                 </div>
               </div>
             </div>

@@ -1,10 +1,11 @@
 ---
 title: Non-Profit Revenue Models
 ---
+# Our plan to fix the problem of [Profit incentives](/issues/profit-and-incentives)
 
 ## Structure
 
-The [profit structure](/issues/profit-and-incentives) that CouchSurfing uses simply doesn't work. Building this next iteration of couch-surfing, we can — and have to — choose something better that guarantees the long-term future of the shared resource. Trying to make a profit out of couch-surfing is a bad idea because it undermines the societal good by distorting the incentives and because the experience of couch-surfing is fundamentally non-monetizable. The only sense here is to structure it as a non-profit. However, we still need to deal with a revenue model to cover the costs of hosting and other expenses.
+The profit structure that CouchSurfing uses simply doesn't work. Building this next iteration of couch-surfing, we can — and have to — choose something better that guarantees the long-term future of the shared resource. Trying to make a profit out of couch-surfing is a bad idea because it undermines the societal good by distorting the incentives and because the experience of couch-surfing is fundamentally non-monetizable. The only sense here is to structure it as a non-profit. However, we still need to deal with a revenue model to cover the costs of hosting and other expenses.
 
 There are advantages in a non-profit model for keeping costs down. **Most importantly, we take no capital investment so there is no need to create profit to channel to investors at any point down the line.** We will also be able to attract volunteers who believe in the societal benefit of this project more easily.
 

@@ -12,5 +12,7 @@ Negative reviews are seen as a big punishment, and people feel uncomfortable pun
 
 Although CouchSurfing doesn't publish references until both parties have made them, it is still intimidating to leave a negative public record. **The stigmatization of negative reviews stops many people from writing one** out of fear of confrontation or retaliation if they see that person again, or if they themselves are left a negative personal reference in response. There need to be anonymous ways to signal a bad experience.
 
+# Our plan to fix it: [Improved review system](/solutions/reviews)
+
 
 

@@ -2,6 +2,8 @@
 title: "Community Standing: Improving the Reference System"
 ---
 
+# Our plan to fix the problem of [the Reference system](/issues/reviews)
+
 Trust is critical to couch-surfing communities. **Our trust model is based on two important measures on users' profiles**: **Community Verification** and **Community Standing**. Verification tells users whether to trust who you say you are, and you can read about the [new verification system here](/solutions/communities-and-trust).
 
 We will introduce a new score, **Community Standing, which will measure how much other people in the community trust you and have found your company to be a positive experience. It indicates your reputation and if peopl have found you safe to be around.** While we will still have references available, the number of references will not be the main indicator when choosing another member to surf, host or hang out with.
@@ -24,7 +26,7 @@ The answers to the three questions, on the other hand, are kept private and are 
 
 ## Rationale
 
-**A simple positive/negative recommendation is flawed.** [Negative reviews are rare](/issues/reviews) which makes it [hard for users (especially women) to have confidence in their safety](/issues/creeps-and-freeloaders) and consequently lends itself to the [super-host effect](/issues/host-matching), where very few hosts do most of the hosting even though others want to, polarising the community.
+**A simple positive/negative recommendation is flawed.** Negative reviews are rare which makes it [hard for users (especially women) to have confidence in their safety](/issues/creeps-and-freeloaders) and consequently lends itself to the [super-host effect](/issues/host-matching), where very few hosts do most of the hosting even though others want to, polarising the community.
 
 **We want the new reference score to have a few properties:**
 

@@ -13,3 +13,5 @@ What's important to look at here is the host distribution in each city. In the s
 The host matching system also encourages the super-host effect. The current system is largely built on the number of reviews a person has, and despite this [not being considered a good measure of trust or community standing](/issues/reviews), it is the only information that users have access to. Mix in a [poorly built filter system](/issues/the-build), and that explains most of how surfers find hosts. **If there were metrics other than reviews that users could use, it would mean that the number of reviews were less important and there would be a more even spread of hosting requests**. Other metrics could be used such as shared values and community standing from a broader range of activities (hosting/surfing/organising/hangouts etc.).
 
 Our solution is a [Community Standing score](/solutions/reviews) that counteracts the super-host effect and removing the message cap, reducing fatigue from current super-hosts and allowing more members to have healthy and safe couch-surfing experiences.
+
+# Our plan to fix it: [Better host finding](/solutions/host-matching)
