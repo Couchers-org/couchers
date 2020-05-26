@@ -3,12 +3,10 @@
     <section class="hero">
       <div class="hero-body">
         <div class="container">
-          <h1 class="title is-1">
-            $SiteName
-          </h1>
-          <h2 class="subtitle">
-            Like CouchSurfing, but better
-          </h2>
+          <div class="box">
+            <h1 class="title is-1">$SiteName</h1>
+            <p class="subtitle">Like CouchSurfing, but better</p>
+          </div>
         </div>
       </div>
     </section>
@@ -115,5 +113,9 @@
 
   padding-top: 14em;
   padding-bottom: 12em;
+}
+
+.box {
+  padding: 2em;
 }
 </style>
