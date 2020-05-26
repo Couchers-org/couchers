@@ -14,5 +14,5 @@ phases:
       - yarn generate-all
   post_build:
     commands:
-      - aws s3 sync dist/ s3://coucher.org
+      - aws s3 sync dist/ s3://coucher.org --acl public-read
       - echo "Done."
