@@ -15,7 +15,7 @@
     <div class="container">
       <section class="section">
         <div class="container">
-	  <h2 class="title is-2">$Sitename: help build an online platform for couch-surfing</h2>
+	  <h2 class="title is-2">$Sitename: help build the next online platform for couch-surfing</h2>
 	  <h3 class="title is-3">Non-profit. Community-focussed. Well built.</h3>
 	  <p class="content">We are building a new platform that takes all the best features from existing platforms while tackling their main issues. Free for everyone to use forever. Modern, useful, and evolving with the community's needs. We will need your expertise and ideas to bring this project to the rest of the community.</p>
           <p><a class="button is-light" href = "/signup">
