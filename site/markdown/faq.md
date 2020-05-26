@@ -9,6 +9,13 @@ We strongly believe that [driving profit out of couch-surfing is a bad idea](/is
 While we haven't solidified the plan just yet, the plan is to [build the community into the functioning](/solutions/communities-and-trust) of the platform, and you can look at some potential ideas for how we'll achieve this in our [governance models](/governance) discussion. We do encourage you to sign up and contribute ideas for how we could achieve this as best as possible.
 
 
+## Why are you working on this? What are you getting out of it?
+
+Everyone in our team has had amazing experiences using CouchSurfing, but we'd like to see it improved. A lot of us also come from community leadership backgrounds including co-ops, clubs, unions, and open-source projects. We understand the value of communities and get a lot of joy in seeing them thrive. Quite honestly though, we want to build something that we'd want to use so we can have a better time when we're hosting or travelling.
+
+We don't plan on making money out of this. [There is no money to be made out of this](/issues/profit-and-incentives). That's one important lesson we can learn from the monetization of CouchSurfing.
+
+
 ## Why don't you just work with any of the other non-profit platforms?
 
 We are approaching this from a different angle. BeWelcome and TrustRoots have built platforms that are functionally different from CouchSurfing. Our aim is to build something that is more similar to CouchSurfing in its functionality (hosting, surfing, hangouts, events, etc. in a convenient app), but is modernised, far better designed and built, and with the community interests as the main priority.
