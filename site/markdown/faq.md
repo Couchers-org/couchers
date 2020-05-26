@@ -11,9 +11,9 @@ While we haven't solidified the plan just yet, the plan is to [build the communi
 
 ## Why are you working on this? What are you getting out of it?
 
-Everyone in our team has had amazing experiences using CouchSurfing, but we'd like to see it improved. Quite honestly, we want to build something that we'd want to use so we can have a better time when we're travelling. A lot of us also come from community leadership backgrounds including co-ops, clubs, unions, and open-source projects. We understand the value of communities and get a lot of joy in seeing them thrive.
+Everyone in our team has had amazing experiences using CouchSurfing, but we'd like to see it improved. A lot of us also come from community leadership backgrounds including co-ops, clubs, unions, and open-source projects. We understand the value of communities and get a lot of joy in seeing them thrive. Quite honestly though, we want to build something that we'd want to use so we can have a better time when we're hosting or travelling.
 
-We don't plan on making money out of this. There is no money to be made out of this. That's one important lesson we can learn from the capitalisation of CouchSurfing.
+We don't plan on making money out of this. [There is no money to be made out of this](/issues/profit-and-incentives). That's one important lesson we can learn from the monetization of CouchSurfing.
 
 
 ## Why don't you just work with any of the other non-profit platforms?
