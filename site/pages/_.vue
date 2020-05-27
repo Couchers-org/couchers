@@ -10,9 +10,9 @@
         </ul>
       </nav>
       <h1 class="title is-1">{{ attributes.title }}</h1>
-      <p v-if="attributes.subtitle" class="subtitle is-3">{{ attributes.subtitle }}</p>
+      <p v-if="attributes.subtitle" class="subtitle is-3" v-html="attributes.subtitle" />
       <div class="content" v-html="html"></div>
-      <p v-if="attributes.bustitle" class="subtitle is-4">{{ attributes.bustitle }}</p>
+      <p v-if="attributes.bustitle" class="subtitle is-4" v-html="attributes.bustitle" />
     </section>
     <section class="section">
       <h4 class="title is-4">Have some thoughts or ideas on how we could make this even better?</h4>
@@ -23,6 +23,10 @@
 </template>
 
 <script>
+import markdown from 'markdown-it'
+
+const mkd = new markdown()
+
 export default {
   async asyncData({params, error}) {
     let filename = params.pathMatch
@@ -45,6 +49,12 @@ export default {
         value: i == split_items.length - 1 ? (md.attributes.crumb ? md.attributes.crumb : md.attributes.title) : item.substring(0, 1).toUpperCase() + item.substring(1, item.length),
         path: (i == 0 ? "" : items[i-1].path) + "/" + item
       })
+    }
+    if (md.attributes.subtitle) {
+      md.attributes.subtitle = mkd.renderInline(md.attributes.subtitle)
+    }
+    if (md.attributes.bustitle) {
+      md.attributes.bustitle = mkd.renderInline(md.attributes.bustitle)
     }
     return {...md, breadcrumbs: items }
   },
