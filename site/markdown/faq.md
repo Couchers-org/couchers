@@ -11,16 +11,16 @@ While we haven't solidified it just yet, the plan is to [build the community int
 
 ## Why are you working on this? What are you getting out of it?
 
-Everyone in our team has had amazing experiences using CouchSurfing, but we'd like to see it improved. A lot of us also come from community leadership backgrounds including co-ops, clubs, unions, and open-source projects. We understand the value of communities and get a lot of joy in seeing them thrive. Quite honestly though, we want to build something that we'd want to use so we can have a better time when we're hosting or travelling.
+Everyone in our team has had amazing experiences using CouchSurfing, but we'd like to see it improved. A lot of us come from community leadership backgrounds including co-ops, clubs, unions, and open-source projects. We understand the value of communities and get a lot of joy in seeing them thrive. Quite honestly though, we want to build something that we'd want to use so we can have a better time when we're hosting or travelling.
 
 We don't plan on making money out of this. [There is no money to be made out of this](/issues/profit-and-incentives). That's one important lesson we can learn from the monetization of CouchSurfing.
 
 
 ## Why don't you just work with any of the other non-profit platforms?
 
-We are approaching this from a different angle. BeWelcome and TrustRoots have built platforms that are functionally different from CouchSurfing. Our aim is to build something that is more similar to CouchSurfing in its functionality (hosting, surfing, hangouts, events, etc. in a convenient app), but is modernised, far better designed and built, and with the community interests as the main priority.
+We are approaching this from a different angle. BeWelcome and TrustRoots have built platforms that are functionally different from CouchSurfing, whereas we aim to build a platform that is functionally more similar (hosting, surfing, hangouts, events, etc. in a convenient app), but is modernised, far better designed and built, and with the community interests as the main priority.
 
-There are also some core ideas that we want to build into the foundations, and that requires something new. We fundamentally believe that some of the actions taken by CouchSurfing in the design of its platform have damaged communities, but we also believe that the reverse can also be true. With good architecture and design we can encourage healthy communities, user's safety, filter out creeps and freeloaders, and make the experience a better one for all users. You can read about our [ideas for the design](/solutions/) to achieve this.
+There are also some core ideas that we want to build into the foundations, and that requires something new. We fundamentally believe that some of the actions taken by CouchSurfing in the design of its platform have damaged communities, but we also believe that the reverse can be true. With good architecture and design we can encourage healthy communities, user's safety, filter out creeps and freeloaders, and make the experience a better one for all users. You can read about our [ideas for the design](/solutions/) to achieve this.
 
 
 ## This sounds great! Can I donate some money to help out?

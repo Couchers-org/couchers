@@ -41,7 +41,7 @@
                 <div class="content">
                   Itsi is a data scientist and community organiser from Sydney, Australia. He has years of leadership experience in community and event management in non-profits. He has mathematical expertise in networks, algorithms, and mathematical modelling. 
 
-		  Random couch-surfing story: Zemo Alvani, Georgia. A man invites me for dinner while I wait for my host. I have to navigate drinking enough homemade wine to not be rude and not drinking too much for when I meet my host. Didn't go well but after a sleep-in we still managed to drive up a very dangerous road for hours to hang out with my host's cowboy buddies in the mountains. <a href="https://github.com/itsiw">@itsiw</a> on GitHub.
+		  cs story: Zemo Alvani, Georgia. A man invites me for dinner while I wait for my host. I have to navigate drinking enough homemade wine to not be rude and not drinking too much for when I meet my host. Didn't go well but after a sleep-in we still managed to drive up a very dangerous road for hours to hang out with my host's cowboy buddies in the mountains. <a href="https://github.com/itsiw">@itsiw</a> on GitHub.
                 </div>
               </div>
             </div>
@@ -67,9 +67,9 @@
                 </div>
 
                 <div class="content">
-                  Aapeli is a software engineer with over a decade of experience designing and building scalable yet performant systems. He has taken several projects from idea to execution, bringing them up to production standards quickly and efficiently.
+                  Aapeli is a software engineer from Helsinki, Finland with over a decade of experience designing and building scalable yet performant systems. He has taken several projects from idea to execution, bringing them up to production standards quickly and efficiently.
 
-                  Random couch-surfing story: Arkhangelsk, Russian Federation. My host showed me the museum of military medicine that he had curated at the local university, and introduced me to the head of the medical school. We later went to check out a Cold War nuclear fallout shelter that was filled with ice as it was the middle of winter in the Arctic Circle. <a href="https://github.com/aapeliv">@aapeliv</a> on GitHub.
+                  cs story: Arkhangelsk, Russian Federation. My host showed me the museum of military medicine that he had curated at the local university, and introduced me to the head of the medical school. We later went to check out a Cold War nuclear fallout shelter that was filled with ice as it was the middle of winter in the Arctic Circle. <a href="https://github.com/aapeliv">@aapeliv</a> on GitHub.
                 </div>
               </div>
             </div>
@@ -95,7 +95,7 @@
                 </div>
 
                 <div class="content">
-		  Marlies is a grants administrator and global health student from Melbourne, Australia. She has backpacked through over 40 countries in her travels, spending the last year in South America learning Spanish and starting to appreciate why bananas go with every meal. Having been introduced to couch-surfing in 2015, Marlies loves being dragged into various activities in a new city and prides herself on being the host who introduced 2 surfers that are now engaged.
+		  Marlies is a grants administrator and global health student from Melbourne, Australia. She has backpacked through over 40 countries, spending the last year in South America learning Spanish and starting to appreciate why bananas go with every meal. Having been introduced to couch-surfing in 2015, Marlies loves being dragged into various activities in a new city and prides herself on being the host who introduced 2 surfers that are now engaged.
                 </div>
               </div>
             </div>
