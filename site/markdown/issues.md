@@ -1,5 +1,6 @@
 ---
 title: What CouchSurfing got wrong
+crumb: Issues
 ---
 
 We have had amazing experiences using CouchSurfing. For many people, it brought them into communities and provided them with great interactions with other people. There is still a lot of love and loyalty for CouchSurfing, even amongst the people working on this project. That being said, it definitely has its issues. Here, we go into a deep dive on those problems before addressing them in [our improvements](/solutions).
