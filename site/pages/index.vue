@@ -14,7 +14,7 @@
       <div class="container">
         <div class="box">
           <h2 class="title is-3">Join us as we build the new online platform for couch-surfers</h2>
-          <p class="subtitle is-4">Non-profit. Community-focused. Well built.</p>
+          <p class="subtitle is-4">Non&#8209;profit. Community&#8209;focused. Well&nbsp;built.</p>
           <p class="content">We are building a new platform that takes all the best features from existing platforms while tackling their main issues. Free for everyone to use forever. Modern, useful, and evolving with the community's needs. We will need your expertise and ideas to bring this project to the rest of the community.</p>
           <p><a class="button is-primary" href = "/signup">Sign up for Couchers.org</a></p>
         </div>
