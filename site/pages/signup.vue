@@ -4,60 +4,52 @@
       <div class="hero-body">
         <div class="container">
           <h2 class="title is-2">Sign up for Couchers.org</h2>
-          <h4 class="title is-5">Join the worldwide team of couch-surfers building this community-run platform to life</h4>
+          <p class="subtitle is-4">Join the worldwide team of couch-surfers building this community-run platform to life</p>
           <p class="content">We are looking for a range of people including software developers, UX/UI engineers and designers. We also need people who have ideas and want to be part of the conversation, and who can help us test the platform as we build it.</p>
         </div>
       </div>
     </section>
 
-    <section class="section">
-      <div class="field">
-        <label class="label">Name</label>
-        <div class="control">
-          <input class="input" type="text" placeholder="Your name">
-        </div>
-      </div>
-      <div class="field">
-        <label class="label">Email</label>
-        <div class="control">
-          <input class="input" type="email" placeholder="Email address">
-        </div>
-      </div>
-      <div class="field">
-        <label class="label">Would you like to help in building Couchers.org?</label>
-        <div class="control">
-          <label class="radio">
-            <input type="radio" name="contribute" value="yes">
-            <label for="male">Yes, I'd like to contribute</label><br>
-            <input type="radio" name="contribute" value="no">
-            <label for="female">No, just let me know when you've got something ready to use</label><br>
-          </label>
-        </div>
-      </div>
-      <div class="field">
-        <div class="label">
-          <label class="label">Would you like to participate in possible future questionaires about what is important to you about the platform and community?</label>
+    <section class="section" v-bind:class="{ 'is-hidden': first_page_done }">
+      <form id="form1" @submit.prevent="submit_form" action="/submit" method="post">
+        <h3 class="title is-3">Your details</h3>
+        <p class="subtitle is-5">The basics about you</p>
+        <div class="field">
+          <label class="label" for="name">Name</label>
+          <div class="control">
+            <input class="input couchers-text-input" v-bind:class="{ 'is-danger': name_error !== null }" name="name" id="name" type="text" v-model="name" placeholder="Your name">
+          </div>
+          <p class="help is-danger" v-bind:class="{ 'is-hidden': name_error === null }">{{ name_error }}</p>
         </div>
         <div class="field">
-          <div class="field">
-            <div class="control">
-              <label class="radio">
-                <input type="radio" name="participate" value="yes">
-                Yes
-              </label>
-              <label class="radio">
-                <input type="radio" name="participate" value="no">
-                No
-              </label>
-            </div>
+          <label class="label" for="email">Email</label>
+          <div class="control">
+            <input class="input couchers-text-input" v-bind:class="{ 'is-danger': email_error !== null }" name="email" id="email" type="email" v-model="email" placeholder="Email address">
+          </div>
+          <p class="help is-danger" v-bind:class="{ 'is-hidden': email_error === null }">{{ email_error }}</p>
+        </div>
+        <div class="field">
+          <label class="label">Would you like to help in building Couchers.org?</label>
+          <div class="control">
+            <label class="radio">
+              <input type="radio" name="contribute" value="yes" v-model="contribute" checked>
+              Yes, I'd like to contribute
+            </label>
+          </div>
+          <div class="control">
+            <label>
+              <input type="radio" name="contribute" value="no" v-model="contribute">
+              No, just let me know when you've got something ready to use
+            </label>
           </div>
         </div>
-      </div>
-      <div class="control">
-        <button class="button is-primary">Submit</button>
-      </div>
+        <div class="control content">
+          <button class="button is-primary">Submit</button>
+        </div>
+        <p class="content has-text-grey is-italic">There's a few more optional questions on the next page if you want to tell us more!</p>
+      </form>
     </section>
-    <section class="section">
+    <section class="section" v-bind:class="{ 'is-hidden': !first_page_done }">
       <div class="field">
         <label class="label">Age</label>
         <div class="control">
@@ -125,17 +117,55 @@
         <button class="button is-primary">Submit</button>
       </div>
     </section>
-
-    <section class="section">
-      <div class="container">
-        <iframe id='iframe' src='https://forms.couchers.org/view/#!/forms/5ecd9fb9578259033939aac3' style='width:100%;height:600px;'></iframe><div style='font-family: Sans-Serif;font-size: 12px;color: #999;opacity: 0.5; padding-top: 5px;'>Powered by<a href='https://www.ohmyform.com' style='color: #999' target='_blank'>OhMyForm</a></div>
-      </div>
-    </section>
   </div>
 </template>
 
 <script>
 export default {
+  data () {
+    return {
+      name: "",
+      name_error: null,
+      email: "",
+      email_error: null,
+      contribute: "yes",
+      first_page_done: false
+    }
+  },
+  methods: {
+    check_form: function () {
+      this.name_error = null;
+      this.email_error = null;
+
+      let has_errors = false;
+
+      if (!this.name) {
+        console.log("oooooo")
+        this.name_error = 'Name required!'
+        has_errors = true
+      }
+
+      if (!this.email) {
+        this.email_error = 'Email required.'
+        has_errors = true
+      } else if (!this.validEmail(this.email)) {
+        this.email_error = 'Valid email required.'
+        has_errors = true
+      }
+
+      return !has_errors
+    },
+    validEmail: function (email) {
+      var re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      return re.test(email);
+    },
+    submit_form: function () {
+      if (this.check_form()) {
+        this.first_page_done = true
+        console.log("form submitted.")
+      }
+    }
+  },
   head () {
     return {
       title: 'Sign up',
@@ -147,3 +177,9 @@ export default {
   }
 }
 </script>
+
+<style>
+.couchers-text-input {
+  max-width: 400px;
+}
+</style>
