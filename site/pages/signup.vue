@@ -191,13 +191,29 @@ export default {
     submit_form1: function () {
       if (this.check_form1()) {
         this.first_page_done = true
-        console.log("form submitted.")
+        console.log({
+          name: this.name,
+          email: this.email,
+          contribute: this.contribute
+        })
       }
     },
     submit_form2: function () {
       if (this.first_page_done) {
         this.second_page_done = true
-        console.log("form submitted.")
+        console.log({
+          name: this.name,
+          email: this.email,
+          contribute: this.contribute,
+          ideas: this.ideas,
+          features: this.features,
+          age: this.age,
+          gender: this.gender,
+          location: this.location,
+          cs_experience: this.cs_experience,
+          develop: this.develop,
+          expertise: this.expertise
+        })
       }
     }
   },
