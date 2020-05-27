@@ -23,7 +23,7 @@ export default {
   /*
   ** Customize the progress-bar color
   */
-  loading: { color: '#fff' },
+  loading: { color: '#643073' },
   /*
   ** Global CSS
   */
@@ -44,10 +44,14 @@ export default {
   ** Nuxt.js modules
   */
   modules: [
+      '@nuxtjs/axios'
     // Doc: https://github.com/nuxt-community/modules/tree/master/packages/bulma
     //'@nuxtjs/bulma'
 
   ],
+  axios: {
+    retry: { retries: 5 }
+  },
   /*
   ** Build configuration
   */

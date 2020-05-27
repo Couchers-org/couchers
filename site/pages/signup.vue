@@ -10,7 +10,7 @@
       </div>
     </section>
 
-    <section class="section" v-bind:class="{ 'is-hidden': first_page_done }">
+    <section class="section" v-bind:class="{ 'is-hidden': first_page_done || loading }">
       <h3 class="title is-3">Your details</h3>
       <p class="subtitle is-5">The basics about you</p>
       <form id="form1" @submit.prevent="submit_form1" action="#" method="post">
@@ -50,7 +50,7 @@
       </form>
     </section>
 
-    <section class="section" v-bind:class="{ 'is-hidden': !first_page_done || second_page_done }">
+    <section class="section" v-bind:class="{ 'is-hidden': (!first_page_done || second_page_done) || loading }">
       <h3 class="title is-3">A bit more about you</h3>
       <p class="subtitle is-5">Feel free to fill out the form below and tell us a bit more about yourself and what you think we should concentrate on</p>
       <form id="form2" @submit.prevent="submit_form2" action="#" method="post">
@@ -132,9 +132,20 @@
       </form>
     </section>
 
-    <section class="section" v-bind:class="{ 'is-hidden': !second_page_done }">
+    <section class="section" v-bind:class="{ 'is-hidden': !second_page_done || loading }">
       <h3 class="title is-3">Thank you!</h3>
       <p class="subtitle is-5">We appreciate you taking the time to help us build this Coucher.org</p>
+    </section>
+
+    <section v-bind:class="{ 'is-hidden': !loading || error }">
+      <div class="content progress-container">
+        <progress class="progress is-primary" max="100">Loading...</progress>
+      </div>
+    </section>
+
+    <section class="section" v-bind:class="{ 'is-hidden': !error }">
+      <h3 class="title is-3">Error!</h3>
+      <p class="subtitle is-5">Sorry, there was an error. We would really appreciate it if you emailed us at contact@ and let us know what you did, so we could fix it as soon as possible! Thanks</p>
     </section>
   </div>
 </template>
@@ -143,6 +154,9 @@
 export default {
   data () {
     return {
+      error: false,
+      loading: false,
+
       name: "",
       name_error: null,
       email: "",
@@ -173,7 +187,6 @@ export default {
       let has_errors = false;
 
       if (!this.name) {
-        console.log("oooooo")
         this.name_error = 'Name required!'
         has_errors = true
       }
@@ -188,10 +201,32 @@ export default {
 
       return !has_errors
     },
+    submit: async function (data) {
+        this.loading = true
+
+        const source = this.$axios.CancelToken.source()
+
+        setTimeout(() => {
+          source.cancel('Timeout')
+        }, 12000)
+
+        const res = await this.$axios.$post(
+          'https://ja4o9uz9u3.execute-api.us-east-1.amazonaws.com/default/form_handler',
+          data,
+          { cancelToken: source.token }
+        ).then(res => {
+          this.loading = false
+        }).catch(error => {
+          this.error = true
+          this.loading = true
+        })
+
+    },
     submit_form1: function () {
       if (this.check_form1()) {
         this.first_page_done = true
-        console.log({
+        this.submit({
+          form: 1,
           name: this.name,
           email: this.email,
           contribute: this.contribute
@@ -201,7 +236,8 @@ export default {
     submit_form2: function () {
       if (this.first_page_done) {
         this.second_page_done = true
-        console.log({
+        this.submit({
+          form: 2,
           name: this.name,
           email: this.email,
           contribute: this.contribute,
@@ -232,5 +268,9 @@ export default {
 <style>
 .input, .textarea {
   max-width: 400px;
+}
+
+.progress-container {
+  padding: 10vh 10vw;
 }
 </style>
