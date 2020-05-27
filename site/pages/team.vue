@@ -22,7 +22,7 @@
             <div class="card">
               <div class="card-image">
                 <figure class="image is-4by3 headshot">
-                  <img src="/img/itsi-friends-43.jpg" alt="Photo of Itsi with CouchSurfing friends">
+                  <img src="/img/itsi-friends-43.jpg" alt="Photo of Itsi with Couchsurfing&#8482; friends">
                 </figure>
               </div>
               <div class="card-content">
@@ -50,7 +50,7 @@
             <div class="card">
               <div class="card-image">
                 <figure class="image is-4by3 headshot">
-                  <img src="/img/aapeli-friends.jpg" alt="Photo of Aapeli with CouchSurfing friends">
+                  <img src="/img/aapeli-friends.jpg" alt="Photo of Aapeli with Couchsurfing&#8482; friends">
                 </figure>
               </div>
               <div class="card-content">
@@ -78,7 +78,7 @@
             <div class="card">
               <div class="card-image">
                 <figure class="image is-4by3 headshot">
-                  <img src="/img/marlies-friends-43.jpg" alt="Photo of Marlies with CouchSurfing friends">
+                  <img src="/img/marlies-friends-43.jpg" alt="Photo of Marlies with Couchsurfing&#8482; friends">
                 </figure>
               </div>
               <div class="card-content">
@@ -132,7 +132,7 @@
             <div class="card">
               <div class="card-image">
                 <figure class="image is-4by3 headshot">
-                  <img src="https://bulma.io/images/placeholders/480x480.png" alt="Photo of Aapeli with CouchSurfing friends">
+                  <img src="https://bulma.io/images/placeholders/480x480.png" alt="Photo of Aapeli with Couchsurfing&#8482; friends">
                 </figure>
               </div>
               <div class="card-content">

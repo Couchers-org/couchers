@@ -3,7 +3,7 @@ title: Our plan for the next iteration in couch-surfing
 crumb: Solutions
 ---
 
-We plan on building a platform that works for the whole community. We've talked to a lot of people and put a lot of thought into the [issues with CouchSurfing](/issues) so we can fix them and build something better.
+We plan on building a platform that works for the whole community. We've talked to a lot of people and put a lot of thought into the [issues with Couchsurfing&#8482;](/issues) so we can fix them and build something better.
 
 Primarily we want it to be:
  - Free for all users forever
