@@ -41,7 +41,7 @@
                   </article>
                 </div>
                 <div class="tile is-parent">
-                  <article class="tile is-child notification is-link">
+                  <article class="tile is-child notification is-warning">
                     <p class="subtitle">Our plan</p>
                     <h3 class="title is-3"><a href="/solutions/communities-and-trust">Community-first structure</a></h3>
                     <p class="content">Prioritise community at the foundation, improve trust with an improved verification and reference system.</p>

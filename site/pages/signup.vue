@@ -69,6 +69,7 @@
 			  <div class="control">
 			    <div class="select">
 			      <select>
+			      	<option>Select dropdown</option>
 			        <option>Male</option>
 			        <option>Female</option>
 			        <option>Genderqueer/Nonbinary</option>
@@ -78,25 +79,13 @@
 			  </div>
 			</div>
 			<div class="field">
-			  <label class="label">Country of birth</label>
-			  <div class="control">
-			    <input class="input" type="text" placeholder="Country of birth">
-			  </div>
-			</div>
-			<div class="field">
 			  <label class="label">Country of residence</label>
 			  <div class="control">
 			    <input class="input" type="text" placeholder="Country of residence">
 			  </div>
 			</div>
 			<div class="field">
-			  <label class="label">If you have technical expertise relevant to building this platform, what is your expertise and experience?</label>
-			  <div class="control">
-			    <textarea class="textarea" placeholder="Textarea"></textarea>
-			  </div>
-			</div>
-			<div class="field">
-			  <label class="label">If you have non-profit or business experience that could help with growing this platform, what is your experience?</label>
+			  <label class="label"> Do you have any skills or experience that could help with building or growing the platform?</label>
 			  <div class="control">
 			    <textarea class="textarea" placeholder="Textarea"></textarea>
 			  </div>
@@ -109,14 +98,14 @@
 			  </div>
 			</div>
 			<div class="field">
-			  <label class="label">Please describe any problems you've had or seen with other platforms such as CouchSurfing</label>
+			  <label class="label">What issues have you found with couch-surfing in the past?</label>
+			  <p>This could be problems with apps or the experience itself</p>
 			  <div class="control">
 			    <textarea class="textarea" placeholder="Textarea"></textarea>
 			  </div>
 			</div>
 			<div class="field">
-			  <label class="label">Please describe any features you'd like to see in a new platform</label>
-			  <p>Or share any ideas you have that would improve the couch-surfing experience.</p>
+			  <label class="label">Please share any ideas you have that would improve the couch-surfing experience</label>
 			  <div class="control">
 			    <textarea class="textarea" placeholder="Textarea"></textarea>
 			  </div>
