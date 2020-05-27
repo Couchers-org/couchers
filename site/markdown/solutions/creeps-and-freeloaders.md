@@ -1,8 +1,8 @@
 ---
 title: Improving Members' Safety and Filtering Out Freeloaders
+subtitle: "Our plan to fix the problem of [Member safety and freeloaders](/issues/creeps-and-freeloaders)"
+crumb: Member Accountability
 ---
-
-# Our plan to fix the problem of [Member safety and freeloaders](/issues/creeps-and-freeloaders)
 
 Three key safety features will be built into the platform: **accountability**, **informed choice**, and **education**. While we will use [moderators where necessary](/governance), actively policing of all members by a select few individuals leads to all kinds of issues and isn't scalable. Rather, **we will empower the community with powerful tools to moderate itself**.
 

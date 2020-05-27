@@ -1,8 +1,8 @@
 ---
 title: Better ways to find hosts
+subtitle: "Our plan to fix the problem of [the Super-host effect](/issues/host-matching)"
+crumb: Better host finding
 ---
-
-# Our plan to fix the problem of [the Super-host effect](/issues/host-matching)
 
 For the new system of searching for hosts, we want to achieve two things:
 

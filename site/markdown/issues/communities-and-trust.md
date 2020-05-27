@@ -1,5 +1,7 @@
 ---
 title: Communities and Trust
+bustitle: "Our plan to fix it: [Community-first structure](/solutions/communities-and-trust)"
+crumb: Neglected communities
 ---
 
 Perhaps the biggest success of the early days of CouchSurfing was that it facilitated the interactions and formation of communities. Any word cloud of articles about CouchSurfing has "community" in huge letters at the center. People are usually referring to one of:
@@ -20,5 +22,3 @@ However, nothing about these communities is monetizable. You can't make a profit
 **When CouchSurfing merged verification with its monetization method, it altered the meaning of verification**. Currently, if someone has a 'verified' tag next to their name, it just means they have paid for the upgraded version of CouchSurfing or earned it through hosting. Conversely, someone who doesn't pay cannot be verified, which is around 95% of the users. This has, in effect, removed verification as a method of trust.
 
 **You need trust for the communities and the users, not for the profits**. The site has been fine generating revenue (pre-coronavirus) as it mostly relies on new signups. The profit incentives work to get people onto the site, but not improve the experience once they're on it. The erosion of trust has been fine for CouchSurfing as a company, but not for the health and longevity of its communities.
-
-# Our plan to fix it: [Community-first structure](/solutions/communities-and-trust)

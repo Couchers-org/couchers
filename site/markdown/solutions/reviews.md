@@ -1,8 +1,8 @@
 ---
 title: "Community Standing: Improving the Reference System"
+subtitle: "Our plan to fix the problem of [the Reference system](/issues/reviews)"
+crumb: Improved review system
 ---
-
-# Our plan to fix the problem of [the Reference system](/issues/reviews)
 
 Trust is critical to couch-surfing communities. **Our trust model is based on two important measures on users' profiles**: **Community Verification** and **Community Standing**. Verification tells users whether to trust who you say you are, and you can read about the [new verification system here](/solutions/communities-and-trust).
 
