@@ -1,16 +1,12 @@
 @charset "utf-8";
 
-$purple: #643073;
-$brown: rgb(84, 68, 88);
-$blue: #3da4ab;
-$green: #82bb42;
-$red: #f46d50;
+$couchers: #643073;
 
-$grey-dark: $brown;
-$primary: $purple;
-$success: $green;
-$warning: $blue;
-$danger: $red;
+$primary: $couchers;
+$grey-dark: #544458;
+$success: #82bb42;
+$warning: #3da4ab;
+$danger: #f46d50;
 
 
 @import "../../node_modules/bulma/bulma.sass";
