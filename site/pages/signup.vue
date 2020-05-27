@@ -4,7 +4,8 @@
       <div class="hero-body">
         <div class="container">
           <h2 class="title is-2">Sign up for Couchers.org</h2>
-          <p class="content">We are a group of hosts and surfers who are also a mix of software engineers, data scientists, mathematicians and experienced community members and leaders. We've all gotten a lot of joy out of couch surfing and would like to make that experience even better.</p>
+          <h4 class="title is-5">Join the worldwide team of couch-surfers building this community-run platform to life</h4>
+          <p class="content">We are looking for a range of people including software developers, UX/UI engineers and designers. We also need people who have ideas and want to be part of the conversation, and who can help us test the platform as we build it.</p>
         </div>
       </div>
     </section>
@@ -22,7 +23,6 @@
 			    <input class="input" type="email" placeholder="Email address">
 			  </div>
 			</div>
-	  	<p>We are looking for a range of people including software and UX/UI engineers and designers. We also need people who have ideas and want to be part of the conversation, and who can help us test the product as we build it.</p>
 			<div class="field">
 			  <label class="label">Would you like to help in building Couchers.org?</label>
 			  <div class="control">
