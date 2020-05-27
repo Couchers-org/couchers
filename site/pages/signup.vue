@@ -4,8 +4,8 @@
       <div class="hero-body">
         <div class="container">
           <h2 class="title is-2">Sign up for Couchers.org</h2>
-          <p class="subtitle is-4">Join the worldwide team of couch-surfers building this community-run platform to life</p>
-          <p class="content">We are looking for a range of people including software developers, UX/UI engineers and designers. We also need people who have ideas and want to be part of the conversation, and who can help us test the platform as we build it.</p>
+          <p class="subtitle is-4">Join the worldwide team of couch-surfers bringing this community-run platform to life</p>
+          <p class="content">Fill in the forms below to tell us your experience and ideas. We'll keep you in the loop as we make progress on this exciting project!</p>
         </div>
       </div>
     </section>
