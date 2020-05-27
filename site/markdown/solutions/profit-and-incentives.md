@@ -1,7 +1,8 @@
 ---
 title: Non-Profit Revenue Models
+subtitle: "Our plan to fix the problem of [Profit incentives](/issues/profit-and-incentives)"
+crumb: Non-Profit Structure
 ---
-# Our plan to fix the problem of [Profit incentives](/issues/profit-and-incentives)
 
 ## Structure
 

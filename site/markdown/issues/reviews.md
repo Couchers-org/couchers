@@ -1,5 +1,7 @@
 ---
 title: The Reference System
+bustitle: "Our plan to fix it: [Improved review system](/solutions/reviews)"
+crumb: The reference system
 ---
 
 The reference system used by CouchSurfing may seem simple and intuitive on the surface, but it fails to do its job. **People read references for two main reasons: to make sure their experience is 1) safe and 2) enjoyable.** However, given the way the reference system is structured, it **doesn't achieve either of these goals** and so the system is meaningless.
@@ -11,8 +13,3 @@ In general, a good user account is one that only has positive reviews. Negative 
 Negative reviews are seen as a big punishment, and people feel uncomfortable punishing others. Often in these cases, a negative review seems disproportionate to a problem that might not have been 'that bad' (for instance, they were made to feel a bit uncomfortable). Negative references are stigmatised. It is the norm for users to have 100% positive reviews, any lower and it is much harder to meet people. There is a huge difference between 100% and 98% positive reviews. However, if people's scores were normally in the 60-80% region, then giving a negative review wouldn't be that big of a deal. There's not that much of a difference between 75% and 73%. 
 
 Although CouchSurfing doesn't publish references until both parties have made them, it is still intimidating to leave a negative public record. **The stigmatization of negative reviews stops many people from writing one** out of fear of confrontation or retaliation if they see that person again, or if they themselves are left a negative personal reference in response. There need to be anonymous ways to signal a bad experience.
-
-# Our plan to fix it: [Improved review system](/solutions/reviews)
-
-
-

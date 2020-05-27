@@ -1,5 +1,7 @@
 ---
 title: Profit and Incentives
+bustitle: "Our plan to fix it: [Non-profit structure](/solutions/profit-and-incentives)"
+crumb: Profit incentives
 ---
 
 A few weeks ago the CouchSurfing management decided to [force all users to pay for the service](https://medium.com/@jameshopest/the-death-of-couchsurfing-a87d9537edf2) and barring everyone from their accounts until they pay up.
@@ -21,5 +23,3 @@ They eventually arrived at a verification fee model, where we can see [altered i
 We fundamentally believe there is no way to extract *monetary value* out of the types of interactions that CouchSurfing ought to facilitate even though they provide immense *societal value*. Compare it to a favor network: you surely have friends who you could easily ask to help you move house for the morning and just buy them a few pizzas and some drinks as a token of appreciation. By doing so, you lean on your *social capital* through your network of friends, and you save either a day's worth of money hiring movers or the time it would take to do it alone. There's no way you could write an app that makes money off this: it would either be weird (do you list all your skills on it?) or destroy the human touch of contacting your friends (do you just choose what kind of service you need), making them much less inclined to help you. This illustrates the concept of societal value, and how there are cases where even **great societal value can be impossible to turn into monetary value.**
 
 Furthermore, it is almost impossible for the incentives to be aligned between app makers seeking a profit from app usage, and users of an app like CouchSurfing who are seeking to *not use the app* but rather spend time with real humans. Maybe the best example to illustrate this point is Facebook. Being a large advertising company, they sell the *attention* of their users to advertisers. It's a big win for them to make each user stay a few more minutes scrolling through their feed, looking through ads that translate to revenue for Facebook. **The purpose of CouchSurfing, on the other hand, ought to be to get people to stop looking at the app, and instead meet up to hang out or surf with the amazing human being that they just connected with at the end of the platform.**
-
-# Our plan to fix it: [Non-profit structure](/solutions/profit-and-incentives)
