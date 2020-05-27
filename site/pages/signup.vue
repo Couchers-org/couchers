@@ -188,7 +188,7 @@ export default {
 
       return !has_errors
     },
-    submit_form1: function () {
+    submit_form1: async function () {
       if (this.check_form1()) {
         this.first_page_done = true
         console.log({
@@ -196,9 +196,19 @@ export default {
           email: this.email,
           contribute: this.contribute
         })
+        const res = await this.$axios.$post(
+          'https://ja4o9uz9u3.execute-api.us-east-1.amazonaws.com/default/form_handler',
+          {
+            form: 1,
+            name: this.name,
+            email: this.email,
+            contribute: this.contribute
+          }
+        )
+        console.log(res)
       }
     },
-    submit_form2: function () {
+    submit_form2: async function () {
       if (this.first_page_done) {
         this.second_page_done = true
         console.log({
@@ -214,6 +224,24 @@ export default {
           develop: this.develop,
           expertise: this.expertise
         })
+        const res = await this.$axios.$post(
+          'https://ja4o9uz9u3.execute-api.us-east-1.amazonaws.com/default/form_handler',
+          {
+            form: 2,
+            name: this.name,
+            email: this.email,
+            contribute: this.contribute,
+            ideas: this.ideas,
+            features: this.features,
+            age: this.age,
+            gender: this.gender,
+            location: this.location,
+            cs_experience: this.cs_experience,
+            develop: this.develop,
+            expertise: this.expertise
+          }
+        )
+        console.log(res)
       }
     }
   },
