@@ -10,7 +10,9 @@
         </ul>
       </nav>
       <h1 class="title is-1">{{ attributes.title }}</h1>
+      <p v-if="attributes.subtitle" class="subtitle is-3">{{ attributes.subtitle }}</p>
       <div class="content" v-html="html"></div>
+      <p v-if="attributes.bustitle" class="subtitle is-4">{{ attributes.bustitle }}</p>
     </section>
     <section class="section">
       <h4 class="title is-4">Have some thoughts or ideas on how we could make this even better?</h4>
