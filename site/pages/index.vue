@@ -5,7 +5,7 @@
         <div class="container">
           <div class="box">
             <h1 class="title is-2">Couchers.org</h1>
-            <p class="subtitle is-4">Like CouchSurfing, but better</p>
+            <p class="subtitle is-4">Like&nbsp;CouchSurfing, but&nbsp;better</p>
           </div>
         </div>
       </div>
