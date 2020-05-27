@@ -11,20 +11,20 @@
     </section>
 
     <section class="section" v-bind:class="{ 'is-hidden': first_page_done }">
-      <form id="form1" @submit.prevent="submit_form" action="/submit" method="post">
+      <form id="form1" @submit.prevent="submit_form1" action="#" method="post">
         <h3 class="title is-3">Your details</h3>
         <p class="subtitle is-5">The basics about you</p>
         <div class="field">
           <label class="label" for="name">Name</label>
           <div class="control">
-            <input class="input couchers-text-input" v-bind:class="{ 'is-danger': name_error !== null }" name="name" id="name" type="text" v-model="name" placeholder="Your name">
+            <input class="input" v-bind:class="{ 'is-danger': name_error !== null }" name="name" id="name" type="text" v-model="name" placeholder="Your name">
           </div>
           <p class="help is-danger" v-bind:class="{ 'is-hidden': name_error === null }">{{ name_error }}</p>
         </div>
         <div class="field">
           <label class="label" for="email">Email</label>
           <div class="control">
-            <input class="input couchers-text-input" v-bind:class="{ 'is-danger': email_error !== null }" name="email" id="email" type="email" v-model="email" placeholder="Email address">
+            <input class="input" v-bind:class="{ 'is-danger': email_error !== null }" name="email" id="email" type="email" v-model="email" placeholder="Email address">
           </div>
           <p class="help is-danger" v-bind:class="{ 'is-hidden': email_error === null }">{{ email_error }}</p>
         </div>
@@ -50,72 +50,75 @@
       </form>
     </section>
     <section class="section" v-bind:class="{ 'is-hidden': !first_page_done }">
-      <div class="field">
-        <label class="label">Age</label>
-        <div class="control">
-          <input class="input" type="text" placeholder="Your age">
+      <form id="form2" @submit.prevent="submit_form2" action="/submit" method="post">
+        <h3 class="title is-3">A bit more about you</h3>
+        <p class="subtitle is-5">Feel free to fill out the form below and tell us a bit more about yourself and what you think we should concentrate on</p>
+        <p class="content has-text-grey is-italic">All questions are optional.</p>
+        <div class="field">
+          <label class="label">Please share any ideas you have that would improve the couch-surfing experience for you and for the community.</label>
+          <div class="control">
+            <textarea class="textarea" placeholder=""></textarea>
+          </div>
+          <p class="help">Feel free to describe any problems you've had or experienced with other platforms, and what you'd like to see done about them.</p>
         </div>
-      </div>
-      <div class="field">
-        <label class="label">Gender</label>
-        <div class="control">
-          <div class="select">
-            <select>
-              <option>Male</option>
-              <option>Female</option>
-              <option>Genderqueer/Nonbinary</option>
-              <option>Gender not listed here</option>
-            </select>
+        <div class="field">
+          <label class="label">What feature would you like implemented first, and why? How could we make that feature as good as possible for your particular use?</label>
+          <div class="control">
+            <textarea class="textarea" placeholder=""></textarea>
+          </div>
+          <p class="help">Do you care about hosting or surfing? Events or hangouts? Wish there was a better messaging system? Do you like mobile apps or prefer to use a computer?</p>
+        </div>
+        <div class="field">
+          <label class="label">Age</label>
+          <div class="control">
+            <input class="input" type="text" placeholder="Your age">
           </div>
         </div>
-      </div>
-      <div class="field">
-        <label class="label">Country of birth</label>
-        <div class="control">
-          <input class="input" type="text" placeholder="Country of birth">
+        <div class="field">
+          <label class="label">Gender</label>
+          <div class="control">
+            <div class="select">
+              <select>
+                <option>Prefer not to say</option>
+                <option>Male</option>
+                <option>Female</option>
+                <option>Genderqueer/Nonbinary</option>
+                <option>Gender not listed here</option>
+              </select>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="field">
-        <label class="label">Country of residence</label>
-        <div class="control">
-          <input class="input" type="text" placeholder="Country of residence">
+        <div class="field">
+          <label class="label">Country and/or city</label>
+          <div class="control">
+            <input class="input" type="text" placeholder="Country and/or city where you live">
+          </div>
         </div>
-      </div>
-      <div class="field">
-        <label class="label">If you have technical expertise relevant to building this platform, what is your expertise and experience?</label>
-        <div class="control">
-          <textarea class="textarea" placeholder="Textarea"></textarea>
+        <div class="field">
+          <label class="label">Briefly describe your experience as a couch-surfer.</label>
+          <div class="control">
+            <textarea class="textarea" placeholder=""></textarea>
+          </div>
+          <p class="help">How many times you've surfed, hosted, and used other features of similar platforms. Have you been part of communities? Anything else you'd like to tell us.</p>
         </div>
-      </div>
-      <div class="field">
-        <label class="label">If you have non-profit or business experience that could help with growing this platform, what is your experience?</label>
-        <div class="control">
-          <textarea class="textarea" placeholder="Textarea"></textarea>
+        <div class="field">
+          <label class="label">What kinds of technical expertise do you have that could help us build this platform?</label>
+          <div class="control">
+            <textarea class="textarea" placeholder=""></textarea>
+          </div>
+          <p class="help">Feel free to leave this answer blank if you wish or if it doesn't apply to you!</p>
         </div>
-      </div>
-      <div class="field">
-        <label class="label">Briefly describe your experience as a couch-surfer</label>
-        <p>How many times you've surfed, hosted, used other features of apps. Have you been part of communities? Anything else you'd like to tell us.</p>
-        <div class="control">
-          <textarea class="textarea" placeholder="Textarea"></textarea>
+        <div class="field">
+          <label class="label">What types of non-profit or business experience do you have that could help with growing this platform?</label>
+          <div class="control">
+            <textarea class="textarea" placeholder=""></textarea>
+          </div>
+          <p class="help">Feel free to leave this answer blank if you wish or if it doesn't apply to you!</p>
         </div>
-      </div>
-      <div class="field">
-        <label class="label">Please describe any problems you've had or seen with other platforms such as CouchSurfing</label>
         <div class="control">
-          <textarea class="textarea" placeholder="Textarea"></textarea>
+          <button class="button is-primary">Submit</button>
         </div>
-      </div>
-      <div class="field">
-        <label class="label">Please describe any features you'd like to see in a new platform</label>
-        <p>Or share any ideas you have that would improve the couch-surfing experience.</p>
-        <div class="control">
-          <textarea class="textarea" placeholder="Textarea"></textarea>
-        </div>
-      </div>
-      <div class="control">
-        <button class="button is-primary">Submit</button>
-      </div>
+      </form>
     </section>
   </div>
 </template>
@@ -133,7 +136,7 @@ export default {
     }
   },
   methods: {
-    check_form: function () {
+    check_form1: function () {
       this.name_error = null;
       this.email_error = null;
 
@@ -148,19 +151,19 @@ export default {
       if (!this.email) {
         this.email_error = 'Email required.'
         has_errors = true
-      } else if (!this.validEmail(this.email)) {
+      } else if (!this.valid_email(this.email)) {
         this.email_error = 'Valid email required.'
         has_errors = true
       }
 
       return !has_errors
     },
-    validEmail: function (email) {
+    valid_email: function (email) {
       var re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
       return re.test(email);
     },
-    submit_form: function () {
-      if (this.check_form()) {
+    submit_form1: function () {
+      if (this.check_form1()) {
         this.first_page_done = true
         console.log("form submitted.")
       }
@@ -179,7 +182,7 @@ export default {
 </script>
 
 <style>
-.couchers-text-input {
+.input, .textarea {
   max-width: 400px;
 }
 </style>
