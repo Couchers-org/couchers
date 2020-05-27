@@ -39,14 +39,14 @@
           <div class="control">
             <label>
               <input type="radio" name="contribute" value="no" v-model="contribute">
-              No, just let me know when you've got something ready to use
+              No, but please keep me updated on the progress
             </label>
           </div>
         </div>
         <div class="control content">
-          <button class="button is-primary">Submit</button>
+          <button class="button is-primary">Next</button>
         </div>
-        <p class="content has-text-grey is-italic">There's a few more optional questions on the next page if you want to tell us more!</p>
+	<p class="content has-text-grey is-italic">Your basic details will be submitted when you press Next</p>
       </form>
     </section>
 
@@ -134,7 +134,7 @@
 
     <section class="section" v-bind:class="{ 'is-hidden': !second_page_done }">
       <h3 class="title is-3">Thank you!</h3>
-      <p class="subtitle is-5">We appreciate you taking the time to tell us what you think.</p>
+      <p class="subtitle is-5">We appreciate you taking the time to help us build this Coucher.org</p>
     </section>
   </div>
 </template>
