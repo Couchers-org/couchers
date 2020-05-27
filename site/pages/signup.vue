@@ -11,9 +11,9 @@
     </section>
 
     <section class="section" v-bind:class="{ 'is-hidden': first_page_done }">
+      <h3 class="title is-3">Your details</h3>
+      <p class="subtitle is-5">The basics about you</p>
       <form id="form1" @submit.prevent="submit_form1" action="#" method="post">
-        <h3 class="title is-3">Your details</h3>
-        <p class="subtitle is-5">The basics about you</p>
         <div class="field">
           <label class="label" for="name">Name</label>
           <div class="control">
@@ -49,36 +49,37 @@
         <p class="content has-text-grey is-italic">There's a few more optional questions on the next page if you want to tell us more!</p>
       </form>
     </section>
-    <section class="section" v-bind:class="{ 'is-hidden': !first_page_done }">
-      <form id="form2" @submit.prevent="submit_form2" action="/submit" method="post">
-        <h3 class="title is-3">A bit more about you</h3>
-        <p class="subtitle is-5">Feel free to fill out the form below and tell us a bit more about yourself and what you think we should concentrate on</p>
+
+    <section class="section" v-bind:class="{ 'is-hidden': !first_page_done || second_page_done }">
+      <h3 class="title is-3">A bit more about you</h3>
+      <p class="subtitle is-5">Feel free to fill out the form below and tell us a bit more about yourself and what you think we should concentrate on</p>
+      <form id="form2" @submit.prevent="submit_form2" action="#" method="post">
         <p class="content has-text-grey is-italic">All questions are optional.</p>
         <div class="field">
           <label class="label">Please share any ideas you have that would improve the couch-surfing experience for you and for the community.</label>
           <div class="control">
-            <textarea class="textarea" placeholder=""></textarea>
+            <textarea class="textarea" placeholder="" v-model="ideas"></textarea>
           </div>
           <p class="help">Feel free to describe any problems you've had or experienced with other platforms, and what you'd like to see done about them.</p>
         </div>
         <div class="field">
           <label class="label">What feature would you like implemented first, and why? How could we make that feature as good as possible for your particular use?</label>
           <div class="control">
-            <textarea class="textarea" placeholder=""></textarea>
+            <textarea class="textarea" placeholder="" v-model="features"></textarea>
           </div>
           <p class="help">Do you care about hosting or surfing? Events or hangouts? Wish there was a better messaging system? Do you like mobile apps or prefer to use a computer?</p>
         </div>
         <div class="field">
           <label class="label">Age</label>
           <div class="control">
-            <input class="input" type="text" placeholder="Your age">
+            <input class="input" type="number" placeholder="Your age" v-model="age">
           </div>
         </div>
         <div class="field">
           <label class="label">Gender</label>
           <div class="control">
             <div class="select">
-              <select>
+              <select v-model="gender">
                 <option>Prefer not to say</option>
                 <option>Male</option>
                 <option>Female</option>
@@ -91,13 +92,13 @@
         <div class="field">
           <label class="label">Country and/or city</label>
           <div class="control">
-            <input class="input" type="text" placeholder="Country and/or city where you live">
+            <input class="input" type="text" placeholder="Country and/or city where you live" v-model="location">
           </div>
         </div>
         <div class="field">
           <label class="label">Briefly describe your experience as a couch-surfer.</label>
           <div class="control">
-            <textarea class="textarea" placeholder=""></textarea>
+            <textarea class="textarea" placeholder="" v-model="cs_experience"></textarea>
           </div>
           <p class="help">How many times you've surfed, hosted, and used other features of similar platforms. Have you been part of communities? Anything else you'd like to tell us.</p>
         </div>
@@ -121,7 +122,7 @@
         <div class="field">
           <label class="label">What kinds of expertise do you have that could help us build and grow this platform?</label>
           <div class="control">
-            <textarea class="textarea" placeholder=""></textarea>
+            <textarea class="textarea" placeholder="" v-model="expertise"></textarea>
           </div>
           <p class="help">Have technical or community/non-profit experience? Anything else you think could get us moving forward?</p>
         </div>
@@ -129,6 +130,11 @@
           <button class="button is-primary">Submit</button>
         </div>
       </form>
+    </section>
+
+    <section class="section" v-bind:class="{ 'is-hidden': !second_page_done }">
+      <h3 class="title is-3">Thank you!</h3>
+      <p class="subtitle is-5">We appreciate you taking the time to tell us what you think.</p>
     </section>
   </div>
 </template>
@@ -142,10 +148,24 @@ export default {
       email: "",
       email_error: null,
       contribute: "yes",
-      first_page_done: false
+      first_page_done: false,
+
+      ideas: null,
+      features: null,
+      age: null,
+      gender: null,
+      location: null,
+      cs_experience: null,
+      develop: null,
+      expertise: null,
+      second_page_done: false,
     }
   },
   methods: {
+    valid_email: function (email) {
+      var re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      return re.test(email);
+    },
     check_form1: function () {
       this.name_error = null;
       this.email_error = null;
@@ -168,13 +188,15 @@ export default {
 
       return !has_errors
     },
-    valid_email: function (email) {
-      var re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-      return re.test(email);
-    },
     submit_form1: function () {
       if (this.check_form1()) {
         this.first_page_done = true
+        console.log("form submitted.")
+      }
+    },
+    submit_form2: function () {
+      if (this.first_page_done) {
+        this.second_page_done = true
         console.log("form submitted.")
       }
     }
