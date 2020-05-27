@@ -102,18 +102,28 @@
           <p class="help">How many times you've surfed, hosted, and used other features of similar platforms. Have you been part of communities? Anything else you'd like to tell us.</p>
         </div>
         <div class="field">
-          <label class="label">What kinds of technical expertise do you have that could help us build this platform?</label>
+          <label class="label">Would you like to help in developing or growing Couchers.org?</label>
           <div class="control">
-            <textarea class="textarea" placeholder=""></textarea>
+            <label class="radio">
+              <input type="radio" name="develop" value="yes" v-model="develop">
+              Yes
+            </label>
+            <label>
+              <input type="radio" name="develop" value="no" v-model="develop">
+              No
+            </label>
+            <label>
+              <input type="radio" name="develop" value="maybe" v-model="develop">
+              Maybe
+            </label>
           </div>
-          <p class="help">Feel free to leave this answer blank if you wish or if it doesn't apply to you!</p>
         </div>
         <div class="field">
-          <label class="label">What types of non-profit or business experience do you have that could help with growing this platform?</label>
+          <label class="label">What kinds of expertise do you have that could help us build and grow this platform?</label>
           <div class="control">
             <textarea class="textarea" placeholder=""></textarea>
           </div>
-          <p class="help">Feel free to leave this answer blank if you wish or if it doesn't apply to you!</p>
+          <p class="help">Have technical or community/non-profit experience? Anything else you think could get us moving forward?</p>
         </div>
         <div class="control">
           <button class="button is-primary">Submit</button>
