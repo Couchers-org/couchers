@@ -15,6 +15,7 @@
     "generate-all": "yarn css-build && yarn generate"
   },
   "dependencies": {
+    "@nuxtjs/axios": "^5.10.3",
     "@nuxtjs/bulma": "^1.2.1",
     "frontmatter-markdown-loader": "^3.5.0",
     "markdown": "^0.5.0",
