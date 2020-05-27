@@ -1,5 +1,5 @@
 ---
-title: The Build
+title: The Bugs and App Issues
 bustitle: "Our plan to fix it: [Building it right](/solutions/the-build)"
 crumb: The bugs and app issues
 ---

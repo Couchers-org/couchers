@@ -1,5 +1,5 @@
 ---
-title: Improving Members' Safety and Filtering Out Freeloaders
+title: Member Accountability
 subtitle: "Our plan to fix the problem of [Member safety and freeloaders](/issues/creeps-and-freeloaders)"
 crumb: Member Accountability
 ---

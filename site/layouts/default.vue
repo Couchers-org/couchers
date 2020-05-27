@@ -48,7 +48,7 @@
 
             <div class="navbar-dropdown">
               <a href="/issues/profit-and-incentives" class="navbar-item">
-                Profit Incentives
+                Profit and Incentives
               </a>
               <a href="/issues/communities-and-trust" class="navbar-item">
                 Neglected Communities

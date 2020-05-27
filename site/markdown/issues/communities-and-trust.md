@@ -1,5 +1,5 @@
 ---
-title: Communities and Trust
+title: Neglected Communities
 bustitle: "Our plan to fix it: [Community-first structure](/solutions/communities-and-trust)"
 crumb: Neglected communities
 ---
