@@ -119,7 +119,7 @@
 
 .second-box {
   padding-top: 5vh;
-  min-height: 40vh;
+  min-height: 50vh;
 }
 
 .box {
