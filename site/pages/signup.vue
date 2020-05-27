@@ -132,15 +132,20 @@
       </form>
     </section>
 
-    <section v-bind:class="{ 'is-hidden': !loading }">
-      <div class="content">
+    <section class="section" v-bind:class="{ 'is-hidden': !second_page_done || loading }">
+      <h3 class="title is-3">Thank you!</h3>
+      <p class="subtitle is-5">We appreciate you taking the time to tell us what you think.</p>
+    </section>
+
+    <section v-bind:class="{ 'is-hidden': !loading || error }">
+      <div class="content progress-container">
         <progress class="progress is-primary" max="100">Loading...</progress>
       </div>
     </section>
 
-    <section class="section" v-bind:class="{ 'is-hidden': !second_page_done || loading }">
-      <h3 class="title is-3">Thank you!</h3>
-      <p class="subtitle is-5">We appreciate you taking the time to tell us what you think.</p>
+    <section class="section" v-bind:class="{ 'is-hidden': !error }">
+      <h3 class="title is-3">Error!</h3>
+      <p class="subtitle is-5">Sorry, there was an error. We would really appreciate it if you emailed us at contact@ and let us know what you did, so we could fix it as soon as possible! Thanks</p>
     </section>
   </div>
 </template>
@@ -149,6 +154,7 @@
 export default {
   data () {
     return {
+      error: false,
       loading: false,
 
       name: "",
@@ -181,7 +187,6 @@ export default {
       let has_errors = false;
 
       if (!this.name) {
-        console.log("oooooo")
         this.name_error = 'Name required!'
         has_errors = true
       }
@@ -196,35 +201,43 @@ export default {
 
       return !has_errors
     },
-    submit_form1: async function () {
+    submit: async function (data) {
+        this.loading = true
+
+        const source = this.$axios.CancelToken.source()
+
+        setTimeout(() => {
+          source.cancel('Timeout')
+        }, 12000)
+
+        const res = await this.$axios.$post(
+          'https://ja4o9uz9u3.execute-api.us-east-1.amazonaws.com/default/form_handler',
+          data,
+          { cancelToken: source.token }
+        ).then(res => {
+          this.loading = false
+        }).catch(error => {
+          this.error = true
+          this.loading = true
+        })
+
+    },
+    submit_form1: function () {
       if (this.check_form1()) {
         this.first_page_done = true
-        console.log({
+        this.submit({
+          form: 1,
           name: this.name,
           email: this.email,
           contribute: this.contribute
         })
-
-        this.loading = true
-
-        const res = await this.$axios.$post(
-          'https://ja4o9uz9u3.execute-api.us-east-1.amazonaws.com/default/form_handler',
-          {
-            form: 1,
-            name: this.name,
-            email: this.email,
-            contribute: this.contribute
-          }
-        )
-
-        this.loading = false
-        console.log(res)
       }
     },
-    submit_form2: async function () {
+    submit_form2: function () {
       if (this.first_page_done) {
         this.second_page_done = true
-        console.log({
+        this.submit({
+          form: 2,
           name: this.name,
           email: this.email,
           contribute: this.contribute,
@@ -237,30 +250,6 @@ export default {
           develop: this.develop,
           expertise: this.expertise
         })
-
-        this.loading = true
-
-        const res = await this.$axios.$post(
-          'https://ja4o9uz9u3.execute-api.us-east-1.amazonaws.com/default/form_handler',
-          {
-            form: 2,
-            name: this.name,
-            email: this.email,
-            contribute: this.contribute,
-            ideas: this.ideas,
-            features: this.features,
-            age: this.age,
-            gender: this.gender,
-            location: this.location,
-            cs_experience: this.cs_experience,
-            develop: this.develop,
-            expertise: this.expertise
-          }
-        )
-
-        this.loading = false
-
-        console.log(res)
       }
     }
   },
@@ -281,7 +270,7 @@ export default {
   max-width: 400px;
 }
 
-.progress {
-  margin: 2em;
+.progress-container {
+  padding: 10vh 10vw;
 }
 </style>
