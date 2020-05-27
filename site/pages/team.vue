@@ -22,7 +22,7 @@
             <div class="card">
               <div class="card-image">
                 <figure class="image is-3by3 headshot">
-                  <img src="/img/itsi-friends.jpg" alt="Photo of Itsi with CouchSurfing friends">
+                  <img src="/img/itsi-friends-43.jpg" alt="Photo of Itsi with CouchSurfing friends">
                 </figure>
               </div>
               <div class="card-content">
@@ -78,7 +78,7 @@
             <div class="card">
               <div class="card-image">
                 <figure class="image is-3by3 headshot">
-                  <img src="/img/marlies-friends.jpg" alt="Photo of Marlies with CouchSurfing friends">
+                  <img src="/img/marlies-friends-43.jpg" alt="Photo of Marlies with CouchSurfing friends">
                 </figure>
               </div>
               <div class="card-content">

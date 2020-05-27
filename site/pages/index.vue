@@ -4,8 +4,8 @@
       <div class="hero-body">
         <div class="container">
           <div class="box">
-            <h1 class="title is-1">Couchers.org</h1>
-            <p class="subtitle is-3">Like CouchSurfing, but better</p>
+            <h1 class="title is-2">Couchers.org</h1>
+            <p class="subtitle is-4">Like CouchSurfing, but better</p>
           </div>
         </div>
       </div>
@@ -13,7 +13,7 @@
     <section class="section second-box">
       <div class="container">
         <div class="box">
-          <h2 class="title is-2">Join us as we build the new online platform for couch-surfers</h2>
+          <h2 class="title is-3">Join us as we build the new online platform for couch-surfers</h2>
           <p class="subtitle is-4">Non-profit. Community-focused. Well built.</p>
           <p class="content">We are building a new platform that takes all the best features from existing platforms while tackling their main issues. Free for everyone to use forever. Modern, useful, and evolving with the community's needs. We will need your expertise and ideas to bring this project to the rest of the community.</p>
           <p><a class="button is-primary" href = "/signup">Sign up for Couchers.org</a></p>
@@ -23,7 +23,7 @@
     <div class="container">
       <section class="section">
         <div class="container">
-          <h2 class="title is-2">Our plan: fix the problems with CouchSurfing</h2>
+          <h2 class="title is-3">Our plan: fix the problems with CouchSurfing</h2>
           <p class="content">We're sure that you, like all of us, have had great experiences that couldn't have happened without CouchSurfing. But we all know it's got its issues. For the next generation in couch-surfing apps, we need to fix those issues.</p>
           <p class="content">If there's any problems you've found with CouchSurfing or any other platforms, we'd love to hear about it so we can try to fix them.</p>
           <p class="content"><a class="button is-primary" href = "/signup">Tell us what you think</a></p>
@@ -100,7 +100,7 @@
 
       <section class="section">
         <div class="container">
-          <h2 class="title is-2">The team</h2>
+          <h3 class="title is-3">The team</h3>
           <p class="content">We aren't just a bunch of randos of the internet. We promise. <a href="/team">Read more about the team</a>.</p>
         </div>
       </section>
