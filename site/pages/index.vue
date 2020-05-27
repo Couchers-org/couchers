@@ -3,7 +3,7 @@
     <section class="hero">
       <div class="hero-body">
         <div class="container">
-          <div class="box">
+          <div class="box couchers-box">
             <h1 class="title is-2">Couchers.org</h1>
             <p class="subtitle is-4">Like&nbsp;CouchSurfing, but&nbsp;better</p>
           </div>
@@ -124,5 +124,9 @@
 
 .box {
   padding: 2em;
+}
+
+.couchers-box {
+  display: inline-block;
 }
 </style>
