@@ -10,7 +10,7 @@
       </div>
     </section>
 
-    <section class="section" v-bind:class="{ 'is-hidden': first_page_done }">
+    <section class="section" v-bind:class="{ 'is-hidden': first_page_done || loading }">
       <h3 class="title is-3">Your details</h3>
       <p class="subtitle is-5">The basics about you</p>
       <form id="form1" @submit.prevent="submit_form1" action="#" method="post">
@@ -50,7 +50,7 @@
       </form>
     </section>
 
-    <section class="section" v-bind:class="{ 'is-hidden': !first_page_done || second_page_done }">
+    <section class="section" v-bind:class="{ 'is-hidden': (!first_page_done || second_page_done) || loading }">
       <h3 class="title is-3">A bit more about you</h3>
       <p class="subtitle is-5">Feel free to fill out the form below and tell us a bit more about yourself and what you think we should concentrate on</p>
       <form id="form2" @submit.prevent="submit_form2" action="#" method="post">
@@ -132,7 +132,13 @@
       </form>
     </section>
 
-    <section class="section" v-bind:class="{ 'is-hidden': !second_page_done }">
+    <section v-bind:class="{ 'is-hidden': !loading }">
+      <div class="content">
+        <progress class="progress is-primary" max="100">Loading...</progress>
+      </div>
+    </section>
+
+    <section class="section" v-bind:class="{ 'is-hidden': !second_page_done || loading }">
       <h3 class="title is-3">Thank you!</h3>
       <p class="subtitle is-5">We appreciate you taking the time to tell us what you think.</p>
     </section>
@@ -143,6 +149,8 @@
 export default {
   data () {
     return {
+      loading: false,
+
       name: "",
       name_error: null,
       email: "",
@@ -196,6 +204,9 @@ export default {
           email: this.email,
           contribute: this.contribute
         })
+
+        this.loading = true
+
         const res = await this.$axios.$post(
           'https://ja4o9uz9u3.execute-api.us-east-1.amazonaws.com/default/form_handler',
           {
@@ -205,6 +216,8 @@ export default {
             contribute: this.contribute
           }
         )
+
+        this.loading = false
         console.log(res)
       }
     },
@@ -224,6 +237,9 @@ export default {
           develop: this.develop,
           expertise: this.expertise
         })
+
+        this.loading = true
+
         const res = await this.$axios.$post(
           'https://ja4o9uz9u3.execute-api.us-east-1.amazonaws.com/default/form_handler',
           {
@@ -241,6 +257,9 @@ export default {
             expertise: this.expertise
           }
         )
+
+        this.loading = false
+
         console.log(res)
       }
     }
@@ -260,5 +279,9 @@ export default {
 <style>
 .input, .textarea {
   max-width: 400px;
+}
+
+.progress {
+  margin: 2em;
 }
 </style>
