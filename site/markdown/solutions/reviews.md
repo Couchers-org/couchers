@@ -35,6 +35,6 @@ The answers to the three questions, on the other hand, are kept private and are 
 - The score must be calculated from questions where the member answering believes they are anonymous
 - A review should increase your score if you use the platform as intended and so are a benefit to the community
 
-These points are ticked off by our system. We destigmatize negative reviews by moving the goalposts from expecting everyone to be 100% as it is in CouchSurfing to putting people around 60-80% on average. People won't feel so bad about moving someone down from a 78% to a 76% if they've done something wrong. If a person frequently makes others feel unsafe or uncomfortable, you can expect that they'll have very low scores.
+These points are ticked off by our system. We destigmatize negative reviews by moving the goalposts from expecting everyone to be 100% as it is in Couchsurfing&#8482; to putting people around 60-80% on average. People won't feel so bad about moving someone down from a 78% to a 76% if they've done something wrong. If a person frequently makes others feel unsafe or uncomfortable, you can expect that they'll have very low scores.
 
 **If someone is a great member of the community, such as an amazing host or organiser, this will be reflected in their scores.** We hope this will incentivise users to become more active in their communities.

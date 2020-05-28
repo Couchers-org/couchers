@@ -5,7 +5,7 @@
         <div class="container">
           <div class="box couchers-box">
             <h1 class="title is-2">Couchers.org</h1>
-            <p class="subtitle is-4">Like&nbsp;CouchSurfing, but&nbsp;better</p>
+            <p class="subtitle is-4">Like&nbsp;Couchsurfing&#8482;, but&nbsp;better</p>
           </div>
         </div>
       </div>
@@ -23,9 +23,9 @@
     <div class="container">
       <section class="section">
         <div class="container">
-          <h2 class="title is-3">Our plan: fix the problems with CouchSurfing</h2>
-          <p class="content">We're sure that you, like all of us, have had great experiences that couldn't have happened without CouchSurfing. But we all know it's got its issues. For the next generation in couch-surfing apps, we need to fix those issues.</p>
-          <p class="content">If there's any problems you've found with CouchSurfing or any other platforms, we'd love to hear about it so we can try to fix them.</p>
+          <h2 class="title is-3">Our plan: fix the problems with Couchsurfing&#8482;</h2>
+          <p class="content">We're sure that you, like all of us, have had great experiences that couldn't have happened without Couchsurfing&#8482;. But we all know it's got its issues. For the next generation in couch-surfing apps, we need to fix those issues.</p>
+          <p class="content">If there's any problems you've found with Couchsurfing&#8482; or any other platforms, we'd love to hear about it so we can try to fix them.</p>
           <p class="content"><a class="button is-primary" href = "/signup">Tell us what you think</a></p>
           <div class="tile is-ancestor">
             <div class="tile is-vertical">
@@ -37,7 +37,7 @@
                     <p class="content">We will be a non-profit and explore various revenue models. There are many successful non-profits. We do not need investors.</p>
                     <p class="subtitle">To fix</p>
                     <h3 class="title is-3"><a href="/issues/profit-and-incentives">Profit incentives</a></h3>
-                    <p class="content">CouchSurfing needs to prioritise returns for investors at the expense of the community.</p>
+                    <p class="content">Couchsurfing&#8482; needs to prioritise returns for investors at the expense of the community.</p>
                   </article>
                 </div>
                 <div class="tile is-parent">
@@ -57,7 +57,7 @@
                     <p class="content">Our platform is developer-led. We will build this right, make it scalable, and listen to the community to fix bugs.</p>
                     <p class="subtitle">To fix</p>
                     <h3 class="title is-3"><a href="/issues/the-build">The bugs and app issues</a></h3>
-                    <p class="content">There are far too many bugs and problems with the CouchSurfing platform.</p>
+                    <p class="content">There are far too many bugs and problems with the Couchsurfing&#8482; platform.</p>
                   </article>
                 </div>
               </div>

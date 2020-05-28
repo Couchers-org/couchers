@@ -43,7 +43,7 @@
 
           <div class="navbar-item has-dropdown is-hoverable">
             <a href="/issues" class="navbar-link">
-              CouchSurfing issues
+              Couchsurfing&#8482; issues
             </a>
 
             <div class="navbar-dropdown">
@@ -94,7 +94,7 @@
         <p>
           <strong>Couchers.org</strong> by <a href="/team">the <b>Couchers.org team</b></a>.
         </p>
-        <p>It's like CouchSurfing, but better.</p>
+        <p>It's like Couchsurfing&#8482;, but better.</p>
       </div>
     </footer>
   </div>
