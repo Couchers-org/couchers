@@ -5,7 +5,7 @@
         <div class="container">
           <h2 class="title is-2">Sign up for Couchers.org</h2>
           <p class="subtitle is-4">Join the worldwide team of couch-surfers bringing this community-run platform to life</p>
-          <p class="content">Fill in the forms below to tell us your experience and ideas. We'll keep you in the loop as we make progress on this exciting project!</p>
+          <p class="content">Fill in the forms below to tell us your experience, ideas, and expertise. We'll keep you in the loop as we make progress on this exciting project!</p>
         </div>
       </div>
     </section>
