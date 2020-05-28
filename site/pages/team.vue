@@ -22,7 +22,7 @@
             <div class="card">
               <div class="card-image">
                 <figure class="image is-4by3 headshot">
-                  <img src="/img/itsi-friends-43.jpg" alt="Photo of Itsi with Couchsurfing&#8482; friends">
+                  <img src="/img/itsi-friends.jpg" alt="Photo of Itsi with Couchsurfing&#8482; friends">
                 </figure>
               </div>
               <div class="card-content">
@@ -78,7 +78,7 @@
             <div class="card">
               <div class="card-image">
                 <figure class="image is-4by3 headshot">
-                  <img src="/img/marlies-friends-43.jpg" alt="Photo of Marlies with Couchsurfing&#8482; friends">
+                  <img src="/img/marlies-friends.jpg" alt="Photo of Marlies with Couchsurfing&#8482; friends">
                 </figure>
               </div>
               <div class="card-content">
@@ -106,14 +106,14 @@
             <div class="card">
               <div class="card-image">
                 <figure class="image is-4by3 headshot">
-                  <img src="https://bulma.io/images/placeholders/480x480.png" alt="Placeholder image">
+                  <img src="/img/val-friends.jpg" alt="Photo of Val with Couchsurfing&#8482; friends">
                 </figure>
               </div>
               <div class="card-content">
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-48x48">
-                      <img class="is-rounded" src="https://bulma.io/images/placeholders/128x128.png" alt="Placeholder image">
+                      <img class="is-rounded" src="/img/val-head.jpg" alt="Headshot of Val">
                     </figure>
                   </div>
                   <div class="media-content">
@@ -132,24 +132,24 @@
             <div class="card">
               <div class="card-image">
                 <figure class="image is-4by3 headshot">
-                  <img src="https://bulma.io/images/placeholders/480x480.png" alt="Photo of Aapeli with Couchsurfing&#8482; friends">
+                  <img src="/img/coucher-avatar.jpg" alt="Avatar pic">
                 </figure>
               </div>
               <div class="card-content">
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-48x48">
-                      <img class="is-rounded" src="https://bulma.io/images/placeholders/128x128.png" alt="Headshot of Aapeli">
+                      <img class="is-rounded" src="/img/question.jpg" alt="question profile">
                     </figure>
                   </div>
                   <div class="media-content">
-                    <p class="title is-4">Itsi's friend</p>
-                    <p class="subtitle is-6">Software Architect</p>
+                    <p class="title is-4">You</p>
+                    <p class="subtitle is-6">Contributor</p>
                   </div>
                 </div>
-
                 <div class="content">
-                  ...
+                  <p>We're looking for people with all kinds of skills to join the team and bring this project to life. If you think you can help out, we'd love to chat.</p>
+		<p><a class="button is-primary" href = "/signup">Join our team</a></p>
                 </div>
               </div>
             </div>
