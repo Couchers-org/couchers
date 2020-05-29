@@ -1,5 +1,5 @@
 ---
-title: What Couchsurfing&#8482; got wrong
+title: What Couchsurfing™ got wrong
 crumb: Issues
 ---
 
