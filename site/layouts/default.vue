@@ -68,6 +68,10 @@
             </div>
           </div>
 
+          <a class="navbar-item" href="/governance">
+            Governance
+          </a>
+
           <a class="navbar-item" href="/faq">
             FAQ
           </a>
