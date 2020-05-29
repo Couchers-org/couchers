@@ -36,32 +36,32 @@
             <div class="tile is-vertical">
               <div class="tile">
                 <div class="tile is-parent">
-                  <article class="tile is-child notification is-success">
+                  <article class="tile is-child notification is-success c-tile">
                   	<p class="subtitle">Issue:</p>
                     <h3 class="title is-3">Governance</h3>
-                    <h4 class="title is-5"><a href="/solutions/profit-and-incentives">Profit incentives</a></h4>
+                    <h5 class="title is-5 box-subtitle"><a href="/solutions/profit-and-incentives">Profit incentives</a></h5>
                     <p class="content">Couchsurfing&#8482; is explicitly for-profit, prioritising returns for investors over users and communities.</p>
-                    <h4 class="title is-5"><a href="/issues/communities-and-trust">Neglected communities</a></h4>
-                    <p>The community has been ignored, too many users have been pushed onto the platform, trust between members has been eroded.</p>
+                    <h5 class="title is-5 box-subtitle"><a href="/issues/communities-and-trust">Neglected communities</a></h5>
+                    <p class="content">The community has been ignored, too many users have been pushed onto the platform, trust between members has been eroded.</p>
                   </article>
                 </div>
                 <div class="tile is-parent">
-                  <article class="tile is-child notification is-danger">
+                  <article class="tile is-child notification is-danger c-tile">
                   	<p class="subtitle">Issue:</p>
                     <h3 class="title is-3">Technology</h3>
-                    <h4 class="title is-5"><a href="/issues/the-build">The bugs and app issues</a></h4>
+                    <h5 class="title is-5 box-subtitle"><a href="/issues/the-build">The bugs and app issues</a></h5>
                     <p class="content">There are far too many bugs and problems with the Couchsurfing&#8482; platform. It wasn't good enough as a free service, and it's definitely not good enough now that it's paid.</p>
                   </article>
                 </div>
                 <div class="tile is-parent">
-                  <article class="tile is-child notification is-warning">
+                  <article class="tile is-child notification is-warning c-tile">
                   	<p class="subtitle">Issue:</p>
                     <h3 class="title is-3">Design</h3>
-                    <h4 class="title is-5"><a href="/issues/creeps-and-freeloaders">Safety</a></h4>
+                    <h5 class="title is-5 box-subtitle"><a href="/issues/creeps-and-freeloaders">Safety</a></h5>
                     <p class="content">Detrimental users threaten users' safety, especially for women. Freeloaders abound.</p>
-                    <h4 class="title is-5"><a href="/issues/reviews">Reference system</a></h4>
+                    <h5 class="title is-5 box-subtitle"><a href="/issues/reviews">Reference system</a></h5>
                     <p class="content">You can't trust people based on references.</p>
-                    <h4 class="title is-5"><a href="/issues/host-matching">Super-host effect</a></h4>
+                    <h5 class="title is-5 box-subtitle"><a href="/issues/host-matching">Super-host effect</a></h5>
                     <p class="content">Local communities have been shrinking to just small groups of super-hosts.</p>
                   </article>
                 </div>
@@ -212,5 +212,13 @@
 
 .couchers-box {
   display: inline-block;
+}
+
+.box-subtitle {
+  margin-bottom: 0.5rem !important;
+}
+
+.c-tile {
+  padding-bottom: 2.5rem;
 }
 </style>
