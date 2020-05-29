@@ -138,8 +138,8 @@ export default {
         { hid: 'og:description', property: 'og:description', content: description },
         { hid: 'twitter:description', name: 'twitter:description', content: description },
 
-        { hid: 'og:image', property: 'og:image', content: 'TODO' },
-        { hid: 'twitter:image', name: 'twitter:image', content: 'TODO' },
+        { hid: 'og:image', property: 'og:image', content: 'https://couchers.org/img/share.jpg' },
+        { hid: 'twitter:image', name: 'twitter:image', content: 'https://couchers.org/img/share.jpg' },
 
         { hid: 'og:url', property: 'og:url', content: 'https://couchers.org' },
         { hid: 'og:type', property: 'og:type', content: 'website' },
