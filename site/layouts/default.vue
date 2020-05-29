@@ -24,7 +24,7 @@
                 Non-Profit Structure
               </a>
               <a href="/solutions/communities-and-trust" class="navbar-item">
-                Community-First Structure
+                Community-First Framework
               </a>
               <a href="/solutions/the-build" class="navbar-item">
                 Building it Right

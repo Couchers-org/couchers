@@ -46,14 +46,6 @@
                   </article>
                 </div>
                 <div class="tile is-parent">
-                  <article class="tile is-child notification is-danger c-tile">
-                  	<p class="subtitle">Issue:</p>
-                    <h3 class="title is-3">Technology</h3>
-                    <h5 class="title is-5 box-subtitle"><a href="/issues/the-build">The bugs and app issues</a></h5>
-                    <p class="content">There are far too many bugs and problems with the Couchsurfing&#8482; platform. It wasn't good enough as a free service, and it's definitely not good enough now that it's paid.</p>
-                  </article>
-                </div>
-                <div class="tile is-parent">
                   <article class="tile is-child notification is-warning c-tile">
                   	<p class="subtitle">Issue:</p>
                     <h3 class="title is-3">Design</h3>
@@ -63,6 +55,14 @@
                     <p class="content">You can't trust people based on references.</p>
                     <h5 class="title is-5 box-subtitle"><a href="/issues/host-matching">Super-host effect</a></h5>
                     <p class="content">Local communities have been shrinking to just small groups of super-hosts.</p>
+                  </article>
+                </div>
+                <div class="tile is-parent">
+                  <article class="tile is-child notification is-danger c-tile">
+                  	<p class="subtitle">Issue:</p>
+                    <h3 class="title is-3">Technology</h3>
+                    <h5 class="title is-5 box-subtitle"><a href="/issues/the-build">The bugs and app issues</a></h5>
+                    <p class="content">There are far too many bugs and problems with the Couchsurfing&#8482; platform. It wasn't good enough as a free service, and it's definitely not good enough now that it's paid.</p>
                   </article>
                 </div>
               </div>
@@ -77,115 +77,41 @@
             <div class="tile is-vertical">
               <div class="tile">
                 <div class="tile is-parent">
-                  <article class="tile is-child notification is-success">
+                  <article class="tile is-child notification is-success c-tile">
                     <h3 class="title is-3">Governance</h3>
-                    <h4 class="title is-5"><a href="/solutions/profit-and-incentives">Non-profit structure</a></h4>
-                    <p class="content">...</p>
-                    <h4 class="title is-5"><a href="/solutions/communities-and-trust">Community-first structure</a></h4>
-                    <p class="content">...</p>
+                    <h4 class="title is-5 box-subtitle"><a href="/solutions/profit-and-incentives">Non-profit structure</a></h4>
+                    <p class="content">This platform will be run as a non-profit, taking no outside investment. The priorities will be the users and community.</p>
+                    <h4 class="title is-5 box-subtitle"><a href="/solutions/communities-and-trust">Community-first framework</a></h4>
+                    <p class="content">We will build communities into the foundations of the product, and improve trust through a new verification method.</p>
                   </article>
                 </div>
                 <div class="tile is-parent">
-                  <article class="tile is-child notification is-danger">
-                    <h3 class="title is-3">Technology</h3>
-                    <h4 class="title is-5"><a href="/solutions/the-build">Build it right</a></h4>
-                    <p class="content">...</p>
-                  </article>
-                </div>
-                <div class="tile is-parent">
-                  <article class="tile is-child notification is-warning">
+                  <article class="tile is-child notification is-warning c-tile">
                     <h3 class="title is-3">Design</h3>
-                    <h4 class="title is-5"><a href="/solutions/creeps-and-freeloaders">Member accountability</a></h4>
-                    <p class="content">...</p>
-                    <h4 class="title is-5"><a href="/solutions/reviews">Improved review system</a></h4>
-                    <p class="content">...</p>
-                    <h4 class="title is-5"><a href="/solutions/host-matching">Better host finding</a></h4>
-                    <p class="content">...</p>
+                    <h4 class="title is-5 box-subtitle"><a href="/solutions/creeps-and-freeloaders">Member accountability</a></h4>
+                    <p class="content">Users will be accountable for how they treat other members, filtering out creeps and freeloaders.</p>
+                    <h4 class="title is-5 box-subtitle"><a href="/solutions/reviews">Improved review system</a></h4>
+                    <p class="content">Overhauled references to reflect more accurately on users.</p>
+                    <h4 class="title is-5 box-subtitle"><a href="/solutions/host-matching">Better host finding</a></h4>
+                    <p class="content">Healthier communities by spreading out hosting opportunities and no message limits.</p>
+                  </article>
+                </div>
+                <div class="tile is-parent">
+                  <article class="tile is-child notification is-danger c-tile">
+                    <h3 class="title is-3">Technology</h3>
+                    <h4 class="title is-5 box-subtitle"><a href="/solutions/the-build">Build it right</a></h4>
+                    <p class="content">Our platform is developer-led. We will build this right, make it scalable, and listen to the community to fix bugs. We want to make something to be proud of.</p>
                   </article>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </section>
-
-
-      <section class="section">
-        <div class="container"><div class="tile is-ancestor">
-            <div class="tile is-vertical">
-              <div class="tile">
-                <div class="tile is-parent">
-                  <article class="tile is-child notification is-success">
-                    <p class="subtitle">Our plan</p>
-                    <h3 class="title is-3"><a href="/solutions/profit-and-incentives">Non-profit structure</a></h3>
-                    <p class="content">We will be a non-profit and explore various revenue models. There are many successful non-profits. We do not need investors.</p>
-                    <p class="subtitle">To fix</p>
-                    <h3 class="title is-3"><a href="/issues/profit-and-incentives">Profit incentives</a></h3>
-                    <p class="content">Couchsurfing&#8482; needs to prioritise returns for investors at the expense of the community.</p>
-                  </article>
-                </div>
-                <div class="tile is-parent">
-                  <article class="tile is-child notification is-warning">
-                    <p class="subtitle">Our plan</p>
-                    <h3 class="title is-3"><a href="/solutions/communities-and-trust">Community-first structure</a></h3>
-                    <p class="content">Prioritise community at the foundation, improve trust with an improved verification and reference system.</p>
-                    <p class="subtitle">To fix</p>
-                    <h3 class="title is-3"><a href="/issues/communities-and-trust">Neglected communities</a></h3>
-                    <p class="content">The community has been ignored, too many users pushed onto the platform, trust between members has been eroded.</p>
-                  </article>
-                </div>
-                <div class="tile is-parent">
-                  <article class="tile is-child notification is-danger">
-                    <p class="subtitle">Our plan</p>
-                    <h3 class="title is-3"><a href="/solutions/the-build">Build it right</a></h3>
-                    <p class="content">Our platform is developer-led. We will build this right, make it scalable, and listen to the community to fix bugs.</p>
-                    <p class="subtitle">To fix</p>
-                    <h3 class="title is-3"><a href="/issues/the-build">The bugs and app issues</a></h3>
-                    <p class="content">There are far too many bugs and problems with the Couchsurfing&#8482; platform.</p>
-                  </article>
-                </div>
-              </div>
-              <div class="tile">
-                <div class="tile is-parent">
-                  <article class="tile is-child notification is-warning">
-                    <p class="subtitle">Our plan</p>
-                    <h3 class="title is-3"><a href="/solutions/creeps-and-freeloaders">Member accountability</a></h3>
-                    <p class="content">Institute public accountability: members will know who they can trust, the community can filter out detrimental people.</p>
-                    <p class="subtitle">To fix</p>
-                    <h3 class="title is-3"><a href="/issues/creeps-and-freeloaders">Safety and freeloaders</a></h3>
-                    <p class="content">There is a widespread safety issue, especially for women, with predatory users using the platfom for sex. Freeloaders abound.</p>
-                  </article>
-                </div>
-                <div class="tile is-parent">
-                  <article class="tile is-child notification is-danger">
-                    <p class="subtitle">Our plan</p>
-                    <h3 class="title is-3"><a href="/solutions/reviews">Improved review system</a></h3>
-                    <p class="content">Anonymous reviews, destigmatization of negative reviews, a new score that more reflects if people are trustworthy and good for the community.</p>
-                    <p class="subtitle">To fix</p>
-                    <h3 class="title is-3"><a href="/issues/reviews">Disfunctional reference system</a></h3>
-                    <p class="content">The reference system doesn't work as a way to trust people.</p>
-                  </article>
-                </div>
-                <div class="tile is-parent">
-                  <article class="tile is-child notification is-success">
-                    <p class="subtitle">Our plan</p>
-                    <h3 class="title is-3"><a href="/solutions/host-matching">Better host finding</a></h3>
-                    <p class="content">Better balanced local communities by removing 'request to stay' limit and spread out hosting opportunities.</p>
-                    <p class="subtitle">To fix</p>
-                    <h3 class="title is-3"><a href="/issues/host-matching">Super-host effect</a></h3>
-                    <p class="content">Local communities have been shrinking to just small groups of super-hosts (it's not their fault).</p>
-                  </article>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
+      </section>      
       <section class="section">
         <div class="container">
           <h3 class="title is-3">The team</h3>
-          <p class="content">We aren't just a bunch of randos of the internet. We promise. <a href="/team">Read more about the team</a>.</p>
+          <p class="content">Our growing team is a mix of couch-surfing software specialists and community organisers who are commited to building this platform for you. <a href="/team">Read more about the team</a>.</p>
         </div>
       </section>
     </div>

@@ -1,7 +1,7 @@
 ---
-title: Community-first Structure and Improved Verification
+title: Community-first Framework and Improved Verification
 subtitle: "Our plan to fix the problem of [Neglected communities](/issues/communities-and-trust)"
-crumb: Community-first Structure
+crumb: Community-first framework
 ---
 
 ## Focusing on communities
