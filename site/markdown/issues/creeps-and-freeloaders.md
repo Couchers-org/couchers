@@ -4,6 +4,8 @@ bustitle: "Our plan to fix it: [Member accountability](/solutions/creeps-and-fre
 crumb: Safety and freeloaders
 ---
 
+<span class="tag is-warning is-large">Design</span>
+
 **Note: this article discusses predatory behaviour, sexual assault and harassment.**
 
 It is well known that Couchsurfing&#8482; has a problem with creeps using the platform to harass individuals. While this behaviour occurs between all types of people, its most prevalent form is through some men using the platform as a way to attempt to have sex with women. While some people might be comfortable defending themselves in these types of situations, it has no doubt been a barrier to entry for numerous others, and has caused even experienced users to move away from Couchsurfing&#8482;. The behaviour is so common that it even has its own term, SexSurfing. To be clear, sex is not bad for the community, but users' expectation of sex is. **In recent years, there has been an influx of users signing up to Couchsurfing&#8482; with perverse motives that directly contradict the ethos of couch-surfing**.

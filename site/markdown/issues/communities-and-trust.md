@@ -4,6 +4,8 @@ bustitle: "Our plan to fix it: [Community-first framework](/solutions/communitie
 crumb: Neglected communities
 ---
 
+<span class="tag is-success is-large">Governance</span>
+
 Perhaps the biggest success of the early days of Couchsurfing&#8482; was that it facilitated the interactions and formation of communities. Any word cloud of articles about Couchsurfing&#8482; has "community" in huge letters at the center. People are usually referring to one of:
 
  - **Local communities**: collections of people in cities or towns, usually made of a mix of hosts, stationary/working travellers and some of their friends

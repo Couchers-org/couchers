@@ -26,9 +26,6 @@
               <a href="/solutions/communities-and-trust" class="navbar-item">
                 Community-First Framework
               </a>
-              <a href="/solutions/the-build" class="navbar-item">
-                Building it Right
-              </a>
               <a href="/solutions/creeps-and-freeloaders" class="navbar-item">
                 Member Accountability
               </a>
@@ -37,6 +34,9 @@
               </a>
               <a href="/solutions/host-matching" class="navbar-item">
                 Better Host Finding
+              </a>
+              <a href="/solutions/the-build" class="navbar-item">
+                Building it Right
               </a>
             </div>
           </div>
@@ -53,9 +53,6 @@
               <a href="/issues/communities-and-trust" class="navbar-item">
                 Neglected Communities
               </a>
-              <a href="/issues/the-build" class="navbar-item">
-                The Bugs and App Issues
-              </a>
               <a href="/issues/creeps-and-freeloaders" class="navbar-item">
                 Safety and Freeloaders
               </a>
@@ -64,6 +61,9 @@
               </a>
               <a href="/issues/host-matching" class="navbar-item">
                 The Super-Host Effect
+              </a>
+              <a href="/issues/the-build" class="navbar-item">
+                The Bugs and App Issues
               </a>
             </div>
           </div>

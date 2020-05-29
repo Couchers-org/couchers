@@ -4,6 +4,8 @@ bustitle: "Our plan to fix it: [Improved review system](/solutions/reviews)"
 crumb: The reference system
 ---
 
+<span class="tag is-warning is-large">Design</span>
+
 The reference system used by Couchsurfing&#8482; may seem simple and intuitive on the surface, but it fails to do its job. **People read references for two main reasons: to make sure their experience is 1) safe and 2) enjoyable.** However, given the way the reference system is structured, it **doesn't achieve either of these goals** and so the system is meaningless.
 
 In general, a good user account is one that only has positive reviews. Negative (and previously neutral) reviews are seen as red flags. The norm is to leave a good review, which is understandable, especially in situations where a host has generously let you stay in their home and treated you well. However, there's a problem here in that it's hard to distinguish between an average experience with someone just letting you crash at their place or an amazing experience with someone who's a great asset to the community. As most references are similarly positive, it's very hard to gague whether you think you'll have an enjoyable experience with another person. **But the larger problem is in how uncommon negative reviews are.** What this has done is consolidated members onto the 100% positive bracket whether they are great contributors to the community or detract from it. There's no way to tell from references.

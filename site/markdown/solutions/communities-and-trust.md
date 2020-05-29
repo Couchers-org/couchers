@@ -4,6 +4,8 @@ subtitle: "Our plan to fix the problem of [Neglected communities](/issues/commun
 crumb: Community-first framework
 ---
 
+<span class="tag is-success is-large">Governance</span>
+
 ## Focusing on communities
 
 In the couch-surfing world, we have the global community and many local communities that have sprung up. **The aim of a platform for couch-surfers ought to be to foster the very act of couch-surfing by serving and growing the global community while creating and enlarging local communities.** Our hope is to facilitate more people joining and sharing the value of non-transactional experiences globally, and more people ocnnecting and feeling like they belong to their local communities. These communities grow out of many purposes, some are formed based on where we live, others by where we travel, and even more communities form as we stay in touch after returning home.

@@ -4,6 +4,8 @@ bustitle: "Our plan to fix it: [Non-profit structure](/solutions/profit-and-ince
 crumb: Profit incentives
 ---
 
+<span class="tag is-success is-large">Governance</span>
+
 A few weeks ago the Couchsurfing&#8482; management decided to [force all users to pay for the service](https://medium.com/@jameshopest/the-death-of-couchsurfing-a87d9537edf2) and barring everyone from their accounts until they pay up.
 
 **Couchsurfing&#8482; never should have been made a for-profit.** While the founders may have seen no other choice, the point stands. There is certainly a moral dimension to driving profit from the hospitality of others', evident in the clear outrage of experienced hosts at the recent change. However, if we investigate the effect of this profit motive on the mix of incentives on the platform, we begin to see a more systematic cause for the downfall of Couchsurfing&#8482; as a service.

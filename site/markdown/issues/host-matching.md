@@ -4,6 +4,8 @@ bustitle: "Our plan to fix it: [Better host finding](/solutions/host-matching)"
 crumb: The super-host effect
 ---
 
+<span class="tag is-warning is-large">Design</span>
+
 **There is a prevalence of super-hosts on the Couchsurfing&#8482; platform**. These are hosts which have far more references than other hosts in their area. While very active hosts can be extremely beneficial for the community, unfortunately when combined with the message restrictions (10 per week for 95% of users) and the host matching system, the effect is detrimental and can cause "couch-surfing fatigue" for the super-host, while other hosts do not receive any requests. Here's how it works.
 
 A surfer is looking for a host in a new city for two nights, but she is restricted to only sending 10 requests per week so might only send three or so messages to potential hosts. To maximise her chance of getting an offer to stay, she only messages hosts who are active and have a lot of references. Someone agrees to host her, great!

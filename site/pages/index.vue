@@ -78,6 +78,7 @@
               <div class="tile">
                 <div class="tile is-parent">
                   <article class="tile is-child notification is-success c-tile">
+                    <p class="subtitle">Our plan:</p>
                     <h3 class="title is-3">Governance</h3>
                     <h4 class="title is-5 box-subtitle"><a href="/solutions/profit-and-incentives">Non-profit structure</a></h4>
                     <p class="content">This platform will be run as a non-profit, taking no outside investment. The priorities will be the users and community.</p>
@@ -87,6 +88,7 @@
                 </div>
                 <div class="tile is-parent">
                   <article class="tile is-child notification is-warning c-tile">
+                    <p class="subtitle">Our plan:</p>
                     <h3 class="title is-3">Design</h3>
                     <h4 class="title is-5 box-subtitle"><a href="/solutions/creeps-and-freeloaders">Member accountability</a></h4>
                     <p class="content">Users will be accountable for how they treat other members, filtering out creeps and freeloaders.</p>
@@ -98,6 +100,7 @@
                 </div>
                 <div class="tile is-parent">
                   <article class="tile is-child notification is-danger c-tile">
+                    <p class="subtitle">Our plan:</p>
                     <h3 class="title is-3">Technology</h3>
                     <h4 class="title is-5 box-subtitle"><a href="/solutions/the-build">Build it right</a></h4>
                     <p class="content">Our platform is developer-led. We will build this right, make it scalable, and listen to the community to fix bugs. We want to make something to be proud of.</p>

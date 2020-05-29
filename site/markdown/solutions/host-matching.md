@@ -4,6 +4,8 @@ subtitle: "Our plan to fix the problem of [the Super-host effect](/issues/host-m
 crumb: Better host finding
 ---
 
+<span class="tag is-warning is-large">Design</span>
+
 For the new system of searching for hosts, we want to achieve two things:
 
 1. Make it easier to find people you will want to stay with
