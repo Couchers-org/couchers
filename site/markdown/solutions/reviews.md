@@ -8,7 +8,7 @@ crumb: Improved review system
 
 Trust is critical to couch-surfing communities. **Our trust model is based on two important measures on users' profiles**: **Community Verification** and **Community Standing**. Verification tells users whether to trust who you say you are, and you can read about the [new verification system here](/solutions/communities-and-trust).
 
-We will introduce a new score, **Community Standing, which will measure how much other people in the community trust you and have found your company to be a positive experience. It indicates your reputation and if peopl have found you safe to be around.** While we will still have references available, the number of references will not be the main indicator when choosing another member to surf, host or hang out with.
+We will introduce a new score, **Community Standing, which will measure how much other people in the community trust you and have found your company to be a positive experience. It indicates your reputation and if people have found you safe to be around.** While we will still have references available, the number of references will not be the main indicator when choosing another member to surf, host or hang out with.
 
 ## The community standing score
 
@@ -28,7 +28,7 @@ The answers to the three questions, on the other hand, are kept private and are 
 
 ## Rationale
 
-**A simple positive/negative recommendation is flawed.** Negative reviews are rare which makes it [hard for users (especially women) to have confidence in their safety](/issues/creeps-and-freeloaders) and consequently lends itself to the [super-host effect](/issues/host-matching), where very few hosts do most of the hosting even though others want to, polarising the community.
+**A simple positive/negative recommendation is flawed.** Negative reviews are rare which makes it [hard for users (especially women) to have confidence in their safety](/issues/creeps-and-freeloaders) and consequently lends itself to the [super-host effect](/issues/host-matching), where very few hosts do most of the hosting even though others want to, polarizing the community.
 
 **We want the new reference score to have a few properties:**
 
@@ -39,4 +39,4 @@ The answers to the three questions, on the other hand, are kept private and are 
 
 These points are ticked off by our system. We destigmatize negative reviews by moving the goalposts from expecting everyone to be 100% as it is in Couchsurfing&#8482; to putting people around 60-80% on average. People won't feel so bad about moving someone down from a 78% to a 76% if they've done something wrong. If a person frequently makes others feel unsafe or uncomfortable, you can expect that they'll have very low scores.
 
-**If someone is a great member of the community, such as an amazing host or organiser, this will be reflected in their scores.** We hope this will incentivise users to become more active in their communities.
+**If someone is a great member of the community, such as an amazing host or organizer, this will be reflected in their scores.** We hope this will incentivize users to become more active in their communities.

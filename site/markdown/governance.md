@@ -6,13 +6,13 @@ We are developing a roadmap on deciding how to run this platform. The community 
 
 We are confident that the site can be run without needing to seek mandatory payments from users, however this will require community involvement at several levels as volunteer work.
 
-We will need developers, designers, UI/UX engineers, and all kinds of people experienced with community non-profits. On the community side we will need hosts, surfers and community organisers that will help in setting the direction. In the coming weeks we will expand to include more of these people, and grow this network with their guidance and expertise. If you would like to help out, please fill in the [sign up form](/signup)!
+We will need developers, designers, UI/UX engineers, and all kinds of people experienced with community non-profits. On the community side we will need hosts, surfers and community organizers that will help in setting the direction. In the coming weeks we will expand to include more of these people, and grow this network with their guidance and expertise. If you would like to help out, please fill in the [sign up form](/signup)!
 
-Volunteers will be needed to perform moderation tasks. Tasks may include moderating forums and reviewing messages that have been tagged as inapropriate.
+Volunteers will be needed to perform moderation tasks. Tasks may include moderating forums and reviewing messages that have been tagged as inappropriate.
 
 ## Models
 
-There are many potential ways to structure this project. We have listed a few examples below, but will ultimately consult with the community as this is a critical decision in guaranteeing the longetivity of the organisation.
+There are many potential ways to structure this project. We have listed a few examples below, but will ultimately consult with the community as this is a critical decision in guaranteeing the longevity of the organization.
 
 ### Co-op
 

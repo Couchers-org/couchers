@@ -6,7 +6,7 @@ crumb: Building it right
 
 <span class="tag is-danger is-large">Technology</span>
 
-We have yet to finalize the full software architecture, but the general plan is to use proven technologies to build a robust, scalable design that will maximise developer velocity while allowing us to optimise the physical backend configuration to reduce hosting costs. **We will implement this with modern development practices such as code review, unit testing, and CI/CD to minimise both the number of bugs that slip into the codebase, as well as allowing a larger number of less experienced developers to contribute small bugfixes and features.**
+We have yet to finalize the full software architecture, but the general plan is to use proven technologies to build a robust, scalable design that will maximize developer velocity while allowing us to optimize the physical backend configuration to reduce hosting costs. **We will implement this with modern development practices such as code review, unit testing, and CI/CD to minimize both the number of bugs that slip into the codebase, as well as allowing a larger number of less experienced developers to contribute small bugfixes and features.**
 
 The platform will be divided into two parts: the backend and a frontend. The backend will be responsible for the processing and storage of user data as well as asynchronous tasks such as sending emails and performing long-running maintenance tasks. The frontend will be a lightweight single page app that runs on the client's browser and talks to the backend through RPC API calls.
 

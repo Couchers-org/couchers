@@ -16,11 +16,11 @@ Any decisions or subsequent changes to the revenue model will be made in full co
 
 #### Donations
 
-As a non-profit, we hope to attract donations from users of this platform. Many users of Couchsurfing&#8482; have expressed that they would have been happy to pay donations rather than the forced contributions. Donations as a source of income would incentivise the platform into making a better experience for its users, as it relies on optimising members' experience Furthermore, we believe that letting people pay what they want may allow some to make larger contributions, unlikely under a fixed price scheme.
+As a non-profit, we hope to attract donations from users of this platform. Many users of Couchsurfing&#8482; have expressed that they would have been happy to pay donations rather than the forced contributions. Donations as a source of income would incentivize the platform into making a better experience for its users, as it relies on optimizing members' experience Furthermore, we believe that letting people pay what they want may allow some to make larger contributions, unlikely under a fixed price scheme.
 
 #### Grants
 
-We may be able to find organisations or government programs that offer grants to non-profits.
+We may be able to find organizations or government programs that offer grants to non-profits.
 
 #### Advertising
 

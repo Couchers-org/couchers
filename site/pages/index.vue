@@ -40,7 +40,7 @@
                   	<p class="subtitle">Issue:</p>
                     <h3 class="title is-3">Governance</h3>
                     <h5 class="title is-5 box-subtitle"><a href="/solutions/profit-and-incentives">Profit incentives</a></h5>
-                    <p class="content">Couchsurfing&#8482; is explicitly for-profit, prioritising returns for investors over users and communities.</p>
+                    <p class="content">Couchsurfing&#8482; is explicitly for-profit, prioritizing returns for investors over users and communities.</p>
                     <h5 class="title is-5 box-subtitle"><a href="/issues/communities-and-trust">Neglected communities</a></h5>
                     <p class="content">The community has been ignored, too many users have been pushed onto the platform, trust between members has been eroded.</p>
                   </article>
@@ -114,7 +114,7 @@
       <section class="section">
         <div class="container">
           <h3 class="title is-3">The team</h3>
-          <p class="content">Our growing team is a mix of couch-surfing software specialists and community organisers who are commited to building this platform for you. <a href="/team">Read more about the team</a>.</p>
+          <p class="content">Our growing team is a mix of couch-surfing software specialists and community organizers who are committed to building this platform for you. <a href="/team">Read more about the team</a>.</p>
         </div>
       </section>
     </div>
