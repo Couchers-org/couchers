@@ -8,7 +8,7 @@
           </h2>
           <p class="content">We are a group of hosts and surfers who are also a mix of software engineers, data scientists, mathematicians and experienced community members and leaders. We've all gotten a lot of joy out of couch surfing and would like to make that experience even better. We're made up of a group of people dedicated to building the platform, along with a large network of couch-surfers that we consult for advice.</p>
           <p class="content">We are actively looking for people to join the team, we need a broad range of experiences, expertise, and cultural backgrounds. Please consider joining us, whether you have skills, ideas, complaints, or just want to see this done right.</p>
-          <p><a class="button is-primary" href = "/signup">Join the team</a></p>
+          <p><a class="button is-primary" href="/signup">Join the team</a></p>
         </div>
       </div>
     </section>
@@ -152,39 +152,15 @@
               </div>
             </div>
           </div>
-          <div class="column">
-            <div class="card">
-              <div class="card-image">
-                <figure class="image is-4by3 headshot">
-                  <img src="https://bulma.io/images/placeholders/480x480.png" alt="Placeholder image">
-                </figure>
-              </div>
-              <div class="card-content">
-                <div class="media">
-                  <div class="media-left">
-                    <figure class="image is-48x48">
-                      <img class="is-rounded" src="https://bulma.io/images/placeholders/128x128.png" alt="Placeholder image">
-                    </figure>
-                  </div>
-                  <div class="media-content">
-                    <p class="title is-4">Who else?</p>
-                    <p class="subtitle is-6">Third wheel</p>
-                  </div>
-                </div>
-
-                <div class="content">
-                  Some stuff about person 3. Some <a href="/">links</a> or <a href="/">@handles</a>.<br />
-                </div>
-              </div>
-            </div>
-          </div>
+          <!-- Needed here or the last two cards spread out -->
+          <div class="column"></div>
         </div>
       </div>
     </section>
     <section class="section">
       <h4 class="title is-4">Have skills you want to contribute?</h4>
       <p class="subtitle is-6">Couchers.org is a community project, build by folks like you for the benefit of the global couch-surfing community. If you would like to be a part of this great new project, or leave your feedback on our ideas, click the button below and fill out the short form.</p>
-      <p><a class="button is-primary" href = "/signup">Join our team</a></p>
+      <p><a class="button is-primary" href="/signup">Join our team</a></p>
     </section>
   </div>
 </template>
