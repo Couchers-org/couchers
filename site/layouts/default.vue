@@ -117,7 +117,7 @@ export default {
     }
   },
   head () {
-    const description = "Couchers.org is the new platform for couch-surfers. Non-profit. Community-focussed. Well built."
+    const description = "The new platform for couch-surfers. Non-profit. Community-focussed. Well built."
     return {
       title: "Home",
       titleTemplate: '%s | Couchers.org',
