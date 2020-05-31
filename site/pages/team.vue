@@ -36,7 +36,7 @@
                   </div>
                 </div>
                 <div class="content">
-                  <p>Itsi is a data scientist and community organiser from Sydney, Australia. He has years of leadership experience in community and event management in non-profits. He has expertise in machine learning, algorithm design and network modelling.</p>
+                  <p>Itsi is a data scientist and community organizer from Sydney, Australia. He has years of leadership experience in community and event management in non-profits. He has expertise in machine learning, algorithm design and network modeling.</p>
 
                   <p>Couch-surfing story: Zemo Alvani, Georgia. A man invites me for dinner while I wait for my host. I have to navigate drinking enough homemade wine to not be rude and not drinking too much for when I meet my host. Didn't go well but after a sleep-in we still managed to drive up a very dangerous road for hours to hang out with my host's cowboy buddies in the mountains. <a href="https://github.com/itsiw">@itsiw</a> on GitHub.</p>
                 </div>
@@ -120,7 +120,7 @@
                 </div>
 
                 <div class="content">
-                  <p>Val is a lifelong entrepreneur with international innovation and business experience, in particular in the area of design thinking and knowledge systems. Having worked for a wide range of organisations ranging from startups to universities, solving difficult problems is in the fabric of his being.</p>
+                  <p>Val is a lifelong entrepreneur with international innovation and business experience, in particular in the area of design thinking and knowledge systems. Having worked for a wide range of organizations ranging from startups to universities, solving difficult problems is in the fabric of his being.</p>
                 </div>
               </div>
             </div>
