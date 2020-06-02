@@ -32,7 +32,7 @@
                   </div>
                   <div class="media-content">
                     <p class="title is-4">Itsi Weinstock</p>
-                    <p class="subtitle is-6">Community Manager</p>
+                    <p class="subtitle is-6">Project Lead & Community Architect</p>
                   </div>
                 </div>
                 <div class="content">
@@ -59,7 +59,7 @@
                   </div>
                   <div class="media-content">
                     <p class="title is-4">Aapeli Vuorinen</p>
-                    <p class="subtitle is-6">Software Architect</p>
+                    <p class="subtitle is-6">Project Lead & Software Architect</p>
                   </div>
                 </div>
 
@@ -67,60 +67,6 @@
                   <p>Aapeli is a software engineer from Helsinki, Finland with over a decade of experience designing and building scalable yet performant systems. He has taken several projects from idea to execution, bringing them up to production standards quickly and efficiently.</p>
 
                   <p>Couch-surfing story: Arkhangelsk, Russian Federation. My host showed me the museum of military medicine that he had curated at the local university, and introduced me to the head of the medical school. We later went to check out a Cold War nuclear fallout shelter that was filled with ice as it was the middle of winter in the Arctic Circle. <a href="https://github.com/aapeliv">@aapeliv</a> on GitHub.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="column">
-            <div class="card">
-              <div class="card-image">
-                <figure class="image is-4by3 headshot">
-                  <img src="/img/marlies-friends.jpg" alt="Photo of Marlies with Couchsurfing&#8482; friends">
-                </figure>
-              </div>
-              <div class="card-content">
-                <div class="media">
-                  <div class="media-left">
-                    <figure class="image is-48x48">
-                      <img class="is-rounded" src="/img/marlies-head.jpg" alt="Headshot of Marlies">
-                    </figure>
-                  </div>
-                  <div class="media-content">
-                    <p class="title is-4">Marlies Iserlohe</p>
-                    <p class="subtitle is-6">Community Organizer</p>
-                  </div>
-                </div>
-
-                <div class="content">
-                  <p>Marlies is a grants administrator and global health student from Melbourne, Australia. She has backpacked through over 40 countries, spending the last year in South America learning Spanish and starting to appreciate why bananas go with every meal. Having been introduced to couch-surfing in 2015, Marlies loves being dragged into various activities in a new city and prides herself on being the host who introduced 2 surfers that are now engaged.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="columns">
-          <div class="column">
-            <div class="card">
-              <div class="card-image">
-                <figure class="image is-4by3 headshot">
-                  <img src="/img/val-friends.jpg" alt="Photo of Val with Couchsurfing&#8482; friends">
-                </figure>
-              </div>
-              <div class="card-content">
-                <div class="media">
-                  <div class="media-left">
-                    <figure class="image is-48x48">
-                      <img class="is-rounded" src="/img/val-head.jpg" alt="Headshot of Val">
-                    </figure>
-                  </div>
-                  <div class="media-content">
-                    <p class="title is-4">Val Natanelov</p>
-                    <p class="subtitle is-6">Community Something</p>
-                  </div>
-                </div>
-
-                <div class="content">
-                  <p>Val is a lifelong entrepreneur with international innovation and business experience, in particular in the area of design thinking and knowledge systems. Having worked for a wide range of organizations ranging from startups to universities, solving difficult problems is in the fabric of his being.</p>
                 </div>
               </div>
             </div>
@@ -147,6 +93,60 @@
                 <div class="content">
                   <p>We're looking for people with all kinds of skills to join the team and bring this project to life. If you think you can help out, we'd love to chat.</p>
 		              <p><a class="button is-primary" href = "/signup">Join our team</a></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column">
+            <div class="card">
+              <div class="card-image">
+                <figure class="image is-4by3 headshot">
+                  <img src="/img/marlies-friends.jpg" alt="Photo of Marlies with Couchsurfing&#8482; friends">
+                </figure>
+              </div>
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-48x48">
+                      <img class="is-rounded" src="/img/marlies-head.jpg" alt="Headshot of Marlies">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Marlies Iserlohe</p>
+                    <p class="subtitle is-6">Community Organizer</p>
+                  </div>
+                </div>
+
+                <div class="content">
+                  <p>Marlies is a grants administrator and global health student from Melbourne, Australia. She has backpacked through over 40 countries, spending the last year in South America learning Spanish and starting to appreciate why bananas go with every meal. Having been introduced to couch-surfing in 2015, Marlies loves being dragged into various activities in a new city and prides herself on being the host who introduced 2 surfers that are now engaged.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column">
+            <div class="card">
+              <div class="card-image">
+                <figure class="image is-4by3 headshot">
+                  <img src="/img/val-friends.jpg" alt="Photo of Val with Couchsurfing&#8482; friends">
+                </figure>
+              </div>
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-48x48">
+                      <img class="is-rounded" src="/img/val-head.jpg" alt="Headshot of Val">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Val Natanelov</p>
+                    <p class="subtitle is-6">Strategy Architect</p>
+                  </div>
+                </div>
+
+                <div class="content">
+                  <p>Val is a lifelong entrepreneur with international innovation and business experience, in particular in the area of design thinking and knowledge systems. Having worked for a wide range of organizations ranging from startups to universities, solving difficult problems is in the fabric of his being.</p>
                 </div>
               </div>
             </div>
