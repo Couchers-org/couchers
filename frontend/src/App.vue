@@ -10,10 +10,10 @@
       <v-list-item>
         <v-list-item-content>
           <v-list-item-title class="title">
-            Application
+            Profile
           </v-list-item-title>
           <v-list-item-subtitle>
-            subtext
+            Aapeli Vuorinen
           </v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
@@ -21,40 +21,72 @@
       <v-divider></v-divider>
 
       <v-list dense nav>
-        <v-list-item v-for="item in items" :key="item.title" link>
+        <v-list-item link>
           <v-list-item-icon>
-            <v-icon>{{ item.icon }}</v-icon>
+            <v-icon>mdi-view-dashboard</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title>{{ item.title }}</v-list-item-title>
+            <v-list-item-title>Profile</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item link>
+          <v-list-item-icon>
+            <v-badge color="success" content="3" overlap>
+              <v-icon>mdi-inbox</v-icon>
+            </v-badge>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>Messages</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item link>
+          <v-list-item-icon>
+            <v-badge color="warning" content="999+" overlap>
+              <v-icon>mdi-alert-circle</v-icon>
+            </v-badge>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>Spam</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item link>
+          <v-list-item-icon>
+            <v-icon>mdi-image</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>Photos</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item link>
+          <v-list-item-icon>
+            <v-icon>mdi-help-box</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>About</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
 
     <v-content>
-      <HelloWorld/>
+      <Profile/>
     </v-content>
   </v-app>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
-import HelloWorld from './components/HelloWorld.vue';
+import Profile from './components/Profile.vue';
 
 export default Vue.extend({
   name: 'App',
 
   components: {
-    HelloWorld,
+    Profile,
   },
 
   data: () => ({
-    items: [
-      { title: 'Dashboard', icon: 'mdi-view-dashboard' },
-      { title: 'Photos', icon: 'mdi-image' },
-      { title: 'About', icon: 'mdi-help-box' },
-    ],
+    //
   }),
 });
 </script>
