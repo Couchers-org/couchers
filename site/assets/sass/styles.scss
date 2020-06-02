@@ -18,3 +18,7 @@ $fullhd: 769px + (2 * $gap);
 .container p, .container li {
   text-align: justify;
 }
+
+p.subtitle, p.bustitle {
+  text-align: left;
+}
