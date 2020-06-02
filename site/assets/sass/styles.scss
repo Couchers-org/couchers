@@ -15,7 +15,17 @@ $fullhd: 769px + (2 * $gap);
 
 @import "../../node_modules/bulma/bulma.sass";
 
-p,
-li {
-    text-align: justify;
- }
+.container p, .container li {
+  text-align: justify;
+}
+
+p.subtitle, p.bustitle {
+  text-align: left;
+}
+
+.wide-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    width: auto;
+}

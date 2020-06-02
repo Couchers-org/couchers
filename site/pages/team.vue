@@ -1,20 +1,26 @@
 <template>
-  <div class="container">
-    <section class="hero">
-      <div class="hero-body">
-        <div class="container">
-          <h2 class="title is-2">
-            The Couchers.org team
-          </h2>
-          <p class="content">We are a group of hosts and surfers who are also a mix of software engineers, data scientists, mathematicians and experienced community members and leaders. We've all gotten a lot of joy out of couch surfing and would like to make that experience even better. We're made up of a group of people dedicated to building the platform, along with a large network of couch-surfers that we consult for advice.</p>
-          <p class="content">We are actively looking for people to join the team, we need a broad range of experiences, expertise, and cultural backgrounds. Please consider joining us, whether you have skills, ideas, complaints, or just want to see this done right.</p>
-          <p><a class="button is-primary" href="/signup">Join the team</a></p>
+  <div>
+    <div class="container">
+      <section class="hero">
+        <div class="hero-body">
+          <div class="container">
+            <h2 class="title is-2">
+              The Couchers.org team
+            </h2>
+            <p class="content">We are a group of hosts and surfers who are also a mix of software engineers, data scientists, mathematicians and experienced community members and leaders. We've all gotten a lot of joy out of couch surfing and would like to make that experience even better. We're made up of a group of people dedicated to building the platform, along with a large network of couch-surfers that we consult for advice.</p>
+            <p class="content">We are actively looking for people to join the team, we need a broad range of experiences, expertise, and cultural backgrounds. Please consider joining us, whether you have skills, ideas, complaints, or just want to see this done right.</p>
+            <p><a class="button is-primary" href="/signup">Join the team</a></p>
+          </div>
         </div>
-      </div>
-    </section>
-    <section class="section">
-      <div class="container">
+      </section>
+    </div>
+    <div class="container">
+      <section class="section">
         <h2 class="title is-2">Who we are</h2>
+      </section>
+    </div>
+    <div class="wide-container">
+      <section class="section">
         <div class="columns">
           <div class="column">
             <div class="card">
@@ -92,7 +98,7 @@
                 </div>
                 <div class="content">
                   <p>We're looking for people with all kinds of skills to join the team and bring this project to life. If you think you can help out, we'd love to chat.</p>
-		              <p><a class="button is-primary" href = "/signup">Join our team</a></p>
+                  <p><a class="button is-primary" href = "/signup">Join our team</a></p>
                 </div>
               </div>
             </div>
@@ -145,7 +151,7 @@
                 </div>
 
                 <div class="content">
-                  <p>Val is a lifelong entrepreneur with international innovation and business experience, in particular in the area of design thinking and knowledge systems. Having worked for a wide range of organizations ranging from startups to universities, solving difficult problems is in the fabric of his being.</p>
+                  <p>Val is a lifelong entrepreneur from Tbilisi, Georgia, with international innovation and business experience, in particular in the area of design thinking and knowledge systems. Having worked for a wide range of organizations ranging from startups to universities, solving difficult problems is in the fabric of his being.</p>
                 </div>
               </div>
             </div>
@@ -153,13 +159,15 @@
           <!-- Needed here or the last two cards spread out -->
           <div class="column"></div>
         </div>
-      </div>
-    </section>
-    <section class="section">
-      <h4 class="title is-4">Have skills you want to contribute?</h4>
-      <p class="subtitle is-6">Couchers.org is a community project, build by folks like you for the benefit of the global couch-surfing community. If you would like to be a part of this great new project, or leave your feedback on our ideas, click the button below and fill out the short form.</p>
-      <p><a class="button is-primary" href="/signup">Join our team</a></p>
-    </section>
+      </section>
+    </div>
+    <div class="container">
+      <section class="section">
+        <h4 class="title is-4">Have skills you want to contribute?</h4>
+        <p class="subtitle is-6">Couchers.org is a community project, build by folks like you for the benefit of the global couch-surfing community. If you would like to be a part of this great new project, or leave your feedback on our ideas, click the button below and fill out the short form.</p>
+        <p><a class="button is-primary" href="/signup">Join our team</a></p>
+      </section>
+    </div>
   </div>
 </template>
 
