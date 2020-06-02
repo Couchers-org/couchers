@@ -9,7 +9,7 @@
           </li>
         </ul>
       </nav>
-      <h1 class="title is-1">{{ attributes.title }}</h1>
+      <h1 class="title is-2">{{ attributes.title }}</h1>
       <p v-if="attributes.subtitle" class="subtitle is-3" v-html="attributes.subtitle" />
       <div class="content" v-html="html"></div>
       <p v-if="attributes.bustitle" class="subtitle is-4" v-html="attributes.bustitle" />

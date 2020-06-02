@@ -118,7 +118,6 @@
                     <p class="subtitle is-6">Community Organizer</p>
                   </div>
                 </div>
-
                 <div class="content">
                   <p>Marlies is a grants administrator and global health student from Melbourne, Australia. She has backpacked through over 40 countries, spending the last year in South America learning Spanish and starting to appreciate why bananas go with every meal. Having been introduced to couch-surfing in 2015, Marlies loves being dragged into various activities in a new city and prides herself on being the host who introduced 2 surfers that are now engaged.</p>
                 </div>
