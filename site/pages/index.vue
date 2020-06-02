@@ -110,7 +110,7 @@
             </div>
           </div>
         </div>
-      </section>      
+      </section>
       <section class="section">
         <div class="container">
           <h3 class="title is-3">The team</h3>

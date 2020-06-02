@@ -15,7 +15,6 @@ $fullhd: 769px + (2 * $gap);
 
 @import "../../node_modules/bulma/bulma.sass";
 
-p,
-li {
-    text-align: justify;
- }
+.container p, .container li {
+  text-align: justify;
+}
