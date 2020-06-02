@@ -151,7 +151,7 @@
                 </div>
 
                 <div class="content">
-                  <p>Val is a lifelong entrepreneur with international innovation and business experience, in particular in the area of design thinking and knowledge systems. Having worked for a wide range of organizations ranging from startups to universities, solving difficult problems is in the fabric of his being.</p>
+                  <p>Val is a lifelong entrepreneur from Tbilisi, Georgia, with international innovation and business experience, in particular in the area of design thinking and knowledge systems. Having worked for a wide range of organizations ranging from startups to universities, solving difficult problems is in the fabric of his being.</p>
                 </div>
               </div>
             </div>
