@@ -1,8 +1,8 @@
 import json
-from datetime import date
 from contextlib import contextmanager
+from datetime import date
 
-from models.user import Base, User
+from models import Base, User
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 

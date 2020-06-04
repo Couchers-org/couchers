@@ -27,7 +27,6 @@ class User(Base):
     countries_lived = Column(String, nullable=False)
 
 
-
 class Reference(Base):
     __tablename__ = "references"
 
