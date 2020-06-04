@@ -121,7 +121,7 @@
         share: "I have a lot of fun facts",
         countries_visited: ['Cuba','Czech Republic','Egypt','England','Georgia','Germany','Greece','Hong Kong','Laos','Mexico','Myanmar','Netherlands','Scotland','Spain','Thailand','Viet Nam'],
         countries_lived: ['Australia','North Korea']
-        }
+      }
     }),
     computed: {
       languages_display: function() {
