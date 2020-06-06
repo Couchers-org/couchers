@@ -1,0 +1,37 @@
+version: "3"
+services:
+  db:
+    image: postgres:12
+    environment:
+      POSTGRES_PASSWORD: db1265acfd28c298e559116f
+    restart: always
+    ports:
+      - 5231:5231
+  proxy:
+    build: proxy
+    restart: always
+    ports:
+      - 8888:8888
+      - 9901:9901
+  backend:
+    build: backend
+    volumes:
+      - "./backend:/app"
+    restart: always
+    ports:
+      - 1751:1751
+    depends_on:
+      - db
+    links:
+      - db
+  frontend:
+    build: frontend
+    volumes:
+      - "./frontend:/app"
+    restart: always
+    ports:
+      - 8080:8080
+    depends_on:
+      - backend
+    links:
+      - backend
