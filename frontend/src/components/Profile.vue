@@ -1,5 +1,6 @@
 <template>
   <v-container fluid>
+    <v-btn v-on:click="load_itsi">Load Itsi</v-btn>
     <v-card class="float-left mx-3 my-3" width="350" outlined>
       <v-img :aspect-ratio="1" src="profile-itsi.jpg"></v-img>
       <v-card-title>{{user.name}}</v-card-title>
@@ -102,8 +103,16 @@
     return list.join(', ')
   }
 
+  import { get_user_0 } from '../api'
+
   export default Vue.extend({
     name: 'Profile',
+
+    methods: {
+      load_itsi: async function () {
+        console.log(await get_user_0())
+      }
+    },
 
     data: () => ({
       user:{

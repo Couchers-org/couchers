@@ -1,8 +1,11 @@
 import json
+from concurrent import futures
 from contextlib import contextmanager
 from datetime import date
 
+import grpc
 from models import Base, User
+from pb import api_pb2, api_pb2_grpc
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -52,8 +55,38 @@ def add_dummy_data(file_name):
             )
             session.add(new_user)
 
-#add_dummy_data("dummy_data.json")
+#add_dummy_data("src/dummy_data.json")
 
 with session_scope() as session:
     for user in session.query(User).all():
         print(user)
+
+class APIServicer(api_pb2_grpc.APIServicer):
+    def GetUserById(self, request, context):
+        with session_scope() as session:
+            user = session.query(User).filter(User.id == request.id).one()
+            return api_pb2.User(
+                id=user.id,
+                name=user.name,
+                city=user.city,
+                verification=user.verification,
+                community_standing=user.community_standing,
+                # num_references=user.num_references,
+                gender=user.gender,
+                # age=user.age,
+                languages=user.languages.split("|"),
+                occupation=user.occupation,
+                about_me=user.about_me,
+                why=user.why,
+                share=user.share,
+                countries_visited=user.countries_visited.split("|"),
+                countries_lived=user.countries_lived.split("|"),
+            )
+
+server = grpc.server(futures.ThreadPoolExecutor(2))
+server.add_insecure_port("[::]:1751")
+servicer = APIServicer()
+api_pb2_grpc.add_APIServicer_to_server(servicer, server)
+
+server.start()
+server.wait_for_termination()

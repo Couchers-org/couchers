@@ -41,8 +41,5 @@ class Reference(Base):
     rating = Column(Integer, nullable=False)
     was_safe = Column(Boolean, nullable=False)
 
-    from_user = relationship("User", back_populates="references_from", foreign_keys="Reference.from_user_id")
-    to_user = relationship("User", back_populates="references_to", foreign_keys="Reference.to_user_id")
-
-User.references_from = relationship("Reference", back_populates="from_user", foreign_keys="Reference.from_user_id")
-User.references_to = relationship("Reference", back_populates="to_user", foreign_keys="Reference.to_user_id")
+    from_user = relationship("User", backref="references_from", foreign_keys="Reference.from_user_id")
+    to_user = relationship("User", backref="references_to", foreign_keys="Reference.to_user_id")
