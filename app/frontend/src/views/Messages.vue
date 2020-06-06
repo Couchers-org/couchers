@@ -1,14 +1,14 @@
 <template>
   <v-content>
-    Home
+    Messages
   </v-content>
 </template>
 
 <script>
 export default {
-  name: 'Home',
+  name: 'Messages',
   components: {
-    //
+      //
   }
 }
 </script>

@@ -21,15 +21,15 @@
       <v-divider></v-divider>
 
       <v-list dense nav>
-        <v-list-item link>
+        <v-list-item link to="/">
           <v-list-item-icon>
             <v-icon>mdi-view-dashboard</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title>Profile</v-list-item-title>
+            <v-list-item-title>Home</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-        <v-list-item link>
+        <v-list-item link to="/messages">
           <v-list-item-icon>
             <v-badge color="success" content="3" overlap>
               <v-icon>mdi-inbox</v-icon>
@@ -49,6 +49,14 @@
             <v-list-item-title>Spam</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
+        <v-list-item link to="/friends">
+          <v-list-item-icon>
+            <v-icon>mdi-handshake</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>Friends</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
         <v-list-item link>
           <v-list-item-icon>
             <v-icon>mdi-image</v-icon>
@@ -57,7 +65,7 @@
             <v-list-item-title>Photos</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-        <v-list-item link>
+        <v-list-item link to="/about">
           <v-list-item-icon>
             <v-icon>mdi-help-box</v-icon>
           </v-list-item-icon>

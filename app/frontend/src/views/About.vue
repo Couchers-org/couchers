@@ -1,5 +1,5 @@
 <template>
-  <div class="about">
-    <h1>This is an about page</h1>
-  </div>
+  <v-content>
+    <h1>About Couchers.org</h1>
+  </v-content>
 </template>
