@@ -1,6 +1,4 @@
-# site
-
-> Site
+# Couchers.org landing page
 
 ## Build Setup
 
@@ -19,4 +17,4 @@ $ yarn start
 $ yarn generate
 ```
 
-For detailed explanation on how things work, check out [Nuxt.js docs](https://nuxtjs.org).
+For detailed explanation on how things work, check out [Nuxt.js docs](https://nuxtjs.org). We're using [Bulma](https://bulma.io/) for widgets.
