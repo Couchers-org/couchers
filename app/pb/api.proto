@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package api;
+
+message User {
+  int64 id = 1;
+  string name = 2;
+  string city = 3;
+  double verification = 4;
+  double community_standing = 5;
+  int32 num_references = 6;
+  string gender = 7;
+  int32 age = 8;
+  repeated string languages = 9;
+  string occupation = 10;
+  string about_me = 11;
+  string why = 12;
+  string thing = 13;
+  string share = 14;
+  repeated string countries_visited = 15;
+  repeated string countries_lived = 16;
+}
+
+message GetUserByIdRequest {
+  int64 id = 1;
+}
+
+service API {
+  rpc GetUserById(GetUserByIdRequest) returns (User);
+}
