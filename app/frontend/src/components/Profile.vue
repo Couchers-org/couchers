@@ -1,5 +1,6 @@
 <template>
   <v-container fluid>
+    <v-btn v-on:click="loadUser(1)">{{username}}</v-btn>
     <v-btn v-on:click="loadUser(1)">Load 0</v-btn>
     <v-btn v-on:click="loadUser(2)">Load 1</v-btn>
     <v-card class="float-left mx-3 my-3" width="350" outlined>
@@ -108,6 +109,8 @@
 
   export default Vue.extend({
     name: 'Profile',
+
+    props: ['username'],
 
     methods: {
       loadUser: async function (id: number) {

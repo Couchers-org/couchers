@@ -1,6 +1,6 @@
 <template>
   <v-content>
-    <Profile username="idk" />
+    <Profile :username="$route.params.username" />
   </v-content>
 </template>
 
@@ -8,7 +8,7 @@
 import Profile from '../components/Profile.vue'
 
 export default {
-  name: 'Home',
+  name: 'User',
   components: {
     Profile
   }

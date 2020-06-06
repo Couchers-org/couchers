@@ -67,23 +67,15 @@
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
-
-    <v-content>
-      <Profile/>
-    </v-content>
+    <router-view/>
   </v-app>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
-import Profile from './components/Profile.vue';
 
 export default Vue.extend({
   name: 'App',
-
-  components: {
-    Profile,
-  },
 
   data: () => ({
     //
