@@ -22,6 +22,7 @@ class User(Base):
     occupation = Column(String, nullable=False)
     about_me = Column(String, nullable=False)
     why = Column(String, nullable=False)
+    thing = Column(String, nullable=False)
     share = Column(String, nullable=False)
     countries_visited = Column(String, nullable=False)
     countries_lived = Column(String, nullable=False)

@@ -84,7 +84,7 @@
         <h3>Why I’m on Couchsurfing</h3>
         <p>{{user.why}}</p>
         <h3>One Amazing Thing I’ve Done</h3>
-        <p>A llama once pissed on me when I was a kid</p>
+        <p>{{user.thing}}</p>
         <h3>What I can share with hosts</h3>
         <p>{{user.share}}</p>
         <h3>Countries I’ve Visited</h3>
@@ -127,6 +127,7 @@
         occupation: 'Mathematician',
         about_me: "Hey, my name’s Itsi (like the spider), from Australia. I'm a mathematician, data scientist and violinist (haha what a nerd). I've been a teacher, researcher, comedy writer, violin performer and a great cook for dinners with my friends.\n\nI like keeping very busy when I travel. If you've got any ideas for things to do, please drag me along! I love meeting energetic and funny people and organising small trips to go on with anyone I can wrangle together. Examples include hiking around wineries in Georgia, sailing along the Nile for a few days and exploring caves in Mexico.\n\nSharing food is a must! You can try so many more things that way.",
         why: "It’s awesome! I love finding the CS communities in the towns I visit, you can make so many friends that way. And you actually get to meet locals and hang out. All the experiences I’ve had staying with hosts have been fantastic.",
+        thing: "A llama once pissed on me when I was a kid",
         share: "I have a lot of fun facts",
         countries_visited: ['Cuba','Czech Republic','Egypt','England','Georgia','Germany','Greece','Hong Kong','Laos','Mexico','Myanmar','Netherlands','Scotland','Spain','Thailand','Viet Nam'],
         countries_lived: ['Australia','North Korea']

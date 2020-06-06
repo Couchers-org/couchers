@@ -15,9 +15,10 @@ message User {
   string occupation = 10;
   string about_me = 11;
   string why = 12;
-  string share = 13;
-  repeated string countries_visited = 14;
-  repeated string countries_lived = 15;
+  string thing = 13;
+  string share = 14;
+  repeated string countries_visited = 15;
+  repeated string countries_lived = 16;
 }
 
 message GetUserByIdRequest {
