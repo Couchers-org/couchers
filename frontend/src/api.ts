@@ -3,9 +3,9 @@ import { APIClient } from './pb/ApiServiceClientPb'
 
 const client = new APIClient('http://localhost:8888')
 
-export async function get_user_0() {
+export async function getUser(id: number) {
     const req = new GetUserByIdRequest()
-    req.setId(1)
+    req.setId(id)
     const res = await client.getUserById(req, null)
     return res.toObject()
 }

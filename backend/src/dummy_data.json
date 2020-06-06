@@ -2,8 +2,8 @@
     {
         "name": "Itsi Weinstock",
         "city": "Sydney, New South Wales, Australia",
-        "verification": 73,
-        "community_standing": 41,
+        "verification": 0.73,
+        "community_standing": 0.41,
         "num_references": 16,
         "gender": "Male",
         "birth_date": {
@@ -46,8 +46,8 @@
     {
         "name": "Aapeli Vuorinen",
         "city": "Brisbane, Queensland, Australia",
-        "verification": 98,
-        "community_standing": 87,
+        "verification": 0.98,
+        "community_standing": 0.87,
         "num_references": 402,
         "gender": "Male",
         "birth_date": {

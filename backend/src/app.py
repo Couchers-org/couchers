@@ -56,7 +56,7 @@ def add_dummy_data(file_name):
             )
             session.add(new_user)
 
-#add_dummy_data("src/dummy_data.json")
+add_dummy_data("src/dummy_data.json")
 
 with session_scope() as session:
     for user in session.query(User).all():
