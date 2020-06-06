@@ -1,6 +1,6 @@
 <template>
   <v-content>
-    <Profile username="idk" />
+    <Profile id="1" />
   </v-content>
 </template>
 

@@ -1,6 +1,6 @@
 <template>
   <v-content>
-    <Profile :username="$route.params.username" />
+    <Profile :id="$route.params.id" />
   </v-content>
 </template>
 

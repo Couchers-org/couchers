@@ -1,10 +1,7 @@
 <template>
   <v-container fluid>
-    <v-btn v-on:click="loadUser(1)">{{username}}</v-btn>
-    <v-btn v-on:click="loadUser(1)">Load 0</v-btn>
-    <v-btn v-on:click="loadUser(2)">Load 1</v-btn>
     <v-card class="float-left mx-3 my-3" width="350" outlined>
-      <v-img :aspect-ratio="1" src="profile-itsi.jpg"></v-img>
+      <v-img :aspect-ratio="1" src="/profile-itsi.jpg"></v-img>
       <v-card-title>{{ user.name }}</v-card-title>
       <v-card-subtitle>{{ user.city }}</v-card-subtitle>
       <v-card-text>
@@ -110,33 +107,52 @@
   export default Vue.extend({
     name: 'Profile',
 
-    props: ['username'],
+    props: ['id'],
+
+    created () {
+      this.fetchData()
+    },
+
+    watch: {
+      '$route': 'fetchData'
+    },
 
     methods: {
-      loadUser: async function (id: number) {
-        this.user = await getUser(id)
+      fetchData: async function () {
+        this.loading = true
+        this.error = null
+        getUser(this.$route.params.id).then(user => {
+          this.loading = false
+          this.user = user
+        }).catch(err => {
+          this.loading = false
+          this.error = err
+        })
       }
     },
 
     data: () => ({
+      loading: null,
+      error: null,
       user:{
-        name: 'Itsi Weinstock',
-        city: 'Sydney, New South Wales, Australia',
-        verification: 73,
-        communityStanding: 41,
-        numReferences: 16,
-        gender: 'Male',
-        age: 24,
-        languagesList: ['English','Japanese'],
-        occupation: 'Mathematician',
-        aboutMe: "Hey, my name’s Itsi (like the spider), from Australia. I'm a mathematician, data scientist and violinist (haha what a nerd). I've been a teacher, researcher, comedy writer, violin performer and a great cook for dinners with my friends.\n\nI like keeping very busy when I travel. If you've got any ideas for things to do, please drag me along! I love meeting energetic and funny people and organising small trips to go on with anyone I can wrangle together. Examples include hiking around wineries in Georgia, sailing along the Nile for a few days and exploring caves in Mexico.\n\nSharing food is a must! You can try so many more things that way.",
-        why: "It’s awesome! I love finding the CS communities in the towns I visit, you can make so many friends that way. And you actually get to meet locals and hang out. All the experiences I’ve had staying with hosts have been fantastic.",
-        thing: "A llama once pissed on me when I was a kid",
-        share: "I have a lot of fun facts",
-        countriesVisitedList: ['Cuba','Czech Republic','Egypt','England','Georgia','Germany','Greece','Hong Kong','Laos','Mexico','Myanmar','Netherlands','Scotland','Spain','Thailand','Viet Nam'],
-        countriesLivedList: ['Australia','North Korea']
+        name: null,
+        city: null,
+        verification: null,
+        communityStanding: null,
+        numReferences: null,
+        gender: null,
+        age: null,
+        languagesList: [],
+        occupation: null,
+        aboutMe: null,
+        why: null,
+        thing: null,
+        share: null,
+        countriesVisitedList: [],
+        countriesLivedList: []
       }
     }),
+
     computed: {
       verificationDisplay: function() {
         return Math.round(this.user.verification * 100)
