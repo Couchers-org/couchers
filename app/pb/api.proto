@@ -4,21 +4,22 @@ package api;
 
 message User {
   int64 id = 1;
-  string name = 2;
-  string city = 3;
-  double verification = 4;
-  double community_standing = 5;
-  int32 num_references = 6;
-  string gender = 7;
-  int32 age = 8;
-  repeated string languages = 9;
-  string occupation = 10;
-  string about_me = 11;
-  string why = 12;
-  string thing = 13;
-  string share = 14;
-  repeated string countries_visited = 15;
-  repeated string countries_lived = 16;
+  int64 username = 2;
+  string name = 3;
+  string city = 4;
+  double verification = 5;
+  double community_standing = 6;
+  int32 num_references = 7;
+  string gender = 8;
+  int32 age = 9;
+  repeated string languages = 10;
+  string occupation = 11;
+  string about_me = 12;
+  string why = 13;
+  string thing = 14;
+  string share = 15;
+  repeated string countries_visited = 16;
+  repeated string countries_lived = 17;
 }
 
 message GetUserByIdRequest {

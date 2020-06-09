@@ -3,11 +3,9 @@ from concurrent import futures
 from datetime import date
 
 import grpc
-from auth import Auth, SessionStore
+from auth import Auth
 from db import session_scope
 from models import Base, User
-from nacl.pwhash import str as password_hash
-from nacl.pwhash import verify as password_verify
 from pb import api_pb2, api_pb2_grpc, auth_pb2_grpc
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -26,7 +24,7 @@ def add_dummy_data(file_name):
         for user in users:
             new_user = User(
                 username=user["username"],
-                password="",
+                hashed_password=user["hashed_password"].encode("utf-8"),
                 name=user["name"],
                 city=user["city"],
                 verification=user["verification"],
@@ -63,6 +61,7 @@ class APIServicer(api_pb2_grpc.APIServicer):
             user = session.query(User).filter(User.id == request.id).one()
             return api_pb2.User(
                 id=user.id,
+                username=user.username,
                 name=user.name,
                 city=user.city,
                 verification=user.verification,
@@ -81,8 +80,7 @@ class APIServicer(api_pb2_grpc.APIServicer):
             )
 
 
-session_store = SessionStore()
-auth = Auth(session_store)
+auth = Auth(engine)
 auth_server = grpc.server(futures.ThreadPoolExecutor(2))
 auth_server.add_insecure_port("[::]:1752")
 auth_servicer = auth.get_auth_servicer()

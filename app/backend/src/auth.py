@@ -1,21 +1,11 @@
+from typing import Union
+
 import grpc
+from crypto import random_bytes, verify_password
+from db import session_scope
+from models import User, UserSession
 from pb import auth_pb2, auth_pb2_grpc
 
-
-class SessionStore:
-    """
-    Session store.
-
-    TODO(aapeli): use DB instead
-    """
-    def __init__(self):
-        self._sessions = {}
-
-    def get_session(self, token):
-        return self._sessions[token] or None
-
-    def set_session(self, token, data):
-        self._sessions[token] = data
 
 class _AuthValidatorInterceptor(grpc.ServerInterceptor):
     """
@@ -23,7 +13,7 @@ class _AuthValidatorInterceptor(grpc.ServerInterceptor):
     """
     def __init__(self, has_access):
         def abort(ignored_request, context):
-            context.abort(grpc.StatusCode.UNAUTHENTICATED, "Unauthorised")
+            context.abort(grpc.StatusCode.UNAUTHENTICATED, "Unauthorized")
 
         self._abort = grpc.unary_unary_rpc_method_handler(abort)
         self._has_access = has_access
@@ -58,31 +48,11 @@ class _AuthServicer(auth_pb2_grpc.AuthServicer):
         self._deauth(token=request.token)
         return DeauthResponse(ok=True)
 
-class Auth:
-    def __init__(self, session_store):
-        self._session_store = session_store
+AuthToken = str
+
+class AuthAbstract:
+    def __init__(self):
         self._auth_servicer = None
-
-    def auth(self, username, password):
-        # TODO(aapeli): DB checks, password hashing, etc
-        if username == "aapeli" and password == "itsi":
-            token = b64encode(randbits(256).to_bytes(32, byteorder="little")).decode("utf8")
-            self._session_store.set_session(token, "auth'd")
-            return token
-        return None
-
-    def deauth(self, token):
-        token = self._session_store.get_session(token)
-        if not token:
-            raise Exception("Unknown session")
-        del self._session_store[token]
-
-    def has_access(self, token, realm):
-        logging.debug(f"Checking access for token {token}")
-        realm = self.get_realm(token)
-        if realm == "all":
-            return True
-        return False
 
     def get_auth_servicer(self):
         if not self._auth_servicer:
@@ -91,3 +61,62 @@ class Auth:
 
     def get_auth_interceptor(self):
         return _AuthValidatorInterceptor(self.has_access)
+
+    def auth(self, username, password) -> Union[None, AuthToken]:
+        raise NotImplementedError()
+
+    def deauth(self, token: AuthToken) -> None:
+        raise NotImplementedError()
+
+    def has_access(self, token: AuthToken) -> bool:
+        raise NotImplementedError()
+
+class Auth(AuthAbstract):
+    def __init__(self, Session):
+        super().__init__()
+        self._Session = Session
+
+    def auth(self, username, password):
+        with session_scope(self._Session) as session:
+            user = session.query(User).filter(User.username == username).one_or_none()
+            if user:
+                if verify_password(user.hashed_password, password):
+                    # correct password
+                    token = b64encode(random_bytes(32)).decode("utf8")
+
+                    user_session = UserSession(
+                        user=user,
+                        token=token
+                    )
+
+                    session.add(user_session)
+                    session.commit()
+
+                    return token
+                else:
+                    # wrong password
+                    return None
+            else: # user not found
+                # do about as much work as if the user was found, reduces timing based username enumeration attacks
+                hash_password(password)
+                return None
+
+    def deauth(self, token):
+        with session_scope(self._Session) as session:
+            user_session = session.query(UserSession).filter(UserSession.token == token).one_or_none()
+            if user_session:
+                session.delete(user_session)
+                session.commit()
+                return True
+            else:
+                return None
+
+    def has_access(self, token):
+        with session_scope(self._Session) as session:
+            user_session = session.query(UserSession).filter(UserSession.token == token).one_or_none() # TODO(aapeli): error checking
+            if user_session:
+                session.delete(user_session)
+                session.commit()
+                return True
+            else:
+                return None

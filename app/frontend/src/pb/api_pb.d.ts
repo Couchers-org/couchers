@@ -4,6 +4,9 @@ export class User extends jspb.Message {
   getId(): number;
   setId(value: number): User;
 
+  getUsername(): number;
+  setUsername(value: number): User;
+
   getName(): string;
   setName(value: string): User;
 
@@ -66,6 +69,7 @@ export class User extends jspb.Message {
 export namespace User {
   export type AsObject = {
     id: number,
+    username: number,
     name: string,
     city: string,
     verification: number,

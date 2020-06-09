@@ -62,7 +62,7 @@ if (goog.DEBUG && !COMPILED) {
  * @private {!Array<number>}
  * @const
  */
-proto.api.User.repeatedFields_ = [9,15,16];
+proto.api.User.repeatedFields_ = [10,16,17];
 
 
 
@@ -96,21 +96,22 @@ proto.api.User.prototype.toObject = function(opt_includeInstance) {
 proto.api.User.toObject = function(includeInstance, msg) {
   var f, obj = {
     id: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    name: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    city: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    verification: jspb.Message.getFloatingPointFieldWithDefault(msg, 4, 0.0),
-    communityStanding: jspb.Message.getFloatingPointFieldWithDefault(msg, 5, 0.0),
-    numReferences: jspb.Message.getFieldWithDefault(msg, 6, 0),
-    gender: jspb.Message.getFieldWithDefault(msg, 7, ""),
-    age: jspb.Message.getFieldWithDefault(msg, 8, 0),
-    languagesList: (f = jspb.Message.getRepeatedField(msg, 9)) == null ? undefined : f,
-    occupation: jspb.Message.getFieldWithDefault(msg, 10, ""),
-    aboutMe: jspb.Message.getFieldWithDefault(msg, 11, ""),
-    why: jspb.Message.getFieldWithDefault(msg, 12, ""),
-    thing: jspb.Message.getFieldWithDefault(msg, 13, ""),
-    share: jspb.Message.getFieldWithDefault(msg, 14, ""),
-    countriesVisitedList: (f = jspb.Message.getRepeatedField(msg, 15)) == null ? undefined : f,
-    countriesLivedList: (f = jspb.Message.getRepeatedField(msg, 16)) == null ? undefined : f
+    username: jspb.Message.getFieldWithDefault(msg, 2, 0),
+    name: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    city: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    verification: jspb.Message.getFloatingPointFieldWithDefault(msg, 5, 0.0),
+    communityStanding: jspb.Message.getFloatingPointFieldWithDefault(msg, 6, 0.0),
+    numReferences: jspb.Message.getFieldWithDefault(msg, 7, 0),
+    gender: jspb.Message.getFieldWithDefault(msg, 8, ""),
+    age: jspb.Message.getFieldWithDefault(msg, 9, 0),
+    languagesList: (f = jspb.Message.getRepeatedField(msg, 10)) == null ? undefined : f,
+    occupation: jspb.Message.getFieldWithDefault(msg, 11, ""),
+    aboutMe: jspb.Message.getFieldWithDefault(msg, 12, ""),
+    why: jspb.Message.getFieldWithDefault(msg, 13, ""),
+    thing: jspb.Message.getFieldWithDefault(msg, 14, ""),
+    share: jspb.Message.getFieldWithDefault(msg, 15, ""),
+    countriesVisitedList: (f = jspb.Message.getRepeatedField(msg, 16)) == null ? undefined : f,
+    countriesLivedList: (f = jspb.Message.getRepeatedField(msg, 17)) == null ? undefined : f
   };
 
   if (includeInstance) {
@@ -152,62 +153,66 @@ proto.api.User.deserializeBinaryFromReader = function(msg, reader) {
       msg.setId(value);
       break;
     case 2:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setName(value);
+      var value = /** @type {number} */ (reader.readInt64());
+      msg.setUsername(value);
       break;
     case 3:
       var value = /** @type {string} */ (reader.readString());
-      msg.setCity(value);
+      msg.setName(value);
       break;
     case 4:
-      var value = /** @type {number} */ (reader.readDouble());
-      msg.setVerification(value);
+      var value = /** @type {string} */ (reader.readString());
+      msg.setCity(value);
       break;
     case 5:
       var value = /** @type {number} */ (reader.readDouble());
-      msg.setCommunityStanding(value);
+      msg.setVerification(value);
       break;
     case 6:
+      var value = /** @type {number} */ (reader.readDouble());
+      msg.setCommunityStanding(value);
+      break;
+    case 7:
       var value = /** @type {number} */ (reader.readInt32());
       msg.setNumReferences(value);
       break;
-    case 7:
+    case 8:
       var value = /** @type {string} */ (reader.readString());
       msg.setGender(value);
       break;
-    case 8:
+    case 9:
       var value = /** @type {number} */ (reader.readInt32());
       msg.setAge(value);
       break;
-    case 9:
+    case 10:
       var value = /** @type {string} */ (reader.readString());
       msg.addLanguages(value);
       break;
-    case 10:
+    case 11:
       var value = /** @type {string} */ (reader.readString());
       msg.setOccupation(value);
       break;
-    case 11:
+    case 12:
       var value = /** @type {string} */ (reader.readString());
       msg.setAboutMe(value);
       break;
-    case 12:
+    case 13:
       var value = /** @type {string} */ (reader.readString());
       msg.setWhy(value);
       break;
-    case 13:
+    case 14:
       var value = /** @type {string} */ (reader.readString());
       msg.setThing(value);
       break;
-    case 14:
+    case 15:
       var value = /** @type {string} */ (reader.readString());
       msg.setShare(value);
       break;
-    case 15:
+    case 16:
       var value = /** @type {string} */ (reader.readString());
       msg.addCountriesVisited(value);
       break;
-    case 16:
+    case 17:
       var value = /** @type {string} */ (reader.readString());
       msg.addCountriesLived(value);
       break;
@@ -247,108 +252,115 @@ proto.api.User.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
-  f = message.getName();
-  if (f.length > 0) {
-    writer.writeString(
+  f = message.getUsername();
+  if (f !== 0) {
+    writer.writeInt64(
       2,
       f
     );
   }
-  f = message.getCity();
+  f = message.getName();
   if (f.length > 0) {
     writer.writeString(
       3,
       f
     );
   }
-  f = message.getVerification();
-  if (f !== 0.0) {
-    writer.writeDouble(
+  f = message.getCity();
+  if (f.length > 0) {
+    writer.writeString(
       4,
       f
     );
   }
-  f = message.getCommunityStanding();
+  f = message.getVerification();
   if (f !== 0.0) {
     writer.writeDouble(
       5,
       f
     );
   }
+  f = message.getCommunityStanding();
+  if (f !== 0.0) {
+    writer.writeDouble(
+      6,
+      f
+    );
+  }
   f = message.getNumReferences();
   if (f !== 0) {
     writer.writeInt32(
-      6,
+      7,
       f
     );
   }
   f = message.getGender();
   if (f.length > 0) {
     writer.writeString(
-      7,
+      8,
       f
     );
   }
   f = message.getAge();
   if (f !== 0) {
     writer.writeInt32(
-      8,
+      9,
       f
     );
   }
   f = message.getLanguagesList();
   if (f.length > 0) {
     writer.writeRepeatedString(
-      9,
+      10,
       f
     );
   }
   f = message.getOccupation();
   if (f.length > 0) {
     writer.writeString(
-      10,
+      11,
       f
     );
   }
   f = message.getAboutMe();
   if (f.length > 0) {
     writer.writeString(
-      11,
+      12,
       f
     );
   }
   f = message.getWhy();
   if (f.length > 0) {
     writer.writeString(
-      12,
+      13,
       f
     );
   }
   f = message.getThing();
   if (f.length > 0) {
     writer.writeString(
-      13,
+      14,
       f
     );
   }
   f = message.getShare();
   if (f.length > 0) {
     writer.writeString(
-      14,
+      15,
       f
     );
   }
   f = message.getCountriesVisitedList();
   if (f.length > 0) {
     writer.writeRepeatedString(
-      15,
+      16,
       f
     );
   }
   f = message.getCountriesLivedList();
   if (f.length > 0) {
     writer.writeRepeatedString(
-      16,
+      17,
       f
     );
   }
@@ -374,28 +386,28 @@ proto.api.User.prototype.setId = function(value) {
 
 
 /**
- * optional string name = 2;
+ * optional int64 username = 2;
+ * @return {number}
+ */
+proto.api.User.prototype.getUsername = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.api.User} returns this
+ */
+proto.api.User.prototype.setUsername = function(value) {
+  return jspb.Message.setProto3IntField(this, 2, value);
+};
+
+
+/**
+ * optional string name = 3;
  * @return {string}
  */
 proto.api.User.prototype.getName = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.api.User} returns this
- */
-proto.api.User.prototype.setName = function(value) {
-  return jspb.Message.setProto3StringField(this, 2, value);
-};
-
-
-/**
- * optional string city = 3;
- * @return {string}
- */
-proto.api.User.prototype.getCity = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
@@ -404,34 +416,34 @@ proto.api.User.prototype.getCity = function() {
  * @param {string} value
  * @return {!proto.api.User} returns this
  */
-proto.api.User.prototype.setCity = function(value) {
+proto.api.User.prototype.setName = function(value) {
   return jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
 /**
- * optional double verification = 4;
+ * optional string city = 4;
+ * @return {string}
+ */
+proto.api.User.prototype.getCity = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.api.User} returns this
+ */
+proto.api.User.prototype.setCity = function(value) {
+  return jspb.Message.setProto3StringField(this, 4, value);
+};
+
+
+/**
+ * optional double verification = 5;
  * @return {number}
  */
 proto.api.User.prototype.getVerification = function() {
-  return /** @type {number} */ (jspb.Message.getFloatingPointFieldWithDefault(this, 4, 0.0));
-};
-
-
-/**
- * @param {number} value
- * @return {!proto.api.User} returns this
- */
-proto.api.User.prototype.setVerification = function(value) {
-  return jspb.Message.setProto3FloatField(this, 4, value);
-};
-
-
-/**
- * optional double community_standing = 5;
- * @return {number}
- */
-proto.api.User.prototype.getCommunityStanding = function() {
   return /** @type {number} */ (jspb.Message.getFloatingPointFieldWithDefault(this, 5, 0.0));
 };
 
@@ -440,17 +452,35 @@ proto.api.User.prototype.getCommunityStanding = function() {
  * @param {number} value
  * @return {!proto.api.User} returns this
  */
-proto.api.User.prototype.setCommunityStanding = function(value) {
+proto.api.User.prototype.setVerification = function(value) {
   return jspb.Message.setProto3FloatField(this, 5, value);
 };
 
 
 /**
- * optional int32 num_references = 6;
+ * optional double community_standing = 6;
+ * @return {number}
+ */
+proto.api.User.prototype.getCommunityStanding = function() {
+  return /** @type {number} */ (jspb.Message.getFloatingPointFieldWithDefault(this, 6, 0.0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.api.User} returns this
+ */
+proto.api.User.prototype.setCommunityStanding = function(value) {
+  return jspb.Message.setProto3FloatField(this, 6, value);
+};
+
+
+/**
+ * optional int32 num_references = 7;
  * @return {number}
  */
 proto.api.User.prototype.getNumReferences = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 6, 0));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 7, 0));
 };
 
 
@@ -459,16 +489,16 @@ proto.api.User.prototype.getNumReferences = function() {
  * @return {!proto.api.User} returns this
  */
 proto.api.User.prototype.setNumReferences = function(value) {
-  return jspb.Message.setProto3IntField(this, 6, value);
+  return jspb.Message.setProto3IntField(this, 7, value);
 };
 
 
 /**
- * optional string gender = 7;
+ * optional string gender = 8;
  * @return {string}
  */
 proto.api.User.prototype.getGender = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 7, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 8, ""));
 };
 
 
@@ -477,16 +507,16 @@ proto.api.User.prototype.getGender = function() {
  * @return {!proto.api.User} returns this
  */
 proto.api.User.prototype.setGender = function(value) {
-  return jspb.Message.setProto3StringField(this, 7, value);
+  return jspb.Message.setProto3StringField(this, 8, value);
 };
 
 
 /**
- * optional int32 age = 8;
+ * optional int32 age = 9;
  * @return {number}
  */
 proto.api.User.prototype.getAge = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 8, 0));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 9, 0));
 };
 
 
@@ -495,16 +525,16 @@ proto.api.User.prototype.getAge = function() {
  * @return {!proto.api.User} returns this
  */
 proto.api.User.prototype.setAge = function(value) {
-  return jspb.Message.setProto3IntField(this, 8, value);
+  return jspb.Message.setProto3IntField(this, 9, value);
 };
 
 
 /**
- * repeated string languages = 9;
+ * repeated string languages = 10;
  * @return {!Array<string>}
  */
 proto.api.User.prototype.getLanguagesList = function() {
-  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 9));
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 10));
 };
 
 
@@ -513,7 +543,7 @@ proto.api.User.prototype.getLanguagesList = function() {
  * @return {!proto.api.User} returns this
  */
 proto.api.User.prototype.setLanguagesList = function(value) {
-  return jspb.Message.setField(this, 9, value || []);
+  return jspb.Message.setField(this, 10, value || []);
 };
 
 
@@ -523,7 +553,7 @@ proto.api.User.prototype.setLanguagesList = function(value) {
  * @return {!proto.api.User} returns this
  */
 proto.api.User.prototype.addLanguages = function(value, opt_index) {
-  return jspb.Message.addToRepeatedField(this, 9, value, opt_index);
+  return jspb.Message.addToRepeatedField(this, 10, value, opt_index);
 };
 
 
@@ -537,28 +567,10 @@ proto.api.User.prototype.clearLanguagesList = function() {
 
 
 /**
- * optional string occupation = 10;
+ * optional string occupation = 11;
  * @return {string}
  */
 proto.api.User.prototype.getOccupation = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 10, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.api.User} returns this
- */
-proto.api.User.prototype.setOccupation = function(value) {
-  return jspb.Message.setProto3StringField(this, 10, value);
-};
-
-
-/**
- * optional string about_me = 11;
- * @return {string}
- */
-proto.api.User.prototype.getAboutMe = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 11, ""));
 };
 
@@ -567,16 +579,16 @@ proto.api.User.prototype.getAboutMe = function() {
  * @param {string} value
  * @return {!proto.api.User} returns this
  */
-proto.api.User.prototype.setAboutMe = function(value) {
+proto.api.User.prototype.setOccupation = function(value) {
   return jspb.Message.setProto3StringField(this, 11, value);
 };
 
 
 /**
- * optional string why = 12;
+ * optional string about_me = 12;
  * @return {string}
  */
-proto.api.User.prototype.getWhy = function() {
+proto.api.User.prototype.getAboutMe = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 12, ""));
 };
 
@@ -585,16 +597,16 @@ proto.api.User.prototype.getWhy = function() {
  * @param {string} value
  * @return {!proto.api.User} returns this
  */
-proto.api.User.prototype.setWhy = function(value) {
+proto.api.User.prototype.setAboutMe = function(value) {
   return jspb.Message.setProto3StringField(this, 12, value);
 };
 
 
 /**
- * optional string thing = 13;
+ * optional string why = 13;
  * @return {string}
  */
-proto.api.User.prototype.getThing = function() {
+proto.api.User.prototype.getWhy = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 13, ""));
 };
 
@@ -603,16 +615,16 @@ proto.api.User.prototype.getThing = function() {
  * @param {string} value
  * @return {!proto.api.User} returns this
  */
-proto.api.User.prototype.setThing = function(value) {
+proto.api.User.prototype.setWhy = function(value) {
   return jspb.Message.setProto3StringField(this, 13, value);
 };
 
 
 /**
- * optional string share = 14;
+ * optional string thing = 14;
  * @return {string}
  */
-proto.api.User.prototype.getShare = function() {
+proto.api.User.prototype.getThing = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 14, ""));
 };
 
@@ -621,17 +633,35 @@ proto.api.User.prototype.getShare = function() {
  * @param {string} value
  * @return {!proto.api.User} returns this
  */
-proto.api.User.prototype.setShare = function(value) {
+proto.api.User.prototype.setThing = function(value) {
   return jspb.Message.setProto3StringField(this, 14, value);
 };
 
 
 /**
- * repeated string countries_visited = 15;
+ * optional string share = 15;
+ * @return {string}
+ */
+proto.api.User.prototype.getShare = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 15, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.api.User} returns this
+ */
+proto.api.User.prototype.setShare = function(value) {
+  return jspb.Message.setProto3StringField(this, 15, value);
+};
+
+
+/**
+ * repeated string countries_visited = 16;
  * @return {!Array<string>}
  */
 proto.api.User.prototype.getCountriesVisitedList = function() {
-  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 15));
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 16));
 };
 
 
@@ -640,7 +670,7 @@ proto.api.User.prototype.getCountriesVisitedList = function() {
  * @return {!proto.api.User} returns this
  */
 proto.api.User.prototype.setCountriesVisitedList = function(value) {
-  return jspb.Message.setField(this, 15, value || []);
+  return jspb.Message.setField(this, 16, value || []);
 };
 
 
@@ -650,7 +680,7 @@ proto.api.User.prototype.setCountriesVisitedList = function(value) {
  * @return {!proto.api.User} returns this
  */
 proto.api.User.prototype.addCountriesVisited = function(value, opt_index) {
-  return jspb.Message.addToRepeatedField(this, 15, value, opt_index);
+  return jspb.Message.addToRepeatedField(this, 16, value, opt_index);
 };
 
 
@@ -664,11 +694,11 @@ proto.api.User.prototype.clearCountriesVisitedList = function() {
 
 
 /**
- * repeated string countries_lived = 16;
+ * repeated string countries_lived = 17;
  * @return {!Array<string>}
  */
 proto.api.User.prototype.getCountriesLivedList = function() {
-  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 16));
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 17));
 };
 
 
@@ -677,7 +707,7 @@ proto.api.User.prototype.getCountriesLivedList = function() {
  * @return {!proto.api.User} returns this
  */
 proto.api.User.prototype.setCountriesLivedList = function(value) {
-  return jspb.Message.setField(this, 16, value || []);
+  return jspb.Message.setField(this, 17, value || []);
 };
 
 
@@ -687,7 +717,7 @@ proto.api.User.prototype.setCountriesLivedList = function(value) {
  * @return {!proto.api.User} returns this
  */
 proto.api.User.prototype.addCountriesLived = function(value, opt_index) {
-  return jspb.Message.addToRepeatedField(this, 16, value, opt_index);
+  return jspb.Message.addToRepeatedField(this, 17, value, opt_index);
 };
 
 

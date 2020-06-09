@@ -1,5 +1,7 @@
 from sqlalchemy import (Boolean, Column, Date, DateTime, Float, ForeignKey,
-                        Integer, String)
+                        Integer)
+from sqlalchemy import LargeBinary as Binary
+from sqlalchemy import String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -16,7 +18,7 @@ class User(Base):
     id = Column(Integer, primary_key=True)
 
     username = Column(String, nullable=False, unique=True)
-    password = Column(String, nullable=False)
+    hashed_password = Column(Binary, nullable=False)
 
     name = Column(String, nullable=False)
     city = Column(String, nullable=False)
@@ -34,17 +36,18 @@ class User(Base):
     countries_lived = Column(String, nullable=False)
 
 
-class Session(Base):
+class UserSession(Base):
     """
     Active session on the app, for auth
     """
     __tablename__ = "sessions"
     token = Column(String, primary_key=True)
 
-    user = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
     started = Column(DateTime, nullable=False, server_default=func.now())
 
+    user = relationship("User", backref="sessions")
 
 class Reference(Base):
     """
