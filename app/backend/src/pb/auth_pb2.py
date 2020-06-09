@@ -18,7 +18,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='auth',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=b'\n\rpb/auth.proto\x12\x04\x61uth\"1\n\x0b\x41uthRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"\x1d\n\x0c\x41uthResponse\x12\r\n\x05token\x18\x01 \x01(\t\"\x1e\n\rDeauthRequest\x12\r\n\x05token\x18\x01 \x01(\t\"\x1c\n\x0e\x44\x65\x61uthResponse\x12\n\n\x02ok\x18\x01 \x01(\x08\x32z\n\x04\x41uth\x12\x35\n\x0c\x41uthenticate\x12\x11.auth.AuthRequest\x1a\x12.auth.AuthResponse\x12;\n\x0e\x44\x65\x61uthenticate\x12\x13.auth.DeauthRequest\x1a\x14.auth.DeauthResponseb\x06proto3'
+  serialized_pb=b'\n\rpb/auth.proto\x12\x04\x61uth\"1\n\x0b\x41uthRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"\x1d\n\x0c\x41uthResponse\x12\r\n\x05token\x18\x01 \x01(\t\"\x1e\n\rDeauthRequest\x12\r\n\x05token\x18\x01 \x01(\t\"\x10\n\x0e\x44\x65\x61uthResponse2z\n\x04\x41uth\x12\x35\n\x0c\x41uthenticate\x12\x11.auth.AuthRequest\x1a\x12.auth.AuthResponse\x12;\n\x0e\x44\x65\x61uthenticate\x12\x13.auth.DeauthRequest\x1a\x14.auth.DeauthResponseb\x06proto3'
 )
 
 
@@ -131,13 +131,6 @@ _DEAUTHRESPONSE = _descriptor.Descriptor(
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
-    _descriptor.FieldDescriptor(
-      name='ok', full_name='auth.DeauthResponse.ok', index=0,
-      number=1, type=8, cpp_type=7, label=1,
-      has_default_value=False, default_value=False,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -151,7 +144,7 @@ _DEAUTHRESPONSE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=137,
-  serialized_end=165,
+  serialized_end=153,
 )
 
 DESCRIPTOR.message_types_by_name['AuthRequest'] = _AUTHREQUEST
@@ -196,8 +189,8 @@ _AUTH = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=167,
-  serialized_end=289,
+  serialized_start=155,
+  serialized_end=277,
   methods=[
   _descriptor.MethodDescriptor(
     name='Authenticate',

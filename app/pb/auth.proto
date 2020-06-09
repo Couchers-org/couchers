@@ -15,9 +15,7 @@ message DeauthRequest {
   string token = 1;
 }
 
-message DeauthResponse {
-  bool ok = 1;
-}
+message DeauthResponse {}
 
 service Auth {
   rpc Authenticate(AuthRequest) returns (AuthResponse);

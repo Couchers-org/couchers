@@ -76,7 +76,6 @@
   
     methods: {
       submit: function () {
-        console.log("submit")
         this.loading = true;
         auth.authenticate(this.username, this.password, (err, res) => {
           if (err) {

@@ -552,7 +552,7 @@ proto.auth.DeauthResponse.prototype.toObject = function(opt_includeInstance) {
  */
 proto.auth.DeauthResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ok: jspb.Message.getBooleanFieldWithDefault(msg, 1, false)
+
   };
 
   if (includeInstance) {
@@ -589,10 +589,6 @@ proto.auth.DeauthResponse.deserializeBinaryFromReader = function(msg, reader) {
     }
     var field = reader.getFieldNumber();
     switch (field) {
-    case 1:
-      var value = /** @type {boolean} */ (reader.readBool());
-      msg.setOk(value);
-      break;
     default:
       reader.skipField();
       break;
@@ -622,31 +618,6 @@ proto.auth.DeauthResponse.prototype.serializeBinary = function() {
  */
 proto.auth.DeauthResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getOk();
-  if (f) {
-    writer.writeBool(
-      1,
-      f
-    );
-  }
-};
-
-
-/**
- * optional bool ok = 1;
- * @return {boolean}
- */
-proto.auth.DeauthResponse.prototype.getOk = function() {
-  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 1, false));
-};
-
-
-/**
- * @param {boolean} value
- * @return {!proto.auth.DeauthResponse} returns this
- */
-proto.auth.DeauthResponse.prototype.setOk = function(value) {
-  return jspb.Message.setProto3BooleanField(this, 1, value);
 };
 
 

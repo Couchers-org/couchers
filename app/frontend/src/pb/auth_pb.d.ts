@@ -59,9 +59,6 @@ export namespace DeauthRequest {
 }
 
 export class DeauthResponse extends jspb.Message {
-  getOk(): boolean;
-  setOk(value: boolean): DeauthResponse;
-
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): DeauthResponse.AsObject;
   static toObject(includeInstance: boolean, msg: DeauthResponse): DeauthResponse.AsObject;
@@ -72,7 +69,6 @@ export class DeauthResponse extends jspb.Message {
 
 export namespace DeauthResponse {
   export type AsObject = {
-    ok: boolean,
   }
 }
 
