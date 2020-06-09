@@ -65,7 +65,7 @@ class AuthAbstract:
     def auth(self, username, password) -> Union[None, AuthToken]:
         raise NotImplementedError()
 
-    def deauth(self, token: AuthToken) -> None:
+    def deauth(self, token: AuthToken) -> bool:
         raise NotImplementedError()
 
     def has_access(self, token: AuthToken) -> bool:
@@ -109,14 +109,14 @@ class Auth(AuthAbstract):
                 session.commit()
                 return True
             else:
-                return None
+                return False
 
     def has_access(self, token):
         with session_scope(self._Session) as session:
-            user_session = session.query(UserSession).filter(UserSession.token == token).one_or_none() # TODO(aapeli): error checking
+            user_session = session.query(UserSession).filter(UserSession.token == token).one_or_none()
             if user_session:
                 session.delete(user_session)
                 session.commit()
                 return True
             else:
-                return None
+                return False
