@@ -4,13 +4,14 @@ from datetime import date
 
 import grpc
 from auth import Auth
+from crypto import hash_password
 from db import session_scope
 from models import Base, User
 from pb import api_pb2, api_pb2_grpc, auth_pb2_grpc
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-engine = create_engine("sqlite:///db.sqlite", echo=True)
+engine = create_engine("sqlite:///db.sqlite", echo=False)
 
 Base.metadata.create_all(engine)
 
@@ -24,7 +25,7 @@ def add_dummy_data(file_name):
         for user in users:
             new_user = User(
                 username=user["username"],
-                hashed_password=user["hashed_password"].encode("utf-8"),
+                hashed_password=hash_password(user["password"]),
                 name=user["name"],
                 city=user["city"],
                 verification=user["verification"],
@@ -80,7 +81,7 @@ class APIServicer(api_pb2_grpc.APIServicer):
             )
 
 
-auth = Auth(engine)
+auth = Auth(Session)
 auth_server = grpc.server(futures.ThreadPoolExecutor(2))
 auth_server.add_insecure_port("[::]:1752")
 auth_servicer = auth.get_auth_servicer()

@@ -1,7 +1,7 @@
 [
     {
         "username": "itsi",
-        "password": "$argon2id$v=19$m=65536,t=2,p=1$n/OdCXKkU9+zWrcdTh3EFA$M0ti2D5/mg0xacBAHzJuwL5NcekBo8WzyhhWruCa6mg",
+        "password": "Itsi's password",
         "name": "Itsi Weinstock",
         "city": "Sydney, New South Wales, Australia",
         "verification": 0.73,
@@ -47,7 +47,7 @@
     },
     {
         "username": "aapeli",
-        "password": "$argon2id$v=19$m=65536,t=2,p=1$uFMMCioJTQzlu4NBpyn5cg$/krOAfBOFIwnc6faFw0Xzr+xpb1BRmADZw+1X1jRGDo",
+        "password": "Aapeli's password",
         "name": "Aapeli Vuorinen",
         "city": "Brisbane, Queensland, Australia",
         "verification": 0.98,

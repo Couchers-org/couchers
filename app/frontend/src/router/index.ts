@@ -6,6 +6,8 @@ import User from '../views/User.vue'
 import Users from '../views/Users.vue'
 import Friends from '../views/Friends.vue'
 import About from '../views/About.vue'
+import Login from '../views/Login.vue'
+import Logout from '../views/Logout.vue'
 
 Vue.use(VueRouter)
 
@@ -14,6 +16,16 @@ const routes: Array<RouteConfig> = [
     path: '/',
     name: 'Home',
     component: Home
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: Login
+  },
+  {
+    path: '/logout',
+    name: 'Logout',
+    component: Logout
   },
   {
     path: '/messages',

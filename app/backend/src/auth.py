@@ -1,11 +1,14 @@
+import logging
+from base64 import b64encode
 from typing import Union
 
 import grpc
-from crypto import random_bytes, verify_password
+from crypto import hash_password, random_bytes, verify_password
 from db import session_scope
 from models import User, UserSession
 from pb import auth_pb2, auth_pb2_grpc
 
+logging.basicConfig(format="%(asctime)s.%(msecs)03d: %(process)d: %(message)s", datefmt="%F %T", level=logging.DEBUG)
 
 class _AuthValidatorInterceptor(grpc.ServerInterceptor):
     """
@@ -39,14 +42,14 @@ class _AuthServicer(auth_pb2_grpc.AuthServicer):
     def Authenticate(self, request, context):
         token = self._auth(username=request.username, password=request.password)
         if token:
-            return AuthResponse(token=token)
+            return auth_pb2.AuthResponse(token=token)
         else:
             return context.abort(grpc.StatusCode.UNAUTHENTICATED, "Invalid username or password")
 
     def Deauthenticate(self, request, context):
         logging.info(f"Deauthenticate(token={request.token})")
         self._deauth(token=request.token)
-        return DeauthResponse(ok=True)
+        return auth_pb2.DeauthResponse(ok=True)
 
 AuthToken = str
 
@@ -77,10 +80,13 @@ class Auth(AuthAbstract):
         self._Session = Session
 
     def auth(self, username, password):
+        logging.debug(f"Logging in with {username=}, password=*******")
         with session_scope(self._Session) as session:
             user = session.query(User).filter(User.username == username).one_or_none()
             if user:
+                logging.debug(f"Found user")
                 if verify_password(user.hashed_password, password):
+                    logging.debug(f"Right password")
                     # correct password
                     token = b64encode(random_bytes(32)).decode("utf8")
 
@@ -92,11 +98,14 @@ class Auth(AuthAbstract):
                     session.add(user_session)
                     session.commit()
 
+                    logging.debug(f"Handing out {token=}")
                     return token
                 else:
+                    logging.debug(f"Wrong password")
                     # wrong password
                     return None
             else: # user not found
+                logging.debug(f"Didn't find user")
                 # do about as much work as if the user was found, reduces timing based username enumeration attacks
                 hash_password(password)
                 return None

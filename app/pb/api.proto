@@ -4,7 +4,7 @@ package api;
 
 message User {
   int64 id = 1;
-  int64 username = 2;
+  string username = 2;
   string name = 3;
   string city = 4;
   double verification = 5;

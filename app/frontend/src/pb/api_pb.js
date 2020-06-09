@@ -96,7 +96,7 @@ proto.api.User.prototype.toObject = function(opt_includeInstance) {
 proto.api.User.toObject = function(includeInstance, msg) {
   var f, obj = {
     id: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    username: jspb.Message.getFieldWithDefault(msg, 2, 0),
+    username: jspb.Message.getFieldWithDefault(msg, 2, ""),
     name: jspb.Message.getFieldWithDefault(msg, 3, ""),
     city: jspb.Message.getFieldWithDefault(msg, 4, ""),
     verification: jspb.Message.getFloatingPointFieldWithDefault(msg, 5, 0.0),
@@ -153,7 +153,7 @@ proto.api.User.deserializeBinaryFromReader = function(msg, reader) {
       msg.setId(value);
       break;
     case 2:
-      var value = /** @type {number} */ (reader.readInt64());
+      var value = /** @type {string} */ (reader.readString());
       msg.setUsername(value);
       break;
     case 3:
@@ -253,8 +253,8 @@ proto.api.User.serializeBinaryToWriter = function(message, writer) {
     );
   }
   f = message.getUsername();
-  if (f !== 0) {
-    writer.writeInt64(
+  if (f.length > 0) {
+    writer.writeString(
       2,
       f
     );
@@ -386,20 +386,20 @@ proto.api.User.prototype.setId = function(value) {
 
 
 /**
- * optional int64 username = 2;
- * @return {number}
+ * optional string username = 2;
+ * @return {string}
  */
 proto.api.User.prototype.getUsername = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
 /**
- * @param {number} value
+ * @param {string} value
  * @return {!proto.api.User} returns this
  */
 proto.api.User.prototype.setUsername = function(value) {
-  return jspb.Message.setProto3IntField(this, 2, value);
+  return jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
