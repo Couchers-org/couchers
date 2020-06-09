@@ -12,6 +12,7 @@
                     v-model="username"
                     :rules="[rules.required]"
                     :disabled="loading"
+                    v-on:keyup.enter="submit"
                     name="username"
                     label="Username"
                   ></v-text-field>
@@ -23,8 +24,11 @@
                     :rules="[rules.required]"
                     :type="showPassword ? 'text' : 'password'"
                     :disabled="loading"
+                    v-on:keyup.enter="submit"
                     name="password"
                     label="Password"
+                    :error-messages="errorMessages"
+                    :success-messages="successMessages"
                     @click:append="showPassword = !showPassword"
                   ></v-text-field>
                 </v-row>
