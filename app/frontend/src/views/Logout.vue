@@ -1,14 +1,19 @@
 <template>
   <v-content>
-    Logout
+    Logging out
   </v-content>
 </template>
 
-<script>
-export default {
-  name: 'Logout',
-  components: {
-    //
-  }
-}
+<script lang="ts">
+  import Vue from 'vue'
+
+  import auth from '../auth'
+
+  export default Vue.extend({
+    name: 'Logout',
+
+    mounted () {
+      auth.deauth()
+    }
+  })
 </script>

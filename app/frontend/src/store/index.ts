@@ -10,6 +10,7 @@ export enum AuthenticationState {
 
 export default new Vuex.Store({
   state: {
+    error: null,
     auth: AuthenticationState.None,
     authToken: null as null | string
   },
@@ -21,6 +22,10 @@ export default new Vuex.Store({
     deauth (state) {
       state.auth = AuthenticationState.None
       state.authToken = null
+    },
+    error (state, errorMessage) {
+      console.error(errorMessage)
+      state.error = errorMessage
     }
   },
   actions: {

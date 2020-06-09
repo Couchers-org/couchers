@@ -48,8 +48,10 @@ class _AuthServicer(auth_pb2_grpc.AuthServicer):
 
     def Deauthenticate(self, request, context):
         logging.info(f"Deauthenticate(token={request.token})")
-        self._deauth(token=request.token)
-        return auth_pb2.DeauthResponse(ok=True)
+        if self._deauth(token=request.token):
+            return auth_pb2.DeauthResponse()
+        else:
+            raise Exception("Failed to deauth")
 
 AuthToken = str
 
