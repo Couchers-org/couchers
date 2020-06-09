@@ -3,6 +3,8 @@ import { AuthRequest, DeauthRequest } from './pb/auth_pb'
 
 import Store, { AuthenticationState } from './store'
 
+import * as grpcWeb from 'grpc-web'
+
 import Router from './router'
 
 const client = new AuthClient("http://127.0.0.1:8888")
@@ -11,18 +13,20 @@ function authenticate(username: string, password: string, callback: (error: stri
   const req = new AuthRequest()
   req.setUsername(username)
   req.setPassword(password)
-  client.authenticate(req, null, (err, res) => {
-    if (!err && res) {
-      Store.commit('auth', {
-        authState: AuthenticationState.Authenticated,
-        authToken: res.getToken()
-      })
-      Router.push('/')
-      callback(null, 'Success.')
+  client.authenticate(req, null).then(res => {
+    Store.commit('auth', {
+      authState: AuthenticationState.Authenticated,
+      authToken: res.getToken()
+    })
+    Router.push('/')
+    callback(null, 'Success.')
+  }).catch(err => {
+    Store.commit('deauth')
+    Router.push({ name: 'Login' })
+    if (err.code == grpcWeb.StatusCode.UNAUTHENTICATED) {
+      callback('Invalid username or password.', null)
     } else {
-      Store.commit('deauth')
-      Router.push({ name: 'Login' })
-      callback('Error.', null)
+      callback('Unknown error.', null)
     }
   })
 }
@@ -30,13 +34,12 @@ function authenticate(username: string, password: string, callback: (error: stri
 function deauth() {
   const req = new DeauthRequest()
   req.setToken(Store.state.authToken!)
-  client.deauthenticate(req, null, (err, res) => {
-    if (!err && res && res.getOk()) {
-      Store.commit('deauth')
-      Router.push({ name: 'Login' })
-    } else {
-      Store.commit('error', 'Could not log out!')
-    }
+  client.deauthenticate(req, null).then(res => {
+    Store.commit('deauth')
+    Router.push({ name: 'Login' })
+  }).catch(err => {
+    console.error(err)
+    Store.commit('error', 'Could not log out!')
   })
 }
 
