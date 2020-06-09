@@ -1,5 +1,5 @@
-from sqlalchemy import (Boolean, Column, Date, Float, ForeignKey, Integer, DateTime,
-                        String)
+from sqlalchemy import (Boolean, Column, Date, DateTime, Float, ForeignKey,
+                        Integer, String)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -8,9 +8,15 @@ Base = declarative_base()
 
 
 class User(Base):
+    """
+    Basic user and profile details
+    """
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True)
+
+    username = Column(String, nullable=False, unique=True)
+    password = Column(String, nullable=False)
 
     name = Column(String, nullable=False)
     city = Column(String, nullable=False)
@@ -28,7 +34,22 @@ class User(Base):
     countries_lived = Column(String, nullable=False)
 
 
+class Session(Base):
+    """
+    Active session on the app, for auth
+    """
+    __tablename__ = "sessions"
+    token = Column(String, primary_key=True)
+
+    user = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    started = Column(DateTime, nullable=False, server_default=func.now())
+
+
 class Reference(Base):
+    """
+    Reference from one user to another
+    """
     __tablename__ = "references"
 
     id = Column(Integer, primary_key=True)

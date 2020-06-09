@@ -1,3 +1,4 @@
 sqlalchemy
 grpcio
 protobuf
+pynacl

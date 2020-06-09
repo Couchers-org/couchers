@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package auth;
+
+message AuthRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message AuthResponse {
+  string token = 1;
+}
+
+message DeauthRequest {
+  string token = 1;
+}
+
+message DeauthResponse {
+  bool ok = 1;
+}
+
+service Auth {
+  rpc Authenticate(AuthRequest) returns (AuthResponse);
+  rpc Deauthenticate(DeauthRequest) returns (DeauthResponse);
+}

@@ -1,11 +1,14 @@
 import json
 from concurrent import futures
-from contextlib import contextmanager
 from datetime import date
 
 import grpc
+from auth import Auth, SessionStore
+from db import session_scope
 from models import Base, User
-from pb import api_pb2, api_pb2_grpc
+from nacl.pwhash import str as password_hash
+from nacl.pwhash import verify as password_verify
+from pb import api_pb2, api_pb2_grpc, auth_pb2_grpc
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -15,26 +18,15 @@ Base.metadata.create_all(engine)
 
 Session = sessionmaker(bind=engine)
 
-@contextmanager
-def session_scope():
-    """Provide a transactional scope around a series of operations."""
-    session = Session()
-    try:
-        yield session
-        session.commit()
-    except:
-        session.rollback()
-        raise
-    finally:
-        session.close()
-
 def add_dummy_data(file_name):
-    with session_scope() as session:
+    with session_scope(Session) as session:
         with open(file_name, "r") as file:
             users = json.loads(file.read())
 
         for user in users:
             new_user = User(
+                username=user["username"],
+                password="",
                 name=user["name"],
                 city=user["city"],
                 verification=user["verification"],
@@ -56,15 +48,18 @@ def add_dummy_data(file_name):
             )
             session.add(new_user)
 
-add_dummy_data("src/dummy_data.json")
+try:
+    add_dummy_data("src/dummy_data.json")
+except:
+    print("Failed to insert dummy data, is it already inserted?")
 
-with session_scope() as session:
+with session_scope(Session) as session:
     for user in session.query(User).all():
         print(user)
 
 class APIServicer(api_pb2_grpc.APIServicer):
     def GetUserById(self, request, context):
-        with session_scope() as session:
+        with session_scope(Session) as session:
             user = session.query(User).filter(User.id == request.id).one()
             return api_pb2.User(
                 id=user.id,
@@ -85,10 +80,20 @@ class APIServicer(api_pb2_grpc.APIServicer):
                 countries_lived=user.countries_lived.split("|"),
             )
 
-server = grpc.server(futures.ThreadPoolExecutor(2))
+
+session_store = SessionStore()
+auth = Auth(session_store)
+auth_server = grpc.server(futures.ThreadPoolExecutor(2))
+auth_server.add_insecure_port("[::]:1752")
+auth_servicer = auth.get_auth_servicer()
+auth_pb2_grpc.add_AuthServicer_to_server(auth_servicer, auth_server)
+auth_server.start()
+
+server = grpc.server(futures.ThreadPoolExecutor(2), interceptors=[auth.get_auth_interceptor()])
 server.add_insecure_port("[::]:1751")
 servicer = APIServicer()
 api_pb2_grpc.add_APIServicer_to_server(servicer, server)
-
 server.start()
+
 server.wait_for_termination()
+auth_server.wait_for_termination()

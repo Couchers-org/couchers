@@ -1,5 +1,7 @@
 [
     {
+        "username": "itsi",
+        "password": "",
         "name": "Itsi Weinstock",
         "city": "Sydney, New South Wales, Australia",
         "verification": 0.73,
@@ -44,6 +46,8 @@
         ]
     },
     {
+        "username": "aapeli",
+        "password": "",
         "name": "Aapeli Vuorinen",
         "city": "Brisbane, Queensland, Australia",
         "verification": 0.98,
