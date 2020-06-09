@@ -1,4 +1,5 @@
 import json
+import logging
 from concurrent import futures
 from datetime import date
 
@@ -10,6 +11,9 @@ from models import Base, User
 from pb import api_pb2, api_pb2_grpc, auth_pb2_grpc
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
+logging.basicConfig(format="%(asctime)s.%(msecs)03d: %(process)d: %(message)s", datefmt="%F %T", level=logging.DEBUG)
+logging.info(f"Starting")
 
 engine = create_engine("sqlite:///db.sqlite", echo=False)
 
@@ -46,6 +50,8 @@ def add_dummy_data(file_name):
                 countries_lived="|".join(user["countries_lived"]),
             )
             session.add(new_user)
+
+logging.info(f"Adding dummy data")
 
 try:
     add_dummy_data("src/dummy_data.json")
@@ -93,6 +99,8 @@ server.add_insecure_port("[::]:1751")
 servicer = APIServicer()
 api_pb2_grpc.add_APIServicer_to_server(servicer, server)
 server.start()
+
+logging.info(f"Serving on 1751 and 1752 (auth)")
 
 server.wait_for_termination()
 auth_server.wait_for_termination()
