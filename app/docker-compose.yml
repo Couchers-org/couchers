@@ -2,7 +2,7 @@ version: "3"
 services:
   proxy:
     build: proxy
-    restart: always
+    restart: on-failure
     ports:
       - 8888:8888
       - 9901:9901
@@ -10,14 +10,14 @@ services:
     build: backend
     volumes:
       - "./backend:/app"
-    restart: always
+    restart: on-failure
     ports:
       - 1751:1751
   frontend:
     build: frontend
     volumes:
       - "./frontend:/app"
-    restart: always
+    restart: on-failure
     ports:
       - 8080:8080
     depends_on:
