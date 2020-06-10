@@ -29,6 +29,16 @@
             <v-list-item-title>Home</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
+        <v-list-item link to="/user/1">
+          <v-list-item-icon>
+            <v-badge color="success" content="3" overlap>
+              <v-icon>mdi-account</v-icon>
+            </v-badge>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>Profile</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
         <v-list-item link to="/messages">
           <v-list-item-icon>
             <v-badge color="success" content="3" overlap>

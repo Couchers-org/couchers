@@ -8,11 +8,7 @@
         "community_standing": 0.41,
         "num_references": 16,
         "gender": "Male",
-        "birth_date": {
-            "year": 1995,
-            "month": 11,
-            "day": 2
-        },
+        "birth_date": 815230800000,
         "languages": [
             "English",
             "Japanese"
@@ -54,11 +50,7 @@
         "community_standing": 0.87,
         "num_references": 402,
         "gender": "Male",
-        "birth_date": {
-            "year": 1990,
-            "month": 3,
-            "day": 2
-        },
+        "birth_date": 638978400000,
         "languages": [
             "English",
             "Finnish"

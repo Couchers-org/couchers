@@ -45,10 +45,10 @@ static_resources:
     type: logical_dns
     http2_protocol_options: {}
     lb_policy: round_robin
-    hosts: [{ socket_address: { address: host.docker.internal, port_value: 1751 }}]
+    hosts: [{ socket_address: { address: backend, port_value: 1751 }}]
   - name: auth_service
     connect_timeout: 0.25s
     type: logical_dns
     http2_protocol_options: {}
     lb_policy: round_robin
-    hosts: [{ socket_address: { address: host.docker.internal, port_value: 1752 }}]
+    hosts: [{ socket_address: { address: backend, port_value: 1752 }}]
