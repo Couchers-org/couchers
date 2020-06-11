@@ -18,7 +18,7 @@
           </v-row>
           <v-row>
             <v-col class="mx-auto" cols="12" sm="10" md="8" lg="6" xl="4">
-              <v-tabs v-model="tab" background-color="transparent" color="basil" grow>
+              <v-tabs v-model="tab" background-color="transparent" v-if="loginStep == 'user' || signupStep == 'user'" grow>
                 <v-tab key="login">Log in</v-tab>
                 <v-tab key="signup">Sign up</v-tab>
               </v-tabs>
@@ -33,7 +33,7 @@
                             v-model="username"
                             :rules="[rules.required]"
                             :disabled="loading"
-                            :loading="loading"
+                            :loading="loading && loginStep == 'user'"
                             :error-messages="errorMessages"
                             :success-messages="successMessages"
                             v-on:keyup.enter="submitLoginUser"

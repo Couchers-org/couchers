@@ -70,7 +70,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     session.add(user_session)
                     session.commit()
 
-                    logging.debug(f"Handing out {token=}")
+                    logging.debug(f"Handing out {token=} to {user=}")
                     return token
                 else:
                     logging.debug(f"Wrong password")
