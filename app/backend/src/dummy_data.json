@@ -1,14 +1,19 @@
 [
     {
         "username": "itsi",
-        "password": "Itsi's password",
+        "email_address": "couchers@itsiweinstock.com",
+        "password": null,
         "name": "Itsi Weinstock",
         "city": "Sydney, New South Wales, Australia",
         "verification": 0.73,
         "community_standing": 0.41,
         "num_references": 16,
         "gender": "Male",
-        "birth_date": 815230800000,
+        "birth_date": {
+            "year": 1995,
+            "month": 11,
+            "day": 2
+        },
         "languages": [
             "English",
             "Japanese"
@@ -43,6 +48,7 @@
     },
     {
         "username": "aapeli",
+        "email_address": "couchers@aapelivuorinen.com",
         "password": "Aapeli's password",
         "name": "Aapeli Vuorinen",
         "city": "Brisbane, Queensland, Australia",
@@ -50,7 +56,11 @@
         "community_standing": 0.87,
         "num_references": 402,
         "gender": "Male",
-        "birth_date": 638978400000,
+        "birth_date": {
+            "year": 1990,
+            "month": 3,
+            "day": 2
+        },
         "languages": [
             "English",
             "Finnish"

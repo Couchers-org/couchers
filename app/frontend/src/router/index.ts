@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
 import Home from '../views/Home.vue'
+import Index from '../views/Index.vue'
 import Messages from '../views/Messages.vue'
 import User from '../views/User.vue'
 import Users from '../views/Users.vue'
@@ -16,6 +17,11 @@ const routes: Array<RouteConfig> = [
     path: '/',
     name: 'Home',
     component: Home
+  },
+  {
+    path: '/index',
+    name: 'Index',
+    component: Index
   },
   {
     path: '/login',

@@ -1,14 +1,14 @@
 import logging
 from base64 import b64encode
+from time import sleep
 from typing import Union
 
 import grpc
 from crypto import hash_password, random_bytes, verify_password
 from db import session_scope
-from models import User, UserSession
+from models import User, UserSession, get_user_by_field
 from pb import auth_pb2, auth_pb2_grpc
 
-logging.basicConfig(format="%(asctime)s.%(msecs)03d: %(process)d: %(message)s", datefmt="%F %T", level=logging.DEBUG)
 
 class _AuthValidatorInterceptor(grpc.ServerInterceptor):
     """
@@ -31,55 +31,24 @@ class _AuthValidatorInterceptor(grpc.ServerInterceptor):
                 break
         return self._abort
 
-class _AuthServicer(auth_pb2_grpc.AuthServicer):
-    """
-    Does the actual serving of login/logout (auth/deauth) RPCs
-    """
-    def __init__(self, auth, deauth):
-        self._auth = auth
-        self._deauth = deauth
-
-    def Authenticate(self, request, context):
-        token = self._auth(username=request.username, password=request.password)
-        if token:
-            return auth_pb2.AuthResponse(token=token)
-        else:
-            return context.abort(grpc.StatusCode.UNAUTHENTICATED, "Invalid username or password")
-
-    def Deauthenticate(self, request, context):
-        logging.info(f"Deauthenticate(token={request.token})")
-        if self._deauth(token=request.token):
-            return auth_pb2.DeauthResponse()
-        else:
-            raise Exception("Failed to deauth")
-
-AuthToken = str
-
-class AuthAbstract:
-    def __init__(self):
-        self._auth_servicer = None
-
-    def get_auth_servicer(self):
-        if not self._auth_servicer:
-            self._auth_servicer = _AuthServicer(self.auth, self.deauth)
-        return self._auth_servicer
-
-    def get_auth_interceptor(self):
-        return _AuthValidatorInterceptor(self.has_access)
-
-    def auth(self, username, password) -> Union[None, AuthToken]:
-        raise NotImplementedError()
-
-    def deauth(self, token: AuthToken) -> bool:
-        raise NotImplementedError()
-
-    def has_access(self, token: AuthToken) -> bool:
-        raise NotImplementedError()
-
-class Auth(AuthAbstract):
+class Auth(auth_pb2_grpc.AuthServicer):
     def __init__(self, Session):
         super().__init__()
         self._Session = Session
+        self.auth_interceptor = _AuthValidatorInterceptor(self.has_access)
+
+    def get_auth_interceptor(self):
+        return self.auth_interceptor
+
+    def has_access(self, token):
+        with session_scope(self._Session) as session:
+            user_session = session.query(UserSession).filter(UserSession.token == token).one_or_none()
+            if user_session:
+                session.delete(user_session)
+                session.commit()
+                return True
+            else:
+                return False
 
     def auth(self, username, password):
         logging.debug(f"Logging in with {username=}, password=*******")
@@ -122,12 +91,37 @@ class Auth(AuthAbstract):
             else:
                 return False
 
-    def has_access(self, token):
+    def Login(self, request, response):
+        logging.debug(f"Logging in with {request.username=}")
+        sleep(1)
         with session_scope(self._Session) as session:
-            user_session = session.query(UserSession).filter(UserSession.token == token).one_or_none()
-            if user_session:
-                session.delete(user_session)
-                session.commit()
-                return True
-            else:
-                return False
+            # Gets either by id/username/email
+            user = get_user_by_field(session, request.username)
+            if user:
+                if user.hashed_password is not None:
+                    logging.debug(f"Found user with password")
+                    return auth_pb2.LoginResponse(next_step=auth_pb2.LoginResponse.LoginStep.NEED_PASSWORD)
+                else:
+                    logging.debug(f"Found user without password, sending login email")
+                    # TODO(aapeli): login email
+                    return auth_pb2.LoginResponse(next_step=auth_pb2.LoginResponse.LoginStep.SENT_LOGIN_EMAIL)
+            else: # user not found
+                logging.debug(f"Didn't find user")
+                return auth_pb2.LoginResponse(next_step=auth_pb2.LoginResponse.LoginStep.LOGIN_NO_SUCH_USER)
+
+    def Signup(self, request, response):
+        pass
+
+    def Authenticate(self, request, context):
+        token = self.auth(username=request.username, password=request.password)
+        if token:
+            return auth_pb2.AuthResponse(token=token)
+        else:
+            return context.abort(grpc.StatusCode.UNAUTHENTICATED, "Invalid username or password")
+
+    def Deauthenticate(self, request, context):
+        logging.info(f"Deauthenticate(token={request.token})")
+        if self.deauth(token=request.token):
+            return auth_pb2.DeauthResponse()
+        else:
+            raise Exception("Failed to deauth")

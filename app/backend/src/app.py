@@ -1,4 +1,5 @@
 import json
+import traceback
 import logging
 from concurrent import futures
 from datetime import date
@@ -10,6 +11,7 @@ from db import session_scope
 from models import Base, User
 from pb import api_pb2, api_pb2_grpc, auth_pb2_grpc
 from sqlalchemy import create_engine
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d: %(process)d: %(message)s", datefmt="%F %T", level=logging.DEBUG)
@@ -29,7 +31,8 @@ def add_dummy_data(file_name):
         for user in users:
             new_user = User(
                 username=user["username"],
-                hashed_password=hash_password(user["password"]),
+                email_address=user["email_address"],
+                hashed_password=hash_password(user["password"]) if user["password"] else None,
                 name=user["name"],
                 city=user["city"],
                 verification=user["verification"],
@@ -55,7 +58,8 @@ logging.info(f"Adding dummy data")
 
 try:
     add_dummy_data("src/dummy_data.json")
-except:
+except IntegrityError as e:
+    traceback.print_exc()
     print("Failed to insert dummy data, is it already inserted?")
 
 with session_scope(Session) as session:
@@ -90,8 +94,7 @@ class APIServicer(api_pb2_grpc.APIServicer):
 auth = Auth(Session)
 auth_server = grpc.server(futures.ThreadPoolExecutor(2))
 auth_server.add_insecure_port("[::]:1752")
-auth_servicer = auth.get_auth_servicer()
-auth_pb2_grpc.add_AuthServicer_to_server(auth_servicer, auth_server)
+auth_pb2_grpc.add_AuthServicer_to_server(auth, auth_server)
 auth_server.start()
 
 server = grpc.server(futures.ThreadPoolExecutor(2), interceptors=[auth.get_auth_interceptor()])

@@ -8,6 +8,9 @@ const opts = {
   streamInterceptors: [auth.interceptor]
 };
 
+// There seems to be an error in the `opts` parameter's type, so have to ignore that line.
+// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+// @ts-ignore
 const client = new APIClient('http://localhost:8888', null, opts)
 
 export async function getUser(id: number) {

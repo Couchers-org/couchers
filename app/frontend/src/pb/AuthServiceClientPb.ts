@@ -17,7 +17,10 @@ import {
   AuthRequest,
   AuthResponse,
   DeauthRequest,
-  DeauthResponse} from './auth_pb';
+  DeauthResponse,
+  LoginRequest,
+  LoginResponse,
+  SignupRequest} from './auth_pb';
 
 export class AuthClient {
   client_: grpcWeb.AbstractClientBase;
@@ -36,6 +39,86 @@ export class AuthClient {
     this.hostname_ = hostname;
     this.credentials_ = credentials;
     this.options_ = options;
+  }
+
+  methodInfoLogin = new grpcWeb.AbstractClientBase.MethodInfo(
+    LoginResponse,
+    (request: LoginRequest) => {
+      return request.serializeBinary();
+    },
+    LoginResponse.deserializeBinary
+  );
+
+  login(
+    request: LoginRequest,
+    metadata: grpcWeb.Metadata | null): Promise<LoginResponse>;
+
+  login(
+    request: LoginRequest,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.Error,
+               response: LoginResponse) => void): grpcWeb.ClientReadableStream<LoginResponse>;
+
+  login(
+    request: LoginRequest,
+    metadata: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.Error,
+               response: LoginResponse) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/auth.Auth/Login',
+        request,
+        metadata || {},
+        this.methodInfoLogin,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/auth.Auth/Login',
+    request,
+    metadata || {},
+    this.methodInfoLogin);
+  }
+
+  methodInfoSignup = new grpcWeb.AbstractClientBase.MethodInfo(
+    LoginResponse,
+    (request: SignupRequest) => {
+      return request.serializeBinary();
+    },
+    LoginResponse.deserializeBinary
+  );
+
+  signup(
+    request: SignupRequest,
+    metadata: grpcWeb.Metadata | null): Promise<LoginResponse>;
+
+  signup(
+    request: SignupRequest,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.Error,
+               response: LoginResponse) => void): grpcWeb.ClientReadableStream<LoginResponse>;
+
+  signup(
+    request: SignupRequest,
+    metadata: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.Error,
+               response: LoginResponse) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/auth.Auth/Signup',
+        request,
+        metadata || {},
+        this.methodInfoSignup,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/auth.Auth/Signup',
+    request,
+    metadata || {},
+    this.methodInfoSignup);
   }
 
   methodInfoAuthenticate = new grpcWeb.AbstractClientBase.MethodInfo(

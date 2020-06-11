@@ -1,5 +1,5 @@
 import { AuthClient } from './pb/AuthServiceClientPb'
-import { AuthRequest, DeauthRequest } from './pb/auth_pb'
+import { AuthRequest, DeauthRequest, LoginRequest, SignupRequest, LoginResponse } from './pb/auth_pb'
 
 import Store, { AuthenticationState } from './store'
 

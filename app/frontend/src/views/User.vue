@@ -107,121 +107,121 @@
 </template>
 
 <script lang="ts">
-  import Vue from 'vue'
+import Vue from 'vue'
 
-  function displayList(list: string[]) {
-    return list.join(', ')
-  }
+function displayList(list: string[]) {
+  return list.join(', ')
+}
 
-  import { getUser } from '../api'
+import { getUser } from '../api'
 
-  export default Vue.extend({
-    name: 'User',
-
-    props: ['id'],
-
-    created () {
-      this.fetchData()
-    },
-
-    watch: {
-      '$route': 'fetchData'
-    },
-
-    methods: {
-      fetchData: async function () {
-        this.loading = true
-        this.error = null
-        getUser(this.$route.params.id).then(user => {
-          this.loading = false
-          this.user = user
-        }).catch(err => {
-          this.loading = false
-          this.error = err
-        })
-      }
-    },
-
-    data: () => ({
-      loading: null,
-      error: null,
-      user:{
-        name: null,
-        city: null,
-        verification: null,
-        communityStanding: null,
-        numReferences: null,
-        gender: null,
-        age: null,
-        languagesList: [],
-        occupation: null,
-        aboutMe: null,
-        why: null,
-        thing: null,
-        share: null,
-        countriesVisitedList: [],
-        countriesLivedList: [],
-        lastOnline: 1590172985000,
-        joined: 2020
-      }
-    }),
-
-    computed: {
-      lastOnlineDisplay: function() {
-        const last = new Date(this.user.lastOnline).getTime();
-        const now = new Date();
-        const today = new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime();
-        if (last > today) {
-          return 'today'
-        }
-        const backday = new Date(now.getTime() - 86400000);
-        const yesterday = new Date(backday.getFullYear(),backday.getMonth(),backday.getDate()).getTime();
-        if (last > yesterday) {
-          return 'yesterday'
-        }
-        const diff = now.getTime() - last;
-        if (diff < 604800000) {
-          const n = Math.min(Math.max(2,Math.floor(diff/86400000)),6);
-          return `${n} days ago`
-        }
-        if (diff < 2419200000) {
-          const n = Math.min(Math.max(1,Math.floor(diff/604800000)),4);
-          if (n == 1) {
-            return '1 week ago'
-          }
-          return `${n} weeks ago`
-        }
-        if (diff < 31536000000) {
-          const n = Math.min(Math.max(1,Math.floor(diff/2419200000)),11);
-          if (n == 1) {
-            return '1 month ago'
-          }
-          return `${n} months ago`
-        }
-        const n = Math.max(1,Math.floor(diff/31536000000))
-        if (n == 1) {
-          return '1 year ago'
-        }
-        return `${n} years ago`
-      },
-      verificationDisplay: function() {
-        return Math.round(this.user.verification * 100)
-      },
-      communityStandingDisplay: function() {
-        return Math.round(this.user.communityStanding * 100)
-      },
-      ageDisplay: function() {
-        return new Date(new Date().getTime() - this.user.birth_date).getFullYear()-1970;
-      },
-      languagesListDisplay: function() {
-        return displayList(this.user.languagesList)
-      },
-      countriesVisitedListDisplay: function() {
-        return displayList(this.user.countriesVisitedList)
-      },
-      countriesLivedListDisplay: function() {
-        return displayList(this.user.countriesLivedList)
-      }
+export default Vue.extend({
+  data: () => ({
+    loading: false,
+    error: null,
+    user:{
+      name: null,
+      city: null,
+      verification: null,
+      communityStanding: null,
+      numReferences: null,
+      gender: null,
+      age: null,
+      birthDate: null,
+      languagesList: [],
+      occupation: null,
+      aboutMe: null,
+      why: null,
+      thing: null,
+      share: null,
+      countriesVisitedList: [],
+      countriesLivedList: [],
+      lastOnline: 1590172985000,
+      joined: 2020
     }
-  })
+  }),
+
+  name: 'User',
+
+  created () {
+    this.fetchData()
+  },
+
+  watch: {
+    '$route': 'fetchData'
+  },
+
+  methods: {
+    fetchData: function () {
+      this.loading = true
+      this.error = null
+
+      getUser(Number(this.$route.params.id)).then(user => {
+        this.loading = false
+        this.user = user
+      }).catch(err => {
+        this.loading = false
+        this.error = err
+      })
+    }
+  },
+
+  computed: {
+    lastOnlineDisplay: function() {
+      const last = new Date(this.user.lastOnline!).getTime();
+      const now = new Date();
+      const today = new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime();
+      if (last > today) {
+        return 'today'
+      }
+      const backday = new Date(now.getTime() - 86400000);
+      const yesterday = new Date(backday.getFullYear(),backday.getMonth(),backday.getDate()).getTime();
+      if (last > yesterday) {
+        return 'yesterday'
+      }
+      const diff = now.getTime() - last;
+      if (diff < 604800000) {
+        const n = Math.min(Math.max(2,Math.floor(diff/86400000)),6);
+        return `${n} days ago`
+      }
+      if (diff < 2419200000) {
+        const n = Math.min(Math.max(1,Math.floor(diff/604800000)),4);
+        if (n == 1) {
+          return '1 week ago'
+        }
+        return `${n} weeks ago`
+      }
+      if (diff < 31536000000) {
+        const n = Math.min(Math.max(1,Math.floor(diff/2419200000)),11);
+        if (n == 1) {
+          return '1 month ago'
+        }
+        return `${n} months ago`
+      }
+      const n = Math.max(1,Math.floor(diff/31536000000))
+      if (n == 1) {
+        return '1 year ago'
+      }
+      return `${n} years ago`
+    },
+    verificationDisplay: function() {
+      return Math.round(this.user.verification! * 100)
+    },
+    communityStandingDisplay: function() {
+      return Math.round(this.user.communityStanding! * 100)
+    },
+    ageDisplay: function() {
+      return new Date(new Date().getTime() - this.user.birthDate!).getFullYear()-1970;
+    },
+    languagesListDisplay: function() {
+      return displayList(this.user.languagesList)
+    },
+    countriesVisitedListDisplay: function() {
+      return displayList(this.user.countriesVisitedList)
+    },
+    countriesLivedListDisplay: function() {
+      return displayList(this.user.countriesLivedList)
+    }
+  }
+})
 </script>
