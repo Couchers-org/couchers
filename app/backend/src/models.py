@@ -1,6 +1,9 @@
+import datetime
 import logging
 import re
+from base64 import b64encode
 
+from crypto import random_bytes
 from sqlalchemy import (Boolean, Column, Date, DateTime, Float, ForeignKey,
                         Integer)
 from sqlalchemy import LargeBinary as Binary
@@ -38,6 +41,9 @@ class User(Base):
     share = Column(String, nullable=False)
     countries_visited = Column(String, nullable=False)
     countries_lived = Column(String, nullable=False)
+
+    def __repr__(self):
+        return f"User(id={self.id}, username={self.username})"
 
 # When a user logs in, they can basically input one of three things: user id, username, or email
 # These are three non-intersecting sets
@@ -80,6 +86,33 @@ def get_user_by_field(session, field):
         logging.info(f"Field {field=}, didn't match any known types")
         return None
 
+class LoginToken(Base):
+    """
+    A login token sent in an email to a user, allows them to sign in between the times defined by created and expiry
+    """
+    __tablename__ = "login_tokens"
+    token = Column(String, primary_key=True)
+
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    created = Column(DateTime, nullable=False, server_default=func.now())
+    expiry = Column(DateTime, nullable=False)
+
+    user = relationship("User", backref="login_tokens")
+
+    def __repr__(self):
+        return f"LoginToken(token={self.token}, user={self.user}, created={self.created}, expiry={self.expiry})"
+
+def new_login_token(session, user, hours=2):
+    """
+    Make a login token that's valid for `hours` hours
+
+    Returns token and expiry text
+    """
+    token = b64encode(random_bytes(32)).decode("utf8")
+    login_token = LoginToken(token=token, user=user, expiry=datetime.datetime.utcnow() + datetime.timedelta(hours=hours))
+    session.add(login_token)
+    return login_token, f"{hours} hours"
 
 class UserSession(Base):
     """

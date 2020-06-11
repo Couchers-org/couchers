@@ -29,7 +29,7 @@
                       <v-form v-on:submit.prevent="submitLoginUser">
                         <v-row>
                           <v-text-field
-                            autofocus
+                            :autofocus="loginStep == 'user'"
                             v-model="username"
                             :rules="[rules.required]"
                             :disabled="loading"
@@ -43,6 +43,7 @@
                         </v-row>
                         <v-row v-if="loginStep == 'pass'">
                           <v-text-field
+                            :autofocus="loginStep == 'pass'"
                             v-model="password"
                             :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                             :rules="[rules.required]"
@@ -52,8 +53,7 @@
                             v-on:keyup.enter="submitLoginPass"
                             name="password"
                             label="Password"
-                            :error-messages="errorMessages"
-                            :success-messages="successMessages"
+                            :error-messages="passErrorMessages"
                             @click:append="showPassword = !showPassword"
                           ></v-text-field>
                         </v-row>
@@ -100,6 +100,9 @@ import * as grpcWeb from 'grpc-web'
 
 const authClient = new AuthClient("http://127.0.0.1:8888")
 
+import Store, { AuthenticationState } from '../store'
+
+import Router from '../router'
 
 export default Vue.extend({
   data: () => ({
@@ -110,6 +113,7 @@ export default Vue.extend({
     password: '',
     showPassword: false,
     errorMessages: [] as Array<string>,
+    passErrorMessages: [] as Array<string>,
     successMessages: [] as Array<string>,
     loginStep: 'user',
     signupStep: 'email',
@@ -138,13 +142,16 @@ export default Vue.extend({
           case LoginResponse.LoginStep.SENT_LOGIN_EMAIL:
             this.loginStep = 'email'
             break
-          case LoginResponse.LoginStep.SENT_SIGNUP_EMAIL:
-            this.signupStep = 'email'
-            break
           case LoginResponse.LoginStep.LOGIN_NO_SUCH_USER:
             this.errorMessages = ['User not found!']
             break
+          case LoginResponse.LoginStep.SENT_SIGNUP_EMAIL:
+            console.error('Got LoginResponse.LoginStep.SENT_SIGNUP_EMAIL for LoginRequest')
+            this.errorMessages = ['Error.']
+            break
           case LoginResponse.LoginStep.SIGNUP_EMAIL_EXISTS:
+            console.error('Got LoginResponse.LoginStep.SIGNUP_EMAIL_EXISTS for LoginRequest')
+            this.errorMessages = ['Error.']
             break
         }
         this.loading = false
@@ -154,11 +161,63 @@ export default Vue.extend({
       })
     },
     submitLoginPass: function () {
-      console.log("submit login pass")
+      this.loading = true;
+      this.clearMessages()
+
+      const req = new AuthRequest()
+
+      req.setUsername(this.username)
+      req.setPassword(this.password)
+      authClient.authenticate(req, null).then(res => {
+        Store.commit('auth', {
+          authState: AuthenticationState.Authenticated,
+          authToken: res.getToken()
+        })
+        Router.push('/')
+        this.successMessages = ['Success.']
+      }).catch(err => {
+        Store.commit('deauth')
+        Router.push({ name: 'Login' })
+        if (err.code == grpcWeb.StatusCode.UNAUTHENTICATED) {
+          this.errorMessages = ['Invalid username or password.']
+        } else {
+          this.errorMessages = ['Unknown error.']
+        }
+      })
     },
     submitSignup: function () {
-      console.log("submit signup")
-    }
+      this.loading = true;
+      this.clearMessages()
+
+      const req = new LoginRequest()
+
+      req.setUsername(this.username)
+      authClient.login(req, null).then(res => {
+        switch (res.getNextStep()) {
+          case LoginResponse.LoginStep.NEED_PASSWORD:
+            this.loginStep = 'pass'
+            break
+          case LoginResponse.LoginStep.SENT_LOGIN_EMAIL:
+            this.loginStep = 'email'
+            break
+          case LoginResponse.LoginStep.LOGIN_NO_SUCH_USER:
+            this.errorMessages = ['User not found!']
+            break
+          case LoginResponse.LoginStep.SENT_SIGNUP_EMAIL:
+            console.error('Got LoginResponse.LoginStep.SENT_SIGNUP_EMAIL for LoginRequest')
+            this.errorMessages = ['Error.']
+            break
+          case LoginResponse.LoginStep.SIGNUP_EMAIL_EXISTS:
+            console.error('Got LoginResponse.LoginStep.SIGNUP_EMAIL_EXISTS for LoginRequest')
+            this.errorMessages = ['Error.']
+            break
+        }
+        this.loading = false
+      }).catch(err => {
+        this.errorMessages = ['Unknown error.']
+        this.loading = false
+      })
+    },
   }
 })
 </script>

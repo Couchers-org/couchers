@@ -6,7 +6,7 @@
       </div>
     </v-app-bar>
 
-    <v-navigation-drawer app dark>
+    <v-navigation-drawer app permanent>
       <v-list-item>
         <v-list-item-content>
           <v-list-item-title class="title">

@@ -6,8 +6,9 @@ from typing import Union
 import grpc
 from crypto import hash_password, random_bytes, verify_password
 from db import session_scope
-from models import User, UserSession, get_user_by_field
+from models import User, UserSession, get_user_by_field, new_login_token
 from pb import auth_pb2, auth_pb2_grpc
+from tasks import send_login_email, send_signup_email
 
 
 class _AuthValidatorInterceptor(grpc.ServerInterceptor):
@@ -93,7 +94,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
     def Login(self, request, response):
         logging.debug(f"Logging in with {request.username=}")
-        sleep(1)
+        sleep(1) # TODO(aapeli) debug
         with session_scope(self._Session) as session:
             # Gets either by id/username/email
             user = get_user_by_field(session, request.username)
@@ -103,7 +104,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     return auth_pb2.LoginResponse(next_step=auth_pb2.LoginResponse.LoginStep.NEED_PASSWORD)
                 else:
                     logging.debug(f"Found user without password, sending login email")
-                    # TODO(aapeli): login email
+                    send_login_email(user, *new_login_token(session, user))
                     return auth_pb2.LoginResponse(next_step=auth_pb2.LoginResponse.LoginStep.SENT_LOGIN_EMAIL)
             else: # user not found
                 logging.debug(f"Didn't find user")
