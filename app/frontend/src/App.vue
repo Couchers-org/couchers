@@ -21,6 +21,14 @@
       <v-divider></v-divider>
 
       <v-list dense nav>
+        <v-list-item link to="/index">
+          <v-list-item-icon>
+            <v-icon>mdi-view-dashboard</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>Login/index</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
         <v-list-item link to="/">
           <v-list-item-icon>
             <v-icon>mdi-view-dashboard</v-icon>

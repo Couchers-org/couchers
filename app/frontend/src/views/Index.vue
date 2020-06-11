@@ -125,6 +125,7 @@ export default Vue.extend({
   methods: {
     clearMessages: function () {
       this.errorMessages = []
+      this.passErrorMessages = []
       this.successMessages = []
     },
     submitLoginUser: function () {
@@ -169,19 +170,19 @@ export default Vue.extend({
       req.setUsername(this.username)
       req.setPassword(this.password)
       authClient.authenticate(req, null).then(res => {
+        this.loading = false
+        this.successMessages = ['Success.']
         Store.commit('auth', {
           authState: AuthenticationState.Authenticated,
           authToken: res.getToken()
         })
         Router.push('/')
-        this.successMessages = ['Success.']
       }).catch(err => {
-        Store.commit('deauth')
-        Router.push({ name: 'Login' })
+        this.loading = false
         if (err.code == grpcWeb.StatusCode.UNAUTHENTICATED) {
-          this.errorMessages = ['Invalid username or password.']
+          this.passErrorMessages = ['Invalid username or password.']
         } else {
-          this.errorMessages = ['Unknown error.']
+          this.passErrorMessages = ['Unknown error.']
         }
       })
     },
