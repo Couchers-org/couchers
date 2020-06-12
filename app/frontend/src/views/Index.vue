@@ -69,13 +69,31 @@
                   </v-card>
                 </v-tab-item>
                 <v-tab-item key="signup">
-                  <v-card flat>
+                  <v-card flat v-if="signupStep == 'form'">
                     <v-card-text>
-                      <v-form>
-                        <v-row><v-text-field autofocus name="email" label="Email address"></v-text-field></v-row>
+                      <v-form v-on:submit.prevent="submitSignup">
+                        <v-row>
+                          <v-text-field
+                            autofocus
+                            v-model="signupEmail"
+                            :rules="[rules.required]"
+                            :disabled="loading"
+                            :loading="loading"
+                            :error-messages="errorMessages"
+                            :success-messages="successMessages"
+                            v-on:keyup.enter="submitSignup"
+                            name="signupEmail"
+                            label="Email"
+                          ></v-text-field>
+                        </v-row>
                         <v-row><p>We'll email you a link!</p></v-row>
                         <v-row><v-btn v-on:click="submitSignup" color="success">Sign up</v-btn></v-row>
                       </v-form>
+                    </v-card-text>
+                  </v-card>
+                  <v-card flat v-if="signupStep == 'email'">
+                    <v-card-text>
+                      <p>We sent you a signup email. Please click the link to continue!</p>
                     </v-card-text>
                   </v-card>
                 </v-tab-item>
@@ -94,7 +112,7 @@ import Vue from 'vue'
 import auth from '../auth'
 
 import { AuthClient } from '../pb/AuthServiceClientPb'
-import { AuthRequest, DeauthRequest, LoginRequest, SignupRequest, LoginResponse } from '../pb/auth_pb'
+import { AuthRequest, DeauthRequest, LoginRequest, SignupRequest, LoginResponse, SignupResponse } from '../pb/auth_pb'
 
 import * as grpcWeb from 'grpc-web'
 
@@ -111,12 +129,13 @@ export default Vue.extend({
     name: 'Index',
     username: '',
     password: '',
+    signupEmail: '',
     showPassword: false,
     errorMessages: [] as Array<string>,
     passErrorMessages: [] as Array<string>,
     successMessages: [] as Array<string>,
     loginStep: 'user',
-    signupStep: 'email',
+    signupStep: 'form',
     rules: {
       required: (value: string) => !!value || 'Required.'
     },
@@ -145,14 +164,6 @@ export default Vue.extend({
             break
           case LoginResponse.LoginStep.LOGIN_NO_SUCH_USER:
             this.errorMessages = ['User not found!']
-            break
-          case LoginResponse.LoginStep.SENT_SIGNUP_EMAIL:
-            console.error('Got LoginResponse.LoginStep.SENT_SIGNUP_EMAIL for LoginRequest')
-            this.errorMessages = ['Error.']
-            break
-          case LoginResponse.LoginStep.SIGNUP_EMAIL_EXISTS:
-            console.error('Got LoginResponse.LoginStep.SIGNUP_EMAIL_EXISTS for LoginRequest')
-            this.errorMessages = ['Error.']
             break
         }
         this.loading = false
@@ -190,27 +201,16 @@ export default Vue.extend({
       this.loading = true;
       this.clearMessages()
 
-      const req = new LoginRequest()
+      const req = new SignupRequest()
 
-      req.setUsername(this.username)
-      authClient.login(req, null).then(res => {
+      req.setEmail(this.signupEmail)
+      authClient.signup(req, null).then(res => {
         switch (res.getNextStep()) {
-          case LoginResponse.LoginStep.NEED_PASSWORD:
-            this.loginStep = 'pass'
-            break
-          case LoginResponse.LoginStep.SENT_LOGIN_EMAIL:
+          case SignupResponse.SignupStep.SENT_SIGNUP_EMAIL:
             this.loginStep = 'email'
             break
-          case LoginResponse.LoginStep.LOGIN_NO_SUCH_USER:
-            this.errorMessages = ['User not found!']
-            break
-          case LoginResponse.LoginStep.SENT_SIGNUP_EMAIL:
-            console.error('Got LoginResponse.LoginStep.SENT_SIGNUP_EMAIL for LoginRequest')
-            this.errorMessages = ['Error.']
-            break
-          case LoginResponse.LoginStep.SIGNUP_EMAIL_EXISTS:
-            console.error('Got LoginResponse.LoginStep.SIGNUP_EMAIL_EXISTS for LoginRequest')
-            this.errorMessages = ['Error.']
+          case SignupResponse.SignupStep.EMAIL_EXISTS:
+            this.errorMessages = ['Email exists! Please login.']
             break
         }
         this.loading = false

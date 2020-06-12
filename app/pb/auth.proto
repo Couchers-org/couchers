@@ -6,21 +6,27 @@ message LoginRequest {
   string username = 1;
 }
 
-message SignupRequest {
-  string username = 1;
-  string email = 2;
-}
-
 message LoginResponse {
   enum LoginStep {
     NEED_PASSWORD = 0;
     SENT_LOGIN_EMAIL = 1;
-    SENT_SIGNUP_EMAIL = 2;
     LOGIN_NO_SUCH_USER = 3;
-    SIGNUP_EMAIL_EXISTS = 4;
   }
 
   LoginStep next_step = 1;
+}
+
+message SignupRequest {
+  string email = 1;
+}
+
+message SignupResponse {
+  enum SignupStep {
+    SENT_SIGNUP_EMAIL = 0;
+    EMAIL_EXISTS = 1;
+  }
+
+  SignupStep next_step = 1;
 }
 
 message AuthRequest {
@@ -40,7 +46,7 @@ message DeauthResponse {}
 
 service Auth {
   rpc Login(LoginRequest) returns (LoginResponse);
-  rpc Signup(SignupRequest) returns (LoginResponse);
+  rpc Signup(SignupRequest) returns (SignupResponse);
 
   rpc Authenticate(AuthRequest) returns (AuthResponse);
   rpc Deauthenticate(DeauthRequest) returns (DeauthResponse);

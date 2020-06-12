@@ -18,28 +18,6 @@ export namespace LoginRequest {
   }
 }
 
-export class SignupRequest extends jspb.Message {
-  getUsername(): string;
-  setUsername(value: string): SignupRequest;
-
-  getEmail(): string;
-  setEmail(value: string): SignupRequest;
-
-  serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): SignupRequest.AsObject;
-  static toObject(includeInstance: boolean, msg: SignupRequest): SignupRequest.AsObject;
-  static serializeBinaryToWriter(message: SignupRequest, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): SignupRequest;
-  static deserializeBinaryFromReader(message: SignupRequest, reader: jspb.BinaryReader): SignupRequest;
-}
-
-export namespace SignupRequest {
-  export type AsObject = {
-    username: string,
-    email: string,
-  }
-}
-
 export class LoginResponse extends jspb.Message {
   getNextStep(): LoginResponse.LoginStep;
   setNextStep(value: LoginResponse.LoginStep): LoginResponse;
@@ -60,9 +38,48 @@ export namespace LoginResponse {
   export enum LoginStep { 
     NEED_PASSWORD = 0,
     SENT_LOGIN_EMAIL = 1,
-    SENT_SIGNUP_EMAIL = 2,
     LOGIN_NO_SUCH_USER = 3,
-    SIGNUP_EMAIL_EXISTS = 4,
+  }
+}
+
+export class SignupRequest extends jspb.Message {
+  getEmail(): string;
+  setEmail(value: string): SignupRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): SignupRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: SignupRequest): SignupRequest.AsObject;
+  static serializeBinaryToWriter(message: SignupRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SignupRequest;
+  static deserializeBinaryFromReader(message: SignupRequest, reader: jspb.BinaryReader): SignupRequest;
+}
+
+export namespace SignupRequest {
+  export type AsObject = {
+    email: string,
+  }
+}
+
+export class SignupResponse extends jspb.Message {
+  getNextStep(): SignupResponse.SignupStep;
+  setNextStep(value: SignupResponse.SignupStep): SignupResponse;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): SignupResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: SignupResponse): SignupResponse.AsObject;
+  static serializeBinaryToWriter(message: SignupResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SignupResponse;
+  static deserializeBinaryFromReader(message: SignupResponse, reader: jspb.BinaryReader): SignupResponse;
+}
+
+export namespace SignupResponse {
+  export type AsObject = {
+    nextStep: SignupResponse.SignupStep,
+  }
+
+  export enum SignupStep { 
+    SENT_SIGNUP_EMAIL = 0,
+    EMAIL_EXISTS = 1,
   }
 }
 

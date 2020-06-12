@@ -104,14 +104,25 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     return auth_pb2.LoginResponse(next_step=auth_pb2.LoginResponse.LoginStep.NEED_PASSWORD)
                 else:
                     logging.debug(f"Found user without password, sending login email")
-                    send_login_email(user, *new_login_token(session, user))
+                    send_login_email(user)
                     return auth_pb2.LoginResponse(next_step=auth_pb2.LoginResponse.LoginStep.SENT_LOGIN_EMAIL)
             else: # user not found
                 logging.debug(f"Didn't find user")
                 return auth_pb2.LoginResponse(next_step=auth_pb2.LoginResponse.LoginStep.LOGIN_NO_SUCH_USER)
 
     def Signup(self, request, response):
-        pass
+        logging.debug(f"Signup with {request.email=}")
+        sleep(1) # TODO(aapeli) debug
+        with session_scope(self._Session) as session:
+            user = session.query(User).filter(User.email_address == request.email).one_or_none()
+            if not user:
+                print("Send signup email")
+                # TODO(aapeli): implement
+                #send_signup_email()
+                return auth_pb2.SignupResponse(next_step=auth_pb2.SignupResponse.SignupStep.SENT_SIGNUP_EMAIL)
+            else:
+                # user exists
+                return auth_pb2.SignupResponse(next_step=auth_pb2.SignupResponse.SignupStep.EMAIL_EXISTS)
 
     def Authenticate(self, request, context):
         token = self.auth(username=request.username, password=request.password)

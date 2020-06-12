@@ -20,7 +20,8 @@ import {
   DeauthResponse,
   LoginRequest,
   LoginResponse,
-  SignupRequest} from './auth_pb';
+  SignupRequest,
+  SignupResponse} from './auth_pb';
 
 export class AuthClient {
   client_: grpcWeb.AbstractClientBase;
@@ -82,28 +83,28 @@ export class AuthClient {
   }
 
   methodInfoSignup = new grpcWeb.AbstractClientBase.MethodInfo(
-    LoginResponse,
+    SignupResponse,
     (request: SignupRequest) => {
       return request.serializeBinary();
     },
-    LoginResponse.deserializeBinary
+    SignupResponse.deserializeBinary
   );
 
   signup(
     request: SignupRequest,
-    metadata: grpcWeb.Metadata | null): Promise<LoginResponse>;
+    metadata: grpcWeb.Metadata | null): Promise<SignupResponse>;
 
   signup(
     request: SignupRequest,
     metadata: grpcWeb.Metadata | null,
     callback: (err: grpcWeb.Error,
-               response: LoginResponse) => void): grpcWeb.ClientReadableStream<LoginResponse>;
+               response: SignupResponse) => void): grpcWeb.ClientReadableStream<SignupResponse>;
 
   signup(
     request: SignupRequest,
     metadata: grpcWeb.Metadata | null,
     callback?: (err: grpcWeb.Error,
-               response: LoginResponse) => void) {
+               response: SignupResponse) => void) {
     if (callback !== undefined) {
       return this.client_.rpcCall(
         this.hostname_ +

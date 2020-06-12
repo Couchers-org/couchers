@@ -18,7 +18,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='auth',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=b'\n\rpb/auth.proto\x12\x04\x61uth\" \n\x0cLoginRequest\x12\x10\n\x08username\x18\x01 \x01(\t\"0\n\rSignupRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\r\n\x05\x65mail\x18\x02 \x01(\t\"\xbf\x01\n\rLoginResponse\x12\x30\n\tnext_step\x18\x01 \x01(\x0e\x32\x1d.auth.LoginResponse.LoginStep\"|\n\tLoginStep\x12\x11\n\rNEED_PASSWORD\x10\x00\x12\x14\n\x10SENT_LOGIN_EMAIL\x10\x01\x12\x15\n\x11SENT_SIGNUP_EMAIL\x10\x02\x12\x16\n\x12LOGIN_NO_SUCH_USER\x10\x03\x12\x17\n\x13SIGNUP_EMAIL_EXISTS\x10\x04\"1\n\x0b\x41uthRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"\x1d\n\x0c\x41uthResponse\x12\r\n\x05token\x18\x01 \x01(\t\"\x1e\n\rDeauthRequest\x12\r\n\x05token\x18\x01 \x01(\t\"\x10\n\x0e\x44\x65\x61uthResponse2\xe0\x01\n\x04\x41uth\x12\x30\n\x05Login\x12\x12.auth.LoginRequest\x1a\x13.auth.LoginResponse\x12\x32\n\x06Signup\x12\x13.auth.SignupRequest\x1a\x13.auth.LoginResponse\x12\x35\n\x0c\x41uthenticate\x12\x11.auth.AuthRequest\x1a\x12.auth.AuthResponse\x12;\n\x0e\x44\x65\x61uthenticate\x12\x13.auth.DeauthRequest\x1a\x14.auth.DeauthResponseb\x06proto3'
+  serialized_pb=b'\n\rpb/auth.proto\x12\x04\x61uth\" \n\x0cLoginRequest\x12\x10\n\x08username\x18\x01 \x01(\t\"\x8f\x01\n\rLoginResponse\x12\x30\n\tnext_step\x18\x01 \x01(\x0e\x32\x1d.auth.LoginResponse.LoginStep\"L\n\tLoginStep\x12\x11\n\rNEED_PASSWORD\x10\x00\x12\x14\n\x10SENT_LOGIN_EMAIL\x10\x01\x12\x16\n\x12LOGIN_NO_SUCH_USER\x10\x03\"\x1e\n\rSignupRequest\x12\r\n\x05\x65mail\x18\x01 \x01(\t\"{\n\x0eSignupResponse\x12\x32\n\tnext_step\x18\x01 \x01(\x0e\x32\x1f.auth.SignupResponse.SignupStep\"5\n\nSignupStep\x12\x15\n\x11SENT_SIGNUP_EMAIL\x10\x00\x12\x10\n\x0c\x45MAIL_EXISTS\x10\x01\"1\n\x0b\x41uthRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"\x1d\n\x0c\x41uthResponse\x12\r\n\x05token\x18\x01 \x01(\t\"\x1e\n\rDeauthRequest\x12\r\n\x05token\x18\x01 \x01(\t\"\x10\n\x0e\x44\x65\x61uthResponse2\xe1\x01\n\x04\x41uth\x12\x30\n\x05Login\x12\x12.auth.LoginRequest\x1a\x13.auth.LoginResponse\x12\x33\n\x06Signup\x12\x13.auth.SignupRequest\x1a\x14.auth.SignupResponse\x12\x35\n\x0c\x41uthenticate\x12\x11.auth.AuthRequest\x1a\x12.auth.AuthResponse\x12;\n\x0e\x44\x65\x61uthenticate\x12\x13.auth.DeauthRequest\x1a\x14.auth.DeauthResponseb\x06proto3'
 )
 
 
@@ -38,24 +38,38 @@ _LOGINRESPONSE_LOGINSTEP = _descriptor.EnumDescriptor(
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='SENT_SIGNUP_EMAIL', index=2, number=2,
-      serialized_options=None,
-      type=None),
-    _descriptor.EnumValueDescriptor(
-      name='LOGIN_NO_SUCH_USER', index=3, number=3,
-      serialized_options=None,
-      type=None),
-    _descriptor.EnumValueDescriptor(
-      name='SIGNUP_EMAIL_EXISTS', index=4, number=4,
+      name='LOGIN_NO_SUCH_USER', index=2, number=3,
       serialized_options=None,
       type=None),
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=175,
-  serialized_end=299,
+  serialized_start=125,
+  serialized_end=201,
 )
 _sym_db.RegisterEnumDescriptor(_LOGINRESPONSE_LOGINSTEP)
+
+_SIGNUPRESPONSE_SIGNUPSTEP = _descriptor.EnumDescriptor(
+  name='SignupStep',
+  full_name='auth.SignupResponse.SignupStep',
+  filename=None,
+  file=DESCRIPTOR,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='SENT_SIGNUP_EMAIL', index=0, number=0,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='EMAIL_EXISTS', index=1, number=1,
+      serialized_options=None,
+      type=None),
+  ],
+  containing_type=None,
+  serialized_options=None,
+  serialized_start=305,
+  serialized_end=358,
+)
+_sym_db.RegisterEnumDescriptor(_SIGNUPRESPONSE_SIGNUPSTEP)
 
 
 _LOGINREQUEST = _descriptor.Descriptor(
@@ -89,44 +103,6 @@ _LOGINREQUEST = _descriptor.Descriptor(
 )
 
 
-_SIGNUPREQUEST = _descriptor.Descriptor(
-  name='SignupRequest',
-  full_name='auth.SignupRequest',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='username', full_name='auth.SignupRequest.username', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='email', full_name='auth.SignupRequest.email', index=1,
-      number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=57,
-  serialized_end=105,
-)
-
-
 _LOGINRESPONSE = _descriptor.Descriptor(
   name='LoginResponse',
   full_name='auth.LoginResponse',
@@ -154,8 +130,71 @@ _LOGINRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=108,
-  serialized_end=299,
+  serialized_start=58,
+  serialized_end=201,
+)
+
+
+_SIGNUPREQUEST = _descriptor.Descriptor(
+  name='SignupRequest',
+  full_name='auth.SignupRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='email', full_name='auth.SignupRequest.email', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=203,
+  serialized_end=233,
+)
+
+
+_SIGNUPRESPONSE = _descriptor.Descriptor(
+  name='SignupResponse',
+  full_name='auth.SignupResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='next_step', full_name='auth.SignupResponse.next_step', index=0,
+      number=1, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+    _SIGNUPRESPONSE_SIGNUPSTEP,
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=235,
+  serialized_end=358,
 )
 
 
@@ -192,8 +231,8 @@ _AUTHREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=301,
-  serialized_end=350,
+  serialized_start=360,
+  serialized_end=409,
 )
 
 
@@ -223,8 +262,8 @@ _AUTHRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=352,
-  serialized_end=381,
+  serialized_start=411,
+  serialized_end=440,
 )
 
 
@@ -254,8 +293,8 @@ _DEAUTHREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=383,
-  serialized_end=413,
+  serialized_start=442,
+  serialized_end=472,
 )
 
 
@@ -278,15 +317,18 @@ _DEAUTHRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=415,
-  serialized_end=431,
+  serialized_start=474,
+  serialized_end=490,
 )
 
 _LOGINRESPONSE.fields_by_name['next_step'].enum_type = _LOGINRESPONSE_LOGINSTEP
 _LOGINRESPONSE_LOGINSTEP.containing_type = _LOGINRESPONSE
+_SIGNUPRESPONSE.fields_by_name['next_step'].enum_type = _SIGNUPRESPONSE_SIGNUPSTEP
+_SIGNUPRESPONSE_SIGNUPSTEP.containing_type = _SIGNUPRESPONSE
 DESCRIPTOR.message_types_by_name['LoginRequest'] = _LOGINREQUEST
-DESCRIPTOR.message_types_by_name['SignupRequest'] = _SIGNUPREQUEST
 DESCRIPTOR.message_types_by_name['LoginResponse'] = _LOGINRESPONSE
+DESCRIPTOR.message_types_by_name['SignupRequest'] = _SIGNUPREQUEST
+DESCRIPTOR.message_types_by_name['SignupResponse'] = _SIGNUPRESPONSE
 DESCRIPTOR.message_types_by_name['AuthRequest'] = _AUTHREQUEST
 DESCRIPTOR.message_types_by_name['AuthResponse'] = _AUTHRESPONSE
 DESCRIPTOR.message_types_by_name['DeauthRequest'] = _DEAUTHREQUEST
@@ -300,6 +342,13 @@ LoginRequest = _reflection.GeneratedProtocolMessageType('LoginRequest', (_messag
   })
 _sym_db.RegisterMessage(LoginRequest)
 
+LoginResponse = _reflection.GeneratedProtocolMessageType('LoginResponse', (_message.Message,), {
+  'DESCRIPTOR' : _LOGINRESPONSE,
+  '__module__' : 'pb.auth_pb2'
+  # @@protoc_insertion_point(class_scope:auth.LoginResponse)
+  })
+_sym_db.RegisterMessage(LoginResponse)
+
 SignupRequest = _reflection.GeneratedProtocolMessageType('SignupRequest', (_message.Message,), {
   'DESCRIPTOR' : _SIGNUPREQUEST,
   '__module__' : 'pb.auth_pb2'
@@ -307,12 +356,12 @@ SignupRequest = _reflection.GeneratedProtocolMessageType('SignupRequest', (_mess
   })
 _sym_db.RegisterMessage(SignupRequest)
 
-LoginResponse = _reflection.GeneratedProtocolMessageType('LoginResponse', (_message.Message,), {
-  'DESCRIPTOR' : _LOGINRESPONSE,
+SignupResponse = _reflection.GeneratedProtocolMessageType('SignupResponse', (_message.Message,), {
+  'DESCRIPTOR' : _SIGNUPRESPONSE,
   '__module__' : 'pb.auth_pb2'
-  # @@protoc_insertion_point(class_scope:auth.LoginResponse)
+  # @@protoc_insertion_point(class_scope:auth.SignupResponse)
   })
-_sym_db.RegisterMessage(LoginResponse)
+_sym_db.RegisterMessage(SignupResponse)
 
 AuthRequest = _reflection.GeneratedProtocolMessageType('AuthRequest', (_message.Message,), {
   'DESCRIPTOR' : _AUTHREQUEST,
@@ -350,8 +399,8 @@ _AUTH = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=434,
-  serialized_end=658,
+  serialized_start=493,
+  serialized_end=718,
   methods=[
   _descriptor.MethodDescriptor(
     name='Login',
@@ -368,7 +417,7 @@ _AUTH = _descriptor.ServiceDescriptor(
     index=1,
     containing_service=None,
     input_type=_SIGNUPREQUEST,
-    output_type=_LOGINRESPONSE,
+    output_type=_SIGNUPRESPONSE,
     serialized_options=None,
   ),
   _descriptor.MethodDescriptor(

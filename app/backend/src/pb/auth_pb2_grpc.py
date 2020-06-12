@@ -21,7 +21,7 @@ class AuthStub(object):
         self.Signup = channel.unary_unary(
                 '/auth.Auth/Signup',
                 request_serializer=pb_dot_auth__pb2.SignupRequest.SerializeToString,
-                response_deserializer=pb_dot_auth__pb2.LoginResponse.FromString,
+                response_deserializer=pb_dot_auth__pb2.SignupResponse.FromString,
                 )
         self.Authenticate = channel.unary_unary(
                 '/auth.Auth/Authenticate',
@@ -73,7 +73,7 @@ def add_AuthServicer_to_server(servicer, server):
             'Signup': grpc.unary_unary_rpc_method_handler(
                     servicer.Signup,
                     request_deserializer=pb_dot_auth__pb2.SignupRequest.FromString,
-                    response_serializer=pb_dot_auth__pb2.LoginResponse.SerializeToString,
+                    response_serializer=pb_dot_auth__pb2.SignupResponse.SerializeToString,
             ),
             'Authenticate': grpc.unary_unary_rpc_method_handler(
                     servicer.Authenticate,
@@ -123,7 +123,7 @@ class Auth(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/auth.Auth/Signup',
             pb_dot_auth__pb2.SignupRequest.SerializeToString,
-            pb_dot_auth__pb2.LoginResponse.FromString,
+            pb_dot_auth__pb2.SignupResponse.FromString,
             options, channel_credentials,
             call_credentials, compression, wait_for_ready, timeout, metadata)
 
