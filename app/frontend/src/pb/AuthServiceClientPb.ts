@@ -16,12 +16,18 @@ import * as grpcWeb from 'grpc-web';
 import {
   AuthRequest,
   AuthResponse,
+  CompleteSignupReq,
+  CompleteTokenLoginReq,
   DeauthRequest,
   DeauthResponse,
   LoginRequest,
   LoginResponse,
   SignupRequest,
-  SignupResponse} from './auth_pb';
+  SignupResponse,
+  SignupTokenInfoReq,
+  SignupTokenInfoRes,
+  UsernameValidReq,
+  UsernameValidRes} from './auth_pb';
 
 export class AuthClient {
   client_: grpcWeb.AbstractClientBase;
@@ -120,6 +126,166 @@ export class AuthClient {
     request,
     metadata || {},
     this.methodInfoSignup);
+  }
+
+  methodInfoCompleteTokenLogin = new grpcWeb.AbstractClientBase.MethodInfo(
+    AuthResponse,
+    (request: CompleteTokenLoginReq) => {
+      return request.serializeBinary();
+    },
+    AuthResponse.deserializeBinary
+  );
+
+  completeTokenLogin(
+    request: CompleteTokenLoginReq,
+    metadata: grpcWeb.Metadata | null): Promise<AuthResponse>;
+
+  completeTokenLogin(
+    request: CompleteTokenLoginReq,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.Error,
+               response: AuthResponse) => void): grpcWeb.ClientReadableStream<AuthResponse>;
+
+  completeTokenLogin(
+    request: CompleteTokenLoginReq,
+    metadata: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.Error,
+               response: AuthResponse) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/auth.Auth/CompleteTokenLogin',
+        request,
+        metadata || {},
+        this.methodInfoCompleteTokenLogin,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/auth.Auth/CompleteTokenLogin',
+    request,
+    metadata || {},
+    this.methodInfoCompleteTokenLogin);
+  }
+
+  methodInfoUsernameValid = new grpcWeb.AbstractClientBase.MethodInfo(
+    UsernameValidRes,
+    (request: UsernameValidReq) => {
+      return request.serializeBinary();
+    },
+    UsernameValidRes.deserializeBinary
+  );
+
+  usernameValid(
+    request: UsernameValidReq,
+    metadata: grpcWeb.Metadata | null): Promise<UsernameValidRes>;
+
+  usernameValid(
+    request: UsernameValidReq,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.Error,
+               response: UsernameValidRes) => void): grpcWeb.ClientReadableStream<UsernameValidRes>;
+
+  usernameValid(
+    request: UsernameValidReq,
+    metadata: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.Error,
+               response: UsernameValidRes) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/auth.Auth/UsernameValid',
+        request,
+        metadata || {},
+        this.methodInfoUsernameValid,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/auth.Auth/UsernameValid',
+    request,
+    metadata || {},
+    this.methodInfoUsernameValid);
+  }
+
+  methodInfoSignupTokenInfo = new grpcWeb.AbstractClientBase.MethodInfo(
+    SignupTokenInfoRes,
+    (request: SignupTokenInfoReq) => {
+      return request.serializeBinary();
+    },
+    SignupTokenInfoRes.deserializeBinary
+  );
+
+  signupTokenInfo(
+    request: SignupTokenInfoReq,
+    metadata: grpcWeb.Metadata | null): Promise<SignupTokenInfoRes>;
+
+  signupTokenInfo(
+    request: SignupTokenInfoReq,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.Error,
+               response: SignupTokenInfoRes) => void): grpcWeb.ClientReadableStream<SignupTokenInfoRes>;
+
+  signupTokenInfo(
+    request: SignupTokenInfoReq,
+    metadata: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.Error,
+               response: SignupTokenInfoRes) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/auth.Auth/SignupTokenInfo',
+        request,
+        metadata || {},
+        this.methodInfoSignupTokenInfo,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/auth.Auth/SignupTokenInfo',
+    request,
+    metadata || {},
+    this.methodInfoSignupTokenInfo);
+  }
+
+  methodInfoCompleteSignup = new grpcWeb.AbstractClientBase.MethodInfo(
+    AuthResponse,
+    (request: CompleteSignupReq) => {
+      return request.serializeBinary();
+    },
+    AuthResponse.deserializeBinary
+  );
+
+  completeSignup(
+    request: CompleteSignupReq,
+    metadata: grpcWeb.Metadata | null): Promise<AuthResponse>;
+
+  completeSignup(
+    request: CompleteSignupReq,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.Error,
+               response: AuthResponse) => void): grpcWeb.ClientReadableStream<AuthResponse>;
+
+  completeSignup(
+    request: CompleteSignupReq,
+    metadata: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.Error,
+               response: AuthResponse) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/auth.Auth/CompleteSignup',
+        request,
+        metadata || {},
+        this.methodInfoCompleteSignup,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/auth.Auth/CompleteSignup',
+    request,
+    metadata || {},
+    this.methodInfoCompleteSignup);
   }
 
   methodInfoAuthenticate = new grpcWeb.AbstractClientBase.MethodInfo(

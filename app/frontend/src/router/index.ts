@@ -9,6 +9,7 @@ import Friends from '../views/Friends.vue'
 import About from '../views/About.vue'
 import Login from '../views/Login.vue'
 import Logout from '../views/Logout.vue'
+import Signup from '../views/Signup.vue'
 
 Vue.use(VueRouter)
 
@@ -22,6 +23,11 @@ const routes: Array<RouteConfig> = [
     path: '/index',
     name: 'Index',
     component: Index
+  },
+  {
+    path: '/signup/:token',
+    name: 'Signup',
+    component: Signup
   },
   {
     path: '/login',

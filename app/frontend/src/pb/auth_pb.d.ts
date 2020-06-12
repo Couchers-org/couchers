@@ -83,6 +83,134 @@ export namespace SignupResponse {
   }
 }
 
+export class CompleteTokenLoginReq extends jspb.Message {
+  getToken(): string;
+  setToken(value: string): CompleteTokenLoginReq;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): CompleteTokenLoginReq.AsObject;
+  static toObject(includeInstance: boolean, msg: CompleteTokenLoginReq): CompleteTokenLoginReq.AsObject;
+  static serializeBinaryToWriter(message: CompleteTokenLoginReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): CompleteTokenLoginReq;
+  static deserializeBinaryFromReader(message: CompleteTokenLoginReq, reader: jspb.BinaryReader): CompleteTokenLoginReq;
+}
+
+export namespace CompleteTokenLoginReq {
+  export type AsObject = {
+    token: string,
+  }
+}
+
+export class UsernameValidReq extends jspb.Message {
+  getUsername(): string;
+  setUsername(value: string): UsernameValidReq;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): UsernameValidReq.AsObject;
+  static toObject(includeInstance: boolean, msg: UsernameValidReq): UsernameValidReq.AsObject;
+  static serializeBinaryToWriter(message: UsernameValidReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): UsernameValidReq;
+  static deserializeBinaryFromReader(message: UsernameValidReq, reader: jspb.BinaryReader): UsernameValidReq;
+}
+
+export namespace UsernameValidReq {
+  export type AsObject = {
+    username: string,
+  }
+}
+
+export class UsernameValidRes extends jspb.Message {
+  getValid(): boolean;
+  setValid(value: boolean): UsernameValidRes;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): UsernameValidRes.AsObject;
+  static toObject(includeInstance: boolean, msg: UsernameValidRes): UsernameValidRes.AsObject;
+  static serializeBinaryToWriter(message: UsernameValidRes, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): UsernameValidRes;
+  static deserializeBinaryFromReader(message: UsernameValidRes, reader: jspb.BinaryReader): UsernameValidRes;
+}
+
+export namespace UsernameValidRes {
+  export type AsObject = {
+    valid: boolean,
+  }
+}
+
+export class SignupTokenInfoReq extends jspb.Message {
+  getToken(): string;
+  setToken(value: string): SignupTokenInfoReq;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): SignupTokenInfoReq.AsObject;
+  static toObject(includeInstance: boolean, msg: SignupTokenInfoReq): SignupTokenInfoReq.AsObject;
+  static serializeBinaryToWriter(message: SignupTokenInfoReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SignupTokenInfoReq;
+  static deserializeBinaryFromReader(message: SignupTokenInfoReq, reader: jspb.BinaryReader): SignupTokenInfoReq;
+}
+
+export namespace SignupTokenInfoReq {
+  export type AsObject = {
+    token: string,
+  }
+}
+
+export class SignupTokenInfoRes extends jspb.Message {
+  getEmail(): string;
+  setEmail(value: string): SignupTokenInfoRes;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): SignupTokenInfoRes.AsObject;
+  static toObject(includeInstance: boolean, msg: SignupTokenInfoRes): SignupTokenInfoRes.AsObject;
+  static serializeBinaryToWriter(message: SignupTokenInfoRes, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SignupTokenInfoRes;
+  static deserializeBinaryFromReader(message: SignupTokenInfoRes, reader: jspb.BinaryReader): SignupTokenInfoRes;
+}
+
+export namespace SignupTokenInfoRes {
+  export type AsObject = {
+    email: string,
+  }
+}
+
+export class CompleteSignupReq extends jspb.Message {
+  getToken(): string;
+  setToken(value: string): CompleteSignupReq;
+
+  getUsername(): string;
+  setUsername(value: string): CompleteSignupReq;
+
+  getName(): string;
+  setName(value: string): CompleteSignupReq;
+
+  getHometown(): string;
+  setHometown(value: string): CompleteSignupReq;
+
+  getBirthdate(): string;
+  setBirthdate(value: string): CompleteSignupReq;
+
+  getGender(): string;
+  setGender(value: string): CompleteSignupReq;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): CompleteSignupReq.AsObject;
+  static toObject(includeInstance: boolean, msg: CompleteSignupReq): CompleteSignupReq.AsObject;
+  static serializeBinaryToWriter(message: CompleteSignupReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): CompleteSignupReq;
+  static deserializeBinaryFromReader(message: CompleteSignupReq, reader: jspb.BinaryReader): CompleteSignupReq;
+}
+
+export namespace CompleteSignupReq {
+  export type AsObject = {
+    token: string,
+    username: string,
+    name: string,
+    hometown: string,
+    birthdate: string,
+    gender: string,
+  }
+}
+
 export class AuthRequest extends jspb.Message {
   getUsername(): string;
   setUsername(value: string): AuthRequest;

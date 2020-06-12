@@ -6,7 +6,8 @@ from typing import Union
 import grpc
 from crypto import hash_password, random_bytes, verify_password
 from db import session_scope
-from models import User, UserSession, get_user_by_field, new_login_token, new_signup_token
+from models import (SignupToken, User, UserSession, get_user_by_field, is_valid_username,
+                    new_login_token, new_signup_token)
 from pb import auth_pb2, auth_pb2_grpc
 from tasks import send_login_email, send_signup_email
 
@@ -92,7 +93,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             else:
                 return False
 
-    def Login(self, request, response):
+    def Login(self, request, context):
         logging.debug(f"Logging in with {request.username=}")
         sleep(1) # TODO(aapeli) debug
         with session_scope(self._Session) as session:
@@ -111,7 +112,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 logging.debug(f"Didn't find user")
                 return auth_pb2.LoginResponse(next_step=auth_pb2.LoginResponse.LoginStep.LOGIN_NO_SUCH_USER)
 
-    def Signup(self, request, response):
+    def Signup(self, request, context):
         logging.debug(f"Signup with {request.email=}")
         sleep(1) # TODO(aapeli) debug
         with session_scope(self._Session) as session:
@@ -124,6 +125,26 @@ class Auth(auth_pb2_grpc.AuthServicer):
             else:
                 # user exists
                 return auth_pb2.SignupResponse(next_step=auth_pb2.SignupResponse.SignupStep.EMAIL_EXISTS)
+
+    def SignupTokenInfo(self, request, context):
+        logging.debug(f"Signup token info for {request.token=}")
+        with session_scope(self._Session) as session:
+            signup_token = session.query(SignupToken).filter(SignupToken.token == request.token).one_or_none()
+            if not signup_token:
+                context.abort(grpc.StatusCode.NOT_FOUND, "Token doesn't exist")
+            else:
+                return auth_pb2.SignupTokenInfoRes(email=signup_token.email)
+
+    def username_available(self, username):
+        logging.debug(f"Checking if {username=} is valid")
+        if not is_valid_username(username):
+            return False
+        with session_scope(self._Session) as session:
+            user = session.query(User).filter(User.username == username).one_or_none()
+            return user is None
+
+    def UsernameValid(self, request, context):
+        return auth_pb2.UsernameValidRes(valid=self.username_available(request.username))
 
     def Authenticate(self, request, context):
         token = self.auth(username=request.username, password=request.password)

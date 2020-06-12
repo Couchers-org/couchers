@@ -18,7 +18,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='auth',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=b'\n\rpb/auth.proto\x12\x04\x61uth\" \n\x0cLoginRequest\x12\x10\n\x08username\x18\x01 \x01(\t\"\x8f\x01\n\rLoginResponse\x12\x30\n\tnext_step\x18\x01 \x01(\x0e\x32\x1d.auth.LoginResponse.LoginStep\"L\n\tLoginStep\x12\x11\n\rNEED_PASSWORD\x10\x00\x12\x14\n\x10SENT_LOGIN_EMAIL\x10\x01\x12\x16\n\x12LOGIN_NO_SUCH_USER\x10\x03\"\x1e\n\rSignupRequest\x12\r\n\x05\x65mail\x18\x01 \x01(\t\"{\n\x0eSignupResponse\x12\x32\n\tnext_step\x18\x01 \x01(\x0e\x32\x1f.auth.SignupResponse.SignupStep\"5\n\nSignupStep\x12\x15\n\x11SENT_SIGNUP_EMAIL\x10\x00\x12\x10\n\x0c\x45MAIL_EXISTS\x10\x01\"1\n\x0b\x41uthRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"\x1d\n\x0c\x41uthResponse\x12\r\n\x05token\x18\x01 \x01(\t\"\x1e\n\rDeauthRequest\x12\r\n\x05token\x18\x01 \x01(\t\"\x10\n\x0e\x44\x65\x61uthResponse2\xe1\x01\n\x04\x41uth\x12\x30\n\x05Login\x12\x12.auth.LoginRequest\x1a\x13.auth.LoginResponse\x12\x33\n\x06Signup\x12\x13.auth.SignupRequest\x1a\x14.auth.SignupResponse\x12\x35\n\x0c\x41uthenticate\x12\x11.auth.AuthRequest\x1a\x12.auth.AuthResponse\x12;\n\x0e\x44\x65\x61uthenticate\x12\x13.auth.DeauthRequest\x1a\x14.auth.DeauthResponseb\x06proto3'
+  serialized_pb=b'\n\rpb/auth.proto\x12\x04\x61uth\" \n\x0cLoginRequest\x12\x10\n\x08username\x18\x01 \x01(\t\"\x8f\x01\n\rLoginResponse\x12\x30\n\tnext_step\x18\x01 \x01(\x0e\x32\x1d.auth.LoginResponse.LoginStep\"L\n\tLoginStep\x12\x11\n\rNEED_PASSWORD\x10\x00\x12\x14\n\x10SENT_LOGIN_EMAIL\x10\x01\x12\x16\n\x12LOGIN_NO_SUCH_USER\x10\x03\"\x1e\n\rSignupRequest\x12\r\n\x05\x65mail\x18\x01 \x01(\t\"{\n\x0eSignupResponse\x12\x32\n\tnext_step\x18\x01 \x01(\x0e\x32\x1f.auth.SignupResponse.SignupStep\"5\n\nSignupStep\x12\x15\n\x11SENT_SIGNUP_EMAIL\x10\x00\x12\x10\n\x0c\x45MAIL_EXISTS\x10\x01\"&\n\x15\x43ompleteTokenLoginReq\x12\r\n\x05token\x18\x01 \x01(\t\"$\n\x10UsernameValidReq\x12\x10\n\x08username\x18\x01 \x01(\t\"!\n\x10UsernameValidRes\x12\r\n\x05valid\x18\x01 \x01(\x08\"#\n\x12SignupTokenInfoReq\x12\r\n\x05token\x18\x01 \x01(\t\"#\n\x12SignupTokenInfoRes\x12\r\n\x05\x65mail\x18\x01 \x01(\t\"w\n\x11\x43ompleteSignupReq\x12\r\n\x05token\x18\x01 \x01(\t\x12\x10\n\x08username\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\x10\n\x08hometown\x18\x04 \x01(\t\x12\x11\n\tbirthdate\x18\x05 \x01(\t\x12\x0e\n\x06gender\x18\x06 \x01(\t\"1\n\x0b\x41uthRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"\x1d\n\x0c\x41uthResponse\x12\r\n\x05token\x18\x01 \x01(\t\"\x1e\n\rDeauthRequest\x12\r\n\x05token\x18\x01 \x01(\t\"\x10\n\x0e\x44\x65\x61uthResponse2\xf7\x03\n\x04\x41uth\x12\x30\n\x05Login\x12\x12.auth.LoginRequest\x1a\x13.auth.LoginResponse\x12\x33\n\x06Signup\x12\x13.auth.SignupRequest\x1a\x14.auth.SignupResponse\x12G\n\x12\x43ompleteTokenLogin\x12\x1b.auth.CompleteTokenLoginReq\x1a\x12.auth.AuthResponse\"\x00\x12\x41\n\rUsernameValid\x12\x16.auth.UsernameValidReq\x1a\x16.auth.UsernameValidRes\"\x00\x12G\n\x0fSignupTokenInfo\x12\x18.auth.SignupTokenInfoReq\x1a\x18.auth.SignupTokenInfoRes\"\x00\x12?\n\x0e\x43ompleteSignup\x12\x17.auth.CompleteSignupReq\x1a\x12.auth.AuthResponse\"\x00\x12\x35\n\x0c\x41uthenticate\x12\x11.auth.AuthRequest\x1a\x12.auth.AuthResponse\x12;\n\x0e\x44\x65\x61uthenticate\x12\x13.auth.DeauthRequest\x1a\x14.auth.DeauthResponseb\x06proto3'
 )
 
 
@@ -198,6 +198,227 @@ _SIGNUPRESPONSE = _descriptor.Descriptor(
 )
 
 
+_COMPLETETOKENLOGINREQ = _descriptor.Descriptor(
+  name='CompleteTokenLoginReq',
+  full_name='auth.CompleteTokenLoginReq',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='token', full_name='auth.CompleteTokenLoginReq.token', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=360,
+  serialized_end=398,
+)
+
+
+_USERNAMEVALIDREQ = _descriptor.Descriptor(
+  name='UsernameValidReq',
+  full_name='auth.UsernameValidReq',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='username', full_name='auth.UsernameValidReq.username', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=400,
+  serialized_end=436,
+)
+
+
+_USERNAMEVALIDRES = _descriptor.Descriptor(
+  name='UsernameValidRes',
+  full_name='auth.UsernameValidRes',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='valid', full_name='auth.UsernameValidRes.valid', index=0,
+      number=1, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=438,
+  serialized_end=471,
+)
+
+
+_SIGNUPTOKENINFOREQ = _descriptor.Descriptor(
+  name='SignupTokenInfoReq',
+  full_name='auth.SignupTokenInfoReq',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='token', full_name='auth.SignupTokenInfoReq.token', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=473,
+  serialized_end=508,
+)
+
+
+_SIGNUPTOKENINFORES = _descriptor.Descriptor(
+  name='SignupTokenInfoRes',
+  full_name='auth.SignupTokenInfoRes',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='email', full_name='auth.SignupTokenInfoRes.email', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=510,
+  serialized_end=545,
+)
+
+
+_COMPLETESIGNUPREQ = _descriptor.Descriptor(
+  name='CompleteSignupReq',
+  full_name='auth.CompleteSignupReq',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='token', full_name='auth.CompleteSignupReq.token', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='username', full_name='auth.CompleteSignupReq.username', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='name', full_name='auth.CompleteSignupReq.name', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='hometown', full_name='auth.CompleteSignupReq.hometown', index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='birthdate', full_name='auth.CompleteSignupReq.birthdate', index=4,
+      number=5, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='gender', full_name='auth.CompleteSignupReq.gender', index=5,
+      number=6, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=547,
+  serialized_end=666,
+)
+
+
 _AUTHREQUEST = _descriptor.Descriptor(
   name='AuthRequest',
   full_name='auth.AuthRequest',
@@ -231,8 +452,8 @@ _AUTHREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=360,
-  serialized_end=409,
+  serialized_start=668,
+  serialized_end=717,
 )
 
 
@@ -262,8 +483,8 @@ _AUTHRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=411,
-  serialized_end=440,
+  serialized_start=719,
+  serialized_end=748,
 )
 
 
@@ -293,8 +514,8 @@ _DEAUTHREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=442,
-  serialized_end=472,
+  serialized_start=750,
+  serialized_end=780,
 )
 
 
@@ -317,8 +538,8 @@ _DEAUTHRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=474,
-  serialized_end=490,
+  serialized_start=782,
+  serialized_end=798,
 )
 
 _LOGINRESPONSE.fields_by_name['next_step'].enum_type = _LOGINRESPONSE_LOGINSTEP
@@ -329,6 +550,12 @@ DESCRIPTOR.message_types_by_name['LoginRequest'] = _LOGINREQUEST
 DESCRIPTOR.message_types_by_name['LoginResponse'] = _LOGINRESPONSE
 DESCRIPTOR.message_types_by_name['SignupRequest'] = _SIGNUPREQUEST
 DESCRIPTOR.message_types_by_name['SignupResponse'] = _SIGNUPRESPONSE
+DESCRIPTOR.message_types_by_name['CompleteTokenLoginReq'] = _COMPLETETOKENLOGINREQ
+DESCRIPTOR.message_types_by_name['UsernameValidReq'] = _USERNAMEVALIDREQ
+DESCRIPTOR.message_types_by_name['UsernameValidRes'] = _USERNAMEVALIDRES
+DESCRIPTOR.message_types_by_name['SignupTokenInfoReq'] = _SIGNUPTOKENINFOREQ
+DESCRIPTOR.message_types_by_name['SignupTokenInfoRes'] = _SIGNUPTOKENINFORES
+DESCRIPTOR.message_types_by_name['CompleteSignupReq'] = _COMPLETESIGNUPREQ
 DESCRIPTOR.message_types_by_name['AuthRequest'] = _AUTHREQUEST
 DESCRIPTOR.message_types_by_name['AuthResponse'] = _AUTHRESPONSE
 DESCRIPTOR.message_types_by_name['DeauthRequest'] = _DEAUTHREQUEST
@@ -362,6 +589,48 @@ SignupResponse = _reflection.GeneratedProtocolMessageType('SignupResponse', (_me
   # @@protoc_insertion_point(class_scope:auth.SignupResponse)
   })
 _sym_db.RegisterMessage(SignupResponse)
+
+CompleteTokenLoginReq = _reflection.GeneratedProtocolMessageType('CompleteTokenLoginReq', (_message.Message,), {
+  'DESCRIPTOR' : _COMPLETETOKENLOGINREQ,
+  '__module__' : 'pb.auth_pb2'
+  # @@protoc_insertion_point(class_scope:auth.CompleteTokenLoginReq)
+  })
+_sym_db.RegisterMessage(CompleteTokenLoginReq)
+
+UsernameValidReq = _reflection.GeneratedProtocolMessageType('UsernameValidReq', (_message.Message,), {
+  'DESCRIPTOR' : _USERNAMEVALIDREQ,
+  '__module__' : 'pb.auth_pb2'
+  # @@protoc_insertion_point(class_scope:auth.UsernameValidReq)
+  })
+_sym_db.RegisterMessage(UsernameValidReq)
+
+UsernameValidRes = _reflection.GeneratedProtocolMessageType('UsernameValidRes', (_message.Message,), {
+  'DESCRIPTOR' : _USERNAMEVALIDRES,
+  '__module__' : 'pb.auth_pb2'
+  # @@protoc_insertion_point(class_scope:auth.UsernameValidRes)
+  })
+_sym_db.RegisterMessage(UsernameValidRes)
+
+SignupTokenInfoReq = _reflection.GeneratedProtocolMessageType('SignupTokenInfoReq', (_message.Message,), {
+  'DESCRIPTOR' : _SIGNUPTOKENINFOREQ,
+  '__module__' : 'pb.auth_pb2'
+  # @@protoc_insertion_point(class_scope:auth.SignupTokenInfoReq)
+  })
+_sym_db.RegisterMessage(SignupTokenInfoReq)
+
+SignupTokenInfoRes = _reflection.GeneratedProtocolMessageType('SignupTokenInfoRes', (_message.Message,), {
+  'DESCRIPTOR' : _SIGNUPTOKENINFORES,
+  '__module__' : 'pb.auth_pb2'
+  # @@protoc_insertion_point(class_scope:auth.SignupTokenInfoRes)
+  })
+_sym_db.RegisterMessage(SignupTokenInfoRes)
+
+CompleteSignupReq = _reflection.GeneratedProtocolMessageType('CompleteSignupReq', (_message.Message,), {
+  'DESCRIPTOR' : _COMPLETESIGNUPREQ,
+  '__module__' : 'pb.auth_pb2'
+  # @@protoc_insertion_point(class_scope:auth.CompleteSignupReq)
+  })
+_sym_db.RegisterMessage(CompleteSignupReq)
 
 AuthRequest = _reflection.GeneratedProtocolMessageType('AuthRequest', (_message.Message,), {
   'DESCRIPTOR' : _AUTHREQUEST,
@@ -399,8 +668,8 @@ _AUTH = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=493,
-  serialized_end=718,
+  serialized_start=801,
+  serialized_end=1304,
   methods=[
   _descriptor.MethodDescriptor(
     name='Login',
@@ -421,9 +690,45 @@ _AUTH = _descriptor.ServiceDescriptor(
     serialized_options=None,
   ),
   _descriptor.MethodDescriptor(
+    name='CompleteTokenLogin',
+    full_name='auth.Auth.CompleteTokenLogin',
+    index=2,
+    containing_service=None,
+    input_type=_COMPLETETOKENLOGINREQ,
+    output_type=_AUTHRESPONSE,
+    serialized_options=None,
+  ),
+  _descriptor.MethodDescriptor(
+    name='UsernameValid',
+    full_name='auth.Auth.UsernameValid',
+    index=3,
+    containing_service=None,
+    input_type=_USERNAMEVALIDREQ,
+    output_type=_USERNAMEVALIDRES,
+    serialized_options=None,
+  ),
+  _descriptor.MethodDescriptor(
+    name='SignupTokenInfo',
+    full_name='auth.Auth.SignupTokenInfo',
+    index=4,
+    containing_service=None,
+    input_type=_SIGNUPTOKENINFOREQ,
+    output_type=_SIGNUPTOKENINFORES,
+    serialized_options=None,
+  ),
+  _descriptor.MethodDescriptor(
+    name='CompleteSignup',
+    full_name='auth.Auth.CompleteSignup',
+    index=5,
+    containing_service=None,
+    input_type=_COMPLETESIGNUPREQ,
+    output_type=_AUTHRESPONSE,
+    serialized_options=None,
+  ),
+  _descriptor.MethodDescriptor(
     name='Authenticate',
     full_name='auth.Auth.Authenticate',
-    index=2,
+    index=6,
     containing_service=None,
     input_type=_AUTHREQUEST,
     output_type=_AUTHRESPONSE,
@@ -432,7 +737,7 @@ _AUTH = _descriptor.ServiceDescriptor(
   _descriptor.MethodDescriptor(
     name='Deauthenticate',
     full_name='auth.Auth.Deauthenticate',
-    index=3,
+    index=7,
     containing_service=None,
     input_type=_DEAUTHREQUEST,
     output_type=_DEAUTHRESPONSE,

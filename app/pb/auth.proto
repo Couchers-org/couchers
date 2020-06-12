@@ -29,6 +29,36 @@ message SignupResponse {
   SignupStep next_step = 1;
 }
 
+message CompleteTokenLoginReq {
+  string token = 1;
+}
+
+message UsernameValidReq {
+  string username = 1;
+}
+
+message UsernameValidRes {
+  bool valid = 1;
+}
+
+message SignupTokenInfoReq {
+  string token = 1;
+}
+
+message SignupTokenInfoRes {
+  string email = 1;
+}
+
+message CompleteSignupReq {
+  string token = 1;
+
+  string username = 2;
+  string name = 3;
+  string hometown = 4;
+  string birthdate = 5;
+  string gender = 6;
+}
+
 message AuthRequest {
   string username = 1;
   string password = 2;
@@ -47,6 +77,22 @@ message DeauthResponse {}
 service Auth {
   rpc Login(LoginRequest) returns (LoginResponse);
   rpc Signup(SignupRequest) returns (SignupResponse);
+
+  rpc CompleteTokenLogin(CompleteTokenLoginReq) returns (AuthResponse) {
+    // Complete a login after receiving an email with a login token
+  }
+
+  rpc UsernameValid(UsernameValidReq) returns (UsernameValidRes) {
+    // Check whether the username is valid
+  }
+
+  rpc SignupTokenInfo(SignupTokenInfoReq) returns (SignupTokenInfoRes) {
+    // returns info about a signup token
+  }
+
+  rpc CompleteSignup(CompleteSignupReq) returns (AuthResponse) {
+    // Complete the signup form
+  }
 
   rpc Authenticate(AuthRequest) returns (AuthResponse);
   rpc Deauthenticate(DeauthRequest) returns (DeauthResponse);
