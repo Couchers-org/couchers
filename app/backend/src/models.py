@@ -24,7 +24,7 @@ class User(Base):
     id = Column(Integer, primary_key=True)
 
     username = Column(String, nullable=False, unique=True)
-    email_address = Column(String, nullable=False, unique=True)
+    email = Column(String, nullable=False, unique=True)
     hashed_password = Column(Binary, nullable=True)
 
     name = Column(String, nullable=False)
@@ -44,6 +44,32 @@ class User(Base):
 
     def __repr__(self):
         return f"User(id={self.id}, username={self.username})"
+
+class SignupToken(Base):
+    """
+    A signup token allows the user to verify their email and continue signing up.
+    """
+    __tablename__ = "signup_tokens"
+    token = Column(String, primary_key=True)
+
+    email = Column(String, nullable=False)
+
+    created = Column(DateTime, nullable=False, server_default=func.now())
+    expiry = Column(DateTime, nullable=False)
+
+    def __repr__(self):
+        return f"SignupToken(token={self.token}, email={self.email}, created={self.created}, expiry={self.expiry})"
+
+def new_signup_token(session, email, hours=2):
+    """
+    Make a signup token that's valid for `hours` hours
+
+    Returns token and expiry text
+    """
+    token = b64encode(random_bytes(32)).decode("utf8")
+    signup_token = SignupToken(token=token, email=email, expiry=datetime.datetime.utcnow() + datetime.timedelta(hours=hours))
+    session.add(signup_token)
+    return signup_token, f"{hours} hours"
 
 # When a user logs in, they can basically input one of three things: user id, username, or email
 # These are three non-intersecting sets
@@ -81,7 +107,7 @@ def get_user_by_field(session, field):
         return session.query(User).filter(User.username == field).one_or_none()
     elif is_valid_email(field):
         logging.debug(f"Field matched to type email")
-        return session.query(User).filter(User.email_address == field).one_or_none()
+        return session.query(User).filter(User.email == field).one_or_none()
     else:
         logging.info(f"Field {field=}, didn't match any known types")
         return None

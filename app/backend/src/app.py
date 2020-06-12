@@ -31,7 +31,7 @@ def add_dummy_data(file_name):
         for user in users:
             new_user = User(
                 username=user["username"],
-                email_address=user["email_address"],
+                email=user["email"],
                 hashed_password=hash_password(user["password"]) if user["password"] else None,
                 name=user["name"],
                 city=user["city"],

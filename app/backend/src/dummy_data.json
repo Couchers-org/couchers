@@ -1,7 +1,7 @@
 [
     {
         "username": "itsi",
-        "email_address": "couchers@itsiweinstock.com",
+        "email": "couchers@itsiweinstock.com",
         "password": null,
         "name": "Itsi Weinstock",
         "city": "Sydney, New South Wales, Australia",
@@ -48,7 +48,7 @@
     },
     {
         "username": "aapeli",
-        "email_address": "couchers@aapelivuorinen.com",
+        "email": "couchers@aapelivuorinen.com",
         "password": "Aapeli's password",
         "name": "Aapeli Vuorinen",
         "city": "Brisbane, Queensland, Australia",
