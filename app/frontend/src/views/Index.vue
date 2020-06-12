@@ -18,9 +18,9 @@
           </v-row>
           <v-row>
             <v-col class="mx-auto" cols="12" sm="10" md="8" lg="6" xl="4">
-              <v-tabs v-model="tab" background-color="transparent" v-if="loginStep == 'user' || signupStep == 'user'" grow>
-                <v-tab key="login">Log in</v-tab>
-                <v-tab key="signup">Sign up</v-tab>
+              <v-tabs v-model="tab" background-color="transparent" grow>
+                <v-tab key="login" :disabled="loginStep != 'user' || signupStep != 'form'">Log in</v-tab>
+                <v-tab key="signup" :disabled="loginStep != 'user' || signupStep != 'form'">Sign up</v-tab>
               </v-tabs>
               <v-tabs-items v-model="tab" style="min-height: 300px">
                 <v-tab-item key="login">
@@ -93,7 +93,7 @@
                   </v-card>
                   <v-card flat v-if="signupStep == 'email'">
                     <v-card-text>
-                      <p>We sent you a signup email. Please click the link to continue!</p>
+                      <p>We sent you a signup email. Please click on the link to continue!</p>
                     </v-card-text>
                   </v-card>
                 </v-tab-item>
@@ -207,7 +207,7 @@ export default Vue.extend({
       authClient.signup(req, null).then(res => {
         switch (res.getNextStep()) {
           case SignupResponse.SignupStep.SENT_SIGNUP_EMAIL:
-            this.loginStep = 'email'
+            this.signupStep = 'email'
             break
           case SignupResponse.SignupStep.EMAIL_EXISTS:
             this.errorMessages = ['Email exists! Please login.']

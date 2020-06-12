@@ -104,7 +104,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     return auth_pb2.LoginResponse(next_step=auth_pb2.LoginResponse.LoginStep.NEED_PASSWORD)
                 else:
                     logging.debug(f"Found user without password, sending login email")
-                    send_login_email(user)
+                    send_login_email(session, user)
                     return auth_pb2.LoginResponse(next_step=auth_pb2.LoginResponse.LoginStep.SENT_LOGIN_EMAIL)
             else: # user not found
                 logging.debug(f"Didn't find user")

@@ -1,6 +1,9 @@
 import logging
 
-def send_login_email(user):
+from models import new_login_token
+
+
+def send_login_email(session, user):
     token, expiry_text = new_login_token(session, user)
     logging.info(f"Pretending to send login email to {user=}:")
     logging.info(f"Email for {user.username=} to {user.email_address=}")
