@@ -1,12 +1,12 @@
 import logging
-from base64 import b64encode
 from time import sleep
 from typing import Union
 
 import grpc
-from crypto import hash_password, random_bytes, verify_password
+from crypto import hash_password, urlsafe_secure_token, verify_password
 from db import session_scope
-from models import (SignupToken, User, UserSession, get_user_by_field, is_valid_username,
+from models import (LoginToken, SignupToken, User, UserSession,
+                    get_user_by_field, is_valid_email, is_valid_username,
                     new_login_token, new_signup_token)
 from pb import auth_pb2, auth_pb2_grpc
 from tasks import send_login_email, send_signup_email
@@ -52,36 +52,19 @@ class Auth(auth_pb2_grpc.AuthServicer):
             else:
                 return False
 
-    def auth(self, username, password):
-        logging.debug(f"Logging in with {username=}, password=*******")
-        with session_scope(self._Session) as session:
-            user = session.query(User).filter(User.username == username).one_or_none()
-            if user:
-                logging.debug(f"Found user")
-                if verify_password(user.hashed_password, password):
-                    logging.debug(f"Right password")
-                    # correct password
-                    token = b64encode(random_bytes(32)).decode("utf8")
+    def auth(self, session, user):
+        token = urlsafe_secure_token()
 
-                    user_session = UserSession(
-                        user=user,
-                        token=token
-                    )
+        user_session = UserSession(
+            user=user,
+            token=token
+        )
 
-                    session.add(user_session)
-                    session.commit()
+        session.add(user_session)
+        session.commit()
 
-                    logging.debug(f"Handing out {token=} to {user=}")
-                    return token
-                else:
-                    logging.debug(f"Wrong password")
-                    # wrong password
-                    return None
-            else: # user not found
-                logging.debug(f"Didn't find user")
-                # do about as much work as if the user was found, reduces timing based username enumeration attacks
-                hash_password(password)
-                return None
+        logging.debug(f"Handing out {token=} to {user=}")
+        return token
 
     def deauth(self, token):
         with session_scope(self._Session) as session:
@@ -115,6 +98,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
     def Signup(self, request, context):
         logging.debug(f"Signup with {request.email=}")
         sleep(1) # TODO(aapeli) debug
+        if not is_valid_email(request.email):
+            return auth_pb2.SignupResponse(next_step=auth_pb2.SignupResponse.SignupStep.INVALID_EMAIL)
         with session_scope(self._Session) as session:
             user = session.query(User).filter(User.email == request.email).one_or_none()
             if not user:
@@ -125,6 +110,15 @@ class Auth(auth_pb2_grpc.AuthServicer):
             else:
                 # user exists
                 return auth_pb2.SignupResponse(next_step=auth_pb2.SignupResponse.SignupStep.EMAIL_EXISTS)
+
+    def CompleteTokenLogin(self, request, context):
+        with session_scope(self._Session) as session:
+            login_token = session.query(LoginToken).filter(LoginToken.token == request.token).one_or_none()
+            if login_token:
+                token = self.auth(session, user=login_token.user)
+                return auth_pb2.AuthResponse(token=token)
+            else:
+                return context.abort(grpc.StatusCode.UNAUTHENTICATED, "Invalid username or password")
 
     def SignupTokenInfo(self, request, context):
         logging.debug(f"Signup token info for {request.token=}")
@@ -147,11 +141,25 @@ class Auth(auth_pb2_grpc.AuthServicer):
         return auth_pb2.UsernameValidRes(valid=self.username_available(request.username))
 
     def Authenticate(self, request, context):
-        token = self.auth(username=request.username, password=request.password)
-        if token:
-            return auth_pb2.AuthResponse(token=token)
-        else:
-            return context.abort(grpc.StatusCode.UNAUTHENTICATED, "Invalid username or password")
+        logging.debug(f"Logging in with {request.username=}, password=*******")
+        with session_scope(self._Session) as session:
+            user = session.query(User).filter(User.username == request.username).one_or_none()
+            if user:
+                logging.debug(f"Found user")
+                if verify_password(user.hashed_password, request.password):
+                    logging.debug(f"Right password")
+                    # correct password
+                    token = self.auth(session, user)
+                    return auth_pb2.AuthResponse(token=token)
+                else:
+                    logging.debug(f"Wrong password")
+                    # wrong password
+                    return context.abort(grpc.StatusCode.UNAUTHENTICATED, "Invalid username or password")
+            else: # user not found
+                logging.debug(f"Didn't find user")
+                # do about as much work as if the user was found, reduces timing based username enumeration attacks
+                hash_password(request.password)
+                return context.abort(grpc.StatusCode.UNAUTHENTICATED, "Invalid username or password")
 
     def Deauthenticate(self, request, context):
         logging.info(f"Deauthenticate(token={request.token})")

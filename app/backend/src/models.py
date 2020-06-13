@@ -1,9 +1,8 @@
 import datetime
 import logging
 import re
-from base64 import b64encode
 
-from crypto import random_bytes
+from crypto import urlsafe_secure_token
 from sqlalchemy import (Boolean, Column, Date, DateTime, Float, ForeignKey,
                         Integer)
 from sqlalchemy import LargeBinary as Binary
@@ -66,7 +65,7 @@ def new_signup_token(session, email, hours=2):
 
     Returns token and expiry text
     """
-    token = b64encode(random_bytes(32)).decode("utf8")
+    token = urlsafe_secure_token()
     signup_token = SignupToken(token=token, email=email, expiry=datetime.datetime.utcnow() + datetime.timedelta(hours=hours))
     session.add(signup_token)
     return signup_token, f"{hours} hours"
@@ -135,7 +134,7 @@ def new_login_token(session, user, hours=2):
 
     Returns token and expiry text
     """
-    token = b64encode(random_bytes(32)).decode("utf8")
+    token = urlsafe_secure_token()
     login_token = LoginToken(token=token, user=user, expiry=datetime.datetime.utcnow() + datetime.timedelta(hours=hours))
     session.add(login_token)
     return login_token, f"{hours} hours"
