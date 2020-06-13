@@ -10,6 +10,7 @@ import About from '../views/About.vue'
 import Login from '../views/Login.vue'
 import Logout from '../views/Logout.vue'
 import Signup from '../views/Signup.vue'
+import CompleteSignup from '../views/CompleteSignup.vue'
 
 Vue.use(VueRouter)
 
@@ -25,9 +26,14 @@ const routes: Array<RouteConfig> = [
     component: Index
   },
   {
-    path: '/signup/:token',
+    path: '/signup/',
     name: 'Signup',
     component: Signup
+  },
+  {
+    path: '/signup/:token',
+    name: 'CompleteSignup',
+    component: CompleteSignup
   },
   {
     path: '/login',

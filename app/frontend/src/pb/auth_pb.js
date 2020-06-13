@@ -838,7 +838,8 @@ proto.auth.SignupResponse.serializeBinaryToWriter = function(message, writer) {
  */
 proto.auth.SignupResponse.SignupStep = {
   SENT_SIGNUP_EMAIL: 0,
-  EMAIL_EXISTS: 1
+  EMAIL_EXISTS: 1,
+  INVALID_EMAIL: 2
 };
 
 /**
@@ -1542,11 +1543,10 @@ proto.auth.CompleteSignupReq.prototype.toObject = function(opt_includeInstance) 
 proto.auth.CompleteSignupReq.toObject = function(includeInstance, msg) {
   var f, obj = {
     token: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    username: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    name: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    hometown: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    birthdate: jspb.Message.getFieldWithDefault(msg, 5, ""),
-    gender: jspb.Message.getFieldWithDefault(msg, 6, "")
+    name: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    hometown: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    birthdate: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    gender: jspb.Message.getFieldWithDefault(msg, 5, "")
   };
 
   if (includeInstance) {
@@ -1589,21 +1589,17 @@ proto.auth.CompleteSignupReq.deserializeBinaryFromReader = function(msg, reader)
       break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
-      msg.setUsername(value);
+      msg.setName(value);
       break;
     case 3:
       var value = /** @type {string} */ (reader.readString());
-      msg.setName(value);
+      msg.setHometown(value);
       break;
     case 4:
       var value = /** @type {string} */ (reader.readString());
-      msg.setHometown(value);
-      break;
-    case 5:
-      var value = /** @type {string} */ (reader.readString());
       msg.setBirthdate(value);
       break;
-    case 6:
+    case 5:
       var value = /** @type {string} */ (reader.readString());
       msg.setGender(value);
       break;
@@ -1643,38 +1639,31 @@ proto.auth.CompleteSignupReq.serializeBinaryToWriter = function(message, writer)
       f
     );
   }
-  f = message.getUsername();
+  f = message.getName();
   if (f.length > 0) {
     writer.writeString(
       2,
       f
     );
   }
-  f = message.getName();
+  f = message.getHometown();
   if (f.length > 0) {
     writer.writeString(
       3,
       f
     );
   }
-  f = message.getHometown();
+  f = message.getBirthdate();
   if (f.length > 0) {
     writer.writeString(
       4,
       f
     );
   }
-  f = message.getBirthdate();
-  if (f.length > 0) {
-    writer.writeString(
-      5,
-      f
-    );
-  }
   f = message.getGender();
   if (f.length > 0) {
     writer.writeString(
-      6,
+      5,
       f
     );
   }
@@ -1700,10 +1689,10 @@ proto.auth.CompleteSignupReq.prototype.setToken = function(value) {
 
 
 /**
- * optional string username = 2;
+ * optional string name = 2;
  * @return {string}
  */
-proto.auth.CompleteSignupReq.prototype.getUsername = function() {
+proto.auth.CompleteSignupReq.prototype.getName = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
@@ -1712,16 +1701,16 @@ proto.auth.CompleteSignupReq.prototype.getUsername = function() {
  * @param {string} value
  * @return {!proto.auth.CompleteSignupReq} returns this
  */
-proto.auth.CompleteSignupReq.prototype.setUsername = function(value) {
+proto.auth.CompleteSignupReq.prototype.setName = function(value) {
   return jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
 /**
- * optional string name = 3;
+ * optional string hometown = 3;
  * @return {string}
  */
-proto.auth.CompleteSignupReq.prototype.getName = function() {
+proto.auth.CompleteSignupReq.prototype.getHometown = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
@@ -1730,16 +1719,16 @@ proto.auth.CompleteSignupReq.prototype.getName = function() {
  * @param {string} value
  * @return {!proto.auth.CompleteSignupReq} returns this
  */
-proto.auth.CompleteSignupReq.prototype.setName = function(value) {
+proto.auth.CompleteSignupReq.prototype.setHometown = function(value) {
   return jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
 /**
- * optional string hometown = 4;
+ * optional string birthdate = 4;
  * @return {string}
  */
-proto.auth.CompleteSignupReq.prototype.getHometown = function() {
+proto.auth.CompleteSignupReq.prototype.getBirthdate = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
 };
 
@@ -1748,16 +1737,16 @@ proto.auth.CompleteSignupReq.prototype.getHometown = function() {
  * @param {string} value
  * @return {!proto.auth.CompleteSignupReq} returns this
  */
-proto.auth.CompleteSignupReq.prototype.setHometown = function(value) {
+proto.auth.CompleteSignupReq.prototype.setBirthdate = function(value) {
   return jspb.Message.setProto3StringField(this, 4, value);
 };
 
 
 /**
- * optional string birthdate = 5;
+ * optional string gender = 5;
  * @return {string}
  */
-proto.auth.CompleteSignupReq.prototype.getBirthdate = function() {
+proto.auth.CompleteSignupReq.prototype.getGender = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
 };
 
@@ -1766,26 +1755,8 @@ proto.auth.CompleteSignupReq.prototype.getBirthdate = function() {
  * @param {string} value
  * @return {!proto.auth.CompleteSignupReq} returns this
  */
-proto.auth.CompleteSignupReq.prototype.setBirthdate = function(value) {
-  return jspb.Message.setProto3StringField(this, 5, value);
-};
-
-
-/**
- * optional string gender = 6;
- * @return {string}
- */
-proto.auth.CompleteSignupReq.prototype.getGender = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.auth.CompleteSignupReq} returns this
- */
 proto.auth.CompleteSignupReq.prototype.setGender = function(value) {
-  return jspb.Message.setProto3StringField(this, 6, value);
+  return jspb.Message.setProto3StringField(this, 5, value);
 };
 
 

@@ -80,6 +80,7 @@ export namespace SignupResponse {
   export enum SignupStep { 
     SENT_SIGNUP_EMAIL = 0,
     EMAIL_EXISTS = 1,
+    INVALID_EMAIL = 2,
   }
 }
 
@@ -177,9 +178,6 @@ export class CompleteSignupReq extends jspb.Message {
   getToken(): string;
   setToken(value: string): CompleteSignupReq;
 
-  getUsername(): string;
-  setUsername(value: string): CompleteSignupReq;
-
   getName(): string;
   setName(value: string): CompleteSignupReq;
 
@@ -203,7 +201,6 @@ export class CompleteSignupReq extends jspb.Message {
 export namespace CompleteSignupReq {
   export type AsObject = {
     token: string,
-    username: string,
     name: string,
     hometown: string,
     birthdate: string,
