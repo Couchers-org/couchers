@@ -59,13 +59,15 @@ class AuthServicer(object):
     """Missing associated documentation comment in .proto file"""
 
     def Login(self, request, context):
-        """Missing associated documentation comment in .proto file"""
+        """First step of login flow
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def Signup(self, request, context):
-        """Missing associated documentation comment in .proto file"""
+        """First step of signup flow
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -99,13 +101,15 @@ class AuthServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def Authenticate(self, request, context):
-        """Missing associated documentation comment in .proto file"""
+        """Auth a user with username + password
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def Deauthenticate(self, request, context):
-        """Missing associated documentation comment in .proto file"""
+        """Invalidate a session, deauthing a user
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')

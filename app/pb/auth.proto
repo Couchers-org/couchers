@@ -75,8 +75,13 @@ message DeauthRequest {
 message DeauthResponse {}
 
 service Auth {
-  rpc Login(LoginRequest) returns (LoginResponse);
-  rpc Signup(SignupRequest) returns (SignupResponse);
+  rpc Login(LoginRequest) returns (LoginResponse) {
+    // First step of login flow
+  }
+
+  rpc Signup(SignupRequest) returns (SignupResponse) {
+    // First step of signup flow
+  }
 
   rpc CompleteTokenLogin(CompleteTokenLoginReq) returns (AuthResponse) {
     // Complete a login after receiving an email with a login token
@@ -94,6 +99,11 @@ service Auth {
     // Complete the signup form
   }
 
-  rpc Authenticate(AuthRequest) returns (AuthResponse);
-  rpc Deauthenticate(DeauthRequest) returns (DeauthResponse);
+  rpc Authenticate(AuthRequest) returns (AuthResponse) {
+    // Auth a user with username + password
+  }
+
+  rpc Deauthenticate(DeauthRequest) returns (DeauthResponse) {
+    // Invalidate a session, deauthing a user
+  }
 }

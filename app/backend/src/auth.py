@@ -43,16 +43,20 @@ class Auth(auth_pb2_grpc.AuthServicer):
         return self.auth_interceptor
 
     def has_access(self, token):
+        """
+        Returns a boolean representing whether the given `token` is authenticated.
+
+        TODO(aapeli): return user id instead, or similar so it can be passed to auth context
+        """
         with session_scope(self._Session) as session:
-            user_session = session.query(UserSession).filter(UserSession.token == token).one_or_none()
-            if user_session:
-                session.delete(user_session)
-                session.commit()
-                return True
-            else:
-                return False
+            return session.query(UserSession).filter(UserSession.token == token).one_or_none() is not None
 
     def auth(self, session, user):
+        """
+        Creates a session for the given user and returns the bearer token.
+
+        You need to give an active DB session as nested sessions don't really work here due to the active User object.
+        """
         token = urlsafe_secure_token()
 
         user_session = UserSession(
@@ -67,6 +71,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
         return token
 
     def deauth(self, token):
+        """
+        Deletes the given session
+        """
         with session_scope(self._Session) as session:
             user_session = session.query(UserSession).filter(UserSession.token == token).one_or_none()
             if user_session:
@@ -77,10 +84,20 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 return False
 
     def Login(self, request, context):
+        """
+        Does the first step of the Login flow.
+
+        The user is searched for using their id, username, or email.
+
+        If the user does not exist, returns a LOGIN_NO_SUCH_USER.
+
+        If the user has a password, sends a request to supply a password (NEED_PASSWORD).
+
+        If the user has not password, sends a login email and returns SENT_LOGIN_EMAIL.
+        """
         logging.debug(f"Logging in with {request.username=}")
-        sleep(1) # TODO(aapeli) debug
         with session_scope(self._Session) as session:
-            # Gets either by id/username/email
+            # Gets user by one of id/username/email or None if not found
             user = get_user_by_field(session, request.username)
             if user:
                 if user.hashed_password is not None:
@@ -96,14 +113,19 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 return auth_pb2.LoginResponse(next_step=auth_pb2.LoginResponse.LoginStep.LOGIN_NO_SUCH_USER)
 
     def Signup(self, request, context):
+        """
+        First step of Signup flow.
+
+        If the email does not exist, creates a signup token and sends an email, then returns with SENT_SIGNUP_EMAIL.
+
+        If the email already exists, returns an EMAIL_EXISTS.
+        """
         logging.debug(f"Signup with {request.email=}")
-        sleep(1) # TODO(aapeli) debug
         if not is_valid_email(request.email):
             return auth_pb2.SignupResponse(next_step=auth_pb2.SignupResponse.SignupStep.INVALID_EMAIL)
         with session_scope(self._Session) as session:
             user = session.query(User).filter(User.email == request.email).one_or_none()
             if not user:
-                print("Send signup email")
                 token, expiry_text = new_signup_token(session, request.email)
                 send_signup_email(request.email, token, expiry_text)
                 return auth_pb2.SignupResponse(next_step=auth_pb2.SignupResponse.SignupStep.SENT_SIGNUP_EMAIL)
@@ -112,15 +134,26 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 return auth_pb2.SignupResponse(next_step=auth_pb2.SignupResponse.SignupStep.EMAIL_EXISTS)
 
     def CompleteTokenLogin(self, request, context):
+        """
+        Second step of email-based login.
+
+        Validates the given LoginToken (sent in email), creates a new session and returns bearer token.
+
+        Or fails with grpc.UNAUTHENTICATED if LoginToken is invalid.
+        """
         with session_scope(self._Session) as session:
             login_token = session.query(LoginToken).filter(LoginToken.token == request.token).one_or_none()
             if login_token:
+                # this is the bearer token
                 token = self.auth(session, user=login_token.user)
                 return auth_pb2.AuthResponse(token=token)
             else:
-                return context.abort(grpc.StatusCode.UNAUTHENTICATED, "Invalid username or password")
+                return context.abort(grpc.StatusCode.UNAUTHENTICATED, "Invalid token.")
 
     def SignupTokenInfo(self, request, context):
+        """
+        Returns the email for a given SignupToken (which will be shown on the UI on the singup form).
+        """
         logging.debug(f"Signup token info for {request.token=}")
         with session_scope(self._Session) as session:
             signup_token = session.query(SignupToken).filter(SignupToken.token == request.token).one_or_none()
@@ -130,17 +163,29 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 return auth_pb2.SignupTokenInfoRes(email=signup_token.email)
 
     def username_available(self, username):
+        """
+        Checks if the given username adheres to our rules and isn't taken already.
+        """
         logging.debug(f"Checking if {username=} is valid")
         if not is_valid_username(username):
             return False
         with session_scope(self._Session) as session:
             user = session.query(User).filter(User.username == username).one_or_none()
+            # return False if user exists, True otherwise
             return user is None
 
     def UsernameValid(self, request, context):
+        """
+        Runs a username availability and validity check.
+
+        TODO(aapeli): move into authenticated API.
+        """
         return auth_pb2.UsernameValidRes(valid=self.username_available(request.username))
 
     def Authenticate(self, request, context):
+        """
+        Authenticates a classic username + password based login request.
+        """
         logging.debug(f"Logging in with {request.username=}, password=*******")
         with session_scope(self._Session) as session:
             user = session.query(User).filter(User.username == request.username).one_or_none()
@@ -162,6 +207,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 return context.abort(grpc.StatusCode.UNAUTHENTICATED, "Invalid username or password")
 
     def Deauthenticate(self, request, context):
+        """
+        Removes an active session.
+        """
         logging.info(f"Deauthenticate(token={request.token})")
         if self.deauth(token=request.token):
             return auth_pb2.DeauthResponse()
