@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
 import Home from '../views/Home.vue'
-import Index from '../views/Index.vue'
 import Messages from '../views/Messages.vue'
 import User from '../views/User.vue'
 import Users from '../views/Users.vue'
@@ -10,6 +9,7 @@ import About from '../views/About.vue'
 import Login from '../views/Login.vue'
 import Logout from '../views/Logout.vue'
 import Signup from '../views/Signup.vue'
+import CompleteLogin from '../views/CompleteLogin.vue'
 import CompleteSignup from '../views/CompleteSignup.vue'
 
 Vue.use(VueRouter)
@@ -19,11 +19,6 @@ const routes: Array<RouteConfig> = [
     path: '/',
     name: 'Home',
     component: Home
-  },
-  {
-    path: '/index',
-    name: 'Index',
-    component: Index
   },
   {
     path: '/signup/',
@@ -39,6 +34,11 @@ const routes: Array<RouteConfig> = [
     path: '/login',
     name: 'Login',
     component: Login
+  },
+  {
+    path: '/login/:token',
+    name: 'CompleteLogin',
+    component: CompleteLogin
   },
   {
     path: '/logout',
