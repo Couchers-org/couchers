@@ -76,10 +76,6 @@ class _AuthValidatorInterceptor(grpcext.UnaryServerInterceptor, grpcext.StreamSe
     def intercept_unary(self, request, servicer_context, server_info, handler):
         metadata = {key: value for (key, value) in servicer_context.invocation_metadata()}
 
-        # if a "user_id" header is included, we abort the RPC
-        if "user_id" in metadata:
-            return self._abort(servicer_context)
-
         # abort also if no bearer token is present
         if not "authorization" in metadata:
             return self._abort(servicer_context)
@@ -93,8 +89,7 @@ class _AuthValidatorInterceptor(grpcext.UnaryServerInterceptor, grpcext.StreamSe
         if not user_id:
             return self._abort(servicer_context)
 
-        servicer_context = _AuthInterceptorServicerContext(servicer_context, user_id)
-        return handler(request, servicer_context)
+        return handler(request, _AuthInterceptorServicerContext(servicer_context, user_id))
 
     def intercept_stream(self, request_or_iterator, servicer_context, server_info, handler):
         raise NotImplementedError()
