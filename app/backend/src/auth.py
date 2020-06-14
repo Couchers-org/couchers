@@ -250,6 +250,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 birth_date=birthdate
             )
 
+            # happens in same transaction
             session.delete(signup_token)
             session.add(user)
             session.commit()

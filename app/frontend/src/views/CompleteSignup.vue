@@ -8,6 +8,9 @@
           </v-row>
           <v-row>
             <v-col class="mx-auto" cols="12" sm="10" md="8" lg="6" xl="4">
+              <v-alert v-for="error in errorMessages" type="error" :key="error">
+                {{ error }}
+              </v-alert>
               <v-card flat>
                 <v-card-text>
                   <v-form v-on:submit.prevent="submit">
