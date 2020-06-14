@@ -50,7 +50,7 @@ export default Vue.extend({
       }).catch(err => {
         this.loading = false
         if (err.code == grpcWeb.StatusCode.UNAUTHENTICATED) {
-          this.errorMessages = ['Invalid token, please try again.']
+          this.errorMessages = ['Invalid token.']
         } else {
           this.errorMessages = ['Unknown error.']
         }

@@ -44,32 +44,6 @@ class User(Base):
     def __repr__(self):
         return f"User(id={self.id}, username={self.username})"
 
-class SignupToken(Base):
-    """
-    A signup token allows the user to verify their email and continue signing up.
-    """
-    __tablename__ = "signup_tokens"
-    token = Column(String, primary_key=True)
-
-    email = Column(String, nullable=False)
-
-    created = Column(DateTime, nullable=False, server_default=func.now())
-    expiry = Column(DateTime, nullable=False)
-
-    def __repr__(self):
-        return f"SignupToken(token={self.token}, email={self.email}, created={self.created}, expiry={self.expiry})"
-
-def new_signup_token(session, email, hours=2):
-    """
-    Make a signup token that's valid for `hours` hours
-
-    Returns token and expiry text
-    """
-    token = urlsafe_secure_token()
-    signup_token = SignupToken(token=token, email=email, expiry=datetime.datetime.utcnow() + datetime.timedelta(hours=hours))
-    session.add(signup_token)
-    return signup_token, f"{hours} hours"
-
 # When a user logs in, they can basically input one of three things: user id, username, or email
 # These are three non-intersecting sets
 # * user_ids are numeric representations in base 10
@@ -111,6 +85,33 @@ def get_user_by_field(session, field):
         logging.info(f"Field {field=}, didn't match any known types")
         return None
 
+class SignupToken(Base):
+    """
+    A signup token allows the user to verify their email and continue signing up.
+    """
+    __tablename__ = "signup_tokens"
+    token = Column(String, primary_key=True)
+
+    email = Column(String, nullable=False)
+
+    created = Column(DateTime, nullable=False, server_default=func.now())
+    expiry = Column(DateTime, nullable=False)
+
+    def __repr__(self):
+        return f"SignupToken(token={self.token}, email={self.email}, created={self.created}, expiry={self.expiry})"
+
+def new_signup_token(session, email, hours=2):
+    """
+    Make a signup token that's valid for `hours` hours
+
+    Returns token and expiry text
+    """
+    token = urlsafe_secure_token()
+    signup_token = SignupToken(token=token, email=email, expiry=datetime.datetime.utcnow() + datetime.timedelta(hours=hours))
+    session.add(signup_token)
+    session.commit()
+    return signup_token, f"{hours} hours"
+
 class LoginToken(Base):
     """
     A login token sent in an email to a user, allows them to sign in between the times defined by created and expiry
@@ -137,6 +138,7 @@ def new_login_token(session, user, hours=2):
     token = urlsafe_secure_token()
     login_token = LoginToken(token=token, user=user, expiry=datetime.datetime.utcnow() + datetime.timedelta(hours=hours))
     session.add(login_token)
+    session.commit()
     return login_token, f"{hours} hours"
 
 class UserSession(Base):

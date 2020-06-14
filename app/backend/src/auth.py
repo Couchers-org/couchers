@@ -9,6 +9,7 @@ from models import (LoginToken, SignupToken, User, UserSession,
                     get_user_by_field, is_valid_email, is_valid_username,
                     new_login_token, new_signup_token)
 from pb import auth_pb2, auth_pb2_grpc
+from sqlalchemy import func
 from tasks import send_login_email, send_signup_email
 
 
@@ -142,7 +143,11 @@ class Auth(auth_pb2_grpc.AuthServicer):
         Or fails with grpc.UNAUTHENTICATED if LoginToken is invalid.
         """
         with session_scope(self._Session) as session:
-            login_token = session.query(LoginToken).filter(LoginToken.token == request.token).one_or_none()
+            login_token = session.query(LoginToken) \
+                .filter(LoginToken.token == request.token) \
+                .filter(LoginToken.created < func.now()) \
+                .filter(LoginToken.expiry >= func.now()) \
+                .one_or_none()
             if login_token:
                 # this is the bearer token
                 token = self.auth(session, user=login_token.user)
@@ -156,9 +161,13 @@ class Auth(auth_pb2_grpc.AuthServicer):
         """
         logging.debug(f"Signup token info for {request.token=}")
         with session_scope(self._Session) as session:
-            signup_token = session.query(SignupToken).filter(SignupToken.token == request.token).one_or_none()
+            signup_token = session.query(SignupToken) \
+                .filter(SignupToken.token == request.token) \
+                .filter(SignupToken.created < func.now()) \
+                .filter(SignupToken.expiry >= func.now()) \
+                .one_or_none()
             if not signup_token:
-                context.abort(grpc.StatusCode.NOT_FOUND, "Token doesn't exist")
+                context.abort(grpc.StatusCode.NOT_FOUND, "Invalid token.")
             else:
                 return auth_pb2.SignupTokenInfoRes(email=signup_token.email)
 
