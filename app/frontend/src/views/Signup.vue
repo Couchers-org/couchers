@@ -44,8 +44,6 @@
 <script lang="ts">
 import Vue from 'vue'
 
-import auth from '../auth'
-
 import { AuthClient } from '../pb/AuthServiceClientPb'
 import { SignupReq, SignupRes } from '../pb/auth_pb'
 

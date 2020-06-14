@@ -1,11 +1,11 @@
 import { GetUserByIdReq } from './pb/api_pb'
 import { APIClient } from './pb/ApiServiceClientPb'
 
-import auth from './auth'
+import interceptor from './interceptor'
 
 const opts = {
-  unaryInterceptors: [auth.interceptor],
-  streamInterceptors: [auth.interceptor]
+  unaryInterceptors: [interceptor],
+  streamInterceptors: [interceptor]
 };
 
 // There seems to be an error in the `opts` parameter's type, so have to ignore that line.
