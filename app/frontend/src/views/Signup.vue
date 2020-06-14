@@ -5,6 +5,7 @@
         <v-col>
           <v-container fluid>
             <v-col class="mx-auto" cols="12" sm="10" md="8" lg="6" xl="4">
+              <h1>Sign up</h1>
               <v-card flat v-if="signupStep == 'form'">
                 <v-card-text>
                   <v-form v-on:submit.prevent="submitSignup">

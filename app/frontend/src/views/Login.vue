@@ -5,6 +5,7 @@
         <v-col>
           <v-container fluid>
             <v-col class="mx-auto" cols="12" sm="10" md="8" lg="6" xl="4">
+              <h1>Login</h1>
               <v-card flat v-if="loginStep == 'user' || loginStep == 'pass'">
                 <v-card-text>
                   <v-form v-on:submit.prevent="submitLoginUser">

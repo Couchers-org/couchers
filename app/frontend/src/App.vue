@@ -21,12 +21,20 @@
       <v-divider></v-divider>
 
       <v-list dense nav>
-        <v-list-item link to="/index">
+        <v-list-item link to="/login">
           <v-list-item-icon>
-            <v-icon>mdi-view-dashboard</v-icon>
+            <v-icon>mdi-login-variant</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title>Login/index</v-list-item-title>
+            <v-list-item-title>Login</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item link to="/signup">
+          <v-list-item-icon>
+            <v-icon>mdi-plus-circle</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>Sign up</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
         <v-list-item link to="/">
