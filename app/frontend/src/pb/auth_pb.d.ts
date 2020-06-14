@@ -181,8 +181,8 @@ export class CompleteSignupReq extends jspb.Message {
   getName(): string;
   setName(value: string): CompleteSignupReq;
 
-  getHometown(): string;
-  setHometown(value: string): CompleteSignupReq;
+  getCity(): string;
+  setCity(value: string): CompleteSignupReq;
 
   getBirthdate(): string;
   setBirthdate(value: string): CompleteSignupReq;
@@ -202,7 +202,7 @@ export namespace CompleteSignupReq {
   export type AsObject = {
     token: string,
     name: string,
-    hometown: string,
+    city: string,
     birthdate: string,
     gender: string,
   }

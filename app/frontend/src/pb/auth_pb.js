@@ -1544,7 +1544,7 @@ proto.auth.CompleteSignupReq.toObject = function(includeInstance, msg) {
   var f, obj = {
     token: jspb.Message.getFieldWithDefault(msg, 1, ""),
     name: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    hometown: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    city: jspb.Message.getFieldWithDefault(msg, 3, ""),
     birthdate: jspb.Message.getFieldWithDefault(msg, 4, ""),
     gender: jspb.Message.getFieldWithDefault(msg, 5, "")
   };
@@ -1593,7 +1593,7 @@ proto.auth.CompleteSignupReq.deserializeBinaryFromReader = function(msg, reader)
       break;
     case 3:
       var value = /** @type {string} */ (reader.readString());
-      msg.setHometown(value);
+      msg.setCity(value);
       break;
     case 4:
       var value = /** @type {string} */ (reader.readString());
@@ -1646,7 +1646,7 @@ proto.auth.CompleteSignupReq.serializeBinaryToWriter = function(message, writer)
       f
     );
   }
-  f = message.getHometown();
+  f = message.getCity();
   if (f.length > 0) {
     writer.writeString(
       3,
@@ -1707,10 +1707,10 @@ proto.auth.CompleteSignupReq.prototype.setName = function(value) {
 
 
 /**
- * optional string hometown = 3;
+ * optional string city = 3;
  * @return {string}
  */
-proto.auth.CompleteSignupReq.prototype.getHometown = function() {
+proto.auth.CompleteSignupReq.prototype.getCity = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
@@ -1719,7 +1719,7 @@ proto.auth.CompleteSignupReq.prototype.getHometown = function() {
  * @param {string} value
  * @return {!proto.auth.CompleteSignupReq} returns this
  */
-proto.auth.CompleteSignupReq.prototype.setHometown = function(value) {
+proto.auth.CompleteSignupReq.prototype.setCity = function(value) {
   return jspb.Message.setProto3StringField(this, 3, value);
 };
 

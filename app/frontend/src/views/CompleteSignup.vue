@@ -35,11 +35,11 @@
                     </v-row>
                     <v-row>
                       <v-text-field
-                        v-model="hometown"
+                        v-model="city"
                         :rules="[rules.required]"
                         :disabled="loading"
-                        name="hometown"
-                        label="Hometown"
+                        name="city"
+                        label="City"
                       ></v-text-field>
                     </v-row>
                     <v-row>
@@ -65,6 +65,8 @@
                             v-model="date"
                             label="Birthday"
                             prepend-icon="mdi-calendar"
+                            hint="YYYY/MM/DD"
+                            persistent-hint
                             readonly
                             v-bind="attrs"
                             v-on="on"
@@ -74,7 +76,7 @@
                           ref="picker"
                           v-model="date"
                           :max="new Date().toISOString().substr(0, 10)"
-                          min="1950-01-01"
+                          min="1900-01-01"
                           @change="saveDate"
                         ></v-date-picker>
                       </v-menu>
@@ -117,7 +119,7 @@ export default Vue.extend({
     emailErrorMessages: [] as Array<string>,
     emailTimer: null as any,
     name: '',
-    hometown: '',
+    city: '',
     date: null,
     dateMenu: false,
     gender: '',
@@ -167,8 +169,9 @@ export default Vue.extend({
 
       const req = new CompleteSignupReq()
 
+      req.setToken(this.$route.params.token)
       req.setName(this.name)
-      req.setHometown(this.hometown)
+      req.setCity(this.city)
       req.setBirthdate(this.date)
       req.setGender(this.gender)
 

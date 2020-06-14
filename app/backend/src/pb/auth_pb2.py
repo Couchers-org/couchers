@@ -18,7 +18,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='auth',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=b'\n\rpb/auth.proto\x12\x04\x61uth\"\x1c\n\x08LoginReq\x12\x10\n\x08username\x18\x01 \x01(\t\"\x85\x01\n\x08LoginRes\x12+\n\tnext_step\x18\x01 \x01(\x0e\x32\x18.auth.LoginRes.LoginStep\"L\n\tLoginStep\x12\x11\n\rNEED_PASSWORD\x10\x00\x12\x14\n\x10SENT_LOGIN_EMAIL\x10\x01\x12\x16\n\x12LOGIN_NO_SUCH_USER\x10\x03\"\x1a\n\tSignupReq\x12\r\n\x05\x65mail\x18\x01 \x01(\t\"\x84\x01\n\tSignupRes\x12-\n\tnext_step\x18\x01 \x01(\x0e\x32\x1a.auth.SignupRes.SignupStep\"H\n\nSignupStep\x12\x15\n\x11SENT_SIGNUP_EMAIL\x10\x00\x12\x10\n\x0c\x45MAIL_EXISTS\x10\x01\x12\x11\n\rINVALID_EMAIL\x10\x02\"&\n\x15\x43ompleteTokenLoginReq\x12\r\n\x05token\x18\x01 \x01(\t\"$\n\x10UsernameValidReq\x12\x10\n\x08username\x18\x01 \x01(\t\"!\n\x10UsernameValidRes\x12\r\n\x05valid\x18\x01 \x01(\x08\"#\n\x12SignupTokenInfoReq\x12\r\n\x05token\x18\x01 \x01(\t\"#\n\x12SignupTokenInfoRes\x12\r\n\x05\x65mail\x18\x01 \x01(\t\"e\n\x11\x43ompleteSignupReq\x12\r\n\x05token\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x10\n\x08hometown\x18\x03 \x01(\t\x12\x11\n\tbirthdate\x18\x04 \x01(\t\x12\x0e\n\x06gender\x18\x05 \x01(\t\"-\n\x07\x41uthReq\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"\x18\n\x07\x41uthRes\x12\r\n\x05token\x18\x01 \x01(\t\"\x1a\n\tDeAuthReq\x12\r\n\x05token\x18\x01 \x01(\t\"\x0b\n\tDeAuthRes2\xd1\x03\n\x04\x41uth\x12)\n\x05Login\x12\x0e.auth.LoginReq\x1a\x0e.auth.LoginRes\"\x00\x12,\n\x06Signup\x12\x0f.auth.SignupReq\x1a\x0f.auth.SignupRes\"\x00\x12\x42\n\x12\x43ompleteTokenLogin\x12\x1b.auth.CompleteTokenLoginReq\x1a\r.auth.AuthRes\"\x00\x12\x41\n\rUsernameValid\x12\x16.auth.UsernameValidReq\x1a\x16.auth.UsernameValidRes\"\x00\x12G\n\x0fSignupTokenInfo\x12\x18.auth.SignupTokenInfoReq\x1a\x18.auth.SignupTokenInfoRes\"\x00\x12:\n\x0e\x43ompleteSignup\x12\x17.auth.CompleteSignupReq\x1a\r.auth.AuthRes\"\x00\x12.\n\x0c\x41uthenticate\x12\r.auth.AuthReq\x1a\r.auth.AuthRes\"\x00\x12\x34\n\x0e\x44\x65\x61uthenticate\x12\x0f.auth.DeAuthReq\x1a\x0f.auth.DeAuthRes\"\x00\x62\x06proto3'
+  serialized_pb=b'\n\rpb/auth.proto\x12\x04\x61uth\"\x1c\n\x08LoginReq\x12\x10\n\x08username\x18\x01 \x01(\t\"\x85\x01\n\x08LoginRes\x12+\n\tnext_step\x18\x01 \x01(\x0e\x32\x18.auth.LoginRes.LoginStep\"L\n\tLoginStep\x12\x11\n\rNEED_PASSWORD\x10\x00\x12\x14\n\x10SENT_LOGIN_EMAIL\x10\x01\x12\x16\n\x12LOGIN_NO_SUCH_USER\x10\x03\"\x1a\n\tSignupReq\x12\r\n\x05\x65mail\x18\x01 \x01(\t\"\x84\x01\n\tSignupRes\x12-\n\tnext_step\x18\x01 \x01(\x0e\x32\x1a.auth.SignupRes.SignupStep\"H\n\nSignupStep\x12\x15\n\x11SENT_SIGNUP_EMAIL\x10\x00\x12\x10\n\x0c\x45MAIL_EXISTS\x10\x01\x12\x11\n\rINVALID_EMAIL\x10\x02\"&\n\x15\x43ompleteTokenLoginReq\x12\r\n\x05token\x18\x01 \x01(\t\"$\n\x10UsernameValidReq\x12\x10\n\x08username\x18\x01 \x01(\t\"!\n\x10UsernameValidRes\x12\r\n\x05valid\x18\x01 \x01(\x08\"#\n\x12SignupTokenInfoReq\x12\r\n\x05token\x18\x01 \x01(\t\"#\n\x12SignupTokenInfoRes\x12\r\n\x05\x65mail\x18\x01 \x01(\t\"a\n\x11\x43ompleteSignupReq\x12\r\n\x05token\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0c\n\x04\x63ity\x18\x03 \x01(\t\x12\x11\n\tbirthdate\x18\x04 \x01(\t\x12\x0e\n\x06gender\x18\x05 \x01(\t\"-\n\x07\x41uthReq\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"\x18\n\x07\x41uthRes\x12\r\n\x05token\x18\x01 \x01(\t\"\x1a\n\tDeAuthReq\x12\r\n\x05token\x18\x01 \x01(\t\"\x0b\n\tDeAuthRes2\xd1\x03\n\x04\x41uth\x12)\n\x05Login\x12\x0e.auth.LoginReq\x1a\x0e.auth.LoginRes\"\x00\x12,\n\x06Signup\x12\x0f.auth.SignupReq\x1a\x0f.auth.SignupRes\"\x00\x12\x42\n\x12\x43ompleteTokenLogin\x12\x1b.auth.CompleteTokenLoginReq\x1a\r.auth.AuthRes\"\x00\x12\x41\n\rUsernameValid\x12\x16.auth.UsernameValidReq\x1a\x16.auth.UsernameValidRes\"\x00\x12G\n\x0fSignupTokenInfo\x12\x18.auth.SignupTokenInfoReq\x1a\x18.auth.SignupTokenInfoRes\"\x00\x12:\n\x0e\x43ompleteSignup\x12\x17.auth.CompleteSignupReq\x1a\r.auth.AuthRes\"\x00\x12.\n\x0c\x41uthenticate\x12\r.auth.AuthReq\x1a\r.auth.AuthRes\"\x00\x12\x34\n\x0e\x44\x65\x61uthenticate\x12\x0f.auth.DeAuthReq\x1a\x0f.auth.DeAuthRes\"\x00\x62\x06proto3'
 )
 
 
@@ -379,7 +379,7 @@ _COMPLETESIGNUPREQ = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='hometown', full_name='auth.CompleteSignupReq.hometown', index=2,
+      name='city', full_name='auth.CompleteSignupReq.city', index=2,
       number=3, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -412,7 +412,7 @@ _COMPLETESIGNUPREQ = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=539,
-  serialized_end=640,
+  serialized_end=636,
 )
 
 
@@ -449,8 +449,8 @@ _AUTHREQ = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=642,
-  serialized_end=687,
+  serialized_start=638,
+  serialized_end=683,
 )
 
 
@@ -480,8 +480,8 @@ _AUTHRES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=689,
-  serialized_end=713,
+  serialized_start=685,
+  serialized_end=709,
 )
 
 
@@ -511,8 +511,8 @@ _DEAUTHREQ = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=715,
-  serialized_end=741,
+  serialized_start=711,
+  serialized_end=737,
 )
 
 
@@ -535,8 +535,8 @@ _DEAUTHRES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=743,
-  serialized_end=754,
+  serialized_start=739,
+  serialized_end=750,
 )
 
 _LOGINRES.fields_by_name['next_step'].enum_type = _LOGINRES_LOGINSTEP
@@ -665,8 +665,8 @@ _AUTH = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=757,
-  serialized_end=1222,
+  serialized_start=753,
+  serialized_end=1218,
   methods=[
   _descriptor.MethodDescriptor(
     name='Login',

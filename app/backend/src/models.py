@@ -22,27 +22,27 @@ class User(Base):
 
     id = Column(Integer, primary_key=True)
 
-    username = Column(String, nullable=False, unique=True)
+    username = Column(String, nullable=True, unique=True)
     email = Column(String, nullable=False, unique=True)
     hashed_password = Column(Binary, nullable=True)
 
     name = Column(String, nullable=False)
     city = Column(String, nullable=False)
-    verification = Column(Float, nullable=False)
-    community_standing = Column(Float, nullable=False)
+    verification = Column(Float, nullable=True)
+    community_standing = Column(Float, nullable=True)
     gender = Column(String, nullable=False)
     birth_date = Column(Date, nullable=False)
-    languages = Column(String, nullable=False)
-    occupation = Column(String, nullable=False)
-    about_me = Column(String, nullable=False)
-    why = Column(String, nullable=False)
-    thing = Column(String, nullable=False)
-    share = Column(String, nullable=False)
-    countries_visited = Column(String, nullable=False)
-    countries_lived = Column(String, nullable=False)
+    languages = Column(String, nullable=True)
+    occupation = Column(String, nullable=True)
+    about_me = Column(String, nullable=True)
+    why = Column(String, nullable=True)
+    thing = Column(String, nullable=True)
+    share = Column(String, nullable=True)
+    countries_visited = Column(String, nullable=True)
+    countries_lived = Column(String, nullable=True)
 
     def __repr__(self):
-        return f"User(id={self.id}, username={self.username})"
+        return f"User(id={self.id}, email={self.email}, username={self.username})"
 
 # When a user logs in, they can basically input one of three things: user id, username, or email
 # These are three non-intersecting sets

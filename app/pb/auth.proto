@@ -54,7 +54,7 @@ message CompleteSignupReq {
   string token = 1;
 
   string name = 2;
-  string hometown = 3;
+  string city = 3;
   string birthdate = 4;
   string gender = 5;
 }

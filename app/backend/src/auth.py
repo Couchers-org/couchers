@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 from time import sleep
 from typing import Union
 
@@ -224,3 +225,35 @@ class Auth(auth_pb2_grpc.AuthServicer):
             return auth_pb2.DeAuthRes()
         else:
             raise Exception("Failed to deauth")
+
+    def CompleteSignup(self, request, context):
+        """
+        Completes user sign up by creating the user in question, then logs them in.
+        """
+        with session_scope(self._Session) as session:
+            signup_token = session.query(SignupToken) \
+                .filter(SignupToken.token == request.token) \
+                .filter(SignupToken.created < func.now()) \
+                .filter(SignupToken.expiry >= func.now()) \
+                .one_or_none()
+            if not signup_token:
+                context.abort(grpc.StatusCode.NOT_FOUND, "Invalid token.")
+
+            # should be in YYYY/MM/DD format, will raise exception if can't parse
+            birthdate = datetime.fromisoformat(request.birthdate)
+
+            user = User(
+                email=signup_token.email,
+                name=request.name,
+                city=request.city,
+                gender=request.gender,
+                birth_date=birthdate
+            )
+
+            session.delete(signup_token)
+            session.add(user)
+            session.commit()
+
+            token = self.auth(session, user)
+
+            return auth_pb2.AuthRes(token=token)
