@@ -1,6 +1,8 @@
 # Borrows form OpenTracing's python gRPC interceptors, under Apache 2
 
 
+import logging
+from time import perf_counter_ns
 from typing import List
 
 import grpc
@@ -93,3 +95,14 @@ class _AuthValidatorInterceptor(grpcext.UnaryServerInterceptor, grpcext.StreamSe
 
     def intercept_stream(self, request_or_iterator, servicer_context, server_info, handler):
         raise NotImplementedError()
+
+
+class LoggingInterceptor(grpcext.UnaryServerInterceptor):
+    def intercept_unary(self, request, servicer_context, server_info, handler):
+        logging.info(f"Got request: {server_info.full_method}")
+        start = perf_counter_ns()
+        res = handler(request, servicer_context)
+        finished = perf_counter_ns()
+        duration = (finished-start) / 1e9
+        logging.info(f"Finished request (in {duration} s): {server_info.full_method}")
+        return res
