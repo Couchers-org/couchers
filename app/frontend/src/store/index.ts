@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
+import createPersistedState from 'vuex-persistedstate'
+
 Vue.use(Vuex)
 
 export enum AuthenticationState {
@@ -34,5 +36,6 @@ export default new Vuex.Store({
   },
   getters: {
     authenticated: state => state.auth == AuthenticationState.Authenticated
-  }
+  },
+  plugins: [createPersistedState()]
 })
