@@ -1,5 +1,5 @@
 import { AuthClient } from './pb/AuthServiceClientPb'
-import { AuthRequest, DeauthRequest, LoginRequest, SignupRequest, LoginResponse } from './pb/auth_pb'
+import { AuthReq, DeAuthReq, LoginReq, SignupReq, LoginRes } from './pb/auth_pb'
 
 import Store, { AuthenticationState } from './store'
 
@@ -10,7 +10,7 @@ import Router from './router'
 const client = new AuthClient("http://127.0.0.1:8888")
 
 function authenticate(username: string, password: string, callback: (error: string|null, message: string|null) => void) {
-  const req = new AuthRequest()
+  const req = new AuthReq()
   req.setUsername(username)
   req.setPassword(password)
   client.authenticate(req, null).then(res => {
@@ -32,7 +32,7 @@ function authenticate(username: string, password: string, callback: (error: stri
 }
 
 function deauth() {
-  const req = new DeauthRequest()
+  const req = new DeAuthReq()
   req.setToken(Store.state.authToken!)
   client.deauthenticate(req, null).then(res => {
     Store.commit('deauth')

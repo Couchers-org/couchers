@@ -15,18 +15,18 @@ class AuthStub(object):
         """
         self.Login = channel.unary_unary(
                 '/auth.Auth/Login',
-                request_serializer=pb_dot_auth__pb2.LoginRequest.SerializeToString,
-                response_deserializer=pb_dot_auth__pb2.LoginResponse.FromString,
+                request_serializer=pb_dot_auth__pb2.LoginReq.SerializeToString,
+                response_deserializer=pb_dot_auth__pb2.LoginRes.FromString,
                 )
         self.Signup = channel.unary_unary(
                 '/auth.Auth/Signup',
-                request_serializer=pb_dot_auth__pb2.SignupRequest.SerializeToString,
-                response_deserializer=pb_dot_auth__pb2.SignupResponse.FromString,
+                request_serializer=pb_dot_auth__pb2.SignupReq.SerializeToString,
+                response_deserializer=pb_dot_auth__pb2.SignupRes.FromString,
                 )
         self.CompleteTokenLogin = channel.unary_unary(
                 '/auth.Auth/CompleteTokenLogin',
                 request_serializer=pb_dot_auth__pb2.CompleteTokenLoginReq.SerializeToString,
-                response_deserializer=pb_dot_auth__pb2.AuthResponse.FromString,
+                response_deserializer=pb_dot_auth__pb2.AuthRes.FromString,
                 )
         self.UsernameValid = channel.unary_unary(
                 '/auth.Auth/UsernameValid',
@@ -41,17 +41,17 @@ class AuthStub(object):
         self.CompleteSignup = channel.unary_unary(
                 '/auth.Auth/CompleteSignup',
                 request_serializer=pb_dot_auth__pb2.CompleteSignupReq.SerializeToString,
-                response_deserializer=pb_dot_auth__pb2.AuthResponse.FromString,
+                response_deserializer=pb_dot_auth__pb2.AuthRes.FromString,
                 )
         self.Authenticate = channel.unary_unary(
                 '/auth.Auth/Authenticate',
-                request_serializer=pb_dot_auth__pb2.AuthRequest.SerializeToString,
-                response_deserializer=pb_dot_auth__pb2.AuthResponse.FromString,
+                request_serializer=pb_dot_auth__pb2.AuthReq.SerializeToString,
+                response_deserializer=pb_dot_auth__pb2.AuthRes.FromString,
                 )
         self.Deauthenticate = channel.unary_unary(
                 '/auth.Auth/Deauthenticate',
-                request_serializer=pb_dot_auth__pb2.DeauthRequest.SerializeToString,
-                response_deserializer=pb_dot_auth__pb2.DeauthResponse.FromString,
+                request_serializer=pb_dot_auth__pb2.DeAuthReq.SerializeToString,
+                response_deserializer=pb_dot_auth__pb2.DeAuthRes.FromString,
                 )
 
 
@@ -119,18 +119,18 @@ def add_AuthServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'Login': grpc.unary_unary_rpc_method_handler(
                     servicer.Login,
-                    request_deserializer=pb_dot_auth__pb2.LoginRequest.FromString,
-                    response_serializer=pb_dot_auth__pb2.LoginResponse.SerializeToString,
+                    request_deserializer=pb_dot_auth__pb2.LoginReq.FromString,
+                    response_serializer=pb_dot_auth__pb2.LoginRes.SerializeToString,
             ),
             'Signup': grpc.unary_unary_rpc_method_handler(
                     servicer.Signup,
-                    request_deserializer=pb_dot_auth__pb2.SignupRequest.FromString,
-                    response_serializer=pb_dot_auth__pb2.SignupResponse.SerializeToString,
+                    request_deserializer=pb_dot_auth__pb2.SignupReq.FromString,
+                    response_serializer=pb_dot_auth__pb2.SignupRes.SerializeToString,
             ),
             'CompleteTokenLogin': grpc.unary_unary_rpc_method_handler(
                     servicer.CompleteTokenLogin,
                     request_deserializer=pb_dot_auth__pb2.CompleteTokenLoginReq.FromString,
-                    response_serializer=pb_dot_auth__pb2.AuthResponse.SerializeToString,
+                    response_serializer=pb_dot_auth__pb2.AuthRes.SerializeToString,
             ),
             'UsernameValid': grpc.unary_unary_rpc_method_handler(
                     servicer.UsernameValid,
@@ -145,17 +145,17 @@ def add_AuthServicer_to_server(servicer, server):
             'CompleteSignup': grpc.unary_unary_rpc_method_handler(
                     servicer.CompleteSignup,
                     request_deserializer=pb_dot_auth__pb2.CompleteSignupReq.FromString,
-                    response_serializer=pb_dot_auth__pb2.AuthResponse.SerializeToString,
+                    response_serializer=pb_dot_auth__pb2.AuthRes.SerializeToString,
             ),
             'Authenticate': grpc.unary_unary_rpc_method_handler(
                     servicer.Authenticate,
-                    request_deserializer=pb_dot_auth__pb2.AuthRequest.FromString,
-                    response_serializer=pb_dot_auth__pb2.AuthResponse.SerializeToString,
+                    request_deserializer=pb_dot_auth__pb2.AuthReq.FromString,
+                    response_serializer=pb_dot_auth__pb2.AuthRes.SerializeToString,
             ),
             'Deauthenticate': grpc.unary_unary_rpc_method_handler(
                     servicer.Deauthenticate,
-                    request_deserializer=pb_dot_auth__pb2.DeauthRequest.FromString,
-                    response_serializer=pb_dot_auth__pb2.DeauthResponse.SerializeToString,
+                    request_deserializer=pb_dot_auth__pb2.DeAuthReq.FromString,
+                    response_serializer=pb_dot_auth__pb2.DeAuthRes.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -178,8 +178,8 @@ class Auth(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/auth.Auth/Login',
-            pb_dot_auth__pb2.LoginRequest.SerializeToString,
-            pb_dot_auth__pb2.LoginResponse.FromString,
+            pb_dot_auth__pb2.LoginReq.SerializeToString,
+            pb_dot_auth__pb2.LoginRes.FromString,
             options, channel_credentials,
             call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -194,8 +194,8 @@ class Auth(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/auth.Auth/Signup',
-            pb_dot_auth__pb2.SignupRequest.SerializeToString,
-            pb_dot_auth__pb2.SignupResponse.FromString,
+            pb_dot_auth__pb2.SignupReq.SerializeToString,
+            pb_dot_auth__pb2.SignupRes.FromString,
             options, channel_credentials,
             call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -211,7 +211,7 @@ class Auth(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/auth.Auth/CompleteTokenLogin',
             pb_dot_auth__pb2.CompleteTokenLoginReq.SerializeToString,
-            pb_dot_auth__pb2.AuthResponse.FromString,
+            pb_dot_auth__pb2.AuthRes.FromString,
             options, channel_credentials,
             call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -259,7 +259,7 @@ class Auth(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/auth.Auth/CompleteSignup',
             pb_dot_auth__pb2.CompleteSignupReq.SerializeToString,
-            pb_dot_auth__pb2.AuthResponse.FromString,
+            pb_dot_auth__pb2.AuthRes.FromString,
             options, channel_credentials,
             call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -274,8 +274,8 @@ class Auth(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/auth.Auth/Authenticate',
-            pb_dot_auth__pb2.AuthRequest.SerializeToString,
-            pb_dot_auth__pb2.AuthResponse.FromString,
+            pb_dot_auth__pb2.AuthReq.SerializeToString,
+            pb_dot_auth__pb2.AuthRes.FromString,
             options, channel_credentials,
             call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -290,7 +290,7 @@ class Auth(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/auth.Auth/Deauthenticate',
-            pb_dot_auth__pb2.DeauthRequest.SerializeToString,
-            pb_dot_auth__pb2.DeauthResponse.FromString,
+            pb_dot_auth__pb2.DeAuthReq.SerializeToString,
+            pb_dot_auth__pb2.DeAuthRes.FromString,
             options, channel_credentials,
             call_credentials, compression, wait_for_ready, timeout, metadata)

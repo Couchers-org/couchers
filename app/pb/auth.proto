@@ -2,11 +2,11 @@ syntax = "proto3";
 
 package auth;
 
-message LoginRequest {
+message LoginReq {
   string username = 1;
 }
 
-message LoginResponse {
+message LoginRes {
   enum LoginStep {
     NEED_PASSWORD = 0;
     SENT_LOGIN_EMAIL = 1;
@@ -16,11 +16,11 @@ message LoginResponse {
   LoginStep next_step = 1;
 }
 
-message SignupRequest {
+message SignupReq {
   string email = 1;
 }
 
-message SignupResponse {
+message SignupRes {
   enum SignupStep {
     SENT_SIGNUP_EMAIL = 0;
     EMAIL_EXISTS = 1;
@@ -59,31 +59,31 @@ message CompleteSignupReq {
   string gender = 5;
 }
 
-message AuthRequest {
+message AuthReq {
   string username = 1;
   string password = 2;
 }
 
-message AuthResponse {
+message AuthRes {
   string token = 1;
 }
 
-message DeauthRequest {
+message DeAuthReq {
   string token = 1;
 }
 
-message DeauthResponse {}
+message DeAuthRes {}
 
 service Auth {
-  rpc Login(LoginRequest) returns (LoginResponse) {
+  rpc Login(LoginReq) returns (LoginRes) {
     // First step of login flow
   }
 
-  rpc Signup(SignupRequest) returns (SignupResponse) {
+  rpc Signup(SignupReq) returns (SignupRes) {
     // First step of signup flow
   }
 
-  rpc CompleteTokenLogin(CompleteTokenLoginReq) returns (AuthResponse) {
+  rpc CompleteTokenLogin(CompleteTokenLoginReq) returns (AuthRes) {
     // Complete a login after receiving an email with a login token
   }
 
@@ -95,15 +95,15 @@ service Auth {
     // returns info about a signup token
   }
 
-  rpc CompleteSignup(CompleteSignupReq) returns (AuthResponse) {
+  rpc CompleteSignup(CompleteSignupReq) returns (AuthRes) {
     // Complete the signup form
   }
 
-  rpc Authenticate(AuthRequest) returns (AuthResponse) {
+  rpc Authenticate(AuthReq) returns (AuthRes) {
     // Auth a user with username + password
   }
 
-  rpc Deauthenticate(DeauthRequest) returns (DeauthResponse) {
+  rpc Deauthenticate(DeAuthReq) returns (DeAuthRes) {
     // Invalidate a session, deauthing a user
   }
 }

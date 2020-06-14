@@ -14,16 +14,16 @@
 import * as grpcWeb from 'grpc-web';
 
 import {
-  AuthRequest,
-  AuthResponse,
+  AuthReq,
+  AuthRes,
   CompleteSignupReq,
   CompleteTokenLoginReq,
-  DeauthRequest,
-  DeauthResponse,
-  LoginRequest,
-  LoginResponse,
-  SignupRequest,
-  SignupResponse,
+  DeAuthReq,
+  DeAuthRes,
+  LoginReq,
+  LoginRes,
+  SignupReq,
+  SignupRes,
   SignupTokenInfoReq,
   SignupTokenInfoRes,
   UsernameValidReq,
@@ -49,28 +49,28 @@ export class AuthClient {
   }
 
   methodInfoLogin = new grpcWeb.AbstractClientBase.MethodInfo(
-    LoginResponse,
-    (request: LoginRequest) => {
+    LoginRes,
+    (request: LoginReq) => {
       return request.serializeBinary();
     },
-    LoginResponse.deserializeBinary
+    LoginRes.deserializeBinary
   );
 
   login(
-    request: LoginRequest,
-    metadata: grpcWeb.Metadata | null): Promise<LoginResponse>;
+    request: LoginReq,
+    metadata: grpcWeb.Metadata | null): Promise<LoginRes>;
 
   login(
-    request: LoginRequest,
+    request: LoginReq,
     metadata: grpcWeb.Metadata | null,
     callback: (err: grpcWeb.Error,
-               response: LoginResponse) => void): grpcWeb.ClientReadableStream<LoginResponse>;
+               response: LoginRes) => void): grpcWeb.ClientReadableStream<LoginRes>;
 
   login(
-    request: LoginRequest,
+    request: LoginReq,
     metadata: grpcWeb.Metadata | null,
     callback?: (err: grpcWeb.Error,
-               response: LoginResponse) => void) {
+               response: LoginRes) => void) {
     if (callback !== undefined) {
       return this.client_.rpcCall(
         this.hostname_ +
@@ -89,28 +89,28 @@ export class AuthClient {
   }
 
   methodInfoSignup = new grpcWeb.AbstractClientBase.MethodInfo(
-    SignupResponse,
-    (request: SignupRequest) => {
+    SignupRes,
+    (request: SignupReq) => {
       return request.serializeBinary();
     },
-    SignupResponse.deserializeBinary
+    SignupRes.deserializeBinary
   );
 
   signup(
-    request: SignupRequest,
-    metadata: grpcWeb.Metadata | null): Promise<SignupResponse>;
+    request: SignupReq,
+    metadata: grpcWeb.Metadata | null): Promise<SignupRes>;
 
   signup(
-    request: SignupRequest,
+    request: SignupReq,
     metadata: grpcWeb.Metadata | null,
     callback: (err: grpcWeb.Error,
-               response: SignupResponse) => void): grpcWeb.ClientReadableStream<SignupResponse>;
+               response: SignupRes) => void): grpcWeb.ClientReadableStream<SignupRes>;
 
   signup(
-    request: SignupRequest,
+    request: SignupReq,
     metadata: grpcWeb.Metadata | null,
     callback?: (err: grpcWeb.Error,
-               response: SignupResponse) => void) {
+               response: SignupRes) => void) {
     if (callback !== undefined) {
       return this.client_.rpcCall(
         this.hostname_ +
@@ -129,28 +129,28 @@ export class AuthClient {
   }
 
   methodInfoCompleteTokenLogin = new grpcWeb.AbstractClientBase.MethodInfo(
-    AuthResponse,
+    AuthRes,
     (request: CompleteTokenLoginReq) => {
       return request.serializeBinary();
     },
-    AuthResponse.deserializeBinary
+    AuthRes.deserializeBinary
   );
 
   completeTokenLogin(
     request: CompleteTokenLoginReq,
-    metadata: grpcWeb.Metadata | null): Promise<AuthResponse>;
+    metadata: grpcWeb.Metadata | null): Promise<AuthRes>;
 
   completeTokenLogin(
     request: CompleteTokenLoginReq,
     metadata: grpcWeb.Metadata | null,
     callback: (err: grpcWeb.Error,
-               response: AuthResponse) => void): grpcWeb.ClientReadableStream<AuthResponse>;
+               response: AuthRes) => void): grpcWeb.ClientReadableStream<AuthRes>;
 
   completeTokenLogin(
     request: CompleteTokenLoginReq,
     metadata: grpcWeb.Metadata | null,
     callback?: (err: grpcWeb.Error,
-               response: AuthResponse) => void) {
+               response: AuthRes) => void) {
     if (callback !== undefined) {
       return this.client_.rpcCall(
         this.hostname_ +
@@ -249,28 +249,28 @@ export class AuthClient {
   }
 
   methodInfoCompleteSignup = new grpcWeb.AbstractClientBase.MethodInfo(
-    AuthResponse,
+    AuthRes,
     (request: CompleteSignupReq) => {
       return request.serializeBinary();
     },
-    AuthResponse.deserializeBinary
+    AuthRes.deserializeBinary
   );
 
   completeSignup(
     request: CompleteSignupReq,
-    metadata: grpcWeb.Metadata | null): Promise<AuthResponse>;
+    metadata: grpcWeb.Metadata | null): Promise<AuthRes>;
 
   completeSignup(
     request: CompleteSignupReq,
     metadata: grpcWeb.Metadata | null,
     callback: (err: grpcWeb.Error,
-               response: AuthResponse) => void): grpcWeb.ClientReadableStream<AuthResponse>;
+               response: AuthRes) => void): grpcWeb.ClientReadableStream<AuthRes>;
 
   completeSignup(
     request: CompleteSignupReq,
     metadata: grpcWeb.Metadata | null,
     callback?: (err: grpcWeb.Error,
-               response: AuthResponse) => void) {
+               response: AuthRes) => void) {
     if (callback !== undefined) {
       return this.client_.rpcCall(
         this.hostname_ +
@@ -289,28 +289,28 @@ export class AuthClient {
   }
 
   methodInfoAuthenticate = new grpcWeb.AbstractClientBase.MethodInfo(
-    AuthResponse,
-    (request: AuthRequest) => {
+    AuthRes,
+    (request: AuthReq) => {
       return request.serializeBinary();
     },
-    AuthResponse.deserializeBinary
+    AuthRes.deserializeBinary
   );
 
   authenticate(
-    request: AuthRequest,
-    metadata: grpcWeb.Metadata | null): Promise<AuthResponse>;
+    request: AuthReq,
+    metadata: grpcWeb.Metadata | null): Promise<AuthRes>;
 
   authenticate(
-    request: AuthRequest,
+    request: AuthReq,
     metadata: grpcWeb.Metadata | null,
     callback: (err: grpcWeb.Error,
-               response: AuthResponse) => void): grpcWeb.ClientReadableStream<AuthResponse>;
+               response: AuthRes) => void): grpcWeb.ClientReadableStream<AuthRes>;
 
   authenticate(
-    request: AuthRequest,
+    request: AuthReq,
     metadata: grpcWeb.Metadata | null,
     callback?: (err: grpcWeb.Error,
-               response: AuthResponse) => void) {
+               response: AuthRes) => void) {
     if (callback !== undefined) {
       return this.client_.rpcCall(
         this.hostname_ +
@@ -329,28 +329,28 @@ export class AuthClient {
   }
 
   methodInfoDeauthenticate = new grpcWeb.AbstractClientBase.MethodInfo(
-    DeauthResponse,
-    (request: DeauthRequest) => {
+    DeAuthRes,
+    (request: DeAuthReq) => {
       return request.serializeBinary();
     },
-    DeauthResponse.deserializeBinary
+    DeAuthRes.deserializeBinary
   );
 
   deauthenticate(
-    request: DeauthRequest,
-    metadata: grpcWeb.Metadata | null): Promise<DeauthResponse>;
+    request: DeAuthReq,
+    metadata: grpcWeb.Metadata | null): Promise<DeAuthRes>;
 
   deauthenticate(
-    request: DeauthRequest,
+    request: DeAuthReq,
     metadata: grpcWeb.Metadata | null,
     callback: (err: grpcWeb.Error,
-               response: DeauthResponse) => void): grpcWeb.ClientReadableStream<DeauthResponse>;
+               response: DeAuthRes) => void): grpcWeb.ClientReadableStream<DeAuthRes>;
 
   deauthenticate(
-    request: DeauthRequest,
+    request: DeAuthReq,
     metadata: grpcWeb.Metadata | null,
     callback?: (err: grpcWeb.Error,
-               response: DeauthResponse) => void) {
+               response: DeAuthRes) => void) {
     if (callback !== undefined) {
       return this.client_.rpcCall(
         this.hostname_ +

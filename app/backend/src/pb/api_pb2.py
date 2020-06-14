@@ -18,7 +18,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='api',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=b'\n\x0cpb/api.proto\x12\x03\x61pi\"\xbf\x02\n\x04User\x12\n\n\x02id\x18\x01 \x01(\x03\x12\x10\n\x08username\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\x0c\n\x04\x63ity\x18\x04 \x01(\t\x12\x14\n\x0cverification\x18\x05 \x01(\x01\x12\x1a\n\x12\x63ommunity_standing\x18\x06 \x01(\x01\x12\x16\n\x0enum_references\x18\x07 \x01(\x05\x12\x0e\n\x06gender\x18\x08 \x01(\t\x12\x0b\n\x03\x61ge\x18\t \x01(\x05\x12\x11\n\tlanguages\x18\n \x03(\t\x12\x12\n\noccupation\x18\x0b \x01(\t\x12\x10\n\x08\x61\x62out_me\x18\x0c \x01(\t\x12\x0b\n\x03why\x18\r \x01(\t\x12\r\n\x05thing\x18\x0e \x01(\t\x12\r\n\x05share\x18\x0f \x01(\t\x12\x19\n\x11\x63ountries_visited\x18\x10 \x03(\t\x12\x17\n\x0f\x63ountries_lived\x18\x11 \x03(\t\" \n\x12GetUserByIdRequest\x12\n\n\x02id\x18\x01 \x01(\x03\x32\x38\n\x03\x41PI\x12\x31\n\x0bGetUserById\x12\x17.api.GetUserByIdRequest\x1a\t.api.Userb\x06proto3'
+  serialized_pb=b'\n\x0cpb/api.proto\x12\x03\x61pi\"\xbf\x02\n\x04User\x12\n\n\x02id\x18\x01 \x01(\x03\x12\x10\n\x08username\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\x0c\n\x04\x63ity\x18\x04 \x01(\t\x12\x14\n\x0cverification\x18\x05 \x01(\x01\x12\x1a\n\x12\x63ommunity_standing\x18\x06 \x01(\x01\x12\x16\n\x0enum_references\x18\x07 \x01(\x05\x12\x0e\n\x06gender\x18\x08 \x01(\t\x12\x0b\n\x03\x61ge\x18\t \x01(\x05\x12\x11\n\tlanguages\x18\n \x03(\t\x12\x12\n\noccupation\x18\x0b \x01(\t\x12\x10\n\x08\x61\x62out_me\x18\x0c \x01(\t\x12\x0b\n\x03why\x18\r \x01(\t\x12\r\n\x05thing\x18\x0e \x01(\t\x12\r\n\x05share\x18\x0f \x01(\t\x12\x19\n\x11\x63ountries_visited\x18\x10 \x03(\t\x12\x17\n\x0f\x63ountries_lived\x18\x11 \x03(\t\"\x1c\n\x0eGetUserByIdReq\x12\n\n\x02id\x18\x01 \x01(\x03\x32\x34\n\x03\x41PI\x12-\n\x0bGetUserById\x12\x13.api.GetUserByIdReq\x1a\t.api.Userb\x06proto3'
 )
 
 
@@ -167,15 +167,15 @@ _USER = _descriptor.Descriptor(
 )
 
 
-_GETUSERBYIDREQUEST = _descriptor.Descriptor(
-  name='GetUserByIdRequest',
-  full_name='api.GetUserByIdRequest',
+_GETUSERBYIDREQ = _descriptor.Descriptor(
+  name='GetUserByIdReq',
+  full_name='api.GetUserByIdReq',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='id', full_name='api.GetUserByIdRequest.id', index=0,
+      name='id', full_name='api.GetUserByIdReq.id', index=0,
       number=1, type=3, cpp_type=2, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -194,11 +194,11 @@ _GETUSERBYIDREQUEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=343,
-  serialized_end=375,
+  serialized_end=371,
 )
 
 DESCRIPTOR.message_types_by_name['User'] = _USER
-DESCRIPTOR.message_types_by_name['GetUserByIdRequest'] = _GETUSERBYIDREQUEST
+DESCRIPTOR.message_types_by_name['GetUserByIdReq'] = _GETUSERBYIDREQ
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 User = _reflection.GeneratedProtocolMessageType('User', (_message.Message,), {
@@ -208,12 +208,12 @@ User = _reflection.GeneratedProtocolMessageType('User', (_message.Message,), {
   })
 _sym_db.RegisterMessage(User)
 
-GetUserByIdRequest = _reflection.GeneratedProtocolMessageType('GetUserByIdRequest', (_message.Message,), {
-  'DESCRIPTOR' : _GETUSERBYIDREQUEST,
+GetUserByIdReq = _reflection.GeneratedProtocolMessageType('GetUserByIdReq', (_message.Message,), {
+  'DESCRIPTOR' : _GETUSERBYIDREQ,
   '__module__' : 'pb.api_pb2'
-  # @@protoc_insertion_point(class_scope:api.GetUserByIdRequest)
+  # @@protoc_insertion_point(class_scope:api.GetUserByIdReq)
   })
-_sym_db.RegisterMessage(GetUserByIdRequest)
+_sym_db.RegisterMessage(GetUserByIdReq)
 
 
 
@@ -223,15 +223,15 @@ _API = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=377,
-  serialized_end=433,
+  serialized_start=373,
+  serialized_end=425,
   methods=[
   _descriptor.MethodDescriptor(
     name='GetUserById',
     full_name='api.API.GetUserById',
     index=0,
     containing_service=None,
-    input_type=_GETUSERBYIDREQUEST,
+    input_type=_GETUSERBYIDREQ,
     output_type=_USER,
     serialized_options=None,
   ),

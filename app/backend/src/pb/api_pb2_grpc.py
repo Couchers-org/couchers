@@ -15,7 +15,7 @@ class APIStub(object):
         """
         self.GetUserById = channel.unary_unary(
                 '/api.API/GetUserById',
-                request_serializer=pb_dot_api__pb2.GetUserByIdRequest.SerializeToString,
+                request_serializer=pb_dot_api__pb2.GetUserByIdReq.SerializeToString,
                 response_deserializer=pb_dot_api__pb2.User.FromString,
                 )
 
@@ -34,7 +34,7 @@ def add_APIServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'GetUserById': grpc.unary_unary_rpc_method_handler(
                     servicer.GetUserById,
-                    request_deserializer=pb_dot_api__pb2.GetUserByIdRequest.FromString,
+                    request_deserializer=pb_dot_api__pb2.GetUserByIdReq.FromString,
                     response_serializer=pb_dot_api__pb2.User.SerializeToString,
             ),
     }
@@ -58,7 +58,7 @@ class API(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/api.API/GetUserById',
-            pb_dot_api__pb2.GetUserByIdRequest.SerializeToString,
+            pb_dot_api__pb2.GetUserByIdReq.SerializeToString,
             pb_dot_api__pb2.User.FromString,
             options, channel_credentials,
             call_credentials, compression, wait_for_ready, timeout, metadata)

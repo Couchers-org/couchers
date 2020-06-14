@@ -1,38 +1,38 @@
 import * as jspb from "google-protobuf"
 
-export class LoginRequest extends jspb.Message {
+export class LoginReq extends jspb.Message {
   getUsername(): string;
-  setUsername(value: string): LoginRequest;
+  setUsername(value: string): LoginReq;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): LoginRequest.AsObject;
-  static toObject(includeInstance: boolean, msg: LoginRequest): LoginRequest.AsObject;
-  static serializeBinaryToWriter(message: LoginRequest, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): LoginRequest;
-  static deserializeBinaryFromReader(message: LoginRequest, reader: jspb.BinaryReader): LoginRequest;
+  toObject(includeInstance?: boolean): LoginReq.AsObject;
+  static toObject(includeInstance: boolean, msg: LoginReq): LoginReq.AsObject;
+  static serializeBinaryToWriter(message: LoginReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): LoginReq;
+  static deserializeBinaryFromReader(message: LoginReq, reader: jspb.BinaryReader): LoginReq;
 }
 
-export namespace LoginRequest {
+export namespace LoginReq {
   export type AsObject = {
     username: string,
   }
 }
 
-export class LoginResponse extends jspb.Message {
-  getNextStep(): LoginResponse.LoginStep;
-  setNextStep(value: LoginResponse.LoginStep): LoginResponse;
+export class LoginRes extends jspb.Message {
+  getNextStep(): LoginRes.LoginStep;
+  setNextStep(value: LoginRes.LoginStep): LoginRes;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): LoginResponse.AsObject;
-  static toObject(includeInstance: boolean, msg: LoginResponse): LoginResponse.AsObject;
-  static serializeBinaryToWriter(message: LoginResponse, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): LoginResponse;
-  static deserializeBinaryFromReader(message: LoginResponse, reader: jspb.BinaryReader): LoginResponse;
+  toObject(includeInstance?: boolean): LoginRes.AsObject;
+  static toObject(includeInstance: boolean, msg: LoginRes): LoginRes.AsObject;
+  static serializeBinaryToWriter(message: LoginRes, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): LoginRes;
+  static deserializeBinaryFromReader(message: LoginRes, reader: jspb.BinaryReader): LoginRes;
 }
 
-export namespace LoginResponse {
+export namespace LoginRes {
   export type AsObject = {
-    nextStep: LoginResponse.LoginStep,
+    nextStep: LoginRes.LoginStep,
   }
 
   export enum LoginStep { 
@@ -42,39 +42,39 @@ export namespace LoginResponse {
   }
 }
 
-export class SignupRequest extends jspb.Message {
+export class SignupReq extends jspb.Message {
   getEmail(): string;
-  setEmail(value: string): SignupRequest;
+  setEmail(value: string): SignupReq;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): SignupRequest.AsObject;
-  static toObject(includeInstance: boolean, msg: SignupRequest): SignupRequest.AsObject;
-  static serializeBinaryToWriter(message: SignupRequest, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): SignupRequest;
-  static deserializeBinaryFromReader(message: SignupRequest, reader: jspb.BinaryReader): SignupRequest;
+  toObject(includeInstance?: boolean): SignupReq.AsObject;
+  static toObject(includeInstance: boolean, msg: SignupReq): SignupReq.AsObject;
+  static serializeBinaryToWriter(message: SignupReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SignupReq;
+  static deserializeBinaryFromReader(message: SignupReq, reader: jspb.BinaryReader): SignupReq;
 }
 
-export namespace SignupRequest {
+export namespace SignupReq {
   export type AsObject = {
     email: string,
   }
 }
 
-export class SignupResponse extends jspb.Message {
-  getNextStep(): SignupResponse.SignupStep;
-  setNextStep(value: SignupResponse.SignupStep): SignupResponse;
+export class SignupRes extends jspb.Message {
+  getNextStep(): SignupRes.SignupStep;
+  setNextStep(value: SignupRes.SignupStep): SignupRes;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): SignupResponse.AsObject;
-  static toObject(includeInstance: boolean, msg: SignupResponse): SignupResponse.AsObject;
-  static serializeBinaryToWriter(message: SignupResponse, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): SignupResponse;
-  static deserializeBinaryFromReader(message: SignupResponse, reader: jspb.BinaryReader): SignupResponse;
+  toObject(includeInstance?: boolean): SignupRes.AsObject;
+  static toObject(includeInstance: boolean, msg: SignupRes): SignupRes.AsObject;
+  static serializeBinaryToWriter(message: SignupRes, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SignupRes;
+  static deserializeBinaryFromReader(message: SignupRes, reader: jspb.BinaryReader): SignupRes;
 }
 
-export namespace SignupResponse {
+export namespace SignupRes {
   export type AsObject = {
-    nextStep: SignupResponse.SignupStep,
+    nextStep: SignupRes.SignupStep,
   }
 
   export enum SignupStep { 
@@ -208,74 +208,74 @@ export namespace CompleteSignupReq {
   }
 }
 
-export class AuthRequest extends jspb.Message {
+export class AuthReq extends jspb.Message {
   getUsername(): string;
-  setUsername(value: string): AuthRequest;
+  setUsername(value: string): AuthReq;
 
   getPassword(): string;
-  setPassword(value: string): AuthRequest;
+  setPassword(value: string): AuthReq;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): AuthRequest.AsObject;
-  static toObject(includeInstance: boolean, msg: AuthRequest): AuthRequest.AsObject;
-  static serializeBinaryToWriter(message: AuthRequest, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): AuthRequest;
-  static deserializeBinaryFromReader(message: AuthRequest, reader: jspb.BinaryReader): AuthRequest;
+  toObject(includeInstance?: boolean): AuthReq.AsObject;
+  static toObject(includeInstance: boolean, msg: AuthReq): AuthReq.AsObject;
+  static serializeBinaryToWriter(message: AuthReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): AuthReq;
+  static deserializeBinaryFromReader(message: AuthReq, reader: jspb.BinaryReader): AuthReq;
 }
 
-export namespace AuthRequest {
+export namespace AuthReq {
   export type AsObject = {
     username: string,
     password: string,
   }
 }
 
-export class AuthResponse extends jspb.Message {
+export class AuthRes extends jspb.Message {
   getToken(): string;
-  setToken(value: string): AuthResponse;
+  setToken(value: string): AuthRes;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): AuthResponse.AsObject;
-  static toObject(includeInstance: boolean, msg: AuthResponse): AuthResponse.AsObject;
-  static serializeBinaryToWriter(message: AuthResponse, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): AuthResponse;
-  static deserializeBinaryFromReader(message: AuthResponse, reader: jspb.BinaryReader): AuthResponse;
+  toObject(includeInstance?: boolean): AuthRes.AsObject;
+  static toObject(includeInstance: boolean, msg: AuthRes): AuthRes.AsObject;
+  static serializeBinaryToWriter(message: AuthRes, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): AuthRes;
+  static deserializeBinaryFromReader(message: AuthRes, reader: jspb.BinaryReader): AuthRes;
 }
 
-export namespace AuthResponse {
+export namespace AuthRes {
   export type AsObject = {
     token: string,
   }
 }
 
-export class DeauthRequest extends jspb.Message {
+export class DeAuthReq extends jspb.Message {
   getToken(): string;
-  setToken(value: string): DeauthRequest;
+  setToken(value: string): DeAuthReq;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): DeauthRequest.AsObject;
-  static toObject(includeInstance: boolean, msg: DeauthRequest): DeauthRequest.AsObject;
-  static serializeBinaryToWriter(message: DeauthRequest, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): DeauthRequest;
-  static deserializeBinaryFromReader(message: DeauthRequest, reader: jspb.BinaryReader): DeauthRequest;
+  toObject(includeInstance?: boolean): DeAuthReq.AsObject;
+  static toObject(includeInstance: boolean, msg: DeAuthReq): DeAuthReq.AsObject;
+  static serializeBinaryToWriter(message: DeAuthReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): DeAuthReq;
+  static deserializeBinaryFromReader(message: DeAuthReq, reader: jspb.BinaryReader): DeAuthReq;
 }
 
-export namespace DeauthRequest {
+export namespace DeAuthReq {
   export type AsObject = {
     token: string,
   }
 }
 
-export class DeauthResponse extends jspb.Message {
+export class DeAuthRes extends jspb.Message {
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): DeauthResponse.AsObject;
-  static toObject(includeInstance: boolean, msg: DeauthResponse): DeauthResponse.AsObject;
-  static serializeBinaryToWriter(message: DeauthResponse, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): DeauthResponse;
-  static deserializeBinaryFromReader(message: DeauthResponse, reader: jspb.BinaryReader): DeauthResponse;
+  toObject(includeInstance?: boolean): DeAuthRes.AsObject;
+  static toObject(includeInstance: boolean, msg: DeAuthRes): DeAuthRes.AsObject;
+  static serializeBinaryToWriter(message: DeAuthRes, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): DeAuthRes;
+  static deserializeBinaryFromReader(message: DeAuthRes, reader: jspb.BinaryReader): DeAuthRes;
 }
 
-export namespace DeauthResponse {
+export namespace DeAuthRes {
   export type AsObject = {
   }
 }

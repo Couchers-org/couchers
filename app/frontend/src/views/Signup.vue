@@ -47,7 +47,7 @@ import Vue from 'vue'
 import auth from '../auth'
 
 import { AuthClient } from '../pb/AuthServiceClientPb'
-import { SignupRequest, SignupResponse } from '../pb/auth_pb'
+import { SignupReq, SignupRes } from '../pb/auth_pb'
 
 import * as grpcWeb from 'grpc-web'
 
@@ -84,18 +84,18 @@ export default Vue.extend({
       this.loading = true;
       this.clearMessages()
 
-      const req = new SignupRequest()
+      const req = new SignupReq()
 
       req.setEmail(this.email)
       authClient.signup(req, null).then(res => {
         switch (res.getNextStep()) {
-          case SignupResponse.SignupStep.SENT_SIGNUP_EMAIL:
+          case SignupRes.SignupStep.SENT_SIGNUP_EMAIL:
             this.signupStep = 'email'
             break
-          case SignupResponse.SignupStep.EMAIL_EXISTS:
+          case SignupRes.SignupStep.EMAIL_EXISTS:
             this.errorMessages = ['Email exists! Please login.']
             break
-          case SignupResponse.SignupStep.INVALID_EMAIL:
+          case SignupRes.SignupStep.INVALID_EMAIL:
             this.errorMessages = ['Sorry! That doesn\'t look like a proper email.']
             break
         }

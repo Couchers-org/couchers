@@ -63,7 +63,7 @@ import Vue from 'vue'
 import auth from '../auth'
 
 import { AuthClient } from '../pb/AuthServiceClientPb'
-import { AuthRequest, LoginRequest, LoginResponse } from '../pb/auth_pb'
+import { AuthReq, LoginReq, LoginRes } from '../pb/auth_pb'
 
 import * as grpcWeb from 'grpc-web'
 
@@ -112,18 +112,18 @@ export default Vue.extend({
       this.loading = true;
       this.clearMessages()
 
-      const req = new LoginRequest()
+      const req = new LoginReq()
 
       req.setUsername(this.username)
       authClient.login(req, null).then(res => {
         switch (res.getNextStep()) {
-          case LoginResponse.LoginStep.NEED_PASSWORD:
+          case LoginRes.LoginStep.NEED_PASSWORD:
             this.loginStep = 'pass'
             break
-          case LoginResponse.LoginStep.SENT_LOGIN_EMAIL:
+          case LoginRes.LoginStep.SENT_LOGIN_EMAIL:
             this.loginStep = 'email'
             break
-          case LoginResponse.LoginStep.LOGIN_NO_SUCH_USER:
+          case LoginRes.LoginStep.LOGIN_NO_SUCH_USER:
             this.errorMessages = ['User not found!']
             break
         }
@@ -137,7 +137,7 @@ export default Vue.extend({
       this.loading = true;
       this.clearMessages()
 
-      const req = new AuthRequest()
+      const req = new AuthReq()
 
       req.setUsername(this.username)
       req.setPassword(this.password)

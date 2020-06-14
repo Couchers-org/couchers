@@ -22,10 +22,10 @@ message User {
   repeated string countries_lived = 17;
 }
 
-message GetUserByIdRequest {
+message GetUserByIdReq {
   int64 id = 1;
 }
 
 service API {
-  rpc GetUserById(GetUserByIdRequest) returns (User);
+  rpc GetUserById(GetUserByIdReq) returns (User);
 }

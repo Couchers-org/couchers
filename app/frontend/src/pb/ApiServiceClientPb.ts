@@ -14,7 +14,7 @@
 import * as grpcWeb from 'grpc-web';
 
 import {
-  GetUserByIdRequest,
+  GetUserByIdReq,
   User} from './api_pb';
 
 export class APIClient {
@@ -38,24 +38,24 @@ export class APIClient {
 
   methodInfoGetUserById = new grpcWeb.AbstractClientBase.MethodInfo(
     User,
-    (request: GetUserByIdRequest) => {
+    (request: GetUserByIdReq) => {
       return request.serializeBinary();
     },
     User.deserializeBinary
   );
 
   getUserById(
-    request: GetUserByIdRequest,
+    request: GetUserByIdReq,
     metadata: grpcWeb.Metadata | null): Promise<User>;
 
   getUserById(
-    request: GetUserByIdRequest,
+    request: GetUserByIdReq,
     metadata: grpcWeb.Metadata | null,
     callback: (err: grpcWeb.Error,
                response: User) => void): grpcWeb.ClientReadableStream<User>;
 
   getUserById(
-    request: GetUserByIdRequest,
+    request: GetUserByIdReq,
     metadata: grpcWeb.Metadata | null,
     callback?: (err: grpcWeb.Error,
                response: User) => void) {

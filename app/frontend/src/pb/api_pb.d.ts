@@ -88,19 +88,19 @@ export namespace User {
   }
 }
 
-export class GetUserByIdRequest extends jspb.Message {
+export class GetUserByIdReq extends jspb.Message {
   getId(): number;
-  setId(value: number): GetUserByIdRequest;
+  setId(value: number): GetUserByIdReq;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): GetUserByIdRequest.AsObject;
-  static toObject(includeInstance: boolean, msg: GetUserByIdRequest): GetUserByIdRequest.AsObject;
-  static serializeBinaryToWriter(message: GetUserByIdRequest, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): GetUserByIdRequest;
-  static deserializeBinaryFromReader(message: GetUserByIdRequest, reader: jspb.BinaryReader): GetUserByIdRequest;
+  toObject(includeInstance?: boolean): GetUserByIdReq.AsObject;
+  static toObject(includeInstance: boolean, msg: GetUserByIdReq): GetUserByIdReq.AsObject;
+  static serializeBinaryToWriter(message: GetUserByIdReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetUserByIdReq;
+  static deserializeBinaryFromReader(message: GetUserByIdReq, reader: jspb.BinaryReader): GetUserByIdReq;
 }
 
-export namespace GetUserByIdRequest {
+export namespace GetUserByIdReq {
   export type AsObject = {
     id: number,
   }
