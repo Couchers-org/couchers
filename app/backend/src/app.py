@@ -8,6 +8,7 @@ import grpc
 from auth import Auth
 from crypto import hash_password
 from db import session_scope
+from interceptors import intercept_server
 from models import Base, User
 from pb import api_pb2, api_pb2_grpc, auth_pb2_grpc
 from sqlalchemy import create_engine
@@ -68,6 +69,7 @@ with session_scope(Session) as session:
 
 class APIServicer(api_pb2_grpc.APIServicer):
     def GetUserById(self, request, context):
+        print(context.user_id)
         with session_scope(Session) as session:
             user = session.query(User).filter(User.id == request.id).one()
             return api_pb2.User(
@@ -97,7 +99,8 @@ auth_server.add_insecure_port("[::]:1752")
 auth_pb2_grpc.add_AuthServicer_to_server(auth, auth_server)
 auth_server.start()
 
-server = grpc.server(futures.ThreadPoolExecutor(2), interceptors=[auth.get_auth_interceptor()])
+server = grpc.server(futures.ThreadPoolExecutor(2))
+server = intercept_server(server, auth.get_auth_interceptor())
 server.add_insecure_port("[::]:1751")
 servicer = APIServicer()
 api_pb2_grpc.add_APIServicer_to_server(servicer, server)

@@ -13,45 +13,27 @@ from pb import auth_pb2, auth_pb2_grpc
 from sqlalchemy import func
 from tasks import send_login_email, send_signup_email
 
+from interceptors import _AuthValidatorInterceptor
 
-class _AuthValidatorInterceptor(grpc.ServerInterceptor):
-    """
-    gRPC interceptor that calls `has_access` with the bearer token to check whether this request is authorised
-    """
-    def __init__(self, has_access):
-        def abort(ignored_request, context):
-            context.abort(grpc.StatusCode.UNAUTHENTICATED, "Unauthorized")
-
-        self._abort = grpc.unary_unary_rpc_method_handler(abort)
-        self._has_access = has_access
-
-    def intercept_service(self, continuation, handler_call_details):
-        for (key, value) in handler_call_details.invocation_metadata:
-            if key == "authorization":
-                if value.startswith("Bearer "):
-                    token = value[7:]
-                    if self._has_access(token):
-                        return continuation(handler_call_details)
-                break
-        return self._abort
 
 class Auth(auth_pb2_grpc.AuthServicer):
     def __init__(self, Session):
         super().__init__()
         self._Session = Session
-        self.auth_interceptor = _AuthValidatorInterceptor(self.has_access)
+        self.auth_interceptor = _AuthValidatorInterceptor(self.get_user_for_session_token)
 
     def get_auth_interceptor(self):
         return self.auth_interceptor
 
-    def has_access(self, token):
+    def get_user_for_session_token(self, token):
         """
         Returns a boolean representing whether the given `token` is authenticated.
 
         TODO(aapeli): return user id instead, or similar so it can be passed to auth context
         """
         with session_scope(self._Session) as session:
-            return session.query(UserSession).filter(UserSession.token == token).one_or_none() is not None
+            user_session = session.query(UserSession).filter(UserSession.token == token).one_or_none()
+            return user_session.user_id if user_session else None
 
     def auth(self, session, user):
         """
