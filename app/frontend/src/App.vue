@@ -10,10 +10,10 @@
       <v-list-item>
         <v-list-item-content>
           <v-list-item-title class="title">
-            Profile
+            {{ name }}
           </v-list-item-title>
           <v-list-item-subtitle>
-            Aapeli Vuorinen
+            {{ username }}
           </v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
@@ -117,11 +117,43 @@
 <script lang="ts">
 import Vue from 'vue';
 
+import Store from './store'
+
+import { PingReq } from './pb/api_pb'
+
+import client from './api'
+
 export default Vue.extend({
   name: 'App',
 
   data: () => ({
     //
   }),
+
+  created () {
+    this.fetchData()
+  },
+
+  methods: {
+    fetchData: function () {
+      client.ping(new PingReq(), null).then(res => {
+        Store.commit('updateUser', {
+          username: res.getUsername(),
+          name: res.getName()
+        })
+      }).catch(err => {
+        console.error('Failed to ping server: ', err)
+      })
+    }
+  },
+
+  computed: {
+    username: function () {
+      return Store.state.username
+    },
+    name: function () {
+      return Store.state.name
+    },
+  }
 });
 </script>

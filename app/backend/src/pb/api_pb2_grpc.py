@@ -13,6 +13,11 @@ class APIStub(object):
         Args:
             channel: A grpc.Channel.
         """
+        self.Ping = channel.unary_unary(
+                '/api.API/Ping',
+                request_serializer=pb_dot_api__pb2.PingReq.SerializeToString,
+                response_deserializer=pb_dot_api__pb2.PingRes.FromString,
+                )
         self.GetUserById = channel.unary_unary(
                 '/api.API/GetUserById',
                 request_serializer=pb_dot_api__pb2.GetUserByIdReq.SerializeToString,
@@ -23,6 +28,13 @@ class APIStub(object):
 class APIServicer(object):
     """Missing associated documentation comment in .proto file"""
 
+    def Ping(self, request, context):
+        """Pings the server for updates and basic user info
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def GetUserById(self, request, context):
         """Missing associated documentation comment in .proto file"""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -32,6 +44,11 @@ class APIServicer(object):
 
 def add_APIServicer_to_server(servicer, server):
     rpc_method_handlers = {
+            'Ping': grpc.unary_unary_rpc_method_handler(
+                    servicer.Ping,
+                    request_deserializer=pb_dot_api__pb2.PingReq.FromString,
+                    response_serializer=pb_dot_api__pb2.PingRes.SerializeToString,
+            ),
             'GetUserById': grpc.unary_unary_rpc_method_handler(
                     servicer.GetUserById,
                     request_deserializer=pb_dot_api__pb2.GetUserByIdReq.FromString,
@@ -46,6 +63,22 @@ def add_APIServicer_to_server(servicer, server):
  # This class is part of an EXPERIMENTAL API.
 class API(object):
     """Missing associated documentation comment in .proto file"""
+
+    @staticmethod
+    def Ping(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/api.API/Ping',
+            pb_dot_api__pb2.PingReq.SerializeToString,
+            pb_dot_api__pb2.PingRes.FromString,
+            options, channel_credentials,
+            call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
     def GetUserById(request,

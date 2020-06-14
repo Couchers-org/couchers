@@ -18,7 +18,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='api',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=b'\n\x0cpb/api.proto\x12\x03\x61pi\"\xbf\x02\n\x04User\x12\n\n\x02id\x18\x01 \x01(\x03\x12\x10\n\x08username\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\x0c\n\x04\x63ity\x18\x04 \x01(\t\x12\x14\n\x0cverification\x18\x05 \x01(\x01\x12\x1a\n\x12\x63ommunity_standing\x18\x06 \x01(\x01\x12\x16\n\x0enum_references\x18\x07 \x01(\x05\x12\x0e\n\x06gender\x18\x08 \x01(\t\x12\x0b\n\x03\x61ge\x18\t \x01(\x05\x12\x11\n\tlanguages\x18\n \x03(\t\x12\x12\n\noccupation\x18\x0b \x01(\t\x12\x10\n\x08\x61\x62out_me\x18\x0c \x01(\t\x12\x0b\n\x03why\x18\r \x01(\t\x12\r\n\x05thing\x18\x0e \x01(\t\x12\r\n\x05share\x18\x0f \x01(\t\x12\x19\n\x11\x63ountries_visited\x18\x10 \x03(\t\x12\x17\n\x0f\x63ountries_lived\x18\x11 \x03(\t\"\x1c\n\x0eGetUserByIdReq\x12\n\n\x02id\x18\x01 \x01(\x03\x32\x34\n\x03\x41PI\x12-\n\x0bGetUserById\x12\x13.api.GetUserByIdReq\x1a\t.api.Userb\x06proto3'
+  serialized_pb=b'\n\x0cpb/api.proto\x12\x03\x61pi\"\xbf\x02\n\x04User\x12\n\n\x02id\x18\x01 \x01(\x03\x12\x10\n\x08username\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\x0c\n\x04\x63ity\x18\x04 \x01(\t\x12\x14\n\x0cverification\x18\x05 \x01(\x01\x12\x1a\n\x12\x63ommunity_standing\x18\x06 \x01(\x01\x12\x16\n\x0enum_references\x18\x07 \x01(\x05\x12\x0e\n\x06gender\x18\x08 \x01(\t\x12\x0b\n\x03\x61ge\x18\t \x01(\x05\x12\x11\n\tlanguages\x18\n \x03(\t\x12\x12\n\noccupation\x18\x0b \x01(\t\x12\x10\n\x08\x61\x62out_me\x18\x0c \x01(\t\x12\x0b\n\x03why\x18\r \x01(\t\x12\r\n\x05thing\x18\x0e \x01(\t\x12\r\n\x05share\x18\x0f \x01(\t\x12\x19\n\x11\x63ountries_visited\x18\x10 \x03(\t\x12\x17\n\x0f\x63ountries_lived\x18\x11 \x03(\t\"\x1c\n\x0eGetUserByIdReq\x12\n\n\x02id\x18\x01 \x01(\x03\"\t\n\x07PingReq\"X\n\x07PingRes\x12\x0f\n\x07user_id\x18\x01 \x01(\x03\x12\x10\n\x08username\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\x1c\n\x14unread_message_count\x18\x04 \x01(\x03\x32Z\n\x03\x41PI\x12$\n\x04Ping\x12\x0c.api.PingReq\x1a\x0c.api.PingRes\"\x00\x12-\n\x0bGetUserById\x12\x13.api.GetUserByIdReq\x1a\t.api.Userb\x06proto3'
 )
 
 
@@ -197,8 +197,86 @@ _GETUSERBYIDREQ = _descriptor.Descriptor(
   serialized_end=371,
 )
 
+
+_PINGREQ = _descriptor.Descriptor(
+  name='PingReq',
+  full_name='api.PingReq',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=373,
+  serialized_end=382,
+)
+
+
+_PINGRES = _descriptor.Descriptor(
+  name='PingRes',
+  full_name='api.PingRes',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='user_id', full_name='api.PingRes.user_id', index=0,
+      number=1, type=3, cpp_type=2, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='username', full_name='api.PingRes.username', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='name', full_name='api.PingRes.name', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='unread_message_count', full_name='api.PingRes.unread_message_count', index=3,
+      number=4, type=3, cpp_type=2, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=384,
+  serialized_end=472,
+)
+
 DESCRIPTOR.message_types_by_name['User'] = _USER
 DESCRIPTOR.message_types_by_name['GetUserByIdReq'] = _GETUSERBYIDREQ
+DESCRIPTOR.message_types_by_name['PingReq'] = _PINGREQ
+DESCRIPTOR.message_types_by_name['PingRes'] = _PINGRES
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 User = _reflection.GeneratedProtocolMessageType('User', (_message.Message,), {
@@ -215,6 +293,20 @@ GetUserByIdReq = _reflection.GeneratedProtocolMessageType('GetUserByIdReq', (_me
   })
 _sym_db.RegisterMessage(GetUserByIdReq)
 
+PingReq = _reflection.GeneratedProtocolMessageType('PingReq', (_message.Message,), {
+  'DESCRIPTOR' : _PINGREQ,
+  '__module__' : 'pb.api_pb2'
+  # @@protoc_insertion_point(class_scope:api.PingReq)
+  })
+_sym_db.RegisterMessage(PingReq)
+
+PingRes = _reflection.GeneratedProtocolMessageType('PingRes', (_message.Message,), {
+  'DESCRIPTOR' : _PINGRES,
+  '__module__' : 'pb.api_pb2'
+  # @@protoc_insertion_point(class_scope:api.PingRes)
+  })
+_sym_db.RegisterMessage(PingRes)
+
 
 
 _API = _descriptor.ServiceDescriptor(
@@ -223,13 +315,22 @@ _API = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=373,
-  serialized_end=425,
+  serialized_start=474,
+  serialized_end=564,
   methods=[
+  _descriptor.MethodDescriptor(
+    name='Ping',
+    full_name='api.API.Ping',
+    index=0,
+    containing_service=None,
+    input_type=_PINGREQ,
+    output_type=_PINGRES,
+    serialized_options=None,
+  ),
   _descriptor.MethodDescriptor(
     name='GetUserById',
     full_name='api.API.GetUserById',
-    index=0,
+    index=1,
     containing_service=None,
     input_type=_GETUSERBYIDREQ,
     output_type=_USER,

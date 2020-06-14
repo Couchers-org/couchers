@@ -13,6 +13,8 @@ export enum AuthenticationState {
 export default new Vuex.Store({
   state: {
     error: null,
+    username: null as null | string,
+    name: null as null | string,
     auth: AuthenticationState.None,
     authToken: null as null | string
   },
@@ -24,10 +26,17 @@ export default new Vuex.Store({
     deauth (state) {
       state.auth = AuthenticationState.None
       state.authToken = null
+      state.username = null
+      state.name = "Not logged in"
     },
     error (state, errorMessage) {
       console.error(errorMessage)
       state.error = errorMessage
+    },
+    updateUser (state, {username, name}) {
+      console.log('updating user')
+      state.username = username
+      state.name = name
     }
   },
   actions: {

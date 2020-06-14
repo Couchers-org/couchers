@@ -26,6 +26,22 @@ message GetUserByIdReq {
   int64 id = 1;
 }
 
+message PingReq {}
+
+message PingRes {
+  // Basic info about user
+  int64 user_id = 1;
+  string username = 2;
+  string name = 3;
+
+  // Updates
+  int64 unread_message_count = 4;
+}
+
 service API {
+  rpc Ping(PingReq) returns (PingRes) {
+    // Pings the server for updates and basic user info
+  }
+
   rpc GetUserById(GetUserByIdReq) returns (User);
 }

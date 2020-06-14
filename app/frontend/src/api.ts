@@ -19,3 +19,5 @@ export async function getUser(id: number) {
   const res = await client.getUserById(req, null)
   return res.toObject()
 }
+
+export default client

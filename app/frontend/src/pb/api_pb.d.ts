@@ -106,3 +106,47 @@ export namespace GetUserByIdReq {
   }
 }
 
+export class PingReq extends jspb.Message {
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): PingReq.AsObject;
+  static toObject(includeInstance: boolean, msg: PingReq): PingReq.AsObject;
+  static serializeBinaryToWriter(message: PingReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): PingReq;
+  static deserializeBinaryFromReader(message: PingReq, reader: jspb.BinaryReader): PingReq;
+}
+
+export namespace PingReq {
+  export type AsObject = {
+  }
+}
+
+export class PingRes extends jspb.Message {
+  getUserId(): number;
+  setUserId(value: number): PingRes;
+
+  getUsername(): string;
+  setUsername(value: string): PingRes;
+
+  getName(): string;
+  setName(value: string): PingRes;
+
+  getUnreadMessageCount(): number;
+  setUnreadMessageCount(value: number): PingRes;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): PingRes.AsObject;
+  static toObject(includeInstance: boolean, msg: PingRes): PingRes.AsObject;
+  static serializeBinaryToWriter(message: PingRes, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): PingRes;
+  static deserializeBinaryFromReader(message: PingRes, reader: jspb.BinaryReader): PingRes;
+}
+
+export namespace PingRes {
+  export type AsObject = {
+    userId: number,
+    username: string,
+    name: string,
+    unreadMessageCount: number,
+  }
+}
+

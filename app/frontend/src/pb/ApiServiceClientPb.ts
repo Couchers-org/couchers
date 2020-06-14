@@ -15,6 +15,8 @@ import * as grpcWeb from 'grpc-web';
 
 import {
   GetUserByIdReq,
+  PingReq,
+  PingRes,
   User} from './api_pb';
 
 export class APIClient {
@@ -34,6 +36,46 @@ export class APIClient {
     this.hostname_ = hostname;
     this.credentials_ = credentials;
     this.options_ = options;
+  }
+
+  methodInfoPing = new grpcWeb.AbstractClientBase.MethodInfo(
+    PingRes,
+    (request: PingReq) => {
+      return request.serializeBinary();
+    },
+    PingRes.deserializeBinary
+  );
+
+  ping(
+    request: PingReq,
+    metadata: grpcWeb.Metadata | null): Promise<PingRes>;
+
+  ping(
+    request: PingReq,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.Error,
+               response: PingRes) => void): grpcWeb.ClientReadableStream<PingRes>;
+
+  ping(
+    request: PingReq,
+    metadata: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.Error,
+               response: PingRes) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/api.API/Ping',
+        request,
+        metadata || {},
+        this.methodInfoPing,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/api.API/Ping',
+    request,
+    metadata || {},
+    this.methodInfoPing);
   }
 
   methodInfoGetUserById = new grpcWeb.AbstractClientBase.MethodInfo(

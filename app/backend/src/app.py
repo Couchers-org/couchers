@@ -8,7 +8,7 @@ import grpc
 from auth import Auth
 from crypto import hash_password
 from db import session_scope
-from interceptors import intercept_server
+from interceptors import intercept_server, LoggingInterceptor
 from models import Base, User
 from pb import api_pb2, api_pb2_grpc, auth_pb2_grpc
 from sqlalchemy import create_engine
@@ -68,6 +68,16 @@ with session_scope(Session) as session:
         print(user)
 
 class APIServicer(api_pb2_grpc.APIServicer):
+    def Ping(self, request, context):
+        with session_scope(Session) as session:
+            # auth ought to make sure the user exists
+            user = session.query(User).filter(User.id == context.user_id).one()
+            return api_pb2.PingRes(
+                user_id=user.id,
+                username=user.username,
+                name=user.name
+            )
+
     def GetUserById(self, request, context):
         print(context.user_id)
         with session_scope(Session) as session:
@@ -100,6 +110,7 @@ auth_pb2_grpc.add_AuthServicer_to_server(auth, auth_server)
 auth_server.start()
 
 server = grpc.server(futures.ThreadPoolExecutor(2))
+server = intercept_server(server, LoggingInterceptor())
 server = intercept_server(server, auth.get_auth_interceptor())
 server.add_insecure_port("[::]:1751")
 servicer = APIServicer()
