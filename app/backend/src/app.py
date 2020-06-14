@@ -79,7 +79,6 @@ class APIServicer(api_pb2_grpc.APIServicer):
             )
 
     def GetUserById(self, request, context):
-        print(context.user_id)
         with session_scope(Session) as session:
             user = session.query(User).filter(User.id == request.id).one()
             return api_pb2.User(
