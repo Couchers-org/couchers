@@ -131,11 +131,17 @@ export default Vue.extend({
   }),
 
   created () {
-    this.fetchData()
+    this.updateData()
+  },
+
+  watch: {
+    '$store.state.auth': function () {
+      this.updateData()
+    }
   },
 
   methods: {
-    fetchData: function () {
+    updateData: function () {
       client.ping(new PingReq(), null).then(res => {
         Store.commit('updateUser', {
           username: res.getUsername(),

@@ -34,7 +34,6 @@ export default new Vuex.Store({
       state.error = errorMessage
     },
     updateUser (state, {username, name}) {
-      console.log('updating user')
       state.username = username
       state.name = name
     }
