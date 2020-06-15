@@ -5,8 +5,16 @@ from sqlalchemy import String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
+import enum
+from sqlalchemy import Integer, Enum
 
 Base = declarative_base()
+
+class PhoneStatus(enum.Enum):
+    # unverified
+    unverified = 1
+    # verified
+    verified = 2
 
 
 class User(Base):
@@ -17,24 +25,40 @@ class User(Base):
 
     id = Column(Integer, primary_key=True)
 
-    username = Column(String, unique=True)
+    username = Column(String, nullable=False, unique=True)
     email = Column(String, nullable=False, unique=True)
+    # stored in libsodium hash format, can be null for email login
     hashed_password = Column(Binary, nullable=True)
+    # phone number
+    # TODO: should it be unique?
+    phone = Column(String, nullable=True, unique=True)
+    phone_status = Column(Enum(PhoneStatus), nullable=True)
 
+    joined = Column(DateTime, nullable=False, server_default=func.now())
+    last_active = Column(DateTime, nullable=False, server_default=func.now())
+
+    # display name
     name = Column(String, nullable=False)
     city = Column(String, nullable=False)
-    verification = Column(Float, nullable=True)
-    community_standing = Column(Float, nullable=True)
     gender = Column(String, nullable=False)
-    birth_date = Column(Date, nullable=False)
-    languages = Column(String, nullable=True)
+    birthdate = Column(Date, nullable=False)
+
+    # name as on official docs for verification, etc. not needed until verification
+    full_name = Column(String, nullable=True)
+
+    # verification score
+    verification = Column(Float, nullable=True)
+    # community standing score
+    community_standing = Column(Float, nullable=True)
+
     occupation = Column(String, nullable=True)
     about_me = Column(String, nullable=True)
-    why = Column(String, nullable=True)
-    thing = Column(String, nullable=True)
-    share = Column(String, nullable=True)
+    # TODO: array types once we go postgres
+    languages = Column(String, nullable=True)
     countries_visited = Column(String, nullable=True)
     countries_lived = Column(String, nullable=True)
+
+    # TODO: hosting fields
 
     def __repr__(self):
         return f"User(id={self.id}, email={self.email}, username={self.username})"

@@ -167,7 +167,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 name=request.name,
                 city=request.city,
                 gender=request.gender,
-                birth_date=birthdate
+                birthdate=birthdate
             )
 
             # happens in same transaction

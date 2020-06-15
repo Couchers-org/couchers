@@ -38,18 +38,15 @@ def add_dummy_data(file_name):
                 city=user["city"],
                 verification=user["verification"],
                 community_standing=user["community_standing"],
-                birth_date=date(
-                    year=user["birth_date"]["year"],
-                    month=user["birth_date"]["month"],
-                    day=user["birth_date"]["day"]
+                birthdate=date(
+                    year=user["birthdate"]["year"],
+                    month=user["birthdate"]["month"],
+                    day=user["birthdate"]["day"]
                 ),
                 gender=user["gender"],
                 languages="|".join(user["languages"]),
                 occupation=user["occupation"],
                 about_me=user["about_me"],
-                why=user["why"],
-                thing=user["thing"],
-                share=user["share"],
                 countries_visited="|".join(user["countries_visited"]),
                 countries_lived="|".join(user["countries_lived"]),
             )
@@ -94,9 +91,6 @@ class APIServicer(api_pb2_grpc.APIServicer):
                 languages=user.languages.split("|"),
                 occupation=user.occupation,
                 about_me=user.about_me,
-                why=user.why,
-                thing=user.thing,
-                share=user.share,
                 countries_visited=user.countries_visited.split("|"),
                 countries_lived=user.countries_lived.split("|"),
             )
