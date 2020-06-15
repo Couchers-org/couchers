@@ -72,24 +72,21 @@ class _AuthValidatorInterceptor(grpcext.UnaryServerInterceptor, grpcext.StreamSe
     def __init__(self, get_user_for_session_token):
         self._get_user_for_session_token = get_user_for_session_token
 
-    def _abort(self, ctx):
-        return ctx.abort(grpc.StatusCode.UNAUTHENTICATED, "Unauthorized")
-
     def intercept_unary(self, request, servicer_context, server_info, handler):
         metadata = {key: value for (key, value) in servicer_context.invocation_metadata()}
 
         # abort also if no bearer token is present
         if not "authorization" in metadata:
-            return self._abort(servicer_context)
+            servicer_context.abort(grpc.StatusCode.UNAUTHENTICATED, "Unauthorized")
 
         authorization = metadata["authorization"]
         if not authorization.startswith("Bearer "):
-            return self._abort(servicer_context)
+            servicer_context.abort(grpc.StatusCode.UNAUTHENTICATED, "Unauthorized")
 
         user_id = self._get_user_for_session_token(token=authorization[7:])
 
         if not user_id:
-            return self._abort(servicer_context)
+            servicer_context.abort(grpc.StatusCode.UNAUTHENTICATED, "Unauthorized")
 
         return handler(request, _AuthInterceptorServicerContext(servicer_context, user_id))
 

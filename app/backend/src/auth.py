@@ -155,11 +155,11 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
             # check email again
             if not is_valid_email(signup_token.email):
-                return context.abort(grpc.StatusCode.INVALID_ARGUMENT, "Invalid email")
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, "Invalid email")
 
             # check username validity
             if not is_valid_username(request.username):
-                return context.abort(grpc.StatusCode.INVALID_ARGUMENT, "Invalid username")
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, "Invalid username")
 
             user = User(
                 email=signup_token.email,
@@ -229,7 +229,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 token = self._create_session(session, user=login_token.user)
                 return auth_pb2.AuthRes(token=token)
             else:
-                return context.abort(grpc.StatusCode.UNAUTHENTICATED, "Invalid token.")
+                context.abort(grpc.StatusCode.UNAUTHENTICATED, "Invalid token.")
 
     def Authenticate(self, request, context):
         """
@@ -244,7 +244,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 logging.debug(f"Found user")
                 if not user.hashed_password:
                     logging.debug(f"User doesn't have a password!")
-                    return context.abort(grpc.StatusCode.FAILED_PRECONDITION, "User does not have a password")
+                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, "User does not have a password")
                 if verify_password(user.hashed_password, request.password):
                     logging.debug(f"Right password")
                     # correct password
@@ -253,12 +253,12 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 else:
                     logging.debug(f"Wrong password")
                     # wrong password
-                    return context.abort(grpc.StatusCode.UNAUTHENTICATED, "Invalid username or password")
+                    context.abort(grpc.StatusCode.UNAUTHENTICATED, "Invalid username or password")
             else: # user not found
                 logging.debug(f"Didn't find user")
                 # do about as much work as if the user was found, reduces timing based username enumeration attacks
                 hash_password(request.password)
-                return context.abort(grpc.StatusCode.UNAUTHENTICATED, "Invalid username or password")
+                context.abort(grpc.StatusCode.UNAUTHENTICATED, "Invalid username or password")
 
     def Deauthenticate(self, request, context):
         """
@@ -269,4 +269,4 @@ class Auth(auth_pb2_grpc.AuthServicer):
             return auth_pb2.DeAuthRes()
         else:
             # probably caused by token not existing
-            return context.abort(grpc.StatusCode.UNKNOWN, "Couldn't deauth")
+            context.abort(grpc.StatusCode.UNKNOWN, "Couldn't deauth")
