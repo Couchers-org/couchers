@@ -5,7 +5,6 @@
         <v-img :aspect-ratio="1" src="/profile-itsi.jpg"></v-img>
         <v-card-title>{{ user.name }}</v-card-title>
         <v-card-subtitle>{{ user.city }}</v-card-subtitle>
-        <v-card-subtitle>Last active {{ lastActiveDisplay }}</v-card-subtitle>
         <v-card-text>
           <v-alert type="warning">
             Watch out. This user might be a creep.
@@ -29,13 +28,12 @@
             <v-list-item-subtitle><v-progress-linear class="my-2" height="12" rounded :value="communityStandingDisplay" color="light-blue"></v-progress-linear></v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
-        <v-list-item two-item>
+        <v-list-item>
           <v-list-item-icon>
             <v-icon>mdi-forum</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
             <v-list-item-title>{{ user.numReferences }} references</v-list-item-title>
-            <v-list-item-subtitle>What do I write here?</v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
         <v-list-item two-item>
@@ -65,12 +63,13 @@
             <v-list-item-subtitle>Occupation</v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
-        <v-list-item two-item>
+        <v-list-item two-itme>
           <v-list-item-icon>
             <v-icon>mdi-account-clock</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title>Joined {{ joinedDisplay }}</v-list-item-title>
+            <v-list-item-title>Last active {{ lastActiveDisplay }}</v-list-item-title>
+            <v-list-item-subtitle>Joined {{ joinedDisplay }}</v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
         <v-divider></v-divider>
@@ -90,12 +89,6 @@
           </v-tabs>
           <h3>About me</h3>
           <p>{{ user.aboutMe }}</p>
-          <h3>Why I’m on Couchsurfing</h3>
-          <p>{{ user.why }}</p>
-          <h3>One Amazing Thing I’ve Done</h3>
-          <p>{{ user.thing }}</p>
-          <h3>What I can share with hosts</h3>
-          <p>{{ user.share }}</p>
           <h3>Countries I’ve Visited</h3>
           <p>{{ countriesVisitedListDisplay }}</p>
           <h3>Countries I’ve Lived In</h3>
@@ -135,9 +128,6 @@ export default Vue.extend({
       languagesList: [],
       occupation: null,
       aboutMe: null,
-      why: null,
-      thing: null,
-      share: null,
       countriesVisitedList: [],
       countriesLivedList: [],
       lastActive: null,
