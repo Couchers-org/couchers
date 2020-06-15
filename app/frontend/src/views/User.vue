@@ -5,11 +5,6 @@
         <v-img :aspect-ratio="1" src="/profile-itsi.jpg"></v-img>
         <v-card-title>{{ user.name }}</v-card-title>
         <v-card-subtitle>{{ user.city }}</v-card-subtitle>
-        <v-card-text>
-          <v-alert type="warning">
-            Watch out. This user might be a creep.
-          </v-alert>
-        </v-card-text>
         <v-list-item two-item>
           <v-list-item-icon>
             <v-icon>mdi-account-check</v-icon>
