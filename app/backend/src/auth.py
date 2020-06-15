@@ -153,6 +153,14 @@ class Auth(auth_pb2_grpc.AuthServicer):
             # should be in YYYY/MM/DD format, will raise exception if can't parse
             birthdate = datetime.fromisoformat(request.birthdate)
 
+            # check email again
+            if not is_valid_email(signup_token.email):
+                return context.abort(grpc.StatusCode.INVALID_ARGUMENT, "Invalid email")
+
+            # check username validity
+            if not is_valid_username(request.username):
+                return context.abort(grpc.StatusCode.INVALID_ARGUMENT, "Invalid username")
+
             user = User(
                 email=signup_token.email,
                 username=request.username,

@@ -38,6 +38,19 @@
                     </v-row>
                     <v-row>
                       <v-text-field
+                        v-model="username"
+                        :rules="[rules.required]"
+                        :disabled="loading"
+                        :loading="loading"
+                        :error-messages="usernameErrorMessages"
+                        :success-messages="usernameSuccessMessages"
+                        v-on:keyup="lazyCheckUsername"
+                        name="username"
+                        label="Username"
+                      ></v-text-field>
+                    </v-row>
+                    <v-row>
+                      <v-text-field
                         v-model="city"
                         :rules="[rules.required]"
                         :disabled="loading"
@@ -117,10 +130,13 @@ export default Vue.extend({
     loading: false,
     errorMessages: [] as Array<string>,
     successMessages: [] as Array<string>,
+    username: "",
+    usernameErrorMessages: [] as Array<string>,
+    usernameSuccessMessages: [] as Array<string>,
+    usernameTimer: null as any,
     email: '',
     emailLoading: true,
     emailErrorMessages: [] as Array<string>,
-    emailTimer: null as any,
     name: '',
     city: '',
     date: null,
@@ -166,6 +182,29 @@ export default Vue.extend({
       this.successMessages = []
     },
 
+    lazyCheckUsername: function () {
+      clearTimeout(this.usernameTimer)
+      this.usernameTimer = setTimeout(this.checkUsername, 500);
+    },
+
+    checkUsername: function () {
+      this.usernameErrorMessages = []
+      this.usernameSuccessMessages = []
+
+      const req = new UsernameValidReq()
+
+      req.setUsername(this.username)
+      authClient.usernameValid(req, null).then(res => {
+        if (res.getValid()) {
+          this.usernameSuccessMessages = ['Username available!']
+        } else {
+          this.usernameErrorMessages = ['Username not valid or not available.']
+        }
+      }).catch(err => {
+        this.usernameErrorMessages = ['Unknown error.']
+      })
+    },
+
     submit: function () {
       this.loading = true
       this.clearMessages()
@@ -173,7 +212,7 @@ export default Vue.extend({
       const req = new CompleteSignupReq()
 
       req.setSignupToken(this.$route.params.token)
-      // TODO(aapeli): username
+      req.setUsername(this.username)
       req.setName(this.name)
       req.setCity(this.city)
       req.setBirthdate(this.date)
@@ -189,8 +228,8 @@ export default Vue.extend({
         Router.push('/profile')
       }).catch(err => {
         this.loading = false
-        if (err.code == grpcWeb.StatusCode.UNAUTHENTICATED) {
-          this.errorMessages = ['Invalid username or password.']
+        if (err.code == grpcWeb.StatusCode.INVALID_ARGUMENT) {
+          this.errorMessages = [err.message]
         } else {
           this.errorMessages = ['Unknown error.']
         }
