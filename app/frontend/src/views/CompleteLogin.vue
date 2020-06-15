@@ -14,7 +14,7 @@ import Vue from 'vue'
 
 import { AuthClient } from '../pb/AuthServiceClientPb'
 
-import { CompleteTokenLoginReq, CompleteSignupReq } from '../pb/auth_pb'
+import { CompleteTokenLoginReq } from '../pb/auth_pb'
 
 import * as grpcWeb from 'grpc-web'
 
@@ -37,8 +37,8 @@ export default Vue.extend({
 
   methods: {
     fetchData: function () {
-      const req = new CompleteSignupReq()
-      req.setToken(this.$route.params.token)
+      const req = new CompleteTokenLoginReq()
+      req.setLoginToken(this.$route.params.token)
       authClient.completeTokenLogin(req, null).then(res => {
         this.loading = false
         this.successMessages = ['Success.']

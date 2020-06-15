@@ -112,7 +112,7 @@ export default Vue.extend({
 
       const req = new LoginReq()
 
-      req.setUsername(this.username)
+      req.setUser(this.username)
       authClient.login(req, null).then(res => {
         switch (res.getNextStep()) {
           case LoginRes.LoginStep.NEED_PASSWORD:
@@ -121,7 +121,7 @@ export default Vue.extend({
           case LoginRes.LoginStep.SENT_LOGIN_EMAIL:
             this.loginStep = 'email'
             break
-          case LoginRes.LoginStep.LOGIN_NO_SUCH_USER:
+          case LoginRes.LoginStep.INVALID_USER:
             this.errorMessages = ['User not found!']
             break
         }
@@ -137,7 +137,7 @@ export default Vue.extend({
 
       const req = new AuthReq()
 
-      req.setUsername(this.username)
+      req.setUser(this.username)
       req.setPassword(this.password)
       authClient.authenticate(req, null).then(res => {
         this.loading = false

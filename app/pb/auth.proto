@@ -2,18 +2,62 @@ syntax = "proto3";
 
 package auth;
 
-message LoginReq {
-  string username = 1;
-}
+service Auth {
+  /*
+  Authentication API
 
-message LoginRes {
-  enum LoginStep {
-    NEED_PASSWORD = 0;
-    SENT_LOGIN_EMAIL = 1;
-    LOGIN_NO_SUCH_USER = 3;
+  This API facilitates authentication actions: signup and signin. Users need to use this before logging in, so you don't need to be authorized to use it.
+
+  The signup flow is as follows:
+  * A user enters their email and submits a form, which fires off a Signup call
+  * Signup validates the email isn't in the database yet, creates a signup_token, and emails it to the email address
+  * User clicks on the signup link, which brings them onto the signup completion form
+  * When this form loads, the app queries SignupTokenInfo for the email address associated to that login token to display in the UI
+  * User chooses a username (possibly querying UsernameValid to check possibly usernames) and fills in other basic information
+  * User submits the signup completion form, which validates this input, creates the user and logs them in, returns a session token (signup token is invalidated)
+
+  The login flow is as follows:
+  * The user enters an identifier field and submits the form
+  * The backend finds the user based on either username/user id/email address
+  * If that user _does not_ have a password, we email a one-click signin token and return SENT_LOGIN_EMAIL
+  * If that user _does not_ have a password, they click that link and the app logs them in through a CompleteTokenLoginReq (login token is invalidated)
+  * If that user _does_ have a password, the app asks for that password, and submits an Authenticate Call to log the user in
+
+  Signup and login tokens expire after some time, and once used cannot be reused.
+
+  There can be multiple signup requests simultaneously with the same email address. Email address uniqueness is checked once when creating the signup request, and again when creating the user.
+  */
+  rpc Signup(SignupReq) returns (SignupRes) {
+    // First step of signup flow
   }
 
-  LoginStep next_step = 1;
+  rpc UsernameValid(UsernameValidReq) returns (UsernameValidRes) {
+    // Check whether the username is valid and available
+  }
+
+  rpc SignupTokenInfo(SignupTokenInfoReq) returns (SignupTokenInfoRes) {
+    // returns info about a signup token
+  }
+
+  rpc CompleteSignup(CompleteSignupReq) returns (AuthRes) {
+    // Complete the signup form
+  }
+
+  rpc Login(LoginReq) returns (LoginRes) {
+    // First step of login flow
+  }
+
+  rpc CompleteTokenLogin(CompleteTokenLoginReq) returns (AuthRes) {
+    // Complete a login after receiving an email with a login token
+  }
+
+  rpc Authenticate(AuthReq) returns (AuthRes) {
+    // Auth a user with username + password
+  }
+
+  rpc Deauthenticate(DeAuthReq) returns (DeAuthRes) {
+    // Invalidate a session, deauthing a user
+  }
 }
 
 message SignupReq {
@@ -23,15 +67,11 @@ message SignupReq {
 message SignupRes {
   enum SignupStep {
     SENT_SIGNUP_EMAIL = 0;
-    EMAIL_EXISTS = 1;
-    INVALID_EMAIL = 2;
+    EMAIL_EXISTS = 1; // already used
+    INVALID_EMAIL = 2; // doesn't look like an email
   }
 
   SignupStep next_step = 1;
-}
-
-message CompleteTokenLoginReq {
-  string token = 1;
 }
 
 message UsernameValidReq {
@@ -43,7 +83,7 @@ message UsernameValidRes {
 }
 
 message SignupTokenInfoReq {
-  string token = 1;
+  string signup_token = 1;
 }
 
 message SignupTokenInfoRes {
@@ -51,16 +91,35 @@ message SignupTokenInfoRes {
 }
 
 message CompleteSignupReq {
-  string token = 1;
+  string signup_token = 1;
 
-  string name = 2;
-  string city = 3;
-  string birthdate = 4;
-  string gender = 5;
+  string username = 2;
+  string name = 3;
+  string city = 4;
+  string birthdate = 5; // in YYYY-MM-DD format
+  string gender = 6;
+}
+
+message LoginReq {
+  string user = 1;
+}
+
+message LoginRes {
+  enum LoginStep {
+    NEED_PASSWORD = 0;
+    SENT_LOGIN_EMAIL = 1;
+    INVALID_USER = 3;
+  }
+
+  LoginStep next_step = 1;
+}
+
+message CompleteTokenLoginReq {
+  string login_token = 1;
 }
 
 message AuthReq {
-  string username = 1;
+  string user = 1;
   string password = 2;
 }
 
@@ -73,37 +132,3 @@ message DeAuthReq {
 }
 
 message DeAuthRes {}
-
-service Auth {
-  rpc Login(LoginReq) returns (LoginRes) {
-    // First step of login flow
-  }
-
-  rpc Signup(SignupReq) returns (SignupRes) {
-    // First step of signup flow
-  }
-
-  rpc CompleteTokenLogin(CompleteTokenLoginReq) returns (AuthRes) {
-    // Complete a login after receiving an email with a login token
-  }
-
-  rpc UsernameValid(UsernameValidReq) returns (UsernameValidRes) {
-    // Check whether the username is valid
-  }
-
-  rpc SignupTokenInfo(SignupTokenInfoReq) returns (SignupTokenInfoRes) {
-    // returns info about a signup token
-  }
-
-  rpc CompleteSignup(CompleteSignupReq) returns (AuthRes) {
-    // Complete the signup form
-  }
-
-  rpc Authenticate(AuthReq) returns (AuthRes) {
-    // Auth a user with username + password
-  }
-
-  rpc Deauthenticate(DeAuthReq) returns (DeAuthRes) {
-    // Invalidate a session, deauthing a user
-  }
-}

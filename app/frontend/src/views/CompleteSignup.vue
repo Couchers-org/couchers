@@ -151,7 +151,7 @@ export default Vue.extend({
       this.emailErrorMessages = []
 
       const req = new SignupTokenInfoReq()
-      req.setToken(this.$route.params.token)
+      req.setSignupToken(this.$route.params.token)
       authClient.signupTokenInfo(req, null).then(res => {
         this.emailLoading = false
         this.email = res.getEmail()
@@ -172,7 +172,8 @@ export default Vue.extend({
 
       const req = new CompleteSignupReq()
 
-      req.setToken(this.$route.params.token)
+      req.setSignupToken(this.$route.params.token)
+      // TODO(aapeli): username
       req.setName(this.name)
       req.setCity(this.city)
       req.setBirthdate(this.date)

@@ -1,47 +1,5 @@
 import * as jspb from "google-protobuf"
 
-export class LoginReq extends jspb.Message {
-  getUsername(): string;
-  setUsername(value: string): LoginReq;
-
-  serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): LoginReq.AsObject;
-  static toObject(includeInstance: boolean, msg: LoginReq): LoginReq.AsObject;
-  static serializeBinaryToWriter(message: LoginReq, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): LoginReq;
-  static deserializeBinaryFromReader(message: LoginReq, reader: jspb.BinaryReader): LoginReq;
-}
-
-export namespace LoginReq {
-  export type AsObject = {
-    username: string,
-  }
-}
-
-export class LoginRes extends jspb.Message {
-  getNextStep(): LoginRes.LoginStep;
-  setNextStep(value: LoginRes.LoginStep): LoginRes;
-
-  serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): LoginRes.AsObject;
-  static toObject(includeInstance: boolean, msg: LoginRes): LoginRes.AsObject;
-  static serializeBinaryToWriter(message: LoginRes, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): LoginRes;
-  static deserializeBinaryFromReader(message: LoginRes, reader: jspb.BinaryReader): LoginRes;
-}
-
-export namespace LoginRes {
-  export type AsObject = {
-    nextStep: LoginRes.LoginStep,
-  }
-
-  export enum LoginStep { 
-    NEED_PASSWORD = 0,
-    SENT_LOGIN_EMAIL = 1,
-    LOGIN_NO_SUCH_USER = 3,
-  }
-}
-
 export class SignupReq extends jspb.Message {
   getEmail(): string;
   setEmail(value: string): SignupReq;
@@ -84,24 +42,6 @@ export namespace SignupRes {
   }
 }
 
-export class CompleteTokenLoginReq extends jspb.Message {
-  getToken(): string;
-  setToken(value: string): CompleteTokenLoginReq;
-
-  serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): CompleteTokenLoginReq.AsObject;
-  static toObject(includeInstance: boolean, msg: CompleteTokenLoginReq): CompleteTokenLoginReq.AsObject;
-  static serializeBinaryToWriter(message: CompleteTokenLoginReq, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): CompleteTokenLoginReq;
-  static deserializeBinaryFromReader(message: CompleteTokenLoginReq, reader: jspb.BinaryReader): CompleteTokenLoginReq;
-}
-
-export namespace CompleteTokenLoginReq {
-  export type AsObject = {
-    token: string,
-  }
-}
-
 export class UsernameValidReq extends jspb.Message {
   getUsername(): string;
   setUsername(value: string): UsernameValidReq;
@@ -139,8 +79,8 @@ export namespace UsernameValidRes {
 }
 
 export class SignupTokenInfoReq extends jspb.Message {
-  getToken(): string;
-  setToken(value: string): SignupTokenInfoReq;
+  getSignupToken(): string;
+  setSignupToken(value: string): SignupTokenInfoReq;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): SignupTokenInfoReq.AsObject;
@@ -152,7 +92,7 @@ export class SignupTokenInfoReq extends jspb.Message {
 
 export namespace SignupTokenInfoReq {
   export type AsObject = {
-    token: string,
+    signupToken: string,
   }
 }
 
@@ -175,8 +115,11 @@ export namespace SignupTokenInfoRes {
 }
 
 export class CompleteSignupReq extends jspb.Message {
-  getToken(): string;
-  setToken(value: string): CompleteSignupReq;
+  getSignupToken(): string;
+  setSignupToken(value: string): CompleteSignupReq;
+
+  getUsername(): string;
+  setUsername(value: string): CompleteSignupReq;
 
   getName(): string;
   setName(value: string): CompleteSignupReq;
@@ -200,7 +143,8 @@ export class CompleteSignupReq extends jspb.Message {
 
 export namespace CompleteSignupReq {
   export type AsObject = {
-    token: string,
+    signupToken: string,
+    username: string,
     name: string,
     city: string,
     birthdate: string,
@@ -208,9 +152,69 @@ export namespace CompleteSignupReq {
   }
 }
 
+export class LoginReq extends jspb.Message {
+  getUser(): string;
+  setUser(value: string): LoginReq;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): LoginReq.AsObject;
+  static toObject(includeInstance: boolean, msg: LoginReq): LoginReq.AsObject;
+  static serializeBinaryToWriter(message: LoginReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): LoginReq;
+  static deserializeBinaryFromReader(message: LoginReq, reader: jspb.BinaryReader): LoginReq;
+}
+
+export namespace LoginReq {
+  export type AsObject = {
+    user: string,
+  }
+}
+
+export class LoginRes extends jspb.Message {
+  getNextStep(): LoginRes.LoginStep;
+  setNextStep(value: LoginRes.LoginStep): LoginRes;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): LoginRes.AsObject;
+  static toObject(includeInstance: boolean, msg: LoginRes): LoginRes.AsObject;
+  static serializeBinaryToWriter(message: LoginRes, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): LoginRes;
+  static deserializeBinaryFromReader(message: LoginRes, reader: jspb.BinaryReader): LoginRes;
+}
+
+export namespace LoginRes {
+  export type AsObject = {
+    nextStep: LoginRes.LoginStep,
+  }
+
+  export enum LoginStep { 
+    NEED_PASSWORD = 0,
+    SENT_LOGIN_EMAIL = 1,
+    INVALID_USER = 3,
+  }
+}
+
+export class CompleteTokenLoginReq extends jspb.Message {
+  getLoginToken(): string;
+  setLoginToken(value: string): CompleteTokenLoginReq;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): CompleteTokenLoginReq.AsObject;
+  static toObject(includeInstance: boolean, msg: CompleteTokenLoginReq): CompleteTokenLoginReq.AsObject;
+  static serializeBinaryToWriter(message: CompleteTokenLoginReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): CompleteTokenLoginReq;
+  static deserializeBinaryFromReader(message: CompleteTokenLoginReq, reader: jspb.BinaryReader): CompleteTokenLoginReq;
+}
+
+export namespace CompleteTokenLoginReq {
+  export type AsObject = {
+    loginToken: string,
+  }
+}
+
 export class AuthReq extends jspb.Message {
-  getUsername(): string;
-  setUsername(value: string): AuthReq;
+  getUser(): string;
+  setUser(value: string): AuthReq;
 
   getPassword(): string;
   setPassword(value: string): AuthReq;
@@ -225,7 +229,7 @@ export class AuthReq extends jspb.Message {
 
 export namespace AuthReq {
   export type AsObject = {
-    username: string,
+    user: string,
     password: string,
   }
 }

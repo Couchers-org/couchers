@@ -13,20 +13,10 @@ class AuthStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.Login = channel.unary_unary(
-                '/auth.Auth/Login',
-                request_serializer=pb_dot_auth__pb2.LoginReq.SerializeToString,
-                response_deserializer=pb_dot_auth__pb2.LoginRes.FromString,
-                )
         self.Signup = channel.unary_unary(
                 '/auth.Auth/Signup',
                 request_serializer=pb_dot_auth__pb2.SignupReq.SerializeToString,
                 response_deserializer=pb_dot_auth__pb2.SignupRes.FromString,
-                )
-        self.CompleteTokenLogin = channel.unary_unary(
-                '/auth.Auth/CompleteTokenLogin',
-                request_serializer=pb_dot_auth__pb2.CompleteTokenLoginReq.SerializeToString,
-                response_deserializer=pb_dot_auth__pb2.AuthRes.FromString,
                 )
         self.UsernameValid = channel.unary_unary(
                 '/auth.Auth/UsernameValid',
@@ -41,6 +31,16 @@ class AuthStub(object):
         self.CompleteSignup = channel.unary_unary(
                 '/auth.Auth/CompleteSignup',
                 request_serializer=pb_dot_auth__pb2.CompleteSignupReq.SerializeToString,
+                response_deserializer=pb_dot_auth__pb2.AuthRes.FromString,
+                )
+        self.Login = channel.unary_unary(
+                '/auth.Auth/Login',
+                request_serializer=pb_dot_auth__pb2.LoginReq.SerializeToString,
+                response_deserializer=pb_dot_auth__pb2.LoginRes.FromString,
+                )
+        self.CompleteTokenLogin = channel.unary_unary(
+                '/auth.Auth/CompleteTokenLogin',
+                request_serializer=pb_dot_auth__pb2.CompleteTokenLoginReq.SerializeToString,
                 response_deserializer=pb_dot_auth__pb2.AuthRes.FromString,
                 )
         self.Authenticate = channel.unary_unary(
@@ -58,29 +58,38 @@ class AuthStub(object):
 class AuthServicer(object):
     """Missing associated documentation comment in .proto file"""
 
-    def Login(self, request, context):
-        """First step of login flow
-        """
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
     def Signup(self, request, context):
-        """First step of signup flow
         """
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
+        Authentication API
 
-    def CompleteTokenLogin(self, request, context):
-        """Complete a login after receiving an email with a login token
+        This API facilitates authentication actions: signup and signin. Users need to use this before logging in, so you don't need to be authorized to use it.
+
+        The signup flow is as follows:
+        A user enters their email and submits a form, which fires off a Signup call
+        Signup validates the email isn't in the database yet, creates a signup_token, and emails it to the email address
+        User clicks on the signup link, which brings them onto the signup completion form
+        When this form loads, the app queries SignupTokenInfo for the email address associated to that login token to display in the UI
+        User chooses a username (possibly querying UsernameValid to check possibly usernames) and fills in other basic information
+        User submits the signup completion form, which validates this input, creates the user and logs them in, returns a session token (signup token is invalidated)
+
+        The login flow is as follows:
+        The user enters an identifier field and submits the form
+        The backend finds the user based on either username/user id/email address
+        If that user _does not_ have a password, we email a one-click signin token and return SENT_LOGIN_EMAIL
+        If that user _does not_ have a password, they click that link and the app logs them in through a CompleteTokenLoginReq (login token is invalidated)
+        If that user _does_ have a password, the app asks for that password, and submits an Authenticate Call to log the user in
+
+        Signup and login tokens expire after some time, and once used cannot be reused.
+
+        There can be multiple signup requests simultaneously with the same email address. Email address uniqueness is checked once when creating the signup request, and again when creating the user.
+        First step of signup flow
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def UsernameValid(self, request, context):
-        """Check whether the username is valid
+        """Check whether the username is valid and available
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -95,6 +104,20 @@ class AuthServicer(object):
 
     def CompleteSignup(self, request, context):
         """Complete the signup form
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def Login(self, request, context):
+        """First step of login flow
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def CompleteTokenLogin(self, request, context):
+        """Complete a login after receiving an email with a login token
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -117,20 +140,10 @@ class AuthServicer(object):
 
 def add_AuthServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'Login': grpc.unary_unary_rpc_method_handler(
-                    servicer.Login,
-                    request_deserializer=pb_dot_auth__pb2.LoginReq.FromString,
-                    response_serializer=pb_dot_auth__pb2.LoginRes.SerializeToString,
-            ),
             'Signup': grpc.unary_unary_rpc_method_handler(
                     servicer.Signup,
                     request_deserializer=pb_dot_auth__pb2.SignupReq.FromString,
                     response_serializer=pb_dot_auth__pb2.SignupRes.SerializeToString,
-            ),
-            'CompleteTokenLogin': grpc.unary_unary_rpc_method_handler(
-                    servicer.CompleteTokenLogin,
-                    request_deserializer=pb_dot_auth__pb2.CompleteTokenLoginReq.FromString,
-                    response_serializer=pb_dot_auth__pb2.AuthRes.SerializeToString,
             ),
             'UsernameValid': grpc.unary_unary_rpc_method_handler(
                     servicer.UsernameValid,
@@ -145,6 +158,16 @@ def add_AuthServicer_to_server(servicer, server):
             'CompleteSignup': grpc.unary_unary_rpc_method_handler(
                     servicer.CompleteSignup,
                     request_deserializer=pb_dot_auth__pb2.CompleteSignupReq.FromString,
+                    response_serializer=pb_dot_auth__pb2.AuthRes.SerializeToString,
+            ),
+            'Login': grpc.unary_unary_rpc_method_handler(
+                    servicer.Login,
+                    request_deserializer=pb_dot_auth__pb2.LoginReq.FromString,
+                    response_serializer=pb_dot_auth__pb2.LoginRes.SerializeToString,
+            ),
+            'CompleteTokenLogin': grpc.unary_unary_rpc_method_handler(
+                    servicer.CompleteTokenLogin,
+                    request_deserializer=pb_dot_auth__pb2.CompleteTokenLoginReq.FromString,
                     response_serializer=pb_dot_auth__pb2.AuthRes.SerializeToString,
             ),
             'Authenticate': grpc.unary_unary_rpc_method_handler(
@@ -168,22 +191,6 @@ class Auth(object):
     """Missing associated documentation comment in .proto file"""
 
     @staticmethod
-    def Login(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/auth.Auth/Login',
-            pb_dot_auth__pb2.LoginReq.SerializeToString,
-            pb_dot_auth__pb2.LoginRes.FromString,
-            options, channel_credentials,
-            call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
     def Signup(request,
             target,
             options=(),
@@ -196,22 +203,6 @@ class Auth(object):
         return grpc.experimental.unary_unary(request, target, '/auth.Auth/Signup',
             pb_dot_auth__pb2.SignupReq.SerializeToString,
             pb_dot_auth__pb2.SignupRes.FromString,
-            options, channel_credentials,
-            call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def CompleteTokenLogin(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/auth.Auth/CompleteTokenLogin',
-            pb_dot_auth__pb2.CompleteTokenLoginReq.SerializeToString,
-            pb_dot_auth__pb2.AuthRes.FromString,
             options, channel_credentials,
             call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -259,6 +250,38 @@ class Auth(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/auth.Auth/CompleteSignup',
             pb_dot_auth__pb2.CompleteSignupReq.SerializeToString,
+            pb_dot_auth__pb2.AuthRes.FromString,
+            options, channel_credentials,
+            call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def Login(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/auth.Auth/Login',
+            pb_dot_auth__pb2.LoginReq.SerializeToString,
+            pb_dot_auth__pb2.LoginRes.FromString,
+            options, channel_credentials,
+            call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def CompleteTokenLogin(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/auth.Auth/CompleteTokenLogin',
+            pb_dot_auth__pb2.CompleteTokenLoginReq.SerializeToString,
             pb_dot_auth__pb2.AuthRes.FromString,
             options, channel_credentials,
             call_credentials, compression, wait_for_ready, timeout, metadata)
