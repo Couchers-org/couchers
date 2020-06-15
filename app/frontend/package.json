@@ -11,6 +11,7 @@
     "core-js": "^3.6.5",
     "google-protobuf": "^3.12.2",
     "grpc-web": "^1.1.0",
+    "moment": "^2.26.0",
     "vue": "^2.6.11",
     "vue-class-component": "^7.2.3",
     "vue-property-decorator": "^8.4.2",

@@ -5,7 +5,7 @@
         <v-img :aspect-ratio="1" src="/profile-itsi.jpg"></v-img>
         <v-card-title>{{ user.name }}</v-card-title>
         <v-card-subtitle>{{ user.city }}</v-card-subtitle>
-        <v-card-subtitle>Last Active: {{ lastActiveDisplay }}</v-card-subtitle>
+        <v-card-subtitle>Last active {{ lastActiveDisplay }}</v-card-subtitle>
         <v-card-text>
           <v-alert type="warning">
             Watch out. This user might be a creep.
@@ -70,7 +70,7 @@
             <v-icon>mdi-account-clock</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title>Joined in {{ joinedDisplay }}</v-list-item-title>
+            <v-list-item-title>Joined {{ joinedDisplay }}</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
         <v-divider></v-divider>
@@ -108,6 +108,8 @@
 
 <script lang="ts">
 import Vue from 'vue'
+
+import moment from 'moment';
 
 import { GetUserReq } from '../pb/api_pb'
 
@@ -177,49 +179,15 @@ export default Vue.extend({
   computed: {
     lastActiveDisplay: function() {
       if (!this.user.lastActive) {
-        return ''
+        return 'unknown'
       }
-      const last = this.user.lastActive.toDate();
-      const now = new Date();
-      const today = new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime();
-      if (last > today) {
-        return 'today'
-      }
-      const backday = new Date(now.getTime() - 86400000);
-      const yesterday = new Date(backday.getFullYear(),backday.getMonth(),backday.getDate()).getTime();
-      if (last > yesterday) {
-        return 'yesterday'
-      }
-      const diff = now.getTime() - last;
-      if (diff < 604800000) {
-        const n = Math.min(Math.max(2,Math.floor(diff/86400000)),6);
-        return `${n} days ago`
-      }
-      if (diff < 2419200000) {
-        const n = Math.min(Math.max(1,Math.floor(diff/604800000)),4);
-        if (n == 1) {
-          return '1 week ago'
-        }
-        return `${n} weeks ago`
-      }
-      if (diff < 31536000000) {
-        const n = Math.min(Math.max(1,Math.floor(diff/2419200000)),11);
-        if (n == 1) {
-          return '1 month ago'
-        }
-        return `${n} months ago`
-      }
-      const n = Math.max(1,Math.floor(diff/31536000000))
-      if (n == 1) {
-        return '1 year ago'
-      }
-      return `${n} years ago`
+      return moment(this.user.lastActive.toDate()).fromNow()
     },
     joinedDisplay: function () {
       if (!this.user.joined) {
-        return ''
+        return 'error'
       }
-      return this.user.joined.toDate()
+      return moment(this.user.joined.toDate()).fromNow()
     },
     verificationDisplay: function() {
       return Math.round(this.user.verification! * 100)
