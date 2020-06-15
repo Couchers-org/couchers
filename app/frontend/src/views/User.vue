@@ -5,7 +5,7 @@
         <v-img :aspect-ratio="1" src="/profile-itsi.jpg"></v-img>
         <v-card-title>{{ user.name }}</v-card-title>
         <v-card-subtitle>{{ user.city }}</v-card-subtitle>
-        <v-card-subtitle>Last online: {{ lastOnlineDisplay }}</v-card-subtitle>
+        <v-card-subtitle>Last Active: {{ lastActiveDisplay }}</v-card-subtitle>
         <v-card-text>
           <v-alert type="warning">
             Watch out. This user might be a creep.
@@ -52,7 +52,7 @@
             <v-icon>mdi-ship-wheel</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title>{{ user.gender }}, {{ ageDisplay }}</v-list-item-title>
+            <v-list-item-title>{{ user.gender }}, {{ user.age }}</v-list-item-title>
             <v-list-item-subtitle>Age and gender</v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
@@ -70,7 +70,7 @@
             <v-icon>mdi-account-clock</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title>Joined in {{ user.joined }}</v-list-item-title>
+            <v-list-item-title>Joined in {{ joinedDisplay }}</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
         <v-divider></v-divider>
@@ -109,16 +109,18 @@
 <script lang="ts">
 import Vue from 'vue'
 
+import { GetUserReq } from '../pb/api_pb'
+
+import client from '../api'
+
 function displayList(list: string[]) {
   return list.join(', ')
 }
 
-import { getUser } from '../api'
-
 export default Vue.extend({
   data: () => ({
     loading: false,
-    error: null,
+    errorMessages: [] as Array<string>,
     user:{
       name: null,
       city: null,
@@ -136,8 +138,8 @@ export default Vue.extend({
       share: null,
       countriesVisitedList: [],
       countriesLivedList: [],
-      lastOnline: 1590172985000,
-      joined: 2020
+      lastActive: null,
+      joined: null
     }
   }),
 
@@ -154,21 +156,30 @@ export default Vue.extend({
   methods: {
     fetchData: function () {
       this.loading = true
-      this.error = null
+      this.errorMessages = []
 
-      getUser(Number(this.$route.params.id)).then(user => {
+      const req = new GetUserReq()
+      req.setUser(this.$route.params.user)
+      client.getUser(req, null).then(res => {
         this.loading = false
-        this.user = user
+        this.errorMessages = []
+
+        this.user = res.toObject()
+        this.user.lastActive = res.getLastActive()
+        this.user.joined = res.getJoined()
       }).catch(err => {
         this.loading = false
-        this.error = err
+        this.errorMessages = err.message
       })
     }
   },
 
   computed: {
-    lastOnlineDisplay: function() {
-      const last = new Date(this.user.lastOnline!).getTime();
+    lastActiveDisplay: function() {
+      if (!this.user.lastActive) {
+        return ''
+      }
+      const last = this.user.lastActive.toDate();
       const now = new Date();
       const today = new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime();
       if (last > today) {
@@ -203,6 +214,12 @@ export default Vue.extend({
         return '1 year ago'
       }
       return `${n} years ago`
+    },
+    joinedDisplay: function () {
+      if (!this.user.joined) {
+        return ''
+      }
+      return this.user.joined.toDate()
     },
     verificationDisplay: function() {
       return Math.round(this.user.verification! * 100)

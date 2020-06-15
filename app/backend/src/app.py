@@ -7,13 +7,14 @@ from datetime import date
 import grpc
 from auth import Auth
 from crypto import hash_password
-from db import session_scope
-from interceptors import intercept_server, LoggingInterceptor
+from db import get_user_by_field, session_scope
+from interceptors import LoggingInterceptor, intercept_server
 from models import Base, User
 from pb import api_pb2, api_pb2_grpc, auth_pb2_grpc
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
+from utils import Timestamp_from_datetime
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d: %(process)d: %(message)s", datefmt="%F %T", level=logging.DEBUG)
 logging.info(f"Starting")
@@ -75,26 +76,28 @@ class APIServicer(api_pb2_grpc.APIServicer):
                 name=user.name
             )
 
-    def GetUserById(self, request, context):
+    def GetUser(self, request, context):
         with session_scope(Session) as session:
-            user = session.query(User).filter(User.id == request.id).one()
+            user = get_user_by_field(session, request.user)
+            if not user:
+                context.abort(grpc.StatusCode.NOT_FOUND, "No such user.")
             return api_pb2.User(
-                id=user.id,
                 username=user.username,
                 name=user.name,
                 city=user.city,
                 verification=user.verification,
                 community_standing=user.community_standing,
-                # num_references=user.num_references,
+                num_references=0,
                 gender=user.gender,
-                # age=user.age,
-                languages=user.languages.split("|"),
+                age=user.age,
+                joined=Timestamp_from_datetime(user.display_joined),
+                last_active=Timestamp_from_datetime(user.display_last_active),
                 occupation=user.occupation,
                 about_me=user.about_me,
+                languages=user.languages.split("|"),
                 countries_visited=user.countries_visited.split("|"),
-                countries_lived=user.countries_lived.split("|"),
+                countries_lived=user.countries_lived.split("|")
             )
-
 
 auth = Auth(Session)
 auth_server = grpc.server(futures.ThreadPoolExecutor(2))

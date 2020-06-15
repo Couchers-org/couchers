@@ -56,7 +56,7 @@ const routes: Array<RouteConfig> = [
     component: Users
   },
   {
-    path: '/user/:id',
+    path: '/user/:user',
     name: 'User',
     component: User
   },

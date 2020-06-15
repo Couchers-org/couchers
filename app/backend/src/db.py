@@ -50,7 +50,9 @@ def get_user_by_field(session, field):
     """
     if is_valid_user_id(field):
         logging.debug(f"Field matched to type user id")
-        return session.query(User).filter(User.id == field).one_or_none()
+        return None
+        # don't expose user internal IDs anymore
+        #return session.query(User).filter(User.id == field).one_or_none()
     elif is_valid_username(field):
         logging.debug(f"Field matched to type username")
         return session.query(User).filter(User.username == field).one_or_none()

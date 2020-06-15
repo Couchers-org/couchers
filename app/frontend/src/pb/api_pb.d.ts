@@ -1,9 +1,8 @@
 import * as jspb from "google-protobuf"
 
-export class User extends jspb.Message {
-  getId(): number;
-  setId(value: number): User;
+import * as google_protobuf_timestamp_pb from 'google-protobuf/google/protobuf/timestamp_pb';
 
+export class User extends jspb.Message {
   getUsername(): string;
   setUsername(value: string): User;
 
@@ -28,10 +27,15 @@ export class User extends jspb.Message {
   getAge(): number;
   setAge(value: number): User;
 
-  getLanguagesList(): Array<string>;
-  setLanguagesList(value: Array<string>): User;
-  clearLanguagesList(): User;
-  addLanguages(value: string, index?: number): User;
+  getJoined(): google_protobuf_timestamp_pb.Timestamp | undefined;
+  setJoined(value?: google_protobuf_timestamp_pb.Timestamp): User;
+  hasJoined(): boolean;
+  clearJoined(): User;
+
+  getLastActive(): google_protobuf_timestamp_pb.Timestamp | undefined;
+  setLastActive(value?: google_protobuf_timestamp_pb.Timestamp): User;
+  hasLastActive(): boolean;
+  clearLastActive(): User;
 
   getOccupation(): string;
   setOccupation(value: string): User;
@@ -39,14 +43,10 @@ export class User extends jspb.Message {
   getAboutMe(): string;
   setAboutMe(value: string): User;
 
-  getWhy(): string;
-  setWhy(value: string): User;
-
-  getThing(): string;
-  setThing(value: string): User;
-
-  getShare(): string;
-  setShare(value: string): User;
+  getLanguagesList(): Array<string>;
+  setLanguagesList(value: Array<string>): User;
+  clearLanguagesList(): User;
+  addLanguages(value: string, index?: number): User;
 
   getCountriesVisitedList(): Array<string>;
   setCountriesVisitedList(value: Array<string>): User;
@@ -68,7 +68,6 @@ export class User extends jspb.Message {
 
 export namespace User {
   export type AsObject = {
-    id: number,
     username: string,
     name: string,
     city: string,
@@ -77,32 +76,31 @@ export namespace User {
     numReferences: number,
     gender: string,
     age: number,
-    languagesList: Array<string>,
+    joined?: google_protobuf_timestamp_pb.Timestamp.AsObject,
+    lastActive?: google_protobuf_timestamp_pb.Timestamp.AsObject,
     occupation: string,
     aboutMe: string,
-    why: string,
-    thing: string,
-    share: string,
+    languagesList: Array<string>,
     countriesVisitedList: Array<string>,
     countriesLivedList: Array<string>,
   }
 }
 
-export class GetUserByIdReq extends jspb.Message {
-  getId(): number;
-  setId(value: number): GetUserByIdReq;
+export class GetUserReq extends jspb.Message {
+  getUser(): string;
+  setUser(value: string): GetUserReq;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): GetUserByIdReq.AsObject;
-  static toObject(includeInstance: boolean, msg: GetUserByIdReq): GetUserByIdReq.AsObject;
-  static serializeBinaryToWriter(message: GetUserByIdReq, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): GetUserByIdReq;
-  static deserializeBinaryFromReader(message: GetUserByIdReq, reader: jspb.BinaryReader): GetUserByIdReq;
+  toObject(includeInstance?: boolean): GetUserReq.AsObject;
+  static toObject(includeInstance: boolean, msg: GetUserReq): GetUserReq.AsObject;
+  static serializeBinaryToWriter(message: GetUserReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetUserReq;
+  static deserializeBinaryFromReader(message: GetUserReq, reader: jspb.BinaryReader): GetUserReq;
 }
 
-export namespace GetUserByIdReq {
+export namespace GetUserReq {
   export type AsObject = {
-    id: number,
+    user: string,
   }
 }
 

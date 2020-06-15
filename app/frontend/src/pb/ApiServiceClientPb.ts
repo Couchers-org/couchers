@@ -13,8 +13,10 @@
 
 import * as grpcWeb from 'grpc-web';
 
+import * as google_protobuf_timestamp_pb from 'google-protobuf/google/protobuf/timestamp_pb';
+
 import {
-  GetUserByIdReq,
+  GetUserReq,
   PingReq,
   PingRes,
   User} from './api_pb';
@@ -78,44 +80,44 @@ export class APIClient {
     this.methodInfoPing);
   }
 
-  methodInfoGetUserById = new grpcWeb.AbstractClientBase.MethodInfo(
+  methodInfoGetUser = new grpcWeb.AbstractClientBase.MethodInfo(
     User,
-    (request: GetUserByIdReq) => {
+    (request: GetUserReq) => {
       return request.serializeBinary();
     },
     User.deserializeBinary
   );
 
-  getUserById(
-    request: GetUserByIdReq,
+  getUser(
+    request: GetUserReq,
     metadata: grpcWeb.Metadata | null): Promise<User>;
 
-  getUserById(
-    request: GetUserByIdReq,
+  getUser(
+    request: GetUserReq,
     metadata: grpcWeb.Metadata | null,
     callback: (err: grpcWeb.Error,
                response: User) => void): grpcWeb.ClientReadableStream<User>;
 
-  getUserById(
-    request: GetUserByIdReq,
+  getUser(
+    request: GetUserReq,
     metadata: grpcWeb.Metadata | null,
     callback?: (err: grpcWeb.Error,
                response: User) => void) {
     if (callback !== undefined) {
       return this.client_.rpcCall(
         this.hostname_ +
-          '/api.API/GetUserById',
+          '/api.API/GetUser',
         request,
         metadata || {},
-        this.methodInfoGetUserById,
+        this.methodInfoGetUser,
         callback);
     }
     return this.client_.unaryCall(
     this.hostname_ +
-      '/api.API/GetUserById',
+      '/api.API/GetUser',
     request,
     metadata || {},
-    this.methodInfoGetUserById);
+    this.methodInfoGetUser);
   }
 
 }

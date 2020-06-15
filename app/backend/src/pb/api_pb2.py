@@ -11,6 +11,7 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
+from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(
@@ -18,8 +19,9 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='api',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=b'\n\x0cpb/api.proto\x12\x03\x61pi\"\xbf\x02\n\x04User\x12\n\n\x02id\x18\x01 \x01(\x03\x12\x10\n\x08username\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\x0c\n\x04\x63ity\x18\x04 \x01(\t\x12\x14\n\x0cverification\x18\x05 \x01(\x01\x12\x1a\n\x12\x63ommunity_standing\x18\x06 \x01(\x01\x12\x16\n\x0enum_references\x18\x07 \x01(\x05\x12\x0e\n\x06gender\x18\x08 \x01(\t\x12\x0b\n\x03\x61ge\x18\t \x01(\x05\x12\x11\n\tlanguages\x18\n \x03(\t\x12\x12\n\noccupation\x18\x0b \x01(\t\x12\x10\n\x08\x61\x62out_me\x18\x0c \x01(\t\x12\x0b\n\x03why\x18\r \x01(\t\x12\r\n\x05thing\x18\x0e \x01(\t\x12\r\n\x05share\x18\x0f \x01(\t\x12\x19\n\x11\x63ountries_visited\x18\x10 \x03(\t\x12\x17\n\x0f\x63ountries_lived\x18\x11 \x03(\t\"\x1c\n\x0eGetUserByIdReq\x12\n\n\x02id\x18\x01 \x01(\x03\"\t\n\x07PingReq\"X\n\x07PingRes\x12\x0f\n\x07user_id\x18\x01 \x01(\x03\x12\x10\n\x08username\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\x1c\n\x14unread_message_count\x18\x04 \x01(\x03\x32Z\n\x03\x41PI\x12$\n\x04Ping\x12\x0c.api.PingReq\x1a\x0c.api.PingRes\"\x00\x12-\n\x0bGetUserById\x12\x13.api.GetUserByIdReq\x1a\t.api.Userb\x06proto3'
-)
+  serialized_pb=b'\n\x0cpb/api.proto\x12\x03\x61pi\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe5\x02\n\x04User\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0c\n\x04\x63ity\x18\x03 \x01(\t\x12\x14\n\x0cverification\x18\x04 \x01(\x01\x12\x1a\n\x12\x63ommunity_standing\x18\x05 \x01(\x01\x12\x16\n\x0enum_references\x18\x06 \x01(\r\x12\x0e\n\x06gender\x18\x07 \x01(\t\x12\x0b\n\x03\x61ge\x18\x08 \x01(\r\x12*\n\x06joined\x18\t \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12/\n\x0blast_active\x18\n \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x12\n\noccupation\x18\x0b \x01(\t\x12\x10\n\x08\x61\x62out_me\x18\x0c \x01(\t\x12\x11\n\tlanguages\x18\r \x03(\t\x12\x19\n\x11\x63ountries_visited\x18\x0e \x03(\t\x12\x17\n\x0f\x63ountries_lived\x18\x0f \x03(\t\"\x1a\n\nGetUserReq\x12\x0c\n\x04user\x18\x01 \x01(\t\"\t\n\x07PingReq\"X\n\x07PingRes\x12\x0f\n\x07user_id\x18\x01 \x01(\x03\x12\x10\n\x08username\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\x1c\n\x14unread_message_count\x18\x04 \x01(\x03\x32R\n\x03\x41PI\x12$\n\x04Ping\x12\x0c.api.PingReq\x1a\x0c.api.PingRes\"\x00\x12%\n\x07GetUser\x12\x0f.api.GetUserReq\x1a\t.api.Userb\x06proto3'
+  ,
+  dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,])
 
 
 
@@ -32,72 +34,72 @@ _USER = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='id', full_name='api.User.id', index=0,
-      number=1, type=3, cpp_type=2, label=1,
-      has_default_value=False, default_value=0,
+      name='username', full_name='api.User.username', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='username', full_name='api.User.username', index=1,
+      name='name', full_name='api.User.name', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='name', full_name='api.User.name', index=2,
+      name='city', full_name='api.User.city', index=2,
       number=3, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='city', full_name='api.User.city', index=3,
-      number=4, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
+      name='verification', full_name='api.User.verification', index=3,
+      number=4, type=1, cpp_type=5, label=1,
+      has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='verification', full_name='api.User.verification', index=4,
+      name='community_standing', full_name='api.User.community_standing', index=4,
       number=5, type=1, cpp_type=5, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='community_standing', full_name='api.User.community_standing', index=5,
-      number=6, type=1, cpp_type=5, label=1,
-      has_default_value=False, default_value=float(0),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='num_references', full_name='api.User.num_references', index=6,
-      number=7, type=5, cpp_type=1, label=1,
+      name='num_references', full_name='api.User.num_references', index=5,
+      number=6, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='gender', full_name='api.User.gender', index=7,
-      number=8, type=9, cpp_type=9, label=1,
+      name='gender', full_name='api.User.gender', index=6,
+      number=7, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='age', full_name='api.User.age', index=8,
-      number=9, type=5, cpp_type=1, label=1,
+      name='age', full_name='api.User.age', index=7,
+      number=8, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='languages', full_name='api.User.languages', index=9,
-      number=10, type=9, cpp_type=9, label=3,
-      has_default_value=False, default_value=[],
+      name='joined', full_name='api.User.joined', index=8,
+      number=9, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='last_active', full_name='api.User.last_active', index=9,
+      number=10, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
@@ -116,36 +118,22 @@ _USER = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='why', full_name='api.User.why', index=12,
-      number=13, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='thing', full_name='api.User.thing', index=13,
-      number=14, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='share', full_name='api.User.share', index=14,
-      number=15, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='countries_visited', full_name='api.User.countries_visited', index=15,
-      number=16, type=9, cpp_type=9, label=3,
+      name='languages', full_name='api.User.languages', index=12,
+      number=13, type=9, cpp_type=9, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='countries_lived', full_name='api.User.countries_lived', index=16,
-      number=17, type=9, cpp_type=9, label=3,
+      name='countries_visited', full_name='api.User.countries_visited', index=13,
+      number=14, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='countries_lived', full_name='api.User.countries_lived', index=14,
+      number=15, type=9, cpp_type=9, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -162,22 +150,22 @@ _USER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=22,
-  serialized_end=341,
+  serialized_start=55,
+  serialized_end=412,
 )
 
 
-_GETUSERBYIDREQ = _descriptor.Descriptor(
-  name='GetUserByIdReq',
-  full_name='api.GetUserByIdReq',
+_GETUSERREQ = _descriptor.Descriptor(
+  name='GetUserReq',
+  full_name='api.GetUserReq',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='id', full_name='api.GetUserByIdReq.id', index=0,
-      number=1, type=3, cpp_type=2, label=1,
-      has_default_value=False, default_value=0,
+      name='user', full_name='api.GetUserReq.user', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
@@ -193,8 +181,8 @@ _GETUSERBYIDREQ = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=343,
-  serialized_end=371,
+  serialized_start=414,
+  serialized_end=440,
 )
 
 
@@ -217,8 +205,8 @@ _PINGREQ = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=373,
-  serialized_end=382,
+  serialized_start=442,
+  serialized_end=451,
 )
 
 
@@ -269,12 +257,14 @@ _PINGRES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=384,
-  serialized_end=472,
+  serialized_start=453,
+  serialized_end=541,
 )
 
+_USER.fields_by_name['joined'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
+_USER.fields_by_name['last_active'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 DESCRIPTOR.message_types_by_name['User'] = _USER
-DESCRIPTOR.message_types_by_name['GetUserByIdReq'] = _GETUSERBYIDREQ
+DESCRIPTOR.message_types_by_name['GetUserReq'] = _GETUSERREQ
 DESCRIPTOR.message_types_by_name['PingReq'] = _PINGREQ
 DESCRIPTOR.message_types_by_name['PingRes'] = _PINGRES
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
@@ -286,12 +276,12 @@ User = _reflection.GeneratedProtocolMessageType('User', (_message.Message,), {
   })
 _sym_db.RegisterMessage(User)
 
-GetUserByIdReq = _reflection.GeneratedProtocolMessageType('GetUserByIdReq', (_message.Message,), {
-  'DESCRIPTOR' : _GETUSERBYIDREQ,
+GetUserReq = _reflection.GeneratedProtocolMessageType('GetUserReq', (_message.Message,), {
+  'DESCRIPTOR' : _GETUSERREQ,
   '__module__' : 'pb.api_pb2'
-  # @@protoc_insertion_point(class_scope:api.GetUserByIdReq)
+  # @@protoc_insertion_point(class_scope:api.GetUserReq)
   })
-_sym_db.RegisterMessage(GetUserByIdReq)
+_sym_db.RegisterMessage(GetUserReq)
 
 PingReq = _reflection.GeneratedProtocolMessageType('PingReq', (_message.Message,), {
   'DESCRIPTOR' : _PINGREQ,
@@ -315,8 +305,8 @@ _API = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=474,
-  serialized_end=564,
+  serialized_start=543,
+  serialized_end=625,
   methods=[
   _descriptor.MethodDescriptor(
     name='Ping',
@@ -328,11 +318,11 @@ _API = _descriptor.ServiceDescriptor(
     serialized_options=None,
   ),
   _descriptor.MethodDescriptor(
-    name='GetUserById',
-    full_name='api.API.GetUserById',
+    name='GetUser',
+    full_name='api.API.GetUser',
     index=1,
     containing_service=None,
-    input_type=_GETUSERBYIDREQ,
+    input_type=_GETUSERREQ,
     output_type=_USER,
     serialized_options=None,
   ),

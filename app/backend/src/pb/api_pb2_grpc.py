@@ -18,9 +18,9 @@ class APIStub(object):
                 request_serializer=pb_dot_api__pb2.PingReq.SerializeToString,
                 response_deserializer=pb_dot_api__pb2.PingRes.FromString,
                 )
-        self.GetUserById = channel.unary_unary(
-                '/api.API/GetUserById',
-                request_serializer=pb_dot_api__pb2.GetUserByIdReq.SerializeToString,
+        self.GetUser = channel.unary_unary(
+                '/api.API/GetUser',
+                request_serializer=pb_dot_api__pb2.GetUserReq.SerializeToString,
                 response_deserializer=pb_dot_api__pb2.User.FromString,
                 )
 
@@ -35,7 +35,7 @@ class APIServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetUserById(self, request, context):
+    def GetUser(self, request, context):
         """Missing associated documentation comment in .proto file"""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -49,9 +49,9 @@ def add_APIServicer_to_server(servicer, server):
                     request_deserializer=pb_dot_api__pb2.PingReq.FromString,
                     response_serializer=pb_dot_api__pb2.PingRes.SerializeToString,
             ),
-            'GetUserById': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetUserById,
-                    request_deserializer=pb_dot_api__pb2.GetUserByIdReq.FromString,
+            'GetUser': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetUser,
+                    request_deserializer=pb_dot_api__pb2.GetUserReq.FromString,
                     response_serializer=pb_dot_api__pb2.User.SerializeToString,
             ),
     }
@@ -81,7 +81,7 @@ class API(object):
             call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def GetUserById(request,
+    def GetUser(request,
             target,
             options=(),
             channel_credentials=None,
@@ -90,8 +90,8 @@ class API(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/api.API/GetUserById',
-            pb_dot_api__pb2.GetUserByIdReq.SerializeToString,
+        return grpc.experimental.unary_unary(request, target, '/api.API/GetUser',
+            pb_dot_api__pb2.GetUserReq.SerializeToString,
             pb_dot_api__pb2.User.FromString,
             options, channel_credentials,
             call_credentials, compression, wait_for_ready, timeout, metadata)

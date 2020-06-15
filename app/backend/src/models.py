@@ -1,12 +1,14 @@
-from sqlalchemy import (Boolean, Column, Date, DateTime, Float, ForeignKey,
-                        Integer)
+import enum
+from datetime import date
+from math import floor
+
+from sqlalchemy import (Boolean, Column, Date, DateTime, Enum, Float,
+                        ForeignKey, Integer)
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-import enum
-from sqlalchemy import Integer, Enum
 
 Base = declarative_base()
 
@@ -59,6 +61,21 @@ class User(Base):
     countries_lived = Column(String, nullable=True)
 
     # TODO: hosting fields
+
+    @property
+    def age(self):
+        # TODO: proper computation
+        return floor((date.today() - self.birthdate).days / 365)
+
+    @property
+    def display_joined(self):
+        # TODO: cruden a bit
+        return self.joined
+
+    @property
+    def display_last_active(self):
+        # TODO(aapeli): return as crude (e.g. up to 12 hour accuracy) timestamp
+        return self.last_active
 
     def __repr__(self):
         return f"User(id={self.id}, email={self.email}, username={self.username})"
