@@ -84,6 +84,8 @@
           </v-tabs>
           <h3>About me</h3>
           <p>{{ user.aboutMe }}</p>
+          <h3>About my place</h3>
+          <p>{{ user.aboutPlace }}</p>
           <h3>Countries I’ve Visited</h3>
           <p>{{ countriesVisitedListDisplay }}</p>
           <h3>Countries I’ve Lived In</h3>

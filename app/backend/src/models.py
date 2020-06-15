@@ -55,6 +55,7 @@ class User(Base):
 
     occupation = Column(String, nullable=True)
     about_me = Column(String, nullable=True)
+    about_place = Column(String, nullable=True)
     # TODO: array types once we go postgres
     languages = Column(String, nullable=True)
     countries_visited = Column(String, nullable=True)

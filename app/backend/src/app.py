@@ -48,6 +48,7 @@ def add_dummy_data(file_name):
                 languages="|".join(user["languages"]),
                 occupation=user["occupation"],
                 about_me=user["about_me"],
+                about_place=user["about_place"],
                 countries_visited="|".join(user["countries_visited"]),
                 countries_lived="|".join(user["countries_lived"]),
             )
@@ -58,7 +59,6 @@ logging.info(f"Adding dummy data")
 try:
     add_dummy_data("src/dummy_data.json")
 except IntegrityError as e:
-    traceback.print_exc()
     print("Failed to insert dummy data, is it already inserted?")
 
 with session_scope(Session) as session:
@@ -94,6 +94,7 @@ class APIServicer(api_pb2_grpc.APIServicer):
                 last_active=Timestamp_from_datetime(user.display_last_active),
                 occupation=user.occupation,
                 about_me=user.about_me,
+                about_place=user.about_place,
                 languages=user.languages.split("|"),
                 countries_visited=user.countries_visited.split("|"),
                 countries_lived=user.countries_lived.split("|")

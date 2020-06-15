@@ -19,11 +19,87 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='api',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=b'\n\x0cpb/api.proto\x12\x03\x61pi\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe5\x02\n\x04User\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0c\n\x04\x63ity\x18\x03 \x01(\t\x12\x14\n\x0cverification\x18\x04 \x01(\x01\x12\x1a\n\x12\x63ommunity_standing\x18\x05 \x01(\x01\x12\x16\n\x0enum_references\x18\x06 \x01(\r\x12\x0e\n\x06gender\x18\x07 \x01(\t\x12\x0b\n\x03\x61ge\x18\x08 \x01(\r\x12*\n\x06joined\x18\t \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12/\n\x0blast_active\x18\n \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x12\n\noccupation\x18\x0b \x01(\t\x12\x10\n\x08\x61\x62out_me\x18\x0c \x01(\t\x12\x11\n\tlanguages\x18\r \x03(\t\x12\x19\n\x11\x63ountries_visited\x18\x0e \x03(\t\x12\x17\n\x0f\x63ountries_lived\x18\x0f \x03(\t\"\x1a\n\nGetUserReq\x12\x0c\n\x04user\x18\x01 \x01(\t\"\t\n\x07PingReq\"X\n\x07PingRes\x12\x0f\n\x07user_id\x18\x01 \x01(\x03\x12\x10\n\x08username\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\x1c\n\x14unread_message_count\x18\x04 \x01(\x03\x32R\n\x03\x41PI\x12$\n\x04Ping\x12\x0c.api.PingReq\x1a\x0c.api.PingRes\"\x00\x12%\n\x07GetUser\x12\x0f.api.GetUserReq\x1a\t.api.Userb\x06proto3'
+  serialized_pb=b'\n\x0cpb/api.proto\x12\x03\x61pi\x1a\x1fgoogle/protobuf/timestamp.proto\"\t\n\x07PingReq\"X\n\x07PingRes\x12\x0f\n\x07user_id\x18\x01 \x01(\x03\x12\x10\n\x08username\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\x1c\n\x14unread_message_count\x18\x04 \x01(\x03\"\xfa\x02\n\x04User\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0c\n\x04\x63ity\x18\x03 \x01(\t\x12\x14\n\x0cverification\x18\x04 \x01(\x01\x12\x1a\n\x12\x63ommunity_standing\x18\x05 \x01(\x01\x12\x16\n\x0enum_references\x18\x06 \x01(\r\x12\x0e\n\x06gender\x18\x07 \x01(\t\x12\x0b\n\x03\x61ge\x18\x08 \x01(\r\x12*\n\x06joined\x18\t \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12/\n\x0blast_active\x18\n \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x12\n\noccupation\x18\x0b \x01(\t\x12\x10\n\x08\x61\x62out_me\x18\x0c \x01(\t\x12\x13\n\x0b\x61\x62out_place\x18\r \x01(\t\x12\x11\n\tlanguages\x18\x0e \x03(\t\x12\x19\n\x11\x63ountries_visited\x18\x0f \x03(\t\x12\x17\n\x0f\x63ountries_lived\x18\x10 \x03(\t\"\x1a\n\nGetUserReq\x12\x0c\n\x04user\x18\x01 \x01(\t2T\n\x03\x41PI\x12$\n\x04Ping\x12\x0c.api.PingReq\x1a\x0c.api.PingRes\"\x00\x12\'\n\x07GetUser\x12\x0f.api.GetUserReq\x1a\t.api.User\"\x00\x62\x06proto3'
   ,
   dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,])
 
 
+
+
+_PINGREQ = _descriptor.Descriptor(
+  name='PingReq',
+  full_name='api.PingReq',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=54,
+  serialized_end=63,
+)
+
+
+_PINGRES = _descriptor.Descriptor(
+  name='PingRes',
+  full_name='api.PingRes',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='user_id', full_name='api.PingRes.user_id', index=0,
+      number=1, type=3, cpp_type=2, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='username', full_name='api.PingRes.username', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='name', full_name='api.PingRes.name', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='unread_message_count', full_name='api.PingRes.unread_message_count', index=3,
+      number=4, type=3, cpp_type=2, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=65,
+  serialized_end=153,
+)
 
 
 _USER = _descriptor.Descriptor(
@@ -118,22 +194,29 @@ _USER = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='languages', full_name='api.User.languages', index=12,
-      number=13, type=9, cpp_type=9, label=3,
-      has_default_value=False, default_value=[],
+      name='about_place', full_name='api.User.about_place', index=12,
+      number=13, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='countries_visited', full_name='api.User.countries_visited', index=13,
+      name='languages', full_name='api.User.languages', index=13,
       number=14, type=9, cpp_type=9, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='countries_lived', full_name='api.User.countries_lived', index=14,
+      name='countries_visited', full_name='api.User.countries_visited', index=14,
       number=15, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='countries_lived', full_name='api.User.countries_lived', index=15,
+      number=16, type=9, cpp_type=9, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -150,8 +233,8 @@ _USER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=55,
-  serialized_end=412,
+  serialized_start=156,
+  serialized_end=534,
 )
 
 
@@ -181,107 +264,17 @@ _GETUSERREQ = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=414,
-  serialized_end=440,
-)
-
-
-_PINGREQ = _descriptor.Descriptor(
-  name='PingReq',
-  full_name='api.PingReq',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=442,
-  serialized_end=451,
-)
-
-
-_PINGRES = _descriptor.Descriptor(
-  name='PingRes',
-  full_name='api.PingRes',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='user_id', full_name='api.PingRes.user_id', index=0,
-      number=1, type=3, cpp_type=2, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='username', full_name='api.PingRes.username', index=1,
-      number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='name', full_name='api.PingRes.name', index=2,
-      number=3, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='unread_message_count', full_name='api.PingRes.unread_message_count', index=3,
-      number=4, type=3, cpp_type=2, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=453,
-  serialized_end=541,
+  serialized_start=536,
+  serialized_end=562,
 )
 
 _USER.fields_by_name['joined'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 _USER.fields_by_name['last_active'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
-DESCRIPTOR.message_types_by_name['User'] = _USER
-DESCRIPTOR.message_types_by_name['GetUserReq'] = _GETUSERREQ
 DESCRIPTOR.message_types_by_name['PingReq'] = _PINGREQ
 DESCRIPTOR.message_types_by_name['PingRes'] = _PINGRES
+DESCRIPTOR.message_types_by_name['User'] = _USER
+DESCRIPTOR.message_types_by_name['GetUserReq'] = _GETUSERREQ
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
-
-User = _reflection.GeneratedProtocolMessageType('User', (_message.Message,), {
-  'DESCRIPTOR' : _USER,
-  '__module__' : 'pb.api_pb2'
-  # @@protoc_insertion_point(class_scope:api.User)
-  })
-_sym_db.RegisterMessage(User)
-
-GetUserReq = _reflection.GeneratedProtocolMessageType('GetUserReq', (_message.Message,), {
-  'DESCRIPTOR' : _GETUSERREQ,
-  '__module__' : 'pb.api_pb2'
-  # @@protoc_insertion_point(class_scope:api.GetUserReq)
-  })
-_sym_db.RegisterMessage(GetUserReq)
 
 PingReq = _reflection.GeneratedProtocolMessageType('PingReq', (_message.Message,), {
   'DESCRIPTOR' : _PINGREQ,
@@ -297,6 +290,20 @@ PingRes = _reflection.GeneratedProtocolMessageType('PingRes', (_message.Message,
   })
 _sym_db.RegisterMessage(PingRes)
 
+User = _reflection.GeneratedProtocolMessageType('User', (_message.Message,), {
+  'DESCRIPTOR' : _USER,
+  '__module__' : 'pb.api_pb2'
+  # @@protoc_insertion_point(class_scope:api.User)
+  })
+_sym_db.RegisterMessage(User)
+
+GetUserReq = _reflection.GeneratedProtocolMessageType('GetUserReq', (_message.Message,), {
+  'DESCRIPTOR' : _GETUSERREQ,
+  '__module__' : 'pb.api_pb2'
+  # @@protoc_insertion_point(class_scope:api.GetUserReq)
+  })
+_sym_db.RegisterMessage(GetUserReq)
+
 
 
 _API = _descriptor.ServiceDescriptor(
@@ -305,8 +312,8 @@ _API = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=543,
-  serialized_end=625,
+  serialized_start=564,
+  serialized_end=648,
   methods=[
   _descriptor.MethodDescriptor(
     name='Ping',

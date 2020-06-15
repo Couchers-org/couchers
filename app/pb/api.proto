@@ -9,7 +9,21 @@ service API {
     // Pings the server for updates and basic user info
   }
 
-  rpc GetUser(GetUserReq) returns (User);
+  rpc GetUser(GetUserReq) returns (User) {
+    // Get info about a particular user
+  }
+}
+
+message PingReq {}
+
+message PingRes {
+  // Basic info about user
+  int64 user_id = 1;
+  string username = 2;
+  string name = 3;
+
+  // Updates
+  int64 unread_message_count = 4;
 }
 
 message User {
@@ -25,23 +39,12 @@ message User {
   google.protobuf.Timestamp last_active = 10; // not exact
   string occupation = 11;
   string about_me = 12;
-  repeated string languages = 13;
-  repeated string countries_visited = 14;
-  repeated string countries_lived = 15;
+  string about_place = 13;
+  repeated string languages = 14;
+  repeated string countries_visited = 15;
+  repeated string countries_lived = 16;
 }
 
 message GetUserReq {
   string user = 1;
-}
-
-message PingReq {}
-
-message PingRes {
-  // Basic info about user
-  int64 user_id = 1;
-  string username = 2;
-  string name = 3;
-
-  // Updates
-  int64 unread_message_count = 4;
 }
