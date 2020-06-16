@@ -94,6 +94,14 @@
       <v-card class="float-left mx-3 my-3" width="950" outlined>
         <v-card-text>
           <h2>Edit your profile</h2>
+          <h3>Name</h3>
+          <editable-text-field :text="user.name" v-on:save="saveName" />
+          <h3>City</h3>
+          <editable-text-field :text="user.city" v-on:save="saveCity" />
+          <h3>Gender</h3>
+          <editable-text-field :text="user.gender" v-on:save="saveGender" />
+          <h3>Occupation</h3>
+          <editable-text-field :text="user.occupation" v-on:save="saveOccupation" />
           <h3>About me</h3>
           <editable-textarea :text="user.aboutMe" v-on:save="saveAboutMe" />
           <h3>About my place</h3>
@@ -116,6 +124,7 @@ import moment, { lang } from 'moment'
 import wrappers from 'google-protobuf/google/protobuf/wrappers_pb'
 
 import EditableTextarea from '../components/EditableTextarea.vue'
+import EditableTextField from '../components/EditableTextField.vue'
 
 import { GetUserReq, UpdateProfileReq } from '../pb/api_pb'
 import client from '../api'
@@ -148,7 +157,8 @@ export default Vue.extend({
   }),
 
   components: {
-    "editable-textarea": EditableTextarea
+    "editable-textarea": EditableTextarea,
+    "editable-text-field": EditableTextField
   },
 
   created () {
@@ -176,23 +186,49 @@ export default Vue.extend({
 
     saveAboutMe: function (text: string) {
       const req = new UpdateProfileReq()
-
       const wrapper = new wrappers.StringValue()
       wrapper.setValue(text)
-
       req.setAboutMe(wrapper)
-
       this.updateProfile(req)
     },
 
     saveAboutPlace: function (text: string) {
       const req = new UpdateProfileReq()
-
       const wrapper = new wrappers.StringValue()
       wrapper.setValue(text)
-
       req.setAboutPlace(wrapper)
+      this.updateProfile(req)
+    },
 
+    saveName: function (text: string) {
+      const req = new UpdateProfileReq()
+      const wrapper = new wrappers.StringValue()
+      wrapper.setValue(text)
+      req.setName(wrapper)
+      this.updateProfile(req)
+    },
+
+    saveCity: function (text: string) {
+      const req = new UpdateProfileReq()
+      const wrapper = new wrappers.StringValue()
+      wrapper.setValue(text)
+      req.setCity(wrapper)
+      this.updateProfile(req)
+    },
+
+    saveGender: function (text: string) {
+      const req = new UpdateProfileReq()
+      const wrapper = new wrappers.StringValue()
+      wrapper.setValue(text)
+      req.setGender(wrapper)
+      this.updateProfile(req)
+    },
+
+    saveOccupation: function (text: string) {
+      const req = new UpdateProfileReq()
+      const wrapper = new wrappers.StringValue()
+      wrapper.setValue(text)
+      req.setOccupation(wrapper)
       this.updateProfile(req)
     },
 
