@@ -14,11 +14,14 @@
 import * as grpcWeb from 'grpc-web';
 
 import * as google_protobuf_timestamp_pb from 'google-protobuf/google/protobuf/timestamp_pb';
+import * as google_protobuf_wrappers_pb from 'google-protobuf/google/protobuf/wrappers_pb';
 
 import {
   GetUserReq,
   PingReq,
   PingRes,
+  UpdateProfileReq,
+  UpdateProfileRes,
   User} from './api_pb';
 
 export class APIClient {
@@ -118,6 +121,46 @@ export class APIClient {
     request,
     metadata || {},
     this.methodInfoGetUser);
+  }
+
+  methodInfoUpdateProfile = new grpcWeb.AbstractClientBase.MethodInfo(
+    UpdateProfileRes,
+    (request: UpdateProfileReq) => {
+      return request.serializeBinary();
+    },
+    UpdateProfileRes.deserializeBinary
+  );
+
+  updateProfile(
+    request: UpdateProfileReq,
+    metadata: grpcWeb.Metadata | null): Promise<UpdateProfileRes>;
+
+  updateProfile(
+    request: UpdateProfileReq,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.Error,
+               response: UpdateProfileRes) => void): grpcWeb.ClientReadableStream<UpdateProfileRes>;
+
+  updateProfile(
+    request: UpdateProfileReq,
+    metadata: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.Error,
+               response: UpdateProfileRes) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/api.API/UpdateProfile',
+        request,
+        metadata || {},
+        this.methodInfoUpdateProfile,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/api.API/UpdateProfile',
+    request,
+    metadata || {},
+    this.methodInfoUpdateProfile);
   }
 
 }

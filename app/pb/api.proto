@@ -3,6 +3,7 @@ syntax = "proto3";
 package api;
 
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
 
 service API {
   rpc Ping(PingReq) returns (PingRes) {
@@ -11,6 +12,10 @@ service API {
 
   rpc GetUser(GetUserReq) returns (User) {
     // Get info about a particular user
+  }
+
+  rpc UpdateProfile(UpdateProfileReq) returns (UpdateProfileRes) {
+    // Update your profile
   }
 }
 
@@ -47,4 +52,38 @@ message User {
 
 message GetUserReq {
   string user = 1;
+}
+
+message UpdateProfileReq {
+  // These StringValue types allow us to determine if the value is absent versus ""
+
+  google.protobuf.StringValue name = 1;
+  google.protobuf.StringValue city = 2;
+  google.protobuf.StringValue gender = 3;
+  google.protobuf.StringValue occupation = 4;
+  google.protobuf.StringValue about_me = 5;
+  google.protobuf.StringValue about_place = 6;
+
+  message RepeatedStringValue {
+    // A RepeatedStringValue is like a "protobuf warpper" (like {Type}Value) but for repeated strings
+    // allows us to determine if the user wanted to remote this list of strings
+    bool exists = 1;
+    repeated string value = 2;
+  }
+
+  RepeatedStringValue languages = 7;
+  RepeatedStringValue countries_visited = 8;
+  RepeatedStringValue countries_lived = 9;
+}
+
+message UpdateProfileRes {
+  bool updated_name = 1;
+  bool updated_city = 2;
+  bool updated_gender = 3;
+  bool updated_occupation = 4;
+  bool updated_about_me = 5;
+  bool updated_about_place = 6;
+  bool updated_languages = 7;
+  bool updated_countries_visited = 8;
+  bool updated_countries_lived = 9;
 }

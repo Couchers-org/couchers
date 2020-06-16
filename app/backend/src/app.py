@@ -100,6 +100,57 @@ class APIServicer(api_pb2_grpc.APIServicer):
                 countries_lived=user.countries_lived.split("|")
             )
 
+    def UpdateProfile(self, request, context):
+        with session_scope(Session) as session:
+            user = session.query(User).filter(User.id == context.user_id).one()
+
+            res = api_pb2.UpdateProfileRes()
+
+            if request.HasField("name"):
+                user.name = request.name.value
+                res.updated_name = True
+
+            if request.HasField("city"):
+                user.city = request.city.value
+                res.updated_city = True
+
+            if request.HasField("gender"):
+                user.gender = request.gender.value
+                res.updated_gender = True
+
+            if request.HasField("occupation"):
+                user.occupation = request.occupation.value
+                res.updated_occupation = True
+
+            if request.HasField("about_me"):
+                user.about_me = request.about_me.value
+                res.updated_about_me = True
+
+            if request.HasField("about_place"):
+                user.about_place = request.about_place.value
+                res.updated_about_place = True
+
+            if request.languages.exists:
+                user.languages = "|".join(request.languages.value)
+                res.updated_languages = True
+
+            if request.countries_visited.exists:
+                user.countries_visited = "|".join(request.countries_visited.value)
+                res.updated_countries_visited = True
+
+            if request.countries_lived.exists:
+                user.countries_lived = "|".join(request.countries_lived.value)
+                res.updated_countries_lived = True
+
+            # save updates
+            #session.commit()
+
+            print(user)
+            print(request)
+            print(res)
+
+            return res
+
 auth = Auth(Session)
 auth_server = grpc.server(futures.ThreadPoolExecutor(2))
 auth_server.add_insecure_port("[::]:1752")

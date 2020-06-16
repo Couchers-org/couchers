@@ -1,6 +1,7 @@
 import * as jspb from "google-protobuf"
 
 import * as google_protobuf_timestamp_pb from 'google-protobuf/google/protobuf/timestamp_pb';
+import * as google_protobuf_wrappers_pb from 'google-protobuf/google/protobuf/wrappers_pb';
 
 export class PingReq extends jspb.Message {
   serializeBinary(): Uint8Array;
@@ -149,6 +150,149 @@ export class GetUserReq extends jspb.Message {
 export namespace GetUserReq {
   export type AsObject = {
     user: string,
+  }
+}
+
+export class UpdateProfileReq extends jspb.Message {
+  getName(): google_protobuf_wrappers_pb.StringValue | undefined;
+  setName(value?: google_protobuf_wrappers_pb.StringValue): UpdateProfileReq;
+  hasName(): boolean;
+  clearName(): UpdateProfileReq;
+
+  getCity(): google_protobuf_wrappers_pb.StringValue | undefined;
+  setCity(value?: google_protobuf_wrappers_pb.StringValue): UpdateProfileReq;
+  hasCity(): boolean;
+  clearCity(): UpdateProfileReq;
+
+  getGender(): google_protobuf_wrappers_pb.StringValue | undefined;
+  setGender(value?: google_protobuf_wrappers_pb.StringValue): UpdateProfileReq;
+  hasGender(): boolean;
+  clearGender(): UpdateProfileReq;
+
+  getOccupation(): google_protobuf_wrappers_pb.StringValue | undefined;
+  setOccupation(value?: google_protobuf_wrappers_pb.StringValue): UpdateProfileReq;
+  hasOccupation(): boolean;
+  clearOccupation(): UpdateProfileReq;
+
+  getAboutMe(): google_protobuf_wrappers_pb.StringValue | undefined;
+  setAboutMe(value?: google_protobuf_wrappers_pb.StringValue): UpdateProfileReq;
+  hasAboutMe(): boolean;
+  clearAboutMe(): UpdateProfileReq;
+
+  getAboutPlace(): google_protobuf_wrappers_pb.StringValue | undefined;
+  setAboutPlace(value?: google_protobuf_wrappers_pb.StringValue): UpdateProfileReq;
+  hasAboutPlace(): boolean;
+  clearAboutPlace(): UpdateProfileReq;
+
+  getLanguages(): RepeatedStringValue | undefined;
+  setLanguages(value?: RepeatedStringValue): UpdateProfileReq;
+  hasLanguages(): boolean;
+  clearLanguages(): UpdateProfileReq;
+
+  getCountriesVisited(): RepeatedStringValue | undefined;
+  setCountriesVisited(value?: RepeatedStringValue): UpdateProfileReq;
+  hasCountriesVisited(): boolean;
+  clearCountriesVisited(): UpdateProfileReq;
+
+  getCountriesLived(): RepeatedStringValue | undefined;
+  setCountriesLived(value?: RepeatedStringValue): UpdateProfileReq;
+  hasCountriesLived(): boolean;
+  clearCountriesLived(): UpdateProfileReq;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): UpdateProfileReq.AsObject;
+  static toObject(includeInstance: boolean, msg: UpdateProfileReq): UpdateProfileReq.AsObject;
+  static serializeBinaryToWriter(message: UpdateProfileReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): UpdateProfileReq;
+  static deserializeBinaryFromReader(message: UpdateProfileReq, reader: jspb.BinaryReader): UpdateProfileReq;
+}
+
+export namespace UpdateProfileReq {
+  export type AsObject = {
+    name?: google_protobuf_wrappers_pb.StringValue.AsObject,
+    city?: google_protobuf_wrappers_pb.StringValue.AsObject,
+    gender?: google_protobuf_wrappers_pb.StringValue.AsObject,
+    occupation?: google_protobuf_wrappers_pb.StringValue.AsObject,
+    aboutMe?: google_protobuf_wrappers_pb.StringValue.AsObject,
+    aboutPlace?: google_protobuf_wrappers_pb.StringValue.AsObject,
+    languages?: RepeatedStringValue.AsObject,
+    countriesVisited?: RepeatedStringValue.AsObject,
+    countriesLived?: RepeatedStringValue.AsObject,
+  }
+
+  export class RepeatedStringValue extends jspb.Message {
+    getExists(): boolean;
+    setExists(value: boolean): RepeatedStringValue;
+
+    getValueList(): Array<string>;
+    setValueList(value: Array<string>): RepeatedStringValue;
+    clearValueList(): RepeatedStringValue;
+    addValue(value: string, index?: number): RepeatedStringValue;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): RepeatedStringValue.AsObject;
+    static toObject(includeInstance: boolean, msg: RepeatedStringValue): RepeatedStringValue.AsObject;
+    static serializeBinaryToWriter(message: RepeatedStringValue, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): RepeatedStringValue;
+    static deserializeBinaryFromReader(message: RepeatedStringValue, reader: jspb.BinaryReader): RepeatedStringValue;
+  }
+
+  export namespace RepeatedStringValue {
+    export type AsObject = {
+      exists: boolean,
+      valueList: Array<string>,
+    }
+  }
+
+}
+
+export class UpdateProfileRes extends jspb.Message {
+  getUpdatedName(): boolean;
+  setUpdatedName(value: boolean): UpdateProfileRes;
+
+  getUpdatedCity(): boolean;
+  setUpdatedCity(value: boolean): UpdateProfileRes;
+
+  getUpdatedGender(): boolean;
+  setUpdatedGender(value: boolean): UpdateProfileRes;
+
+  getUpdatedOccupation(): boolean;
+  setUpdatedOccupation(value: boolean): UpdateProfileRes;
+
+  getUpdatedAboutMe(): boolean;
+  setUpdatedAboutMe(value: boolean): UpdateProfileRes;
+
+  getUpdatedAboutPlace(): boolean;
+  setUpdatedAboutPlace(value: boolean): UpdateProfileRes;
+
+  getUpdatedLanguages(): boolean;
+  setUpdatedLanguages(value: boolean): UpdateProfileRes;
+
+  getUpdatedCountriesVisited(): boolean;
+  setUpdatedCountriesVisited(value: boolean): UpdateProfileRes;
+
+  getUpdatedCountriesLived(): boolean;
+  setUpdatedCountriesLived(value: boolean): UpdateProfileRes;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): UpdateProfileRes.AsObject;
+  static toObject(includeInstance: boolean, msg: UpdateProfileRes): UpdateProfileRes.AsObject;
+  static serializeBinaryToWriter(message: UpdateProfileRes, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): UpdateProfileRes;
+  static deserializeBinaryFromReader(message: UpdateProfileRes, reader: jspb.BinaryReader): UpdateProfileRes;
+}
+
+export namespace UpdateProfileRes {
+  export type AsObject = {
+    updatedName: boolean,
+    updatedCity: boolean,
+    updatedGender: boolean,
+    updatedOccupation: boolean,
+    updatedAboutMe: boolean,
+    updatedAboutPlace: boolean,
+    updatedLanguages: boolean,
+    updatedCountriesVisited: boolean,
+    updatedCountriesLived: boolean,
   }
 }
 

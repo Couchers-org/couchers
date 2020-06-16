@@ -84,6 +84,9 @@
           </v-tabs>
           <h3>About me</h3>
           <p>{{ user.aboutMe }}</p>
+          <h3>Update about me (DEV TEMP)</h3>
+          <v-textarea v-model="update.aboutMe"></v-textarea>
+          <v-btn v-on:click="updateProfile">Update</v-btn>
           <h3>About my place</h3>
           <p>{{ user.aboutPlace }}</p>
           <h3>Countries I’ve Visited</h3>
@@ -99,10 +102,10 @@
 <script lang="ts">
 import Vue from 'vue'
 
-import moment from 'moment';
+import moment, { lang } from 'moment';
+import wrappers from 'google-protobuf/google/protobuf/wrappers_pb';
 
-import { GetUserReq } from '../pb/api_pb'
-
+import { GetUserReq, UpdateProfileReq } from '../pb/api_pb'
 import client from '../api'
 
 function displayList(list: string[]) {
@@ -113,7 +116,7 @@ export default Vue.extend({
   data: () => ({
     loading: false,
     errorMessages: [] as Array<string>,
-    user:{
+    user: {
       name: null,
       city: null,
       verification: null,
@@ -129,6 +132,17 @@ export default Vue.extend({
       countriesLivedList: [],
       lastActive: null,
       joined: null
+    },
+    update: {
+      name: null,
+      city: null,
+      gender: null,
+      occupation: null,
+      aboutMe: null,
+      aboutPlace: null,
+      languages: null,
+      countriesVisited: null,
+      countriesLived: null,
     }
   }),
 
@@ -154,9 +168,41 @@ export default Vue.extend({
         this.errorMessages = []
 
         this.user = res.toObject()
+        this.update = res.toObject()
         this.user.lastActive = res.getLastActive()
         this.user.joined = res.getJoined()
       }).catch(err => {
+        this.loading = false
+        this.errorMessages = err.message
+      })
+    },
+
+    updateProfile: function () {
+      console.log("updating")
+      console.log(this.update.aboutMe)
+
+      const req = new UpdateProfileReq()
+
+      const aboutMe = new wrappers.StringValue()
+      const aboutPlace = new wrappers.StringValue()
+      aboutMe.setValue(this.update.aboutMe)
+      aboutPlace.setValue("")
+
+      req.setAboutMe(aboutMe)
+      req.setAboutPlace(aboutPlace)
+
+      const languages = new UpdateProfileReq.RepeatedStringValue()
+      languages.setValueList(this.user.languagesList)
+      languages.setExists(true)
+      req.setLanguages(languages)
+
+      const l = new UpdateProfileReq.RepeatedStringValue()
+      req.setCountriesLived(l)
+
+      client.updateProfile(req, null).then(res => {
+        console.log(res)
+      }).catch(err => {
+        console.error(err)
         this.loading = false
         this.errorMessages = err.message
       })
