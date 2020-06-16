@@ -102,15 +102,16 @@
           <editable-text-field :text="user.gender" v-on:save="saveGender" />
           <h3>Occupation</h3>
           <editable-text-field :text="user.occupation" v-on:save="saveOccupation" />
+          <h3>Languages</h3>
+          <editable-list :list="user.languagesList" v-on:save="saveLanguages" />
           <h3>About me</h3>
           <editable-textarea :text="user.aboutMe" v-on:save="saveAboutMe" />
           <h3>About my place</h3>
           <editable-textarea :text="user.aboutPlace" v-on:save="saveAboutPlace" />
-          <p>{{ user.aboutPlace }}</p>
-          <h3>Countries I’ve Visited</h3>
-          <p>{{ countriesVisitedListDisplay }}</p>
-          <h3>Countries I’ve Lived In</h3>
-          <p>{{ countriesLivedListDisplay }}</p>
+          <h3>Countries I've Visited</h3>
+          <editable-list :list="user.countriesVisitedList" v-on:save="saveCountriesVisited" />
+          <h3>Countries I've Lived In</h3>
+          <editable-list :list="user.countriesLivedList" v-on:save="saveCountriesLived" />
         </v-card-text>
       </v-card>
     </v-container>
@@ -125,6 +126,7 @@ import wrappers from 'google-protobuf/google/protobuf/wrappers_pb'
 
 import EditableTextarea from '../components/EditableTextarea.vue'
 import EditableTextField from '../components/EditableTextField.vue'
+import EditableList from '../components/EditableList.vue'
 
 import { GetUserReq, UpdateProfileReq } from '../pb/api_pb'
 import client from '../api'
@@ -158,7 +160,8 @@ export default Vue.extend({
 
   components: {
     "editable-textarea": EditableTextarea,
-    "editable-text-field": EditableTextField
+    "editable-text-field": EditableTextField,
+    "editable-list": EditableList
   },
 
   created () {
@@ -232,6 +235,33 @@ export default Vue.extend({
       this.updateProfile(req)
     },
 
+    saveCountriesVisited: function (list: Array<string>) {
+      const req = new UpdateProfileReq()
+      const listValue = new UpdateProfileReq.RepeatedStringValue()
+      listValue.setValueList(list)
+      listValue.setExists(true)
+      req.setCountriesVisited(listValue)
+      this.updateProfile(req)
+    },
+
+    saveCountriesLived: function (list: Array<string>) {
+      const req = new UpdateProfileReq()
+      const listValue = new UpdateProfileReq.RepeatedStringValue()
+      listValue.setValueList(list)
+      listValue.setExists(true)
+      req.setCountriesLived(listValue)
+      this.updateProfile(req)
+    },
+
+    saveLanguages: function (list: Array<string>) {
+      const req = new UpdateProfileReq()
+      const listValue = new UpdateProfileReq.RepeatedStringValue()
+      listValue.setValueList(list)
+      listValue.setExists(true)
+      req.setLanguages(listValue)
+      this.updateProfile(req)
+    },
+
     fetchData: function () {
       this.loading = true
       this.errorMessages = []
@@ -250,37 +280,6 @@ export default Vue.extend({
         this.errorMessages = err.message
       })
     },
-
-    updateProfileX: function () {
-      console.log("updating")
-      console.log(this.update.aboutMe)
-
-      const req = new UpdateProfileReq()
-
-      const aboutMe = new wrappers.StringValue()
-      const aboutPlace = new wrappers.StringValue()
-      aboutMe.setValue(this.update.aboutMe)
-      aboutPlace.setValue("")
-
-      req.setAboutMe(aboutMe)
-      req.setAboutPlace(aboutPlace)
-
-      const languages = new UpdateProfileReq.RepeatedStringValue()
-      languages.setValueList(this.user.languagesList)
-      languages.setExists(true)
-      req.setLanguages(languages)
-
-      const l = new UpdateProfileReq.RepeatedStringValue()
-      req.setCountriesLived(l)
-
-      client.updateProfile(req, null).then(res => {
-        console.log(res)
-      }).catch(err => {
-        console.error(err)
-        this.loading = false
-        this.errorMessages = err.message
-      })
-    }
   },
 
   computed: {
