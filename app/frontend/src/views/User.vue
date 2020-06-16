@@ -58,7 +58,7 @@
             <v-list-item-subtitle>Occupation</v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
-        <v-list-item two-itme>
+        <v-list-item two-item>
           <v-list-item-icon>
             <v-icon>mdi-account-clock</v-icon>
           </v-list-item-icon>

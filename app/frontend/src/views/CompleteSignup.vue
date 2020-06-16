@@ -81,7 +81,7 @@
                             v-model="date"
                             label="Birthday"
                             prepend-icon="mdi-calendar"
-                            hint="YYYY/MM/DD"
+                            hint="Note: this will be used for verification and cannot be changed in the future."
                             persistent-hint
                             readonly
                             v-bind="attrs"
@@ -97,7 +97,7 @@
                         ></v-date-picker>
                       </v-menu>
                     </v-row>
-                    <v-row><v-btn v-on:click="submit" :disabled="loading" color="primary">Sign up!</v-btn></v-row>
+                    <v-row class="mt-5"><v-btn v-on:click="submit" :disabled="loading" color="primary">Sign up!</v-btn></v-row>
                   </v-form>
                 </v-card-text>
               </v-card>
