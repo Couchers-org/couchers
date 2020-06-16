@@ -1,8 +1,7 @@
 <template>
   <div>
     <div v-if="!editing">
-      <p>{{ displayList }}</p>
-      <v-btn class="mx-2 my-2" v-on:click="edit">Edit</v-btn>
+      <p>{{ displayList }} <v-btn icon v-on:click="edit"><v-icon>mdi-pencil</v-icon></v-btn></p>
     </div>
     <div v-if="editing">
       <v-combobox v-model="dirtyList" chips clearable multiple solo>

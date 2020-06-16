@@ -1,8 +1,7 @@
 <template>
   <div>
     <div v-if="!editing">
-      <p>{{ text }}</p>
-      <v-btn class="mx-2 my-2" v-on:click="edit">Edit</v-btn>
+      <p>{{ text }} <v-btn icon v-on:click="edit"><v-icon>mdi-pencil</v-icon></v-btn></p>
     </div>
     <div v-if="editing">
       <v-textarea v-model="dirtyText"></v-textarea>
