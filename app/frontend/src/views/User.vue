@@ -77,17 +77,27 @@
         <v-card-text>
           <v-tabs class="mb-5">
             <v-tab>About me</v-tab>
-            <v-tab>My couch</v-tab>
             <v-tab>References</v-tab>
             <v-tab>Friends</v-tab>
             <v-tab>Photos</v-tab>
           </v-tabs>
           <h3>About me</h3>
           <p>{{ user.aboutMe }}</p>
-          <h3>Update about me (DEV TEMP)</h3>
-          <v-textarea v-model="update.aboutMe"></v-textarea>
-          <v-btn v-on:click="updateProfile">Update</v-btn>
           <h3>About my place</h3>
+          <p>{{ user.aboutPlace }}</p>
+          <h3>Countries I’ve Visited</h3>
+          <p>{{ countriesVisitedListDisplay }}</p>
+          <h3>Countries I’ve Lived In</h3>
+          <p>{{ countriesLivedListDisplay }}</p>
+        </v-card-text>
+      </v-card>
+      <v-card class="float-left mx-3 my-3" width="950" outlined>
+        <v-card-text>
+          <h2>Edit your profile</h2>
+          <h3>About me</h3>
+          <editable-textarea :text="user.aboutMe" v-on:save="saveAboutMe" />
+          <h3>About my place</h3>
+          <editable-textarea :text="user.aboutPlace" v-on:save="saveAboutPlace" />
           <p>{{ user.aboutPlace }}</p>
           <h3>Countries I’ve Visited</h3>
           <p>{{ countriesVisitedListDisplay }}</p>
@@ -102,8 +112,10 @@
 <script lang="ts">
 import Vue from 'vue'
 
-import moment, { lang } from 'moment';
-import wrappers from 'google-protobuf/google/protobuf/wrappers_pb';
+import moment, { lang } from 'moment'
+import wrappers from 'google-protobuf/google/protobuf/wrappers_pb'
+
+import EditableTextarea from '../components/EditableTextarea.vue'
 
 import { GetUserReq, UpdateProfileReq } from '../pb/api_pb'
 import client from '../api'
@@ -132,21 +144,12 @@ export default Vue.extend({
       countriesLivedList: [],
       lastActive: null,
       joined: null
-    },
-    update: {
-      name: null,
-      city: null,
-      gender: null,
-      occupation: null,
-      aboutMe: null,
-      aboutPlace: null,
-      languages: null,
-      countriesVisited: null,
-      countriesLived: null,
     }
   }),
 
-  name: 'User',
+  components: {
+    "editable-textarea": EditableTextarea
+  },
 
   created () {
     this.fetchData()
@@ -157,6 +160,42 @@ export default Vue.extend({
   },
 
   methods: {
+    updateProfile: function (req: UpdateProfileReq) {
+      this.loading = true
+
+      client.updateProfile(req, null).then(res => {
+        this.loading = false
+        console.log(res)
+        this.fetchData()
+      }).catch(err => {
+        console.error(err)
+        this.loading = false
+        this.errorMessages = err.message
+      })
+    },
+
+    saveAboutMe: function (text: string) {
+      const req = new UpdateProfileReq()
+
+      const wrapper = new wrappers.StringValue()
+      wrapper.setValue(text)
+
+      req.setAboutMe(wrapper)
+
+      this.updateProfile(req)
+    },
+
+    saveAboutPlace: function (text: string) {
+      const req = new UpdateProfileReq()
+
+      const wrapper = new wrappers.StringValue()
+      wrapper.setValue(text)
+
+      req.setAboutPlace(wrapper)
+
+      this.updateProfile(req)
+    },
+
     fetchData: function () {
       this.loading = true
       this.errorMessages = []
@@ -168,7 +207,6 @@ export default Vue.extend({
         this.errorMessages = []
 
         this.user = res.toObject()
-        this.update = res.toObject()
         this.user.lastActive = res.getLastActive()
         this.user.joined = res.getJoined()
       }).catch(err => {
@@ -177,7 +215,7 @@ export default Vue.extend({
       })
     },
 
-    updateProfile: function () {
+    updateProfileX: function () {
       console.log("updating")
       console.log(this.update.aboutMe)
 

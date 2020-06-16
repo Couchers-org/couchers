@@ -143,11 +143,7 @@ class APIServicer(api_pb2_grpc.APIServicer):
                 res.updated_countries_lived = True
 
             # save updates
-            #session.commit()
-
-            print(user)
-            print(request)
-            print(res)
+            session.commit()
 
             return res
 
