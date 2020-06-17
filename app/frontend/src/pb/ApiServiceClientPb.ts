@@ -20,6 +20,8 @@ import {
   GetUserReq,
   PingReq,
   PingRes,
+  SSOReq,
+  SSORes,
   UpdateProfileReq,
   UpdateProfileRes,
   User} from './api_pb';
@@ -161,6 +163,46 @@ export class APIClient {
     request,
     metadata || {},
     this.methodInfoUpdateProfile);
+  }
+
+  methodInfoSSO = new grpcWeb.AbstractClientBase.MethodInfo(
+    SSORes,
+    (request: SSOReq) => {
+      return request.serializeBinary();
+    },
+    SSORes.deserializeBinary
+  );
+
+  sSO(
+    request: SSOReq,
+    metadata: grpcWeb.Metadata | null): Promise<SSORes>;
+
+  sSO(
+    request: SSOReq,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.Error,
+               response: SSORes) => void): grpcWeb.ClientReadableStream<SSORes>;
+
+  sSO(
+    request: SSOReq,
+    metadata: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.Error,
+               response: SSORes) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/api.API/SSO',
+        request,
+        metadata || {},
+        this.methodInfoSSO,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/api.API/SSO',
+    request,
+    metadata || {},
+    this.methodInfoSSO);
   }
 
 }

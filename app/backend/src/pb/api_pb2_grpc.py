@@ -28,6 +28,11 @@ class APIStub(object):
                 request_serializer=pb_dot_api__pb2.UpdateProfileReq.SerializeToString,
                 response_deserializer=pb_dot_api__pb2.UpdateProfileRes.FromString,
                 )
+        self.SSO = channel.unary_unary(
+                '/api.API/SSO',
+                request_serializer=pb_dot_api__pb2.SSOReq.SerializeToString,
+                response_deserializer=pb_dot_api__pb2.SSORes.FromString,
+                )
 
 
 class APIServicer(object):
@@ -54,6 +59,13 @@ class APIServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def SSO(self, request, context):
+        """Performs Discourse SSO
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_APIServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -71,6 +83,11 @@ def add_APIServicer_to_server(servicer, server):
                     servicer.UpdateProfile,
                     request_deserializer=pb_dot_api__pb2.UpdateProfileReq.FromString,
                     response_serializer=pb_dot_api__pb2.UpdateProfileRes.SerializeToString,
+            ),
+            'SSO': grpc.unary_unary_rpc_method_handler(
+                    servicer.SSO,
+                    request_deserializer=pb_dot_api__pb2.SSOReq.FromString,
+                    response_serializer=pb_dot_api__pb2.SSORes.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -127,5 +144,21 @@ class API(object):
         return grpc.experimental.unary_unary(request, target, '/api.API/UpdateProfile',
             pb_dot_api__pb2.UpdateProfileReq.SerializeToString,
             pb_dot_api__pb2.UpdateProfileRes.FromString,
+            options, channel_credentials,
+            call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def SSO(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/api.API/SSO',
+            pb_dot_api__pb2.SSOReq.SerializeToString,
+            pb_dot_api__pb2.SSORes.FromString,
             options, channel_credentials,
             call_credentials, compression, wait_for_ready, timeout, metadata)

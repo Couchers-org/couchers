@@ -17,6 +17,10 @@ service API {
   rpc UpdateProfile(UpdateProfileReq) returns (UpdateProfileRes) {
     // Update your profile
   }
+
+  rpc SSO(SSOReq) returns (SSORes) {
+    // Performs Discourse SSO
+  }
 }
 
 message PingReq {}
@@ -86,4 +90,14 @@ message UpdateProfileRes {
   bool updated_languages = 7;
   bool updated_countries_visited = 8;
   bool updated_countries_lived = 9;
+}
+
+message SSOReq {
+  // just raw query strings from discourse
+  string sso = 1;
+  string sig = 2;
+}
+
+message SSORes {
+  string redirect_url = 1;
 }

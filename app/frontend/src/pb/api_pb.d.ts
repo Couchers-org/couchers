@@ -296,3 +296,43 @@ export namespace UpdateProfileRes {
   }
 }
 
+export class SSOReq extends jspb.Message {
+  getSso(): string;
+  setSso(value: string): SSOReq;
+
+  getSig(): string;
+  setSig(value: string): SSOReq;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): SSOReq.AsObject;
+  static toObject(includeInstance: boolean, msg: SSOReq): SSOReq.AsObject;
+  static serializeBinaryToWriter(message: SSOReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SSOReq;
+  static deserializeBinaryFromReader(message: SSOReq, reader: jspb.BinaryReader): SSOReq;
+}
+
+export namespace SSOReq {
+  export type AsObject = {
+    sso: string,
+    sig: string,
+  }
+}
+
+export class SSORes extends jspb.Message {
+  getRedirectUrl(): string;
+  setRedirectUrl(value: string): SSORes;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): SSORes.AsObject;
+  static toObject(includeInstance: boolean, msg: SSORes): SSORes.AsObject;
+  static serializeBinaryToWriter(message: SSORes, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SSORes;
+  static deserializeBinaryFromReader(message: SSORes, reader: jspb.BinaryReader): SSORes;
+}
+
+export namespace SSORes {
+  export type AsObject = {
+    redirectUrl: string,
+  }
+}
+

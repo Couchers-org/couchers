@@ -1,6 +1,8 @@
 import logging
+from urllib.parse import parse_qs, quote, unquote, urlencode
 
 import grpc
+from crypto import base64decode, base64encode, sso_check_hmac, sso_create_hmac
 from db import get_user_by_field, session_scope
 from models import User
 from pb import api_pb2, api_pb2_grpc
@@ -27,7 +29,7 @@ class APIServicer(api_pb2_grpc.APIServicer):
             user = get_user_by_field(session, request.user)
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, "No such user.")
-            
+
             return api_pb2.User(
                 username=user.username,
                 name=user.name,
@@ -93,3 +95,41 @@ class APIServicer(api_pb2_grpc.APIServicer):
             session.commit()
 
             return res
+
+    def SSO(self, request, context):
+        with session_scope(self._Session) as session:
+            sso = request.sso
+            sig = request.sig
+
+            # TODO: secrets management, this is from sso-test instance
+            hmac_sec = "b26c7ff6aa391b6a2ba2c0ad18cc6eae40c1a72e5355f86b7b35a4200b514709"
+
+            if not sso_check_hmac(sso, hmac_sec, sig):
+                context.abort(grpc.StatusCode.UNAUTHENTICATED, "Signature mismatch")
+
+            # grab data from the "sso" string
+            decoded_sso = base64decode(unquote(sso))
+            parsed_query_string = parse_qs(decoded_sso)
+            nonce = parsed_query_string["nonce"][0]
+            return_sso_url = parsed_query_string["return_sso_url"][0]
+
+            user = session.query(User).filter(User.id == context.user_id).one()
+
+            payload = {
+                "nonce": nonce,
+                "email": user.email,
+                "external_id": user.id,
+                "username": user.username,
+                "name": user.name,
+                #"admin": False
+            }
+
+            encoded_payload = quote(base64encode(urlencode(payload)))
+            payload_sig = sso_create_hmac(encoded_payload, hmac_sec)
+
+            query_string = urlencode({
+                "sso": encoded_payload,
+                "sig": payload_sig
+            })
+
+            return api_pb2.SSORes(redirect_url=f"{return_sso_url}?{query_string}")
