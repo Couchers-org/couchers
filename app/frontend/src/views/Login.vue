@@ -8,7 +8,7 @@
               <h1>Login</h1>
               <v-card flat v-if="loginStep == 'user' || loginStep == 'pass'">
                 <v-card-text>
-                  <v-form v-on:submit.prevent="submitLoginUser">
+                  <v-form v-on:submit.prevent="submit">
                     <v-row>
                       <v-text-field
                         :autofocus="loginStep == 'user'"
@@ -18,7 +18,7 @@
                         :loading="loading && loginStep == 'user'"
                         :error-messages="errorMessages"
                         :success-messages="successMessages"
-                        v-on:keyup.enter="submitLoginUser"
+                        v-on:keydown.enter="submit"
                         name="username"
                         label="Username/email"
                       ></v-text-field>
@@ -32,15 +32,14 @@
                         :type="showPassword ? 'text' : 'password'"
                         :disabled="loading"
                         :loading="loading"
-                        v-on:keyup.enter="submitLoginPass"
+                        v-on:keydown.enter="submit"
                         name="password"
                         label="Password"
                         :error-messages="passErrorMessages"
                         @click:append="showPassword = !showPassword"
                       ></v-text-field>
                     </v-row>
-                    <v-row><v-btn v-on:click="submitLoginUser" :disabled="loading" color="primary" v-if="loginStep == 'user'">Next</v-btn></v-row>
-                    <v-row><v-btn v-on:click="submitLoginPass" :disabled="loading" color="primary" v-if="loginStep == 'pass'">Login</v-btn></v-row>
+                    <v-row><v-btn v-on:click="submit" :disabled="loading" color="primary">{{ loginStep == 'user' ? 'Next' : 'Login' }}</v-btn></v-row>
                   </v-form>
                 </v-card-text>
               </v-card>
@@ -106,55 +105,56 @@ export default Vue.extend({
       this.passErrorMessages = []
       this.successMessages = []
     },
-    submitLoginUser: function () {
-      this.loading = true;
-      this.clearMessages()
+    submit: function () {
+      if (this.loginStep == 'user') {
+        this.loading = true;
+        this.clearMessages()
 
-      const req = new LoginReq()
+        const req = new LoginReq()
 
-      req.setUser(this.username)
-      authClient.login(req, null).then(res => {
-        switch (res.getNextStep()) {
-          case LoginRes.LoginStep.NEED_PASSWORD:
-            this.loginStep = 'pass'
-            break
-          case LoginRes.LoginStep.SENT_LOGIN_EMAIL:
-            this.loginStep = 'email'
-            break
-          case LoginRes.LoginStep.INVALID_USER:
-            this.errorMessages = ['User not found!']
-            break
-        }
-        this.loading = false
-      }).catch(err => {
-        this.errorMessages = ['Unknown error.']
-        this.loading = false
-      })
-    },
-    submitLoginPass: function () {
-      this.loading = true;
-      this.clearMessages()
-
-      const req = new AuthReq()
-
-      req.setUser(this.username)
-      req.setPassword(this.password)
-      authClient.authenticate(req, null).then(res => {
-        this.loading = false
-        this.successMessages = ['Success.']
-        Store.commit('auth', {
-          authState: AuthenticationState.Authenticated,
-          authToken: res.getToken()
+        req.setUser(this.username)
+        authClient.login(req, null).then(res => {
+          switch (res.getNextStep()) {
+            case LoginRes.LoginStep.NEED_PASSWORD:
+              this.loginStep = 'pass'
+              break
+            case LoginRes.LoginStep.SENT_LOGIN_EMAIL:
+              this.loginStep = 'email'
+              break
+            case LoginRes.LoginStep.INVALID_USER:
+              this.errorMessages = ['User not found!']
+              break
+          }
+          this.loading = false
+        }).catch(err => {
+          this.errorMessages = ['Unknown error.']
+          this.loading = false
         })
-        Router.push('/')
-      }).catch(err => {
-        this.loading = false
-        if (err.code == grpcWeb.StatusCode.UNAUTHENTICATED) {
-          this.passErrorMessages = ['Invalid username or password.']
-        } else {
-          this.passErrorMessages = ['Unknown error.']
-        }
-      })
+      } else if (this.loginStep == 'pass') {
+        this.loading = true;
+        this.clearMessages()
+
+        const req = new AuthReq()
+
+        req.setUser(this.username)
+        req.setPassword(this.password)
+        authClient.authenticate(req, null).then(res => {
+          this.loading = false
+          this.successMessages = ['Success.']
+          Store.commit('auth', {
+            authState: AuthenticationState.Authenticated,
+            authToken: res.getToken()
+          })
+          Router.push('/')
+        }).catch(err => {
+          this.loading = false
+          if (err.code == grpcWeb.StatusCode.UNAUTHENTICATED) {
+            this.passErrorMessages = ['Invalid username or password.']
+          } else {
+            this.passErrorMessages = ['Unknown error.']
+          }
+        })
+      }
     },
   },
 })
