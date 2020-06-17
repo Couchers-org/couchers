@@ -81,6 +81,7 @@ class APIServicer(api_pb2_grpc.APIServicer):
             user = get_user_by_field(session, request.user)
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, "No such user.")
+            
             return api_pb2.User(
                 username=user.username,
                 name=user.name,
@@ -95,9 +96,9 @@ class APIServicer(api_pb2_grpc.APIServicer):
                 occupation=user.occupation,
                 about_me=user.about_me,
                 about_place=user.about_place,
-                languages=user.languages.split("|"),
-                countries_visited=user.countries_visited.split("|"),
-                countries_lived=user.countries_lived.split("|")
+                languages=user.languages.split("|") if user.languages else [],
+                countries_visited=user.countries_visited.split("|") if user.countries_visited else [],
+                countries_lived=user.countries_lived.split("|") if user.countries_lived else []
             )
 
     def UpdateProfile(self, request, context):
