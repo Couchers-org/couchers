@@ -97,6 +97,7 @@ class APIServicer(api_pb2_grpc.APIServicer):
             return res
 
     def SSO(self, request, context):
+        # Protocol description: https://meta.discourse.org/t/official-single-sign-on-for-discourse-sso/13045
         with session_scope(self._Session) as session:
             sso = request.sso
             sig = request.sig
