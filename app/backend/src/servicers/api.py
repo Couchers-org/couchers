@@ -9,8 +9,11 @@ from utils import Timestamp_from_datetime
 logging.basicConfig(format="%(asctime)s.%(msecs)03d: %(process)d: %(message)s", datefmt="%F %T", level=logging.DEBUG)
 
 class APIServicer(api_pb2_grpc.APIServicer):
+    def __init__(self, Session):
+        self._Session = Session
+
     def Ping(self, request, context):
-        with session_scope(Session) as session:
+        with session_scope(self._Session) as session:
             # auth ought to make sure the user exists
             user = session.query(User).filter(User.id == context.user_id).one()
             return api_pb2.PingRes(
@@ -20,7 +23,7 @@ class APIServicer(api_pb2_grpc.APIServicer):
             )
 
     def GetUser(self, request, context):
-        with session_scope(Session) as session:
+        with session_scope(self._Session) as session:
             user = get_user_by_field(session, request.user)
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, "No such user.")
@@ -45,7 +48,7 @@ class APIServicer(api_pb2_grpc.APIServicer):
             )
 
     def UpdateProfile(self, request, context):
-        with session_scope(Session) as session:
+        with session_scope(self._Session) as session:
             user = session.query(User).filter(User.id == context.user_id).one()
 
             res = api_pb2.UpdateProfileRes()
