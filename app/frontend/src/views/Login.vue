@@ -39,7 +39,7 @@
                         @click:append="showPassword = !showPassword"
                       ></v-text-field>
                     </v-row>
-                    <v-row><v-btn v-on:click="submit" :disabled="loading" color="primary">{{ loginStep == 'user' ? 'Next' : 'Login' }}</v-btn></v-row>
+                    <v-row class="mt-5"><v-btn v-on:click="submit" :disabled="loading" color="primary">{{ loginStep == 'user' ? 'Next' : 'Login' }}</v-btn></v-row>
                   </v-form>
                 </v-card-text>
               </v-card>
@@ -71,8 +71,6 @@ import Store, { AuthenticationState } from '../store'
 import Router from '../router'
 
 export default Vue.extend({
-  name: 'Login',
-
   data: () => ({
     showPassword: false,
     loading: false,
