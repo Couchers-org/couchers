@@ -541,7 +541,7 @@ proto.api.PingRes.prototype.setUnreadMessageCount = function(value) {
  * @private {!Array<number>}
  * @const
  */
-proto.api.User.repeatedFields_ = [14,15,16];
+proto.api.User.repeatedFields_ = [15,16,17];
 
 
 
@@ -582,14 +582,15 @@ proto.api.User.toObject = function(includeInstance, msg) {
     numReferences: jspb.Message.getFieldWithDefault(msg, 6, 0),
     gender: jspb.Message.getFieldWithDefault(msg, 7, ""),
     age: jspb.Message.getFieldWithDefault(msg, 8, 0),
+    color: jspb.Message.getFieldWithDefault(msg, 9, ""),
     joined: (f = msg.getJoined()) && google_protobuf_timestamp_pb.Timestamp.toObject(includeInstance, f),
     lastActive: (f = msg.getLastActive()) && google_protobuf_timestamp_pb.Timestamp.toObject(includeInstance, f),
-    occupation: jspb.Message.getFieldWithDefault(msg, 11, ""),
-    aboutMe: jspb.Message.getFieldWithDefault(msg, 12, ""),
-    aboutPlace: jspb.Message.getFieldWithDefault(msg, 13, ""),
-    languagesList: (f = jspb.Message.getRepeatedField(msg, 14)) == null ? undefined : f,
-    countriesVisitedList: (f = jspb.Message.getRepeatedField(msg, 15)) == null ? undefined : f,
-    countriesLivedList: (f = jspb.Message.getRepeatedField(msg, 16)) == null ? undefined : f
+    occupation: jspb.Message.getFieldWithDefault(msg, 12, ""),
+    aboutMe: jspb.Message.getFieldWithDefault(msg, 13, ""),
+    aboutPlace: jspb.Message.getFieldWithDefault(msg, 14, ""),
+    languagesList: (f = jspb.Message.getRepeatedField(msg, 15)) == null ? undefined : f,
+    countriesVisitedList: (f = jspb.Message.getRepeatedField(msg, 16)) == null ? undefined : f,
+    countriesLivedList: (f = jspb.Message.getRepeatedField(msg, 17)) == null ? undefined : f
   };
 
   if (includeInstance) {
@@ -659,36 +660,40 @@ proto.api.User.deserializeBinaryFromReader = function(msg, reader) {
       msg.setAge(value);
       break;
     case 9:
-      var value = new google_protobuf_timestamp_pb.Timestamp;
-      reader.readMessage(value,google_protobuf_timestamp_pb.Timestamp.deserializeBinaryFromReader);
-      msg.setJoined(value);
+      var value = /** @type {string} */ (reader.readString());
+      msg.setColor(value);
       break;
     case 10:
       var value = new google_protobuf_timestamp_pb.Timestamp;
       reader.readMessage(value,google_protobuf_timestamp_pb.Timestamp.deserializeBinaryFromReader);
-      msg.setLastActive(value);
+      msg.setJoined(value);
       break;
     case 11:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setOccupation(value);
+      var value = new google_protobuf_timestamp_pb.Timestamp;
+      reader.readMessage(value,google_protobuf_timestamp_pb.Timestamp.deserializeBinaryFromReader);
+      msg.setLastActive(value);
       break;
     case 12:
       var value = /** @type {string} */ (reader.readString());
-      msg.setAboutMe(value);
+      msg.setOccupation(value);
       break;
     case 13:
       var value = /** @type {string} */ (reader.readString());
-      msg.setAboutPlace(value);
+      msg.setAboutMe(value);
       break;
     case 14:
       var value = /** @type {string} */ (reader.readString());
-      msg.addLanguages(value);
+      msg.setAboutPlace(value);
       break;
     case 15:
       var value = /** @type {string} */ (reader.readString());
-      msg.addCountriesVisited(value);
+      msg.addLanguages(value);
       break;
     case 16:
+      var value = /** @type {string} */ (reader.readString());
+      msg.addCountriesVisited(value);
+      break;
+    case 17:
       var value = /** @type {string} */ (reader.readString());
       msg.addCountriesLived(value);
       break;
@@ -777,15 +782,14 @@ proto.api.User.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
-  f = message.getJoined();
-  if (f != null) {
-    writer.writeMessage(
+  f = message.getColor();
+  if (f.length > 0) {
+    writer.writeString(
       9,
-      f,
-      google_protobuf_timestamp_pb.Timestamp.serializeBinaryToWriter
+      f
     );
   }
-  f = message.getLastActive();
+  f = message.getJoined();
   if (f != null) {
     writer.writeMessage(
       10,
@@ -793,45 +797,53 @@ proto.api.User.serializeBinaryToWriter = function(message, writer) {
       google_protobuf_timestamp_pb.Timestamp.serializeBinaryToWriter
     );
   }
-  f = message.getOccupation();
-  if (f.length > 0) {
-    writer.writeString(
+  f = message.getLastActive();
+  if (f != null) {
+    writer.writeMessage(
       11,
-      f
+      f,
+      google_protobuf_timestamp_pb.Timestamp.serializeBinaryToWriter
     );
   }
-  f = message.getAboutMe();
+  f = message.getOccupation();
   if (f.length > 0) {
     writer.writeString(
       12,
       f
     );
   }
-  f = message.getAboutPlace();
+  f = message.getAboutMe();
   if (f.length > 0) {
     writer.writeString(
       13,
       f
     );
   }
-  f = message.getLanguagesList();
+  f = message.getAboutPlace();
   if (f.length > 0) {
-    writer.writeRepeatedString(
+    writer.writeString(
       14,
       f
     );
   }
-  f = message.getCountriesVisitedList();
+  f = message.getLanguagesList();
   if (f.length > 0) {
     writer.writeRepeatedString(
       15,
       f
     );
   }
-  f = message.getCountriesLivedList();
+  f = message.getCountriesVisitedList();
   if (f.length > 0) {
     writer.writeRepeatedString(
       16,
+      f
+    );
+  }
+  f = message.getCountriesLivedList();
+  if (f.length > 0) {
+    writer.writeRepeatedString(
+      17,
       f
     );
   }
@@ -983,12 +995,30 @@ proto.api.User.prototype.setAge = function(value) {
 
 
 /**
- * optional google.protobuf.Timestamp joined = 9;
+ * optional string color = 9;
+ * @return {string}
+ */
+proto.api.User.prototype.getColor = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 9, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.api.User} returns this
+ */
+proto.api.User.prototype.setColor = function(value) {
+  return jspb.Message.setProto3StringField(this, 9, value);
+};
+
+
+/**
+ * optional google.protobuf.Timestamp joined = 10;
  * @return {?proto.google.protobuf.Timestamp}
  */
 proto.api.User.prototype.getJoined = function() {
   return /** @type{?proto.google.protobuf.Timestamp} */ (
-    jspb.Message.getWrapperField(this, google_protobuf_timestamp_pb.Timestamp, 9));
+    jspb.Message.getWrapperField(this, google_protobuf_timestamp_pb.Timestamp, 10));
 };
 
 
@@ -997,7 +1027,7 @@ proto.api.User.prototype.getJoined = function() {
  * @return {!proto.api.User} returns this
 */
 proto.api.User.prototype.setJoined = function(value) {
-  return jspb.Message.setWrapperField(this, 9, value);
+  return jspb.Message.setWrapperField(this, 10, value);
 };
 
 
@@ -1015,17 +1045,17 @@ proto.api.User.prototype.clearJoined = function() {
  * @return {boolean}
  */
 proto.api.User.prototype.hasJoined = function() {
-  return jspb.Message.getField(this, 9) != null;
+  return jspb.Message.getField(this, 10) != null;
 };
 
 
 /**
- * optional google.protobuf.Timestamp last_active = 10;
+ * optional google.protobuf.Timestamp last_active = 11;
  * @return {?proto.google.protobuf.Timestamp}
  */
 proto.api.User.prototype.getLastActive = function() {
   return /** @type{?proto.google.protobuf.Timestamp} */ (
-    jspb.Message.getWrapperField(this, google_protobuf_timestamp_pb.Timestamp, 10));
+    jspb.Message.getWrapperField(this, google_protobuf_timestamp_pb.Timestamp, 11));
 };
 
 
@@ -1034,7 +1064,7 @@ proto.api.User.prototype.getLastActive = function() {
  * @return {!proto.api.User} returns this
 */
 proto.api.User.prototype.setLastActive = function(value) {
-  return jspb.Message.setWrapperField(this, 10, value);
+  return jspb.Message.setWrapperField(this, 11, value);
 };
 
 
@@ -1052,33 +1082,15 @@ proto.api.User.prototype.clearLastActive = function() {
  * @return {boolean}
  */
 proto.api.User.prototype.hasLastActive = function() {
-  return jspb.Message.getField(this, 10) != null;
+  return jspb.Message.getField(this, 11) != null;
 };
 
 
 /**
- * optional string occupation = 11;
+ * optional string occupation = 12;
  * @return {string}
  */
 proto.api.User.prototype.getOccupation = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 11, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.api.User} returns this
- */
-proto.api.User.prototype.setOccupation = function(value) {
-  return jspb.Message.setProto3StringField(this, 11, value);
-};
-
-
-/**
- * optional string about_me = 12;
- * @return {string}
- */
-proto.api.User.prototype.getAboutMe = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 12, ""));
 };
 
@@ -1087,16 +1099,16 @@ proto.api.User.prototype.getAboutMe = function() {
  * @param {string} value
  * @return {!proto.api.User} returns this
  */
-proto.api.User.prototype.setAboutMe = function(value) {
+proto.api.User.prototype.setOccupation = function(value) {
   return jspb.Message.setProto3StringField(this, 12, value);
 };
 
 
 /**
- * optional string about_place = 13;
+ * optional string about_me = 13;
  * @return {string}
  */
-proto.api.User.prototype.getAboutPlace = function() {
+proto.api.User.prototype.getAboutMe = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 13, ""));
 };
 
@@ -1105,17 +1117,35 @@ proto.api.User.prototype.getAboutPlace = function() {
  * @param {string} value
  * @return {!proto.api.User} returns this
  */
-proto.api.User.prototype.setAboutPlace = function(value) {
+proto.api.User.prototype.setAboutMe = function(value) {
   return jspb.Message.setProto3StringField(this, 13, value);
 };
 
 
 /**
- * repeated string languages = 14;
+ * optional string about_place = 14;
+ * @return {string}
+ */
+proto.api.User.prototype.getAboutPlace = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 14, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.api.User} returns this
+ */
+proto.api.User.prototype.setAboutPlace = function(value) {
+  return jspb.Message.setProto3StringField(this, 14, value);
+};
+
+
+/**
+ * repeated string languages = 15;
  * @return {!Array<string>}
  */
 proto.api.User.prototype.getLanguagesList = function() {
-  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 14));
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 15));
 };
 
 
@@ -1124,7 +1154,7 @@ proto.api.User.prototype.getLanguagesList = function() {
  * @return {!proto.api.User} returns this
  */
 proto.api.User.prototype.setLanguagesList = function(value) {
-  return jspb.Message.setField(this, 14, value || []);
+  return jspb.Message.setField(this, 15, value || []);
 };
 
 
@@ -1134,7 +1164,7 @@ proto.api.User.prototype.setLanguagesList = function(value) {
  * @return {!proto.api.User} returns this
  */
 proto.api.User.prototype.addLanguages = function(value, opt_index) {
-  return jspb.Message.addToRepeatedField(this, 14, value, opt_index);
+  return jspb.Message.addToRepeatedField(this, 15, value, opt_index);
 };
 
 
@@ -1148,11 +1178,11 @@ proto.api.User.prototype.clearLanguagesList = function() {
 
 
 /**
- * repeated string countries_visited = 15;
+ * repeated string countries_visited = 16;
  * @return {!Array<string>}
  */
 proto.api.User.prototype.getCountriesVisitedList = function() {
-  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 15));
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 16));
 };
 
 
@@ -1161,7 +1191,7 @@ proto.api.User.prototype.getCountriesVisitedList = function() {
  * @return {!proto.api.User} returns this
  */
 proto.api.User.prototype.setCountriesVisitedList = function(value) {
-  return jspb.Message.setField(this, 15, value || []);
+  return jspb.Message.setField(this, 16, value || []);
 };
 
 
@@ -1171,7 +1201,7 @@ proto.api.User.prototype.setCountriesVisitedList = function(value) {
  * @return {!proto.api.User} returns this
  */
 proto.api.User.prototype.addCountriesVisited = function(value, opt_index) {
-  return jspb.Message.addToRepeatedField(this, 15, value, opt_index);
+  return jspb.Message.addToRepeatedField(this, 16, value, opt_index);
 };
 
 
@@ -1185,11 +1215,11 @@ proto.api.User.prototype.clearCountriesVisitedList = function() {
 
 
 /**
- * repeated string countries_lived = 16;
+ * repeated string countries_lived = 17;
  * @return {!Array<string>}
  */
 proto.api.User.prototype.getCountriesLivedList = function() {
-  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 16));
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 17));
 };
 
 
@@ -1198,7 +1228,7 @@ proto.api.User.prototype.getCountriesLivedList = function() {
  * @return {!proto.api.User} returns this
  */
 proto.api.User.prototype.setCountriesLivedList = function(value) {
-  return jspb.Message.setField(this, 16, value || []);
+  return jspb.Message.setField(this, 17, value || []);
 };
 
 
@@ -1208,7 +1238,7 @@ proto.api.User.prototype.setCountriesLivedList = function(value) {
  * @return {!proto.api.User} returns this
  */
 proto.api.User.prototype.addCountriesLived = function(value, opt_index) {
-  return jspb.Message.addToRepeatedField(this, 16, value, opt_index);
+  return jspb.Message.addToRepeatedField(this, 17, value, opt_index);
 };
 
 
@@ -1389,6 +1419,7 @@ proto.api.UpdateProfileReq.toObject = function(includeInstance, msg) {
     occupation: (f = msg.getOccupation()) && google_protobuf_wrappers_pb.StringValue.toObject(includeInstance, f),
     aboutMe: (f = msg.getAboutMe()) && google_protobuf_wrappers_pb.StringValue.toObject(includeInstance, f),
     aboutPlace: (f = msg.getAboutPlace()) && google_protobuf_wrappers_pb.StringValue.toObject(includeInstance, f),
+    color: (f = msg.getColor()) && google_protobuf_wrappers_pb.StringValue.toObject(includeInstance, f),
     languages: (f = msg.getLanguages()) && proto.api.UpdateProfileReq.RepeatedStringValue.toObject(includeInstance, f),
     countriesVisited: (f = msg.getCountriesVisited()) && proto.api.UpdateProfileReq.RepeatedStringValue.toObject(includeInstance, f),
     countriesLived: (f = msg.getCountriesLived()) && proto.api.UpdateProfileReq.RepeatedStringValue.toObject(includeInstance, f)
@@ -1459,16 +1490,21 @@ proto.api.UpdateProfileReq.deserializeBinaryFromReader = function(msg, reader) {
       msg.setAboutPlace(value);
       break;
     case 7:
-      var value = new proto.api.UpdateProfileReq.RepeatedStringValue;
-      reader.readMessage(value,proto.api.UpdateProfileReq.RepeatedStringValue.deserializeBinaryFromReader);
-      msg.setLanguages(value);
+      var value = new google_protobuf_wrappers_pb.StringValue;
+      reader.readMessage(value,google_protobuf_wrappers_pb.StringValue.deserializeBinaryFromReader);
+      msg.setColor(value);
       break;
     case 8:
       var value = new proto.api.UpdateProfileReq.RepeatedStringValue;
       reader.readMessage(value,proto.api.UpdateProfileReq.RepeatedStringValue.deserializeBinaryFromReader);
-      msg.setCountriesVisited(value);
+      msg.setLanguages(value);
       break;
     case 9:
+      var value = new proto.api.UpdateProfileReq.RepeatedStringValue;
+      reader.readMessage(value,proto.api.UpdateProfileReq.RepeatedStringValue.deserializeBinaryFromReader);
+      msg.setCountriesVisited(value);
+      break;
+    case 10:
       var value = new proto.api.UpdateProfileReq.RepeatedStringValue;
       reader.readMessage(value,proto.api.UpdateProfileReq.RepeatedStringValue.deserializeBinaryFromReader);
       msg.setCountriesLived(value);
@@ -1550,15 +1586,15 @@ proto.api.UpdateProfileReq.serializeBinaryToWriter = function(message, writer) {
       google_protobuf_wrappers_pb.StringValue.serializeBinaryToWriter
     );
   }
-  f = message.getLanguages();
+  f = message.getColor();
   if (f != null) {
     writer.writeMessage(
       7,
       f,
-      proto.api.UpdateProfileReq.RepeatedStringValue.serializeBinaryToWriter
+      google_protobuf_wrappers_pb.StringValue.serializeBinaryToWriter
     );
   }
-  f = message.getCountriesVisited();
+  f = message.getLanguages();
   if (f != null) {
     writer.writeMessage(
       8,
@@ -1566,10 +1602,18 @@ proto.api.UpdateProfileReq.serializeBinaryToWriter = function(message, writer) {
       proto.api.UpdateProfileReq.RepeatedStringValue.serializeBinaryToWriter
     );
   }
-  f = message.getCountriesLived();
+  f = message.getCountriesVisited();
   if (f != null) {
     writer.writeMessage(
       9,
+      f,
+      proto.api.UpdateProfileReq.RepeatedStringValue.serializeBinaryToWriter
+    );
+  }
+  f = message.getCountriesLived();
+  if (f != null) {
+    writer.writeMessage(
+      10,
       f,
       proto.api.UpdateProfileReq.RepeatedStringValue.serializeBinaryToWriter
     );
@@ -1986,12 +2030,49 @@ proto.api.UpdateProfileReq.prototype.hasAboutPlace = function() {
 
 
 /**
- * optional RepeatedStringValue languages = 7;
+ * optional google.protobuf.StringValue color = 7;
+ * @return {?proto.google.protobuf.StringValue}
+ */
+proto.api.UpdateProfileReq.prototype.getColor = function() {
+  return /** @type{?proto.google.protobuf.StringValue} */ (
+    jspb.Message.getWrapperField(this, google_protobuf_wrappers_pb.StringValue, 7));
+};
+
+
+/**
+ * @param {?proto.google.protobuf.StringValue|undefined} value
+ * @return {!proto.api.UpdateProfileReq} returns this
+*/
+proto.api.UpdateProfileReq.prototype.setColor = function(value) {
+  return jspb.Message.setWrapperField(this, 7, value);
+};
+
+
+/**
+ * Clears the message field making it undefined.
+ * @return {!proto.api.UpdateProfileReq} returns this
+ */
+proto.api.UpdateProfileReq.prototype.clearColor = function() {
+  return this.setColor(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.api.UpdateProfileReq.prototype.hasColor = function() {
+  return jspb.Message.getField(this, 7) != null;
+};
+
+
+/**
+ * optional RepeatedStringValue languages = 8;
  * @return {?proto.api.UpdateProfileReq.RepeatedStringValue}
  */
 proto.api.UpdateProfileReq.prototype.getLanguages = function() {
   return /** @type{?proto.api.UpdateProfileReq.RepeatedStringValue} */ (
-    jspb.Message.getWrapperField(this, proto.api.UpdateProfileReq.RepeatedStringValue, 7));
+    jspb.Message.getWrapperField(this, proto.api.UpdateProfileReq.RepeatedStringValue, 8));
 };
 
 
@@ -2000,7 +2081,7 @@ proto.api.UpdateProfileReq.prototype.getLanguages = function() {
  * @return {!proto.api.UpdateProfileReq} returns this
 */
 proto.api.UpdateProfileReq.prototype.setLanguages = function(value) {
-  return jspb.Message.setWrapperField(this, 7, value);
+  return jspb.Message.setWrapperField(this, 8, value);
 };
 
 
@@ -2018,17 +2099,17 @@ proto.api.UpdateProfileReq.prototype.clearLanguages = function() {
  * @return {boolean}
  */
 proto.api.UpdateProfileReq.prototype.hasLanguages = function() {
-  return jspb.Message.getField(this, 7) != null;
+  return jspb.Message.getField(this, 8) != null;
 };
 
 
 /**
- * optional RepeatedStringValue countries_visited = 8;
+ * optional RepeatedStringValue countries_visited = 9;
  * @return {?proto.api.UpdateProfileReq.RepeatedStringValue}
  */
 proto.api.UpdateProfileReq.prototype.getCountriesVisited = function() {
   return /** @type{?proto.api.UpdateProfileReq.RepeatedStringValue} */ (
-    jspb.Message.getWrapperField(this, proto.api.UpdateProfileReq.RepeatedStringValue, 8));
+    jspb.Message.getWrapperField(this, proto.api.UpdateProfileReq.RepeatedStringValue, 9));
 };
 
 
@@ -2037,7 +2118,7 @@ proto.api.UpdateProfileReq.prototype.getCountriesVisited = function() {
  * @return {!proto.api.UpdateProfileReq} returns this
 */
 proto.api.UpdateProfileReq.prototype.setCountriesVisited = function(value) {
-  return jspb.Message.setWrapperField(this, 8, value);
+  return jspb.Message.setWrapperField(this, 9, value);
 };
 
 
@@ -2055,17 +2136,17 @@ proto.api.UpdateProfileReq.prototype.clearCountriesVisited = function() {
  * @return {boolean}
  */
 proto.api.UpdateProfileReq.prototype.hasCountriesVisited = function() {
-  return jspb.Message.getField(this, 8) != null;
+  return jspb.Message.getField(this, 9) != null;
 };
 
 
 /**
- * optional RepeatedStringValue countries_lived = 9;
+ * optional RepeatedStringValue countries_lived = 10;
  * @return {?proto.api.UpdateProfileReq.RepeatedStringValue}
  */
 proto.api.UpdateProfileReq.prototype.getCountriesLived = function() {
   return /** @type{?proto.api.UpdateProfileReq.RepeatedStringValue} */ (
-    jspb.Message.getWrapperField(this, proto.api.UpdateProfileReq.RepeatedStringValue, 9));
+    jspb.Message.getWrapperField(this, proto.api.UpdateProfileReq.RepeatedStringValue, 10));
 };
 
 
@@ -2074,7 +2155,7 @@ proto.api.UpdateProfileReq.prototype.getCountriesLived = function() {
  * @return {!proto.api.UpdateProfileReq} returns this
 */
 proto.api.UpdateProfileReq.prototype.setCountriesLived = function(value) {
-  return jspb.Message.setWrapperField(this, 9, value);
+  return jspb.Message.setWrapperField(this, 10, value);
 };
 
 
@@ -2092,7 +2173,7 @@ proto.api.UpdateProfileReq.prototype.clearCountriesLived = function() {
  * @return {boolean}
  */
 proto.api.UpdateProfileReq.prototype.hasCountriesLived = function() {
-  return jspb.Message.getField(this, 9) != null;
+  return jspb.Message.getField(this, 10) != null;
 };
 
 
@@ -2134,9 +2215,10 @@ proto.api.UpdateProfileRes.toObject = function(includeInstance, msg) {
     updatedOccupation: jspb.Message.getBooleanFieldWithDefault(msg, 4, false),
     updatedAboutMe: jspb.Message.getBooleanFieldWithDefault(msg, 5, false),
     updatedAboutPlace: jspb.Message.getBooleanFieldWithDefault(msg, 6, false),
-    updatedLanguages: jspb.Message.getBooleanFieldWithDefault(msg, 7, false),
-    updatedCountriesVisited: jspb.Message.getBooleanFieldWithDefault(msg, 8, false),
-    updatedCountriesLived: jspb.Message.getBooleanFieldWithDefault(msg, 9, false)
+    updatedColor: jspb.Message.getBooleanFieldWithDefault(msg, 7, false),
+    updatedLanguages: jspb.Message.getBooleanFieldWithDefault(msg, 8, false),
+    updatedCountriesVisited: jspb.Message.getBooleanFieldWithDefault(msg, 9, false),
+    updatedCountriesLived: jspb.Message.getBooleanFieldWithDefault(msg, 10, false)
   };
 
   if (includeInstance) {
@@ -2199,13 +2281,17 @@ proto.api.UpdateProfileRes.deserializeBinaryFromReader = function(msg, reader) {
       break;
     case 7:
       var value = /** @type {boolean} */ (reader.readBool());
-      msg.setUpdatedLanguages(value);
+      msg.setUpdatedColor(value);
       break;
     case 8:
       var value = /** @type {boolean} */ (reader.readBool());
-      msg.setUpdatedCountriesVisited(value);
+      msg.setUpdatedLanguages(value);
       break;
     case 9:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setUpdatedCountriesVisited(value);
+      break;
+    case 10:
       var value = /** @type {boolean} */ (reader.readBool());
       msg.setUpdatedCountriesLived(value);
       break;
@@ -2280,24 +2366,31 @@ proto.api.UpdateProfileRes.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
-  f = message.getUpdatedLanguages();
+  f = message.getUpdatedColor();
   if (f) {
     writer.writeBool(
       7,
       f
     );
   }
-  f = message.getUpdatedCountriesVisited();
+  f = message.getUpdatedLanguages();
   if (f) {
     writer.writeBool(
       8,
       f
     );
   }
-  f = message.getUpdatedCountriesLived();
+  f = message.getUpdatedCountriesVisited();
   if (f) {
     writer.writeBool(
       9,
+      f
+    );
+  }
+  f = message.getUpdatedCountriesLived();
+  if (f) {
+    writer.writeBool(
+      10,
       f
     );
   }
@@ -2413,10 +2506,10 @@ proto.api.UpdateProfileRes.prototype.setUpdatedAboutPlace = function(value) {
 
 
 /**
- * optional bool updated_languages = 7;
+ * optional bool updated_color = 7;
  * @return {boolean}
  */
-proto.api.UpdateProfileRes.prototype.getUpdatedLanguages = function() {
+proto.api.UpdateProfileRes.prototype.getUpdatedColor = function() {
   return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 7, false));
 };
 
@@ -2425,16 +2518,16 @@ proto.api.UpdateProfileRes.prototype.getUpdatedLanguages = function() {
  * @param {boolean} value
  * @return {!proto.api.UpdateProfileRes} returns this
  */
-proto.api.UpdateProfileRes.prototype.setUpdatedLanguages = function(value) {
+proto.api.UpdateProfileRes.prototype.setUpdatedColor = function(value) {
   return jspb.Message.setProto3BooleanField(this, 7, value);
 };
 
 
 /**
- * optional bool updated_countries_visited = 8;
+ * optional bool updated_languages = 8;
  * @return {boolean}
  */
-proto.api.UpdateProfileRes.prototype.getUpdatedCountriesVisited = function() {
+proto.api.UpdateProfileRes.prototype.getUpdatedLanguages = function() {
   return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 8, false));
 };
 
@@ -2443,16 +2536,16 @@ proto.api.UpdateProfileRes.prototype.getUpdatedCountriesVisited = function() {
  * @param {boolean} value
  * @return {!proto.api.UpdateProfileRes} returns this
  */
-proto.api.UpdateProfileRes.prototype.setUpdatedCountriesVisited = function(value) {
+proto.api.UpdateProfileRes.prototype.setUpdatedLanguages = function(value) {
   return jspb.Message.setProto3BooleanField(this, 8, value);
 };
 
 
 /**
- * optional bool updated_countries_lived = 9;
+ * optional bool updated_countries_visited = 9;
  * @return {boolean}
  */
-proto.api.UpdateProfileRes.prototype.getUpdatedCountriesLived = function() {
+proto.api.UpdateProfileRes.prototype.getUpdatedCountriesVisited = function() {
   return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 9, false));
 };
 
@@ -2461,8 +2554,26 @@ proto.api.UpdateProfileRes.prototype.getUpdatedCountriesLived = function() {
  * @param {boolean} value
  * @return {!proto.api.UpdateProfileRes} returns this
  */
-proto.api.UpdateProfileRes.prototype.setUpdatedCountriesLived = function(value) {
+proto.api.UpdateProfileRes.prototype.setUpdatedCountriesVisited = function(value) {
   return jspb.Message.setProto3BooleanField(this, 9, value);
+};
+
+
+/**
+ * optional bool updated_countries_lived = 10;
+ * @return {boolean}
+ */
+proto.api.UpdateProfileRes.prototype.getUpdatedCountriesLived = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 10, false));
+};
+
+
+/**
+ * @param {boolean} value
+ * @return {!proto.api.UpdateProfileRes} returns this
+ */
+proto.api.UpdateProfileRes.prototype.setUpdatedCountriesLived = function(value) {
+  return jspb.Message.setProto3BooleanField(this, 10, value);
 };
 
 

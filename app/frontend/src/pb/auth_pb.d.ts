@@ -190,7 +190,7 @@ export namespace LoginRes {
   export enum LoginStep { 
     NEED_PASSWORD = 0,
     SENT_LOGIN_EMAIL = 1,
-    INVALID_USER = 3,
+    INVALID_USER = 2,
   }
 }
 

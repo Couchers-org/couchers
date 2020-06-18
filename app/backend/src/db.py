@@ -44,6 +44,9 @@ def is_valid_email(field):
     """
     return re.match(r'^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$', field) is not None
 
+def is_valid_color(color):
+    return re.match(r"^#[0-9a-fA-F]{6}$", color) is not None
+
 def get_user_by_field(session, field):
     """
     Returns the user based on any of those three

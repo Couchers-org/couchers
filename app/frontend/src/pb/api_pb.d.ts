@@ -72,6 +72,9 @@ export class User extends jspb.Message {
   getAge(): number;
   setAge(value: number): User;
 
+  getColor(): string;
+  setColor(value: string): User;
+
   getJoined(): google_protobuf_timestamp_pb.Timestamp | undefined;
   setJoined(value?: google_protobuf_timestamp_pb.Timestamp): User;
   hasJoined(): boolean;
@@ -124,6 +127,7 @@ export namespace User {
     numReferences: number,
     gender: string,
     age: number,
+    color: string,
     joined?: google_protobuf_timestamp_pb.Timestamp.AsObject,
     lastActive?: google_protobuf_timestamp_pb.Timestamp.AsObject,
     occupation: string,
@@ -184,6 +188,11 @@ export class UpdateProfileReq extends jspb.Message {
   hasAboutPlace(): boolean;
   clearAboutPlace(): UpdateProfileReq;
 
+  getColor(): google_protobuf_wrappers_pb.StringValue | undefined;
+  setColor(value?: google_protobuf_wrappers_pb.StringValue): UpdateProfileReq;
+  hasColor(): boolean;
+  clearColor(): UpdateProfileReq;
+
   getLanguages(): RepeatedStringValue | undefined;
   setLanguages(value?: RepeatedStringValue): UpdateProfileReq;
   hasLanguages(): boolean;
@@ -215,6 +224,7 @@ export namespace UpdateProfileReq {
     occupation?: google_protobuf_wrappers_pb.StringValue.AsObject,
     aboutMe?: google_protobuf_wrappers_pb.StringValue.AsObject,
     aboutPlace?: google_protobuf_wrappers_pb.StringValue.AsObject,
+    color?: google_protobuf_wrappers_pb.StringValue.AsObject,
     languages?: RepeatedStringValue.AsObject,
     countriesVisited?: RepeatedStringValue.AsObject,
     countriesLived?: RepeatedStringValue.AsObject,
@@ -265,6 +275,9 @@ export class UpdateProfileRes extends jspb.Message {
   getUpdatedAboutPlace(): boolean;
   setUpdatedAboutPlace(value: boolean): UpdateProfileRes;
 
+  getUpdatedColor(): boolean;
+  setUpdatedColor(value: boolean): UpdateProfileRes;
+
   getUpdatedLanguages(): boolean;
   setUpdatedLanguages(value: boolean): UpdateProfileRes;
 
@@ -290,6 +303,7 @@ export namespace UpdateProfileRes {
     updatedOccupation: boolean,
     updatedAboutMe: boolean,
     updatedAboutPlace: boolean,
+    updatedColor: boolean,
     updatedLanguages: boolean,
     updatedCountriesVisited: boolean,
     updatedCountriesLived: boolean,

@@ -2,7 +2,7 @@
   <v-content>
     <v-container fluid>
       <v-card class="float-left mx-3 my-3" width="350" outlined>
-        <v-img :aspect-ratio="1" src="/profile-itsi.jpg"></v-img>
+        <v-sheet height="80" :color="user.color" tile></v-sheet>
         <v-card-title>{{ user.name }}</v-card-title>
         <v-card-subtitle>{{ user.city }}</v-card-subtitle>
         <v-list-item two-item>
@@ -112,6 +112,9 @@
           <editable-list :list="user.countriesVisitedList" v-on:save="saveCountriesVisited" />
           <h3>Countries I've Lived In</h3>
           <editable-list :list="user.countriesLivedList" v-on:save="saveCountriesLived" />
+          <h3>Profile color</h3>
+          <p>We're still working on profile pictures, but you can choose a color for your profile instead!</p>
+          <editable-color :color="user.color" v-on:save="saveColor" />
         </v-card-text>
       </v-card>
     </v-container>
@@ -127,6 +130,7 @@ import wrappers from 'google-protobuf/google/protobuf/wrappers_pb'
 import EditableTextarea from '../components/EditableTextarea.vue'
 import EditableTextField from '../components/EditableTextField.vue'
 import EditableList from '../components/EditableList.vue'
+import EditableColor from '../components/EditableColor.vue'
 
 import { GetUserReq, UpdateProfileReq } from '../pb/api_pb'
 import client from '../api'
@@ -154,14 +158,16 @@ export default Vue.extend({
       countriesVisitedList: [],
       countriesLivedList: [],
       lastActive: null,
-      joined: null
+      joined: null,
+      color: null
     }
   }),
 
   components: {
     "editable-textarea": EditableTextarea,
     "editable-text-field": EditableTextField,
-    "editable-list": EditableList
+    "editable-list": EditableList,
+    "editable-color": EditableColor
   },
 
   created () {
@@ -259,6 +265,14 @@ export default Vue.extend({
       listValue.setValueList(list)
       listValue.setExists(true)
       req.setLanguages(listValue)
+      this.updateProfile(req)
+    },
+
+    saveColor: function (color: string) {
+      const req = new UpdateProfileReq()
+      const wrapper = new wrappers.StringValue()
+      wrapper.setValue(color)
+      req.setColor(wrapper)
       this.updateProfile(req)
     },
 

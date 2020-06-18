@@ -44,14 +44,15 @@ message User {
   uint32 num_references = 6;
   string gender = 7;
   uint32 age = 8;
-  google.protobuf.Timestamp joined = 9; // not exact
-  google.protobuf.Timestamp last_active = 10; // not exact
-  string occupation = 11;
-  string about_me = 12;
-  string about_place = 13;
-  repeated string languages = 14;
-  repeated string countries_visited = 15;
-  repeated string countries_lived = 16;
+  string color = 9; // web color, e.g. #643073, case doesn't matter
+  google.protobuf.Timestamp joined = 10; // not exact
+  google.protobuf.Timestamp last_active = 11; // not exact
+  string occupation = 12;
+  string about_me = 13;
+  string about_place = 14;
+  repeated string languages = 15;
+  repeated string countries_visited = 16;
+  repeated string countries_lived = 17;
 }
 
 message GetUserReq {
@@ -67,6 +68,7 @@ message UpdateProfileReq {
   google.protobuf.StringValue occupation = 4;
   google.protobuf.StringValue about_me = 5;
   google.protobuf.StringValue about_place = 6;
+  google.protobuf.StringValue color = 7;
 
   message RepeatedStringValue {
     // A RepeatedStringValue is like a "protobuf warpper" (like {Type}Value) but for repeated strings
@@ -75,9 +77,9 @@ message UpdateProfileReq {
     repeated string value = 2;
   }
 
-  RepeatedStringValue languages = 7;
-  RepeatedStringValue countries_visited = 8;
-  RepeatedStringValue countries_lived = 9;
+  RepeatedStringValue languages = 8;
+  RepeatedStringValue countries_visited = 9;
+  RepeatedStringValue countries_lived = 10;
 }
 
 message UpdateProfileRes {
@@ -87,9 +89,10 @@ message UpdateProfileRes {
   bool updated_occupation = 4;
   bool updated_about_me = 5;
   bool updated_about_place = 6;
-  bool updated_languages = 7;
-  bool updated_countries_visited = 8;
-  bool updated_countries_lived = 9;
+  bool updated_color = 7;
+  bool updated_languages = 8;
+  bool updated_countries_visited = 9;
+  bool updated_countries_lived = 10;
 }
 
 message SSOReq {

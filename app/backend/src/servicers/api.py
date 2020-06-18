@@ -3,7 +3,7 @@ from urllib.parse import parse_qs, quote, unquote, urlencode
 
 import grpc
 from crypto import base64decode, base64encode, sso_check_hmac, sso_create_hmac
-from db import get_user_by_field, session_scope
+from db import get_user_by_field, is_valid_color, session_scope
 from models import User
 from pb import api_pb2, api_pb2_grpc
 from utils import Timestamp_from_datetime
@@ -39,6 +39,7 @@ class APIServicer(api_pb2_grpc.APIServicer):
                 num_references=0,
                 gender=user.gender,
                 age=user.age,
+                color=user.color,
                 joined=Timestamp_from_datetime(user.display_joined),
                 last_active=Timestamp_from_datetime(user.display_last_active),
                 occupation=user.occupation,
@@ -78,6 +79,13 @@ class APIServicer(api_pb2_grpc.APIServicer):
             if request.HasField("about_place"):
                 user.about_place = request.about_place.value
                 res.updated_about_place = True
+
+            if request.HasField("color"):
+                color = request.color.value.lower()
+                if not is_valid_color(color):
+                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, "Invalid color")
+                user.color = color
+                res.updated_color = True
 
             if request.languages.exists:
                 user.languages = "|".join(request.languages.value)
