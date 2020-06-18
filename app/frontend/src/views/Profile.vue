@@ -10,7 +10,7 @@
             <v-icon>mdi-account-check</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title>Verification (coming soon) %</v-list-item-title>
+            <v-list-item-title>Verification (coming soon)</v-list-item-title>
             <v-list-item-subtitle><v-progress-linear class="my-2" height="12" rounded value="0" color="light-green"></v-progress-linear></v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
@@ -19,7 +19,7 @@
             <v-icon>mdi-account-group</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title>Community standing (coming soon) %</v-list-item-title>
+            <v-list-item-title>Community standing (coming soon)</v-list-item-title>
             <v-list-item-subtitle><v-progress-linear class="my-2" height="12" rounded value="0" color="light-blue"></v-progress-linear></v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
@@ -68,27 +68,32 @@
           </v-list-item-content>
         </v-list-item>
         <v-divider></v-divider>
-        <v-card-actions>
-          <v-btn text>Message</v-btn>
-          <v-btn text>Request to stay</v-btn>
-        </v-card-actions>
       </v-card>
       <v-card class="float-left mx-3 my-3" width="950" outlined>
         <v-card-text>
-          <v-tabs class="mb-5">
-            <v-tab>About me</v-tab>
-            <v-tab>References</v-tab>
-            <v-tab>Friends</v-tab>
-            <v-tab>Photos</v-tab>
-          </v-tabs>
+          <h2>Edit your profile</h2>
+          <p>See how your profile looks to others: ...TODO link to /user/:username</p>
+          <h3>Name</h3>
+          <editable-text-field :text="user.name" v-on:save="saveName" />
+          <h3>City</h3>
+          <editable-text-field :text="user.city" v-on:save="saveCity" />
+          <h3>Gender</h3>
+          <editable-text-field :text="user.gender" v-on:save="saveGender" />
+          <h3>Occupation</h3>
+          <editable-text-field :text="user.occupation" v-on:save="saveOccupation" />
+          <h3>Languages</h3>
+          <editable-list :list="user.languagesList" v-on:save="saveLanguages" />
           <h3>About me</h3>
-          <p>{{ user.aboutMe }}</p>
+          <editable-textarea :text="user.aboutMe" v-on:save="saveAboutMe" />
           <h3>About my place</h3>
-          <p>{{ user.aboutPlace }}</p>
+          <editable-textarea :text="user.aboutPlace" v-on:save="saveAboutPlace" />
           <h3>Countries I've visited</h3>
-          <p>{{ countriesVisitedListDisplay }}</p>
+          <editable-list :list="user.countriesVisitedList" v-on:save="saveCountriesVisited" />
           <h3>Countries I've lived in</h3>
-          <p>{{ countriesLivedListDisplay }}</p>
+          <editable-list :list="user.countriesLivedList" v-on:save="saveCountriesLived" />
+          <h3>Profile color</h3>
+          <p>We're still working on profile pictures, but you can choose a color for your profile instead!</p>
+          <editable-color :color="user.color" v-on:save="saveColor" />
         </v-card-text>
       </v-card>
     </v-container>
@@ -99,9 +104,17 @@
 import Vue from 'vue'
 
 import moment, { lang } from 'moment'
+import wrappers from 'google-protobuf/google/protobuf/wrappers_pb'
 
-import { GetUserReq } from '../pb/api_pb'
+import EditableTextarea from '../components/EditableTextarea.vue'
+import EditableTextField from '../components/EditableTextField.vue'
+import EditableList from '../components/EditableList.vue'
+import EditableColor from '../components/EditableColor.vue'
+
+import { GetUserReq, UpdateProfileReq } from '../pb/api_pb'
 import client from '../api'
+
+import Store from '../store'
 
 function displayList(list: string[]) {
   return list.join(', ')
@@ -131,6 +144,13 @@ export default Vue.extend({
     }
   }),
 
+  components: {
+    "editable-textarea": EditableTextarea,
+    "editable-text-field": EditableTextField,
+    "editable-list": EditableList,
+    "editable-color": EditableColor
+  },
+
   created () {
     this.fetchData()
   },
@@ -145,7 +165,7 @@ export default Vue.extend({
       this.errorMessages = []
 
       const req = new GetUserReq()
-      req.setUser(this.$route.params.user)
+      req.setUser(Store.state.username)
       client.getUser(req, null).then(res => {
         this.loading = false
         this.errorMessages = []
@@ -157,6 +177,103 @@ export default Vue.extend({
         this.loading = false
         this.errorMessages = err.message
       })
+    },
+
+    updateProfile: function (req: UpdateProfileReq) {
+      this.loading = true
+
+      client.updateProfile(req, null).then(res => {
+        this.loading = false
+        console.log(res)
+        this.fetchData()
+      }).catch(err => {
+        console.error(err)
+        this.loading = false
+        this.errorMessages = err.message
+      })
+    },
+
+    saveAboutMe: function (text: string) {
+      const req = new UpdateProfileReq()
+      const wrapper = new wrappers.StringValue()
+      wrapper.setValue(text)
+      req.setAboutMe(wrapper)
+      this.updateProfile(req)
+    },
+
+    saveAboutPlace: function (text: string) {
+      const req = new UpdateProfileReq()
+      const wrapper = new wrappers.StringValue()
+      wrapper.setValue(text)
+      req.setAboutPlace(wrapper)
+      this.updateProfile(req)
+    },
+
+    saveName: function (text: string) {
+      const req = new UpdateProfileReq()
+      const wrapper = new wrappers.StringValue()
+      wrapper.setValue(text)
+      req.setName(wrapper)
+      this.updateProfile(req)
+    },
+
+    saveCity: function (text: string) {
+      const req = new UpdateProfileReq()
+      const wrapper = new wrappers.StringValue()
+      wrapper.setValue(text)
+      req.setCity(wrapper)
+      this.updateProfile(req)
+    },
+
+    saveGender: function (text: string) {
+      const req = new UpdateProfileReq()
+      const wrapper = new wrappers.StringValue()
+      wrapper.setValue(text)
+      req.setGender(wrapper)
+      this.updateProfile(req)
+    },
+
+    saveOccupation: function (text: string) {
+      const req = new UpdateProfileReq()
+      const wrapper = new wrappers.StringValue()
+      wrapper.setValue(text)
+      req.setOccupation(wrapper)
+      this.updateProfile(req)
+    },
+
+    saveCountriesVisited: function (list: Array<string>) {
+      const req = new UpdateProfileReq()
+      const listValue = new UpdateProfileReq.RepeatedStringValue()
+      listValue.setValueList(list)
+      listValue.setExists(true)
+      req.setCountriesVisited(listValue)
+      this.updateProfile(req)
+    },
+
+    saveCountriesLived: function (list: Array<string>) {
+      const req = new UpdateProfileReq()
+      const listValue = new UpdateProfileReq.RepeatedStringValue()
+      listValue.setValueList(list)
+      listValue.setExists(true)
+      req.setCountriesLived(listValue)
+      this.updateProfile(req)
+    },
+
+    saveLanguages: function (list: Array<string>) {
+      const req = new UpdateProfileReq()
+      const listValue = new UpdateProfileReq.RepeatedStringValue()
+      listValue.setValueList(list)
+      listValue.setExists(true)
+      req.setLanguages(listValue)
+      this.updateProfile(req)
+    },
+
+    saveColor: function (color: string) {
+      const req = new UpdateProfileReq()
+      const wrapper = new wrappers.StringValue()
+      wrapper.setValue(color)
+      req.setColor(wrapper)
+      this.updateProfile(req)
     },
   },
 

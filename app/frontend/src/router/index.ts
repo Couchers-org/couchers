@@ -7,6 +7,7 @@ import Users from '../views/Users.vue'
 import Friends from '../views/Friends.vue'
 import About from '../views/About.vue'
 import Login from '../views/Login.vue'
+import Profile from '../views/Profile.vue'
 import Logout from '../views/Logout.vue'
 import SSO from '../views/SSO.vue'
 import Signup from '../views/Signup.vue'
@@ -70,6 +71,11 @@ const routes: Array<RouteConfig> = [
     path: '/friends',
     name: 'Friends',
     component: Friends
+  },
+  {
+    path: '/profile',
+    name: 'Profile',
+    component: Profile
   },
   {
     path: '/about',
