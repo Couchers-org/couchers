@@ -208,7 +208,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     return auth_pb2.LoginRes(next_step=auth_pb2.LoginRes.LoginStep.SENT_LOGIN_EMAIL)
             else: # user not found
                 logging.debug(f"Didn't find user")
-                return auth_pb2.LoginRes(next_step=auth_pb2.LoginRes.LoginStep.LOGIN_NO_SUCH_USER)
+                return auth_pb2.LoginRes(next_step=auth_pb2.LoginRes.LoginStep.INVALID_USER)
 
     def CompleteTokenLogin(self, request, context):
         """
