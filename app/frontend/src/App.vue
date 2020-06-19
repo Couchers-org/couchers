@@ -6,13 +6,13 @@
     </v-system-bar>
 
     <v-app-bar app color="primary" dark clipped-left>
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon v-if="authenticated" @click.stop="drawer = !drawer" />
       <div class="d-flex align-center">
         Couchers.org
       </div>
     </v-app-bar>
 
-    <drawer v-model="drawer" />
+    <drawer v-if="authenticated" v-model="drawer" />
 
     <router-view/>
   </v-app>
@@ -21,15 +21,23 @@
 <script lang="ts">
 import Vue from 'vue';
 
+import Store from './store'
+
 import Drawer from './components/Drawer.vue'
 
 export default Vue.extend({
+  components: {
+    "drawer": Drawer
+  },
+
   data: () => ({
     drawer: null
   }),
 
-  components: {
-    "drawer": Drawer
+  computed: {
+    authenticated () {
+      return Store.getters.authenticated
+    }
   },
 
   methods: {
