@@ -18,7 +18,7 @@
 import Vue from 'vue'
 
 import { SSOReq } from '../pb/api_pb'
-import client from '../api'
+import { client } from '../api'
 
 import Store, { AuthenticationState } from '../store'
 

@@ -112,7 +112,7 @@ import EditableList from '../components/EditableList.vue'
 import EditableColor from '../components/EditableColor.vue'
 
 import { GetUserReq, UpdateProfileReq } from '../pb/api_pb'
-import client from '../api'
+import { client } from '../api'
 
 import Store from '../store'
 

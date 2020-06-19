@@ -69,7 +69,7 @@ import Store from '../store'
 
 import { PingReq } from '../pb/api_pb'
 
-import client from '../api'
+import { client } from '../api'
 
 export default Vue.extend({
   props: ['value'],

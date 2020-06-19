@@ -101,7 +101,7 @@ import Vue from 'vue'
 import moment, { lang } from 'moment'
 
 import { GetUserReq } from '../pb/api_pb'
-import client from '../api'
+import { client } from '../api'
 
 function displayList(list: string[]) {
   return list.join(', ')
