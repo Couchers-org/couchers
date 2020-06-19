@@ -21,7 +21,8 @@ class APIServicer(api_pb2_grpc.APIServicer):
             return api_pb2.PingRes(
                 user_id=user.id,
                 username=user.username,
-                name=user.name
+                name=user.name,
+                color=user.color
             )
 
     def GetUser(self, request, context):

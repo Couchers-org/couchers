@@ -27,8 +27,8 @@ export class PingRes extends jspb.Message {
   getName(): string;
   setName(value: string): PingRes;
 
-  getUnreadMessageCount(): number;
-  setUnreadMessageCount(value: number): PingRes;
+  getColor(): string;
+  setColor(value: string): PingRes;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): PingRes.AsObject;
@@ -43,7 +43,7 @@ export namespace PingRes {
     userId: number,
     username: string,
     name: string,
-    unreadMessageCount: number,
+    color: string,
   }
 }
 

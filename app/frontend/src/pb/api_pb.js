@@ -350,7 +350,7 @@ proto.api.PingRes.toObject = function(includeInstance, msg) {
     userId: jspb.Message.getFieldWithDefault(msg, 1, 0),
     username: jspb.Message.getFieldWithDefault(msg, 2, ""),
     name: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    unreadMessageCount: jspb.Message.getFieldWithDefault(msg, 4, 0)
+    color: jspb.Message.getFieldWithDefault(msg, 4, "")
   };
 
   if (includeInstance) {
@@ -400,8 +400,8 @@ proto.api.PingRes.deserializeBinaryFromReader = function(msg, reader) {
       msg.setName(value);
       break;
     case 4:
-      var value = /** @type {number} */ (reader.readInt64());
-      msg.setUnreadMessageCount(value);
+      var value = /** @type {string} */ (reader.readString());
+      msg.setColor(value);
       break;
     default:
       reader.skipField();
@@ -453,9 +453,9 @@ proto.api.PingRes.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
-  f = message.getUnreadMessageCount();
-  if (f !== 0) {
-    writer.writeInt64(
+  f = message.getColor();
+  if (f.length > 0) {
+    writer.writeString(
       4,
       f
     );
@@ -518,20 +518,20 @@ proto.api.PingRes.prototype.setName = function(value) {
 
 
 /**
- * optional int64 unread_message_count = 4;
- * @return {number}
+ * optional string color = 4;
+ * @return {string}
  */
-proto.api.PingRes.prototype.getUnreadMessageCount = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 4, 0));
+proto.api.PingRes.prototype.getColor = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
 };
 
 
 /**
- * @param {number} value
+ * @param {string} value
  * @return {!proto.api.PingRes} returns this
  */
-proto.api.PingRes.prototype.setUnreadMessageCount = function(value) {
-  return jspb.Message.setProto3IntField(this, 4, value);
+proto.api.PingRes.prototype.setColor = function(value) {
+  return jspb.Message.setProto3StringField(this, 4, value);
 };
 
 

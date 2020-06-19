@@ -15,6 +15,7 @@ export default new Vuex.Store({
     error: null,
     username: null as null | string,
     name: null as null | string,
+    color: null,
     auth: AuthenticationState.None,
     authToken: null as null | string
   },

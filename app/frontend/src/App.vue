@@ -13,6 +13,9 @@
 
     <v-navigation-drawer app permanent>
       <v-list-item>
+        <v-list-item-avatar>
+          <v-avatar :color="color" />
+        </v-list-item-avatar>
         <v-list-item-content>
           <v-list-item-title class="title">
             {{ name }}
@@ -150,7 +153,8 @@ export default Vue.extend({
       client.ping(new PingReq(), null).then(res => {
         Store.commit('updateUser', {
           username: res.getUsername(),
-          name: res.getName()
+          name: res.getName(),
+          color: res.getColor()
         })
       }).catch(err => {
         console.error('Failed to ping server: ', err)
@@ -165,6 +169,9 @@ export default Vue.extend({
     name: function () {
       return Store.state.name
     },
+    color: function () {
+      return Store.state.color
+    }
   }
 });
 </script>

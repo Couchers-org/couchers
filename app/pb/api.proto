@@ -30,9 +30,7 @@ message PingRes {
   int64 user_id = 1;
   string username = 2;
   string name = 3;
-
-  // Updates
-  int64 unread_message_count = 4;
+  string color = 4;
 }
 
 message User {
