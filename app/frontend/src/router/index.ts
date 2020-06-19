@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
+import Store from '../store'
 import Home from '../views/Home.vue'
 import Messages from '../views/Messages.vue'
 import User from '../views/User.vue'
@@ -20,28 +21,40 @@ const routes: Array<RouteConfig> = [
   {
     path: '/',
     name: 'Home',
-    component: Home
+    component: Home,
+    meta: { noAuth: true }
   },
   {
     path: '/signup/',
     name: 'Signup',
-    component: Signup
+    component: Signup,
+    meta: { noAuth: true }
   },
   {
     path: '/signup/:token',
     name: 'CompleteSignup',
-    component: CompleteSignup
+    component: CompleteSignup,
+    meta: { noAuth: true }
   },
   {
     path: '/login',
     name: 'Login',
-    component: Login
+    component: Login,
+    meta: { noAuth: true }
   },
   {
     path: '/login/:token',
     name: 'CompleteLogin',
-    component: CompleteLogin
+    component: CompleteLogin,
+    meta: { noAuth: true }
   },
+  {
+    path: '/about',
+    name: 'About',
+    component: About,
+    meta: { noAuth: true }
+  },
+
   {
     path: '/sso',
     name: 'SSO',
@@ -76,11 +89,6 @@ const routes: Array<RouteConfig> = [
     path: '/profile',
     name: 'Profile',
     component: Profile
-  },
-  {
-    path: '/about',
-    name: 'About',
-    component: About
   }
 ]
 
@@ -88,6 +96,14 @@ const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
   routes
+})
+
+router.beforeEach((to, from, next) => {
+  if (!to.matched.some(record => record.meta.noAuth) && !Store.getters.authenticated) {
+    next({ name: 'Login' })
+  } else {
+    next()
+  }
 })
 
 export default router
