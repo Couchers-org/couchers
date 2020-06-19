@@ -17,77 +17,31 @@
     <v-divider></v-divider>
 
     <v-list dense nav>
-      <v-list-item link to="/login">
-        <v-list-item-icon>
-          <v-icon>mdi-login-variant</v-icon>
-        </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title>Login</v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
-      <v-list-item link to="/signup">
-        <v-list-item-icon>
-          <v-icon>mdi-plus-circle</v-icon>
-        </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title>Sign up</v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
       <v-list-item link to="/">
         <v-list-item-icon>
-          <v-icon>mdi-view-dashboard</v-icon>
+          <v-icon>mdi-home</v-icon>
         </v-list-item-icon>
         <v-list-item-content>
           <v-list-item-title>Home</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
-      <v-list-item link to="/user/1">
+      <v-list-item link to="/profile">
         <v-list-item-icon>
-          <v-badge color="success" content="3" overlap>
-            <v-icon>mdi-account</v-icon>
-          </v-badge>
+          <v-icon>mdi-account</v-icon>
         </v-list-item-icon>
         <v-list-item-content>
           <v-list-item-title>Profile</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
-      <v-list-item link to="/messages">
+      <v-list-item link href="https://sso-test.couchers.org/session/sso">
         <v-list-item-icon>
-          <v-badge color="success" content="3" overlap>
-            <v-icon>mdi-inbox</v-icon>
-          </v-badge>
+          <v-icon>mdi-account-group</v-icon>
         </v-list-item-icon>
         <v-list-item-content>
-          <v-list-item-title>Messages</v-list-item-title>
+          <v-list-item-title>Go to Forum</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
-      <v-list-item link>
-        <v-list-item-icon>
-          <v-badge color="warning" content="999+" overlap>
-            <v-icon>mdi-alert-circle</v-icon>
-          </v-badge>
-        </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title>Spam</v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
-      <v-list-item link to="/friends">
-        <v-list-item-icon>
-          <v-icon>mdi-handshake</v-icon>
-        </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title>Friends</v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
-      <v-list-item link>
-        <v-list-item-icon>
-          <v-icon>mdi-image</v-icon>
-        </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title>Photos</v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
-      <v-list-item link to="/about">
+      <v-list-item link href="https://couchers.org">
         <v-list-item-icon>
           <v-icon>mdi-help-box</v-icon>
         </v-list-item-icon>

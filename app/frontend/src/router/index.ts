@@ -2,11 +2,7 @@ import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
 import Store from '../store'
 import Home from '../views/Home.vue'
-import Messages from '../views/Messages.vue'
 import User from '../views/User.vue'
-import Users from '../views/Users.vue'
-import Friends from '../views/Friends.vue'
-import About from '../views/About.vue'
 import Login from '../views/Login.vue'
 import Profile from '../views/Profile.vue'
 import Logout from '../views/Logout.vue'
@@ -14,6 +10,8 @@ import SSO from '../views/SSO.vue'
 import Signup from '../views/Signup.vue'
 import CompleteLogin from '../views/CompleteLogin.vue'
 import CompleteSignup from '../views/CompleteSignup.vue'
+
+import ErrorPage from '../views/Error.vue'
 
 Vue.use(VueRouter)
 
@@ -49,11 +47,6 @@ const routes: Array<RouteConfig> = [
     component: Home
   },
   {
-    path: '/about',
-    name: 'About',
-    component: About
-  },
-  {
     path: '/sso',
     name: 'SSO',
     component: SSO
@@ -64,29 +57,24 @@ const routes: Array<RouteConfig> = [
     component: Logout
   },
   {
-    path: '/messages',
-    name: 'Messages',
-    component: Messages
-  },
-  {
-    path: '/user',
-    name: 'Users',
-    component: Users
-  },
-  {
     path: '/user/:user',
     name: 'User',
     component: User
   },
   {
-    path: '/friends',
-    name: 'Friends',
-    component: Friends
-  },
-  {
     path: '/profile',
     name: 'Profile',
     component: Profile
+  },
+
+  {
+    path: '*',
+    name: 'Not found',
+    component: ErrorPage,
+    props: {
+      title: 'Page Not Found',
+      message: 'That page wasn\'t found! Sorry.'
+    }
   }
 ]
 
