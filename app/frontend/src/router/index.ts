@@ -19,12 +19,6 @@ Vue.use(VueRouter)
 
 const routes: Array<RouteConfig> = [
   {
-    path: '/',
-    name: 'Home',
-    component: Home,
-    meta: { noAuth: true }
-  },
-  {
     path: '/signup/',
     name: 'Signup',
     component: Signup,
@@ -48,13 +42,17 @@ const routes: Array<RouteConfig> = [
     component: CompleteLogin,
     meta: { noAuth: true }
   },
+
+  {
+    path: '/',
+    name: 'Home',
+    component: Home
+  },
   {
     path: '/about',
     name: 'About',
-    component: About,
-    meta: { noAuth: true }
+    component: About
   },
-
   {
     path: '/sso',
     name: 'SSO',
