@@ -6,6 +6,9 @@
           <v-container fluid>
             <v-col class="mx-auto" cols="12" sm="10" md="8" lg="6" xl="4">
               <h1>Login</h1>
+              <v-alert v-if="reason" type="warning">
+                {{ reason }}
+              </v-alert>
               <v-card flat v-if="loginStep == 'user' || loginStep == 'pass'">
                 <v-card-text>
                   <v-form v-on:submit.prevent="submit">
@@ -84,6 +87,12 @@ export default Vue.extend({
       required: (value: string) => !!value || 'Required.'
     },
   }),
+
+  computed: {
+    reason: function () {
+      return this.$route.params.reason
+    },
+  },
 
   watch: {
     // empty error and success messages if we change user/pass combo

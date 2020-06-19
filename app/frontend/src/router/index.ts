@@ -100,7 +100,7 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
   if (!to.matched.some(record => record.meta.noAuth) && !Store.getters.authenticated) {
-    next({ name: 'Login' })
+    next({ name: 'Login', params: { reason: 'Please log in to continue' } })
   } else {
     next()
   }
