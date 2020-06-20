@@ -26,7 +26,7 @@
             <div class="card">
               <div class="card-image">
                 <figure class="image is-4by3 headshot">
-                  <img src="/img/itsi-friends.jpg" alt="Photo of Itsi with Couchsurfing&#8482; friends">
+                  <img src="/img/itsi-friends.jpg" alt="Photo of Itsi with couch-surfing friends">
                 </figure>
               </div>
               <div class="card-content">
@@ -53,7 +53,7 @@
             <div class="card">
               <div class="card-image">
                 <figure class="image is-4by3 headshot">
-                  <img src="/img/aapeli-friends.jpg" alt="Photo of Aapeli with Couchsurfing&#8482; friends">
+                  <img src="/img/aapeli-friends.jpg" alt="Photo of Aapeli with couch-surfing friends">
                 </figure>
               </div>
               <div class="card-content">
@@ -109,7 +109,7 @@
             <div class="card">
               <div class="card-image">
                 <figure class="image is-4by3 headshot">
-                  <img src="/img/marlies-friends.jpg" alt="Photo of Marlies with Couchsurfing&#8482; friends">
+                  <img src="/img/marlies-friends.jpg" alt="Photo of Marlies with couch-surfing friends">
                 </figure>
               </div>
               <div class="card-content">
@@ -134,7 +134,7 @@
             <div class="card">
               <div class="card-image">
                 <figure class="image is-4by3 headshot">
-                  <img src="/img/val-friends.jpg" alt="Photo of Val with Couchsurfing&#8482; friends">
+                  <img src="/img/val-friends.jpg" alt="Photo of Val with couch-surfing friends">
                 </figure>
               </div>
               <div class="card-content">
