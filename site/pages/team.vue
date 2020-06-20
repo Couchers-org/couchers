@@ -38,7 +38,7 @@
                   </div>
                   <div class="media-content">
                     <p class="title is-4">Itsi Weinstock</p>
-                    <p class="subtitle is-6">Project Lead & Community Architect</p>
+                    <p class="subtitle is-6">Team Lead: Community</p>
                   </div>
                 </div>
                 <div class="content">
@@ -65,7 +65,7 @@
                   </div>
                   <div class="media-content">
                     <p class="title is-4">Aapeli Vuorinen</p>
-                    <p class="subtitle is-6">Project Lead & Software Architect</p>
+                    <p class="subtitle is-6">Team Lead: Backend</p>
                   </div>
                 </div>
 
@@ -81,24 +81,25 @@
             <div class="card">
               <div class="card-image">
                 <figure class="image is-4by3 headshot">
-                  <img src="/img/coucher-avatar.jpg" alt="Avatar pic">
+                  <img src="/img/nathan-friends.jpg" alt="Photo of Nathan with couch-surfing friends">
                 </figure>
               </div>
               <div class="card-content">
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-48x48">
-                      <img class="is-rounded" src="/img/question.jpg" alt="question profile">
+                      <img class="is-rounded" src="/img/nathan-head.jpg" alt="Headshot of Nathan">
                     </figure>
                   </div>
                   <div class="media-content">
-                    <p class="title is-4">You</p>
-                    <p class="subtitle is-6">Contributor</p>
+                    <p class="title is-4">Nathan Lubeck</p>
+                    <p class="subtitle is-6">Team Lead: Frontend</p>
                   </div>
                 </div>
                 <div class="content">
-                  <p>We're looking for people with all kinds of skills to join the team and bring this project to life. If you think you can help out, we'd love to chat.</p>
-                  <p><a class="button is-primary" href = "/signup">Join our team</a></p>
+                  <p>Nathan is an award winning product manager and technologist from Los Angeles with over a decade of experience building successful digital products and managing technical teams. He launched the official LA tourism application "Discover LA", served with the Danish Refugee Council in East Africa, received a Webby award for KCRW.com, and co-founded a Techstars startup around water sustainability. He has lived and traveled in over 50+ countries, and currently serves as an Executive Member of IADAS.</p>
+
+                  <p>Couch-surfing story: my very first experience was in the Philippines &mdash; after meeting my first couchsurfer, we started on a 12-hour road-trip from Manila to the East coast of Luzon (during a tsunami warning) and island hopped with local fishermen, catching fresh stingrays, which we then enjoyed in the shadow of Mount Mayon.</p>
                 </div>
               </div>
             </div>
@@ -156,8 +157,32 @@
               </div>
             </div>
           </div>
-          <!-- Needed here or the last two cards spread out -->
-          <div class="column"></div>
+          <div class="column">
+            <div class="card">
+              <div class="card-image">
+                <figure class="image is-4by3 headshot">
+                  <img src="/img/coucher-avatar.jpg" alt="Avatar pic">
+                </figure>
+              </div>
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-48x48">
+                      <img class="is-rounded" src="/img/question.jpg" alt="question profile">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">You</p>
+                    <p class="subtitle is-6">Contributor</p>
+                  </div>
+                </div>
+                <div class="content">
+                  <p>We're looking for people with all kinds of skills to join the team and bring this project to life. If you think you can help out, we'd love to chat.</p>
+                  <p><a class="button is-primary" href = "/signup">Join our team</a></p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     </div>
