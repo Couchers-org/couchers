@@ -93,7 +93,7 @@
                   </div>
                   <div class="media-content">
                     <p class="title is-4">Nathan Lubeck</p>
-                    <p class="subtitle is-6">Team Lead: Frontend</p>
+                    <p class="subtitle is-6">UX Advisor</p>
                   </div>
                 </div>
                 <div class="content">
