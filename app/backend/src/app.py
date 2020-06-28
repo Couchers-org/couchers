@@ -5,17 +5,17 @@ from concurrent import futures
 from datetime import date
 
 import grpc
-from crypto import hash_password
-from db import session_scope
-from interceptors import LoggingInterceptor, intercept_server
-from models import Base, User
+from couchers.crypto import hash_password
+from couchers.db import session_scope
+from couchers.interceptors import LoggingInterceptor, intercept_server
+from couchers.models import Base, User
 from pb import api_pb2_grpc, auth_pb2_grpc
-from servicers.api import APIServicer
-from servicers.auth import Auth
+from couchers.servicers.api import APIServicer
+from couchers.servicers.auth import Auth
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
-from utils import Timestamp_from_datetime
+from couchers.utils import Timestamp_from_datetime
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d: %(process)d: %(message)s", datefmt="%F %T", level=logging.DEBUG)
 logging.info(f"Starting")

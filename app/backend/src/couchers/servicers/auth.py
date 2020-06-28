@@ -4,14 +4,14 @@ from time import sleep
 from typing import Union
 
 import grpc
-from crypto import hash_password, urlsafe_secure_token, verify_password
-from db import (get_user_by_field, is_valid_email, is_valid_username,
-                new_login_token, new_signup_token, session_scope)
-from interceptors import _AuthValidatorInterceptor
-from models import LoginToken, SignupToken, User, UserSession
+from ..crypto import hash_password, urlsafe_secure_token, verify_password
+from ..db import (get_user_by_field, is_valid_email, is_valid_username,
+                  new_login_token, new_signup_token, session_scope)
+from ..interceptors import _AuthValidatorInterceptor
+from ..models import LoginToken, SignupToken, User, UserSession
 from pb import auth_pb2, auth_pb2_grpc
 from sqlalchemy import func
-from tasks import send_login_email, send_signup_email
+from ..tasks import send_login_email, send_signup_email
 
 
 class Auth(auth_pb2_grpc.AuthServicer):

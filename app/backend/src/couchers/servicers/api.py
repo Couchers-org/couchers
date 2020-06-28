@@ -2,11 +2,11 @@ import logging
 from urllib.parse import parse_qs, quote, unquote, urlencode
 
 import grpc
-from crypto import base64decode, base64encode, sso_check_hmac, sso_create_hmac
-from db import get_user_by_field, is_valid_color, session_scope
-from models import User
+from ..crypto import base64decode, base64encode, sso_check_hmac, sso_create_hmac
+from ..db import get_user_by_field, is_valid_color, session_scope
+from ..models import User
 from pb import api_pb2, api_pb2_grpc
-from utils import Timestamp_from_datetime
+from ..utils import Timestamp_from_datetime
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d: %(process)d: %(message)s", datefmt="%F %T", level=logging.DEBUG)
 
