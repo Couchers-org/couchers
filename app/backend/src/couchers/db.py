@@ -3,8 +3,8 @@ import logging
 import re
 from contextlib import contextmanager
 
-from crypto import urlsafe_secure_token
-from models import LoginToken, SignupToken, User
+from couchers.crypto import urlsafe_secure_token
+from couchers.models import LoginToken, SignupToken, User
 
 
 @contextmanager

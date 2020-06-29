@@ -19,7 +19,7 @@ We're a very asynchronous team: everyone is basically in a different timezone, a
 
 It's therefore important to write issues that don't require clarification and that are easy for anyone to pick up and tackle. So when you write issues, it's better to overshare and make them verbose than to write terse issues, as these often end up being a bit cryptic and hard to get started on.
 
-## How we work with the other groups
+## How we work with the other teams
 
 Couchers.org is currently split into three teams: backend (us), frontend/design, and the community team.
 

@@ -10,4 +10,4 @@ App: no auto builds/deploys yet
 
 If you found an issue with the app, or have a suggestion/feature you'd like to raise. Please add it to the Issues (in the issues tab on GitHub). A developer will come and triage the issue and add it to the backlog.
 
-If you are a developer, please read <docs/contributing.md> on our development model.
+If you are a developer, please read [docs/contributing.md](docs/contributing.md) on our development model.
