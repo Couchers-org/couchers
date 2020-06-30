@@ -2,3 +2,5 @@ sqlalchemy
 grpcio
 protobuf
 pynacl
+pytest
+pytest-pythonpath
