@@ -1,3 +1,4 @@
+import datetime
 import logging
 from urllib.parse import parse_qs, quote, unquote, urlencode
 
@@ -151,6 +152,47 @@ class APIServicer(api_pb2_grpc.APIServicer):
                 state=api_pb2.FriendRequestStatus.PENDING,
                 user_from=from_user.username,
                 user_to=to_user.username,
+            )
+
+    def ListFriendRequests(self, request, context):
+        with session_scope(self._Session) as session:
+            received_friend_request = session.query(FriendRelationship) \
+                .filter(FriendRelationship.to_user_id == context.user_id) \
+                .filter(FriendRelationship.status == FriendStatus.pending) \
+                .all()
+
+            return api_pb2.ListFriendRequestsRes(
+                requests=[
+                    api_pb2.FriendRequest(
+                        friend_request_id=friend_request.id,
+                        state=api_pb2.FriendRequestStatus.PENDING, # TODO
+                        user_from=friend_request.from_user.username,
+                        user_to=friend_request.to_user.username,
+                    ) for friend_request in received_friend_request
+                ]
+            )
+
+    def RespondFriendRequest(self, request, context):
+        with session_scope(self._Session) as session:
+            friend_request = session.query(FriendRelationship) \
+                .filter(FriendRelationship.to_user_id == context.user_id) \
+                .filter(FriendRelationship.status == FriendStatus.pending) \
+                .filter(FriendRelationship.id == request.friend_request_id) \
+                .one_or_none()
+
+            if not friend_request:
+                context.abort(grpc.StatusCode.NOT_FOUND, "Friend request not found.")
+
+            friend_request.status = FriendStatus.accepted
+            friend_request.time_responded = datetime.datetime.utcnow()
+
+            session.commit()
+
+            return api_pb2.FriendRequest(
+                friend_request_id=friend_request.id,
+                state=api_pb2.FriendRequestStatus.ACCEPTED if FriendStatus.accepted else api_pb2.FriendRequestStatus.REJECTED,
+                user_from=friend_request.from_user.username,
+                user_to=friend_request.to_user.username,
             )
 
     def SSO(self, request, context):

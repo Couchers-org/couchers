@@ -4,6 +4,7 @@ package api;
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
 
 service API {
   rpc Ping(PingReq) returns (PingRes) {
@@ -19,6 +20,9 @@ service API {
   }
 
   rpc SendFriendRequest(SendFriendRequestReq) returns (FriendRequest);
+
+  rpc ListFriendRequests(google.protobuf.Empty) returns (ListFriendRequestsRes);
+
   rpc RespondFriendRequest(RespondFriendRequestReq) returns (FriendRequest);
 
   rpc SSO(SSOReq) returns (SSORes) {
@@ -49,6 +53,10 @@ message RespondFriendRequestReq {
   int64 friend_request_id = 1;
 
   bool accept = 2;
+}
+
+message ListFriendRequestsRes {
+  repeated FriendRequest requests = 1;
 }
 
 message PingReq {}

@@ -2,6 +2,7 @@ import * as jspb from "google-protobuf"
 
 import * as google_protobuf_timestamp_pb from 'google-protobuf/google/protobuf/timestamp_pb';
 import * as google_protobuf_wrappers_pb from 'google-protobuf/google/protobuf/wrappers_pb';
+import * as google_protobuf_empty_pb from 'google-protobuf/google/protobuf/empty_pb';
 
 export class SendFriendRequestReq extends jspb.Message {
   getUser(): string;
@@ -70,6 +71,26 @@ export namespace RespondFriendRequestReq {
   export type AsObject = {
     friendRequestId: number,
     accept: boolean,
+  }
+}
+
+export class ListFriendRequestsRes extends jspb.Message {
+  getRequestsList(): Array<FriendRequest>;
+  setRequestsList(value: Array<FriendRequest>): ListFriendRequestsRes;
+  clearRequestsList(): ListFriendRequestsRes;
+  addRequests(value?: FriendRequest, index?: number): FriendRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ListFriendRequestsRes.AsObject;
+  static toObject(includeInstance: boolean, msg: ListFriendRequestsRes): ListFriendRequestsRes.AsObject;
+  static serializeBinaryToWriter(message: ListFriendRequestsRes, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ListFriendRequestsRes;
+  static deserializeBinaryFromReader(message: ListFriendRequestsRes, reader: jspb.BinaryReader): ListFriendRequestsRes;
+}
+
+export namespace ListFriendRequestsRes {
+  export type AsObject = {
+    requestsList: Array<FriendRequest.AsObject>,
   }
 }
 

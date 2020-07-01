@@ -15,10 +15,12 @@ import * as grpcWeb from 'grpc-web';
 
 import * as google_protobuf_timestamp_pb from 'google-protobuf/google/protobuf/timestamp_pb';
 import * as google_protobuf_wrappers_pb from 'google-protobuf/google/protobuf/wrappers_pb';
+import * as google_protobuf_empty_pb from 'google-protobuf/google/protobuf/empty_pb';
 
 import {
   FriendRequest,
   GetUserReq,
+  ListFriendRequestsRes,
   PingReq,
   PingRes,
   RespondFriendRequestReq,
@@ -206,6 +208,46 @@ export class APIClient {
     request,
     metadata || {},
     this.methodInfoSendFriendRequest);
+  }
+
+  methodInfoListFriendRequests = new grpcWeb.AbstractClientBase.MethodInfo(
+    ListFriendRequestsRes,
+    (request: google_protobuf_empty_pb.Empty) => {
+      return request.serializeBinary();
+    },
+    ListFriendRequestsRes.deserializeBinary
+  );
+
+  listFriendRequests(
+    request: google_protobuf_empty_pb.Empty,
+    metadata: grpcWeb.Metadata | null): Promise<ListFriendRequestsRes>;
+
+  listFriendRequests(
+    request: google_protobuf_empty_pb.Empty,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.Error,
+               response: ListFriendRequestsRes) => void): grpcWeb.ClientReadableStream<ListFriendRequestsRes>;
+
+  listFriendRequests(
+    request: google_protobuf_empty_pb.Empty,
+    metadata: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.Error,
+               response: ListFriendRequestsRes) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/api.API/ListFriendRequests',
+        request,
+        metadata || {},
+        this.methodInfoListFriendRequests,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/api.API/ListFriendRequests',
+    request,
+    metadata || {},
+    this.methodInfoListFriendRequests);
   }
 
   methodInfoRespondFriendRequest = new grpcWeb.AbstractClientBase.MethodInfo(

@@ -33,6 +33,14 @@
           <v-list-item-title>Profile</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
+      <v-list-item link to="/friends">
+        <v-list-item-icon>
+          <v-icon>mdi-account-multiple</v-icon>
+        </v-list-item-icon>
+        <v-list-item-content>
+          <v-list-item-title>Friends</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
       <v-list-item link href="https://sso-test.couchers.org/session/sso">
         <v-list-item-icon>
           <v-icon>mdi-account-group</v-icon>
