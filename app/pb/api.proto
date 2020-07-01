@@ -18,9 +18,37 @@ service API {
     // Update your profile
   }
 
+  rpc SendFriendRequest(SendFriendRequestReq) returns (FriendRequest);
+  rpc RespondFriendRequest(RespondFriendRequestReq) returns (FriendRequest);
+
   rpc SSO(SSOReq) returns (SSORes) {
     // Performs Discourse SSO
   }
+}
+
+message SendFriendRequestReq {
+  string user = 1;
+}
+
+enum FriendRequestStatus {
+  PENDING = 0;
+  ACCEPTED = 1;
+  REJECTED = 2;
+}
+
+message FriendRequest {
+  int64 friend_request_id = 1;
+
+  FriendRequestStatus state = 2;
+
+  string user_from = 3;
+  string user_to = 4;
+}
+
+message RespondFriendRequestReq {
+  int64 friend_request_id = 1;
+
+  bool accept = 2;
 }
 
 message PingReq {}

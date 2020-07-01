@@ -3,6 +3,76 @@ import * as jspb from "google-protobuf"
 import * as google_protobuf_timestamp_pb from 'google-protobuf/google/protobuf/timestamp_pb';
 import * as google_protobuf_wrappers_pb from 'google-protobuf/google/protobuf/wrappers_pb';
 
+export class SendFriendRequestReq extends jspb.Message {
+  getUser(): string;
+  setUser(value: string): SendFriendRequestReq;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): SendFriendRequestReq.AsObject;
+  static toObject(includeInstance: boolean, msg: SendFriendRequestReq): SendFriendRequestReq.AsObject;
+  static serializeBinaryToWriter(message: SendFriendRequestReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SendFriendRequestReq;
+  static deserializeBinaryFromReader(message: SendFriendRequestReq, reader: jspb.BinaryReader): SendFriendRequestReq;
+}
+
+export namespace SendFriendRequestReq {
+  export type AsObject = {
+    user: string,
+  }
+}
+
+export class FriendRequest extends jspb.Message {
+  getFriendRequestId(): number;
+  setFriendRequestId(value: number): FriendRequest;
+
+  getState(): FriendRequestStatus;
+  setState(value: FriendRequestStatus): FriendRequest;
+
+  getUserFrom(): string;
+  setUserFrom(value: string): FriendRequest;
+
+  getUserTo(): string;
+  setUserTo(value: string): FriendRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): FriendRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: FriendRequest): FriendRequest.AsObject;
+  static serializeBinaryToWriter(message: FriendRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): FriendRequest;
+  static deserializeBinaryFromReader(message: FriendRequest, reader: jspb.BinaryReader): FriendRequest;
+}
+
+export namespace FriendRequest {
+  export type AsObject = {
+    friendRequestId: number,
+    state: FriendRequestStatus,
+    userFrom: string,
+    userTo: string,
+  }
+}
+
+export class RespondFriendRequestReq extends jspb.Message {
+  getFriendRequestId(): number;
+  setFriendRequestId(value: number): RespondFriendRequestReq;
+
+  getAccept(): boolean;
+  setAccept(value: boolean): RespondFriendRequestReq;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): RespondFriendRequestReq.AsObject;
+  static toObject(includeInstance: boolean, msg: RespondFriendRequestReq): RespondFriendRequestReq.AsObject;
+  static serializeBinaryToWriter(message: RespondFriendRequestReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): RespondFriendRequestReq;
+  static deserializeBinaryFromReader(message: RespondFriendRequestReq, reader: jspb.BinaryReader): RespondFriendRequestReq;
+}
+
+export namespace RespondFriendRequestReq {
+  export type AsObject = {
+    friendRequestId: number,
+    accept: boolean,
+  }
+}
+
 export class PingReq extends jspb.Message {
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): PingReq.AsObject;
@@ -350,3 +420,8 @@ export namespace SSORes {
   }
 }
 
+export enum FriendRequestStatus { 
+  PENDING = 0,
+  ACCEPTED = 1,
+  REJECTED = 2,
+}

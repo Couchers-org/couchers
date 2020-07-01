@@ -17,11 +17,14 @@ import * as google_protobuf_timestamp_pb from 'google-protobuf/google/protobuf/t
 import * as google_protobuf_wrappers_pb from 'google-protobuf/google/protobuf/wrappers_pb';
 
 import {
+  FriendRequest,
   GetUserReq,
   PingReq,
   PingRes,
+  RespondFriendRequestReq,
   SSOReq,
   SSORes,
+  SendFriendRequestReq,
   UpdateProfileReq,
   UpdateProfileRes,
   User} from './api_pb';
@@ -163,6 +166,86 @@ export class APIClient {
     request,
     metadata || {},
     this.methodInfoUpdateProfile);
+  }
+
+  methodInfoSendFriendRequest = new grpcWeb.AbstractClientBase.MethodInfo(
+    FriendRequest,
+    (request: SendFriendRequestReq) => {
+      return request.serializeBinary();
+    },
+    FriendRequest.deserializeBinary
+  );
+
+  sendFriendRequest(
+    request: SendFriendRequestReq,
+    metadata: grpcWeb.Metadata | null): Promise<FriendRequest>;
+
+  sendFriendRequest(
+    request: SendFriendRequestReq,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.Error,
+               response: FriendRequest) => void): grpcWeb.ClientReadableStream<FriendRequest>;
+
+  sendFriendRequest(
+    request: SendFriendRequestReq,
+    metadata: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.Error,
+               response: FriendRequest) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/api.API/SendFriendRequest',
+        request,
+        metadata || {},
+        this.methodInfoSendFriendRequest,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/api.API/SendFriendRequest',
+    request,
+    metadata || {},
+    this.methodInfoSendFriendRequest);
+  }
+
+  methodInfoRespondFriendRequest = new grpcWeb.AbstractClientBase.MethodInfo(
+    FriendRequest,
+    (request: RespondFriendRequestReq) => {
+      return request.serializeBinary();
+    },
+    FriendRequest.deserializeBinary
+  );
+
+  respondFriendRequest(
+    request: RespondFriendRequestReq,
+    metadata: grpcWeb.Metadata | null): Promise<FriendRequest>;
+
+  respondFriendRequest(
+    request: RespondFriendRequestReq,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.Error,
+               response: FriendRequest) => void): grpcWeb.ClientReadableStream<FriendRequest>;
+
+  respondFriendRequest(
+    request: RespondFriendRequestReq,
+    metadata: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.Error,
+               response: FriendRequest) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/api.API/RespondFriendRequest',
+        request,
+        metadata || {},
+        this.methodInfoRespondFriendRequest,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/api.API/RespondFriendRequest',
+    request,
+    metadata || {},
+    this.methodInfoRespondFriendRequest);
   }
 
   methodInfoSSO = new grpcWeb.AbstractClientBase.MethodInfo(

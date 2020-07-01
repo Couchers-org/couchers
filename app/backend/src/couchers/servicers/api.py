@@ -5,7 +5,7 @@ import grpc
 from couchers.crypto import (base64decode, base64encode, sso_check_hmac,
                              sso_create_hmac)
 from couchers.db import get_user_by_field, is_valid_color, session_scope
-from couchers.models import User
+from couchers.models import FriendRelationship, FriendStatus, User
 from couchers.utils import Timestamp_from_datetime
 from pb import api_pb2, api_pb2_grpc
 
@@ -105,6 +105,53 @@ class APIServicer(api_pb2_grpc.APIServicer):
             session.commit()
 
             return res
+
+    def SendFriendRequest(self, request, context):
+        with session_scope(self._Session) as session:
+            from_user = session.query(User).filter(User.id == context.user_id).one_or_none()
+
+            if not from_user:
+                context.abort(grpc.StatusCode.NOT_FOUND, "User not found.")
+
+            to_user = get_user_by_field(session, request.user)
+
+            if not to_user:
+                context.abort(grpc.StatusCode.NOT_FOUND, "User not found.")
+
+            # can send a new request even if rejected
+            current_initiated_requests = session.query(FriendRelationship) \
+                .filter(FriendRelationship.from_user == from_user) \
+                .filter(FriendRelationship.to_user == to_user) \
+                .filter(FriendRelationship.status != FriendStatus.rejected) \
+                .all()
+
+            if len(current_initiated_requests) != 0:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, "Can't send friend request. Already friends or pending.")
+
+            current_received_requests = session.query(FriendRelationship) \
+                .filter(FriendRelationship.from_user == to_user) \
+                .filter(FriendRelationship.to_user == from_user) \
+                .filter(FriendRelationship.status != FriendStatus.rejected) \
+                .all()
+
+            if len(current_received_requests) != 0:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, "Can't send friend request. Already friends or pending.")
+
+            friend_relationship = FriendRelationship(
+                from_user=from_user,
+                to_user=to_user,
+                status=FriendStatus.pending,
+            )
+            session.add(friend_relationship)
+
+            logging.info(f"")
+
+            return api_pb2.FriendRequest(
+                friend_request_id=friend_relationship.id,
+                state=api_pb2.FriendRequestStatus.PENDING,
+                user_from=from_user.username,
+                user_to=to_user.username,
+            )
 
     def SSO(self, request, context):
         # Protocol description: https://meta.discourse.org/t/official-single-sign-on-for-discourse-sso/13045

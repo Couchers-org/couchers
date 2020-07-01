@@ -70,7 +70,7 @@
         <v-divider></v-divider>
         <v-card-actions>
           <v-btn text>Message</v-btn>
-          <v-btn text>Request to stay</v-btn>
+          <v-btn text @click="sendFriendRequest">Send friend request</v-btn>
         </v-card-actions>
       </v-card>
       <v-card class="float-left mx-3 my-3" width="950" outlined>
@@ -100,7 +100,7 @@ import Vue from 'vue'
 
 import moment, { lang } from 'moment'
 
-import { GetUserReq } from '../pb/api_pb'
+import { GetUserReq, SendFriendRequestReq } from '../pb/api_pb'
 import { client } from '../api'
 
 function displayList(list: string[]) {
@@ -158,6 +158,16 @@ export default Vue.extend({
         this.errorMessages = err.message
       })
     },
+
+    sendFriendRequest: function () {
+      const req = new SendFriendRequestReq()
+      req.setUser(this.user.username)
+      client.sendFriendRequest(req, null).then(res => {
+        console.log(res)
+        console.log("Done")
+      }).catch(console.error)
+      console.log("sending friend request")
+    }
   },
 
   computed: {
