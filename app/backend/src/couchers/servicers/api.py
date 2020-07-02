@@ -5,7 +5,8 @@ from urllib.parse import parse_qs, quote, unquote, urlencode
 import grpc
 from couchers.crypto import (base64decode, base64encode, sso_check_hmac,
                              sso_create_hmac)
-from couchers.db import get_user_by_field, is_valid_color, session_scope
+from couchers.db import (get_friends_status, get_user_by_field, is_valid_color,
+                         session_scope)
 from couchers.models import FriendRelationship, FriendStatus, User
 from couchers.utils import Timestamp_from_datetime
 from pb import api_pb2, api_pb2_grpc
@@ -50,7 +51,8 @@ class APIServicer(api_pb2_grpc.APIServicer):
                 about_place=user.about_place,
                 languages=user.languages.split("|") if user.languages else [],
                 countries_visited=user.countries_visited.split("|") if user.countries_visited else [],
-                countries_lived=user.countries_lived.split("|") if user.countries_lived else []
+                countries_lived=user.countries_lived.split("|") if user.countries_lived else [],
+                friends=get_friends_status(session, context.user_id, user.id)
             )
 
     def UpdateProfile(self, request, context):
@@ -119,24 +121,10 @@ class APIServicer(api_pb2_grpc.APIServicer):
             if not to_user:
                 context.abort(grpc.StatusCode.NOT_FOUND, "User not found.")
 
-            # can send a new request even if rejected
-            current_initiated_requests = session.query(FriendRelationship) \
-                .filter(FriendRelationship.from_user == from_user) \
-                .filter(FriendRelationship.to_user == to_user) \
-                .filter(FriendRelationship.status != FriendStatus.rejected) \
-                .all()
-
-            if len(current_initiated_requests) != 0:
+            if get_friends_status(session, from_user.id, to_user.id) != api_pb2.User.FriendshipStatus.NOT_FRIENDS:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, "Can't send friend request. Already friends or pending.")
 
-            current_received_requests = session.query(FriendRelationship) \
-                .filter(FriendRelationship.from_user == to_user) \
-                .filter(FriendRelationship.to_user == from_user) \
-                .filter(FriendRelationship.status != FriendStatus.rejected) \
-                .all()
-
-            if len(current_received_requests) != 0:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, "Can't send friend request. Already friends or pending.")
+            # Race condition!
 
             friend_relationship = FriendRelationship(
                 from_user=from_user,
@@ -145,11 +133,9 @@ class APIServicer(api_pb2_grpc.APIServicer):
             )
             session.add(friend_relationship)
 
-            logging.info(f"")
-
             return api_pb2.FriendRequest(
                 friend_request_id=friend_relationship.id,
-                state=api_pb2.FriendRequestStatus.PENDING,
+                state=api_pb2.FriendRequest.FriendRequestStatus.PENDING,
                 user_from=from_user.username,
                 user_to=to_user.username,
             )
@@ -165,7 +151,7 @@ class APIServicer(api_pb2_grpc.APIServicer):
                 requests=[
                     api_pb2.FriendRequest(
                         friend_request_id=friend_request.id,
-                        state=api_pb2.FriendRequestStatus.PENDING, # TODO
+                        state=api_pb2.FriendRequest.FriendRequestStatus.PENDING, # TODO
                         user_from=friend_request.from_user.username,
                         user_to=friend_request.to_user.username,
                     ) for friend_request in received_friend_request
@@ -183,14 +169,14 @@ class APIServicer(api_pb2_grpc.APIServicer):
             if not friend_request:
                 context.abort(grpc.StatusCode.NOT_FOUND, "Friend request not found.")
 
-            friend_request.status = FriendStatus.accepted
+            friend_request.status = FriendStatus.accepted if request.accept else FriendStatus.rejected
             friend_request.time_responded = datetime.datetime.utcnow()
 
             session.commit()
 
             return api_pb2.FriendRequest(
                 friend_request_id=friend_request.id,
-                state=api_pb2.FriendRequestStatus.ACCEPTED if FriendStatus.accepted else api_pb2.FriendRequestStatus.REJECTED,
+                state=api_pb2.FriendRequest.FriendRequestStatus.ACCEPTED if friend_request.status == FriendStatus.accepted else api_pb2.FriendRequest.FriendRequestStatus.REJECTED,
                 user_from=friend_request.from_user.username,
                 user_to=friend_request.to_user.username,
             )

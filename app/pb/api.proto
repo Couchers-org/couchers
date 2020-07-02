@@ -34,14 +34,14 @@ message SendFriendRequestReq {
   string user = 1;
 }
 
-enum FriendRequestStatus {
-  PENDING = 0;
-  ACCEPTED = 1;
-  REJECTED = 2;
-}
-
 message FriendRequest {
   int64 friend_request_id = 1;
+
+  enum FriendRequestStatus {
+    PENDING = 0;
+    ACCEPTED = 1;
+    REJECTED = 2;
+  }
 
   FriendRequestStatus state = 2;
 
@@ -70,6 +70,13 @@ message PingRes {
 }
 
 message User {
+  enum FriendshipStatus {
+    NOT_FRIENDS = 0;
+    FRIENDS = 1;
+    PENDING = 2;
+    NA = 3; // not applicable, e.g. user requesting is self
+  }
+
   string username = 1;
   string name = 2;
   string city = 3;
@@ -87,6 +94,8 @@ message User {
   repeated string languages = 15;
   repeated string countries_visited = 16;
   repeated string countries_lived = 17;
+
+  FriendshipStatus friends = 18;
 }
 
 message GetUserReq {

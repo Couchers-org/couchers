@@ -26,8 +26,8 @@ export class FriendRequest extends jspb.Message {
   getFriendRequestId(): number;
   setFriendRequestId(value: number): FriendRequest;
 
-  getState(): FriendRequestStatus;
-  setState(value: FriendRequestStatus): FriendRequest;
+  getState(): FriendRequest.FriendRequestStatus;
+  setState(value: FriendRequest.FriendRequestStatus): FriendRequest;
 
   getUserFrom(): string;
   setUserFrom(value: string): FriendRequest;
@@ -46,9 +46,15 @@ export class FriendRequest extends jspb.Message {
 export namespace FriendRequest {
   export type AsObject = {
     friendRequestId: number,
-    state: FriendRequestStatus,
+    state: FriendRequest.FriendRequestStatus,
     userFrom: string,
     userTo: string,
+  }
+
+  export enum FriendRequestStatus { 
+    PENDING = 0,
+    ACCEPTED = 1,
+    REJECTED = 2,
   }
 }
 
@@ -200,6 +206,9 @@ export class User extends jspb.Message {
   clearCountriesLivedList(): User;
   addCountriesLived(value: string, index?: number): User;
 
+  getFriends(): User.FriendshipStatus;
+  setFriends(value: User.FriendshipStatus): User;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): User.AsObject;
   static toObject(includeInstance: boolean, msg: User): User.AsObject;
@@ -227,6 +236,14 @@ export namespace User {
     languagesList: Array<string>,
     countriesVisitedList: Array<string>,
     countriesLivedList: Array<string>,
+    friends: User.FriendshipStatus,
+  }
+
+  export enum FriendshipStatus { 
+    NOT_FRIENDS = 0,
+    FRIENDS = 1,
+    PENDING = 2,
+    NA = 3,
   }
 }
 
@@ -441,8 +458,3 @@ export namespace SSORes {
   }
 }
 
-export enum FriendRequestStatus { 
-  PENDING = 0,
-  ACCEPTED = 1,
-  REJECTED = 2,
-}

@@ -4,7 +4,10 @@ import re
 from contextlib import contextmanager
 
 from couchers.crypto import urlsafe_secure_token
-from couchers.models import LoginToken, SignupToken, User
+from couchers.models import (FriendRelationship, FriendStatus, LoginToken,
+                             SignupToken, User)
+from pb import api_pb2
+from sqlalchemy.sql import and_, or_
 
 
 @contextmanager
@@ -89,3 +92,33 @@ def new_login_token(session, user, hours=2):
     session.add(login_token)
     session.commit()
     return login_token, f"{hours} hours"
+
+def get_friends_status(session, user1_id, user2_id):
+    if user1_id == user2_id:
+        return api_pb2.User.FriendshipStatus.NA
+    else:
+        current_friend_relationship = session.query(FriendRelationship) \
+            .filter(
+                or_(
+                    and_(
+                        FriendRelationship.from_user_id == user1_id,
+                        FriendRelationship.to_user_id == user2_id
+                    ),
+                    and_(
+                        FriendRelationship.from_user_id == user2_id,
+                        FriendRelationship.to_user_id == user1_id
+                    )
+                )
+            ) \
+            .filter(
+                or_(
+                    FriendRelationship.status == FriendStatus.pending,
+                    FriendRelationship.status == FriendStatus.accepted
+                )
+                ) \
+            .one_or_none()
+
+        if not current_friend_relationship:
+            return api_pb2.User.FriendshipStatus.NOT_FRIENDS
+        else:
+            return api_pb2.User.FriendshipStatus.FRIENDS if current_friend_relationship.status == FriendStatus.accepted else api_pb2.User.FriendshipStatus.PENDING

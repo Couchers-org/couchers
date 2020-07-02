@@ -39,7 +39,7 @@ import Vue from 'vue'
 
 import empty from 'google-protobuf/google/protobuf/empty_pb'
 
-import { FriendRequest, RespondFriendRequestReq, FriendRequestStatus } from '../pb/api_pb'
+import { FriendRequest, RespondFriendRequestReq } from '../pb/api_pb'
 import { client } from '../api'
 
 export default Vue.extend({
