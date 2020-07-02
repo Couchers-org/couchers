@@ -2,7 +2,18 @@
   <v-content>
     <v-container fluid>
       <h1>Friends</h1>
-
+      <v-snackbar v-model="errorVisible" color="error">
+        {{ errorMessage }}
+        <template v-slot:action="{ attrs }">
+          <v-btn dark text v-bind="attrs" @click="errorVisible = false">Close</v-btn>
+        </template>
+      </v-snackbar>
+      <v-snackbar v-model="successVisible" color="success">
+        {{ successMessage }}
+        <template v-slot:action="{ attrs }">
+          <v-btn dark text v-bind="attrs" @click="successVisible = false">Close</v-btn>
+        </template>
+      </v-snackbar>
       <v-card max-width="500">
         <v-toolbar color="primary" dark>
           <v-toolbar-title>Friends</v-toolbar-title>
@@ -11,7 +22,6 @@
             <v-icon>mdi-account-multiple</v-icon>
           </v-btn>
         </v-toolbar>
-
         <v-list subheader>
           <v-subheader>Friend requests</v-subheader>
           <v-list-item v-for="request in requests" :key="request.friendRequestId">
@@ -23,13 +33,6 @@
           </v-list-item>
         </v-list>
       </v-card>
-
-
-
-
-
-
-
     </v-container>
   </v-content>
 </template>
@@ -46,7 +49,10 @@ export default Vue.extend({
   data: () => ({
     loading: false,
     requests: [] as Array<FriendRequest.AsObject>,
-    errorMessages: [] as Array<string>
+    errorMessage: "",
+    errorVisible: false,
+    successMessage: "",
+    successVisible: false,
   }),
 
   created () {
@@ -56,17 +62,18 @@ export default Vue.extend({
   methods: {
     fetchData: function () {
       this.loading = true
-      this.errorMessages = []
+      this.errorMessage = ""
 
       const req = new empty.Empty()
       client.listFriendRequests(req, null).then(res => {
         this.loading = false
-        this.errorMessages = []
+        this.errorMessage = ""
 
         this.requests = res.toObject().requestsList
       }).catch(err => {
         this.loading = false
-        this.errorMessages = err.message
+        this.errorMessage = err.message
+        this.errorVisible = true
       })
     },
 
@@ -75,10 +82,14 @@ export default Vue.extend({
       req.setFriendRequestId(friendRequestId)
       req.setAccept(accept)
       client.respondFriendRequest(req, null).then(res => {
-        console.log(res)
-        console.log("Done")
-      }).catch(console.error)
-      console.log("sending friend request")
+        this.successMessage = "Responded to friend request!"
+        this.successVisible = true
+        this.fetchData()
+      }).catch(err => {
+        this.errorMessage = err.message
+        this.errorVisible = true
+        this.fetchData()
+      })
     }
   },
 })
