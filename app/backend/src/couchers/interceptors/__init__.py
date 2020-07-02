@@ -2,6 +2,7 @@
 
 
 import logging
+import os
 from time import perf_counter_ns
 from typing import List
 
@@ -10,6 +11,8 @@ import grpc
 from . import grpcext
 from .grpcext import intercept_server
 
+
+LOG_VERBOSE_PB = os.environ.get("LOG_VERBOSE_PB", None) is not None
 
 # pylint:disable=abstract-method
 class _AuthInterceptorServicerContext(grpc.ServicerContext):
@@ -96,10 +99,16 @@ class _AuthValidatorInterceptor(grpcext.UnaryServerInterceptor, grpcext.StreamSe
 
 class LoggingInterceptor(grpcext.UnaryServerInterceptor):
     def intercept_unary(self, request, servicer_context, server_info, handler):
-        logging.info(f"Got request: {server_info.full_method}")
+        if LOG_VERBOSE_PB:
+            logging.info(f"Got request: {server_info.full_method}. Request: {request}")
+        else:
+            logging.info(f"Got request: {server_info.full_method}")
         start = perf_counter_ns()
         res = handler(request, servicer_context)
         finished = perf_counter_ns()
         duration = (finished-start) / 1e9
-        logging.info(f"Finished request (in {duration} s): {server_info.full_method}")
+        if LOG_VERBOSE_PB:
+            logging.info(f"Finished request (in {duration} s): {server_info.full_method}. Response: {res}")
+        else:
+            logging.info(f"Finished request (in {duration} s): {server_info.full_method}")
         return res
