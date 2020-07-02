@@ -7,6 +7,20 @@
         <v-card-subtitle>{{ user.city }}</v-card-subtitle>
         <v-list-item two-item>
           <v-list-item-icon>
+            <v-icon>mdi-account-multiple</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>
+              {{ friendsDisplay }}
+              <v-btn v-if="!this.user.friends" class="mx-1 my-1" :loading="sendingFriendRequest" color="primary" @click="sendFriendRequest">
+                <v-icon left>mdi-account-plus</v-icon> Send friend request
+              </v-btn>
+            </v-list-item-title>
+            <v-list-item-subtitle>Friendship</v-list-item-subtitle>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item two-item>
+          <v-list-item-icon>
             <v-icon>mdi-account-check</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
@@ -70,7 +84,6 @@
         <v-divider></v-divider>
         <v-card-actions>
           <v-btn text>Message</v-btn>
-          <v-btn text @click="sendFriendRequest">Send friend request</v-btn>
         </v-card-actions>
       </v-card>
       <v-card class="float-left mx-3 my-3" width="950" outlined>
@@ -100,7 +113,7 @@ import Vue from 'vue'
 
 import moment, { lang } from 'moment'
 
-import { GetUserReq, SendFriendRequestReq } from '../pb/api_pb'
+import { GetUserReq, SendFriendRequestReq, User } from '../pb/api_pb'
 import { client } from '../api'
 
 function displayList(list: string[]) {
@@ -111,6 +124,7 @@ export default Vue.extend({
   data: () => ({
     loading: false,
     errorMessages: [] as Array<string>,
+    sendingFriendRequest: false,
     user: {
       name: null,
       city: null,
@@ -127,7 +141,8 @@ export default Vue.extend({
       countriesLivedList: [],
       lastActive: null,
       joined: null,
-      color: null
+      color: null,
+      friends: null as User.FriendshipStatus
     }
   }),
 
@@ -160,17 +175,34 @@ export default Vue.extend({
     },
 
     sendFriendRequest: function () {
+      this.sendingFriendRequest = true
       const req = new SendFriendRequestReq()
       req.setUser(this.user.username)
       client.sendFriendRequest(req, null).then(res => {
-        console.log(res)
-        console.log("Done")
-      }).catch(console.error)
-      console.log("sending friend request")
+        this.sendingFriendRequest = false
+        this.fetchData()
+      }).catch(err => {
+        console.error(err)
+        this.sendingFriendRequest = false
+        this.fetchData()
+      })
     }
   },
 
   computed: {
+    friendsDisplay: function() {
+      switch (this.user.friends) {
+        case User.FriendshipStatus.NOT_FRIENDS:
+          return ""
+        case User.FriendshipStatus.FRIENDS:
+          return "You are friends"
+        case User.FriendshipStatus.PENDING:
+          return "Friend request pending"
+        case User.FriendshipStatus.NA:
+        default:
+          return "You can't be friends with this user, you doofus."
+      }
+    },
     lastActiveDisplay: function() {
       if (!this.user.lastActive) {
         return 'unknown'
