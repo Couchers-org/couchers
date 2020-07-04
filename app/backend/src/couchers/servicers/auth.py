@@ -128,8 +128,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
         with session_scope(self._Session) as session:
             signup_token = session.query(SignupToken) \
                 .filter(SignupToken.token == request.signup_token) \
-                .filter(SignupToken.created < func.now()) \
-                .filter(SignupToken.expiry > func.now()) \
+                .filter(SignupToken.created <= func.now()) \
+                .filter(SignupToken.expiry >= func.now()) \
                 .one_or_none()
             if not signup_token:
                 context.abort(grpc.StatusCode.NOT_FOUND, "Invalid token.")
@@ -145,8 +145,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
         with session_scope(self._Session) as session:
             signup_token = session.query(SignupToken) \
                 .filter(SignupToken.token == request.signup_token) \
-                .filter(SignupToken.created < func.now()) \
-                .filter(SignupToken.expiry > func.now()) \
+                .filter(SignupToken.created <= func.now()) \
+                .filter(SignupToken.expiry >= func.now()) \
                 .one_or_none()
             if not signup_token:
                 context.abort(grpc.StatusCode.NOT_FOUND, "Invalid token.")
@@ -222,8 +222,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
         with session_scope(self._Session) as session:
             login_token = session.query(LoginToken) \
                 .filter(LoginToken.token == request.login_token) \
-                .filter(LoginToken.created < func.now()) \
-                .filter(LoginToken.expiry > func.now()) \
+                .filter(LoginToken.created <= func.now()) \
+                .filter(LoginToken.expiry >= func.now()) \
                 .one_or_none()
             if login_token:
                 # this is the bearer token
