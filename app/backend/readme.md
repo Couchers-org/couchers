@@ -19,10 +19,9 @@ source venv/bin/activate
 
 ## Running tests
 
-You need to install the code as a package, then run `pytest`. Do this in the `app/backend/src/` folder.
+Run `py.test` in the `app/backend/src/` folder.
 
 ```sh
 cd src
-pip install -e .
-pytest .
+py.test
 ```
