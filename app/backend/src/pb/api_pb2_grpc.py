@@ -73,7 +73,7 @@ class APIServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def Search(self, request, context):
-        """Search for users (for now)
+        """Search for user names and usernames (for now)
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
