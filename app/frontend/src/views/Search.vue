@@ -3,6 +3,7 @@
     <h1>Search results for "{{ query }}"</h1>
     <div v-if="!loading">
       <user-search-result v-for="user in users" :key="user.id" :user="user" />
+      <p v-if="!users.length">No results!</p>
     </div>
     <v-container fill-height>
       <v-col class="mx-auto" cols="12" sm="10" md="8" lg="6" xl="4">
