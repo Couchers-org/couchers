@@ -181,8 +181,8 @@ class APIServicer(api_pb2_grpc.APIServicer):
                     ) for user in session.query(User) \
                         .filter(
                             or_(
-                                User.name.like(f"%{request.query}%"),
-                                User.username.like(f"%{request.query}%"),
+                                User.name.ilike(f"%{request.query}%"),
+                                User.username.ilike(f"%{request.query}%"),
                             )
                         ) \
                         .all()
