@@ -14,16 +14,14 @@
           <v-btn dark text v-bind="attrs" @click="successVisible = false">Close</v-btn>
         </template>
       </v-snackbar>
-      <v-card max-width="500">
+      <v-card>
         <v-toolbar color="primary" dark>
-          <v-toolbar-title>Friends</v-toolbar-title>
+          <v-toolbar-title>Friend requests</v-toolbar-title>
           <v-spacer></v-spacer>
-          <v-btn icon>
-            <v-icon>mdi-account-multiple</v-icon>
-          </v-btn>
+          <v-icon>mdi-account-multiple-plus</v-icon>
         </v-toolbar>
         <v-list subheader>
-          <v-subheader>Friend requests</v-subheader>
+          <v-subheader v-if="!this.requests.length">No pending friend requests!</v-subheader>
           <v-list-item v-for="request in requests" :key="request.friendRequestId">
             <v-list-item-content>
               <v-list-item-title v-text="request.userFrom"></v-list-item-title>
