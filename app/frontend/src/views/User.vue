@@ -98,18 +98,10 @@
 <script lang="ts">
 import Vue from 'vue'
 
-import moment, { lang } from 'moment'
-
 import { GetUserReq } from '../pb/api_pb'
 import { client } from '../api'
 
-function displayList(list: string[]) {
-  return list.join(', ')
-}
-
-function displayTime(ts) {
-  return moment(new Date((ts.seconds * 1000) + (ts.nanos / 1000000))).fromNow()
-}
+import { displayList, displayTime } from '../utils'
 
 export default Vue.extend({
   data: () => ({
