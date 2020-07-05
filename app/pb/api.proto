@@ -21,6 +21,18 @@ service API {
   rpc SSO(SSOReq) returns (SSORes) {
     // Performs Discourse SSO
   }
+
+  rpc Search(SearchReq) returns (SearchRes) {
+    // Search for user names and usernames (for now)
+  }
+}
+
+message SearchReq {
+  string query = 1;
+}
+
+message SearchRes {
+  repeated User users = 1;
 }
 
 message PingReq {}

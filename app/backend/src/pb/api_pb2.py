@@ -21,11 +21,75 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0cpb/api.proto\x12\x03\x61pi\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\"\t\n\x07PingReq\"I\n\x07PingRes\x12\x0f\n\x07user_id\x18\x01 \x01(\x03\x12\x10\n\x08username\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\r\n\x05\x63olor\x18\x04 \x01(\t\"\x89\x03\n\x04User\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0c\n\x04\x63ity\x18\x03 \x01(\t\x12\x14\n\x0cverification\x18\x04 \x01(\x01\x12\x1a\n\x12\x63ommunity_standing\x18\x05 \x01(\x01\x12\x16\n\x0enum_references\x18\x06 \x01(\r\x12\x0e\n\x06gender\x18\x07 \x01(\t\x12\x0b\n\x03\x61ge\x18\x08 \x01(\r\x12\r\n\x05\x63olor\x18\t \x01(\t\x12*\n\x06joined\x18\n \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12/\n\x0blast_active\x18\x0b \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x12\n\noccupation\x18\x0c \x01(\t\x12\x10\n\x08\x61\x62out_me\x18\r \x01(\t\x12\x13\n\x0b\x61\x62out_place\x18\x0e \x01(\t\x12\x11\n\tlanguages\x18\x0f \x03(\t\x12\x19\n\x11\x63ountries_visited\x18\x10 \x03(\t\x12\x17\n\x0f\x63ountries_lived\x18\x11 \x03(\t\"\x1a\n\nGetUserReq\x12\x0c\n\x04user\x18\x01 \x01(\t\"\xd8\x04\n\x10UpdateProfileReq\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04\x63ity\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12,\n\x06gender\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x30\n\noccupation\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12.\n\x08\x61\x62out_me\x18\x05 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x31\n\x0b\x61\x62out_place\x18\x06 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12+\n\x05\x63olor\x18\x07 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12<\n\tlanguages\x18\x08 \x01(\x0b\x32).api.UpdateProfileReq.RepeatedStringValue\x12\x44\n\x11\x63ountries_visited\x18\t \x01(\x0b\x32).api.UpdateProfileReq.RepeatedStringValue\x12\x42\n\x0f\x63ountries_lived\x18\n \x01(\x0b\x32).api.UpdateProfileReq.RepeatedStringValue\x1a\x34\n\x13RepeatedStringValue\x12\x0e\n\x06\x65xists\x18\x01 \x01(\x08\x12\r\n\x05value\x18\x02 \x03(\t\"\x9f\x02\n\x10UpdateProfileRes\x12\x14\n\x0cupdated_name\x18\x01 \x01(\x08\x12\x14\n\x0cupdated_city\x18\x02 \x01(\x08\x12\x16\n\x0eupdated_gender\x18\x03 \x01(\x08\x12\x1a\n\x12updated_occupation\x18\x04 \x01(\x08\x12\x18\n\x10updated_about_me\x18\x05 \x01(\x08\x12\x1b\n\x13updated_about_place\x18\x06 \x01(\x08\x12\x15\n\rupdated_color\x18\x07 \x01(\x08\x12\x19\n\x11updated_languages\x18\x08 \x01(\x08\x12!\n\x19updated_countries_visited\x18\t \x01(\x08\x12\x1f\n\x17updated_countries_lived\x18\n \x01(\x08\"\"\n\x06SSOReq\x12\x0b\n\x03sso\x18\x01 \x01(\t\x12\x0b\n\x03sig\x18\x02 \x01(\t\"\x1e\n\x06SSORes\x12\x14\n\x0credirect_url\x18\x01 \x01(\t2\xb8\x01\n\x03\x41PI\x12$\n\x04Ping\x12\x0c.api.PingReq\x1a\x0c.api.PingRes\"\x00\x12\'\n\x07GetUser\x12\x0f.api.GetUserReq\x1a\t.api.User\"\x00\x12?\n\rUpdateProfile\x12\x15.api.UpdateProfileReq\x1a\x15.api.UpdateProfileRes\"\x00\x12!\n\x03SSO\x12\x0b.api.SSOReq\x1a\x0b.api.SSORes\"\x00\x62\x06proto3'
+  serialized_pb=b'\n\x0cpb/api.proto\x12\x03\x61pi\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\"\x1a\n\tSearchReq\x12\r\n\x05query\x18\x01 \x01(\t\"%\n\tSearchRes\x12\x18\n\x05users\x18\x01 \x03(\x0b\x32\t.api.User\"\t\n\x07PingReq\"I\n\x07PingRes\x12\x0f\n\x07user_id\x18\x01 \x01(\x03\x12\x10\n\x08username\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\r\n\x05\x63olor\x18\x04 \x01(\t\"\x89\x03\n\x04User\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0c\n\x04\x63ity\x18\x03 \x01(\t\x12\x14\n\x0cverification\x18\x04 \x01(\x01\x12\x1a\n\x12\x63ommunity_standing\x18\x05 \x01(\x01\x12\x16\n\x0enum_references\x18\x06 \x01(\r\x12\x0e\n\x06gender\x18\x07 \x01(\t\x12\x0b\n\x03\x61ge\x18\x08 \x01(\r\x12\r\n\x05\x63olor\x18\t \x01(\t\x12*\n\x06joined\x18\n \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12/\n\x0blast_active\x18\x0b \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x12\n\noccupation\x18\x0c \x01(\t\x12\x10\n\x08\x61\x62out_me\x18\r \x01(\t\x12\x13\n\x0b\x61\x62out_place\x18\x0e \x01(\t\x12\x11\n\tlanguages\x18\x0f \x03(\t\x12\x19\n\x11\x63ountries_visited\x18\x10 \x03(\t\x12\x17\n\x0f\x63ountries_lived\x18\x11 \x03(\t\"\x1a\n\nGetUserReq\x12\x0c\n\x04user\x18\x01 \x01(\t\"\xd8\x04\n\x10UpdateProfileReq\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04\x63ity\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12,\n\x06gender\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x30\n\noccupation\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12.\n\x08\x61\x62out_me\x18\x05 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x31\n\x0b\x61\x62out_place\x18\x06 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12+\n\x05\x63olor\x18\x07 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12<\n\tlanguages\x18\x08 \x01(\x0b\x32).api.UpdateProfileReq.RepeatedStringValue\x12\x44\n\x11\x63ountries_visited\x18\t \x01(\x0b\x32).api.UpdateProfileReq.RepeatedStringValue\x12\x42\n\x0f\x63ountries_lived\x18\n \x01(\x0b\x32).api.UpdateProfileReq.RepeatedStringValue\x1a\x34\n\x13RepeatedStringValue\x12\x0e\n\x06\x65xists\x18\x01 \x01(\x08\x12\r\n\x05value\x18\x02 \x03(\t\"\x9f\x02\n\x10UpdateProfileRes\x12\x14\n\x0cupdated_name\x18\x01 \x01(\x08\x12\x14\n\x0cupdated_city\x18\x02 \x01(\x08\x12\x16\n\x0eupdated_gender\x18\x03 \x01(\x08\x12\x1a\n\x12updated_occupation\x18\x04 \x01(\x08\x12\x18\n\x10updated_about_me\x18\x05 \x01(\x08\x12\x1b\n\x13updated_about_place\x18\x06 \x01(\x08\x12\x15\n\rupdated_color\x18\x07 \x01(\x08\x12\x19\n\x11updated_languages\x18\x08 \x01(\x08\x12!\n\x19updated_countries_visited\x18\t \x01(\x08\x12\x1f\n\x17updated_countries_lived\x18\n \x01(\x08\"\"\n\x06SSOReq\x12\x0b\n\x03sso\x18\x01 \x01(\t\x12\x0b\n\x03sig\x18\x02 \x01(\t\"\x1e\n\x06SSORes\x12\x14\n\x0credirect_url\x18\x01 \x01(\t2\xe4\x01\n\x03\x41PI\x12$\n\x04Ping\x12\x0c.api.PingReq\x1a\x0c.api.PingRes\"\x00\x12\'\n\x07GetUser\x12\x0f.api.GetUserReq\x1a\t.api.User\"\x00\x12?\n\rUpdateProfile\x12\x15.api.UpdateProfileReq\x1a\x15.api.UpdateProfileRes\"\x00\x12!\n\x03SSO\x12\x0b.api.SSOReq\x1a\x0b.api.SSORes\"\x00\x12*\n\x06Search\x12\x0e.api.SearchReq\x1a\x0e.api.SearchRes\"\x00\x62\x06proto3'
   ,
   dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,google_dot_protobuf_dot_wrappers__pb2.DESCRIPTOR,])
 
 
+
+
+_SEARCHREQ = _descriptor.Descriptor(
+  name='SearchReq',
+  full_name='api.SearchReq',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='query', full_name='api.SearchReq.query', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=86,
+  serialized_end=112,
+)
+
+
+_SEARCHRES = _descriptor.Descriptor(
+  name='SearchRes',
+  full_name='api.SearchRes',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='users', full_name='api.SearchRes.users', index=0,
+      number=1, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=114,
+  serialized_end=151,
+)
 
 
 _PINGREQ = _descriptor.Descriptor(
@@ -48,8 +112,8 @@ _PINGREQ = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=86,
-  serialized_end=95,
+  serialized_start=153,
+  serialized_end=162,
 )
 
 
@@ -101,8 +165,8 @@ _PINGRES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=97,
-  serialized_end=170,
+  serialized_start=164,
+  serialized_end=237,
 )
 
 
@@ -245,8 +309,8 @@ _USER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=173,
-  serialized_end=566,
+  serialized_start=240,
+  serialized_end=633,
 )
 
 
@@ -277,8 +341,8 @@ _GETUSERREQ = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=568,
-  serialized_end=594,
+  serialized_start=635,
+  serialized_end=661,
 )
 
 
@@ -316,8 +380,8 @@ _UPDATEPROFILEREQ_REPEATEDSTRINGVALUE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1145,
-  serialized_end=1197,
+  serialized_start=1212,
+  serialized_end=1264,
 )
 
 _UPDATEPROFILEREQ = _descriptor.Descriptor(
@@ -410,8 +474,8 @@ _UPDATEPROFILEREQ = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=597,
-  serialized_end=1197,
+  serialized_start=664,
+  serialized_end=1264,
 )
 
 
@@ -505,8 +569,8 @@ _UPDATEPROFILERES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1200,
-  serialized_end=1487,
+  serialized_start=1267,
+  serialized_end=1554,
 )
 
 
@@ -544,8 +608,8 @@ _SSOREQ = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1489,
-  serialized_end=1523,
+  serialized_start=1556,
+  serialized_end=1590,
 )
 
 
@@ -576,10 +640,11 @@ _SSORES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1525,
-  serialized_end=1555,
+  serialized_start=1592,
+  serialized_end=1622,
 )
 
+_SEARCHRES.fields_by_name['users'].message_type = _USER
 _USER.fields_by_name['joined'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 _USER.fields_by_name['last_active'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 _UPDATEPROFILEREQ_REPEATEDSTRINGVALUE.containing_type = _UPDATEPROFILEREQ
@@ -593,6 +658,8 @@ _UPDATEPROFILEREQ.fields_by_name['color'].message_type = google_dot_protobuf_dot
 _UPDATEPROFILEREQ.fields_by_name['languages'].message_type = _UPDATEPROFILEREQ_REPEATEDSTRINGVALUE
 _UPDATEPROFILEREQ.fields_by_name['countries_visited'].message_type = _UPDATEPROFILEREQ_REPEATEDSTRINGVALUE
 _UPDATEPROFILEREQ.fields_by_name['countries_lived'].message_type = _UPDATEPROFILEREQ_REPEATEDSTRINGVALUE
+DESCRIPTOR.message_types_by_name['SearchReq'] = _SEARCHREQ
+DESCRIPTOR.message_types_by_name['SearchRes'] = _SEARCHRES
 DESCRIPTOR.message_types_by_name['PingReq'] = _PINGREQ
 DESCRIPTOR.message_types_by_name['PingRes'] = _PINGRES
 DESCRIPTOR.message_types_by_name['User'] = _USER
@@ -602,6 +669,20 @@ DESCRIPTOR.message_types_by_name['UpdateProfileRes'] = _UPDATEPROFILERES
 DESCRIPTOR.message_types_by_name['SSOReq'] = _SSOREQ
 DESCRIPTOR.message_types_by_name['SSORes'] = _SSORES
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
+
+SearchReq = _reflection.GeneratedProtocolMessageType('SearchReq', (_message.Message,), {
+  'DESCRIPTOR' : _SEARCHREQ,
+  '__module__' : 'pb.api_pb2'
+  # @@protoc_insertion_point(class_scope:api.SearchReq)
+  })
+_sym_db.RegisterMessage(SearchReq)
+
+SearchRes = _reflection.GeneratedProtocolMessageType('SearchRes', (_message.Message,), {
+  'DESCRIPTOR' : _SEARCHRES,
+  '__module__' : 'pb.api_pb2'
+  # @@protoc_insertion_point(class_scope:api.SearchRes)
+  })
+_sym_db.RegisterMessage(SearchRes)
 
 PingReq = _reflection.GeneratedProtocolMessageType('PingReq', (_message.Message,), {
   'DESCRIPTOR' : _PINGREQ,
@@ -676,8 +757,8 @@ _API = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=1558,
-  serialized_end=1742,
+  serialized_start=1625,
+  serialized_end=1853,
   methods=[
   _descriptor.MethodDescriptor(
     name='Ping',
@@ -716,6 +797,16 @@ _API = _descriptor.ServiceDescriptor(
     containing_service=None,
     input_type=_SSOREQ,
     output_type=_SSORES,
+    serialized_options=None,
+    create_key=_descriptor._internal_create_key,
+  ),
+  _descriptor.MethodDescriptor(
+    name='Search',
+    full_name='api.API.Search',
+    index=4,
+    containing_service=None,
+    input_type=_SEARCHREQ,
+    output_type=_SEARCHRES,
     serialized_options=None,
     create_key=_descriptor._internal_create_key,
   ),

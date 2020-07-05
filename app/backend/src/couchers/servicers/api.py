@@ -8,6 +8,7 @@ from couchers.db import get_user_by_field, is_valid_color, session_scope
 from couchers.models import User
 from couchers.utils import Timestamp_from_datetime
 from pb import api_pb2, api_pb2_grpc
+from sqlalchemy.sql import or_
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d: %(process)d: %(message)s", datefmt="%F %T", level=logging.DEBUG)
 
@@ -154,3 +155,36 @@ class APIServicer(api_pb2_grpc.APIServicer):
             logging.info(f"SSO {redirect_url=}")
 
             return api_pb2.SSORes(redirect_url=redirect_url)
+
+    def Search(self, request, context):
+        with session_scope(self._Session) as session:
+            return api_pb2.SearchRes(
+                users=[
+                    api_pb2.User(
+                        username=user.username,
+                        name=user.name,
+                        city=user.city,
+                        verification=user.verification,
+                        community_standing=user.community_standing,
+                        num_references=0,
+                        gender=user.gender,
+                        age=user.age,
+                        color=user.color,
+                        joined=Timestamp_from_datetime(user.display_joined),
+                        last_active=Timestamp_from_datetime(user.display_last_active),
+                        occupation=user.occupation,
+                        about_me=user.about_me,
+                        about_place=user.about_place,
+                        languages=user.languages.split("|") if user.languages else [],
+                        countries_visited=user.countries_visited.split("|") if user.countries_visited else [],
+                        countries_lived=user.countries_lived.split("|") if user.countries_lived else []
+                    ) for user in session.query(User) \
+                        .filter(
+                            or_(
+                                User.name.like(f"%{request.query}%"),
+                                User.username.like(f"%{request.query}%"),
+                            )
+                        ) \
+                        .all()
+                ]
+            )

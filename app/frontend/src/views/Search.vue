@@ -1,6 +1,7 @@
 <template>
   <v-content>
     You searched for "{{ query }}"
+    {{ results }}
     <v-container fill-height>
       <v-col class="mx-auto" cols="12" sm="10" md="8" lg="6" xl="4">
         <div v-if="loading">
@@ -15,9 +16,13 @@
 <script lang="ts">
 import Vue from 'vue'
 
+import { SearchReq } from '../pb/api_pb'
+import { client } from '../api'
+
 export default Vue.extend({
   data: () => ({
-    loading: false
+    loading: false,
+    results: null
   }),
 
   computed: {
@@ -38,10 +43,16 @@ export default Vue.extend({
     fetchData: function () {
       this.loading = true
 
-      setTimeout(res => {
+      const req = new SearchReq()
+      req.setQuery(this.query)
+      client.search(req).then(res => {
         this.loading = false
-        console.log("done")
-      }, 1000)
+        this.results = res.toObject()
+        console.log(res.toObject())
+      }).catch(err => {
+        this.loading = false
+        console.error(err)
+      })
     },
   },
 })

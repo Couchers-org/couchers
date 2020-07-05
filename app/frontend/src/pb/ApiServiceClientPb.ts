@@ -22,6 +22,8 @@ import {
   PingRes,
   SSOReq,
   SSORes,
+  SearchReq,
+  SearchRes,
   UpdateProfileReq,
   UpdateProfileRes,
   User} from './api_pb';
@@ -203,6 +205,46 @@ export class APIClient {
     request,
     metadata || {},
     this.methodInfoSSO);
+  }
+
+  methodInfoSearch = new grpcWeb.AbstractClientBase.MethodInfo(
+    SearchRes,
+    (request: SearchReq) => {
+      return request.serializeBinary();
+    },
+    SearchRes.deserializeBinary
+  );
+
+  search(
+    request: SearchReq,
+    metadata: grpcWeb.Metadata | null): Promise<SearchRes>;
+
+  search(
+    request: SearchReq,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.Error,
+               response: SearchRes) => void): grpcWeb.ClientReadableStream<SearchRes>;
+
+  search(
+    request: SearchReq,
+    metadata: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.Error,
+               response: SearchRes) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/api.API/Search',
+        request,
+        metadata || {},
+        this.methodInfoSearch,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/api.API/Search',
+    request,
+    metadata || {},
+    this.methodInfoSearch);
   }
 
 }
