@@ -4,14 +4,15 @@ from time import sleep
 from typing import Union
 
 import grpc
-from crypto import hash_password, urlsafe_secure_token, verify_password
-from db import (get_user_by_field, is_valid_email, is_valid_username,
-                new_login_token, new_signup_token, session_scope)
-from interceptors import _AuthValidatorInterceptor
-from models import LoginToken, SignupToken, User, UserSession
+from couchers.crypto import (hash_password, urlsafe_secure_token,
+                             verify_password)
+from couchers.db import (get_user_by_field, is_valid_email, is_valid_username,
+                         new_login_token, new_signup_token, session_scope)
+from couchers.interceptors import _AuthValidatorInterceptor
+from couchers.models import LoginToken, SignupToken, User, UserSession
+from couchers.tasks import send_login_email, send_signup_email
 from pb import auth_pb2, auth_pb2_grpc
 from sqlalchemy import func
-from tasks import send_login_email, send_signup_email
 
 
 class Auth(auth_pb2_grpc.AuthServicer):
@@ -127,8 +128,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
         with session_scope(self._Session) as session:
             signup_token = session.query(SignupToken) \
                 .filter(SignupToken.token == request.signup_token) \
-                .filter(SignupToken.created < func.now()) \
-                .filter(SignupToken.expiry > func.now()) \
+                .filter(SignupToken.created <= func.now()) \
+                .filter(SignupToken.expiry >= func.now()) \
                 .one_or_none()
             if not signup_token:
                 context.abort(grpc.StatusCode.NOT_FOUND, "Invalid token.")
@@ -144,8 +145,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
         with session_scope(self._Session) as session:
             signup_token = session.query(SignupToken) \
                 .filter(SignupToken.token == request.signup_token) \
-                .filter(SignupToken.created < func.now()) \
-                .filter(SignupToken.expiry > func.now()) \
+                .filter(SignupToken.created <= func.now()) \
+                .filter(SignupToken.expiry >= func.now()) \
                 .one_or_none()
             if not signup_token:
                 context.abort(grpc.StatusCode.NOT_FOUND, "Invalid token.")
@@ -221,8 +222,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
         with session_scope(self._Session) as session:
             login_token = session.query(LoginToken) \
                 .filter(LoginToken.token == request.login_token) \
-                .filter(LoginToken.created < func.now()) \
-                .filter(LoginToken.expiry > func.now()) \
+                .filter(LoginToken.created <= func.now()) \
+                .filter(LoginToken.expiry >= func.now()) \
                 .one_or_none()
             if login_token:
                 # this is the bearer token

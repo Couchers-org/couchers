@@ -1,3 +1,5 @@
 venv/
 db.sqlite
 __pycache__/
+
+*.egg-info/
