@@ -8,7 +8,7 @@ class FakeDate(date):
     def __new__(cls, *args, **kwargs):
         return date.__new__(date, *args, **kwargs)
 
-@patch('couchers.models.date', FakeDate)
+@patch("couchers.models.date", FakeDate)
 def test_user_birthdate():
     FakeDate.today = classmethod(lambda cls: date(2019, 7, 5))
     assert User(birthdate = date(1990, 7, 4)).age == 29

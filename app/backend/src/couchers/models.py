@@ -69,13 +69,12 @@ class User(Base):
     @property
     def age(self):
         max_day = monthrange(date.today().year, self.birthdate.month)[1]
-        print(max_day)
         age = date.today().year - self.birthdate.year
         #in case of leap-day babies, make sure the date is valid for this year
         safe_birthdate = self.birthdate
         if (self.birthdate.day > max_day):
             safe_birthdate = safe_birthdate.replace(day = max_day)
-        if date.today() < safe_birthdate.replace(year = date.today().year):
+        if date.today() < safe_birthdate.replace(year=date.today().year):
             age -= 1
         return age
 
