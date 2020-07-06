@@ -7,9 +7,10 @@
 
     <v-app-bar app color="primary" dark clipped-left>
       <v-app-bar-nav-icon v-if="authenticated" @click.stop="drawer = !drawer" />
-      <div class="d-flex align-center">
-        Couchers.org
-      </div>
+      <v-toolbar-title class="ml-0 pl-4">Couchers.org</v-toolbar-title>
+      <v-spacer></v-spacer>
+      <search-box class="mx-auto"></search-box>
+      <v-spacer></v-spacer>
     </v-app-bar>
 
     <drawer v-if="authenticated" v-model="drawer" />
@@ -24,10 +25,12 @@ import Vue from 'vue';
 import Store from './store'
 
 import Drawer from './components/Drawer.vue'
+import SearchBox from './components/SearchBox.vue'
 
 export default Vue.extend({
   components: {
-    "drawer": Drawer
+    "drawer": Drawer,
+    "search-box": SearchBox
   },
 
   data: () => ({

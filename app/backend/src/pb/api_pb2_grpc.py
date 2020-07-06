@@ -60,6 +60,11 @@ class APIStub(object):
                 request_serializer=pb_dot_api__pb2.SSOReq.SerializeToString,
                 response_deserializer=pb_dot_api__pb2.SSORes.FromString,
                 )
+        self.Search = channel.unary_unary(
+                '/api.API/Search',
+                request_serializer=pb_dot_api__pb2.SearchReq.SerializeToString,
+                response_deserializer=pb_dot_api__pb2.SearchRes.FromString,
+                )
 
 
 class APIServicer(object):
@@ -123,6 +128,13 @@ class APIServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def Search(self, request, context):
+        """Search for user names and usernames (for now)
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_APIServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -170,6 +182,11 @@ def add_APIServicer_to_server(servicer, server):
                     servicer.SSO,
                     request_deserializer=pb_dot_api__pb2.SSOReq.FromString,
                     response_serializer=pb_dot_api__pb2.SSORes.SerializeToString,
+            ),
+            'Search': grpc.unary_unary_rpc_method_handler(
+                    servicer.Search,
+                    request_deserializer=pb_dot_api__pb2.SearchReq.FromString,
+                    response_serializer=pb_dot_api__pb2.SearchRes.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -322,5 +339,21 @@ class API(object):
         return grpc.experimental.unary_unary(request, target, '/api.API/SSO',
             pb_dot_api__pb2.SSOReq.SerializeToString,
             pb_dot_api__pb2.SSORes.FromString,
+            options, channel_credentials,
+            call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def Search(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/api.API/Search',
+            pb_dot_api__pb2.SearchReq.SerializeToString,
+            pb_dot_api__pb2.SearchRes.FromString,
             options, channel_credentials,
             call_credentials, compression, wait_for_ready, timeout, metadata)

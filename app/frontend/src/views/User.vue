@@ -24,7 +24,7 @@
             <v-icon>mdi-account-check</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title>Verification (coming soon) %</v-list-item-title>
+            <v-list-item-title>Verification (coming soon)</v-list-item-title>
             <v-list-item-subtitle><v-progress-linear class="my-2" height="12" rounded value="0" color="light-green"></v-progress-linear></v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
@@ -33,7 +33,7 @@
             <v-icon>mdi-account-group</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title>Community standing (coming soon) %</v-list-item-title>
+            <v-list-item-title>Community standing (coming soon)</v-list-item-title>
             <v-list-item-subtitle><v-progress-linear class="my-2" height="12" rounded value="0" color="light-blue"></v-progress-linear></v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
@@ -116,9 +116,7 @@ import moment, { lang } from 'moment'
 import { GetUserReq, SendFriendRequestReq, User } from '../pb/api_pb'
 import { client } from '../api'
 
-function displayList(list: string[]) {
-  return list.join(', ')
-}
+import { displayList, displayTime } from '../utils'
 
 export default Vue.extend({
   data: () => ({
@@ -164,10 +162,7 @@ export default Vue.extend({
       client.getUser(req, null).then(res => {
         this.loading = false
         this.errorMessages = []
-
         this.user = res.toObject()
-        this.user.lastActive = res.getLastActive()
-        this.user.joined = res.getJoined()
       }).catch(err => {
         this.loading = false
         this.errorMessages = err.message
@@ -207,22 +202,19 @@ export default Vue.extend({
       if (!this.user.lastActive) {
         return 'unknown'
       }
-      return moment(this.user.lastActive.toDate()).fromNow()
+      return displayTime(this.user.lastActive)
     },
     joinedDisplay: function () {
       if (!this.user.joined) {
         return 'error'
       }
-      return moment(this.user.joined.toDate()).fromNow()
+      return displayTime(this.user.joined)
     },
     verificationDisplay: function() {
       return Math.round(this.user.verification! * 100)
     },
     communityStandingDisplay: function() {
       return Math.round(this.user.communityStanding! * 100)
-    },
-    ageDisplay: function() {
-      return new Date(new Date().getTime() - this.user.birthDate!).getFullYear()-1970;
     },
     languagesListDisplay: function() {
       return displayList(this.user.languagesList)

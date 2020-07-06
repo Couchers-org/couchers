@@ -4,6 +4,44 @@ import * as google_protobuf_timestamp_pb from 'google-protobuf/google/protobuf/t
 import * as google_protobuf_wrappers_pb from 'google-protobuf/google/protobuf/wrappers_pb';
 import * as google_protobuf_empty_pb from 'google-protobuf/google/protobuf/empty_pb';
 
+export class SearchReq extends jspb.Message {
+  getQuery(): string;
+  setQuery(value: string): SearchReq;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): SearchReq.AsObject;
+  static toObject(includeInstance: boolean, msg: SearchReq): SearchReq.AsObject;
+  static serializeBinaryToWriter(message: SearchReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SearchReq;
+  static deserializeBinaryFromReader(message: SearchReq, reader: jspb.BinaryReader): SearchReq;
+}
+
+export namespace SearchReq {
+  export type AsObject = {
+    query: string,
+  }
+}
+
+export class SearchRes extends jspb.Message {
+  getUsersList(): Array<User>;
+  setUsersList(value: Array<User>): SearchRes;
+  clearUsersList(): SearchRes;
+  addUsers(value?: User, index?: number): User;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): SearchRes.AsObject;
+  static toObject(includeInstance: boolean, msg: SearchRes): SearchRes.AsObject;
+  static serializeBinaryToWriter(message: SearchRes, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SearchRes;
+  static deserializeBinaryFromReader(message: SearchRes, reader: jspb.BinaryReader): SearchRes;
+}
+
+export namespace SearchRes {
+  export type AsObject = {
+    usersList: Array<User.AsObject>,
+  }
+}
+
 export class SendFriendRequestReq extends jspb.Message {
   getUser(): string;
   setUser(value: string): SendFriendRequestReq;
