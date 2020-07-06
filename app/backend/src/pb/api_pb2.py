@@ -22,7 +22,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0cpb/api.proto\x12\x03\x61pi\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1bgoogle/protobuf/empty.proto\"$\n\x14SendFriendRequestReq\x12\x0c\n\x04user\x18\x01 \x01(\t\"\xb7\x01\n\rFriendRequest\x12\x19\n\x11\x66riend_request_id\x18\x01 \x01(\x03\x12\x35\n\x05state\x18\x02 \x01(\x0e\x32&.api.FriendRequest.FriendRequestStatus\x12\x11\n\tuser_from\x18\x03 \x01(\t\x12\x0f\n\x07user_to\x18\x04 \x01(\t\"0\n\x13\x46riendRequestStatus\x12\x0b\n\x07PENDING\x10\x00\x12\x0c\n\x08\x41\x43\x43\x45PTED\x10\x01\"D\n\x17RespondFriendRequestReq\x12\x19\n\x11\x66riend_request_id\x18\x01 \x01(\x03\x12\x0e\n\x06\x61\x63\x63\x65pt\x18\x02 \x01(\x08\"3\n\x16\x43\x61ncelFriendRequestReq\x12\x19\n\x11\x66riend_request_id\x18\x01 \x01(\x03\"=\n\x15ListFriendRequestsRes\x12$\n\x08requests\x18\x01 \x03(\x0b\x32\x12.api.FriendRequest\"\x1f\n\x0eListFriendsRes\x12\r\n\x05users\x18\x01 \x03(\t\"\t\n\x07PingReq\"I\n\x07PingRes\x12\x0f\n\x07user_id\x18\x01 \x01(\x03\x12\x10\n\x08username\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\r\n\x05\x63olor\x18\x04 \x01(\t\"\xfd\x03\n\x04User\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0c\n\x04\x63ity\x18\x03 \x01(\t\x12\x14\n\x0cverification\x18\x04 \x01(\x01\x12\x1a\n\x12\x63ommunity_standing\x18\x05 \x01(\x01\x12\x16\n\x0enum_references\x18\x06 \x01(\r\x12\x0e\n\x06gender\x18\x07 \x01(\t\x12\x0b\n\x03\x61ge\x18\x08 \x01(\r\x12\r\n\x05\x63olor\x18\t \x01(\t\x12*\n\x06joined\x18\n \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12/\n\x0blast_active\x18\x0b \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x12\n\noccupation\x18\x0c \x01(\t\x12\x10\n\x08\x61\x62out_me\x18\r \x01(\t\x12\x13\n\x0b\x61\x62out_place\x18\x0e \x01(\t\x12\x11\n\tlanguages\x18\x0f \x03(\t\x12\x19\n\x11\x63ountries_visited\x18\x10 \x03(\t\x12\x17\n\x0f\x63ountries_lived\x18\x11 \x03(\t\x12+\n\x07\x66riends\x18\x12 \x01(\x0e\x32\x1a.api.User.FriendshipStatus\"E\n\x10\x46riendshipStatus\x12\x0f\n\x0bNOT_FRIENDS\x10\x00\x12\x0b\n\x07\x46RIENDS\x10\x01\x12\x0b\n\x07PENDING\x10\x02\x12\x06\n\x02NA\x10\x03\"\x1a\n\nGetUserReq\x12\x0c\n\x04user\x18\x01 \x01(\t\"\xd8\x04\n\x10UpdateProfileReq\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04\x63ity\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12,\n\x06gender\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x30\n\noccupation\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12.\n\x08\x61\x62out_me\x18\x05 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x31\n\x0b\x61\x62out_place\x18\x06 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12+\n\x05\x63olor\x18\x07 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12<\n\tlanguages\x18\x08 \x01(\x0b\x32).api.UpdateProfileReq.RepeatedStringValue\x12\x44\n\x11\x63ountries_visited\x18\t \x01(\x0b\x32).api.UpdateProfileReq.RepeatedStringValue\x12\x42\n\x0f\x63ountries_lived\x18\n \x01(\x0b\x32).api.UpdateProfileReq.RepeatedStringValue\x1a\x34\n\x13RepeatedStringValue\x12\x0e\n\x06\x65xists\x18\x01 \x01(\x08\x12\r\n\x05value\x18\x02 \x03(\t\"\x9f\x02\n\x10UpdateProfileRes\x12\x14\n\x0cupdated_name\x18\x01 \x01(\x08\x12\x14\n\x0cupdated_city\x18\x02 \x01(\x08\x12\x16\n\x0eupdated_gender\x18\x03 \x01(\x08\x12\x1a\n\x12updated_occupation\x18\x04 \x01(\x08\x12\x18\n\x10updated_about_me\x18\x05 \x01(\x08\x12\x1b\n\x13updated_about_place\x18\x06 \x01(\x08\x12\x15\n\rupdated_color\x18\x07 \x01(\x08\x12\x19\n\x11updated_languages\x18\x08 \x01(\x08\x12!\n\x19updated_countries_visited\x18\t \x01(\x08\x12\x1f\n\x17updated_countries_lived\x18\n \x01(\x08\"\"\n\x06SSOReq\x12\x0b\n\x03sso\x18\x01 \x01(\t\x12\x0b\n\x03sig\x18\x02 \x01(\t\"\x1e\n\x06SSORes\x12\x14\n\x0credirect_url\x18\x01 \x01(\t2\xa0\x04\n\x03\x41PI\x12$\n\x04Ping\x12\x0c.api.PingReq\x1a\x0c.api.PingRes\"\x00\x12\'\n\x07GetUser\x12\x0f.api.GetUserReq\x1a\t.api.User\"\x00\x12?\n\rUpdateProfile\x12\x15.api.UpdateProfileReq\x1a\x15.api.UpdateProfileRes\"\x00\x12\x46\n\x11SendFriendRequest\x12\x19.api.SendFriendRequestReq\x1a\x16.google.protobuf.Empty\x12H\n\x12ListFriendRequests\x12\x16.google.protobuf.Empty\x1a\x1a.api.ListFriendRequestsRes\x12:\n\x0bListFriends\x12\x16.google.protobuf.Empty\x1a\x13.api.ListFriendsRes\x12L\n\x14RespondFriendRequest\x12\x1c.api.RespondFriendRequestReq\x1a\x16.google.protobuf.Empty\x12J\n\x13\x43\x61ncelFriendRequest\x12\x1b.api.CancelFriendRequestReq\x1a\x16.google.protobuf.Empty\x12!\n\x03SSO\x12\x0b.api.SSOReq\x1a\x0b.api.SSORes\"\x00\x62\x06proto3'
+  serialized_pb=b'\n\x0cpb/api.proto\x12\x03\x61pi\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1bgoogle/protobuf/empty.proto\"$\n\x14SendFriendRequestReq\x12\x0c\n\x04user\x18\x01 \x01(\t\"\xa1\x01\n\rFriendRequest\x12\x19\n\x11\x66riend_request_id\x18\x01 \x01(\x03\x12\x35\n\x05state\x18\x02 \x01(\x0e\x32&.api.FriendRequest.FriendRequestStatus\x12\x0c\n\x04user\x18\x03 \x01(\t\"0\n\x13\x46riendRequestStatus\x12\x0b\n\x07PENDING\x10\x00\x12\x0c\n\x08\x41\x43\x43\x45PTED\x10\x01\"D\n\x17RespondFriendRequestReq\x12\x19\n\x11\x66riend_request_id\x18\x01 \x01(\x03\x12\x0e\n\x06\x61\x63\x63\x65pt\x18\x02 \x01(\x08\"3\n\x16\x43\x61ncelFriendRequestReq\x12\x19\n\x11\x66riend_request_id\x18\x01 \x01(\x03\"_\n\x15ListFriendRequestsRes\x12 \n\x04sent\x18\x01 \x03(\x0b\x32\x12.api.FriendRequest\x12$\n\x08received\x18\x02 \x03(\x0b\x32\x12.api.FriendRequest\"\x1f\n\x0eListFriendsRes\x12\r\n\x05users\x18\x01 \x03(\t\"\t\n\x07PingReq\"I\n\x07PingRes\x12\x0f\n\x07user_id\x18\x01 \x01(\x03\x12\x10\n\x08username\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\r\n\x05\x63olor\x18\x04 \x01(\t\"\xfd\x03\n\x04User\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0c\n\x04\x63ity\x18\x03 \x01(\t\x12\x14\n\x0cverification\x18\x04 \x01(\x01\x12\x1a\n\x12\x63ommunity_standing\x18\x05 \x01(\x01\x12\x16\n\x0enum_references\x18\x06 \x01(\r\x12\x0e\n\x06gender\x18\x07 \x01(\t\x12\x0b\n\x03\x61ge\x18\x08 \x01(\r\x12\r\n\x05\x63olor\x18\t \x01(\t\x12*\n\x06joined\x18\n \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12/\n\x0blast_active\x18\x0b \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x12\n\noccupation\x18\x0c \x01(\t\x12\x10\n\x08\x61\x62out_me\x18\r \x01(\t\x12\x13\n\x0b\x61\x62out_place\x18\x0e \x01(\t\x12\x11\n\tlanguages\x18\x0f \x03(\t\x12\x19\n\x11\x63ountries_visited\x18\x10 \x03(\t\x12\x17\n\x0f\x63ountries_lived\x18\x11 \x03(\t\x12+\n\x07\x66riends\x18\x12 \x01(\x0e\x32\x1a.api.User.FriendshipStatus\"E\n\x10\x46riendshipStatus\x12\x0f\n\x0bNOT_FRIENDS\x10\x00\x12\x0b\n\x07\x46RIENDS\x10\x01\x12\x0b\n\x07PENDING\x10\x02\x12\x06\n\x02NA\x10\x03\"\x1a\n\nGetUserReq\x12\x0c\n\x04user\x18\x01 \x01(\t\"\xd8\x04\n\x10UpdateProfileReq\x12*\n\x04name\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12*\n\x04\x63ity\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12,\n\x06gender\x18\x03 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x30\n\noccupation\x18\x04 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12.\n\x08\x61\x62out_me\x18\x05 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x31\n\x0b\x61\x62out_place\x18\x06 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12+\n\x05\x63olor\x18\x07 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12<\n\tlanguages\x18\x08 \x01(\x0b\x32).api.UpdateProfileReq.RepeatedStringValue\x12\x44\n\x11\x63ountries_visited\x18\t \x01(\x0b\x32).api.UpdateProfileReq.RepeatedStringValue\x12\x42\n\x0f\x63ountries_lived\x18\n \x01(\x0b\x32).api.UpdateProfileReq.RepeatedStringValue\x1a\x34\n\x13RepeatedStringValue\x12\x0e\n\x06\x65xists\x18\x01 \x01(\x08\x12\r\n\x05value\x18\x02 \x03(\t\"\x9f\x02\n\x10UpdateProfileRes\x12\x14\n\x0cupdated_name\x18\x01 \x01(\x08\x12\x14\n\x0cupdated_city\x18\x02 \x01(\x08\x12\x16\n\x0eupdated_gender\x18\x03 \x01(\x08\x12\x1a\n\x12updated_occupation\x18\x04 \x01(\x08\x12\x18\n\x10updated_about_me\x18\x05 \x01(\x08\x12\x1b\n\x13updated_about_place\x18\x06 \x01(\x08\x12\x15\n\rupdated_color\x18\x07 \x01(\x08\x12\x19\n\x11updated_languages\x18\x08 \x01(\x08\x12!\n\x19updated_countries_visited\x18\t \x01(\x08\x12\x1f\n\x17updated_countries_lived\x18\n \x01(\x08\"\"\n\x06SSOReq\x12\x0b\n\x03sso\x18\x01 \x01(\t\x12\x0b\n\x03sig\x18\x02 \x01(\t\"\x1e\n\x06SSORes\x12\x14\n\x0credirect_url\x18\x01 \x01(\t2\xa0\x04\n\x03\x41PI\x12$\n\x04Ping\x12\x0c.api.PingReq\x1a\x0c.api.PingRes\"\x00\x12\'\n\x07GetUser\x12\x0f.api.GetUserReq\x1a\t.api.User\"\x00\x12?\n\rUpdateProfile\x12\x15.api.UpdateProfileReq\x1a\x15.api.UpdateProfileRes\"\x00\x12\x46\n\x11SendFriendRequest\x12\x19.api.SendFriendRequestReq\x1a\x16.google.protobuf.Empty\x12H\n\x12ListFriendRequests\x12\x16.google.protobuf.Empty\x1a\x1a.api.ListFriendRequestsRes\x12:\n\x0bListFriends\x12\x16.google.protobuf.Empty\x1a\x13.api.ListFriendsRes\x12L\n\x14RespondFriendRequest\x12\x1c.api.RespondFriendRequestReq\x1a\x16.google.protobuf.Empty\x12J\n\x13\x43\x61ncelFriendRequest\x12\x1b.api.CancelFriendRequestReq\x1a\x16.google.protobuf.Empty\x12!\n\x03SSO\x12\x0b.api.SSOReq\x1a\x0b.api.SSORes\"\x00\x62\x06proto3'
   ,
   dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,google_dot_protobuf_dot_wrappers__pb2.DESCRIPTOR,google_dot_protobuf_dot_empty__pb2.DESCRIPTOR,])
 
@@ -48,8 +48,8 @@ _FRIENDREQUEST_FRIENDREQUESTSTATUS = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=289,
-  serialized_end=337,
+  serialized_start=267,
+  serialized_end=315,
 )
 _sym_db.RegisterEnumDescriptor(_FRIENDREQUEST_FRIENDREQUESTSTATUS)
 
@@ -83,8 +83,8 @@ _USER_FRIENDSHIPSTATUS = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1085,
-  serialized_end=1154,
+  serialized_start=1097,
+  serialized_end=1166,
 )
 _sym_db.RegisterEnumDescriptor(_USER_FRIENDSHIPSTATUS)
 
@@ -144,15 +144,8 @@ _FRIENDREQUEST = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='user_from', full_name='api.FriendRequest.user_from', index=2,
+      name='user', full_name='api.FriendRequest.user', index=2,
       number=3, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='user_to', full_name='api.FriendRequest.user_to', index=3,
-      number=4, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -171,7 +164,7 @@ _FRIENDREQUEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=154,
-  serialized_end=337,
+  serialized_end=315,
 )
 
 
@@ -209,8 +202,8 @@ _RESPONDFRIENDREQUESTREQ = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=339,
-  serialized_end=407,
+  serialized_start=317,
+  serialized_end=385,
 )
 
 
@@ -241,8 +234,8 @@ _CANCELFRIENDREQUESTREQ = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=409,
-  serialized_end=460,
+  serialized_start=387,
+  serialized_end=438,
 )
 
 
@@ -255,8 +248,15 @@ _LISTFRIENDREQUESTSRES = _descriptor.Descriptor(
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='requests', full_name='api.ListFriendRequestsRes.requests', index=0,
+      name='sent', full_name='api.ListFriendRequestsRes.sent', index=0,
       number=1, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='received', full_name='api.ListFriendRequestsRes.received', index=1,
+      number=2, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -273,8 +273,8 @@ _LISTFRIENDREQUESTSRES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=462,
-  serialized_end=523,
+  serialized_start=440,
+  serialized_end=535,
 )
 
 
@@ -305,8 +305,8 @@ _LISTFRIENDSRES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=525,
-  serialized_end=556,
+  serialized_start=537,
+  serialized_end=568,
 )
 
 
@@ -330,8 +330,8 @@ _PINGREQ = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=558,
-  serialized_end=567,
+  serialized_start=570,
+  serialized_end=579,
 )
 
 
@@ -383,8 +383,8 @@ _PINGRES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=569,
-  serialized_end=642,
+  serialized_start=581,
+  serialized_end=654,
 )
 
 
@@ -535,8 +535,8 @@ _USER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=645,
-  serialized_end=1154,
+  serialized_start=657,
+  serialized_end=1166,
 )
 
 
@@ -567,8 +567,8 @@ _GETUSERREQ = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1156,
-  serialized_end=1182,
+  serialized_start=1168,
+  serialized_end=1194,
 )
 
 
@@ -606,8 +606,8 @@ _UPDATEPROFILEREQ_REPEATEDSTRINGVALUE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1733,
-  serialized_end=1785,
+  serialized_start=1745,
+  serialized_end=1797,
 )
 
 _UPDATEPROFILEREQ = _descriptor.Descriptor(
@@ -700,8 +700,8 @@ _UPDATEPROFILEREQ = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1185,
-  serialized_end=1785,
+  serialized_start=1197,
+  serialized_end=1797,
 )
 
 
@@ -795,8 +795,8 @@ _UPDATEPROFILERES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1788,
-  serialized_end=2075,
+  serialized_start=1800,
+  serialized_end=2087,
 )
 
 
@@ -834,8 +834,8 @@ _SSOREQ = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2077,
-  serialized_end=2111,
+  serialized_start=2089,
+  serialized_end=2123,
 )
 
 
@@ -866,13 +866,14 @@ _SSORES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2113,
-  serialized_end=2143,
+  serialized_start=2125,
+  serialized_end=2155,
 )
 
 _FRIENDREQUEST.fields_by_name['state'].enum_type = _FRIENDREQUEST_FRIENDREQUESTSTATUS
 _FRIENDREQUEST_FRIENDREQUESTSTATUS.containing_type = _FRIENDREQUEST
-_LISTFRIENDREQUESTSRES.fields_by_name['requests'].message_type = _FRIENDREQUEST
+_LISTFRIENDREQUESTSRES.fields_by_name['sent'].message_type = _FRIENDREQUEST
+_LISTFRIENDREQUESTSRES.fields_by_name['received'].message_type = _FRIENDREQUEST
 _USER.fields_by_name['joined'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 _USER.fields_by_name['last_active'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 _USER.fields_by_name['friends'].enum_type = _USER_FRIENDSHIPSTATUS
@@ -1019,8 +1020,8 @@ _API = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=2146,
-  serialized_end=2690,
+  serialized_start=2158,
+  serialized_end=2702,
   methods=[
   _descriptor.MethodDescriptor(
     name='Ping',

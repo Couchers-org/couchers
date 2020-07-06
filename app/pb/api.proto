@@ -49,8 +49,7 @@ message FriendRequest {
 
   FriendRequestStatus state = 2;
 
-  string user_from = 3;
-  string user_to = 4;
+  string user = 3;
 }
 
 message RespondFriendRequestReq {
@@ -64,7 +63,8 @@ message CancelFriendRequestReq {
 }
 
 message ListFriendRequestsRes {
-  repeated FriendRequest requests = 1;
+  repeated FriendRequest sent = 1;
+  repeated FriendRequest received = 2;
 }
 
 message ListFriendsRes {

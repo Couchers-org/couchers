@@ -514,8 +514,7 @@ proto.api.FriendRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
     friendRequestId: jspb.Message.getFieldWithDefault(msg, 1, 0),
     state: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    userFrom: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    userTo: jspb.Message.getFieldWithDefault(msg, 4, "")
+    user: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
   if (includeInstance) {
@@ -562,11 +561,7 @@ proto.api.FriendRequest.deserializeBinaryFromReader = function(msg, reader) {
       break;
     case 3:
       var value = /** @type {string} */ (reader.readString());
-      msg.setUserFrom(value);
-      break;
-    case 4:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setUserTo(value);
+      msg.setUser(value);
       break;
     default:
       reader.skipField();
@@ -611,17 +606,10 @@ proto.api.FriendRequest.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
-  f = message.getUserFrom();
+  f = message.getUser();
   if (f.length > 0) {
     writer.writeString(
       3,
-      f
-    );
-  }
-  f = message.getUserTo();
-  if (f.length > 0) {
-    writer.writeString(
-      4,
       f
     );
   }
@@ -673,10 +661,10 @@ proto.api.FriendRequest.prototype.setState = function(value) {
 
 
 /**
- * optional string user_from = 3;
+ * optional string user = 3;
  * @return {string}
  */
-proto.api.FriendRequest.prototype.getUserFrom = function() {
+proto.api.FriendRequest.prototype.getUser = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
@@ -685,26 +673,8 @@ proto.api.FriendRequest.prototype.getUserFrom = function() {
  * @param {string} value
  * @return {!proto.api.FriendRequest} returns this
  */
-proto.api.FriendRequest.prototype.setUserFrom = function(value) {
+proto.api.FriendRequest.prototype.setUser = function(value) {
   return jspb.Message.setProto3StringField(this, 3, value);
-};
-
-
-/**
- * optional string user_to = 4;
- * @return {string}
- */
-proto.api.FriendRequest.prototype.getUserTo = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.api.FriendRequest} returns this
- */
-proto.api.FriendRequest.prototype.setUserTo = function(value) {
-  return jspb.Message.setProto3StringField(this, 4, value);
 };
 
 
@@ -1004,7 +974,7 @@ proto.api.CancelFriendRequestReq.prototype.setFriendRequestId = function(value) 
  * @private {!Array<number>}
  * @const
  */
-proto.api.ListFriendRequestsRes.repeatedFields_ = [1];
+proto.api.ListFriendRequestsRes.repeatedFields_ = [1,2];
 
 
 
@@ -1037,7 +1007,9 @@ proto.api.ListFriendRequestsRes.prototype.toObject = function(opt_includeInstanc
  */
 proto.api.ListFriendRequestsRes.toObject = function(includeInstance, msg) {
   var f, obj = {
-    requestsList: jspb.Message.toObjectList(msg.getRequestsList(),
+    sentList: jspb.Message.toObjectList(msg.getSentList(),
+    proto.api.FriendRequest.toObject, includeInstance),
+    receivedList: jspb.Message.toObjectList(msg.getReceivedList(),
     proto.api.FriendRequest.toObject, includeInstance)
   };
 
@@ -1078,7 +1050,12 @@ proto.api.ListFriendRequestsRes.deserializeBinaryFromReader = function(msg, read
     case 1:
       var value = new proto.api.FriendRequest;
       reader.readMessage(value,proto.api.FriendRequest.deserializeBinaryFromReader);
-      msg.addRequests(value);
+      msg.addSent(value);
+      break;
+    case 2:
+      var value = new proto.api.FriendRequest;
+      reader.readMessage(value,proto.api.FriendRequest.deserializeBinaryFromReader);
+      msg.addReceived(value);
       break;
     default:
       reader.skipField();
@@ -1109,10 +1086,18 @@ proto.api.ListFriendRequestsRes.prototype.serializeBinary = function() {
  */
 proto.api.ListFriendRequestsRes.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getRequestsList();
+  f = message.getSentList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
       1,
+      f,
+      proto.api.FriendRequest.serializeBinaryToWriter
+    );
+  }
+  f = message.getReceivedList();
+  if (f.length > 0) {
+    writer.writeRepeatedMessage(
+      2,
       f,
       proto.api.FriendRequest.serializeBinaryToWriter
     );
@@ -1121,10 +1106,10 @@ proto.api.ListFriendRequestsRes.serializeBinaryToWriter = function(message, writ
 
 
 /**
- * repeated FriendRequest requests = 1;
+ * repeated FriendRequest sent = 1;
  * @return {!Array<!proto.api.FriendRequest>}
  */
-proto.api.ListFriendRequestsRes.prototype.getRequestsList = function() {
+proto.api.ListFriendRequestsRes.prototype.getSentList = function() {
   return /** @type{!Array<!proto.api.FriendRequest>} */ (
     jspb.Message.getRepeatedWrapperField(this, proto.api.FriendRequest, 1));
 };
@@ -1134,7 +1119,7 @@ proto.api.ListFriendRequestsRes.prototype.getRequestsList = function() {
  * @param {!Array<!proto.api.FriendRequest>} value
  * @return {!proto.api.ListFriendRequestsRes} returns this
 */
-proto.api.ListFriendRequestsRes.prototype.setRequestsList = function(value) {
+proto.api.ListFriendRequestsRes.prototype.setSentList = function(value) {
   return jspb.Message.setRepeatedWrapperField(this, 1, value);
 };
 
@@ -1144,7 +1129,7 @@ proto.api.ListFriendRequestsRes.prototype.setRequestsList = function(value) {
  * @param {number=} opt_index
  * @return {!proto.api.FriendRequest}
  */
-proto.api.ListFriendRequestsRes.prototype.addRequests = function(opt_value, opt_index) {
+proto.api.ListFriendRequestsRes.prototype.addSent = function(opt_value, opt_index) {
   return jspb.Message.addToRepeatedWrapperField(this, 1, opt_value, proto.api.FriendRequest, opt_index);
 };
 
@@ -1153,8 +1138,46 @@ proto.api.ListFriendRequestsRes.prototype.addRequests = function(opt_value, opt_
  * Clears the list making it empty but non-null.
  * @return {!proto.api.ListFriendRequestsRes} returns this
  */
-proto.api.ListFriendRequestsRes.prototype.clearRequestsList = function() {
-  return this.setRequestsList([]);
+proto.api.ListFriendRequestsRes.prototype.clearSentList = function() {
+  return this.setSentList([]);
+};
+
+
+/**
+ * repeated FriendRequest received = 2;
+ * @return {!Array<!proto.api.FriendRequest>}
+ */
+proto.api.ListFriendRequestsRes.prototype.getReceivedList = function() {
+  return /** @type{!Array<!proto.api.FriendRequest>} */ (
+    jspb.Message.getRepeatedWrapperField(this, proto.api.FriendRequest, 2));
+};
+
+
+/**
+ * @param {!Array<!proto.api.FriendRequest>} value
+ * @return {!proto.api.ListFriendRequestsRes} returns this
+*/
+proto.api.ListFriendRequestsRes.prototype.setReceivedList = function(value) {
+  return jspb.Message.setRepeatedWrapperField(this, 2, value);
+};
+
+
+/**
+ * @param {!proto.api.FriendRequest=} opt_value
+ * @param {number=} opt_index
+ * @return {!proto.api.FriendRequest}
+ */
+proto.api.ListFriendRequestsRes.prototype.addReceived = function(opt_value, opt_index) {
+  return jspb.Message.addToRepeatedWrapperField(this, 2, opt_value, proto.api.FriendRequest, opt_index);
+};
+
+
+/**
+ * Clears the list making it empty but non-null.
+ * @return {!proto.api.ListFriendRequestsRes} returns this
+ */
+proto.api.ListFriendRequestsRes.prototype.clearReceivedList = function() {
+  return this.setReceivedList([]);
 };
 
 

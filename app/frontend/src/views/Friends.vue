@@ -40,7 +40,7 @@
           <v-subheader v-if="!receivedRequests.length">No pending friend requests!</v-subheader>
           <v-list-item v-for="request in receivedRequests" :key="request.friendRequestId">
             <v-list-item-content>
-              <v-list-item-title v-text="request.userFrom"></v-list-item-title>
+              <v-list-item-title v-text="request.user"></v-list-item-title>
               <v-btn color="success" class="mx-2 my-2" @click="respondFriendRequest(request.friendRequestId, true)">Accept</v-btn>
               <v-btn color="error" class="mx-2 my-2" @click="respondFriendRequest(request.friendRequestId, false)">Reject</v-btn>
             </v-list-item-content>
@@ -57,7 +57,7 @@
           <v-subheader v-if="!sentRequests.length">No pending friend requests!</v-subheader>
           <v-list-item v-for="request in sentRequests" :key="request.friendRequestId">
             <v-list-item-content>
-              <v-list-item-title v-text="request.userTo"></v-list-item-title>
+              <v-list-item-title v-text="request.user"></v-list-item-title>
               <v-btn color="error" class="mx-2 my-2" @click="cancelFriendRequest(request.friendRequestId)">Cancel request</v-btn>
             </v-list-item-content>
           </v-list-item>
@@ -113,8 +113,8 @@ export default Vue.extend({
         this.loading = false
         this.errorMessage = ""
 
-        this.sentRequests = res.toObject().requestsList.filter(req => req.userFrom == State.state.username)
-        this.receivedRequests = res.toObject().requestsList.filter(req => req.userTo == State.state.username)
+        this.sentRequests = res.toObject().sentList
+        this.receivedRequests = res.toObject().receivedList
       }).catch(err => {
         this.loading = false
         this.errorMessage = err.message

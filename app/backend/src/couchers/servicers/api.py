@@ -156,24 +156,30 @@ class APIServicer(api_pb2_grpc.APIServicer):
     def ListFriendRequests(self, request, context):
         # both sent and received
         with session_scope(self._Session) as session:
-            pending_requests = session.query(FriendRelationship) \
-                .filter(
-                    or_(
-                        FriendRelationship.from_user_id == context.user_id,
-                        FriendRelationship.to_user_id == context.user_id
-                    )
-                ) \
-                .filter(FriendRelationship.status == FriendStatus.pending) \
-                .all()
+            sent_requests = (session.query(FriendRelationship)
+                .filter(FriendRelationship.from_user_id == context.user_id)
+                .filter(FriendRelationship.status == FriendStatus.pending)
+                .all())
+
+            received_requests = (session.query(FriendRelationship)
+                .filter(FriendRelationship.to_user_id == context.user_id)
+                .filter(FriendRelationship.status == FriendStatus.pending)
+                .all())
 
             return api_pb2.ListFriendRequestsRes(
-                requests=[
+                sent=[
                     api_pb2.FriendRequest(
                         friend_request_id=friend_request.id,
-                        state=api_pb2.FriendRequest.FriendRequestStatus.PENDING, # TODO
-                        user_from=friend_request.from_user.username,
-                        user_to=friend_request.to_user.username,
-                    ) for friend_request in pending_requests
+                        state=api_pb2.FriendRequest.FriendRequestStatus.PENDING,
+                        user=friend_request.to_user.username,
+                    ) for friend_request in sent_requests
+                ],
+                received=[
+                    api_pb2.FriendRequest(
+                        friend_request_id=friend_request.id,
+                        state=api_pb2.FriendRequest.FriendRequestStatus.PENDING,
+                        user=friend_request.from_user.username,
+                    ) for friend_request in received_requests
                 ]
             )
 

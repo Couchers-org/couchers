@@ -29,11 +29,8 @@ export class FriendRequest extends jspb.Message {
   getState(): FriendRequest.FriendRequestStatus;
   setState(value: FriendRequest.FriendRequestStatus): FriendRequest;
 
-  getUserFrom(): string;
-  setUserFrom(value: string): FriendRequest;
-
-  getUserTo(): string;
-  setUserTo(value: string): FriendRequest;
+  getUser(): string;
+  setUser(value: string): FriendRequest;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): FriendRequest.AsObject;
@@ -47,8 +44,7 @@ export namespace FriendRequest {
   export type AsObject = {
     friendRequestId: number,
     state: FriendRequest.FriendRequestStatus,
-    userFrom: string,
-    userTo: string,
+    user: string,
   }
 
   export enum FriendRequestStatus { 
@@ -98,10 +94,15 @@ export namespace CancelFriendRequestReq {
 }
 
 export class ListFriendRequestsRes extends jspb.Message {
-  getRequestsList(): Array<FriendRequest>;
-  setRequestsList(value: Array<FriendRequest>): ListFriendRequestsRes;
-  clearRequestsList(): ListFriendRequestsRes;
-  addRequests(value?: FriendRequest, index?: number): FriendRequest;
+  getSentList(): Array<FriendRequest>;
+  setSentList(value: Array<FriendRequest>): ListFriendRequestsRes;
+  clearSentList(): ListFriendRequestsRes;
+  addSent(value?: FriendRequest, index?: number): FriendRequest;
+
+  getReceivedList(): Array<FriendRequest>;
+  setReceivedList(value: Array<FriendRequest>): ListFriendRequestsRes;
+  clearReceivedList(): ListFriendRequestsRes;
+  addReceived(value?: FriendRequest, index?: number): FriendRequest;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListFriendRequestsRes.AsObject;
@@ -113,7 +114,8 @@ export class ListFriendRequestsRes extends jspb.Message {
 
 export namespace ListFriendRequestsRes {
   export type AsObject = {
-    requestsList: Array<FriendRequest.AsObject>,
+    sentList: Array<FriendRequest.AsObject>,
+    receivedList: Array<FriendRequest.AsObject>,
   }
 }
 
