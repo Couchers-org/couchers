@@ -27,35 +27,48 @@ def temp_db_session(tmp_path):
 
     return Session
 
-def generate_user(temp_db_session, user):
+def generate_user(temp_db_session, username):
     """
     Create a new user, return session token
     """
     auth = Auth(temp_db_session)
 
-    password = f"{user}'s password"
-    with session_scope(temp_db_session) as session:
-        session.add(User(
-            username=user,
-            email=f"{user}@dev.couchers.org",
-            hashed_password=hash_password(password),
-            name=user.capitalize(),
-            city="Testing city",
-            verification=0.5,
-            community_standing=0.5,
-            birthdate=date(year=2000, month=1, day=1),
-            gender="N/A",
-            languages="",
-            occupation="Tester",
-            about_me="I test things",
-            about_place="My place has a lot of testing paraphenelia",
-            countries_visited="",
-            countries_lived="",
-        ))
+    password = f"{username}'s password"
+    session = temp_db_session()
 
-        session.commit()
+    user = User(
+        username=username,
+        email=f"{username}@dev.couchers.org",
+        hashed_password=hash_password(password),
+        name=username.capitalize(),
+        city="Testing city",
+        verification=0.5,
+        community_standing=0.5,
+        birthdate=date(year=2000, month=1, day=1),
+        gender="N/A",
+        languages="",
+        occupation="Tester",
+        about_me="I test things",
+        about_place="My place has a lot of testing paraphenelia",
+        countries_visited="",
+        countries_lived="",
+    )
 
-    return auth.Authenticate(auth_pb2.AuthReq(user=user, password=password), "Dummy context").token
+    session.add(user)
+
+    # this expires the user, so now it's "dirty"
+    session.commit()
+
+    # refresh it, undoes the expiry
+    session.refresh(user)
+    # allows detaches the user from the session, allowing its use outside this session
+    session.expunge(user)
+
+    session.close()
+
+    token = auth.Authenticate(auth_pb2.AuthReq(user=username, password=password), "Dummy context").token
+
+    return user, token
 
 @contextmanager
 def api_session(temp_db_session, token):
@@ -80,7 +93,7 @@ def api_session(temp_db_session, token):
     server.stop(None)
 
 def test_ping(temp_db_session):
-    token = generate_user(temp_db_session, "tester")
+    user, token = generate_user(temp_db_session, "tester")
 
     with api_session(temp_db_session, token) as api:
         print(api.Ping(api_pb2.PingReq()))
