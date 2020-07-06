@@ -9,7 +9,7 @@ from couchers.crypto import hash_password
 from couchers.db import session_scope
 from couchers.interceptors import LoggingInterceptor, intercept_server
 from couchers.models import Base, User
-from couchers.servicers.api import APIServicer
+from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
 from couchers.utils import Timestamp_from_datetime
 from pb import api_pb2_grpc, auth_pb2_grpc
@@ -76,7 +76,7 @@ server = grpc.server(futures.ThreadPoolExecutor(2))
 server = intercept_server(server, LoggingInterceptor())
 server = intercept_server(server, auth.get_auth_interceptor())
 server.add_insecure_port("[::]:1751")
-servicer = APIServicer(Session)
+servicer = API(Session)
 api_pb2_grpc.add_APIServicer_to_server(servicer, server)
 server.start()
 

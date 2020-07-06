@@ -15,13 +15,19 @@ import * as grpcWeb from 'grpc-web';
 
 import * as google_protobuf_timestamp_pb from 'google-protobuf/google/protobuf/timestamp_pb';
 import * as google_protobuf_wrappers_pb from 'google-protobuf/google/protobuf/wrappers_pb';
+import * as google_protobuf_empty_pb from 'google-protobuf/google/protobuf/empty_pb';
 
 import {
+  CancelFriendRequestReq,
   GetUserReq,
+  ListFriendRequestsRes,
+  ListFriendsRes,
   PingReq,
   PingRes,
+  RespondFriendRequestReq,
   SSOReq,
   SSORes,
+  SendFriendRequestReq,
   UpdateProfileReq,
   UpdateProfileRes,
   User} from './api_pb';
@@ -163,6 +169,206 @@ export class APIClient {
     request,
     metadata || {},
     this.methodInfoUpdateProfile);
+  }
+
+  methodInfoSendFriendRequest = new grpcWeb.AbstractClientBase.MethodInfo(
+    google_protobuf_empty_pb.Empty,
+    (request: SendFriendRequestReq) => {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
+
+  sendFriendRequest(
+    request: SendFriendRequestReq,
+    metadata: grpcWeb.Metadata | null): Promise<google_protobuf_empty_pb.Empty>;
+
+  sendFriendRequest(
+    request: SendFriendRequestReq,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.Error,
+               response: google_protobuf_empty_pb.Empty) => void): grpcWeb.ClientReadableStream<google_protobuf_empty_pb.Empty>;
+
+  sendFriendRequest(
+    request: SendFriendRequestReq,
+    metadata: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.Error,
+               response: google_protobuf_empty_pb.Empty) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/api.API/SendFriendRequest',
+        request,
+        metadata || {},
+        this.methodInfoSendFriendRequest,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/api.API/SendFriendRequest',
+    request,
+    metadata || {},
+    this.methodInfoSendFriendRequest);
+  }
+
+  methodInfoListFriendRequests = new grpcWeb.AbstractClientBase.MethodInfo(
+    ListFriendRequestsRes,
+    (request: google_protobuf_empty_pb.Empty) => {
+      return request.serializeBinary();
+    },
+    ListFriendRequestsRes.deserializeBinary
+  );
+
+  listFriendRequests(
+    request: google_protobuf_empty_pb.Empty,
+    metadata: grpcWeb.Metadata | null): Promise<ListFriendRequestsRes>;
+
+  listFriendRequests(
+    request: google_protobuf_empty_pb.Empty,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.Error,
+               response: ListFriendRequestsRes) => void): grpcWeb.ClientReadableStream<ListFriendRequestsRes>;
+
+  listFriendRequests(
+    request: google_protobuf_empty_pb.Empty,
+    metadata: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.Error,
+               response: ListFriendRequestsRes) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/api.API/ListFriendRequests',
+        request,
+        metadata || {},
+        this.methodInfoListFriendRequests,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/api.API/ListFriendRequests',
+    request,
+    metadata || {},
+    this.methodInfoListFriendRequests);
+  }
+
+  methodInfoListFriends = new grpcWeb.AbstractClientBase.MethodInfo(
+    ListFriendsRes,
+    (request: google_protobuf_empty_pb.Empty) => {
+      return request.serializeBinary();
+    },
+    ListFriendsRes.deserializeBinary
+  );
+
+  listFriends(
+    request: google_protobuf_empty_pb.Empty,
+    metadata: grpcWeb.Metadata | null): Promise<ListFriendsRes>;
+
+  listFriends(
+    request: google_protobuf_empty_pb.Empty,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.Error,
+               response: ListFriendsRes) => void): grpcWeb.ClientReadableStream<ListFriendsRes>;
+
+  listFriends(
+    request: google_protobuf_empty_pb.Empty,
+    metadata: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.Error,
+               response: ListFriendsRes) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/api.API/ListFriends',
+        request,
+        metadata || {},
+        this.methodInfoListFriends,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/api.API/ListFriends',
+    request,
+    metadata || {},
+    this.methodInfoListFriends);
+  }
+
+  methodInfoRespondFriendRequest = new grpcWeb.AbstractClientBase.MethodInfo(
+    google_protobuf_empty_pb.Empty,
+    (request: RespondFriendRequestReq) => {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
+
+  respondFriendRequest(
+    request: RespondFriendRequestReq,
+    metadata: grpcWeb.Metadata | null): Promise<google_protobuf_empty_pb.Empty>;
+
+  respondFriendRequest(
+    request: RespondFriendRequestReq,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.Error,
+               response: google_protobuf_empty_pb.Empty) => void): grpcWeb.ClientReadableStream<google_protobuf_empty_pb.Empty>;
+
+  respondFriendRequest(
+    request: RespondFriendRequestReq,
+    metadata: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.Error,
+               response: google_protobuf_empty_pb.Empty) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/api.API/RespondFriendRequest',
+        request,
+        metadata || {},
+        this.methodInfoRespondFriendRequest,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/api.API/RespondFriendRequest',
+    request,
+    metadata || {},
+    this.methodInfoRespondFriendRequest);
+  }
+
+  methodInfoCancelFriendRequest = new grpcWeb.AbstractClientBase.MethodInfo(
+    google_protobuf_empty_pb.Empty,
+    (request: CancelFriendRequestReq) => {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
+
+  cancelFriendRequest(
+    request: CancelFriendRequestReq,
+    metadata: grpcWeb.Metadata | null): Promise<google_protobuf_empty_pb.Empty>;
+
+  cancelFriendRequest(
+    request: CancelFriendRequestReq,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.Error,
+               response: google_protobuf_empty_pb.Empty) => void): grpcWeb.ClientReadableStream<google_protobuf_empty_pb.Empty>;
+
+  cancelFriendRequest(
+    request: CancelFriendRequestReq,
+    metadata: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.Error,
+               response: google_protobuf_empty_pb.Empty) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/api.API/CancelFriendRequest',
+        request,
+        metadata || {},
+        this.methodInfoCancelFriendRequest,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/api.API/CancelFriendRequest',
+    request,
+    metadata || {},
+    this.methodInfoCancelFriendRequest);
   }
 
   methodInfoSSO = new grpcWeb.AbstractClientBase.MethodInfo(

@@ -2,6 +2,142 @@ import * as jspb from "google-protobuf"
 
 import * as google_protobuf_timestamp_pb from 'google-protobuf/google/protobuf/timestamp_pb';
 import * as google_protobuf_wrappers_pb from 'google-protobuf/google/protobuf/wrappers_pb';
+import * as google_protobuf_empty_pb from 'google-protobuf/google/protobuf/empty_pb';
+
+export class SendFriendRequestReq extends jspb.Message {
+  getUser(): string;
+  setUser(value: string): SendFriendRequestReq;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): SendFriendRequestReq.AsObject;
+  static toObject(includeInstance: boolean, msg: SendFriendRequestReq): SendFriendRequestReq.AsObject;
+  static serializeBinaryToWriter(message: SendFriendRequestReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SendFriendRequestReq;
+  static deserializeBinaryFromReader(message: SendFriendRequestReq, reader: jspb.BinaryReader): SendFriendRequestReq;
+}
+
+export namespace SendFriendRequestReq {
+  export type AsObject = {
+    user: string,
+  }
+}
+
+export class FriendRequest extends jspb.Message {
+  getFriendRequestId(): number;
+  setFriendRequestId(value: number): FriendRequest;
+
+  getState(): FriendRequest.FriendRequestStatus;
+  setState(value: FriendRequest.FriendRequestStatus): FriendRequest;
+
+  getUser(): string;
+  setUser(value: string): FriendRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): FriendRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: FriendRequest): FriendRequest.AsObject;
+  static serializeBinaryToWriter(message: FriendRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): FriendRequest;
+  static deserializeBinaryFromReader(message: FriendRequest, reader: jspb.BinaryReader): FriendRequest;
+}
+
+export namespace FriendRequest {
+  export type AsObject = {
+    friendRequestId: number,
+    state: FriendRequest.FriendRequestStatus,
+    user: string,
+  }
+
+  export enum FriendRequestStatus { 
+    PENDING = 0,
+    ACCEPTED = 1,
+  }
+}
+
+export class RespondFriendRequestReq extends jspb.Message {
+  getFriendRequestId(): number;
+  setFriendRequestId(value: number): RespondFriendRequestReq;
+
+  getAccept(): boolean;
+  setAccept(value: boolean): RespondFriendRequestReq;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): RespondFriendRequestReq.AsObject;
+  static toObject(includeInstance: boolean, msg: RespondFriendRequestReq): RespondFriendRequestReq.AsObject;
+  static serializeBinaryToWriter(message: RespondFriendRequestReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): RespondFriendRequestReq;
+  static deserializeBinaryFromReader(message: RespondFriendRequestReq, reader: jspb.BinaryReader): RespondFriendRequestReq;
+}
+
+export namespace RespondFriendRequestReq {
+  export type AsObject = {
+    friendRequestId: number,
+    accept: boolean,
+  }
+}
+
+export class CancelFriendRequestReq extends jspb.Message {
+  getFriendRequestId(): number;
+  setFriendRequestId(value: number): CancelFriendRequestReq;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): CancelFriendRequestReq.AsObject;
+  static toObject(includeInstance: boolean, msg: CancelFriendRequestReq): CancelFriendRequestReq.AsObject;
+  static serializeBinaryToWriter(message: CancelFriendRequestReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): CancelFriendRequestReq;
+  static deserializeBinaryFromReader(message: CancelFriendRequestReq, reader: jspb.BinaryReader): CancelFriendRequestReq;
+}
+
+export namespace CancelFriendRequestReq {
+  export type AsObject = {
+    friendRequestId: number,
+  }
+}
+
+export class ListFriendRequestsRes extends jspb.Message {
+  getSentList(): Array<FriendRequest>;
+  setSentList(value: Array<FriendRequest>): ListFriendRequestsRes;
+  clearSentList(): ListFriendRequestsRes;
+  addSent(value?: FriendRequest, index?: number): FriendRequest;
+
+  getReceivedList(): Array<FriendRequest>;
+  setReceivedList(value: Array<FriendRequest>): ListFriendRequestsRes;
+  clearReceivedList(): ListFriendRequestsRes;
+  addReceived(value?: FriendRequest, index?: number): FriendRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ListFriendRequestsRes.AsObject;
+  static toObject(includeInstance: boolean, msg: ListFriendRequestsRes): ListFriendRequestsRes.AsObject;
+  static serializeBinaryToWriter(message: ListFriendRequestsRes, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ListFriendRequestsRes;
+  static deserializeBinaryFromReader(message: ListFriendRequestsRes, reader: jspb.BinaryReader): ListFriendRequestsRes;
+}
+
+export namespace ListFriendRequestsRes {
+  export type AsObject = {
+    sentList: Array<FriendRequest.AsObject>,
+    receivedList: Array<FriendRequest.AsObject>,
+  }
+}
+
+export class ListFriendsRes extends jspb.Message {
+  getUsersList(): Array<string>;
+  setUsersList(value: Array<string>): ListFriendsRes;
+  clearUsersList(): ListFriendsRes;
+  addUsers(value: string, index?: number): ListFriendsRes;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ListFriendsRes.AsObject;
+  static toObject(includeInstance: boolean, msg: ListFriendsRes): ListFriendsRes.AsObject;
+  static serializeBinaryToWriter(message: ListFriendsRes, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ListFriendsRes;
+  static deserializeBinaryFromReader(message: ListFriendsRes, reader: jspb.BinaryReader): ListFriendsRes;
+}
+
+export namespace ListFriendsRes {
+  export type AsObject = {
+    usersList: Array<string>,
+  }
+}
 
 export class PingReq extends jspb.Message {
   serializeBinary(): Uint8Array;
@@ -109,6 +245,9 @@ export class User extends jspb.Message {
   clearCountriesLivedList(): User;
   addCountriesLived(value: string, index?: number): User;
 
+  getFriends(): User.FriendshipStatus;
+  setFriends(value: User.FriendshipStatus): User;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): User.AsObject;
   static toObject(includeInstance: boolean, msg: User): User.AsObject;
@@ -136,6 +275,14 @@ export namespace User {
     languagesList: Array<string>,
     countriesVisitedList: Array<string>,
     countriesLivedList: Array<string>,
+    friends: User.FriendshipStatus,
+  }
+
+  export enum FriendshipStatus { 
+    NOT_FRIENDS = 0,
+    FRIENDS = 1,
+    PENDING = 2,
+    NA = 3,
   }
 }
 

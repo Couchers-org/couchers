@@ -92,6 +92,35 @@ class User(Base):
         return f"User(id={self.id}, email={self.email}, username={self.username})"
 
 
+class FriendStatus(enum.Enum):
+    pending = 1
+    accepted = 2
+    rejected = 3
+    cancelled = 4
+
+
+class FriendRelationship(Base):
+    """
+    Friendship relations between users
+
+    TODO: make this better with sqlalchemy self-referential stuff
+    """
+    __tablename__ = "friend_relationships"
+
+    id = Column(Integer, primary_key=True)
+
+    from_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    to_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    status = Column(Enum(FriendStatus), nullable=False, default=FriendStatus.pending)
+
+    time_sent = Column(DateTime, nullable=False, server_default=func.now())
+    time_responded = Column(DateTime, nullable=True)
+
+    from_user = relationship("User", backref="friends_from", foreign_keys="FriendRelationship.from_user_id")
+    to_user = relationship("User", backref="friends_to", foreign_keys="FriendRelationship.to_user_id")
+
+
 class SignupToken(Base):
     """
     A signup token allows the user to verify their email and continue signing up.
