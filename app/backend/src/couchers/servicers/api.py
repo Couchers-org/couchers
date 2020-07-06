@@ -16,7 +16,7 @@ from sqlalchemy.sql import or_
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d: %(process)d: %(message)s", datefmt="%F %T", level=logging.DEBUG)
 
-class APIServicer(api_pb2_grpc.APIServicer):
+class API(api_pb2_grpc.APIServicer):
     def __init__(self, Session):
         self._Session = Session
 
