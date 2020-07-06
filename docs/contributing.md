@@ -42,3 +42,5 @@ All python code should live in the `couchers` namespace (i.e. a folder within th
 Please adhere to [PEP8](https://www.python.org/dev/peps/pep-0008/).
 
 Additionally, we strive to use the ["Google" docstring format](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html). We will auto-generate docs from code, so it's important to adhere to a uniform docstring style.
+
+Please use double quotes `"`, instead of single quotes `'`.
