@@ -8,10 +8,24 @@
         <v-card-subtitle>{{ user.city }}</v-card-subtitle>
         <v-list-item two-item>
           <v-list-item-icon>
+            <v-icon>mdi-account-multiple</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>
+              {{ friendsDisplay }}
+              <v-btn v-if="!this.user.friends" class="mx-1 my-1" :loading="sendingFriendRequest" color="primary" @click="sendFriendRequest">
+                <v-icon left>mdi-account-plus</v-icon> Send friend request
+              </v-btn>
+            </v-list-item-title>
+            <v-list-item-subtitle>Friendship</v-list-item-subtitle>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item two-item>
+          <v-list-item-icon>
             <v-icon>mdi-account-check</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title>Verification (coming soon) %</v-list-item-title>
+            <v-list-item-title>Verification (coming soon)</v-list-item-title>
             <v-list-item-subtitle><v-progress-linear class="my-2" height="12" rounded value="0" color="light-green"></v-progress-linear></v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
@@ -20,7 +34,7 @@
             <v-icon>mdi-account-group</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title>Community standing (coming soon) %</v-list-item-title>
+            <v-list-item-title>Community standing (coming soon)</v-list-item-title>
             <v-list-item-subtitle><v-progress-linear class="my-2" height="12" rounded value="0" color="light-blue"></v-progress-linear></v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
@@ -71,7 +85,6 @@
         <v-divider></v-divider>
         <v-card-actions>
           <v-btn text>Message</v-btn>
-          <v-btn text>Request to stay</v-btn>
         </v-card-actions>
       </v-card>
       <v-card class="float-left mx-3 my-3" width="950" outlined>
@@ -101,17 +114,16 @@ import Vue from 'vue'
 
 import moment, { lang } from 'moment'
 
-import { GetUserReq } from '../pb/api_pb'
+import { GetUserReq, SendFriendRequestReq, User } from '../pb/api_pb'
 import { client } from '../api'
 
-function displayList(list: string[]) {
-  return list.join(', ')
-}
+import { displayList, displayTime } from '../utils'
 
 export default Vue.extend({
   data: () => ({
     loading: false,
     error: null as (null | Error),
+    sendingFriendRequest: false,
     user: {
       name: null,
       city: null,
@@ -128,7 +140,8 @@ export default Vue.extend({
       countriesLivedList: [],
       lastActive: null,
       joined: null,
-      color: null
+      color: null,
+      friends: null as User.FriendshipStatus
     }
   }),
 
@@ -150,38 +163,59 @@ export default Vue.extend({
       client.getUser(req, null).then(res => {
         this.loading = false
         this.error = null
-
         this.user = res.toObject()
-        this.user.lastActive = res.getLastActive()
-        this.user.joined = res.getJoined()
       }).catch(err => {
         this.loading = false
         this.error = err
       })
     },
+
+    sendFriendRequest: function () {
+      this.sendingFriendRequest = true
+      const req = new SendFriendRequestReq()
+      req.setUser(this.user.username)
+      client.sendFriendRequest(req, null).then(res => {
+        this.sendingFriendRequest = false
+        this.fetchData()
+      }).catch(err => {
+        console.error(err)
+        this.sendingFriendRequest = false
+        this.fetchData()
+      })
+    }
   },
 
   computed: {
+    friendsDisplay: function() {
+      switch (this.user.friends) {
+        case User.FriendshipStatus.NOT_FRIENDS:
+          return ""
+        case User.FriendshipStatus.FRIENDS:
+          return "You are friends"
+        case User.FriendshipStatus.PENDING:
+          return "Friend request pending"
+        case User.FriendshipStatus.NA:
+        default:
+          return "You can't be friends with this user, you doofus."
+      }
+    },
     lastActiveDisplay: function() {
       if (!this.user.lastActive) {
         return 'unknown'
       }
-      return moment(this.user.lastActive.toDate()).fromNow()
+      return displayTime(this.user.lastActive)
     },
     joinedDisplay: function () {
       if (!this.user.joined) {
         return 'error'
       }
-      return moment(this.user.joined.toDate()).fromNow()
+      return displayTime(this.user.joined)
     },
     verificationDisplay: function() {
       return Math.round(this.user.verification! * 100)
     },
     communityStandingDisplay: function() {
       return Math.round(this.user.communityStanding! * 100)
-    },
-    ageDisplay: function() {
-      return new Date(new Date().getTime() - this.user.birthDate!).getFullYear()-1970;
     },
     languagesListDisplay: function() {
       return displayList(this.user.languagesList)

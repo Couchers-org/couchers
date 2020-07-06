@@ -4,6 +4,7 @@ package api;
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
 
 service API {
   rpc Ping(PingReq) returns (PingRes) {
@@ -18,9 +19,68 @@ service API {
     // Update your profile
   }
 
+  rpc SendFriendRequest(SendFriendRequestReq) returns (google.protobuf.Empty);
+
+  rpc ListFriendRequests(google.protobuf.Empty) returns (ListFriendRequestsRes);
+
+  rpc ListFriends(google.protobuf.Empty) returns (ListFriendsRes);
+
+  rpc RespondFriendRequest(RespondFriendRequestReq) returns (google.protobuf.Empty);
+
+  rpc CancelFriendRequest(CancelFriendRequestReq) returns (google.protobuf.Empty);
+
   rpc SSO(SSOReq) returns (SSORes) {
     // Performs Discourse SSO
   }
+
+  rpc Search(SearchReq) returns (SearchRes) {
+    // Search for user names and usernames (for now)
+  }
+}
+
+message SearchReq {
+  string query = 1;
+}
+
+message SearchRes {
+  repeated User users = 1;
+}
+
+message SendFriendRequestReq {
+  string user = 1;
+}
+
+message FriendRequest {
+  int64 friend_request_id = 1;
+
+  enum FriendRequestStatus {
+    // these are the only two states that a user will see
+    PENDING = 0;
+    ACCEPTED = 1;
+  }
+
+  FriendRequestStatus state = 2;
+
+  string user = 3;
+}
+
+message RespondFriendRequestReq {
+  int64 friend_request_id = 1;
+
+  bool accept = 2;
+}
+
+message CancelFriendRequestReq {
+  int64 friend_request_id = 1;
+}
+
+message ListFriendRequestsRes {
+  repeated FriendRequest sent = 1;
+  repeated FriendRequest received = 2;
+}
+
+message ListFriendsRes {
+  repeated string users = 1;
 }
 
 message PingReq {}
@@ -34,6 +94,13 @@ message PingRes {
 }
 
 message User {
+  enum FriendshipStatus {
+    NOT_FRIENDS = 0;
+    FRIENDS = 1;
+    PENDING = 2;
+    NA = 3; // not applicable, e.g. user requesting is self
+  }
+
   string username = 1;
   string name = 2;
   string city = 3;
@@ -51,6 +118,8 @@ message User {
   repeated string languages = 15;
   repeated string countries_visited = 16;
   repeated string countries_lived = 17;
+
+  FriendshipStatus friends = 18;
 }
 
 message GetUserReq {

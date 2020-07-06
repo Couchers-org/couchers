@@ -1,5 +1,6 @@
 import enum
 from datetime import date
+from calendar import monthrange
 from math import floor
 
 from sqlalchemy import (Boolean, Column, Date, DateTime, Enum, Float,
@@ -67,8 +68,15 @@ class User(Base):
 
     @property
     def age(self):
-        # TODO: proper computation
-        return floor((date.today() - self.birthdate).days / 365)
+        max_day = monthrange(date.today().year, self.birthdate.month)[1]
+        age = date.today().year - self.birthdate.year
+        #in case of leap-day babies, make sure the date is valid for this year
+        safe_birthdate = self.birthdate
+        if (self.birthdate.day > max_day):
+            safe_birthdate = safe_birthdate.replace(day = max_day)
+        if date.today() < safe_birthdate.replace(year=date.today().year):
+            age -= 1
+        return age
 
     @property
     def display_joined(self):
@@ -82,6 +90,35 @@ class User(Base):
 
     def __repr__(self):
         return f"User(id={self.id}, email={self.email}, username={self.username})"
+
+
+class FriendStatus(enum.Enum):
+    pending = 1
+    accepted = 2
+    rejected = 3
+    cancelled = 4
+
+
+class FriendRelationship(Base):
+    """
+    Friendship relations between users
+
+    TODO: make this better with sqlalchemy self-referential stuff
+    """
+    __tablename__ = "friend_relationships"
+
+    id = Column(Integer, primary_key=True)
+
+    from_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    to_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    status = Column(Enum(FriendStatus), nullable=False, default=FriendStatus.pending)
+
+    time_sent = Column(DateTime, nullable=False, server_default=func.now())
+    time_responded = Column(DateTime, nullable=True)
+
+    from_user = relationship("User", backref="friends_from", foreign_keys="FriendRelationship.from_user_id")
+    to_user = relationship("User", backref="friends_to", foreign_keys="FriendRelationship.to_user_id")
 
 
 class SignupToken(Base):

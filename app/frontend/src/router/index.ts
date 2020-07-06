@@ -7,6 +7,8 @@ import Login from '../views/Login.vue'
 import Profile from '../views/Profile.vue'
 import Logout from '../views/Logout.vue'
 import SSO from '../views/SSO.vue'
+import Friends from '../views/Friends.vue'
+import Search from '../views/Search.vue'
 import Signup from '../views/Signup.vue'
 import CompleteLogin from '../views/CompleteLogin.vue'
 import CompleteSignup from '../views/CompleteSignup.vue'
@@ -50,6 +52,16 @@ const routes: Array<RouteConfig> = [
     path: '/sso',
     name: 'SSO',
     component: SSO
+  },
+  {
+    path: '/friends',
+    name: 'Friends',
+    component: Friends
+  },
+  {
+    path: '/search',
+    name: 'Search',
+    component: Search
   },
   {
     path: '/logout',

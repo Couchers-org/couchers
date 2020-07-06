@@ -8,6 +8,8 @@ services:
       - 9901:9901
   backend:
     build: backend
+    volumes:
+      - "./backend:/app"
     restart: on-failure
     ports:
       - 1751:1751

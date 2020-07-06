@@ -1,17 +1,22 @@
+import datetime
 import logging
 from urllib.parse import parse_qs, quote, unquote, urlencode
+
+from google.protobuf import empty_pb2
 
 import grpc
 from couchers.crypto import (base64decode, base64encode, sso_check_hmac,
                              sso_create_hmac)
-from couchers.db import get_user_by_field, is_valid_color, session_scope
-from couchers.models import User
+from couchers.db import (get_friends_status, get_user_by_field, is_valid_color,
+                         session_scope)
+from couchers.models import FriendRelationship, FriendStatus, User
 from couchers.utils import Timestamp_from_datetime
 from pb import api_pb2, api_pb2_grpc
+from sqlalchemy.sql import or_
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d: %(process)d: %(message)s", datefmt="%F %T", level=logging.DEBUG)
 
-class APIServicer(api_pb2_grpc.APIServicer):
+class API(api_pb2_grpc.APIServicer):
     def __init__(self, Session):
         self._Session = Session
 
@@ -49,7 +54,8 @@ class APIServicer(api_pb2_grpc.APIServicer):
                 about_place=user.about_place,
                 languages=user.languages.split("|") if user.languages else [],
                 countries_visited=user.countries_visited.split("|") if user.countries_visited else [],
-                countries_lived=user.countries_lived.split("|") if user.countries_lived else []
+                countries_lived=user.countries_lived.split("|") if user.countries_lived else [],
+                friends=get_friends_status(session, context.user_id, user.id),
             )
 
     def UpdateProfile(self, request, context):
@@ -106,6 +112,113 @@ class APIServicer(api_pb2_grpc.APIServicer):
 
             return res
 
+    def ListFriends(self, request, context):
+        with session_scope(self._Session) as session:
+            rels = (session.query(FriendRelationship)
+                .filter(
+                    or_(
+                        FriendRelationship.from_user_id == context.user_id,
+                        FriendRelationship.to_user_id == context.user_id
+                    )
+                )
+                .filter(FriendRelationship.status == FriendStatus.accepted)
+                .all())
+            return api_pb2.ListFriendsRes(
+                users=[rel.from_user.username if rel.from_user.id != context.user_id else rel.to_user.username for rel in rels],
+            )
+
+    def SendFriendRequest(self, request, context):
+        with session_scope(self._Session) as session:
+            from_user = session.query(User).filter(User.id == context.user_id).one_or_none()
+
+            if not from_user:
+                context.abort(grpc.StatusCode.NOT_FOUND, "User not found.")
+
+            to_user = get_user_by_field(session, request.user)
+
+            if not to_user:
+                context.abort(grpc.StatusCode.NOT_FOUND, "User not found.")
+
+            if get_friends_status(session, from_user.id, to_user.id) != api_pb2.User.FriendshipStatus.NOT_FRIENDS:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, "Can't send friend request. Already friends or pending.")
+
+            # Race condition!
+
+            friend_relationship = FriendRelationship(
+                from_user=from_user,
+                to_user=to_user,
+                status=FriendStatus.pending,
+            )
+            session.add(friend_relationship)
+
+            return empty_pb2.Empty()
+
+    def ListFriendRequests(self, request, context):
+        # both sent and received
+        with session_scope(self._Session) as session:
+            sent_requests = (session.query(FriendRelationship)
+                .filter(FriendRelationship.from_user_id == context.user_id)
+                .filter(FriendRelationship.status == FriendStatus.pending)
+                .all())
+
+            received_requests = (session.query(FriendRelationship)
+                .filter(FriendRelationship.to_user_id == context.user_id)
+                .filter(FriendRelationship.status == FriendStatus.pending)
+                .all())
+
+            return api_pb2.ListFriendRequestsRes(
+                sent=[
+                    api_pb2.FriendRequest(
+                        friend_request_id=friend_request.id,
+                        state=api_pb2.FriendRequest.FriendRequestStatus.PENDING,
+                        user=friend_request.to_user.username,
+                    ) for friend_request in sent_requests
+                ],
+                received=[
+                    api_pb2.FriendRequest(
+                        friend_request_id=friend_request.id,
+                        state=api_pb2.FriendRequest.FriendRequestStatus.PENDING,
+                        user=friend_request.from_user.username,
+                    ) for friend_request in received_requests
+                ]
+            )
+
+    def RespondFriendRequest(self, request, context):
+        with session_scope(self._Session) as session:
+            friend_request = (session.query(FriendRelationship)
+                .filter(FriendRelationship.to_user_id == context.user_id)
+                .filter(FriendRelationship.status == FriendStatus.pending)
+                .filter(FriendRelationship.id == request.friend_request_id)
+                .one_or_none())
+
+            if not friend_request:
+                context.abort(grpc.StatusCode.NOT_FOUND, "Friend request not found.")
+
+            friend_request.status = FriendStatus.accepted if request.accept else FriendStatus.rejected
+            friend_request.time_responded = datetime.datetime.utcnow()
+
+            session.commit()
+
+            return empty_pb2.Empty()
+
+    def CancelFriendRequest(self, request, context):
+        with session_scope(self._Session) as session:
+            friend_request = (session.query(FriendRelationship)
+                .filter(FriendRelationship.from_user_id == context.user_id)
+                .filter(FriendRelationship.status == FriendStatus.pending)
+                .filter(FriendRelationship.id == request.friend_request_id)
+                .one_or_none())
+
+            if not friend_request:
+                context.abort(grpc.StatusCode.NOT_FOUND, "Friend request not found.")
+
+            friend_request.status = FriendStatus.cancelled
+            friend_request.time_responded = datetime.datetime.utcnow()
+
+            session.commit()
+
+            return empty_pb2.Empty()
+
     def SSO(self, request, context):
         # Protocol description: https://meta.discourse.org/t/official-single-sign-on-for-discourse-sso/13045
         with session_scope(self._Session) as session:
@@ -154,3 +267,36 @@ class APIServicer(api_pb2_grpc.APIServicer):
             logging.info(f"SSO {redirect_url=}")
 
             return api_pb2.SSORes(redirect_url=redirect_url)
+
+    def Search(self, request, context):
+        with session_scope(self._Session) as session:
+            return api_pb2.SearchRes(
+                users=[
+                    api_pb2.User(
+                        username=user.username,
+                        name=user.name,
+                        city=user.city,
+                        verification=user.verification,
+                        community_standing=user.community_standing,
+                        num_references=0,
+                        gender=user.gender,
+                        age=user.age,
+                        color=user.color,
+                        joined=Timestamp_from_datetime(user.display_joined),
+                        last_active=Timestamp_from_datetime(user.display_last_active),
+                        occupation=user.occupation,
+                        about_me=user.about_me,
+                        about_place=user.about_place,
+                        languages=user.languages.split("|") if user.languages else [],
+                        countries_visited=user.countries_visited.split("|") if user.countries_visited else [],
+                        countries_lived=user.countries_lived.split("|") if user.countries_lived else []
+                    ) for user in session.query(User) \
+                        .filter(
+                            or_(
+                                User.name.ilike(f"%{request.query}%"),
+                                User.username.ilike(f"%{request.query}%"),
+                            )
+                        ) \
+                        .all()
+                ]
+            )
