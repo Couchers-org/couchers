@@ -96,4 +96,8 @@ def test_ping(temp_db_session):
     user, token = generate_user(temp_db_session, "tester")
 
     with api_session(temp_db_session, token) as api:
-        print(api.Ping(api_pb2.PingReq()))
+        res = api.Ping(api_pb2.PingReq())
+        assert res.user_id == user.id
+        assert res.username == user.username
+        assert res.name == user.name
+        assert res.color == user.color
