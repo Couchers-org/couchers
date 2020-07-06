@@ -186,26 +186,58 @@ def test_ListFriends(db):
     user2, token2 = generate_user(db, "user2")
     user3, token3 = generate_user(db, "user3")
 
-    # send friend request from user1 to user2
+    # send friend request from user1 to user2 and user3
     with api_session(db, token1) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user="user2"))
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user="user3"))
+
+    with api_session(db, token3) as api:
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user="user2"))
 
     with api_session(db, token2) as api:
         res = api.ListFriendRequests(empty_pb2.Empty())
+        assert len(res.received) == 2
+
+        # order is an implementation detail
+        user1_req = [req for req in res.received if req.user == "user1"][0]
+        user3_req = [req for req in res.received if req.user == "user3"][0]
+
+        assert user1_req.state == api_pb2.FriendRequest.FriendRequestStatus.PENDING
+        assert user1_req.user == "user1"
+        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=user1_req.friend_request_id, accept=True))
+
+        assert user3_req.state == api_pb2.FriendRequest.FriendRequestStatus.PENDING
+        assert user3_req.user == "user3"
+        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=user3_req.friend_request_id, accept=True))
+
+        # check we now have two friends
+        res = api.ListFriends(empty_pb2.Empty())
+        assert len(res.users) == 2
+        assert "user1" in res.users
+        assert "user3" in res.users
+
+    with api_session(db, token3) as api:
+        res = api.ListFriends(empty_pb2.Empty())
+        assert len(res.users) == 1
+        assert "user2" in res.users
+
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        assert len(res.received) == 1
         assert res.received[0].state == api_pb2.FriendRequest.FriendRequestStatus.PENDING
         assert res.received[0].user == "user1"
-
         fr_id = res.received[0].friend_request_id
-
-        # accept it
         api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
 
         res = api.ListFriends(empty_pb2.Empty())
-        assert res.users[0] == "user1"
+        assert len(res.users) == 2
+        assert "user1" in res.users
+        assert "user2" in res.users
 
     with api_session(db, token1) as api:
         res = api.ListFriends(empty_pb2.Empty())
-        assert res.users[0] == "user2"
+        assert len(res.users) == 2
+        assert "user2" in res.users
+        assert "user3" in res.users
 
 def test_CancelFriendRequest(db):
     user1, token1 = generate_user(db, "user1")
