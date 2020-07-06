@@ -109,7 +109,7 @@ export default Vue.extend({
         this.errorVisible = true
       })
 
-      client.listFriendRequests(req, null).then(res => {
+      client.listFriendRequests(req).then(res => {
         this.loading = false
         this.errorMessage = ""
 
@@ -126,7 +126,7 @@ export default Vue.extend({
       const req = new RespondFriendRequestReq()
       req.setFriendRequestId(friendRequestId)
       req.setAccept(accept)
-      client.respondFriendRequest(req, null).then(res => {
+      client.respondFriendRequest(req).then(res => {
         this.successMessage = "Responded to friend request!"
         this.successVisible = true
         this.fetchData()

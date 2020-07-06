@@ -114,17 +114,17 @@ class APIServicer(api_pb2_grpc.APIServicer):
 
     def ListFriends(self, request, context):
         with session_scope(self._Session) as session:
-            rels = session.query(FriendRelationship) \
+            rels = (session.query(FriendRelationship)
                 .filter(
                     or_(
                         FriendRelationship.from_user_id == context.user_id,
                         FriendRelationship.to_user_id == context.user_id
                     )
-                ) \
-                .filter(FriendRelationship.status == FriendStatus.accepted) \
-                .all()
+                )
+                .filter(FriendRelationship.status == FriendStatus.accepted)
+                .all())
             return api_pb2.ListFriendsRes(
-                users=[rel.from_user.username if rel.from_user.id != context.user_id else rel.to_user.username for rel in rels]
+                users=[rel.from_user.username if rel.from_user.id != context.user_id else rel.to_user.username for rel in rels],
             )
 
     def SendFriendRequest(self, request, context):
@@ -185,11 +185,11 @@ class APIServicer(api_pb2_grpc.APIServicer):
 
     def RespondFriendRequest(self, request, context):
         with session_scope(self._Session) as session:
-            friend_request = session.query(FriendRelationship) \
-                .filter(FriendRelationship.to_user_id == context.user_id) \
-                .filter(FriendRelationship.status == FriendStatus.pending) \
-                .filter(FriendRelationship.id == request.friend_request_id) \
-                .one_or_none()
+            friend_request = (session.query(FriendRelationship)
+                .filter(FriendRelationship.to_user_id == context.user_id)
+                .filter(FriendRelationship.status == FriendStatus.pending)
+                .filter(FriendRelationship.id == request.friend_request_id)
+                .one_or_none())
 
             if not friend_request:
                 context.abort(grpc.StatusCode.NOT_FOUND, "Friend request not found.")
@@ -203,11 +203,11 @@ class APIServicer(api_pb2_grpc.APIServicer):
 
     def CancelFriendRequest(self, request, context):
         with session_scope(self._Session) as session:
-            friend_request = session.query(FriendRelationship) \
-                .filter(FriendRelationship.from_user_id == context.user_id) \
-                .filter(FriendRelationship.status == FriendStatus.pending) \
-                .filter(FriendRelationship.id == request.friend_request_id) \
-                .one_or_none()
+            friend_request = (session.query(FriendRelationship)
+                .filter(FriendRelationship.from_user_id == context.user_id)
+                .filter(FriendRelationship.status == FriendStatus.pending)
+                .filter(FriendRelationship.id == request.friend_request_id)
+                .one_or_none())
 
             if not friend_request:
                 context.abort(grpc.StatusCode.NOT_FOUND, "Friend request not found.")
