@@ -1,5 +1,6 @@
 <template>
   <v-content>
+    <error-alert :error="error"/>
     <v-container fluid>
       <v-card class="float-left mx-3 my-3" width="350" outlined>
         <v-sheet height="80" :color="user.color" tile></v-sheet>
@@ -110,7 +111,7 @@ function displayList(list: string[]) {
 export default Vue.extend({
   data: () => ({
     loading: false,
-    errorMessages: [] as Array<string>,
+    error: null as (null | Error),
     user: {
       name: null,
       city: null,
@@ -142,20 +143,20 @@ export default Vue.extend({
   methods: {
     fetchData: function () {
       this.loading = true
-      this.errorMessages = []
+      this.error = null
 
       const req = new GetUserReq()
       req.setUser(this.$route.params.user)
       client.getUser(req, null).then(res => {
         this.loading = false
-        this.errorMessages = []
+        this.error = null
 
         this.user = res.toObject()
         this.user.lastActive = res.getLastActive()
         this.user.joined = res.getJoined()
       }).catch(err => {
         this.loading = false
-        this.errorMessages = err.message
+        this.error = err
       })
     },
   },
