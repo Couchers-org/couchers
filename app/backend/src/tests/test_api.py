@@ -1,10 +1,12 @@
 from concurrent import futures
 from contextlib import contextmanager
 from datetime import date
+from unittest.mock import patch
+
+from google.protobuf import empty_pb2
 
 import grpc
 import pytest
-from couchers.crypto import hash_password
 from couchers.db import session_scope
 from couchers.interceptors import intercept_server
 from couchers.models import Base, User
@@ -33,13 +35,14 @@ def generate_user(temp_db_session, username):
     """
     auth = Auth(temp_db_session)
 
-    password = f"{username}'s password"
     session = temp_db_session()
 
     user = User(
         username=username,
         email=f"{username}@dev.couchers.org",
-        hashed_password=hash_password(password),
+        # password is just 'password'
+        # this is hardcoded because the password is slow to hash (so would slow down tests otherwise)
+        hashed_password=b"$argon2id$v=19$m=65536,t=2,p=1$4cjGg1bRaZ10k+7XbIDmFg$tZG7JaLrkfyfO7cS233ocq7P8rf3znXR7SAfUt34kJg",
         name=username.capitalize(),
         city="Testing city",
         verification=0.5,
@@ -66,7 +69,8 @@ def generate_user(temp_db_session, username):
 
     session.close()
 
-    token = auth.Authenticate(auth_pb2.AuthReq(user=username, password=password), "Dummy context").token
+    with patch("couchers.servicers.auth.verify_password", lambda hashed, password: password == "password"):
+        token = auth.Authenticate(auth_pb2.AuthReq(user=username, password="password"), "Dummy context").token
 
     return user, token
 
@@ -101,3 +105,19 @@ def test_ping(temp_db_session):
         assert res.username == user.username
         assert res.name == user.name
         assert res.color == user.color
+
+def test_SendFriendRequest(temp_db_session):
+    user1, token1 = generate_user(temp_db_session, "user1")
+    user2, token2 = generate_user(temp_db_session, "user2")
+
+    # send friend request from user1 to user2
+    with api_session(temp_db_session, token1) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user="user2"))
+
+        # check it went through
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        assert res.sent[0].state == api_pb2.FriendRequest.FriendRequestStatus.PENDING
+        assert res.sent[0].user == "user2"
+
+        assert len(res.sent) == 1
+        assert len(res.received) == 0
