@@ -96,6 +96,7 @@ class FriendStatus(enum.Enum):
     pending = 1
     accepted = 2
     rejected = 3
+    cancelled = 4
 
 
 class FriendRelationship(Base):

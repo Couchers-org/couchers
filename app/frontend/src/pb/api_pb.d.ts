@@ -54,7 +54,6 @@ export namespace FriendRequest {
   export enum FriendRequestStatus { 
     PENDING = 0,
     ACCEPTED = 1,
-    REJECTED = 2,
   }
 }
 
@@ -80,6 +79,24 @@ export namespace RespondFriendRequestReq {
   }
 }
 
+export class CancelFriendRequestReq extends jspb.Message {
+  getFriendRequestId(): number;
+  setFriendRequestId(value: number): CancelFriendRequestReq;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): CancelFriendRequestReq.AsObject;
+  static toObject(includeInstance: boolean, msg: CancelFriendRequestReq): CancelFriendRequestReq.AsObject;
+  static serializeBinaryToWriter(message: CancelFriendRequestReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): CancelFriendRequestReq;
+  static deserializeBinaryFromReader(message: CancelFriendRequestReq, reader: jspb.BinaryReader): CancelFriendRequestReq;
+}
+
+export namespace CancelFriendRequestReq {
+  export type AsObject = {
+    friendRequestId: number,
+  }
+}
+
 export class ListFriendRequestsRes extends jspb.Message {
   getRequestsList(): Array<FriendRequest>;
   setRequestsList(value: Array<FriendRequest>): ListFriendRequestsRes;
@@ -97,6 +114,26 @@ export class ListFriendRequestsRes extends jspb.Message {
 export namespace ListFriendRequestsRes {
   export type AsObject = {
     requestsList: Array<FriendRequest.AsObject>,
+  }
+}
+
+export class ListFriendsRes extends jspb.Message {
+  getUsersList(): Array<string>;
+  setUsersList(value: Array<string>): ListFriendsRes;
+  clearUsersList(): ListFriendsRes;
+  addUsers(value: string, index?: number): ListFriendsRes;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ListFriendsRes.AsObject;
+  static toObject(includeInstance: boolean, msg: ListFriendsRes): ListFriendsRes.AsObject;
+  static serializeBinaryToWriter(message: ListFriendsRes, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ListFriendsRes;
+  static deserializeBinaryFromReader(message: ListFriendsRes, reader: jspb.BinaryReader): ListFriendsRes;
+}
+
+export namespace ListFriendsRes {
+  export type AsObject = {
+    usersList: Array<string>,
   }
 }
 

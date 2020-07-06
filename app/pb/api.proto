@@ -19,11 +19,15 @@ service API {
     // Update your profile
   }
 
-  rpc SendFriendRequest(SendFriendRequestReq) returns (FriendRequest);
+  rpc SendFriendRequest(SendFriendRequestReq) returns (google.protobuf.Empty);
 
   rpc ListFriendRequests(google.protobuf.Empty) returns (ListFriendRequestsRes);
 
-  rpc RespondFriendRequest(RespondFriendRequestReq) returns (FriendRequest);
+  rpc ListFriends(google.protobuf.Empty) returns (ListFriendsRes);
+
+  rpc RespondFriendRequest(RespondFriendRequestReq) returns (google.protobuf.Empty);
+
+  rpc CancelFriendRequest(CancelFriendRequestReq) returns (google.protobuf.Empty);
 
   rpc SSO(SSOReq) returns (SSORes) {
     // Performs Discourse SSO
@@ -38,9 +42,9 @@ message FriendRequest {
   int64 friend_request_id = 1;
 
   enum FriendRequestStatus {
+    // these are the only two states that a user will see
     PENDING = 0;
     ACCEPTED = 1;
-    REJECTED = 2;
   }
 
   FriendRequestStatus state = 2;
@@ -55,8 +59,16 @@ message RespondFriendRequestReq {
   bool accept = 2;
 }
 
+message CancelFriendRequestReq {
+  int64 friend_request_id = 1;
+}
+
 message ListFriendRequestsRes {
   repeated FriendRequest requests = 1;
+}
+
+message ListFriendsRes {
+  repeated string users = 1;
 }
 
 message PingReq {}

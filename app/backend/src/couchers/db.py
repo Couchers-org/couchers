@@ -112,13 +112,16 @@ def get_friends_status(session, user1_id, user2_id):
             ) \
             .filter(
                 or_(
-                    FriendRelationship.status == FriendStatus.pending,
-                    FriendRelationship.status == FriendStatus.accepted
+                    FriendRelationship.status == FriendStatus.accepted,
+                    FriendRelationship.status == FriendStatus.pending
                 )
-                ) \
+            ) \
             .one_or_none()
 
         if not current_friend_relationship:
             return api_pb2.User.FriendshipStatus.NOT_FRIENDS
         else:
-            return api_pb2.User.FriendshipStatus.FRIENDS if current_friend_relationship.status == FriendStatus.accepted else api_pb2.User.FriendshipStatus.PENDING
+            if current_friend_relationship.status == FriendStatus.accepted:
+                return api_pb2.User.FriendshipStatus.FRIENDS
+            else:
+                return api_pb2.User.FriendshipStatus.PENDING

@@ -16,17 +16,49 @@
       </v-snackbar>
       <v-card>
         <v-toolbar color="primary" dark>
+          <v-toolbar-title>Your friends</v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-icon>mdi-account-multiple</v-icon>
+        </v-toolbar>
+        <v-list subheader>
+          <v-subheader v-if="!friends.length">Empty!</v-subheader>
+          <v-list-item v-for="friend in friends" :key="friend">
+            <v-list-item-content>
+              <v-list-item-title v-text="friend"></v-list-item-title>
+              <v-btn color="primary" class="mx-2 my-2" link :to="{ name: 'User', params: { user: friend } }">Profile</v-btn>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-card>
+      <v-card class="mt-5">
+        <v-toolbar color="primary" dark>
           <v-toolbar-title>Friend requests</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-icon>mdi-account-multiple-plus</v-icon>
         </v-toolbar>
         <v-list subheader>
-          <v-subheader v-if="!this.requests.length">No pending friend requests!</v-subheader>
-          <v-list-item v-for="request in requests" :key="request.friendRequestId">
+          <v-subheader v-if="!receivedRequests.length">No pending friend requests!</v-subheader>
+          <v-list-item v-for="request in receivedRequests" :key="request.friendRequestId">
             <v-list-item-content>
               <v-list-item-title v-text="request.userFrom"></v-list-item-title>
               <v-btn color="success" class="mx-2 my-2" @click="respondFriendRequest(request.friendRequestId, true)">Accept</v-btn>
               <v-btn color="error" class="mx-2 my-2" @click="respondFriendRequest(request.friendRequestId, false)">Reject</v-btn>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-card>
+      <v-card class="mt-5">
+        <v-toolbar color="primary" dark>
+          <v-toolbar-title>Friend requests you sent</v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-icon>mdi-account-multiple-plus</v-icon>
+        </v-toolbar>
+        <v-list subheader>
+          <v-subheader v-if="!sentRequests.length">No pending friend requests!</v-subheader>
+          <v-list-item v-for="request in sentRequests" :key="request.friendRequestId">
+            <v-list-item-content>
+              <v-list-item-title v-text="request.userTo"></v-list-item-title>
+              <v-btn color="error" class="mx-2 my-2" @click="cancelFriendRequest(request.friendRequestId)">Cancel request</v-btn>
             </v-list-item-content>
           </v-list-item>
         </v-list>
@@ -38,15 +70,19 @@
 <script lang="ts">
 import Vue from 'vue'
 
-import empty from 'google-protobuf/google/protobuf/empty_pb'
+import { Empty } from 'google-protobuf/google/protobuf/empty_pb'
 
-import { FriendRequest, RespondFriendRequestReq } from '../pb/api_pb'
+import State from '../store'
+
+import { FriendRequest, RespondFriendRequestReq, CancelFriendRequestReq } from '../pb/api_pb'
 import { client } from '../api'
 
 export default Vue.extend({
   data: () => ({
     loading: false,
-    requests: [] as Array<FriendRequest.AsObject>,
+    friends: [] as Array<string>,
+    receivedRequests: [] as Array<FriendRequest.AsObject>,
+    sentRequests: [] as Array<FriendRequest.AsObject>,
     errorMessage: "",
     errorVisible: false,
     successMessage: "",
@@ -58,16 +94,27 @@ export default Vue.extend({
   },
 
   methods: {
-    fetchData: function () {
+    fetchData() {
       this.loading = true
       this.errorMessage = ""
 
-      const req = new empty.Empty()
+      const req = new Empty()
+      client.listFriends(req).then(res => {
+        this.loading = false
+        this.errorMessage = ""
+        this.friends = res.getUsersList()
+      }).catch(err => {
+        this.loading = false
+        this.errorMessage = err.message
+        this.errorVisible = true
+      })
+
       client.listFriendRequests(req, null).then(res => {
         this.loading = false
         this.errorMessage = ""
 
-        this.requests = res.toObject().requestsList
+        this.sentRequests = res.toObject().requestsList.filter(req => req.userFrom == State.state.username)
+        this.receivedRequests = res.toObject().requestsList.filter(req => req.userTo == State.state.username)
       }).catch(err => {
         this.loading = false
         this.errorMessage = err.message
@@ -75,12 +122,26 @@ export default Vue.extend({
       })
     },
 
-    respondFriendRequest: function (friendRequestId: number, accept: boolean) {
+    respondFriendRequest(friendRequestId: number, accept: boolean) {
       const req = new RespondFriendRequestReq()
       req.setFriendRequestId(friendRequestId)
       req.setAccept(accept)
       client.respondFriendRequest(req, null).then(res => {
         this.successMessage = "Responded to friend request!"
+        this.successVisible = true
+        this.fetchData()
+      }).catch(err => {
+        this.errorMessage = err.message
+        this.errorVisible = true
+        this.fetchData()
+      })
+    },
+
+    cancelFriendRequest(friendRequestId: number) {
+      const req = new CancelFriendRequestReq()
+      req.setFriendRequestId(friendRequestId)
+      client.cancelFriendRequest(req).then(res => {
+        this.successMessage = "Request cancelled!"
         this.successVisible = true
         this.fetchData()
       }).catch(err => {

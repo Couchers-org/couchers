@@ -2,6 +2,8 @@ import datetime
 import logging
 from urllib.parse import parse_qs, quote, unquote, urlencode
 
+from google.protobuf import empty_pb2
+
 import grpc
 from couchers.crypto import (base64decode, base64encode, sso_check_hmac,
                              sso_create_hmac)
@@ -10,6 +12,7 @@ from couchers.db import (get_friends_status, get_user_by_field, is_valid_color,
 from couchers.models import FriendRelationship, FriendStatus, User
 from couchers.utils import Timestamp_from_datetime
 from pb import api_pb2, api_pb2_grpc
+from sqlalchemy.sql import or_
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d: %(process)d: %(message)s", datefmt="%F %T", level=logging.DEBUG)
 
@@ -52,7 +55,7 @@ class APIServicer(api_pb2_grpc.APIServicer):
                 languages=user.languages.split("|") if user.languages else [],
                 countries_visited=user.countries_visited.split("|") if user.countries_visited else [],
                 countries_lived=user.countries_lived.split("|") if user.countries_lived else [],
-                friends=get_friends_status(session, context.user_id, user.id)
+                friends=get_friends_status(session, context.user_id, user.id),
             )
 
     def UpdateProfile(self, request, context):
@@ -109,6 +112,21 @@ class APIServicer(api_pb2_grpc.APIServicer):
 
             return res
 
+    def ListFriends(self, request, context):
+        with session_scope(self._Session) as session:
+            rels = session.query(FriendRelationship) \
+                .filter(
+                    or_(
+                        FriendRelationship.from_user_id == context.user_id,
+                        FriendRelationship.to_user_id == context.user_id
+                    )
+                ) \
+                .filter(FriendRelationship.status == FriendStatus.accepted) \
+                .all()
+            return api_pb2.ListFriendsRes(
+                users=[rel.from_user.username if rel.from_user.id != context.user_id else rel.to_user.username for rel in rels]
+            )
+
     def SendFriendRequest(self, request, context):
         with session_scope(self._Session) as session:
             from_user = session.query(User).filter(User.id == context.user_id).one_or_none()
@@ -133,17 +151,18 @@ class APIServicer(api_pb2_grpc.APIServicer):
             )
             session.add(friend_relationship)
 
-            return api_pb2.FriendRequest(
-                friend_request_id=friend_relationship.id,
-                state=api_pb2.FriendRequest.FriendRequestStatus.PENDING,
-                user_from=from_user.username,
-                user_to=to_user.username,
-            )
+            return empty_pb2.Empty()
 
     def ListFriendRequests(self, request, context):
+        # both sent and received
         with session_scope(self._Session) as session:
-            received_friend_request = session.query(FriendRelationship) \
-                .filter(FriendRelationship.to_user_id == context.user_id) \
+            pending_requests = session.query(FriendRelationship) \
+                .filter(
+                    or_(
+                        FriendRelationship.from_user_id == context.user_id,
+                        FriendRelationship.to_user_id == context.user_id
+                    )
+                ) \
                 .filter(FriendRelationship.status == FriendStatus.pending) \
                 .all()
 
@@ -154,7 +173,7 @@ class APIServicer(api_pb2_grpc.APIServicer):
                         state=api_pb2.FriendRequest.FriendRequestStatus.PENDING, # TODO
                         user_from=friend_request.from_user.username,
                         user_to=friend_request.to_user.username,
-                    ) for friend_request in received_friend_request
+                    ) for friend_request in pending_requests
                 ]
             )
 
@@ -174,12 +193,25 @@ class APIServicer(api_pb2_grpc.APIServicer):
 
             session.commit()
 
-            return api_pb2.FriendRequest(
-                friend_request_id=friend_request.id,
-                state=api_pb2.FriendRequest.FriendRequestStatus.ACCEPTED if friend_request.status == FriendStatus.accepted else api_pb2.FriendRequest.FriendRequestStatus.REJECTED,
-                user_from=friend_request.from_user.username,
-                user_to=friend_request.to_user.username,
-            )
+            return empty_pb2.Empty()
+
+    def CancelFriendRequest(self, request, context):
+        with session_scope(self._Session) as session:
+            friend_request = session.query(FriendRelationship) \
+                .filter(FriendRelationship.from_user_id == context.user_id) \
+                .filter(FriendRelationship.status == FriendStatus.pending) \
+                .filter(FriendRelationship.id == request.friend_request_id) \
+                .one_or_none()
+
+            if not friend_request:
+                context.abort(grpc.StatusCode.NOT_FOUND, "Friend request not found.")
+
+            friend_request.status = FriendStatus.cancelled
+            friend_request.time_responded = datetime.datetime.utcnow()
+
+            session.commit()
+
+            return empty_pb2.Empty()
 
     def SSO(self, request, context):
         # Protocol description: https://meta.discourse.org/t/official-single-sign-on-for-discourse-sso/13045

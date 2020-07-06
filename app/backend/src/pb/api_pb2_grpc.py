@@ -33,17 +33,27 @@ class APIStub(object):
         self.SendFriendRequest = channel.unary_unary(
                 '/api.API/SendFriendRequest',
                 request_serializer=pb_dot_api__pb2.SendFriendRequestReq.SerializeToString,
-                response_deserializer=pb_dot_api__pb2.FriendRequest.FromString,
+                response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
         self.ListFriendRequests = channel.unary_unary(
                 '/api.API/ListFriendRequests',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
                 response_deserializer=pb_dot_api__pb2.ListFriendRequestsRes.FromString,
                 )
+        self.ListFriends = channel.unary_unary(
+                '/api.API/ListFriends',
+                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+                response_deserializer=pb_dot_api__pb2.ListFriendsRes.FromString,
+                )
         self.RespondFriendRequest = channel.unary_unary(
                 '/api.API/RespondFriendRequest',
                 request_serializer=pb_dot_api__pb2.RespondFriendRequestReq.SerializeToString,
-                response_deserializer=pb_dot_api__pb2.FriendRequest.FromString,
+                response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                )
+        self.CancelFriendRequest = channel.unary_unary(
+                '/api.API/CancelFriendRequest',
+                request_serializer=pb_dot_api__pb2.CancelFriendRequestReq.SerializeToString,
+                response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
         self.SSO = channel.unary_unary(
                 '/api.API/SSO',
@@ -88,7 +98,19 @@ class APIServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def ListFriends(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def RespondFriendRequest(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def CancelFriendRequest(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -122,17 +144,27 @@ def add_APIServicer_to_server(servicer, server):
             'SendFriendRequest': grpc.unary_unary_rpc_method_handler(
                     servicer.SendFriendRequest,
                     request_deserializer=pb_dot_api__pb2.SendFriendRequestReq.FromString,
-                    response_serializer=pb_dot_api__pb2.FriendRequest.SerializeToString,
+                    response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
             'ListFriendRequests': grpc.unary_unary_rpc_method_handler(
                     servicer.ListFriendRequests,
                     request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                     response_serializer=pb_dot_api__pb2.ListFriendRequestsRes.SerializeToString,
             ),
+            'ListFriends': grpc.unary_unary_rpc_method_handler(
+                    servicer.ListFriends,
+                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                    response_serializer=pb_dot_api__pb2.ListFriendsRes.SerializeToString,
+            ),
             'RespondFriendRequest': grpc.unary_unary_rpc_method_handler(
                     servicer.RespondFriendRequest,
                     request_deserializer=pb_dot_api__pb2.RespondFriendRequestReq.FromString,
-                    response_serializer=pb_dot_api__pb2.FriendRequest.SerializeToString,
+                    response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            ),
+            'CancelFriendRequest': grpc.unary_unary_rpc_method_handler(
+                    servicer.CancelFriendRequest,
+                    request_deserializer=pb_dot_api__pb2.CancelFriendRequestReq.FromString,
+                    response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
             'SSO': grpc.unary_unary_rpc_method_handler(
                     servicer.SSO,
@@ -209,7 +241,7 @@ class API(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/api.API/SendFriendRequest',
             pb_dot_api__pb2.SendFriendRequestReq.SerializeToString,
-            pb_dot_api__pb2.FriendRequest.FromString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options, channel_credentials,
             call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -230,6 +262,22 @@ class API(object):
             call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
+    def ListFriends(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/api.API/ListFriends',
+            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            pb_dot_api__pb2.ListFriendsRes.FromString,
+            options, channel_credentials,
+            call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
     def RespondFriendRequest(request,
             target,
             options=(),
@@ -241,7 +289,23 @@ class API(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/api.API/RespondFriendRequest',
             pb_dot_api__pb2.RespondFriendRequestReq.SerializeToString,
-            pb_dot_api__pb2.FriendRequest.FromString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            options, channel_credentials,
+            call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def CancelFriendRequest(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/api.API/CancelFriendRequest',
+            pb_dot_api__pb2.CancelFriendRequestReq.SerializeToString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options, channel_credentials,
             call_credentials, compression, wait_for_ready, timeout, metadata)
 
