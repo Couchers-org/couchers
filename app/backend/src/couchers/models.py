@@ -1,5 +1,6 @@
 import enum
 from datetime import date
+from calendar import monthrange
 from math import floor
 
 from sqlalchemy import (Boolean, Column, Date, DateTime, Enum, Float,
@@ -67,8 +68,15 @@ class User(Base):
 
     @property
     def age(self):
-        # TODO: proper computation
-        return floor((date.today() - self.birthdate).days / 365)
+        max_day = monthrange(date.today().year, self.birthdate.month)[1]
+        age = date.today().year - self.birthdate.year
+        #in case of leap-day babies, make sure the date is valid for this year
+        safe_birthdate = self.birthdate
+        if (self.birthdate.day > max_day):
+            safe_birthdate = safe_birthdate.replace(day = max_day)
+        if date.today() < safe_birthdate.replace(year=date.today().year):
+            age -= 1
+        return age
 
     @property
     def display_joined(self):
