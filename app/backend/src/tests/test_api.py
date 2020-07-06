@@ -106,9 +106,10 @@ def test_ping(temp_db_session):
         assert res.name == user.name
         assert res.color == user.color
 
-def test_SendFriendRequest(temp_db_session):
+def test_friend_request_flow(temp_db_session):
     user1, token1 = generate_user(temp_db_session, "user1")
     user2, token2 = generate_user(temp_db_session, "user2")
+    user3, token3 = generate_user(temp_db_session, "user3")
 
     # send friend request from user1 to user2
     with api_session(temp_db_session, token1) as api:
@@ -116,8 +117,92 @@ def test_SendFriendRequest(temp_db_session):
 
         # check it went through
         res = api.ListFriendRequests(empty_pb2.Empty())
+        assert len(res.sent) == 1
+        assert len(res.received) == 0
+
         assert res.sent[0].state == api_pb2.FriendRequest.FriendRequestStatus.PENDING
         assert res.sent[0].user == "user2"
 
-        assert len(res.sent) == 1
+    with api_session(temp_db_session, token2) as api:
+        # check it's there
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        assert len(res.sent) == 0
+        assert len(res.received) == 1
+
+        assert res.received[0].state == api_pb2.FriendRequest.FriendRequestStatus.PENDING
+        assert res.received[0].user == "user1"
+
+        fr_id = res.received[0].friend_request_id
+
+        # accept it
+        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
+
+        # check it's gone
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        assert len(res.sent) == 0
         assert len(res.received) == 0
+
+        # check we're friends now
+        res = api.ListFriends(empty_pb2.Empty())
+        assert len(res.users) == 1
+        assert res.users[0] == "user1"
+
+    with api_session(temp_db_session, token1) as api:
+        # check it's gone
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        assert len(res.sent) == 0
+        assert len(res.received) == 0
+
+        # check we're friends now
+        res = api.ListFriends(empty_pb2.Empty())
+        assert len(res.users) == 1
+        assert res.users[0] == "user2"
+
+def test_cant_friend_request_twice(temp_db_session):
+    user1, token1 = generate_user(temp_db_session, "user1")
+    user2, token2 = generate_user(temp_db_session, "user2")
+
+    # send friend request from user1 to user2
+    with api_session(temp_db_session, token1) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user="user2"))
+
+        with pytest.raises(grpc.RpcError):
+            api.SendFriendRequest(api_pb2.SendFriendRequestReq(user="user2"))
+
+def test_cant_friend_request_pending(temp_db_session):
+    user1, token1 = generate_user(temp_db_session, "user1")
+    user2, token2 = generate_user(temp_db_session, "user2")
+    user3, token3 = generate_user(temp_db_session, "user3")
+
+    # send friend request from user1 to user2
+    with api_session(temp_db_session, token1) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user="user2"))
+
+    with api_session(temp_db_session, token2) as api, pytest.raises(grpc.RpcError):
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user="user1"))
+
+def test_ListFriends(temp_db_session):
+    user1, token1 = generate_user(temp_db_session, "user1")
+    user2, token2 = generate_user(temp_db_session, "user2")
+    user3, token3 = generate_user(temp_db_session, "user3")
+
+    # send friend request from user1 to user2
+    with api_session(temp_db_session, token1) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user="user2"))
+
+    with api_session(temp_db_session, token2) as api:
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        assert res.received[0].state == api_pb2.FriendRequest.FriendRequestStatus.PENDING
+        assert res.received[0].user == "user1"
+
+        fr_id = res.received[0].friend_request_id
+
+        # accept it
+        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
+
+        res = api.ListFriends(empty_pb2.Empty())
+        assert res.users[0] == "user1"
+
+    with api_session(temp_db_session, token1) as api:
+        res = api.ListFriends(empty_pb2.Empty())
+        assert res.users[0] == "user2"
