@@ -1,17 +1,13 @@
 <template>
   <v-content>
+    <error-alert :error="error"/>
     <h1>Search results for "{{ query }}"</h1>
     <div v-if="!loading">
       <user-search-result v-for="user in users" :key="user.id" :user="user" />
       <p v-if="!users.length">No results!</p>
     </div>
     <v-container fill-height>
-      <v-col class="mx-auto" cols="12" sm="10" md="8" lg="6" xl="4">
-        <div v-if="loading">
-          <p class="subtitle-1 text-center">Loading...</p>
-          <v-progress-linear indeterminate color="primary"></v-progress-linear>
-        </div>
-      </v-col>
+      <loading-circular :loading="loading"/>
     </v-container>
   </v-content>
 </template>
@@ -23,15 +19,20 @@ import { SearchReq } from '../pb/api_pb'
 import { client } from '../api'
 
 import UserSearchResult from '../components/UserSearchResult.vue'
+import ErrorAlert from '../components/ErrorAlert.vue'
+import LoadingCircular from '../components/LoadingCircular.vue'
 
 export default Vue.extend({
   data: () => ({
     loading: false,
-    users: null
+    users: null,
+    error: null
   }),
 
   components: {
-    UserSearchResult
+    UserSearchResult,
+    'error-alert': ErrorAlert,
+    'loading-circular': LoadingCircular
   },
 
   computed: {
@@ -60,7 +61,7 @@ export default Vue.extend({
         console.log(res.toObject())
       }).catch(err => {
         this.loading = false
-        console.error(err)
+        this.error = err
       })
     },
   },

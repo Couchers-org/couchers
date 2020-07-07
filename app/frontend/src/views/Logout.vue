@@ -3,10 +3,7 @@
     <v-container fill-height>
       <v-col class="mx-auto" cols="12" sm="10" md="8" lg="6" xl="4">
         <error-alert type="error" :error="error"/>
-        <div v-if="loading">
-          <p class="subtitle-1 text-center">Loading...</p>
-          <v-progress-linear indeterminate color="primary"></v-progress-linear>
-        </div>
+        <loading-circular :loading="loading"/>
       </v-col>
     </v-container>
   </v-content>
@@ -23,6 +20,7 @@
   import Store, { AuthenticationState } from '../store'
   import Router from '../router'
   import ErrorAlert from '../components/ErrorAlert.vue'
+  import LoadingCircular from '../components/LoadingCircular.vue'
 
   export default Vue.extend({
     data: () => ({
@@ -31,7 +29,8 @@
     }),
 
     components: {
-      'error-alert': ErrorAlert
+      'error-alert': ErrorAlert,
+      'loading-circular': LoadingCircular
     },
 
     mounted () {

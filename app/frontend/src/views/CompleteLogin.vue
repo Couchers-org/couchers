@@ -1,8 +1,8 @@
 <template>
   <v-content>
     <v-container fluid>
-      <h1>Logging you in...</h1>
       <error-alert :error="error"/>
+      <loading-circular :loading="loading">Logging you in...</loading-circular>
     </v-container>
   </v-content>
 </template>
@@ -18,6 +18,7 @@ import * as grpcWeb from 'grpc-web'
 import Store, { AuthenticationState } from '../store'
 import Router from '../router'
 import ErrorAlert from '../components/ErrorAlert.vue'
+import LoadingCircular from '../components/LoadingCircular.vue'
 
 export default Vue.extend({
   data: () => ({
@@ -28,6 +29,7 @@ export default Vue.extend({
 
   components: {
     'error-alert': ErrorAlert,
+    'loading-circular': LoadingCircular
   },
 
   created () {
@@ -35,9 +37,10 @@ export default Vue.extend({
   },
 
   methods: {
-    fetchData: function () {
+    fetchData: async function () {
       const req = new CompleteTokenLoginReq()
       req.setLoginToken(this.$route.params.token)
+      await new Promise(r => setTimeout(r, 2000))
       authClient.completeTokenLogin(req, null).then(res => {
         this.loading = false
         this.successMessages = ['Success.']

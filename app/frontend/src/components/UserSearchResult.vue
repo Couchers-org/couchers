@@ -85,7 +85,6 @@ export default Vue.extend({
   props: ['user'],
 
   data: () => ({
-    loading: false,
     errorMessages: [] as Array<string>
   }),
 
