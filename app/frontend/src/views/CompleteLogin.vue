@@ -28,8 +28,8 @@ export default Vue.extend({
   }),
 
   components: {
-    'error-alert': ErrorAlert,
-    'loading-circular': LoadingCircular
+    ErrorAlert,
+    LoadingCircular
   },
 
   created () {
@@ -37,10 +37,9 @@ export default Vue.extend({
   },
 
   methods: {
-    fetchData: async function () {
+    fetchData: function () {
       const req = new CompleteTokenLoginReq()
       req.setLoginToken(this.$route.params.token)
-      await new Promise(r => setTimeout(r, 2000))
       authClient.completeTokenLogin(req, null).then(res => {
         this.loading = false
         this.successMessages = ['Success.']

@@ -1,9 +1,10 @@
 <template>
   <v-content>
     <error-alert :error="error"/>
-    <loading-circular :loading="loading"/>
-    <!-- TODO: Improve so updating profile doesn't hide everything -->
-    <v-container v-if="!loading" fluid>
+    <v-container fluid>
+      <v-overlay absolute :value="loading">
+        <loading-circular :loading="loading" />
+      </v-overlay>
       <v-card class="float-left mx-3 my-3" width="350" outlined>
         <v-sheet height="80" :color="user.color" tile></v-sheet>
         <v-card-title>{{ user.name }}</v-card-title>

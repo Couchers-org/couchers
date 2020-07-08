@@ -29,8 +29,8 @@
     }),
 
     components: {
-      'error-alert': ErrorAlert,
-      'loading-circular': LoadingCircular
+      ErrorAlert,
+      LoadingCircular
     },
 
     mounted () {

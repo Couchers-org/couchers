@@ -144,7 +144,7 @@ export default Vue.extend({
   }),
 
   components: {
-    'error-alert': ErrorAlert
+    ErrorAlert
   },
 
   watch: {
