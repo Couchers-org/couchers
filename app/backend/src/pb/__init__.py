@@ -1,3 +1,6 @@
+# Automatically populate this package with api_pb2.py, api_pb2_grpc.py
+# etc., by calling protoc during import time.
+
 from pathlib import Path
 import os
 from grpc_tools import protoc
