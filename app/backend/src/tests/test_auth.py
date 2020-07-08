@@ -16,7 +16,7 @@ def temp_db_session(tmp_path):
     Create a temporary SQLite-backed database in a temp directory, and return the Session object.
     """
     db_path = tmp_path / "db.sqlite"
-    engine = create_engine(f"sqlite:///{db_path}", echo=True)
+    engine = create_engine(f"sqlite:///{db_path}", echo=False)
     Base.metadata.create_all(engine)
     Session = sessionmaker(bind=engine)
 
@@ -53,7 +53,7 @@ def test_UsernameValid(temp_db_session):
 def test_basic_signup(temp_db_session):
     with auth_api_session(temp_db_session) as auth_api:
         reply = auth_api.Signup(auth_pb2.SignupReq(email="a@b.com"))
-    assert reply.next_step == 0  # SENT_SIGNUP_EMAIL
+    assert reply.next_step == auth_pb2.SignupRes.SignupStep.SENT_SIGNUP_EMAIL
 
     # read out the signup token directly from the database for now
     entry = temp_db_session().query(SignupToken).filter(SignupToken.email == "a@b.com").one_or_none()
@@ -81,7 +81,7 @@ def test_basic_login(temp_db_session):
 
     with auth_api_session(temp_db_session) as auth_api:
         reply = auth_api.Login(auth_pb2.LoginReq(user="frodo"))
-    assert reply.next_step == 1  # SENT_LOGIN_EMAIL
+    assert reply.next_step == auth_pb2.LoginRes.LoginStep.SENT_LOGIN_EMAIL
 
     # backdoor to find login token
     entry = temp_db_session().query(LoginToken).one_or_none()
@@ -95,3 +95,18 @@ def test_basic_login(temp_db_session):
     # log out
     with auth_api_session(temp_db_session) as auth_api:
         reply = auth_api.Deauthenticate(auth_pb2.DeAuthReq(token=session_token))
+
+def test_login_tokens_invalidate_after_use(temp_db_session):
+    test_basic_signup(temp_db_session)
+    with auth_api_session(temp_db_session) as auth_api:
+        reply = auth_api.Login(auth_pb2.LoginReq(user="frodo"))
+    assert reply.next_step == auth_pb2.LoginRes.LoginStep.SENT_LOGIN_EMAIL
+
+    login_token = temp_db_session().query(LoginToken).one_or_none().token
+
+    with auth_api_session(temp_db_session) as auth_api:
+        session_token = auth_api.CompleteTokenLogin(auth_pb2.CompleteTokenLoginReq(login_token=login_token)).token
+
+    with auth_api_session(temp_db_session) as auth_api, pytest.raises(grpc.RpcError):
+        # check we can't login again
+        session_token = auth_api.CompleteTokenLogin(auth_pb2.CompleteTokenLoginReq(login_token=login_token)).token
