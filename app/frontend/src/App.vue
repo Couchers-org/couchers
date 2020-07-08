@@ -38,13 +38,13 @@ export default Vue.extend({
   }),
 
   computed: {
-    authenticated () {
+    authenticated() {
       return Store.getters.authenticated
     }
   },
 
   methods: {
-    drawerChange (val: boolean) {
+    drawerChange(val: boolean) {
       this.drawer = val
     }
   }

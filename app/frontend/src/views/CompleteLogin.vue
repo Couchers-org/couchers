@@ -32,12 +32,12 @@ export default Vue.extend({
     LoadingCircular
   },
 
-  created () {
+  created() {
     this.fetchData()
   },
 
   methods: {
-    fetchData: function () {
+    fetchData() {
       const req = new CompleteTokenLoginReq()
       req.setLoginToken(this.$route.params.token)
       authClient.completeTokenLogin(req).then(res => {

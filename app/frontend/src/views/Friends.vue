@@ -89,7 +89,7 @@ export default Vue.extend({
     successVisible: false,
   }),
 
-  created () {
+  created() {
     this.fetchData()
   },
 

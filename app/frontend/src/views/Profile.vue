@@ -157,7 +157,7 @@ export default Vue.extend({
     ErrorAlert
   },
 
-  created () {
+  created() {
     this.fetchData()
   },
 
@@ -166,7 +166,7 @@ export default Vue.extend({
   },
 
   methods: {
-    fetchData: function () {
+    fetchData() {
       this.loading = true
       this.error = null
 
@@ -185,7 +185,7 @@ export default Vue.extend({
       })
     },
 
-    updateProfile: function (req: UpdateProfileReq) {
+    updateProfile(req: UpdateProfileReq) {
       this.loading = true
 
       client.updateProfile(req).then(res => {
@@ -198,7 +198,7 @@ export default Vue.extend({
       })
     },
 
-    saveAboutMe: function (text: string) {
+    saveAboutMe(text: string) {
       const req = new UpdateProfileReq()
       const wrapper = new wrappers.StringValue()
       wrapper.setValue(text)
@@ -206,7 +206,7 @@ export default Vue.extend({
       this.updateProfile(req)
     },
 
-    saveAboutPlace: function (text: string) {
+    saveAboutPlace(text: string) {
       const req = new UpdateProfileReq()
       const wrapper = new wrappers.StringValue()
       wrapper.setValue(text)
@@ -214,7 +214,7 @@ export default Vue.extend({
       this.updateProfile(req)
     },
 
-    saveName: function (text: string) {
+    saveName(text: string) {
       const req = new UpdateProfileReq()
       const wrapper = new wrappers.StringValue()
       wrapper.setValue(text)
@@ -222,7 +222,7 @@ export default Vue.extend({
       this.updateProfile(req)
     },
 
-    saveCity: function (text: string) {
+    saveCity(text: string) {
       const req = new UpdateProfileReq()
       const wrapper = new wrappers.StringValue()
       wrapper.setValue(text)
@@ -230,7 +230,7 @@ export default Vue.extend({
       this.updateProfile(req)
     },
 
-    saveGender: function (text: string) {
+    saveGender(text: string) {
       const req = new UpdateProfileReq()
       const wrapper = new wrappers.StringValue()
       wrapper.setValue(text)
@@ -238,7 +238,7 @@ export default Vue.extend({
       this.updateProfile(req)
     },
 
-    saveOccupation: function (text: string) {
+    saveOccupation(text: string) {
       const req = new UpdateProfileReq()
       const wrapper = new wrappers.StringValue()
       wrapper.setValue(text)
@@ -246,7 +246,7 @@ export default Vue.extend({
       this.updateProfile(req)
     },
 
-    saveCountriesVisited: function (list: Array<string>) {
+    saveCountriesVisited(list: Array<string>) {
       const req = new UpdateProfileReq()
       const listValue = new UpdateProfileReq.RepeatedStringValue()
       listValue.setValueList(list)
@@ -255,7 +255,7 @@ export default Vue.extend({
       this.updateProfile(req)
     },
 
-    saveCountriesLived: function (list: Array<string>) {
+    saveCountriesLived(list: Array<string>) {
       const req = new UpdateProfileReq()
       const listValue = new UpdateProfileReq.RepeatedStringValue()
       listValue.setValueList(list)
@@ -264,7 +264,7 @@ export default Vue.extend({
       this.updateProfile(req)
     },
 
-    saveLanguages: function (list: Array<string>) {
+    saveLanguages(list: Array<string>) {
       const req = new UpdateProfileReq()
       const listValue = new UpdateProfileReq.RepeatedStringValue()
       listValue.setValueList(list)
@@ -273,7 +273,7 @@ export default Vue.extend({
       this.updateProfile(req)
     },
 
-    saveColor: function (color: string) {
+    saveColor(color: string) {
       const req = new UpdateProfileReq()
       const wrapper = new wrappers.StringValue()
       wrapper.setValue(color)
@@ -283,34 +283,41 @@ export default Vue.extend({
   },
 
   computed: {
-    lastActiveDisplay: function() {
+    lastActiveDisplay() {
       if (!this.user.lastActive) {
         return 'unknown'
       }
       return moment(this.user.lastActive.toDate()).fromNow()
     },
-    joinedDisplay: function () {
+
+    joinedDisplay() {
       if (!this.user.joined) {
         return 'error'
       }
       return moment(this.user.joined.toDate()).fromNow()
     },
-    verificationDisplay: function() {
+
+    verificationDisplay() {
       return Math.round(this.user.verification! * 100)
     },
-    communityStandingDisplay: function() {
+
+    communityStandingDisplay() {
       return Math.round(this.user.communityStanding! * 100)
     },
-    ageDisplay: function() {
+
+    ageDisplay() {
       return new Date(new Date().getTime() - this.user.birthDate!).getFullYear()-1970;
     },
-    languagesListDisplay: function() {
+
+    languagesListDisplay() {
       return displayList(this.user.languagesList)
     },
-    countriesVisitedListDisplay: function() {
+
+    countriesVisitedListDisplay() {
       return displayList(this.user.countriesVisitedList)
     },
-    countriesLivedListDisplay: function() {
+
+    countriesLivedListDisplay() {
       return displayList(this.user.countriesLivedList)
     }
   }

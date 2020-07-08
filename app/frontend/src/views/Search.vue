@@ -36,12 +36,12 @@ export default Vue.extend({
   },
 
   computed: {
-    query: function () {
+    query() {
       return this.$route.query.q
     },
   },
 
-  created () {
+  created() {
     this.fetchData()
   },
 
@@ -50,7 +50,7 @@ export default Vue.extend({
   },
 
   methods: {
-    fetchData: function () {
+    fetchData() {
       this.loading = true
 
       const req = new SearchReq()

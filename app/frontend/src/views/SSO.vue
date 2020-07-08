@@ -32,7 +32,7 @@ export default Vue.extend({
     LoadingCircular
   },
 
-  created () {
+  created() {
     if (Store.getters.authenticated) {
       this.doSSO()
     } else {

@@ -148,21 +148,21 @@ export default Vue.extend({
   },
 
   watch: {
-    dateMenu (val) {
+    dateMenu(val) {
       val && setTimeout(() => (this.$refs.picker.activePicker = 'YEAR'))
     },
   },
 
-  created () {
+  created() {
     this.fetchData()
   },
 
   methods: {
-    saveDate (date) {
+    saveDate(date) {
       this.$refs.dateMenu.save(date)
     },
 
-    fetchData: function () {
+    fetchData() {
       this.emailLoading = false
       this.emailErrorMessages = []
 
@@ -177,17 +177,17 @@ export default Vue.extend({
       })
     },
 
-    clearMessages: function () {
+    clearMessages() {
       this.error = null
       this.successMessages = []
     },
 
-    lazyCheckUsername: function () {
+    lazyCheckUsername() {
       clearTimeout(this.usernameTimer)
       this.usernameTimer = setTimeout(this.checkUsername, 500);
     },
 
-    checkUsername: function () {
+    checkUsername() {
       this.usernameErrorMessages = []
       this.usernameSuccessMessages = []
 
@@ -205,7 +205,7 @@ export default Vue.extend({
       })
     },
 
-    submit: function () {
+    submit() {
       this.loading = true
       this.clearMessages()
 

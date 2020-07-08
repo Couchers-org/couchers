@@ -85,30 +85,32 @@ export default Vue.extend({
   }),
 
   computed: {
-    reason: function () {
+    reason() {
       return this.$route.params.reason
     },
   },
 
   watch: {
     // empty error and success messages if we change user/pass combo
-    username: function () {
+    username() {
       this.errorMessages = []
       this.successMessages = []
     },
-    password: function () {
+
+    password() {
       this.errorMessages = []
       this.successMessages = []
     }
   },
 
   methods: {
-    clearMessages: function () {
+    clearMessages() {
       this.errorMessages = []
       this.passErrorMessages = []
       this.successMessages = []
     },
-    submit: function () {
+
+    submit() {
       if (this.loginStep == 'user') {
         this.loading = true;
         this.clearMessages()

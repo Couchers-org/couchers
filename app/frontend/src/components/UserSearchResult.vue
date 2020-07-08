@@ -85,25 +85,29 @@ export default Vue.extend({
   props: ['user'],
 
   computed: {
-    lastActiveDisplay: function() {
+    lastActiveDisplay() {
       if (!this.user.lastActive) {
         return 'unknown'
       }
       return displayTime(this.user.lastActive)
     },
-    joinedDisplay: function () {
+
+    joinedDisplay () {
       if (!this.user.joined) {
         return 'error'
       }
       return displayTime(this.user.joined)
     },
-    verificationDisplay: function() {
+
+    verificationDisplay() {
       return Math.round(this.user.verification! * 100)
     },
-    communityStandingDisplay: function() {
+
+    communityStandingDisplay() {
       return Math.round(this.user.communityStanding! * 100)
     },
-    languagesListDisplay: function() {
+
+    languagesListDisplay() {
       return displayList(this.user.languagesList)
     },
   }

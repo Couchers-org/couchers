@@ -61,7 +61,7 @@ export default Vue.extend({
     signupStep: 'form',
     rules: {
       required: (value: string) => !!value || 'Required.',
-      validEmail: function (email: string) {
+      validEmail(email: string) {
         const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         return re.test(email) || 'Sorry! That doesn\'t look like a proper email.';
       }
@@ -69,11 +69,12 @@ export default Vue.extend({
   }),
 
   methods: {
-    clearMessages: function () {
+    clearMessages() {
       this.error = null
       this.successMessages = []
     },
-    submitSignup: function () {
+
+    submitSignup() {
       this.loading = true;
       this.clearMessages()
 

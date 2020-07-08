@@ -145,7 +145,7 @@ export default Vue.extend({
     }
   }),
 
-  created () {
+  created() {
     this.fetchData()
   },
 
@@ -154,7 +154,7 @@ export default Vue.extend({
   },
 
   methods: {
-    fetchData: function () {
+    fetchData() {
       this.loading = true
       this.error = null
 
@@ -170,7 +170,7 @@ export default Vue.extend({
       })
     },
 
-    sendFriendRequest: function () {
+    sendFriendRequest() {
       this.sendingFriendRequest = true
       const req = new SendFriendRequestReq()
       req.setUser(this.user.username)
@@ -186,7 +186,7 @@ export default Vue.extend({
   },
 
   computed: {
-    friendsDisplay: function() {
+    friendsDisplay() {
       switch (this.user.friends) {
         case User.FriendshipStatus.NOT_FRIENDS:
           return ""
@@ -199,31 +199,38 @@ export default Vue.extend({
           return "You can't be friends with this user, you doofus."
       }
     },
-    lastActiveDisplay: function() {
+
+    lastActiveDisplay() {
       if (!this.user.lastActive) {
         return 'unknown'
       }
       return displayTime(this.user.lastActive)
     },
-    joinedDisplay: function () {
+
+    joinedDisplay() {
       if (!this.user.joined) {
         return 'error'
       }
       return displayTime(this.user.joined)
     },
-    verificationDisplay: function() {
+
+    verificationDisplay() {
       return Math.round(this.user.verification! * 100)
     },
-    communityStandingDisplay: function() {
+
+    communityStandingDisplay() {
       return Math.round(this.user.communityStanding! * 100)
     },
-    languagesListDisplay: function() {
+
+    languagesListDisplay() {
       return displayList(this.user.languagesList)
     },
-    countriesVisitedListDisplay: function() {
+
+    countriesVisitedListDisplay() {
       return displayList(this.user.countriesVisitedList)
     },
-    countriesLivedListDisplay: function() {
+
+    countriesLivedListDisplay() {
       return displayList(this.user.countriesLivedList)
     }
   }

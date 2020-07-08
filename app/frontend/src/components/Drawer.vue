@@ -82,18 +82,18 @@ import { client } from '../api'
 export default Vue.extend({
   props: ['value'],
 
-  created () {
+  created() {
     this.updateData()
   },
 
   watch: {
-    '$store.state.auth': function () {
+    '$store.state.auth'() {
       this.updateData()
     }
   },
 
   methods: {
-    updateData: function () {
+    updateData() {
       client.ping(new PingReq()).then(res => {
         Store.commit('updateUser', {
           username: res.getUsername(),
@@ -116,13 +116,15 @@ export default Vue.extend({
       }
     },
 
-    username: function () {
+    username() {
       return Store.state.username
     },
-    name: function () {
+
+    name() {
       return Store.state.name
     },
-    color: function () {
+
+    color() {
       return Store.state.color
     }
   }

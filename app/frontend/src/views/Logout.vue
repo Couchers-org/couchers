@@ -33,7 +33,7 @@ export default Vue.extend({
     LoadingCircular
   },
 
-  mounted () {
+  mounted() {
     const req = new DeAuthReq()
     req.setToken(Store.state.authToken!)
     authClient.deauthenticate(req).then(res => {

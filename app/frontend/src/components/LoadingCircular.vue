@@ -17,6 +17,5 @@ export default Vue.extend({
       type: [Boolean]
     }
   },
-
 })
 </script>
