@@ -9,8 +9,7 @@
 <script lang="ts">
 import Vue from 'vue'
 
-export default Vue.component('error-alert', {
-
+export default Vue.extend({
   props: {
       error: {
         type: Object as () => (Array<Error> | Error | null),
