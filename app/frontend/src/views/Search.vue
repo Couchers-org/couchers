@@ -31,8 +31,8 @@ export default Vue.extend({
 
   components: {
     UserSearchResult,
-    'error-alert': ErrorAlert,
-    'loading-circular': LoadingCircular
+    ErrorAlert,
+    LoadingCircular
   },
 
   computed: {

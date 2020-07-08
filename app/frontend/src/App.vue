@@ -29,8 +29,8 @@ import SearchBox from './components/SearchBox.vue'
 
 export default Vue.extend({
   components: {
-    "drawer": Drawer,
-    "search-box": SearchBox
+    Drawer,
+    SearchBox
   },
 
   data: () => ({

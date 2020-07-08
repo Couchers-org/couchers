@@ -28,8 +28,8 @@ export default Vue.extend({
   }),
 
   components: {
-    'error-alert': ErrorAlert,
-    'loading-circular': LoadingCircular
+    ErrorAlert,
+    LoadingCircular
   },
 
   created () {

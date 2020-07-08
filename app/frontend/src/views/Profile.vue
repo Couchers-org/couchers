@@ -150,11 +150,11 @@ export default Vue.extend({
   }),
 
   components: {
-    "editable-textarea": EditableTextarea,
-    "editable-text-field": EditableTextField,
-    "editable-list": EditableList,
-    "editable-color": EditableColor,
-    "error-alert": ErrorAlert
+    EditableTextarea,
+    EditableTextField,
+    EditableList,
+    EditableColor,
+    ErrorAlert
   },
 
   created () {
