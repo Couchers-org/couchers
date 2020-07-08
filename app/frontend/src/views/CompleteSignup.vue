@@ -67,12 +67,12 @@
                     </v-row>
                     <v-row>
                       <v-menu
-                        ref="dateMenu"
                         v-model="dateMenu"
                         :close-on-content-click="false"
                         transition="scale-transition"
                         offset-y
                         min-width="290px"
+                        ref="dateMenu"
                       >
                         <template v-slot:activator="{ on, attrs }">
                           <v-text-field
@@ -87,11 +87,9 @@
                           ></v-text-field>
                         </template>
                         <v-date-picker
-                          ref="picker"
                           v-model="date"
                           :max="new Date().toISOString().substr(0, 10)"
-                          min="1900-01-01"
-                          @change="saveDate"
+                          @input="dateMenu = false"
                         ></v-date-picker>
                       </v-menu>
                     </v-row>
@@ -146,7 +144,7 @@ export default Vue.extend({
     emailErrorMessages: [] as Array<string>,
     name: "",
     city: "",
-    date: null,
+    date: "",
     dateMenu: false,
     gender: "",
     rules: {
@@ -158,21 +156,11 @@ export default Vue.extend({
     ErrorAlert,
   },
 
-  watch: {
-    dateMenu(val) {
-      val && setTimeout(() => (this.$refs.picker.activePicker = "YEAR"))
-    },
-  },
-
   created() {
     this.fetchData()
   },
 
   methods: {
-    saveDate(date) {
-      this.$refs.dateMenu.save(date)
-    },
-
     fetchData() {
       this.emailLoading = false
       this.emailErrorMessages = []

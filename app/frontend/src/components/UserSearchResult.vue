@@ -98,13 +98,17 @@
 <script lang="ts">
 import Vue from "vue"
 
-import { GetUserReq } from "../pb/api_pb"
+import { GetUserReq, User } from "../pb/api_pb"
 import { client } from "../api"
 
 import { displayList, displayTime } from "../utils"
 
 export default Vue.extend({
-  props: ["user"],
+  props: {
+    user: {
+      type: Object as () => User.AsObject,
+    },
+  },
 
   computed: {
     lastActiveDisplay() {

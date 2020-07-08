@@ -33,11 +33,15 @@
 import Vue from "vue"
 
 export default Vue.extend({
-  props: ["list"],
+  props: {
+    list: {
+      type: Object as () => Array<string>,
+    },
+  },
 
   data: () => ({
     editing: false,
-    dirtyList: null,
+    dirtyList: [] as Array<string>,
   }),
 
   computed: {

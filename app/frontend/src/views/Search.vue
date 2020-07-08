@@ -15,7 +15,7 @@
 <script lang="ts">
 import Vue from "vue"
 
-import { SearchReq } from "../pb/api_pb"
+import { SearchReq, SearchRes, User } from "../pb/api_pb"
 import { client } from "../api"
 
 import UserSearchResult from "../components/UserSearchResult.vue"
@@ -25,7 +25,7 @@ import LoadingCircular from "../components/LoadingCircular.vue"
 export default Vue.extend({
   data: () => ({
     loading: false,
-    users: null,
+    users: (null as unknown) as Array<User.AsObject>,
     error: null,
   }),
 
@@ -37,7 +37,7 @@ export default Vue.extend({
 
   computed: {
     query() {
-      return this.$route.query.q
+      return this.$route.query.q as string
     },
   },
 

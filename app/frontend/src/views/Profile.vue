@@ -160,37 +160,18 @@ import EditableList from "../components/EditableList.vue"
 import EditableColor from "../components/EditableColor.vue"
 import ErrorAlert from "../components/ErrorAlert.vue"
 
-import { GetUserReq, UpdateProfileReq } from "../pb/api_pb"
+import { GetUserReq, UpdateProfileReq, User } from "../pb/api_pb"
 import { client } from "../api"
 
 import Store from "../store"
 
-function displayList(list: string[]) {
-  return list.join(", ")
-}
+import { displayList, displayTime } from "../utils"
 
 export default Vue.extend({
   data: () => ({
     loading: false,
-    error: [] as Array<string>,
-    user: {
-      name: null,
-      city: null,
-      verification: null,
-      communityStanding: null,
-      numReferences: null,
-      gender: null,
-      age: null,
-      birthDate: null,
-      languagesList: [],
-      occupation: null,
-      aboutMe: null,
-      countriesVisitedList: [],
-      countriesLivedList: [],
-      lastActive: null,
-      joined: null,
-      color: null,
-    },
+    error: null as Error | null,
+    user: (null as unknown) as User.AsObject,
   }),
 
   components: {
@@ -215,16 +196,13 @@ export default Vue.extend({
       this.error = null
 
       const req = new GetUserReq()
-      req.setUser(Store.state.username)
+      req.setUser(Store.state.username!)
       client
         .getUser(req)
         .then((res) => {
           this.loading = false
           this.error = null
-
           this.user = res.toObject()
-          this.user.lastActive = res.getLastActive()
-          this.user.joined = res.getJoined()
         })
         .catch((err) => {
           this.loading = false
@@ -337,14 +315,14 @@ export default Vue.extend({
       if (!this.user.lastActive) {
         return "unknown"
       }
-      return moment(this.user.lastActive.toDate()).fromNow()
+      return displayTime(this.user.lastActive)
     },
 
     joinedDisplay() {
       if (!this.user.joined) {
         return "error"
       }
-      return moment(this.user.joined.toDate()).fromNow()
+      return displayTime(this.user.joined)
     },
 
     verificationDisplay() {
@@ -353,13 +331,6 @@ export default Vue.extend({
 
     communityStandingDisplay() {
       return Math.round(this.user.communityStanding! * 100)
-    },
-
-    ageDisplay() {
-      return (
-        new Date(new Date().getTime() - this.user.birthDate!).getFullYear() -
-        1970
-      )
     },
 
     languagesListDisplay() {

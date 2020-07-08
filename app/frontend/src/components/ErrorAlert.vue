@@ -21,7 +21,7 @@ export default Vue.extend({
       if (this.error == null) {
         return []
       } else if ("length" in this.error) {
-        return this.error
+        return (this.error as Array<Error>)
           .filter((el) => "message" in el)
           .map<string>((el) => el.message)
       } else {

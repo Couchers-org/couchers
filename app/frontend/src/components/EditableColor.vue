@@ -33,7 +33,7 @@ export default Vue.extend({
 
   data: () => ({
     editing: false,
-    dirtyColor: null,
+    dirtyColor: (null as unknown) as string,
   }),
 
   methods: {
@@ -42,7 +42,7 @@ export default Vue.extend({
       this.dirtyColor = this.color
     },
 
-    input(e) {
+    input(e: string) {
       this.dirtyColor = e
     },
 

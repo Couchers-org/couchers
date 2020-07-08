@@ -76,16 +76,18 @@ import { PingReq } from "../pb/api_pb"
 import { client } from "../api"
 
 export default Vue.extend({
-  props: ["value"],
+  props: {
+    value: {
+      type: Object as () => boolean,
+    },
+  },
 
-  created() {
+  mounted() {
     this.updateData()
   },
 
   watch: {
-    "$store.state.auth"() {
-      this.updateData()
-    },
+    "$store.state.auth": "updateData",
   },
 
   methods: {
