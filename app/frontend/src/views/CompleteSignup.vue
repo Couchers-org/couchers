@@ -8,9 +8,7 @@
           </v-row>
           <v-row>
             <v-col class="mx-auto" cols="12" sm="10" md="8" lg="6" xl="4">
-              <v-alert v-for="error in errorMessages" type="error" :key="error">
-                {{ error }}
-              </v-alert>
+              <error-alert :error="error"/>
               <v-card flat>
                 <v-card-text>
                   <v-form v-on:submit.prevent="submit">
@@ -120,12 +118,13 @@ import * as grpcWeb from 'grpc-web'
 import Store, { AuthenticationState } from '../store'
 
 import Router from '../router'
+import ErrorAlert from '../components/ErrorAlert.vue'
 
 export default Vue.extend({
   data: () => ({
     genders: ['Male', 'Female', 'Genderqueer/nonbinary'],
     loading: false,
-    errorMessages: [] as Array<string>,
+    error: null as (null | Error),
     successMessages: [] as Array<string>,
     username: "",
     usernameErrorMessages: [] as Array<string>,
@@ -143,6 +142,10 @@ export default Vue.extend({
       required: (value: string) => !!value || 'Required.'
     },
   }),
+
+  components: {
+    ErrorAlert
+  },
 
   watch: {
     dateMenu (val) {
@@ -175,7 +178,7 @@ export default Vue.extend({
     },
 
     clearMessages: function () {
-      this.errorMessages = []
+      this.error = null
       this.successMessages = []
     },
 
@@ -225,11 +228,7 @@ export default Vue.extend({
         Router.push('/profile')
       }).catch(err => {
         this.loading = false
-        if (err.code == grpcWeb.StatusCode.INVALID_ARGUMENT) {
-          this.errorMessages = [err.message]
-        } else {
-          this.errorMessages = ['Unknown error.']
-        }
+        this.error = err
       })
     },
   }

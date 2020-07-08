@@ -1,6 +1,10 @@
 <template>
   <v-content>
+    <error-alert :error="error"/>
     <v-container fluid>
+      <v-overlay absolute :value="loading">
+        <loading-circular :loading="loading" />
+      </v-overlay>
       <v-card class="float-left mx-3 my-3" width="350" outlined>
         <v-sheet height="80" :color="user.color" tile></v-sheet>
         <v-card-title>{{ user.name }}</v-card-title>
@@ -110,6 +114,7 @@ import EditableTextarea from '../components/EditableTextarea.vue'
 import EditableTextField from '../components/EditableTextField.vue'
 import EditableList from '../components/EditableList.vue'
 import EditableColor from '../components/EditableColor.vue'
+import ErrorAlert from '../components/ErrorAlert.vue'
 
 import { GetUserReq, UpdateProfileReq } from '../pb/api_pb'
 import { client } from '../api'
@@ -123,7 +128,7 @@ function displayList(list: string[]) {
 export default Vue.extend({
   data: () => ({
     loading: false,
-    errorMessages: [] as Array<string>,
+    error: [] as Array<string>,
     user: {
       name: null,
       city: null,
@@ -148,7 +153,8 @@ export default Vue.extend({
     "editable-textarea": EditableTextarea,
     "editable-text-field": EditableTextField,
     "editable-list": EditableList,
-    "editable-color": EditableColor
+    "editable-color": EditableColor,
+    "error-alert": ErrorAlert
   },
 
   created () {
@@ -162,20 +168,20 @@ export default Vue.extend({
   methods: {
     fetchData: function () {
       this.loading = true
-      this.errorMessages = []
+      this.error = null
 
       const req = new GetUserReq()
       req.setUser(Store.state.username)
       client.getUser(req, null).then(res => {
         this.loading = false
-        this.errorMessages = []
+        this.error = null
 
         this.user = res.toObject()
         this.user.lastActive = res.getLastActive()
         this.user.joined = res.getJoined()
       }).catch(err => {
         this.loading = false
-        this.errorMessages = err.message
+        this.error = err
       })
     },
 
@@ -184,12 +190,11 @@ export default Vue.extend({
 
       client.updateProfile(req, null).then(res => {
         this.loading = false
-        console.log(res)
         this.fetchData()
       }).catch(err => {
         console.error(err)
         this.loading = false
-        this.errorMessages = err.message
+        this.error = err
       })
     },
 

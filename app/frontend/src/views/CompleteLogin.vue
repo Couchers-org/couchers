@@ -1,10 +1,8 @@
 <template>
   <v-content>
     <v-container fluid>
-      <h1>Logging you in...</h1>
-      <v-alert v-for="error in errorMessages" type="error" :key="error">
-        {{ error }}
-      </v-alert>
+      <error-alert :error="error"/>
+      <loading-circular :loading="loading">Logging you in...</loading-circular>
     </v-container>
   </v-content>
 </template>
@@ -19,13 +17,20 @@ import * as grpcWeb from 'grpc-web'
 
 import Store, { AuthenticationState } from '../store'
 import Router from '../router'
+import ErrorAlert from '../components/ErrorAlert.vue'
+import LoadingCircular from '../components/LoadingCircular.vue'
 
 export default Vue.extend({
   data: () => ({
     loading: true,
-    errorMessages: [] as Array<string>,
+    error: null as (Error | null),
     successMessages: [] as Array<string>,
   }),
+
+  components: {
+    ErrorAlert,
+    LoadingCircular
+  },
 
   created () {
     this.fetchData()
@@ -45,11 +50,7 @@ export default Vue.extend({
         Router.push('/')
       }).catch(err => {
         this.loading = false
-        if (err.code == grpcWeb.StatusCode.UNAUTHENTICATED) {
-          this.errorMessages = ['Invalid token.']
-        } else {
-          this.errorMessages = ['Unknown error.']
-        }
+        this.error = err
       })
     },
   }

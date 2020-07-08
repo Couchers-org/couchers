@@ -84,11 +84,6 @@ import { displayList, displayTime } from '../utils'
 export default Vue.extend({
   props: ['user'],
 
-  data: () => ({
-    loading: false,
-    errorMessages: [] as Array<string>
-  }),
-
   computed: {
     lastActiveDisplay: function() {
       if (!this.user.lastActive) {

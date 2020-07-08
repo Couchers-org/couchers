@@ -16,7 +16,7 @@
                         :rules="[rules.required, rules.validEmail]"
                         :disabled="loading"
                         :loading="loading"
-                        :error-messages="errorMessages"
+                        :error-messages="error == null ? [] : error.message"
                         :success-messages="successMessages"
                         v-on:keyup.enter="submitSignup"
                         name="email"
@@ -56,7 +56,7 @@ export default Vue.extend({
   data: () => ({
     loading: false,
     email: '',
-    errorMessages: [] as Array<string>,
+    error: null as (Error | null),
     successMessages: [] as Array<string>,
     signupStep: 'form',
     rules: {
@@ -70,7 +70,7 @@ export default Vue.extend({
 
   methods: {
     clearMessages: function () {
-      this.errorMessages = []
+      this.error = null
       this.successMessages = []
     },
     submitSignup: function () {
@@ -86,15 +86,15 @@ export default Vue.extend({
             this.signupStep = 'email'
             break
           case SignupRes.SignupStep.EMAIL_EXISTS:
-            this.errorMessages = ['Email exists! Please login.']
+            this.error = new Error('Email exists! Please login.')
             break
           case SignupRes.SignupStep.INVALID_EMAIL:
-            this.errorMessages = ['Sorry! That doesn\'t look like a proper email.']
+            this.error = new Error('Sorry! That doesn\'t look like a proper email.')
             break
         }
         this.loading = false
       }).catch(err => {
-        this.errorMessages = ['Unknown error.']
+        this.error = err
         this.loading = false
       })
     },
