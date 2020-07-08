@@ -5,3 +5,6 @@ __pycache__/
 *.egg-info/
 
 .pytest_cache
+
+src/pb/*_pb2.py
+src/pb/*_pb2_grpc.py

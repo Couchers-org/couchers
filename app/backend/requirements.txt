@@ -1,5 +1,6 @@
 sqlalchemy
 grpcio
+grpcio-tools
 protobuf
 pynacl
 pytest
