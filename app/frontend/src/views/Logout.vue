@@ -2,8 +2,8 @@
   <v-content>
     <v-container fill-height>
       <v-col class="mx-auto" cols="12" sm="10" md="8" lg="6" xl="4">
-        <error-alert type="error" :error="error"/>
-        <loading-circular :loading="loading"/>
+        <error-alert type="error" :error="error" />
+        <loading-circular :loading="loading" />
       </v-col>
     </v-container>
   </v-content>
@@ -25,24 +25,27 @@ import LoadingCircular from '../components/LoadingCircular.vue'
 export default Vue.extend({
   data: () => ({
     loading: true,
-    error: null as (Error | null)
+    error: null as Error | null,
   }),
 
   components: {
     ErrorAlert,
-    LoadingCircular
+    LoadingCircular,
   },
 
   mounted() {
     const req = new DeAuthReq()
     req.setToken(Store.state.authToken!)
-    authClient.deauthenticate(req).then(res => {
-      Store.commit('deauth')
-      Router.push({ name: 'Login' })
-    }).catch(err => {
-      this.loading = false
-      this.error = err
-    })
-  }
+    authClient
+      .deauthenticate(req)
+      .then((res) => {
+        Store.commit('deauth')
+        Router.push({ name: 'Login' })
+      })
+      .catch((err) => {
+        this.loading = false
+        this.error = err
+      })
+  },
 })
 </script>

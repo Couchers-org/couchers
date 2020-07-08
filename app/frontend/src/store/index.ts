@@ -7,7 +7,7 @@ Vue.use(Vuex)
 
 export enum AuthenticationState {
   Authenticated = 0,
-  None = 1
+  None = 1,
 }
 
 export default new Vuex.Store({
@@ -17,34 +17,32 @@ export default new Vuex.Store({
     name: null as null | string,
     color: null,
     auth: AuthenticationState.None,
-    authToken: null as null | string
+    authToken: null as null | string,
   },
   mutations: {
-    auth (state, {authState, authToken}) {
+    auth(state, { authState, authToken }) {
       state.auth = authState
       state.authToken = authToken
     },
-    deauth (state) {
+    deauth(state) {
       state.auth = AuthenticationState.None
       state.authToken = null
       state.username = null
-      state.name = "Not logged in"
+      state.name = 'Not logged in'
     },
-    error (state, errorMessage) {
+    error(state, errorMessage) {
       console.error(errorMessage)
       state.error = errorMessage
     },
-    updateUser (state, {username, name}) {
+    updateUser(state, { username, name }) {
       state.username = username
       state.name = name
-    }
+    },
   },
-  actions: {
-  },
-  modules: {
-  },
+  actions: {},
+  modules: {},
   getters: {
-    authenticated: state => state.auth == AuthenticationState.Authenticated
+    authenticated: (state) => state.auth == AuthenticationState.Authenticated,
   },
-  plugins: [createPersistedState()]
+  plugins: [createPersistedState()],
 })

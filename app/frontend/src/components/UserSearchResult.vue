@@ -9,7 +9,15 @@
       </v-list-item-icon>
       <v-list-item-content>
         <v-list-item-title>Verification (coming soon)</v-list-item-title>
-        <v-list-item-subtitle><v-progress-linear class="my-2" height="12" rounded value="0" color="light-green"></v-progress-linear></v-list-item-subtitle>
+        <v-list-item-subtitle
+          ><v-progress-linear
+            class="my-2"
+            height="12"
+            rounded
+            value="0"
+            color="light-green"
+          ></v-progress-linear
+        ></v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
     <v-list-item two-item>
@@ -18,7 +26,15 @@
       </v-list-item-icon>
       <v-list-item-content>
         <v-list-item-title>Community standing (coming soon)</v-list-item-title>
-        <v-list-item-subtitle><v-progress-linear class="my-2" height="12" rounded value="0" color="light-blue"></v-progress-linear></v-list-item-subtitle>
+        <v-list-item-subtitle
+          ><v-progress-linear
+            class="my-2"
+            height="12"
+            rounded
+            value="0"
+            color="light-blue"
+          ></v-progress-linear
+        ></v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
     <v-list-item>
@@ -26,7 +42,9 @@
         <v-icon>mdi-forum</v-icon>
       </v-list-item-icon>
       <v-list-item-content>
-        <v-list-item-title>{{ user.numReferences }} references</v-list-item-title>
+        <v-list-item-title
+          >{{ user.numReferences }} references</v-list-item-title
+        >
       </v-list-item-content>
     </v-list-item>
     <v-list-item two-item>
@@ -61,13 +79,17 @@
         <v-icon>mdi-account-clock</v-icon>
       </v-list-item-icon>
       <v-list-item-content>
-        <v-list-item-title>Last active {{ lastActiveDisplay }}</v-list-item-title>
+        <v-list-item-title
+          >Last active {{ lastActiveDisplay }}</v-list-item-title
+        >
         <v-list-item-subtitle>Joined {{ joinedDisplay }}</v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
     <v-divider></v-divider>
     <v-card-actions>
-      <v-btn text link :to="{ name: 'User', params: { user: user.username } }">View profile</v-btn>
+      <v-btn text link :to="{ name: 'User', params: { user: user.username } }"
+        >View profile</v-btn
+      >
       <v-btn text>Message</v-btn>
     </v-card-actions>
   </v-card>
@@ -92,7 +114,7 @@ export default Vue.extend({
       return displayTime(this.user.lastActive)
     },
 
-    joinedDisplay () {
+    joinedDisplay() {
       if (!this.user.joined) {
         return 'error'
       }
@@ -110,6 +132,6 @@ export default Vue.extend({
     languagesListDisplay() {
       return displayList(this.user.languagesList)
     },
-  }
+  },
 })
 </script>

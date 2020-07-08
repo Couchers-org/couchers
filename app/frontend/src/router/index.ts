@@ -22,61 +22,61 @@ const routes: Array<RouteConfig> = [
     path: '/signup/',
     name: 'Signup',
     component: Signup,
-    meta: { noAuth: true }
+    meta: { noAuth: true },
   },
   {
     path: '/signup/:token',
     name: 'CompleteSignup',
     component: CompleteSignup,
-    meta: { noAuth: true }
+    meta: { noAuth: true },
   },
   {
     path: '/login',
     name: 'Login',
     component: Login,
-    meta: { noAuth: true }
+    meta: { noAuth: true },
   },
   {
     path: '/login/:token',
     name: 'CompleteLogin',
     component: CompleteLogin,
-    meta: { noAuth: true }
+    meta: { noAuth: true },
   },
 
   {
     path: '/',
     name: 'Home',
-    component: Home
+    component: Home,
   },
   {
     path: '/sso',
     name: 'SSO',
-    component: SSO
+    component: SSO,
   },
   {
     path: '/friends',
     name: 'Friends',
-    component: Friends
+    component: Friends,
   },
   {
     path: '/search',
     name: 'Search',
-    component: Search
+    component: Search,
   },
   {
     path: '/logout',
     name: 'Logout',
-    component: Logout
+    component: Logout,
   },
   {
     path: '/user/:user',
     name: 'User',
-    component: User
+    component: User,
   },
   {
     path: '/profile',
     name: 'Profile',
-    component: Profile
+    component: Profile,
   },
 
   {
@@ -85,19 +85,22 @@ const routes: Array<RouteConfig> = [
     component: ErrorPage,
     props: {
       title: 'Page Not Found',
-      message: 'That page wasn\'t found! Sorry.'
-    }
-  }
+      message: "That page wasn't found! Sorry.",
+    },
+  },
 ]
 
 const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
-  routes
+  routes,
 })
 
 router.beforeEach((to, from, next) => {
-  if (!to.matched.some(record => record.meta.noAuth) && !Store.getters.authenticated) {
+  if (
+    !to.matched.some((record) => record.meta.noAuth) &&
+    !Store.getters.authenticated
+  ) {
     next({ name: 'Login', params: { reason: 'Please log in to continue' } })
   } else {
     next()

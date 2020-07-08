@@ -1,6 +1,6 @@
 <template>
   <v-content>
-    <error-alert :error="error"/>
+    <error-alert :error="error" />
     <v-container fluid>
       <v-card class="float-left mx-3 my-3" width="350" outlined>
         <v-sheet height="80" :color="user.color" tile></v-sheet>
@@ -13,7 +13,13 @@
           <v-list-item-content>
             <v-list-item-title>
               {{ friendsDisplay }}
-              <v-btn v-if="!this.user.friends" class="mx-1 my-1" :loading="sendingFriendRequest" color="primary" @click="sendFriendRequest">
+              <v-btn
+                v-if="!this.user.friends"
+                class="mx-1 my-1"
+                :loading="sendingFriendRequest"
+                color="primary"
+                @click="sendFriendRequest"
+              >
                 <v-icon left>mdi-account-plus</v-icon> Send friend request
               </v-btn>
             </v-list-item-title>
@@ -26,7 +32,15 @@
           </v-list-item-icon>
           <v-list-item-content>
             <v-list-item-title>Verification (coming soon)</v-list-item-title>
-            <v-list-item-subtitle><v-progress-linear class="my-2" height="12" rounded value="0" color="light-green"></v-progress-linear></v-list-item-subtitle>
+            <v-list-item-subtitle
+              ><v-progress-linear
+                class="my-2"
+                height="12"
+                rounded
+                value="0"
+                color="light-green"
+              ></v-progress-linear
+            ></v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
         <v-list-item two-item>
@@ -34,8 +48,18 @@
             <v-icon>mdi-account-group</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title>Community standing (coming soon)</v-list-item-title>
-            <v-list-item-subtitle><v-progress-linear class="my-2" height="12" rounded value="0" color="light-blue"></v-progress-linear></v-list-item-subtitle>
+            <v-list-item-title
+              >Community standing (coming soon)</v-list-item-title
+            >
+            <v-list-item-subtitle
+              ><v-progress-linear
+                class="my-2"
+                height="12"
+                rounded
+                value="0"
+                color="light-blue"
+              ></v-progress-linear
+            ></v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
         <v-list-item>
@@ -43,7 +67,9 @@
             <v-icon>mdi-forum</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title>{{ user.numReferences }} references</v-list-item-title>
+            <v-list-item-title
+              >{{ user.numReferences }} references</v-list-item-title
+            >
           </v-list-item-content>
         </v-list-item>
         <v-list-item two-item>
@@ -60,7 +86,9 @@
             <v-icon>mdi-ship-wheel</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title>{{ user.gender }}, {{ user.age }}</v-list-item-title>
+            <v-list-item-title
+              >{{ user.gender }}, {{ user.age }}</v-list-item-title
+            >
             <v-list-item-subtitle>Age and gender</v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
@@ -78,8 +106,12 @@
             <v-icon>mdi-account-clock</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title>Last active {{ lastActiveDisplay }}</v-list-item-title>
-            <v-list-item-subtitle>Joined {{ joinedDisplay }}</v-list-item-subtitle>
+            <v-list-item-title
+              >Last active {{ lastActiveDisplay }}</v-list-item-title
+            >
+            <v-list-item-subtitle
+              >Joined {{ joinedDisplay }}</v-list-item-subtitle
+            >
           </v-list-item-content>
         </v-list-item>
         <v-divider></v-divider>
@@ -122,7 +154,7 @@ import { displayList, displayTime } from '../utils'
 export default Vue.extend({
   data: () => ({
     loading: false,
-    error: null as (null | Error),
+    error: null as null | Error,
     sendingFriendRequest: false,
     user: {
       name: null,
@@ -141,8 +173,8 @@ export default Vue.extend({
       lastActive: null,
       joined: null,
       color: null,
-      friends: null as User.FriendshipStatus
-    }
+      friends: null as User.FriendshipStatus,
+    },
   }),
 
   created() {
@@ -150,7 +182,7 @@ export default Vue.extend({
   },
 
   watch: {
-    '$route': 'fetchData'
+    $route: 'fetchData',
   },
 
   methods: {
@@ -160,40 +192,46 @@ export default Vue.extend({
 
       const req = new GetUserReq()
       req.setUser(this.$route.params.user)
-      client.getUser(req).then(res => {
-        this.loading = false
-        this.error = null
-        this.user = res.toObject()
-      }).catch(err => {
-        this.loading = false
-        this.error = err
-      })
+      client
+        .getUser(req)
+        .then((res) => {
+          this.loading = false
+          this.error = null
+          this.user = res.toObject()
+        })
+        .catch((err) => {
+          this.loading = false
+          this.error = err
+        })
     },
 
     sendFriendRequest() {
       this.sendingFriendRequest = true
       const req = new SendFriendRequestReq()
       req.setUser(this.user.username)
-      client.sendFriendRequest(req).then(res => {
-        this.sendingFriendRequest = false
-        this.fetchData()
-      }).catch(err => {
-        console.error(err)
-        this.sendingFriendRequest = false
-        this.fetchData()
-      })
-    }
+      client
+        .sendFriendRequest(req)
+        .then((res) => {
+          this.sendingFriendRequest = false
+          this.fetchData()
+        })
+        .catch((err) => {
+          console.error(err)
+          this.sendingFriendRequest = false
+          this.fetchData()
+        })
+    },
   },
 
   computed: {
     friendsDisplay() {
       switch (this.user.friends) {
         case User.FriendshipStatus.NOT_FRIENDS:
-          return ""
+          return ''
         case User.FriendshipStatus.FRIENDS:
-          return "You are friends"
+          return 'You are friends'
         case User.FriendshipStatus.PENDING:
-          return "Friend request pending"
+          return 'Friend request pending'
         case User.FriendshipStatus.NA:
         default:
           return "You can't be friends with this user, you doofus."
@@ -232,7 +270,7 @@ export default Vue.extend({
 
     countriesLivedListDisplay() {
       return displayList(this.user.countriesLivedList)
-    }
-  }
+    },
+  },
 })
 </script>

@@ -2,7 +2,7 @@
   <v-content>
     <v-container fill-height>
       <v-col class="mx-auto" cols="12" sm="10" md="8" lg="6" xl="4">
-        <error-alert :error="error"/>
+        <error-alert :error="error" />
         <loading-circular :loading="loading">Loading...</loading-circular>
       </v-col>
     </v-container>
@@ -24,12 +24,12 @@ import LoadingCircular from '../components/LoadingCircular.vue'
 export default Vue.extend({
   data: () => ({
     loading: true,
-    error: null as (Error | null)
+    error: null as Error | null,
   }),
 
   components: {
     ErrorAlert,
-    LoadingCircular
+    LoadingCircular,
   },
 
   created() {
@@ -48,12 +48,15 @@ export default Vue.extend({
       req.setSso(this.$route.query.sso)
       req.setSig(this.$route.query.sig)
 
-      client.sSO(req).then(res => {
-        window.location.href = res.getRedirectUrl()
-      }).catch(err => {
-        this.loading = false
-        this.error = err
-      })
+      client
+        .sSO(req)
+        .then((res) => {
+          window.location.href = res.getRedirectUrl()
+        })
+        .catch((err) => {
+          this.loading = false
+          this.error = err
+        })
     },
   },
 })
