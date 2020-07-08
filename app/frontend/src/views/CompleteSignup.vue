@@ -168,7 +168,7 @@ export default Vue.extend({
 
       const req = new SignupTokenInfoReq()
       req.setSignupToken(this.$route.params.token)
-      authClient.signupTokenInfo(req, null).then(res => {
+      authClient.signupTokenInfo(req).then(res => {
         this.emailLoading = false
         this.email = res.getEmail()
       }).catch(err => {
@@ -194,7 +194,7 @@ export default Vue.extend({
       const req = new UsernameValidReq()
 
       req.setUsername(this.username)
-      authClient.usernameValid(req, null).then(res => {
+      authClient.usernameValid(req).then(res => {
         if (res.getValid()) {
           this.usernameSuccessMessages = ['Username available!']
         } else {
@@ -218,7 +218,7 @@ export default Vue.extend({
       req.setBirthdate(this.date)
       req.setGender(this.gender)
 
-      authClient.completeSignup(req, null).then(res => {
+      authClient.completeSignup(req).then(res => {
         this.loading = false
         this.successMessages = ['Success.']
         Store.commit('auth', {

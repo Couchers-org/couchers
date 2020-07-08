@@ -80,7 +80,7 @@ export default Vue.extend({
       const req = new SignupReq()
 
       req.setEmail(this.email)
-      authClient.signup(req, null).then(res => {
+      authClient.signup(req).then(res => {
         switch (res.getNextStep()) {
           case SignupRes.SignupStep.SENT_SIGNUP_EMAIL:
             this.signupStep = 'email'

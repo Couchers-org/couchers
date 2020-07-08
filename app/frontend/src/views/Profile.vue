@@ -172,7 +172,7 @@ export default Vue.extend({
 
       const req = new GetUserReq()
       req.setUser(Store.state.username)
-      client.getUser(req, null).then(res => {
+      client.getUser(req).then(res => {
         this.loading = false
         this.error = null
 
@@ -188,7 +188,7 @@ export default Vue.extend({
     updateProfile: function (req: UpdateProfileReq) {
       this.loading = true
 
-      client.updateProfile(req, null).then(res => {
+      client.updateProfile(req).then(res => {
         this.loading = false
         this.fetchData()
       }).catch(err => {

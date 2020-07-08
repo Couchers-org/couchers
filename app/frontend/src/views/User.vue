@@ -160,7 +160,7 @@ export default Vue.extend({
 
       const req = new GetUserReq()
       req.setUser(this.$route.params.user)
-      client.getUser(req, null).then(res => {
+      client.getUser(req).then(res => {
         this.loading = false
         this.error = null
         this.user = res.toObject()
@@ -174,7 +174,7 @@ export default Vue.extend({
       this.sendingFriendRequest = true
       const req = new SendFriendRequestReq()
       req.setUser(this.user.username)
-      client.sendFriendRequest(req, null).then(res => {
+      client.sendFriendRequest(req).then(res => {
         this.sendingFriendRequest = false
         this.fetchData()
       }).catch(err => {

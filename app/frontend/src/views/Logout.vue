@@ -36,7 +36,7 @@
     mounted () {
       const req = new DeAuthReq()
       req.setToken(Store.state.authToken!)
-      authClient.deauthenticate(req, null).then(res => {
+      authClient.deauthenticate(req).then(res => {
         Store.commit('deauth')
         Router.push({ name: 'Login' })
       }).catch(err => {

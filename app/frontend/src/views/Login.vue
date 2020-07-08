@@ -116,7 +116,7 @@ export default Vue.extend({
         const req = new LoginReq()
 
         req.setUser(this.username)
-        authClient.login(req, null).then(res => {
+        authClient.login(req).then(res => {
           switch (res.getNextStep()) {
             case LoginRes.LoginStep.NEED_PASSWORD:
               this.loginStep = 'pass'
@@ -141,7 +141,7 @@ export default Vue.extend({
 
         req.setUser(this.username)
         req.setPassword(this.password)
-        authClient.authenticate(req, null).then(res => {
+        authClient.authenticate(req).then(res => {
           this.loading = false
           this.successMessages = ['Success.']
           Store.commit('auth', {

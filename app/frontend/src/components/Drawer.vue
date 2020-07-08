@@ -94,7 +94,7 @@ export default Vue.extend({
 
   methods: {
     updateData: function () {
-      client.ping(new PingReq(), null).then(res => {
+      client.ping(new PingReq()).then(res => {
         Store.commit('updateUser', {
           username: res.getUsername(),
           name: res.getName(),

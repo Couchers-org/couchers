@@ -48,7 +48,7 @@ export default Vue.extend({
       req.setSso(this.$route.query.sso)
       req.setSig(this.$route.query.sig)
 
-      client.sSO(req, null).then(res => {
+      client.sSO(req).then(res => {
         window.location.href = res.getRedirectUrl()
       }).catch(err => {
         this.loading = false

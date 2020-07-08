@@ -40,7 +40,7 @@ export default Vue.extend({
     fetchData: function () {
       const req = new CompleteTokenLoginReq()
       req.setLoginToken(this.$route.params.token)
-      authClient.completeTokenLogin(req, null).then(res => {
+      authClient.completeTokenLogin(req).then(res => {
         this.loading = false
         this.successMessages = ['Success.']
         Store.commit('auth', {
