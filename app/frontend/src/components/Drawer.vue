@@ -67,23 +67,23 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from "vue"
 
-import Store from '../store'
+import Store from "../store"
 
-import { PingReq } from '../pb/api_pb'
+import { PingReq } from "../pb/api_pb"
 
-import { client } from '../api'
+import { client } from "../api"
 
 export default Vue.extend({
-  props: ['value'],
+  props: ["value"],
 
   created() {
     this.updateData()
   },
 
   watch: {
-    '$store.state.auth'() {
+    "$store.state.auth"() {
       this.updateData()
     },
   },
@@ -93,14 +93,14 @@ export default Vue.extend({
       client
         .ping(new PingReq())
         .then((res) => {
-          Store.commit('updateUser', {
+          Store.commit("updateUser", {
             username: res.getUsername(),
             name: res.getName(),
             color: res.getColor(),
           })
         })
         .catch((err) => {
-          console.error('Failed to ping server: ', err)
+          console.error("Failed to ping server: ", err)
         })
     },
   },
@@ -111,7 +111,7 @@ export default Vue.extend({
         return this.value
       },
       set(val: boolean) {
-        this.$emit('input', val)
+        this.$emit("input", val)
       },
     },
 

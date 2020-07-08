@@ -8,17 +8,17 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from "vue"
 
-import { authClient } from '../api'
-import { CompleteTokenLoginReq } from '../pb/auth_pb'
+import { authClient } from "../api"
+import { CompleteTokenLoginReq } from "../pb/auth_pb"
 
-import * as grpcWeb from 'grpc-web'
+import * as grpcWeb from "grpc-web"
 
-import Store, { AuthenticationState } from '../store'
-import Router from '../router'
-import ErrorAlert from '../components/ErrorAlert.vue'
-import LoadingCircular from '../components/LoadingCircular.vue'
+import Store, { AuthenticationState } from "../store"
+import Router from "../router"
+import ErrorAlert from "../components/ErrorAlert.vue"
+import LoadingCircular from "../components/LoadingCircular.vue"
 
 export default Vue.extend({
   data: () => ({
@@ -44,12 +44,12 @@ export default Vue.extend({
         .completeTokenLogin(req)
         .then((res) => {
           this.loading = false
-          this.successMessages = ['Success.']
-          Store.commit('auth', {
+          this.successMessages = ["Success."]
+          Store.commit("auth", {
             authState: AuthenticationState.Authenticated,
             authToken: res.getToken(),
           })
-          Router.push('/')
+          Router.push("/")
         })
         .catch((err) => {
           this.loading = false

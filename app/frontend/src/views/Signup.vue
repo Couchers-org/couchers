@@ -49,25 +49,25 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from "vue"
 
-import { authClient } from '../api'
-import { SignupReq, SignupRes } from '../pb/auth_pb'
+import { authClient } from "../api"
+import { SignupReq, SignupRes } from "../pb/auth_pb"
 
-import * as grpcWeb from 'grpc-web'
+import * as grpcWeb from "grpc-web"
 
-import Store, { AuthenticationState } from '../store'
-import Router from '../router'
+import Store, { AuthenticationState } from "../store"
+import Router from "../router"
 
 export default Vue.extend({
   data: () => ({
     loading: false,
-    email: '',
+    email: "",
     error: null as Error | null,
     successMessages: [] as Array<string>,
-    signupStep: 'form',
+    signupStep: "form",
     rules: {
-      required: (value: string) => !!value || 'Required.',
+      required: (value: string) => !!value || "Required.",
       validEmail(email: string) {
         const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
         return re.test(email) || "Sorry! That doesn't look like a proper email."
@@ -93,10 +93,10 @@ export default Vue.extend({
         .then((res) => {
           switch (res.getNextStep()) {
             case SignupRes.SignupStep.SENT_SIGNUP_EMAIL:
-              this.signupStep = 'email'
+              this.signupStep = "email"
               break
             case SignupRes.SignupStep.EMAIL_EXISTS:
-              this.error = new Error('Email exists! Please login.')
+              this.error = new Error("Email exists! Please login.")
               break
             case SignupRes.SignupStep.INVALID_EMAIL:
               this.error = new Error(

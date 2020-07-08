@@ -10,17 +10,17 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from "vue"
 
-import { authClient } from '../api'
-import { DeAuthReq } from '../pb/auth_pb'
+import { authClient } from "../api"
+import { DeAuthReq } from "../pb/auth_pb"
 
-import * as grpcWeb from 'grpc-web'
+import * as grpcWeb from "grpc-web"
 
-import Store, { AuthenticationState } from '../store'
-import Router from '../router'
-import ErrorAlert from '../components/ErrorAlert.vue'
-import LoadingCircular from '../components/LoadingCircular.vue'
+import Store, { AuthenticationState } from "../store"
+import Router from "../router"
+import ErrorAlert from "../components/ErrorAlert.vue"
+import LoadingCircular from "../components/LoadingCircular.vue"
 
 export default Vue.extend({
   data: () => ({
@@ -39,8 +39,8 @@ export default Vue.extend({
     authClient
       .deauthenticate(req)
       .then((res) => {
-        Store.commit('deauth')
-        Router.push({ name: 'Login' })
+        Store.commit("deauth")
+        Router.push({ name: "Login" })
       })
       .catch((err) => {
         this.loading = false

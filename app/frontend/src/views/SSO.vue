@@ -10,16 +10,16 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from "vue"
 
-import { SSOReq } from '../pb/api_pb'
-import { client } from '../api'
+import { SSOReq } from "../pb/api_pb"
+import { client } from "../api"
 
-import Store, { AuthenticationState } from '../store'
+import Store, { AuthenticationState } from "../store"
 
-import Router from '../router'
-import ErrorAlert from '../components/ErrorAlert.vue'
-import LoadingCircular from '../components/LoadingCircular.vue'
+import Router from "../router"
+import ErrorAlert from "../components/ErrorAlert.vue"
+import LoadingCircular from "../components/LoadingCircular.vue"
 
 export default Vue.extend({
   data: () => ({
@@ -37,7 +37,7 @@ export default Vue.extend({
       this.doSSO()
     } else {
       this.loading = false
-      this.error = new Error('Please log in.')
+      this.error = new Error("Please log in.")
     }
   },
 

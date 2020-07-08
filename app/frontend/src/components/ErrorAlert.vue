@@ -7,7 +7,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from "vue"
 
 export default Vue.extend({
   props: {
@@ -20,9 +20,9 @@ export default Vue.extend({
     errorList(): Array<string> {
       if (this.error == null) {
         return []
-      } else if ('length' in this.error) {
+      } else if ("length" in this.error) {
         return this.error
-          .filter((el) => 'message' in el)
+          .filter((el) => "message" in el)
           .map<string>((el) => el.message)
       } else {
         return [this.error.message]

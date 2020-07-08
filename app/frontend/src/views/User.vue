@@ -142,14 +142,14 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from "vue"
 
-import moment, { lang } from 'moment'
+import moment, { lang } from "moment"
 
-import { GetUserReq, SendFriendRequestReq, User } from '../pb/api_pb'
-import { client } from '../api'
+import { GetUserReq, SendFriendRequestReq, User } from "../pb/api_pb"
+import { client } from "../api"
 
-import { displayList, displayTime } from '../utils'
+import { displayList, displayTime } from "../utils"
 
 export default Vue.extend({
   data: () => ({
@@ -182,7 +182,7 @@ export default Vue.extend({
   },
 
   watch: {
-    $route: 'fetchData',
+    $route: "fetchData",
   },
 
   methods: {
@@ -227,11 +227,11 @@ export default Vue.extend({
     friendsDisplay() {
       switch (this.user.friends) {
         case User.FriendshipStatus.NOT_FRIENDS:
-          return ''
+          return ""
         case User.FriendshipStatus.FRIENDS:
-          return 'You are friends'
+          return "You are friends"
         case User.FriendshipStatus.PENDING:
-          return 'Friend request pending'
+          return "Friend request pending"
         case User.FriendshipStatus.NA:
         default:
           return "You can't be friends with this user, you doofus."
@@ -240,14 +240,14 @@ export default Vue.extend({
 
     lastActiveDisplay() {
       if (!this.user.lastActive) {
-        return 'unknown'
+        return "unknown"
       }
       return displayTime(this.user.lastActive)
     },
 
     joinedDisplay() {
       if (!this.user.joined) {
-        return 'error'
+        return "error"
       }
       return displayTime(this.user.joined)
     },

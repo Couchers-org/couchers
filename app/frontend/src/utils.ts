@@ -1,7 +1,7 @@
-import moment from 'moment'
+import moment from "moment"
 
 export function displayList(list: string[]) {
-  return list.join(', ')
+  return list.join(", ")
 }
 
 export function displayTime(ts: { seconds: number; nanos: number }) {

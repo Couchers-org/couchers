@@ -103,18 +103,18 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from "vue"
 
-import { Empty } from 'google-protobuf/google/protobuf/empty_pb'
+import { Empty } from "google-protobuf/google/protobuf/empty_pb"
 
-import State from '../store'
+import State from "../store"
 
 import {
   FriendRequest,
   RespondFriendRequestReq,
   CancelFriendRequestReq,
-} from '../pb/api_pb'
-import { client } from '../api'
+} from "../pb/api_pb"
+import { client } from "../api"
 
 export default Vue.extend({
   data: () => ({
@@ -122,9 +122,9 @@ export default Vue.extend({
     friends: [] as Array<string>,
     receivedRequests: [] as Array<FriendRequest.AsObject>,
     sentRequests: [] as Array<FriendRequest.AsObject>,
-    errorMessage: '',
+    errorMessage: "",
     errorVisible: false,
-    successMessage: '',
+    successMessage: "",
     successVisible: false,
   }),
 
@@ -135,14 +135,14 @@ export default Vue.extend({
   methods: {
     fetchData() {
       this.loading = true
-      this.errorMessage = ''
+      this.errorMessage = ""
 
       const req = new Empty()
       client
         .listFriends(req)
         .then((res) => {
           this.loading = false
-          this.errorMessage = ''
+          this.errorMessage = ""
           this.friends = res.getUsersList()
         })
         .catch((err) => {
@@ -155,7 +155,7 @@ export default Vue.extend({
         .listFriendRequests(req)
         .then((res) => {
           this.loading = false
-          this.errorMessage = ''
+          this.errorMessage = ""
 
           this.sentRequests = res.toObject().sentList
           this.receivedRequests = res.toObject().receivedList
@@ -174,7 +174,7 @@ export default Vue.extend({
       client
         .respondFriendRequest(req)
         .then((res) => {
-          this.successMessage = 'Responded to friend request!'
+          this.successMessage = "Responded to friend request!"
           this.successVisible = true
           this.fetchData()
         })
@@ -191,7 +191,7 @@ export default Vue.extend({
       client
         .cancelFriendRequest(req)
         .then((res) => {
-          this.successMessage = 'Request cancelled!'
+          this.successMessage = "Request cancelled!"
           this.successVisible = true
           this.fetchData()
         })

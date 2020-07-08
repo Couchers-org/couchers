@@ -149,24 +149,24 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from "vue"
 
-import moment, { lang } from 'moment'
-import wrappers from 'google-protobuf/google/protobuf/wrappers_pb'
+import moment, { lang } from "moment"
+import wrappers from "google-protobuf/google/protobuf/wrappers_pb"
 
-import EditableTextarea from '../components/EditableTextarea.vue'
-import EditableTextField from '../components/EditableTextField.vue'
-import EditableList from '../components/EditableList.vue'
-import EditableColor from '../components/EditableColor.vue'
-import ErrorAlert from '../components/ErrorAlert.vue'
+import EditableTextarea from "../components/EditableTextarea.vue"
+import EditableTextField from "../components/EditableTextField.vue"
+import EditableList from "../components/EditableList.vue"
+import EditableColor from "../components/EditableColor.vue"
+import ErrorAlert from "../components/ErrorAlert.vue"
 
-import { GetUserReq, UpdateProfileReq } from '../pb/api_pb'
-import { client } from '../api'
+import { GetUserReq, UpdateProfileReq } from "../pb/api_pb"
+import { client } from "../api"
 
-import Store from '../store'
+import Store from "../store"
 
 function displayList(list: string[]) {
-  return list.join(', ')
+  return list.join(", ")
 }
 
 export default Vue.extend({
@@ -206,7 +206,7 @@ export default Vue.extend({
   },
 
   watch: {
-    $route: 'fetchData',
+    $route: "fetchData",
   },
 
   methods: {
@@ -335,14 +335,14 @@ export default Vue.extend({
   computed: {
     lastActiveDisplay() {
       if (!this.user.lastActive) {
-        return 'unknown'
+        return "unknown"
       }
       return moment(this.user.lastActive.toDate()).fromNow()
     },
 
     joinedDisplay() {
       if (!this.user.joined) {
-        return 'error'
+        return "error"
       }
       return moment(this.user.joined.toDate()).fromNow()
     },

@@ -30,10 +30,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from "vue"
 
 export default Vue.extend({
-  props: ['list'],
+  props: ["list"],
 
   data: () => ({
     editing: false,
@@ -42,7 +42,7 @@ export default Vue.extend({
 
   computed: {
     displayList() {
-      return this.list.join(', ')
+      return this.list.join(", ")
     },
   },
 
@@ -58,7 +58,7 @@ export default Vue.extend({
     },
 
     save() {
-      this.$emit('save', this.dirtyList)
+      this.$emit("save", this.dirtyList)
       this.editing = false
     },
 

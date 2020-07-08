@@ -96,27 +96,27 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from "vue"
 
-import { GetUserReq } from '../pb/api_pb'
-import { client } from '../api'
+import { GetUserReq } from "../pb/api_pb"
+import { client } from "../api"
 
-import { displayList, displayTime } from '../utils'
+import { displayList, displayTime } from "../utils"
 
 export default Vue.extend({
-  props: ['user'],
+  props: ["user"],
 
   computed: {
     lastActiveDisplay() {
       if (!this.user.lastActive) {
-        return 'unknown'
+        return "unknown"
       }
       return displayTime(this.user.lastActive)
     },
 
     joinedDisplay() {
       if (!this.user.joined) {
-        return 'error'
+        return "error"
       }
       return displayTime(this.user.joined)
     },

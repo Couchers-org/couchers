@@ -26,10 +26,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from "vue"
 
 export default Vue.extend({
-  props: ['color'],
+  props: ["color"],
 
   data: () => ({
     editing: false,
@@ -47,7 +47,7 @@ export default Vue.extend({
     },
 
     save() {
-      this.$emit('save', this.dirtyColor)
+      this.$emit("save", this.dirtyColor)
       this.editing = false
     },
 

@@ -1,9 +1,9 @@
-const URL = 'http://localhost:8888'
+const URL = "http://localhost:8888"
 
-import { AuthPromiseClient } from './pb/auth_grpc_web_pb'
-import { APIPromiseClient } from './pb/api_grpc_web_pb'
+import { AuthPromiseClient } from "./pb/auth_grpc_web_pb"
+import { APIPromiseClient } from "./pb/api_grpc_web_pb"
 
-import interceptor from './interceptor'
+import interceptor from "./interceptor"
 
 const opts = {
   unaryInterceptors: [interceptor],

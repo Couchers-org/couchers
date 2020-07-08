@@ -2,9 +2,9 @@
   <v-content>
     <v-container fill-height>
       <v-col class="mx-auto" cols="12" sm="10" md="8" lg="6" xl="4">
-        <h1>{{ title || 'Error' }}</h1>
+        <h1>{{ title || "Error" }}</h1>
         <v-alert type="error" prominent>
-          {{ message || 'Something went wrong!' }}
+          {{ message || "Something went wrong!" }}
         </v-alert>
         <p class="subtitle-1">
           If you think this is an error on our part, please let us know through
@@ -17,9 +17,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from "vue"
 
 export default Vue.extend({
-  props: ['title', 'message'],
+  props: ["title", "message"],
 })
 </script>

@@ -13,14 +13,14 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from "vue"
 
-import { SearchReq } from '../pb/api_pb'
-import { client } from '../api'
+import { SearchReq } from "../pb/api_pb"
+import { client } from "../api"
 
-import UserSearchResult from '../components/UserSearchResult.vue'
-import ErrorAlert from '../components/ErrorAlert.vue'
-import LoadingCircular from '../components/LoadingCircular.vue'
+import UserSearchResult from "../components/UserSearchResult.vue"
+import ErrorAlert from "../components/ErrorAlert.vue"
+import LoadingCircular from "../components/LoadingCircular.vue"
 
 export default Vue.extend({
   data: () => ({
@@ -46,7 +46,7 @@ export default Vue.extend({
   },
 
   watch: {
-    $route: 'fetchData',
+    $route: "fetchData",
   },
 
   methods: {

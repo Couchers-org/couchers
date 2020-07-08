@@ -11,18 +11,18 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from "vue"
 
-import Router from '../router'
+import Router from "../router"
 
 export default Vue.extend({
   data: () => ({
-    query: '',
+    query: "",
   }),
 
   methods: {
     search() {
-      Router.push({ name: 'Search', query: { q: this.query } })
+      Router.push({ name: "Search", query: { q: this.query } })
     },
   },
 })

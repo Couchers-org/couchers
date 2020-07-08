@@ -47,7 +47,7 @@
                         v-on:click="submit"
                         :disabled="loading"
                         color="primary"
-                        >{{ loginStep == 'user' ? 'Next' : 'Login' }}</v-btn
+                        >{{ loginStep == "user" ? "Next" : "Login" }}</v-btn
                       ></v-row
                     >
                   </v-form>
@@ -69,27 +69,27 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from "vue"
 
-import { authClient } from '../api'
-import { AuthReq, LoginReq, LoginRes } from '../pb/auth_pb'
-import * as grpcWeb from 'grpc-web'
+import { authClient } from "../api"
+import { AuthReq, LoginReq, LoginRes } from "../pb/auth_pb"
+import * as grpcWeb from "grpc-web"
 
-import Store, { AuthenticationState } from '../store'
-import Router from '../router'
+import Store, { AuthenticationState } from "../store"
+import Router from "../router"
 
 export default Vue.extend({
   data: () => ({
     showPassword: false,
     loading: false,
-    username: '',
-    password: '',
+    username: "",
+    password: "",
     errorMessages: [] as Array<string>,
     passErrorMessages: [] as Array<string>,
     successMessages: [] as Array<string>,
-    loginStep: 'user',
+    loginStep: "user",
     rules: {
-      required: (value: string) => !!value || 'Required.',
+      required: (value: string) => !!value || "Required.",
     },
   }),
 
@@ -120,7 +120,7 @@ export default Vue.extend({
     },
 
     submit() {
-      if (this.loginStep == 'user') {
+      if (this.loginStep == "user") {
         this.loading = true
         this.clearMessages()
 
@@ -132,22 +132,22 @@ export default Vue.extend({
           .then((res) => {
             switch (res.getNextStep()) {
               case LoginRes.LoginStep.NEED_PASSWORD:
-                this.loginStep = 'pass'
+                this.loginStep = "pass"
                 break
               case LoginRes.LoginStep.SENT_LOGIN_EMAIL:
-                this.loginStep = 'email'
+                this.loginStep = "email"
                 break
               case LoginRes.LoginStep.INVALID_USER:
-                this.errorMessages = ['User not found!']
+                this.errorMessages = ["User not found!"]
                 break
             }
             this.loading = false
           })
           .catch((err) => {
-            this.errorMessages = ['Unknown error.']
+            this.errorMessages = ["Unknown error."]
             this.loading = false
           })
-      } else if (this.loginStep == 'pass') {
+      } else if (this.loginStep == "pass") {
         this.loading = true
         this.clearMessages()
 
@@ -159,19 +159,19 @@ export default Vue.extend({
           .authenticate(req)
           .then((res) => {
             this.loading = false
-            this.successMessages = ['Success.']
-            Store.commit('auth', {
+            this.successMessages = ["Success."]
+            Store.commit("auth", {
               authState: AuthenticationState.Authenticated,
               authToken: res.getToken(),
             })
-            Router.push('/')
+            Router.push("/")
           })
           .catch((err) => {
             this.loading = false
             if (err.code == grpcWeb.StatusCode.UNAUTHENTICATED) {
-              this.passErrorMessages = ['Invalid username or password.']
+              this.passErrorMessages = ["Invalid username or password."]
             } else {
-              this.passErrorMessages = ['Unknown error.']
+              this.passErrorMessages = ["Unknown error."]
             }
           })
       }

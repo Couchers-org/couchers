@@ -17,10 +17,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from "vue"
 
 export default Vue.extend({
-  props: ['text'],
+  props: ["text"],
 
   data: () => ({
     editing: false,
@@ -34,7 +34,7 @@ export default Vue.extend({
     },
 
     save() {
-      this.$emit('save', this.dirtyText)
+      this.$emit("save", this.dirtyText)
       this.editing = false
     },
 

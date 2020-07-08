@@ -115,42 +115,42 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from "vue"
 
-import { authClient } from '../api'
+import { authClient } from "../api"
 import {
   SignupTokenInfoReq,
   CompleteSignupReq,
   UsernameValidReq,
-} from '../pb/auth_pb'
+} from "../pb/auth_pb"
 
-import * as grpcWeb from 'grpc-web'
+import * as grpcWeb from "grpc-web"
 
-import Store, { AuthenticationState } from '../store'
+import Store, { AuthenticationState } from "../store"
 
-import Router from '../router'
-import ErrorAlert from '../components/ErrorAlert.vue'
+import Router from "../router"
+import ErrorAlert from "../components/ErrorAlert.vue"
 
 export default Vue.extend({
   data: () => ({
-    genders: ['Male', 'Female', 'Genderqueer/nonbinary'],
+    genders: ["Male", "Female", "Genderqueer/nonbinary"],
     loading: false,
     error: null as null | Error,
     successMessages: [] as Array<string>,
-    username: '',
+    username: "",
     usernameErrorMessages: [] as Array<string>,
     usernameSuccessMessages: [] as Array<string>,
     usernameTimer: null as any,
-    email: '',
+    email: "",
     emailLoading: true,
     emailErrorMessages: [] as Array<string>,
-    name: '',
-    city: '',
+    name: "",
+    city: "",
     date: null,
     dateMenu: false,
-    gender: '',
+    gender: "",
     rules: {
-      required: (value: string) => !!value || 'Required.',
+      required: (value: string) => !!value || "Required.",
     },
   }),
 
@@ -160,7 +160,7 @@ export default Vue.extend({
 
   watch: {
     dateMenu(val) {
-      val && setTimeout(() => (this.$refs.picker.activePicker = 'YEAR'))
+      val && setTimeout(() => (this.$refs.picker.activePicker = "YEAR"))
     },
   },
 
@@ -187,7 +187,7 @@ export default Vue.extend({
         })
         .catch((err) => {
           this.emailLoading = false
-          this.emailErrorMessages = ['Failed to fetch details.']
+          this.emailErrorMessages = ["Failed to fetch details."]
         })
     },
 
@@ -212,15 +212,15 @@ export default Vue.extend({
         .usernameValid(req)
         .then((res) => {
           if (res.getValid()) {
-            this.usernameSuccessMessages = ['Username available!']
+            this.usernameSuccessMessages = ["Username available!"]
           } else {
             this.usernameErrorMessages = [
-              'Username not valid or not available.',
+              "Username not valid or not available.",
             ]
           }
         })
         .catch((err) => {
-          this.usernameErrorMessages = ['Unknown error.']
+          this.usernameErrorMessages = ["Unknown error."]
         })
     },
 
@@ -241,12 +241,12 @@ export default Vue.extend({
         .completeSignup(req)
         .then((res) => {
           this.loading = false
-          this.successMessages = ['Success.']
-          Store.commit('auth', {
+          this.successMessages = ["Success."]
+          Store.commit("auth", {
             authState: AuthenticationState.Authenticated,
             authToken: res.getToken(),
           })
-          Router.push('/profile')
+          Router.push("/profile")
         })
         .catch((err) => {
           this.loading = false

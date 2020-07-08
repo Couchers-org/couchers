@@ -26,12 +26,12 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from "vue"
 
-import Store from './store'
+import Store from "./store"
 
-import Drawer from './components/Drawer.vue'
-import SearchBox from './components/SearchBox.vue'
+import Drawer from "./components/Drawer.vue"
+import SearchBox from "./components/SearchBox.vue"
 
 export default Vue.extend({
   components: {
