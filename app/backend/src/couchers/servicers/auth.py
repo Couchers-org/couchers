@@ -228,6 +228,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
             if login_token:
                 # this is the bearer token
                 token = self._create_session(session, user=login_token.user)
+                # delete the login token so it can't be reused
+                session.delete(login_token)
+                session.commit()
                 return auth_pb2.AuthRes(token=token)
             else:
                 context.abort(grpc.StatusCode.UNAUTHENTICATED, "Invalid token.")
