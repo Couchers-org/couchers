@@ -7,26 +7,27 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from "vue"
 
-export default Vue.component('error-alert', {
-
+export default Vue.extend({
   props: {
-      error: {
-        type: Object as () => (Array<Error> | Error | null),
-      }
+    error: {
+      type: Object as () => Array<Error> | Error | null,
+    },
   },
 
   computed: {
-      errorList: function (): Array<string> {
-          if (this.error == null) {
-              return []
-          } else if ('length' in this.error) {
-              return this.error.filter((el) => 'message' in el).map<string>((el) => el.message)
-          } else {
-              return [this.error.message]
-          }
+    errorList(): Array<string> {
+      if (this.error == null) {
+        return []
+      } else if ("length" in this.error) {
+        return this.error
+          .filter((el) => "message" in el)
+          .map<string>((el) => el.message)
+      } else {
+        return [this.error.message]
       }
-  }
+    },
+  },
 })
 </script>

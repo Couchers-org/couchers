@@ -5,12 +5,8 @@
         <v-avatar :color="color" />
       </v-list-item-avatar>
       <v-list-item-content>
-        <v-list-item-title class="title">
-          {{ name }}
-        </v-list-item-title>
-        <v-list-item-subtitle>
-          {{ username }}
-        </v-list-item-subtitle>
+        <v-list-item-title class="title">{{ name }}</v-list-item-title>
+        <v-list-item-subtitle>{{ username }}</v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
 
@@ -71,60 +67,65 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import Vue from "vue"
 
-import Store from '../store'
+import Store from "../store"
 
-import { PingReq } from '../pb/api_pb'
+import { PingReq } from "../pb/api_pb"
 
-import { client } from '../api'
+import { client } from "../api"
 
 export default Vue.extend({
-  props: ['value'],
+  props: ["value"],
 
-  created () {
+  created() {
     this.updateData()
   },
 
   watch: {
-    '$store.state.auth': function () {
+    "$store.state.auth"() {
       this.updateData()
-    }
+    },
   },
 
   methods: {
-    updateData: function () {
-      client.ping(new PingReq(), null).then(res => {
-        Store.commit('updateUser', {
-          username: res.getUsername(),
-          name: res.getName(),
-          color: res.getColor()
+    updateData() {
+      client
+        .ping(new PingReq())
+        .then((res) => {
+          Store.commit("updateUser", {
+            username: res.getUsername(),
+            name: res.getName(),
+            color: res.getColor(),
+          })
         })
-      }).catch(err => {
-        console.error('Failed to ping server: ', err)
-      })
-    }
+        .catch((err) => {
+          console.error("Failed to ping server: ", err)
+        })
+    },
   },
 
   computed: {
     visible: {
       get() {
-        return this.value;
+        return this.value
       },
       set(val: boolean) {
-        this.$emit('input', val);
-      }
+        this.$emit("input", val)
+      },
     },
 
-    username: function () {
+    username() {
       return Store.state.username
     },
-    name: function () {
+
+    name() {
       return Store.state.name
     },
-    color: function () {
+
+    color() {
       return Store.state.color
-    }
-  }
-});
+    },
+  },
+})
 </script>

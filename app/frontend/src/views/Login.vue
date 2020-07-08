@@ -42,13 +42,22 @@
                         @click:append="showPassword = !showPassword"
                       ></v-text-field>
                     </v-row>
-                    <v-row class="mt-5"><v-btn v-on:click="submit" :disabled="loading" color="primary">{{ loginStep == 'user' ? 'Next' : 'Login' }}</v-btn></v-row>
+                    <v-row class="mt-5"
+                      ><v-btn
+                        v-on:click="submit"
+                        :disabled="loading"
+                        color="primary"
+                        >{{ loginStep == "user" ? "Next" : "Login" }}</v-btn
+                      ></v-row
+                    >
                   </v-form>
                 </v-card-text>
               </v-card>
               <v-card flat v-if="loginStep == 'email'">
                 <v-card-text>
-                  <p>We sent you a login email. Please click the link to sign in!</p>
+                  <p>
+                    We sent you a login email. Please click the link to sign in!
+                  </p>
                 </v-card-text>
               </v-card>
             </v-col>
@@ -60,103 +69,111 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from "vue"
 
-import { authClient } from '../api'
-import { AuthReq, LoginReq, LoginRes } from '../pb/auth_pb'
-import * as grpcWeb from 'grpc-web'
+import { authClient } from "../api"
+import { AuthReq, LoginReq, LoginRes } from "../pb/auth_pb"
+import * as grpcWeb from "grpc-web"
 
-import Store, { AuthenticationState } from '../store'
-import Router from '../router'
+import Store, { AuthenticationState } from "../store"
+import Router from "../router"
 
 export default Vue.extend({
   data: () => ({
     showPassword: false,
     loading: false,
-    username: '',
-    password: '',
+    username: "",
+    password: "",
     errorMessages: [] as Array<string>,
     passErrorMessages: [] as Array<string>,
     successMessages: [] as Array<string>,
-    loginStep: 'user',
+    loginStep: "user",
     rules: {
-      required: (value: string) => !!value || 'Required.'
+      required: (value: string) => !!value || "Required.",
     },
   }),
 
   computed: {
-    reason: function () {
+    reason() {
       return this.$route.params.reason
     },
   },
 
   watch: {
     // empty error and success messages if we change user/pass combo
-    username: function () {
+    username() {
       this.errorMessages = []
       this.successMessages = []
     },
-    password: function () {
+
+    password() {
       this.errorMessages = []
       this.successMessages = []
-    }
+    },
   },
 
   methods: {
-    clearMessages: function () {
+    clearMessages() {
       this.errorMessages = []
       this.passErrorMessages = []
       this.successMessages = []
     },
-    submit: function () {
-      if (this.loginStep == 'user') {
-        this.loading = true;
+
+    submit() {
+      if (this.loginStep == "user") {
+        this.loading = true
         this.clearMessages()
 
         const req = new LoginReq()
 
         req.setUser(this.username)
-        authClient.login(req, null).then(res => {
-          switch (res.getNextStep()) {
-            case LoginRes.LoginStep.NEED_PASSWORD:
-              this.loginStep = 'pass'
-              break
-            case LoginRes.LoginStep.SENT_LOGIN_EMAIL:
-              this.loginStep = 'email'
-              break
-            case LoginRes.LoginStep.INVALID_USER:
-              this.errorMessages = ['User not found!']
-              break
-          }
-          this.loading = false
-        }).catch(err => {
-          this.errorMessages = ['Unknown error.']
-          this.loading = false
-        })
-      } else if (this.loginStep == 'pass') {
-        this.loading = true;
+        authClient
+          .login(req)
+          .then((res) => {
+            switch (res.getNextStep()) {
+              case LoginRes.LoginStep.NEED_PASSWORD:
+                this.loginStep = "pass"
+                break
+              case LoginRes.LoginStep.SENT_LOGIN_EMAIL:
+                this.loginStep = "email"
+                break
+              case LoginRes.LoginStep.INVALID_USER:
+                this.errorMessages = ["User not found!"]
+                break
+            }
+            this.loading = false
+          })
+          .catch((err) => {
+            this.errorMessages = ["Unknown error."]
+            this.loading = false
+          })
+      } else if (this.loginStep == "pass") {
+        this.loading = true
         this.clearMessages()
 
         const req = new AuthReq()
 
         req.setUser(this.username)
         req.setPassword(this.password)
-        authClient.authenticate(req, null).then(res => {
-          this.loading = false
-          this.successMessages = ['Success.']
-          Store.commit('auth', {
-            authState: AuthenticationState.Authenticated,
-            authToken: res.getToken()
+        authClient
+          .authenticate(req)
+          .then((res) => {
+            this.loading = false
+            this.successMessages = ["Success."]
+            Store.commit("auth", {
+              authState: AuthenticationState.Authenticated,
+              authToken: res.getToken(),
+            })
+            Router.push("/")
           })
-          Router.push('/')
-        }).catch(err => {
-          this.loading = false
-          if (err.code == grpcWeb.StatusCode.UNAUTHENTICATED) {
-            this.passErrorMessages = ['Invalid username or password.']
-          } else {
-            this.passErrorMessages = ['Unknown error.']
-          }
-        })
+          .catch((err) => {
+            this.loading = false
+            if (err.code == grpcWeb.StatusCode.UNAUTHENTICATED) {
+              this.passErrorMessages = ["Invalid username or password."]
+            } else {
+              this.passErrorMessages = ["Unknown error."]
+            }
+          })
       }
     },
   },

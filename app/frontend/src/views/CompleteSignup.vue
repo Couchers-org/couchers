@@ -8,7 +8,7 @@
           </v-row>
           <v-row>
             <v-col class="mx-auto" cols="12" sm="10" md="8" lg="6" xl="4">
-              <error-alert :error="error"/>
+              <error-alert :error="error" />
               <v-card flat>
                 <v-card-text>
                   <v-form v-on:submit.prevent="submit">
@@ -95,7 +95,14 @@
                         ></v-date-picker>
                       </v-menu>
                     </v-row>
-                    <v-row class="mt-5"><v-btn v-on:click="submit" :disabled="loading" color="primary">Sign up!</v-btn></v-row>
+                    <v-row class="mt-5"
+                      ><v-btn
+                        v-on:click="submit"
+                        :disabled="loading"
+                        color="primary"
+                        >Sign up!</v-btn
+                      ></v-row
+                    >
                   </v-form>
                 </v-card-text>
               </v-card>
@@ -108,104 +115,116 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from "vue"
 
-import { authClient } from '../api'
-import { SignupTokenInfoReq, CompleteSignupReq, UsernameValidReq } from '../pb/auth_pb'
+import { authClient } from "../api"
+import {
+  SignupTokenInfoReq,
+  CompleteSignupReq,
+  UsernameValidReq,
+} from "../pb/auth_pb"
 
-import * as grpcWeb from 'grpc-web'
+import * as grpcWeb from "grpc-web"
 
-import Store, { AuthenticationState } from '../store'
+import Store, { AuthenticationState } from "../store"
 
-import Router from '../router'
-import ErrorAlert from '../components/ErrorAlert.vue'
+import Router from "../router"
+import ErrorAlert from "../components/ErrorAlert.vue"
 
 export default Vue.extend({
   data: () => ({
-    genders: ['Male', 'Female', 'Genderqueer/nonbinary'],
+    genders: ["Male", "Female", "Genderqueer/nonbinary"],
     loading: false,
-    error: null as (null | Error),
+    error: null as null | Error,
     successMessages: [] as Array<string>,
     username: "",
     usernameErrorMessages: [] as Array<string>,
     usernameSuccessMessages: [] as Array<string>,
     usernameTimer: null as any,
-    email: '',
+    email: "",
     emailLoading: true,
     emailErrorMessages: [] as Array<string>,
-    name: '',
-    city: '',
+    name: "",
+    city: "",
     date: null,
     dateMenu: false,
-    gender: '',
+    gender: "",
     rules: {
-      required: (value: string) => !!value || 'Required.'
+      required: (value: string) => !!value || "Required.",
     },
   }),
 
   components: {
-    ErrorAlert
+    ErrorAlert,
   },
 
   watch: {
-    dateMenu (val) {
-      val && setTimeout(() => (this.$refs.picker.activePicker = 'YEAR'))
+    dateMenu(val) {
+      val && setTimeout(() => (this.$refs.picker.activePicker = "YEAR"))
     },
   },
 
-  created () {
+  created() {
     this.fetchData()
   },
 
   methods: {
-    saveDate (date) {
+    saveDate(date) {
       this.$refs.dateMenu.save(date)
     },
 
-    fetchData: function () {
+    fetchData() {
       this.emailLoading = false
       this.emailErrorMessages = []
 
       const req = new SignupTokenInfoReq()
       req.setSignupToken(this.$route.params.token)
-      authClient.signupTokenInfo(req, null).then(res => {
-        this.emailLoading = false
-        this.email = res.getEmail()
-      }).catch(err => {
-        this.emailLoading = false
-        this.emailErrorMessages = ['Failed to fetch details.']
-      })
+      authClient
+        .signupTokenInfo(req)
+        .then((res) => {
+          this.emailLoading = false
+          this.email = res.getEmail()
+        })
+        .catch((err) => {
+          this.emailLoading = false
+          this.emailErrorMessages = ["Failed to fetch details."]
+        })
     },
 
-    clearMessages: function () {
+    clearMessages() {
       this.error = null
       this.successMessages = []
     },
 
-    lazyCheckUsername: function () {
+    lazyCheckUsername() {
       clearTimeout(this.usernameTimer)
-      this.usernameTimer = setTimeout(this.checkUsername, 500);
+      this.usernameTimer = setTimeout(this.checkUsername, 500)
     },
 
-    checkUsername: function () {
+    checkUsername() {
       this.usernameErrorMessages = []
       this.usernameSuccessMessages = []
 
       const req = new UsernameValidReq()
 
       req.setUsername(this.username)
-      authClient.usernameValid(req, null).then(res => {
-        if (res.getValid()) {
-          this.usernameSuccessMessages = ['Username available!']
-        } else {
-          this.usernameErrorMessages = ['Username not valid or not available.']
-        }
-      }).catch(err => {
-        this.usernameErrorMessages = ['Unknown error.']
-      })
+      authClient
+        .usernameValid(req)
+        .then((res) => {
+          if (res.getValid()) {
+            this.usernameSuccessMessages = ["Username available!"]
+          } else {
+            this.usernameErrorMessages = [
+              "Username not valid or not available.",
+            ]
+          }
+        })
+        .catch((err) => {
+          this.usernameErrorMessages = ["Unknown error."]
+        })
     },
 
-    submit: function () {
+    submit() {
       this.loading = true
       this.clearMessages()
 
@@ -218,19 +237,22 @@ export default Vue.extend({
       req.setBirthdate(this.date)
       req.setGender(this.gender)
 
-      authClient.completeSignup(req, null).then(res => {
-        this.loading = false
-        this.successMessages = ['Success.']
-        Store.commit('auth', {
-          authState: AuthenticationState.Authenticated,
-          authToken: res.getToken()
+      authClient
+        .completeSignup(req)
+        .then((res) => {
+          this.loading = false
+          this.successMessages = ["Success."]
+          Store.commit("auth", {
+            authState: AuthenticationState.Authenticated,
+            authToken: res.getToken(),
+          })
+          Router.push("/profile")
         })
-        Router.push('/profile')
-      }).catch(err => {
-        this.loading = false
-        this.error = err
-      })
+        .catch((err) => {
+          this.loading = false
+          this.error = err
+        })
     },
-  }
+  },
 })
 </script>

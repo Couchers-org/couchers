@@ -24,13 +24,20 @@
                       ></v-text-field>
                     </v-row>
                     <v-row><p>We'll email you a link!</p></v-row>
-                    <v-row><v-btn v-on:click="submitSignup" color="success">Sign up</v-btn></v-row>
+                    <v-row
+                      ><v-btn v-on:click="submitSignup" color="success"
+                        >Sign up</v-btn
+                      ></v-row
+                    >
                   </v-form>
                 </v-card-text>
               </v-card>
               <v-card flat v-if="signupStep == 'email'">
                 <v-card-text>
-                  <p>We sent you a signup email. Please click on the link to continue!</p>
+                  <p>
+                    We sent you a signup email. Please click on the link to
+                    continue!
+                  </p>
                 </v-card-text>
               </v-card>
             </v-col>
@@ -42,61 +49,67 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from "vue"
 
-import { authClient } from '../api'
-import { SignupReq, SignupRes } from '../pb/auth_pb'
+import { authClient } from "../api"
+import { SignupReq, SignupRes } from "../pb/auth_pb"
 
-import * as grpcWeb from 'grpc-web'
+import * as grpcWeb from "grpc-web"
 
-import Store, { AuthenticationState } from '../store'
-import Router from '../router'
+import Store, { AuthenticationState } from "../store"
+import Router from "../router"
 
 export default Vue.extend({
   data: () => ({
     loading: false,
-    email: '',
-    error: null as (Error | null),
+    email: "",
+    error: null as Error | null,
     successMessages: [] as Array<string>,
-    signupStep: 'form',
+    signupStep: "form",
     rules: {
-      required: (value: string) => !!value || 'Required.',
-      validEmail: function (email: string) {
-        const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        return re.test(email) || 'Sorry! That doesn\'t look like a proper email.';
-      }
+      required: (value: string) => !!value || "Required.",
+      validEmail(email: string) {
+        const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        return re.test(email) || "Sorry! That doesn't look like a proper email."
+      },
     },
   }),
 
   methods: {
-    clearMessages: function () {
+    clearMessages() {
       this.error = null
       this.successMessages = []
     },
-    submitSignup: function () {
-      this.loading = true;
+
+    submitSignup() {
+      this.loading = true
       this.clearMessages()
 
       const req = new SignupReq()
 
       req.setEmail(this.email)
-      authClient.signup(req, null).then(res => {
-        switch (res.getNextStep()) {
-          case SignupRes.SignupStep.SENT_SIGNUP_EMAIL:
-            this.signupStep = 'email'
-            break
-          case SignupRes.SignupStep.EMAIL_EXISTS:
-            this.error = new Error('Email exists! Please login.')
-            break
-          case SignupRes.SignupStep.INVALID_EMAIL:
-            this.error = new Error('Sorry! That doesn\'t look like a proper email.')
-            break
-        }
-        this.loading = false
-      }).catch(err => {
-        this.error = err
-        this.loading = false
-      })
+      authClient
+        .signup(req)
+        .then((res) => {
+          switch (res.getNextStep()) {
+            case SignupRes.SignupStep.SENT_SIGNUP_EMAIL:
+              this.signupStep = "email"
+              break
+            case SignupRes.SignupStep.EMAIL_EXISTS:
+              this.error = new Error("Email exists! Please login.")
+              break
+            case SignupRes.SignupStep.INVALID_EMAIL:
+              this.error = new Error(
+                "Sorry! That doesn't look like a proper email."
+              )
+              break
+          }
+          this.loading = false
+        })
+        .catch((err) => {
+          this.error = err
+          this.loading = false
+        })
     },
   },
 })

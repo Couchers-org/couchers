@@ -2,7 +2,13 @@
   <v-app>
     <v-system-bar color="warning" app>
       <v-icon>mdi-alert-circle</v-icon>
-      <span>This is a development version. <b>Please</b> report <b>any</b> bugs and glitches you notice to us at <a href="mailto:bugs@couchers.org">bugs@couchers.org</a>, or message us on the <a href="https://community.couchers.org/u/aapeli">forum</a>.</span>
+      <span
+        >This is a development version. <b>Please</b> report <b>any</b> bugs and
+        glitches you notice to us at
+        <a href="mailto:bugs@couchers.org">bugs@couchers.org</a>, or message us
+        on the
+        <a href="https://community.couchers.org/u/aapeli">forum</a>.</span
+      >
     </v-system-bar>
 
     <v-app-bar app color="primary" dark clipped-left>
@@ -15,38 +21,38 @@
 
     <drawer v-if="authenticated" v-model="drawer" />
 
-    <router-view/>
+    <router-view />
   </v-app>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import Vue from "vue"
 
-import Store from './store'
+import Store from "./store"
 
-import Drawer from './components/Drawer.vue'
-import SearchBox from './components/SearchBox.vue'
+import Drawer from "./components/Drawer.vue"
+import SearchBox from "./components/SearchBox.vue"
 
 export default Vue.extend({
   components: {
-    "drawer": Drawer,
-    "search-box": SearchBox
+    Drawer,
+    SearchBox,
   },
 
   data: () => ({
-    drawer: null
+    drawer: null,
   }),
 
   computed: {
-    authenticated () {
+    authenticated() {
       return Store.getters.authenticated
-    }
+    },
   },
 
   methods: {
-    drawerChange (val: boolean) {
+    drawerChange(val: boolean) {
       this.drawer = val
-    }
-  }
-});
+    },
+  },
+})
 </script>
