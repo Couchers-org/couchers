@@ -301,3 +301,16 @@ def test_reject_friend_request(db):
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert res.sent[0].state == api_pb2.FriendRequest.FriendRequestStatus.PENDING
         assert res.sent[0].user == "user2"
+
+def test_search(db):
+    user1, token1 = generate_user(db, "user1")
+    user2, token2 = generate_user(db, "user2")
+    user3, token3 = generate_user(db, "user3")
+    user4, token4 = generate_user(db, "user4")
+
+    with api_session(db, token1) as api:
+        res = api.Search(api_pb2.SearchReq(query="user"))
+        assert len(res.users) == 4
+
+        res = api.Search(api_pb2.SearchReq(query="user5"))
+        assert len(res.users) == 0
