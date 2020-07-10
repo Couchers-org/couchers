@@ -83,14 +83,15 @@ class User(Base):
         """
         Returns the last active time rounded down to the nearest hour.
         """
-        return self.joined.replace(minute=0)
+        return self.joined.replace(minute=0, second=0, microsecond=0)
 
     @property
     def display_last_active(self):
         """
         Returns the last active time rounded down to the nearest 15 minutes.
         """
-        return self.last_active.replace(minute=floor(self.last_active.minute/15)*15)
+        return self.last_active.replace(minute=(self.last_active.minute // 15) * 15,
+                                        second=0, microsecond=0)
 
     def __repr__(self):
         return f"User(id={self.id}, email={self.email}, username={self.username})"

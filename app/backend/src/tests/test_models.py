@@ -17,20 +17,20 @@ def test_user_age():
 
 def test_user_display_joined():
     assert (User(joined=datetime(2020, 7, 10, 16, 34, 1, 1))
-            .display_joined == datetime(2020, 7, 10, 16, 0, 1, 1))
+            .display_joined == datetime(2020, 7, 10, 16, 0, 0, 0))
     assert (User(joined=datetime(2025, 7, 10, 16, 59, 1, 1))
-            .display_joined == datetime(2025, 7, 10, 16, 0, 1, 1))
+            .display_joined == datetime(2025, 7, 10, 16, 0, 0, 0))
     assert (User(joined=datetime(2020, 7, 10, 16, 0, 1, 1))
-            .display_joined == datetime(2020, 7, 10, 16, 0, 1, 1))
+            .display_joined == datetime(2020, 7, 10, 16, 0, 0, 0))
     assert (User(joined=datetime(2020, 7, 10, 0, 0, 0, 0))
             .display_joined == datetime(2020, 7, 10, 0, 0, 0, 0))
 
 def test_user_display_last_active():
     assert (User(last_active=datetime(2020, 7, 10, 16, 34, 1, 1))
-            .display_last_active == datetime(2020, 7, 10, 16, 30, 1, 1))
+            .display_last_active == datetime(2020, 7, 10, 16, 30, 0, 0))
     assert (User(last_active=datetime(2025, 7, 10, 16, 59, 1, 1))
-            .display_last_active == datetime(2025, 7, 10, 16, 45, 1, 1))
+            .display_last_active == datetime(2025, 7, 10, 16, 45, 0, 0))
     assert (User(last_active=datetime(2020, 7, 10, 16, 16, 1, 1))
-            .display_last_active == datetime(2020, 7, 10, 16, 15, 1, 1))
+            .display_last_active == datetime(2020, 7, 10, 16, 15, 0, 0))
     assert (User(last_active=datetime(2020, 7, 10, 0, 0, 0, 0))
             .display_last_active == datetime(2020, 7, 10, 0, 0, 0, 0))
