@@ -31,15 +31,22 @@ def session_scope(Session):
 
 def is_valid_user_id(field):
     """
-    Checks if it's a string representing a base 10 integer
+    Checks if it's a string representing a base 10 integer not starting with 0
     """
     return re.match(r"^[1-9][0-9]*$", field) is not None
 
 def is_valid_username(field):
     """
-    Checks if it's an alphanumeric + underscore, lowercase string, at least two characters long, and starts with a letter, ends with alphanumeric
+    Checks if it's an alphanumeric + underscore, lowercase string, at least
+    two characters long, and starts with a letter, ends with alphanumeric
     """
     return re.match(r"^[a-z][0-9a-z_]*[a-z0-9]$", field) is not None
+    
+def is_valid_name(field):
+    """
+    Checks has at least one non-whitespace character
+    """
+    return re.match(r"^\S+$", field) is not None
 
 def is_valid_email(field):
     """
