@@ -80,13 +80,15 @@ class User(Base):
 
     @property
     def display_joined(self):
-        """Returns the last active time rounded down to the nearest hour.
+        """
+        Returns the last active time rounded down to the nearest hour.
         """
         return self.joined.replace(minute=0)
 
     @property
     def display_last_active(self):
-        """Returns the last active time rounded down to the nearest 15 minutes.
+        """
+        Returns the last active time rounded down to the nearest 15 minutes.
         """
         return self.last_active.replace(minute=floor(self.last_active.minute/15)*15)
 
