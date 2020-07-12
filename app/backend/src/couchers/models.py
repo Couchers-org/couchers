@@ -8,7 +8,7 @@ from sqlalchemy import (Boolean, Column, Date, DateTime, Enum, Float,
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import String
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql import func
 
 Base = declarative_base()
@@ -193,3 +193,63 @@ class Reference(Base):
 
     from_user = relationship("User", backref="references_from", foreign_keys="Reference.from_user_id")
     to_user = relationship("User", backref="references_to", foreign_keys="Reference.to_user_id")
+
+class MessageThread(Base):
+    """
+    Message thread metadata
+    """
+
+    __tablename__ = "message_threads"
+
+    id = Column(Integer, primary_key=True)
+    creation_time = Column(DateTime, nullable=False, server_default=func.now())
+
+    title = Column(String, nullable=True)
+    only_admins_invite = Column(String, nullable=False, server_default=False)
+    creator_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    creator = relationship("User")
+
+class MessageThreadRecipient(Base):
+    """
+    The recipient of a thread and information about when they joined/left/etc.
+    """
+
+    __tablename__ = "message_thread_recipients"
+
+    recipient_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
+    thread_id = Column(Integer, ForeignKey("message_threads.id"), primary_key=True)
+    is_admin = Column(Boolean, nullable=False, server_default=False)
+
+    added_time = Column(DateTime, nullable=False, server_default=func.now())
+    added_by_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    left_time = Column(DateTime, nullable=True)
+    removed = Column(Boolean, nullable=False, server_default=False)
+
+    recipient = relationship("User", backref="message_threads")
+    thread = relationship("MessageThread", backref=backref("recipients", order_by="MessageThread.creation_time.asc()"))
+    added_by = relationship("User")
+
+class MessageStatus(enum.Enum):
+    sent = 1
+    deleted = 2
+
+class MessageData(Base):
+    """
+    Message content
+    """
+
+    __tablename__ = "message_data"
+
+    id = Column(Integer, primary_key=True)
+    thread_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    sender_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    timestamp = Column(DateTime, nullable=False, server_default=func.now())
+    status = Column(Enum(MessageStatus), nullable=False, default=FriendStatus.sent)
+
+    data = Column(String, nullable=False)
+
+    thread = relationship("MessageThread", backref="messages", order_by="MessageData.timestamp.asc()")
+    sender = relationship("User")

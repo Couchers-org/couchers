@@ -36,6 +36,34 @@ service API {
   rpc Search(SearchReq) returns (SearchRes) {
     // Search for user names and usernames (for now)
   }
+  
+  rpc ListMessageThreads(ListMessageThreadsReq) returns (ListMessageThreadsRes) {
+    // Gives a paginated list of message threads with previews
+  }
+  
+  rpc GetMessageThread(GetMessageThreadReq) returns (GetMessageThreadRes);
+  
+  rpc GetMessageThreadInfo(GetMessageThreadInfoRe1) returns (GetMessageThreadInfoRes);
+  
+  rpc CreateMessageThread(CreateMessageThreadReq) returns (CreateMessageThreadRes);
+  
+  rpc EditMessageThread(EditMessageThreadReq) returns (google.protobuf.Empty);
+  
+  rpc MakeMessageThreadAdmin(ThreadUserReq) returns (google.protobuf.Empty);
+  
+  rpc RemoveMessageThreadAdmin(ThreadUserReq) returns (google.protobuf.Empty);
+  
+  rpc SendMessage(SendMessageReq) returns (google.protobuf.Empty);
+  
+  rpc DeleteMessage(DeleteMessageReq) returns (google.protobuf.Empty);
+  
+  rpc LeaveMessageThread(LeaveThreadReq) returns (google.protobuf.Empty);
+  
+  rpc InviteToMessageThread(ThreadUserReq) returns (google.protobuf.Empty);
+  
+  rpc RemoveFromMessageThread(ThreadUserReq) returns (google.protobuf.Empty);
+  
+  rpc SearchMessages(SearchMessagesReq) returns (SearchMessagesRes);
 }
 
 message SearchReq {
@@ -170,4 +198,108 @@ message SSOReq {
 
 message SSORes {
   string redirect_url = 1;
+}
+
+message MessageThreadPreview {
+  int64 thread_id = 1;
+  string title = 2;
+  repeated string recipients = 3;
+  google.protobuf.Timestamp creation_time = 4;
+  string latest_mesaage_preview = 5;
+  string latest_message_sender = 6;
+  google.protobuf.Timestamp latest_message_time = 7;
+}
+
+message ListMessageThreadsReq {
+  uint32 start_index = 1;
+  utin32 max = 2;
+}
+
+message ListMessageThreadsRes {
+  uint32 start_index = 1;
+  repeated MessageThreadPreview threads = 2;
+  bool has_more = 3;
+}
+
+message MessageData {
+  int64 id = 1;
+  string sender = 2;
+  google.protobuf.Timestamp timestamp = 3;
+  
+  enum MessageStatus {
+    SENT = 1;
+	DELETED = 2;
+  }
+  
+  MessageStatus status = 4;
+  string data = 5;
+}
+
+message GetMessageThreadReq {
+  int64 thread_id = 1;
+  uint32 start_index = 2;
+  uint32 max = 3;
+}
+
+message GetMessageThreadInfoReq {
+  uint32 thread_id = 1;
+}
+
+message GetMessageThreadInfoRes {
+  string title = 1;
+  repeated string recipients = 2;
+  google.protobuf.Timestamp creation_time = 3;
+  bool only_admins_invite = 4
+}
+
+message GetMessageThreadRes {
+  uint32 start_index = 1;
+  repeated MessageData messages = 2;
+  bool has_more = 3;
+}
+
+message CreateMessageThreadReq {
+  google.protobuf.StringValue title = 1;
+  repeated string recipients = 2;
+}
+
+message CreateMessageThreadRes {
+  int64 thread_id = 1;
+}
+
+message EditMessageThreadReq {
+  int64 thread_id = 1;
+  google.protobuf.StringValue title = 2;
+  bool only_admins_invite = 3;
+}
+
+message ThreadUserReq {
+  int64 thread_id = 1;
+  int64 user_id = 2;
+}
+  
+message SendMessageReq {
+  int64 thread_id = 1;
+  string message = 2;
+}
+
+message DeleteMessageReq {
+  int64 message_id = 1;
+}
+
+message LeaveThreadReq {
+  int64 thread_id = 1;
+]
+
+message SearchMessagesReq {
+  string query = 1;
+}
+
+message MessageSearchResult {
+  int64 thread_id = 1;
+  int64 message_id = 2;
+}
+
+message SearchMessagesRes {
+  repeated MessageSearchResult results - 1
 }
