@@ -7,7 +7,8 @@ import grpc
 from couchers.crypto import (hash_password, urlsafe_secure_token,
                              verify_password)
 from couchers.db import (get_user_by_field, is_valid_email, is_valid_username,
-                         new_login_token, new_signup_token, session_scope)
+                         is_valid_name, new_login_token, new_signup_token,
+                         session_scope)
 from couchers.interceptors import _AuthValidatorInterceptor
 from couchers.models import LoginToken, SignupToken, User, UserSession
 from couchers.tasks import send_login_email, send_signup_email
@@ -161,6 +162,11 @@ class Auth(auth_pb2_grpc.AuthServicer):
             # check username validity
             if not is_valid_username(request.username):
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, "Invalid username")
+
+            # check name validity
+            if not is_valid_name(request.name):
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT,
+                              "Name not supported")
 
             user = User(
                 email=signup_token.email,

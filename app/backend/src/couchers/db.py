@@ -31,24 +31,31 @@ def session_scope(Session):
 
 def is_valid_user_id(field):
     """
-    Checks if it's a string representing a base 10 integer
+    Checks if it's a string representing a base 10 integer not starting with 0
     """
-    return re.match(r"^[1-9][0-9]*$", field) is not None
+    return re.match(r"[1-9][0-9]*$", field) is not None
 
 def is_valid_username(field):
     """
-    Checks if it's an alphanumeric + underscore, lowercase string, at least two characters long, and starts with a letter, ends with alphanumeric
+    Checks if it's an alphanumeric + underscore, lowercase string, at least
+    two characters long, and starts with a letter, ends with alphanumeric
     """
-    return re.match(r"^[a-z][0-9a-z_]*[a-z0-9]$", field) is not None
+    return re.match(r"[a-z][0-9a-z_]*[a-z0-9]$", field) is not None
+    
+def is_valid_name(field):
+    """
+    Checks if it has at least one non-whitespace character
+    """
+    return re.match(r"\S+$", field) is not None
 
 def is_valid_email(field):
     """
     From SO
     """
-    return re.match(r'^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$', field) is not None
+    return re.match(r'(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$', field) is not None
 
 def is_valid_color(color):
-    return re.match(r"^#[0-9a-fA-F]{6}$", color) is not None
+    return re.match(r"#[0-9a-fA-F]{6}$", color) is not None
 
 def get_user_by_field(session, field):
     """

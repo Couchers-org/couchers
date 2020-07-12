@@ -7,8 +7,8 @@ from google.protobuf import empty_pb2
 import grpc
 from couchers.crypto import (base64decode, base64encode, sso_check_hmac,
                              sso_create_hmac)
-from couchers.db import (get_friends_status, get_user_by_field, is_valid_color,
-                         session_scope)
+from couchers.db import (get_friends_status, get_user_by_field, is_valid_name,
+                         is_valid_color, session_scope)
 from couchers.models import FriendRelationship, FriendStatus, User
 from couchers.utils import Timestamp_from_datetime
 from pb import api_pb2, api_pb2_grpc
@@ -65,6 +65,9 @@ class API(api_pb2_grpc.APIServicer):
             res = api_pb2.UpdateProfileRes()
 
             if request.HasField("name"):
+                if not is_valid_name(request.name.value):
+                    context.abort(grpc.StatusCode.INVALID_ARGUMENT,
+                                  "Name not supported")
                 user.name = request.name.value
                 res.updated_name = True
 
