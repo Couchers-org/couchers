@@ -214,6 +214,11 @@ class MessageThreadRole(enum.Enum):
     admin = 1
     participant = 2
 
+class ThreadSubscriptionStatus(enum.Enum):
+    pending = 1
+    accepted = 2
+    rejected = 3
+
 class MessageThreadSubscription(Base):
     """
     The recipient of a thread and information about when they joined/left/etc.
@@ -223,7 +228,10 @@ class MessageThreadSubscription(Base):
 
     user_id = Column(ForeignKey("users.id"), primary_key=True)
     thread_id = Column(ForeignKey("message_threads.id"), primary_key=True)
+
     role = Column(MessageThreadRole, nullable=False)
+    status = Column(ThreadSubscriptionStatus, nullable=False)
+
 
     added_time = Column(DateTime, nullable=False, server_default=func.now())
     added_by_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -233,10 +241,6 @@ class MessageThreadSubscription(Base):
     user = relationship("User", backref="message_threads")
     thread = relationship("MessageThread", backref=backref("recipients", order_by="MessageThread.creation_time.asc()"))
     added_by = relationship("User")
-
-class MessageStatus(enum.Enum):
-    sent = 1
-    deleted = 2
 
 class Message(Base):
     """
@@ -250,7 +254,6 @@ class Message(Base):
     author_id = Column(ForeignKey("users.id"), nullable=False)
 
     timestamp = Column(DateTime, nullable=False, server_default=func.now())
-    status = Column(Enum(MessageStatus), nullable=False, default=FriendStatus.sent)
 
     text = Column(String, nullable=False)
 

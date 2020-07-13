@@ -41,6 +41,8 @@ service API {
     // Gives a paginated list of message threads with previews
   }
   
+  rpc EditMessageThreadStatus(EditMessageThreadStatusReq) returns (google.protobuf.Empty);
+  
   rpc GetMessageThread(GetMessageThreadReq) returns (GetMessageThreadRes);
   
   rpc GetMessageThreadInfo(GetMessageThreadInfoReq) returns (GetMessageThreadInfoRes);
@@ -198,15 +200,22 @@ message SSORes {
   string redirect_url = 1;
 }
 
+enum MessageThreadStatus {
+  PENDING = 0;
+  ACCEPTED = 1;
+  REJECTED = 2;
+}
+
 message MessageThreadPreview {
   int64 thread_id = 1;
   string title = 2;
   repeated string recipients = 3;
   bool is_dm = 4;
   google.protobuf.Timestamp creation_time = 5;
-  string latest_message_preview = 6;
-  string latest_message_sender = 7;
-  google.protobuf.Timestamp latest_message_time = 8;
+  MessageThreadStatus status = 6;
+  string latest_message_preview = 7;
+  string latest_message_sender = 8;
+  google.protobuf.Timestamp latest_message_time = 9;
 }
 
 message ListMessageThreadsReq {
@@ -218,6 +227,12 @@ message ListMessageThreadsRes {
   uint32 start_index = 1;
   repeated MessageThreadPreview threads = 2;
   bool has_more = 3;
+}
+
+
+message EditMessageThreadStatusReq {
+  int64 thread_id = 1;
+  MessageThreadStatus status = 2;
 }
 
 message Message {
@@ -248,6 +263,7 @@ message GetMessageThreadInfoRes {
   repeated string recipients = 2;
   google.protobuf.Timestamp creation_time = 3;
   bool only_admins_invite = 4
+  MessageThreadStatus status = 5;
 }
 
 message CreateMessageThreadReq {
