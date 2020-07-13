@@ -206,28 +206,31 @@ class MessageThread(Base):
 
     title = Column(String, nullable=True)
     only_admins_invite = Column(String, nullable=False, server_default=False)
-    creator_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    creator_id = Column(ForeignKey("users.id"), nullable=False)
 
     creator = relationship("User")
 
-class MessageThreadRecipient(Base):
+class MessageThreadRole(enum.Enum):
+    admin = 1
+    participant = 2
+
+class MessageThreadSubscription(Base):
     """
     The recipient of a thread and information about when they joined/left/etc.
     """
 
-    __tablename__ = "message_thread_recipients"
+    __tablename__ = "message_thread_subscriptions"
 
-    recipient_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
-    thread_id = Column(Integer, ForeignKey("message_threads.id"), primary_key=True)
-    is_admin = Column(Boolean, nullable=False, server_default=False)
+    user_id = Column(ForeignKey("users.id"), primary_key=True)
+    thread_id = Column(ForeignKey("message_threads.id"), primary_key=True)
+    role = Column(MessageThreadRole, nullable=False)
 
     added_time = Column(DateTime, nullable=False, server_default=func.now())
     added_by_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
     left_time = Column(DateTime, nullable=True)
-    removed = Column(Boolean, nullable=False, server_default=False)
 
-    recipient = relationship("User", backref="message_threads")
+    user = relationship("User", backref="message_threads")
     thread = relationship("MessageThread", backref=backref("recipients", order_by="MessageThread.creation_time.asc()"))
     added_by = relationship("User")
 
@@ -235,21 +238,21 @@ class MessageStatus(enum.Enum):
     sent = 1
     deleted = 2
 
-class MessageData(Base):
+class Message(Base):
     """
     Message content
     """
 
-    __tablename__ = "message_data"
+    __tablename__ = "messages"
 
     id = Column(Integer, primary_key=True)
-    thread_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    sender_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    thread_id = Column(ForeignKey("users.id"), nullable=False)
+    author_id = Column(ForeignKey("users.id"), nullable=False)
 
     timestamp = Column(DateTime, nullable=False, server_default=func.now())
     status = Column(Enum(MessageStatus), nullable=False, default=FriendStatus.sent)
 
-    data = Column(String, nullable=False)
+    text = Column(String, nullable=False)
 
-    thread = relationship("MessageThread", backref="messages", order_by="MessageData.timestamp.asc()")
-    sender = relationship("User")
+    thread = relationship("MessageThread", backref="messages", order_by="Message.timestamp.asc()")
+    author = relationship("User")

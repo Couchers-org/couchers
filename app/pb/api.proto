@@ -43,7 +43,7 @@ service API {
   
   rpc GetMessageThread(GetMessageThreadReq) returns (GetMessageThreadRes);
   
-  rpc GetMessageThreadInfo(GetMessageThreadInfoRe1) returns (GetMessageThreadInfoRes);
+  rpc GetMessageThreadInfo(GetMessageThreadInfoReq) returns (GetMessageThreadInfoRes);
   
   rpc CreateMessageThread(CreateMessageThreadReq) returns (CreateMessageThreadRes);
   
@@ -54,8 +54,6 @@ service API {
   rpc RemoveMessageThreadAdmin(ThreadUserReq) returns (google.protobuf.Empty);
   
   rpc SendMessage(SendMessageReq) returns (google.protobuf.Empty);
-  
-  rpc DeleteMessage(DeleteMessageReq) returns (google.protobuf.Empty);
   
   rpc LeaveMessageThread(LeaveThreadReq) returns (google.protobuf.Empty);
   
@@ -204,15 +202,16 @@ message MessageThreadPreview {
   int64 thread_id = 1;
   string title = 2;
   repeated string recipients = 3;
-  google.protobuf.Timestamp creation_time = 4;
-  string latest_mesaage_preview = 5;
-  string latest_message_sender = 6;
-  google.protobuf.Timestamp latest_message_time = 7;
+  bool is_dm = 4;
+  google.protobuf.Timestamp creation_time = 5;
+  string latest_message_preview = 6;
+  string latest_message_sender = 7;
+  google.protobuf.Timestamp latest_message_time = 8;
 }
 
 message ListMessageThreadsReq {
   uint32 start_index = 1;
-  utin32 max = 2;
+  uint32 max = 2;
 }
 
 message ListMessageThreadsRes {
@@ -221,24 +220,23 @@ message ListMessageThreadsRes {
   bool has_more = 3;
 }
 
-message MessageData {
+message Message {
   int64 id = 1;
   string sender = 2;
   google.protobuf.Timestamp timestamp = 3;
-  
-  enum MessageStatus {
-    SENT = 1;
-	DELETED = 2;
-  }
-  
-  MessageStatus status = 4;
-  string data = 5;
+  string text = 4;
 }
 
 message GetMessageThreadReq {
   int64 thread_id = 1;
   uint32 start_index = 2;
   uint32 max = 3;
+}
+
+message GetMessageThreadRes {
+  uint32 start_index = 1;
+  repeated Message messages = 2;
+  bool has_more = 3;
 }
 
 message GetMessageThreadInfoReq {
@@ -252,15 +250,10 @@ message GetMessageThreadInfoRes {
   bool only_admins_invite = 4
 }
 
-message GetMessageThreadRes {
-  uint32 start_index = 1;
-  repeated MessageData messages = 2;
-  bool has_more = 3;
-}
-
 message CreateMessageThreadReq {
   google.protobuf.StringValue title = 1;
   repeated string recipients = 2;
+  bool is_dm = 3;
 }
 
 message CreateMessageThreadRes {
@@ -283,13 +276,9 @@ message SendMessageReq {
   string message = 2;
 }
 
-message DeleteMessageReq {
-  int64 message_id = 1;
-}
-
 message LeaveThreadReq {
   int64 thread_id = 1;
-]
+}
 
 message SearchMessagesReq {
   string query = 1;
@@ -301,5 +290,5 @@ message MessageSearchResult {
 }
 
 message SearchMessagesRes {
-  repeated MessageSearchResult results - 1
+  repeated MessageSearchResult results = 1;
 }
