@@ -205,7 +205,7 @@ class MessageThread(Base):
     creation_time = Column(DateTime, nullable=False, server_default=func.now())
 
     title = Column(String, nullable=True)
-    only_admins_invite = Column(String, nullable=False, server_default=False)
+    only_admins_invite = Column(Boolean, nullable=False, default=False)
     creator_id = Column(ForeignKey("users.id"), nullable=False)
 
     creator = relationship("User")
@@ -229,8 +229,8 @@ class MessageThreadSubscription(Base):
     user_id = Column(ForeignKey("users.id"), primary_key=True)
     thread_id = Column(ForeignKey("message_threads.id"), primary_key=True)
 
-    role = Column(MessageThreadRole, nullable=False)
-    status = Column(ThreadSubscriptionStatus, nullable=False)
+    role = Column(Enum(MessageThreadRole), nullable=False)
+    status = Column(Enum(ThreadSubscriptionStatus), nullable=False)
 
 
     added_time = Column(DateTime, nullable=False, server_default=func.now())
@@ -238,19 +238,19 @@ class MessageThreadSubscription(Base):
 
     left_time = Column(DateTime, nullable=True)
 
-    user = relationship("User", backref="message_threads")
+    user = relationship("User", backref="message_threads", foreign_keys="MessageThreadSubscription.user_id")
     thread = relationship("MessageThread", backref=backref("recipients", order_by="MessageThread.creation_time.asc()"))
-    added_by = relationship("User")
+    added_by = relationship("User", foreign_keys="MessageThreadSubscription.added_by_id")
 
 class Message(Base):
     """
-    Message content
+    Message content.
     """
 
     __tablename__ = "messages"
 
     id = Column(Integer, primary_key=True)
-    thread_id = Column(ForeignKey("users.id"), nullable=False)
+    thread_id = Column(ForeignKey("message_threads.id"), nullable=False)
     author_id = Column(ForeignKey("users.id"), nullable=False)
 
     timestamp = Column(DateTime, nullable=False, server_default=func.now())

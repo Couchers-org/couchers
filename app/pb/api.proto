@@ -57,11 +57,9 @@ service API {
   
   rpc SendMessage(SendMessageReq) returns (google.protobuf.Empty);
   
-  rpc LeaveMessageThread(LeaveThreadReq) returns (google.protobuf.Empty);
+  rpc LeaveMessageThread(LeaveMessageThreadReq) returns (google.protobuf.Empty);
   
   rpc InviteToMessageThread(ThreadUserReq) returns (google.protobuf.Empty);
-  
-  rpc RemoveFromMessageThread(ThreadUserReq) returns (google.protobuf.Empty);
   
   rpc SearchMessages(SearchMessagesReq) returns (SearchMessagesRes);
 }
@@ -261,15 +259,16 @@ message GetMessageThreadInfoReq {
 message GetMessageThreadInfoRes {
   string title = 1;
   repeated string recipients = 2;
-  google.protobuf.Timestamp creation_time = 3;
-  bool only_admins_invite = 4
-  MessageThreadStatus status = 5;
+  repeated string admins = 3;
+  google.protobuf.Timestamp creation_time = 4;
+  bool only_admins_invite = 5;
+  MessageThreadStatus status = 6;
+  bool is_dm = 7;
 }
 
 message CreateMessageThreadReq {
   google.protobuf.StringValue title = 1;
   repeated string recipients = 2;
-  bool is_dm = 3;
 }
 
 message CreateMessageThreadRes {
@@ -284,15 +283,15 @@ message EditMessageThreadReq {
 
 message ThreadUserReq {
   int64 thread_id = 1;
-  int64 user_id = 2;
+  string user = 2;
 }
-  
+
 message SendMessageReq {
   int64 thread_id = 1;
   string message = 2;
 }
 
-message LeaveThreadReq {
+message LeaveMessageThreadReq {
   int64 thread_id = 1;
 }
 
