@@ -3,18 +3,22 @@ import logging
 from urllib.parse import parse_qs, quote, unquote, urlencode
 
 from google.protobuf import empty_pb2
+from google.protobuf.timestamp_pb2 import Timestamp
 
 import grpc
 from couchers.crypto import (base64decode, base64encode, sso_check_hmac,
                              sso_create_hmac)
 from couchers.db import (get_friends_status, get_user_by_field, is_valid_name,
                          is_valid_color, session_scope)
-from couchers.models import FriendRelationship, FriendStatus, User
+from couchers.models import FriendRelationship, FriendStatus, User, Message, MessageThread, MessageThreadRole, MessageThreadSubscription, ThreadSubscriptionStatus
 from couchers.utils import Timestamp_from_datetime
 from pb import api_pb2, api_pb2_grpc
-from sqlalchemy.sql import or_
+from sqlalchemy.sql import or_, and_, func, text
+from sqlalchemy.orm import aliased
 
-logging.basicConfig(format="%(asctime)s.%(msecs)03d: %(process)d: %(message)s", datefmt="%F %T", level=logging.DEBUG)
+logging.basicConfig(format="%(asctime)s.%(msecs)03d: %(process)d: %(message)s",
+                    datefmt="%F %T", level=logging.DEBUG)
+
 
 class API(api_pb2_grpc.APIServicer):
     def __init__(self, Session):
@@ -303,3 +307,125 @@ class API(api_pb2_grpc.APIServicer):
                         .all()
                 ]
             )
+
+    def ListMessageThreads(self, request, context):
+        start_index = request.start_index if request.start_index else 0
+        with session_scope(self._Session) as session:
+            subq = session.query(Message.thread_id, Message.author_id, Message.text,
+                                 func.max(Message.timestamp).label("latest_message")).group_by(
+                Message.thread_id
+            ).subquery()
+            message_subq = aliased(Message, subq)
+            query = session.query(MessageThread).join(
+                MessageThread.messages.of_type(message_subq)
+            ).join(
+                MessageThread.recipient_subscriptions
+            ).filter(MessageThread.recipient_subscriptions.any(user_id=context.user_id)
+                     ).order_by(text("latest_message ASC"))
+
+            query = query.offset(start_index)
+            has_more = True if request.max and query.count() > request.max else False
+            if request.max:
+                query = query.limit(request.max)
+            threads = []
+            for thread in query.all():
+                threads.append(api_pb2.MessageThreadPreview(
+                    thread_id=thread.id,
+                    title=thread.title,
+                    recipients=map(lambda e: str(e.user_id),
+                                   thread.recipient_subscriptions),
+                    is_dm=thread.is_dm,
+                    creation_time=Timestamp().FromDatetime(thread.creation_time),
+                    status=None,  # thread.recipient_subscriptions..status,
+                    latest_message_preview=thread.messages[0].text,
+                    latest_message_sender=thread.messages[0].author.username,
+                    latest_message_time=Timestamp().FromDatetime(
+                        thread.messages[0].timestamp),
+                ))
+            return api_pb2.ListMessageThreadsRes(
+                start_index=start_index,
+                threads=threads,
+                has_more=has_more
+            )
+
+    def CreateMessageThread(self, request, context):
+        if len(request.recipients) < 1:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, "No recipients")
+        with session_scope(self._Session) as session:
+            thread = MessageThread(
+                title=request.title.value,
+                creator_id=context.user_id,
+                is_dm=True if len(request.recipients) == 1 else False
+            )
+            session.add(thread)
+            session.flush()
+            sub = MessageThreadSubscription(
+                user_id=context.user_id,
+                thread_id=thread.id,
+                role=MessageThreadRole.admin,
+                status=ThreadSubscriptionStatus.accepted,
+                added_by_id=context.user_id
+            )
+            session.add(sub)
+            for recipient in request.recipients:
+                r_user = get_user_by_field(session, recipient)
+                if not r_user:
+                    context.abort(grpc.StatusCode.NOT_FOUND, "No such user.")
+                r_id = r_user.id
+                sub = MessageThreadSubscription(
+                    user_id=r_id,
+                    thread_id=thread.id,
+                    role=MessageThreadRole.participant,
+                    status=(ThreadSubscriptionStatus.accepted
+                            if get_friends_status(session, context.user_id, r_id)
+                            == api_pb2.User.FriendshipStatus.FRIENDS
+                            else ThreadSubscriptionStatus.pending),
+                    added_by_id=context.user_id
+                )
+                session.add(sub)
+            session.commit()
+            return api_pb2.CreateMessageThreadRes(thread_id=thread.id)
+
+    def SendMessage(self, request, context):
+        if not request.thread_id or not request.message:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT,
+                          "Missing request argument")
+        with session_scope(self._Session) as session:
+            if session.query(MessageThread).filter_by(id=request.thread_id).count() < 1:
+                context.abort(grpc.StatusCode.NOT_FOUND,
+                              "No matching message thread found.")
+            session.add(Message(
+                thread_id=request.thread_id,
+                author_id=context.user_id,
+                text=request.message
+            ))
+            session.commit()
+            return empty_pb2.Empty()
+
+
+"""def EditMessageThreadStatus(self, request, context):
+    with session_scope(self._Session) as session:
+  
+  def GetMessageThread(self, request, context):
+    with session_scope(self._Session) as session:
+  
+  def GetMessageThreadInfo(self, request, context):
+    with session_scope(self._Session) as session:
+  
+  def EditMessageThread(self, request, context):
+    with session_scope(self._Session) as session:
+  
+  def MakeMessageThreadAdmin(self, request, context):
+    with session_scope(self._Session) as session:
+  
+  def RemoveMessageThreadAdmin(self, request, context):
+    with session_scope(self._Session) as session:
+  
+  def LeaveMessageThread(self, request, context):
+    with session_scope(self._Session) as session:
+  
+  def InviteToMessageThread(self, request, context):
+    with session_scope(self._Session) as session:
+  
+  def SearchMessages(self, request, context):
+    with session_scope(self._Session) as session:"""

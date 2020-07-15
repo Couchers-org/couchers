@@ -205,8 +205,9 @@ class MessageThread(Base):
     creation_time = Column(DateTime, nullable=False, server_default=func.now())
 
     title = Column(String, nullable=True)
-    only_admins_invite = Column(Boolean, nullable=False, default=False)
+    only_admins_invite = Column(Boolean, nullable=False, default=True)
     creator_id = Column(ForeignKey("users.id"), nullable=False)
+    is_dm = Column(Boolean, nullable=False)
 
     creator = relationship("User")
 
@@ -238,8 +239,8 @@ class MessageThreadSubscription(Base):
 
     left_time = Column(DateTime, nullable=True)
 
-    user = relationship("User", backref="message_threads", foreign_keys="MessageThreadSubscription.user_id")
-    thread = relationship("MessageThread", backref=backref("recipients", order_by="MessageThread.creation_time.asc()"))
+    user = relationship("User", backref="message_thread_subscriptions", foreign_keys="MessageThreadSubscription.user_id")
+    thread = relationship("MessageThread", backref="recipient_subscriptions")
     added_by = relationship("User", foreign_keys="MessageThreadSubscription.added_by_id")
 
 class Message(Base):
