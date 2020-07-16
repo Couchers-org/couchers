@@ -13,7 +13,7 @@ from couchers.db import (get_friends_status, get_user_by_field, is_valid_name,
 from couchers.models import FriendRelationship, FriendStatus, User, Message, MessageThread, MessageThreadRole, MessageThreadSubscription, ThreadSubscriptionStatus
 from couchers.utils import Timestamp_from_datetime
 from pb import api_pb2, api_pb2_grpc
-from sqlalchemy.sql import or_, and_, func, text
+from sqlalchemy.sql import or_, and_, func
 from sqlalchemy.orm import aliased
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d: %(process)d: %(message)s",
@@ -311,35 +311,55 @@ class API(api_pb2_grpc.APIServicer):
     def ListMessageThreads(self, request, context):
         start_index = request.start_index if request.start_index else 0
         with session_scope(self._Session) as session:
-            subq = session.query(Message.thread_id, Message.author_id, Message.text,
-                                 func.max(Message.timestamp).label("latest_message")).group_by(
-                Message.thread_id
-            ).subquery()
-            message_subq = aliased(Message, subq)
+            subq1 = session.query(
+                                  func.max(Message.timestamp).label("latest_message_timestamp")
+                            ).group_by(
+                                Message.thread_id
+                            ).subquery()
+            subq2 = session.query(Message.thread_id, Message.author_id, Message.text, Message.timestamp
+                                 ).join(
+                                     subq1, Message.timestamp==subq1.c.latest_message_timestamp
+                                 ).subquery()
+            message_subq = aliased(Message, subq2)
             query = session.query(MessageThread).join(
                 MessageThread.messages.of_type(message_subq)
             ).join(
                 MessageThread.recipient_subscriptions
-            ).filter(MessageThread.recipient_subscriptions.any(user_id=context.user_id)
-                     ).order_by(text("latest_message ASC"))
+            ).filter(
+            # TODO: Decide if user-rejected threads should appear or not
+            #and_(
+                MessageThreadSubscription.user_id==context.user_id,
+            #    MessageThreadSubscription.status!=ThreadSubscriptionStatus.rejected
+            #)
+            ).order_by(subq2.c.timestamp.desc())
 
             query = query.offset(start_index)
-            has_more = True if request.max and query.count() > request.max else False
+            has_more = False if not request.max or query.count() <= request.max else True
             if request.max:
                 query = query.limit(request.max)
             threads = []
             for thread in query.all():
+                subscription_status = None
+                for subscription in thread.recipient_subscriptions:
+                    if subscription.user_id == context.user_id:
+                        if subscription.status == ThreadSubscriptionStatus.accepted:
+                            subscription_status = api_pb2.MessageThreadStatus.ACCEPTED
+                        elif subscription.status == ThreadSubscriptionStatus.pending:
+                            subscription_status = api_pb2.MessageThreadStatus.PENDING
+                        elif subscription.status == ThreadSubscriptionStatus.rejected:
+                            subscription_status = api_pb2.MessageThreadStatus.REJECTED
                 threads.append(api_pb2.MessageThreadPreview(
                     thread_id=thread.id,
                     title=thread.title,
+                    # TODO: Should recipients actually be a username/photo/displayname combo?
                     recipients=map(lambda e: str(e.user_id),
                                    thread.recipient_subscriptions),
                     is_dm=thread.is_dm,
-                    creation_time=Timestamp().FromDatetime(thread.creation_time),
-                    status=None,  # thread.recipient_subscriptions..status,
+                    creation_time=Timestamp_from_datetime(thread.creation_time),
+                    status=subscription_status,
                     latest_message_preview=thread.messages[0].text,
                     latest_message_sender=thread.messages[0].author.username,
-                    latest_message_time=Timestamp().FromDatetime(
+                    latest_message_time=Timestamp_from_datetime(
                         thread.messages[0].timestamp),
                 ))
             return api_pb2.ListMessageThreadsRes(
@@ -403,13 +423,72 @@ class API(api_pb2_grpc.APIServicer):
             return empty_pb2.Empty()
 
 
-"""def EditMessageThreadStatus(self, request, context):
-    with session_scope(self._Session) as session:
+    def EditMessageThreadStatus(self, request, context):
+        if not request.thread_id or not request.status:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT,
+                          "Missing request argument")
+        status = None
+        # TODO: Is this the behaviour we want?
+        if request.status == api_pb2.MessageThreadStatus.PENDING:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, "Can't set a thread to pending status.")
+        elif request.status == api_pb2.MessageThreadStatus.ACCEPTED:
+            status = ThreadSubscriptionStatus.accepted
+        elif request.status == api_pb2.MessageThreadStatus.REJECTED:
+            status = ThreadSubscriptionStatus.rejected
+        else:
+            context.abort(grpc.StatusCode.UNIMPLEMENTED, "Unknown thread status.")
+        with session_scope(self._Session) as session:
+            subscription = session.query(MessageThreadSubscription).filter(
+                and_(MessageThreadSubscription.thread_id == request.thread_id,
+                     MessageThreadSubscription.user_id == context.user_id)
+            ).one_or_none()
+            if not subscription:
+                context.abort(grpc.StatusCode.NOT_FOUND, "Couldn't find that thread for this user.")
+            if subscription.status != ThreadSubscriptionStatus.pending:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, "Can only set a pending thread status.")
+            subscription.status = status
+            session.commit()
+            return empty_pb2.Empty()
+    
+    def GetMessageThreadInfo(self, request, context):
+        if not request.thread_id:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT,
+                          "Missing request argument")
+        with session_scope(self._Session) as session:
+            thread = session.query(MessageThread).join(
+                MessageThreadSubscription
+            ).filter(
+                and_(MessageThread.id == request.thread_id,
+                     MessageThread.recipient_subscriptions.any(user_id=context.user_id))
+            ).one_or_none()
+            if not thread:
+                context.abort(grpc.StatusCode.NOT_FOUND, "Couldn't find that thread for this user.")
+
+            status = None
+            for sub in thread.recipient_subscriptions:
+                if sub.user_id == context.user_id:
+                    if sub.status == ThreadSubscriptionStatus.pending:
+                        status = api_pb2.MessageThreadStatus.PENDING
+                    elif sub.status == ThreadSubscriptionStatus.accepted:
+                        status = api_pb2.MessageThreadStatus.ACCEPTED
+                    elif sub.status == ThreadSubscriptionStatus.rejected:
+                        status = api_pb2.MessageThreadStatus.REJECTED
+                    else:
+                        context.abort(grpc.StatusCode.UNIMPLEMENTED, "Unknown thread status.")
+                    break
+
+            return api_pb2.GetMessageThreadInfoRes(
+                title=thread.title,
+                recipients=map(lambda r: str(r.user_id), thread.recipient_subscriptions),
+                admins=[ str(r.user_id) for r in thread.recipient_subscriptions if r is not None ],
+                creation_time=Timestamp_from_datetime(thread.creation_time),
+                only_admins_invite=thread.only_admins_invite,
+                status=status,
+                is_dm=thread.is_dm
+            )
+
   
-  def GetMessageThread(self, request, context):
-    with session_scope(self._Session) as session:
-  
-  def GetMessageThreadInfo(self, request, context):
+"""def GetMessageThread(self, request, context):
     with session_scope(self._Session) as session:
   
   def EditMessageThread(self, request, context):

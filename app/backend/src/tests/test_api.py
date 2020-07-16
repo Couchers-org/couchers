@@ -6,7 +6,7 @@ from unittest.mock import patch
 from google.protobuf import empty_pb2, wrappers_pb2
 
 import grpc
-import pytest
+import pytest, sys
 from couchers.db import session_scope
 from couchers.interceptors import intercept_server
 from couchers.models import Base, User
@@ -15,6 +15,8 @@ from couchers.servicers.auth import Auth
 from pb import api_pb2, api_pb2_grpc, auth_pb2, auth_pb2_grpc
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
+from time import sleep
 
 
 @pytest.fixture
@@ -339,12 +341,16 @@ def test_list_message_threads(db):
             recipients=["user2"], title=wrappers_pb2.StringValue(value="Test title")))
         api.SendMessage(api_pb2.SendMessageReq(
             thread_id=res.thread_id, message="Test message 1"))
+        # TODO: Better solution than sleeping? Timestamps are the same if you don't sleep.
+        sleep(1)
         api.SendMessage(api_pb2.SendMessageReq(
             thread_id=res.thread_id, message="Test message 2"))
+        sleep(1)
         res = api.CreateMessageThread(
             api_pb2.CreateMessageThreadReq(recipients=["user2", "user3"]))
         api.SendMessage(api_pb2.SendMessageReq(
             thread_id=res.thread_id, message="Test group message 1"))
+        sleep(1)
         api.SendMessage(api_pb2.SendMessageReq(
             thread_id=res.thread_id, message="Test group message 2"))
 
@@ -366,7 +372,7 @@ def test_list_message_threads(db):
         assert len(res.threads) == 1
         assert res.start_index == 1
         assert res.threads[0].thread_id != first_thread_id
-        assert res.threads[0].title.value == "Test title"
+        assert res.threads[0].title == "Test title"
         assert res.threads[0].is_dm
         assert not res.has_more
         # this user created the thread so it should default to accepted
@@ -391,26 +397,30 @@ def test_edit_message_thread_status(db):
         res = api.CreateMessageThread(
             api_pb2.CreateMessageThreadReq(recipients=["user2"]))
         thread_id = res.thread_id
+        api.SendMessage(api_pb2.SendMessageReq(thread_id=thread_id, message="test"))
+        res = api.CreateMessageThread(
+            api_pb2.CreateMessageThreadReq(recipients=["user2"]))
+        thread2_id = res.thread_id
 
         # shouldn't be able to reject your own thread
         with pytest.raises(grpc.RpcError) as e:
-            res = api.EditMessageThreadStatus(
-                thread_id=thread_id, status=api_pb2.MessageThreadStatus.REJECTED)
-        assert e.code() == grpc.StatusCode.FAILED_PRECONDITION
+            res = api.EditMessageThreadStatus(api_pb2.EditMessageThreadStatusReq(
+                thread_id=thread_id, status=api_pb2.MessageThreadStatus.REJECTED))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
     with api_session(db, token2) as api:
-        res = api.ListMessageThreads(api_pb2.ListMessageThreadsReq())
-        assert res.threads[0].status == api_pb2.MessageThreadStatus.PENDING
+        res = api.GetMessageThreadInfo(api_pb2.GetMessageThreadInfoReq(thread_id=thread_id))
+        assert res.status == api_pb2.MessageThreadStatus.PENDING
 
-        api.EditMessageThreadStatus(
-            thread_id=res.thread_id, status=api_pb2.MessageThreadStatus.REJECTED)
-        res = api.ListMessageThreads(api_pb2.ListMessageThreadsReq())
-        assert res.threads[0].status == api_pb2.MessageThreadStatus.REJECTED
+        api.EditMessageThreadStatus(api_pb2.EditMessageThreadStatusReq(
+            thread_id=thread_id, status=api_pb2.MessageThreadStatus.REJECTED))
+        res = api.GetMessageThreadInfo(api_pb2.GetMessageThreadInfoReq(thread_id=thread_id))
+        assert res.status == api_pb2.MessageThreadStatus.REJECTED
 
-        api.EditMessageThreadStatus(
-            thread_id=res.thread_id, status=api_pb2.MessageThreadStatus.ACCEPTED)
-        res = api.ListMessageThreads(api_pb2.ListMessageThreadsReq())
-        assert res.threads[0].status == api_pb2.MessageThreadStatus.ACCEPTED
+        api.EditMessageThreadStatus(api_pb2.EditMessageThreadStatusReq(
+            thread_id=thread2_id, status=api_pb2.MessageThreadStatus.ACCEPTED))
+        res = api.GetMessageThreadInfo(api_pb2.GetMessageThreadInfoReq(thread_id=thread2_id))
+        assert res.status == api_pb2.MessageThreadStatus.ACCEPTED
 
 
 def test_get_message_thread(db):
@@ -474,21 +484,21 @@ def test_get_message_thread_info(db):
 
         res = api.GetMessageThreadInfo(
             api_pb2.GetMessageThreadInfoReq(thread_id=thread1_id))
-        assert res.title.value == "Test title"
-        assert "user2" in res.recipients
-        assert "user1" in res.admins
-        assert res.creation_time <= datetime.now()
+        assert res.title == "Test title"
+        assert str(user2.id) in res.recipients
+        assert str(user1.id) in res.admins
+        assert res.creation_time.ToDatetime() <= datetime.now()
         assert res.only_admins_invite
         assert res.status == api_pb2.MessageThreadStatus.ACCEPTED
         assert res.is_dm
 
         res = api.GetMessageThreadInfo(
             api_pb2.GetMessageThreadInfoReq(thread_id=thread2_id))
-        assert not res.has_title()
-        assert "user2" in res.recipients
-        assert "user3" in res.recipients
-        assert "user1" in res.admins
-        assert res.creation_time <= datetime.now()
+        assert not res.title
+        assert str(user2.id) in res.recipients
+        assert str(user3.id) in res.recipients
+        assert str(user1.id) in res.admins
+        assert res.creation_time.ToDatetime() <= datetime.now()
         assert res.only_admins_invite
         assert res.status == api_pb2.MessageThreadStatus.ACCEPTED
         assert not res.is_dm
@@ -506,7 +516,8 @@ def test_edit_message_thread(db):
         thread_id = res.thread_id
 
         api.EditMessageThread(api_pb2.EditMessageThreadReq(
-            thread_id=thread_id, title=wrappers_pb2.StringValue(value="Modified title"), only_admins_invite=False))
+            thread_id=thread_id, title=wrappers_pb2.StringValue(value="Modified title"),
+            only_admins_invite=False))
         res = api.GetMessageThreadInfo(
             api_pb2.GetMessageThreadInfoReq(thread_id=thread_id))
         assert res.title.value == "Modified title"
@@ -516,8 +527,9 @@ def test_edit_message_thread(db):
     with api_session(db, token2) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.EditMessageThread(api_pb2.EditMessageThreadReq(
-                thread_id=thread_id, title=wrappers_pb2.StringValue(value="Other title"), only_admins_invite=True))
-        assert e.code() == grpc.StatusCode.PERMISSION_DENIED
+                thread_id=thread_id, title=wrappers_pb2.StringValue(value="Other title"),
+                only_admins_invite=True))
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
 
 
 def test_make_remove_message_thread_admin(db):
@@ -535,7 +547,7 @@ def test_make_remove_message_thread_admin(db):
         with pytest.raises(grpc.RpcError) as e:
             api.RemoveMessageThreadAdmin(
                 api_pb2.RemoveMessageThreadAdminReq(thread_id=thread_id, user="user1"))
-        assert e.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
         api.AddMessageThreadAdmin(api_pb2.AddMessageThreadAdminReq(
             thread_id=thread_id, user="user2"))
@@ -552,7 +564,7 @@ def test_make_remove_message_thread_admin(db):
         with pytest.raises(grpc.RpcError) as e:
             api.AddMessageThreadAdmin(api_pb2.AddMessageThreadAdminReq(
                 thread_id=thread_id, user="user2"))
-        assert e.code() == grpc.StatusCode.PERMISSION_DENIED
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
 
         res = api.GetMessageThreadInfo(
             api_pb2.GetMessageThreadInfoReq(thread_id=thread_id))
@@ -593,17 +605,17 @@ def test_leave_invite_to_message_thread(db):
         with pytest.raises(grpc.RpcError) as e:
             api.LeaveMessageThread(
                 api_pb2.LeaveMessageThreadReq(thread_id=thread_id))
-        assert e.code() == grpc.StatusCodes.FAILED_PRECONDITION
+        assert e.value.code() == grpc.StatusCodes.FAILED_PRECONDITION
 
     with api_session(db, token3) as api:
         with pytest.raises(grpc.RpcError) as e:
             res = api.GetMessageThread(
                 api_pb2.GetMessageThreadReq(thread_id=thread_id))
-        assert e.code() == grpc.StatusCodes.PERMISSION_DENIED
+        assert e.value.code() == grpc.StatusCodes.PERMISSION_DENIED
         with pytest.raises(grpc.RpcError) as e:
             res = api.GetMessageThreadInfo(
                 api_pb2.GetMessageThreadInfoReq(thread_id=thread_id))
-        assert e.code() == grpc.StatusCodes.PERMISSION_DENIED
+        assert e.value.code() == grpc.StatusCodes.PERMISSION_DENIED
 
     with api_session(db, token2) as api:
         res = api.GetMessageThreadInfo(
@@ -612,7 +624,7 @@ def test_leave_invite_to_message_thread(db):
         with pytest.raises(grpc.RpcError) as e:
             res = api.InviteToThread(api_pb2.ThreadUserReq(
                 thread_id=thread_id, user="user3"))
-        assert e.code() == grpc.StatusCodes.PERMISSION_DENIED
+        assert e.value.code() == grpc.StatusCodes.PERMISSION_DENIED
         api.LeaveMessageThread(
             api_pb2.LeaveMessageThreadReq(thread_id=thread_id))
 
