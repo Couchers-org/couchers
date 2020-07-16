@@ -278,7 +278,7 @@ message CreateMessageThreadRes {
 message EditMessageThreadReq {
   int64 thread_id = 1;
   google.protobuf.StringValue title = 2;
-  bool only_admins_invite = 3;
+  google.protobuf.BoolValue only_admins_invite = 3;
 }
 
 message ThreadUserReq {

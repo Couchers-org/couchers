@@ -258,5 +258,5 @@ class Message(Base):
 
     text = Column(String, nullable=False)
 
-    thread = relationship("MessageThread", backref="messages", order_by="Message.timestamp.asc()")
+    thread = relationship("MessageThread", backref="messages", order_by="Message.timestamp.desc()")
     author = relationship("User")

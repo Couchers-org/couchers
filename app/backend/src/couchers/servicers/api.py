@@ -327,14 +327,15 @@ class API(api_pb2_grpc.APIServicer):
                 MessageThread.recipient_subscriptions
             ).filter(
             # TODO: Decide if user-rejected threads should appear or not
-            #and_(
-                MessageThreadSubscription.user_id==context.user_id,
-            #    MessageThreadSubscription.status!=ThreadSubscriptionStatus.rejected
-            #)
+                MessageThreadSubscription.user_id==context.user_id
             ).order_by(subq2.c.timestamp.desc())
 
             query = query.offset(start_index)
-            has_more = False if not request.max or query.count() <= request.max else True
+            #order is not important for count
+            count_query = session.query(MessageThreadSubscription).filter(
+                MessageThreadSubscription.user_id==context.user_id
+            ).offset(start_index)
+            has_more = False if not request.max or count_query.count() <= request.max else True
             if request.max:
                 query = query.limit(request.max)
             threads = []
@@ -488,13 +489,68 @@ class API(api_pb2_grpc.APIServicer):
             )
 
   
-"""def GetMessageThread(self, request, context):
-    with session_scope(self._Session) as session:
+    def GetMessageThread(self, request, context):
+        if not request.thread_id:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT,
+                          "Missing request argument")
+        with session_scope(self._Session) as session:
+            start_index = 0 if not request.start_index else request.start_index
+            thread_subscription = session.query(MessageThreadSubscription).filter(
+                MessageThreadSubscription.thread_id==request.thread_id,
+                MessageThreadSubscription.user_id==context.user_id
+            ).one_or_none()
+            if not thread_subscription:
+                context.abort(grpc.StatusCode.NOT_FOUND, "Couldn't find that thread for this user.")
+            # TODO: Is this query efficient? Can it be more efficient?
+            query = session.query(Message).join(
+                MessageThread
+            ).filter(
+                Message.thread_id==request.thread_id
+            ).order_by(Message.timestamp.desc())
+            query = query.offset(start_index)
+            count_query = session.query(Message).filter(
+                Message.thread_id==request.thread_id
+            ).offset(start_index)
+            has_more = False if not request.max or count_query.count() <= request.max else True
+            if request.max:
+                query = query.limit(request.max)
+            return api_pb2.GetMessageThreadRes(
+                start_index=start_index,
+                has_more=has_more,
+                messages=[
+                    api_pb2.Message(
+                        id=message.id,
+                        sender=str(message.author_id),
+                        timestamp=Timestamp_from_datetime(message.timestamp),
+                        text=message.text
+                    ) for message in query.all()
+                ]
+            )
+
+    def EditMessageThread(self, request, context):
+        if not request.thread_id:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT,
+                          "Missing request argument")
+        with session_scope(self._Session) as session:
+            thread_subscription = session.query(MessageThreadSubscription).filter(
+                and_(MessageThreadSubscription.user_id == context.user_id,
+                     MessageThreadSubscription.thread_id == request.thread_id)
+            ).one_or_none()
+            if not thread_subscription:
+                context.abort(grpc.StatusCode.NOT_FOUND, "Couldn't find that thread for this user.")
+            if thread_subscription.role != MessageThreadRole.admin:
+                context.abort(grpc.StatusCode.PERMISSION_DENIED, "Not an admin for that thread.")
+            
+            thread = session.query(MessageThread).get(request.thread_id)
+            if request.HasField("title"):
+                thread.title = request.title.value
+            if request.HasField("only_admins_invite"):
+                thread.only_admins_invite = request.only_admins_invite.value
+            session.commit()
+
+            return empty_pb2.Empty()
   
-  def EditMessageThread(self, request, context):
-    with session_scope(self._Session) as session:
-  
-  def MakeMessageThreadAdmin(self, request, context):
+"""  def MakeMessageThreadAdmin(self, request, context):
     with session_scope(self._Session) as session:
   
   def RemoveMessageThreadAdmin(self, request, context):

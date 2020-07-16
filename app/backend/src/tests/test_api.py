@@ -426,27 +426,29 @@ def test_edit_message_thread_status(db):
 def test_get_message_thread(db):
     user1, token1 = generate_user(db, "user1")
     user2, token2 = generate_user(db, "user2")
+    user3, token3 = generate_user(db, "user3")
+    thread_id = 0
 
     with api_session(db, token1) as api:
-
         # create some threads with messages
         res = api.CreateMessageThread(
             api_pb2.CreateMessageThreadReq(recipients=["user2"]))
         thread_id = res.thread_id
         api.SendMessage(api_pb2.SendMessageReq(
             thread_id=res.thread_id, message="Test message 1"))
+        sleep(1)
         api.SendMessage(api_pb2.SendMessageReq(
             thread_id=res.thread_id, message="Test message 2"))
 
         res = api.GetMessageThread(
             api_pb2.GetMessageThreadReq(thread_id=thread_id))
-        assert len(res.messages == 2)
+        assert len(res.messages) == 2
         assert res.start_index == 0
         assert not res.has_more
 
         res = api.GetMessageThread(
             api_pb2.GetMessageThreadReq(thread_id=thread_id, max=1))
-        assert len(res.messages == 1)
+        assert len(res.messages) == 1
         assert res.start_index == 0
         assert res.has_more
         # latest first
@@ -454,10 +456,16 @@ def test_get_message_thread(db):
 
         res = api.GetMessageThread(api_pb2.GetMessageThreadReq(
             thread_id=thread_id, max=1, start_index=1))
-        assert len(res.messages == 1)
+        assert len(res.messages) == 1
         assert res.start_index == 1
         assert not res.has_more
         assert res.messages[0].text == "Test message 1"
+    
+    # test that another user can't access the thread
+    with api_session(db, token3) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetMessageThread(api_pb2.GetMessageThreadReq(thread_id=thread_id))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 def test_get_message_thread_info(db):
@@ -517,10 +525,10 @@ def test_edit_message_thread(db):
 
         api.EditMessageThread(api_pb2.EditMessageThreadReq(
             thread_id=thread_id, title=wrappers_pb2.StringValue(value="Modified title"),
-            only_admins_invite=False))
+            only_admins_invite=wrappers_pb2.BoolValue(value=False)))
         res = api.GetMessageThreadInfo(
             api_pb2.GetMessageThreadInfoReq(thread_id=thread_id))
-        assert res.title.value == "Modified title"
+        assert res.title == "Modified title"
         assert not res.only_admins_invite
 
     # make sure non-admin is not allowed to modify
@@ -528,7 +536,7 @@ def test_edit_message_thread(db):
         with pytest.raises(grpc.RpcError) as e:
             api.EditMessageThread(api_pb2.EditMessageThreadReq(
                 thread_id=thread_id, title=wrappers_pb2.StringValue(value="Other title"),
-                only_admins_invite=True))
+                only_admins_invite=wrappers_pb2.BoolValue(value=True)))
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
 
 
@@ -638,7 +646,7 @@ def test_leave_invite_to_message_thread(db):
 
         # test non-admin inviting
         api.EditMessageThread(api_pb2.EditMessageThreadReq(
-            thread_id=thread_id, only_admins_invite=False))
+            thread_id=thread_id, only_admins_invite=wrappers_pb2.BoolValue(value=False)))
 
     with api_session(db, token3) as api:
         api.InviteToMessageThread(api_pb2.ThreadUserReq(
