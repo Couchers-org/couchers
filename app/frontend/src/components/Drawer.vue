@@ -77,7 +77,7 @@ import { client } from "../api"
 
 export default Vue.extend({
   props: {
-    value: Object as PropType<boolean>,
+    value: Boolean,
   },
 
   watch: {
