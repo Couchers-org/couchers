@@ -160,7 +160,7 @@ import EditableList from "../components/EditableList.vue"
 import EditableColor from "../components/EditableColor.vue"
 import ErrorAlert from "../components/ErrorAlert.vue"
 
-import { GetUserReq, UpdateProfileReq, User } from "../pb/api_pb"
+import { GetUserReq, UpdateProfileReq, User, RepeatedStringValue } from "../pb/api_pb"
 import { client } from "../api"
 
 import Store from "../store"
@@ -276,7 +276,7 @@ export default Vue.extend({
 
     saveCountriesVisited(list: Array<string>) {
       const req = new UpdateProfileReq()
-      const listValue = new UpdateProfileReq.RepeatedStringValue()
+      const listValue = new RepeatedStringValue()
       listValue.setValueList(list)
       listValue.setExists(true)
       req.setCountriesVisited(listValue)
@@ -285,7 +285,7 @@ export default Vue.extend({
 
     saveCountriesLived(list: Array<string>) {
       const req = new UpdateProfileReq()
-      const listValue = new UpdateProfileReq.RepeatedStringValue()
+      const listValue = new RepeatedStringValue()
       listValue.setValueList(list)
       listValue.setExists(true)
       req.setCountriesLived(listValue)
@@ -294,7 +294,7 @@ export default Vue.extend({
 
     saveLanguages(list: Array<string>) {
       const req = new UpdateProfileReq()
-      const listValue = new UpdateProfileReq.RepeatedStringValue()
+      const listValue = new RepeatedStringValue()
       listValue.setValueList(list)
       listValue.setExists(true)
       req.setLanguages(listValue)

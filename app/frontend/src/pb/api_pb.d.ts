@@ -342,6 +342,30 @@ export namespace GetUserReq {
   }
 }
 
+export class RepeatedStringValue extends jspb.Message {
+  getExists(): boolean;
+  setExists(value: boolean): RepeatedStringValue;
+
+  getValueList(): Array<string>;
+  setValueList(value: Array<string>): RepeatedStringValue;
+  clearValueList(): RepeatedStringValue;
+  addValue(value: string, index?: number): RepeatedStringValue;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): RepeatedStringValue.AsObject;
+  static toObject(includeInstance: boolean, msg: RepeatedStringValue): RepeatedStringValue.AsObject;
+  static serializeBinaryToWriter(message: RepeatedStringValue, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): RepeatedStringValue;
+  static deserializeBinaryFromReader(message: RepeatedStringValue, reader: jspb.BinaryReader): RepeatedStringValue;
+}
+
+export namespace RepeatedStringValue {
+  export type AsObject = {
+    exists: boolean,
+    valueList: Array<string>,
+  }
+}
+
 export class UpdateProfileReq extends jspb.Message {
   getName(): google_protobuf_wrappers_pb.StringValue | undefined;
   setName(value?: google_protobuf_wrappers_pb.StringValue): UpdateProfileReq;
@@ -414,31 +438,6 @@ export namespace UpdateProfileReq {
     countriesVisited?: RepeatedStringValue.AsObject,
     countriesLived?: RepeatedStringValue.AsObject,
   }
-
-  export class RepeatedStringValue extends jspb.Message {
-    getExists(): boolean;
-    setExists(value: boolean): RepeatedStringValue;
-
-    getValueList(): Array<string>;
-    setValueList(value: Array<string>): RepeatedStringValue;
-    clearValueList(): RepeatedStringValue;
-    addValue(value: string, index?: number): RepeatedStringValue;
-
-    serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): RepeatedStringValue.AsObject;
-    static toObject(includeInstance: boolean, msg: RepeatedStringValue): RepeatedStringValue.AsObject;
-    static serializeBinaryToWriter(message: RepeatedStringValue, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): RepeatedStringValue;
-    static deserializeBinaryFromReader(message: RepeatedStringValue, reader: jspb.BinaryReader): RepeatedStringValue;
-  }
-
-  export namespace RepeatedStringValue {
-    export type AsObject = {
-      exists: boolean,
-      valueList: Array<string>,
-    }
-  }
-
 }
 
 export class UpdateProfileRes extends jspb.Message {
