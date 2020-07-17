@@ -1,12 +1,12 @@
 <template>
-  <v-content>
+  <v-main>
     <v-container fill-height>
       <v-col class="mx-auto" cols="12" sm="10" md="8" lg="6" xl="4">
         <error-alert type="error" :error="error" />
         <loading-circular :loading="loading" />
       </v-col>
     </v-container>
-  </v-content>
+  </v-main>
 </template>
 
 <script lang="ts">

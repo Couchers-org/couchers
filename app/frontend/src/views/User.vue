@@ -1,5 +1,5 @@
 <template>
-  <v-content>
+  <v-main>
     <error-alert :error="error" />
     <v-container fluid>
       <v-card class="float-left mx-3 my-3" width="350" outlined>
@@ -138,7 +138,7 @@
         </v-card-text>
       </v-card>
     </v-container>
-  </v-content>
+  </v-main>
 </template>
 
 <script lang="ts">

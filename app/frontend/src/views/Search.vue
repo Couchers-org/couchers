@@ -1,5 +1,5 @@
 <template>
-  <v-content>
+  <v-main>
     <error-alert :error="error" />
     <h1>Search results for "{{ query }}"</h1>
     <div v-if="!loading">
@@ -9,7 +9,7 @@
     <v-container fill-height>
       <loading-circular :loading="loading" />
     </v-container>
-  </v-content>
+  </v-main>
 </template>
 
 <script lang="ts">

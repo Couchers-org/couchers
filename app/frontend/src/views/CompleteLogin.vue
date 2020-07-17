@@ -1,10 +1,10 @@
 <template>
-  <v-content>
+  <v-main>
     <v-container fluid>
       <error-alert :error="error" />
       <loading-circular :loading="loading">Logging you in...</loading-circular>
     </v-container>
-  </v-content>
+  </v-main>
 </template>
 
 <script lang="ts">

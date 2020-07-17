@@ -1,5 +1,5 @@
 <template>
-  <v-content>
+  <v-main>
     <v-container fill-height>
       <v-row align="center">
         <v-col>
@@ -45,7 +45,7 @@
         </v-col>
       </v-row>
     </v-container>
-  </v-content>
+  </v-main>
 </template>
 
 <script lang="ts">

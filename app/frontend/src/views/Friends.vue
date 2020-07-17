@@ -1,5 +1,5 @@
 <template>
-  <v-content>
+  <v-main>
     <v-container fluid>
       <h1>Friends</h1>
       <v-snackbar v-model="errorVisible" color="error">
@@ -99,7 +99,7 @@
         </v-list>
       </v-card>
     </v-container>
-  </v-content>
+  </v-main>
 </template>
 
 <script lang="ts">

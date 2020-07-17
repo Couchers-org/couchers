@@ -1,7 +1,7 @@
 <template>
-  <v-content>
+  <v-main>
     Home
-  </v-content>
+  </v-main>
 </template>
 
 <script lang="ts">
