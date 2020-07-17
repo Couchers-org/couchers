@@ -144,8 +144,6 @@
 <script lang="ts">
 import Vue from "vue"
 
-import moment, { lang } from "moment"
-
 import { GetUserReq, SendFriendRequestReq, User } from "../pb/api_pb"
 import { client } from "../api"
 
@@ -193,7 +191,7 @@ export default Vue.extend({
       req.setUser(this.user.username)
       client
         .sendFriendRequest(req)
-        .then((res) => {
+        .then(() => {
           this.sendingFriendRequest = false
           this.fetchData()
         })

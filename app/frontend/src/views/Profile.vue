@@ -151,7 +151,6 @@
 <script lang="ts">
 import Vue from "vue"
 
-import moment, { lang } from "moment"
 import wrappers from "google-protobuf/google/protobuf/wrappers_pb"
 
 import EditableTextarea from "../components/EditableTextarea.vue"
@@ -220,7 +219,7 @@ export default Vue.extend({
 
       client
         .updateProfile(req)
-        .then((res) => {
+        .then(() => {
           this.loading = false
           this.fetchData()
         })
