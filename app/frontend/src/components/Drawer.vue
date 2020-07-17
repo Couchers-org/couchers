@@ -107,10 +107,10 @@ export default Vue.extend({
 
   computed: {
     visible: {
-      get() {
+      get(): boolean {
         return this.value
       },
-      set(val: boolean) {
+      set(val: boolean): void {
         this.$emit("input", val)
       },
     },
