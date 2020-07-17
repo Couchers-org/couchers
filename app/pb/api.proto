@@ -24,6 +24,8 @@ service API {
   rpc ListFriendRequests(google.protobuf.Empty) returns (ListFriendRequestsRes);
 
   rpc ListFriends(google.protobuf.Empty) returns (ListFriendsRes);
+  
+  rpc ListMutualFriends(ListMutualFriendsReq) returns (ListMutualFriendsRes);
 
   rpc RespondFriendRequest(RespondFriendRequestReq) returns (google.protobuf.Empty);
 
@@ -80,6 +82,14 @@ message ListFriendRequestsRes {
 }
 
 message ListFriendsRes {
+  repeated string users = 1;
+}
+
+message ListMutualFriendsReq {
+  string user = 1;
+}
+
+message ListMutualFriendsRes {
   repeated string users = 1;
 }
 

@@ -12,7 +12,7 @@ from couchers.db import (get_friends_status, get_user_by_field, is_valid_name,
 from couchers.models import FriendRelationship, FriendStatus, User
 from couchers.utils import Timestamp_from_datetime
 from pb import api_pb2, api_pb2_grpc
-from sqlalchemy.sql import or_
+from sqlalchemy.sql import or_, and_, not_, func
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d: %(process)d: %(message)s", datefmt="%F %T", level=logging.DEBUG)
 
@@ -128,6 +128,46 @@ class API(api_pb2_grpc.APIServicer):
                 .all())
             return api_pb2.ListFriendsRes(
                 users=[rel.from_user.username if rel.from_user.id != context.user_id else rel.to_user.username for rel in rels],
+            )
+    
+    def ListMutualFriends(self, request, context):
+        with session_scope(self._Session) as session:
+            target = get_user_by_field(session, request.user)
+            if not target:
+                session.abort(grpc.StatusCode.NOT_FOUND, "Target user not found.")
+            target_id = target.id
+            q1 = session.query(FriendRelationship.from_user_id.label("user_id")).filter(
+                and_(FriendRelationship.to_user_id == context.user_id,
+                    not_(FriendRelationship.from_user_id == target_id),
+                    FriendRelationship.status == FriendStatus.accepted)
+            )
+            q2 = session.query(FriendRelationship.to_user_id.label("user_id")).filter(
+                and_(FriendRelationship.from_user_id == context.user_id,
+                not_(FriendRelationship.to_user_id == target_id),
+                    FriendRelationship.status == FriendStatus.accepted)
+            )
+            q3 = session.query(FriendRelationship.from_user_id.label("user_id")).filter(
+                and_(FriendRelationship.to_user_id == target_id,
+                not_(FriendRelationship.from_user_id == context.user_id),
+                    FriendRelationship.status == FriendStatus.accepted)
+            )
+            q4 = session.query(FriendRelationship.to_user_id.label("user_id")).filter(
+                and_(FriendRelationship.from_user_id == target_id,
+                not_(FriendRelationship.to_user_id == context.user_id),
+                    FriendRelationship.status == FriendStatus.accepted)
+            )
+            subquery = q1.union_all(q2, q3, q4).subquery()
+            query = session.query(subquery.c.user_id.label("friend_id")).group_by(
+                "friend_id"
+            ).having(func.count(subquery.c.user_id) > 1)#.join(
+            ##    User, User.id == "friend_id"
+            )
+
+
+            return api_pb2.ListMutualFriendsRes(
+                users=[
+                    str(user) for user in query.all()
+                ]
             )
 
     def SendFriendRequest(self, request, context):
