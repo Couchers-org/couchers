@@ -122,8 +122,6 @@ import {
   UsernameValidReq,
 } from "../pb/auth_pb"
 
-import * as grpcWeb from "grpc-web"
-
 import Store, { AuthenticationState } from "../store"
 
 import Router from "../router"
@@ -138,7 +136,7 @@ export default Vue.extend({
     username: "",
     usernameErrorMessages: [] as Array<string>,
     usernameSuccessMessages: [] as Array<string>,
-    usernameTimer: null as any,
+    usernameTimer: (null as unknown) as number,
     email: "",
     emailLoading: true,
     emailErrorMessages: [] as Array<string>,

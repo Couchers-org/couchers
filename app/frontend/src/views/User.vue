@@ -232,14 +232,6 @@ export default Vue.extend({
       return displayTime(this.user.joined)
     },
 
-    verificationDisplay() {
-      return Math.round(this.user.verification! * 100)
-    },
-
-    communityStandingDisplay() {
-      return Math.round(this.user.communityStanding! * 100)
-    },
-
     languagesListDisplay() {
       return displayList(this.user.languagesList)
     },

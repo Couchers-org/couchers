@@ -98,8 +98,7 @@
 <script lang="ts">
 import Vue, { PropType } from "vue"
 
-import { GetUserReq, User } from "../pb/api_pb"
-import { client } from "../api"
+import { User } from "../pb/api_pb"
 
 import { displayList, displayTime } from "../utils"
 
@@ -115,14 +114,6 @@ export default Vue.extend({
 
     joinedDisplay() {
       return displayTime(this.user.joined!)
-    },
-
-    verificationDisplay() {
-      return Math.round(this.user.verification! * 100)
-    },
-
-    communityStandingDisplay() {
-      return Math.round(this.user.communityStanding! * 100)
     },
 
     languagesListDisplay() {

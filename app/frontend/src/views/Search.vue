@@ -15,7 +15,7 @@
 <script lang="ts">
 import Vue from "vue"
 
-import { SearchReq, SearchRes, User } from "../pb/api_pb"
+import { SearchReq, User } from "../pb/api_pb"
 import { client } from "../api"
 
 import UserSearchResult from "../components/UserSearchResult.vue"

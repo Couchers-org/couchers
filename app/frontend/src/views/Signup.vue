@@ -54,11 +54,6 @@ import Vue from "vue"
 import { authClient } from "../api"
 import { SignupReq, SignupRes } from "../pb/auth_pb"
 
-import * as grpcWeb from "grpc-web"
-
-import Store, { AuthenticationState } from "../store"
-import Router from "../router"
-
 export default Vue.extend({
   data: () => ({
     loading: false,
