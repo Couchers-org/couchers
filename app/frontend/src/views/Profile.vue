@@ -160,7 +160,12 @@ import EditableList from "../components/EditableList.vue"
 import EditableColor from "../components/EditableColor.vue"
 import ErrorAlert from "../components/ErrorAlert.vue"
 
-import { GetUserReq, UpdateProfileReq, User, RepeatedStringValue } from "../pb/api_pb"
+import {
+  GetUserReq,
+  UpdateProfileReq,
+  User,
+  RepeatedStringValue,
+} from "../pb/api_pb"
 import { client } from "../api"
 
 import Store from "../store"

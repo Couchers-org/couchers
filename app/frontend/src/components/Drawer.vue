@@ -67,7 +67,7 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
+import Vue, { PropType } from "vue"
 
 import Store from "../store"
 
@@ -77,13 +77,7 @@ import { client } from "../api"
 
 export default Vue.extend({
   props: {
-    value: {
-      type: Object as () => boolean,
-    },
-  },
-
-  mounted() {
-    this.updateData()
+    value: Object as PropType<boolean>,
   },
 
   watch: {
@@ -105,6 +99,10 @@ export default Vue.extend({
           console.error("Failed to ping server: ", err)
         })
     },
+  },
+
+  mounted() {
+    this.updateData()
   },
 
   computed: {

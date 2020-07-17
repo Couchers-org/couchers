@@ -7,13 +7,11 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
+import Vue, { PropType } from "vue"
 
 export default Vue.extend({
   props: {
-    error: {
-      type: Object as () => Array<Error> | Error | null,
-    },
+    error: Object as PropType<Array<Error> | Error | null>,
   },
 
   computed: {

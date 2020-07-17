@@ -96,7 +96,7 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
+import Vue, { PropType } from "vue"
 
 import { GetUserReq, User } from "../pb/api_pb"
 import { client } from "../api"
@@ -105,24 +105,16 @@ import { displayList, displayTime } from "../utils"
 
 export default Vue.extend({
   props: {
-    user: {
-      type: Object as () => User.AsObject,
-    },
+    user: Object as PropType<User.AsObject>,
   },
 
   computed: {
     lastActiveDisplay() {
-      if (!this.user.lastActive) {
-        return "unknown"
-      }
-      return displayTime(this.user.lastActive)
+      return displayTime(this.user.lastActive!)
     },
 
     joinedDisplay() {
-      if (!this.user.joined) {
-        return "error"
-      }
-      return displayTime(this.user.joined)
+      return displayTime(this.user.joined!)
     },
 
     verificationDisplay() {
