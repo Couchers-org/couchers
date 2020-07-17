@@ -15,9 +15,8 @@ import Vue from "vue"
 import { SSOReq } from "../pb/api_pb"
 import { client } from "../api"
 
-import Store, { AuthenticationState } from "../store"
+import Store from "../store"
 
-import Router from "../router"
 import ErrorAlert from "../components/ErrorAlert.vue"
 import LoadingCircular from "../components/LoadingCircular.vue"
 
@@ -45,8 +44,9 @@ export default Vue.extend({
     doSSO() {
       const req = new SSOReq()
 
-      req.setSso(this.$route.query.sso)
-      req.setSig(this.$route.query.sig)
+      // these are nominally something like string | (null | string)[], but we can just pretend they're string
+      req.setSso(this.$route.query.sso as string)
+      req.setSig(this.$route.query.sig as string)
 
       client
         .sSO(req)

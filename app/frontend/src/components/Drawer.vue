@@ -67,7 +67,7 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
+import Vue, { PropType } from "vue"
 
 import Store from "../store"
 
@@ -76,16 +76,12 @@ import { PingReq } from "../pb/api_pb"
 import { client } from "../api"
 
 export default Vue.extend({
-  props: ["value"],
-
-  created() {
-    this.updateData()
+  props: {
+    value: Object as PropType<boolean>,
   },
 
   watch: {
-    "$store.state.auth"() {
-      this.updateData()
-    },
+    "$store.state.auth": "updateData",
   },
 
   methods: {
@@ -105,12 +101,16 @@ export default Vue.extend({
     },
   },
 
+  mounted() {
+    this.updateData()
+  },
+
   computed: {
     visible: {
-      get() {
+      get(): boolean {
         return this.value
       },
-      set(val: boolean) {
+      set(val: boolean): void {
         this.$emit("input", val)
       },
     },

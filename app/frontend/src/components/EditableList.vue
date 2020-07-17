@@ -30,18 +30,20 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
+import Vue, { PropType } from "vue"
 
 export default Vue.extend({
-  props: ["list"],
+  props: {
+    list: Object as PropType<Array<string>>,
+  },
 
   data: () => ({
     editing: false,
-    dirtyList: null,
+    dirtyList: [] as Array<string>,
   }),
 
   computed: {
-    displayList() {
+    displayList(): string {
       return this.list.join(", ")
     },
   },
@@ -52,7 +54,7 @@ export default Vue.extend({
       this.dirtyList = this.list
     },
 
-    remove(item) {
+    remove(item: string) {
       this.dirtyList.splice(this.dirtyList.indexOf(item), 1)
       this.dirtyList = [...this.dirtyList]
     },

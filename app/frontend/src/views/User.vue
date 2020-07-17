@@ -144,8 +144,6 @@
 <script lang="ts">
 import Vue from "vue"
 
-import moment, { lang } from "moment"
-
 import { GetUserReq, SendFriendRequestReq, User } from "../pb/api_pb"
 import { client } from "../api"
 
@@ -156,25 +154,7 @@ export default Vue.extend({
     loading: false,
     error: null as null | Error,
     sendingFriendRequest: false,
-    user: {
-      name: null,
-      city: null,
-      verification: null,
-      communityStanding: null,
-      numReferences: null,
-      gender: null,
-      age: null,
-      birthDate: null,
-      languagesList: [],
-      occupation: null,
-      aboutMe: null,
-      countriesVisitedList: [],
-      countriesLivedList: [],
-      lastActive: null,
-      joined: null,
-      color: null,
-      friends: null as User.FriendshipStatus,
-    },
+    user: (null as unknown) as User.AsObject,
   }),
 
   created() {
@@ -211,7 +191,7 @@ export default Vue.extend({
       req.setUser(this.user.username)
       client
         .sendFriendRequest(req)
-        .then((res) => {
+        .then(() => {
           this.sendingFriendRequest = false
           this.fetchData()
         })
@@ -250,14 +230,6 @@ export default Vue.extend({
         return "error"
       }
       return displayTime(this.user.joined)
-    },
-
-    verificationDisplay() {
-      return Math.round(this.user.verification! * 100)
-    },
-
-    communityStandingDisplay() {
-      return Math.round(this.user.communityStanding! * 100)
     },
 
     languagesListDisplay() {

@@ -151,7 +151,6 @@
 <script lang="ts">
 import Vue from "vue"
 
-import moment, { lang } from "moment"
 import wrappers from "google-protobuf/google/protobuf/wrappers_pb"
 
 import EditableTextarea from "../components/EditableTextarea.vue"
@@ -160,37 +159,23 @@ import EditableList from "../components/EditableList.vue"
 import EditableColor from "../components/EditableColor.vue"
 import ErrorAlert from "../components/ErrorAlert.vue"
 
-import { GetUserReq, UpdateProfileReq } from "../pb/api_pb"
+import {
+  GetUserReq,
+  UpdateProfileReq,
+  User,
+  RepeatedStringValue,
+} from "../pb/api_pb"
 import { client } from "../api"
 
 import Store from "../store"
 
-function displayList(list: string[]) {
-  return list.join(", ")
-}
+import { displayList, displayTime } from "../utils"
 
 export default Vue.extend({
   data: () => ({
     loading: false,
-    error: [] as Array<string>,
-    user: {
-      name: null,
-      city: null,
-      verification: null,
-      communityStanding: null,
-      numReferences: null,
-      gender: null,
-      age: null,
-      birthDate: null,
-      languagesList: [],
-      occupation: null,
-      aboutMe: null,
-      countriesVisitedList: [],
-      countriesLivedList: [],
-      lastActive: null,
-      joined: null,
-      color: null,
-    },
+    error: null as Error | null,
+    user: (null as unknown) as User.AsObject,
   }),
 
   components: {
@@ -215,16 +200,13 @@ export default Vue.extend({
       this.error = null
 
       const req = new GetUserReq()
-      req.setUser(Store.state.username)
+      req.setUser(Store.state.username!)
       client
         .getUser(req)
         .then((res) => {
           this.loading = false
           this.error = null
-
           this.user = res.toObject()
-          this.user.lastActive = res.getLastActive()
-          this.user.joined = res.getJoined()
         })
         .catch((err) => {
           this.loading = false
@@ -237,7 +219,7 @@ export default Vue.extend({
 
       client
         .updateProfile(req)
-        .then((res) => {
+        .then(() => {
           this.loading = false
           this.fetchData()
         })
@@ -298,7 +280,7 @@ export default Vue.extend({
 
     saveCountriesVisited(list: Array<string>) {
       const req = new UpdateProfileReq()
-      const listValue = new UpdateProfileReq.RepeatedStringValue()
+      const listValue = new RepeatedStringValue()
       listValue.setValueList(list)
       listValue.setExists(true)
       req.setCountriesVisited(listValue)
@@ -307,7 +289,7 @@ export default Vue.extend({
 
     saveCountriesLived(list: Array<string>) {
       const req = new UpdateProfileReq()
-      const listValue = new UpdateProfileReq.RepeatedStringValue()
+      const listValue = new RepeatedStringValue()
       listValue.setValueList(list)
       listValue.setExists(true)
       req.setCountriesLived(listValue)
@@ -316,7 +298,7 @@ export default Vue.extend({
 
     saveLanguages(list: Array<string>) {
       const req = new UpdateProfileReq()
-      const listValue = new UpdateProfileReq.RepeatedStringValue()
+      const listValue = new RepeatedStringValue()
       listValue.setValueList(list)
       listValue.setExists(true)
       req.setLanguages(listValue)
@@ -337,29 +319,14 @@ export default Vue.extend({
       if (!this.user.lastActive) {
         return "unknown"
       }
-      return moment(this.user.lastActive.toDate()).fromNow()
+      return displayTime(this.user.lastActive)
     },
 
     joinedDisplay() {
       if (!this.user.joined) {
         return "error"
       }
-      return moment(this.user.joined.toDate()).fromNow()
-    },
-
-    verificationDisplay() {
-      return Math.round(this.user.verification! * 100)
-    },
-
-    communityStandingDisplay() {
-      return Math.round(this.user.communityStanding! * 100)
-    },
-
-    ageDisplay() {
-      return (
-        new Date(new Date().getTime() - this.user.birthDate!).getFullYear() -
-        1970
-      )
+      return displayTime(this.user.joined)
     },
 
     languagesListDisplay() {

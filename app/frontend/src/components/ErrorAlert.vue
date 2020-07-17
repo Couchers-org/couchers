@@ -7,13 +7,11 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
+import Vue, { PropType } from "vue"
 
 export default Vue.extend({
   props: {
-    error: {
-      type: Object as () => Array<Error> | Error | null,
-    },
+    error: Object as PropType<Array<Error> | Error | null>,
   },
 
   computed: {
@@ -21,7 +19,7 @@ export default Vue.extend({
       if (this.error == null) {
         return []
       } else if ("length" in this.error) {
-        return this.error
+        return (this.error as Array<Error>)
           .filter((el) => "message" in el)
           .map<string>((el) => el.message)
       } else {

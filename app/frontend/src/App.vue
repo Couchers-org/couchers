@@ -40,7 +40,7 @@ export default Vue.extend({
   },
 
   data: () => ({
-    drawer: null,
+    drawer: false,
   }),
 
   computed: {

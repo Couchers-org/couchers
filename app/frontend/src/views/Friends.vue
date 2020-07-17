@@ -107,8 +107,6 @@ import Vue from "vue"
 
 import { Empty } from "google-protobuf/google/protobuf/empty_pb"
 
-import State from "../store"
-
 import {
   FriendRequest,
   RespondFriendRequestReq,
@@ -173,7 +171,7 @@ export default Vue.extend({
       req.setAccept(accept)
       client
         .respondFriendRequest(req)
-        .then((res) => {
+        .then(() => {
           this.successMessage = "Responded to friend request!"
           this.successVisible = true
           this.fetchData()
@@ -190,7 +188,7 @@ export default Vue.extend({
       req.setFriendRequestId(friendRequestId)
       client
         .cancelFriendRequest(req)
-        .then((res) => {
+        .then(() => {
           this.successMessage = "Request cancelled!"
           this.successVisible = true
           this.fetchData()

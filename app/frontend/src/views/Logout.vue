@@ -15,9 +15,7 @@ import Vue from "vue"
 import { authClient } from "../api"
 import { DeAuthReq } from "../pb/auth_pb"
 
-import * as grpcWeb from "grpc-web"
-
-import Store, { AuthenticationState } from "../store"
+import Store from "../store"
 import Router from "../router"
 import ErrorAlert from "../components/ErrorAlert.vue"
 import LoadingCircular from "../components/LoadingCircular.vue"
@@ -38,7 +36,7 @@ export default Vue.extend({
     req.setToken(Store.state.authToken!)
     authClient
       .deauthenticate(req)
-      .then((res) => {
+      .then(() => {
         Store.commit("deauth")
         Router.push({ name: "Login" })
       })
