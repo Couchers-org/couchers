@@ -12,14 +12,17 @@
     </v-system-bar>
 
     <v-app-bar app color="primary" dark clipped-left>
-      <v-app-bar-nav-icon v-if="authenticated" @click.stop="drawer = !drawer" />
+      <v-app-bar-nav-icon
+        v-if="authenticated && !anonRoute"
+        @click.stop="drawer = !drawer" />
       <v-toolbar-title class="ml-0 pl-4">Couchers.org</v-toolbar-title>
       <v-spacer></v-spacer>
-      <search-box class="mx-auto"></search-box>
+      <search-box v-if="authenticated && !anonRoute" class="mx-auto">
+      </search-box>
       <v-spacer></v-spacer>
     </v-app-bar>
 
-    <drawer v-if="authenticated" v-model="drawer" />
+    <drawer v-if="authenticated && !anonRoute" v-model="drawer" />
 
     <router-view />
   </v-app>
@@ -47,6 +50,10 @@ export default Vue.extend({
     authenticated() {
       return Store.getters.authenticated
     },
+    anonRoute() {
+      return this.$route.path.startsWith("/signup")
+             || this.$route.path.startsWith("/login")
+    }
   },
 
   methods: {
