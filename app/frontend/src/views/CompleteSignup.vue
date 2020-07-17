@@ -18,7 +18,6 @@
                         :rules="[rules.required]"
                         disabled
                         :loading="emailLoading"
-                        :error-messages="emailErrorMessages"
                         name="email"
                         label="Email"
                       ></v-text-field>
@@ -139,7 +138,6 @@ export default Vue.extend({
     usernameTimer: (null as unknown) as number,
     email: "",
     emailLoading: true,
-    emailErrorMessages: [] as Array<string>,
     name: "",
     city: "",
     date: "",
@@ -161,7 +159,6 @@ export default Vue.extend({
   methods: {
     fetchData() {
       this.emailLoading = false
-      this.emailErrorMessages = []
 
       const req = new SignupTokenInfoReq()
       req.setSignupToken(this.$route.params.token)
@@ -173,7 +170,7 @@ export default Vue.extend({
         })
         .catch((err) => {
           this.emailLoading = false
-          this.emailErrorMessages = ["Failed to fetch details."]
+          this.error = err
         })
     },
 
