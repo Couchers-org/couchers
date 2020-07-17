@@ -6,7 +6,7 @@
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title class="title">{{ name }}</v-list-item-title>
-        <v-list-item-subtitle>{{ username }}</v-list-item-subtitle>
+        <v-list-item-subtitle>{{ handle(username) }}</v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
 
@@ -71,6 +71,8 @@ import Vue, { PropType } from "vue"
 
 import Store from "../store"
 
+import { handle } from "../utils"
+
 import { PingReq } from "../pb/api_pb"
 
 import { client } from "../api"
@@ -85,6 +87,8 @@ export default Vue.extend({
   },
 
   methods: {
+    handle,
+
     updateData() {
       client
         .ping(new PingReq())
