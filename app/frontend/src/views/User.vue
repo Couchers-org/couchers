@@ -114,6 +114,17 @@
             >
           </v-list-item-content>
         </v-list-item>
+        <v-list-item two-item>
+          <v-list-item-icon>
+            <v-icon>mdi-account-multiple-check</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>{{
+              displayList(mutualFriends.map(handle))
+            }}</v-list-item-title>
+            <v-list-item-subtitle>Mutual friends</v-list-item-subtitle>
+          </v-list-item-content>
+        </v-list-item>
         <v-divider></v-divider>
         <v-card-actions>
           <v-btn text>Message</v-btn>
@@ -144,10 +155,17 @@
 <script lang="ts">
 import Vue from "vue"
 
-import { GetUserReq, SendFriendRequestReq, User } from "../pb/api_pb"
+import ErrorAlert from "../components/ErrorAlert.vue"
+
+import {
+  GetUserReq,
+  SendFriendRequestReq,
+  User,
+  ListMutualFriendsReq,
+} from "../pb/api_pb"
 import { client } from "../api"
 
-import { displayList, displayTime } from "../utils"
+import { displayList, displayTime, handle } from "../utils"
 
 export default Vue.extend({
   data: () => ({
@@ -155,7 +173,12 @@ export default Vue.extend({
     error: null as null | Error,
     sendingFriendRequest: false,
     user: (null as unknown) as User.AsObject,
+    mutualFriends: [] as Array<string>,
   }),
+
+  components: {
+    ErrorAlert,
+  },
 
   created() {
     this.fetchData()
@@ -166,17 +189,31 @@ export default Vue.extend({
   },
 
   methods: {
+    handle,
+
+    displayList,
+
     fetchData() {
       this.loading = true
       this.error = null
 
       const req = new GetUserReq()
-      req.setUser(this.$route.params.user)
+      req.setUser(this.routeUser)
       client
         .getUser(req)
         .then((res) => {
+          const req = new ListMutualFriendsReq()
+          req.setUser(this.routeUser)
+          client
+            .listMutualFriends(req)
+            .then((res) => {
+              this.mutualFriends = res.getUsersList()
+            })
+            .catch((err) => {
+              this.loading = false
+              this.error = err
+            })
           this.loading = false
-          this.error = null
           this.user = res.toObject()
         })
         .catch((err) => {
@@ -204,6 +241,10 @@ export default Vue.extend({
   },
 
   computed: {
+    routeUser() {
+      return this.$route.params.user
+    },
+
     friendsDisplay() {
       switch (this.user.friends) {
         case User.FriendshipStatus.NOT_FRIENDS:

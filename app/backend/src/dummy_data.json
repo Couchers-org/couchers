@@ -75,5 +75,37 @@
             "Sweden",
             "United Stated of America"
         ]
+    },
+    {
+        "username": "aapeli2",
+        "email": "couchers2@aapelivuorinen.com",
+        "password": "Aapeli2's password",
+        "name": "Aapeli Vuorinen (2)",
+        "city": "Brisbane, Queensland, Australia",
+        "verification": 0.97,
+        "community_standing": 0.88,
+        "num_references": 401,
+        "gender": "Male",
+        "birthdate": {
+            "year": 1990,
+            "month": 3,
+            "day": 3
+        },
+        "languages": [
+            "English",
+            "Finnish"
+        ],
+        "occupation": "Mathematician",
+        "about_me": "Some generic stuff about Aapeli 2.",
+        "about_place": "About Aapeli 2's place",
+        "countries_visited": [
+            "Australia"
+        ],
+        "countries_lived": [
+            "Australia",
+            "Finland",
+            "Sweden",
+            "United Stated of America"
+        ]
     }
 ]
