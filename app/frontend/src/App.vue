@@ -14,7 +14,8 @@
     <v-app-bar app color="primary" dark clipped-left>
       <v-app-bar-nav-icon
         v-if="authenticated && !anonRoute"
-        @click.stop="drawer = !drawer" />
+        @click.stop="drawer = !drawer"
+      />
       <v-toolbar-title class="ml-0 pl-4">Couchers.org</v-toolbar-title>
       <v-spacer></v-spacer>
       <search-box v-if="authenticated && !anonRoute" class="mx-auto">
@@ -52,7 +53,7 @@ export default Vue.extend({
     },
     anonRoute() {
       return this.$route.meta.noAuth
-    }
+    },
   },
 
   methods: {
