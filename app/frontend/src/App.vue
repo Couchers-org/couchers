@@ -51,8 +51,7 @@ export default Vue.extend({
       return Store.getters.authenticated
     },
     anonRoute() {
-      return this.$route.path.startsWith("/signup")
-             || this.$route.path.startsWith("/login")
+      return this.$route.meta.noAuth
     }
   },
 
