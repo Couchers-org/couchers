@@ -12,7 +12,7 @@ from couchers.db import (get_friends_status, get_user_by_field, is_valid_name,
 from couchers.models import FriendRelationship, FriendStatus, User
 from couchers.utils import Timestamp_from_datetime
 from pb import api_pb2, api_pb2_grpc
-from sqlalchemy.sql import or_, and_, not_, func
+from sqlalchemy.sql import or_
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d: %(process)d: %(message)s", datefmt="%F %T", level=logging.DEBUG)
 
@@ -129,7 +129,7 @@ class API(api_pb2_grpc.APIServicer):
             return api_pb2.ListFriendsRes(
                 users=[rel.from_user.username if rel.from_user.id != context.user_id else rel.to_user.username for rel in rels],
             )
-    
+
     def ListMutualFriends(self, request, context):
         with session_scope(self._Session) as session:
             target = get_user_by_field(session, request.user)

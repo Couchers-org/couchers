@@ -248,7 +248,7 @@ def test_ListMutualFriends(db):
     user3, token3 = generate_user(db, "user3")
     user4, token4 = generate_user(db, "user4")
     user5, token5 = generate_user(db, "user5")
-    
+
     # arrange friends like this: 1<->2, 1<->3, 1<->4, 1<->5, 3<->2, 3<->4,
     # 2<->5 pending
     # so 1 and 2 should have mutual friend 3 only
@@ -301,7 +301,6 @@ def test_ListMutualFriends(db):
         res = api.ListMutualFriends(api_pb2.ListMutualFriendsReq(user="user1"))
         assert len(res.users) == 1
         assert res.users[0] == "user3"
-
 
 def test_CancelFriendRequest(db):
     user1, token1 = generate_user(db, "user1")
