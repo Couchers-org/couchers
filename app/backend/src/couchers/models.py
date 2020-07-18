@@ -194,69 +194,73 @@ class Reference(Base):
     from_user = relationship("User", backref="references_from", foreign_keys="Reference.from_user_id")
     to_user = relationship("User", backref="references_to", foreign_keys="Reference.to_user_id")
 
-class MessageThread(Base):
-    """
-    Message thread metadata
-    """
 
-    __tablename__ = "message_threads"
+class Conversation(Base):
+    """
+    Conversation brings together the different types of message/conversation types
+    """
+    __tablename__ = "conversations"
 
     id = Column(Integer, primary_key=True)
-    creation_time = Column(DateTime, nullable=False, server_default=func.now())
+    created = Column(DateTime, nullable=False, server_default=func.now())
+
+
+class GroupChat(Base):
+    """
+    Group chat
+    """
+    __tablename__ = "group_chats"
+
+    id = Column(Integer, primary_key=True)
+
+    conversation_id = Column(ForeignKey("conversations.id"), nullable=False)
 
     title = Column(String, nullable=True)
     only_admins_invite = Column(Boolean, nullable=False, default=True)
     creator_id = Column(ForeignKey("users.id"), nullable=False)
     is_dm = Column(Boolean, nullable=False)
 
-    creator = relationship("User")
+    conversation = relationship("Conversation", backref="group_chat")
+    creator = relationship("User", backref="created_group_chats")
 
-class MessageThreadRole(enum.Enum):
+
+class GroupChatRole(enum.Enum):
     admin = 1
     participant = 2
 
-class ThreadSubscriptionStatus(enum.Enum):
-    pending = 1
-    accepted = 2
-    rejected = 3
 
-class MessageThreadSubscription(Base):
+class GroupChatSubscription(Base):
     """
     The recipient of a thread and information about when they joined/left/etc.
     """
+    __tablename__ = "group_chat_subscriptions"
+    id = Column(Integer, primary_key=True)
 
-    __tablename__ = "message_thread_subscriptions"
+    user_id = Column(ForeignKey("users.id"), nullable=False)
+    group_chat_id = Column(ForeignKey("group_chats.id"), nullable=False)
 
-    user_id = Column(ForeignKey("users.id"), primary_key=True)
-    thread_id = Column(ForeignKey("message_threads.id"), primary_key=True)
+    joined = Column(DateTime, nullable=False, server_default=func.now())
+    left = Column(DateTime, nullable=True)
 
-    role = Column(Enum(MessageThreadRole), nullable=False)
-    status = Column(Enum(ThreadSubscriptionStatus), nullable=False)
+    role = Column(Enum(GroupChatRole), nullable=False)
 
+    user = relationship("User", backref="group_chat_subscriptions")
+    thread = relationship("GroupChat", backref="subscriptions")
 
-    added_time = Column(DateTime, nullable=False, server_default=func.now())
-    added_by_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-
-    left_time = Column(DateTime, nullable=True)
-
-    user = relationship("User", backref="message_thread_subscriptions", foreign_keys="MessageThreadSubscription.user_id")
-    thread = relationship("MessageThread", backref="recipient_subscriptions")
-    added_by = relationship("User", foreign_keys="MessageThreadSubscription.added_by_id")
 
 class Message(Base):
     """
     Message content.
     """
-
     __tablename__ = "messages"
 
     id = Column(Integer, primary_key=True)
-    thread_id = Column(ForeignKey("message_threads.id"), nullable=False)
+
+    conversation_id = Column(ForeignKey("conversations.id"), nullable=False)
     author_id = Column(ForeignKey("users.id"), nullable=False)
 
     timestamp = Column(DateTime, nullable=False, server_default=func.now())
-
     text = Column(String, nullable=False)
 
-    thread = relationship("MessageThread", backref="messages", order_by="Message.timestamp.desc()")
+    conversation = relationship("Conversation", backref="messages", order_by="Message.timestamp.desc()")
     author = relationship("User")
