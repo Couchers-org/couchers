@@ -77,7 +77,9 @@
             <v-icon>mdi-translate</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title>{{ languagesListDisplay }}</v-list-item-title>
+            <v-list-item-title>{{
+              displayList(user.languagesList)
+            }}</v-list-item-title>
             <v-list-item-subtitle>Languages</v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
@@ -107,10 +109,12 @@
           </v-list-item-icon>
           <v-list-item-content>
             <v-list-item-title
-              >Last active {{ lastActiveDisplay }}</v-list-item-title
+              >Last active
+              {{ displayTime(user.lastActive) || "error" }}</v-list-item-title
             >
             <v-list-item-subtitle
-              >Joined {{ joinedDisplay }}</v-list-item-subtitle
+              >Joined
+              {{ displayTime(user.joined) || "error" }}</v-list-item-subtitle
             >
           </v-list-item-content>
         </v-list-item>
@@ -143,9 +147,9 @@
           <h3>About my place</h3>
           <p>{{ user.aboutPlace }}</p>
           <h3>Countries I've visited</h3>
-          <p>{{ countriesVisitedListDisplay }}</p>
+          <p>{{ displayList(user.countriesVisitedList) }}</p>
           <h3>Countries I've lived in</h3>
-          <p>{{ countriesLivedListDisplay }}</p>
+          <p>{{ displayList(user.countriesLivedList) }}</p>
         </v-card-text>
       </v-card>
     </v-container>
@@ -192,6 +196,8 @@ export default Vue.extend({
     handle,
 
     displayList,
+
+    displayTime,
 
     fetchData() {
       this.loading = true
@@ -257,32 +263,6 @@ export default Vue.extend({
         default:
           return "You can't be friends with this user, you doofus."
       }
-    },
-
-    lastActiveDisplay() {
-      if (!this.user.lastActive) {
-        return "unknown"
-      }
-      return displayTime(this.user.lastActive)
-    },
-
-    joinedDisplay() {
-      if (!this.user.joined) {
-        return "error"
-      }
-      return displayTime(this.user.joined)
-    },
-
-    languagesListDisplay() {
-      return displayList(this.user.languagesList)
-    },
-
-    countriesVisitedListDisplay() {
-      return displayList(this.user.countriesVisitedList)
-    },
-
-    countriesLivedListDisplay() {
-      return displayList(this.user.countriesLivedList)
     },
   },
 })
