@@ -7,128 +7,120 @@ import "google/protobuf/wrappers.proto";
 import "google/protobuf/empty.proto";
 
 service Conversations {
-  rpc ListMessageThreads(ListMessageThreadsReq) returns (ListMessageThreadsRes) {
-    // Gives a paginated list of message threads with previews
+  rpc ListGroupChats(ListGroupChatsReq) returns (ListGroupChatsRes) {
+    // Retrieves list of group chats (ordered by last message), paginated
   }
 
-  rpc EditMessageThreadStatus(EditMessageThreadStatusReq) returns (google.protobuf.Empty);
+  rpc GetGroupChat(GetGroupChatReq) returns (GroupChat) {
+    // Retrieves group chat info by id
+  }
 
-  rpc GetMessageThread(GetMessageThreadReq) returns (GetMessageThreadRes);
+  rpc GetGroupChatMessages(GetGroupChatMessagesReq) returns (GetGroupChatMessagesRes) {
+    // Retrieves messages in group chat, paginated
+  }
 
-  rpc GetMessageThreadInfo(GetMessageThreadInfoReq) returns (GetMessageThreadInfoRes);
+  rpc CreateGroupChat(CreateGroupChatReq) returns (GroupChat) {
+    // Creates a new group chat
+  }
 
-  rpc CreateMessageThread(CreateMessageThreadReq) returns (CreateMessageThreadRes);
+  rpc EditGroupChat(EditGroupChatReq) returns (google.protobuf.Empty) {
+    // Modifies group chat
+  }
 
-  rpc EditMessageThread(EditMessageThreadReq) returns (google.protobuf.Empty);
+  rpc MakeGroupChatAdmin(MakeGroupChatAdminReq) returns (google.protobuf.Empty) {
+    // Make a user an admin of a group chat
+  }
 
-  rpc MakeMessageThreadAdmin(ThreadUserReq) returns (google.protobuf.Empty);
+  rpc RemoveGroupChatAdmin(RemoveGroupChatAdminReq) returns (google.protobuf.Empty) {
+    // Remove a user from admin in group chat. TODO: Only original creator can do this
+  }
 
-  rpc RemoveMessageThreadAdmin(ThreadUserReq) returns (google.protobuf.Empty);
+  rpc SendMessage(SendMessageReq) returns (google.protobuf.Empty) {
+    // Send a message to a group chat
+  }
 
-  rpc SendMessage(SendMessageReq) returns (google.protobuf.Empty);
+  rpc LeaveGroupChat(LeaveGroupChatReq) returns (google.protobuf.Empty) {
+    // Leave a group chat
+  }
 
-  rpc LeaveMessageThread(LeaveMessageThreadReq) returns (google.protobuf.Empty);
-
-  rpc InviteToMessageThread(ThreadUserReq) returns (google.protobuf.Empty);
-
-  rpc SearchMessages(SearchMessagesReq) returns (SearchMessagesRes);
+  rpc SearchMessages(SearchMessagesReq) returns (SearchMessagesRes) {
+    // Search messages by string
+  }
 }
 
-enum MessageThreadStatus {
-  PENDING = 0;
-  ACCEPTED = 1;
-  REJECTED = 2;
-}
-
-message MessageThreadPreview {
-  int64 thread_id = 1;
+message GroupChat {
+  uint64 group_chat_id = 1;
   string title = 2;
-  repeated string recipients = 3;
-  bool is_dm = 4;
-  google.protobuf.Timestamp creation_time = 5;
-  MessageThreadStatus status = 6;
-  string latest_message_preview = 7;
-  string latest_message_sender = 8;
-  google.protobuf.Timestamp latest_message_time = 9;
+  repeated uint64 member_user_ids = 3;
+  repeated uint64 admin_user_ids = 4;
+  bool only_admins_invite = 5;
+  bool is_dm = 6;
+  google.protobuf.Timestamp created = 7;
+  Message latest_message = 8;
 }
 
-message ListMessageThreadsReq {
-  uint32 start_index = 1;
-  uint32 max = 2;
+message GetGroupChatReq {
+  uint64 group_chat_id = 1;
 }
 
-message ListMessageThreadsRes {
-  uint32 start_index = 1;
-  repeated MessageThreadPreview threads = 2;
-  bool has_more = 3;
+message ListGroupChatsReq {
+  uint64 start_group_chat_id = 1;
+  uint64 number = 2;
 }
 
-
-message EditMessageThreadStatusReq {
-  int64 thread_id = 1;
-  MessageThreadStatus status = 2;
+message ListGroupChatsRes {
+  repeated GroupChat group_chat_ids = 1;
+  uint64 next_group_chat_id = 2;
+  bool no_more = 3;
 }
 
 message Message {
-  int64 id = 1;
-  string sender = 2;
-  google.protobuf.Timestamp timestamp = 3;
+  uint64 message_id = 1;
+  uint64 author_user_id = 2;
+  google.protobuf.Timestamp time = 3;
   string text = 4;
 }
 
-message GetMessageThreadReq {
-  int64 thread_id = 1;
-  uint32 start_index = 2;
-  uint32 max = 3;
+message GetGroupChatMessagesReq {
+  uint64 group_chat_id = 1;
+  uint64 start_group_chat_id = 2;
+  uint64 number = 3;
 }
 
-message GetMessageThreadRes {
-  uint32 start_index = 1;
-  repeated Message messages = 2;
-  bool has_more = 3;
+message GetGroupChatMessagesRes {
+  repeated Message messages = 1;
+  uint64 next_group_chat_id = 2;
+  bool no_more = 3;
 }
 
-message GetMessageThreadInfoReq {
-  uint32 thread_id = 1;
-}
-
-message GetMessageThreadInfoRes {
-  string title = 1;
-  repeated string recipients = 2;
-  repeated string admins = 3;
-  google.protobuf.Timestamp creation_time = 4;
-  bool only_admins_invite = 5;
-  MessageThreadStatus status = 6;
-  bool is_dm = 7;
-}
-
-message CreateMessageThreadReq {
+message CreateGroupChatReq {
   google.protobuf.StringValue title = 1;
-  repeated string recipients = 2;
+  repeated uint64 recipient_ids = 2;
 }
 
-message CreateMessageThreadRes {
-  int64 thread_id = 1;
-}
-
-message EditMessageThreadReq {
-  int64 thread_id = 1;
+message EditGroupChatReq {
+  uint64 group_chat_id = 1;
   google.protobuf.StringValue title = 2;
   google.protobuf.BoolValue only_admins_invite = 3;
 }
 
-message ThreadUserReq {
-  int64 thread_id = 1;
-  string user = 2;
+message MakeGroupChatAdminReq {
+  uint64 group_chat_id = 1;
+  uint64 user_id = 2;
+}
+
+message RemoveGroupChatAdminReq {
+  uint64 group_chat_id = 1;
+  uint64 user_id = 2;
 }
 
 message SendMessageReq {
-  int64 thread_id = 1;
-  string message = 2;
+  uint64 group_chat_id = 1;
+  string text = 2;
 }
 
-message LeaveMessageThreadReq {
-  int64 thread_id = 1;
+message LeaveGroupChatReq {
+  uint64 group_chat_id = 1;
 }
 
 message SearchMessagesReq {
@@ -136,8 +128,8 @@ message SearchMessagesReq {
 }
 
 message MessageSearchResult {
-  int64 thread_id = 1;
-  int64 message_id = 2;
+  uint64 group_chat_id = 1;
+  Message message = 2;
 }
 
 message SearchMessagesRes {
