@@ -177,6 +177,44 @@ export namespace ListFriendsRes {
   }
 }
 
+export class ListMutualFriendsReq extends jspb.Message {
+  getUser(): string;
+  setUser(value: string): ListMutualFriendsReq;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ListMutualFriendsReq.AsObject;
+  static toObject(includeInstance: boolean, msg: ListMutualFriendsReq): ListMutualFriendsReq.AsObject;
+  static serializeBinaryToWriter(message: ListMutualFriendsReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ListMutualFriendsReq;
+  static deserializeBinaryFromReader(message: ListMutualFriendsReq, reader: jspb.BinaryReader): ListMutualFriendsReq;
+}
+
+export namespace ListMutualFriendsReq {
+  export type AsObject = {
+    user: string,
+  }
+}
+
+export class ListMutualFriendsRes extends jspb.Message {
+  getUsersList(): Array<string>;
+  setUsersList(value: Array<string>): ListMutualFriendsRes;
+  clearUsersList(): ListMutualFriendsRes;
+  addUsers(value: string, index?: number): ListMutualFriendsRes;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ListMutualFriendsRes.AsObject;
+  static toObject(includeInstance: boolean, msg: ListMutualFriendsRes): ListMutualFriendsRes.AsObject;
+  static serializeBinaryToWriter(message: ListMutualFriendsRes, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ListMutualFriendsRes;
+  static deserializeBinaryFromReader(message: ListMutualFriendsRes, reader: jspb.BinaryReader): ListMutualFriendsRes;
+}
+
+export namespace ListMutualFriendsRes {
+  export type AsObject = {
+    usersList: Array<string>,
+  }
+}
+
 export class PingReq extends jspb.Message {
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): PingReq.AsObject;
