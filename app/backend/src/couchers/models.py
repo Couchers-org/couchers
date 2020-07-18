@@ -211,9 +211,7 @@ class GroupChat(Base):
     """
     __tablename__ = "group_chats"
 
-    id = Column(Integer, primary_key=True)
-
-    conversation_id = Column(ForeignKey("conversations.id"), nullable=False)
+    conversation_id = Column("id", ForeignKey("conversations.id"), primary_key=True)
 
     title = Column(String, nullable=True)
     only_admins_invite = Column(Boolean, nullable=False, default=True)
@@ -259,8 +257,8 @@ class Message(Base):
     conversation_id = Column(ForeignKey("conversations.id"), nullable=False)
     author_id = Column(ForeignKey("users.id"), nullable=False)
 
-    timestamp = Column(DateTime, nullable=False, server_default=func.now())
+    time = Column(DateTime, nullable=False, server_default=func.now())
     text = Column(String, nullable=False)
 
-    conversation = relationship("Conversation", backref="messages", order_by="Message.timestamp.desc()")
+    conversation = relationship("Conversation", backref="messages", order_by="Message.time.desc()")
     author = relationship("User")
