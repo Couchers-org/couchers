@@ -28,7 +28,7 @@
           <v-subheader v-if="!friends.length">Empty!</v-subheader>
           <v-list-item v-for="friend in friends" :key="friend">
             <v-list-item-content>
-              <v-list-item-title v-text="friend"></v-list-item-title>
+              <v-list-item-title v-text="handle(friend)"></v-list-item-title>
               <v-btn
                 color="primary"
                 class="mx-2 my-2"
@@ -55,7 +55,9 @@
             :key="request.friendRequestId"
           >
             <v-list-item-content>
-              <v-list-item-title v-text="request.user"></v-list-item-title>
+              <v-list-item-title
+                v-text="handle(request.user)"
+              ></v-list-item-title>
               <v-btn
                 color="success"
                 class="mx-2 my-2"
@@ -87,7 +89,9 @@
             :key="request.friendRequestId"
           >
             <v-list-item-content>
-              <v-list-item-title v-text="request.user"></v-list-item-title>
+              <v-list-item-title
+                v-text="handle(request.user)"
+              ></v-list-item-title>
               <v-btn
                 color="error"
                 class="mx-2 my-2"
@@ -104,6 +108,8 @@
 
 <script lang="ts">
 import Vue from "vue"
+
+import { handle } from "../utils"
 
 import { Empty } from "google-protobuf/google/protobuf/empty_pb"
 
@@ -131,6 +137,8 @@ export default Vue.extend({
   },
 
   methods: {
+    handle,
+
     fetchData() {
       this.loading = true
       this.errorMessage = ""

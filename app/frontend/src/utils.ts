@@ -7,3 +7,7 @@ export function displayList(list: string[]) {
 export function displayTime(ts: { seconds: number; nanos: number }) {
   return moment(new Date(ts.seconds * 1000 + ts.nanos / 1000000)).fromNow()
 }
+
+export function handle(username: string): string {
+  return "@" + username
+}
