@@ -135,38 +135,32 @@ class API(api_pb2_grpc.APIServicer):
             target = get_user_by_field(session, request.user)
             if not target:
                 session.abort(grpc.StatusCode.NOT_FOUND, "Target user not found.")
-            target_id = target.id
-            q1 = session.query(FriendRelationship.from_user_id.label("user_id")).filter(
-                and_(FriendRelationship.to_user_id == context.user_id,
-                    not_(FriendRelationship.from_user_id == target_id),
-                    FriendRelationship.status == FriendStatus.accepted)
-            )
-            q2 = session.query(FriendRelationship.to_user_id.label("user_id")).filter(
-                and_(FriendRelationship.from_user_id == context.user_id,
-                not_(FriendRelationship.to_user_id == target_id),
-                    FriendRelationship.status == FriendStatus.accepted)
-            )
-            q3 = session.query(FriendRelationship.from_user_id.label("user_id")).filter(
-                and_(FriendRelationship.to_user_id == target_id,
-                not_(FriendRelationship.from_user_id == context.user_id),
-                    FriendRelationship.status == FriendStatus.accepted)
-            )
-            q4 = session.query(FriendRelationship.to_user_id.label("user_id")).filter(
-                and_(FriendRelationship.from_user_id == target_id,
-                not_(FriendRelationship.to_user_id == context.user_id),
-                    FriendRelationship.status == FriendStatus.accepted)
-            )
-            subquery = q1.union_all(q2, q3, q4).subquery()
-            query = session.query(subquery.c.user_id.label("friend_id")).group_by(
-                "friend_id"
-            ).having(func.count(subquery.c.user_id) > 1)#.join(
-            ##    User, User.id == "friend_id"
-            )
 
+            q1 = (session.query(FriendRelationship.from_user_id.label("user_id"))
+                .filter(FriendRelationship.to_user_id == context.user_id)
+                .filter(FriendRelationship.from_user_id != target.id)
+                .filter(FriendRelationship.status == FriendStatus.accepted))
+
+            q2 = (session.query(FriendRelationship.to_user_id.label("user_id"))
+                .filter(FriendRelationship.from_user_id == context.user_id)
+                .filter(FriendRelationship.to_user_id != target.id)
+                .filter(FriendRelationship.status == FriendStatus.accepted))
+
+            q3 = (session.query(FriendRelationship.from_user_id.label("user_id"))
+                .filter(FriendRelationship.to_user_id == target.id)
+                .filter(FriendRelationship.from_user_id != context.user_id)
+                .filter(FriendRelationship.status == FriendStatus.accepted))
+
+            q4 = (session.query(FriendRelationship.to_user_id.label("user_id"))
+                .filter(FriendRelationship.from_user_id == target.id)
+                .filter(FriendRelationship.to_user_id != context.user_id)
+                .filter(FriendRelationship.status == FriendStatus.accepted))
+
+            mutual_friends = session.query(User).filter(User.id.in_(q1.union(q2).intersect(q3.union(q4)).subquery())).all()
 
             return api_pb2.ListMutualFriendsRes(
                 users=[
-                    str(user) for user in query.all()
+                    user.username for user in mutual_friends
                 ]
             )
 
