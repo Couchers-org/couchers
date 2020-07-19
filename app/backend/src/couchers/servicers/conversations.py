@@ -72,9 +72,9 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                             time=Timestamp_from_datetime(result.Message.time),
                             text=result.Message.text,
                         ),
-                    ) for result in results
+                    ) for result in results[:PAGINATION_LENGTH]
                 ],
-                next_message_id=min(map(lambda g: g.max_message_id, results)) if len(results) > 0 else 0,
+                next_message_id=min(map(lambda g: g.max_message_id, results))-1 if len(results) > 0 else 0,
                 no_more=len(results) <= PAGINATION_LENGTH,
             )
 
