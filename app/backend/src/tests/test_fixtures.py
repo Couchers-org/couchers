@@ -5,6 +5,7 @@ from unittest.mock import patch
 
 import grpc
 import pytest
+from couchers.crypto import random_hex
 from couchers.db import session_scope
 from couchers.interceptors import intercept_server
 from couchers.models import Base, FriendRelationship, FriendStatus, User
@@ -28,13 +29,16 @@ def db(tmp_path):
 
     return Session
 
-def generate_user(db, username):
+def generate_user(db, username=None):
     """
     Create a new user, return session token
     """
     auth = Auth(db)
 
     session = db()
+
+    if not username:
+        username = "test_user_" + random_hex(16)
 
     user = User(
         username=username,

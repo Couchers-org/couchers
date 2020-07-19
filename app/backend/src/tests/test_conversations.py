@@ -11,9 +11,9 @@ from tests.test_fixtures import (api_session, conversations_session, db,
 
 
 def test_list_group_chats(db):
-    user1, token1 = generate_user(db, "user1")
-    user2, token2 = generate_user(db, "user2")
-    user3, token3 = generate_user(db, "user3")
+    user1, token1 = generate_user(db)
+    user2, token2 = generate_user(db)
+    user3, token3 = generate_user(db)
 
     make_friends(db, user2, user1)
     make_friends(db, user1, user3)
@@ -49,10 +49,9 @@ def test_list_group_chats(db):
 
 
 def test_get_group_chat_messages(db):
-    user1, token1 = generate_user(db, "user1")
-    user2, token2 = generate_user(db, "user2")
-    user3, token3 = generate_user(db, "user3")
-    group_chat_id = 0
+    user1, token1 = generate_user(db)
+    user2, token2 = generate_user(db)
+    user3, token3 = generate_user(db)
 
     make_friends(db, user1, user2)
 
@@ -81,9 +80,9 @@ def test_get_group_chat_messages(db):
 
 
 def test_get_group_chat_info(db):
-    user1, token1 = generate_user(db, "user1")
-    user2, token2 = generate_user(db, "user2")
-    user3, token3 = generate_user(db, "user3")
+    user1, token1 = generate_user(db)
+    user2, token2 = generate_user(db)
+    user3, token3 = generate_user(db)
 
     make_friends(db, user1, user2)
     make_friends(db, user3, user1)
@@ -126,8 +125,8 @@ def test_get_group_chat_info(db):
 
 
 def test_edit_group_chat(db):
-    user1, token1 = generate_user(db, "user1")
-    user2, token2 = generate_user(db, "user2")
+    user1, token1 = generate_user(db)
+    user2, token2 = generate_user(db)
     make_friends(db, user1, user2)
 
     with conversations_session(db, token1) as c:
@@ -154,8 +153,8 @@ def test_edit_group_chat(db):
 
 
 def test_make_remove_group_chat_admin(db):
-    user1, token1 = generate_user(db, "user1")
-    user2, token2 = generate_user(db, "user2")
+    user1, token1 = generate_user(db)
+    user2, token2 = generate_user(db)
 
     make_friends(db, user1, user2)
 
@@ -203,8 +202,8 @@ def test_make_remove_group_chat_admin(db):
 
 
 def test_send_message(db):
-    user1, token1 = generate_user(db, "user1")
-    user2, token2 = generate_user(db, "user2")
+    user1, token1 = generate_user(db)
+    user2, token2 = generate_user(db)
 
     make_friends(db, user1, user2)
 
@@ -221,9 +220,9 @@ def test_send_message(db):
 
 
 def test_leave_invite_to_group_chat(db):
-    user1, token1 = generate_user(db, "user1")
-    user2, token2 = generate_user(db, "user2")
-    user3, token3 = generate_user(db, "user3")
+    user1, token1 = generate_user(db)
+    user2, token2 = generate_user(db)
+    user3, token3 = generate_user(db)
 
     make_friends(db, user1, user2)
     make_friends(db, user1, user3)
@@ -278,9 +277,9 @@ def test_leave_invite_to_group_chat(db):
 
 
 def test_search_messages(db):
-    user1, token1 = generate_user(db, "user1")
-    user2, token2 = generate_user(db, "user2")
-    user3, token3 = generate_user(db, "user3")
+    user1, token1 = generate_user(db)
+    user2, token2 = generate_user(db)
+    user3, token3 = generate_user(db)
 
     make_friends(db, user1, user2)
     make_friends(db, user1, user3)
