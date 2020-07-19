@@ -29,17 +29,21 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         with session_scope(self._Session) as session:
             results = (session.query(GroupChat, GroupChatSubscription, Message)
                 .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == GroupChat.conversation_id)
-                .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
+                .outerjoin(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
                 .filter(GroupChatSubscription.user_id == context.user_id)
-                .filter(Message.time >= GroupChatSubscription.joined)
+                .filter(
+                    or_(Message.time >= GroupChatSubscription.joined,
+                        Message.time == None)) # outer join
                 .filter(
                     or_(Message.time <= GroupChatSubscription.left,
-                        GroupChatSubscription.left == None))
+                        GroupChatSubscription.left == None,
+                        Message.time == None)) # outer join
                 .filter(
                     or_(Message.id < request.last_message_id,
-                        request.last_message_id == 0))
+                        request.last_message_id == 0,
+                        Message.id == None)) # outer join
                 .order_by(Message.id.desc())
-                .group_by(Message.conversation_id)
+                .group_by(GroupChatSubscription.group_chat_id)
                 .limit(PAGINATION_LENGTH+1)
                 .all())
 
@@ -58,24 +62,27 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                             author_user_id=result.Message.author_id,
                             time=Timestamp_from_datetime(result.Message.time),
                             text=result.Message.text,
-                        ),
+                        ) if result.Message else None,
                     ) for result in results[:PAGINATION_LENGTH]
                 ],
-                next_message_id=min(map(lambda g: g.Message.id, results))-1 if len(results) > 0 else 0, # TODO
+                next_message_id=min(map(lambda g: g.Message.id if g.Message else 1, results))-1 if len(results) > 0 else 0, # TODO
                 no_more=len(results) <= PAGINATION_LENGTH,
             )
 
     def GetGroupChat(self, request, context):
         with session_scope(self._Session) as session:
-            result = (session.query(Message, GroupChat)
-                .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
+            result = (session.query(GroupChat, GroupChatSubscription, Message)
+                .outerjoin(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
                 .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
                 .filter(GroupChatSubscription.user_id == context.user_id)
                 .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
-                .filter(Message.time >= GroupChatSubscription.joined)
+                .filter(
+                    or_(Message.time >= GroupChatSubscription.joined,
+                        Message.time == None)) # in case outer join and no messages
                 .filter(
                     or_(Message.time <= GroupChatSubscription.left,
-                        GroupChatSubscription.left == None))
+                        GroupChatSubscription.left == None,
+                        Message.time == None)) # in case outer join and no messages
                 .order_by(Message.id.desc())
                 .limit(1)
                 .one_or_none())
@@ -96,7 +103,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                     author_user_id=result.Message.author_id,
                     time=Timestamp_from_datetime(result.Message.time),
                     text=result.Message.text,
-                ),
+                ) if result.Message else None,
             )
 
     def GetGroupChatMessages(self, request, context):
@@ -279,18 +286,86 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
             return empty_pb2.Empty()
 
-    def InviteToGroupChat(self, request, context):
+
+    def MakeGroupChatAdmin(self, request, context):
         with session_scope(self._Session) as session:
-            subscription = (session.query(GroupChatSubscription)
+            your_subscription = (session.query(GroupChatSubscription)
                 .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
                 .filter(GroupChatSubscription.user_id == context.user_id)
                 .filter(GroupChatSubscription.left == None)
                 .one_or_none())
 
-            if not subscription:
+            if not your_subscription:
                 context.abort(grpc.StatusCode.NOT_FOUND, "Couldn't find that chat.")
 
-            if subscription.role != GroupChatRole.admin and subscription.group_chat.only_admins_invite:
+            if request.user_id == context.user_id:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, "You can't do that.")
+
+            if your_subscription.role != GroupChatRole.admin:
+                context.abort(grpc.StatusCode.PERMISSION_DENIED, "You're not allowed to do that.")
+
+            their_subscription = (session.query(GroupChatSubscription)
+                .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                .filter(GroupChatSubscription.user_id == request.user_id)
+                .filter(GroupChatSubscription.left == None)
+                .filter(GroupChatSubscription.role == GroupChatRole.participant)
+                .one_or_none())
+
+            if not their_subscription:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, "That user isn't a participant in this chat.")
+
+            their_subscription.role = GroupChatRole.admin
+            session.commit()
+
+            return empty_pb2.Empty()
+
+    def RemoveGroupChatAdmin(self, request, context):
+        with session_scope(self._Session) as session:
+            your_subscription = (session.query(GroupChatSubscription)
+                .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                .filter(GroupChatSubscription.user_id == context.user_id)
+                .filter(GroupChatSubscription.left == None)
+                .one_or_none())
+
+            if not your_subscription:
+                context.abort(grpc.StatusCode.NOT_FOUND, "Couldn't find that chat.")
+
+            if request.user_id == context.user_id:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, "You can't do that.")
+
+            if your_subscription.group_chat.creator_id != context.user_id:
+                context.abort(grpc.StatusCode.PERMISSION_DENIED, "You're not allowed to do that.")
+
+            their_subscription = (session.query(GroupChatSubscription)
+                .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                .filter(GroupChatSubscription.user_id == request.user_id)
+                .filter(GroupChatSubscription.left == None)
+                .filter(GroupChatSubscription.role == GroupChatRole.admin)
+                .one_or_none())
+
+            if not their_subscription:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, "That user isn't an admin in this chat.")
+
+            their_subscription.role = GroupChatRole.participant
+            session.commit()
+
+            return empty_pb2.Empty()
+
+    def InviteToGroupChat(self, request, context):
+        with session_scope(self._Session) as session:
+            your_subscription = (session.query(GroupChatSubscription)
+                .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                .filter(GroupChatSubscription.user_id == context.user_id)
+                .filter(GroupChatSubscription.left == None)
+                .one_or_none())
+
+            if not your_subscription:
+                context.abort(grpc.StatusCode.NOT_FOUND, "Couldn't find that chat.")
+
+            if request.user_id == context.user_id:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, "You can't do that.")
+
+            if your_subscription.role != GroupChatRole.admin and your_subscription.group_chat.only_admins_invite:
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, "You're not allowed to invite users.")
 
             their_subscription = (session.query(GroupChatSubscription)
@@ -309,7 +384,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
             subscription = GroupChatSubscription(
                 user_id=request.user_id,
-                group_chat=subscription.group_chat,
+                group_chat=your_subscription.group_chat,
                 role=GroupChatRole.participant,
             )
             session.add(subscription)
