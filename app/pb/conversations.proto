@@ -27,6 +27,10 @@ service Conversations {
     // Modifies group chat
   }
 
+  rpc InviteToGroupChat(InviteToGroupChatReq) returns (google.protobuf.Empty) {
+    // Invite a person to a chat
+  }
+
   rpc MakeGroupChatAdmin(MakeGroupChatAdminReq) returns (google.protobuf.Empty) {
     // Make a user an admin of a group chat
   }
@@ -102,6 +106,11 @@ message EditGroupChatReq {
   uint64 group_chat_id = 1;
   google.protobuf.StringValue title = 2;
   google.protobuf.BoolValue only_admins_invite = 3;
+}
+
+message InviteToGroupChatReq {
+  uint64 group_chat_id = 1;
+  uint64 user_id = 2;
 }
 
 message MakeGroupChatAdminReq {

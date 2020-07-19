@@ -268,6 +268,28 @@ export namespace EditGroupChatReq {
   }
 }
 
+export class InviteToGroupChatReq extends jspb.Message {
+  getGroupChatId(): number;
+  setGroupChatId(value: number): InviteToGroupChatReq;
+
+  getUserId(): number;
+  setUserId(value: number): InviteToGroupChatReq;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): InviteToGroupChatReq.AsObject;
+  static toObject(includeInstance: boolean, msg: InviteToGroupChatReq): InviteToGroupChatReq.AsObject;
+  static serializeBinaryToWriter(message: InviteToGroupChatReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): InviteToGroupChatReq;
+  static deserializeBinaryFromReader(message: InviteToGroupChatReq, reader: jspb.BinaryReader): InviteToGroupChatReq;
+}
+
+export namespace InviteToGroupChatReq {
+  export type AsObject = {
+    groupChatId: number,
+    userId: number,
+  }
+}
+
 export class MakeGroupChatAdminReq extends jspb.Message {
   getGroupChatId(): number;
   setGroupChatId(value: number): MakeGroupChatAdminReq;

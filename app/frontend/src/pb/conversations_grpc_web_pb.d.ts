@@ -11,6 +11,7 @@ import {
   GetGroupChatMessagesRes,
   GetGroupChatReq,
   GroupChat,
+  InviteToGroupChatReq,
   LeaveGroupChatReq,
   ListGroupChatsReq,
   ListGroupChatsRes,
@@ -55,6 +56,13 @@ export class ConversationsClient {
 
   editGroupChat(
     request: EditGroupChatReq,
+    metadata: grpcWeb.Metadata | undefined,
+    callback: (err: grpcWeb.Error,
+               response: google_protobuf_empty_pb.Empty) => void
+  ): grpcWeb.ClientReadableStream<google_protobuf_empty_pb.Empty>;
+
+  inviteToGroupChat(
+    request: InviteToGroupChatReq,
     metadata: grpcWeb.Metadata | undefined,
     callback: (err: grpcWeb.Error,
                response: google_protobuf_empty_pb.Empty) => void
@@ -124,6 +132,11 @@ export class ConversationsPromiseClient {
 
   editGroupChat(
     request: EditGroupChatReq,
+    metadata?: grpcWeb.Metadata
+  ): Promise<google_protobuf_empty_pb.Empty>;
+
+  inviteToGroupChat(
+    request: InviteToGroupChatReq,
     metadata?: grpcWeb.Metadata
   ): Promise<google_protobuf_empty_pb.Empty>;
 

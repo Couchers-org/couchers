@@ -240,6 +240,7 @@ class GroupChatSubscription(Base):
     __tablename__ = "group_chat_subscriptions"
     id = Column(Integer, primary_key=True)
 
+    # TODO: DB constraint on only one user+group_chat combo at a given time
     user_id = Column(ForeignKey("users.id"), nullable=False)
     group_chat_id = Column(ForeignKey("group_chats.id"), nullable=False)
 

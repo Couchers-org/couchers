@@ -81,7 +81,6 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 .one_or_none())
 
             if not result:
-                assert False
                 context.abort(grpc.StatusCode.NOT_FOUND, "Couldn't find that chat.")
 
             return conversations_pb2.GroupChat(
@@ -276,6 +275,60 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 thread.title = request.title.value
             if request.HasField("only_admins_invite"):
                 thread.only_admins_invite = request.only_admins_invite.value
+            session.commit()
+
+            return empty_pb2.Empty()
+
+    def InviteToGroupChat(self, request, context):
+        with session_scope(self._Session) as session:
+            subscription = (session.query(GroupChatSubscription)
+                .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                .filter(GroupChatSubscription.user_id == context.user_id)
+                .filter(GroupChatSubscription.left == None)
+                .one_or_none())
+
+            if not subscription:
+                context.abort(grpc.StatusCode.NOT_FOUND, "Couldn't find that chat.")
+
+            if subscription.role != GroupChatRole.admin and subscription.group_chat.only_admins_invite:
+                context.abort(grpc.StatusCode.PERMISSION_DENIED, "You're not allowed to invite users.")
+
+            their_subscription = (session.query(GroupChatSubscription)
+                .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                .filter(GroupChatSubscription.user_id == request.user_id)
+                .filter(GroupChatSubscription.left == None)
+                .one_or_none())
+
+            if their_subscription:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, "That user is already in the chat.")
+
+            # TODO: race condition!
+
+            if get_friends_status(session, context.user_id, request.user_id) != api_pb2.User.FriendshipStatus.FRIENDS:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, "You must be friends with each person you add to a group chat.")
+
+            subscription = GroupChatSubscription(
+                user_id=request.user_id,
+                group_chat=subscription.group_chat,
+                role=GroupChatRole.participant,
+            )
+            session.add(subscription)
+            session.commit()
+
+            return empty_pb2.Empty()
+
+    def LeaveGroupChat(self, request, context):
+        with session_scope(self._Session) as session:
+            subscription = (session.query(GroupChatSubscription)
+                .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                .filter(GroupChatSubscription.user_id == context.user_id)
+                .filter(GroupChatSubscription.left == None)
+                .one_or_none())
+
+            if not subscription:
+                context.abort(grpc.StatusCode.NOT_FOUND, "Couldn't find that chat.")
+
+            subscription.left = datetime.utcnow()
             session.commit()
 
             return empty_pb2.Empty()

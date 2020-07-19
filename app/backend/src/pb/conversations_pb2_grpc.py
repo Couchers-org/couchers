@@ -40,6 +40,11 @@ class ConversationsStub(object):
                 request_serializer=pb_dot_conversations__pb2.EditGroupChatReq.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
+        self.InviteToGroupChat = channel.unary_unary(
+                '/conversations.Conversations/InviteToGroupChat',
+                request_serializer=pb_dot_conversations__pb2.InviteToGroupChatReq.SerializeToString,
+                response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                )
         self.MakeGroupChatAdmin = channel.unary_unary(
                 '/conversations.Conversations/MakeGroupChatAdmin',
                 request_serializer=pb_dot_conversations__pb2.MakeGroupChatAdminReq.SerializeToString,
@@ -100,6 +105,13 @@ class ConversationsServicer(object):
 
     def EditGroupChat(self, request, context):
         """Modifies group chat
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def InviteToGroupChat(self, request, context):
+        """Invite a person to a chat
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -166,6 +178,11 @@ def add_ConversationsServicer_to_server(servicer, server):
             'EditGroupChat': grpc.unary_unary_rpc_method_handler(
                     servicer.EditGroupChat,
                     request_deserializer=pb_dot_conversations__pb2.EditGroupChatReq.FromString,
+                    response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            ),
+            'InviteToGroupChat': grpc.unary_unary_rpc_method_handler(
+                    servicer.InviteToGroupChat,
+                    request_deserializer=pb_dot_conversations__pb2.InviteToGroupChatReq.FromString,
                     response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
             'MakeGroupChatAdmin': grpc.unary_unary_rpc_method_handler(
@@ -279,6 +296,22 @@ class Conversations(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/conversations.Conversations/EditGroupChat',
             pb_dot_conversations__pb2.EditGroupChatReq.SerializeToString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            options, channel_credentials,
+            call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def InviteToGroupChat(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/conversations.Conversations/InviteToGroupChat',
+            pb_dot_conversations__pb2.InviteToGroupChatReq.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options, channel_credentials,
             call_credentials, compression, wait_for_ready, timeout, metadata)
