@@ -48,6 +48,43 @@ def test_list_group_chats(db):
         res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq())
 
 
+def test_list_empty_group_chats(db):
+    user1, token1 = generate_user(db)
+    user2, token2 = generate_user(db)
+    user3, token3 = generate_user(db)
+
+    make_friends(db, user1, user3)
+    make_friends(db, user2, user1)
+    make_friends(db, user2, user3)
+
+    with conversations_session(db, token1) as c:
+        res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq())
+        assert len(res.group_chats) == 0
+
+        c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_ids=[user2.id]))
+        c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_ids=[user2.id, user3.id]))
+
+        res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq())
+        assert len(res.group_chats) == 2
+        assert res.no_more
+
+    with conversations_session(db, token2) as c:
+        res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq())
+        assert len(res.group_chats) == 2
+        assert res.no_more
+
+        c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_ids=[user3.id]))
+
+        res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq())
+        assert len(res.group_chats) == 3
+        assert res.no_more
+
+    with conversations_session(db, token3) as c:
+        res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq())
+        assert len(res.group_chats) == 2
+        assert res.no_more
+
+
 def test_get_group_chat_messages(db):
     user1, token1 = generate_user(db)
     user2, token2 = generate_user(db)
