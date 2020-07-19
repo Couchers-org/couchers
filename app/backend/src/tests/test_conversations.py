@@ -43,9 +43,13 @@ def test_list_group_chats(db):
 
     with conversations_session(db, token2) as c:
         res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq())
+        assert len(res.group_chats) == 2
+        assert res.no_more
 
     with conversations_session(db, token3) as c:
         res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq())
+        assert len(res.group_chats) == 1
+        assert res.no_more
 
 
 def test_list_empty_group_chats(db):
