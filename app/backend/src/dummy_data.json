@@ -1,79 +1,117 @@
-[
-    {
-        "username": "itsi",
-        "email": "couchers@itsiweinstock.com",
-        "password": null,
-        "name": "Itsi Weinstock",
-        "city": "Sydney, New South Wales, Australia",
-        "verification": 0.73,
-        "community_standing": 0.41,
-        "num_references": 16,
-        "gender": "Male",
-        "birthdate": {
-            "year": 1995,
-            "month": 11,
-            "day": 2
+{
+    "users": [
+        {
+            "username": "itsi",
+            "email": "couchers@itsiweinstock.com",
+            "password": null,
+            "name": "Itsi Weinstock",
+            "city": "Sydney, New South Wales, Australia",
+            "verification": 0.73,
+            "community_standing": 0.41,
+            "num_references": 16,
+            "gender": "Male",
+            "birthdate": {
+                "year": 1995,
+                "month": 11,
+                "day": 2
+            },
+            "languages": [
+                "English",
+                "Japanese"
+            ],
+            "occupation": "Mathematician",
+            "about_me": "Hey, my name’s Itsi (like the spider), from Australia. I'm a mathematician, data scientist and violinist (haha what a nerd). I've been a teacher, researcher, comedy writer, violin performer and a great cook for dinners with my friends.\n\nI like keeping very busy when I travel. If you've got any ideas for things to do, please drag me along! I love meeting energetic and funny people and organising small trips to go on with anyone I can wrangle together. Examples include hiking around wineries in Georgia, sailing along the Nile for a few days and exploring caves in Mexico.\n\nSharing food is a must! You can try so many more things that way.",
+            "about_place": "About Itsi's place",
+            "countries_visited": [
+                "Cuba",
+                "Czech Republic",
+                "Egypt",
+                "England",
+                "Georgia",
+                "Germany",
+                "Greece",
+                "Hong Kong",
+                "Laos",
+                "Mexico",
+                "Myanmar",
+                "Netherlands",
+                "Scotland",
+                "Spain",
+                "Thailand",
+                "Viet Nam"
+            ],
+            "countries_lived": [
+                "Australia",
+                "North Korea"
+            ]
         },
-        "languages": [
-            "English",
-            "Japanese"
-        ],
-        "occupation": "Mathematician",
-        "about_me": "Hey, my name’s Itsi (like the spider), from Australia. I'm a mathematician, data scientist and violinist (haha what a nerd). I've been a teacher, researcher, comedy writer, violin performer and a great cook for dinners with my friends.\n\nI like keeping very busy when I travel. If you've got any ideas for things to do, please drag me along! I love meeting energetic and funny people and organising small trips to go on with anyone I can wrangle together. Examples include hiking around wineries in Georgia, sailing along the Nile for a few days and exploring caves in Mexico.\n\nSharing food is a must! You can try so many more things that way.",
-        "about_place": "About Itsi's place",
-        "countries_visited": [
-            "Cuba",
-            "Czech Republic",
-            "Egypt",
-            "England",
-            "Georgia",
-            "Germany",
-            "Greece",
-            "Hong Kong",
-            "Laos",
-            "Mexico",
-            "Myanmar",
-            "Netherlands",
-            "Scotland",
-            "Spain",
-            "Thailand",
-            "Viet Nam"
-        ],
-        "countries_lived": [
-            "Australia",
-            "North Korea"
-        ]
-    },
-    {
-        "username": "aapeli",
-        "email": "couchers@aapelivuorinen.com",
-        "password": "Aapeli's password",
-        "name": "Aapeli Vuorinen",
-        "city": "Brisbane, Queensland, Australia",
-        "verification": 0.98,
-        "community_standing": 0.87,
-        "num_references": 402,
-        "gender": "Male",
-        "birthdate": {
-            "year": 1990,
-            "month": 3,
-            "day": 2
+        {
+            "username": "aapeli",
+            "email": "couchers@aapelivuorinen.com",
+            "password": "Aapeli's password",
+            "name": "Aapeli Vuorinen",
+            "city": "Brisbane, Queensland, Australia",
+            "verification": 0.98,
+            "community_standing": 0.87,
+            "num_references": 402,
+            "gender": "Male",
+            "birthdate": {
+                "year": 1990,
+                "month": 3,
+                "day": 2
+            },
+            "languages": [
+                "English",
+                "Finnish"
+            ],
+            "occupation": "Mathematician",
+            "about_me": "Some generic stuff.",
+            "about_place": "About Aapeli's place",
+            "countries_visited": [
+                "Australia"
+            ],
+            "countries_lived": [
+                "Australia",
+                "Finland",
+                "Sweden",
+                "United Stated of America"
+            ]
         },
-        "languages": [
-            "English",
-            "Finnish"
-        ],
-        "occupation": "Mathematician",
-        "about_me": "Some generic stuff.",
-        "about_place": "About Aapeli's place",
-        "countries_visited": [
-            "Australia"
-        ],
-        "countries_lived": [
-            "Australia",
-            "Finland",
-            "Sweden",
-            "United Stated of America"
-        ]
-    }
-]
+        {
+            "username": "aapeli2",
+            "email": "couchers2@aapelivuorinen.com",
+            "password": "Aapeli2's password",
+            "name": "Aapeli Vuorinen (2)",
+            "city": "Brisbane, Queensland, Australia",
+            "verification": 0.97,
+            "community_standing": 0.88,
+            "num_references": 401,
+            "gender": "Male",
+            "birthdate": {
+                "year": 1990,
+                "month": 3,
+                "day": 3
+            },
+            "languages": [
+                "English",
+                "Finnish"
+            ],
+            "occupation": "Mathematician",
+            "about_me": "Some generic stuff about Aapeli 2.",
+            "about_place": "About Aapeli 2's place",
+            "countries_visited": [
+                "Australia"
+            ],
+            "countries_lived": [
+                "Australia",
+                "Finland",
+                "Sweden",
+                "United Stated of America"
+            ]
+        }
+    ],
+    "friendships": [
+        ["aapeli", "itsi"],
+        ["aapeli2", "itsi"]
+    ]
+}

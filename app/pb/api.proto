@@ -93,6 +93,12 @@ message PingRes {
   string color = 4;
 }
 
+message MutualFriend {
+  int64 user_id = 1;
+  string username = 2;
+  string name = 3;
+}
+
 message User {
   enum FriendshipStatus {
     NOT_FRIENDS = 0;
@@ -101,25 +107,27 @@ message User {
     NA = 3; // not applicable, e.g. user requesting is self
   }
 
-  string username = 1;
-  string name = 2;
-  string city = 3;
-  double verification = 4;
-  double community_standing = 5;
-  uint32 num_references = 6;
-  string gender = 7;
-  uint32 age = 8;
-  string color = 9; // web color, e.g. #643073, case doesn't matter
-  google.protobuf.Timestamp joined = 10; // not exact
-  google.protobuf.Timestamp last_active = 11; // not exact
-  string occupation = 12;
-  string about_me = 13;
-  string about_place = 14;
-  repeated string languages = 15;
-  repeated string countries_visited = 16;
-  repeated string countries_lived = 17;
+  uint64 id = 1;
+  string username = 2;
+  string name = 3;
+  string city = 4;
+  double verification = 5;
+  double community_standing = 6;
+  uint32 num_references = 7;
+  string gender = 8;
+  uint32 age = 9;
+  string color = 10; // web color, e.g. #643073, case doesn't matter
+  google.protobuf.Timestamp joined = 11; // not exact
+  google.protobuf.Timestamp last_active = 12; // not exact
+  string occupation = 13;
+  string about_me = 14;
+  string about_place = 15;
+  repeated string languages = 16;
+  repeated string countries_visited = 17;
+  repeated string countries_lived = 18;
 
-  FriendshipStatus friends = 18;
+  FriendshipStatus friends = 19;
+  repeated MutualFriend mutual_friends = 20;
 }
 
 message GetUserReq {

@@ -7,6 +7,7 @@ from google.protobuf import empty_pb2
 
 import grpc
 import pytest
+import logging
 from couchers.db import session_scope
 from couchers.interceptors import intercept_server
 from couchers.models import Base, User
@@ -23,9 +24,11 @@ def db(tmp_path):
     Create a temporary SQLite-backed database in a temp directory, and return the Session object.
     """
     db_path = tmp_path / "db.sqlite"
-    engine = create_engine(f"sqlite:///{db_path}", echo=True)
+    engine = create_engine(f"sqlite:///{db_path}", echo=False)
     Base.metadata.create_all(engine)
     Session = sessionmaker(bind=engine)
+    logging.basicConfig()
+    logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 
     return Session
 
@@ -238,6 +241,66 @@ def test_ListFriends(db):
         assert len(res.users) == 2
         assert "user2" in res.users
         assert "user3" in res.users
+
+def test_mutual_friends(db):
+    user1, token1 = generate_user(db, "user1")
+    user2, token2 = generate_user(db, "user2")
+    user3, token3 = generate_user(db, "user3")
+    user4, token4 = generate_user(db, "user4")
+    user5, token5 = generate_user(db, "user5")
+
+    # arrange friends like this: 1<->2, 1<->3, 1<->4, 1<->5, 3<->2, 3<->4,
+    # 2<->5 pending
+    # so 1 and 2 should have mutual friend 3 only
+    with api_session(db, token1) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user="user2"))
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user="user3"))
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user="user4"))
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user="user5"))
+
+    with api_session(db, token3) as api:
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        assert res.received[0].user == "user1"
+        fr_id = res.received[0].friend_request_id
+        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user="user2"))
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user="user4"))
+
+    with api_session(db, token5) as api:
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        assert res.received[0].user == "user1"
+        fr_id = res.received[0].friend_request_id
+        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
+
+    with api_session(db, token2) as api:
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        assert res.received[0].user == "user1"
+        fr_id = res.received[0].friend_request_id
+        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
+        assert res.received[1].user == "user3"
+        fr_id = res.received[1].friend_request_id
+        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
+
+    with api_session(db, token4) as api:
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        assert res.received[0].user == "user1"
+        fr_id = res.received[0].friend_request_id
+        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
+        assert res.received[1].user == "user3"
+        fr_id = res.received[1].friend_request_id
+        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user="user5"))
+
+    with api_session(db, token1) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=str(user2.username)))
+        assert len(res.mutual_friends) == 1
+        assert res.mutual_friends[0].user_id == user3.id
+
+    # and other way around same
+    with api_session(db, token2) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=str(user1.username)))
+        assert len(res.mutual_friends) == 1
+        assert res.mutual_friends[0].user_id == user3.id
 
 def test_CancelFriendRequest(db):
     user1, token1 = generate_user(db, "user1")

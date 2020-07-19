@@ -1,6 +1,6 @@
 import enum
-from datetime import date
 from calendar import monthrange
+from datetime import date
 from math import floor
 
 from sqlalchemy import (Boolean, Column, Date, DateTime, Enum, Float,
@@ -9,6 +9,7 @@ from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
+from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func
 
 Base = declarative_base()
@@ -92,6 +93,31 @@ class User(Base):
         """
         return self.last_active.replace(minute=(self.last_active.minute // 15) * 15,
                                         second=0, microsecond=0)
+
+    def mutual_friends(self, target_id):
+        session = Session.object_session(self)
+
+        q1 = (session.query(FriendRelationship.from_user_id.label("user_id"))
+            .filter(FriendRelationship.to_user == self)
+            .filter(FriendRelationship.from_user_id != target_id)
+            .filter(FriendRelationship.status == FriendStatus.accepted))
+
+        q2 = (session.query(FriendRelationship.to_user_id.label("user_id"))
+            .filter(FriendRelationship.from_user == self)
+            .filter(FriendRelationship.to_user_id != target_id)
+            .filter(FriendRelationship.status == FriendStatus.accepted))
+
+        q3 = (session.query(FriendRelationship.from_user_id.label("user_id"))
+            .filter(FriendRelationship.to_user_id == target_id)
+            .filter(FriendRelationship.from_user != self)
+            .filter(FriendRelationship.status == FriendStatus.accepted))
+
+        q4 = (session.query(FriendRelationship.to_user_id.label("user_id"))
+            .filter(FriendRelationship.from_user_id == target_id)
+            .filter(FriendRelationship.to_user != self)
+            .filter(FriendRelationship.status == FriendStatus.accepted))
+
+        return session.query(User).filter(User.id.in_(q1.union(q2).intersect(q3.union(q4)).subquery())).all()
 
     def __repr__(self):
         return f"User(id={self.id}, email={self.email}, username={self.username})"

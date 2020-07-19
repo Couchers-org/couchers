@@ -77,7 +77,9 @@
             <v-icon>mdi-translate</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title>{{ languagesListDisplay }}</v-list-item-title>
+            <v-list-item-title>{{
+              displayList(user.languagesList)
+            }}</v-list-item-title>
             <v-list-item-subtitle>Languages</v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
@@ -107,11 +109,22 @@
           </v-list-item-icon>
           <v-list-item-content>
             <v-list-item-title
-              >Last active {{ lastActiveDisplay }}</v-list-item-title
+              >Last active
+              {{ displayTime(user.lastActive) || "error" }}</v-list-item-title
             >
             <v-list-item-subtitle
-              >Joined {{ joinedDisplay }}</v-list-item-subtitle
+              >Joined
+              {{ displayTime(user.joined) || "error" }}</v-list-item-subtitle
             >
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item two-item>
+          <v-list-item-icon>
+            <v-icon>mdi-account-multiple-check</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>{{ mutualFriendsDisplay }}</v-list-item-title>
+            <v-list-item-subtitle>Mutual friends</v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
         <v-divider></v-divider>
@@ -132,9 +145,9 @@
           <h3>About my place</h3>
           <p>{{ user.aboutPlace }}</p>
           <h3>Countries I've visited</h3>
-          <p>{{ countriesVisitedListDisplay }}</p>
+          <p>{{ displayList(user.countriesVisitedList) }}</p>
           <h3>Countries I've lived in</h3>
-          <p>{{ countriesLivedListDisplay }}</p>
+          <p>{{ displayList(user.countriesLivedList) }}</p>
         </v-card-text>
       </v-card>
     </v-container>
@@ -144,10 +157,16 @@
 <script lang="ts">
 import Vue from "vue"
 
-import { GetUserReq, SendFriendRequestReq, User } from "../pb/api_pb"
+import ErrorAlert from "../components/ErrorAlert.vue"
+
+import {
+  GetUserReq,
+  SendFriendRequestReq,
+  User
+} from "../pb/api_pb"
 import { client } from "../api"
 
-import { displayList, displayTime } from "../utils"
+import { displayList, displayTime, handle } from "../utils"
 
 export default Vue.extend({
   data: () => ({
@@ -156,6 +175,10 @@ export default Vue.extend({
     sendingFriendRequest: false,
     user: (null as unknown) as User.AsObject,
   }),
+
+  components: {
+    ErrorAlert,
+  },
 
   created() {
     this.fetchData()
@@ -166,17 +189,22 @@ export default Vue.extend({
   },
 
   methods: {
+    handle,
+
+    displayList,
+
+    displayTime,
+
     fetchData() {
       this.loading = true
       this.error = null
 
       const req = new GetUserReq()
-      req.setUser(this.$route.params.user)
+      req.setUser(this.routeUser)
       client
         .getUser(req)
         .then((res) => {
           this.loading = false
-          this.error = null
           this.user = res.toObject()
         })
         .catch((err) => {
@@ -204,6 +232,15 @@ export default Vue.extend({
   },
 
   computed: {
+    routeUser() {
+      return this.$route.params.user
+    },
+
+    mutualFriendsDisplay() {
+      console.log(this.user.mutualFriendsList)
+      return displayList(this.user.mutualFriendsList.map(user => handle(user.username)))
+    },
+
     friendsDisplay() {
       switch (this.user.friends) {
         case User.FriendshipStatus.NOT_FRIENDS:
@@ -216,32 +253,6 @@ export default Vue.extend({
         default:
           return "You can't be friends with this user, you doofus."
       }
-    },
-
-    lastActiveDisplay() {
-      if (!this.user.lastActive) {
-        return "unknown"
-      }
-      return displayTime(this.user.lastActive)
-    },
-
-    joinedDisplay() {
-      if (!this.user.joined) {
-        return "error"
-      }
-      return displayTime(this.user.joined)
-    },
-
-    languagesListDisplay() {
-      return displayList(this.user.languagesList)
-    },
-
-    countriesVisitedListDisplay() {
-      return displayList(this.user.countriesVisitedList)
-    },
-
-    countriesLivedListDisplay() {
-      return displayList(this.user.countriesLivedList)
     },
   },
 })

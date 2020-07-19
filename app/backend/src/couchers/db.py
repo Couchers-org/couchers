@@ -41,7 +41,7 @@ def is_valid_username(field):
     two characters long, and starts with a letter, ends with alphanumeric
     """
     return re.match(r"[a-z][0-9a-z_]*[a-z0-9]$", field) is not None
-    
+
 def is_valid_name(field):
     """
     Checks if it has at least one non-whitespace character
