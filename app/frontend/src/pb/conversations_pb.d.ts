@@ -4,145 +4,139 @@ import * as google_protobuf_timestamp_pb from 'google-protobuf/google/protobuf/t
 import * as google_protobuf_wrappers_pb from 'google-protobuf/google/protobuf/wrappers_pb';
 import * as google_protobuf_empty_pb from 'google-protobuf/google/protobuf/empty_pb';
 
-export class MessageThreadPreview extends jspb.Message {
-  getThreadId(): number;
-  setThreadId(value: number): MessageThreadPreview;
+export class GroupChat extends jspb.Message {
+  getGroupChatId(): number;
+  setGroupChatId(value: number): GroupChat;
 
   getTitle(): string;
-  setTitle(value: string): MessageThreadPreview;
+  setTitle(value: string): GroupChat;
 
-  getRecipientsList(): Array<string>;
-  setRecipientsList(value: Array<string>): MessageThreadPreview;
-  clearRecipientsList(): MessageThreadPreview;
-  addRecipients(value: string, index?: number): MessageThreadPreview;
+  getMemberUserIdsList(): Array<number>;
+  setMemberUserIdsList(value: Array<number>): GroupChat;
+  clearMemberUserIdsList(): GroupChat;
+  addMemberUserIds(value: number, index?: number): GroupChat;
+
+  getAdminUserIdsList(): Array<number>;
+  setAdminUserIdsList(value: Array<number>): GroupChat;
+  clearAdminUserIdsList(): GroupChat;
+  addAdminUserIds(value: number, index?: number): GroupChat;
+
+  getOnlyAdminsInvite(): boolean;
+  setOnlyAdminsInvite(value: boolean): GroupChat;
 
   getIsDm(): boolean;
-  setIsDm(value: boolean): MessageThreadPreview;
+  setIsDm(value: boolean): GroupChat;
 
-  getCreationTime(): google_protobuf_timestamp_pb.Timestamp | undefined;
-  setCreationTime(value?: google_protobuf_timestamp_pb.Timestamp): MessageThreadPreview;
-  hasCreationTime(): boolean;
-  clearCreationTime(): MessageThreadPreview;
+  getCreated(): google_protobuf_timestamp_pb.Timestamp | undefined;
+  setCreated(value?: google_protobuf_timestamp_pb.Timestamp): GroupChat;
+  hasCreated(): boolean;
+  clearCreated(): GroupChat;
 
-  getStatus(): MessageThreadStatus;
-  setStatus(value: MessageThreadStatus): MessageThreadPreview;
-
-  getLatestMessagePreview(): string;
-  setLatestMessagePreview(value: string): MessageThreadPreview;
-
-  getLatestMessageSender(): string;
-  setLatestMessageSender(value: string): MessageThreadPreview;
-
-  getLatestMessageTime(): google_protobuf_timestamp_pb.Timestamp | undefined;
-  setLatestMessageTime(value?: google_protobuf_timestamp_pb.Timestamp): MessageThreadPreview;
-  hasLatestMessageTime(): boolean;
-  clearLatestMessageTime(): MessageThreadPreview;
+  getLatestMessage(): Message | undefined;
+  setLatestMessage(value?: Message): GroupChat;
+  hasLatestMessage(): boolean;
+  clearLatestMessage(): GroupChat;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): MessageThreadPreview.AsObject;
-  static toObject(includeInstance: boolean, msg: MessageThreadPreview): MessageThreadPreview.AsObject;
-  static serializeBinaryToWriter(message: MessageThreadPreview, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): MessageThreadPreview;
-  static deserializeBinaryFromReader(message: MessageThreadPreview, reader: jspb.BinaryReader): MessageThreadPreview;
+  toObject(includeInstance?: boolean): GroupChat.AsObject;
+  static toObject(includeInstance: boolean, msg: GroupChat): GroupChat.AsObject;
+  static serializeBinaryToWriter(message: GroupChat, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GroupChat;
+  static deserializeBinaryFromReader(message: GroupChat, reader: jspb.BinaryReader): GroupChat;
 }
 
-export namespace MessageThreadPreview {
+export namespace GroupChat {
   export type AsObject = {
-    threadId: number,
+    groupChatId: number,
     title: string,
-    recipientsList: Array<string>,
+    memberUserIdsList: Array<number>,
+    adminUserIdsList: Array<number>,
+    onlyAdminsInvite: boolean,
     isDm: boolean,
-    creationTime?: google_protobuf_timestamp_pb.Timestamp.AsObject,
-    status: MessageThreadStatus,
-    latestMessagePreview: string,
-    latestMessageSender: string,
-    latestMessageTime?: google_protobuf_timestamp_pb.Timestamp.AsObject,
+    created?: google_protobuf_timestamp_pb.Timestamp.AsObject,
+    latestMessage?: Message.AsObject,
   }
 }
 
-export class ListMessageThreadsReq extends jspb.Message {
-  getStartIndex(): number;
-  setStartIndex(value: number): ListMessageThreadsReq;
-
-  getMax(): number;
-  setMax(value: number): ListMessageThreadsReq;
+export class GetGroupChatReq extends jspb.Message {
+  getGroupChatId(): number;
+  setGroupChatId(value: number): GetGroupChatReq;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): ListMessageThreadsReq.AsObject;
-  static toObject(includeInstance: boolean, msg: ListMessageThreadsReq): ListMessageThreadsReq.AsObject;
-  static serializeBinaryToWriter(message: ListMessageThreadsReq, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): ListMessageThreadsReq;
-  static deserializeBinaryFromReader(message: ListMessageThreadsReq, reader: jspb.BinaryReader): ListMessageThreadsReq;
+  toObject(includeInstance?: boolean): GetGroupChatReq.AsObject;
+  static toObject(includeInstance: boolean, msg: GetGroupChatReq): GetGroupChatReq.AsObject;
+  static serializeBinaryToWriter(message: GetGroupChatReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetGroupChatReq;
+  static deserializeBinaryFromReader(message: GetGroupChatReq, reader: jspb.BinaryReader): GetGroupChatReq;
 }
 
-export namespace ListMessageThreadsReq {
+export namespace GetGroupChatReq {
   export type AsObject = {
-    startIndex: number,
-    max: number,
+    groupChatId: number,
   }
 }
 
-export class ListMessageThreadsRes extends jspb.Message {
-  getStartIndex(): number;
-  setStartIndex(value: number): ListMessageThreadsRes;
+export class ListGroupChatsReq extends jspb.Message {
+  getLastMessageId(): number;
+  setLastMessageId(value: number): ListGroupChatsReq;
 
-  getThreadsList(): Array<MessageThreadPreview>;
-  setThreadsList(value: Array<MessageThreadPreview>): ListMessageThreadsRes;
-  clearThreadsList(): ListMessageThreadsRes;
-  addThreads(value?: MessageThreadPreview, index?: number): MessageThreadPreview;
-
-  getHasMore(): boolean;
-  setHasMore(value: boolean): ListMessageThreadsRes;
+  getNumber(): number;
+  setNumber(value: number): ListGroupChatsReq;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): ListMessageThreadsRes.AsObject;
-  static toObject(includeInstance: boolean, msg: ListMessageThreadsRes): ListMessageThreadsRes.AsObject;
-  static serializeBinaryToWriter(message: ListMessageThreadsRes, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): ListMessageThreadsRes;
-  static deserializeBinaryFromReader(message: ListMessageThreadsRes, reader: jspb.BinaryReader): ListMessageThreadsRes;
+  toObject(includeInstance?: boolean): ListGroupChatsReq.AsObject;
+  static toObject(includeInstance: boolean, msg: ListGroupChatsReq): ListGroupChatsReq.AsObject;
+  static serializeBinaryToWriter(message: ListGroupChatsReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ListGroupChatsReq;
+  static deserializeBinaryFromReader(message: ListGroupChatsReq, reader: jspb.BinaryReader): ListGroupChatsReq;
 }
 
-export namespace ListMessageThreadsRes {
+export namespace ListGroupChatsReq {
   export type AsObject = {
-    startIndex: number,
-    threadsList: Array<MessageThreadPreview.AsObject>,
-    hasMore: boolean,
+    lastMessageId: number,
+    number: number,
   }
 }
 
-export class EditMessageThreadStatusReq extends jspb.Message {
-  getThreadId(): number;
-  setThreadId(value: number): EditMessageThreadStatusReq;
+export class ListGroupChatsRes extends jspb.Message {
+  getGroupChatsList(): Array<GroupChat>;
+  setGroupChatsList(value: Array<GroupChat>): ListGroupChatsRes;
+  clearGroupChatsList(): ListGroupChatsRes;
+  addGroupChats(value?: GroupChat, index?: number): GroupChat;
 
-  getStatus(): MessageThreadStatus;
-  setStatus(value: MessageThreadStatus): EditMessageThreadStatusReq;
+  getNextMessageId(): number;
+  setNextMessageId(value: number): ListGroupChatsRes;
+
+  getNoMore(): boolean;
+  setNoMore(value: boolean): ListGroupChatsRes;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): EditMessageThreadStatusReq.AsObject;
-  static toObject(includeInstance: boolean, msg: EditMessageThreadStatusReq): EditMessageThreadStatusReq.AsObject;
-  static serializeBinaryToWriter(message: EditMessageThreadStatusReq, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): EditMessageThreadStatusReq;
-  static deserializeBinaryFromReader(message: EditMessageThreadStatusReq, reader: jspb.BinaryReader): EditMessageThreadStatusReq;
+  toObject(includeInstance?: boolean): ListGroupChatsRes.AsObject;
+  static toObject(includeInstance: boolean, msg: ListGroupChatsRes): ListGroupChatsRes.AsObject;
+  static serializeBinaryToWriter(message: ListGroupChatsRes, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ListGroupChatsRes;
+  static deserializeBinaryFromReader(message: ListGroupChatsRes, reader: jspb.BinaryReader): ListGroupChatsRes;
 }
 
-export namespace EditMessageThreadStatusReq {
+export namespace ListGroupChatsRes {
   export type AsObject = {
-    threadId: number,
-    status: MessageThreadStatus,
+    groupChatsList: Array<GroupChat.AsObject>,
+    nextMessageId: number,
+    noMore: boolean,
   }
 }
 
 export class Message extends jspb.Message {
-  getId(): number;
-  setId(value: number): Message;
+  getMessageId(): number;
+  setMessageId(value: number): Message;
 
-  getSender(): string;
-  setSender(value: string): Message;
+  getAuthorUserId(): number;
+  setAuthorUserId(value: number): Message;
 
-  getTimestamp(): google_protobuf_timestamp_pb.Timestamp | undefined;
-  setTimestamp(value?: google_protobuf_timestamp_pb.Timestamp): Message;
-  hasTimestamp(): boolean;
-  clearTimestamp(): Message;
+  getTime(): google_protobuf_timestamp_pb.Timestamp | undefined;
+  setTime(value?: google_protobuf_timestamp_pb.Timestamp): Message;
+  hasTime(): boolean;
+  clearTime(): Message;
 
   getText(): string;
   setText(value: string): Message;
@@ -157,235 +151,173 @@ export class Message extends jspb.Message {
 
 export namespace Message {
   export type AsObject = {
-    id: number,
-    sender: string,
-    timestamp?: google_protobuf_timestamp_pb.Timestamp.AsObject,
+    messageId: number,
+    authorUserId: number,
+    time?: google_protobuf_timestamp_pb.Timestamp.AsObject,
     text: string,
   }
 }
 
-export class GetMessageThreadReq extends jspb.Message {
-  getThreadId(): number;
-  setThreadId(value: number): GetMessageThreadReq;
+export class GetGroupChatMessagesReq extends jspb.Message {
+  getGroupChatId(): number;
+  setGroupChatId(value: number): GetGroupChatMessagesReq;
 
-  getStartIndex(): number;
-  setStartIndex(value: number): GetMessageThreadReq;
+  getLastMessageId(): number;
+  setLastMessageId(value: number): GetGroupChatMessagesReq;
 
-  getMax(): number;
-  setMax(value: number): GetMessageThreadReq;
+  getNumber(): number;
+  setNumber(value: number): GetGroupChatMessagesReq;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): GetMessageThreadReq.AsObject;
-  static toObject(includeInstance: boolean, msg: GetMessageThreadReq): GetMessageThreadReq.AsObject;
-  static serializeBinaryToWriter(message: GetMessageThreadReq, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): GetMessageThreadReq;
-  static deserializeBinaryFromReader(message: GetMessageThreadReq, reader: jspb.BinaryReader): GetMessageThreadReq;
+  toObject(includeInstance?: boolean): GetGroupChatMessagesReq.AsObject;
+  static toObject(includeInstance: boolean, msg: GetGroupChatMessagesReq): GetGroupChatMessagesReq.AsObject;
+  static serializeBinaryToWriter(message: GetGroupChatMessagesReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetGroupChatMessagesReq;
+  static deserializeBinaryFromReader(message: GetGroupChatMessagesReq, reader: jspb.BinaryReader): GetGroupChatMessagesReq;
 }
 
-export namespace GetMessageThreadReq {
+export namespace GetGroupChatMessagesReq {
   export type AsObject = {
-    threadId: number,
-    startIndex: number,
-    max: number,
+    groupChatId: number,
+    lastMessageId: number,
+    number: number,
   }
 }
 
-export class GetMessageThreadRes extends jspb.Message {
-  getStartIndex(): number;
-  setStartIndex(value: number): GetMessageThreadRes;
-
+export class GetGroupChatMessagesRes extends jspb.Message {
   getMessagesList(): Array<Message>;
-  setMessagesList(value: Array<Message>): GetMessageThreadRes;
-  clearMessagesList(): GetMessageThreadRes;
+  setMessagesList(value: Array<Message>): GetGroupChatMessagesRes;
+  clearMessagesList(): GetGroupChatMessagesRes;
   addMessages(value?: Message, index?: number): Message;
 
-  getHasMore(): boolean;
-  setHasMore(value: boolean): GetMessageThreadRes;
+  getNextMessageId(): number;
+  setNextMessageId(value: number): GetGroupChatMessagesRes;
+
+  getNoMore(): boolean;
+  setNoMore(value: boolean): GetGroupChatMessagesRes;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): GetMessageThreadRes.AsObject;
-  static toObject(includeInstance: boolean, msg: GetMessageThreadRes): GetMessageThreadRes.AsObject;
-  static serializeBinaryToWriter(message: GetMessageThreadRes, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): GetMessageThreadRes;
-  static deserializeBinaryFromReader(message: GetMessageThreadRes, reader: jspb.BinaryReader): GetMessageThreadRes;
+  toObject(includeInstance?: boolean): GetGroupChatMessagesRes.AsObject;
+  static toObject(includeInstance: boolean, msg: GetGroupChatMessagesRes): GetGroupChatMessagesRes.AsObject;
+  static serializeBinaryToWriter(message: GetGroupChatMessagesRes, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetGroupChatMessagesRes;
+  static deserializeBinaryFromReader(message: GetGroupChatMessagesRes, reader: jspb.BinaryReader): GetGroupChatMessagesRes;
 }
 
-export namespace GetMessageThreadRes {
+export namespace GetGroupChatMessagesRes {
   export type AsObject = {
-    startIndex: number,
     messagesList: Array<Message.AsObject>,
-    hasMore: boolean,
+    nextMessageId: number,
+    noMore: boolean,
   }
 }
 
-export class GetMessageThreadInfoReq extends jspb.Message {
-  getThreadId(): number;
-  setThreadId(value: number): GetMessageThreadInfoReq;
-
-  serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): GetMessageThreadInfoReq.AsObject;
-  static toObject(includeInstance: boolean, msg: GetMessageThreadInfoReq): GetMessageThreadInfoReq.AsObject;
-  static serializeBinaryToWriter(message: GetMessageThreadInfoReq, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): GetMessageThreadInfoReq;
-  static deserializeBinaryFromReader(message: GetMessageThreadInfoReq, reader: jspb.BinaryReader): GetMessageThreadInfoReq;
-}
-
-export namespace GetMessageThreadInfoReq {
-  export type AsObject = {
-    threadId: number,
-  }
-}
-
-export class GetMessageThreadInfoRes extends jspb.Message {
-  getTitle(): string;
-  setTitle(value: string): GetMessageThreadInfoRes;
-
-  getRecipientsList(): Array<string>;
-  setRecipientsList(value: Array<string>): GetMessageThreadInfoRes;
-  clearRecipientsList(): GetMessageThreadInfoRes;
-  addRecipients(value: string, index?: number): GetMessageThreadInfoRes;
-
-  getAdminsList(): Array<string>;
-  setAdminsList(value: Array<string>): GetMessageThreadInfoRes;
-  clearAdminsList(): GetMessageThreadInfoRes;
-  addAdmins(value: string, index?: number): GetMessageThreadInfoRes;
-
-  getCreationTime(): google_protobuf_timestamp_pb.Timestamp | undefined;
-  setCreationTime(value?: google_protobuf_timestamp_pb.Timestamp): GetMessageThreadInfoRes;
-  hasCreationTime(): boolean;
-  clearCreationTime(): GetMessageThreadInfoRes;
-
-  getOnlyAdminsInvite(): boolean;
-  setOnlyAdminsInvite(value: boolean): GetMessageThreadInfoRes;
-
-  getStatus(): MessageThreadStatus;
-  setStatus(value: MessageThreadStatus): GetMessageThreadInfoRes;
-
-  getIsDm(): boolean;
-  setIsDm(value: boolean): GetMessageThreadInfoRes;
-
-  serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): GetMessageThreadInfoRes.AsObject;
-  static toObject(includeInstance: boolean, msg: GetMessageThreadInfoRes): GetMessageThreadInfoRes.AsObject;
-  static serializeBinaryToWriter(message: GetMessageThreadInfoRes, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): GetMessageThreadInfoRes;
-  static deserializeBinaryFromReader(message: GetMessageThreadInfoRes, reader: jspb.BinaryReader): GetMessageThreadInfoRes;
-}
-
-export namespace GetMessageThreadInfoRes {
-  export type AsObject = {
-    title: string,
-    recipientsList: Array<string>,
-    adminsList: Array<string>,
-    creationTime?: google_protobuf_timestamp_pb.Timestamp.AsObject,
-    onlyAdminsInvite: boolean,
-    status: MessageThreadStatus,
-    isDm: boolean,
-  }
-}
-
-export class CreateMessageThreadReq extends jspb.Message {
+export class CreateGroupChatReq extends jspb.Message {
   getTitle(): google_protobuf_wrappers_pb.StringValue | undefined;
-  setTitle(value?: google_protobuf_wrappers_pb.StringValue): CreateMessageThreadReq;
+  setTitle(value?: google_protobuf_wrappers_pb.StringValue): CreateGroupChatReq;
   hasTitle(): boolean;
-  clearTitle(): CreateMessageThreadReq;
+  clearTitle(): CreateGroupChatReq;
 
-  getRecipientsList(): Array<string>;
-  setRecipientsList(value: Array<string>): CreateMessageThreadReq;
-  clearRecipientsList(): CreateMessageThreadReq;
-  addRecipients(value: string, index?: number): CreateMessageThreadReq;
+  getRecipientIdsList(): Array<number>;
+  setRecipientIdsList(value: Array<number>): CreateGroupChatReq;
+  clearRecipientIdsList(): CreateGroupChatReq;
+  addRecipientIds(value: number, index?: number): CreateGroupChatReq;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): CreateMessageThreadReq.AsObject;
-  static toObject(includeInstance: boolean, msg: CreateMessageThreadReq): CreateMessageThreadReq.AsObject;
-  static serializeBinaryToWriter(message: CreateMessageThreadReq, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): CreateMessageThreadReq;
-  static deserializeBinaryFromReader(message: CreateMessageThreadReq, reader: jspb.BinaryReader): CreateMessageThreadReq;
+  toObject(includeInstance?: boolean): CreateGroupChatReq.AsObject;
+  static toObject(includeInstance: boolean, msg: CreateGroupChatReq): CreateGroupChatReq.AsObject;
+  static serializeBinaryToWriter(message: CreateGroupChatReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): CreateGroupChatReq;
+  static deserializeBinaryFromReader(message: CreateGroupChatReq, reader: jspb.BinaryReader): CreateGroupChatReq;
 }
 
-export namespace CreateMessageThreadReq {
+export namespace CreateGroupChatReq {
   export type AsObject = {
     title?: google_protobuf_wrappers_pb.StringValue.AsObject,
-    recipientsList: Array<string>,
+    recipientIdsList: Array<number>,
   }
 }
 
-export class CreateMessageThreadRes extends jspb.Message {
-  getThreadId(): number;
-  setThreadId(value: number): CreateMessageThreadRes;
-
-  serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): CreateMessageThreadRes.AsObject;
-  static toObject(includeInstance: boolean, msg: CreateMessageThreadRes): CreateMessageThreadRes.AsObject;
-  static serializeBinaryToWriter(message: CreateMessageThreadRes, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): CreateMessageThreadRes;
-  static deserializeBinaryFromReader(message: CreateMessageThreadRes, reader: jspb.BinaryReader): CreateMessageThreadRes;
-}
-
-export namespace CreateMessageThreadRes {
-  export type AsObject = {
-    threadId: number,
-  }
-}
-
-export class EditMessageThreadReq extends jspb.Message {
-  getThreadId(): number;
-  setThreadId(value: number): EditMessageThreadReq;
+export class EditGroupChatReq extends jspb.Message {
+  getGroupChatId(): number;
+  setGroupChatId(value: number): EditGroupChatReq;
 
   getTitle(): google_protobuf_wrappers_pb.StringValue | undefined;
-  setTitle(value?: google_protobuf_wrappers_pb.StringValue): EditMessageThreadReq;
+  setTitle(value?: google_protobuf_wrappers_pb.StringValue): EditGroupChatReq;
   hasTitle(): boolean;
-  clearTitle(): EditMessageThreadReq;
+  clearTitle(): EditGroupChatReq;
 
   getOnlyAdminsInvite(): google_protobuf_wrappers_pb.BoolValue | undefined;
-  setOnlyAdminsInvite(value?: google_protobuf_wrappers_pb.BoolValue): EditMessageThreadReq;
+  setOnlyAdminsInvite(value?: google_protobuf_wrappers_pb.BoolValue): EditGroupChatReq;
   hasOnlyAdminsInvite(): boolean;
-  clearOnlyAdminsInvite(): EditMessageThreadReq;
+  clearOnlyAdminsInvite(): EditGroupChatReq;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): EditMessageThreadReq.AsObject;
-  static toObject(includeInstance: boolean, msg: EditMessageThreadReq): EditMessageThreadReq.AsObject;
-  static serializeBinaryToWriter(message: EditMessageThreadReq, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): EditMessageThreadReq;
-  static deserializeBinaryFromReader(message: EditMessageThreadReq, reader: jspb.BinaryReader): EditMessageThreadReq;
+  toObject(includeInstance?: boolean): EditGroupChatReq.AsObject;
+  static toObject(includeInstance: boolean, msg: EditGroupChatReq): EditGroupChatReq.AsObject;
+  static serializeBinaryToWriter(message: EditGroupChatReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): EditGroupChatReq;
+  static deserializeBinaryFromReader(message: EditGroupChatReq, reader: jspb.BinaryReader): EditGroupChatReq;
 }
 
-export namespace EditMessageThreadReq {
+export namespace EditGroupChatReq {
   export type AsObject = {
-    threadId: number,
+    groupChatId: number,
     title?: google_protobuf_wrappers_pb.StringValue.AsObject,
     onlyAdminsInvite?: google_protobuf_wrappers_pb.BoolValue.AsObject,
   }
 }
 
-export class ThreadUserReq extends jspb.Message {
-  getThreadId(): number;
-  setThreadId(value: number): ThreadUserReq;
+export class MakeGroupChatAdminReq extends jspb.Message {
+  getGroupChatId(): number;
+  setGroupChatId(value: number): MakeGroupChatAdminReq;
 
-  getUser(): string;
-  setUser(value: string): ThreadUserReq;
+  getUserId(): number;
+  setUserId(value: number): MakeGroupChatAdminReq;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): ThreadUserReq.AsObject;
-  static toObject(includeInstance: boolean, msg: ThreadUserReq): ThreadUserReq.AsObject;
-  static serializeBinaryToWriter(message: ThreadUserReq, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): ThreadUserReq;
-  static deserializeBinaryFromReader(message: ThreadUserReq, reader: jspb.BinaryReader): ThreadUserReq;
+  toObject(includeInstance?: boolean): MakeGroupChatAdminReq.AsObject;
+  static toObject(includeInstance: boolean, msg: MakeGroupChatAdminReq): MakeGroupChatAdminReq.AsObject;
+  static serializeBinaryToWriter(message: MakeGroupChatAdminReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): MakeGroupChatAdminReq;
+  static deserializeBinaryFromReader(message: MakeGroupChatAdminReq, reader: jspb.BinaryReader): MakeGroupChatAdminReq;
 }
 
-export namespace ThreadUserReq {
+export namespace MakeGroupChatAdminReq {
   export type AsObject = {
-    threadId: number,
-    user: string,
+    groupChatId: number,
+    userId: number,
+  }
+}
+
+export class RemoveGroupChatAdminReq extends jspb.Message {
+  getGroupChatId(): number;
+  setGroupChatId(value: number): RemoveGroupChatAdminReq;
+
+  getUserId(): number;
+  setUserId(value: number): RemoveGroupChatAdminReq;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): RemoveGroupChatAdminReq.AsObject;
+  static toObject(includeInstance: boolean, msg: RemoveGroupChatAdminReq): RemoveGroupChatAdminReq.AsObject;
+  static serializeBinaryToWriter(message: RemoveGroupChatAdminReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): RemoveGroupChatAdminReq;
+  static deserializeBinaryFromReader(message: RemoveGroupChatAdminReq, reader: jspb.BinaryReader): RemoveGroupChatAdminReq;
+}
+
+export namespace RemoveGroupChatAdminReq {
+  export type AsObject = {
+    groupChatId: number,
+    userId: number,
   }
 }
 
 export class SendMessageReq extends jspb.Message {
-  getThreadId(): number;
-  setThreadId(value: number): SendMessageReq;
+  getGroupChatId(): number;
+  setGroupChatId(value: number): SendMessageReq;
 
-  getMessage(): string;
-  setMessage(value: string): SendMessageReq;
+  getText(): string;
+  setText(value: string): SendMessageReq;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): SendMessageReq.AsObject;
@@ -397,26 +329,26 @@ export class SendMessageReq extends jspb.Message {
 
 export namespace SendMessageReq {
   export type AsObject = {
-    threadId: number,
-    message: string,
+    groupChatId: number,
+    text: string,
   }
 }
 
-export class LeaveMessageThreadReq extends jspb.Message {
-  getThreadId(): number;
-  setThreadId(value: number): LeaveMessageThreadReq;
+export class LeaveGroupChatReq extends jspb.Message {
+  getGroupChatId(): number;
+  setGroupChatId(value: number): LeaveGroupChatReq;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): LeaveMessageThreadReq.AsObject;
-  static toObject(includeInstance: boolean, msg: LeaveMessageThreadReq): LeaveMessageThreadReq.AsObject;
-  static serializeBinaryToWriter(message: LeaveMessageThreadReq, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): LeaveMessageThreadReq;
-  static deserializeBinaryFromReader(message: LeaveMessageThreadReq, reader: jspb.BinaryReader): LeaveMessageThreadReq;
+  toObject(includeInstance?: boolean): LeaveGroupChatReq.AsObject;
+  static toObject(includeInstance: boolean, msg: LeaveGroupChatReq): LeaveGroupChatReq.AsObject;
+  static serializeBinaryToWriter(message: LeaveGroupChatReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): LeaveGroupChatReq;
+  static deserializeBinaryFromReader(message: LeaveGroupChatReq, reader: jspb.BinaryReader): LeaveGroupChatReq;
 }
 
-export namespace LeaveMessageThreadReq {
+export namespace LeaveGroupChatReq {
   export type AsObject = {
-    threadId: number,
+    groupChatId: number,
   }
 }
 
@@ -439,11 +371,13 @@ export namespace SearchMessagesReq {
 }
 
 export class MessageSearchResult extends jspb.Message {
-  getThreadId(): number;
-  setThreadId(value: number): MessageSearchResult;
+  getGroupChatId(): number;
+  setGroupChatId(value: number): MessageSearchResult;
 
-  getMessageId(): number;
-  setMessageId(value: number): MessageSearchResult;
+  getMessage(): Message | undefined;
+  setMessage(value?: Message): MessageSearchResult;
+  hasMessage(): boolean;
+  clearMessage(): MessageSearchResult;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): MessageSearchResult.AsObject;
@@ -455,8 +389,8 @@ export class MessageSearchResult extends jspb.Message {
 
 export namespace MessageSearchResult {
   export type AsObject = {
-    threadId: number,
-    messageId: number,
+    groupChatId: number,
+    message?: Message.AsObject,
   }
 }
 
@@ -480,8 +414,3 @@ export namespace SearchMessagesRes {
   }
 }
 
-export enum MessageThreadStatus { 
-  PENDING = 0,
-  ACCEPTED = 1,
-  REJECTED = 2,
-}

@@ -21,7 +21,7 @@ def db(tmp_path):
     Create a temporary SQLite-backed database in a temp directory, and return the Session object.
     """
     db_path = tmp_path / "db.sqlite"
-    engine = create_engine(f"sqlite:///{db_path}", echo=True)
+    engine = create_engine(f"sqlite:///{db_path}", echo=False)
     Base.metadata.create_all(engine)
     Session = sessionmaker(bind=engine)
 

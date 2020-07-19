@@ -51,7 +51,7 @@ service Conversations {
 message GroupChat {
   uint64 group_chat_id = 1;
   string title = 2;
-  repeated uint64 member_user_ids = 3;
+  repeated uint64 member_user_ids = 3; // inclusive of admins
   repeated uint64 admin_user_ids = 4;
   bool only_admins_invite = 5;
   bool is_dm = 6;
@@ -64,13 +64,13 @@ message GetGroupChatReq {
 }
 
 message ListGroupChatsReq {
-  uint64 start_group_chat_id = 1;
+  uint64 last_message_id = 1;
   uint64 number = 2;
 }
 
 message ListGroupChatsRes {
-  repeated GroupChat group_chat_ids = 1;
-  uint64 next_group_chat_id = 2;
+  repeated GroupChat group_chats = 1;
+  uint64 next_message_id = 2;
   bool no_more = 3;
 }
 
@@ -83,13 +83,13 @@ message Message {
 
 message GetGroupChatMessagesReq {
   uint64 group_chat_id = 1;
-  uint64 start_group_chat_id = 2;
+  uint64 last_message_id = 2;
   uint64 number = 3;
 }
 
 message GetGroupChatMessagesRes {
   repeated Message messages = 1;
-  uint64 next_group_chat_id = 2;
+  uint64 next_message_id = 2;
   bool no_more = 3;
 }
 

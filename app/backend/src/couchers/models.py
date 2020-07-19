@@ -211,7 +211,7 @@ class GroupChat(Base):
     """
     __tablename__ = "group_chats"
 
-    conversation_id = Column("id", ForeignKey("conversations.id"), primary_key=True)
+    conversation_id = Column("id", ForeignKey("conversations.id"), nullable=False, primary_key=True)
 
     title = Column(String, nullable=True)
     only_admins_invite = Column(Boolean, nullable=False, default=True)
@@ -243,7 +243,7 @@ class GroupChatSubscription(Base):
     role = Column(Enum(GroupChatRole), nullable=False)
 
     user = relationship("User", backref="group_chat_subscriptions")
-    thread = relationship("GroupChat", backref="subscriptions")
+    group_chat = relationship("GroupChat", backref="subscriptions")
 
 
 class Message(Base):

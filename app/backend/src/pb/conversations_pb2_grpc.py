@@ -15,44 +15,39 @@ class ConversationsStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.ListMessageThreads = channel.unary_unary(
-                '/conversations.Conversations/ListMessageThreads',
-                request_serializer=pb_dot_conversations__pb2.ListMessageThreadsReq.SerializeToString,
-                response_deserializer=pb_dot_conversations__pb2.ListMessageThreadsRes.FromString,
+        self.ListGroupChats = channel.unary_unary(
+                '/conversations.Conversations/ListGroupChats',
+                request_serializer=pb_dot_conversations__pb2.ListGroupChatsReq.SerializeToString,
+                response_deserializer=pb_dot_conversations__pb2.ListGroupChatsRes.FromString,
                 )
-        self.EditMessageThreadStatus = channel.unary_unary(
-                '/conversations.Conversations/EditMessageThreadStatus',
-                request_serializer=pb_dot_conversations__pb2.EditMessageThreadStatusReq.SerializeToString,
+        self.GetGroupChat = channel.unary_unary(
+                '/conversations.Conversations/GetGroupChat',
+                request_serializer=pb_dot_conversations__pb2.GetGroupChatReq.SerializeToString,
+                response_deserializer=pb_dot_conversations__pb2.GroupChat.FromString,
+                )
+        self.GetGroupChatMessages = channel.unary_unary(
+                '/conversations.Conversations/GetGroupChatMessages',
+                request_serializer=pb_dot_conversations__pb2.GetGroupChatMessagesReq.SerializeToString,
+                response_deserializer=pb_dot_conversations__pb2.GetGroupChatMessagesRes.FromString,
+                )
+        self.CreateGroupChat = channel.unary_unary(
+                '/conversations.Conversations/CreateGroupChat',
+                request_serializer=pb_dot_conversations__pb2.CreateGroupChatReq.SerializeToString,
+                response_deserializer=pb_dot_conversations__pb2.GroupChat.FromString,
+                )
+        self.EditGroupChat = channel.unary_unary(
+                '/conversations.Conversations/EditGroupChat',
+                request_serializer=pb_dot_conversations__pb2.EditGroupChatReq.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
-        self.GetMessageThread = channel.unary_unary(
-                '/conversations.Conversations/GetMessageThread',
-                request_serializer=pb_dot_conversations__pb2.GetMessageThreadReq.SerializeToString,
-                response_deserializer=pb_dot_conversations__pb2.GetMessageThreadRes.FromString,
-                )
-        self.GetMessageThreadInfo = channel.unary_unary(
-                '/conversations.Conversations/GetMessageThreadInfo',
-                request_serializer=pb_dot_conversations__pb2.GetMessageThreadInfoReq.SerializeToString,
-                response_deserializer=pb_dot_conversations__pb2.GetMessageThreadInfoRes.FromString,
-                )
-        self.CreateMessageThread = channel.unary_unary(
-                '/conversations.Conversations/CreateMessageThread',
-                request_serializer=pb_dot_conversations__pb2.CreateMessageThreadReq.SerializeToString,
-                response_deserializer=pb_dot_conversations__pb2.CreateMessageThreadRes.FromString,
-                )
-        self.EditMessageThread = channel.unary_unary(
-                '/conversations.Conversations/EditMessageThread',
-                request_serializer=pb_dot_conversations__pb2.EditMessageThreadReq.SerializeToString,
+        self.MakeGroupChatAdmin = channel.unary_unary(
+                '/conversations.Conversations/MakeGroupChatAdmin',
+                request_serializer=pb_dot_conversations__pb2.MakeGroupChatAdminReq.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
-        self.MakeMessageThreadAdmin = channel.unary_unary(
-                '/conversations.Conversations/MakeMessageThreadAdmin',
-                request_serializer=pb_dot_conversations__pb2.ThreadUserReq.SerializeToString,
-                response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-                )
-        self.RemoveMessageThreadAdmin = channel.unary_unary(
-                '/conversations.Conversations/RemoveMessageThreadAdmin',
-                request_serializer=pb_dot_conversations__pb2.ThreadUserReq.SerializeToString,
+        self.RemoveGroupChatAdmin = channel.unary_unary(
+                '/conversations.Conversations/RemoveGroupChatAdmin',
+                request_serializer=pb_dot_conversations__pb2.RemoveGroupChatAdminReq.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
         self.SendMessage = channel.unary_unary(
@@ -60,14 +55,9 @@ class ConversationsStub(object):
                 request_serializer=pb_dot_conversations__pb2.SendMessageReq.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
-        self.LeaveMessageThread = channel.unary_unary(
-                '/conversations.Conversations/LeaveMessageThread',
-                request_serializer=pb_dot_conversations__pb2.LeaveMessageThreadReq.SerializeToString,
-                response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-                )
-        self.InviteToMessageThread = channel.unary_unary(
-                '/conversations.Conversations/InviteToMessageThread',
-                request_serializer=pb_dot_conversations__pb2.ThreadUserReq.SerializeToString,
+        self.LeaveGroupChat = channel.unary_unary(
+                '/conversations.Conversations/LeaveGroupChat',
+                request_serializer=pb_dot_conversations__pb2.LeaveGroupChatReq.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
         self.SearchMessages = channel.unary_unary(
@@ -80,75 +70,72 @@ class ConversationsStub(object):
 class ConversationsServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def ListMessageThreads(self, request, context):
-        """Gives a paginated list of message threads with previews
+    def ListGroupChats(self, request, context):
+        """Retrieves list of group chats (ordered by last message), paginated
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def EditMessageThreadStatus(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+    def GetGroupChat(self, request, context):
+        """Retrieves group chat info by id
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetMessageThread(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+    def GetGroupChatMessages(self, request, context):
+        """Retrieves messages in group chat, paginated
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetMessageThreadInfo(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+    def CreateGroupChat(self, request, context):
+        """Creates a new group chat
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def CreateMessageThread(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+    def EditGroupChat(self, request, context):
+        """Modifies group chat
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def EditMessageThread(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+    def MakeGroupChatAdmin(self, request, context):
+        """Make a user an admin of a group chat
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def MakeMessageThreadAdmin(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def RemoveMessageThreadAdmin(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+    def RemoveGroupChatAdmin(self, request, context):
+        """Remove a user from admin in group chat. TODO: Only original creator can do this
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def SendMessage(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+        """Send a message to a group chat
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def LeaveMessageThread(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def InviteToMessageThread(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+    def LeaveGroupChat(self, request, context):
+        """Leave a group chat
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def SearchMessages(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+        """Search messages by string
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -156,44 +143,39 @@ class ConversationsServicer(object):
 
 def add_ConversationsServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'ListMessageThreads': grpc.unary_unary_rpc_method_handler(
-                    servicer.ListMessageThreads,
-                    request_deserializer=pb_dot_conversations__pb2.ListMessageThreadsReq.FromString,
-                    response_serializer=pb_dot_conversations__pb2.ListMessageThreadsRes.SerializeToString,
+            'ListGroupChats': grpc.unary_unary_rpc_method_handler(
+                    servicer.ListGroupChats,
+                    request_deserializer=pb_dot_conversations__pb2.ListGroupChatsReq.FromString,
+                    response_serializer=pb_dot_conversations__pb2.ListGroupChatsRes.SerializeToString,
             ),
-            'EditMessageThreadStatus': grpc.unary_unary_rpc_method_handler(
-                    servicer.EditMessageThreadStatus,
-                    request_deserializer=pb_dot_conversations__pb2.EditMessageThreadStatusReq.FromString,
+            'GetGroupChat': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetGroupChat,
+                    request_deserializer=pb_dot_conversations__pb2.GetGroupChatReq.FromString,
+                    response_serializer=pb_dot_conversations__pb2.GroupChat.SerializeToString,
+            ),
+            'GetGroupChatMessages': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetGroupChatMessages,
+                    request_deserializer=pb_dot_conversations__pb2.GetGroupChatMessagesReq.FromString,
+                    response_serializer=pb_dot_conversations__pb2.GetGroupChatMessagesRes.SerializeToString,
+            ),
+            'CreateGroupChat': grpc.unary_unary_rpc_method_handler(
+                    servicer.CreateGroupChat,
+                    request_deserializer=pb_dot_conversations__pb2.CreateGroupChatReq.FromString,
+                    response_serializer=pb_dot_conversations__pb2.GroupChat.SerializeToString,
+            ),
+            'EditGroupChat': grpc.unary_unary_rpc_method_handler(
+                    servicer.EditGroupChat,
+                    request_deserializer=pb_dot_conversations__pb2.EditGroupChatReq.FromString,
                     response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
-            'GetMessageThread': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetMessageThread,
-                    request_deserializer=pb_dot_conversations__pb2.GetMessageThreadReq.FromString,
-                    response_serializer=pb_dot_conversations__pb2.GetMessageThreadRes.SerializeToString,
-            ),
-            'GetMessageThreadInfo': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetMessageThreadInfo,
-                    request_deserializer=pb_dot_conversations__pb2.GetMessageThreadInfoReq.FromString,
-                    response_serializer=pb_dot_conversations__pb2.GetMessageThreadInfoRes.SerializeToString,
-            ),
-            'CreateMessageThread': grpc.unary_unary_rpc_method_handler(
-                    servicer.CreateMessageThread,
-                    request_deserializer=pb_dot_conversations__pb2.CreateMessageThreadReq.FromString,
-                    response_serializer=pb_dot_conversations__pb2.CreateMessageThreadRes.SerializeToString,
-            ),
-            'EditMessageThread': grpc.unary_unary_rpc_method_handler(
-                    servicer.EditMessageThread,
-                    request_deserializer=pb_dot_conversations__pb2.EditMessageThreadReq.FromString,
+            'MakeGroupChatAdmin': grpc.unary_unary_rpc_method_handler(
+                    servicer.MakeGroupChatAdmin,
+                    request_deserializer=pb_dot_conversations__pb2.MakeGroupChatAdminReq.FromString,
                     response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
-            'MakeMessageThreadAdmin': grpc.unary_unary_rpc_method_handler(
-                    servicer.MakeMessageThreadAdmin,
-                    request_deserializer=pb_dot_conversations__pb2.ThreadUserReq.FromString,
-                    response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-            ),
-            'RemoveMessageThreadAdmin': grpc.unary_unary_rpc_method_handler(
-                    servicer.RemoveMessageThreadAdmin,
-                    request_deserializer=pb_dot_conversations__pb2.ThreadUserReq.FromString,
+            'RemoveGroupChatAdmin': grpc.unary_unary_rpc_method_handler(
+                    servicer.RemoveGroupChatAdmin,
+                    request_deserializer=pb_dot_conversations__pb2.RemoveGroupChatAdminReq.FromString,
                     response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
             'SendMessage': grpc.unary_unary_rpc_method_handler(
@@ -201,14 +183,9 @@ def add_ConversationsServicer_to_server(servicer, server):
                     request_deserializer=pb_dot_conversations__pb2.SendMessageReq.FromString,
                     response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
-            'LeaveMessageThread': grpc.unary_unary_rpc_method_handler(
-                    servicer.LeaveMessageThread,
-                    request_deserializer=pb_dot_conversations__pb2.LeaveMessageThreadReq.FromString,
-                    response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-            ),
-            'InviteToMessageThread': grpc.unary_unary_rpc_method_handler(
-                    servicer.InviteToMessageThread,
-                    request_deserializer=pb_dot_conversations__pb2.ThreadUserReq.FromString,
+            'LeaveGroupChat': grpc.unary_unary_rpc_method_handler(
+                    servicer.LeaveGroupChat,
+                    request_deserializer=pb_dot_conversations__pb2.LeaveGroupChatReq.FromString,
                     response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
             'SearchMessages': grpc.unary_unary_rpc_method_handler(
@@ -227,7 +204,7 @@ class Conversations(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def ListMessageThreads(request,
+    def ListGroupChats(request,
             target,
             options=(),
             channel_credentials=None,
@@ -236,14 +213,14 @@ class Conversations(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/conversations.Conversations/ListMessageThreads',
-            pb_dot_conversations__pb2.ListMessageThreadsReq.SerializeToString,
-            pb_dot_conversations__pb2.ListMessageThreadsRes.FromString,
+        return grpc.experimental.unary_unary(request, target, '/conversations.Conversations/ListGroupChats',
+            pb_dot_conversations__pb2.ListGroupChatsReq.SerializeToString,
+            pb_dot_conversations__pb2.ListGroupChatsRes.FromString,
             options, channel_credentials,
             call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def EditMessageThreadStatus(request,
+    def GetGroupChat(request,
             target,
             options=(),
             channel_credentials=None,
@@ -252,14 +229,62 @@ class Conversations(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/conversations.Conversations/EditMessageThreadStatus',
-            pb_dot_conversations__pb2.EditMessageThreadStatusReq.SerializeToString,
+        return grpc.experimental.unary_unary(request, target, '/conversations.Conversations/GetGroupChat',
+            pb_dot_conversations__pb2.GetGroupChatReq.SerializeToString,
+            pb_dot_conversations__pb2.GroupChat.FromString,
+            options, channel_credentials,
+            call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def GetGroupChatMessages(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/conversations.Conversations/GetGroupChatMessages',
+            pb_dot_conversations__pb2.GetGroupChatMessagesReq.SerializeToString,
+            pb_dot_conversations__pb2.GetGroupChatMessagesRes.FromString,
+            options, channel_credentials,
+            call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def CreateGroupChat(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/conversations.Conversations/CreateGroupChat',
+            pb_dot_conversations__pb2.CreateGroupChatReq.SerializeToString,
+            pb_dot_conversations__pb2.GroupChat.FromString,
+            options, channel_credentials,
+            call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def EditGroupChat(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/conversations.Conversations/EditGroupChat',
+            pb_dot_conversations__pb2.EditGroupChatReq.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options, channel_credentials,
             call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def GetMessageThread(request,
+    def MakeGroupChatAdmin(request,
             target,
             options=(),
             channel_credentials=None,
@@ -268,62 +293,14 @@ class Conversations(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/conversations.Conversations/GetMessageThread',
-            pb_dot_conversations__pb2.GetMessageThreadReq.SerializeToString,
-            pb_dot_conversations__pb2.GetMessageThreadRes.FromString,
-            options, channel_credentials,
-            call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def GetMessageThreadInfo(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/conversations.Conversations/GetMessageThreadInfo',
-            pb_dot_conversations__pb2.GetMessageThreadInfoReq.SerializeToString,
-            pb_dot_conversations__pb2.GetMessageThreadInfoRes.FromString,
-            options, channel_credentials,
-            call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def CreateMessageThread(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/conversations.Conversations/CreateMessageThread',
-            pb_dot_conversations__pb2.CreateMessageThreadReq.SerializeToString,
-            pb_dot_conversations__pb2.CreateMessageThreadRes.FromString,
-            options, channel_credentials,
-            call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def EditMessageThread(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/conversations.Conversations/EditMessageThread',
-            pb_dot_conversations__pb2.EditMessageThreadReq.SerializeToString,
+        return grpc.experimental.unary_unary(request, target, '/conversations.Conversations/MakeGroupChatAdmin',
+            pb_dot_conversations__pb2.MakeGroupChatAdminReq.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options, channel_credentials,
             call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def MakeMessageThreadAdmin(request,
+    def RemoveGroupChatAdmin(request,
             target,
             options=(),
             channel_credentials=None,
@@ -332,24 +309,8 @@ class Conversations(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/conversations.Conversations/MakeMessageThreadAdmin',
-            pb_dot_conversations__pb2.ThreadUserReq.SerializeToString,
-            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-            options, channel_credentials,
-            call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def RemoveMessageThreadAdmin(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/conversations.Conversations/RemoveMessageThreadAdmin',
-            pb_dot_conversations__pb2.ThreadUserReq.SerializeToString,
+        return grpc.experimental.unary_unary(request, target, '/conversations.Conversations/RemoveGroupChatAdmin',
+            pb_dot_conversations__pb2.RemoveGroupChatAdminReq.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options, channel_credentials,
             call_credentials, compression, wait_for_ready, timeout, metadata)
@@ -371,7 +332,7 @@ class Conversations(object):
             call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def LeaveMessageThread(request,
+    def LeaveGroupChat(request,
             target,
             options=(),
             channel_credentials=None,
@@ -380,24 +341,8 @@ class Conversations(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/conversations.Conversations/LeaveMessageThread',
-            pb_dot_conversations__pb2.LeaveMessageThreadReq.SerializeToString,
-            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-            options, channel_credentials,
-            call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def InviteToMessageThread(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/conversations.Conversations/InviteToMessageThread',
-            pb_dot_conversations__pb2.ThreadUserReq.SerializeToString,
+        return grpc.experimental.unary_unary(request, target, '/conversations.Conversations/LeaveGroupChat',
+            pb_dot_conversations__pb2.LeaveGroupChatReq.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options, channel_credentials,
             call_credentials, compression, wait_for_ready, timeout, metadata)

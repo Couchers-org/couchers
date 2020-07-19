@@ -5,78 +5,70 @@ import * as google_protobuf_wrappers_pb from 'google-protobuf/google/protobuf/wr
 import * as google_protobuf_empty_pb from 'google-protobuf/google/protobuf/empty_pb';
 
 import {
-  CreateMessageThreadReq,
-  CreateMessageThreadRes,
-  EditMessageThreadReq,
-  EditMessageThreadStatusReq,
-  GetMessageThreadInfoReq,
-  GetMessageThreadInfoRes,
-  GetMessageThreadReq,
-  GetMessageThreadRes,
-  LeaveMessageThreadReq,
-  ListMessageThreadsReq,
-  ListMessageThreadsRes,
+  CreateGroupChatReq,
+  EditGroupChatReq,
+  GetGroupChatMessagesReq,
+  GetGroupChatMessagesRes,
+  GetGroupChatReq,
+  GroupChat,
+  LeaveGroupChatReq,
+  ListGroupChatsReq,
+  ListGroupChatsRes,
+  MakeGroupChatAdminReq,
+  RemoveGroupChatAdminReq,
   SearchMessagesReq,
   SearchMessagesRes,
-  SendMessageReq,
-  ThreadUserReq} from './conversations_pb';
+  SendMessageReq} from './conversations_pb';
 
 export class ConversationsClient {
   constructor (hostname: string,
                credentials?: null | { [index: string]: string; },
                options?: null | { [index: string]: string; });
 
-  listMessageThreads(
-    request: ListMessageThreadsReq,
+  listGroupChats(
+    request: ListGroupChatsReq,
     metadata: grpcWeb.Metadata | undefined,
     callback: (err: grpcWeb.Error,
-               response: ListMessageThreadsRes) => void
-  ): grpcWeb.ClientReadableStream<ListMessageThreadsRes>;
+               response: ListGroupChatsRes) => void
+  ): grpcWeb.ClientReadableStream<ListGroupChatsRes>;
 
-  editMessageThreadStatus(
-    request: EditMessageThreadStatusReq,
+  getGroupChat(
+    request: GetGroupChatReq,
     metadata: grpcWeb.Metadata | undefined,
     callback: (err: grpcWeb.Error,
-               response: google_protobuf_empty_pb.Empty) => void
-  ): grpcWeb.ClientReadableStream<google_protobuf_empty_pb.Empty>;
+               response: GroupChat) => void
+  ): grpcWeb.ClientReadableStream<GroupChat>;
 
-  getMessageThread(
-    request: GetMessageThreadReq,
+  getGroupChatMessages(
+    request: GetGroupChatMessagesReq,
     metadata: grpcWeb.Metadata | undefined,
     callback: (err: grpcWeb.Error,
-               response: GetMessageThreadRes) => void
-  ): grpcWeb.ClientReadableStream<GetMessageThreadRes>;
+               response: GetGroupChatMessagesRes) => void
+  ): grpcWeb.ClientReadableStream<GetGroupChatMessagesRes>;
 
-  getMessageThreadInfo(
-    request: GetMessageThreadInfoReq,
+  createGroupChat(
+    request: CreateGroupChatReq,
     metadata: grpcWeb.Metadata | undefined,
     callback: (err: grpcWeb.Error,
-               response: GetMessageThreadInfoRes) => void
-  ): grpcWeb.ClientReadableStream<GetMessageThreadInfoRes>;
+               response: GroupChat) => void
+  ): grpcWeb.ClientReadableStream<GroupChat>;
 
-  createMessageThread(
-    request: CreateMessageThreadReq,
-    metadata: grpcWeb.Metadata | undefined,
-    callback: (err: grpcWeb.Error,
-               response: CreateMessageThreadRes) => void
-  ): grpcWeb.ClientReadableStream<CreateMessageThreadRes>;
-
-  editMessageThread(
-    request: EditMessageThreadReq,
+  editGroupChat(
+    request: EditGroupChatReq,
     metadata: grpcWeb.Metadata | undefined,
     callback: (err: grpcWeb.Error,
                response: google_protobuf_empty_pb.Empty) => void
   ): grpcWeb.ClientReadableStream<google_protobuf_empty_pb.Empty>;
 
-  makeMessageThreadAdmin(
-    request: ThreadUserReq,
+  makeGroupChatAdmin(
+    request: MakeGroupChatAdminReq,
     metadata: grpcWeb.Metadata | undefined,
     callback: (err: grpcWeb.Error,
                response: google_protobuf_empty_pb.Empty) => void
   ): grpcWeb.ClientReadableStream<google_protobuf_empty_pb.Empty>;
 
-  removeMessageThreadAdmin(
-    request: ThreadUserReq,
+  removeGroupChatAdmin(
+    request: RemoveGroupChatAdminReq,
     metadata: grpcWeb.Metadata | undefined,
     callback: (err: grpcWeb.Error,
                response: google_protobuf_empty_pb.Empty) => void
@@ -89,15 +81,8 @@ export class ConversationsClient {
                response: google_protobuf_empty_pb.Empty) => void
   ): grpcWeb.ClientReadableStream<google_protobuf_empty_pb.Empty>;
 
-  leaveMessageThread(
-    request: LeaveMessageThreadReq,
-    metadata: grpcWeb.Metadata | undefined,
-    callback: (err: grpcWeb.Error,
-               response: google_protobuf_empty_pb.Empty) => void
-  ): grpcWeb.ClientReadableStream<google_protobuf_empty_pb.Empty>;
-
-  inviteToMessageThread(
-    request: ThreadUserReq,
+  leaveGroupChat(
+    request: LeaveGroupChatReq,
     metadata: grpcWeb.Metadata | undefined,
     callback: (err: grpcWeb.Error,
                response: google_protobuf_empty_pb.Empty) => void
@@ -117,43 +102,38 @@ export class ConversationsPromiseClient {
                credentials?: null | { [index: string]: string; },
                options?: null | { [index: string]: string; });
 
-  listMessageThreads(
-    request: ListMessageThreadsReq,
+  listGroupChats(
+    request: ListGroupChatsReq,
     metadata?: grpcWeb.Metadata
-  ): Promise<ListMessageThreadsRes>;
+  ): Promise<ListGroupChatsRes>;
 
-  editMessageThreadStatus(
-    request: EditMessageThreadStatusReq,
+  getGroupChat(
+    request: GetGroupChatReq,
     metadata?: grpcWeb.Metadata
-  ): Promise<google_protobuf_empty_pb.Empty>;
+  ): Promise<GroupChat>;
 
-  getMessageThread(
-    request: GetMessageThreadReq,
+  getGroupChatMessages(
+    request: GetGroupChatMessagesReq,
     metadata?: grpcWeb.Metadata
-  ): Promise<GetMessageThreadRes>;
+  ): Promise<GetGroupChatMessagesRes>;
 
-  getMessageThreadInfo(
-    request: GetMessageThreadInfoReq,
+  createGroupChat(
+    request: CreateGroupChatReq,
     metadata?: grpcWeb.Metadata
-  ): Promise<GetMessageThreadInfoRes>;
+  ): Promise<GroupChat>;
 
-  createMessageThread(
-    request: CreateMessageThreadReq,
-    metadata?: grpcWeb.Metadata
-  ): Promise<CreateMessageThreadRes>;
-
-  editMessageThread(
-    request: EditMessageThreadReq,
+  editGroupChat(
+    request: EditGroupChatReq,
     metadata?: grpcWeb.Metadata
   ): Promise<google_protobuf_empty_pb.Empty>;
 
-  makeMessageThreadAdmin(
-    request: ThreadUserReq,
+  makeGroupChatAdmin(
+    request: MakeGroupChatAdminReq,
     metadata?: grpcWeb.Metadata
   ): Promise<google_protobuf_empty_pb.Empty>;
 
-  removeMessageThreadAdmin(
-    request: ThreadUserReq,
+  removeGroupChatAdmin(
+    request: RemoveGroupChatAdminReq,
     metadata?: grpcWeb.Metadata
   ): Promise<google_protobuf_empty_pb.Empty>;
 
@@ -162,13 +142,8 @@ export class ConversationsPromiseClient {
     metadata?: grpcWeb.Metadata
   ): Promise<google_protobuf_empty_pb.Empty>;
 
-  leaveMessageThread(
-    request: LeaveMessageThreadReq,
-    metadata?: grpcWeb.Metadata
-  ): Promise<google_protobuf_empty_pb.Empty>;
-
-  inviteToMessageThread(
-    request: ThreadUserReq,
+  leaveGroupChat(
+    request: LeaveGroupChatReq,
     metadata?: grpcWeb.Metadata
   ): Promise<google_protobuf_empty_pb.Empty>;
 
