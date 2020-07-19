@@ -9,8 +9,6 @@ import {
   GetUserReq,
   ListFriendRequestsRes,
   ListFriendsRes,
-  ListMutualFriendsReq,
-  ListMutualFriendsRes,
   PingReq,
   PingRes,
   RespondFriendRequestReq,
@@ -69,13 +67,6 @@ export class APIClient {
     callback: (err: grpcWeb.Error,
                response: ListFriendsRes) => void
   ): grpcWeb.ClientReadableStream<ListFriendsRes>;
-
-  listMutualFriends(
-    request: ListMutualFriendsReq,
-    metadata: grpcWeb.Metadata | undefined,
-    callback: (err: grpcWeb.Error,
-               response: ListMutualFriendsRes) => void
-  ): grpcWeb.ClientReadableStream<ListMutualFriendsRes>;
 
   respondFriendRequest(
     request: RespondFriendRequestReq,
@@ -141,11 +132,6 @@ export class APIPromiseClient {
     request: google_protobuf_empty_pb.Empty,
     metadata?: grpcWeb.Metadata
   ): Promise<ListFriendsRes>;
-
-  listMutualFriends(
-    request: ListMutualFriendsReq,
-    metadata?: grpcWeb.Metadata
-  ): Promise<ListMutualFriendsRes>;
 
   respondFriendRequest(
     request: RespondFriendRequestReq,

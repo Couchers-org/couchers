@@ -45,11 +45,6 @@ class APIStub(object):
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
                 response_deserializer=pb_dot_api__pb2.ListFriendsRes.FromString,
                 )
-        self.ListMutualFriends = channel.unary_unary(
-                '/api.API/ListMutualFriends',
-                request_serializer=pb_dot_api__pb2.ListMutualFriendsReq.SerializeToString,
-                response_deserializer=pb_dot_api__pb2.ListMutualFriendsRes.FromString,
-                )
         self.RespondFriendRequest = channel.unary_unary(
                 '/api.API/RespondFriendRequest',
                 request_serializer=pb_dot_api__pb2.RespondFriendRequestReq.SerializeToString,
@@ -114,12 +109,6 @@ class APIServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def ListMutualFriends(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
     def RespondFriendRequest(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -178,11 +167,6 @@ def add_APIServicer_to_server(servicer, server):
                     servicer.ListFriends,
                     request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                     response_serializer=pb_dot_api__pb2.ListFriendsRes.SerializeToString,
-            ),
-            'ListMutualFriends': grpc.unary_unary_rpc_method_handler(
-                    servicer.ListMutualFriends,
-                    request_deserializer=pb_dot_api__pb2.ListMutualFriendsReq.FromString,
-                    response_serializer=pb_dot_api__pb2.ListMutualFriendsRes.SerializeToString,
             ),
             'RespondFriendRequest': grpc.unary_unary_rpc_method_handler(
                     servicer.RespondFriendRequest,
@@ -307,22 +291,6 @@ class API(object):
         return grpc.experimental.unary_unary(request, target, '/api.API/ListFriends',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             pb_dot_api__pb2.ListFriendsRes.FromString,
-            options, channel_credentials,
-            call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def ListMutualFriends(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/api.API/ListMutualFriends',
-            pb_dot_api__pb2.ListMutualFriendsReq.SerializeToString,
-            pb_dot_api__pb2.ListMutualFriendsRes.FromString,
             options, channel_credentials,
             call_credentials, compression, wait_for_ready, timeout, metadata)
 

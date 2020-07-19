@@ -6,9 +6,9 @@ from datetime import date
 
 import grpc
 from couchers.crypto import hash_password
-from couchers.db import session_scope
+from couchers.db import get_user_by_field, session_scope
 from couchers.interceptors import LoggingInterceptor, intercept_server
-from couchers.models import Base, User
+from couchers.models import Base, FriendRelationship, FriendStatus, User
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
 from couchers.utils import Timestamp_from_datetime
@@ -29,9 +29,9 @@ Session = sessionmaker(bind=engine)
 def add_dummy_data(file_name):
     with session_scope(Session) as session:
         with open(file_name, "r") as file:
-            users = json.loads(file.read())
+            data = json.loads(file.read())
 
-        for user in users:
+        for user in data["users"]:
             new_user = User(
                 username=user["username"],
                 email=user["email"],
@@ -54,6 +54,15 @@ def add_dummy_data(file_name):
                 countries_lived="|".join(user["countries_lived"]),
             )
             session.add(new_user)
+        session.commit()
+
+        for username1, username2 in data["friendships"]:
+            friend_relationship = FriendRelationship(
+                from_user_id=get_user_by_field(session, username1).id,
+                to_user_id=get_user_by_field(session, username2).id,
+                status=FriendStatus.accepted,
+            )
+            session.add(friend_relationship)
 
 logging.info(f"Adding dummy data")
 

@@ -38,6 +38,7 @@ class API(api_pb2_grpc.APIServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, "No such user.")
 
             return api_pb2.User(
+                id=user.id,
                 username=user.username,
                 name=user.name,
                 city=user.city,
@@ -56,6 +57,13 @@ class API(api_pb2_grpc.APIServicer):
                 countries_visited=user.countries_visited.split("|") if user.countries_visited else [],
                 countries_lived=user.countries_lived.split("|") if user.countries_lived else [],
                 friends=get_friends_status(session, context.user_id, user.id),
+                mutual_friends=[
+                    api_pb2.MutualFriend(
+                        user_id=mutual_friend.id,
+                        username=mutual_friend.username,
+                        name=mutual_friend.name,
+                    ) for mutual_friend in user.mutual_friends(context.user_id)
+                ],
             )
 
     def UpdateProfile(self, request, context):
@@ -128,21 +136,6 @@ class API(api_pb2_grpc.APIServicer):
                 .all())
             return api_pb2.ListFriendsRes(
                 users=[rel.from_user.username if rel.from_user.id != context.user_id else rel.to_user.username for rel in rels],
-            )
-
-    def ListMutualFriends(self, request, context):
-        with session_scope(self._Session) as session:
-            target = (session.query(User)
-                .filter(User.id == request.user_id)
-                .one_or_none())
-
-            if not target:
-                context.abort(grpc.StatusCode.NOT_FOUND, "Target user not found.")
-
-            return api_pb2.ListMutualFriendsRes(
-                user_ids=[
-                    user.id for user in target.mutual_friends(context.user_id)
-                ]
             )
 
     def SendFriendRequest(self, request, context):

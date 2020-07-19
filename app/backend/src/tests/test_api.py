@@ -242,7 +242,7 @@ def test_ListFriends(db):
         assert "user2" in res.users
         assert "user3" in res.users
 
-def test_ListMutualFriends(db):
+def test_mutual_friends(db):
     user1, token1 = generate_user(db, "user1")
     user2, token2 = generate_user(db, "user2")
     user3, token3 = generate_user(db, "user3")
@@ -292,15 +292,15 @@ def test_ListMutualFriends(db):
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user="user5"))
 
     with api_session(db, token1) as api:
-        res = api.ListMutualFriends(api_pb2.ListMutualFriendsReq(user_id=user2.id))
-        assert len(res.user_ids) == 1
-        assert res.user_ids[0] == user3.id
+        res = api.GetUser(api_pb2.GetUserReq(user=str(user2.username)))
+        assert len(res.mutual_friends) == 1
+        assert res.mutual_friends[0].user_id == user3.id
 
     # and other way around same
     with api_session(db, token2) as api:
-        res = api.ListMutualFriends(api_pb2.ListMutualFriendsReq(user_id=user1.id))
-        assert len(res.user_ids) == 1
-        assert res.user_ids[0] == user3.id
+        res = api.GetUser(api_pb2.GetUserReq(user=str(user1.username)))
+        assert len(res.mutual_friends) == 1
+        assert res.mutual_friends[0].user_id == user3.id
 
 def test_CancelFriendRequest(db):
     user1, token1 = generate_user(db, "user1")

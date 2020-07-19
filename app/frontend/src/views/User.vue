@@ -123,9 +123,7 @@
             <v-icon>mdi-account-multiple-check</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title>{{
-              displayList(mutualFriends.map(handle))
-            }}</v-list-item-title>
+            <v-list-item-title>{{ mutualFriendsDisplay }}</v-list-item-title>
             <v-list-item-subtitle>Mutual friends</v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
@@ -164,8 +162,7 @@ import ErrorAlert from "../components/ErrorAlert.vue"
 import {
   GetUserReq,
   SendFriendRequestReq,
-  User,
-  ListMutualFriendsReq,
+  User
 } from "../pb/api_pb"
 import { client } from "../api"
 
@@ -177,7 +174,6 @@ export default Vue.extend({
     error: null as null | Error,
     sendingFriendRequest: false,
     user: (null as unknown) as User.AsObject,
-    mutualFriends: [] as Array<string>,
   }),
 
   components: {
@@ -208,17 +204,6 @@ export default Vue.extend({
       client
         .getUser(req)
         .then((res) => {
-          const req = new ListMutualFriendsReq()
-          req.setUser(this.routeUser)
-          client
-            .listMutualFriends(req)
-            .then((res) => {
-              this.mutualFriends = res.getUsersList()
-            })
-            .catch((err) => {
-              this.loading = false
-              this.error = err
-            })
           this.loading = false
           this.user = res.toObject()
         })
@@ -249,6 +234,11 @@ export default Vue.extend({
   computed: {
     routeUser() {
       return this.$route.params.user
+    },
+
+    mutualFriendsDisplay() {
+      console.log(this.user.mutualFriendsList)
+      return displayList(this.user.mutualFriendsList.map(user => handle(user.username)))
     },
 
     friendsDisplay() {
