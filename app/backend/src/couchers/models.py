@@ -204,6 +204,9 @@ class Conversation(Base):
     id = Column(Integer, primary_key=True)
     created = Column(DateTime, nullable=False, server_default=func.now())
 
+    def __repr__(self):
+        return f"Conversation(id={self.id}, created={self.created})"
+
 
 class GroupChat(Base):
     """
@@ -220,6 +223,9 @@ class GroupChat(Base):
 
     conversation = relationship("Conversation", backref="group_chat")
     creator = relationship("User", backref="created_group_chats")
+
+    def __repr__(self):
+        return f"GroupChat(conversation={self.conversation}, title={self.title or 'None'}, only_admins_invite={self.only_admins_invite}, creator={self.creator}, is_dm={self.is_dm})"
 
 
 class GroupChatRole(enum.Enum):
@@ -245,6 +251,9 @@ class GroupChatSubscription(Base):
     user = relationship("User", backref="group_chat_subscriptions")
     group_chat = relationship("GroupChat", backref="subscriptions")
 
+    def __repr__(self):
+        return f"GroupChatSubscription(id={self.id}, user={self.user}, joined={self.joined}, left={self.left}, role={self.role}, group_chat={self.group_chat})"
+
 
 class Message(Base):
     """
@@ -262,3 +271,6 @@ class Message(Base):
 
     conversation = relationship("Conversation", backref="messages", order_by="Message.time.desc()")
     author = relationship("User")
+
+    def __repr__(self):
+        return f"Message(id={self.id}, time={self.time}, text={self.text}, author={self.author}, conversation={self.conversation})"
