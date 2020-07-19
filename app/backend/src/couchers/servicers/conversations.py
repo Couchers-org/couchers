@@ -74,7 +74,77 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                         ),
                     ) for result in results[:PAGINATION_LENGTH]
                 ],
-                next_message_id=min(map(lambda g: g.max_message_id, results))-1 if len(results) > 0 else 0,
+                next_message_id=min(map(lambda g: g.max_message_id, results))-1 if len(results) > 0 else 0, # TODO
+                no_more=len(results) <= PAGINATION_LENGTH,
+            )
+
+    def GetGroupChat(self, request, context):
+        with session_scope(self._Session) as session:
+            subquery = (session.query(GroupChatSubscription, func.max(Message.id).label("max_message_id"))
+                .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
+                .group_by(Message.conversation_id)
+                .filter(GroupChatSubscription.user_id == context.user_id)
+                .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                .filter(GroupChatSubscription.left == None) # TODO
+                .subquery())
+
+            result = (session.query(subquery, Message, GroupChat)
+                .join(Message, Message.id == subquery.c.max_message_id)
+                .join(GroupChat, GroupChat.conversation_id == subquery.c.group_chat_id)
+                .one_or_none())
+
+            if not result:
+                context.abort(grpc.StatusCode.NOT_FOUND, "Couldn't find that chat.")
+
+            return conversations_pb2.GroupChat(
+                group_chat_id=result.GroupChat.conversation.id,
+                title=result.GroupChat.title,
+                member_user_ids=[sub.user_id for sub in result.GroupChat.subscriptions],
+                admin_user_ids=[sub.user_id for sub in result.GroupChat.subscriptions if sub.role == GroupChatRole.admin],
+                only_admins_invite=result.GroupChat.only_admins_invite,
+                is_dm=result.GroupChat.is_dm,
+                created=Timestamp_from_datetime(result.GroupChat.conversation.created),
+                latest_message=conversations_pb2.Message(
+                    message_id=result.Message.id,
+                    author_user_id=result.Message.author_id,
+                    time=Timestamp_from_datetime(result.Message.time),
+                    text=result.Message.text,
+                ),
+            )
+
+    def GetGroupChatMessages(self, request, context):
+        with session_scope(self._Session) as session:
+            subscription = (session.query(GroupChatSubscription)
+                .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                .filter(GroupChatSubscription.user_id == context.user_id)
+                .filter(GroupChatSubscription.left == None) # TODO
+                .one_or_none())
+
+            if not subscription:
+                context.abort(grpc.StatusCode.NOT_FOUND, "Couldn't find that chat.")
+
+            query = (session.query(Message)
+                .filter(Message.conversation_id == GroupChatSubscription.group_chat_id)
+                .filter(Message.time >= GroupChatSubscription.joined)
+                #.filter(Message.time <= GroupChatSubscription.left)
+                .order_by(Message.id.desc())
+                .limit(PAGINATION_LENGTH+1))
+
+            if request.last_message_id > 0:
+                query = query.filter(Message.id < request.last_message_id)
+
+            results = query.all()
+
+            return conversations_pb2.GetGroupChatMessagesRes(
+                messages=[
+                    conversations_pb2.Message(
+                        message_id=message.id,
+                        author_user_id=message.author_id,
+                        time=Timestamp_from_datetime(message.time),
+                        text=message.text,
+                    ) for message in results
+                ],
+                next_message_id=results[-1].id if len(results) > 0 else 0, # TODO
                 no_more=len(results) <= PAGINATION_LENGTH,
             )
 
@@ -122,8 +192,8 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             )
 
     def SendMessage(self, request, context):
-        if request.group_chat_id == 0 or request.text == "":
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, "Missing request argument")
+        if request.text == "":
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, "Invalid message")
 
         with session_scope(self._Session) as session:
             subscription = (session.query(GroupChatSubscription)
@@ -143,7 +213,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
 
     def EditGroupChatStatus(self, request, context):
-        if not request.thread_id or not request.status:
+        if not request.group_chat_id or not request.status:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT,
                           "Missing request argument")
         status = None
@@ -158,7 +228,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             context.abort(grpc.StatusCode.UNIMPLEMENTED, "Unknown thread status.")
         with session_scope(self._Session) as session:
             subscription = session.query(GroupChatSubscription).filter(
-                and_(GroupChatSubscription.thread_id == request.thread_id,
+                and_(GroupChatSubscription.group_chat_id == request.group_chat_id,
                      GroupChatSubscription.user_id == context.user_id)
             ).one_or_none()
             if not subscription:
@@ -168,98 +238,22 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             subscription.status = status
             session.commit()
             return empty_pb2.Empty()
-    
-    def GetGroupChatInfo(self, request, context):
-        if not request.thread_id:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT,
-                          "Missing request argument")
-        with session_scope(self._Session) as session:
-            thread = session.query(GroupChat).join(
-                GroupChatSubscription
-            ).filter(
-                and_(GroupChat.id == request.thread_id,
-                     GroupChat.recipient_subscriptions.any(user_id=context.user_id))
-            ).one_or_none()
-            if not thread:
-                context.abort(grpc.StatusCode.NOT_FOUND, "Couldn't find that thread for this user.")
-
-            status = None
-            for sub in thread.recipient_subscriptions:
-                if sub.user_id == context.user_id:
-                    if sub.status == GroupChatSubscriptionStatus.pending:
-                        status = conversations_pb2.GroupChatStatus.PENDING
-                    elif sub.status == GroupChatSubscriptionStatus.accepted:
-                        status = conversations_pb2.GroupChatStatus.ACCEPTED
-                    elif sub.status == GroupChatSubscriptionStatus.rejected:
-                        status = conversations_pb2.GroupChatStatus.REJECTED
-                    else:
-                        context.abort(grpc.StatusCode.UNIMPLEMENTED, "Unknown thread status.")
-                    break
-
-            return conversations_pb2.GetGroupChatInfoRes(
-                title=thread.title,
-                recipients=map(lambda r: str(r.user_id), thread.recipient_subscriptions),
-                admins=[ str(r.user_id) for r in thread.recipient_subscriptions if r is not None ],
-                creation_time=Timestamp_from_datetime(thread.creation_time),
-                only_admins_invite=thread.only_admins_invite,
-                status=status,
-                is_dm=thread.is_dm
-            )
-
-  
-    def GetGroupChat(self, request, context):
-        if not request.thread_id:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT,
-                          "Missing request argument")
-        with session_scope(self._Session) as session:
-            start_index = 0 if not request.start_index else request.start_index
-            thread_subscription = session.query(GroupChatSubscription).filter(
-                GroupChatSubscription.thread_id==request.thread_id,
-                GroupChatSubscription.user_id==context.user_id
-            ).one_or_none()
-            if not thread_subscription:
-                context.abort(grpc.StatusCode.NOT_FOUND, "Couldn't find that thread for this user.")
-            # TODO: Is this query efficient? Can it be more efficient?
-            query = session.query(Message).join(
-                GroupChat
-            ).filter(
-                Message.thread_id==request.thread_id
-            ).order_by(Message.timestamp.desc())
-            query = query.offset(start_index)
-            count_query = session.query(Message).filter(
-                Message.thread_id==request.thread_id
-            ).offset(start_index)
-            has_more = False if not request.max or count_query.count() <= request.max else True
-            if request.max:
-                query = query.limit(request.max)
-            return conversations_pb2.GetGroupChatRes(
-                start_index=start_index,
-                has_more=has_more,
-                messages=[
-                    conversations_pb2.Message(
-                        id=message.id,
-                        sender=str(message.author_id),
-                        timestamp=Timestamp_from_datetime(message.timestamp),
-                        text=message.text
-                    ) for message in query.all()
-                ]
-            )
 
     def EditGroupChat(self, request, context):
-        if not request.thread_id:
+        if not request.group_chat_id:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT,
                           "Missing request argument")
         with session_scope(self._Session) as session:
             thread_subscription = session.query(GroupChatSubscription).filter(
                 and_(GroupChatSubscription.user_id == context.user_id,
-                     GroupChatSubscription.thread_id == request.thread_id)
+                     GroupChatSubscription.group_chat_id == request.group_chat_id)
             ).one_or_none()
             if not thread_subscription:
                 context.abort(grpc.StatusCode.NOT_FOUND, "Couldn't find that thread for this user.")
             if thread_subscription.role != GroupChatRole.admin:
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, "Not an admin for that thread.")
             
-            thread = session.query(GroupChat).get(request.thread_id)
+            thread = session.query(GroupChat).get(request.group_chat_id)
             if request.HasField("title"):
                 thread.title = request.title.value
             if request.HasField("only_admins_invite"):
