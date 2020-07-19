@@ -112,3 +112,12 @@ class LoggingInterceptor(grpcext.UnaryServerInterceptor):
         else:
             logging.info(f"Finished request (in {duration} s): {server_info.full_method}")
         return res
+
+
+class UpdateLastActiveTimeInterceptor(grpcext.UnaryServerInterceptor):
+    def __init__(self, update_last_active_time):
+        self._update_last_active_time = update_last_active_time
+
+    def intercept_unary(self, request, servicer_context, server_info, handler):
+        self._update_last_active_time(servicer_context.user_id)
+        return handler(request, servicer_context)

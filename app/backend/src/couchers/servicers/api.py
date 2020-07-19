@@ -1,5 +1,5 @@
-import datetime
 import logging
+from datetime import datetime
 from urllib.parse import parse_qs, quote, unquote, urlencode
 
 from google.protobuf import empty_pb2
@@ -7,8 +7,8 @@ from google.protobuf import empty_pb2
 import grpc
 from couchers.crypto import (base64decode, base64encode, sso_check_hmac,
                              sso_create_hmac)
-from couchers.db import (get_friends_status, get_user_by_field, is_valid_name,
-                         is_valid_color, session_scope)
+from couchers.db import (get_friends_status, get_user_by_field, is_valid_color,
+                         is_valid_name, session_scope)
 from couchers.models import FriendRelationship, FriendStatus, User
 from couchers.utils import Timestamp_from_datetime
 from pb import api_pb2, api_pb2_grpc
@@ -19,6 +19,11 @@ logging.basicConfig(format="%(asctime)s.%(msecs)03d: %(process)d: %(message)s", 
 class API(api_pb2_grpc.APIServicer):
     def __init__(self, Session):
         self._Session = Session
+
+    def update_last_active_time(self, user_id):
+        with session_scope(self._Session) as session:
+            user = session.query(User).filter(User.id == user_id).one()
+            user.last_active = datetime.utcnow()
 
     def Ping(self, request, context):
         with session_scope(self._Session) as session:
@@ -206,7 +211,7 @@ class API(api_pb2_grpc.APIServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, "Friend request not found.")
 
             friend_request.status = FriendStatus.accepted if request.accept else FriendStatus.rejected
-            friend_request.time_responded = datetime.datetime.utcnow()
+            friend_request.time_responded = datetime.utcnow()
 
             session.commit()
 
@@ -224,7 +229,7 @@ class API(api_pb2_grpc.APIServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, "Friend request not found.")
 
             friend_request.status = FriendStatus.cancelled
-            friend_request.time_responded = datetime.datetime.utcnow()
+            friend_request.time_responded = datetime.utcnow()
 
             session.commit()
 
