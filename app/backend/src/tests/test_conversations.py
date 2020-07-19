@@ -177,21 +177,29 @@ def test_make_remove_group_chat_admin(db):
     with conversations_session(db, token2) as c:
         res = c.GetGroupChat(
             conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
-        assert user1.id in res.admins
-        assert user2.id in res.admins
+        assert user1.id in res.admin_user_ids
+        assert user2.id in res.admin_user_ids
 
-        c.RemoveGroupChatAdmin(
-            conversations_pb2.RemoveGroupChatAdminReq(group_chat_id=group_chat_id, user_id=user2.id))
-
+        # can't change my admin status
         with pytest.raises(grpc.RpcError) as e:
-            c.MakeGroupChatAdmin(conversations_pb2.MakeGroupChatAdminReq(
-                group_chat_id=group_chat_id, user_id=user2.id))
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+            c.RemoveGroupChatAdmin(
+                conversations_pb2.RemoveGroupChatAdminReq(group_chat_id=group_chat_id, user_id=user2.id))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+
 
         res = c.GetGroupChat(
             conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
-        assert user1.id in res.admins
-        assert not user2.id in res.admins
+        assert user1.id in res.admin_user_ids
+        assert user2.id in res.admin_user_ids
+
+    with conversations_session(db, token1) as c:
+        c.RemoveGroupChatAdmin(
+            conversations_pb2.RemoveGroupChatAdminReq(group_chat_id=group_chat_id, user_id=user2.id))
+        
+        res = c.GetGroupChat(
+            conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
+        assert user1.id in res.admin_user_ids
+        assert not user2.id in res.admin_user_ids
 
 
 def test_send_message(db):
