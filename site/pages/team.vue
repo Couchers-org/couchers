@@ -189,7 +189,7 @@
     <div class="container">
       <section class="section">
         <h4 class="title is-4">Have skills you want to contribute?</h4>
-        <p class="subtitle is-6">Couchers.org is a community project, build by folks like you for the benefit of the global couch-surfing community. If you would like to be a part of this great new project, or leave your feedback on our ideas, click the button below and fill out the short form.</p>
+        <p class="subtitle is-6">Couchers.org is a community project, built by folks like you for the benefit of the global couch-surfing community. If you would like to be a part of this great new project, or leave your feedback on our ideas, click the button below and fill out the short form.</p>
         <p><a class="button is-primary" href="/signup">Join our team</a></p>
       </section>
     </div>
