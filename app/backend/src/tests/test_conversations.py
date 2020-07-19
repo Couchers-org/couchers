@@ -204,11 +204,11 @@ def test_send_message(db):
             conversations_pb2.CreateGroupChatReq(recipient_ids=[user2.id]))
         c.SendMessage(conversations_pb2.SendMessageReq(
             group_chat_id=res.group_chat_id, text="Test message 1"))
-        res = c.GetGroupChat(
-            conversations_pb2.GetGroupChatReq(group_chat_id=res.group_chat_id))
+        res = c.GetGroupChatMessages(
+            conversations_pb2.GetGroupChatMessagesReq(group_chat_id=res.group_chat_id))
         assert res.messages[0].text == "Test message 1"
-        assert res.messages[0].timestamp <= datetime.now()
-        assert res.messages[0].sender == "user1"
+        assert res.messages[0].time.ToDatetime() <= datetime.now()
+        assert res.messages[0].author_user_id == user1.id
 
 
 def test_leave_invite_to_group_chat(db):
