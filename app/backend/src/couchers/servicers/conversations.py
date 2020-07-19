@@ -114,26 +114,20 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
     def GetGroupChatMessages(self, request, context):
         with session_scope(self._Session) as session:
-            subscription = (session.query(GroupChatSubscription)
-                .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
+            results = (session.query(Message)
+                .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
                 .filter(GroupChatSubscription.user_id == context.user_id)
-                .filter(GroupChatSubscription.left == None) # TODO
-                .one_or_none())
-
-            if not subscription:
-                context.abort(grpc.StatusCode.NOT_FOUND, "Couldn't find that chat.")
-
-            query = (session.query(Message)
-                .filter(Message.conversation_id == GroupChatSubscription.group_chat_id)
+                .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
                 .filter(Message.time >= GroupChatSubscription.joined)
-                #.filter(Message.time <= GroupChatSubscription.left) # TODO
+                .filter(
+                    or_(Message.time <= GroupChatSubscription.left,
+                        GroupChatSubscription.left == None))
+                .filter(
+                    or_(Message.id < request.last_message_id,
+                        request.last_message_id == 0))
                 .order_by(Message.id.desc())
-                .limit(PAGINATION_LENGTH+1))
-
-            if request.last_message_id > 0:
-                query = query.filter(Message.id < request.last_message_id)
-
-            results = query.all()
+                .limit(PAGINATION_LENGTH+1)
+                .all())
 
             return conversations_pb2.GetGroupChatMessagesRes(
                 messages=[

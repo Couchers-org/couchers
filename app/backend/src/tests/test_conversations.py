@@ -80,9 +80,8 @@ def test_get_group_chat_messages(db):
     
     # test that another user can't access the thread
     with conversations_session(db, token3) as c:
-        with pytest.raises(grpc.RpcError) as e:
-            c.GetGroupChatMessages(conversations_pb2.GetGroupChatMessagesReq(group_chat_id=group_chat_id))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        res = c.GetGroupChatMessages(conversations_pb2.GetGroupChatMessagesReq(group_chat_id=group_chat_id))
+        assert len(res.messages) == 0
 
 
 def test_get_group_chat_info(db):
