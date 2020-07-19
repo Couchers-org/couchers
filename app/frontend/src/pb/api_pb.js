@@ -1747,7 +1747,7 @@ proto.api.ListMutualFriendsReq.prototype.toObject = function(opt_includeInstance
  */
 proto.api.ListMutualFriendsReq.toObject = function(includeInstance, msg) {
   var f, obj = {
-    user: jspb.Message.getFieldWithDefault(msg, 1, "")
+    userId: jspb.Message.getFieldWithDefault(msg, 1, 0)
   };
 
   if (includeInstance) {
@@ -1785,8 +1785,8 @@ proto.api.ListMutualFriendsReq.deserializeBinaryFromReader = function(msg, reade
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setUser(value);
+      var value = /** @type {number} */ (reader.readUint64());
+      msg.setUserId(value);
       break;
     default:
       reader.skipField();
@@ -1817,9 +1817,9 @@ proto.api.ListMutualFriendsReq.prototype.serializeBinary = function() {
  */
 proto.api.ListMutualFriendsReq.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getUser();
-  if (f.length > 0) {
-    writer.writeString(
+  f = message.getUserId();
+  if (f !== 0) {
+    writer.writeUint64(
       1,
       f
     );
@@ -1828,20 +1828,20 @@ proto.api.ListMutualFriendsReq.serializeBinaryToWriter = function(message, write
 
 
 /**
- * optional string user = 1;
- * @return {string}
+ * optional uint64 user_id = 1;
+ * @return {number}
  */
-proto.api.ListMutualFriendsReq.prototype.getUser = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
+proto.api.ListMutualFriendsReq.prototype.getUserId = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
 };
 
 
 /**
- * @param {string} value
+ * @param {number} value
  * @return {!proto.api.ListMutualFriendsReq} returns this
  */
-proto.api.ListMutualFriendsReq.prototype.setUser = function(value) {
-  return jspb.Message.setProto3StringField(this, 1, value);
+proto.api.ListMutualFriendsReq.prototype.setUserId = function(value) {
+  return jspb.Message.setProto3IntField(this, 1, value);
 };
 
 
@@ -1884,7 +1884,7 @@ proto.api.ListMutualFriendsRes.prototype.toObject = function(opt_includeInstance
  */
 proto.api.ListMutualFriendsRes.toObject = function(includeInstance, msg) {
   var f, obj = {
-    usersList: (f = jspb.Message.getRepeatedField(msg, 1)) == null ? undefined : f
+    userIdsList: (f = jspb.Message.getRepeatedField(msg, 1)) == null ? undefined : f
   };
 
   if (includeInstance) {
@@ -1922,8 +1922,8 @@ proto.api.ListMutualFriendsRes.deserializeBinaryFromReader = function(msg, reade
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
-      var value = /** @type {string} */ (reader.readString());
-      msg.addUsers(value);
+      var value = /** @type {!Array<number>} */ (reader.readPackedUint64());
+      msg.setUserIdsList(value);
       break;
     default:
       reader.skipField();
@@ -1954,9 +1954,9 @@ proto.api.ListMutualFriendsRes.prototype.serializeBinary = function() {
  */
 proto.api.ListMutualFriendsRes.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getUsersList();
+  f = message.getUserIdsList();
   if (f.length > 0) {
-    writer.writeRepeatedString(
+    writer.writePackedUint64(
       1,
       f
     );
@@ -1965,29 +1965,29 @@ proto.api.ListMutualFriendsRes.serializeBinaryToWriter = function(message, write
 
 
 /**
- * repeated string users = 1;
- * @return {!Array<string>}
+ * repeated uint64 user_ids = 1;
+ * @return {!Array<number>}
  */
-proto.api.ListMutualFriendsRes.prototype.getUsersList = function() {
-  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 1));
+proto.api.ListMutualFriendsRes.prototype.getUserIdsList = function() {
+  return /** @type {!Array<number>} */ (jspb.Message.getRepeatedField(this, 1));
 };
 
 
 /**
- * @param {!Array<string>} value
+ * @param {!Array<number>} value
  * @return {!proto.api.ListMutualFriendsRes} returns this
  */
-proto.api.ListMutualFriendsRes.prototype.setUsersList = function(value) {
+proto.api.ListMutualFriendsRes.prototype.setUserIdsList = function(value) {
   return jspb.Message.setField(this, 1, value || []);
 };
 
 
 /**
- * @param {string} value
+ * @param {number} value
  * @param {number=} opt_index
  * @return {!proto.api.ListMutualFriendsRes} returns this
  */
-proto.api.ListMutualFriendsRes.prototype.addUsers = function(value, opt_index) {
+proto.api.ListMutualFriendsRes.prototype.addUserIds = function(value, opt_index) {
   return jspb.Message.addToRepeatedField(this, 1, value, opt_index);
 };
 
@@ -1996,8 +1996,8 @@ proto.api.ListMutualFriendsRes.prototype.addUsers = function(value, opt_index) {
  * Clears the list making it empty but non-null.
  * @return {!proto.api.ListMutualFriendsRes} returns this
  */
-proto.api.ListMutualFriendsRes.prototype.clearUsersList = function() {
-  return this.setUsersList([]);
+proto.api.ListMutualFriendsRes.prototype.clearUserIdsList = function() {
+  return this.setUserIdsList([]);
 };
 
 

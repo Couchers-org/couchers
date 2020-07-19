@@ -86,11 +86,11 @@ message ListFriendsRes {
 }
 
 message ListMutualFriendsReq {
-  string user = 1;
+  uint64 user_id = 1;
 }
 
 message ListMutualFriendsRes {
-  repeated string users = 1;
+  repeated uint64 user_ids = 1;
 }
 
 message PingReq {}

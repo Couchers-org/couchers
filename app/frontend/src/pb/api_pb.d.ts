@@ -178,8 +178,8 @@ export namespace ListFriendsRes {
 }
 
 export class ListMutualFriendsReq extends jspb.Message {
-  getUser(): string;
-  setUser(value: string): ListMutualFriendsReq;
+  getUserId(): number;
+  setUserId(value: number): ListMutualFriendsReq;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListMutualFriendsReq.AsObject;
@@ -191,15 +191,15 @@ export class ListMutualFriendsReq extends jspb.Message {
 
 export namespace ListMutualFriendsReq {
   export type AsObject = {
-    user: string,
+    userId: number,
   }
 }
 
 export class ListMutualFriendsRes extends jspb.Message {
-  getUsersList(): Array<string>;
-  setUsersList(value: Array<string>): ListMutualFriendsRes;
-  clearUsersList(): ListMutualFriendsRes;
-  addUsers(value: string, index?: number): ListMutualFriendsRes;
+  getUserIdsList(): Array<number>;
+  setUserIdsList(value: Array<number>): ListMutualFriendsRes;
+  clearUserIdsList(): ListMutualFriendsRes;
+  addUserIds(value: number, index?: number): ListMutualFriendsRes;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListMutualFriendsRes.AsObject;
@@ -211,7 +211,7 @@ export class ListMutualFriendsRes extends jspb.Message {
 
 export namespace ListMutualFriendsRes {
   export type AsObject = {
-    usersList: Array<string>,
+    userIdsList: Array<number>,
   }
 }
 

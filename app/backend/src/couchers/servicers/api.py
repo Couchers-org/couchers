@@ -132,35 +132,16 @@ class API(api_pb2_grpc.APIServicer):
 
     def ListMutualFriends(self, request, context):
         with session_scope(self._Session) as session:
-            target = get_user_by_field(session, request.user)
+            target = (session.query(User)
+                .filter(User.id == request.user_id)
+                .one_or_none())
+
             if not target:
-                session.abort(grpc.StatusCode.NOT_FOUND, "Target user not found.")
-
-            q1 = (session.query(FriendRelationship.from_user_id.label("user_id"))
-                .filter(FriendRelationship.to_user_id == context.user_id)
-                .filter(FriendRelationship.from_user_id != target.id)
-                .filter(FriendRelationship.status == FriendStatus.accepted))
-
-            q2 = (session.query(FriendRelationship.to_user_id.label("user_id"))
-                .filter(FriendRelationship.from_user_id == context.user_id)
-                .filter(FriendRelationship.to_user_id != target.id)
-                .filter(FriendRelationship.status == FriendStatus.accepted))
-
-            q3 = (session.query(FriendRelationship.from_user_id.label("user_id"))
-                .filter(FriendRelationship.to_user_id == target.id)
-                .filter(FriendRelationship.from_user_id != context.user_id)
-                .filter(FriendRelationship.status == FriendStatus.accepted))
-
-            q4 = (session.query(FriendRelationship.to_user_id.label("user_id"))
-                .filter(FriendRelationship.from_user_id == target.id)
-                .filter(FriendRelationship.to_user_id != context.user_id)
-                .filter(FriendRelationship.status == FriendStatus.accepted))
-
-            mutual_friends = session.query(User).filter(User.id.in_(q1.union(q2).intersect(q3.union(q4)).subquery())).all()
+                context.abort(grpc.StatusCode.NOT_FOUND, "Target user not found.")
 
             return api_pb2.ListMutualFriendsRes(
-                users=[
-                    user.username for user in mutual_friends
+                user_ids=[
+                    user.id for user in target.mutual_friends(context.user_id)
                 ]
             )
 
