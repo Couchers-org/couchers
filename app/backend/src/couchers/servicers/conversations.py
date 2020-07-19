@@ -150,21 +150,20 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
     def SearchMessages(self, request, context):
         with session_scope(self._Session) as session:
-            query = (session.query(Message)
+            results = (session.query(Message)
                 .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
                 .filter(GroupChatSubscription.user_id == context.user_id)
                 .filter(Message.time >= GroupChatSubscription.joined)
                 .filter(
                     or_(Message.time <= GroupChatSubscription.left,
                         GroupChatSubscription.left == None))
+                .filter(
+                    or_(Message.id < request.last_message_id,
+                        request.last_message_id == 0))
                 .filter(Message.text.ilike(f"%{request.query}%"))
                 .order_by(Message.id.desc())
-                .limit(PAGINATION_LENGTH+1))
-
-            if request.last_message_id > 0:
-                query = query.filter(Message.id < request.last_message_id)
-
-            results = query.all()
+                .limit(PAGINATION_LENGTH+1)
+                .all())
 
             return conversations_pb2.SearchMessagesRes(
                 results=[
