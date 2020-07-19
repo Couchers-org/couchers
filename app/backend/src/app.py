@@ -11,8 +11,9 @@ from couchers.interceptors import LoggingInterceptor, intercept_server, UpdateLa
 from couchers.models import Base, FriendRelationship, FriendStatus, User
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
+from couchers.servicers.sso import SSO
 from couchers.utils import Timestamp_from_datetime
-from pb import api_pb2_grpc, auth_pb2_grpc
+from pb import api_pb2_grpc, auth_pb2_grpc, sso_pb2_grpc
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
@@ -84,10 +85,12 @@ auth_server.start()
 server = grpc.server(futures.ThreadPoolExecutor(2))
 server = intercept_server(server, LoggingInterceptor())
 server = intercept_server(server, auth.get_auth_interceptor())
+
 servicer = API(Session)
 server = intercept_server(server, UpdateLastActiveTimeInterceptor(servicer.update_last_active_time))
 server.add_insecure_port("[::]:1751")
 api_pb2_grpc.add_APIServicer_to_server(servicer, server)
+sso_pb2_grpc.add_SSOServicer_to_server(SSO(Session), server)
 server.start()
 
 logging.info(f"Serving on 1751 and 1752 (auth)")

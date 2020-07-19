@@ -29,10 +29,6 @@ service API {
 
   rpc CancelFriendRequest(CancelFriendRequestReq) returns (google.protobuf.Empty);
 
-  rpc SSO(SSOReq) returns (SSORes) {
-    // Performs Discourse SSO
-  }
-
   rpc Search(SearchReq) returns (SearchRes) {
     // Search for user names and usernames (for now)
   }
@@ -168,14 +164,4 @@ message UpdateProfileRes {
   bool updated_languages = 8;
   bool updated_countries_visited = 9;
   bool updated_countries_lived = 10;
-}
-
-message SSOReq {
-  // just raw query strings from discourse
-  string sso = 1;
-  string sig = 2;
-}
-
-message SSORes {
-  string redirect_url = 1;
 }
