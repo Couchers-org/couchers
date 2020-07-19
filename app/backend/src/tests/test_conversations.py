@@ -7,7 +7,7 @@ import pytest
 from couchers.models import User
 from pb import api_pb2, conversations_pb2
 from tests.test_fixtures import (api_session, conversations_session, db,
-                                 generate_user)
+                                 generate_user, make_friends)
 
 
 def test_list_group_chats(db):
@@ -15,14 +15,8 @@ def test_list_group_chats(db):
     user2, token2 = generate_user(db, "user2")
     user3, token3 = generate_user(db, "user3")
 
-    # make user 2 and 1 friends
-    with api_session(db, token2) as api:
-        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user="user1"))
-
-    with api_session(db, token1) as api:
-        res = api.ListFriendRequests(empty_pb2.Empty())
-        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(
-            friend_request_id=res.received[0].friend_request_id, accept=True))
+    make_friends(db, user2, user1)
+    make_friends(db, user1, user3)
 
     with conversations_session(db, token1) as c:
         # no threads initially
@@ -60,6 +54,8 @@ def test_get_group_chat_messages(db):
     user3, token3 = generate_user(db, "user3")
     group_chat_id = 0
 
+    make_friends(db, user1, user2)
+
     with conversations_session(db, token1) as c:
         # create some threads with messages
         res = c.CreateGroupChat(
@@ -88,6 +84,9 @@ def test_get_group_chat_info(db):
     user1, token1 = generate_user(db, "user1")
     user2, token2 = generate_user(db, "user2")
     user3, token3 = generate_user(db, "user3")
+
+    make_friends(db, user1, user2)
+    make_friends(db, user3, user1)
 
     with conversations_session(db, token1) as c:
         # create some threads with messages
@@ -129,7 +128,7 @@ def test_get_group_chat_info(db):
 def test_edit_group_chat(db):
     user1, token1 = generate_user(db, "user1")
     user2, token2 = generate_user(db, "user2")
-    group_chat_id = 0
+    make_friends(db, user1.id, user2.id)
 
     with conversations_session(db, token1) as c:
         # create some threads with messages
@@ -197,6 +196,8 @@ def test_make_remove_group_chat_admin(db):
 def test_send_message(db):
     user1, token1 = generate_user(db, "user1")
     user2, token2 = generate_user(db, "user2")
+
+    make_friends(db, user1, user2)
 
     with conversations_session(db, token1) as c:
         res = c.CreateGroupChat(
@@ -274,6 +275,9 @@ def test_search_messages(db):
     user1, token1 = generate_user(db, "user1")
     user2, token2 = generate_user(db, "user2")
     user3, token3 = generate_user(db, "user3")
+
+    make_friends(db, user1, user2)
+    make_friends(db, user1, user3)
 
     with conversations_session(db, token1) as c:
         # create some threads with messages

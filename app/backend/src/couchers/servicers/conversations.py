@@ -81,6 +81,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 .one_or_none())
 
             if not result:
+                assert False
                 context.abort(grpc.StatusCode.NOT_FOUND, "Couldn't find that chat.")
 
             return conversations_pb2.GroupChat(
@@ -186,6 +187,9 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             session.add(subscription)
 
             for recipient in request.recipient_ids:
+                if get_friends_status(session, context.user_id, recipient) != api_pb2.User.FriendshipStatus.FRIENDS:
+                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, "You must be friends with each person you add to a group chat.")
+
                 subscription = GroupChatSubscription(
                     user_id=recipient,
                     group_chat=group_chat,

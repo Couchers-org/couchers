@@ -5,8 +5,9 @@ from unittest.mock import patch
 
 import grpc
 import pytest
+from couchers.db import session_scope
 from couchers.interceptors import intercept_server
-from couchers.models import Base, User
+from couchers.models import Base, FriendRelationship, FriendStatus, User
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
 from couchers.servicers.conversations import Conversations
@@ -71,6 +72,15 @@ def generate_user(db, username):
         token = auth.Authenticate(auth_pb2.AuthReq(user=username, password="password"), "Dummy context").token
 
     return user, token
+
+def make_friends(db, user1, user2):
+    with session_scope(db) as session:
+        friend_relationship = FriendRelationship(
+            from_user_id=user1.id,
+            to_user_id=user2.id,
+            status=FriendStatus.accepted,
+        )
+        session.add(friend_relationship)
 
 @contextmanager
 def api_session(db, token):
