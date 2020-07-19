@@ -22,7 +22,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x16pb/conversations.proto\x12\rconversations\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xea\x01\n\tGroupChat\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\x12\r\n\x05title\x18\x02 \x01(\t\x12\x17\n\x0fmember_user_ids\x18\x03 \x03(\x04\x12\x16\n\x0e\x61\x64min_user_ids\x18\x04 \x03(\x04\x12\x1a\n\x12only_admins_invite\x18\x05 \x01(\x08\x12\r\n\x05is_dm\x18\x06 \x01(\x08\x12+\n\x07\x63reated\x18\x07 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12.\n\x0elatest_message\x18\x08 \x01(\x0b\x32\x16.conversations.Message\"(\n\x0fGetGroupChatReq\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\"<\n\x11ListGroupChatsReq\x12\x17\n\x0flast_message_id\x18\x01 \x01(\x04\x12\x0e\n\x06number\x18\x02 \x01(\x04\"l\n\x11ListGroupChatsRes\x12-\n\x0bgroup_chats\x18\x01 \x03(\x0b\x32\x18.conversations.GroupChat\x12\x17\n\x0fnext_message_id\x18\x02 \x01(\x04\x12\x0f\n\x07no_more\x18\x03 \x01(\x08\"m\n\x07Message\x12\x12\n\nmessage_id\x18\x01 \x01(\x04\x12\x16\n\x0e\x61uthor_user_id\x18\x02 \x01(\x04\x12(\n\x04time\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x0c\n\x04text\x18\x04 \x01(\t\"Y\n\x17GetGroupChatMessagesReq\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\x12\x17\n\x0flast_message_id\x18\x02 \x01(\x04\x12\x0e\n\x06number\x18\x03 \x01(\x04\"m\n\x17GetGroupChatMessagesRes\x12(\n\x08messages\x18\x01 \x03(\x0b\x32\x16.conversations.Message\x12\x17\n\x0fnext_message_id\x18\x02 \x01(\x04\x12\x0f\n\x07no_more\x18\x03 \x01(\x08\"X\n\x12\x43reateGroupChatReq\x12+\n\x05title\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x15\n\rrecipient_ids\x18\x02 \x03(\x04\"\x8e\x01\n\x10\x45\x64itGroupChatReq\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\x12+\n\x05title\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x36\n\x12only_admins_invite\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\"?\n\x15MakeGroupChatAdminReq\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\x12\x0f\n\x07user_id\x18\x02 \x01(\x04\"A\n\x17RemoveGroupChatAdminReq\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\x12\x0f\n\x07user_id\x18\x02 \x01(\x04\"5\n\x0eSendMessageReq\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\x12\x0c\n\x04text\x18\x02 \x01(\t\"*\n\x11LeaveGroupChatReq\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\"\"\n\x11SearchMessagesReq\x12\r\n\x05query\x18\x01 \x01(\t\"U\n\x13MessageSearchResult\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\x12\'\n\x07message\x18\x02 \x01(\x0b\x32\x16.conversations.Message\"H\n\x11SearchMessagesRes\x12\x33\n\x07results\x18\x01 \x03(\x0b\x32\".conversations.MessageSearchResult2\xd9\x06\n\rConversations\x12V\n\x0eListGroupChats\x12 .conversations.ListGroupChatsReq\x1a .conversations.ListGroupChatsRes\"\x00\x12J\n\x0cGetGroupChat\x12\x1e.conversations.GetGroupChatReq\x1a\x18.conversations.GroupChat\"\x00\x12h\n\x14GetGroupChatMessages\x12&.conversations.GetGroupChatMessagesReq\x1a&.conversations.GetGroupChatMessagesRes\"\x00\x12P\n\x0f\x43reateGroupChat\x12!.conversations.CreateGroupChatReq\x1a\x18.conversations.GroupChat\"\x00\x12J\n\rEditGroupChat\x12\x1f.conversations.EditGroupChatReq\x1a\x16.google.protobuf.Empty\"\x00\x12T\n\x12MakeGroupChatAdmin\x12$.conversations.MakeGroupChatAdminReq\x1a\x16.google.protobuf.Empty\"\x00\x12X\n\x14RemoveGroupChatAdmin\x12&.conversations.RemoveGroupChatAdminReq\x1a\x16.google.protobuf.Empty\"\x00\x12\x46\n\x0bSendMessage\x12\x1d.conversations.SendMessageReq\x1a\x16.google.protobuf.Empty\"\x00\x12L\n\x0eLeaveGroupChat\x12 .conversations.LeaveGroupChatReq\x1a\x16.google.protobuf.Empty\"\x00\x12V\n\x0eSearchMessages\x12 .conversations.SearchMessagesReq\x1a .conversations.SearchMessagesRes\"\x00\x62\x06proto3'
+  serialized_pb=b'\n\x16pb/conversations.proto\x12\rconversations\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xea\x01\n\tGroupChat\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\x12\r\n\x05title\x18\x02 \x01(\t\x12\x17\n\x0fmember_user_ids\x18\x03 \x03(\x04\x12\x16\n\x0e\x61\x64min_user_ids\x18\x04 \x03(\x04\x12\x1a\n\x12only_admins_invite\x18\x05 \x01(\x08\x12\r\n\x05is_dm\x18\x06 \x01(\x08\x12+\n\x07\x63reated\x18\x07 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12.\n\x0elatest_message\x18\x08 \x01(\x0b\x32\x16.conversations.Message\"(\n\x0fGetGroupChatReq\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\"<\n\x11ListGroupChatsReq\x12\x17\n\x0flast_message_id\x18\x01 \x01(\x04\x12\x0e\n\x06number\x18\x02 \x01(\x04\"l\n\x11ListGroupChatsRes\x12-\n\x0bgroup_chats\x18\x01 \x03(\x0b\x32\x18.conversations.GroupChat\x12\x17\n\x0fnext_message_id\x18\x02 \x01(\x04\x12\x0f\n\x07no_more\x18\x03 \x01(\x08\"m\n\x07Message\x12\x12\n\nmessage_id\x18\x01 \x01(\x04\x12\x16\n\x0e\x61uthor_user_id\x18\x02 \x01(\x04\x12(\n\x04time\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x0c\n\x04text\x18\x04 \x01(\t\"Y\n\x17GetGroupChatMessagesReq\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\x12\x17\n\x0flast_message_id\x18\x02 \x01(\x04\x12\x0e\n\x06number\x18\x03 \x01(\x04\"m\n\x17GetGroupChatMessagesRes\x12(\n\x08messages\x18\x01 \x03(\x0b\x32\x16.conversations.Message\x12\x17\n\x0fnext_message_id\x18\x02 \x01(\x04\x12\x0f\n\x07no_more\x18\x03 \x01(\x08\"X\n\x12\x43reateGroupChatReq\x12+\n\x05title\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x15\n\rrecipient_ids\x18\x02 \x03(\x04\"\x8e\x01\n\x10\x45\x64itGroupChatReq\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\x12+\n\x05title\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x36\n\x12only_admins_invite\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\"?\n\x15MakeGroupChatAdminReq\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\x12\x0f\n\x07user_id\x18\x02 \x01(\x04\"A\n\x17RemoveGroupChatAdminReq\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\x12\x0f\n\x07user_id\x18\x02 \x01(\x04\"5\n\x0eSendMessageReq\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\x12\x0c\n\x04text\x18\x02 \x01(\t\"*\n\x11LeaveGroupChatReq\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\"K\n\x11SearchMessagesReq\x12\r\n\x05query\x18\x01 \x01(\t\x12\x17\n\x0flast_message_id\x18\x02 \x01(\x04\x12\x0e\n\x06number\x18\x03 \x01(\x04\"U\n\x13MessageSearchResult\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\x12\'\n\x07message\x18\x02 \x01(\x0b\x32\x16.conversations.Message\"r\n\x11SearchMessagesRes\x12\x33\n\x07results\x18\x01 \x03(\x0b\x32\".conversations.MessageSearchResult\x12\x17\n\x0fnext_message_id\x18\x02 \x01(\x04\x12\x0f\n\x07no_more\x18\x03 \x01(\x08\x32\xd9\x06\n\rConversations\x12V\n\x0eListGroupChats\x12 .conversations.ListGroupChatsReq\x1a .conversations.ListGroupChatsRes\"\x00\x12J\n\x0cGetGroupChat\x12\x1e.conversations.GetGroupChatReq\x1a\x18.conversations.GroupChat\"\x00\x12h\n\x14GetGroupChatMessages\x12&.conversations.GetGroupChatMessagesReq\x1a&.conversations.GetGroupChatMessagesRes\"\x00\x12P\n\x0f\x43reateGroupChat\x12!.conversations.CreateGroupChatReq\x1a\x18.conversations.GroupChat\"\x00\x12J\n\rEditGroupChat\x12\x1f.conversations.EditGroupChatReq\x1a\x16.google.protobuf.Empty\"\x00\x12T\n\x12MakeGroupChatAdmin\x12$.conversations.MakeGroupChatAdminReq\x1a\x16.google.protobuf.Empty\"\x00\x12X\n\x14RemoveGroupChatAdmin\x12&.conversations.RemoveGroupChatAdminReq\x1a\x16.google.protobuf.Empty\"\x00\x12\x46\n\x0bSendMessage\x12\x1d.conversations.SendMessageReq\x1a\x16.google.protobuf.Empty\"\x00\x12L\n\x0eLeaveGroupChat\x12 .conversations.LeaveGroupChatReq\x1a\x16.google.protobuf.Empty\"\x00\x12V\n\x0eSearchMessages\x12 .conversations.SearchMessagesReq\x1a .conversations.SearchMessagesRes\"\x00\x62\x06proto3'
   ,
   dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,google_dot_protobuf_dot_wrappers__pb2.DESCRIPTOR,google_dot_protobuf_dot_empty__pb2.DESCRIPTOR,])
 
@@ -621,6 +621,20 @@ _SEARCHMESSAGESREQ = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='last_message_id', full_name='conversations.SearchMessagesReq.last_message_id', index=1,
+      number=2, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='number', full_name='conversations.SearchMessagesReq.number', index=2,
+      number=3, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -634,7 +648,7 @@ _SEARCHMESSAGESREQ = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=1365,
-  serialized_end=1399,
+  serialized_end=1440,
 )
 
 
@@ -672,8 +686,8 @@ _MESSAGESEARCHRESULT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1401,
-  serialized_end=1486,
+  serialized_start=1442,
+  serialized_end=1527,
 )
 
 
@@ -692,6 +706,20 @@ _SEARCHMESSAGESRES = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='next_message_id', full_name='conversations.SearchMessagesRes.next_message_id', index=1,
+      number=2, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='no_more', full_name='conversations.SearchMessagesRes.no_more', index=2,
+      number=3, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -704,8 +732,8 @@ _SEARCHMESSAGESRES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1488,
-  serialized_end=1560,
+  serialized_start=1529,
+  serialized_end=1643,
 )
 
 _GROUPCHAT.fields_by_name['created'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
@@ -857,8 +885,8 @@ _CONVERSATIONS = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=1563,
-  serialized_end=2420,
+  serialized_start=1646,
+  serialized_end=2503,
   methods=[
   _descriptor.MethodDescriptor(
     name='ListGroupChats',

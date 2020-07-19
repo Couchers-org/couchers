@@ -125,6 +125,8 @@ message LeaveGroupChatReq {
 
 message SearchMessagesReq {
   string query = 1;
+  uint64 last_message_id = 2;
+  uint64 number = 3;
 }
 
 message MessageSearchResult {
@@ -134,4 +136,6 @@ message MessageSearchResult {
 
 message SearchMessagesRes {
   repeated MessageSearchResult results = 1;
+  uint64 next_message_id = 2;
+  bool no_more = 3;
 }

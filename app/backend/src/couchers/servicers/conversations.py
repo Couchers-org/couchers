@@ -6,12 +6,12 @@ from google.protobuf.timestamp_pb2 import Timestamp
 
 import grpc
 from couchers.db import get_friends_status, get_user_by_field, session_scope
-from couchers.models import (GroupChat, GroupChatRole, GroupChatSubscription,
-                             Message, User, Conversation)
+from couchers.models import (Conversation, GroupChat, GroupChatRole,
+                             GroupChatSubscription, Message, User)
 from couchers.utils import Timestamp_from_datetime
 from pb import api_pb2, conversations_pb2, conversations_pb2_grpc
 from sqlalchemy.orm import aliased
-from sqlalchemy.sql import and_, func
+from sqlalchemy.sql import and_, func, or_
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d: %(process)d: %(message)s",
                     datefmt="%F %T", level=logging.DEBUG)
@@ -126,7 +126,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             query = (session.query(Message)
                 .filter(Message.conversation_id == GroupChatSubscription.group_chat_id)
                 .filter(Message.time >= GroupChatSubscription.joined)
-                #.filter(Message.time <= GroupChatSubscription.left)
+                #.filter(Message.time <= GroupChatSubscription.left) # TODO
                 .order_by(Message.id.desc())
                 .limit(PAGINATION_LENGTH+1))
 
@@ -142,6 +142,40 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                         author_user_id=message.author_id,
                         time=Timestamp_from_datetime(message.time),
                         text=message.text,
+                    ) for message in results
+                ],
+                next_message_id=results[-1].id if len(results) > 0 else 0, # TODO
+                no_more=len(results) <= PAGINATION_LENGTH,
+            )
+
+    def SearchMessages(self, request, context):
+        with session_scope(self._Session) as session:
+            query = (session.query(Message)
+                .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
+                .filter(GroupChatSubscription.user_id == context.user_id)
+                .filter(Message.time >= GroupChatSubscription.joined)
+                .filter(
+                    or_(Message.time <= GroupChatSubscription.left,
+                        GroupChatSubscription.left == None))
+                .filter(Message.text.ilike(f"%{request.query}%"))
+                .order_by(Message.id.desc())
+                .limit(PAGINATION_LENGTH+1))
+
+            if request.last_message_id > 0:
+                query = query.filter(Message.id < request.last_message_id)
+
+            results = query.all()
+
+            return conversations_pb2.SearchMessagesRes(
+                results=[
+                    conversations_pb2.MessageSearchResult(
+                        group_chat_id=message.conversation_id,
+                        message=conversations_pb2.Message(
+                            message_id=message.id,
+                            author_user_id=message.author_id,
+                            time=Timestamp_from_datetime(message.time),
+                            text=message.text,
+                        ),
                     ) for message in results
                 ],
                 next_message_id=results[-1].id if len(results) > 0 else 0, # TODO
@@ -261,18 +295,3 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             session.commit()
 
             return empty_pb2.Empty()
-  
-"""  def MakeGroupChatAdmin(self, request, context):
-    with session_scope(self._Session) as session:
-  
-  def RemoveGroupChatAdmin(self, request, context):
-    with session_scope(self._Session) as session:
-  
-  def LeaveGroupChat(self, request, context):
-    with session_scope(self._Session) as session:
-  
-  def InviteToGroupChat(self, request, context):
-    with session_scope(self._Session) as session:
-  
-  def SearchMessages(self, request, context):
-    with session_scope(self._Session) as session:"""

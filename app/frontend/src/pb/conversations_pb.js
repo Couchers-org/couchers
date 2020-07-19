@@ -3039,7 +3039,9 @@ proto.conversations.SearchMessagesReq.prototype.toObject = function(opt_includeI
  */
 proto.conversations.SearchMessagesReq.toObject = function(includeInstance, msg) {
   var f, obj = {
-    query: jspb.Message.getFieldWithDefault(msg, 1, "")
+    query: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    lastMessageId: jspb.Message.getFieldWithDefault(msg, 2, 0),
+    number: jspb.Message.getFieldWithDefault(msg, 3, 0)
   };
 
   if (includeInstance) {
@@ -3080,6 +3082,14 @@ proto.conversations.SearchMessagesReq.deserializeBinaryFromReader = function(msg
       var value = /** @type {string} */ (reader.readString());
       msg.setQuery(value);
       break;
+    case 2:
+      var value = /** @type {number} */ (reader.readUint64());
+      msg.setLastMessageId(value);
+      break;
+    case 3:
+      var value = /** @type {number} */ (reader.readUint64());
+      msg.setNumber(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -3116,6 +3126,20 @@ proto.conversations.SearchMessagesReq.serializeBinaryToWriter = function(message
       f
     );
   }
+  f = message.getLastMessageId();
+  if (f !== 0) {
+    writer.writeUint64(
+      2,
+      f
+    );
+  }
+  f = message.getNumber();
+  if (f !== 0) {
+    writer.writeUint64(
+      3,
+      f
+    );
+  }
 };
 
 
@@ -3134,6 +3158,42 @@ proto.conversations.SearchMessagesReq.prototype.getQuery = function() {
  */
 proto.conversations.SearchMessagesReq.prototype.setQuery = function(value) {
   return jspb.Message.setProto3StringField(this, 1, value);
+};
+
+
+/**
+ * optional uint64 last_message_id = 2;
+ * @return {number}
+ */
+proto.conversations.SearchMessagesReq.prototype.getLastMessageId = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.conversations.SearchMessagesReq} returns this
+ */
+proto.conversations.SearchMessagesReq.prototype.setLastMessageId = function(value) {
+  return jspb.Message.setProto3IntField(this, 2, value);
+};
+
+
+/**
+ * optional uint64 number = 3;
+ * @return {number}
+ */
+proto.conversations.SearchMessagesReq.prototype.getNumber = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.conversations.SearchMessagesReq} returns this
+ */
+proto.conversations.SearchMessagesReq.prototype.setNumber = function(value) {
+  return jspb.Message.setProto3IntField(this, 3, value);
 };
 
 
@@ -3358,7 +3418,9 @@ proto.conversations.SearchMessagesRes.prototype.toObject = function(opt_includeI
 proto.conversations.SearchMessagesRes.toObject = function(includeInstance, msg) {
   var f, obj = {
     resultsList: jspb.Message.toObjectList(msg.getResultsList(),
-    proto.conversations.MessageSearchResult.toObject, includeInstance)
+    proto.conversations.MessageSearchResult.toObject, includeInstance),
+    nextMessageId: jspb.Message.getFieldWithDefault(msg, 2, 0),
+    noMore: jspb.Message.getBooleanFieldWithDefault(msg, 3, false)
   };
 
   if (includeInstance) {
@@ -3400,6 +3462,14 @@ proto.conversations.SearchMessagesRes.deserializeBinaryFromReader = function(msg
       reader.readMessage(value,proto.conversations.MessageSearchResult.deserializeBinaryFromReader);
       msg.addResults(value);
       break;
+    case 2:
+      var value = /** @type {number} */ (reader.readUint64());
+      msg.setNextMessageId(value);
+      break;
+    case 3:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setNoMore(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -3435,6 +3505,20 @@ proto.conversations.SearchMessagesRes.serializeBinaryToWriter = function(message
       1,
       f,
       proto.conversations.MessageSearchResult.serializeBinaryToWriter
+    );
+  }
+  f = message.getNextMessageId();
+  if (f !== 0) {
+    writer.writeUint64(
+      2,
+      f
+    );
+  }
+  f = message.getNoMore();
+  if (f) {
+    writer.writeBool(
+      3,
+      f
     );
   }
 };
@@ -3475,6 +3559,42 @@ proto.conversations.SearchMessagesRes.prototype.addResults = function(opt_value,
  */
 proto.conversations.SearchMessagesRes.prototype.clearResultsList = function() {
   return this.setResultsList([]);
+};
+
+
+/**
+ * optional uint64 next_message_id = 2;
+ * @return {number}
+ */
+proto.conversations.SearchMessagesRes.prototype.getNextMessageId = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.conversations.SearchMessagesRes} returns this
+ */
+proto.conversations.SearchMessagesRes.prototype.setNextMessageId = function(value) {
+  return jspb.Message.setProto3IntField(this, 2, value);
+};
+
+
+/**
+ * optional bool no_more = 3;
+ * @return {boolean}
+ */
+proto.conversations.SearchMessagesRes.prototype.getNoMore = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 3, false));
+};
+
+
+/**
+ * @param {boolean} value
+ * @return {!proto.conversations.SearchMessagesRes} returns this
+ */
+proto.conversations.SearchMessagesRes.prototype.setNoMore = function(value) {
+  return jspb.Message.setProto3BooleanField(this, 3, value);
 };
 
 

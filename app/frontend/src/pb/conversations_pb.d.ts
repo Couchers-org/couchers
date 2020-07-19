@@ -356,6 +356,12 @@ export class SearchMessagesReq extends jspb.Message {
   getQuery(): string;
   setQuery(value: string): SearchMessagesReq;
 
+  getLastMessageId(): number;
+  setLastMessageId(value: number): SearchMessagesReq;
+
+  getNumber(): number;
+  setNumber(value: number): SearchMessagesReq;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): SearchMessagesReq.AsObject;
   static toObject(includeInstance: boolean, msg: SearchMessagesReq): SearchMessagesReq.AsObject;
@@ -367,6 +373,8 @@ export class SearchMessagesReq extends jspb.Message {
 export namespace SearchMessagesReq {
   export type AsObject = {
     query: string,
+    lastMessageId: number,
+    number: number,
   }
 }
 
@@ -400,6 +408,12 @@ export class SearchMessagesRes extends jspb.Message {
   clearResultsList(): SearchMessagesRes;
   addResults(value?: MessageSearchResult, index?: number): MessageSearchResult;
 
+  getNextMessageId(): number;
+  setNextMessageId(value: number): SearchMessagesRes;
+
+  getNoMore(): boolean;
+  setNoMore(value: boolean): SearchMessagesRes;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): SearchMessagesRes.AsObject;
   static toObject(includeInstance: boolean, msg: SearchMessagesRes): SearchMessagesRes.AsObject;
@@ -411,6 +425,8 @@ export class SearchMessagesRes extends jspb.Message {
 export namespace SearchMessagesRes {
   export type AsObject = {
     resultsList: Array<MessageSearchResult.AsObject>,
+    nextMessageId: number,
+    noMore: boolean,
   }
 }
 
