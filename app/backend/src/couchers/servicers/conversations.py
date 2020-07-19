@@ -17,6 +17,7 @@ logging.basicConfig(format="%(asctime)s.%(msecs)03d: %(process)d: %(message)s",
                     datefmt="%F %T", level=logging.DEBUG)
 
 
+# TODO: custom pagination length
 PAGINATION_LENGTH = 20
 
 
@@ -26,40 +27,26 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
     def ListGroupChats(self, request, context):
         with session_scope(self._Session) as session:
-            """
-            SELECT t.group_chat_id, messages.*
-            FROM (
-                SELECT group_chat_subscriptions.group_chat_id as group_chat_id, max(messages.id) as id
-                FROM group_chat_subscriptions
-                JOIN messsages ON messages.group_chat_id = group_chat_subscriptions.group_chat_id
-                WHERE group_chat_subscriptions.user_id = 'xxx'
-                GROUP BY messages.group_chat_id
-            ) as t
-            JOIN messages ON messages.id = t.id;
-            """
-            # TODO: pagination length
-
-            # TODO(aapeli): filter messages based on subscription times (this is hard)
-            sub = (session.query(GroupChatSubscription, func.max(Message.id).label("max_message_id"))
+            results = (session.query(GroupChat, GroupChatSubscription, Message)
+                .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == GroupChat.conversation_id)
                 .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
+                .filter(GroupChatSubscription.user_id == context.user_id)
+                .filter(Message.time >= GroupChatSubscription.joined)
+                .filter(
+                    or_(Message.time <= GroupChatSubscription.left,
+                        GroupChatSubscription.left == None))
+                .filter(
+                    or_(Message.id < request.last_message_id,
+                        request.last_message_id == 0))
+                .order_by(Message.id.desc())
                 .group_by(Message.conversation_id)
-                .filter(GroupChatSubscription.user_id == context.user_id))
-
-            if request.last_message_id > 0:
-                sub = sub.filter(Message.id < request.last_message_id)
-
-            subquery = sub.subquery()
-
-            results = (session.query(subquery, Message, GroupChat)
-                .join(Message, Message.id == subquery.c.max_message_id)
-                .join(GroupChat, GroupChat.conversation_id == subquery.c.group_chat_id)
                 .limit(PAGINATION_LENGTH+1)
                 .all())
 
             return conversations_pb2.ListGroupChatsRes(
                 group_chats=[
                     conversations_pb2.GroupChat(
-                        group_chat_id=result.GroupChat.conversation.id,
+                        group_chat_id=result.GroupChat.conversation_id,
                         title=result.GroupChat.title,
                         member_user_ids=[sub.user_id for sub in result.GroupChat.subscriptions],
                         admin_user_ids=[sub.user_id for sub in result.GroupChat.subscriptions if sub.role == GroupChatRole.admin],
@@ -74,7 +61,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                         ),
                     ) for result in results[:PAGINATION_LENGTH]
                 ],
-                next_message_id=min(map(lambda g: g.max_message_id, results))-1 if len(results) > 0 else 0, # TODO
+                next_message_id=min(map(lambda g: g.Message.id, results))-1 if len(results) > 0 else 0, # TODO
                 no_more=len(results) <= PAGINATION_LENGTH,
             )
 
@@ -97,7 +84,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, "Couldn't find that chat.")
 
             return conversations_pb2.GroupChat(
-                group_chat_id=result.GroupChat.conversation.id,
+                group_chat_id=result.GroupChat.conversation_id,
                 title=result.GroupChat.title,
                 member_user_ids=[sub.user_id for sub in result.GroupChat.subscriptions],
                 admin_user_ids=[sub.user_id for sub in result.GroupChat.subscriptions if sub.role == GroupChatRole.admin],
@@ -209,7 +196,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             session.commit()
 
             return conversations_pb2.GroupChat(
-                group_chat_id=group_chat.conversation.id,
+                group_chat_id=group_chat.conversation_id,
                 title=group_chat.title,
                 member_user_ids=[sub.user_id for sub in group_chat.subscriptions],
                 admin_user_ids=[sub.user_id for sub in group_chat.subscriptions if sub.role == GroupChatRole.admin],
