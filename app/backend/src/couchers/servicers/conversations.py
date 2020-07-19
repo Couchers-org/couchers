@@ -235,57 +235,29 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             session.commit()
             return empty_pb2.Empty()
 
-
-    def EditGroupChatStatus(self, request, context):
-        if not request.group_chat_id or not request.status:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT,
-                          "Missing request argument")
-        status = None
-        # TODO: Is this the behaviour we want?
-        if request.status == conversations_pb2.GroupChatStatus.PENDING:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, "Can't set a thread to pending status.")
-        elif request.status == conversations_pb2.GroupChatStatus.ACCEPTED:
-            status = GroupChatSubscriptionStatus.accepted
-        elif request.status == conversations_pb2.GroupChatStatus.REJECTED:
-            status = GroupChatSubscriptionStatus.rejected
-        else:
-            context.abort(grpc.StatusCode.UNIMPLEMENTED, "Unknown thread status.")
-        with session_scope(self._Session) as session:
-            subscription = session.query(GroupChatSubscription).filter(
-                and_(GroupChatSubscription.group_chat_id == request.group_chat_id,
-                     GroupChatSubscription.user_id == context.user_id)
-            ).one_or_none()
-            if not subscription:
-                context.abort(grpc.StatusCode.NOT_FOUND, "Couldn't find that thread for this user.")
-            if subscription.status != GroupChatSubscriptionStatus.pending:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, "Can only set a pending thread status.")
-            subscription.status = status
-            session.commit()
-            return empty_pb2.Empty()
-
     def EditGroupChat(self, request, context):
-        if not request.group_chat_id:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT,
-                          "Missing request argument")
         with session_scope(self._Session) as session:
-            thread_subscription = session.query(GroupChatSubscription).filter(
-                and_(GroupChatSubscription.user_id == context.user_id,
-                     GroupChatSubscription.group_chat_id == request.group_chat_id)
-            ).one_or_none()
-            if not thread_subscription:
-                context.abort(grpc.StatusCode.NOT_FOUND, "Couldn't find that thread for this user.")
-            if thread_subscription.role != GroupChatRole.admin:
-                context.abort(grpc.StatusCode.PERMISSION_DENIED, "Not an admin for that thread.")
-            
-            thread = session.query(GroupChat).get(request.group_chat_id)
+            subscription = (session.query(GroupChatSubscription)
+                .filter(GroupChatSubscription.user_id == context.user_id)
+                .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                .filter(GroupChatSubscription.left == None)
+                .one_or_none())
+
+            if not subscription:
+                context.abort(grpc.StatusCode.NOT_FOUND, "Couldn't find that chat for this user.")
+
+            if subscription.role != GroupChatRole.admin:
+                context.abort(grpc.StatusCode.PERMISSION_DENIED, "Not an admin for that chat.")
+
             if request.HasField("title"):
-                thread.title = request.title.value
+                subscription.group_chat.title = request.title.value
+
             if request.HasField("only_admins_invite"):
-                thread.only_admins_invite = request.only_admins_invite.value
+                subscription.group_chat.only_admins_invite = request.only_admins_invite.value
+
             session.commit()
 
             return empty_pb2.Empty()
-
 
     def MakeGroupChatAdmin(self, request, context):
         with session_scope(self._Session) as session:
