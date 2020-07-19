@@ -12,8 +12,8 @@
 <script lang="ts">
 import Vue from "vue"
 
-import { SSOReq } from "../pb/api_pb"
-import { client } from "../api"
+import { SSOReq } from "../pb/sso_pb"
+import { SSOclient } from "../api"
 
 import Store from "../store"
 
@@ -48,7 +48,7 @@ export default Vue.extend({
       req.setSso(this.$route.query.sso as string)
       req.setSig(this.$route.query.sig as string)
 
-      client
+      SSOclient
         .sSO(req)
         .then((res) => {
           window.location.href = res.getRedirectUrl()
