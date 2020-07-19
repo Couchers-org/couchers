@@ -80,17 +80,17 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
     def GetGroupChat(self, request, context):
         with session_scope(self._Session) as session:
-            subquery = (session.query(GroupChatSubscription, func.max(Message.id).label("max_message_id"))
-                .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
-                .group_by(Message.conversation_id)
+            result = (session.query(Message, GroupChat)
+                .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
+                .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
                 .filter(GroupChatSubscription.user_id == context.user_id)
                 .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
-                .filter(GroupChatSubscription.left == None) # TODO
-                .subquery())
-
-            result = (session.query(subquery, Message, GroupChat)
-                .join(Message, Message.id == subquery.c.max_message_id)
-                .join(GroupChat, GroupChat.conversation_id == subquery.c.group_chat_id)
+                .filter(Message.time >= GroupChatSubscription.joined)
+                .filter(
+                    or_(Message.time <= GroupChatSubscription.left,
+                        GroupChatSubscription.left == None))
+                .order_by(Message.id.desc())
+                .limit(1)
                 .one_or_none())
 
             if not result:
