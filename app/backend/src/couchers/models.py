@@ -1,6 +1,6 @@
 import enum
-from datetime import date
 from calendar import monthrange
+from datetime import date
 from math import floor
 
 from sqlalchemy import (Boolean, Column, Date, DateTime, Enum, Float,
@@ -8,7 +8,8 @@ from sqlalchemy import (Boolean, Column, Date, DateTime, Enum, Float,
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import String
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import backref, relationship
+from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func
 
 Base = declarative_base()
@@ -249,8 +250,23 @@ class GroupChatSubscription(Base):
 
     role = Column(Enum(GroupChatRole), nullable=False)
 
+    # TODO: should this be a ForeignKey("messages.id")?
+    last_seen_message_id = Column(Integer, nullable=False, default=0)
+
     user = relationship("User", backref="group_chat_subscriptions")
     group_chat = relationship("GroupChat", backref="subscriptions")
+
+    @property
+    def unseen_message_count(self):
+        # TODO: possibly slow
+
+        session = Session.object_session(self)
+
+        return (session.query(func.count(Message.id).label("count"))
+            .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
+            .filter(GroupChatSubscription.id == self.id)
+            .filter(Message.id > GroupChatSubscription.last_seen_message_id)
+            .one()).count
 
     def __repr__(self):
         return f"GroupChatSubscription(id={self.id}, user={self.user}, joined={self.joined}, left={self.left}, role={self.role}, group_chat={self.group_chat})"

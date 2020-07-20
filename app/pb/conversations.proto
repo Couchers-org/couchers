@@ -19,6 +19,10 @@ service Conversations {
     // Retrieves messages in group chat, paginated
   }
 
+  rpc MarkLastReadGroupChat(MarkLastReadGroupChatReq) returns (google.protobuf.Empty) {
+    // Marks the last message that has been seen in this group chat
+  }
+
   rpc CreateGroupChat(CreateGroupChatReq) returns (GroupChat) {
     // Creates a new group chat
   }
@@ -60,7 +64,8 @@ message GroupChat {
   bool only_admins_invite = 5;
   bool is_dm = 6;
   google.protobuf.Timestamp created = 7;
-  Message latest_message = 8;
+  uint64 unseen_message_count = 8;
+  Message latest_message = 9;
 }
 
 message GetGroupChatReq {
@@ -89,12 +94,18 @@ message GetGroupChatMessagesReq {
   uint64 group_chat_id = 1;
   uint64 last_message_id = 2;
   uint64 number = 3;
+  bool only_unseen = 4;
 }
 
 message GetGroupChatMessagesRes {
   repeated Message messages = 1;
   uint64 next_message_id = 2;
   bool no_more = 3;
+}
+
+message MarkLastReadGroupChatReq {
+  uint64 group_chat_id = 1;
+  uint64 last_seen_message_id = 2;
 }
 
 message CreateGroupChatReq {

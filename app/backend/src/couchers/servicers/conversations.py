@@ -57,6 +57,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                         only_admins_invite=result.GroupChat.only_admins_invite,
                         is_dm=result.GroupChat.is_dm,
                         created=Timestamp_from_datetime(result.GroupChat.conversation.created),
+                        unseen_message_count=result.GroupChatSubscription.unseen_message_count,
                         latest_message=conversations_pb2.Message(
                             message_id=result.Message.id,
                             author_user_id=result.Message.author_id,
@@ -98,6 +99,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 only_admins_invite=result.GroupChat.only_admins_invite,
                 is_dm=result.GroupChat.is_dm,
                 created=Timestamp_from_datetime(result.GroupChat.conversation.created),
+                unseen_message_count=result.GroupChatSubscription.unseen_message_count,
                 latest_message=conversations_pb2.Message(
                     message_id=result.Message.id,
                     author_user_id=result.Message.author_id,
@@ -119,6 +121,9 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 .filter(
                     or_(Message.id < request.last_message_id,
                         request.last_message_id == 0))
+                .filter(
+                    or_(Message.id > GroupChatSubscription.last_seen_message_id,
+                        request.only_unseen == 0))
                 .order_by(Message.id.desc())
                 .limit(PAGINATION_LENGTH+1)
                 .all())
@@ -135,6 +140,25 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 next_message_id=results[-1].id if len(results) > 0 else 0, # TODO
                 no_more=len(results) <= PAGINATION_LENGTH,
             )
+
+    def MarkLastReadGroupChat(self, request, context):
+        with session_scope(self._Session) as session:
+            subscription = (session.query(GroupChatSubscription)
+                .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                .filter(GroupChatSubscription.user_id == context.user_id)
+                .filter(GroupChatSubscription.left == None)
+                .one_or_none())
+
+            if not subscription:
+                context.abort(grpc.StatusCode.NOT_FOUND, "Couldn't find that chat.")
+
+            if not subscription.last_seen_message_id <= request.last_seen_message_id:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, "Can't unsee messages!")
+
+            subscription.last_seen_message_id = request.last_seen_message_id
+            session.commit()
+
+            return empty_pb2.Empty()
 
     def SearchMessages(self, request, context):
         with session_scope(self._Session) as session:
