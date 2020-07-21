@@ -14,6 +14,8 @@ import Signup from "../views/Signup.vue"
 import CompleteLogin from "../views/CompleteLogin.vue"
 import CompleteSignup from "../views/CompleteSignup.vue"
 
+import Debug from "../views/Debug.vue"
+
 import ErrorPage from "../views/Error.vue"
 
 Vue.use(VueRouter)
@@ -83,6 +85,13 @@ const routes: Array<RouteConfig> = [
     path: "/profile",
     name: "Profile",
     component: Profile,
+  },
+
+  {
+    path: "/debug",
+    name: "Debug",
+    component: Debug,
+    meta: { noAuth: true },
   },
 
   {

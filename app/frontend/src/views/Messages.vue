@@ -19,7 +19,7 @@
             <template v-for="(conversation, index) in conversations">
               <v-divider :key="index"></v-divider>
               <v-list-item
-                :key="index"
+                :key="index + 'divider'"
                 @click="selectConversation(conversation)"
               >
                 <v-list-item-avatar>
