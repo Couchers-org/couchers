@@ -19,7 +19,7 @@ service Conversations {
     // Retrieves messages in group chat, paginated
   }
 
-  rpc MarkLastReadGroupChat(MarkLastReadGroupChatReq) returns (google.protobuf.Empty) {
+  rpc MarkLastSeenGroupChat(MarkLastSeenGroupChatReq) returns (google.protobuf.Empty) {
     // Marks the last message that has been seen in this group chat
   }
 
@@ -103,7 +103,7 @@ message GetGroupChatMessagesRes {
   bool no_more = 3;
 }
 
-message MarkLastReadGroupChatReq {
+message MarkLastSeenGroupChatReq {
   uint64 group_chat_id = 1;
   uint64 last_seen_message_id = 2;
 }
