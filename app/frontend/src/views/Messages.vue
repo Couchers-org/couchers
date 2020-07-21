@@ -6,21 +6,22 @@
         <v-row dense>
           <v-col cols="4">
             <v-card max-width="450" tile>
-              <v-subheader
-                ><v-text-field
-                  class="mx-3 my-1"
-                  v-model="searchQuery"
-                  flat
-                  single-line
-                  hide-details
-                  label="Search"
-                  v-on:keyup.enter="search"
-                ></v-text-field
-              ></v-subheader>
               <v-list v-if="loading != 0" three-line>
                 <v-subheader>Loading...</v-subheader>
               </v-list>
               <v-list v-if="loading == 0" two-line>
+                <v-list-item>
+                  <v-text-field
+                    v-model="searchQuery"
+                    single-line
+                    solo
+                    flat
+                    hide-details
+                    label="Search"
+                    prepend-icon="mdi-magnify"
+                    v-on:keyup.enter="search"
+                  ></v-text-field>
+                </v-list-item>
                 <v-subheader v-if="!conversations.length">Empty!</v-subheader>
                 <template v-for="(conversation, index) in conversations">
                   <v-divider :key="index + 'divider'"></v-divider>
@@ -113,6 +114,19 @@
                 </template>
               </v-list>
             </v-card>
+            <v-card tile>
+              <v-text-field
+                v-model="currentMessage"
+                solo
+                flat
+                single-line
+                hide-details
+                label="Send a message"
+                append-icon="mdi-send"
+                @click:append="sendMessage"
+                v-on:keyup.enter="sendMessage"
+              ></v-text-field>
+            </v-card>
           </v-col>
         </v-row>
       </v-container>
@@ -147,6 +161,7 @@ import { client, conversations } from "../api"
 export default Vue.extend({
   data: () => ({
     loading: 0,
+    currentMessage: "",
     myUserId: 2, // TODO TODO TODO
     searchQuery: null as null | string,
     conversations: [] as Array<GroupChat>,
@@ -194,6 +209,10 @@ export default Vue.extend({
 
     search() {
       console.log("Search for", this.searchQuery)
+      // TODO
+    },
+
+    sendMessage() {
       // TODO
     },
 
@@ -299,7 +318,7 @@ export default Vue.extend({
 
     messageDisplayTime(message: Message) {
       const date = message.getTime().toDate()
-      if (new Date() - date < 120 * 60 * 1000) {
+      if (new Date().getTime() - date.getTime() > 120 * 60 * 1000) {
         // longer than 2h ago, display as absolute
         return moment(date).format("lll")
       } else {
