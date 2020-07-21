@@ -15,11 +15,9 @@
         <div class="box">
           <h2 class="title is-3">Join us as we build the new online platform for couch-surfers</h2>
           <p class="subtitle is-4">Non&#8209;profit. Community&#8209;focused. Well&nbsp;built.</p>
-          <p class="content">We are building a new platform that takes all the best features from existing platforms while tackling their main issues. Free for everyone to use forever. Modern, useful, and evolving with the community's needs.
-          
-          Are you a leader in your community? Have experience in non-profit startups or marketing? Want to offer your technical expertise? We’d love to have you on board our team.
-
-          Right now, we're especially looking for marketing specialists, people who regularly organise in their community, frontend and UI/UX engineers, and backend engineers.</p>
+          <p class="content">We are building a new platform that takes all the best features from existing platforms while tackling their main issues. Free for everyone to use forever. Modern, useful, and evolving with the community's needs.</p>
+          <p class="content">Are you a leader in your community? Have experience in non-profit startups or marketing? Want to offer your technical expertise? We’d love to have you on board our team.</p>
+          <p class="content">Right now, we're especially looking for marketing specialists, people who regularly organise in their community, frontend and UI/UX engineers, and backend engineers.</p>
           <p><a class="button is-primary" href = "/signup">Sign up for Couchers.org</a></p>
         </div>
       </div>
