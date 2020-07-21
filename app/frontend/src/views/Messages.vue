@@ -54,7 +54,7 @@
             </v-card>
           </v-col>
           <v-col cols="8">
-            <v-card tile height="600" style="overflow: auto">
+            <v-card tile height="600" style="overflow: auto;">
               <v-subheader v-if="selectedConversation === null"
                 >Select a conversation...</v-subheader
               >
@@ -155,6 +155,8 @@ import {
   GroupChat,
   Message,
   GetGroupChatMessagesReq,
+  SendMessageReq,
+  GetUpdatesReq,
 } from "../pb/conversations_pb"
 import { client, conversations } from "../api"
 
@@ -183,12 +185,8 @@ export default Vue.extend({
       conversations
         .getGroupChatMessages(req)
         .then((res) => {
-          this.messages = res
-            .getMessagesList()
-            .sort(
-              (f, s) =>
-                f.getTime().toDate().getTime() - s.getTime().toDate().getTime()
-            )
+          this.messages = res.getMessagesList()
+          this.sortMessages()
         })
         .catch(console.error)
     },
@@ -196,6 +194,13 @@ export default Vue.extend({
 
   methods: {
     handle,
+
+    sortMessages() {
+      this.messages = this.messages.sort(
+        (f, s) =>
+          f.getTime().toDate().getTime() - s.getTime().toDate().getTime()
+      )
+    },
 
     getUser(userId: number) {
       if (!(userId in this.userCache)) {
@@ -213,7 +218,38 @@ export default Vue.extend({
     },
 
     sendMessage() {
-      // TODO
+      const req = new SendMessageReq()
+      req.setGroupChatId(this.selectedConversation)
+      req.setText(this.currentMessage)
+      conversations
+        .sendMessage(req)
+        .then((res) => {
+          this.currentMessage = ""
+          this.fetchUpdates()
+        })
+        .catch(console.error)
+    },
+
+    fetchUpdates() {
+      const req = new GetUpdatesReq()
+      req.setNewestMessageId(
+        Math.max(0, ...this.messages.map((msg) => msg.getMessageId()))
+      )
+      conversations
+        .getUpdates(req)
+        .then((res) => {
+          res
+            .getUpdatesList()
+            .filter(
+              (update) => update.getGroupChatId() === this.selectedConversation
+            )
+            .map((update) => update.getMessage())
+            .forEach((msg) => {
+              this.messages.push(msg)
+            })
+          this.sortMessages()
+        })
+        .catch(console.error)
     },
 
     fetchData() {

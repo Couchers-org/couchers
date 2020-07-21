@@ -105,6 +105,35 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 ) if result.Message else None,
             )
 
+    def GetUpdates(self, request, context):
+        with session_scope(self._Session) as session:
+            results = (session.query(Message)
+                .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
+                .filter(GroupChatSubscription.user_id == context.user_id)
+                .filter(Message.time >= GroupChatSubscription.joined)
+                .filter(
+                    or_(Message.time <= GroupChatSubscription.left,
+                        GroupChatSubscription.left == None))
+                .filter(Message.id > request.newest_message_id)
+                .order_by(Message.id.asc())
+                .limit(PAGINATION_LENGTH+1)
+                .all())
+
+            return conversations_pb2.GetUpdatesRes(
+                updates=[
+                    conversations_pb2.Update(
+                        group_chat_id=message.conversation_id,
+                        message=conversations_pb2.Message(
+                            message_id=message.id,
+                            author_user_id=message.author_id,
+                            time=Timestamp_from_datetime(message.time),
+                            text=message.text,
+                        ),
+                    ) for message in sorted(results, key=lambda message: message.id)[:PAGINATION_LENGTH]
+                ],
+                no_more=len(results) <= PAGINATION_LENGTH,
+            )
+
     def GetGroupChatMessages(self, request, context):
         with session_scope(self._Session) as session:
             results = (session.query(Message)
