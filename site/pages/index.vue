@@ -15,7 +15,11 @@
         <div class="box">
           <h2 class="title is-3">Join us as we build the new online platform for couch-surfers</h2>
           <p class="subtitle is-4">Non&#8209;profit. Community&#8209;focused. Well&nbsp;built.</p>
-          <p class="content">We are building a new platform that takes all the best features from existing platforms while tackling their main issues. Free for everyone to use forever. Modern, useful, and evolving with the community's needs. We will need your expertise and ideas to bring this project to the rest of the community.</p>
+          <p class="content">We are building a new platform that takes all the best features from existing platforms while tackling their main issues. Free for everyone to use forever. Modern, useful, and evolving with the community's needs.
+          
+          Are you a leader in your community? Have experience in non-profit startups or marketing? Want to offer your technical expertise? We’d love to have you on board our team.
+
+          Right now, we're especially looking for marketing specialists, people who regularly organise in their community, frontend and UI/UX engineers, and backend engineers.</p>
           <p><a class="button is-primary" href = "/signup">Sign up for Couchers.org</a></p>
         </div>
       </div>
@@ -25,7 +29,7 @@
         <h2 class="title is-3">Our plan: fix the problems with Couchsurfing&#8482;</h2>
         <p class="content">We're sure that you, like all of us, have had great experiences that couldn't have happened without Couchsurfing&#8482;. But we all know it's got its issues. For the next generation in couch-surfing apps, we need to fix those issues.</p>
         <p class="content">If there's any problems you've found with Couchsurfing&#8482; or any other platforms, we'd love to hear about it so we can try to fix them.</p>
-        <p class="content"><a class="button is-primary" href = "/signup">Tell us what you think</a></p>
+        <p class="content"><a class="button is-primary" href = "https://community.couchers.org/">Tell us what you think</a></p>
       </section>
     </div>
     <div class="container">

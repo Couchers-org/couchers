@@ -29,7 +29,7 @@
           <p class="help is-danger" v-bind:class="{ 'is-hidden': email_error === null }">{{ email_error }}</p>
         </div>
         <div class="field">
-          <label class="label">Would you like to help in building Couchers.org?</label>
+          <label class="label">Would you like to help in creating Couchers.org?</label>
           <div class="control">
             <label class="radio">
               <input type="radio" name="contribute" value="yes" v-model="contribute" checked>

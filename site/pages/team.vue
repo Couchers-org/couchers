@@ -7,7 +7,7 @@
             <h2 class="title is-2">
               The Couchers.org team
             </h2>
-            <p class="content">We are a group of hosts and surfers who are also a mix of software engineers, data scientists, mathematicians and experienced community members and leaders. We've all gotten a lot of joy out of couch surfing and would like to make that experience even better. We're made up of a group of people dedicated to building the platform, along with a large network of couch-surfers that we consult for advice.</p>
+            <p class="content">We are a group of hosts and surfers who are also a mix of designers, software engineers, data scientists, and experienced community members and leaders. We've all gotten a lot of joy out of couch surfing and would like to make that experience even better. We're made up of a group of people dedicated to building the platform, along with a large network of couch-surfers that we consult for advice.</p>
             <p class="content">We are actively looking for people to join the team, we need a broad range of experiences, expertise, and cultural backgrounds. Please consider joining us, whether you have skills, ideas, complaints, or just want to see this done right.</p>
             <p><a class="button is-primary" href="/signup">Join the team</a></p>
           </div>

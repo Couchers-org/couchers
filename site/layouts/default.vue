@@ -84,8 +84,15 @@
         <div class="navbar-end">
           <div class="navbar-item">
             <div class="buttons">
+              <a class="button is-light" href = "https://community.couchers.org/">
+                <strong>Join the discussion!</strong>
+              </a>
+            </div>
+          </div>
+          <div class="navbar-item">
+            <div class="buttons">
               <a class="button is-light" href = "/signup">
-                <strong>Join now!</strong>
+                <strong>Join the team!</strong>
               </a>
             </div>
           </div>
