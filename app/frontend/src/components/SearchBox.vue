@@ -2,6 +2,7 @@
   <v-text-field
     v-model="query"
     flat
+    rounded
     solo-inverted
     hide-details
     prepend-inner-icon="mdi-magnify"
