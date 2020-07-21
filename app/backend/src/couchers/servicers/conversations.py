@@ -13,9 +13,6 @@ from pb import api_pb2, conversations_pb2, conversations_pb2_grpc
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, or_
 
-logging.basicConfig(format="%(asctime)s.%(msecs)03d: %(process)d: %(message)s",
-                    datefmt="%F %T", level=logging.DEBUG)
-
 
 # TODO: custom pagination length
 PAGINATION_LENGTH = 20

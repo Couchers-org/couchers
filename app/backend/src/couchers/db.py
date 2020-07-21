@@ -73,7 +73,7 @@ def get_user_by_field(session, field):
         logging.debug(f"Field matched to type email")
         return session.query(User).filter(User.email == field).one_or_none()
     else:
-        logging.info(f"Field {field=}, didn't match any known types")
+        logging.debug(f"Field {field=}, didn't match any known types")
         return None
 
 def new_signup_token(session, email, hours=2):
