@@ -67,10 +67,10 @@
                     v-if="isMyMessage(message)"
                     :key="message.getMessageId()"
                   >
-                    <v-list-item-content>
+                    <v-list-item-content class="py-1 bubble-content">
                       <v-alert
                         :color="messageColor(message)"
-                        class="white--text"
+                        class="white--text my-0 bubble-alert-mine"
                         dense
                       >
                         <div class="subtitle mb-1">
@@ -96,10 +96,10 @@
                         }}</span>
                       </v-avatar>
                     </v-list-item-avatar>
-                    <v-list-item-content>
+                    <v-list-item-content class="py-1 bubble-content">
                       <v-alert
                         :color="messageColor(message)"
-                        class="white--text"
+                        class="white--text my-0 bubble-alert-theirs"
                         dense
                       >
                         <div class="subtitle mb-1">
@@ -316,7 +316,15 @@ export default Vue.extend({
 </script>
 
 <style scoped>
-.message {
-  border-radius: 2px;
+.bubble-content {
+  display: block;
+}
+
+.bubble-alert-theirs {
+  float: left;
+}
+
+.bubble-alert-mine {
+  float: right;
 }
 </style>
