@@ -120,6 +120,8 @@ message User {
   repeated string countries_lived = 17;
 
   FriendshipStatus friends = 18;
+
+  uint64 user_id = 19;
 }
 
 message GetUserReq {

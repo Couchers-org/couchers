@@ -48,7 +48,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 group_chats=[
                     conversations_pb2.GroupChat(
                         group_chat_id=result.GroupChat.conversation_id,
-                        title=result.GroupChat.title,
+                        title=result.GroupChat.title, # TODO: proper title for DMs, etc
                         member_user_ids=[sub.user_id for sub in result.GroupChat.subscriptions],
                         admin_user_ids=[sub.user_id for sub in result.GroupChat.subscriptions if sub.role == GroupChatRole.admin],
                         only_admins_invite=result.GroupChat.only_admins_invite,

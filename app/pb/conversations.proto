@@ -56,6 +56,13 @@ service Conversations {
   }
 }
 
+message Message {
+  uint64 message_id = 1;
+  uint64 author_user_id = 2;
+  google.protobuf.Timestamp time = 3;
+  string text = 4;
+}
+
 message GroupChat {
   uint64 group_chat_id = 1;
   string title = 2;
@@ -81,13 +88,6 @@ message ListGroupChatsRes {
   repeated GroupChat group_chats = 1;
   uint64 next_message_id = 2;
   bool no_more = 3;
-}
-
-message Message {
-  uint64 message_id = 1;
-  uint64 author_user_id = 2;
-  google.protobuf.Timestamp time = 3;
-  string text = 4;
 }
 
 message GetGroupChatMessagesReq {

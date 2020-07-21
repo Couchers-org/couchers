@@ -56,6 +56,8 @@ class API(api_pb2_grpc.APIServicer):
                 countries_visited=user.countries_visited.split("|") if user.countries_visited else [],
                 countries_lived=user.countries_lived.split("|") if user.countries_lived else [],
                 friends=get_friends_status(session, context.user_id, user.id),
+
+                user_id=user.id,
             )
 
     def UpdateProfile(self, request, context):

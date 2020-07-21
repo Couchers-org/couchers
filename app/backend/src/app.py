@@ -6,8 +6,9 @@ from couchers.interceptors import LoggingInterceptor, intercept_server
 from couchers.models import Base
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
+from couchers.servicers.conversations import Conversations
 from dummy_data import add_dummy_data
-from pb import api_pb2_grpc, auth_pb2_grpc
+from pb import api_pb2_grpc, auth_pb2_grpc, conversations_pb2_grpc
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -30,8 +31,8 @@ server = grpc.server(futures.ThreadPoolExecutor(2))
 server = intercept_server(server, LoggingInterceptor())
 server = intercept_server(server, auth.get_auth_interceptor())
 server.add_insecure_port("[::]:1751")
-servicer = API(Session)
-api_pb2_grpc.add_APIServicer_to_server(servicer, server)
+api_pb2_grpc.add_APIServicer_to_server(API(Session), server)
+conversations_pb2_grpc.add_ConversationsServicer_to_server(Conversations(Session), server)
 server.start()
 
 logging.info(f"Serving on 1751 and 1752 (auth)")

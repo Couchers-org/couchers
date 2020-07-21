@@ -3,7 +3,10 @@
     <v-container fill-height>
       <v-container fluid>
         <h1>Debug page</h1>
-        <p>Currently logged in as {{ username }} (this is probably wrong, issue #115)</p>
+        <p>
+          Currently logged in as {{ username }} (this is probably wrong, issue
+          #115)
+        </p>
         <p>
           <v-btn @click="login('aapeli', 'Aapeli\'s password')"
             >Login as user "aapeli"</v-btn
