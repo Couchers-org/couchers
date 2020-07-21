@@ -54,7 +54,7 @@
             </v-card>
           </v-col>
           <v-col cols="8">
-            <v-card tile>
+            <v-card tile height="600" style="overflow: auto">
               <v-subheader v-if="selectedConversation === null"
                 >Select a conversation...</v-subheader
               >
@@ -82,7 +82,7 @@
                       </v-alert>
                     </v-list-item-content>
                     <v-list-item-avatar>
-                      <v-avatar :color="messageColor(message)" size="30">
+                      <v-avatar :color="messageColor(message)" size="36">
                         <span class="white--text">{{
                           messageAvatarText(message)
                         }}</span>
@@ -91,7 +91,7 @@
                   </v-list-item>
                   <v-list-item v-else :key="message.getMessageId()">
                     <v-list-item-avatar>
-                      <v-avatar :color="messageColor(message)" size="30">
+                      <v-avatar :color="messageColor(message)" size="36">
                         <span class="white--text">{{
                           messageAvatarText(message)
                         }}</span>
@@ -166,7 +166,7 @@ export default Vue.extend({
     searchQuery: null as null | string,
     conversations: [] as Array<GroupChat>,
     userCache: {} as { [userId: number]: User },
-    selectedConversation: 2 as null | number, // TODO: null by default
+    selectedConversation: null as null | number, // TODO: null by default
     messages: [] as Array<Message>,
   }),
 
