@@ -404,6 +404,22 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             if not subscription:
                 context.abort(grpc.StatusCode.NOT_FOUND, "Couldn't find that chat.")
 
+            if subscription.role == GroupChatRole.admin:
+                other_admins_count = (session.query(func.count(GroupChatSubscription.id).label("count"))
+                    .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                    .filter(GroupChatSubscription.user_id != context.user_id)
+                    .filter(GroupChatSubscription.role == GroupChatRole.admin)
+                    .filter(GroupChatSubscription.left == None)
+                    .one()).count
+                participants_count = (session.query(func.count(GroupChatSubscription.id).label("count"))
+                    .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                    .filter(GroupChatSubscription.user_id != context.user_id)
+                    .filter(GroupChatSubscription.role == GroupChatRole.participant)
+                    .filter(GroupChatSubscription.left == None)
+                    .one()).count
+                if not (other_admins_count > 0 or participants_count == 0):
+                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, "The last admin can't leave.")
+
             subscription.left = datetime.utcnow()
             session.commit()
 

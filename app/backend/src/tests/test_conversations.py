@@ -400,9 +400,24 @@ def test_admin_behaviour(db):
         assert len(res.admin_user_ids) == 1
         assert user3.id in res.admin_user_ids
 
-    with conversations_session(db, token2) as c:
+    with conversations_session(db, token3) as c:
         with pytest.raises(grpc.RpcError):
             c.RemoveGroupChatAdmin(conversations_pb2.RemoveGroupChatAdminReq(group_chat_id=gcid, user_id=user3.id))
         res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
         assert len(res.admin_user_ids) == 1
         assert user3.id in res.admin_user_ids
+
+        # last admin can't leave
+        with pytest.raises(grpc.RpcError):
+            c.LeaveGroupChat(conversations_pb2.LeaveGroupChatReq(group_chat_id=gcid))
+
+        c.MakeGroupChatAdmin(conversations_pb2.MakeGroupChatAdminReq(group_chat_id=gcid, user_id=user1.id))
+
+        c.LeaveGroupChat(conversations_pb2.LeaveGroupChatReq(group_chat_id=gcid))
+
+    with conversations_session(db, token2) as c:
+        c.LeaveGroupChat(conversations_pb2.LeaveGroupChatReq(group_chat_id=gcid))
+
+    # last participant must be admin but can leave to orphan chat
+    with conversations_session(db, token1) as c:
+        c.LeaveGroupChat(conversations_pb2.LeaveGroupChatReq(group_chat_id=gcid))
