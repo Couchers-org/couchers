@@ -8,6 +8,7 @@ import Profile from "../views/Profile.vue"
 import Logout from "../views/Logout.vue"
 import SSO from "../views/SSO.vue"
 import Friends from "../views/Friends.vue"
+import Messages from "../views/Messages.vue"
 import Search from "../views/Search.vue"
 import Signup from "../views/Signup.vue"
 import CompleteLogin from "../views/CompleteLogin.vue"
@@ -57,6 +58,11 @@ const routes: Array<RouteConfig> = [
     path: "/friends",
     name: "Friends",
     component: Friends,
+  },
+  {
+    path: "/messages",
+    name: "Messages",
+    component: Messages,
   },
   {
     path: "/search",
