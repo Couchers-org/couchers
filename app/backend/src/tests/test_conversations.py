@@ -220,13 +220,6 @@ def test_make_remove_group_chat_admin(db):
         assert user1.id in res.admin_user_ids
         assert user2.id in res.admin_user_ids
 
-        # can't change my admin status
-        with pytest.raises(grpc.RpcError) as e:
-            c.RemoveGroupChatAdmin(
-                conversations_pb2.RemoveGroupChatAdminReq(group_chat_id=group_chat_id, user_id=user2.id))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-
-
         res = c.GetGroupChat(
             conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
         assert user1.id in res.admin_user_ids
@@ -346,3 +339,70 @@ def test_search_messages(db):
         assert len(res.results) == 2
         res = c.SearchMessages(conversations_pb2.SearchMessagesReq(query="message 5"))
         assert len(res.results) == 0
+
+
+def test_admin_behaviour(db):
+    user1, token1 = generate_user(db)
+    user2, token2 = generate_user(db)
+    user3, token3 = generate_user(db)
+
+    make_friends(db, user1, user2)
+    make_friends(db, user1, user3)
+    make_friends(db, user2, user3)
+
+    with conversations_session(db, token1) as c:
+        gcid = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_ids=[user2.id, user3.id])).group_chat_id
+        c.MakeGroupChatAdmin(conversations_pb2.MakeGroupChatAdminReq(group_chat_id=gcid, user_id=user2.id))
+        res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
+        assert len(res.admin_user_ids) == 2
+        assert user1.id in res.admin_user_ids
+        assert user2.id in res.admin_user_ids
+
+    with conversations_session(db, token3) as c:
+        with pytest.raises(grpc.RpcError):
+            c.MakeGroupChatAdmin(conversations_pb2.MakeGroupChatAdminReq(group_chat_id=gcid, user_id=user3.id))
+        with pytest.raises(grpc.RpcError):
+            c.RemoveGroupChatAdmin(conversations_pb2.RemoveGroupChatAdminReq(group_chat_id=gcid, user_id=user1.id))
+        res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
+        assert len(res.admin_user_ids) == 2
+        assert user1.id in res.admin_user_ids
+        assert user2.id in res.admin_user_ids
+
+    with conversations_session(db, token2) as c:
+        c.MakeGroupChatAdmin(conversations_pb2.MakeGroupChatAdminReq(group_chat_id=gcid, user_id=user3.id))
+        res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
+        assert len(res.admin_user_ids) == 3
+        assert user1.id in res.admin_user_ids
+        assert user2.id in res.admin_user_ids
+        assert user3.id in res.admin_user_ids
+
+        c.RemoveGroupChatAdmin(conversations_pb2.RemoveGroupChatAdminReq(group_chat_id=gcid, user_id=user1.id))
+        res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
+        assert len(res.admin_user_ids) == 2
+        assert user2.id in res.admin_user_ids
+        assert user3.id in res.admin_user_ids
+
+    with conversations_session(db, token1) as c:
+        with pytest.raises(grpc.RpcError):
+            c.MakeGroupChatAdmin(conversations_pb2.MakeGroupChatAdminReq(group_chat_id=gcid, user_id=user1.id))
+        with pytest.raises(grpc.RpcError):
+            c.MakeGroupChatAdmin(conversations_pb2.MakeGroupChatAdminReq(group_chat_id=gcid, user_id=user3.id))
+        with pytest.raises(grpc.RpcError):
+            c.RemoveGroupChatAdmin(conversations_pb2.RemoveGroupChatAdminReq(group_chat_id=gcid, user_id=user2.id))
+        res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
+        assert len(res.admin_user_ids) == 2
+        assert user2.id in res.admin_user_ids
+        assert user3.id in res.admin_user_ids
+
+    with conversations_session(db, token2) as c:
+        c.RemoveGroupChatAdmin(conversations_pb2.RemoveGroupChatAdminReq(group_chat_id=gcid, user_id=user2.id))
+        res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
+        assert len(res.admin_user_ids) == 1
+        assert user3.id in res.admin_user_ids
+
+    with conversations_session(db, token2) as c:
+        with pytest.raises(grpc.RpcError):
+            c.RemoveGroupChatAdmin(conversations_pb2.RemoveGroupChatAdminReq(group_chat_id=gcid, user_id=user3.id))
+        res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
+        assert len(res.admin_user_ids) == 1
+        assert user3.id in res.admin_user_ids

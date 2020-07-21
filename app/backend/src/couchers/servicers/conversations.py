@@ -324,9 +324,17 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, "Couldn't find that chat.")
 
             if request.user_id == context.user_id:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, "You can't do that.")
+                # Race condition!
+                other_admins_count = (session.query(func.count(GroupChatSubscription.id).label("count"))
+                    .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                    .filter(GroupChatSubscription.user_id != context.user_id)
+                    .filter(GroupChatSubscription.role == GroupChatRole.admin)
+                    .filter(GroupChatSubscription.left == None)
+                    .one()).count
+                if not other_admins_count > 0:
+                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, "You can't remove the last admin.")
 
-            if your_subscription.group_chat.creator_id != context.user_id:
+            if your_subscription.role != GroupChatRole.admin:
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, "You're not allowed to do that.")
 
             their_subscription = (session.query(GroupChatSubscription)
