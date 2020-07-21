@@ -421,3 +421,58 @@ def test_admin_behaviour(db):
     # last participant must be admin but can leave to orphan chat
     with conversations_session(db, token1) as c:
         c.LeaveGroupChat(conversations_pb2.LeaveGroupChatReq(group_chat_id=gcid))
+
+
+def test_last_seen(db):
+    user1, token1 = generate_user(db)
+    user2, token2 = generate_user(db)
+    user3, token3 = generate_user(db)
+
+    make_friends(db, user1, user2)
+    make_friends(db, user1, user3)
+    make_friends(db, user2, user3)
+
+    with conversations_session(db, token3) as c:
+        # this is just here to mess up any issues we get if we pretend there's only one group chat ever
+        gcid_distraction = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_ids=[user2.id, user1.id])).group_chat_id
+
+    with conversations_session(db, token1) as c:
+        gcid = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_ids=[user2.id, user3.id])).group_chat_id
+
+        message_ids = []
+
+        for i in range(6):
+            c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid_distraction, text=f"gibberish message... {i}"))
+            c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid, text=f"test message {i}"))
+            c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid_distraction, text=f"gibberish message {i}"))
+
+            message_ids.append(c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid)).latest_message.message_id)
+
+
+        # messages are automatically marked as seen when you send a new message
+        res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
+        assert res.unseen_message_count == 0
+
+    with conversations_session(db, token2) as c:
+        res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
+        assert res.unseen_message_count == 6
+
+        backward_offset = 3
+        c.MarkLastSeenGroupChat(conversations_pb2.MarkLastSeenGroupChatReq(group_chat_id=gcid, last_seen_message_id=message_ids[-backward_offset-1]))
+
+        res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
+        assert res.unseen_message_count == backward_offset
+
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid, text=f"test message ..."))
+
+        res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
+        assert res.unseen_message_count == 0
+
+    with conversations_session(db, token3) as c:
+        res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
+        assert res.unseen_message_count == 7
+
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid, text=f"test message ..."))
+
+        res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
+        assert res.unseen_message_count == 0

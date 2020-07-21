@@ -138,7 +138,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 no_more=len(results) <= PAGINATION_LENGTH,
             )
 
-    def MarkLastReadGroupChat(self, request, context):
+    def MarkLastSeenGroupChat(self, request, context):
         with session_scope(self._Session) as session:
             subscription = (session.query(GroupChatSubscription)
                 .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
@@ -192,7 +192,14 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
     def CreateGroupChat(self, request, context):
         if len(request.recipient_ids) < 1:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, "No recipients")
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, "No recipients.")
+
+        if len(request.recipient_ids) != len(set(request.recipient_ids)):
+            # make sure there's no duplicate users
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, "Invalid recipients list.")
+
+        if context.user_id in request.recipient_ids:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, "You can't add yourself to a group chat.")
 
         with session_scope(self._Session) as session:
             conversation = Conversation()
@@ -248,11 +255,14 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 .one_or_none())
             if not subscription:
                 context.abort(grpc.StatusCode.NOT_FOUND, "No matching group chat found.")
-            session.add(Message(
+            message = Message(
                 conversation=subscription.group_chat.conversation,
                 author_id=context.user_id,
                 text=request.text,
-            ))
+            )
+            session.add(message)
+            session.commit()
+            subscription.last_seen_message_id = message.id
             session.commit()
             return empty_pb2.Empty()
 
