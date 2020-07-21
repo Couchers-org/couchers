@@ -6,8 +6,9 @@ from couchers.crypto import hash_password
 from couchers.db import get_user_by_field, session_scope
 from couchers.models import (Base, Conversation, FriendRelationship,
                              FriendStatus, GroupChat, GroupChatRole,
-                             GroupChatSubscription, User, Message)
+                             GroupChatSubscription, Message, User)
 from couchers.utils import Timestamp_from_datetime
+from dateutil import parser
 from sqlalchemy.exc import IntegrityError
 
 
@@ -81,6 +82,7 @@ def add_dummy_data(Session, file_name):
                     session.add(Message(
                         conversation=chat.conversation,
                         author_id=get_user_by_field(session, message["author"]).id,
+                        time=parser.isoparse(message["time"]),
                         text=message["message"],
                     ))
 
