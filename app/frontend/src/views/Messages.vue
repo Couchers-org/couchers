@@ -54,7 +54,64 @@
           </v-col>
           <v-col cols="8">
             <v-card tile>
-              <v-subheader>Select a conversation...</v-subheader>
+              <v-subheader v-if="selectedConversation === null"
+                >Select a conversation...</v-subheader
+              >
+              <v-list v-else dense>
+                <v-subheader
+                  >Selected conversation:
+                  {{ selectedConversation }}</v-subheader
+                >
+                <template v-for="message in messages">
+                  <v-list-item
+                    v-if="isMyMessage(message)"
+                    :key="message.getMessageId()"
+                  >
+                    <v-list-item-content>
+                      <v-alert
+                        :color="messageColor(message)"
+                        class="white--text"
+                        dense
+                      >
+                        <div class="subtitle mb-1">
+                          <b>{{ messageAuthor(message) }}</b> at
+                          {{ messageDisplayTime(message) }}
+                        </div>
+                        {{ message.getText() }}
+                      </v-alert>
+                    </v-list-item-content>
+                    <v-list-item-avatar>
+                      <v-avatar :color="messageColor(message)" size="30">
+                        <span class="white--text">{{
+                          messageAvatarText(message)
+                        }}</span>
+                      </v-avatar>
+                    </v-list-item-avatar>
+                  </v-list-item>
+                  <v-list-item v-else :key="message.getMessageId()">
+                    <v-list-item-avatar>
+                      <v-avatar :color="messageColor(message)" size="30">
+                        <span class="white--text">{{
+                          messageAvatarText(message)
+                        }}</span>
+                      </v-avatar>
+                    </v-list-item-avatar>
+                    <v-list-item-content>
+                      <v-alert
+                        :color="messageColor(message)"
+                        class="white--text"
+                        dense
+                      >
+                        <div class="subtitle mb-1">
+                          <b>{{ messageAuthor(message) }}</b> at
+                          {{ messageDisplayTime(message) }}
+                        </div>
+                        {{ message.getText() }}
+                      </v-alert>
+                    </v-list-item-content>
+                  </v-list-item>
+                </template>
+              </v-list>
             </v-card>
           </v-col>
         </v-row>
@@ -65,6 +122,7 @@
 
 <script lang="ts">
 import Vue from "vue"
+import moment from "moment"
 
 import { handle } from "../utils"
 
@@ -78,7 +136,12 @@ import {
   User,
   GetUserReq,
 } from "../pb/api_pb"
-import { ListGroupChatsReq, GroupChat } from "../pb/conversations_pb"
+import {
+  ListGroupChatsReq,
+  GroupChat,
+  Message,
+  GetGroupChatMessagesReq,
+} from "../pb/conversations_pb"
 import { client, conversations } from "../api"
 
 export default Vue.extend({
@@ -88,10 +151,32 @@ export default Vue.extend({
     searchQuery: null as null | string,
     conversations: [] as Array<GroupChat>,
     userCache: {} as { [userId: number]: User },
+    selectedConversation: 2 as null | number, // TODO: null by default
+    messages: [] as Array<Message>,
   }),
 
   created() {
     this.fetchData()
+  },
+
+  watch: {
+    selectedConversation() {
+      this.messages = []
+      console.log("selected conversation changed, fetching messages")
+      const req = new GetGroupChatMessagesReq()
+      req.setGroupChatId(this.selectedConversation)
+      conversations
+        .getGroupChatMessages(req)
+        .then((res) => {
+          this.messages = res
+            .getMessagesList()
+            .sort(
+              (f, s) =>
+                f.getTime().toDate().getTime() - s.getTime().toDate().getTime()
+            )
+        })
+        .catch(console.error)
+    },
   },
 
   methods: {
@@ -173,12 +258,65 @@ export default Vue.extend({
     },
 
     conversationSubtitle(conversation: GroupChat) {
-      return conversation.getLatestMessage().getText() || "<i>No messages</i>"
+      const message = conversation.getLatestMessage()
+      return (
+        `<b>${this.messageAuthor(message)}</b>: ${message.getText()}` ||
+        "<i>No messages</i>"
+      )
     },
 
     selectConversation(conversationId: number) {
-      console.log("selecting conversation id", conversationId)
+      this.selectedConversation = conversationId
+    },
+
+    messageColor(message: Message) {
+      const user = this.getUser(message.getAuthorUserId())
+      if (!user) {
+        return "red"
+      }
+      return user.getColor()
+    },
+
+    messageAuthor(message: Message) {
+      const user = this.getUser(message.getAuthorUserId())
+      if (!user) {
+        return "error"
+      }
+      return user.getName().split(" ")[0]
+    },
+
+    messageAvatarText(message: Message) {
+      const user = this.getUser(message.getAuthorUserId())
+      if (!user) {
+        return "ERR"
+      }
+      return user
+        .getName()
+        .split(" ")
+        .map((name) => name[0])
+        .join("")
+    },
+
+    messageDisplayTime(message: Message) {
+      const date = message.getTime().toDate()
+      if (new Date() - date < 120 * 60 * 1000) {
+        // longer than 2h ago, display as absolute
+        return moment(date).format("lll")
+      } else {
+        // relative
+        return moment(date).fromNow()
+      }
+    },
+
+    isMyMessage(message: Message) {
+      return message.getAuthorUserId() === this.myUserId
     },
   },
 })
 </script>
+
+<style scoped>
+.message {
+  border-radius: 2px;
+}
+</style>
