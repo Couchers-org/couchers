@@ -20,7 +20,7 @@
               <v-list v-if="loading != 0" three-line>
                 <v-subheader>Loading...</v-subheader>
               </v-list>
-              <v-list v-if="loading == 0" three-line>
+              <v-list v-if="loading == 0" two-line>
                 <v-subheader v-if="!conversations.length">Empty!</v-subheader>
                 <template v-for="(conversation, index) in conversations">
                   <v-divider :key="index + 'divider'"></v-divider>
