@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package sso;
+package org.couchers.api.sso;
 
 service SSO {
   rpc SSO(SSOReq) returns (SSORes) {

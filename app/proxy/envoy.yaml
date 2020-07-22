@@ -20,11 +20,11 @@ static_resources:
             - name: local_service
               domains: ["*"]
               routes:
-              - match: { prefix: "/auth" }
+              - match: { prefix: "/org.couchers.auth" }
                 route:
                   cluster: auth_service
                   max_grpc_timeout: 0s
-              - match: { prefix: "/" }
+              - match: { prefix: "/org.couchers.api" }
                 route:
                   cluster: couchers_service
                   max_grpc_timeout: 0s

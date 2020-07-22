@@ -103,8 +103,12 @@
         <v-card-text>
           <h2>Edit your profile</h2>
           <p>
-            See how your profile looks to others: ...TODO link to
-            /user/:username
+            <v-btn
+              color="primary"
+              link
+              :to="{ name: 'User', params: { user: username } }"
+              >See how your profile looks to others</v-btn
+            >
           </p>
           <h3>Name</h3>
           <editable-text-field :text="user.name" v-on:save="saveName" />
@@ -150,6 +154,8 @@
 
 <script lang="ts">
 import Vue from "vue"
+
+import { mapState } from "vuex"
 
 import wrappers from "google-protobuf/google/protobuf/wrappers_pb"
 
@@ -315,6 +321,8 @@ export default Vue.extend({
   },
 
   computed: {
+    ...mapState(["username"]),
+
     lastActiveDisplay() {
       if (!this.user.lastActive) {
         return "unknown"

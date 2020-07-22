@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package api;
+package org.couchers.api.core;
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
@@ -43,11 +43,11 @@ message SearchRes {
 }
 
 message SendFriendRequestReq {
-  string user = 1;
+  uint64 user_id = 1;
 }
 
 message FriendRequest {
-  int64 friend_request_id = 1;
+  uint64 friend_request_id = 1;
 
   enum FriendRequestStatus {
     // these are the only two states that a user will see
@@ -57,17 +57,17 @@ message FriendRequest {
 
   FriendRequestStatus state = 2;
 
-  string user = 3;
+  uint64 user_id = 3;
 }
 
 message RespondFriendRequestReq {
-  int64 friend_request_id = 1;
+  uint64 friend_request_id = 1;
 
   bool accept = 2;
 }
 
 message CancelFriendRequestReq {
-  int64 friend_request_id = 1;
+  uint64 friend_request_id = 1;
 }
 
 message ListFriendRequestsRes {
@@ -76,21 +76,21 @@ message ListFriendRequestsRes {
 }
 
 message ListFriendsRes {
-  repeated string users = 1;
+  repeated uint64 user_ids = 1;
 }
 
 message PingReq {}
 
 message PingRes {
   // Basic info about user
-  int64 user_id = 1;
+  uint64 user_id = 1;
   string username = 2;
   string name = 3;
   string color = 4;
 }
 
 message MutualFriend {
-  int64 user_id = 1;
+  uint64 user_id = 1;
   string username = 2;
   string name = 3;
 }
@@ -103,7 +103,7 @@ message User {
     NA = 3; // not applicable, e.g. user requesting is self
   }
 
-  uint64 id = 1;
+  uint64 user_id = 1;
   string username = 2;
   string name = 3;
   string city = 4;

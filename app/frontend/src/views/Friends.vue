@@ -56,7 +56,7 @@
           >
             <v-list-item-content>
               <v-list-item-title
-                v-text="handle(request.user)"
+                v-text="handle(request.userId)"
               ></v-list-item-title>
               <v-btn
                 color="success"
@@ -90,7 +90,7 @@
           >
             <v-list-item-content>
               <v-list-item-title
-                v-text="handle(request.user)"
+                v-text="handle(request.userId)"
               ></v-list-item-title>
               <v-btn
                 color="error"
@@ -123,7 +123,7 @@ import { client } from "../api"
 export default Vue.extend({
   data: () => ({
     loading: false,
-    friends: [] as Array<string>,
+    friends: [] as Array<number>,
     receivedRequests: [] as Array<FriendRequest.AsObject>,
     sentRequests: [] as Array<FriendRequest.AsObject>,
     errorMessage: "",
@@ -149,7 +149,7 @@ export default Vue.extend({
         .then((res) => {
           this.loading = false
           this.errorMessage = ""
-          this.friends = res.getUsersList()
+          this.friends = res.getUserIdsList()
         })
         .catch((err) => {
           this.loading = false

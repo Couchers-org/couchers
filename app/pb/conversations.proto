@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package conversations;
+package org.couchers.api.conversations;
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
@@ -75,7 +75,7 @@ message GroupChat {
   bool only_admins_invite = 5;
   bool is_dm = 6;
   google.protobuf.Timestamp created = 7;
-  uint64 unseen_message_count = 8;
+  uint32 unseen_message_count = 8;
   Message latest_message = 9;
 }
 
@@ -85,7 +85,7 @@ message GetGroupChatReq {
 
 message ListGroupChatsReq {
   uint64 last_message_id = 1;
-  uint64 number = 2;
+  uint32 number = 2;
 }
 
 message ListGroupChatsRes {
@@ -111,7 +111,7 @@ message GetUpdatesRes {
 message GetGroupChatMessagesReq {
   uint64 group_chat_id = 1;
   uint64 last_message_id = 2;
-  uint64 number = 3;
+  uint32 number = 3;
   bool only_unseen = 4;
 }
 
@@ -164,7 +164,7 @@ message LeaveGroupChatReq {
 message SearchMessagesReq {
   string query = 1;
   uint64 last_message_id = 2;
-  uint64 number = 3;
+  uint32 number = 3;
 }
 
 message MessageSearchResult {

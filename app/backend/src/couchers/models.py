@@ -95,6 +95,9 @@ class User(Base):
                                         second=0, microsecond=0)
 
     def mutual_friends(self, target_id):
+        if target_id == self.id:
+            return []
+
         session = Session.object_session(self)
 
         q1 = (session.query(FriendRelationship.from_user_id.label("user_id"))
