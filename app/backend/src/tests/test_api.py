@@ -4,7 +4,7 @@ import grpc
 import pytest
 from couchers.models import User
 from pb import api_pb2
-from tests.test_fixtures import api_session, db, generate_user
+from tests.test_fixtures import api_session, db, generate_user, make_friends
 
 
 def test_ping(db):
@@ -285,3 +285,39 @@ def test_search(db):
 
         res = api.Search(api_pb2.SearchReq(query="user5"))
         assert len(res.users) == 0
+
+def test_mutual_friends_self(db):
+    user1, token1 = generate_user(db, "user1")
+    user2, token2 = generate_user(db, "user2")
+    user3, token3 = generate_user(db, "user3")
+    user4, token4 = generate_user(db, "user4")
+
+    make_friends(db, user1, user2)
+    make_friends(db, user2, user3)
+    make_friends(db, user1, user4)
+
+    with api_session(db, token1) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=str(user3.id)))
+        assert len(res.mutual_friends) == 1
+        assert res.mutual_friends[0].user_id == user2.id
+
+    with api_session(db, token3) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=str(user1.id)))
+        assert len(res.mutual_friends) == 1
+        assert res.mutual_friends[0].user_id == user2.id
+
+    with api_session(db, token1) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=str(user1.id)))
+        assert len(res.mutual_friends) == 0
+
+    with api_session(db, token2) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=str(user2.id)))
+        assert len(res.mutual_friends) == 0
+
+    with api_session(db, token3) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=str(user3.id)))
+        assert len(res.mutual_friends) == 0
+
+    with api_session(db, token4) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=str(user4.id)))
+        assert len(res.mutual_friends) == 0
