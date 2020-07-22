@@ -159,11 +159,7 @@ import Vue from "vue"
 
 import ErrorAlert from "../components/ErrorAlert.vue"
 
-import {
-  GetUserReq,
-  SendFriendRequestReq,
-  User
-} from "../pb/api_pb"
+import { GetUserReq, SendFriendRequestReq, User } from "../pb/api_pb"
 import { client } from "../api"
 
 import { displayList, displayTime, handle } from "../utils"
@@ -238,7 +234,9 @@ export default Vue.extend({
 
     mutualFriendsDisplay() {
       console.log(this.user.mutualFriendsList)
-      return displayList(this.user.mutualFriendsList.map(user => handle(user.username)))
+      return displayList(
+        this.user.mutualFriendsList.map((user) => handle(user.username))
+      )
     },
 
     friendsDisplay() {
