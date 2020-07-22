@@ -47,7 +47,7 @@ message SendFriendRequestReq {
 }
 
 message FriendRequest {
-  int64 friend_request_id = 1;
+  uint64 friend_request_id = 1;
 
   enum FriendRequestStatus {
     // these are the only two states that a user will see
@@ -61,13 +61,13 @@ message FriendRequest {
 }
 
 message RespondFriendRequestReq {
-  int64 friend_request_id = 1;
+  uint64 friend_request_id = 1;
 
   bool accept = 2;
 }
 
 message CancelFriendRequestReq {
-  int64 friend_request_id = 1;
+  uint64 friend_request_id = 1;
 }
 
 message ListFriendRequestsRes {
@@ -83,14 +83,14 @@ message PingReq {}
 
 message PingRes {
   // Basic info about user
-  int64 user_id = 1;
+  uint64 user_id = 1;
   string username = 2;
   string name = 3;
   string color = 4;
 }
 
 message MutualFriend {
-  int64 user_id = 1;
+  uint64 user_id = 1;
   string username = 2;
   string name = 3;
 }
