@@ -1,117 +1,777 @@
 {
-    "users": [
+  "users": [
+    {
+      "username": "itsi",
+      "email": "couchers@itsiweinstock.com",
+      "password": null,
+      "name": "Itsi Weinstock",
+      "city": "Sydney, New South Wales, Australia",
+      "verification": 0.73,
+      "community_standing": 0.41,
+      "num_references": 16,
+      "gender": "Male",
+      "birthdate": {
+        "year": 1995,
+        "month": 11,
+        "day": 2
+      },
+      "languages": ["English", "Japanese"],
+      "occupation": "Mathematician",
+      "about_me": "Hey, my name’s Itsi (like the spider), from Australia. I'm a mathematician, data scientist and violinist (haha what a nerd). I've been a teacher, researcher, comedy writer, violin performer and a great cook for dinners with my friends.\n\nI like keeping very busy when I travel. If you've got any ideas for things to do, please drag me along! I love meeting energetic and funny people and organising small trips to go on with anyone I can wrangle together. Examples include hiking around wineries in Georgia, sailing along the Nile for a few days and exploring caves in Mexico.\n\nSharing food is a must! You can try so many more things that way.",
+      "about_place": "About Itsi's place",
+      "countries_visited": [
+        "Cuba",
+        "Czech Republic",
+        "Egypt",
+        "England",
+        "Georgia",
+        "Germany",
+        "Greece",
+        "Hong Kong",
+        "Laos",
+        "Mexico",
+        "Myanmar",
+        "Netherlands",
+        "Scotland",
+        "Spain",
+        "Thailand",
+        "Viet Nam"
+      ],
+      "countries_lived": ["Australia", "North Korea"]
+    },
+    {
+      "username": "aapeli",
+      "email": "couchers@aapelivuorinen.com",
+      "password": "Aapeli's password",
+      "name": "Aapeli Vuorinen",
+      "city": "Brisbane, Queensland, Australia",
+      "verification": 0.98,
+      "community_standing": 0.87,
+      "num_references": 402,
+      "gender": "Male",
+      "birthdate": {
+        "year": 1990,
+        "month": 3,
+        "day": 2
+      },
+      "languages": ["English", "Finnish"],
+      "occupation": "Mathematician",
+      "about_me": "Some generic stuff.",
+      "about_place": "About Aapeli's place",
+      "countries_visited": ["Australia"],
+      "countries_lived": [
+        "Australia",
+        "Finland",
+        "Sweden",
+        "United Stated of America"
+      ]
+    },
+    {
+      "username": "val",
+      "email": "val@example.invalid",
+      "password": "Val's password",
+      "name": "Val Natanelov",
+      "city": "Brisbane, Queensland, Australia",
+      "verification": 0.98,
+      "community_standing": 0.87,
+      "num_references": 100,
+      "gender": "Male",
+      "birthdate": {
+        "year": 1985,
+        "month": 1,
+        "day": 1
+      },
+      "languages": ["English"],
+      "occupation": "Strategist",
+      "about_me": "Some stuff.",
+      "about_place": "About Val's place",
+      "countries_visited": ["Japan"],
+      "countries_lived": ["Australia"]
+    },
+    {
+        "username": "aapeli2",
+        "email": "couchers2@aapelivuorinen.com",
+        "password": "Aapeli2's password",
+        "name": "Aapeli Vuorinen (2)",
+        "city": "Brisbane, Queensland, Australia",
+        "verification": 0.97,
+        "community_standing": 0.88,
+        "num_references": 401,
+        "gender": "Male",
+        "birthdate": {
+            "year": 1990,
+            "month": 3,
+            "day": 3
+        },
+        "languages": [
+            "English",
+            "Finnish"
+        ],
+        "occupation": "Mathematician",
+        "about_me": "Some generic stuff about Aapeli 2.",
+        "about_place": "About Aapeli 2's place",
+        "countries_visited": [
+            "Australia"
+        ],
+        "countries_lived": [
+            "Australia",
+            "Finland",
+            "Sweden",
+            "United Stated of America"
+        ]
+    }
+  ],
+  "friendships": [
+    ["aapeli", "itsi"],
+    ["aapeli", "val"],
+    ["val", "itsi"],
+    ["aapeli", "itsi"],
+    ["aapeli2", "itsi"]
+  ],
+  "group_chats": [
+    {
+      "participants": ["aapeli", "val"],
+      "creator": "aapeli",
+      "is_dm": true,
+      "title": null,
+      "messages": [
         {
-            "username": "itsi",
-            "email": "couchers@itsiweinstock.com",
-            "password": null,
-            "name": "Itsi Weinstock",
-            "city": "Sydney, New South Wales, Australia",
-            "verification": 0.73,
-            "community_standing": 0.41,
-            "num_references": 16,
-            "gender": "Male",
-            "birthdate": {
-                "year": 1995,
-                "month": 11,
-                "day": 2
-            },
-            "languages": [
-                "English",
-                "Japanese"
-            ],
-            "occupation": "Mathematician",
-            "about_me": "Hey, my name’s Itsi (like the spider), from Australia. I'm a mathematician, data scientist and violinist (haha what a nerd). I've been a teacher, researcher, comedy writer, violin performer and a great cook for dinners with my friends.\n\nI like keeping very busy when I travel. If you've got any ideas for things to do, please drag me along! I love meeting energetic and funny people and organising small trips to go on with anyone I can wrangle together. Examples include hiking around wineries in Georgia, sailing along the Nile for a few days and exploring caves in Mexico.\n\nSharing food is a must! You can try so many more things that way.",
-            "about_place": "About Itsi's place",
-            "countries_visited": [
-                "Cuba",
-                "Czech Republic",
-                "Egypt",
-                "England",
-                "Georgia",
-                "Germany",
-                "Greece",
-                "Hong Kong",
-                "Laos",
-                "Mexico",
-                "Myanmar",
-                "Netherlands",
-                "Scotland",
-                "Spain",
-                "Thailand",
-                "Viet Nam"
-            ],
-            "countries_lived": [
-                "Australia",
-                "North Korea"
-            ]
+          "author": "aapeli",
+          "time": "2020-07-17T17:33:00+10:00",
+          "message": "Ready?"
         },
         {
-            "username": "aapeli",
-            "email": "couchers@aapelivuorinen.com",
-            "password": "Aapeli's password",
-            "name": "Aapeli Vuorinen",
-            "city": "Brisbane, Queensland, Australia",
-            "verification": 0.98,
-            "community_standing": 0.87,
-            "num_references": 402,
-            "gender": "Male",
-            "birthdate": {
-                "year": 1990,
-                "month": 3,
-                "day": 2
-            },
-            "languages": [
-                "English",
-                "Finnish"
-            ],
-            "occupation": "Mathematician",
-            "about_me": "Some generic stuff.",
-            "about_place": "About Aapeli's place",
-            "countries_visited": [
-                "Australia"
-            ],
-            "countries_lived": [
-                "Australia",
-                "Finland",
-                "Sweden",
-                "United Stated of America"
-            ]
+          "author": "val",
+          "time": "2020-07-17T17:33:00+10:00",
+          "message": "yeah"
         },
         {
-            "username": "aapeli2",
-            "email": "couchers2@aapelivuorinen.com",
-            "password": "Aapeli2's password",
-            "name": "Aapeli Vuorinen (2)",
-            "city": "Brisbane, Queensland, Australia",
-            "verification": 0.97,
-            "community_standing": 0.88,
-            "num_references": 401,
-            "gender": "Male",
-            "birthdate": {
-                "year": 1990,
-                "month": 3,
-                "day": 3
-            },
-            "languages": [
-                "English",
-                "Finnish"
-            ],
-            "occupation": "Mathematician",
-            "about_me": "Some generic stuff about Aapeli 2.",
-            "about_place": "About Aapeli 2's place",
-            "countries_visited": [
-                "Australia"
-            ],
-            "countries_lived": [
-                "Australia",
-                "Finland",
-                "Sweden",
-                "United Stated of America"
-            ]
+          "author": "aapeli",
+          "time": "2020-07-18T16:05:00+10:00",
+          "message": "Hey"
+        },
+        {
+          "author": "val",
+          "time": "2020-07-18T16:11:00+10:00",
+          "message": "S up"
+        },
+        {
+          "author": "val",
+          "time": "2020-07-18T16:12:00+10:00",
+          "message": "you free?"
+        },
+        {
+          "author": "val",
+          "time": "2020-07-18T16:12:00+10:00",
+          "message": "Yeah"
+        },
+        {
+          "author": "val",
+          "time": "2020-07-18T16:12:00+10:00",
+          "message": "Call?"
+        },
+        {
+          "author": "val",
+          "time": "2020-07-18T16:12:00+10:00",
+          "message": "zoom?"
+        },
+        {
+          "author": "val",
+          "time": "2020-07-18T16:12:00+10:00",
+          "message": "Sure"
+        },
+        {
+          "author": "val",
+          "time": "2020-07-19T13:45:00+10:00",
+          "message": "hmmm, yeah, maybe?"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-19T16:33:00+10:00",
+          "message": "Any news form hetzner?"
+        },
+        {
+          "author": "val",
+          "time": "2020-07-19T16:53:00+10:00",
+          "message": "Nah not on weekend :&"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-19T18:01:00+10:00",
+          "message": "Ah right"
+        },
+        {
+          "author": "val",
+          "time": "2020-07-21T07:33:00+10:00",
+          "message": "Hey man"
+        },
+        {
+          "author": "val",
+          "time": "2020-07-21T07:34:00+10:00",
+          "message": "Feel free to reply with more technical expertise"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-21T10:01:00+10:00",
+          "message": "well apparently it's a managed server"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-21T10:02:00+10:00",
+          "message": "so I guess that means no root then?"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-21T10:03:00+10:00",
+          "message": "I mean it makes sense, I guess"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-21T10:04:00+10:00",
+          "message": "hey man"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-21T10:12:00+10:00",
+          "message": "mind if I use some random messages from here for test data on couchers?"
+        },
+        {
+          "author": "val",
+          "time": "2020-07-21T10:14:00+10:00",
+          "message": "Sure thing"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-21T10:20:00+10:00",
+          "message": "cheers"
+        },
+        {
+          "author": "val",
+          "time": "2020-07-21T10:20:00+10:00",
+          "message": "We should still be able to access the code though? Per account"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-21T10:21:00+10:00",
+          "message": "yeah"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-21T10:22:00+10:00",
+          "message": "just need to make sure the passwords work"
         }
-    ],
-    "friendships": [
-        ["aapeli", "itsi"],
-        ["aapeli2", "itsi"]
-    ]
+      ]
+    },
+    {
+      "participants": ["aapeli", "itsi"],
+      "creator": "itsi",
+      "is_dm": true,
+      "title": null,
+      "messages": [
+        {
+          "author": "aapeli",
+          "time": "2020-07-18T19:00:00+10:00",
+          "message": "how're you?"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-18T19:00:00+10:00",
+          "message": "still out?"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-07-18T19:00:00+10:00",
+          "message": "Nah bakx"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-07-18T19:00:00+10:00",
+          "message": "Back"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-18T19:00:00+10:00",
+          "message": "wanna work?"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-07-18T19:00:00+10:00",
+          "message": "Sure"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-07-18T19:00:00+10:00",
+          "message": "Gimme a bit"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-18T19:00:00+10:00",
+          "message": "alright, give me maybe 5-10 min"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-18T19:00:00+10:00",
+          "message": "ahah ok"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-18T19:00:00+10:00",
+          "message": "and then we'll zoom?"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-07-18T19:00:00+10:00",
+          "message": "Sure thing"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-18T19:01:00+10:00",
+          "message": "sweet"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-18T19:18:00+10:00",
+          "message": "Now?"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-07-18T19:23:00+10:00",
+          "message": "Yeah"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-07-18T19:35:00+10:00",
+          "message": "Soz my internet is acting up"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-18T19:36:00+10:00",
+          "message": "ah okay"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-18T21:53:00+10:00",
+          "message": "I’m back on"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-07-18T21:53:00+10:00",
+          "message": "Give me a Min"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-18T21:53:00+10:00",
+          "message": "No worries"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-07-18T21:59:00+10:00",
+          "message": "Alright"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-19T18:02:00+10:00",
+          "message": "Hey man"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-07-19T18:02:00+10:00",
+          "message": "Hey"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-19T18:03:00+10:00",
+          "message": "what's up?"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-07-19T18:03:00+10:00",
+          "message": "Just got back"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-07-19T18:03:00+10:00",
+          "message": "How was the rest of it?"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-19T18:03:00+10:00",
+          "message": "ah nice"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-19T18:03:00+10:00",
+          "message": "yeah, was good"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-19T18:16:00+10:00",
+          "message": "you wanna help out?"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-19T18:16:00+10:00",
+          "message": "or busy/tired?"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-07-19T18:16:00+10:00",
+          "message": "Nah can do a bit"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-19T18:16:00+10:00",
+          "message": "you wanna brief over zoom?"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-07-19T18:16:00+10:00",
+          "message": "Give me 5"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-19T18:17:00+10:00",
+          "message": "OK"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-19T18:22:00+10:00",
+          "message": "i'm on"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-07-19T19:31:00+10:00",
+          "message": "Where did you want me writing the test suggestions?"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-07-19T19:31:00+10:00",
+          "message": "in the .proto document?"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-19T19:38:00+10:00",
+          "message": "Just a text document"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-19T19:38:00+10:00",
+          "message": "Or write in slack to me or anything"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-07-19T19:49:00+10:00",
+          "message": "Where does remove other person from group chat go?"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-07-19T20:00:00+10:00",
+          "message": "Hey you gotta start the meeting"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-19T20:00:00+10:00",
+          "message": "Yes I’m joining 1 min"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-07-19T21:19:00+10:00",
+          "message": "chat"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-07-19T21:20:00+10:00",
+          "message": "im on zoom"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-07-20T09:57:00+10:00",
+          "message": "What's this?"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-07-20T09:57:00+10:00",
+          "message": "Oh right to make zooms?"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-20T09:57:00+10:00",
+          "message": "yeah"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-20T10:20:00+10:00",
+          "message": "should we make a shared Couchers calendar?"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-20T10:23:00+10:00",
+          "message": "hmmm, not sure if it works"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-07-20T10:25:00+10:00",
+          "message": "Why not?"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-20T10:26:00+10:00",
+          "message": "it's like not editable"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-07-20T10:26:00+10:00",
+          "message": "Hmm"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-07-20T10:26:00+10:00",
+          "message": "Dunno how these work"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-20T10:26:00+10:00",
+          "message": "yeah"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-20T10:26:00+10:00",
+          "message": "let's see"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-20T10:45:00+10:00",
+          "message": "Let me know if you got a calendar invitation"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-07-20T10:46:00+10:00",
+          "message": "Yeah just got it"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-20T10:49:00+10:00",
+          "message": "wait what did you get?"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-07-20T10:50:00+10:00",
+          "message": "Calendar invite"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-20T10:50:00+10:00",
+          "message": "hmmmm"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-20T10:50:00+10:00",
+          "message": "I wonder why I don't get it to my address"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-07-21T10:16:00+10:00",
+          "message": "hey man, is it OK if I use some of these messages for test data on couchers?"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-07-21T10:27:00+10:00",
+          "message": "Yeah all g"
+        }
+      ]
+    },
+    {
+      "participants": ["itsi", "val", "aapeli"],
+      "creator": "aapeli",
+      "is_dm": false,
+      "title": "Test group chat",
+      "messages": [
+        {
+          "author": "val",
+          "time": "2020-06-03T13:46:00+10:00",
+          "message": "@Itsi - I have a zoom meeting in 15"
+        },
+        {
+          "author": "val",
+          "time": "2020-06-03T13:46:00+10:00",
+          "message": "let's jump on a call around 2.30 ?  @aapeli of course more than welcome to join as well..."
+        },
+        {
+          "author": "itsi",
+          "time": "2020-06-03T14:14:00+10:00",
+          "message": "Hi Val. Sorry I'm out and about today. Can we call tomorrow?"
+        },
+        {
+          "author": "val",
+          "time": "2020-06-03T14:12:00+10:00",
+          "message": "yeah sure"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-06-04T15:40:00+10:00",
+          "message": "Any time for the rest of today is fine"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-06-04T20:35:00+10:00",
+          "message": "hey val"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-06-04T20:35:00+10:00",
+          "message": "you free?"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-06-04T20:35:00+10:00",
+          "message": "wanna chat?"
+        },
+        {
+          "author": "val",
+          "time": "2020-06-05T06:27:00+10:00",
+          "message": "Hi - yesterday full on"
+        },
+        {
+          "author": "val",
+          "time": "2020-06-05T06:27:00+10:00",
+          "message": "Can do today"
+        },
+        {
+          "author": "val",
+          "time": "2020-06-05T11:06:00+10:00",
+          "message": "am in full working/writing mode"
+        },
+        {
+          "author": "val",
+          "time": "2020-06-05T11:06:00+10:00",
+          "message": "later ok?"
+        },
+        {
+          "author": "val",
+          "time": "2020-06-05T11:06:00+10:00",
+          "message": "I allocated time in early afternoon..."
+        },
+        {
+          "author": "itsi",
+          "time": "2020-06-05T11:08:00+10:00",
+          "message": "Are you guys free now?"
+        },
+        {
+          "author": "val",
+          "time": "2020-06-05T11:08:00+10:00",
+          "message": "a bit later if ok... I thought more around 2.30 pm ?"
+        },
+        {
+          "author": "val",
+          "time": "2020-06-05T11:10:00+10:00",
+          "message": "great - talk then"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-06-05T11:10:00+10:00",
+          "message": "Sounds good. 12.30ish ok?"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-06-05T11:12:00+10:00",
+          "message": "Yeah works for me"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-06-05T12:10:00+10:00",
+          "message": "Sorry guys, I’ve been dragged to the sunshine coast for an office day"
+        },
+        {
+          "author": "val",
+          "time": "2020-06-05T12:50:00+10:00",
+          "message": "yeah even better"
+        },
+        {
+          "author": "val",
+          "time": "2020-06-05T12:52:00+10:00",
+          "message": "yeah no worries sometime between 3-4?"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-06-05T12:53:00+10:00",
+          "message": "Is it ok if we push it to 3 Val?"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-06-05T12:53:00+10:00",
+          "message": "Even later would also be better for me"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-06-05T13:28:00+10:00",
+          "message": "Yeah around 3.30-4 is good"
+        },
+        {
+          "author": "val",
+          "time": "2020-06-05T15:22:00+10:00",
+          "message": "@Itsi - I'm more or less ready to talk in 10 min"
+        },
+        {
+          "author": "val",
+          "time": "2020-06-05T15:27:00+10:00",
+          "message": "Perfect!"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-06-05T15:29:00+10:00",
+          "message": "Sorry got stuck in traffic I'll be a bit longer"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-06-05T15:30:00+10:00",
+          "message": "I can talk soon too"
+        },
+        {
+          "author": "aapeli",
+          "time": "2020-06-05T15:48:00+10:00",
+          "message": "Free now"
+        },
+        {
+          "author": "val",
+          "time": "2020-06-05T15:48:00+10:00",
+          "message": "I could start as well..."
+        },
+        {
+          "author": "val",
+          "time": "2020-06-05T15:48:00+10:00",
+          "message": "let's wait for Itsi to arrive?"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-06-05T15:55:00+10:00",
+          "message": "Here now"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-06-05T15:55:00+10:00",
+          "message": "on aapeli's zoom"
+        },
+        {
+          "author": "val",
+          "time": "2020-06-05T16:00:00+10:00",
+          "message": "where"
+        },
+        {
+          "author": "val",
+          "time": "2020-06-05T16:00:00+10:00",
+          "message": "what's the invite?"
+        },
+        {
+          "author": "val",
+          "time": "2020-06-05T16:00:00+10:00",
+          "message": "id"
+        },
+        {
+          "author": "itsi",
+          "time": "2020-06-05T16:02:00+10:00",
+          "message": "Or is another one better?"
+        }
+      ]
+    }
+  ]
 }

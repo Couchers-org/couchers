@@ -8,7 +8,7 @@ from sqlalchemy import (Boolean, Column, Date, DateTime, Enum, Float,
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import String
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import backref, relationship
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func
 
@@ -219,3 +219,100 @@ class Reference(Base):
 
     from_user = relationship("User", backref="references_from", foreign_keys="Reference.from_user_id")
     to_user = relationship("User", backref="references_to", foreign_keys="Reference.to_user_id")
+
+
+class Conversation(Base):
+    """
+    Conversation brings together the different types of message/conversation types
+    """
+    __tablename__ = "conversations"
+
+    id = Column(Integer, primary_key=True)
+    created = Column(DateTime, nullable=False, server_default=func.now())
+
+    def __repr__(self):
+        return f"Conversation(id={self.id}, created={self.created})"
+
+
+class GroupChat(Base):
+    """
+    Group chat
+    """
+    __tablename__ = "group_chats"
+
+    conversation_id = Column("id", ForeignKey("conversations.id"), nullable=False, primary_key=True)
+
+    title = Column(String, nullable=True)
+    only_admins_invite = Column(Boolean, nullable=False, default=True)
+    creator_id = Column(ForeignKey("users.id"), nullable=False)
+    is_dm = Column(Boolean, nullable=False)
+
+    conversation = relationship("Conversation", backref="group_chat")
+    creator = relationship("User", backref="created_group_chats")
+
+    def __repr__(self):
+        return f"GroupChat(conversation={self.conversation}, title={self.title or 'None'}, only_admins_invite={self.only_admins_invite}, creator={self.creator}, is_dm={self.is_dm})"
+
+
+class GroupChatRole(enum.Enum):
+    admin = 1
+    participant = 2
+
+
+class GroupChatSubscription(Base):
+    """
+    The recipient of a thread and information about when they joined/left/etc.
+    """
+    __tablename__ = "group_chat_subscriptions"
+    id = Column(Integer, primary_key=True)
+
+    # TODO: DB constraint on only one user+group_chat combo at a given time
+    user_id = Column(ForeignKey("users.id"), nullable=False)
+    group_chat_id = Column(ForeignKey("group_chats.id"), nullable=False)
+
+    joined = Column(DateTime, nullable=False, server_default=func.now())
+    left = Column(DateTime, nullable=True)
+
+    role = Column(Enum(GroupChatRole), nullable=False)
+
+    # TODO: should this be a ForeignKey("messages.id")?
+    last_seen_message_id = Column(Integer, nullable=False, default=0)
+
+    user = relationship("User", backref="group_chat_subscriptions")
+    group_chat = relationship("GroupChat", backref="subscriptions")
+
+    @property
+    def unseen_message_count(self):
+        # TODO: possibly slow
+
+        session = Session.object_session(self)
+
+        return (session.query(func.count(Message.id).label("count"))
+            .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
+            .filter(GroupChatSubscription.id == self.id)
+            .filter(Message.id > GroupChatSubscription.last_seen_message_id)
+            .one()).count
+
+    def __repr__(self):
+        return f"GroupChatSubscription(id={self.id}, user={self.user}, joined={self.joined}, left={self.left}, role={self.role}, group_chat={self.group_chat})"
+
+
+class Message(Base):
+    """
+    Message content.
+    """
+    __tablename__ = "messages"
+
+    id = Column(Integer, primary_key=True)
+
+    conversation_id = Column(ForeignKey("conversations.id"), nullable=False)
+    author_id = Column(ForeignKey("users.id"), nullable=False)
+
+    time = Column(DateTime, nullable=False, server_default=func.now())
+    text = Column(String, nullable=False)
+
+    conversation = relationship("Conversation", backref="messages", order_by="Message.time.desc()")
+    author = relationship("User")
+
+    def __repr__(self):
+        return f"Message(id={self.id}, time={self.time}, text={self.text}, author={self.author}, conversation={self.conversation})"

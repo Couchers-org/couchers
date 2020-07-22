@@ -8,10 +8,13 @@ import Profile from "../views/Profile.vue"
 import Logout from "../views/Logout.vue"
 import SSO from "../views/SSO.vue"
 import Friends from "../views/Friends.vue"
+import Messages from "../views/Messages.vue"
 import Search from "../views/Search.vue"
 import Signup from "../views/Signup.vue"
 import CompleteLogin from "../views/CompleteLogin.vue"
 import CompleteSignup from "../views/CompleteSignup.vue"
+
+import Debug from "../views/Debug.vue"
 
 import ErrorPage from "../views/Error.vue"
 
@@ -59,6 +62,11 @@ const routes: Array<RouteConfig> = [
     component: Friends,
   },
   {
+    path: "/messages",
+    name: "Messages",
+    component: Messages,
+  },
+  {
     path: "/search",
     name: "Search",
     component: Search,
@@ -77,6 +85,13 @@ const routes: Array<RouteConfig> = [
     path: "/profile",
     name: "Profile",
     component: Profile,
+  },
+
+  {
+    path: "/debug",
+    name: "Debug",
+    component: Debug,
+    meta: { noAuth: true },
   },
 
   {

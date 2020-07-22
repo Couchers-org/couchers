@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime
 from google.protobuf import empty_pb2
+from google.protobuf.timestamp_pb2 import Timestamp
 
 import grpc
 from couchers.db import (get_friends_status, get_user_by_field, is_valid_color,
@@ -10,7 +11,6 @@ from couchers.utils import Timestamp_from_datetime
 from pb import api_pb2, api_pb2_grpc
 from sqlalchemy.sql import or_
 
-logging.basicConfig(format="%(asctime)s.%(msecs)03d: %(process)d: %(message)s", datefmt="%F %T", level=logging.DEBUG)
 
 class API(api_pb2_grpc.APIServicer):
     def __init__(self, Session):

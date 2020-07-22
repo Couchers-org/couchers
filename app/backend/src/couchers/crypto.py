@@ -49,3 +49,9 @@ def verify_password(hashed: bytes, password: str):
         return correct
     except InvalidkeyError:
         return False
+
+def random_hex(length=32):
+    """
+    Length in binary
+    """
+    return random_bytes(length).hex()

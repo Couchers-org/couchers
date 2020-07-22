@@ -1,0 +1,179 @@
+syntax = "proto3";
+
+package conversations;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+
+service Conversations {
+  rpc ListGroupChats(ListGroupChatsReq) returns (ListGroupChatsRes) {
+    // Retrieves list of group chats (ordered by last message), paginated
+  }
+
+  rpc GetGroupChat(GetGroupChatReq) returns (GroupChat) {
+    // Retrieves group chat info by id
+  }
+
+  rpc GetUpdates(GetUpdatesReq) returns (GetUpdatesRes) {
+    // Returns all new messages (aka updates) since a given message id
+  }
+
+  rpc GetGroupChatMessages(GetGroupChatMessagesReq) returns (GetGroupChatMessagesRes) {
+    // Retrieves messages in group chat, paginated
+  }
+
+  rpc MarkLastSeenGroupChat(MarkLastSeenGroupChatReq) returns (google.protobuf.Empty) {
+    // Marks the last message that has been seen in this group chat
+  }
+
+  rpc CreateGroupChat(CreateGroupChatReq) returns (GroupChat) {
+    // Creates a new group chat
+  }
+
+  rpc EditGroupChat(EditGroupChatReq) returns (google.protobuf.Empty) {
+    // Modifies group chat
+  }
+
+  rpc InviteToGroupChat(InviteToGroupChatReq) returns (google.protobuf.Empty) {
+    // Invite a person to a chat
+  }
+
+  rpc MakeGroupChatAdmin(MakeGroupChatAdminReq) returns (google.protobuf.Empty) {
+    // Make a user an admin of a group chat
+  }
+
+  rpc RemoveGroupChatAdmin(RemoveGroupChatAdminReq) returns (google.protobuf.Empty) {
+    // Remove a user from admin in group chat. TODO: Only original creator can do this
+  }
+
+  rpc SendMessage(SendMessageReq) returns (google.protobuf.Empty) {
+    // Send a message to a group chat
+  }
+
+  rpc LeaveGroupChat(LeaveGroupChatReq) returns (google.protobuf.Empty) {
+    // Leave a group chat
+  }
+
+  rpc SearchMessages(SearchMessagesReq) returns (SearchMessagesRes) {
+    // Search messages by string
+  }
+}
+
+message Message {
+  uint64 message_id = 1;
+  uint64 author_user_id = 2;
+  google.protobuf.Timestamp time = 3;
+  string text = 4;
+}
+
+message GroupChat {
+  uint64 group_chat_id = 1;
+  string title = 2;
+  repeated uint64 member_user_ids = 3; // inclusive of admins
+  repeated uint64 admin_user_ids = 4;
+  bool only_admins_invite = 5;
+  bool is_dm = 6;
+  google.protobuf.Timestamp created = 7;
+  uint64 unseen_message_count = 8;
+  Message latest_message = 9;
+}
+
+message GetGroupChatReq {
+  uint64 group_chat_id = 1;
+}
+
+message ListGroupChatsReq {
+  uint64 last_message_id = 1;
+  uint64 number = 2;
+}
+
+message ListGroupChatsRes {
+  repeated GroupChat group_chats = 1;
+  uint64 next_message_id = 2;
+  bool no_more = 3;
+}
+
+message GetUpdatesReq {
+  uint64 newest_message_id = 1;
+}
+
+message Update {
+  uint64 group_chat_id = 1;
+  Message message = 2;
+}
+
+message GetUpdatesRes {
+  repeated Update updates = 1;
+  bool no_more = 2;
+}
+
+message GetGroupChatMessagesReq {
+  uint64 group_chat_id = 1;
+  uint64 last_message_id = 2;
+  uint64 number = 3;
+  bool only_unseen = 4;
+}
+
+message GetGroupChatMessagesRes {
+  repeated Message messages = 1;
+  uint64 next_message_id = 2;
+  bool no_more = 3;
+}
+
+message MarkLastSeenGroupChatReq {
+  uint64 group_chat_id = 1;
+  uint64 last_seen_message_id = 2;
+}
+
+message CreateGroupChatReq {
+  google.protobuf.StringValue title = 1;
+  repeated uint64 recipient_ids = 2;
+}
+
+message EditGroupChatReq {
+  uint64 group_chat_id = 1;
+  google.protobuf.StringValue title = 2;
+  google.protobuf.BoolValue only_admins_invite = 3;
+}
+
+message InviteToGroupChatReq {
+  uint64 group_chat_id = 1;
+  uint64 user_id = 2;
+}
+
+message MakeGroupChatAdminReq {
+  uint64 group_chat_id = 1;
+  uint64 user_id = 2;
+}
+
+message RemoveGroupChatAdminReq {
+  uint64 group_chat_id = 1;
+  uint64 user_id = 2;
+}
+
+message SendMessageReq {
+  uint64 group_chat_id = 1;
+  string text = 2;
+}
+
+message LeaveGroupChatReq {
+  uint64 group_chat_id = 1;
+}
+
+message SearchMessagesReq {
+  string query = 1;
+  uint64 last_message_id = 2;
+  uint64 number = 3;
+}
+
+message MessageSearchResult {
+  uint64 group_chat_id = 1;
+  Message message = 2;
+}
+
+message SearchMessagesRes {
+  repeated MessageSearchResult results = 1;
+  uint64 next_message_id = 2;
+  bool no_more = 3;
+}

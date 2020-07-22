@@ -4,3 +4,4 @@ protobuf
 pynacl
 pytest
 pytest-pythonpath
+python-dateutil
