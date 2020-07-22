@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package org.couchers.api.auth;
+package org.couchers.auth;
 
 service Auth {
   /*
