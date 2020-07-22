@@ -128,7 +128,7 @@ message MarkLastSeenGroupChatReq {
 
 message CreateGroupChatReq {
   google.protobuf.StringValue title = 1;
-  repeated uint64 recipient_ids = 2;
+  repeated uint64 recipient_user_ids = 2;
 }
 
 message EditGroupChatReq {

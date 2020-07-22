@@ -220,14 +220,14 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             )
 
     def CreateGroupChat(self, request, context):
-        if len(request.recipient_ids) < 1:
+        if len(request.recipient_user_ids) < 1:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, "No recipients.")
 
-        if len(request.recipient_ids) != len(set(request.recipient_ids)):
+        if len(request.recipient_user_ids) != len(set(request.recipient_user_ids)):
             # make sure there's no duplicate users
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, "Invalid recipients list.")
 
-        if context.user_id in request.recipient_ids:
+        if context.user_id in request.recipient_user_ids:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, "You can't add yourself to a group chat.")
 
         with session_scope(self._Session) as session:
@@ -238,7 +238,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 conversation=conversation,
                 title=request.title.value,
                 creator_id=context.user_id,
-                is_dm=True if len(request.recipient_ids) == 1 else False, # TODO
+                is_dm=True if len(request.recipient_user_ids) == 1 else False, # TODO
             )
             session.add(group_chat)
 
@@ -249,7 +249,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             )
             session.add(subscription)
 
-            for recipient in request.recipient_ids:
+            for recipient in request.recipient_user_ids:
                 if get_friends_status(session, context.user_id, recipient) != api_pb2.User.FriendshipStatus.FRIENDS:
                     context.abort(grpc.StatusCode.FAILED_PRECONDITION, "You must be friends with each person you add to a group chat.")
 
