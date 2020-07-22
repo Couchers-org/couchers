@@ -39,7 +39,7 @@ class API(api_pb2_grpc.APIServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, "No such user.")
 
             return api_pb2.User(
-                id=user.id,
+                user_id=user.id,
                 username=user.username,
                 name=user.name,
                 city=user.city,
@@ -136,7 +136,7 @@ class API(api_pb2_grpc.APIServicer):
                 .filter(FriendRelationship.status == FriendStatus.accepted)
                 .all())
             return api_pb2.ListFriendsRes(
-                users=[rel.from_user.username if rel.from_user.id != context.user_id else rel.to_user.username for rel in rels],
+                user_ids=[rel.from_user.id if rel.from_user.id != context.user_id else rel.to_user.id for rel in rels],
             )
 
     def SendFriendRequest(self, request, context):
@@ -146,7 +146,7 @@ class API(api_pb2_grpc.APIServicer):
             if not from_user:
                 context.abort(grpc.StatusCode.NOT_FOUND, "User not found.")
 
-            to_user = get_user_by_field(session, request.user)
+            to_user = session.query(User).filter(User.id == request.user_id).one_or_none()
 
             if not to_user:
                 context.abort(grpc.StatusCode.NOT_FOUND, "User not found.")
@@ -183,14 +183,14 @@ class API(api_pb2_grpc.APIServicer):
                     api_pb2.FriendRequest(
                         friend_request_id=friend_request.id,
                         state=api_pb2.FriendRequest.FriendRequestStatus.PENDING,
-                        user=friend_request.to_user.username,
+                        user_id=friend_request.to_user.id,
                     ) for friend_request in sent_requests
                 ],
                 received=[
                     api_pb2.FriendRequest(
                         friend_request_id=friend_request.id,
                         state=api_pb2.FriendRequest.FriendRequestStatus.PENDING,
-                        user=friend_request.from_user.username,
+                        user_id=friend_request.from_user.id,
                     ) for friend_request in received_requests
                 ]
             )

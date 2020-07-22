@@ -212,7 +212,7 @@ export default Vue.extend({
     sendFriendRequest() {
       this.sendingFriendRequest = true
       const req = new SendFriendRequestReq()
-      req.setUser(this.user.username)
+      req.setUserId(this.user.userId)
       client
         .sendFriendRequest(req)
         .then(() => {
