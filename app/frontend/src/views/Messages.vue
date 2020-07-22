@@ -42,10 +42,10 @@
                     </v-list-item-content>
                     <v-list-item-avatar>
                       <v-chip
+                        v-if="conversationChip(conversation)"
                         color="primary"
                         v-text="conversationChip(conversation)"
                         small
-                        outlined
                       />
                     </v-list-item-avatar>
                   </v-list-item>
