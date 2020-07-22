@@ -2048,7 +2048,8 @@ proto.api.User.toObject = function(includeInstance, msg) {
     languagesList: (f = jspb.Message.getRepeatedField(msg, 15)) == null ? undefined : f,
     countriesVisitedList: (f = jspb.Message.getRepeatedField(msg, 16)) == null ? undefined : f,
     countriesLivedList: (f = jspb.Message.getRepeatedField(msg, 17)) == null ? undefined : f,
-    friends: jspb.Message.getFieldWithDefault(msg, 18, 0)
+    friends: jspb.Message.getFieldWithDefault(msg, 18, 0),
+    userId: jspb.Message.getFieldWithDefault(msg, 19, 0)
   };
 
   if (includeInstance) {
@@ -2158,6 +2159,10 @@ proto.api.User.deserializeBinaryFromReader = function(msg, reader) {
     case 18:
       var value = /** @type {!proto.api.User.FriendshipStatus} */ (reader.readEnum());
       msg.setFriends(value);
+      break;
+    case 19:
+      var value = /** @type {number} */ (reader.readUint64());
+      msg.setUserId(value);
       break;
     default:
       reader.skipField();
@@ -2313,6 +2318,13 @@ proto.api.User.serializeBinaryToWriter = function(message, writer) {
   if (f !== 0.0) {
     writer.writeEnum(
       18,
+      f
+    );
+  }
+  f = message.getUserId();
+  if (f !== 0) {
+    writer.writeUint64(
+      19,
       f
     );
   }
@@ -2745,6 +2757,24 @@ proto.api.User.prototype.getFriends = function() {
  */
 proto.api.User.prototype.setFriends = function(value) {
   return jspb.Message.setProto3EnumField(this, 18, value);
+};
+
+
+/**
+ * optional uint64 user_id = 19;
+ * @return {number}
+ */
+proto.api.User.prototype.getUserId = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 19, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.api.User} returns this
+ */
+proto.api.User.prototype.setUserId = function(value) {
+  return jspb.Message.setProto3IntField(this, 19, value);
 };
 
 

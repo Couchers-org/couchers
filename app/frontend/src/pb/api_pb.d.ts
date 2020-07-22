@@ -286,6 +286,9 @@ export class User extends jspb.Message {
   getFriends(): User.FriendshipStatus;
   setFriends(value: User.FriendshipStatus): User;
 
+  getUserId(): number;
+  setUserId(value: number): User;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): User.AsObject;
   static toObject(includeInstance: boolean, msg: User): User.AsObject;
@@ -314,6 +317,7 @@ export namespace User {
     countriesVisitedList: Array<string>,
     countriesLivedList: Array<string>,
     friends: User.FriendshipStatus,
+    userId: number,
   }
 
   export enum FriendshipStatus { 

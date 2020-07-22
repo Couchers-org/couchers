@@ -25,10 +25,20 @@ class ConversationsStub(object):
                 request_serializer=pb_dot_conversations__pb2.GetGroupChatReq.SerializeToString,
                 response_deserializer=pb_dot_conversations__pb2.GroupChat.FromString,
                 )
+        self.GetUpdates = channel.unary_unary(
+                '/conversations.Conversations/GetUpdates',
+                request_serializer=pb_dot_conversations__pb2.GetUpdatesReq.SerializeToString,
+                response_deserializer=pb_dot_conversations__pb2.GetUpdatesRes.FromString,
+                )
         self.GetGroupChatMessages = channel.unary_unary(
                 '/conversations.Conversations/GetGroupChatMessages',
                 request_serializer=pb_dot_conversations__pb2.GetGroupChatMessagesReq.SerializeToString,
                 response_deserializer=pb_dot_conversations__pb2.GetGroupChatMessagesRes.FromString,
+                )
+        self.MarkLastSeenGroupChat = channel.unary_unary(
+                '/conversations.Conversations/MarkLastSeenGroupChat',
+                request_serializer=pb_dot_conversations__pb2.MarkLastSeenGroupChatReq.SerializeToString,
+                response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
         self.CreateGroupChat = channel.unary_unary(
                 '/conversations.Conversations/CreateGroupChat',
@@ -89,8 +99,22 @@ class ConversationsServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def GetUpdates(self, request, context):
+        """Returns all new messages (aka updates) since a given message id
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def GetGroupChatMessages(self, request, context):
         """Retrieves messages in group chat, paginated
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def MarkLastSeenGroupChat(self, request, context):
+        """Marks the last message that has been seen in this group chat
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -165,10 +189,20 @@ def add_ConversationsServicer_to_server(servicer, server):
                     request_deserializer=pb_dot_conversations__pb2.GetGroupChatReq.FromString,
                     response_serializer=pb_dot_conversations__pb2.GroupChat.SerializeToString,
             ),
+            'GetUpdates': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetUpdates,
+                    request_deserializer=pb_dot_conversations__pb2.GetUpdatesReq.FromString,
+                    response_serializer=pb_dot_conversations__pb2.GetUpdatesRes.SerializeToString,
+            ),
             'GetGroupChatMessages': grpc.unary_unary_rpc_method_handler(
                     servicer.GetGroupChatMessages,
                     request_deserializer=pb_dot_conversations__pb2.GetGroupChatMessagesReq.FromString,
                     response_serializer=pb_dot_conversations__pb2.GetGroupChatMessagesRes.SerializeToString,
+            ),
+            'MarkLastSeenGroupChat': grpc.unary_unary_rpc_method_handler(
+                    servicer.MarkLastSeenGroupChat,
+                    request_deserializer=pb_dot_conversations__pb2.MarkLastSeenGroupChatReq.FromString,
+                    response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
             'CreateGroupChat': grpc.unary_unary_rpc_method_handler(
                     servicer.CreateGroupChat,
@@ -253,6 +287,22 @@ class Conversations(object):
             call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
+    def GetUpdates(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/conversations.Conversations/GetUpdates',
+            pb_dot_conversations__pb2.GetUpdatesReq.SerializeToString,
+            pb_dot_conversations__pb2.GetUpdatesRes.FromString,
+            options, channel_credentials,
+            call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
     def GetGroupChatMessages(request,
             target,
             options=(),
@@ -265,6 +315,22 @@ class Conversations(object):
         return grpc.experimental.unary_unary(request, target, '/conversations.Conversations/GetGroupChatMessages',
             pb_dot_conversations__pb2.GetGroupChatMessagesReq.SerializeToString,
             pb_dot_conversations__pb2.GetGroupChatMessagesRes.FromString,
+            options, channel_credentials,
+            call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def MarkLastSeenGroupChat(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/conversations.Conversations/MarkLastSeenGroupChat',
+            pb_dot_conversations__pb2.MarkLastSeenGroupChatReq.SerializeToString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options, channel_credentials,
             call_credentials, compression, wait_for_ready, timeout, metadata)
 

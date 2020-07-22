@@ -22,11 +22,64 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x16pb/conversations.proto\x12\rconversations\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xea\x01\n\tGroupChat\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\x12\r\n\x05title\x18\x02 \x01(\t\x12\x17\n\x0fmember_user_ids\x18\x03 \x03(\x04\x12\x16\n\x0e\x61\x64min_user_ids\x18\x04 \x03(\x04\x12\x1a\n\x12only_admins_invite\x18\x05 \x01(\x08\x12\r\n\x05is_dm\x18\x06 \x01(\x08\x12+\n\x07\x63reated\x18\x07 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12.\n\x0elatest_message\x18\x08 \x01(\x0b\x32\x16.conversations.Message\"(\n\x0fGetGroupChatReq\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\"<\n\x11ListGroupChatsReq\x12\x17\n\x0flast_message_id\x18\x01 \x01(\x04\x12\x0e\n\x06number\x18\x02 \x01(\x04\"l\n\x11ListGroupChatsRes\x12-\n\x0bgroup_chats\x18\x01 \x03(\x0b\x32\x18.conversations.GroupChat\x12\x17\n\x0fnext_message_id\x18\x02 \x01(\x04\x12\x0f\n\x07no_more\x18\x03 \x01(\x08\"m\n\x07Message\x12\x12\n\nmessage_id\x18\x01 \x01(\x04\x12\x16\n\x0e\x61uthor_user_id\x18\x02 \x01(\x04\x12(\n\x04time\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x0c\n\x04text\x18\x04 \x01(\t\"Y\n\x17GetGroupChatMessagesReq\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\x12\x17\n\x0flast_message_id\x18\x02 \x01(\x04\x12\x0e\n\x06number\x18\x03 \x01(\x04\"m\n\x17GetGroupChatMessagesRes\x12(\n\x08messages\x18\x01 \x03(\x0b\x32\x16.conversations.Message\x12\x17\n\x0fnext_message_id\x18\x02 \x01(\x04\x12\x0f\n\x07no_more\x18\x03 \x01(\x08\"X\n\x12\x43reateGroupChatReq\x12+\n\x05title\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x15\n\rrecipient_ids\x18\x02 \x03(\x04\"\x8e\x01\n\x10\x45\x64itGroupChatReq\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\x12+\n\x05title\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x36\n\x12only_admins_invite\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\">\n\x14InviteToGroupChatReq\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\x12\x0f\n\x07user_id\x18\x02 \x01(\x04\"?\n\x15MakeGroupChatAdminReq\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\x12\x0f\n\x07user_id\x18\x02 \x01(\x04\"A\n\x17RemoveGroupChatAdminReq\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\x12\x0f\n\x07user_id\x18\x02 \x01(\x04\"5\n\x0eSendMessageReq\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\x12\x0c\n\x04text\x18\x02 \x01(\t\"*\n\x11LeaveGroupChatReq\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\"K\n\x11SearchMessagesReq\x12\r\n\x05query\x18\x01 \x01(\t\x12\x17\n\x0flast_message_id\x18\x02 \x01(\x04\x12\x0e\n\x06number\x18\x03 \x01(\x04\"U\n\x13MessageSearchResult\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\x12\'\n\x07message\x18\x02 \x01(\x0b\x32\x16.conversations.Message\"r\n\x11SearchMessagesRes\x12\x33\n\x07results\x18\x01 \x03(\x0b\x32\".conversations.MessageSearchResult\x12\x17\n\x0fnext_message_id\x18\x02 \x01(\x04\x12\x0f\n\x07no_more\x18\x03 \x01(\x08\x32\xad\x07\n\rConversations\x12V\n\x0eListGroupChats\x12 .conversations.ListGroupChatsReq\x1a .conversations.ListGroupChatsRes\"\x00\x12J\n\x0cGetGroupChat\x12\x1e.conversations.GetGroupChatReq\x1a\x18.conversations.GroupChat\"\x00\x12h\n\x14GetGroupChatMessages\x12&.conversations.GetGroupChatMessagesReq\x1a&.conversations.GetGroupChatMessagesRes\"\x00\x12P\n\x0f\x43reateGroupChat\x12!.conversations.CreateGroupChatReq\x1a\x18.conversations.GroupChat\"\x00\x12J\n\rEditGroupChat\x12\x1f.conversations.EditGroupChatReq\x1a\x16.google.protobuf.Empty\"\x00\x12R\n\x11InviteToGroupChat\x12#.conversations.InviteToGroupChatReq\x1a\x16.google.protobuf.Empty\"\x00\x12T\n\x12MakeGroupChatAdmin\x12$.conversations.MakeGroupChatAdminReq\x1a\x16.google.protobuf.Empty\"\x00\x12X\n\x14RemoveGroupChatAdmin\x12&.conversations.RemoveGroupChatAdminReq\x1a\x16.google.protobuf.Empty\"\x00\x12\x46\n\x0bSendMessage\x12\x1d.conversations.SendMessageReq\x1a\x16.google.protobuf.Empty\"\x00\x12L\n\x0eLeaveGroupChat\x12 .conversations.LeaveGroupChatReq\x1a\x16.google.protobuf.Empty\"\x00\x12V\n\x0eSearchMessages\x12 .conversations.SearchMessagesReq\x1a .conversations.SearchMessagesRes\"\x00\x62\x06proto3'
+  serialized_pb=b'\n\x16pb/conversations.proto\x12\rconversations\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1bgoogle/protobuf/empty.proto\"m\n\x07Message\x12\x12\n\nmessage_id\x18\x01 \x01(\x04\x12\x16\n\x0e\x61uthor_user_id\x18\x02 \x01(\x04\x12(\n\x04time\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x0c\n\x04text\x18\x04 \x01(\t\"\x88\x02\n\tGroupChat\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\x12\r\n\x05title\x18\x02 \x01(\t\x12\x17\n\x0fmember_user_ids\x18\x03 \x03(\x04\x12\x16\n\x0e\x61\x64min_user_ids\x18\x04 \x03(\x04\x12\x1a\n\x12only_admins_invite\x18\x05 \x01(\x08\x12\r\n\x05is_dm\x18\x06 \x01(\x08\x12+\n\x07\x63reated\x18\x07 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x1c\n\x14unseen_message_count\x18\x08 \x01(\x04\x12.\n\x0elatest_message\x18\t \x01(\x0b\x32\x16.conversations.Message\"(\n\x0fGetGroupChatReq\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\"<\n\x11ListGroupChatsReq\x12\x17\n\x0flast_message_id\x18\x01 \x01(\x04\x12\x0e\n\x06number\x18\x02 \x01(\x04\"l\n\x11ListGroupChatsRes\x12-\n\x0bgroup_chats\x18\x01 \x03(\x0b\x32\x18.conversations.GroupChat\x12\x17\n\x0fnext_message_id\x18\x02 \x01(\x04\x12\x0f\n\x07no_more\x18\x03 \x01(\x08\"*\n\rGetUpdatesReq\x12\x19\n\x11newest_message_id\x18\x01 \x01(\x04\"H\n\x06Update\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\x12\'\n\x07message\x18\x02 \x01(\x0b\x32\x16.conversations.Message\"H\n\rGetUpdatesRes\x12&\n\x07updates\x18\x01 \x03(\x0b\x32\x15.conversations.Update\x12\x0f\n\x07no_more\x18\x02 \x01(\x08\"n\n\x17GetGroupChatMessagesReq\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\x12\x17\n\x0flast_message_id\x18\x02 \x01(\x04\x12\x0e\n\x06number\x18\x03 \x01(\x04\x12\x13\n\x0bonly_unseen\x18\x04 \x01(\x08\"m\n\x17GetGroupChatMessagesRes\x12(\n\x08messages\x18\x01 \x03(\x0b\x32\x16.conversations.Message\x12\x17\n\x0fnext_message_id\x18\x02 \x01(\x04\x12\x0f\n\x07no_more\x18\x03 \x01(\x08\"O\n\x18MarkLastSeenGroupChatReq\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\x12\x1c\n\x14last_seen_message_id\x18\x02 \x01(\x04\"X\n\x12\x43reateGroupChatReq\x12+\n\x05title\x18\x01 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x15\n\rrecipient_ids\x18\x02 \x03(\x04\"\x8e\x01\n\x10\x45\x64itGroupChatReq\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\x12+\n\x05title\x18\x02 \x01(\x0b\x32\x1c.google.protobuf.StringValue\x12\x36\n\x12only_admins_invite\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.BoolValue\">\n\x14InviteToGroupChatReq\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\x12\x0f\n\x07user_id\x18\x02 \x01(\x04\"?\n\x15MakeGroupChatAdminReq\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\x12\x0f\n\x07user_id\x18\x02 \x01(\x04\"A\n\x17RemoveGroupChatAdminReq\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\x12\x0f\n\x07user_id\x18\x02 \x01(\x04\"5\n\x0eSendMessageReq\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\x12\x0c\n\x04text\x18\x02 \x01(\t\"*\n\x11LeaveGroupChatReq\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\"K\n\x11SearchMessagesReq\x12\r\n\x05query\x18\x01 \x01(\t\x12\x17\n\x0flast_message_id\x18\x02 \x01(\x04\x12\x0e\n\x06number\x18\x03 \x01(\x04\"U\n\x13MessageSearchResult\x12\x15\n\rgroup_chat_id\x18\x01 \x01(\x04\x12\'\n\x07message\x18\x02 \x01(\x0b\x32\x16.conversations.Message\"r\n\x11SearchMessagesRes\x12\x33\n\x07results\x18\x01 \x03(\x0b\x32\".conversations.MessageSearchResult\x12\x17\n\x0fnext_message_id\x18\x02 \x01(\x04\x12\x0f\n\x07no_more\x18\x03 \x01(\x08\x32\xd5\x08\n\rConversations\x12V\n\x0eListGroupChats\x12 .conversations.ListGroupChatsReq\x1a .conversations.ListGroupChatsRes\"\x00\x12J\n\x0cGetGroupChat\x12\x1e.conversations.GetGroupChatReq\x1a\x18.conversations.GroupChat\"\x00\x12J\n\nGetUpdates\x12\x1c.conversations.GetUpdatesReq\x1a\x1c.conversations.GetUpdatesRes\"\x00\x12h\n\x14GetGroupChatMessages\x12&.conversations.GetGroupChatMessagesReq\x1a&.conversations.GetGroupChatMessagesRes\"\x00\x12Z\n\x15MarkLastSeenGroupChat\x12\'.conversations.MarkLastSeenGroupChatReq\x1a\x16.google.protobuf.Empty\"\x00\x12P\n\x0f\x43reateGroupChat\x12!.conversations.CreateGroupChatReq\x1a\x18.conversations.GroupChat\"\x00\x12J\n\rEditGroupChat\x12\x1f.conversations.EditGroupChatReq\x1a\x16.google.protobuf.Empty\"\x00\x12R\n\x11InviteToGroupChat\x12#.conversations.InviteToGroupChatReq\x1a\x16.google.protobuf.Empty\"\x00\x12T\n\x12MakeGroupChatAdmin\x12$.conversations.MakeGroupChatAdminReq\x1a\x16.google.protobuf.Empty\"\x00\x12X\n\x14RemoveGroupChatAdmin\x12&.conversations.RemoveGroupChatAdminReq\x1a\x16.google.protobuf.Empty\"\x00\x12\x46\n\x0bSendMessage\x12\x1d.conversations.SendMessageReq\x1a\x16.google.protobuf.Empty\"\x00\x12L\n\x0eLeaveGroupChat\x12 .conversations.LeaveGroupChatReq\x1a\x16.google.protobuf.Empty\"\x00\x12V\n\x0eSearchMessages\x12 .conversations.SearchMessagesReq\x1a .conversations.SearchMessagesRes\"\x00\x62\x06proto3'
   ,
   dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,google_dot_protobuf_dot_wrappers__pb2.DESCRIPTOR,google_dot_protobuf_dot_empty__pb2.DESCRIPTOR,])
 
 
+
+
+_MESSAGE = _descriptor.Descriptor(
+  name='Message',
+  full_name='conversations.Message',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='message_id', full_name='conversations.Message.message_id', index=0,
+      number=1, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='author_user_id', full_name='conversations.Message.author_user_id', index=1,
+      number=2, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='time', full_name='conversations.Message.time', index=2,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='text', full_name='conversations.Message.text', index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=135,
+  serialized_end=244,
+)
 
 
 _GROUPCHAT = _descriptor.Descriptor(
@@ -87,8 +140,15 @@ _GROUPCHAT = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='latest_message', full_name='conversations.GroupChat.latest_message', index=7,
-      number=8, type=11, cpp_type=10, label=1,
+      name='unseen_message_count', full_name='conversations.GroupChat.unseen_message_count', index=7,
+      number=8, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='latest_message', full_name='conversations.GroupChat.latest_message', index=8,
+      number=9, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -105,8 +165,8 @@ _GROUPCHAT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=136,
-  serialized_end=370,
+  serialized_start=247,
+  serialized_end=511,
 )
 
 
@@ -137,8 +197,8 @@ _GETGROUPCHATREQ = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=372,
-  serialized_end=412,
+  serialized_start=513,
+  serialized_end=553,
 )
 
 
@@ -176,8 +236,8 @@ _LISTGROUPCHATSREQ = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=414,
-  serialized_end=474,
+  serialized_start=555,
+  serialized_end=615,
 )
 
 
@@ -222,44 +282,23 @@ _LISTGROUPCHATSRES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=476,
-  serialized_end=584,
+  serialized_start=617,
+  serialized_end=725,
 )
 
 
-_MESSAGE = _descriptor.Descriptor(
-  name='Message',
-  full_name='conversations.Message',
+_GETUPDATESREQ = _descriptor.Descriptor(
+  name='GetUpdatesReq',
+  full_name='conversations.GetUpdatesReq',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='message_id', full_name='conversations.Message.message_id', index=0,
+      name='newest_message_id', full_name='conversations.GetUpdatesReq.newest_message_id', index=0,
       number=1, type=4, cpp_type=4, label=1,
       has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='author_user_id', full_name='conversations.Message.author_user_id', index=1,
-      number=2, type=4, cpp_type=4, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='time', full_name='conversations.Message.time', index=2,
-      number=3, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='text', full_name='conversations.Message.text', index=3,
-      number=4, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
@@ -275,8 +314,86 @@ _MESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=586,
-  serialized_end=695,
+  serialized_start=727,
+  serialized_end=769,
+)
+
+
+_UPDATE = _descriptor.Descriptor(
+  name='Update',
+  full_name='conversations.Update',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='group_chat_id', full_name='conversations.Update.group_chat_id', index=0,
+      number=1, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='message', full_name='conversations.Update.message', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=771,
+  serialized_end=843,
+)
+
+
+_GETUPDATESRES = _descriptor.Descriptor(
+  name='GetUpdatesRes',
+  full_name='conversations.GetUpdatesRes',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='updates', full_name='conversations.GetUpdatesRes.updates', index=0,
+      number=1, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='no_more', full_name='conversations.GetUpdatesRes.no_more', index=1,
+      number=2, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=845,
+  serialized_end=917,
 )
 
 
@@ -309,6 +426,13 @@ _GETGROUPCHATMESSAGESREQ = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='only_unseen', full_name='conversations.GetGroupChatMessagesReq.only_unseen', index=3,
+      number=4, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -321,8 +445,8 @@ _GETGROUPCHATMESSAGESREQ = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=697,
-  serialized_end=786,
+  serialized_start=919,
+  serialized_end=1029,
 )
 
 
@@ -367,8 +491,47 @@ _GETGROUPCHATMESSAGESRES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=788,
-  serialized_end=897,
+  serialized_start=1031,
+  serialized_end=1140,
+)
+
+
+_MARKLASTSEENGROUPCHATREQ = _descriptor.Descriptor(
+  name='MarkLastSeenGroupChatReq',
+  full_name='conversations.MarkLastSeenGroupChatReq',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='group_chat_id', full_name='conversations.MarkLastSeenGroupChatReq.group_chat_id', index=0,
+      number=1, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='last_seen_message_id', full_name='conversations.MarkLastSeenGroupChatReq.last_seen_message_id', index=1,
+      number=2, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1142,
+  serialized_end=1221,
 )
 
 
@@ -406,8 +569,8 @@ _CREATEGROUPCHATREQ = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=899,
-  serialized_end=987,
+  serialized_start=1223,
+  serialized_end=1311,
 )
 
 
@@ -452,8 +615,8 @@ _EDITGROUPCHATREQ = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=990,
-  serialized_end=1132,
+  serialized_start=1314,
+  serialized_end=1456,
 )
 
 
@@ -491,8 +654,8 @@ _INVITETOGROUPCHATREQ = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1134,
-  serialized_end=1196,
+  serialized_start=1458,
+  serialized_end=1520,
 )
 
 
@@ -530,8 +693,8 @@ _MAKEGROUPCHATADMINREQ = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1198,
-  serialized_end=1261,
+  serialized_start=1522,
+  serialized_end=1585,
 )
 
 
@@ -569,8 +732,8 @@ _REMOVEGROUPCHATADMINREQ = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1263,
-  serialized_end=1328,
+  serialized_start=1587,
+  serialized_end=1652,
 )
 
 
@@ -608,8 +771,8 @@ _SENDMESSAGEREQ = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1330,
-  serialized_end=1383,
+  serialized_start=1654,
+  serialized_end=1707,
 )
 
 
@@ -640,8 +803,8 @@ _LEAVEGROUPCHATREQ = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1385,
-  serialized_end=1427,
+  serialized_start=1709,
+  serialized_end=1751,
 )
 
 
@@ -686,8 +849,8 @@ _SEARCHMESSAGESREQ = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1429,
-  serialized_end=1504,
+  serialized_start=1753,
+  serialized_end=1828,
 )
 
 
@@ -725,8 +888,8 @@ _MESSAGESEARCHRESULT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1506,
-  serialized_end=1591,
+  serialized_start=1830,
+  serialized_end=1915,
 )
 
 
@@ -771,27 +934,33 @@ _SEARCHMESSAGESRES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1593,
-  serialized_end=1707,
+  serialized_start=1917,
+  serialized_end=2031,
 )
 
+_MESSAGE.fields_by_name['time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 _GROUPCHAT.fields_by_name['created'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 _GROUPCHAT.fields_by_name['latest_message'].message_type = _MESSAGE
 _LISTGROUPCHATSRES.fields_by_name['group_chats'].message_type = _GROUPCHAT
-_MESSAGE.fields_by_name['time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
+_UPDATE.fields_by_name['message'].message_type = _MESSAGE
+_GETUPDATESRES.fields_by_name['updates'].message_type = _UPDATE
 _GETGROUPCHATMESSAGESRES.fields_by_name['messages'].message_type = _MESSAGE
 _CREATEGROUPCHATREQ.fields_by_name['title'].message_type = google_dot_protobuf_dot_wrappers__pb2._STRINGVALUE
 _EDITGROUPCHATREQ.fields_by_name['title'].message_type = google_dot_protobuf_dot_wrappers__pb2._STRINGVALUE
 _EDITGROUPCHATREQ.fields_by_name['only_admins_invite'].message_type = google_dot_protobuf_dot_wrappers__pb2._BOOLVALUE
 _MESSAGESEARCHRESULT.fields_by_name['message'].message_type = _MESSAGE
 _SEARCHMESSAGESRES.fields_by_name['results'].message_type = _MESSAGESEARCHRESULT
+DESCRIPTOR.message_types_by_name['Message'] = _MESSAGE
 DESCRIPTOR.message_types_by_name['GroupChat'] = _GROUPCHAT
 DESCRIPTOR.message_types_by_name['GetGroupChatReq'] = _GETGROUPCHATREQ
 DESCRIPTOR.message_types_by_name['ListGroupChatsReq'] = _LISTGROUPCHATSREQ
 DESCRIPTOR.message_types_by_name['ListGroupChatsRes'] = _LISTGROUPCHATSRES
-DESCRIPTOR.message_types_by_name['Message'] = _MESSAGE
+DESCRIPTOR.message_types_by_name['GetUpdatesReq'] = _GETUPDATESREQ
+DESCRIPTOR.message_types_by_name['Update'] = _UPDATE
+DESCRIPTOR.message_types_by_name['GetUpdatesRes'] = _GETUPDATESRES
 DESCRIPTOR.message_types_by_name['GetGroupChatMessagesReq'] = _GETGROUPCHATMESSAGESREQ
 DESCRIPTOR.message_types_by_name['GetGroupChatMessagesRes'] = _GETGROUPCHATMESSAGESRES
+DESCRIPTOR.message_types_by_name['MarkLastSeenGroupChatReq'] = _MARKLASTSEENGROUPCHATREQ
 DESCRIPTOR.message_types_by_name['CreateGroupChatReq'] = _CREATEGROUPCHATREQ
 DESCRIPTOR.message_types_by_name['EditGroupChatReq'] = _EDITGROUPCHATREQ
 DESCRIPTOR.message_types_by_name['InviteToGroupChatReq'] = _INVITETOGROUPCHATREQ
@@ -803,6 +972,13 @@ DESCRIPTOR.message_types_by_name['SearchMessagesReq'] = _SEARCHMESSAGESREQ
 DESCRIPTOR.message_types_by_name['MessageSearchResult'] = _MESSAGESEARCHRESULT
 DESCRIPTOR.message_types_by_name['SearchMessagesRes'] = _SEARCHMESSAGESRES
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
+
+Message = _reflection.GeneratedProtocolMessageType('Message', (_message.Message,), {
+  'DESCRIPTOR' : _MESSAGE,
+  '__module__' : 'pb.conversations_pb2'
+  # @@protoc_insertion_point(class_scope:conversations.Message)
+  })
+_sym_db.RegisterMessage(Message)
 
 GroupChat = _reflection.GeneratedProtocolMessageType('GroupChat', (_message.Message,), {
   'DESCRIPTOR' : _GROUPCHAT,
@@ -832,12 +1008,26 @@ ListGroupChatsRes = _reflection.GeneratedProtocolMessageType('ListGroupChatsRes'
   })
 _sym_db.RegisterMessage(ListGroupChatsRes)
 
-Message = _reflection.GeneratedProtocolMessageType('Message', (_message.Message,), {
-  'DESCRIPTOR' : _MESSAGE,
+GetUpdatesReq = _reflection.GeneratedProtocolMessageType('GetUpdatesReq', (_message.Message,), {
+  'DESCRIPTOR' : _GETUPDATESREQ,
   '__module__' : 'pb.conversations_pb2'
-  # @@protoc_insertion_point(class_scope:conversations.Message)
+  # @@protoc_insertion_point(class_scope:conversations.GetUpdatesReq)
   })
-_sym_db.RegisterMessage(Message)
+_sym_db.RegisterMessage(GetUpdatesReq)
+
+Update = _reflection.GeneratedProtocolMessageType('Update', (_message.Message,), {
+  'DESCRIPTOR' : _UPDATE,
+  '__module__' : 'pb.conversations_pb2'
+  # @@protoc_insertion_point(class_scope:conversations.Update)
+  })
+_sym_db.RegisterMessage(Update)
+
+GetUpdatesRes = _reflection.GeneratedProtocolMessageType('GetUpdatesRes', (_message.Message,), {
+  'DESCRIPTOR' : _GETUPDATESRES,
+  '__module__' : 'pb.conversations_pb2'
+  # @@protoc_insertion_point(class_scope:conversations.GetUpdatesRes)
+  })
+_sym_db.RegisterMessage(GetUpdatesRes)
 
 GetGroupChatMessagesReq = _reflection.GeneratedProtocolMessageType('GetGroupChatMessagesReq', (_message.Message,), {
   'DESCRIPTOR' : _GETGROUPCHATMESSAGESREQ,
@@ -852,6 +1042,13 @@ GetGroupChatMessagesRes = _reflection.GeneratedProtocolMessageType('GetGroupChat
   # @@protoc_insertion_point(class_scope:conversations.GetGroupChatMessagesRes)
   })
 _sym_db.RegisterMessage(GetGroupChatMessagesRes)
+
+MarkLastSeenGroupChatReq = _reflection.GeneratedProtocolMessageType('MarkLastSeenGroupChatReq', (_message.Message,), {
+  'DESCRIPTOR' : _MARKLASTSEENGROUPCHATREQ,
+  '__module__' : 'pb.conversations_pb2'
+  # @@protoc_insertion_point(class_scope:conversations.MarkLastSeenGroupChatReq)
+  })
+_sym_db.RegisterMessage(MarkLastSeenGroupChatReq)
 
 CreateGroupChatReq = _reflection.GeneratedProtocolMessageType('CreateGroupChatReq', (_message.Message,), {
   'DESCRIPTOR' : _CREATEGROUPCHATREQ,
@@ -932,8 +1129,8 @@ _CONVERSATIONS = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=1710,
-  serialized_end=2651,
+  serialized_start=2034,
+  serialized_end=3143,
   methods=[
   _descriptor.MethodDescriptor(
     name='ListGroupChats',
@@ -956,9 +1153,19 @@ _CONVERSATIONS = _descriptor.ServiceDescriptor(
     create_key=_descriptor._internal_create_key,
   ),
   _descriptor.MethodDescriptor(
+    name='GetUpdates',
+    full_name='conversations.Conversations.GetUpdates',
+    index=2,
+    containing_service=None,
+    input_type=_GETUPDATESREQ,
+    output_type=_GETUPDATESRES,
+    serialized_options=None,
+    create_key=_descriptor._internal_create_key,
+  ),
+  _descriptor.MethodDescriptor(
     name='GetGroupChatMessages',
     full_name='conversations.Conversations.GetGroupChatMessages',
-    index=2,
+    index=3,
     containing_service=None,
     input_type=_GETGROUPCHATMESSAGESREQ,
     output_type=_GETGROUPCHATMESSAGESRES,
@@ -966,9 +1173,19 @@ _CONVERSATIONS = _descriptor.ServiceDescriptor(
     create_key=_descriptor._internal_create_key,
   ),
   _descriptor.MethodDescriptor(
+    name='MarkLastSeenGroupChat',
+    full_name='conversations.Conversations.MarkLastSeenGroupChat',
+    index=4,
+    containing_service=None,
+    input_type=_MARKLASTSEENGROUPCHATREQ,
+    output_type=google_dot_protobuf_dot_empty__pb2._EMPTY,
+    serialized_options=None,
+    create_key=_descriptor._internal_create_key,
+  ),
+  _descriptor.MethodDescriptor(
     name='CreateGroupChat',
     full_name='conversations.Conversations.CreateGroupChat',
-    index=3,
+    index=5,
     containing_service=None,
     input_type=_CREATEGROUPCHATREQ,
     output_type=_GROUPCHAT,
@@ -978,7 +1195,7 @@ _CONVERSATIONS = _descriptor.ServiceDescriptor(
   _descriptor.MethodDescriptor(
     name='EditGroupChat',
     full_name='conversations.Conversations.EditGroupChat',
-    index=4,
+    index=6,
     containing_service=None,
     input_type=_EDITGROUPCHATREQ,
     output_type=google_dot_protobuf_dot_empty__pb2._EMPTY,
@@ -988,7 +1205,7 @@ _CONVERSATIONS = _descriptor.ServiceDescriptor(
   _descriptor.MethodDescriptor(
     name='InviteToGroupChat',
     full_name='conversations.Conversations.InviteToGroupChat',
-    index=5,
+    index=7,
     containing_service=None,
     input_type=_INVITETOGROUPCHATREQ,
     output_type=google_dot_protobuf_dot_empty__pb2._EMPTY,
@@ -998,7 +1215,7 @@ _CONVERSATIONS = _descriptor.ServiceDescriptor(
   _descriptor.MethodDescriptor(
     name='MakeGroupChatAdmin',
     full_name='conversations.Conversations.MakeGroupChatAdmin',
-    index=6,
+    index=8,
     containing_service=None,
     input_type=_MAKEGROUPCHATADMINREQ,
     output_type=google_dot_protobuf_dot_empty__pb2._EMPTY,
@@ -1008,7 +1225,7 @@ _CONVERSATIONS = _descriptor.ServiceDescriptor(
   _descriptor.MethodDescriptor(
     name='RemoveGroupChatAdmin',
     full_name='conversations.Conversations.RemoveGroupChatAdmin',
-    index=7,
+    index=9,
     containing_service=None,
     input_type=_REMOVEGROUPCHATADMINREQ,
     output_type=google_dot_protobuf_dot_empty__pb2._EMPTY,
@@ -1018,7 +1235,7 @@ _CONVERSATIONS = _descriptor.ServiceDescriptor(
   _descriptor.MethodDescriptor(
     name='SendMessage',
     full_name='conversations.Conversations.SendMessage',
-    index=8,
+    index=10,
     containing_service=None,
     input_type=_SENDMESSAGEREQ,
     output_type=google_dot_protobuf_dot_empty__pb2._EMPTY,
@@ -1028,7 +1245,7 @@ _CONVERSATIONS = _descriptor.ServiceDescriptor(
   _descriptor.MethodDescriptor(
     name='LeaveGroupChat',
     full_name='conversations.Conversations.LeaveGroupChat',
-    index=9,
+    index=11,
     containing_service=None,
     input_type=_LEAVEGROUPCHATREQ,
     output_type=google_dot_protobuf_dot_empty__pb2._EMPTY,
@@ -1038,7 +1255,7 @@ _CONVERSATIONS = _descriptor.ServiceDescriptor(
   _descriptor.MethodDescriptor(
     name='SearchMessages',
     full_name='conversations.Conversations.SearchMessages',
-    index=10,
+    index=12,
     containing_service=None,
     input_type=_SEARCHMESSAGESREQ,
     output_type=_SEARCHMESSAGESRES,

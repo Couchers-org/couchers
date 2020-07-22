@@ -239,6 +239,86 @@ proto.conversations.ConversationsPromiseClient.prototype.getGroupChat =
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
+ *   !proto.conversations.GetUpdatesReq,
+ *   !proto.conversations.GetUpdatesRes>}
+ */
+const methodDescriptor_Conversations_GetUpdates = new grpc.web.MethodDescriptor(
+  '/conversations.Conversations/GetUpdates',
+  grpc.web.MethodType.UNARY,
+  proto.conversations.GetUpdatesReq,
+  proto.conversations.GetUpdatesRes,
+  /**
+   * @param {!proto.conversations.GetUpdatesReq} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.conversations.GetUpdatesRes.deserializeBinary
+);
+
+
+/**
+ * @const
+ * @type {!grpc.web.AbstractClientBase.MethodInfo<
+ *   !proto.conversations.GetUpdatesReq,
+ *   !proto.conversations.GetUpdatesRes>}
+ */
+const methodInfo_Conversations_GetUpdates = new grpc.web.AbstractClientBase.MethodInfo(
+  proto.conversations.GetUpdatesRes,
+  /**
+   * @param {!proto.conversations.GetUpdatesReq} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.conversations.GetUpdatesRes.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.conversations.GetUpdatesReq} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.Error, ?proto.conversations.GetUpdatesRes)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.conversations.GetUpdatesRes>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.conversations.ConversationsClient.prototype.getUpdates =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/conversations.Conversations/GetUpdates',
+      request,
+      metadata || {},
+      methodDescriptor_Conversations_GetUpdates,
+      callback);
+};
+
+
+/**
+ * @param {!proto.conversations.GetUpdatesReq} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.conversations.GetUpdatesRes>}
+ *     A native promise that resolves to the response
+ */
+proto.conversations.ConversationsPromiseClient.prototype.getUpdates =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/conversations.Conversations/GetUpdates',
+      request,
+      metadata || {},
+      methodDescriptor_Conversations_GetUpdates);
+};
+
+
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
  *   !proto.conversations.GetGroupChatMessagesReq,
  *   !proto.conversations.GetGroupChatMessagesRes>}
  */
@@ -313,6 +393,86 @@ proto.conversations.ConversationsPromiseClient.prototype.getGroupChatMessages =
       request,
       metadata || {},
       methodDescriptor_Conversations_GetGroupChatMessages);
+};
+
+
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
+ *   !proto.conversations.MarkLastSeenGroupChatReq,
+ *   !proto.google.protobuf.Empty>}
+ */
+const methodDescriptor_Conversations_MarkLastSeenGroupChat = new grpc.web.MethodDescriptor(
+  '/conversations.Conversations/MarkLastSeenGroupChat',
+  grpc.web.MethodType.UNARY,
+  proto.conversations.MarkLastSeenGroupChatReq,
+  google_protobuf_empty_pb.Empty,
+  /**
+   * @param {!proto.conversations.MarkLastSeenGroupChatReq} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  google_protobuf_empty_pb.Empty.deserializeBinary
+);
+
+
+/**
+ * @const
+ * @type {!grpc.web.AbstractClientBase.MethodInfo<
+ *   !proto.conversations.MarkLastSeenGroupChatReq,
+ *   !proto.google.protobuf.Empty>}
+ */
+const methodInfo_Conversations_MarkLastSeenGroupChat = new grpc.web.AbstractClientBase.MethodInfo(
+  google_protobuf_empty_pb.Empty,
+  /**
+   * @param {!proto.conversations.MarkLastSeenGroupChatReq} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  google_protobuf_empty_pb.Empty.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.conversations.MarkLastSeenGroupChatReq} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.Error, ?proto.google.protobuf.Empty)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.google.protobuf.Empty>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.conversations.ConversationsClient.prototype.markLastSeenGroupChat =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/conversations.Conversations/MarkLastSeenGroupChat',
+      request,
+      metadata || {},
+      methodDescriptor_Conversations_MarkLastSeenGroupChat,
+      callback);
+};
+
+
+/**
+ * @param {!proto.conversations.MarkLastSeenGroupChatReq} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.google.protobuf.Empty>}
+ *     A native promise that resolves to the response
+ */
+proto.conversations.ConversationsPromiseClient.prototype.markLastSeenGroupChat =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/conversations.Conversations/MarkLastSeenGroupChat',
+      request,
+      metadata || {},
+      methodDescriptor_Conversations_MarkLastSeenGroupChat);
 };
 
 

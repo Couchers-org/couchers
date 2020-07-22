@@ -10,12 +10,15 @@ import {
   GetGroupChatMessagesReq,
   GetGroupChatMessagesRes,
   GetGroupChatReq,
+  GetUpdatesReq,
+  GetUpdatesRes,
   GroupChat,
   InviteToGroupChatReq,
   LeaveGroupChatReq,
   ListGroupChatsReq,
   ListGroupChatsRes,
   MakeGroupChatAdminReq,
+  MarkLastSeenGroupChatReq,
   RemoveGroupChatAdminReq,
   SearchMessagesReq,
   SearchMessagesRes,
@@ -40,12 +43,26 @@ export class ConversationsClient {
                response: GroupChat) => void
   ): grpcWeb.ClientReadableStream<GroupChat>;
 
+  getUpdates(
+    request: GetUpdatesReq,
+    metadata: grpcWeb.Metadata | undefined,
+    callback: (err: grpcWeb.Error,
+               response: GetUpdatesRes) => void
+  ): grpcWeb.ClientReadableStream<GetUpdatesRes>;
+
   getGroupChatMessages(
     request: GetGroupChatMessagesReq,
     metadata: grpcWeb.Metadata | undefined,
     callback: (err: grpcWeb.Error,
                response: GetGroupChatMessagesRes) => void
   ): grpcWeb.ClientReadableStream<GetGroupChatMessagesRes>;
+
+  markLastSeenGroupChat(
+    request: MarkLastSeenGroupChatReq,
+    metadata: grpcWeb.Metadata | undefined,
+    callback: (err: grpcWeb.Error,
+               response: google_protobuf_empty_pb.Empty) => void
+  ): grpcWeb.ClientReadableStream<google_protobuf_empty_pb.Empty>;
 
   createGroupChat(
     request: CreateGroupChatReq,
@@ -120,10 +137,20 @@ export class ConversationsPromiseClient {
     metadata?: grpcWeb.Metadata
   ): Promise<GroupChat>;
 
+  getUpdates(
+    request: GetUpdatesReq,
+    metadata?: grpcWeb.Metadata
+  ): Promise<GetUpdatesRes>;
+
   getGroupChatMessages(
     request: GetGroupChatMessagesReq,
     metadata?: grpcWeb.Metadata
   ): Promise<GetGroupChatMessagesRes>;
+
+  markLastSeenGroupChat(
+    request: MarkLastSeenGroupChatReq,
+    metadata?: grpcWeb.Metadata
+  ): Promise<google_protobuf_empty_pb.Empty>;
 
   createGroupChat(
     request: CreateGroupChatReq,
