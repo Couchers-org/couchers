@@ -181,7 +181,7 @@ export default Vue.extend({
       this.messages = []
       console.log("selected conversation changed, fetching messages")
       const req = new GetGroupChatMessagesReq()
-      req.setGroupChatId(this.selectedConversation)
+      req.setGroupChatId(this.selectedConversation!)
       conversations
         .getGroupChatMessages(req)
         .then((res) => {
@@ -198,7 +198,7 @@ export default Vue.extend({
     sortMessages() {
       this.messages = this.messages.sort(
         (f, s) =>
-          f.getTime().toDate().getTime() - s.getTime().toDate().getTime()
+          f.getTime()!.toDate().getTime() - s.getTime()!.toDate().getTime()
       )
     },
 
@@ -218,16 +218,20 @@ export default Vue.extend({
     },
 
     sendMessage() {
-      const req = new SendMessageReq()
-      req.setGroupChatId(this.selectedConversation)
-      req.setText(this.currentMessage)
-      conversations
-        .sendMessage(req)
-        .then((res) => {
-          this.currentMessage = ""
-          this.fetchUpdates()
-        })
-        .catch(console.error)
+      if (!this.selectedConversation) {
+        console.error("No conversation selected")
+      } else {
+        const req = new SendMessageReq()
+        req.setGroupChatId(this.selectedConversation)
+        req.setText(this.currentMessage)
+        conversations
+          .sendMessage(req)
+          .then((res) => {
+            this.currentMessage = ""
+            this.fetchUpdates()
+          })
+          .catch(console.error)
+      }
     },
 
     fetchUpdates() {
@@ -243,7 +247,7 @@ export default Vue.extend({
             .filter(
               (update) => update.getGroupChatId() === this.selectedConversation
             )
-            .map((update) => update.getMessage())
+            .map((update) => update.getMessage()!)
             .forEach((msg) => {
               this.messages.push(msg)
             })
@@ -260,7 +264,7 @@ export default Vue.extend({
         .then((res) => {
           this.loading -= 1
           this.conversations = res.getGroupChatsList()
-          const userIds = new Set()
+          const userIds = new Set() as Set<number>
           this.conversations.forEach((conv) => {
             conv.getMemberUserIdsList().forEach((userId) => userIds.add(userId))
           })
@@ -292,7 +296,7 @@ export default Vue.extend({
 
     conversationAvatar(conversation: GroupChat) {
       const user = this.getUser(
-        conversation.getLatestMessage().getAuthorUserId()
+        conversation.getLatestMessage()!.getAuthorUserId()
       )
       if (user) {
         return user.getColor()
@@ -313,7 +317,7 @@ export default Vue.extend({
     },
 
     conversationSubtitle(conversation: GroupChat) {
-      const message = conversation.getLatestMessage()
+      const message = conversation.getLatestMessage()!
       return (
         `<b>${this.messageAuthor(message)}</b>: ${message.getText()}` ||
         "<i>No messages</i>"
@@ -353,7 +357,7 @@ export default Vue.extend({
     },
 
     messageDisplayTime(message: Message) {
-      const date = message.getTime().toDate()
+      const date = message.getTime()!.toDate()
       if (new Date().getTime() - date.getTime() > 120 * 60 * 1000) {
         // longer than 2h ago, display as absolute
         return moment(date).format("lll")
