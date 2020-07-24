@@ -323,29 +323,29 @@ export default Vue.extend({
   computed: {
     ...mapState(["username"]),
 
-    lastActiveDisplay() {
+    lastActiveDisplay(): string {
       if (!this.user.lastActive) {
         return "unknown"
       }
       return displayTime(this.user.lastActive)
     },
 
-    joinedDisplay() {
+    joinedDisplay(): string {
       if (!this.user.joined) {
         return "error"
       }
       return displayTime(this.user.joined)
     },
 
-    languagesListDisplay() {
+    languagesListDisplay(): string {
       return displayList(this.user.languagesList)
     },
 
-    countriesVisitedListDisplay() {
+    countriesVisitedListDisplay(): string {
       return displayList(this.user.countriesVisitedList)
     },
 
-    countriesLivedListDisplay() {
+    countriesLivedListDisplay(): string {
       return displayList(this.user.countriesLivedList)
     },
   },
