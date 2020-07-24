@@ -140,16 +140,7 @@ import moment from "moment"
 
 import { handle } from "../utils"
 
-import { Empty } from "google-protobuf/google/protobuf/empty_pb"
-import Store, { AuthenticationState } from "../store"
-
-import {
-  FriendRequest,
-  RespondFriendRequestReq,
-  CancelFriendRequestReq,
-  User,
-  GetUserReq,
-} from "../pb/api_pb"
+import { User, GetUserReq } from "../pb/api_pb"
 import {
   ListGroupChatsReq,
   GroupChat,
