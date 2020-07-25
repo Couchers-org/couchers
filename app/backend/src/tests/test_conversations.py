@@ -284,15 +284,16 @@ def test_get_group_chat_messages_joined_left(db):
     user1, token1 = generate_user(db)
     user2, token2 = generate_user(db)
     user3, token3 = generate_user(db)
+    user4, token4 = generate_user(db)
     make_friends(db, user1, user2)
     make_friends(db, user1, user3)
+    make_friends(db, user1, user4)
     group_chat_id = None
     start_time = datetime.now()
-    print(start_time)
 
     with conversations_session(db, token1) as c:
         res = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id]))
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user4.id]))
         group_chat_id = res.group_chat_id
         with patch_message_time(start_time):
             for i in range(10):
@@ -457,7 +458,9 @@ def test_get_group_chat_info_left(db):
 def test_edit_group_chat(db):
     user1, token1 = generate_user(db)
     user2, token2 = generate_user(db)
+    user3, token3 = generate_user(db)
     make_friends(db, user1, user2)
+    group_chat_id = None
 
     with conversations_session(db, token1) as c:
         # create some threads with messages
@@ -480,18 +483,30 @@ def test_edit_group_chat(db):
                 group_chat_id=group_chat_id, title=wrappers_pb2.StringValue(value="Other title"),
                 only_admins_invite=wrappers_pb2.BoolValue(value=True)))
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+    
+    
+    # make sure non-recipient is not allowed to modify
+    with conversations_session(db, token3) as c:
+        with pytest.raises(grpc.RpcError) as e:
+            c.EditGroupChat(conversations_pb2.EditGroupChatReq(
+                group_chat_id=group_chat_id, title=wrappers_pb2.StringValue(value="Other title"),
+                only_admins_invite=wrappers_pb2.BoolValue(value=True)))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 def test_make_remove_group_chat_admin(db):
     user1, token1 = generate_user(db)
     user2, token2 = generate_user(db)
+    user3, token3 = generate_user(db)
 
     make_friends(db, user1, user2)
+    make_friends(db, user1, user3)
+    make_friends(db, user2, user3)
 
     with conversations_session(db, token1) as c:
         # create some threads with messages
         res = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id]))
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id]))
         group_chat_id = res.group_chat_id
 
         # shouldn't be able to remove only admin
@@ -502,13 +517,14 @@ def test_make_remove_group_chat_admin(db):
 
         c.MakeGroupChatAdmin(conversations_pb2.MakeGroupChatAdminReq(
             group_chat_id=group_chat_id, user_id=user2.id))
+        
+        # shouldn't be able to make admin again
+        with pytest.raises(grpc.RpcError) as e:
+            c.MakeGroupChatAdmin(conversations_pb2.MakeGroupChatAdminReq(
+            group_chat_id=group_chat_id, user_id=user2.id))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
     with conversations_session(db, token2) as c:
-        res = c.GetGroupChat(
-            conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
-        assert user1.id in res.admin_user_ids
-        assert user2.id in res.admin_user_ids
-
         res = c.GetGroupChat(
             conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
         assert user1.id in res.admin_user_ids
@@ -522,56 +538,85 @@ def test_make_remove_group_chat_admin(db):
             conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
         assert user1.id in res.admin_user_ids
         assert not user2.id in res.admin_user_ids
+    
+    
+    with conversations_session(db, token2) as c:
+        # shouldn't be able to make admin if not admin
+        with pytest.raises(grpc.RpcError) as e:
+            c.MakeGroupChatAdmin(conversations_pb2.MakeGroupChatAdminReq(
+            group_chat_id=group_chat_id, user_id=user3.id))
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
 
 
 def test_send_message(db):
     user1, token1 = generate_user(db)
     user2, token2 = generate_user(db)
-
-    make_friends(db, user1, user2)
-
-    with conversations_session(db, token1) as c:
-        res = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id]))
-        c.SendMessage(conversations_pb2.SendMessageReq(
-            group_chat_id=res.group_chat_id, text="Test message 1"))
-        res = c.GetGroupChatMessages(
-            conversations_pb2.GetGroupChatMessagesReq(group_chat_id=res.group_chat_id))
-        assert res.messages[0].text == "Test message 1"
-        assert res.messages[0].time.ToDatetime() <= datetime.now()
-        assert res.messages[0].author_user_id == user1.id
-
-
-def test_leave_invite_to_group_chat(db):
-    user1, token1 = generate_user(db)
-    user2, token2 = generate_user(db)
     user3, token3 = generate_user(db)
-
     make_friends(db, user1, user2)
     make_friends(db, user1, user3)
-    make_friends(db, user2, user3)
 
     with conversations_session(db, token1) as c:
         res = c.CreateGroupChat(
             conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id]))
         group_chat_id = res.group_chat_id
         c.SendMessage(conversations_pb2.SendMessageReq(
+            group_chat_id=group_chat_id, text="Test message 1"))
+        res = c.GetGroupChatMessages(
+            conversations_pb2.GetGroupChatMessagesReq(group_chat_id=group_chat_id))
+        assert res.messages[0].text == "Test message 1"
+        assert res.messages[0].time.ToDatetime() <= datetime.now()
+        assert res.messages[0].author_user_id == user1.id
+    
+    # can't send message if not in chat
+    with conversations_session(db, token3) as c:
+        with pytest.raises(grpc.RpcError) as e:
+            c.SendMessage(conversations_pb2.SendMessageReq(
+                group_chat_id=group_chat_id, text="Test message 2"))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    
+
+
+def test_leave_invite_to_group_chat(db):
+    user1, token1 = generate_user(db)
+    user2, token2 = generate_user(db)
+    user3, token3 = generate_user(db)
+    user4, token4 = generate_user(db)
+    user5, token5 = generate_user(db)
+
+    make_friends(db, user1, user2)
+    make_friends(db, user1, user3)
+    make_friends(db, user1, user5)
+    make_friends(db, user2, user3)
+    make_friends(db, user4, user3)
+
+    with conversations_session(db, token1) as c:
+        res = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user5.id]))
+        group_chat_id = res.group_chat_id
+        c.SendMessage(conversations_pb2.SendMessageReq(
             group_chat_id=group_chat_id,  text="Test message 1"))
 
+    # other user not in chat
     with conversations_session(db, token3) as c:
         with pytest.raises(grpc.RpcError) as e:
             res = c.GetGroupChat(
                 conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
         with pytest.raises(grpc.RpcError) as e:
-            res = c.GetGroupChat(
-                conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
+            res = c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(
+                group_chat_id=group_chat_id, user_id=user4.id))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        with pytest.raises(grpc.RpcError) as e:
+            res = c.LeaveGroupChat(
+                conversations_pb2.LeaveGroupChatReq(group_chat_id=group_chat_id))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
     with conversations_session(db, token2) as c:
         res = c.GetGroupChat(
             conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
         assert not user3.id in res.member_user_ids
+
+        # only_admins_invite defaults to true so shouldn't be able to invite
         with pytest.raises(grpc.RpcError) as e:
             res = c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(
                 group_chat_id=group_chat_id, user_id=user3.id))
@@ -580,6 +625,12 @@ def test_leave_invite_to_group_chat(db):
             conversations_pb2.LeaveGroupChatReq(group_chat_id=group_chat_id))
 
     with conversations_session(db, token1) as c:
+        # can't invite non-friend
+        with pytest.raises(grpc.RpcError) as e:
+            c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(
+                group_chat_id=group_chat_id, user_id=user4.id))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+
         c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(
             group_chat_id=group_chat_id, user_id=user3.id))
         res = c.GetGroupChat(
@@ -598,6 +649,63 @@ def test_leave_invite_to_group_chat(db):
             conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
         assert user2.id in res.member_user_ids
 
+def test_invite_to_dm(db):
+    user1, token1 = generate_user(db)
+    user2, token2 = generate_user(db)
+    user3, token3 = generate_user(db)
+
+    make_friends(db, user1, user2)
+    make_friends(db, user1, user3)
+    make_friends(db, user2, user3)
+
+    with conversations_session(db, token1) as c:
+        res = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id]))
+        group_chat_id = res.group_chat_id
+        c.SendMessage(conversations_pb2.SendMessageReq(
+            group_chat_id=group_chat_id,  text="Test message 1"))
+
+        # dm, shou;dn't be able to invite someone else
+        with pytest.raises(grpc.RpcError) as e:
+            c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(
+                group_chat_id=group_chat_id, user_id=user3.id))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+
+def test_sole_admin_leaves(db):
+    user1, token1 = generate_user(db)
+    user2, token2 = generate_user(db)
+    user3, token3 = generate_user(db)
+
+    make_friends(db, user1, user2)
+    make_friends(db, user1, user3)
+    make_friends(db, user2, user3)
+
+    with conversations_session(db, token1) as c:
+        res = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id]))
+        group_chat_id = res.group_chat_id
+        c.SendMessage(conversations_pb2.SendMessageReq(
+            group_chat_id=group_chat_id,  text="Test message 1"))
+
+        # sole admin can't leave group chat
+        with pytest.raises(grpc.RpcError) as e:
+            c.LeaveGroupChat(
+                conversations_pb2.LeaveGroupChatReq(group_chat_id=group_chat_id))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+    
+    with conversations_session(db, token2) as c:
+        c.LeaveGroupChat(
+            conversations_pb2.LeaveGroupChatReq(group_chat_id=group_chat_id))
+    
+    
+    with conversations_session(db, token3) as c:
+        c.LeaveGroupChat(
+            conversations_pb2.LeaveGroupChatReq(group_chat_id=group_chat_id))
+    
+    # sole admin can leave when last in chat
+    with conversations_session(db, token1) as c:
+        c.LeaveGroupChat(
+            conversations_pb2.LeaveGroupChatReq(group_chat_id=group_chat_id))
 
 def test_search_messages(db):
     user1, token1 = generate_user(db)
@@ -628,6 +736,77 @@ def test_search_messages(db):
         assert len(res.results) == 2
         res = c.SearchMessages(conversations_pb2.SearchMessagesReq(query="message 5"))
         assert len(res.results) == 0
+    
+    # outside user doesn't get results
+    with conversations_session(db, token3) as c:
+        res = c.SearchMessages(conversations_pb2.SearchMessagesReq(query="Test message"))
+        assert len(res.results) == 0
+
+def test_search_messages_left_joined(db):
+    user1, token1 = generate_user(db)
+    user2, token2 = generate_user(db)
+    user3, token3 = generate_user(db)
+    user4, token4 = generate_user(db)
+    make_friends(db, user1, user2)
+    make_friends(db, user1, user3)
+    make_friends(db, user1, user4)
+    group_chat_id = None
+    start_time = datetime.now()
+
+    with conversations_session(db, token1) as c:
+        res = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user4.id]))
+        group_chat_id = res.group_chat_id
+        with patch_message_time(start_time):
+            for i in range(10):
+                c.SendMessage(conversations_pb2.SendMessageReq(
+                    group_chat_id=group_chat_id, text="Test message " + str(i)))
+        
+        with patch_joined_time(start_time, add=1):
+            c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(
+                group_chat_id=group_chat_id, user_id=user3.id
+            ))
+        with patch_message_time(start_time, add=2):
+            c.SendMessage(conversations_pb2.SendMessageReq(
+                    group_chat_id=group_chat_id, text="Test message 10"))
+        res = c.SearchMessages(conversations_pb2.SearchMessagesReq(query="Test message"))
+            
+        assert len(res.results) == 11
+    
+    with conversations_session(db, token3) as c:
+        # can only see last message after invited
+        res = c.SearchMessages(conversations_pb2.SearchMessagesReq(query="Test message"))
+        
+        assert len(res.results) == 1
+        assert res.results[0].message.text == "Test message 10"
+        
+        with patch_left_time(start_time, add=3):
+            c.LeaveGroupChat(
+                conversations_pb2.LeaveGroupChatReq(group_chat_id=group_chat_id))
+    
+    with conversations_session(db, token1) as c:
+        with patch_message_time(start_time, add=4):
+            c.SendMessage(conversations_pb2.SendMessageReq(
+                    group_chat_id=group_chat_id, text="Test message 11"))
+            c.SendMessage(conversations_pb2.SendMessageReq(
+                group_chat_id=group_chat_id, text="Test message 12"))
+        with patch_joined_time(start_time, add=5):
+            c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(
+                group_chat_id=group_chat_id, user_id=user3.id
+            ))
+        with patch_message_time(start_time, add=6):
+            c.SendMessage(conversations_pb2.SendMessageReq(
+                    group_chat_id=group_chat_id, text="Test message 13"))
+            c.SendMessage(conversations_pb2.SendMessageReq(
+                    group_chat_id=group_chat_id, text="Test message 14"))
+
+    with conversations_session(db, token3) as c:
+        # can only see last message after invited
+        res = c.SearchMessages(conversations_pb2.SearchMessagesReq(query="Test message"))
+        assert len(res.results) == 3
+        assert res.results[0].message.text == "Test message 14"
+        assert res.results[1].message.text == "Test message 13"
+        assert res.results[2].message.text == "Test message 10"
 
 
 def test_admin_behaviour(db):
@@ -648,10 +827,12 @@ def test_admin_behaviour(db):
         assert user2.id in res.admin_user_ids
 
     with conversations_session(db, token3) as c:
-        with pytest.raises(grpc.RpcError):
+        with pytest.raises(grpc.RpcError) as e:
             c.MakeGroupChatAdmin(conversations_pb2.MakeGroupChatAdminReq(group_chat_id=gcid, user_id=user3.id))
-        with pytest.raises(grpc.RpcError):
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+        with pytest.raises(grpc.RpcError) as e:
             c.RemoveGroupChatAdmin(conversations_pb2.RemoveGroupChatAdminReq(group_chat_id=gcid, user_id=user1.id))
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
         res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
         assert len(res.admin_user_ids) == 2
         assert user1.id in res.admin_user_ids
@@ -684,6 +865,7 @@ def test_admin_behaviour(db):
         assert user3.id in res.admin_user_ids
 
     with conversations_session(db, token2) as c:
+        # can demote self if there are other admins
         c.RemoveGroupChatAdmin(conversations_pb2.RemoveGroupChatAdminReq(group_chat_id=gcid, user_id=user2.id))
         res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
         assert len(res.admin_user_ids) == 1
@@ -692,13 +874,15 @@ def test_admin_behaviour(db):
     with conversations_session(db, token3) as c:
         with pytest.raises(grpc.RpcError):
             c.RemoveGroupChatAdmin(conversations_pb2.RemoveGroupChatAdminReq(group_chat_id=gcid, user_id=user3.id))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
         assert len(res.admin_user_ids) == 1
         assert user3.id in res.admin_user_ids
 
         # last admin can't leave
-        with pytest.raises(grpc.RpcError):
+        with pytest.raises(grpc.RpcError) as e:
             c.LeaveGroupChat(conversations_pb2.LeaveGroupChatReq(group_chat_id=gcid))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
         c.MakeGroupChatAdmin(conversations_pb2.MakeGroupChatAdminReq(group_chat_id=gcid, user_id=user1.id))
 
