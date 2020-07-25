@@ -106,7 +106,7 @@
             <v-btn
               color="primary"
               link
-              :to="{ name: 'User', params: { user: username } }"
+              :to="{ name: 'User', params: { user: user.username } }"
               >See how your profile looks to others</v-btn
             >
           </p>
@@ -181,7 +181,6 @@ export default Vue.extend({
   data: () => ({
     loading: false,
     error: null as Error | null,
-    user: (null as unknown) as User.AsObject,
   }),
 
   components: {
@@ -192,34 +191,7 @@ export default Vue.extend({
     ErrorAlert,
   },
 
-  created() {
-    this.fetchData()
-  },
-
-  watch: {
-    $route: "fetchData",
-  },
-
   methods: {
-    fetchData() {
-      this.loading = true
-      this.error = null
-
-      const req = new GetUserReq()
-      req.setUser(this.user.username!)
-      client
-        .getUser(req)
-        .then((res) => {
-          this.loading = false
-          this.error = null
-          this.user = res.toObject()
-        })
-        .catch((err) => {
-          this.loading = false
-          this.error = err
-        })
-    },
-
     updateProfile(req: UpdateProfileReq) {
       this.loading = true
 
@@ -227,7 +199,7 @@ export default Vue.extend({
         .updateProfile(req)
         .then(() => {
           this.loading = false
-          this.fetchData()
+          Store.dispatch("refreshUser")
         })
         .catch((err) => {
           console.error(err)

@@ -33,6 +33,9 @@ export default new Vuex.Store({
   actions: {
     auth(ctx, { authToken }) {
       ctx.commit("auth", { authToken })
+      ctx.dispatch("refreshUser")
+    },
+    refreshUser(ctx) {
       client
         .ping(new PingReq())
         .then((res) => {
