@@ -72,9 +72,10 @@ def add_dummy_data(Session, file_name):
 
                 for participant in group_chat["participants"]:
                     subscription = GroupChatSubscription(
-                        user_id=get_user_by_field(session, participant).id,
+                        user_id=get_user_by_field(session, participant["username"]).id,
                         group_chat=chat,
-                        role=GroupChatRole.admin if participant == creator else GroupChatRole.participant,
+                        role=GroupChatRole.admin if participant["username"] == creator else GroupChatRole.participant,
+                        joined=parser.isoparse(participant["joined"]),
                     )
                     session.add(subscription)
 

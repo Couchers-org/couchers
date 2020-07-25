@@ -129,7 +129,16 @@
   ],
   "group_chats": [
     {
-      "participants": ["aapeli", "val"],
+      "participants": [
+        {
+          "username": "aapeli",
+          "joined": "2020-05-01T00:00:01+10:00"
+        },
+        {
+          "username": "val",
+          "joined": "2020-05-01T00:00:01+10:00"
+        }
+      ],
       "creator": "aapeli",
       "is_dm": true,
       "title": null,
@@ -262,7 +271,16 @@
       ]
     },
     {
-      "participants": ["aapeli", "itsi"],
+      "participants": [
+        {
+          "username": "aapeli",
+          "joined": "2020-05-01T00:00:01+10:00"
+        },
+        {
+          "username": "itsi",
+          "joined": "2020-05-01T00:00:01+10:00"
+        }
+      ],
       "creator": "itsi",
       "is_dm": true,
       "title": null,
@@ -580,7 +598,20 @@
       ]
     },
     {
-      "participants": ["itsi", "val", "aapeli"],
+      "participants": [
+        {
+          "username": "itsi",
+          "joined": "2020-05-01T00:00:01+10:00"
+        },
+        {
+          "username": "val",
+          "joined": "2020-05-01T00:00:01+10:00"
+        },
+        {
+          "username": "aapeli",
+          "joined": "2020-05-01T00:00:01+10:00"
+        }
+      ],
       "creator": "aapeli",
       "is_dm": false,
       "title": "Test group chat",
