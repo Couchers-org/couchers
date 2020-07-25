@@ -4,7 +4,7 @@
       <v-container fluid>
         <v-row dense>
           <v-col cols="4">
-            <v-card max-width="450" tile>
+            <v-card tile>
               <v-list v-if="loading != 0" three-line>
                 <v-subheader>Loading...</v-subheader>
               </v-list>
@@ -116,6 +116,8 @@
             <v-card tile>
               <v-text-field
                 v-model="currentMessage"
+                autofocus
+                :disabled="!selectedConversation"
                 solo
                 flat
                 single-line
