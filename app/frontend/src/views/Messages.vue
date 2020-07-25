@@ -25,8 +25,8 @@
                 <template v-for="(conversation, index) in conversations">
                   <v-divider :key="index + 'divider'"></v-divider>
                   <v-list-item
-                    :key="conversation.getGroupChatId()"
-                    @click="selectConversation(conversation.getGroupChatId())"
+                    :key="conversation.groupChatId"
+                    @click="selectConversation(conversation.groupChatId)"
                   >
                     <v-list-item-avatar>
                       <v-avatar :color="conversationAvatar(conversation)" />
@@ -65,7 +65,7 @@
                 <template v-for="message in messages">
                   <v-list-item
                     v-if="isMyMessage(message)"
-                    :key="message.getMessageId()"
+                    :key="message.messageId"
                   >
                     <v-list-item-content class="py-1 bubble-content">
                       <v-alert
@@ -77,7 +77,7 @@
                           <b>{{ messageAuthor(message) }}</b> at
                           {{ messageDisplayTime(message) }}
                         </div>
-                        {{ message.getText() }}
+                        {{ message.text }}
                       </v-alert>
                     </v-list-item-content>
                     <v-list-item-avatar>
@@ -88,7 +88,7 @@
                       </v-avatar>
                     </v-list-item-avatar>
                   </v-list-item>
-                  <v-list-item v-else :key="message.getMessageId()">
+                  <v-list-item v-else :key="message.messageId">
                     <v-list-item-avatar>
                       <v-avatar :color="messageColor(message)" size="36">
                         <span class="white--text">{{
@@ -106,7 +106,7 @@
                           <b>{{ messageAuthor(message) }}</b> at
                           {{ messageDisplayTime(message) }}
                         </div>
-                        {{ message.getText() }}
+                        {{ message.text }}
                       </v-alert>
                     </v-list-item-content>
                   </v-list-item>
@@ -137,7 +137,7 @@
 import Vue from "vue"
 import moment from "moment"
 
-import { handle } from "../utils"
+import { handle, protobufTimestampToDate } from "../utils"
 
 import { User, GetUserReq } from "../pb/api_pb"
 import {
@@ -156,10 +156,10 @@ export default Vue.extend({
     loading: 0,
     currentMessage: "",
     searchQuery: null as null | string,
-    conversations: [] as Array<GroupChat>,
-    userCache: {} as { [userId: number]: User },
+    conversations: [] as Array<GroupChat.AsObject>,
+    userCache: {} as { [userId: number]: User.AsObject },
     selectedConversation: null as null | number, // TODO: null by default
-    messages: [] as Array<Message>,
+    messages: [] as Array<Message.AsObject>,
   }),
 
   computed: mapState(["user"]),
@@ -177,7 +177,7 @@ export default Vue.extend({
       conversations
         .getGroupChatMessages(req)
         .then((res) => {
-          this.messages = res.getMessagesList()
+          this.messages = res.getMessagesList().map((msg) => msg.toObject())
           this.sortMessages()
         })
         .catch(console.error)
@@ -190,11 +190,12 @@ export default Vue.extend({
     sortMessages() {
       this.messages = this.messages.sort(
         (f, s) =>
-          f.getTime()!.toDate().getTime() - s.getTime()!.toDate().getTime()
+          protobufTimestampToDate(f.time!).getTime() -
+          protobufTimestampToDate(s.time!).getTime()
       )
     },
 
-    getUser(userId: number) {
+    getUser(userId: number): null | User.AsObject {
       if (!(userId in this.userCache)) {
         console.debug("Pretend to fetch user")
         // TODO: do this async stuff
@@ -229,7 +230,7 @@ export default Vue.extend({
     fetchUpdates() {
       const req = new GetUpdatesReq()
       req.setNewestMessageId(
-        Math.max(0, ...this.messages.map((msg) => msg.getMessageId()))
+        Math.max(0, ...this.messages.map((msg) => msg.messageId))
       )
       conversations
         .getUpdates(req)
@@ -241,7 +242,7 @@ export default Vue.extend({
             )
             .map((update) => update.getMessage()!)
             .forEach((msg) => {
-              this.messages.push(msg)
+              this.messages.push(msg.toObject())
             })
           this.sortMessages()
         })
@@ -255,10 +256,12 @@ export default Vue.extend({
         .listGroupChats(req)
         .then((res) => {
           this.loading -= 1
-          this.conversations = res.getGroupChatsList()
+          this.conversations = res
+            .getGroupChatsList()
+            .map((chat) => chat.toObject())
           const userIds = new Set() as Set<number>
           this.conversations.forEach((conv) => {
-            conv.getMemberUserIdsList().forEach((userId) => userIds.add(userId))
+            conv.memberUserIdsList.forEach((userId) => userIds.add(userId))
           })
           userIds.forEach((userId) => {
             this.loading += 1
@@ -268,7 +271,7 @@ export default Vue.extend({
               .getUser(req)
               .then((res) => {
                 this.loading -= 1
-                this.userCache[res.getUserId()] = res
+                this.userCache[res.getUserId()] = res.toObject()
               })
               .catch((err) => {
                 this.loading -= 1
@@ -282,36 +285,34 @@ export default Vue.extend({
         })
     },
 
-    conversationChip(conversation: GroupChat) {
-      return conversation.getUnseenMessageCount()
+    conversationChip(conversation: GroupChat.AsObject) {
+      return conversation.unseenMessageCount
     },
 
-    conversationAvatar(conversation: GroupChat) {
-      const user = this.getUser(
-        conversation.getLatestMessage()!.getAuthorUserId()
-      )
+    conversationAvatar(conversation: GroupChat.AsObject) {
+      const user = this.getUser(conversation.latestMessage!.authorUserId)
       if (user) {
-        return user.getColor()
+        return user.color
       } else {
         return "red" // TODO
       }
     },
 
-    conversationTitle(conversation: GroupChat) {
-      if (conversation.getIsDm()) {
-        const otherUserId = conversation
-          .getMemberUserIdsList()
-          .filter((userId) => userId != this.user.userId)[0]
+    conversationTitle(conversation: GroupChat.AsObject) {
+      if (conversation.isDm) {
+        const otherUserId = conversation.memberUserIdsList.filter(
+          (userId) => userId != this.user.userId
+        )[0]
         const otherUser = this.userCache[otherUserId]
-        return `${otherUser.getName()} (${handle(otherUser.getUsername())})`
+        return `${otherUser.name} (${handle(otherUser.username)})`
       }
-      return conversation.getTitle() || "<i>Untitled</i>"
+      return conversation.title || "<i>Untitled</i>"
     },
 
-    conversationSubtitle(conversation: GroupChat) {
-      const message = conversation.getLatestMessage()!
+    conversationSubtitle(conversation: GroupChat.AsObject) {
+      const message = conversation.latestMessage!
       return (
-        `<b>${this.messageAuthor(message)}</b>: ${message.getText()}` ||
+        `<b>${this.messageAuthor(message)}</b>: ${message.text}` ||
         "<i>No messages</i>"
       )
     },
@@ -320,36 +321,35 @@ export default Vue.extend({
       this.selectedConversation = conversationId
     },
 
-    messageColor(message: Message) {
-      const user = this.getUser(message.getAuthorUserId())
+    messageColor(message: Message.AsObject) {
+      const user = this.getUser(message.authorUserId)
       if (!user) {
         return "red"
       }
-      return user.getColor()
+      return user.color
     },
 
-    messageAuthor(message: Message) {
-      const user = this.getUser(message.getAuthorUserId())
+    messageAuthor(message: Message.AsObject) {
+      const user = this.getUser(message.authorUserId)
       if (!user) {
         return "error"
       }
-      return user.getName().split(" ")[0]
+      return user.name.split(" ")[0]
     },
 
-    messageAvatarText(message: Message) {
-      const user = this.getUser(message.getAuthorUserId())
+    messageAvatarText(message: Message.AsObject) {
+      const user = this.getUser(message.authorUserId)
       if (!user) {
         return "ERR"
       }
-      return user
-        .getName()
+      return user.name
         .split(" ")
         .map((name) => name[0])
         .join("")
     },
 
-    messageDisplayTime(message: Message) {
-      const date = message.getTime()!.toDate()
+    messageDisplayTime(message: Message.AsObject) {
+      const date = protobufTimestampToDate(message.time!)
       if (new Date().getTime() - date.getTime() > 120 * 60 * 1000) {
         // longer than 2h ago, display as absolute
         return moment(date).format("lll")
@@ -359,8 +359,8 @@ export default Vue.extend({
       }
     },
 
-    isMyMessage(message: Message) {
-      return message.getAuthorUserId() === this.user.userId
+    isMyMessage(message: Message.AsObject) {
+      return message.authorUserId === this.user.userId
     },
   },
 })
