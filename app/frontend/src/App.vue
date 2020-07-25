@@ -14,7 +14,7 @@
     <v-app-bar app color="primary" dark clipped-left>
       <v-app-bar-nav-icon
         v-if="authenticated && !anonRoute"
-        @click.stop="drawer = !drawer"
+        @click.stop="updateDrawerOpen(!drawerOpen)"
       />
       <v-toolbar-title class="ml-0 pl-4">Couchers.org</v-toolbar-title>
       <v-spacer></v-spacer>
@@ -23,7 +23,7 @@
       <v-spacer></v-spacer>
     </v-app-bar>
 
-    <drawer v-if="authenticated && !anonRoute" v-model="drawer" />
+    <drawer v-if="authenticated && !anonRoute" />
 
     <router-view />
   </v-app>
@@ -32,7 +32,7 @@
 <script lang="ts">
 import Vue from "vue"
 
-import { mapGetters } from "vuex"
+import { mapGetters, mapState, mapMutations } from "vuex"
 
 import Store from "./store"
 
@@ -47,21 +47,16 @@ export default Vue.extend({
     SearchBox,
   },
 
-  data: () => ({
-    drawer: false,
-  }),
-
   computed: {
     anonRoute() {
       return this.$route.meta.noAuth
     },
     ...mapGetters(["authenticated"]),
+    ...mapState(["drawerOpen"]),
   },
 
   methods: {
-    drawerChange(val: boolean) {
-      this.drawer = val
-    },
+    ...mapMutations(["updateDrawerOpen"]),
   },
 })
 </script>

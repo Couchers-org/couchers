@@ -22,13 +22,14 @@ const PING_SLACK = 100 // ms
 export default new Vuex.Store({
   state: {
     error: null,
+    drawerOpen: false, // whether the drawer (left hand sidebar) should be open
     user: null as null | User.AsObject,
     authToken: null as null | string,
     lastPing: 0 as number,
     pingTimeout: null as null | number,
   },
   mutations: {
-    auth(state, { authToken }) {
+    auth(state, authToken) {
       state.authToken = authToken
     },
     deauth(state) {
@@ -36,11 +37,14 @@ export default new Vuex.Store({
       state.user = null
       Router.push({ name: "Login" })
     },
+    updateDrawerOpen(state, drawerOpen) {
+      state.drawerOpen = drawerOpen
+    },
     error(state, errorMessage) {
       console.error(errorMessage)
       state.error = errorMessage
     },
-    updateUser(state, { user }) {
+    updateUser(state, user) {
       state.user = user
     },
     clearPingTimeout(state) {
@@ -48,7 +52,7 @@ export default new Vuex.Store({
         clearTimeout(state.pingTimeout!)
       }
     },
-    setPingTimeout(state, { timeout }) {
+    setPingTimeout(state, timeout) {
       state.pingTimeout = timeout
     },
     updateLastPing(state) {
@@ -56,8 +60,8 @@ export default new Vuex.Store({
     },
   },
   actions: {
-    auth(ctx, { authToken }) {
-      ctx.commit("auth", { authToken })
+    auth(ctx, authToken) {
+      ctx.commit("auth", authToken)
       ctx.dispatch("refreshUser")
     },
     ping(ctx) {
@@ -67,9 +71,7 @@ export default new Vuex.Store({
         client
           .ping(new PingReq())
           .then((res) => {
-            ctx.commit("updateUser", {
-              user: res.getUser()!.toObject(),
-            })
+            ctx.commit("updateUser", res.getUser()!.toObject())
           })
           .catch((err) => {
             console.error("Failed to ping server: ", err)
@@ -83,6 +85,8 @@ export default new Vuex.Store({
     scheduler(ctx) {
       // schedules pinging and makes sure it's run as close to every PING_FREQ
       // as possible
+
+      console.info(ctx.state)
 
       // clear any timeout to stop having multiple loops
       ctx.commit("clearPingTimeout")

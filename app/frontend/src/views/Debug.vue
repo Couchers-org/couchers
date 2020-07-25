@@ -3,7 +3,9 @@
     <v-container fill-height>
       <v-container fluid>
         <h1>Debug page</h1>
-        <p>Currently logged in as {{ user ? user.username : "not logged in" }}</p>
+        <p>
+          Currently logged in as {{ user ? user.username : "not logged in" }}
+        </p>
         <p>
           <v-btn @click="login('aapeli', 'Aapeli\'s password')"
             >Login as user "aapeli"</v-btn
@@ -52,9 +54,7 @@ export default Vue.extend({
         .authenticate(req)
         .then((res) => {
           console.log("logged in")
-          Store.dispatch("auth", {
-            authToken: res.getToken(),
-          })
+          Store.dispatch("auth", res.getToken())
         })
         .catch(console.error)
     },

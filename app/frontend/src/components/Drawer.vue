@@ -82,28 +82,26 @@ import Store from "../store"
 import { handle } from "../utils"
 
 import { client } from "../api"
-import { mapState } from "vuex"
+import { mapState, mapMutations } from "vuex"
 
 export default Vue.extend({
-  props: {
-    value: Boolean,
-  },
-
   methods: {
     handle,
+
+    ...mapMutations(["updateDrawerOpen"]),
   },
 
   computed: {
     visible: {
       get(): boolean {
-        return this.value
+        return this.drawerOpen
       },
       set(val: boolean): void {
-        this.$emit("input", val)
+        this.updateDrawerOpen(val)
       },
     },
 
-    ...mapState(["user"]),
+    ...mapState(["user", "drawerOpen"]),
   },
 })
 </script>

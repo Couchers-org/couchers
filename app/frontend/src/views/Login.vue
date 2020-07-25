@@ -160,9 +160,7 @@ export default Vue.extend({
           .then((res) => {
             this.loading = false
             this.successMessages = ["Success."]
-            Store.dispatch("auth", {
-              authToken: res.getToken(),
-            })
+            Store.dispatch("auth", res.getToken())
             Router.push("/")
           })
           .catch((err) => {
