@@ -1,136 +1,133 @@
 <template>
   <v-main>
     <v-container fluid>
-      <v-container fluid>
-        <v-row dense>
-          <v-col cols="4">
-            <v-card tile>
-              <v-list v-if="loading != 0" three-line>
-                <v-subheader>Loading...</v-subheader>
-              </v-list>
-              <v-list v-if="loading == 0" two-line>
-                <v-list-item>
-                  <v-text-field
-                    v-model="searchQuery"
-                    single-line
-                    solo
-                    flat
-                    hide-details
-                    label="Search"
-                    prepend-icon="mdi-magnify"
-                    v-on:keyup.enter="search"
-                  ></v-text-field>
-                </v-list-item>
-                <v-subheader v-if="!conversations.length">Empty!</v-subheader>
-                <template v-for="(conversation, index) in conversations">
-                  <v-divider :key="index + 'divider'"></v-divider>
-                  <v-list-item
-                    :key="conversation.groupChatId"
-                    @click="selectConversation(conversation.groupChatId)"
-                  >
-                    <v-list-item-avatar>
-                      <v-avatar :color="conversationAvatar(conversation)" />
-                    </v-list-item-avatar>
-                    <v-list-item-content>
-                      <v-list-item-title
-                        v-html="conversationTitle(conversation)"
-                      ></v-list-item-title>
-                      <v-list-item-subtitle
-                        v-html="conversationSubtitle(conversation)"
-                      ></v-list-item-subtitle>
-                    </v-list-item-content>
-                    <v-list-item-avatar>
-                      <v-chip
-                        v-if="conversationChip(conversation)"
-                        color="primary"
-                        v-text="conversationChip(conversation)"
-                        small
-                      />
-                    </v-list-item-avatar>
-                  </v-list-item>
-                </template>
-              </v-list>
-            </v-card>
-          </v-col>
-          <v-col cols="8">
-            <v-card tile height="600" style="overflow: auto;">
-              <v-subheader v-if="selectedConversation === null"
-                >Select a conversation...</v-subheader
-              >
-              <v-list v-else dense>
-                <v-subheader
-                  >Selected conversation:
-                  {{ selectedConversation }}</v-subheader
+      <v-row dense>
+        <v-col cols="4">
+          <v-card tile>
+            <v-list v-if="loading != 0" three-line>
+              <v-subheader>Loading...</v-subheader>
+            </v-list>
+            <v-list v-if="loading == 0" two-line>
+              <v-list-item>
+                <v-text-field
+                  v-model="searchQuery"
+                  single-line
+                  solo
+                  flat
+                  hide-details
+                  label="Search"
+                  prepend-icon="mdi-magnify"
+                  v-on:keyup.enter="search"
+                ></v-text-field>
+              </v-list-item>
+              <v-subheader v-if="!conversations.length">Empty!</v-subheader>
+              <template v-for="(conversation, index) in conversations">
+                <v-divider :key="index + 'divider'"></v-divider>
+                <v-list-item
+                  :key="conversation.groupChatId"
+                  @click="selectConversation(conversation.groupChatId)"
                 >
-                <template v-for="message in messages">
-                  <v-list-item
-                    v-if="isMyMessage(message)"
-                    :key="message.messageId"
-                  >
-                    <v-list-item-content class="py-1 bubble-content">
-                      <v-alert
-                        :color="messageColor(message)"
-                        class="white--text my-0 bubble-alert-mine"
-                        dense
-                      >
-                        <div class="subtitle mb-1">
-                          <b>{{ messageAuthor(message) }}</b> at
-                          {{ messageDisplayTime(message) }}
-                        </div>
-                        {{ message.text }}
-                      </v-alert>
-                    </v-list-item-content>
-                    <v-list-item-avatar>
-                      <v-avatar :color="messageColor(message)" size="36">
-                        <span class="white--text">{{
-                          messageAvatarText(message)
-                        }}</span>
-                      </v-avatar>
-                    </v-list-item-avatar>
-                  </v-list-item>
-                  <v-list-item v-else :key="message.messageId">
-                    <v-list-item-avatar>
-                      <v-avatar :color="messageColor(message)" size="36">
-                        <span class="white--text">{{
-                          messageAvatarText(message)
-                        }}</span>
-                      </v-avatar>
-                    </v-list-item-avatar>
-                    <v-list-item-content class="py-1 bubble-content">
-                      <v-alert
-                        :color="messageColor(message)"
-                        class="white--text my-0 bubble-alert-theirs"
-                        dense
-                      >
-                        <div class="subtitle mb-1">
-                          <b>{{ messageAuthor(message) }}</b> at
-                          {{ messageDisplayTime(message) }}
-                        </div>
-                        {{ message.text }}
-                      </v-alert>
-                    </v-list-item-content>
-                  </v-list-item>
-                </template>
-              </v-list>
-            </v-card>
-            <v-card tile>
-              <v-text-field
-                v-model="currentMessage"
-                autofocus
-                :disabled="!selectedConversation"
-                solo
-                flat
-                single-line
-                hide-details
-                label="Send a message"
-                append-icon="mdi-send"
-                @click:append="sendMessage"
-                v-on:keyup.enter="sendMessage"
-              ></v-text-field>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-container>
+                  <v-list-item-avatar>
+                    <v-avatar :color="conversationAvatar(conversation)" />
+                  </v-list-item-avatar>
+                  <v-list-item-content>
+                    <v-list-item-title
+                      v-html="conversationTitle(conversation)"
+                    ></v-list-item-title>
+                    <v-list-item-subtitle
+                      v-html="conversationSubtitle(conversation)"
+                    ></v-list-item-subtitle>
+                  </v-list-item-content>
+                  <v-list-item-avatar>
+                    <v-chip
+                      v-if="conversationChip(conversation)"
+                      color="primary"
+                      v-text="conversationChip(conversation)"
+                      small
+                    />
+                  </v-list-item-avatar>
+                </v-list-item>
+              </template>
+            </v-list>
+          </v-card>
+        </v-col>
+        <v-col cols="8">
+          <v-card tile height="600" style="overflow: auto;">
+            <v-subheader v-if="selectedConversation === null"
+              >Select a conversation...</v-subheader
+            >
+            <v-list v-else dense>
+              <v-subheader
+                >Selected conversation: {{ selectedConversation }}</v-subheader
+              >
+              <template v-for="message in messages">
+                <v-list-item
+                  v-if="isMyMessage(message)"
+                  :key="message.messageId"
+                >
+                  <v-list-item-content class="py-1 bubble-content">
+                    <v-alert
+                      :color="messageColor(message)"
+                      class="white--text my-0 bubble-alert-mine"
+                      dense
+                    >
+                      <div class="subtitle mb-1">
+                        <b>{{ messageAuthor(message) }}</b> at
+                        {{ messageDisplayTime(message) }}
+                      </div>
+                      {{ message.text }}
+                    </v-alert>
+                  </v-list-item-content>
+                  <v-list-item-avatar>
+                    <v-avatar :color="messageColor(message)" size="36">
+                      <span class="white--text">{{
+                        messageAvatarText(message)
+                      }}</span>
+                    </v-avatar>
+                  </v-list-item-avatar>
+                </v-list-item>
+                <v-list-item v-else :key="message.messageId">
+                  <v-list-item-avatar>
+                    <v-avatar :color="messageColor(message)" size="36">
+                      <span class="white--text">{{
+                        messageAvatarText(message)
+                      }}</span>
+                    </v-avatar>
+                  </v-list-item-avatar>
+                  <v-list-item-content class="py-1 bubble-content">
+                    <v-alert
+                      :color="messageColor(message)"
+                      class="white--text my-0 bubble-alert-theirs"
+                      dense
+                    >
+                      <div class="subtitle mb-1">
+                        <b>{{ messageAuthor(message) }}</b> at
+                        {{ messageDisplayTime(message) }}
+                      </div>
+                      {{ message.text }}
+                    </v-alert>
+                  </v-list-item-content>
+                </v-list-item>
+              </template>
+            </v-list>
+          </v-card>
+          <v-card tile>
+            <v-text-field
+              v-model="currentMessage"
+              autofocus
+              :disabled="!selectedConversation"
+              solo
+              flat
+              single-line
+              hide-details
+              label="Send a message"
+              append-icon="mdi-send"
+              @click:append="sendMessage"
+              v-on:keyup.enter="sendMessage"
+            ></v-text-field>
+          </v-card>
+        </v-col>
+      </v-row>
     </v-container>
   </v-main>
 </template>
