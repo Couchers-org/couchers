@@ -38,8 +38,8 @@ class User(Base):
     phone = Column(String, nullable=True, unique=True)
     phone_status = Column(Enum(PhoneStatus), nullable=True)
 
-    joined = Column(DateTime, nullable=False, server_default=func.now())
-    last_active = Column(DateTime, nullable=False, server_default=func.now())
+    joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    last_active = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     # display name
     name = Column(String, nullable=False)
@@ -148,8 +148,8 @@ class FriendRelationship(Base):
 
     status = Column(Enum(FriendStatus), nullable=False, default=FriendStatus.pending)
 
-    time_sent = Column(DateTime, nullable=False, server_default=func.now())
-    time_responded = Column(DateTime, nullable=True)
+    time_sent = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    time_responded = Column(DateTime(timezone=True), nullable=True)
 
     from_user = relationship("User", backref="friends_from", foreign_keys="FriendRelationship.from_user_id")
     to_user = relationship("User", backref="friends_to", foreign_keys="FriendRelationship.to_user_id")
@@ -164,8 +164,8 @@ class SignupToken(Base):
 
     email = Column(String, nullable=False)
 
-    created = Column(DateTime, nullable=False, server_default=func.now())
-    expiry = Column(DateTime, nullable=False)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    expiry = Column(DateTime(timezone=True), nullable=False)
 
     def __repr__(self):
         return f"SignupToken(token={self.token}, email={self.email}, created={self.created}, expiry={self.expiry})"
@@ -180,8 +180,8 @@ class LoginToken(Base):
 
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
-    created = Column(DateTime, nullable=False, server_default=func.now())
-    expiry = Column(DateTime, nullable=False)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    expiry = Column(DateTime(timezone=True), nullable=False)
 
     user = relationship("User", backref="login_tokens")
 
@@ -198,7 +198,7 @@ class UserSession(Base):
 
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
-    started = Column(DateTime, nullable=False, server_default=func.now())
+    started = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     user = relationship("User", backref="sessions")
 
@@ -210,7 +210,7 @@ class Reference(Base):
     __tablename__ = "references"
 
     id = Column(Integer, primary_key=True)
-    time = Column(DateTime, nullable=False, server_default=func.now())
+    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     from_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     to_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -231,7 +231,7 @@ class Conversation(Base):
     __tablename__ = "conversations"
 
     id = Column(Integer, primary_key=True)
-    created = Column(DateTime, nullable=False, server_default=func.now())
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     def __repr__(self):
         return f"Conversation(id={self.id}, created={self.created})"
@@ -273,8 +273,8 @@ class GroupChatSubscription(Base):
     user_id = Column(ForeignKey("users.id"), nullable=False)
     group_chat_id = Column(ForeignKey("group_chats.id"), nullable=False)
 
-    joined = Column(DateTime, nullable=False, server_default=func.now())
-    left = Column(DateTime, nullable=True)
+    joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    left = Column(DateTime(timezone=True), nullable=True)
 
     role = Column(Enum(GroupChatRole), nullable=False)
 
@@ -311,7 +311,7 @@ class Message(Base):
     conversation_id = Column(ForeignKey("conversations.id"), nullable=False)
     author_id = Column(ForeignKey("users.id"), nullable=False)
 
-    time = Column(DateTime, nullable=False, server_default=func.now())
+    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     text = Column(String, nullable=False)
 
     conversation = relationship("Conversation", backref="messages", order_by="Message.time.desc()")
