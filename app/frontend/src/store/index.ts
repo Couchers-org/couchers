@@ -32,10 +32,13 @@ export default new Vuex.Store({
     auth(state, authToken) {
       state.authToken = authToken
     },
-    deauth(state) {
+    deauth(state, reason) {
       state.authToken = null
       state.user = null
-      Router.push({ name: "Login" })
+      Router.push({
+        name: "Login",
+        params: { reason: reason || "You were logged out." },
+      })
     },
     updateDrawerOpen(state, drawerOpen) {
       state.drawerOpen = drawerOpen
