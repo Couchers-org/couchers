@@ -39,6 +39,8 @@ import Store from "./store"
 import Drawer from "./components/Drawer.vue"
 import SearchBox from "./components/SearchBox.vue"
 
+Store.dispatch("scheduler")
+
 export default Vue.extend({
   components: {
     Drawer,

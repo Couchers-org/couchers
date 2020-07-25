@@ -3,7 +3,7 @@
     <v-container fill-height>
       <v-container fluid>
         <h1>Debug page</h1>
-        <p>Currently logged in as {{ user.username }}</p>
+        <p>Currently logged in as {{ user ? user.username : "not logged in" }}</p>
         <p>
           <v-btn @click="login('aapeli', 'Aapeli\'s password')"
             >Login as user "aapeli"</v-btn
@@ -29,7 +29,6 @@ import Vue from "vue"
 
 import { client, authClient } from "../api"
 import { AuthReq, LoginReq, LoginRes } from "../pb/auth_pb"
-import * as grpcWeb from "grpc-web"
 
 import Store from "../store"
 import Router from "../router"

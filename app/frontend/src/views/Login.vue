@@ -73,7 +73,7 @@ import Vue from "vue"
 
 import { authClient } from "../api"
 import { AuthReq, LoginReq, LoginRes } from "../pb/auth_pb"
-import * as grpcWeb from "grpc-web"
+import { StatusCode } from "grpc-web"
 
 import Store from "../store"
 import Router from "../router"
@@ -167,7 +167,7 @@ export default Vue.extend({
           })
           .catch((err) => {
             this.loading = false
-            if (err.code == grpcWeb.StatusCode.UNAUTHENTICATED) {
+            if (err.code == StatusCode.UNAUTHENTICATED) {
               this.passErrorMessages = ["Invalid username or password."]
             } else {
               this.passErrorMessages = ["Unknown error."]
