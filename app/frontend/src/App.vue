@@ -32,6 +32,8 @@
 <script lang="ts">
 import Vue from "vue"
 
+import { mapGetters } from "vuex"
+
 import Store from "./store"
 
 import Drawer from "./components/Drawer.vue"
@@ -48,12 +50,10 @@ export default Vue.extend({
   }),
 
   computed: {
-    authenticated() {
-      return Store.getters.authenticated
-    },
     anonRoute() {
       return this.$route.meta.noAuth
     },
+    ...mapGetters(["authenticated"]),
   },
 
   methods: {

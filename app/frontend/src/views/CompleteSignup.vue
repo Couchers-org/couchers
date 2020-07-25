@@ -121,7 +121,7 @@ import {
   UsernameValidReq,
 } from "../pb/auth_pb"
 
-import Store, { AuthenticationState } from "../store"
+import Store from "../store"
 
 import Router from "../router"
 import ErrorAlert from "../components/ErrorAlert.vue"
@@ -225,8 +225,7 @@ export default Vue.extend({
         .then((res) => {
           this.loading = false
           this.successMessages = ["Success."]
-          Store.commit("auth", {
-            authState: AuthenticationState.Authenticated,
+          Store.dispatch("auth", {
             authToken: res.getToken(),
           })
           Router.push("/profile")

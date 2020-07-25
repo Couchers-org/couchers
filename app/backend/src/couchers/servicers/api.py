@@ -26,10 +26,34 @@ class API(api_pb2_grpc.APIServicer):
             # auth ought to make sure the user exists
             user = session.query(User).filter(User.id == context.user_id).one()
             return api_pb2.PingRes(
-                user_id=user.id,
-                username=user.username,
-                name=user.name,
-                color=user.color
+                user=api_pb2.User(
+                    user_id=user.id,
+                    username=user.username,
+                    name=user.name,
+                    city=user.city,
+                    verification=user.verification,
+                    community_standing=user.community_standing,
+                    num_references=0,
+                    gender=user.gender,
+                    age=user.age,
+                    color=user.color,
+                    joined=Timestamp_from_datetime(user.display_joined),
+                    last_active=Timestamp_from_datetime(user.display_last_active),
+                    occupation=user.occupation,
+                    about_me=user.about_me,
+                    about_place=user.about_place,
+                    languages=user.languages.split("|") if user.languages else [],
+                    countries_visited=user.countries_visited.split("|") if user.countries_visited else [],
+                    countries_lived=user.countries_lived.split("|") if user.countries_lived else [],
+                    friends=get_friends_status(session, context.user_id, user.id),
+                    mutual_friends=[
+                        api_pb2.MutualFriend(
+                            user_id=mutual_friend.id,
+                            username=mutual_friend.username,
+                            name=mutual_friend.name,
+                        ) for mutual_friend in user.mutual_friends(context.user_id)
+                    ],
+                ),
             )
 
     def GetUser(self, request, context):

@@ -75,7 +75,7 @@ import { authClient } from "../api"
 import { AuthReq, LoginReq, LoginRes } from "../pb/auth_pb"
 import * as grpcWeb from "grpc-web"
 
-import Store, { AuthenticationState } from "../store"
+import Store from "../store"
 import Router from "../router"
 
 export default Vue.extend({
@@ -160,8 +160,7 @@ export default Vue.extend({
           .then((res) => {
             this.loading = false
             this.successMessages = ["Success."]
-            Store.commit("auth", {
-              authState: AuthenticationState.Authenticated,
+            Store.dispatch("auth", {
               authToken: res.getToken(),
             })
             Router.push("/")

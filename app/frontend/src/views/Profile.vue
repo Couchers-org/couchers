@@ -206,7 +206,7 @@ export default Vue.extend({
       this.error = null
 
       const req = new GetUserReq()
-      req.setUser(Store.state.username!)
+      req.setUser(this.user.username!)
       client
         .getUser(req)
         .then((res) => {
@@ -321,8 +321,6 @@ export default Vue.extend({
   },
 
   computed: {
-    ...mapState(["username"]),
-
     lastActiveDisplay(): string {
       if (!this.user.lastActive) {
         return "unknown"
@@ -348,6 +346,8 @@ export default Vue.extend({
     countriesLivedListDisplay(): string {
       return displayList(this.user.countriesLivedList)
     },
+
+    ...mapState(["user"]),
   },
 })
 </script>

@@ -1,7 +1,6 @@
 <template>
   <v-main>
     <v-container fluid>
-      DEBUG your user ID: <v-text-field v-model="myUserId"></v-text-field>
       <v-container fluid>
         <v-row dense>
           <v-col cols="4">
@@ -150,18 +149,20 @@ import {
   GetUpdatesReq,
 } from "../pb/conversations_pb"
 import { client, conversations } from "../api"
+import { mapState } from "vuex"
 
 export default Vue.extend({
   data: () => ({
     loading: 0,
     currentMessage: "",
-    myUserId: 2, // TODO TODO TODO
     searchQuery: null as null | string,
     conversations: [] as Array<GroupChat>,
     userCache: {} as { [userId: number]: User },
     selectedConversation: null as null | number, // TODO: null by default
     messages: [] as Array<Message>,
   }),
+
+  computed: mapState(["user"]),
 
   created() {
     this.fetchData()
@@ -300,7 +301,7 @@ export default Vue.extend({
       if (conversation.getIsDm()) {
         const otherUserId = conversation
           .getMemberUserIdsList()
-          .filter((userId) => userId != this.myUserId)[0]
+          .filter((userId) => userId != this.user.userId)[0]
         const otherUser = this.userCache[otherUserId]
         return `${otherUser.getName()} (${handle(otherUser.getUsername())})`
       }
@@ -359,7 +360,7 @@ export default Vue.extend({
     },
 
     isMyMessage(message: Message) {
-      return message.getAuthorUserId() === this.myUserId
+      return message.getAuthorUserId() === this.user.userId
     },
   },
 })

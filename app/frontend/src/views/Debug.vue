@@ -3,10 +3,7 @@
     <v-container fill-height>
       <v-container fluid>
         <h1>Debug page</h1>
-        <p>
-          Currently logged in as {{ username }} (this is probably wrong, issue
-          #115)
-        </p>
+        <p>Currently logged in as {{ user.username }}</p>
         <p>
           <v-btn @click="login('aapeli', 'Aapeli\'s password')"
             >Login as user "aapeli"</v-btn
@@ -31,11 +28,10 @@
 import Vue from "vue"
 
 import { client, authClient } from "../api"
-import { PingReq } from "../pb/api_pb"
 import { AuthReq, LoginReq, LoginRes } from "../pb/auth_pb"
 import * as grpcWeb from "grpc-web"
 
-import Store, { AuthenticationState } from "../store"
+import Store from "../store"
 import Router from "../router"
 
 import { mapState } from "vuex"
@@ -45,7 +41,7 @@ export default Vue.extend({
     //
   }),
 
-  computed: mapState(["username"]),
+  computed: mapState(["user"]),
 
   methods: {
     login(username: string, password: string) {
@@ -57,22 +53,9 @@ export default Vue.extend({
         .authenticate(req)
         .then((res) => {
           console.log("logged in")
-          Store.commit("auth", {
-            authState: AuthenticationState.Authenticated,
+          Store.dispatch("auth", {
             authToken: res.getToken(),
           })
-          client
-            .ping(new PingReq())
-            .then((res) => {
-              Store.commit("updateUser", {
-                username: res.getUsername(),
-                name: res.getName(),
-                color: res.getColor(),
-              })
-            })
-            .catch((err) => {
-              console.error("Failed to ping server: ", err)
-            })
         })
         .catch(console.error)
     },

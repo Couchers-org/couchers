@@ -3,46 +3,51 @@ import Vuex from "vuex"
 
 import createPersistedState from "vuex-persistedstate"
 
-Vue.use(Vuex)
+import { User, PingReq } from "../pb/api_pb"
+import { client } from "../api"
 
-export enum AuthenticationState {
-  Authenticated = 0,
-  None = 1,
-}
+Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
     error: null,
-    username: null as null | string,
-    name: null as null | string,
-    color: null,
-    auth: AuthenticationState.None,
+    user: null as null | User.AsObject,
     authToken: null as null | string,
   },
   mutations: {
-    auth(state, { authState, authToken }) {
-      state.auth = authState
+    auth(state, { authToken }) {
       state.authToken = authToken
     },
     deauth(state) {
-      state.auth = AuthenticationState.None
       state.authToken = null
-      state.username = null
-      state.name = "Not logged in"
+      state.user = null
     },
     error(state, errorMessage) {
       console.error(errorMessage)
       state.error = errorMessage
     },
-    updateUser(state, { username, name }) {
-      state.username = username
-      state.name = name
+    updateUser(state, { user }) {
+      state.user = user
     },
   },
-  actions: {},
+  actions: {
+    auth(ctx, { authToken }) {
+      ctx.commit("auth", { authToken })
+      client
+        .ping(new PingReq())
+        .then((res) => {
+          ctx.commit("updateUser", {
+            user: res.getUser()!.toObject(),
+          })
+        })
+        .catch((err) => {
+          console.error("Failed to ping server: ", err)
+        })
+    },
+  },
   modules: {},
   getters: {
-    authenticated: (state) => state.auth == AuthenticationState.Authenticated,
+    authenticated: (state) => state.authToken !== null,
   },
   plugins: [createPersistedState()],
 })
