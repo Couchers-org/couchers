@@ -2,11 +2,11 @@
   <v-navigation-drawer v-model="visible" app clipped>
     <v-list-item>
       <v-list-item-avatar>
-        <v-avatar :color="color" />
+        <v-avatar :color="user.color" />
       </v-list-item-avatar>
       <v-list-item-content>
-        <v-list-item-title class="title">{{ name }}</v-list-item-title>
-        <v-list-item-subtitle>{{ handle(username) }}</v-list-item-subtitle>
+        <v-list-item-title class="title">{{ user.name }}</v-list-item-title>
+        <v-list-item-subtitle>{{ handle(user.username) }}</v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
 
@@ -81,63 +81,27 @@ import Store from "../store"
 
 import { handle } from "../utils"
 
-import { PingReq } from "../pb/api_pb"
-
 import { client } from "../api"
+import { mapState, mapMutations } from "vuex"
 
 export default Vue.extend({
-  props: {
-    value: Boolean,
-  },
-
-  watch: {
-    "$store.state.auth": "updateData",
-  },
-
   methods: {
     handle,
 
-    updateData() {
-      client
-        .ping(new PingReq())
-        .then((res) => {
-          Store.commit("updateUser", {
-            username: res.getUsername(),
-            name: res.getName(),
-            color: res.getColor(),
-          })
-        })
-        .catch((err) => {
-          console.error("Failed to ping server: ", err)
-        })
-    },
-  },
-
-  mounted() {
-    this.updateData()
+    ...mapMutations(["updateDrawerOpen"]),
   },
 
   computed: {
     visible: {
       get(): boolean {
-        return this.value
+        return this.drawerOpen
       },
       set(val: boolean): void {
-        this.$emit("input", val)
+        this.updateDrawerOpen(val)
       },
     },
 
-    username() {
-      return Store.state.username
-    },
-
-    name() {
-      return Store.state.name
-    },
-
-    color() {
-      return Store.state.color
-    },
+    ...mapState(["user", "drawerOpen"]),
   },
 })
 </script>

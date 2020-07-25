@@ -4,8 +4,7 @@
       <v-container fluid>
         <h1>Debug page</h1>
         <p>
-          Currently logged in as {{ username }} (this is probably wrong, issue
-          #115)
+          Currently logged in as {{ user ? user.username : "not logged in" }}
         </p>
         <p>
           <v-btn @click="login('aapeli', 'Aapeli\'s password')"
@@ -31,11 +30,9 @@
 import Vue from "vue"
 
 import { client, authClient } from "../api"
-import { PingReq } from "../pb/api_pb"
 import { AuthReq, LoginReq, LoginRes } from "../pb/auth_pb"
-import * as grpcWeb from "grpc-web"
 
-import Store, { AuthenticationState } from "../store"
+import Store from "../store"
 import Router from "../router"
 
 import { mapState } from "vuex"
@@ -45,7 +42,7 @@ export default Vue.extend({
     //
   }),
 
-  computed: mapState(["username"]),
+  computed: mapState(["user"]),
 
   methods: {
     login(username: string, password: string) {
@@ -56,23 +53,8 @@ export default Vue.extend({
       authClient
         .authenticate(req)
         .then((res) => {
-          console.log("logged in")
-          Store.commit("auth", {
-            authState: AuthenticationState.Authenticated,
-            authToken: res.getToken(),
-          })
-          client
-            .ping(new PingReq())
-            .then((res) => {
-              Store.commit("updateUser", {
-                username: res.getUsername(),
-                name: res.getName(),
-                color: res.getColor(),
-              })
-            })
-            .catch((err) => {
-              console.error("Failed to ping server: ", err)
-            })
+          console.debug("Logged in")
+          Store.dispatch("auth", res.getToken())
         })
         .catch(console.error)
     },
@@ -88,7 +70,7 @@ export default Vue.extend({
               console.error("Actually need password for this user")
               break
             case LoginRes.LoginStep.SENT_LOGIN_EMAIL:
-              console.log("Sent link, check logs")
+              console.debug("Sent link, check logs")
               break
             case LoginRes.LoginStep.INVALID_USER:
               console.error("Invalid user")

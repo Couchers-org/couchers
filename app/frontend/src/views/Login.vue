@@ -73,9 +73,9 @@ import Vue from "vue"
 
 import { authClient } from "../api"
 import { AuthReq, LoginReq, LoginRes } from "../pb/auth_pb"
-import * as grpcWeb from "grpc-web"
+import { StatusCode } from "grpc-web"
 
-import Store, { AuthenticationState } from "../store"
+import Store from "../store"
 import Router from "../router"
 
 export default Vue.extend({
@@ -160,15 +160,12 @@ export default Vue.extend({
           .then((res) => {
             this.loading = false
             this.successMessages = ["Success."]
-            Store.commit("auth", {
-              authState: AuthenticationState.Authenticated,
-              authToken: res.getToken(),
-            })
+            Store.dispatch("auth", res.getToken())
             Router.push("/")
           })
           .catch((err) => {
             this.loading = false
-            if (err.code == grpcWeb.StatusCode.UNAUTHENTICATED) {
+            if (err.code == StatusCode.UNAUTHENTICATED) {
               this.passErrorMessages = ["Invalid username or password."]
             } else {
               this.passErrorMessages = ["Unknown error."]

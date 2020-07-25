@@ -38,7 +38,6 @@ export default Vue.extend({
       .deauthenticate(req)
       .then(() => {
         Store.commit("deauth")
-        Router.push({ name: "Login" })
       })
       .catch((err) => {
         this.loading = false

@@ -60,7 +60,6 @@ export default Vue.extend({
         .then((res) => {
           this.loading = false
           this.users = res.toObject().usersList
-          console.log(res.toObject())
         })
         .catch((err) => {
           this.loading = false

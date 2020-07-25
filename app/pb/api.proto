@@ -82,11 +82,7 @@ message ListFriendsRes {
 message PingReq {}
 
 message PingRes {
-  // Basic info about user
-  uint64 user_id = 1;
-  string username = 2;
-  string name = 3;
-  string color = 4;
+  User user = 1;
 }
 
 message MutualFriend {
