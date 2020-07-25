@@ -20,6 +20,22 @@
                   v-on:keyup.enter="search"
                 ></v-text-field>
               </v-list-item>
+              <v-divider></v-divider>
+              <v-list-item @click="newConversation()">
+                <v-list-item-avatar>
+                  <v-avatar color="primary">
+                    <v-icon color="white">mdi-plus</v-icon>
+                  </v-avatar>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title>New message</v-list-item-title>
+                  <v-list-item-subtitle
+                    >Start a new group chat or send a direct
+                    message</v-list-item-subtitle
+                  >
+                </v-list-item-content>
+              </v-list-item>
+              <v-divider></v-divider>
               <v-subheader v-if="!conversations.length">Empty!</v-subheader>
               <template v-for="(conversation, index) in conversations">
                 <v-divider :key="index + 'divider'"></v-divider>
@@ -185,6 +201,10 @@ export default Vue.extend({
 
   methods: {
     handle,
+
+    newConversation() {
+      //
+    },
 
     sortMessages() {
       this.messages = this.messages.sort(
