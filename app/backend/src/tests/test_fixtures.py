@@ -1,6 +1,6 @@
 from concurrent import futures
 from contextlib import contextmanager
-from datetime import date
+from datetime import date, timedelta
 from unittest.mock import patch
 
 import grpc
@@ -8,13 +8,14 @@ import pytest
 from couchers.crypto import random_hex
 from couchers.db import session_scope
 from couchers.interceptors import intercept_server
-from couchers.models import Base, FriendRelationship, FriendStatus, User
+from couchers.models import Base, FriendRelationship, FriendStatus, User, Message
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
 from couchers.servicers.conversations import Conversations
 from pb import api_pb2_grpc, auth_pb2, conversations_pb2_grpc
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.event import listen, remove
 
 
 @pytest.fixture
@@ -129,3 +130,42 @@ def conversations_session(db, token):
         yield conversations_pb2_grpc.ConversationsStub(channel)
 
     server.stop(None)
+
+@contextmanager
+def patch_message_time(time, add=0):
+    def set_timestamp(mapper, connection, target):
+        t = time + timedelta(seconds=add)
+        target.time = t
+    listen(Base, "before_insert", set_timestamp,
+                    propagate=True)
+    listen(Base, "before_update", set_timestamp,
+                    propagate=True)
+    yield
+    remove(Base, "before_insert", set_timestamp)
+    remove(Base, "before_update", set_timestamp)
+
+@contextmanager
+def patch_joined_time(time, add=0):
+    def set_timestamp(mapper, connection, target):
+        t = time + timedelta(seconds=add)
+        target.joined = t
+    listen(Base, "before_insert", set_timestamp,
+                    propagate=True)
+    listen(Base, "before_update", set_timestamp,
+                    propagate=True)
+    yield
+    remove(Base, "before_insert", set_timestamp)
+    remove(Base, "before_update", set_timestamp)
+
+@contextmanager
+def patch_left_time(time, add=0):
+    def set_timestamp(mapper, connection, target):
+        t = time + timedelta(seconds=add)
+        target.left = t
+    listen(Base, "before_insert", set_timestamp,
+                    propagate=True)
+    listen(Base, "before_update", set_timestamp,
+                    propagate=True)
+    yield
+    remove(Base, "before_insert", set_timestamp)
+    remove(Base, "before_update", set_timestamp)
