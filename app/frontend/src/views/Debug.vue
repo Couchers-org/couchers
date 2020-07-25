@@ -53,7 +53,7 @@ export default Vue.extend({
       authClient
         .authenticate(req)
         .then((res) => {
-          console.log("logged in")
+          console.debug("Logged in")
           Store.dispatch("auth", res.getToken())
         })
         .catch(console.error)
@@ -70,7 +70,7 @@ export default Vue.extend({
               console.error("Actually need password for this user")
               break
             case LoginRes.LoginStep.SENT_LOGIN_EMAIL:
-              console.log("Sent link, check logs")
+              console.debug("Sent link, check logs")
               break
             case LoginRes.LoginStep.INVALID_USER:
               console.error("Invalid user")

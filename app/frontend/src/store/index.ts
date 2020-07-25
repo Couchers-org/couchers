@@ -86,8 +86,6 @@ export default new Vuex.Store({
       // schedules pinging and makes sure it's run as close to every PING_FREQ
       // as possible
 
-      console.info(ctx.state)
-
       // clear any timeout to stop having multiple loops
       ctx.commit("clearPingTimeout")
 

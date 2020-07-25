@@ -233,7 +233,6 @@ export default Vue.extend({
     },
 
     mutualFriendsDisplay() {
-      console.log(this.user.mutualFriendsList)
       return displayList(
         this.user.mutualFriendsList.map((user) => handle(user.username))
       )

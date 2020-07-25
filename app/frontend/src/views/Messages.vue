@@ -171,7 +171,7 @@ export default Vue.extend({
   watch: {
     selectedConversation() {
       this.messages = []
-      console.log("selected conversation changed, fetching messages")
+      console.debug("Selected conversation changed, fetching messages")
       const req = new GetGroupChatMessagesReq()
       req.setGroupChatId(this.selectedConversation!)
       conversations
@@ -196,7 +196,7 @@ export default Vue.extend({
 
     getUser(userId: number) {
       if (!(userId in this.userCache)) {
-        console.log("pretend to fetch user")
+        console.debug("Pretend to fetch user")
         // TODO: do this async stuff
         return null
       } else {
@@ -205,7 +205,7 @@ export default Vue.extend({
     },
 
     search() {
-      console.log("Search for", this.searchQuery)
+      console.debug("Search for", this.searchQuery)
       // TODO
     },
 
