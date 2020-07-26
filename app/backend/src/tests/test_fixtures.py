@@ -104,10 +104,11 @@ def api_session(db, token):
     call_creds = grpc.access_token_call_credentials(token)
     comp_creds = grpc.composite_channel_credentials(grpc.local_channel_credentials(), call_creds)
 
-    with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
-        yield api_pb2_grpc.APIStub(channel)
-
-    server.stop(None)
+    try:
+        with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
+            yield api_pb2_grpc.APIStub(channel)
+    finally:
+        server.stop(None)
 
 @contextmanager
 def conversations_session(db, token):
@@ -126,10 +127,11 @@ def conversations_session(db, token):
     call_creds = grpc.access_token_call_credentials(token)
     comp_creds = grpc.composite_channel_credentials(grpc.local_channel_credentials(), call_creds)
 
-    with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
-        yield conversations_pb2_grpc.ConversationsStub(channel)
-
-    server.stop(None)
+    try:
+        with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
+            yield conversations_pb2_grpc.ConversationsStub(channel)
+    finally:
+        server.stop(None)
 
 @contextmanager
 def patch_message_time(time, add=0):
@@ -140,9 +142,11 @@ def patch_message_time(time, add=0):
                     propagate=True)
     listen(Base, "before_update", set_timestamp,
                     propagate=True)
-    yield
-    remove(Base, "before_insert", set_timestamp)
-    remove(Base, "before_update", set_timestamp)
+    try:
+        yield
+    finally:
+        remove(Base, "before_insert", set_timestamp)
+        remove(Base, "before_update", set_timestamp)
 
 @contextmanager
 def patch_joined_time(time, add=0):
@@ -153,9 +157,11 @@ def patch_joined_time(time, add=0):
                     propagate=True)
     listen(Base, "before_update", set_timestamp,
                     propagate=True)
-    yield
-    remove(Base, "before_insert", set_timestamp)
-    remove(Base, "before_update", set_timestamp)
+    try:
+        yield
+    finally:
+        remove(Base, "before_insert", set_timestamp)
+        remove(Base, "before_update", set_timestamp)
 
 @contextmanager
 def patch_left_time(time, add=0):
@@ -166,6 +172,8 @@ def patch_left_time(time, add=0):
                     propagate=True)
     listen(Base, "before_update", set_timestamp,
                     propagate=True)
-    yield
-    remove(Base, "before_insert", set_timestamp)
-    remove(Base, "before_update", set_timestamp)
+    try:
+        yield
+    finally:
+        remove(Base, "before_insert", set_timestamp)
+        remove(Base, "before_update", set_timestamp)
