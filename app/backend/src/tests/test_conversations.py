@@ -154,7 +154,7 @@ def test_list_group_chats_ordering(db):
         assert res.group_chats[3].title == "Chat 3"
         assert res.group_chats[4].title == "Chat 0"
 
-
+@pytest.mark.xfail
 def test_list_group_chats_ordering_after_left(db):
     # user is member to 4 group chats, and has left one.
     # The one user left has the most recent message, but user left before then,
@@ -428,6 +428,7 @@ def test_get_group_chat_info_denied(db):
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
+@pytest.mark.xfail
 def test_get_group_chat_info_left(db):
     user1, token1 = generate_user(db)
     user2, token2 = generate_user(db)
