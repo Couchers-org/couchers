@@ -46,7 +46,7 @@ def is_valid_name(field):
     """
     Checks if it has at least one non-whitespace character
     """
-    return re.match(r"\S+$", field) is not None
+    return re.match(r"\S+", field) is not None
 
 def is_valid_email(field):
     """

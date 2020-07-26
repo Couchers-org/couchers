@@ -1,4 +1,4 @@
-from google.protobuf import empty_pb2
+from google.protobuf import empty_pb2, wrappers_pb2
 
 import grpc
 import pytest
@@ -16,6 +16,64 @@ def test_ping(db):
         assert res.username == user.username
         assert res.name == user.name
         assert res.color == user.color
+
+def test_get_user(db):
+    user1, token1 = generate_user(db)
+    user2, token2 = generate_user(db)
+
+    with api_session(db, token2) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=user2.username))
+        assert res.user_id == user2.id
+        assert res.username == user2.username
+        assert res.name == user2.name
+
+def test_update_profile(db):
+    user, token = generate_user(db)
+
+    with api_session(db, token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.UpdateProfile(api_pb2.UpdateProfileReq(
+                name=wrappers_pb2.StringValue(value="  ")))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        with pytest.raises(grpc.RpcError) as e:
+            api.UpdateProfile(api_pb2.UpdateProfileReq(
+                color=wrappers_pb2.StringValue(value="color")))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+        res = api.UpdateProfile(api_pb2.UpdateProfileReq(
+            name=wrappers_pb2.StringValue(value="New name"),
+            city=wrappers_pb2.StringValue(value="Timbuktu"),
+            gender=wrappers_pb2.StringValue(value="Bot"),
+            occupation=wrappers_pb2.StringValue(value="Testing"),
+            about_me=wrappers_pb2.StringValue(value="I rule"),
+            about_place=wrappers_pb2.StringValue(value="My place"),
+            color=wrappers_pb2.StringValue(value="#111111"),
+            languages=api_pb2.RepeatedStringValue(
+                exists=True, value=["Binary", "English"]),
+            countries_visited=api_pb2.RepeatedStringValue(
+                exists=True, value=["UK", "Aus"]),
+            countries_lived=api_pb2.RepeatedStringValue(
+                exists=True, value=["UK", "Aus"])
+        ))
+        # all fields changed
+        for field, value in res.ListFields():
+            assert value == True
+
+        user = api.GetUser(api_pb2.GetUserReq(user=str(user.id)))
+        assert user.name == "New name"
+        assert user.city == "Timbuktu"
+        assert "Binary" in user.languages
+        assert "English" in user.languages
+
+        res = api.UpdateProfile(api_pb2.UpdateProfileReq(
+            city=wrappers_pb2.StringValue(value="Timbuktu"),
+            gender=wrappers_pb2.StringValue(value="Bot2")
+        ))
+        assert res.updated_name == False
+        assert res.updated_city == True
+        assert res.updated_gender == True
+        assert res.updated_about_me == False
+        assert res.updated_languages == False
 
 def test_friend_request_flow(db):
     user1, token1 = generate_user(db, "user1")

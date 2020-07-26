@@ -24,6 +24,7 @@ def test_is_valid_username():
 
 def test_is_valid_name():
     assert is_valid_name("a")
+    assert is_valid_name("a b")
     assert is_valid_name("1")
     assert is_valid_name("老子")
     assert not is_valid_name("	")
