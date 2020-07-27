@@ -1,6 +1,6 @@
 import logging
 
-logger = logger.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 def send_login_email(user, token, expiry_text):
     logger.info(f"Pretending to send login email to {user=}:")
