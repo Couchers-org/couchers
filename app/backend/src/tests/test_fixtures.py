@@ -19,12 +19,14 @@ from sqlalchemy.event import listen, remove
 
 
 @pytest.fixture
-def db(tmp_path):
+def db():
     """
-    Create a temporary SQLite-backed database in a temp directory, and return the Session object.
+    Create a temporary SQLite-backed database in memory, and return the Session object.
     """
-    db_path = tmp_path / "db.sqlite"
-    engine = create_engine(f"sqlite:///{db_path}", echo=False)
+    from sqlalchemy.pool import StaticPool
+    # The elaborate arguments are needed to get multithreaded access
+    engine = create_engine("sqlite://", connect_args={'check_same_thread':False},
+                           poolclass=StaticPool, echo=False)
     Base.metadata.create_all(engine)
     Session = sessionmaker(bind=engine)
 
