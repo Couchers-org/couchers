@@ -55,12 +55,12 @@ def generate_user(db, username=None):
         community_standing=0.5,
         birthdate=date(year=2000, month=1, day=1),
         gender="N/A",
-        languages="",
+        languages="Testing language 1|Testing language 2",
         occupation="Tester",
         about_me="I test things",
         about_place="My place has a lot of testing paraphenelia",
-        countries_visited="",
-        countries_lived="",
+        countries_visited="Testing country",
+        countries_lived="Wonderland",
     )
 
     session.add(user)

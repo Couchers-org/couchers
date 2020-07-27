@@ -1,4 +1,5 @@
 from google.protobuf import empty_pb2, wrappers_pb2
+from datetime import timedelta
 
 import grpc
 import pytest
@@ -12,10 +13,34 @@ def test_ping(db):
 
     with api_session(db, token) as api:
         res = api.Ping(api_pb2.PingReq())
-        assert res.user_id == user.id
-        assert res.username == user.username
-        assert res.name == user.name
-        assert res.color == user.color
+
+    assert res.user.user_id == user.id
+    assert res.user.username == user.username
+    assert res.user.name == user.name
+    assert res.user.city == user.city
+    assert res.user.verification == user.verification
+    assert res.user.community_standing == user.community_standing
+    assert res.user.num_references == 0
+    assert res.user.gender == user.gender
+    assert res.user.age == user.age
+    assert res.user.color == user.color
+
+    # the joined time is fuzzed
+    # but shouldn't be before actual joined time, or more than one hour behind
+    assert user.joined - timedelta(hours=1) <= res.user.joined.ToDatetime() <= user.joined
+    # same for last_active
+    assert user.last_active - timedelta(hours=1) <= res.user.last_active.ToDatetime() <= user.last_active
+
+    assert res.user.occupation == user.occupation
+    assert res.user.about_me == user.about_me
+    assert res.user.about_place == user.about_place
+    # TODO: this list serialisation will be fixed hopefully soon
+    assert res.user.languages == user.languages.split("|")
+    assert res.user.countries_visited == user.countries_visited.split("|")
+    assert res.user.countries_lived == user.countries_lived.split("|")
+
+    assert res.user.friends == api_pb2.User.FriendshipStatus.NA
+    assert len(res.user.mutual_friends) == 0
 
 def test_get_user(db):
     user1, token1 = generate_user(db)
