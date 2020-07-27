@@ -12,10 +12,10 @@ def test_ping(db):
 
     with api_session(db, token) as api:
         res = api.Ping(api_pb2.PingReq())
-        assert res.user_id == user.id
-        assert res.username == user.username
-        assert res.name == user.name
-        assert res.color == user.color
+        assert res.user.user_id == user.id
+        assert res.user.username == user.username
+        assert res.user.name == user.name
+        assert res.user.color == user.color
 
 def test_get_user(db):
     user1, token1 = generate_user(db)
