@@ -913,7 +913,7 @@ def test_admin_behaviour(db):
         with pytest.raises(grpc.RpcError):
             c.RemoveGroupChatAdmin(conversations_pb2.RemoveGroupChatAdminReq(
                 group_chat_id=gcid, user_id=user3.id))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
         res = c.GetGroupChat(
             conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
         assert len(res.admin_user_ids) == 1
