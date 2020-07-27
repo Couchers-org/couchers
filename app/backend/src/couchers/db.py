@@ -9,6 +9,7 @@ from couchers.models import (FriendRelationship, FriendStatus, LoginToken,
 from pb import api_pb2
 from sqlalchemy.sql import and_, or_
 
+logger = logging.getLogger(__name__)
 
 @contextmanager
 def session_scope(Session):
@@ -62,16 +63,16 @@ def get_user_by_field(session, field):
     Returns the user based on any of those three
     """
     if is_valid_user_id(field):
-        logging.debug(f"Field matched to type user id")
+        logger.debug(f"Field matched to type user id")
         return session.query(User).filter(User.id == field).one_or_none()
     elif is_valid_username(field):
-        logging.debug(f"Field matched to type username")
+        logger.debug(f"Field matched to type username")
         return session.query(User).filter(User.username == field).one_or_none()
     elif is_valid_email(field):
-        logging.debug(f"Field matched to type email")
+        logger.debug(f"Field matched to type email")
         return session.query(User).filter(User.email == field).one_or_none()
     else:
-        logging.debug(f"Field {field=}, didn't match any known types")
+        logger.debug(f"Field {field=}, didn't match any known types")
         return None
 
 def new_signup_token(session, email, hours=2):

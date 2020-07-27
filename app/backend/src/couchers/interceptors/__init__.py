@@ -14,6 +14,8 @@ from .grpcext import intercept_server
 
 LOG_VERBOSE_PB = os.environ.get("LOG_VERBOSE_PB", None) is not None
 
+logger = logging.getLogger(__name__)
+
 # pylint:disable=abstract-method
 class _AuthInterceptorServicerContext(grpc.ServicerContext):
     def __init__(self, servicer_context, user_id):
@@ -100,17 +102,17 @@ class _AuthValidatorInterceptor(grpcext.UnaryServerInterceptor, grpcext.StreamSe
 class LoggingInterceptor(grpcext.UnaryServerInterceptor):
     def intercept_unary(self, request, servicer_context, server_info, handler):
         if LOG_VERBOSE_PB:
-            logging.info(f"Got request: {server_info.full_method}. Request: {request}")
+            logger.info(f"Got request: {server_info.full_method}. Request: {request}")
         else:
-            logging.info(f"Got request: {server_info.full_method}")
+            logger.info(f"Got request: {server_info.full_method}")
         start = perf_counter_ns()
         res = handler(request, servicer_context)
         finished = perf_counter_ns()
         duration = (finished-start) / 1e9
         if LOG_VERBOSE_PB:
-            logging.info(f"Finished request (in {duration} s): {server_info.full_method}. Response: {res}")
+            logger.info(f"Finished request (in {duration} s): {server_info.full_method}. Response: {res}")
         else:
-            logging.info(f"Finished request (in {duration} s): {server_info.full_method}")
+            logger.info(f"Finished request (in {duration} s): {server_info.full_method}")
         return res
 
 

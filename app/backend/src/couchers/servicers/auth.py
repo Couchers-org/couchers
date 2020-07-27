@@ -15,6 +15,7 @@ from couchers.tasks import send_login_email, send_signup_email
 from pb import auth_pb2, auth_pb2_grpc
 from sqlalchemy import func
 
+logger = logging.getLogger(__name__)
 
 class Auth(auth_pb2_grpc.AuthServicer):
     """
@@ -63,7 +64,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         session.add(user_session)
         session.commit()
 
-        logging.debug(f"Handing out {token=} to {user=}")
+        logger.debug(f"Handing out {token=} to {user=}")
         return token
 
     def _delete_session(self, token):
@@ -91,7 +92,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         Otherwise, creates a signup token and sends an email, then returns SENT_SIGNUP_EMAIL.
         """
-        logging.debug(f"Signup with {request.email=}")
+        logger.debug(f"Signup with {request.email=}")
         if not is_valid_email(request.email):
             return auth_pb2.SignupRes(next_step=auth_pb2.SignupRes.SignupStep.INVALID_EMAIL)
         with session_scope(self._Session) as session:
@@ -107,7 +108,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         """
         Checks if the given username adheres to our rules and isn't taken already.
         """
-        logging.debug(f"Checking if {username=} is valid")
+        logger.debug(f"Checking if {username=} is valid")
         if not is_valid_username(username):
             return False
         with session_scope(self._Session) as session:
@@ -125,7 +126,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         """
         Returns the email for a given SignupToken (which will be shown on the UI on the singup form).
         """
-        logging.debug(f"Signup token info for {request.signup_token=}")
+        logger.debug(f"Signup token info for {request.signup_token=}")
         with session_scope(self._Session) as session:
             signup_token = session.query(SignupToken) \
                 .filter(SignupToken.token == request.signup_token) \
@@ -200,21 +201,21 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         If the user exists but does not have a password, generates a login token, send it in the email and returns SENT_LOGIN_EMAIL.
         """
-        logging.debug(f"Attempting login for {request.user=}")
+        logger.debug(f"Attempting login for {request.user=}")
         with session_scope(self._Session) as session:
             # Gets user by one of id/username/email or None if not found
             user = get_user_by_field(session, request.user)
             if user:
                 if user.hashed_password is not None:
-                    logging.debug(f"Found user with password")
+                    logger.debug(f"Found user with password")
                     return auth_pb2.LoginRes(next_step=auth_pb2.LoginRes.LoginStep.NEED_PASSWORD)
                 else:
-                    logging.debug(f"Found user without password, sending login email")
+                    logger.debug(f"Found user without password, sending login email")
                     login_token, expiry_text = new_login_token(session, user)
                     send_login_email(user, login_token, expiry_text)
                     return auth_pb2.LoginRes(next_step=auth_pb2.LoginRes.LoginStep.SENT_LOGIN_EMAIL)
             else: # user not found
-                logging.debug(f"Didn't find user")
+                logger.debug(f"Didn't find user")
                 return auth_pb2.LoginRes(next_step=auth_pb2.LoginRes.LoginStep.INVALID_USER)
 
     def CompleteTokenLogin(self, request, context):
@@ -247,25 +248,25 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         request.user can be any of id/username/email
         """
-        logging.debug(f"Logging in with {request.user=}, password=*******")
+        logger.debug(f"Logging in with {request.user=}, password=*******")
         with session_scope(self._Session) as session:
             user = get_user_by_field(session, request.user)
             if user:
-                logging.debug(f"Found user")
+                logger.debug(f"Found user")
                 if not user.hashed_password:
-                    logging.debug(f"User doesn't have a password!")
+                    logger.debug(f"User doesn't have a password!")
                     context.abort(grpc.StatusCode.FAILED_PRECONDITION, "User does not have a password")
                 if verify_password(user.hashed_password, request.password):
-                    logging.debug(f"Right password")
+                    logger.debug(f"Right password")
                     # correct password
                     token = self._create_session(session, user)
                     return auth_pb2.AuthRes(token=token)
                 else:
-                    logging.debug(f"Wrong password")
+                    logger.debug(f"Wrong password")
                     # wrong password
                     context.abort(grpc.StatusCode.UNAUTHENTICATED, "Invalid username or password")
             else: # user not found
-                logging.debug(f"Didn't find user")
+                logger.debug(f"Didn't find user")
                 # do about as much work as if the user was found, reduces timing based username enumeration attacks
                 hash_password(request.password)
                 context.abort(grpc.StatusCode.UNAUTHENTICATED, "Invalid username or password")
@@ -274,7 +275,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         """
         Removes an active session.
         """
-        logging.info(f"Deauthenticate(token={request.token})")
+        logger.info(f"Deauthenticate(token={request.token})")
         if self._delete_session(token=request.token):
             return auth_pb2.DeAuthRes()
         else:

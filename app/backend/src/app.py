@@ -17,7 +17,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d: %(process)d: %(message)s", datefmt="%F %T", level=logging.INFO)
-logging.info(f"Starting")
+logger = logging.getLogger(__name__)
+logger.info(f"Starting")
 
 engine = create_engine("sqlite:///db.sqlite", echo=False)
 Base.metadata.create_all(engine)
@@ -43,7 +44,7 @@ sso_pb2_grpc.add_SSOServicer_to_server(SSO(Session), server)
 conversations_pb2_grpc.add_ConversationsServicer_to_server(Conversations(Session), server)
 server.start()
 
-logging.info(f"Serving on 1751 and 1752 (auth)")
+logger.info(f"Serving on 1751 and 1752 (auth)")
 
 server.wait_for_termination()
 auth_server.wait_for_termination()
