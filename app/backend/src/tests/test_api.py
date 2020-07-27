@@ -27,9 +27,9 @@ def test_ping(db):
 
     # the joined time is fuzzed
     # but shouldn't be before actual joined time, or more than one hour behind
-    assert user.joined - timedelta(hours=1) < res.user.joined.ToDatetime() < user.joined
+    assert user.joined - timedelta(hours=1) <= res.user.joined.ToDatetime() <= user.joined
     # same for last_active
-    assert user.last_active - timedelta(hours=1) < res.user.last_active.ToDatetime() < user.last_active
+    assert user.last_active - timedelta(hours=1) <= res.user.last_active.ToDatetime() <= user.last_active
 
     assert res.user.occupation == user.occupation
     assert res.user.about_me == user.about_me
