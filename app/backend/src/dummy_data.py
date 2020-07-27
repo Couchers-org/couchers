@@ -11,10 +11,11 @@ from couchers.utils import Timestamp_from_datetime
 from dateutil import parser
 from sqlalchemy.exc import IntegrityError
 
+logger = logging.getLogger(__name__)
 
 def add_dummy_data(Session, file_name):
     try:
-        logging.info(f"Adding dummy data")
+        logger.info(f"Adding dummy data")
         with session_scope(Session) as session:
             with open(file_name, "r") as file:
                 data = json.loads(file.read())
@@ -92,4 +93,4 @@ def add_dummy_data(Session, file_name):
 
 
     except IntegrityError as e:
-        logging.error("Failed to insert dummy data, is it already inserted?")
+        logger.error("Failed to insert dummy data, is it already inserted?")

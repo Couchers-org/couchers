@@ -11,6 +11,8 @@ from pb import sso_pb2, sso_pb2_grpc
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d: %(process)d: %(message)s", datefmt="%F %T", level=logging.DEBUG)
 
+logger = logging.getLogger(__name__)
+
 class SSO(sso_pb2_grpc.SSOServicer):
     def __init__(self, Session):
         self._Session = Session
@@ -21,7 +23,7 @@ class SSO(sso_pb2_grpc.SSOServicer):
             sso = request.sso
             sig = request.sig
 
-            logging.info(f"Doing SSO login for {context.user_id=}, {sso=}, {sig=}")
+            logger.info(f"Doing SSO login for {context.user_id=}, {sso=}, {sig=}")
 
             # TODO: secrets management, this is from sso-test instance
             hmac_sec = "b26c7ff6aa391b6a2ba2c0ad18cc6eae40c1a72e5355f86b7b35a4200b514709"
@@ -33,7 +35,7 @@ class SSO(sso_pb2_grpc.SSOServicer):
             decoded_sso = base64decode(unquote(sso))
             parsed_query_string = parse_qs(decoded_sso)
 
-            logging.info(f"SSO {parsed_query_string=}")
+            logger.info(f"SSO {parsed_query_string=}")
 
             nonce = parsed_query_string["nonce"][0]
             return_sso_url = parsed_query_string["return_sso_url"][0]
@@ -49,7 +51,7 @@ class SSO(sso_pb2_grpc.SSOServicer):
                 #"admin": False
             }
 
-            logging.info(f"SSO {payload=}")
+            logger.info(f"SSO {payload=}")
 
             encoded_payload = base64encode(urlencode(payload))
             payload_sig = sso_create_hmac(encoded_payload, hmac_sec)
@@ -60,6 +62,6 @@ class SSO(sso_pb2_grpc.SSOServicer):
             })
 
             redirect_url = f"{return_sso_url}?{query_string}"
-            logging.info(f"SSO {redirect_url=}")
+            logger.info(f"SSO {redirect_url=}")
 
             return sso_pb2.SSORes(redirect_url=redirect_url)
