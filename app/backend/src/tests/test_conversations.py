@@ -154,6 +154,7 @@ def test_list_group_chats_ordering(db):
         assert res.group_chats[3].title == "Chat 3"
         assert res.group_chats[4].title == "Chat 0"
 
+
 @pytest.mark.xfail
 def test_list_group_chats_ordering_after_left(db):
     # user is member to 4 group chats, and has left one.
@@ -170,7 +171,6 @@ def test_list_group_chats_ordering_after_left(db):
     make_friends(db, user3, user)
     make_friends(db, user3, user4)
     make_friends(db, user, user4)
-    left_chat_id = None
 
     with conversations_session(db, token2) as c:
         res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(
@@ -262,7 +262,6 @@ def test_get_group_chat_messages_pagination(db):
     user1, token1 = generate_user(db)
     user2, token2 = generate_user(db)
     make_friends(db, user1, user2)
-    group_chat_id = None
 
     with conversations_session(db, token1) as c:
         res = c.CreateGroupChat(
@@ -295,7 +294,6 @@ def test_get_group_chat_messages_joined_left(db):
     make_friends(db, user1, user2)
     make_friends(db, user1, user3)
     make_friends(db, user1, user4)
-    group_chat_id = None
     start_time = datetime.now()
 
     with conversations_session(db, token1) as c:
@@ -411,8 +409,6 @@ def test_get_group_chat_info_denied(db):
     make_friends(db, user1, user2)
     make_friends(db, user3, user1)
 
-    group_chat_id = None
-
     with conversations_session(db, token1) as c:
         # create a group chat with messages
         res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(
@@ -438,8 +434,6 @@ def test_get_group_chat_info_left(db):
     make_friends(db, user1, user2)
     make_friends(db, user3, user1)
     make_friends(db, user1, user4)
-
-    group_chat_id = None
 
     with conversations_session(db, token1) as c:
         # create a group chat with messages
@@ -472,7 +466,6 @@ def test_edit_group_chat(db):
     user2, token2 = generate_user(db)
     user3, token3 = generate_user(db)
     make_friends(db, user1, user2)
-    group_chat_id = None
 
     with conversations_session(db, token1) as c:
         # create some threads with messages
@@ -769,7 +762,6 @@ def test_search_messages_left_joined(db):
     make_friends(db, user1, user2)
     make_friends(db, user1, user3)
     make_friends(db, user1, user4)
-    group_chat_id = None
     start_time = datetime.now()
 
     with conversations_session(db, token1) as c:
@@ -910,10 +902,10 @@ def test_admin_behaviour(db):
         assert user3.id in res.admin_user_ids
 
     with conversations_session(db, token3) as c:
-        with pytest.raises(grpc.RpcError):
+        with pytest.raises(grpc.RpcError) as e:
             c.RemoveGroupChatAdmin(conversations_pb2.RemoveGroupChatAdminReq(
                 group_chat_id=gcid, user_id=user3.id))
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         res = c.GetGroupChat(
             conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
         assert len(res.admin_user_ids) == 1
