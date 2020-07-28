@@ -4,12 +4,15 @@ from google.protobuf import empty_pb2
 from google.protobuf.timestamp_pb2 import Timestamp
 
 import grpc
+from sqlalchemy.sql import or_
+import sqlalchemy.exc
+
 from couchers.db import (get_friends_status, get_user_by_field, is_valid_color,
                          is_valid_name, session_scope)
-from couchers.models import FriendRelationship, FriendStatus, User
+from couchers.models import FriendRelationship, FriendStatus, User, Complaint
 from couchers.utils import Timestamp_from_datetime
+from couchers import tasks
 from pb import api_pb2, api_pb2_grpc
-from sqlalchemy.sql import or_
 
 
 class API(api_pb2_grpc.APIServicer):
@@ -287,3 +290,27 @@ class API(api_pb2_grpc.APIServicer):
                         .all()
                 ]
             )
+
+    def Report(self, request, context):
+        if context.user_id == request.reported_user_id:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT,
+                          "Can't report yourself")
+
+        message = Complaint(
+            author_user_id=context.user_id,
+            reported_user_id=request.reported_user_id,
+            reason=request.reason,
+            description=request.description,
+        )
+        try:
+            with session_scope(self._Session) as session:
+                session.add(message)
+        except sqlalchemy.exc.IntegrityError:
+            # foreign key fails if reported_user_id doesn't refer to a valid user record
+            context.abort(grpc.StatusCode.NOT_FOUND,
+                          "Nonexisting reported user id")
+
+        tasks.send_report_email(context.user_id, request.reported_user_id,
+                                request.reason, request.description)
+
+        return empty_pb2.Empty()
