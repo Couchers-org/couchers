@@ -233,6 +233,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 .filter(LoginToken.expiry >= func.now()) \
                 .one_or_none()
             if login_token:
+                if login_token.user.is_banned:
+                    context.abort(grpc.StatusCode.PRECONDITION_FAILED, "Your account is suspended.")
+
                 # this is the bearer token
                 token = self._create_session(session, user=login_token.user)
                 # delete the login token so it can't be reused
@@ -259,6 +262,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 if verify_password(user.hashed_password, request.password):
                     logger.debug(f"Right password")
                     # correct password
+                    if user.is_banned:
+                        context.abort(grpc.StatusCode.PRECONDITION_FAILED, "Your account is suspended.")
+
                     token = self._create_session(session, user)
                     return auth_pb2.AuthRes(token=token)
                 else:

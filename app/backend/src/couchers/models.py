@@ -65,6 +65,8 @@ class User(Base):
     countries_visited = Column(String, nullable=True)
     countries_lived = Column(String, nullable=True)
 
+    is_banned = Column(Boolean, nullable=False, default=False)
+
     # TODO: hosting fields
 
     @property
