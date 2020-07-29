@@ -327,10 +327,12 @@ class Complaint(Base):
     """
     __tablename__ = "complaints"
 
+    id = Column(Integer, primary_key=True)
+
     time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     author_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    reported_user_id = Column(Integer, ForeignKey("users.id"), nullable=False, primary_key=True)
+    reported_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
     reason = Column(String, nullable=False)
     description = Column(String, nullable=False)
