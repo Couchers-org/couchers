@@ -302,13 +302,11 @@ class API(api_pb2_grpc.APIServicer):
             reason=request.reason,
             description=request.description,
         )
-        try:
-            with session_scope(self._Session) as session:
-                session.add(message)
-        except sqlalchemy.exc.IntegrityError:
-            # foreign key fails if reported_user_id doesn't refer to a valid user record
-            context.abort(grpc.StatusCode.NOT_FOUND,
-                          "Nonexisting reported user id")
+        with session_scope(self._Session) as session:
+            if not session.query(User).filter(User.id == reported_user_id).one_or_none():
+                context.abort(grpc.StatusCode.NOT_FOUND,
+                              "Nonexisting reported user id")
+            session.add(message)
 
         tasks.send_report_email(context.user_id, request.reported_user_id,
                                 request.reason, request.description)

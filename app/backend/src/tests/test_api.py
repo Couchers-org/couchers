@@ -407,8 +407,8 @@ def test_mutual_friends_self(db):
 
 
 def test_reporting(db):
-    user1, token1 = generate_user(db, "user1")
-    user2, token2 = generate_user(db, "user2")
+    user1, token1 = generate_user(db)
+    user2, token2 = generate_user(db)
 
     with api_session(db, token1) as api:
         res = api.Report(api_pb2.ReportReq(reported_user_id=user2.id,
