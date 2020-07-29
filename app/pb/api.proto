@@ -34,7 +34,7 @@ service API {
   }
 
   // Report another user to admin. Raises INVALID_ARGUMENT if you
-  // report yuorself or NOT_FOUND if the reported user doesn't exist.
+  // report yourself or NOT_FOUND if the reported user doesn't exist.
   rpc Report(ReportReq) returns (google.protobuf.Empty);
 }
 
