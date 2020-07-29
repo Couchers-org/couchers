@@ -3,7 +3,7 @@ from datetime import timedelta
 
 import grpc
 import pytest
-from couchers import models
+from couchers.models import Complaint
 from pb import api_pb2
 from tests.test_fixtures import api_session, db, generate_user, make_friends
 
@@ -416,7 +416,7 @@ def test_reporting(db):
                                            description="description text"))
     assert isinstance(res, empty_pb2.Empty)
 
-    entries = db().query(models.Complaint).all()
+    entries = db().query(Complaint).all()
 
     assert len(entries) == 1
     assert entries[0].author_user_id == user1.id

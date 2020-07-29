@@ -5,13 +5,12 @@ from google.protobuf.timestamp_pb2 import Timestamp
 
 import grpc
 from sqlalchemy.sql import or_
-import sqlalchemy.exc
 
 from couchers.db import (get_friends_status, get_user_by_field, is_valid_color,
                          is_valid_name, session_scope)
 from couchers.models import FriendRelationship, FriendStatus, User, Complaint
 from couchers.utils import Timestamp_from_datetime
-from couchers import tasks
+from couchers.tasks import send_report_email
 from pb import api_pb2, api_pb2_grpc
 
 
@@ -308,7 +307,7 @@ class API(api_pb2_grpc.APIServicer):
                               "Nonexisting reported user id")
             session.add(message)
 
-        tasks.send_report_email(context.user_id, request.reported_user_id,
-                                request.reason, request.description)
+        send_report_email(context.user_id, request.reported_user_id,
+                          request.reason, request.description)
 
         return empty_pb2.Empty()
