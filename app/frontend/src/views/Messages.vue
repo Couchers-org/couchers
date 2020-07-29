@@ -409,7 +409,7 @@ export default Vue.extend({
         .map((friendId) => {
           const user = this.getUser(friendId)
           return {
-            text: `${user.name} (${user.username})`,
+            text: `${user.name} (${handle(user.username)})`,
             value: user.userId,
           }
         })
