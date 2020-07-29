@@ -1,27 +1,27 @@
 <template>
   <v-main>
     <v-container fluid>
-      <v-dialog v-model="pickUsersDialog" max-width="450">
+      <v-dialog v-model="newConversationDialog" max-width="600">
         <v-card>
           <v-card-title class="headline"
-            >Choose people to send a message to</v-card-title
+            >New conversation</v-card-title
           >
           <v-card-text>
             <v-autocomplete
-              v-model="automodel"
+              v-model="newConversationParticipants"
               :items="friends()"
               :loading="loading > 0"
-              item-text="Description"
-              item-value="API"
-              label="Friends"
+              chips
+              label="Select friends to message"
               placeholder="Start typing to Search"
               prepend-icon="mdi-account-multiple"
-              return-object
+              multiple
             ></v-autocomplete>
+            <v-textarea v-model="newConversationText" hint="Type a message..."></v-textarea>
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="green darken-1" text @click="pickUsersDialog = false"
+            <v-btn color="green darken-1" text @click="cancelNewConversation()"
               >Cancel</v-btn
             >
             <v-btn color="green darken-1" text @click="newConversation()"
@@ -199,9 +199,10 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb"
 export default Vue.extend({
   data: () => ({
     loading: 0,
-    automodel: null,
+    newConversationParticipants: [] as Array<number>,
+    newConversationText: "",
     friendIds: [] as Array<number>,
-    pickUsersDialog: false,
+    newConversationDialog: false,
     currentMessage: "",
     searchQuery: null as null | string,
     conversations: [] as Array<GroupChat.AsObject>,
@@ -237,8 +238,14 @@ export default Vue.extend({
   methods: {
     handle,
 
+    cancelNewConversation() {
+      this.newConversationParticipants = []
+      this.newConversationText = ""
+      this.newConversationDialog = false
+    },
+
     newConversation() {
-      this.pickUsersDialog = true
+      this.newConversationDialog = true
     },
 
     sortMessages() {
