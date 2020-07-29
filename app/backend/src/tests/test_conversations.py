@@ -1046,7 +1046,7 @@ def test_one_dm_per_pair(db):
         # can create joined group chat
         res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(
             recipient_user_ids=[user2.id, user3.id]))
-        assert not res.id_dm
+        assert not res.is_dm
 
     with conversations_session(db, token2) as c:
         # can create DM with user 3

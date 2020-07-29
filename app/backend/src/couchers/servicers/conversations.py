@@ -232,6 +232,26 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_ADD_SELF)
 
         with session_scope(self._Session) as session:
+            if len(request.recipient_user_ids) == 1:
+                # can only have one DM at a time between any two users
+                other_user_id = request.recipient_user_ids[0]
+                count = func.count(GroupChatSubscription.id).label("count")
+
+                # the following query selects subscriptions that are DMs and have the same group_chat_id, and have
+                # user_id either this user or the recipient user. If you find two subscriptions to the same DM group
+                # chat, you know they already have a shared group chat
+                if (session.query(count)
+                    .filter(
+                        or_(GroupChatSubscription.user_id == context.user_id,
+                            GroupChatSubscription.user_id == other_user_id))
+                    .filter(GroupChatSubscription.left == None)
+                    .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
+                    .filter(GroupChat.is_dm == True)
+                    .group_by(GroupChatSubscription.group_chat_id)
+                    .having(count == 2)
+                    .one_or_none()):
+                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, "You already have a direct message chat with this user.")
+
             conversation = Conversation()
             session.add(conversation)
 
