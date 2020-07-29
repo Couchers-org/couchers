@@ -1,8 +1,11 @@
-import logging
 from concurrent import futures
+import logging
 import sys
 
 import grpc
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
 from couchers.interceptors import (LoggingInterceptor,
                                    UpdateLastActiveTimeInterceptor,
                                    intercept_server)
@@ -14,8 +17,7 @@ from couchers.servicers.sso import SSO
 from dummy_data import add_dummy_data
 from pb import (api_pb2_grpc, auth_pb2_grpc, conversations_pb2_grpc,
                 sso_pb2_grpc)
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d: %(process)d: %(message)s", datefmt="%F %T", level=logging.INFO)
 logger = logging.getLogger(__name__)
