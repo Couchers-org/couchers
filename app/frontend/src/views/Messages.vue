@@ -8,16 +8,57 @@
             <v-autocomplete
               v-model="newConversationParticipants"
               :items="friends()"
-              :loading="loading > 0"
+              :disabled="loading > 0"
               chips
               label="Select friends to message"
               placeholder="Start typing to Search"
               prepend-icon="mdi-account-multiple"
               multiple
-            ></v-autocomplete>
+            >
+              <template v-slot:selection="data">
+                <v-chip
+                  v-bind="data.attrs"
+                  :input-value="data.selected"
+                  close
+                  @click="data.select"
+                  @click:close="newConversationParticipantsRemove(data.item)"
+                >
+                  <v-avatar :color="data.item.avatarColor" size="36" left>
+                    <span class="white--text">{{ data.item.avatarText }}</span>
+                  </v-avatar>
+                  {{ data.item.name }} ({{ data.item.handle }})
+                </v-chip>
+              </template>
+              <template v-slot:item="data">
+                <template v-if="typeof data.item !== 'object'">
+                  <v-list-item-content v-text="data.item"></v-list-item-content>
+                </template>
+                <template v-else>
+                  <v-list-item-avatar>
+                    <v-avatar :color="data.item.avatarColor" size="36">
+                      <span class="white--text">{{
+                        data.item.avatarText
+                      }}</span>
+                    </v-avatar>
+                  </v-list-item-avatar>
+                  <v-list-item-content>
+                    <v-list-item-title
+                      v-html="data.item.name"
+                    ></v-list-item-title>
+                    <v-list-item-subtitle
+                      v-html="data.item.handle"
+                    ></v-list-item-subtitle>
+                  </v-list-item-content>
+                </template>
+              </template>
+            </v-autocomplete>
             <v-text-field
               v-model="newConversationTitle"
-              :label="(newConversationParticipants.length == 1) ? 'Direct messages have no title' : 'Group chat title'"
+              :label="
+                newConversationParticipants.length == 1
+                  ? 'Direct messages have no title'
+                  : 'Group chat title'
+              "
               :disabled="newConversationParticipants.length <= 1"
             ></v-text-field>
             <v-textarea
@@ -292,6 +333,13 @@ export default Vue.extend({
         })
     },
 
+    newConversationParticipantsRemove(userId) {
+      const index = this.friendIds.indexOf(userId)
+      if (index >= 0) {
+        this.friendIds.splice(index, 1)
+      }
+    },
+
     sortMessages() {
       this.messages = this.messages.sort(
         (f, s) =>
@@ -409,8 +457,11 @@ export default Vue.extend({
         .map((friendId) => {
           const user = this.getUser(friendId)
           return {
-            text: `${user.name} (${handle(user.username)})`,
             value: user.userId,
+            name: user.name,
+            handle: handle(user.username),
+            avatarColor: user.color,
+            avatarText: this.initialsFromName(user.name),
           }
         })
     },
@@ -474,9 +525,13 @@ export default Vue.extend({
       if (!user) {
         return "ERR"
       }
-      return user.name
+      return this.initialsFromName(user.name)
+    },
+
+    initialsFromName(name: string): string {
+      return name
         .split(" ")
-        .map((name) => name[0])
+        .map((word) => word[0])
         .join("")
     },
 
