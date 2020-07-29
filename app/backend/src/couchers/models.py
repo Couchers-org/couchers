@@ -331,8 +331,7 @@ class GroupChatSubscription(Base):
 
     role = Column(Enum(GroupChatRole), nullable=False)
 
-    # TODO: should this be a ForeignKey("messages.id")?
-    last_seen_message_id = Column(Integer, nullable=False, default=0)
+    last_seen_message_id = Column(ForeignKey("messages.id"), nullable=False, default=0)
 
     user = relationship("User", backref="group_chat_subscriptions")
     group_chat = relationship("GroupChat", backref="subscriptions")
