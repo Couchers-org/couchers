@@ -99,7 +99,7 @@ def test_login_tokens_invalidate_after_use(db):
 
     with auth_api_session(db) as auth_api, pytest.raises(grpc.RpcError):
         # check we can't login again
-        auth_api.CompleteTokenLogin(auth_pb2.CompleteTokenLoginReq(login_token=login_token)).token
+        auth_api.CompleteTokenLogin(auth_pb2.CompleteTokenLoginReq(login_token=login_token))
 
 
 def test_banned_user(db):
@@ -116,4 +116,4 @@ def test_banned_user(db):
 
     with auth_api_session(db) as auth_api:
         with pytest.raises(grpc.RpcError):
-            auth_api.CompleteTokenLogin(auth_pb2.CompleteTokenLoginReq(login_token=login_token)).token
+            auth_api.CompleteTokenLogin(auth_pb2.CompleteTokenLoginReq(login_token=login_token))
