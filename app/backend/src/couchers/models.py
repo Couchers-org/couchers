@@ -319,3 +319,20 @@ class Message(Base):
 
     def __repr__(self):
         return f"Message(id={self.id}, time={self.time}, text={self.text}, author={self.author}, conversation={self.conversation})"
+
+
+class Complaint(Base):
+    """
+    A record that a user has reported another user to admin
+    """
+    __tablename__ = "complaints"
+
+    id = Column(Integer, primary_key=True)
+
+    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    author_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    reported_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    reason = Column(String, nullable=False)
+    description = Column(String, nullable=False)

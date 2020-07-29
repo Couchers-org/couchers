@@ -3,7 +3,7 @@ from datetime import timedelta
 
 import grpc
 import pytest
-from couchers.models import User
+from couchers.models import Complaint
 from pb import api_pb2
 from tests.test_fixtures import api_session, db, generate_user, make_friends
 
@@ -404,3 +404,39 @@ def test_mutual_friends_self(db):
     with api_session(db, token4) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=str(user4.id)))
         assert len(res.mutual_friends) == 0
+
+
+def test_reporting(db):
+    user1, token1 = generate_user(db)
+    user2, token2 = generate_user(db)
+
+    with api_session(db, token1) as api:
+        res = api.Report(api_pb2.ReportReq(reported_user_id=user2.id,
+                                           reason="reason text",
+                                           description="description text"))
+    assert isinstance(res, empty_pb2.Empty)
+
+    entries = db().query(Complaint).all()
+
+    assert len(entries) == 1
+    assert entries[0].author_user_id == user1.id
+    assert entries[0].reported_user_id == user2.id
+    assert entries[0].reason == "reason text"
+    assert entries[0].description == "description text"
+
+    # Test that reporting oneself and reporting nonexisting user fails
+    report_req = api_pb2.ReportReq(reported_user_id=user1.id,
+                                   reason="foo",
+                                   description="bar")
+    with api_session(db, token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.Report(report_req)
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+    report_req = api_pb2.ReportReq(reported_user_id=0x7fffffffffffffff,
+                                   reason="foo",
+                                   description="bar")
+    with api_session(db, token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.Report(report_req)
+    assert e.value.code() == grpc.StatusCode.NOT_FOUND

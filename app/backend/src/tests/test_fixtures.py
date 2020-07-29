@@ -27,10 +27,17 @@ def db():
     # The elaborate arguments are needed to get multithreaded access
     engine = create_engine("sqlite://", connect_args={'check_same_thread':False},
                            poolclass=StaticPool, echo=False)
-    Base.metadata.create_all(engine)
-    Session = sessionmaker(bind=engine)
 
-    return Session
+    # from https://stackoverflow.com/questions/13712381/how-to-turn-on-pragma-foreign-keys-on-in-sqlalchemy-migration-script-or-conf
+    def set_sqlite_pragma(dbapi_connection, connection_record):
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.close()
+    listen(engine, "connect", set_sqlite_pragma)
+
+    Base.metadata.create_all(engine)
+    return sessionmaker(bind=engine)
+
 
 def generate_user(db, username=None):
     """

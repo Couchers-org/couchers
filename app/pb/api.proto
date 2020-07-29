@@ -32,6 +32,10 @@ service API {
   rpc Search(SearchReq) returns (SearchRes) {
     // Search for user names and usernames (for now)
   }
+
+  // Report another user to admin. Raises INVALID_ARGUMENT if you
+  // report yourself or NOT_FOUND if the reported user doesn't exist.
+  rpc Report(ReportReq) returns (google.protobuf.Empty);
 }
 
 message SearchReq {
@@ -160,4 +164,14 @@ message UpdateProfileRes {
   bool updated_languages = 8;
   bool updated_countries_visited = 9;
   bool updated_countries_lived = 10;
+}
+
+message ReportReq {
+  uint64 reported_user_id = 1;
+
+  // one-line summary
+  string reason = 2;
+
+  // multi-line free text
+  string description = 3;
 }
