@@ -3,9 +3,7 @@
     <v-container fluid>
       <v-dialog v-model="newConversationDialog" max-width="600">
         <v-card>
-          <v-card-title class="headline"
-            >New conversation</v-card-title
-          >
+          <v-card-title class="headline">New conversation</v-card-title>
           <v-card-text>
             <v-autocomplete
               v-model="newConversationParticipants"
@@ -17,14 +15,21 @@
               prepend-icon="mdi-account-multiple"
               multiple
             ></v-autocomplete>
-            <v-textarea v-model="newConversationText" hint="Type a message..."></v-textarea>
+            <v-text-field
+              v-model="newConversationTitle"
+              label="Conversation title"
+            ></v-text-field>
+            <v-textarea
+              v-model="newConversationText"
+              label="Message"
+            ></v-textarea>
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn color="green darken-1" text @click="cancelNewConversation()"
               >Cancel</v-btn
             >
-            <v-btn color="green darken-1" text @click="newConversation()"
+            <v-btn color="green darken-1" text @click="createNewConversation()"
               >Create chat</v-btn
             >
           </v-card-actions>
@@ -50,7 +55,7 @@
                 ></v-text-field>
               </v-list-item>
               <v-divider></v-divider>
-              <v-list-item @click="newConversation()">
+              <v-list-item @click="openNewConversationDialog()">
                 <v-list-item-avatar>
                   <v-avatar color="primary">
                     <v-icon color="white">mdi-plus</v-icon>
@@ -181,6 +186,8 @@
 import Vue from "vue"
 import moment from "moment"
 
+import wrappers from "google-protobuf/google/protobuf/wrappers_pb"
+
 import { handle, protobufTimestampToDate } from "../utils"
 
 import { User, GetUserReq } from "../pb/api_pb"
@@ -191,6 +198,7 @@ import {
   GetGroupChatMessagesReq,
   SendMessageReq,
   GetUpdatesReq,
+  CreateGroupChatReq,
 } from "../pb/conversations_pb"
 import { client, conversations } from "../api"
 import { mapState } from "vuex"
@@ -201,6 +209,7 @@ export default Vue.extend({
     loading: 0,
     newConversationParticipants: [] as Array<number>,
     newConversationText: "",
+    newConversationTitle: "",
     friendIds: [] as Array<number>,
     newConversationDialog: false,
     currentMessage: "",
@@ -241,11 +250,45 @@ export default Vue.extend({
     cancelNewConversation() {
       this.newConversationParticipants = []
       this.newConversationText = ""
+      this.newConversationTitle = ""
       this.newConversationDialog = false
     },
 
-    newConversation() {
+    openNewConversationDialog() {
       this.newConversationDialog = true
+    },
+
+    createNewConversation() {
+      const req = new CreateGroupChatReq()
+      const wrapper = new wrappers.StringValue()
+      wrapper.setValue(this.newConversationTitle)
+      req.setTitle(wrapper)
+      console.log(this.newConversationParticipants)
+      req.setRecipientUserIdsList(this.newConversationParticipants)
+      this.loading += 1
+      conversations
+        .createGroupChat(req)
+        .then((res) => {
+          this.loading += 1
+          const req = new SendMessageReq()
+          req.setGroupChatId(res.getGroupChatId())
+          req.setText(this.newConversationText)
+          conversations
+            .sendMessage(req)
+            .then((res) => {
+              this.fetchData()
+              // close the dialog
+              this.cancelNewConversation()
+            })
+            .catch(console.error)
+            .finally(() => {
+              this.loading -= 1
+            })
+        })
+        .catch(console.error)
+        .finally(() => {
+          this.loading -= 1
+        })
     },
 
     sortMessages() {
@@ -359,11 +402,16 @@ export default Vue.extend({
         })
     },
 
-    friends(): Array<string> {
-      return this.friendIds.map((friendId) => {
-        const user = this.getUser(friendId)
-        return user ? `${user.name} (${user.username})` : ""
-      })
+    friends(): Array<any> {
+      return this.friendIds
+        .filter((friendId) => friendId in this.userCache)
+        .map((friendId) => {
+          const user = this.getUser(friendId)
+          return {
+            text: `${user.name} (${user.username})`,
+            value: user.userId,
+          }
+        })
     },
 
     conversationChip(conversation: GroupChat.AsObject) {
@@ -371,12 +419,14 @@ export default Vue.extend({
     },
 
     conversationAvatar(conversation: GroupChat.AsObject) {
-      const user = this.getUser(conversation.latestMessage!.authorUserId)
-      if (user) {
-        return user.color
-      } else {
-        return "red" // TODO
+      if (!conversation.latestMessage) {
+        return "primary"
       }
+      const user = this.getUser(conversation.latestMessage!.authorUserId)
+      if (!user) {
+        return "primary"
+      }
+      return user.color
     },
 
     conversationTitle(conversation: GroupChat.AsObject) {
@@ -391,11 +441,11 @@ export default Vue.extend({
     },
 
     conversationSubtitle(conversation: GroupChat.AsObject) {
+      if (!conversation.latestMessage) {
+        return "<i>No messages</i>"
+      }
       const message = conversation.latestMessage!
-      return (
-        `<b>${this.messageAuthor(message)}</b>: ${message.text}` ||
-        "<i>No messages</i>"
-      )
+      return `<b>${this.messageAuthor(message)}</b>: ${message.text}`
     },
 
     selectConversation(conversationId: number) {
