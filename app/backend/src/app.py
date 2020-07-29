@@ -1,5 +1,6 @@
 import logging
 from concurrent import futures
+import sys
 
 import grpc
 from couchers.interceptors import (LoggingInterceptor,
@@ -18,6 +19,17 @@ from sqlalchemy.orm import sessionmaker
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d: %(process)d: %(message)s", datefmt="%F %T", level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+def log_unhandled_exception(exc_type, exc_value, exc_traceback):
+    """Make sure that any unhandled exceptions will write to the logs"""
+    if issubclass(exc_type, KeyboardInterrupt):
+        # call the default excepthook saved at __excepthook__
+        sys.__excepthook__(exc_type, exc_value, exc_traceback)
+        return
+    logger.critical("Unhandled exception", exc_info=(exc_type, exc_value, exc_traceback))
+
+sys.excepthook = log_unhandled_exception
+
 logger.info(f"Starting")
 
 engine = create_engine("sqlite:///db.sqlite", echo=False)
