@@ -15,6 +15,13 @@ service Conversations {
     // Retrieves group chat info by id
   }
 
+  rpc GetDirectMessage(GetDirectMessageReq) returns (GroupChat) {
+    // Retrieves group chat info for the unique (if any) direct message with a
+    // given user
+    //
+    // Raises: NOT_FOUND if there is no such direct message thread
+  }
+
   rpc GetUpdates(GetUpdatesReq) returns (GetUpdatesRes) {
     // Returns all new messages (aka updates) since a given message id
   }
@@ -96,6 +103,10 @@ message ListGroupChatsRes {
 
 message GetUpdatesReq {
   uint64 newest_message_id = 1;
+}
+
+message GetDirectMessageReq {
+  uint64 user_id = 1;
 }
 
 message Update {

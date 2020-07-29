@@ -1059,3 +1059,58 @@ def test_one_dm_per_pair(db):
             res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(
                 recipient_user_ids=[user1.id]))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+
+def test_GetDirectMessage(db):
+    user1, token1 = generate_user(db)
+    user2, token2 = generate_user(db)
+    user3, token3 = generate_user(db)
+
+    make_friends(db, user1, user2)
+    make_friends(db, user1, user3)
+    make_friends(db, user2, user3)
+
+    with conversations_session(db, token1) as c:
+        # no group chat with user 2
+        with pytest.raises(grpc.RpcError) as e:
+            res = c.GetDirectMessage(conversations_pb2.GetDirectMessageReq(
+                user_id=user2.id))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+        # no group chat with nor user 3
+        with pytest.raises(grpc.RpcError) as e:
+            res = c.GetDirectMessage(conversations_pb2.GetDirectMessageReq(
+                user_id=user3.id))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+        # create DM with user 2
+        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(
+            recipient_user_ids=[user2.id]))
+        assert res.is_dm
+        gcid = res.group_chat_id
+
+        # now should exist
+        res = c.GetDirectMessage(conversations_pb2.GetDirectMessageReq(
+            user_id=user2.id))
+        assert res.group_chat_id == gcid
+
+        # create DM with user 3
+        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(
+            recipient_user_ids=[user3.id]))
+        assert res.is_dm
+
+        # can create joined group chat
+        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(
+            recipient_user_ids=[user2.id, user3.id]))
+        assert not res.is_dm
+
+    with conversations_session(db, token2) as c:
+        # can create DM with user 3
+        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(
+            recipient_user_ids=[user3.id]))
+        assert res.is_dm
+        gcid = res.group_chat_id
+
+        # DM with 3 should exist
+        res = c.GetDirectMessage(conversations_pb2.GetDirectMessageReq(
+            user_id=user3.id))
+        assert res.group_chat_id == gcid
