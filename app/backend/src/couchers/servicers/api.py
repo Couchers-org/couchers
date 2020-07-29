@@ -302,7 +302,7 @@ class API(api_pb2_grpc.APIServicer):
             description=request.description,
         )
         with session_scope(self._Session) as session:
-            if not session.query(User).filter(User.id == reported_user_id).one_or_none():
+            if not session.query(User).filter(User.id == request.reported_user_id).one_or_none():
                 context.abort(grpc.StatusCode.NOT_FOUND,
                               "Nonexisting reported user id")
             session.add(message)
