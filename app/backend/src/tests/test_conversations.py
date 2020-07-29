@@ -1010,3 +1010,52 @@ def test_last_seen(db):
         res = c.GetGroupChat(
             conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
         assert res.unseen_message_count == 0
+
+def test_one_dm_per_pair(db):
+    user1, token1 = generate_user(db)
+    user2, token2 = generate_user(db)
+    user3, token3 = generate_user(db)
+
+    make_friends(db, user1, user2)
+    make_friends(db, user1, user3)
+    make_friends(db, user2, user3)
+
+    with conversations_session(db, token1) as c:
+        # create DM with user 2
+        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(
+            recipient_user_ids=[user2.id]))
+        assert res.is_dm
+
+        # create DM with user 3
+        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(
+            recipient_user_ids=[user3.id]))
+        assert res.is_dm
+
+        # can't create another group chat with just user 2
+        with pytest.raises(grpc.RpcError) as e:
+            res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(
+                recipient_user_ids=[user2.id]))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+
+        # can't create another group chat with just user 3
+        with pytest.raises(grpc.RpcError) as e:
+            res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(
+                recipient_user_ids=[user3.id]))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+
+        # can create joined group chat
+        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(
+            recipient_user_ids=[user2.id, user3.id]))
+        assert not res.id_dm
+
+    with conversations_session(db, token2) as c:
+        # can create DM with user 3
+        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(
+            recipient_user_ids=[user3.id]))
+        assert res.is_dm
+
+        # can't create another group chat with just user 1
+        with pytest.raises(grpc.RpcError) as e:
+            res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(
+                recipient_user_ids=[user1.id]))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
