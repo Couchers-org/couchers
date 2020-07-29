@@ -17,7 +17,8 @@
             ></v-autocomplete>
             <v-text-field
               v-model="newConversationTitle"
-              label="Conversation title"
+              :label="(newConversationParticipants.length == 1) ? 'Direct messages have no title' : 'Group chat title'"
+              :disabled="newConversationParticipants.length <= 1"
             ></v-text-field>
             <v-textarea
               v-model="newConversationText"
