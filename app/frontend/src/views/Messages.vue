@@ -1,6 +1,35 @@
 <template>
   <v-main>
     <v-container fluid>
+      <v-dialog v-model="pickUsersDialog" max-width="450">
+        <v-card>
+          <v-card-title class="headline"
+            >Choose people to send a message to</v-card-title
+          >
+          <v-card-text>
+            <v-autocomplete
+              v-model="automodel"
+              :items="friends()"
+              :loading="loading > 0"
+              item-text="Description"
+              item-value="API"
+              label="Friends"
+              placeholder="Start typing to Search"
+              prepend-icon="mdi-account-multiple"
+              return-object
+            ></v-autocomplete>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="green darken-1" text @click="pickUsersDialog = false"
+              >Cancel</v-btn
+            >
+            <v-btn color="green darken-1" text @click="newConversation()"
+              >Create chat</v-btn
+            >
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
       <v-row dense>
         <v-col cols="4">
           <v-card tile>
@@ -28,14 +57,14 @@
                   </v-avatar>
                 </v-list-item-avatar>
                 <v-list-item-content>
-                  <v-list-item-title>New message</v-list-item-title>
+                  <v-list-item-title><b>New message</b></v-list-item-title>
                   <v-list-item-subtitle
-                    >Start a new group chat or send a direct
-                    message</v-list-item-subtitle
+                    ><i
+                      >Start a new group chat or send a direct message</i
+                    ></v-list-item-subtitle
                   >
                 </v-list-item-content>
               </v-list-item>
-              <v-divider></v-divider>
               <v-subheader v-if="!conversations.length">Empty!</v-subheader>
               <template v-for="(conversation, index) in conversations">
                 <v-divider :key="index + 'divider'"></v-divider>
@@ -165,10 +194,14 @@ import {
 } from "../pb/conversations_pb"
 import { client, conversations } from "../api"
 import { mapState } from "vuex"
+import { Empty } from "google-protobuf/google/protobuf/empty_pb"
 
 export default Vue.extend({
   data: () => ({
     loading: 0,
+    automodel: null,
+    friendIds: [] as Array<number>,
+    pickUsersDialog: false,
     currentMessage: "",
     searchQuery: null as null | string,
     conversations: [] as Array<GroupChat.AsObject>,
@@ -177,7 +210,9 @@ export default Vue.extend({
     messages: [] as Array<Message.AsObject>,
   }),
 
-  computed: mapState(["user"]),
+  computed: {
+    ...mapState(["user"]),
+  },
 
   created() {
     this.fetchData()
@@ -203,7 +238,7 @@ export default Vue.extend({
     handle,
 
     newConversation() {
-      //
+      this.pickUsersDialog = true
     },
 
     sortMessages() {
@@ -212,6 +247,23 @@ export default Vue.extend({
           protobufTimestampToDate(f.time!).getTime() -
           protobufTimestampToDate(s.time!).getTime()
       )
+    },
+
+    fetchUser(userId: number) {
+      if (!(userId in this.userCache)) {
+        this.loading += 1
+        const req = new GetUserReq()
+        req.setUser(userId.toString())
+        client
+          .getUser(req)
+          .then((res) => {
+            this.userCache[res.getUserId()] = res.toObject()
+          })
+          .catch(console.error)
+          .finally(() => {
+            this.loading -= 1
+          })
+      }
     },
 
     getUser(userId: number): null | User.AsObject {
@@ -274,7 +326,6 @@ export default Vue.extend({
       conversations
         .listGroupChats(req)
         .then((res) => {
-          this.loading -= 1
           this.conversations = res
             .getGroupChatsList()
             .map((chat) => chat.toObject())
@@ -282,26 +333,30 @@ export default Vue.extend({
           this.conversations.forEach((conv) => {
             conv.memberUserIdsList.forEach((userId) => userIds.add(userId))
           })
-          userIds.forEach((userId) => {
-            this.loading += 1
-            const req = new GetUserReq()
-            req.setUser(userId.toString())
-            client
-              .getUser(req)
-              .then((res) => {
-                this.loading -= 1
-                this.userCache[res.getUserId()] = res.toObject()
-              })
-              .catch((err) => {
-                this.loading -= 1
-                console.error(err)
-              })
-          })
+          userIds.forEach(this.fetchUser)
         })
-        .catch((err) => {
+        .catch(console.error)
+        .finally(() => {
           this.loading -= 1
-          console.error(err)
         })
+
+      this.loading += 1
+      client
+        .listFriends(new Empty())
+        .then((res) => {
+          this.friendIds = res.getUserIdsList()
+          this.friendIds.forEach(this.fetchUser)
+        })
+        .finally(() => {
+          this.loading -= 1
+        })
+    },
+
+    friends(): Array<string> {
+      return this.friendIds.map((friendId) => {
+        const user = this.getUser(friendId)
+        return user ? `${user.name} (${user.username})` : ""
+      })
     },
 
     conversationChip(conversation: GroupChat.AsObject) {
