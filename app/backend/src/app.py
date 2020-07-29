@@ -1,7 +1,11 @@
-import logging
 from concurrent import futures
+import logging
+import sys
 
 import grpc
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
 from couchers.interceptors import (LoggingInterceptor,
                                    UpdateLastActiveTimeInterceptor,
                                    intercept_server)
@@ -13,11 +17,21 @@ from couchers.servicers.sso import SSO
 from dummy_data import add_dummy_data
 from pb import (api_pb2_grpc, auth_pb2_grpc, conversations_pb2_grpc,
                 sso_pb2_grpc)
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d: %(process)d: %(message)s", datefmt="%F %T", level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+def log_unhandled_exception(exc_type, exc_value, exc_traceback):
+    """Make sure that any unhandled exceptions will write to the logs"""
+    if issubclass(exc_type, KeyboardInterrupt):
+        # call the default excepthook saved at __excepthook__
+        sys.__excepthook__(exc_type, exc_value, exc_traceback)
+        return
+    logger.critical("Unhandled exception", exc_info=(exc_type, exc_value, exc_traceback))
+
+sys.excepthook = log_unhandled_exception
+
 logger.info(f"Starting")
 
 engine = create_engine("sqlite:///db.sqlite", echo=False)
