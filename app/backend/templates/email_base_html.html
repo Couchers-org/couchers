@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>{{ subject }}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400">
+  </head>
+  <body>
+      {% if content %}
+      {{ content }}
+      {% else %}
+      <p>Sorry, an unknown error occured, please forward this email to <a href="mailto:bugs@couchers.org">bugs@couchers.org</a> so we can investigate further.</p>
+      {% endif %}
+      <p>You're receiving this email because you signed up for Couchers.org. To unsubscribe forward this to unsub@couchers.org (TODO).</p>
+  </body>
+</html>
