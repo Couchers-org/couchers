@@ -1,0 +1,16 @@
+// Messages between main and media server
+syntax = "proto3";
+
+package org.couchers.media;
+
+import "google/protobuf/timestamp.proto";
+
+message UploadRequest {
+    string key = 1;
+
+    google.protobuf.Timestamp created = 2;
+    google.protobuf.Timestamp expiry = 3;
+
+    uint32 max_width = 4;
+    uint32 max_height = 5;
+}
