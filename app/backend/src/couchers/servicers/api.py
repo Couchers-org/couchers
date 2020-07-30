@@ -420,6 +420,13 @@ class API(api_pb2_grpc.APIServicer):
         return api_pb2.AvailableWriteReferenceTypesRes(
             reference_types=[reftype2api[r] for r in available])
 
+    def InitiateMediaUpload(self, request, context):
+        # TODO(aapeli): implement
+        return api_pb2.InitiateMediaUploadRes(
+            upload_url="",
+            expiry="",
+        )
+
 
 def paginate_references_result(request, query):
     total_matches = query.count()
