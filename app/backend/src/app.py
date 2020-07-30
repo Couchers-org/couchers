@@ -71,7 +71,7 @@ media_server = grpc.server(futures.ThreadPoolExecutor(2))
 media_server = intercept_server(media_server, LoggingInterceptor())
 media_server = intercept_server(media_server, get_media_auth_interceptor(MEDIA_SERVER_BEARER_TOKEN))
 media_server.add_insecure_port("[::]:1753")
-media_pb2_grpc.add_MediaServicer_to_server(Media(), media_server)
+media_pb2_grpc.add_MediaServicer_to_server(Media(Session), media_server)
 media_server.start()
 
 logger.info(f"Serving on 1751 (secure), 1752 (auth), and 1753 (media)")

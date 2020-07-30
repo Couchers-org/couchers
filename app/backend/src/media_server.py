@@ -151,7 +151,7 @@ def avatar(key):
             bar = (width - height) // 2
             img = img.crop(0, bar, width, height - 2 * bar)
 
-        img = img.resize(AVATAR_SIZE / size) # TODO(aapeli): don't hardcode
+        img = img.resize(AVATAR_SIZE / size)
         img.write_to_file(avatar_path, strip=True)
 
     return send_file(open(avatar_path, "rb"), mimetype="image/jpeg")

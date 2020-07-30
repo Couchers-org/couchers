@@ -64,9 +64,9 @@ smokinglocation2api = {
 
 
 class API(api_pb2_grpc.APIServicer):
-    def __init__(self, Session, MEDIA_SERVER_SECRET_KEY):
+    def __init__(self, Session, media_server_secret_key):
         self._Session = Session
-        self._MEDIA_SERVER_SECRET_KEY = MEDIA_SERVER_SECRET_KEY
+        self._media_server_secret_key = media_server_secret_key
 
     def update_last_active_time(self, user_id):
         with session_scope(self._Session) as session:
@@ -424,6 +424,8 @@ class API(api_pb2_grpc.APIServicer):
             reference_types=[reftype2api[r] for r in available])
 
     def InitiateMediaUpload(self, request, context):
+        print(context.user_id)
+
         key = random_hex()
 
         now = datetime.utcnow()
@@ -439,7 +441,7 @@ class API(api_pb2_grpc.APIServicer):
         ).SerializeToString()
 
         data = urlsafe_b64encode(req).decode("utf8")
-        sig = urlsafe_b64encode(generate_hash_signature(req, self._MEDIA_SERVER_SECRET_KEY)).decode("utf8")
+        sig = urlsafe_b64encode(generate_hash_signature(req, self._media_server_secret_key)).decode("utf8")
 
         path = "upload?" + urlencode({"data": data, "sig": sig})
 
