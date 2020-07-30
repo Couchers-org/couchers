@@ -9,6 +9,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "axios": "^0.19.2",
     "core-js": "^3.6.5",
     "google-protobuf": "^3.12.2",
     "grpc-web": "^1.1.0",
