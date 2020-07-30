@@ -1,20 +1,22 @@
 import logging
-from datetime import datetime
-from google.protobuf import empty_pb2
-from google.protobuf.timestamp_pb2 import Timestamp
+from base64 import urlsafe_b64decode, urlsafe_b64encode
+from datetime import datetime, timedelta
+from urllib.parse import urlencode
 
 import grpc
-from sqlalchemy.sql import or_
-
+from couchers import errors
+from couchers.crypto import generate_hash_signature, random_hex
 from couchers.db import (get_friends_status, get_user_by_field, is_valid_color,
                          is_valid_name, session_scope)
-from couchers.models import (FriendRelationship, FriendStatus,
-                             HostingStatus, User, Complaint, Reference,
-                             ReferenceType, SmokingLocation)
-from couchers.utils import Timestamp_from_datetime
+from couchers.models import (Complaint, FriendRelationship, FriendStatus,
+                             HostingStatus, Reference, ReferenceType,
+                             SmokingLocation, User)
 from couchers.tasks import send_report_email
-from couchers import errors
-from pb import api_pb2, api_pb2_grpc
+from couchers.utils import Timestamp_from_datetime
+from google.protobuf import empty_pb2
+from google.protobuf.timestamp_pb2 import Timestamp
+from pb import api_pb2, api_pb2_grpc, media_pb2
+from sqlalchemy.sql import or_
 
 reftype2sql = {
     api_pb2.ReferenceType.FRIEND: ReferenceType.FRIEND,
@@ -62,8 +64,9 @@ smokinglocation2api = {
 
 
 class API(api_pb2_grpc.APIServicer):
-    def __init__(self, Session):
+    def __init__(self, Session, MEDIA_SERVER_SECRET_KEY):
         self._Session = Session
+        self._MEDIA_SERVER_SECRET_KEY = MEDIA_SERVER_SECRET_KEY
 
     def update_last_active_time(self, user_id):
         with session_scope(self._Session) as session:
@@ -421,10 +424,28 @@ class API(api_pb2_grpc.APIServicer):
             reference_types=[reftype2api[r] for r in available])
 
     def InitiateMediaUpload(self, request, context):
-        # TODO(aapeli): implement
+        key = random_hex()
+
+        now = datetime.utcnow()
+        expiry = now + timedelta(minutes=20)
+
+        req = media_pb2.UploadRequest(
+            key=key,
+            type=media_pb2.UploadRequest.UploadType.IMAGE,
+            created=Timestamp_from_datetime(now),
+            expiry=Timestamp_from_datetime(expiry),
+            max_width=2000,
+            max_height=1600,
+        ).SerializeToString()
+
+        data = urlsafe_b64encode(req).decode("utf8")
+        sig = urlsafe_b64encode(generate_hash_signature(req, self._MEDIA_SERVER_SECRET_KEY)).decode("utf8")
+
+        path = "upload?" + urlencode({"data": data, "sig": sig})
+
         return api_pb2.InitiateMediaUploadRes(
-            upload_url="",
-            expiry="",
+            upload_url=f"http://127.0.0.1:5000/{path}", # TODO(aapeli): don't hardcode
+            expiry=Timestamp_from_datetime(expiry),
         )
 
 

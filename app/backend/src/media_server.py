@@ -11,6 +11,7 @@ import pyvips
 from couchers.crypto import generate_hash_signature, verify_hash_signature
 from couchers.utils import Timestamp_from_datetime
 from flask import Flask, abort, request, send_file
+from flask_cors import CORS
 from pb import media_pb2, media_pb2_grpc
 from werkzeug.utils import secure_filename
 
@@ -34,7 +35,7 @@ AVATAR_SIZE = 200
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-
+CORS(app)
 
 token_creds = grpc.access_token_call_credentials(MEDIA_SERVER_BEARER_TOKEN)
 if MAIN_SERVER_USE_SSL:
