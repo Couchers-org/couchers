@@ -85,7 +85,6 @@ def debug():
 
 @app.route("/upload", methods=["POST"])
 def upload():
-    # TODO(aapeli): avoid replay attacks
     try:
         data = urlsafe_b64decode(request.args.get("data"))
         sig = urlsafe_b64decode(request.args.get("sig"))
@@ -110,6 +109,12 @@ def upload():
         # just a sanity check
         abort(500, "Invalid key")
 
+    filename = req.key + ".jpg"
+    path = get_path(filename)
+
+    if os.path.isfile(path):
+        abort(400, "Invalid request")
+
     request_file = request.files.get("file", None)
 
     if not request_file:
@@ -128,9 +133,6 @@ def upload():
     scale = min(req.max_width / width, req.max_height / height)
     if scale < 1:
         img = img.resize(scale)
-
-    filename = req.key + ".jpg"
-    path = get_path(filename)
 
     # strip removes EXIF (e.g. GPS location) and other metadata
     img.write_to_file(path, strip=True)
