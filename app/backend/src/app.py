@@ -1,4 +1,5 @@
 import logging
+import os
 import sys
 from concurrent import futures
 
@@ -12,12 +13,18 @@ from couchers.servicers.auth import Auth
 from couchers.servicers.conversations import Conversations
 from couchers.servicers.media import Media
 from couchers.servicers.requests import Requests
+from couchers.servicers.media import Media, get_media_auth_interceptor
 from couchers.servicers.sso import SSO
 from dummy_data import add_dummy_data
 from pb import (api_pb2_grpc, auth_pb2_grpc, conversations_pb2_grpc,
                 media_pb2_grpc, requests_pb2_grpc, sso_pb2_grpc)
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
+# hex-encoded secret key, used for signatures that  verify main & media server
+# are talking to each other
+MEDIA_SERVER_SECRET_KEY = bytes.fromhex(os.environ["MEDIA_SERVER_SECRET_KEY"])
+MEDIA_SERVER_BEARER_TOKEN = os.environ["MEDIA_SERVER_BEARER_TOKEN"]
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d: %(process)d: %(message)s", datefmt="%F %T", level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -60,9 +67,9 @@ conversations_pb2_grpc.add_ConversationsServicer_to_server(Conversations(Session
 requests_pb2_grpc.add_RequestsServicer_to_server(Requests(Session), server)
 server.start()
 
-# TODO(aapeli): separate auth for this service
 media_server = grpc.server(futures.ThreadPoolExecutor(2))
 media_server = intercept_server(media_server, LoggingInterceptor())
+media_server = intercept_server(media_server, get_media_auth_interceptor(MEDIA_SERVER_BEARER_TOKEN))
 media_server.add_insecure_port("[::]:1753")
 media_pb2_grpc.add_MediaServicer_to_server(Media(), media_server)
 media_server.start()

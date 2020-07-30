@@ -58,6 +58,9 @@ def random_hex(length=32):
     """
     return random_bytes(length).hex()
 
+def secure_compare(val1, val2):
+    return sodium_memcmp(val1, val2)
+
 def generate_hash_signature(message: bytes, key: bytes) -> bytes:
     """
     Computes a blake2b keyed hash for the message.
@@ -74,4 +77,4 @@ def verify_hash_signature(message: bytes, key: bytes, sig: bytes) -> bool:
 
     Returns true if the signature matches, otherwise false.
     """
-    return sodium_memcmp(sig, generate_hash_signature(message, key))
+    return secure_compare(sig, generate_hash_signature(message, key))

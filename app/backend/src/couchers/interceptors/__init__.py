@@ -99,6 +99,30 @@ class _AuthValidatorInterceptor(grpcext.UnaryServerInterceptor, grpcext.StreamSe
         raise NotImplementedError()
 
 
+class _ManualAuthValidatorInterceptor(grpcext.UnaryServerInterceptor, grpcext.StreamServerInterceptor):
+    def __init__(self, is_authorized):
+        self._is_authorized = is_authorized
+
+    def intercept_unary(self, request, context, server_info, handler):
+        metadata = {key: value for (key, value) in context.invocation_metadata()}
+
+        # abort also if no bearer token is present
+        if not "authorization" in metadata:
+            context.abort(grpc.StatusCode.UNAUTHENTICATED, "Unauthorized")
+
+        authorization = metadata["authorization"]
+        if not authorization.startswith("Bearer "):
+            context.abort(grpc.StatusCode.UNAUTHENTICATED, "Unauthorized")
+
+        if not self._is_authorized(token=authorization[7:]):
+            context.abort(grpc.StatusCode.UNAUTHENTICATED, "Unauthorized")
+
+        return handler(request, context)
+
+    def intercept_stream(self, request_or_iterator, context, server_info, handler):
+        raise NotImplementedError()
+
+
 class LoggingInterceptor(grpcext.UnaryServerInterceptor):
     def intercept_unary(self, request, servicer_context, server_info, handler):
         if LOG_VERBOSE_PB:

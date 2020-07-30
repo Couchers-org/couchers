@@ -18,6 +18,8 @@ from werkzeug.utils import secure_filename
 # are talking to each other
 MEDIA_SERVER_SECRET_KEY = bytes.fromhex(os.environ["MEDIA_SERVER_SECRET_KEY"])
 
+MEDIA_SERVER_BEARER_TOKEN = os.environ["MEDIA_SERVER_BEARER_TOKEN"]
+
 # address of main server
 MAIN_SERVER_ADDRESS = os.environ["MAIN_SERVER_ADDRESS"]
 
@@ -32,23 +34,29 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
+
+token_creds = grpc.access_token_call_credentials(MEDIA_SERVER_BEARER_TOKEN)
+if MAIN_SERVER_USE_SSL:
+    comp_creds = grpc.composite_channel_credentials(grpc.ssl_channel_credentials(), token_creds)
+else:
+    logger.warning("Connecting to main server insecurely!")
+    comp_creds = grpc.composite_channel_credentials(grpc.local_channel_credentials(), token_creds)
+
 def get_path(filename):
     return MEDIA_UPLOAD_LOCATION + "/" + filename
 
-@backoff.on_exception(backoff.expo, grpc.StatusCode.UNAVAILABLE, max_time=5)
-def send_confirmation_to_main_server(key, filename):
-    if MAIN_SERVER_USE_SSL:
-        channel = grpc.secure_channel(MAIN_SERVER_ADDRESS)
-    else:
-        logger.warning("Connecting to main server insecurely!")
-        channel = grpc.insecure_channel(MAIN_SERVER_ADDRESS)
+def _is_available(e):
+    return e.code() != grpc.StatusCode.UNAVAILABLE
 
-    media_stub = media_pb2_grpc.MediaStub(channel)
-    req = media_pb2.UploadConfirmationReq(
-        key=key,
-        filename=filename,
-    )
-    media_stub.UploadConfirmation(req)
+@backoff.on_exception(backoff.expo, grpc.RpcError, max_time=5, giveup=_is_available)
+def send_confirmation_to_main_server(key, filename):
+    with grpc.secure_channel(MAIN_SERVER_ADDRESS, comp_creds) as channel:
+        media_stub = media_pb2_grpc.MediaStub(channel)
+        req = media_pb2.UploadConfirmationReq(
+            key=key,
+            filename=filename,
+        )
+        media_stub.UploadConfirmation(req)
 
 @app.route("/debug")
 def debug():
