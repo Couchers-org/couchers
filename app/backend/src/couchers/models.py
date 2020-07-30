@@ -486,3 +486,21 @@ class HostRequestEvent(Base):
     after_message_id = Column(Integer, nullable=False)
     time = Column(DateTime(timezone=True), nullable=False,
                   server_default=func.now())
+
+
+class InitiatedUpload(Base):
+    """
+    Started downloads, not necessarily complete yet.
+
+    For now we only have avatar images, so it's specific to that.
+    """
+    __tablename__ = "initiated_uploads"
+
+    key = Column(String, primary_key=True)
+
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    expiry = Column(DateTime(timezone=True), nullable=False)
+
+    user_id = Column(ForeignKey("users.id"), nullable=False)
+
+    user = relationship("User")

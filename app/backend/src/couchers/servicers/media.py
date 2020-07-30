@@ -1,10 +1,11 @@
 import logging
+from datetime import datetime
 
 import grpc
 from couchers.crypto import secure_compare
 from couchers.db import session_scope
 from couchers.interceptors import ManualAuthValidatorInterceptor
-from couchers.models import User
+from couchers.models import InitiatedUpload
 from google.protobuf import empty_pb2
 from pb import media_pb2, media_pb2_grpc
 
@@ -21,13 +22,16 @@ class Media(media_pb2_grpc.MediaServicer):
 
     def UploadConfirmation(self, request, context):
         with session_scope(self._Session) as session:
-            user = (session.query(User)
-                .filter(User.id == 2)
-                .one())
+            now = datetime.utcnow()
+            upload = (session.query(InitiatedUpload)
+                .filter(InitiatedUpload.key == request.key)
+                .filter(InitiatedUpload.created <= now)
+                .filter(InitiatedUpload.expiry >= now)
+                .one_or_none())
 
-            user.avatar_key = request.key
-            # key = request.key
-            # filename = request.filename
+            if not upload:
+                context.abort(grpc.StatusCode.NOT_FOUND, "Upload not found.")
 
-            # TODO(aapeli): do something with the key + filename
+            upload.user.avatar_key = request.key
+
             return empty_pb2.Empty()

@@ -9,8 +9,8 @@ from couchers.crypto import generate_hash_signature, random_hex
 from couchers.db import (get_friends_status, get_user_by_field, is_valid_color,
                          is_valid_name, session_scope)
 from couchers.models import (Complaint, FriendRelationship, FriendStatus,
-                             HostingStatus, Reference, ReferenceType,
-                             SmokingLocation, User)
+                             HostingStatus, InitiatedUpload, Reference,
+                             ReferenceType, SmokingLocation, User)
 from couchers.tasks import send_report_email
 from couchers.utils import Timestamp_from_datetime
 from google.protobuf import empty_pb2
@@ -424,21 +424,29 @@ class API(api_pb2_grpc.APIServicer):
             reference_types=[reftype2api[r] for r in available])
 
     def InitiateMediaUpload(self, request, context):
-        print(context.user_id)
-
         key = random_hex()
 
         now = datetime.utcnow()
         expiry = now + timedelta(minutes=20)
 
-        req = media_pb2.UploadRequest(
-            key=key,
-            type=media_pb2.UploadRequest.UploadType.IMAGE,
-            created=Timestamp_from_datetime(now),
-            expiry=Timestamp_from_datetime(expiry),
-            max_width=2000,
-            max_height=1600,
-        ).SerializeToString()
+        with session_scope(self._Session) as session:
+            upload = InitiatedUpload(
+                key=key,
+                created=now,
+                expiry=expiry,
+                user_id=context.user_id,
+            )
+            session.add(upload)
+            session.commit()
+
+            req = media_pb2.UploadRequest(
+                key=upload.key,
+                type=media_pb2.UploadRequest.UploadType.IMAGE,
+                created=Timestamp_from_datetime(upload.created),
+                expiry=Timestamp_from_datetime(upload.expiry),
+                max_width=2000,
+                max_height=1600,
+            ).SerializeToString()
 
         data = urlsafe_b64encode(req).decode("utf8")
         sig = urlsafe_b64encode(generate_hash_signature(req, self._media_server_secret_key)).decode("utf8")
