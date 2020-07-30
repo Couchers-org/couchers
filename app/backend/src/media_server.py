@@ -10,7 +10,7 @@ import grpc
 import pyvips
 from couchers.crypto import generate_hash_signature, verify_hash_signature
 from couchers.utils import Timestamp_from_datetime
-from flask import Flask, abort, request
+from flask import Flask, abort, request, send_file
 from pb import media_pb2, media_pb2_grpc
 from werkzeug.utils import secure_filename
 
@@ -29,6 +29,8 @@ MAIN_SERVER_USE_SSL = os.environ.get("MAIN_SERVER_NO_SSL", "1") == "1"
 MEDIA_UPLOAD_LOCATION = os.environ["MEDIA_UPLOAD_LOCATION"]
 
 
+AVATAR_SIZE = 200
+
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
@@ -41,8 +43,8 @@ else:
     logger.warning("Connecting to main server insecurely!")
     comp_creds = grpc.composite_channel_credentials(grpc.local_channel_credentials(), token_creds)
 
-def get_path(filename):
-    return MEDIA_UPLOAD_LOCATION + "/" + filename
+def get_path(filename, size="full"):
+    return MEDIA_UPLOAD_LOCATION + ("/" if MEDIA_UPLOAD_LOCATION[-1] != "/" else "") + size + "/" + filename
 
 def _is_available(e):
     return e.code() != grpc.StatusCode.UNAVAILABLE
@@ -143,3 +145,40 @@ def upload():
     except Exception as e:
         os.remove(path)
         raise e
+
+@app.route("/full/<key>.jpg")
+def full(key):
+    path = get_path(key + ".jpg")
+    if not os.path.isfile(path):
+        abort(404, "Not found")
+
+    return send_file(open(path, "rb"), mimetype="image/jpeg")
+
+@app.route("/avatar/<key>.jpg")
+def avatar(key):
+    filename = key + ".jpg"
+    full_path = get_path(filename)
+    if not os.path.isfile(full_path):
+        abort(404, "Not found")
+
+    avatar_path = get_path(filename, size="avatar")
+    if not os.path.isfile(avatar_path):
+        # generate the avatar...
+        img = pyvips.Image.new_from_file(full_path, access="sequential")
+
+        width = img.get("width")
+        height = img.get("height")
+
+        if width > height:
+            size = height
+            bar = (width - height) // 2
+            img = img.crop(bar, 0, width - 2 * bar, height)
+        else:
+            size = width
+            bar = (width - height) // 2
+            img = img.crop(0, bar, width, height - 2 * bar)
+
+        img = img.resize(AVATAR_SIZE / size) # TODO(aapeli): don't hardcode
+        img.write_to_file(avatar_path, strip=True)
+
+    return send_file(open(avatar_path, "rb"), mimetype="image/jpeg")
