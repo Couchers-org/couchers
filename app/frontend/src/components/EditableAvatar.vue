@@ -71,6 +71,7 @@ export default Vue.extend({
           .then((res) => {
             this.$emit("save")
             this.editing = false
+            this.image = null
           })
           .catch(console.error)
           .finally(() => {
