@@ -8,7 +8,7 @@ from couchers.crypto import (hash_password, urlsafe_secure_token,
 from couchers.db import (get_user_by_field, is_valid_email, is_valid_username,
                          is_valid_name, new_login_token, new_signup_token,
                          session_scope)
-from couchers.interceptors import _AuthValidatorInterceptor
+from couchers.interceptors import AuthValidatorInterceptor
 from couchers.models import LoginToken, SignupToken, User, UserSession
 from couchers.tasks import send_login_email, send_signup_email
 from couchers import errors
@@ -26,7 +26,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
     def __init__(self, Session):
         super().__init__()
         self._Session = Session
-        self.auth_interceptor = _AuthValidatorInterceptor(self.get_user_for_session_token)
+        self.auth_interceptor = AuthValidatorInterceptor(self.get_user_for_session_token)
 
     def get_auth_interceptor(self):
         """

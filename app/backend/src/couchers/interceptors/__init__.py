@@ -73,7 +73,7 @@ class _AuthInterceptorServicerContext(grpc.ServicerContext):
         return self._servicer_context.set_details(details)
 
 
-class _AuthValidatorInterceptor(grpcext.UnaryServerInterceptor, grpcext.StreamServerInterceptor):
+class AuthValidatorInterceptor(grpcext.UnaryServerInterceptor, grpcext.StreamServerInterceptor):
     def __init__(self, get_user_for_session_token):
         self._get_user_for_session_token = get_user_for_session_token
 
@@ -81,7 +81,7 @@ class _AuthValidatorInterceptor(grpcext.UnaryServerInterceptor, grpcext.StreamSe
         metadata = {key: value for (key, value) in servicer_context.invocation_metadata()}
 
         # abort also if no bearer token is present
-        if not "authorization" in metadata:
+        if "authorization" not in metadata:
             servicer_context.abort(grpc.StatusCode.UNAUTHENTICATED, "Unauthorized")
 
         authorization = metadata["authorization"]
@@ -99,7 +99,7 @@ class _AuthValidatorInterceptor(grpcext.UnaryServerInterceptor, grpcext.StreamSe
         raise NotImplementedError()
 
 
-class _ManualAuthValidatorInterceptor(grpcext.UnaryServerInterceptor, grpcext.StreamServerInterceptor):
+class ManualAuthValidatorInterceptor(grpcext.UnaryServerInterceptor, grpcext.StreamServerInterceptor):
     def __init__(self, is_authorized):
         self._is_authorized = is_authorized
 
@@ -107,7 +107,7 @@ class _ManualAuthValidatorInterceptor(grpcext.UnaryServerInterceptor, grpcext.St
         metadata = {key: value for (key, value) in context.invocation_metadata()}
 
         # abort also if no bearer token is present
-        if not "authorization" in metadata:
+        if "authorization" not in metadata:
             context.abort(grpc.StatusCode.UNAUTHENTICATED, "Unauthorized")
 
         authorization = metadata["authorization"]
