@@ -76,6 +76,7 @@ class User(Base):
     about_place = Column(String, nullable=True)
     # profile color
     color = Column(String, nullable=False, default="#643073")
+    avatar_key = Column(String, nullable=True)
     # TODO: array types once we go postgres
     languages = Column(String, nullable=True)
     countries_visited = Column(String, nullable=True)
@@ -122,6 +123,12 @@ class User(Base):
         """
         return self.last_active.replace(minute=(self.last_active.minute // 15) * 15,
                                         second=0, microsecond=0)
+
+    @property
+    def avatar_url(self):
+        # TODO(aapeli): don't hardcode
+        key = self.avatar_key or "couchers"
+        return f"http://127.0.0.1:5000/avatar/{key}.jpg"
 
     def mutual_friends(self, target_id):
         if target_id == self.id:

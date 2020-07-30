@@ -190,6 +190,8 @@ message User {
   google.protobuf.StringValue sleeping_arrangement = 29;
   google.protobuf.StringValue area = 30;
   google.protobuf.StringValue house_rules = 31;
+
+  string avatar_url = 32;
 }
 
 message GetUserReq {

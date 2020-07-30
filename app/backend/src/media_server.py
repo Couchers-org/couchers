@@ -24,7 +24,7 @@ MEDIA_SERVER_BEARER_TOKEN = os.environ["MEDIA_SERVER_BEARER_TOKEN"]
 MAIN_SERVER_ADDRESS = os.environ["MAIN_SERVER_ADDRESS"]
 
 # whether to disable SSL, optional
-MAIN_SERVER_USE_SSL = os.environ.get("MAIN_SERVER_NO_SSL", "1") == "1"
+MAIN_SERVER_USE_SSL = os.environ.get("MAIN_SERVER_USE_SSL", "1") == "1"
 
 MEDIA_UPLOAD_LOCATION = os.environ["MEDIA_UPLOAD_LOCATION"]
 
@@ -62,7 +62,7 @@ def send_confirmation_to_main_server(key, filename):
 @app.route("/debug")
 def debug():
     req = media_pb2.UploadRequest(
-        key="testkey",
+        key="couchers",
         type=media_pb2.UploadRequest.UploadType.IMAGE,
         created=Timestamp_from_datetime(datetime.utcnow()),
         expiry=Timestamp_from_datetime(datetime.utcnow() + timedelta(hours=1)),

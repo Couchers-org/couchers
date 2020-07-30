@@ -480,7 +480,8 @@ def user_model_to_pb(db_user, session, context):
                 name=mutual_friend.name,
             ) for mutual_friend in db_user.mutual_friends(context.user_id)
         ],
-        smoking_allowed=smokinglocation2api[db_user.smoking_allowed]
+        smoking_allowed=smokinglocation2api[db_user.smoking_allowed],
+        avatar_url=db_user.avatar_url,
     )
 
     if db_user.max_guests is not None:
