@@ -30,4 +30,5 @@ service Media {
 
 message UploadConfirmationReq {
   string key = 1;
+  string filename = 2;
 }
