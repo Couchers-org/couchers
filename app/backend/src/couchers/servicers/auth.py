@@ -48,12 +48,18 @@ class Auth(auth_pb2_grpc.AuthServicer):
             user_session = session.query(UserSession).filter(UserSession.token == token).one_or_none()
             return user_session.user_id if user_session else None
 
-    def _create_session(self, session, user):
+    def _create_session(self, context, session, user):
         """
         Creates a session for the given user and returns the bearer token.
 
-        You need to give an active DB session as nested sessions don't really work here due to the active User object.
+        You need to give an active DB session as nested sessions don't
+        really work here due to the active User object.
+
+        Will abort the API calling context if the user is banned from logging in.
         """
+        if user.is_banned:
+            context.abort(grpc.StatusCode.PRECONDITION_FAILED, "Your account is suspended.")
+
         token = urlsafe_secure_token()
 
         user_session = UserSession(
@@ -185,7 +191,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             session.add(user)
             session.commit()
 
-            token = self._create_session(session, user)
+            token = self._create_session(context, session, user)
 
             return auth_pb2.AuthRes(token=token)
 
@@ -233,11 +239,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 .filter(LoginToken.expiry >= func.now()) \
                 .one_or_none()
             if login_token:
-                if login_token.user.is_banned:
-                    context.abort(grpc.StatusCode.PRECONDITION_FAILED, "Your account is suspended.")
-
                 # this is the bearer token
-                token = self._create_session(session, user=login_token.user)
+                token = self._create_session(context, session, user=login_token.user)
                 # delete the login token so it can't be reused
                 session.delete(login_token)
                 session.commit()
@@ -262,10 +265,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 if verify_password(user.hashed_password, request.password):
                     logger.debug(f"Right password")
                     # correct password
-                    if user.is_banned:
-                        context.abort(grpc.StatusCode.PRECONDITION_FAILED, "Your account is suspended.")
-
-                    token = self._create_session(session, user)
+                    token = self._create_session(context, session, user)
                     return auth_pb2.AuthRes(token=token)
                 else:
                     logger.debug(f"Wrong password")
