@@ -39,7 +39,6 @@ export default Vue.extend({
     image: null as null | File,
     progress: 0,
     loading: false,
-    editing: false,
     avatarRules: [
       (value) =>
         !value ||
@@ -49,10 +48,6 @@ export default Vue.extend({
   }),
 
   methods: {
-    edit() {
-      this.editing = true
-    },
-
     upload() {
       client.initiateMediaUpload(new Empty()).then((res) => {
         const formData = new FormData()
@@ -70,7 +65,6 @@ export default Vue.extend({
           })
           .then((res) => {
             this.$emit("save")
-            this.editing = false
             this.image = null
           })
           .catch(console.error)
