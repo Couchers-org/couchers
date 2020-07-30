@@ -1,5 +1,8 @@
+import boto3
 from jinja2 import Environment, FileSystemLoader, Template
 from markdown2 import markdown
+
+ses_client = boto3.client("ses")
 
 env = Environment(
     loader=FileSystemLoader("templates"),
@@ -9,7 +12,7 @@ env = Environment(
 plain_base_template = env.get_template("email_base_plain.md")
 html_base_template = env.get_template("email_base_html.html")
 
-def render_email(recipient, subject, template_file, template_args={}):
+def _render_email(subject, template_file, template_args={}):
     # we render both a plain-text and a HTML version, and embed both in the email
 
     template = env.get_template(template_file)
@@ -23,5 +26,35 @@ def render_email(recipient, subject, template_file, template_args={}):
     plain = plain_base_template.render(subject=subject, content=plain_content)
     html = html_base_template.render(subject=subject, content=html_content)
 
-    print(plain)
-    print(html)
+    return plain, html
+
+def _send_ses_email(sender, recipient, subject, plain, html):
+    response = ses_client.send_email(
+        Source=sender,
+        Destination={
+            "ToAddresses": [recipient]
+        },
+        Message={
+            "Subject": {
+                "Data": subject,
+                "Charset": "UTF-8"
+            },
+            "Body": {
+                "Text": {
+                    "Data": plain,
+                    "Charset": "UTF-8"
+                },
+                "Html": {
+                    "Data": html,
+                    "Charset": "UTF-8"
+                }
+            }
+        }
+    )
+
+    return response["MessageId"]
+
+def send_email(recipient, subject, template_file, template_args={}):
+    plain, html = _render_email(subject, template_file, template_args)
+    response = _send_ses_email("Couchers.org <notify@couchers.org>", recipient, subject, plain, html)
+    print(response)
