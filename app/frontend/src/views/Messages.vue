@@ -265,6 +265,7 @@ export default Vue.extend({
     userCache: {} as { [userId: number]: User.AsObject },
     selectedConversation: null as null | number, // TODO: null by default
     messages: [] as Array<Message.AsObject>,
+    scrollToId: null as string | number,
   }),
 
   computed: {
@@ -286,9 +287,23 @@ export default Vue.extend({
         .then((res) => {
           this.messages = res.getMessagesList().map((msg) => msg.toObject())
           this.sortMessages()
+          const groupChat = this.conversations.filter(
+            (groupChat) => groupChat.groupChatId === this.selectedConversation
+          )[0]
+          this.scrollToId = `msg-${groupChat.lastSeenMessageId}`
         })
         .catch(console.error)
     },
+  },
+
+  updated() {
+    if (this.scrollToId) {
+      const el = document.getElementById(this.scrollToId)
+      if (el) {
+        el.scrollIntoView()
+        this.scrollToId = null
+      }
+    }
   },
 
   methods: {
@@ -346,11 +361,7 @@ export default Vue.extend({
     },
 
     sortMessages() {
-      this.messages = this.messages.sort(
-        (f, s) =>
-          protobufTimestampToDate(f.time!).getTime() -
-          protobufTimestampToDate(s.time!).getTime()
-      )
+      this.messages = this.messages.sort((f, s) => f.messageId - s.messageId)
     },
 
     fetchUser(userId: number) {

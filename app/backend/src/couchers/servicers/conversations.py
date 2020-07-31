@@ -56,6 +56,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                         is_dm=result.GroupChat.is_dm,
                         created=Timestamp_from_datetime(result.GroupChat.conversation.created),
                         unseen_message_count=result.GroupChatSubscription.unseen_message_count,
+                        last_seen_message_id=result.GroupChatSubscription.last_seen_message_id,
                         latest_message=conversations_pb2.Message(
                             message_id=result.Message.id,
                             author_user_id=result.Message.author_id,
@@ -98,6 +99,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 is_dm=result.GroupChat.is_dm,
                 created=Timestamp_from_datetime(result.GroupChat.conversation.created),
                 unseen_message_count=result.GroupChatSubscription.unseen_message_count,
+                last_seen_message_id=result.GroupChatSubscription.last_seen_message_id,
                 latest_message=conversations_pb2.Message(
                     message_id=result.Message.id,
                     author_user_id=result.Message.author_id,
@@ -148,6 +150,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 is_dm=result.GroupChat.is_dm,
                 created=Timestamp_from_datetime(result.GroupChat.conversation.created),
                 unseen_message_count=result.GroupChatSubscription.unseen_message_count,
+                last_seen_message_id=result.GroupChatSubscription.last_seen_message_id,
                 latest_message=conversations_pb2.Message(
                     message_id=result.Message.id,
                     author_user_id=result.Message.author_id,
