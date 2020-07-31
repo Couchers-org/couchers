@@ -6,7 +6,7 @@ Thanks for signing up for Couchers.org!
 
 {{ button("Confirm your email address", signup_link) }}
 
-To finish setting up your account, please click on the above button, or click the following link: [{{ signup_link }}]({{ signup_link }}).
+To finish setting up your account, please click on the above button, or click the following link: <{{ signup_link }}>.
 
 {% else %}
 
