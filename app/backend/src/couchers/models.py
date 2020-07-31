@@ -4,7 +4,7 @@ from datetime import date
 from math import floor
 
 from sqlalchemy import (Boolean, Column, Date, DateTime, Enum, Float,
-                        ForeignKey, Integer)
+                        ForeignKey, Integer, UniqueConstraint)
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import String
 from sqlalchemy.ext.declarative import declarative_base
@@ -205,17 +205,28 @@ class UserSession(Base):
     user = relationship("User", backref="sessions")
 
 
+class ReferenceRelation(enum.Enum):
+    FRIEND = 1
+    SURFED = 2
+    HOSTED = 3
+
+
 class Reference(Base):
     """
     Reference from one user to another
     """
     __tablename__ = "references"
+    __table_args__ = (
+            UniqueConstraint('from_user_id', 'to_user_id', 'relation'),
+            )
 
     id = Column(Integer, primary_key=True)
     time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     from_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     to_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    relation = Column(Enum(ReferenceRelation), nullable=False)
 
     text = Column(String, nullable=True)
 

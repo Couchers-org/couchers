@@ -440,3 +440,64 @@ def test_reporting(db):
         with pytest.raises(grpc.RpcError) as e:
             api.Report(report_req)
     assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+
+def test_references(db):
+    user1, token1 = generate_user(db)
+    user2, token2 = generate_user(db)
+
+    alltypes = set([api_pb2.ReferenceRelation.FRIEND,
+                    api_pb2.ReferenceRelation.HOSTED,
+                    api_pb2.ReferenceRelation.SURFED])
+    # write all three references
+    for typ in alltypes:
+        req = api_pb2.WriteReferenceReq(to_user_id=user2.id,
+                                        relation=typ,
+                                        text="kinda weird sometimes")
+        with api_session(db, token1) as api:
+            res = api.WriteReference(req)
+        assert isinstance(res, empty_pb2.Empty)
+
+    # See what I have written. Paginate it.
+    seen_types = set()
+    for i in range(3):
+        req = api_pb2.GetReferencesReq(from_user_id_filter=wrappers_pb2.UInt64Value(value=user1.id),
+                                       how_many=1,
+                                       start_at=i)
+        with api_session(db, token1) as api:
+            res = api.GetReferences(req)
+        assert res.total_matches == 3
+        assert len(res.references) == 1
+        assert res.references[0].from_user_id == user1.id
+        assert res.references[0].to_user_id == user2.id
+        assert res.references[0].text == "kinda weird sometimes"
+        assert res.references[0].relation not in seen_types
+        seen_types.add(res.references[0].relation)
+    assert seen_types == alltypes
+
+    # Forbidden to write a second reference of the same type
+    req = api_pb2.WriteReferenceReq(to_user_id=user2.id,
+                                    relation=api_pb2.ReferenceRelation.HOSTED,
+                                    text="ok")
+    with api_session(db, token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.WriteReference(req)
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+
+    # Nonexisting user
+    req = api_pb2.WriteReferenceReq(to_user_id=0x7fffffffffffffff,
+                                    relation=api_pb2.ReferenceRelation.HOSTED,
+                                    text="ok")
+    with api_session(db, token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.WriteReference(req)
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+    # yourself
+    req = api_pb2.WriteReferenceReq(to_user_id=user1.id,
+                                    relation=api_pb2.ReferenceRelation.HOSTED,
+                                    text="ok")
+    with api_session(db, token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.WriteReference(req)
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT

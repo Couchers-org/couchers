@@ -8,11 +8,24 @@ from sqlalchemy.sql import or_
 
 from couchers.db import (get_friends_status, get_user_by_field, is_valid_color,
                          is_valid_name, session_scope)
-from couchers.models import FriendRelationship, FriendStatus, User, Complaint
+from couchers.models import (FriendRelationship, FriendStatus, User, Complaint,
+                             Reference, ReferenceRelation)
 from couchers.utils import Timestamp_from_datetime
 from couchers.tasks import send_report_email
 from pb import api_pb2, api_pb2_grpc
 
+
+refrel2sql = {
+    api_pb2.ReferenceRelation.FRIEND: ReferenceRelation.FRIEND,
+    api_pb2.ReferenceRelation.SURFED: ReferenceRelation.SURFED,
+    api_pb2.ReferenceRelation.HOSTED: ReferenceRelation.HOSTED,
+}
+
+refrel2api = {
+    ReferenceRelation.FRIEND: api_pb2.ReferenceRelation.FRIEND,
+    ReferenceRelation.SURFED: api_pb2.ReferenceRelation.SURFED,
+    ReferenceRelation.HOSTED: api_pb2.ReferenceRelation.HOSTED,
+}
 
 class API(api_pb2_grpc.APIServicer):
     def __init__(self, Session):
@@ -311,3 +324,52 @@ class API(api_pb2_grpc.APIServicer):
                           request.reason, request.description)
 
         return empty_pb2.Empty()
+
+    def WriteReference(self, request, context):
+        if context.user_id == request.to_user_id:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT,
+                          "Can't refer yourself")
+
+        reference = Reference(
+            from_user_id=context.user_id,
+            to_user_id=request.to_user_id,
+            relation=refrel2sql[request.relation],
+            text=request.text,
+            was_safe=request.was_safe,
+            rating=request.rating)
+        with session_scope(self._Session) as session:
+            if not session.query(User).filter(User.id == request.to_user_id).one_or_none():
+                context.abort(grpc.StatusCode.NOT_FOUND,
+                              "Nonexisting user id")
+
+            if (session.query(Reference)
+                .filter(Reference.from_user_id == context.user_id)
+                .filter(Reference.to_user_id == request.to_user_id)
+                .filter(Reference.relation == refrel2sql[request.relation])
+                .one_or_none()):
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION,
+                              "Reference already given")
+            session.add(reference)
+        return empty_pb2.Empty()
+
+    def GetReferences(self, request, context):
+        with session_scope(self._Session) as session:
+            query = session.query(Reference)
+            if request.HasField("from_user_id_filter"):
+                query = query.filter(Reference.from_user_id == request.from_user_id_filter.value)
+            if request.HasField("to_user_id_filter"):
+                query = query.filter(Reference.to_user_id == request.to_user_id_filter.value)
+            if request.HasField("relation_filter"):
+                query = query.filter(Reference.relation == refrel2sql[request.relation_filter.value])
+            total_matches = query.count()
+            references = query.order_by(Reference.time).offset(request.start_at).limit(request.how_many).all()
+            # order by time, pagination
+            return api_pb2.GetReferencesRes(
+                total_matches=total_matches,
+                references=[
+                    api_pb2.OneReference(
+                        from_user_id=x.from_user_id,
+                        to_user_id=x.to_user_id,
+                        relation=refrel2api[x.relation],
+                        text=x.text)
+                    for x in references])
