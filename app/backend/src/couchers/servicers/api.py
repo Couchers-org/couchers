@@ -1,20 +1,19 @@
 import logging
 from datetime import datetime
-from google.protobuf import empty_pb2
-from google.protobuf.timestamp_pb2 import Timestamp
 
 import grpc
-from sqlalchemy.sql import or_
-
+from couchers import errors
 from couchers.db import (get_friends_status, get_user_by_field, is_valid_color,
                          is_valid_name, session_scope)
-from couchers.models import (FriendRelationship, FriendStatus,
-                             HostingStatus, User, Complaint, Reference,
-                             ReferenceType, SmokingLocation)
-from couchers.utils import Timestamp_from_datetime
+from couchers.models import (Complaint, FriendRelationship, FriendStatus,
+                             GroupChatSubscription, HostingStatus, Message,
+                             Reference, ReferenceType, SmokingLocation, User)
 from couchers.tasks import send_report_email
-from couchers import errors
+from couchers.utils import Timestamp_from_datetime
+from google.protobuf import empty_pb2
+from google.protobuf.timestamp_pb2 import Timestamp
 from pb import api_pb2, api_pb2_grpc
+from sqlalchemy.sql import func, or_
 
 reftype2sql = {
     api_pb2.ReferenceType.FRIEND: ReferenceType.FRIEND,
@@ -74,8 +73,20 @@ class API(api_pb2_grpc.APIServicer):
         with session_scope(self._Session) as session:
             # auth ought to make sure the user exists
             user = session.query(User).filter(User.id == context.user_id).one()
+
+            unseen_message_count = (session.query(func.count(Message.id).label("count"))
+                .outerjoin(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
+                .filter(GroupChatSubscription.user_id == context.user_id)
+                .filter(Message.time >= GroupChatSubscription.joined)
+                .filter(
+                    or_(Message.time <= GroupChatSubscription.left,
+                        GroupChatSubscription.left == None))
+                .filter(Message.id > GroupChatSubscription.last_seen_message_id)
+                .one()).count
+
             return api_pb2.PingRes(
-                user=user_model_to_pb(user, session, context)
+                user=user_model_to_pb(user, session, context),
+                unseen_message_count=unseen_message_count,
             )
 
     def GetUser(self, request, context):

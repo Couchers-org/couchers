@@ -104,6 +104,7 @@ message PingReq {}
 
 message PingRes {
   User user = 1;
+  uint32 unseen_message_count = 2;
 }
 
 message MutualFriend {
