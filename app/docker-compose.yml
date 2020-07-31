@@ -6,6 +6,12 @@ services:
     ports:
       - 8888:8888
       - 9901:9901
+  backend_tests:
+    build: backend
+    volumes:
+      - "./backend:/app"
+    command: bash -c "find src -name '**.py' | ENTR_INOTIFY_WORKAROUND=1 entr -d pytest src"
+    restart: on-failure
   backend:
     build: backend
     volumes:
