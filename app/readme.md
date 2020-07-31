@@ -38,6 +38,13 @@ cd couchers/app
 docker run --rm -w /app -v $(pwd):/app couchers/grpc ./generate_protos.sh
 ```
 
+On Windows, you will have to instead use this command in the command line (not powershell):
+
+```sh
+cd couchers/app
+docker run --rm -w /app -v %cd%:/app couchers/grpc sh -c "cat generate_protos.sh | dos2unix | sh"
+```
+
 This creates an ephemeral container (`--rm`), with working directory being `/app`, mounting the current directory into there, and running `generate_protos.sh`.
 
 ### macOS
