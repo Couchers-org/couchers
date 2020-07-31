@@ -108,11 +108,11 @@ class LoggingInterceptor(grpcext.UnaryServerInterceptor):
         start = perf_counter_ns()
         res = handler(request, servicer_context)
         finished = perf_counter_ns()
-        duration = (finished-start) / 1e9
+        duration = (finished-start) / 1e6 # ms
         if LOG_VERBOSE_PB:
-            logger.info(f"Finished request (in {duration} s): {server_info.full_method}. Response: {res}")
+            logger.info(f"Finished request (in {duration:0.2f} ms): {server_info.full_method}. Response: {res}")
         else:
-            logger.info(f"Finished request (in {duration} s): {server_info.full_method}")
+            logger.info(f"Finished request (in {duration:0.2f} ms): {server_info.full_method}")
         return res
 
 
