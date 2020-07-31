@@ -34,6 +34,7 @@ This will take quite a while as it's rebuilding gRPC from scratch. You might wan
 You can then compile protos with:
 
 ```sh
+cd couchers/app
 docker run --rm -w /app -v $(pwd):/app couchers/grpc ./generate_protos.sh
 ```
 
