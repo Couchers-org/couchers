@@ -15,3 +15,30 @@ The frontend is a static app that we can eventually deploy on a CDN. The fronten
 This should build everything and launch it up on your computer. It's going to a moment.
 
 Go to <http://localhost:8080/>, and you should see the app there.
+
+## Building protobufs
+
+We don't keep the generated code for our `.proto` files in git to minimise clutter and reduce merge conflicts. To generate these you need [gRPC](https://github.com/grpc/grpc/) and [gRPC-Web](https://github.com/grpc/grpc-web/).
+
+### The Docker method
+
+To help you get up and running, we've created a docker container that has the latest versions of gRPC and gRPC-Web. To build it, run:
+
+```sh
+cd couchers/app/grpc
+docker build -t couchers/grpc .
+```
+
+This will take quite a while as it's rebuilding gRPC from scratch. You might want to delete the intermediate containers which will be quite large. It uses multi-stage builds to minimise container size.
+
+You can then compile protos with:
+
+```sh
+docker run --rm -w /app -v $(pwd):/app couchers/grpc ./generate_protos.sh
+```
+
+This creates an ephemeral container (`--rm`), with working directory being `/app`, mounting the current directory into there, and running `generate_protos.sh`.
+
+### macOS
+
+On macOS it's super easy to `brew install grpc`, I think you have to install the [latest release](https://github.com/grpc/grpc-web/releases/latest) of gRPC-Web though.

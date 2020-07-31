@@ -1,3 +1,4 @@
+#!/bin/sh
 find pb -name '*.proto' | protoc -I. \
   --python_out=backend/src \
   --grpc_python_out=backend/src \
