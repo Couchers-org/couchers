@@ -1,4 +1,5 @@
 from datetime import datetime
+from time import sleep
 
 from google.protobuf import empty_pb2, wrappers_pb2
 
@@ -1114,3 +1115,93 @@ def test_GetDirectMessage(db):
         res = c.GetDirectMessage(conversations_pb2.GetDirectMessageReq(
             user_id=user3.id))
         assert res.group_chat_id == gcid
+
+
+def test_total_unseen(db):
+    user1, token1 = generate_user(db)
+    user2, token2 = generate_user(db)
+    user3, token3 = generate_user(db)
+
+    # distractions
+    user4, token4 = generate_user(db)
+
+    make_friends(db, user1, user2)
+    make_friends(db, user1, user3)
+    make_friends(db, user2, user3)
+
+    # distractions
+    make_friends(db, user1, user4)
+
+    start_time = datetime.utcnow()
+
+    with conversations_session(db, token1) as c:
+        # distractions
+        gcid_distraction = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(
+            recipient_user_ids=[user4.id])).group_chat_id
+        c.SendMessage(conversations_pb2.SendMessageReq(
+            group_chat_id=gcid_distraction, text=f"distraction..."))
+
+        gcid = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(
+            recipient_user_ids=[user2.id, user3.id])).group_chat_id
+
+        for i in range(6):
+            c.SendMessage(conversations_pb2.SendMessageReq(
+                group_chat_id=gcid, text=f"test message {i}"))
+
+        # distractions
+        c.SendMessage(conversations_pb2.SendMessageReq(
+                    group_chat_id=gcid_distraction, text=f"distraction..."))
+
+    # messages are automatically marked as seen when you send a new message
+    with api_session(db, token1) as api:
+        assert api.Ping(api_pb2.PingReq()).unseen_message_count == 0
+
+    with api_session(db, token2) as api:
+        assert api.Ping(api_pb2.PingReq()).unseen_message_count == 6
+
+    # now leave chat with user2
+    with conversations_session(db, token2) as c:
+        with patch_left_time(start_time, add=1):
+            c.LeaveGroupChat(conversations_pb2.LeaveGroupChatReq(
+                group_chat_id=gcid))
+
+    with api_session(db, token2) as api:
+        assert api.Ping(api_pb2.PingReq()).unseen_message_count == 6
+
+    with conversations_session(db, token1) as c:
+        # distractions
+        c.SendMessage(conversations_pb2.SendMessageReq(
+            group_chat_id=gcid_distraction, text=f"distraction..."))
+
+        # send more stuff without user 2
+        with patch_message_time(start_time, add=2):
+            for i in range(3):
+                c.SendMessage(conversations_pb2.SendMessageReq(
+                    group_chat_id=gcid, text=f"test message {i}"))
+
+        # distractions
+        c.SendMessage(conversations_pb2.SendMessageReq(
+            group_chat_id=gcid_distraction, text=f"distraction..."))
+
+    sleep(3)
+
+    with api_session(db, token2) as api:
+        assert api.Ping(api_pb2.PingReq()).unseen_message_count == 6
+
+    with conversations_session(db, token1) as c:
+        # add user 2 back
+        c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(
+            group_chat_id=gcid, user_id=user2.id
+        ))
+
+        # send more stuff with user 2
+        for i in range(12):
+            c.SendMessage(conversations_pb2.SendMessageReq(
+                group_chat_id=gcid, text=f"test message {i}"))
+
+        # distractions
+        c.SendMessage(conversations_pb2.SendMessageReq(
+            group_chat_id=gcid_distraction, text=f"distraction..."))
+
+    with api_session(db, token2) as api:
+        assert api.Ping(api_pb2.PingReq()).unseen_message_count == 18
