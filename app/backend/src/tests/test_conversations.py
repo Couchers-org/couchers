@@ -1,5 +1,4 @@
 from datetime import datetime
-from time import sleep
 
 from google.protobuf import empty_pb2, wrappers_pb2
 
@@ -1183,21 +1182,21 @@ def test_total_unseen(db):
         c.SendMessage(conversations_pb2.SendMessageReq(
             group_chat_id=gcid_distraction, text=f"distraction..."))
 
-    sleep(3)
-
     with api_session(db, token2) as api:
         assert api.Ping(api_pb2.PingReq()).unseen_message_count == 6
 
     with conversations_session(db, token1) as c:
         # add user 2 back
-        c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(
-            group_chat_id=gcid, user_id=user2.id
-        ))
+        with patch_joined_time(start_time, add=3):
+            c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(
+                group_chat_id=gcid, user_id=user2.id
+            ))
 
         # send more stuff with user 2
-        for i in range(12):
-            c.SendMessage(conversations_pb2.SendMessageReq(
-                group_chat_id=gcid, text=f"test message {i}"))
+        with patch_message_time(start_time, add=4):
+            for i in range(12):
+                c.SendMessage(conversations_pb2.SendMessageReq(
+                    group_chat_id=gcid, text=f"test message {i}"))
 
         # distractions
         c.SendMessage(conversations_pb2.SendMessageReq(
