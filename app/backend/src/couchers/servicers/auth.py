@@ -12,6 +12,7 @@ from couchers.db import (get_user_by_field, is_valid_email, is_valid_username,
 from couchers.interceptors import _AuthValidatorInterceptor
 from couchers.models import LoginToken, SignupToken, User, UserSession
 from couchers.tasks import send_login_email, send_signup_email
+from couchers import errors
 from pb import auth_pb2, auth_pb2_grpc
 from sqlalchemy import func
 
@@ -58,7 +59,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         Will abort the API calling context if the user is banned from logging in.
         """
         if user.is_banned:
-            context.abort(grpc.StatusCode.PRECONDITION_FAILED, "Your account is suspended.")
+            context.abort(grpc.StatusCode.PRECONDITION_FAILED, errors.ACCOUNT_SUSPENDED)
 
         token = urlsafe_secure_token()
 
@@ -261,7 +262,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 logger.debug(f"Found user")
                 if not user.hashed_password:
                     logger.debug(f"User doesn't have a password!")
-                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, "User does not have a password")
+                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NO_PASSWORD)
                 if verify_password(user.hashed_password, request.password):
                     logger.debug(f"Right password")
                     # correct password

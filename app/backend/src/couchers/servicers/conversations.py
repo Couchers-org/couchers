@@ -9,6 +9,7 @@ from couchers.db import get_friends_status, get_user_by_field, session_scope
 from couchers.models import (Conversation, GroupChat, GroupChatRole,
                              GroupChatSubscription, Message, User)
 from couchers.utils import Timestamp_from_datetime
+from couchers import errors
 from pb import api_pb2, conversations_pb2, conversations_pb2_grpc
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, or_
@@ -179,7 +180,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, "Couldn't find that chat.")
 
             if not subscription.last_seen_message_id <= request.last_seen_message_id:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, "Can't unsee messages!")
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_UNSEE_MESSAGES)
 
             subscription.last_seen_message_id = request.last_seen_message_id
             session.commit()
@@ -251,7 +252,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
             for recipient in request.recipient_user_ids:
                 if get_friends_status(session, context.user_id, recipient) != api_pb2.User.FriendshipStatus.FRIENDS:
-                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, "You must be friends with each person you add to a group chat.")
+                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.GROUP_CHAT_ONLY_ADD_FRIENDS)
 
                 subscription = GroupChatSubscription(
                     user_id=recipient,
@@ -334,17 +335,19 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, "Only admins can make other users admins.")
             
             if request.user_id == context.user_id:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, "Can't make yourself admin.")
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_MAKE_SELF_ADMIN)
 
             their_subscription = (session.query(GroupChatSubscription)
                 .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
                 .filter(GroupChatSubscription.user_id == request.user_id)
                 .filter(GroupChatSubscription.left == None)
-                .filter(GroupChatSubscription.role == GroupChatRole.participant)
                 .one_or_none())
 
             if not their_subscription:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, "That user isn't a participant in this chat.")
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USER_NOT_IN_CHAT)
+            
+            if their_subscription.role != GroupChatRole.participant:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ALREADY_ADMIN)
 
             their_subscription.role = GroupChatRole.admin
             session.commit()
@@ -371,7 +374,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                     .filter(GroupChatSubscription.left == None)
                     .one()).count
                 if not other_admins_count > 0:
-                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, "You can't remove the last admin.")
+                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_REMOVE_LAST_ADMIN)
 
             if your_subscription.role != GroupChatRole.admin:
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, "Only admins can remove admins.")
@@ -384,7 +387,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 .one_or_none())
 
             if not their_subscription:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, "That user isn't an admin in this chat.")
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USER_NOT_ADMIN)
 
             their_subscription.role = GroupChatRole.participant
             session.commit()
@@ -408,13 +411,13 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, "Couldn't find that chat.")
 
             if request.user_id == context.user_id:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, "You can't invite yourself.")
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_INVITE_SELF)
 
             if your_subscription.role != GroupChatRole.admin and your_subscription.group_chat.only_admins_invite:
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, "You're not allowed to invite users.")
             
             if group_chat.is_dm:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, "Can't invite to a DM.")
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_INVITE_TO_DM)
 
             their_subscription = (session.query(GroupChatSubscription)
                 .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
@@ -423,12 +426,12 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 .one_or_none())
 
             if their_subscription:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, "That user is already in the chat.")
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ALREADY_IN_CHAT)
 
             # TODO: race condition!
 
             if get_friends_status(session, context.user_id, request.user_id) != api_pb2.User.FriendshipStatus.FRIENDS:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, "You must be friends with each person you add to a group chat.")
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.GROUP_CHAT_ONLY_INVITE_FRIENDS)
 
             subscription = GroupChatSubscription(
                 user_id=request.user_id,
@@ -465,7 +468,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                     .filter(GroupChatSubscription.left == None)
                     .one()).count
                 if not (other_admins_count > 0 or participants_count == 0):
-                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, "The last admin can't leave.")
+                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.LAST_ADMIN_CANT_LEAVE)
 
             subscription.left = datetime.utcnow()
             session.commit()

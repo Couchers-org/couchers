@@ -11,6 +11,7 @@ from couchers.db import (get_friends_status, get_user_by_field, is_valid_color,
 from couchers.models import FriendRelationship, FriendStatus, User, Complaint
 from couchers.utils import Timestamp_from_datetime
 from couchers.tasks import send_report_email
+from couchers import errors
 from pb import api_pb2, api_pb2_grpc
 
 
@@ -178,7 +179,7 @@ class API(api_pb2_grpc.APIServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, "User not found.")
 
             if get_friends_status(session, from_user.id, to_user.id) != api_pb2.User.FriendshipStatus.NOT_FRIENDS:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, "Can't send friend request. Already friends or pending.")
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.FRIENDS_ALREADY_OR_PENDING)
 
             # Race condition!
 
