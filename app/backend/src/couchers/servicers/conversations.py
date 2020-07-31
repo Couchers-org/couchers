@@ -467,6 +467,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
     def InviteToGroupChat(self, request, context):
         with session_scope(self._Session) as session:
             result = (session.query(GroupChatSubscription, GroupChat)
+                .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
                 .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
                 .filter(GroupChatSubscription.user_id == context.user_id)
                 .filter(GroupChatSubscription.left == None)
