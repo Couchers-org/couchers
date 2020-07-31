@@ -156,6 +156,7 @@
                 <v-list-item
                   v-if="isMyMessage(message)"
                   :key="message.messageId"
+                  :id="`msg-${message.messageId}`"
                 >
                   <v-list-item-content class="py-1 bubble-content">
                     <v-alert
@@ -178,7 +179,11 @@
                     </v-avatar>
                   </v-list-item-avatar>
                 </v-list-item>
-                <v-list-item v-else :key="message.messageId">
+                <v-list-item
+                  v-else
+                  :key="message.messageId"
+                  :id="`msg-${message.messageId}`"
+                >
                   <v-list-item-avatar>
                     <v-avatar :color="messageColor(message)" size="36">
                       <span class="white--text">{{
