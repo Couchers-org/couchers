@@ -10,6 +10,8 @@ services:
     build: backend
     volumes:
       - "./backend:/app"
+    # see https://github.com/eradman/entr#docker-and-windows-subsystem-for-linux
+    command: bash -c "find src -name '**.py' | ENTR_INOTIFY_WORKAROUND=1 entr -rd python src/app.py"
     restart: on-failure
     ports:
       - 1751:1751
