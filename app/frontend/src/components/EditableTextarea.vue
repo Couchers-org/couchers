@@ -8,8 +8,8 @@
         </p>
       </v-container>
       <v-container v-else>
-          <vue-simple-markdown :source="text"></vue-simple-markdown>
-          <v-btn icon v-on:click="edit"><v-icon>mdi-pencil</v-icon></v-btn>
+        <vue-simple-markdown :source="text" image="false"></vue-simple-markdown>
+        <v-btn icon v-on:click="edit"><v-icon>mdi-pencil</v-icon></v-btn>
       </v-container>
     </div>
     <div v-if="editing">
@@ -25,19 +25,19 @@
 <script lang="ts">
 import Vue from "vue"
 import VueSimpleMarkdown from "vue-simple-markdown"
-import 'vue-simple-markdown/dist/vue-simple-markdown.css'
+import "vue-simple-markdown/dist/vue-simple-markdown.css"
 
 Vue.use(VueSimpleMarkdown)
 
 export default Vue.extend({
   props: {
     text: String,
-    isMarkdown: Boolean
+    isMarkdown: Boolean,
   },
 
   data: () => ({
     editing: false,
-    dirtyText: null as (null | string),
+    dirtyText: null as null | string,
   }),
 
   methods: {

@@ -124,9 +124,13 @@
           <h3>Languages</h3>
           <editable-list :list="user.languagesList" v-on:save="saveLanguages" />
           <h3>About me</h3>
-          <editable-textarea :text="user.aboutMe" isMarkdown v-on:save="saveAboutMe" />
+          <editable-textarea
+            :text="user.aboutMe"
+            isMarkdown
+            v-on:save="saveAboutMe"
+          />
           <h3>About my place</h3>
-          <editable-textareaisMarkdown 
+          <editable-textarea
             :text="user.aboutPlace"
             isMarkdown
             v-on:save="saveAboutPlace"
@@ -166,10 +170,7 @@ import EditableList from "../components/EditableList.vue"
 import EditableColor from "../components/EditableColor.vue"
 import ErrorAlert from "../components/ErrorAlert.vue"
 
-import {
-  UpdateProfileReq,
-  RepeatedStringValue,
-} from "../pb/api_pb"
+import { UpdateProfileReq, RepeatedStringValue } from "../pb/api_pb"
 import { client } from "../api"
 
 import Store from "../store"
