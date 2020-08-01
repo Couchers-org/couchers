@@ -446,13 +446,13 @@ def test_references(db):
     user1, token1 = generate_user(db)
     user2, token2 = generate_user(db)
 
-    alltypes = set([api_pb2.ReferenceRelation.FRIEND,
-                    api_pb2.ReferenceRelation.HOSTED,
-                    api_pb2.ReferenceRelation.SURFED])
+    alltypes = set([api_pb2.ReferenceType.FRIEND,
+                    api_pb2.ReferenceType.HOSTED,
+                    api_pb2.ReferenceType.SURFED])
     # write all three references
     for typ in alltypes:
         req = api_pb2.WriteReferenceReq(to_user_id=user2.id,
-                                        relation=typ,
+                                        reference_type=typ,
                                         text="kinda weird sometimes")
         with api_session(db, token1) as api:
             res = api.WriteReference(req)
@@ -471,13 +471,13 @@ def test_references(db):
         assert res.references[0].from_user_id == user1.id
         assert res.references[0].to_user_id == user2.id
         assert res.references[0].text == "kinda weird sometimes"
-        assert res.references[0].relation not in seen_types
-        seen_types.add(res.references[0].relation)
+        assert res.references[0].reference_type not in seen_types
+        seen_types.add(res.references[0].reference_type)
     assert seen_types == alltypes
 
     # Forbidden to write a second reference of the same type
     req = api_pb2.WriteReferenceReq(to_user_id=user2.id,
-                                    relation=api_pb2.ReferenceRelation.HOSTED,
+                                    reference_type=api_pb2.ReferenceType.HOSTED,
                                     text="ok")
     with api_session(db, token1) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -486,7 +486,7 @@ def test_references(db):
 
     # Nonexisting user
     req = api_pb2.WriteReferenceReq(to_user_id=0x7fffffffffffffff,
-                                    relation=api_pb2.ReferenceRelation.HOSTED,
+                                    reference_type=api_pb2.ReferenceType.HOSTED,
                                     text="ok")
     with api_session(db, token1) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -495,7 +495,7 @@ def test_references(db):
 
     # yourself
     req = api_pb2.WriteReferenceReq(to_user_id=user1.id,
-                                    relation=api_pb2.ReferenceRelation.HOSTED,
+                                    reference_type=api_pb2.ReferenceType.HOSTED,
                                     text="ok")
     with api_session(db, token1) as api:
         with pytest.raises(grpc.RpcError) as e:

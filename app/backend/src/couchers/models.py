@@ -205,10 +205,10 @@ class UserSession(Base):
     user = relationship("User", backref="sessions")
 
 
-class ReferenceRelation(enum.Enum):
+class ReferenceType(enum.Enum):
     FRIEND = 1
-    SURFED = 2
-    HOSTED = 3
+    SURFED = 2  # The "from" user have surfed at the "to" user
+    HOSTED = 3  # The "from" user have hosted the "to" user
 
 
 class Reference(Base):
@@ -217,7 +217,7 @@ class Reference(Base):
     """
     __tablename__ = "references"
     __table_args__ = (
-            UniqueConstraint('from_user_id', 'to_user_id', 'relation'),
+            UniqueConstraint("from_user_id", "to_user_id", "reference_type"),
             )
 
     id = Column(Integer, primary_key=True)
@@ -226,7 +226,7 @@ class Reference(Base):
     from_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     to_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
-    relation = Column(Enum(ReferenceRelation), nullable=False)
+    reference_type = Column(Enum(ReferenceType), nullable=False)
 
     text = Column(String, nullable=True)
 

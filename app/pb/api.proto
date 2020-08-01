@@ -37,7 +37,7 @@ service API {
   // report yourself or NOT_FOUND if the reported user doesn't exist.
   rpc Report(ReportReq) returns (google.protobuf.Empty);
 
-  // Filter references based on from and to user or relation, and
+  // Filter references based on from and to user or type, and
   // paginate the results according to client's wish.
   rpc GetReferences(GetReferencesReq) returns (GetReferencesRes);
 
@@ -185,20 +185,20 @@ message ReportReq {
   string description = 3;
 }
 
-enum ReferenceRelation {
+enum ReferenceType {
   FRIEND = 0;  // We met on an event but haven't surfed or hosted
   SURFED = 1;  // The author have surfed, the referent has hosted
   HOSTED = 2;  // The author have hosted, the referent has surfed
 }
 
-message OptionalReferenceRelation {
-  ReferenceRelation value = 1;
+message OptionalReferenceType {
+  ReferenceType value = 1;
 }
 
 message GetReferencesReq {
   google.protobuf.UInt64Value from_user_id_filter = 1;  // optional
   google.protobuf.UInt64Value to_user_id_filter = 2;    // optional
-  OptionalReferenceRelation relation_filter = 3;        // optional
+  OptionalReferenceType type_filter = 3;                // optional
 
   // Pagination; default is to get the N latest references that matches the filter,
   // skipping the start_at most recent ones.
@@ -206,10 +206,10 @@ message GetReferencesReq {
   uint32 start_at = 4;
 }
 
-message OneReference {
+message Reference {
   uint64 from_user_id = 1;
   uint64 to_user_id = 2;
-  ReferenceRelation relation = 3;
+  ReferenceType reference_type = 3;
   string text = 4;
 }
 
@@ -218,12 +218,12 @@ message GetReferencesRes {
   uint32 total_matches = 1;
 
   // A list of zero to `how_many` references
-  repeated OneReference references = 2;
+  repeated Reference references = 2;
 }
 
 message WriteReferenceReq {
   uint64 to_user_id = 1;
-  ReferenceRelation relation = 2;
+  ReferenceType reference_type = 2;
   string text = 3;
   bool was_safe = 4;
   int32 rating = 5;
