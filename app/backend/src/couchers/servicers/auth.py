@@ -12,6 +12,7 @@ from couchers.db import (get_user_by_field, is_valid_email, is_valid_username,
 from couchers.interceptors import _AuthValidatorInterceptor
 from couchers.models import LoginToken, SignupToken, User, UserSession
 from couchers.tasks import send_login_email, send_signup_email
+from couchers import errors
 from pb import auth_pb2, auth_pb2_grpc
 from sqlalchemy import func
 
@@ -58,7 +59,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         Will abort the API calling context if the user is banned from logging in.
         """
         if user.is_banned:
-            context.abort(grpc.StatusCode.PRECONDITION_FAILED, "Your account is suspended.")
+            context.abort(grpc.StatusCode.PRECONDITION_FAILED, errors.ACCOUNT_SUSPENDED)
 
         token = urlsafe_secure_token()
 
@@ -140,7 +141,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 .filter(SignupToken.expiry >= func.now()) \
                 .one_or_none()
             if not signup_token:
-                context.abort(grpc.StatusCode.NOT_FOUND, "Invalid token.")
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
             else:
                 return auth_pb2.SignupTokenInfoRes(email=signup_token.email)
 
@@ -157,23 +158,23 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 .filter(SignupToken.expiry >= func.now()) \
                 .one_or_none()
             if not signup_token:
-                context.abort(grpc.StatusCode.NOT_FOUND, "Invalid token.")
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
 
             # should be in YYYY/MM/DD format, will raise exception if can't parse
             birthdate = datetime.fromisoformat(request.birthdate)
 
             # check email again
             if not is_valid_email(signup_token.email):
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, "Invalid email")
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_EMAIL)
 
             # check username validity
             if not is_valid_username(request.username):
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, "Invalid username")
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_USERNAME)
 
             # check name validity
             if not is_valid_name(request.name):
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT,
-                              "Name not supported")
+                              errors.INVALID_NAME)
 
             user = User(
                 email=signup_token.email,
@@ -246,7 +247,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 session.commit()
                 return auth_pb2.AuthRes(token=token)
             else:
-                context.abort(grpc.StatusCode.UNAUTHENTICATED, "Invalid token.")
+                context.abort(grpc.StatusCode.UNAUTHENTICATED, errors.INVALID_TOKEN)
 
     def Authenticate(self, request, context):
         """
@@ -261,7 +262,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 logger.debug(f"Found user")
                 if not user.hashed_password:
                     logger.debug(f"User doesn't have a password!")
-                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, "User does not have a password")
+                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NO_PASSWORD)
                 if verify_password(user.hashed_password, request.password):
                     logger.debug(f"Right password")
                     # correct password
@@ -270,12 +271,12 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 else:
                     logger.debug(f"Wrong password")
                     # wrong password
-                    context.abort(grpc.StatusCode.UNAUTHENTICATED, "Invalid username or password")
+                    context.abort(grpc.StatusCode.UNAUTHENTICATED, errors.INVALID_USERNAME_OR_PASSWORD)
             else: # user not found
                 logger.debug(f"Didn't find user")
                 # do about as much work as if the user was found, reduces timing based username enumeration attacks
                 hash_password(request.password)
-                context.abort(grpc.StatusCode.UNAUTHENTICATED, "Invalid username or password")
+                context.abort(grpc.StatusCode.UNAUTHENTICATED, errors.INVALID_USERNAME_OR_PASSWORD)
 
     def Deauthenticate(self, request, context):
         """
@@ -286,4 +287,4 @@ class Auth(auth_pb2_grpc.AuthServicer):
             return auth_pb2.DeAuthRes()
         else:
             # probably caused by token not existing
-            context.abort(grpc.StatusCode.UNKNOWN, "Couldn't deauth")
+            context.abort(grpc.StatusCode.UNKNOWN, errors.LOGOUT_FAILED)

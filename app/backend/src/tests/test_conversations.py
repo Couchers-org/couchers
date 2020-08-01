@@ -4,6 +4,7 @@ from google.protobuf import empty_pb2, wrappers_pb2
 
 import grpc
 import pytest
+from couchers import errors
 from couchers.models import User
 from pb import api_pb2, conversations_pb2
 from tests.test_fixtures import (api_session, conversations_session, db,
@@ -521,6 +522,7 @@ def test_make_remove_group_chat_admin(db):
             c.RemoveGroupChatAdmin(
                 conversations_pb2.RemoveGroupChatAdminReq(group_chat_id=group_chat_id, user_id=user1.id))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.CANT_REMOVE_LAST_ADMIN
 
         c.MakeGroupChatAdmin(conversations_pb2.MakeGroupChatAdminReq(
             group_chat_id=group_chat_id, user_id=user2.id))
@@ -530,6 +532,7 @@ def test_make_remove_group_chat_admin(db):
             c.MakeGroupChatAdmin(conversations_pb2.MakeGroupChatAdminReq(
                 group_chat_id=group_chat_id, user_id=user2.id))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.ALREADY_ADMIN
 
     with conversations_session(db, token2) as c:
         res = c.GetGroupChat(
@@ -635,6 +638,7 @@ def test_leave_invite_to_group_chat(db):
             c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(
                 group_chat_id=group_chat_id, user_id=user4.id))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.GROUP_CHAT_ONLY_INVITE_FRIENDS
 
         c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(
             group_chat_id=group_chat_id, user_id=user3.id))
@@ -676,6 +680,7 @@ def test_invite_to_dm(db):
             c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(
                 group_chat_id=group_chat_id, user_id=user3.id))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.CANT_INVITE_TO_DM
 
 
 def test_sole_admin_leaves(db):
@@ -699,6 +704,7 @@ def test_sole_admin_leaves(db):
             c.LeaveGroupChat(
                 conversations_pb2.LeaveGroupChatReq(group_chat_id=group_chat_id))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.LAST_ADMIN_CANT_LEAVE
 
     with conversations_session(db, token2) as c:
         c.LeaveGroupChat(
@@ -906,6 +912,7 @@ def test_admin_behaviour(db):
             c.RemoveGroupChatAdmin(conversations_pb2.RemoveGroupChatAdminReq(
                 group_chat_id=gcid, user_id=user3.id))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.CANT_REMOVE_LAST_ADMIN
         res = c.GetGroupChat(
             conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
         assert len(res.admin_user_ids) == 1
@@ -916,6 +923,7 @@ def test_admin_behaviour(db):
             c.LeaveGroupChat(
                 conversations_pb2.LeaveGroupChatReq(group_chat_id=gcid))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.LAST_ADMIN_CANT_LEAVE
 
         c.MakeGroupChatAdmin(conversations_pb2.MakeGroupChatAdminReq(
             group_chat_id=gcid, user_id=user1.id))
