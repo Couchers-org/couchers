@@ -1,10 +1,16 @@
 <template>
   <div>
     <div v-if="!editing">
-      <p>
-        {{ text }}
+      <v-container v-if="!isMarkdown">
+        <p>
+          {{ text }}
+          <v-btn icon v-on:click="edit"><v-icon>mdi-pencil</v-icon></v-btn>
+        </p>
+      </v-container>
+      <v-container v-else>
+        <vue-simple-markdown :source="text" image="false"></vue-simple-markdown>
         <v-btn icon v-on:click="edit"><v-icon>mdi-pencil</v-icon></v-btn>
-      </p>
+      </v-container>
     </div>
     <div v-if="editing">
       <v-textarea v-model="dirtyText"></v-textarea>
@@ -18,13 +24,20 @@
 
 <script lang="ts">
 import Vue from "vue"
+import VueSimpleMarkdown from "vue-simple-markdown"
+import "vue-simple-markdown/dist/vue-simple-markdown.css"
+
+Vue.use(VueSimpleMarkdown)
 
 export default Vue.extend({
-  props: ["text"],
+  props: {
+    text: String,
+    isMarkdown: Boolean,
+  },
 
   data: () => ({
     editing: false,
-    dirtyText: null,
+    dirtyText: null as null | string,
   }),
 
   methods: {
