@@ -63,7 +63,7 @@ class API(api_pb2_grpc.APIServicer):
         with session_scope(self._Session) as session:
             user = get_user_by_field(session, request.user)
             if not user:
-                context.abort(grpc.StatusCode.NOT_FOUND, "No such user.")
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             return api_pb2.User(
                 user_id=user.id,
@@ -103,7 +103,7 @@ class API(api_pb2_grpc.APIServicer):
             if request.HasField("name"):
                 if not is_valid_name(request.name.value):
                     context.abort(grpc.StatusCode.INVALID_ARGUMENT,
-                                  "Name not supported")
+                                  errors.INVALID_NAME)
                 user.name = request.name.value
                 res.updated_name = True
 
@@ -130,7 +130,7 @@ class API(api_pb2_grpc.APIServicer):
             if request.HasField("color"):
                 color = request.color.value.lower()
                 if not is_valid_color(color):
-                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, "Invalid color")
+                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COLOR)
                 user.color = color
                 res.updated_color = True
 
@@ -171,12 +171,12 @@ class API(api_pb2_grpc.APIServicer):
             from_user = session.query(User).filter(User.id == context.user_id).one_or_none()
 
             if not from_user:
-                context.abort(grpc.StatusCode.NOT_FOUND, "User not found.")
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             to_user = session.query(User).filter(User.id == request.user_id).one_or_none()
 
             if not to_user:
-                context.abort(grpc.StatusCode.NOT_FOUND, "User not found.")
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             if get_friends_status(session, from_user.id, to_user.id) != api_pb2.User.FriendshipStatus.NOT_FRIENDS:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.FRIENDS_ALREADY_OR_PENDING)
@@ -231,7 +231,7 @@ class API(api_pb2_grpc.APIServicer):
                 .one_or_none())
 
             if not friend_request:
-                context.abort(grpc.StatusCode.NOT_FOUND, "Friend request not found.")
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.FRIEND_REQUEST_NOT_FOUND)
 
             friend_request.status = FriendStatus.accepted if request.accept else FriendStatus.rejected
             friend_request.time_responded = datetime.utcnow()
@@ -249,7 +249,7 @@ class API(api_pb2_grpc.APIServicer):
                 .one_or_none())
 
             if not friend_request:
-                context.abort(grpc.StatusCode.NOT_FOUND, "Friend request not found.")
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.FRIEND_REQUEST_NOT_FOUND)
 
             friend_request.status = FriendStatus.cancelled
             friend_request.time_responded = datetime.utcnow()
@@ -294,7 +294,7 @@ class API(api_pb2_grpc.APIServicer):
     def Report(self, request, context):
         if context.user_id == request.reported_user_id:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT,
-                          "Can't report yourself")
+                          errors.CANT_REPORT_SELF)
 
         message = Complaint(
             author_user_id=context.user_id,
@@ -305,7 +305,7 @@ class API(api_pb2_grpc.APIServicer):
         with session_scope(self._Session) as session:
             if not session.query(User).filter(User.id == request.reported_user_id).one_or_none():
                 context.abort(grpc.StatusCode.NOT_FOUND,
-                              "Nonexisting reported user id")
+                              errors.USER_NOT_FOUND)
             session.add(message)
 
         send_report_email(context.user_id, request.reported_user_id,

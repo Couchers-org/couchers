@@ -7,6 +7,7 @@ from couchers.crypto import (base64decode, base64encode, sso_check_hmac,
 from couchers.db import (get_friends_status, get_user_by_field, is_valid_color,
                          is_valid_name, session_scope)
 from couchers.models import User
+from couchers import errors
 from pb import sso_pb2, sso_pb2_grpc
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d: %(process)d: %(message)s", datefmt="%F %T", level=logging.DEBUG)
@@ -29,7 +30,7 @@ class SSO(sso_pb2_grpc.SSOServicer):
             hmac_sec = "b26c7ff6aa391b6a2ba2c0ad18cc6eae40c1a72e5355f86b7b35a4200b514709"
 
             if not sso_check_hmac(sso, hmac_sec, sig):
-                context.abort(grpc.StatusCode.UNAUTHENTICATED, "Signature mismatch")
+                context.abort(grpc.StatusCode.UNAUTHENTICATED, errors.SSO_SIGNATURE_FAILED)
 
             # grab data from the "sso" string
             decoded_sso = base64decode(unquote(sso))

@@ -87,7 +87,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 .one_or_none())
 
             if not result:
-                context.abort(grpc.StatusCode.NOT_FOUND, "Couldn't find that chat.")
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
 
             return conversations_pb2.GroupChat(
                 group_chat_id=result.GroupChat.conversation_id,
@@ -177,7 +177,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 .one_or_none())
 
             if not subscription:
-                context.abort(grpc.StatusCode.NOT_FOUND, "Couldn't find that chat.")
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
 
             if not subscription.last_seen_message_id <= request.last_seen_message_id:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_UNSEE_MESSAGES)
@@ -222,14 +222,14 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
     def CreateGroupChat(self, request, context):
         if len(request.recipient_user_ids) < 1:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, "No recipients.")
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NO_RECIPIENTS)
 
         if len(request.recipient_user_ids) != len(set(request.recipient_user_ids)):
             # make sure there's no duplicate users
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, "Invalid recipients list.")
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_RECIPIENTS)
 
         if context.user_id in request.recipient_user_ids:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, "You can't add yourself to a group chat.")
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_ADD_SELF)
 
         with session_scope(self._Session) as session:
             conversation = Conversation()
@@ -275,7 +275,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
     def SendMessage(self, request, context):
         if request.text == "":
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, "Invalid message")
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_MESSAGE)
 
         with session_scope(self._Session) as session:
             subscription = (session.query(GroupChatSubscription)
@@ -284,7 +284,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 .filter(GroupChatSubscription.left == None)
                 .one_or_none())
             if not subscription:
-                context.abort(grpc.StatusCode.NOT_FOUND, "No matching group chat found.")
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
             message = Message(
                 conversation=subscription.group_chat.conversation,
                 author_id=context.user_id,
@@ -305,10 +305,10 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 .one_or_none())
 
             if not subscription:
-                context.abort(grpc.StatusCode.NOT_FOUND, "Couldn't find that chat for this user.")
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
 
             if subscription.role != GroupChatRole.admin:
-                context.abort(grpc.StatusCode.PERMISSION_DENIED, "Not an admin for that chat.")
+                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.ONLY_ADMIN_CAN_EDIT)
 
             if request.HasField("title"):
                 subscription.group_chat.title = request.title.value
@@ -329,10 +329,10 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 .one_or_none())
 
             if not your_subscription:
-                context.abort(grpc.StatusCode.NOT_FOUND, "Couldn't find that chat.")
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
 
             if your_subscription.role != GroupChatRole.admin:
-                context.abort(grpc.StatusCode.PERMISSION_DENIED, "Only admins can make other users admins.")
+                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.ONLY_ADMIN_CAN_MAKE_ADMIN)
             
             if request.user_id == context.user_id:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_MAKE_SELF_ADMIN)
@@ -363,7 +363,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 .one_or_none())
 
             if not your_subscription:
-                context.abort(grpc.StatusCode.NOT_FOUND, "Couldn't find that chat.")
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
 
             if request.user_id == context.user_id:
                 # Race condition!
@@ -377,7 +377,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                     context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_REMOVE_LAST_ADMIN)
 
             if your_subscription.role != GroupChatRole.admin:
-                context.abort(grpc.StatusCode.PERMISSION_DENIED, "Only admins can remove admins.")
+                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.ONLY_ADMIN_CAN_REMOVE_ADMIN)
 
             their_subscription = (session.query(GroupChatSubscription)
                 .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
@@ -403,18 +403,18 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 .one_or_none())
 
             if not result:
-                context.abort(grpc.StatusCode.NOT_FOUND, "Couldn't find that chat.")
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
             
             your_subscription, group_chat = result
 
             if not your_subscription or not group_chat:
-                context.abort(grpc.StatusCode.NOT_FOUND, "Couldn't find that chat.")
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
 
             if request.user_id == context.user_id:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_INVITE_SELF)
 
             if your_subscription.role != GroupChatRole.admin and your_subscription.group_chat.only_admins_invite:
-                context.abort(grpc.StatusCode.PERMISSION_DENIED, "You're not allowed to invite users.")
+                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVITE_PERMISSION_DENIED)
             
             if group_chat.is_dm:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_INVITE_TO_DM)
@@ -452,7 +452,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 .one_or_none())
 
             if not subscription:
-                context.abort(grpc.StatusCode.NOT_FOUND, "Couldn't find that chat.")
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
 
             if subscription.role == GroupChatRole.admin:
                 other_admins_count = (session.query(func.count(GroupChatSubscription.id).label("count"))
