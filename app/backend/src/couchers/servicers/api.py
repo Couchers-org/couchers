@@ -390,7 +390,7 @@ class API(api_pb2_grpc.APIServicer):
 
 def paginate_references_result(request, query):
     total_matches = query.count()
-    references = query.order_by(Reference.time).offset(request.start_at).limit(request.how_many).all()
+    references = query.order_by(Reference.time).offset(request.start_at).limit(request.number).all()
     # order by time, pagination
     return api_pb2.GetReferencesRes(
         total_matches=total_matches,

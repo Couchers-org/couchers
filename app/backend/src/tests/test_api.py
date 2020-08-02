@@ -462,7 +462,7 @@ def test_references(db):
     seen_types = set()
     for i in range(3):
         req = api_pb2.GetGivenReferencesReq(from_user_id=user1.id,
-                                            how_many=1,
+                                            number=1,
                                             start_at=i)
         with api_session(db, token1) as api:
             res = api.GetGivenReferences(req)
@@ -479,7 +479,7 @@ def test_references(db):
     seen_types = set()
     for i in range(3):
         req = api_pb2.GetReceivedReferencesReq(to_user_id=user2.id,
-                                               how_many=1,
+                                               number=1,
                                                start_at=i)
         with api_session(db, token1) as api:
             res = api.GetReceivedReferences(req)

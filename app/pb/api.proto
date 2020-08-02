@@ -208,7 +208,7 @@ message GetGivenReferencesReq {
 
   // Pagination; default is to get the N latest references that matches the filter,
   // skipping the start_at most recent ones.
-  uint32 how_many = 5;
+  uint32 number = 5;
   uint32 start_at = 4;
 }
 
@@ -218,7 +218,7 @@ message GetReceivedReferencesReq {
 
   // Pagination; default is to get the N latest references that matches the filter,
   // skipping the start_at most recent ones.
-  uint32 how_many = 5;
+  uint32 number = 5;
   uint32 start_at = 4;
 }
 
@@ -233,7 +233,7 @@ message GetReferencesRes {
   // Total number of records that matches the filter
   uint32 total_matches = 1;
 
-  // A list of zero to `how_many` references
+  // A list of zero to `number` references
   repeated Reference references = 2;
 }
 
