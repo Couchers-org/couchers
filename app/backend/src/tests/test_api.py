@@ -1,5 +1,6 @@
 from google.protobuf import empty_pb2, wrappers_pb2
 from datetime import timedelta
+from datetime import datetime
 
 import grpc
 import pytest
@@ -471,6 +472,7 @@ def test_references(db):
         assert res.references[0].from_user_id == user1.id
         assert res.references[0].to_user_id == user2.id
         assert res.references[0].text == "kinda weird sometimes"
+        assert abs(res.references[0].written_time.ToDatetime() - datetime.now()) <= timedelta(days=32)
         assert res.references[0].reference_type not in seen_types
         seen_types.add(res.references[0].reference_type)
     assert seen_types == alltypes

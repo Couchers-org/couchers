@@ -399,6 +399,9 @@ def paginate_references_result(request, query):
                 from_user_id=reference.from_user_id,
                 to_user_id=reference.to_user_id,
                 reference_type=reftype2api[reference.reference_type],
-                text=reference.text)
+                text=reference.text,
+                # Fuzz reference written time
+                written_time=Timestamp_from_datetime(
+                    reference.time.replace(day=1, hour=0, minute=0, second=0, microsecond=0)))
             for reference in references])
 

@@ -227,6 +227,7 @@ message Reference {
   uint64 to_user_id = 2;
   ReferenceType reference_type = 3;
   string text = 4;
+  google.protobuf.Timestamp written_time = 5;  // not exact
 }
 
 message GetReferencesRes {
