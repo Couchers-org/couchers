@@ -37,9 +37,16 @@ service API {
   // report yourself or NOT_FOUND if the reported user doesn't exist.
   rpc Report(ReportReq) returns (google.protobuf.Empty);
 
-  // Filter references based on from and to user or type, and
+  // Filter references based on from user and type, and
   // paginate the results according to client's wish.
-  rpc GetReferences(GetReferencesReq) returns (GetReferencesRes);
+  rpc GetGivenReferences(GetGivenReferencesReq) returns (GetReferencesRes);
+
+  // Filter references based on to user or type, and
+  // paginate the results according to client's wish.
+  rpc GetReceivedReferences(GetReceivedReferencesReq) returns (GetReferencesRes);
+
+  // Return the reference types that is, at the moment, possible to write to a user.
+  rpc AvailableWriteReferenceTypes(AvailableWriteReferenceTypesReq) returns (AvailableWriteReferenceTypesRes);
 
   // Write a reference for someone. Raises INVALID_ARGUMENT if you
   // try to write for yourself, or NOT_FOUND if the user doesn't exist.
@@ -195,10 +202,19 @@ message OptionalReferenceType {
   ReferenceType value = 1;
 }
 
-message GetReferencesReq {
-  google.protobuf.UInt64Value from_user_id_filter = 1;  // optional
-  google.protobuf.UInt64Value to_user_id_filter = 2;    // optional
+message GetGivenReferencesReq {
+  uint64 from_user_id = 2;
   OptionalReferenceType type_filter = 3;                // optional
+
+  // Pagination; default is to get the N latest references that matches the filter,
+  // skipping the start_at most recent ones.
+  uint32 how_many = 5;
+  uint32 start_at = 4;
+}
+
+message GetReceivedReferencesReq {
+  uint64 to_user_id = 2;
+  OptionalReferenceType type_filter = 3;
 
   // Pagination; default is to get the N latest references that matches the filter,
   // skipping the start_at most recent ones.
@@ -219,6 +235,14 @@ message GetReferencesRes {
 
   // A list of zero to `how_many` references
   repeated Reference references = 2;
+}
+
+message AvailableWriteReferenceTypesReq {
+  uint64 to_user_id = 1;
+}
+
+message AvailableWriteReferenceTypesRes {
+  repeated ReferenceType reference_types = 1;
 }
 
 message WriteReferenceReq {

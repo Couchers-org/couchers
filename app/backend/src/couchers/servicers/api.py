@@ -352,24 +352,53 @@ class API(api_pb2_grpc.APIServicer):
             session.add(reference)
         return empty_pb2.Empty()
 
-    def GetReferences(self, request, context):
+    def GetGivenReferences(self, request, context):
         with session_scope(self._Session) as session:
             query = session.query(Reference)
-            if request.HasField("from_user_id_filter"):
-                query = query.filter(Reference.from_user_id == request.from_user_id_filter.value)
-            if request.HasField("to_user_id_filter"):
-                query = query.filter(Reference.to_user_id == request.to_user_id_filter.value)
+            query = query.filter(Reference.from_user_id == request.from_user_id)
             if request.HasField("type_filter"):
                 query = query.filter(Reference.reference_type == reftype2sql[request.type_filter.value])
-            total_matches = query.count()
-            references = query.order_by(Reference.time).offset(request.start_at).limit(request.how_many).all()
-            # order by time, pagination
-            return api_pb2.GetReferencesRes(
-                total_matches=total_matches,
-                references=[
-                    api_pb2.Reference(
-                        from_user_id=reference.from_user_id,
-                        to_user_id=reference.to_user_id,
-                        reference_type=reftype2api[reference.reference_type],
-                        text=reference.text)
-                    for reference in references])
+            return paginate_references_result(request, query)
+
+    def GetReceivedReferences(self, request, context):
+        with session_scope(self._Session) as session:
+            query = session.query(Reference)
+            query = query.filter(Reference.to_user_id == request.to_user_id)
+            if request.HasField("type_filter"):
+                query = query.filter(Reference.reference_type == reftype2sql[request.type_filter.value])
+            return paginate_references_result(request, query)
+
+    def AvailableWriteReferenceTypes(self, request, context):
+        available = {
+            ReferenceType.FRIEND,
+            ReferenceType.SURFED,
+            ReferenceType.HOSTED,
+        }
+
+        # Filter out already written ones.
+        with session_scope(self._Session) as session:
+            query = session.query(Reference)
+            query = query.filter(Reference.from_user_id == context.user_id)
+            query = query.filter(Reference.to_user_id == request.to_user_id)
+            for reference in query.all():
+                available.remove(reference.reference_type)
+
+        # TODO: make surfing/hosted only available if you actually have been surfing/hosting
+        return api_pb2.AvailableWriteReferenceTypesRes(
+            reference_types=[reftype2api[r] for r in available])
+
+
+def paginate_references_result(request, query):
+    total_matches = query.count()
+    references = query.order_by(Reference.time).offset(request.start_at).limit(request.how_many).all()
+    # order by time, pagination
+    return api_pb2.GetReferencesRes(
+        total_matches=total_matches,
+        references=[
+            api_pb2.Reference(
+                from_user_id=reference.from_user_id,
+                to_user_id=reference.to_user_id,
+                reference_type=reftype2api[reference.reference_type],
+                text=reference.text)
+            for reference in references])
+

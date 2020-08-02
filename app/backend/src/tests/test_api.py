@@ -449,7 +449,7 @@ def test_references(db):
     alltypes = set([api_pb2.ReferenceType.FRIEND,
                     api_pb2.ReferenceType.HOSTED,
                     api_pb2.ReferenceType.SURFED])
-    # write all three references
+    # write all three reference types
     for typ in alltypes:
         req = api_pb2.WriteReferenceReq(to_user_id=user2.id,
                                         reference_type=typ,
@@ -461,11 +461,11 @@ def test_references(db):
     # See what I have written. Paginate it.
     seen_types = set()
     for i in range(3):
-        req = api_pb2.GetReferencesReq(from_user_id_filter=wrappers_pb2.UInt64Value(value=user1.id),
-                                       how_many=1,
-                                       start_at=i)
+        req = api_pb2.GetGivenReferencesReq(from_user_id=user1.id,
+                                            how_many=1,
+                                            start_at=i)
         with api_session(db, token1) as api:
-            res = api.GetReferences(req)
+            res = api.GetGivenReferences(req)
         assert res.total_matches == 3
         assert len(res.references) == 1
         assert res.references[0].from_user_id == user1.id
@@ -474,6 +474,32 @@ def test_references(db):
         assert res.references[0].reference_type not in seen_types
         seen_types.add(res.references[0].reference_type)
     assert seen_types == alltypes
+
+    # See what user2 have received. Paginate it.
+    seen_types = set()
+    for i in range(3):
+        req = api_pb2.GetReceivedReferencesReq(to_user_id=user2.id,
+                                               how_many=1,
+                                               start_at=i)
+        with api_session(db, token1) as api:
+            res = api.GetReceivedReferences(req)
+        assert res.total_matches == 3
+        assert len(res.references) == 1
+        assert res.references[0].from_user_id == user1.id
+        assert res.references[0].to_user_id == user2.id
+        assert res.references[0].text == "kinda weird sometimes"
+        assert res.references[0].reference_type not in seen_types
+        seen_types.add(res.references[0].reference_type)
+    assert seen_types == alltypes
+
+    # Check available types
+    with api_session(db, token1) as api:
+        res = api.AvailableWriteReferenceTypes(api_pb2.AvailableWriteReferenceTypesReq(to_user_id=user2.id))
+    assert res.reference_types == []
+
+    with api_session(db, token2) as api:
+        res = api.AvailableWriteReferenceTypes(api_pb2.AvailableWriteReferenceTypesReq(to_user_id=user1.id))
+    assert set(res.reference_types) == alltypes
 
     # Forbidden to write a second reference of the same type
     req = api_pb2.WriteReferenceReq(to_user_id=user2.id,
