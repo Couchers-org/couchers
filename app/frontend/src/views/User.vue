@@ -1,7 +1,10 @@
 <template>
   <v-main>
     <error-alert :error="error" />
-    <v-container fluid>
+    <v-container v-if="loading">
+      <loading-circular :loading="loading" />
+    </v-container>
+    <v-container v-if="!loading" fluid>
       <v-card class="float-left mx-3 my-3" width="350" outlined>
         <v-sheet height="80" :color="user.color" tile></v-sheet>
         <v-card-title>{{ user.name }}</v-card-title>
@@ -20,7 +23,7 @@
                 color="primary"
                 @click="sendFriendRequest"
               >
-                <v-icon left>mdi-account-plus</v-icon> Send friend request
+                <v-icon left>mdi-account-plus</v-icon>Send friend request
               </v-btn>
             </v-list-item-title>
             <v-list-item-subtitle>Friendship</v-list-item-subtitle>
@@ -32,15 +35,9 @@
           </v-list-item-icon>
           <v-list-item-content>
             <v-list-item-title>Verification (coming soon)</v-list-item-title>
-            <v-list-item-subtitle
-              ><v-progress-linear
-                class="my-2"
-                height="12"
-                rounded
-                value="0"
-                color="light-green"
-              ></v-progress-linear
-            ></v-list-item-subtitle>
+            <v-list-item-subtitle>
+              <v-progress-linear class="my-2" height="12" rounded value="0" color="light-green"></v-progress-linear>
+            </v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
         <v-list-item two-item>
@@ -48,18 +45,10 @@
             <v-icon>mdi-account-group</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title
-              >Community standing (coming soon)</v-list-item-title
-            >
-            <v-list-item-subtitle
-              ><v-progress-linear
-                class="my-2"
-                height="12"
-                rounded
-                value="0"
-                color="light-blue"
-              ></v-progress-linear
-            ></v-list-item-subtitle>
+            <v-list-item-title>Community standing (coming soon)</v-list-item-title>
+            <v-list-item-subtitle>
+              <v-progress-linear class="my-2" height="12" rounded value="0" color="light-blue"></v-progress-linear>
+            </v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
         <v-list-item>
@@ -67,9 +56,7 @@
             <v-icon>mdi-forum</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title
-              >{{ user.numReferences }} references</v-list-item-title
-            >
+            <v-list-item-title>{{ user.numReferences }} references</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
         <v-list-item two-item>
@@ -77,9 +64,11 @@
             <v-icon>mdi-translate</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title>{{
+            <v-list-item-title>
+              {{
               displayList(user.languagesList)
-            }}</v-list-item-title>
+              }}
+            </v-list-item-title>
             <v-list-item-subtitle>Languages</v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
@@ -88,9 +77,7 @@
             <v-icon>mdi-ship-wheel</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title
-              >{{ user.gender }}, {{ user.age }}</v-list-item-title
-            >
+            <v-list-item-title>{{ user.gender }}, {{ user.age }}</v-list-item-title>
             <v-list-item-subtitle>Age and gender</v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
@@ -108,14 +95,14 @@
             <v-icon>mdi-account-clock</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title
-              >Last active
-              {{ displayTime(user.lastActive) || "error" }}</v-list-item-title
-            >
-            <v-list-item-subtitle
-              >Joined
-              {{ displayTime(user.joined) || "error" }}</v-list-item-subtitle
-            >
+            <v-list-item-title>
+              Last active
+              {{ displayTime(user.lastActive) || "error" }}
+            </v-list-item-title>
+            <v-list-item-subtitle>
+              Joined
+              {{ displayTime(user.joined) || "error" }}
+            </v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
         <v-list-item two-item>
@@ -135,19 +122,36 @@
       <v-card class="float-left mx-3 my-3" width="950" outlined>
         <v-card-text>
           <v-tabs class="mb-5">
-            <v-tab>About me</v-tab>
-            <v-tab>References</v-tab>
-            <v-tab>Friends</v-tab>
-            <v-tab>Photos</v-tab>
+            <v-tab href="#about">About me</v-tab>
+            <v-tab href="#references">References</v-tab>
+            <v-tab href="#friends">Friends</v-tab>
+            <v-tab href="#photos">Photos</v-tab>
+            <v-tab-item value="about">
+              <h3>About me</h3>
+              <p>{{ user.aboutMe }}</p>
+              <h3>About my place</h3>
+              <p>{{ user.aboutPlace }}</p>
+              <h3>Countries I've visited</h3>
+              <p>{{ displayList(user.countriesVisitedList) }}</p>
+              <h3>Countries I've lived in</h3>
+              <p>{{ displayList(user.countriesLivedList) }}</p>
+            </v-tab-item>
+            <v-tab-item value="references">
+              <v-card v-for="reference in references" :key="reference.fromUserId" class="my-3">
+                <v-card-title>{{ userCache[reference.fromUserId].name }}</v-card-title>
+                <v-card-subtitle>{{ referenceTypeString(reference.referenceType) + ", " + displayTime(reference.writtenTime) }}</v-card-subtitle>
+                <v-card-text>{{ reference.text }}</v-card-text>
+              </v-card>
+              <v-btn
+                v-if="!noMoreReferences"
+                @click="fetchReferences"
+                :loading="loadingReferences"
+                class="my-2"
+              >Load more</v-btn>
+            </v-tab-item>
+            <v-tab-item value="friends">Friends</v-tab-item>
+            <v-tab-item value="photos">Photos</v-tab-item>
           </v-tabs>
-          <h3>About me</h3>
-          <p>{{ user.aboutMe }}</p>
-          <h3>About my place</h3>
-          <p>{{ user.aboutPlace }}</p>
-          <h3>Countries I've visited</h3>
-          <p>{{ displayList(user.countriesVisitedList) }}</p>
-          <h3>Countries I've lived in</h3>
-          <p>{{ displayList(user.countriesLivedList) }}</p>
         </v-card-text>
       </v-card>
     </v-container>
@@ -158,11 +162,21 @@
 import Vue from "vue"
 
 import ErrorAlert from "../components/ErrorAlert.vue"
+import LoadingCircular from "../components/LoadingCircular.vue"
 
-import { GetUserReq, SendFriendRequestReq, User } from "../pb/api_pb"
+import {
+  GetUserReq,
+  SendFriendRequestReq,
+  User,
+  Reference,
+  GetReceivedReferencesReq,
+  ReferenceType,
+} from "../pb/api_pb"
 import { client } from "../api"
 
 import { displayList, displayTime, handle } from "../utils"
+
+const REFERENCES_PAGINATION = 2
 
 export default Vue.extend({
   data: () => ({
@@ -170,10 +184,15 @@ export default Vue.extend({
     error: null as null | Error,
     sendingFriendRequest: false,
     user: (null as unknown) as User.AsObject,
+    userCache: {} as { [userId: number]: User.AsObject },
+    references: [] as Array<Reference.AsObject>,
+    loadingReferences: false,
+    noMoreReferences: false,
   }),
 
   components: {
     ErrorAlert,
+    LoadingCircular,
   },
 
   created() {
@@ -191,22 +210,74 @@ export default Vue.extend({
 
     displayTime,
 
-    fetchData() {
+    referenceTypeString(rt: ReferenceType): string {
+      switch (rt) {
+        case ReferenceType.FRIEND:
+          return "Friend"
+        case ReferenceType.HOSTED:
+          return "Hosted"
+        case ReferenceType.SURFED:
+          return "Surfed"
+      }
+    },
+
+    async fetchData() {
       this.loading = true
       this.error = null
 
+      try {
+        await this.fetchUser()
+        //don't request concurrently, need user ID from fetchUser
+        await this.fetchReferences()
+      } catch (err) {
+        this.loading = false
+        this.error = err
+        return
+      }
+      this.loading = false
+    },
+
+    async fetchUser() {
       const req = new GetUserReq()
       req.setUser(this.routeUser)
-      client
-        .getUser(req)
-        .then((res) => {
-          this.loading = false
-          this.user = res.toObject()
+      const res = await client.getUser(req)
+      this.user = res.toObject()
+    },
+
+    async fetchReferences() {
+      this.loadingReferences = true
+      const dirtyReferences = [] as Array<Reference.AsObject>
+      try {
+        const req = new GetReceivedReferencesReq()
+        req.setToUserId(this.user.userId)
+        req.setStartAt(this.references.length)
+        req.setNumber(REFERENCES_PAGINATION)
+        const res = await client.getReceivedReferences(req)
+        res.getReferencesList().forEach((reference) => {
+          dirtyReferences.push(reference.toObject())
         })
-        .catch((err) => {
-          this.loading = false
-          this.error = err
-        })
+        await this.fetchReferees(dirtyReferences)
+        this.references.push(...dirtyReferences)
+        this.noMoreReferences = this.references.length >= res.getTotalMatches()
+      } catch (err) {
+        this.loadingReferences = false
+        this.loading = false
+        this.error = err
+      }
+      this.loadingReferences = false
+    },
+
+    async fetchReferees(references: Array<Reference.AsObject>) {
+      await Promise.all([
+        new Promise((resolve) => setTimeout(resolve, 1000)),
+        ...references.map(async (reference) => {
+          const id = reference.fromUserId
+          const req = new GetUserReq()
+          req.setUser(id.toString())
+          const res = await client.getUser(req)
+          this.userCache[id] = res.toObject()
+        }),
+      ])
     },
 
     sendFriendRequest() {
