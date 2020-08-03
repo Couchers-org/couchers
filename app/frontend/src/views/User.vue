@@ -36,7 +36,13 @@
           <v-list-item-content>
             <v-list-item-title>Verification (coming soon)</v-list-item-title>
             <v-list-item-subtitle>
-              <v-progress-linear class="my-2" height="12" rounded value="0" color="light-green"></v-progress-linear>
+              <v-progress-linear
+                class="my-2"
+                height="12"
+                rounded
+                value="0"
+                color="light-green"
+              ></v-progress-linear>
             </v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
@@ -45,9 +51,17 @@
             <v-icon>mdi-account-group</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title>Community standing (coming soon)</v-list-item-title>
+            <v-list-item-title
+              >Community standing (coming soon)</v-list-item-title
+            >
             <v-list-item-subtitle>
-              <v-progress-linear class="my-2" height="12" rounded value="0" color="light-blue"></v-progress-linear>
+              <v-progress-linear
+                class="my-2"
+                height="12"
+                rounded
+                value="0"
+                color="light-blue"
+              ></v-progress-linear>
             </v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
@@ -56,7 +70,9 @@
             <v-icon>mdi-forum</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title>{{ user.numReferences }} references</v-list-item-title>
+            <v-list-item-title
+              >{{ user.numReferences }} references</v-list-item-title
+            >
           </v-list-item-content>
         </v-list-item>
         <v-list-item two-item>
@@ -65,9 +81,7 @@
           </v-list-item-icon>
           <v-list-item-content>
             <v-list-item-title>
-              {{
-              displayList(user.languagesList)
-              }}
+              {{ displayList(user.languagesList) }}
             </v-list-item-title>
             <v-list-item-subtitle>Languages</v-list-item-subtitle>
           </v-list-item-content>
@@ -77,7 +91,9 @@
             <v-icon>mdi-ship-wheel</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title>{{ user.gender }}, {{ user.age }}</v-list-item-title>
+            <v-list-item-title
+              >{{ user.gender }}, {{ user.age }}</v-list-item-title
+            >
             <v-list-item-subtitle>Age and gender</v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
@@ -137,9 +153,63 @@
               <p>{{ displayList(user.countriesLivedList) }}</p>
             </v-tab-item>
             <v-tab-item value="references">
-              <v-card v-for="reference in references" :key="reference.fromUserId" class="my-3">
-                <v-card-title>{{ userCache[reference.fromUserId].name }}</v-card-title>
-                <v-card-subtitle>{{ referenceTypeString(reference.referenceType) + ", " + displayTime(reference.writtenTime) }}</v-card-subtitle>
+              <v-btn
+                v-if="
+                  myReference == null &&
+                  user.userId != activeUser.userId &&
+                  !(activeUser.userId in this.userCache)
+                "
+                @click="startMyReference"
+                class="my-3"
+                >Write a reference</v-btn
+              >
+              <v-container v-if="myReference != null">
+                <v-textarea
+                  v-model="myReference"
+                  placeholder="Your public reference here"
+                ></v-textarea>
+                <v-slider
+                  v-model="myReferenceRating"
+                  step="1"
+                  thumb-label="always"
+                  min="0"
+                  max="10"
+                  label="Rating"
+                />
+                <v-checkbox
+                  v-model="myReferenceWasSafe"
+                  label="I felt safe with this person"
+                />
+                <p>
+                  The rating and if you felt safe are private and anonymous.
+                </p>
+                <v-btn
+                  class="mx-2 my-2"
+                  @click="saveMyReference"
+                  color="success"
+                  :loading="loadingReferences"
+                  >Save</v-btn
+                >
+                <v-btn
+                  class="mx-2 my-2"
+                  @click="cancelMyReference"
+                  color="warning"
+                  >Cancel</v-btn
+                >
+              </v-container>
+              <v-card
+                v-for="reference in references"
+                :key="reference.fromUserId"
+                class="my-3"
+              >
+                <v-card-title>{{
+                  userCache[reference.fromUserId].name
+                }}</v-card-title>
+                <v-card-subtitle>{{
+                  referenceTypeString(reference.referenceType) +
+                  ", " +
+                  displayTime(reference.writtenTime)
+                }}</v-card-subtitle>
                 <v-card-text>{{ reference.text }}</v-card-text>
               </v-card>
               <v-btn
@@ -147,7 +217,11 @@
                 @click="fetchReferences"
                 :loading="loadingReferences"
                 class="my-2"
-              >Load more</v-btn>
+                >Load more</v-btn
+              >
+              <v-container v-if="references.length == 0"
+                >No references... yet!</v-container
+              >
             </v-tab-item>
             <v-tab-item value="friends">Friends</v-tab-item>
             <v-tab-item value="photos">Photos</v-tab-item>
@@ -171,10 +245,14 @@ import {
   Reference,
   GetReceivedReferencesReq,
   ReferenceType,
+  WriteReferenceReq,
 } from "../pb/api_pb"
 import { client } from "../api"
 
 import { displayList, displayTime, handle } from "../utils"
+
+import store from "../store/index"
+import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb"
 
 const REFERENCES_PAGINATION = 2
 
@@ -188,6 +266,9 @@ export default Vue.extend({
     references: [] as Array<Reference.AsObject>,
     loadingReferences: false,
     noMoreReferences: false,
+    myReference: null as null | string,
+    myReferenceWasSafe: false,
+    myReferenceRating: 0,
   }),
 
   components: {
@@ -296,7 +377,47 @@ export default Vue.extend({
           this.fetchData()
         })
     },
+
+    startMyReference() {
+      this.myReference = ""
+    },
+
+    async saveMyReference() {
+      this.loadingReferences = true
+      const req = new WriteReferenceReq()
+      req.setToUserId(this.user.userId)
+      req.setReferenceType(ReferenceType.FRIEND)
+      req.setText(this.myReference!)
+      req.setWasSafe(this.myReferenceWasSafe)
+      req.setRating(this.myReferenceRating)
+      try {
+        client.writeReference(req)
+      } catch (err) {
+        this.loadingReferences = false
+        this.error = err
+        return
+      }
+
+      const newRef = new Reference()
+      newRef.setFromUserId(this.activeUser?.userId!)
+      newRef.setToUserId(this.user.userId)
+      newRef.setReferenceType(ReferenceType.FRIEND)
+      newRef.setText(this.myReference!)
+      const now = new Timestamp()
+      now.fromDate(new Date(Date.now()))
+      newRef.setWrittenTime(now)
+      this.userCache[this.activeUser?.userId!] = this.activeUser!
+      this.references.unshift(newRef.toObject())
+      this.myReference = null
+      this.loadingReferences = false
+    },
+
+    cancelMyReference() {
+      this.myReference = null
+    },
   },
+
+  store,
 
   computed: {
     routeUser() {
@@ -321,6 +442,10 @@ export default Vue.extend({
         default:
           return "You can't be friends with this user, you doofus."
       }
+    },
+
+    activeUser() {
+      return store.state.user
     },
   },
 })

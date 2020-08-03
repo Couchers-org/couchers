@@ -529,3 +529,12 @@ def test_references(db):
         with pytest.raises(grpc.RpcError) as e:
             api.WriteReference(req)
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+    
+    with api_session(db, token2) as api:
+        #test the number of references in GetUser and Ping
+        res = api.GetUser(api_pb2.GetUserReq(user=user2.username))
+        assert res.num_references == 3
+        
+        res = api.Ping(api_pb2.PingReq())
+        assert res.user.num_references == 3

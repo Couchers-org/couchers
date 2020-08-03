@@ -40,6 +40,7 @@ class API(api_pb2_grpc.APIServicer):
         with session_scope(self._Session) as session:
             # auth ought to make sure the user exists
             user = session.query(User).filter(User.id == context.user_id).one()
+            num_references = session.query(Reference.from_user_id).filter(Reference.to_user_id == context.user_id).count()
             return api_pb2.PingRes(
                 user=api_pb2.User(
                     user_id=user.id,
@@ -48,7 +49,7 @@ class API(api_pb2_grpc.APIServicer):
                     city=user.city,
                     verification=user.verification,
                     community_standing=user.community_standing,
-                    num_references=0,
+                    num_references=num_references,
                     gender=user.gender,
                     age=user.age,
                     color=user.color,
@@ -76,6 +77,7 @@ class API(api_pb2_grpc.APIServicer):
             user = get_user_by_field(session, request.user)
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, "No such user.")
+            num_references = session.query(Reference.from_user_id).filter(Reference.to_user_id == user.id).count()
 
             return api_pb2.User(
                 user_id=user.id,
@@ -84,7 +86,7 @@ class API(api_pb2_grpc.APIServicer):
                 city=user.city,
                 verification=user.verification,
                 community_standing=user.community_standing,
-                num_references=0,
+                num_references=num_references,
                 gender=user.gender,
                 age=user.age,
                 color=user.color,
