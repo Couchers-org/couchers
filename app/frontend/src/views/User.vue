@@ -80,9 +80,9 @@
             <v-icon>mdi-translate</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title>
-              {{ displayList(user.languagesList) }}
-            </v-list-item-title>
+            <v-list-item-title>{{
+              displayList(user.languagesList)
+            }}</v-list-item-title>
             <v-list-item-subtitle>Languages</v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
@@ -133,7 +133,7 @@
         <v-divider></v-divider>
         <v-card-actions>
           <v-btn text>Message</v-btn>
-          <report-dialog-button :name="user.name" :user-id="user.userId"/>
+          <report-dialog-button :name="user.name" :user-id="user.userId" />
         </v-card-actions>
       </v-card>
       <v-card class="float-left mx-3 my-3" width="950" outlined>
@@ -181,7 +181,10 @@
                   v-model="myReferenceWasSafe"
                   label="I felt safe with this person"
                 />
-                <p v-if="!myReferenceWasSafe">You can anonymously report this user using the report button above.</p>
+                <p v-if="!myReferenceWasSafe">
+                  You can anonymously report this user using the report button
+                  above.
+                </p>
                 <p>
                   The rating and if you felt safe are private and anonymous.
                 </p>
@@ -204,14 +207,16 @@
                 :key="reference.fromUserId"
                 class="my-3"
               >
-                <v-card-title>{{
-                  userCache[reference.fromUserId].name
-                }}</v-card-title>
-                <v-card-subtitle>{{
-                  referenceTypeString(reference.referenceType) +
-                  ", " +
-                  displayTime(reference.writtenTime)
-                }}</v-card-subtitle>
+                <v-card-title>
+                  {{ userCache[reference.fromUserId].name }}
+                </v-card-title>
+                <v-card-subtitle>
+                  {{
+                    referenceTypeString(reference.referenceType) +
+                    ", " +
+                    displayTime(reference.writtenTime)
+                  }}
+                </v-card-subtitle>
                 <v-card-text>{{ reference.text }}</v-card-text>
               </v-card>
               <v-btn
@@ -277,7 +282,7 @@ export default Vue.extend({
   components: {
     ErrorAlert,
     LoadingCircular,
-    ReportDialogButton
+    ReportDialogButton,
   },
 
   created() {
