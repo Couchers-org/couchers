@@ -402,6 +402,6 @@ def paginate_references_result(request, query):
                 text=reference.text,
                 # Fuzz reference written time
                 written_time=Timestamp_from_datetime(
-                    reference.time.replace(day=1, hour=0, minute=0, second=0, microsecond=0)))
+                    reference.time.replace(hour=0, minute=0, second=0, microsecond=0)))
             for reference in references])
 
