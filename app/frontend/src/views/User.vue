@@ -133,6 +133,7 @@
         <v-divider></v-divider>
         <v-card-actions>
           <v-btn text>Message</v-btn>
+          <report-dialog-button :name="user.name" :user-id="user.userId"/>
         </v-card-actions>
       </v-card>
       <v-card class="float-left mx-3 my-3" width="950" outlined>
@@ -180,6 +181,7 @@
                   v-model="myReferenceWasSafe"
                   label="I felt safe with this person"
                 />
+                <p v-if="!myReferenceWasSafe">You can anonymously report this user using the report button above.</p>
                 <p>
                   The rating and if you felt safe are private and anonymous.
                 </p>
@@ -237,6 +239,7 @@ import Vue from "vue"
 
 import ErrorAlert from "../components/ErrorAlert.vue"
 import LoadingCircular from "../components/LoadingCircular.vue"
+import ReportDialogButton from "../components/ReportDialogButton.vue"
 
 import {
   GetUserReq,
@@ -274,6 +277,7 @@ export default Vue.extend({
   components: {
     ErrorAlert,
     LoadingCircular,
+    ReportDialogButton
   },
 
   created() {
