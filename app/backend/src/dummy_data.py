@@ -58,8 +58,8 @@ def add_dummy_data(Session, file_name):
             session.commit()
 
             for reference in data["references"]:
-                reference_type = ReferenceType.HOSTED if reference["type"] == 3 else (
-                    ReferenceType.SURFED if reference["type"] == 2 else ReferenceType.FRIEND
+                reference_type = ReferenceType.HOSTED if reference["type"] == "hosted" else (
+                    ReferenceType.SURFED if reference["type"] == "surfed" else ReferenceType.FRIEND
                 )
                 new_reference = Reference(
                     from_user_id=get_user_by_field(session, reference["from"]).id,

@@ -302,55 +302,57 @@ export default Vue.extend({
       }
     },
 
-    async fetchData() {
+    fetchData() {
       this.loading = true
       this.error = null
-
-      try {
-        await this.fetchUser()
-        //don't request concurrently, need user ID from fetchUser
-        await this.fetchReferences()
-      } catch (err) {
-        this.loading = false
-        this.error = err
-        return
-      }
-      this.loading = false
+      this.fetchUser()
+        .then(this.fetchReferences)
+        .then(() => {
+          this.loading = false
+        })
+        .catch((err) => {
+          this.loading = false
+          this.error = err
+        })
     },
 
-    async fetchUser() {
+    fetchUser() {
       const req = new GetUserReq()
       req.setUser(this.routeUser)
-      const res = await client.getUser(req)
-      this.user = res.toObject()
+      return client.getUser(req).then((res) => (this.user = res.toObject()))
     },
 
-    async fetchReferences() {
+    fetchReferences() {
       this.loadingReferences = true
       const dirtyReferences = [] as Array<Reference.AsObject>
-      try {
-        const req = new GetReceivedReferencesReq()
-        req.setToUserId(this.user.userId)
-        req.setStartAt(this.references.length)
-        req.setNumber(REFERENCES_PAGINATION)
-        const res = await client.getReceivedReferences(req)
-        res.getReferencesList().forEach((reference) => {
-          dirtyReferences.push(reference.toObject())
+      const req = new GetReceivedReferencesReq()
+      req.setToUserId(this.user.userId)
+      req.setStartAt(this.references.length)
+      req.setNumber(REFERENCES_PAGINATION)
+
+      return client
+        .getReceivedReferences(req)
+        .then((res) => {
+          res.getReferencesList().forEach((reference) => {
+            dirtyReferences.push(reference.toObject())
+          })
+          return this.fetchReferees(dirtyReferences).then(() => res)
         })
-        await this.fetchReferees(dirtyReferences)
-        this.references.push(...dirtyReferences)
-        this.noMoreReferences = this.references.length >= res.getTotalMatches()
-      } catch (err) {
-        this.loadingReferences = false
-        this.loading = false
-        this.error = err
-      }
-      this.loadingReferences = false
+        .then((res) => {
+          this.references.push(...dirtyReferences)
+          this.noMoreReferences =
+            this.references.length >= res.getTotalMatches()
+          this.loadingReferences = false
+        })
+        .catch((err) => {
+          this.loadingReferences = false
+          this.loading = false
+          this.error = err
+        })
     },
 
-    async fetchReferees(references: Array<Reference.AsObject>) {
-      await Promise.all([
-        new Promise((resolve) => setTimeout(resolve, 1000)),
+    fetchReferees(references: Array<Reference.AsObject>) {
+      return Promise.all([
         ...references.map(async (reference) => {
           const id = reference.fromUserId
           const req = new GetUserReq()
@@ -382,7 +384,7 @@ export default Vue.extend({
       this.myReference = ""
     },
 
-    async saveMyReference() {
+    saveMyReference() {
       this.loadingReferences = true
       const req = new WriteReferenceReq()
       req.setToUserId(this.user.userId)
@@ -390,26 +392,27 @@ export default Vue.extend({
       req.setText(this.myReference!)
       req.setWasSafe(this.myReferenceWasSafe)
       req.setRating(this.myReferenceRating)
-      try {
-        client.writeReference(req)
-      } catch (err) {
-        this.loadingReferences = false
-        this.error = err
-        return
-      }
-
-      const newRef = new Reference()
-      newRef.setFromUserId(this.activeUser?.userId!)
-      newRef.setToUserId(this.user.userId)
-      newRef.setReferenceType(ReferenceType.FRIEND)
-      newRef.setText(this.myReference!)
-      const now = new Timestamp()
-      now.fromDate(new Date(Date.now()))
-      newRef.setWrittenTime(now)
-      this.userCache[this.activeUser?.userId!] = this.activeUser!
-      this.references.unshift(newRef.toObject())
-      this.myReference = null
-      this.loadingReferences = false
+      client
+        .writeReference(req)
+        .then(() => {
+          //this is a 'fake' local reference so we don't have to fetch again
+          const newRef = new Reference()
+          newRef.setFromUserId(this.activeUser?.userId!)
+          newRef.setToUserId(this.user.userId)
+          newRef.setReferenceType(ReferenceType.FRIEND)
+          newRef.setText(this.myReference!)
+          const now = new Timestamp()
+          now.fromDate(new Date(Date.now()))
+          newRef.setWrittenTime(now)
+          this.userCache[this.activeUser?.userId!] = this.activeUser!
+          this.references.unshift(newRef.toObject())
+          this.myReference = null
+          this.loadingReferences = false
+        })
+        .catch((err) => {
+          this.loadingReferences = false
+          this.error = err
+        })
     },
 
     cancelMyReference() {

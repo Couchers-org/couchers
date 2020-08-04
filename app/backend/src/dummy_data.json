@@ -134,7 +134,7 @@
     {
       "from": "aapeli",
       "to": "itsi",
-      "type": 1,
+      "type": "friend",
       "text": "I had such a great time with Itsi, he pitched me his website ideas and we ate ramen.",
       "was_safe": true,
       "rating": 5
@@ -142,7 +142,7 @@
     {
       "from": "aapeli2",
       "to": "itsi",
-      "type": 1,
+      "type": "friend",
       "text": "I had such a great time with Itsi also, he pitched me his website ideas and we ate sushi.",
       "was_safe": true,
       "rating": 8
@@ -150,7 +150,7 @@
     {
       "from": "val",
       "to": "itsi",
-      "type": 2,
+      "type": "surfed",
       "text": "Itsi kicked my dog, do not recommend.",
       "was_safe": false,
       "rating": 1

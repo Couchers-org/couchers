@@ -274,15 +274,24 @@ class API(api_pb2_grpc.APIServicer):
 
     def Search(self, request, context):
         with session_scope(self._Session) as session:
-            return api_pb2.SearchRes(
-                users=[
+            users = []
+            for user in session.query(User) \
+                        .filter(
+                            or_(
+                                User.name.ilike(f"%{request.query}%"),
+                                User.username.ilike(f"%{request.query}%"),
+                            )
+                        ) \
+                        .all():
+                num_references = session.query(Reference.from_user_id).filter(Reference.to_user_id == user.id).count()
+                users.append(
                     api_pb2.User(
                         username=user.username,
                         name=user.name,
                         city=user.city,
                         verification=user.verification,
                         community_standing=user.community_standing,
-                        num_references=0,
+                        num_references=num_references,
                         gender=user.gender,
                         age=user.age,
                         color=user.color,
@@ -294,16 +303,10 @@ class API(api_pb2_grpc.APIServicer):
                         languages=user.languages.split("|") if user.languages else [],
                         countries_visited=user.countries_visited.split("|") if user.countries_visited else [],
                         countries_lived=user.countries_lived.split("|") if user.countries_lived else []
-                    ) for user in session.query(User) \
-                        .filter(
-                            or_(
-                                User.name.ilike(f"%{request.query}%"),
-                                User.username.ilike(f"%{request.query}%"),
-                            )
-                        ) \
-                        .all()
-                ]
-            )
+                    )
+                )
+            
+            return api_pb2.SearchRes(users=users)
 
     def Report(self, request, context):
         if context.user_id == request.reported_user_id:
