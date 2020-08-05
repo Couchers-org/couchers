@@ -349,3 +349,43 @@ class Complaint(Base):
 
     reason = Column(String, nullable=False)
     description = Column(String, nullable=False)
+
+class HostingStatus(enum.Enum):
+    unspecified = 0
+    can_host = 1
+    maybe = 2
+    difficult = 3
+    cant_host = 4
+
+class SmokingLocation(enum.Enum):
+    unspecified = 0
+    yes = 1
+    window = 2
+    outside = 3
+    no = 4
+
+class HostingPreferences(Base):
+    """
+    A collection of information about a host's preferences and location
+    """
+
+    __tablename__ = "hosting_preferences"
+
+    user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
+
+    hosting_status = Column(Enum(HostingStatus))
+
+    max_guests = Column(Integer)
+    multiple_groups = Column(Boolean)
+    last_minute = Column(Boolean)
+    accepts_pets = Column(Boolean)
+    accepts_kids = Column(Boolean)
+    wheelchair_accessible = Column(Boolean)
+    smoking_allowed = Column(Enum(SmokingLocation))
+
+    sleeping_arrangement = Column(String)
+    area = Column(String) 
+    house_rules = Column(String) 
+
+    def __repr__(self):
+        return f"HostingPreferences(user_id={self.user_id}, hosting_status={self.hosting_status}, max_guests={self.max_guests}... smoking_allowed={self.smoking_allowed}...)"

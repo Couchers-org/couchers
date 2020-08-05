@@ -538,3 +538,46 @@ def test_references(db):
         
         res = api.Ping(api_pb2.PingReq())
         assert res.user.num_references == 3
+
+def test_hosting_preferences(db):
+    user1, token1 = generate_user(db)
+    user2, token2 = generate_user(db)
+
+    with api_session(db, token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetHostingPreferences(api_pb2.GetHostingPreferencesReq(user_id=999))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+        res = api.GetHostingPreferences(api_pb2.GetHostingPreferencesReq(user_id=user2.id))
+        assert res.hosting_status == api_pb2.HostingStatus.HOSTING_STATUS_UNSPECIFIED
+        assert not res.HasField("max_guests")
+        assert not res.HasField("multiple_groups")
+        assert not res.HasField("last_minute")
+        assert not res.HasField("accepts_pets")
+        assert not res.HasField("accepts_kids")
+        assert not res.HasField("wheelchair_accessible")
+        assert res.smoking_allowed == api_pb2.SmokingLocation.SMOKING_LOCATION_UNSPECIFIED
+        assert not res.HasField("sleeping_arrangement")
+        assert not res.HasField("area")
+        assert not res.HasField("house_rules")
+
+        api.SetHostingPreferences(api_pb2.SetHostingPreferencesReq(
+            hosting_status=api_pb2.HostingStatus.HOSTING_STATUS_CAN_HOST,
+            max_guests=wrappers_pb2.UInt32Value(value=3),
+            wheelchair_accessible=wrappers_pb2.BoolValue(value=False),
+            house_rules=wrappers_pb2.StringValue(value="RULES!")
+        ))
+    
+    with api_session(db, token2) as api:
+        res = api.GetHostingPreferences(api_pb2.GetHostingPreferencesReq(user_id=user1.id))
+        assert res.hosting_status == api_pb2.HostingStatus.HOSTING_STATUS_CAN_HOST
+        assert res.max_guests.value == 3
+        assert not res.HasField("multiple_groups")
+        assert not res.HasField("last_minute")
+        assert not res.HasField("accepts_pets")
+        assert not res.HasField("accepts_kids")
+        assert not res.wheelchair_accessible.value
+        assert res.smoking_allowed == api_pb2.SmokingLocation.SMOKING_LOCATION_UNSPECIFIED
+        assert not res.HasField("sleeping_arrangement")
+        assert not res.HasField("area")
+        assert res.house_rules.value == "RULES!"

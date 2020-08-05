@@ -52,6 +52,12 @@ service API {
   // try to write for yourself, or NOT_FOUND if the user doesn't exist.
   // Raises FAILED_PRECONDITION if you try to write a reference twice.
   rpc WriteReference(WriteReferenceReq) returns (google.protobuf.Empty);
+  
+  // Raises NOT_FOUND if the user doesn't exist.
+  rpc GetHostingPreferences(GetHostingPreferencesReq) returns (GetHostingPreferencesRes);
+  
+  // No custom exceptions
+  rpc SetHostingPreferences(SetHostingPreferencesReq) returns (google.protobuf.Empty);
 }
 
 message SearchReq {
@@ -252,4 +258,52 @@ message WriteReferenceReq {
   string text = 3;
   bool was_safe = 4;
   int32 rating = 5;
+}
+
+enum HostingStatus {
+  HOSTING_STATUS_UNSPECIFIED = 0;
+  HOSTING_STATUS_CAN_HOST = 1;
+  HOSTING_STATUS_MAYBE = 2;
+  HOSTING_STATUS_DIFFICULT = 3;
+  HOSTING_STATUS_CANT_HOST = 4;
+}
+
+enum SmokingLocation {
+  SMOKING_LOCATION_UNSPECIFIED = 0;
+  SMOKING_LOCATION_YES = 1;
+  SMOKING_LOCATION_WINDOW = 2;
+  SMOKING_LOCATION_OUTSIDE = 3;
+  SMOKING_LOCATION_NO = 4;
+}
+
+message GetHostingPreferencesReq {
+  uint64 user_id = 1;
+}
+
+message GetHostingPreferencesRes {
+  HostingStatus hosting_status = 1;
+  google.protobuf.UInt32Value max_guests = 2;
+  google.protobuf.BoolValue multiple_groups = 3;
+  google.protobuf.BoolValue last_minute = 4;
+  google.protobuf.BoolValue accepts_pets = 5;
+  google.protobuf.BoolValue accepts_kids = 6;
+  google.protobuf.BoolValue wheelchair_accessible = 7;
+  SmokingLocation smoking_allowed = 8;
+  google.protobuf.StringValue sleeping_arrangement = 9;
+  google.protobuf.StringValue area = 10;
+  google.protobuf.StringValue house_rules = 11;
+}
+
+message SetHostingPreferencesReq {
+  HostingStatus hosting_status = 1;
+  google.protobuf.UInt32Value max_guests = 2;
+  google.protobuf.BoolValue multiple_groups = 3;
+  google.protobuf.BoolValue last_minute = 4;
+  google.protobuf.BoolValue accepts_pets = 5;
+  google.protobuf.BoolValue accepts_kids = 6;
+  google.protobuf.BoolValue wheelchair_accessible = 7;
+  SmokingLocation smoking_allowed = 8;
+  google.protobuf.StringValue sleeping_arrangement = 9;
+  google.protobuf.StringValue area = 10;
+  google.protobuf.StringValue house_rules = 11;
 }
