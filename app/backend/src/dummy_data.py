@@ -6,7 +6,7 @@ from couchers.crypto import hash_password
 from couchers.db import get_user_by_field, session_scope
 from couchers.models import (Base, Conversation, FriendRelationship,
                              FriendStatus, GroupChat, GroupChatRole,
-                             GroupChatSubscription, Message, User)
+                             GroupChatSubscription, Message, Reference, ReferenceType, User)
 from couchers.utils import Timestamp_from_datetime
 from dateutil import parser
 from sqlalchemy.exc import IntegrityError
@@ -57,6 +57,22 @@ def add_dummy_data(Session, file_name):
             
             session.commit()
 
+            for reference in data["references"]:
+                reference_type = ReferenceType.HOSTED if reference["type"] == "hosted" else (
+                    ReferenceType.SURFED if reference["type"] == "surfed" else ReferenceType.FRIEND
+                )
+                new_reference = Reference(
+                    from_user_id=get_user_by_field(session, reference["from"]).id,
+                    to_user_id=get_user_by_field(session, reference["to"]).id,
+                    reference_type=reference_type,
+                    text=reference["text"],
+                    rating=reference["rating"],
+                    was_safe=reference["was_safe"]
+                )
+                session.add(new_reference)
+            
+            session.commit()
+
             for group_chat in data["group_chats"]:
                 # Create the chat
                 creator = group_chat["creator"]
@@ -90,7 +106,6 @@ def add_dummy_data(Session, file_name):
                     ))
 
             session.commit()
-
 
     except IntegrityError as e:
         logger.error("Failed to insert dummy data, is it already inserted?")

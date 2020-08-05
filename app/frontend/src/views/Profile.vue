@@ -15,15 +15,15 @@
           </v-list-item-icon>
           <v-list-item-content>
             <v-list-item-title>Verification (coming soon)</v-list-item-title>
-            <v-list-item-subtitle
-              ><v-progress-linear
+            <v-list-item-subtitle>
+              <v-progress-linear
                 class="my-2"
                 height="12"
                 rounded
                 value="0"
                 color="light-green"
-              ></v-progress-linear
-            ></v-list-item-subtitle>
+              ></v-progress-linear>
+            </v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
         <v-list-item two-item>
@@ -34,15 +34,15 @@
             <v-list-item-title
               >Community standing (coming soon)</v-list-item-title
             >
-            <v-list-item-subtitle
-              ><v-progress-linear
+            <v-list-item-subtitle>
+              <v-progress-linear
                 class="my-2"
                 height="12"
                 rounded
                 value="0"
                 color="light-blue"
-              ></v-progress-linear
-            ></v-list-item-subtitle>
+              ></v-progress-linear>
+            </v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
         <v-list-item>

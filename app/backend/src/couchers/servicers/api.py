@@ -41,6 +41,7 @@ class API(api_pb2_grpc.APIServicer):
         with session_scope(self._Session) as session:
             # auth ought to make sure the user exists
             user = session.query(User).filter(User.id == context.user_id).one()
+            num_references = session.query(Reference.from_user_id).filter(Reference.to_user_id == context.user_id).count()
             return api_pb2.PingRes(
                 user=api_pb2.User(
                     user_id=user.id,
@@ -49,7 +50,7 @@ class API(api_pb2_grpc.APIServicer):
                     city=user.city,
                     verification=user.verification,
                     community_standing=user.community_standing,
-                    num_references=0,
+                    num_references=num_references,
                     gender=user.gender,
                     age=user.age,
                     color=user.color,
@@ -75,8 +76,11 @@ class API(api_pb2_grpc.APIServicer):
     def GetUser(self, request, context):
         with session_scope(self._Session) as session:
             user = get_user_by_field(session, request.user)
+
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+
+            num_references = session.query(Reference.from_user_id).filter(Reference.to_user_id == user.id).count()
 
             return api_pb2.User(
                 user_id=user.id,
@@ -85,7 +89,7 @@ class API(api_pb2_grpc.APIServicer):
                 city=user.city,
                 verification=user.verification,
                 community_standing=user.community_standing,
-                num_references=0,
+                num_references=num_references,
                 gender=user.gender,
                 age=user.age,
                 color=user.color,
@@ -273,15 +277,24 @@ class API(api_pb2_grpc.APIServicer):
 
     def Search(self, request, context):
         with session_scope(self._Session) as session:
-            return api_pb2.SearchRes(
-                users=[
+            users = []
+            for user in session.query(User) \
+                        .filter(
+                            or_(
+                                User.name.ilike(f"%{request.query}%"),
+                                User.username.ilike(f"%{request.query}%"),
+                            )
+                        ) \
+                        .all():
+                num_references = session.query(Reference.from_user_id).filter(Reference.to_user_id == user.id).count()
+                users.append(
                     api_pb2.User(
                         username=user.username,
                         name=user.name,
                         city=user.city,
                         verification=user.verification,
                         community_standing=user.community_standing,
-                        num_references=0,
+                        num_references=num_references,
                         gender=user.gender,
                         age=user.age,
                         color=user.color,
@@ -293,16 +306,10 @@ class API(api_pb2_grpc.APIServicer):
                         languages=user.languages.split("|") if user.languages else [],
                         countries_visited=user.countries_visited.split("|") if user.countries_visited else [],
                         countries_lived=user.countries_lived.split("|") if user.countries_lived else []
-                    ) for user in session.query(User) \
-                        .filter(
-                            or_(
-                                User.name.ilike(f"%{request.query}%"),
-                                User.username.ilike(f"%{request.query}%"),
-                            )
-                        ) \
-                        .all()
-                ]
-            )
+                    )
+                )
+            
+            return api_pb2.SearchRes(users=users)
 
     def Report(self, request, context):
         if context.user_id == request.reported_user_id:
