@@ -8,12 +8,25 @@ from sqlalchemy.sql import or_
 
 from couchers.db import (get_friends_status, get_user_by_field, is_valid_color,
                          is_valid_name, session_scope)
-from couchers.models import FriendRelationship, FriendStatus, User, Complaint
+from couchers.models import (FriendRelationship, FriendStatus, User, Complaint,
+                             Reference, ReferenceType)
 from couchers.utils import Timestamp_from_datetime
 from couchers.tasks import send_report_email
 from couchers import errors
 from pb import api_pb2, api_pb2_grpc
 
+
+reftype2sql = {
+    api_pb2.ReferenceType.FRIEND: ReferenceType.FRIEND,
+    api_pb2.ReferenceType.SURFED: ReferenceType.SURFED,
+    api_pb2.ReferenceType.HOSTED: ReferenceType.HOSTED,
+}
+
+reftype2api = {
+    ReferenceType.FRIEND: api_pb2.ReferenceType.FRIEND,
+    ReferenceType.SURFED: api_pb2.ReferenceType.SURFED,
+    ReferenceType.HOSTED: api_pb2.ReferenceType.HOSTED,
+}
 
 class API(api_pb2_grpc.APIServicer):
     def __init__(self, Session):
@@ -312,3 +325,84 @@ class API(api_pb2_grpc.APIServicer):
                           request.reason, request.description)
 
         return empty_pb2.Empty()
+
+    def WriteReference(self, request, context):
+        if context.user_id == request.to_user_id:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT,
+                          "Can't refer yourself")
+
+        reference = Reference(
+            from_user_id=context.user_id,
+            to_user_id=request.to_user_id,
+            reference_type=reftype2sql[request.reference_type],
+            text=request.text,
+            was_safe=request.was_safe,
+            rating=request.rating)
+        with session_scope(self._Session) as session:
+            if not session.query(User).filter(User.id == request.to_user_id).one_or_none():
+                context.abort(grpc.StatusCode.NOT_FOUND,
+                              "User not found")
+
+            if (session.query(Reference)
+                .filter(Reference.from_user_id == context.user_id)
+                .filter(Reference.to_user_id == request.to_user_id)
+                .filter(Reference.reference_type == reftype2sql[request.reference_type])
+                .one_or_none()):
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION,
+                              "Reference already given")
+            session.add(reference)
+        return empty_pb2.Empty()
+
+    def GetGivenReferences(self, request, context):
+        with session_scope(self._Session) as session:
+            query = session.query(Reference)
+            query = query.filter(Reference.from_user_id == request.from_user_id)
+            if request.HasField("type_filter"):
+                query = query.filter(Reference.reference_type == reftype2sql[request.type_filter.value])
+            return paginate_references_result(request, query)
+
+    def GetReceivedReferences(self, request, context):
+        with session_scope(self._Session) as session:
+            query = session.query(Reference)
+            query = query.filter(Reference.to_user_id == request.to_user_id)
+            if request.HasField("type_filter"):
+                query = query.filter(Reference.reference_type == reftype2sql[request.type_filter.value])
+            return paginate_references_result(request, query)
+
+    def AvailableWriteReferenceTypes(self, request, context):
+        available = {
+            ReferenceType.FRIEND,
+            ReferenceType.SURFED,
+            ReferenceType.HOSTED,
+        }
+
+        # Filter out already written ones.
+        with session_scope(self._Session) as session:
+            query = session.query(Reference)
+            query = query.filter(Reference.from_user_id == context.user_id)
+            query = query.filter(Reference.to_user_id == request.to_user_id)
+            for reference in query.all():
+                available.remove(reference.reference_type)
+
+        # TODO: make surfing/hosted only available if you actually have been surfing/hosting
+        return api_pb2.AvailableWriteReferenceTypesRes(
+            reference_types=[reftype2api[r] for r in available])
+
+
+def paginate_references_result(request, query):
+    total_matches = query.count()
+    references = query.order_by(Reference.time).offset(request.start_at).limit(request.number).all()
+    # order by time, pagination
+    return api_pb2.GetReferencesRes(
+        total_matches=total_matches,
+        references=[
+            api_pb2.Reference(
+                from_user_id=reference.from_user_id,
+                to_user_id=reference.to_user_id,
+                reference_type=reftype2api[reference.reference_type],
+                text=reference.text,
+                # Fuzz reference written time
+                written_time=Timestamp_from_datetime(
+                    reference.time.replace(hour=0, minute=0, second=0, microsecond=0)))
+            for reference in references])
+
