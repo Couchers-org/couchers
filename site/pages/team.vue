@@ -81,35 +81,6 @@
             <div class="card">
               <div class="card-image">
                 <figure class="image is-4by3 headshot">
-                  <img src="/img/nathan-friends.jpg" alt="Photo of Nathan with couch-surfing friends">
-                </figure>
-              </div>
-              <div class="card-content">
-                <div class="media">
-                  <div class="media-left">
-                    <figure class="image is-48x48">
-                      <img class="is-rounded" src="/img/nathan-head.jpg" alt="Headshot of Nathan">
-                    </figure>
-                  </div>
-                  <div class="media-content">
-                    <p class="title is-4">Nathan Lubeck</p>
-                    <p class="subtitle is-6">UX Advisor</p>
-                  </div>
-                </div>
-                <div class="content">
-                  <p>Nathan is an award winning product manager and technologist from Los Angeles with over a decade of experience building successful digital products and managing technical teams. He launched the official LA tourism application "Discover LA", served with the Danish Refugee Council in East Africa, received a Webby award for KCRW.com, and co-founded a Techstars startup around water sustainability. He has lived and traveled in over 50+ countries, and currently serves as an Executive Member of IADAS.</p>
-
-                  <p>Couch-surfing story: my very first experience was in the Philippines &mdash; after meeting my first couchsurfer, we started on a 12-hour road-trip from Manila to the East coast of Luzon (during a tsunami warning) and island hopped with local fishermen, catching fresh stingrays, which we then enjoyed in the shadow of Mount Mayon.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="columns">
-          <div class="column">
-            <div class="card">
-              <div class="card-image">
-                <figure class="image is-4by3 headshot">
                   <img src="/img/marlies-friends.jpg" alt="Photo of Marlies with couch-surfing friends">
                 </figure>
               </div>
@@ -131,6 +102,8 @@
               </div>
             </div>
           </div>
+        </div>
+        <div class="columns">
           <div class="column">
             <div class="card">
               <div class="card-image">
@@ -183,6 +156,8 @@
               </div>
             </div>
           </div>
+          <!-- Needed here or the last two cards spread out -->
+          <div class="column"></div>
         </div>
       </section>
     </div>
