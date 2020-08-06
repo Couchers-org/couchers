@@ -352,17 +352,19 @@ class Complaint(Base):
 
 class HostingStatus(enum.Enum):
     unspecified = 0
-    can_host = 1
-    maybe = 2
-    difficult = 3
-    cant_host = 4
+    unknown = 1
+    can_host = 2
+    maybe = 3
+    difficult = 4
+    cant_host = 5
 
 class SmokingLocation(enum.Enum):
     unspecified = 0
-    yes = 1
-    window = 2
-    outside = 3
-    no = 4
+    unknown = 1
+    yes = 2
+    window = 3
+    outside = 4
+    no = 5
 
 class HostingPreferences(Base):
     """
@@ -373,19 +375,19 @@ class HostingPreferences(Base):
 
     user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
 
-    hosting_status = Column(Enum(HostingStatus))
+    hosting_status = Column(Enum(HostingStatus), nullable=False)
 
-    max_guests = Column(Integer)
-    multiple_groups = Column(Boolean)
-    last_minute = Column(Boolean)
-    accepts_pets = Column(Boolean)
-    accepts_kids = Column(Boolean)
-    wheelchair_accessible = Column(Boolean)
-    smoking_allowed = Column(Enum(SmokingLocation))
+    max_guests = Column(Integer, nullable=True)
+    multiple_groups = Column(Boolean, nullable=True)
+    last_minute = Column(Boolean, nullable=True)
+    accepts_pets = Column(Boolean, nullable=True)
+    accepts_kids = Column(Boolean, nullable=True)
+    wheelchair_accessible = Column(Boolean, nullable=True)
+    smoking_allowed = Column(Enum(SmokingLocation), nullable=False)
 
-    sleeping_arrangement = Column(String)
-    area = Column(String) 
-    house_rules = Column(String) 
+    sleeping_arrangement = Column(String, nullable=True)
+    area = Column(String, nullable=True) 
+    house_rules = Column(String, nullable=True) 
 
     def __repr__(self):
         return f"HostingPreferences(user_id={self.user_id}, hosting_status={self.hosting_status}, max_guests={self.max_guests}... smoking_allowed={self.smoking_allowed}...)"

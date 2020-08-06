@@ -563,9 +563,9 @@ def test_hosting_preferences(db):
 
         api.SetHostingPreferences(api_pb2.SetHostingPreferencesReq(
             hosting_status=api_pb2.HostingStatus.HOSTING_STATUS_CAN_HOST,
-            max_guests=wrappers_pb2.UInt32Value(value=3),
-            wheelchair_accessible=wrappers_pb2.BoolValue(value=False),
-            house_rules=wrappers_pb2.StringValue(value="RULES!")
+            max_guests=api_pb2.UInt32Nullable(value=3),
+            wheelchair_accessible=api_pb2.BoolNullable(value=False),
+            house_rules=api_pb2.StringNullable(value="RULES!")
         ))
     
     with api_session(db, token2) as api:
@@ -581,3 +581,26 @@ def test_hosting_preferences(db):
         assert not res.HasField("sleeping_arrangement")
         assert not res.HasField("area")
         assert res.house_rules.value == "RULES!"
+
+    with api_session(db, token1) as api:
+        # test unsetting
+        api.SetHostingPreferences(api_pb2.SetHostingPreferencesReq(
+            hosting_status=api_pb2.HostingStatus.HOSTING_STATUS_UNKNOWN,
+            max_guests=api_pb2.UInt32Nullable(is_null=True),
+            wheelchair_accessible=api_pb2.BoolNullable(value=True),
+            area=api_pb2.StringNullable(value="area!"),
+            house_rules=api_pb2.StringNullable(is_null=True)
+        ))
+        
+        res = api.GetHostingPreferences(api_pb2.GetHostingPreferencesReq(user_id=user1.id))
+        assert res.hosting_status == api_pb2.HostingStatus.HOSTING_STATUS_UNKNOWN
+        assert not res.HasField("max_guests")
+        assert not res.HasField("multiple_groups")
+        assert not res.HasField("last_minute")
+        assert not res.HasField("accepts_pets")
+        assert not res.HasField("accepts_kids")
+        assert res.wheelchair_accessible.value
+        assert res.smoking_allowed == api_pb2.SmokingLocation.SMOKING_LOCATION_UNSPECIFIED
+        assert not res.HasField("sleeping_arrangement")
+        assert res.area.value == "area!"
+        assert not res.HasField("house_rules")

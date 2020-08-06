@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from google.protobuf import empty_pb2, wrappers_pb2
+from google.protobuf import empty_pb2
 from google.protobuf.timestamp_pb2 import Timestamp
 
 import grpc
@@ -31,6 +31,7 @@ reftype2api = {
 
 hostingstatus2sql = {
     api_pb2.HostingStatus.HOSTING_STATUS_UNSPECIFIED: HostingStatus.unspecified,
+    api_pb2.HostingStatus.HOSTING_STATUS_UNKNOWN: HostingStatus.unknown,
     api_pb2.HostingStatus.HOSTING_STATUS_CAN_HOST: HostingStatus.can_host,
     api_pb2.HostingStatus.HOSTING_STATUS_MAYBE: HostingStatus.maybe,
     api_pb2.HostingStatus.HOSTING_STATUS_DIFFICULT: HostingStatus.difficult,
@@ -39,6 +40,7 @@ hostingstatus2sql = {
 
 hostingstatus2api = {
     HostingStatus.unspecified: api_pb2.HostingStatus.HOSTING_STATUS_UNSPECIFIED,
+    HostingStatus.unknown: api_pb2.HostingStatus.HOSTING_STATUS_UNKNOWN,
     HostingStatus.can_host: api_pb2.HostingStatus.HOSTING_STATUS_CAN_HOST,
     HostingStatus.maybe: api_pb2.HostingStatus.HOSTING_STATUS_MAYBE,
     HostingStatus.difficult: api_pb2.HostingStatus.HOSTING_STATUS_DIFFICULT,
@@ -47,6 +49,7 @@ hostingstatus2api = {
 
 smokinglocation2sql = {
     api_pb2.SmokingLocation.SMOKING_LOCATION_UNSPECIFIED: SmokingLocation.unspecified,
+    api_pb2.SmokingLocation.SMOKING_LOCATION_UNKNOWN: SmokingLocation.unknown,
     api_pb2.SmokingLocation.SMOKING_LOCATION_YES: SmokingLocation.yes,
     api_pb2.SmokingLocation.SMOKING_LOCATION_WINDOW: SmokingLocation.window,
     api_pb2.SmokingLocation.SMOKING_LOCATION_OUTSIDE: SmokingLocation.outside,
@@ -55,6 +58,7 @@ smokinglocation2sql = {
 
 smokinglocation2api = {
     SmokingLocation.unspecified: api_pb2.SmokingLocation.SMOKING_LOCATION_UNSPECIFIED,
+    SmokingLocation.unknown: api_pb2.SmokingLocation.SMOKING_LOCATION_UNKNOWN,
     SmokingLocation.yes: api_pb2.SmokingLocation.SMOKING_LOCATION_YES,
     SmokingLocation.window: api_pb2.SmokingLocation.SMOKING_LOCATION_WINDOW,
     SmokingLocation.outside: api_pb2.SmokingLocation.SMOKING_LOCATION_OUTSIDE,
@@ -517,40 +521,67 @@ class API(api_pb2_grpc.APIServicer):
 
             if request.hosting_status != api_pb2.HostingStatus.HOSTING_STATUS_UNSPECIFIED:
                 prefs.hosting_status = hostingstatus2sql[request.hosting_status]
-            else:
+            elif prefs.hosting_status is None:
                 prefs.hosting_status = HostingStatus.unspecified
 
             if request.HasField("max_guests"):
-                prefs.max_guests = request.max_guests.value
+                if request.max_guests.is_null:
+                    prefs.max_guests = None
+                else:
+                    prefs.max_guests = request.max_guests.value
 
             if request.HasField("multiple_groups"):
-                prefs.multiple_groups = request.multiple_groups.value
+                if request.multiple_groups.is_null:
+                    prefs.multiple_groups = None
+                else:
+                    prefs.multiple_groups = request.multiple_groups.value
 
             if request.HasField("last_minute"):
-                prefs.last_minute = request.last_minute.value
+                if request.last_minute.is_null:
+                    prefs.last_minute = None
+                else:
+                    prefs.last_minute = request.last_minute.value
 
             if request.HasField("accepts_pets"):
-                prefs.accepts_pets = request.accepts_pets.value
+                if request.accepts_pets.is_null:
+                    prefs.accepts_pets = None
+                else:
+                    prefs.accepts_pets = request.accepts_pets.value
 
             if request.HasField("accepts_kids"):
-                prefs.accepts_kids = request.accepts_kids.value
+                if request.accepts_kids.is_null:
+                    prefs.accepts_kids = None
+                else:
+                    prefs.accepts_kids = request.accepts_kids.value
 
             if request.HasField("wheelchair_accessible"):
-                prefs.wheelchair_accessible = request.wheelchair_accessible.value
+                if request.wheelchair_accessible.is_null:
+                    prefs.wheelchair_accessible = None
+                else:
+                    prefs.wheelchair_accessible = request.wheelchair_accessible.value
 
             if request.smoking_allowed != api_pb2.SmokingLocation.SMOKING_LOCATION_UNSPECIFIED:
                 prefs.smoking_allowed = smokinglocation2sql[request.smoking_allowed]
-            else:
+            elif prefs.smoking_allowed is None:
                 prefs.smoking_allowed = SmokingLocation.unspecified
 
             if request.HasField("sleeping_arrangement"):
-                prefs.sleeping_arrangement = request.sleeping_arrangement.value
+                if request.sleeping_arrangement.is_null:
+                    prefs.sleeping_arrangement = None
+                else:
+                    prefs.sleeping_arrangement = request.sleeping_arrangement.value
 
             if request.HasField("area"):
-                prefs.area = request.area.value
+                if request.area.is_null:
+                    prefs.area = None
+                else:
+                    prefs.area = request.area.value
 
             if request.HasField("house_rules"):
-                prefs.house_rules = request.house_rules.value
+                if request.house_rules.is_null:
+                    prefs.house_rules = None
+                else:
+                    prefs.house_rules = request.house_rules.value
 
             session.commit()
 
