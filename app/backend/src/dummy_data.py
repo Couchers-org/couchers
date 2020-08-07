@@ -7,6 +7,8 @@ from couchers.db import get_user_by_field, session_scope
 from couchers.models import (Base, Conversation, FriendRelationship,
                              FriendStatus, GroupChat, GroupChatRole,
                              GroupChatSubscription, Message, Reference, ReferenceType, User)
+from couchers.servicers.api import hostingstatus2sql
+from pb.api_pb2 import HostingStatus
 from couchers.utils import Timestamp_from_datetime
 from dateutil import parser
 from sqlalchemy.exc import IntegrityError
@@ -42,6 +44,7 @@ def add_dummy_data(Session, file_name):
                     color=user.get("color", None),
                     countries_visited="|".join(user["countries_visited"]),
                     countries_lived="|".join(user["countries_lived"]),
+                    hosting_status=hostingstatus2sql[HostingStatus.Value(user["hosting_status"])]
                 )
                 session.add(new_user)
 

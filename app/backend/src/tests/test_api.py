@@ -5,6 +5,7 @@ from datetime import datetime
 import grpc
 import pytest
 from couchers.models import Complaint
+from couchers.servicers.api import hostingstatus2api
 from pb import api_pb2
 from tests.test_fixtures import api_session, db, generate_user, make_friends
 
@@ -31,6 +32,11 @@ def test_ping(db):
     assert user.joined - timedelta(hours=1) <= res.user.joined.ToDatetime() <= user.joined
     # same for last_active
     assert user.last_active - timedelta(hours=1) <= res.user.last_active.ToDatetime() <= user.last_active
+
+    if user.hosting_status is None:
+        assert res.user.hosting_status == api_pb2.HOSTING_STATUS_UNSPECIFIED
+    else:
+        assert res.user.hosting_status == hostingstatus2api[user.hosting_status]
 
     assert res.user.occupation == user.occupation
     assert res.user.about_me == user.about_me
@@ -74,6 +80,7 @@ def test_update_profile(db):
             about_me=wrappers_pb2.StringValue(value="I rule"),
             about_place=wrappers_pb2.StringValue(value="My place"),
             color=wrappers_pb2.StringValue(value="#111111"),
+            hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
             languages=api_pb2.RepeatedStringValue(
                 exists=True, value=["Binary", "English"]),
             countries_visited=api_pb2.RepeatedStringValue(
@@ -88,6 +95,7 @@ def test_update_profile(db):
         user = api.GetUser(api_pb2.GetUserReq(user=str(user.id)))
         assert user.name == "New name"
         assert user.city == "Timbuktu"
+        assert user.hosting_status == api_pb2.HOSTING_STATUS_CAN_HOST
         assert "Binary" in user.languages
         assert "English" in user.languages
 
@@ -98,6 +106,7 @@ def test_update_profile(db):
         assert res.updated_name == False
         assert res.updated_city == True
         assert res.updated_gender == True
+        assert res.updated_hosting_status == False
         assert res.updated_about_me == False
         assert res.updated_languages == False
 
@@ -549,35 +558,33 @@ def test_hosting_preferences(db):
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
         res = api.GetHostingPreferences(api_pb2.GetHostingPreferencesReq(user_id=user2.id))
-        assert res.hosting_status == api_pb2.HostingStatus.HOSTING_STATUS_UNSPECIFIED
         assert not res.HasField("max_guests")
         assert not res.HasField("multiple_groups")
         assert not res.HasField("last_minute")
         assert not res.HasField("accepts_pets")
         assert not res.HasField("accepts_kids")
         assert not res.HasField("wheelchair_accessible")
-        assert res.smoking_allowed == api_pb2.SmokingLocation.SMOKING_LOCATION_UNSPECIFIED
+        assert res.smoking_allowed == api_pb2.SMOKING_LOCATION_UNSPECIFIED
         assert not res.HasField("sleeping_arrangement")
         assert not res.HasField("area")
         assert not res.HasField("house_rules")
 
         api.SetHostingPreferences(api_pb2.SetHostingPreferencesReq(
-            hosting_status=api_pb2.HostingStatus.HOSTING_STATUS_CAN_HOST,
             max_guests=api_pb2.UInt32Nullable(value=3),
             wheelchair_accessible=api_pb2.BoolNullable(value=False),
+            smoking_allowed=api_pb2.SMOKING_LOCATION_WINDOW,
             house_rules=api_pb2.StringNullable(value="RULES!")
         ))
     
     with api_session(db, token2) as api:
         res = api.GetHostingPreferences(api_pb2.GetHostingPreferencesReq(user_id=user1.id))
-        assert res.hosting_status == api_pb2.HostingStatus.HOSTING_STATUS_CAN_HOST
         assert res.max_guests.value == 3
         assert not res.HasField("multiple_groups")
         assert not res.HasField("last_minute")
         assert not res.HasField("accepts_pets")
         assert not res.HasField("accepts_kids")
         assert not res.wheelchair_accessible.value
-        assert res.smoking_allowed == api_pb2.SmokingLocation.SMOKING_LOCATION_UNSPECIFIED
+        assert res.smoking_allowed == api_pb2.SMOKING_LOCATION_WINDOW
         assert not res.HasField("sleeping_arrangement")
         assert not res.HasField("area")
         assert res.house_rules.value == "RULES!"
@@ -585,22 +592,21 @@ def test_hosting_preferences(db):
     with api_session(db, token1) as api:
         # test unsetting
         api.SetHostingPreferences(api_pb2.SetHostingPreferencesReq(
-            hosting_status=api_pb2.HostingStatus.HOSTING_STATUS_UNKNOWN,
             max_guests=api_pb2.UInt32Nullable(is_null=True),
             wheelchair_accessible=api_pb2.BoolNullable(value=True),
+            smoking_allowed=api_pb2.SMOKING_LOCATION_UNKNOWN,
             area=api_pb2.StringNullable(value="area!"),
             house_rules=api_pb2.StringNullable(is_null=True)
         ))
         
         res = api.GetHostingPreferences(api_pb2.GetHostingPreferencesReq(user_id=user1.id))
-        assert res.hosting_status == api_pb2.HostingStatus.HOSTING_STATUS_UNKNOWN
         assert not res.HasField("max_guests")
         assert not res.HasField("multiple_groups")
         assert not res.HasField("last_minute")
         assert not res.HasField("accepts_pets")
         assert not res.HasField("accepts_kids")
         assert res.wheelchair_accessible.value
-        assert res.smoking_allowed == api_pb2.SmokingLocation.SMOKING_LOCATION_UNSPECIFIED
+        assert res.smoking_allowed == api_pb2.SMOKING_LOCATION_UNKNOWN
         assert not res.HasField("sleeping_arrangement")
         assert res.area.value == "area!"
         assert not res.HasField("house_rules")

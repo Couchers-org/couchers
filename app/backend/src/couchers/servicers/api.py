@@ -30,39 +30,37 @@ reftype2api = {
 }
 
 hostingstatus2sql = {
-    api_pb2.HostingStatus.HOSTING_STATUS_UNSPECIFIED: HostingStatus.unspecified,
-    api_pb2.HostingStatus.HOSTING_STATUS_UNKNOWN: HostingStatus.unknown,
-    api_pb2.HostingStatus.HOSTING_STATUS_CAN_HOST: HostingStatus.can_host,
-    api_pb2.HostingStatus.HOSTING_STATUS_MAYBE: HostingStatus.maybe,
-    api_pb2.HostingStatus.HOSTING_STATUS_DIFFICULT: HostingStatus.difficult,
-    api_pb2.HostingStatus.HOSTING_STATUS_CANT_HOST: HostingStatus.cant_host,
+    api_pb2.HOSTING_STATUS_UNKNOWN: HostingStatus.unknown,
+    api_pb2.HOSTING_STATUS_CAN_HOST: HostingStatus.can_host,
+    api_pb2.HOSTING_STATUS_MAYBE: HostingStatus.maybe,
+    api_pb2.HOSTING_STATUS_DIFFICULT: HostingStatus.difficult,
+    api_pb2.HOSTING_STATUS_CANT_HOST: HostingStatus.cant_host,
 }
 
 hostingstatus2api = {
-    HostingStatus.unspecified: api_pb2.HostingStatus.HOSTING_STATUS_UNSPECIFIED,
-    HostingStatus.unknown: api_pb2.HostingStatus.HOSTING_STATUS_UNKNOWN,
-    HostingStatus.can_host: api_pb2.HostingStatus.HOSTING_STATUS_CAN_HOST,
-    HostingStatus.maybe: api_pb2.HostingStatus.HOSTING_STATUS_MAYBE,
-    HostingStatus.difficult: api_pb2.HostingStatus.HOSTING_STATUS_DIFFICULT,
-    HostingStatus.cant_host: api_pb2.HostingStatus.HOSTING_STATUS_CANT_HOST,
+    None: api_pb2.HOSTING_STATUS_UNSPECIFIED,
+    HostingStatus.unknown: api_pb2.HOSTING_STATUS_UNKNOWN,
+    HostingStatus.can_host: api_pb2.HOSTING_STATUS_CAN_HOST,
+    HostingStatus.maybe: api_pb2.HOSTING_STATUS_MAYBE,
+    HostingStatus.difficult: api_pb2.HOSTING_STATUS_DIFFICULT,
+    HostingStatus.cant_host: api_pb2.HOSTING_STATUS_CANT_HOST,
 }
 
 smokinglocation2sql = {
-    api_pb2.SmokingLocation.SMOKING_LOCATION_UNSPECIFIED: SmokingLocation.unspecified,
-    api_pb2.SmokingLocation.SMOKING_LOCATION_UNKNOWN: SmokingLocation.unknown,
-    api_pb2.SmokingLocation.SMOKING_LOCATION_YES: SmokingLocation.yes,
-    api_pb2.SmokingLocation.SMOKING_LOCATION_WINDOW: SmokingLocation.window,
-    api_pb2.SmokingLocation.SMOKING_LOCATION_OUTSIDE: SmokingLocation.outside,
-    api_pb2.SmokingLocation.SMOKING_LOCATION_NO: SmokingLocation.no,
+    api_pb2.SMOKING_LOCATION_UNKNOWN: SmokingLocation.unknown,
+    api_pb2.SMOKING_LOCATION_YES: SmokingLocation.yes,
+    api_pb2.SMOKING_LOCATION_WINDOW: SmokingLocation.window,
+    api_pb2.SMOKING_LOCATION_OUTSIDE: SmokingLocation.outside,
+    api_pb2.SMOKING_LOCATION_NO: SmokingLocation.no,
 }
 
 smokinglocation2api = {
-    SmokingLocation.unspecified: api_pb2.SmokingLocation.SMOKING_LOCATION_UNSPECIFIED,
-    SmokingLocation.unknown: api_pb2.SmokingLocation.SMOKING_LOCATION_UNKNOWN,
-    SmokingLocation.yes: api_pb2.SmokingLocation.SMOKING_LOCATION_YES,
-    SmokingLocation.window: api_pb2.SmokingLocation.SMOKING_LOCATION_WINDOW,
-    SmokingLocation.outside: api_pb2.SmokingLocation.SMOKING_LOCATION_OUTSIDE,
-    SmokingLocation.no: api_pb2.SmokingLocation.SMOKING_LOCATION_NO,
+    None: api_pb2.SMOKING_LOCATION_UNSPECIFIED,
+    SmokingLocation.unknown: api_pb2.SMOKING_LOCATION_UNKNOWN,
+    SmokingLocation.yes: api_pb2.SMOKING_LOCATION_YES,
+    SmokingLocation.window: api_pb2.SMOKING_LOCATION_WINDOW,
+    SmokingLocation.outside: api_pb2.SMOKING_LOCATION_OUTSIDE,
+    SmokingLocation.no: api_pb2.SMOKING_LOCATION_NO,
 }
 
 
@@ -96,6 +94,7 @@ class API(api_pb2_grpc.APIServicer):
                     joined=Timestamp_from_datetime(user.display_joined),
                     last_active=Timestamp_from_datetime(
                         user.display_last_active),
+                    hosting_status=hostingstatus2api[user.hosting_status],
                     occupation=user.occupation,
                     about_me=user.about_me,
                     about_place=user.about_place,
@@ -140,6 +139,7 @@ class API(api_pb2_grpc.APIServicer):
                 color=user.color,
                 joined=Timestamp_from_datetime(user.display_joined),
                 last_active=Timestamp_from_datetime(user.display_last_active),
+                hosting_status=hostingstatus2api[user.hosting_status],
                 occupation=user.occupation,
                 about_me=user.about_me,
                 about_place=user.about_place,
@@ -198,6 +198,10 @@ class API(api_pb2_grpc.APIServicer):
                                   errors.INVALID_COLOR)
                 user.color = color
                 res.updated_color = True
+            
+            if request.hosting_status != api_pb2.HOSTING_STATUS_UNSPECIFIED:
+                user.hosting_status = hostingstatus2sql[request.hosting_status]
+                res.updated_hosting_status = True
 
             if request.languages.exists:
                 user.languages = "|".join(request.languages.value)
@@ -357,6 +361,7 @@ class API(api_pb2_grpc.APIServicer):
                         joined=Timestamp_from_datetime(user.display_joined),
                         last_active=Timestamp_from_datetime(
                             user.display_last_active),
+                        hosting_status=hostingstatus2api[user.hosting_status],
                         occupation=user.occupation,
                         about_me=user.about_me,
                         about_place=user.about_place,
@@ -470,13 +475,12 @@ class API(api_pb2_grpc.APIServicer):
                                   errors.USER_NOT_FOUND)
                 else:
                     res = api_pb2.GetHostingPreferencesRes(
-                        hosting_status=api_pb2.HostingStatus.HOSTING_STATUS_UNSPECIFIED,
-                        smoking_allowed=api_pb2.SmokingLocation.SMOKING_LOCATION_UNSPECIFIED
+                        smoking_allowed=api_pb2.SMOKING_LOCATION_UNSPECIFIED
                     )
                     return res
 
             res = api_pb2.GetHostingPreferencesRes(
-                hosting_status=hostingstatus2api[result.hosting_status],
+                #hosting_status=hostingstatus2api[result.hosting_status],
                 smoking_allowed=smokinglocation2api[result.smoking_allowed]
             )
 
@@ -519,11 +523,6 @@ class API(api_pb2_grpc.APIServicer):
                 prefs = HostingPreferences(user_id=context.user_id)
                 session.add(prefs)
 
-            if request.hosting_status != api_pb2.HostingStatus.HOSTING_STATUS_UNSPECIFIED:
-                prefs.hosting_status = hostingstatus2sql[request.hosting_status]
-            elif prefs.hosting_status is None:
-                prefs.hosting_status = HostingStatus.unspecified
-
             if request.HasField("max_guests"):
                 if request.max_guests.is_null:
                     prefs.max_guests = None
@@ -560,10 +559,8 @@ class API(api_pb2_grpc.APIServicer):
                 else:
                     prefs.wheelchair_accessible = request.wheelchair_accessible.value
 
-            if request.smoking_allowed != api_pb2.SmokingLocation.SMOKING_LOCATION_UNSPECIFIED:
+            if request.smoking_allowed != api_pb2.SMOKING_LOCATION_UNSPECIFIED:
                 prefs.smoking_allowed = smokinglocation2sql[request.smoking_allowed]
-            elif prefs.smoking_allowed is None:
-                prefs.smoking_allowed = SmokingLocation.unspecified
 
             if request.HasField("sleeping_arrangement"):
                 if request.sleeping_arrangement.is_null:

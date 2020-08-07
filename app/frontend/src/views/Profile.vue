@@ -9,6 +9,24 @@
         <v-sheet height="80" :color="user.color" tile></v-sheet>
         <v-card-title>{{ user.name }}</v-card-title>
         <v-card-subtitle>{{ user.city }}</v-card-subtitle>
+        <v-list-item
+          v-if="
+            user.hostingStatus != HostingStatus.HOSTING_STATUS_UNKNOWN &&
+            user.hosting_status != HostingStatus.HOSTING_STATUS_UNSPECIFIED
+          "
+          two-item
+        >
+          <v-list-item-icon>
+            <v-icon :color="displayHostingStatus(user.hostingStatus)[1]"
+              >mdi-home</v-icon
+            >
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>{{
+              displayHostingStatus(user.hostingStatus)[0]
+            }}</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
         <v-list-item two-item>
           <v-list-item-icon>
             <v-icon>mdi-account-check</v-icon>
@@ -110,47 +128,74 @@
               >See how your profile looks to others</v-btn
             >
           </p>
-          <h3>Name</h3>
-          <editable-text-field :text="user.name" v-on:save="saveName" />
-          <h3>City</h3>
-          <editable-text-field :text="user.city" v-on:save="saveCity" />
-          <h3>Gender</h3>
-          <editable-text-field :text="user.gender" v-on:save="saveGender" />
-          <h3>Occupation</h3>
-          <editable-text-field
-            :text="user.occupation"
-            v-on:save="saveOccupation"
-          />
-          <h3>Languages</h3>
-          <editable-list :list="user.languagesList" v-on:save="saveLanguages" />
-          <h3>About me</h3>
-          <editable-textarea
-            :text="user.aboutMe"
-            isMarkdown
-            v-on:save="saveAboutMe"
-          />
-          <h3>About my place</h3>
-          <editable-textarea
-            :text="user.aboutPlace"
-            isMarkdown
-            v-on:save="saveAboutPlace"
-          />
-          <h3>Countries I've visited</h3>
-          <editable-list
-            :list="user.countriesVisitedList"
-            v-on:save="saveCountriesVisited"
-          />
-          <h3>Countries I've lived in</h3>
-          <editable-list
-            :list="user.countriesLivedList"
-            v-on:save="saveCountriesLived"
-          />
-          <h3>Profile color</h3>
-          <p>
-            We're still working on profile pictures, but you can choose a color
-            for your profile instead!
-          </p>
-          <editable-color :color="user.color" v-on:save="saveColor" />
+          <v-tabs class="mb-5">
+            <v-tab href="#info">My info</v-tab>
+            <v-tab href="#hosting">Hosting preferences</v-tab>
+            <v-tab-item value="info">
+              <h3>Name</h3>
+              <editable-text-field :text="user.name" v-on:save="saveName" />
+              <h3>City</h3>
+              <editable-text-field :text="user.city" v-on:save="saveCity" />
+              <h3>Hosting Status</h3>
+              <editable-dropdown
+                :value="user.hostingStatus == 0 ? 1 : user.hostingStatus"
+                :items="hostingStatusChoices"
+                v-on:save="saveHostingStatus"
+              />
+              <h3>Gender</h3>
+              <editable-text-field :text="user.gender" v-on:save="saveGender" />
+              <h3>Occupation</h3>
+              <editable-text-field
+                :text="user.occupation"
+                v-on:save="saveOccupation"
+              />
+              <h3>Languages</h3>
+              <editable-list
+                :list="user.languagesList"
+                v-on:save="saveLanguages"
+              />
+              <h3>About me</h3>
+              <editable-textarea
+                :text="user.aboutMe"
+                isMarkdown
+                v-on:save="saveAboutMe"
+              />
+              <h3>About my place</h3>
+              <editable-textarea
+                :text="user.aboutPlace"
+                isMarkdown
+                v-on:save="saveAboutPlace"
+              />
+              <h3>Countries I've visited</h3>
+              <editable-list
+                :list="user.countriesVisitedList"
+                v-on:save="saveCountriesVisited"
+              />
+              <h3>Countries I've lived in</h3>
+              <editable-list
+                :list="user.countriesLivedList"
+                v-on:save="saveCountriesLived"
+              />
+              <h3>Profile color</h3>
+              <p>
+                We're still working on profile pictures, but you can choose a
+                color for your profile instead!
+              </p>
+              <editable-color :color="user.color" v-on:save="saveColor" />
+            </v-tab-item>
+            <v-tab-item value="hosting">
+              <h3>max_guests</h3>
+              <h3>multiple_groups</h3>
+              <h3>last_minute</h3>
+              <h3>accepts_pets</h3>
+              <h3>accepts_kids</h3>
+              <h3>wheelchair_accessible</h3>
+              <h3>smoking_allowed</h3>
+              <h3>sleeping_arrangement</h3>
+              <h3>area</h3>
+              <h3>house_rules</h3>
+            </v-tab-item>
+          </v-tabs>
         </v-card-text>
       </v-card>
     </v-container>
@@ -164,34 +209,74 @@ import { mapState } from "vuex"
 
 import wrappers from "google-protobuf/google/protobuf/wrappers_pb"
 
+import EditableDropdown from "../components/EditableDropdown.vue"
 import EditableTextarea from "../components/EditableTextarea.vue"
 import EditableTextField from "../components/EditableTextField.vue"
 import EditableList from "../components/EditableList.vue"
 import EditableColor from "../components/EditableColor.vue"
 import ErrorAlert from "../components/ErrorAlert.vue"
+import LoadingCircular from "../components/LoadingCircular.vue"
 
-import { UpdateProfileReq, RepeatedStringValue } from "../pb/api_pb"
+import {
+  UpdateProfileReq,
+  RepeatedStringValue,
+  GetHostingPreferencesReq,
+  GetHostingPreferencesRes,
+  HostingStatus,
+} from "../pb/api_pb"
 import { client } from "../api"
 
 import Store from "../store"
 
-import { displayList, displayTime } from "../utils"
+import { displayList, displayTime, displayHostingStatus } from "../utils"
 
 export default Vue.extend({
   data: () => ({
     loading: false,
     error: null as Error | null,
+    hostingPreferences: null as null | GetHostingPreferencesRes.AsObject,
+    HostingStatus,
+    hostingStatusChoices: [
+      { text: "(Leave blank)", value: 1 },
+      { text: "Can host", value: 2 },
+      { text: "Maybe", value: 3 },
+      { text: "Difficult", value: 4 },
+      { text: "Can't host", value: 5 },
+    ],
   }),
 
   components: {
+    EditableDropdown,
     EditableTextarea,
     EditableTextField,
     EditableList,
     EditableColor,
     ErrorAlert,
+    LoadingCircular,
+  },
+
+  created() {
+    this.fetchData()
   },
 
   methods: {
+    fetchData() {
+      this.loading = true
+
+      const req = new GetHostingPreferencesReq()
+      req.setUserId(this.user.userId)
+      client
+        .getHostingPreferences(req)
+        .then((res) => {
+          this.hostingPreferences = res.toObject()
+          this.loading = false
+        })
+        .catch((err) => {
+          this.error = err
+          this.loading = false
+        })
+    },
+
     updateProfile(req: UpdateProfileReq) {
       this.loading = true
 
@@ -237,6 +322,12 @@ export default Vue.extend({
       const wrapper = new wrappers.StringValue()
       wrapper.setValue(text)
       req.setCity(wrapper)
+      this.updateProfile(req)
+    },
+
+    saveHostingStatus(index: number) {
+      const req = new UpdateProfileReq()
+      req.setHostingStatus(index)
       this.updateProfile(req)
     },
 
@@ -290,6 +381,8 @@ export default Vue.extend({
       req.setColor(wrapper)
       this.updateProfile(req)
     },
+
+    displayHostingStatus,
   },
 
   computed: {

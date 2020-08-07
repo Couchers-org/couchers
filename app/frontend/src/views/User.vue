@@ -9,6 +9,24 @@
         <v-sheet height="80" :color="user.color" tile></v-sheet>
         <v-card-title>{{ user.name }}</v-card-title>
         <v-card-subtitle>{{ user.city }}</v-card-subtitle>
+        <v-list-item
+          v-if="
+            user.hostingStatus != HostingStatus.HOSTING_STATUS_UNKNOWN &&
+            user.hosting_status != HostingStatus.HOSTING_STATUS_UNSPECIFIED
+          "
+          two-item
+        >
+          <v-list-item-icon>
+            <v-icon :color="displayHostingStatus(user.hostingStatus)[1]"
+              >mdi-home</v-icon
+            >
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>{{
+              displayHostingStatus(user.hostingStatus)[0]
+            }}</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
         <v-list-item two-item>
           <v-list-item-icon>
             <v-icon>mdi-account-multiple</v-icon>
@@ -140,6 +158,7 @@
         <v-card-text>
           <v-tabs class="mb-5">
             <v-tab href="#about">About me</v-tab>
+            <v-tab href="#hosting">Hosting</v-tab>
             <v-tab href="#references">References</v-tab>
             <v-tab href="#friends">Friends</v-tab>
             <v-tab href="#photos">Photos</v-tab>
@@ -254,10 +273,16 @@ import {
   GetReceivedReferencesReq,
   ReferenceType,
   WriteReferenceReq,
+  HostingStatus,
 } from "../pb/api_pb"
 import { client } from "../api"
 
-import { displayList, displayTime, handle } from "../utils"
+import {
+  displayList,
+  displayTime,
+  handle,
+  displayHostingStatus,
+} from "../utils"
 
 import store from "../store/index"
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb"
@@ -277,6 +302,7 @@ export default Vue.extend({
     myReference: null as null | string,
     myReferenceWasSafe: false,
     myReferenceRating: 0,
+    HostingStatus,
   }),
 
   components: {
@@ -299,6 +325,8 @@ export default Vue.extend({
     displayList,
 
     displayTime,
+
+    displayHostingStatus,
 
     referenceTypeString(rt: ReferenceType): string {
       switch (rt) {

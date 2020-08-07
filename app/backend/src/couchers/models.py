@@ -20,6 +20,12 @@ class PhoneStatus(enum.Enum):
     # verified
     verified = 2
 
+class HostingStatus(enum.Enum):
+    unknown = 1
+    can_host = 2
+    maybe = 3
+    difficult = 4
+    cant_host = 5
 
 class User(Base):
     """
@@ -49,6 +55,8 @@ class User(Base):
 
     # name as on official docs for verification, etc. not needed until verification
     full_name = Column(String, nullable=True)
+    
+    hosting_status = Column(Enum(HostingStatus), nullable=True)
 
     # verification score
     verification = Column(Float, nullable=True)
@@ -350,16 +358,7 @@ class Complaint(Base):
     reason = Column(String, nullable=False)
     description = Column(String, nullable=False)
 
-class HostingStatus(enum.Enum):
-    unspecified = 0
-    unknown = 1
-    can_host = 2
-    maybe = 3
-    difficult = 4
-    cant_host = 5
-
 class SmokingLocation(enum.Enum):
-    unspecified = 0
     unknown = 1
     yes = 2
     window = 3
@@ -375,15 +374,13 @@ class HostingPreferences(Base):
 
     user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
 
-    hosting_status = Column(Enum(HostingStatus), nullable=False)
-
     max_guests = Column(Integer, nullable=True)
     multiple_groups = Column(Boolean, nullable=True)
     last_minute = Column(Boolean, nullable=True)
     accepts_pets = Column(Boolean, nullable=True)
     accepts_kids = Column(Boolean, nullable=True)
     wheelchair_accessible = Column(Boolean, nullable=True)
-    smoking_allowed = Column(Enum(SmokingLocation), nullable=False)
+    smoking_allowed = Column(Enum(SmokingLocation), nullable=True)
 
     sleeping_arrangement = Column(String, nullable=True)
     area = Column(String, nullable=True) 

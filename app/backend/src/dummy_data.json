@@ -38,7 +38,8 @@
         "Thailand",
         "Viet Nam"
       ],
-      "countries_lived": ["Australia", "North Korea"]
+      "countries_lived": ["Australia", "North Korea"],
+      "hosting_status": "HOSTING_STATUS_UNKNOWN"
     },
     {
       "username": "aapeli",
@@ -66,7 +67,8 @@
         "Finland",
         "Sweden",
         "United Stated of America"
-      ]
+      ],
+      "hosting_status": "HOSTING_STATUS_CAN_HOST"
     },
     {
       "username": "val",
@@ -89,7 +91,8 @@
       "about_place": "About Val's place",
       "color": "#858328",
       "countries_visited": ["Japan"],
-      "countries_lived": ["Australia"]
+      "countries_lived": ["Australia"],
+      "hosting_status": "HOSTING_STATUS_DIFFICULT"
     },
     {
         "username": "aapeli2",
@@ -121,7 +124,8 @@
             "Finland",
             "Sweden",
             "United Stated of America"
-        ]
+        ],
+        "hosting_status": "HOSTING_STATUS_MAYBE"
     }
   ],
   "friendships": [
