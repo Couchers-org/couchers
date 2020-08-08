@@ -30,7 +30,11 @@
                   >
                     <v-list-item-avatar>
                       <!-- TODO: make sure the id being passed in isnt the id of the currently logged-in user -->
-                      <avatar :userId="conversation.getLatestMessage().getAuthorUserId()" /> 
+                      <avatar
+                        :userId="
+                          conversation.getLatestMessage().getAuthorUserId()
+                        "
+                      />
                     </v-list-item-avatar>
                     <v-list-item-content>
                       <v-list-item-title
@@ -149,7 +153,7 @@ import avatar from "@/components/Avatar.vue"
 
 export default Vue.extend({
   components: {
-    avatar
+    avatar,
   },
   data: () => ({
     loading: 0,

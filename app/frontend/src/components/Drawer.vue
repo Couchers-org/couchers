@@ -86,7 +86,7 @@ import { mapState, mapMutations } from "vuex"
 import avatar from "@/components/Avatar.vue"
 export default Vue.extend({
   components: {
-    avatar
+    avatar,
   },
   methods: {
     handle,
