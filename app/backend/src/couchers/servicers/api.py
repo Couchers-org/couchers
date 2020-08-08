@@ -30,7 +30,7 @@ reftype2api = {
 }
 
 hostingstatus2sql = {
-    api_pb2.HOSTING_STATUS_UNKNOWN: HostingStatus.unknown,
+    api_pb2.HOSTING_STATUS_UNKNOWN: None,
     api_pb2.HOSTING_STATUS_CAN_HOST: HostingStatus.can_host,
     api_pb2.HOSTING_STATUS_MAYBE: HostingStatus.maybe,
     api_pb2.HOSTING_STATUS_DIFFICULT: HostingStatus.difficult,
@@ -38,8 +38,7 @@ hostingstatus2sql = {
 }
 
 hostingstatus2api = {
-    None: api_pb2.HOSTING_STATUS_UNSPECIFIED,
-    HostingStatus.unknown: api_pb2.HOSTING_STATUS_UNKNOWN,
+    None: api_pb2.HOSTING_STATUS_UNKNOWN,
     HostingStatus.can_host: api_pb2.HOSTING_STATUS_CAN_HOST,
     HostingStatus.maybe: api_pb2.HOSTING_STATUS_MAYBE,
     HostingStatus.difficult: api_pb2.HOSTING_STATUS_DIFFICULT,
@@ -47,7 +46,7 @@ hostingstatus2api = {
 }
 
 smokinglocation2sql = {
-    api_pb2.SMOKING_LOCATION_UNKNOWN: SmokingLocation.unknown,
+    api_pb2.SMOKING_LOCATION_UNKNOWN: None,
     api_pb2.SMOKING_LOCATION_YES: SmokingLocation.yes,
     api_pb2.SMOKING_LOCATION_WINDOW: SmokingLocation.window,
     api_pb2.SMOKING_LOCATION_OUTSIDE: SmokingLocation.outside,
@@ -55,8 +54,7 @@ smokinglocation2sql = {
 }
 
 smokinglocation2api = {
-    None: api_pb2.SMOKING_LOCATION_UNSPECIFIED,
-    SmokingLocation.unknown: api_pb2.SMOKING_LOCATION_UNKNOWN,
+    None: api_pb2.SMOKING_LOCATION_UNKNOWN,
     SmokingLocation.yes: api_pb2.SMOKING_LOCATION_YES,
     SmokingLocation.window: api_pb2.SMOKING_LOCATION_WINDOW,
     SmokingLocation.outside: api_pb2.SMOKING_LOCATION_OUTSIDE,
@@ -198,7 +196,7 @@ class API(api_pb2_grpc.APIServicer):
                                   errors.INVALID_COLOR)
                 user.color = color
                 res.updated_color = True
-            
+
             if request.hosting_status != api_pb2.HOSTING_STATUS_UNSPECIFIED:
                 user.hosting_status = hostingstatus2sql[request.hosting_status]
                 res.updated_hosting_status = True
@@ -475,12 +473,11 @@ class API(api_pb2_grpc.APIServicer):
                                   errors.USER_NOT_FOUND)
                 else:
                     res = api_pb2.GetHostingPreferencesRes(
-                        smoking_allowed=api_pb2.SMOKING_LOCATION_UNSPECIFIED
+                        smoking_allowed=api_pb2.SMOKING_LOCATION_UNKNOWN
                     )
                     return res
 
             res = api_pb2.GetHostingPreferencesRes(
-                #hosting_status=hostingstatus2api[result.hosting_status],
                 smoking_allowed=smokinglocation2api[result.smoking_allowed]
             )
 

@@ -183,17 +183,100 @@
               </p>
               <editable-color :color="user.color" v-on:save="saveColor" />
             </v-tab-item>
-            <v-tab-item value="hosting">
-              <h3>max_guests</h3>
-              <h3>multiple_groups</h3>
-              <h3>last_minute</h3>
-              <h3>accepts_pets</h3>
-              <h3>accepts_kids</h3>
-              <h3>wheelchair_accessible</h3>
-              <h3>smoking_allowed</h3>
-              <h3>sleeping_arrangement</h3>
-              <h3>area</h3>
-              <h3>house_rules</h3>
+            <v-tab-item v-if="hostingPreferences != null" value="hosting">
+              <h3>Max guests</h3>
+              <editable-text-field
+                :text="
+                  hostingPreferences.maxGuests
+                    ? hostingPreferences.maxGuests.value
+                    : null
+                "
+                v-on:save="saveMaxGuests"
+              />
+              <h3>Multiple groups accepted</h3>
+              <editable-dropdown
+                :value="
+                  hostingPreferences.multipleGroups
+                    ? hostingPreferences.multipleGroups.value
+                    : null
+                "
+                :items="boolChoices"
+                v-on:save="saveMultipleGroups"
+              />
+              <h3>Last minute requests okay</h3>
+              <editable-dropdown
+                :value="
+                  hostingPreferences.lastMinute
+                    ? hostingPreferences.lastMinute.value
+                    : null
+                "
+                :items="boolChoices"
+                v-on:save="saveLastMinute"
+              />
+              <h3>Accept pets</h3>
+              <editable-dropdown
+                :value="
+                  hostingPreferences.acceptsPets
+                    ? hostingPreferences.acceptsPets.value
+                    : null
+                "
+                :items="boolChoices"
+                v-on:save="saveAcceptsPets"
+              />
+              <h3>Accept kids</h3>
+              <editable-dropdown
+                :value="
+                  hostingPreferences.acceptsKids
+                    ? hostingPreferences.acceptsKids.value
+                    : null
+                "
+                :items="boolChoices"
+                v-on:save="saveAcceptsKids"
+              />
+              <h3>Wheelchair accessible</h3>
+              <editable-dropdown
+                :value="
+                  hostingPreferences.wheelchairAccessible
+                    ? hostingPreferences.wheelchairAccessible.value
+                    : null
+                "
+                :items="boolChoices"
+                v-on:save="saveWheelchairAccessible"
+              />
+              <h3>Smoking allowed</h3>
+              <editable-dropdown
+                :value="hostingPreferences.smokingAllowed"
+                :items="smokingAllowedChoices"
+                v-on:save="saveSmokingAllowed"
+              />
+              <h3>Sleeping arrangements</h3>
+              <editable-textarea
+                :text="
+                  hostingPreferences.sleepingArrangement
+                    ? hostingPreferences.sleepingArrangement.value
+                    : ''
+                "
+                is-markdown
+                v-on:save="saveSleepingArrangement"
+              />
+              <h3>Area/Neighbourhood info</h3>
+              <editable-textarea
+                :text="
+                  hostingPreferences.area ? hostingPreferences.area.value : ''
+                "
+                is-markdown
+                v-on:save="saveArea"
+              />
+              <h3>House rules</h3>
+              <editable-textarea
+                :text="
+                  hostingPreferences.houseRules
+                    ? hostingPreferences.houseRules.value
+                    : ''
+                "
+                is-markdown
+                v-on:save="saveHouseRules"
+              />
             </v-tab-item>
           </v-tabs>
         </v-card-text>
@@ -223,6 +306,11 @@ import {
   GetHostingPreferencesReq,
   GetHostingPreferencesRes,
   HostingStatus,
+  SetHostingPreferencesReq,
+  UInt32Nullable,
+  BoolNullable,
+  SmokingLocation,
+  StringNullable,
 } from "../pb/api_pb"
 import { client } from "../api"
 
@@ -232,7 +320,7 @@ import { displayList, displayTime, displayHostingStatus } from "../utils"
 
 export default Vue.extend({
   data: () => ({
-    loading: false,
+    loading: true,
     error: null as Error | null,
     hostingPreferences: null as null | GetHostingPreferencesRes.AsObject,
     HostingStatus,
@@ -242,6 +330,18 @@ export default Vue.extend({
       { text: "Maybe", value: 3 },
       { text: "Difficult", value: 4 },
       { text: "Can't host", value: 5 },
+    ],
+    smokingAllowedChoices: [
+      { text: "", value: 1 },
+      { text: "Yes", value: 2 },
+      { text: "Window", value: 3 },
+      { text: "Outside", value: 4 },
+      { text: "No", value: 5 },
+    ],
+    boolChoices: [
+      { text: "", value: null },
+      { text: "Yes", value: true },
+      { text: "No", value: false },
     ],
   }),
 
@@ -287,7 +387,20 @@ export default Vue.extend({
           Store.dispatch("refreshUser")
         })
         .catch((err) => {
-          console.error(err)
+          this.loading = false
+          this.error = err
+        })
+    },
+
+    setHostingPreferences(req: SetHostingPreferencesReq) {
+      this.loading = true
+
+      client
+        .setHostingPreferences(req)
+        .then(() => {
+          this.fetchData()
+        })
+        .catch((err) => {
           this.loading = false
           this.error = err
         })
@@ -383,6 +496,126 @@ export default Vue.extend({
     },
 
     displayHostingStatus,
+
+    saveMaxGuests(value: string | null) {
+      const req = new SetHostingPreferencesReq()
+      const wrapper = new UInt32Nullable()
+      if (value == null || value == "") {
+        wrapper.setIsNull(true)
+      } else {
+        const num = parseInt(value)
+        if (isNaN(num)) {
+          this.error = Error("Max guests must be a number.")
+          return
+        }
+        wrapper.setValue(num)
+      }
+      req.setMaxGuests(wrapper)
+      this.setHostingPreferences(req)
+    },
+
+    saveMultipleGroups(value: boolean | null) {
+      console.log(value)
+      const req = new SetHostingPreferencesReq()
+      const wrapper = new BoolNullable()
+      if (value == null) {
+        wrapper.setIsNull(true)
+      } else {
+        wrapper.setValue(value)
+      }
+      req.setMultipleGroups(wrapper)
+      this.setHostingPreferences(req)
+    },
+
+    saveLastMinute(value: boolean | null) {
+      const req = new SetHostingPreferencesReq()
+      const wrapper = new BoolNullable()
+      if (value == null) {
+        wrapper.setIsNull(true)
+      } else {
+        wrapper.setValue(value)
+      }
+      req.setLastMinute(wrapper)
+      this.setHostingPreferences(req)
+    },
+
+    saveAcceptsPets(value: boolean | null) {
+      const req = new SetHostingPreferencesReq()
+      const wrapper = new BoolNullable()
+      if (value == null) {
+        wrapper.setIsNull(true)
+      } else {
+        wrapper.setValue(value)
+      }
+      req.setAcceptsPets(wrapper)
+      this.setHostingPreferences(req)
+    },
+
+    saveAcceptsKids(value: boolean | null) {
+      const req = new SetHostingPreferencesReq()
+      const wrapper = new BoolNullable()
+      if (value == null) {
+        wrapper.setIsNull(true)
+      } else {
+        wrapper.setValue(value)
+      }
+      req.setAcceptsKids(wrapper)
+      this.setHostingPreferences(req)
+    },
+
+    saveWheelchairAccessible(value: boolean | null) {
+      const req = new SetHostingPreferencesReq()
+      const wrapper = new BoolNullable()
+      if (value == null) {
+        wrapper.setIsNull(true)
+      } else {
+        wrapper.setValue(value)
+      }
+      req.setWheelchairAccessible(wrapper)
+      this.setHostingPreferences(req)
+    },
+
+    saveSmokingAllowed(value: SmokingLocation) {
+      const req = new SetHostingPreferencesReq()
+      req.setSmokingAllowed(value)
+      this.setHostingPreferences(req)
+    },
+
+    saveSleepingArrangement(value: string) {
+      const req = new SetHostingPreferencesReq()
+      const wrapper = new StringNullable()
+      if (value === "") {
+        wrapper.setIsNull(true)
+      } else {
+        wrapper.setValue(value)
+      }
+      req.setSleepingArrangement(wrapper)
+      this.setHostingPreferences(req)
+    },
+
+    saveArea(value: string) {
+      const req = new SetHostingPreferencesReq()
+      const wrapper = new StringNullable()
+      if (value === "") {
+        wrapper.setIsNull(true)
+      } else {
+        wrapper.setValue(value)
+      }
+      req.setArea(wrapper)
+      this.setHostingPreferences(req)
+    },
+
+    saveHouseRules(value: string) {
+      const req = new SetHostingPreferencesReq()
+      const wrapper = new StringNullable()
+      if (value === "") {
+        wrapper.setIsNull(true)
+      } else {
+        wrapper.setValue(value)
+      }
+      req.setHouseRules(wrapper)
+      this.setHostingPreferences(req)
+    },
   },
 
   computed: {

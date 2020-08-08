@@ -34,7 +34,7 @@ def test_ping(db):
     assert user.last_active - timedelta(hours=1) <= res.user.last_active.ToDatetime() <= user.last_active
 
     if user.hosting_status is None:
-        assert res.user.hosting_status == api_pb2.HOSTING_STATUS_UNSPECIFIED
+        assert res.user.hosting_status == api_pb2.HOSTING_STATUS_UNKNOWN
     else:
         assert res.user.hosting_status == hostingstatus2api[user.hosting_status]
 
@@ -564,7 +564,7 @@ def test_hosting_preferences(db):
         assert not res.HasField("accepts_pets")
         assert not res.HasField("accepts_kids")
         assert not res.HasField("wheelchair_accessible")
-        assert res.smoking_allowed == api_pb2.SMOKING_LOCATION_UNSPECIFIED
+        assert res.smoking_allowed == api_pb2.SMOKING_LOCATION_UNKNOWN
         assert not res.HasField("sleeping_arrangement")
         assert not res.HasField("area")
         assert not res.HasField("house_rules")

@@ -1,6 +1,6 @@
 import moment from "moment"
-import { HostingStatus } from "./pb/api_pb"
-import colors, { Color } from "vuetify/lib/util/colors"
+import { HostingStatus, SmokingLocation } from "./pb/api_pb"
+import colors from "vuetify/lib/util/colors"
 
 export function displayList(list: string[]) {
   return list.join(", ")
@@ -29,5 +29,28 @@ export function displayHostingStatus(
       return ["Can't host", colors.red.base]
     default:
       return ["", colors.red.base]
+  }
+}
+
+/// Prints Yes or No for a bool
+export function displayBool(b: boolean): string {
+  return b ? "Yes" : "No"
+}
+
+/// Returns a text to display for SmokingLocation enum
+export function displaySmokingLocation(
+  smokingLocation: SmokingLocation
+): string {
+  switch (smokingLocation) {
+    case SmokingLocation.SMOKING_LOCATION_NO:
+      return "No"
+    case SmokingLocation.SMOKING_LOCATION_OUTSIDE:
+      return "Outside only"
+    case SmokingLocation.SMOKING_LOCATION_WINDOW:
+      return "Window only"
+    case SmokingLocation.SMOKING_LOCATION_YES:
+      return "Yes"
+    default:
+      return ""
   }
 }

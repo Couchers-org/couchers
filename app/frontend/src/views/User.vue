@@ -164,13 +164,75 @@
             <v-tab href="#photos">Photos</v-tab>
             <v-tab-item value="about">
               <h3>About me</h3>
-              <p>{{ user.aboutMe }}</p>
+              <markdown :source="user.aboutMe" />
               <h3>About my place</h3>
-              <p>{{ user.aboutPlace }}</p>
+              <markdown :source="user.aboutPlace" />
               <h3>Countries I've visited</h3>
-              <p>{{ displayList(user.countriesVisitedList) }}</p>
+              <markdown :source="displayList(user.countriesVisitedList)" />
               <h3>Countries I've lived in</h3>
-              <p>{{ displayList(user.countriesLivedList) }}</p>
+              <markdown :source="displayList(user.countriesLivedList)" />
+            </v-tab-item>
+            <v-tab-item value="hosting">
+              <v-container v-if="hasHostingPreferences">
+                This user hasn't specified any hosting information yet.
+              </v-container>
+              <v-container v-if="hostingPreferences.maxGuests != null">
+                <h3>Max guests</h3>
+                {{ hostingPreferences.maxGuests.value }}
+              </v-container>
+              <v-container v-if="hostingPreferences.multipleGroups != null">
+                <h3>Accepts mutliple groups?</h3>
+                {{ displayBool(hostingPreferences.multipleGroups.value) }}
+              </v-container>
+              <v-container v-if="hostingPreferences.lastMinute != null">
+                <h3>Accepts last minute requests?</h3>
+                {{ displayBool(hostingPreferences.lastMinute.value) }}
+              </v-container>
+              <v-container v-if="hostingPreferences.acceptsPets != null">
+                <h3>Accepts pets?</h3>
+                {{ displayBool(hostingPreferences.acceptsPets.value) }}
+              </v-container>
+              <v-container v-if="hostingPreferences.acceptsKids != null">
+                <h3>Accepts kids?</h3>
+                {{ displayBool(hostingPreferences.acceptsKids.value) }}
+              </v-container>
+              <v-container
+                v-if="hostingPreferences.wheelchairAccessible != null"
+              >
+                <h3>Wheelchair Accessible?</h3>
+                {{ displayBool(hostingPreferences.wheelchairAccessible.value) }}
+              </v-container>
+              <v-container
+                v-if="
+                  hostingPreferences.smokingAllowed !=
+                    SmokingLocation.SMOKING_LOCATION_UNSPECIFIED &&
+                  hostingPreferences.smokingAllowed !=
+                    SmokingLocation.SMOKING_LOCATION_UNKNOWN
+                "
+              >
+                <h3>Smoking allowed?</h3>
+                {{
+                  displaySmokingLocation(
+                    hostingPreferences.smokingAllowed.value
+                  )
+                }}
+              </v-container>
+              <v-container
+                v-if="hostingPreferences.sleepingArrangement != null"
+              >
+                <h3>Sleeping arrangements</h3>
+                <markdown
+                  :source="hostingPreferences.sleepingArrangement.value"
+                />
+              </v-container>
+              <v-container v-if="hostingPreferences.area != null">
+                <h3>Area/neightbourhood info</h3>
+                <markdown :source="hostingPreferences.area.value" />
+              </v-container>
+              <v-container v-if="hostingPreferences.houseRules != null">
+                <h3>House rules</h3>
+                <markdown :source="hostingPreferences.houseRules.value" />
+              </v-container>
             </v-tab-item>
             <v-tab-item value="references">
               <v-btn
@@ -261,9 +323,10 @@
 <script lang="ts">
 import Vue from "vue"
 
-import ErrorAlert from "../components/ErrorAlert.vue"
-import LoadingCircular from "../components/LoadingCircular.vue"
-import ReportDialogButton from "../components/ReportDialogButton.vue"
+import ErrorAlert from "@/components/ErrorAlert.vue"
+import LoadingCircular from "@/components/LoadingCircular.vue"
+import ReportDialogButton from "@/components/ReportDialogButton.vue"
+import Markdown from "@/components/Markdown.vue"
 
 import {
   GetUserReq,
@@ -274,6 +337,9 @@ import {
   ReferenceType,
   WriteReferenceReq,
   HostingStatus,
+  GetHostingPreferencesRes,
+  GetHostingPreferencesReq,
+  SmokingLocation,
 } from "../pb/api_pb"
 import { client } from "../api"
 
@@ -282,6 +348,8 @@ import {
   displayTime,
   handle,
   displayHostingStatus,
+  displayBool,
+  displaySmokingLocation,
 } from "../utils"
 
 import store from "../store/index"
@@ -296,6 +364,7 @@ export default Vue.extend({
     sendingFriendRequest: false,
     user: (null as unknown) as User.AsObject,
     userCache: {} as { [userId: number]: User.AsObject },
+    hostingPreferences: null as null | GetHostingPreferencesRes.AsObject,
     references: [] as Array<Reference.AsObject>,
     loadingReferences: false,
     noMoreReferences: false,
@@ -303,12 +372,14 @@ export default Vue.extend({
     myReferenceWasSafe: false,
     myReferenceRating: 0,
     HostingStatus,
+    SmokingLocation,
   }),
 
   components: {
     ErrorAlert,
     LoadingCircular,
     ReportDialogButton,
+    Markdown,
   },
 
   created() {
@@ -328,6 +399,10 @@ export default Vue.extend({
 
     displayHostingStatus,
 
+    displayBool,
+
+    displaySmokingLocation,
+
     referenceTypeString(rt: ReferenceType): string {
       switch (rt) {
         case ReferenceType.FRIEND:
@@ -344,6 +419,7 @@ export default Vue.extend({
       this.error = null
       this.fetchUser()
         .then(this.fetchReferences)
+        .then(this.fetchHostingPreferences)
         .then(() => {
           this.loading = false
         })
@@ -357,6 +433,14 @@ export default Vue.extend({
       const req = new GetUserReq()
       req.setUser(this.routeUser)
       return client.getUser(req).then((res) => (this.user = res.toObject()))
+    },
+
+    fetchHostingPreferences() {
+      const req = new GetHostingPreferencesReq()
+      req.setUserId(this.user.userId)
+      return client
+        .getHostingPreferences(req)
+        .then((res) => (this.hostingPreferences = res.toObject()))
     },
 
     fetchReferences() {
@@ -460,6 +544,22 @@ export default Vue.extend({
   store,
 
   computed: {
+    hasHostingPreferences(): boolean {
+      return (
+        this.hostingPreferences != null &&
+        this.hostingPreferences.maxGuests != null &&
+        this.hostingPreferences.multipleGroups != null &&
+        this.hostingPreferences.lastMinute != null &&
+        this.hostingPreferences.acceptsPets != null &&
+        this.hostingPreferences.acceptsKids != null &&
+        this.hostingPreferences.wheelchairAccessible != null &&
+        this.hostingPreferences.smokingAllowed != null &&
+        this.hostingPreferences.sleepingArrangement != null &&
+        this.hostingPreferences.area != null &&
+        this.hostingPreferences.houseRules != null
+      )
+    },
+
     routeUser() {
       return this.$route.params.user
     },

@@ -26,12 +26,12 @@ Vue.use(VueSimpleMarkdown)
 export default Vue.extend({
   props: {
     items: Array,
-    value: Number,
+    value: {},
   },
 
   data: () => ({
     editing: false,
-    dirtyValue: null as null | number,
+    dirtyValue: null as any,
   }),
 
   created() {
