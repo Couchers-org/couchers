@@ -435,7 +435,7 @@ class HostRequest(Base):
 
     conversation_id = Column(Integer, ForeignKey("conversations.id"), nullable=False)
     # initial message will have a timestamp for creation time
-    initial_message_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    initial_message_id = Column(Integer, ForeignKey("messages.id"), nullable=False)
 
     
 
@@ -443,5 +443,5 @@ class HostRequest(Base):
         "User", backref="host_requests_sent", foreign_keys="HostRequest.from_user_id")
     to_user = relationship("User", backref="host_requests_received",
                            foreign_keys="HostRequest.to_user_id")
-    converstaion = relationship("Conversation")
+    conversation = relationship("Conversation")
     initial_message = relationship("Message")
