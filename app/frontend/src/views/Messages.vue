@@ -29,7 +29,8 @@
                     @click="selectConversation(conversation.getGroupChatId())"
                   >
                     <v-list-item-avatar>
-                      <v-avatar :color="conversationAvatar(conversation)" />
+                      <!-- TODO: make sure the id being passed in isnt the id of the currently logged-in user -->
+                      <avatar :userId="conversation.getLatestMessage().getAuthorUserId()" /> 
                     </v-list-item-avatar>
                     <v-list-item-content>
                       <v-list-item-title
@@ -81,20 +82,12 @@
                       </v-alert>
                     </v-list-item-content>
                     <v-list-item-avatar>
-                      <v-avatar :color="messageColor(message)" size="36">
-                        <span class="white--text">{{
-                          messageAvatarText(message)
-                        }}</span>
-                      </v-avatar>
+                      <avatar :size="36" :userId="message.getAuthorUserId()" />
                     </v-list-item-avatar>
                   </v-list-item>
                   <v-list-item v-else :key="message.getMessageId()">
                     <v-list-item-avatar>
-                      <v-avatar :color="messageColor(message)" size="36">
-                        <span class="white--text">{{
-                          messageAvatarText(message)
-                        }}</span>
-                      </v-avatar>
+                      <avatar :size="36" :userId="message.getAuthorUserId()" />
                     </v-list-item-avatar>
                     <v-list-item-content class="py-1 bubble-content">
                       <v-alert
@@ -151,7 +144,13 @@ import {
 import { client, conversations } from "../api"
 import { mapState } from "vuex"
 
+// Component imports
+import avatar from "@/components/Avatar.vue"
+
 export default Vue.extend({
+  components: {
+    avatar
+  },
   data: () => ({
     loading: 0,
     currentMessage: "",
@@ -186,7 +185,6 @@ export default Vue.extend({
 
   methods: {
     handle,
-
     sortMessages() {
       this.messages = this.messages.sort(
         (f, s) =>

@@ -2,7 +2,7 @@
   <v-navigation-drawer v-model="visible" app clipped>
     <v-list-item>
       <v-list-item-avatar>
-        <v-avatar :color="user.color" />
+        <avatar :userId="$store.state.user.userId" />
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title class="title">{{ user.name }}</v-list-item-title>
@@ -83,8 +83,11 @@ import { handle } from "../utils"
 
 import { client } from "../api"
 import { mapState, mapMutations } from "vuex"
-
+import avatar from "@/components/Avatar.vue"
 export default Vue.extend({
+  components: {
+    avatar
+  },
   methods: {
     handle,
 
