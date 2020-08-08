@@ -1,7 +1,6 @@
 from jinja2 import Environment, FileSystemLoader, Template
 from markdown2 import markdown
 from couchers.email.smtp import _send_smtp_email
-from couchers.crypto import random_hex
 
 env = Environment(
     loader=FileSystemLoader("templates"),
@@ -30,6 +29,5 @@ def _render_email(subject, template_file, template_args={}):
 
 def send_email(recipient, subject, template_file, template_args={}):
     plain, html = _render_email(subject, template_file, template_args)
-    message_id = random_hex()
-    response = _send_smtp_email("Couchers.org", "signup@dev.couchers.org", recipient, subject, plain, html, message_id)
+    response = _send_smtp_email("Couchers.org", "signup@dev.couchers.org", recipient, subject, plain, html)
     return response
