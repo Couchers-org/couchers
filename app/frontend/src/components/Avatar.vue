@@ -1,25 +1,31 @@
 <template>
   <div>
-    <v-avatar :color="userColor">
+    <v-avatar v-if="size" :size="size" :color="userColor">
       <span class="white--text">{{ userInitials }}</span>
     </v-avatar>
+    <v-avatar v-else :color="userColor">
+      <span class="white--text">{{ userInitials }}</span>
+    </v-avatar>
+    
   </div>
 </template>
 
 <script lang="ts">
-// A component to render a users avatar given a user id.
-// defaults to the user.color and initials if the user has no display photo.
-
 import Vue from "vue"
-// needed to fetch user info and deserialize the proto in the response
 import { User, GetUserReq } from "../pb/api_pb"
 import { client } from "../api"
 export default Vue.extend({
-  props: { userId: Number },
+  props: { userId: Number,
+            size: {
+              default: null,
+              type: Number
+            } 
+           }, // TODO: allow for multiple users to be passed in for a group chat
   data: () => ({
     user: {} as User, // only storing one user at a time
-    userInitials: null as string,
-    userColor: null as string,
+    userInitials: '' as string,
+    userColor: '' as string,
+    // TODO: add user profile photo options here 
   }),
   methods: {
     getUserData(userId: number) {
@@ -29,11 +35,10 @@ export default Vue.extend({
       client
         .getUser(req)
         .then((res) => (this.user = res))
-        .then(()=> 
+        .then(()=> {
           this.userColor = this.user.getColor() 
-          )
-        .then(() => 
           this.userInitials = this.convertNameToInitials(this.user.getName())
+        }
         )
         .catch((err) => console.log(err))
     },
