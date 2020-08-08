@@ -2,11 +2,12 @@ import smtplib
 import email.utils
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from couchers.config import config
 
-smtp_host = "email-smtp.us-east-1.amazonaws.com"
-smtp_port = 587
-smtp_username = "XXX"
-smtp_password = "XXX"
+smtp_host = config["SMTP_HOST"]
+smtp_port = config["SMTP_PORT"]
+smtp_username = config["SMTP_USERNAME"]
+smtp_password = config["SMTP_PASSWORD"]
 
 def _send_smtp_email(sender_name, sender_email, recipient, subject, plain, html, message_id):
     msg = MIMEMultipart("alternative")
