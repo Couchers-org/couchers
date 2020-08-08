@@ -1,4 +1,3 @@
-boto3
 grpcio
 Jinja2
 markdown2
