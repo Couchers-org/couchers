@@ -409,3 +409,39 @@ class HostingPreferences(Base):
 
     def __repr__(self):
         return f"HostingPreferences(user_id={self.user_id}, hosting_status={self.hosting_status}, max_guests={self.max_guests}... smoking_allowed={self.smoking_allowed}...)"
+
+class HostRequestStatus(enum.Enum):
+    pending = 0
+    accepted = 1
+    rejected = 2
+    confirmed = 3
+    cancelled = 4
+
+class HostRequest(Base):
+    """
+    A request to stay with a host
+    """
+
+    __tablename__ = "host_requests"
+
+    host_request_id = Column(Integer, primary_key=True)
+    from_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    to_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    from_date = Column(DateTime(timezone=True), nullable=False)
+    to_date = Column(DateTime(timezone=True), nullable=False)
+
+    status = Column(Enum(HostRequestStatus), nullable=False)
+
+    conversation_id = Column(Integer, ForeignKey("conversations.id"), nullable=False)
+    # initial message will have a timestamp for creation time
+    initial_message_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    
+
+    from_user = relationship(
+        "User", backref="host_requests_sent", foreign_keys="HostRequest.from_user_id")
+    to_user = relationship("User", backref="host_requests_received",
+                           foreign_keys="HostRequest.to_user_id")
+    converstaion = relationship("Conversation")
+    initial_message = relationship("Message")
