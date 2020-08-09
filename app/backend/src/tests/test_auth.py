@@ -2,8 +2,6 @@ import grpc
 import pytest
 from concurrent import futures
 from contextlib import contextmanager
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
 from couchers.models import Base, SignupToken, LoginToken, User
 from couchers.servicers.auth import Auth

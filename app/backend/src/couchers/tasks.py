@@ -5,12 +5,12 @@ from couchers.config import config
 
 logger = logging.getLogger(__name__)
 
-def send_signup_email(email, token, expiry_text):
-    logger.info(f"Sending signup email to {email=}:")
+def send_signup_email(email_address, token, expiry_text):
+    logger.info(f"Sending signup email to {email_address=}:")
     logger.info(f"Token: {token=} ({token.created=}, {token.expiry=}) ({expiry_text=})")
     signup_link = f"{config['BASE_URL']}/signup/{token.token}"
     logger.info(f"Link is: {signup_link}")
-    email.send_email(email, "Finish signing up for Couchers.org", "signup", template_args={"signup_link": signup_link})
+    email.send_email(email_address, "Finish signing up for Couchers.org", "signup", template_args={"signup_link": signup_link})
 
 
 def send_login_email(user, token, expiry_text):
