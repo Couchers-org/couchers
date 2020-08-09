@@ -15,7 +15,7 @@ service API {
     // Get info about a particular user
   }
 
-  rpc UpdateProfile(UpdateProfileReq) returns (UpdateProfileRes) {
+  rpc UpdateProfile(UpdateProfileReq) returns (google.protobuf.Empty) {
     // Update your profile
     // *Nullable can be set to null to clear the value. is_null defaults to false.
   }
@@ -226,31 +226,6 @@ message UpdateProfileReq {
   NullableStringValue sleeping_arrangement = 19;
   NullableStringValue area = 20;
   NullableStringValue house_rules = 21;
-}
-
-message UpdateProfileRes {
-  bool updated_name = 1;
-  bool updated_city = 2;
-  bool updated_gender = 3;
-  bool updated_occupation = 4;
-  bool updated_about_me = 5;
-  bool updated_about_place = 6;
-  bool updated_color = 7;
-  bool updated_hosting_status = 8;
-  bool updated_languages = 9;
-  bool updated_countries_visited = 10;
-  bool updated_countries_lived = 11;
-  
-  bool updated_max_guests = 12;
-  bool updated_multiple_groups = 13;
-  bool updated_last_minute = 14;
-  bool updated_accepts_pets = 15;
-  bool updated_accepts_kids = 16;
-  bool updated_wheelchair_accessible = 17;
-  bool updated_smoking_allowed = 18;
-  bool updated_sleeping_arrangement = 19;
-  bool updated_area = 20;
-  bool updated_house_rules = 21;
 }
 
 message ReportReq {

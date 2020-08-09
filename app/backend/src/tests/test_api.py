@@ -95,17 +95,6 @@ def test_update_profile(db):
         assert "Binary" in user.languages
         assert "English" in user.languages
 
-        res = api.UpdateProfile(api_pb2.UpdateProfileReq(
-            city=wrappers_pb2.StringValue(value="Timbuktu"),
-            gender=wrappers_pb2.StringValue(value="Bot2")
-        ))
-        assert res.updated_name == False
-        assert res.updated_city == True
-        assert res.updated_gender == True
-        assert res.updated_hosting_status == False
-        assert res.updated_about_me == False
-        assert res.updated_languages == False
-
 def test_friend_request_flow(db):
     user1, token1 = generate_user(db, "user1")
     user2, token2 = generate_user(db, "user2")

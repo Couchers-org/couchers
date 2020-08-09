@@ -91,43 +91,35 @@ class API(api_pb2_grpc.APIServicer):
         with session_scope(self._Session) as session:
             user = session.query(User).filter(User.id == context.user_id).one()
 
-            res = api_pb2.UpdateProfileRes()
-
             if request.HasField("name"):
                 if not is_valid_name(request.name.value):
                     context.abort(grpc.StatusCode.INVALID_ARGUMENT,
                                   errors.INVALID_NAME)
                 user.name = request.name.value
-                res.updated_name = True
 
             if request.HasField("city"):
                 user.city = request.city.value
-                res.updated_city = True
 
             if request.HasField("gender"):
                 user.gender = request.gender.value
-                res.updated_gender = True
 
             if request.HasField("occupation"):
                 if request.occupation.is_null:
                     user.occupation = None
                 else:
                     user.occupation = request.occupation.value
-                res.updated_occupation = True
 
             if request.HasField("about_me"):
                 if request.about_me.is_null:
                     user.about_me = None
                 else:
                     user.about_me = request.about_me.value
-                res.updated_about_me = True
 
             if request.HasField("about_place"):
                 if request.about_place.is_null:
                     user.about_place = None
                 else:
                     user.about_place = request.about_place.value
-                res.updated_about_place = True
 
             if request.HasField("color"):
                 color = request.color.value.lower()
@@ -135,96 +127,81 @@ class API(api_pb2_grpc.APIServicer):
                     context.abort(grpc.StatusCode.INVALID_ARGUMENT,
                                   errors.INVALID_COLOR)
                 user.color = color
-                res.updated_color = True
 
             if request.hosting_status != api_pb2.HOSTING_STATUS_UNSPECIFIED:
                 user.hosting_status = hostingstatus2sql[request.hosting_status]
-                res.updated_hosting_status = True
 
             if request.languages.exists:
                 user.languages = "|".join(request.languages.value)
-                res.updated_languages = True
 
             if request.countries_visited.exists:
                 user.countries_visited = "|".join(
                     request.countries_visited.value)
-                res.updated_countries_visited = True
 
             if request.countries_lived.exists:
                 user.countries_lived = "|".join(request.countries_lived.value)
-                res.updated_countries_lived = True
             
             if request.HasField("max_guests"):
                 if request.max_guests.is_null:
                     user.max_guests = None
                 else:
                     user.max_guests = request.max_guests.value
-                res.updated_max_guests = True
 
             if request.HasField("multiple_groups"):
                 if request.multiple_groups.is_null:
                     user.multiple_groups = None
                 else:
                     user.multiple_groups = request.multiple_groups.value
-                res.updated_multiple_groups = True
 
             if request.HasField("last_minute"):
                 if request.last_minute.is_null:
                     user.last_minute = None
                 else:
                     user.last_minute = request.last_minute.value
-                res.updated_last_minute = True
 
             if request.HasField("accepts_pets"):
                 if request.accepts_pets.is_null:
                     user.accepts_pets = None
                 else:
                     user.accepts_pets = request.accepts_pets.value
-                res.updated_accepts_pets = True
 
             if request.HasField("accepts_kids"):
                 if request.accepts_kids.is_null:
                     user.accepts_kids = None
                 else:
                     user.accepts_kids = request.accepts_kids.value
-                res.updated_accepts_kids = True
 
             if request.HasField("wheelchair_accessible"):
                 if request.wheelchair_accessible.is_null:
                     user.wheelchair_accessible = None
                 else:
                     user.wheelchair_accessible = request.wheelchair_accessible.value
-                res.updated_wheelchair_accessible = True
 
             if request.smoking_allowed != api_pb2.SMOKING_LOCATION_UNSPECIFIED:
                 user.smoking_allowed = smokinglocation2sql[request.smoking_allowed]
-                res.updated_smoking_allowed = True
 
             if request.HasField("sleeping_arrangement"):
                 if request.sleeping_arrangement.is_null:
                     user.sleeping_arrangement = None
                 else:
                     user.sleeping_arrangement = request.sleeping_arrangement.value
-                res.updated_sleeping_arrangement = True
 
             if request.HasField("area"):
                 if request.area.is_null:
                     user.area = None
                 else:
                     user.area = request.area.value
-                res.updated_area = True
 
             if request.HasField("house_rules"):
                 if request.house_rules.is_null:
                     user.house_rules = None
                 else:
                     user.house_rules = request.house_rules.value
-                res.updated_house_rules = True
 
             # save updates
             session.commit()
 
-            return res
+            return empty_pb2.Empty()
 
     def ListFriends(self, request, context):
         with session_scope(self._Session) as session:
