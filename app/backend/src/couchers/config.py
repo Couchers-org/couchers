@@ -19,6 +19,10 @@ CONFIG_OPTIONS = [
     ("BASE_URL", str),
     # Email
     ("ENABLE_EMAIL", bool),
+    # Sender name for outgoing notification emails e.g. "Couchers.org"
+    ("NOTIFICATION_EMAIL_SENDER", str),
+    # Sender email, e.g. "notify@couchers.org"
+    ("NOTIFICATION_EMAIL_ADDRESS", str),
     # SMTP settings
     ("SMTP_HOST", str),
     ("SMTP_PORT", int),
