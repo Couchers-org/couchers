@@ -5,6 +5,7 @@ from urllib.parse import urlencode
 
 import grpc
 from couchers import errors
+from couchers.config import config
 from couchers.crypto import generate_hash_signature, random_hex
 from couchers.db import (get_friends_status, get_user_by_field, is_valid_color,
                          is_valid_name, session_scope)
