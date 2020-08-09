@@ -29,5 +29,4 @@ def _render_email(subject, template_file, template_args={}):
 
 def send_email(recipient, subject, template_file, template_args={}):
     plain, html = _render_email(subject, template_file, template_args)
-    response = send_smtp_email("Couchers.org", "signup@dev.couchers.org", recipient, subject, plain, html)
-    return response
+    return send_smtp_email("Couchers.org", "signup@dev.couchers.org", recipient, subject, plain, html)

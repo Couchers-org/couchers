@@ -105,7 +105,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             user = session.query(User).filter(User.email == request.email).one_or_none()
             if not user:
                 token, expiry_text = new_signup_token(session, request.email)
-                send_signup_email(request.email, token, expiry_text)
+                session.add(send_signup_email(request.email, token, expiry_text))
                 return auth_pb2.SignupRes(next_step=auth_pb2.SignupRes.SignupStep.SENT_SIGNUP_EMAIL)
             else:
                 return auth_pb2.SignupRes(next_step=auth_pb2.SignupRes.SignupStep.EMAIL_EXISTS)
@@ -218,7 +218,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 else:
                     logger.debug(f"Found user without password, sending login email")
                     login_token, expiry_text = new_login_token(session, user)
-                    send_login_email(user, login_token, expiry_text)
+                    session.add(send_login_email(user, login_token, expiry_text))
                     return auth_pb2.LoginRes(next_step=auth_pb2.LoginRes.LoginStep.SENT_LOGIN_EMAIL)
             else: # user not found
                 logger.debug(f"Didn't find user")
