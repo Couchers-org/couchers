@@ -1,11 +1,14 @@
 """
 A simple config system
 """
+import logging
 import os
+import sys
+from pathlib import Path
 
 from dotenv import load_dotenv
 
-load_dotenv()
+logger = logging.getLogger(__name__)
 
 # Allowed config options, as tuples (name, type).
 # All fields are required
@@ -22,6 +25,18 @@ CONFIG_OPTIONS = [
     ("SMTP_USERNAME", str),
     ("SMTP_PASSWORD", str),
 ]
+
+dot = Path(".")
+
+if "pytest" in sys.modules:
+    logger.info("Running in TEST")
+    load_dotenv(dot / "test.env")
+else:
+    assert False
+    if (dot / ".env").is_file():
+        load_dotenv(dot / ".env")
+    else:
+        load_dotenv(dot / "dev.env")
 
 config = {}
 
