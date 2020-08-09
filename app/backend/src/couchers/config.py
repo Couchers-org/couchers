@@ -23,6 +23,8 @@ CONFIG_OPTIONS = [
     ("NOTIFICATION_EMAIL_SENDER", str),
     # Sender email, e.g. "notify@couchers.org"
     ("NOTIFICATION_EMAIL_ADDRESS", str),
+    # Address to send emails about reported users
+    ("REPORTS_EMAIL_RECIPIENT", str),
     # SMTP settings
     ("SMTP_HOST", str),
     ("SMTP_PORT", int),
