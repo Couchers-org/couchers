@@ -58,7 +58,7 @@ server = grpc.server(futures.ThreadPoolExecutor(2))
 server = intercept_server(server, LoggingInterceptor())
 server = intercept_server(server, auth.get_auth_interceptor())
 
-servicer = API(Session, MEDIA_SERVER_SECRET_KEY)
+servicer = API(Session)
 server = intercept_server(server, UpdateLastActiveTimeInterceptor(servicer.update_last_active_time))
 server.add_insecure_port("[::]:1751")
 api_pb2_grpc.add_APIServicer_to_server(servicer, server)
