@@ -1,3 +1,4 @@
+{% from "macros.html" import button %}
 Hi there!
 
 Thanks for signing up for Couchers.org!

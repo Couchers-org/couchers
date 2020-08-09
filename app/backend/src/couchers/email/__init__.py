@@ -17,12 +17,8 @@ def _render_email(subject, template_file, template_args={}):
 
     template = env.get_template(f"{template_file}.md")
 
-    # TODO(aapeli): convert to macro
-    def button(text, link):
-        return f"""<a style="background-color: #643073; border-radius: 3px; margin: 20px; padding: 10px 20px; color: white; text-decoration: none;" href="{link}">{text}</a>""".strip()
-
     plain_content = template.render(**template_args, plain=True, html=False)
-    html_content = markdown(template.render(**template_args, plain=False, html=True, button=button))
+    html_content = markdown(template.render(**template_args, plain=False, html=True))
 
     plain = plain_base_template.render(subject=subject, content=plain_content)
     html = html_base_template.render(subject=subject, content=html_content)
