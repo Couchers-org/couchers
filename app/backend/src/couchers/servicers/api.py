@@ -8,14 +8,13 @@ from sqlalchemy.sql import or_
 
 from couchers.db import (get_friends_status, get_user_by_field, is_valid_color,
                          is_valid_name, session_scope)
-from couchers.models import (FriendRelationship, FriendStatus, HostingPreferences,
+from couchers.models import (FriendRelationship, FriendStatus,
                              HostingStatus, User, Complaint, Reference,
                              ReferenceType, SmokingLocation)
 from couchers.utils import Timestamp_from_datetime
 from couchers.tasks import send_report_email
 from couchers import errors
 from pb import api_pb2, api_pb2_grpc
-
 
 reftype2sql = {
     api_pb2.ReferenceType.FRIEND: ReferenceType.FRIEND,
@@ -75,43 +74,8 @@ class API(api_pb2_grpc.APIServicer):
         with session_scope(self._Session) as session:
             # auth ought to make sure the user exists
             user = session.query(User).filter(User.id == context.user_id).one()
-            num_references = session.query(Reference.from_user_id).filter(
-                Reference.to_user_id == context.user_id).count()
             return api_pb2.PingRes(
-                user=api_pb2.User(
-                    user_id=user.id,
-                    username=user.username,
-                    name=user.name,
-                    city=user.city,
-                    verification=user.verification,
-                    community_standing=user.community_standing,
-                    num_references=num_references,
-                    gender=user.gender,
-                    age=user.age,
-                    color=user.color,
-                    joined=Timestamp_from_datetime(user.display_joined),
-                    last_active=Timestamp_from_datetime(
-                        user.display_last_active),
-                    hosting_status=hostingstatus2api[user.hosting_status],
-                    occupation=user.occupation,
-                    about_me=user.about_me,
-                    about_place=user.about_place,
-                    languages=user.languages.split(
-                        "|") if user.languages else [],
-                    countries_visited=user.countries_visited.split(
-                        "|") if user.countries_visited else [],
-                    countries_lived=user.countries_lived.split(
-                        "|") if user.countries_lived else [],
-                    friends=get_friends_status(
-                        session, context.user_id, user.id),
-                    mutual_friends=[
-                        api_pb2.MutualFriend(
-                            user_id=mutual_friend.id,
-                            username=mutual_friend.username,
-                            name=mutual_friend.name,
-                        ) for mutual_friend in user.mutual_friends(context.user_id)
-                    ],
-                ),
+                user=user_model_to_pb(user, session, context)
             )
 
     def GetUser(self, request, context):
@@ -121,40 +85,7 @@ class API(api_pb2_grpc.APIServicer):
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
-            num_references = session.query(Reference.from_user_id).filter(
-                Reference.to_user_id == user.id).count()
-
-            return api_pb2.User(
-                user_id=user.id,
-                username=user.username,
-                name=user.name,
-                city=user.city,
-                verification=user.verification,
-                community_standing=user.community_standing,
-                num_references=num_references,
-                gender=user.gender,
-                age=user.age,
-                color=user.color,
-                joined=Timestamp_from_datetime(user.display_joined),
-                last_active=Timestamp_from_datetime(user.display_last_active),
-                hosting_status=hostingstatus2api[user.hosting_status],
-                occupation=user.occupation,
-                about_me=user.about_me,
-                about_place=user.about_place,
-                languages=user.languages.split("|") if user.languages else [],
-                countries_visited=user.countries_visited.split(
-                    "|") if user.countries_visited else [],
-                countries_lived=user.countries_lived.split(
-                    "|") if user.countries_lived else [],
-                friends=get_friends_status(session, context.user_id, user.id),
-                mutual_friends=[
-                    api_pb2.MutualFriend(
-                        user_id=mutual_friend.id,
-                        username=mutual_friend.username,
-                        name=mutual_friend.name,
-                    ) for mutual_friend in user.mutual_friends(context.user_id)
-                ],
-            )
+            return user_model_to_pb(user, session, context)
 
     def UpdateProfile(self, request, context):
         with session_scope(self._Session) as session:
@@ -178,15 +109,24 @@ class API(api_pb2_grpc.APIServicer):
                 res.updated_gender = True
 
             if request.HasField("occupation"):
-                user.occupation = request.occupation.value
+                if request.occupation.is_null:
+                    user.occupation = None
+                else:
+                    user.occupation = request.occupation.value
                 res.updated_occupation = True
 
             if request.HasField("about_me"):
-                user.about_me = request.about_me.value
+                if request.about_me.is_null:
+                    user.about_me = None
+                else:
+                    user.about_me = request.about_me.value
                 res.updated_about_me = True
 
             if request.HasField("about_place"):
-                user.about_place = request.about_place.value
+                if request.about_place.is_null:
+                    user.about_place = None
+                else:
+                    user.about_place = request.about_place.value
                 res.updated_about_place = True
 
             if request.HasField("color"):
@@ -213,6 +153,73 @@ class API(api_pb2_grpc.APIServicer):
             if request.countries_lived.exists:
                 user.countries_lived = "|".join(request.countries_lived.value)
                 res.updated_countries_lived = True
+            
+            if request.HasField("max_guests"):
+                if request.max_guests.is_null:
+                    user.max_guests = None
+                else:
+                    user.max_guests = request.max_guests.value
+                res.updated_max_guests = True
+
+            if request.HasField("multiple_groups"):
+                if request.multiple_groups.is_null:
+                    user.multiple_groups = None
+                else:
+                    user.multiple_groups = request.multiple_groups.value
+                res.updated_multiple_groups = True
+
+            if request.HasField("last_minute"):
+                if request.last_minute.is_null:
+                    user.last_minute = None
+                else:
+                    user.last_minute = request.last_minute.value
+                res.updated_last_minute = True
+
+            if request.HasField("accepts_pets"):
+                if request.accepts_pets.is_null:
+                    user.accepts_pets = None
+                else:
+                    user.accepts_pets = request.accepts_pets.value
+                res.updated_accepts_pets = True
+
+            if request.HasField("accepts_kids"):
+                if request.accepts_kids.is_null:
+                    user.accepts_kids = None
+                else:
+                    user.accepts_kids = request.accepts_kids.value
+                res.updated_accepts_kids = True
+
+            if request.HasField("wheelchair_accessible"):
+                if request.wheelchair_accessible.is_null:
+                    user.wheelchair_accessible = None
+                else:
+                    user.wheelchair_accessible = request.wheelchair_accessible.value
+                res.updated_wheelchair_accessible = True
+
+            if request.smoking_allowed != api_pb2.SMOKING_LOCATION_UNSPECIFIED:
+                user.smoking_allowed = smokinglocation2sql[request.smoking_allowed]
+                res.updated_smoking_allowed = True
+
+            if request.HasField("sleeping_arrangement"):
+                if request.sleeping_arrangement.is_null:
+                    user.sleeping_arrangement = None
+                else:
+                    user.sleeping_arrangement = request.sleeping_arrangement.value
+                res.updated_sleeping_arrangement = True
+
+            if request.HasField("area"):
+                if request.area.is_null:
+                    user.area = None
+                else:
+                    user.area = request.area.value
+                res.updated_area = True
+
+            if request.HasField("house_rules"):
+                if request.house_rules.is_null:
+                    user.house_rules = None
+                else:
+                    user.house_rules = request.house_rules.value
+                res.updated_house_rules = True
 
             # save updates
             session.commit()
@@ -343,33 +350,8 @@ class API(api_pb2_grpc.APIServicer):
                 )
             ) \
                     .all():
-                num_references = session.query(Reference.from_user_id).filter(
-                    Reference.to_user_id == user.id).count()
                 users.append(
-                    api_pb2.User(
-                        username=user.username,
-                        name=user.name,
-                        city=user.city,
-                        verification=user.verification,
-                        community_standing=user.community_standing,
-                        num_references=num_references,
-                        gender=user.gender,
-                        age=user.age,
-                        color=user.color,
-                        joined=Timestamp_from_datetime(user.display_joined),
-                        last_active=Timestamp_from_datetime(
-                            user.display_last_active),
-                        hosting_status=hostingstatus2api[user.hosting_status],
-                        occupation=user.occupation,
-                        about_me=user.about_me,
-                        about_place=user.about_place,
-                        languages=user.languages.split(
-                            "|") if user.languages else [],
-                        countries_visited=user.countries_visited.split(
-                            "|") if user.countries_visited else [],
-                        countries_lived=user.countries_lived.split(
-                            "|") if user.countries_lived else []
-                    )
+                    user_model_to_pb(user, session, context)
                 )
 
             return api_pb2.SearchRes(users=users)
@@ -461,126 +443,6 @@ class API(api_pb2_grpc.APIServicer):
         return api_pb2.AvailableWriteReferenceTypesRes(
             reference_types=[reftype2api[r] for r in available])
 
-    def GetHostingPreferences(self, request, context):
-        with session_scope(self._Session) as session:
-            result = (session.query(HostingPreferences)
-                      .filter(HostingPreferences.user_id == request.user_id)
-                      .one_or_none())
-
-            if not result:
-                if get_user_by_field(session, str(request.user_id)) is None:
-                    context.abort(grpc.StatusCode.NOT_FOUND,
-                                  errors.USER_NOT_FOUND)
-                else:
-                    res = api_pb2.GetHostingPreferencesRes(
-                        smoking_allowed=api_pb2.SMOKING_LOCATION_UNKNOWN
-                    )
-                    return res
-
-            res = api_pb2.GetHostingPreferencesRes(
-                smoking_allowed=smokinglocation2api[result.smoking_allowed]
-            )
-
-            if result.max_guests != None:
-                res.max_guests.value = result.max_guests
-
-            if result.multiple_groups != None:
-                res.multiple_groups.value = result.multiple_groups
-
-            if result.last_minute != None:
-                res.last_minute.value = result.last_minute
-
-            if result.accepts_pets != None:
-                res.accepts_pets.value = result.accepts_pets
-
-            if result.accepts_kids != None:
-                res.accepts_kids.value = result.accepts_kids
-
-            if result.wheelchair_accessible != None:
-                res.wheelchair_accessible.value = result.wheelchair_accessible
-
-            if result.sleeping_arrangement != None:
-                res.sleeping_arrangement.value = result.sleeping_arrangement
-
-            if result.area != None:
-                res.area.value = result.area
-
-            if result.house_rules != None:
-                res.house_rules.value = result.house_rules
-
-            return res
-
-    def SetHostingPreferences(self, request, context):
-        with session_scope(self._Session) as session:
-            prefs = (session.query(HostingPreferences)
-                     .filter(HostingPreferences.user_id == context.user_id)
-                     .one_or_none())
-
-            if not prefs:
-                prefs = HostingPreferences(user_id=context.user_id)
-                session.add(prefs)
-
-            if request.HasField("max_guests"):
-                if request.max_guests.is_null:
-                    prefs.max_guests = None
-                else:
-                    prefs.max_guests = request.max_guests.value
-
-            if request.HasField("multiple_groups"):
-                if request.multiple_groups.is_null:
-                    prefs.multiple_groups = None
-                else:
-                    prefs.multiple_groups = request.multiple_groups.value
-
-            if request.HasField("last_minute"):
-                if request.last_minute.is_null:
-                    prefs.last_minute = None
-                else:
-                    prefs.last_minute = request.last_minute.value
-
-            if request.HasField("accepts_pets"):
-                if request.accepts_pets.is_null:
-                    prefs.accepts_pets = None
-                else:
-                    prefs.accepts_pets = request.accepts_pets.value
-
-            if request.HasField("accepts_kids"):
-                if request.accepts_kids.is_null:
-                    prefs.accepts_kids = None
-                else:
-                    prefs.accepts_kids = request.accepts_kids.value
-
-            if request.HasField("wheelchair_accessible"):
-                if request.wheelchair_accessible.is_null:
-                    prefs.wheelchair_accessible = None
-                else:
-                    prefs.wheelchair_accessible = request.wheelchair_accessible.value
-
-            if request.smoking_allowed != api_pb2.SMOKING_LOCATION_UNSPECIFIED:
-                prefs.smoking_allowed = smokinglocation2sql[request.smoking_allowed]
-
-            if request.HasField("sleeping_arrangement"):
-                if request.sleeping_arrangement.is_null:
-                    prefs.sleeping_arrangement = None
-                else:
-                    prefs.sleeping_arrangement = request.sleeping_arrangement.value
-
-            if request.HasField("area"):
-                if request.area.is_null:
-                    prefs.area = None
-                else:
-                    prefs.area = request.area.value
-
-            if request.HasField("house_rules"):
-                if request.house_rules.is_null:
-                    prefs.house_rules = None
-                else:
-                    prefs.house_rules = request.house_rules.value
-
-            session.commit()
-
-            return empty_pb2.Empty()
-
 
 def paginate_references_result(request, query):
     total_matches = query.count()
@@ -599,3 +461,69 @@ def paginate_references_result(request, query):
                 written_time=Timestamp_from_datetime(
                     reference.time.replace(hour=0, minute=0, second=0, microsecond=0)))
             for reference in references])
+
+def user_model_to_pb(db_user, session, context):
+    num_references = session.query(Reference.from_user_id).filter(
+            Reference.to_user_id == db_user.id).count()
+
+    user = api_pb2.User(
+        user_id=db_user.id,
+        username=db_user.username,
+        name=db_user.name,
+        city=db_user.city,
+        verification=db_user.verification,
+        community_standing=db_user.community_standing,
+        num_references=num_references,
+        gender=db_user.gender,
+        age=db_user.age,
+        color=db_user.color,
+        joined=Timestamp_from_datetime(db_user.display_joined),
+        last_active=Timestamp_from_datetime(db_user.display_last_active),
+        hosting_status=hostingstatus2api[db_user.hosting_status],
+        occupation=db_user.occupation,
+        about_me=db_user.about_me,
+        about_place=db_user.about_place,
+        languages=db_user.languages.split("|") if db_user.languages else [],
+        countries_visited=db_user.countries_visited.split(
+            "|") if db_user.countries_visited else [],
+        countries_lived=db_user.countries_lived.split(
+            "|") if db_user.countries_lived else [],
+        friends=get_friends_status(session, context.user_id, db_user.id),
+        mutual_friends=[
+            api_pb2.MutualFriend(
+                user_id=mutual_friend.id,
+                username=mutual_friend.username,
+                name=mutual_friend.name,
+            ) for mutual_friend in db_user.mutual_friends(context.user_id)
+        ],
+        smoking_allowed=smokinglocation2api[db_user.smoking_allowed]
+    )
+
+    if db_user.max_guests != None:
+        user.max_guests.value = db_user.max_guests
+
+    if db_user.multiple_groups != None:
+        user.multiple_groups.value = db_user.multiple_groups
+
+    if db_user.last_minute != None:
+        user.last_minute.value = db_user.last_minute
+
+    if db_user.accepts_pets != None:
+        user.accepts_pets.value = db_user.accepts_pets
+
+    if db_user.accepts_kids != None:
+        user.accepts_kids.value = db_user.accepts_kids
+
+    if db_user.wheelchair_accessible != None:
+        user.wheelchair_accessible.value = db_user.wheelchair_accessible
+
+    if db_user.sleeping_arrangement != None:
+        user.sleeping_arrangement.value = db_user.sleeping_arrangement
+
+    if db_user.area != None:
+        user.area.value = db_user.area
+
+    if db_user.house_rules != None:
+        user.house_rules.value = db_user.house_rules
+    
+    return user

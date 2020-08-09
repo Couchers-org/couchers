@@ -5,7 +5,6 @@ from datetime import datetime
 import grpc
 import pytest
 from couchers.models import Complaint
-from couchers.servicers.api import hostingstatus2api
 from pb import api_pb2
 from tests.test_fixtures import api_session, db, generate_user, make_friends
 
@@ -33,10 +32,7 @@ def test_ping(db):
     # same for last_active
     assert user.last_active - timedelta(hours=1) <= res.user.last_active.ToDatetime() <= user.last_active
 
-    if user.hosting_status is None:
-        assert res.user.hosting_status == api_pb2.HOSTING_STATUS_UNKNOWN
-    else:
-        assert res.user.hosting_status == hostingstatus2api[user.hosting_status]
+    assert res.user.hosting_status == api_pb2.HOSTING_STATUS_UNKNOWN
 
     assert res.user.occupation == user.occupation
     assert res.user.about_me == user.about_me
@@ -76,9 +72,9 @@ def test_update_profile(db):
             name=wrappers_pb2.StringValue(value="New name"),
             city=wrappers_pb2.StringValue(value="Timbuktu"),
             gender=wrappers_pb2.StringValue(value="Bot"),
-            occupation=wrappers_pb2.StringValue(value="Testing"),
-            about_me=wrappers_pb2.StringValue(value="I rule"),
-            about_place=wrappers_pb2.StringValue(value="My place"),
+            occupation=api_pb2.NullableStringValue(value="Testing"),
+            about_me=api_pb2.NullableStringValue(value="I rule"),
+            about_place=api_pb2.NullableStringValue(value="My place"),
             color=wrappers_pb2.StringValue(value="#111111"),
             hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
             languages=api_pb2.RepeatedStringValue(
@@ -92,7 +88,7 @@ def test_update_profile(db):
         for field, value in res.ListFields():
             assert value == True
 
-        user = api.GetUser(api_pb2.GetUserReq(user=str(user.id)))
+        user = api.GetUser(api_pb2.GetUserReq(user=user.username))
         assert user.name == "New name"
         assert user.city == "Timbuktu"
         assert user.hosting_status == api_pb2.HOSTING_STATUS_CAN_HOST
@@ -390,29 +386,29 @@ def test_mutual_friends_self(db):
     make_friends(db, user1, user4)
 
     with api_session(db, token1) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=str(user3.id)))
+        res = api.GetUser(api_pb2.GetUserReq(user=user3.username))
         assert len(res.mutual_friends) == 1
         assert res.mutual_friends[0].user_id == user2.id
 
     with api_session(db, token3) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=str(user1.id)))
+        res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
         assert len(res.mutual_friends) == 1
         assert res.mutual_friends[0].user_id == user2.id
 
     with api_session(db, token1) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=str(user1.id)))
+        res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
         assert len(res.mutual_friends) == 0
 
     with api_session(db, token2) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=str(user2.id)))
+        res = api.GetUser(api_pb2.GetUserReq(user=user2.username))
         assert len(res.mutual_friends) == 0
 
     with api_session(db, token3) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=str(user3.id)))
+        res = api.GetUser(api_pb2.GetUserReq(user=user3.username))
         assert len(res.mutual_friends) == 0
 
     with api_session(db, token4) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=str(user4.id)))
+        res = api.GetUser(api_pb2.GetUserReq(user=user4.username))
         assert len(res.mutual_friends) == 0
 
 
@@ -553,11 +549,7 @@ def test_hosting_preferences(db):
     user2, token2 = generate_user(db)
 
     with api_session(db, token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.GetHostingPreferences(api_pb2.GetHostingPreferencesReq(user_id=999))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-
-        res = api.GetHostingPreferences(api_pb2.GetHostingPreferencesReq(user_id=user2.id))
+        res = api.GetUser(api_pb2.GetUserReq(user=user2.username))
         assert not res.HasField("max_guests")
         assert not res.HasField("multiple_groups")
         assert not res.HasField("last_minute")
@@ -569,15 +561,15 @@ def test_hosting_preferences(db):
         assert not res.HasField("area")
         assert not res.HasField("house_rules")
 
-        api.SetHostingPreferences(api_pb2.SetHostingPreferencesReq(
-            max_guests=api_pb2.UInt32Nullable(value=3),
-            wheelchair_accessible=api_pb2.BoolNullable(value=False),
+        api.UpdateProfile(api_pb2.UpdateProfileReq(
+            max_guests=api_pb2.NullableUInt32Value(value=3),
+            wheelchair_accessible=api_pb2.NullableBoolValue(value=False),
             smoking_allowed=api_pb2.SMOKING_LOCATION_WINDOW,
-            house_rules=api_pb2.StringNullable(value="RULES!")
+            house_rules=api_pb2.NullableStringValue(value="RULES!")
         ))
     
     with api_session(db, token2) as api:
-        res = api.GetHostingPreferences(api_pb2.GetHostingPreferencesReq(user_id=user1.id))
+        res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
         assert res.max_guests.value == 3
         assert not res.HasField("multiple_groups")
         assert not res.HasField("last_minute")
@@ -591,15 +583,15 @@ def test_hosting_preferences(db):
 
     with api_session(db, token1) as api:
         # test unsetting
-        api.SetHostingPreferences(api_pb2.SetHostingPreferencesReq(
-            max_guests=api_pb2.UInt32Nullable(is_null=True),
-            wheelchair_accessible=api_pb2.BoolNullable(value=True),
+        api.UpdateProfile(api_pb2.UpdateProfileReq(
+            max_guests=api_pb2.NullableUInt32Value(is_null=True),
+            wheelchair_accessible=api_pb2.NullableBoolValue(value=True),
             smoking_allowed=api_pb2.SMOKING_LOCATION_UNKNOWN,
-            area=api_pb2.StringNullable(value="area!"),
-            house_rules=api_pb2.StringNullable(is_null=True)
+            area=api_pb2.NullableStringValue(value="area!"),
+            house_rules=api_pb2.NullableStringValue(is_null=True)
         ))
         
-        res = api.GetHostingPreferences(api_pb2.GetHostingPreferencesReq(user_id=user1.id))
+        res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
         assert not res.HasField("max_guests")
         assert not res.HasField("multiple_groups")
         assert not res.HasField("last_minute")

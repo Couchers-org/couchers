@@ -17,6 +17,7 @@ service API {
 
   rpc UpdateProfile(UpdateProfileReq) returns (UpdateProfileRes) {
     // Update your profile
+    // *Nullable can be set to null to clear the value. is_null defaults to false.
   }
 
   rpc SendFriendRequest(SendFriendRequestReq) returns (google.protobuf.Empty);
@@ -52,15 +53,6 @@ service API {
   // try to write for yourself, or NOT_FOUND if the user doesn't exist.
   // Raises FAILED_PRECONDITION if you try to write a reference twice.
   rpc WriteReference(WriteReferenceReq) returns (google.protobuf.Empty);
-  
-  // Raises NOT_FOUND if the user doesn't exist.
-  rpc GetHostingPreferences(GetHostingPreferencesReq) returns (GetHostingPreferencesRes);
-  
-  // Update/set hosting preferences
-  // *Nullable can be set to null to clear the value. is_null defaults to false.
-  // hosting_status and smoking_allowed can be cleared with enum.UNKNOWN, enum.UNSPECIFIED will leave them unaltered
-  // No custom exceptions
-  rpc SetHostingPreferences(SetHostingPreferencesReq) returns (google.protobuf.Empty);
 }
 
 message SearchReq {
@@ -129,6 +121,30 @@ enum HostingStatus {
   HOSTING_STATUS_CANT_HOST = 5;
 }
 
+enum SmokingLocation {
+  SMOKING_LOCATION_UNSPECIFIED = 0;
+  SMOKING_LOCATION_UNKNOWN = 1;
+  SMOKING_LOCATION_YES = 2;
+  SMOKING_LOCATION_WINDOW = 3;
+  SMOKING_LOCATION_OUTSIDE = 4;
+  SMOKING_LOCATION_NO = 5;
+}
+
+message NullableUInt32Value {
+  bool is_null = 1;
+  uint32 value = 2;
+}
+
+message NullableBoolValue {
+  bool is_null = 1;
+  bool value = 2;
+}
+
+message NullableStringValue {
+  bool is_null = 1;
+  string value = 2;
+}
+
 message User {
   enum FriendshipStatus {
     NOT_FRIENDS = 0;
@@ -159,6 +175,17 @@ message User {
 
   FriendshipStatus friends = 20;
   repeated MutualFriend mutual_friends = 21;
+  
+  google.protobuf.UInt32Value max_guests = 22;
+  google.protobuf.BoolValue multiple_groups = 23;
+  google.protobuf.BoolValue last_minute = 24;
+  google.protobuf.BoolValue accepts_pets = 25;
+  google.protobuf.BoolValue accepts_kids = 26;
+  google.protobuf.BoolValue wheelchair_accessible = 27;
+  SmokingLocation smoking_allowed = 28;
+  google.protobuf.StringValue sleeping_arrangement = 29;
+  google.protobuf.StringValue area = 30;
+  google.protobuf.StringValue house_rules = 31;
 }
 
 message GetUserReq {
@@ -166,7 +193,7 @@ message GetUserReq {
 }
 
 message RepeatedStringValue {
-  // A RepeatedStringValue is like a "protobuf warpper" (like {Type}Value) but for repeated strings
+  // A RepeatedStringValue is like a "protobuf wrapper" (like {Type}Value) but for repeated strings
   // allows us to determine if the user wanted to remote this list of strings
   bool exists = 1;
   repeated string value = 2;
@@ -178,9 +205,9 @@ message UpdateProfileReq {
   google.protobuf.StringValue name = 1;
   google.protobuf.StringValue city = 2;
   google.protobuf.StringValue gender = 3;
-  google.protobuf.StringValue occupation = 4;
-  google.protobuf.StringValue about_me = 5;
-  google.protobuf.StringValue about_place = 6;
+  NullableStringValue occupation = 4;
+  NullableStringValue about_me = 5;
+  NullableStringValue about_place = 6;
   google.protobuf.StringValue color = 7;
   
   HostingStatus hosting_status = 8;
@@ -188,6 +215,17 @@ message UpdateProfileReq {
   RepeatedStringValue languages = 9;
   RepeatedStringValue countries_visited = 10;
   RepeatedStringValue countries_lived = 11;
+  
+  NullableUInt32Value max_guests = 12;
+  NullableBoolValue multiple_groups = 13;
+  NullableBoolValue last_minute = 14;
+  NullableBoolValue accepts_pets = 15;
+  NullableBoolValue accepts_kids = 16;
+  NullableBoolValue wheelchair_accessible = 17;
+  SmokingLocation smoking_allowed = 18;
+  NullableStringValue sleeping_arrangement = 19;
+  NullableStringValue area = 20;
+  NullableStringValue house_rules = 21;
 }
 
 message UpdateProfileRes {
@@ -202,6 +240,17 @@ message UpdateProfileRes {
   bool updated_languages = 9;
   bool updated_countries_visited = 10;
   bool updated_countries_lived = 11;
+  
+  bool updated_max_guests = 12;
+  bool updated_multiple_groups = 13;
+  bool updated_last_minute = 14;
+  bool updated_accepts_pets = 15;
+  bool updated_accepts_kids = 16;
+  bool updated_wheelchair_accessible = 17;
+  bool updated_smoking_allowed = 18;
+  bool updated_sleeping_arrangement = 19;
+  bool updated_area = 20;
+  bool updated_house_rules = 21;
 }
 
 message ReportReq {
@@ -274,58 +323,4 @@ message WriteReferenceReq {
   string text = 3;
   bool was_safe = 4;
   int32 rating = 5;
-}
-
-enum SmokingLocation {
-  SMOKING_LOCATION_UNSPECIFIED = 0;
-  SMOKING_LOCATION_UNKNOWN = 1;
-  SMOKING_LOCATION_YES = 2;
-  SMOKING_LOCATION_WINDOW = 3;
-  SMOKING_LOCATION_OUTSIDE = 4;
-  SMOKING_LOCATION_NO = 5;
-}
-
-message UInt32Nullable {
-  bool is_null = 1;
-  uint32 value = 2;
-}
-
-message BoolNullable {
-  bool is_null = 1;
-  bool value = 2;
-}
-
-message StringNullable {
-  bool is_null = 1;
-  string value = 2;
-}
-
-message GetHostingPreferencesReq {
-  uint64 user_id = 1;
-}
-
-message GetHostingPreferencesRes {
-  google.protobuf.UInt32Value max_guests = 2;
-  google.protobuf.BoolValue multiple_groups = 3;
-  google.protobuf.BoolValue last_minute = 4;
-  google.protobuf.BoolValue accepts_pets = 5;
-  google.protobuf.BoolValue accepts_kids = 6;
-  google.protobuf.BoolValue wheelchair_accessible = 7;
-  SmokingLocation smoking_allowed = 8;
-  google.protobuf.StringValue sleeping_arrangement = 9;
-  google.protobuf.StringValue area = 10;
-  google.protobuf.StringValue house_rules = 11;
-}
-
-message SetHostingPreferencesReq {
-  UInt32Nullable max_guests = 2;
-  BoolNullable multiple_groups = 3;
-  BoolNullable last_minute = 4;
-  BoolNullable accepts_pets = 5;
-  BoolNullable accepts_kids = 6;
-  BoolNullable wheelchair_accessible = 7;
-  SmokingLocation smoking_allowed = 8;
-  StringNullable sleeping_arrangement = 9;
-  StringNullable area = 10;
-  StringNullable house_rules = 11;
 }

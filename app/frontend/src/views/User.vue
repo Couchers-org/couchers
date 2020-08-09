@@ -163,75 +163,83 @@
             <v-tab href="#friends">Friends</v-tab>
             <v-tab href="#photos">Photos</v-tab>
             <v-tab-item value="about">
-              <h3>About me</h3>
-              <markdown :source="user.aboutMe" />
-              <h3>About my place</h3>
-              <markdown :source="user.aboutPlace" />
-              <h3>Countries I've visited</h3>
-              <markdown :source="displayList(user.countriesVisitedList)" />
-              <h3>Countries I've lived in</h3>
-              <markdown :source="displayList(user.countriesLivedList)" />
+              <v-container v-if="user.aboutMe">
+                <h3>About me</h3>
+                <markdown :source="user.aboutMe" />
+              </v-container>
+              <v-container v-if="user.aboutPlace">
+                <h3>About my place</h3>
+                <markdown :source="user.aboutPlace" />
+              </v-container>
+              <v-container v-if="user.countriesVisitedList.length > 0">
+                <h3>Countries I've visited</h3>
+                <p>{{ displayList(user.countriesVisitedList) }}</p>
+              </v-container>
+              <v-container v-if="user.countriesLivedList.length > 0">
+                <h3>Countries I've lived in</h3>
+                <p>{{ displayList(user.countriesLivedList) }}</p>
+              </v-container>
             </v-tab-item>
             <v-tab-item value="hosting">
-              <v-container v-if="hasHostingPreferences">
+              <v-container v-if="!hasHostingPreferences">
                 This user hasn't specified any hosting information yet.
               </v-container>
-              <v-container v-if="hostingPreferences.maxGuests != null">
+              <v-container v-if="user.maxGuests != null">
                 <h3>Max guests</h3>
-                {{ hostingPreferences.maxGuests.value }}
+                {{ user.maxGuests.value }}
               </v-container>
-              <v-container v-if="hostingPreferences.multipleGroups != null">
+              <v-container v-if="user.multipleGroups != null">
                 <h3>Accepts mutliple groups?</h3>
-                {{ displayBool(hostingPreferences.multipleGroups.value) }}
+                {{ displayBool(user.multipleGroups.value) }}
               </v-container>
-              <v-container v-if="hostingPreferences.lastMinute != null">
+              <v-container v-if="user.lastMinute != null">
                 <h3>Accepts last minute requests?</h3>
-                {{ displayBool(hostingPreferences.lastMinute.value) }}
+                {{ displayBool(user.lastMinute.value) }}
               </v-container>
-              <v-container v-if="hostingPreferences.acceptsPets != null">
+              <v-container v-if="user.acceptsPets != null">
                 <h3>Accepts pets?</h3>
-                {{ displayBool(hostingPreferences.acceptsPets.value) }}
+                {{ displayBool(user.acceptsPets.value) }}
               </v-container>
-              <v-container v-if="hostingPreferences.acceptsKids != null">
+              <v-container v-if="user.acceptsKids != null">
                 <h3>Accepts kids?</h3>
-                {{ displayBool(hostingPreferences.acceptsKids.value) }}
+                {{ displayBool(user.acceptsKids.value) }}
               </v-container>
               <v-container
-                v-if="hostingPreferences.wheelchairAccessible != null"
+                v-if="user.wheelchairAccessible != null"
               >
                 <h3>Wheelchair Accessible?</h3>
-                {{ displayBool(hostingPreferences.wheelchairAccessible.value) }}
+                {{ displayBool(user.wheelchairAccessible.value) }}
               </v-container>
               <v-container
                 v-if="
-                  hostingPreferences.smokingAllowed !=
+                  user.smokingAllowed !=
                     SmokingLocation.SMOKING_LOCATION_UNSPECIFIED &&
-                  hostingPreferences.smokingAllowed !=
+                  user.smokingAllowed !=
                     SmokingLocation.SMOKING_LOCATION_UNKNOWN
                 "
               >
                 <h3>Smoking allowed?</h3>
                 {{
                   displaySmokingLocation(
-                    hostingPreferences.smokingAllowed.value
+                    user.smokingAllowed.value
                   )
                 }}
               </v-container>
               <v-container
-                v-if="hostingPreferences.sleepingArrangement != null"
+                v-if="user.sleepingArrangement != null"
               >
                 <h3>Sleeping arrangements</h3>
                 <markdown
-                  :source="hostingPreferences.sleepingArrangement.value"
+                  :source="user.sleepingArrangement.value"
                 />
               </v-container>
-              <v-container v-if="hostingPreferences.area != null">
+              <v-container v-if="user.area != null">
                 <h3>Area/neightbourhood info</h3>
-                <markdown :source="hostingPreferences.area.value" />
+                <markdown :source="user.area.value" />
               </v-container>
-              <v-container v-if="hostingPreferences.houseRules != null">
+              <v-container v-if="user.houseRules != null">
                 <h3>House rules</h3>
-                <markdown :source="hostingPreferences.houseRules.value" />
+                <markdown :source="user.houseRules.value" />
               </v-container>
             </v-tab-item>
             <v-tab-item value="references">
@@ -337,8 +345,6 @@ import {
   ReferenceType,
   WriteReferenceReq,
   HostingStatus,
-  GetHostingPreferencesRes,
-  GetHostingPreferencesReq,
   SmokingLocation,
 } from "../pb/api_pb"
 import { client } from "../api"
@@ -364,7 +370,6 @@ export default Vue.extend({
     sendingFriendRequest: false,
     user: (null as unknown) as User.AsObject,
     userCache: {} as { [userId: number]: User.AsObject },
-    hostingPreferences: null as null | GetHostingPreferencesRes.AsObject,
     references: [] as Array<Reference.AsObject>,
     loadingReferences: false,
     noMoreReferences: false,
@@ -419,7 +424,6 @@ export default Vue.extend({
       this.error = null
       this.fetchUser()
         .then(this.fetchReferences)
-        .then(this.fetchHostingPreferences)
         .then(() => {
           this.loading = false
         })
@@ -433,14 +437,6 @@ export default Vue.extend({
       const req = new GetUserReq()
       req.setUser(this.routeUser)
       return client.getUser(req).then((res) => (this.user = res.toObject()))
-    },
-
-    fetchHostingPreferences() {
-      const req = new GetHostingPreferencesReq()
-      req.setUserId(this.user.userId)
-      return client
-        .getHostingPreferences(req)
-        .then((res) => (this.hostingPreferences = res.toObject()))
     },
 
     fetchReferences() {
@@ -546,17 +542,19 @@ export default Vue.extend({
   computed: {
     hasHostingPreferences(): boolean {
       return (
-        this.hostingPreferences != null &&
-        this.hostingPreferences.maxGuests != null &&
-        this.hostingPreferences.multipleGroups != null &&
-        this.hostingPreferences.lastMinute != null &&
-        this.hostingPreferences.acceptsPets != null &&
-        this.hostingPreferences.acceptsKids != null &&
-        this.hostingPreferences.wheelchairAccessible != null &&
-        this.hostingPreferences.smokingAllowed != null &&
-        this.hostingPreferences.sleepingArrangement != null &&
-        this.hostingPreferences.area != null &&
-        this.hostingPreferences.houseRules != null
+        this.user.maxGuests != null ||
+        this.user.multipleGroups != null ||
+        this.user.lastMinute != null ||
+        this.user.acceptsPets != null ||
+        this.user.acceptsKids != null ||
+        this.user.wheelchairAccessible != null ||
+        (this.user.smokingAllowed !=
+                    SmokingLocation.SMOKING_LOCATION_UNSPECIFIED &&
+                  this.user.smokingAllowed !=
+                    SmokingLocation.SMOKING_LOCATION_UNKNOWN) ||
+        this.user.sleepingArrangement != null ||
+        this.user.area != null &&
+        this.user.houseRules != null
       )
     },
 
