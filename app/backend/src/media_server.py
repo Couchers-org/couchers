@@ -2,6 +2,7 @@ import logging
 import os
 from base64 import urlsafe_b64decode
 from datetime import datetime
+from pathlib import Path
 
 import backoff
 import grpc
@@ -24,7 +25,7 @@ MAIN_SERVER_ADDRESS = os.environ["MAIN_SERVER_ADDRESS"]
 # whether to disable SSL, optional
 MAIN_SERVER_USE_SSL = os.environ.get("MAIN_SERVER_USE_SSL", "1") == "1"
 
-MEDIA_UPLOAD_LOCATION = os.environ["MEDIA_UPLOAD_LOCATION"]
+MEDIA_UPLOAD_LOCATION = Path(os.environ["MEDIA_UPLOAD_LOCATION"])
 
 
 AVATAR_SIZE = 200
@@ -39,16 +40,23 @@ if MAIN_SERVER_USE_SSL:
     comp_creds = grpc.composite_channel_credentials(grpc.ssl_channel_credentials(), token_creds)
 else:
     logger.warning("Connecting to main server insecurely!")
+    # only works for `localhost` addresses
     comp_creds = grpc.composite_channel_credentials(grpc.local_channel_credentials(), token_creds)
 
 def get_path(filename, size="full"):
-    return MEDIA_UPLOAD_LOCATION + ("/" if MEDIA_UPLOAD_LOCATION[-1] != "/" else "") + size + "/" + filename
+    return str(MEDIA_UPLOAD_LOCATION / size / filename)
+
+# Create the directories
+MEDIA_UPLOAD_LOCATION.mkdir(exist_ok=True, parents=True)
+(MEDIA_UPLOAD_LOCATION / "full").mkdir(exist_ok=True, parents=True)
+(MEDIA_UPLOAD_LOCATION / "avatar").mkdir(exist_ok=True, parents=True)
 
 def _is_available(e):
     return e.code() != grpc.StatusCode.UNAVAILABLE
 
-@backoff.on_exception(backoff.expo, grpc.RpcError, max_time=5, giveup=_is_available)
+@backoff.on_exception(backoff.expo, grpc.RpcError, max_time=1, giveup=_is_available)
 def send_confirmation_to_main_server(key, filename):
+    logger.warning(f"Notifying main server about new upload at {MAIN_SERVER_ADDRESS}")
     with grpc.secure_channel(MAIN_SERVER_ADDRESS, comp_creds) as channel:
         media_stub = media_pb2_grpc.MediaStub(channel)
         req = media_pb2.UploadConfirmationReq(

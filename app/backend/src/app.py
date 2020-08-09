@@ -24,7 +24,6 @@ from sqlalchemy.orm import sessionmaker
 # hex-encoded secret key, used for signatures that  verify main & media server
 # are talking to each other
 MEDIA_SERVER_SECRET_KEY = bytes.fromhex(os.environ["MEDIA_SERVER_SECRET_KEY"])
-MEDIA_SERVER_BEARER_TOKEN = os.environ["MEDIA_SERVER_BEARER_TOKEN"]
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d: %(process)d: %(message)s", datefmt="%F %T", level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -78,3 +77,4 @@ logger.info(f"Serving on 1751 (secure), 1752 (auth), and 1753 (media)")
 
 server.wait_for_termination()
 auth_server.wait_for_termination()
+media_server.wait_for_termination()

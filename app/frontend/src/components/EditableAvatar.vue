@@ -1,5 +1,6 @@
 <template>
   <div>
+    <error-alert :error="error" />
     <p>Current avatar:</p>
     <img :src="user.avatarUrl" />
     <v-file-input
@@ -26,6 +27,8 @@
 <script lang="ts">
 import Vue from "vue"
 
+import ErrorAlert from "../components/ErrorAlert.vue"
+
 import axios from "axios"
 
 import { Empty } from "google-protobuf/google/protobuf/empty_pb"
@@ -38,6 +41,7 @@ export default Vue.extend({
   data: () => ({
     image: null as null | File,
     progress: 0,
+    error: null as Error | null,
     loading: false,
     avatarRules: [
       (value) =>
@@ -46,6 +50,10 @@ export default Vue.extend({
         "Avatar size should be less than 16 MB!",
     ],
   }),
+
+  components: {
+    ErrorAlert,
+  },
 
   methods: {
     upload() {
@@ -67,7 +75,9 @@ export default Vue.extend({
             this.$emit("save")
             this.image = null
           })
-          .catch(console.error)
+          .catch((err) => {
+            this.error = err
+          })
           .finally(() => {
             this.loading = false
           })
