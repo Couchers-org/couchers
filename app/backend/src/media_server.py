@@ -35,13 +35,6 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 CORS(app)
 
-token_creds = grpc.access_token_call_credentials(MEDIA_SERVER_BEARER_TOKEN)
-if MAIN_SERVER_USE_SSL:
-    comp_creds = grpc.composite_channel_credentials(grpc.ssl_channel_credentials(), token_creds)
-else:
-    logger.warning("Connecting to main server insecurely!")
-    # only works for `localhost` addresses
-    comp_creds = grpc.composite_channel_credentials(grpc.local_channel_credentials(), token_creds)
 
 def get_path(filename, size="full"):
     return str(MEDIA_UPLOAD_LOCATION / size / filename)
@@ -57,13 +50,19 @@ def _is_available(e):
 @backoff.on_exception(backoff.expo, grpc.RpcError, max_time=1, giveup=_is_available)
 def send_confirmation_to_main_server(key, filename):
     logger.warning(f"Notifying main server about new upload at {MAIN_SERVER_ADDRESS}")
-    with grpc.secure_channel(MAIN_SERVER_ADDRESS, comp_creds) as channel:
-        media_stub = media_pb2_grpc.MediaStub(channel)
-        req = media_pb2.UploadConfirmationReq(
-            key=key,
-            filename=filename,
-        )
-        media_stub.UploadConfirmation(req)
+
+    if MAIN_SERVER_USE_SSL:
+        channel = grpc.secure_channel(MAIN_SERVER_ADDRESS, grpc.ssl_channel_credentials())
+    else:
+        logger.warning("Connecting to main server insecurely!")
+        channel = grpc.insecure_channel(MAIN_SERVER_ADDRESS)
+
+    media_stub = media_pb2_grpc.MediaStub(channel)
+    req = media_pb2.UploadConfirmationReq(
+        key=key,
+        filename=filename,
+    )
+    media_stub.UploadConfirmation(req, metadata=(("authorization", f"Bearer {MEDIA_SERVER_BEARER_TOKEN}"),))
 
 @app.route("/upload", methods=["POST"])
 def upload():
