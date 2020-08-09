@@ -34,6 +34,7 @@ CONFIG_OPTIONS = [
     ("ENABLE_MEDIA", bool),
     ("MEDIA_SERVER_SECRET_KEY", bytes),
     ("MEDIA_SERVER_BEARER_TOKEN", str),
+    ("MEDIA_SERVER_BASE_URL", str),
 ]
 
 dot = Path(".")

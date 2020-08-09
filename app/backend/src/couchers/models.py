@@ -2,10 +2,11 @@ import enum
 from calendar import monthrange
 from datetime import date
 
+from couchers.config import config
 from sqlalchemy import (Boolean, Column, Date, DateTime, Enum, Float,
-                        ForeignKey, Integer, UniqueConstraint)
+                        ForeignKey, Integer)
 from sqlalchemy import LargeBinary as Binary
-from sqlalchemy import String
+from sqlalchemy import String, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.session import Session
@@ -128,7 +129,7 @@ class User(Base):
     def avatar_url(self):
         # TODO(aapeli): don't hardcode
         key = self.avatar_key or "couchers"
-        return f"http://127.0.0.1:5000/avatar/{key}.jpg"
+        return f"{config['MEDIA_SERVER_BASE_URL']}/avatar/{key}.jpg"
 
     def mutual_friends(self, target_id):
         if target_id == self.id:

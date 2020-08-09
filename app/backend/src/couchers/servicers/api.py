@@ -453,7 +453,7 @@ class API(api_pb2_grpc.APIServicer):
         path = "upload?" + urlencode({"data": data, "sig": sig})
 
         return api_pb2.InitiateMediaUploadRes(
-            upload_url=f"http://127.0.0.1:5000/{path}", # TODO(aapeli): don't hardcode
+            upload_url=f"{config['MEDIA_SERVER_BASE_URL']}/{path}",
             expiry=Timestamp_from_datetime(expiry),
         )
 
