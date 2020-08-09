@@ -15,7 +15,7 @@ CONFIG_OPTIONS = [
     # Base URL
     ("BASE_URL", str),
     # Email
-    ("ENABLE_EMAIL", str),
+    ("ENABLE_EMAIL", bool),
     # SMTP settings
     ("SMTP_HOST", str),
     ("SMTP_PORT", int),
@@ -44,5 +44,8 @@ for name, type_ in CONFIG_OPTIONS:
 ## Config checks
 
 if not config["DEV"]:
+    # checks for prod
     if "https" not in config["BASE_URL"]:
         raise Exception("Production site must be over HTTPS")
+    if not config["ENABLE_EMAIL"]:
+        raise Exception("Production site must have email enabled")
