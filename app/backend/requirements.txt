@@ -1,7 +1,10 @@
-sqlalchemy
 grpcio
+Jinja2
+markdown2
 protobuf
 pynacl
 pytest
 pytest-pythonpath
 python-dateutil
+python-dotenv
+sqlalchemy
