@@ -1,6 +1,6 @@
 from jinja2 import Environment, FileSystemLoader, Template
 from markdown2 import markdown
-from couchers.email.smtp import _send_smtp_email
+from couchers.email.smtp import send_smtp_email
 
 env = Environment(
     loader=FileSystemLoader("templates"),
@@ -29,5 +29,5 @@ def _render_email(subject, template_file, template_args={}):
 
 def send_email(recipient, subject, template_file, template_args={}):
     plain, html = _render_email(subject, template_file, template_args)
-    response = _send_smtp_email("Couchers.org", "signup@dev.couchers.org", recipient, subject, plain, html)
+    response = send_smtp_email("Couchers.org", "signup@dev.couchers.org", recipient, subject, plain, html)
     return response

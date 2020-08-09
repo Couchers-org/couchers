@@ -1,5 +1,5 @@
 """
-A dummy config system
+A simple config system
 """
 import os
 
@@ -7,25 +7,42 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Allowed config options, as tuples (name, required, default),
-# default of None on required fields causes an error
+# Allowed config options, as tuples (name, type).
+# All fields are required
 CONFIG_OPTIONS = [
+    # Whether we're in dev mode
+    ("DEV", bool),
+    # Base URL
+    ("BASE_URL", str),
+    # Email
+    ("ENABLE_EMAIL", str),
     # SMTP settings
-    ("ENABLE_EMAIL", True, True),
-    ("SMTP_HOST", True, None),
-    ("SMTP_PORT", True, 587),
-    ("SMTP_USERNAME", True, None),
-    ("SMTP_PASSWORD", True, None),
+    ("SMTP_HOST", str),
+    ("SMTP_PORT", int),
+    ("SMTP_USERNAME", str),
+    ("SMTP_PASSWORD", str),
 ]
 
 config = {}
 
-for name, required, default in CONFIG_OPTIONS:
+for name, type_ in CONFIG_OPTIONS:
     value = os.getenv(name)
-    if required:
-        if not value:
-            raise ValueError(f"Required config value {name} not set")
+    if not value:
+        raise ValueError(f"Required config value {name} not set")
+
+    if type_ == bool:
+        # 1 is true, 0 is false, everything else is illegal
+        if value not in ["0", "1"]:
+            raise ValueError(f'Invalid bool for {name}, need "0" or "1"')
+        value = value == "1"
     else:
-        value = default
+        value = type_(value)
 
     config[name] = value
+
+
+## Config checks
+
+if not config["DEV"]:
+    if "https" not in config["BASE_URL"]:
+        raise Exception("Production site must be over HTTPS")
