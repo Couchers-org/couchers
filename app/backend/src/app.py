@@ -13,10 +13,11 @@ from couchers.models import Base
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
 from couchers.servicers.conversations import Conversations
+from couchers.servicers.requests import Requests
 from couchers.servicers.sso import SSO
 from dummy_data import add_dummy_data
 from pb import (api_pb2_grpc, auth_pb2_grpc, conversations_pb2_grpc,
-                sso_pb2_grpc)
+                requests_pb2_grpc, sso_pb2_grpc)
 
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d: %(process)d: %(message)s", datefmt="%F %T", level=logging.INFO)
@@ -56,6 +57,7 @@ server.add_insecure_port("[::]:1751")
 api_pb2_grpc.add_APIServicer_to_server(servicer, server)
 sso_pb2_grpc.add_SSOServicer_to_server(SSO(Session), server)
 conversations_pb2_grpc.add_ConversationsServicer_to_server(Conversations(Session), server)
+requests_pb2_grpc.add_RequestsServicer_to_server()
 server.start()
 
 logger.info(f"Serving on 1751 and 1752 (auth)")

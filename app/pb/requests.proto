@@ -22,8 +22,9 @@ service Requests {
 
 message CreateHostRequestReq {
   uint64 user_id = 1;
-  google.protobuf.Timestamp from_date = 2;
-  google.protobuf.Timestamp to_date = 3;
+  // dates as "yyyy-mm-dd"
+  string from_date = 2;
+  string to_date = 3;
   string text = 4;
 }
 
@@ -41,8 +42,8 @@ message HostRequest {
   uint64 to_user_id = 3;
   HostRequestStatus status = 4;
   google.protobuf.Timestamp created = 5;
-  google.protobuf.Timestamp from_date = 6;
-  google.protobuf.Timestamp to_date = 7;
+  string from_date = 6;
+  string to_date = 7;
   org.couchers.api.conversations.Message latest_message = 8;
   uint64 converstaion_id = 9;
 }
@@ -57,14 +58,19 @@ message RespondHostRequestReq {
 }
 
 message ListHostRequestsReq {
+  uint64 last_request_id = 1;
+  uint32 number = 2;
+  
   // Whether to only show pending, accepted and
   // confirmed requests which haven't passed the
   // end date.
-  bool only_active = 1;
+  bool only_active = 3;
 }
 
 message ListHostRequestsRes {
   repeated HostRequest host_requests = 1;
+  uint64 next_request_id = 2;
+  bool no_more = 3;
 }
 
 

@@ -428,8 +428,9 @@ class HostRequest(Base):
     from_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     to_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
-    from_date = Column(DateTime(timezone=True), nullable=False)
-    to_date = Column(DateTime(timezone=True), nullable=False)
+    # dates as "YYYY-MM-DD"
+    from_date = Column(String, nullable=False)
+    to_date = Column(String, nullable=False)
 
     status = Column(Enum(HostRequestStatus), nullable=False)
 

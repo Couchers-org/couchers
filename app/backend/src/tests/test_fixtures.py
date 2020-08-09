@@ -12,7 +12,8 @@ from couchers.models import Base, FriendRelationship, FriendStatus, User, Messag
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
 from couchers.servicers.conversations import Conversations
-from pb import api_pb2_grpc, auth_pb2, conversations_pb2_grpc
+from couchers.servicers.requests import Requests
+from pb import api_pb2_grpc, auth_pb2, conversations_pb2_grpc, requests_pb2_grpc
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.event import listen, remove
@@ -139,6 +140,29 @@ def conversations_session(db, token):
     try:
         with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
             yield conversations_pb2_grpc.ConversationsStub(channel)
+    finally:
+        server.stop(None)
+
+@contextmanager
+def requests_session(db, token):
+    """
+    Create a fresh Requests API for testing, uses the token for auth
+    """
+    auth_interceptor = Auth(db).get_auth_interceptor()
+
+    server = grpc.server(futures.ThreadPoolExecutor(1))
+    server = intercept_server(server, auth_interceptor)
+    port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
+    servicer = Requests(db)
+    requests_pb2_grpc.add_RequestsServicer_to_server(servicer, server)
+    server.start()
+
+    call_creds = grpc.access_token_call_credentials(token)
+    comp_creds = grpc.composite_channel_credentials(grpc.local_channel_credentials(), call_creds)
+
+    try:
+        with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
+            yield requests_pb2_grpc.RequestsStub(channel)
     finally:
         server.stop(None)
 
