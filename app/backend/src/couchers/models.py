@@ -424,7 +424,7 @@ class HostRequest(Base):
 
     __tablename__ = "host_requests"
 
-    host_request_id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True)
     from_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     to_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
@@ -446,3 +446,6 @@ class HostRequest(Base):
                            foreign_keys="HostRequest.to_user_id")
     conversation = relationship("Conversation")
     initial_message = relationship("Message")
+
+    def __repr__(self):
+        return f"HostRequest(id={self.id}, from_user_id={self.from_user_id}, to_user_id={self.to_user_id}...)"

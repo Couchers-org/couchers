@@ -45,7 +45,7 @@ message HostRequest {
   string from_date = 6;
   string to_date = 7;
   org.couchers.api.conversations.Message latest_message = 8;
-  uint64 converstaion_id = 9;
+  uint64 conversation_id = 9;
 }
 
 message CreateHostRequestRes {
@@ -75,12 +75,17 @@ message ListHostRequestsRes {
 
 
 message ListSentHostRequestsReq {
+  uint64 last_request_id = 1;
+  uint32 number = 2;
+  
   // Whether to only show pending, accepted and
   // confirmed requests which haven't passed the
   // end date.
-  bool only_active = 1;
+  bool only_active = 3;
 }
 
 message ListSentHostRequestsRes {
   repeated HostRequest host_requests = 1;
+  uint64 next_request_id = 2;
+  bool no_more = 3;
 }

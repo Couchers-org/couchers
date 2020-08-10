@@ -143,14 +143,16 @@ def test_list_group_chats_ordering(db):
         assert res.group_chats[4].title == "Chat 0"
 
         c.SendMessage(conversations_pb2.SendMessageReq(
-            group_chat_id=res.group_chats[3].group_chat_id, text="Test message"))
+            group_chat_id=res.group_chats[3].group_chat_id, text="Test message 2a"))
         c.SendMessage(conversations_pb2.SendMessageReq(
-            group_chat_id=res.group_chats[2].group_chat_id, text="Test message"))
+            group_chat_id=res.group_chats[2].group_chat_id, text="Test message 2b"))
 
         res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq())
         assert len(res.group_chats) == 5
         assert res.group_chats[0].title == "Chat 2"
+        assert res.group_chats[0].latest_message.text == "Test message 2b"
         assert res.group_chats[1].title == "Chat 1"
+        assert res.group_chats[1].latest_message.text == "Test message 2a"
         assert res.group_chats[2].title == "Chat 4"
         assert res.group_chats[3].title == "Chat 3"
         assert res.group_chats[4].title == "Chat 0"
