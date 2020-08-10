@@ -476,31 +476,31 @@ def user_model_to_pb(db_user, session, context):
         smoking_allowed=smokinglocation2api[db_user.smoking_allowed]
     )
 
-    if db_user.max_guests != None:
+    if db_user.max_guests is not None:
         user.max_guests.value = db_user.max_guests
 
-    if db_user.multiple_groups != None:
+    if db_user.multiple_groups is not None:
         user.multiple_groups.value = db_user.multiple_groups
 
-    if db_user.last_minute != None:
+    if db_user.last_minute is not None:
         user.last_minute.value = db_user.last_minute
 
-    if db_user.accepts_pets != None:
+    if db_user.accepts_pets is not None:
         user.accepts_pets.value = db_user.accepts_pets
 
-    if db_user.accepts_kids != None:
+    if db_user.accepts_kids is not None:
         user.accepts_kids.value = db_user.accepts_kids
 
-    if db_user.wheelchair_accessible != None:
+    if db_user.wheelchair_accessible is not None:
         user.wheelchair_accessible.value = db_user.wheelchair_accessible
 
-    if db_user.sleeping_arrangement != None:
+    if db_user.sleeping_arrangement is not None:
         user.sleeping_arrangement.value = db_user.sleeping_arrangement
 
-    if db_user.area != None:
+    if db_user.area is not None:
         user.area.value = db_user.area
 
-    if db_user.house_rules != None:
+    if db_user.house_rules is not None:
         user.house_rules.value = db_user.house_rules
     
     return user

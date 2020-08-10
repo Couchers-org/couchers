@@ -1,20 +1,15 @@
 import enum
 from calendar import monthrange
 from datetime import date
-from math import floor
 
 from sqlalchemy import (Boolean, Column, Date, DateTime, Enum, Float,
                         ForeignKey, Integer, UniqueConstraint)
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import String
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import backref, relationship
+from sqlalchemy.orm import relationship
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func
-
-from couchers.utils import Timestamp_from_datetime
-
-from pb import api_pb2
 
 Base = declarative_base()
 

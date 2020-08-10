@@ -1,6 +1,7 @@
-from google.protobuf import empty_pb2, wrappers_pb2
 from datetime import timedelta
 from datetime import datetime
+
+from google.protobuf import empty_pb2, wrappers_pb2
 
 import grpc
 import pytest
@@ -28,9 +29,12 @@ def test_ping(db):
 
     # the joined time is fuzzed
     # but shouldn't be before actual joined time, or more than one hour behind
-    assert user.joined - timedelta(hours=1) <= res.user.joined.ToDatetime() <= user.joined
+    assert user.joined - \
+        timedelta(hours=1) <= res.user.joined.ToDatetime() <= user.joined
     # same for last_active
-    assert user.last_active - timedelta(hours=1) <= res.user.last_active.ToDatetime() <= user.last_active
+    assert user.last_active - \
+        timedelta(hours=1) <= res.user.last_active.ToDatetime(
+        ) <= user.last_active
 
     assert res.user.hosting_status == api_pb2.HOSTING_STATUS_UNKNOWN
 
@@ -45,15 +49,17 @@ def test_ping(db):
     assert res.user.friends == api_pb2.User.FriendshipStatus.NA
     assert len(res.user.mutual_friends) == 0
 
+
 def test_get_user(db):
     user1, token1 = generate_user(db)
     user2, token2 = generate_user(db)
 
-    with api_session(db, token2) as api:
+    with api_session(db, token1) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user2.username))
         assert res.user_id == user2.id
         assert res.username == user2.username
         assert res.name == user2.name
+
 
 def test_update_profile(db):
     user, token = generate_user(db)
@@ -95,6 +101,7 @@ def test_update_profile(db):
         assert "Binary" in user.languages
         assert "English" in user.languages
 
+
 def test_friend_request_flow(db):
     user1, token1 = generate_user(db, "user1")
     user2, token2 = generate_user(db, "user2")
@@ -124,7 +131,8 @@ def test_friend_request_flow(db):
         fr_id = res.received[0].friend_request_id
 
         # accept it
-        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
+        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(
+            friend_request_id=fr_id, accept=True))
 
         # check it's gone
         res = api.ListFriendRequests(empty_pb2.Empty())
@@ -147,6 +155,7 @@ def test_friend_request_flow(db):
         assert len(res.user_ids) == 1
         assert res.user_ids[0] == user2.id
 
+
 def test_cant_friend_request_twice(db):
     user1, token1 = generate_user(db, "user1")
     user2, token2 = generate_user(db, "user2")
@@ -156,7 +165,9 @@ def test_cant_friend_request_twice(db):
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
 
         with pytest.raises(grpc.RpcError):
-            api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
+            api.SendFriendRequest(
+                api_pb2.SendFriendRequestReq(user_id=user2.id))
+
 
 def test_cant_friend_request_pending(db):
     user1, token1 = generate_user(db, "user1")
@@ -169,6 +180,7 @@ def test_cant_friend_request_pending(db):
 
     with api_session(db, token2) as api, pytest.raises(grpc.RpcError):
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
+
 
 def test_ListFriends(db):
     user1, token1 = generate_user(db, "user1")
@@ -193,11 +205,13 @@ def test_ListFriends(db):
 
         assert user1_req.state == api_pb2.FriendRequest.FriendRequestStatus.PENDING
         assert user1_req.user_id == user1.id
-        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=user1_req.friend_request_id, accept=True))
+        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(
+            friend_request_id=user1_req.friend_request_id, accept=True))
 
         assert user3_req.state == api_pb2.FriendRequest.FriendRequestStatus.PENDING
         assert user3_req.user_id == user3.id
-        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=user3_req.friend_request_id, accept=True))
+        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(
+            friend_request_id=user3_req.friend_request_id, accept=True))
 
         # check we now have two friends
         res = api.ListFriends(empty_pb2.Empty())
@@ -215,7 +229,8 @@ def test_ListFriends(db):
         assert res.received[0].state == api_pb2.FriendRequest.FriendRequestStatus.PENDING
         assert res.received[0].user_id == user1.id
         fr_id = res.received[0].friend_request_id
-        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
+        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(
+            friend_request_id=fr_id, accept=True))
 
         res = api.ListFriends(empty_pb2.Empty())
         assert len(res.user_ids) == 2
@@ -227,6 +242,7 @@ def test_ListFriends(db):
         assert len(res.user_ids) == 2
         assert user2.id in res.user_ids
         assert user3.id in res.user_ids
+
 
 def test_mutual_friends(db):
     user1, token1 = generate_user(db, "user1")
@@ -248,7 +264,8 @@ def test_mutual_friends(db):
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert res.received[0].user_id == user1.id
         fr_id = res.received[0].friend_request_id
-        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
+        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(
+            friend_request_id=fr_id, accept=True))
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user4.id))
 
@@ -256,25 +273,30 @@ def test_mutual_friends(db):
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert res.received[0].user_id == user1.id
         fr_id = res.received[0].friend_request_id
-        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
+        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(
+            friend_request_id=fr_id, accept=True))
 
     with api_session(db, token2) as api:
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert res.received[0].user_id == user1.id
         fr_id = res.received[0].friend_request_id
-        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
+        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(
+            friend_request_id=fr_id, accept=True))
         assert res.received[1].user_id == user3.id
         fr_id = res.received[1].friend_request_id
-        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
+        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(
+            friend_request_id=fr_id, accept=True))
 
     with api_session(db, token4) as api:
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert res.received[0].user_id == user1.id
         fr_id = res.received[0].friend_request_id
-        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
+        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(
+            friend_request_id=fr_id, accept=True))
         assert res.received[1].user_id == user3.id
         fr_id = res.received[1].friend_request_id
-        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
+        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(
+            friend_request_id=fr_id, accept=True))
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user5.id))
 
     with api_session(db, token1) as api:
@@ -288,6 +310,7 @@ def test_mutual_friends(db):
         assert len(res.mutual_friends) == 1
         assert res.mutual_friends[0].user_id == user3.id
 
+
 def test_CancelFriendRequest(db):
     user1, token1 = generate_user(db, "user1")
     user2, token2 = generate_user(db, "user2")
@@ -299,10 +322,12 @@ def test_CancelFriendRequest(db):
         assert res.sent[0].user_id == user2.id
         fr_id = res.sent[0].friend_request_id
 
-        api.CancelFriendRequest(api_pb2.CancelFriendRequestReq(friend_request_id=fr_id))
+        api.CancelFriendRequest(
+            api_pb2.CancelFriendRequestReq(friend_request_id=fr_id))
 
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert len(res.sent) == 0
+
 
 def test_reject_friend_request(db):
     user1, token1 = generate_user(db, "user1")
@@ -323,7 +348,8 @@ def test_reject_friend_request(db):
         fr_id = res.received[0].friend_request_id
 
         # reject it
-        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=False))
+        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(
+            friend_request_id=fr_id, accept=False))
 
         # check it's gone
         res = api.ListFriendRequests(empty_pb2.Empty())
@@ -351,6 +377,7 @@ def test_reject_friend_request(db):
         assert res.sent[0].state == api_pb2.FriendRequest.FriendRequestStatus.PENDING
         assert res.sent[0].user_id == user2.id
 
+
 def test_search(db):
     user1, token1 = generate_user(db, "user1")
     user2, token2 = generate_user(db, "user2")
@@ -363,6 +390,7 @@ def test_search(db):
 
         res = api.Search(api_pb2.SearchReq(query="user5"))
         assert len(res.users) == 0
+
 
 def test_mutual_friends_self(db):
     user1, token1 = generate_user(db, "user1")
@@ -466,7 +494,8 @@ def test_references(db):
         assert res.references[0].from_user_id == user1.id
         assert res.references[0].to_user_id == user2.id
         assert res.references[0].text == "kinda weird sometimes"
-        assert abs(res.references[0].written_time.ToDatetime() - datetime.now()) <= timedelta(days=32)
+        assert abs(res.references[0].written_time.ToDatetime(
+        ) - datetime.now()) <= timedelta(days=32)
         assert res.references[0].reference_type not in seen_types
         seen_types.add(res.references[0].reference_type)
     assert seen_types == alltypes
@@ -490,11 +519,13 @@ def test_references(db):
 
     # Check available types
     with api_session(db, token1) as api:
-        res = api.AvailableWriteReferenceTypes(api_pb2.AvailableWriteReferenceTypesReq(to_user_id=user2.id))
+        res = api.AvailableWriteReferenceTypes(
+            api_pb2.AvailableWriteReferenceTypesReq(to_user_id=user2.id))
     assert res.reference_types == []
 
     with api_session(db, token2) as api:
-        res = api.AvailableWriteReferenceTypes(api_pb2.AvailableWriteReferenceTypesReq(to_user_id=user1.id))
+        res = api.AvailableWriteReferenceTypes(
+            api_pb2.AvailableWriteReferenceTypesReq(to_user_id=user1.id))
     assert set(res.reference_types) == alltypes
 
     # Forbidden to write a second reference of the same type
@@ -524,14 +555,14 @@ def test_references(db):
             api.WriteReference(req)
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
-    
     with api_session(db, token2) as api:
-        #test the number of references in GetUser and Ping
+        # test the number of references in GetUser and Ping
         res = api.GetUser(api_pb2.GetUserReq(user=user2.username))
         assert res.num_references == 3
-        
+
         res = api.Ping(api_pb2.PingReq())
         assert res.user.num_references == 3
+
 
 def test_hosting_preferences(db):
     user1, token1 = generate_user(db)
@@ -556,7 +587,7 @@ def test_hosting_preferences(db):
             smoking_allowed=api_pb2.SMOKING_LOCATION_WINDOW,
             house_rules=api_pb2.NullableStringValue(value="RULES!")
         ))
-    
+
     with api_session(db, token2) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
         assert res.max_guests.value == 3
@@ -579,7 +610,7 @@ def test_hosting_preferences(db):
             area=api_pb2.NullableStringValue(value="area!"),
             house_rules=api_pb2.NullableStringValue(is_null=True)
         ))
-        
+
         res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
         assert not res.HasField("max_guests")
         assert not res.HasField("multiple_groups")
