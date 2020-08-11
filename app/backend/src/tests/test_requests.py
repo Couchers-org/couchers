@@ -5,7 +5,8 @@ import grpc
 import pytest
 from pb import requests_pb2
 from couchers import errors
-from couchers.models import Message, HostRequest, Conversation
+from couchers.models import (Conversation, Message, HostRequest, HostRequestEvent,
+                             HostRequestEventType)
 from tests.test_fixtures import requests_session, db, generate_user, make_friends
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_
@@ -77,6 +78,19 @@ def test_create_request(db):
         ))
         assert res.host_request.latest_message.text == "Test request"
 
+def add_message(db, text, author_id, conversation_id):
+    session = db()
+
+    message = Message(
+        conversation_id=conversation_id,
+        author_id=author_id,
+        text=text
+    )
+
+    session.add(message)
+    session.commit()
+    session.close()
+
 def test_list_requests(db):
     user1, token1 = generate_user(db)
     user2, token2 = generate_user(db)
@@ -134,15 +148,196 @@ def test_list_requests(db):
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq())
         assert len(res.host_requests) == 0
 
-def add_message(db, text, author_id, conversation_id):
+def test_list_host_requests_active_filter(db):
+    user1, token1 = generate_user(db)
+    user2, token2 = generate_user(db)
+    today_plus_1 = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+    today_plus_2 = (datetime.now() + timedelta(days=2)).strftime("%Y-%m-%d")
+
+    with requests_session(db, token1) as api:
+        request_id = api.CreateHostRequest(requests_pb2.CreateHostRequestReq(
+            user_id=user2.id,
+            from_date=today_plus_1,
+            to_date=today_plus_2,
+            text="Test request 1"
+        )).host_request.host_request_id
+        api.RespondHostRequest(requests_pb2.RespondHostRequestReq(
+            host_request_id=request_id,
+            status=requests_pb2.HOST_REQUEST_STATUS_CANCELLED
+        ))
+    
+    with requests_session(db, token2) as api:
+        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq())
+        assert len(res.host_requests) == 1
+        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_active=True))
+        assert len(res.host_requests) == 0
+
+def test_respond_host_requests(db):
+    user1, token1 = generate_user(db)
+    user2, token2 = generate_user(db)
+    user3, token3 = generate_user(db)
+    today_plus_1 = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+    today_plus_2 = (datetime.now() + timedelta(days=2)).strftime("%Y-%m-%d")
+
+    with requests_session(db, token1) as api:
+        request_id = api.CreateHostRequest(requests_pb2.CreateHostRequestReq(
+            user_id=user2.id,
+            from_date=today_plus_1,
+            to_date=today_plus_2,
+            text="Test request 1"
+        )).host_request.host_request_id
+    
+    # another user can't access
+    with requests_session(db, token3) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.RespondHostRequest(requests_pb2.RespondHostRequestReq(
+                host_request_id=request_id,
+                status=requests_pb2.HOST_REQUEST_STATUS_CANCELLED
+            ))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    
+    with requests_session(db, token2) as api:
+        # non existing id
+        with pytest.raises(grpc.RpcError) as e:
+            api.RespondHostRequest(requests_pb2.RespondHostRequestReq(
+                host_request_id=9999,
+                status=requests_pb2.HOST_REQUEST_STATUS_CANCELLED
+            ))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+        # host can't confirm or cancel (host should accept/reject)
+        with pytest.raises(grpc.RpcError) as e:
+            api.RespondHostRequest(requests_pb2.RespondHostRequestReq(
+                host_request_id=request_id,
+                status=requests_pb2.HOST_REQUEST_STATUS_CONFIRMED
+            ))
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+        with pytest.raises(grpc.RpcError) as e:
+            api.RespondHostRequest(requests_pb2.RespondHostRequestReq(
+                host_request_id=request_id,
+                status=requests_pb2.HOST_REQUEST_STATUS_CANCELLED
+            ))
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+
+        
+        api.RespondHostRequest(requests_pb2.RespondHostRequestReq(
+            host_request_id=request_id,
+            status=requests_pb2.HOST_REQUEST_STATUS_REJECTED
+        ))
+        # should be able to move from rejected -> accepted
+        api.RespondHostRequest(requests_pb2.RespondHostRequestReq(
+            host_request_id=request_id,
+            status=requests_pb2.HOST_REQUEST_STATUS_ACCEPTED
+        ))
+    
+    with requests_session(db, token1) as api:
+        # can't make pending
+        with pytest.raises(grpc.RpcError) as e:
+            api.RespondHostRequest(requests_pb2.RespondHostRequestReq(
+                host_request_id=request_id,
+                status=requests_pb2.HOST_REQUEST_STATUS_PENDING
+            ))
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+
+        # can confirm then cancel
+        api.RespondHostRequest(requests_pb2.RespondHostRequestReq(
+            host_request_id=request_id,
+            status=requests_pb2.HOST_REQUEST_STATUS_CONFIRMED
+        ))
+        
+        api.RespondHostRequest(requests_pb2.RespondHostRequestReq(
+            host_request_id=request_id,
+            status=requests_pb2.HOST_REQUEST_STATUS_CANCELLED
+        ))
+
+        # can't confirm after having cancelled
+        with pytest.raises(grpc.RpcError) as e:
+            api.RespondHostRequest(requests_pb2.RespondHostRequestReq(
+                host_request_id=request_id,
+                status=requests_pb2.HOST_REQUEST_STATUS_CONFIRMED
+            ))
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+
+    # at this point there should be 5 host request event records
     session = db()
-
-    message = Message(
-        conversation_id=conversation_id,
-        author_id=author_id,
-        text=text
-    )
-
-    session.add(message)
-    session.commit()
+    events = session.query(HostRequestEvent).order_by(HostRequestEvent.id.desc()).all()
+    assert len(events) == 5
+    assert events[0].event_type == HostRequestEventType.status_change_cancelled
+    assert events[1].event_type == HostRequestEventType.status_change_confirmed
+    assert events[2].event_type == HostRequestEventType.status_change_accepted
+    assert events[3].event_type == HostRequestEventType.status_change_rejected
+    assert events[4].event_type == HostRequestEventType.created
     session.close()
+
+def test_get_host_request_messages(db):
+    user1, token1 = generate_user(db)
+    user2, token2 = generate_user(db)
+    today_plus_1 = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+    today_plus_2 = (datetime.now() + timedelta(days=2)).strftime("%Y-%m-%d")
+    with requests_session(db, token1) as api:
+        res = api.CreateHostRequest(requests_pb2.CreateHostRequestReq(
+            user_id=user2.id,
+            from_date=today_plus_1,
+            to_date=today_plus_2,
+            text="Test request 1"
+        ))
+        request_id = res.host_request.host_request_id
+        conversation_id = res.host_request.conversation_id
+    
+    
+    add_message(db, "Test request 1 message 1", user1.id, conversation_id)
+    add_message(db, "Test request 1 message 2", user1.id, conversation_id)
+    add_message(db, "Test request 1 message 3", user1.id, conversation_id)
+    
+    with requests_session(db, token2) as api:
+
+        api.RespondHostRequest(requests_pb2.RespondHostRequestReq(
+            host_request_id=request_id,
+            status=requests_pb2.HOST_REQUEST_STATUS_ACCEPTED
+        ))
+
+        add_message(db, "Test request 1 message 4", user2.id, conversation_id)
+        add_message(db, "Test request 1 message 5", user2.id, conversation_id)
+
+        api.RespondHostRequest(requests_pb2.RespondHostRequestReq(
+            host_request_id=request_id,
+            status=requests_pb2.HOST_REQUEST_STATUS_REJECTED
+        ))
+    
+    with requests_session(db, token1) as api:
+        res = api.GetHostRequestMessages(requests_pb2.GetHostRequestMessagesReq(
+            host_request_id=request_id
+        ))
+        # 6 including initial message
+        assert len(res.messages) == 6
+        assert len(res.events) == 3
+        assert res.no_more
+
+        res = api.GetHostRequestMessages(requests_pb2.GetHostRequestMessagesReq(
+            host_request_id=request_id,
+            number=2
+        ))
+        assert not res.no_more
+        assert len(res.messages) == 2
+        assert len(res.events) == 1
+        assert res.events[0].event_type == requests_pb2.HostRequestEvent.REJECTED
+        assert res.events[0].after_message_id == res.messages[0].message_id
+        assert res.messages[0].text == "Test request 1 message 5"
+        assert res.messages[1].text == "Test request 1 message 4"
+
+        res = api.GetHostRequestMessages(requests_pb2.GetHostRequestMessagesReq(
+            host_request_id=request_id,
+            last_message_id=res.messages[1].message_id,
+            number=4
+        ))
+        assert res.no_more
+        assert len(res.messages) == 4
+        assert len(res.events) == 2
+        assert res.events[0].event_type == requests_pb2.HostRequestEvent.ACCEPTED
+        assert res.events[0].after_message_id == res.messages[0].message_id
+        assert res.events[1].event_type == requests_pb2.HostRequestEvent.CREATED
+        assert res.events[1].after_message_id == 0
+        assert res.messages[0].text == "Test request 1 message 3"
+        assert res.messages[1].text == "Test request 1 message 2"
+        assert res.messages[2].text == "Test request 1 message 1"
+        assert res.messages[3].text == "Test request 1"

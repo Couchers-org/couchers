@@ -18,6 +18,10 @@ service Requests {
   rpc ListHostRequests(ListHostRequestsReq) returns (ListHostRequestsRes);
   
   rpc ListSentHostRequests(ListSentHostRequestsReq) returns (ListSentHostRequestsRes);
+  
+  // Get the messages and events (created, accepted, etc) for a host request
+  // Throws NOT_FOUND if the user isn't part of the request or it doesn't exist
+  rpc GetHostRequestMessages(GetHostRequestMessagesReq) returns (GetHostRequestMessagesRes);
 }
 
 message CreateHostRequestReq {
@@ -88,4 +92,32 @@ message ListSentHostRequestsRes {
   repeated HostRequest host_requests = 1;
   uint64 next_request_id = 2;
   bool no_more = 3;
+}
+
+message GetHostRequestMessagesReq {
+  uint64 host_request_id = 1;
+  uint64 last_message_id = 2;
+  uint32 number = 3;
+}
+
+message HostRequestEvent {
+  enum HostRequestEventType {
+    CREATED = 0;
+    ACCEPTED = 1;
+    REJECTED = 2;
+    CONFIRMED = 3;
+    CANCELLED = 4;
+  }
+  
+  HostRequestEventType event_type = 1;
+  uint64 user_id = 2;
+  uint64 after_message_id = 3;
+  google.protobuf.Timestamp time = 4;
+}
+
+message GetHostRequestMessagesRes {
+  repeated org.couchers.api.conversations.Message messages = 1;
+  repeated HostRequestEvent events = 2;
+  uint64 next_message_id = 3;
+  bool no_more = 4;
 }
