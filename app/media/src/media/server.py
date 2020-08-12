@@ -98,7 +98,10 @@ def create_app(
             abort(500, "Unsupported upload type")
 
         # handle image uploads
-        img = pyvips.Image.new_from_buffer(request_file.read(), options="", access="sequential")
+        try:
+            img = pyvips.Image.new_from_buffer(request_file.read(), options="", access="sequential")
+        except:
+            abort(400, "Invalid image")
 
         width = img.get("width")
         height = img.get("height")
