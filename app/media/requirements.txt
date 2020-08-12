@@ -2,6 +2,7 @@ backoff
 Flask
 Flask-CORS
 grpcio
+Pillow
 protobuf
 pynacl
 pytest
