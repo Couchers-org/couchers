@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 from base64 import urlsafe_b64decode
 from datetime import datetime
 from pathlib import Path
@@ -7,7 +8,7 @@ from pathlib import Path
 import backoff
 import grpc
 import pyvips
-from couchers.crypto import verify_hash_signature
+from media.crypto import verify_hash_signature
 from flask import Flask, abort, request, send_file
 from flask_cors import CORS
 from pb import media_pb2, media_pb2_grpc
@@ -182,8 +183,8 @@ def create_app_from_env():
         MEDIA_UPLOAD_LOCATION,
         AVATAR_SIZE)
 
+if os.environ.get("MEDIA_SERVER_FROM_ENV", "0") == "1":
+    app = create_app_from_env()
 
-app = create_app_from_env()
-
-if __name__ == "__main__":
-    app.run()
+    if __name__ == "__main__":
+        app.run()

@@ -1,0 +1,10 @@
+backoff
+Flask
+Flask-CORS
+grpcio
+protobuf
+pynacl
+pytest
+pytest-pythonpath
+pyvips
+uwsgi

@@ -1,5 +1,0 @@
-backoff
-Flask
-Flask-CORS
-pyvips
-uwsgi

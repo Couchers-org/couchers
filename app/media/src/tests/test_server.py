@@ -3,7 +3,7 @@ import tempfile
 
 import pytest
 
-from media_server import create_app
+from media.server import create_app
 from nacl.utils import random as random_bytes
 
 @pytest.fixture
