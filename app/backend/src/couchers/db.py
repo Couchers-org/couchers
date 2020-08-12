@@ -62,10 +62,11 @@ def is_valid_date(date):
     """
     Checks if it is a date-only string in the format "YYYY-MM-DD"
     """
-    if re.match(r"^\d{4}-\d{2}-\d{2}$", date) is None:
+    if re.match(r"\d{4}-\d{2}-\d{2}$", date) is None:
         return False
+    
+    d = date.split("-")
     try:
-        d = date.split("-")
         datetime.datetime(int(d[0]), int(d[1]), int(d[2]))
     except ValueError:
         return False

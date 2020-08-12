@@ -29,11 +29,11 @@ hostrequeststatus2api = {
 }
 
 hostrequesteventtype2api = {
-    HostRequestEventType.created: requests_pb2.HostRequestEvent.CREATED,
-    HostRequestEventType.status_change_accepted: requests_pb2.HostRequestEvent.ACCEPTED,
-    HostRequestEventType.status_change_rejected: requests_pb2.HostRequestEvent.REJECTED,
-    HostRequestEventType.status_change_confirmed: requests_pb2.HostRequestEvent.CONFIRMED,
-    HostRequestEventType.status_change_cancelled: requests_pb2.HostRequestEvent.CANCELLED
+    HostRequestEventType.created: requests_pb2.HostRequestEvent.HOST_REQUEST_EVENT_TYPE_CREATED,
+    HostRequestEventType.status_change_accepted: requests_pb2.HostRequestEvent.HOST_REQUEST_EVENT_TYPE_ACCEPTED,
+    HostRequestEventType.status_change_rejected: requests_pb2.HostRequestEvent.HOST_REQUEST_EVENT_TYPE_REJECTED,
+    HostRequestEventType.status_change_confirmed: requests_pb2.HostRequestEvent.HOST_REQUEST_EVENT_TYPE_CONFIRMED,
+    HostRequestEventType.status_change_cancelled: requests_pb2.HostRequestEvent.HOST_REQUEST_EVENT_TYPE_CANCELLED
 }
 
 class Requests(requests_pb2_grpc.RequestsServicer):
@@ -42,10 +42,10 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
     def CreateHostRequest(self, request, context):
         with session_scope(self._Session) as session:
-            if request.user_id == context.user_id:
+            if request.to_user_id == context.user_id:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REQUEST_SELF)
             #just to check the host exists
-            host = session.query(User).filter(User.id == request.user_id).one_or_none()
+            host = session.query(User).filter(User.id == request.to_user_id).one_or_none()
             if not host:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
             
@@ -89,23 +89,9 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             session.commit()
 
             return requests_pb2.CreateHostRequestRes(
-                host_request=requests_pb2.HostRequest(
-                    host_request_id=host_request.id,
-                    from_user_id=host_request.from_user_id,
-                    to_user_id=host_request.to_user_id,
-                    status=hostrequeststatus2api[host_request.status],
-                    created=Timestamp_from_datetime(host_request.conversation.created),
-                    from_date=host_request.from_date,
-                    to_date=host_request.to_date,
-                    latest_message=conversations_pb2.Message(
-                        message_id=message.id,
-                        author_user_id=message.author_id,
-                        time=Timestamp_from_datetime(message.time),
-                        text=message.text
-                    ),
-                    conversation_id=host_request.conversation_id
-                )
+                host_request_id=host_request.id
             )
+
     def ListHostRequests(self, request, context):
         return self.list_host_requests(False, request, context)
 
@@ -168,8 +154,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                         author_user_id=result.Message.author_id,
                         time=Timestamp_from_datetime(result.Message.time),
                         text=result.Message.text
-                    ),
-                    conversation_id=result.HostRequest.conversation_id
+                    )
                 ) for result in results[:pagination]
             ]
             next_request_id = min(map(lambda g: g.HostRequest.id if g.HostRequest else 1, results))-1 if len(results) > 0 else 0 # TODO
@@ -325,3 +310,25 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     ) for event in events
                 ]
             )
+    
+    def SendHostRequestMessage(self, request, context):
+        with session_scope(self._Session) as session:
+            host_request = (session.query(HostRequest)
+                            .filter(HostRequest.id == request.host_request_id)
+                            .one_or_none())
+            
+            if not host_request:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
+            
+            if (host_request.from_user_id != context.user_id
+                        and host_request.to_user_id != context.user_id):
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
+            
+            message = Message()
+            message.conversation_id = host_request.conversation_id
+            message.author_id = context.user_id
+            message.text = request.text
+            session.add(message)
+            session.commit()
+
+            return empty_pb2.Empty()

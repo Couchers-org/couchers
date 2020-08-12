@@ -410,12 +410,14 @@ class HostingPreferences(Base):
     def __repr__(self):
         return f"HostingPreferences(user_id={self.user_id}, hosting_status={self.hosting_status}, max_guests={self.max_guests}... smoking_allowed={self.smoking_allowed}...)"
 
+
 class HostRequestStatus(enum.Enum):
     pending = 0
     accepted = 1
     rejected = 2
     confirmed = 3
     cancelled = 4
+
 
 class HostRequest(Base):
     """
@@ -434,9 +436,11 @@ class HostRequest(Base):
 
     status = Column(Enum(HostRequestStatus), nullable=False)
 
-    conversation_id = Column(Integer, ForeignKey("conversations.id"), nullable=False)
+    conversation_id = Column(Integer, ForeignKey(
+        "conversations.id"), nullable=False)
     # initial message will have a timestamp for creation time
-    initial_message_id = Column(Integer, ForeignKey("messages.id"), nullable=False)
+    initial_message_id = Column(
+        Integer, ForeignKey("messages.id"), nullable=False)
 
     from_user = relationship(
         "User", backref="host_requests_sent", foreign_keys="HostRequest.from_user_id")
@@ -448,12 +452,14 @@ class HostRequest(Base):
     def __repr__(self):
         return f"HostRequest(id={self.id}, from_user_id={self.from_user_id}, to_user_id={self.to_user_id}...)"
 
+
 class HostRequestEventType(enum.Enum):
-    created = 0 #will be pending upon creation, can't change back
+    created = 0  # will be pending upon creation, can't change back
     status_change_accepted = 1
     status_change_rejected = 2
     status_change_confirmed = 3
     status_change_cancelled = 4
+
 
 class HostRequestEvent(Base):
     """

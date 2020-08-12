@@ -57,7 +57,7 @@ server.add_insecure_port("[::]:1751")
 api_pb2_grpc.add_APIServicer_to_server(servicer, server)
 sso_pb2_grpc.add_SSOServicer_to_server(SSO(Session), server)
 conversations_pb2_grpc.add_ConversationsServicer_to_server(Conversations(Session), server)
-requests_pb2_grpc.add_RequestsServicer_to_server()
+requests_pb2_grpc.add_RequestsServicer_to_server(Requests(Session), server)
 server.start()
 
 logger.info(f"Serving on 1751 and 1752 (auth)")
