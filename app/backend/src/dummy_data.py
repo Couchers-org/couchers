@@ -7,11 +7,14 @@ from couchers.db import get_user_by_field, session_scope
 from couchers.models import (Base, Conversation, FriendRelationship,
                              FriendStatus, GroupChat, GroupChatRole,
                              GroupChatSubscription, Message, Reference, ReferenceType, User)
+from couchers.servicers.api import hostingstatus2sql
+from pb.api_pb2 import HostingStatus
 from couchers.utils import Timestamp_from_datetime
 from dateutil import parser
 from sqlalchemy.exc import IntegrityError
 
 logger = logging.getLogger(__name__)
+
 
 def add_dummy_data(Session, file_name):
     try:
@@ -24,7 +27,8 @@ def add_dummy_data(Session, file_name):
                 new_user = User(
                     username=user["username"],
                     email=user["email"],
-                    hashed_password=hash_password(user["password"]) if user["password"] else None,
+                    hashed_password=hash_password(
+                        user["password"]) if user["password"] else None,
                     name=user["name"],
                     city=user["city"],
                     verification=user["verification"],
@@ -42,6 +46,8 @@ def add_dummy_data(Session, file_name):
                     color=user.get("color", None),
                     countries_visited="|".join(user["countries_visited"]),
                     countries_lived="|".join(user["countries_lived"]),
+                    hosting_status=hostingstatus2sql[HostingStatus.Value(
+                        user["hosting_status"])] if "hosting_status" in user else None
                 )
                 session.add(new_user)
 
@@ -54,7 +60,7 @@ def add_dummy_data(Session, file_name):
                     status=FriendStatus.accepted,
                 )
                 session.add(friend_relationship)
-            
+
             session.commit()
 
             for reference in data["references"]:
@@ -62,7 +68,8 @@ def add_dummy_data(Session, file_name):
                     ReferenceType.SURFED if reference["type"] == "surfed" else ReferenceType.FRIEND
                 )
                 new_reference = Reference(
-                    from_user_id=get_user_by_field(session, reference["from"]).id,
+                    from_user_id=get_user_by_field(
+                        session, reference["from"]).id,
                     to_user_id=get_user_by_field(session, reference["to"]).id,
                     reference_type=reference_type,
                     text=reference["text"],
@@ -70,7 +77,7 @@ def add_dummy_data(Session, file_name):
                     was_safe=reference["was_safe"]
                 )
                 session.add(new_reference)
-            
+
             session.commit()
 
             for group_chat in data["group_chats"]:
@@ -90,7 +97,8 @@ def add_dummy_data(Session, file_name):
 
                 for participant in group_chat["participants"]:
                     subscription = GroupChatSubscription(
-                        user_id=get_user_by_field(session, participant["username"]).id,
+                        user_id=get_user_by_field(
+                            session, participant["username"]).id,
                         group_chat=chat,
                         role=GroupChatRole.admin if participant["username"] == creator else GroupChatRole.participant,
                         joined=parser.isoparse(participant["joined"]),
@@ -100,7 +108,8 @@ def add_dummy_data(Session, file_name):
                 for message in group_chat["messages"]:
                     session.add(Message(
                         conversation=chat.conversation,
-                        author_id=get_user_by_field(session, message["author"]).id,
+                        author_id=get_user_by_field(
+                            session, message["author"]).id,
                         time=parser.isoparse(message["time"]),
                         text=message["message"],
                     ))

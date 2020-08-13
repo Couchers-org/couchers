@@ -9,6 +9,24 @@
         <v-sheet height="80" :color="user.color" tile></v-sheet>
         <v-card-title>{{ user.name }}</v-card-title>
         <v-card-subtitle>{{ user.city }}</v-card-subtitle>
+        <v-list-item
+          v-if="
+            user.hostingStatus != HostingStatus.HOSTING_STATUS_UNKNOWN &&
+            user.hosting_status != HostingStatus.HOSTING_STATUS_UNSPECIFIED
+          "
+          two-item
+        >
+          <v-list-item-icon>
+            <v-icon :color="displayHostingStatus(user.hostingStatus)[1]"
+              >mdi-home</v-icon
+            >
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>{{
+              displayHostingStatus(user.hostingStatus)[0]
+            }}</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
         <v-list-item two-item>
           <v-list-item-icon>
             <v-icon>mdi-account-multiple</v-icon>
@@ -140,18 +158,89 @@
         <v-card-text>
           <v-tabs class="mb-5">
             <v-tab href="#about">About me</v-tab>
+            <v-tab href="#hosting">Hosting</v-tab>
             <v-tab href="#references">References</v-tab>
             <v-tab href="#friends">Friends</v-tab>
             <v-tab href="#photos">Photos</v-tab>
             <v-tab-item value="about">
-              <h3>About me</h3>
-              <p>{{ user.aboutMe }}</p>
-              <h3>About my place</h3>
-              <p>{{ user.aboutPlace }}</p>
-              <h3>Countries I've visited</h3>
-              <p>{{ displayList(user.countriesVisitedList) }}</p>
-              <h3>Countries I've lived in</h3>
-              <p>{{ displayList(user.countriesLivedList) }}</p>
+              <v-container v-if="user.aboutMe">
+                <h3>About me</h3>
+                <markdown :source="user.aboutMe" />
+              </v-container>
+              <v-container v-if="user.aboutPlace">
+                <h3>About my place</h3>
+                <markdown :source="user.aboutPlace" />
+              </v-container>
+              <v-container v-if="user.countriesVisitedList.length > 0">
+                <h3>Countries I've visited</h3>
+                <p>{{ displayList(user.countriesVisitedList) }}</p>
+              </v-container>
+              <v-container v-if="user.countriesLivedList.length > 0">
+                <h3>Countries I've lived in</h3>
+                <p>{{ displayList(user.countriesLivedList) }}</p>
+              </v-container>
+            </v-tab-item>
+            <v-tab-item value="hosting">
+              <v-container v-if="!hasHostingPreferences">
+                This user hasn't specified any hosting information yet.
+              </v-container>
+              <v-container v-if="user.maxGuests != null">
+                <h3>Max guests</h3>
+                {{ user.maxGuests.value }}
+              </v-container>
+              <v-container v-if="user.multipleGroups != null">
+                <h3>Accepts mutliple groups?</h3>
+                {{ displayBool(user.multipleGroups.value) }}
+              </v-container>
+              <v-container v-if="user.lastMinute != null">
+                <h3>Accepts last minute requests?</h3>
+                {{ displayBool(user.lastMinute.value) }}
+              </v-container>
+              <v-container v-if="user.acceptsPets != null">
+                <h3>Accepts pets?</h3>
+                {{ displayBool(user.acceptsPets.value) }}
+              </v-container>
+              <v-container v-if="user.acceptsKids != null">
+                <h3>Accepts kids?</h3>
+                {{ displayBool(user.acceptsKids.value) }}
+              </v-container>
+              <v-container
+                v-if="user.wheelchairAccessible != null"
+              >
+                <h3>Wheelchair Accessible?</h3>
+                {{ displayBool(user.wheelchairAccessible.value) }}
+              </v-container>
+              <v-container
+                v-if="
+                  user.smokingAllowed !=
+                    SmokingLocation.SMOKING_LOCATION_UNSPECIFIED &&
+                  user.smokingAllowed !=
+                    SmokingLocation.SMOKING_LOCATION_UNKNOWN
+                "
+              >
+                <h3>Smoking allowed?</h3>
+                {{
+                  displaySmokingLocation(
+                    user.smokingAllowed.value
+                  )
+                }}
+              </v-container>
+              <v-container
+                v-if="user.sleepingArrangement != null"
+              >
+                <h3>Sleeping arrangements</h3>
+                <markdown
+                  :source="user.sleepingArrangement.value"
+                />
+              </v-container>
+              <v-container v-if="user.area != null">
+                <h3>Area/neightbourhood info</h3>
+                <markdown :source="user.area.value" />
+              </v-container>
+              <v-container v-if="user.houseRules != null">
+                <h3>House rules</h3>
+                <markdown :source="user.houseRules.value" />
+              </v-container>
             </v-tab-item>
             <v-tab-item value="references">
               <v-btn
@@ -242,9 +331,10 @@
 <script lang="ts">
 import Vue from "vue"
 
-import ErrorAlert from "../components/ErrorAlert.vue"
-import LoadingCircular from "../components/LoadingCircular.vue"
-import ReportDialogButton from "../components/ReportDialogButton.vue"
+import ErrorAlert from "@/components/ErrorAlert.vue"
+import LoadingCircular from "@/components/LoadingCircular.vue"
+import ReportDialogButton from "@/components/ReportDialogButton.vue"
+import Markdown from "@/components/Markdown.vue"
 
 import {
   GetUserReq,
@@ -254,10 +344,19 @@ import {
   GetReceivedReferencesReq,
   ReferenceType,
   WriteReferenceReq,
+  HostingStatus,
+  SmokingLocation,
 } from "../pb/api_pb"
 import { client } from "../api"
 
-import { displayList, displayTime, handle } from "../utils"
+import {
+  displayList,
+  displayTime,
+  handle,
+  displayHostingStatus,
+  displayBool,
+  displaySmokingLocation,
+} from "../utils"
 
 import store from "../store/index"
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb"
@@ -277,12 +376,15 @@ export default Vue.extend({
     myReference: null as null | string,
     myReferenceWasSafe: false,
     myReferenceRating: 0,
+    HostingStatus,
+    SmokingLocation,
   }),
 
   components: {
     ErrorAlert,
     LoadingCircular,
     ReportDialogButton,
+    Markdown,
   },
 
   created() {
@@ -299,6 +401,12 @@ export default Vue.extend({
     displayList,
 
     displayTime,
+
+    displayHostingStatus,
+
+    displayBool,
+
+    displaySmokingLocation,
 
     referenceTypeString(rt: ReferenceType): string {
       switch (rt) {
@@ -432,6 +540,24 @@ export default Vue.extend({
   store,
 
   computed: {
+    hasHostingPreferences(): boolean {
+      return (
+        this.user.maxGuests != null ||
+        this.user.multipleGroups != null ||
+        this.user.lastMinute != null ||
+        this.user.acceptsPets != null ||
+        this.user.acceptsKids != null ||
+        this.user.wheelchairAccessible != null ||
+        (this.user.smokingAllowed !=
+                    SmokingLocation.SMOKING_LOCATION_UNSPECIFIED &&
+                  this.user.smokingAllowed !=
+                    SmokingLocation.SMOKING_LOCATION_UNKNOWN) ||
+        this.user.sleepingArrangement != null ||
+        this.user.area != null &&
+        this.user.houseRules != null
+      )
+    },
+
     routeUser() {
       return this.$route.params.user
     },

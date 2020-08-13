@@ -3,6 +3,24 @@
     <v-sheet height="80" :color="user.color" tile></v-sheet>
     <v-card-title>{{ user.name }}</v-card-title>
     <v-card-subtitle>{{ user.city }}</v-card-subtitle>
+    <v-list-item
+      v-if="
+        user.hostingStatus != HostingStatus.HOSTING_STATUS_UNKNOWN &&
+        user.hosting_status != HostingStatus.HOSTING_STATUS_UNSPECIFIED
+      "
+      two-item
+    >
+      <v-list-item-icon>
+        <v-icon :color="displayHostingStatus(user.hostingStatus)[1]"
+          >mdi-home</v-icon
+        >
+      </v-list-item-icon>
+      <v-list-item-content>
+        <v-list-item-title>{{
+          displayHostingStatus(user.hostingStatus)[0]
+        }}</v-list-item-title>
+      </v-list-item-content>
+    </v-list-item>
     <v-list-item two-item>
       <v-list-item-icon>
         <v-icon>mdi-account-check</v-icon>
@@ -98,13 +116,20 @@
 <script lang="ts">
 import Vue, { PropType } from "vue"
 
-import { User } from "../pb/api_pb"
+import { User, HostingStatus } from "../pb/api_pb"
 
-import { displayList, displayTime } from "../utils"
+import { displayList, displayTime, displayHostingStatus } from "../utils"
 
 export default Vue.extend({
+  data: () => ({
+    HostingStatus,
+  }),
   props: {
     user: Object as PropType<User.AsObject>,
+  },
+
+  methods: {
+    displayHostingStatus,
   },
 
   computed: {

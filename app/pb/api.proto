@@ -15,8 +15,9 @@ service API {
     // Get info about a particular user
   }
 
-  rpc UpdateProfile(UpdateProfileReq) returns (UpdateProfileRes) {
+  rpc UpdateProfile(UpdateProfileReq) returns (google.protobuf.Empty) {
     // Update your profile
+    // *Nullable can be set to null to clear the value. is_null defaults to false.
   }
 
   rpc SendFriendRequest(SendFriendRequestReq) returns (google.protobuf.Empty);
@@ -111,6 +112,39 @@ message MutualFriend {
   string name = 3;
 }
 
+enum HostingStatus {
+  HOSTING_STATUS_UNSPECIFIED = 0;
+  HOSTING_STATUS_UNKNOWN = 1;
+  HOSTING_STATUS_CAN_HOST = 2;
+  HOSTING_STATUS_MAYBE = 3;
+  HOSTING_STATUS_DIFFICULT = 4;
+  HOSTING_STATUS_CANT_HOST = 5;
+}
+
+enum SmokingLocation {
+  SMOKING_LOCATION_UNSPECIFIED = 0;
+  SMOKING_LOCATION_UNKNOWN = 1;
+  SMOKING_LOCATION_YES = 2;
+  SMOKING_LOCATION_WINDOW = 3;
+  SMOKING_LOCATION_OUTSIDE = 4;
+  SMOKING_LOCATION_NO = 5;
+}
+
+message NullableUInt32Value {
+  bool is_null = 1;
+  uint32 value = 2;
+}
+
+message NullableBoolValue {
+  bool is_null = 1;
+  bool value = 2;
+}
+
+message NullableStringValue {
+  bool is_null = 1;
+  string value = 2;
+}
+
 message User {
   enum FriendshipStatus {
     NOT_FRIENDS = 0;
@@ -131,15 +165,27 @@ message User {
   string color = 10; // web color, e.g. #643073, case doesn't matter
   google.protobuf.Timestamp joined = 11; // not exact
   google.protobuf.Timestamp last_active = 12; // not exact
-  string occupation = 13;
-  string about_me = 14;
-  string about_place = 15;
-  repeated string languages = 16;
-  repeated string countries_visited = 17;
-  repeated string countries_lived = 18;
+  HostingStatus hosting_status = 13;
+  string occupation = 14;
+  string about_me = 15;
+  string about_place = 16;
+  repeated string languages = 17;
+  repeated string countries_visited = 18;
+  repeated string countries_lived = 19;
 
-  FriendshipStatus friends = 19;
-  repeated MutualFriend mutual_friends = 20;
+  FriendshipStatus friends = 20;
+  repeated MutualFriend mutual_friends = 21;
+  
+  google.protobuf.UInt32Value max_guests = 22;
+  google.protobuf.BoolValue multiple_groups = 23;
+  google.protobuf.BoolValue last_minute = 24;
+  google.protobuf.BoolValue accepts_pets = 25;
+  google.protobuf.BoolValue accepts_kids = 26;
+  google.protobuf.BoolValue wheelchair_accessible = 27;
+  SmokingLocation smoking_allowed = 28;
+  google.protobuf.StringValue sleeping_arrangement = 29;
+  google.protobuf.StringValue area = 30;
+  google.protobuf.StringValue house_rules = 31;
 }
 
 message GetUserReq {
@@ -147,7 +193,7 @@ message GetUserReq {
 }
 
 message RepeatedStringValue {
-  // A RepeatedStringValue is like a "protobuf warpper" (like {Type}Value) but for repeated strings
+  // A RepeatedStringValue is like a "protobuf wrapper" (like {Type}Value) but for repeated strings
   // allows us to determine if the user wanted to remote this list of strings
   bool exists = 1;
   repeated string value = 2;
@@ -159,27 +205,27 @@ message UpdateProfileReq {
   google.protobuf.StringValue name = 1;
   google.protobuf.StringValue city = 2;
   google.protobuf.StringValue gender = 3;
-  google.protobuf.StringValue occupation = 4;
-  google.protobuf.StringValue about_me = 5;
-  google.protobuf.StringValue about_place = 6;
+  NullableStringValue occupation = 4;
+  NullableStringValue about_me = 5;
+  NullableStringValue about_place = 6;
   google.protobuf.StringValue color = 7;
+  
+  HostingStatus hosting_status = 8;
 
-  RepeatedStringValue languages = 8;
-  RepeatedStringValue countries_visited = 9;
-  RepeatedStringValue countries_lived = 10;
-}
-
-message UpdateProfileRes {
-  bool updated_name = 1;
-  bool updated_city = 2;
-  bool updated_gender = 3;
-  bool updated_occupation = 4;
-  bool updated_about_me = 5;
-  bool updated_about_place = 6;
-  bool updated_color = 7;
-  bool updated_languages = 8;
-  bool updated_countries_visited = 9;
-  bool updated_countries_lived = 10;
+  RepeatedStringValue languages = 9;
+  RepeatedStringValue countries_visited = 10;
+  RepeatedStringValue countries_lived = 11;
+  
+  NullableUInt32Value max_guests = 12;
+  NullableBoolValue multiple_groups = 13;
+  NullableBoolValue last_minute = 14;
+  NullableBoolValue accepts_pets = 15;
+  NullableBoolValue accepts_kids = 16;
+  NullableBoolValue wheelchair_accessible = 17;
+  SmokingLocation smoking_allowed = 18;
+  NullableStringValue sleeping_arrangement = 19;
+  NullableStringValue area = 20;
+  NullableStringValue house_rules = 21;
 }
 
 message ReportReq {

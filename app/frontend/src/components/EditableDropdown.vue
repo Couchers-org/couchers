@@ -1,19 +1,13 @@
 <template>
   <div>
     <div v-if="!editing">
-      <v-container v-if="!isMarkdown">
-        <p>
-          {{ text }}
-          <v-btn icon v-on:click="edit"><v-icon>mdi-pencil</v-icon></v-btn>
-        </p>
-      </v-container>
-      <v-container v-else>
-        <markdown :source="text" />
+      <p>
+        {{ items.find((i) => i.value == value).text }}
         <v-btn icon v-on:click="edit"><v-icon>mdi-pencil</v-icon></v-btn>
-      </v-container>
+      </p>
     </div>
     <div v-if="editing">
-      <v-textarea v-model="dirtyText"></v-textarea>
+      <v-select v-model="dirtyValue" :items="items"></v-select>
       <v-btn class="mx-2 my-2" v-on:click="save" color="success">Save</v-btn>
       <v-btn class="mx-2 my-2" v-on:click="cancel" color="warning"
         >Cancel</v-btn
@@ -24,39 +18,41 @@
 
 <script lang="ts">
 import Vue from "vue"
+import VueSimpleMarkdown from "vue-simple-markdown"
+import "vue-simple-markdown/dist/vue-simple-markdown.css"
 
-import Markdown from "@/components/Markdown.vue"
+Vue.use(VueSimpleMarkdown)
 
 export default Vue.extend({
   props: {
-    text: String,
-    isMarkdown: Boolean,
+    items: Array,
+    value: {},
   },
 
   data: () => ({
     editing: false,
-    dirtyText: null as null | string,
+    dirtyValue: null as any,
   }),
 
-  components: {
-    Markdown,
+  created() {
+    this.dirtyValue = this.value
   },
 
   methods: {
     edit() {
       this.editing = true
-      this.dirtyText = this.text
+      this.dirtyValue = this.value
     },
 
     save() {
-      this.$emit("save", this.dirtyText)
+      this.$emit("save", this.dirtyValue)
       this.editing = false
     },
 
     cancel() {
       // stop editing and set text back to original
       this.editing = false
-      this.dirtyText = this.text
+      this.dirtyValue = this.value
     },
   },
 })

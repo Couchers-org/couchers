@@ -1,18 +1,18 @@
 import enum
 from calendar import monthrange
 from datetime import date
-from math import floor
 
 from sqlalchemy import (Boolean, Column, Date, DateTime, Enum, Float,
                         ForeignKey, Integer, UniqueConstraint)
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import String
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import backref, relationship
+from sqlalchemy.orm import relationship
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func
 
 Base = declarative_base()
+
 
 class PhoneStatus(enum.Enum):
     # unverified
@@ -20,6 +20,18 @@ class PhoneStatus(enum.Enum):
     # verified
     verified = 2
 
+
+class HostingStatus(enum.Enum):
+    can_host = 1
+    maybe = 2
+    difficult = 3
+    cant_host = 4
+
+class SmokingLocation(enum.Enum):
+    yes = 1
+    window = 2
+    outside = 3
+    no = 4
 
 class User(Base):
     """
@@ -38,8 +50,10 @@ class User(Base):
     phone = Column(String, nullable=True, unique=True)
     phone_status = Column(Enum(PhoneStatus), nullable=True)
 
-    joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    last_active = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    joined = Column(DateTime(timezone=True), nullable=False,
+                    server_default=func.now())
+    last_active = Column(DateTime(timezone=True),
+                         nullable=False, server_default=func.now())
 
     # display name
     name = Column(String, nullable=False)
@@ -49,6 +63,8 @@ class User(Base):
 
     # name as on official docs for verification, etc. not needed until verification
     full_name = Column(String, nullable=True)
+
+    hosting_status = Column(Enum(HostingStatus), nullable=True)
 
     # verification score
     verification = Column(Float, nullable=True)
@@ -67,16 +83,27 @@ class User(Base):
 
     is_banned = Column(Boolean, nullable=False, default=False)
 
-    # TODO: hosting fields
+    # hosting preferences
+    max_guests = Column(Integer, nullable=True)
+    multiple_groups = Column(Boolean, nullable=True)
+    last_minute = Column(Boolean, nullable=True)
+    accepts_pets = Column(Boolean, nullable=True)
+    accepts_kids = Column(Boolean, nullable=True)
+    wheelchair_accessible = Column(Boolean, nullable=True)
+    smoking_allowed = Column(Enum(SmokingLocation), nullable=True)
+
+    sleeping_arrangement = Column(String, nullable=True)
+    area = Column(String, nullable=True)
+    house_rules = Column(String, nullable=True)
 
     @property
     def age(self):
         max_day = monthrange(date.today().year, self.birthdate.month)[1]
         age = date.today().year - self.birthdate.year
-        #in case of leap-day babies, make sure the date is valid for this year
+        # in case of leap-day babies, make sure the date is valid for this year
         safe_birthdate = self.birthdate
         if (self.birthdate.day > max_day):
-            safe_birthdate = safe_birthdate.replace(day = max_day)
+            safe_birthdate = safe_birthdate.replace(day=max_day)
         if date.today() < safe_birthdate.replace(year=date.today().year):
             age -= 1
         return age
@@ -103,24 +130,24 @@ class User(Base):
         session = Session.object_session(self)
 
         q1 = (session.query(FriendRelationship.from_user_id.label("user_id"))
-            .filter(FriendRelationship.to_user == self)
-            .filter(FriendRelationship.from_user_id != target_id)
-            .filter(FriendRelationship.status == FriendStatus.accepted))
+              .filter(FriendRelationship.to_user == self)
+              .filter(FriendRelationship.from_user_id != target_id)
+              .filter(FriendRelationship.status == FriendStatus.accepted))
 
         q2 = (session.query(FriendRelationship.to_user_id.label("user_id"))
-            .filter(FriendRelationship.from_user == self)
-            .filter(FriendRelationship.to_user_id != target_id)
-            .filter(FriendRelationship.status == FriendStatus.accepted))
+              .filter(FriendRelationship.from_user == self)
+              .filter(FriendRelationship.to_user_id != target_id)
+              .filter(FriendRelationship.status == FriendStatus.accepted))
 
         q3 = (session.query(FriendRelationship.from_user_id.label("user_id"))
-            .filter(FriendRelationship.to_user_id == target_id)
-            .filter(FriendRelationship.from_user != self)
-            .filter(FriendRelationship.status == FriendStatus.accepted))
+              .filter(FriendRelationship.to_user_id == target_id)
+              .filter(FriendRelationship.from_user != self)
+              .filter(FriendRelationship.status == FriendStatus.accepted))
 
         q4 = (session.query(FriendRelationship.to_user_id.label("user_id"))
-            .filter(FriendRelationship.from_user_id == target_id)
-            .filter(FriendRelationship.to_user != self)
-            .filter(FriendRelationship.status == FriendStatus.accepted))
+              .filter(FriendRelationship.from_user_id == target_id)
+              .filter(FriendRelationship.to_user != self)
+              .filter(FriendRelationship.status == FriendStatus.accepted))
 
         return session.query(User).filter(User.id.in_(q1.union(q2).intersect(q3.union(q4)).subquery())).all()
 
@@ -148,13 +175,17 @@ class FriendRelationship(Base):
     from_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     to_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
-    status = Column(Enum(FriendStatus), nullable=False, default=FriendStatus.pending)
+    status = Column(Enum(FriendStatus), nullable=False,
+                    default=FriendStatus.pending)
 
-    time_sent = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    time_sent = Column(DateTime(timezone=True),
+                       nullable=False, server_default=func.now())
     time_responded = Column(DateTime(timezone=True), nullable=True)
 
-    from_user = relationship("User", backref="friends_from", foreign_keys="FriendRelationship.from_user_id")
-    to_user = relationship("User", backref="friends_to", foreign_keys="FriendRelationship.to_user_id")
+    from_user = relationship(
+        "User", backref="friends_from", foreign_keys="FriendRelationship.from_user_id")
+    to_user = relationship("User", backref="friends_to",
+                           foreign_keys="FriendRelationship.to_user_id")
 
 
 class SignupToken(Base):
@@ -166,7 +197,8 @@ class SignupToken(Base):
 
     email = Column(String, nullable=False)
 
-    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    created = Column(DateTime(timezone=True), nullable=False,
+                     server_default=func.now())
     expiry = Column(DateTime(timezone=True), nullable=False)
 
     def __repr__(self):
@@ -182,7 +214,8 @@ class LoginToken(Base):
 
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
-    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    created = Column(DateTime(timezone=True), nullable=False,
+                     server_default=func.now())
     expiry = Column(DateTime(timezone=True), nullable=False)
 
     user = relationship("User", backref="login_tokens")
@@ -200,7 +233,8 @@ class UserSession(Base):
 
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
-    started = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    started = Column(DateTime(timezone=True), nullable=False,
+                     server_default=func.now())
 
     user = relationship("User", backref="sessions")
 
@@ -217,11 +251,12 @@ class Reference(Base):
     """
     __tablename__ = "references"
     __table_args__ = (
-            UniqueConstraint("from_user_id", "to_user_id", "reference_type"),
-            )
+        UniqueConstraint("from_user_id", "to_user_id", "reference_type"),
+    )
 
     id = Column(Integer, primary_key=True)
-    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    time = Column(DateTime(timezone=True), nullable=False,
+                  server_default=func.now())
 
     from_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     to_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -233,8 +268,10 @@ class Reference(Base):
     rating = Column(Integer, nullable=False)
     was_safe = Column(Boolean, nullable=False)
 
-    from_user = relationship("User", backref="references_from", foreign_keys="Reference.from_user_id")
-    to_user = relationship("User", backref="references_to", foreign_keys="Reference.to_user_id")
+    from_user = relationship(
+        "User", backref="references_from", foreign_keys="Reference.from_user_id")
+    to_user = relationship("User", backref="references_to",
+                           foreign_keys="Reference.to_user_id")
 
 
 class Conversation(Base):
@@ -244,7 +281,8 @@ class Conversation(Base):
     __tablename__ = "conversations"
 
     id = Column(Integer, primary_key=True)
-    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    created = Column(DateTime(timezone=True), nullable=False,
+                     server_default=func.now())
 
     def __repr__(self):
         return f"Conversation(id={self.id}, created={self.created})"
@@ -256,7 +294,8 @@ class GroupChat(Base):
     """
     __tablename__ = "group_chats"
 
-    conversation_id = Column("id", ForeignKey("conversations.id"), nullable=False, primary_key=True)
+    conversation_id = Column("id", ForeignKey(
+        "conversations.id"), nullable=False, primary_key=True)
 
     title = Column(String, nullable=True)
     only_admins_invite = Column(Boolean, nullable=False, default=True)
@@ -286,7 +325,8 @@ class GroupChatSubscription(Base):
     user_id = Column(ForeignKey("users.id"), nullable=False)
     group_chat_id = Column(ForeignKey("group_chats.id"), nullable=False)
 
-    joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    joined = Column(DateTime(timezone=True), nullable=False,
+                    server_default=func.now())
     left = Column(DateTime(timezone=True), nullable=True)
 
     role = Column(Enum(GroupChatRole), nullable=False)
@@ -304,10 +344,10 @@ class GroupChatSubscription(Base):
         session = Session.object_session(self)
 
         return (session.query(func.count(Message.id).label("count"))
-            .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
-            .filter(GroupChatSubscription.id == self.id)
-            .filter(Message.id > GroupChatSubscription.last_seen_message_id)
-            .one()).count
+                .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
+                .filter(GroupChatSubscription.id == self.id)
+                .filter(Message.id > GroupChatSubscription.last_seen_message_id)
+                .one()).count
 
     def __repr__(self):
         return f"GroupChatSubscription(id={self.id}, user={self.user}, joined={self.joined}, left={self.left}, role={self.role}, group_chat={self.group_chat})"
@@ -324,10 +364,12 @@ class Message(Base):
     conversation_id = Column(ForeignKey("conversations.id"), nullable=False)
     author_id = Column(ForeignKey("users.id"), nullable=False)
 
-    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    time = Column(DateTime(timezone=True), nullable=False,
+                  server_default=func.now())
     text = Column(String, nullable=False)
 
-    conversation = relationship("Conversation", backref="messages", order_by="Message.time.desc()")
+    conversation = relationship(
+        "Conversation", backref="messages", order_by="Message.time.desc()")
     author = relationship("User")
 
     def __repr__(self):
@@ -342,7 +384,8 @@ class Complaint(Base):
 
     id = Column(Integer, primary_key=True)
 
-    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    time = Column(DateTime(timezone=True), nullable=False,
+                  server_default=func.now())
 
     author_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     reported_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
