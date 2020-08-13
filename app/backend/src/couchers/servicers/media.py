@@ -32,6 +32,6 @@ class Media(media_pb2_grpc.MediaServicer):
             if not upload:
                 context.abort(grpc.StatusCode.NOT_FOUND, "Upload not found.")
 
-            upload.user.avatar_key = request.key
+            upload.user.avatar_filename = request.filename
 
             return empty_pb2.Empty()

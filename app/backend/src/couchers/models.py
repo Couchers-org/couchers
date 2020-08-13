@@ -77,7 +77,7 @@ class User(Base):
     about_place = Column(String, nullable=True)
     # profile color
     color = Column(String, nullable=False, default="#643073")
-    avatar_key = Column(String, nullable=True)
+    avatar_filename = Column(String, nullable=True)
     # TODO: array types once we go postgres
     languages = Column(String, nullable=True)
     countries_visited = Column(String, nullable=True)
@@ -128,8 +128,8 @@ class User(Base):
     @property
     def avatar_url(self):
         # TODO(aapeli): don't hardcode
-        key = self.avatar_key or "couchers"
-        return f"{config['MEDIA_SERVER_BASE_URL']}/avatar/{key}.jpg"
+        filename = self.avatar_filename or "couchers"
+        return f"{config['MEDIA_SERVER_BASE_URL']}/avatar/{filename}"
 
     def mutual_friends(self, target_id):
         if target_id == self.id:
