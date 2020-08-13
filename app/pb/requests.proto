@@ -1,0 +1,132 @@
+syntax = "proto3";
+
+package org.couchers.api.requests;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+import "pb/conversations.proto";
+
+service Requests {
+  rpc CreateHostRequest(CreateHostRequestReq) returns (CreateHostRequestRes);
+  
+  // Change the status of a host request.
+  // Throws NOT_FOUND if you don't have a host request of that id, NOT_AUTHORIZED
+  // if you try to change the status to one you aren't allowed.
+  rpc RespondHostRequest(RespondHostRequestReq) returns (google.protobuf.Empty);
+  
+  rpc ListHostRequests(ListHostRequestsReq) returns (ListHostRequestsRes);
+  
+  rpc ListSentHostRequests(ListSentHostRequestsReq) returns (ListSentHostRequestsRes);
+  
+  // Get the messages and events (created, accepted, etc) for a host request
+  // Throws NOT_FOUND if the user isn't part of the request or it doesn't exist
+  rpc GetHostRequestMessages(GetHostRequestMessagesReq) returns (GetHostRequestMessagesRes);
+  
+  
+  // Adds a new message to a host request
+  // Throws NOT_FOUND if the user isn't part of the request or it doesn't exist
+  rpc SendHostRequestMessage(SendHostRequestMessageReq) returns (google.protobuf.Empty);
+}
+
+message CreateHostRequestReq {
+  uint64 to_user_id = 1;
+  // dates as "yyyy-mm-dd"
+  string from_date = 2;
+  string to_date = 3;
+  string text = 4;
+}
+
+enum HostRequestStatus {
+  HOST_REQUEST_STATUS_PENDING = 0;
+  HOST_REQUEST_STATUS_ACCEPTED = 1;
+  HOST_REQUEST_STATUS_REJECTED = 2;
+  HOST_REQUEST_STATUS_CONFIRMED = 3;
+  HOST_REQUEST_STATUS_CANCELLED = 4;
+}
+
+message HostRequest {
+  uint64 host_request_id = 1;
+  uint64 from_user_id = 2;
+  uint64 to_user_id = 3;
+  HostRequestStatus status = 4;
+  google.protobuf.Timestamp created = 5;
+  string from_date = 6;
+  string to_date = 7;
+  org.couchers.api.conversations.Message latest_message = 8;
+}
+
+message CreateHostRequestRes {
+  uint64 host_request_id = 1;
+}
+
+message RespondHostRequestReq {
+  uint64 host_request_id = 1;
+  HostRequestStatus status = 2;
+}
+
+message ListHostRequestsReq {
+  uint64 last_request_id = 1;
+  uint32 number = 2;
+  
+  // Whether to only show pending, accepted and
+  // confirmed requests which haven't passed the
+  // end date.
+  bool only_active = 3;
+}
+
+message ListHostRequestsRes {
+  repeated HostRequest host_requests = 1;
+  uint64 next_request_id = 2;
+  bool no_more = 3;
+}
+
+
+message ListSentHostRequestsReq {
+  uint64 last_request_id = 1;
+  uint32 number = 2;
+  
+  // Whether to only show pending, accepted and
+  // confirmed requests which haven't passed the
+  // end date.
+  bool only_active = 3;
+}
+
+message ListSentHostRequestsRes {
+  repeated HostRequest host_requests = 1;
+  uint64 next_request_id = 2;
+  bool no_more = 3;
+}
+
+message GetHostRequestMessagesReq {
+  uint64 host_request_id = 1;
+  uint64 last_message_id = 2;
+  uint32 number = 3;
+}
+
+message HostRequestEvent {
+  enum HostRequestEventType {
+    HOST_REQUEST_EVENT_TYPE_CREATED = 0;
+    HOST_REQUEST_EVENT_TYPE_ACCEPTED = 1;
+    HOST_REQUEST_EVENT_TYPE_REJECTED = 2;
+    HOST_REQUEST_EVENT_TYPE_CONFIRMED = 3;
+    HOST_REQUEST_EVENT_TYPE_CANCELLED = 4;
+  }
+  
+  HostRequestEventType event_type = 1;
+  uint64 user_id = 2;
+  uint64 after_message_id = 3;
+  google.protobuf.Timestamp time = 4;
+}
+
+message GetHostRequestMessagesRes {
+  repeated org.couchers.api.conversations.Message messages = 1;
+  repeated HostRequestEvent events = 2;
+  uint64 next_message_id = 3;
+  bool no_more = 4;
+}
+
+message SendHostRequestMessageReq {
+  uint64 host_request_id = 1;
+  string text = 2;
+}

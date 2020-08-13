@@ -214,7 +214,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                             time=Timestamp_from_datetime(message.time),
                             text=message.text,
                         ),
-                    ) for message in results
+                    ) for message in results[:PAGINATION_LENGTH]
                 ],
                 next_message_id=results[-1].id if len(results) > 0 else 0, # TODO
                 no_more=len(results) <= PAGINATION_LENGTH,
