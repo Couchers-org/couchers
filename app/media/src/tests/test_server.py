@@ -17,6 +17,7 @@ from nacl.bindings.crypto_generichash import generichash_blake2b_salt_personal
 from nacl.utils import random as random_bytes
 from pb import api_pb2, media_pb2, media_pb2_grpc
 from PIL import Image
+from PIL.JpegImagePlugin import JpegImageFile
 
 
 class MockMainServer(media_pb2_grpc.MediaServicer):
@@ -118,12 +119,7 @@ def test_image_upload(client_with_secrets):
 
     with mock_main_server(bearer_token, lambda x: True):
         with open("tests/data/1x1.jpg", "rb") as f:
-
-            data = {
-                "file": (f, "1x1.jpg"),
-            }
-
-            rv = client.post(upload_path, data=data)
+            rv = client.post(upload_path, data={"file": (f, "1x1.jpg")})
 
         assert json.loads(rv.data)["ok"]
 
@@ -135,12 +131,7 @@ def test_image_resizing(client_with_secrets):
 
     with mock_main_server(bearer_token, lambda x: True):
         with open("tests/data/5000x5000.jpg", "rb") as f:
-
-            data = {
-                "file": (f, "img.jpg"),
-            }
-
-            rv = client.post(upload_path, data=data)
+            rv = client.post(upload_path, data={"file": (f, "img.jpg")})
 
         assert json.loads(rv.data)["ok"]
 
@@ -154,7 +145,27 @@ def test_image_resizing(client_with_secrets):
 
         assert img.width == 2000 or img.height == 1600
 
-def test_image_pixel(client_with_secrets):
+def test_avatar_downscaling(client_with_secrets):
+    client, secret_key, bearer_token = client_with_secrets
+
+    key, request = create_upload_request()
+    upload_path = generate_upload_path(request, secret_key)
+
+    with mock_main_server(bearer_token, lambda x: True):
+        with open("tests/data/5000x5000.jpg", "rb") as f:
+            rv = client.post(upload_path, data={"file": (f, "img.jpg")})
+
+        assert json.loads(rv.data)["ok"]
+
+        rv = client.get(f"/avatar/{key}.jpg")
+        assert rv.status_code == 200
+
+        img = Image.open(io.BytesIO(rv.data))
+
+        assert img.width == 200
+        assert img.height == 200
+
+def test_avatar_upscaling(client_with_secrets):
     client, secret_key, bearer_token = client_with_secrets
 
     key, request = create_upload_request()
@@ -162,12 +173,66 @@ def test_image_pixel(client_with_secrets):
 
     with mock_main_server(bearer_token, lambda x: True):
         with open("tests/data/1x1.jpg", "rb") as f:
+            rv = client.post(upload_path, data={"file": (f, "img.jpg")})
 
-            data = {
-                "file": (f, "badfile.exe"),
-            }
+        assert json.loads(rv.data)["ok"]
 
-            rv = client.post(upload_path, data=data)
+        rv = client.get(f"/avatar/{key}.jpg")
+        assert rv.status_code == 200
+
+        img = Image.open(io.BytesIO(rv.data))
+
+        assert img.width == 200
+        assert img.height == 200
+
+def is_our_pixel(img_bytes):
+    img = Image.open(io.BytesIO(img_bytes))
+
+    if not isinstance(img, JpegImageFile):
+        return False
+
+    if img.width != 1:
+        return False
+
+    if img.height != 1:
+        return False
+
+    if img.convert("RGB").getpixel((0,0)) != (100, 47, 115):
+        return False
+
+    return True
+
+def test_wrong_filename(client_with_secrets):
+    client, secret_key, bearer_token = client_with_secrets
+
+    key, request = create_upload_request()
+    upload_path = generate_upload_path(request, secret_key)
+
+    with mock_main_server(bearer_token, lambda x: True):
+        with open("tests/data/1x1.jpg", "rb") as f:
+            # filename shouldn't matter
+            rv = client.post(upload_path, data={"file": (f, "wrongname.exe")})
+
+        assert json.loads(rv.data)["ok"]
+
+        rv = client.get(f"/full/{key}.jpg")
+        assert rv.status_code == 200
+
+        assert is_our_pixel(rv.data)
+
+def test_strips_exif(client_with_secrets):
+    client, secret_key, bearer_token = client_with_secrets
+
+    key, request = create_upload_request()
+    upload_path = generate_upload_path(request, secret_key)
+
+    with mock_main_server(bearer_token, lambda x: True):
+        img = Image.open("tests/data/exif.jpg")
+        assert img.getexif()
+        assert img.info["comment"] == b"I am an EXIF comment!\0"
+
+        with open("tests/data/exif.jpg", "rb") as f:
+            rv = client.post(upload_path, data={"file": (f, "1x1.jpg")})
 
         assert json.loads(rv.data)["ok"]
 
@@ -175,9 +240,59 @@ def test_image_pixel(client_with_secrets):
         assert rv.status_code == 200
 
         img = Image.open(io.BytesIO(rv.data))
+        assert "comment" not in img.info
+        assert not img.getexif()
 
-        assert img.width == 1
-        assert img.height == 1
+def test_jpg_pixel(client_with_secrets):
+    client, secret_key, bearer_token = client_with_secrets
+
+    key, request = create_upload_request()
+    upload_path = generate_upload_path(request, secret_key)
+
+    with mock_main_server(bearer_token, lambda x: True):
+        with open("tests/data/1x1.jpg", "rb") as f:
+            rv = client.post(upload_path, data={"file": (f, "pixel")})
+
+        assert json.loads(rv.data)["ok"]
+
+        rv = client.get(f"/full/{key}.jpg")
+        assert rv.status_code == 200
+
+        assert is_our_pixel(rv.data)
+
+def test_png_pixel(client_with_secrets):
+    client, secret_key, bearer_token = client_with_secrets
+
+    key, request = create_upload_request()
+    upload_path = generate_upload_path(request, secret_key)
+
+    with mock_main_server(bearer_token, lambda x: True):
+        with open("tests/data/1x1.png", "rb") as f:
+            rv = client.post(upload_path, data={"file": (f, "pixel")})
+
+        assert json.loads(rv.data)["ok"]
+
+        rv = client.get(f"/full/{key}.jpg")
+        assert rv.status_code == 200
+
+        assert is_our_pixel(rv.data)
+
+def test_gif_pixel(client_with_secrets):
+    client, secret_key, bearer_token = client_with_secrets
+
+    key, request = create_upload_request()
+    upload_path = generate_upload_path(request, secret_key)
+
+    with mock_main_server(bearer_token, lambda x: True):
+        with open("tests/data/1x1.gif", "rb") as f:
+            rv = client.post(upload_path, data={"file": (f, "pixel")})
+
+        assert json.loads(rv.data)["ok"]
+
+        rv = client.get(f"/full/{key}.jpg")
+        assert rv.status_code == 200
+
+        assert is_our_pixel(rv.data)
 
 def test_bad_file(client_with_secrets):
     client, secret_key, bearer_token = client_with_secrets
@@ -187,12 +302,67 @@ def test_bad_file(client_with_secrets):
 
     with mock_main_server(bearer_token, lambda x: True):
         with open("tests/data/badfile.txt", "rb") as f:
+            rv = client.post(upload_path, data={"file": (f, "badfile.txt")})
 
-            data = {
-                # filename shouldn't matter
-                "file": (f, "badfile.exe"),
-            }
+        assert rv.status_code == 400
 
-            rv = client.post(upload_path, data=data)
+def test_cant_reuse(client_with_secrets):
+    # can't reuse the same signed request
+    client, secret_key, bearer_token = client_with_secrets
+
+    key, request = create_upload_request()
+    upload_path = generate_upload_path(request, secret_key)
+
+    with mock_main_server(bearer_token, lambda x: True):
+        with open("tests/data/1x1.jpg", "rb") as f:
+            rv = client.post(upload_path, data={"file": (f, "pixel.jpg")})
+
+        assert json.loads(rv.data)["ok"]
+
+        rv = client.get(f"/full/{key}.jpg")
+        assert rv.status_code == 200
+
+        with open("tests/data/1x1.jpg", "rb") as f:
+            rv = client.post(upload_path, data={"file": (f, "pixel.jpg")})
+
+        assert rv.status_code == 400
+
+def test_fails_wrong_sig(client_with_secrets):
+    client, secret_key, bearer_token = client_with_secrets
+
+    wrong_secret_key = random_bytes(32)
+
+    key, request = create_upload_request()
+    upload_path = generate_upload_path(request, wrong_secret_key)
+
+    with mock_main_server(bearer_token, lambda x: True):
+        with open("tests/data/1x1.jpg", "rb") as f:
+            rv = client.post(upload_path, data={"file": (f, "pixel.jpg")})
+
+        assert rv.status_code == 400
+
+def test_fails_expired(client_with_secrets):
+    client, secret_key, bearer_token = client_with_secrets
+
+    key = random_bytes(32).hex()
+
+    now = datetime.utcnow()
+    created = now - timedelta(minutes=12)
+    expiry = now - timedelta(minutes=2)
+
+    request = media_pb2.UploadRequest(
+        key=key,
+        type=media_pb2.UploadRequest.UploadType.IMAGE,
+        created=Timestamp_from_datetime(created),
+        expiry=Timestamp_from_datetime(expiry),
+        max_width=2000,
+        max_height=1600,
+    )
+
+    upload_path = generate_upload_path(request, secret_key)
+
+    with mock_main_server(bearer_token, lambda x: True):
+        with open("tests/data/1x1.jpg", "rb") as f:
+            rv = client.post(upload_path, data={"file": (f, "pixel.jpg")})
 
         assert rv.status_code == 400
