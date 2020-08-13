@@ -224,8 +224,13 @@ def test_respond_host_requests(db):
 
         api.RespondHostRequest(requests_pb2.RespondHostRequestReq(
             host_request_id=request_id,
-            status=requests_pb2.HOST_REQUEST_STATUS_REJECTED
+            status=requests_pb2.HOST_REQUEST_STATUS_REJECTED,
+            text="Test rejection message"
         ))
+        res = api.GetHostRequestMessages(requests_pb2.GetHostRequestMessagesReq(
+            host_request_id=request_id
+        ))
+        assert res.messages[0].text == "Test rejection message"
         # should be able to move from rejected -> accepted
         api.RespondHostRequest(requests_pb2.RespondHostRequestReq(
             host_request_id=request_id,
@@ -393,3 +398,47 @@ def test_send_message(db):
         assert len(res.messages) == 3
         assert res.messages[0].text == "Test message 2"
         assert res.messages[0].author_user_id == user2.id
+
+        # can't send messages to a rejected, confirmed or cancelled request, but can for accepted
+        api.RespondHostRequest(requests_pb2.RespondHostRequestReq(
+            host_request_id=host_request_id,
+            status=requests_pb2.HOST_REQUEST_STATUS_REJECTED
+        ))
+        with pytest.raises(grpc.RpcError) as e:
+            api.SendHostRequestMessage(requests_pb2.SendHostRequestMessageReq(
+                host_request_id=host_request_id,
+                text="Test message 3"
+            ))
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+        assert e.value.details() == errors.HOST_REQUEST_CLOSED
+        
+        api.RespondHostRequest(requests_pb2.RespondHostRequestReq(
+            host_request_id=host_request_id,
+            status=requests_pb2.HOST_REQUEST_STATUS_ACCEPTED
+        ))
+    
+    with requests_session(db, token1) as api:
+        api.RespondHostRequest(requests_pb2.RespondHostRequestReq(
+            host_request_id=host_request_id,
+            status=requests_pb2.HOST_REQUEST_STATUS_CONFIRMED
+        ))
+        with pytest.raises(grpc.RpcError) as e:
+            api.SendHostRequestMessage(requests_pb2.SendHostRequestMessageReq(
+                host_request_id=host_request_id,
+                text="Test message 3"
+            ))
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+        assert e.value.details() == errors.HOST_REQUEST_CLOSED
+
+        
+        api.RespondHostRequest(requests_pb2.RespondHostRequestReq(
+            host_request_id=host_request_id,
+            status=requests_pb2.HOST_REQUEST_STATUS_CANCELLED
+        ))
+        with pytest.raises(grpc.RpcError) as e:
+            api.SendHostRequestMessage(requests_pb2.SendHostRequestMessageReq(
+                host_request_id=host_request_id,
+                text="Test message 3"
+            ))
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+        assert e.value.details() == errors.HOST_REQUEST_CLOSED

@@ -237,11 +237,19 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 host_request_event.event_type = HostRequestEventType.status_change_cancelled
                 host_request.status = HostRequestStatus.cancelled
             
-            latest_message = (session.query(Message)
-                              .filter(Message.conversation_id == host_request.conversation_id)
-                              .order_by(Message.id.desc())
-                              .limit(1)
-                              .one_or_none())
+            if request.text:
+                latest_message = Message()
+                latest_message.conversation_id = host_request.conversation_id
+                latest_message.text = request.text
+                latest_message.author_id = context.user_id
+                session.add(latest_message)
+                session.flush()
+            else:
+                latest_message = (session.query(Message)
+                                .filter(Message.conversation_id == host_request.conversation_id)
+                                .order_by(Message.id.desc())
+                                .limit(1)
+                                .one_or_none())
             host_request_event.after_message_id = latest_message.id if latest_message else 0
             host_request_event.host_request_id = host_request.id
             host_request_event.user_id = context.user_id
@@ -323,6 +331,14 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if (host_request.from_user_id != context.user_id
                         and host_request.to_user_id != context.user_id):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
+
+            # TODO: It is not very user-friendly to prevent messages for confirmed requests
+            # but we also don't want people to use requests as normal messages...
+
+            if (host_request.status == HostRequestStatus.rejected or
+                        host_request.status == HostRequestStatus.confirmed or
+                        host_request.status == HostRequestStatus.cancelled):
+                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.HOST_REQUEST_CLOSED)
             
             message = Message()
             message.conversation_id = host_request.conversation_id

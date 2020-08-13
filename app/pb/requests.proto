@@ -26,6 +26,8 @@ service Requests {
   
   // Adds a new message to a host request
   // Throws NOT_FOUND if the user isn't part of the request or it doesn't exist
+  // Throws PERMISSION_DENIED if you try to send a message to a rejected, confirmed
+  // or cancelled request
   rpc SendHostRequestMessage(SendHostRequestMessageReq) returns (google.protobuf.Empty);
 }
 
@@ -63,6 +65,7 @@ message CreateHostRequestRes {
 message RespondHostRequestReq {
   uint64 host_request_id = 1;
   HostRequestStatus status = 2;
+  string text = 3;
 }
 
 message ListHostRequestsReq {
