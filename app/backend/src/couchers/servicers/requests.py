@@ -93,12 +93,9 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             )
 
     def ListHostRequests(self, request, context):
-        return self.list_host_requests(False, request, context)
+        if request.only_sent and request.only_received:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.HOST_REQUEST_SENT_OR_RECEIVED)
 
-    def ListSentHostRequests(self, request, context):
-        return self.list_host_requests(True, request, context)
-
-    def list_host_requests(self, is_sent, request, context):
         with session_scope(self._Session) as session:
             pagination = (request.number if request.number > 0 else PAGINATION_LENGTH)
             
@@ -114,10 +111,13 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 .filter(or_(HostRequest.id > request.last_request_id,
                             request.last_request_id == 0)))
                 
-            if is_sent:
+            if request.only_sent:
                 query = query.filter(HostRequest.from_user_id == context.user_id)
-            else:
+            elif request.only_received:
                 query = query.filter(HostRequest.to_user_id == context.user_id)
+            else:
+                query = query.filter(or_(HostRequest.to_user_id == context.user_id,
+                                         HostRequest.from_user_id == context.user_id))
             
             # TODO: I considered having HosTRequestEvent be the single source of truth for
             # the HostRequest.status, but decided agains it because of this filter.
@@ -160,11 +160,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             next_request_id = min(map(lambda g: g.HostRequest.id if g.HostRequest else 1, results))-1 if len(results) > 0 else 0 # TODO
             no_more = len(results) <= pagination
 
-            return requests_pb2.ListSentHostRequestsRes(
-                next_request_id=next_request_id,
-                no_more=no_more,
-                host_requests=host_requests
-            ) if is_sent else requests_pb2.ListHostRequestsRes(
+            return requests_pb2.ListHostRequestsRes(
                 next_request_id=next_request_id,
                 no_more=no_more,
                 host_requests=host_requests
@@ -348,3 +344,62 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             session.commit()
 
             return empty_pb2.Empty()
+
+    def GetHostRequestUpdates(self, request, context):
+        if request.only_sent and request.only_received:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.HOST_REQUEST_SENT_OR_RECEIVED)
+
+        with session_scope(self._Session) as session:
+            if request.newest_message_id == 0:
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_MESSAGE)
+
+            newest_message = (session.query(Message)
+                              .filter(Message.id == request.newest_message_id)
+                              .one_or_none())
+            
+            pagination = (request.number if request.number > 0 else PAGINATION_LENGTH)
+
+            query = (session.query(Message, HostRequest.status.label("host_request_status"),
+                                   HostRequest.id.label("host_request_id"), HostRequestEvent)
+                       .join(HostRequest, HostRequest.conversation_id == Message.conversation_id)
+                       .outerjoin(HostRequestEvent, Message.id == HostRequestEvent.after_message_id)
+                       .filter(Message.id > request.newest_message_id))
+
+            if request.only_sent:
+                query = query.filter(HostRequest.from_user_id == context.user_id)
+            elif request.only_received:
+                query = query.filter(HostRequest.to_user_id == context.user_id)
+            else:
+                query = query.filter(or_(HostRequest.to_user_id == context.user_id,
+                                         HostRequest.from_user_id == context.user_id))
+
+            query = (query.order_by(Message.id.asc())
+                       .limit(pagination + 1).all())
+            
+            no_more = len(query) <= pagination
+
+            next_message_id = min(
+                                  map(lambda m: m.Message.id if m else 1, query)
+                              )-1 if len(query) > 0 else 0 # TODO
+            
+            return requests_pb2.GetHostRequestUpdatesRes(
+                no_more=no_more,
+                updates=[
+                    requests_pb2.HostRequestUpdate(
+                        host_request_id=result.host_request_id,
+                        status=hostrequeststatus2api[result.host_request_status],
+                        message=conversations_pb2.Message(
+                            message_id=result.Message.id,
+                            author_user_id=result.Message.author_id,
+                            time=Timestamp_from_datetime(result.Message.time),
+                            text=result.Message.text
+                        ),
+                        event=requests_pb2.HostRequestEvent(
+                            event_type=hostrequesteventtype2api[result.HostRequestEvent.event_type],
+                            user_id=result.HostRequestEvent.user_id,
+                            after_message_id=result.HostRequestEvent.after_message_id,
+                            time=Timestamp_from_datetime(result.HostRequestEvent.time)
+                        ) if result.HostRequestEvent else None,
+                    ) for result in query[:pagination]
+                ],
+            )

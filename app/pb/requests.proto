@@ -17,8 +17,6 @@ service Requests {
   
   rpc ListHostRequests(ListHostRequestsReq) returns (ListHostRequestsRes);
   
-  rpc ListSentHostRequests(ListSentHostRequestsReq) returns (ListSentHostRequestsRes);
-  
   // Get the messages and events (created, accepted, etc) for a host request
   // Throws NOT_FOUND if the user isn't part of the request or it doesn't exist
   rpc GetHostRequestMessages(GetHostRequestMessagesReq) returns (GetHostRequestMessagesRes);
@@ -79,26 +77,12 @@ message ListHostRequestsReq {
   // confirmed requests which haven't passed the
   // end date.
   bool only_active = 3;
+  
+  bool only_sent = 4;
+  bool only_received = 5;
 }
 
 message ListHostRequestsRes {
-  repeated HostRequest host_requests = 1;
-  uint64 next_request_id = 2;
-  bool no_more = 3;
-}
-
-
-message ListSentHostRequestsReq {
-  uint64 last_request_id = 1;
-  uint32 number = 2;
-  
-  // Whether to only show pending, accepted and
-  // confirmed requests which haven't passed the
-  // end date.
-  bool only_active = 3;
-}
-
-message ListSentHostRequestsRes {
   repeated HostRequest host_requests = 1;
   uint64 next_request_id = 2;
   bool no_more = 3;
@@ -140,11 +124,18 @@ message SendHostRequestMessageReq {
 message GetHostRequestUpdatesReq {
   uint64 newest_message_id = 1;
   uint32 number = 2;
+  bool only_sent = 3;
+  bool only_received = 4;
+}
+
+message HostRequestUpdate {
+  uint64 host_request_id = 1;
+  org.couchers.api.conversations.Message message = 2;
+  HostRequestEvent event = 3;
+  HostRequestStatus status = 4;
 }
 
 message GetHostRequestUpdatesRes {
-  repeated org.couchers.api.conversations.Message messages = 1;
-  repeated HostRequestEvent events = 2;
-  HostRequestStatus current_status = 3;
-  bool no_more = 4;
+  repeated HostRequestUpdate updates = 1;
+  bool no_more = 2;
 }

@@ -76,7 +76,7 @@ def test_create_request(db):
             to_date=today_plus_2,
             text="Test request"
         ))
-        assert (api.ListSentHostRequests(requests_pb2.ListSentHostRequestsReq())
+        assert (api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
                 .host_requests[0].latest_message.text == "Test request")
 
 
@@ -115,12 +115,12 @@ def test_list_requests(db):
             text="Test request 2"
         )).host_request_id
 
-        res = api.ListSentHostRequests(requests_pb2.ListSentHostRequestsReq())
+        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
         assert res.no_more
         assert len(res.host_requests) == 2
 
     with requests_session(db, token2) as api:
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq())
+        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
         assert res.no_more
         assert len(res.host_requests) == 1
         assert res.host_requests[0].latest_message.text == "Test request 1"
@@ -132,21 +132,31 @@ def test_list_requests(db):
         add_message(db, "Test request 1 message 2", user2.id, host_request_1)
         add_message(db, "Test request 1 message 3", user2.id, host_request_1)
 
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq())
+        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
         assert res.host_requests[0].latest_message.text == "Test request 1 message 3"
+
+        api.CreateHostRequest(requests_pb2.CreateHostRequestReq(
+            to_user_id=user1.id,
+            from_date=today_plus_1,
+            to_date=today_plus_2,
+            text="Test request 3"
+        ))
 
     add_message(db, "Test request 2 message 1", user1.id, host_request_2)
     add_message(db, "Test request 2 message 2", user3.id, host_request_2)
 
     with requests_session(db, token3) as api:
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq())
+        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
         assert res.no_more
         assert len(res.host_requests) == 1
         assert res.host_requests[0].latest_message.text == "Test request 2 message 2"
 
     with requests_session(db, token1) as api:
+        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
+        assert len(res.host_requests) == 1
+        
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq())
-        assert len(res.host_requests) == 0
+        assert len(res.host_requests) == 3
 
 
 def test_list_host_requests_active_filter(db):
@@ -168,7 +178,7 @@ def test_list_host_requests_active_filter(db):
         ))
 
     with requests_session(db, token2) as api:
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq())
+        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
         assert len(res.host_requests) == 1
         res = api.ListHostRequests(
             requests_pb2.ListHostRequestsReq(only_active=True))
@@ -442,3 +452,76 @@ def test_send_message(db):
             ))
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
         assert e.value.details() == errors.HOST_REQUEST_CLOSED
+
+def test_get_updates(db):
+    user1, token1 = generate_user(db)
+    user2, token2 = generate_user(db)
+    user3, token3 = generate_user(db)
+    today_plus_1 = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+    today_plus_2 = (datetime.now() + timedelta(days=2)).strftime("%Y-%m-%d")
+    with requests_session(db, token1) as api:
+        host_request_id = api.CreateHostRequest(requests_pb2.CreateHostRequestReq(
+            to_user_id=user2.id,
+            from_date=today_plus_1,
+            to_date=today_plus_2,
+            text="Test message 0"
+        )).host_request_id
+
+        api.SendHostRequestMessage(requests_pb2.SendHostRequestMessageReq(
+            host_request_id=host_request_id,
+            text="Test message 1"
+        ))
+        api.SendHostRequestMessage(requests_pb2.SendHostRequestMessageReq(
+            host_request_id=host_request_id,
+            text="Test message 2"
+        ))
+        api.RespondHostRequest(requests_pb2.RespondHostRequestReq(
+            host_request_id=host_request_id,
+            status=requests_pb2.HOST_REQUEST_STATUS_CANCELLED,
+            text="Test message 3"
+        ))
+        
+        res = api.GetHostRequestMessages(requests_pb2.GetHostRequestMessagesReq(host_request_id=host_request_id))
+        assert len(res.messages) == 4
+        assert res.messages[0].text == "Test message 3"
+        assert res.messages[1].text == "Test message 2"
+        assert res.messages[2].text == "Test message 1"
+        assert res.messages[3].text == "Test message 0"
+        message_id_3 = res.messages[0].message_id
+        message_id_2 = res.messages[1].message_id
+        message_id_1 = res.messages[2].message_id
+        message_id_0 = res.messages[3].message_id
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetHostRequestUpdates(requests_pb2.GetHostRequestUpdatesReq(
+                newest_message_id=0
+            ))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+        res = api.GetHostRequestUpdates(requests_pb2.GetHostRequestUpdatesReq(
+            newest_message_id=message_id_1
+        ))
+        assert res.no_more
+        assert len(res.updates) == 2
+        assert res.updates[0].message.text == "Test message 2"
+        assert not res.updates[0].HasField("event")
+        assert res.updates[1].message.text == "Test message 3"
+        assert res.updates[1].event.event_type == requests_pb2.HostRequestEvent.HOST_REQUEST_EVENT_TYPE_CANCELLED
+        assert res.updates[1].status == requests_pb2.HOST_REQUEST_STATUS_CANCELLED
+
+        res = api.GetHostRequestUpdates(requests_pb2.GetHostRequestUpdatesReq(
+            newest_message_id=message_id_1,
+            number=1
+        ))
+        assert not res.no_more
+        assert len(res.updates) == 1
+        assert res.updates[0].message.text == "Test message 2"
+        assert not res.updates[0].HasField("event")
+        assert res.updates[0].status == requests_pb2.HOST_REQUEST_STATUS_CANCELLED
+    
+    with requests_session(db, token3) as api:
+        # other user can't access
+        res = api.GetHostRequestUpdates(requests_pb2.GetHostRequestUpdatesReq(
+            newest_message_id=message_id_1
+        ))
+        assert len(res.updates) == 0

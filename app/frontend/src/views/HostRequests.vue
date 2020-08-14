@@ -96,21 +96,21 @@
             </v-card>
             <v-card tile v-if="hostRequestButtons.length > 0">
               <v-card-text>
-                <v-row justify="space-evenly">
-                  <v-item-group v-model="selectedResponse">
+                <v-item-group v-model="selectedResponse">
+                  <v-row justify="space-around">
                     <v-item
                       v-for="[label, response] in hostRequestButtons"
                       :key="response"
                       :value="response"
                       #default="{ active, toggle }"
                       >
-                      <v-checkbox 
+                      <v-checkbox
                         @change="toggle(!active)"
                         :input-value="active"
                         :label="label" />
                     </v-item>
-                  </v-item-group>
-                </v-row>
+                  </v-row>
+                </v-item-group>
               </v-card-text>
             </v-card>
             <v-card tile>
@@ -152,6 +152,7 @@ import {
   SendHostRequestMessageReq,
   HostRequestStatus,
   RespondHostRequestReq,
+  GetHostRequestUpdatesReq,
 } from "../pb/requests_pb"
 import { client, requestsClient } from "../api"
 import { mapState } from "vuex"
@@ -162,7 +163,6 @@ import ErrorAlert from "../components/ErrorAlert.vue"
 export default Vue.extend({
   data: () => ({
     loading: 0,
-    responseLoading: false,
     currentMessage: "",
     hostRequests: [] as Array<HostRequest.AsObject>,
     userCache: {} as { [userId: number]: User },
@@ -178,13 +178,42 @@ export default Vue.extend({
 
   computed: {
     hostRequestButtons(): Array<[string, HostRequestStatus]> {
+      const status = this.selectedHostRequest!.status
+      const buttons = [] as Array<[string, HostRequestStatus]>
       if (this.selectedHostRequest!.toUserId == this.user.userId){
         //we are the host
+        if (status == HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED)
+          return buttons
+
+        if (status == HostRequestStatus.HOST_REQUEST_STATUS_PENDING ||
+            status == HostRequestStatus.HOST_REQUEST_STATUS_REJECTED)
+          buttons.push(
+            [displayHostRequestStatus(HostRequestStatus.HOST_REQUEST_STATUS_PENDING),
+            HostRequestStatus.HOST_REQUEST_STATUS_PENDING]
+          )
+        
+        if (status != HostRequestStatus.HOST_REQUEST_STATUS_REJECTED)
+          buttons.push(
+            [displayHostRequestStatus(HostRequestStatus.HOST_REQUEST_STATUS_REJECTED),
+            HostRequestStatus.HOST_REQUEST_STATUS_REJECTED]
+          )
       } else {
         //we are the hostee
+        if (status == HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED)
+          return buttons
+        
+        if (status == HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED)
+          buttons.push(
+            [displayHostRequestStatus(HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED),
+            HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED]
+          )
+        
+        buttons.push(
+            [displayHostRequestStatus(HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED),
+            HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED]
+          )
       }
-      return [["Accept", HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED],
-      ["Reject", HostRequestStatus.HOST_REQUEST_STATUS_REJECTED]]
+      return buttons
     },
     ...mapState(["user"])
   },
@@ -250,44 +279,47 @@ export default Vue.extend({
                 this.error = err
             })
       } else {
-        this.responseLoading = true
         const req = new RespondHostRequestReq()
         req.setHostRequestId(this.selectedHostRequest!.hostRequestId)
         req.setStatus(this.selectedResponse)
         req.setText(this.currentMessage)
         requestsClient.respondHostRequest(req).then(() => {
           this.currentMessage = ""
-          this.error = Error("Haven't done updates yet")
-          this.responseLoading = false
+          this.fetchUpdates()
         }).catch((err) => {
           this.error = err
-          this.responseLoading = false
         })
       }
     },
 
     fetchUpdates() {
-        this.error = Error("Haven't implemented updating the messages yet.")
-        /*
-      const req = new GetUpdatesReq()
+      // TODO: This function is abosolutely disgusting and I am ashamed
+
+      const req = new GetHostRequestUpdatesReq()
       req.setNewestMessageId(
-        Math.max(0, ...this.messages.map((msg) => msg.getMessageId()))
+        Math.max(0, ...this.messages.map((msg) => msg.messageId))
       )
-      conversations
-        .getUpdates(req)
+      requestsClient
+        .getHostRequestUpdates(req)
         .then((res) => {
           res
             .getUpdatesList()
-            .filter(
-              (update) => update.getGroupChatId() === this.selectedConversation
-            )
-            .map((update) => update.getMessage()!)
-            .forEach((msg) => {
-              this.messages.push(msg)
+            .forEach((update) => {
+              if (update.getHostRequestId() === this.selectedHostRequest!.hostRequestId) {
+                this.messages.push(update.getMessage()!.toObject())
+              }
+              const updatedRequest = this.hostRequests
+                .find((request) => request.hostRequestId == update.getHostRequestId())
+                if (updatedRequest) {
+                  updatedRequest.status = update.getStatus()
+                  updatedRequest.latestMessage = update.getMessage()!.toObject()
+                }
             })
           this.sortMessages()
         })
-        .catch(console.error)*/
+        .catch((err) => {
+          this.error = err
+        })
     },
 
     fetchData() {
@@ -298,9 +330,11 @@ export default Vue.extend({
         .then((res) => {
           this.loading -= 1
           this.hostRequests = res.getHostRequestsList().map((r) => r.toObject())
+
           const userIds = new Set() as Set<number>
           this.hostRequests.forEach((request) => {
             userIds.add(request.fromUserId)
+            userIds.add(request.toUserId)
           })
           userIds.add(this.user.userId)
           userIds.forEach((userId) => {
@@ -314,12 +348,11 @@ export default Vue.extend({
                 this.loading -= 1
                 this.error = err
               })
+            })
+          }).catch((err) => {
+            this.loading -= 1
+            this.error = err
           })
-        })
-        .catch((err) => {
-          this.loading -= 1
-          this.error = err
-        })
     },
 
     hostRequestChip(conversation: HostRequest.AsObject) {
@@ -347,10 +380,11 @@ export default Vue.extend({
     },
 
     hostRequestSubtitle(hostRequest: HostRequest.AsObject) {
+      const city = this.userCache[hostRequest.toUserId].getCity()
       const from = new Date(hostRequest.fromDate).toLocaleDateString()
       const to = new Date(hostRequest.toDate).toLocaleDateString()
       const status = displayHostRequestStatus(hostRequest.status)
-      return `${from} - ${to}, ${status}`
+      return `${city}, ${from} - ${to}, ${status}`
     },
 
     hostRequestPreview(hostRequest: HostRequest.AsObject): [string, string] {
