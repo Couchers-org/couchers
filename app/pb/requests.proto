@@ -29,6 +29,9 @@ service Requests {
   // Throws PERMISSION_DENIED if you try to send a message to a rejected, confirmed
   // or cancelled request
   rpc SendHostRequestMessage(SendHostRequestMessageReq) returns (google.protobuf.Empty);
+  
+  // Get new messages in a host request and latest status
+  rpc GetHostRequestUpdates(GetHostRequestUpdatesReq) returns (GetHostRequestUpdatesRes);
 }
 
 message CreateHostRequestReq {
@@ -132,4 +135,16 @@ message GetHostRequestMessagesRes {
 message SendHostRequestMessageReq {
   uint64 host_request_id = 1;
   string text = 2;
+}
+
+message GetHostRequestUpdatesReq {
+  uint64 newest_message_id = 1;
+  uint32 number = 2;
+}
+
+message GetHostRequestUpdatesRes {
+  repeated org.couchers.api.conversations.Message messages = 1;
+  repeated HostRequestEvent events = 2;
+  HostRequestStatus current_status = 3;
+  bool no_more = 4;
 }

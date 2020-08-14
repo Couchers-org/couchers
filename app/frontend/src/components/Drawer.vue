@@ -29,6 +29,14 @@
           <v-list-item-title>Profile</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
+      <v-list-item link to="/hostrequests">
+        <v-list-item-icon>
+          <v-icon>mdi-briefcase</v-icon>
+        </v-list-item-icon>
+        <v-list-item-content>
+          <v-list-item-title>Host Requests</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
       <v-list-item link to="/messages">
         <v-list-item-icon>
           <v-icon>mdi-forum</v-icon>

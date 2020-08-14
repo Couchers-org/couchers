@@ -152,6 +152,7 @@
         <v-card-actions>
           <v-btn text>Message</v-btn>
           <report-dialog-button :name="user.name" :user-id="user.userId" />
+          <request-host-dialog-button :name="user.name" :user-id="user.userId" />
         </v-card-actions>
       </v-card>
       <v-card class="float-left mx-3 my-3" width="950" outlined>
@@ -331,10 +332,11 @@
 <script lang="ts">
 import Vue from "vue"
 
-import ErrorAlert from "@/components/ErrorAlert.vue"
-import LoadingCircular from "@/components/LoadingCircular.vue"
-import ReportDialogButton from "@/components/ReportDialogButton.vue"
-import Markdown from "@/components/Markdown.vue"
+import ErrorAlert from "../components/ErrorAlert.vue"
+import LoadingCircular from "../components/LoadingCircular.vue"
+import ReportDialogButton from "../components/ReportDialogButton.vue"
+import RequestHostDialogButton from "../components/RequestHostDialogButton.vue"
+import Markdown from "../components/Markdown.vue"
 
 import {
   GetUserReq,
@@ -384,6 +386,7 @@ export default Vue.extend({
     ErrorAlert,
     LoadingCircular,
     ReportDialogButton,
+    RequestHostDialogButton,
     Markdown,
   },
 

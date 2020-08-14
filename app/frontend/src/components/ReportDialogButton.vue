@@ -60,7 +60,7 @@ export default Vue.extend({
     sent: false,
     reason: "",
     description: "",
-    error: null as null | string,
+    error: null as null | Error,
     loading: false,
   }),
 
