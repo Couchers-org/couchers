@@ -57,3 +57,21 @@ def test_signup_email(db):
 
     with patch("couchers.email.send_smtp_email", mock_send_smtp_email):
         send_signup_email(request_email, token, expiry_text)
+
+def test_report_email():
+    subject = random_hex(64)
+    author_user_id = 0
+    reported_user_id = 1
+    reason = random_hex(64)
+    description = random_hex(64)
+
+    plain, html = _render_email(subject, "report", template_args={"author": author_user_id, "reported_user": reported_user_id, "reason": reason, "description": description})
+    assert str(author_user_id) in plain
+    assert str(author_user_id) in html
+    assert str(reported_user_id) in plain
+    assert str(reported_user_id) in html
+    assert reason in plain
+    assert reason in html
+    assert description in plain
+    assert description in html
+    assert subject in html

@@ -23,5 +23,10 @@ def send_login_email(user, token, expiry_text):
 
 
 def send_report_email(author_user_id, reported_user_id, reason, description):
-    logger.info(f"Pretending to send report email to admin:")
-    logger.info(f"{author_user_id=}, {reported_user_id=}")
+    target_email = config['REPORTS_EMAIL_RECIPIENT']
+    logger.info(f"Sending report email to {target_email}")
+    logger.info(f"User {author_user_id=} reporting user {reported_user_id}")
+    logger.info(f"Reason: {reason=}")
+    logger.info(f"Description:")
+    logger.info(f"{description=}")
+    return email.send_email_template(target_email, "User Report", "report", template_args={"author": author_user_id, "reported_user": reported_user_id, "reason": reason, "description": description})
