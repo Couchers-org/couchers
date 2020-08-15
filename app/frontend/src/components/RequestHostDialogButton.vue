@@ -6,21 +6,35 @@
 
     <v-dialog v-model="dialog" max-width="490">
       <v-card>
-        <v-card-title class="headline">Request to stay with {{ name }}</v-card-title>
+        <v-card-title class="headline"
+          >Request to stay with {{ name }}</v-card-title
+        >
 
         <v-card-text>
           <error-alert :error="error" />
           <p>
-            Send a host request to {{ name }}.
-            Remember to read their profile carefully and give lots of detail!
+            Send a host request to {{ name }}. Remember to read their profile
+            carefully and give lots of detail!
           </p>
-          <v-menu v-model="fromDateMenu" :close-on-content-click="false"
-              max-width="290px"
-              min-width="290px"
-              offset-y>
+          <v-menu
+            v-model="fromDateMenu"
+            :close-on-content-click="false"
+            max-width="290px"
+            min-width="290px"
+            offset-y
+          >
             <template v-slot:activator="{ on }">
-              <v-text-field label="From Date" prepend-icon="mdi-calendar"
-                  readonly v-on="on" :value="fromDate === null ? '' : new Date(fromDate).toLocaleDateString()"></v-text-field>
+              <v-text-field
+                label="From Date"
+                prepend-icon="mdi-calendar"
+                readonly
+                v-on="on"
+                :value="
+                  fromDate === null
+                    ? ''
+                    : new Date(fromDate).toLocaleDateString()
+                "
+              ></v-text-field>
             </template>
             <v-date-picker
               v-model="fromDate"
@@ -28,13 +42,23 @@
               no-title
             ></v-date-picker>
           </v-menu>
-          <v-menu v-model="toDateMenu" :close-on-content-click="false"
-              max-width="290px"
-              min-width="290px"
-              offset-y>
+          <v-menu
+            v-model="toDateMenu"
+            :close-on-content-click="false"
+            max-width="290px"
+            min-width="290px"
+            offset-y
+          >
             <template v-slot:activator="{ on }">
-              <v-text-field label="To Date" prepend-icon="mdi-calendar"
-                  readonly v-on="on" :value="toDate === null ? '' : new Date(toDate).toLocaleDateString()"></v-text-field>
+              <v-text-field
+                label="To Date"
+                prepend-icon="mdi-calendar"
+                readonly
+                v-on="on"
+                :value="
+                  toDate === null ? '' : new Date(toDate).toLocaleDateString()
+                "
+              ></v-text-field>
             </template>
             <v-date-picker
               v-model="toDate"
@@ -65,18 +89,18 @@ import { User } from "@/pb/api_pb"
 
 import ErrorAlert from "./ErrorAlert.vue"
 import { requestsClient } from "../api"
-import { CreateHostRequestReq } from '../pb/requests_pb'
+import { CreateHostRequestReq } from "../pb/requests_pb"
 
 export default Vue.extend({
   props: {
     name: {
       type: String,
-      required: true
+      required: true,
     },
     userId: {
       type: Number,
-      required: true
-    }
+      required: true,
+    },
   },
 
   components: {
@@ -118,7 +142,7 @@ export default Vue.extend({
       req.setFromDate(this.fromDate!)
       req.setToDate(this.toDate!)
       req.setText(this.message)
-      
+
       requestsClient
         .createHostRequest(req)
         .then(() => {

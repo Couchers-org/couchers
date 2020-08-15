@@ -7,7 +7,7 @@ import Router from "../router"
 
 import { StatusCode } from "grpc-web"
 
-import { User, PingReq } from "../pb/api_pb"
+import { User, PingReq, PingRes } from "../pb/api_pb"
 import { client } from "../api"
 
 Vue.use(Vuex)
@@ -24,6 +24,7 @@ export default new Vuex.Store({
     error: null,
     drawerOpen: false, // whether the drawer (left hand sidebar) should be open
     user: null as null | User.AsObject,
+    unseenHostRequestCount: 0,
     authToken: null as null | string,
     lastPing: 0 as number,
     pingTimeout: null as null | number,
@@ -47,8 +48,9 @@ export default new Vuex.Store({
       console.error(errorMessage)
       state.error = errorMessage
     },
-    updateUser(state, user) {
-      state.user = user
+    updatePing(state, res: PingRes.AsObject) {
+      state.user = res.user!
+      state.unseenHostRequestCount = res.unseenHostRequestCount
     },
     clearPingTimeout(state) {
       if (state.pingTimeout) {
@@ -74,7 +76,7 @@ export default new Vuex.Store({
         client
           .ping(new PingReq())
           .then((res) => {
-            ctx.commit("updateUser", res.getUser()!.toObject())
+            ctx.commit("updatePing", res.toObject())
           })
           .catch((err) => {
             console.error("Failed to ping server: ", err)

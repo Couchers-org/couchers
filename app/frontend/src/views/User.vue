@@ -152,7 +152,10 @@
         <v-card-actions>
           <v-btn text>Message</v-btn>
           <report-dialog-button :name="user.name" :user-id="user.userId" />
-          <request-host-dialog-button :name="user.name" :user-id="user.userId" />
+          <request-host-dialog-button
+            :name="user.name"
+            :user-id="user.userId"
+          />
         </v-card-actions>
       </v-card>
       <v-card class="float-left mx-3 my-3" width="950" outlined>
@@ -205,9 +208,7 @@
                 <h3>Accepts kids?</h3>
                 {{ displayBool(user.acceptsKids.value) }}
               </v-container>
-              <v-container
-                v-if="user.wheelchairAccessible != null"
-              >
+              <v-container v-if="user.wheelchairAccessible != null">
                 <h3>Wheelchair Accessible?</h3>
                 {{ displayBool(user.wheelchairAccessible.value) }}
               </v-container>
@@ -220,19 +221,11 @@
                 "
               >
                 <h3>Smoking allowed?</h3>
-                {{
-                  displaySmokingLocation(
-                    user.smokingAllowed.value
-                  )
-                }}
+                {{ displaySmokingLocation(user.smokingAllowed.value) }}
               </v-container>
-              <v-container
-                v-if="user.sleepingArrangement != null"
-              >
+              <v-container v-if="user.sleepingArrangement != null">
                 <h3>Sleeping arrangements</h3>
-                <markdown
-                  :source="user.sleepingArrangement.value"
-                />
+                <markdown :source="user.sleepingArrangement.value" />
               </v-container>
               <v-container v-if="user.area != null">
                 <h3>Area/neightbourhood info</h3>
@@ -552,12 +545,11 @@ export default Vue.extend({
         this.user.acceptsKids != null ||
         this.user.wheelchairAccessible != null ||
         (this.user.smokingAllowed !=
-                    SmokingLocation.SMOKING_LOCATION_UNSPECIFIED &&
-                  this.user.smokingAllowed !=
-                    SmokingLocation.SMOKING_LOCATION_UNKNOWN) ||
+          SmokingLocation.SMOKING_LOCATION_UNSPECIFIED &&
+          this.user.smokingAllowed !=
+            SmokingLocation.SMOKING_LOCATION_UNKNOWN) ||
         this.user.sleepingArrangement != null ||
-        this.user.area != null &&
-        this.user.houseRules != null
+        (this.user.area != null && this.user.houseRules != null)
       )
     },
 

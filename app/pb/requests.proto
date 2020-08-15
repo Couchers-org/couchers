@@ -30,6 +30,9 @@ service Requests {
   
   // Get new messages in a host request and latest status
   rpc GetHostRequestUpdates(GetHostRequestUpdatesReq) returns (GetHostRequestUpdatesRes);
+  
+  // Saves the last seen message
+  rpc MarkLastSeenHostRequest(MarkLastSeenHostRequestReq) returns (google.protobuf.Empty);
 }
 
 message CreateHostRequestReq {
@@ -56,7 +59,8 @@ message HostRequest {
   google.protobuf.Timestamp created = 5;
   string from_date = 6;
   string to_date = 7;
-  org.couchers.api.conversations.Message latest_message = 8;
+  uint64 last_seen_message_id = 8;
+  org.couchers.api.conversations.Message latest_message = 9;
 }
 
 message CreateHostRequestRes {
@@ -139,3 +143,9 @@ message GetHostRequestUpdatesRes {
   repeated HostRequestUpdate updates = 1;
   bool no_more = 2;
 }
+
+message MarkLastSeenHostRequestReq {
+  uint64 host_request_id = 1;
+  uint64 last_seen_message_id = 2;
+}
+

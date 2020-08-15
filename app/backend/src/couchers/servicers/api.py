@@ -8,9 +8,9 @@ from sqlalchemy.sql import or_
 
 from couchers.db import (get_friends_status, get_user_by_field, is_valid_color,
                          is_valid_name, session_scope)
-from couchers.models import (FriendRelationship, FriendStatus,
+from couchers.models import (FriendRelationship, FriendStatus, HostRequest,
                              HostingStatus, User, Complaint, Reference,
-                             ReferenceType, SmokingLocation)
+                             ReferenceType, SmokingLocation, Message)
 from couchers.utils import Timestamp_from_datetime
 from couchers.tasks import send_report_email
 from couchers import errors
@@ -74,8 +74,23 @@ class API(api_pb2_grpc.APIServicer):
         with session_scope(self._Session) as session:
             # auth ought to make sure the user exists
             user = session.query(User).filter(User.id == context.user_id).one()
+
+            unseen_host_request_count_1 = (session.query(Message, HostRequest)
+                                         .outerjoin(HostRequest, Message.conversation_id == HostRequest.conversation_id)
+                                         .filter(HostRequest.from_user_id == context.user_id)
+                                         .filter(HostRequest.from_last_seen_message_id < Message.id)
+                                         .group_by(Message.conversation_id)
+                                         .count())
+            unseen_host_request_count_2 = (session.query(Message, HostRequest)
+                                         .outerjoin(HostRequest, Message.conversation_id == HostRequest.conversation_id)
+                                         .filter(HostRequest.to_user_id == context.user_id)
+                                         .filter(HostRequest.to_last_seen_message_id < Message.id)
+                                         .group_by(Message.conversation_id)
+                                         .count())
+
             return api_pb2.PingRes(
-                user=user_model_to_pb(user, session, context)
+                user=user_model_to_pb(user, session, context),
+                unseen_host_request_count=unseen_host_request_count_1 + unseen_host_request_count_2
             )
 
     def GetUser(self, request, context):

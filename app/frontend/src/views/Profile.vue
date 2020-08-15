@@ -186,50 +186,30 @@
             <v-tab-item value="hosting">
               <h3>Max guests</h3>
               <editable-text-field
-                :text="
-                  user.maxGuests
-                    ? user.maxGuests.value
-                    : null
-                "
+                :text="user.maxGuests ? user.maxGuests.value : null"
                 v-on:save="saveMaxGuests"
               />
               <h3>Multiple groups accepted</h3>
               <editable-dropdown
-                :value="
-                  user.multipleGroups
-                    ? user.multipleGroups.value
-                    : null
-                "
+                :value="user.multipleGroups ? user.multipleGroups.value : null"
                 :items="boolChoices"
                 v-on:save="saveMultipleGroups"
               />
               <h3>Last minute requests okay</h3>
               <editable-dropdown
-                :value="
-                  user.lastMinute
-                    ? user.lastMinute.value
-                    : null
-                "
+                :value="user.lastMinute ? user.lastMinute.value : null"
                 :items="boolChoices"
                 v-on:save="saveLastMinute"
               />
               <h3>Accept pets</h3>
               <editable-dropdown
-                :value="
-                  user.acceptsPets
-                    ? user.acceptsPets.value
-                    : null
-                "
+                :value="user.acceptsPets ? user.acceptsPets.value : null"
                 :items="boolChoices"
                 v-on:save="saveAcceptsPets"
               />
               <h3>Accept kids</h3>
               <editable-dropdown
-                :value="
-                  user.acceptsKids
-                    ? user.acceptsKids.value
-                    : null
-                "
+                :value="user.acceptsKids ? user.acceptsKids.value : null"
                 :items="boolChoices"
                 v-on:save="saveAcceptsKids"
               />
@@ -252,28 +232,20 @@
               <h3>Sleeping arrangements</h3>
               <editable-textarea
                 :text="
-                  user.sleepingArrangement
-                    ? user.sleepingArrangement.value
-                    : ''
+                  user.sleepingArrangement ? user.sleepingArrangement.value : ''
                 "
                 is-markdown
                 v-on:save="saveSleepingArrangement"
               />
               <h3>Area/Neighbourhood info</h3>
               <editable-textarea
-                :text="
-                  user.area ? user.area.value : ''
-                "
+                :text="user.area ? user.area.value : ''"
                 is-markdown
                 v-on:save="saveArea"
               />
               <h3>House rules</h3>
               <editable-textarea
-                :text="
-                  user.houseRules
-                    ? user.houseRules.value
-                    : ''
-                "
+                :text="user.houseRules ? user.houseRules.value : ''"
                 is-markdown
                 v-on:save="saveHouseRules"
               />
@@ -352,7 +324,6 @@ export default Vue.extend({
   },
 
   methods: {
-
     updateProfile(req: UpdateProfileReq) {
       this.loading = true
 

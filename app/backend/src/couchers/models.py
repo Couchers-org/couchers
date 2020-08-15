@@ -444,6 +444,9 @@ class HostRequest(Base):
     initial_message_id = Column(
         Integer, ForeignKey("messages.id"), nullable=False)
 
+    to_last_seen_message_id = Column(Integer, nullable=False, default=0)
+    from_last_seen_message_id = Column(Integer, nullable=False, default=0)
+
     from_user = relationship(
         "User", backref="host_requests_sent", foreign_keys="HostRequest.from_user_id")
     to_user = relationship("User", backref="host_requests_received",
