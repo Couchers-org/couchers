@@ -5,8 +5,8 @@ jobs:
       - image: couchers/grpc
     steps:
       - checkout
-      - run:
-          command: cd app && ./generate_protos.sh
+      - run: cd app && ./generate_protos.sh
+      - persist_to_workspace
   test:
     docker:
       - image: circleci/python:3.8
