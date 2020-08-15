@@ -1,4 +1,4 @@
-const URL = "http://localhost:8888"
+const URL = process.env.VUE_APP_API_URL
 
 import { AuthPromiseClient } from "./pb/auth_grpc_web_pb"
 import { APIPromiseClient } from "./pb/api_grpc_web_pb"
