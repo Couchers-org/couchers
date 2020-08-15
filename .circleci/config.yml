@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  grpc:
+  compile_protos:
     docker:
       - image: couchers/grpc
     steps:
@@ -10,41 +10,18 @@ jobs:
           root: .
           paths:
             - "*"
-  backend_tests:
-    docker:
-      - image: circleci/python:3.8
+  build_backend:
+    machine: true
     steps:
-      - attach_workspace:
-          at: .
       - run:
           command: |
             cd app/backend
-            pip install -r requirements.txt
-            pytest src
-      - store_test_results:
-          path: app/backend
-  media_tests:
-    docker:
-      - image: circleci/python:3.8
-    steps:
-      - attach_workspace:
-          at: .
-      - run:
-          command: |
-            cd app/media
-            pip install -r requirements.txt
-            pytest src
+            docker build -t couchers/backend .
 workflows:
   version: 2
   backend:
     jobs:
-      - grpc
-      - backend_tests:
+      - compile_protos
+      - build_backend:
           requires:
-            - grpc
-  media:
-    jobs:
-      - grpc
-      - media_tests:
-          requires:
-            - grpc
+            - compile_protos
