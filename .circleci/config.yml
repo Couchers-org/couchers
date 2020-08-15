@@ -16,6 +16,8 @@ jobs:
             cd app/backend
             pip install -r requirements.txt
             pytest src
+      - store_test_results:
+          path: app/backend
       - run:
           command: |
             cd app/media
