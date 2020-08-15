@@ -1,7 +1,9 @@
 #!/bin/sh
 PROTOC=${PROTOC:-protoc}
-DONT_GENERATE_PY=${DONT_GENERATE_PY:-}
-DONT_GENERATE_JS=${DONT_GENERATE_JS:-}
+DONT_GENERATE_PY=${DONT_GENERATE_PY:-""}
+DONT_GENERATE_JS=${DONT_GENERATE_JS:-""}
+
+echo "Genearting protos..."
 
 if [[ -z "${DONT_GENERATE_PY}" ]]; then
   echo "Genearting python protos..."
