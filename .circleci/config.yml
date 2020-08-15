@@ -70,7 +70,7 @@ jobs:
       - run: docker load -i couchers-backend.tar.gz
       - run: docker tag couchers/backend $AWS_ECR_ACCOUNT_URL/couchers/backend
       - aws-ecr/ecr-login
-      - aws-ect/push-image:
+      - aws-ecr/push-image:
           repo: couchers/backend
   build_media:
     machine: true
@@ -106,7 +106,7 @@ jobs:
       - run: docker load -i couchers-media.tar.gz
       - run: docker tag couchers/media $AWS_ECR_ACCOUNT_URL/couchers/media
       - aws-ecr/ecr-login
-      - aws-ect/push-image:
+      - aws-ecr/push-image:
           repo: couchers/media
   build_frontend:
     machine: true
