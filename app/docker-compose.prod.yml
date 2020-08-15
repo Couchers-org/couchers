@@ -1,0 +1,25 @@
+version: "3"
+services:
+  proxy:
+    build: proxy
+    restart: on-failure
+    ports:
+      - 8888:8888
+      - 9901:9901
+  backend:
+    build: backend
+    restart: on-failure
+    ports:
+      - 1751:1751
+      - 1752:1752
+      - 1753:1753
+  media:
+    build: media
+    env_file: media/prod.env
+    restart: on-failure
+    ports:
+      - 5000:5000
+    depends_on:
+      - backend
+    links:
+      - backend
