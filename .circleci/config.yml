@@ -33,7 +33,7 @@ jobs:
           command: |
             cd app/media
             pip install -r requirements.txt
-            MEDIA_SERVER_FROM_ENV=0 pytest .
+            pytest src
 workflows:
   version: 2
   backend:
