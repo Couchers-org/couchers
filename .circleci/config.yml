@@ -19,9 +19,17 @@ jobs:
           command: |
             cd app/backend
             docker build -t couchers/backend .
+      - run: docker save -o couchers-backend.tar.gz couchers/backend
+      - persist_to_workspace:
+          root: .
+          paths:
+            - "*"
   test_backend:
     machine: true
     steps:
+      - attach_workspace:
+          at: .
+      - run: docker load -i couchers-backend.tar.gz
       - run: docker run couchers/backend pytest src
 workflows:
   version: 2
