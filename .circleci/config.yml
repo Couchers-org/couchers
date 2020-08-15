@@ -31,6 +31,27 @@ jobs:
           at: .
       - run: docker load -i couchers-backend.tar.gz
       - run: docker run couchers/backend pytest src
+  build_media:
+    machine: true
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          command: |
+            cd app/media
+            docker build -t couchers/media .
+      - run: docker save -o couchers-media.tar.gz couchers/media
+      - persist_to_workspace:
+          root: .
+          paths:
+            - "*"
+  test_media:
+    machine: true
+    steps:
+      - attach_workspace:
+          at: .
+      - run: docker load -i couchers-media.tar.gz
+      - run: docker run couchers/media pytest src
 workflows:
   version: 2
   backend:
@@ -42,3 +63,12 @@ workflows:
       - test_backend:
           requires:
             - build_backend
+  media:
+    jobs:
+      - compile_protos
+      - build_media:
+          requires:
+            - compile_protos
+      - test_media:
+          requires:
+            - build_media
