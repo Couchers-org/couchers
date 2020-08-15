@@ -11,6 +11,7 @@ jobs:
     docker:
       - image: circleci/python:3.8
     steps:
+      - checkout
       - run:
           command: |
             cd app/backend
