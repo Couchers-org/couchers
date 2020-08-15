@@ -129,7 +129,7 @@ class User(Base):
     def avatar_url(self):
         # TODO(aapeli): don't hardcode
         filename = self.avatar_filename or "couchers"
-        return f"{config['MEDIA_SERVER_BASE_URL']}/avatar/{filename}"
+        return f"{config['MEDIA_SERVER_BASE_URL']}/img/avatar/{filename}"
 
     def mutual_friends(self, target_id):
         if target_id == self.id:

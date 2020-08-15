@@ -122,7 +122,7 @@ def create_app(
             os.remove(path)
             raise e
 
-    @app.route("/full/<key>.jpg")
+    @app.route("/img/full/<key>.jpg")
     def full(key):
         path = get_path(key + ".jpg")
         if not os.path.isfile(path):
@@ -130,7 +130,7 @@ def create_app(
 
         return send_file(open(path, "rb"), mimetype="image/jpeg")
 
-    @app.route("/avatar/<key>.jpg")
+    @app.route("/img/avatar/<key>.jpg")
     def avatar(key):
         filename = key + ".jpg"
         full_path = get_path(filename)

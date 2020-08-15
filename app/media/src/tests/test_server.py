@@ -135,7 +135,7 @@ def test_image_resizing(client_with_secrets):
 
         assert json.loads(rv.data)["ok"]
 
-        rv = client.get(f"/full/{key}.jpg")
+        rv = client.get(f"/img/full/{key}.jpg")
         assert rv.status_code == 200
 
         img = Image.open(io.BytesIO(rv.data))
@@ -157,7 +157,7 @@ def test_avatar_downscaling(client_with_secrets):
 
         assert json.loads(rv.data)["ok"]
 
-        rv = client.get(f"/avatar/{key}.jpg")
+        rv = client.get(f"/img/avatar/{key}.jpg")
         assert rv.status_code == 200
 
         img = Image.open(io.BytesIO(rv.data))
@@ -177,7 +177,7 @@ def test_avatar_upscaling(client_with_secrets):
 
         assert json.loads(rv.data)["ok"]
 
-        rv = client.get(f"/avatar/{key}.jpg")
+        rv = client.get(f"/img/avatar/{key}.jpg")
         assert rv.status_code == 200
 
         img = Image.open(io.BytesIO(rv.data))
@@ -215,7 +215,7 @@ def test_wrong_filename(client_with_secrets):
 
         assert json.loads(rv.data)["ok"]
 
-        rv = client.get(f"/full/{key}.jpg")
+        rv = client.get(f"/img/full/{key}.jpg")
         assert rv.status_code == 200
 
         assert is_our_pixel(rv.data)
@@ -236,7 +236,7 @@ def test_strips_exif(client_with_secrets):
 
         assert json.loads(rv.data)["ok"]
 
-        rv = client.get(f"/full/{key}.jpg")
+        rv = client.get(f"/img/full/{key}.jpg")
         assert rv.status_code == 200
 
         img = Image.open(io.BytesIO(rv.data))
@@ -255,7 +255,7 @@ def test_jpg_pixel(client_with_secrets):
 
         assert json.loads(rv.data)["ok"]
 
-        rv = client.get(f"/full/{key}.jpg")
+        rv = client.get(f"/img/full/{key}.jpg")
         assert rv.status_code == 200
 
         assert is_our_pixel(rv.data)
@@ -272,7 +272,7 @@ def test_png_pixel(client_with_secrets):
 
         assert json.loads(rv.data)["ok"]
 
-        rv = client.get(f"/full/{key}.jpg")
+        rv = client.get(f"/img/full/{key}.jpg")
         assert rv.status_code == 200
 
         assert is_our_pixel(rv.data)
@@ -289,7 +289,7 @@ def test_gif_pixel(client_with_secrets):
 
         assert json.loads(rv.data)["ok"]
 
-        rv = client.get(f"/full/{key}.jpg")
+        rv = client.get(f"/img/full/{key}.jpg")
         assert rv.status_code == 200
 
         assert is_our_pixel(rv.data)
@@ -319,7 +319,7 @@ def test_cant_reuse(client_with_secrets):
 
         assert json.loads(rv.data)["ok"]
 
-        rv = client.get(f"/full/{key}.jpg")
+        rv = client.get(f"/img/full/{key}.jpg")
         assert rv.status_code == 200
 
         with open("tests/data/1x1.jpg", "rb") as f:
