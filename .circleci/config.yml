@@ -9,7 +9,7 @@ jobs:
           command: |
             cd app
             pip install grpcio-tools
-            PROTOC="python -m grpc_tools.protoc" ./generate_protos.sh
+            PROTOC="python -m grpc_tools.protoc" DONT_GENERATE_JS=1 ./generate_protos.sh
       - run:
           command: |
             cd app/backend
