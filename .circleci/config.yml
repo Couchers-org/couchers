@@ -6,10 +6,7 @@ jobs:
     steps:
       - checkout
       - run:
-          command: |
-            cd app
-            ls
-            ./generate_protos.sh
+          command: cd app && ./generate_protos.sh
   test:
     docker:
       - image: circleci/python:3.8
@@ -19,3 +16,8 @@ jobs:
             cd app/backend
             pip install -r requirements.txt
             pytest src
+      - run:
+          command: |
+            cd app/media
+            pip install -r requirements.txt
+            MEDIA_SERVER_FROM_ENV: 0 pytest .
