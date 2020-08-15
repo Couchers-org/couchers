@@ -10,6 +10,32 @@ jobs:
           root: .
           paths:
             - "*"
+                build: proxy
+    restart: on-failure
+    ports:
+      - 8888:8888
+      - 9901:9901
+  build_proxy:
+    machine: true
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          command: |
+            cd app/proxy
+            docker build -t couchers/proxy .
+      - run: docker save -o couchers-proxy.tar.gz couchers/proxy
+      - persist_to_workspace:
+          root: .
+          paths:
+            - "*"
+  deploy_proxy:
+    machine: true
+    steps:
+      - attach_workspace:
+          at: .
+      - run: docker load -i couchers-proxy.tar.gz
+      - run: echo "pretending to deploy"
   build_backend:
     machine: true
     steps:
@@ -31,6 +57,13 @@ jobs:
           at: .
       - run: docker load -i couchers-backend.tar.gz
       - run: docker run couchers/backend pytest src
+  deploy_backend:
+    machine: true
+    steps:
+      - attach_workspace:
+          at: .
+      - run: docker load -i couchers-backend.tar.gz
+      - run: echo "pretending to deploy"
   build_media:
     machine: true
     steps:
@@ -51,9 +84,27 @@ jobs:
       - attach_workspace:
           at: .
       - run: docker load -i couchers-media.tar.gz
-      - run: docker run couchers/media pytest src
+      - run: docker run couchers/media MEDIA_SERVER_FROM_ENV=0 pytest src
+  deploy_media:
+    machine: true
+    steps:
+      - attach_workspace:
+          at: .
+      - run: docker load -i couchers-media.tar.gz
+      - run: echo "pretending to deploy"
 workflows:
   version: 2
+  proxy:
+    jobs:
+      - test_proxy:
+          requires:
+            - build_proxy
+      - deploy_proxy:
+          requires:
+            - build_proxy
+          filters:
+            branches:
+              only: develop
   backend:
     jobs:
       - compile_protos
@@ -63,6 +114,12 @@ workflows:
       - test_backend:
           requires:
             - build_backend
+      - deploy_backend:
+          requires:
+            - build_backend
+          filters:
+            branches:
+              only: develop
   media:
     jobs:
       - compile_protos
@@ -72,3 +129,9 @@ workflows:
       - test_media:
           requires:
             - build_media
+      - deploy_media:
+          requires:
+            - build_media
+          filters:
+            branches:
+              only: develop
