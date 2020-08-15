@@ -51,7 +51,12 @@ jobs:
       - attach_workspace:
           at: .
       - run: docker load -i couchers-backend.tar.gz
-      - run: docker run couchers/backend pytest src
+      - run: mkdir test-results
+      - run: docker run couchers/backend pytest src --junitxml=test-results/junit.xml
+      - store_test_results:
+          path: test-results
+      - store_artifacts:
+          path: test-results
   deploy_backend:
     machine: true
     steps:
@@ -79,7 +84,12 @@ jobs:
       - attach_workspace:
           at: .
       - run: docker load -i couchers-media.tar.gz
-      - run: docker run couchers/media MEDIA_SERVER_FROM_ENV=0 pytest src
+      - run: mkdir test-results
+      - run: docker run couchers/media MEDIA_SERVER_FROM_ENV=0 pytest src --junitxml=test-results/junit.xml
+      - store_test_results:
+          path: test-results
+      - store_artifacts:
+          path: test-results
   deploy_media:
     machine: true
     steps:
