@@ -13,6 +13,8 @@ jobs:
   build_backend:
     machine: true
     steps:
+      - attach_workspace:
+          at: .
       - run:
           command: |
             cd app/backend
