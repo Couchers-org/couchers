@@ -91,7 +91,10 @@ workflows:
   version: 2
   proxy:
     jobs:
-      - build_proxy
+      - compile_protos
+      - build_proxy:
+          requires:
+            - compile_protos
       - deploy_proxy:
           requires:
             - build_proxy
