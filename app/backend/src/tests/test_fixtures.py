@@ -8,15 +8,18 @@ import pytest
 from couchers.crypto import random_hex
 from couchers.db import session_scope
 from couchers.interceptors import intercept_server
-from couchers.models import Base, FriendRelationship, FriendStatus, User, Message
+from couchers.models import (Base, FriendRelationship, FriendStatus, Message,
+                             User)
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
 from couchers.servicers.conversations import Conversations
+from couchers.servicers.media import Media, get_media_auth_interceptor
 from couchers.servicers.requests import Requests
-from pb import api_pb2_grpc, auth_pb2, conversations_pb2_grpc, requests_pb2_grpc
+from pb import (api_pb2_grpc, auth_pb2, conversations_pb2_grpc, media_pb2_grpc,
+                requests_pb2_grpc)
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy.event import listen, remove
+from sqlalchemy.orm import sessionmaker
 
 
 @pytest.fixture
@@ -25,6 +28,7 @@ def db():
     Create a temporary SQLite-backed database in memory, and return the Session object.
     """
     from sqlalchemy.pool import StaticPool
+
     # The elaborate arguments are needed to get multithreaded access
     engine = create_engine("sqlite://", connect_args={'check_same_thread':False},
                            poolclass=StaticPool, echo=False)
@@ -163,6 +167,29 @@ def requests_session(db, token):
     try:
         with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
             yield requests_pb2_grpc.RequestsStub(channel)
+    finally:
+        server.stop(None)
+
+@contextmanager
+def media_session(db, bearer_token):
+    """
+    Create a fresh Media API for testing, uses the bearer token for media auth
+    """
+    media_auth_interceptor = get_media_auth_interceptor(bearer_token)
+
+    server = grpc.server(futures.ThreadPoolExecutor(1))
+    server = intercept_server(server, media_auth_interceptor)
+    port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
+    servicer = Media(db)
+    media_pb2_grpc.add_MediaServicer_to_server(servicer, server)
+    server.start()
+
+    call_creds = grpc.access_token_call_credentials(bearer_token)
+    comp_creds = grpc.composite_channel_credentials(grpc.local_channel_credentials(), call_creds)
+
+    try:
+        with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
+            yield media_pb2_grpc.MediaStub(channel)
     finally:
         server.stop(None)
 

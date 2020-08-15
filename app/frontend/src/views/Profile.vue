@@ -122,6 +122,7 @@
           <h2>Edit your profile</h2>
           <p>
             <v-btn
+              class="my-2"
               color="primary"
               link
               :to="{ name: 'User', params: { user: user.username } }"
@@ -182,6 +183,8 @@
                 color for your profile instead!
               </p>
               <editable-color :color="user.color" v-on:save="saveColor" />
+              <h3>Profile picture</h3>
+              <editable-avatar :user="user" v-on:save="refreshUser" />
             </v-tab-item>
             <v-tab-item value="hosting">
               <h3>Max guests</h3>
@@ -293,6 +296,7 @@ import { mapState } from "vuex"
 import wrappers from "google-protobuf/google/protobuf/wrappers_pb"
 
 import EditableDropdown from "../components/EditableDropdown.vue"
+import EditableAvatar from "../components/EditableAvatar.vue"
 import EditableTextarea from "../components/EditableTextarea.vue"
 import EditableTextField from "../components/EditableTextField.vue"
 import EditableList from "../components/EditableList.vue"
@@ -343,6 +347,7 @@ export default Vue.extend({
 
   components: {
     EditableDropdown,
+    EditableAvatar,
     EditableTextarea,
     EditableTextField,
     EditableList,
@@ -352,6 +357,9 @@ export default Vue.extend({
   },
 
   methods: {
+    refreshUser() {
+      Store.dispatch("refreshUser")
+    },
 
     updateProfile(req: UpdateProfileReq) {
       this.loading = true
@@ -360,7 +368,7 @@ export default Vue.extend({
         .updateProfile(req)
         .then(() => {
           this.loading = false
-          Store.dispatch("refreshUser")
+          this.refreshUser()
         })
         .catch((err) => {
           this.loading = false

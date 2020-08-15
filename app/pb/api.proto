@@ -53,6 +53,10 @@ service API {
   // try to write for yourself, or NOT_FOUND if the user doesn't exist.
   // Raises FAILED_PRECONDITION if you try to write a reference twice.
   rpc WriteReference(WriteReferenceReq) returns (google.protobuf.Empty);
+
+  rpc InitiateMediaUpload(google.protobuf.Empty) returns (InitiateMediaUploadRes) {
+    // Initiate a media upload
+  }
 }
 
 message SearchReq {
@@ -186,6 +190,8 @@ message User {
   google.protobuf.StringValue sleeping_arrangement = 29;
   google.protobuf.StringValue area = 30;
   google.protobuf.StringValue house_rules = 31;
+
+  string avatar_url = 32;
 }
 
 message GetUserReq {
@@ -298,4 +304,10 @@ message WriteReferenceReq {
   string text = 3;
   bool was_safe = 4;
   int32 rating = 5;
+}
+
+message InitiateMediaUploadRes {
+  // URL to POST the data to
+  string upload_url = 1;
+  google.protobuf.Timestamp expiry = 2;
 }

@@ -1,20 +1,23 @@
 import logging
-from datetime import datetime
-from google.protobuf import empty_pb2
-from google.protobuf.timestamp_pb2 import Timestamp
+from base64 import urlsafe_b64decode, urlsafe_b64encode
+from datetime import datetime, timedelta
+from urllib.parse import urlencode
 
 import grpc
-from sqlalchemy.sql import or_
-
+from couchers import errors
+from couchers.config import config
+from couchers.crypto import generate_hash_signature, random_hex
 from couchers.db import (get_friends_status, get_user_by_field, is_valid_color,
                          is_valid_name, session_scope)
-from couchers.models import (FriendRelationship, FriendStatus,
-                             HostingStatus, User, Complaint, Reference,
-                             ReferenceType, SmokingLocation)
-from couchers.utils import Timestamp_from_datetime
+from couchers.models import (Complaint, FriendRelationship, FriendStatus,
+                             HostingStatus, InitiatedUpload, Reference,
+                             ReferenceType, SmokingLocation, User)
 from couchers.tasks import send_report_email
-from couchers import errors
-from pb import api_pb2, api_pb2_grpc
+from couchers.utils import Timestamp_from_datetime
+from google.protobuf import empty_pb2
+from google.protobuf.timestamp_pb2 import Timestamp
+from pb import api_pb2, api_pb2_grpc, media_pb2
+from sqlalchemy.sql import or_
 
 reftype2sql = {
     api_pb2.ReferenceType.FRIEND: ReferenceType.FRIEND,
@@ -420,6 +423,41 @@ class API(api_pb2_grpc.APIServicer):
         return api_pb2.AvailableWriteReferenceTypesRes(
             reference_types=[reftype2api[r] for r in available])
 
+    def InitiateMediaUpload(self, request, context):
+        key = random_hex()
+
+        now = datetime.utcnow()
+        expiry = now + timedelta(minutes=20)
+
+        with session_scope(self._Session) as session:
+            upload = InitiatedUpload(
+                key=key,
+                created=now,
+                expiry=expiry,
+                user_id=context.user_id,
+            )
+            session.add(upload)
+            session.commit()
+
+            req = media_pb2.UploadRequest(
+                key=upload.key,
+                type=media_pb2.UploadRequest.UploadType.IMAGE,
+                created=Timestamp_from_datetime(upload.created),
+                expiry=Timestamp_from_datetime(upload.expiry),
+                max_width=2000,
+                max_height=1600,
+            ).SerializeToString()
+
+        data = urlsafe_b64encode(req).decode("utf8")
+        sig = urlsafe_b64encode(generate_hash_signature(req, config["MEDIA_SERVER_SECRET_KEY"])).decode("utf8")
+
+        path = "upload?" + urlencode({"data": data, "sig": sig})
+
+        return api_pb2.InitiateMediaUploadRes(
+            upload_url=f"{config['MEDIA_SERVER_BASE_URL']}/{path}",
+            expiry=Timestamp_from_datetime(expiry),
+        )
+
 
 def paginate_references_result(request, query):
     total_matches = query.count()
@@ -473,7 +511,8 @@ def user_model_to_pb(db_user, session, context):
                 name=mutual_friend.name,
             ) for mutual_friend in db_user.mutual_friends(context.user_id)
         ],
-        smoking_allowed=smokinglocation2api[db_user.smoking_allowed]
+        smoking_allowed=smokinglocation2api[db_user.smoking_allowed],
+        avatar_url=db_user.avatar_url,
     )
 
     if db_user.max_guests is not None:

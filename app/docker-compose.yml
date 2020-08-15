@@ -14,6 +14,11 @@ services:
     restart: on-failure
   backend:
     build: backend
+    environment:
+      MEDIA_SERVER_SECRET_KEY: 1c40f0f493eea6e0c2dec15c8c1d32c25f2f4b4dacf3a7a255d8d2ab56fa9677
+      MEDIA_SERVER_BEARER_TOKEN: aabbcbaa02883911
+      AWS_PROFILE: coucherscreds
+      AWS_DEFAULT_REGION: us-east-1
     volumes:
       - "./backend:/app"
     # see https://github.com/eradman/entr#docker-and-windows-subsystem-for-linux
@@ -22,6 +27,27 @@ services:
     ports:
       - 1751:1751
       - 1752:1752
+      - 1753:1753
+  media_tests:
+    build: media
+    command: pytest .
+    restart: on-failure
+    environment:
+      MEDIA_SERVER_FROM_ENV: 0
+  media:
+    build: media
+    environment:
+      MAIN_SERVER_ADDRESS: "backend:1753"
+      MEDIA_SERVER_SECRET_KEY: 1c40f0f493eea6e0c2dec15c8c1d32c25f2f4b4dacf3a7a255d8d2ab56fa9677
+      MEDIA_SERVER_BEARER_TOKEN: aabbcbaa02883911
+      MAIN_SERVER_USE_SSL: 0
+    restart: on-failure
+    ports:
+      - 5000:5000
+    depends_on:
+      - backend
+    links:
+      - backend
   frontend:
     build: frontend
     volumes:

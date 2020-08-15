@@ -73,7 +73,7 @@ class _AuthInterceptorServicerContext(grpc.ServicerContext):
         return self._servicer_context.set_details(details)
 
 
-class _AuthValidatorInterceptor(grpcext.UnaryServerInterceptor, grpcext.StreamServerInterceptor):
+class AuthValidatorInterceptor(grpcext.UnaryServerInterceptor, grpcext.StreamServerInterceptor):
     def __init__(self, get_user_for_session_token):
         self._get_user_for_session_token = get_user_for_session_token
 
@@ -81,7 +81,7 @@ class _AuthValidatorInterceptor(grpcext.UnaryServerInterceptor, grpcext.StreamSe
         metadata = {key: value for (key, value) in servicer_context.invocation_metadata()}
 
         # abort also if no bearer token is present
-        if not "authorization" in metadata:
+        if "authorization" not in metadata:
             servicer_context.abort(grpc.StatusCode.UNAUTHENTICATED, "Unauthorized")
 
         authorization = metadata["authorization"]
@@ -96,6 +96,30 @@ class _AuthValidatorInterceptor(grpcext.UnaryServerInterceptor, grpcext.StreamSe
         return handler(request, _AuthInterceptorServicerContext(servicer_context, user_id))
 
     def intercept_stream(self, request_or_iterator, servicer_context, server_info, handler):
+        raise NotImplementedError()
+
+
+class ManualAuthValidatorInterceptor(grpcext.UnaryServerInterceptor, grpcext.StreamServerInterceptor):
+    def __init__(self, is_authorized):
+        self._is_authorized = is_authorized
+
+    def intercept_unary(self, request, context, server_info, handler):
+        metadata = {key: value for (key, value) in context.invocation_metadata()}
+
+        # abort also if no bearer token is present
+        if "authorization" not in metadata:
+            context.abort(grpc.StatusCode.UNAUTHENTICATED, "Unauthorized")
+
+        authorization = metadata["authorization"]
+        if not authorization.startswith("Bearer "):
+            context.abort(grpc.StatusCode.UNAUTHENTICATED, "Unauthorized")
+
+        if not self._is_authorized(token=authorization[7:]):
+            context.abort(grpc.StatusCode.UNAUTHENTICATED, "Unauthorized")
+
+        return handler(request, context)
+
+    def intercept_stream(self, request_or_iterator, context, server_info, handler):
         raise NotImplementedError()
 
 

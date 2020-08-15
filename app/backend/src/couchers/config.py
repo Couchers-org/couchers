@@ -30,6 +30,11 @@ CONFIG_OPTIONS = [
     ("SMTP_PORT", int),
     ("SMTP_USERNAME", str),
     ("SMTP_PASSWORD", str),
+    # Media server
+    ("ENABLE_MEDIA", bool),
+    ("MEDIA_SERVER_SECRET_KEY", bytes),
+    ("MEDIA_SERVER_BEARER_TOKEN", str),
+    ("MEDIA_SERVER_BASE_URL", str),
 ]
 
 dot = Path(".")
@@ -55,6 +60,9 @@ for name, type_ in CONFIG_OPTIONS:
         if value not in ["0", "1"]:
             raise ValueError(f'Invalid bool for {name}, need "0" or "1"')
         value = value == "1"
+    elif type_ == bytes:
+        # decode from hex
+        value = bytes.fromhex(value)
     else:
         value = type_(value)
 

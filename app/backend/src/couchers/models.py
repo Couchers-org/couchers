@@ -2,10 +2,11 @@ import enum
 from calendar import monthrange
 from datetime import date
 
+from couchers.config import config
 from sqlalchemy import (Boolean, Column, Date, DateTime, Enum, Float,
-                        ForeignKey, Integer, UniqueConstraint)
+                        ForeignKey, Integer)
 from sqlalchemy import LargeBinary as Binary
-from sqlalchemy import String
+from sqlalchemy import String, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.session import Session
@@ -76,6 +77,7 @@ class User(Base):
     about_place = Column(String, nullable=True)
     # profile color
     color = Column(String, nullable=False, default="#643073")
+    avatar_filename = Column(String, nullable=True)
     # TODO: array types once we go postgres
     languages = Column(String, nullable=True)
     countries_visited = Column(String, nullable=True)
@@ -122,6 +124,12 @@ class User(Base):
         """
         return self.last_active.replace(minute=(self.last_active.minute // 15) * 15,
                                         second=0, microsecond=0)
+
+    @property
+    def avatar_url(self):
+        # TODO(aapeli): don't hardcode
+        filename = self.avatar_filename or "couchers"
+        return f"{config['MEDIA_SERVER_BASE_URL']}/avatar/{filename}"
 
     def mutual_friends(self, target_id):
         if target_id == self.id:
@@ -479,3 +487,21 @@ class HostRequestEvent(Base):
     after_message_id = Column(Integer, nullable=False)
     time = Column(DateTime(timezone=True), nullable=False,
                   server_default=func.now())
+
+
+class InitiatedUpload(Base):
+    """
+    Started downloads, not necessarily complete yet.
+
+    For now we only have avatar images, so it's specific to that.
+    """
+    __tablename__ = "initiated_uploads"
+
+    key = Column(String, primary_key=True)
+
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    expiry = Column(DateTime(timezone=True), nullable=False)
+
+    user_id = Column(ForeignKey("users.id"), nullable=False)
+
+    user = relationship("User")
