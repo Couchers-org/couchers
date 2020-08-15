@@ -36,7 +36,7 @@ jobs:
       - aws-ecr/ecr-login
       - aws-ecr/push-image:
           repo: couchers/proxy
-  build_backend:
+  build_test_backend:
     machine: true
     steps:
       - attach_workspace:
@@ -45,23 +45,17 @@ jobs:
           command: |
             cd app/backend
             docker build -t couchers/backend .
-      - run: docker save -o couchers-backend.tar.gz couchers/backend
-      - persist_to_workspace:
-          root: .
-          paths:
-            - "*"
-  test_backend:
-    machine: true
-    steps:
-      - attach_workspace:
-          at: .
-      - run: docker load -i couchers-backend.tar.gz
       - run: mkdir test-results
       - run: docker run couchers/backend pytest src --junitxml=test-results/junit.xml
       - store_test_results:
           path: test-results
       - store_artifacts:
           path: test-results
+      - run: docker save -o couchers-backend.tar.gz couchers/backend
+      - persist_to_workspace:
+          root: .
+          paths:
+            - "*"
   deploy_backend:
     machine: true
     steps:
@@ -72,7 +66,7 @@ jobs:
       - aws-ecr/ecr-login
       - aws-ecr/push-image:
           repo: couchers/backend
-  build_media:
+  build_test_media:
     machine: true
     steps:
       - attach_workspace:
@@ -81,23 +75,17 @@ jobs:
           command: |
             cd app/media
             docker build -t couchers/media .
-      - run: docker save -o couchers-media.tar.gz couchers/media
-      - persist_to_workspace:
-          root: .
-          paths:
-            - "*"
-  test_media:
-    machine: true
-    steps:
-      - attach_workspace:
-          at: .
-      - run: docker load -i couchers-media.tar.gz
       - run: mkdir test-results
       - run: docker run -e "MEDIA_SERVER_FROM_ENV=0" couchers/media pytest src --junitxml=test-results/junit.xml
       - store_test_results:
           path: test-results
       - store_artifacts:
           path: test-results
+      - run: docker save -o couchers-media.tar.gz couchers/media
+      - persist_to_workspace:
+          root: .
+          paths:
+            - "*"
   deploy_media:
     machine: true
     steps:
@@ -145,30 +133,24 @@ workflows:
   backend:
     jobs:
       - compile_protos
-      - build_backend:
+      - build_test_backend:
           requires:
             - compile_protos
-      - test_backend:
-          requires:
-            - build_backend
       - deploy_backend:
           requires:
-            - build_backend
+            - build_test_backend
           # filters:
           #   branches:
           #     only: develop
   media:
     jobs:
       - compile_protos
-      - build_media:
+      - build_test_media:
           requires:
             - compile_protos
-      - test_media:
-          requires:
-            - build_media
       - deploy_media:
           requires:
-            - build_media
+            - build_test_media
           # filters:
           #   branches:
           #     only: develop
