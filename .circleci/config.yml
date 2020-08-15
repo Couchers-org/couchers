@@ -8,7 +8,8 @@ jobs:
       - run:
           command: |
             cd app
-            ./generate_protos.sh
+            ls
+            bash generate_protos.sh
   test:
     docker:
       - image: circleci/python:3.8
