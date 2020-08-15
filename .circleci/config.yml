@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: aapeliv/grpc
+      - image: couchers/grpc
     steps:
       - checkout
       - run:
