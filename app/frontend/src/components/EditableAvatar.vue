@@ -44,7 +44,7 @@ export default Vue.extend({
     error: null as Error | null,
     loading: false,
     avatarRules: [
-      (value) =>
+      (value: any) =>
         !value ||
         value.size < 16000000 ||
         "Avatar size should be less than 16 MB!",
@@ -59,7 +59,7 @@ export default Vue.extend({
     upload() {
       client.initiateMediaUpload(new Empty()).then((res) => {
         const formData = new FormData()
-        formData.append("file", this.image)
+        formData.append("file", this.image || "") // TODO: if image is null
         this.progress = 0
         this.loading = true
         axios
