@@ -1,11 +1,12 @@
 version: 2
 jobs:
   build:
-    working_directory: ~/app/backend
     docker:
       - image: circleci/python:3.8
     steps:
       - checkout
       - run:
           command: |
+            cd app/backend
             pip install -r requirements.txt
+            pytest src
