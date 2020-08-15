@@ -85,10 +85,7 @@ jobs:
           at: .
       - run: docker load -i couchers-media.tar.gz
       - run: mkdir test-results
-      - run:
-          environment:
-            MEDIA_SERVER_FROM_ENV: "0"
-          command: docker run couchers/media  pytest src --junitxml=test-results/junit.xml
+      - run: docker run -e "MEDIA_SERVER_FROM_ENV=0" couchers/media pytest src --junitxml=test-results/junit.xml
       - store_test_results:
           path: test-results
       - store_artifacts:
@@ -171,9 +168,6 @@ workflows:
       - build_frontend:
           requires:
             - compile_protos
-      - test_frontend:
-          requires:
-            - build_frontend
       - deploy_frontend:
           requires:
             - build_frontend
