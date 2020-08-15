@@ -23,3 +23,9 @@ jobs:
             cd app/media
             pip install -r requirements.txt
             MEDIA_SERVER_FROM_ENV: 0 pytest .
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+      - test
