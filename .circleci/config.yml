@@ -10,11 +10,6 @@ jobs:
           root: .
           paths:
             - "*"
-                build: proxy
-    restart: on-failure
-    ports:
-      - 8888:8888
-      - 9901:9901
   build_proxy:
     machine: true
     steps:
