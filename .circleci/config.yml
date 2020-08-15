@@ -1,6 +1,7 @@
 version: 2
 jobs:
   build:
+    working_directory: ~/app/backend
     docker:
       - image: circleci/python:3.8
     steps:
