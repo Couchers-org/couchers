@@ -1,4 +1,6 @@
-version: 2
+orbs:
+  aws-ecr: circleci/aws-ecr@6.12.2
+version: 2.1
 jobs:
   compile_protos:
     docker:
@@ -18,7 +20,7 @@ jobs:
       - run:
           command: |
             cd app/proxy
-            docker build -t couchers/proxy .
+            docker build -t couchers/proxy -t $COUCHERS_ECR_URI/proxy .
       - run: docker save -o couchers-proxy.tar.gz couchers/proxy
       - persist_to_workspace:
           root: .
@@ -30,7 +32,9 @@ jobs:
       - attach_workspace:
           at: .
       - run: docker load -i couchers-proxy.tar.gz
-      - run: echo "pretending to deploy"
+      - ecr-login
+      - push-image:
+          repo: couchers/proxy
   build_backend:
     machine: true
     steps:
@@ -39,7 +43,7 @@ jobs:
       - run:
           command: |
             cd app/backend
-            docker build -t couchers/backend .
+            docker build -t couchers/backend -t $COUCHERS_ECR_URI/backend .
       - run: docker save -o couchers-backend.tar.gz couchers/backend
       - persist_to_workspace:
           root: .
@@ -63,7 +67,9 @@ jobs:
       - attach_workspace:
           at: .
       - run: docker load -i couchers-backend.tar.gz
-      - run: echo "pretending to deploy"
+      - ecr-login
+      - push-image:
+          repo: couchers/backend
   build_media:
     machine: true
     steps:
@@ -72,7 +78,7 @@ jobs:
       - run:
           command: |
             cd app/media
-            docker build -t couchers/media .
+            docker build -t couchers/media -t $COUCHERS_ECR_URI/media .
       - run: docker save -o couchers-media.tar.gz couchers/media
       - persist_to_workspace:
           root: .
@@ -96,7 +102,9 @@ jobs:
       - attach_workspace:
           at: .
       - run: docker load -i couchers-media.tar.gz
-      - run: echo "pretending to deploy"
+      - ecr-login
+      - push-image:
+          repo: couchers/media
   build_frontend:
     machine: true
     steps:
@@ -105,7 +113,7 @@ jobs:
       - run:
           command: |
             cd app/frontend
-            docker build -t couchers/frontend .
+            docker build -t couchers/frontend -t $COUCHERS_ECR_URI/frontend .
       - run: docker save -o couchers-frontend.tar.gz couchers/frontend
       - persist_to_workspace:
           root: .
@@ -117,7 +125,9 @@ jobs:
       - attach_workspace:
           at: .
       - run: docker load -i couchers-frontend.tar.gz
-      - run: echo "pretending to deploy"
+      - ecr-login
+      - push-image:
+          repo: couchers/frontend
 workflows:
   version: 2
   proxy:
