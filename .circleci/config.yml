@@ -6,7 +6,10 @@ jobs:
     steps:
       - checkout
       - run: cd app && ./generate_protos.sh
-      - persist_to_workspace
+      - persist_to_workspace:
+          root: .
+          paths:
+            - "*"
   test:
     docker:
       - image: circleci/python:3.8
