@@ -10,7 +10,7 @@ The frontend is a static app that we can eventually deploy on a CDN. The fronten
 
 1. Install [`docker`](https://docs.docker.com/engine/install/)
 2. Install [`docker-compose`](https://docs.docker.com/compose/install/)
-3. Run `docker-compose up`
+3. Navigate in your command line to your folder containing "\backend" and run `docker-compose up`
 
 This should build everything and launch it up on your computer. It's going to a moment.
 
