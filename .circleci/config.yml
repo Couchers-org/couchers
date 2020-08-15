@@ -2,14 +2,13 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/python:3.8
+      - image: aapeliv/grpc
     steps:
       - checkout
       - run:
           command: |
             cd app
-            pip install grpcio-tools
-            PROTOC="python -m grpc_tools.protoc" DONT_GENERATE_JS=1 ./generate_protos.sh
+            ./generate_protos.sh
   test:
     docker:
       - image: circleci/python:3.8
