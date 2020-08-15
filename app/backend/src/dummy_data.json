@@ -1,14 +1,43 @@
 {
   "users": [
     {
+      "username": "aapeli",
+      "email": "couchers@aapelivuorinen.com",
+      "password": "Aapeli's password",
+      "display_name": "Aapeli",
+      "name": "Aapeli Vuorinen",
+      "city": "Brisbane, Queensland, Australia",
+      "verification": 0.98,
+      "community_standing": 0.87,
+      "gender": "Male",
+      "birthdate": {
+        "year": 1990,
+        "month": 3,
+        "day": 2
+      },
+      "languages": ["English", "Finnish"],
+      "occupation": "Mathematician",
+      "about_me": "Some generic stuff.",
+      "about_place": "About Aapeli's place",
+      "color": "#40a6e7",
+      "countries_visited": ["Australia"],
+      "countries_lived": [
+        "Australia",
+        "Finland",
+        "Sweden",
+        "United States"
+      ],
+      "hosting_status": "HOSTING_STATUS_CAN_HOST"
+    },
+    {
       "username": "itsi",
-      "email": "aapeli@couchers.org",
+      "email": "itsi@couchers.org",
       "password": null,
+      "display_name": "Itsi",
       "name": "Itsi Weinstock",
       "city": "Sydney, New South Wales, Australia",
       "verification": 0.73,
       "community_standing": 0.41,
-      "num_references": 16,
       "gender": "Male",
       "birthdate": {
         "year": 1995,
@@ -41,43 +70,62 @@
       "countries_lived": ["Australia", "North Korea"]
     },
     {
-      "username": "aapeli",
-      "email": "couchers@aapelivuorinen.com",
-      "password": "Aapeli's password",
-      "name": "Aapeli Vuorinen",
-      "city": "Brisbane, Queensland, Australia",
-      "verification": 0.98,
-      "community_standing": 0.87,
-      "num_references": 402,
+      "username": "lucas",
+      "email": "lucas@couchers.org",
+      "password": null,
+      "display_name": "Lucas",
+      "name": "Lucas Levin",
+      "city": "London, UK",
+      "verification": 0.4,
+      "community_standing": 0.3,
       "gender": "Male",
       "birthdate": {
-        "year": 1990,
-        "month": 3,
-        "day": 2
+        "year": 1993,
+        "month": 5,
+        "day": 22
       },
-      "languages": ["English", "Finnish"],
-      "occupation": "Mathematician",
-      "about_me": "Some generic stuff.",
-      "about_place": "About Aapeli's place",
-      "color": "#40a6e7",
-      "countries_visited": ["Australia"],
-      "countries_lived": [
-        "Australia",
-        "Finland",
-        "Sweden",
-        "United Stated of America"
-      ],
+      "languages": ["English", "French", "German", "Mandarin"],
+      "occupation": "Musician",
+      "about_me": "I hate travelling, I'm really closed minded, I'm unfriendly and socially awkward. Just kidding.\n\nI love music, theatre, art. I enjoy few things more than a drink (or many) with friends (old or new) and good conversations about travelling, philosophy, politics, or the weather. I used to study chemistry. It was quite nice, but I abandoned it to follow my dreams. I'm a violist so my music tastes are pretty diverse, from gregorian chant to indie folk. Also electronic music! Currently studying at the Royal Academy of Music. [Here *is* my website](https://lucas-levin.com)\n\n## Some Markdown\n\nMarkdown is **loads** of fun.\n\n* Just\n\n* Look\n\n* At\n\n** This indented\n\n** List. **Wow!** ~~It sucks~~",
+      "about_place": "| Syntax      | Description | Test Text     |\n| :---        |    :----:   |          ---: |\n| He&#124;ader      | Title       | Here's this   |\n| Paragraph   | Text        | And more      |\n\n```\nCode goes in here\n```\n\n- [x] Fill out my profile\n- [x] ???\n- [ ] Profit\n\n😂\n\nCat  \n![Cat](https://i.redd.it/1j5mglxe6ys31.jpg)",
+      "color": "#8c6a45",
+      "countries_visited": ["Australia", "United Kingdom", "Taiwan", "Lots"],
+      "countries_lived": ["Australia", "United Kingdom", "France"],
       "hosting_status": "HOSTING_STATUS_CAN_HOST"
     },
     {
+      "username": "kellyt",
+      "email": "kelly@couchers.org",
+      "password": null,
+      "display_name": "Kelly",
+      "name": "Kelly",
+      "city": "Singapore",
+      "verification": 0.94,
+      "community_standing": 0.97,
+      "gender": "Female",
+      "birthdate": {
+          "year": 1995,
+          "month": 1,
+          "day": 1
+      },
+      "languages": ["English"],
+      "occupation": "",
+      "about_me": "Not much here.",
+      "about_place": "Not much here either.",
+      "color": "#643073",
+      "countries_visited": ["Singapore"],
+      "countries_lived": ["Singapore"],
+      "hosting_status": "HOSTING_STATUS_CANT_HOST"
+    },
+    {
       "username": "val",
-      "email": "val@example.invalid",
-      "password": "Val's password",
+      "email": "val@couchers.org",
+      "password": null,
+      "display_name": "Val",
       "name": "Val Natanelov",
-      "city": "Brisbane, Queensland, Australia",
-      "verification": 0.98,
-      "community_standing": 0.87,
-      "num_references": 100,
+      "city": "Brisbane, Australia",
+      "verification": 0.96,
+      "community_standing": 0.82,
       "gender": "Male",
       "birthdate": {
         "year": 1985,
@@ -86,52 +134,116 @@
       },
       "languages": ["English"],
       "occupation": "Strategist",
-      "about_me": "Some stuff.",
+      "about_me": "I didn't write this.",
       "about_place": "About Val's place",
       "color": "#858328",
-      "countries_visited": ["Japan"],
+      "countries_visited": ["Australia"],
+      "countries_lived": ["Australia"],
+      "hosting_status": "HOSTING_STATUS_CANT_HOST"
+    },
+    {
+      "username": "misspoptart",
+      "email": "vivian@couchers.org",
+      "password": null,
+      "display_name": "Vivi",
+      "name": "Vivan",
+      "city": "Portland, Maine, USA",
+      "verification": 0.78,
+      "community_standing": 0.99,
+      "gender": "Female",
+      "birthdate": {
+        "year": 1977,
+        "month": 4,
+        "day": 18
+      },
+      "languages": ["Arabic", "Patois", "Hungarian"],
+      "occupation": "Paraglider",
+      "about_me": "I’m sooooo cool. ☺️",
+      "about_place": "It’s a couch in a house in a city in a country on EARTH",
+      "color": "#3c0f49",
+      "countries_visited": ["Japan", "United States"],
+      "countries_lived": ["Australia", "New Zealand", "Ghana"],
+      "hosting_status": "HOSTING_STATUS_CAN_HOST"
+    },
+    {
+      "username": "debbie",
+      "email": "debbie@couchers.org",
+      "password": null,
+      "display_name": "debbie1",
+      "name": "Deborah Barb",
+      "city": "Canberra, ACT, Australia",
+      "verification": 0.81,
+      "community_standing": 0.22,
+      "gender": "Female",
+      "birthdate": {
+        "year": 1980,
+        "month": 12,
+        "day": 12
+      },
+      "languages": ["English", "Polish"],
+      "occupation": "Teacher",
+      "about_me": "I'm a fun loving teacher with 2 dogs and a passion for biology. I love to travel and try all the local food.",
+      "about_place": "I live in a small apartment in the centre of the city, I have a spare room you can use and you must love dogs (or at least a little bit haha)",
+      "color": "#733630",
+      "countries_visited": ["Austria", "Poland", "Viet Nam", "Turkey"],
       "countries_lived": ["Australia"],
       "hosting_status": "HOSTING_STATUS_DIFFICULT"
     },
     {
-        "username": "aapeli2",
-        "email": "couchers2@aapelivuorinen.com",
-        "password": "Aapeli2's password",
-        "name": "Aapeli Vuorinen (2)",
-        "city": "Brisbane, Queensland, Australia",
-        "verification": 0.97,
-        "community_standing": 0.88,
-        "num_references": 401,
-        "gender": "Male",
-        "birthdate": {
-            "year": 1990,
-            "month": 3,
-            "day": 3
-        },
-        "languages": [
-            "English",
-            "Finnish"
-        ],
-        "occupation": "Mathematician",
-        "about_me": "Some generic stuff about Aapeli 2.",
-        "about_place": "About Aapeli 2's place",
-        "countries_visited": [
-            "Australia"
-        ],
-        "countries_lived": [
-            "Australia",
-            "Finland",
-            "Sweden",
-            "United Stated of America"
-        ],
-        "hosting_status": "HOSTING_STATUS_MAYBE"
+      "username": "joshua",
+      "email": "mcdojj12@gmail.com",
+      "password": null,
+      "display_name": "Josh Mc",
+      "name": "Joshua Mcdonald",
+      "city": "Brisbane, Queensland, Australia",
+      "verification": 0.8,
+      "community_standing": 0.7,
+      "gender": "Male",
+      "birthdate": {
+        "year": 1995,
+        "month": 3,
+        "day": 8
+      },
+      "languages": ["English", "Japanese"],
+      "occupation": "Software Engineer",
+      "about_me": "# Cool dude\nsometimes",
+      "about_place": "Not a dead city",
+      "color": "#2a7490",
+      "countries_visited": ["Sweden", "New Zealand", "Spain", "France", "England", "Ireland", "Japan", "Italy"],
+      "countries_lived": ["Australia"],
+      "hosting_status": "HOSTING_STATUS_CAN_HOST"
+    },
+    {
+      "username": "chagai",
+      "email": "chagai95@gmail.com",
+      "password": null,
+      "display_name": "Chagai Friedlander",
+      "name": "Chagai Friedlander",
+      "city": "Bern, Switzerland",
+      "verification": 0.89,
+      "community_standing": 0.76,
+      "gender": "",
+      "birthdate": {
+        "year": 1995,
+        "month": 3,
+        "day": 25
+      },
+      "languages": ["English", "Hebrew", "German"],
+      "occupation": "Software Engineer",
+      "about_me": "I was born to a Jewish Orthodox family my parents are in their late 40's , I have a brother who's in his 20's and 4 sisters in their teens.\n( the younger girls in the picture! )\n\nI am not currently religious in any way...\n\n[my contact details](www.tiny.cc/chagai)\n\nI like to talk about many things and I like to hear about new things that I had no knowledge about before (especially regarding the following topics: technology especially phones and computers,facts about the world, sex, different types of relationships, politics, a tiny bit about religion and any other thing that we may enjoy discussing together).",
+      "about_place": "Very nice cool place ;)",
+      "color": "#643073",
+      "countries_visited": ["United Kingdom", "United States", "China"],
+      "countries_lived": ["Germany", "Switzerland", "Israel"],
+      "hosting_status": "HOSTING_STATUS_CANT_HOST"
     }
   ],
   "friendships": [
     ["aapeli", "itsi"],
     ["aapeli", "val"],
+    ["aapeli", "lucas"],
     ["val", "itsi"],
-    ["aapeli2", "itsi"]
+    ["lucas", "itsi"]
   ],
   "references": [
     {
@@ -143,7 +255,7 @@
       "rating": 5
     },
     {
-      "from": "aapeli2",
+      "from": "lucas",
       "to": "itsi",
       "type": "friend",
       "text": "I had such a great time with Itsi also, he pitched me his website ideas and we ate sushi.",
