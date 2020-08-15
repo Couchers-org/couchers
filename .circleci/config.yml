@@ -19,6 +19,10 @@ jobs:
           command: |
             cd app/backend
             docker build -t couchers/backend .
+  test_backend:
+    machine: true
+    steps:
+      - run: docker run couchers/backend pytest src
 workflows:
   version: 2
   backend:
@@ -27,3 +31,6 @@ workflows:
       - build_backend:
           requires:
             - compile_protos
+      - test_backend:
+          requires:
+            - build_backend
