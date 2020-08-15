@@ -91,9 +91,7 @@ workflows:
   version: 2
   proxy:
     jobs:
-      - test_proxy:
-          requires:
-            - build_proxy
+      - build_proxy
       - deploy_proxy:
           requires:
             - build_proxy
