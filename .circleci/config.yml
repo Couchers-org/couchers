@@ -1,0 +1,8 @@
+version: 2
+jobs:
+  build:
+    steps:
+      - checkout
+      - run:
+          command: |
+            pip install -r requirements.txt
