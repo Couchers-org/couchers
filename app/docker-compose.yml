@@ -30,7 +30,7 @@ services:
       - 1753:1753
   media_tests:
     build: media
-    command: pytest .
+    command: pytest src
     restart: on-failure
     environment:
       MEDIA_SERVER_FROM_ENV: 0
