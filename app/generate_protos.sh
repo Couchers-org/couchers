@@ -1,5 +1,6 @@
 #!/bin/sh
-find pb -name '*.proto' | protoc -I. \
+PROTOC=${PROTOC:-protoc}
+find pb -name '*.proto' | $PROTOC -I. \
   --python_out=backend/src \
   --grpc_python_out=backend/src \
   --python_out=media/src \

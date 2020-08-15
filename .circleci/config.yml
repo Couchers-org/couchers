@@ -7,6 +7,11 @@ jobs:
       - checkout
       - run:
           command: |
+            cd app
+            pip install grpcio-tools
+            PROTOC="python -m grpc_tools.protoc" ./generate_protos.sh
+      - run:
+          command: |
             cd app/backend
             pip install -r requirements.txt
             pytest src
