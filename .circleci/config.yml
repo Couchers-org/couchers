@@ -127,10 +127,7 @@ jobs:
     steps:
       - attach_workspace:
           at: .
-      - run: docker load -i couchers-frontend.tar.gz
-      - ecr-login
-      - push-image:
-          repo: couchers/frontend
+      - run: echo "going to deploy frontend"
 workflows:
   version: 2
   proxy:
