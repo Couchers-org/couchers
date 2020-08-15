@@ -20,7 +20,7 @@ jobs:
       - run:
           command: |
             cd app/proxy
-            docker build -t couchers/proxy -t $AWS_ECR_ACCOUNT_URL/couchers/proxy .
+            docker build -t couchers/proxy .
       - run: docker save -o couchers-proxy.tar.gz couchers/proxy
       - persist_to_workspace:
           root: .
@@ -32,6 +32,7 @@ jobs:
       - attach_workspace:
           at: .
       - run: docker load -i couchers-proxy.tar.gz
+      - run: docker tag couchers/proxy $AWS_ECR_ACCOUNT_URL/couchers/proxy
       - aws-ecr/ecr-login
       - aws-ecr/push-image:
           repo: couchers/proxy
