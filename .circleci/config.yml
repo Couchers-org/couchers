@@ -32,8 +32,8 @@ jobs:
       - attach_workspace:
           at: .
       - run: docker load -i couchers-proxy.tar.gz
-      - ecr-login
-      - push-image:
+      - aws-ecr/ecr-login
+      - aws-ecr/push-image:
           repo: couchers/proxy
   # build_backend:
   #   machine: true
