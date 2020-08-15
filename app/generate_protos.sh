@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 PROTOC=${PROTOC:-protoc}
 DONT_GENERATE_PY=${DONT_GENERATE_PY:-""}
 DONT_GENERATE_JS=${DONT_GENERATE_JS:-""}
