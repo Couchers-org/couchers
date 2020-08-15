@@ -85,7 +85,10 @@ jobs:
           at: .
       - run: docker load -i couchers-media.tar.gz
       - run: mkdir test-results
-      - run: docker run couchers/media MEDIA_SERVER_FROM_ENV=0 pytest src --junitxml=test-results/junit.xml
+      - run:
+          environment:
+            MEDIA_SERVER_FROM_ENV: "0"
+          command: docker run couchers/media  pytest src --junitxml=test-results/junit.xml
       - store_test_results:
           path: test-results
       - store_artifacts:
@@ -96,6 +99,27 @@ jobs:
       - attach_workspace:
           at: .
       - run: docker load -i couchers-media.tar.gz
+      - run: echo "pretending to deploy"
+  build_frontend:
+    machine: true
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          command: |
+            cd app/frontend
+            docker build -t couchers/frontend .
+      - run: docker save -o couchers-frontend.tar.gz couchers/frontend
+      - persist_to_workspace:
+          root: .
+          paths:
+            - "*"
+  deploy_frontend:
+    machine: true
+    steps:
+      - attach_workspace:
+          at: .
+      - run: docker load -i couchers-frontend.tar.gz
       - run: echo "pretending to deploy"
 workflows:
   version: 2
@@ -138,6 +162,21 @@ workflows:
       - deploy_media:
           requires:
             - build_media
+          filters:
+            branches:
+              only: develop
+  frontend:
+    jobs:
+      - compile_protos
+      - build_frontend:
+          requires:
+            - compile_protos
+      - test_frontend:
+          requires:
+            - build_frontend
+      - deploy_frontend:
+          requires:
+            - build_frontend
           filters:
             branches:
               only: develop
