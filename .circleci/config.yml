@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build:
+  grpc:
     docker:
       - image: couchers/grpc
     steps:
@@ -36,12 +36,15 @@ jobs:
             MEDIA_SERVER_FROM_ENV=0 pytest .
 workflows:
   version: 2
-  build_and_test:
+  backend:
     jobs:
-      - build
+      - grpc
       - backend_tests:
           requires:
-            - build
+            - grpc
+  media:
+    jobs:
+      - grpc
       - media_tests:
           requires:
-            - build
+            - grpc
