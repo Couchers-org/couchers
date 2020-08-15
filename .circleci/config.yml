@@ -10,6 +10,10 @@ jobs:
             cd app
             pip install grpcio-tools
             PROTOC="python -m grpc_tools.protoc" DONT_GENERATE_JS=1 ./generate_protos.sh
+  build:
+    docker:
+      - image: circleci/python:3.8
+    steps:
       - run:
           command: |
             cd app/backend
