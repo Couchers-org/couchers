@@ -1,6 +1,7 @@
 import moment from "moment"
 import { HostingStatus, SmokingLocation } from "./pb/api_pb"
 import colors from "vuetify/lib/util/colors"
+import { HostRequestStatus } from "./pb/requests_pb"
 
 export function displayList(list: string[]) {
   return list.join(", ")
@@ -50,6 +51,26 @@ export function displaySmokingLocation(
       return "Window only"
     case SmokingLocation.SMOKING_LOCATION_YES:
       return "Yes"
+    default:
+      return ""
+  }
+}
+
+/// Returns a text to display for HostRequestStatus enum
+export function displayHostRequestStatus(
+  hostRequestStatus: HostRequestStatus
+): string {
+  switch (hostRequestStatus) {
+    case HostRequestStatus.HOST_REQUEST_STATUS_PENDING:
+      return "Pending"
+    case HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED:
+      return "Accepted"
+    case HostRequestStatus.HOST_REQUEST_STATUS_REJECTED:
+      return "Rejected"
+    case HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED:
+      return "Confirmed"
+    case HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED:
+      return "Cancelled"
     default:
       return ""
   }

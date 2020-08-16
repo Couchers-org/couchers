@@ -29,6 +29,24 @@
           <v-list-item-title>Profile</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
+      <v-list-item link to="/hostrequests">
+        <v-list-item-icon>
+          <template>
+            <v-badge
+              v-if="unseenHostRequestCount"
+              color="primary"
+              :content="unseenHostRequestCount"
+              overlap
+            >
+              <v-icon>mdi-briefcase</v-icon>
+            </v-badge>
+            <v-icon v-else>mdi-briefcase</v-icon>
+          </template>
+        </v-list-item-icon>
+        <v-list-item-content>
+          <v-list-item-title>Host Requests</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
       <v-list-item link to="/messages">
         <v-list-item-icon>
           <v-icon>mdi-forum</v-icon>
@@ -101,7 +119,7 @@ export default Vue.extend({
       },
     },
 
-    ...mapState(["user", "drawerOpen"]),
+    ...mapState(["user", "drawerOpen", "unseenHostRequestCount"]),
   },
 })
 </script>

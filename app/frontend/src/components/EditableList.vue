@@ -34,7 +34,7 @@ import Vue, { PropType } from "vue"
 
 export default Vue.extend({
   props: {
-    list: Object as PropType<Array<string>>,
+    list: Array as PropType<Array<string>>,
   },
 
   data: () => ({

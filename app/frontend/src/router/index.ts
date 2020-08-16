@@ -2,6 +2,7 @@ import Vue from "vue"
 import VueRouter, { RouteConfig } from "vue-router"
 import Store from "../store"
 import Home from "../views/Home.vue"
+import HostRequests from "../views/HostRequests.vue"
 import User from "../views/User.vue"
 import Login from "../views/Login.vue"
 import Profile from "../views/Profile.vue"
@@ -65,6 +66,11 @@ const routes: Array<RouteConfig> = [
     path: "/messages",
     name: "Messages",
     component: Messages,
+  },
+  {
+    path: "/hostrequests",
+    name: "Host Requests",
+    component: HostRequests,
   },
   {
     path: "/search",
