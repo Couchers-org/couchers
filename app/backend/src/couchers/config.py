@@ -6,8 +6,6 @@ import os
 import sys
 from pathlib import Path
 
-from dotenv import load_dotenv
-
 logger = logging.getLogger(__name__)
 
 # Allowed config options, as tuples (name, type, default).
@@ -47,17 +45,6 @@ CONFIG_OPTIONS = [
     ("BUG_TOOL_GITHUB_USERNAME", str),
     ("BUG_TOOL_GITHUB_TOKEN", str),
 ]
-
-
-if "pytest" in sys.modules:
-    logger.info("Running in TEST")
-    load_dotenv(Path(__file__).parent / ".." / ".." / "test.env")
-else:
-    dot = Path(".")
-    if (dot / ".env").is_file():
-        load_dotenv(dot / ".env")
-    else:
-        load_dotenv(dot / "dev.env")
 
 config = {}
 

@@ -8,7 +8,7 @@ services:
       - 9901:9901
   postgres:
     image: postgres:12
-    env_file: postgres.env
+    env_file: postgres.dev.env
     volumes:
       - "./pgdata:/var/lib/postgresql/data"
     restart: on-failure
@@ -16,17 +16,14 @@ services:
       - 6543:5432
   backend_tests:
     build: backend
+    env_file: backend.test.env
     volumes:
       - "./backend:/app"
     command: bash -c "find src -name '**.py' | ENTR_INOTIFY_WORKAROUND=1 entr -d pytest src"
     restart: on-failure
   backend:
     build: backend
-    environment:
-      MEDIA_SERVER_SECRET_KEY: 1c40f0f493eea6e0c2dec15c8c1d32c25f2f4b4dacf3a7a255d8d2ab56fa9677
-      MEDIA_SERVER_BEARER_TOKEN: aabbcbaa02883911
-      AWS_PROFILE: coucherscreds
-      AWS_DEFAULT_REGION: us-east-1
+    env_file: backend.dev.env
     volumes:
       - "./backend:/app"
     # see https://github.com/eradman/entr#docker-and-windows-subsystem-for-linux
@@ -42,17 +39,12 @@ services:
       - postgres
   media_tests:
     build: media
+    env_file: media.test.env
     command: pytest src
     restart: on-failure
-    environment:
-      MEDIA_SERVER_FROM_ENV: 0
   media:
     build: media
-    environment:
-      MAIN_SERVER_ADDRESS: "backend:1753"
-      MEDIA_SERVER_SECRET_KEY: 1c40f0f493eea6e0c2dec15c8c1d32c25f2f4b4dacf3a7a255d8d2ab56fa9677
-      MEDIA_SERVER_BEARER_TOKEN: aabbcbaa02883911
-      MAIN_SERVER_USE_SSL: 0
+    env_file: media.dev.env
     restart: on-failure
     ports:
       - 5000:5000
@@ -62,6 +54,7 @@ services:
       - backend
   frontend:
     build: frontend
+    env_file: frontend.dev.env
     volumes:
       - "./frontend:/app"
     command: yarn dev
