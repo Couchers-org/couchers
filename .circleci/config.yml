@@ -26,7 +26,7 @@ jobs:
           root: .
           paths:
             - "*"
-  deploy_proxy:
+  upload_proxy:
     machine: true
     steps:
       - attach_workspace:
@@ -56,7 +56,7 @@ jobs:
           root: .
           paths:
             - "*"
-  deploy_backend:
+  upload_backend:
     machine: true
     steps:
       - attach_workspace:
@@ -86,7 +86,7 @@ jobs:
           root: .
           paths:
             - "*"
-  deploy_media:
+  upload_media:
     machine: true
     steps:
       - attach_workspace:
@@ -111,7 +111,7 @@ jobs:
           root: .
           paths:
             - "*"
-  deploy_frontend:
+  upload_frontend:
     machine: true
     steps:
       - attach_workspace:
@@ -129,45 +129,45 @@ workflows:
       - build_proxy:
           requires:
             - compile_protos
-      - deploy_proxy:
+      - upload_proxy:
           requires:
             - build_proxy
-          # filters:
-          #   branches:
-          #     only: develop
+          filters:
+            branches:
+              only: develop
   backend:
     jobs:
       - compile_protos
       - build_test_backend:
           requires:
             - compile_protos
-      - deploy_backend:
+      - upload_backend:
           requires:
             - build_test_backend
-          # filters:
-          #   branches:
-          #     only: develop
+          filters:
+            branches:
+              only: develop
   media:
     jobs:
       - compile_protos
       - build_test_media:
           requires:
             - compile_protos
-      - deploy_media:
+      - upload_media:
           requires:
             - build_test_media
-          # filters:
-          #   branches:
-          #     only: develop
+          filters:
+            branches:
+              only: develop
   frontend:
     jobs:
       - compile_protos
       - build_frontend:
           requires:
             - compile_protos
-      - deploy_frontend:
+      - upload_frontend:
           requires:
             - build_frontend
-          # filters:
-          #   branches:
-          #     only: develop
+          filters:
+            branches:
+              only: develop
