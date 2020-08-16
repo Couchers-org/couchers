@@ -6,6 +6,14 @@ services:
     ports:
       - 8888:8888
       - 9901:9901
+  postgres:
+    image: postgres:12
+    env_file: postgres.env
+    volumes:
+      - "./pgdata:/var/lib/postgresql/data"
+    restart: on-failure
+    ports:
+      - 6543:5432
   backend_tests:
     build: backend
     volumes:
