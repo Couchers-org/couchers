@@ -36,6 +36,10 @@ services:
       - 1751:1751
       - 1752:1752
       - 1753:1753
+    depends_on:
+      - postgres
+    links:
+      - postgres
   media_tests:
     build: media
     command: pytest src

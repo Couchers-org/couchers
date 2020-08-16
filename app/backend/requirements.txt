@@ -2,6 +2,7 @@ grpcio
 Jinja2
 markdown2
 protobuf
+psycopg2-binary
 pynacl
 pytest
 pytest-pythonpath

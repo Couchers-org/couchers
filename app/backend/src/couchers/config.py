@@ -19,6 +19,10 @@ CONFIG_OPTIONS = [
     ("VERSION", str, "unknown"),
     # Base URL
     ("BASE_URL", str),
+    # SQLAlchemy database connection string
+    ("DATABASE_CONNECTION_STRING", str),
+    # Whether to try adding dummy data
+    ("ADD_DUMMY_DATA", bool),
     # Email
     ("ENABLE_EMAIL", bool),
     # Sender name for outgoing notification emails e.g. "Couchers.org"
