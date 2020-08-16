@@ -97,15 +97,16 @@ jobs:
       - aws-ecr/push-image:
           repo: couchers/media
   build_frontend:
-    machine: true
+    docker:
+      - image: node:14-alpine
     steps:
       - attach_workspace:
           at: .
       - run:
           command: |
             cd app/frontend
-            docker build -t couchers/frontend .
-      - run: docker save -o couchers-frontend.tar.gz couchers/frontend
+            yarn
+            yarn build
       - persist_to_workspace:
           root: .
           paths:
@@ -118,8 +119,8 @@ jobs:
       - run:
           command: |
             cd app/frontend
-            aws s3 sync dist/ s3://${BUCKET_NAME} --acl public-read
-            aws cloudfront create-invalidation --distribution-id "${DISTRIBUTION_ID}" --paths "*"
+            aws s3 sync dist/ s3://${AWS_S3_BUCKET_NAME} --acl public-read
+            aws cloudfront create-invalidation --distribution-id "${AWS_CF_DISTRIBUTION_ID}" --paths "*"
 workflows:
   version: 2
   proxy:

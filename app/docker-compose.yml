@@ -52,6 +52,7 @@ services:
     build: frontend
     volumes:
       - "./frontend:/app"
+    command: yarn dev
     restart: on-failure
     ports:
       - 8080:8080
