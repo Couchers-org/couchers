@@ -115,7 +115,11 @@ jobs:
     steps:
       - attach_workspace:
           at: .
-      - run: echo "going to deploy frontend"
+      - run:
+          command: |
+            cd app/frontend
+            aws s3 sync dist/ s3://${BUCKET_NAME} --acl public-read
+            aws cloudfront create-invalidation --distribution-id "${DISTRIBUTION_ID}" --paths "*"
 workflows:
   version: 2
   proxy:
