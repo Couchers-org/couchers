@@ -120,7 +120,7 @@ jobs:
           command: |
             cd app/frontend
             aws s3 sync dist/ s3://${AWS_S3_BUCKET_NAME} --acl public-read
-            aws cloudfront create-invalidation --distribution-id "${AWS_CF_DISTRIBUTION_ID}" --paths "*"
+            aws cloudfront create-invalidation --distribution-id "${AWS_CF_DISTRIBUTION_ID}" --paths "/*"
 workflows:
   version: 2
   proxy:
