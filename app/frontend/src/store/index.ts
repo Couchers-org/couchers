@@ -22,7 +22,7 @@ const PING_SLACK = 100 // ms
 export default new Vuex.Store({
   state: {
     error: null,
-    drawerOpen: false, // whether the drawer (left hand sidebar) should be open
+    drawerOpen: true, // whether the drawer (left hand sidebar) should be open
     user: null as null | User.AsObject,
     unseenHostRequestCount: 0,
     authToken: null as null | string,

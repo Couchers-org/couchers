@@ -108,7 +108,7 @@
       <v-btn text link :to="{ name: 'User', params: { user: user.username } }"
         >View profile</v-btn
       >
-      <v-btn text>Message</v-btn>
+      <send-message-dialog-button :userId="user.userId" :name="user.name" />
     </v-card-actions>
   </v-card>
 </template>
@@ -120,12 +120,18 @@ import { User, HostingStatus } from "../pb/api_pb"
 
 import { displayList, displayTime, displayHostingStatus } from "../utils"
 
+import SendMessageDialogButton from './SendMessageDialogButton.vue'
+
 export default Vue.extend({
   data: () => ({
     HostingStatus,
   }),
   props: {
     user: Object as PropType<User.AsObject>,
+  },
+
+  components: {
+    SendMessageDialogButton
   },
 
   methods: {

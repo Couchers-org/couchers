@@ -3,12 +3,7 @@
     <v-system-bar color="warning" app>
       <v-icon>mdi-alert-circle</v-icon>
       <span
-        >This is a development version. <b>Please</b> report <b>any</b> bugs and
-        glitches you notice to us at
-        <a href="mailto:bugs@couchers.org">bugs@couchers.org</a>, or message us
-        on the
-        <a href="https://community.couchers.org/u/aapeli">forum</a>.</span
-      >
+        >This is a development version. :)</span>
     </v-system-bar>
 
     <v-app-bar app color="primary" dark clipped-left>
