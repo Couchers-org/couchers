@@ -50,6 +50,9 @@
                         >{{ loginStep == "user" ? "Next" : "Login" }}</v-btn
                       ></v-row
                     >
+                    <v-row class="mt-5">
+                      <p class="text-h6"><a href="/signup">Haven't signed up yet?</a></p>
+                    </v-row>
                   </v-form>
                 </v-card-text>
               </v-card>

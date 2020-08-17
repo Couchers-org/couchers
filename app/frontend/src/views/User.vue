@@ -150,7 +150,7 @@
         </v-list-item>
         <v-divider></v-divider>
         <v-card-actions>
-          <v-btn text>Message</v-btn>
+          <send-message-dialog-button :userId="user.userId" :name="user.name" />
           <report-dialog-button :name="user.name" :user-id="user.userId" />
           <request-host-dialog-button
             :name="user.name"
@@ -329,6 +329,7 @@ import ErrorAlert from "../components/ErrorAlert.vue"
 import LoadingCircular from "../components/LoadingCircular.vue"
 import ReportDialogButton from "../components/ReportDialogButton.vue"
 import RequestHostDialogButton from "../components/RequestHostDialogButton.vue"
+import SendMessageDialogButton from "../components/SendMessageDialogButton.vue"
 import Markdown from "../components/Markdown.vue"
 
 import {
@@ -380,6 +381,7 @@ export default Vue.extend({
     LoadingCircular,
     ReportDialogButton,
     RequestHostDialogButton,
+    SendMessageDialogButton,
     Markdown,
   },
 
