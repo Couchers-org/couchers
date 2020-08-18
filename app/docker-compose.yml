@@ -54,7 +54,6 @@ services:
       - backend
   frontend:
     build: frontend
-    env_file: frontend.dev.env
     volumes:
       - "./frontend:/app"
     command: yarn dev
