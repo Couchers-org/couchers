@@ -60,8 +60,8 @@ def test_signup_email(db):
 
 def test_report_email():
     subject = random_hex(64)
-    author_user_id = 0
-    reported_user_id = 1
+    author_user_id = 12345
+    reported_user_id = 67890
     reason = random_hex(64)
     description = random_hex(64)
 
