@@ -1,19 +1,19 @@
 version: "3"
 services:
   proxy:
-    build: 694904428454.dkr.ecr.us-east-1.amazonaws.com/couchers/proxy
+    image: 694904428454.dkr.ecr.us-east-1.amazonaws.com/couchers/proxy
     restart: on-failure
     ports:
       - 8888:8888
       - 9901:9901
   backend_tests:
-    build: 694904428454.dkr.ecr.us-east-1.amazonaws.com/couchers/backend
+    image: 694904428454.dkr.ecr.us-east-1.amazonaws.com/couchers/backend
     volumes:
       - "./backend:/app"
     command: bash -c "find src -name '**.py' | ENTR_INOTIFY_WORKAROUND=1 entr -d pytest src"
     restart: on-failure
   backend:
-    build: 694904428454.dkr.ecr.us-east-1.amazonaws.com/couchers/backend
+    image: 694904428454.dkr.ecr.us-east-1.amazonaws.com/couchers/backend
     environment:
       MEDIA_SERVER_SECRET_KEY: 1c40f0f493eea6e0c2dec15c8c1d32c25f2f4b4dacf3a7a255d8d2ab56fa9677
       MEDIA_SERVER_BEARER_TOKEN: aabbcbaa02883911
@@ -29,13 +29,13 @@ services:
       - 1752:1752
       - 1753:1753
   media_tests:
-    build: 694904428454.dkr.ecr.us-east-1.amazonaws.com/couchers/media
+    image: 694904428454.dkr.ecr.us-east-1.amazonaws.com/couchers/media
     command: pytest src
     restart: on-failure
     environment:
       MEDIA_SERVER_FROM_ENV: 0
   media:
-    build: 694904428454.dkr.ecr.us-east-1.amazonaws.com/couchers/media
+    image: 694904428454.dkr.ecr.us-east-1.amazonaws.com/couchers/media
     environment:
       MAIN_SERVER_ADDRESS: "backend:1753"
       MEDIA_SERVER_SECRET_KEY: 1c40f0f493eea6e0c2dec15c8c1d32c25f2f4b4dacf3a7a255d8d2ab56fa9677
