@@ -8,7 +8,7 @@ services:
       - 9901:9901
   backend_tests:
     build: backend
-    volumes:    
+    volumes:
       - "./backend:/app"
     command: bash -c "find src -name '**.py' | ENTR_INOTIFY_WORKAROUND=1 entr -d pytest src"
     restart: on-failure
