@@ -6,7 +6,7 @@
         >This is a development version. :)</span>
     </v-system-bar>
 
-    <v-app-bar app color="primary" dark clipped-left>
+    <v-app-bar app color="#3f363b" dark clipped-left>
       <v-app-bar-nav-icon
         v-if="authenticated && !anonRoute"
         @click.stop="updateDrawerOpen(!drawerOpen)"
