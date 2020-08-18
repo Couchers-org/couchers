@@ -2,22 +2,6 @@
 
 We collaborate on code through git, hosted on GitHub. If you are a software engineer (frontend/backend), you should request write access to the codebase.
 
-## Code ownership
-
-Each directory has owners, who are responsible for that part of code. Owners also merge pull requests into their part of code.
-
-Owners have the following responsibilities:
-* They have final say on decisions regarding the code
-* They are responsible for approving and merging pull requests in the code
-* It is their job to make sure the code works and 
-* They are there to help you get started and work efficiently
-
-At the moment, Aapeli is the owner of the [Couchers-org/couchers](https://github.com/Couchers-org/couchers) repository. As we assemble the frontend team and as the codebase grows, we'll be dividing up different partitions for others!
-
-<!-- To find the owner of a directory, look for the OWNERS file. If it’s not present, look in the parent directory, etc. Continue until you find the owner.
-
-TODO(aapeli): add OWNERS files on git -->
-
 ## The development process
 
 All our code is in one repository (monorepo). We currently use the pull request model as our git workflow, our main development branch is `develop`.
@@ -40,13 +24,29 @@ All our code is in one repository (monorepo). We currently use the pull request 
 
 In addition to maintaining high code quality, the purpose of code review is to make sure that each team member learns from their peers, and we all assimilate knowledge from each other. You’re sure to learn a lot from reviewing other people’s code and having your code reviewed by others. It also helps maintain our code so that we have some shared patterns and standard way of doing things.
 
+## Code ownership
+
+Each directory has owners, who are responsible for that part of code. Owners also merge pull requests into their part of code.
+
+Owners have the following responsibilities:
+* They have final say on decisions regarding the code
+* They are responsible for approving and merging pull requests in the code
+* It is their job to make sure the code works and 
+* They are there to help you get started and work efficiently
+
+At the moment, Aapeli is the owner of the [Couchers-org/couchers](https://github.com/Couchers-org/couchers) repository. As we assemble the frontend team and as the codebase grows, we'll be dividing up different partitions for others!
+
+<!-- To find the owner of a directory, look for the OWNERS file. If it’s not present, look in the parent directory, etc. Continue until you find the owner.
+
+TODO(aapeli): add OWNERS files on git -->
+
 ## Writing issues
 
 We're a very asynchronous team: everyone is basically in a different timezone, and it's rare that people are working at the same time.
 
 It's therefore important to write issues that don't require clarification and that are easy for anyone to pick up and tackle. So when you write issues, it's better to overshare and make them verbose than to write terse issues, as these often end up being a bit cryptic and hard to get started on.
 
-## How we work with the other teams
+## Other Couchers.org teams
 
 Couchers.org is currently split into four teams: product (divided into backend and frontend), design, community, and marketing.
 
