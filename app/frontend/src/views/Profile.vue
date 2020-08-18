@@ -5,257 +5,263 @@
       <v-overlay absolute :value="loading">
         <loading-circular :loading="loading" />
       </v-overlay>
-      <v-card class="float-left mx-3 my-3" width="350" outlined>
-        <v-sheet height="80" :color="user.color" tile></v-sheet>
-        <v-card-title>{{ user.name }}</v-card-title>
-        <v-card-subtitle>{{ user.city }}</v-card-subtitle>
-        <v-list-item
-          v-if="
-            user.hostingStatus != HostingStatus.HOSTING_STATUS_UNKNOWN &&
-            user.hosting_status != HostingStatus.HOSTING_STATUS_UNSPECIFIED
-          "
-          two-item
-        >
-          <v-list-item-icon>
-            <v-icon :color="displayHostingStatus(user.hostingStatus)[1]"
-              >mdi-home</v-icon
+      <v-row>
+        <v-col sm="12" md="4" lg="3">
+          <v-card class="mx-3 my-3" outlined>
+            <v-sheet height="80" :color="user.color" tile></v-sheet>
+            <v-card-title>{{ user.name }}</v-card-title>
+            <v-card-subtitle>{{ user.city }}</v-card-subtitle>
+            <v-list-item
+              v-if="
+                user.hostingStatus != HostingStatus.HOSTING_STATUS_UNKNOWN &&
+                user.hosting_status != HostingStatus.HOSTING_STATUS_UNSPECIFIED
+              "
+              two-item
             >
-          </v-list-item-icon>
-          <v-list-item-content>
-            <v-list-item-title>{{
-              displayHostingStatus(user.hostingStatus)[0]
-            }}</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item two-item>
-          <v-list-item-icon>
-            <v-icon>mdi-account-check</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>
-            <v-list-item-title>Verification (coming soon)</v-list-item-title>
-            <v-list-item-subtitle>
-              <v-progress-linear
-                class="my-2"
-                height="12"
-                rounded
-                value="0"
-                color="light-green"
-              ></v-progress-linear>
-            </v-list-item-subtitle>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item two-item>
-          <v-list-item-icon>
-            <v-icon>mdi-account-group</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>
-            <v-list-item-title
-              >Community standing (coming soon)</v-list-item-title
-            >
-            <v-list-item-subtitle>
-              <v-progress-linear
-                class="my-2"
-                height="12"
-                rounded
-                value="0"
-                color="light-blue"
-              ></v-progress-linear>
-            </v-list-item-subtitle>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item>
-          <v-list-item-icon>
-            <v-icon>mdi-forum</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>
-            <v-list-item-title
-              >{{ user.numReferences }} references</v-list-item-title
-            >
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item two-item>
-          <v-list-item-icon>
-            <v-icon>mdi-translate</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>
-            <v-list-item-title>{{ languagesListDisplay }}</v-list-item-title>
-            <v-list-item-subtitle>Languages</v-list-item-subtitle>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item two-item>
-          <v-list-item-icon>
-            <v-icon>mdi-ship-wheel</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>
-            <v-list-item-title
-              >{{ user.gender }}, {{ user.age }}</v-list-item-title
-            >
-            <v-list-item-subtitle>Age and gender</v-list-item-subtitle>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item two-item>
-          <v-list-item-icon>
-            <v-icon>mdi-briefcase</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>
-            <v-list-item-title>{{ user.occupation }}</v-list-item-title>
-            <v-list-item-subtitle>Occupation</v-list-item-subtitle>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item two-item>
-          <v-list-item-icon>
-            <v-icon>mdi-account-clock</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>
-            <v-list-item-title
-              >Last active {{ lastActiveDisplay }}</v-list-item-title
-            >
-            <v-list-item-subtitle
-              >Joined {{ joinedDisplay }}</v-list-item-subtitle
-            >
-          </v-list-item-content>
-        </v-list-item>
-        <v-divider></v-divider>
-      </v-card>
-      <v-card class="float-left mx-3 my-3" width="950" outlined>
-        <v-card-text>
-          <h2>Edit your profile</h2>
-          <p>
-            <v-btn
-              class="my-2"
-              color="primary"
-              link
-              :to="{ name: 'User', params: { user: user.username } }"
-              >See how your profile looks to others</v-btn
-            >
-          </p>
-          <v-tabs class="mb-5">
-            <v-tab href="#info">My info</v-tab>
-            <v-tab href="#hosting">Hosting preferences</v-tab>
-            <v-tab-item value="info">
-              <h3>Name</h3>
-              <editable-text-field :text="user.name" v-on:save="saveName" />
-              <h3>City</h3>
-              <editable-text-field :text="user.city" v-on:save="saveCity" />
-              <h3>Hosting Status</h3>
-              <editable-dropdown
-                :value="user.hostingStatus == 0 ? 1 : user.hostingStatus"
-                :items="hostingStatusChoices"
-                v-on:save="saveHostingStatus"
-              />
-              <h3>Gender</h3>
-              <editable-text-field :text="user.gender" v-on:save="saveGender" />
-              <h3>Occupation</h3>
-              <editable-text-field
-                :text="user.occupation"
-                v-on:save="saveOccupation"
-              />
-              <h3>Languages</h3>
-              <editable-list
-                :list="user.languagesList"
-                v-on:save="saveLanguages"
-              />
-              <h3>About me</h3>
-              <editable-textarea
-                :text="user.aboutMe"
-                isMarkdown
-                v-on:save="saveAboutMe"
-              />
-              <h3>About my place</h3>
-              <editable-textarea
-                :text="user.aboutPlace"
-                isMarkdown
-                v-on:save="saveAboutPlace"
-              />
-              <h3>Countries I've visited</h3>
-              <editable-list
-                :list="user.countriesVisitedList"
-                v-on:save="saveCountriesVisited"
-              />
-              <h3>Countries I've lived in</h3>
-              <editable-list
-                :list="user.countriesLivedList"
-                v-on:save="saveCountriesLived"
-              />
-              <h3>Profile color</h3>
+              <v-list-item-icon>
+                <v-icon :color="displayHostingStatus(user.hostingStatus)[1]"
+                  >mdi-home</v-icon
+                >
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title>{{
+                  displayHostingStatus(user.hostingStatus)[0]
+                }}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item two-item>
+              <v-list-item-icon>
+                <v-icon>mdi-account-check</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title>Verification (coming soon)</v-list-item-title>
+                <v-list-item-subtitle>
+                  <v-progress-linear
+                    class="my-2"
+                    height="12"
+                    rounded
+                    value="0"
+                    color="light-green"
+                  ></v-progress-linear>
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item two-item>
+              <v-list-item-icon>
+                <v-icon>mdi-account-group</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title
+                  >Community standing (coming soon)</v-list-item-title
+                >
+                <v-list-item-subtitle>
+                  <v-progress-linear
+                    class="my-2"
+                    height="12"
+                    rounded
+                    value="0"
+                    color="light-blue"
+                  ></v-progress-linear>
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-icon>
+                <v-icon>mdi-forum</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title
+                  >{{ user.numReferences }} references</v-list-item-title
+                >
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item two-item>
+              <v-list-item-icon>
+                <v-icon>mdi-translate</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title>{{ languagesListDisplay }}</v-list-item-title>
+                <v-list-item-subtitle>Languages</v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item two-item>
+              <v-list-item-icon>
+                <v-icon>mdi-ship-wheel</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title
+                  >{{ user.gender }}, {{ user.age }}</v-list-item-title
+                >
+                <v-list-item-subtitle>Age and gender</v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item two-item>
+              <v-list-item-icon>
+                <v-icon>mdi-briefcase</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title>{{ user.occupation }}</v-list-item-title>
+                <v-list-item-subtitle>Occupation</v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item two-item>
+              <v-list-item-icon>
+                <v-icon>mdi-account-clock</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title
+                  >Last active {{ lastActiveDisplay }}</v-list-item-title
+                >
+                <v-list-item-subtitle
+                  >Joined {{ joinedDisplay }}</v-list-item-subtitle
+                >
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider></v-divider>
+          </v-card>
+        </v-col>
+        <v-col sm="12" md="8" lg="9">
+          <v-card class="mx-3 my-3" outlined>
+            <v-card-text>
+              <h2>Edit your profile</h2>
               <p>
-                We're still working on profile pictures, but you can choose a
-                color for your profile instead!
+                <v-btn
+                  class="my-2"
+                  color="primary"
+                  link
+                  :to="{ name: 'User', params: { user: user.username } }"
+                  >See how your profile looks to others</v-btn
+                >
               </p>
-              <editable-color :color="user.color" v-on:save="saveColor" />
-              <h3>Profile picture</h3>
-              <editable-avatar :user="user" v-on:save="refreshUser" />
-            </v-tab-item>
-            <v-tab-item value="hosting">
-              <h3>Max guests</h3>
-              <editable-text-field
-                :text="user.maxGuests ? user.maxGuests.value : null"
-                v-on:save="saveMaxGuests"
-              />
-              <h3>Multiple groups accepted</h3>
-              <editable-dropdown
-                :value="user.multipleGroups ? user.multipleGroups.value : null"
-                :items="boolChoices"
-                v-on:save="saveMultipleGroups"
-              />
-              <h3>Last minute requests okay</h3>
-              <editable-dropdown
-                :value="user.lastMinute ? user.lastMinute.value : null"
-                :items="boolChoices"
-                v-on:save="saveLastMinute"
-              />
-              <h3>Accept pets</h3>
-              <editable-dropdown
-                :value="user.acceptsPets ? user.acceptsPets.value : null"
-                :items="boolChoices"
-                v-on:save="saveAcceptsPets"
-              />
-              <h3>Accept kids</h3>
-              <editable-dropdown
-                :value="user.acceptsKids ? user.acceptsKids.value : null"
-                :items="boolChoices"
-                v-on:save="saveAcceptsKids"
-              />
-              <h3>Wheelchair accessible</h3>
-              <editable-dropdown
-                :value="
-                  user.wheelchairAccessible
-                    ? user.wheelchairAccessible.value
-                    : null
-                "
-                :items="boolChoices"
-                v-on:save="saveWheelchairAccessible"
-              />
-              <h3>Smoking allowed</h3>
-              <editable-dropdown
-                :value="user.smokingAllowed"
-                :items="smokingAllowedChoices"
-                v-on:save="saveSmokingAllowed"
-              />
-              <h3>Sleeping arrangements</h3>
-              <editable-textarea
-                :text="
-                  user.sleepingArrangement ? user.sleepingArrangement.value : ''
-                "
-                is-markdown
-                v-on:save="saveSleepingArrangement"
-              />
-              <h3>Area/Neighbourhood info</h3>
-              <editable-textarea
-                :text="user.area ? user.area.value : ''"
-                is-markdown
-                v-on:save="saveArea"
-              />
-              <h3>House rules</h3>
-              <editable-textarea
-                :text="user.houseRules ? user.houseRules.value : ''"
-                is-markdown
-                v-on:save="saveHouseRules"
-              />
-            </v-tab-item>
-          </v-tabs>
-        </v-card-text>
-      </v-card>
+              <v-tabs class="mb-5">
+                <v-tab href="#info">My info</v-tab>
+                <v-tab href="#hosting">Hosting preferences</v-tab>
+                <v-tab-item value="info">
+                  <h3>Name</h3>
+                  <editable-text-field :text="user.name" v-on:save="saveName" />
+                  <h3>City</h3>
+                  <editable-text-field :text="user.city" v-on:save="saveCity" />
+                  <h3>Hosting Status</h3>
+                  <editable-dropdown
+                    :value="user.hostingStatus == 0 ? 1 : user.hostingStatus"
+                    :items="hostingStatusChoices"
+                    v-on:save="saveHostingStatus"
+                  />
+                  <h3>Gender</h3>
+                  <editable-text-field :text="user.gender" v-on:save="saveGender" />
+                  <h3>Occupation</h3>
+                  <editable-text-field
+                    :text="user.occupation"
+                    v-on:save="saveOccupation"
+                  />
+                  <h3>Languages</h3>
+                  <editable-list
+                    :list="user.languagesList"
+                    v-on:save="saveLanguages"
+                  />
+                  <h3>About me</h3>
+                  <editable-textarea
+                    :text="user.aboutMe"
+                    isMarkdown
+                    v-on:save="saveAboutMe"
+                  />
+                  <h3>About my place</h3>
+                  <editable-textarea
+                    :text="user.aboutPlace"
+                    isMarkdown
+                    v-on:save="saveAboutPlace"
+                  />
+                  <h3>Countries I've visited</h3>
+                  <editable-list
+                    :list="user.countriesVisitedList"
+                    v-on:save="saveCountriesVisited"
+                  />
+                  <h3>Countries I've lived in</h3>
+                  <editable-list
+                    :list="user.countriesLivedList"
+                    v-on:save="saveCountriesLived"
+                  />
+                  <h3>Profile color</h3>
+                  <p>
+                    We're still working on profile pictures, but you can choose a
+                    color for your profile instead!
+                  </p>
+                  <editable-color :color="user.color" v-on:save="saveColor" />
+                  <h3>Profile picture</h3>
+                  <editable-avatar :user="user" v-on:save="refreshUser" />
+                </v-tab-item>
+                <v-tab-item value="hosting">
+                  <h3>Max guests</h3>
+                  <editable-text-field
+                    :text="user.maxGuests ? user.maxGuests.value : null"
+                    v-on:save="saveMaxGuests"
+                  />
+                  <h3>Multiple groups accepted</h3>
+                  <editable-dropdown
+                    :value="user.multipleGroups ? user.multipleGroups.value : null"
+                    :items="boolChoices"
+                    v-on:save="saveMultipleGroups"
+                  />
+                  <h3>Last minute requests okay</h3>
+                  <editable-dropdown
+                    :value="user.lastMinute ? user.lastMinute.value : null"
+                    :items="boolChoices"
+                    v-on:save="saveLastMinute"
+                  />
+                  <h3>Accept pets</h3>
+                  <editable-dropdown
+                    :value="user.acceptsPets ? user.acceptsPets.value : null"
+                    :items="boolChoices"
+                    v-on:save="saveAcceptsPets"
+                  />
+                  <h3>Accept kids</h3>
+                  <editable-dropdown
+                    :value="user.acceptsKids ? user.acceptsKids.value : null"
+                    :items="boolChoices"
+                    v-on:save="saveAcceptsKids"
+                  />
+                  <h3>Wheelchair accessible</h3>
+                  <editable-dropdown
+                    :value="
+                      user.wheelchairAccessible
+                        ? user.wheelchairAccessible.value
+                        : null
+                    "
+                    :items="boolChoices"
+                    v-on:save="saveWheelchairAccessible"
+                  />
+                  <h3>Smoking allowed</h3>
+                  <editable-dropdown
+                    :value="user.smokingAllowed"
+                    :items="smokingAllowedChoices"
+                    v-on:save="saveSmokingAllowed"
+                  />
+                  <h3>Sleeping arrangements</h3>
+                  <editable-textarea
+                    :text="
+                      user.sleepingArrangement ? user.sleepingArrangement.value : ''
+                    "
+                    is-markdown
+                    v-on:save="saveSleepingArrangement"
+                  />
+                  <h3>Area/Neighbourhood info</h3>
+                  <editable-textarea
+                    :text="user.area ? user.area.value : ''"
+                    is-markdown
+                    v-on:save="saveArea"
+                  />
+                  <h3>House rules</h3>
+                  <editable-textarea
+                    :text="user.houseRules ? user.houseRules.value : ''"
+                    is-markdown
+                    v-on:save="saveHouseRules"
+                  />
+                </v-tab-item>
+              </v-tabs>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
     </v-container>
   </v-main>
 </template>
