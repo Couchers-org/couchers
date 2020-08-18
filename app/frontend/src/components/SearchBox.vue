@@ -6,7 +6,7 @@
     solo-inverted
     hide-details
     prepend-inner-icon="mdi-magnify"
-    label="Search"
+    label="Search (by name)"
     v-on:keyup.enter="search"
   ></v-text-field>
 </template>
@@ -20,6 +20,14 @@ export default Vue.extend({
   data: () => ({
     query: "",
   }),
+
+  watch: {
+    $route(to, from) {
+      if (to.path != "/search") {
+        this.query = ""
+      }
+    },
+  },
 
   methods: {
     search() {

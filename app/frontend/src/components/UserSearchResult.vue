@@ -120,7 +120,7 @@ import { User, HostingStatus } from "../pb/api_pb"
 
 import { displayList, displayTime, displayHostingStatus } from "../utils"
 
-import SendMessageDialogButton from './SendMessageDialogButton.vue'
+import SendMessageDialogButton from "./SendMessageDialogButton.vue"
 
 export default Vue.extend({
   data: () => ({
@@ -131,7 +131,7 @@ export default Vue.extend({
   },
 
   components: {
-    SendMessageDialogButton
+    SendMessageDialogButton,
   },
 
   methods: {

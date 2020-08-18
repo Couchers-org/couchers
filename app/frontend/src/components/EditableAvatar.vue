@@ -1,15 +1,16 @@
 <template>
   <div>
     <error-alert :error="error" />
-    <p>Current avatar:</p>
+    <p>Current profile picture:</p>
     <img :src="user.avatarUrl" />
     <v-file-input
       v-model="image"
       :rules="avatarRules"
       accept="image/png, image/jpeg, image/bmp"
-      placeholder="Pick a new avatar"
+      placeholder="Pick a new profile picture"
       prepend-icon="mdi-face"
-      label="Avatar"
+      label="Profile picture"
+      v-on:change="clearError"
       :disabled="loading"
       show-size
     ></v-file-input>
@@ -47,7 +48,7 @@ export default Vue.extend({
       (value: any) =>
         !value ||
         value.size < 16000000 ||
-        "Avatar size should be less than 16 MB!",
+        "Profile picture size should be less than 16 MB!",
     ],
   }),
 
@@ -56,7 +57,16 @@ export default Vue.extend({
   },
 
   methods: {
+    clearError() {
+      this.error = null
+    },
+
     upload() {
+      this.clearError()
+      if (this.image == null) {
+        this.error = Error("Select an image")
+        return
+      }
       client.initiateMediaUpload(new Empty()).then((res) => {
         const formData = new FormData()
         formData.append("file", this.image || "") // TODO: if image is null

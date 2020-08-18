@@ -10,9 +10,7 @@
             </v-list>
           </v-card>
           <v-container v-if="loading == 0">
-            <v-subheader v-if="!hostRequests.length"
-              >No requests.</v-subheader
-            >
+            <v-subheader v-if="!hostRequests.length">No requests.</v-subheader>
             <template v-for="hostRequest in hostRequests">
               <v-card
                 :key="hostRequest.hostRequestId"
@@ -98,7 +96,8 @@
                       dense
                     >
                       <div class="subtitle mb-1">
-                        <b>{{ messageAuthor(message) }}</b>, 
+                        <b>{{ messageAuthor(message) }}</b
+                        >,
                         {{ displayTimestamp(message.time) }}
                       </div>
                       {{ message.text }}

@@ -22,11 +22,11 @@ def send_login_email(user, token, expiry_text):
     return email.send_email_template(user.email, "Your login link for Couchers.org", "login", template_args={"user": user, "login_link": login_link})
 
 
-def send_report_email(author_user_id, reported_user_id, reason, description):
+def send_report_email(author_user, reported_user, reason, description):
     target_email = config['REPORTS_EMAIL_RECIPIENT']
     logger.info(f"Sending report email to {target_email}")
-    logger.info(f"User {author_user_id=} reporting user {reported_user_id}")
+    logger.info(f"User {author_user.username=} reporting user {reported_user.username}")
     logger.info(f"Reason: {reason=}")
     logger.info(f"Description:")
     logger.info(f"{description=}")
-    return email.send_email_template(target_email, "User Report", "report", template_args={"author": author_user_id, "reported_user": reported_user_id, "reason": reason, "description": description})
+    return email.send_email_template(target_email, "User Report", "report", template_args={"author": author_user.username, "reported_user": reported_user.username, "reason": reason, "description": description})

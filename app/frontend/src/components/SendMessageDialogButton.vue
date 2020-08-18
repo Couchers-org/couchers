@@ -6,9 +6,7 @@
 
     <v-dialog v-model="dialog" max-width="490">
       <v-card>
-        <v-card-title class="headline"
-          >Send a message {{ name }}</v-card-title
-        >
+        <v-card-title class="headline">Send a message {{ name }}</v-card-title>
 
         <v-card-text>
           <error-alert :error="error" />
@@ -78,21 +76,25 @@ export default Vue.extend({
 
       const req = new CreateGroupChatReq()
       req.setRecipientUserIdsList([this.userId])
-      conversations.createGroupChat(req)
+      conversations
+        .createGroupChat(req)
         .then((res) => {
-            const req = new SendMessageReq()
-            req.setGroupChatId(res.getGroupChatId())
-            req.setText(this.message)
-            conversations.sendMessage(req)
-                .then(() => {
-                    this.loading = false
-                    this.dialog = false
-                    this.sent = true
-                }).catch((err: Error) => {
-                    this.loading = false
-                    this.error = err
-                })
-        }).catch((err: Error) => {
+          const req = new SendMessageReq()
+          req.setGroupChatId(res.getGroupChatId())
+          req.setText(this.message)
+          conversations
+            .sendMessage(req)
+            .then(() => {
+              this.loading = false
+              this.dialog = false
+              this.sent = true
+            })
+            .catch((err: Error) => {
+              this.loading = false
+              this.error = err
+            })
+        })
+        .catch((err: Error) => {
           this.loading = false
           this.error = err
         })
