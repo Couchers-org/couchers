@@ -6,6 +6,7 @@ from google.protobuf import empty_pb2, wrappers_pb2
 
 from couchers.db import session_scope
 from couchers.models import Complaint
+from couchers.utils import to_aware_datetime
 from pb import api_pb2
 from tests.test_fixtures import api_session, db, generate_user, make_friends, real_api_session
 
@@ -29,9 +30,12 @@ def test_ping(db):
 
     # the joined time is fuzzed
     # but shouldn't be before actual joined time, or more than one hour behind
-    assert user.joined - timedelta(hours=1) <= res.user.joined.ToDatetime() <= user.joined
+    assert user.joined - \
+        timedelta(hours=1) <= to_aware_datetime(res.user.joined) <= user.joined
     # same for last_active
-    assert user.last_active - timedelta(hours=1) <= res.user.last_active.ToDatetime() <= user.last_active
+    assert user.last_active - \
+        timedelta(hours=1) <= to_aware_datetime(res.user.last_active
+        ) <= user.last_active
 
     assert res.user.hosting_status == api_pb2.HOSTING_STATUS_UNKNOWN
 

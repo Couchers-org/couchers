@@ -7,5 +7,6 @@ pynacl
 pytest
 pytest-pythonpath
 python-dateutil
+pytz
 requests
 sqlalchemy
