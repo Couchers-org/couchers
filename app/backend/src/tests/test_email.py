@@ -1,7 +1,7 @@
 from unittest.mock import patch
 
 import pytest
-from couchers.crypto import random_hex, random_int, urlsafe_secure_token
+from couchers.crypto import random_hex, urlsafe_secure_token
 from couchers.db import new_login_token, new_signup_token
 from couchers.email import _render_email
 from couchers.tasks import send_login_email, send_signup_email
@@ -60,16 +60,16 @@ def test_signup_email(db):
 
 def test_report_email():
     subject = random_hex(64)
-    author_user_id = random_int()
-    reported_user_id = random_int()
+    author_user_id = 12345
+    reported_user_id = 67890
     reason = random_hex(64)
     description = random_hex(64)
 
     plain, html = _render_email(subject, "report", template_args={"author": author_user_id, "reported_user": reported_user_id, "reason": reason, "description": description})
-    assert f"{author_user_id}" in plain
-    assert f"{author_user_id}" in html
-    assert f"{reported_user_id}" in plain
-    assert f"{reported_user_id}" in html
+    assert str(author_user_id) in plain
+    assert str(author_user_id) in html
+    assert str(reported_user_id) in plain
+    assert str(reported_user_id) in html
     assert reason in plain
     assert reason in html
     assert description in plain

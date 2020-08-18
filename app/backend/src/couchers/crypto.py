@@ -1,6 +1,5 @@
 from base64 import b64decode, b64encode, urlsafe_b64encode
 from hmac import HMAC, compare_digest
-from random import randint
 
 import nacl.pwhash
 from nacl.bindings.crypto_generichash import generichash_blake2b_salt_personal
@@ -58,12 +57,6 @@ def random_hex(length=32):
     Length in binary
     """
     return random_bytes(length).hex()
-
-# https://stackoverflow.com/questions/2673385/how-to-generate-random-number-with-the-specific-length-in-python
-def random_int(min_bits_inclusive=33, max_bits_inclusive=64):
-    range_start = 2**(min_bits_inclusive-1)
-    range_end = (2**max_bits_inclusive)-1
-    return randint(range_start, range_end)
 
 def secure_compare(val1, val2):
     return sodium_memcmp(val1, val2)
