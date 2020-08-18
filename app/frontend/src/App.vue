@@ -2,8 +2,7 @@
   <v-app>
     <v-system-bar color="warning" app>
       <v-icon>mdi-alert-circle</v-icon>
-      <span
-        >This is a development version. :)</span>
+      <span>This is a development version. :)</span>
     </v-system-bar>
 
     <v-app-bar app color="#3f363b" dark clipped-left>

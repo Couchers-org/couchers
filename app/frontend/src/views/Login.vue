@@ -50,9 +50,10 @@
                         class="mx-2"
                         >{{ loginStep == "user" ? "Next" : "Login" }}</v-btn
                       >
-                      <v-btn to="/signup" color="secondary" class="mx-2">Haven't signed up yet?</v-btn>
-                      </v-row
-                    >
+                      <v-btn to="/signup" color="secondary" class="mx-2"
+                        >Haven't signed up yet?</v-btn
+                      >
+                    </v-row>
                   </v-form>
                 </v-card-text>
               </v-card>
