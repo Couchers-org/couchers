@@ -12,15 +12,17 @@ Owners have the following responsibilities:
 * It is their job to make sure the code works and 
 * They are there to help you get started and work efficiently
 
-To find the owner of a directory, look for the OWNERS file. If it’s not present, look in the parent directory, etc. Continue until you find the owner.
+At the moment, Aapeli is the owner of the [https://github.com/Couchers-org/couchers](Couchers-org/couchers) repository.
 
-TODO(aapeli): add OWNERS files on git
+<!-- To find the owner of a directory, look for the OWNERS file. If it’s not present, look in the parent directory, etc. Continue until you find the owner.
+
+TODO(aapeli): add OWNERS files on git -->
 
 ## The development process
 
 All our code is in one repository (monorepo). We currently use the pull request model as our git workflow, our main development branch is `develop`.
 
-1. Create a new branch off `develop`
+1. Create a new branch off `develop`:
     - `git checkout develop`
     - `git pull`
     - `git checkout -b branch-name`
@@ -29,10 +31,10 @@ All our code is in one repository (monorepo). We currently use the pull request 
     - `backend-bugfix-email-html-escaping`
 3. Work on the new branch, feel free to commit regularly. Ideally a commit should make one change to the code but the code should compile and run both before and after the change (though this is not always possible).
 4. Push the new branch to GitHub, and open a Pull Request (PR). If your branch is ready to be merged, pending review, prepend `[MRG]` to the pull request title. If it’s still work in progress, prepend `[WIP]`.
-5. When you are ready for a review, select a reviewer and ask them to review the code. Feel free to choose someone you know can review it, or if you don’t know who else, select the maintainer.
+5. When you are ready for a review, select a reviewer and ask them to review the code. Feel free to choose someone you know can review it, or if you don’t know who else, select the maintainer, or ping the appropriate channel on Slack.
 6. The reviewer should review the pull request and comment, suggest changes, or approve the review.
-7. Once you and the reviewer are ready for the PR to be merged, mark the PR with `[MRG]` and notify the owner
-8. The owner will then do a quick review to make sure the change is of high quality, and merge the PR into develop
+7. Once you and the reviewer are ready for the PR to be merged, mark the PR with `[MRG]` and notify the owner.
+8. The owner will then do a quick review to double check, and merge the PR into develop.
 
 ## How code review works and why we do it
 
@@ -52,7 +54,7 @@ The purpose of the backend team is to develop, deploy, and maintain the backend 
 
 ## Namespacing
 
-All python code should live in the `couchers` namespace (i.e. a folder within the package). This allows us to easily distinguish our code from library code.
+All python code should live in the `couchers` namespace (i.e. a folder within the package). This allows us to easily distinguish our code from third party library code.
 
 ## Code style
 
