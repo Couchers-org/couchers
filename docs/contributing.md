@@ -12,7 +12,7 @@ Owners have the following responsibilities:
 * It is their job to make sure the code works and 
 * They are there to help you get started and work efficiently
 
-At the moment, Aapeli is the owner of the [https://github.com/Couchers-org/couchers](Couchers-org/couchers) repository.
+At the moment, Aapeli is the owner of the [Couchers-org/couchers](https://github.com/Couchers-org/couchers) repository. As we assemble the frontend team and as the codebase grows, we'll be dividing up different partitions for others!
 
 <!-- To find the owner of a directory, look for the OWNERS file. If it’s not present, look in the parent directory, etc. Continue until you find the owner.
 
