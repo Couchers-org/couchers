@@ -13,7 +13,7 @@ services:
       - "./pgdata:/var/lib/postgresql/data"
     restart: on-failure
     ports:
-      - 6543:5432
+      - 6543:6543
   backend_tests:
     build: backend
     env_file: backend.test.env
