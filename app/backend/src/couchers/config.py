@@ -37,12 +37,12 @@ CONFIG_OPTIONS = [
     ("MEDIA_SERVER_BASE_URL", str),
 ]
 
-dot = Path(".")
 
 if "pytest" in sys.modules:
     logger.info("Running in TEST")
-    load_dotenv(dot / "test.env")
+    load_dotenv(Path(__file__).parent / ".." / ".." / "test.env")
 else:
+    dot = Path(".")
     if (dot / ".env").is_file():
         load_dotenv(dot / ".env")
     else:
