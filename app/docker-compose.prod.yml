@@ -1,20 +1,20 @@
 version: "3"
 services:
   proxy:
-    build: proxy
+    image: 694904428454.dkr.ecr.us-east-1.amazonaws.com/couchers/proxy
     restart: on-failure
     ports:
       - 8888:8888
       - 9901:9901
   backend:
-    build: backend
+    image: 694904428454.dkr.ecr.us-east-1.amazonaws.com/couchers/backend
     restart: on-failure
     ports:
       - 1751:1751
       - 1752:1752
       - 1753:1753
   media:
-    build: media
+    image: 694904428454.dkr.ecr.us-east-1.amazonaws.com/couchers/media
     env_file: media/prod.env
     restart: on-failure
     ports:
