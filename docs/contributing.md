@@ -1,17 +1,42 @@
-# Contributing to the Couchers.org codebase
+# Develop Contributor Guide
 
-This document is primarily for developers.
+We collaborate on code through git, hosted on GitHub. If you are a software engineer (frontend/backend), you should request write access to the codebase.
 
-## Basic development model
+## Code ownership
 
-1. We create issues for each task/feature/issue/bug on this GitHub repository. Non-developers will also occasionally add issues.
-2. These are triaged and added to the backlog.
-3. You pick a task (preferably from the top of the backlog), and assign it to yourself.
-4. You create a feature branch off `develop`, complete the task, and create a Pull Request (PR).
-5. Another developer reviews your code and either approves it, requests comments, or pulls in someone else to review it.
-6. Once the PR is approved, you merge it back into `develop`.
+Each directory has owners, who are responsible for that part of code. Owners also merge pull requests into their part of code.
 
-`develop` is regularly tested, then merged into `master`, which is deployed live. Ideally each PR will include tests that need to pass before the PR is merged.
+Owners have the following responsibilities:
+* They have final say on decisions regarding the code
+* They are responsible for approving and merging pull requests in the code
+* It is their job to make sure the code works and 
+* They are there to help you get started and work efficiently
+
+To find the owner of a directory, look for the OWNERS file. If it’s not present, look in the parent directory, etc. Continue until you find the owner.
+
+TODO(aapeli): add OWNERS files on git
+
+## The development process
+
+All our code is in one repository (monorepo). We currently use the pull request model as our git workflow, our main development branch is `develop`.
+
+1. Create a new branch off `develop`
+    - `git checkout develop`
+    - `git pull`
+    - `git checkout -b branch-name`
+2. Branches ought to be named with the `{component}-{type}-{slug}` format, where component is either `frontend` or `backend`, the type is `feature`, `bugfix`, etc; and slug is a brief name for the branch, for example:
+    - `frontend-feature-avatar-component`
+    - `backend-bugfix-email-html-escaping`
+3. Work on the new branch, feel free to commit regularly. Ideally a commit should make one change to the code but the code should compile and run both before and after the change (though this is not always possible).
+4. Push the new branch to GitHub, and open a Pull Request (PR). If your branch is ready to be merged, pending review, prepend `[MRG]` to the pull request title. If it’s still work in progress, prepend `[WIP]`.
+5. When you are ready for a review, select a reviewer and ask them to review the code. Feel free to choose someone you know can review it, or if you don’t know who else, select the maintainer.
+6. The reviewer should review the pull request and comment, suggest changes, or approve the review.
+7. Once you and the reviewer are ready for the PR to be merged, mark the PR with `[MRG]` and notify the owner
+8. The owner will then do a quick review to make sure the change is of high quality, and merge the PR into develop
+
+## How code review works and why we do it
+
+In addition to maintaining high code quality, the purpose of code review is to make sure that each team member learns from their peers, and we all assimilate knowledge from each other. You’re sure to learn a lot from reviewing other people’s code and having your code reviewed by others. It also helps maintain our code so that we have some shared patterns and standard way of doing things.
 
 ## Writing issues
 
@@ -21,23 +46,17 @@ It's therefore important to write issues that don't require clarification and th
 
 ## How we work with the other teams
 
-Couchers.org is currently split into three teams: backend (us), frontend/design, and the community team.
+Couchers.org is currently split into four teams: product (divided into backend and frontend), design, community, and marketing.
 
 The purpose of the backend team is to develop, deploy, and maintain the backend and infrastructure for the Couchers.org database and apps.
 
-The community team is in charge of growing the Couchers.org community (and thus userbase), and listening to community feedback and figuring out which features they want the most. Frontend works with the community team to figure out how those features could be implemented and how they would look in the apps. We then work with both, the community and frontend teams to build and deploy the changes in the database and backend to facilitate this.
-
-The point is not to build silos, rather, the community is pretty huge, and there are a lot of voices and opinions, so the community is there to front us and help us distil those ideas into something that a lot of users want and something that's actionable and valuable for us to build.
-
 ## Namespacing
-
-<!-- TODO(aapeli): implement this change in code -->
 
 All python code should live in the `couchers` namespace (i.e. a folder within the package). This allows us to easily distinguish our code from library code.
 
 ## Code style
 
-<!-- TODO(aapeli): flesh out this section -->
+The style guide is a work in progress, and there is [an issue for it](https://github.com/Couchers-org/couchers/issues/151).
 
 Please adhere to [PEP8](https://www.python.org/dev/peps/pep-0008/).
 
