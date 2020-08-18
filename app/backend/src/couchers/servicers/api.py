@@ -90,19 +90,18 @@ class API(api_pb2_grpc.APIServicer):
             user = session.query(User).filter(User.id == context.user_id).one()
 
             unseen_host_request_count_1 = (
-                session.query(Message, HostRequest)
+                session.query(Message.conversation_id)
                 .outerjoin(HostRequest, Message.conversation_id == HostRequest.conversation_id)
                 .filter(HostRequest.from_user_id == context.user_id)
                 .filter(HostRequest.from_last_seen_message_id < Message.id)
-                .group_by(Message.conversation_id)
                 .count()
             )
+
             unseen_host_request_count_2 = (
-                session.query(Message, HostRequest)
+                session.query(Message.conversation_id)
                 .outerjoin(HostRequest, Message.conversation_id == HostRequest.conversation_id)
                 .filter(HostRequest.to_user_id == context.user_id)
                 .filter(HostRequest.to_last_seen_message_id < Message.id)
-                .group_by(Message.conversation_id)
                 .count()
             )
 
@@ -383,17 +382,19 @@ class API(api_pb2_grpc.APIServicer):
         if context.user_id == request.reported_user_id:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REPORT_SELF)
 
-        message = Complaint(
-            author_user_id=context.user_id,
-            reported_user_id=request.reported_user_id,
-            reason=request.reason,
-            description=request.description,
-        )
-
         with session_scope(self._Session) as session:
             reported_user = session.query(User).filter(User.id == request.reported_user_id).one_or_none()
+
             if not reported_user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+
+            message = Complaint(
+                author_user_id=context.user_id,
+                reported_user_id=request.reported_user_id,
+                reason=request.reason,
+                description=request.description,
+            )
+
             session.add(message)
 
             # commit here so that send_report_email can lazy-load stuff it needs

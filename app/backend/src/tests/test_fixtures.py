@@ -9,6 +9,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.event import listen, remove
 from sqlalchemy.orm import sessionmaker
 
+from couchers.config import config
 from couchers.crypto import random_hex
 from couchers.db import session_scope
 from couchers.models import Base, FriendRelationship, FriendStatus, User
@@ -34,20 +35,11 @@ def db():
     """
     Create a temporary SQLite-backed database in memory, and return the Session object.
     """
-    from sqlalchemy.pool import StaticPool
+    engine = create_engine(config["DATABASE_CONNECTION_STRING"])
 
-    # The elaborate arguments are needed to get multithreaded access
-    engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool, echo=False)
-
-    # from https://stackoverflow.com/questions/13712381/how-to-turn-on-pragma-foreign-keys-on-in-sqlalchemy-migration-script-or-conf
-    def set_sqlite_pragma(dbapi_connection, connection_record):
-        cursor = dbapi_connection.cursor()
-        cursor.execute("PRAGMA foreign_keys=ON")
-        cursor.close()
-
-    listen(engine, "connect", set_sqlite_pragma)
-
+    Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
+
     return sessionmaker(bind=engine)
 
 
@@ -249,6 +241,10 @@ def media_session(db, bearer_token):
 
 @contextmanager
 def patch_message_time(time, add=0):
+    yield
+
+
+def patch_message_time_old(time, add=0):
     def set_timestamp(mapper, connection, target):
         t = time + timedelta(seconds=add)
         target.time = t
@@ -264,6 +260,10 @@ def patch_message_time(time, add=0):
 
 @contextmanager
 def patch_joined_time(time, add=0):
+    yield
+
+
+def patch_joined_time_old(time, add=0):
     def set_timestamp(mapper, connection, target):
         t = time + timedelta(seconds=add)
         target.joined = t
@@ -279,6 +279,10 @@ def patch_joined_time(time, add=0):
 
 @contextmanager
 def patch_left_time(time, add=0):
+    yield
+
+
+def patch_left_time_old(time, add=0):
     def set_timestamp(mapper, connection, target):
         t = time + timedelta(seconds=add)
         target.left = t

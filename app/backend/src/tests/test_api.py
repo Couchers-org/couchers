@@ -4,6 +4,7 @@ import grpc
 import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
 
+from couchers.db import session_scope
 from couchers.models import Complaint
 from pb import api_pb2
 from tests.test_fixtures import api_session, db, generate_user, make_friends, real_api_session
@@ -461,13 +462,14 @@ def test_reporting(db):
         )
     assert isinstance(res, empty_pb2.Empty)
 
-    entries = db().query(Complaint).all()
+    with session_scope(db) as session:
+        entries = session.query(Complaint).all()
 
-    assert len(entries) == 1
-    assert entries[0].author_user_id == user1.id
-    assert entries[0].reported_user_id == user2.id
-    assert entries[0].reason == "reason text"
-    assert entries[0].description == "description text"
+        assert len(entries) == 1
+        assert entries[0].author_user_id == user1.id
+        assert entries[0].reported_user_id == user2.id
+        assert entries[0].reason == "reason text"
+        assert entries[0].description == "description text"
 
     # Test that reporting oneself and reporting nonexisting user fails
     report_req = api_pb2.ReportReq(reported_user_id=user1.id, reason="foo", description="bar")

@@ -7,6 +7,7 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_
 
 from couchers import errors
+from couchers.db import session_scope
 from couchers.models import Conversation, HostRequest, HostRequestEvent, HostRequestEventType, Message
 from pb import api_pb2, requests_pb2
 from tests.test_fixtures import api_session, db, generate_user, make_friends, requests_session
@@ -77,13 +78,10 @@ def test_create_request(db):
 
 
 def add_message(db, text, author_id, conversation_id):
-    session = db()
+    with session_scope(db) as session:
+        message = Message(conversation_id=conversation_id, author_id=author_id, text=text)
 
-    message = Message(conversation_id=conversation_id, author_id=author_id, text=text)
-
-    session.add(message)
-    session.commit()
-    session.close()
+        session.add(message)
 
 
 def test_list_requests(db):
@@ -272,15 +270,14 @@ def test_respond_host_requests(db):
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
 
     # at this point there should be 5 host request event records
-    session = db()
-    events = session.query(HostRequestEvent).order_by(HostRequestEvent.id.desc()).all()
-    assert len(events) == 5
-    assert events[0].event_type == HostRequestEventType.status_change_cancelled
-    assert events[1].event_type == HostRequestEventType.status_change_confirmed
-    assert events[2].event_type == HostRequestEventType.status_change_accepted
-    assert events[3].event_type == HostRequestEventType.status_change_rejected
-    assert events[4].event_type == HostRequestEventType.created
-    session.close()
+    with session_scope(db) as session:
+        events = session.query(HostRequestEvent).order_by(HostRequestEvent.id.desc()).all()
+        assert len(events) == 5
+        assert events[0].event_type == HostRequestEventType.status_change_cancelled
+        assert events[1].event_type == HostRequestEventType.status_change_confirmed
+        assert events[2].event_type == HostRequestEventType.status_change_accepted
+        assert events[3].event_type == HostRequestEventType.status_change_rejected
+        assert events[4].event_type == HostRequestEventType.created
 
 
 def test_get_host_request_messages(db):
@@ -295,9 +292,8 @@ def test_get_host_request_messages(db):
             )
         )
         request_id = res.host_request_id
-        session = db()
-        conversation_id = session.query(HostRequest.conversation_id).filter(HostRequest.id == request_id).scalar()
-        session.close()
+        with session_scope(db) as session:
+            conversation_id = session.query(HostRequest.conversation_id).filter(HostRequest.id == request_id).scalar()
 
     add_message(db, "Test request 1 message 1", user1.id, conversation_id)
     add_message(db, "Test request 1 message 2", user1.id, conversation_id)

@@ -5,8 +5,8 @@ import grpc
 import pytest
 
 from couchers.crypto import random_hex
+from couchers.db import session_scope
 from couchers.models import Base, LoginToken, SignupToken, User
-from couchers.servicers.auth import Auth
 from pb import api_pb2, auth_pb2, auth_pb2_grpc, bugs_pb2_grpc
 from tests.test_fixtures import auth_api_session, db, generate_user, real_api_session
 
@@ -25,8 +25,9 @@ def test_basic_signup(db):
     assert reply.next_step == auth_pb2.SignupRes.SignupStep.SENT_SIGNUP_EMAIL
 
     # read out the signup token directly from the database for now
-    entry = db().query(SignupToken).filter(SignupToken.email == "a@b.com").one_or_none()
-    signup_token = entry.token
+    with session_scope(db) as session:
+        entry = session.query(SignupToken).filter(SignupToken.email == "a@b.com").one_or_none()
+        signup_token = entry.token
 
     with auth_api_session(db) as auth_api:
         reply = auth_api.SignupTokenInfo(auth_pb2.SignupTokenInfoReq(signup_token=signup_token))
@@ -57,8 +58,9 @@ def test_basic_login(db):
     assert reply.next_step == auth_pb2.LoginRes.LoginStep.SENT_LOGIN_EMAIL
 
     # backdoor to find login token
-    entry = db().query(LoginToken).one_or_none()
-    login_token = entry.token
+    with session_scope(db) as session:
+        entry = session.query(LoginToken).one_or_none()
+        login_token = entry.token
 
     with auth_api_session(db) as auth_api:
         reply = auth_api.CompleteTokenLogin(auth_pb2.CompleteTokenLoginReq(login_token=login_token))
@@ -76,7 +78,8 @@ def test_login_tokens_invalidate_after_use(db):
         reply = auth_api.Login(auth_pb2.LoginReq(user="frodo"))
     assert reply.next_step == auth_pb2.LoginRes.LoginStep.SENT_LOGIN_EMAIL
 
-    login_token = db().query(LoginToken).one_or_none().token
+    with session_scope(db) as session:
+        login_token = session.query(LoginToken).one_or_none().token
 
     with auth_api_session(db) as auth_api:
         session_token = auth_api.CompleteTokenLogin(auth_pb2.CompleteTokenLoginReq(login_token=login_token)).token
@@ -92,11 +95,11 @@ def test_banned_user(db):
         reply = auth_api.Login(auth_pb2.LoginReq(user="frodo"))
     assert reply.next_step == auth_pb2.LoginRes.LoginStep.SENT_LOGIN_EMAIL
 
-    login_token = db().query(LoginToken).one_or_none().token
+    with session_scope(db) as session:
+        login_token = session.query(LoginToken).one_or_none().token
 
-    session = db()
-    session.query(User).one().is_banned = True
-    session.commit()
+    with session_scope(db) as session:
+        session.query(User).one().is_banned = True
 
     with auth_api_session(db) as auth_api:
         with pytest.raises(grpc.RpcError):
