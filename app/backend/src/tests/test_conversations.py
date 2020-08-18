@@ -318,14 +318,14 @@ def test_get_group_chat_messages_joined_left(db):
     with conversations_session(db, token1) as c:
         res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user4.id]))
         group_chat_id = res.group_chat_id
-        with patch_message_time(start_time):
-            for i in range(10):
-                c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text=str(i)))
 
-        with patch_joined_time(start_time, add=1):
-            c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user3.id))
-        with patch_message_time(start_time, add=2):
-            c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="10"))
+        for i in range(10):
+            c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text=str(i)))
+
+        c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user3.id))
+
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="10"))
+
         res = c.GetGroupChatMessages(conversations_pb2.GetGroupChatMessagesReq(group_chat_id=group_chat_id))
 
         assert len(res.messages) == 11
@@ -337,18 +337,16 @@ def test_get_group_chat_messages_joined_left(db):
         assert len(res.messages) == 1
         assert res.messages[0].text == "10"
 
-        with patch_left_time(start_time, add=3):
-            c.LeaveGroupChat(conversations_pb2.LeaveGroupChatReq(group_chat_id=group_chat_id))
+        c.LeaveGroupChat(conversations_pb2.LeaveGroupChatReq(group_chat_id=group_chat_id))
 
     with conversations_session(db, token1) as c:
-        with patch_message_time(start_time, add=4):
-            c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="11"))
-            c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="12"))
-        with patch_joined_time(start_time, add=5):
-            c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user3.id))
-        with patch_message_time(start_time, add=6):
-            c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="13"))
-            c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="14"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="11"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="12"))
+
+        c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user3.id))
+
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="13"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="14"))
 
     with conversations_session(db, token3) as c:
         # can only see last message after invited
@@ -748,16 +746,11 @@ def test_search_messages_left_joined(db):
     with conversations_session(db, token1) as c:
         res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user4.id]))
         group_chat_id = res.group_chat_id
-        with patch_message_time(start_time):
-            for i in range(10):
-                c.SendMessage(
-                    conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message " + str(i))
-                )
+        for i in range(10):
+            c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message " + str(i)))
 
-        with patch_joined_time(start_time, add=1):
-            c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user3.id))
-        with patch_message_time(start_time, add=2):
-            c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 10"))
+        c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user3.id))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 10"))
         res = c.SearchMessages(conversations_pb2.SearchMessagesReq(query="Test message"))
 
         assert len(res.results) == 11
@@ -769,18 +762,14 @@ def test_search_messages_left_joined(db):
         assert len(res.results) == 1
         assert res.results[0].message.text == "Test message 10"
 
-        with patch_left_time(start_time, add=3):
-            c.LeaveGroupChat(conversations_pb2.LeaveGroupChatReq(group_chat_id=group_chat_id))
+        c.LeaveGroupChat(conversations_pb2.LeaveGroupChatReq(group_chat_id=group_chat_id))
 
     with conversations_session(db, token1) as c:
-        with patch_message_time(start_time, add=4):
-            c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 11"))
-            c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 12"))
-        with patch_joined_time(start_time, add=5):
-            c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user3.id))
-        with patch_message_time(start_time, add=6):
-            c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 13"))
-            c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 14"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 11"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 12"))
+        c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user3.id))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 13"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 14"))
 
     with conversations_session(db, token3) as c:
         # can only see last message after invited

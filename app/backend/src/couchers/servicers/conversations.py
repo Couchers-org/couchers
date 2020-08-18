@@ -23,9 +23,37 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
     def ListGroupChats(self, request, context):
         with session_scope(self._Session) as session:
+            # select group chats where you have a subscription, and for each of
+            # these, the latest message from them
+
+            # subquery = (session.query(GroupChatSubscription.group_chat_id.label("group_chat_id"), func.max(Message.id).label("message_id"))
+            #     .outerjoin(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
+            #     .filter(GroupChatSubscription.user_id == context.user_id)
+            #     .filter(
+            #         or_(Message.time >= GroupChatSubscription.joined,
+            #             Message.time == None)) # outer join
+            #     .filter(
+            #         or_(Message.time <= GroupChatSubscription.left,
+            #             GroupChatSubscription.left == None,
+            #             Message.time == None)) # outer join
+            #     .filter(
+            #         or_(Message.id < request.last_message_id,
+            #             request.last_message_id == 0,
+            #             Message.id == None)) # outer join
+            #     .group_by(GroupChatSubscription.group_chat_id)
+            #     .limit(PAGINATION_LENGTH+1)
+            #     .subquery())
+
+            # results = (session.query(subquery, GroupChat, GroupChatSubscription, Message)
+            #     .join(GroupChat, GroupChat.conversation_id == subquery.c.group_chat_id)
+            #     .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == subquery.c.group_chat_id)
+            #     .rightjoin(Message, Message.conversation_id == subquery.c.message_id)
+            #     .all())
+
             results = (
                 session.query(GroupChat, GroupChatSubscription, Message)
-                .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == GroupChat.conversation_id)
+                .distinct(GroupChatSubscription.group_chat_id)
+                .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
                 .outerjoin(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
                 .filter(GroupChatSubscription.user_id == context.user_id)
                 .filter(or_(Message.time >= GroupChatSubscription.joined, Message.time == None))  # outer join
@@ -39,11 +67,30 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 .filter(
                     or_(Message.id < request.last_message_id, request.last_message_id == 0, Message.id == None)
                 )  # outer join
-                .order_by(Message.id.desc())
                 .group_by(GroupChatSubscription.group_chat_id)
                 .limit(PAGINATION_LENGTH + 1)
                 .all()
             )
+
+            # results = (session.query(GroupChat, GroupChatSubscription, Message, func.max(Message.id))
+            #     .distinct(GroupChatSubscription.group_chat_id)
+            #     .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == GroupChat.conversation_id)
+            #     .outerjoin(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
+            #     .filter(GroupChatSubscription.user_id == context.user_id)
+            #     .filter(
+            #         or_(Message.time >= GroupChatSubscription.joined,
+            #             Message.time == None)) # outer join
+            #     .filter(
+            #         or_(Message.time <= GroupChatSubscription.left,
+            #             GroupChatSubscription.left == None,
+            #             Message.time == None)) # outer join
+            #     .filter(
+            #         or_(Message.id < request.last_message_id,
+            #             request.last_message_id == 0,
+            #             Message.id == None)) # outer join
+            #     .group_by(GroupChatSubscription.group_chat_id)
+            #     .limit(PAGINATION_LENGTH+1)
+            #     .all())
 
             return conversations_pb2.ListGroupChatsRes(
                 group_chats=[

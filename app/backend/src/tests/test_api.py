@@ -30,12 +30,9 @@ def test_ping(db):
 
     # the joined time is fuzzed
     # but shouldn't be before actual joined time, or more than one hour behind
-    assert user.joined - \
-        timedelta(hours=1) <= to_aware_datetime(res.user.joined) <= user.joined
+    assert user.joined - timedelta(hours=1) <= to_aware_datetime(res.user.joined) <= user.joined
     # same for last_active
-    assert user.last_active - \
-        timedelta(hours=1) <= to_aware_datetime(res.user.last_active
-        ) <= user.last_active
+    assert user.last_active - timedelta(hours=1) <= to_aware_datetime(res.user.last_active) <= user.last_active
 
     assert res.user.hosting_status == api_pb2.HOSTING_STATUS_UNKNOWN
 
