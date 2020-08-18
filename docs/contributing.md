@@ -1,4 +1,4 @@
-# Develop Contributor Guide
+# Developer Contributor Guide
 
 We collaborate on code through git, hosted on GitHub. If you are a software engineer (frontend/backend), you should request write access to the codebase.
 

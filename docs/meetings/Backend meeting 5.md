@@ -41,6 +41,7 @@ Focus is on getting new members up and running and giving them good tasks to pok
     - Lucas?: Events
 
 * Bug tracking/grroming, deduplication, etc: Claudio is interested and has experience. Aapeli & Itsi will follow up with him.
+* Claudio brought up conversation around security, PII and legal implications (GDPR, CCPA, etc) as it should be built from the foundations and closely related to the architecture. Current situation is that software security is done well (e.g. correctly hashed passwords) but legal stuff and the marriage between the two (e.g. TOS fields in DB) have not been looked at.
 * Lucas proposes adding new issue labels for priorities, e.g. "p1" to "p6", probably don't need that many.
 * Lucas might help Aapeli on messaging which has been lingering for a long time. Main issues are chat events and DB issues with sqlite/postgres
 * Itsi: we need an easy way to report bugs in the app, Aapeli will work on it.
