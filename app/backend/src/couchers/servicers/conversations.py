@@ -105,9 +105,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                     )
                 )  # in case outer join and no messages
                 .order_by(Message.id.desc())
-                .limit(1)
-                .one_or_none()
-            )
+                .first())
 
             if not result:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)

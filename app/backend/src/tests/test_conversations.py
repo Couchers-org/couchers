@@ -650,6 +650,48 @@ def test_leave_invite_to_group_chat(db):
         assert user2.id in res.member_user_ids
 
 
+def test_group_chats_with_messages_before_join(db):
+    """
+    If user 1 and 2 have a group chat and send messages, then add user 3; user 3
+    should still see the group chat!
+    """
+    user1, token1 = generate_user(db)
+    user2, token2 = generate_user(db)
+    user3, token3 = generate_user(db)
+    user4, token4 = generate_user(db)
+
+    make_friends(db, user1, user2)
+    make_friends(db, user1, user3)
+    make_friends(db, user2, user3)
+    make_friends(db, user1, user4)
+
+    with conversations_session(db, token1) as c:
+        res = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user4.id]))
+        group_chat_id = res.group_chat_id
+        c.SendMessage(conversations_pb2.SendMessageReq(
+            group_chat_id=group_chat_id,  text="Test message 1"))
+
+    with conversations_session(db, token2) as c:
+        c.SendMessage(conversations_pb2.SendMessageReq(
+            group_chat_id=group_chat_id,  text="Test message 2"))
+
+    with conversations_session(db, token1) as c:
+        c.SendMessage(conversations_pb2.SendMessageReq(
+            group_chat_id=group_chat_id,  text="Test message 3"))
+
+        c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(
+            group_chat_id=group_chat_id, user_id=user3.id))
+
+    with conversations_session(db, token3) as c:
+        # should work
+        c.GetGroupChat(
+            conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
+
+        res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq())
+        assert len(res.group_chats) == 1
+
+
 def test_invite_to_dm(db):
     user1, token1 = generate_user(db)
     user2, token2 = generate_user(db)
