@@ -2,6 +2,7 @@ import io
 import json
 import os
 import tempfile
+from pathlib import Path
 from base64 import urlsafe_b64encode
 from concurrent import futures
 from contextlib import contextmanager
@@ -19,6 +20,8 @@ from pb import api_pb2, media_pb2, media_pb2_grpc
 from PIL import Image
 from PIL.JpegImagePlugin import JpegImageFile
 
+
+DATADIR = Path(__file__).parent / "data"
 
 class MockMainServer(media_pb2_grpc.MediaServicer):
     def __init__(self, bearer_token, accept_func):
@@ -118,7 +121,7 @@ def test_image_upload(client_with_secrets):
     upload_path = generate_upload_path(request, secret_key)
 
     with mock_main_server(bearer_token, lambda x: True):
-        with open("src/tests/data/1x1.jpg", "rb") as f:
+        with open(DATADIR / "1x1.jpg", "rb") as f:
             rv = client.post(upload_path, data={"file": (f, "1x1.jpg")})
 
         assert json.loads(rv.data)["ok"]
@@ -130,7 +133,7 @@ def test_image_resizing(client_with_secrets):
     upload_path = generate_upload_path(request, secret_key)
 
     with mock_main_server(bearer_token, lambda x: True):
-        with open("src/tests/data/5000x5000.jpg", "rb") as f:
+        with open(DATADIR / "5000x5000.jpg", "rb") as f:
             rv = client.post(upload_path, data={"file": (f, "img.jpg")})
 
         assert json.loads(rv.data)["ok"]
@@ -152,7 +155,7 @@ def test_avatar_downscaling(client_with_secrets):
     upload_path = generate_upload_path(request, secret_key)
 
     with mock_main_server(bearer_token, lambda x: True):
-        with open("src/tests/data/5000x5000.jpg", "rb") as f:
+        with open(DATADIR / "5000x5000.jpg", "rb") as f:
             rv = client.post(upload_path, data={"file": (f, "img.jpg")})
 
         assert json.loads(rv.data)["ok"]
@@ -172,7 +175,7 @@ def test_avatar_upscaling(client_with_secrets):
     upload_path = generate_upload_path(request, secret_key)
 
     with mock_main_server(bearer_token, lambda x: True):
-        with open("src/tests/data/1x1.jpg", "rb") as f:
+        with open(DATADIR / "1x1.jpg", "rb") as f:
             rv = client.post(upload_path, data={"file": (f, "img.jpg")})
 
         assert json.loads(rv.data)["ok"]
@@ -209,7 +212,7 @@ def test_wrong_filename(client_with_secrets):
     upload_path = generate_upload_path(request, secret_key)
 
     with mock_main_server(bearer_token, lambda x: True):
-        with open("src/tests/data/1x1.jpg", "rb") as f:
+        with open(DATADIR / "1x1.jpg", "rb") as f:
             # filename shouldn't matter
             rv = client.post(upload_path, data={"file": (f, "wrongname.exe")})
 
@@ -227,11 +230,11 @@ def test_strips_exif(client_with_secrets):
     upload_path = generate_upload_path(request, secret_key)
 
     with mock_main_server(bearer_token, lambda x: True):
-        img = Image.open("src/tests/data/exif.jpg")
+        img = Image.open(DATADIR / "exif.jpg")
         assert img.getexif()
         assert img.info["comment"] == b"I am an EXIF comment!\0"
 
-        with open("src/tests/data/exif.jpg", "rb") as f:
+        with open(DATADIR / "exif.jpg", "rb") as f:
             rv = client.post(upload_path, data={"file": (f, "1x1.jpg")})
 
         assert json.loads(rv.data)["ok"]
@@ -250,7 +253,7 @@ def test_jpg_pixel(client_with_secrets):
     upload_path = generate_upload_path(request, secret_key)
 
     with mock_main_server(bearer_token, lambda x: True):
-        with open("src/tests/data/1x1.jpg", "rb") as f:
+        with open(DATADIR / "1x1.jpg", "rb") as f:
             rv = client.post(upload_path, data={"file": (f, "pixel")})
 
         assert json.loads(rv.data)["ok"]
@@ -267,7 +270,7 @@ def test_png_pixel(client_with_secrets):
     upload_path = generate_upload_path(request, secret_key)
 
     with mock_main_server(bearer_token, lambda x: True):
-        with open("src/tests/data/1x1.png", "rb") as f:
+        with open(DATADIR / "1x1.png", "rb") as f:
             rv = client.post(upload_path, data={"file": (f, "pixel")})
 
         assert json.loads(rv.data)["ok"]
@@ -284,7 +287,7 @@ def test_gif_pixel(client_with_secrets):
     upload_path = generate_upload_path(request, secret_key)
 
     with mock_main_server(bearer_token, lambda x: True):
-        with open("src/tests/data/1x1.gif", "rb") as f:
+        with open(DATADIR / "1x1.gif", "rb") as f:
             rv = client.post(upload_path, data={"file": (f, "pixel")})
 
         assert json.loads(rv.data)["ok"]
@@ -301,7 +304,7 @@ def test_bad_file(client_with_secrets):
     upload_path = generate_upload_path(request, secret_key)
 
     with mock_main_server(bearer_token, lambda x: True):
-        with open("src/tests/data/badfile.txt", "rb") as f:
+        with open(DATADIR / "badfile.txt", "rb") as f:
             rv = client.post(upload_path, data={"file": (f, "badfile.txt")})
 
         assert rv.status_code == 400
@@ -314,7 +317,7 @@ def test_cant_reuse(client_with_secrets):
     upload_path = generate_upload_path(request, secret_key)
 
     with mock_main_server(bearer_token, lambda x: True):
-        with open("src/tests/data/1x1.jpg", "rb") as f:
+        with open(DATADIR / "1x1.jpg", "rb") as f:
             rv = client.post(upload_path, data={"file": (f, "pixel.jpg")})
 
         assert json.loads(rv.data)["ok"]
@@ -322,7 +325,7 @@ def test_cant_reuse(client_with_secrets):
         rv = client.get(f"/img/full/{key}.jpg")
         assert rv.status_code == 200
 
-        with open("src/tests/data/1x1.jpg", "rb") as f:
+        with open(DATADIR / "1x1.jpg", "rb") as f:
             rv = client.post(upload_path, data={"file": (f, "pixel.jpg")})
 
         assert rv.status_code == 400
@@ -336,7 +339,7 @@ def test_fails_wrong_sig(client_with_secrets):
     upload_path = generate_upload_path(request, wrong_secret_key)
 
     with mock_main_server(bearer_token, lambda x: True):
-        with open("src/tests/data/1x1.jpg", "rb") as f:
+        with open(DATADIR / "1x1.jpg", "rb") as f:
             rv = client.post(upload_path, data={"file": (f, "pixel.jpg")})
 
         assert rv.status_code == 400
@@ -362,7 +365,7 @@ def test_fails_expired(client_with_secrets):
     upload_path = generate_upload_path(request, secret_key)
 
     with mock_main_server(bearer_token, lambda x: True):
-        with open("src/tests/data/1x1.jpg", "rb") as f:
+        with open(DATADIR / "1x1.jpg", "rb") as f:
             rv = client.post(upload_path, data={"file": (f, "pixel.jpg")})
 
         assert rv.status_code == 400
