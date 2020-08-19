@@ -34,10 +34,10 @@
 
 <script lang="ts">
 import Vue from "vue"
-import { ReportReq } from "@/pb/api_pb"
+import { ReportReq } from "../pb/api_pb"
 
 import ErrorAlert from "./ErrorAlert.vue"
-import { client } from "@/api"
+import { client } from "../api"
 
 export default Vue.extend({
   props: {
