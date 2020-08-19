@@ -160,10 +160,10 @@ class Auth(auth_pb2_grpc.AuthServicer):
             if not signup_token:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
 
-            # should be in YYYY/MM/DD format, will raise exception if can't parse
+            # should be in YYYY-MM-DD format
             try:
                 birthdate = datetime.fromisoformat(request.birthdate)
-            except:
+            except ValueError:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_BIRTHDATE)
 
             # check email again
