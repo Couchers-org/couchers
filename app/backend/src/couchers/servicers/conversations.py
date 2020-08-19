@@ -52,6 +52,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 .outerjoin(Message, Message.id == t.c.message_id)
                 .join(GroupChatSubscription, GroupChatSubscription.id == t.c.group_chat_subscriptions_id)
                 .join(GroupChat, GroupChat.conversation_id == t.c.group_chat_id)
+                .order_by(t.c.message_id.desc())
                 .all())
 
             return conversations_pb2.ListGroupChatsRes(

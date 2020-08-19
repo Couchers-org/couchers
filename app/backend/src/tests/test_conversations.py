@@ -171,7 +171,6 @@ def test_list_group_chats_ordering(db):
         assert res.group_chats[4].title == "Chat 0"
 
 
-@pytest.mark.xfail
 def test_list_group_chats_ordering_after_left(db):
     # user is member to 4 group chats, and has left one.
     # The one user left has the most recent message, but user left before then,
