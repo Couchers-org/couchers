@@ -130,7 +130,13 @@ export default Vue.extend({
       }
 
       if (this.message.length < 50) {
-        this.error.push(Error("Try putting some more detail in your request."))
+        this.error.push(
+          Error(
+            `Try putting some more detail in your request. You need at least ${
+              50 - this.message.length
+            } more characters (but probably much more!).`
+          )
+        )
       }
 
       if (this.error.length > 0) return

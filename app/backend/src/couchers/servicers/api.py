@@ -364,15 +364,18 @@ class API(api_pb2_grpc.APIServicer):
             description=request.description,
         )
         with session_scope(self._Session) as session:
-            if not session.query(User).filter(User.id == request.reported_user_id).one_or_none():
+            reported_user = session.query(User).filter(User.id == request.reported_user_id).one_or_none()
+            if not reported_user:
                 context.abort(grpc.StatusCode.NOT_FOUND,
                               errors.USER_NOT_FOUND)
             session.add(message)
+        
+            reporting_user = session.query(User).filter(User.id == context.user_id).one()
 
-        send_report_email(context.user_id, request.reported_user_id,
-                          request.reason, request.description)
+            send_report_email(reporting_user, reported_user,
+                            request.reason, request.description)
 
-        return empty_pb2.Empty()
+            return empty_pb2.Empty()
 
     def WriteReference(self, request, context):
         if context.user_id == request.to_user_id:

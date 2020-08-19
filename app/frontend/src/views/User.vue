@@ -1,10 +1,43 @@
 <template>
   <v-main>
     <error-alert :error="error" />
-    <v-container v-if="loading">
-      <loading-circular :loading="loading" />
+    <v-overlay :value="loading && user != null">
+      <loading-circular :loading="loading && user != null" />
+    </v-overlay>
+    <v-container v-if="loading && user == null">
+      <v-row>
+        <v-col sm="12" md="4" lg="3">
+          <v-card class="mx-3 my-3" outlined>
+            <v-skeleton-loader type="image" class="mb-4"></v-skeleton-loader>
+            <v-skeleton-loader
+              type="heading"
+              class="mb-4 px-2"
+            ></v-skeleton-loader>
+            <v-skeleton-loader
+              type="list-item-avatar@8"
+              class="mb-4"
+            ></v-skeleton-loader>
+          </v-card>
+        </v-col>
+        <v-col sm="12" md="8" lg="9">
+          <v-card class="mx-3 my-3" outlined>
+            <v-skeleton-loader
+              type="heading"
+              class="mb-4 mt-4 px-4"
+            ></v-skeleton-loader>
+            <v-skeleton-loader
+              type="button"
+              class="mb-4 px-4"
+            ></v-skeleton-loader>
+            <v-skeleton-loader
+              type="sentences@10"
+              class="mb-4 px-4"
+            ></v-skeleton-loader>
+          </v-card>
+        </v-col>
+      </v-row>
     </v-container>
-    <v-container v-if="!loading" fluid>
+    <v-container v-if="!loading && user != null" fluid>
       <v-row>
         <v-col sm="12" md="4" lg="3">
           <v-card class="mx-3 my-3" outlined>
@@ -54,7 +87,9 @@
                 <v-icon>mdi-account-check</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title>Verification (coming soon)</v-list-item-title>
+                <v-list-item-title
+                  >Verification (coming soon)</v-list-item-title
+                >
                 <v-list-item-subtitle>
                   <v-progress-linear
                     class="my-2"
@@ -146,13 +181,18 @@
                 <v-icon>mdi-account-multiple-check</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title>{{ mutualFriendsDisplay }}</v-list-item-title>
+                <v-list-item-title>{{
+                  mutualFriendsDisplay
+                }}</v-list-item-title>
                 <v-list-item-subtitle>Mutual friends</v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
             <v-divider></v-divider>
             <v-card-actions>
-              <send-message-dialog-button :userId="user.userId" :name="user.name" />
+              <send-message-dialog-button
+                :userId="user.userId"
+                :name="user.name"
+              />
               <report-dialog-button :name="user.name" :user-id="user.userId" />
               <request-host-dialog-button
                 :name="user.name"
@@ -225,7 +265,7 @@
                     "
                   >
                     <h3>Smoking allowed?</h3>
-                    {{ displaySmokingLocation(user.smokingAllowed.value) }}
+                    {{ displaySmokingLocation(user.smokingAllowed) }}
                   </v-container>
                   <v-container v-if="user.sleepingArrangement != null">
                     <h3>Sleeping arrangements</h3>
@@ -269,8 +309,8 @@
                       label="I felt safe with this person"
                     />
                     <p v-if="!myReferenceWasSafe">
-                      You can anonymously report this user using the report button
-                      above.
+                      You can anonymously report this user using the report
+                      button above.
                     </p>
                     <p>
                       The rating and if you felt safe are private and anonymous.
@@ -427,10 +467,10 @@ export default Vue.extend({
       this.loading = true
       this.error = null
       this.fetchUser()
-        .then(this.fetchReferences)
         .then(() => {
           this.loading = false
         })
+        .then(this.fetchReferences)
         .catch((err) => {
           this.loading = false
           this.error = err

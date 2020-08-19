@@ -11,7 +11,7 @@ import Vue, { PropType } from "vue"
 
 export default Vue.extend({
   props: {
-    error: Object as PropType<Array<Error> | Error | null>,
+    error: (null as unknown) as PropType<Array<Error> | Error | null>,
   },
 
   computed: {

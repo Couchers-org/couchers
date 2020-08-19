@@ -34,7 +34,9 @@
                 <v-icon>mdi-account-check</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title>Verification (coming soon)</v-list-item-title>
+                <v-list-item-title
+                  >Verification (coming soon)</v-list-item-title
+                >
                 <v-list-item-subtitle>
                   <v-progress-linear
                     class="my-2"
@@ -80,7 +82,9 @@
                 <v-icon>mdi-translate</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title>{{ languagesListDisplay }}</v-list-item-title>
+                <v-list-item-title>{{
+                  languagesListDisplay
+                }}</v-list-item-title>
                 <v-list-item-subtitle>Languages</v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
@@ -148,7 +152,10 @@
                     v-on:save="saveHostingStatus"
                   />
                   <h3>Gender</h3>
-                  <editable-text-field :text="user.gender" v-on:save="saveGender" />
+                  <editable-text-field
+                    :text="user.gender"
+                    v-on:save="saveGender"
+                  />
                   <h3>Occupation</h3>
                   <editable-text-field
                     :text="user.occupation"
@@ -183,8 +190,8 @@
                   />
                   <h3>Profile color</h3>
                   <p>
-                    We're still working on profile pictures, but you can choose a
-                    color for your profile instead!
+                    We're still working on profile pictures, but you can choose
+                    a color for your profile instead!
                   </p>
                   <editable-color :color="user.color" v-on:save="saveColor" />
                   <h3>Profile picture</h3>
@@ -198,7 +205,9 @@
                   />
                   <h3>Multiple groups accepted</h3>
                   <editable-dropdown
-                    :value="user.multipleGroups ? user.multipleGroups.value : null"
+                    :value="
+                      user.multipleGroups ? user.multipleGroups.value : null
+                    "
                     :items="boolChoices"
                     v-on:save="saveMultipleGroups"
                   />
@@ -239,7 +248,9 @@
                   <h3>Sleeping arrangements</h3>
                   <editable-textarea
                     :text="
-                      user.sleepingArrangement ? user.sleepingArrangement.value : ''
+                      user.sleepingArrangement
+                        ? user.sleepingArrangement.value
+                        : ''
                     "
                     is-markdown
                     v-on:save="saveSleepingArrangement"
@@ -280,7 +291,6 @@ import EditableTextField from "../components/EditableTextField.vue"
 import EditableList from "../components/EditableList.vue"
 import EditableColor from "../components/EditableColor.vue"
 import ErrorAlert from "../components/ErrorAlert.vue"
-import LoadingCircular from "../components/LoadingCircular.vue"
 
 import {
   UpdateProfileReq,
@@ -331,7 +341,6 @@ export default Vue.extend({
     EditableList,
     EditableColor,
     ErrorAlert,
-    LoadingCircular,
   },
 
   methods: {
