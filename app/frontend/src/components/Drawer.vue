@@ -134,7 +134,12 @@ export default Vue.extend({
       },
     },
 
-    ...mapState(["user", "drawerOpen", "unseenMessageCount", "unseenHostRequestCount"]),
+    ...mapState([
+      "user",
+      "drawerOpen",
+      "unseenMessageCount",
+      "unseenHostRequestCount",
+    ]),
   },
 })
 </script>
