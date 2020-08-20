@@ -11,14 +11,16 @@ from couchers.interceptors import (LoggingInterceptor,
 from couchers.models import Base
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
+from couchers.servicers.bugs import Bugs
 from couchers.servicers.conversations import Conversations
 from couchers.servicers.media import Media
 from couchers.servicers.requests import Requests
 from couchers.servicers.media import Media, get_media_auth_interceptor
 from couchers.servicers.sso import SSO
 from dummy_data import add_dummy_data
-from pb import (api_pb2_grpc, auth_pb2_grpc, conversations_pb2_grpc,
-                media_pb2_grpc, requests_pb2_grpc, sso_pb2_grpc)
+from pb import (api_pb2_grpc, auth_pb2_grpc, bugs_pb2_grpc,
+                conversations_pb2_grpc, media_pb2_grpc, requests_pb2_grpc,
+                sso_pb2_grpc)
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -48,11 +50,12 @@ Session = sessionmaker(bind=engine)
 add_dummy_data(Session, "src/dummy_data.json")
 
 auth = Auth(Session)
-auth_server = grpc.server(futures.ThreadPoolExecutor(2))
-auth_server = intercept_server(auth_server, LoggingInterceptor())
-auth_server.add_insecure_port("[::]:1752")
-auth_pb2_grpc.add_AuthServicer_to_server(auth, auth_server)
-auth_server.start()
+open_server = grpc.server(futures.ThreadPoolExecutor(2))
+open_server = intercept_server(open_server, LoggingInterceptor())
+open_server.add_insecure_port("[::]:1752")
+auth_pb2_grpc.add_AuthServicer_to_server(auth, open_server)
+bugs_pb2_grpc.add_BugsServicer_to_server(Bugs(), open_server)
+open_server.start()
 
 server = grpc.server(futures.ThreadPoolExecutor(2))
 server = intercept_server(server, LoggingInterceptor())

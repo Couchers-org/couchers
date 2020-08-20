@@ -48,9 +48,11 @@
 <script lang="ts">
 import Vue, { PropType } from "vue"
 
+import { mapState } from "vuex"
+
 import ErrorAlert from "./ErrorAlert.vue"
-import { client } from "../api"
-import { ReportBugReq } from "../pb/api_pb"
+import { bugs } from "../api"
+import { ReportBugReq } from "../pb/bugs_pb"
 
 export default Vue.extend({
   components: {
@@ -86,10 +88,11 @@ export default Vue.extend({
       req.setDescription(this.description)
       req.setSteps(this.steps)
       req.setResults(this.results)
-      //req.setFrontendVersion(this.frontend_version)
+      req.setFrontendVersion(process.env.VUE_APP_VERSION)
       req.setUserAgent(navigator.userAgent)
       req.setPage(window.location.href)
-      client
+      req.setUserId(this.user.userId)
+      bugs
         .reportBug(req)
         .then((res) => {
           console.log(res.getReportIdentifier())
@@ -103,5 +106,9 @@ export default Vue.extend({
         })
     },
   },
+
+  computed: {
+    ...mapState(["user"])
+  }
 })
 </script>
