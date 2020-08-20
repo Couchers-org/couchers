@@ -56,14 +56,14 @@ def test_login_email(db):
 
     login_token, expiry_text = new_login_token(db(), user)
 
-    def mock_send_smtp_email(sender_name, sender_email, recipient, subject, plain, html):
+    def mock_send_email(sender_name, sender_email, recipient, subject, plain, html):
         assert recipient == user.email
         assert "login" in subject.lower()
         assert login_token.token in plain
         assert login_token.token in html
         return message_id
 
-    with patch("couchers.email.send_email", mock_send_smtp_email):
+    with patch("couchers.email.send_email", mock_send_email):
         send_login_email(user, login_token, expiry_text)
 
 def test_signup_email(db):
@@ -74,13 +74,13 @@ def test_signup_email(db):
 
     token, expiry_text = new_signup_token(db(), request_email)
 
-    def mock_send_smtp_email(sender_name, sender_email, recipient, subject, plain, html):
+    def mock_send_email(sender_name, sender_email, recipient, subject, plain, html):
         assert recipient == request_email
         assert token.token in plain
         assert token.token in html
         return message_id
 
-    with patch("couchers.email.send_email", mock_send_smtp_email):
+    with patch("couchers.email.send_email", mock_send_email):
         send_signup_email(request_email, token, expiry_text)
 
 def test_report_email():
@@ -107,14 +107,14 @@ def test_host_request_email(db):
 
     message_id = random_hex(64)
 
-    def mock_send_smtp_email(sender_name, sender_email, recipient, subject, plain, html):
+    def mock_send_email(sender_name, sender_email, recipient, subject, plain, html):
         assert recipient == user_host.email
         assert "host request" in subject.lower()
         assert f"{config['BASE_URL']}/hostrequests/" in plain
         assert f"{config['BASE_URL']}/hostrequests/" in html
         return message_id
 
-    with patch("couchers.email.send_email", mock_send_smtp_email):
+    with patch("couchers.email.send_email", mock_send_email):
         send_host_request_email(user_guest, user_host)
 
 def test_message_received_email(db):
@@ -122,14 +122,14 @@ def test_message_received_email(db):
 
     message_id = random_hex(64)
 
-    def mock_send_smtp_email(sender_name, sender_email, recipient, subject, plain, html):
+    def mock_send_email(sender_name, sender_email, recipient, subject, plain, html):
         assert recipient == user.email
         assert "mail" in subject.lower()
         assert f"{config['BASE_URL']}/messages/" in plain
         assert f"{config['BASE_URL']}/messages/" in html
         return message_id
 
-    with patch("couchers.email.send_email", mock_send_smtp_email):
+    with patch("couchers.email.send_email", mock_send_email):
         send_message_received_email(user)
 
 def test_friend_request_email(db):
@@ -138,14 +138,14 @@ def test_friend_request_email(db):
 
     message_id = random_hex(64)
 
-    def mock_send_smtp_email(sender_name, sender_email, recipient, subject, plain, html):
+    def mock_send_email(sender_name, sender_email, recipient, subject, plain, html):
         assert recipient == user_recipient.email
         assert "friend" in subject.lower()
         assert f"{config['BASE_URL']}/friends/" in plain
         assert f"{config['BASE_URL']}/friends/" in html
         return message_id
 
-    with patch("couchers.email.send_email", mock_send_smtp_email):
+    with patch("couchers.email.send_email", mock_send_email):
         send_friend_request_email(user_sender, user_recipient)
 
 def test_email_patching_fails(db):
