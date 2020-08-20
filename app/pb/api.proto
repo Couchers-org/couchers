@@ -108,6 +108,7 @@ message PingReq {}
 
 message PingRes {
   User user = 1;
+  uint32 unseen_message_count = 2;
   uint32 unseen_host_request_count = 3;
 }
 

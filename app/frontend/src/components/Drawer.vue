@@ -49,7 +49,17 @@
       </v-list-item>
       <v-list-item link to="/messages">
         <v-list-item-icon>
-          <v-icon>mdi-forum</v-icon>
+          <template>
+            <v-badge
+              v-if="unseenMessageCount"
+              color="primary"
+              :content="unseenMessageCount"
+              overlap
+            >
+              <v-icon>mdi-forum</v-icon>
+            </v-badge>
+            <v-icon v-else>mdi-forum</v-icon>
+          </template>
         </v-list-item-icon>
         <v-list-item-content>
           <v-list-item-title>Messages</v-list-item-title>
@@ -124,7 +134,7 @@ export default Vue.extend({
       },
     },
 
-    ...mapState(["user", "drawerOpen", "unseenHostRequestCount"]),
+    ...mapState(["user", "drawerOpen", "unseenMessageCount", "unseenHostRequestCount"]),
   },
 })
 </script>

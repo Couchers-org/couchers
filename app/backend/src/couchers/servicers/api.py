@@ -10,15 +10,15 @@ from couchers.crypto import generate_hash_signature, random_hex
 from couchers.db import (get_friends_status, get_user_by_field, is_valid_color,
                          is_valid_name, session_scope)
 from couchers.models import (Complaint, FriendRelationship, FriendStatus,
-                             HostingStatus, HostRequest, InitiatedUpload,
-                             Message, Reference, ReferenceType,
-                             SmokingLocation, User)
+                             GroupChatSubscription, HostingStatus, HostRequest,
+                             InitiatedUpload, Message, Reference,
+                             ReferenceType, SmokingLocation, User)
 from couchers.tasks import send_report_email
 from couchers.utils import Timestamp_from_datetime
 from google.protobuf import empty_pb2
 from google.protobuf.timestamp_pb2 import Timestamp
 from pb import api_pb2, api_pb2_grpc, media_pb2
-from sqlalchemy.sql import or_
+from sqlalchemy.sql import func, or_
 
 reftype2sql = {
     api_pb2.ReferenceType.FRIEND: ReferenceType.FRIEND,
@@ -92,9 +92,20 @@ class API(api_pb2_grpc.APIServicer):
                                          .group_by(Message.conversation_id)
                                          .count())
 
+            unseen_message_count = (session.query(func.count(Message.id).label("count"))
+                .outerjoin(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
+                .filter(GroupChatSubscription.user_id == context.user_id)
+                .filter(Message.time >= GroupChatSubscription.joined)
+                .filter(
+                    or_(Message.time <= GroupChatSubscription.left,
+                        GroupChatSubscription.left == None))
+                .filter(Message.id > GroupChatSubscription.last_seen_message_id)
+                .one()).count
+
             return api_pb2.PingRes(
                 user=user_model_to_pb(user, session, context),
-                unseen_host_request_count=unseen_host_request_count_1 + unseen_host_request_count_2
+                unseen_message_count=unseen_message_count,
+                unseen_host_request_count=unseen_host_request_count_1 + unseen_host_request_count_2,
             )
 
     def GetUser(self, request, context):

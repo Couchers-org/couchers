@@ -25,8 +25,9 @@ export default new Vuex.Store({
     drawerOpen: true, // whether the drawer (left hand sidebar) should be open
     user: null as null | User.AsObject,
     unseenHostRequestCount: 0,
+    unseenMessageCount: 0,
     authToken: null as null | string,
-    lastPing: 0 as number,
+    lastPing: 0,
     pingTimeout: null as null | number,
   },
   mutations: {
@@ -51,6 +52,7 @@ export default new Vuex.Store({
     updatePing(state, res: PingRes.AsObject) {
       state.user = res.user!
       state.unseenHostRequestCount = res.unseenHostRequestCount
+      state.unseenMessageCount = res.unseenMessageCount
     },
     clearPingTimeout(state) {
       if (state.pingTimeout) {

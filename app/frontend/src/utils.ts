@@ -7,8 +7,17 @@ export function displayList(list: string[]) {
   return list.join(", ")
 }
 
-export function displayTime(ts: { seconds: number; nanos: number }) {
-  return moment(new Date(ts.seconds * 1000 + ts.nanos / 1000000)).fromNow()
+export interface ProtobufTimestamp {
+  seconds: number
+  nanos: number
+}
+
+export function protobufTimestampToDate(ts: ProtobufTimestamp): Date {
+  return new Date(ts.seconds * 1000 + ts.nanos / 1000000)
+}
+
+export function displayTime(ts: ProtobufTimestamp) {
+  return moment(protobufTimestampToDate(ts)).fromNow()
 }
 
 export function handle(username: string): string {
