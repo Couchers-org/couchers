@@ -92,6 +92,13 @@
                         ></v-date-picker>
                       </v-menu>
                     </v-row>
+                    <v-row class="mt-3">
+                      <v-select
+                        v-model="hostingStatus"
+                        :items="hostingStatusItems"
+                        label="Can you host?"
+                      ></v-select>
+                    </v-row>
                     <v-row class="mt-5"
                       ><v-btn
                         v-on:click="submit"
@@ -125,12 +132,14 @@ import Store from "../store"
 
 import Router from "../router"
 import ErrorAlert from "../components/ErrorAlert.vue"
+import { displayHostingStatus } from "../utils"
+import { HostingStatus } from "../pb/api_pb"
 
 export default Vue.extend({
   data: () => ({
     genders: ["Male", "Female", "Genderqueer/nonbinary"],
     loading: false,
-    error: null as null | Error,
+    error: null as null | Error | Array<Error>,
     successMessages: [] as Array<string>,
     username: "",
     usernameErrorMessages: [] as Array<string>,
@@ -143,6 +152,7 @@ export default Vue.extend({
     date: "",
     dateMenu: false,
     gender: "",
+    hostingStatus: HostingStatus.HOSTING_STATUS_UNSPECIFIED,
     rules: {
       required: (value: string) => !!value || "Required.",
     },
@@ -154,6 +164,17 @@ export default Vue.extend({
 
   created() {
     this.fetchData()
+  },
+
+  computed: {
+    hostingStatusItems() {
+      return [
+        { text: "Can host", value: HostingStatus.HOSTING_STATUS_CAN_HOST },
+        { text: "Maybe", value: HostingStatus.HOSTING_STATUS_MAYBE },
+        { text: "Difficult", value: HostingStatus.HOSTING_STATUS_DIFFICULT },
+        { text: "Can't host", value: HostingStatus.HOSTING_STATUS_CANT_HOST },
+      ]
+    },
   },
 
   methods: {
@@ -188,6 +209,22 @@ export default Vue.extend({
       this.usernameErrorMessages = []
       this.usernameSuccessMessages = []
 
+      if (this.username == "") return
+
+      if (this.username.search(/[A-Z]/) != -1) {
+        this.usernameErrorMessages.push("Only use lowercase letters.")
+      }
+
+      if (this.username.search(/^\d/) != -1) {
+        this.usernameErrorMessages.push("Don't start with a number.")
+      }
+
+      if (this.username.search(/[^a-z0-9]/) != -1) {
+        this.usernameErrorMessages.push("Only use basic letters and numbers.")
+      }
+
+      if (this.usernameErrorMessages.length > 0) return
+
       const req = new UsernameValidReq()
 
       req.setUsername(this.username)
@@ -208,6 +245,32 @@ export default Vue.extend({
     },
 
     submit() {
+      this.error = []
+
+      if (this.usernameErrorMessages.length > 0) {
+        this.error.push(Error("Please fix your username."))
+      }
+
+      if (
+        this.name == "" ||
+        this.city == "" ||
+        this.date == "" ||
+        this.username == "" ||
+        !this.hostingStatus
+      ) {
+        this.error.push(Error("All fields are required (except gender)."))
+      }
+
+      if (this.date.search(/^\d\d\d\d-\d\d-\d\d$/) == -1) {
+        this.error.push(Error("Birthdate must be in the format YYYY-MM-DD"))
+      }
+
+      if (this.error.length > 0) {
+        return
+      } else {
+        this.error = null
+      }
+
       this.loading = true
       this.clearMessages()
 
@@ -219,6 +282,7 @@ export default Vue.extend({
       req.setCity(this.city)
       req.setBirthdate(this.date)
       req.setGender(this.gender)
+      req.setHostingStatus(this.hostingStatus)
 
       authClient
         .completeSignup(req)
@@ -233,6 +297,8 @@ export default Vue.extend({
           this.error = err
         })
     },
+
+    displayHostingStatus,
   },
 })
 </script>

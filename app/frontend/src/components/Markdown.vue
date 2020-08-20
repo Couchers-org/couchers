@@ -1,18 +1,23 @@
 <template>
-  <vue-simple-markdown :source="source" :image="false"></vue-simple-markdown>
+  <v-container v-html="rendered"></v-container>
 </template>
 
 <script lang="ts">
 import Vue from "vue"
-import VueSimpleMarkdown from "vue-simple-markdown"
-import "vue-simple-markdown/dist/vue-simple-markdown.css"
+import markdown from "markdown-it"
 
-Vue.use(VueSimpleMarkdown)
+const md = new markdown().disable("image")
 
 export default Vue.extend({
   props: {
     source: {
       type: String,
+    },
+  },
+
+  computed: {
+    rendered() {
+      return md.render(this.source)
     },
   },
 })

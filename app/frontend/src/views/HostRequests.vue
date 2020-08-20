@@ -190,7 +190,7 @@ import {
 } from "../pb/requests_pb"
 import { client, requestsClient } from "../api"
 import { mapState } from "vuex"
-import { HostRequest } from "@/pb/requests_pb"
+import { HostRequest } from "../pb/requests_pb"
 
 import ErrorAlert from "../components/ErrorAlert.vue"
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb"

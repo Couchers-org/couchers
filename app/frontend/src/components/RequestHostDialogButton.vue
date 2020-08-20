@@ -85,7 +85,7 @@
 
 <script lang="ts">
 import Vue, { PropType } from "vue"
-import { User } from "@/pb/api_pb"
+import { User } from "../pb/api_pb"
 
 import ErrorAlert from "./ErrorAlert.vue"
 import { requestsClient } from "../api"

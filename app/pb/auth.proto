@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package org.couchers.auth;
 
+import "pb/api.proto";
+
 service Auth {
   /*
   Authentication API
@@ -98,6 +100,7 @@ message CompleteSignupReq {
   string city = 4;
   string birthdate = 5; // in YYYY-MM-DD format
   string gender = 6;
+  org.couchers.api.core.HostingStatus hosting_status = 7;
 }
 
 message LoginReq {

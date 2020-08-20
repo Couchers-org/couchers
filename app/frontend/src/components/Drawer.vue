@@ -63,7 +63,12 @@
           <v-list-item-title>Friends</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
-      <v-list-item link href="https://community.couchers.org">
+      <v-list-item
+        link
+        href="https://community.couchers.org"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         <v-list-item-icon>
           <v-icon>mdi-account-group</v-icon>
         </v-list-item-icon>

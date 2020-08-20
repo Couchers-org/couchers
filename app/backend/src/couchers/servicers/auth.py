@@ -11,6 +11,7 @@ from couchers.db import (get_user_by_field, is_valid_email, is_valid_username,
 from couchers.interceptors import AuthValidatorInterceptor
 from couchers.models import LoginToken, SignupToken, User, UserSession
 from couchers.tasks import send_login_email, send_signup_email
+from couchers.servicers.api import hostingstatus2sql
 from couchers import errors
 from pb import auth_pb2, auth_pb2_grpc
 from sqlalchemy import func
@@ -159,8 +160,11 @@ class Auth(auth_pb2_grpc.AuthServicer):
             if not signup_token:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
 
-            # should be in YYYY/MM/DD format, will raise exception if can't parse
-            birthdate = datetime.fromisoformat(request.birthdate)
+            # should be in YYYY-MM-DD format
+            try:
+                birthdate = datetime.fromisoformat(request.birthdate)
+            except ValueError:
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_BIRTHDATE)
 
             # check email again
             if not is_valid_email(signup_token.email):
@@ -175,13 +179,18 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT,
                               errors.INVALID_NAME)
 
+            if not request.hosting_status:
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT,
+                              errors.HOSTING_STATUS_REQUIRED)
+
             user = User(
                 email=signup_token.email,
                 username=request.username,
                 name=request.name,
                 city=request.city,
                 gender=request.gender,
-                birthdate=birthdate
+                birthdate=birthdate,
+                hosting_status=hostingstatus2sql[request.hosting_status]
             )
 
             # happens in same transaction

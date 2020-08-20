@@ -5,7 +5,7 @@ from contextlib import contextmanager
 
 from couchers.models import Base, SignupToken, LoginToken, User
 from couchers.servicers.auth import Auth
-from pb import auth_pb2, auth_pb2_grpc
+from pb import auth_pb2, auth_pb2_grpc, api_pb2
 
 from tests.test_fixtures import db
 
@@ -58,7 +58,8 @@ def test_basic_signup(db):
             name="Räksmörgås",
             city="Minas Tirith",
             birthdate="1980-12-31",
-            gender="Robot"))
+            gender="Robot",
+            hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST))
     assert isinstance(reply.token, str)
 
 
