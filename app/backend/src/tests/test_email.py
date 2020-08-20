@@ -63,7 +63,7 @@ def test_login_email(db):
         assert login_token.token in html
         return message_id
 
-    with patch("couchers.email.send_smtp_email", mock_send_smtp_email):
+    with patch("couchers.email.send_email", mock_send_smtp_email):
         send_login_email(user, login_token, expiry_text)
 
 def test_signup_email(db):
@@ -80,7 +80,7 @@ def test_signup_email(db):
         assert token.token in html
         return message_id
 
-    with patch("couchers.email.send_smtp_email", mock_send_smtp_email):
+    with patch("couchers.email.send_email", mock_send_smtp_email):
         send_signup_email(request_email, token, expiry_text)
 
 def test_report_email():
@@ -114,7 +114,7 @@ def test_host_request_email(db):
         assert f"{config['BASE_URL']}/hostrequests/" in html
         return message_id
 
-    with patch("couchers.email.send_smtp_email", mock_send_smtp_email):
+    with patch("couchers.email.send_email", mock_send_smtp_email):
         send_host_request_email(user_guest, user_host)
 
 def test_message_received_email(db):
@@ -129,7 +129,7 @@ def test_message_received_email(db):
         assert f"{config['BASE_URL']}/messages/" in html
         return message_id
 
-    with patch("couchers.email.send_smtp_email", mock_send_smtp_email):
+    with patch("couchers.email.send_email", mock_send_smtp_email):
         send_message_received_email(user)
 
 def test_friend_request_email(db):
@@ -145,5 +145,24 @@ def test_friend_request_email(db):
         assert f"{config['BASE_URL']}/friends/" in html
         return message_id
 
-    with patch("couchers.email.send_smtp_email", mock_send_smtp_email):
+    with patch("couchers.email.send_email", mock_send_smtp_email):
         send_friend_request_email(user_sender, user_recipient)
+
+def test_email_patching_fails(db):
+    """
+    There was a problem where the mocking wasn't happening and the email dev
+    printing function was called instead, this makes sure the patching is
+    actually done
+    """
+    user_sender, api_token_sender = generate_user(db)
+    user_recipient, api_token_recipient = generate_user(db)
+
+    patched_msg = random_hex(64)
+
+    def mock_send_smtp_email(sender_name, sender_email, recipient, subject, plain, html):
+        raise Exception(patched_msg)
+
+    with pytest.raises(Exception) as e:
+        with patch("couchers.email.send_email", mock_send_smtp_email):
+            send_friend_request_email(user_sender, user_recipient)
+    assert str(e.value) == patched_msg
