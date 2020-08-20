@@ -29,10 +29,10 @@ def send_report_email(complaint):
     description = complaint.description
     target_email = config['REPORTS_EMAIL_RECIPIENT']
 
-    logger.info(f"Sending report email to {target_email}")
-    logger.info(f"User {user_author.username=} reporting user {user_reported.username}")
+    logger.info(f"Sending report email to {target_email=}")
+    logger.info(f"User {user_author=} reporting user {user_reported=}")
     logger.info(f"Reason: {reason=}")
     logger.info(f"Description:")
     logger.info(f"{description=}")
     subject = "User Report"
-    return email.send_email_template(target_email, subject, "report", template_args={"user_author": user_author.username, "reported_user": user_reported.username, "reason": reason, "description": description})
+    return email.send_email_template(target_email, subject, "report", template_args={"user_author": user_author, "reported_user": user_reported, "reason": reason, "description": description})

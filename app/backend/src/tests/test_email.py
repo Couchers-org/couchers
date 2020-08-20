@@ -4,8 +4,9 @@ import pytest
 from couchers.crypto import random_hex, urlsafe_secure_token
 from couchers.db import new_login_token, new_signup_token
 from couchers.email import _render_email
-from couchers.tasks import send_login_email, send_signup_email
-from tests.test_fixtures import db, generate_user
+from couchers.tasks import send_login_email, send_signup_email, send_report_email
+from couchers.config import config
+from tests.test_fixtures import db, generate_user, generate_complaint
 
 
 def test_login_email_rendering():
@@ -76,4 +77,22 @@ def test_signup_email(db):
         send_signup_email(request_email, token, expiry_text)
 
 def test_report_email(db):
-    pass
+    complaint = generate_complaint(db)
+
+    message_id = random_hex(64)
+
+    def mock_send_smtp_email(sender_name, sender_email, recipient, subject, plain, html):
+        assert recipient == config['REPORTS_EMAIL_RECIPIENT']
+        assert complaint.author_user_id in plain
+        assert complaint.author_user_id in html
+        assert complaint.reported_user_id in plain
+        assert complaint.reported_user_id in html
+        assert complaint.reason in plain
+        assert complaint.reason in html
+        assert complaint.description in plain
+        assert complaint.description in html
+        assert "report" in subject
+        return message_id
+
+    with patch("couchers.email.send_smtp_email", mock_send_smtp_email):
+        send_report_email(complaint)
