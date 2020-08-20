@@ -15,6 +15,10 @@
             OF THE PLATFORM
           </p>
           <p>
+            The Alpha works best on a computer, but not quite yet on a small
+            phone screen!
+          </p>
+          <p>
             The Alpha is a bit small on features and a bit buggy, but we're
             opening it up to the forum so we can share the exciting path that
             we're traveling down. We're quite proud of how much the volunteers
