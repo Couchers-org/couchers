@@ -13,9 +13,7 @@ Check it out here:
 Alternatively, click the following link: <{{ messages_link }}>.
 
 {% else %}
-
 <{{ messages_link }}>
-
 {% endif %}
 
 Someone's waiting for you, go reply!

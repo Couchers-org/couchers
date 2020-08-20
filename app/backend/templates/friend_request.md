@@ -13,9 +13,7 @@ Check it out here:
 Alternatively, click the following link: <{{ friend_requests_link }}>.
 
 {% else %}
-
 <{{ friend_requests_link }}>
-
 {% endif %}
 
 We hope you make a new friend!

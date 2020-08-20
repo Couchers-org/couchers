@@ -13,9 +13,7 @@ Check it out here:
 Alternatively, click the following link: <{{ host_request_link }}>.
 
 {% else %}
-
 <{{ host_request_link }}>
-
 {% endif %}
 
 We hope you make a new friend!
