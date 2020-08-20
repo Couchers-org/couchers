@@ -12,11 +12,10 @@
       />
       <v-toolbar-title class="ml-0 pl-4">Couchers.org</v-toolbar-title>
       <v-spacer></v-spacer>
-      <bug-tool></bug-tool>
-      <v-spacer></v-spacer>
       <search-box v-if="authenticated && !anonRoute" class="mx-auto">
       </search-box>
       <v-spacer></v-spacer>
+      <bug-tool></bug-tool>
     </v-app-bar>
 
     <drawer v-if="authenticated && !anonRoute" />

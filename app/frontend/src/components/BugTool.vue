@@ -1,18 +1,37 @@
 <template>
   <div>
-    <v-btn color="error" @click.stop="dialog = true" :disabled="sent">{{
-      sent ? "Report sent" : "Report a bug"
-    }}</v-btn>
+    <v-btn
+      class="mx-2"
+      fab
+      dark
+      color="error"
+      small
+      @click.stop="dialog = true"
+    >
+      <v-icon dark>mdi-alert-decagram</v-icon>
+    </v-btn>
 
     <v-dialog v-model="dialog" max-width="490">
       <v-card>
         <v-card-title class="headline">Report a problem</v-card-title>
         <v-card-text>
           <error-alert :error="error" />
-          <v-text-field label="Brief description of the bug" v-model="subject"></v-text-field>
-          <v-textarea label="What's the problem?" v-model="description"></v-textarea>
-          <v-textarea label="What did you do to trigger the bug?" v-model="steps"></v-textarea>
-          <v-textarea label="What happened? What did you expect should have happened?" v-model="results"></v-textarea>
+          <v-text-field
+            label="Brief description of the bug"
+            v-model="subject"
+          ></v-text-field>
+          <v-textarea
+            label="What's the problem?"
+            v-model="description"
+          ></v-textarea>
+          <v-textarea
+            label="What did you do to trigger the bug?"
+            v-model="steps"
+          ></v-textarea>
+          <v-textarea
+            label="What happened? What did you expect should have happened?"
+            v-model="results"
+          ></v-textarea>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -32,7 +51,6 @@ import Vue, { PropType } from "vue"
 import ErrorAlert from "./ErrorAlert.vue"
 import { client } from "../api"
 import { ReportBugReq } from "../pb/api_pb"
-
 
 export default Vue.extend({
   components: {
@@ -74,10 +92,10 @@ export default Vue.extend({
       client
         .reportBug(req)
         .then((res) => {
-            console.log(res.getReportIdentifier())
-            this.loading = false
-            this.dialog = false
-            this.sent = true
+          console.log(res.getReportIdentifier())
+          this.loading = false
+          this.dialog = false
+          this.sent = true
         })
         .catch((err: Error) => {
           this.loading = false
