@@ -32,8 +32,13 @@ def send_report_email(author_user, reported_user, reason, description):
     return email.send_email_template(target_email, "User Report", "report", template_args={"author": author_user.username, "reported_user": reported_user.username, "reason": reason, "description": description})
 
 
-def send_host_request_email(guest_user, host_user):
-    pass
+def send_host_request_email(user_guest, user_host):
+    logger.info(f"Sending host request email to {user_host=}:")
+    logger.info(f"Host request sent by {user_guest}")
+    logger.info(f"Email for {user_host.username=} sent to {user_host.email=}")
+    host_request_link = f"{config['BASE_URL']}/hostrequests/"
+    subject = "You've received a host request!"
+    return email.send_email_template(user_host.email, subject, "host_request", template_args={"user": user_host, "host_request_link": host_request_link})
 
 
 def send_message_received_email(user_sender, user_recipient):
