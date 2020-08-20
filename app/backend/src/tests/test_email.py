@@ -133,15 +133,17 @@ def test_message_received_email(db):
         send_message_received_email(user)
 
 def test_friend_request_email(db):
-    user, api_token = generate_user(db)
+    user_sender, api_token_sender = generate_user(db)
+    user_recipient, api_token_recipient = generate_user(db)
 
     message_id = random_hex(64)
 
     def mock_send_smtp_email(sender_name, sender_email, recipient, subject, plain, html):
-        assert recipient == user.email
-        assert "friend request" in subject.lower()
-        # TODO: more asserts
+        assert recipient == user_recipient.email
+        assert "friend" in subject.lower()
+        assert f"{config['BASE_URL']}/friends/" in plain
+        assert f"{config['BASE_URL']}/friends/" in html
         return message_id
 
     with patch("couchers.email.send_smtp_email", mock_send_smtp_email):
-        send_friend_request_email()
+        send_friend_request_email(user_sender, user_recipient)

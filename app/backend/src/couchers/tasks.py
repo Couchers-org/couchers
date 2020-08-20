@@ -42,7 +42,7 @@ def send_host_request_email(user_guest, user_host):
 
 
 def send_message_received_email(user_recipient):
-    logger.info((f"Sending message received email to {user_recipient}:"))
+    logger.info(f"Sending message received email to {user_recipient=}:")
     logger.info(f"Email for {user_recipient.username=} sent to {user_recipient.email=}")
     messages_link = f"{config['BASE_URL']}/messages/"
     subject = "You've got mail!"
@@ -50,4 +50,9 @@ def send_message_received_email(user_recipient):
 
 
 def send_friend_request_email(user_sender, user_recipient):
-    pass
+    logger.info(f"Sending friend request email to {user_recipient=}:")
+    logger.info(f"Email for {user_recipient.username=} sent to {user_recipient.email=}")
+    logger.info(f"Friend request sent by {user_sender=}")
+    friend_request_link = f"{config['BASE_URL']}/friends/"
+    subject = "Someone wants to be your friend!"
+    return email.send_email_template(user_recipient.email, subject, "friend_request")
