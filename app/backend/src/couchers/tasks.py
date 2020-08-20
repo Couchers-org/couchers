@@ -53,6 +53,6 @@ def send_friend_request_email(user_sender, user_recipient):
     logger.info(f"Sending friend request email to {user_recipient=}:")
     logger.info(f"Email for {user_recipient.username=} sent to {user_recipient.email=}")
     logger.info(f"Friend request sent by {user_sender=}")
-    friend_request_link = f"{config['BASE_URL']}/friends/"
+    friend_requests_link = f"{config['BASE_URL']}/friends/"
     subject = "Someone wants to be your friend!"
-    return email.send_email_template(user_recipient.email, subject, "friend_request")
+    return email.send_email_template(user_recipient.email, subject, "friend_request", template_args={"user": user_recipient, "friend_requests_link": friend_requests_link})
