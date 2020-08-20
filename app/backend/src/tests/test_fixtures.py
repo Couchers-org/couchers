@@ -9,7 +9,7 @@ from couchers.crypto import random_hex
 from couchers.db import session_scope
 from couchers.interceptors import intercept_server
 from couchers.models import (Base, FriendRelationship, FriendStatus, Message,
-                             User)
+                             User, Complaint)
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
 from couchers.servicers.conversations import Conversations
@@ -237,3 +237,25 @@ def patch_left_time(time, add=0):
     finally:
         remove(Base, "before_insert", set_timestamp)
         remove(Base, "before_update", set_timestamp)
+
+def generate_complaint(db):
+    session = db()
+
+    user_author, api_token_author = generate_user(db)
+    user_reported, api_token_reported = generate_user(db)
+
+    complaint = Complaint(
+        author_user_id=user_author.id,
+        reported_user_id=user_reported.id,
+        reason=random_hex(64),
+        description=random_hex(64)
+    )
+
+    #Not 100% sure how this works, see generate_user
+    session.add(complaint)
+    session.commit()
+    session.refresh(complaint)
+    session.expunge(complaint)
+    session.close()
+
+    return complaint
