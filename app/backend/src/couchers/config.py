@@ -35,6 +35,11 @@ CONFIG_OPTIONS = [
     ("MEDIA_SERVER_SECRET_KEY", bytes),
     ("MEDIA_SERVER_BEARER_TOKEN", str),
     ("MEDIA_SERVER_BASE_URL", str),
+    # Bug reporting tool
+    ("BUG_TOOL_ENABLED", bool),
+    ("BUG_TOOL_GITHUB_REPO", str),
+    ("BUG_TOOL_GITHUB_USERNAME", str),
+    ("BUG_TOOL_GITHUB_TOKEN", str),
 ]
 
 

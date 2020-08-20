@@ -12,6 +12,8 @@
       />
       <v-toolbar-title class="ml-0 pl-4">Couchers.org</v-toolbar-title>
       <v-spacer></v-spacer>
+      <bug-tool></bug-tool>
+      <v-spacer></v-spacer>
       <search-box v-if="authenticated && !anonRoute" class="mx-auto">
       </search-box>
       <v-spacer></v-spacer>
@@ -33,12 +35,15 @@ import Store from "./store"
 import Drawer from "./components/Drawer.vue"
 import SearchBox from "./components/SearchBox.vue"
 
+import BugTool from "./components/BugTool.vue"
+
 Store.dispatch("scheduler")
 
 export default Vue.extend({
   components: {
     Drawer,
     SearchBox,
+    BugTool,
   },
 
   computed: {

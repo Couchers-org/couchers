@@ -7,6 +7,14 @@ import "google/protobuf/wrappers.proto";
 import "google/protobuf/empty.proto";
 
 service API {
+  rpc Version(google.protobuf.Empty) returns (VersionInfo) {
+    // Returns backend version info
+  }
+
+  rpc ReportBug(ReportBugReq) returns (ReportBugRes) {
+    // Report a bug
+  }
+
   rpc Ping(PingReq) returns (PingRes) {
     // Pings the server for updates and basic user info
   }
@@ -57,6 +65,25 @@ service API {
   rpc InitiateMediaUpload(google.protobuf.Empty) returns (InitiateMediaUploadRes) {
     // Initiate a media upload
   }
+}
+
+message VersionInfo {
+  string version = 1;
+}
+
+message ReportBugReq {
+  string subject = 1;
+  string description = 2;
+  string steps = 3;
+  string results = 4;
+
+  string frontend_version = 5;
+  string user_agent = 6;
+  string page = 7;
+}
+
+message ReportBugRes {
+  string report_identifier = 1;
 }
 
 message SearchReq {
