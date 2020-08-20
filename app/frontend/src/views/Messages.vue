@@ -269,7 +269,7 @@ export default Vue.extend({
     userCache: {} as { [userId: number]: User.AsObject },
     selectedConversation: null as null | number, // TODO: null by default
     messages: [] as Array<Message.AsObject>,
-    scrollToId: null as string | number,
+    scrollToId: null as string | null,
   }),
 
   components: {
@@ -370,7 +370,7 @@ export default Vue.extend({
         })
     },
 
-    newConversationParticipantsRemove(userId) {
+    newConversationParticipantsRemove(userId: number) {
       const index = this.friendIds.indexOf(userId)
       if (index >= 0) {
         this.friendIds.splice(index, 1)
