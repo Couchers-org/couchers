@@ -75,3 +75,12 @@ def test_report_email():
     assert description in plain
     assert description in html
     assert subject in html
+
+def test_host_request_email():
+    pass
+
+def test_message_received_email():
+    pass
+
+def test_friend_request_email():
+    pass

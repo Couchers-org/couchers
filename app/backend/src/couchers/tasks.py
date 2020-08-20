@@ -30,3 +30,15 @@ def send_report_email(author_user, reported_user, reason, description):
     logger.info(f"Description:")
     logger.info(f"{description=}")
     return email.send_email_template(target_email, "User Report", "report", template_args={"author": author_user.username, "reported_user": reported_user.username, "reason": reason, "description": description})
+
+
+def send_host_request_email(guest_user, host_user):
+    pass
+
+
+def send_message_received_email(user_sender, user_recipient):
+    pass
+
+
+def send_friend_request_email(user_sender, user_recipient):
+    pass
