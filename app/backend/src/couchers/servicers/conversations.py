@@ -252,7 +252,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
             for recipient in request.recipient_user_ids:
                 if get_friends_status(session, context.user_id, recipient) != api_pb2.User.FriendshipStatus.FRIENDS:
-                    if request.recipient_user_ids > 1:
+                    if len(request.recipient_user_ids) > 1:
                         context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.GROUP_CHAT_ONLY_ADD_FRIENDS)
                     else:
                         context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.DIRECT_MESSAGE_ONLY_FRIENDS)
