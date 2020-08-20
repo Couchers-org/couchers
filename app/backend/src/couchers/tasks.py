@@ -41,8 +41,12 @@ def send_host_request_email(user_guest, user_host):
     return email.send_email_template(user_host.email, subject, "host_request", template_args={"user": user_host, "host_request_link": host_request_link})
 
 
-def send_message_received_email(user_sender, user_recipient):
-    pass
+def send_message_received_email(user_recipient):
+    logger.info((f"Sending message received email to {user_recipient}:"))
+    logger.info(f"Email for {user_recipient.username=} sent to {user_recipient.email=}")
+    messages_link = f"{config['BASE_URL']}/messages/"
+    subject = "You've got mail!"
+    return email.send_email_template(user_recipient.email, subject, "message_received", template_args={"user": user_recipient, "messages_link": messages_link})
 
 
 def send_friend_request_email(user_sender, user_recipient):

@@ -124,12 +124,13 @@ def test_message_received_email(db):
 
     def mock_send_smtp_email(sender_name, sender_email, recipient, subject, plain, html):
         assert recipient == user.email
-        assert "message" in subject.lower()
-        # TODO: more asserts
+        assert "mail" in subject.lower()
+        assert f"{config['BASE_URL']}/messages/" in plain
+        assert f"{config['BASE_URL']}/messages/" in html
         return message_id
 
     with patch("couchers.email.send_smtp_email", mock_send_smtp_email):
-        send_message_received_email()
+        send_message_received_email(user)
 
 def test_friend_request_email(db):
     user, api_token = generate_user(db)
