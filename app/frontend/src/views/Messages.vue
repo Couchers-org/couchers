@@ -77,6 +77,7 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
+      <error-alert :error="error" />
       <v-row dense>
         <v-col cols="4">
           <v-card tile>
@@ -233,6 +234,8 @@
 import Vue from "vue"
 import moment from "moment"
 
+import ErrorAlert from "../components/ErrorAlert.vue"
+
 import wrappers from "google-protobuf/google/protobuf/wrappers_pb"
 
 import { handle, protobufTimestampToDate } from "../utils"
@@ -253,6 +256,7 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb"
 
 export default Vue.extend({
   data: () => ({
+    error: null as Error | null,
     loading: 0,
     newConversationParticipants: [] as Array<number>,
     newConversationText: "",
@@ -267,6 +271,10 @@ export default Vue.extend({
     messages: [] as Array<Message.AsObject>,
     scrollToId: null as string | number,
   }),
+
+  components: {
+    ErrorAlert,
+  },
 
   computed: {
     ...mapState(["user"]),
@@ -292,7 +300,10 @@ export default Vue.extend({
           )[0]
           this.scrollToId = `msg-${groupChat.lastSeenMessageId}`
         })
-        .catch(console.error)
+        .catch((err) => {
+          this.error = err
+          console.error(err)
+        })
     },
   },
 
@@ -342,12 +353,18 @@ export default Vue.extend({
               // close the dialog
               this.cancelNewConversation()
             })
-            .catch(console.error)
+            .catch((err) => {
+              this.error = err
+              console.error(err)
+            })
             .finally(() => {
               this.loading -= 1
             })
         })
-        .catch(console.error)
+        .catch((err) => {
+          this.error = err
+          console.error(err)
+        })
         .finally(() => {
           this.loading -= 1
         })
@@ -374,7 +391,10 @@ export default Vue.extend({
           .then((res) => {
             this.userCache[res.getUserId()] = res.toObject()
           })
-          .catch(console.error)
+          .catch((err) => {
+            this.error = err
+            console.error(err)
+          })
           .finally(() => {
             this.loading -= 1
           })
@@ -388,7 +408,7 @@ export default Vue.extend({
 
     sendMessage() {
       if (!this.selectedConversation) {
-        console.error("No conversation selected")
+        this.error = Error("No conversation selected")
       } else {
         const req = new SendMessageReq()
         req.setGroupChatId(this.selectedConversation)
@@ -399,7 +419,10 @@ export default Vue.extend({
             this.currentMessage = ""
             this.fetchUpdates()
           })
-          .catch(console.error)
+          .catch((err) => {
+            this.error = err
+            console.error(err)
+          })
       }
     },
 
@@ -422,7 +445,10 @@ export default Vue.extend({
             })
           this.sortMessages()
         })
-        .catch(console.error)
+        .catch((err) => {
+          this.error = err
+          console.error(err)
+        })
     },
 
     fetchData() {
@@ -440,7 +466,10 @@ export default Vue.extend({
           })
           userIds.forEach(this.fetchUser)
         })
-        .catch(console.error)
+        .catch((err) => {
+          this.error = err
+          console.error(err)
+        })
         .finally(() => {
           this.loading -= 1
         })
