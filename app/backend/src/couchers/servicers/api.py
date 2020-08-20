@@ -20,8 +20,6 @@ from google.protobuf.timestamp_pb2 import Timestamp
 from pb import api_pb2, api_pb2_grpc, media_pb2
 from sqlalchemy.sql import func, or_
 
-import requests
-
 reftype2sql = {
     api_pb2.ReferenceType.FRIEND: ReferenceType.FRIEND,
     api_pb2.ReferenceType.SURFED: ReferenceType.SURFED,

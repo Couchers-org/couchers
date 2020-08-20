@@ -108,7 +108,7 @@ export default Vue.extend({
   },
 
   computed: {
-    ...mapState(["user"])
-  }
+    ...mapState(["user"]),
+  },
 })
 </script>
