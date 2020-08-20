@@ -92,13 +92,18 @@ def generate_user(db, username=None):
 
     return user, token
 
+def generate_friend_relationship(db, user1, user2, status=FriendStatus.pending):
+    friend_relationship = FriendRelationship(
+        from_user_id=user1.id,
+        to_user_id=user2.id,
+        status=status
+    )
+    return friend_relationship
+
+
 def make_friends(db, user1, user2):
     with session_scope(db) as session:
-        friend_relationship = FriendRelationship(
-            from_user_id=user1.id,
-            to_user_id=user2.id,
-            status=FriendStatus.accepted,
-        )
+        friend_relationship = generate_friend_relationship(db, user1, user2, FriendStatus.accepted)
         session.add(friend_relationship)
 
 @contextmanager

@@ -2,6 +2,7 @@ import logging
 
 from couchers import email
 from couchers.config import config
+from couchers.models import User, FriendRelationship
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +50,12 @@ def send_message_received_email(user_recipient):
     return email.send_email_template(user_recipient.email, subject, "message_received", template_args={"user": user_recipient, "messages_link": messages_link})
 
 
-def send_friend_request_email(user_sender, user_recipient):
+def send_friend_request_email(FriendRelationship, session):
+    user_sender_id = FriendRelationship.from_user_id
+    user_recipient_id = FriendRelationship.to_user_id
+    user_sender = session.query(User).filter(User.id == user_sender_id).one()
+    user_recipient = session.query(User).filter(User.id == user_recipient_id).one()
+
     logger.info(f"Sending friend request email to {user_recipient=}:")
     logger.info(f"Email for {user_recipient.username=} sent to {user_recipient.email=}")
     logger.info(f"Friend request sent by {user_sender=}")
