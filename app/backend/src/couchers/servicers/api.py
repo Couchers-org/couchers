@@ -369,11 +369,7 @@ class API(api_pb2_grpc.APIServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND,
                               errors.USER_NOT_FOUND)
             session.add(message)
-        
-            reporting_user = session.query(User).filter(User.id == context.user_id).one()
-
-            send_report_email(reporting_user, reported_user,
-                            request.reason, request.description)
+            send_report_email(message)
 
             return empty_pb2.Empty()
 
