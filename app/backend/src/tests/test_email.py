@@ -4,7 +4,7 @@ import pytest
 from couchers.crypto import random_hex, urlsafe_secure_token
 from couchers.db import new_login_token, new_signup_token
 from couchers.email import _render_email
-from couchers.tasks import send_login_email, send_signup_email
+from couchers.tasks import send_login_email, send_signup_email, send_host_request_email, send_message_received_email, send_friend_request_email
 from tests.test_fixtures import db, generate_user
 
 
@@ -100,11 +100,44 @@ def test_report_email():
     assert description in html
     assert subject in html
 
-def test_host_request_email():
-    pass
+def test_host_request_email(db):
+    user, api_token = generate_user(db)
 
-def test_message_received_email():
-    pass
+    message_id = random_hex(64)
 
-def test_friend_request_email():
-    pass
+    def mock_send_smtp_email(sender_name, sender_email, recipient, subject, plain, html):
+        assert recipient == user.email
+        assert "host request" in subject.lower()
+        # TODO: more asserts
+        return message_id
+
+    with patch("couchers.email.send_smtp_email", mock_send_smtp_email):
+        send_host_request_email()
+
+def test_message_received_email(db):
+    user, api_token = generate_user(db)
+
+    message_id = random_hex(64)
+
+    def mock_send_smtp_email(sender_name, sender_email, recipient, subject, plain, html):
+        assert recipient == user.email
+        assert "message" in subject.lower()
+        # TODO: more asserts
+        return message_id
+
+    with patch("couchers.email.send_smtp_email", mock_send_smtp_email):
+        send_message_received_email()
+
+def test_friend_request_email(db):
+    user, api_token = generate_user(db)
+
+    message_id = random_hex(64)
+
+    def mock_send_smtp_email(sender_name, sender_email, recipient, subject, plain, html):
+        assert recipient == user.email
+        assert "friend request" in subject.lower()
+        # TODO: more asserts
+        return message_id
+
+    with patch("couchers.email.send_smtp_email", mock_send_smtp_email):
+        send_friend_request_email()
