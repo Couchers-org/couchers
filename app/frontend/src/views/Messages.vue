@@ -381,16 +381,6 @@ export default Vue.extend({
       }
     },
 
-    getUser(userId: number): null | User.AsObject {
-      if (!(userId in this.userCache)) {
-        console.debug("Pretend to fetch user")
-        // TODO: do this async stuff
-        return null
-      } else {
-        return this.userCache[userId]
-      }
-    },
-
     search() {
       console.debug("Search for", this.searchQuery)
       // TODO
@@ -471,7 +461,7 @@ export default Vue.extend({
       return this.friendIds
         .filter((friendId) => friendId in this.userCache)
         .map((friendId) => {
-          const user = this.getUser(friendId)
+          const user = this.userCache[friendId]
           return {
             value: user.userId,
             name: user.name,
@@ -490,7 +480,7 @@ export default Vue.extend({
       if (!conversation.latestMessage) {
         return "primary"
       }
-      const user = this.getUser(conversation.latestMessage!.authorUserId)
+      const user = this.userCache[conversation.latestMessage!.authorUserId]
       if (!user) {
         return "primary"
       }
@@ -521,7 +511,7 @@ export default Vue.extend({
     },
 
     messageColor(message: Message.AsObject) {
-      const user = this.getUser(message.authorUserId)
+      const user = this.userCache[message.authorUserId]
       if (!user) {
         return "red"
       }
@@ -529,7 +519,7 @@ export default Vue.extend({
     },
 
     messageAuthor(message: Message.AsObject) {
-      const user = this.getUser(message.authorUserId)
+      const user = this.userCache[message.authorUserId]
       if (!user) {
         return "error"
       }
@@ -537,7 +527,7 @@ export default Vue.extend({
     },
 
     messageAvatarText(message: Message.AsObject) {
-      const user = this.getUser(message.authorUserId)
+      const user = this.userCache[message.authorUserId]
       if (!user) {
         return "ERR"
       }

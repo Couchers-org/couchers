@@ -24,9 +24,9 @@ export default new Vuex.Store({
     error: null,
     drawerOpen: false, // whether the drawer (left hand sidebar) should be open
     user: null as null | User.AsObject,
-    unseenMessageCount: 0 as number,
+    unseenMessageCount: 0,
     authToken: null as null | string,
-    lastPing: 0 as number,
+    lastPing: 0,
     pingTimeout: null as null | number,
   },
   mutations: {
