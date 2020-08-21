@@ -31,7 +31,7 @@ def test_report_email_rendering():
     reported_user = random_hex(64)
     reason = random_hex(64)
     description = random_hex(64)
-    plain, html = _render_email(subject, "report", template_args={"author": author_user, "reported_user": reported_user, "reason": reason, "description": description})
+    plain, html = _render_email(subject, "report", template_args={"user_author": author_user, "user_reported": reported_user, "reason": reason, "description": description})
     assert author_user in plain
     assert author_user in html
     assert reported_user in plain
@@ -83,15 +83,15 @@ def test_report_email(db):
 
     def mock_send_email(sender_name, sender_email, recipient, subject, plain, html):
         assert recipient == config['REPORTS_EMAIL_RECIPIENT']
-        assert complaint.author_user_id in plain
-        assert complaint.author_user_id in html
-        assert complaint.reported_user_id in plain
-        assert complaint.reported_user_id in html
+        assert str(complaint.author_user_id) in plain
+        assert str(complaint.author_user_id) in html
+        assert str(complaint.reported_user_id) in plain
+        assert str(complaint.reported_user_id) in html
         assert complaint.reason in plain
         assert complaint.reason in html
         assert complaint.description in plain
         assert complaint.description in html
-        assert "report" in subject
+        assert "report" in subject.lower()
         return message_id
 
     with patch("couchers.email.send_email", mock_send_email):
