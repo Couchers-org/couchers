@@ -5,9 +5,9 @@ from couchers.crypto import random_hex, urlsafe_secure_token
 from couchers.db import new_login_token, new_signup_token
 from couchers.email import _render_email
 from couchers.tasks import send_login_email, send_signup_email, send_report_email
-from couchers.config import config
 from tests.test_fixtures import db, generate_user, generate_complaint
 
+testing_email_address = "reports@couchers.org.invalid"
 
 def test_login_email_rendering():
     subject = random_hex(64)
@@ -82,7 +82,7 @@ def test_report_email(db):
     message_id = random_hex(64)
 
     def mock_send_email(sender_name, sender_email, recipient, subject, plain, html):
-        assert recipient == config['REPORTS_EMAIL_RECIPIENT']
+        assert recipient == testing_email_address
         assert complaint.author_user.username in plain
         assert complaint.author_user.username[10:] in html
         assert complaint.reported_user.username in plain
