@@ -13,6 +13,7 @@ from couchers.db import is_valid_date, session_scope
 from couchers.models import (Conversation, HostRequest, HostRequestEvent, HostRequestEventType,
                              HostRequestStatus, Message, User)
 from couchers.utils import Timestamp_from_datetime
+from couchers.tasks import send_host_request_email
 
 logger = logging.getLogger(__name__)
 
@@ -94,6 +95,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             host_request_event.event_type = HostRequestEventType.created
             session.add(host_request_event)
             session.commit()
+
+            send_host_request_email(host_request)
 
             return requests_pb2.CreateHostRequestRes(
                 host_request_id=host_request.id
