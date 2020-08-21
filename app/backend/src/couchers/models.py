@@ -400,6 +400,9 @@ class Complaint(Base):
     reason = Column(String, nullable=False)
     description = Column(String, nullable=False)
 
+    author_user = relationship("User", foreign_keys="Complaint.author_user_id")
+    reported_user = relationship("User", foreign_keys="Complaint.reported_user_id")
+
 
 class Email(Base):
     """

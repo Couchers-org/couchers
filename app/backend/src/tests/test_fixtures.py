@@ -245,8 +245,8 @@ def generate_complaint(db):
     user_reported, api_token_reported = generate_user(db)
 
     complaint = Complaint(
-        author_user_id=user_author.id,
-        reported_user_id=user_reported.id,
+        author_user=user_author,
+        reported_user=user_reported,
         reason=random_hex(64),
         description=random_hex(64)
     )
