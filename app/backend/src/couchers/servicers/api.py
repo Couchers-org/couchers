@@ -13,7 +13,7 @@ from couchers.models import (Complaint, FriendRelationship, FriendStatus,
                              GroupChatSubscription, HostingStatus, HostRequest,
                              InitiatedUpload, Message, Reference,
                              ReferenceType, SmokingLocation, User)
-from couchers.tasks import send_report_email
+from couchers.tasks import send_report_email, send_friend_request_email
 from couchers.utils import Timestamp_from_datetime
 from google.protobuf import empty_pb2
 from google.protobuf.timestamp_pb2 import Timestamp
@@ -276,6 +276,8 @@ class API(api_pb2_grpc.APIServicer):
             )
             session.add(friend_relationship)
 
+            send_friend_request_email(friend_relationship, session)
+
             return empty_pb2.Empty()
 
     def ListFriendRequests(self, request, context):
@@ -506,6 +508,7 @@ def paginate_references_result(request, query):
                 written_time=Timestamp_from_datetime(
                     reference.time.replace(hour=0, minute=0, second=0, microsecond=0)))
             for reference in references])
+
 
 def user_model_to_pb(db_user, session, context):
     num_references = session.query(Reference.from_user_id).filter(
