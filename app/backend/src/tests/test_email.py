@@ -27,24 +27,33 @@ def test_signup_email_rendering():
 
 def test_host_request_email_rendering():
     subject = random_hex(64)
+    username = random_hex(64)
     host_request_link = random_hex(64)
-    plain, html = _render_email(subject, "host_request", template_args={"user": None, "host_request_link": host_request_link})
+    plain, html = _render_email(subject, "host_request", template_args={"username": username, "host_request_link": host_request_link})
+    assert username in plain
+    assert username in html
     assert host_request_link in plain
     assert host_request_link in html
     assert subject in html
 
 def test_friend_request_email_rendering():
     subject = random_hex(64)
+    username = random_hex(64)
     friend_requests_link = random_hex(64)
-    plain, html = _render_email(subject, "friend_request", template_args={"user": None, "friend_requests_link": friend_requests_link})
+    plain, html = _render_email(subject, "friend_request", template_args={"username": username, "friend_requests_link": friend_requests_link})
+    assert username in plain
+    assert username in html
     assert friend_requests_link in plain
     assert friend_requests_link in html
     assert subject in html
 
 def test_message_received_email_rendering():
     subject = random_hex(64)
+    username = random_hex(64)
     messages_link = random_hex(64)
-    plain, html = _render_email(subject, "message_received", template_args={"user": None, "messages_link": messages_link})
+    plain, html = _render_email(subject, "message_received", template_args={"username": username, "messages_link": messages_link})
+    assert username in plain
+    assert username in html
     assert messages_link in plain
     assert messages_link in html
     assert subject in html

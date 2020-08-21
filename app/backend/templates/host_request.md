@@ -1,6 +1,6 @@
 {% from "macros.html" import button %}
 
-Hi {{ user.name }}!
+Hi {{ username }}!
 
 You've received a host request!
 
