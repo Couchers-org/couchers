@@ -2,7 +2,9 @@
 
 Hi {{ name_host }}!
 
-You've received a host request from {{ name_guest }}!
+You've received a host request!
+
+{{ name_guest }} is requesting to stay with you from {{ from_date }} until {{ to_date }}!
 
 Check it out here:
 

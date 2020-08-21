@@ -29,12 +29,19 @@ def test_host_request_email_rendering():
     subject = random_hex(64)
     name_host = random_hex(64)
     name_guest = random_hex(64)
+    from_date = "2020-01-01"
+    to_date = "2020-01-05"
     host_request_link = random_hex(64)
-    plain, html = _render_email(subject, "host_request", template_args={"name_host": name_host, "name_guest": name_guest, "host_request_link": host_request_link})
+    plain, html = _render_email(subject, "host_request", template_args={"name_host": name_host, "name_guest": name_guest,
+                                    "from_date": from_date, "to_date": to_date, "host_request_link": host_request_link})
     assert name_host in plain
     assert name_host in html
     assert name_guest in plain
     assert name_guest in html
+    assert from_date in plain
+    assert from_date in html
+    assert to_date in plain
+    assert to_date in html
     assert host_request_link in plain
     assert host_request_link in html
     assert subject in html
