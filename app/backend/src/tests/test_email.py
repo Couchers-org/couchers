@@ -38,11 +38,14 @@ def test_host_request_email_rendering():
 
 def test_friend_request_email_rendering():
     subject = random_hex(64)
-    username = random_hex(64)
+    username_recipient = random_hex(64)
+    username_sender = random_hex(64)
     friend_requests_link = random_hex(64)
-    plain, html = _render_email(subject, "friend_request", template_args={"username": username, "friend_requests_link": friend_requests_link})
-    assert username in plain
-    assert username in html
+    plain, html = _render_email(subject, "friend_request", template_args={"username_recipient": username_recipient, "username_sender": username_sender, "friend_requests_link": friend_requests_link})
+    assert username_recipient in plain
+    assert username_recipient in html
+    assert username_sender in plain
+    assert username_sender in html
     assert friend_requests_link in plain
     assert friend_requests_link in html
     assert subject in html
