@@ -66,7 +66,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         Will abort the API calling context if the user is banned from logging in.
         """
         if user.is_banned:
-            context.abort(grpc.StatusCode.PRECONDITION_FAILED, errors.ACCOUNT_SUSPENDED)
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ACCOUNT_SUSPENDED)
 
         token = urlsafe_secure_token()
 
