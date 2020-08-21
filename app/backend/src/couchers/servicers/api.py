@@ -276,7 +276,7 @@ class API(api_pb2_grpc.APIServicer):
             )
             session.add(friend_relationship)
 
-            send_friend_request_email(friend_relationship, session)
+            send_friend_request_email(friend_relationship)
 
             return empty_pb2.Empty()
 
