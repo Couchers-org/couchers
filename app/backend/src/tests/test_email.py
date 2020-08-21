@@ -136,7 +136,7 @@ def test_friend_request_email(db):
     user_sender, api_token_sender = generate_user(db)
     user_recipient, api_token_recipient = generate_user(db)
 
-    friend_relationship = generate_friend_relationship(db, user_sender, user_recipient)
+    friend_relationship = generate_friend_relationship(user_sender, user_recipient)
     session = db()
 
     message_id = random_hex(64)
