@@ -1,8 +1,8 @@
 {% from "macros.html" import button %}
 
-Hi {{ username }}!
+Hi {{ username_host }}!
 
-You've received a host request!
+You've received a host request from {{ username_guest }}!
 
 Check it out here:
 

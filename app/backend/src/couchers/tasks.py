@@ -42,7 +42,7 @@ def send_host_request_email(HostRequest):
     logger.info(f"Email for {user_host.username=} sent to {user_host.email=}")
     host_request_link = f"{config['BASE_URL']}/hostrequests/"
     subject = "You've received a host request!"
-    return email.send_email_template(user_host.email, subject, "host_request", template_args={"username": user_host.username, "host_request_link": host_request_link})
+    return email.send_email_template(user_host.email, subject, "host_request", template_args={"username_host": user_host.username, "username_guest": user_guest.username, "host_request_link": host_request_link})
 
 
 def send_message_received_email(user_recipient):

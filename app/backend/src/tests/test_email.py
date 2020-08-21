@@ -27,11 +27,14 @@ def test_signup_email_rendering():
 
 def test_host_request_email_rendering():
     subject = random_hex(64)
-    username = random_hex(64)
+    username_host = random_hex(64)
+    username_guest = random_hex(64)
     host_request_link = random_hex(64)
-    plain, html = _render_email(subject, "host_request", template_args={"username": username, "host_request_link": host_request_link})
-    assert username in plain
-    assert username in html
+    plain, html = _render_email(subject, "host_request", template_args={"username_host": username_host, "username_guest": username_guest, "host_request_link": host_request_link})
+    assert username_host in plain
+    assert username_host in html
+    assert username_guest in plain
+    assert username_guest in html
     assert host_request_link in plain
     assert host_request_link in html
     assert subject in html
