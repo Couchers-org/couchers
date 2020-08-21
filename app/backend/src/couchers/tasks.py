@@ -6,6 +6,7 @@ from couchers.models import User, FriendRelationship, HostRequest
 
 logger = logging.getLogger(__name__)
 
+
 def send_signup_email(email_address, token, expiry_text):
     logger.info(f"Sending signup email to {email_address=}:")
     logger.info(f"Token: {token=} ({token.created=}, {token.expiry=}) ({expiry_text=})")
@@ -33,9 +34,9 @@ def send_report_email(author_user, reported_user, reason, description):
     return email.send_email_template(target_email, "User Report", "report", template_args={"author": author_user.username, "reported_user": reported_user.username, "reason": reason, "description": description})
 
 
-def send_host_request_email(HostRequest):
-    user_guest = HostRequest.from_user
-    user_host = HostRequest.to_user
+def send_host_request_email(host_request):
+    user_guest = host_request.from_user
+    user_host = host_request.to_user
 
     logger.info(f"Sending host request email to {user_host=}:")
     logger.info(f"Host request sent by {user_guest}")
@@ -55,9 +56,9 @@ def send_message_received_email(user_recipient):
     return email.send_email_template(user_recipient.email, subject, "message_received", template_args={"name": user_recipient.name, "messages_link": messages_link})
 
 
-def send_friend_request_email(FriendRelationship):
-    user_sender = FriendRelationship.from_user
-    user_recipient = FriendRelationship.to_user
+def send_friend_request_email(friend_relationship):
+    user_sender = friend_relationship.from_user
+    user_recipient = friend_relationship.to_user
 
     logger.info(f"Sending friend request email to {user_recipient=}:")
     logger.info(f"Email for {user_recipient.username=} sent to {user_recipient.email=}")
