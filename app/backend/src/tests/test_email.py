@@ -81,7 +81,7 @@ def test_report_email(db):
 
     message_id = random_hex(64)
 
-    def mock_send_smtp_email(sender_name, sender_email, recipient, subject, plain, html):
+    def mock_send_email(sender_name, sender_email, recipient, subject, plain, html):
         assert recipient == config['REPORTS_EMAIL_RECIPIENT']
         assert complaint.author_user_id in plain
         assert complaint.author_user_id in html
@@ -94,5 +94,5 @@ def test_report_email(db):
         assert "report" in subject
         return message_id
 
-    with patch("couchers.email.send_smtp_email", mock_send_smtp_email):
+    with patch("couchers.email.send_email", mock_send_email):
         send_report_email(complaint)
