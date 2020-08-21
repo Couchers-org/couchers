@@ -106,7 +106,6 @@ def test_host_request_email(db):
     user_guest, api_token_guest = generate_user(db)
 
     host_request = generate_host_request(user_guest, user_host, "2020-01-01", "2020-01-05")
-    session = db()
 
     message_id = random_hex(64)
 
@@ -118,7 +117,7 @@ def test_host_request_email(db):
         return message_id
 
     with patch("couchers.email.send_email", mock_send_email):
-        send_host_request_email(host_request, session)
+        send_host_request_email(host_request)
 
 def test_message_received_email(db):
     user, api_token = generate_user(db)
@@ -140,7 +139,6 @@ def test_friend_request_email(db):
     user_recipient, api_token_recipient = generate_user(db)
 
     friend_relationship = generate_friend_relationship(user_sender, user_recipient)
-    session = db()
 
     message_id = random_hex(64)
 
@@ -152,7 +150,7 @@ def test_friend_request_email(db):
         return message_id
 
     with patch("couchers.email.send_email", mock_send_email):
-        send_friend_request_email(friend_relationship, session)
+        send_friend_request_email(friend_relationship)
 
 def test_email_patching_fails(db):
     """

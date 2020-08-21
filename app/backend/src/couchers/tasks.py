@@ -33,11 +33,9 @@ def send_report_email(author_user, reported_user, reason, description):
     return email.send_email_template(target_email, "User Report", "report", template_args={"author": author_user.username, "reported_user": reported_user.username, "reason": reason, "description": description})
 
 
-def send_host_request_email(HostRequest, session):
-    user_guest_id = HostRequest.from_user_id
-    user_host_id = HostRequest.to_user_id
-    user_guest = session.query(User).filter(User.id == user_guest_id).one()
-    user_host = session.query(User).filter(User.id == user_host_id).one()
+def send_host_request_email(HostRequest):
+    user_guest = HostRequest.from_user
+    user_host = HostRequest.to_user
 
     logger.info(f"Sending host request email to {user_host=}:")
     logger.info(f"Host request sent by {user_guest}")
@@ -55,11 +53,9 @@ def send_message_received_email(user_recipient):
     return email.send_email_template(user_recipient.email, subject, "message_received", template_args={"user": user_recipient, "messages_link": messages_link})
 
 
-def send_friend_request_email(FriendRelationship, session):
-    user_sender_id = FriendRelationship.from_user_id
-    user_recipient_id = FriendRelationship.to_user_id
-    user_sender = session.query(User).filter(User.id == user_sender_id).one()
-    user_recipient = session.query(User).filter(User.id == user_recipient_id).one()
+def send_friend_request_email(FriendRelationship):
+    user_sender = FriendRelationship.from_user
+    user_recipient = FriendRelationship.to_user
 
     logger.info(f"Sending friend request email to {user_recipient=}:")
     logger.info(f"Email for {user_recipient.username=} sent to {user_recipient.email=}")

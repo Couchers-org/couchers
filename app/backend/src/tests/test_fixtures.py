@@ -92,10 +92,11 @@ def generate_user(db, username=None):
 
     return user, token
 
+
 def generate_friend_relationship(user1, user2, status=FriendStatus.pending):
     friend_relationship = FriendRelationship(
-        from_user_id=user1.id,
-        to_user_id=user2.id,
+        from_user=user1,
+        to_user=user2,
         status=status
     )
     return friend_relationship
@@ -252,8 +253,8 @@ def generate_host_request(user_guest, user_host, from_date, to_date):
     message.text = random_hex(64)
 
     host_request = HostRequest(
-        from_user_id=user_guest.id,
-        to_user_id=user_host.id,
+        from_user=user_guest,
+        to_user=user_host,
         from_date=from_date,
         to_date=to_date,
         status=HostRequestStatus.pending,
@@ -261,4 +262,5 @@ def generate_host_request(user_guest, user_host, from_date, to_date):
         initial_message_id=message.id,
         from_last_seen_message_id=message.id
     )
+
     return host_request
