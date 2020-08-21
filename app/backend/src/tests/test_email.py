@@ -162,6 +162,7 @@ def test_email_patching_fails(db):
     """
     user_sender, api_token_sender = generate_user(db)
     user_recipient, api_token_recipient = generate_user(db)
+    friend_relationship = generate_friend_relationship(user_sender, user_recipient)
 
     patched_msg = random_hex(64)
 
@@ -170,5 +171,5 @@ def test_email_patching_fails(db):
 
     with pytest.raises(Exception) as e:
         with patch("couchers.email.send_email", mock_send_smtp_email):
-            send_friend_request_email(user_sender, user_recipient)
+            send_friend_request_email(friend_relationship)
     assert str(e.value) == patched_msg
