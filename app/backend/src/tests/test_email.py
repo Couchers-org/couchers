@@ -27,41 +27,42 @@ def test_signup_email_rendering():
 
 def test_host_request_email_rendering():
     subject = random_hex(64)
-    username_host = random_hex(64)
-    username_guest = random_hex(64)
+    name_host = random_hex(64)
+    name_guest = random_hex(64)
     host_request_link = random_hex(64)
-    plain, html = _render_email(subject, "host_request", template_args={"username_host": username_host, "username_guest": username_guest, "host_request_link": host_request_link})
-    assert username_host in plain
-    assert username_host in html
-    assert username_guest in plain
-    assert username_guest in html
+    plain, html = _render_email(subject, "host_request", template_args={"name_host": name_host, "name_guest": name_guest, "host_request_link": host_request_link})
+    assert name_host in plain
+    assert name_host in html
+    assert name_guest in plain
+    assert name_guest in html
     assert host_request_link in plain
     assert host_request_link in html
     assert subject in html
 
 def test_friend_request_email_rendering():
     subject = random_hex(64)
-    username_recipient = random_hex(64)
-    username_sender = random_hex(64)
+    name_recipient = random_hex(64)
+    name_sender = random_hex(64)
     friend_requests_link = random_hex(64)
-    plain, html = _render_email(subject, "friend_request", template_args={"username_recipient": username_recipient, "username_sender": username_sender, "friend_requests_link": friend_requests_link})
-    assert username_recipient in plain
-    assert username_recipient in html
-    assert username_sender in plain
-    assert username_sender in html
+    plain, html = _render_email(subject, "friend_request", template_args={"name_recipient": name_recipient, "name_sender": name_sender, "friend_requests_link": friend_requests_link})
+    assert name_recipient in plain
+    assert name_recipient in html
+    assert name_sender in plain
+    assert name_sender in html
     assert friend_requests_link in plain
     assert friend_requests_link in html
     assert subject in html
 
 def test_message_received_email_rendering():
     subject = random_hex(64)
-    username = random_hex(64)
+    name_recipient = random_hex(64)
     messages_link = random_hex(64)
-    plain, html = _render_email(subject, "message_received", template_args={"username": username, "messages_link": messages_link})
-    assert username in plain
-    assert username in html
+    plain, html = _render_email(subject, "message_received", template_args={"name_recipient": name_recipient, "messages_link": messages_link})
+    assert name_recipient in plain
+    assert name_recipient in html
     assert messages_link in plain
     assert messages_link in html
+
     assert subject in html
 
 def test_login_email(db):
