@@ -6,7 +6,7 @@ from couchers.db import new_login_token, new_signup_token
 from couchers.email import _render_email
 from couchers.tasks import send_login_email, send_signup_email, send_host_request_email, send_message_received_email, send_friend_request_email
 from couchers.config import config
-from tests.test_fixtures import db, generate_user, generate_friend_relationship
+from tests.test_fixtures import db, generate_user, generate_friend_relationship, generate_host_request
 
 
 def test_login_email_rendering():
@@ -105,6 +105,9 @@ def test_host_request_email(db):
     user_host, api_token_host = generate_user(db)
     user_guest, api_token_guest = generate_user(db)
 
+    host_request = generate_host_request(user_guest, user_host, "2020-01-01", "2020-01-05")
+    session = db()
+
     message_id = random_hex(64)
 
     def mock_send_email(sender_name, sender_email, recipient, subject, plain, html):
@@ -115,7 +118,7 @@ def test_host_request_email(db):
         return message_id
 
     with patch("couchers.email.send_email", mock_send_email):
-        send_host_request_email(user_guest, user_host)
+        send_host_request_email(host_request, session)
 
 def test_message_received_email(db):
     user, api_token = generate_user(db)

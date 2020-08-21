@@ -9,7 +9,7 @@ from couchers.crypto import random_hex
 from couchers.db import session_scope
 from couchers.interceptors import intercept_server
 from couchers.models import (Base, FriendRelationship, FriendStatus, Message,
-                             User)
+                             User, HostRequest, HostRequestStatus, Conversation)
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
 from couchers.servicers.conversations import Conversations
@@ -242,3 +242,23 @@ def patch_left_time(time, add=0):
     finally:
         remove(Base, "before_insert", set_timestamp)
         remove(Base, "before_update", set_timestamp)
+
+
+def generate_host_request(user_guest, user_host, from_date, to_date):
+    conversation = Conversation()
+    message = Message()
+    message.conversation_id = conversation.id
+    message.author_id = user_guest.id
+    message.text = random_hex(64)
+
+    host_request = HostRequest(
+        from_user_id=user_guest.id,
+        to_user_id=user_host.id,
+        from_date=from_date,
+        to_date=to_date,
+        status=HostRequestStatus.pending,
+        conversation_id=conversation.id,
+        initial_message_id=message.id,
+        from_last_seen_message_id=message.id
+    )
+    return host_request

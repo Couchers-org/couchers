@@ -2,7 +2,7 @@ import logging
 
 from couchers import email
 from couchers.config import config
-from couchers.models import User, FriendRelationship
+from couchers.models import User, FriendRelationship, HostRequest
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +33,12 @@ def send_report_email(author_user, reported_user, reason, description):
     return email.send_email_template(target_email, "User Report", "report", template_args={"author": author_user.username, "reported_user": reported_user.username, "reason": reason, "description": description})
 
 
-def send_host_request_email(user_guest, user_host):
+def send_host_request_email(HostRequest, session):
+    user_guest_id = HostRequest.from_user_id
+    user_host_id = HostRequest.to_user_id
+    user_guest = session.query(User).filter(User.id == user_guest_id).one()
+    user_host = session.query(User).filter(User.id == user_host_id).one()
+
     logger.info(f"Sending host request email to {user_host=}:")
     logger.info(f"Host request sent by {user_guest}")
     logger.info(f"Email for {user_host.username=} sent to {user_host.email=}")
