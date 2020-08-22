@@ -140,7 +140,9 @@ export default Vue.extend({
       req.setFrontendVersion(process.env.VUE_APP_VERSION)
       req.setUserAgent(navigator.userAgent)
       req.setPage(window.location.href)
-      req.setUserId(this.user.userId)
+      if (this.user) {
+        req.setUserId(this.user.userId)
+      }
       bugsClient
         .reportBug(req)
         .then((res) => {
