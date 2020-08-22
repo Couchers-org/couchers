@@ -15,6 +15,8 @@ logger = logging.getLogger(__name__)
 CONFIG_OPTIONS = [
     # Whether we're in dev mode
     ("DEV", bool),
+    # Version string
+    ("VERSION", str),
     # Base URL
     ("BASE_URL", str),
     # Email

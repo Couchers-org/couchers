@@ -7,7 +7,7 @@ import requests
 
 class Bugs(bugs_pb2_grpc.BugsServicer):
     def _version(self):
-        return "unknown"
+        return config["VERSION"]
 
     def Version(self, request, context):
         return bugs_pb2.VersionInfo(version=self._version())

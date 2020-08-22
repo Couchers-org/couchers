@@ -33,7 +33,7 @@ def test_bug_tool():
             assert auth == ("user", "token")
             assert json == {
                 "title": "subject",
-                "body": "Subject: subject\nDescription:\ndescription\n\nSteps:\nsteps\n\nResults:\nresults\n\nBackend version: unknown\nFrontend version: frontend_version\nUser Agent: user_agent\nPage: page\nUser ID: 99",
+                "body": "Subject: subject\nDescription:\ndescription\n\nSteps:\nsteps\n\nResults:\nresults\n\nBackend version: testing_version\nFrontend version: frontend_version\nUser Agent: user_agent\nPage: page\nUser ID: 99",
                 "labels": ["bug-tool"]
             }
             class _PostReturn:
