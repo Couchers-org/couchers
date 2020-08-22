@@ -7,7 +7,7 @@
       </p>
     </div>
     <div v-if="editing">
-      <v-combobox v-model="dirtyList" chips clearable multiple solo>
+      <v-combobox v-model="dirtyList" ref="combobox" chips clearable multiple solo>
         <template v-slot:selection="{ attrs, item, select, selected }">
           <v-chip
             v-bind="attrs"
@@ -60,8 +60,12 @@ export default Vue.extend({
     },
 
     save() {
-      this.$emit("save", this.dirtyList)
-      this.editing = false
+      (this.$refs.combobox as HTMLElement).blur()
+      //next tick waits for current text to be added to list after blur
+      this.$nextTick(() => {
+        this.$emit("save", this.dirtyList)
+        this.editing = false
+      })
     },
 
     cancel() {
