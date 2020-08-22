@@ -374,12 +374,17 @@ class API(api_pb2_grpc.APIServicer):
             reason=request.reason,
             description=request.description,
         )
+
         with session_scope(self._Session) as session:
             reported_user = session.query(User).filter(User.id == request.reported_user_id).one_or_none()
             if not reported_user:
                 context.abort(grpc.StatusCode.NOT_FOUND,
                               errors.USER_NOT_FOUND)
             session.add(message)
+
+            # commit here so that send_report_email can lazy-load stuff it needs
+            session.commit()
+
             send_report_email(message)
 
             return empty_pb2.Empty()
