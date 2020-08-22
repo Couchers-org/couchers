@@ -16,6 +16,7 @@ def test_login_email_rendering():
     assert login_link in html
     assert subject in html
 
+
 def test_signup_email_rendering():
     subject = random_hex(64)
     signup_link = random_hex(64)
@@ -23,6 +24,7 @@ def test_signup_email_rendering():
     assert signup_link in plain
     assert signup_link in html
     assert subject in html
+
 
 def test_login_email(db):
     user, api_token = generate_user(db)
@@ -41,6 +43,7 @@ def test_login_email(db):
     with patch("couchers.email.send_smtp_email", mock_send_smtp_email):
         send_login_email(user, login_token, expiry_text)
 
+
 def test_signup_email(db):
     user, api_token = generate_user(db)
 
@@ -58,14 +61,24 @@ def test_signup_email(db):
     with patch("couchers.email.send_smtp_email", mock_send_smtp_email):
         send_signup_email(request_email, token, expiry_text)
 
+
 def test_report_email():
     subject = random_hex(64)
-    author_user_id = 0x12345678_deadbeef
-    reported_user_id = 0xfeebdaed_87654321
+    author_user_id = 0x12345678_DEADBEEF
+    reported_user_id = 0xFEEBDAED_87654321
     reason = random_hex(64)
     description = random_hex(64)
 
-    plain, html = _render_email(subject, "report", template_args={"author": author_user_id, "reported_user": reported_user_id, "reason": reason, "description": description})
+    plain, html = _render_email(
+        subject,
+        "report",
+        template_args={
+            "author": author_user_id,
+            "reported_user": reported_user_id,
+            "reason": reason,
+            "description": description,
+        },
+    )
     assert str(author_user_id) in plain
     assert str(author_user_id) in html
     assert str(reported_user_id) in plain

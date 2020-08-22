@@ -3,11 +3,16 @@ from datetime import datetime
 from typing import Union
 
 import grpc
-from couchers.crypto import (hash_password, urlsafe_secure_token,
-                             verify_password)
-from couchers.db import (get_user_by_field, is_valid_email, is_valid_username,
-                         is_valid_name, new_login_token, new_signup_token,
-                         session_scope)
+from couchers.crypto import hash_password, urlsafe_secure_token, verify_password
+from couchers.db import (
+    get_user_by_field,
+    is_valid_email,
+    is_valid_username,
+    is_valid_name,
+    new_login_token,
+    new_signup_token,
+    session_scope,
+)
 from couchers.interceptors import AuthValidatorInterceptor
 from couchers.models import LoginToken, SignupToken, User, UserSession
 from couchers.tasks import send_login_email, send_signup_email
@@ -18,12 +23,14 @@ from sqlalchemy import func
 
 logger = logging.getLogger(__name__)
 
+
 class Auth(auth_pb2_grpc.AuthServicer):
     """
     The Auth servicer.
 
     This class services the Auth service/API.
     """
+
     def __init__(self, Session):
         super().__init__()
         self._Session = Session
@@ -63,10 +70,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         token = urlsafe_secure_token()
 
-        user_session = UserSession(
-            user=user,
-            token=token
-        )
+        user_session = UserSession(user=user, token=token)
 
         session.add(user_session)
         session.commit()
@@ -135,11 +139,13 @@ class Auth(auth_pb2_grpc.AuthServicer):
         """
         logger.debug(f"Signup token info for {request.signup_token=}")
         with session_scope(self._Session) as session:
-            signup_token = session.query(SignupToken) \
-                .filter(SignupToken.token == request.signup_token) \
-                .filter(SignupToken.created <= func.now()) \
-                .filter(SignupToken.expiry >= func.now()) \
+            signup_token = (
+                session.query(SignupToken)
+                .filter(SignupToken.token == request.signup_token)
+                .filter(SignupToken.created <= func.now())
+                .filter(SignupToken.expiry >= func.now())
                 .one_or_none()
+            )
             if not signup_token:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
             else:
@@ -152,11 +158,13 @@ class Auth(auth_pb2_grpc.AuthServicer):
         TODO: nice error handling for dupe username/email?
         """
         with session_scope(self._Session) as session:
-            signup_token = session.query(SignupToken) \
-                .filter(SignupToken.token == request.signup_token) \
-                .filter(SignupToken.created <= func.now()) \
-                .filter(SignupToken.expiry >= func.now()) \
+            signup_token = (
+                session.query(SignupToken)
+                .filter(SignupToken.token == request.signup_token)
+                .filter(SignupToken.created <= func.now())
+                .filter(SignupToken.expiry >= func.now())
                 .one_or_none()
+            )
             if not signup_token:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
 
@@ -176,12 +184,10 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
             # check name validity
             if not is_valid_name(request.name):
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT,
-                              errors.INVALID_NAME)
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_NAME)
 
             if not request.hosting_status:
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT,
-                              errors.HOSTING_STATUS_REQUIRED)
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.HOSTING_STATUS_REQUIRED)
 
             user = User(
                 email=signup_token.email,
@@ -190,7 +196,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 city=request.city,
                 gender=request.gender,
                 birthdate=birthdate,
-                hosting_status=hostingstatus2sql[request.hosting_status]
+                hosting_status=hostingstatus2sql[request.hosting_status],
             )
 
             # happens in same transaction
@@ -229,7 +235,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     login_token, expiry_text = new_login_token(session, user)
                     session.add(send_login_email(user, login_token, expiry_text))
                     return auth_pb2.LoginRes(next_step=auth_pb2.LoginRes.LoginStep.SENT_LOGIN_EMAIL)
-            else: # user not found
+            else:  # user not found
                 logger.debug(f"Didn't find user")
                 return auth_pb2.LoginRes(next_step=auth_pb2.LoginRes.LoginStep.INVALID_USER)
 
@@ -242,11 +248,13 @@ class Auth(auth_pb2_grpc.AuthServicer):
         Or fails with grpc.UNAUTHENTICATED if LoginToken is invalid.
         """
         with session_scope(self._Session) as session:
-            login_token = session.query(LoginToken) \
-                .filter(LoginToken.token == request.login_token) \
-                .filter(LoginToken.created <= func.now()) \
-                .filter(LoginToken.expiry >= func.now()) \
+            login_token = (
+                session.query(LoginToken)
+                .filter(LoginToken.token == request.login_token)
+                .filter(LoginToken.created <= func.now())
+                .filter(LoginToken.expiry >= func.now())
                 .one_or_none()
+            )
             if login_token:
                 # this is the bearer token
                 token = self._create_session(context, session, user=login_token.user)
@@ -280,7 +288,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     logger.debug(f"Wrong password")
                     # wrong password
                     context.abort(grpc.StatusCode.UNAUTHENTICATED, errors.INVALID_USERNAME_OR_PASSWORD)
-            else: # user not found
+            else:  # user not found
                 logger.debug(f"Didn't find user")
                 # do about as much work as if the user was found, reduces timing based username enumeration attacks
                 hash_password(request.password)

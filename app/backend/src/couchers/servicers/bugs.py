@@ -39,11 +39,7 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
         )
         issue_labels = ["bug tool"]
 
-        json_body = {
-            "title": issue_title,
-            "body": issue_body,
-            "labels": issue_labels
-        }
+        json_body = {"title": issue_title, "body": issue_body, "labels": issue_labels}
 
         r = requests.post(f"https://api.github.com/repos/{repo}/issues", auth=auth, json=json_body)
         if not r.status_code == 201:

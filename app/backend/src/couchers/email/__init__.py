@@ -5,13 +5,11 @@ from couchers.email.smtp import send_smtp_email
 from couchers.email.dev import print_dev_email
 from couchers.config import config
 
-env = Environment(
-    loader=FileSystemLoader(Path(__file__).parent / ".." / ".." / ".." / "templates"),
-    trim_blocks=True,
-)
+env = Environment(loader=FileSystemLoader(Path(__file__).parent / ".." / ".." / ".." / "templates"), trim_blocks=True,)
 
 plain_base_template = env.get_template("email_base_plain.md")
 html_base_template = env.get_template("email_base_html.html")
+
 
 def _render_email(subject, template_file, template_args={}):
     # we render both a plain-text and a HTML version, and embed both in the email
@@ -26,12 +24,16 @@ def _render_email(subject, template_file, template_args={}):
 
     return plain, html
 
+
 def send_email(sender_name, sender_email, recipient, subject, plain, html):
     if config["ENABLE_EMAIL"]:
         return send_smtp_email(sender_name, sender_email, recipient, subject, plain, html)
     else:
         return print_dev_email(sender_name, sender_email, recipient, subject, plain, html)
 
+
 def send_email_template(recipient, subject, template_file, template_args={}):
     plain, html = _render_email(subject, template_file, template_args)
-    return send_email(config["NOTIFICATION_EMAIL_SENDER"], config["NOTIFICATION_EMAIL_ADDRESS"], recipient, subject, plain, html)
+    return send_email(
+        config["NOTIFICATION_EMAIL_SENDER"], config["NOTIFICATION_EMAIL_ADDRESS"], recipient, subject, plain, html
+    )

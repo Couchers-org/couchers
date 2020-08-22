@@ -26,22 +26,15 @@ def test_media_upload(db):
 
     filename = random_hex(32)
 
-    req = media_pb2.UploadConfirmationReq(
-        key=key,
-        filename=filename,
-    )
+    req = media_pb2.UploadConfirmationReq(key=key, filename=filename,)
 
     with media_session(db, media_bearer_token) as media:
         res = media.UploadConfirmation(req)
 
     with session_scope(db) as session:
         # make sure it exists
-        upload = (session.query(InitiatedUpload)
-            .filter(InitiatedUpload.key == key)
-            .one())
+        upload = session.query(InitiatedUpload).filter(InitiatedUpload.key == key).one()
 
-        updated_user = (session.query(User)
-            .filter(User.id == user.id)
-            .one())
+        updated_user = session.query(User).filter(User.id == user.id).one()
 
         assert updated_user.avatar_filename == filename
