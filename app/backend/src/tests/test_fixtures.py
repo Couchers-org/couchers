@@ -115,10 +115,11 @@ def auth_api_session(db_session):
     auth_pb2_grpc.add_AuthServicer_to_server(auth, auth_server)
     auth_server.start()
 
-    with grpc.insecure_channel(f"localhost:{port}") as channel:
-        yield auth_pb2_grpc.AuthStub(channel)
-
-    auth_server.stop(None)
+    try:
+        with grpc.insecure_channel(f"localhost:{port}") as channel:
+            yield auth_pb2_grpc.AuthStub(channel)
+    finally:
+        auth_server.stop(None)
 
 @contextmanager
 def api_session(db, token):
@@ -196,10 +197,11 @@ def bugs_session():
     bugs_pb2_grpc.add_BugsServicer_to_server(Bugs(), bugs_server)
     bugs_server.start()
 
-    with grpc.insecure_channel(f"localhost:{port}") as channel:
-        yield bugs_pb2_grpc.BugsStub(channel)
-
-    bugs_server.stop(None)
+    try:
+        with grpc.insecure_channel(f"localhost:{port}") as channel:
+            yield bugs_pb2_grpc.BugsStub(channel)
+    finally:
+        bugs_server.stop(None)
 
 @contextmanager
 def media_session(db, bearer_token):
