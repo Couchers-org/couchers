@@ -291,6 +291,7 @@ import EditableTextField from "../components/EditableTextField.vue"
 import EditableList from "../components/EditableList.vue"
 import EditableColor from "../components/EditableColor.vue"
 import ErrorAlert from "../components/ErrorAlert.vue"
+import LoadingCircular from "../components/LoadingCircular.vue"
 
 import {
   UpdateProfileReq,
@@ -341,6 +342,7 @@ export default Vue.extend({
     EditableList,
     EditableColor,
     ErrorAlert,
+    LoadingCircular
   },
 
   methods: {

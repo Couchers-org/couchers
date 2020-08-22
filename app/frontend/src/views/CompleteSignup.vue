@@ -75,12 +75,11 @@
                       >
                         <template v-slot:activator="{ on, attrs }">
                           <v-text-field
-                            v-model="date"
+                            v-model="dateText"
                             label="Birthday"
                             prepend-icon="mdi-calendar"
                             hint="Note: this will be used for verification and cannot be changed in the future."
                             persistent-hint
-                            readonly
                             v-bind="attrs"
                             v-on="on"
                           ></v-text-field>
@@ -88,7 +87,7 @@
                         <v-date-picker
                           v-model="date"
                           :max="new Date().toISOString().substr(0, 10)"
-                          @input="dateMenu = false"
+                          @input="dateMenu = false; dateText = date"
                         ></v-date-picker>
                       </v-menu>
                     </v-row>
@@ -137,7 +136,7 @@ import { HostingStatus } from "../pb/api_pb"
 
 export default Vue.extend({
   data: () => ({
-    genders: ["Male", "Female", "Genderqueer/nonbinary"],
+    genders: ["Male", "Female", "(Type anything you like)"],
     loading: false,
     error: null as null | Error | Array<Error>,
     successMessages: [] as Array<string>,
@@ -150,6 +149,7 @@ export default Vue.extend({
     name: "",
     city: "",
     date: "",
+    dateText: "",
     dateMenu: false,
     gender: "",
     hostingStatus: HostingStatus.HOSTING_STATUS_UNSPECIFIED,
@@ -174,6 +174,19 @@ export default Vue.extend({
         { text: "Difficult", value: HostingStatus.HOSTING_STATUS_DIFFICULT },
         { text: "Can't host", value: HostingStatus.HOSTING_STATUS_CANT_HOST },
       ]
+    },
+  },
+
+  watch: {
+    dateText() {
+      const date = new Date(this.dateText)
+      if (this.dateText.search(/\d\d\d\d-\d\d-\d\d/) != -1 && !isNaN(date.getTime())) {
+        this.date = this.dateText
+      } else {
+        const defaultDate = new Date()
+        defaultDate.setFullYear(defaultDate.getFullYear() - 30)
+        this.date = defaultDate.toISOString().substr(0, 10)
+      }
     },
   },
 
@@ -280,7 +293,8 @@ export default Vue.extend({
       req.setUsername(this.username)
       req.setName(this.name)
       req.setCity(this.city)
-      req.setBirthdate(this.date)
+      //this.dateText because this.date resets to default in case of invalid format
+      req.setBirthdate(this.dateText)
       req.setGender(this.gender)
       req.setHostingStatus(this.hostingStatus)
 

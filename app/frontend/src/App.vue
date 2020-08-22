@@ -15,6 +15,7 @@
       <search-box v-if="authenticated && !anonRoute" class="mx-auto">
       </search-box>
       <v-spacer></v-spacer>
+      <bug-tool></bug-tool>
     </v-app-bar>
 
     <drawer v-if="authenticated && !anonRoute" />
@@ -33,12 +34,15 @@ import Store from "./store"
 import Drawer from "./components/Drawer.vue"
 import SearchBox from "./components/SearchBox.vue"
 
+import BugTool from "./components/BugTool.vue"
+
 Store.dispatch("scheduler")
 
 export default Vue.extend({
   components: {
     Drawer,
     SearchBox,
+    BugTool,
   },
 
   computed: {

@@ -92,7 +92,7 @@ class API(api_pb2_grpc.APIServicer):
                                          .group_by(Message.conversation_id)
                                          .count())
 
-            unseen_message_count = (session.query(func.count(Message.id).label("count"))
+            unseen_message_count = (session.query(Message.id)
                 .outerjoin(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
                 .filter(GroupChatSubscription.user_id == context.user_id)
                 .filter(Message.time >= GroupChatSubscription.joined)
@@ -100,12 +100,18 @@ class API(api_pb2_grpc.APIServicer):
                     or_(Message.time <= GroupChatSubscription.left,
                         GroupChatSubscription.left == None))
                 .filter(Message.id > GroupChatSubscription.last_seen_message_id)
-                .one()).count
+                .count())
+
+            pending_friend_request_count = (session.query(FriendRelationship)
+                                 .filter(FriendRelationship.to_user_id == context.user_id)
+                                 .filter(FriendRelationship.status == FriendStatus.pending)
+                                 .count())
 
             return api_pb2.PingRes(
                 user=user_model_to_pb(user, session, context),
                 unseen_message_count=unseen_message_count,
                 unseen_host_request_count=unseen_host_request_count_1 + unseen_host_request_count_2,
+                pending_friend_request_count=pending_friend_request_count,
             )
 
     def GetUser(self, request, context):
