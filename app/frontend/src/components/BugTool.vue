@@ -1,5 +1,14 @@
 <template>
   <div>
+    <v-snackbar v-model="successVisible" color="success">
+      Thank you for reporting that bug, it was sent to the devs! The bug ID is {{ reportIdentifier }}.
+      <template v-slot:action="{ attrs }">
+        <v-btn dark text v-bind="attrs" @click="successVisible = false"
+          >Close</v-btn
+        >
+      </template>
+    </v-snackbar>
+
     <v-btn
       class="mx-2 d-sm-none"
       fab
@@ -7,6 +16,7 @@
       color="error"
       small
       @click.stop="dialog = true"
+      :disabled="sent"
     >
       <v-icon dark>mdi-alert-decagram</v-icon>
     </v-btn>
@@ -17,6 +27,7 @@
       dark
       color="error"
       @click.stop="dialog = true"
+      :disabled="sent"
     >
       <v-icon dark left>mdi-alert-decagram</v-icon> Report a bug
     </v-btn>
@@ -79,7 +90,16 @@ export default Vue.extend({
     sent: false,
     error: null as null | Error | Array<Error>,
     loading: false,
+
+    successVisible: false,
+    reportIdentifier: "",
   }),
+
+  watch: {
+    $route(to, from) {
+      this.sent = false
+    },
+  },
 
   methods: {
     sendReport() {
@@ -105,7 +125,8 @@ export default Vue.extend({
       bugsClient
         .reportBug(req)
         .then((res) => {
-          console.log(res.getReportIdentifier())
+          this.reportIdentifier = res.getReportIdentifier()
+          this.successVisible = true
           this.loading = false
           this.dialog = false
           this.sent = true
