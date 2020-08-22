@@ -1,7 +1,9 @@
 <template>
   <div>
-    <v-snackbar v-model="successVisible" color="success">
-      Thank you for reporting that bug, it was sent to the devs! The bug ID is {{ reportIdentifier }}.
+    <v-snackbar v-model="successVisible" color="success" top>
+      <b>Thank you</b> for reporting that bug, it was sent to the devs! The bug
+      ID is <b>{{ reportIdentifier }}</b
+      >.
       <template v-slot:action="{ attrs }">
         <v-btn dark text v-bind="attrs" @click="successVisible = false"
           >Close</v-btn
@@ -34,40 +36,49 @@
 
     <v-dialog v-model="dialog" max-width="490">
       <v-card>
-        <v-card-title class="headline">Report a problem</v-card-title>
-        <v-card-text>
-          <error-alert :error="error" />
-          <v-text-field
-            label="Brief description of the bug"
-            v-model="subject"
-          ></v-text-field>
-          <v-textarea
-            label="What's the problem?"
-            v-model="description"
-          ></v-textarea>
-          <v-textarea
-            label="What did you do to trigger the bug?"
-            v-model="steps"
-          ></v-textarea>
-          <v-textarea
-            label="What happened? What did you expect should have happened?"
-            v-model="results"
-          ></v-textarea>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="warning" text @click="dialog = false">Cancel</v-btn>
-          <v-btn color="success" text @click="sendReport" :loading="loading"
-            >Submit</v-btn
-          >
-        </v-card-actions>
+        <v-form ref="form" @submit.prevent="sendReport" v-model="formValid">
+          <v-card-title class="headline">Report a problem</v-card-title>
+          <v-card-text>
+            <error-alert :error="error" />
+            <v-text-field
+              label="Brief description of the bug"
+              v-model="subject"
+              :rules="[rules.required]"
+            ></v-text-field>
+            <v-textarea
+              label="What's the problem?"
+              v-model="description"
+              :rules="[rules.required]"
+            ></v-textarea>
+            <v-textarea
+              label="What did you do to trigger the bug?"
+              v-model="steps"
+            ></v-textarea>
+            <v-textarea
+              label="What happened? What did you expect should have happened?"
+              v-model="results"
+            ></v-textarea>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="warning" text @click="dialog = false">Cancel</v-btn>
+            <v-btn
+              color="success"
+              text
+              @click="sendReport"
+              :loading="loading"
+              :disabled="!formValid"
+              >Submit</v-btn
+            >
+          </v-card-actions>
+        </v-form>
       </v-card>
     </v-dialog>
   </div>
 </template>
 
 <script lang="ts">
-import Vue, { PropType } from "vue"
+import Vue from "vue"
 
 import { mapState } from "vuex"
 
@@ -93,6 +104,11 @@ export default Vue.extend({
 
     successVisible: false,
     reportIdentifier: "",
+
+    formValid: false,
+    rules: {
+      required: (value: string) => !!value || "Required.",
+    },
   }),
 
   watch: {
@@ -105,11 +121,14 @@ export default Vue.extend({
     sendReport() {
       this.error = []
 
-      if (this.subject.length < 1) {
-        this.error.push(Error("Enter a subject."))
-      }
+      // there are no types for VForm :/
+      const form = this.$refs.form as any
 
-      if (this.error.length > 0) return
+      if (!form.validate()) {
+        // this shouldn't happen since the button should be disabled if invalid
+        this.error = Error("Please fill in all required fields")
+        return
+      }
 
       this.loading = true
 
@@ -130,6 +149,7 @@ export default Vue.extend({
           this.loading = false
           this.dialog = false
           this.sent = true
+          form.reset()
         })
         .catch((err: Error) => {
           this.loading = false
