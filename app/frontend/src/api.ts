@@ -2,6 +2,7 @@ const URL = process.env.VUE_APP_API_URL
 
 import { AuthPromiseClient } from "./pb/auth_grpc_web_pb"
 import { APIPromiseClient } from "./pb/api_grpc_web_pb"
+import { BugsPromiseClient } from "./pb/bugs_grpc_web_pb"
 import { SSOPromiseClient } from "./pb/sso_grpc_web_pb"
 import { ConversationsPromiseClient } from "./pb/conversations_grpc_web_pb"
 import { RequestsPromiseClient } from "./pb/requests_grpc_web_pb"
@@ -18,6 +19,10 @@ const opts = {
 // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 // @ts-ignore
 export const client = new APIPromiseClient(URL, null, opts) as APIPromiseClient
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+// @ts-ignore
+export const bugsClient = new BugsPromiseClient(URL, null, opts) as BugsPromiseClient
 
 // prettier-ignore
 // eslint-disable-next-line @typescript-eslint/ban-ts-ignore

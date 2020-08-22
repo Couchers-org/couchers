@@ -9,7 +9,10 @@
             THIS IS FOR ONGOING TESTING
           </p>
           <p>THIS IS <b>NOT THE DESIGN</b> OF THE FINAL PLATFORM</p>
-          <p>REPORT: <b>BUGS</b> ARE TO BE EXPECTED - PLEASE REPORT THEM</p>
+          <p>
+            REPORT: <b>BUGS</b> ARE TO BE EXPECTED - PLEASE REPORT THEM WITH THE
+            RED BUTTON IN THE TOP RIGHT CORNER
+          </p>
           <p>
             DATA: WE WILL <b>WIPE ALL ACCOUNTS</b> AND DATA ON OR BEFORE LAUNCH
             OF THE PLATFORM
