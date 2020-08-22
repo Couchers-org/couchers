@@ -18,7 +18,7 @@
       color="error"
       @click.stop="dialog = true"
     >
-      <v-icon dark>mdi-alert-decagram</v-icon> Report a bug
+      <v-icon dark left>mdi-alert-decagram</v-icon> Report a bug
     </v-btn>
 
     <v-dialog v-model="dialog" max-width="490">
