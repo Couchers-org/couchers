@@ -38,7 +38,7 @@ def test_bug_tool():
                     + config["VERSION"] +
                     "\nFrontend version: frontend_version\nUser Agent: user_agent\nPage: page\nUser ID: 99"
                 ),
-                "labels": ["bug-tool"]
+                "labels": ["bug tool"]
             }
             class _PostReturn:
                 status_code = 201
