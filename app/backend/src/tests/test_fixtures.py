@@ -49,42 +49,39 @@ def generate_user(db, username=None):
     """
     auth = Auth(db)
 
-    session = db()
+    with session_scope(db) as session:
+        if not username:
+            username = "test_user_" + random_hex(16)
 
-    if not username:
-        username = "test_user_" + random_hex(16)
+        user = User(
+            username=username,
+            email=f"{username}@dev.couchers.org",
+            # password is just 'password'
+            # this is hardcoded because the password is slow to hash (so would slow down tests otherwise)
+            hashed_password=b"$argon2id$v=19$m=65536,t=2,p=1$4cjGg1bRaZ10k+7XbIDmFg$tZG7JaLrkfyfO7cS233ocq7P8rf3znXR7SAfUt34kJg",
+            name=username.capitalize(),
+            city="Testing city",
+            verification=0.5,
+            community_standing=0.5,
+            birthdate=date(year=2000, month=1, day=1),
+            gender="N/A",
+            languages="Testing language 1|Testing language 2",
+            occupation="Tester",
+            about_me="I test things",
+            about_place="My place has a lot of testing paraphenelia",
+            countries_visited="Testing country",
+            countries_lived="Wonderland",
+        )
 
-    user = User(
-        username=username,
-        email=f"{username}@dev.couchers.org",
-        # password is just 'password'
-        # this is hardcoded because the password is slow to hash (so would slow down tests otherwise)
-        hashed_password=b"$argon2id$v=19$m=65536,t=2,p=1$4cjGg1bRaZ10k+7XbIDmFg$tZG7JaLrkfyfO7cS233ocq7P8rf3znXR7SAfUt34kJg",
-        name=username.capitalize(),
-        city="Testing city",
-        verification=0.5,
-        community_standing=0.5,
-        birthdate=date(year=2000, month=1, day=1),
-        gender="N/A",
-        languages="Testing language 1|Testing language 2",
-        occupation="Tester",
-        about_me="I test things",
-        about_place="My place has a lot of testing paraphenelia",
-        countries_visited="Testing country",
-        countries_lived="Wonderland",
-    )
+        session.add(user)
 
-    session.add(user)
+        # this expires the user, so now it's "dirty"
+        session.commit()
 
-    # this expires the user, so now it's "dirty"
-    session.commit()
-
-    # refresh it, undoes the expiry
-    session.refresh(user)
-    # allows detaches the user from the session, allowing its use outside this session
-    session.expunge(user)
-
-    session.close()
+        # refresh it, undoes the expiry
+        session.refresh(user)
+        # allows detaches the user from the session, allowing its use outside this session
+        session.expunge(user)
 
     with patch("couchers.servicers.auth.verify_password", lambda hashed, password: password == "password"):
         token = auth.Authenticate(auth_pb2.AuthReq(user=username, password="password"), "Dummy context").token
