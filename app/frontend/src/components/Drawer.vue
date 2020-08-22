@@ -67,7 +67,17 @@
       </v-list-item>
       <v-list-item link to="/friends">
         <v-list-item-icon>
-          <v-icon>mdi-account-multiple</v-icon>
+          <template>
+            <v-badge
+              v-if="pendingFriendRequestCount"
+              color="primary"
+              :content="pendingFriendRequestCount"
+              overlap
+            >
+              <v-icon>mdi-account-multiple</v-icon>
+            </v-badge>
+            <v-icon v-else>mdi-account-multiple</v-icon>
+          </template>
         </v-list-item-icon>
         <v-list-item-content>
           <v-list-item-title>Friends</v-list-item-title>
@@ -139,6 +149,7 @@ export default Vue.extend({
       "drawerOpen",
       "unseenMessageCount",
       "unseenHostRequestCount",
+      "pendingFriendRequestCount",
     ]),
   },
 })

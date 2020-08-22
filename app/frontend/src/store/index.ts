@@ -9,6 +9,7 @@ import { StatusCode } from "grpc-web"
 
 import { User, PingReq, PingRes } from "../pb/api_pb"
 import { client } from "../api"
+import { Empty } from "google-protobuf/google/protobuf/empty_pb"
 
 Vue.use(Vuex)
 
@@ -26,6 +27,7 @@ export default new Vuex.Store({
     user: null as null | User.AsObject,
     unseenHostRequestCount: 0,
     unseenMessageCount: 0,
+    pendingFriendRequestCount: 0,
     authToken: null as null | string,
     lastPing: 0,
     pingTimeout: null as null | number,
@@ -53,6 +55,9 @@ export default new Vuex.Store({
       state.user = res.user!
       state.unseenHostRequestCount = res.unseenHostRequestCount
       state.unseenMessageCount = res.unseenMessageCount
+    },
+    updatePendingFriendRequestCount(state, count: number) {
+      state.pendingFriendRequestCount = count
     },
     clearPingTimeout(state) {
       if (state.pingTimeout) {
@@ -87,6 +92,13 @@ export default new Vuex.Store({
               ctx.commit("deauth")
             }
           })
+
+        client.listFriendRequests(new Empty()).then((res) => {
+          ctx.commit(
+            "updatePendingFriendRequestCount",
+            res.getReceivedList().length
+          )
+        })
       }
     },
     scheduler(ctx) {
