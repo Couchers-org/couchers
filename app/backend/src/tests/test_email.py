@@ -135,6 +135,8 @@ def test_host_request_email(db):
     def mock_send_email(sender_name, sender_email, recipient, subject, plain, html):
         assert recipient == user_host.email
         assert "host request" in subject.lower()
+        assert user_guest.avatar_filename not in plain
+        assert user_guest.avatar_filename in html
         assert f"{config['BASE_URL']}/hostrequests/" in plain
         assert f"{config['BASE_URL']}/hostrequests/" in html
         return message_id
@@ -168,6 +170,8 @@ def test_friend_request_email(db):
     def mock_send_email(sender_name, sender_email, recipient, subject, plain, html):
         assert recipient == user_recipient.email
         assert "friend" in subject.lower()
+        assert friend_relationship.from_user.avatar_filename not in plain
+        assert friend_relationship.from_user.avatar_filename in html
         assert f"{config['BASE_URL']}/friends/" in plain
         assert f"{config['BASE_URL']}/friends/" in html
         return message_id

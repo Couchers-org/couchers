@@ -45,7 +45,8 @@ def send_host_request_email(host_request):
     subject = "You've received a host request!"
     return email.send_email_template(user_host.email, subject, "host_request", template_args={"name_host": user_host.name,
                                         "name_guest": user_guest.name, "from_date": host_request.from_date,
-                                        "to_date": host_request.to_date, "host_request_link": host_request_link,})
+                                        "to_date": host_request.to_date, "host_request_link": host_request_link,
+                                        "profile_picture_or_avatar": user_guest.avatar_url})
 
 
 def send_message_received_email(user_recipient):
@@ -65,4 +66,6 @@ def send_friend_request_email(friend_relationship):
     logger.info(f"Friend request sent by {user_sender.username=}")
     friend_requests_link = f"{config['BASE_URL']}/friends/"
     subject = "Someone wants to be your friend!"
-    return email.send_email_template(user_recipient.email, subject, "friend_request", template_args={"name_recipient": user_recipient.name, "name_sender": user_sender.name, "friend_requests_link": friend_requests_link})
+    return email.send_email_template(user_recipient.email, subject, "friend_request", template_args={"name_recipient": user_recipient.name,
+                                        "name_sender": user_sender.name, "friend_requests_link": friend_requests_link,
+                                        "profile_picture_or_avatar": user_sender.avatar_filename})

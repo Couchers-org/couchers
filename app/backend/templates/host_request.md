@@ -4,7 +4,13 @@ Hi {{ name_host }}!
 
 You've received a host request!
 
-{{ name_guest }} is requesting to stay with you from {{ from_date }} until {{ to_date }}!
+{{ name_guest }} is requesting to stay with you from {{ from_date }} until {{ to_date }}.
+
+{% if html %}
+
+<img src={{ profile_picture_or_avatar }} alt="Your Guest's Profile Picture" >
+
+{% endif %}
 
 Check it out here:
 
