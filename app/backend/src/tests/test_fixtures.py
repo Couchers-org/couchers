@@ -12,11 +12,12 @@ from couchers.models import (Base, FriendRelationship, FriendStatus, Message,
                              User)
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
+from couchers.servicers.bugs import Bugs
 from couchers.servicers.conversations import Conversations
 from couchers.servicers.media import Media, get_media_auth_interceptor
 from couchers.servicers.requests import Requests
-from pb import (api_pb2_grpc, auth_pb2, conversations_pb2_grpc, media_pb2_grpc,
-                requests_pb2_grpc)
+from pb import (api_pb2_grpc, auth_pb2, auth_pb2_grpc, bugs_pb2_grpc,
+                conversations_pb2_grpc, media_pb2_grpc, requests_pb2_grpc)
 from sqlalchemy import create_engine
 from sqlalchemy.event import listen, remove
 from sqlalchemy.orm import sessionmaker
@@ -102,6 +103,24 @@ def make_friends(db, user1, user2):
         session.add(friend_relationship)
 
 @contextmanager
+def auth_api_session(db_session):
+    """
+    Create a fresh Auth API for testing
+
+    TODO: investigate if there's a smarter way to stub out these tests?
+    """
+    auth = Auth(db_session)
+    auth_server = grpc.server(futures.ThreadPoolExecutor(1))
+    port = auth_server.add_insecure_port("localhost:0")
+    auth_pb2_grpc.add_AuthServicer_to_server(auth, auth_server)
+    auth_server.start()
+
+    with grpc.insecure_channel(f"localhost:{port}") as channel:
+        yield auth_pb2_grpc.AuthStub(channel)
+
+    auth_server.stop(None)
+
+@contextmanager
 def api_session(db, token):
     """
     Create a fresh API for testing, uses the token for auth
@@ -169,6 +188,18 @@ def requests_session(db, token):
             yield requests_pb2_grpc.RequestsStub(channel)
     finally:
         server.stop(None)
+
+@contextmanager
+def bugs_session():
+    bugs_server = grpc.server(futures.ThreadPoolExecutor(1))
+    port = bugs_server.add_insecure_port("localhost:0")
+    bugs_pb2_grpc.add_BugsServicer_to_server(Bugs(), bugs_server)
+    bugs_server.start()
+
+    with grpc.insecure_channel(f"localhost:{port}") as channel:
+        yield bugs_pb2_grpc.BugsStub(channel)
+
+    bugs_server.stop(None)
 
 @contextmanager
 def media_session(db, bearer_token):
