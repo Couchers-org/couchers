@@ -36,7 +36,13 @@ def test_bug_tool():
                 "body": "Subject: subject\nDescription:\ndescription\n\nSteps:\nsteps\n\nResults:\nresults\n\nBackend version: unknown\nFrontend version: frontend_version\nUser Agent: user_agent\nPage: page\nUser ID: 99",
                 "labels": ["bug-tool"]
             }
-            return type("_PostReturn", (), {"status_code": 201, "json": lambda: {"number": 11}})
+            class _PostReturn:
+                status_code = 201
+                def json(self):
+                    return {
+                        "number": 11
+                    }
+            return _PostReturn()
 
         new_config = config.copy()
         new_config["BUG_TOOL_ENABLED"] = True
@@ -59,7 +65,9 @@ def test_bug_tool():
 def test_bug_tool_fails_on_network_error():
     with bugs_session() as bugs:
         def dud_post(url, auth, json):
-            return type("_PostReturn", (), {"status_code": 400, "json": lambda: {"number": 11}})
+            class _PostReturn:
+                status_code = 400
+            return _PostReturn()
 
         new_config = config.copy()
         new_config["BUG_TOOL_ENABLED"] = True
