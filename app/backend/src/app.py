@@ -6,8 +6,7 @@ from concurrent import futures
 import grpc
 from couchers.config import config
 from couchers.interceptors import (LoggingInterceptor,
-                                   UpdateLastActiveTimeInterceptor,
-                                   intercept_server)
+                                   UpdateLastActiveTimeInterceptor)
 from couchers.models import Base
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
@@ -50,19 +49,18 @@ Session = sessionmaker(bind=engine)
 add_dummy_data(Session, "src/dummy_data.json")
 
 auth = Auth(Session)
-open_server = grpc.server(futures.ThreadPoolExecutor(2))
-open_server = intercept_server(open_server, LoggingInterceptor())
+open_server = grpc.server(futures.ThreadPoolExecutor(2),
+                          interceptors=[LoggingInterceptor()])
 open_server.add_insecure_port("[::]:1752")
 auth_pb2_grpc.add_AuthServicer_to_server(auth, open_server)
 bugs_pb2_grpc.add_BugsServicer_to_server(Bugs(), open_server)
 open_server.start()
 
-server = grpc.server(futures.ThreadPoolExecutor(2))
-server = intercept_server(server, LoggingInterceptor())
-server = intercept_server(server, auth.get_auth_interceptor())
-
 servicer = API(Session)
-server = intercept_server(server, UpdateLastActiveTimeInterceptor(servicer.update_last_active_time))
+server = grpc.server(futures.ThreadPoolExecutor(2),
+                     interceptors=[LoggingInterceptor(),
+                                   auth.get_auth_interceptor(),
+                                   UpdateLastActiveTimeInterceptor(servicer.update_last_active_time)])
 server.add_insecure_port("[::]:1751")
 api_pb2_grpc.add_APIServicer_to_server(servicer, server)
 sso_pb2_grpc.add_SSOServicer_to_server(SSO(Session), server)
@@ -70,9 +68,9 @@ conversations_pb2_grpc.add_ConversationsServicer_to_server(Conversations(Session
 requests_pb2_grpc.add_RequestsServicer_to_server(Requests(Session), server)
 server.start()
 
-media_server = grpc.server(futures.ThreadPoolExecutor(2))
-media_server = intercept_server(media_server, LoggingInterceptor())
-media_server = intercept_server(media_server, get_media_auth_interceptor(MEDIA_SERVER_BEARER_TOKEN))
+media_server = grpc.server(futures.ThreadPoolExecutor(2),
+                           interceptors=[LoggingInterceptor(),
+                                         get_media_auth_interceptor(MEDIA_SERVER_BEARER_TOKEN)])
 media_server.add_insecure_port("[::]:1753")
 media_pb2_grpc.add_MediaServicer_to_server(Media(Session), media_server)
 media_server.start()

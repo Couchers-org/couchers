@@ -7,7 +7,6 @@ import grpc
 import pytest
 from couchers.crypto import random_hex
 from couchers.db import session_scope
-from couchers.interceptors import intercept_server
 from couchers.models import (Base, FriendRelationship, FriendStatus, Message,
                              User)
 from couchers.servicers.api import API
@@ -128,8 +127,7 @@ def api_session(db, token):
     """
     auth_interceptor = Auth(db).get_auth_interceptor()
 
-    server = grpc.server(futures.ThreadPoolExecutor(1))
-    server = intercept_server(server, auth_interceptor)
+    server = grpc.server(futures.ThreadPoolExecutor(1), interceptors=[auth_interceptor])
     port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
     servicer = API(db)
     api_pb2_grpc.add_APIServicer_to_server(servicer, server)
@@ -151,8 +149,7 @@ def conversations_session(db, token):
     """
     auth_interceptor = Auth(db).get_auth_interceptor()
 
-    server = grpc.server(futures.ThreadPoolExecutor(1))
-    server = intercept_server(server, auth_interceptor)
+    server = grpc.server(futures.ThreadPoolExecutor(1), interceptors=[auth_interceptor])
     port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
     servicer = Conversations(db)
     conversations_pb2_grpc.add_ConversationsServicer_to_server(servicer, server)
@@ -174,8 +171,7 @@ def requests_session(db, token):
     """
     auth_interceptor = Auth(db).get_auth_interceptor()
 
-    server = grpc.server(futures.ThreadPoolExecutor(1))
-    server = intercept_server(server, auth_interceptor)
+    server = grpc.server(futures.ThreadPoolExecutor(1), interceptors=[auth_interceptor])
     port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
     servicer = Requests(db)
     requests_pb2_grpc.add_RequestsServicer_to_server(servicer, server)
@@ -210,8 +206,7 @@ def media_session(db, bearer_token):
     """
     media_auth_interceptor = get_media_auth_interceptor(bearer_token)
 
-    server = grpc.server(futures.ThreadPoolExecutor(1))
-    server = intercept_server(server, media_auth_interceptor)
+    server = grpc.server(futures.ThreadPoolExecutor(1), interceptors=[media_auth_interceptor])
     port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
     servicer = Media(db)
     media_pb2_grpc.add_MediaServicer_to_server(servicer, server)
