@@ -68,4 +68,4 @@ def send_friend_request_email(friend_relationship):
     subject = "Someone wants to be your friend!"
     return email.send_email_template(user_recipient.email, subject, "friend_request", template_args={"name_recipient": user_recipient.name,
                                         "name_sender": user_sender.name, "friend_requests_link": friend_requests_link,
-                                        "profile_picture_or_avatar": user_sender.avatar_filename})
+                                        "profile_picture_or_avatar": user_sender.avatar_url})
