@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-btn
-      class="mx-2"
+      class="mx-2 d-sm-none"
       fab
       dark
       color="error"
@@ -9,6 +9,16 @@
       @click.stop="dialog = true"
     >
       <v-icon dark>mdi-alert-decagram</v-icon>
+    </v-btn>
+
+    <v-btn
+      class="mx-2 d-none d-sm-block"
+      rounded
+      dark
+      color="error"
+      @click.stop="dialog = true"
+    >
+      <v-icon dark>mdi-alert-decagram</v-icon> Report a bug
     </v-btn>
 
     <v-dialog v-model="dialog" max-width="490">
