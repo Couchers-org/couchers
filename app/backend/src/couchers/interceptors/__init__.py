@@ -5,19 +5,24 @@ from time import perf_counter_ns
 import grpc
 
 
-LOG_VERBOSE_PB = os.environ.get("LOG_VERBOSE_PB", None) is not None
+LOG_VERBOSE_PB = "LOG_VERBOSE_PB" in os.environ
 
 logger = logging.getLogger(__name__)
 
 
 def aborting_handler(code, reason):
-    def f(req, context):
+    def f(request, context):
         context.abort(code, reason)
 
     return grpc.unary_unary_rpc_method_handler(f)
 
 
 class AuthValidatorInterceptor(grpc.ServerInterceptor):
+    """
+    Extracts an "Authorization: Bearer <hex>" header and authenticates
+    a user. Sets context.user_id if authenticated, otherwise
+    terminates the call with an HTTP error code.
+    """
     def __init__(self, get_user_for_session_token):
         self._get_user_for_session_token = get_user_for_session_token
 
@@ -37,20 +42,24 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
             return aborting_handler(grpc.StatusCode.UNAUTHENTICATED, "Unauthorized")
 
         handler = continuation(handler_call_details)
-        prev_func = handler.unary_unary
+        user_aware_function = handler.unary_unary
 
-        def new_f(req, context):
+        def user_unaware_function(req, context):
             context.user_id = user_id
-            return prev_func(req, context)
+            return user_aware_function(req, context)
 
-        new_handler = grpc.unary_unary_rpc_method_handler(new_f,
-                                                          request_deserializer=handler.request_deserializer,
-                                                          response_serializer=handler.response_serializer)
-
-        return new_handler
+        return grpc.unary_unary_rpc_method_handler(
+            user_unaware_function,
+            request_deserializer=handler.request_deserializer,
+            response_serializer=handler.response_serializer)
 
 
 class ManualAuthValidatorInterceptor(grpc.ServerInterceptor):
+    """
+    Extracts an "Authorization: Bearer <hex>" header and calls the
+    is_authorized function. Terminates the call with an HTTP error
+    code if not authorized.
+    """
     def __init__(self, is_authorized):
         self._is_authorized = is_authorized
 
@@ -71,11 +80,14 @@ class ManualAuthValidatorInterceptor(grpc.ServerInterceptor):
 
 
 class LoggingInterceptor(grpc.ServerInterceptor):
+    """
+    Measures and logs the time it takes to service each incoming call.
+    """
     def intercept_service(self, continuation, handler_call_details):
         handler = continuation(handler_call_details)
         prev_func = handler.unary_unary
         method = handler_call_details.method
-        def new_f(request, context):
+        def timetaking_function(request, context):
             if LOG_VERBOSE_PB:
                 logger.info(f"Got request: {method}. Request: {request}")
             else:
@@ -90,12 +102,17 @@ class LoggingInterceptor(grpc.ServerInterceptor):
                 logger.info(f"Finished request (in {duration:0.2f} ms): {method}")
             return res
 
-        return grpc.unary_unary_rpc_method_handler(new_f,
-                                                   request_deserializer=handler.request_deserializer,
-                                                   response_serializer=handler.response_serializer)
+        return grpc.unary_unary_rpc_method_handler(
+            timetaking_function,
+            request_deserializer=handler.request_deserializer,
+            response_serializer=handler.response_serializer)
 
 
 class UpdateLastActiveTimeInterceptor(grpc.ServerInterceptor):
+    """
+    Calls the given update_last_active_time(user_id) function before
+    servicing each call.
+    """
     def __init__(self, update_last_active_time):
         self._update_last_active_time = update_last_active_time
 
@@ -103,12 +120,11 @@ class UpdateLastActiveTimeInterceptor(grpc.ServerInterceptor):
         handler = continuation(handler_call_details)
         prev_func = handler.unary_unary
 
-        def new_f(req, context):
+        def updating_function(req, context):
             self._update_last_active_time(context.user_id)
             return prev_func(req, context)
 
-        new_handler = grpc.unary_unary_rpc_method_handler(new_f,
-                                                          request_deserializer=handler.request_deserializer,
-                                                          response_serializer=handler.response_serializer)
-
-        return new_handler
+        return grpc.unary_unary_rpc_method_handler(
+            updating_function,
+            request_deserializer=handler.request_deserializer,
+            response_serializer=handler.response_serializer)
