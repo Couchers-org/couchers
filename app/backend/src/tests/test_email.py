@@ -125,18 +125,27 @@ def test_report_email():
     assert subject in html
 
 def test_host_request_email(db):
-    user_host, api_token_host = generate_user(db)
-    user_guest, api_token_guest = generate_user(db)
-
-    host_request = generate_host_request(user_guest, user_host, "2020-01-01", "2020-01-05")
+    host_request = generate_host_request(db)
+    from_user = host_request.from_user
+    to_user = host_request.to_user
+    from_date = host_request.from_date
+    to_date = host_request.to_date
 
     message_id = random_hex(64)
 
     def mock_send_email(sender_name, sender_email, recipient, subject, plain, html):
-        assert recipient == user_host.email
+        assert recipient == to_user.email
         assert "host request" in subject.lower()
-        assert user_guest.avatar_filename not in plain
-        assert user_guest.avatar_filename in html
+        assert to_user.name in plain
+        assert to_user.name[10:] in html
+        assert from_user.name in plain
+        assert from_user.name[10:] in html
+        assert from_date in plain
+        assert from_date in html
+        assert to_date in plain
+        assert to_date in html
+        assert from_user.avatar_filename not in plain
+        assert from_user.avatar_filename in html
         assert f"{config['BASE_URL']}/hostrequests/" in plain
         assert f"{config['BASE_URL']}/hostrequests/" in html
         return message_id
@@ -160,18 +169,21 @@ def test_message_received_email(db):
         send_message_received_email(user)
 
 def test_friend_request_email(db):
-    user_sender, api_token_sender = generate_user(db)
-    user_recipient, api_token_recipient = generate_user(db)
-
-    friend_relationship = generate_friend_relationship(user_sender, user_recipient)
+    friend_relationship = generate_friend_relationship(db)
+    from_user = friend_relationship.from_user
+    to_user = friend_relationship.to_user
 
     message_id = random_hex(64)
 
     def mock_send_email(sender_name, sender_email, recipient, subject, plain, html):
-        assert recipient == user_recipient.email
+        assert recipient == to_user.email
         assert "friend" in subject.lower()
-        assert friend_relationship.from_user.avatar_filename not in plain
-        assert friend_relationship.from_user.avatar_filename in html
+        assert to_user.name in plain
+        assert to_user.name[10:] in html
+        assert from_user.name in plain
+        assert from_user.name[10:] in html
+        assert from_user.avatar_filename not in plain
+        assert from_user.avatar_filename in html
         assert f"{config['BASE_URL']}/friends/" in plain
         assert f"{config['BASE_URL']}/friends/" in html
         return message_id
@@ -185,9 +197,7 @@ def test_email_patching_fails(db):
     printing function was called instead, this makes sure the patching is
     actually done
     """
-    user_sender, api_token_sender = generate_user(db)
-    user_recipient, api_token_recipient = generate_user(db)
-    friend_relationship = generate_friend_relationship(user_sender, user_recipient)
+    friend_relationship = generate_friend_relationship(db)
 
     patched_msg = random_hex(64)
 

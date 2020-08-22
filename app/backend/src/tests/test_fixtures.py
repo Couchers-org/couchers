@@ -95,10 +95,19 @@ def generate_user(db, username=None):
     return user, token
 
 
-def generate_friend_relationship(user1, user2, status=FriendStatus.pending):
+def generate_friend_relationship(db):
+    from_user, api_token_from = generate_user(db)
+    to_user, api_token_to = generate_user(db)
+
+    friend_relationship = _generate_friend_relationship_object(from_user, to_user)
+
+    return friend_relationship
+
+
+def _generate_friend_relationship_object(from_user, to_user, status=FriendStatus.pending):
     friend_relationship = FriendRelationship(
-        from_user=user1,
-        to_user=user2,
+        from_user=from_user,
+        to_user=to_user,
         status=status
     )
     return friend_relationship
@@ -106,7 +115,7 @@ def generate_friend_relationship(user1, user2, status=FriendStatus.pending):
 
 def make_friends(db, user1, user2):
     with session_scope(db) as session:
-        friend_relationship = generate_friend_relationship(user1, user2, FriendStatus.accepted)
+        friend_relationship = _generate_friend_relationship_object(user1, user2, FriendStatus.accepted)
         session.add(friend_relationship)
 
 @contextmanager
@@ -247,16 +256,21 @@ def patch_left_time(time, add=0):
         remove(Base, "before_update", set_timestamp)
 
 
-def generate_host_request(user_guest, user_host, from_date, to_date):
+def generate_host_request(db, from_date="2020-01-01", to_date="2020-01-05"):
+    from_user, api_token_from = generate_user(db)
+    to_user, api_token_to = generate_user(db)
+    from_date = from_date
+    to_date = to_date
+
     conversation = Conversation()
     message = Message()
     message.conversation_id = conversation.id
-    message.author_id = user_guest.id
+    message.author_id = from_user.id
     message.text = random_hex(64)
 
     host_request = HostRequest(
-        from_user=user_guest,
-        to_user=user_host,
+        from_user=from_user,
+        to_user=to_user,
         from_date=from_date,
         to_date=to_date,
         status=HostRequestStatus.pending,
