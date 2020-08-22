@@ -55,9 +55,7 @@ export default new Vuex.Store({
       state.user = res.user!
       state.unseenHostRequestCount = res.unseenHostRequestCount
       state.unseenMessageCount = res.unseenMessageCount
-    },
-    updatePendingFriendRequestCount(state, count: number) {
-      state.pendingFriendRequestCount = count
+      state.pendingFriendRequestCount = res.pendingFriendRequestCount
     },
     clearPingTimeout(state) {
       if (state.pingTimeout) {
@@ -92,13 +90,6 @@ export default new Vuex.Store({
               ctx.commit("deauth")
             }
           })
-
-        client.listFriendRequests(new Empty()).then((res) => {
-          ctx.commit(
-            "updatePendingFriendRequestCount",
-            res.getReceivedList().length
-          )
-        })
       }
     },
     scheduler(ctx) {

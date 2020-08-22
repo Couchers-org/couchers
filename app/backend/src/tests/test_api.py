@@ -102,6 +102,45 @@ def test_update_profile(db):
         assert "English" in user.languages
 
 
+def test_pending_friend_request_count(db):
+    user1, token1 = generate_user(db, "user1")
+    user2, token2 = generate_user(db, "user2")
+    user3, token3 = generate_user(db, "user3")
+
+    with api_session(db, token2) as api:
+        res = api.Ping(api_pb2.PingReq())
+        assert res.pending_friend_request_count == 0
+
+    with api_session(db, token1) as api:
+        res = api.Ping(api_pb2.PingReq())
+        assert res.pending_friend_request_count == 0
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
+        res = api.Ping(api_pb2.PingReq())
+        assert res.pending_friend_request_count == 0
+
+    with api_session(db, token2) as api:
+        res = api.Ping(api_pb2.PingReq())
+        assert res.pending_friend_request_count == 1
+
+    with api_session(db, token2) as api:
+        # check it's there
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        assert len(res.sent) == 0
+        assert len(res.received) == 1
+
+        assert res.received[0].state == api_pb2.FriendRequest.FriendRequestStatus.PENDING
+        assert res.received[0].user_id == user1.id
+
+        fr_id = res.received[0].friend_request_id
+
+        # accept it
+        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(
+            friend_request_id=fr_id, accept=True))
+
+        res = api.Ping(api_pb2.PingReq())
+        assert res.pending_friend_request_count == 0
+
+
 def test_friend_request_flow(db):
     user1, token1 = generate_user(db, "user1")
     user2, token2 = generate_user(db, "user2")
