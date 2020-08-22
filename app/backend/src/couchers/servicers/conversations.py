@@ -440,12 +440,12 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
             if request.user_id == context.user_id:
                 # Race condition!
-                other_admins_count = (session.query(func.count(GroupChatSubscription.id).label("count"))
+                other_admins_count = (session.query(GroupChatSubscription.id)
                     .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
                     .filter(GroupChatSubscription.user_id != context.user_id)
                     .filter(GroupChatSubscription.role == GroupChatRole.admin)
                     .filter(GroupChatSubscription.left == None)
-                    .one()).count
+                    .count())
                 if not other_admins_count > 0:
                     context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_REMOVE_LAST_ADMIN)
 
@@ -529,18 +529,18 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
 
             if subscription.role == GroupChatRole.admin:
-                other_admins_count = (session.query(func.count(GroupChatSubscription.id).label("count"))
+                other_admins_count = (session.query(GroupChatSubscription.id)
                     .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
                     .filter(GroupChatSubscription.user_id != context.user_id)
                     .filter(GroupChatSubscription.role == GroupChatRole.admin)
                     .filter(GroupChatSubscription.left == None)
-                    .one()).count
-                participants_count = (session.query(func.count(GroupChatSubscription.id).label("count"))
+                    .count())
+                participants_count = (session.query(GroupChatSubscription.id)
                     .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
                     .filter(GroupChatSubscription.user_id != context.user_id)
                     .filter(GroupChatSubscription.role == GroupChatRole.participant)
                     .filter(GroupChatSubscription.left == None)
-                    .one()).count
+                    .count())
                 if not (other_admins_count > 0 or participants_count == 0):
                     context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.LAST_ADMIN_CANT_LEAVE)
 
