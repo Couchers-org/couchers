@@ -123,58 +123,48 @@ export default Vue.extend({
       this.successMessages = []
     },
 
-    submit() {
+    async submit() {
+      this.loading = true
+      this.clearMessages()
       if (this.loginStep == "user") {
-        this.loading = true
-        this.clearMessages()
-
         const req = new LoginReq()
-
         req.setUser(this.username)
-        authClient
-          .login(req)
-          .then((res) => {
-            switch (res.getNextStep()) {
-              case LoginRes.LoginStep.NEED_PASSWORD:
-                this.loginStep = "pass"
-                break
-              case LoginRes.LoginStep.SENT_LOGIN_EMAIL:
-                this.loginStep = "email"
-                break
-              case LoginRes.LoginStep.INVALID_USER:
-                this.errorMessages = ["User not found!"]
-                break
-            }
-            this.loading = false
-          })
-          .catch((err) => {
-            this.errorMessages = ["Unknown error."]
-            this.loading = false
-          })
+
+        try {
+          const res = await authClient.login(req)
+          switch (res.getNextStep()) {
+            case LoginRes.LoginStep.NEED_PASSWORD:
+              this.loginStep = "pass"
+              break
+            case LoginRes.LoginStep.SENT_LOGIN_EMAIL:
+              this.loginStep = "email"
+              break
+            case LoginRes.LoginStep.INVALID_USER:
+              this.errorMessages = ["User not found!"]
+              break
+          }
+        } catch (err) {
+          this.errorMessages = ["Unknown error."]
+        }
+        this.loading = false
       } else if (this.loginStep == "pass") {
-        this.loading = true
-        this.clearMessages()
-
         const req = new AuthReq()
-
         req.setUser(this.username)
         req.setPassword(this.password)
-        authClient
-          .authenticate(req)
-          .then((res) => {
-            this.loading = false
-            this.successMessages = ["Success."]
-            Store.dispatch("auth", res.getToken())
-            Router.push("/")
-          })
-          .catch((err) => {
-            this.loading = false
-            if (err.code == StatusCode.UNAUTHENTICATED) {
-              this.passErrorMessages = ["Invalid username or password."]
-            } else {
-              this.passErrorMessages = ["Unknown error."]
-            }
-          })
+
+        try {
+          const res = await authClient.authenticate(req)
+          this.successMessages = ["Success."]
+          Store.dispatch("auth", res.getToken())
+          Router.push("/")
+        } catch (err) {
+          if (err.code == StatusCode.UNAUTHENTICATED) {
+            this.passErrorMessages = ["Invalid username or password."]
+          } else {
+            this.passErrorMessages = ["Unknown error."]
+          }
+        }
+        this.loading = false
       }
     },
   },

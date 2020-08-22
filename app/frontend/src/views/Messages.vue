@@ -8,7 +8,7 @@
             <v-autocomplete
               v-model="newConversationParticipants"
               :items="friends()"
-              :disabled="loading > 0"
+              :disabled="!loading"
               chips
               label="Select friends to message"
               placeholder="Start typing to Search"
@@ -81,10 +81,10 @@
       <v-row dense>
         <v-col cols="4">
           <v-card tile>
-            <v-list v-if="loading != 0" three-line>
+            <v-list v-if="loading" three-line>
               <v-subheader>Loading...</v-subheader>
             </v-list>
-            <v-list v-if="loading == 0" two-line>
+            <v-list v-if="!loading" two-line>
               <v-list-item>
                 <v-text-field
                   v-model="searchQuery"
@@ -257,7 +257,7 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb"
 export default Vue.extend({
   data: () => ({
     error: null as Error | null,
-    loading: 0,
+    loading: true,
     newConversationParticipants: [] as Array<number>,
     newConversationText: "",
     newConversationTitle: "",
@@ -285,25 +285,23 @@ export default Vue.extend({
   },
 
   watch: {
-    selectedConversation() {
+    async selectedConversation() {
       this.messages = []
       console.debug("Selected conversation changed, fetching messages")
       const req = new GetGroupChatMessagesReq()
       req.setGroupChatId(this.selectedConversation!)
-      conversations
-        .getGroupChatMessages(req)
-        .then((res) => {
-          this.messages = res.getMessagesList().map((msg) => msg.toObject())
-          this.sortMessages()
-          const groupChat = this.conversations.filter(
-            (groupChat) => groupChat.groupChatId === this.selectedConversation
-          )[0]
-          this.scrollToId = `msg-${groupChat.lastSeenMessageId}`
-        })
-        .catch((err) => {
-          this.error = err
-          console.error(err)
-        })
+      try {
+        const res = await conversations.getGroupChatMessages(req)
+        this.messages = res.getMessagesList().map((msg) => msg.toObject())
+        this.sortMessages()
+        const groupChat = this.conversations.filter(
+          (groupChat) => groupChat.groupChatId === this.selectedConversation
+        )[0]
+        this.scrollToId = `msg-${groupChat.lastSeenMessageId}`
+      } catch (err) {
+        this.error = err
+        console.error(err)
+      }
     },
   },
 
@@ -331,43 +329,27 @@ export default Vue.extend({
       this.newConversationDialog = true
     },
 
-    createNewConversation() {
-      const req = new CreateGroupChatReq()
+    async createNewConversation() {
+      const chatReq = new CreateGroupChatReq()
       const wrapper = new wrappers.StringValue()
       wrapper.setValue(this.newConversationTitle)
-      req.setTitle(wrapper)
+      chatReq.setTitle(wrapper)
       console.log(this.newConversationParticipants)
-      req.setRecipientUserIdsList(this.newConversationParticipants)
-      this.loading += 1
-      conversations
-        .createGroupChat(req)
-        .then((res) => {
-          this.loading += 1
-          const req = new SendMessageReq()
-          req.setGroupChatId(res.getGroupChatId())
-          req.setText(this.newConversationText)
-          conversations
-            .sendMessage(req)
-            .then((res) => {
-              this.fetchData()
-              // close the dialog
-              this.cancelNewConversation()
-            })
-            .catch((err) => {
-              this.error = err
-              console.error(err)
-            })
-            .finally(() => {
-              this.loading -= 1
-            })
-        })
-        .catch((err) => {
-          this.error = err
-          console.error(err)
-        })
-        .finally(() => {
-          this.loading -= 1
-        })
+      chatReq.setRecipientUserIdsList(this.newConversationParticipants)
+      this.loading = true
+      try {
+        const chatRes = await conversations.createGroupChat(chatReq)
+        const messageReq = new SendMessageReq()
+        messageReq.setGroupChatId(chatRes.getGroupChatId())
+        messageReq.setText(this.newConversationText)
+        await conversations.sendMessage(messageReq)
+        this.fetchData()
+        // close the dialog
+        this.cancelNewConversation()
+      } catch (err) {
+        this.error = err
+      }
+      this.loading = false
     },
 
     newConversationParticipantsRemove(userId: number) {
@@ -381,23 +363,16 @@ export default Vue.extend({
       this.messages = this.messages.sort((f, s) => f.messageId - s.messageId)
     },
 
-    fetchUser(userId: number) {
+    async fetchUser(userId: number) {
       if (!(userId in this.userCache)) {
-        this.loading += 1
         const req = new GetUserReq()
         req.setUser(userId.toString())
-        client
-          .getUser(req)
-          .then((res) => {
-            this.userCache[res.getUserId()] = res.toObject()
-          })
-          .catch((err) => {
-            this.error = err
-            console.error(err)
-          })
-          .finally(() => {
-            this.loading -= 1
-          })
+        try {
+          const res = await client.getUser(req)
+          this.userCache[res.getUserId()] = res.toObject()
+        } catch (err) {
+          this.error = err
+        }
       }
     },
 
@@ -406,84 +381,68 @@ export default Vue.extend({
       // TODO
     },
 
-    sendMessage() {
+    async sendMessage() {
       if (!this.selectedConversation) {
         this.error = Error("No conversation selected")
       } else {
         const req = new SendMessageReq()
         req.setGroupChatId(this.selectedConversation)
         req.setText(this.currentMessage)
-        conversations
-          .sendMessage(req)
-          .then((res) => {
-            this.currentMessage = ""
-            this.fetchUpdates()
-          })
-          .catch((err) => {
-            this.error = err
-            console.error(err)
-          })
+        try {
+          await conversations.sendMessage(req)
+          this.currentMessage = ""
+          this.fetchUpdates()
+        } catch (err) {
+          this.error = err
+        }
       }
     },
 
-    fetchUpdates() {
+    async fetchUpdates() {
       const req = new GetUpdatesReq()
       req.setNewestMessageId(
         Math.max(0, ...this.messages.map((msg) => msg.messageId))
       )
-      conversations
-        .getUpdates(req)
-        .then((res) => {
-          res
-            .getUpdatesList()
-            .filter(
-              (update) => update.getGroupChatId() === this.selectedConversation
-            )
-            .map((update) => update.getMessage()!)
-            .forEach((msg) => {
-              this.messages.push(msg.toObject())
-            })
-          this.sortMessages()
-        })
-        .catch((err) => {
-          this.error = err
-          console.error(err)
-        })
+      try {
+        const res = await conversations.getUpdates(req)
+        res
+          .getUpdatesList()
+          .filter(
+            (update) => update.getGroupChatId() === this.selectedConversation
+          )
+          .map((update) => update.getMessage()!)
+          .forEach((msg) => {
+            this.messages.push(msg.toObject())
+          })
+        this.sortMessages()
+      } catch (err) {
+        this.error = err
+      }
     },
 
-    fetchData() {
-      this.loading += 1
-      const req = new ListGroupChatsReq()
-      conversations
-        .listGroupChats(req)
-        .then((res) => {
-          this.conversations = res
-            .getGroupChatsList()
-            .map((chat) => chat.toObject())
-          const userIds = new Set() as Set<number>
-          this.conversations.forEach((conv) => {
-            conv.memberUserIdsList.forEach((userId) => userIds.add(userId))
-          })
-          userIds.forEach(this.fetchUser)
-        })
-        .catch((err) => {
-          this.error = err
-          console.error(err)
-        })
-        .finally(() => {
-          this.loading -= 1
+    async fetchData() {
+      this.loading = true
+      const chatsReq = new ListGroupChatsReq()
+      try {
+        const chatsRes = await conversations.listGroupChats(chatsReq)
+        this.conversations = chatsRes
+          .getGroupChatsList()
+          .map((chat) => chat.toObject())
+        const userIds = new Set() as Set<number>
+        this.conversations.forEach((conv) => {
+          conv.memberUserIdsList.forEach((userId) => userIds.add(userId))
         })
 
-      this.loading += 1
-      client
-        .listFriends(new Empty())
-        .then((res) => {
-          this.friendIds = res.getUserIdsList()
-          this.friendIds.forEach(this.fetchUser)
-        })
-        .finally(() => {
-          this.loading -= 1
-        })
+        const friendsRes = await client.listFriends(new Empty())
+        this.friendIds = friendsRes.getUserIdsList()
+
+        await Promise.all(
+          [...Array.from(userIds), ...this.friendIds].map(this.fetchUser)
+        )
+      } catch (err) {
+        this.error = err
+      }
+      this.loading = false
     },
 
     friends(): Array<any> {

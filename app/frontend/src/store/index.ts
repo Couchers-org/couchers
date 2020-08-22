@@ -74,22 +74,20 @@ export default new Vuex.Store({
       ctx.commit("auth", authToken)
       ctx.dispatch("refreshUser")
     },
-    ping(ctx) {
+    async ping(ctx) {
       // gets a whole bunch of latest info from server if logged in
       ctx.commit("updateLastPing")
       if (ctx.getters.authenticated) {
-        client
-          .ping(new PingReq())
-          .then((res) => {
-            ctx.commit("updatePing", res.toObject())
-          })
-          .catch((err) => {
-            console.error("Failed to ping server: ", err)
-            if (err.code == StatusCode.UNAUTHENTICATED) {
-              console.error("Not logged in. Deauthing.")
-              ctx.commit("deauth")
-            }
-          })
+        try {
+          const res = await client.ping(new PingReq())
+          ctx.commit("updatePing", res.toObject())
+        } catch (err) {
+          console.error("Failed to ping server: ", err)
+          if (err.code == StatusCode.UNAUTHENTICATED) {
+            console.error("Not logged in. Deauthing.")
+            ctx.commit("deauth")
+          }
+        }
       }
     },
     scheduler(ctx) {

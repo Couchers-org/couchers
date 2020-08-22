@@ -118,7 +118,7 @@ export default Vue.extend({
   },
 
   methods: {
-    sendReport() {
+    async sendReport() {
       this.error = []
 
       // there are no types for VForm :/
@@ -143,20 +143,19 @@ export default Vue.extend({
       if (this.user) {
         req.setUserId(this.user.userId)
       }
-      bugsClient
-        .reportBug(req)
-        .then((res) => {
-          this.reportIdentifier = res.getReportIdentifier()
-          this.successVisible = true
-          this.loading = false
-          this.dialog = false
-          this.sent = true
-          form.reset()
-        })
-        .catch((err: Error) => {
-          this.loading = false
-          this.error = err
-        })
+      try {
+        const res = await bugsClient.reportBug(req)
+        this.reportIdentifier = res.getReportIdentifier()
+      } catch (err) {
+        this.loading = false
+        this.error = err
+        return
+      }
+      this.successVisible = true
+      this.loading = false
+      this.dialog = false
+      this.sent = true
+      form.reset()
     },
   },
 

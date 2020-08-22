@@ -41,21 +41,20 @@ export default Vue.extend({
   },
 
   methods: {
-    doSSO() {
+    async doSSO() {
       const req = new SSOReq()
 
       // these are nominally something like string | (null | string)[], but we can just pretend they're string
       req.setSso(this.$route.query.sso as string)
       req.setSig(this.$route.query.sig as string)
 
-      SSOclient.sSO(req)
-        .then((res) => {
-          window.location.href = res.getRedirectUrl()
-        })
-        .catch((err) => {
-          this.loading = false
-          this.error = err
-        })
+      try {
+        const res = await SSOclient.sSO(req)
+        window.location.href = res.getRedirectUrl()
+      } catch (err) {
+        this.error = err
+      }
+      this.loading = false
     },
   },
 })

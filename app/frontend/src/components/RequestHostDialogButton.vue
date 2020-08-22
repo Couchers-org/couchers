@@ -122,7 +122,7 @@ export default Vue.extend({
   }),
 
   methods: {
-    sendRequest() {
+    async sendRequest() {
       this.error = []
 
       if (this.fromDate == null || this.toDate == null) {
@@ -149,17 +149,15 @@ export default Vue.extend({
       req.setToDate(this.toDate!)
       req.setText(this.message)
 
-      requestsClient
-        .createHostRequest(req)
-        .then(() => {
-          this.loading = false
-          this.dialog = false
-          this.sent = true
-        })
-        .catch((err: Error) => {
-          this.loading = false
-          this.error = err
-        })
+      try {
+        await requestsClient.createHostRequest(req)
+        this.dialog = false
+        this.sent = true
+      } catch (err) {
+        this.loading = false
+        this.error = err
+      }
+      this.loading = false
     },
   },
 })

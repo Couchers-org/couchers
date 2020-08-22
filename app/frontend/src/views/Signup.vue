@@ -76,35 +76,32 @@ export default Vue.extend({
       this.successMessages = []
     },
 
-    submitSignup() {
+    async submitSignup() {
       this.loading = true
       this.clearMessages()
 
       const req = new SignupReq()
 
       req.setEmail(this.email)
-      authClient
-        .signup(req)
-        .then((res) => {
-          switch (res.getNextStep()) {
-            case SignupRes.SignupStep.SENT_SIGNUP_EMAIL:
-              this.signupStep = "email"
-              break
-            case SignupRes.SignupStep.EMAIL_EXISTS:
-              this.error = new Error("Email exists! Please login.")
-              break
-            case SignupRes.SignupStep.INVALID_EMAIL:
-              this.error = new Error(
-                "Sorry! That doesn't look like a proper email."
-              )
-              break
-          }
-          this.loading = false
-        })
-        .catch((err) => {
-          this.error = err
-          this.loading = false
-        })
+      try {
+        const res = await authClient.signup(req)
+        switch (res.getNextStep()) {
+          case SignupRes.SignupStep.SENT_SIGNUP_EMAIL:
+            this.signupStep = "email"
+            break
+          case SignupRes.SignupStep.EMAIL_EXISTS:
+            this.error = new Error("Email exists! Please login.")
+            break
+          case SignupRes.SignupStep.INVALID_EMAIL:
+            this.error = new Error(
+              "Sorry! That doesn't look like a proper email."
+            )
+            break
+        }
+      } catch (err) {
+        this.error = err
+      }
+      this.loading = false
     },
   },
 })
