@@ -22,7 +22,7 @@ export const client = new APIPromiseClient(URL, null, opts) as APIPromiseClient
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 // @ts-ignore
-export const bugs = new BugsPromiseClient(URL, null, opts) as BugsPromiseClient
+export const bugsClient = new BugsPromiseClient(URL, null, opts) as BugsPromiseClient
 
 // prettier-ignore
 // eslint-disable-next-line @typescript-eslint/ban-ts-ignore

@@ -51,7 +51,7 @@ import Vue, { PropType } from "vue"
 import { mapState } from "vuex"
 
 import ErrorAlert from "./ErrorAlert.vue"
-import { bugs } from "../api"
+import { bugsClient } from "../api"
 import { ReportBugReq } from "../pb/bugs_pb"
 
 export default Vue.extend({
@@ -92,7 +92,7 @@ export default Vue.extend({
       req.setUserAgent(navigator.userAgent)
       req.setPage(window.location.href)
       req.setUserId(this.user.userId)
-      bugs
+      bugsClient
         .reportBug(req)
         .then((res) => {
           console.log(res.getReportIdentifier())
