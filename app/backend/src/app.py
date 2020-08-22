@@ -6,8 +6,7 @@ from concurrent import futures
 import grpc
 from couchers.config import config
 from couchers.interceptors import (LoggingInterceptor,
-                                   UpdateLastActiveTimeInterceptor,
-                                   intercept_server)
+                                   UpdateLastActiveTimeInterceptor)
 from couchers.models import Base
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
