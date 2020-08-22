@@ -35,18 +35,18 @@ def send_report_email(author_user, reported_user, reason, description):
 
 
 def send_host_request_email(host_request):
-    user_guest = host_request.from_user
-    user_host = host_request.to_user
+    from_user = host_request.from_user
+    to_user = host_request.to_user
 
-    logger.info(f"Sending host request email to {user_host=}:")
-    logger.info(f"Host request sent by {user_guest}")
-    logger.info(f"Email for {user_host.username=} sent to {user_host.email=}")
+    logger.info(f"Sending host request email to {to_user=}:")
+    logger.info(f"Host request sent by {from_user}")
+    logger.info(f"Email for {to_user.username=} sent to {to_user.email=}")
     host_request_link = f"{config['BASE_URL']}/hostrequests/"
     subject = "You've received a host request!"
-    return email.send_email_template(user_host.email, subject, "host_request", template_args={"name_host": user_host.name,
-                                        "name_guest": user_guest.name, "from_date": host_request.from_date,
+    return email.send_email_template(to_user.email, subject, "host_request", template_args={"name_host": to_user.name,
+                                        "name_guest": from_user.name, "from_date": host_request.from_date,
                                         "to_date": host_request.to_date, "host_request_link": host_request_link,
-                                        "profile_picture_or_avatar": user_guest.avatar_url})
+                                        "profile_picture_or_avatar": from_user.avatar_url})
 
 
 def send_message_received_email(user_recipient):
@@ -58,14 +58,14 @@ def send_message_received_email(user_recipient):
 
 
 def send_friend_request_email(friend_relationship):
-    user_sender = friend_relationship.from_user
-    user_recipient = friend_relationship.to_user
+    from_user = friend_relationship.from_user
+    to_user = friend_relationship.to_user
 
-    logger.info(f"Sending friend request email to {user_recipient=}:")
-    logger.info(f"Email for {user_recipient.username=} sent to {user_recipient.email=}")
-    logger.info(f"Friend request sent by {user_sender.username=}")
+    logger.info(f"Sending friend request email to {to_user=}:")
+    logger.info(f"Email for {to_user.username=} sent to {to_user.email=}")
+    logger.info(f"Friend request sent by {from_user.username=}")
     friend_requests_link = f"{config['BASE_URL']}/friends/"
     subject = "Someone wants to be your friend!"
-    return email.send_email_template(user_recipient.email, subject, "friend_request", template_args={"name_recipient": user_recipient.name,
-                                        "name_sender": user_sender.name, "friend_requests_link": friend_requests_link,
-                                        "profile_picture_or_avatar": user_sender.avatar_url})
+    return email.send_email_template(to_user.email, subject, "friend_request", template_args={"name_recipient": to_user.name,
+                                        "name_sender": from_user.name, "friend_requests_link": friend_requests_link,
+                                        "profile_picture_or_avatar": from_user.avatar_url})
