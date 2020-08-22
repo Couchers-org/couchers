@@ -37,7 +37,7 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
             f"Page: {request.page}\n"
             f"User ID: {request.user_id}"
         )
-        issue_labels = ["bug-tool"]
+        issue_labels = ["bug tool"]
 
         json_body = {
             "title": issue_title,
