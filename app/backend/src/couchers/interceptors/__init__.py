@@ -1,10 +1,6 @@
-# Borrows form OpenTracing's python gRPC interceptors, under Apache 2
-
-
 import logging
 import os
 from time import perf_counter_ns
-from typing import List
 
 import grpc
 
@@ -76,23 +72,27 @@ class ManualAuthValidatorInterceptor(grpc.ServerInterceptor):
 
 class LoggingInterceptor(grpc.ServerInterceptor):
     def intercept_service(self, continuation, handler_call_details):
-        # TODO: implement properly
-        return continuation(handler_call_details)
+        handler = continuation(handler_call_details)
+        prev_func = handler.unary_unary
+        method = handler_call_details.method
+        def new_f(request, context):
+            if LOG_VERBOSE_PB:
+                logger.info(f"Got request: {method}. Request: {request}")
+            else:
+                logger.info(f"Got request: {method}")
+            start = perf_counter_ns()
+            res = prev_func(request, context)
+            finished = perf_counter_ns()
+            duration = (finished - start) / 1e6  # ms
+            if LOG_VERBOSE_PB:
+                logger.info(f"Finished request (in {duration:0.2f} ms): {method}. Response: {res}")
+            else:
+                logger.info(f"Finished request (in {duration:0.2f} ms): {method}")
+            return res
 
-    def intercept_unary(self, request, servicer_context, server_info, handler):
-        if LOG_VERBOSE_PB:
-            logger.info(f"Got request: {server_info.full_method}. Request: {request}")
-        else:
-            logger.info(f"Got request: {server_info.full_method}")
-        start = perf_counter_ns()
-        res = handler(request, servicer_context)
-        finished = perf_counter_ns()
-        duration = (finished-start) / 1e6 # ms
-        if LOG_VERBOSE_PB:
-            logger.info(f"Finished request (in {duration:0.2f} ms): {server_info.full_method}. Response: {res}")
-        else:
-            logger.info(f"Finished request (in {duration:0.2f} ms): {server_info.full_method}")
-        return res
+        return grpc.unary_unary_rpc_method_handler(new_f,
+                                                   request_deserializer=handler.request_deserializer,
+                                                   response_serializer=handler.response_serializer)
 
 
 class UpdateLastActiveTimeInterceptor(grpc.ServerInterceptor):
