@@ -60,8 +60,12 @@ All python code should live in the `couchers` namespace (i.e. a folder within th
 
 The style guide is a work in progress, and there is [an issue for it](https://github.com/Couchers-org/couchers/issues/151).
 
-Please adhere to [PEP8](https://www.python.org/dev/peps/pep-0008/).
+We adhere to [PEP8](https://www.python.org/dev/peps/pep-0008/), but it's automatically done with [black](https://github.com/psf/black).
+
+Install it with `pip install black` and run it in app/backend before you commit, or before you ask for review for your branch: `black .`
 
 Additionally, we strive to use the ["Google" docstring format](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html). We will auto-generate docs from code, so it's important to adhere to a uniform docstring style.
 
 Please use double quotes `"`, instead of single quotes `'`.
+
+In the **frontend**, make sure to run `yarn format` in app/frontend before asking for a review.
