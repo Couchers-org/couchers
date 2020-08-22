@@ -20,21 +20,23 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
         auth = (config["BUG_TOOL_GITHUB_USERNAME"], config["BUG_TOOL_GITHUB_TOKEN"])
 
         issue_title = request.subject
-        issue_body = f"Subject: {request.subject}\n" \
-        f"Description:\n" \
-        f"{request.description}\n" \
-        f"\n" \
-        f"Steps:\n" \
-        f"{request.steps}\n" \
-        f"\n" \
-        f"Results:\n" \
-        f"{request.results}\n" \
-        f"\n" \
-        f"Backend version: {self._version()}\n" \
-        f"Frontend version: {request.frontend_version}\n" \
-        f"User Agent: {request.user_agent}\n" \
-        f"Page: {request.page}\n" \
-        f"User ID: {request.user_id}"
+        issue_body = (
+            f"Subject: {request.subject}\n"
+            f"Description:\n"
+            f"{request.description}\n"
+            f"\n"
+            f"Steps:\n"
+            f"{request.steps}\n"
+            f"\n"
+            f"Results:\n"
+            f"{request.results}\n"
+            f"\n"
+            f"Backend version: {self._version()}\n"
+            f"Frontend version: {request.frontend_version}\n"
+            f"User Agent: {request.user_agent}\n"
+            f"Page: {request.page}\n"
+            f"User ID: {request.user_id}"
+        )
         issue_labels = ["bug-tool"]
 
         json_body = {
