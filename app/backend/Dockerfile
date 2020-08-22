@@ -21,7 +21,7 @@ RUN pip install -r requirements.txt
 
 COPY . /app
 
-ARG VERSION
-ENV VERSION=$VERSION
+ARG version
+ENV VERSION=$version
 
 CMD python src/app.py
