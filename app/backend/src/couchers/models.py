@@ -6,7 +6,7 @@ from sqlalchemy import Boolean, Column, Date, DateTime, Enum, Float, ForeignKey,
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import String, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func
 
@@ -343,7 +343,7 @@ class GroupChatSubscription(Base):
     last_seen_message_id = Column(Integer, nullable=False, default=0)
 
     user = relationship("User", backref="group_chat_subscriptions")
-    group_chat = relationship("GroupChat", backref="subscriptions")
+    group_chat = relationship("GroupChat", backref=backref("subscriptions", lazy="dynamic"))
 
     @property
     def unseen_message_count(self):

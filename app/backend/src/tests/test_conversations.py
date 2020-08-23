@@ -465,11 +465,14 @@ def test_get_group_chat_info_left(db):
 
     with conversations_session(db, token3) as c:
         # this user left when user4 wasn't a member,
-        # so the returned members should be user1 and user2 only
-        res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
-        assert len(res.member_user_ids) == 2
+        # so the returned members should be user1, user2, and user3 only
+        res = c.GetGroupChat(
+            conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
+        print(res.member_user_ids)
+        assert len(res.member_user_ids) == 3
         assert user1.id in res.member_user_ids
         assert user2.id in res.member_user_ids
+        assert user3.id in res.member_user_ids
 
 
 def test_edit_group_chat(db):
@@ -648,9 +651,12 @@ def test_leave_invite_to_group_chat(db):
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == errors.GROUP_CHAT_ONLY_INVITE_FRIENDS
 
-        c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user3.id))
-        res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
-        assert user2.id in res.member_user_ids
+        c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(
+            group_chat_id=group_chat_id, user_id=user3.id))
+        res = c.GetGroupChat(
+            conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
+        assert user1.id in res.member_user_ids
+        assert user5.id in res.member_user_ids
         assert user3.id in res.member_user_ids
 
         # test non-admin inviting

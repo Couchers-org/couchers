@@ -68,6 +68,42 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         else:
             raise ValueError("Unknown message type")
 
+    def _get_visible_members_for_subscription(self, subscription):
+        """
+        If a user leaves a group chat, they shouldn't be able to see who's added
+        after they left
+        """
+        if not subscription.left:
+            # still in the chat, we see everyone with a current subscription
+            return [sub.user_id for sub in subscription.group_chat.subscriptions
+                .filter(GroupChatSubscription.left == None)]
+        else:
+            # not in chat anymore, see everyone who was in chat when we left
+            return [sub.user_id for sub in subscription.group_chat.subscriptions
+                .filter(GroupChatSubscription.joined <= subscription.left)
+                .filter(
+                    or_(GroupChatSubscription.left >= subscription.left,
+                        GroupChatSubscription.left == None))]
+
+    def _get_visible_admins_for_subscription(self, subscription):
+        """
+        If a user leaves a group chat, they shouldn't be able to see who's added
+        after they left
+        """
+        if not subscription.left:
+            # still in the chat, we see everyone with a current subscription
+            return [sub.user_id for sub in subscription.group_chat.subscriptions
+                .filter(GroupChatSubscription.left == None)
+                .filter(GroupChatSubscription.role == GroupChatRole.admin)]
+        else:
+            # not in chat anymore, see everyone who was in chat when we left
+            return [sub.user_id for sub in subscription.group_chat.subscriptions
+                .filter(GroupChatSubscription.role == GroupChatRole.admin)
+                .filter(GroupChatSubscription.joined <= subscription.left)
+                .filter(
+                    or_(GroupChatSubscription.left >= subscription.left,
+                        GroupChatSubscription.left == None))]
+
     def ListGroupChats(self, request, context):
         with session_scope(self._Session) as session:
             # select group chats where you have a subscription, and for each of
@@ -106,11 +142,9 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 group_chats=[
                     conversations_pb2.GroupChat(
                         group_chat_id=result.GroupChat.conversation_id,
-                        title=result.GroupChat.title,  # TODO: proper title for DMs, etc
-                        member_user_ids=[sub.user_id for sub in result.GroupChat.subscriptions],
-                        admin_user_ids=[
-                            sub.user_id for sub in result.GroupChat.subscriptions if sub.role == GroupChatRole.admin
-                        ],
+                        title=result.GroupChat.title, # TODO: proper title for DMs, etc
+                        member_user_ids=self._get_visible_members_for_subscription(result.GroupChatSubscription),
+                        admin_user_ids=self._get_visible_admins_for_subscription(result.GroupChatSubscription),
                         only_admins_invite=result.GroupChat.only_admins_invite,
                         is_dm=result.GroupChat.is_dm,
                         created=Timestamp_from_datetime(result.GroupChat.conversation.created),
@@ -152,10 +186,8 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             return conversations_pb2.GroupChat(
                 group_chat_id=result.GroupChat.conversation_id,
                 title=result.GroupChat.title,
-                member_user_ids=[sub.user_id for sub in result.GroupChat.subscriptions],
-                admin_user_ids=[
-                    sub.user_id for sub in result.GroupChat.subscriptions if sub.role == GroupChatRole.admin
-                ],
+                member_user_ids=self._get_visible_members_for_subscription(result.GroupChatSubscription),
+                admin_user_ids=self._get_visible_admins_for_subscription(result.GroupChatSubscription),
                 only_admins_invite=result.GroupChat.only_admins_invite,
                 is_dm=result.GroupChat.is_dm,
                 created=Timestamp_from_datetime(result.GroupChat.conversation.created),
@@ -210,10 +242,8 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             return conversations_pb2.GroupChat(
                 group_chat_id=result.GroupChat.conversation_id,
                 title=result.GroupChat.title,
-                member_user_ids=[sub.user_id for sub in result.GroupChat.subscriptions],
-                admin_user_ids=[
-                    sub.user_id for sub in result.GroupChat.subscriptions if sub.role == GroupChatRole.admin
-                ],
+                member_user_ids=self._get_visible_members_for_subscription(result.GroupChatSubscription),
+                admin_user_ids=self._get_visible_admins_for_subscription(result.GroupChatSubscription),
                 only_admins_invite=result.GroupChat.only_admins_invite,
                 is_dm=result.GroupChat.is_dm,
                 created=Timestamp_from_datetime(result.GroupChat.conversation.created),
@@ -367,10 +397,12 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             )
             session.add(group_chat)
 
-            subscription = GroupChatSubscription(
-                user_id=context.user_id, group_chat=group_chat, role=GroupChatRole.admin,
+            your_subscription = GroupChatSubscription(
+                user_id=context.user_id,
+                group_chat=group_chat,
+                role=GroupChatRole.admin,
             )
-            session.add(subscription)
+            session.add(your_subscription)
 
             for recipient in request.recipient_user_ids:
                 if get_friends_status(session, context.user_id, recipient) != api_pb2.User.FriendshipStatus.FRIENDS:
@@ -395,8 +427,8 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             return conversations_pb2.GroupChat(
                 group_chat_id=group_chat.conversation_id,
                 title=group_chat.title,
-                member_user_ids=[sub.user_id for sub in group_chat.subscriptions],
-                admin_user_ids=[sub.user_id for sub in group_chat.subscriptions if sub.role == GroupChatRole.admin],
+                member_user_ids=self._get_visible_members_for_subscription(your_subscription),
+                admin_user_ids=self._get_visible_admins_for_subscription(your_subscription),
                 only_admins_invite=group_chat.only_admins_invite,
                 is_dm=group_chat.is_dm,
                 created=Timestamp_from_datetime(group_chat.conversation.created),
