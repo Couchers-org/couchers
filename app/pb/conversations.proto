@@ -83,12 +83,12 @@ message NormalMessage {
 
 message ControlMessage {
   ControlMessageType type = 1;
-  uint32 target_user_id = 2;
+  uint64 target_user_id = 2;
 }
 
 message Message {
   uint64 message_id = 1;
-  uint32 author_user_id = 2;
+  uint64 author_user_id = 2;
   google.protobuf.Timestamp time = 3;
   oneof message {
     NormalMessage normal_message = 4;
