@@ -27,7 +27,7 @@ def test_media_upload(db):
 
     filename = random_hex(32)
 
-    req = media_pb2.UploadConfirmationReq(key=key, filename=filename,)
+    req = media_pb2.UploadConfirmationReq(key=key, filename=filename)
 
     with media_session(db, media_bearer_token) as media:
         res = media.UploadConfirmation(req)

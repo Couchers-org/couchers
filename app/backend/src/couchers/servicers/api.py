@@ -285,7 +285,7 @@ class API(api_pb2_grpc.APIServicer):
 
             # Race condition!
 
-            friend_relationship = FriendRelationship(from_user=from_user, to_user=to_user, status=FriendStatus.pending,)
+            friend_relationship = FriendRelationship(from_user=from_user, to_user=to_user, status=FriendStatus.pending)
             session.add(friend_relationship)
 
             return empty_pb2.Empty()
@@ -371,7 +371,7 @@ class API(api_pb2_grpc.APIServicer):
             users = []
             for user in (
                 session.query(User)
-                .filter(or_(User.name.ilike(f"%{request.query}%"), User.username.ilike(f"%{request.query}%"),))
+                .filter(or_(User.name.ilike(f"%{request.query}%"), User.username.ilike(f"%{request.query}%")))
                 .all()
             ):
                 users.append(user_model_to_pb(user, session, context))
@@ -472,7 +472,7 @@ class API(api_pb2_grpc.APIServicer):
         expiry = now + timedelta(minutes=20)
 
         with session_scope(self._Session) as session:
-            upload = InitiatedUpload(key=key, created=now, expiry=expiry, user_id=context.user_id,)
+            upload = InitiatedUpload(key=key, created=now, expiry=expiry, user_id=context.user_id)
             session.add(upload)
             session.commit()
 
@@ -540,7 +540,7 @@ def user_model_to_pb(db_user, session, context):
         countries_lived=db_user.countries_lived.split("|") if db_user.countries_lived else [],
         friends=get_friends_status(session, context.user_id, db_user.id),
         mutual_friends=[
-            api_pb2.MutualFriend(user_id=mutual_friend.id, username=mutual_friend.username, name=mutual_friend.name,)
+            api_pb2.MutualFriend(user_id=mutual_friend.id, username=mutual_friend.username, name=mutual_friend.name)
             for mutual_friend in db_user.mutual_friends(context.user_id)
         ],
         smoking_allowed=smokinglocation2api[db_user.smoking_allowed],

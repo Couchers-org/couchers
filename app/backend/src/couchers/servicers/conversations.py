@@ -51,7 +51,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 message_id=message.id,
                 author_user_id=message.author_id,
                 time=Timestamp_from_datetime(message.time),
-                normal_message=conversations_pb2.NormalMessage(text=message.text,),
+                normal_message=conversations_pb2.NormalMessage(text=message.text),
             )
         elif message.is_control_message:
             return conversations_pb2.Message(
@@ -122,17 +122,15 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 )
                 .outerjoin(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
                 .filter(GroupChatSubscription.user_id == context.user_id)
-                .filter(or_(Message.time >= GroupChatSubscription.joined, Message.time == None))  # outer join
+                .filter(or_(Message.time >= GroupChatSubscription.joined, Message.time == None))
                 .filter(
                     or_(
                         Message.time <= GroupChatSubscription.left,
                         GroupChatSubscription.left == None,
                         Message.time == None,
                     )
-                )  # outer join
-                .filter(
-                    or_(Message.id < request.last_message_id, request.last_message_id == 0, Message.id == None)
-                )  # outer join
+                )
+                .filter(or_(Message.id < request.last_message_id, request.last_message_id == 0, Message.id == None))
                 .group_by(GroupChatSubscription.group_chat_id)
                 .order_by(func.max(Message.id).desc())
                 .limit(PAGINATION_LENGTH + 1)
@@ -178,16 +176,14 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
                 .filter(GroupChatSubscription.user_id == context.user_id)
                 .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
-                .filter(
-                    or_(Message.time >= GroupChatSubscription.joined, Message.time == None)
-                )  # in case outer join and no messages
+                .filter(or_(Message.time >= GroupChatSubscription.joined, Message.time == None))
                 .filter(
                     or_(
                         Message.time <= GroupChatSubscription.left,
                         GroupChatSubscription.left == None,
                         Message.time == None,
                     )
-                )  # in case outer join and no messages
+                )
                 .order_by(Message.id.desc())
                 .first()
             )
@@ -327,9 +323,8 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_UNSEE_MESSAGES)
 
             subscription.last_seen_message_id = request.last_seen_message_id
-            session.commit()
 
-            return empty_pb2.Empty()
+        return empty_pb2.Empty()
 
     def SearchMessages(self, request, context):
         with session_scope(self._Session) as session:
@@ -425,7 +420,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 session.add(subscription)
 
             session.add(
-                Message(conversation=conversation, author_id=context.user_id, message_type=MessageType.chat_created,)
+                Message(conversation=conversation, author_id=context.user_id, message_type=MessageType.chat_created)
             )
 
             session.flush()
@@ -454,14 +449,17 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             )
             if not subscription:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
+
             message = Message(
                 conversation=subscription.group_chat.conversation, author_id=context.user_id, text=request.text,
             )
+
             session.add(message)
-            session.commit()
+            session.flush()
+
             subscription.last_seen_message_id = message.id
-            session.commit()
-            return empty_pb2.Empty()
+
+        return empty_pb2.Empty()
 
     def EditGroupChat(self, request, context):
         with session_scope(self._Session) as session:
@@ -539,9 +537,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 )
             )
 
-            session.commit()
-
-            return empty_pb2.Empty()
+        return empty_pb2.Empty()
 
     def RemoveGroupChatAdmin(self, request, context):
         with session_scope(self._Session) as session:
@@ -595,9 +591,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 )
             )
 
-            session.commit()
-
-            return empty_pb2.Empty()
+        return empty_pb2.Empty()
 
     def InviteToGroupChat(self, request, context):
         with session_scope(self._Session) as session:
@@ -657,9 +651,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 )
             )
 
-            session.commit()
-
-            return empty_pb2.Empty()
+        return empty_pb2.Empty()
 
     def LeaveGroupChat(self, request, context):
         with session_scope(self._Session) as session:
@@ -706,6 +698,4 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
             subscription.left = func.now()
 
-            session.commit()
-
-            return empty_pb2.Empty()
+        return empty_pb2.Empty()

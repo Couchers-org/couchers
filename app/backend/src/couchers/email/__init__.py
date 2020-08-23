@@ -7,7 +7,7 @@ from couchers.config import config
 from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email
 
-env = Environment(loader=FileSystemLoader(Path(__file__).parent / ".." / ".." / ".." / "templates"), trim_blocks=True,)
+env = Environment(loader=FileSystemLoader(Path(__file__).parent / ".." / ".." / ".." / "templates"), trim_blocks=True)
 
 plain_base_template = env.get_template("email_base_plain.md")
 html_base_template = env.get_template("email_base_html.html")
