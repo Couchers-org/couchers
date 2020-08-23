@@ -258,10 +258,12 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 session.add(latest_message)
                 session.flush()
             else:
-                latest_message = (session.query(Message)
-                                  .filter(Message.conversation_id == host_request.conversation_id)
-                                  .order_by(Message.id.desc())
-                                  .first())
+                latest_message = (
+                    session.query(Message)
+                    .filter(Message.conversation_id == host_request.conversation_id)
+                    .order_by(Message.id.desc())
+                    .first()
+                )
             host_request_event.after_message_id = latest_message.id if latest_message else 0
             host_request_event.host_request_id = host_request.id
             host_request_event.user_id = context.user_id

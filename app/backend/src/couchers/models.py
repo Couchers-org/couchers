@@ -6,7 +6,7 @@ from sqlalchemy import Boolean, Column, Date, DateTime, Enum, Float, ForeignKey,
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import String, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import backref, relationship
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func
 
@@ -351,15 +351,16 @@ class GroupChatSubscription(Base):
 
         session = Session.object_session(self)
 
-        return (session.query(Message.id)
-                .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
-                .filter(GroupChatSubscription.id == self.id)
-                .filter(Message.id > GroupChatSubscription.last_seen_message_id)
-                .count())
+        return (
+            session.query(Message.id)
+            .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
+            .filter(GroupChatSubscription.id == self.id)
+            .filter(Message.id > GroupChatSubscription.last_seen_message_id)
+            .count()
+        )
 
     def __repr__(self):
         return f"GroupChatSubscription(id={self.id}, user={self.user}, joined={self.joined}, left={self.left}, role={self.role}, group_chat={self.group_chat})"
-
 
 
 class MessageType(enum.Enum):
@@ -396,8 +397,7 @@ class Message(Base):
     target_id = Column(ForeignKey("users.id"), nullable=True)
 
     # time sent
-    time = Column(DateTime(timezone=True), nullable=False,
-                  server_default=func.now())
+    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     # the message text if not control
     text = Column(String, nullable=True)

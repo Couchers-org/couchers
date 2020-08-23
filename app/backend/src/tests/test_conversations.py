@@ -200,13 +200,14 @@ def test_list_group_chats_ordering_after_left(db):
             )
         )
         left_chat_id = res.group_chat_id
-        c.SendMessage(conversations_pb2.SendMessageReq(
-            group_chat_id=left_chat_id, text="Test message"))
-        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(
-            recipient_user_ids=[user.id, user3.id], title=wrappers_pb2.StringValue(value="Chat 2")))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=left_chat_id, text="Test message"))
+        res = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(
+                recipient_user_ids=[user.id, user3.id], title=wrappers_pb2.StringValue(value="Chat 2")
+            )
+        )
         chat2_id = res.group_chat_id
-        c.SendMessage(conversations_pb2.SendMessageReq(
-            group_chat_id=chat2_id, text="Test message"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=chat2_id, text="Test message"))
 
     with conversations_session(db, token3) as c:
         res = c.CreateGroupChat(
@@ -228,10 +229,8 @@ def test_list_group_chats_ordering_after_left(db):
         c.LeaveGroupChat(conversations_pb2.LeaveGroupChatReq(group_chat_id=left_chat_id))
 
     with conversations_session(db, token3) as c:
-        c.SendMessage(conversations_pb2.SendMessageReq(
-            group_chat_id=chat2_id, text="Test message"))
-        c.SendMessage(conversations_pb2.SendMessageReq(
-            group_chat_id=left_chat_id, text="Test message"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=chat2_id, text="Test message"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=left_chat_id, text="Test message"))
 
     with conversations_session(db, token2) as c:
         # other user sends a message to that chat
@@ -269,15 +268,17 @@ def test_get_group_chat_messages(db):
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=res.group_chat_id, text="Test message 1"))
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=res.group_chat_id, text="Test message 2"))
 
-        res = c.GetGroupChatMessages(
-            conversations_pb2.GetGroupChatMessagesReq(group_chat_id=group_chat_id))
+        res = c.GetGroupChatMessages(conversations_pb2.GetGroupChatMessagesReq(group_chat_id=group_chat_id))
         # created + 2 normal
         assert len(res.messages) == 3
         assert res.no_more
 
         assert res.messages[0].normal_message.text == "Test message 2"
         assert res.messages[1].normal_message.text == "Test message 1"
-        assert res.messages[2].control_message.type == conversations_pb2.ControlMessageType.CONTROL_MESSAGE_TYPE_CHAT_CREATED
+        assert (
+            res.messages[2].control_message.type
+            == conversations_pb2.ControlMessageType.CONTROL_MESSAGE_TYPE_CHAT_CREATED
+        )
 
     # test that another user can't access the thread
     with conversations_session(db, token3) as c:
@@ -297,15 +298,17 @@ def test_get_group_chat_messages_pagination(db):
             c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text=str(i)))
 
     with conversations_session(db, token2) as c:
-        res = c.GetGroupChatMessages(
-            conversations_pb2.GetGroupChatMessagesReq(group_chat_id=group_chat_id))
+        res = c.GetGroupChatMessages(conversations_pb2.GetGroupChatMessagesReq(group_chat_id=group_chat_id))
         # pagination
         assert len(res.messages) == 20
         assert res.messages[0].normal_message.text == "29"
         assert res.messages[19].normal_message.text == "10"
         assert not res.no_more
-        res = c.GetGroupChatMessages(conversations_pb2.GetGroupChatMessagesReq(
-            group_chat_id=group_chat_id, last_message_id=res.messages[19].message_id))
+        res = c.GetGroupChatMessages(
+            conversations_pb2.GetGroupChatMessagesReq(
+                group_chat_id=group_chat_id, last_message_id=res.messages[19].message_id
+            )
+        )
         assert len(res.messages) == 11
         assert res.messages[0].normal_message.text == "9"
         assert res.messages[9].normal_message.text == "0"
@@ -340,8 +343,7 @@ def test_get_group_chat_messages_joined_left(db):
 
     with conversations_session(db, token3) as c:
         # can only see last message after invited
-        res = c.GetGroupChatMessages(
-            conversations_pb2.GetGroupChatMessagesReq(group_chat_id=group_chat_id))
+        res = c.GetGroupChatMessages(conversations_pb2.GetGroupChatMessagesReq(group_chat_id=group_chat_id))
         # joined + normal
         assert len(res.messages) == 2
         assert res.messages[0].normal_message.text == "10"
@@ -359,8 +361,7 @@ def test_get_group_chat_messages_joined_left(db):
 
     with conversations_session(db, token3) as c:
         # can only see last message after invited
-        res = c.GetGroupChatMessages(
-            conversations_pb2.GetGroupChatMessagesReq(group_chat_id=group_chat_id))
+        res = c.GetGroupChatMessages(conversations_pb2.GetGroupChatMessagesReq(group_chat_id=group_chat_id))
         # joined + normal + left + invite + 2 normal
         assert len(res.messages) == 6
         assert res.messages[0].normal_message.text == "14"
@@ -466,8 +467,7 @@ def test_get_group_chat_info_left(db):
     with conversations_session(db, token3) as c:
         # this user left when user4 wasn't a member,
         # so the returned members should be user1, user2, and user3 only
-        res = c.GetGroupChat(
-            conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
+        res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
         print(res.member_user_ids)
         assert len(res.member_user_ids) == 3
         assert user1.id in res.member_user_ids
@@ -585,10 +585,8 @@ def test_send_message(db):
     with conversations_session(db, token1) as c:
         res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id]))
         group_chat_id = res.group_chat_id
-        c.SendMessage(conversations_pb2.SendMessageReq(
-            group_chat_id=group_chat_id, text="Test message 1"))
-        res = c.GetGroupChatMessages(
-            conversations_pb2.GetGroupChatMessagesReq(group_chat_id=group_chat_id))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
+        res = c.GetGroupChatMessages(conversations_pb2.GetGroupChatMessagesReq(group_chat_id=group_chat_id))
         assert res.messages[0].normal_message.text == "Test message 1"
         assert res.messages[0].time.ToDatetime() <= datetime.now()
         assert res.messages[0].author_user_id == user1.id
@@ -651,10 +649,8 @@ def test_leave_invite_to_group_chat(db):
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == errors.GROUP_CHAT_ONLY_INVITE_FRIENDS
 
-        c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(
-            group_chat_id=group_chat_id, user_id=user3.id))
-        res = c.GetGroupChat(
-            conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
+        c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user3.id))
+        res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
         assert user1.id in res.member_user_ids
         assert user5.id in res.member_user_ids
         assert user3.id in res.member_user_ids
@@ -688,27 +684,21 @@ def test_group_chats_with_messages_before_join(db):
     make_friends(db, user1, user4)
 
     with conversations_session(db, token1) as c:
-        res = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user4.id]))
+        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user4.id]))
         group_chat_id = res.group_chat_id
-        c.SendMessage(conversations_pb2.SendMessageReq(
-            group_chat_id=group_chat_id,  text="Test message 1"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
 
     with conversations_session(db, token2) as c:
-        c.SendMessage(conversations_pb2.SendMessageReq(
-            group_chat_id=group_chat_id,  text="Test message 2"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 2"))
 
     with conversations_session(db, token1) as c:
-        c.SendMessage(conversations_pb2.SendMessageReq(
-            group_chat_id=group_chat_id,  text="Test message 3"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 3"))
 
-        c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(
-            group_chat_id=group_chat_id, user_id=user3.id))
+        c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user3.id))
 
     with conversations_session(db, token3) as c:
         # should work
-        c.GetGroupChat(
-            conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
+        c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
 
         res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq())
         assert len(res.group_chats) == 1
@@ -974,8 +964,7 @@ def test_last_seen(db):
         assert res.unseen_message_count == 0
 
     with conversations_session(db, token2) as c:
-        res = c.GetGroupChat(
-            conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
+        res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
         # created + 6 normal
         assert res.unseen_message_count == 7
 
@@ -995,8 +984,7 @@ def test_last_seen(db):
         assert res.unseen_message_count == 0
 
     with conversations_session(db, token3) as c:
-        res = c.GetGroupChat(
-            conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
+        res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
         # created + 7 normal
         assert res.unseen_message_count == 8
 
@@ -1141,8 +1129,7 @@ def test_total_unseen(db):
 
     # now leave chat with user2
     with conversations_session(db, token2) as c:
-        c.LeaveGroupChat(conversations_pb2.LeaveGroupChatReq(
-            group_chat_id=gcid))
+        c.LeaveGroupChat(conversations_pb2.LeaveGroupChatReq(group_chat_id=gcid))
 
     with api_session(db, token2) as api:
         # created + 6 normal + left
@@ -1154,8 +1141,7 @@ def test_total_unseen(db):
 
         # send more stuff without user 2
         for i in range(3):
-            c.SendMessage(conversations_pb2.SendMessageReq(
-                group_chat_id=gcid, text=f"test message {i}"))
+            c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid, text=f"test message {i}"))
 
         # distractions
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid_distraction, text=f"distraction..."))
@@ -1166,14 +1152,11 @@ def test_total_unseen(db):
 
     with conversations_session(db, token1) as c:
         # add user 2 back
-        c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(
-            group_chat_id=gcid, user_id=user2.id
-        ))
+        c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=gcid, user_id=user2.id))
 
         # send more stuff with user 2
         for i in range(12):
-            c.SendMessage(conversations_pb2.SendMessageReq(
-                group_chat_id=gcid, text=f"test message {i}"))
+            c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid, text=f"test message {i}"))
 
         # distractions
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid_distraction, text=f"distraction..."))
