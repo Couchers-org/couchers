@@ -37,7 +37,7 @@
         </v-col>
       </v-row>
     </v-container>
-    <v-container v-if="!loading && user != null" fluid>
+    <v-container v-if="!loading" fluid>
       <v-row>
         <v-col sm="12" md="4" lg="3">
           <v-card class="mx-3 my-3" outlined>
@@ -407,7 +407,7 @@ const REFERENCES_PAGINATION = 2
 
 export default Vue.extend({
   data: () => ({
-    loading: false,
+    loading: true,
     error: null as null | Error,
     sendingFriendRequest: false,
     user: (null as unknown) as User.AsObject,
@@ -467,9 +467,9 @@ export default Vue.extend({
       this.loading = true
       this.error = null
       try {
-        await this.fetchUser()
+        this.user = await this.fetchUser()
         this.loading = false
-        await this.fetchReferences
+        await this.fetchReferences()
       } catch (err) {
         this.error = err
         this.loading = false
@@ -479,7 +479,7 @@ export default Vue.extend({
     async fetchUser() {
       const req = new GetUserReq()
       req.setUser(this.routeUser)
-      return await client.getUser(req)
+      return (await client.getUser(req)).toObject()
     },
 
     async fetchReferences() {
