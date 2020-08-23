@@ -1,6 +1,9 @@
 # Need: AWS_PROFILE (or some other auth for aws cli), AWS_ACCOUNT_NUMBER, AWS_S3_BUCKET_NAME, AWS_CF_DISTRIBUTION_ID
 version=$(git rev-parse --short head)
 
+echo "Logging in to ECR"
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $AWS_ACCOUNT_NUMBER.dkr.ecr.us-east-1.amazonaws.com
+
 echo "Generating protos..."
 docker run --rm -w /app -v $(pwd):/app couchers/grpc ./generate_protos.sh
 
