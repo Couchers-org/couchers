@@ -120,17 +120,11 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                     func.max(GroupChatSubscription.id).label("group_chat_subscriptions_id"),
                     func.max(Message.id).label("message_id"),
                 )
-                .outerjoin(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
+                .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
                 .filter(GroupChatSubscription.user_id == context.user_id)
-                .filter(or_(Message.time >= GroupChatSubscription.joined, Message.time == None))
-                .filter(
-                    or_(
-                        Message.time <= GroupChatSubscription.left,
-                        GroupChatSubscription.left == None,
-                        Message.time == None,
-                    )
-                )
-                .filter(or_(Message.id < request.last_message_id, request.last_message_id == 0, Message.id == None))
+                .filter(Message.time >= GroupChatSubscription.joined)
+                .filter(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
+                .filter(or_(Message.id < request.last_message_id, request.last_message_id == 0))
                 .group_by(GroupChatSubscription.group_chat_id)
                 .order_by(func.max(Message.id).desc())
                 .limit(PAGINATION_LENGTH + 1)
@@ -139,7 +133,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
             results = (
                 session.query(t, GroupChat, GroupChatSubscription, Message)
-                .outerjoin(Message, Message.id == t.c.message_id)
+                .join(Message, Message.id == t.c.message_id)
                 .join(GroupChatSubscription, GroupChatSubscription.id == t.c.group_chat_subscriptions_id)
                 .join(GroupChat, GroupChat.conversation_id == t.c.group_chat_id)
                 .order_by(t.c.message_id.desc())
@@ -172,18 +166,12 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         with session_scope(self._Session) as session:
             result = (
                 session.query(GroupChat, GroupChatSubscription, Message)
-                .outerjoin(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
+                .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
                 .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
                 .filter(GroupChatSubscription.user_id == context.user_id)
                 .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
-                .filter(or_(Message.time >= GroupChatSubscription.joined, Message.time == None))
-                .filter(
-                    or_(
-                        Message.time <= GroupChatSubscription.left,
-                        GroupChatSubscription.left == None,
-                        Message.time == None,
-                    )
-                )
+                .filter(Message.time >= GroupChatSubscription.joined)
+                .filter(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
                 .order_by(Message.id.desc())
                 .first()
             )
@@ -226,22 +214,13 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             result = (
                 session.query(subquery, GroupChat, GroupChatSubscription, Message)
                 .join(subquery, subquery.c.group_chat_id == GroupChat.conversation_id)
-                .outerjoin(Message, Message.conversation_id == GroupChat.conversation_id)
+                .join(Message, Message.conversation_id == GroupChat.conversation_id)
                 .filter(GroupChatSubscription.user_id == context.user_id)
                 .filter(GroupChatSubscription.group_chat_id == GroupChat.conversation_id)
-                .filter(
-                    or_(Message.time >= GroupChatSubscription.joined, Message.time == None)
-                )  # in case outer join and no messages
-                .filter(
-                    or_(
-                        Message.time <= GroupChatSubscription.left,
-                        GroupChatSubscription.left == None,
-                        Message.time == None,
-                    )
-                )  # in case outer join and no messages
+                .filter(Message.time >= GroupChatSubscription.joined)
+                .filter(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
                 .order_by(Message.id.desc())
-                .limit(1)
-                .one_or_none()
+                .first()
             )
 
             if not result:
