@@ -67,11 +67,33 @@ service Conversations {
   }
 }
 
+enum ControlMessageType {
+  CONTROL_MESSAGE_TYPE_NORMAL = 0;
+  CONTROL_MESSAGE_TYPE_CHAT_CREATED = 1;
+  CONTROL_MESSAGE_TYPE_CHAT_EDITED = 2;
+  CONTROL_MESSAGE_TYPE_INVITED = 3;
+  CONTROL_MESSAGE_TYPE_LEFT = 4;
+  CONTROL_MESSAGE_TYPE_MADE_ADMIN = 5;
+  CONTROL_MESSAGE_TYPE_REMOVED_ADMIN = 6;
+}
+
+message NormalMessage {
+  string text = 1;
+}
+
+message ControlMessage {
+  ControlMessageType type = 1;
+  uint32 target_user_id = 2;
+}
+
 message Message {
   uint64 message_id = 1;
-  uint64 author_user_id = 2;
+  uint32 author_user_id = 2;
   google.protobuf.Timestamp time = 3;
-  string text = 4;
+  oneof message {
+    NormalMessage normal_message = 4;
+    ControlMessage control_message = 5;
+  }
 }
 
 message GroupChat {

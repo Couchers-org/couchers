@@ -351,16 +351,25 @@ class GroupChatSubscription(Base):
 
         session = Session.object_session(self)
 
-        return (
-            session.query(func.count(Message.id).label("count"))
-            .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
-            .filter(GroupChatSubscription.id == self.id)
-            .filter(Message.id > GroupChatSubscription.last_seen_message_id)
-            .one()
-        ).count
+        return (session.query(Message.id)
+                .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
+                .filter(GroupChatSubscription.id == self.id)
+                .filter(Message.id > GroupChatSubscription.last_seen_message_id)
+                .count())
 
     def __repr__(self):
         return f"GroupChatSubscription(id={self.id}, user={self.user}, joined={self.joined}, left={self.left}, role={self.role}, group_chat={self.group_chat})"
+
+
+
+class MessageType(enum.Enum):
+    normal = 0
+    chat_created = 1
+    chat_edited = 2
+    invited = 3
+    left = 4
+    made_admin = 5
+    removed_admin = 6
 
 
 class Message(Base):
@@ -373,13 +382,28 @@ class Message(Base):
     id = Column(Integer, primary_key=True)
 
     conversation_id = Column(ForeignKey("conversations.id"), nullable=False)
+
     author_id = Column(ForeignKey("users.id"), nullable=False)
 
-    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    text = Column(String, nullable=False)
+    message_type = Column(Enum(MessageType), nullable=False, default=MessageType.normal)
+    target_id = Column(ForeignKey("users.id"), nullable=True)
 
-    conversation = relationship("Conversation", backref="messages", order_by="Message.time.desc()")
-    author = relationship("User")
+    time = Column(DateTime(timezone=True), nullable=False,
+                  server_default=func.now())
+    text = Column(String, nullable=True)
+
+    conversation = relationship(
+        "Conversation", backref="messages", order_by="Message.time.desc()")
+    author = relationship("User", foreign_keys="Message.author_id")
+    target = relationship("User", foreign_keys="Message.target_id")
+
+    @property
+    def is_normal_message(self):
+        return self.message_type == MessageType.normal
+
+    @property
+    def is_control_message(self):
+        return not self.is_normal_message
 
     def __repr__(self):
         return f"Message(id={self.id}, time={self.time}, text={self.text}, author={self.author}, conversation={self.conversation})"

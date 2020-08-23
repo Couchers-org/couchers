@@ -14,6 +14,14 @@ services:
     restart: on-failure
     ports:
       - 6543:6543
+  postgres_tests:
+    image: postgres:12
+    env_file: postgres.test.env
+    command: postgres -c fsync=off
+    tmpfs: /pgdata
+    restart: on-failure
+    ports:
+      - 6544:6544
   backend_tests:
     build: backend
     env_file: backend.test.env
@@ -21,6 +29,10 @@ services:
       - "./backend:/app"
     command: bash -c "find src -name '**.py' | ENTR_INOTIFY_WORKAROUND=1 entr -d pytest src"
     restart: on-failure
+    depends_on:
+      - postgres_tests
+    links:
+      - postgres_tests
   backend:
     build: backend
     env_file: backend.dev.env

@@ -9,7 +9,8 @@ from sqlalchemy.sql import and_, func, or_
 
 from couchers import errors
 from couchers.db import get_friends_status, get_user_by_field, session_scope
-from couchers.models import Conversation, GroupChat, GroupChatRole, GroupChatSubscription, Message, User
+from couchers.models import (Conversation, GroupChat, GroupChatRole,
+                             GroupChatSubscription, Message, User, MessageType)
 from couchers.utils import Timestamp_from_datetime
 from pb import api_pb2, conversations_pb2, conversations_pb2_grpc
 
@@ -17,9 +18,55 @@ from pb import api_pb2, conversations_pb2, conversations_pb2_grpc
 PAGINATION_LENGTH = 20
 
 
+msgtype2sql = {
+    conversations_pb2.ControlMessageType.CONTROL_MESSAGE_TYPE_NORMAL: MessageType.normal,
+    conversations_pb2.ControlMessageType.CONTROL_MESSAGE_TYPE_CHAT_CREATED: MessageType.chat_created,
+    conversations_pb2.ControlMessageType.CONTROL_MESSAGE_TYPE_CHAT_EDITED: MessageType.chat_edited,
+    conversations_pb2.ControlMessageType.CONTROL_MESSAGE_TYPE_INVITED: MessageType.invited,
+    conversations_pb2.ControlMessageType.CONTROL_MESSAGE_TYPE_LEFT: MessageType.left,
+    conversations_pb2.ControlMessageType.CONTROL_MESSAGE_TYPE_MADE_ADMIN: MessageType.made_admin,
+    conversations_pb2.ControlMessageType.CONTROL_MESSAGE_TYPE_REMOVED_ADMIN: MessageType.removed_admin,
+}
+
+msgtype2api = {
+    MessageType.normal: conversations_pb2.ControlMessageType.CONTROL_MESSAGE_TYPE_NORMAL,
+    MessageType.chat_created: conversations_pb2.ControlMessageType.CONTROL_MESSAGE_TYPE_CHAT_CREATED,
+    MessageType.chat_edited: conversations_pb2.ControlMessageType.CONTROL_MESSAGE_TYPE_CHAT_EDITED,
+    MessageType.invited: conversations_pb2.ControlMessageType.CONTROL_MESSAGE_TYPE_INVITED,
+    MessageType.left: conversations_pb2.ControlMessageType.CONTROL_MESSAGE_TYPE_LEFT,
+    MessageType.made_admin: conversations_pb2.ControlMessageType.CONTROL_MESSAGE_TYPE_MADE_ADMIN,
+    MessageType.removed_admin: conversations_pb2.ControlMessageType.CONTROL_MESSAGE_TYPE_REMOVED_ADMIN,
+}
+
 class Conversations(conversations_pb2_grpc.ConversationsServicer):
     def __init__(self, Session):
         self._Session = Session
+
+    def _message_to_pb(self, message: Message):
+        """
+        Turns the given message to a protocol buffer
+        """
+        if message.is_normal_message:
+            return conversations_pb2.Message(
+                message_id=message.id,
+                author_user_id=message.author_id,
+                time=Timestamp_from_datetime(message.time),
+                normal_message=conversations_pb2.NormalMessage(
+                    text=message.text,
+                ),
+            )
+        elif message.is_control_message:
+            return conversations_pb2.Message(
+                message_id=message.id,
+                author_user_id=message.author_id,
+                time=Timestamp_from_datetime(message.time),
+                control_message=conversations_pb2.ControlMessage(
+                    type=msgtype2api[message.message_type],
+                    target_user_id=message.target_id if message.target_id else 0,
+                ),
+            )
+        else:
+            raise ValueError("Unknown message type")
 
     def ListGroupChats(self, request, context):
         with session_scope(self._Session) as session:
@@ -69,16 +116,8 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                         created=Timestamp_from_datetime(result.GroupChat.conversation.created),
                         unseen_message_count=result.GroupChatSubscription.unseen_message_count,
                         last_seen_message_id=result.GroupChatSubscription.last_seen_message_id,
-                        latest_message=conversations_pb2.Message(
-                            message_id=result.Message.id,
-                            author_user_id=result.Message.author_id,
-                            time=Timestamp_from_datetime(result.Message.time),
-                            text=result.Message.text,
-                        )
-                        if result.Message
-                        else None,
-                    )
-                    for result in results[:PAGINATION_LENGTH]
+                        latest_message=self._message_to_pb(result.Message) if result.Message else None,
+                    ) for result in results[:PAGINATION_LENGTH]
                 ],
                 next_message_id=min(map(lambda g: g.Message.id if g.Message else 1, results)) - 1
                 if len(results) > 0
@@ -122,14 +161,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 created=Timestamp_from_datetime(result.GroupChat.conversation.created),
                 unseen_message_count=result.GroupChatSubscription.unseen_message_count,
                 last_seen_message_id=result.GroupChatSubscription.last_seen_message_id,
-                latest_message=conversations_pb2.Message(
-                    message_id=result.Message.id,
-                    author_user_id=result.Message.author_id,
-                    time=Timestamp_from_datetime(result.Message.time),
-                    text=result.Message.text,
-                )
-                if result.Message
-                else None,
+                latest_message=self._message_to_pb(result.Message) if result.Message else None,
             )
 
     def GetDirectMessage(self, request, context):
@@ -187,14 +219,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 created=Timestamp_from_datetime(result.GroupChat.conversation.created),
                 unseen_message_count=result.GroupChatSubscription.unseen_message_count,
                 last_seen_message_id=result.GroupChatSubscription.last_seen_message_id,
-                latest_message=conversations_pb2.Message(
-                    message_id=result.Message.id,
-                    author_user_id=result.Message.author_id,
-                    time=Timestamp_from_datetime(result.Message.time),
-                    text=result.Message.text,
-                )
-                if result.Message
-                else None,
+                latest_message=self._message_to_pb(result.Message) if result.Message else None,
             )
 
     def GetUpdates(self, request, context):
@@ -215,14 +240,8 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 updates=[
                     conversations_pb2.Update(
                         group_chat_id=message.conversation_id,
-                        message=conversations_pb2.Message(
-                            message_id=message.id,
-                            author_user_id=message.author_id,
-                            time=Timestamp_from_datetime(message.time),
-                            text=message.text,
-                        ),
-                    )
-                    for message in sorted(results, key=lambda message: message.id)[:PAGINATION_LENGTH]
+                        message=self._message_to_pb(message),
+                    ) for message in sorted(results, key=lambda message: message.id)[:PAGINATION_LENGTH]
                 ],
                 no_more=len(results) <= PAGINATION_LENGTH,
             )
@@ -245,13 +264,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
             return conversations_pb2.GetGroupChatMessagesRes(
                 messages=[
-                    conversations_pb2.Message(
-                        message_id=message.id,
-                        author_user_id=message.author_id,
-                        time=Timestamp_from_datetime(message.time),
-                        text=message.text,
-                    )
-                    for message in results[:PAGINATION_LENGTH]
+                    self._message_to_pb(message) for message in results[:PAGINATION_LENGTH]
                 ],
                 next_message_id=results[-1].id if len(results) > 0 else 0,  # TODO
                 no_more=len(results) <= PAGINATION_LENGTH,
@@ -297,14 +310,8 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 results=[
                     conversations_pb2.MessageSearchResult(
                         group_chat_id=message.conversation_id,
-                        message=conversations_pb2.Message(
-                            message_id=message.id,
-                            author_user_id=message.author_id,
-                            time=Timestamp_from_datetime(message.time),
-                            text=message.text,
-                        ),
-                    )
-                    for message in results[:PAGINATION_LENGTH]
+                        message=self._message_to_pb(message),
+                     ) for message in results[:PAGINATION_LENGTH]
                 ],
                 next_message_id=results[-1].id if len(results) > 0 else 0,  # TODO
                 no_more=len(results) <= PAGINATION_LENGTH,
@@ -377,7 +384,13 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 )
                 session.add(subscription)
 
-            session.commit()
+            session.add(Message(
+                conversation=conversation,
+                author_id=context.user_id,
+                message_type=MessageType.chat_created,
+            ))
+
+            session.flush()
 
             return conversations_pb2.GroupChat(
                 group_chat_id=group_chat.conversation_id,
@@ -434,9 +447,13 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             if request.HasField("only_admins_invite"):
                 subscription.group_chat.only_admins_invite = request.only_admins_invite.value
 
-            session.commit()
+            session.add(Message(
+                conversation=subscription.group_chat.conversation,
+                author_id=context.user_id,
+                message_type=MessageType.chat_edited,
+            ))
 
-            return empty_pb2.Empty()
+        return empty_pb2.Empty()
 
     def MakeGroupChatAdmin(self, request, context):
         with session_scope(self._Session) as session:
@@ -472,6 +489,15 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ALREADY_ADMIN)
 
             their_subscription.role = GroupChatRole.admin
+
+            session.add(Message(
+                conversation=your_subscription.group_chat.conversation,
+                author_id=context.user_id,
+                target_id=request.user_id,
+                message_type=MessageType.made_admin,
+            ))
+
+
             session.commit()
 
             return empty_pb2.Empty()
@@ -518,6 +544,14 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USER_NOT_ADMIN)
 
             their_subscription.role = GroupChatRole.participant
+
+            session.add(Message(
+                conversation=your_subscription.group_chat.conversation,
+                author_id=context.user_id,
+                target_id=request.user_id,
+                message_type=MessageType.removed_admin,
+            ))
+
             session.commit()
 
             return empty_pb2.Empty()
@@ -570,6 +604,14 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 user_id=request.user_id, group_chat=your_subscription.group_chat, role=GroupChatRole.participant,
             )
             session.add(subscription)
+
+            session.add(Message(
+                conversation=your_subscription.group_chat.conversation,
+                author_id=context.user_id,
+                target_id=request.user_id,
+                message_type=MessageType.invited,
+            ))
+
             session.commit()
 
             return empty_pb2.Empty()
@@ -607,7 +649,16 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 if not (other_admins_count > 0 or participants_count == 0):
                     context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.LAST_ADMIN_CANT_LEAVE)
 
-            subscription.left = datetime.utcnow()
+            session.add(Message(
+                conversation=subscription.group_chat.conversation,
+                author_id=context.user_id,
+                message_type=MessageType.left,
+            ))
+
+            session.flush()
+
+            subscription.left = func.now()
+
             session.commit()
 
             return empty_pb2.Empty()
