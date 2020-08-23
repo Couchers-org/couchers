@@ -374,26 +374,35 @@ class MessageType(enum.Enum):
 
 class Message(Base):
     """
-    Message content.
+    A message.
+
+    If message_type = normal, then the message is a normal text message, otherwise, it's a special control message.
     """
 
     __tablename__ = "messages"
 
     id = Column(Integer, primary_key=True)
 
+    # which conversation the message belongs in
     conversation_id = Column(ForeignKey("conversations.id"), nullable=False)
 
+    # the user that sent the message/command
     author_id = Column(ForeignKey("users.id"), nullable=False)
 
+    # the message type, "normal" is a text message, otherwise a "control message"
     message_type = Column(Enum(MessageType), nullable=False, default=MessageType.normal)
+
+    # the target if a control message and requires target, e.g. if inviting a user, the user invited is the target
     target_id = Column(ForeignKey("users.id"), nullable=True)
 
+    # time sent
     time = Column(DateTime(timezone=True), nullable=False,
                   server_default=func.now())
+
+    # the message text if not control
     text = Column(String, nullable=True)
 
-    conversation = relationship(
-        "Conversation", backref="messages", order_by="Message.time.desc()")
+    conversation = relationship("Conversation", backref="messages", order_by="Message.time.desc()")
     author = relationship("User", foreign_keys="Message.author_id")
     target = relationship("User", foreign_keys="Message.target_id")
 
