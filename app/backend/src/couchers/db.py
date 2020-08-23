@@ -4,12 +4,12 @@ import re
 from contextlib import contextmanager
 
 from couchers.crypto import urlsafe_secure_token
-from couchers.models import (FriendRelationship, FriendStatus, LoginToken,
-                             SignupToken, User)
+from couchers.models import FriendRelationship, FriendStatus, LoginToken, SignupToken, User
 from pb import api_pb2
 from sqlalchemy.sql import and_, or_
 
 logger = logging.getLogger(__name__)
+
 
 @contextmanager
 def session_scope(Session):
@@ -24,17 +24,20 @@ def session_scope(Session):
     finally:
         session.close()
 
+
 # When a user logs in, they can basically input one of three things: user id, username, or email
 # These are three non-intersecting sets
 # * user_ids are numeric representations in base 10
 # * usernames are alphanumeric + underscores, at least 2 chars long, and don't start with a number, and don't start or end with underscore
 # * emails are just whatever stack overflow says emails are ;)
 
+
 def is_valid_user_id(field):
     """
     Checks if it's a string representing a base 10 integer not starting with 0
     """
     return re.match(r"[1-9][0-9]*$", field) is not None
+
 
 def is_valid_username(field):
     """
@@ -43,20 +46,30 @@ def is_valid_username(field):
     """
     return re.match(r"[a-z][0-9a-z_]*[a-z0-9]$", field) is not None
 
+
 def is_valid_name(field):
     """
     Checks if it has at least one non-whitespace character
     """
     return re.match(r"\S+", field) is not None
 
+
 def is_valid_email(field):
     """
     From SO
     """
-    return re.match(r'(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$', field) is not None
+    return (
+        re.match(
+            r'(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$',
+            field,
+        )
+        is not None
+    )
+
 
 def is_valid_color(color):
     return re.match(r"#[0-9a-fA-F]{6}$", color) is not None
+
 
 def is_valid_date(date):
     """
@@ -64,14 +77,14 @@ def is_valid_date(date):
     """
     if re.match(r"\d{4}-\d{2}-\d{2}$", date) is None:
         return False
-    
+
     d = date.split("-")
     try:
         datetime.datetime(int(d[0]), int(d[1]), int(d[2]))
     except ValueError:
         return False
     return True
-    
+
 
 def get_user_by_field(session, field):
     """
@@ -90,6 +103,7 @@ def get_user_by_field(session, field):
         logger.debug(f"Field {field=}, didn't match any known types")
         return None
 
+
 def new_signup_token(session, email, hours=2):
     """
     Make a signup token that's valid for `hours` hours
@@ -97,10 +111,13 @@ def new_signup_token(session, email, hours=2):
     Returns token and expiry text
     """
     token = urlsafe_secure_token()
-    signup_token = SignupToken(token=token, email=email, expiry=datetime.datetime.utcnow() + datetime.timedelta(hours=hours))
+    signup_token = SignupToken(
+        token=token, email=email, expiry=datetime.datetime.utcnow() + datetime.timedelta(hours=hours)
+    )
     session.add(signup_token)
     session.commit()
     return signup_token, f"{hours} hours"
+
 
 def new_login_token(session, user, hours=2):
     """
@@ -109,35 +126,34 @@ def new_login_token(session, user, hours=2):
     Returns token and expiry text
     """
     token = urlsafe_secure_token()
-    login_token = LoginToken(token=token, user=user, expiry=datetime.datetime.utcnow() + datetime.timedelta(hours=hours))
+    login_token = LoginToken(
+        token=token, user=user, expiry=datetime.datetime.utcnow() + datetime.timedelta(hours=hours)
+    )
     session.add(login_token)
     session.commit()
     return login_token, f"{hours} hours"
+
 
 def get_friends_status(session, user1_id, user2_id):
     if user1_id == user2_id:
         return api_pb2.User.FriendshipStatus.NA
     else:
-        current_friend_relationship = session.query(FriendRelationship) \
+        current_friend_relationship = (
+            session.query(FriendRelationship)
             .filter(
                 or_(
-                    and_(
-                        FriendRelationship.from_user_id == user1_id,
-                        FriendRelationship.to_user_id == user2_id
-                    ),
-                    and_(
-                        FriendRelationship.from_user_id == user2_id,
-                        FriendRelationship.to_user_id == user1_id
-                    )
+                    and_(FriendRelationship.from_user_id == user1_id, FriendRelationship.to_user_id == user2_id),
+                    and_(FriendRelationship.from_user_id == user2_id, FriendRelationship.to_user_id == user1_id),
                 )
-            ) \
+            )
             .filter(
                 or_(
                     FriendRelationship.status == FriendStatus.accepted,
-                    FriendRelationship.status == FriendStatus.pending
+                    FriendRelationship.status == FriendStatus.pending,
                 )
-            ) \
+            )
             .one_or_none()
+        )
 
         if not current_friend_relationship:
             return api_pb2.User.FriendshipStatus.NOT_FRIENDS

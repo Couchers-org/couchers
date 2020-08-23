@@ -7,6 +7,7 @@ from couchers.config import config
 from couchers.crypto import random_hex
 from couchers.models import Email
 
+
 def send_smtp_email(sender_name, sender_email, recipient, subject, plain, html):
     message_id = random_hex()
     msg = MIMEMultipart("alternative")

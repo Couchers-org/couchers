@@ -23,6 +23,7 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
     a user. Sets context.user_id if authenticated, otherwise
     terminates the call with an HTTP error code.
     """
+
     def __init__(self, get_user_for_session_token):
         self._get_user_for_session_token = get_user_for_session_token
 
@@ -51,7 +52,8 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
         return grpc.unary_unary_rpc_method_handler(
             user_unaware_function,
             request_deserializer=handler.request_deserializer,
-            response_serializer=handler.response_serializer)
+            response_serializer=handler.response_serializer,
+        )
 
 
 class ManualAuthValidatorInterceptor(grpc.ServerInterceptor):
@@ -60,6 +62,7 @@ class ManualAuthValidatorInterceptor(grpc.ServerInterceptor):
     is_authorized function. Terminates the call with an HTTP error
     code if not authorized.
     """
+
     def __init__(self, is_authorized):
         self._is_authorized = is_authorized
 
@@ -83,10 +86,12 @@ class LoggingInterceptor(grpc.ServerInterceptor):
     """
     Measures and logs the time it takes to service each incoming call.
     """
+
     def intercept_service(self, continuation, handler_call_details):
         handler = continuation(handler_call_details)
         prev_func = handler.unary_unary
         method = handler_call_details.method
+
         def timetaking_function(request, context):
             if LOG_VERBOSE_PB:
                 logger.info(f"Got request: {method}. Request: {request}")
@@ -105,7 +110,8 @@ class LoggingInterceptor(grpc.ServerInterceptor):
         return grpc.unary_unary_rpc_method_handler(
             timetaking_function,
             request_deserializer=handler.request_deserializer,
-            response_serializer=handler.response_serializer)
+            response_serializer=handler.response_serializer,
+        )
 
 
 class UpdateLastActiveTimeInterceptor(grpc.ServerInterceptor):
@@ -113,6 +119,7 @@ class UpdateLastActiveTimeInterceptor(grpc.ServerInterceptor):
     Calls the given update_last_active_time(user_id) function before
     servicing each call.
     """
+
     def __init__(self, update_last_active_time):
         self._update_last_active_time = update_last_active_time
 
@@ -127,4 +134,5 @@ class UpdateLastActiveTimeInterceptor(grpc.ServerInterceptor):
         return grpc.unary_unary_rpc_method_handler(
             updating_function,
             request_deserializer=handler.request_deserializer,
-            response_serializer=handler.response_serializer)
+            response_serializer=handler.response_serializer,
+        )

@@ -33,14 +33,17 @@ def test_basic_signup(db):
     assert reply.email == "a@b.com"
 
     with auth_api_session(db) as auth_api:
-        reply = auth_api.CompleteSignup(auth_pb2.CompleteSignupReq(
-            signup_token=signup_token,
-            username="frodo",
-            name="Räksmörgås",
-            city="Minas Tirith",
-            birthdate="1980-12-31",
-            gender="Robot",
-            hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST))
+        reply = auth_api.CompleteSignup(
+            auth_pb2.CompleteSignupReq(
+                signup_token=signup_token,
+                username="frodo",
+                name="Räksmörgås",
+                city="Minas Tirith",
+                birthdate="1980-12-31",
+                gender="Robot",
+                hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+            )
+        )
     assert isinstance(reply.token, str)
 
 
