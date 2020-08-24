@@ -7,7 +7,6 @@ import grpc
 import pytest
 from couchers.crypto import random_hex
 from couchers.db import session_scope
-from couchers.interceptors import intercept_server
 from couchers.models import (Base, FriendRelationship, FriendStatus, User)
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
