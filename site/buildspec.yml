@@ -14,6 +14,14 @@ phases:
       - yarn generate-all
   post_build:
     commands:
-      - aws s3 sync dist/ s3://${BUCKET_NAME} --acl public-read
+      - aws s3 sync dist/ s3://$BUCKET_NAME --delete --acl public-read
+      - |
+        while read line; do
+          read path loc <<< "$line"
+          echo "Redirecting $path to $loc"
+          awk '{sub("{{link}}", "'$loc'")}1' redirect.html > redirect-temp.html
+          aws s3 cp temp.html s3://$BUCKET_NAME$path --website-redirect $loc
+          rm redirect-temp.html
+        done < redirects
       - echo "Done."
-      - aws cloudfront create-invalidation --distribution-id "${DISTRIBUTION_ID}" --paths "/*"
+      - aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION_ID" --paths "/*"
