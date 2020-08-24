@@ -143,7 +143,7 @@ We ask you to sign a Contributor License Agreement (CLA) and a Contributor Assig
 
 The Couchers.org project is owned and supported by the “Cross-Cultural Exchange and Communities Foundation Limited” (the foundation). This is a public not-for-profit company limited by guarantee, formed in Australia specifically for the Couchers.org project.
 
-The constitution is [available online](https://github.com/Couchers-org/couchers/blob/develop/foundation/constitution/constitution.pdf), and includes a not-for-profit clause, meaning that the foundation can’t sell its surplus assets to a for-profit company. The foundation is run as transparently as possible.
+The constitution is [available online](https://couchers.org/foundation/constitution.pdf), and includes a not-for-profit clause, meaning that the foundation can’t sell its surplus assets to a for-profit company. The foundation is run as transparently as possible.
 
 The foundation legally owns the intellectual property of the project, such as the brand, the user database, the domain, and all these documents. This structure limits the liability of team members, so no one is personally liable if anything go wrong on the platform.
 
