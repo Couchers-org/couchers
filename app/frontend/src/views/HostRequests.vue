@@ -319,6 +319,7 @@ export default Vue.extend({
     },
 
     async sendMessage() {
+      this.error = null
       if (this.currentMessage == "" && this.selectedResponse) {
         this.error = Error("Add a message to go with your response.")
         return

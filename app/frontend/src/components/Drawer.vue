@@ -1,6 +1,6 @@
 <template>
   <v-navigation-drawer v-model="visible" app clipped>
-    <v-list-item>
+    <v-list-item v-if="user != null">
       <v-list-item-avatar>
         <v-avatar :color="user.color" />
       </v-list-item-avatar>
@@ -9,6 +9,10 @@
         <v-list-item-subtitle>{{ handle(user.username) }}</v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
+    <v-skeleton-loader
+      v-else
+      type="list-item-avatar-two-line"
+    ></v-skeleton-loader>
 
     <v-divider></v-divider>
 

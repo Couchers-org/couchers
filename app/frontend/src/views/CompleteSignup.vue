@@ -206,7 +206,7 @@ export default Vue.extend({
         const res = await authClient.signupTokenInfo(req)
         this.email = res.getEmail()
       } catch (err) {
-        this.error = err
+        Router.push({ name: "Signup", params: { reason: err.message } })
       }
       this.emailLoading = false
     },

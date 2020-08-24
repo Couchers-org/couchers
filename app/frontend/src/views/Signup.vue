@@ -6,6 +6,9 @@
           <v-container fluid>
             <v-col class="mx-auto" cols="12" sm="10" md="8" lg="6" xl="4">
               <h1>Sign up</h1>
+              <v-alert v-if="reason" type="warning">
+                {{ reason }}
+              </v-alert>
               <v-card flat v-if="signupStep == 'form'">
                 <v-card-text>
                   <v-form v-on:submit.prevent="submitSignup">
@@ -59,6 +62,7 @@ export default Vue.extend({
     loading: false,
     email: "",
     error: null as Error | null,
+    reason: "",
     successMessages: [] as Array<string>,
     signupStep: "form",
     rules: {
@@ -70,9 +74,14 @@ export default Vue.extend({
     },
   }),
 
+  created() {
+    this.reason = this.$route.params.reason
+  },
+
   methods: {
     clearMessages() {
       this.error = null
+      this.reason = ""
       this.successMessages = []
     },
 

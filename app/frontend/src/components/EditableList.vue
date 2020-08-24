@@ -14,6 +14,7 @@
         clearable
         multiple
         solo
+        hint="Press 'Enter' to add"
       >
         <template v-slot:selection="{ attrs, item, select, selected }">
           <v-chip

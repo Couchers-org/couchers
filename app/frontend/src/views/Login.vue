@@ -91,16 +91,15 @@ export default Vue.extend({
     errorMessages: [] as Array<string>,
     passErrorMessages: [] as Array<string>,
     successMessages: [] as Array<string>,
+    reason: "",
     loginStep: "user",
     rules: {
       required: (value: string) => !!value || "Required.",
     },
   }),
 
-  computed: {
-    reason() {
-      return this.$route.params.reason
-    },
+  created() {
+    this.reason = this.$route.params.reason
   },
 
   watch: {
@@ -124,6 +123,7 @@ export default Vue.extend({
     },
 
     async submit() {
+      this.reason = ""
       this.loading = true
       this.clearMessages()
       if (this.loginStep == "user") {

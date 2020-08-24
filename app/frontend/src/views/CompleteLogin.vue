@@ -44,7 +44,7 @@ export default Vue.extend({
         Store.dispatch("auth", res.getToken())
         Router.push("/")
       } catch (err) {
-        this.error = err
+        Router.push({ name: "Login", params: { reason: err.message } })
       }
       this.loading = false
     },
