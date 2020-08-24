@@ -81,6 +81,7 @@ def test_signup_email(db):
     with patch("couchers.email.send_smtp_email", mock_send_smtp_email):
         send_signup_email(request_email, token, expiry_text)
 
+
 def test_report_email(db):
     with session_scope(db):
         user_author, api_token_author = generate_user(db)

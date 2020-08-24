@@ -45,8 +45,8 @@ def send_report_email(complaint):
         subject,
         "report",
         template_args={
-            "author": username_author.username,
-            "reported_user": username_reported.username,
+            "username_author": username_author,
+            "username_reported": username_reported,
             "reason": reason,
             "description": description,
         },
