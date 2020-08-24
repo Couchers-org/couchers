@@ -4,12 +4,12 @@
     <v-container>
       <v-row dense>
         <v-col xs="12" md="4">
-          <v-card v-if="loading != 0" max-width="450" tile>
+          <v-card v-if="loading" max-width="450" tile>
             <v-list three-line>
               <v-subheader>Loading...</v-subheader>
             </v-list>
           </v-card>
-          <v-container v-if="loading == 0">
+          <v-container v-if="!loading">
             <v-subheader v-if="!hostRequests.length">No requests.</v-subheader>
             <template v-for="hostRequest in hostRequests">
               <v-card
@@ -197,7 +197,7 @@ import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb"
 
 export default Vue.extend({
   data: () => ({
-    loading: 0,
+    loading: true,
     currentMessage: "",
     hostRequests: [] as Array<HostRequest.AsObject>,
     userCache: {} as { [userId: number]: User },
@@ -269,31 +269,30 @@ export default Vue.extend({
   },
 
   watch: {
-    selectedHostRequest() {
+    async selectedHostRequest() {
       this.messages = []
-      const req = new GetHostRequestMessagesReq()
-      req.setHostRequestId(this.selectedHostRequest!.hostRequestId)
-      requestsClient
-        .getHostRequestMessages(req)
-        .then((res) => {
-          this.messages = res.getMessagesList().map((m) => m.toObject())
-          res.getEventsList().forEach((event) => {
-            this.events.set(event.getAfterMessageId(), event.toObject())
-          })
-          this.sortMessages()
-          this.selectedHostRequest!.lastSeenMessageId = this.messages[
-            this.messages.length - 1
-          ].messageId
-          const req = new MarkLastSeenHostRequestReq()
-          req.setHostRequestId(this.selectedHostRequest!.hostRequestId)
-          req.setLastSeenMessageId(this.selectedHostRequest!.lastSeenMessageId)
-          requestsClient.markLastSeenHostRequest(req).then(() => {
-            this.$store.dispatch("ping")
-          })
+      const messagesReq = new GetHostRequestMessagesReq()
+      messagesReq.setHostRequestId(this.selectedHostRequest!.hostRequestId)
+      try {
+        const res = await requestsClient.getHostRequestMessages(messagesReq)
+        this.messages = res.getMessagesList().map((m) => m.toObject())
+        res.getEventsList().forEach((event) => {
+          this.events.set(event.getAfterMessageId(), event.toObject())
         })
-        .catch((err) => {
-          this.error = err
-        })
+        this.sortMessages()
+        this.selectedHostRequest!.lastSeenMessageId = this.messages[
+          this.messages.length - 1
+        ].messageId
+        const markReq = new MarkLastSeenHostRequestReq()
+        markReq.setHostRequestId(this.selectedHostRequest!.hostRequestId)
+        markReq.setLastSeenMessageId(
+          this.selectedHostRequest!.lastSeenMessageId
+        )
+        await requestsClient.markLastSeenHostRequest(markReq)
+        this.$store.dispatch("ping")
+      } catch (err) {
+        this.error = err
+      }
     },
   },
 
@@ -319,7 +318,7 @@ export default Vue.extend({
       }
     },
 
-    sendMessage() {
+    async sendMessage() {
       if (this.currentMessage == "" && this.selectedResponse) {
         this.error = Error("Add a message to go with your response.")
         return
@@ -329,125 +328,119 @@ export default Vue.extend({
         const req = new SendHostRequestMessageReq()
         req.setHostRequestId(this.selectedHostRequest!.hostRequestId)
         req.setText(this.currentMessage)
-        requestsClient
-          .sendHostRequestMessage(req)
-          .then((res) => {
-            this.currentMessage = ""
-            this.fetchUpdates()
-          })
-          .catch((err) => {
-            this.error = err
-          })
+        try {
+          const res = await requestsClient.sendHostRequestMessage(req)
+          this.currentMessage = ""
+          this.fetchUpdates()
+        } catch (err) {
+          this.error = err
+        }
       } else {
         const req = new RespondHostRequestReq()
         req.setHostRequestId(this.selectedHostRequest!.hostRequestId)
         req.setStatus(this.selectedResponse)
         req.setText(this.currentMessage)
-        requestsClient
-          .respondHostRequest(req)
-          .then(() => {
-            this.currentMessage = ""
-            this.fetchUpdates()
-          })
-          .catch((err) => {
-            this.error = err
-          })
+        try {
+          await requestsClient.respondHostRequest(req)
+          this.currentMessage = ""
+          this.fetchUpdates()
+        } catch (err) {
+          this.error = err
+        }
       }
     },
 
-    fetchUpdates() {
+    async fetchUpdates() {
       // TODO: This function is abosolutely disgusting and I am ashamed
 
       const req = new GetHostRequestUpdatesReq()
       req.setNewestMessageId(
         Math.max(0, ...this.messages.map((msg) => msg.messageId))
       )
-      requestsClient
-        .getHostRequestUpdates(req)
-        .then((res) => {
-          const markReqs = new Map<number, MarkLastSeenHostRequestReq>()
-          res.getUpdatesList().forEach((update) => {
-            if (
-              update.getHostRequestId() ===
-              this.selectedHostRequest!.hostRequestId
-            ) {
-              this.messages.push(update.getMessage()!.toObject())
-            }
-            const updatedRequest = this.hostRequests.find(
-              (request) => request.hostRequestId == update.getHostRequestId()
-            )
-            if (updatedRequest) {
-              updatedRequest.status = update.getStatus()
-              updatedRequest.latestMessage = update.getMessage()!.toObject()
-              if (
-                updatedRequest.lastSeenMessageId <
-                updatedRequest.latestMessage.messageId
-              ) {
-                updatedRequest.lastSeenMessageId =
-                  updatedRequest.latestMessage.messageId
-                markReqs.set(
-                  updatedRequest.hostRequestId,
-                  new MarkLastSeenHostRequestReq()
-                )
-                markReqs
-                  .get(updatedRequest.hostRequestId)
-                  ?.setHostRequestId(updatedRequest.hostRequestId)
-                markReqs
-                  .get(updatedRequest.hostRequestId)
-                  ?.setLastSeenMessageId(updatedRequest.latestMessage.messageId)
-              }
+      let updatesRes = null
+      try {
+        updatesRes = await requestsClient.getHostRequestUpdates(req)
+      } catch (err) {
+        this.error = err
+        return
+      }
 
-              const event = update.getEvent()
-              if (event)
-                this.events.set(event.getAfterMessageId(), event.toObject())
-            }
-          })
-          this.sortMessages()
-          Promise.all(
-            Array.from(markReqs.values()).map((req) =>
-              requestsClient.markLastSeenHostRequest(req)
+      const markReqs = new Map<number, MarkLastSeenHostRequestReq>()
+
+      updatesRes.getUpdatesList().forEach((update) => {
+        if (
+          update.getHostRequestId() === this.selectedHostRequest!.hostRequestId
+        ) {
+          this.messages.push(update.getMessage()!.toObject())
+        }
+        const updatedRequest = this.hostRequests.find(
+          (request) => request.hostRequestId == update.getHostRequestId()
+        )
+        if (updatedRequest) {
+          updatedRequest.status = update.getStatus()
+          updatedRequest.latestMessage = update.getMessage()!.toObject()
+          if (
+            updatedRequest.lastSeenMessageId <
+            updatedRequest.latestMessage.messageId
+          ) {
+            updatedRequest.lastSeenMessageId =
+              updatedRequest.latestMessage.messageId
+            markReqs.set(
+              updatedRequest.hostRequestId,
+              new MarkLastSeenHostRequestReq()
             )
-          ).then(() => {
-            this.$store.dispatch("ping")
-          })
-        })
-        .catch((err) => {
-          this.error = err
-        })
+            markReqs
+              .get(updatedRequest.hostRequestId)
+              ?.setHostRequestId(updatedRequest.hostRequestId)
+            markReqs
+              .get(updatedRequest.hostRequestId)
+              ?.setLastSeenMessageId(updatedRequest.latestMessage.messageId)
+          }
+
+          const event = update.getEvent()
+          if (event)
+            this.events.set(event.getAfterMessageId(), event.toObject())
+        }
+      })
+      this.sortMessages()
+      await Promise.all(
+        Array.from(markReqs.values()).map((req) =>
+          requestsClient.markLastSeenHostRequest(req)
+        )
+      )
+      this.$store.dispatch("ping")
     },
 
-    fetchData() {
-      this.loading += 1
+    async fetchData() {
+      this.loading = true
       const req = new ListHostRequestsReq()
-      requestsClient
-        .listHostRequests(req)
-        .then((res) => {
-          this.loading -= 1
-          this.hostRequests = res.getHostRequestsList().map((r) => r.toObject())
+      try {
+        const res = await requestsClient.listHostRequests(req)
+        this.hostRequests = res.getHostRequestsList().map((r) => r.toObject())
+      } catch (err) {
+        this.loading = false
+        this.error = err
+        return
+      }
 
-          const userIds = new Set() as Set<number>
-          this.hostRequests.forEach((request) => {
-            userIds.add(request.fromUserId)
-            userIds.add(request.toUserId)
+      const userIds = new Set() as Set<number>
+      this.hostRequests.forEach((request) => {
+        userIds.add(request.fromUserId)
+        userIds.add(request.toUserId)
+      })
+      userIds.add(this.user.userId)
+
+      try {
+        await Promise.all(
+          Array.from(userIds).map(async (userId) => {
+            const res = await this.getUser(userId)
+            this.userCache[res.getUserId()] = res
           })
-          userIds.add(this.user.userId)
-          userIds.forEach((userId) => {
-            this.loading += 1
-            this.getUser(userId)
-              .then((res) => {
-                this.loading -= 1
-                this.userCache[res.getUserId()] = res
-              })
-              .catch((err) => {
-                this.loading -= 1
-                this.error = err
-              })
-          })
-        })
-        .catch((err) => {
-          this.loading -= 1
-          this.error = err
-        })
+        )
+      } catch (err) {
+        this.error = err
+      }
+      this.loading = false
     },
 
     hostRequestHasNew(hostRequest: HostRequest.AsObject) {

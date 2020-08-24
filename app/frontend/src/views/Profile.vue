@@ -342,7 +342,7 @@ export default Vue.extend({
     EditableList,
     EditableColor,
     ErrorAlert,
-    LoadingCircular
+    LoadingCircular,
   },
 
   methods: {
@@ -350,19 +350,16 @@ export default Vue.extend({
       Store.dispatch("refreshUser")
     },
 
-    updateProfile(req: UpdateProfileReq) {
+    async updateProfile(req: UpdateProfileReq) {
       this.loading = true
 
-      client
-        .updateProfile(req)
-        .then(() => {
-          this.loading = false
-          this.refreshUser()
-        })
-        .catch((err) => {
-          this.loading = false
-          this.error = err
-        })
+      try {
+        const res = await client.updateProfile(req)
+        this.refreshUser()
+      } catch (err) {
+        this.error = err
+      }
+      this.loading = false
     },
 
     saveAboutMe(text: string) {

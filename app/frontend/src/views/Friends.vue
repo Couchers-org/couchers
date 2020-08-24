@@ -217,46 +217,38 @@ export default Vue.extend({
         this.$store.dispatch("ping")
       } catch (err) {
         this.loading = false
-        if ("message" in err) {
-          this.errorMessage = err.message
-          this.errorVisible = true
-        } else {
-          throw err
-        }
+        this.errorMessage = err.message
+        this.errorVisible = true
       }
     },
 
-    respondFriendRequest(friendRequestId: number, accept: boolean) {
+    async respondFriendRequest(friendRequestId: number, accept: boolean) {
       const req = new RespondFriendRequestReq()
       req.setFriendRequestId(friendRequestId)
       req.setAccept(accept)
-      client
-        .respondFriendRequest(req)
-        .then(() => {
-          this.successMessage = "Responded to friend request!"
-          this.successVisible = true
-          this.fetchData()
-        })
-        .catch((err) => {
-          this.errorMessage = err.message
-          this.errorVisible = true
-        })
+      try {
+        await client.respondFriendRequest(req)
+        this.successMessage = "Responded to friend request!"
+        this.successVisible = true
+        this.fetchData()
+      } catch (err) {
+        this.errorMessage = err.message
+        this.errorVisible = true
+      }
     },
 
-    cancelFriendRequest(friendRequestId: number) {
+    async cancelFriendRequest(friendRequestId: number) {
       const req = new CancelFriendRequestReq()
       req.setFriendRequestId(friendRequestId)
-      client
-        .cancelFriendRequest(req)
-        .then(() => {
-          this.successMessage = "Request cancelled!"
-          this.successVisible = true
-          this.fetchData()
-        })
-        .catch((err) => {
-          this.errorMessage = err.message
-          this.errorVisible = true
-        })
+      try {
+        await client.cancelFriendRequest(req)
+        this.successMessage = "Request cancelled!"
+        this.successVisible = true
+        this.fetchData()
+      } catch (err) {
+        this.errorMessage = err.message
+        this.errorVisible = true
+      }
     },
   },
 })

@@ -87,7 +87,10 @@
                         <v-date-picker
                           v-model="date"
                           :max="new Date().toISOString().substr(0, 10)"
-                          @input="dateMenu = false; dateText = date"
+                          @input="
+                            dateMenu = false
+                            dateText = date
+                          "
                         ></v-date-picker>
                       </v-menu>
                     </v-row>
@@ -180,7 +183,10 @@ export default Vue.extend({
   watch: {
     dateText() {
       const date = new Date(this.dateText)
-      if (this.dateText.search(/\d\d\d\d-\d\d-\d\d/) != -1 && !isNaN(date.getTime())) {
+      if (
+        this.dateText.search(/\d\d\d\d-\d\d-\d\d/) != -1 &&
+        !isNaN(date.getTime())
+      ) {
         this.date = this.dateText
       } else {
         const defaultDate = new Date()
@@ -191,21 +197,18 @@ export default Vue.extend({
   },
 
   methods: {
-    fetchData() {
+    async fetchData() {
       this.emailLoading = false
 
       const req = new SignupTokenInfoReq()
       req.setSignupToken(this.$route.params.token)
-      authClient
-        .signupTokenInfo(req)
-        .then((res) => {
-          this.emailLoading = false
-          this.email = res.getEmail()
-        })
-        .catch((err) => {
-          this.emailLoading = false
-          this.error = err
-        })
+      try {
+        const res = await authClient.signupTokenInfo(req)
+        this.email = res.getEmail()
+      } catch (err) {
+        this.error = err
+      }
+      this.emailLoading = false
     },
 
     clearMessages() {
@@ -218,7 +221,7 @@ export default Vue.extend({
       this.usernameTimer = setTimeout(this.checkUsername, 500)
     },
 
-    checkUsername() {
+    async checkUsername() {
       this.usernameErrorMessages = []
       this.usernameSuccessMessages = []
 
@@ -241,23 +244,19 @@ export default Vue.extend({
       const req = new UsernameValidReq()
 
       req.setUsername(this.username)
-      authClient
-        .usernameValid(req)
-        .then((res) => {
-          if (res.getValid()) {
-            this.usernameSuccessMessages = ["Username available!"]
-          } else {
-            this.usernameErrorMessages = [
-              "Username not valid or not available.",
-            ]
-          }
-        })
-        .catch((err) => {
-          this.usernameErrorMessages = ["Unknown error."]
-        })
+      try {
+        const res = await authClient.usernameValid(req)
+        if (res.getValid()) {
+          this.usernameSuccessMessages = ["Username available!"]
+        } else {
+          this.usernameErrorMessages = ["Username not valid or not available."]
+        }
+      } catch (err) {
+        this.usernameErrorMessages = ["Unknown error."]
+      }
     },
 
-    submit() {
+    async submit() {
       this.error = []
 
       if (this.usernameErrorMessages.length > 0) {
@@ -298,18 +297,15 @@ export default Vue.extend({
       req.setGender(this.gender)
       req.setHostingStatus(this.hostingStatus)
 
-      authClient
-        .completeSignup(req)
-        .then((res) => {
-          this.loading = false
-          this.successMessages = ["Success."]
-          Store.dispatch("auth", res.getToken())
-          Router.push("/profile")
-        })
-        .catch((err) => {
-          this.loading = false
-          this.error = err
-        })
+      try {
+        const res = await authClient.completeSignup(req)
+        this.successMessages = ["Success."]
+        Store.dispatch("auth", res.getToken())
+        Router.push("/profile")
+      } catch (err) {
+        this.error = err
+      }
+      this.loading = false
     },
 
     displayHostingStatus,
