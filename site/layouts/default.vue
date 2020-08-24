@@ -68,8 +68,8 @@
             </div>
           </div>
 
-          <a class="navbar-item" href="/governance">
-            Governance
+          <a class="navbar-item" href="/foundation">
+            Foundation
           </a>
 
           <a class="navbar-item" href="/faq">
