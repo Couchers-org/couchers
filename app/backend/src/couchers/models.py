@@ -3,8 +3,7 @@ from calendar import monthrange
 from datetime import date
 
 from couchers.config import config
-from sqlalchemy import (Boolean, Column, Date, DateTime, Enum, Float,
-                        ForeignKey, Integer)
+from sqlalchemy import Boolean, Column, Date, DateTime, Enum, Float, ForeignKey, Integer
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import String, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
@@ -28,16 +27,19 @@ class HostingStatus(enum.Enum):
     difficult = 3
     cant_host = 4
 
+
 class SmokingLocation(enum.Enum):
     yes = 1
     window = 2
     outside = 3
     no = 4
 
+
 class User(Base):
     """
     Basic user and profile details
     """
+
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True)
@@ -51,10 +53,8 @@ class User(Base):
     phone = Column(String, nullable=True, unique=True)
     phone_status = Column(Enum(PhoneStatus), nullable=True)
 
-    joined = Column(DateTime(timezone=True), nullable=False,
-                    server_default=func.now())
-    last_active = Column(DateTime(timezone=True),
-                         nullable=False, server_default=func.now())
+    joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    last_active = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     # display name
     name = Column(String, nullable=False)
@@ -104,7 +104,7 @@ class User(Base):
         age = date.today().year - self.birthdate.year
         # in case of leap-day babies, make sure the date is valid for this year
         safe_birthdate = self.birthdate
-        if (self.birthdate.day > max_day):
+        if self.birthdate.day > max_day:
             safe_birthdate = safe_birthdate.replace(day=max_day)
         if date.today() < safe_birthdate.replace(year=date.today().year):
             age -= 1
@@ -122,13 +122,12 @@ class User(Base):
         """
         Returns the last active time rounded down to the nearest 15 minutes.
         """
-        return self.last_active.replace(minute=(self.last_active.minute // 15) * 15,
-                                        second=0, microsecond=0)
+        return self.last_active.replace(minute=(self.last_active.minute // 15) * 15, second=0, microsecond=0)
 
     @property
     def avatar_url(self):
         # TODO(aapeli): don't hardcode
-        filename = self.avatar_filename or "couchers"
+        filename = self.avatar_filename or "default.jpg"
         return f"{config['MEDIA_SERVER_BASE_URL']}/img/avatar/{filename}"
 
     def mutual_friends(self, target_id):
@@ -137,25 +136,33 @@ class User(Base):
 
         session = Session.object_session(self)
 
-        q1 = (session.query(FriendRelationship.from_user_id.label("user_id"))
-              .filter(FriendRelationship.to_user == self)
-              .filter(FriendRelationship.from_user_id != target_id)
-              .filter(FriendRelationship.status == FriendStatus.accepted))
+        q1 = (
+            session.query(FriendRelationship.from_user_id.label("user_id"))
+            .filter(FriendRelationship.to_user == self)
+            .filter(FriendRelationship.from_user_id != target_id)
+            .filter(FriendRelationship.status == FriendStatus.accepted)
+        )
 
-        q2 = (session.query(FriendRelationship.to_user_id.label("user_id"))
-              .filter(FriendRelationship.from_user == self)
-              .filter(FriendRelationship.to_user_id != target_id)
-              .filter(FriendRelationship.status == FriendStatus.accepted))
+        q2 = (
+            session.query(FriendRelationship.to_user_id.label("user_id"))
+            .filter(FriendRelationship.from_user == self)
+            .filter(FriendRelationship.to_user_id != target_id)
+            .filter(FriendRelationship.status == FriendStatus.accepted)
+        )
 
-        q3 = (session.query(FriendRelationship.from_user_id.label("user_id"))
-              .filter(FriendRelationship.to_user_id == target_id)
-              .filter(FriendRelationship.from_user != self)
-              .filter(FriendRelationship.status == FriendStatus.accepted))
+        q3 = (
+            session.query(FriendRelationship.from_user_id.label("user_id"))
+            .filter(FriendRelationship.to_user_id == target_id)
+            .filter(FriendRelationship.from_user != self)
+            .filter(FriendRelationship.status == FriendStatus.accepted)
+        )
 
-        q4 = (session.query(FriendRelationship.to_user_id.label("user_id"))
-              .filter(FriendRelationship.from_user_id == target_id)
-              .filter(FriendRelationship.to_user != self)
-              .filter(FriendRelationship.status == FriendStatus.accepted))
+        q4 = (
+            session.query(FriendRelationship.to_user_id.label("user_id"))
+            .filter(FriendRelationship.from_user_id == target_id)
+            .filter(FriendRelationship.to_user != self)
+            .filter(FriendRelationship.status == FriendStatus.accepted)
+        )
 
         return session.query(User).filter(User.id.in_(q1.union(q2).intersect(q3.union(q4)).subquery())).all()
 
@@ -176,6 +183,7 @@ class FriendRelationship(Base):
 
     TODO: make this better with sqlalchemy self-referential stuff
     """
+
     __tablename__ = "friend_relationships"
 
     id = Column(Integer, primary_key=True)
@@ -183,30 +191,26 @@ class FriendRelationship(Base):
     from_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     to_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
-    status = Column(Enum(FriendStatus), nullable=False,
-                    default=FriendStatus.pending)
+    status = Column(Enum(FriendStatus), nullable=False, default=FriendStatus.pending)
 
-    time_sent = Column(DateTime(timezone=True),
-                       nullable=False, server_default=func.now())
+    time_sent = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     time_responded = Column(DateTime(timezone=True), nullable=True)
 
-    from_user = relationship(
-        "User", backref="friends_from", foreign_keys="FriendRelationship.from_user_id")
-    to_user = relationship("User", backref="friends_to",
-                           foreign_keys="FriendRelationship.to_user_id")
+    from_user = relationship("User", backref="friends_from", foreign_keys="FriendRelationship.from_user_id")
+    to_user = relationship("User", backref="friends_to", foreign_keys="FriendRelationship.to_user_id")
 
 
 class SignupToken(Base):
     """
     A signup token allows the user to verify their email and continue signing up.
     """
+
     __tablename__ = "signup_tokens"
     token = Column(String, primary_key=True)
 
     email = Column(String, nullable=False)
 
-    created = Column(DateTime(timezone=True), nullable=False,
-                     server_default=func.now())
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     expiry = Column(DateTime(timezone=True), nullable=False)
 
     def __repr__(self):
@@ -217,13 +221,13 @@ class LoginToken(Base):
     """
     A login token sent in an email to a user, allows them to sign in between the times defined by created and expiry
     """
+
     __tablename__ = "login_tokens"
     token = Column(String, primary_key=True)
 
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
-    created = Column(DateTime(timezone=True), nullable=False,
-                     server_default=func.now())
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     expiry = Column(DateTime(timezone=True), nullable=False)
 
     user = relationship("User", backref="login_tokens")
@@ -236,13 +240,13 @@ class UserSession(Base):
     """
     Active session on the app, for auth
     """
+
     __tablename__ = "sessions"
     token = Column(String, primary_key=True)
 
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
-    started = Column(DateTime(timezone=True), nullable=False,
-                     server_default=func.now())
+    started = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     user = relationship("User", backref="sessions")
 
@@ -257,14 +261,12 @@ class Reference(Base):
     """
     Reference from one user to another
     """
+
     __tablename__ = "references"
-    __table_args__ = (
-        UniqueConstraint("from_user_id", "to_user_id", "reference_type"),
-    )
+    __table_args__ = (UniqueConstraint("from_user_id", "to_user_id", "reference_type"),)
 
     id = Column(Integer, primary_key=True)
-    time = Column(DateTime(timezone=True), nullable=False,
-                  server_default=func.now())
+    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     from_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     to_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -276,21 +278,19 @@ class Reference(Base):
     rating = Column(Integer, nullable=False)
     was_safe = Column(Boolean, nullable=False)
 
-    from_user = relationship(
-        "User", backref="references_from", foreign_keys="Reference.from_user_id")
-    to_user = relationship("User", backref="references_to",
-                           foreign_keys="Reference.to_user_id")
+    from_user = relationship("User", backref="references_from", foreign_keys="Reference.from_user_id")
+    to_user = relationship("User", backref="references_to", foreign_keys="Reference.to_user_id")
 
 
 class Conversation(Base):
     """
     Conversation brings together the different types of message/conversation types
     """
+
     __tablename__ = "conversations"
 
     id = Column(Integer, primary_key=True)
-    created = Column(DateTime(timezone=True), nullable=False,
-                     server_default=func.now())
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     def __repr__(self):
         return f"Conversation(id={self.id}, created={self.created})"
@@ -300,10 +300,10 @@ class GroupChat(Base):
     """
     Group chat
     """
+
     __tablename__ = "group_chats"
 
-    conversation_id = Column("id", ForeignKey(
-        "conversations.id"), nullable=False, primary_key=True)
+    conversation_id = Column("id", ForeignKey("conversations.id"), nullable=False, primary_key=True)
 
     title = Column(String, nullable=True)
     only_admins_invite = Column(Boolean, nullable=False, default=True)
@@ -326,6 +326,7 @@ class GroupChatSubscription(Base):
     """
     The recipient of a thread and information about when they joined/left/etc.
     """
+
     __tablename__ = "group_chat_subscriptions"
     id = Column(Integer, primary_key=True)
 
@@ -333,8 +334,7 @@ class GroupChatSubscription(Base):
     user_id = Column(ForeignKey("users.id"), nullable=False)
     group_chat_id = Column(ForeignKey("group_chats.id"), nullable=False)
 
-    joined = Column(DateTime(timezone=True), nullable=False,
-                    server_default=func.now())
+    joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     left = Column(DateTime(timezone=True), nullable=True)
 
     role = Column(Enum(GroupChatRole), nullable=False)
@@ -350,11 +350,13 @@ class GroupChatSubscription(Base):
 
         session = Session.object_session(self)
 
-        return (session.query(func.count(Message.id).label("count"))
-                .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
-                .filter(GroupChatSubscription.id == self.id)
-                .filter(Message.id > GroupChatSubscription.last_seen_message_id)
-                .one()).count
+        return (
+            session.query(func.count(Message.id).label("count"))
+            .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
+            .filter(GroupChatSubscription.id == self.id)
+            .filter(Message.id > GroupChatSubscription.last_seen_message_id)
+            .one()
+        ).count
 
     def __repr__(self):
         return f"GroupChatSubscription(id={self.id}, user={self.user}, joined={self.joined}, left={self.left}, role={self.role}, group_chat={self.group_chat})"
@@ -364,6 +366,7 @@ class Message(Base):
     """
     Message content.
     """
+
     __tablename__ = "messages"
 
     id = Column(Integer, primary_key=True)
@@ -371,12 +374,10 @@ class Message(Base):
     conversation_id = Column(ForeignKey("conversations.id"), nullable=False)
     author_id = Column(ForeignKey("users.id"), nullable=False)
 
-    time = Column(DateTime(timezone=True), nullable=False,
-                  server_default=func.now())
+    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     text = Column(String, nullable=False)
 
-    conversation = relationship(
-        "Conversation", backref="messages", order_by="Message.time.desc()")
+    conversation = relationship("Conversation", backref="messages", order_by="Message.time.desc()")
     author = relationship("User")
 
     def __repr__(self):
@@ -387,12 +388,12 @@ class Complaint(Base):
     """
     A record that a user has reported another user to admin
     """
+
     __tablename__ = "complaints"
 
     id = Column(Integer, primary_key=True)
 
-    time = Column(DateTime(timezone=True), nullable=False,
-                  server_default=func.now())
+    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     author_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     reported_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -408,6 +409,7 @@ class Email(Base):
     """
     Table of all dispatched emails for debugging purposes, etc.
     """
+
     __tablename__ = "emails"
 
     id = Column(String, primary_key=True)
@@ -448,19 +450,15 @@ class HostRequest(Base):
 
     status = Column(Enum(HostRequestStatus), nullable=False)
 
-    conversation_id = Column(Integer, ForeignKey(
-        "conversations.id"), nullable=False)
+    conversation_id = Column(Integer, ForeignKey("conversations.id"), nullable=False)
     # initial message will have a timestamp for creation time
-    initial_message_id = Column(
-        Integer, ForeignKey("messages.id"), nullable=False)
+    initial_message_id = Column(Integer, ForeignKey("messages.id"), nullable=False)
 
     to_last_seen_message_id = Column(Integer, nullable=False, default=0)
     from_last_seen_message_id = Column(Integer, nullable=False, default=0)
 
-    from_user = relationship(
-        "User", backref="host_requests_sent", foreign_keys="HostRequest.from_user_id")
-    to_user = relationship("User", backref="host_requests_received",
-                           foreign_keys="HostRequest.to_user_id")
+    from_user = relationship("User", backref="host_requests_sent", foreign_keys="HostRequest.from_user_id")
+    to_user = relationship("User", backref="host_requests_received", foreign_keys="HostRequest.to_user_id")
     conversation = relationship("Conversation")
     initial_message = relationship("Message")
 
@@ -490,8 +488,7 @@ class HostRequestEvent(Base):
     event_type = Column(Enum(HostRequestEventType), nullable=False)
     # no foreign key, can be 0 for before all messages
     after_message_id = Column(Integer, nullable=False)
-    time = Column(DateTime(timezone=True), nullable=False,
-                  server_default=func.now())
+    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
 
 class InitiatedUpload(Base):
@@ -500,6 +497,7 @@ class InitiatedUpload(Base):
 
     For now we only have avatar images, so it's specific to that.
     """
+
     __tablename__ = "initiated_uploads"
 
     key = Column(String, primary_key=True)

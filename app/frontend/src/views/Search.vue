@@ -50,21 +50,18 @@ export default Vue.extend({
   },
 
   methods: {
-    fetchData() {
+    async fetchData() {
       this.loading = true
 
       const req = new SearchReq()
       req.setQuery(this.query)
-      client
-        .search(req)
-        .then((res) => {
-          this.loading = false
-          this.users = res.toObject().usersList
-        })
-        .catch((err) => {
-          this.loading = false
-          this.error = err
-        })
+      try {
+        const res = await client.search(req)
+        this.users = res.toObject().usersList
+      } catch (err) {
+        this.error = err
+      }
+      this.loading = false
     },
   },
 })

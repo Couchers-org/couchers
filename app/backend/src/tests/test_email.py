@@ -18,6 +18,7 @@ def test_login_email_rendering():
     assert login_link in html
     assert subject in html
 
+
 def test_signup_email_rendering():
     subject = random_hex(64)
     signup_link = random_hex(64)
@@ -25,6 +26,7 @@ def test_signup_email_rendering():
     assert signup_link in plain
     assert signup_link in html
     assert subject in html
+
 
 def test_report_email_rendering():
     subject = random_hex(64)
@@ -43,6 +45,7 @@ def test_report_email_rendering():
     assert description in html
     assert subject in html
 
+
 def test_login_email(db):
     user, api_token = generate_user(db)
 
@@ -59,6 +62,7 @@ def test_login_email(db):
 
     with patch("couchers.email.send_smtp_email", mock_send_smtp_email):
         send_login_email(user, login_token, expiry_text)
+
 
 def test_signup_email(db):
     user, api_token = generate_user(db)

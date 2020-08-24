@@ -14,11 +14,13 @@ def base64encode(msg):
     """
     return b64encode(msg.encode("utf8")).decode("utf8")
 
+
 def base64decode(msg):
     """
     Base 64 decode strings to strings
     """
     return b64decode(msg).decode("utf8")
+
 
 def sso_check_hmac(msg, key, digest):
     """
@@ -27,14 +29,17 @@ def sso_check_hmac(msg, key, digest):
     mac = HMAC(key.encode("utf8"), msg.encode("utf8"), "sha256").hexdigest()
     return compare_digest(mac, digest)
 
+
 def sso_create_hmac(msg, key):
     """
     "Signs" a message with a SHA256 hmac.
     """
     return HMAC(key.encode("utf8"), msg.encode("utf8"), "sha256").hexdigest()
 
+
 def urlsafe_random_bytes(length=32):
     return urlsafe_b64encode(random_bytes(length)).decode("utf8")
+
 
 def urlsafe_secure_token():
     """
@@ -42,8 +47,10 @@ def urlsafe_secure_token():
     """
     return urlsafe_random_bytes(32)
 
+
 def hash_password(password: str):
     return nacl.pwhash.str(password.encode("utf-8"))
+
 
 def verify_password(hashed: bytes, password: str):
     try:
@@ -52,14 +59,17 @@ def verify_password(hashed: bytes, password: str):
     except InvalidkeyError:
         return False
 
+
 def random_hex(length=32):
     """
     Length in binary
     """
     return random_bytes(length).hex()
 
+
 def secure_compare(val1, val2):
     return sodium_memcmp(val1, val2)
+
 
 def generate_hash_signature(message: bytes, key: bytes) -> bytes:
     """
@@ -70,6 +80,7 @@ def generate_hash_signature(message: bytes, key: bytes) -> bytes:
     with knowledge of the key.
     """
     return generichash_blake2b_salt_personal(message, key=key, digest_size=32)
+
 
 def verify_hash_signature(message: bytes, key: bytes, sig: bytes) -> bool:
     """

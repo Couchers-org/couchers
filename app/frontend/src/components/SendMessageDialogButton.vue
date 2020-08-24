@@ -63,7 +63,7 @@ export default Vue.extend({
   }),
 
   methods: {
-    sendMessage() {
+    async sendMessage() {
       this.error = []
 
       if (this.message.length < 1) {
@@ -74,30 +74,19 @@ export default Vue.extend({
 
       this.loading = true
 
-      const req = new CreateGroupChatReq()
-      req.setRecipientUserIdsList([this.userId])
-      conversations
-        .createGroupChat(req)
-        .then((res) => {
-          const req = new SendMessageReq()
-          req.setGroupChatId(res.getGroupChatId())
-          req.setText(this.message)
-          conversations
-            .sendMessage(req)
-            .then(() => {
-              this.loading = false
-              this.dialog = false
-              this.sent = true
-            })
-            .catch((err: Error) => {
-              this.loading = false
-              this.error = err
-            })
-        })
-        .catch((err: Error) => {
-          this.loading = false
-          this.error = err
-        })
+      const chatReq = new CreateGroupChatReq()
+      try {
+        const chatRes = await conversations.createGroupChat(chatReq)
+        const messageReq = new SendMessageReq()
+        messageReq.setGroupChatId(chatRes.getGroupChatId())
+        messageReq.setText(this.message)
+        await conversations.sendMessage(messageReq)
+        this.dialog = false
+        this.sent = true
+      } catch (err) {
+        this.error = err
+      }
+      this.loading = false
     },
   },
 })

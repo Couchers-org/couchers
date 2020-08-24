@@ -31,18 +31,16 @@ export default Vue.extend({
     LoadingCircular,
   },
 
-  mounted() {
+  async mounted() {
     const req = new DeAuthReq()
     req.setToken(Store.state.authToken!)
-    authClient
-      .deauthenticate(req)
-      .then(() => {
-        Store.commit("deauth")
-      })
-      .catch((err) => {
-        this.loading = false
-        this.error = err
-      })
+    try {
+      await authClient.deauthenticate(req)
+      Store.commit("deauth")
+    } catch (err) {
+      this.loading = false
+      this.error = err
+    }
   },
 })
 </script>

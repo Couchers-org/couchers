@@ -68,8 +68,8 @@
             </div>
           </div>
 
-          <a class="navbar-item" href="/governance">
-            Governance
+          <a class="navbar-item" href="/foundation">
+            Foundation
           </a>
 
           <a class="navbar-item" href="/faq">
@@ -84,8 +84,15 @@
         <div class="navbar-end">
           <div class="navbar-item">
             <div class="buttons">
+              <a class="button is-light" href = "https://community.couchers.org/">
+                <strong>Community Forum</strong>
+              </a>
+            </div>
+          </div>
+          <div class="navbar-item">
+            <div class="buttons">
               <a class="button is-light" href = "/signup">
-                <strong>Join now!</strong>
+                <strong>Join the Team!</strong>
               </a>
             </div>
           </div>

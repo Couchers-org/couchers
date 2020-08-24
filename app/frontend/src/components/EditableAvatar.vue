@@ -61,37 +61,32 @@ export default Vue.extend({
       this.error = null
     },
 
-    upload() {
+    async upload() {
       this.clearError()
       if (this.image == null) {
         this.error = Error("Select an image")
         return
       }
-      client.initiateMediaUpload(new Empty()).then((res) => {
+      this.loading = true
+      try {
+        const res = await client.initiateMediaUpload(new Empty())
         const formData = new FormData()
-        formData.append("file", this.image || "") // TODO: if image is null
+        formData.append("file", this.image || "")
         this.progress = 0
-        this.loading = true
-        axios
-          .post(res.getUploadUrl(), formData, {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-            onUploadProgress: (event) => {
-              this.progress = (event.loaded / event.total) * 100
-            },
-          })
-          .then((res) => {
-            this.$emit("save")
-            this.image = null
-          })
-          .catch((err) => {
-            this.error = err
-          })
-          .finally(() => {
-            this.loading = false
-          })
-      })
+        await axios.post(res.getUploadUrl(), formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          onUploadProgress: (event) => {
+            this.progress = (event.loaded / event.total) * 100
+          },
+        })
+        this.$emit("save")
+        this.image = null
+      } catch (err) {
+        this.error = err
+      }
+      this.loading = false
     },
   },
 })

@@ -291,6 +291,7 @@ import EditableTextField from "../components/EditableTextField.vue"
 import EditableList from "../components/EditableList.vue"
 import EditableColor from "../components/EditableColor.vue"
 import ErrorAlert from "../components/ErrorAlert.vue"
+import LoadingCircular from "../components/LoadingCircular.vue"
 
 import {
   UpdateProfileReq,
@@ -341,6 +342,7 @@ export default Vue.extend({
     EditableList,
     EditableColor,
     ErrorAlert,
+    LoadingCircular,
   },
 
   methods: {
@@ -348,19 +350,16 @@ export default Vue.extend({
       Store.dispatch("refreshUser")
     },
 
-    updateProfile(req: UpdateProfileReq) {
+    async updateProfile(req: UpdateProfileReq) {
       this.loading = true
 
-      client
-        .updateProfile(req)
-        .then(() => {
-          this.loading = false
-          this.refreshUser()
-        })
-        .catch((err) => {
-          this.loading = false
-          this.error = err
-        })
+      try {
+        const res = await client.updateProfile(req)
+        this.refreshUser()
+      } catch (err) {
+        this.error = err
+      }
+      this.loading = false
     },
 
     saveAboutMe(text: string) {

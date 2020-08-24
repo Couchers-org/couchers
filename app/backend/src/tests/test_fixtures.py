@@ -8,15 +8,22 @@ import pytest
 from couchers.crypto import random_hex
 from couchers.db import session_scope
 from couchers.interceptors import intercept_server
-from couchers.models import (Base, FriendRelationship, FriendStatus, Message,
-                             User, Complaint)
+from couchers.models import (Base, FriendRelationship, FriendStatus, User)
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
+from couchers.servicers.bugs import Bugs
 from couchers.servicers.conversations import Conversations
 from couchers.servicers.media import Media, get_media_auth_interceptor
 from couchers.servicers.requests import Requests
-from pb import (api_pb2_grpc, auth_pb2, conversations_pb2_grpc, media_pb2_grpc,
-                requests_pb2_grpc)
+from pb import (
+    api_pb2_grpc,
+    auth_pb2,
+    auth_pb2_grpc,
+    bugs_pb2_grpc,
+    conversations_pb2_grpc,
+    media_pb2_grpc,
+    requests_pb2_grpc,
+)
 from sqlalchemy import create_engine
 from sqlalchemy.event import listen, remove
 from sqlalchemy.orm import sessionmaker
@@ -30,14 +37,14 @@ def db():
     from sqlalchemy.pool import StaticPool
 
     # The elaborate arguments are needed to get multithreaded access
-    engine = create_engine("sqlite://", connect_args={'check_same_thread':False},
-                           poolclass=StaticPool, echo=False)
+    engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool, echo=False)
 
     # from https://stackoverflow.com/questions/13712381/how-to-turn-on-pragma-foreign-keys-on-in-sqlalchemy-migration-script-or-conf
     def set_sqlite_pragma(dbapi_connection, connection_record):
         cursor = dbapi_connection.cursor()
         cursor.execute("PRAGMA foreign_keys=ON")
         cursor.close()
+
     listen(engine, "connect", set_sqlite_pragma)
 
     Base.metadata.create_all(engine)
@@ -92,14 +99,34 @@ def generate_user(db, username=None):
 
     return user, token
 
+
 def make_friends(db, user1, user2):
     with session_scope(db) as session:
         friend_relationship = FriendRelationship(
-            from_user_id=user1.id,
-            to_user_id=user2.id,
-            status=FriendStatus.accepted,
+            from_user_id=user1.id, to_user_id=user2.id, status=FriendStatus.accepted,
         )
         session.add(friend_relationship)
+
+
+@contextmanager
+def auth_api_session(db_session):
+    """
+    Create a fresh Auth API for testing
+
+    TODO: investigate if there's a smarter way to stub out these tests?
+    """
+    auth = Auth(db_session)
+    auth_server = grpc.server(futures.ThreadPoolExecutor(1))
+    port = auth_server.add_insecure_port("localhost:0")
+    auth_pb2_grpc.add_AuthServicer_to_server(auth, auth_server)
+    auth_server.start()
+
+    try:
+        with grpc.insecure_channel(f"localhost:{port}") as channel:
+            yield auth_pb2_grpc.AuthStub(channel)
+    finally:
+        auth_server.stop(None)
+
 
 @contextmanager
 def api_session(db, token):
@@ -108,8 +135,7 @@ def api_session(db, token):
     """
     auth_interceptor = Auth(db).get_auth_interceptor()
 
-    server = grpc.server(futures.ThreadPoolExecutor(1))
-    server = intercept_server(server, auth_interceptor)
+    server = grpc.server(futures.ThreadPoolExecutor(1), interceptors=[auth_interceptor])
     port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
     servicer = API(db)
     api_pb2_grpc.add_APIServicer_to_server(servicer, server)
@@ -124,6 +150,7 @@ def api_session(db, token):
     finally:
         server.stop(None)
 
+
 @contextmanager
 def conversations_session(db, token):
     """
@@ -131,8 +158,7 @@ def conversations_session(db, token):
     """
     auth_interceptor = Auth(db).get_auth_interceptor()
 
-    server = grpc.server(futures.ThreadPoolExecutor(1))
-    server = intercept_server(server, auth_interceptor)
+    server = grpc.server(futures.ThreadPoolExecutor(1), interceptors=[auth_interceptor])
     port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
     servicer = Conversations(db)
     conversations_pb2_grpc.add_ConversationsServicer_to_server(servicer, server)
@@ -147,6 +173,7 @@ def conversations_session(db, token):
     finally:
         server.stop(None)
 
+
 @contextmanager
 def requests_session(db, token):
     """
@@ -154,8 +181,7 @@ def requests_session(db, token):
     """
     auth_interceptor = Auth(db).get_auth_interceptor()
 
-    server = grpc.server(futures.ThreadPoolExecutor(1))
-    server = intercept_server(server, auth_interceptor)
+    server = grpc.server(futures.ThreadPoolExecutor(1), interceptors=[auth_interceptor])
     port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
     servicer = Requests(db)
     requests_pb2_grpc.add_RequestsServicer_to_server(servicer, server)
@@ -170,6 +196,21 @@ def requests_session(db, token):
     finally:
         server.stop(None)
 
+
+@contextmanager
+def bugs_session():
+    bugs_server = grpc.server(futures.ThreadPoolExecutor(1))
+    port = bugs_server.add_insecure_port("localhost:0")
+    bugs_pb2_grpc.add_BugsServicer_to_server(Bugs(), bugs_server)
+    bugs_server.start()
+
+    try:
+        with grpc.insecure_channel(f"localhost:{port}") as channel:
+            yield bugs_pb2_grpc.BugsStub(channel)
+    finally:
+        bugs_server.stop(None)
+
+
 @contextmanager
 def media_session(db, bearer_token):
     """
@@ -177,8 +218,7 @@ def media_session(db, bearer_token):
     """
     media_auth_interceptor = get_media_auth_interceptor(bearer_token)
 
-    server = grpc.server(futures.ThreadPoolExecutor(1))
-    server = intercept_server(server, media_auth_interceptor)
+    server = grpc.server(futures.ThreadPoolExecutor(1), interceptors=[media_auth_interceptor])
     port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
     servicer = Media(db)
     media_pb2_grpc.add_MediaServicer_to_server(servicer, server)
@@ -193,45 +233,45 @@ def media_session(db, bearer_token):
     finally:
         server.stop(None)
 
+
 @contextmanager
 def patch_message_time(time, add=0):
     def set_timestamp(mapper, connection, target):
         t = time + timedelta(seconds=add)
         target.time = t
-    listen(Base, "before_insert", set_timestamp,
-                    propagate=True)
-    listen(Base, "before_update", set_timestamp,
-                    propagate=True)
+
+    listen(Base, "before_insert", set_timestamp, propagate=True)
+    listen(Base, "before_update", set_timestamp, propagate=True)
     try:
         yield
     finally:
         remove(Base, "before_insert", set_timestamp)
         remove(Base, "before_update", set_timestamp)
+
 
 @contextmanager
 def patch_joined_time(time, add=0):
     def set_timestamp(mapper, connection, target):
         t = time + timedelta(seconds=add)
         target.joined = t
-    listen(Base, "before_insert", set_timestamp,
-                    propagate=True)
-    listen(Base, "before_update", set_timestamp,
-                    propagate=True)
+
+    listen(Base, "before_insert", set_timestamp, propagate=True)
+    listen(Base, "before_update", set_timestamp, propagate=True)
     try:
         yield
     finally:
         remove(Base, "before_insert", set_timestamp)
         remove(Base, "before_update", set_timestamp)
 
+
 @contextmanager
 def patch_left_time(time, add=0):
     def set_timestamp(mapper, connection, target):
         t = time + timedelta(seconds=add)
         target.left = t
-    listen(Base, "before_insert", set_timestamp,
-                    propagate=True)
-    listen(Base, "before_update", set_timestamp,
-                    propagate=True)
+
+    listen(Base, "before_insert", set_timestamp, propagate=True)
+    listen(Base, "before_update", set_timestamp, propagate=True)
     try:
         yield
     finally:

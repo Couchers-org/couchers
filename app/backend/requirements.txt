@@ -7,4 +7,5 @@ pytest
 pytest-pythonpath
 python-dateutil
 python-dotenv
+requests
 sqlalchemy

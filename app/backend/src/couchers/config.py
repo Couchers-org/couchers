@@ -10,11 +10,13 @@ from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
 
-# Allowed config options, as tuples (name, type).
+# Allowed config options, as tuples (name, type, default).
 # All fields are required
 CONFIG_OPTIONS = [
     # Whether we're in dev mode
     ("DEV", bool),
+    # Version string
+    ("VERSION", str, "unknown"),
     # Base URL
     ("BASE_URL", str),
     # Email
@@ -35,6 +37,11 @@ CONFIG_OPTIONS = [
     ("MEDIA_SERVER_SECRET_KEY", bytes),
     ("MEDIA_SERVER_BEARER_TOKEN", str),
     ("MEDIA_SERVER_BASE_URL", str),
+    # Bug reporting tool
+    ("BUG_TOOL_ENABLED", bool),
+    ("BUG_TOOL_GITHUB_REPO", str),
+    ("BUG_TOOL_GITHUB_USERNAME", str),
+    ("BUG_TOOL_GITHUB_TOKEN", str),
 ]
 
 
@@ -50,10 +57,23 @@ else:
 
 config = {}
 
-for name, type_ in CONFIG_OPTIONS:
+for config_option in CONFIG_OPTIONS:
+    if len(config_option) == 2:
+        name, type_ = config_option
+        optional = False
+    elif len(config_option) == 3:
+        name, type_, default_value = config_option
+        optional = True
+    else:
+        raise ValueError("Invalid CONFIG_OPTIONS")
+
     value = os.getenv(name)
+
     if not value:
-        raise ValueError(f"Required config value {name} not set")
+        if not optional:
+            raise ValueError(f"Required config value {name} not set")
+        else:
+            value = default_value
 
     if type_ == bool:
         # 1 is true, 0 is false, everything else is illegal

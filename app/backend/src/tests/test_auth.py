@@ -1,32 +1,13 @@
-import grpc
-import pytest
 from concurrent import futures
 from contextlib import contextmanager
 
-from couchers.models import Base, SignupToken, LoginToken, User
+import grpc
+import pytest
+from couchers.models import Base, LoginToken, SignupToken, User
 from couchers.servicers.auth import Auth
-from pb import auth_pb2, auth_pb2_grpc, api_pb2
+from pb import api_pb2, auth_pb2, auth_pb2_grpc, bugs_pb2_grpc
 
-from tests.test_fixtures import db
-
-
-@contextmanager
-def auth_api_session(db_session):
-    """
-    Create a fresh Auth API for testing
-
-    TODO: investigate if there's a smarter way to stub out these tests?
-    """
-    auth = Auth(db_session)
-    auth_server = grpc.server(futures.ThreadPoolExecutor(1))
-    port = auth_server.add_insecure_port("localhost:0")
-    auth_pb2_grpc.add_AuthServicer_to_server(auth, auth_server)
-    auth_server.start()
-
-    with grpc.insecure_channel(f"localhost:{port}") as channel:
-        yield auth_pb2_grpc.AuthStub(channel)
-
-    auth_server.stop(None)
+from tests.test_fixtures import auth_api_session, db
 
 
 def test_UsernameValid(db):
@@ -52,14 +33,17 @@ def test_basic_signup(db):
     assert reply.email == "a@b.com"
 
     with auth_api_session(db) as auth_api:
-        reply = auth_api.CompleteSignup(auth_pb2.CompleteSignupReq(
-            signup_token=signup_token,
-            username="frodo",
-            name="Räksmörgås",
-            city="Minas Tirith",
-            birthdate="1980-12-31",
-            gender="Robot",
-            hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST))
+        reply = auth_api.CompleteSignup(
+            auth_pb2.CompleteSignupReq(
+                signup_token=signup_token,
+                username="frodo",
+                name="Räksmörgås",
+                city="Minas Tirith",
+                birthdate="1980-12-31",
+                gender="Robot",
+                hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+            )
+        )
     assert isinstance(reply.token, str)
 
 

@@ -2,10 +2,8 @@ import logging
 from urllib.parse import parse_qs, quote, unquote, urlencode
 
 import grpc
-from couchers.crypto import (base64decode, base64encode, sso_check_hmac,
-                             sso_create_hmac)
-from couchers.db import (get_friends_status, get_user_by_field, is_valid_color,
-                         is_valid_name, session_scope)
+from couchers.crypto import base64decode, base64encode, sso_check_hmac, sso_create_hmac
+from couchers.db import get_friends_status, get_user_by_field, is_valid_color, is_valid_name, session_scope
 from couchers.models import User
 from couchers import errors
 from pb import sso_pb2, sso_pb2_grpc
@@ -13,6 +11,7 @@ from pb import sso_pb2, sso_pb2_grpc
 logging.basicConfig(format="%(asctime)s.%(msecs)03d: %(process)d: %(message)s", datefmt="%F %T", level=logging.DEBUG)
 
 logger = logging.getLogger(__name__)
+
 
 class SSO(sso_pb2_grpc.SSOServicer):
     def __init__(self, Session):
@@ -49,7 +48,7 @@ class SSO(sso_pb2_grpc.SSOServicer):
                 "external_id": user.id,
                 "username": user.username,
                 "name": user.name,
-                #"admin": False
+                # "admin": False
             }
 
             logger.info(f"SSO {payload=}")
@@ -57,10 +56,7 @@ class SSO(sso_pb2_grpc.SSOServicer):
             encoded_payload = base64encode(urlencode(payload))
             payload_sig = sso_create_hmac(encoded_payload, hmac_sec)
 
-            query_string = urlencode({
-                "sso": encoded_payload,
-                "sig": payload_sig
-            })
+            query_string = urlencode({"sso": encoded_payload, "sig": payload_sig})
 
             redirect_url = f"{return_sso_url}?{query_string}"
             logger.info(f"SSO {redirect_url=}")

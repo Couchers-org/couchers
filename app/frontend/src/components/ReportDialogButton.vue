@@ -65,24 +65,20 @@ export default Vue.extend({
   }),
 
   methods: {
-    sendReport() {
+    async sendReport() {
       this.loading = true
       const req = new ReportReq()
       req.setReportedUserId(this.userId)
       req.setReason(this.reason)
       req.setDescription(this.description)
-
-      client
-        .report(req)
-        .then(() => {
-          this.loading = false
-          this.dialog = false
-          this.sent = true
-        })
-        .catch((err) => {
-          this.loading = false
-          this.error = err
-        })
+      try {
+        await client.report(req)
+        this.dialog = false
+        this.sent = true
+      } catch (err) {
+        this.error = err
+      }
+      this.loading = false
     },
   },
 })
