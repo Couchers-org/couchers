@@ -2,10 +2,11 @@ from unittest.mock import patch
 
 import pytest
 from couchers.crypto import random_hex, urlsafe_secure_token
-from couchers.db import new_login_token, new_signup_token
+from couchers.db import new_login_token, new_signup_token, session_scope
 from couchers.email import _render_email
 from couchers.tasks import send_login_email, send_signup_email, send_report_email
-from tests.test_fixtures import db, generate_user, generate_complaint
+from tests.test_fixtures import db, generate_user
+from couchers.models import Complaint
 
 testing_email_address = "reports@couchers.org.invalid"
 
@@ -77,22 +78,31 @@ def test_signup_email(db):
         send_signup_email(request_email, token, expiry_text)
 
 def test_report_email(db):
-    complaint = generate_complaint(db)
+    with session_scope(db):
+        user_author, api_token_author = generate_user(db)
+        user_reported, api_token_reported = generate_user(db)
 
-    message_id = random_hex(64)
+        complaint = Complaint(
+            author_user=user_author,
+            reported_user=user_reported,
+            reason=random_hex(64),
+            description=random_hex(64)
+        )
 
-    def mock_send_email(sender_name, sender_email, recipient, subject, plain, html):
-        assert recipient == testing_email_address
-        assert complaint.author_user.username in plain
-        assert complaint.author_user.username[10:] in html
-        assert complaint.reported_user.username in plain
-        assert complaint.reported_user.username[10:] in html
-        assert complaint.reason in plain
-        assert complaint.reason in html
-        assert complaint.description in plain
-        assert complaint.description in html
-        assert "report" in subject.lower()
-        return message_id
+        message_id = random_hex(64)
 
-    with patch("couchers.email.send_email", mock_send_email):
-        send_report_email(complaint)
+        def mock_send_email(sender_name, sender_email, recipient, subject, plain, html):
+            assert recipient == testing_email_address
+            assert complaint.author_user.username in plain
+            assert complaint.author_user.username[10:] in html
+            assert complaint.reported_user.username in plain
+            assert complaint.reported_user.username[10:] in html
+            assert complaint.reason in plain
+            assert complaint.reason in html
+            assert complaint.description in plain
+            assert complaint.description in html
+            assert "report" in subject.lower()
+            return message_id
+
+        with patch("couchers.email.send_email", mock_send_email):
+            send_report_email(complaint)

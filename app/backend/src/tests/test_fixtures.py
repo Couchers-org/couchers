@@ -237,25 +237,3 @@ def patch_left_time(time, add=0):
     finally:
         remove(Base, "before_insert", set_timestamp)
         remove(Base, "before_update", set_timestamp)
-
-def generate_complaint(db):
-    session = db()
-
-    user_author, api_token_author = generate_user(db)
-    user_reported, api_token_reported = generate_user(db)
-
-    complaint = Complaint(
-        author_user=user_author,
-        reported_user=user_reported,
-        reason=random_hex(64),
-        description=random_hex(64)
-    )
-
-    #Not 100% sure how this works, see generate_user
-    session.add(complaint)
-    session.commit()
-    session.refresh(complaint)
-    session.expunge(complaint)
-    session.close()
-
-    return complaint
