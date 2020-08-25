@@ -22,7 +22,11 @@ static_resources:
               routes:
               - match: { prefix: "/org.couchers.auth" }
                 route:
-                  cluster: auth_service
+                  cluster: open_service
+                  max_grpc_timeout: 0s
+              - match: { prefix: "/org.couchers.bugs" }
+                route:
+                  cluster: open_service
                   max_grpc_timeout: 0s
               - match: { prefix: "/org.couchers.api" }
                 route:
@@ -46,7 +50,7 @@ static_resources:
     http2_protocol_options: {}
     lb_policy: round_robin
     hosts: [{ socket_address: { address: backend, port_value: 1751 }}]
-  - name: auth_service
+  - name: open_service
     connect_timeout: 0.25s
     type: logical_dns
     http2_protocol_options: {}

@@ -35,21 +35,18 @@ export default Vue.extend({
   },
 
   methods: {
-    fetchData() {
+    async fetchData() {
       const req = new CompleteTokenLoginReq()
       req.setLoginToken(this.$route.params.token)
-      authClient
-        .completeTokenLogin(req)
-        .then((res) => {
-          this.loading = false
-          this.successMessages = ["Success."]
-          Store.dispatch("auth", res.getToken())
-          Router.push("/")
-        })
-        .catch((err) => {
-          this.loading = false
-          this.error = err
-        })
+      try {
+        const res = await authClient.completeTokenLogin(req)
+        this.successMessages = ["Success."]
+        Store.dispatch("auth", res.getToken())
+        Router.push("/")
+      } catch (err) {
+        Router.push({ name: "Login", params: { reason: err.message } })
+      }
+      this.loading = false
     },
   },
 })

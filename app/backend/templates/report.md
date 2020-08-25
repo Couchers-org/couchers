@@ -1,8 +1,8 @@
 User Report
 
-Reported by: {{author}}
+Reported by: {{username_author}}
 
-Reported User: {{reported_user}}
+Reported User: {{username_reported}}
 
 Reason: {{reason}}
 

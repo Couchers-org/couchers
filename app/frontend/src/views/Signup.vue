@@ -6,6 +6,9 @@
           <v-container fluid>
             <v-col class="mx-auto" cols="12" sm="10" md="8" lg="6" xl="4">
               <h1>Sign up</h1>
+              <v-alert v-if="reason" type="warning">
+                {{ reason }}
+              </v-alert>
               <v-card flat v-if="signupStep == 'form'">
                 <v-card-text>
                   <v-form v-on:submit.prevent="submitSignup">
@@ -59,6 +62,7 @@ export default Vue.extend({
     loading: false,
     email: "",
     error: null as Error | null,
+    reason: "",
     successMessages: [] as Array<string>,
     signupStep: "form",
     rules: {
@@ -70,41 +74,43 @@ export default Vue.extend({
     },
   }),
 
+  created() {
+    this.reason = this.$route.params.reason
+  },
+
   methods: {
     clearMessages() {
       this.error = null
+      this.reason = ""
       this.successMessages = []
     },
 
-    submitSignup() {
+    async submitSignup() {
       this.loading = true
       this.clearMessages()
 
       const req = new SignupReq()
 
       req.setEmail(this.email)
-      authClient
-        .signup(req)
-        .then((res) => {
-          switch (res.getNextStep()) {
-            case SignupRes.SignupStep.SENT_SIGNUP_EMAIL:
-              this.signupStep = "email"
-              break
-            case SignupRes.SignupStep.EMAIL_EXISTS:
-              this.error = new Error("Email exists! Please login.")
-              break
-            case SignupRes.SignupStep.INVALID_EMAIL:
-              this.error = new Error(
-                "Sorry! That doesn't look like a proper email."
-              )
-              break
-          }
-          this.loading = false
-        })
-        .catch((err) => {
-          this.error = err
-          this.loading = false
-        })
+      try {
+        const res = await authClient.signup(req)
+        switch (res.getNextStep()) {
+          case SignupRes.SignupStep.SENT_SIGNUP_EMAIL:
+            this.signupStep = "email"
+            break
+          case SignupRes.SignupStep.EMAIL_EXISTS:
+            this.error = new Error("Email exists! Please login.")
+            break
+          case SignupRes.SignupStep.INVALID_EMAIL:
+            this.error = new Error(
+              "Sorry! That doesn't look like a proper email."
+            )
+            break
+        }
+      } catch (err) {
+        this.error = err
+      }
+      this.loading = false
     },
   },
 })

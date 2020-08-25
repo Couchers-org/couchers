@@ -1,6 +1,6 @@
 <template>
   <v-navigation-drawer v-model="visible" app clipped>
-    <v-list-item>
+    <v-list-item v-if="user != null">
       <v-list-item-avatar>
         <v-avatar :color="user.color" />
       </v-list-item-avatar>
@@ -9,6 +9,10 @@
         <v-list-item-subtitle>{{ handle(user.username) }}</v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
+    <v-skeleton-loader
+      v-else
+      type="list-item-avatar-two-line"
+    ></v-skeleton-loader>
 
     <v-divider></v-divider>
 
@@ -67,7 +71,17 @@
       </v-list-item>
       <v-list-item link to="/friends">
         <v-list-item-icon>
-          <v-icon>mdi-account-multiple</v-icon>
+          <template>
+            <v-badge
+              v-if="pendingFriendRequestCount"
+              color="primary"
+              :content="pendingFriendRequestCount"
+              overlap
+            >
+              <v-icon>mdi-account-multiple</v-icon>
+            </v-badge>
+            <v-icon v-else>mdi-account-multiple</v-icon>
+          </template>
         </v-list-item-icon>
         <v-list-item-content>
           <v-list-item-title>Friends</v-list-item-title>
@@ -139,6 +153,7 @@ export default Vue.extend({
       "drawerOpen",
       "unseenMessageCount",
       "unseenHostRequestCount",
+      "pendingFriendRequestCount",
     ]),
   },
 })

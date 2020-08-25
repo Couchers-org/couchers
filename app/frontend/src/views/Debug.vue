@@ -45,39 +45,39 @@ export default Vue.extend({
   computed: mapState(["user"]),
 
   methods: {
-    login(username: string, password: string) {
+    async login(username: string, password: string) {
       const req = new AuthReq()
 
       req.setUser(username)
       req.setPassword(password)
-      authClient
-        .authenticate(req)
-        .then((res) => {
-          console.debug("Logged in")
-          Store.dispatch("auth", res.getToken())
-        })
-        .catch(console.error)
+      try {
+        const res = await authClient.authenticate(req)
+        console.debug("Logged in")
+        Store.dispatch("auth", res.getToken())
+      } catch (err) {
+        console.error(err)
+      }
     },
 
-    loginLink(username: string) {
+    async loginLink(username: string) {
       const req = new LoginReq()
       req.setUser(username)
-      authClient
-        .login(req)
-        .then((res) => {
-          switch (res.getNextStep()) {
-            case LoginRes.LoginStep.NEED_PASSWORD:
-              console.error("Actually need password for this user")
-              break
-            case LoginRes.LoginStep.SENT_LOGIN_EMAIL:
-              console.debug("Sent link, check logs")
-              break
-            case LoginRes.LoginStep.INVALID_USER:
-              console.error("Invalid user")
-              break
-          }
-        })
-        .catch(console.error)
+      try {
+        const res = await authClient.login(req)
+        switch (res.getNextStep()) {
+          case LoginRes.LoginStep.NEED_PASSWORD:
+            console.error("Actually need password for this user")
+            break
+          case LoginRes.LoginStep.SENT_LOGIN_EMAIL:
+            console.debug("Sent link, check logs")
+            break
+          case LoginRes.LoginStep.INVALID_USER:
+            console.error("Invalid user")
+            break
+        }
+      } catch (err) {
+        console.error(err)
+      }
     },
   },
 })

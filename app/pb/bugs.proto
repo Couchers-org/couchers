@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package org.couchers.bugs;
+
+import "google/protobuf/empty.proto";
+
+service Bugs {
+  rpc Version(google.protobuf.Empty) returns (VersionInfo) {
+    // Returns backend version info
+  }
+
+  rpc ReportBug(ReportBugReq) returns (ReportBugRes) {
+    // Report a bug
+  }
+}
+
+message VersionInfo {
+  string version = 1;
+}
+
+message ReportBugReq {
+  string subject = 1;
+  string description = 2;
+  string steps = 3;
+  string results = 4;
+
+  string frontend_version = 5;
+  string user_agent = 6;
+  string page = 7;
+  uint32 user_id = 8;
+}
+
+message ReportBugRes {
+  string report_identifier = 1;
+}

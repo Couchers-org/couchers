@@ -29,12 +29,9 @@ def test_ping(db):
 
     # the joined time is fuzzed
     # but shouldn't be before actual joined time, or more than one hour behind
-    assert user.joined - \
-        timedelta(hours=1) <= res.user.joined.ToDatetime() <= user.joined
+    assert user.joined - timedelta(hours=1) <= res.user.joined.ToDatetime() <= user.joined
     # same for last_active
-    assert user.last_active - \
-        timedelta(hours=1) <= res.user.last_active.ToDatetime(
-        ) <= user.last_active
+    assert user.last_active - timedelta(hours=1) <= res.user.last_active.ToDatetime() <= user.last_active
 
     assert res.user.hosting_status == api_pb2.HOSTING_STATUS_UNKNOWN
 
@@ -66,30 +63,27 @@ def test_update_profile(db):
 
     with api_session(db, token) as api:
         with pytest.raises(grpc.RpcError) as e:
-            api.UpdateProfile(api_pb2.UpdateProfileReq(
-                name=wrappers_pb2.StringValue(value="  ")))
+            api.UpdateProfile(api_pb2.UpdateProfileReq(name=wrappers_pb2.StringValue(value="  ")))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         with pytest.raises(grpc.RpcError) as e:
-            api.UpdateProfile(api_pb2.UpdateProfileReq(
-                color=wrappers_pb2.StringValue(value="color")))
+            api.UpdateProfile(api_pb2.UpdateProfileReq(color=wrappers_pb2.StringValue(value="color")))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
-        res = api.UpdateProfile(api_pb2.UpdateProfileReq(
-            name=wrappers_pb2.StringValue(value="New name"),
-            city=wrappers_pb2.StringValue(value="Timbuktu"),
-            gender=wrappers_pb2.StringValue(value="Bot"),
-            occupation=api_pb2.NullableStringValue(value="Testing"),
-            about_me=api_pb2.NullableStringValue(value="I rule"),
-            about_place=api_pb2.NullableStringValue(value="My place"),
-            color=wrappers_pb2.StringValue(value="#111111"),
-            hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
-            languages=api_pb2.RepeatedStringValue(
-                exists=True, value=["Binary", "English"]),
-            countries_visited=api_pb2.RepeatedStringValue(
-                exists=True, value=["UK", "Aus"]),
-            countries_lived=api_pb2.RepeatedStringValue(
-                exists=True, value=["UK", "Aus"])
-        ))
+        res = api.UpdateProfile(
+            api_pb2.UpdateProfileReq(
+                name=wrappers_pb2.StringValue(value="New name"),
+                city=wrappers_pb2.StringValue(value="Timbuktu"),
+                gender=wrappers_pb2.StringValue(value="Bot"),
+                occupation=api_pb2.NullableStringValue(value="Testing"),
+                about_me=api_pb2.NullableStringValue(value="I rule"),
+                about_place=api_pb2.NullableStringValue(value="My place"),
+                color=wrappers_pb2.StringValue(value="#111111"),
+                hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                languages=api_pb2.RepeatedStringValue(exists=True, value=["Binary", "English"]),
+                countries_visited=api_pb2.RepeatedStringValue(exists=True, value=["UK", "Aus"]),
+                countries_lived=api_pb2.RepeatedStringValue(exists=True, value=["UK", "Aus"]),
+            )
+        )
         # all fields changed
         for field, value in res.ListFields():
             assert value == True
@@ -100,6 +94,44 @@ def test_update_profile(db):
         assert user.hosting_status == api_pb2.HOSTING_STATUS_CAN_HOST
         assert "Binary" in user.languages
         assert "English" in user.languages
+
+
+def test_pending_friend_request_count(db):
+    user1, token1 = generate_user(db, "user1")
+    user2, token2 = generate_user(db, "user2")
+    user3, token3 = generate_user(db, "user3")
+
+    with api_session(db, token2) as api:
+        res = api.Ping(api_pb2.PingReq())
+        assert res.pending_friend_request_count == 0
+
+    with api_session(db, token1) as api:
+        res = api.Ping(api_pb2.PingReq())
+        assert res.pending_friend_request_count == 0
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
+        res = api.Ping(api_pb2.PingReq())
+        assert res.pending_friend_request_count == 0
+
+    with api_session(db, token2) as api:
+        res = api.Ping(api_pb2.PingReq())
+        assert res.pending_friend_request_count == 1
+
+    with api_session(db, token2) as api:
+        # check it's there
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        assert len(res.sent) == 0
+        assert len(res.received) == 1
+
+        assert res.received[0].state == api_pb2.FriendRequest.FriendRequestStatus.PENDING
+        assert res.received[0].user_id == user1.id
+
+        fr_id = res.received[0].friend_request_id
+
+        # accept it
+        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
+
+        res = api.Ping(api_pb2.PingReq())
+        assert res.pending_friend_request_count == 0
 
 
 def test_friend_request_flow(db):
@@ -131,8 +163,7 @@ def test_friend_request_flow(db):
         fr_id = res.received[0].friend_request_id
 
         # accept it
-        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(
-            friend_request_id=fr_id, accept=True))
+        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
 
         # check it's gone
         res = api.ListFriendRequests(empty_pb2.Empty())
@@ -165,8 +196,7 @@ def test_cant_friend_request_twice(db):
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
 
         with pytest.raises(grpc.RpcError):
-            api.SendFriendRequest(
-                api_pb2.SendFriendRequestReq(user_id=user2.id))
+            api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
 
 
 def test_cant_friend_request_pending(db):
@@ -205,13 +235,15 @@ def test_ListFriends(db):
 
         assert user1_req.state == api_pb2.FriendRequest.FriendRequestStatus.PENDING
         assert user1_req.user_id == user1.id
-        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(
-            friend_request_id=user1_req.friend_request_id, accept=True))
+        api.RespondFriendRequest(
+            api_pb2.RespondFriendRequestReq(friend_request_id=user1_req.friend_request_id, accept=True)
+        )
 
         assert user3_req.state == api_pb2.FriendRequest.FriendRequestStatus.PENDING
         assert user3_req.user_id == user3.id
-        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(
-            friend_request_id=user3_req.friend_request_id, accept=True))
+        api.RespondFriendRequest(
+            api_pb2.RespondFriendRequestReq(friend_request_id=user3_req.friend_request_id, accept=True)
+        )
 
         # check we now have two friends
         res = api.ListFriends(empty_pb2.Empty())
@@ -229,8 +261,7 @@ def test_ListFriends(db):
         assert res.received[0].state == api_pb2.FriendRequest.FriendRequestStatus.PENDING
         assert res.received[0].user_id == user1.id
         fr_id = res.received[0].friend_request_id
-        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(
-            friend_request_id=fr_id, accept=True))
+        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
 
         res = api.ListFriends(empty_pb2.Empty())
         assert len(res.user_ids) == 2
@@ -264,8 +295,7 @@ def test_mutual_friends(db):
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert res.received[0].user_id == user1.id
         fr_id = res.received[0].friend_request_id
-        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(
-            friend_request_id=fr_id, accept=True))
+        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user4.id))
 
@@ -273,30 +303,25 @@ def test_mutual_friends(db):
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert res.received[0].user_id == user1.id
         fr_id = res.received[0].friend_request_id
-        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(
-            friend_request_id=fr_id, accept=True))
+        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
 
     with api_session(db, token2) as api:
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert res.received[0].user_id == user1.id
         fr_id = res.received[0].friend_request_id
-        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(
-            friend_request_id=fr_id, accept=True))
+        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
         assert res.received[1].user_id == user3.id
         fr_id = res.received[1].friend_request_id
-        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(
-            friend_request_id=fr_id, accept=True))
+        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
 
     with api_session(db, token4) as api:
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert res.received[0].user_id == user1.id
         fr_id = res.received[0].friend_request_id
-        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(
-            friend_request_id=fr_id, accept=True))
+        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
         assert res.received[1].user_id == user3.id
         fr_id = res.received[1].friend_request_id
-        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(
-            friend_request_id=fr_id, accept=True))
+        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user5.id))
 
     with api_session(db, token1) as api:
@@ -322,8 +347,7 @@ def test_CancelFriendRequest(db):
         assert res.sent[0].user_id == user2.id
         fr_id = res.sent[0].friend_request_id
 
-        api.CancelFriendRequest(
-            api_pb2.CancelFriendRequestReq(friend_request_id=fr_id))
+        api.CancelFriendRequest(api_pb2.CancelFriendRequestReq(friend_request_id=fr_id))
 
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert len(res.sent) == 0
@@ -348,8 +372,7 @@ def test_reject_friend_request(db):
         fr_id = res.received[0].friend_request_id
 
         # reject it
-        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(
-            friend_request_id=fr_id, accept=False))
+        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=False))
 
         # check it's gone
         res = api.ListFriendRequests(empty_pb2.Empty())
@@ -434,9 +457,9 @@ def test_reporting(db):
     user2, token2 = generate_user(db)
 
     with api_session(db, token1) as api:
-        res = api.Report(api_pb2.ReportReq(reported_user_id=user2.id,
-                                           reason="reason text",
-                                           description="description text"))
+        res = api.Report(
+            api_pb2.ReportReq(reported_user_id=user2.id, reason="reason text", description="description text")
+        )
     assert isinstance(res, empty_pb2.Empty)
 
     entries = db().query(Complaint).all()
@@ -448,17 +471,13 @@ def test_reporting(db):
     assert entries[0].description == "description text"
 
     # Test that reporting oneself and reporting nonexisting user fails
-    report_req = api_pb2.ReportReq(reported_user_id=user1.id,
-                                   reason="foo",
-                                   description="bar")
+    report_req = api_pb2.ReportReq(reported_user_id=user1.id, reason="foo", description="bar")
     with api_session(db, token1) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.Report(report_req)
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
-    report_req = api_pb2.ReportReq(reported_user_id=0x7fffffffffffffff,
-                                   reason="foo",
-                                   description="bar")
+    report_req = api_pb2.ReportReq(reported_user_id=0x7FFFFFFFFFFFFFFF, reason="foo", description="bar")
     with api_session(db, token1) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.Report(report_req)
@@ -469,14 +488,10 @@ def test_references(db):
     user1, token1 = generate_user(db)
     user2, token2 = generate_user(db)
 
-    alltypes = set([api_pb2.ReferenceType.FRIEND,
-                    api_pb2.ReferenceType.HOSTED,
-                    api_pb2.ReferenceType.SURFED])
+    alltypes = set([api_pb2.ReferenceType.FRIEND, api_pb2.ReferenceType.HOSTED, api_pb2.ReferenceType.SURFED])
     # write all three reference types
     for typ in alltypes:
-        req = api_pb2.WriteReferenceReq(to_user_id=user2.id,
-                                        reference_type=typ,
-                                        text="kinda weird sometimes")
+        req = api_pb2.WriteReferenceReq(to_user_id=user2.id, reference_type=typ, text="kinda weird sometimes")
         with api_session(db, token1) as api:
             res = api.WriteReference(req)
         assert isinstance(res, empty_pb2.Empty)
@@ -484,9 +499,7 @@ def test_references(db):
     # See what I have written. Paginate it.
     seen_types = set()
     for i in range(3):
-        req = api_pb2.GetGivenReferencesReq(from_user_id=user1.id,
-                                            number=1,
-                                            start_at=i)
+        req = api_pb2.GetGivenReferencesReq(from_user_id=user1.id, number=1, start_at=i)
         with api_session(db, token1) as api:
             res = api.GetGivenReferences(req)
         assert res.total_matches == 3
@@ -494,8 +507,7 @@ def test_references(db):
         assert res.references[0].from_user_id == user1.id
         assert res.references[0].to_user_id == user2.id
         assert res.references[0].text == "kinda weird sometimes"
-        assert abs(res.references[0].written_time.ToDatetime(
-        ) - datetime.now()) <= timedelta(days=32)
+        assert abs(res.references[0].written_time.ToDatetime() - datetime.now()) <= timedelta(days=32)
         assert res.references[0].reference_type not in seen_types
         seen_types.add(res.references[0].reference_type)
     assert seen_types == alltypes
@@ -503,9 +515,7 @@ def test_references(db):
     # See what user2 have received. Paginate it.
     seen_types = set()
     for i in range(3):
-        req = api_pb2.GetReceivedReferencesReq(to_user_id=user2.id,
-                                               number=1,
-                                               start_at=i)
+        req = api_pb2.GetReceivedReferencesReq(to_user_id=user2.id, number=1, start_at=i)
         with api_session(db, token1) as api:
             res = api.GetReceivedReferences(req)
         assert res.total_matches == 3
@@ -519,37 +529,31 @@ def test_references(db):
 
     # Check available types
     with api_session(db, token1) as api:
-        res = api.AvailableWriteReferenceTypes(
-            api_pb2.AvailableWriteReferenceTypesReq(to_user_id=user2.id))
+        res = api.AvailableWriteReferenceTypes(api_pb2.AvailableWriteReferenceTypesReq(to_user_id=user2.id))
     assert res.reference_types == []
 
     with api_session(db, token2) as api:
-        res = api.AvailableWriteReferenceTypes(
-            api_pb2.AvailableWriteReferenceTypesReq(to_user_id=user1.id))
+        res = api.AvailableWriteReferenceTypes(api_pb2.AvailableWriteReferenceTypesReq(to_user_id=user1.id))
     assert set(res.reference_types) == alltypes
 
     # Forbidden to write a second reference of the same type
-    req = api_pb2.WriteReferenceReq(to_user_id=user2.id,
-                                    reference_type=api_pb2.ReferenceType.HOSTED,
-                                    text="ok")
+    req = api_pb2.WriteReferenceReq(to_user_id=user2.id, reference_type=api_pb2.ReferenceType.HOSTED, text="ok")
     with api_session(db, token1) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.WriteReference(req)
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
     # Nonexisting user
-    req = api_pb2.WriteReferenceReq(to_user_id=0x7fffffffffffffff,
-                                    reference_type=api_pb2.ReferenceType.HOSTED,
-                                    text="ok")
+    req = api_pb2.WriteReferenceReq(
+        to_user_id=0x7FFFFFFFFFFFFFFF, reference_type=api_pb2.ReferenceType.HOSTED, text="ok"
+    )
     with api_session(db, token1) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.WriteReference(req)
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
     # yourself
-    req = api_pb2.WriteReferenceReq(to_user_id=user1.id,
-                                    reference_type=api_pb2.ReferenceType.HOSTED,
-                                    text="ok")
+    req = api_pb2.WriteReferenceReq(to_user_id=user1.id, reference_type=api_pb2.ReferenceType.HOSTED, text="ok")
     with api_session(db, token1) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.WriteReference(req)
@@ -581,12 +585,14 @@ def test_hosting_preferences(db):
         assert not res.HasField("area")
         assert not res.HasField("house_rules")
 
-        api.UpdateProfile(api_pb2.UpdateProfileReq(
-            max_guests=api_pb2.NullableUInt32Value(value=3),
-            wheelchair_accessible=api_pb2.NullableBoolValue(value=False),
-            smoking_allowed=api_pb2.SMOKING_LOCATION_WINDOW,
-            house_rules=api_pb2.NullableStringValue(value="RULES!")
-        ))
+        api.UpdateProfile(
+            api_pb2.UpdateProfileReq(
+                max_guests=api_pb2.NullableUInt32Value(value=3),
+                wheelchair_accessible=api_pb2.NullableBoolValue(value=False),
+                smoking_allowed=api_pb2.SMOKING_LOCATION_WINDOW,
+                house_rules=api_pb2.NullableStringValue(value="RULES!"),
+            )
+        )
 
     with api_session(db, token2) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
@@ -603,13 +609,15 @@ def test_hosting_preferences(db):
 
     with api_session(db, token1) as api:
         # test unsetting
-        api.UpdateProfile(api_pb2.UpdateProfileReq(
-            max_guests=api_pb2.NullableUInt32Value(is_null=True),
-            wheelchair_accessible=api_pb2.NullableBoolValue(value=True),
-            smoking_allowed=api_pb2.SMOKING_LOCATION_UNKNOWN,
-            area=api_pb2.NullableStringValue(value="area!"),
-            house_rules=api_pb2.NullableStringValue(is_null=True)
-        ))
+        api.UpdateProfile(
+            api_pb2.UpdateProfileReq(
+                max_guests=api_pb2.NullableUInt32Value(is_null=True),
+                wheelchair_accessible=api_pb2.NullableBoolValue(value=True),
+                smoking_allowed=api_pb2.SMOKING_LOCATION_UNKNOWN,
+                area=api_pb2.NullableStringValue(value="area!"),
+                house_rules=api_pb2.NullableStringValue(is_null=True),
+            )
+        )
 
         res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
         assert not res.HasField("max_guests")

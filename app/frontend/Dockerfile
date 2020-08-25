@@ -6,4 +6,7 @@ COPY . /app
 
 RUN yarn
 
+ARG version
+ENV VUE_APP_VERSION=$version
+
 CMD yarn build
