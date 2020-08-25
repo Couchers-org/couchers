@@ -7,8 +7,8 @@ from couchers.email import _render_email
 from couchers.tasks import send_login_email, send_signup_email, send_report_email, send_host_request_email, send_message_received_email, send_friend_request_email
 from tests.test_fixtures import db, generate_user
 from couchers.models import Complaint
+from couchers.config import config
 
-testing_email_address = "reports@couchers.org.invalid"
 
 def test_login_email_rendering():
     subject = random_hex(64)
@@ -34,7 +34,18 @@ def test_report_email_rendering():
     reported_user = random_hex(64)
     reason = random_hex(64)
     description = random_hex(64)
-    plain, html = _render_email(subject, "report", template_args={"username_author": author_user, "username_reported": reported_user, "reason": reason, "description": description})
+
+    plain, html = _render_email(
+        subject,
+        "report",
+        template_args={
+            "username_author": author_user,
+            "username_reported": reported_user,
+            "reason": reason,
+            "description": description
+        }
+    )
+
     assert author_user in plain
     assert author_user in html
     assert reported_user in plain
@@ -53,8 +64,19 @@ def test_host_request_email_rendering():
     from_date = "2020-01-01"
     to_date = "2020-01-05"
     host_request_link = random_hex(64)
-    plain, html = _render_email(subject, "host_request", template_args={"name_host": name_host, "name_guest": name_guest,
-                                    "from_date": from_date, "to_date": to_date, "host_request_link": host_request_link})
+
+    plain, html = _render_email(
+        subject,
+        "host_request",
+        template_args={
+            "name_host": name_host,
+            "name_guest": name_guest,
+            "from_date": from_date,
+            "to_date": to_date,
+            "host_request_link": host_request_link
+        }
+    )
+
     assert name_host in plain
     assert name_host in html
     assert name_guest in plain
@@ -73,7 +95,17 @@ def test_friend_request_email_rendering():
     name_recipient = random_hex(64)
     name_sender = random_hex(64)
     friend_requests_link = random_hex(64)
-    plain, html = _render_email(subject, "friend_request", template_args={"name_recipient": name_recipient, "name_sender": name_sender, "friend_requests_link": friend_requests_link})
+
+    plain, html = _render_email(
+        subject,
+        "friend_request",
+        template_args={
+            "name_recipient": name_recipient,
+            "name_sender": name_sender,
+            "friend_requests_link": friend_requests_link
+        }
+    )
+
     assert name_recipient in plain
     assert name_recipient in html
     assert name_sender in plain
@@ -87,12 +119,20 @@ def test_message_received_email_rendering():
     subject = random_hex(64)
     name_recipient = random_hex(64)
     messages_link = random_hex(64)
-    plain, html = _render_email(subject, "message_received", template_args={"name_recipient": name_recipient, "messages_link": messages_link})
+
+    plain, html = _render_email(
+        subject,
+        "message_received",
+        template_args={
+            "name_recipient": name_recipient,
+            "messages_link": messages_link
+        }
+    )
+
     assert name_recipient in plain
     assert name_recipient in html
     assert messages_link in plain
     assert messages_link in html
-
     assert subject in html
 
 
@@ -136,6 +176,7 @@ def test_report_email(db):
     with session_scope(db):
         user_author, api_token_author = generate_user(db)
         user_reported, api_token_reported = generate_user(db)
+        testing_email_address = "reports@couchers.org.invalid"
 
         complaint = Complaint(
             author_user=user_author,
