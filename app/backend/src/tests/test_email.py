@@ -6,7 +6,7 @@ from couchers.db import new_login_token, new_signup_token, session_scope
 from couchers.email import _render_email
 from couchers.tasks import send_login_email, send_signup_email, send_report_email, send_host_request_email, send_message_received_email, send_friend_request_email
 from tests.test_fixtures import db, generate_user
-from couchers.models import Complaint
+from couchers.models import Complaint, HostRequest, HostRequestStatus, Conversation, Message
 from couchers.config import config
 
 
@@ -205,33 +205,50 @@ def test_report_email(db):
 
 
 def test_host_request_email(db):
-    host_request = generate_host_request(db)
-    from_user = host_request.from_user
-    to_user = host_request.to_user
-    from_date = host_request.from_date
-    to_date = host_request.to_date
+    with session_scope(db) as session:
+        from_user, api_token_from = generate_user(db)
+        to_user, api_token_to = generate_user(db)
+        from_date = "2020-01-01"
+        to_date = "2020-01-05"
 
-    message_id = random_hex(64)
+        conversation = Conversation()
+        message = Message()
+        message.conversation_id = conversation.id
+        message.author_id = from_user.id
+        message.text = random_hex(64)
 
-    def mock_send_email(sender_name, sender_email, recipient, subject, plain, html):
-        assert recipient == to_user.email
-        assert "host request" in subject.lower()
-        assert to_user.name in plain
-        assert to_user.name[10:] in html
-        assert from_user.name in plain
-        assert from_user.name[10:] in html
-        assert from_date in plain
-        assert from_date in html
-        assert to_date in plain
-        assert to_date in html
-        assert from_user.avatar_url not in plain
-        assert from_user.avatar_url in html
-        assert f"{config['BASE_URL']}/hostrequests/" in plain
-        assert f"{config['BASE_URL']}/hostrequests/" in html
-        return message_id
+        host_request = HostRequest(
+            from_user=from_user,
+            to_user=to_user,
+            from_date=from_date,
+            to_date=to_date,
+            status=HostRequestStatus.pending,
+            conversation_id=conversation.id,
+            initial_message_id=message.id,
+            from_last_seen_message_id=message.id
+        )
 
-    with patch("couchers.email.send_email", mock_send_email):
-        send_host_request_email(host_request)
+        message_id = random_hex(64)
+
+        def mock_send_email(sender_name, sender_email, recipient, subject, plain, html):
+            assert recipient == to_user.email
+            assert "host request" in subject.lower()
+            assert to_user.name in plain
+            assert to_user.name[10:] in html
+            assert from_user.name in plain
+            assert from_user.name[10:] in html
+            assert from_date in plain
+            assert from_date in html
+            assert to_date in plain
+            assert to_date in html
+            assert from_user.avatar_url not in plain
+            assert from_user.avatar_url in html
+            assert f"{config['BASE_URL']}/hostrequests/" in plain
+            assert f"{config['BASE_URL']}/hostrequests/" in html
+            return message_id
+
+        with patch("couchers.email.send_email", mock_send_email):
+            send_host_request_email(host_request)
 
 def test_message_received_email(db):
     user, api_token = generate_user(db)

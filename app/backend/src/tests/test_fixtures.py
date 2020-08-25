@@ -8,8 +8,7 @@ import grpc
 import pytest
 from couchers.crypto import random_hex
 from couchers.db import session_scope
-from couchers.models import (Base, FriendRelationship, FriendStatus, Message,
-                             User, HostRequest, HostRequestStatus, Conversation)
+from couchers.models import (Base, FriendRelationship, FriendStatus, User)
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
 from couchers.servicers.bugs import Bugs
@@ -295,29 +294,3 @@ def patch_left_time(time, add=0):
     finally:
         remove(Base, "before_insert", set_timestamp)
         remove(Base, "before_update", set_timestamp)
-
-
-def generate_host_request(db, from_date="2020-01-01", to_date="2020-01-05"):
-    from_user, api_token_from = generate_user(db)
-    to_user, api_token_to = generate_user(db)
-    from_date = from_date
-    to_date = to_date
-
-    conversation = Conversation()
-    message = Message()
-    message.conversation_id = conversation.id
-    message.author_id = from_user.id
-    message.text = random_hex(64)
-
-    host_request = HostRequest(
-        from_user=from_user,
-        to_user=to_user,
-        from_date=from_date,
-        to_date=to_date,
-        status=HostRequestStatus.pending,
-        conversation_id=conversation.id,
-        initial_message_id=message.id,
-        from_last_seen_message_id=message.id
-    )
-
-    return host_request
