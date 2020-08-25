@@ -101,15 +101,6 @@ def generate_user(db, username=None):
     return user, token
 
 
-def generate_friend_relationship(db):
-    from_user, api_token_from = generate_user(db)
-    to_user, api_token_to = generate_user(db)
-
-    friend_relationship = _generate_friend_relationship_object(from_user, to_user)
-
-    return friend_relationship
-
-
 def _generate_friend_relationship_object(from_user, to_user, status=FriendStatus.pending):
     friend_relationship = FriendRelationship(
         from_user=from_user,

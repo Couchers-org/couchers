@@ -5,7 +5,7 @@ from couchers.crypto import random_hex, urlsafe_secure_token
 from couchers.db import new_login_token, new_signup_token, session_scope
 from couchers.email import _render_email
 from couchers.tasks import send_login_email, send_signup_email, send_report_email, send_host_request_email, send_message_received_email, send_friend_request_email
-from tests.test_fixtures import db, generate_user
+from tests.test_fixtures import db, generate_user, _generate_friend_relationship_object
 from couchers.models import Complaint, HostRequest, HostRequestStatus, Conversation, Message
 from couchers.config import config
 
@@ -266,27 +266,28 @@ def test_message_received_email(db):
         send_message_received_email(user)
 
 def test_friend_request_email(db):
-    friend_relationship = generate_friend_relationship(db)
-    from_user = friend_relationship.from_user
-    to_user = friend_relationship.to_user
+    with session_scope(db) as session:
+        from_user, api_token_from = generate_user(db)
+        to_user, api_token_to = generate_user(db)
+        friend_relationship = _generate_friend_relationship_object(from_user, to_user)
 
-    message_id = random_hex(64)
+        message_id = random_hex(64)
 
-    def mock_send_email(sender_name, sender_email, recipient, subject, plain, html):
-        assert recipient == to_user.email
-        assert "friend" in subject.lower()
-        assert to_user.name in plain
-        assert to_user.name[10:] in html
-        assert from_user.name in plain
-        assert from_user.name[10:] in html
-        assert from_user.avatar_url not in plain
-        assert from_user.avatar_url in html
-        assert f"{config['BASE_URL']}/friends/" in plain
-        assert f"{config['BASE_URL']}/friends/" in html
-        return message_id
+        def mock_send_email(sender_name, sender_email, recipient, subject, plain, html):
+            assert recipient == to_user.email
+            assert "friend" in subject.lower()
+            assert to_user.name in plain
+            assert to_user.name[10:] in html
+            assert from_user.name in plain
+            assert from_user.name[10:] in html
+            assert from_user.avatar_url not in plain
+            assert from_user.avatar_url in html
+            assert f"{config['BASE_URL']}/friends/" in plain
+            assert f"{config['BASE_URL']}/friends/" in html
+            return message_id
 
-    with patch("couchers.email.send_email", mock_send_email):
-        send_friend_request_email(friend_relationship)
+        with patch("couchers.email.send_email", mock_send_email):
+            send_friend_request_email(friend_relationship)
 
 def test_email_patching_fails(db):
     """
@@ -294,14 +295,17 @@ def test_email_patching_fails(db):
     printing function was called instead, this makes sure the patching is
     actually done
     """
-    friend_relationship = generate_friend_relationship(db)
+    with session_scope(db) as session:
+        from_user, api_token_from = generate_user(db)
+        to_user, api_token_to = generate_user(db)
+        friend_relationship = _generate_friend_relationship_object(from_user, to_user)
 
-    patched_msg = random_hex(64)
+        patched_msg = random_hex(64)
 
-    def mock_send_smtp_email(sender_name, sender_email, recipient, subject, plain, html):
-        raise Exception(patched_msg)
+        def mock_send_smtp_email(sender_name, sender_email, recipient, subject, plain, html):
+            raise Exception(patched_msg)
 
-    with pytest.raises(Exception) as e:
-        with patch("couchers.email.send_email", mock_send_smtp_email):
-            send_friend_request_email(friend_relationship)
-    assert str(e.value) == patched_msg
+        with pytest.raises(Exception) as e:
+            with patch("couchers.email.send_email", mock_send_smtp_email):
+                send_friend_request_email(friend_relationship)
+        assert str(e.value) == patched_msg
