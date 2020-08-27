@@ -19,6 +19,7 @@ from couchers.models import (
     Reference,
     ReferenceType,
     User,
+    MessageType,
 )
 from couchers.servicers.api import hostingstatus2sql
 from couchers.utils import Timestamp_from_datetime
@@ -117,6 +118,7 @@ def add_dummy_data(Session, file_name):
                 for message in group_chat["messages"]:
                     session.add(
                         Message(
+                            message_type=MessageType.text,
                             conversation=chat.conversation,
                             author_id=get_user_by_field(session, message["author"]).id,
                             time=parser.isoparse(message["time"]),
