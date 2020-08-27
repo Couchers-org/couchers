@@ -17,3 +17,7 @@ def to_aware_datetime(ts: Timestamp):
     Turns a protobuf Timestamp object into a timezone-aware datetime
     """
     return utc.localize(ts.ToDatetime())
+
+
+def now():
+    return datetime.now(utc)

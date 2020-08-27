@@ -27,7 +27,7 @@ from couchers.models import (
     User,
 )
 from couchers.tasks import send_report_email
-from couchers.utils import Timestamp_from_datetime
+from couchers.utils import Timestamp_from_datetime, now
 from pb import api_pb2, api_pb2_grpc, media_pb2
 
 reftype2sql = {
@@ -82,7 +82,7 @@ class API(api_pb2_grpc.APIServicer):
     def update_last_active_time(self, user_id):
         with session_scope(self._Session) as session:
             user = session.query(User).filter(User.id == user_id).one()
-            user.last_active = datetime.utcnow()
+            user.last_active = func.now()
 
     def Ping(self, request, context):
         with session_scope(self._Session) as session:
@@ -340,7 +340,7 @@ class API(api_pb2_grpc.APIServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.FRIEND_REQUEST_NOT_FOUND)
 
             friend_request.status = FriendStatus.accepted if request.accept else FriendStatus.rejected
-            friend_request.time_responded = datetime.utcnow()
+            friend_request.time_responded = func.now()
 
             session.commit()
 
@@ -360,7 +360,7 @@ class API(api_pb2_grpc.APIServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.FRIEND_REQUEST_NOT_FOUND)
 
             friend_request.status = FriendStatus.cancelled
-            friend_request.time_responded = datetime.utcnow()
+            friend_request.time_responded = func.now()
 
             session.commit()
 
@@ -468,11 +468,11 @@ class API(api_pb2_grpc.APIServicer):
     def InitiateMediaUpload(self, request, context):
         key = random_hex()
 
-        now = datetime.utcnow()
-        expiry = now + timedelta(minutes=20)
+        created = now()
+        expiry = created + timedelta(minutes=20)
 
         with session_scope(self._Session) as session:
-            upload = InitiatedUpload(key=key, created=now, expiry=expiry, user_id=context.user_id)
+            upload = InitiatedUpload(key=key, created=created, expiry=expiry, user_id=context.user_id)
             session.add(upload)
             session.commit()
 

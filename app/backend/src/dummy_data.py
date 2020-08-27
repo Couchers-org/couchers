@@ -16,10 +16,10 @@ from couchers.models import (
     GroupChatRole,
     GroupChatSubscription,
     Message,
+    MessageType,
     Reference,
     ReferenceType,
     User,
-    MessageType,
 )
 from couchers.servicers.api import hostingstatus2sql
 from couchers.utils import Timestamp_from_datetime
