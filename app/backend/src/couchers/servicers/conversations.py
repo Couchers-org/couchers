@@ -108,11 +108,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
         Specify the keyword args for Message
         """
-        message = Message(
-            conversation=subscription.group_chat.conversation,
-            author_id=subscription.user_id,
-            **kwargs
-        )
+        message = Message(conversation=subscription.group_chat.conversation, author_id=subscription.user_id, **kwargs)
 
         session.add(message)
         session.flush()
@@ -504,7 +500,9 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
             their_subscription.role = GroupChatRole.admin
 
-            self._add_message_to_subscription(session, your_subscription, message_type=MessageType.user_made_admin, target_id=request.user_id)
+            self._add_message_to_subscription(
+                session, your_subscription, message_type=MessageType.user_made_admin, target_id=request.user_id
+            )
 
         return empty_pb2.Empty()
 
@@ -551,7 +549,9 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
             their_subscription.role = GroupChatRole.participant
 
-            self._add_message_to_subscription(session, your_subscription, message_type=MessageType.user_removed_admin, target_id=request.user_id)
+            self._add_message_to_subscription(
+                session, your_subscription, message_type=MessageType.user_removed_admin, target_id=request.user_id
+            )
 
         return empty_pb2.Empty()
 
@@ -604,7 +604,9 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             )
             session.add(subscription)
 
-            self._add_message_to_subscription(session, your_subscription, message_type=MessageType.user_invited, target_id=request.user_id)
+            self._add_message_to_subscription(
+                session, your_subscription, message_type=MessageType.user_invited, target_id=request.user_id
+            )
 
         return empty_pb2.Empty()
 
