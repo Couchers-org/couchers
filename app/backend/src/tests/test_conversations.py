@@ -1129,8 +1129,8 @@ def test_total_unseen(db):
         c.LeaveGroupChat(conversations_pb2.LeaveGroupChatReq(group_chat_id=gcid))
 
     with api_session(db, token2) as api:
-        # created + 6 normal + left
-        assert api.Ping(api_pb2.PingReq()).unseen_message_count == 8
+        # seen messages becomes 0 when leaving
+        assert api.Ping(api_pb2.PingReq()).unseen_message_count == 0
 
     with conversations_session(db, token1) as c:
         # distractions
@@ -1144,8 +1144,8 @@ def test_total_unseen(db):
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid_distraction, text=f"distraction..."))
 
     with api_session(db, token2) as api:
-        # created + 6 normal + left
-        assert api.Ping(api_pb2.PingReq()).unseen_message_count == 8
+        # seen messages becomes 0 when leaving
+        assert api.Ping(api_pb2.PingReq()).unseen_message_count == 0
 
     with conversations_session(db, token1) as c:
         # add user 2 back
@@ -1159,5 +1159,5 @@ def test_total_unseen(db):
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid_distraction, text=f"distraction..."))
 
     with api_session(db, token2) as api:
-        # created + 6 normal + left + joined + 12 normal
-        assert api.Ping(api_pb2.PingReq()).unseen_message_count == 21
+        # joined + 12 normal
+        assert api.Ping(api_pb2.PingReq()).unseen_message_count == 13

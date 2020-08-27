@@ -102,6 +102,25 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 .filter(or_(GroupChatSubscription.left >= subscription.left, GroupChatSubscription.left == None))
             ]
 
+    def _add_message_to_subscription(self, session, subscription, **kwargs):
+        """
+        Creates a new message for a subscription, from the user whose subscription that is. Updates last seen message id
+
+        Specify the keyword args for Message
+        """
+        message = Message(
+            conversation=subscription.group_chat.conversation,
+            author_id=subscription.user_id,
+            **kwargs
+        )
+
+        session.add(message)
+        session.flush()
+
+        subscription.last_seen_message_id = message.id
+
+        return message
+
     def ListGroupChats(self, request, context):
         with session_scope(self._Session) as session:
             # select group chats where you have a subscription, and for each of
@@ -391,9 +410,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 )
                 session.add(subscription)
 
-            session.add(
-                Message(conversation=conversation, author_id=context.user_id, message_type=MessageType.chat_created)
-            )
+            self._add_message_to_subscription(session, your_subscription, message_type=MessageType.chat_created)
 
             session.flush()
 
@@ -422,17 +439,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             if not subscription:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
 
-            message = Message(
-                message_type=MessageType.text,
-                conversation=subscription.group_chat.conversation,
-                author_id=context.user_id,
-                text=request.text,
-            )
-
-            session.add(message)
-            session.flush()
-
-            subscription.last_seen_message_id = message.id
+            self._add_message_to_subscription(session, subscription, message_type=MessageType.text, text=request.text)
 
         return empty_pb2.Empty()
 
@@ -458,13 +465,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             if request.HasField("only_admins_invite"):
                 subscription.group_chat.only_admins_invite = request.only_admins_invite.value
 
-            session.add(
-                Message(
-                    conversation=subscription.group_chat.conversation,
-                    author_id=context.user_id,
-                    message_type=MessageType.chat_edited,
-                )
-            )
+            self._add_message_to_subscription(session, subscription, message_type=MessageType.chat_edited)
 
         return empty_pb2.Empty()
 
@@ -503,14 +504,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
             their_subscription.role = GroupChatRole.admin
 
-            session.add(
-                Message(
-                    conversation=your_subscription.group_chat.conversation,
-                    author_id=context.user_id,
-                    target_id=request.user_id,
-                    message_type=MessageType.user_made_admin,
-                )
-            )
+            self._add_message_to_subscription(session, your_subscription, message_type=MessageType.user_made_admin, target_id=request.user_id)
 
         return empty_pb2.Empty()
 
@@ -557,14 +551,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
             their_subscription.role = GroupChatRole.participant
 
-            session.add(
-                Message(
-                    conversation=your_subscription.group_chat.conversation,
-                    author_id=context.user_id,
-                    target_id=request.user_id,
-                    message_type=MessageType.user_removed_admin,
-                )
-            )
+            self._add_message_to_subscription(session, your_subscription, message_type=MessageType.user_removed_admin, target_id=request.user_id)
 
         return empty_pb2.Empty()
 
@@ -617,14 +604,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             )
             session.add(subscription)
 
-            session.add(
-                Message(
-                    conversation=your_subscription.group_chat.conversation,
-                    author_id=context.user_id,
-                    target_id=request.user_id,
-                    message_type=MessageType.user_invited,
-                )
-            )
+            self._add_message_to_subscription(session, your_subscription, message_type=MessageType.user_invited, target_id=request.user_id)
 
         return empty_pb2.Empty()
 
@@ -661,15 +641,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 if not (other_admins_count > 0 or participants_count == 0):
                     context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.LAST_ADMIN_CANT_LEAVE)
 
-            session.add(
-                Message(
-                    conversation=subscription.group_chat.conversation,
-                    author_id=context.user_id,
-                    message_type=MessageType.user_left,
-                )
-            )
-
-            session.flush()
+            self._add_message_to_subscription(session, subscription, message_type=MessageType.user_left)
 
             subscription.left = func.now()
 
