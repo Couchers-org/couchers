@@ -163,9 +163,9 @@ def test_list_group_chats_ordering(db):
         res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq())
         assert len(res.group_chats) == 5
         assert res.group_chats[0].title == "Chat 2"
-        assert res.group_chats[0].latest_message.normal_message.text == "Test message 2b"
+        assert res.group_chats[0].latest_message.text.text == "Test message 2b"
         assert res.group_chats[1].title == "Chat 1"
-        assert res.group_chats[1].latest_message.normal_message.text == "Test message 2a"
+        assert res.group_chats[1].latest_message.text.text == "Test message 2a"
         assert res.group_chats[2].title == "Chat 4"
         assert res.group_chats[3].title == "Chat 3"
         assert res.group_chats[4].title == "Chat 0"
@@ -273,12 +273,9 @@ def test_get_group_chat_messages(db):
         assert len(res.messages) == 3
         assert res.no_more
 
-        assert res.messages[0].normal_message.text == "Test message 2"
-        assert res.messages[1].normal_message.text == "Test message 1"
-        assert (
-            res.messages[2].control_message.type
-            == conversations_pb2.ControlMessageType.CONTROL_MESSAGE_TYPE_CHAT_CREATED
-        )
+        assert res.messages[0].text.text == "Test message 2"
+        assert res.messages[1].text.text == "Test message 1"
+        assert res.messages[2].WhichOneof("content") == "chat_created"
 
     # test that another user can't access the thread
     with conversations_session(db, token3) as c:
@@ -301,8 +298,8 @@ def test_get_group_chat_messages_pagination(db):
         res = c.GetGroupChatMessages(conversations_pb2.GetGroupChatMessagesReq(group_chat_id=group_chat_id))
         # pagination
         assert len(res.messages) == 20
-        assert res.messages[0].normal_message.text == "29"
-        assert res.messages[19].normal_message.text == "10"
+        assert res.messages[0].text.text == "29"
+        assert res.messages[19].text.text == "10"
         assert not res.no_more
         res = c.GetGroupChatMessages(
             conversations_pb2.GetGroupChatMessagesReq(
@@ -310,8 +307,8 @@ def test_get_group_chat_messages_pagination(db):
             )
         )
         assert len(res.messages) == 11
-        assert res.messages[0].normal_message.text == "9"
-        assert res.messages[9].normal_message.text == "0"
+        assert res.messages[0].text.text == "9"
+        assert res.messages[9].text.text == "0"
         assert res.no_more
 
 
@@ -346,7 +343,7 @@ def test_get_group_chat_messages_joined_left(db):
         res = c.GetGroupChatMessages(conversations_pb2.GetGroupChatMessagesReq(group_chat_id=group_chat_id))
         # joined + normal
         assert len(res.messages) == 2
-        assert res.messages[0].normal_message.text == "10"
+        assert res.messages[0].text.text == "10"
 
         c.LeaveGroupChat(conversations_pb2.LeaveGroupChatReq(group_chat_id=group_chat_id))
 
@@ -364,12 +361,12 @@ def test_get_group_chat_messages_joined_left(db):
         res = c.GetGroupChatMessages(conversations_pb2.GetGroupChatMessagesReq(group_chat_id=group_chat_id))
         # joined + normal + left + invite + 2 normal
         assert len(res.messages) == 6
-        assert res.messages[0].normal_message.text == "14"
-        assert res.messages[1].normal_message.text == "13"
-        assert res.messages[2].control_message.type == conversations_pb2.ControlMessageType.CONTROL_MESSAGE_TYPE_INVITED
-        assert res.messages[3].control_message.type == conversations_pb2.ControlMessageType.CONTROL_MESSAGE_TYPE_LEFT
-        assert res.messages[4].normal_message.text == "10"
-        assert res.messages[5].control_message.type == conversations_pb2.ControlMessageType.CONTROL_MESSAGE_TYPE_INVITED
+        assert res.messages[0].text.text == "14"
+        assert res.messages[1].text.text == "13"
+        assert res.messages[2].WhichOneof("content") == "user_invited"
+        assert res.messages[3].WhichOneof("content") == "user_left"
+        assert res.messages[4].text.text == "10"
+        assert res.messages[5].WhichOneof("content") == "user_invited"
 
 
 def test_get_group_chat_info(db):
@@ -587,7 +584,7 @@ def test_send_message(db):
         group_chat_id = res.group_chat_id
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
         res = c.GetGroupChatMessages(conversations_pb2.GetGroupChatMessagesReq(group_chat_id=group_chat_id))
-        assert res.messages[0].normal_message.text == "Test message 1"
+        assert res.messages[0].text.text == "Test message 1"
         assert res.messages[0].time.ToDatetime() <= datetime.now()
         assert res.messages[0].author_user_id == user1.id
 
@@ -813,7 +810,7 @@ def test_search_messages_left_joined(db):
         res = c.SearchMessages(conversations_pb2.SearchMessagesReq(query="Test message"))
 
         assert len(res.results) == 1
-        assert res.results[0].message.normal_message.text == "Test message 10"
+        assert res.results[0].message.text.text == "Test message 10"
 
         c.LeaveGroupChat(conversations_pb2.LeaveGroupChatReq(group_chat_id=group_chat_id))
 
@@ -828,9 +825,9 @@ def test_search_messages_left_joined(db):
         # can only see last message after invited
         res = c.SearchMessages(conversations_pb2.SearchMessagesReq(query="Test message"))
         assert len(res.results) == 3
-        assert res.results[0].message.normal_message.text == "Test message 14"
-        assert res.results[1].message.normal_message.text == "Test message 13"
-        assert res.results[2].message.normal_message.text == "Test message 10"
+        assert res.results[0].message.text.text == "Test message 14"
+        assert res.results[1].message.text.text == "Test message 13"
+        assert res.results[2].message.text.text == "Test message 10"
 
 
 def test_admin_behaviour(db):

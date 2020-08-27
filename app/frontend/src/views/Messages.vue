@@ -155,7 +155,14 @@
               >
               <template v-for="message in messages">
                 <v-list-item
-                  v-if="isMyMessage(message)"
+                  v-if="isControlMessage(message)"
+                  :key="message.messageId"
+                  :id="`msg-${message.messageId}`"
+                >
+                  {{ message }}
+                </v-list-item>
+                <v-list-item
+                  v-else-if="isMyMessage(message)"
                   :key="message.messageId"
                   :id="`msg-${message.messageId}`"
                 >
@@ -169,7 +176,7 @@
                         <b>{{ messageAuthor(message) }}</b> at
                         {{ messageDisplayTime(message) }}
                       </div>
-                      {{ message.text }}
+                      {{ message.normalMessage.text }}
                     </v-alert>
                   </v-list-item-content>
                   <v-list-item-avatar>
@@ -202,7 +209,7 @@
                         <b>{{ messageAuthor(message) }}</b> at
                         {{ messageDisplayTime(message) }}
                       </div>
-                      {{ message.text }}
+                      {{ message.normalMessage.text }}
                     </v-alert>
                   </v-list-item-content>
                 </v-list-item>
@@ -491,7 +498,7 @@ export default Vue.extend({
         return "<i>No messages</i>"
       }
       const message = conversation.latestMessage!
-      return `<b>${this.messageAuthor(message)}</b>: ${message.text}`
+      return `<b>${this.messageAuthor(message)}</b>: ${message.normalMessage.text}`
     },
 
     selectConversation(conversationId: number) {
@@ -540,8 +547,12 @@ export default Vue.extend({
       }
     },
 
+    isControlMessage(message: Message.AsObject) {
+      return message.controlMessage !== undefined
+    },
+
     isMyMessage(message: Message.AsObject) {
-      return message.authorUserId === this.user.userId
+      return !this.isControlMessage(message) && message.authorUserId === this.user.userId
     },
   },
 })

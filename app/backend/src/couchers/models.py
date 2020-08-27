@@ -364,20 +364,24 @@ class GroupChatSubscription(Base):
 
 
 class MessageType(enum.Enum):
-    normal = 0
+    text = 0
+    # e.g.
+    # image =
+    # emoji =
+    # ...
     chat_created = 1
     chat_edited = 2
-    invited = 3
-    left = 4
-    made_admin = 5
-    removed_admin = 6
+    user_invited = 3
+    user_left = 4
+    user_made_admin = 5
+    user_removed_admin = 6
 
 
 class Message(Base):
     """
     A message.
 
-    If message_type = normal, then the message is a normal text message, otherwise, it's a special control message.
+    If message_type = text, then the message is a normal text message, otherwise, it's a special control message.
     """
 
     __tablename__ = "messages"
@@ -390,8 +394,8 @@ class Message(Base):
     # the user that sent the message/command
     author_id = Column(ForeignKey("users.id"), nullable=False)
 
-    # the message type, "normal" is a text message, otherwise a "control message"
-    message_type = Column(Enum(MessageType), nullable=False, default=MessageType.normal)
+    # the message type, "text" is a text message, otherwise a "control message"
+    message_type = Column(Enum(MessageType), nullable=False)
 
     # the target if a control message and requires target, e.g. if inviting a user, the user invited is the target
     target_id = Column(ForeignKey("users.id"), nullable=True)
@@ -408,7 +412,10 @@ class Message(Base):
 
     @property
     def is_normal_message(self):
-        return self.message_type == MessageType.normal
+        """
+        There's only one normal type atm, text
+        """
+        return self.message_type == MessageType.text
 
     @property
     def is_control_message(self):

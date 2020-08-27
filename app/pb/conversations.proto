@@ -67,32 +67,41 @@ service Conversations {
   }
 }
 
-enum ControlMessageType {
-  CONTROL_MESSAGE_TYPE_NORMAL = 0;
-  CONTROL_MESSAGE_TYPE_CHAT_CREATED = 1;
-  CONTROL_MESSAGE_TYPE_CHAT_EDITED = 2;
-  CONTROL_MESSAGE_TYPE_INVITED = 3;
-  CONTROL_MESSAGE_TYPE_LEFT = 4;
-  CONTROL_MESSAGE_TYPE_MADE_ADMIN = 5;
-  CONTROL_MESSAGE_TYPE_REMOVED_ADMIN = 6;
-}
-
-message NormalMessage {
+message MessageContentText {
   string text = 1;
 }
 
-message ControlMessage {
-  ControlMessageType type = 1;
-  uint64 target_user_id = 2;
+message MessageContentChatCreated {}
+
+message MessageContentChatEdited {}
+
+message MessageContentUserInvited {
+  uint64 target_user_id = 1;
+}
+
+message MessageContentUserLeft {}
+
+message MessageContentUserMadeAdmin {
+  uint64 target_user_id = 1;
+}
+
+message MessageContentUserRemovedAdmin {
+  uint64 target_user_id = 1;
 }
 
 message Message {
   uint64 message_id = 1;
   uint64 author_user_id = 2;
   google.protobuf.Timestamp time = 3;
-  oneof message {
-    NormalMessage normal_message = 4;
-    ControlMessage control_message = 5;
+  oneof content {
+    MessageContentText text = 4;
+
+    MessageContentChatCreated chat_created = 5;
+    MessageContentChatEdited chat_edited = 6;
+    MessageContentUserInvited user_invited = 7;
+    MessageContentUserLeft user_left = 8;
+    MessageContentUserMadeAdmin user_made_admin = 9;
+    MessageContentUserRemovedAdmin user_removed_admin = 10;
   }
 }
 

@@ -17,27 +17,6 @@ from pb import api_pb2, conversations_pb2, conversations_pb2_grpc
 PAGINATION_LENGTH = 20
 
 
-msgtype2sql = {
-    conversations_pb2.ControlMessageType.CONTROL_MESSAGE_TYPE_NORMAL: MessageType.normal,
-    conversations_pb2.ControlMessageType.CONTROL_MESSAGE_TYPE_CHAT_CREATED: MessageType.chat_created,
-    conversations_pb2.ControlMessageType.CONTROL_MESSAGE_TYPE_CHAT_EDITED: MessageType.chat_edited,
-    conversations_pb2.ControlMessageType.CONTROL_MESSAGE_TYPE_INVITED: MessageType.invited,
-    conversations_pb2.ControlMessageType.CONTROL_MESSAGE_TYPE_LEFT: MessageType.left,
-    conversations_pb2.ControlMessageType.CONTROL_MESSAGE_TYPE_MADE_ADMIN: MessageType.made_admin,
-    conversations_pb2.ControlMessageType.CONTROL_MESSAGE_TYPE_REMOVED_ADMIN: MessageType.removed_admin,
-}
-
-msgtype2api = {
-    MessageType.normal: conversations_pb2.ControlMessageType.CONTROL_MESSAGE_TYPE_NORMAL,
-    MessageType.chat_created: conversations_pb2.ControlMessageType.CONTROL_MESSAGE_TYPE_CHAT_CREATED,
-    MessageType.chat_edited: conversations_pb2.ControlMessageType.CONTROL_MESSAGE_TYPE_CHAT_EDITED,
-    MessageType.invited: conversations_pb2.ControlMessageType.CONTROL_MESSAGE_TYPE_INVITED,
-    MessageType.left: conversations_pb2.ControlMessageType.CONTROL_MESSAGE_TYPE_LEFT,
-    MessageType.made_admin: conversations_pb2.ControlMessageType.CONTROL_MESSAGE_TYPE_MADE_ADMIN,
-    MessageType.removed_admin: conversations_pb2.ControlMessageType.CONTROL_MESSAGE_TYPE_REMOVED_ADMIN,
-}
-
-
 class Conversations(conversations_pb2_grpc.ConversationsServicer):
     def __init__(self, Session):
         self._Session = Session
@@ -51,17 +30,31 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 message_id=message.id,
                 author_user_id=message.author_id,
                 time=Timestamp_from_datetime(message.time),
-                normal_message=conversations_pb2.NormalMessage(text=message.text),
+                text=conversations_pb2.MessageContentText(text=message.text),
             )
         elif message.is_control_message:
             return conversations_pb2.Message(
                 message_id=message.id,
                 author_user_id=message.author_id,
                 time=Timestamp_from_datetime(message.time),
-                control_message=conversations_pb2.ControlMessage(
-                    type=msgtype2api[message.message_type],
-                    target_user_id=message.target_id if message.target_id else 0,
-                ),
+                chat_created=conversations_pb2.MessageContentChatCreated()
+                if message.message_type == MessageType.chat_created
+                else None,
+                chat_edited=conversations_pb2.MessageContentChatEdited()
+                if message.message_type == MessageType.chat_edited
+                else None,
+                user_invited=conversations_pb2.MessageContentUserInvited(target_user_id=message.target_id)
+                if message.message_type == MessageType.user_invited
+                else None,
+                user_left=conversations_pb2.MessageContentUserLeft()
+                if message.message_type == MessageType.user_left
+                else None,
+                user_made_admin=conversations_pb2.MessageContentUserMadeAdmin(target_user_id=message.target_id)
+                if message.message_type == MessageType.user_made_admin
+                else None,
+                user_removed_admin=conversations_pb2.MessageContentUserRemovedAdmin(target_user_id=message.target_id)
+                if message.message_type == MessageType.user_removed_admin
+                else None,
             )
         else:
             raise ValueError("Unknown message type")
@@ -430,7 +423,10 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
 
             message = Message(
-                conversation=subscription.group_chat.conversation, author_id=context.user_id, text=request.text,
+                message_type=MessageType.text,
+                conversation=subscription.group_chat.conversation,
+                author_id=context.user_id,
+                text=request.text,
             )
 
             session.add(message)
@@ -512,7 +508,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                     conversation=your_subscription.group_chat.conversation,
                     author_id=context.user_id,
                     target_id=request.user_id,
-                    message_type=MessageType.made_admin,
+                    message_type=MessageType.user_made_admin,
                 )
             )
 
@@ -566,7 +562,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                     conversation=your_subscription.group_chat.conversation,
                     author_id=context.user_id,
                     target_id=request.user_id,
-                    message_type=MessageType.removed_admin,
+                    message_type=MessageType.user_removed_admin,
                 )
             )
 
@@ -626,7 +622,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                     conversation=your_subscription.group_chat.conversation,
                     author_id=context.user_id,
                     target_id=request.user_id,
-                    message_type=MessageType.invited,
+                    message_type=MessageType.user_invited,
                 )
             )
 
@@ -669,7 +665,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 Message(
                     conversation=subscription.group_chat.conversation,
                     author_id=context.user_id,
-                    message_type=MessageType.left,
+                    message_type=MessageType.user_left,
                 )
             )
 
