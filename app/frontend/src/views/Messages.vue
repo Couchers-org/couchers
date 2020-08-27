@@ -8,7 +8,7 @@
             <v-autocomplete
               v-model="newConversationParticipants"
               :items="friends()"
-              :disabled="!loading"
+              :disabled="loading"
               chips
               label="Select friends to message"
               placeholder="Start typing to Search"
@@ -100,7 +100,7 @@
               <v-divider></v-divider>
               <v-list-item @click="openNewConversationDialog()">
                 <v-list-item-avatar>
-                  <v-avatar color="primary">
+                  <v-avatar color="primary" size="40">
                     <v-icon color="white">mdi-plus</v-icon>
                   </v-avatar>
                 </v-list-item-avatar>
@@ -121,7 +121,10 @@
                   @click="selectConversation(conversation.groupChatId)"
                 >
                   <v-list-item-avatar>
-                    <v-avatar :color="conversationAvatar(conversation)" />
+                    <v-avatar
+                      :color="conversationAvatar(conversation)"
+                      size="40"
+                    />
                   </v-list-item-avatar>
                   <v-list-item-content>
                     <v-list-item-title
@@ -159,7 +162,9 @@
                   :key="message.messageId"
                   :id="`msg-${message.messageId}`"
                 >
-                  {{ message }}
+                  <v-list-item-content class="py-1 control-message-content">
+                    {{ messageText(message) }}
+                  </v-list-item-content>
                 </v-list-item>
                 <v-list-item
                   v-else-if="isMyMessage(message)"
@@ -176,7 +181,7 @@
                         <b>{{ messageAuthor(message) }}</b> at
                         {{ messageDisplayTime(message) }}
                       </div>
-                      {{ message.normalMessage.text }}
+                      {{ messageText(message) }}
                     </v-alert>
                   </v-list-item-content>
                   <v-list-item-avatar>
@@ -209,7 +214,7 @@
                         <b>{{ messageAuthor(message) }}</b> at
                         {{ messageDisplayTime(message) }}
                       </div>
-                      {{ message.normalMessage.text }}
+                      {{ messageText(message) }}
                     </v-alert>
                   </v-list-item-content>
                 </v-list-item>
@@ -498,7 +503,13 @@ export default Vue.extend({
         return "<i>No messages</i>"
       }
       const message = conversation.latestMessage!
-      return `<b>${this.messageAuthor(message)}</b>: ${message.normalMessage.text}`
+      if (this.isControlMessage(message)) {
+        return `<i>${this.messageText(message)}</i>`
+      } else {
+        return `<b>${this.messageAuthor(message)}</b>: ${this.messageText(
+          message
+        )}`
+      }
     },
 
     selectConversation(conversationId: number) {
@@ -513,12 +524,16 @@ export default Vue.extend({
       return user.color
     },
 
-    messageAuthor(message: Message.AsObject) {
-      const user = this.userCache[message.authorUserId]
+    getName(userId: number) {
+      const user = this.userCache[userId]
       if (!user) {
         return "error"
       }
       return user.name.split(" ")[0]
+    },
+
+    messageAuthor(message: Message.AsObject) {
+      return this.getName(message.authorUserId)
     },
 
     messageAvatarText(message: Message.AsObject) {
@@ -527,6 +542,17 @@ export default Vue.extend({
         return "ERR"
       }
       return this.initialsFromName(user.name)
+    },
+
+    messageText(message: Message.AsObject) {
+      if (this.isControlMessage(message)) {
+        return this.controlMessageText(message)
+      } else if (message.text) {
+        return message.text.text
+      } else {
+        console.error("Unknown message type")
+        return Error("Unknown message type")
+      }
     },
 
     initialsFromName(name: string): string {
@@ -548,11 +574,37 @@ export default Vue.extend({
     },
 
     isControlMessage(message: Message.AsObject) {
-      return message.controlMessage !== undefined
+      return !message.text
     },
 
     isMyMessage(message: Message.AsObject) {
-      return !this.isControlMessage(message) && message.authorUserId === this.user.userId
+      return (
+        !this.isControlMessage(message) &&
+        message.authorUserId === this.user.userId
+      )
+    },
+
+    controlMessageText(message: Message.AsObject) {
+      const author =
+        message.authorUserId === this.user.userId
+          ? "You"
+          : this.messageAuthor(message)
+      if (message.chatCreated !== undefined) {
+        return `${author} created the chat`
+      } else if (message.chatEdited !== undefined) {
+        return `${author} edited the chat`
+      } else if (message.userInvited !== undefined) {
+        const target = this.getName(message.userInvited.targetUserId)
+        return `${author} invited ${target}`
+      } else if (message.userLeft !== undefined) {
+        return `${author} left`
+      } else if (message.userMadeAdmin !== undefined) {
+        const target = this.getName(message.userMadeAdmin.targetUserId)
+        return `${author} made ${target} an admin`
+      } else if (message.userRemovedAdmin !== undefined) {
+        const target = this.getName(message.userRemovedAdmin.targetUserId)
+        return `${author} removed ${target} as admin`
+      }
     },
   },
 })
@@ -569,5 +621,11 @@ export default Vue.extend({
 
 .bubble-alert-mine {
   float: right;
+}
+
+.control-message-content {
+  text-align: center;
+  font-style: italic;
+  color: #ccc;
 }
 </style>
