@@ -3,10 +3,11 @@ import logging
 import re
 from contextlib import contextmanager
 
+from sqlalchemy.sql import and_, or_
+
 from couchers.crypto import urlsafe_secure_token
 from couchers.models import FriendRelationship, FriendStatus, LoginToken, SignupToken, User
 from pb import api_pb2
-from sqlalchemy.sql import and_, or_
 
 logger = logging.getLogger(__name__)
 

@@ -3,10 +3,10 @@ from contextlib import contextmanager
 
 import grpc
 import pytest
+
 from couchers.models import Base, LoginToken, SignupToken, User
 from couchers.servicers.auth import Auth
 from pb import api_pb2, auth_pb2, auth_pb2_grpc, bugs_pb2_grpc
-
 from tests.test_fixtures import auth_api_session, db
 
 

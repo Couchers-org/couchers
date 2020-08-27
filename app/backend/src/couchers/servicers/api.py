@@ -4,6 +4,10 @@ from datetime import datetime, timedelta
 from urllib.parse import urlencode
 
 import grpc
+from google.protobuf import empty_pb2
+from google.protobuf.timestamp_pb2 import Timestamp
+from sqlalchemy.sql import func, or_
+
 from couchers import errors
 from couchers.config import config
 from couchers.crypto import generate_hash_signature, random_hex
@@ -24,10 +28,7 @@ from couchers.models import (
 )
 from couchers.tasks import send_report_email
 from couchers.utils import Timestamp_from_datetime
-from google.protobuf import empty_pb2
-from google.protobuf.timestamp_pb2 import Timestamp
 from pb import api_pb2, api_pb2_grpc, media_pb2
-from sqlalchemy.sql import func, or_
 
 reftype2sql = {
     api_pb2.ReferenceType.FRIEND: ReferenceType.FRIEND,

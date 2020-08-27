@@ -1,8 +1,8 @@
 import grpc
+import requests
+
 from couchers.config import config
 from pb import bugs_pb2, bugs_pb2_grpc
-
-import requests
 
 
 class Bugs(bugs_pb2_grpc.BugsServicer):

@@ -1,14 +1,15 @@
-from google.protobuf import empty_pb2, wrappers_pb2
 from datetime import datetime, timedelta
 
 import grpc
 import pytest
-from pb import requests_pb2, api_pb2
-from couchers import errors
-from couchers.models import Conversation, Message, HostRequest, HostRequestEvent, HostRequestEventType
-from tests.test_fixtures import api_session, requests_session, db, generate_user, make_friends
+from google.protobuf import empty_pb2, wrappers_pb2
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_
+
+from couchers import errors
+from couchers.models import Conversation, HostRequest, HostRequestEvent, HostRequestEventType, Message
+from pb import api_pb2, requests_pb2
+from tests.test_fixtures import api_session, db, generate_user, make_friends, requests_session
 
 
 def test_create_request(db):

@@ -2,6 +2,9 @@ import json
 import logging
 from datetime import date
 
+from dateutil import parser
+from sqlalchemy.exc import IntegrityError
+
 from couchers.crypto import hash_password
 from couchers.db import get_user_by_field, session_scope
 from couchers.models import (
@@ -18,10 +21,8 @@ from couchers.models import (
     User,
 )
 from couchers.servicers.api import hostingstatus2sql
-from pb.api_pb2 import HostingStatus
 from couchers.utils import Timestamp_from_datetime
-from dateutil import parser
-from sqlalchemy.exc import IntegrityError
+from pb.api_pb2 import HostingStatus
 
 logger = logging.getLogger(__name__)
 
