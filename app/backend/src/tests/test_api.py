@@ -7,13 +7,13 @@ import grpc
 import pytest
 from couchers.models import Complaint
 from pb import api_pb2
-from tests.test_fixtures import api_session, db, generate_user, make_friends
+from tests.test_fixtures import api_session, db, generate_user, make_friends, real_api_session
 
 
 def test_ping(db):
     user, token = generate_user(db, "tester")
 
-    with api_session(db, token) as api:
+    with real_api_session(db, token) as api:
         res = api.Ping(api_pb2.PingReq())
 
     assert res.user.user_id == user.id
