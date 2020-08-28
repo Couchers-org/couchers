@@ -1,82 +1,12 @@
 <template>
   <v-main>
     <v-container fluid>
-      <v-dialog v-model="newConversationDialog" max-width="600">
-        <v-card>
-          <v-card-title class="headline">New conversation</v-card-title>
-          <v-card-text>
-            <v-autocomplete
-              v-model="newConversationParticipants"
-              :items="friends()"
-              :disabled="loading"
-              chips
-              label="Select friends to message"
-              placeholder="Start typing to Search"
-              prepend-icon="mdi-account-multiple"
-              multiple
-            >
-              <template v-slot:selection="data">
-                <v-chip
-                  v-bind="data.attrs"
-                  :input-value="data.selected"
-                  close
-                  @click="data.select"
-                  @click:close="newConversationParticipantsRemove(data.item)"
-                >
-                  <v-avatar :color="data.item.avatarColor" size="36" left>
-                    <span class="white--text">{{ data.item.avatarText }}</span>
-                  </v-avatar>
-                  {{ data.item.name }} ({{ data.item.handle }})
-                </v-chip>
-              </template>
-              <template v-slot:item="data">
-                <template v-if="typeof data.item !== 'object'">
-                  <v-list-item-content v-text="data.item"></v-list-item-content>
-                </template>
-                <template v-else>
-                  <v-list-item-avatar>
-                    <v-avatar :color="data.item.avatarColor" size="36">
-                      <span class="white--text">{{
-                        data.item.avatarText
-                      }}</span>
-                    </v-avatar>
-                  </v-list-item-avatar>
-                  <v-list-item-content>
-                    <v-list-item-title
-                      v-html="data.item.name"
-                    ></v-list-item-title>
-                    <v-list-item-subtitle
-                      v-html="data.item.handle"
-                    ></v-list-item-subtitle>
-                  </v-list-item-content>
-                </template>
-              </template>
-            </v-autocomplete>
-            <v-text-field
-              v-model="newConversationTitle"
-              :label="
-                newConversationParticipants.length == 1
-                  ? 'Direct messages have no title'
-                  : 'Group chat title'
-              "
-              :disabled="newConversationParticipants.length <= 1"
-            ></v-text-field>
-            <v-textarea
-              v-model="newConversationText"
-              label="Message"
-            ></v-textarea>
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="green darken-1" text @click="cancelNewConversation()"
-              >Cancel</v-btn
-            >
-            <v-btn color="green darken-1" text @click="createNewConversation()"
-              >Create chat</v-btn
-            >
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
+      <new-conversation-dialog
+        :open="newConversationDialog"
+        :friends="friends()"
+        @close="newConversationDialog = false"
+        @created="newConversationCreated"
+      />
       <error-alert :error="error" />
       <v-row dense>
         <v-col cols="4">
@@ -243,7 +173,7 @@ import moment from "moment"
 
 import ErrorAlert from "../components/ErrorAlert.vue"
 
-import wrappers from "google-protobuf/google/protobuf/wrappers_pb"
+import NewConversationDialog from "./messages/NewConversationDialog.vue"
 
 import { handle, protobufTimestampToDate } from "../utils"
 
@@ -255,7 +185,6 @@ import {
   GetGroupChatMessagesReq,
   SendMessageReq,
   GetUpdatesReq,
-  CreateGroupChatReq,
   GetDirectMessageReq,
   GetGroupChatReq,
 } from "../pb/conversations_pb"
@@ -267,9 +196,6 @@ export default Vue.extend({
   data: () => ({
     error: null as Error | null,
     loading: true,
-    newConversationParticipants: [] as Array<number>,
-    newConversationText: "",
-    newConversationTitle: "",
     friendIds: [] as Array<number>,
     newConversationDialog: false,
     currentMessage: "",
@@ -283,6 +209,7 @@ export default Vue.extend({
 
   components: {
     ErrorAlert,
+    NewConversationDialog
   },
 
   computed: {
@@ -338,6 +265,11 @@ export default Vue.extend({
   },
 
   methods: {
+    async newConversationCreated(chatId: number) {
+      await this.fetchData()
+      this.selectConversation(chatId)
+    },
+
     async showRouteConversation() {
       //have to fetch the chat and users, because the route chat might
       //not be in the initial chat list
@@ -373,46 +305,10 @@ export default Vue.extend({
 
     handle,
 
-    cancelNewConversation() {
-      this.newConversationParticipants = []
-      this.newConversationText = ""
-      this.newConversationTitle = ""
-      this.newConversationDialog = false
-    },
-
     openNewConversationDialog() {
       this.newConversationDialog = true
     },
 
-    async createNewConversation() {
-      const chatReq = new CreateGroupChatReq()
-      const wrapper = new wrappers.StringValue()
-      wrapper.setValue(this.newConversationTitle)
-      chatReq.setTitle(wrapper)
-      console.log(this.newConversationParticipants)
-      chatReq.setRecipientUserIdsList(this.newConversationParticipants)
-      this.loading = true
-      try {
-        const chatRes = await conversations.createGroupChat(chatReq)
-        const messageReq = new SendMessageReq()
-        messageReq.setGroupChatId(chatRes.getGroupChatId())
-        messageReq.setText(this.newConversationText)
-        await conversations.sendMessage(messageReq)
-        this.fetchData()
-        // close the dialog
-        this.cancelNewConversation()
-      } catch (err) {
-        this.error = err
-      }
-      this.loading = false
-    },
-
-    newConversationParticipantsRemove(userId: number) {
-      const index = this.friendIds.indexOf(userId)
-      if (index >= 0) {
-        this.friendIds.splice(index, 1)
-      }
-    },
 
     sortMessages() {
       this.messages = this.messages.sort((f, s) => f.messageId - s.messageId)
@@ -538,7 +434,12 @@ export default Vue.extend({
         const otherUser = this.userCache[otherUserId]
         return `${otherUser.name} (${handle(otherUser.username)})`
       }
-      return conversation.title || "<i>Untitled</i>"
+      const otherUsersId = conversation.memberUserIdsList.filter(
+        (userId) => userId != this.user.userId
+      ).sort()
+      return conversation.title ||
+        otherUsersId.map((id) => this.userCache[id].name.split(" ")[0])
+        .join(", ")
     },
 
     conversationSubtitle(conversation: GroupChat.AsObject) {

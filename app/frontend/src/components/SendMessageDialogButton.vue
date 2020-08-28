@@ -33,7 +33,8 @@ import { User } from "../pb/api_pb"
 
 import ErrorAlert from "./ErrorAlert.vue"
 import { conversations } from "../api"
-import { SendMessageReq, CreateGroupChatReq } from "../pb/conversations_pb"
+import { SendMessageReq, CreateGroupChatReq, GetDirectMessageReq } from "../pb/conversations_pb"
+import { StatusCode } from 'grpc-web'
 
 export default Vue.extend({
   props: {
@@ -74,15 +75,31 @@ export default Vue.extend({
 
       this.loading = true
 
-      const chatReq = new CreateGroupChatReq()
+      let chatId = null
       try {
+        const chatReq = new GetDirectMessageReq()
+        chatReq.setUserId(this.userId)
+        const chatRes = await conversations.getDirectMessage(chatReq)
+        chatId = chatRes.getGroupChatId()
+      } catch (err) {
+        if (err.code != StatusCode.NOT_FOUND) {
+          this.error = err
+          return
+        }
+        const chatReq = new CreateGroupChatReq()
+        chatReq.setRecipientUserIdsList([this.userId])
         const chatRes = await conversations.createGroupChat(chatReq)
+        chatId = chatRes.getGroupChatId()
+      }
+
+      try {
         const messageReq = new SendMessageReq()
-        messageReq.setGroupChatId(chatRes.getGroupChatId())
+        messageReq.setGroupChatId(chatId!)
         messageReq.setText(this.message)
         await conversations.sendMessage(messageReq)
         this.dialog = false
         this.sent = true
+        this.$router.push(`/messages/to/${this.userId}`)
       } catch (err) {
         this.error = err
       }
