@@ -119,6 +119,7 @@
                 <v-list-item
                   :key="conversation.groupChatId"
                   @click="selectConversation(conversation.groupChatId)"
+                  :class="conversation.groupChatId == selectedConversation ? 'v-list-item--active' : ''"
                 >
                   <v-list-item-avatar>
                     <v-avatar
@@ -147,15 +148,9 @@
             </v-list>
           </v-card>
         </v-col>
-        <v-col cols="8">
+        <v-col v-if="selectedConversation != null" cols="8">
           <v-card tile height="600" style="overflow: auto;">
-            <v-subheader v-if="selectedConversation === null"
-              >Select a conversation...</v-subheader
-            >
-            <v-list v-else dense>
-              <v-subheader
-                >Selected conversation: {{ selectedConversation }}</v-subheader
-              >
+            <v-list dense>
               <template v-for="message in messages">
                 <v-list-item
                   v-if="isControlMessage(message)"
@@ -261,6 +256,8 @@ import {
   SendMessageReq,
   GetUpdatesReq,
   CreateGroupChatReq,
+  GetDirectMessageReq,
+  GetGroupChatReq,
 } from "../pb/conversations_pb"
 import { client, conversations } from "../api"
 import { mapState } from "vuex"
@@ -292,14 +289,20 @@ export default Vue.extend({
     ...mapState(["user"]),
   },
 
-  created() {
-    this.fetchData()
+  async created() {
+    await this.fetchData()
+    if (this.error) return
+
+    try {
+      await this.showRouteConversation()
+    } catch (err) {
+      this.error = err
+    }
   },
 
   watch: {
     async selectedConversation() {
       this.messages = []
-      console.debug("Selected conversation changed, fetching messages")
       const req = new GetGroupChatMessagesReq()
       req.setGroupChatId(this.selectedConversation!)
       try {
@@ -312,7 +315,14 @@ export default Vue.extend({
         this.scrollToId = `msg-${groupChat.lastSeenMessageId}`
       } catch (err) {
         this.error = err
-        console.error(err)
+      }
+    },
+    
+    async $route(to, from) {
+      try {
+        await this.showRouteConversation()
+      } catch (err) {
+        this.error = err
       }
     },
   },
@@ -328,6 +338,39 @@ export default Vue.extend({
   },
 
   methods: {
+    async showRouteConversation() {
+      //have to fetch the chat and users, because the route chat might
+      //not be in the initial chat list
+      let groupChat = null as null | GroupChat.AsObject
+      if (this.$route.params.dmUserId) {
+        const id = parseInt(this.$route.params.dmUserId)
+        if (isNaN(id)) {
+          throw Error("Invalid user id.")
+        }
+        const req = new GetDirectMessageReq()
+        req.setUserId(id)
+        const res = await conversations.getDirectMessage(req)
+        groupChat = res.toObject()
+      } else if (this.$route.params.groupChatId) {
+        const groupChatId = parseInt(this.$route.params.groupChatId)
+        if (isNaN(groupChatId)) {
+          throw Error("Invalid chat id.")
+        }
+        const req = new GetGroupChatReq()
+        req.setGroupChatId(groupChatId)
+        const res = await conversations.getGroupChat(req)
+        groupChat = res.toObject()
+      } else {
+        return
+      }
+      await Promise.all(groupChat.memberUserIdsList.map((userId) => this.fetchUser(userId)))
+      const conversationIndex = this.conversations.findIndex((chat) => chat.groupChatId == groupChat!.groupChatId)
+      if (conversationIndex == -1) {
+        this.conversations = [groupChat, ...this.conversations]
+      }
+      this.selectedConversation = groupChat.groupChatId
+    },
+
     handle,
 
     cancelNewConversation() {

@@ -68,6 +68,14 @@ const routes: Array<RouteConfig> = [
     component: Messages,
   },
   {
+    path: "/messages/to/:dmUserId",
+    component: Messages,
+  },
+  {
+    path: "/messages/:groupChatId",
+    component: Messages,
+  },
+  {
     path: "/hostrequests",
     name: "Host Requests",
     component: HostRequests,
