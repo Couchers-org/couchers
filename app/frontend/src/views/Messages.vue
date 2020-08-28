@@ -95,6 +95,10 @@
                   v-else-if="isMyMessage(message)"
                   :key="message.messageId"
                   :id="`msg-${message.messageId}`"
+                  v-observe-visibility="{
+                    callback: (isVisible, entry) => isVisible ? messageVisibilityChanged(message.messageId) : null,
+                    throttle: 1000,
+                  }"
                 >
                   <v-list-item-content class="py-1 bubble-content">
                     <v-alert
@@ -121,6 +125,10 @@
                   v-else
                   :key="message.messageId"
                   :id="`msg-${message.messageId}`"
+                  v-observe-visibility="{
+                    callback: (isVisible, entry) => isVisible ? messageVisibilityChanged(message.messageId) : null,
+                    throttle: 1000,
+                  }"
                 >
                   <v-list-item-avatar>
                     <v-avatar :color="messageColor(message)" size="36">
@@ -170,6 +178,9 @@
 <script lang="ts">
 import Vue from "vue"
 import moment from "moment"
+import VueObserveVisibility from 'vue-observe-visibility'
+
+Vue.use(VueObserveVisibility)
 
 import ErrorAlert from "../components/ErrorAlert.vue"
 
@@ -187,6 +198,7 @@ import {
   GetUpdatesReq,
   GetDirectMessageReq,
   GetGroupChatReq,
+  MarkLastSeenGroupChatReq,
 } from "../pb/conversations_pb"
 import { client, conversations } from "../api"
 import { mapState } from "vuex"
@@ -229,6 +241,7 @@ export default Vue.extend({
 
   watch: {
     async selectedConversation() {
+      this.error = null
       this.messages = []
       const req = new GetGroupChatMessagesReq()
       req.setGroupChatId(this.selectedConversation!)
@@ -246,6 +259,7 @@ export default Vue.extend({
     },
     
     async $route(to, from) {
+      this.error = null
       try {
         await this.showRouteConversation()
       } catch (err) {
@@ -265,6 +279,26 @@ export default Vue.extend({
   },
 
   methods: {
+    async messageVisibilityChanged(messageId: number) {
+      const groupChat = this.conversations.find((e) => e.groupChatId == this.selectedConversation)
+      if (!groupChat) return
+      if (groupChat.lastSeenMessageId >= messageId) {
+        return
+      }
+      const req = new MarkLastSeenGroupChatReq()
+      req.setGroupChatId(this.selectedConversation!)
+      req.setLastSeenMessageId(messageId)
+      try {
+        await conversations.markLastSeenGroupChat(req)
+      } catch (err) {
+        return
+      }
+      groupChat.lastSeenMessageId = messageId
+      groupChat.unseenMessageCount = this.messages.length 
+                                    - this.messages.findIndex((e) => e.messageId == messageId)
+                                    - 1
+    },
+
     async newConversationCreated(chatId: number) {
       await this.fetchData()
       this.selectConversation(chatId)
@@ -333,6 +367,7 @@ export default Vue.extend({
     },
 
     async sendMessage() {
+      this.error = null
       if (!this.selectedConversation) {
         this.error = Error("No conversation selected")
       } else {
@@ -342,14 +377,15 @@ export default Vue.extend({
         try {
           await conversations.sendMessage(req)
           this.currentMessage = ""
-          this.fetchUpdates()
+          const scrollToBottom = this.conversations.find((e) => e.groupChatId == this.selectedConversation)?.unseenMessageCount == 0
+          await this.fetchUpdates(scrollToBottom)
         } catch (err) {
           this.error = err
         }
       }
     },
 
-    async fetchUpdates() {
+    async fetchUpdates(scrollToBottom = false) {
       const req = new GetUpdatesReq()
       req.setNewestMessageId(
         Math.max(0, ...this.messages.map((msg) => msg.messageId))
@@ -366,6 +402,10 @@ export default Vue.extend({
             this.messages.push(msg.toObject())
           })
         this.sortMessages()
+        if (scrollToBottom) {
+          const lastId = this.messages[this.messages.length - 1].messageId
+          this.scrollToId = `msg-${lastId}`
+        }
       } catch (err) {
         this.error = err
       }
