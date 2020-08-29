@@ -7,16 +7,7 @@ from google.protobuf import empty_pb2, wrappers_pb2
 from couchers import errors
 from couchers.models import User
 from pb import api_pb2, conversations_pb2
-from tests.test_fixtures import (
-    api_session,
-    conversations_session,
-    db,
-    generate_user,
-    make_friends,
-    patch_joined_time,
-    patch_left_time,
-    patch_message_time,
-)
+from tests.test_fixtures import api_session, conversations_session, db, generate_user, make_friends
 
 
 def test_list_group_chats(db):
