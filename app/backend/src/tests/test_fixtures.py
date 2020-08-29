@@ -108,30 +108,73 @@ def make_friends(db, user1, user2):
         session.add(friend_relationship)
 
 
+class FakeRpcError(grpc.RpcError):
+    def __init__(self, code, details):
+        self._code = code
+        self._details = details
+
+    def code(self):
+        return self._code
+
+    def details(self):
+        return self._details
+
+
+class FakeChannel:
+    def __init__(self, user_id=None):
+        self.handlers = {}
+        self.user_id = user_id
+
+    def abort(self, code, details):
+        raise FakeRpcError(code, details)
+
+    def add_generic_rpc_handlers(self, generic_rpc_handlers):
+        from grpc._server import _validate_generic_rpc_handlers
+
+        _validate_generic_rpc_handlers(generic_rpc_handlers)
+
+        self.handlers.update(generic_rpc_handlers[0]._method_handlers)
+
+    def unary_unary(self, uri, request_serializer, response_deserializer):
+        handler = self.handlers[uri]
+
+        def fake_handler(request):
+            # Do a full serialization cycle on the request and the
+            # response to catch accidental use of unserializable data.
+            request = handler.request_deserializer(request_serializer(request))
+
+            response = handler.unary_unary(request, self)
+
+            return response_deserializer(handler.response_serializer(response))
+
+        return fake_handler
+
+
 @contextmanager
-def auth_api_session(db_session):
+def auth_api_session(db):
     """
-    Create a fresh Auth API for testing
-
-    TODO: investigate if there's a smarter way to stub out these tests?
+    Create an Auth API for testing
     """
-    auth = Auth(db_session)
-    auth_server = grpc.server(futures.ThreadPoolExecutor(1))
-    port = auth_server.add_insecure_port("localhost:0")
-    auth_pb2_grpc.add_AuthServicer_to_server(auth, auth_server)
-    auth_server.start()
-
-    try:
-        with grpc.insecure_channel(f"localhost:{port}") as channel:
-            yield auth_pb2_grpc.AuthStub(channel)
-    finally:
-        auth_server.stop(None)
+    channel = FakeChannel()
+    auth_pb2_grpc.add_AuthServicer_to_server(Auth(db), channel)
+    yield auth_pb2_grpc.AuthStub(channel)
 
 
 @contextmanager
 def api_session(db, token):
     """
-    Create a fresh API for testing, uses the token for auth
+    Create an API for testing, uses the token for auth
+    """
+    user_id = Auth(db).get_user_for_session_token(token)
+    channel = FakeChannel(user_id=user_id)
+    api_pb2_grpc.add_APIServicer_to_server(API(db), channel)
+    yield api_pb2_grpc.APIStub(channel)
+
+
+@contextmanager
+def real_api_session(db, token):
+    """
+    Create an API for testing, using TCP sockets, uses the token for auth
     """
     auth_interceptor = Auth(db).get_auth_interceptor()
 
@@ -154,61 +197,31 @@ def api_session(db, token):
 @contextmanager
 def conversations_session(db, token):
     """
-    Create a fresh Conversations API for testing, uses the token for auth
+    Create a Conversations API for testing, uses the token for auth
     """
-    auth_interceptor = Auth(db).get_auth_interceptor()
-
-    server = grpc.server(futures.ThreadPoolExecutor(1), interceptors=[auth_interceptor])
-    port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
-    servicer = Conversations(db)
-    conversations_pb2_grpc.add_ConversationsServicer_to_server(servicer, server)
-    server.start()
-
-    call_creds = grpc.access_token_call_credentials(token)
-    comp_creds = grpc.composite_channel_credentials(grpc.local_channel_credentials(), call_creds)
-
-    try:
-        with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
-            yield conversations_pb2_grpc.ConversationsStub(channel)
-    finally:
-        server.stop(None)
+    user_id = Auth(db).get_user_for_session_token(token)
+    channel = FakeChannel(user_id=user_id)
+    conversations_pb2_grpc.add_ConversationsServicer_to_server(Conversations(db), channel)
+    yield conversations_pb2_grpc.ConversationsStub(channel)
 
 
 @contextmanager
 def requests_session(db, token):
     """
-    Create a fresh Requests API for testing, uses the token for auth
+    Create a Requests API for testing, uses the token for auth
     """
     auth_interceptor = Auth(db).get_auth_interceptor()
-
-    server = grpc.server(futures.ThreadPoolExecutor(1), interceptors=[auth_interceptor])
-    port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
-    servicer = Requests(db)
-    requests_pb2_grpc.add_RequestsServicer_to_server(servicer, server)
-    server.start()
-
-    call_creds = grpc.access_token_call_credentials(token)
-    comp_creds = grpc.composite_channel_credentials(grpc.local_channel_credentials(), call_creds)
-
-    try:
-        with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
-            yield requests_pb2_grpc.RequestsStub(channel)
-    finally:
-        server.stop(None)
+    user_id = Auth(db).get_user_for_session_token(token)
+    channel = FakeChannel(user_id=user_id)
+    requests_pb2_grpc.add_RequestsServicer_to_server(Requests(db), channel)
+    yield requests_pb2_grpc.RequestsStub(channel)
 
 
 @contextmanager
 def bugs_session():
-    bugs_server = grpc.server(futures.ThreadPoolExecutor(1))
-    port = bugs_server.add_insecure_port("localhost:0")
-    bugs_pb2_grpc.add_BugsServicer_to_server(Bugs(), bugs_server)
-    bugs_server.start()
-
-    try:
-        with grpc.insecure_channel(f"localhost:{port}") as channel:
-            yield bugs_pb2_grpc.BugsStub(channel)
-    finally:
-        bugs_server.stop(None)
+    channel = FakeChannel()
+    bugs_pb2_grpc.add_BugsServicer_to_server(Bugs(), channel)
+    yield bugs_pb2_grpc.BugsStub(channel)
 
 
 @contextmanager
