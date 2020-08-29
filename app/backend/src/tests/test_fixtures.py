@@ -5,9 +5,13 @@ from unittest.mock import patch
 
 import grpc
 import pytest
+from sqlalchemy import create_engine
+from sqlalchemy.event import listen, remove
+from sqlalchemy.orm import sessionmaker
+
 from couchers.crypto import random_hex
 from couchers.db import session_scope
-from couchers.models import (Base, FriendRelationship, FriendStatus, User)
+from couchers.models import Base, FriendRelationship, FriendStatus, User
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
 from couchers.servicers.bugs import Bugs
@@ -23,9 +27,6 @@ from pb import (
     media_pb2_grpc,
     requests_pb2_grpc,
 )
-from sqlalchemy import create_engine
-from sqlalchemy.event import listen, remove
-from sqlalchemy.orm import sessionmaker
 
 
 @pytest.fixture

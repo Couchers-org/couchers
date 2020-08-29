@@ -1,4 +1,4 @@
-from couchers.db import is_valid_user_id, is_valid_email, is_valid_username, is_valid_name
+from couchers.db import is_valid_email, is_valid_name, is_valid_user_id, is_valid_username
 
 
 def test_is_valid_user_id():

@@ -4,7 +4,6 @@ from time import perf_counter_ns
 
 import grpc
 
-
 LOG_VERBOSE_PB = "LOG_VERBOSE_PB" in os.environ
 
 logger = logging.getLogger(__name__)

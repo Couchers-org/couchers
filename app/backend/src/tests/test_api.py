@@ -1,10 +1,9 @@
-from datetime import timedelta
-from datetime import datetime
-
-from google.protobuf import empty_pb2, wrappers_pb2
+from datetime import datetime, timedelta
 
 import grpc
 import pytest
+from google.protobuf import empty_pb2, wrappers_pb2
+
 from couchers.models import Complaint
 from pb import api_pb2
 from tests.test_fixtures import api_session, db, generate_user, make_friends

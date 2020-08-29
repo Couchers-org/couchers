@@ -4,6 +4,9 @@ import sys
 from concurrent import futures
 
 import grpc
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
 from couchers.config import config
 from couchers.interceptors import LoggingInterceptor, UpdateLastActiveTimeInterceptor
 from couchers.models import Base
@@ -11,9 +14,8 @@ from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
 from couchers.servicers.bugs import Bugs
 from couchers.servicers.conversations import Conversations
-from couchers.servicers.media import Media
-from couchers.servicers.requests import Requests
 from couchers.servicers.media import Media, get_media_auth_interceptor
+from couchers.servicers.requests import Requests
 from couchers.servicers.sso import SSO
 from dummy_data import add_dummy_data
 from pb import (
@@ -25,8 +27,6 @@ from pb import (
     requests_pb2_grpc,
     sso_pb2_grpc,
 )
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
 # hex-encoded secret key, used for signatures that  verify main & media server
 # are talking to each other

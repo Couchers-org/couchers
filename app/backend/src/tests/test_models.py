@@ -1,5 +1,5 @@
-from unittest.mock import patch
 from datetime import date, datetime
+from unittest.mock import patch
 
 from couchers.models import User
 
