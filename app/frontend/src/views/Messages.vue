@@ -1,15 +1,24 @@
 <template>
   <v-main>
     <v-container fluid>
-      <new-conversation-dialog
-        :open="newConversationDialog"
-        :friends="friends()"
-        @close="newConversationDialog = false"
-        @created="newConversationCreated"
-      />
+      <v-lazy>
+        <new-conversation-dialog
+          v-model="newConversationDialog"
+          :friends="friends()"
+          @created="newConversationCreated"
+        />
+      </v-lazy>
+      <v-lazy>
+        <conversation-details-dialog
+          v-model="conversationDetailsDialog"
+          :conversation="selectedConversationObject()"
+          :userId="user.userId"
+          :userCache="userCache"
+        />
+      </v-lazy>
       <error-alert :error="error" />
       <v-row dense>
-        <v-col cols="4">
+        <v-col md="4" xs="12">
           <v-card tile>
             <v-list v-if="loading" three-line>
               <v-subheader>Loading...</v-subheader>
@@ -78,7 +87,16 @@
             </v-list>
           </v-card>
         </v-col>
-        <v-col v-if="selectedConversation != null" cols="8">
+        <v-col v-if="selectedConversation != null" md="8" xs="12">
+          <v-toolbar elevation="2">
+            <v-toolbar-title>
+              {{ conversationTitle(selectedConversationObject()) }}
+            </v-toolbar-title>
+            <v-spacer />
+            <v-btn icon @click="conversationDetailsDialog = true">
+              <v-icon>mdi-information-outline</v-icon>
+            </v-btn>
+          </v-toolbar>
           <v-card tile height="600" style="overflow: auto;">
             <v-list dense>
               <template v-for="message in messages">
@@ -86,8 +104,13 @@
                   v-if="isControlMessage(message)"
                   :key="message.messageId"
                   :id="`msg-${message.messageId}`"
+                  class="bubble-content text-caption"
                 >
-                  <v-list-item-content class="py-1 control-message-content">
+                  <v-list-item-content
+                  :class="{
+                    'bubble-alert-mine': isMyMessage(message),
+                    'bubble-alert-theirs': !isMyMessage(message),
+                  }">
                     {{ messageText(message) }}
                   </v-list-item-content>
                 </v-list-item>
@@ -185,6 +208,7 @@ Vue.use(VueObserveVisibility)
 import ErrorAlert from "../components/ErrorAlert.vue"
 
 import NewConversationDialog from "./messages/NewConversationDialog.vue"
+import ConversationDetailsDialog from "./messages/ConversationDetailsDialog.vue"
 
 import { handle, protobufTimestampToDate } from "../utils"
 
@@ -210,6 +234,7 @@ export default Vue.extend({
     loading: true,
     friendIds: [] as Array<number>,
     newConversationDialog: false,
+    conversationDetailsDialog: false,
     currentMessage: "",
     searchQuery: null as null | string,
     conversations: [] as Array<GroupChat.AsObject>,
@@ -221,7 +246,8 @@ export default Vue.extend({
 
   components: {
     ErrorAlert,
-    NewConversationDialog
+    NewConversationDialog,
+    ConversationDetailsDialog,
   },
 
   computed: {
@@ -279,8 +305,12 @@ export default Vue.extend({
   },
 
   methods: {
+    selectedConversationObject() {
+      return this.conversations.find((e) => e.groupChatId == this.selectedConversation)
+    },
+
     async messageVisibilityChanged(messageId: number) {
-      const groupChat = this.conversations.find((e) => e.groupChatId == this.selectedConversation)
+      const groupChat = this.selectedConversationObject()
       if (!groupChat) return
       if (groupChat.lastSeenMessageId >= messageId) {
         return
@@ -377,7 +407,7 @@ export default Vue.extend({
         try {
           await conversations.sendMessage(req)
           this.currentMessage = ""
-          const scrollToBottom = this.conversations.find((e) => e.groupChatId == this.selectedConversation)?.unseenMessageCount == 0
+          const scrollToBottom = this.selectedConversationObject()?.unseenMessageCount == 0
           await this.fetchUpdates(scrollToBottom)
         } catch (err) {
           this.error = err
@@ -563,7 +593,6 @@ export default Vue.extend({
 
     isMyMessage(message: Message.AsObject) {
       return (
-        !this.isControlMessage(message) &&
         message.authorUserId === this.user.userId
       )
     },
@@ -605,11 +634,5 @@ export default Vue.extend({
 
 .bubble-alert-mine {
   float: right;
-}
-
-.control-message-content {
-  text-align: center;
-  font-style: italic;
-  color: #ccc;
 }
 </style>

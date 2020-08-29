@@ -89,13 +89,24 @@ export default Vue.extend({
   }),
 
   props: {
-    open: {
+    value: {
       required: true,
       type: Boolean,
     },
     friends: {
       required: true,
       type: Array,
+    }
+  },
+
+  computed: {
+    open: {
+      get () {
+        return this.value
+      },
+      set (value) {
+        this.$emit("input", value)
+      }
     }
   },
 
@@ -108,13 +119,14 @@ export default Vue.extend({
       this.newConversationParticipants = []
       this.newConversationText = ""
       this.newConversationTitle = ""
-      this.$emit("close")
+      this.open = false
     },
 
     async createNewConversation() {
       this.loading = true
       const chatReq = new CreateGroupChatReq()
       const wrapper = new wrappers.StringValue()
+      wrapper.setValue(this.newConversationTitle)
       if (this.newConversationParticipants.length > 1 ) {
         chatReq.setTitle(wrapper)
       }
@@ -126,7 +138,7 @@ export default Vue.extend({
         messageReq.setText(this.newConversationText)
         await conversations.sendMessage(messageReq)
         this.$emit("created", chatRes.getGroupChatId())
-        this.$emit("close")
+        this.open = false
       } catch (err) {
         this.error = err
       }

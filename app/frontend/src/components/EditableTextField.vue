@@ -20,17 +20,20 @@
 import Vue from "vue"
 
 export default Vue.extend({
-  props: ["text"],
+  props: {
+    text: String,
+    clearOnEdit: Boolean,
+  },
 
   data: () => ({
     editing: false,
-    dirtyText: null,
+    dirtyText: null as null | string,
   }),
 
   methods: {
     edit() {
       this.editing = true
-      this.dirtyText = this.text
+      this.dirtyText = this.clearOnEdit ? "" : this.text
     },
 
     save() {
