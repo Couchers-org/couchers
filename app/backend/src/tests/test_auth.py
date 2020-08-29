@@ -8,7 +8,7 @@ from couchers.crypto import random_hex
 from couchers.models import Base, LoginToken, SignupToken, User
 from couchers.servicers.auth import Auth
 from pb import api_pb2, auth_pb2, auth_pb2_grpc, bugs_pb2_grpc
-from tests.test_fixtures import api_session, auth_api_session, db, generate_user
+from tests.test_fixtures import auth_api_session, db, generate_user, real_api_session
 
 
 def test_UsernameValid(db):
@@ -109,7 +109,7 @@ def test_invalid_token(db):
 
     wrong_token = random_hex(32)
 
-    with api_session(db, wrong_token) as api, pytest.raises(grpc.RpcError) as e:
+    with real_api_session(db, wrong_token) as api, pytest.raises(grpc.RpcError) as e:
         res = api.GetUser(api_pb2.GetUserReq(user=user2.username))
 
     assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
