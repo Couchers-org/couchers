@@ -423,7 +423,18 @@ export default Vue.extend({
           await this.fetchUpdates(scrollToBottom)
         } catch (err) {
           this.error = err
+          return
         }
+
+        const selectedIndex = this.conversations.findIndex(
+          (c) => c.groupChatId == this.selectedConversation
+        )
+        if (selectedIndex == -1) return
+        const conversation = this.conversations.splice(selectedIndex, 1)[0]
+        conversation.unseenMessageCount = 0
+        conversation.latestMessage = this.messages[this.messages.length - 1]
+        conversation.lastSeenMessageId = conversation.latestMessage.messageId
+        this.conversations = [conversation, ...this.conversations]
       }
     },
 
@@ -432,37 +443,42 @@ export default Vue.extend({
       req.setNewestMessageId(
         Math.max(0, ...this.messages.map((msg) => msg.messageId))
       )
+      let res = null
       try {
-        const res = await conversations.getUpdates(req)
-        res
-          .getUpdatesList()
-          .filter(
-            (update) => update.getGroupChatId() === this.selectedConversation
-          )
-          .map((update) => update.getMessage()!)
-          .forEach((msg) => {
-            this.messages.push(msg.toObject())
-          })
-        this.sortMessages()
-        if (scrollToBottom) {
-          const lastId = this.messages[this.messages.length - 1].messageId
-          this.scrollToId = `msg-${lastId}`
-        }
+        res = await conversations.getUpdates(req)
       } catch (err) {
         this.error = err
+        return
       }
+      res
+        .getUpdatesList()
+        .filter(
+          (update) => update.getGroupChatId() === this.selectedConversation
+        )
+        .map((update) => update.getMessage()!)
+        .forEach((msg) => {
+          this.messages.push(msg.toObject())
+        })
+      this.sortMessages()
+
+      if (scrollToBottom) {
+        const lastId = this.messages[this.messages.length - 1].messageId
+        this.scrollToId = `msg-${lastId}`
+      }
+      
+      this.fetchData(false)
     },
 
-    async fetchData() {
-      this.loading = true
+    async fetchData(setLoading = true) {
+      if (setLoading) this.loading = true
       const chatsReq = new ListGroupChatsReq()
       try {
         const chatsRes = await conversations.listGroupChats(chatsReq)
-        this.conversations = chatsRes
+        const dirtyConversations = chatsRes
           .getGroupChatsList()
           .map((chat) => chat.toObject())
         const userIds = new Set() as Set<number>
-        this.conversations.forEach((conv) => {
+        dirtyConversations.forEach((conv) => {
           conv.memberUserIdsList.forEach((userId) => userIds.add(userId))
         })
 
@@ -472,10 +488,11 @@ export default Vue.extend({
         await Promise.all(
           [...Array.from(userIds), ...this.friendIds].map(this.fetchUser)
         )
+        this.conversations = dirtyConversations
       } catch (err) {
         this.error = err
       }
-      this.loading = false
+      if (setLoading) this.loading = false
     },
 
     friends(): Array<any> {

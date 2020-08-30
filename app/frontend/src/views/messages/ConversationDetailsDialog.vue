@@ -279,6 +279,7 @@ export default Vue.extend({
         this.error = err
       }
       this.confirmingLeave = false
+      this.leaveLoading = false
     },
 
     async invite(userId: number) {
