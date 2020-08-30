@@ -142,9 +142,9 @@
                 <v-tab href="#hosting">Hosting preferences</v-tab>
                 <v-tab-item value="info">
                   <h3>Name</h3>
-                  <editable-text-field :text="user.name" v-on:save="saveName" />
+                  <editable-text-field :text="user.name" :save="saveName" />
                   <h3>City</h3>
-                  <editable-text-field :text="user.city" v-on:save="saveCity" />
+                  <editable-text-field :text="user.city" :save="saveCity" />
                   <h3>Hosting Status</h3>
                   <editable-dropdown
                     :value="user.hostingStatus == 0 ? 1 : user.hostingStatus"
@@ -154,12 +154,12 @@
                   <h3>Gender</h3>
                   <editable-text-field
                     :text="user.gender"
-                    v-on:save="saveGender"
+                    :save="saveGender"
                   />
                   <h3>Occupation</h3>
                   <editable-text-field
                     :text="user.occupation"
-                    v-on:save="saveOccupation"
+                    :save="saveOccupation"
                   />
                   <h3>Languages</h3>
                   <editable-list
@@ -200,8 +200,8 @@
                 <v-tab-item value="hosting">
                   <h3>Max guests</h3>
                   <editable-text-field
-                    :text="user.maxGuests ? user.maxGuests.value : null"
-                    v-on:save="saveMaxGuests"
+                    :text="user.maxGuests ? user.maxGuests.value.toString() : null"
+                    :save="saveMaxGuests"
                   />
                   <h3>Multiple groups accepted</h3>
                   <editable-dropdown

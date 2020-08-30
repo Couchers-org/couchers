@@ -14,6 +14,8 @@
           :conversation="selectedConversationObject()"
           :userId="user.userId"
           :userCache="userCache"
+          :friends="friends()"
+          @updated-conversation="updatedConversation"
         />
       </v-lazy>
       <error-alert :error="error" />
@@ -305,6 +307,16 @@ export default Vue.extend({
   },
 
   methods: {
+    updatedConversation(conversation: GroupChat.AsObject) {
+      const index = this.conversations.findIndex(
+        (old) => old.groupChatId == conversation.groupChatId
+      )
+      if (index > -1) {
+        this.conversations[index] = conversation
+      }
+      this.fetchUpdates()
+    },
+
     selectedConversationObject() {
       return this.conversations.find((e) => e.groupChatId == this.selectedConversation)
     },
@@ -610,7 +622,7 @@ export default Vue.extend({
         const target = this.getName(message.userInvited.targetUserId)
         return `${author} invited ${target}`
       } else if (message.userLeft !== undefined) {
-        return `${author} left`
+        return `${author} left the chat`
       } else if (message.userMadeAdmin !== undefined) {
         const target = this.getName(message.userMadeAdmin.targetUserId)
         return `${author} made ${target} an admin`

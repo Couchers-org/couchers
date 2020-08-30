@@ -7,8 +7,8 @@
       </p>
     </div>
     <div v-if="editing">
-      <v-text-field v-model="dirtyText"></v-text-field>
-      <v-btn class="mx-2 my-2" v-on:click="save" color="success">Save</v-btn>
+      <v-text-field v-model="dirtyText" :disabled="loading"></v-text-field>
+      <v-btn class="mx-2 my-2" v-on:click="saveText" color="success" :loading="loading">Save</v-btn>
       <v-btn class="mx-2 my-2" v-on:click="cancel" color="warning"
         >Cancel</v-btn
       >
@@ -17,16 +17,20 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
+import Vue, { PropType } from "vue"
+
+type SaveCallback = (value: string | null) => Promise<void>;
 
 export default Vue.extend({
   props: {
     text: String,
     clearOnEdit: Boolean,
+    save: Function as PropType<SaveCallback>,
   },
 
   data: () => ({
     editing: false,
+    loading: false,
     dirtyText: null as null | string,
   }),
 
@@ -36,8 +40,10 @@ export default Vue.extend({
       this.dirtyText = this.clearOnEdit ? "" : this.text
     },
 
-    save() {
-      this.$emit("save", this.dirtyText)
+    async saveText() {
+      this.loading = true
+      await this.save(this.dirtyText)
+      this.loading = false
       this.editing = false
     },
 
