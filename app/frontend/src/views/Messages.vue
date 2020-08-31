@@ -99,8 +99,11 @@
               <v-icon>mdi-information-outline</v-icon>
             </v-btn>
           </v-toolbar>
-          <v-card tile height="600" style="overflow: auto;">
+          <v-card v-scroll.self="scrolled" tile height="600" style="overflow: auto;">
             <v-list dense>
+              <v-list-item v-if="loadingMoreMessages">
+                <v-progress-circular indeterminate class="mx-auto my-2" />
+              </v-list-item>
               <template v-for="message in messages">
                 <v-list-item
                   v-if="isControlMessage(message)"
@@ -179,21 +182,11 @@
               </template>
             </v-list>
           </v-card>
-          <v-card tile>
-            <v-text-field
-              v-model="currentMessage"
-              autofocus
-              :disabled="!selectedConversation"
-              solo
-              flat
-              single-line
-              hide-details
-              label="Send a message"
-              append-icon="mdi-send"
-              @click:append="sendMessage"
-              v-on:keyup.enter="sendMessage"
-            ></v-text-field>
-          </v-card>
+          <message-entry-field
+            v-model="currentMessage"
+            :disabled="!selectedConversation"
+            @send="sendMessage"
+          />
         </v-col>
       </v-row>
     </v-container>
@@ -208,6 +201,7 @@ import VueObserveVisibility from 'vue-observe-visibility'
 Vue.use(VueObserveVisibility)
 
 import ErrorAlert from "../components/ErrorAlert.vue"
+import MessageEntryField from "../components/MessageEntryField.vue"
 
 import NewConversationDialog from "./messages/NewConversationDialog.vue"
 import ConversationDetailsDialog from "./messages/ConversationDetailsDialog.vue"
@@ -244,12 +238,15 @@ export default Vue.extend({
     selectedConversation: null as null | number, // TODO: null by default
     messages: [] as Array<Message.AsObject>,
     scrollToId: null as string | null,
+    loadingMoreMessages: false,
+    noMoreMessages: false,
   }),
 
   components: {
     ErrorAlert,
     NewConversationDialog,
     ConversationDetailsDialog,
+    MessageEntryField,
   },
 
   computed: {
@@ -268,22 +265,11 @@ export default Vue.extend({
   },
 
   watch: {
-    async selectedConversation() {
-      this.error = null
-      this.messages = []
-      const req = new GetGroupChatMessagesReq()
-      req.setGroupChatId(this.selectedConversation!)
-      try {
-        const res = await conversations.getGroupChatMessages(req)
-        this.messages = res.getMessagesList().map((msg) => msg.toObject())
-        this.sortMessages()
-        const groupChat = this.conversations.filter(
-          (groupChat) => groupChat.groupChatId === this.selectedConversation
-        )[0]
-        this.scrollToId = `msg-${groupChat.lastSeenMessageId}`
-      } catch (err) {
-        this.error = err
+    selectedConversation(to, from) {
+      if (to !== from) {
+        this.messages = []
       }
+      this.loadMessages()
     },
     
     async $route(to, from) {
@@ -307,6 +293,45 @@ export default Vue.extend({
   },
 
   methods: {
+    async loadMessages() {
+      this.error = null
+      const req = new GetGroupChatMessagesReq()
+      req.setGroupChatId(this.selectedConversation!)
+      let lastMessageId = null
+      if (this.messages.length > 0) {
+        lastMessageId = this.messages[0].messageId
+        req.setLastMessageId(lastMessageId)
+      }
+      try {
+        const res = await conversations.getGroupChatMessages(req)
+        this.messages = [
+          ...res.getMessagesList().map((msg) => msg.toObject()),
+          ...this.messages
+        ]
+        this.noMoreMessages = res.getNoMore()
+        this.sortMessages()
+        const groupChat = this.conversations.filter(
+          (groupChat) => groupChat.groupChatId === this.selectedConversation
+        )[0]
+        if (lastMessageId === null) {
+          this.scrollToId = `msg-${groupChat.lastSeenMessageId}`
+        } else {
+          this.scrollToId = `msg-${lastMessageId}`
+        }
+      } catch (err) {
+        this.error = err
+      }
+    },
+
+    async scrolled(e: Event) {
+      if ((e.target as HTMLElement).scrollTop > 0) return
+      if (this.loadingMoreMessages) return
+      if (this.noMoreMessages) return
+      this.loadingMoreMessages = true
+      await this.loadMessages()
+      this.loadingMoreMessages = false
+    },
+
     updatedConversation(conversation: GroupChat.AsObject) {
       const index = this.conversations.findIndex(
         (old) => old.groupChatId == conversation.groupChatId
