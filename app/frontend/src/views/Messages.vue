@@ -495,18 +495,7 @@ export default Vue.extend({
           await this.fetchUpdates(scrollToBottom)
         } catch (err) {
           this.error = err
-          return
         }
-
-        const selectedIndex = this.conversations.findIndex(
-          (c) => c.groupChatId == this.selectedConversation
-        )
-        if (selectedIndex == -1) return
-        const conversation = this.conversations.splice(selectedIndex, 1)[0]
-        conversation.unseenMessageCount = 0
-        conversation.latestMessage = this.messages[this.messages.length - 1]
-        conversation.lastSeenMessageId = conversation.latestMessage.messageId
-        this.conversations = [conversation, ...this.conversations]
       }
     },
 
