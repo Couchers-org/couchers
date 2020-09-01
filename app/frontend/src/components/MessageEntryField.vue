@@ -59,10 +59,10 @@ export default Vue.extend({
 
   computed: {
     text: {
-      get() {
+      get(): string {
         return this.value
       },
-      set(value) {
+      set(value: string) {
         this.$emit("input", value)
       },
     },
