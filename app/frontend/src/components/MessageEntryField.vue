@@ -24,7 +24,12 @@
       searchEmojiNotFound="Emojis not found."
       isLoadingLabel="Loading..."
     ></twemoji-picker>
-    <v-btn icon :disabled="disabled" @click="$emit('send')" class="my-auto mx-1">
+    <v-btn
+      icon
+      :disabled="disabled"
+      @click="$emit('send')"
+      class="my-auto mx-1"
+    >
       <v-icon color="primary">mdi-send</v-icon>
     </v-btn>
   </v-card>
@@ -49,12 +54,12 @@ export default Vue.extend({
     },
     disabled: {
       required: true,
-      type:  Boolean,
-    }
+      type: Boolean,
+    },
   },
 
   components: {
-    TwemojiPicker
+    TwemojiPicker,
   },
 
   computed: {
@@ -66,19 +71,19 @@ export default Vue.extend({
         this.$emit("input", value)
       },
     },
-    
+
     emojiDataAll() {
-        return EmojiData
-      },
-      emojiGroups() {
-        return EmojiGroups
-      }
+      return EmojiData
+    },
+    emojiGroups() {
+      return EmojiGroups
+    },
   },
 
   methods: {
     selectEmoji(e: string) {
       this.text = this.text + e
-    }
+    },
   },
 })
 </script>

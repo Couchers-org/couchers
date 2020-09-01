@@ -36,15 +36,15 @@
               <v-list-item-avatar>
                 <v-avatar :color="data.item.avatarColor" size="36">
                   <span class="white--text">
-                    {{
-                    data.item.avatarText
-                    }}
+                    {{ data.item.avatarText }}
                   </span>
                 </v-avatar>
               </v-list-item-avatar>
               <v-list-item-content>
                 <v-list-item-title v-html="data.item.name"></v-list-item-title>
-                <v-list-item-subtitle v-html="data.item.handle"></v-list-item-subtitle>
+                <v-list-item-subtitle
+                  v-html="data.item.handle"
+                ></v-list-item-subtitle>
               </v-list-item-content>
             </template>
           </template>
@@ -54,27 +54,34 @@
           v-if="newConversationParticipants.length > 1"
           :label="
             newConversationParticipants.length == 1
-                ? 'Direct messages have no title'
-                : 'Group chat title'
-            "
+              ? 'Direct messages have no title'
+              : 'Group chat title'
+          "
           :disabled="newConversationParticipants.length <= 1"
         ></v-text-field>
         <v-textarea v-model="newConversationText" label="Message"></v-textarea>
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="green darken-1" text @click="cancelNewConversation()">Cancel</v-btn>
-        <v-btn color="green darken-1" text @click="createNewConversation()" :loading="loading">Create chat</v-btn>
+        <v-btn color="green darken-1" text @click="cancelNewConversation()"
+          >Cancel</v-btn
+        >
+        <v-btn
+          color="green darken-1"
+          text
+          @click="createNewConversation()"
+          :loading="loading"
+          >Create chat</v-btn
+        >
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
-
 <script lang="ts">
 import Vue from "vue"
-import { CreateGroupChatReq, SendMessageReq } from '@/pb/conversations_pb'
-import { conversations } from '@/api'
+import { CreateGroupChatReq, SendMessageReq } from "@/pb/conversations_pb"
+import { conversations } from "@/api"
 import wrappers from "google-protobuf/google/protobuf/wrappers_pb"
 
 import ErrorAlert from "../../components/ErrorAlert.vue"
@@ -96,22 +103,22 @@ export default Vue.extend({
     friends: {
       required: true,
       type: Array,
-    }
+    },
   },
 
   computed: {
     open: {
-      get () {
+      get() {
         return this.value
       },
-      set (value) {
+      set(value) {
         this.$emit("input", value)
-      }
-    }
+      },
+    },
   },
 
   components: {
-    ErrorAlert
+    ErrorAlert,
   },
 
   methods: {
@@ -127,7 +134,7 @@ export default Vue.extend({
       const chatReq = new CreateGroupChatReq()
       const wrapper = new wrappers.StringValue()
       wrapper.setValue(this.newConversationTitle)
-      if (this.newConversationParticipants.length > 1 ) {
+      if (this.newConversationParticipants.length > 1) {
         chatReq.setTitle(wrapper)
       }
       chatReq.setRecipientUserIdsList(this.newConversationParticipants)

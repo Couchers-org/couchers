@@ -61,7 +61,11 @@
                   <v-list-item
                     :key="conversation.groupChatId"
                     @click="selectConversation(conversation.groupChatId)"
-                    :class="conversation.groupChatId == selectedConversation ? 'v-list-item--active' : ''"
+                    :class="
+                      conversation.groupChatId == selectedConversation
+                        ? 'v-list-item--active'
+                        : ''
+                    "
                   >
                     <v-list-item-avatar>
                       <v-avatar
@@ -105,7 +109,7 @@
                 :selectedConversation="selectedConversation"
                 :avatarFunction="conversationAvatar"
                 :titleFunction="conversationTitle"
-                @error="(err) => this.error = err"
+                @error="(err) => (this.error = err)"
                 @selected="selectConversation"
               />
             </v-list>
@@ -121,7 +125,12 @@
               <v-icon>mdi-information-outline</v-icon>
             </v-btn>
           </v-toolbar>
-          <v-card v-scroll.self="scrolled" tile height="600" style="overflow: auto;">
+          <v-card
+            v-scroll.self="scrolled"
+            tile
+            height="600"
+            style="overflow: auto;"
+          >
             <v-list dense>
               <v-list-item v-if="loadingMoreMessages">
                 <v-progress-circular indeterminate class="mx-auto my-2" />
@@ -134,10 +143,11 @@
                   class="bubble-content text-caption"
                 >
                   <v-list-item-content
-                  :class="{
-                    'bubble-alert-mine': isMyMessage(message),
-                    'bubble-alert-theirs': !isMyMessage(message),
-                  }">
+                    :class="{
+                      'bubble-alert-mine': isMyMessage(message),
+                      'bubble-alert-theirs': !isMyMessage(message),
+                    }"
+                  >
                     {{ messageText(message) }}
                   </v-list-item-content>
                 </v-list-item>
@@ -146,7 +156,10 @@
                   :key="message.messageId"
                   :id="`msg-${message.messageId}`"
                   v-observe-visibility="{
-                    callback: (isVisible, entry) => isVisible ? messageVisibilityChanged(message.messageId) : null,
+                    callback: (isVisible, entry) =>
+                      isVisible
+                        ? messageVisibilityChanged(message.messageId)
+                        : null,
                     throttle: 1000,
                   }"
                 >
@@ -176,7 +189,10 @@
                   :key="message.messageId"
                   :id="`msg-${message.messageId}`"
                   v-observe-visibility="{
-                    callback: (isVisible, entry) => isVisible ? messageVisibilityChanged(message.messageId) : null,
+                    callback: (isVisible, entry) =>
+                      isVisible
+                        ? messageVisibilityChanged(message.messageId)
+                        : null,
                     throttle: 1000,
                   }"
                 >
@@ -218,7 +234,7 @@
 <script lang="ts">
 import Vue from "vue"
 import moment from "moment"
-import VueObserveVisibility from 'vue-observe-visibility'
+import VueObserveVisibility from "vue-observe-visibility"
 
 Vue.use(VueObserveVisibility)
 
@@ -297,7 +313,7 @@ export default Vue.extend({
       }
       this.loadMessages()
     },
-    
+
     async $route(to, from) {
       this.error = null
       try {
@@ -332,7 +348,7 @@ export default Vue.extend({
         const res = await conversations.getGroupChatMessages(req)
         this.messages = [
           ...res.getMessagesList().map((msg) => msg.toObject()),
-          ...this.messages
+          ...this.messages,
         ]
         this.noMoreMessages = res.getNoMore()
         this.sortMessages()
@@ -372,7 +388,9 @@ export default Vue.extend({
     },
 
     selectedConversationObject() {
-      return this.conversations.find((e) => e.groupChatId == this.selectedConversation)
+      return this.conversations.find(
+        (e) => e.groupChatId == this.selectedConversation
+      )
     },
 
     async messageVisibilityChanged(messageId: number) {
@@ -390,9 +408,10 @@ export default Vue.extend({
         return
       }
       groupChat.lastSeenMessageId = messageId
-      groupChat.unseenMessageCount = this.messages.length 
-                                    - this.messages.findIndex((e) => e.messageId == messageId)
-                                    - 1
+      groupChat.unseenMessageCount =
+        this.messages.length -
+        this.messages.findIndex((e) => e.messageId == messageId) -
+        1
     },
 
     async newConversationCreated(chatId: number) {
@@ -425,8 +444,12 @@ export default Vue.extend({
       } else {
         return
       }
-      await Promise.all(groupChat.memberUserIdsList.map((userId) => this.fetchUser(userId)))
-      const conversationIndex = this.conversations.findIndex((chat) => chat.groupChatId == groupChat!.groupChatId)
+      await Promise.all(
+        groupChat.memberUserIdsList.map((userId) => this.fetchUser(userId))
+      )
+      const conversationIndex = this.conversations.findIndex(
+        (chat) => chat.groupChatId == groupChat!.groupChatId
+      )
       if (conversationIndex == -1) {
         this.conversations = [groupChat, ...this.conversations]
       }
@@ -438,7 +461,6 @@ export default Vue.extend({
     openNewConversationDialog() {
       this.newConversationDialog = true
     },
-
 
     sortMessages() {
       this.messages = this.messages.sort((f, s) => f.messageId - s.messageId)
@@ -468,7 +490,8 @@ export default Vue.extend({
         try {
           await conversations.sendMessage(req)
           this.currentMessage = ""
-          const scrollToBottom = this.selectedConversationObject()?.unseenMessageCount == 0
+          const scrollToBottom =
+            this.selectedConversationObject()?.unseenMessageCount == 0
           await this.fetchUpdates(scrollToBottom)
         } catch (err) {
           this.error = err
@@ -514,7 +537,7 @@ export default Vue.extend({
         const lastId = this.messages[this.messages.length - 1].messageId
         this.scrollToId = `msg-${lastId}`
       }
-      
+
       this.fetchData(false, true)
     },
 
@@ -596,12 +619,15 @@ export default Vue.extend({
         const otherUser = this.userCache[otherUserId]
         return `${otherUser.name} (${handle(otherUser.username)})`
       }
-      const otherUsersId = conversation.memberUserIdsList.filter(
-        (userId) => userId != this.user.userId
-      ).sort()
-      return conversation.title ||
-        otherUsersId.map((id) => this.userCache[id].name.split(" ")[0])
-        .join(", ")
+      const otherUsersId = conversation.memberUserIdsList
+        .filter((userId) => userId != this.user.userId)
+        .sort()
+      return (
+        conversation.title ||
+        otherUsersId
+          .map((id) => this.userCache[id].name.split(" ")[0])
+          .join(", ")
+      )
     },
 
     conversationSubtitle(conversation: GroupChat.AsObject) {
@@ -684,9 +710,7 @@ export default Vue.extend({
     },
 
     isMyMessage(message: Message.AsObject) {
-      return (
-        message.authorUserId === this.user.userId
-      )
+      return message.authorUserId === this.user.userId
     },
 
     controlMessageText(message: Message.AsObject) {

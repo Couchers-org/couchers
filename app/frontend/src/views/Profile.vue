@@ -152,10 +152,7 @@
                     v-on:save="saveHostingStatus"
                   />
                   <h3>Gender</h3>
-                  <editable-text-field
-                    :text="user.gender"
-                    :save="saveGender"
-                  />
+                  <editable-text-field :text="user.gender" :save="saveGender" />
                   <h3>Occupation</h3>
                   <editable-text-field
                     :text="user.occupation"
@@ -200,7 +197,9 @@
                 <v-tab-item value="hosting">
                   <h3>Max guests</h3>
                   <editable-text-field
-                    :text="user.maxGuests ? user.maxGuests.value.toString() : null"
+                    :text="
+                      user.maxGuests ? user.maxGuests.value.toString() : null
+                    "
                     :save="saveMaxGuests"
                   />
                   <h3>Multiple groups accepted</h3>

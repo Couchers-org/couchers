@@ -33,8 +33,12 @@ import { User } from "../pb/api_pb"
 
 import ErrorAlert from "./ErrorAlert.vue"
 import { conversations } from "../api"
-import { SendMessageReq, CreateGroupChatReq, GetDirectMessageReq } from "../pb/conversations_pb"
-import { StatusCode } from 'grpc-web'
+import {
+  SendMessageReq,
+  CreateGroupChatReq,
+  GetDirectMessageReq,
+} from "../pb/conversations_pb"
+import { StatusCode } from "grpc-web"
 
 export default Vue.extend({
   props: {

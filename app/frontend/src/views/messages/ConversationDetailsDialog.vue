@@ -1,14 +1,21 @@
 <template>
   <v-dialog v-model="open" max-width="600">
-
     <v-dialog v-model="confirmingLeave" max-width="600">
       <v-card>
         <v-card-title>Leave conversation</v-card-title>
-        <v-card-text>Are you sure you want to leave this conversation?</v-card-text>
+        <v-card-text
+          >Are you sure you want to leave this conversation?</v-card-text
+        >
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn text @click="confirmingLeave = false">Nevermind</v-btn>
-          <v-btn color="red darken-1" text @click="leaveConversation" :loading="leaveLoading">Leave conversation</v-btn>
+          <v-btn
+            color="red darken-1"
+            text
+            @click="leaveConversation"
+            :loading="leaveLoading"
+            >Leave conversation</v-btn
+          >
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -37,22 +44,26 @@
             :two-line="isAdmin(memberId) && !conversation.isDm"
           >
             <v-list-item-content>
-              <v-list-item-title>{{ userCache[memberId].name }}</v-list-item-title>
-              <v-list-item-subtitle v-if="isAdmin(memberId) && !conversation.isDm">Admin</v-list-item-subtitle>
+              <v-list-item-title>{{
+                userCache[memberId].name
+              }}</v-list-item-title>
+              <v-list-item-subtitle
+                v-if="isAdmin(memberId) && !conversation.isDm"
+                >Admin</v-list-item-subtitle
+              >
             </v-list-item-content>
             <v-list-item-action v-if="isAdmin() && !conversation.isDm">
               <v-menu offset-y v-model="memberMenu[memberId]">
                 <template v-slot:activator="{ on }">
-                  <v-btn
-                    icon
-                    v-on="on"
-                    :loading="memberLoading[memberId]"
-                  >
+                  <v-btn icon v-on="on" :loading="memberLoading[memberId]">
                     <v-icon>mdi-dots-horizontal</v-icon>
                   </v-btn>
                 </template>
                 <v-list>
-                  <v-list-item v-if="isAdmin(memberId)" @click="demote(memberId)">
+                  <v-list-item
+                    v-if="isAdmin(memberId)"
+                    @click="demote(memberId)"
+                  >
                     <v-list-item-title>Demote from admin</v-list-item-title>
                   </v-list-item>
                   <v-list-item v-else @click="promote(memberId)">
@@ -64,7 +75,9 @@
           </v-list-item>
         </v-list>
         <v-autocomplete
-          v-if="!conversation.isDm && (isAdmin() || !conversation.onlyAdminsInvite)"
+          v-if="
+            !conversation.isDm && (isAdmin() || !conversation.onlyAdminsInvite)
+          "
           v-model="invitee"
           :items="friendsNotInConversation"
           :disabled="inviteLoading"
@@ -86,15 +99,15 @@
               <v-list-item-avatar>
                 <v-avatar :color="data.item.avatarColor" size="36">
                   <span class="white--text">
-                    {{
-                    data.item.avatarText
-                    }}
+                    {{ data.item.avatarText }}
                   </span>
                 </v-avatar>
               </v-list-item-avatar>
               <v-list-item-content>
                 <v-list-item-title v-html="data.item.name"></v-list-item-title>
-                <v-list-item-subtitle v-html="data.item.handle"></v-list-item-subtitle>
+                <v-list-item-subtitle
+                  v-html="data.item.handle"
+                ></v-list-item-subtitle>
               </v-list-item-content>
             </template>
           </template>
@@ -113,13 +126,13 @@
           color="red darken-1"
           text
           @click="checkLeaveConversation"
-        >Leave this conversation</v-btn>
+          >Leave this conversation</v-btn
+        >
         <v-btn color="green darken-1" text @click="open = false">Close</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
-
 
 <script lang="ts">
 import Vue, { PropType } from "vue"
@@ -127,9 +140,20 @@ import Vue, { PropType } from "vue"
 import ErrorAlert from "../../components/ErrorAlert.vue"
 import EditableTextField from "../../components/EditableTextField.vue"
 import { PropValidator } from "vue/types/options"
-import { GroupChat, InviteToGroupChatReq, GetGroupChatReq, EditGroupChatReq, LeaveGroupChatReq, MakeGroupChatAdminReq, RemoveGroupChatAdminReq } from "@/pb/conversations_pb"
-import { conversations } from '@/api'
-import { StringValue, BoolValue } from 'google-protobuf/google/protobuf/wrappers_pb'
+import {
+  GroupChat,
+  InviteToGroupChatReq,
+  GetGroupChatReq,
+  EditGroupChatReq,
+  LeaveGroupChatReq,
+  MakeGroupChatAdminReq,
+  RemoveGroupChatAdminReq,
+} from "@/pb/conversations_pb"
+import { conversations } from "@/api"
+import {
+  StringValue,
+  BoolValue,
+} from "google-protobuf/google/protobuf/wrappers_pb"
 
 export default Vue.extend({
   data: () => ({
@@ -164,7 +188,7 @@ export default Vue.extend({
     friends: {
       required: true,
       type: Array,
-    }
+    },
   },
 
   components: {
@@ -178,7 +202,7 @@ export default Vue.extend({
       this.conversation.memberUserIdsList.forEach(
         (id) => (this.memberMenu[id] = false)
       )
-      
+
       this.memberLoading = {}
       this.conversation.memberUserIdsList.forEach(
         (id) => (this.memberLoading[id] = false)
@@ -187,7 +211,7 @@ export default Vue.extend({
 
     open() {
       this.error = null
-    }
+    },
   },
 
   computed: {
@@ -225,7 +249,7 @@ export default Vue.extend({
         }
         this.onlyAdminsSwitchLoading = false
         //workaround for weird back-and-forth if set immediately
-        setTimeout(() => this.dirtyOnlyAdminsSwitch = null, 50)
+        setTimeout(() => (this.dirtyOnlyAdminsSwitch = null), 50)
       },
     },
 
@@ -235,11 +259,12 @@ export default Vue.extend({
 
     friendsNotInConversation() {
       return this.friends.filter(
-        (e: any) => this.conversation.memberUserIdsList.findIndex(
-          (memberId) => e.value == memberId
-        ) < 0
+        (e: any) =>
+          this.conversation.memberUserIdsList.findIndex(
+            (memberId) => e.value == memberId
+          ) < 0
       )
-    }
+    },
   },
 
   methods: {
