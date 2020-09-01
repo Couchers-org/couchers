@@ -12,36 +12,34 @@
       v-on:keyup.enter="$emit('send')"
       class="flex-grow-1"
     ></v-text-field>
-    <v-menu offset-y v-model="showEmojiPicker" :close-on-content-click="false">
-      <template v-slot:activator="{ on }">
-        <v-btn icon :disabled="disabled" v-on="on" class="my-auto mx-1">
-          <v-icon>mdi-emoticon-happy</v-icon>
-        </v-btn>
-      </template>
-      <picker v-if="showEmojiPicker"
-        :data="emojiIndex"
-        native
-        @select="selectEmoji"
-        :showPreview="false"
-      />
-    </v-menu>
+    <twemoji-picker
+      :emojiPickerDisabled="disabled"
+      @emojiUnicodeAdded="selectEmoji"
+      :emojiData="emojiDataAll"
+      :emojiGroups="emojiGroups"
+      :skinsSelection="true"
+      :searchEmojisFeat="true"
+      :randomEmojiArray="['🙂']"
+      searchEmojiPlaceholder="Search"
+      searchEmojiNotFound="Emojis not found."
+      isLoadingLabel="Loading..."
+    ></twemoji-picker>
     <v-btn icon :disabled="disabled" @click="$emit('send')" class="my-auto mx-1">
       <v-icon color="primary">mdi-send</v-icon>
     </v-btn>
-      </v-card>
+  </v-card>
 </template>
 
 <script lang="ts">
 import Vue from "vue"
 
-import data from 'emoji-mart-vue-fast/data/all.json'
-import { Picker, EmojiIndex } from 'emoji-mart-vue-fast'
-import 'emoji-mart-vue-fast/css/emoji-mart.css'
+import EmojiData from "@kevinfaguiar/vue-twemoji-picker/emoji-data/en/emoji-all-groups.json"
+import { TwemojiPicker } from "@kevinfaguiar/vue-twemoji-picker"
+import EmojiGroups from "@kevinfaguiar/vue-twemoji-picker/emoji-data/emoji-groups.json"
 
 export default Vue.extend({
   data: () => ({
     showEmojiPicker: false,
-    emojiIndex: new EmojiIndex(data)
   }),
 
   props: {
@@ -56,7 +54,7 @@ export default Vue.extend({
   },
 
   components: {
-    Picker
+    TwemojiPicker
   },
 
   computed: {
@@ -68,11 +66,18 @@ export default Vue.extend({
         this.$emit("input", value)
       },
     },
+    
+    emojiDataAll() {
+        return EmojiData
+      },
+      emojiGroups() {
+        return EmojiGroups
+      }
   },
 
   methods: {
-    selectEmoji(e: object) {
-      this.text = this.text + e.native
+    selectEmoji(e: string) {
+      this.text = this.text + e
     }
   },
 })

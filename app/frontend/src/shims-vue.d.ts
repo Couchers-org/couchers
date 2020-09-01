@@ -3,5 +3,7 @@ declare module "*.vue" {
   export default Vue
 }
 
-declare module "emoji-mart-vue-fast" 
-declare module "emoji-mart-vue-fast/data/all.json"
+declare module "@kevinfaguiar/vue-twemoji-picker" 
+declare module "@kevinfaguiar/vue-twemoji-picker/emoji-data/en/emoji-all-groups.json"
+declare module "@kevinfaguiar/vue-twemoji-picker/emoji-data/emoji-groups.json"
+
