@@ -89,6 +89,18 @@ message MessageContentUserRemovedAdmin {
   uint64 target_user_id = 1;
 }
 
+enum HostRequestStatus {
+  HOST_REQUEST_STATUS_PENDING = 0;
+  HOST_REQUEST_STATUS_ACCEPTED = 1;
+  HOST_REQUEST_STATUS_REJECTED = 2;
+  HOST_REQUEST_STATUS_CONFIRMED = 3;
+  HOST_REQUEST_STATUS_CANCELLED = 4;
+}
+
+message MessageContentHostRequestStatusChanged {
+  HostRequestStatus status = 1;
+}
+
 message Message {
   uint64 message_id = 1;
   uint64 author_user_id = 2;
@@ -102,6 +114,7 @@ message Message {
     MessageContentUserLeft user_left = 8;
     MessageContentUserMadeAdmin user_made_admin = 9;
     MessageContentUserRemovedAdmin user_removed_admin = 10;
+    MessageContentHostRequestStatusChanged host_request_status_changed = 11;
   }
 }
 

@@ -8,8 +8,8 @@ from sqlalchemy.sql import and_
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Conversation, HostRequest, HostRequestEvent, HostRequestEventType, Message
-from pb import api_pb2, requests_pb2
+from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType
+from pb import api_pb2, conversations_pb2, requests_pb2
 from tests.test_fixtures import api_session, db, generate_user, make_friends, requests_session
 
 
@@ -72,14 +72,18 @@ def test_create_request(db):
             )
         )
         assert (
-            api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True)).host_requests[0].latest_message.text
+            api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
+            .host_requests[0]
+            .latest_message.text.text
             == "Test request"
         )
 
 
 def add_message(db, text, author_id, conversation_id):
     with session_scope(db) as session:
-        message = Message(conversation_id=conversation_id, author_id=author_id, text=text)
+        message = Message(
+            conversation_id=conversation_id, author_id=author_id, text=text, message_type=MessageType.text
+        )
 
         session.add(message)
 
@@ -111,17 +115,17 @@ def test_list_requests(db):
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
         assert res.no_more
         assert len(res.host_requests) == 1
-        assert res.host_requests[0].latest_message.text == "Test request 1"
+        assert res.host_requests[0].latest_message.text.text == "Test request 1"
         assert res.host_requests[0].from_user_id == user1.id
         assert res.host_requests[0].to_user_id == user2.id
-        assert res.host_requests[0].status == requests_pb2.HOST_REQUEST_STATUS_PENDING
+        assert res.host_requests[0].status == conversations_pb2.HOST_REQUEST_STATUS_PENDING
 
         add_message(db, "Test request 1 message 1", user2.id, host_request_1)
         add_message(db, "Test request 1 message 2", user2.id, host_request_1)
         add_message(db, "Test request 1 message 3", user2.id, host_request_1)
 
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
-        assert res.host_requests[0].latest_message.text == "Test request 1 message 3"
+        assert res.host_requests[0].latest_message.text.text == "Test request 1 message 3"
 
         api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
@@ -136,7 +140,7 @@ def test_list_requests(db):
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
         assert res.no_more
         assert len(res.host_requests) == 1
-        assert res.host_requests[0].latest_message.text == "Test request 2 message 2"
+        assert res.host_requests[0].latest_message.text.text == "Test request 2 message 2"
 
     with requests_session(db, token1) as api:
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
@@ -160,7 +164,7 @@ def test_list_host_requests_active_filter(db):
         ).host_request_id
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=request_id, status=requests_pb2.HOST_REQUEST_STATUS_CANCELLED
+                host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
             )
         )
 
@@ -190,7 +194,7 @@ def test_respond_host_requests(db):
         with pytest.raises(grpc.RpcError) as e:
             api.RespondHostRequest(
                 requests_pb2.RespondHostRequestReq(
-                    host_request_id=request_id, status=requests_pb2.HOST_REQUEST_STATUS_CANCELLED
+                    host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
                 )
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
@@ -200,7 +204,7 @@ def test_respond_host_requests(db):
         with pytest.raises(grpc.RpcError) as e:
             api.RespondHostRequest(
                 requests_pb2.RespondHostRequestReq(
-                    host_request_id=9999, status=requests_pb2.HOST_REQUEST_STATUS_CANCELLED
+                    host_request_id=9999, status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
                 )
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
@@ -209,14 +213,14 @@ def test_respond_host_requests(db):
         with pytest.raises(grpc.RpcError) as e:
             api.RespondHostRequest(
                 requests_pb2.RespondHostRequestReq(
-                    host_request_id=request_id, status=requests_pb2.HOST_REQUEST_STATUS_CONFIRMED
+                    host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
         with pytest.raises(grpc.RpcError) as e:
             api.RespondHostRequest(
                 requests_pb2.RespondHostRequestReq(
-                    host_request_id=request_id, status=requests_pb2.HOST_REQUEST_STATUS_CANCELLED
+                    host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
@@ -224,16 +228,18 @@ def test_respond_host_requests(db):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=request_id,
-                status=requests_pb2.HOST_REQUEST_STATUS_REJECTED,
+                status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED,
                 text="Test rejection message",
             )
         )
         res = api.GetHostRequestMessages(requests_pb2.GetHostRequestMessagesReq(host_request_id=request_id))
-        assert res.messages[0].text == "Test rejection message"
+        assert res.messages[0].text.text == "Test rejection message"
+        assert res.messages[1].WhichOneof("content") == "host_request_status_changed"
+        assert res.messages[1].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_REJECTED
         # should be able to move from rejected -> accepted
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=request_id, status=requests_pb2.HOST_REQUEST_STATUS_ACCEPTED
+                host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
             )
         )
 
@@ -242,7 +248,7 @@ def test_respond_host_requests(db):
         with pytest.raises(grpc.RpcError) as e:
             api.RespondHostRequest(
                 requests_pb2.RespondHostRequestReq(
-                    host_request_id=request_id, status=requests_pb2.HOST_REQUEST_STATUS_PENDING
+                    host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_PENDING
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
@@ -250,13 +256,13 @@ def test_respond_host_requests(db):
         # can confirm then cancel
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=request_id, status=requests_pb2.HOST_REQUEST_STATUS_CONFIRMED
+                host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED
             )
         )
 
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=request_id, status=requests_pb2.HOST_REQUEST_STATUS_CANCELLED
+                host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
             )
         )
 
@@ -264,20 +270,21 @@ def test_respond_host_requests(db):
         with pytest.raises(grpc.RpcError) as e:
             api.RespondHostRequest(
                 requests_pb2.RespondHostRequestReq(
-                    host_request_id=request_id, status=requests_pb2.HOST_REQUEST_STATUS_CONFIRMED
+                    host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
 
-    # at this point there should be 5 host request event records
-    with session_scope(db) as session:
-        events = session.query(HostRequestEvent).order_by(HostRequestEvent.id.desc()).all()
-        assert len(events) == 5
-        assert events[0].event_type == HostRequestEventType.status_change_cancelled
-        assert events[1].event_type == HostRequestEventType.status_change_confirmed
-        assert events[2].event_type == HostRequestEventType.status_change_accepted
-        assert events[3].event_type == HostRequestEventType.status_change_rejected
-        assert events[4].event_type == HostRequestEventType.created
+    # at this point there should be 7 messages
+    # 2 for creation, 2 for the status change with message, 3 for the other status changed
+    with requests_session(db, token1) as api:
+        res = api.GetHostRequestMessages(requests_pb2.GetHostRequestMessagesReq(host_request_id=request_id))
+        assert len(res.messages) == 7
+        assert res.messages[0].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
+        assert res.messages[1].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED
+        assert res.messages[2].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
+        assert res.messages[4].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_REJECTED
+        assert res.messages[6].WhichOneof("content") == "chat_created"
 
 
 def test_get_host_request_messages(db):
@@ -291,9 +298,7 @@ def test_get_host_request_messages(db):
                 to_user_id=user2.id, from_date=today_plus_1, to_date=today_plus_2, text="Test request 1"
             )
         )
-        request_id = res.host_request_id
-        with session_scope(db) as session:
-            conversation_id = session.query(HostRequest.conversation_id).filter(HostRequest.id == request_id).scalar()
+        conversation_id = res.host_request_id
 
     add_message(db, "Test request 1 message 1", user1.id, conversation_id)
     add_message(db, "Test request 1 message 2", user1.id, conversation_id)
@@ -302,7 +307,7 @@ def test_get_host_request_messages(db):
     with requests_session(db, token2) as api:
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=request_id, status=requests_pb2.HOST_REQUEST_STATUS_ACCEPTED
+                host_request_id=conversation_id, status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
             )
         )
 
@@ -311,42 +316,40 @@ def test_get_host_request_messages(db):
 
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=request_id, status=requests_pb2.HOST_REQUEST_STATUS_REJECTED
+                host_request_id=conversation_id, status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED
             )
         )
 
     with requests_session(db, token1) as api:
-        res = api.GetHostRequestMessages(requests_pb2.GetHostRequestMessagesReq(host_request_id=request_id))
-        # 6 including initial message
-        assert len(res.messages) == 6
-        assert len(res.events) == 3
+        res = api.GetHostRequestMessages(requests_pb2.GetHostRequestMessagesReq(host_request_id=conversation_id))
+        # 9 including initial message
+        assert len(res.messages) == 9
         assert res.no_more
 
-        res = api.GetHostRequestMessages(requests_pb2.GetHostRequestMessagesReq(host_request_id=request_id, number=2))
+        res = api.GetHostRequestMessages(
+            requests_pb2.GetHostRequestMessagesReq(host_request_id=conversation_id, number=3)
+        )
         assert not res.no_more
-        assert len(res.messages) == 2
-        assert len(res.events) == 1
-        assert res.events[0].event_type == requests_pb2.HostRequestEvent.HOST_REQUEST_EVENT_TYPE_REJECTED
-        assert res.events[0].after_message_id == res.messages[0].message_id
-        assert res.messages[0].text == "Test request 1 message 5"
-        assert res.messages[1].text == "Test request 1 message 4"
+        assert len(res.messages) == 3
+        assert res.messages[0].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_REJECTED
+        assert res.messages[0].WhichOneof("content") == "host_request_status_changed"
+        assert res.messages[1].text.text == "Test request 1 message 5"
+        assert res.messages[2].text.text == "Test request 1 message 4"
 
         res = api.GetHostRequestMessages(
             requests_pb2.GetHostRequestMessagesReq(
-                host_request_id=request_id, last_message_id=res.messages[1].message_id, number=4
+                host_request_id=conversation_id, last_message_id=res.messages[2].message_id, number=6
             )
         )
         assert res.no_more
-        assert len(res.messages) == 4
-        assert len(res.events) == 2
-        assert res.events[0].event_type == requests_pb2.HostRequestEvent.HOST_REQUEST_EVENT_TYPE_ACCEPTED
-        assert res.events[0].after_message_id == res.messages[0].message_id
-        assert res.events[1].event_type == requests_pb2.HostRequestEvent.HOST_REQUEST_EVENT_TYPE_CREATED
-        assert res.events[1].after_message_id == 0
-        assert res.messages[0].text == "Test request 1 message 3"
-        assert res.messages[1].text == "Test request 1 message 2"
-        assert res.messages[2].text == "Test request 1 message 1"
-        assert res.messages[3].text == "Test request 1"
+        assert len(res.messages) == 6
+        assert res.messages[0].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
+        assert res.messages[0].WhichOneof("content") == "host_request_status_changed"
+        assert res.messages[1].text.text == "Test request 1 message 3"
+        assert res.messages[2].text.text == "Test request 1 message 2"
+        assert res.messages[3].text.text == "Test request 1 message 1"
+        assert res.messages[4].text.text == "Test request 1"
+        assert res.messages[5].WhichOneof("content") == "chat_created"
 
 
 def test_send_message(db):
@@ -376,7 +379,7 @@ def test_send_message(db):
             requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 1")
         )
         res = api.GetHostRequestMessages(requests_pb2.GetHostRequestMessagesReq(host_request_id=host_request_id))
-        assert res.messages[0].text == "Test message 1"
+        assert res.messages[0].text.text == "Test message 1"
         assert res.messages[0].author_user_id == user1.id
 
     with requests_session(db, token3) as api:
@@ -392,14 +395,15 @@ def test_send_message(db):
             requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 2")
         )
         res = api.GetHostRequestMessages(requests_pb2.GetHostRequestMessagesReq(host_request_id=host_request_id))
-        assert len(res.messages) == 3
-        assert res.messages[0].text == "Test message 2"
+        # including 2 for creation control message and message
+        assert len(res.messages) == 4
+        assert res.messages[0].text.text == "Test message 2"
         assert res.messages[0].author_user_id == user2.id
 
         # can't send messages to a rejected, confirmed or cancelled request, but can for accepted
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request_id, status=requests_pb2.HOST_REQUEST_STATUS_REJECTED
+                host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED
             )
         )
         with pytest.raises(grpc.RpcError) as e:
@@ -411,14 +415,14 @@ def test_send_message(db):
 
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request_id, status=requests_pb2.HOST_REQUEST_STATUS_ACCEPTED
+                host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
             )
         )
 
     with requests_session(db, token1) as api:
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request_id, status=requests_pb2.HOST_REQUEST_STATUS_CONFIRMED
+                host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED
             )
         )
         with pytest.raises(grpc.RpcError) as e:
@@ -430,7 +434,7 @@ def test_send_message(db):
 
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request_id, status=requests_pb2.HOST_REQUEST_STATUS_CANCELLED
+                host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
             )
         )
         with pytest.raises(grpc.RpcError) as e:
@@ -463,7 +467,7 @@ def test_get_updates(db):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_id,
-                status=requests_pb2.HOST_REQUEST_STATUS_CANCELLED,
+                status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED,
                 text="Test message 3",
             )
         )
@@ -472,18 +476,20 @@ def test_get_updates(db):
             requests_pb2.CreateHostRequestReq(
                 to_user_id=user2.id, from_date=today_plus_1, to_date=today_plus_2, text="Test message 4"
             )
-        ).host_request_id
+        )
 
         res = api.GetHostRequestMessages(requests_pb2.GetHostRequestMessagesReq(host_request_id=host_request_id))
-        assert len(res.messages) == 4
-        assert res.messages[0].text == "Test message 3"
-        assert res.messages[1].text == "Test message 2"
-        assert res.messages[2].text == "Test message 1"
-        assert res.messages[3].text == "Test message 0"
+        assert len(res.messages) == 6
+        assert res.messages[0].text.text == "Test message 3"
+        assert res.messages[1].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
+        assert res.messages[2].text.text == "Test message 2"
+        assert res.messages[3].text.text == "Test message 1"
+        assert res.messages[4].text.text == "Test message 0"
         message_id_3 = res.messages[0].message_id
-        message_id_2 = res.messages[1].message_id
-        message_id_1 = res.messages[2].message_id
-        message_id_0 = res.messages[3].message_id
+        message_id_cancel = res.messages[1].message_id
+        message_id_2 = res.messages[2].message_id
+        message_id_1 = res.messages[3].message_id
+        message_id_0 = res.messages[4].message_id
 
         with pytest.raises(grpc.RpcError) as e:
             api.GetHostRequestUpdates(requests_pb2.GetHostRequestUpdatesReq(newest_message_id=0))
@@ -491,22 +497,22 @@ def test_get_updates(db):
 
         res = api.GetHostRequestUpdates(requests_pb2.GetHostRequestUpdatesReq(newest_message_id=message_id_1))
         assert res.no_more
-        assert len(res.updates) == 3
-        assert res.updates[0].message.text == "Test message 2"
-        assert not res.updates[0].HasField("event")
-        assert res.updates[1].message.text == "Test message 3"
-        assert res.updates[1].event.event_type == requests_pb2.HostRequestEvent.HOST_REQUEST_EVENT_TYPE_CANCELLED
-        assert res.updates[1].status == requests_pb2.HOST_REQUEST_STATUS_CANCELLED
-        assert res.updates[2].message.text == "Test message 4"
-        assert res.updates[2].event.event_type == requests_pb2.HostRequestEvent.HOST_REQUEST_EVENT_TYPE_CREATED
-        assert res.updates[2].status == requests_pb2.HOST_REQUEST_STATUS_PENDING
+        assert len(res.updates) == 5
+        assert res.updates[0].message.text.text == "Test message 2"
+        assert (
+            res.updates[1].message.host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
+        )
+        assert res.updates[1].status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
+        assert res.updates[2].message.text.text == "Test message 3"
+        assert res.updates[3].message.WhichOneof("content") == "chat_created"
+        assert res.updates[3].status == conversations_pb2.HOST_REQUEST_STATUS_PENDING
+        assert res.updates[4].message.text.text == "Test message 4"
 
         res = api.GetHostRequestUpdates(requests_pb2.GetHostRequestUpdatesReq(newest_message_id=message_id_1, number=1))
         assert not res.no_more
         assert len(res.updates) == 1
-        assert res.updates[0].message.text == "Test message 2"
-        assert not res.updates[0].HasField("event")
-        assert res.updates[0].status == requests_pb2.HOST_REQUEST_STATUS_CANCELLED
+        assert res.updates[0].message.text.text == "Test message 2"
+        assert res.updates[0].status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
 
     with requests_session(db, token3) as api:
         # other user can't access
@@ -542,7 +548,7 @@ def test_mark_last_seen(db):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_id,
-                status=requests_pb2.HOST_REQUEST_STATUS_CANCELLED,
+                status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED,
                 text="Test message 3",
             )
         )

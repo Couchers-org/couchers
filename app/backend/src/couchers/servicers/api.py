@@ -6,7 +6,8 @@ from urllib.parse import urlencode
 import grpc
 from google.protobuf import empty_pb2
 from google.protobuf.timestamp_pb2 import Timestamp
-from sqlalchemy.sql import func, or_
+from sqlalchemy.orm import aliased
+from sqlalchemy.sql import and_, func, or_
 
 from couchers import errors
 from couchers.config import config
@@ -89,18 +90,29 @@ class API(api_pb2_grpc.APIServicer):
             # auth ought to make sure the user exists
             user = session.query(User).filter(User.id == context.user_id).one()
 
+            # gets only the max message by self-joining messages which have a greater id
+            # if it doesn't have a greater id, it's the biggest
+            message_2 = aliased(Message)
             unseen_host_request_count_1 = (
-                session.query(Message.conversation_id)
-                .outerjoin(HostRequest, Message.conversation_id == HostRequest.conversation_id)
+                session.query(Message.id)
+                .join(HostRequest, Message.conversation_id == HostRequest.conversation_id)
+                .outerjoin(
+                    message_2, and_(Message.conversation_id == message_2.conversation_id, Message.id < message_2.id)
+                )
                 .filter(HostRequest.from_user_id == context.user_id)
+                .filter(message_2.id == None)
                 .filter(HostRequest.from_last_seen_message_id < Message.id)
                 .count()
             )
 
             unseen_host_request_count_2 = (
-                session.query(Message.conversation_id)
-                .outerjoin(HostRequest, Message.conversation_id == HostRequest.conversation_id)
+                session.query(Message.id)
+                .join(HostRequest, Message.conversation_id == HostRequest.conversation_id)
+                .outerjoin(
+                    message_2, and_(Message.conversation_id == message_2.conversation_id, Message.id < message_2.id)
+                )
                 .filter(HostRequest.to_user_id == context.user_id)
+                .filter(message_2.id == None)
                 .filter(HostRequest.to_last_seen_message_id < Message.id)
                 .count()
             )
