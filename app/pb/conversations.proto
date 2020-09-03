@@ -98,6 +98,7 @@ enum HostRequestStatus {
 }
 
 message MessageContentHostRequestStatusChanged {
+  //this is the new host request status
   HostRequestStatus status = 1;
 }
 

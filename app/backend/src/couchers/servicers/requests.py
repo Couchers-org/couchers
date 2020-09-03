@@ -26,44 +26,33 @@ hostrequeststatus2api = {
     HostRequestStatus.cancelled: conversations_pb2.HOST_REQUEST_STATUS_CANCELLED,
 }
 
-hostrequeststatusstring2api = {
-    "HostRequestStatus.pending": conversations_pb2.HOST_REQUEST_STATUS_PENDING,
-    "HostRequestStatus.accepted": conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
-    "HostRequestStatus.rejected": conversations_pb2.HOST_REQUEST_STATUS_REJECTED,
-    "HostRequestStatus.confirmed": conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED,
-    "HostRequestStatus.cancelled": conversations_pb2.HOST_REQUEST_STATUS_CANCELLED,
-}
-
+def message_to_pb(message: Message):
+    """
+    Turns the given message to a protocol buffer
+    """
+    if message.is_normal_message:
+        return conversations_pb2.Message(
+            message_id=message.id,
+            author_user_id=message.author_id,
+            time=Timestamp_from_datetime(message.time),
+            text=conversations_pb2.MessageContentText(text=message.text),
+        )
+    else:
+        return conversations_pb2.Message(
+            message_id=message.id,
+            author_user_id=message.author_id,
+            time=Timestamp_from_datetime(message.time),
+            chat_created=conversations_pb2.MessageContentChatCreated()
+            if message.message_type == MessageType.chat_created
+            else None,
+            host_request_status_changed=conversations_pb2.MessageContentHostRequestStatusChanged(
+                status=hostrequeststatus2api[message.host_request_status_target]
+            )
+            if message.message_type == MessageType.host_request_status_changed
+            else None,
+        )
 
 class Requests(requests_pb2_grpc.RequestsServicer):
-    def _message_to_pb(self, message: Message):
-        """
-        Turns the given message to a protocol buffer
-        """
-        if message.is_normal_message:
-            return conversations_pb2.Message(
-                message_id=message.id,
-                author_user_id=message.author_id,
-                time=Timestamp_from_datetime(message.time),
-                text=conversations_pb2.MessageContentText(text=message.text),
-            )
-        elif message.is_control_message:
-            return conversations_pb2.Message(
-                message_id=message.id,
-                author_user_id=message.author_id,
-                time=Timestamp_from_datetime(message.time),
-                chat_created=conversations_pb2.MessageContentChatCreated()
-                if message.message_type == MessageType.chat_created
-                else None,
-                host_request_status_changed=conversations_pb2.MessageContentHostRequestStatusChanged(
-                    status=hostrequeststatusstring2api[message.text]
-                )
-                if message.message_type == MessageType.host_request_status_changed
-                else None,
-            )
-        else:
-            raise ValueError("Unknown message type for host request")
-
     def __init__(self, Session):
         self._Session = Session
 
@@ -179,7 +168,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     last_seen_message_id=result.HostRequest.from_last_seen_message_id
                     if context.user_id == result.HostRequest.from_user_id
                     else result.HostRequest.to_last_seen_message_id,
-                    latest_message=self._message_to_pb(result.Message),
+                    latest_message=message_to_pb(result.Message),
                 )
                 for result in results[:pagination]
             ]
@@ -227,7 +216,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     or host_request.status == HostRequestStatus.accepted
                 ):
                     context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
-                control_message.text = str(HostRequestStatus.accepted)
+                control_message.host_request_status_target = HostRequestStatus.accepted
                 host_request.status = HostRequestStatus.accepted
 
             if request.status == conversations_pb2.HOST_REQUEST_STATUS_REJECTED:
@@ -240,7 +229,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     or host_request.status == HostRequestStatus.rejected
                 ):
                     context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
-                control_message.text = str(HostRequestStatus.rejected)
+                control_message.host_request_status_target = HostRequestStatus.rejected
                 host_request.status = HostRequestStatus.rejected
 
             if request.status == conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED:
@@ -250,7 +239,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 # can only confirm an accepted request
                 if host_request.status != HostRequestStatus.accepted:
                     context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
-                control_message.text = str(HostRequestStatus.confirmed)
+                control_message.host_request_status_target = HostRequestStatus.confirmed
                 host_request.status = HostRequestStatus.confirmed
 
             if request.status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED:
@@ -263,7 +252,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     or host_request.status == HostRequestStatus.cancelled
                 ):
                     context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
-                control_message.text = str(HostRequestStatus.cancelled)
+                control_message.host_request_status_target = HostRequestStatus.cancelled
                 host_request.status = HostRequestStatus.cancelled
 
             control_message.message_type = MessageType.host_request_status_changed
@@ -321,7 +310,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             return requests_pb2.GetHostRequestMessagesRes(
                 next_message_id=next_message_id,
                 no_more=no_more,
-                messages=[self._message_to_pb(message) for message in messages[:pagination]],
+                messages=[message_to_pb(message) for message in messages[:pagination]],
             )
 
     def SendHostRequestMessage(self, request, context):
@@ -407,7 +396,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     requests_pb2.HostRequestUpdate(
                         host_request_id=result.host_request_id,
                         status=hostrequeststatus2api[result.host_request_status],
-                        message=self._message_to_pb(result.Message),
+                        message=message_to_pb(result.Message),
                     )
                     for result in query[:pagination]
                 ],

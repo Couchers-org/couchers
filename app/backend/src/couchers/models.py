@@ -375,8 +375,15 @@ class MessageType(enum.Enum):
     user_left = 4
     user_made_admin = 5
     user_removed_admin = 6
-    # use str(HostRequestStatus.a) in the text field for the status
     host_request_status_changed = 7
+
+
+class HostRequestStatus(enum.Enum):
+    pending = 0
+    accepted = 1
+    rejected = 2
+    confirmed = 3
+    cancelled = 4
 
 
 class Message(Base):
@@ -407,6 +414,9 @@ class Message(Base):
 
     # the message text if not control
     text = Column(String, nullable=True)
+
+    # the new host request status if the message type is host_request_status_changed
+    host_request_status_target = Column(Enum(HostRequestStatus), nullable=True)
 
     conversation = relationship("Conversation", backref="messages", order_by="Message.time.desc()")
     author = relationship("User", foreign_keys="Message.author_id")
@@ -466,14 +476,6 @@ class Email(Base):
 
     plain = Column(String, nullable=False)
     html = Column(String, nullable=False)
-
-
-class HostRequestStatus(enum.Enum):
-    pending = 0
-    accepted = 1
-    rejected = 2
-    confirmed = 3
-    cancelled = 4
 
 
 class HostRequest(Base):
