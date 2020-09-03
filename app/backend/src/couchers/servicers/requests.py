@@ -26,6 +26,7 @@ hostrequeststatus2api = {
     HostRequestStatus.cancelled: conversations_pb2.HOST_REQUEST_STATUS_CANCELLED,
 }
 
+
 def message_to_pb(message: Message):
     """
     Turns the given message to a protocol buffer
@@ -51,6 +52,7 @@ def message_to_pb(message: Message):
             if message.message_type == MessageType.host_request_status_changed
             else None,
         )
+
 
 class Requests(requests_pb2_grpc.RequestsServicer):
     def __init__(self, Session):

@@ -92,8 +92,8 @@ message GetHostRequestMessagesReq {
 
 message GetHostRequestMessagesRes {
   repeated org.couchers.api.conversations.Message messages = 1;
-  uint64 next_message_id = 2;
-  bool no_more = 3;
+  uint64 next_message_id = 4;
+  bool no_more = 5;
 }
 
 message SendHostRequestMessageReq {
