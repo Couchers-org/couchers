@@ -132,10 +132,8 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 .filter(GroupChatSubscription.user_id == context.user_id)
                 .filter(Message.time >= GroupChatSubscription.joined)
                 .filter(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
-                .filter(or_(Message.id < request.last_message_id, request.last_message_id == 0))
                 .group_by(GroupChatSubscription.group_chat_id)
                 .order_by(func.max(Message.id).desc())
-                .limit(PAGINATION_LENGTH + 1)
                 .subquery()
             )
 
@@ -144,7 +142,9 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 .join(Message, Message.id == t.c.message_id)
                 .join(GroupChatSubscription, GroupChatSubscription.id == t.c.group_chat_subscriptions_id)
                 .join(GroupChat, GroupChat.conversation_id == t.c.group_chat_id)
+                .filter(or_(t.c.message_id <= request.last_message_id, request.last_message_id == 0))
                 .order_by(t.c.message_id.desc())
+                .limit(PAGINATION_LENGTH + 1)
                 .all()
             )
 
@@ -164,7 +164,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                     )
                     for result in results[:PAGINATION_LENGTH]
                 ],
-                next_message_id=min(map(lambda g: g.Message.id if g.Message else 1, results)) - 1
+                next_message_id=min(map(lambda g: g.Message.id if g.Message else 1, results[:PAGINATION_LENGTH])) - 1
                 if len(results) > 0
                 else 0,  # TODO
                 no_more=len(results) <= PAGINATION_LENGTH,

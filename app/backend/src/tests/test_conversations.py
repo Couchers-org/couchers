@@ -1152,3 +1152,41 @@ def test_total_unseen(db):
     with api_session(db, token2) as api:
         # joined + 12 normal
         assert api.Ping(api_pb2.PingReq()).unseen_message_count == 13
+
+
+def test_regression_ListGroupChats_pagination(db):
+    user1, token1 = generate_user(db)
+    user2, token2 = generate_user(db)
+    user3, token3 = generate_user(db)
+
+    make_friends(db, user1, user2)
+    make_friends(db, user1, user3)
+
+    with conversations_session(db, token1) as c:
+        # tuples of (group_chat_id, message_id)
+        group_chat_and_message_ids = []
+        for i in range(50):
+            res1 = c.CreateGroupChat(
+                conversations_pb2.CreateGroupChatReq(
+                    recipient_user_ids=[user2.id, user3.id], title=wrappers_pb2.StringValue(value=f"Chat {i}")
+                )
+            )
+
+            c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=res1.group_chat_id, text=f"Test message {i}"))
+
+            res2 = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=res1.group_chat_id))
+
+            group_chat_and_message_ids.append((res2.group_chat_id, res2.latest_message.message_id))
+
+        seen_group_chat_ids = []
+
+        next_message_id = 0
+        more = True
+        while more:
+            res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq(last_message_id=next_message_id))
+            next_message_id = res.next_message_id
+            more = not res.no_more
+
+            seen_group_chat_ids.extend([chat.group_chat_id for chat in res.group_chats])
+
+        assert set(seen_group_chat_ids) == set(x[0] for x in group_chat_and_message_ids), "Not all group chats returned"
