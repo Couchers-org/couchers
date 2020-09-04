@@ -416,10 +416,6 @@ class Message(Base):
         """
         return self.message_type == MessageType.text
 
-    @property
-    def is_control_message(self):
-        return not self.is_normal_message
-
     def __repr__(self):
         return f"Message(id={self.id}, time={self.time}, text={self.text}, author={self.author}, conversation={self.conversation})"
 

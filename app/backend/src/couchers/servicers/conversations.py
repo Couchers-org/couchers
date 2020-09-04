@@ -32,7 +32,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 time=Timestamp_from_datetime(message.time),
                 text=conversations_pb2.MessageContentText(text=message.text),
             )
-        elif message.is_control_message:
+        else:
             return conversations_pb2.Message(
                 message_id=message.id,
                 author_user_id=message.author_id,
@@ -56,8 +56,6 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 if message.message_type == MessageType.user_removed_admin
                 else None,
             )
-        else:
-            raise ValueError("Unknown message type")
 
     def _get_visible_members_for_subscription(self, subscription):
         """
