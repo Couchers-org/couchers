@@ -537,7 +537,7 @@ export default Vue.extend({
       if (!clear) {
         if (this.conversations.length > 0) {
           chatsReq.setLastMessageId(
-            this.conversations[this.conversations.length - 1].groupChatId
+            this.conversations[this.conversations.length - 1].latestMessage.messageId
           )
         }
       }
