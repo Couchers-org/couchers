@@ -49,7 +49,7 @@ export default Vue.extend({
 
   props: {
     value: {
-      required: true,
+      required: false,
       type: String,
     },
     disabled: {
