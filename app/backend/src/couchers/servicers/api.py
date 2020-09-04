@@ -6,7 +6,7 @@ from urllib.parse import urlencode
 import grpc
 from google.protobuf import empty_pb2
 from google.protobuf.timestamp_pb2 import Timestamp
-from sqlalchemy.sql import func, or_
+from sqlalchemy import func, or_
 
 from couchers import errors
 from couchers.config import config
@@ -491,7 +491,8 @@ class API(api_pb2_grpc.APIServicer):
         path = "upload?" + urlencode({"data": data, "sig": sig})
 
         return api_pb2.InitiateMediaUploadRes(
-            upload_url=f"{config['MEDIA_SERVER_BASE_URL']}/{path}", expiry=Timestamp_from_datetime(expiry),
+            upload_url=f"{config['MEDIA_SERVER_BASE_URL']}/{path}",
+            expiry=Timestamp_from_datetime(expiry),
         )
 
 

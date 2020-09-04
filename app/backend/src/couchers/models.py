@@ -4,11 +4,10 @@ from datetime import date
 
 from sqlalchemy import Boolean, Column, Date, DateTime, Enum, Float, ForeignKey, Integer
 from sqlalchemy import LargeBinary as Binary
-from sqlalchemy import String, UniqueConstraint
+from sqlalchemy import String, UniqueConstraint, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import backref, relationship
 from sqlalchemy.orm.session import Session
-from sqlalchemy.sql import func
 
 from couchers.config import config
 

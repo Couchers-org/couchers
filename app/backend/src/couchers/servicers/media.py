@@ -3,7 +3,7 @@ from datetime import datetime
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy.sql import func
+from sqlalchemy import func
 
 from couchers.crypto import secure_compare
 from couchers.db import session_scope

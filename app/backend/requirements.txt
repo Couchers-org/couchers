@@ -1,4 +1,6 @@
+black
 grpcio
+isort
 Jinja2
 markdown2
 protobuf

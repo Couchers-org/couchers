@@ -264,7 +264,8 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             return conversations_pb2.GetUpdatesRes(
                 updates=[
                     conversations_pb2.Update(
-                        group_chat_id=message.conversation_id, message=self._message_to_pb(message),
+                        group_chat_id=message.conversation_id,
+                        message=self._message_to_pb(message),
                     )
                     for message in sorted(results, key=lambda message: message.id)[:PAGINATION_LENGTH]
                 ],
@@ -331,7 +332,8 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             return conversations_pb2.SearchMessagesRes(
                 results=[
                     conversations_pb2.MessageSearchResult(
-                        group_chat_id=message.conversation_id, message=self._message_to_pb(message),
+                        group_chat_id=message.conversation_id,
+                        message=self._message_to_pb(message),
                     )
                     for message in results[:PAGINATION_LENGTH]
                 ],
@@ -390,7 +392,9 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             session.add(group_chat)
 
             your_subscription = GroupChatSubscription(
-                user_id=context.user_id, group_chat=group_chat, role=GroupChatRole.admin,
+                user_id=context.user_id,
+                group_chat=group_chat,
+                role=GroupChatRole.admin,
             )
             session.add(your_subscription)
 
@@ -402,7 +406,9 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                         context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.DIRECT_MESSAGE_ONLY_FRIENDS)
 
                 subscription = GroupChatSubscription(
-                    user_id=recipient, group_chat=group_chat, role=GroupChatRole.participant,
+                    user_id=recipient,
+                    group_chat=group_chat,
+                    role=GroupChatRole.participant,
                 )
                 session.add(subscription)
 
@@ -600,7 +606,9 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.GROUP_CHAT_ONLY_INVITE_FRIENDS)
 
             subscription = GroupChatSubscription(
-                user_id=request.user_id, group_chat=your_subscription.group_chat, role=GroupChatRole.participant,
+                user_id=request.user_id,
+                group_chat=your_subscription.group_chat,
+                role=GroupChatRole.participant,
             )
             session.add(subscription)
 

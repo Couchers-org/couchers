@@ -4,7 +4,6 @@ from typing import Union
 
 import grpc
 from sqlalchemy import func
-from sqlalchemy.sql import func
 
 from couchers import errors
 from couchers.crypto import hash_password, urlsafe_secure_token, verify_password
