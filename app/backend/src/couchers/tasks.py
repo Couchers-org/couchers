@@ -34,7 +34,7 @@ def send_report_email(complaint):
     username_reported = complaint.reported_user.username
     reason = complaint.reason
     description = complaint.description
-    target_email = config['REPORTS_EMAIL_RECIPIENT']
+    target_email = config["REPORTS_EMAIL_RECIPIENT"]
 
     logger.info(f"Sending report email to {target_email=}")
     logger.info(f"User {username_author=} reporting user {username_reported=}")

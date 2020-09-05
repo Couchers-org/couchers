@@ -1,12 +1,11 @@
-import logging
-import grpc
 import datetime
-from pb import requests_pb2, requests_pb2_grpc, conversations_pb2
+import logging
+
+import grpc
 from google.protobuf import empty_pb2
 from google.protobuf.timestamp_pb2 import Timestamp
-
 from sqlalchemy.orm import aliased
-from sqlalchemy.sql import or_, and_
+from sqlalchemy.sql import and_, or_
 
 from couchers import errors
 from couchers.db import is_valid_date, session_scope
@@ -21,6 +20,7 @@ from couchers.models import (
 )
 from couchers.utils import Timestamp_from_datetime
 from couchers.tasks import send_host_request_email
+from pb import conversations_pb2, requests_pb2, requests_pb2_grpc
 
 logger = logging.getLogger(__name__)
 

@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 import pytest
+
 from couchers.crypto import random_hex, urlsafe_secure_token
 from couchers.db import new_login_token, new_signup_token, session_scope
 from couchers.email import _render_email
@@ -42,10 +43,10 @@ def test_report_email_rendering():
             "username_author": author_user,
             "username_reported": reported_user,
             "reason": reason,
-            "description": description
+            "description": description,
         }
     )
-
+    
     assert author_user in plain
     assert author_user in html
     assert reported_user in plain
@@ -179,10 +180,7 @@ def test_report_email(db):
         testing_email_address = "reports@couchers.org.invalid"
 
         complaint = Complaint(
-            author_user=user_author,
-            reported_user=user_reported,
-            reason=random_hex(64),
-            description=random_hex(64)
+            author_user=user_author, reported_user=user_reported, reason=random_hex(64), description=random_hex(64)
         )
 
         message_id = random_hex(64)

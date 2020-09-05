@@ -3,23 +3,24 @@ from datetime import datetime
 from typing import Union
 
 import grpc
+from sqlalchemy import func
+
+from couchers import errors
 from couchers.crypto import hash_password, urlsafe_secure_token, verify_password
 from couchers.db import (
     get_user_by_field,
     is_valid_email,
-    is_valid_username,
     is_valid_name,
+    is_valid_username,
     new_login_token,
     new_signup_token,
     session_scope,
 )
 from couchers.interceptors import AuthValidatorInterceptor
 from couchers.models import LoginToken, SignupToken, User, UserSession
-from couchers.tasks import send_login_email, send_signup_email
 from couchers.servicers.api import hostingstatus2sql
-from couchers import errors
+from couchers.tasks import send_login_email, send_signup_email
 from pb import auth_pb2, auth_pb2_grpc
-from sqlalchemy import func
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +67,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         Will abort the API calling context if the user is banned from logging in.
         """
         if user.is_banned:
-            context.abort(grpc.StatusCode.PRECONDITION_FAILED, errors.ACCOUNT_SUSPENDED)
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ACCOUNT_SUSPENDED)
 
         token = urlsafe_secure_token()
 

@@ -28,17 +28,30 @@ Install `docker-compose` from <https://docs.docker.com/compose/install/>.
 
 ## 3. Compile the protocol buffers
 
+### macOS or Linux
+
 If you are on **Linux** or **macOS**, run the following command:
 
 ```sh
 docker run --rm -w /app -v $(pwd):/app couchers/grpc ./generate_protos.sh
 ```
 
+### Windows
+
 If you are on **Windows**, run the following command:
 
 ```sh
 docker run --rm -w /app -v %cd%:/app couchers/grpc sh -c "cat generate_protos.sh | dos2unix | sh"
 ```
+
+### macOS (homebrew)
+
+You can install `grpc` and the gRPC-Web plugin locally with `brew install grpc protoc-gen-grpc-web`, then run:
+
+```sh
+./generate_protos.sh
+```
+
 
 ## 4. Run the `docker-compose` command
 

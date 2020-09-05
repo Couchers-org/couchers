@@ -1,9 +1,11 @@
 from pathlib import Path
+
 from jinja2 import Environment, FileSystemLoader, Template
 from markdown2 import markdown
-from couchers.email.smtp import send_smtp_email
-from couchers.email.dev import print_dev_email
+
 from couchers.config import config
+from couchers.email.dev import print_dev_email
+from couchers.email.smtp import send_smtp_email
 
 env = Environment(loader=FileSystemLoader(Path(__file__).parent / ".." / ".." / ".." / "templates"), trim_blocks=True,)
 

@@ -1,18 +1,17 @@
 import logging
 from datetime import datetime
 
+import grpc
 from google.protobuf import empty_pb2
 from google.protobuf.timestamp_pb2 import Timestamp
-
-import grpc
-from couchers.db import get_friends_status, get_user_by_field, session_scope
-from couchers.models import Conversation, GroupChat, GroupChatRole, GroupChatSubscription, Message, User
-from couchers.utils import Timestamp_from_datetime
-from couchers import errors
-from pb import api_pb2, conversations_pb2, conversations_pb2_grpc
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, or_
 
+from couchers import errors
+from couchers.db import get_friends_status, get_user_by_field, session_scope
+from couchers.models import Conversation, GroupChat, GroupChatRole, GroupChatSubscription, Message, User
+from couchers.utils import Timestamp_from_datetime
+from pb import api_pb2, conversations_pb2, conversations_pb2_grpc
 
 # TODO: custom pagination length
 PAGINATION_LENGTH = 20

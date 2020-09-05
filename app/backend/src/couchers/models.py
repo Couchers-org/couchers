@@ -3,7 +3,6 @@ import enum
 from calendar import monthrange
 from datetime import date
 
-from couchers.config import config
 from sqlalchemy import Boolean, Column, Date, DateTime, Enum, Float, ForeignKey, Integer
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import String, UniqueConstraint
@@ -11,6 +10,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func
+
+from couchers.config import config
 
 Base = declarative_base()
 
