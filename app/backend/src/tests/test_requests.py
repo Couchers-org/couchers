@@ -88,6 +88,31 @@ def add_message(db, text, author_id, conversation_id):
         session.add(message)
 
 
+def test_get_host_request(db):
+    user1, token1 = generate_user(db)
+    user2, token2 = generate_user(db)
+    user3, token3 = generate_user(db)
+    today_plus_1 = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+    today_plus_2 = (datetime.now() + timedelta(days=2)).strftime("%Y-%m-%d")
+    with requests_session(db, token1) as api:
+        host_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                to_user_id=user2.id, from_date=today_plus_1, to_date=today_plus_2, text="Test request 1"
+            )
+        ).host_request_id
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=999))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+        api.SendHostRequestMessage(
+            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 1")
+        )
+
+        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
+        assert res.latest_message.text.text == "Test message 1"
+
+
 def test_list_requests(db):
     user1, token1 = generate_user(db)
     user2, token2 = generate_user(db)

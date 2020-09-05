@@ -10,6 +10,8 @@ import "pb/conversations.proto";
 service Requests {
   rpc CreateHostRequest(CreateHostRequestReq) returns (CreateHostRequestRes);
   
+  rpc GetHostRequest(GetHostRequestReq) returns (HostRequest);
+  
   // Change the status of a host request.
   // Throws NOT_FOUND if you don't have a host request of that id, NOT_AUTHORIZED
   // if you try to change the status to one you aren't allowed.
@@ -55,6 +57,10 @@ message HostRequest {
   org.couchers.api.conversations.Message latest_message = 9;
 }
 
+message GetHostRequestReq {
+  uint64 host_request_id = 1;
+}
+
 message CreateHostRequestRes {
   uint64 host_request_id = 1;
 }
@@ -66,7 +72,7 @@ message RespondHostRequestReq {
 }
 
 message ListHostRequestsReq {
-  uint64 last_request_id = 1;
+  uint64 last_message_id = 1;
   uint32 number = 2;
   
   // Whether to only show pending, accepted and

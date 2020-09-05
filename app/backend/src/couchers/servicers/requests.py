@@ -107,6 +107,48 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
             return requests_pb2.CreateHostRequestRes(host_request_id=host_request.conversation_id)
 
+    def GetHostRequest(self, request, context):
+        with session_scope(self._Session) as session:
+            host_request = (
+                session.query(HostRequest)
+                .filter(HostRequest.conversation_id == request.host_request_id)
+                .filter(or_(HostRequest.from_user_id == context.user_id, HostRequest.to_user_id == context.user_id))
+                .one_or_none()
+            )
+
+            if not host_request:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
+
+            initial_message = (
+                session.query(Message.time)
+                .filter(Message.conversation_id == host_request.conversation_id)
+                .order_by(Message.id.asc())
+                .limit(1)
+                .one()
+            )
+
+            latest_message = (
+                session.query(Message)
+                .filter(Message.conversation_id == host_request.conversation_id)
+                .order_by(Message.id.desc())
+                .limit(1)
+                .one()
+            )
+
+            return requests_pb2.HostRequest(
+                host_request_id=host_request.conversation_id,
+                from_user_id=host_request.from_user_id,
+                to_user_id=host_request.to_user_id,
+                status=hostrequeststatus2api[host_request.status],
+                created=Timestamp_from_datetime(initial_message.time),
+                from_date=host_request.from_date,
+                to_date=host_request.to_date,
+                last_seen_message_id=host_request.from_last_seen_message_id
+                if context.user_id == host_request.from_user_id
+                else host_request.to_last_seen_message_id,
+                latest_message=message_to_pb(latest_message),
+            )
+
     def ListHostRequests(self, request, context):
         if request.only_sent and request.only_received:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.HOST_REQUEST_SENT_OR_RECEIVED)
@@ -126,7 +168,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 .join(HostRequest, HostRequest.conversation_id == Message.conversation_id)
                 .join(Conversation, Conversation.id == HostRequest.conversation_id)
                 .filter(message_2.id == None)
-                .filter(or_(HostRequest.conversation_id > request.last_request_id, request.last_request_id == 0))
+                .filter(or_(Message.id < request.last_message_id, request.last_message_id == 0))
             )
 
             if request.only_sent:

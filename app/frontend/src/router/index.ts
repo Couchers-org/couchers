@@ -81,6 +81,10 @@ const routes: Array<RouteConfig> = [
     component: HostRequests,
   },
   {
+    path: "/hostrequests/:hostRequestId",
+    component: HostRequests,
+  },
+  {
     path: "/search",
     name: "Search",
     component: Search,

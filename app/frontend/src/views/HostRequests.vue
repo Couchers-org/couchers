@@ -4,18 +4,19 @@
     <v-container>
       <v-row dense>
         <v-col xs="12" md="4">
-          <v-card v-if="loading" max-width="450" tile>
-            <v-list three-line>
-              <v-subheader>Loading...</v-subheader>
-            </v-list>
-          </v-card>
-          <v-container v-if="!loading">
+          <v-container>
             <v-subheader v-if="!hostRequests.length">No requests.</v-subheader>
             <template v-for="hostRequest in hostRequests">
               <v-card
                 :key="hostRequest.hostRequestId"
                 @click="selectHostRequest(hostRequest)"
-                class="mb-3"
+                :class="{
+                  'mb-3': true,
+                  'v-list-item--active':
+                    selectedHostRequest &&
+                    hostRequest.hostRequestId ==
+                      selectedHostRequest.hostRequestId,
+                }"
               >
                 <v-card-title class="mb-2">
                   <v-avatar
@@ -40,6 +41,17 @@
                 </v-card-text>
               </v-card>
             </template>
+            <v-list-item v-if="!noMoreRequests">
+              <v-list-item-content>
+                <v-btn
+                  text
+                  @click="() => fetchData()"
+                  :loading="loadingMoreRequests"
+                >
+                  Load more...
+                </v-btn>
+              </v-list-item-content>
+            </v-list-item>
           </v-container>
         </v-col>
         <v-col xs="12" md="8" v-if="selectedHostRequest != null">
@@ -53,11 +65,25 @@
             </v-card-text>
           </v-card>
           <!-- TODO: No fixed height -->
-          <v-card tile height="600" style="overflow: auto;">
+          <v-card
+            v-scroll.self="scrolled"
+            tile
+            height="600"
+            style="overflow: auto;"
+          >
             <v-list dense>
-              <v-list-item v-if="loadingMoreMessages">
-                <v-progress-circular indeterminate class="mx-auto my-2" />
+              <v-list-item v-if="!noMoreMessages">
+                <v-list-item-content>
+                  <v-btn
+                    text
+                    @click="() => loadMessages()"
+                    :loading="loadingMoreMessages"
+                  >
+                    Load more...
+                  </v-btn>
+                </v-list-item-content>
               </v-list-item>
+
               <template v-for="message in messages">
                 <v-list-item
                   v-if="isControlMessage(message)"
@@ -78,13 +104,6 @@
                   v-else-if="isMyMessage(message)"
                   :key="message.messageId"
                   :id="`msg-${message.messageId}`"
-                  v-observe-visibility="{
-                    callback: (isVisible, entry) =>
-                      isVisible
-                        ? messageVisibilityChanged(message.messageId)
-                        : null,
-                    throttle: 1000,
-                  }"
                 >
                   <v-list-item-content class="py-1 bubble-content">
                     <v-alert
@@ -111,13 +130,6 @@
                   v-else
                   :key="message.messageId"
                   :id="`msg-${message.messageId}`"
-                  v-observe-visibility="{
-                    callback: (isVisible, entry) =>
-                      isVisible
-                        ? messageVisibilityChanged(message.messageId)
-                        : null,
-                    throttle: 1000,
-                  }"
                 >
                   <v-list-item-avatar>
                     <v-avatar :color="messageColor(message)" size="36">
@@ -193,6 +205,7 @@ import {
   ListHostRequestsReq,
   SendHostRequestMessageReq,
   RespondHostRequestReq,
+  GetHostRequestReq,
   GetHostRequestUpdatesReq,
   MarkLastSeenHostRequestReq,
 } from "../pb/requests_pb"
@@ -228,6 +241,10 @@ export default Vue.extend({
     selectedResponse: undefined as undefined | HostRequestStatus,
     messages: [] as Array<Message.AsObject>,
     error: null as null | Error,
+    loadingMoreMessages: false,
+    noMoreMessages: false,
+    loadingMoreRequests: true,
+    noMoreRequests: false,
   }),
 
   components: {
@@ -287,29 +304,28 @@ export default Vue.extend({
     ...mapState(["user"]),
   },
 
-  created() {
-    this.fetchData()
+  async created() {
+    await this.fetchData(true)
+
+    try {
+      await this.showRouteHostRequest()
+    } catch (err) {
+      this.error = err
+    }
   },
 
   watch: {
-    async selectedHostRequest() {
-      this.messages = []
-      const messagesReq = new GetHostRequestMessagesReq()
-      messagesReq.setHostRequestId(this.selectedHostRequest!.hostRequestId)
+    async selectedHostRequest(to, from) {
+      if (to !== from) {
+        this.messages = []
+      }
+      await this.loadMessages()
+    },
+
+    async $route(to, from) {
+      this.error = null
       try {
-        const res = await requestsClient.getHostRequestMessages(messagesReq)
-        this.messages = res.getMessagesList().map((m) => m.toObject())
-        this.sortMessages()
-        this.selectedHostRequest!.lastSeenMessageId = this.messages[
-          this.messages.length - 1
-        ].messageId
-        const markReq = new MarkLastSeenHostRequestReq()
-        markReq.setHostRequestId(this.selectedHostRequest!.hostRequestId)
-        markReq.setLastSeenMessageId(
-          this.selectedHostRequest!.lastSeenMessageId
-        )
-        await requestsClient.markLastSeenHostRequest(markReq)
-        this.$store.dispatch("ping")
+        await this.showRouteHostRequest()
       } catch (err) {
         this.error = err
       }
@@ -317,6 +333,85 @@ export default Vue.extend({
   },
 
   methods: {
+    async scrolled(e: Event) {
+      if ((e.target as HTMLElement).scrollTop > 0) return
+      if (this.loadingMoreMessages) return
+      if (this.noMoreMessages) return
+      //avoid race condition - this point can be reached
+      //when switching selected conversation
+      if (this.messages.length == 0) return
+      await this.loadMessages()
+    },
+
+    async loadMessages() {
+      this.loadingMoreMessages = true
+      const messagesReq = new GetHostRequestMessagesReq()
+      messagesReq.setHostRequestId(this.selectedHostRequest!.hostRequestId)
+      let scrollId = null
+      if (this.messages.length > 0) {
+        messagesReq.setLastMessageId(this.messages[0].messageId)
+        scrollId = `msg-${this.messages[0].messageId}`
+      }
+      try {
+        const res = await requestsClient.getHostRequestMessages(messagesReq)
+        this.messages = [
+          ...res.getMessagesList().map((m) => m.toObject()),
+          ...this.messages,
+        ]
+        this.noMoreMessages = res.getNoMore()
+        this.sortMessages()
+
+        const lastMessageId = this.messages[this.messages.length - 1].messageId
+
+        if (this.selectedHostRequest!.lastSeenMessageId < lastMessageId) {
+          this.selectedHostRequest!.lastSeenMessageId = lastMessageId
+          const markReq = new MarkLastSeenHostRequestReq()
+          markReq.setHostRequestId(this.selectedHostRequest!.hostRequestId)
+          markReq.setLastSeenMessageId(
+            this.selectedHostRequest!.lastSeenMessageId
+          )
+          await requestsClient.markLastSeenHostRequest(markReq)
+          this.$store.dispatch("ping")
+        }
+      } catch (err) {
+        this.error = err
+      }
+      this.loadingMoreMessages = false
+      if (scrollId) {
+        const el = document.getElementById(scrollId)
+        if (el) {
+          el.scrollIntoView()
+        }
+      }
+    },
+
+    async showRouteHostRequest() {
+      //have to fetch the request and user, because it might
+      //not be in the initial request list
+      if (!this.$route.params.hostRequestId) return
+
+      const id = parseInt(this.$route.params.hostRequestId)
+      if (isNaN(id)) {
+        throw Error("Invalid user id.")
+      }
+      const req = new GetHostRequestReq()
+      req.setHostRequestId(id)
+      const res = await requestsClient.getHostRequest(req)
+      const hostRequest = res.toObject()
+
+      await Promise.all([
+        this.getUser(hostRequest.fromUserId),
+        this.getUser(hostRequest.toUserId),
+      ])
+      const hostRequestIndex = this.hostRequests.findIndex(
+        (request) => request.hostRequestId == hostRequest.hostRequestId
+      )
+      if (hostRequestIndex == -1) {
+        this.hostRequests = [hostRequest, ...this.hostRequests]
+      }
+      this.selectedHostRequest = hostRequest
+    },
+
     handle,
     /// TODO: Shouldn't this be already sorted from the backend?
     sortMessages() {
@@ -429,12 +524,19 @@ export default Vue.extend({
       this.$store.dispatch("ping")
     },
 
-    async fetchData() {
-      this.loading = true
+    async fetchData(clear = false) {
+      this.loadingMoreRequests = true
+      if (clear) this.hostRequests = []
+      let dirtyRequests = []
       const req = new ListHostRequestsReq()
+      if (this.hostRequests.length > 0) {
+        const lastRequest = this.hostRequests[this.hostRequests.length - 1]
+        req.setLastMessageId(lastRequest.latestMessage!.messageId)
+      }
       try {
         const res = await requestsClient.listHostRequests(req)
-        this.hostRequests = res.getHostRequestsList().map((r) => r.toObject())
+        dirtyRequests = res.getHostRequestsList().map((r) => r.toObject())
+        this.noMoreRequests = res.getNoMore()
       } catch (err) {
         this.loading = false
         this.error = err
@@ -442,7 +544,7 @@ export default Vue.extend({
       }
 
       const userIds = new Set() as Set<number>
-      this.hostRequests.forEach((request) => {
+      dirtyRequests.forEach((request) => {
         userIds.add(request.fromUserId)
         userIds.add(request.toUserId)
       })
@@ -458,7 +560,8 @@ export default Vue.extend({
       } catch (err) {
         this.error = err
       }
-      this.loading = false
+      this.hostRequests = [...this.hostRequests, ...dirtyRequests]
+      this.loadingMoreRequests = false
     },
 
     hostRequestHasNew(hostRequest: HostRequest.AsObject) {

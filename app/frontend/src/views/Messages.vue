@@ -131,8 +131,16 @@
             style="overflow: auto;"
           >
             <v-list dense>
-              <v-list-item v-if="loadingMoreMessages">
-                <v-progress-circular indeterminate class="mx-auto my-2" />
+              <v-list-item v-if="!noMoreMessages">
+                <v-list-item-content>
+                  <v-btn
+                    text
+                    @click="() => loadMessages()"
+                    :loading="loadingMoreMessages"
+                  >
+                    Load more...
+                  </v-btn>
+                </v-list-item-content>
               </v-list-item>
               <template v-for="message in messages">
                 <v-list-item
