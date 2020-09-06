@@ -1,7 +1,6 @@
 import io
 import json
 import os
-import tempfile
 from pathlib import Path
 from base64 import urlsafe_b64encode
 from concurrent import futures
@@ -66,8 +65,6 @@ def client_with_secrets(tmp_path):
         media_upload_location=tmp_path,
         avatar_size=200,
     )
-
-    app.config["TESTING"] = True
 
     with app.test_client() as client:
         yield client, secret_key, bearer_token
@@ -204,6 +201,15 @@ def is_our_pixel(img_bytes):
         return False
 
     return True
+
+def test_upload_broken_sig(client_with_secrets):
+    client, secret_key, bearer_token = client_with_secrets
+
+    upload_path = "upload?data=krz&sig=foo"
+
+    rv = client.post(upload_path, data={"file": (io.BytesIO(b"bar"), "1x1.jpg")})
+
+    assert rv.status_code == 400
 
 def test_wrong_filename(client_with_secrets):
     client, secret_key, bearer_token = client_with_secrets
