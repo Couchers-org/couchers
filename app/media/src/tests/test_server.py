@@ -375,3 +375,38 @@ def test_fails_expired(client_with_secrets):
             rv = client.post(upload_path, data={"file": (f, "pixel.jpg")})
 
         assert rv.status_code == 400
+
+def one_pixel_bytes():
+    """Get a simple 1x1 pixel gif image as a sequence of bytes"""
+    gif = io.BytesIO()
+    Image.frombytes("P", (1, 1), b"\0").save(gif, format="gif")
+    return gif.getvalue()
+
+def test_cache_headers(client_with_secrets):
+    client, secret_key, bearer_token = client_with_secrets
+
+    key, request = create_upload_request()
+    upload_path = generate_upload_path(request, secret_key)
+
+    f = io.BytesIO(one_pixel_bytes())
+
+    with mock_main_server(bearer_token, lambda x: True):
+        rv = client.post(upload_path, data={"file": (f, "f")})
+    assert rv.status_code == 200
+    assert json.loads(rv.data)["ok"]
+
+    rv = client.get(f"/img/full/{key}.jpg")
+    assert rv.status_code == 200
+    assert "max-age=43200" in rv.headers['Cache-Control'].split(', ')
+    assert "Expires" in rv.headers
+    assert "Etag" in rv.headers
+    etag = rv.headers['Etag']
+
+    # Test with matching Etag
+    rv = client.get(f"/img/full/{key}.jpg", headers=[("If-None-Match", etag)])
+    assert rv.status_code == 304  # Not Modified
+
+    # Test with mismatching Etag
+    rv = client.get(f"/img/full/{key}.jpg", headers=[("If-None-Match", "strunt")])
+    assert rv.status_code == 200
+
