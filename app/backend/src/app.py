@@ -10,6 +10,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from couchers.config import config
+from couchers.db import session_scope
 from couchers.interceptors import LoggingInterceptor, UpdateLastActiveTimeInterceptor
 from couchers.models import Base
 from couchers.servicers.api import API
@@ -50,6 +51,14 @@ def log_unhandled_exception(exc_type, exc_value, exc_traceback):
 sys.excepthook = log_unhandled_exception
 
 engine = create_engine(config["DATABASE_CONNECTION_STRING"], echo=False)
+Session = sessionmaker(bind=engine)
+
+logger.info(f"Checking DB connection")
+
+with session_scope(Session) as session:
+    res = session.execute("SELECT 42;")
+    if list(res) != [(42,)]:
+        raise Exception("Failed to connect to DB")
 
 logger.info(f"Running DB migrations")
 
@@ -58,12 +67,10 @@ alembic_cfg = Config("alembic.ini")
 alembic_cfg.set_main_option("dont_mess_up_logging", "False")
 command.upgrade(alembic_cfg, "head")
 
-Session = sessionmaker(bind=engine)
-
-logger.info(f"Starting")
-
 if config["ADD_DUMMY_DATA"]:
     add_dummy_data(Session, "src/dummy_data.json")
+
+logger.info(f"Starting")
 
 auth = Auth(Session)
 open_server = grpc.server(futures.ThreadPoolExecutor(2), interceptors=[LoggingInterceptor()])
