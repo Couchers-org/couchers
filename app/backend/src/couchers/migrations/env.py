@@ -15,7 +15,8 @@ config.set_main_option("sqlalchemy.url", couchers_config.get("DATABASE_CONNECTIO
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
-fileConfig(config.config_file_name)
+if config.get_main_option("dont_mess_up_logging", "dont_care") == "dont_care":
+    fileConfig(config.config_file_name)
 
 # add your model's MetaData object here
 # for 'autogenerate' support

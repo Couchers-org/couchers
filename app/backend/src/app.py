@@ -4,6 +4,8 @@ import sys
 from concurrent import futures
 
 import grpc
+from alembic import command
+from alembic.config import Config
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -47,11 +49,18 @@ def log_unhandled_exception(exc_type, exc_value, exc_traceback):
 
 sys.excepthook = log_unhandled_exception
 
-logger.info(f"Starting")
-
 engine = create_engine(config["DATABASE_CONNECTION_STRING"], echo=False)
-Base.metadata.create_all(engine)
+
+logger.info(f"Running DB migrations")
+
+alembic_cfg = Config("alembic.ini")
+# alembic screws up logging config by default, this tells it not to screw it up if being run at startup like this
+alembic_cfg.set_main_option("dont_mess_up_logging", "False")
+command.upgrade(alembic_cfg, "head")
+
 Session = sessionmaker(bind=engine)
+
+logger.info(f"Starting")
 
 if config["ADD_DUMMY_DATA"]:
     add_dummy_data(Session, "src/dummy_data.json")
