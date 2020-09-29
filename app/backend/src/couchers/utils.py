@@ -1,8 +1,7 @@
 from datetime import datetime
 
-from google.protobuf.timestamp_pb2 import Timestamp
-
 import pytz
+from google.protobuf.timestamp_pb2 import Timestamp
 
 utc = pytz.UTC
 

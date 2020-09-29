@@ -53,6 +53,7 @@ def _message_to_pb(message: Message):
             else None,
         )
 
+
 def _get_visible_members_for_subscription(subscription):
     """
     If a user leaves a group chat, they shouldn't be able to see who's added
@@ -60,9 +61,7 @@ def _get_visible_members_for_subscription(subscription):
     """
     if not subscription.left:
         # still in the chat, we see everyone with a current subscription
-        return [
-            sub.user_id for sub in subscription.group_chat.subscriptions.filter(GroupChatSubscription.left == None)
-        ]
+        return [sub.user_id for sub in subscription.group_chat.subscriptions.filter(GroupChatSubscription.left == None)]
     else:
         # not in chat anymore, see everyone who was in chat when we left
         return [
@@ -71,6 +70,7 @@ def _get_visible_members_for_subscription(subscription):
                 GroupChatSubscription.joined <= subscription.left
             ).filter(or_(GroupChatSubscription.left >= subscription.left, GroupChatSubscription.left == None))
         ]
+
 
 def _get_visible_admins_for_subscription(subscription):
     """
@@ -89,12 +89,11 @@ def _get_visible_admins_for_subscription(subscription):
         # not in chat anymore, see everyone who was in chat when we left
         return [
             sub.user_id
-            for sub in subscription.group_chat.subscriptions.filter(
-                GroupChatSubscription.role == GroupChatRole.admin
-            )
+            for sub in subscription.group_chat.subscriptions.filter(GroupChatSubscription.role == GroupChatRole.admin)
             .filter(GroupChatSubscription.joined <= subscription.left)
             .filter(or_(GroupChatSubscription.left >= subscription.left, GroupChatSubscription.left == None))
         ]
+
 
 def _add_message_to_subscription(session, subscription, **kwargs):
     """
@@ -110,6 +109,7 @@ def _add_message_to_subscription(session, subscription, **kwargs):
     subscription.last_seen_message_id = message.id
 
     return message
+
 
 class Conversations(conversations_pb2_grpc.ConversationsServicer):
     def __init__(self, Session):

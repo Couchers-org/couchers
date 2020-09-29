@@ -1,9 +1,7 @@
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
-
 from alembic import context
+from sqlalchemy import engine_from_config, pool
 
 from couchers import models
 from couchers.config import config as couchers_config
@@ -33,8 +31,10 @@ target_metadata = models.Base.metadata
 
 exclude_tables = config.get_section("alembic:exclude").get("tables", "").split(",")
 
+
 def include_object(object, name, type_, reflected, compare_to):
     return not (type_ == "table" and name in exclude_tables)
+
 
 def run_migrations_offline():
     """Run migrations in 'offline' mode.
@@ -76,9 +76,7 @@ def run_migrations_online():
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()
