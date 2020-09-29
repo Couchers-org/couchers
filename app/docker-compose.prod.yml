@@ -13,7 +13,7 @@ services:
       - "./pgdata:/var/lib/postgresql/data"
     restart: on-failure
     ports:
-      - 6543:6543
+      - 5432:5432
   backend:
     image: 694904428454.dkr.ecr.us-east-1.amazonaws.com/couchers/backend
     env_file: backend.prod.env
@@ -29,6 +29,8 @@ services:
   media:
     image: 694904428454.dkr.ecr.us-east-1.amazonaws.com/couchers/media
     env_file: media.prod.env
+    volumes:
+      - "./uploads:/uploads"
     restart: on-failure
     ports:
       - 5000:5000
