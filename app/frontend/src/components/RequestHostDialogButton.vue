@@ -150,9 +150,10 @@ export default Vue.extend({
       req.setText(this.message)
 
       try {
-        await requestsClient.createHostRequest(req)
+        const res = await requestsClient.createHostRequest(req)
         this.dialog = false
         this.sent = true
+        this.$router.push(`/hostrequests/${res.getHostRequestId()}`)
       } catch (err) {
         this.loading = false
         this.error = err

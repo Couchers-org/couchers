@@ -374,6 +374,15 @@ class MessageType(enum.Enum):
     user_left = 4
     user_made_admin = 5
     user_removed_admin = 6
+    host_request_status_changed = 7
+
+
+class HostRequestStatus(enum.Enum):
+    pending = 0
+    accepted = 1
+    rejected = 2
+    confirmed = 3
+    cancelled = 4
 
 
 class Message(Base):
@@ -404,6 +413,9 @@ class Message(Base):
 
     # the message text if not control
     text = Column(String, nullable=True)
+
+    # the new host request status if the message type is host_request_status_changed
+    host_request_status_target = Column(Enum(HostRequestStatus), nullable=True)
 
     conversation = relationship("Conversation", backref="messages", order_by="Message.time.desc()")
     author = relationship("User", foreign_keys="Message.author_id")
@@ -461,14 +473,6 @@ class Email(Base):
     html = Column(String, nullable=False)
 
 
-class HostRequestStatus(enum.Enum):
-    pending = 0
-    accepted = 1
-    rejected = 2
-    confirmed = 3
-    cancelled = 4
-
-
 class HostRequest(Base):
     """
     A request to stay with a host
@@ -476,7 +480,7 @@ class HostRequest(Base):
 
     __tablename__ = "host_requests"
 
-    id = Column(Integer, primary_key=True)
+    conversation_id = Column("id", ForeignKey("conversations.id"), nullable=False, primary_key=True)
     from_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     to_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
@@ -486,45 +490,15 @@ class HostRequest(Base):
 
     status = Column(Enum(HostRequestStatus), nullable=False)
 
-    conversation_id = Column(Integer, ForeignKey("conversations.id"), nullable=False)
-    # initial message will have a timestamp for creation time
-    initial_message_id = Column(Integer, ForeignKey("messages.id"), nullable=False)
-
     to_last_seen_message_id = Column(Integer, nullable=False, default=0)
     from_last_seen_message_id = Column(Integer, nullable=False, default=0)
 
     from_user = relationship("User", backref="host_requests_sent", foreign_keys="HostRequest.from_user_id")
     to_user = relationship("User", backref="host_requests_received", foreign_keys="HostRequest.to_user_id")
     conversation = relationship("Conversation")
-    initial_message = relationship("Message")
 
     def __repr__(self):
         return f"HostRequest(id={self.id}, from_user_id={self.from_user_id}, to_user_id={self.to_user_id}...)"
-
-
-class HostRequestEventType(enum.Enum):
-    created = 0  # will be pending upon creation, can't change back
-    status_change_accepted = 1
-    status_change_rejected = 2
-    status_change_confirmed = 3
-    status_change_cancelled = 4
-
-
-class HostRequestEvent(Base):
-    """
-    A change in a HostRequest
-    """
-
-    __tablename__ = "host_request_events"
-
-    id = Column(Integer, primary_key=True)
-    host_request_id = Column(Integer, ForeignKey("host_requests.id"))
-
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    event_type = Column(Enum(HostRequestEventType), nullable=False)
-    # no foreign key, can be 0 for before all messages
-    after_message_id = Column(Integer, nullable=False)
-    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
 
 class InitiatedUpload(Base):

@@ -35,7 +35,6 @@
                   hide-details
                   label="Search"
                   prepend-icon="mdi-magnify"
-                  v-on:keyup.enter="search"
                 ></v-text-field>
               </v-list-item>
               <v-divider></v-divider>
@@ -132,8 +131,16 @@
             style="overflow: auto;"
           >
             <v-list dense>
-              <v-list-item v-if="loadingMoreMessages">
-                <v-progress-circular indeterminate class="mx-auto my-2" />
+              <v-list-item v-if="!noMoreMessages">
+                <v-list-item-content>
+                  <v-btn
+                    text
+                    @click="() => loadMessages()"
+                    :loading="loadingMoreMessages"
+                  >
+                    Load more...
+                  </v-btn>
+                </v-list-item-content>
               </v-list-item>
               <template v-for="message in messages">
                 <v-list-item
@@ -263,6 +270,20 @@ import { client, conversations } from "../api"
 import { mapState } from "vuex"
 import { Empty } from "google-protobuf/google/protobuf/empty_pb"
 
+import {
+  UserCache,
+  messageColor,
+  getName,
+  messageAuthor,
+  messageAvatarText,
+  messageText,
+  initialsFromName,
+  messageDisplayTime,
+  isControlMessage,
+  isMyMessage,
+  controlMessageText,
+} from "../message-utils"
+
 export default Vue.extend({
   data: () => ({
     error: null as Error | null,
@@ -273,7 +294,7 @@ export default Vue.extend({
     currentMessage: "",
     searchQuery: null as null | string,
     conversations: [] as Array<GroupChat.AsObject>,
-    userCache: {} as { [userId: number]: User.AsObject },
+    userCache: {} as UserCache,
     selectedConversation: null as null | number, // TODO: null by default
     messages: [] as Array<Message.AsObject>,
     scrollToId: null as string | null,
@@ -535,10 +556,10 @@ export default Vue.extend({
       this.loadingMoreConversations = true
       const chatsReq = new ListGroupChatsReq()
       if (!clear) {
-        if (this.conversations.length > 0) {
-          chatsReq.setLastMessageId(
-            this.conversations[this.conversations.length - 1].latestMessage.messageId
-          )
+        const latestMessage = this.conversations[this.conversations.length - 1]
+          .latestMessage
+        if (this.conversations.length > 0 && latestMessage) {
+          chatsReq.setLastMessageId(latestMessage.messageId)
         }
       }
       try {
@@ -585,6 +606,10 @@ export default Vue.extend({
         })
     },
 
+    selectConversation(conversationId: number) {
+      this.selectedConversation = conversationId
+    },
+
     conversationChip(conversation: GroupChat.AsObject) {
       return conversation.unseenMessageCount
     },
@@ -600,7 +625,9 @@ export default Vue.extend({
       return user.color
     },
 
-    conversationTitle(conversation: GroupChat.AsObject) {
+    conversationTitle(conversation: GroupChat.AsObject | undefined) {
+      if (!conversation)
+        throw Error("Tried to generate title from undefined conversation")
       if (conversation.isDm) {
         const otherUserId = conversation.memberUserIdsList.filter(
           (userId) => userId != this.user.userId
@@ -633,96 +660,38 @@ export default Vue.extend({
       }
     },
 
-    selectConversation(conversationId: number) {
-      this.selectedConversation = conversationId
-    },
-
     messageColor(message: Message.AsObject) {
-      const user = this.userCache[message.authorUserId]
-      if (!user) {
-        return "red"
-      }
-      return user.color
+      return messageColor(message, this.userCache)
     },
 
     getName(userId: number) {
-      const user = this.userCache[userId]
-      if (!user) {
-        return "error"
-      }
-      return user.name.split(" ")[0]
+      return getName(userId, this.userCache)
     },
 
     messageAuthor(message: Message.AsObject) {
-      return this.getName(message.authorUserId)
+      return messageAuthor(message, this.userCache)
     },
 
     messageAvatarText(message: Message.AsObject) {
-      const user = this.userCache[message.authorUserId]
-      if (!user) {
-        return "ERR"
-      }
-      return this.initialsFromName(user.name)
+      return messageAvatarText(message, this.userCache)
     },
 
     messageText(message: Message.AsObject) {
-      if (this.isControlMessage(message)) {
-        return this.controlMessageText(message)
-      } else if (message.text) {
-        return message.text.text
-      } else {
-        console.error("Unknown message type")
-        return Error("Unknown message type")
-      }
+      return messageText(message, this.user.userId, this.userCache)
     },
 
-    initialsFromName(name: string): string {
-      return name
-        .split(" ")
-        .map((word) => word[0])
-        .join("")
-    },
+    initialsFromName,
 
-    messageDisplayTime(message: Message.AsObject) {
-      const date = protobufTimestampToDate(message.time!)
-      if (new Date().getTime() - date.getTime() > 120 * 60 * 1000) {
-        // longer than 2h ago, display as absolute
-        return moment(date).format("lll")
-      } else {
-        // relative
-        return moment(date).fromNow()
-      }
-    },
+    messageDisplayTime,
 
-    isControlMessage(message: Message.AsObject) {
-      return !message.text
-    },
+    isControlMessage,
 
     isMyMessage(message: Message.AsObject) {
-      return message.authorUserId === this.user.userId
+      return isMyMessage(message, this.user.userId)
     },
 
     controlMessageText(message: Message.AsObject) {
-      const author =
-        message.authorUserId === this.user.userId
-          ? "You"
-          : this.messageAuthor(message)
-      if (message.chatCreated !== undefined) {
-        return `${author} created the chat`
-      } else if (message.chatEdited !== undefined) {
-        return `${author} edited the chat`
-      } else if (message.userInvited !== undefined) {
-        const target = this.getName(message.userInvited.targetUserId)
-        return `${author} invited ${target}`
-      } else if (message.userLeft !== undefined) {
-        return `${author} left the chat`
-      } else if (message.userMadeAdmin !== undefined) {
-        const target = this.getName(message.userMadeAdmin.targetUserId)
-        return `${author} made ${target} an admin`
-      } else if (message.userRemovedAdmin !== undefined) {
-        const target = this.getName(message.userRemovedAdmin.targetUserId)
-        return `${author} removed ${target} as admin`
-      }
+      return controlMessageText(message, this.user.userId, this.userCache)
     },
   },
 })

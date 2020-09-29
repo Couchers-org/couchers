@@ -4,18 +4,19 @@
     <v-container>
       <v-row dense>
         <v-col xs="12" md="4">
-          <v-card v-if="loading" max-width="450" tile>
-            <v-list three-line>
-              <v-subheader>Loading...</v-subheader>
-            </v-list>
-          </v-card>
-          <v-container v-if="!loading">
+          <v-container>
             <v-subheader v-if="!hostRequests.length">No requests.</v-subheader>
             <template v-for="hostRequest in hostRequests">
               <v-card
                 :key="hostRequest.hostRequestId"
                 @click="selectHostRequest(hostRequest)"
-                class="mb-3"
+                :class="{
+                  'mb-3': true,
+                  'v-list-item--active':
+                    selectedHostRequest &&
+                    hostRequest.hostRequestId ==
+                      selectedHostRequest.hostRequestId,
+                }"
               >
                 <v-card-title class="mb-2">
                   <v-avatar
@@ -40,6 +41,17 @@
                 </v-card-text>
               </v-card>
             </template>
+            <v-list-item v-if="!noMoreRequests">
+              <v-list-item-content>
+                <v-btn
+                  text
+                  @click="() => fetchData()"
+                  :loading="loadingMoreRequests"
+                >
+                  Load more...
+                </v-btn>
+              </v-list-item-content>
+            </v-list-item>
           </v-container>
         </v-col>
         <v-col xs="12" md="8" v-if="selectedHostRequest != null">
@@ -53,12 +65,45 @@
             </v-card-text>
           </v-card>
           <!-- TODO: No fixed height -->
-          <v-card tile height="600" style="overflow: auto;">
+          <v-card
+            v-scroll.self="scrolled"
+            tile
+            height="600"
+            style="overflow: auto;"
+          >
             <v-list dense>
+              <v-list-item v-if="!noMoreMessages">
+                <v-list-item-content>
+                  <v-btn
+                    text
+                    @click="() => loadMessages()"
+                    :loading="loadingMoreMessages"
+                  >
+                    Load more...
+                  </v-btn>
+                </v-list-item-content>
+              </v-list-item>
+
               <template v-for="message in messages">
                 <v-list-item
-                  v-if="isMyMessage(message)"
+                  v-if="isControlMessage(message)"
                   :key="message.messageId"
+                  :id="`msg-${message.messageId}`"
+                  class="bubble-content text-caption"
+                >
+                  <v-list-item-content
+                    :class="{
+                      'bubble-alert-mine': isMyMessage(message),
+                      'bubble-alert-theirs': !isMyMessage(message),
+                    }"
+                  >
+                    {{ messageText(message) }}
+                  </v-list-item-content>
+                </v-list-item>
+                <v-list-item
+                  v-else-if="isMyMessage(message)"
+                  :key="message.messageId"
+                  :id="`msg-${message.messageId}`"
                 >
                   <v-list-item-content class="py-1 bubble-content">
                     <v-alert
@@ -68,9 +113,9 @@
                     >
                       <div class="subtitle mb-1">
                         <b>{{ messageAuthor(message) }}</b> at
-                        {{ displayTimestamp(message.time) }}
+                        {{ messageDisplayTime(message) }}
                       </div>
-                      {{ message.text }}
+                      {{ messageText(message) }}
                     </v-alert>
                   </v-list-item-content>
                   <v-list-item-avatar>
@@ -81,7 +126,11 @@
                     </v-avatar>
                   </v-list-item-avatar>
                 </v-list-item>
-                <v-list-item v-else :key="message.messageId">
+                <v-list-item
+                  v-else
+                  :key="message.messageId"
+                  :id="`msg-${message.messageId}`"
+                >
                   <v-list-item-avatar>
                     <v-avatar :color="messageColor(message)" size="36">
                       <span class="white--text">{{
@@ -96,31 +145,11 @@
                       dense
                     >
                       <div class="subtitle mb-1">
-                        <b>{{ messageAuthor(message) }}</b
-                        >,
-                        {{ displayTimestamp(message.time) }}
+                        <b>{{ messageAuthor(message) }}</b> at
+                        {{ messageDisplayTime(message) }}
                       </div>
-                      {{ message.text }}
+                      {{ messageText(message) }}
                     </v-alert>
-                  </v-list-item-content>
-                </v-list-item>
-                <v-list-item
-                  v-if="events.has(message.messageId)"
-                  :key="'event' + message.messageId.toString()"
-                  class="pb-2 bubble-content text-caption"
-                >
-                  <v-list-item-content
-                    :class="{
-                      'bubble-alert-mine': isMyMessage(message),
-                      'bubble-alert-theirs': !isMyMessage(message),
-                    }"
-                  >
-                    {{
-                      displayHostRequestEvent(
-                        events.get(message.messageId),
-                        userCache[message.authorUserId].getName()
-                      )
-                    }}
                   </v-list-item-content>
                 </v-list-item>
               </template>
@@ -146,19 +175,11 @@
               </v-item-group>
             </v-card-text>
           </v-card>
-          <v-card tile>
-            <v-text-field
-              v-model="currentMessage"
-              solo
-              flat
-              single-line
-              hide-details
-              label="Send a message"
-              append-icon="mdi-send"
-              @click:append="sendMessage"
-              v-on:keyup.enter="sendMessage"
-            ></v-text-field>
-          </v-card>
+          <message-entry-field
+            v-model="currentMessage"
+            :disabled="!selectedHostRequest"
+            @send="sendMessage"
+          />
         </v-col>
       </v-row>
     </v-container>
@@ -177,14 +198,14 @@ import {
   Message,
   SendMessageReq,
   GetUpdatesReq,
+  HostRequestStatus,
 } from "../pb/conversations_pb"
 import {
   GetHostRequestMessagesReq,
   ListHostRequestsReq,
   SendHostRequestMessageReq,
-  HostRequestEvent,
-  HostRequestStatus,
   RespondHostRequestReq,
+  GetHostRequestReq,
   GetHostRequestUpdatesReq,
   MarkLastSeenHostRequestReq,
 } from "../pb/requests_pb"
@@ -193,23 +214,42 @@ import { mapState } from "vuex"
 import { HostRequest } from "../pb/requests_pb"
 
 import ErrorAlert from "../components/ErrorAlert.vue"
+import MessageEntryField from "../components/MessageEntryField.vue"
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb"
+
+import {
+  UserCache,
+  messageColor,
+  getName,
+  messageAuthor,
+  messageAvatarText,
+  messageText,
+  initialsFromName,
+  messageDisplayTime,
+  isControlMessage,
+  isMyMessage,
+  controlMessageText,
+} from "../message-utils"
 
 export default Vue.extend({
   data: () => ({
     loading: true,
     currentMessage: "",
     hostRequests: [] as Array<HostRequest.AsObject>,
-    userCache: {} as { [userId: number]: User },
+    userCache: {} as UserCache,
     selectedHostRequest: null as null | HostRequest.AsObject, // TODO: null by default
     selectedResponse: undefined as undefined | HostRequestStatus,
     messages: [] as Array<Message.AsObject>,
-    events: new Map<number, HostRequestEvent.AsObject>(),
     error: null as null | Error,
+    loadingMoreMessages: false,
+    noMoreMessages: false,
+    loadingMoreRequests: true,
+    noMoreRequests: false,
   }),
 
   components: {
     ErrorAlert,
+    MessageEntryField,
   },
 
   computed: {
@@ -264,32 +304,28 @@ export default Vue.extend({
     ...mapState(["user"]),
   },
 
-  created() {
-    this.fetchData()
+  async created() {
+    await this.fetchData(true)
+
+    try {
+      await this.showRouteHostRequest()
+    } catch (err) {
+      this.error = err
+    }
   },
 
   watch: {
-    async selectedHostRequest() {
-      this.messages = []
-      const messagesReq = new GetHostRequestMessagesReq()
-      messagesReq.setHostRequestId(this.selectedHostRequest!.hostRequestId)
+    async selectedHostRequest(to, from) {
+      if (to !== from) {
+        this.messages = []
+      }
+      await this.loadMessages()
+    },
+
+    async $route(to, from) {
+      this.error = null
       try {
-        const res = await requestsClient.getHostRequestMessages(messagesReq)
-        this.messages = res.getMessagesList().map((m) => m.toObject())
-        res.getEventsList().forEach((event) => {
-          this.events.set(event.getAfterMessageId(), event.toObject())
-        })
-        this.sortMessages()
-        this.selectedHostRequest!.lastSeenMessageId = this.messages[
-          this.messages.length - 1
-        ].messageId
-        const markReq = new MarkLastSeenHostRequestReq()
-        markReq.setHostRequestId(this.selectedHostRequest!.hostRequestId)
-        markReq.setLastSeenMessageId(
-          this.selectedHostRequest!.lastSeenMessageId
-        )
-        await requestsClient.markLastSeenHostRequest(markReq)
-        this.$store.dispatch("ping")
+        await this.showRouteHostRequest()
       } catch (err) {
         this.error = err
       }
@@ -297,6 +333,85 @@ export default Vue.extend({
   },
 
   methods: {
+    async scrolled(e: Event) {
+      if ((e.target as HTMLElement).scrollTop > 0) return
+      if (this.loadingMoreMessages) return
+      if (this.noMoreMessages) return
+      //avoid race condition - this point can be reached
+      //when switching selected conversation
+      if (this.messages.length == 0) return
+      await this.loadMessages()
+    },
+
+    async loadMessages() {
+      this.loadingMoreMessages = true
+      const messagesReq = new GetHostRequestMessagesReq()
+      messagesReq.setHostRequestId(this.selectedHostRequest!.hostRequestId)
+      let scrollId = null
+      if (this.messages.length > 0) {
+        messagesReq.setLastMessageId(this.messages[0].messageId)
+        scrollId = `msg-${this.messages[0].messageId}`
+      }
+      try {
+        const res = await requestsClient.getHostRequestMessages(messagesReq)
+        this.messages = [
+          ...res.getMessagesList().map((m) => m.toObject()),
+          ...this.messages,
+        ]
+        this.noMoreMessages = res.getNoMore()
+        this.sortMessages()
+
+        const lastMessageId = this.messages[this.messages.length - 1].messageId
+
+        if (this.selectedHostRequest!.lastSeenMessageId < lastMessageId) {
+          this.selectedHostRequest!.lastSeenMessageId = lastMessageId
+          const markReq = new MarkLastSeenHostRequestReq()
+          markReq.setHostRequestId(this.selectedHostRequest!.hostRequestId)
+          markReq.setLastSeenMessageId(
+            this.selectedHostRequest!.lastSeenMessageId
+          )
+          await requestsClient.markLastSeenHostRequest(markReq)
+          this.$store.dispatch("ping")
+        }
+      } catch (err) {
+        this.error = err
+      }
+      this.loadingMoreMessages = false
+      if (scrollId) {
+        const el = document.getElementById(scrollId)
+        if (el) {
+          el.scrollIntoView()
+        }
+      }
+    },
+
+    async showRouteHostRequest() {
+      //have to fetch the request and user, because it might
+      //not be in the initial request list
+      if (!this.$route.params.hostRequestId) return
+
+      const id = parseInt(this.$route.params.hostRequestId)
+      if (isNaN(id)) {
+        throw Error("Invalid user id.")
+      }
+      const req = new GetHostRequestReq()
+      req.setHostRequestId(id)
+      const res = await requestsClient.getHostRequest(req)
+      const hostRequest = res.toObject()
+
+      await Promise.all([
+        this.getUser(hostRequest.fromUserId),
+        this.getUser(hostRequest.toUserId),
+      ])
+      const hostRequestIndex = this.hostRequests.findIndex(
+        (request) => request.hostRequestId == hostRequest.hostRequestId
+      )
+      if (hostRequestIndex == -1) {
+        this.hostRequests = [hostRequest, ...this.hostRequests]
+      }
+      this.selectedHostRequest = hostRequest
+    },
+
     handle,
     /// TODO: Shouldn't this be already sorted from the backend?
     sortMessages() {
@@ -308,11 +423,12 @@ export default Vue.extend({
       )
     },
 
-    getUser(userId: number): Promise<User> {
+    async getUser(userId: number): Promise<User.AsObject> {
       if (!(userId in this.userCache)) {
         const req = new GetUserReq()
         req.setUser(userId.toString())
-        return client.getUser(req)
+        const user = await client.getUser(req)
+        return user.toObject()
       } else {
         return Promise.resolve(this.userCache[userId])
       }
@@ -397,10 +513,6 @@ export default Vue.extend({
               .get(updatedRequest.hostRequestId)
               ?.setLastSeenMessageId(updatedRequest.latestMessage.messageId)
           }
-
-          const event = update.getEvent()
-          if (event)
-            this.events.set(event.getAfterMessageId(), event.toObject())
         }
       })
       this.sortMessages()
@@ -412,12 +524,19 @@ export default Vue.extend({
       this.$store.dispatch("ping")
     },
 
-    async fetchData() {
-      this.loading = true
+    async fetchData(clear = false) {
+      this.loadingMoreRequests = true
+      if (clear) this.hostRequests = []
+      let dirtyRequests = []
       const req = new ListHostRequestsReq()
+      if (this.hostRequests.length > 0) {
+        const lastRequest = this.hostRequests[this.hostRequests.length - 1]
+        req.setLastMessageId(lastRequest.latestMessage!.messageId)
+      }
       try {
         const res = await requestsClient.listHostRequests(req)
-        this.hostRequests = res.getHostRequestsList().map((r) => r.toObject())
+        dirtyRequests = res.getHostRequestsList().map((r) => r.toObject())
+        this.noMoreRequests = res.getNoMore()
       } catch (err) {
         this.loading = false
         this.error = err
@@ -425,7 +544,7 @@ export default Vue.extend({
       }
 
       const userIds = new Set() as Set<number>
-      this.hostRequests.forEach((request) => {
+      dirtyRequests.forEach((request) => {
         userIds.add(request.fromUserId)
         userIds.add(request.toUserId)
       })
@@ -435,13 +554,14 @@ export default Vue.extend({
         await Promise.all(
           Array.from(userIds).map(async (userId) => {
             const res = await this.getUser(userId)
-            this.userCache[res.getUserId()] = res
+            this.userCache[res.userId] = res
           })
         )
       } catch (err) {
         this.error = err
       }
-      this.loading = false
+      this.hostRequests = [...this.hostRequests, ...dirtyRequests]
+      this.loadingMoreRequests = false
     },
 
     hostRequestHasNew(hostRequest: HostRequest.AsObject) {
@@ -458,7 +578,7 @@ export default Vue.extend({
     hostRequestAvatar(conversation: HostRequest.AsObject) {
       const user = this.userCache[conversation.latestMessage!.authorUserId]
       if (user) {
-        return user.getColor()
+        return user.color
       } else {
         return "red" // TODO
       }
@@ -466,14 +586,14 @@ export default Vue.extend({
 
     hostRequestTitle(hostRequest: HostRequest.AsObject) {
       if (hostRequest.fromUserId != this.user.userId) {
-        return this.userCache[hostRequest.fromUserId].getName()
+        return this.userCache[hostRequest.fromUserId].name
       } else {
-        return this.userCache[hostRequest.toUserId].getName()
+        return this.userCache[hostRequest.toUserId].name
       }
     },
 
     hostRequestSubtitle(hostRequest: HostRequest.AsObject) {
-      const city = this.userCache[hostRequest.toUserId].getCity()
+      const city = this.userCache[hostRequest.toUserId].city
       const from = new Date(hostRequest.fromDate).toLocaleDateString()
       const to = new Date(hostRequest.toDate).toLocaleDateString()
       const status = displayHostRequestStatus(hostRequest.status)
@@ -482,87 +602,52 @@ export default Vue.extend({
 
     hostRequestPreview(hostRequest: HostRequest.AsObject): [string, string] {
       const message = hostRequest.latestMessage!
-      if (message.text == "") return ["No messages", ""]
-      const text =
-        message.text.length > 30
-          ? message.text.substring(0, 30) + "..."
-          : message.text
-      return [this.messageAuthor(message), ": " + text]
+      //putting in `` pleases the linting gods
+      const text = `${this.messageText(message)}`
+      const truncatedText =
+        text.length > 30 ? text.substring(0, 30) + "..." : text
+      return [`${this.messageAuthor(message)}`, ": " + truncatedText]
     },
+
+    displayHostRequestStatus,
 
     selectHostRequest(hostRequest: HostRequest.AsObject) {
       this.selectedHostRequest = hostRequest
     },
 
     messageColor(message: Message.AsObject) {
-      const user = this.userCache[message.authorUserId]
-      if (!user) {
-        return "red"
-      }
-      return user.getColor()
+      return messageColor(message, this.userCache)
+    },
+
+    getName(userId: number) {
+      return getName(userId, this.userCache)
     },
 
     messageAuthor(message: Message.AsObject) {
-      const user = this.userCache[message.authorUserId]
-      if (!user) {
-        return "error"
-      }
-      return user.getName().split(" ")[0]
+      return messageAuthor(message, this.userCache)
     },
 
     messageAvatarText(message: Message.AsObject) {
-      const user = this.userCache[message.authorUserId]
-      if (!user) {
-        return "ERR"
-      }
-      return user
-        .getName()
-        .split(" ")
-        .map((name) => name[0])
-        .join("")
+      return messageAvatarText(message, this.userCache)
     },
 
-    displayTimestamp(timestamp: Timestamp.AsObject) {
-      const date = new Date(timestamp.seconds * 1000)
-      if (new Date().getTime() - date.getTime() > 120 * 60 * 1000) {
-        // longer than 2h ago, display as absolute
-        return moment(date).format("lll")
-      } else {
-        // relative
-        return moment(date).fromNow()
-      }
+    messageText(message: Message.AsObject) {
+      return messageText(message, this.user.userId, this.userCache)
     },
+
+    initialsFromName,
+
+    messageDisplayTime,
+
+    isControlMessage,
 
     isMyMessage(message: Message.AsObject) {
-      return message.authorUserId === this.user.userId
+      return isMyMessage(message, this.user.userId)
     },
 
-    displayHostRequestEvent(
-      hostRequestEvent: HostRequestEvent.AsObject,
-      name: string
-    ): string {
-      switch (hostRequestEvent.eventType) {
-        case HostRequestEvent.HostRequestEventType
-          .HOST_REQUEST_EVENT_TYPE_CREATED:
-          return `${name} created the request.`
-        case HostRequestEvent.HostRequestEventType
-          .HOST_REQUEST_EVENT_TYPE_ACCEPTED:
-          return `${name} accepted the request.`
-        case HostRequestEvent.HostRequestEventType
-          .HOST_REQUEST_EVENT_TYPE_REJECTED:
-          return `${name} rejected the request.`
-        case HostRequestEvent.HostRequestEventType
-          .HOST_REQUEST_EVENT_TYPE_CONFIRMED:
-          return `${name} confirmed the request.`
-        case HostRequestEvent.HostRequestEventType
-          .HOST_REQUEST_EVENT_TYPE_CANCELLED:
-          return `${name} cancelled the request.`
-        default:
-          return ""
-      }
+    controlMessageText(message: Message.AsObject) {
+      return controlMessageText(message, this.user.userId, this.userCache)
     },
-
-    displayHostRequestStatus,
   },
 })
 </script>

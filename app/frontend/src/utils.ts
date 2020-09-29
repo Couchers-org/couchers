@@ -1,7 +1,7 @@
 import moment from "moment"
 import { HostingStatus, SmokingLocation } from "./pb/api_pb"
 import colors from "vuetify/lib/util/colors"
-import { HostRequestStatus } from "./pb/requests_pb"
+import { HostRequestStatus } from "./pb/conversations_pb"
 
 export function displayList(list: string[]) {
   return list.join(", ")
