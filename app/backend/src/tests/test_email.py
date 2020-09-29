@@ -62,17 +62,18 @@ def test_login_email(db):
 
     message_id = random_hex(64)
 
-    login_token, expiry_text = new_login_token(db(), user)
+    with session_scope(db) as session:
+        login_token, expiry_text = new_login_token(session, user)
 
-    def mock_send_smtp_email(sender_name, sender_email, recipient, subject, plain, html):
-        assert recipient == user.email
-        assert "login" in subject.lower()
-        assert login_token.token in plain
-        assert login_token.token in html
-        return message_id
+        def mock_send_smtp_email(sender_name, sender_email, recipient, subject, plain, html):
+            assert recipient == user.email
+            assert "login" in subject.lower()
+            assert login_token.token in plain
+            assert login_token.token in html
+            return message_id
 
-    with patch("couchers.email.send_smtp_email", mock_send_smtp_email):
-        send_login_email(user, login_token, expiry_text)
+        with patch("couchers.email.send_smtp_email", mock_send_smtp_email):
+            send_login_email(user, login_token, expiry_text)
 
 
 def test_signup_email(db):
@@ -81,16 +82,17 @@ def test_signup_email(db):
     request_email = f"{random_hex(12)}@couchers.org.invalid"
     message_id = random_hex(64)
 
-    token, expiry_text = new_signup_token(db(), request_email)
+    with session_scope(db) as session:
+        token, expiry_text = new_signup_token(session, request_email)
 
-    def mock_send_smtp_email(sender_name, sender_email, recipient, subject, plain, html):
-        assert recipient == request_email
-        assert token.token in plain
-        assert token.token in html
-        return message_id
+        def mock_send_smtp_email(sender_name, sender_email, recipient, subject, plain, html):
+            assert recipient == request_email
+            assert token.token in plain
+            assert token.token in html
+            return message_id
 
-    with patch("couchers.email.send_smtp_email", mock_send_smtp_email):
-        send_signup_email(request_email, token, expiry_text)
+        with patch("couchers.email.send_smtp_email", mock_send_smtp_email):
+            send_signup_email(request_email, token, expiry_text)
 
 
 def test_report_email(db):

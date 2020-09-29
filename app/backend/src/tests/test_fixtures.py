@@ -9,6 +9,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.event import listen, remove
 from sqlalchemy.orm import sessionmaker
 
+from couchers.config import config
 from couchers.crypto import random_hex
 from couchers.db import session_scope
 from couchers.models import Base, FriendRelationship, FriendStatus, User
@@ -34,20 +35,11 @@ def db():
     """
     Create a temporary SQLite-backed database in memory, and return the Session object.
     """
-    from sqlalchemy.pool import StaticPool
+    engine = create_engine(config["DATABASE_CONNECTION_STRING"])
 
-    # The elaborate arguments are needed to get multithreaded access
-    engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool, echo=False)
-
-    # from https://stackoverflow.com/questions/13712381/how-to-turn-on-pragma-foreign-keys-on-in-sqlalchemy-migration-script-or-conf
-    def set_sqlite_pragma(dbapi_connection, connection_record):
-        cursor = dbapi_connection.cursor()
-        cursor.execute("PRAGMA foreign_keys=ON")
-        cursor.close()
-
-    listen(engine, "connect", set_sqlite_pragma)
-
+    Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
+
     return sessionmaker(bind=engine)
 
 
@@ -57,42 +49,39 @@ def generate_user(db, username=None):
     """
     auth = Auth(db)
 
-    session = db()
+    with session_scope(db) as session:
+        if not username:
+            username = "test_user_" + random_hex(16)
 
-    if not username:
-        username = "test_user_" + random_hex(16)
+        user = User(
+            username=username,
+            email=f"{username}@dev.couchers.org",
+            # password is just 'password'
+            # this is hardcoded because the password is slow to hash (so would slow down tests otherwise)
+            hashed_password=b"$argon2id$v=19$m=65536,t=2,p=1$4cjGg1bRaZ10k+7XbIDmFg$tZG7JaLrkfyfO7cS233ocq7P8rf3znXR7SAfUt34kJg",
+            name=username.capitalize(),
+            city="Testing city",
+            verification=0.5,
+            community_standing=0.5,
+            birthdate=date(year=2000, month=1, day=1),
+            gender="N/A",
+            languages="Testing language 1|Testing language 2",
+            occupation="Tester",
+            about_me="I test things",
+            about_place="My place has a lot of testing paraphenelia",
+            countries_visited="Testing country",
+            countries_lived="Wonderland",
+        )
 
-    user = User(
-        username=username,
-        email=f"{username}@dev.couchers.org",
-        # password is just 'password'
-        # this is hardcoded because the password is slow to hash (so would slow down tests otherwise)
-        hashed_password=b"$argon2id$v=19$m=65536,t=2,p=1$4cjGg1bRaZ10k+7XbIDmFg$tZG7JaLrkfyfO7cS233ocq7P8rf3znXR7SAfUt34kJg",
-        name=username.capitalize(),
-        city="Testing city",
-        verification=0.5,
-        community_standing=0.5,
-        birthdate=date(year=2000, month=1, day=1),
-        gender="N/A",
-        languages="Testing language 1|Testing language 2",
-        occupation="Tester",
-        about_me="I test things",
-        about_place="My place has a lot of testing paraphenelia",
-        countries_visited="Testing country",
-        countries_lived="Wonderland",
-    )
+        session.add(user)
 
-    session.add(user)
+        # this expires the user, so now it's "dirty"
+        session.commit()
 
-    # this expires the user, so now it's "dirty"
-    session.commit()
-
-    # refresh it, undoes the expiry
-    session.refresh(user)
-    # allows detaches the user from the session, allowing its use outside this session
-    session.expunge(user)
-
-    session.close()
+        # refresh it, undoes the expiry
+        session.refresh(user)
+        # allows detaches the user from the session, allowing its use outside this session
+        session.expunge(user)
 
     with patch("couchers.servicers.auth.verify_password", lambda hashed, password: password == "password"):
         token = auth.Authenticate(auth_pb2.AuthReq(user=username, password="password"), "Dummy context").token
@@ -103,7 +92,9 @@ def generate_user(db, username=None):
 def make_friends(db, user1, user2):
     with session_scope(db) as session:
         friend_relationship = FriendRelationship(
-            from_user_id=user1.id, to_user_id=user2.id, status=FriendStatus.accepted,
+            from_user_id=user1.id,
+            to_user_id=user2.id,
+            status=FriendStatus.accepted,
         )
         session.add(friend_relationship)
 
@@ -245,48 +236,3 @@ def media_session(db, bearer_token):
             yield media_pb2_grpc.MediaStub(channel)
     finally:
         server.stop(None)
-
-
-@contextmanager
-def patch_message_time(time, add=0):
-    def set_timestamp(mapper, connection, target):
-        t = time + timedelta(seconds=add)
-        target.time = t
-
-    listen(Base, "before_insert", set_timestamp, propagate=True)
-    listen(Base, "before_update", set_timestamp, propagate=True)
-    try:
-        yield
-    finally:
-        remove(Base, "before_insert", set_timestamp)
-        remove(Base, "before_update", set_timestamp)
-
-
-@contextmanager
-def patch_joined_time(time, add=0):
-    def set_timestamp(mapper, connection, target):
-        t = time + timedelta(seconds=add)
-        target.joined = t
-
-    listen(Base, "before_insert", set_timestamp, propagate=True)
-    listen(Base, "before_update", set_timestamp, propagate=True)
-    try:
-        yield
-    finally:
-        remove(Base, "before_insert", set_timestamp)
-        remove(Base, "before_update", set_timestamp)
-
-
-@contextmanager
-def patch_left_time(time, add=0):
-    def set_timestamp(mapper, connection, target):
-        t = time + timedelta(seconds=add)
-        target.left = t
-
-    listen(Base, "before_insert", set_timestamp, propagate=True)
-    listen(Base, "before_update", set_timestamp, propagate=True)
-    try:
-        yield
-    finally:
-        remove(Base, "before_insert", set_timestamp)
-        remove(Base, "before_update", set_timestamp)

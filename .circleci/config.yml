@@ -46,7 +46,7 @@ jobs:
             cd app/backend
             docker build -t couchers/backend .
       - run: mkdir test-results
-      - run: docker run couchers/backend pytest src --junitxml=test-results/junit.xml
+      - run: docker run --env-file app/backend.test.env couchers/backend pytest src --junitxml=test-results/junit.xml
       - store_test_results:
           path: test-results
       - store_artifacts:
@@ -76,7 +76,7 @@ jobs:
             cd app/media
             docker build -t couchers/media .
       - run: mkdir test-results
-      - run: docker run -e "MEDIA_SERVER_FROM_ENV=0" couchers/media pytest src --junitxml=test-results/junit.xml
+      - run: docker run --env-file app/media.test.env couchers/media pytest src --junitxml=test-results/junit.xml
       - store_test_results:
           path: test-results
       - store_artifacts:

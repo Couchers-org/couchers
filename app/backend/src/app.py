@@ -49,11 +49,12 @@ sys.excepthook = log_unhandled_exception
 
 logger.info(f"Starting")
 
-engine = create_engine("sqlite:///db.sqlite", echo=False)
+engine = create_engine(config["DATABASE_CONNECTION_STRING"], echo=False)
 Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
 
-add_dummy_data(Session, "src/dummy_data.json")
+if config["ADD_DUMMY_DATA"]:
+    add_dummy_data(Session, "src/dummy_data.json")
 
 auth = Auth(Session)
 open_server = grpc.server(futures.ThreadPoolExecutor(2), interceptors=[LoggingInterceptor()])

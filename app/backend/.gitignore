@@ -1,5 +1,5 @@
 venv/
-db.sqlite
+*db.sqlite
 __pycache__/
 
 *.egg-info/
