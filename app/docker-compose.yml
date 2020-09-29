@@ -13,7 +13,7 @@ services:
       - "./pgdata:/var/lib/postgresql/data"
     restart: on-failure
     ports:
-      - 6543:6543
+      - 6545:6545
   postgres_tests:
     image: postgres:12
     env_file: postgres.test.env
