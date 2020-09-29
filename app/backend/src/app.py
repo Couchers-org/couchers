@@ -32,7 +32,7 @@ from pb import (
 # are talking to each other
 MEDIA_SERVER_BEARER_TOKEN = config["MEDIA_SERVER_BEARER_TOKEN"]
 
-logging.basicConfig(format="%(asctime)s.%(msecs)03d: %(process)d: %(message)s", datefmt="%F %T", level=logging.INFO)
+logging.basicConfig(format="%(asctime)s: %(name)d: %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 

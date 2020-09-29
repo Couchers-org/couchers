@@ -62,7 +62,7 @@ def create_app(
         try:
             data = urlsafe_b64decode(request.args.get("data"))
             sig = urlsafe_b64decode(request.args.get("sig"))
-        except Exception as e:
+        except ValueError:
             abort(400, "Invalid data or signature")
 
         if not verify_hash_signature(data, media_server_secret_key, sig):
@@ -100,7 +100,7 @@ def create_app(
         # handle image uploads
         try:
             img = pyvips.Image.new_from_buffer(request_file.read(), options="", access="sequential")
-        except:
+        except pyvips.Error:
             abort(400, "Invalid image")
 
         width = img.get("width")
@@ -128,7 +128,7 @@ def create_app(
         if not os.path.isfile(path):
             abort(404, "Not found")
 
-        return send_file(open(path, "rb"), mimetype="image/jpeg")
+        return send_file(path, mimetype="image/jpeg", conditional=True)
 
     @app.route("/img/avatar/<key>.jpg")
     def avatar(key):
@@ -157,7 +157,7 @@ def create_app(
             img = img.resize(avatar_size / size)
             img.write_to_file(avatar_path, strip=True)
 
-        return send_file(open(avatar_path, "rb"), mimetype="image/jpeg")
+        return send_file(avatar_path, mimetype="image/jpeg", conditional=True)
 
     return app
 
