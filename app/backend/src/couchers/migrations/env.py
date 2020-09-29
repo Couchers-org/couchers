@@ -6,10 +6,14 @@ from sqlalchemy import pool
 from alembic import context
 
 from couchers import models
+from couchers.config import config as couchers_config
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
+
+config.set_main_option("sqlalchemy.url", couchers_config.get("DATABASE_CONNECTION_STRING"))
+
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
