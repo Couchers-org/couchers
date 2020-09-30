@@ -12,12 +12,18 @@ const useStyles = makeStyles({
 });
 
 type AppButtonProps = ButtonProps & {
-  loading?: boolean,
+  loading?: boolean;
 };
 
 export default (props: AppButtonProps) => {
-
-  const { children, disabled, onClick, className, loading, ...otherProps } = props;
+  const {
+    children,
+    disabled,
+    onClick,
+    className,
+    loading,
+    ...otherProps
+  } = props;
 
   const clicked = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     if (onClick) {

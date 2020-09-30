@@ -8,8 +8,9 @@ const root = document.getElementById("root") as HTMLElement;
 ReactDOM.render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>
-, root);
+  </React.StrictMode>,
+  root
+);
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.

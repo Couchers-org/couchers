@@ -18,8 +18,8 @@ const authSlice = createSlice({
     },
     userSuccess(state, action: PayloadAction<User>) {
       state.user = action.payload;
-    }
-  }
+    },
+  },
 });
 
 export const { tokenSuccess, userSuccess } = authSlice.actions;
@@ -27,8 +27,8 @@ export default authSlice.reducer;
 
 export const passwordLogin = (
   username: string,
-  password: string,
-): AppThunk => async dispatch => {
+  password: string
+): AppThunk => async (dispatch) => {
   const req = new AuthReq();
   req.setUser(username);
   req.setPassword(password);
@@ -40,4 +40,4 @@ export const passwordLogin = (
     alert(`Error: ${e}`);
     return;
   }
-}
+};

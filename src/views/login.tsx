@@ -7,13 +7,13 @@ import TextInput from "../components/TextInput";
 import { RootState } from "../reducers";
 import { passwordLogin } from "../features/auth/authSlice";
 
-
-
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [buttonLoading, setButtonLoading] = useState(false);
-  const authToken = useSelector<RootState, string | null>(state => state.auth.authToken);
+  const authToken = useSelector<RootState, string | null>(
+    (state) => state.auth.authToken
+  );
   const dispatch = useDispatch();
 
   const login = async () => {
@@ -35,7 +35,9 @@ export default function Login() {
         value={password}
         type="password"
       ></TextInput>
-      <Button onClick={login} loading={buttonLoading}>Log in</Button>
+      <Button onClick={login} loading={buttonLoading}>
+        Log in
+      </Button>
     </>
   );
 }

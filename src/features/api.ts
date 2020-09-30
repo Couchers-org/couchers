@@ -1,17 +1,18 @@
-import { AuthPromiseClient } from "../pb/auth_grpc_web_pb"
-import { APIPromiseClient } from "../pb/api_grpc_web_pb"
-import { BugsPromiseClient } from "../pb/bugs_grpc_web_pb"
-import { SSOPromiseClient } from "../pb/sso_grpc_web_pb"
-import { ConversationsPromiseClient } from "../pb/conversations_grpc_web_pb"
-import { RequestsPromiseClient } from "../pb/requests_grpc_web_pb"
+import { AuthPromiseClient } from "../pb/auth_grpc_web_pb";
+import { APIPromiseClient } from "../pb/api_grpc_web_pb";
+import { BugsPromiseClient } from "../pb/bugs_grpc_web_pb";
+import { SSOPromiseClient } from "../pb/sso_grpc_web_pb";
+import { ConversationsPromiseClient } from "../pb/conversations_grpc_web_pb";
+import { RequestsPromiseClient } from "../pb/requests_grpc_web_pb";
 import store from "../store";
 
-const URL = process.env.PUBLIC_URL
+const URL = process.env.PUBLIC_URL;
 
 class AuthInterceptor {
   // eslint-disable-next-line
   intercept(request: any, invoker: (request: any) => any) {
-    request.getMetadata()["authorization"] = "Bearer " + store.getState().auth.authToken;
+    request.getMetadata()["authorization"] =
+      "Bearer " + store.getState().auth.authToken;
     return invoker(request);
   }
 }
@@ -21,13 +22,13 @@ const interceptor = new AuthInterceptor();
 const opts = {
   unaryInterceptors: [interceptor],
   streamInterceptors: [interceptor],
-}
+};
 
 // There seems to be an error in the `opts` parameter's type, so have to ignore that line.
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 // @ts-ignore
-export const client = new APIPromiseClient(URL, null, opts) as APIPromiseClient
+export const client = new APIPromiseClient(URL, null, opts) as APIPromiseClient;
 
 // prettier-ignore
 // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
@@ -44,7 +45,7 @@ export const SSOclient = new SSOPromiseClient(URL, null, opts) as SSOPromiseClie
 // @ts-ignore
 export const conversationsClient = new ConversationsPromiseClient(URL, null, opts) as ConversationsPromiseClient
 
-export const authClient = new AuthPromiseClient(URL)
+export const authClient = new AuthPromiseClient(URL);
 
 // prettier-ignore
 // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
