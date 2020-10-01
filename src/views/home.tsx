@@ -3,9 +3,9 @@ import { useSelector } from "react-redux";
 import { RootState } from "../reducers";
 
 export default function Home() {
-  const authToken = useSelector<RootState, string | null>(
-    (state) => state.auth.authToken
+  const name = useSelector<RootState, string>(
+    (state) => state.auth.user?.name.split(" ")[0] || "user"
   );
 
-  return <p>Home, auth: {authToken}</p>;
+  return <p>Hello, {name}.</p>;
 }

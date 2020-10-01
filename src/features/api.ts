@@ -6,7 +6,7 @@ import { ConversationsPromiseClient } from "../pb/conversations_grpc_web_pb";
 import { RequestsPromiseClient } from "../pb/requests_grpc_web_pb";
 import store from "../store";
 
-const URL = process.env.PUBLIC_URL;
+const URL = "http://localhost:8888";
 
 class AuthInterceptor {
   // eslint-disable-next-line

@@ -1,9 +1,12 @@
-import React from "react";
-import { Switch, Route } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Switch, Route, RouteProps, Redirect } from "react-router-dom";
 import Home from "./views/home";
 import Profile from "./views/profile";
 import Messages from "./views/messages";
 import Login from "./views/login";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "./reducers";
+import { error } from "./features/auth/authSlice";
 
 export default function AppRoutes() {
   return (
@@ -11,15 +14,39 @@ export default function AppRoutes() {
       <Route path="/login">
         <Login />
       </Route>
-      <Route path="/profile">
+      <PrivateRoute path="/profile">
         <Profile />
-      </Route>
-      <Route path="/messages">
+      </PrivateRoute>
+      <PrivateRoute path="/messages">
         <Messages />
-      </Route>
-      <Route path="/">
+      </PrivateRoute>
+      <PrivateRoute path="/">
         <Home />
-      </Route>
+      </PrivateRoute>
     </Switch>
   );
 }
+
+// TODO: Redirect to requested route after login
+const PrivateRoute = (props: RouteProps) => {
+  const dispatch = useDispatch();
+  const isAuthenticated = useSelector<RootState, boolean>(
+    (state) => state.auth.authToken != null
+  );
+  useEffect(() => {
+    if (!isAuthenticated) {
+      dispatch(error("Please log in."));
+    }
+  });
+
+  const { children, ...otherProps } = props;
+
+  return (
+    <>
+      <Route {...otherProps}>
+        {!isAuthenticated && <Redirect to="/login" />}
+        {children}
+      </Route>
+    </>
+  );
+};

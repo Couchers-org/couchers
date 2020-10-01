@@ -5,14 +5,20 @@ import { useSelector, useDispatch } from "react-redux";
 import Button from "../components/Button";
 import TextInput from "../components/TextInput";
 import { RootState } from "../reducers";
-import { passwordLogin } from "../features/auth/authSlice";
+import { passwordLogin } from "../features/auth/authThunks";
+import ErrorAlert from "../components/ErrorAlert";
 
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [buttonLoading, setButtonLoading] = useState(false);
   const authToken = useSelector<RootState, string | null>(
     (state) => state.auth.authToken
+  );
+  const error = useSelector<RootState, string | null>(
+    (state) => state.auth.error
+  );
+  const loading = useSelector<RootState, boolean>(
+    (state) => state.auth.loading
   );
   const dispatch = useDispatch();
 
@@ -24,6 +30,7 @@ export default function Login() {
     <>
       {authToken && <Redirect to="/" />}
       <Typography variant="h2">Login</Typography>
+      {error && <ErrorAlert error={error} />}
       <TextInput
         label="Username/email"
         onChange={(e) => setUsername(e.target.value)}
@@ -35,7 +42,7 @@ export default function Login() {
         value={password}
         type="password"
       ></TextInput>
-      <Button onClick={login} loading={buttonLoading}>
+      <Button onClick={login} loading={loading}>
         Log in
       </Button>
     </>
