@@ -1,15 +1,14 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { User } from "../../pb/api_pb";
-import { AuthReq } from "../../pb/auth_pb";
-import { AppThunk } from "../../store";
-import { authClient } from "../api";
+import { passwordLogin } from "./authActions";
 
 const initialState = {
   authToken: null as null | string,
+  error: null as string | null | undefined,
   user: null as null | User,
 };
 
-const authSlice = createSlice({
+export const authSlice = createSlice({
   name: "auth",
   initialState: initialState,
   reducers: {
@@ -20,24 +19,22 @@ const authSlice = createSlice({
       state.user = action.payload;
     },
   },
+  extraReducers: (builder) => {
+    builder
+      .addCase(passwordLogin.pending, (state) => {
+        state.authToken = null;
+        state.user = null;
+        state.error = null;
+      })
+      .addCase(passwordLogin.fulfilled, (state, action) => {
+        state.authToken = action.payload;
+      })
+      .addCase(passwordLogin.rejected, (state, action) => {
+        state.error = action.error.message;
+      });
+  },
 });
 
 export const { tokenSuccess, userSuccess } = authSlice.actions;
-export default authSlice.reducer;
 
-export const passwordLogin = (
-  username: string,
-  password: string
-): AppThunk => async (dispatch) => {
-  const req = new AuthReq();
-  req.setUser(username);
-  req.setPassword(password);
-  try {
-    const res = await authClient.authenticate(req);
-    dispatch(tokenSuccess(res.getToken()));
-    console.log(res.getToken());
-  } catch (e) {
-    alert(`Error: ${e}`);
-    return;
-  }
-};
+export default authSlice.reducer;

@@ -5,7 +5,8 @@ import { useSelector, useDispatch } from "react-redux";
 import Button from "../components/Button";
 import TextInput from "../components/TextInput";
 import { RootState } from "../reducers";
-import { passwordLogin } from "../features/auth/authSlice";
+import { passwordLogin } from "../features/auth/authActions";
+import { useAppDispatch } from "../store";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -14,10 +15,10 @@ export default function Login() {
   const authToken = useSelector<RootState, string | null>(
     (state) => state.auth.authToken
   );
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const login = async () => {
-    dispatch(passwordLogin(username, password));
+    dispatch(passwordLogin({ username, password }));
   };
 
   return (
