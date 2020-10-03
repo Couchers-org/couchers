@@ -6,7 +6,7 @@ import Messages from "./views/messages";
 import Login from "./views/login";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./reducers";
-import { error } from "./features/auth/authSlice";
+import { authError } from "./features/auth/authSlice";
 
 export default function AppRoutes() {
   return (
@@ -35,7 +35,7 @@ const PrivateRoute = (props: RouteProps) => {
   );
   useEffect(() => {
     if (!isAuthenticated) {
-      dispatch(error("Please log in."));
+      dispatch(authError("Please log in."));
     }
   });
 

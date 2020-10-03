@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { User } from "../../pb/api_pb";
+import { passwordLogin } from "./authActions";
 
 const initialState = {
   authToken: null as null | string,
@@ -7,29 +8,17 @@ const initialState = {
   //it isn't good practice to keep ui state in the store
   //these refer to authentication loading and error in general
   loading: false,
-  error: null as null | string,
+  error: null as string | null | undefined,
 };
 
-const authSlice = createSlice({
+export const authSlice = createSlice({
   name: "auth",
   initialState: initialState,
   reducers: {
-    startLoading(state) {
-      state.loading = true;
-    },
-    finishLoading(state) {
-      state.loading = false;
-    },
     clearError(state) {
       state.error = null;
     },
-    tokenSuccess(state, action: PayloadAction<string>) {
-      state.authToken = action.payload;
-    },
-    userSuccess(state, action: PayloadAction<User.AsObject>) {
-      state.user = action.payload;
-    },
-    error(state, action: PayloadAction<string>) {
+    authError(state, action: PayloadAction<string>) {
       state.error = action.payload;
       state.loading = false;
     },
@@ -40,15 +29,25 @@ const authSlice = createSlice({
       state.loading = false;
     },
   },
+  extraReducers: (builder) => {
+    builder
+      .addCase(passwordLogin.pending, (state) => {
+        state.authToken = null;
+        state.user = null;
+        state.error = null;
+        state.loading = true;
+      })
+      .addCase(passwordLogin.fulfilled, (state, action) => {
+        state.authToken = action.payload.token;
+        state.user = action.payload.user;
+        state.loading = false;
+      })
+      .addCase(passwordLogin.rejected, (state, action) => {
+        state.error = action.error.message;
+        state.loading = false;
+      });
+  },
 });
 
-export const {
-  startLoading,
-  finishLoading,
-  clearError,
-  tokenSuccess,
-  userSuccess,
-  error,
-  logout,
-} = authSlice.actions;
+export const { clearError, authError, logout } = authSlice.actions;
 export default authSlice.reducer;

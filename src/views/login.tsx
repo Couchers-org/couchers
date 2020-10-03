@@ -1,12 +1,13 @@
 import { Typography } from "@material-ui/core";
 import React, { useState } from "react";
 import { Redirect } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import Button from "../components/Button";
 import TextInput from "../components/TextInput";
 import { RootState } from "../reducers";
-import { passwordLogin } from "../features/auth/authThunks";
 import ErrorAlert from "../components/ErrorAlert";
+import { passwordLogin } from "../features/auth/authActions";
+import { useAppDispatch } from "../store";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -14,16 +15,16 @@ export default function Login() {
   const authToken = useSelector<RootState, string | null>(
     (state) => state.auth.authToken
   );
-  const error = useSelector<RootState, string | null>(
+  const error = useSelector<RootState, string | null | undefined>(
     (state) => state.auth.error
   );
   const loading = useSelector<RootState, boolean>(
     (state) => state.auth.loading
   );
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const login = async () => {
-    dispatch(passwordLogin(username, password));
+    dispatch(passwordLogin({ username, password }));
   };
 
   return (
