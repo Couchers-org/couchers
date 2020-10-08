@@ -20,6 +20,7 @@
     "react-redux": "^7.2.1",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.3",
+    "redux-persist": "^6.0.0",
     "typescript": "~3.7.2"
   },
   "scripts": {
@@ -55,6 +56,7 @@
   "devDependencies": {
     "@types/react-redux": "^7.1.9",
     "@types/react-router-dom": "^5.1.5",
+    "@types/redux-persist": "^4.3.1",
     "@types/webpack-env": "^1.15.3",
     "eslint-config-prettier": "^6.12.0",
     "prettier": "2.1.2"

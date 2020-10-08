@@ -1,11 +1,42 @@
-import { Action, configureStore, ThunkAction } from "@reduxjs/toolkit";
+import {
+  Action,
+  configureStore,
+  getDefaultMiddleware,
+  ThunkAction,
+} from "@reduxjs/toolkit";
 import { useDispatch } from "react-redux";
+import {
+  FLUSH,
+  PAUSE,
+  PERSIST,
+  persistReducer,
+  persistStore,
+  PURGE,
+  REGISTER,
+  REHYDRATE,
+} from "redux-persist";
+import storage from "redux-persist/lib/storage";
 import { authToken, setAuthToken } from "./features/api";
 import rootReducer, { RootState } from "./reducers";
 
+const persistConfig = {
+  key: "root",
+  version: 1,
+  storage,
+};
+
+const persistedReducer = persistReducer(persistConfig, rootReducer);
+
 const store = configureStore({
-  reducer: rootReducer,
+  reducer: persistedReducer,
+  middleware: getDefaultMiddleware({
+    serializableCheck: {
+      ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+    },
+  }),
 });
+
+let persistor = persistStore(store);
 
 store.subscribe(() => {
   const newToken = store.getState().auth.authToken;
@@ -21,4 +52,4 @@ export type AppThunk = ThunkAction<void, RootState, null, Action<string>>;
 
 export const useAppDispatch = () => useDispatch<AppDispatch>();
 
-export default store;
+export { store, persistor };
