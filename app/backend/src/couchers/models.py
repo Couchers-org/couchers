@@ -130,8 +130,6 @@ class User(Base):
     def avatar_url(self):
         # TODO(aapeli): don't hardcode
         filename = self.avatar_filename or "default.jpg"
-        if "pytest" in sys.modules:
-            return f"file:///{filename}"
         return f"{config['MEDIA_SERVER_BASE_URL']}/img/avatar/{filename}"
 
     def mutual_friends(self, target_id):

@@ -81,7 +81,6 @@ def generate_user(db, username=None):
         about_place="My place has a lot of testing paraphenelia",
         countries_visited="Testing country",
         countries_lived="Wonderland",
-        avatar_filename=path.abspath("../../../frontend/src/assets/logo.svg").replace("\\", "/"),
     )
 
     session.add(user)
