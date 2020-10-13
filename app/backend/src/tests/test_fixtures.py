@@ -101,18 +101,13 @@ def generate_user(db, username=None):
     return user, token
 
 
-def _generate_friend_relationship_object(from_user, to_user, status=FriendStatus.pending):
-    friend_relationship = FriendRelationship(
-        from_user=from_user,
-        to_user=to_user,
-        status=status
-    )
-    return friend_relationship
-
-
 def make_friends(db, user1, user2):
     with session_scope(db) as session:
-        friend_relationship = _generate_friend_relationship_object(user1, user2, FriendStatus.accepted)
+        friend_relationship = FriendRelationship(
+            from_user=user1,
+            to_user=user2,
+            status=FriendStatus.accepted
+        )
         session.add(friend_relationship)
 
 

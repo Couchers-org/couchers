@@ -6,8 +6,8 @@ from couchers.crypto import random_hex, urlsafe_secure_token
 from couchers.db import new_login_token, new_signup_token, session_scope
 from couchers.email import _render_email
 from couchers.tasks import send_login_email, send_signup_email, send_report_email, send_host_request_email, send_message_received_email, send_friend_request_email
-from tests.test_fixtures import db, generate_user, _generate_friend_relationship_object
-from couchers.models import Complaint, HostRequest, HostRequestStatus, Conversation, Message
+from tests.test_fixtures import db, generate_user
+from couchers.models import Complaint, HostRequest, HostRequestStatus, Conversation, Message, FriendRelationship, FriendStatus
 from couchers.config import config
 
 
@@ -263,11 +263,16 @@ def test_message_received_email(db):
     with patch("couchers.email.send_email", mock_send_email):
         send_message_received_email(user)
 
+
 def test_friend_request_email(db):
     with session_scope(db) as session:
         from_user, api_token_from = generate_user(db)
         to_user, api_token_to = generate_user(db)
-        friend_relationship = _generate_friend_relationship_object(from_user, to_user)
+        friend_relationship = FriendRelationship(
+            from_user=from_user,
+            to_user=to_user,
+            status=FriendStatus.pending
+        )
 
         message_id = random_hex(64)
 
@@ -296,7 +301,11 @@ def test_email_patching_fails(db):
     with session_scope(db) as session:
         from_user, api_token_from = generate_user(db)
         to_user, api_token_to = generate_user(db)
-        friend_relationship = _generate_friend_relationship_object(from_user, to_user)
+        friend_relationship = FriendRelationship(
+            from_user=from_user,
+            to_user=to_user,
+            status=FriendStatus.pending
+        )
 
         patched_msg = random_hex(64)
 
