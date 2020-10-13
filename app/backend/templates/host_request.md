@@ -1,10 +1,10 @@
 {% from "macros.html" import button %}
 
-Hi {{ name_host }}!
+<p> Hi {{ name_host }}! </p>
 
 You've received a host request!
 
-{{ name_guest }} is requesting to stay with you from {{ from_date }} until {{ to_date }}.
+<p> {{ name_guest }} is requesting to stay with you from {{ from_date }} until {{ to_date }}. </p>
 
 {% if html %}
 

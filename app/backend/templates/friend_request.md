@@ -1,8 +1,8 @@
 {% from "macros.html" import button %}
 
-Hi {{ name_recipient }}!
+<p> Hi {{ name_recipient }}! </p>
 
-You've received a friend request from {{ name_sender }}!
+<p> You've received a friend request from {{ name_sender }}! </p>
 
 {% if html %}
 

@@ -188,9 +188,9 @@ def test_report_email(db):
         def mock_send_email(sender_name, sender_email, recipient, subject, plain, html):
             assert recipient == testing_email_address
             assert complaint.author_user.username in plain
-            assert complaint.author_user.username[10:] in html
+            assert complaint.author_user.username in html
             assert complaint.reported_user.username in plain
-            assert complaint.reported_user.username[10:] in html
+            assert complaint.reported_user.username in html
             assert complaint.reason in plain
             assert complaint.reason in html
             assert complaint.description in plain
@@ -232,9 +232,9 @@ def test_host_request_email(db):
             assert recipient == to_user.email
             assert "host request" in subject.lower()
             assert to_user.name in plain
-            assert to_user.name[10:] in html
+            assert to_user.name in html
             assert from_user.name in plain
-            assert from_user.name[10:] in html
+            assert from_user.name in html
             assert from_date in plain
             assert from_date in html
             assert to_date in plain
@@ -280,9 +280,9 @@ def test_friend_request_email(db):
             assert recipient == to_user.email
             assert "friend" in subject.lower()
             assert to_user.name in plain
-            assert to_user.name[10:] in html
+            assert to_user.name in html
             assert from_user.name in plain
-            assert from_user.name[10:] in html
+            assert from_user.name in html
             assert from_user.avatar_url not in plain
             assert from_user.avatar_url in html
             assert f"{config['BASE_URL']}/friends/" in plain
