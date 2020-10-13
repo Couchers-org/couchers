@@ -4,10 +4,13 @@ import sys
 from concurrent import futures
 
 import grpc
+from alembic import command
+from alembic.config import Config
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from couchers.config import config
+from couchers.db import session_scope
 from couchers.interceptors import LoggingInterceptor, UpdateLastActiveTimeInterceptor
 from couchers.models import Base
 from couchers.servicers.api import API
@@ -32,7 +35,7 @@ from pb import (
 # are talking to each other
 MEDIA_SERVER_BEARER_TOKEN = config["MEDIA_SERVER_BEARER_TOKEN"]
 
-logging.basicConfig(format="%(asctime)s.%(msecs)03d: %(process)d: %(message)s", datefmt="%F %T", level=logging.INFO)
+logging.basicConfig(format="%(asctime)s: %(name)d: %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -47,13 +50,27 @@ def log_unhandled_exception(exc_type, exc_value, exc_traceback):
 
 sys.excepthook = log_unhandled_exception
 
-logger.info(f"Starting")
-
-engine = create_engine("sqlite:///db.sqlite", echo=False)
-Base.metadata.create_all(engine)
+engine = create_engine(config["DATABASE_CONNECTION_STRING"], echo=False)
 Session = sessionmaker(bind=engine)
 
-add_dummy_data(Session, "src/dummy_data.json")
+logger.info(f"Checking DB connection")
+
+with session_scope(Session) as session:
+    res = session.execute("SELECT 42;")
+    if list(res) != [(42,)]:
+        raise Exception("Failed to connect to DB")
+
+logger.info(f"Running DB migrations")
+
+alembic_cfg = Config("alembic.ini")
+# alembic screws up logging config by default, this tells it not to screw it up if being run at startup like this
+alembic_cfg.set_main_option("dont_mess_up_logging", "False")
+command.upgrade(alembic_cfg, "head")
+
+if config["ADD_DUMMY_DATA"]:
+    add_dummy_data(Session, "src/dummy_data.json")
+
+logger.info(f"Starting")
 
 auth = Auth(Session)
 open_server = grpc.server(futures.ThreadPoolExecutor(2), interceptors=[LoggingInterceptor()])

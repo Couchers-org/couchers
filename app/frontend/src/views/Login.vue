@@ -51,7 +51,7 @@
                         >{{ loginStep == "user" ? "Next" : "Login" }}</v-btn
                       >
                       <v-btn to="/signup" color="secondary" class="mx-2"
-                        >Haven't signed up yet?</v-btn
+                        >Create an account</v-btn
                       >
                     </v-row>
                   </v-form>

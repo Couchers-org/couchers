@@ -7,6 +7,7 @@ from sqlalchemy.sql import and_, or_
 
 from couchers.crypto import urlsafe_secure_token
 from couchers.models import FriendRelationship, FriendStatus, LoginToken, SignupToken, User
+from couchers.utils import now
 from pb import api_pb2
 
 logger = logging.getLogger(__name__)
@@ -112,9 +113,7 @@ def new_signup_token(session, email, hours=2):
     Returns token and expiry text
     """
     token = urlsafe_secure_token()
-    signup_token = SignupToken(
-        token=token, email=email, expiry=datetime.datetime.utcnow() + datetime.timedelta(hours=hours)
-    )
+    signup_token = SignupToken(token=token, email=email, expiry=now() + datetime.timedelta(hours=hours))
     session.add(signup_token)
     session.commit()
     return signup_token, f"{hours} hours"
@@ -127,9 +126,7 @@ def new_login_token(session, user, hours=2):
     Returns token and expiry text
     """
     token = urlsafe_secure_token()
-    login_token = LoginToken(
-        token=token, user=user, expiry=datetime.datetime.utcnow() + datetime.timedelta(hours=hours)
-    )
+    login_token = LoginToken(token=token, user=user, expiry=now() + datetime.timedelta(hours=hours))
     session.add(login_token)
     session.commit()
     return login_token, f"{hours} hours"

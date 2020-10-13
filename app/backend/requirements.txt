@@ -1,11 +1,15 @@
+alembic
+black
 grpcio
+isort
 Jinja2
 markdown2
 protobuf
+psycopg2-binary
 pynacl
 pytest
 pytest-pythonpath
 python-dateutil
-python-dotenv
+pytz
 requests
 sqlalchemy

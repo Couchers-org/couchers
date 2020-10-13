@@ -1,85 +1,26 @@
 <template>
   <v-main>
     <v-container fluid>
-      <v-dialog v-model="newConversationDialog" max-width="600">
-        <v-card>
-          <v-card-title class="headline">New conversation</v-card-title>
-          <v-card-text>
-            <v-autocomplete
-              v-model="newConversationParticipants"
-              :items="friends()"
-              :disabled="!loading"
-              chips
-              label="Select friends to message"
-              placeholder="Start typing to Search"
-              prepend-icon="mdi-account-multiple"
-              multiple
-            >
-              <template v-slot:selection="data">
-                <v-chip
-                  v-bind="data.attrs"
-                  :input-value="data.selected"
-                  close
-                  @click="data.select"
-                  @click:close="newConversationParticipantsRemove(data.item)"
-                >
-                  <v-avatar :color="data.item.avatarColor" size="36" left>
-                    <span class="white--text">{{ data.item.avatarText }}</span>
-                  </v-avatar>
-                  {{ data.item.name }} ({{ data.item.handle }})
-                </v-chip>
-              </template>
-              <template v-slot:item="data">
-                <template v-if="typeof data.item !== 'object'">
-                  <v-list-item-content v-text="data.item"></v-list-item-content>
-                </template>
-                <template v-else>
-                  <v-list-item-avatar>
-                    <v-avatar :color="data.item.avatarColor" size="36">
-                      <span class="white--text">{{
-                        data.item.avatarText
-                      }}</span>
-                    </v-avatar>
-                  </v-list-item-avatar>
-                  <v-list-item-content>
-                    <v-list-item-title
-                      v-html="data.item.name"
-                    ></v-list-item-title>
-                    <v-list-item-subtitle
-                      v-html="data.item.handle"
-                    ></v-list-item-subtitle>
-                  </v-list-item-content>
-                </template>
-              </template>
-            </v-autocomplete>
-            <v-text-field
-              v-model="newConversationTitle"
-              :label="
-                newConversationParticipants.length == 1
-                  ? 'Direct messages have no title'
-                  : 'Group chat title'
-              "
-              :disabled="newConversationParticipants.length <= 1"
-            ></v-text-field>
-            <v-textarea
-              v-model="newConversationText"
-              label="Message"
-            ></v-textarea>
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="green darken-1" text @click="cancelNewConversation()"
-              >Cancel</v-btn
-            >
-            <v-btn color="green darken-1" text @click="createNewConversation()"
-              >Create chat</v-btn
-            >
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
+      <v-lazy>
+        <new-conversation-dialog
+          v-model="newConversationDialog"
+          :friends="friends()"
+          @created="newConversationCreated"
+        />
+      </v-lazy>
+      <v-lazy>
+        <conversation-details-dialog
+          v-model="conversationDetailsDialog"
+          :conversation="selectedConversationObject()"
+          :userId="user.userId"
+          :userCache="userCache"
+          :friends="friends()"
+          @updated-conversation="updatedConversation"
+        />
+      </v-lazy>
       <error-alert :error="error" />
       <v-row dense>
-        <v-col cols="4">
+        <v-col md="4" xs="12">
           <v-card tile>
             <v-list v-if="loading" three-line>
               <v-subheader>Loading...</v-subheader>
@@ -94,70 +35,140 @@
                   hide-details
                   label="Search"
                   prepend-icon="mdi-magnify"
-                  v-on:keyup.enter="search"
                 ></v-text-field>
               </v-list-item>
               <v-divider></v-divider>
-              <v-list-item @click="openNewConversationDialog()">
-                <v-list-item-avatar>
-                  <v-avatar color="primary">
-                    <v-icon color="white">mdi-plus</v-icon>
-                  </v-avatar>
-                </v-list-item-avatar>
-                <v-list-item-content>
-                  <v-list-item-title><b>New message</b></v-list-item-title>
-                  <v-list-item-subtitle
-                    ><i
-                      >Start a new group chat or send a direct message</i
-                    ></v-list-item-subtitle
-                  >
-                </v-list-item-content>
-              </v-list-item>
-              <v-subheader v-if="!conversations.length">Empty!</v-subheader>
-              <template v-for="(conversation, index) in conversations">
-                <v-divider :key="index + 'divider'"></v-divider>
-                <v-list-item
-                  :key="conversation.groupChatId"
-                  @click="selectConversation(conversation.groupChatId)"
-                >
+              <template v-if="!searchQuery">
+                <v-list-item @click="openNewConversationDialog()">
                   <v-list-item-avatar>
-                    <v-avatar :color="conversationAvatar(conversation)" />
+                    <v-avatar color="primary" size="40">
+                      <v-icon color="white">mdi-plus</v-icon>
+                    </v-avatar>
                   </v-list-item-avatar>
                   <v-list-item-content>
-                    <v-list-item-title
-                      v-html="conversationTitle(conversation)"
-                    ></v-list-item-title>
+                    <v-list-item-title><b>New message</b></v-list-item-title>
                     <v-list-item-subtitle
-                      v-html="conversationSubtitle(conversation)"
-                    ></v-list-item-subtitle>
+                      ><i
+                        >Start a new group chat or send a direct message</i
+                      ></v-list-item-subtitle
+                    >
                   </v-list-item-content>
-                  <v-list-item-avatar>
-                    <v-chip
-                      v-if="conversationChip(conversation)"
-                      color="primary"
-                      v-text="conversationChip(conversation)"
-                      small
-                    />
-                  </v-list-item-avatar>
+                </v-list-item>
+                <v-subheader v-if="!conversations.length">Empty!</v-subheader>
+                <template v-for="(conversation, index) in conversations">
+                  <v-divider :key="index + 'divider'"></v-divider>
+                  <v-list-item
+                    :key="conversation.groupChatId"
+                    @click="selectConversation(conversation.groupChatId)"
+                    :class="
+                      conversation.groupChatId == selectedConversation
+                        ? 'v-list-item--active'
+                        : ''
+                    "
+                  >
+                    <v-list-item-avatar>
+                      <v-avatar
+                        :color="conversationAvatar(conversation)"
+                        size="40"
+                      />
+                    </v-list-item-avatar>
+                    <v-list-item-content>
+                      <v-list-item-title
+                        v-html="conversationTitle(conversation)"
+                      ></v-list-item-title>
+                      <v-list-item-subtitle
+                        v-html="conversationSubtitle(conversation)"
+                      ></v-list-item-subtitle>
+                    </v-list-item-content>
+                    <v-list-item-avatar>
+                      <v-chip
+                        v-if="conversationChip(conversation)"
+                        color="primary"
+                        v-text="conversationChip(conversation)"
+                        small
+                      />
+                    </v-list-item-avatar>
+                  </v-list-item>
+                </template>
+                <v-list-item v-if="!noMoreConversations">
+                  <v-list-item-content>
+                    <v-btn
+                      text
+                      @click="() => fetchData()"
+                      :loading="loadingMoreConversations"
+                    >
+                      Load more...
+                    </v-btn>
+                  </v-list-item-content>
                 </v-list-item>
               </template>
+              <search-results
+                v-else
+                :query="searchQuery"
+                :selectedConversation="selectedConversation"
+                :avatarFunction="conversationAvatar"
+                :titleFunction="conversationTitle"
+                @error="(err) => (this.error = err)"
+                @selected="selectConversation"
+              />
             </v-list>
           </v-card>
         </v-col>
-        <v-col cols="8">
-          <v-card tile height="600" style="overflow: auto;">
-            <v-subheader v-if="selectedConversation === null"
-              >Select a conversation...</v-subheader
-            >
-            <v-list v-else dense>
-              <v-subheader
-                >Selected conversation: {{ selectedConversation }}</v-subheader
-              >
+        <v-col v-if="selectedConversation != null" md="8" xs="12">
+          <v-toolbar elevation="2">
+            <v-toolbar-title>
+              {{ conversationTitle(selectedConversationObject()) }}
+            </v-toolbar-title>
+            <v-spacer />
+            <v-btn icon @click="conversationDetailsDialog = true">
+              <v-icon>mdi-information-outline</v-icon>
+            </v-btn>
+          </v-toolbar>
+          <v-card
+            v-scroll.self="scrolled"
+            tile
+            height="600"
+            style="overflow: auto;"
+          >
+            <v-list dense>
+              <v-list-item v-if="!noMoreMessages">
+                <v-list-item-content>
+                  <v-btn
+                    text
+                    @click="() => loadMessages()"
+                    :loading="loadingMoreMessages"
+                  >
+                    Load more...
+                  </v-btn>
+                </v-list-item-content>
+              </v-list-item>
               <template v-for="message in messages">
                 <v-list-item
-                  v-if="isMyMessage(message)"
+                  v-if="isControlMessage(message)"
                   :key="message.messageId"
                   :id="`msg-${message.messageId}`"
+                  class="bubble-content text-caption"
+                >
+                  <v-list-item-content
+                    :class="{
+                      'bubble-alert-mine': isMyMessage(message),
+                      'bubble-alert-theirs': !isMyMessage(message),
+                    }"
+                  >
+                    {{ messageText(message) }}
+                  </v-list-item-content>
+                </v-list-item>
+                <v-list-item
+                  v-else-if="isMyMessage(message)"
+                  :key="message.messageId"
+                  :id="`msg-${message.messageId}`"
+                  v-observe-visibility="{
+                    callback: (isVisible, entry) =>
+                      isVisible
+                        ? messageVisibilityChanged(message.messageId)
+                        : null,
+                    throttle: 1000,
+                  }"
                 >
                   <v-list-item-content class="py-1 bubble-content">
                     <v-alert
@@ -169,7 +180,7 @@
                         <b>{{ messageAuthor(message) }}</b> at
                         {{ messageDisplayTime(message) }}
                       </div>
-                      {{ message.text }}
+                      {{ messageText(message) }}
                     </v-alert>
                   </v-list-item-content>
                   <v-list-item-avatar>
@@ -184,6 +195,13 @@
                   v-else
                   :key="message.messageId"
                   :id="`msg-${message.messageId}`"
+                  v-observe-visibility="{
+                    callback: (isVisible, entry) =>
+                      isVisible
+                        ? messageVisibilityChanged(message.messageId)
+                        : null,
+                    throttle: 1000,
+                  }"
                 >
                   <v-list-item-avatar>
                     <v-avatar :color="messageColor(message)" size="36">
@@ -202,28 +220,18 @@
                         <b>{{ messageAuthor(message) }}</b> at
                         {{ messageDisplayTime(message) }}
                       </div>
-                      {{ message.text }}
+                      {{ messageText(message) }}
                     </v-alert>
                   </v-list-item-content>
                 </v-list-item>
               </template>
             </v-list>
           </v-card>
-          <v-card tile>
-            <v-text-field
-              v-model="currentMessage"
-              autofocus
-              :disabled="!selectedConversation"
-              solo
-              flat
-              single-line
-              hide-details
-              label="Send a message"
-              append-icon="mdi-send"
-              @click:append="sendMessage"
-              v-on:keyup.enter="sendMessage"
-            ></v-text-field>
-          </v-card>
+          <message-entry-field
+            v-model="currentMessage"
+            :disabled="!selectedConversation"
+            @send="sendMessage"
+          />
         </v-col>
       </v-row>
     </v-container>
@@ -233,10 +241,16 @@
 <script lang="ts">
 import Vue from "vue"
 import moment from "moment"
+import VueObserveVisibility from "vue-observe-visibility"
+
+Vue.use(VueObserveVisibility)
 
 import ErrorAlert from "../components/ErrorAlert.vue"
+import MessageEntryField from "../components/MessageEntryField.vue"
 
-import wrappers from "google-protobuf/google/protobuf/wrappers_pb"
+import NewConversationDialog from "./messages/NewConversationDialog.vue"
+import ConversationDetailsDialog from "./messages/ConversationDetailsDialog.vue"
+import SearchResults from "./messages/SearchResults.vue"
 
 import { handle, protobufTimestampToDate } from "../utils"
 
@@ -248,59 +262,85 @@ import {
   GetGroupChatMessagesReq,
   SendMessageReq,
   GetUpdatesReq,
-  CreateGroupChatReq,
+  GetDirectMessageReq,
+  GetGroupChatReq,
+  MarkLastSeenGroupChatReq,
 } from "../pb/conversations_pb"
 import { client, conversations } from "../api"
 import { mapState } from "vuex"
 import { Empty } from "google-protobuf/google/protobuf/empty_pb"
 
+import {
+  UserCache,
+  messageColor,
+  getName,
+  messageAuthor,
+  messageAvatarText,
+  messageText,
+  initialsFromName,
+  messageDisplayTime,
+  isControlMessage,
+  isMyMessage,
+  controlMessageText,
+} from "../message-utils"
+
 export default Vue.extend({
   data: () => ({
     error: null as Error | null,
     loading: true,
-    newConversationParticipants: [] as Array<number>,
-    newConversationText: "",
-    newConversationTitle: "",
     friendIds: [] as Array<number>,
     newConversationDialog: false,
+    conversationDetailsDialog: false,
     currentMessage: "",
     searchQuery: null as null | string,
     conversations: [] as Array<GroupChat.AsObject>,
-    userCache: {} as { [userId: number]: User.AsObject },
+    userCache: {} as UserCache,
     selectedConversation: null as null | number, // TODO: null by default
     messages: [] as Array<Message.AsObject>,
     scrollToId: null as string | null,
+    loadingMoreMessages: false,
+    noMoreMessages: false,
+    noMoreConversations: false,
+    loadingMoreConversations: false,
   }),
 
   components: {
     ErrorAlert,
+    NewConversationDialog,
+    ConversationDetailsDialog,
+    MessageEntryField,
+    SearchResults,
   },
 
   computed: {
     ...mapState(["user"]),
   },
 
-  created() {
-    this.fetchData()
+  async created() {
+    await this.fetchData(true, true)
+    if (this.error) return
+
+    try {
+      await this.showRouteConversation()
+    } catch (err) {
+      this.error = err
+    }
   },
 
   watch: {
-    async selectedConversation() {
-      this.messages = []
-      console.debug("Selected conversation changed, fetching messages")
-      const req = new GetGroupChatMessagesReq()
-      req.setGroupChatId(this.selectedConversation!)
+    selectedConversation(to, from) {
+      if (to !== from) {
+        this.messages = []
+      }
+      this.loadMessages()
+    },
+
+    async $route(to, from) {
+      this.error = null
       try {
-        const res = await conversations.getGroupChatMessages(req)
-        this.messages = res.getMessagesList().map((msg) => msg.toObject())
-        this.sortMessages()
-        const groupChat = this.conversations.filter(
-          (groupChat) => groupChat.groupChatId === this.selectedConversation
-        )[0]
-        this.scrollToId = `msg-${groupChat.lastSeenMessageId}`
+        await this.showRouteConversation()
       } catch (err) {
         this.error = err
-        console.error(err)
       }
     },
   },
@@ -316,47 +356,131 @@ export default Vue.extend({
   },
 
   methods: {
-    handle,
-
-    cancelNewConversation() {
-      this.newConversationParticipants = []
-      this.newConversationText = ""
-      this.newConversationTitle = ""
-      this.newConversationDialog = false
-    },
-
-    openNewConversationDialog() {
-      this.newConversationDialog = true
-    },
-
-    async createNewConversation() {
-      const chatReq = new CreateGroupChatReq()
-      const wrapper = new wrappers.StringValue()
-      wrapper.setValue(this.newConversationTitle)
-      chatReq.setTitle(wrapper)
-      console.log(this.newConversationParticipants)
-      chatReq.setRecipientUserIdsList(this.newConversationParticipants)
-      this.loading = true
+    async loadMessages() {
+      this.error = null
+      const req = new GetGroupChatMessagesReq()
+      req.setGroupChatId(this.selectedConversation!)
+      let lastMessageId = null
+      if (this.messages.length > 0) {
+        lastMessageId = this.messages[0].messageId
+        req.setLastMessageId(lastMessageId)
+      }
       try {
-        const chatRes = await conversations.createGroupChat(chatReq)
-        const messageReq = new SendMessageReq()
-        messageReq.setGroupChatId(chatRes.getGroupChatId())
-        messageReq.setText(this.newConversationText)
-        await conversations.sendMessage(messageReq)
-        this.fetchData()
-        // close the dialog
-        this.cancelNewConversation()
+        const res = await conversations.getGroupChatMessages(req)
+        this.messages = [
+          ...res.getMessagesList().map((msg) => msg.toObject()),
+          ...this.messages,
+        ]
+        this.noMoreMessages = res.getNoMore()
+        this.sortMessages()
+        const groupChat = this.conversations.filter(
+          (groupChat) => groupChat.groupChatId === this.selectedConversation
+        )[0]
+        if (lastMessageId === null) {
+          this.scrollToId = `msg-${groupChat.lastSeenMessageId}`
+        } else {
+          this.scrollToId = `msg-${lastMessageId}`
+        }
       } catch (err) {
         this.error = err
       }
-      this.loading = false
     },
 
-    newConversationParticipantsRemove(userId: number) {
-      const index = this.friendIds.indexOf(userId)
-      if (index >= 0) {
-        this.friendIds.splice(index, 1)
+    async scrolled(e: Event) {
+      if ((e.target as HTMLElement).scrollTop > 0) return
+      if (this.loadingMoreMessages) return
+      if (this.noMoreMessages) return
+      //avoid race condition - this point can be reached
+      //when switching selected conversation
+      if (this.messages.length == 0) return
+      this.loadingMoreMessages = true
+      await this.loadMessages()
+      this.loadingMoreMessages = false
+    },
+
+    updatedConversation(conversation: GroupChat.AsObject) {
+      const index = this.conversations.findIndex(
+        (old) => old.groupChatId == conversation.groupChatId
+      )
+      if (index > -1) {
+        this.conversations[index] = conversation
       }
+      this.fetchUpdates()
+    },
+
+    selectedConversationObject() {
+      return this.conversations.find(
+        (e) => e.groupChatId == this.selectedConversation
+      )
+    },
+
+    async messageVisibilityChanged(messageId: number) {
+      const groupChat = this.selectedConversationObject()
+      if (!groupChat) return
+      if (groupChat.lastSeenMessageId >= messageId) {
+        return
+      }
+      const req = new MarkLastSeenGroupChatReq()
+      req.setGroupChatId(this.selectedConversation!)
+      req.setLastSeenMessageId(messageId)
+      try {
+        await conversations.markLastSeenGroupChat(req)
+      } catch (err) {
+        return
+      }
+      groupChat.lastSeenMessageId = messageId
+      groupChat.unseenMessageCount =
+        this.messages.length -
+        this.messages.findIndex((e) => e.messageId == messageId) -
+        1
+    },
+
+    async newConversationCreated(chatId: number) {
+      await this.fetchData(true, true)
+      this.selectConversation(chatId)
+    },
+
+    async showRouteConversation() {
+      //have to fetch the chat and users, because the route chat might
+      //not be in the initial chat list
+      let groupChat = null as null | GroupChat.AsObject
+      if (this.$route.params.dmUserId) {
+        const id = parseInt(this.$route.params.dmUserId)
+        if (isNaN(id)) {
+          throw Error("Invalid user id.")
+        }
+        const req = new GetDirectMessageReq()
+        req.setUserId(id)
+        const res = await conversations.getDirectMessage(req)
+        groupChat = res.toObject()
+      } else if (this.$route.params.groupChatId) {
+        const groupChatId = parseInt(this.$route.params.groupChatId)
+        if (isNaN(groupChatId)) {
+          throw Error("Invalid chat id.")
+        }
+        const req = new GetGroupChatReq()
+        req.setGroupChatId(groupChatId)
+        const res = await conversations.getGroupChat(req)
+        groupChat = res.toObject()
+      } else {
+        return
+      }
+      await Promise.all(
+        groupChat.memberUserIdsList.map((userId) => this.fetchUser(userId))
+      )
+      const conversationIndex = this.conversations.findIndex(
+        (chat) => chat.groupChatId == groupChat!.groupChatId
+      )
+      if (conversationIndex == -1) {
+        this.conversations = [groupChat, ...this.conversations]
+      }
+      this.selectedConversation = groupChat.groupChatId
+    },
+
+    handle,
+
+    openNewConversationDialog() {
+      this.newConversationDialog = true
     },
 
     sortMessages() {
@@ -376,12 +500,8 @@ export default Vue.extend({
       }
     },
 
-    search() {
-      console.debug("Search for", this.searchQuery)
-      // TODO
-    },
-
     async sendMessage() {
+      this.error = null
       if (!this.selectedConversation) {
         this.error = Error("No conversation selected")
       } else {
@@ -391,45 +511,64 @@ export default Vue.extend({
         try {
           await conversations.sendMessage(req)
           this.currentMessage = ""
-          this.fetchUpdates()
+          const scrollToBottom =
+            this.selectedConversationObject()?.unseenMessageCount == 0
+          await this.fetchUpdates(scrollToBottom)
         } catch (err) {
           this.error = err
         }
       }
     },
 
-    async fetchUpdates() {
+    async fetchUpdates(scrollToBottom = false) {
       const req = new GetUpdatesReq()
       req.setNewestMessageId(
         Math.max(0, ...this.messages.map((msg) => msg.messageId))
       )
+      let res = null
       try {
-        const res = await conversations.getUpdates(req)
-        res
-          .getUpdatesList()
-          .filter(
-            (update) => update.getGroupChatId() === this.selectedConversation
-          )
-          .map((update) => update.getMessage()!)
-          .forEach((msg) => {
-            this.messages.push(msg.toObject())
-          })
-        this.sortMessages()
+        res = await conversations.getUpdates(req)
       } catch (err) {
         this.error = err
+        return
       }
+      res
+        .getUpdatesList()
+        .filter(
+          (update) => update.getGroupChatId() === this.selectedConversation
+        )
+        .map((update) => update.getMessage()!)
+        .forEach((msg) => {
+          this.messages.push(msg.toObject())
+        })
+      this.sortMessages()
+
+      if (scrollToBottom) {
+        const lastId = this.messages[this.messages.length - 1].messageId
+        this.scrollToId = `msg-${lastId}`
+      }
+
+      this.fetchData(false, true)
     },
 
-    async fetchData() {
-      this.loading = true
+    async fetchData(setLoading = true, clear = false) {
+      if (setLoading) this.loading = true
+      this.loadingMoreConversations = true
       const chatsReq = new ListGroupChatsReq()
+      if (!clear) {
+        const latestMessage = this.conversations[this.conversations.length - 1]
+          .latestMessage
+        if (this.conversations.length > 0 && latestMessage) {
+          chatsReq.setLastMessageId(latestMessage.messageId)
+        }
+      }
       try {
         const chatsRes = await conversations.listGroupChats(chatsReq)
-        this.conversations = chatsRes
+        const dirtyConversations = chatsRes
           .getGroupChatsList()
           .map((chat) => chat.toObject())
         const userIds = new Set() as Set<number>
-        this.conversations.forEach((conv) => {
+        dirtyConversations.forEach((conv) => {
           conv.memberUserIdsList.forEach((userId) => userIds.add(userId))
         })
 
@@ -439,10 +578,17 @@ export default Vue.extend({
         await Promise.all(
           [...Array.from(userIds), ...this.friendIds].map(this.fetchUser)
         )
+        if (clear) {
+          this.conversations = dirtyConversations
+        } else {
+          this.conversations = [...this.conversations, ...dirtyConversations]
+        }
+        this.noMoreConversations = chatsRes.getNoMore()
       } catch (err) {
         this.error = err
       }
-      this.loading = false
+      if (setLoading) this.loading = false
+      this.loadingMoreConversations = false
     },
 
     friends(): Array<any> {
@@ -460,6 +606,10 @@ export default Vue.extend({
         })
     },
 
+    selectConversation(conversationId: number) {
+      this.selectedConversation = conversationId
+    },
+
     conversationChip(conversation: GroupChat.AsObject) {
       return conversation.unseenMessageCount
     },
@@ -475,7 +625,9 @@ export default Vue.extend({
       return user.color
     },
 
-    conversationTitle(conversation: GroupChat.AsObject) {
+    conversationTitle(conversation: GroupChat.AsObject | undefined) {
+      if (!conversation)
+        throw Error("Tried to generate title from undefined conversation")
       if (conversation.isDm) {
         const otherUserId = conversation.memberUserIdsList.filter(
           (userId) => userId != this.user.userId
@@ -483,7 +635,15 @@ export default Vue.extend({
         const otherUser = this.userCache[otherUserId]
         return `${otherUser.name} (${handle(otherUser.username)})`
       }
-      return conversation.title || "<i>Untitled</i>"
+      const otherUsersId = conversation.memberUserIdsList
+        .filter((userId) => userId != this.user.userId)
+        .sort()
+      return (
+        conversation.title ||
+        otherUsersId
+          .map((id) => this.userCache[id].name.split(" ")[0])
+          .join(", ")
+      )
     },
 
     conversationSubtitle(conversation: GroupChat.AsObject) {
@@ -491,57 +651,47 @@ export default Vue.extend({
         return "<i>No messages</i>"
       }
       const message = conversation.latestMessage!
-      return `<b>${this.messageAuthor(message)}</b>: ${message.text}`
-    },
-
-    selectConversation(conversationId: number) {
-      this.selectedConversation = conversationId
+      if (this.isControlMessage(message)) {
+        return `<i>${this.messageText(message)}</i>`
+      } else {
+        return `<b>${this.messageAuthor(message)}</b>: ${this.messageText(
+          message
+        )}`
+      }
     },
 
     messageColor(message: Message.AsObject) {
-      const user = this.userCache[message.authorUserId]
-      if (!user) {
-        return "red"
-      }
-      return user.color
+      return messageColor(message, this.userCache)
+    },
+
+    getName(userId: number) {
+      return getName(userId, this.userCache)
     },
 
     messageAuthor(message: Message.AsObject) {
-      const user = this.userCache[message.authorUserId]
-      if (!user) {
-        return "error"
-      }
-      return user.name.split(" ")[0]
+      return messageAuthor(message, this.userCache)
     },
 
     messageAvatarText(message: Message.AsObject) {
-      const user = this.userCache[message.authorUserId]
-      if (!user) {
-        return "ERR"
-      }
-      return this.initialsFromName(user.name)
+      return messageAvatarText(message, this.userCache)
     },
 
-    initialsFromName(name: string): string {
-      return name
-        .split(" ")
-        .map((word) => word[0])
-        .join("")
+    messageText(message: Message.AsObject) {
+      return messageText(message, this.user.userId, this.userCache)
     },
 
-    messageDisplayTime(message: Message.AsObject) {
-      const date = protobufTimestampToDate(message.time!)
-      if (new Date().getTime() - date.getTime() > 120 * 60 * 1000) {
-        // longer than 2h ago, display as absolute
-        return moment(date).format("lll")
-      } else {
-        // relative
-        return moment(date).fromNow()
-      }
-    },
+    initialsFromName,
+
+    messageDisplayTime,
+
+    isControlMessage,
 
     isMyMessage(message: Message.AsObject) {
-      return message.authorUserId === this.user.userId
+      return isMyMessage(message, this.user.userId)
+    },
+
+    controlMessageText(message: Message.AsObject) {
+      return controlMessageText(message, this.user.userId, this.userCache)
     },
   },
 })

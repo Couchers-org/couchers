@@ -161,7 +161,8 @@ def test_signup_email(db):
     request_email = f"{random_hex(12)}@couchers.org.invalid"
     message_id = random_hex(64)
 
-    token, expiry_text = new_signup_token(db(), request_email)
+    with session_scope(db) as session:
+        token, expiry_text = new_signup_token(session, request_email)
 
     def mock_send_email(sender_name, sender_email, recipient, subject, plain, html):
         assert recipient == request_email
