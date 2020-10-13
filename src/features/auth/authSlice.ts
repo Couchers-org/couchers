@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { User } from "../../pb/api_pb";
-import { passwordLogin } from "./authActions";
+import { passwordLogin, updateUser } from "./authActions";
 
 const initialState = {
   authToken: null as null | string,
@@ -45,6 +45,9 @@ export const authSlice = createSlice({
       .addCase(passwordLogin.rejected, (state, action) => {
         state.error = action.error.message;
         state.loading = false;
+      })
+      .addCase(updateUser.fulfilled, (state, action) => {
+        state.user = action.payload;
       });
   },
 });

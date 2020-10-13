@@ -1,24 +1,33 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { GetUserReq } from "../../pb/api_pb";
-import { AuthReq } from "../../pb/auth_pb";
-import { authClient, client, setAuthToken } from "../api";
+import { getUserByUsername, login } from "../../libs/user";
+import { User } from "../../pb/api_pb";
+import { RootState } from "../../reducers";
+import { setAuthToken } from "../api";
 
 export const passwordLogin = createAsyncThunk(
   "auth/passwordLogin",
   async ({ username, password }: { username: string; password: string }) => {
-    const req = new AuthReq();
-    req.setUser(username);
-    req.setPassword(password);
-    const userReq = new GetUserReq();
-    userReq.setUser(username);
-
-    const res = await authClient.authenticate(req);
-    const token = res.getToken();
+    const token = await login(username, password);
     setAuthToken(token);
 
-    const userRes = await client.getUser(userReq);
-    const user = userRes.toObject();
+    const user = await getUserByUsername(username);
 
     return { token, user };
   }
 );
+
+export const updateUser = createAsyncThunk<
+  User.AsObject,
+  User.AsObject,
+  { state: RootState }
+>("auth/updateUser", async (user, { getState }) => {
+  const username = getState().auth.user?.username;
+
+  if (!username) {
+    throw Error("User is not connected.");
+  }
+
+  await updateUser(user);
+
+  return getUserByUsername(username);
+});
