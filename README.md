@@ -1,3 +1,8 @@
+# couchers-react
+
+[![Build Status](https://travis-ci.org/Couchers-org/couchers-react.svg?branch=dev)](https://travis-ci.org/Couchers-org/couchers-react)
+[![Coverage Status](https://coveralls.io/repos/github/Couchers-org/couchers-react/badge.svg?branch=dev)](https://coveralls.io/github/Couchers-org/couchers-react?branch=dev)
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts

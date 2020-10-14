@@ -9,7 +9,7 @@
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
-    "@types/jest": "^24.0.0",
+    "@types/jest": "^26.0.14",
     "@types/node": "^12.0.0",
     "@types/react": "^16.9.0",
     "@types/react-dom": "^16.9.0",
@@ -29,7 +29,8 @@
     "build": "EXTEND_ESLINT=true react-scripts build",
     "test": "EXTEND_ESLINT=true react-scripts test",
     "eject": "react-scripts eject",
-    "format": "prettier --write src/"
+    "format": "prettier --write src/",
+    "test-travis": "NODE_ENV=test && EXTEND_ESLINT=true react-scripts test --coverage --watchAll=false"
   },
   "eslintConfig": {
     "extends": [
@@ -58,9 +59,19 @@
     "@types/google-protobuf": "^3.7.3",
     "@types/react-redux": "^7.1.9",
     "@types/react-router-dom": "^5.1.5",
+    "@types/react-test-renderer": "^16.9.3",
     "@types/redux-persist": "^4.3.1",
     "@types/webpack-env": "^1.15.3",
+    "coveralls": "^3.1.0",
     "eslint-config-prettier": "^6.12.0",
-    "prettier": "2.1.2"
+    "prettier": "2.1.2",
+    "react-test-renderer": "^16.13.1"
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "src/**/*.{ts,tsx}",
+      "!**/node_modules/**",
+      "!src/pb/*"
+    ]
   }
 }
