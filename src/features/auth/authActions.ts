@@ -1,5 +1,10 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { getUserByUsername, login } from "../../libs/user";
+import {
+  getCurrentUser,
+  getUserByUsername,
+  passwordLogin as apiPasswordLogin,
+  tokenLogin as apiTokenLogin,
+} from "../../libs/user";
 import { User } from "../../pb/api_pb";
 import { RootState } from "../../reducers";
 import { setAuthToken } from "../api";
@@ -7,10 +12,22 @@ import { setAuthToken } from "../api";
 export const passwordLogin = createAsyncThunk(
   "auth/passwordLogin",
   async ({ username, password }: { username: string; password: string }) => {
-    const token = await login(username, password);
+    const token = await apiPasswordLogin(username, password);
     setAuthToken(token);
 
     const user = await getUserByUsername(username);
+
+    return { token, user };
+  }
+);
+
+export const tokenLogin = createAsyncThunk(
+  "auth/tokenLogin",
+  async (loginToken: string) => {
+    const token = await apiTokenLogin(loginToken);
+    setAuthToken(token);
+
+    const user = await getCurrentUser();
 
     return { token, user };
   }

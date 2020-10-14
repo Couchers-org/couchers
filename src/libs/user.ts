@@ -1,17 +1,17 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import wrappers from "google-protobuf/google/protobuf/wrappers_pb";
 import { authClient, client } from "../features/api";
-import { GetUserReq, UpdateProfileReq, User } from "../pb/api_pb";
-import { AuthReq } from "../pb/auth_pb";
+import { GetUserReq, PingReq, UpdateProfileReq, User } from "../pb/api_pb";
+import { AuthReq, CompleteTokenLoginReq } from "../pb/auth_pb";
 
 /**
- * Login user and returns token
+ * Login user using password and returns session token
  *
  * @param {string} username
  * @param {string} password
  * @returns {Promise<string>}
  */
-export const login = async (
+export const passwordLogin = async (
   username: string,
   password: string
 ): Promise<string> => {
@@ -23,6 +23,35 @@ export const login = async (
   const token = response.getToken();
 
   return token;
+};
+
+/**
+ * Login user using a login token and returns session token
+ *
+ * @param {string} token
+ * @returns {Promise<string>}
+ */
+export const tokenLogin = async (loginToken: string): Promise<string> => {
+  const req = new CompleteTokenLoginReq();
+  req.setLoginToken(loginToken);
+
+  const response = await authClient.completeTokenLogin(req);
+  const token = response.getToken();
+
+  return token;
+};
+
+/**
+ * Returns User record of logged in user
+ *
+ * @returns {Promise<User.AsObject>}
+ */
+export const getCurrentUser = async (): Promise<User.AsObject> => {
+  const req = new PingReq();
+
+  const response = await client.ping(req);
+
+  return response.getUser()!.toObject();
 };
 
 /**

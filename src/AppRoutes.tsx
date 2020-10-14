@@ -3,24 +3,32 @@ import { Switch, Route, RouteProps, Redirect } from "react-router-dom";
 import Home from "./views/home";
 import Profile from "./views/profile";
 import Messages from "./views/messages";
-import Login from "./views/login";
+import Login from "./features/login";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./reducers";
 import { authError } from "./features/auth/authSlice";
 
+export const loginRoute = "/login";
+export const loginPasswordRoute = loginRoute + "/password";
+export const loginSentRoute = loginRoute + "/sent";
+
+export const profileRoute = "/profile";
+export const messagesRoute = "/messages";
+export const requestsRoute = "/messages";
+
 export default function AppRoutes() {
   return (
     <Switch>
-      <Route path="/login">
+      <Route path={`${loginRoute}/:urlToken?`}>
         <Login />
       </Route>
-      <PrivateRoute path="/profile">
+      <PrivateRoute path={profileRoute}>
         <Profile />
       </PrivateRoute>
-      <PrivateRoute path="/messages">
+      <PrivateRoute path={messagesRoute}>
         <Messages />
       </PrivateRoute>
-      <PrivateRoute path="/">
+      <PrivateRoute exact path="/">
         <Home />
       </PrivateRoute>
     </Switch>
