@@ -38,7 +38,9 @@ export default function Login() {
 
   const history = useHistory();
 
-  const { register, handleSubmit, setValue } = useForm<LoginInputs>();
+  const { register, handleSubmit, setValue, getValues } = useForm<LoginInputs>({
+    shouldUnregister: false,
+  });
 
   const onSubmit = handleSubmit(async (data: LoginInputs) => {
     if (!data.password) {
@@ -88,18 +90,6 @@ export default function Login() {
     }
   }, [urlToken, dispatch, location.pathname]);
 
-  useEffect(() => {
-    //Only on the first build, redirect to the normal login if
-    //the user went directly to /login/password or /login/sent.
-    ///TODO: Ask backend to change login token link to a query parameter
-    if (
-      location.pathname === loginPasswordRoute ||
-      location.pathname === loginSentRoute
-    ) {
-      history.replace(loginRoute);
-    }
-  }, []);
-
   return (
     <>
       {authToken && <Redirect to="/" />}
@@ -108,11 +98,14 @@ export default function Login() {
 
       <Switch>
         <Route path={loginPasswordRoute}>
+          {!getValues("username") && <Redirect to={loginRoute} />}
           <form onSubmit={onSubmit}>
             <TextInput
               label="Username/email"
-              name="username"
-              inputRef={register}
+              value={getValues("username")}
+              //key prevents react thinking this is the same input as the other username field
+              key="step2Username"
+              disabled
             ></TextInput>
             <TextInput
               label="Password"
@@ -128,6 +121,7 @@ export default function Login() {
         </Route>
 
         <Route path={loginSentRoute}>
+          {!getValues("username") && <Redirect to={loginRoute} />}
           <Typography key="tokenSentText">
             Check your email for a link to log in! :)
           </Typography>
@@ -139,6 +133,7 @@ export default function Login() {
               label="Username/email"
               name="username"
               inputRef={register({ required: true })}
+              key="step1Username"
             ></TextInput>
             <Button onClick={onSubmit} loading={loading || authLoading}>
               Next
