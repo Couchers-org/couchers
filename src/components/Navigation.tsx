@@ -51,6 +51,9 @@ export default function Navigation() {
       <ListItem button component={Link} to="/requests" className={styles.item}>
         <ListItemText>Requests</ListItemText>
       </ListItem>
+      <ListItem button component={Link} to="/logout" className={styles.item}>
+        <ListItemText>Logout</ListItemText>
+      </ListItem>
     </List>
   );
 

@@ -7,6 +7,7 @@ import Login from "./features/login";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./reducers";
 import { authError } from "./features/auth/authSlice";
+import Logout from "./views/Logout";
 
 export const loginRoute = "/login";
 export const loginPasswordRoute = loginRoute + "/password";
@@ -30,6 +31,9 @@ export default function AppRoutes() {
       </PrivateRoute>
       <PrivateRoute exact path="/">
         <Home />
+      </PrivateRoute>
+      <PrivateRoute exact path="/logout">
+        <Logout />
       </PrivateRoute>
     </Switch>
   );
