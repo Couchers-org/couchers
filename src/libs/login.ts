@@ -1,5 +1,5 @@
-import { LoginReq } from "../../pb/auth_pb";
-import { authClient } from "../api";
+import { authClient } from "../features/api";
+import { LoginReq } from "../pb/auth_pb";
 
 export const checkUsername = async (username: string) => {
   const req = new LoginReq();

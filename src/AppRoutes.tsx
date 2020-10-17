@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
 import { Switch, Route, RouteProps, Redirect } from "react-router-dom";
-import Home from "./views/home";
-import Profile from "./views/profile";
-import Messages from "./views/messages";
-import Login from "./features/login";
+import Home from "./views/Home";
+import Profile from "./views/Profile";
+import Messages from "./views/Messages";
+import Login from "./views/Login";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./reducers";
 import { authError } from "./features/auth/authSlice";
@@ -16,6 +16,7 @@ export const loginSentRoute = loginRoute + "/sent";
 export const profileRoute = "/profile";
 export const messagesRoute = "/messages";
 export const requestsRoute = "/messages";
+export const logoutRoute = "/logout";
 
 export default function AppRoutes() {
   return (
@@ -32,7 +33,7 @@ export default function AppRoutes() {
       <PrivateRoute exact path="/">
         <Home />
       </PrivateRoute>
-      <PrivateRoute exact path="/logout">
+      <PrivateRoute exact path={logoutRoute}>
         <Logout />
       </PrivateRoute>
     </Switch>

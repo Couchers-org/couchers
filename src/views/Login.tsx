@@ -8,20 +8,16 @@ import {
   useLocation,
   useParams,
 } from "react-router-dom";
-import Button from "../../components/Button";
-import TextInput from "../../components/TextInput";
-import ErrorAlert from "../../components/ErrorAlert";
-import { passwordLogin, tokenLogin } from "../auth/authActions";
-import { useAppDispatch, useTypedSelector } from "../../store";
+import Button from "../components/Button";
+import TextInput from "../components/TextInput";
+import ErrorAlert from "../components/ErrorAlert";
+import { passwordLogin, tokenLogin } from "../features/auth/authActions";
+import { useAppDispatch, useTypedSelector } from "../store";
 import { useForm } from "react-hook-form";
-import { checkUsername } from "./login";
-import { authError, clearError } from "../auth/authSlice";
-import { LoginRes } from "../../pb/auth_pb";
-import {
-  loginPasswordRoute,
-  loginRoute,
-  loginSentRoute,
-} from "../../AppRoutes";
+import { checkUsername } from "../libs/login";
+import { authError, clearError } from "../features/auth/authSlice";
+import { LoginRes } from "../pb/auth_pb";
+import { loginPasswordRoute, loginRoute, loginSentRoute } from "../AppRoutes";
 
 type LoginInputs = {
   username: string;

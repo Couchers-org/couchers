@@ -9,6 +9,12 @@ import {
 } from "@material-ui/core";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import {
+  profileRoute,
+  messagesRoute,
+  requestsRoute,
+  logoutRoute,
+} from "../AppRoutes";
 
 const useStyles = makeStyles((theme) => ({
   listContainer: {
@@ -42,16 +48,36 @@ export default function Navigation() {
       <ListItem button component={Link} to="/" className={styles.item}>
         <ListItemText>Dashboard</ListItemText>
       </ListItem>
-      <ListItem button component={Link} to="/profile" className={styles.item}>
+      <ListItem
+        button
+        component={Link}
+        to={profileRoute}
+        className={styles.item}
+      >
         <ListItemText>Profile</ListItemText>
       </ListItem>
-      <ListItem button component={Link} to="/messages" className={styles.item}>
+      <ListItem
+        button
+        component={Link}
+        to={messagesRoute}
+        className={styles.item}
+      >
         <ListItemText>Messages</ListItemText>
       </ListItem>
-      <ListItem button component={Link} to="/requests" className={styles.item}>
+      <ListItem
+        button
+        component={Link}
+        to={requestsRoute}
+        className={styles.item}
+      >
         <ListItemText>Requests</ListItemText>
       </ListItem>
-      <ListItem button component={Link} to="/logout" className={styles.item}>
+      <ListItem
+        button
+        component={Link}
+        to={logoutRoute}
+        className={styles.item}
+      >
         <ListItemText>Logout</ListItemText>
       </ListItem>
     </List>
