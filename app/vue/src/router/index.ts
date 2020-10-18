@@ -6,6 +6,7 @@ import HostRequests from "../views/HostRequests.vue"
 import User from "../views/User.vue"
 import Login from "../views/Login.vue"
 import Profile from "../views/Profile.vue"
+import Location from "../views/EditLocation.vue"
 import Logout from "../views/Logout.vue"
 import SSO from "../views/SSO.vue"
 import TOS from "../views/TOS.vue"
@@ -110,6 +111,11 @@ const routes: Array<RouteConfig> = [
     path: "/profile",
     name: "Profile",
     component: Profile,
+  },
+  {
+    path: "/profile/location",
+    name: "Edit my location",
+    component: Location,
   },
 
   {

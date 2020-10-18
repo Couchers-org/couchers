@@ -10,11 +10,13 @@
   },
   "dependencies": {
     "@kevinfaguiar/vue-twemoji-picker": "^5.7.4",
+    "@types/leaflet": "^1.5.19",
     "@types/punycode": "^2.1.0",
     "axios": "^0.19.2",
     "core-js": "^3.6.5",
     "google-protobuf": "^3.12.2",
     "grpc-web": "^1.1.0",
+    "leaflet": "^1.7.1",
     "markdown-it": "^10.0.0",
     "moment": "^2.26.0",
     "prettier": "^2.0.5",
@@ -23,6 +25,7 @@
     "vue-observe-visibility": "^0.4.6",
     "vue-property-decorator": "^8.4.2",
     "vue-router": "^3.2.0",
+    "vue2-leaflet": "^2.6.0",
     "vuetify": "^2.2.11",
     "vuex": "^3.4.0",
     "vuex-persistedstate": "^3.0.1"
