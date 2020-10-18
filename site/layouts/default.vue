@@ -77,7 +77,7 @@
           </a>
 
           <a class="navbar-item" href="/team">
-            Our team
+            Our team &ndash; positions available
           </a>
         </div>
 
