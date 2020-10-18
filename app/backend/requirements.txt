@@ -1,5 +1,6 @@
 alembic
 black
+geoalchemy2
 grpcio
 isort
 Jinja2
