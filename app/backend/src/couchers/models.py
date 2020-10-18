@@ -68,7 +68,11 @@ class User(Base):
     ## location
     # point describing their location. EPSG4326 is the SRS (spatial ref system, = way to describe a point on earth) used
     # by GPS, it has the WGS84 geoid with lat/lon
-    geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
+    # their true location (used for computing distances to events, etc)
+    true_geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
+    # their display location (displayed to other users)
+    display_geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
+    display_radius = Column(Float, nullable=True)
     # see https://nominatim.org/release-docs/develop/api/Output/#place_id-is-not-a-persistent-id
     # concatenation of osm_type + osm_id of the nominatim result they clicked when looking up this location
     osm_semi_unique_id = Column(String, nullable=True)
