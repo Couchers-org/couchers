@@ -11,13 +11,12 @@
             <p class="content">The team spans every continent (except Antarctica, sorry penguins), and although many of us have only met in the last few months, what brings us together is that we've all gotten a lot of joy out of couch-surfing and would like to spend our time making that experience better. We want to build an improved, safer and more inclusive platform that can support and sustainably grow the couch-surfing community, and bring its values to the world. If you feel the same way and you'd like to contribute, then we'd love to talk to you.</p>
             <p class="content">We are actively looking for people to join the team, we need a broad range of experiences, expertise, and cultural backgrounds. Please consider joining us, whether you have skills, ideas, complaints, or just want to see this done right.</p>
             <h3 class="title is-3">Positions available</h3>
-            <p class="content">At the moment, we are specifically looking for:</p>
-            <ul>
-              <li>Senior UI/UX manager</li>
-              <li>Digital marketers: email and social media</li>
-              <li>Branding and graphic desginers</li>
-              <li>Frontend engineers (especially with skills in React)</li>
-            </ul>
+            <p class="content">At the moment, we are specifically looking for:<ul>
+              <li>Senior <b>UI/UX manager</b></li>
+              <li><b>Digital marketers</b>: email and social media</li>
+              <li><b>Branding and graphic desginers</b></li>
+              <li><b>Frontend engineers</b> (especially with skills in React)</li>
+            </ul></p>
             <p class="content">If you think you could help in other ways, we'd still love to hear from you!</p>
             <p><a class="button is-primary" href="/signup">Join the team</a></p>
           </div>
