@@ -1,8 +1,18 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import wrappers from "google-protobuf/google/protobuf/wrappers_pb";
 import { authClient, client } from "../features/api";
-import { GetUserReq, PingReq, UpdateProfileReq, User } from "../pb/api_pb";
-import { AuthReq, CompleteTokenLoginReq } from "../pb/auth_pb";
+import {
+  GetUserReq,
+  HostingStatus,
+  PingReq,
+  UpdateProfileReq,
+  User,
+} from "../pb/api_pb";
+import {
+  AuthReq,
+  CompleteSignupReq,
+  CompleteTokenLoginReq,
+} from "../pb/auth_pb";
 
 /**
  * Login user using password and returns session token
@@ -103,4 +113,42 @@ export const updateUser = async (user: User.AsObject): Promise<Empty> => {
   req.setGender(genderWrapper);
 
   return client.updateProfile(req);
+};
+
+export type SignupArguments = {
+  signupToken: string;
+  username: string;
+  name: string;
+  city: string;
+  birthdate: Date;
+  gender: string;
+  hostingStatus: HostingStatus;
+};
+
+/**
+ * Completes the signup process
+ *
+ * @param {SignupArguments} signup arguments
+ * @returns {Promise<string>} session token
+ */
+export const completeSignup = async ({
+  signupToken,
+  username,
+  name,
+  city,
+  birthdate,
+  gender,
+  hostingStatus,
+}: SignupArguments) => {
+  const req = new CompleteSignupReq();
+  req.setSignupToken(signupToken);
+  req.setUsername(username);
+  req.setName(name);
+  req.setCity(city);
+  req.setBirthdate(birthdate.toISOString().split("T")[0]);
+  req.setGender(gender);
+  req.setHostingStatus(hostingStatus);
+
+  const res = await authClient.completeSignup(req);
+  return res.getToken();
 };

@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { User } from "../../pb/api_pb";
-import { passwordLogin, tokenLogin, updateUser } from "./index";
+import { passwordLogin, tokenLogin, updateUser, signup } from "./index";
 
 const initialState = {
   authToken: null as null | string,
@@ -58,6 +58,21 @@ export const authSlice = createSlice({
         state.loading = false;
       })
       .addCase(tokenLogin.rejected, (state, action) => {
+        state.error = action.error.message;
+        state.loading = false;
+      })
+      .addCase(signup.pending, (state) => {
+        state.authToken = null;
+        state.user = null;
+        state.error = null;
+        state.loading = true;
+      })
+      .addCase(signup.fulfilled, (state, action) => {
+        state.authToken = action.payload.token;
+        state.user = action.payload.user;
+        state.loading = false;
+      })
+      .addCase(signup.rejected, (state, action) => {
         state.error = action.error.message;
         state.loading = false;
       })

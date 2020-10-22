@@ -1,12 +1,14 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import {
+  completeSignup,
   getCurrentUser,
   getUserByUsername,
   updateUser as apiUpdateUser,
   passwordLogin as apiPasswordLogin,
+  SignupArguments,
   tokenLogin as apiTokenLogin,
 } from "../../libs/user";
-import { User } from "../../pb/api_pb";
+import { HostingStatus, User } from "../../pb/api_pb";
 import { RootState } from "../../reducers";
 
 export const passwordLogin = createAsyncThunk(
@@ -46,3 +48,14 @@ export const updateUser = createAsyncThunk<
 
   return getUserByUsername(username);
 });
+
+export const signup = createAsyncThunk(
+  "auth/signup",
+  async (signupArguments: SignupArguments) => {
+    const token = await completeSignup(signupArguments);
+
+    const user = await getCurrentUser(token);
+
+    return { token, user };
+  }
+);
