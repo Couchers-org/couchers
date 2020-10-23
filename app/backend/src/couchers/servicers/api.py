@@ -163,6 +163,12 @@ class API(api_pb2_grpc.APIServicer):
             if request.HasField("city"):
                 user.city = request.city.value
 
+            if request.HasField("lat") and request.HasField("lng"):
+                user.geom = func.ST_SetSRID(func.ST_MakePoint(request.lng.value, request.lat.value), 4326)
+
+            if request.HasField("radius"):
+                user.geom_radius = request.radius.value
+
             if request.HasField("gender"):
                 user.gender = request.gender.value
 
@@ -539,6 +545,9 @@ def user_model_to_pb(db_user, session, context):
         username=db_user.username,
         name=db_user.name,
         city=db_user.city,
+        lat=db_user.lat,
+        lng=db_user.lng,
+        radius=db_user.geom_radius,
         verification=db_user.verification,
         community_standing=db_user.community_standing,
         num_references=num_references,
