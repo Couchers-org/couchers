@@ -69,23 +69,17 @@ class User(Base):
     ## location
     # point describing their location. EPSG4326 is the SRS (spatial ref system, = way to describe a point on earth) used
     # by GPS, it has the WGS84 geoid with lat/lon
-    # their true location (used for computing distances to events, etc)
-    true_geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
-    # their display location (displayed to other users)
-    display_geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
-    display_radius = Column(Float, nullable=True)
-    # see https://nominatim.org/release-docs/develop/api/Output/#place_id-is-not-a-persistent-id
-    # concatenation of osm_type + osm_id of the nominatim result they clicked when looking up this location
-    osm_semi_unique_id = Column(String, nullable=True)
-    # the display address, possibly different to the osm resolved data
-    display_address = Column(String, nullable=True)
+    geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
+    # their display location (displayed to other users), in meters
+    geom_radius = Column(Float, nullable=True)
+    # the display address (text) shown on their profile
+    city = Column(String, nullable=False)
 
     joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     last_active = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     # display name
     name = Column(String, nullable=False)
-    city = Column(String, nullable=False)
     gender = Column(String, nullable=False)
     birthdate = Column(Date, nullable=False)  # in the timezone of birthplace
 
