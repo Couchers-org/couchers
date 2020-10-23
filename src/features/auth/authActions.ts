@@ -8,7 +8,7 @@ import {
   SignupArguments,
   tokenLogin as apiTokenLogin,
 } from "../../libs/user";
-import { HostingStatus, User } from "../../pb/api_pb";
+import { User } from "../../pb/api_pb";
 import { RootState } from "../../reducers";
 
 export const passwordLogin = createAsyncThunk(

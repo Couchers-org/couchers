@@ -19,7 +19,7 @@ import { HostingStatus } from "../pb/api_pb";
 import Autocomplete from "../components/Autocomplete";
 import { getSignupEmail, submitEmail, validateUsername } from "../libs/signup";
 import { signupRoute, signupSentRoute } from "../AppRoutes";
-import { useForm } from "react-hook-form";
+import { useForm, ValidateResult } from "react-hook-form";
 
 const optionLabels = {
   [HostingStatus.HOSTING_STATUS_CAN_HOST]: "Can host",
@@ -50,29 +50,9 @@ export default function Signup() {
 
   const history = useHistory();
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    getValues,
-    setError,
-    errors,
-  } = useForm<SignupInputs>({ shouldUnregister: false, mode: "onChange" });
-
-  /*const [username, setUsername] = useState("");
-  const debouncedUsername = useDebouncedValue(username, 500);
-  const [usernameError, setUsernameError] = useState("");
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
-  const [birthdate, setBirthdate] = useState(
-    //default date -> 25 years ago
-    new Date(Date.now() - 25 * 365 * 24 * 60 * 60 * 1000)
-  );
-  const [city, setCity] = useState("");
-  const [gender, setGender] = useState("");
-  const [hostingStatus, setHostingStatus] = useState(
-    HostingStatus.HOSTING_STATUS_UNSPECIFIED
-  );*/
+  const { register, handleSubmit, setValue, getValues, errors } = useForm<
+    SignupInputs
+  >({ shouldUnregister: false, mode: "onChange" });
 
   const sendToken = async () => {
     setLoading(true);
@@ -112,7 +92,7 @@ export default function Signup() {
         setLoading(false);
       }
     })();
-  }, [urlToken, dispatch]);
+  }, [urlToken, dispatch, location.pathname, setValue, history]);
 
   const completeSignup = handleSubmit(async (data: SignupInputs) => {
     const parsedBirthdate = new Date(data.birthdate);
@@ -127,15 +107,6 @@ export default function Signup() {
         hostingStatus: data.hostingStatus,
       })
     );
-    console.log({
-      signupToken: urlToken,
-      username: data.username,
-      name: data.name,
-      city: data.city,
-      birthdate: parsedBirthdate,
-      gender: data.gender,
-      hostingStatus: data.hostingStatus,
-    });
   });
 
   return (
@@ -154,7 +125,6 @@ export default function Signup() {
         //email entry
         <Route exact path={`${signupRoute}`}>
           <TextInput
-            key="emailStep1"
             name="email"
             label="Email"
             inputRef={register({
@@ -168,12 +138,7 @@ export default function Signup() {
         //complete signup form
         <Route path={`${signupRoute}/:urlToken?`}>
           <form onSubmit={completeSignup}>
-            <TextInput
-              key="emailStep2"
-              label="Email"
-              value={getValues("email")}
-              disabled
-            />
+            <Typography variant="h3">{getValues("email")}</Typography>
             <TextInput
               name="name"
               label="Name"
@@ -192,14 +157,23 @@ export default function Signup() {
               inputRef={register({
                 required: "Enter your username",
                 pattern: {
-                  value: /[a-z][0-9a-z_]*[a-z0-9]$/,
+                  //copied from backend, added ^
+                  value: /^[a-z][0-9a-z_]*[a-z0-9]$/,
                   message:
-                    "Username can only have letters, numbers or _, starting with a letter.",
+                    "Username can only have lowercase letters, numbers or _, starting with a letter.",
                 },
-                ///TODO: Debounce
-                validate: validateUsername,
+                validate: async (value) => {
+                  //debounce doesn't return anything so you have to manually resolve a promise
+                  //also for some reason the promise type isn't properly inferred in browser
+                  return new Promise<ValidateResult>((resolve) =>
+                    debounce(async (username) => {
+                      const valid = await validateUsername(username);
+                      resolve(valid || "This username is taken.");
+                    }, 500)(value)
+                  );
+                },
               })}
-              helperText={errors?.username?.type}
+              helperText={errors?.username?.message}
             />
             <TextInput
               name="city"
@@ -218,6 +192,10 @@ export default function Signup() {
             <TextInput
               name="birthdate"
               label="Birthdate"
+              type="date"
+              InputLabelProps={{
+                shrink: true,
+              }}
               inputRef={register({
                 required: "Enter your birthdate",
                 validate: (stringDate) =>
