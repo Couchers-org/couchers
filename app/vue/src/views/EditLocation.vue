@@ -7,13 +7,7 @@
       </v-overlay>
       <h1>Edit your location</h1>
 
-      <h2>Step 1: location privacy</h2>
-      <v-radio-group v-model="showTrueLocation">
-        <v-radio :value="true" label="Show my exact location to other users" />
-        <v-radio :value="false" label="Show only an approximate location within a radius to other users" />
-      </v-radio-group>
-
-      <h2>Step 2: find your location</h2>
+      <h2>Step 1: search for your location</h2>
       <v-text-field
         autofocus
         v-model="addressQuery"
@@ -41,32 +35,45 @@
         </v-list>
       </v-card>
 
-      <h2>Step 3: customize how your location is displayed</h2>
+      <h2>Step 2: customize how your location is displayed</h2>
 
       <v-text-field
         autofocus
         v-model="displayAddress"
         :disabled="loading"
-        :loading="loading"
+        :loading="displayAddressLoading"
         v-on:keyup.enter="searchAddress"
         name="displayAddress"
         label="Display address (shown to other users)"
       ></v-text-field>
 
-      Drag the markers to indicate your actual location and what will be shown to other users.
+      Drag the markers to indicate what will be shown to other users.
 
       <div style="height: 350px;">
         <l-map :zoom="zoom" :center="center" style="width: 100%; height: 100%;">
           <l-tile-layer :url="url" :attribution="attribution" />
-          <l-marker :lat-lng.sync="trueLocation" :draggable="true" :visible="selectedOsmResponse !== null">
+          <l-marker
+            :lat-lng.sync="trueLocation"
+            :draggable="true"
+            :visible="selectedOsmResponse !== null"
+            :icon="homeIcon"
+          >
             <l-tooltip :options="{ interactive: true }">
               <div>
-                Your location
+                Searched location
               </div>
             </l-tooltip>
           </l-marker>
-          <l-circle :lat-lng.sync="displayLocation" :radius="displayRadius" :visible="(selectedOsmResponse !== null) && !showTrueLocation" />
-          <l-marker :lat-lng.sync="displayLocation" :draggable="true" :visible="(selectedOsmResponse !== null) && !showTrueLocation">
+          <l-circle
+            :lat-lng.sync="displayLocation"
+            :radius="displayRadius"
+            :visible="selectedOsmResponse !== null && !showTrueLocation"
+          />
+          <l-marker
+            :lat-lng.sync="displayLocation"
+            :draggable="true"
+            :visible="selectedOsmResponse !== null && !showTrueLocation"
+          >
             <l-tooltip :options="{ interactive: true }">
               <div>
                 Location displayed to other users
@@ -77,18 +84,22 @@
       </div>
 
       <v-slider
-        v-show="(selectedOsmResponse !== null) && !showTrueLocation"
+        v-show="selectedOsmResponse !== null && !showTrueLocation"
         v-model="displayRadius"
         label="Approximate location radius"
-        max="5000"
+        max="2000"
         min="50"
       ></v-slider>
+
+      <p>
+        We will only store the location and radius of your pin and your display
+        address.
+      </p>
 
       <v-btn class="mx-2 my-2" v-on:click="save" color="success">Save</v-btn>
       <v-btn class="mx-2 my-2" v-on:click="cancel" color="warning"
         >Cancel</v-btn
       >
-      <p class="caption">We will save the following information: your exact address (the location of the pin you placed, and your chosen result from step 2), and your display address (the location of the pin placed in step 3, the radius, and your display address). Other users will only be shown your display location.</p>
     </v-container>
   </v-main>
 </template>
@@ -103,7 +114,7 @@ import LoadingCircular from "../components/LoadingCircular.vue"
 
 import axios from "axios"
 
-import L, { latLng } from "leaflet"
+import L, { latLng, icon } from "leaflet"
 import { LMap, LTileLayer, LMarker, LTooltip, LCircle } from "vue2-leaflet"
 import "leaflet/dist/leaflet.css"
 
@@ -124,6 +135,7 @@ export default Vue.extend({
     error: null as Error | null,
 
     displayAddress: "",
+    displayAddressLoading: false,
     osmSemiUniqueId: "",
     displayRadius: 500, // m?
 
@@ -131,7 +143,7 @@ export default Vue.extend({
     osmResponses: [] as Array<object>,
     selectedOsmResponse: null as number | null,
 
-    showTrueLocation: true,
+    showTrueLocation: false,
 
     zoom: 15,
     center: latLng(0, 0),
@@ -142,6 +154,13 @@ export default Vue.extend({
     trueLocationVisible: true,
     displayLocation: latLng(0, 0),
     displayLocationVisible: false,
+
+    homeIcon: icon({
+      iconUrl: "/home-solid.png",
+      iconSize: [26, 26],
+      iconAnchor: [13, 13],
+      shadowSize: [26, 26],
+    }),
   }),
 
   components: {
@@ -163,18 +182,51 @@ export default Vue.extend({
         this.trueLocation = latLng(selected.lat, selected.lon)
         // give them a random location within random angle and distance randomly between 50m - 500m from current location
         // this is not truely uniformly random in the circle, but close enough
-        const angle = Math.random() * 2 *3.1415
-        const distance = Math.random() * 450 + 50
+        const angle = Math.random() * 2 * 3.1415
+        const distance = Math.random() * 400 + 100
         // see https://gis.stackexchange.com/a/2964
         // 111111 m ~ 1 degree
-        const latOffset = 1/111111*(distance * Math.cos(angle))
-        const lonOffset = 1/111111*(distance * Math.sin(angle))
-        this.displayLocation = latLng(parseFloat(selected.lat) + latOffset, parseFloat(selected.lon) + lonOffset)
+        const latOffset = (1 / 111111) * (distance * Math.cos(angle))
+        const lonOffset = (1 / 111111) * (distance * Math.sin(angle))
+        this.displayLocation = latLng(
+          parseFloat(selected.lat) + latOffset,
+          parseFloat(selected.lon) + lonOffset
+        )
 
         this.zoom = 15
 
-        this.displayAddress = selected.display_name
-        this.osmSemiUniqueId = selected.osm_type[0].toUpperCase() + selected.osm_id
+        this.osmSemiUniqueId = selected.osm_type.toLowerCase() + selected.osm_id
+
+        const nominatimId = selected.osm_type[0].toUpperCase() + selected.osm_id
+
+        this.displayAddressLoading = true
+        const res = await axios.get(
+          nominatimURL +
+            "lookup?format=jsonv2&osm_ids=" +
+            encodeURIComponent(nominatimId)
+        )
+
+        // `res` contains a bunch of stuff, and the structure depends on country and completeness of data
+        // so let's just try to get (neighbourhood, suburb, city, country)
+
+        const fields = ["neighbourhood", "suburb", "city", "country"]
+
+        const results = []
+
+        for (const ix in fields) {
+          const field = fields[ix]
+          try {
+            if (field in res.data[0].address) {
+              results.push(res.data[0].address[field])
+            }
+          } catch (e) {
+            console.error(e)
+          }
+        }
+
+        this.displayAddress = results.join(", ")
+
+        this.displayAddressLoading = false
       }
     },
 
@@ -184,7 +236,7 @@ export default Vue.extend({
       } else {
         this.displayLocationVisible = true
       }
-    }
+    },
   },
 
   methods: {
@@ -206,7 +258,7 @@ export default Vue.extend({
 
     cancel() {
       // should probably just redirect back
-    }
+    },
   },
 
   computed: {
