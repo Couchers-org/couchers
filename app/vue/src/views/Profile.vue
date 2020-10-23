@@ -143,8 +143,14 @@
                 <v-tab-item value="info">
                   <h3>Name</h3>
                   <editable-text-field :text="user.name" :save="saveName" />
-                  <h3>City</h3>
-                  <editable-text-field :text="user.city" :save="saveCity" />
+                  <h3>Location</h3>
+                  <editable-location
+                    address="Morningside Heights, Manhattan, New York, United States of America"
+                    :latitude="40.814319253997986"
+                    :longitude="-73.95750309095826"
+                    :radius="429"
+                    :save="saveLocation"
+                  />
                   <h3>Hosting Status</h3>
                   <editable-dropdown
                     :value="user.hostingStatus == 0 ? 1 : user.hostingStatus"
@@ -287,6 +293,7 @@ import EditableDropdown from "../components/EditableDropdown.vue"
 import EditableAvatar from "../components/EditableAvatar.vue"
 import EditableTextarea from "../components/EditableTextarea.vue"
 import EditableTextField from "../components/EditableTextField.vue"
+import EditableLocation from "../components/EditableLocation.vue"
 import EditableList from "../components/EditableList.vue"
 import EditableColor from "../components/EditableColor.vue"
 import ErrorAlert from "../components/ErrorAlert.vue"
@@ -338,6 +345,7 @@ export default Vue.extend({
     EditableAvatar,
     EditableTextarea,
     EditableTextField,
+    EditableLocation,
     EditableList,
     EditableColor,
     ErrorAlert,
@@ -395,12 +403,18 @@ export default Vue.extend({
       this.updateProfile(req)
     },
 
-    saveCity(text: string) {
-      const req = new UpdateProfileReq()
-      const wrapper = new wrappers.StringValue()
-      wrapper.setValue(text)
-      req.setCity(wrapper)
-      this.updateProfile(req)
+    saveLocation(
+      address: string,
+      latitude: number,
+      longitude: number,
+      radius: number
+    ) {
+      console.log(address, latitude, longitude, radius)
+      //const req = new UpdateProfileReq()
+      //const wrapper = new wrappers.StringValue()
+      //wrapper.setValue(text)
+      //req.setCity(wrapper)
+      //this.updateProfile(req)
     },
 
     saveHostingStatus(index: number) {
