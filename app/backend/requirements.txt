@@ -15,4 +15,5 @@ python-dateutil
 pytz
 pyyaml
 requests
+Shapely
 sqlalchemy

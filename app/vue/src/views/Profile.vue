@@ -145,10 +145,10 @@
                   <editable-text-field :text="user.name" :save="saveName" />
                   <h3>Location</h3>
                   <editable-location
-                    address="Morningside Heights, Manhattan, New York, United States of America"
-                    :latitude="40.814319253997986"
-                    :longitude="-73.95750309095826"
-                    :radius="429"
+                    :address="user.city"
+                    :latitude="user.lat"
+                    :longitude="user.lng"
+                    :radius="user.radius"
                     :save="saveLocation"
                   />
                   <h3>Hosting Status</h3>
@@ -410,11 +410,20 @@ export default Vue.extend({
       radius: number
     ) {
       console.log(address, latitude, longitude, radius)
-      //const req = new UpdateProfileReq()
-      //const wrapper = new wrappers.StringValue()
-      //wrapper.setValue(text)
-      //req.setCity(wrapper)
-      //this.updateProfile(req)
+      const req = new UpdateProfileReq()
+      const addressWrapper = new wrappers.StringValue()
+      addressWrapper.setValue(address)
+      req.setCity(addressWrapper)
+      const latWrapper = new wrappers.DoubleValue()
+      latWrapper.setValue(latitude)
+      req.setLat(latWrapper)
+      const lngWrapper = new wrappers.DoubleValue()
+      lngWrapper.setValue(longitude)
+      req.setLng(lngWrapper)
+      const radiusWrapper = new wrappers.DoubleValue()
+      radiusWrapper.setValue(radius)
+      req.setRadius(radiusWrapper)
+      this.updateProfile(req)
     },
 
     saveHostingStatus(index: number) {

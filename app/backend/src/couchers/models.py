@@ -2,6 +2,7 @@ import enum
 from calendar import monthrange
 from datetime import date
 
+from geoalchemy2.shape import to_shape
 from geoalchemy2.types import Geometry
 from sqlalchemy import Boolean, Column, Date, DateTime, Enum, Float, ForeignKey, Integer
 from sqlalchemy import LargeBinary as Binary
@@ -130,6 +131,14 @@ class User(Base):
     @hybrid_property
     def is_jailed(self):
         return self.accepted_tos < 1
+
+    @property
+    def lng(self):
+        return to_shape(self.geom).x if self.geom else None
+
+    @property
+    def lat(self):
+        return to_shape(self.geom).y if self.geom else None
 
     @property
     def age(self):
