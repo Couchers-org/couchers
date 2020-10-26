@@ -15,6 +15,7 @@ import {
   requestsRoute,
   logoutRoute,
 } from "../AppRoutes";
+import { useTypedSelector } from "../store";
 
 const useStyles = makeStyles((theme) => ({
   listContainer: {
@@ -37,6 +38,8 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Navigation() {
   const styles = useStyles();
+
+  const user = useTypedSelector((state) => state.auth.user);
   const [open, setOpen] = useState(false);
 
   const handleClick = () => {
@@ -72,14 +75,16 @@ export default function Navigation() {
       >
         <ListItemText>Requests</ListItemText>
       </ListItem>
-      <ListItem
-        button
-        component={Link}
-        to={logoutRoute}
-        className={styles.item}
-      >
-        <ListItemText>Logout</ListItemText>
-      </ListItem>
+      {user ? (
+        <ListItem
+          button
+          component={Link}
+          to={logoutRoute}
+          className={styles.item}
+        >
+          <ListItemText>Logout</ListItemText>
+        </ListItem>
+      ) : null}
     </List>
   );
 

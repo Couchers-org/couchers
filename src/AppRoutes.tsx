@@ -3,7 +3,7 @@ import { Switch, Route, RouteProps, Redirect } from "react-router-dom";
 import Home from "./views/Home";
 import Profile from "./views/Profile";
 import Messages from "./views/Messages";
-import Login from "./views/Login";
+import Login from "./features/auth/login/Login";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./reducers";
 import { authError } from "./features/auth/authSlice";
@@ -11,7 +11,6 @@ import Logout from "./views/Logout";
 
 export const loginRoute = "/login";
 export const loginPasswordRoute = loginRoute + "/password";
-export const loginSentRoute = loginRoute + "/sent";
 
 export const profileRoute = "/profile";
 export const messagesRoute = "/messages";
