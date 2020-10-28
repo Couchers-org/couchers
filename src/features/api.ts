@@ -5,15 +5,14 @@ import { SSOPromiseClient } from "../pb/sso_grpc_web_pb";
 import { ConversationsPromiseClient } from "../pb/conversations_grpc_web_pb";
 import { RequestsPromiseClient } from "../pb/requests_grpc_web_pb";
 
-const URL = "http://localhost:8888";
+import { store } from "../store";
 
-export let authToken: string | null;
-export const setAuthToken = (token: string | null) => (authToken = token);
+const URL = "http://localhost:8888";
 
 class AuthInterceptor {
   // eslint-disable-next-line
   intercept(request: any, invoker: (request: any) => any) {
-    request.getMetadata()["authorization"] = `Bearer ${authToken}`;
+    request.getMetadata()["authorization"] = `Bearer ${store.getState().auth.authToken}`;
     return invoker(request);
   }
 }

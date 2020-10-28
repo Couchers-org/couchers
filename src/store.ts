@@ -16,7 +16,6 @@ import {
   REHYDRATE,
 } from "redux-persist";
 import storage from "redux-persist/lib/storage";
-import { authToken, setAuthToken } from "./features/api";
 import rootReducer, { RootState } from "./reducers";
 
 const persistConfig = {
@@ -37,15 +36,6 @@ const store = configureStore({
 });
 
 let persistor = persistStore(store);
-
-store.subscribe(() => {
-  const newToken = store.getState().auth.authToken;
-
-  if (authToken !== newToken) {
-    console.log(`Updating authToken from ${authToken} to ${newToken}.`);
-    setAuthToken(newToken);
-  }
-});
 
 export type AppDispatch = typeof store.dispatch;
 export type AppThunk = ThunkAction<void, RootState, null, Action<string>>;
