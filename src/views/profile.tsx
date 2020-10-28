@@ -1,7 +1,7 @@
 import { Button, makeStyles, TextField } from "@material-ui/core";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { updateUser } from "../features/auth/authActions";
+import { updateUser } from "../features/auth";
 import { User } from "../pb/api_pb";
 import { useAppDispatch, useTypedSelector } from "../store";
 
