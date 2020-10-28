@@ -6,7 +6,7 @@ import Messages from "./views/messages";
 import Login from "./views/login";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./reducers";
-import { authError } from "./features/auth/authSlice";
+import { authError } from "./features/auth";
 
 export default function AppRoutes() {
   return (
