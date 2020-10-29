@@ -40,7 +40,7 @@ export default function Login() {
           <PasswordForm />
         </Route>
 
-        <Route path={`${loginRoute}/:urlToken?`}>
+        <Route path={loginRoute}>
           <UsernameForm />
         </Route>
       </Switch>

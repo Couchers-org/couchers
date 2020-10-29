@@ -10,7 +10,7 @@ import { authError } from "./features/auth/authSlice";
 import Logout from "./views/Logout";
 
 export const loginRoute = "/login";
-export const loginPasswordRoute = loginRoute + "/password";
+export const loginPasswordRoute = `${loginRoute}/password`;
 
 export const profileRoute = "/profile";
 export const messagesRoute = "/messages";

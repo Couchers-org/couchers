@@ -16,7 +16,7 @@ export default function UsernameForm() {
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const { handleSubmit, register, setValue } = useForm<{ username?: string }>();
+  const { handleSubmit, register, setValue } = useForm<{ username: string }>();
   //this username state in the location is in case the back button was pressed from
   //the password form, to avoid re-entering the username
   const location = useLocation<{ username?: string }>();
@@ -28,8 +28,7 @@ export default function UsernameForm() {
     }
   });
 
-  const onSubmit = handleSubmit(async (data: { username?: string }) => {
-    if (!data.username) return;
+  const onSubmit = handleSubmit(async (data: { username: string }) => {
     setLoading(true);
     dispatch(clearError());
     try {
@@ -65,7 +64,7 @@ export default function UsernameForm() {
         name="username"
         inputRef={register({ required: true })}
       ></TextInput>
-      <Button onClick={onSubmit} loading={loading || authLoading}>
+      <Button onClick={onSubmit} loading={loading || authLoading} type="submit">
         Next
       </Button>
     </form>

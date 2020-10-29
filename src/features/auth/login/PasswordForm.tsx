@@ -12,15 +12,14 @@ export default function PasswordForm() {
   const dispatch = useAppDispatch();
   const authLoading = useTypedSelector((state) => state.auth.loading);
 
-  const { handleSubmit, register } = useForm<{ password?: string }>();
+  const { handleSubmit, register } = useForm<{ password: string }>();
   const history = useHistory();
-  const location = useLocation<{ username?: string }>();
+  const location = useLocation<{ username: string }>();
 
-  const onSubmit = handleSubmit(async (data: { password?: string }) => {
-    if (!data.password) return;
+  const onSubmit = handleSubmit(async (data: { password: string }) => {
     dispatch(
       passwordLogin({
-        username: location.state.username!,
+        username: location.state.username,
         password: data.password,
       })
     );
@@ -33,11 +32,11 @@ export default function PasswordForm() {
 
   return (
     <>
-      {!location.state?.username && <Redirect to={loginRoute} />}
+      {!location.state.username && <Redirect to={loginRoute} />}
       <form onSubmit={onSubmit}>
         <TextInput
           label="Username/email"
-          value={location.state?.username}
+          value={location.state.username}
           disabled
         ></TextInput>
         <TextInput
@@ -47,7 +46,7 @@ export default function PasswordForm() {
           type="password"
         ></TextInput>
         <Button onClick={backClicked}>Back</Button>
-        <Button onClick={onSubmit} loading={authLoading}>
+        <Button onClick={onSubmit} loading={authLoading} type="submit">
           Log in
         </Button>
       </form>
