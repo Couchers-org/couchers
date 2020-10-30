@@ -1,5 +1,9 @@
-import { authClient } from "../features/api";
-import { SignupReq, SignupTokenInfoReq, UsernameValidReq } from "../pb/auth_pb";
+import { authClient } from "../../api";
+import {
+  SignupReq,
+  SignupTokenInfoReq,
+  UsernameValidReq,
+} from "../../../pb/auth_pb";
 
 export const submitEmail = async (email: string) => {
   const req = new SignupReq();

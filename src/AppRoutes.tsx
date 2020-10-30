@@ -5,7 +5,7 @@ import Profile from "./views/Profile";
 import Messages from "./views/Messages";
 import Login from "./features/auth/login/Login";
 import Logout from "./views/Logout";
-import Signup from "./views/Signup";
+import Signup from "./features/auth/signup/Signup";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./reducers";
 import { authError } from "./features/auth/authSlice";
