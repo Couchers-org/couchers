@@ -1,27 +1,39 @@
 import React, { useEffect } from "react";
 import { Switch, Route, RouteProps, Redirect } from "react-router-dom";
-import Home from "./views/home";
-import Profile from "./views/profile";
-import Messages from "./views/messages";
-import Login from "./views/login";
+import Home from "./views/Home";
+import Profile from "./views/Profile";
+import Messages from "./views/Messages";
+import Login from "./features/auth/login/Login";
+import Logout from "./views/Logout";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./reducers";
 import { authError } from "./features/auth";
 
+export const loginRoute = "/login";
+export const loginPasswordRoute = `${loginRoute}/password`;
+
+export const profileRoute = "/profile";
+export const messagesRoute = "/messages";
+export const requestsRoute = "/messages";
+export const logoutRoute = "/logout";
+
 export default function AppRoutes() {
   return (
     <Switch>
-      <Route path="/login">
+      <Route path={`${loginRoute}/:urlToken?`}>
         <Login />
       </Route>
-      <PrivateRoute path="/profile">
+      <PrivateRoute path={profileRoute}>
         <Profile />
       </PrivateRoute>
-      <PrivateRoute path="/messages">
+      <PrivateRoute path={messagesRoute}>
         <Messages />
       </PrivateRoute>
-      <PrivateRoute path="/">
+      <PrivateRoute exact path="/">
         <Home />
+      </PrivateRoute>
+      <PrivateRoute exact path={logoutRoute}>
+        <Logout />
       </PrivateRoute>
     </Switch>
   );
