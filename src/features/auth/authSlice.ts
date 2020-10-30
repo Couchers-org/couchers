@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { User } from "../../pb/api_pb";
-import { passwordLogin, updateUser } from "./authActions";
+import { passwordLogin, updateUser } from "./index";
 
 const initialState = {
   authToken: null as null | string,
