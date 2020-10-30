@@ -14,8 +14,6 @@ export const loginRoute = "/login";
 export const loginPasswordRoute = `${loginRoute}/password`;
 
 export const signupRoute = "/signup";
-export const signupSentRoute = signupRoute + "/sent";
-
 export const profileRoute = "/profile";
 export const messagesRoute = "/messages";
 export const requestsRoute = "/messages";
