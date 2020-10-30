@@ -12,7 +12,12 @@ const URL = "http://localhost:8888";
 class AuthInterceptor {
   // eslint-disable-next-line
   intercept(request: any, invoker: (request: any) => any) {
-    request.getMetadata()["authorization"] = `Bearer ${store.getState().auth.authToken}`;
+    const authorizationHeader = request.getMetadata().authorization;
+
+    if (!authorizationHeader) {
+      const { authToken } = store.getState().auth;
+      request.getMetadata().authorization = `Bearer ${authToken}`;
+    }
     return invoker(request);
   }
 }

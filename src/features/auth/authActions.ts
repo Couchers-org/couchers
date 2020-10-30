@@ -5,10 +5,10 @@ import { RootState } from "../../reducers";
 
 export const passwordLogin = createAsyncThunk(
   "auth/passwordLogin",
-  async ({ username, password }: { username: string; password: string }) => {
+  async ({username, password}: { username: string; password: string; }) => {
     const token = await login(username, password);
 
-    const user = await getUserByUsername(username);
+    const user = await getUserByUsername(username, token);
 
     return { token, user };
   }

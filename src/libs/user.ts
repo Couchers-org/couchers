@@ -32,12 +32,16 @@ export const login = async (
  * @returns {Promise<User.AsObject>}
  */
 export const getUserByUsername = async (
-  username: string
+  username: string, token?: string
 ): Promise<User.AsObject> => {
   const userReq = new GetUserReq();
   userReq.setUser(username || "");
 
-  const response = await client.getUser(userReq);
+
+  const response = await client.getUser(
+    userReq,
+    token ? { authorization: `Bearer ${token}` } : undefined
+  );
 
   return response.toObject();
 };
