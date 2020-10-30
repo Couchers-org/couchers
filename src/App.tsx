@@ -14,15 +14,15 @@ import AppRoutes from "./AppRoutes";
 function App() {
   return (
     <Router>
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Container maxWidth="md">
-        <Typography variant="h1">Couchers</Typography>
-        <Navigation />
-        <AppRoutes />
-      </Container>
-    </ThemeProvider>
-  </Router>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Container maxWidth="md">
+          <Typography variant="h1">Couchers</Typography>
+          <Navigation />
+          <AppRoutes />
+        </Container>
+      </ThemeProvider>
+    </Router>
   );
 }
 
