@@ -1,8 +1,8 @@
 import { Typography } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useHistory, useLocation } from "react-router-dom";
-import { loginPasswordRoute } from "../../../AppRoutes";
+import { Link, useHistory, useLocation } from "react-router-dom";
+import { loginPasswordRoute, signupRoute } from "../../../AppRoutes";
 import Button from "../../../components/Button";
 import TextInput from "../../../components/TextInput";
 import { LoginRes } from "../../../pb/auth_pb";
@@ -58,15 +58,24 @@ export default function UsernameForm() {
     return <Typography>Check your email for a link to log in! :)</Typography>;
   }
   return (
-    <form onSubmit={onSubmit}>
-      <TextInput
-        label="Username/email"
-        name="username"
-        inputRef={register({ required: true })}
-      ></TextInput>
-      <Button onClick={onSubmit} loading={loading || authLoading} type="submit">
-        Next
-      </Button>
-    </form>
+    <>
+      <form onSubmit={onSubmit}>
+        <TextInput
+          label="Username/email"
+          name="username"
+          inputRef={register({ required: true })}
+        ></TextInput>
+        <Button
+          onClick={onSubmit}
+          loading={loading || authLoading}
+          type="submit"
+        >
+          Next
+        </Button>
+      </form>
+      <Link to={signupRoute} component={Button}>
+        Create an account
+      </Link>
+    </>
   );
 }
