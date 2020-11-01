@@ -76,7 +76,7 @@ export const getCurrentUser = async (
  * @param {string} token
  * @returns {Promise<User.AsObject>}
  */
-export const getUserByUsername = async (
+export const getUser = async (
   username: string,
   token?: string
 ): Promise<User.AsObject> => {

@@ -2,7 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import {
   completeSignup,
   getCurrentUser,
-  getUserByUsername,
+  getUser,
   updateUser as apiUpdateUser,
   passwordLogin as apiPasswordLogin,
   SignupArguments,
@@ -16,7 +16,7 @@ export const passwordLogin = createAsyncThunk(
   async ({ username, password }: { username: string; password: string }) => {
     const token = await apiPasswordLogin(username, password);
 
-    const user = await getUserByUsername(username, token);
+    const user = await getUser(username, token);
 
     return { token, user };
   }
@@ -46,7 +46,7 @@ export const updateUser = createAsyncThunk<
 
   await apiUpdateUser(user);
 
-  return getUserByUsername(username);
+  return getUser(username);
 });
 
 export const signup = createAsyncThunk(

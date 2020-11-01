@@ -1,4 +1,9 @@
-import { createEntityAdapter, createSlice } from "@reduxjs/toolkit";
+import {
+  createEntityAdapter,
+  createSelector,
+  createSlice,
+  PayloadAction,
+} from "@reduxjs/toolkit";
 import { User } from "../../pb/api_pb";
 import { RootState } from "../../reducers";
 import { fetchUsers } from "./index";
@@ -14,6 +19,7 @@ export const cachedUserAdapter = createEntityAdapter<CachedUser>({
 
 const initialState = {
   ...cachedUserAdapter.getInitialState(),
+  usernameIds: {} as { [username: string]: number },
   loading: false,
   error: null as string | null | undefined,
 };
@@ -24,7 +30,13 @@ export const userCacheSlice = createSlice({
   name: "userCache",
   initialState: initialState,
   reducers: {
-    booksFetched: cachedUserAdapter.upsertMany,
+    booksFetched(state, action: PayloadAction<CachedUser[]>) {
+      cachedUserAdapter.upsertMany(state, action.payload);
+      action.payload.forEach(
+        (cachedUser) =>
+          (state.usernameIds[cachedUser.user.username] = cachedUser.user.userId)
+      );
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -48,4 +60,16 @@ export default userCacheSlice.reducer;
 const selectors = cachedUserAdapter.getSelectors<RootState>(
   (state) => state.userCache
 );
-export const getUser = selectors.selectById;
+export const getUser = (state: RootState, id: number) =>
+  selectors.selectById(state, id)?.user;
+
+const getUsers = selectors.selectEntities;
+const getUsernameIds = (state: RootState) => state.userCache.usernameIds;
+export const getUserByUsernameSelector = createSelector(
+  getUsers,
+  getUsernameIds,
+  (users, usernameIds) => (username: string) => {
+    const id = usernameIds[username];
+    return users[id]?.user;
+  }
+);
