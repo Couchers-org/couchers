@@ -35,7 +35,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
     def __init__(self, Session):
         super().__init__()
         self._Session = Session
-        self.auth_interceptor = AuthValidatorInterceptor(self.get_user_for_session_token)
+        self.auth_interceptor = AuthValidatorInterceptor(self.get_session_for_token)
 
     def get_auth_interceptor(self):
         """
@@ -47,7 +47,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         """
         return self.auth_interceptor
 
-    def get_user_for_session_token(self, token):
+    def get_session_for_token(self, token):
         """
         Returns None if the session token is not valid, and the `user_id` of the corresponding to the session token otherwise.
 
@@ -55,7 +55,13 @@ class Auth(auth_pb2_grpc.AuthServicer):
         """
         with session_scope(self._Session) as session:
             user_session = session.query(UserSession).filter(UserSession.token == token).one_or_none()
-            return user_session.user_id if user_session else None
+
+            if not user_session:
+                # can't expunge if it's None
+                return None
+
+            session.expunge(user_session)
+            return user_session
 
     def _create_session(self, context, session, user):
         """

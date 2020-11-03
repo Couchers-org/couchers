@@ -157,7 +157,7 @@ def api_session(db, token):
     """
     Create an API for testing, uses the token for auth
     """
-    user_id = Auth(db).get_user_for_session_token(token)
+    user_id = Auth(db).get_session_for_token(token).user_id
     channel = FakeChannel(user_id=user_id)
     api_pb2_grpc.add_APIServicer_to_server(API(db), channel)
     yield api_pb2_grpc.APIStub(channel)
@@ -192,7 +192,7 @@ def conversations_session(db, token):
     """
     Create a Conversations API for testing, uses the token for auth
     """
-    user_id = Auth(db).get_user_for_session_token(token)
+    user_id = Auth(db).get_session_for_token(token).user_id
     channel = FakeChannel(user_id=user_id)
     conversations_pb2_grpc.add_ConversationsServicer_to_server(Conversations(db), channel)
     yield conversations_pb2_grpc.ConversationsStub(channel)
@@ -204,7 +204,7 @@ def requests_session(db, token):
     Create a Requests API for testing, uses the token for auth
     """
     auth_interceptor = Auth(db).get_auth_interceptor()
-    user_id = Auth(db).get_user_for_session_token(token)
+    user_id = Auth(db).get_session_for_token(token).user_id
     channel = FakeChannel(user_id=user_id)
     requests_pb2_grpc.add_RequestsServicer_to_server(Requests(db), channel)
     yield requests_pb2_grpc.RequestsStub(channel)
