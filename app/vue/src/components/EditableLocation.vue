@@ -70,7 +70,7 @@
               <l-marker
                 :lat-lng.sync="searchedLocation"
                 :draggable="true"
-                :visible="selectedOsmResponse !== null"
+                :visible="decorationsVisible"
                 :icon="homeIcon"
               >
                 <l-tooltip :options="{ interactive: true }">
@@ -82,12 +82,12 @@
               <l-circle
                 :lat-lng.sync="displayLocation"
                 :radius="displayRadius"
-                :visible="selectedOsmResponse !== null"
+                :visible="decorationsVisible"
               />
               <l-marker
                 :lat-lng.sync="displayLocation"
                 :draggable="true"
-                :visible="selectedOsmResponse !== null"
+                :visible="decorationsVisible"
               >
                 <l-tooltip :options="{ interactive: true }">
                   <div>
@@ -99,7 +99,7 @@
           </div>
 
           <v-slider
-            v-show="selectedOsmResponse !== null"
+            v-show="decorationsVisible"
             v-model="displayRadius"
             label="Approximate location radius"
             max="2000"
@@ -186,6 +186,9 @@ export default Vue.extend({
     addressQuery: "" as string,
     osmResponses: [] as Array<object>,
     selectedOsmResponse: null as number | null,
+
+    // whether to show markers/etc on map
+    decorationsVisible: true,
 
     zoom: 15,
     center: latLng(0, 0),
@@ -275,6 +278,7 @@ export default Vue.extend({
       this.dialog = true
       this.displayAddress = this.address
       this.displayLocation = latLng(this.latitude, this.longitude)
+      this.center = latLng(this.latitude, this.longitude)
       this.displayRadius = this.radius
     },
 
