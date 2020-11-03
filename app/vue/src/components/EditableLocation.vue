@@ -147,7 +147,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
 })
 
-const nominatimURL = "https://nominatim.openstreetmap.org/"
+const nominatimURL = process.env.VUE_APP_NOMINATIM_URL
 
 type SaveCallback = (
   address: string,
@@ -189,9 +189,8 @@ export default Vue.extend({
 
     zoom: 15,
     center: latLng(0, 0),
-    url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    attribution:
-      '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+    url: process.env.VUE_APP_TILE_URL,
+    attribution: process.env.VUE_APP_TILE_ATTRIBUTION,
     searchedLocation: latLng(0, 0),
     displayLocation: latLng(0, 0),
 
