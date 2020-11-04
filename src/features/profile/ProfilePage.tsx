@@ -1,15 +1,15 @@
 import { Button, makeStyles, TextField } from "@material-ui/core";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { updateUser } from "../features/auth";
-import { User } from "../pb/api_pb";
-import { useAppDispatch, useTypedSelector } from "../store";
+import { updateUser } from "./index";
+import { User } from "../../pb/api_pb";
+import { useAppDispatch, useTypedSelector } from "../../store";
 
 const useStyles = makeStyles({
   root: {},
 });
 
-export default function Profile() {
+export default function ProfilePage() {
   const dispatch = useAppDispatch();
   const user = useTypedSelector((state) => state.auth.user);
 
