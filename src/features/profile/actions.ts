@@ -1,4 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
+import { ProfileFormData } from "./index";
 import {
   getUserByUsername,
   updateUser as apiUpdateUser,
@@ -8,7 +9,7 @@ import { RootState } from "../../reducers";
 
 export const updateUser = createAsyncThunk<
   User.AsObject,
-  User.AsObject,
+  ProfileFormData,
   { state: RootState }
 >("profile/updateUser", async (user, { getState }) => {
   const username = getState().auth.user?.username;
