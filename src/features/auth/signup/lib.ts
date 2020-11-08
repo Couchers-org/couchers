@@ -5,7 +5,7 @@ import {
   UsernameValidReq,
 } from "../../../pb/auth_pb";
 
-export const submitEmail = async (email: string) => {
+export const createEmailSignup = async (email: string) => {
   const req = new SignupReq();
   req.setEmail(email);
   const res = await authClient.signup(req);

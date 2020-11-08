@@ -1,4 +1,4 @@
-import { debounce, Typography } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
 import { useHistory, useLocation, useParams } from "react-router-dom";
 import Button from "../../../components/Button";
@@ -11,6 +11,7 @@ import Autocomplete from "../../../components/Autocomplete";
 import { getSignupEmail, validateUsername } from "./lib";
 import { signupRoute } from "../../../AppRoutes";
 import { useForm, ValidateResult } from "react-hook-form";
+import { Skeleton } from "@material-ui/lab";
 
 const optionLabels = {
   [HostingStatus.HOSTING_STATUS_CAN_HOST]: "Can host",
@@ -39,7 +40,7 @@ export default function CompleteSignup() {
     SignupInputs
   >({
     shouldUnregister: false,
-    mode: "onChange",
+    mode: "onBlur",
   });
 
   const [loading, setLoading] = useState(false);
@@ -84,7 +85,9 @@ export default function CompleteSignup() {
   return (
     <>
       <form onSubmit={completeSignup}>
-        <Typography variant="h3">{getValues("email")}</Typography>
+        <Typography variant="h3">
+          {loading ? <Skeleton /> : getValues("email")}
+        </Typography>
         <TextInput
           name="name"
           label="Name"
@@ -108,15 +111,9 @@ export default function CompleteSignup() {
               message:
                 "Username can only have lowercase letters, numbers or _, starting with a letter.",
             },
-            validate: async (value) => {
-              //debounce doesn't return anything so you have to manually resolve a promise
-              //also for some reason the promise type isn't properly inferred in browser
-              return new Promise<ValidateResult>((resolve) =>
-                debounce(async (username) => {
-                  const valid = await validateUsername(username);
-                  resolve(valid || "This username is taken.");
-                }, 500)(value)
-              );
+            validate: async (username) => {
+              const valid = await validateUsername(username);
+              return valid || "This username is taken.";
             },
           })}
           helperText={errors?.username?.message}
@@ -129,7 +126,7 @@ export default function CompleteSignup() {
           })}
           helperText={errors?.city?.message}
         />
-        <Autocomplete<string, false, true, true>
+        <Autocomplete
           label="Gender"
           onInputChange={(_event, value) => setValue("gender", value)}
           options={["Male", "Female", "<Type anything you like>"]}
@@ -149,12 +146,7 @@ export default function CompleteSignup() {
           })}
           helperText={errors?.birthdate?.message}
         />
-        <Autocomplete<
-          HostingStatus,
-          false, //not multiple
-          true, //not clearable
-          false //not freely typeable
-        >
+        <Autocomplete
           label="Hosting status"
           onChange={(_event, option) => setValue("hostingStatus", option)}
           options={[
@@ -165,6 +157,9 @@ export default function CompleteSignup() {
           ]}
           getOptionLabel={(option) => optionLabels[option]}
           disableClearable
+          //below required for type inference
+          multiple={false}
+          freeSolo={false}
         />
         <Button onClick={completeSignup} loading={authLoading || loading}>
           Sign up

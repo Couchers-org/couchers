@@ -5,12 +5,11 @@ import TextInput from "../../../components/TextInput";
 import { useAppDispatch, useTypedSelector } from "../../../store";
 import { SignupRes } from "../../../pb/auth_pb";
 import { authError, clearError } from "../authSlice";
-import { submitEmail } from "./lib";
+import { createEmailSignup } from "./lib";
 import { useForm } from "react-hook-form";
 
 export default function EmailForm() {
   const dispatch = useAppDispatch();
-  const authLoading = useTypedSelector((state) => state.auth.loading);
 
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -23,7 +22,7 @@ export default function EmailForm() {
     setLoading(true);
     dispatch(clearError());
     try {
-      const next = await submitEmail(email);
+      const next = await createEmailSignup(email);
       switch (next) {
         case SignupRes.SignupStep.EMAIL_EXISTS:
           dispatch(authError("That email is already in use."));
@@ -59,11 +58,7 @@ export default function EmailForm() {
             required: true,
           })}
         />
-        <Button
-          onClick={onSubmit}
-          loading={loading || authLoading}
-          type="submit"
-        >
+        <Button onClick={onSubmit} loading={loading} type="submit">
           Sign up
         </Button>
       </form>
