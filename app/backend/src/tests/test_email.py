@@ -7,9 +7,12 @@ from couchers.db import new_login_token, new_signup_token, session_scope
 from couchers.email import _render_email
 from couchers.models import Complaint
 from couchers.tasks import send_login_email, send_report_email, send_signup_email
-from tests.test_fixtures import db, generate_user
+from tests.test_fixtures import db, generate_user, testconfig
 
-testing_email_address = "reports@couchers.org.invalid"
+
+@pytest.fixture(autouse=True)
+def _(testconfig):
+    pass
 
 
 def test_login_email_rendering():
@@ -107,7 +110,7 @@ def test_report_email(db):
         message_id = random_hex(64)
 
         def mock_send_email(sender_name, sender_email, recipient, subject, plain, html):
-            assert recipient == testing_email_address
+            assert recipient == "reports@couchers.org.invalid"
             assert complaint.author_user.username in plain
             assert complaint.author_user.username[10:] in html
             assert complaint.reported_user.username in plain

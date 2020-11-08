@@ -8,7 +8,12 @@ from google.protobuf import empty_pb2, wrappers_pb2
 
 from couchers.config import config
 from pb import bugs_pb2
-from tests.test_fixtures import api_session, bugs_session, db, generate_user, make_friends
+from tests.test_fixtures import api_session, bugs_session, db, generate_user, make_friends, testconfig
+
+
+@pytest.fixture(autouse=True)
+def _(testconfig):
+    pass
 
 
 def test_bug_tool_disabled():

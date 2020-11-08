@@ -23,8 +23,6 @@ CONFIG_OPTIONS = [
     ("ADD_DUMMY_DATA", bool),
     # Email
     ("ENABLE_EMAIL", bool),
-    # Sender name for outgoing notification emails e.g. "Couchers.org"
-    ("NOTIFICATION_EMAIL_SENDER", str),
     # Sender email, e.g. "notify@couchers.org"
     ("NOTIFICATION_EMAIL_ADDRESS", str),
     # Address to send emails about reported users
@@ -62,7 +60,9 @@ for config_option in CONFIG_OPTIONS:
 
     if not value:
         if not optional:
-            raise ValueError(f"Required config value {name} not set")
+            # config value not set - will cause a KeyError when trying
+            # to access it.
+            continue
         else:
             value = default_value
 
@@ -81,10 +81,14 @@ for config_option in CONFIG_OPTIONS:
 
 
 ## Config checks
+def check_config():
+    for name, *_ in CONFIG_OPTIONS:
+        if not hasattr(config, name):
+            raise ValueError(f"Required config value {name} not set")
 
-if not config["DEV"]:
-    # checks for prod
-    if "https" not in config["BASE_URL"]:
-        raise Exception("Production site must be over HTTPS")
-    if not config["ENABLE_EMAIL"]:
-        raise Exception("Production site must have email enabled")
+    if not config["DEV"]:
+        # checks for prod
+        if "https" not in config["BASE_URL"]:
+            raise Exception("Production site must be over HTTPS")
+        if not config["ENABLE_EMAIL"]:
+            raise Exception("Production site must have email enabled")

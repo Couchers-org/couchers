@@ -36,6 +36,4 @@ def send_email(sender_name, sender_email, recipient, subject, plain, html):
 
 def send_email_template(recipient, subject, template_file, template_args={}):
     plain, html = _render_email(subject, template_file, template_args)
-    return send_email(
-        config["NOTIFICATION_EMAIL_SENDER"], config["NOTIFICATION_EMAIL_ADDRESS"], recipient, subject, plain, html
-    )
+    return send_email("Couchers.org", config["NOTIFICATION_EMAIL_ADDRESS"], recipient, subject, plain, html)

@@ -9,7 +9,7 @@ from alembic.config import Config
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from couchers.config import config
+from couchers import config
 from couchers.db import session_scope
 from couchers.interceptors import LoggingInterceptor, UpdateLastActiveTimeInterceptor
 from couchers.models import Base
@@ -31,9 +31,11 @@ from pb import (
     sso_pb2_grpc,
 )
 
+config.check_config()
+
 # hex-encoded secret key, used for signatures that  verify main & media server
 # are talking to each other
-MEDIA_SERVER_BEARER_TOKEN = config["MEDIA_SERVER_BEARER_TOKEN"]
+MEDIA_SERVER_BEARER_TOKEN = config.config["MEDIA_SERVER_BEARER_TOKEN"]
 
 logging.basicConfig(format="%(asctime)s: %(name)d: %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -50,7 +52,7 @@ def log_unhandled_exception(exc_type, exc_value, exc_traceback):
 
 sys.excepthook = log_unhandled_exception
 
-engine = create_engine(config["DATABASE_CONNECTION_STRING"], echo=False)
+engine = create_engine(config.config["DATABASE_CONNECTION_STRING"], echo=False)
 Session = sessionmaker(bind=engine)
 
 logger.info(f"Checking DB connection")

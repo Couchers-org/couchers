@@ -236,3 +236,39 @@ def media_session(db, bearer_token):
             yield media_pb2_grpc.MediaStub(channel)
     finally:
         server.stop(None)
+
+
+@pytest.fixture()
+def testconfig():
+    prevconfig = config.copy()
+    config.clear()
+    config.update(prevconfig)
+
+    config["DEV"] = True
+    config["VERSION"] = "testing_version"
+    config["BASE_URL"] = "http://localhost:8080"
+    config["ENABLE_EMAIL"] = False
+    config["NOTIFICATION_EMAIL_ADDRESS"] = "notify@couchers.org.invalid"
+    config["REPORTS_EMAIL_RECIPIENT"] = "reports@couchers.org.invalid"
+
+    config["SMTP_HOST"] = "localhost"
+    config["SMTP_PORT"] = 587
+    config["SMTP_USERNAME"] = "username"
+    config["SMTP_PASSWORD"] = "password"
+
+    config["ENABLE_MEDIA"] = True
+    config["MEDIA_SERVER_SECRET_KEY"] = bytes.fromhex(
+        "91e29bbacc74fa7e23c5d5f34cca5015cb896e338a620003de94a502a461f4bc"
+    )
+    config["MEDIA_SERVER_BEARER_TOKEN"] = "c02d383897d3b82774ced09c9e17802164c37e7e105d8927553697bf4550e91e"
+    config["MEDIA_SERVER_BASE_URL"] = "http://127.0.0.1:5000"
+
+    config["BUG_TOOL_ENABLED"] = False
+    config["BUG_TOOL_GITHUB_REPO"] = "user/repo"
+    config["BUG_TOOL_GITHUB_USERNAME"] = "user"
+    config["BUG_TOOL_GITHUB_TOKEN"] = "token"
+
+    yield None
+
+    config.clear()
+    config.update(prevconfig)

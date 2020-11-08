@@ -8,7 +8,12 @@ from couchers.crypto import random_hex
 from couchers.db import session_scope
 from couchers.models import InitiatedUpload, User
 from pb import api_pb2, media_pb2
-from tests.test_fixtures import api_session, db, generate_user, media_session
+from tests.test_fixtures import api_session, db, generate_user, media_session, testconfig
+
+
+@pytest.fixture(autouse=True)
+def _(testconfig):
+    pass
 
 
 def test_media_upload(db):
