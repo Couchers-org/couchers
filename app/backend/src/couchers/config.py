@@ -1,12 +1,10 @@
 """
 A simple config system
 """
-import logging
 import os
-import sys
-from pathlib import Path
 
-logger = logging.getLogger(__name__)
+# Sender name for outgoing notification emails e.g. "Couchers.org"
+NOTIFICATION_EMAIL_SENDER = "Couchers.org"
 
 # Allowed config options, as tuples (name, type, default).
 # All fields are required
