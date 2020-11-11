@@ -81,7 +81,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         token = urlsafe_secure_token()
 
-        user_session = UserSession(user=user, token=token)
+        user_session = UserSession(user=user, token=token, jailed=user.is_jailed)
 
         session.add(user_session)
         session.commit()
