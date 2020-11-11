@@ -10,9 +10,13 @@ import { HostingStatus } from "../../../pb/api_pb";
 import Autocomplete from "../../../components/Autocomplete";
 import { getSignupEmail, validateUsername } from "./lib";
 import { signupRoute } from "../../../AppRoutes";
-import { useForm, ValidateResult } from "react-hook-form";
-import { Skeleton } from "@material-ui/lab";
+import { useForm } from "react-hook-form";
 import CircularProgress from "../../../components/CircularProgress";
+import {
+  nameValidationPattern,
+  usernameValidationPattern,
+  validateBirthdate,
+} from "./validation";
 
 const optionLabels = {
   [HostingStatus.HOSTING_STATUS_CAN_HOST]: "Can host",
@@ -96,7 +100,7 @@ export default function CompleteSignup() {
             inputRef={register({
               required: "Enter your name",
               pattern: {
-                value: /\S+/,
+                value: nameValidationPattern,
                 message: "Name can't be just white space.",
               },
             })}
@@ -109,7 +113,7 @@ export default function CompleteSignup() {
               required: "Enter your username",
               pattern: {
                 //copied from backend, added ^ at the start
-                value: /^[a-z][0-9a-z_]*[a-z0-9]$/,
+                value: usernameValidationPattern,
                 message:
                   "Username can only have lowercase letters, numbers or _, starting with a letter.",
               },
@@ -144,7 +148,7 @@ export default function CompleteSignup() {
             inputRef={register({
               required: "Enter your birthdate",
               validate: (stringDate) =>
-                !isNaN(new Date(stringDate).getTime()) || "Not a valid date.",
+                validateBirthdate(stringDate) || "Not a valid date.",
             })}
             helperText={errors?.birthdate?.message}
           />
