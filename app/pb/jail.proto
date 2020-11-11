@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package org.couchers.jail;
+
+import "google/protobuf/empty.proto";
+
+service Jail {
+  /*
+  Jail API
+
+  If the user hasn't completed necessary steps needed to use the app, they are
+  only allowed to hit the Jail API.
+
+  E.g. if signing up is incomplete, or they haven't agreed to TOS, etc.
+
+  These API functions are available only to signed-in users, but while other
+  APIs can't be used while Jailed, these can.
+  */
+  rpc JailInfo(JailInfoReq) returns (JailInfoRes) {
+    // Get reason why the user is in jail, e.g. hasn't completed all sign-up
+    // steps, or needs to read something, etc
+  }
+
+  rpc GetTOS(google.protobuf.Empty) returns (GetTOSRes) {
+    // Get whether we've accepted the TOS or not
+  }
+
+  rpc AcceptTOS(AcceptTOSReq) returns (GetTOSRes) {
+    // Accept to TOS
+  }
+}
+
+message JailInfoReq {}
+
+message JailInfoRes {
+  enum JailReason {
+    MISSING_TOS = 0; // the user needs to accept to TOS
+    MISSING_LOCATION = 1; // the user needs to update their location
+    // other ideas?
+    // MISSING_GDPR = 2; // need to accept GDPR statement/etc
+  }
+
+  repeated JailReason reasons = 1;
+}
+
+message GetTOSRes {
+  bool accepted_tos = 1;
+}
+
+message AcceptTOSReq {
+  bool accept = 1;
+}

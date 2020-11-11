@@ -1,5 +1,5 @@
 import Vue from "vue"
-import Vuex from "vuex"
+import Vuex, { Store } from "vuex"
 
 import createPersistedState from "vuex-persistedstate"
 
@@ -8,8 +8,9 @@ import Router from "../router"
 import { StatusCode } from "grpc-web"
 
 import { User, PingReq, PingRes } from "../pb/api_pb"
-import { client } from "../api"
-import { Empty } from "google-protobuf/google/protobuf/empty_pb"
+import { AuthRes } from "../pb/auth_pb"
+import { JailInfoReq, JailInfoRes } from "@/pb/jail_pb"
+import { client, jailClient } from "../api"
 
 Vue.use(Vuex)
 
@@ -29,20 +30,26 @@ export default new Vuex.Store({
     unseenMessageCount: 0,
     pendingFriendRequestCount: 0,
     authToken: null as null | string,
+    jailed: false,
     lastPing: 0,
     pingTimeout: null as null | number,
   },
   mutations: {
-    auth(state, authToken) {
-      state.authToken = authToken
+    auth(state, authRes: AuthRes) {
+      state.authToken = authRes.getToken()
+      state.jailed = authRes.getJailed()
     },
     deauth(state, reason) {
       state.authToken = null
+      state.jailed = false
       state.user = null
       Router.push({
         name: "Login",
         params: { reason: reason || "You were logged out." },
       })
+    },
+    jail(state, isJailed) {
+      state.jailed = isJailed
     },
     updateDrawerOpen(state, drawerOpen) {
       state.drawerOpen = drawerOpen
@@ -70,22 +77,49 @@ export default new Vuex.Store({
     },
   },
   actions: {
-    auth(ctx, authToken) {
-      ctx.commit("auth", authToken)
+    auth(ctx, authRes: AuthRes) {
+      ctx.commit("auth", authRes)
       ctx.dispatch("refreshUser")
     },
     async ping(ctx) {
       // gets a whole bunch of latest info from server if logged in
       ctx.commit("updateLastPing")
       if (ctx.getters.authenticated) {
-        try {
-          const res = await client.ping(new PingReq())
-          ctx.commit("updatePing", res.toObject())
-        } catch (err) {
-          console.error("Failed to ping server: ", err)
-          if (err.code == StatusCode.UNAUTHENTICATED) {
-            console.error("Not logged in. Deauthing.")
-            ctx.commit("deauth")
+        if (ctx.getters.jailed) {
+          try {
+            const res = await jailClient.jailInfo(new JailInfoReq())
+            console.log("Jailed: ", res.toObject())
+            // just look at first one for now
+            if (res.getReasonsList().length == 0) {
+              // not jailed anymore
+              ctx.commit("jail", false)
+              ctx.dispatch("ping")
+              Router.push({ name: "Home" })
+            } else {
+              const reason = res.getReasonsList()[0]
+              if (reason === JailInfoRes.JailReason.MISSING_TOS) {
+                Router.push({
+                  name: "TOS",
+                })
+              }
+            }
+          } catch (err) {
+            console.error("Failed to ping server (jailed): ", err)
+            if (err.code == StatusCode.UNAUTHENTICATED) {
+              console.error("Not logged in. Deauthing.")
+              ctx.commit("deauth")
+            }
+          }
+        } else {
+          try {
+            const res = await client.ping(new PingReq())
+            ctx.commit("updatePing", res.toObject())
+          } catch (err) {
+            console.error("Failed to ping server: ", err)
+            if (err.code == StatusCode.UNAUTHENTICATED) {
+              console.error("Not logged in. Deauthing.")
+              ctx.commit("deauth")
+            }
           }
         }
       }
@@ -138,6 +172,7 @@ export default new Vuex.Store({
   modules: {},
   getters: {
     authenticated: (state) => state.authToken !== null,
+    jailed: (state) => state.jailed === true,
   },
   plugins: [createPersistedState()],
 })

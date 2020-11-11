@@ -41,7 +41,7 @@ export default Vue.extend({
       try {
         const res = await authClient.completeTokenLogin(req)
         this.successMessages = ["Success."]
-        Store.dispatch("auth", res.getToken())
+        Store.dispatch("auth", res)
         Router.push("/")
       } catch (err) {
         Router.push({ name: "Login", params: { reason: err.message } })
