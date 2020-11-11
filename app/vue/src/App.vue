@@ -7,18 +7,17 @@
 
     <v-app-bar app color="#3f363b" dark clipped-left>
       <v-app-bar-nav-icon
-        v-if="authenticated && !anonRoute"
+        v-if="showWidgets"
         @click.stop="updateDrawerOpen(!drawerOpen)"
       />
       <v-toolbar-title class="ml-0 pl-4">Couchers.org</v-toolbar-title>
       <v-spacer></v-spacer>
-      <search-box v-if="authenticated && !anonRoute" class="mx-auto">
-      </search-box>
+      <search-box v-if="showWidgets" class="mx-auto"> </search-box>
       <v-spacer></v-spacer>
       <bug-tool></bug-tool>
     </v-app-bar>
 
-    <drawer v-if="authenticated && !anonRoute" />
+    <drawer v-if="showWidgets" />
 
     <router-view />
   </v-app>
@@ -46,10 +45,13 @@ export default Vue.extend({
   },
 
   computed: {
-    anonRoute() {
-      return this.$route.meta.noAuth
+    showWidgets() {
+      // we show the logged in widgets if:
+      // * user is logged in
+      // * user is not jailed
+      return this.authenticated && !this.jailed // && !this.$route.meta.noAuth
     },
-    ...mapGetters(["authenticated"]),
+    ...mapGetters(["authenticated", "jailed"]),
     ...mapState(["drawerOpen"]),
   },
 

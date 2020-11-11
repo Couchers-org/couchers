@@ -300,7 +300,7 @@ export default Vue.extend({
       try {
         const res = await authClient.completeSignup(req)
         this.successMessages = ["Success."]
-        Store.dispatch("auth", res.getToken())
+        Store.dispatch("auth", res)
         Router.push("/profile")
       } catch (err) {
         this.error = err
