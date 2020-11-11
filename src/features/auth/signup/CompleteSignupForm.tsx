@@ -12,6 +12,7 @@ import { getSignupEmail, validateUsername } from "./lib";
 import { signupRoute } from "../../../AppRoutes";
 import { useForm, ValidateResult } from "react-hook-form";
 import { Skeleton } from "@material-ui/lab";
+import CircularProgress from "../../../components/CircularProgress";
 
 const optionLabels = {
   [HostingStatus.HOSTING_STATUS_CAN_HOST]: "Can host",
@@ -58,7 +59,7 @@ export default function CompleteSignup() {
             shouldDirty: true,
           });
         } catch (err) {
-          dispatch(authError("Signup token invalid."));
+          dispatch(authError(err.message));
           history.push(signupRoute);
           return;
         }
@@ -84,87 +85,89 @@ export default function CompleteSignup() {
 
   return (
     <>
-      <form onSubmit={completeSignup}>
-        <Typography variant="h3">
-          {loading ? <Skeleton /> : getValues("email")}
-        </Typography>
-        <TextInput
-          name="name"
-          label="Name"
-          inputRef={register({
-            required: "Enter your name",
-            pattern: {
-              value: /\S+/,
-              message: "Name can't be just white space.",
-            },
-          })}
-          helperText={errors?.name?.message}
-        />
-        <TextInput
-          name="username"
-          label="Username"
-          inputRef={register({
-            required: "Enter your username",
-            pattern: {
-              //copied from backend, added ^ at the start
-              value: /^[a-z][0-9a-z_]*[a-z0-9]$/,
-              message:
-                "Username can only have lowercase letters, numbers or _, starting with a letter.",
-            },
-            validate: async (username) => {
-              const valid = await validateUsername(username);
-              return valid || "This username is taken.";
-            },
-          })}
-          helperText={errors?.username?.message}
-        />
-        <TextInput
-          name="city"
-          label="City"
-          inputRef={register({
-            required: "Enter your city",
-          })}
-          helperText={errors?.city?.message}
-        />
-        <Autocomplete
-          label="Gender"
-          onInputChange={(_event, value) => setValue("gender", value)}
-          options={["Male", "Female", "<Type anything you like>"]}
-          freeSolo
-        />
-        <TextInput
-          name="birthdate"
-          label="Birthdate"
-          type="date"
-          InputLabelProps={{
-            shrink: true,
-          }}
-          inputRef={register({
-            required: "Enter your birthdate",
-            validate: (stringDate) =>
-              !isNaN(new Date(stringDate).getTime()) || "Not a valid date.",
-          })}
-          helperText={errors?.birthdate?.message}
-        />
-        <Autocomplete
-          label="Hosting status"
-          onChange={(_event, option) => setValue("hostingStatus", option)}
-          options={[
-            HostingStatus.HOSTING_STATUS_CAN_HOST,
-            HostingStatus.HOSTING_STATUS_MAYBE,
-            HostingStatus.HOSTING_STATUS_DIFFICULT,
-            HostingStatus.HOSTING_STATUS_CANT_HOST,
-          ]}
-          getOptionLabel={(option) => optionLabels[option]}
-          disableClearable
-          //below required for type inference
-          multiple={false}
-          freeSolo={false}
-        />
-        <Button onClick={completeSignup} loading={authLoading || loading}>
-          Sign up
-        </Button>
-      </form>
+      {loading ? (
+        <CircularProgress />
+      ) : (
+        <form onSubmit={completeSignup}>
+          <Typography variant="h3">{getValues("email")}</Typography>
+          <TextInput
+            name="name"
+            label="Name"
+            inputRef={register({
+              required: "Enter your name",
+              pattern: {
+                value: /\S+/,
+                message: "Name can't be just white space.",
+              },
+            })}
+            helperText={errors?.name?.message}
+          />
+          <TextInput
+            name="username"
+            label="Username"
+            inputRef={register({
+              required: "Enter your username",
+              pattern: {
+                //copied from backend, added ^ at the start
+                value: /^[a-z][0-9a-z_]*[a-z0-9]$/,
+                message:
+                  "Username can only have lowercase letters, numbers or _, starting with a letter.",
+              },
+              validate: async (username) => {
+                const valid = await validateUsername(username);
+                return valid || "This username is taken.";
+              },
+            })}
+            helperText={errors?.username?.message}
+          />
+          <TextInput
+            name="city"
+            label="City"
+            inputRef={register({
+              required: "Enter your city",
+            })}
+            helperText={errors?.city?.message}
+          />
+          <Autocomplete
+            label="Gender"
+            onInputChange={(_event, value) => setValue("gender", value)}
+            options={["Male", "Female", "<Type anything you like>"]}
+            freeSolo
+          />
+          <TextInput
+            name="birthdate"
+            label="Birthdate"
+            type="date"
+            InputLabelProps={{
+              shrink: true,
+            }}
+            inputRef={register({
+              required: "Enter your birthdate",
+              validate: (stringDate) =>
+                !isNaN(new Date(stringDate).getTime()) || "Not a valid date.",
+            })}
+            helperText={errors?.birthdate?.message}
+          />
+          <Autocomplete
+            label="Hosting status"
+            onChange={(_event, option) => setValue("hostingStatus", option)}
+            options={[
+              HostingStatus.HOSTING_STATUS_CAN_HOST,
+              HostingStatus.HOSTING_STATUS_MAYBE,
+              HostingStatus.HOSTING_STATUS_DIFFICULT,
+              HostingStatus.HOSTING_STATUS_CANT_HOST,
+            ]}
+            getOptionLabel={(option) => optionLabels[option]}
+            disableClearable
+            //below required for type inference
+            multiple={false}
+            freeSolo={false}
+          />
+          <Button onClick={completeSignup} loading={authLoading || loading}>
+            Sign up
+          </Button>
+        </form>
+      )}
     </>
   );
 }
