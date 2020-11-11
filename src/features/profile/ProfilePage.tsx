@@ -1,6 +1,6 @@
 import { makeStyles } from "@material-ui/core";
 import React from "react";
-import HostingPreferenceForm from "./HostingPreferenceForm";
+import UserInfoForm from "./UserInfoForm";
 
 const useStyles = makeStyles({
   root: {},
@@ -12,7 +12,7 @@ export default function ProfilePage() {
   return (
     <div className={classes.root}>
       <h1>Profile</h1>
-      <HostingPreferenceForm />
+      <UserInfoForm />
     </div>
   );
 }
