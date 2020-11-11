@@ -3,13 +3,20 @@ import { User } from "../../pb/api_pb";
 import { passwordLogin, tokenLogin } from "./index";
 import { updateUser } from "../profile";
 
-const initialState = {
-  authToken: null as null | string,
-  user: null as null | User.AsObject,
+interface AuthState {
+  authToken: null | string;
+  user: null | User.AsObject;
+  loading: boolean;
+  error?: string | null;
+}
+
+const initialState: AuthState = {
+  authToken: null,
+  user: null,
   //it isn't good practice to keep ui state in the store
   //these refer to authentication loading and error in general
   loading: false,
-  error: null as string | null | undefined,
+  error: null,
 };
 
 export const authSlice = createSlice({
