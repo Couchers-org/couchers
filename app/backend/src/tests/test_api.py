@@ -8,7 +8,12 @@ from couchers.db import session_scope
 from couchers.models import Complaint
 from couchers.utils import to_aware_datetime
 from pb import api_pb2
-from tests.test_fixtures import api_session, db, generate_user, make_friends, real_api_session
+from tests.test_fixtures import api_session, db, generate_user, make_friends, real_api_session, testconfig
+
+
+@pytest.fixture(autouse=True)
+def _(testconfig):
+    pass
 
 
 def test_ping(db):
