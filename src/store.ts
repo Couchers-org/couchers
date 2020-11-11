@@ -23,7 +23,7 @@ import { AuthState } from "./features/auth";
 const authTransform = createTransform<AuthState, AuthState>(
   undefined,
   (outboundState, key) => {
-    if (key == "auth") {
+    if (key === "auth") {
       return {
         ...outboundState,
         loading: false,
