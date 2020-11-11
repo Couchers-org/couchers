@@ -11,6 +11,8 @@ const initialState = {
   error: null as string | null | undefined,
 };
 
+export type AuthState = typeof initialState;
+
 export const authSlice = createSlice({
   name: "auth",
   initialState: initialState,
