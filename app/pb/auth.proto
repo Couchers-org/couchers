@@ -128,6 +128,9 @@ message AuthReq {
 
 message AuthRes {
   string token = 1;
+  // whether the user has to complete some additional steps to continue to the
+  // platform
+  bool jailed = 2;
 }
 
 message DeAuthReq {

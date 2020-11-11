@@ -28,6 +28,10 @@ static_resources:
                 route:
                   cluster: open_service
                   max_grpc_timeout: 0s
+              - match: { prefix: "/org.couchers.jail" }
+                route:
+                  cluster: jail_service
+                  max_grpc_timeout: 0s
               - match: { prefix: "/org.couchers.api" }
                 route:
                   cluster: couchers_service
@@ -56,3 +60,9 @@ static_resources:
     http2_protocol_options: {}
     lb_policy: round_robin
     hosts: [{ socket_address: { address: backend, port_value: 1752 }}]
+  - name: jail_service
+    connect_timeout: 0.25s
+    type: logical_dns
+    http2_protocol_options: {}
+    lb_policy: round_robin
+    hosts: [{ socket_address: { address: backend, port_value: 1754 }}]

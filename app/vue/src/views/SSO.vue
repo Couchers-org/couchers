@@ -32,12 +32,7 @@ export default Vue.extend({
   },
 
   created() {
-    if (Store.getters.authenticated) {
-      this.doSSO()
-    } else {
-      this.loading = false
-      this.error = new Error("Please log in.")
-    }
+    this.doSSO()
   },
 
   methods: {

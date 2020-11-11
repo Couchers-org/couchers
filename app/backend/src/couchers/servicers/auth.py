@@ -35,9 +35,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
     def __init__(self, Session):
         super().__init__()
         self._Session = Session
-        self.auth_interceptor = AuthValidatorInterceptor(self.get_session_for_token)
 
-    def get_auth_interceptor(self):
+    def get_auth_interceptor(self, allow_jailed):
         """
         Returns an auth interceptor.
 
@@ -45,7 +44,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         The user_id will be available in the RPC context through context.user_id.
         """
-        return self.auth_interceptor
+        return AuthValidatorInterceptor(self.get_session_for_token, allow_jailed)
 
     def get_session_for_token(self, token):
         """
@@ -77,7 +76,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         token = urlsafe_secure_token()
 
-        user_session = UserSession(user=user, token=token)
+        user_session = UserSession(user=user, token=token, jailed=user.is_jailed)
 
         session.add(user_session)
         session.commit()
@@ -215,7 +214,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
             token = self._create_session(context, session, user)
 
-            return auth_pb2.AuthRes(token=token)
+            return auth_pb2.AuthRes(token=token, jailed=user.is_jailed)
 
     def Login(self, request, context):
         """
@@ -268,7 +267,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 # delete the login token so it can't be reused
                 session.delete(login_token)
                 session.commit()
-                return auth_pb2.AuthRes(token=token)
+                return auth_pb2.AuthRes(token=token, jailed=login_token.user.is_jailed)
             else:
                 context.abort(grpc.StatusCode.UNAUTHENTICATED, errors.INVALID_TOKEN)
 
@@ -290,7 +289,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     logger.debug(f"Right password")
                     # correct password
                     token = self._create_session(context, session, user)
-                    return auth_pb2.AuthRes(token=token)
+                    return auth_pb2.AuthRes(token=token, jailed=user.is_jailed)
                 else:
                     logger.debug(f"Wrong password")
                     # wrong password
