@@ -1,9 +1,8 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { getUser } from "../../libs/user";
 import { RootState } from "../../reducers";
-import { booksFetched, CachedUser } from "./index";
-
-const expiryMilliseconds = 1000 * 60 * 5;
+import { usersFetched, CachedUser } from "./index";
+import { hasUserExpired } from "./utils";
 
 type FetchUsersArguments = {
   userIds?: number[];
@@ -22,39 +21,35 @@ export const fetchUsers = createAsyncThunk<
     thunkApi
   ) => {
     const cachedUsers = [] as CachedUser[];
-    await Promise.all([
-      ...(userIds?.map(async (userId) => {
+    const userIdFetches =
+      userIds?.map(async (userId) => {
         const exists = thunkApi.getState().userCache.ids.includes(userId);
-        const expired =
-          new Date().getTime() -
-            (thunkApi.getState().userCache.entities[userId]?.date || 0) >
-          expiryMilliseconds;
+        const expired = hasUserExpired(userId, thunkApi.getState());
         if (!exists || expired || forceInvalidate) {
           cachedUsers.push({
-            date: new Date().getTime(),
+            fetched: new Date(),
             user: await getUser(userId.toString()),
           });
         }
-      }) || []),
-
-      ...(usernames?.map(async (username) => {
+      }) || [];
+    const usernameFetches =
+      usernames?.map(async (username) => {
         const usernameIds = thunkApi.getState().userCache.usernameIds;
         const exists = Object.keys(usernameIds).includes(username);
-        const expired =
-          new Date().getTime() -
-            (thunkApi.getState().userCache.entities[usernameIds[username]]
-              ?.date || 0) >
-          expiryMilliseconds;
+        const expired = hasUserExpired(
+          usernameIds[username],
+          thunkApi.getState()
+        );
         if (!exists || expired || forceInvalidate) {
           cachedUsers.push({
-            date: new Date().getTime(),
+            fetched: new Date(),
             user: await getUser(username),
           });
         }
-      }) || []),
-    ]);
-    if (cachedUsers.length > 0) {
-      thunkApi.dispatch(booksFetched(cachedUsers));
+      }) || [];
+    await Promise.all([...userIdFetches, ...usernameFetches]);
+    if (cachedUsers.length) {
+      thunkApi.dispatch(usersFetched(cachedUsers));
     }
   }
 );

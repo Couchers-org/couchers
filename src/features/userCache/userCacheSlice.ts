@@ -9,7 +9,7 @@ import { RootState } from "../../reducers";
 import { fetchUsers } from "./index";
 
 export type CachedUser = {
-  date: number;
+  fetched: Date;
   user: User.AsObject;
 };
 
@@ -28,9 +28,9 @@ export type UserCacheState = typeof initialState;
 
 export const userCacheSlice = createSlice({
   name: "userCache",
-  initialState: initialState,
+  initialState,
   reducers: {
-    booksFetched(state, action: PayloadAction<CachedUser[]>) {
+    usersFetched(state, action: PayloadAction<CachedUser[]>) {
       cachedUserAdapter.upsertMany(state, action.payload);
       action.payload.forEach(
         (cachedUser) =>
@@ -54,7 +54,7 @@ export const userCacheSlice = createSlice({
   },
 });
 
-export const { booksFetched } = userCacheSlice.actions;
+export const { usersFetched } = userCacheSlice.actions;
 export default userCacheSlice.reducer;
 
 const selectors = cachedUserAdapter.getSelectors<RootState>(
