@@ -49,6 +49,9 @@ build:backend:
 test:backend:
   stage: test
   image: $BACKEND_TAG
+  inherit:
+    # no docker login
+    default: false
   services:
     - postgres:12
   variables:
