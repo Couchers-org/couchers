@@ -48,13 +48,14 @@ build:backend:
 
 test:backend:
   stage: test
+  image: $BACKEND_TAG
   services:
-    - docker:19.03.12-dind
     - postgres:12
   variables:
     POSTGRES_PASSWORD: c765064a49d18a95
+    DATABASE_CONNECTION_STRING: "postgresql://postgres:c765064a49d18a95@postgres/postgres"
   script:
-    - docker run --env-file app/backend.test.env --env "DATABASE_CONNECTION_STRING=postgresql://postgres:c765064a49d18a95@postgres/postgres" $BACKEND_TAG pytest src --junitxml=test-results/junit.xml
+    - pytest src --junitxml=test-results/junit.xml
   artifacts:
     paths:
       - ./test-results
