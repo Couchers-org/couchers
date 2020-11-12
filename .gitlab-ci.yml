@@ -8,7 +8,7 @@ stages:
   - test
 
 variables:
-  RELEASE_BRANCH: feature-gitlab-ci-cd
+  RELEASE_BRANCH: develop
   GRPC_TAG: $CI_REGISTRY/couchers/grpc:latest
   PROXY_IMAGE: $CI_REGISTRY_IMAGE/proxy:latest
   BACKEND_IMAGE: $CI_REGISTRY_IMAGE/backend:latest
