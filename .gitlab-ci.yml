@@ -1,8 +1,8 @@
 stages:
   - protos
   - build
-  - test
   - release
+  - test
 
 variables:
   GRPC_TAG: $CI_REGISTRY/couchers/grpc:latest
@@ -46,6 +46,18 @@ build:backend:
     - docker build -t $BACKEND_TAG app/backend/
     - docker push $BACKEND_TAG
 
+build:media:
+  stage: build
+  script:
+    - docker build -t $MEDIA_TAG app/media/
+    - docker push $MEDIA_TAG
+
+build:frontend:
+  stage: build
+  script:
+    - docker build -t $FRONTEND_TAG app/frontend/
+    - docker push $FRONTEND_TAG
+
 test:backend:
   stage: test
   image: $BACKEND_TAG
@@ -63,25 +75,19 @@ test:backend:
     paths:
       - /app/test-results
 
-build:media:
-  stage: build
-  script:
-    - docker build -t $MEDIA_TAG app/media/
-    - docker push $MEDIA_TAG
-
 test:media:
   stage: test
+  image: $MEDIA_TAG
+  inherit:
+    # no docker login
+    default: false
+  variables:
+    MEDIA_SERVER_FROM_ENV: 0
   script:
-    - docker run --env-file app/media.test.env $MEDIA_TAG pytest src
+    - cd /app && pytest src --junitxml=test-results/junit.xml
   artifacts:
     paths:
-      - ./test-results
-
-build:frontend:
-  stage: build
-  script:
-    - docker build -t $FRONTEND_TAG app/frontend/
-    - docker push $FRONTEND_TAG
+      - /app/test-results
 
 release:proxy:
   stage: release
