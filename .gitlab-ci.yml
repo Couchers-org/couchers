@@ -4,7 +4,7 @@ stages:
   - release
 
 variables:
-  GRPC_TAG: couchers/grpc #$CI_REGISTRY/couchers/grpc:latest
+  GRPC_TAG: $CI_REGISTRY/couchers/grpc:latest
   PROXY_IMAGE: $CI_REGISTRY_IMAGE/proxy
   BACKEND_IMAGE: $CI_REGISTRY_IMAGE/backend
   MEDIA_IMAGE: $CI_REGISTRY_IMAGE/media
