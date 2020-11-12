@@ -34,11 +34,11 @@ protos:
     paths:
       - ./app
 
-build:proxy:
-  stage: build
-  script:
-    - docker build -t $PROXY_TAG app/proxy/
-    - docker push $PROXY_TAG
+#build:proxy:
+#  stage: build
+#  script:
+#    - docker build -t $PROXY_TAG app/proxy/
+#    - docker push $PROXY_TAG
 
 build:backend:
   stage: build
@@ -59,58 +59,58 @@ test:backend:
     paths:
       - ./test-results
 
-build:media:
-  stage: build
-  script:
-    - docker build -t $MEDIA_TAG app/media/
-    - docker push $MEDIA_TAG
+#build:media:
+#  stage: build
+#  script:
+#    - docker build -t $MEDIA_TAG app/media/
+#    - docker push $MEDIA_TAG
 
-test:media:
-  stage: test
-  script:
-    - docker run --env-file app/media.test.env $MEDIA_TAG pytest src
-  artifacts:
-    paths:
-      - ./test-results
+#test:media:
+#  stage: test
+#  script:
+#    - docker run --env-file app/media.test.env $MEDIA_TAG pytest src
+#  artifacts:
+#    paths:
+#      - ./test-results
 
-build:frontend:
-  stage: build
-  script:
-    - docker build -t $FRONTEND_TAG app/frontend/
-    - docker push $FRONTEND_TAG
+#build:frontend:
+#  stage: build
+#  script:
+#    - docker build -t $FRONTEND_TAG app/frontend/
+#    - docker push $FRONTEND_TAG
 
-release:proxy:
-  stage: release
-  script:
-    - docker pull $PROXY_TAG
-    - docker tag $PROXY_TAG $PROXY_IMAGE:latest
-    - docker push $PROXY_IMAGE:latest
-  only:
-    - develop
+#release:proxy:
+#  stage: release
+#  script:
+#    - docker pull $PROXY_TAG
+#    - docker tag $PROXY_TAG $PROXY_IMAGE:latest
+#    - docker push $PROXY_IMAGE:latest
+#  only:
+#    - develop
 
-release:backend:
-  stage: release
-  script:
-    - docker pull $BACKEND_TAG
-    - docker tag $BACKEND_TAG $BACKEND_IMAGE:latest
-    - docker push $BACKEND_IMAGE:latest
-  only:
-    - develop
+#release:backend:
+#  stage: release
+#  script:
+#    - docker pull $BACKEND_TAG
+#    - docker tag $BACKEND_TAG $BACKEND_IMAGE:latest
+#    - docker push $BACKEND_IMAGE:latest
+#  only:
+#    - develop
 
-release:media:
-  stage: release
-  script:
-    - docker pull $MEDIA_TAG
-    - docker tag $MEDIA_TAG $MEDIA_IMAGE:latest
-    - docker push $MEDIA_IMAGE:latest
-  only:
-    - develop
+#release:media:
+#  stage: release
+#  script:
+#    - docker pull $MEDIA_TAG
+#    - docker tag $MEDIA_TAG $MEDIA_IMAGE:latest
+#    - docker push $MEDIA_IMAGE:latest
+#  only:
+#    - develop
 
-release:frontend:
-  stage: release
-  script:
-    - docker pull $FRONTEND_TAG
-    - docker tag $FRONTEND_TAG $FRONTEND_IMAGE:latest
-    - docker push $FRONTEND_IMAGE:latest
-  only:
-    - develop
+#release:frontend:
+#  stage: release
+#  script:
+#    - docker pull $FRONTEND_TAG
+#    - docker tag $FRONTEND_TAG $FRONTEND_IMAGE:latest
+#    - docker push $FRONTEND_IMAGE:latest
+#  only:
+#    - develop
