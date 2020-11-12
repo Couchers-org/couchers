@@ -52,8 +52,8 @@ test:backend:
     - name: postgres:12
       alias: postgres_tests
   variables:
-    - POSTGRES_PASSWORD: "06b3890acd2c235c41be0bbfe22f1b386a04bf02eedf8c977486355616be2aa1"
-    - PGPORT: 6544
+    POSTGRES_PASSWORD: 06b3890acd2c235c41be0bbfe22f1b386a04bf02eedf8c977486355616be2aa1
+    PGPORT: 6544
   script:
     - docker run --env-file app/backend.test.env $BACKEND_TAG pytest src --junitxml=test-results/junit.xml
   artifacts:
