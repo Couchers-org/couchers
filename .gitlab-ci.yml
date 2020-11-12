@@ -6,10 +6,10 @@ stages:
 
 variables:
   GRPC_TAG: $CI_REGISTRY/couchers/grpc:latest
-  PROXY_IMAGE: $CI_REGISTRY_IMAGE/proxy
-  BACKEND_IMAGE: $CI_REGISTRY_IMAGE/backend
-  MEDIA_IMAGE: $CI_REGISTRY_IMAGE/media
-  FRONTEND_IMAGE: $CI_REGISTRY_IMAGE/frontend
+  PROXY_IMAGE: $CI_REGISTRY_IMAGE/proxy:latest
+  BACKEND_IMAGE: $CI_REGISTRY_IMAGE/backend:latest
+  MEDIA_IMAGE: $CI_REGISTRY_IMAGE/media:latest
+  FRONTEND_IMAGE: $CI_REGISTRY_IMAGE/frontend:latest
   PROXY_TAG: $CI_REGISTRY_IMAGE/proxy:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   BACKEND_TAG: $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   MEDIA_TAG: $CI_REGISTRY_IMAGE/media:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
@@ -120,34 +120,34 @@ release:proxy:
   stage: release
   script:
     - docker pull $PROXY_TAG
-    - docker tag $PROXY_TAG $PROXY_IMAGE:latest
-    - docker push $PROXY_IMAGE:latest
+    - docker tag $PROXY_TAG $PROXY_IMAGE
+    - docker push $PROXY_IMAGE
   rules:
-    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - if: '$CI_COMMIT_BRANCH == "feature-gitlab-ci-cd"'
 
 release:backend:
   stage: release
   script:
     - docker pull $BACKEND_TAG
-    - docker tag $BACKEND_TAG $BACKEND_IMAGE:latest
-    - docker push $BACKEND_IMAGE:latest
+    - docker tag $BACKEND_TAG $BACKEND_IMAGE
+    - docker push $BACKEND_IMAGE
   rules:
-    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - if: '$CI_COMMIT_BRANCH == "feature-gitlab-ci-cd"'
 
 release:media:
   stage: release
   script:
     - docker pull $MEDIA_TAG
-    - docker tag $MEDIA_TAG $MEDIA_IMAGE:latest
-    - docker push $MEDIA_IMAGE:latest
+    - docker tag $MEDIA_TAG $MEDIA_IMAGE
+    - docker push $MEDIA_IMAGE
   rules:
-    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - if: '$CI_COMMIT_BRANCH == "feature-gitlab-ci-cd"'
 
 release:frontend:
   stage: release
   script:
     - docker pull $FRONTEND_TAG
-    - docker tag $FRONTEND_TAG $FRONTEND_IMAGE:latest
-    - docker push $FRONTEND_IMAGE:latest
+    - docker tag $FRONTEND_TAG $FRONTEND_IMAGE
+    - docker push $FRONTEND_IMAGE
   rules:
-    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - if: '$CI_COMMIT_BRANCH == "feature-gitlab-ci-cd"'
