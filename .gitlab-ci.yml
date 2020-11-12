@@ -64,7 +64,7 @@ release:proxy:
     - docker tag $PROXY_TAG $PROXY_IMAGE:latest
     - docker push $PROXY_IMAGE:latest
   only:
-    - dev
+    - develop
 
 release:backend:
   stage: release
@@ -73,7 +73,7 @@ release:backend:
     - docker tag $BACKEND_TAG $BACKEND_IMAGE:latest
     - docker push $BACKEND_IMAGE:latest
   only:
-    - dev
+    - develop
 
 release:media:
   stage: release
@@ -82,7 +82,7 @@ release:media:
     - docker tag $MEDIA_TAG $MEDIA_IMAGE:latest
     - docker push $MEDIA_IMAGE:latest
   only:
-    - dev
+    - develop
 
 release:frontend:
   stage: release
@@ -91,4 +91,4 @@ release:frontend:
     - docker tag $FRONTEND_TAG $FRONTEND_IMAGE:latest
     - docker push $FRONTEND_IMAGE:latest
   only:
-    - dev
+    - develop
