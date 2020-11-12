@@ -5,22 +5,22 @@ stages:
   - test
 
 variables:
-  GRPC_TAG: $CI_REGISTRY/couchers/grpc:latest
-  PROXY_IMAGE: $CI_REGISTRY_IMAGE/proxy
-  BACKEND_IMAGE: $CI_REGISTRY_IMAGE/backend
-  MEDIA_IMAGE: $CI_REGISTRY_IMAGE/media
-  FRONTEND_IMAGE: $CI_REGISTRY_IMAGE/frontend
-  PROXY_TAG: $CI_REGISTRY_IMAGE/proxy:$CI_COMMIT_REF_SLUG
-  BACKEND_TAG: $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_REF_SLUG
-  MEDIA_TAG: $CI_REGISTRY_IMAGE/media:$CI_COMMIT_REF_SLUG
-  FRONTEND_TAG: $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_REF_SLUG
+  GRPC_TAG: ${CI_REGISTRY}/couchers/grpc:latest
+  PROXY_IMAGE: ${CI_REGISTRY_IMAGE}/proxy
+  BACKEND_IMAGE: ${CI_REGISTRY_IMAGE}/backend
+  MEDIA_IMAGE: ${CI_REGISTRY_IMAGE}/media
+  FRONTEND_IMAGE: ${CI_REGISTRY_IMAGE}/frontend
+  PROXY_TAG: ${CI_REGISTRY_IMAGE}/proxy:${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}
+  BACKEND_TAG: ${CI_REGISTRY_IMAGE}/backend:${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}
+  MEDIA_TAG: ${CI_REGISTRY_IMAGE}/media:${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}
+  FRONTEND_TAG: ${CI_REGISTRY_IMAGE}/frontend:${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}
 
 default:
   image: docker
   services:
     - docker:19.03.12-dind
   before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} ${CI_REGISTRY}
 
 protos:
   stage: protos
@@ -35,7 +35,7 @@ protos:
       - app/pb/
   artifacts:
     paths:
-      - ./app
+      - app
 
 build:proxy:
   stage: build
@@ -93,6 +93,10 @@ test:backend:
   artifacts:
     paths:
       - /app/test-results
+  rules:
+    - changes:
+      - app/pb/
+      - app/backend/
 
 test:media:
   stage: test
@@ -107,6 +111,10 @@ test:media:
   artifacts:
     paths:
       - /app/test-results
+  rules:
+    - changes:
+      - app/pb/
+      - app/media/
 
 release:proxy:
   stage: release
@@ -115,7 +123,7 @@ release:proxy:
     - docker tag $PROXY_TAG $PROXY_IMAGE:latest
     - docker push $PROXY_IMAGE:latest
   rules:
-    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - if: '${CI_COMMIT_BRANCH} == "develop"'
 
 release:backend:
   stage: release
@@ -124,7 +132,7 @@ release:backend:
     - docker tag $BACKEND_TAG $BACKEND_IMAGE:latest
     - docker push $BACKEND_IMAGE:latest
   rules:
-    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - if: '${CI_COMMIT_BRANCH} == "develop"'
 
 release:media:
   stage: release
@@ -133,7 +141,7 @@ release:media:
     - docker tag $MEDIA_TAG $MEDIA_IMAGE:latest
     - docker push $MEDIA_IMAGE:latest
   rules:
-    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - if: '${CI_COMMIT_BRANCH} == "develop"'
 
 release:frontend:
   stage: release
@@ -142,4 +150,4 @@ release:frontend:
     - docker tag $FRONTEND_TAG $FRONTEND_IMAGE:latest
     - docker push $FRONTEND_IMAGE:latest
   rules:
-    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - if: '${CI_COMMIT_BRANCH} == "develop"'
