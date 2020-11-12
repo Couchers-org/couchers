@@ -24,3 +24,4 @@ yarn-error.log*
 
 src/pb/**
 .vscode
+.idea
