@@ -49,6 +49,7 @@ build:backend:
 test:backend:
   stage: test
   services:
+    - docker:19.03.12-dind
     - name: postgres:12
       alias: postgres_tests
   variables:
@@ -65,6 +66,14 @@ build:media:
   script:
     - docker build -t $MEDIA_TAG app/media/
     - docker push $MEDIA_TAG
+
+test:media:
+  stage: test
+  script:
+    - docker run --env-file app/media.test.env $MEDIA_TAG pytest src
+  artifacts:
+    paths:
+      - ./test-results
 
 build:frontend:
   stage: build
