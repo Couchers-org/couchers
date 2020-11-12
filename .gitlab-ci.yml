@@ -1,6 +1,7 @@
 stages:
   - protos
   - build
+  - test
   - release
 
 variables:
