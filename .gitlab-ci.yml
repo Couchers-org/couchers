@@ -1,6 +1,3 @@
-variables:
-  GIT_DEPTH: 1
-
 stages:
   - protos
   - build
@@ -8,6 +5,7 @@ stages:
   - test
 
 variables:
+  GIT_DEPTH: 1
   RELEASE_BRANCH: develop
   GRPC_TAG: $CI_REGISTRY/couchers/grpc:latest
   PROXY_IMAGE: $CI_REGISTRY_IMAGE/proxy:latest
@@ -35,13 +33,11 @@ protos:
   script:
     - cd app && ./generate_protos.sh
   rules:
-    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
-      when: always
     - changes:
-      - app/pb/
+      - app/
   artifacts:
     paths:
-      - app
+      - app/
 
 build:proxy:
   stage: build
@@ -50,8 +46,10 @@ build:proxy:
     - docker push $PROXY_TAG
   rules:
     - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
-      when: always
-    - changes:
+      changes:
+      - app/
+    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
+      changes:
       - app/pb/
       - app/proxy/
 
@@ -62,8 +60,10 @@ build:backend:
     - docker push $BACKEND_TAG
   rules:
     - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
-      when: always
-    - changes:
+      changes:
+      - app/
+    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
+      changes:
       - app/pb/
       - app/backend/
 
@@ -74,8 +74,10 @@ build:media:
     - docker push $MEDIA_TAG
   rules:
     - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
-      when: always
-    - changes:
+      changes:
+      - app/
+    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
+      changes:
       - app/pb/
       - app/media/
 
@@ -86,8 +88,10 @@ build:frontend:
     - docker push $FRONTEND_TAG
   rules:
     - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
-      when: always
-    - changes:
+      changes:
+      - app/
+    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
+      changes:
       - app/pb/
       - app/frontend/
 
@@ -106,11 +110,13 @@ test:backend:
     - cd /app && pytest src --junitxml=test-results/junit.xml
   artifacts:
     paths:
-      - /app/test-results
+      - /app/test-results/
   rules:
     - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
-      when: always
-    - changes:
+      changes:
+      - app/
+    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
+      changes:
       - app/pb/
       - app/media/
 
@@ -130,8 +136,10 @@ test:media:
       - /app/test-results
   rules:
     - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
-      when: always
-    - changes:
+      changes:
+      - app/
+    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
+      changes:
       - app/pb/
       - app/media/
 
@@ -143,6 +151,8 @@ release:proxy:
     - docker push $PROXY_IMAGE
   rules:
     - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+      changes:
+      - app/
 
 release:backend:
   stage: release
@@ -152,6 +162,8 @@ release:backend:
     - docker push $BACKEND_IMAGE
   rules:
     - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+      changes:
+      - app/
 
 release:media:
   stage: release
@@ -161,6 +173,8 @@ release:media:
     - docker push $MEDIA_IMAGE
   rules:
     - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+      changes:
+      - app/
 
 release:frontend:
   stage: release
@@ -170,3 +184,5 @@ release:frontend:
     - docker push $FRONTEND_IMAGE
   rules:
     - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+      changes:
+      - app/
