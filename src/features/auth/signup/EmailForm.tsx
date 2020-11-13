@@ -2,7 +2,7 @@ import { Typography } from "@material-ui/core";
 import React, { useState } from "react";
 import Button from "../../../components/Button";
 import TextInput from "../../../components/TextInput";
-import { useAppDispatch, useTypedSelector } from "../../../store";
+import { useAppDispatch } from "../../../store";
 import { SignupRes } from "../../../pb/auth_pb";
 import { authError, clearError } from "../authSlice";
 import { createEmailSignup } from "./lib";

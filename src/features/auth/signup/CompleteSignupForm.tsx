@@ -10,22 +10,14 @@ import { HostingStatus } from "../../../pb/api_pb";
 import Autocomplete from "../../../components/Autocomplete";
 import { getSignupEmail, validateUsername } from "./lib";
 import { signupRoute } from "../../../AppRoutes";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import CircularProgress from "../../../components/CircularProgress";
 import {
   nameValidationPattern,
   usernameValidationPattern,
-  validateBirthdate,
+  validatePastDate,
 } from "./validation";
-
-const optionLabels = {
-  [HostingStatus.HOSTING_STATUS_CAN_HOST]: "Can host",
-  [HostingStatus.HOSTING_STATUS_MAYBE]: "Can maybe host",
-  [HostingStatus.HOSTING_STATUS_DIFFICULT]: "Difficult to host",
-  [HostingStatus.HOSTING_STATUS_CANT_HOST]: "Can't host",
-  [HostingStatus.HOSTING_STATUS_UNSPECIFIED]: "",
-  [HostingStatus.HOSTING_STATUS_UNKNOWN]: "",
-};
+import { optionLabels } from "./constants";
 
 type SignupInputs = {
   email: string;
@@ -41,9 +33,14 @@ export default function CompleteSignup() {
   const dispatch = useAppDispatch();
   const authLoading = useTypedSelector((state) => state.auth.loading);
 
-  const { register, handleSubmit, setValue, errors, getValues } = useForm<
-    SignupInputs
-  >({
+  const {
+    control,
+    register,
+    handleSubmit,
+    setValue,
+    errors,
+    getValues,
+  } = useForm<SignupInputs>({
     shouldUnregister: false,
     mode: "onBlur",
   });
@@ -132,11 +129,18 @@ export default function CompleteSignup() {
             })}
             helperText={errors?.city?.message}
           />
-          <Autocomplete
-            label="Gender"
-            onInputChange={(_event, value) => setValue("gender", value)}
-            options={["Male", "Female", "<Type anything you like>"]}
-            freeSolo
+          <Controller
+            control={control}
+            name="gender"
+            defaultValue=""
+            render={({ onChange }) => (
+              <Autocomplete
+                label="Gender"
+                onInputChange={(_, value) => onChange(value)}
+                options={["Male", "Female", "<Type anything you like>"]}
+                freeSolo
+              />
+            )}
           />
           <TextInput
             name="birthdate"
@@ -148,24 +152,32 @@ export default function CompleteSignup() {
             inputRef={register({
               required: "Enter your birthdate",
               validate: (stringDate) =>
-                validateBirthdate(stringDate) || "Not a valid date.",
+                validatePastDate(stringDate) ||
+                "Must be a valid date in the past.",
             })}
             helperText={errors?.birthdate?.message}
           />
-          <Autocomplete
-            label="Hosting status"
-            onChange={(_event, option) => setValue("hostingStatus", option)}
-            options={[
-              HostingStatus.HOSTING_STATUS_CAN_HOST,
-              HostingStatus.HOSTING_STATUS_MAYBE,
-              HostingStatus.HOSTING_STATUS_DIFFICULT,
-              HostingStatus.HOSTING_STATUS_CANT_HOST,
-            ]}
-            getOptionLabel={(option) => optionLabels[option]}
-            disableClearable
-            //below required for type inference
-            multiple={false}
-            freeSolo={false}
+          <Controller
+            control={control}
+            name="hostingStatus"
+            defaultValue={null}
+            render={({ onChange }) => (
+              <Autocomplete
+                label="Hosting status"
+                onChange={(_, option) => onChange(option)}
+                options={[
+                  HostingStatus.HOSTING_STATUS_CAN_HOST,
+                  HostingStatus.HOSTING_STATUS_MAYBE,
+                  HostingStatus.HOSTING_STATUS_DIFFICULT,
+                  HostingStatus.HOSTING_STATUS_CANT_HOST,
+                ]}
+                getOptionLabel={(option) => optionLabels[option]}
+                disableClearable
+                //below required for type inference
+                multiple={false}
+                freeSolo={false}
+              />
+            )}
           />
           <Button onClick={completeSignup} loading={authLoading || loading}>
             Sign up
