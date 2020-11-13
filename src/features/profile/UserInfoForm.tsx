@@ -1,8 +1,12 @@
-import { Button, makeStyles, TextField } from "@material-ui/core";
-import { Alert, Autocomplete } from "@material-ui/lab";
+import { makeStyles } from "@material-ui/core";
+import { Autocomplete } from "@material-ui/lab";
+import { unwrapResult } from "@reduxjs/toolkit";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { ProfileFormData, updateUser } from "./index";
+import Alert from "../../components/Alert";
+import Button from "../../components/Button";
+import TextInput from "../../components/TextInput";
+import { ProfileFormData, updateUserProfile } from "./index";
 import { useAppDispatch, useTypedSelector } from "../../store";
 
 const useStyles = makeStyles({
@@ -11,15 +15,16 @@ const useStyles = makeStyles({
   },
 });
 
-export default function HostingPreferenceForm() {
+export default function UserInfoForm() {
   const styles = useStyles();
   const dispatch = useAppDispatch();
   const user = useTypedSelector((state) => state.auth.user);
   const [showAlert, setShowAlert] = useState(false);
+
   const { control, register, handleSubmit } = useForm<ProfileFormData>();
 
   const onSubmit = handleSubmit((data: ProfileFormData) => {
-    dispatch(updateUser(data)).then(() => {
+    dispatch(updateUserProfile(data)).then(() => {
       setShowAlert(true);
     });
   });
@@ -31,7 +36,7 @@ export default function HostingPreferenceForm() {
       )}
       {user && (
         <form onSubmit={onSubmit}>
-          <TextField
+          <TextInput
             label="Name"
             name="name"
             defaultValue={user.name}
@@ -40,7 +45,7 @@ export default function HostingPreferenceForm() {
             margin="normal"
             fullWidth
           />
-          <TextField
+          <TextInput
             label="City"
             name="city"
             defaultValue={user.city}
@@ -49,7 +54,7 @@ export default function HostingPreferenceForm() {
             margin="normal"
             fullWidth
           />
-          <TextField
+          <TextInput
             label="Gender"
             name="gender"
             defaultValue={user.gender}
@@ -58,7 +63,7 @@ export default function HostingPreferenceForm() {
             margin="normal"
             fullWidth
           />
-          <TextField
+          <TextInput
             label="Occupation"
             name="occupation"
             defaultValue={user.occupation}
@@ -81,7 +86,7 @@ export default function HostingPreferenceForm() {
                 open={false}
                 options={[""]}
                 renderInput={(params) => (
-                  <TextField
+                  <TextInput
                     {...params}
                     helperText="Press 'Enter' to add"
                     label="Languages"
@@ -92,7 +97,7 @@ export default function HostingPreferenceForm() {
               />
             )}
           />
-          <TextField
+          <TextInput
             label="About me"
             name="aboutMe"
             defaultValue={user.aboutMe}
@@ -103,7 +108,7 @@ export default function HostingPreferenceForm() {
             multiline
             fullWidth
           />
-          <TextField
+          <TextInput
             label="About my place"
             name="aboutPlace"
             defaultValue={user.aboutPlace}
@@ -128,7 +133,7 @@ export default function HostingPreferenceForm() {
                 open={false}
                 options={[""]}
                 renderInput={(params) => (
-                  <TextField
+                  <TextInput
                     {...params}
                     helperText="Press 'Enter' to add"
                     label="Countries I visited"
@@ -153,7 +158,7 @@ export default function HostingPreferenceForm() {
                 open={false}
                 options={[""]}
                 renderInput={(params) => (
-                  <TextField
+                  <TextInput
                     {...params}
                     helperText="Press 'Enter' to add"
                     label="Countries I lived in"
