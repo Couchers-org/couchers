@@ -70,14 +70,13 @@ export default function CompleteSignup() {
   }, [urlToken, dispatch, location.pathname, setValue, history]);
 
   const completeSignup = handleSubmit(async (data: SignupInputs) => {
-    const parsedBirthdate = new Date(data.birthdate);
     dispatch(
       signup({
         signupToken: urlToken,
         username: data.username,
         name: data.name,
         city: data.city,
-        birthdate: parsedBirthdate,
+        birthdate: data.birthdate,
         gender: data.gender,
         hostingStatus: data.hostingStatus,
       })

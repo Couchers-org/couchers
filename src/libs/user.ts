@@ -120,7 +120,7 @@ export type SignupArguments = {
   username: string;
   name: string;
   city: string;
-  birthdate: Date;
+  birthdate: string;
   gender: string;
   hostingStatus: HostingStatus;
 };
@@ -145,7 +145,7 @@ export const completeSignup = async ({
   req.setUsername(username);
   req.setName(name);
   req.setCity(city);
-  req.setBirthdate(birthdate.toISOString().split("T")[0]);
+  req.setBirthdate(birthdate);
   req.setGender(gender);
   req.setHostingStatus(hostingStatus);
 
