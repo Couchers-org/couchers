@@ -3,9 +3,37 @@
 [![Build Status](https://travis-ci.org/Couchers-org/couchers-react.svg?branch=dev)](https://travis-ci.org/Couchers-org/couchers-react)
 [![Coverage Status](https://coveralls.io/repos/github/Couchers-org/couchers-react/badge.svg?branch=dev)](https://coveralls.io/github/Couchers-org/couchers-react?branch=dev)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is the react frontend for couchers.org. We are using [Redux with Redux Toolkit](https://redux-toolkit.js.org/) for state management and [Material UI](https://material-ui.com/) for components.
 
-## Available Scripts
+## How to contribute
+
+1. Pick an unassigned issue you'd like to work on (or open a new one) and assign it to yourself.
+
+2. Make sure you have the development environment going (see below).
+
+3. Create a new branch for your issue eg. `feature/global-search`, `bug/no-duplicate-users` or `refactor/fix-host-requests`
+
+4. Do some code! It is good to commit regularly, but if possible your code should successfully compile with each commit.
+
+5. Create a pull request and request a code review from someone. It can be good to open a PR before you are finished, add [WIP] before the title in that case.
+
+6. Listen to the feedback and make any necessary changes. Remember, code review can sometimes seem very direct if your are not accustomed to it, but we are all learning and all comments are intended to be kind and constructive. :)
+
+7. Remember to also get review on your post-review changes.
+
+8. Once everything is resolved, you can merge the PR if you feel confident, or ask someone to merge for you.
+
+## Setting up the dev environment
+
+You will need to first [follow the instructions in the main repository](https://github.com/Couchers-org/couchers/blob/develop/app/readme.md) to start the docker containers and generate the protocol buffer code.
+
+Then, you should clone into this repo, and copy the `couchers/app/frontend/pb` folder from the main repo into this one.
+
+If you have any trouble, someone will be happy to help, just ask!
+
+While coding, your editor should auto-format with `prettier` when you save. If not, you can always run `yarn format`.
+
+---
 
 In the project directory, you can run:
 
@@ -22,28 +50,11 @@ You will also see any lint errors in the console.
 Launches the test runner in the interactive watch mode.<br />
 See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
+### `yarn storybook`
+
+Runs storybook, good for testing and developing components in isolation.
+
 ### `yarn build`
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Builds the app for production to the `build` folder.
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `yarn eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
