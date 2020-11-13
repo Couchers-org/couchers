@@ -5,7 +5,7 @@ export * from "./actions";
 
 type RequiredUpdateProfileReq = Required<UpdateProfileReq.AsObject>;
 export type ProfileFormData = {
-  [K in keyof RequiredUpdateProfileReq]-?: ProtoToJsTypes<
+  [K in keyof RequiredUpdateProfileReq]: ProtoToJsTypes<
     RequiredUpdateProfileReq[K]
   >;
 };
