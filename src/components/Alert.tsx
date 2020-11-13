@@ -1,5 +1,8 @@
 import { makeStyles } from "@material-ui/core";
-import { Alert, AlertProps as MuiAlertProps } from "@material-ui/lab/";
+import {
+  Alert as MuiAlert,
+  AlertProps as MuiAlertProps,
+} from "@material-ui/lab/";
 import React from "react";
 
 const useStyles = makeStyles({
@@ -11,17 +14,17 @@ type AlertProps = MuiAlertProps & {
   severity: MuiAlertProps["severity"];
 };
 
-export default (props: AlertProps) => {
+export default function Alert(props: AlertProps) {
   const { children, className, severity, ...otherProps } = props;
 
   const styles = useStyles();
   return (
-    <Alert
+    <MuiAlert
       severity={severity}
       {...otherProps}
       className={`${styles.root} ${className}`}
     >
       {children}
-    </Alert>
+    </MuiAlert>
   );
-};
+}

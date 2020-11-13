@@ -7,7 +7,7 @@ const useStyles = makeStyles({
   },
 });
 
-export default (props: TextFieldProps) => {
+export default function TextInput(props: TextFieldProps) {
   const styles = useStyles();
   //as any because TextFieldProps is union type
   return (
@@ -16,4 +16,4 @@ export default (props: TextFieldProps) => {
       className={`${styles.root} ${props.className}`}
     ></TextField>
   );
-};
+}

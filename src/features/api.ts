@@ -31,28 +31,23 @@ const opts = {
 
 // There seems to be an error in the `opts` parameter's type, so have to ignore that line.
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 // @ts-ignore
 export const client = new APIPromiseClient(URL, null, opts) as APIPromiseClient;
 
 // prettier-ignore
-// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 // @ts-ignore
 export const bugsClient = new BugsPromiseClient(URL, null, opts) as BugsPromiseClient
 
 // prettier-ignore
-// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 // @ts-ignore
 export const SSOclient = new SSOPromiseClient(URL, null, opts) as SSOPromiseClient
 
 // prettier-ignore
-// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 // @ts-ignore
 export const conversationsClient = new ConversationsPromiseClient(URL, null, opts) as ConversationsPromiseClient
 
 export const authClient = new AuthPromiseClient(URL);
 
 // prettier-ignore
-// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 // @ts-ignore
 export const requestsClient = new RequestsPromiseClient(URL, null, opts) as RequestsPromiseClient
