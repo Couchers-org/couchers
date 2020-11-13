@@ -19,21 +19,29 @@ export default function UserInfoForm() {
   const styles = useStyles();
   const dispatch = useAppDispatch();
   const user = useTypedSelector((state) => state.auth.user);
-  const [showAlert, setShowAlert] = useState(false);
-
+  const [alertState, setShowAlertState] = useState<
+    "success" | "error" | undefined
+  >();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { control, register, handleSubmit } = useForm<ProfileFormData>();
 
-  const onSubmit = handleSubmit((data: ProfileFormData) => {
-    dispatch(updateUserProfile(data)).then(() => {
-      setShowAlert(true);
-    });
+  const onSubmit = handleSubmit(async (data: ProfileFormData) => {
+    try {
+      unwrapResult(await dispatch(updateUserProfile(data)));
+      setShowAlertState("success");
+    } catch (error) {
+      setShowAlertState("error");
+      setErrorMessage(error.message);
+    }
   });
 
   return (
     <>
-      {showAlert && (
-        <Alert severity="success">Successfully updated profile!</Alert>
-      )}
+      {alertState === "success" ? (
+        <Alert severity={alertState}>Successfully updated profile!</Alert>
+      ) : alertState === "error" ? (
+        <Alert severity={alertState}>{errorMessage}</Alert>
+      ) : null}
       {user && (
         <form onSubmit={onSubmit}>
           <TextInput
