@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
 import { Switch, Route, RouteProps, Redirect } from "react-router-dom";
-import Home from "./views/Home";
-import Profile from "./views/Profile";
-import Messages from "./views/Messages";
 import Login from "./features/auth/login/Login";
+import ProfilePage from "./features/profile/ProfilePage";
+import Home from "./views/Home";
+import Messages from "./views/Messages";
 import Logout from "./views/Logout";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./reducers";
@@ -24,7 +24,7 @@ export default function AppRoutes() {
         <Login />
       </Route>
       <PrivateRoute path={profileRoute}>
-        <Profile />
+        <ProfilePage />
       </PrivateRoute>
       <PrivateRoute path={messagesRoute}>
         <Messages />

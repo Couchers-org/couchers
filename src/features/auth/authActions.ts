@@ -2,12 +2,9 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import {
   getCurrentUser,
   getUserByUsername,
-  updateUser as apiUpdateUser,
   passwordLogin as apiPasswordLogin,
   tokenLogin as apiTokenLogin,
 } from "../../libs/user";
-import { User } from "../../pb/api_pb";
-import { RootState } from "../../reducers";
 
 export const passwordLogin = createAsyncThunk(
   "auth/passwordLogin",
@@ -30,19 +27,3 @@ export const tokenLogin = createAsyncThunk(
     return { token, user };
   }
 );
-
-export const updateUser = createAsyncThunk<
-  User.AsObject,
-  User.AsObject,
-  { state: RootState }
->("auth/updateUser", async (user, { getState }) => {
-  const username = getState().auth.user?.username;
-
-  if (!username) {
-    throw Error("User is not connected.");
-  }
-
-  await apiUpdateUser(user);
-
-  return getUserByUsername(username);
-});

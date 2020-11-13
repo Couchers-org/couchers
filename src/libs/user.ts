@@ -1,8 +1,16 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import wrappers from "google-protobuf/google/protobuf/wrappers_pb";
 import { authClient, client } from "../features/api";
-import { GetUserReq, PingReq, UpdateProfileReq, User } from "../pb/api_pb";
+import {
+  GetUserReq,
+  PingReq,
+  UpdateProfileReq,
+  User,
+  NullableStringValue,
+  RepeatedStringValue,
+} from "../pb/api_pb";
 import { AuthReq, CompleteTokenLoginReq } from "../pb/auth_pb";
+import { ProfileFormData } from "../features/profile";
 
 /**
  * Login user using password and returns session token
@@ -84,23 +92,40 @@ export const getUserByUsername = async (
 /**
  * Updates user
  *
- * @param {User.AsObject} user
+ * @param {User.AsObject} reqObject
  * @returns {Promise<Empty>}
  */
-export const updateUser = async (user: User.AsObject): Promise<Empty> => {
+export const updateProfile = async (
+  reqObject: ProfileFormData
+): Promise<Empty> => {
   const req = new UpdateProfileReq();
 
-  const nameWrapper = new wrappers.StringValue();
-  const cityWrapper = new wrappers.StringValue();
-  const genderWrapper = new wrappers.StringValue();
+  const name = new wrappers.StringValue().setValue(reqObject.name);
+  const city = new wrappers.StringValue().setValue(reqObject.city);
+  const gender = new wrappers.StringValue().setValue(reqObject.gender);
+  const occupation = new NullableStringValue().setValue(reqObject.occupation);
+  const languages = new RepeatedStringValue()
+    .setValueList(reqObject.languages)
+    .setExists(!!reqObject.languages);
+  const aboutMe = new NullableStringValue().setValue(reqObject.aboutMe);
+  const aboutPlace = new NullableStringValue().setValue(reqObject.aboutPlace);
+  const countriesVisited = new RepeatedStringValue()
+    .setValueList(reqObject.countriesVisited)
+    .setExists(!!reqObject.countriesVisited);
+  const countriesLived = new RepeatedStringValue()
+    .setValueList(reqObject.countriesLived)
+    .setExists(!!reqObject.countriesLived);
 
-  nameWrapper.setValue(user.name);
-  cityWrapper.setValue(user.city);
-  genderWrapper.setValue(user.gender);
-
-  req.setName(nameWrapper);
-  req.setCity(cityWrapper);
-  req.setGender(genderWrapper);
+  req
+    .setName(name)
+    .setCity(city)
+    .setGender(gender)
+    .setOccupation(occupation)
+    .setLanguages(languages)
+    .setAboutMe(aboutMe)
+    .setAboutPlace(aboutPlace)
+    .setCountriesVisited(countriesVisited)
+    .setCountriesLived(countriesLived);
 
   return client.updateProfile(req);
 };
