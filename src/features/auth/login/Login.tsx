@@ -7,7 +7,7 @@ import {
   useLocation,
   useParams,
 } from "react-router-dom";
-import ErrorAlert from "../../../components/ErrorAlert";
+import Alert from "../../../components/Alert";
 import { tokenLogin } from "../authActions";
 import { useAppDispatch, useTypedSelector } from "../../../store";
 import { loginPasswordRoute, loginRoute } from "../../../AppRoutes";
@@ -33,7 +33,7 @@ export default function Login() {
     <>
       {authToken && <Redirect to="/" />}
       <Typography variant="h2">Login</Typography>
-      {error && <ErrorAlert error={error} />}
+      {error && <Alert severity="error">{error}</Alert>}
 
       <Switch>
         <Route path={loginPasswordRoute}>

@@ -95,7 +95,7 @@ export const getUserByUsername = async (
  * @param {User.AsObject} reqObject
  * @returns {Promise<Empty>}
  */
-export const updateUser = async (
+export const updateProfile = async (
   reqObject: ProfileFormData
 ): Promise<Empty> => {
   const req = new UpdateProfileReq();

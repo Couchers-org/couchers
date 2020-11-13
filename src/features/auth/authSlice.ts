@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { User } from "../../pb/api_pb";
 import { passwordLogin, tokenLogin } from "./index";
-import { updateUser } from "../profile";
+import { updateUserProfile } from "../profile";
 
 interface AuthState {
   authToken: null | string;
@@ -69,7 +69,7 @@ export const authSlice = createSlice({
         state.error = action.error.message;
         state.loading = false;
       })
-      .addCase(updateUser.fulfilled, (state, action) => {
+      .addCase(updateUserProfile.fulfilled, (state, action) => {
         state.user = action.payload;
       });
   },
