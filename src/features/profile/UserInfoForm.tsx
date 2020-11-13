@@ -6,6 +6,7 @@ import { Controller, useForm } from "react-hook-form";
 import Alert from "../../components/Alert";
 import Button from "../../components/Button";
 import TextInput from "../../components/TextInput";
+import ProfileTextInput from "./ProfileTextInput";
 import { ProfileFormData, updateUserProfile } from "./index";
 import { useAppDispatch, useTypedSelector } from "../../store";
 
@@ -44,41 +45,29 @@ export default function UserInfoForm() {
       ) : null}
       {user && (
         <form onSubmit={onSubmit}>
-          <TextInput
+          <ProfileTextInput
             label="Name"
             name="name"
             defaultValue={user.name}
             inputRef={register}
-            variant="outlined"
-            margin="normal"
-            fullWidth
           />
-          <TextInput
+          <ProfileTextInput
             label="City"
             name="city"
             defaultValue={user.city}
             inputRef={register}
-            variant="outlined"
-            margin="normal"
-            fullWidth
           />
-          <TextInput
+          <ProfileTextInput
             label="Gender"
             name="gender"
             defaultValue={user.gender}
             inputRef={register}
-            variant="outlined"
-            margin="normal"
-            fullWidth
           />
-          <TextInput
+          <ProfileTextInput
             label="Occupation"
             name="occupation"
             defaultValue={user.occupation}
             inputRef={register}
-            variant="outlined"
-            margin="normal"
-            fullWidth
           />
           <Controller
             control={control}
@@ -98,34 +87,26 @@ export default function UserInfoForm() {
                     {...params}
                     helperText="Press 'Enter' to add"
                     label="Languages"
-                    margin="normal"
-                    variant="outlined"
                   />
                 )}
               />
             )}
           />
-          <TextInput
+          <ProfileTextInput
             label="About me"
             name="aboutMe"
             defaultValue={user.aboutMe}
             inputRef={register}
-            variant="outlined"
-            margin="normal"
             rowsMax={5}
             multiline
-            fullWidth
           />
-          <TextInput
+          <ProfileTextInput
             label="About my place"
             name="aboutPlace"
             defaultValue={user.aboutPlace}
             inputRef={register}
-            variant="outlined"
-            margin="normal"
             rowsMax={5}
             multiline
-            fullWidth
           />
           <Controller
             control={control}
@@ -145,8 +126,6 @@ export default function UserInfoForm() {
                     {...params}
                     helperText="Press 'Enter' to add"
                     label="Countries I visited"
-                    margin="normal"
-                    variant="outlined"
                   />
                 )}
               />
@@ -170,8 +149,6 @@ export default function UserInfoForm() {
                     {...params}
                     helperText="Press 'Enter' to add"
                     label="Countries I lived in"
-                    margin="normal"
-                    variant="outlined"
                   />
                 )}
               />
