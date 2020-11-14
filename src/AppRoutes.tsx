@@ -5,13 +5,15 @@ import ProfilePage from "./features/profile/ProfilePage";
 import Home from "./views/Home";
 import Messages from "./views/Messages";
 import Logout from "./views/Logout";
+import Signup from "./features/auth/signup/Signup";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./reducers";
-import { authError } from "./features/auth";
+import { authError } from "./features/auth/authSlice";
 
 export const loginRoute = "/login";
 export const loginPasswordRoute = `${loginRoute}/password`;
 
+export const signupRoute = "/signup";
 export const profileRoute = "/profile";
 export const messagesRoute = "/messages";
 export const requestsRoute = "/messages";
@@ -22,6 +24,9 @@ export default function AppRoutes() {
     <Switch>
       <Route path={`${loginRoute}/:urlToken?`}>
         <Login />
+      </Route>
+      <Route path={`${signupRoute}/:urlToken?`}>
+        <Signup />
       </Route>
       <PrivateRoute path={profileRoute}>
         <ProfilePage />

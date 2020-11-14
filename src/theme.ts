@@ -19,6 +19,10 @@ const themeOptions: ThemeOptions = {
       fontSize: "36px",
       marginTop: "8px",
     },
+    h3: {
+      fontSize: "28px",
+      marginTop: "8px",
+    },
   },
   props: {
     MuiButtonBase: {

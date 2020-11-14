@@ -8,8 +8,13 @@ import {
   User,
   NullableStringValue,
   RepeatedStringValue,
+  HostingStatus,
 } from "../pb/api_pb";
-import { AuthReq, CompleteTokenLoginReq } from "../pb/auth_pb";
+import {
+  AuthReq,
+  CompleteTokenLoginReq,
+  CompleteSignupReq,
+} from "../pb/auth_pb";
 import { ProfileFormData } from "../features/profile";
 
 /**
@@ -128,4 +133,42 @@ export const updateProfile = async (
     .setCountriesLived(countriesLived);
 
   return client.updateProfile(req);
+};
+
+export type SignupArguments = {
+  signupToken: string;
+  username: string;
+  name: string;
+  city: string;
+  birthdate: string;
+  gender: string;
+  hostingStatus: HostingStatus;
+};
+
+/**
+ * Completes the signup process
+ *
+ * @param {SignupArguments} signup arguments
+ * @returns {Promise<string>} session token
+ */
+export const completeSignup = async ({
+  signupToken,
+  username,
+  name,
+  city,
+  birthdate,
+  gender,
+  hostingStatus,
+}: SignupArguments) => {
+  const req = new CompleteSignupReq();
+  req.setSignupToken(signupToken);
+  req.setUsername(username);
+  req.setName(name);
+  req.setCity(city);
+  req.setBirthdate(birthdate);
+  req.setGender(gender);
+  req.setHostingStatus(hostingStatus);
+
+  const res = await authClient.completeSignup(req);
+  return res.getToken();
 };
