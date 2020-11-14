@@ -81,7 +81,7 @@ for config_option in CONFIG_OPTIONS:
 ## Config checks
 def check_config():
     for name, *_ in CONFIG_OPTIONS:
-        if not hasattr(config, name):
+        if name not in config:
             raise ValueError(f"Required config value {name} not set")
 
     if not config["DEV"]:

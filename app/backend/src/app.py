@@ -69,7 +69,7 @@ alembic_cfg = Config("alembic.ini")
 alembic_cfg.set_main_option("dont_mess_up_logging", "False")
 command.upgrade(alembic_cfg, "head")
 
-if config["ADD_DUMMY_DATA"]:
+if config.config["ADD_DUMMY_DATA"]:
     add_dummy_data(Session, "src/dummy_data.json")
 
 logger.info(f"Starting")
