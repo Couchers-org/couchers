@@ -1,6 +1,6 @@
 import {
   makeStyles,
-  Button,
+  Button as MuiButton,
   ButtonProps,
   CircularProgress,
   Box,
@@ -15,7 +15,7 @@ type AppButtonProps = ButtonProps & {
   loading?: boolean;
 };
 
-export default (props: AppButtonProps) => {
+export default function Button(props: AppButtonProps) {
   const {
     children,
     disabled,
@@ -33,7 +33,7 @@ export default (props: AppButtonProps) => {
 
   const styles = useStyles();
   return (
-    <Button
+    <MuiButton
       {...otherProps}
       disabled={disabled ? true : loading}
       onClick={onClick ? clicked : undefined}
@@ -45,6 +45,6 @@ export default (props: AppButtonProps) => {
           <CircularProgress />
         </Box>
       )}
-    </Button>
+    </MuiButton>
   );
-};
+}
