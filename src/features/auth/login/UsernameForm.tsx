@@ -4,7 +4,7 @@ import { Link, useHistory, useLocation } from "react-router-dom";
 import { loginPasswordRoute, signupRoute } from "../../../AppRoutes";
 import Button from "../../../components/Button";
 import TextBody from "../../../components/TextBody";
-import TextInput from "../../../components/TextField";
+import TextField from "../../../components/TextField";
 import { LoginRes } from "../../../pb/auth_pb";
 import { useAppDispatch, useTypedSelector } from "../../../store";
 import { authError, clearError } from "../authSlice";
@@ -60,11 +60,11 @@ export default function UsernameForm() {
   return (
     <>
       <form onSubmit={onSubmit}>
-        <TextInput
+        <TextField
           label="Username/email"
           name="username"
           inputRef={register({ required: true })}
-        ></TextInput>
+        ></TextField>
         <Button
           onClick={onSubmit}
           loading={loading || authLoading}

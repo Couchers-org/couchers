@@ -6,7 +6,7 @@ import Autocomplete from "../../../components/Autocomplete";
 import Button from "../../../components/Button";
 import CircularProgress from "../../../components/CircularProgress";
 import H3 from "../../../components/H3";
-import TextInput from "../../../components/TextField";
+import TextField from "../../../components/TextField";
 import { HostingStatus } from "../../../pb/api_pb";
 import { useAppDispatch, useTypedSelector } from "../../../store";
 import { signup } from "../authActions";
@@ -90,7 +90,7 @@ export default function CompleteSignup() {
       ) : (
         <form onSubmit={completeSignup}>
           <H3>{getValues("email")}</H3>
-          <TextInput
+          <TextField
             name="name"
             label="Name"
             inputRef={register({
@@ -102,7 +102,7 @@ export default function CompleteSignup() {
             })}
             helperText={errors?.name?.message}
           />
-          <TextInput
+          <TextField
             name="username"
             label="Username"
             inputRef={register({
@@ -120,7 +120,7 @@ export default function CompleteSignup() {
             })}
             helperText={errors?.username?.message}
           />
-          <TextInput
+          <TextField
             name="city"
             label="City"
             inputRef={register({
@@ -141,7 +141,7 @@ export default function CompleteSignup() {
               />
             )}
           />
-          <TextInput
+          <TextField
             name="birthdate"
             label="Birthdate"
             type="date"

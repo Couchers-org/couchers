@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import Button from "../../../components/Button";
 import TextBody from "../../../components/TextBody";
-import TextInput from "../../../components/TextField";
+import TextField from "../../../components/TextField";
 import { SignupRes } from "../../../pb/auth_pb";
 import { useAppDispatch } from "../../../store";
 import { authError, clearError } from "../authSlice";
@@ -51,7 +51,7 @@ export default function EmailForm() {
   return (
     <>
       <form onSubmit={onSubmit}>
-        <TextInput
+        <TextField
           name="email"
           label="Email"
           inputRef={register({
