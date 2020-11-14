@@ -19,23 +19,15 @@ type AppButtonProps = ButtonProps & {
 export default function Button({
   children,
   disabled,
-  onClick,
   className,
   loading,
   ...otherProps
 }: AppButtonProps) {
-  const handleClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    if (onClick) {
-      onClick(e);
-    }
-  };
-
   const classes = useStyles();
   return (
     <MuiButton
       {...otherProps}
       disabled={disabled ? true : loading}
-      onClick={onClick ? handleClick : undefined}
       className={classNames(classes.root, className)}
     >
       {children}
