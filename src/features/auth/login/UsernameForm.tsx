@@ -1,10 +1,10 @@
-import { Typography } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import { loginPasswordRoute, signupRoute } from "../../../AppRoutes";
 import Button from "../../../components/Button";
-import TextInput from "../../../components/TextInput";
+import TextBody from "../../../components/TextBody";
+import TextInput from "../../../components/TextField";
 import { LoginRes } from "../../../pb/auth_pb";
 import { useAppDispatch, useTypedSelector } from "../../../store";
 import { authError, clearError } from "../authSlice";
@@ -55,7 +55,7 @@ export default function UsernameForm() {
   });
 
   if (sent) {
-    return <Typography>Check your email for a link to log in! :)</Typography>;
+    return <TextBody>Check your email for a link to log in! :)</TextBody>;
   }
   return (
     <>

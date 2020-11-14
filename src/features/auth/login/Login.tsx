@@ -1,4 +1,3 @@
-import { Typography } from "@material-ui/core";
 import React, { useEffect } from "react";
 import {
   Redirect,
@@ -7,12 +6,13 @@ import {
   useLocation,
   useParams,
 } from "react-router-dom";
-import Alert from "../../../components/Alert";
-import { tokenLogin } from "../authActions";
-import { useAppDispatch, useTypedSelector } from "../../../store";
 import { loginPasswordRoute, loginRoute } from "../../../AppRoutes";
-import UsernameForm from "./UsernameForm";
+import Alert from "../../../components/Alert";
+import H2 from "../../../components/H2";
+import { useAppDispatch, useTypedSelector } from "../../../store";
+import { tokenLogin } from "../authActions";
 import PasswordForm from "./PasswordForm";
+import UsernameForm from "./UsernameForm";
 
 export default function Login() {
   const dispatch = useAppDispatch();
@@ -32,7 +32,7 @@ export default function Login() {
   return (
     <>
       {authToken && <Redirect to="/" />}
-      <Typography variant="h2">Login</Typography>
+      <H2>Login</H2>
       {error && <Alert severity="error">{error}</Alert>}
 
       <Switch>

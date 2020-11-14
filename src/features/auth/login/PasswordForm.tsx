@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { Redirect, useHistory, useLocation } from "react-router-dom";
 import { loginRoute } from "../../../AppRoutes";
 import Button from "../../../components/Button";
-import TextInput from "../../../components/TextInput";
+import TextInput from "../../../components/TextField";
 import { useAppDispatch, useTypedSelector } from "../../../store";
 import { passwordLogin } from "../authActions";
 import { clearError } from "../authSlice";

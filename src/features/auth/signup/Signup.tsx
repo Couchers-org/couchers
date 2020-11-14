@@ -1,11 +1,11 @@
-import { Typography } from "@material-ui/core";
 import React from "react";
 import { Redirect, Route, Switch } from "react-router-dom";
-import Alert from "../../../components/Alert";
-import EmailForm from "./EmailForm";
-import CompleteSignupForm from "./CompleteSignupForm";
-import { useTypedSelector } from "../../../store";
 import { signupRoute } from "../../../AppRoutes";
+import Alert from "../../../components/Alert";
+import PageTitle from "../../../components/TextField";
+import { useTypedSelector } from "../../../store";
+import CompleteSignupForm from "./CompleteSignupForm";
+import EmailForm from "./EmailForm";
 
 export default function Signup() {
   const authToken = useTypedSelector((state) => state.auth.authToken);
@@ -14,7 +14,7 @@ export default function Signup() {
   return (
     <>
       {authToken && <Redirect to="/" />}
-      <Typography variant="h2">Signup</Typography>
+      <PageTitle>Signup</PageTitle>
       {error && <Alert severity="error">{error}</Alert>}
 
       <Switch>

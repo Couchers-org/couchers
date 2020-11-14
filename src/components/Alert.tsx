@@ -4,27 +4,17 @@ import {
   AlertProps as MuiAlertProps,
 } from "@material-ui/lab/";
 import React from "react";
+import classNames from "classnames";
 
 const useStyles = makeStyles({
   root: {},
 });
 
-type AlertProps = MuiAlertProps & {
-  children: React.ReactNode;
-  severity: MuiAlertProps["severity"];
-};
+type AlertProps = MuiAlertProps;
 
-export default function Alert(props: AlertProps) {
-  const { children, className, severity, ...otherProps } = props;
-
-  const styles = useStyles();
+export default function Alert({ className, ...otherProps }: AlertProps) {
+  const classes = useStyles();
   return (
-    <MuiAlert
-      severity={severity}
-      {...otherProps}
-      className={`${styles.root} ${className}`}
-    >
-      {children}
-    </MuiAlert>
+    <MuiAlert {...otherProps} className={classNames(classes.root, className)} />
   );
 }

@@ -1,7 +1,8 @@
 import { makeStyles } from "@material-ui/core";
 import { Autocomplete, AutocompleteProps } from "@material-ui/lab";
 import React from "react";
-import TextInput from "./TextInput";
+import TextInput from "./TextField";
+import classNames from "classnames";
 
 const useStyles = makeStyles({
   root: {
@@ -26,16 +27,19 @@ export default function <
   Multiple extends boolean | undefined,
   DisableClearable extends boolean | undefined,
   FreeSolo extends boolean | undefined
->(props: AppAutocompleteProps<T, Multiple, DisableClearable, FreeSolo>) {
-  const styles = useStyles();
-
-  const { label, options, ...otherProps } = props;
+>({
+  label,
+  options,
+  className,
+  ...otherProps
+}: AppAutocompleteProps<T, Multiple, DisableClearable, FreeSolo>) {
+  const classes = useStyles();
 
   return (
     <Autocomplete
       {...otherProps}
       options={options}
-      className={`${styles.root} ${props.className}`}
+      className={classNames(classes.root, className)}
       renderInput={(params) => <TextInput {...params} label={label} />}
     ></Autocomplete>
   );

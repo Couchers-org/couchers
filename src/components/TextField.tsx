@@ -1,22 +1,24 @@
 import {
-  CircularProgress as MuiCircularProgress,
-  CircularProgressProps,
   makeStyles,
+  TextField as MuiTextField,
+  TextFieldProps,
 } from "@material-ui/core";
 import classNames from "classnames";
 import React from "react";
 
 const useStyles = makeStyles({
-  root: {},
+  root: {
+    display: "block",
+  },
 });
 
-export default function CircularProgress({
+export default function TextField({
   className,
   ...otherProps
-}: CircularProgressProps) {
+}: TextFieldProps) {
   const classes = useStyles();
   return (
-    <MuiCircularProgress
+    <MuiTextField
       {...otherProps}
       className={classNames(classes.root, className)}
     />

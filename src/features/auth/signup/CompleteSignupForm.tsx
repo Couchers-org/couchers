@@ -1,23 +1,23 @@
-import { Typography } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
-import { useHistory, useLocation, useParams } from "react-router-dom";
-import Button from "../../../components/Button";
-import TextInput from "../../../components/TextInput";
-import { signup } from "../authActions";
-import { useAppDispatch, useTypedSelector } from "../../../store";
-import { authError } from "../authSlice";
-import { HostingStatus } from "../../../pb/api_pb";
-import Autocomplete from "../../../components/Autocomplete";
-import { getSignupEmail, validateUsername } from "./lib";
-import { signupRoute } from "../../../AppRoutes";
 import { Controller, useForm } from "react-hook-form";
+import { useHistory, useLocation, useParams } from "react-router-dom";
+import { signupRoute } from "../../../AppRoutes";
+import Autocomplete from "../../../components/Autocomplete";
+import Button from "../../../components/Button";
 import CircularProgress from "../../../components/CircularProgress";
+import H3 from "../../../components/H3";
+import TextInput from "../../../components/TextField";
+import { HostingStatus } from "../../../pb/api_pb";
+import { useAppDispatch, useTypedSelector } from "../../../store";
+import { signup } from "../authActions";
+import { authError } from "../authSlice";
+import { optionLabels } from "./constants";
+import { getSignupEmail, validateUsername } from "./lib";
 import {
   nameValidationPattern,
   usernameValidationPattern,
   validatePastDate,
 } from "./validation";
-import { optionLabels } from "./constants";
 
 type SignupInputs = {
   email: string;
@@ -89,7 +89,7 @@ export default function CompleteSignup() {
         <CircularProgress />
       ) : (
         <form onSubmit={completeSignup}>
-          <Typography variant="h3">{getValues("email")}</Typography>
+          <H3>{getValues("email")}</H3>
           <TextInput
             name="name"
             label="Name"

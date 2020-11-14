@@ -1,6 +1,6 @@
 import { TextFieldProps } from "@material-ui/core";
 import React from "react";
-import TextInput from "../../components/TextInput";
+import TextInput from "../../components/TextField";
 
 interface ProfileTextInputProps
   extends Pick<

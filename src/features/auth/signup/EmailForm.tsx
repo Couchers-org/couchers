@@ -1,12 +1,12 @@
-import { Typography } from "@material-ui/core";
 import React, { useState } from "react";
+import { useForm } from "react-hook-form";
 import Button from "../../../components/Button";
-import TextInput from "../../../components/TextInput";
-import { useAppDispatch } from "../../../store";
+import TextBody from "../../../components/TextBody";
+import TextInput from "../../../components/TextField";
 import { SignupRes } from "../../../pb/auth_pb";
+import { useAppDispatch } from "../../../store";
 import { authError, clearError } from "../authSlice";
 import { createEmailSignup } from "./lib";
-import { useForm } from "react-hook-form";
 
 export default function EmailForm() {
   const dispatch = useAppDispatch();
@@ -42,9 +42,9 @@ export default function EmailForm() {
 
   if (sent) {
     return (
-      <Typography>
+      <TextBody>
         A link to continue has been sent to {getValues("email")}.
-      </Typography>
+      </TextBody>
     );
   }
 
