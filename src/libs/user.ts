@@ -73,18 +73,18 @@ export const getCurrentUser = async (
 };
 
 /**
- * Returns User record by Username
+ * Returns User record by Username or id
  *
- * @param {string} username
+ * @param {string} user
  * @param {string} token
  * @returns {Promise<User.AsObject>}
  */
-export const getUserByUsername = async (
-  username: string,
+export const getUser = async (
+  user: string,
   token?: string
 ): Promise<User.AsObject> => {
   const userReq = new GetUserReq();
-  userReq.setUser(username || "");
+  userReq.setUser(user || "");
 
   const response = await client.getUser(
     userReq,

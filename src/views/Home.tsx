@@ -7,5 +7,5 @@ export default function Home() {
     (state) => state.auth.user?.name.split(" ")[0]
   );
 
-  return name ? <p>Hello, {name}.</p> : null;
+  return <>{name ? <p>Hello, {name}.</p> : null}</>;
 }

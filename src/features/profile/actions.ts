@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { ProfileFormData } from "./index";
-import { getUserByUsername, updateProfile } from "../../libs/user";
+import { getUser, updateProfile } from "../../libs/user";
 import { User } from "../../pb/api_pb";
 import { RootState } from "../../reducers";
 
@@ -17,5 +17,5 @@ export const updateUserProfile = createAsyncThunk<
 
   await updateProfile(userData);
 
-  return getUserByUsername(username);
+  return getUser(username);
 });
