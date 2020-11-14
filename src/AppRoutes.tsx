@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./reducers";
 import { authError } from "./features/auth/authSlice";
 import UserPage from "./features/userPage/UserPage";
+import SearchPage from "./features/search/SearchPage";
 
 export const loginRoute = "/login";
 export const loginPasswordRoute = `${loginRoute}/password`;
@@ -21,6 +22,7 @@ export const requestsRoute = "/messages";
 export const logoutRoute = "/logout";
 
 export const userRoute = "/user";
+export const searchRoute = "/search";
 
 export default function AppRoutes() {
   return (
@@ -39,6 +41,9 @@ export default function AppRoutes() {
       </PrivateRoute>
       <PrivateRoute path={`${userRoute}/:username`}>
         <UserPage />
+      </PrivateRoute>
+      <PrivateRoute path={`${searchRoute}/:query?`}>
+        <SearchPage />
       </PrivateRoute>
       <PrivateRoute exact path="/">
         <Home />

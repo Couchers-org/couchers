@@ -5,7 +5,6 @@ import {
   ListItem,
   ListItemText,
   makeStyles,
-  TextField,
 } from "@material-ui/core";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
@@ -17,6 +16,7 @@ import {
 } from "../AppRoutes";
 import { useTypedSelector } from "../store";
 import classNames from "classnames";
+import SearchBox from "./SearchBox";
 
 const useStyles = makeStyles((theme) => ({
   listContainer: {
@@ -86,6 +86,7 @@ export default function Navigation() {
           <ListItemText>Logout</ListItemText>
         </ListItem>
       ) : null}
+      <SearchBox />
     </List>
   );
 
@@ -107,8 +108,6 @@ export default function Navigation() {
       </Hidden>
 
       <Hidden smDown>{menu}</Hidden>
-
-      <TextField variant="filled" label="Search"></TextField>
     </nav>
   );
 }
