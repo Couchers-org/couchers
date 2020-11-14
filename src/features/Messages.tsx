@@ -1,5 +1,6 @@
 import React from "react";
+import TextBody from '../components/TextBody';
 
 export default function Messages() {
-  return <p>Messages</p>;
+  return <TextBody>Messages</TextBody>;
 }
