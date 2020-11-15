@@ -7,11 +7,19 @@ from google.protobuf import empty_pb2, wrappers_pb2
 from couchers import errors
 from couchers.models import User
 from pb import api_pb2, conversations_pb2
-from tests.test_fixtures import api_session, conversations_session, db, generate_user, make_friends, testconfig
+from tests.test_fixtures import (
+    api_session,
+    check_fd_leak,
+    conversations_session,
+    db,
+    generate_user,
+    make_friends,
+    testconfig,
+)
 
 
 @pytest.fixture(autouse=True)
-def _(testconfig):
+def _(testconfig, check_fd_leak):
     pass
 
 

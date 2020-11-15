@@ -275,3 +275,17 @@ def testconfig():
 
     config.clear()
     config.update(prevconfig)
+
+
+@pytest.fixture()
+def check_fd_leak():
+    import psutil
+
+    thisproc = psutil.Process()
+
+    open_files_before_test = thisproc.num_fds()
+
+    yield
+
+    open_files_after_test = thisproc.num_fds()
+    assert open_files_before_test == open_files_after_test
