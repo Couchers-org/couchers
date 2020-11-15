@@ -1,5 +1,9 @@
+---
+subject: "Your login link for Couchers.org"
+---
+
 {% from "macros.html" import button %}
-Hi {{ escape(user.name or "there") }}!
+Hi {{ escape(user.name) }}!
 
 Here's a login link for Couchers.org:
 

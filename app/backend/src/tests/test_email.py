@@ -5,7 +5,6 @@ import pytest
 from couchers.config import config
 from couchers.crypto import random_hex, urlsafe_secure_token
 from couchers.db import new_login_token, new_signup_token, session_scope
-from couchers.email import _render_email
 from couchers.models import (
     Complaint,
     Conversation,
@@ -172,6 +171,7 @@ def test_friend_request_email(db):
             assert "friend" in subject.lower()
             assert to_user.name in plain
             assert to_user.name in html
+            assert from_user.name in subject
             assert from_user.name in plain
             assert from_user.name in html
             assert from_user.avatar_url not in plain
@@ -197,11 +197,11 @@ def test_email_patching_fails(db):
 
         patched_msg = random_hex(64)
 
-        def mock_send_smtp_email(sender_name, sender_email, recipient, subject, plain, html):
+        def mock_send_email(sender_name, sender_email, recipient, subject, plain, html):
             raise Exception(patched_msg)
 
         with pytest.raises(Exception) as e:
-            with patch("couchers.email.send_email", mock_send_smtp_email):
+            with patch("couchers.email.send_email", mock_send_email):
                 send_friend_request_email(friend_relationship)
         print(e.value)
         assert str(e.value) == patched_msg

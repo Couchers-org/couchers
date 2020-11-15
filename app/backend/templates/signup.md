@@ -1,3 +1,7 @@
+---
+subject: "Finish signing up for Couchers.org"
+---
+
 {% from "macros.html" import button %}
 Hi there!
 

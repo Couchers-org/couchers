@@ -1,3 +1,7 @@
+---
+subject: "You've received a host request!"
+---
+
 {% from "macros.html" import button %}
 
 Hi {{ escape(host_request.to_user.name) }}!

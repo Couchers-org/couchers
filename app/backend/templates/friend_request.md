@@ -1,3 +1,7 @@
+---
+subject: "Couchers: {{ friend_relationship.from_user.name }} wants to be your friend!"
+---
+
 {% from "macros.html" import button %}
 
 Hi {{ escape(friend_relationship.to_user.name) }}!

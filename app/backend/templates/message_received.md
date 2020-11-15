@@ -1,3 +1,7 @@
+---
+subject: "You've got mail!"
+---
+
 {% from "macros.html" import button %}
 
 Hi {{ escape(user.name) }}!
