@@ -10,11 +10,19 @@ from couchers import errors
 from couchers.db import session_scope
 from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType
 from pb import api_pb2, conversations_pb2, requests_pb2
-from tests.test_fixtures import api_session, db, generate_user, make_friends, requests_session, testconfig
+from tests.test_fixtures import (
+    api_session,
+    check_fd_leak,
+    db,
+    generate_user,
+    make_friends,
+    requests_session,
+    testconfig,
+)
 
 
 @pytest.fixture(autouse=True)
-def _(testconfig):
+def _(testconfig, check_fd_leak):
     pass
 
 

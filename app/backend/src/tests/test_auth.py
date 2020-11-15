@@ -8,11 +8,11 @@ from couchers.crypto import random_hex
 from couchers.db import session_scope
 from couchers.models import Base, LoginToken, SignupToken, User
 from pb import api_pb2, auth_pb2, auth_pb2_grpc, bugs_pb2_grpc
-from tests.test_fixtures import auth_api_session, db, generate_user, real_api_session, testconfig
+from tests.test_fixtures import auth_api_session, check_fd_leak, db, generate_user, real_api_session, testconfig
 
 
 @pytest.fixture(autouse=True)
-def _(testconfig):
+def _(testconfig, check_fd_leak):
     pass
 
 

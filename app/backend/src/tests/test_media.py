@@ -8,11 +8,11 @@ from couchers.crypto import random_hex
 from couchers.db import session_scope
 from couchers.models import InitiatedUpload, User
 from pb import api_pb2, media_pb2
-from tests.test_fixtures import api_session, db, generate_user, media_session, testconfig
+from tests.test_fixtures import api_session, check_fd_leak, db, generate_user, media_session, testconfig
 
 
 @pytest.fixture(autouse=True)
-def _(testconfig):
+def _(testconfig, check_fd_leak):
     pass
 
 
