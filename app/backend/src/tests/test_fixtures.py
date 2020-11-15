@@ -93,7 +93,9 @@ def generate_user(db, username=None):
 def make_friends(db, user1, user2):
     with session_scope(db) as session:
         friend_relationship = FriendRelationship(
-            from_user_id=user1.id, to_user_id=user2.id, status=FriendStatus.accepted
+            from_user_id=user1.id,
+            to_user_id=user2.id,
+            status=FriendStatus.accepted,
         )
         session.add(friend_relationship)
 

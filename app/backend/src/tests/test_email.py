@@ -194,7 +194,6 @@ def test_report_email(db):
     with session_scope(db):
         user_author, api_token_author = generate_user(db)
         user_reported, api_token_reported = generate_user(db)
-        testing_email_address = "reports@couchers.org.invalid"
 
         complaint = Complaint(
             author_user=user_author, reported_user=user_reported, reason=random_hex(64), description=random_hex(64)
