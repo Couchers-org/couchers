@@ -1,5 +1,5 @@
 ---
-subject: "Couchers: {{ friend_relationship.from_user.name }} wants to be your friend!"
+subject: "{{ friend_relationship.from_user.name }} wants to be your friend on Couchers.org!"
 ---
 
 {% from "macros.html" import button %}
