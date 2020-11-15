@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import { makeStyles } from "@material-ui/core";
 import { useHistory } from "react-router-dom";
 import { searchRoute } from "../AppRoutes";
-import classNames from "classnames";
 import TextField from "./TextField";
+import { useForm } from "react-hook-form";
 
 const useStyles = makeStyles({
   root: {
@@ -14,21 +14,22 @@ const useStyles = makeStyles({
 export default function SearchBox() {
   const classes = useStyles();
 
-  const [query, setQuery] = useState("");
+  const { register, handleSubmit } = useForm<{ query: string }>();
 
   const history = useHistory();
 
-  const onSubmit = () => {
-    history.push(`${searchRoute}/${query}`);
-  };
+  const onSubmit = handleSubmit(({ query }: { query: string }) => {
+    history.push(`${searchRoute}/${encodeURIComponent(query)}`);
+  });
 
   return (
     <>
-      <form onSubmit={onSubmit} className={classNames(classes.root)}>
+      <form onSubmit={onSubmit} className={classes.root}>
         <TextField
+          name="query"
           variant="outlined"
           label="Search"
-          onChange={(event) => setQuery(event.target.value)}
+          inputRef={register}
         ></TextField>
       </form>
     </>

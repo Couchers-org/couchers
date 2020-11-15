@@ -1,3 +1,4 @@
+import { Box } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Alert from "../../components/Alert";
@@ -14,7 +15,6 @@ export default function SearchPage() {
   const [results, setResults] = useState([] as User.AsObject[]);
 
   const { query } = useParams<{ query: string }>();
-  //the below pattern (async, loading, try catch, etc) will come up a lot, can it be streamlined?
   useEffect(() => {
     if (!query) return;
     (async () => {
@@ -37,8 +37,11 @@ export default function SearchPage() {
       {loading ? (
         <CircularProgress />
       ) : results.length ? (
-        //I'm wondering the best way to do this with minimal re-renders. Or maybe it's fine
-        results.map((user) => <SearchResult key={user.userId} user={user} />)
+        <Box display="flex" flexWrap="wrap" justifyContent="space-between">
+          {results.map((user) => (
+            <SearchResult key={user.userId} user={user} />
+          ))}
+        </Box>
       ) : (
         <TextBody>No users found.</TextBody>
       )}
