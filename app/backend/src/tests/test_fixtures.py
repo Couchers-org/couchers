@@ -168,7 +168,7 @@ def real_api_session(db, token):
     """
     Create an API for testing, using TCP sockets, uses the token for auth
     """
-    auth_interceptor = Auth(db).get_auth_interceptor()
+    auth_interceptor = Auth(db).get_auth_interceptor(allow_jailed=False)
 
     with futures.ThreadPoolExecutor(1) as executor:
         server = grpc.server(executor, interceptors=[auth_interceptor])
@@ -203,7 +203,7 @@ def requests_session(db, token):
     """
     Create a Requests API for testing, uses the token for auth
     """
-    auth_interceptor = Auth(db).get_auth_interceptor()
+    auth_interceptor = Auth(db).get_auth_interceptor(allow_jailed=False)
     user_id = Auth(db).get_session_for_token(token).user_id
     channel = FakeChannel(user_id=user_id)
     requests_pb2_grpc.add_RequestsServicer_to_server(Requests(db), channel)
