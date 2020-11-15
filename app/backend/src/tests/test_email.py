@@ -2,13 +2,28 @@ from unittest.mock import patch
 
 import pytest
 
+from couchers.config import config
 from couchers.crypto import random_hex, urlsafe_secure_token
 from couchers.db import new_login_token, new_signup_token, session_scope
 from couchers.email import _render_email
-from couchers.models import Complaint, HostRequest, HostRequestStatus, Conversation, Message, FriendRelationship, FriendStatus
-from couchers.tasks import send_login_email, send_signup_email, send_report_email, send_host_request_email, send_message_received_email, send_friend_request_email
+from couchers.models import (
+    Complaint,
+    Conversation,
+    FriendRelationship,
+    FriendStatus,
+    HostRequest,
+    HostRequestStatus,
+    Message,
+)
+from couchers.tasks import (
+    send_friend_request_email,
+    send_host_request_email,
+    send_login_email,
+    send_message_received_email,
+    send_report_email,
+    send_signup_email,
+)
 from tests.test_fixtures import db, generate_user, testconfig
-from couchers.config import config
 
 
 @pytest.fixture(autouse=True)
@@ -49,7 +64,7 @@ def test_report_email_rendering():
             "username_reported": reported_user,
             "reason": reason,
             "description": description,
-        }
+        },
     )
 
     assert author_user in plain
@@ -79,8 +94,8 @@ def test_host_request_email_rendering():
             "name_guest": name_guest,
             "from_date": from_date,
             "to_date": to_date,
-            "host_request_link": host_request_link
-        }
+            "host_request_link": host_request_link,
+        },
     )
 
     assert name_host in plain
@@ -108,8 +123,8 @@ def test_friend_request_email_rendering():
         template_args={
             "name_recipient": name_recipient,
             "name_sender": name_sender,
-            "friend_requests_link": friend_requests_link
-        }
+            "friend_requests_link": friend_requests_link,
+        },
     )
 
     assert name_recipient in plain
@@ -127,12 +142,7 @@ def test_message_received_email_rendering():
     messages_link = random_hex(64)
 
     plain, html = _render_email(
-        subject,
-        "message_received",
-        template_args={
-            "name_recipient": name_recipient,
-            "messages_link": messages_link
-        }
+        subject, "message_received", template_args={"name_recipient": name_recipient, "messages_link": messages_link}
     )
 
     assert name_recipient in plain
@@ -230,7 +240,7 @@ def test_host_request_email(db):
             status=HostRequestStatus.pending,
             conversation_id=conversation.id,
             initial_message_id=message.id,
-            from_last_seen_message_id=message.id
+            from_last_seen_message_id=message.id,
         )
 
         message_id = random_hex(64)
@@ -255,6 +265,7 @@ def test_host_request_email(db):
         with patch("couchers.email.send_email", mock_send_email):
             send_host_request_email(host_request)
 
+
 def test_message_received_email(db):
     user, api_token = generate_user(db)
 
@@ -275,11 +286,7 @@ def test_friend_request_email(db):
     with session_scope(db) as session:
         from_user, api_token_from = generate_user(db)
         to_user, api_token_to = generate_user(db)
-        friend_relationship = FriendRelationship(
-            from_user=from_user,
-            to_user=to_user,
-            status=FriendStatus.pending
-        )
+        friend_relationship = FriendRelationship(from_user=from_user, to_user=to_user, status=FriendStatus.pending)
 
         message_id = random_hex(64)
 
@@ -299,6 +306,7 @@ def test_friend_request_email(db):
         with patch("couchers.email.send_email", mock_send_email):
             send_friend_request_email(friend_relationship)
 
+
 def test_email_patching_fails(db):
     """
     There was a problem where the mocking wasn't happening and the email dev
@@ -308,11 +316,7 @@ def test_email_patching_fails(db):
     with session_scope(db) as session:
         from_user, api_token_from = generate_user(db)
         to_user, api_token_to = generate_user(db)
-        friend_relationship = FriendRelationship(
-            from_user=from_user,
-            to_user=to_user,
-            status=FriendStatus.pending
-        )
+        friend_relationship = FriendRelationship(from_user=from_user, to_user=to_user, status=FriendStatus.pending)
 
         patched_msg = random_hex(64)
 

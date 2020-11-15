@@ -2,7 +2,7 @@ import logging
 
 from couchers import email
 from couchers.config import config
-from couchers.models import User, FriendRelationship, HostRequest
+from couchers.models import FriendRelationship, HostRequest, User
 
 logger = logging.getLogger(__name__)
 
@@ -74,8 +74,8 @@ def send_host_request_email(host_request):
             "from_date": host_request.from_date,
             "to_date": host_request.to_date,
             "host_request_link": host_request_link,
-            "profile_picture_or_avatar": from_user.avatar_url
-        }
+            "profile_picture_or_avatar": from_user.avatar_url,
+        },
     )
 
 
@@ -89,10 +89,7 @@ def send_message_received_email(user_recipient):
         user_recipient.email,
         subject,
         "message_received",
-        template_args={
-            "name": user_recipient.name,
-            "messages_link": messages_link
-        }
+        template_args={"name": user_recipient.name, "messages_link": messages_link},
     )
 
 
@@ -114,6 +111,6 @@ def send_friend_request_email(friend_relationship):
             "name_recipient": to_user.name,
             "name_sender": from_user.name,
             "friend_requests_link": friend_requests_link,
-            "profile_picture_or_avatar": from_user.avatar_url
-        }
+            "profile_picture_or_avatar": from_user.avatar_url,
+        },
     )

@@ -28,7 +28,7 @@ from couchers.models import (
     SmokingLocation,
     User,
 )
-from couchers.tasks import send_report_email, send_friend_request_email
+from couchers.tasks import send_friend_request_email, send_report_email
 from couchers.utils import Timestamp_from_datetime, now
 from pb import api_pb2, api_pb2_grpc, media_pb2
 
@@ -529,7 +529,6 @@ def paginate_references_result(request, query):
             for reference in references
         ],
     )
-
 
 
 def user_model_to_pb(db_user, session, context):
