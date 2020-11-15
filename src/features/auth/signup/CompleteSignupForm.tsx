@@ -1,3 +1,4 @@
+import { Typography } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useHistory, useLocation, useParams } from "react-router-dom";
@@ -5,7 +6,6 @@ import { signupRoute } from "../../../AppRoutes";
 import Autocomplete from "../../../components/Autocomplete";
 import Button from "../../../components/Button";
 import CircularProgress from "../../../components/CircularProgress";
-import H3 from "../../../components/H3";
 import TextField from "../../../components/TextField";
 import { HostingStatus } from "../../../pb/api_pb";
 import { useAppDispatch, useTypedSelector } from "../../../store";
@@ -89,7 +89,7 @@ export default function CompleteSignup() {
         <CircularProgress />
       ) : (
         <form onSubmit={completeSignup}>
-          <H3>{getValues("email")}</H3>
+          <Typography variant="h3">{getValues("email")}</Typography>
           <TextField
             name="name"
             label="Name"

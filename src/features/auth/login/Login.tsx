@@ -1,3 +1,4 @@
+import { Typography } from "@material-ui/core";
 import React, { useEffect } from "react";
 import {
   Redirect,
@@ -8,7 +9,6 @@ import {
 } from "react-router-dom";
 import { loginPasswordRoute, loginRoute } from "../../../AppRoutes";
 import Alert from "../../../components/Alert";
-import H2 from "../../../components/H2";
 import { useAppDispatch, useTypedSelector } from "../../../store";
 import { tokenLogin } from "../authActions";
 import PasswordForm from "./PasswordForm";
@@ -32,7 +32,7 @@ export default function Login() {
   return (
     <>
       {authToken && <Redirect to="/" />}
-      <H2>Login</H2>
+      <Typography variant="h2">Login</Typography>
       {error && <Alert severity="error">{error}</Alert>}
 
       <Switch>
