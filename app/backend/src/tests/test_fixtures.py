@@ -8,6 +8,7 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.event import listen, remove
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import NullPool
 
 from couchers.config import config
 from couchers.crypto import random_hex
@@ -33,9 +34,9 @@ from pb import (
 @pytest.fixture
 def db():
     """
-    Create a temporary SQLite-backed database in memory, and return the Session object.
+    Connect to a running Postgres database, and return the Session object.
     """
-    engine = create_engine(config["DATABASE_CONNECTION_STRING"])
+    engine = create_engine(config["DATABASE_CONNECTION_STRING"], poolclass=NullPool)
 
     Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
@@ -272,3 +273,17 @@ def testconfig():
 
     config.clear()
     config.update(prevconfig)
+
+
+@pytest.fixture()
+def check_fd_leak():
+    import psutil
+
+    thisproc = psutil.Process()
+
+    open_files_before_test = thisproc.num_fds()
+
+    yield
+
+    open_files_after_test = thisproc.num_fds()
+    assert open_files_before_test == open_files_after_test
