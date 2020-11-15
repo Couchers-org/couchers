@@ -28,7 +28,7 @@ from couchers.models import (
     SmokingLocation,
     User,
 )
-from couchers.tasks import send_report_email
+from couchers.tasks import send_report_email, send_friend_request_email
 from couchers.utils import Timestamp_from_datetime, now
 from pb import api_pb2, api_pb2_grpc, media_pb2
 
@@ -301,6 +301,8 @@ class API(api_pb2_grpc.APIServicer):
             friend_relationship = FriendRelationship(from_user=from_user, to_user=to_user, status=FriendStatus.pending)
             session.add(friend_relationship)
 
+            send_friend_request_email(friend_relationship)
+
             return empty_pb2.Empty()
 
     def ListFriendRequests(self, request, context):
@@ -527,6 +529,7 @@ def paginate_references_result(request, query):
             for reference in references
         ],
     )
+
 
 
 def user_model_to_pb(db_user, session, context):
