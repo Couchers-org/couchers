@@ -2,7 +2,7 @@
 
 exports[`Button should match snapshot 1`] = `
 <button
-  className="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-root-1 undefined"
+  className="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-root-1"
   disabled={false}
   onBlur={[Function]}
   onDragLeave={[Function]}
