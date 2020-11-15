@@ -1,6 +1,6 @@
 {% from "macros.html" import button %}
 
-Hi {{ escape(name) }}!
+Hi {{ escape(user.name) }}!
 
 You've received a message!
 

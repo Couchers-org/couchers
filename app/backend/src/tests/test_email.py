@@ -31,127 +31,6 @@ def _(testconfig):
     pass
 
 
-def test_login_email_rendering():
-    subject = random_hex(64)
-    login_link = random_hex(64)
-    plain, html = _render_email(subject, "login", template_args={"user": None, "login_link": login_link})
-    assert login_link in plain
-    assert login_link in html
-    assert subject in html
-
-
-def test_signup_email_rendering():
-    subject = random_hex(64)
-    signup_link = random_hex(64)
-    plain, html = _render_email(subject, "signup", template_args={"signup_link": signup_link})
-    assert signup_link in plain
-    assert signup_link in html
-    assert subject in html
-
-
-def test_report_email_rendering():
-    subject = random_hex(64)
-    author_user = random_hex(64)
-    reported_user = random_hex(64)
-    reason = random_hex(64)
-    description = random_hex(64)
-
-    plain, html = _render_email(
-        subject,
-        "report",
-        template_args={
-            "username_author": author_user,
-            "username_reported": reported_user,
-            "reason": reason,
-            "description": description,
-        },
-    )
-
-    assert author_user in plain
-    assert author_user in html
-    assert reported_user in plain
-    assert reported_user in html
-    assert reason in plain
-    assert reason in html
-    assert description in plain
-    assert description in html
-    assert subject in html
-
-
-def test_host_request_email_rendering():
-    subject = random_hex(64)
-    name_host = random_hex(64)
-    name_guest = random_hex(64)
-    from_date = "2020-01-01"
-    to_date = "2020-01-05"
-    host_request_link = random_hex(64)
-
-    plain, html = _render_email(
-        subject,
-        "host_request",
-        template_args={
-            "name_host": name_host,
-            "name_guest": name_guest,
-            "from_date": from_date,
-            "to_date": to_date,
-            "host_request_link": host_request_link,
-        },
-    )
-
-    assert name_host in plain
-    assert name_host in html
-    assert name_guest in plain
-    assert name_guest in html
-    assert from_date in plain
-    assert from_date in html
-    assert to_date in plain
-    assert to_date in html
-    assert host_request_link in plain
-    assert host_request_link in html
-    assert subject in html
-
-
-def test_friend_request_email_rendering():
-    subject = random_hex(64)
-    name_recipient = random_hex(64)
-    name_sender = random_hex(64)
-    friend_requests_link = random_hex(64)
-
-    plain, html = _render_email(
-        subject,
-        "friend_request",
-        template_args={
-            "name_recipient": name_recipient,
-            "name_sender": name_sender,
-            "friend_requests_link": friend_requests_link,
-        },
-    )
-
-    assert name_recipient in plain
-    assert name_recipient in html
-    assert name_sender in plain
-    assert name_sender in html
-    assert friend_requests_link in plain
-    assert friend_requests_link in html
-    assert subject in html
-
-
-def test_message_received_email_rendering():
-    subject = random_hex(64)
-    name_recipient = random_hex(64)
-    messages_link = random_hex(64)
-
-    plain, html = _render_email(
-        subject, "message_received", template_args={"name_recipient": name_recipient, "messages_link": messages_link}
-    )
-
-    assert name_recipient in plain
-    assert name_recipient in html
-    assert messages_link in plain
-    assert messages_link in html
-    assert subject in html
-
-
 def test_login_email(db):
     user, api_token = generate_user(db)
 
@@ -196,7 +75,7 @@ def test_report_email(db):
         user_reported, api_token_reported = generate_user(db)
 
         complaint = Complaint(
-            author_user=user_author, reported_user=user_reported, reason=random_hex(64), description=random_hex(64)
+            author_user=user_author, reported_user=user_reported, reason=random_hex(64), description=random_hex(256)
         )
 
         message_id = random_hex(64)
@@ -324,4 +203,5 @@ def test_email_patching_fails(db):
         with pytest.raises(Exception) as e:
             with patch("couchers.email.send_email", mock_send_smtp_email):
                 send_friend_request_email(friend_relationship)
+        print(e.value)
         assert str(e.value) == patched_msg

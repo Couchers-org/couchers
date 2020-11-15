@@ -403,19 +403,19 @@ class API(api_pb2_grpc.APIServicer):
             if not reported_user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
-            message = Complaint(
+            complaint = Complaint(
                 author_user_id=context.user_id,
                 reported_user_id=request.reported_user_id,
                 reason=request.reason,
                 description=request.description,
             )
 
-            session.add(message)
+            session.add(complaint)
 
             # commit here so that send_report_email can lazy-load stuff it needs
             session.commit()
 
-            send_report_email(message)
+            send_report_email(complaint)
 
             return empty_pb2.Empty()
 
