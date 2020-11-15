@@ -1,4 +1,3 @@
-from os import path
 from concurrent import futures
 from contextlib import contextmanager
 from datetime import date, timedelta

@@ -1,4 +1,3 @@
-import sys
 import enum
 from calendar import monthrange
 from datetime import date

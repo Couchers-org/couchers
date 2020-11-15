@@ -1,6 +1,5 @@
 import logging
 import os
-import sys
 from base64 import urlsafe_b64decode
 from datetime import datetime
 from pathlib import Path
