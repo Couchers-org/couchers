@@ -160,15 +160,15 @@ def test_login_email(db):
     with session_scope(db) as session:
         login_token, expiry_text = new_login_token(session, user)
 
-    def mock_send_email(sender_name, sender_email, recipient, subject, plain, html):
-        assert recipient == user.email
-        assert "login" in subject.lower()
-        assert login_token.token in plain
-        assert login_token.token in html
-        return message_id
+        def mock_send_email(sender_name, sender_email, recipient, subject, plain, html):
+            assert recipient == user.email
+            assert "login" in subject.lower()
+            assert login_token.token in plain
+            assert login_token.token in html
+            return message_id
 
-    with patch("couchers.email.send_email", mock_send_email):
-        send_login_email(user, login_token, expiry_text)
+        with patch("couchers.email.send_email", mock_send_email):
+            send_login_email(user, login_token, expiry_text)
 
 
 def test_signup_email(db):
