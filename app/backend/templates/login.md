@@ -1,5 +1,5 @@
 {% from "macros.html" import button %}
-Hi {{ user.name or "there" }}!
+Hi {{ escape(user.name) or "there" }}!
 
 Here's a login link for Couchers.org:
 

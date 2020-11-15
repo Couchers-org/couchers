@@ -1,12 +1,12 @@
 {% from "macros.html" import button %}
 
-Hi {{ name_recipient }}!
+Hi {{ escape(name_recipient) }}!
 
-You've received a friend request from {{ name_sender }}!
+You've received a friend request from {{ escape(name_sender) }}!
 
 {% if html %}
 
-<img src={{ profile_picture_or_avatar }} alt="Your New Friend's Profile Picture" >
+<img src="{{ profile_picture_or_avatar }}" alt="Your New Friend's Profile Picture" >
 
 {% endif %}
 

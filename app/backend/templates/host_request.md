@@ -1,14 +1,14 @@
 {% from "macros.html" import button %}
 
-Hi {{ name_host }}!
+Hi {{ escape(name_host) }}!
 
 You've received a host request!
 
-{{ name_guest }} is requesting to stay with you from {{ from_date }} until {{ to_date }}.
+{{ escape(name_guest) }} is requesting to stay with you from {{ from_date }} until {{ to_date }}.
 
 {% if html %}
 
-<img src={{ profile_picture_or_avatar }} alt="Your Guest's Profile Picture" >
+<img src="{{ profile_picture_or_avatar }}" alt="Your Guest's Profile Picture" >
 
 {% endif %}
 

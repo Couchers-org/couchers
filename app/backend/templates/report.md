@@ -1,10 +1,10 @@
 User Report
 
-Reported by: {{username_author}}
+Reported by: {{ escape(username_author) }}
 
-Reported User: {{username_reported}}
+Reported User: {{ escape(username_reported) }}
 
-Reason: {{reason}}
+Reason: {{ reason }}
 
 Description:
-{{description}}
+{{ description }}
