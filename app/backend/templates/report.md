@@ -1,10 +1,10 @@
 User Report
 
-<p> Reported by: {{username_author}} </p>
+Reported by: {{username_author}}
 
-<p> Reported User: {{username_reported}} </p>
+Reported User: {{username_reported}}
 
-<p> Reason: {{reason}} </p>
+Reason: {{reason}}
 
 Description:
-<p> {{description}} </p>
+{{description}}

@@ -1,6 +1,6 @@
 {% from "macros.html" import button %}
 
-<p> Hi {{ name_recipient }}! </p>
+Hi {{ name_recipient }}!
 
 You've received a message!
 
