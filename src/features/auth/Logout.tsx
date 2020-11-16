@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { logout } from "./auth/authSlice";
-import { useAppDispatch } from "../store";
+import { logout } from "./authSlice";
+import { useAppDispatch } from "../../store";
 
 export default function Logout() {
   const dispatch = useAppDispatch();

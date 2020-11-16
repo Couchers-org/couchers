@@ -4,7 +4,7 @@ import Login from "./features/auth/login/Login";
 import ProfilePage from "./features/profile/ProfilePage";
 import Home from "./features/Home";
 import Messages from "./features/Messages";
-import Logout from "./features/Logout";
+import Logout from "./features/auth/Logout";
 import Signup from "./features/auth/signup/Signup";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./reducers";
