@@ -1,5 +1,6 @@
 import React from "react";
 import { useSelector } from "react-redux";
+import TextBody from '../components/TextBody';
 import { RootState } from "../reducers";
 
 export default function Home() {
@@ -7,5 +8,5 @@ export default function Home() {
     (state) => state.auth.user?.name.split(" ")[0]
   );
 
-  return <>{name ? <p>Hello, {name}.</p> : null}</>;
+  return <>{name ? <TextBody>Hello, {name}.</TextBody> : null}</>;
 }

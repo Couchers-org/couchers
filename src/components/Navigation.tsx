@@ -16,6 +16,7 @@ import {
   logoutRoute,
 } from "../AppRoutes";
 import { useTypedSelector } from "../store";
+import classNames from "classnames";
 
 const useStyles = makeStyles((theme) => ({
   listContainer: {
@@ -37,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Navigation() {
-  const styles = useStyles();
+  const classes = useStyles();
 
   const user = useTypedSelector((state) => state.auth.user);
   const [open, setOpen] = useState(false);
@@ -47,15 +48,15 @@ export default function Navigation() {
   };
 
   const menu = (
-    <List className={`${styles.listContainer} ${styles.menuList}`}>
-      <ListItem button component={Link} to="/" className={styles.item}>
+    <List className={classNames(classes.listContainer, classes.menuList)}>
+      <ListItem button component={Link} to="/" className={classes.item}>
         <ListItemText>Dashboard</ListItemText>
       </ListItem>
       <ListItem
         button
         component={Link}
         to={profileRoute}
-        className={styles.item}
+        className={classes.item}
       >
         <ListItemText>Profile</ListItemText>
       </ListItem>
@@ -63,7 +64,7 @@ export default function Navigation() {
         button
         component={Link}
         to={messagesRoute}
-        className={styles.item}
+        className={classes.item}
       >
         <ListItemText>Messages</ListItemText>
       </ListItem>
@@ -71,7 +72,7 @@ export default function Navigation() {
         button
         component={Link}
         to={requestsRoute}
-        className={styles.item}
+        className={classes.item}
       >
         <ListItemText>Requests</ListItemText>
       </ListItem>
@@ -80,7 +81,7 @@ export default function Navigation() {
           button
           component={Link}
           to={logoutRoute}
-          className={styles.item}
+          className={classes.item}
         >
           <ListItemText>Logout</ListItemText>
         </ListItem>
@@ -96,7 +97,7 @@ export default function Navigation() {
           button
           component="a"
           onClick={handleClick}
-          className={styles.item}
+          className={classes.item}
         >
           <ListItemText>Navigation</ListItemText>
         </ListItem>

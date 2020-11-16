@@ -7,12 +7,12 @@ import {
   useLocation,
   useParams,
 } from "react-router-dom";
-import Alert from "../../../components/Alert";
-import { tokenLogin } from "../authActions";
-import { useAppDispatch, useTypedSelector } from "../../../store";
 import { loginPasswordRoute, loginRoute } from "../../../AppRoutes";
-import UsernameForm from "./UsernameForm";
+import Alert from "../../../components/Alert";
+import { useAppDispatch, useTypedSelector } from "../../../store";
+import { tokenLogin } from "../authActions";
 import PasswordForm from "./PasswordForm";
+import UsernameForm from "./UsernameForm";
 
 export default function Login() {
   const dispatch = useAppDispatch();

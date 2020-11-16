@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { Redirect, useHistory, useLocation } from "react-router-dom";
 import { loginRoute } from "../../../AppRoutes";
 import Button from "../../../components/Button";
-import TextInput from "../../../components/TextInput";
+import TextField from "../../../components/TextField";
 import { useAppDispatch, useTypedSelector } from "../../../store";
 import { passwordLogin } from "../authActions";
 import { clearError } from "../authSlice";
@@ -34,17 +34,17 @@ export default function PasswordForm() {
     <>
       {!location.state.username && <Redirect to={loginRoute} />}
       <form onSubmit={onSubmit}>
-        <TextInput
+        <TextField
           label="Username/email"
           value={location.state.username}
           disabled
-        ></TextInput>
-        <TextInput
+        ></TextField>
+        <TextField
           label="Password"
           name="password"
           inputRef={register({ required: true })}
           type="password"
-        ></TextInput>
+        ></TextField>
         <Button onClick={backClicked}>Back</Button>
         <Button onClick={onSubmit} loading={authLoading} type="submit">
           Log in

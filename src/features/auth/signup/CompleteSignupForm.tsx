@@ -1,23 +1,23 @@
 import { Typography } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
-import { useHistory, useLocation, useParams } from "react-router-dom";
-import Button from "../../../components/Button";
-import TextInput from "../../../components/TextInput";
-import { signup } from "../authActions";
-import { useAppDispatch, useTypedSelector } from "../../../store";
-import { authError } from "../authSlice";
-import { HostingStatus } from "../../../pb/api_pb";
-import Autocomplete from "../../../components/Autocomplete";
-import { getSignupEmail, validateUsername } from "./lib";
-import { signupRoute } from "../../../AppRoutes";
 import { Controller, useForm } from "react-hook-form";
+import { useHistory, useLocation, useParams } from "react-router-dom";
+import { signupRoute } from "../../../AppRoutes";
+import Autocomplete from "../../../components/Autocomplete";
+import Button from "../../../components/Button";
 import CircularProgress from "../../../components/CircularProgress";
+import TextField from "../../../components/TextField";
+import { HostingStatus } from "../../../pb/api_pb";
+import { useAppDispatch, useTypedSelector } from "../../../store";
+import { signup } from "../authActions";
+import { authError } from "../authSlice";
+import { optionLabels } from "./constants";
+import { getSignupEmail, validateUsername } from "./lib";
 import {
   nameValidationPattern,
   usernameValidationPattern,
   validatePastDate,
 } from "./validation";
-import { optionLabels } from "./constants";
 
 type SignupInputs = {
   email: string;
@@ -90,7 +90,7 @@ export default function CompleteSignup() {
       ) : (
         <form onSubmit={completeSignup}>
           <Typography variant="h3">{getValues("email")}</Typography>
-          <TextInput
+          <TextField
             name="name"
             label="Name"
             inputRef={register({
@@ -102,7 +102,7 @@ export default function CompleteSignup() {
             })}
             helperText={errors?.name?.message}
           />
-          <TextInput
+          <TextField
             name="username"
             label="Username"
             inputRef={register({
@@ -120,7 +120,7 @@ export default function CompleteSignup() {
             })}
             helperText={errors?.username?.message}
           />
-          <TextInput
+          <TextField
             name="city"
             label="City"
             inputRef={register({
@@ -141,7 +141,7 @@ export default function CompleteSignup() {
               />
             )}
           />
-          <TextInput
+          <TextField
             name="birthdate"
             label="Birthdate"
             type="date"

@@ -1,7 +1,9 @@
-import { CircularProgress, Typography } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Alert from "../../components/Alert";
+import CircularProgress from "../../components/CircularProgress";
+import TextBody from "../../components/TextBody";
 import { useAppDispatch, useTypedSelector } from "../../store";
 import { fetchUsers, getUserByUsernameSelector } from "../userCache";
 
@@ -23,17 +25,15 @@ export default function UserPage() {
 
   return (
     <>
-      <Typography variant="h2" component="h2">
-        User
-      </Typography>
+      <Typography variant="h2">User</Typography>
       {usersError && <Alert severity="error">{usersError}</Alert>}
 
       {usersLoading && <CircularProgress />}
 
       {user && !usersLoading ? (
-        <Typography component="p">
+        <TextBody>
           {user.name} is {user.age} in {user.city}.
-        </Typography>
+        </TextBody>
       ) : null}
     </>
   );

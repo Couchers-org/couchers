@@ -5,7 +5,7 @@ import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import Alert from "../../components/Alert";
 import Button from "../../components/Button";
-import TextInput from "../../components/TextInput";
+import TextInput from "../../components/TextField";
 import ProfileTextInput from "./ProfileTextInput";
 import { ProfileFormData, updateUserProfile } from "./index";
 import { useAppDispatch, useTypedSelector } from "../../store";
@@ -17,7 +17,7 @@ const useStyles = makeStyles({
 });
 
 export default function UserInfoForm() {
-  const styles = useStyles();
+  const classes = useStyles();
   const dispatch = useAppDispatch();
   const user = useTypedSelector((state) => state.auth.user);
   const [alertState, setShowAlertState] = useState<
@@ -154,7 +154,7 @@ export default function UserInfoForm() {
               />
             )}
           />
-          <div className={styles.buttonContainer}>
+          <div className={classes.buttonContainer}>
             <Button
               type="submit"
               variant="contained"

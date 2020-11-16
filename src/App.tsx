@@ -1,15 +1,11 @@
-import {
-  Container,
-  CssBaseline,
-  ThemeProvider,
-  Typography,
-} from "@material-ui/core";
+import { Container, CssBaseline, ThemeProvider } from "@material-ui/core";
 import React from "react";
 import { BrowserRouter as Router } from "react-router-dom";
 import "./App.css";
-import Navigation from "./components/Navigation";
-import { theme } from "./theme";
 import AppRoutes from "./AppRoutes";
+import Navigation from "./components/Navigation";
+import PageTitle from "./components/PageTitle";
+import { theme } from "./theme";
 
 function App() {
   return (
@@ -17,7 +13,7 @@ function App() {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Container maxWidth="md">
-          <Typography variant="h1">Couchers</Typography>
+          <PageTitle>Couchers</PageTitle>
           <Navigation />
           <AppRoutes />
         </Container>
