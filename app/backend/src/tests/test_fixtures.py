@@ -183,7 +183,7 @@ def real_api_session(db, token):
         with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
             yield api_pb2_grpc.APIStub(channel)
     finally:
-        server.stop(None)
+        server.stop(None).wait()
 
 
 @contextmanager
@@ -236,7 +236,7 @@ def media_session(db, bearer_token):
         with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
             yield media_pb2_grpc.MediaStub(channel)
     finally:
-        server.stop(None)
+        server.stop(None).wait()
 
 
 @pytest.fixture()
