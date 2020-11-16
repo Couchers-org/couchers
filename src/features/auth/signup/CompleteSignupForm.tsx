@@ -7,11 +7,11 @@ import Autocomplete from "../../../components/Autocomplete";
 import Button from "../../../components/Button";
 import CircularProgress from "../../../components/CircularProgress";
 import TextField from "../../../components/TextField";
+import { hostingStatusLabels } from "../../../constants";
 import { HostingStatus } from "../../../pb/api_pb";
 import { useAppDispatch, useTypedSelector } from "../../../store";
 import { signup } from "../authActions";
 import { authError } from "../authSlice";
-import { optionLabels } from "./constants";
 import { getSignupEmail, validateUsername } from "./lib";
 import {
   nameValidationPattern,
@@ -170,7 +170,7 @@ export default function CompleteSignup() {
                   HostingStatus.HOSTING_STATUS_DIFFICULT,
                   HostingStatus.HOSTING_STATUS_CANT_HOST,
                 ]}
-                getOptionLabel={(option) => optionLabels[option]}
+                getOptionLabel={(option) => hostingStatusLabels[option]}
                 disableClearable
                 //below required for type inference
                 multiple={false}
