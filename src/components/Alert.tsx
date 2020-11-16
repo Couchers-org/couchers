@@ -10,7 +10,9 @@ const useStyles = makeStyles({
   root: {},
 });
 
-type AlertProps = MuiAlertProps;
+interface AlertProps extends MuiAlertProps {
+  severity: MuiAlertProps["severity"];
+}
 
 export default function Alert({ className, ...otherProps }: AlertProps) {
   const classes = useStyles();
