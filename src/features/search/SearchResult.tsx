@@ -20,9 +20,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     marginBottom: theme.spacing(2),
     textDecoration: "none",
-    [theme.breakpoints.down("xs")]: {
-      width: "100%",
-    },
+    width: "100%",
     [theme.breakpoints.up("sm")]: {
       width: "49%",
     },
