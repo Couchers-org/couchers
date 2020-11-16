@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  Avatar,
   Box,
   Card,
   CardActionArea,
@@ -15,6 +14,7 @@ import TextBody from "../../components/TextBody";
 import { hostingStatusLabels } from "../../constants";
 import { Link } from "react-router-dom";
 import { userRoute } from "../../AppRoutes";
+import Avatar from "../../components/Avatar";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -74,10 +74,7 @@ export default function SearchResult({ user }: { user: User.AsObject }) {
               alignItems="center"
               className={classes.resultHeader}
             >
-              {
-                ///TODO: Replace with avatar component
-              }
-              <Avatar src={user.avatarUrl} />
+              <Avatar user={user} />
               <Container>
                 <Typography variant="h3" className={classes.title}>
                   {user.name}

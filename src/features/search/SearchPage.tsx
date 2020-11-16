@@ -7,6 +7,7 @@ import PageTitle from "../../components/PageTitle";
 import TextBody from "../../components/TextBody";
 import { search } from "../../libs/search";
 import { User } from "../../pb/api_pb";
+import { SearchQuery } from "./constants";
 import SearchResult from "./SearchResult";
 
 export default function SearchPage() {
@@ -14,7 +15,7 @@ export default function SearchPage() {
   const [error, setError] = useState("");
   const [results, setResults] = useState([] as User.AsObject[]);
 
-  const { query } = useParams<{ query: string }>();
+  const { query } = useParams<SearchQuery>();
   useEffect(() => {
     if (!query) return;
     (async () => {

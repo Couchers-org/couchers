@@ -4,6 +4,7 @@ import { useHistory } from "react-router-dom";
 import { searchRoute } from "../AppRoutes";
 import TextField from "./TextField";
 import { useForm } from "react-hook-form";
+import { SearchQuery } from "../features/search/constants";
 
 const useStyles = makeStyles({
   root: {
@@ -14,11 +15,11 @@ const useStyles = makeStyles({
 export default function SearchBox() {
   const classes = useStyles();
 
-  const { register, handleSubmit } = useForm<{ query: string }>();
+  const { register, handleSubmit } = useForm<SearchQuery>();
 
   const history = useHistory();
 
-  const onSubmit = handleSubmit(({ query }: { query: string }) => {
+  const onSubmit = handleSubmit(({ query }) => {
     history.push(`${searchRoute}/${encodeURIComponent(query)}`);
   });
 
