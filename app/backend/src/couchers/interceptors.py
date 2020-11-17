@@ -37,19 +37,22 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
         if not authorization.startswith("Bearer "):
             return unauthenticated_handler()
 
-        user_session = self._get_session_for_token(token=authorization[7:])
+        # None or (user_id, jailed)
+        res = self._get_session_for_token(token=authorization[7:])
 
-        if not user_session:
+        if not res:
             return unauthenticated_handler()
 
-        if not self._allow_jailed and user_session.jailed:
+        user_id, jailed = res
+
+        if not self._allow_jailed and jailed:
             return unauthenticated_handler("Permission denied")
 
         handler = continuation(handler_call_details)
         user_aware_function = handler.unary_unary
 
         def user_unaware_function(req, context):
-            context.user_id = user_session.user_id
+            context.user_id = user_id
             return user_aware_function(req, context)
 
         return grpc.unary_unary_rpc_method_handler(
