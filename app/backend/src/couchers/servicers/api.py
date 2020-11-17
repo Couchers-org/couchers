@@ -10,7 +10,7 @@ from sqlalchemy import func, or_
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, or_
 
-from couchers import errors
+from couchers import errors, urls
 from couchers.config import config
 from couchers.crypto import generate_hash_signature, random_hex
 from couchers.db import get_friends_status, get_user_by_field, is_valid_color, is_valid_name, session_scope
@@ -506,7 +506,7 @@ class API(api_pb2_grpc.APIServicer):
         path = "upload?" + urlencode({"data": data, "sig": sig})
 
         return api_pb2.InitiateMediaUploadRes(
-            upload_url=f"{config['MEDIA_SERVER_BASE_URL']}/{path}",
+            upload_url=urls.media_upload_url(path),
             expiry=Timestamp_from_datetime(expiry),
         )
 
