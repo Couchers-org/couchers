@@ -25,13 +25,13 @@ class Jail(jail_pb2_grpc.JailServicer):
     def GetTOS(self, request, context):
         with session_scope(self._Session) as session:
             return jail_pb2.GetTOSRes(
-                accepted_tos=session.query(User).filter(User.id == context.user_id).one().accepted_tos
+                accepted_tos=(session.query(User).filter(User.id == context.user_id).one().accepted_tos == 1)
             )
 
     def AcceptTOS(self, request, context):
         with session_scope(self._Session) as session:
             user = session.query(User).filter(User.id == context.user_id).one()
-            user.accepted_tos = request.accept
+            user.accepted_tos = 1 if request.accept else 0
             session.commit()
             return jail_pb2.GetTOSRes(accepted_tos=user.accepted_tos)
 

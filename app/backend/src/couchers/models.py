@@ -108,11 +108,11 @@ class User(Base):
     area = Column(String, nullable=True)
     house_rules = Column(String, nullable=True)
 
-    accepted_tos = Column(Boolean, nullable=False, default=False)
+    accepted_tos = Column(Integer, nullable=False, default=0)
 
     @property
     def is_jailed(self):
-        return not self.accepted_tos
+        return self.accepted_tos == 1
 
     @property
     def age(self):
