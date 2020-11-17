@@ -170,20 +170,21 @@ def real_api_session(db, token):
     """
     auth_interceptor = Auth(db).get_auth_interceptor()
 
-    server = grpc.server(futures.ThreadPoolExecutor(1), interceptors=[auth_interceptor])
-    port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
-    servicer = API(db)
-    api_pb2_grpc.add_APIServicer_to_server(servicer, server)
-    server.start()
+    with futures.ThreadPoolExecutor(1) as executor:
+        server = grpc.server(executor, interceptors=[auth_interceptor])
+        port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
+        servicer = API(db)
+        api_pb2_grpc.add_APIServicer_to_server(servicer, server)
+        server.start()
 
-    call_creds = grpc.access_token_call_credentials(token)
-    comp_creds = grpc.composite_channel_credentials(grpc.local_channel_credentials(), call_creds)
+        call_creds = grpc.access_token_call_credentials(token)
+        comp_creds = grpc.composite_channel_credentials(grpc.local_channel_credentials(), call_creds)
 
-    try:
-        with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
-            yield api_pb2_grpc.APIStub(channel)
-    finally:
-        server.stop(None).wait()
+        try:
+            with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
+                yield api_pb2_grpc.APIStub(channel)
+        finally:
+            server.stop(None).wait()
 
 
 @contextmanager
@@ -223,20 +224,21 @@ def media_session(db, bearer_token):
     """
     media_auth_interceptor = get_media_auth_interceptor(bearer_token)
 
-    server = grpc.server(futures.ThreadPoolExecutor(1), interceptors=[media_auth_interceptor])
-    port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
-    servicer = Media(db)
-    media_pb2_grpc.add_MediaServicer_to_server(servicer, server)
-    server.start()
+    with futures.ThreadPoolExecutor(1) as executor:
+        server = grpc.server(executor, interceptors=[media_auth_interceptor])
+        port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
+        servicer = Media(db)
+        media_pb2_grpc.add_MediaServicer_to_server(servicer, server)
+        server.start()
 
-    call_creds = grpc.access_token_call_credentials(bearer_token)
-    comp_creds = grpc.composite_channel_credentials(grpc.local_channel_credentials(), call_creds)
+        call_creds = grpc.access_token_call_credentials(bearer_token)
+        comp_creds = grpc.composite_channel_credentials(grpc.local_channel_credentials(), call_creds)
 
-    try:
-        with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
-            yield media_pb2_grpc.MediaStub(channel)
-    finally:
-        server.stop(None).wait()
+        try:
+            with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
+                yield media_pb2_grpc.MediaStub(channel)
+        finally:
+            server.stop(None).wait()
 
 
 @pytest.fixture()
