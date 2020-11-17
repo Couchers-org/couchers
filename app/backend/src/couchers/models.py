@@ -112,7 +112,7 @@ class User(Base):
 
     @property
     def is_jailed(self):
-        return self.accepted_tos == 1
+        return self.accepted_tos < 1
 
     @property
     def age(self):
