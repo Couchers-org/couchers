@@ -5,7 +5,7 @@ import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import Alert from "../../components/Alert";
 import Button from "../../components/Button";
-import TextInput from "../../components/TextField";
+import TextField from "../../components/TextField";
 import ProfileTextInput from "./ProfileTextInput";
 import { ProfileFormData, updateUserProfile } from "./index";
 import { useAppDispatch, useTypedSelector } from "../../store";
@@ -83,7 +83,7 @@ export default function UserInfoForm() {
                 open={false}
                 options={[""]}
                 renderInput={(params) => (
-                  <TextInput
+                  <TextField
                     {...params}
                     helperText="Press 'Enter' to add"
                     label="Languages"
@@ -122,7 +122,7 @@ export default function UserInfoForm() {
                 open={false}
                 options={[""]}
                 renderInput={(params) => (
-                  <TextInput
+                  <TextField
                     {...params}
                     helperText="Press 'Enter' to add"
                     label="Countries I visited"
@@ -145,7 +145,7 @@ export default function UserInfoForm() {
                 open={false}
                 options={[""]}
                 renderInput={(params) => (
-                  <TextInput
+                  <TextField
                     {...params}
                     helperText="Press 'Enter' to add"
                     label="Countries I lived in"
