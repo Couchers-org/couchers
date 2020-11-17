@@ -44,6 +44,4 @@ class Jail(jail_pb2_grpc.JailServicer):
             if user.is_jailed:
                 reasons.append(jail_pb2.JailInfoRes.MISSING_TOS)
 
-            user.sync_jail()
-
             return jail_pb2.JailInfoRes(reasons=reasons)

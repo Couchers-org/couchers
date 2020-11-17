@@ -48,19 +48,23 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
     def get_session_for_token(self, token):
         """
-        Returns None if the session token is not valid, and the `user_id` of the corresponding to the session token otherwise.
+        Returns None if the session token is not valid, and (user_id, jailed) corresponding to the session token otherwise.
 
         TODO(aapeli): session expiry
         """
         with session_scope(self._Session) as session:
-            user_session = session.query(UserSession).filter(UserSession.token == token).one_or_none()
+            result = (
+                session.query(User, UserSession)
+                .join(User, User.id == UserSession.user_id)
+                .filter(UserSession.token == token)
+                .one_or_none()
+            )
 
-            if not user_session:
+            if not result:
                 # can't expunge if it's None
                 return None
-
-            session.expunge(user_session)
-            return user_session
+            else:
+                return result.User.id, result.User.is_jailed
 
     def _create_session(self, context, session, user):
         """
@@ -76,7 +80,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         token = urlsafe_secure_token()
 
-        user_session = UserSession(user=user, token=token, jailed=user.is_jailed)
+        user_session = UserSession(user=user, token=token)
 
         session.add(user_session)
         session.commit()
