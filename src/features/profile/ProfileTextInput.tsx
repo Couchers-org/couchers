@@ -1,6 +1,6 @@
 import { TextFieldProps } from "@material-ui/core";
 import React from "react";
-import TextInput from "../../components/TextField";
+import TextField from "../../components/TextField";
 
 interface ProfileTextInputProps
   extends Pick<
@@ -9,5 +9,5 @@ interface ProfileTextInputProps
   > {}
 
 export default function ProfileTextInput(props: ProfileTextInputProps) {
-  return <TextInput {...props} variant="outlined" margin="normal" fullWidth />;
+  return <TextField {...props} variant="outlined" margin="normal" fullWidth />;
 }
