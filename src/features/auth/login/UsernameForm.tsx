@@ -1,3 +1,4 @@
+import { makeStyles } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useHistory, useLocation } from "react-router-dom";
@@ -10,7 +11,14 @@ import { useAppDispatch, useTypedSelector } from "../../../store";
 import { authError, clearError } from "../authSlice";
 import { checkUsername } from "./lib";
 
+const useStyles = makeStyles({
+  signUpButton: {
+    textDecoration: "none",
+  },
+});
+
 export default function UsernameForm() {
+  const classes = useStyles();
   const dispatch = useAppDispatch();
   const authLoading = useTypedSelector((state) => state.auth.loading);
   const [sent, setSent] = useState(false);
@@ -73,8 +81,8 @@ export default function UsernameForm() {
           Next
         </Button>
       </form>
-      <Link to={signupRoute} component={Button}>
-        Create an account
+      <Link className={classes.signUpButton} to={signupRoute}>
+        <Button>Create an account</Button>
       </Link>
     </>
   );
