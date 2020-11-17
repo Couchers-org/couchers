@@ -182,17 +182,6 @@ class User(Base):
 
         return session.query(User).filter(User.id.in_(q1.union(q2).intersect(q3.union(q4)).subquery())).all()
 
-    def sync_jail(self):
-        """
-        Sync all sessions with current jail status.
-
-        The auth interceptor does not check users table to reduce per-request DB overhead and this info is cached in the user session
-        """
-        session = Session.object_session(self)
-        session.query(UserSession).filter(UserSession.user == self).update({"jailed": self.is_jailed})
-        session.commit()
-        # session.execute(UserSession.update().values(jailed=self.is_jailed).where(UserSession.user == self))
-
     def __repr__(self):
         return f"User(id={self.id}, email={self.email}, username={self.username})"
 
@@ -270,11 +259,6 @@ class UserSession(Base):
 
     __tablename__ = "sessions"
     token = Column(String, primary_key=True)
-
-    # whether the user needs to do something else before using the app,
-    # only allows access to auth functions
-    # info on this in auth.JailInfo
-    jailed = Column(Boolean, default=False, nullable=False)
 
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
