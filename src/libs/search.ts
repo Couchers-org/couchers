@@ -1,4 +1,4 @@
-import { client } from "../features/api";
+import client from "../features/api";
 import { SearchReq, User } from "../pb/api_pb";
 
 /**

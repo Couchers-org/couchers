@@ -1,6 +1,6 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import wrappers from "google-protobuf/google/protobuf/wrappers_pb";
-import { client } from "../features/api";
+import client from "../features/api";
 import {
   GetUserReq,
   PingReq,

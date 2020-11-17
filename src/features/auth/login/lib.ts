@@ -1,4 +1,4 @@
-import { client } from "../../api";
+import client from "../../api";
 import { LoginReq } from "../../../pb/auth_pb";
 
 export const checkUsername = async (username: string) => {
