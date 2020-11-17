@@ -1,4 +1,4 @@
-import { authClient } from "../../api";
+import { client } from "../../api";
 import {
   SignupReq,
   SignupTokenInfoReq,
@@ -8,20 +8,20 @@ import {
 export const createEmailSignup = async (email: string) => {
   const req = new SignupReq();
   req.setEmail(email);
-  const res = await authClient.signup(req);
+  const res = await client.auth.signup(req);
   return res.getNextStep();
 };
 
 export const getSignupEmail = async (signupToken: string) => {
   const req = new SignupTokenInfoReq();
   req.setSignupToken(signupToken);
-  const res = await authClient.signupTokenInfo(req);
+  const res = await client.auth.signupTokenInfo(req);
   return res.getEmail();
 };
 
 export const validateUsername = async (username: string) => {
   const req = new UsernameValidReq();
   req.setUsername(username);
-  const res = await authClient.usernameValid(req);
+  const res = await client.auth.usernameValid(req);
   return res.getValid();
 };

@@ -11,7 +11,7 @@ export const search = async (query: string): Promise<User.AsObject[]> => {
   const req = new SearchReq();
   req.setQuery(query);
 
-  const response = await client.search(req);
+  const response = await client.api.search(req);
   const users = response.getUsersList();
 
   return users.map((user) => user.toObject());
