@@ -43,7 +43,7 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
             return unauthenticated_handler()
 
         if not self._allow_jailed and user_session.jailed:
-            return unauthenticated_handler("Jailed")
+            return unauthenticated_handler("Permission denied")
 
         handler = continuation(handler_call_details)
         user_aware_function = handler.unary_unary
