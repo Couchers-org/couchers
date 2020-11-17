@@ -5,6 +5,8 @@
 
 This is the react frontend for couchers.org. We are using [Redux with Redux Toolkit](https://redux-toolkit.js.org/) for state management and [Material UI](https://material-ui.com/) for components.
 
+Communication with the backend is via [protobuf messages](https://github.com/protocolbuffers/protobuf/tree/master/js) and [grpc_web](https://github.com/grpc/grpc-web). You can find some helpful documentation on [protobuf messages in javascript here](https://developers.google.com/protocol-buffers/docs/reference/javascript-generated).
+
 ## How to contribute
 
 1. Pick an unassigned issue you'd like to work on (or open a new one) and assign it to yourself.
