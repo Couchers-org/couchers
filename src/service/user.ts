@@ -1,6 +1,6 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import wrappers from "google-protobuf/google/protobuf/wrappers_pb";
-import { authClient, client } from "../features/api";
+import client from "../features/api";
 import {
   GetUserReq,
   PingReq,
@@ -32,7 +32,7 @@ export const passwordLogin = async (
   req.setUser(username);
   req.setPassword(password);
 
-  const response = await authClient.authenticate(req);
+  const response = await client.auth.authenticate(req);
   const token = response.getToken();
 
   return token;
@@ -48,7 +48,7 @@ export const tokenLogin = async (loginToken: string): Promise<string> => {
   const req = new CompleteTokenLoginReq();
   req.setLoginToken(loginToken);
 
-  const response = await authClient.completeTokenLogin(req);
+  const response = await client.auth.completeTokenLogin(req);
   const token = response.getToken();
 
   return token;
@@ -64,7 +64,7 @@ export const getCurrentUser = async (
 ): Promise<User.AsObject> => {
   const req = new PingReq();
 
-  const response = await client.ping(
+  const response = await client.api.ping(
     req,
     token ? { authorization: `Bearer ${token}` } : undefined
   );
@@ -86,7 +86,7 @@ export const getUser = async (
   const userReq = new GetUserReq();
   userReq.setUser(user || "");
 
-  const response = await client.getUser(
+  const response = await client.api.getUser(
     userReq,
     token ? { authorization: `Bearer ${token}` } : undefined
   );
@@ -132,7 +132,7 @@ export const updateProfile = async (
     .setCountriesVisited(countriesVisited)
     .setCountriesLived(countriesLived);
 
-  return client.updateProfile(req);
+  return client.api.updateProfile(req);
 };
 
 export type SignupArguments = {
@@ -169,6 +169,6 @@ export const completeSignup = async ({
   req.setGender(gender);
   req.setHostingStatus(hostingStatus);
 
-  const res = await authClient.completeSignup(req);
+  const res = await client.auth.completeSignup(req);
   return res.getToken();
 };
