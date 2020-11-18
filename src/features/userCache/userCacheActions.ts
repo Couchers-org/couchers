@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { getUser } from "../../service/user";
+import { service } from "../../service";
 import { RootState } from "../../reducers";
 import { usersFetched, CachedUser } from "./index";
 import { hasUserExpired } from "./utils";
@@ -28,7 +28,7 @@ export const fetchUsers = createAsyncThunk<
         if (!exists || expired || forceInvalidate) {
           cachedUsers.push({
             fetched: new Date(),
-            user: await getUser(userId.toString()),
+            user: await service.user.getUser(userId.toString()),
           });
         }
       }) || [];
@@ -43,7 +43,7 @@ export const fetchUsers = createAsyncThunk<
         if (!exists || expired || forceInvalidate) {
           cachedUsers.push({
             fetched: new Date(),
-            user: await getUser(username),
+            user: await service.user.getUser(username),
           });
         }
       }) || [];
