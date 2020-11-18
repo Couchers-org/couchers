@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { getUser } from "../../libs/user";
+import { getUser } from "../../service/user";
 import { RootState } from "../../reducers";
 import { usersFetched, CachedUser } from "./index";
 import { hasUserExpired } from "./utils";

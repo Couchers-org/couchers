@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { ProfileFormData } from "./index";
-import { getUser, updateProfile } from "../../libs/user";
+import { getUser, updateProfile } from "../../service/user";
 import { User } from "../../pb/api_pb";
 import { RootState } from "../../reducers";
 
