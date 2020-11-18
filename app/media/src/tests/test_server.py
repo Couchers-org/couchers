@@ -50,7 +50,7 @@ def mock_main_server(*args, **kwargs):
     try:
         yield port
     finally:
-        server.stop(None)
+        server.stop(None).wait()
 
 @pytest.fixture
 def client_with_secrets(tmp_path):
