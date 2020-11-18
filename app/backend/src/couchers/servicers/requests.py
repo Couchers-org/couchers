@@ -10,6 +10,7 @@ from sqlalchemy.sql import and_, or_
 from couchers import errors
 from couchers.db import is_valid_date, session_scope
 from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType, User
+from couchers.tasks import send_host_request_email
 from couchers.utils import Timestamp_from_datetime
 from pb import conversations_pb2, requests_pb2, requests_pb2_grpc
 
@@ -134,6 +135,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 .limit(1)
                 .one()
             )
+
+            send_host_request_email(host_request)
 
             return requests_pb2.HostRequest(
                 host_request_id=host_request.conversation_id,

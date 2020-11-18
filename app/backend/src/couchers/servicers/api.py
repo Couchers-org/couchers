@@ -10,7 +10,7 @@ from sqlalchemy import func, or_
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, or_
 
-from couchers import errors
+from couchers import errors, urls
 from couchers.config import config
 from couchers.crypto import generate_hash_signature, random_hex
 from couchers.db import get_friends_status, get_user_by_field, is_valid_color, is_valid_name, session_scope
@@ -28,7 +28,7 @@ from couchers.models import (
     SmokingLocation,
     User,
 )
-from couchers.tasks import send_report_email
+from couchers.tasks import send_friend_request_email, send_report_email
 from couchers.utils import Timestamp_from_datetime, now
 from pb import api_pb2, api_pb2_grpc, media_pb2
 
@@ -301,6 +301,8 @@ class API(api_pb2_grpc.APIServicer):
             friend_relationship = FriendRelationship(from_user=from_user, to_user=to_user, status=FriendStatus.pending)
             session.add(friend_relationship)
 
+            send_friend_request_email(friend_relationship)
+
             return empty_pb2.Empty()
 
     def ListFriendRequests(self, request, context):
@@ -401,19 +403,19 @@ class API(api_pb2_grpc.APIServicer):
             if not reported_user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
-            message = Complaint(
+            complaint = Complaint(
                 author_user_id=context.user_id,
                 reported_user_id=request.reported_user_id,
                 reason=request.reason,
                 description=request.description,
             )
 
-            session.add(message)
+            session.add(complaint)
 
             # commit here so that send_report_email can lazy-load stuff it needs
             session.commit()
 
-            send_report_email(message)
+            send_report_email(complaint)
 
             return empty_pb2.Empty()
 
@@ -504,7 +506,7 @@ class API(api_pb2_grpc.APIServicer):
         path = "upload?" + urlencode({"data": data, "sig": sig})
 
         return api_pb2.InitiateMediaUploadRes(
-            upload_url=f"{config['MEDIA_SERVER_BASE_URL']}/{path}",
+            upload_url=urls.media_upload_url(path),
             expiry=Timestamp_from_datetime(expiry),
         )
 

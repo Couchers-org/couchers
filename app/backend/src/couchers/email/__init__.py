@@ -18,8 +18,14 @@ def _render_email(subject, template_file, template_args={}):
 
     template = env.get_template(f"{template_file}.md")
 
-    plain_content = template.render(**template_args, plain=True, html=False)
-    html_content = markdown(template.render(**template_args, plain=False, html=True))
+    def _escape_plain(text):
+        return text
+
+    def _escape_html(text):
+        return text.replace("_", "\_")
+
+    plain_content = template.render(**template_args, plain=True, html=False, escape=_escape_plain)
+    html_content = markdown(template.render(**template_args, plain=False, html=True, escape=_escape_html))
 
     plain = plain_base_template.render(subject=subject, content=plain_content)
     html = html_base_template.render(subject=subject, content=html_content)
