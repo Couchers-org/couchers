@@ -5,7 +5,6 @@ isort
 Jinja2
 markdown2
 protobuf
-psutil
 psycopg2-binary
 pynacl
 pytest
