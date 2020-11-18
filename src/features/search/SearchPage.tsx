@@ -5,7 +5,7 @@ import Alert from "../../components/Alert";
 import CircularProgress from "../../components/CircularProgress";
 import PageTitle from "../../components/PageTitle";
 import TextBody from "../../components/TextBody";
-import { search } from "../../libs/search";
+import { search } from "../../service/search";
 import { User } from "../../pb/api_pb";
 import { SearchQuery } from "./constants";
 import SearchResult from "./SearchResult";

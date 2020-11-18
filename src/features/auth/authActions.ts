@@ -6,7 +6,7 @@ import {
   passwordLogin as apiPasswordLogin,
   SignupArguments,
   tokenLogin as apiTokenLogin,
-} from "../../libs/user";
+} from "../../service/user";
 
 export const passwordLogin = createAsyncThunk(
   "auth/passwordLogin",
