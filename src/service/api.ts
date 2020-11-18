@@ -7,7 +7,7 @@ import { SSOPromiseClient } from "../pb/sso_grpc_web_pb";
 
 import { store } from "../store";
 
-const URL = "http://localhost:8888";
+const URL = process.env.REACT_APP_API_BASE_URL;
 
 class AuthInterceptor {
   intercept(request: any, invoker: (request: any) => any) {
