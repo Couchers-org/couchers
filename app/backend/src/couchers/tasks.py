@@ -12,9 +12,7 @@ def send_signup_email(email_address, token, expiry_text):
     logger.info(f"Token: {token=} ({token.created=}, {token.expiry=}) ({expiry_text=})")
     signup_link = urls.signup_link(signup_token=token.token)
     logger.info(f"Link is: {signup_link}")
-    return email.send_email_template(
-        email_address, "Finish signing up for Couchers.org", "signup", template_args={"signup_link": signup_link}
-    )
+    return email.send_email_template(email_address, "signup", template_args={"signup_link": signup_link})
 
 
 def send_login_email(user, token, expiry_text):
@@ -23,9 +21,7 @@ def send_login_email(user, token, expiry_text):
     logger.info(f"Token: {token=} ({token.created=}, {token.expiry=}) ({expiry_text=})")
     login_link = urls.login_link(login_token=token.token)
     logger.info(f"Link is: {login_link}")
-    return email.send_email_template(
-        user.email, "Your login link for Couchers.org", "login", template_args={"user": user, "login_link": login_link}
-    )
+    return email.send_email_template(user.email, "login", template_args={"user": user, "login_link": login_link})
 
 
 def send_report_email(complaint):
@@ -38,7 +34,6 @@ def send_report_email(complaint):
     logger.info(f"{complaint.description=}")
     return email.send_email_template(
         target_email,
-        "User Report",
         "report",
         template_args={
             "complaint": complaint,
@@ -55,7 +50,6 @@ def send_host_request_email(host_request):
 
     return email.send_email_template(
         host_request.to_user.email,
-        "You've received a host request!",
         "host_request",
         template_args={
             "host_request": host_request,
@@ -71,7 +65,6 @@ def send_message_received_email(user_recipient):
 
     return email.send_email_template(
         user_recipient.email,
-        "You've got mail!",
         "message_received",
         template_args={
             "user": user_recipient,
@@ -89,7 +82,6 @@ def send_friend_request_email(friend_relationship):
 
     return email.send_email_template(
         friend_relationship.to_user.email,
-        "Someone wants to be your friend!",
         "friend_request",
         template_args={
             "friend_relationship": friend_relationship,

@@ -1,3 +1,7 @@
+---
+subject: "User Report"
+---
+
 User Report
 
 Reported by: {{ escape(complaint.author_user.username) }}

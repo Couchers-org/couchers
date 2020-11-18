@@ -11,5 +11,6 @@ pytest
 pytest-pythonpath
 python-dateutil
 pytz
+pyyaml
 requests
 sqlalchemy
