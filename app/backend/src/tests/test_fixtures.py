@@ -8,6 +8,7 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.event import listen, remove
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import NullPool
 
 from couchers.config import config
 from couchers.crypto import random_hex
@@ -33,9 +34,9 @@ from pb import (
 @pytest.fixture
 def db():
     """
-    Create a temporary SQLite-backed database in memory, and return the Session object.
+    Connect to a running Postgres database, and return the Session object.
     """
-    engine = create_engine(config["DATABASE_CONNECTION_STRING"])
+    engine = create_engine(config["DATABASE_CONNECTION_STRING"], poolclass=NullPool)
 
     Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
