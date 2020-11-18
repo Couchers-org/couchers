@@ -1,12 +1,14 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import {
+import { service } from "../../service";
+import { SignupArguments } from "../../service/user";
+
+const {
   completeSignup,
   getCurrentUser,
   getUser,
-  passwordLogin as apiPasswordLogin,
-  SignupArguments,
-  tokenLogin as apiTokenLogin,
-} from "../../service/user";
+  passwordLogin: apiPasswordLogin,
+  tokenLogin: apiTokenLogin,
+} = service.user;
 
 export const passwordLogin = createAsyncThunk(
   "auth/passwordLogin",

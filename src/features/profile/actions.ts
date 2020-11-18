@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { ProfileFormData } from "./index";
-import { getUser, updateProfile } from "../../service/user";
+import { service } from "../../service";
 import { User } from "../../pb/api_pb";
 import { RootState } from "../../reducers";
 
@@ -15,7 +15,7 @@ export const updateUserProfile = createAsyncThunk<
     throw Error("User is not connected.");
   }
 
-  await updateProfile(userData);
+  await service.user.updateProfile(userData);
 
-  return getUser(username);
+  return service.user.getUser(username);
 });

@@ -9,7 +9,7 @@ import TextField from "../../../components/TextField";
 import { LoginRes } from "../../../pb/auth_pb";
 import { useAppDispatch, useTypedSelector } from "../../../store";
 import { authError, clearError } from "../authSlice";
-import { checkUsername } from "./lib";
+import { service } from "../../../service";
 
 const useStyles = makeStyles({
   signUpButton: {
@@ -40,7 +40,7 @@ export default function UsernameForm() {
     setLoading(true);
     dispatch(clearError());
     try {
-      const next = await checkUsername(data.username);
+      const next = await service.auth.checkUsername(data.username);
       switch (next) {
         case LoginRes.LoginStep.INVALID_USER:
           dispatch(authError("Couldn't find that user."));

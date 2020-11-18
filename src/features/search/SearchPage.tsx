@@ -5,7 +5,7 @@ import Alert from "../../components/Alert";
 import CircularProgress from "../../components/CircularProgress";
 import PageTitle from "../../components/PageTitle";
 import TextBody from "../../components/TextBody";
-import { search } from "../../service/search";
+import { service } from "../../service";
 import { User } from "../../pb/api_pb";
 import { SearchQuery } from "./constants";
 import SearchResult from "./SearchResult";
@@ -21,7 +21,7 @@ export default function SearchPage() {
     (async () => {
       setLoading(true);
       try {
-        setResults(await search(query));
+        setResults(await service.search.search(query));
       } catch (e) {
         setError(e.message);
       }

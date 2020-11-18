@@ -6,7 +6,7 @@ import TextField from "../../../components/TextField";
 import { SignupRes } from "../../../pb/auth_pb";
 import { useAppDispatch } from "../../../store";
 import { authError, clearError } from "../authSlice";
-import { createEmailSignup } from "./lib";
+import { service } from "../../../service";
 
 export default function EmailForm() {
   const dispatch = useAppDispatch();
@@ -22,7 +22,7 @@ export default function EmailForm() {
     setLoading(true);
     dispatch(clearError());
     try {
-      const next = await createEmailSignup(email);
+      const next = await service.auth.createEmailSignup(email);
       switch (next) {
         case SignupRes.SignupStep.EMAIL_EXISTS:
           dispatch(authError("That email is already in use."));
