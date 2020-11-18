@@ -12,10 +12,12 @@ variables:
   BACKEND_IMAGE: $CI_REGISTRY_IMAGE/backend:latest
   MEDIA_IMAGE: $CI_REGISTRY_IMAGE/media:latest
   FRONTEND_IMAGE: $CI_REGISTRY_IMAGE/frontend:latest
+  VUE_IMAGE: $CI_REGISTRY_IMAGE/vue:latest
   PROXY_TAG: $CI_REGISTRY_IMAGE/proxy:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   BACKEND_TAG: $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   MEDIA_TAG: $CI_REGISTRY_IMAGE/media:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   FRONTEND_TAG: $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+  VUE_TAG: $CI_REGISTRY_IMAGE/vue:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
 
 default:
   image: docker
@@ -94,6 +96,20 @@ build:frontend:
       changes:
       - app/pb/*
       - app/frontend/*
+
+build:vue:
+  stage: build
+  script:
+    - docker build -t $VUE_TAG app/vue/
+    - docker push $VUE_TAG
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+      - app/*
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
+      changes:
+      - app/pb/*
+      - app/vue/*
 
 test:backend:
   stage: test
@@ -182,6 +198,17 @@ release:frontend:
     - docker pull $FRONTEND_TAG
     - docker tag $FRONTEND_TAG $FRONTEND_IMAGE
     - docker push $FRONTEND_IMAGE
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+      - app/*
+
+release:vue:
+  stage: release
+  script:
+    - docker pull $VUE_TAG
+    - docker tag $VUE_TAG $VUE_IMAGE
+    - docker push $VUE_IMAGE
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
