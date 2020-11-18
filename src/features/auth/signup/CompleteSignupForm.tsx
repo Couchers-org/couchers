@@ -12,7 +12,7 @@ import { HostingStatus } from "../../../pb/api_pb";
 import { useAppDispatch, useTypedSelector } from "../../../store";
 import { signup } from "../authActions";
 import { authError } from "../authSlice";
-import { getSignupEmail, validateUsername } from "./lib";
+import { service } from "../../../service";
 import {
   nameValidationPattern,
   usernameValidationPattern,
@@ -56,7 +56,7 @@ export default function CompleteSignup() {
       if (urlToken) {
         setLoading(true);
         try {
-          setValue("email", await getSignupEmail(urlToken), {
+          setValue("email", await service.auth.getSignupEmail(urlToken), {
             shouldDirty: true,
           });
         } catch (err) {
@@ -114,7 +114,7 @@ export default function CompleteSignup() {
                   "Username can only have lowercase letters, numbers or _, starting with a letter.",
               },
               validate: async (username) => {
-                const valid = await validateUsername(username);
+                const valid = await service.auth.validateUsername(username);
                 return valid || "This username is taken.";
               },
             })}

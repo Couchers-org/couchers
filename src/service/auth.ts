@@ -1,9 +1,17 @@
-import client from "../../api";
+import client from "./api";
 import {
+  LoginReq,
   SignupReq,
   SignupTokenInfoReq,
   UsernameValidReq,
-} from "../../../pb/auth_pb";
+} from "../pb/auth_pb";
+
+export const checkUsername = async (username: string) => {
+  const req = new LoginReq();
+  req.setUser(username);
+  const res = await client.auth.login(req);
+  return res.getNextStep();
+};
 
 export const createEmailSignup = async (email: string) => {
   const req = new SignupReq();
