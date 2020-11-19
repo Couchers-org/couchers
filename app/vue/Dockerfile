@@ -9,4 +9,6 @@ RUN yarn
 ARG version
 ENV VUE_APP_VERSION=$version
 
-CMD yarn build
+RUN yarn build
+
+CMD yarn serve
