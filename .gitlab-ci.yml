@@ -2,6 +2,7 @@ stages:
   - protos
   - build
   - test
+  - preview
   - release
 
 variables:
@@ -13,6 +14,7 @@ variables:
   MEDIA_RELEASE_TAG: $CI_REGISTRY_IMAGE/media:latest
   FRONTEND_RELEASE_TAG: $CI_REGISTRY_IMAGE/frontend:latest
   VUE_RELEASE_TAG: $CI_REGISTRY_IMAGE/vue:latest
+  SLUG: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   PROXY_TAG: $CI_REGISTRY_IMAGE/proxy:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   BACKEND_TAG: $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   MEDIA_TAG: $CI_REGISTRY_IMAGE/media:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
@@ -91,7 +93,7 @@ build:frontend:
     - docker build -t $FRONTEND_TAG app/frontend/
     - docker push $FRONTEND_TAG
     # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
-    - mkdir -p artifacts/frontend && docker cp $(docker create $FRONTEND_TAG):/app/build artifacts/frontend
+    - mkdir -p artifacts && docker cp $(docker create $FRONTEND_TAG):/app/build artifacts/frontend
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
@@ -110,7 +112,7 @@ build:vue:
     - docker build -t $VUE_TAG app/vue/
     - docker push $VUE_TAG
     # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
-    - mkdir -p artifacts/vue && docker cp $(docker create $VUE_TAG):/app/dist artifacts/vue
+    - mkdir -p artifacts && docker cp $(docker create $VUE_TAG):/app/dist artifacts/vue
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
@@ -170,6 +172,41 @@ test:media:
       changes:
       - app/pb/**/*
       - app/media/**/*
+
+
+preview:frontend:
+  stage: preview
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - aws s3 cp artifacts/frontend s3://$AWS_PREVIEW_BUCKET/frontend/$SLUG/
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+      - app/**/*
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
+      changes:
+      - app/pb/**/*
+      - app/frontend/**/*
+
+preview:vue:
+  stage: preview
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - aws s3 cp artifacts/vue s3://$AWS_PREVIEW_BUCKET/vue/$SLUG/
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+      - app/**/*
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
+      changes:
+      - app/pb/**/*
+      - app/vue/**/*
 
 
 release:proxy:
