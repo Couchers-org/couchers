@@ -1,6 +1,6 @@
-import * as auth from "./auth";
-import * as search from "./search";
-import * as user from "./user";
+import auth from "./auth";
+import search from "./search";
+import user from "./user";
 
 export const service = {
   search,
@@ -8,12 +8,17 @@ export const service = {
   auth,
 };
 
-export function mockService(record: Record<string, any> = service) {
-  for (const name in record) {
-    if (typeof record[name] === "function") {
-      record[name] = jest.fn();
-    } else {
-      mockService(record[name]);
+export type ServiceMap = Record<string, (...args: any[]) => Promise<any>>;
+
+export function mockService(serviceMaps: Record<string, ServiceMap> = service) {
+  for (const name in serviceMaps) {
+    for (const serviceName in serviceMaps[name]) {
+      serviceMaps[name][serviceName] = () => {
+        console.warn(
+          `Service method '${name}.${serviceName}' is called. You should probably mock it.`
+        );
+        return Promise.resolve();
+      };
     }
   }
 }

@@ -5,7 +5,10 @@ import { ConversationsPromiseClient } from "../pb/conversations_grpc_web_pb";
 import { RequestsPromiseClient } from "../pb/requests_grpc_web_pb";
 import { SSOPromiseClient } from "../pb/sso_grpc_web_pb";
 
-import { store } from "../store";
+let getToken = () => "";
+export function setGetToken(newGetToken: () => string) {
+  getToken = newGetToken;
+}
 
 const URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -14,8 +17,7 @@ class AuthInterceptor {
     const authorizationHeader = request.getMetadata().authorization;
 
     if (!authorizationHeader) {
-      const { authToken } = store.getState().auth;
-      request.getMetadata().authorization = `Bearer ${authToken}`;
+      request.getMetadata().authorization = `Bearer ${getToken()}`;
     }
     return invoker(request);
   }
