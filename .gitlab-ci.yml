@@ -181,7 +181,7 @@ preview:frontend:
     # no docker login
     default: false
   script:
-    - aws s3 cp artifacts/frontend s3://$AWS_PREVIEW_BUCKET/frontend/$SLUG/
+    - aws s3 cp artifacts/frontend s3://$AWS_PREVIEW_BUCKET/frontend/$SLUG/ --recursive
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
@@ -198,7 +198,7 @@ preview:vue:
     # no docker login
     default: false
   script:
-    - aws s3 cp artifacts/vue s3://$AWS_PREVIEW_BUCKET/vue/$SLUG/
+    - aws s3 cp artifacts/vue s3://$AWS_PREVIEW_BUCKET/vue/$SLUG/ --recursive
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
