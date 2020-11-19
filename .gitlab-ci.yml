@@ -12,10 +12,12 @@ variables:
   BACKEND_IMAGE: $CI_REGISTRY_IMAGE/backend:latest
   MEDIA_IMAGE: $CI_REGISTRY_IMAGE/media:latest
   FRONTEND_IMAGE: $CI_REGISTRY_IMAGE/frontend:latest
+  VUE_IMAGE: $CI_REGISTRY_IMAGE/vue:latest
   PROXY_TAG: $CI_REGISTRY_IMAGE/proxy:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   BACKEND_TAG: $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   MEDIA_TAG: $CI_REGISTRY_IMAGE/media:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   FRONTEND_TAG: $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+  VUE_TAG: $CI_REGISTRY_IMAGE/vue:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
 
 default:
   image: docker
@@ -23,6 +25,7 @@ default:
     - docker:19.03.12-dind
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+
 
 protos:
   stage: protos
@@ -34,10 +37,11 @@ protos:
     - cd app && ./generate_protos.sh
   rules:
     - changes:
-      - app/
+      - app/**/*
   artifacts:
     paths:
       - app/
+
 
 build:proxy:
   stage: build
@@ -45,13 +49,13 @@ build:proxy:
     - docker build -t $PROXY_TAG app/proxy/
     - docker push $PROXY_TAG
   rules:
-    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
-      - app/
-    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
+      - app/**/*
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
-      - app/pb/
-      - app/proxy/
+      - app/pb/**/*
+      - app/proxy/**/*
 
 build:backend:
   stage: build
@@ -59,13 +63,13 @@ build:backend:
     - docker build -t $BACKEND_TAG app/backend/
     - docker push $BACKEND_TAG
   rules:
-    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
-      - app/
-    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
+      - app/**/*
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
-      - app/pb/
-      - app/backend/
+      - app/pb/**/*
+      - app/backend/**/*
 
 build:media:
   stage: build
@@ -73,13 +77,13 @@ build:media:
     - docker build -t $MEDIA_TAG app/media/
     - docker push $MEDIA_TAG
   rules:
-    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
-      - app/
-    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
+      - app/**/*
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
-      - app/pb/
-      - app/media/
+      - app/pb/**/*
+      - app/media/**/*
 
 build:frontend:
   stage: build
@@ -87,13 +91,28 @@ build:frontend:
     - docker build -t $FRONTEND_TAG app/frontend/
     - docker push $FRONTEND_TAG
   rules:
-    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
-      - app/
-    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
+      - app/**/*
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
-      - app/pb/
-      - app/frontend/
+      - app/pb/**/*
+      - app/frontend/**/*
+
+build:vue:
+  stage: build
+  script:
+    - docker build -t $VUE_TAG app/vue/
+    - docker push $VUE_TAG
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+      - app/**/*
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
+      changes:
+      - app/pb/**/*
+      - app/vue/**/*
+
 
 test:backend:
   stage: test
@@ -112,14 +131,13 @@ test:backend:
     paths:
       - /app/test-results/
   rules:
-    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
-      - app/
-    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
+      - app/**/*
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
-      - app/pb/
-      - app/media/
-
+      - app/pb/**/*
+      - app/media/**/*
 
 test:media:
   stage: test
@@ -135,13 +153,14 @@ test:media:
     paths:
       - /app/test-results
   rules:
-    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
-      - app/
-    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
+      - app/**/*
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
-      - app/pb/
-      - app/media/
+      - app/pb/**/*
+      - app/media/**/*
+
 
 release:proxy:
   stage: release
@@ -150,9 +169,9 @@ release:proxy:
     - docker tag $PROXY_TAG $PROXY_IMAGE
     - docker push $PROXY_IMAGE
   rules:
-    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
-      - app/
+      - app/**/*
 
 release:backend:
   stage: release
@@ -161,9 +180,9 @@ release:backend:
     - docker tag $BACKEND_TAG $BACKEND_IMAGE
     - docker push $BACKEND_IMAGE
   rules:
-    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
-      - app/
+      - app/**/*
 
 release:media:
   stage: release
@@ -172,9 +191,9 @@ release:media:
     - docker tag $MEDIA_TAG $MEDIA_IMAGE
     - docker push $MEDIA_IMAGE
   rules:
-    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
-      - app/
+      - app/**/*
 
 release:frontend:
   stage: release
@@ -183,6 +202,17 @@ release:frontend:
     - docker tag $FRONTEND_TAG $FRONTEND_IMAGE
     - docker push $FRONTEND_IMAGE
   rules:
-    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
-      - app/
+      - app/**/*
+
+release:vue:
+  stage: release
+  script:
+    - docker pull $VUE_TAG
+    - docker tag $VUE_TAG $VUE_IMAGE
+    - docker push $VUE_IMAGE
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+      - app/**/*

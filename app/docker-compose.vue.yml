@@ -64,27 +64,27 @@ services:
       - backend
     links:
       - backend
-  frontend:
-    build: frontend
-    volumes:
-      - "./frontend:/app"
-    command: sh -c "yarn && yarn start"
-    restart: on-failure
-    ports:
-      - 3000:3000
-    depends_on:
-      - backend
-    links:
-      - backend
-#  vue:
-#    build: vue
+#  frontend:
+#    build: frontend
 #    volumes:
-#      - "./vue:/app"
-#    command: sh -c "yarn && yarn dev"
+#      - "./frontend:/app"
+#    command: sh -c "yarn && yarn start"
 #    restart: on-failure
 #    ports:
-#      - 8080:8080
+#      - 3000:3000
 #    depends_on:
 #      - backend
 #    links:
 #      - backend
+  vue:
+    build: vue
+    volumes:
+      - "./vue:/app"
+    command: sh -c "yarn && yarn dev"
+    restart: on-failure
+    ports:
+      - 8080:8080
+    depends_on:
+      - backend
+    links:
+      - backend
