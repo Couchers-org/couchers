@@ -6,14 +6,16 @@ export const service = {
   search,
   user,
   auth,
-};
+} as const;
 
 export type ServiceMap = Record<string, (...args: any[]) => Promise<any>>;
 
-export function mockService(serviceMaps: Record<string, ServiceMap> = service) {
-  for (const name in serviceMaps) {
-    for (const serviceName in serviceMaps[name]) {
-      serviceMaps[name][serviceName] = () => {
+export function mockService() {
+  let name: keyof typeof service;
+  for (name in service) {
+    const serviceMap = service[name];
+    for (const serviceName in serviceMap) {
+      serviceMap[serviceName] = () => {
         console.warn(
           `Service method '${name}.${serviceName}' is called. You should probably mock it.`
         );
