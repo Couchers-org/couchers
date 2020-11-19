@@ -110,7 +110,7 @@ build:vue:
     - docker build -t $VUE_TAG app/vue/
     - docker push $VUE_TAG
     # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
-    - mkdir -p artifacts/vue && docker cp $(docker create $FRONTEND_TAG):/app/dist artifacts/vue
+    - mkdir -p artifacts/vue && docker cp $(docker create $VUE_TAG):/app/dist artifacts/vue
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
