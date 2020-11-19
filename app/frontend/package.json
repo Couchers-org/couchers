@@ -26,7 +26,8 @@
     "format": "prettier --write src/",
     "test-travis": "NODE_ENV=test && react-scripts test --coverage --watchAll=false",
     "storybook": "start-storybook -p 6006 -s public --no-dll",
-    "build-storybook": "build-storybook -s public --no-dll"
+    "build-storybook": "build-storybook -s public --no-dll",
+    "jest": "jest"
   },
   "eslintConfig": {
     "extends": [
@@ -82,15 +83,18 @@
     "react-test-renderer": "^16.13.1"
   },
   "jest": {
-    "collectCoverageFrom": [
-      "src/**/*.{ts,tsx}",
-      "!**/node_modules/**",
-      "!src/pb/*"
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "transform": {
+      "node_modules/variables/.+\\.(j|t)sx?$": "ts-jest"
+    },
+    "transformIgnorePatterns": [
+      "node_modules/(?!variables/.*)"
     ]
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint-staged && jest"
     }
   },
   "lint-staged": {
