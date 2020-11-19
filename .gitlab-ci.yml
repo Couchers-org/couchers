@@ -37,7 +37,7 @@ protos:
     - cd app && ./generate_protos.sh
   rules:
     - changes:
-      - app/*
+      - app/**/*
   artifacts:
     paths:
       - app/
@@ -51,11 +51,11 @@ build:proxy:
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
-      - app/*
+      - app/**/*
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
-      - app/pb/*
-      - app/proxy/*
+      - app/pb/**/*
+      - app/proxy/**/*
 
 build:backend:
   stage: build
@@ -65,11 +65,11 @@ build:backend:
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
-      - app/*
+      - app/**/*
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
-      - app/pb/*
-      - app/backend/*
+      - app/pb/**/*
+      - app/backend/**/*
 
 build:media:
   stage: build
@@ -79,11 +79,11 @@ build:media:
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
-      - app/*
+      - app/**/*
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
-      - app/pb/*
-      - app/media/*
+      - app/pb/**/*
+      - app/media/**/*
 
 build:frontend:
   stage: build
@@ -93,11 +93,11 @@ build:frontend:
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
-      - app/*
+      - app/**/*
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
-      - app/pb/*
-      - app/frontend/*
+      - app/pb/**/*
+      - app/frontend/**/*
 
 build:vue:
   stage: build
@@ -107,11 +107,11 @@ build:vue:
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
-      - app/*
+      - app/**/*
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
-      - app/pb/*
-      - app/vue/*
+      - app/pb/**/*
+      - app/vue/**/*
 
 
 test:backend:
@@ -133,11 +133,11 @@ test:backend:
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
-      - app/*
+      - app/**/*
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
-      - app/pb/*
-      - app/media/*
+      - app/pb/**/*
+      - app/media/**/*
 
 test:media:
   stage: test
@@ -155,11 +155,11 @@ test:media:
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
-      - app/*
+      - app/**/*
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
-      - app/pb/*
-      - app/media/*
+      - app/pb/**/*
+      - app/media/**/*
 
 
 release:proxy:
@@ -171,7 +171,7 @@ release:proxy:
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
-      - app/*
+      - app/**/*
 
 release:backend:
   stage: release
@@ -182,7 +182,7 @@ release:backend:
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
-      - app/*
+      - app/**/*
 
 release:media:
   stage: release
@@ -193,7 +193,7 @@ release:media:
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
-      - app/*
+      - app/**/*
 
 release:frontend:
   stage: release
@@ -204,7 +204,7 @@ release:frontend:
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
-      - app/*
+      - app/**/*
 
 release:vue:
   stage: release
@@ -215,4 +215,4 @@ release:vue:
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
-      - app/*
+      - app/**/*
