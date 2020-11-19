@@ -1,8 +1,8 @@
 stages:
   - protos
   - build
-  - release
   - test
+  - release
 
 variables:
   GIT_DEPTH: 1
