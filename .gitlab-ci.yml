@@ -138,8 +138,8 @@ test:backend:
   script:
     - cd /app && pytest src --junitxml=test-results/junit.xml
   artifacts:
-    paths:
-      - /app/test-results/
+    reports:
+      junit: /app/test-results/junit.xml
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
@@ -160,8 +160,8 @@ test:media:
   script:
     - cd /app && pytest src --junitxml=test-results/junit.xml
   artifacts:
-    paths:
-      - /app/test-results
+    reports:
+      junit: /app/test-results/junit.xml
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
