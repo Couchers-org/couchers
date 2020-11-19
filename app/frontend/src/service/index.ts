@@ -15,7 +15,7 @@ export function mockService() {
   for (name in service) {
     const serviceMap = service[name];
     for (const serviceName in serviceMap) {
-      serviceMap[serviceName] = () => {
+      (serviceMap as any)[serviceName] = () => {
         console.warn(
           `Service method '${name}.${serviceName}' is called. You should probably mock it.`
         );

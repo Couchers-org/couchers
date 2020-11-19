@@ -7,7 +7,7 @@ import {
 import client from "./api";
 import { ServiceMap } from "./index";
 
-const serviceMap: ServiceMap = {
+const serviceMap = {
   checkUsername: async (username: string) => {
     const req = new LoginReq();
     req.setUser(username);

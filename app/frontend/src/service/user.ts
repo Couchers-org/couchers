@@ -34,7 +34,7 @@ export type SignupArguments = {
   hostingStatus: HostingStatus;
 };
 
-const serviceMap: ServiceMap = {
+const serviceMap = {
   /**
    * Login user using password and returns session token
    *

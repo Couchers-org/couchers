@@ -2,7 +2,7 @@ import { SearchReq, User } from "../pb/api_pb";
 import client from "./api";
 import { ServiceMap } from "./index";
 
-const serviceMap: ServiceMap = {
+const serviceMap = {
   /**
    * Perform a search and return a list of users.
    *
