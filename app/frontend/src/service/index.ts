@@ -1,24 +1,9 @@
-import auth from "./auth";
-import search from "./search";
-import user from "./user";
+import * as auth from "./auth";
+import * as search from "./search";
+import * as user from "./user";
 
 export const service = {
   search,
   user,
   auth,
 } as const;
-
-export function mockService() {
-  let name: keyof typeof service;
-  for (name in service) {
-    const serviceMap = service[name];
-    for (const serviceName in serviceMap) {
-      (serviceMap as any)[serviceName] = () => {
-        console.warn(
-          `Service method '${name}.${serviceName}' is called. You should probably mock it.`
-        );
-        return Promise.resolve();
-      };
-    }
-  }
-}
