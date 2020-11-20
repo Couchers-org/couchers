@@ -63,12 +63,12 @@ services:
       - envoy_nginx
 networks:
   postgres_backend:
-    drive: bridge
+    driver: bridge
   backend_media:
-    drive: bridge
+    driver: bridge
   backend_envoy:
-    drive: bridge
+    driver: bridge
   media_nginx:
-    drive: bridge
+    driver: bridge
   envoy_nginx:
-    drive: bridge
+    driver: bridge
