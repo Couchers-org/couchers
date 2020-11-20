@@ -184,6 +184,7 @@ preview:frontend:
     default: false
   script:
     - aws s3 cp artifacts/frontend s3://$AWS_PREVIEW_BUCKET/frontend/$SLUG/ --recursive
+    - echo "Done, preview available at https://$SLUG--frontend.preview.coucher.org/"
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
@@ -201,6 +202,7 @@ preview:vue:
     default: false
   script:
     - aws s3 cp artifacts/vue s3://$AWS_PREVIEW_BUCKET/vue/$SLUG/ --recursive
+    - echo "Done, preview available at https://$SLUG--vue.preview.coucher.org/"
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
