@@ -1,0 +1,35 @@
+server {
+    # we want to be able to preview frontend PRs, etc, so they're being uploaded to e.g.
+    # https://couchers-dev-assets.s3.amazonaws.com/frontend/ci-test-results-90b9e9ee/index.html
+    # the problem is that this tries to load js from /js/..., which gets screwed up being in a subfolder
+    # so we proxy them through nginx that directs e.g.
+    # https://ci-test-results-90b9e9ee--frontend.preview.coucher.org/static/js/main.dfb1f1d2.chunk.js
+    # to 
+    # https://couchers-dev-assets.s3.amazonaws.com/frontend/ci-test-results-90b9e9ee/static/js/main.dfb1f1d2.chunk.js
+
+    listen 443 ssl;
+
+    # matches sub1--sub2.preview.coucher.org, e.g.
+    # ci-test-results-90b9e9ee--frontend.preview.coucher.org
+    # so $sub1=ci-test-results-90b9e9ee, $sub2=frontend
+    server_name ~^(?<sub1>.+)--(?<sub2>.+)\.preview\.coucher\.org$;
+
+    access_log /var/log/nginx/preview.coucher.org.access.log;
+    error_log /var/log/nginx/preview.coucher.org.error.log;
+
+    ssl_certificate /certs/live/preview.coucher.org/fullchain.pem;
+    ssl_certificate_key /certs/live/preview.coucher.org/privkey.pem;
+
+    location / {
+        # we want to do some logic based on upstream errors
+        proxy_intercept_errors on;
+        # if we get a 403 Forbidden (what S3 sends for not found), get instead the index page
+        error_page 403 = @index;
+        error_page 404 = @index;
+        proxy_pass https://couchers-dev-assets.s3.amazonaws.com/$sub2/$sub1$uri;
+    }
+
+    location @index {
+        proxy_pass https://couchers-dev-assets.s3.amazonaws.com/$sub2/$sub1/index.html;
+    }
+}
