@@ -9,5 +9,11 @@ set -e
 # - AWS_SECRET_ACCESS_KEY
 source ../backup.prod.env
 
+docker_image=${DOCKER_IMAGE:-"postgis/postgis:13-3.0"}
+
 # --net=host is required so we can hit localhost from inside the container
-docker run --net=host postgis/postgis:13-3.0 pg_dump $DATABASE_CONNECTION_STRING | aws s3 cp - s3://$AWS_BACKUP_BUCKET_NAME/dump-$(date +%s).sql
+# really not sure what's wrong with getting env vars the normal way
+docker run --net=host $docker_image pg_dump $DATABASE_CONNECTION_STRING \
+  | AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+    aws s3 cp - s3://$AWS_BACKUP_BUCKET_NAME/dump-$(date +%s).sql \
+  && echo "Done."
