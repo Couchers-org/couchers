@@ -1,13 +1,13 @@
 server {
     listen 443 http2 ssl default_server;
 
-    server_name api-test.coucher.org;
+    server_name api.couchers.org;
 
     access_log /var/log/nginx/api.couchers.org.access.log;
     error_log /var/log/nginx/api.couchers.org.error.log;
 
-    ssl_certificate /certs/live/api-test.coucher.org/fullchain.pem;
-    ssl_certificate_key /certs/live/api-test.coucher.org/privkey.pem;
+    ssl_certificate /certs/live/api.couchers.org/fullchain.pem;
+    ssl_certificate_key /certs/live/api.couchers.org/privkey.pem;
 
     location /org.couchers. {
         proxy_http_version 1.1;
