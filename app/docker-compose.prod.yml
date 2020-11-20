@@ -29,7 +29,7 @@ services:
     restart: on-failure
     env_file: media.prod.env
     volumes:
-      - "./data/media/uploads:/uploads"
+      - "./data/media/uploads/:/uploads/"
     expose:
       - 5000
     depends_on:
