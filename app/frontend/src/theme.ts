@@ -23,6 +23,12 @@ const themeOptions: ThemeOptions = {
       fontSize: "28px",
       marginTop: "8px",
     },
+    h4: {
+      fontSize: "24px",
+    },
+  },
+  shape: {
+    borderRadius: 16,
   },
   props: {
     MuiButtonBase: {

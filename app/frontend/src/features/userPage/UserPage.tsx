@@ -1,11 +1,16 @@
-import { Typography } from "@material-ui/core";
+import { Grid } from "@material-ui/core";
 import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Alert from "../../components/Alert";
 import CircularProgress from "../../components/CircularProgress";
-import TextBody from "../../components/TextBody";
 import { useAppDispatch, useTypedSelector } from "../../store";
 import { fetchUsers, getUserByUsernameSelector } from "../userCache";
+import UserAbout from "./UserAbout";
+import UserGuestbook from "./UserGuestbook";
+import UserHeader from "./UserHeader";
+import UserPlace from "./UserPlace";
+import UserSection from "./UserSection";
+import UserSummary from "./UserSummary";
 
 export default function UserPage() {
   const dispatch = useAppDispatch();
@@ -15,7 +20,7 @@ export default function UserPage() {
 
   const { username } = useParams<{ username: string }>();
   useEffect(() => {
-    dispatch(fetchUsers({ usernames: [username] }));
+    dispatch(fetchUsers({ forceInvalidate: true, usernames: [username] }));
   }, [dispatch, username]);
 
   const getUserByUsername = useTypedSelector((state) =>
@@ -25,15 +30,25 @@ export default function UserPage() {
 
   return (
     <>
-      <Typography variant="h2">User</Typography>
       {usersError && <Alert severity="error">{usersError}</Alert>}
 
       {usersLoading && <CircularProgress />}
 
       {user && !usersLoading ? (
-        <TextBody>
-          {user.name} is {user.age} in {user.city}.
-        </TextBody>
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={6} md={4}>
+            <UserHeader user={user} />
+            <UserSummary user={user} />
+          </Grid>
+          <Grid item xs={12} sm={6} md={8}>
+            <UserSection title="About" content={<UserAbout user={user} />} />
+            <UserSection title="My Place" content={<UserPlace user={user} />} />
+            <UserSection
+              title="Guestbook"
+              content={<UserGuestbook user={user} />}
+            />
+          </Grid>
+        </Grid>
       ) : null}
     </>
   );

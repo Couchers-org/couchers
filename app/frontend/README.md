@@ -13,7 +13,7 @@ Communication with the backend is via [protobuf messages](https://github.com/pro
 
 2. Make sure you have the development environment going (see below).
 
-3. Create a new branch for your issue eg. `feature/global-search`, `bug/no-duplicate-users` or `refactor/fix-host-requests`
+3. Create a new branch for your issue under 'frontend/issue-type/branch-name' eg. `frontend/feature/global-search`, `frontend/bug/no-duplicate-users` or `frontend/refactor/fix-host-requests`
 
 4. Do some code! It is good to commit regularly, but if possible your code should successfully compile with each commit.
 
