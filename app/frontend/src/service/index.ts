@@ -8,8 +8,6 @@ export const service = {
   auth,
 } as const;
 
-export type ServiceMap = Record<string, (...args: any[]) => Promise<any>>;
-
 export function mockService() {
   let name: keyof typeof service;
   for (name in service) {
