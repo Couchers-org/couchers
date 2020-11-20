@@ -1,0 +1,25 @@
+server {
+    listen 443 http2 ssl;
+
+    server_name user-media.coucher.org;
+
+    access_log /var/log/nginx/user-media.coucher.org.access.log;
+    error_log /var/log/nginx/user-media.coucher.org.error.log;
+
+    ssl_certificate /certs/live/user-media.coucher.org/fullchain.pem;
+    ssl_certificate_key /certs/live/user-media.coucher.org/privkey.pem;
+
+    location /media/ {
+        proxy_http_version 1.1;
+        proxy_pass http://media:5000/;
+    }
+
+    location = / {
+        add_header Content-Type text/plain;
+        return 200 "This is the media server for the Couchers.org app. If you're interested in helping out in building the next-generation couch-surfing platform with us, please email us.";
+    }
+
+    location / {
+        return 404;
+    }
+}
