@@ -19,8 +19,7 @@ for domain in $(cat /scripts/domains); do
 
     mkdir -p /certs/live/$folder
 
-    # having acme.sh in a `vendor` dir stops github from picking it up in the language analyzer :P
-    /scripts/vendor/acme.sh/acme.sh --home /certs --issue --dns dns_aws $flags --keylength ec-256 \
+    /scripts/acme.sh/acme.sh --home /certs --issue --dns dns_aws $flags --keylength ec-256 \
         --fullchain-file /certs/live/$folder/fullchain.pem \
         --key-file /certs/live/$folder/privkey.pem
 done
