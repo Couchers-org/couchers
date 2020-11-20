@@ -1,40 +1,74 @@
-version: "3"
+version: "3.8"
 services:
-  proxy:
-    image: 694904428454.dkr.ecr.us-east-1.amazonaws.com/couchers/proxy
-    restart: on-failure
-    ports:
-      - 8888:8888
-      - 9901:9901
   postgres:
-    image: postgres:12
+    image: postgis/postgis:13-3.0
+    restart: on-failure
     env_file: postgres.prod.env
     volumes:
-      - "./pgdata:/var/lib/postgresql/data"
-    restart: on-failure
+      - "./data/postgres/pgdata/:/var/lib/postgresql/data/"
     ports:
       - 5432:5432
+    networks:
+      - postgres_backend
   backend:
-    image: 694904428454.dkr.ecr.us-east-1.amazonaws.com/couchers/backend
-    env_file: backend.prod.env
+    image: registry.gitlab.com/couchers/couchers/backend
     restart: on-failure
-    ports:
+    env_file: backend.prod.env
+    expose:
       - 1751:1751
       - 1752:1752
       - 1753:1753
     depends_on:
       - postgres
-    links:
-      - postgres
+    networks:
+      - postgres_backend
+      - backend_media
+      - backend_envoy
   media:
-    image: 694904428454.dkr.ecr.us-east-1.amazonaws.com/couchers/media
+    image: registry.gitlab.com/couchers/couchers/media
+    restart: on-failure
     env_file: media.prod.env
     volumes:
-      - "./uploads:/uploads"
-    restart: on-failure
-    ports:
+      - "./data/media/uploads:/uploads"
+    expose:
       - 5000:5000
     depends_on:
       - backend
-    links:
-      - backend
+    networks:
+      - backend_media
+      - media_nginx
+  envoy:
+    image: registry.gitlab.com/couchers/couchers/proxy
+    restart: on-failure
+    expose:
+      - 8888:8888
+      - 9901:9901
+    networks:
+      - backend_envoy
+      - envoy_nginx
+  nginx:
+    build: nginx
+    #image: registry.gitlab.com/couchers/couchers/nginx
+    restart: on-failure
+    build: nginx
+    env_file: nginx.prod.env
+    volumes:
+      - "./data/certs/:/certs/"
+      - "./data/nginx/logs/:/var/log/nginx/"
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - media_nginx
+      - envoy_nginx
+networks:
+  postgres_backend:
+    drive: bridge
+  backend_media:
+    drive: bridge
+  backend_envoy:
+    drive: bridge
+  media_nginx:
+    drive: bridge
+  envoy_nginx:
+    drive: bridge
