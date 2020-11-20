@@ -47,8 +47,7 @@ services:
       - backend_envoy
       - envoy_nginx
   nginx:
-    build: nginx
-    #image: registry.gitlab.com/couchers/couchers/nginx
+    image: registry.gitlab.com/couchers/couchers/nginx
     restart: on-failure
     build: nginx
     env_file: nginx.prod.env
@@ -56,7 +55,7 @@ services:
       - "./data/certs/:/certs/"
       - "./data/nginx/logs/:/var/log/nginx/"
     ports:
-      # we don't support HTTP on the APIs, etc, users shouldn't be accessing these URLs directly anyway
+      # we don't support HTTP on the APIs, etc, users don't access these URLs directly anyway, so no redicrect is OK
       #- 80:80
       - 443:443
     networks:
