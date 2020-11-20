@@ -56,7 +56,8 @@ services:
       - "./data/certs/:/certs/"
       - "./data/nginx/logs/:/var/log/nginx/"
     ports:
-      #- 80:80 # we don't support HTTP on the APIs, etc
+      # we don't support HTTP on the APIs, etc, users shouldn't be accessing these URLs directly anyway
+      #- 80:80
       - 443:443
     networks:
       - media_nginx
