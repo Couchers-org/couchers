@@ -15,9 +15,9 @@ services:
     restart: on-failure
     env_file: backend.prod.env
     expose:
-      - 1751:1751
-      - 1752:1752
-      - 1753:1753
+      - 1751
+      - 1752
+      - 1753
     depends_on:
       - postgres
     networks:
@@ -31,7 +31,7 @@ services:
     volumes:
       - "./data/media/uploads:/uploads"
     expose:
-      - 5000:5000
+      - 5000
     depends_on:
       - backend
     networks:
@@ -41,8 +41,8 @@ services:
     image: registry.gitlab.com/couchers/couchers/proxy
     restart: on-failure
     expose:
-      - 8888:8888
-      - 9901:9901
+      - 8888
+      - 9901
     networks:
       - backend_envoy
       - envoy_nginx
