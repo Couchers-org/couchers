@@ -6,8 +6,9 @@ import { Controller, useForm } from "react-hook-form";
 import Alert from "../../components/Alert";
 import Button from "../../components/Button";
 import TextField from "../../components/TextField";
+import { ProfileFormData } from "../../service/user";
 import ProfileTextInput from "./ProfileTextInput";
-import { ProfileFormData, updateUserProfile } from "./index";
+import { updateUserProfile } from "./index";
 import { useAppDispatch, useTypedSelector } from "../../store";
 
 const useStyles = makeStyles({
