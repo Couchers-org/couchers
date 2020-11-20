@@ -1,6 +1,5 @@
 import { SearchReq, User } from "../pb/api_pb";
 import client from "./api";
-import { ServiceMap } from "./index";
 
 const serviceMap = {
   /**

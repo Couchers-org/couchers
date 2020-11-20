@@ -1,14 +1,10 @@
-import { AuthPromiseClient } from "../pb/auth_grpc_web_pb";
 import { APIPromiseClient } from "../pb/api_grpc_web_pb";
+import { AuthPromiseClient } from "../pb/auth_grpc_web_pb";
 import { BugsPromiseClient } from "../pb/bugs_grpc_web_pb";
 import { ConversationsPromiseClient } from "../pb/conversations_grpc_web_pb";
 import { RequestsPromiseClient } from "../pb/requests_grpc_web_pb";
 import { SSOPromiseClient } from "../pb/sso_grpc_web_pb";
-
-let getToken = () => "";
-export function setGetToken(newGetToken: () => string) {
-  getToken = newGetToken;
-}
+import { store } from "../store";
 
 const URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -17,7 +13,8 @@ class AuthInterceptor {
     const authorizationHeader = request.getMetadata().authorization;
 
     if (!authorizationHeader) {
-      request.getMetadata().authorization = `Bearer ${getToken()}`;
+      const { authToken } = store.getState().auth;
+      request.getMetadata().authorization = `Bearer ${authToken}`;
     }
     return invoker(request);
   }

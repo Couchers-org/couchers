@@ -16,7 +16,6 @@ import {
 } from "../pb/auth_pb";
 import { ProtoToJsTypes } from "../utils/types";
 import client from "./api";
-import { ServiceMap } from "./index";
 
 type RequiredUpdateProfileReq = Required<UpdateProfileReq.AsObject>;
 export type ProfileFormData = {

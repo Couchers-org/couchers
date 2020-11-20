@@ -5,7 +5,6 @@ import {
   UsernameValidReq,
 } from "../pb/auth_pb";
 import client from "./api";
-import { ServiceMap } from "./index";
 
 const serviceMap = {
   checkUsername: async (username: string) => {
