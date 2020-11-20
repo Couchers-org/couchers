@@ -139,9 +139,10 @@ test:backend:
     DATABASE_CONNECTION_STRING: "postgresql://postgres:c765064a49d18a95@postgres/postgres"
   script:
     - cd /app && pytest src --junitxml=test-results/junit.xml
+    - cp /app/test-results/junit.xml junit.xml
   artifacts:
     reports:
-      junit: /app/test-results/junit.xml
+      junit: junit.xml
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
@@ -161,9 +162,10 @@ test:media:
     MEDIA_SERVER_FROM_ENV: 0
   script:
     - cd /app && pytest src --junitxml=test-results/junit.xml
+    - cp /app/test-results/junit.xml junit.xml
   artifacts:
     reports:
-      junit: /app/test-results/junit.xml
+      junit: junit.xml
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
