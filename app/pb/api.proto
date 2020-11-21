@@ -7,6 +7,8 @@ import "google/protobuf/wrappers.proto";
 import "google/protobuf/empty.proto";
 
 service API {
+  // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to auth.proto and jail.proto
+
   rpc Ping(PingReq) returns (PingRes) {
     // Pings the server for updates and basic user info
   }
