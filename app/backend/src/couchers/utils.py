@@ -2,6 +2,7 @@ from datetime import datetime, timedelta, timezone
 
 import pytz
 from google.protobuf.timestamp_pb2 import Timestamp
+from sqlalchemy.sql import func
 
 utc = pytz.UTC
 
@@ -41,3 +42,7 @@ def least_current_date():
     # This is not the right way to do it, timezones can change
     # at the time of writing, Baker Island observes UTC-12
     return datetime.now(timezone(timedelta(hours=-12))).strftime("%Y-%m-%d")
+
+
+def create_coordinate(lat, lng):
+    return func.ST_SetSRID(func.ST_MakePoint(lng, lat), 4326)

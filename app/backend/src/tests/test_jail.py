@@ -122,3 +122,34 @@ def test_AcceptTOS(db):
         res = jail.JailInfo(empty_pb2.Empty())
         assert not res.jailed
         assert not res.has_not_accepted_tos
+
+
+def test_SetLocation(db):
+    with session_scope(db) as session:
+        user1, token1 = generate_user_for_session(session, db, jailed=False)
+
+        # make them have not added a location
+        user1.geom = None
+        user1.geom_radius = None
+        session.commit()
+
+    with real_jail_session(db, token1) as jail:
+        res = jail.JailInfo(empty_pb2.Empty())
+        assert res.jailed
+        assert res.has_not_added_location
+
+        res = jail.SetLocation(
+            jail_pb2.SetLocationReq(
+                city="New York City",
+                lat=40.7812,
+                lng=-73.9647,
+                radius=250,
+            )
+        )
+
+        assert not res.jailed
+        assert not res.has_not_added_location
+
+        res = jail.JailInfo(empty_pb2.Empty())
+        assert not res.jailed
+        assert not res.has_not_added_location

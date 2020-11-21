@@ -6,11 +6,12 @@ from geoalchemy2.shape import to_shape
 from geoalchemy2.types import Geometry
 from sqlalchemy import Boolean, Column, Date, DateTime, Enum, Float, ForeignKey, Integer
 from sqlalchemy import LargeBinary as Binary
-from sqlalchemy import MetaData, String, UniqueConstraint, func
+from sqlalchemy import MetaData, String, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import backref, relationship
 from sqlalchemy.orm.session import Session
+from sqlalchemy.sql import func
 
 from couchers.config import config
 
@@ -130,7 +131,11 @@ class User(Base):
 
     @hybrid_property
     def is_jailed(self):
-        return (self.accepted_tos < 1 or not self.geom or not self.geom_radius)
+        return self.accepted_tos < 1 or self.is_missing_location
+
+    @property
+    def is_missing_location(self):
+        return not self.geom or not self.geom_radius
 
     @property
     def lng(self):
