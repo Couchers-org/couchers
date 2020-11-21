@@ -19,6 +19,7 @@ from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
 from couchers.servicers.bugs import Bugs
 from couchers.servicers.conversations import Conversations
+from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
 from couchers.servicers.requests import Requests
 from pb import (
@@ -27,6 +28,7 @@ from pb import (
     auth_pb2_grpc,
     bugs_pb2_grpc,
     conversations_pb2_grpc,
+    jail_pb2_grpc,
     media_pb2_grpc,
     requests_pb2_grpc,
 )
@@ -59,50 +61,79 @@ def db(request):
     return sessionmaker(bind=engine)
 
 
+def _raw_generate_user(session, username, jailed):
+    """
+    Internal user creation code
+    """
+    if not username:
+        username = "test_user_" + random_hex(16)
+
+    user = User(
+        username=username,
+        email=f"{username}@dev.couchers.org",
+        # password is just 'password'
+        # this is hardcoded because the password is slow to hash (so would slow down tests otherwise)
+        hashed_password=b"$argon2id$v=19$m=65536,t=2,p=1$4cjGg1bRaZ10k+7XbIDmFg$tZG7JaLrkfyfO7cS233ocq7P8rf3znXR7SAfUt34kJg",
+        name=username.capitalize(),
+        city="Testing city",
+        verification=0.5,
+        community_standing=0.5,
+        birthdate=date(year=2000, month=1, day=1),
+        gender="N/A",
+        languages="Testing language 1|Testing language 2",
+        occupation="Tester",
+        about_me="I test things",
+        about_place="My place has a lot of testing paraphenelia",
+        countries_visited="Testing country",
+        countries_lived="Wonderland",
+        # you need to make sure to update this logic to make sure the user is jailed/not on request
+        accepted_tos=0 if jailed else 1,
+    )
+
+    session.add(user)
+
+    # this expires the user, so now it's "dirty"
+    session.commit()
+
+    # there should also be tests to check this
+    assert user.is_jailed == jailed
+
+    return user
+
+
 def generate_user(db, username=None, jailed=False):
     """
     Create a new user, return session token
+
+    The user is detached from any session, and you can access its static attributes, but you can't modify it
+
+    Use this most of the time
     """
     auth = Auth(db)
 
     with session_scope(db) as session:
-        if not username:
-            username = "test_user_" + random_hex(16)
-
-        user = User(
-            username=username,
-            email=f"{username}@dev.couchers.org",
-            # password is just 'password'
-            # this is hardcoded because the password is slow to hash (so would slow down tests otherwise)
-            hashed_password=b"$argon2id$v=19$m=65536,t=2,p=1$4cjGg1bRaZ10k+7XbIDmFg$tZG7JaLrkfyfO7cS233ocq7P8rf3znXR7SAfUt34kJg",
-            name=username.capitalize(),
-            city="Testing city",
-            verification=0.5,
-            community_standing=0.5,
-            birthdate=date(year=2000, month=1, day=1),
-            gender="N/A",
-            languages="Testing language 1|Testing language 2",
-            occupation="Tester",
-            about_me="I test things",
-            about_place="My place has a lot of testing paraphenelia",
-            countries_visited="Testing country",
-            countries_lived="Wonderland",
-            # you need to make sure to update this logic to make sure the user is jailed/not on request
-            accepted_tos=0 if jailed else 1,
-        )
-
-        session.add(user)
-
-        # this expires the user, so now it's "dirty"
-        session.commit()
-
-        # there should also be tests to check this
-        assert user.is_jailed == jailed
+        user = _raw_generate_user(session, username=username, jailed=jailed)
 
         # refresh it, undoes the expiry
         session.refresh(user)
         # allows detaches the user from the session, allowing its use outside this session
         session.expunge(user)
+
+    with patch("couchers.servicers.auth.verify_password", lambda hashed, password: password == "password"):
+        token = auth.Authenticate(auth_pb2.AuthReq(user=username, password="password"), "Dummy context").token
+
+    return user, token
+
+
+def generate_user_for_session(db, session, username=None, jailed=False):
+    """
+    Create a new user *boudn to session*, return session token
+
+    Use this if you need to modify the user straight after creation
+    """
+    auth = Auth(db)
+
+    user = _raw_generate_user(session, username=username, jailed=jailed)
 
     with patch("couchers.servicers.auth.verify_password", lambda hashed, password: password == "password"):
         token = auth.Authenticate(auth_pb2.AuthReq(user=username, password="password"), "Dummy context").token
@@ -203,6 +234,30 @@ def real_api_session(db, token):
         try:
             with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
                 yield api_pb2_grpc.APIStub(channel)
+        finally:
+            server.stop(None).wait()
+
+
+@contextmanager
+def real_jail_session(db, token):
+    """
+    Create a Jail service for testing, using TCP sockets, uses the token for auth
+    """
+    auth_interceptor = Auth(db).get_auth_interceptor(allow_jailed=True)
+
+    with futures.ThreadPoolExecutor(1) as executor:
+        server = grpc.server(executor, interceptors=[auth_interceptor])
+        port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
+        servicer = Jail(db)
+        jail_pb2_grpc.add_JailServicer_to_server(servicer, server)
+        server.start()
+
+        call_creds = grpc.access_token_call_credentials(token)
+        comp_creds = grpc.composite_channel_credentials(grpc.local_channel_credentials(), call_creds)
+
+        try:
+            with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
+                yield jail_pb2_grpc.JailStub(channel)
         finally:
             server.stop(None).wait()
 
