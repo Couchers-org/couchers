@@ -16,7 +16,7 @@ export default {
 
 const user = {
   avatarUrl: imageFile,
-};
+} as AvatarProps["user"];
 
 const Template: Story<AvatarProps> = (args) => (
   <>
