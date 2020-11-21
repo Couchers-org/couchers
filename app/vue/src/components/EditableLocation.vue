@@ -202,6 +202,13 @@ export default Vue.extend({
   }),
 
   watch: {
+    dialog(to, from) {
+      // this is an uuugly ugly hack to get the leaflet map to re-render. it doesn't render nicely without an absolute
+      // size... or a resize event...
+      setTimeout(function () {
+        window.dispatchEvent(new Event("resize"))
+      }, 250)
+    },
     async selectedOsmResponse(to, from) {
       if (to !== undefined && to !== null) {
         const selected = this.osmResponses[to] as any
