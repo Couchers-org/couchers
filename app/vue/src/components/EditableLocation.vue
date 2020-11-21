@@ -204,7 +204,7 @@ export default Vue.extend({
   watch: {
     async selectedOsmResponse(to, from) {
       if (to !== undefined && to !== null) {
-        const selected = this.osmResponses[to]
+        const selected = this.osmResponses[to] as any
 
         this.center = latLng(selected.lat, selected.lon)
         this.searchedLocation = latLng(selected.lat, selected.lon)
