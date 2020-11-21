@@ -192,6 +192,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
             if not request.hosting_status:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.HOSTING_STATUS_REQUIRED)
 
+            if not self._username_available(username):
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.USERNAME_NOT_AVAILABLE)
+
             user = User(
                 email=signup_token.email,
                 username=username,
