@@ -28,8 +28,10 @@ def test_jail_basic(db):
         res = api.Ping(api_pb2.PingReq())
 
     with real_jail_session(db, token1) as jail:
-        res = jail.JailInfo(jail_pb2.JailInfoReq())
-        assert len(res.reasons) == 0
+        res = jail.JailInfo(empty_pb2.Empty())
+        # check every field is true
+        for field in res.DESCRIPTOR.fields:
+            assert getattr(res, field.name) == False
 
     user2, token2 = generate_user(db, jailed=True)
 
@@ -38,8 +40,15 @@ def test_jail_basic(db):
     assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
 
     with real_jail_session(db, token2) as jail:
-        res = jail.JailInfo(jail_pb2.JailInfoReq())
-        assert len(res.reasons) > 0
+        res = jail.JailInfo(empty_pb2.Empty())
+
+        reason_count = 0
+
+        # check every field is true
+        for field in res.DESCRIPTOR.fields:
+            reason_count += getattr(res, field.name) == True
+
+        assert reason_count > 0
 
 
 def test_JailInfo(db):
@@ -51,9 +60,8 @@ def test_JailInfo(db):
         session.commit()
 
     with real_jail_session(db, token1) as jail:
-        res = jail.JailInfo(jail_pb2.JailInfoReq())
-        assert len(res.reasons) == 1
-        assert res.reasons[0] == jail_pb2.JailInfoRes.JailReason.MISSING_TOS
+        res = jail.JailInfo(empty_pb2.Empty())
+        assert res.has_not_accepted_tos
 
     with real_api_session(db, token1) as api, pytest.raises(grpc.RpcError) as e:
         res = api.Ping(api_pb2.PingReq())
@@ -67,42 +75,11 @@ def test_JailInfo(db):
         session.commit()
 
     with real_jail_session(db, token2) as jail:
-        res = jail.JailInfo(jail_pb2.JailInfoReq())
-        assert len(res.reasons) == 0
+        res = jail.JailInfo(empty_pb2.Empty())
+        assert not res.has_not_accepted_tos
 
     with real_api_session(db, token2) as api:
         res = api.Ping(api_pb2.PingReq())
-
-
-def test_GetTOS(db):
-    with session_scope(db) as session:
-        user1, token1 = generate_user_for_session(session, db, jailed=False)
-
-        # make them have not accepted TOS
-        user1.accepted_tos = 0
-        session.commit()
-
-    with real_jail_session(db, token1) as jail:
-        res = jail.JailInfo(jail_pb2.JailInfoReq())
-        assert len(res.reasons) >= 1
-        assert jail_pb2.JailInfoRes.JailReason.MISSING_TOS in res.reasons
-
-        res = jail.GetTOS(empty_pb2.Empty())
-        assert not res.accepted_tos
-
-    with session_scope(db) as session:
-        user2, token2 = generate_user_for_session(session, db, jailed=False)
-
-        # make them have accepted TOS
-        user2.accepted_tos = 1
-        session.commit()
-
-    with real_jail_session(db, token2) as jail:
-        res = jail.JailInfo(jail_pb2.JailInfoReq())
-        assert jail_pb2.JailInfoRes.JailReason.MISSING_TOS not in res.reasons
-
-        res = jail.GetTOS(empty_pb2.Empty())
-        assert res.accepted_tos
 
 
 def test_AcceptTOS(db):
@@ -114,31 +91,20 @@ def test_AcceptTOS(db):
         session.commit()
 
     with real_jail_session(db, token1) as jail:
-        res = jail.JailInfo(jail_pb2.JailInfoReq())
-        assert len(res.reasons) >= 1
-        assert jail_pb2.JailInfoRes.JailReason.MISSING_TOS in res.reasons
-
-        res = jail.GetTOS(empty_pb2.Empty())
-        assert not res.accepted_tos
+        res = jail.JailInfo(empty_pb2.Empty())
+        assert res.has_not_accepted_tos
 
         # calling with accept=False changes nothing
         res = jail.AcceptTOS(jail_pb2.AcceptTOSReq(accept=False))
 
-        res = jail.JailInfo(jail_pb2.JailInfoReq())
-        assert len(res.reasons) >= 1
-        assert jail_pb2.JailInfoRes.JailReason.MISSING_TOS in res.reasons
-
-        res = jail.GetTOS(empty_pb2.Empty())
-        assert not res.accepted_tos
+        res = jail.JailInfo(empty_pb2.Empty())
+        assert res.has_not_accepted_tos
 
         # now accept
         res = jail.AcceptTOS(jail_pb2.AcceptTOSReq(accept=True))
 
-        res = jail.JailInfo(jail_pb2.JailInfoReq())
-        assert jail_pb2.JailInfoRes.JailReason.MISSING_TOS not in res.reasons
-
-        res = jail.GetTOS(empty_pb2.Empty())
-        assert res.accepted_tos
+        res = jail.JailInfo(empty_pb2.Empty())
+        assert not res.has_not_accepted_tos
 
         # make sure we can't unaccept
         with pytest.raises(grpc.RpcError) as e:
@@ -154,11 +120,8 @@ def test_AcceptTOS(db):
         session.commit()
 
     with real_jail_session(db, token2) as jail:
-        res = jail.JailInfo(jail_pb2.JailInfoReq())
-        assert jail_pb2.JailInfoRes.JailReason.MISSING_TOS not in res.reasons
-
-        res = jail.GetTOS(empty_pb2.Empty())
-        assert res.accepted_tos
+        res = jail.JailInfo(empty_pb2.Empty())
+        assert not res.has_not_accepted_tos
 
         # make sure we can't unaccept
         with pytest.raises(grpc.RpcError) as e:
@@ -169,8 +132,5 @@ def test_AcceptTOS(db):
         # accepting again doesn't do anything
         res = jail.AcceptTOS(jail_pb2.AcceptTOSReq(accept=True))
 
-        res = jail.JailInfo(jail_pb2.JailInfoReq())
-        assert jail_pb2.JailInfoRes.JailReason.MISSING_TOS not in res.reasons
-
-        res = jail.GetTOS(empty_pb2.Empty())
-        assert res.accepted_tos
+        res = jail.JailInfo(empty_pb2.Empty())
+        assert not res.has_not_accepted_tos

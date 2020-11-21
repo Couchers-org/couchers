@@ -22,11 +22,15 @@ class Jail(jail_pb2_grpc.JailServicer):
         super().__init__()
         self._Session = Session
 
-    def GetTOS(self, request, context):
+    def _get_jail_info(self, user):
+        return jail_pb2.JailInfoRes(
+            has_not_accepted_tos=user.accepted_tos != 1,
+        )
+
+    def JailInfo(self, request, context):
         with session_scope(self._Session) as session:
-            return jail_pb2.GetTOSRes(
-                accepted_tos=(session.query(User).filter(User.id == context.user_id).one().accepted_tos == 1)
-            )
+            user = session.query(User).filter(User.id == context.user_id).one()
+            return self._get_jail_info(user)
 
     def AcceptTOS(self, request, context):
         with session_scope(self._Session) as session:
@@ -37,15 +41,5 @@ class Jail(jail_pb2_grpc.JailServicer):
 
             user.accepted_tos = 1 if request.accept else 0
             session.commit()
-            return jail_pb2.GetTOSRes(accepted_tos=user.accepted_tos)
 
-    def JailInfo(self, request, context):
-        with session_scope(self._Session) as session:
-            user = session.query(User).filter(User.id == context.user_id).one()
-
-            reasons = []
-
-            if user.is_jailed:
-                reasons.append(jail_pb2.JailInfoRes.MISSING_TOS)
-
-            return jail_pb2.JailInfoRes(reasons=reasons)
+            return self._get_jail_info(user)
