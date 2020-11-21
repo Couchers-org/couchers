@@ -5,6 +5,8 @@ package org.couchers.bugs;
 import "google/protobuf/empty.proto";
 
 service Bugs {
+  // This is an open service, no authentication is needed
+
   rpc Version(google.protobuf.Empty) returns (VersionInfo) {
     // Returns backend version info
   }

@@ -5,6 +5,8 @@ package org.couchers.auth;
 import "pb/api.proto";
 
 service Auth {
+  // This is an open service, no authentication is needed
+
   /*
   Authentication API
 

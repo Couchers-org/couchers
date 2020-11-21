@@ -61,7 +61,6 @@ class Auth(auth_pb2_grpc.AuthServicer):
             )
 
             if not result:
-                # can't expunge if it's None
                 return None
             else:
                 return result.User.id, result.User.is_jailed

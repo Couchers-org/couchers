@@ -8,6 +8,8 @@ import "google/protobuf/empty.proto";
 import "pb/conversations.proto";
 
 service Requests {
+  // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to auth.proto and jail.proto
+
   rpc CreateHostRequest(CreateHostRequestReq) returns (CreateHostRequestRes);
   
   rpc GetHostRequest(GetHostRequestReq) returns (HostRequest);
