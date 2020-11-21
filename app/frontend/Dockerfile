@@ -2,9 +2,10 @@ FROM node:14-alpine
 
 WORKDIR /app
 
-COPY . /app
+COPY package.json yarn.lock /app/
+RUN yarn --frozen-lockfile
 
-RUN yarn
+COPY . /app
 
 ARG version
 ENV VUE_APP_VERSION=$version
