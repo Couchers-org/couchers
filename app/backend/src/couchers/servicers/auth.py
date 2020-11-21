@@ -257,20 +257,22 @@ class Auth(auth_pb2_grpc.AuthServicer):
         Or fails with grpc.UNAUTHENTICATED if LoginToken is invalid.
         """
         with session_scope(self._Session) as session:
-            login_token = (
-                session.query(LoginToken)
+            res = (
+                session.query(LoginToken, User)
+                .join(User, User.id == LoginToken.user_id)
                 .filter(LoginToken.token == request.login_token)
                 .filter(LoginToken.created <= func.now())
                 .filter(LoginToken.expiry >= func.now())
                 .one_or_none()
             )
-            if login_token:
+            if res:
+                login_token, user = res
                 # this is the bearer token
-                token = self._create_session(context, session, user=login_token.user)
+                token = self._create_session(context, session, user=user)
                 # delete the login token so it can't be reused
                 session.delete(login_token)
                 session.commit()
-                return auth_pb2.AuthRes(token=token, jailed=login_token.user.is_jailed)
+                return auth_pb2.AuthRes(token=token, jailed=user.is_jailed)
             else:
                 context.abort(grpc.StatusCode.UNAUTHENTICATED, errors.INVALID_TOKEN)
 
