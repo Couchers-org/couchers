@@ -20,11 +20,17 @@ const user = {
 
 const Template: Story<AvatarProps> = (args) => (
   <>
-    <Avatar {...args} />
-    <div style={{ fontSize: "100px" }}>
-      <Avatar {...args} />
+    <div style={{ display: "flex" }}>
+      <Avatar {...args} />A default sized Avatar with default sized text.
     </div>
-    <Avatar style={{ width: "100px", height: "100px" }} {...args} />
+    <div style={{ display: "flex", fontSize: "40px" }}>
+      <Avatar {...args} />A default sized Avatar with big text makes the Avatar
+      also big.
+    </div>
+    <div style={{ display: "flex" }}>
+      <Avatar style={{ width: "100px", height: "100px" }} {...args} />
+      An explicitly sized Avatar with default sized text.
+    </div>
   </>
 );
 
