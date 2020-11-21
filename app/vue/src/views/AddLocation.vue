@@ -4,10 +4,10 @@
       <error-alert :error="error" />
       <h1>Add a location</h1>
       <editable-location
-        address=""
-        latitude=""
-        longitude=""
-        radius=""
+        address="Select a location"
+        :latitude="0.0"
+        :longitude="0.0"
+        :radius="500"
         :save="saveLocation"
       />
     </v-container>
