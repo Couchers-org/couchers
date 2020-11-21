@@ -26,6 +26,14 @@ service Jail {
   rpc AcceptTOS(AcceptTOSReq) returns (JailInfoRes) {
     // Accept to TOS
   }
+
+  rpc GetLocation(google.protobuf.Empty) returns (GetLocationRes) {
+    // Get whether the user has added a location or not
+  }
+
+  rpc SetLocation(SetLocationReq) returns (GetLocationRes) {
+    // Set the user's location
+  }
 }
 
 message JailInfoRes {
@@ -36,4 +44,12 @@ message JailInfoRes {
 
 message AcceptTOSReq {
   bool accept = 1;
+}
+
+message GetLocationRes {
+  bool has_location = 1;
+}
+
+message SetLocationReq {
+  // todo
 }

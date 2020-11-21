@@ -130,7 +130,7 @@ class User(Base):
 
     @hybrid_property
     def is_jailed(self):
-        return self.accepted_tos < 1
+        return (self.accepted_tos < 1 or not self.geom or not self.geom_radius)
 
     @property
     def lng(self):
