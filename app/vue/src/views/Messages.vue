@@ -128,7 +128,7 @@
             v-scroll.self="scrolled"
             tile
             height="600"
-            style="overflow: auto;"
+            style="overflow: auto"
           >
             <v-list dense>
               <v-list-item v-if="!noMoreMessages">

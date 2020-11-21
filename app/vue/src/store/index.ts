@@ -100,6 +100,10 @@ export default new Vuex.Store({
                 Router.push({
                   name: "TOS",
                 })
+              } else if (res.getHasNotAddedLocation()) {
+                Router.push({
+                  name: "AddLocation",
+                })
               }
             }
           } catch (err) {
