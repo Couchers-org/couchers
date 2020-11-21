@@ -1,5 +1,4 @@
 import logging
-from datetime import datetime
 
 import grpc
 from google.protobuf import empty_pb2

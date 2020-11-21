@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import grpc
 import pytest
@@ -9,6 +9,7 @@ from sqlalchemy.sql import and_
 from couchers import errors
 from couchers.db import session_scope
 from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType
+from couchers.utils import now
 from pb import api_pb2, conversations_pb2, requests_pb2
 from tests.test_fixtures import api_session, db, generate_user, make_friends, requests_session, testconfig
 
@@ -21,10 +22,10 @@ def _(testconfig):
 def test_create_request(db):
     user1, token1 = generate_user(db)
     user2, token2 = generate_user(db)
-    today_plus_1 = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
-    today_plus_2 = (datetime.now() + timedelta(days=2)).strftime("%Y-%m-%d")
-    today_minus_1 = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
-    today_minus_2 = (datetime.now() - timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_1 = (now() + timedelta(days=1)).strftime("%Y-%m-%d")
+    today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_minus_1 = (now() - timedelta(days=1)).strftime("%Y-%m-%d")
+    today_minus_2 = (now() - timedelta(days=2)).strftime("%Y-%m-%d")
     with requests_session(db, token1) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
@@ -97,8 +98,8 @@ def test_get_host_request(db):
     user1, token1 = generate_user(db)
     user2, token2 = generate_user(db)
     user3, token3 = generate_user(db)
-    today_plus_1 = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
-    today_plus_2 = (datetime.now() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_1 = (now() + timedelta(days=1)).strftime("%Y-%m-%d")
+    today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
     with requests_session(db, token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
@@ -122,8 +123,8 @@ def test_list_requests(db):
     user1, token1 = generate_user(db)
     user2, token2 = generate_user(db)
     user3, token3 = generate_user(db)
-    today_plus_1 = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
-    today_plus_2 = (datetime.now() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_1 = (now() + timedelta(days=1)).strftime("%Y-%m-%d")
+    today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
     with requests_session(db, token1) as api:
         host_request_1 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
@@ -183,8 +184,8 @@ def test_list_requests(db):
 def test_list_host_requests_active_filter(db):
     user1, token1 = generate_user(db)
     user2, token2 = generate_user(db)
-    today_plus_1 = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
-    today_plus_2 = (datetime.now() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_1 = (now() + timedelta(days=1)).strftime("%Y-%m-%d")
+    today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
 
     with requests_session(db, token1) as api:
         request_id = api.CreateHostRequest(
@@ -209,8 +210,8 @@ def test_respond_host_requests(db):
     user1, token1 = generate_user(db)
     user2, token2 = generate_user(db)
     user3, token3 = generate_user(db)
-    today_plus_1 = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
-    today_plus_2 = (datetime.now() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_1 = (now() + timedelta(days=1)).strftime("%Y-%m-%d")
+    today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
 
     with requests_session(db, token1) as api:
         request_id = api.CreateHostRequest(
@@ -320,8 +321,8 @@ def test_respond_host_requests(db):
 def test_get_host_request_messages(db):
     user1, token1 = generate_user(db)
     user2, token2 = generate_user(db)
-    today_plus_1 = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
-    today_plus_2 = (datetime.now() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_1 = (now() + timedelta(days=1)).strftime("%Y-%m-%d")
+    today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
     with requests_session(db, token1) as api:
         res = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
@@ -386,8 +387,8 @@ def test_send_message(db):
     user1, token1 = generate_user(db)
     user2, token2 = generate_user(db)
     user3, token3 = generate_user(db)
-    today_plus_1 = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
-    today_plus_2 = (datetime.now() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_1 = (now() + timedelta(days=1)).strftime("%Y-%m-%d")
+    today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
     with requests_session(db, token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
@@ -479,8 +480,8 @@ def test_get_updates(db):
     user1, token1 = generate_user(db)
     user2, token2 = generate_user(db)
     user3, token3 = generate_user(db)
-    today_plus_1 = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
-    today_plus_2 = (datetime.now() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_1 = (now() + timedelta(days=1)).strftime("%Y-%m-%d")
+    today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
     with requests_session(db, token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
@@ -554,8 +555,8 @@ def test_mark_last_seen(db):
     user1, token1 = generate_user(db)
     user2, token2 = generate_user(db)
     user3, token3 = generate_user(db)
-    today_plus_1 = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
-    today_plus_2 = (datetime.now() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_1 = (now() + timedelta(days=1)).strftime("%Y-%m-%d")
+    today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
     with requests_session(db, token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(

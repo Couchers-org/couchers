@@ -1,11 +1,11 @@
-from datetime import datetime
-
 import grpc
 import pytest
+import pytz
 from google.protobuf import empty_pb2, wrappers_pb2
 
 from couchers import errors
 from couchers.models import User
+from couchers.utils import now, to_aware_datetime
 from pb import api_pb2, conversations_pb2
 from tests.test_fixtures import api_session, conversations_session, db, generate_user, make_friends, testconfig
 
@@ -316,7 +316,7 @@ def test_get_group_chat_messages_joined_left(db):
     make_friends(db, user1, user2)
     make_friends(db, user1, user3)
     make_friends(db, user1, user4)
-    start_time = datetime.now()
+    start_time = now()
 
     with conversations_session(db, token1) as c:
         res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user4.id]))
@@ -365,7 +365,6 @@ def test_get_group_chat_messages_joined_left(db):
         assert res.messages[5].WhichOneof("content") == "user_invited"
 
 
-@pytest.mark.xfail
 def test_get_group_chat_info(db):
     user1, token1 = generate_user(db)
     user2, token2 = generate_user(db)
@@ -393,7 +392,7 @@ def test_get_group_chat_info(db):
         assert res.title == "Test title"
         assert user2.id in res.member_user_ids
         assert user1.id in res.admin_user_ids
-        assert res.created.ToDatetime() <= datetime.now()
+        assert to_aware_datetime(res.created) <= now()
         assert res.only_admins_invite
         assert res.is_dm
 
@@ -402,7 +401,7 @@ def test_get_group_chat_info(db):
         assert user2.id in res.member_user_ids
         assert user3.id in res.member_user_ids
         assert user1.id in res.admin_user_ids
-        assert res.created.ToDatetime() <= datetime.now()
+        assert to_aware_datetime(res.created) <= now()
         assert res.only_admins_invite
         assert not res.is_dm
 
@@ -569,7 +568,6 @@ def test_make_remove_group_chat_admin(db):
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
 
 
-@pytest.mark.xfail
 def test_send_message(db):
     user1, token1 = generate_user(db)
     user2, token2 = generate_user(db)
@@ -583,7 +581,7 @@ def test_send_message(db):
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
         res = c.GetGroupChatMessages(conversations_pb2.GetGroupChatMessagesReq(group_chat_id=group_chat_id))
         assert res.messages[0].text.text == "Test message 1"
-        assert res.messages[0].time.ToDatetime() <= datetime.now()
+        assert to_aware_datetime(res.messages[0].time) <= now()
         assert res.messages[0].author_user_id == user1.id
 
     # can't send message if not in chat
@@ -789,7 +787,7 @@ def test_search_messages_left_joined(db):
     make_friends(db, user1, user2)
     make_friends(db, user1, user3)
     make_friends(db, user1, user4)
-    start_time = datetime.now()
+    start_time = now()
 
     with conversations_session(db, token1) as c:
         res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user4.id]))
@@ -1095,7 +1093,7 @@ def test_total_unseen(db):
     # distractions
     make_friends(db, user1, user4)
 
-    start_time = datetime.utcnow()
+    start_time = now()
 
     with conversations_session(db, token1) as c:
         # distractions

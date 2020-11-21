@@ -1,4 +1,3 @@
-import datetime
 import logging
 
 import grpc
@@ -11,7 +10,7 @@ from couchers import errors
 from couchers.db import is_valid_date, session_scope
 from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType, User
 from couchers.tasks import send_host_request_email
-from couchers.utils import Timestamp_from_datetime
+from couchers.utils import Timestamp_from_datetime, now
 from pb import conversations_pb2, requests_pb2, requests_pb2_grpc
 
 logger = logging.getLogger(__name__)
@@ -74,7 +73,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if request.from_date > request.to_date:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_FROM_AFTER_TO)
 
-            if request.to_date < datetime.datetime.now().strftime("%Y-%m-%d"):
+            if request.to_date < now().strftime("%Y-%m-%d"):
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_TO_BEFORE_TODAY)
 
             conversation = Conversation()
@@ -195,7 +194,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     )
                 )
                 # TODO: This uses the server timezone, how to use users'?
-                today = datetime.datetime.now().strftime("%Y-%m-%d")
+                today = now().strftime("%Y-%m-%d")
                 # Is this string comparison a bad idea?
                 query = query.filter(HostRequest.to_date <= today)
 
@@ -246,7 +245,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
 
             # TODO: user local time
-            today = datetime.datetime.now().strftime("%Y-%m-%d")
+            today = now().strftime("%Y-%m-%d")
             if host_request.to_date < today:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.HOST_REQUEST_IN_PAST)
 
