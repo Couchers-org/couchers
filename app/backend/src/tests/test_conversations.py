@@ -365,6 +365,7 @@ def test_get_group_chat_messages_joined_left(db):
         assert res.messages[5].WhichOneof("content") == "user_invited"
 
 
+@pytest.mark.xfail
 def test_get_group_chat_info(db):
     user1, token1 = generate_user(db)
     user2, token2 = generate_user(db)
@@ -568,6 +569,7 @@ def test_make_remove_group_chat_admin(db):
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
 
 
+@pytest.mark.xfail
 def test_send_message(db):
     user1, token1 = generate_user(db)
     user2, token2 = generate_user(db)

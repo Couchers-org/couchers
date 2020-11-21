@@ -1,3 +1,4 @@
+import os
 from concurrent import futures
 from contextlib import contextmanager
 from datetime import date, timedelta
@@ -36,6 +37,11 @@ def db():
     """
     Connect to a running Postgres database, and return the Session object.
     """
+
+    # running in non-UTC catches some timezone errors
+    # os.environ["TZ"] = "Etc/UTC"
+    os.environ["TZ"] = "America/New_York"
+
     engine = create_engine(config["DATABASE_CONNECTION_STRING"], poolclass=NullPool)
 
     Base.metadata.drop_all(engine)
