@@ -46,9 +46,9 @@ export default Vue.extend({
 
   methods: {
     async fetchData() {
-      const res = await jailClient.getTOS(new Empty())
-      this.acceptedTos = res.getAcceptedTos()
-      this.accept = res.getAcceptedTos()
+      const res = await jailClient.jailInfo(new Empty())
+      this.acceptedTos = !res.getHasNotAcceptedTos()
+      this.accept = !res.getHasNotAcceptedTos()
       this.loading = false
     },
     async acceptTos() {
@@ -56,7 +56,7 @@ export default Vue.extend({
       const req = new AcceptTOSReq()
       req.setAccept(true)
       const res = await jailClient.acceptTOS(req)
-      if (res.getAcceptedTos()) {
+      if (!res.getHasNotAcceptedTos()) {
         Store.dispatch("ping")
       }
     },

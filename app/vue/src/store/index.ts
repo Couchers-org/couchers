@@ -7,9 +7,9 @@ import Router from "../router"
 
 import { StatusCode } from "grpc-web"
 
+import { Empty } from "google-protobuf/google/protobuf/empty_pb"
 import { User, PingReq, PingRes } from "../pb/api_pb"
 import { AuthRes } from "../pb/auth_pb"
-import { JailInfoReq, JailInfoRes } from "@/pb/jail_pb"
 import { client, jailClient } from "../api"
 
 Vue.use(Vuex)
@@ -87,17 +87,16 @@ export default new Vuex.Store({
       if (ctx.getters.authenticated) {
         if (ctx.getters.jailed) {
           try {
-            const res = await jailClient.jailInfo(new JailInfoReq())
+            const res = await jailClient.jailInfo(new Empty())
             console.log("Jailed: ", res.toObject())
             // just look at first one for now
-            if (res.getReasonsList().length == 0) {
+            if (!res.getJailed()) {
               // not jailed anymore
               ctx.commit("jail", false)
               ctx.dispatch("ping")
               Router.push({ name: "Home" })
             } else {
-              const reason = res.getReasonsList()[0]
-              if (reason === JailInfoRes.JailReason.MISSING_TOS) {
+              if (res.getHasNotAcceptedTos()) {
                 Router.push({
                   name: "TOS",
                 })

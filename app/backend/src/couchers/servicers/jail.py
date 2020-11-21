@@ -33,6 +33,10 @@ class Jail(jail_pb2_grpc.JailServicer):
             if getattr(res, field.name):
                 jailed = True
         res.jailed = jailed
+
+        # double check
+        assert user.is_jailed == jailed
+
         return res
 
     def JailInfo(self, request, context):
