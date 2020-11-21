@@ -27,7 +27,7 @@ const opts = {
   streamInterceptors: [interceptor],
 };
 
-export default {
+const apis = {
   api: new APIPromiseClient(URL, null, opts),
   bugs: new BugsPromiseClient(URL, null, opts),
   sso: new SSOPromiseClient(URL, null, opts),
@@ -35,3 +35,5 @@ export default {
   auth: new AuthPromiseClient(URL),
   requests: new RequestsPromiseClient(URL, null, opts),
 };
+
+export default apis;
