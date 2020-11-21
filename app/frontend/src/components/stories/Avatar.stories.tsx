@@ -28,7 +28,7 @@ const Template: Story<AvatarProps> = (args) => (
       also big.
     </div>
     <div style={{ display: "flex" }}>
-      <Avatar style={{ width: "100px", height: "100px" }} {...args} />
+      <Avatar style={{ width: "4em", height: "4em" }} {...args} />
       An explicitly sized Avatar with default sized text.
     </div>
   </>
