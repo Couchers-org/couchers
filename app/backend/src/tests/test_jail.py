@@ -22,7 +22,7 @@ def _(testconfig):
 
 
 def test_jail_basic(db):
-    user1, token1 = generate_user(db, jailed=False)
+    user1, token1 = generate_user(db)
 
     with real_api_session(db, token1) as api:
         res = api.Ping(api_pb2.PingReq())
@@ -35,7 +35,12 @@ def test_jail_basic(db):
 
         assert not res.jailed
 
-    user2, token2 = generate_user(db, jailed=True)
+    with session_scope(db) as session:
+        user2, token2 = generate_user_for_session(session, db)
+
+        # make the user jailed
+        user2.accepted_tos = 0
+        session.commit()
 
     with real_api_session(db, token2) as api, pytest.raises(grpc.RpcError) as e:
         res = api.Ping(api_pb2.PingReq())
@@ -90,7 +95,7 @@ def test_JailInfo(db):
 
 def test_AcceptTOS(db):
     with session_scope(db) as session:
-        user1, token1 = generate_user_for_session(session, db, jailed=False)
+        user1, token1 = generate_user_for_session(session, db)
 
         # make them have not accepted TOS
         user1.accepted_tos = 0
@@ -122,7 +127,7 @@ def test_AcceptTOS(db):
         assert e.value.details() == errors.CANT_UNACCEPT_TOS
 
     with session_scope(db) as session:
-        user2, token2 = generate_user_for_session(session, db, jailed=False)
+        user2, token2 = generate_user_for_session(session, db)
 
         # make them have accepted TOS
         user2.accepted_tos = 1
