@@ -168,42 +168,42 @@ message User {
   string city = 4;
 
   // doubles are enough to describe lat/lng
-  // in EPSG4326
-  double lat = 5;
-  double lng = 6;
-  double radius = 7;
+  // in EPSG4326, lat & lon are in degress, check the EPS4326 definition for details
+  double lat = 33;
+  double lng = 34;
+  double radius = 35; // meters
 
-  double verification = 8;
-  double community_standing = 9;
-  uint32 num_references = 10;
-  string gender = 11;
-  uint32 age = 12;
-  string color = 13; // web color, e.g. #643073, case doesn't matter
-  google.protobuf.Timestamp joined = 14; // not exact
-  google.protobuf.Timestamp last_active = 15; // not exact
-  HostingStatus hosting_status = 16;
-  string occupation = 17;
-  string about_me = 18;
-  string about_place = 19;
-  repeated string languages = 20;
-  repeated string countries_visited = 21;
-  repeated string countries_lived = 22;
+  double verification = 5;
+  double community_standing = 6;
+  uint32 num_references = 7;
+  string gender = 8;
+  uint32 age = 9;
+  string color = 10; // web color, e.g. #643073, case doesn't matter
+  google.protobuf.Timestamp joined = 11; // not exact
+  google.protobuf.Timestamp last_active = 12; // not exact
+  HostingStatus hosting_status = 13;
+  string occupation = 14;
+  string about_me = 15;
+  string about_place = 16;
+  repeated string languages = 17;
+  repeated string countries_visited = 18;
+  repeated string countries_lived = 19;
 
-  FriendshipStatus friends = 23;
-  repeated MutualFriend mutual_friends = 24;
+  FriendshipStatus friends = 20;
+  repeated MutualFriend mutual_friends = 21;
 
-  google.protobuf.UInt32Value max_guests = 25;
-  google.protobuf.BoolValue multiple_groups = 26;
-  google.protobuf.BoolValue last_minute = 27;
-  google.protobuf.BoolValue accepts_pets = 28;
-  google.protobuf.BoolValue accepts_kids = 29;
-  google.protobuf.BoolValue wheelchair_accessible = 30;
-  SmokingLocation smoking_allowed = 31;
-  google.protobuf.StringValue sleeping_arrangement = 32;
-  google.protobuf.StringValue area = 33;
-  google.protobuf.StringValue house_rules = 34;
+  google.protobuf.UInt32Value max_guests = 22;
+  google.protobuf.BoolValue multiple_groups = 23;
+  google.protobuf.BoolValue last_minute = 24;
+  google.protobuf.BoolValue accepts_pets = 25;
+  google.protobuf.BoolValue accepts_kids = 26;
+  google.protobuf.BoolValue wheelchair_accessible = 27;
+  SmokingLocation smoking_allowed = 28;
+  google.protobuf.StringValue sleeping_arrangement = 29;
+  google.protobuf.StringValue area = 30;
+  google.protobuf.StringValue house_rules = 31;
 
-  string avatar_url = 35;
+  string avatar_url = 32;
 }
 
 message GetUserReq {
@@ -223,32 +223,32 @@ message UpdateProfileReq {
   google.protobuf.StringValue name = 1;
 
   google.protobuf.StringValue city = 2;
-  google.protobuf.DoubleValue lat = 3;
-  google.protobuf.DoubleValue lng = 4;
-  google.protobuf.DoubleValue radius = 5;
+  google.protobuf.DoubleValue lat = 22;
+  google.protobuf.DoubleValue lng = 23;
+  google.protobuf.DoubleValue radius = 24;
 
-  google.protobuf.StringValue gender = 6;
-  NullableStringValue occupation = 7;
-  NullableStringValue about_me = 8;
-  NullableStringValue about_place = 9;
-  google.protobuf.StringValue color = 10;
+  google.protobuf.StringValue gender = 3;
+  NullableStringValue occupation = 4;
+  NullableStringValue about_me = 5;
+  NullableStringValue about_place = 6;
+  google.protobuf.StringValue color = 7;
 
-  HostingStatus hosting_status = 11;
+  HostingStatus hosting_status = 8;
 
-  RepeatedStringValue languages = 12;
-  RepeatedStringValue countries_visited = 13;
-  RepeatedStringValue countries_lived = 14;
+  RepeatedStringValue languages = 9;
+  RepeatedStringValue countries_visited = 10;
+  RepeatedStringValue countries_lived = 11;
 
-  NullableUInt32Value max_guests = 15;
-  NullableBoolValue multiple_groups = 16;
-  NullableBoolValue last_minute = 17;
-  NullableBoolValue accepts_pets = 18;
-  NullableBoolValue accepts_kids = 19;
-  NullableBoolValue wheelchair_accessible = 20;
-  SmokingLocation smoking_allowed = 21;
-  NullableStringValue sleeping_arrangement = 22;
-  NullableStringValue area = 23;
-  NullableStringValue house_rules = 24;
+  NullableUInt32Value max_guests = 12;
+  NullableBoolValue multiple_groups = 13;
+  NullableBoolValue last_minute = 14;
+  NullableBoolValue accepts_pets = 15;
+  NullableBoolValue accepts_kids = 16;
+  NullableBoolValue wheelchair_accessible = 17;
+  SmokingLocation smoking_allowed = 18;
+  NullableStringValue sleeping_arrangement = 19;
+  NullableStringValue area = 20;
+  NullableStringValue house_rules = 21;
 }
 
 message ReportReq {
