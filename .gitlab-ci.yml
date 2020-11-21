@@ -156,7 +156,8 @@ test:backend:
     # no docker login
     default: false
   services:
-    - postgis/postgis:13-3.0
+    - name: postgis/postgis:13-3.0
+      alias: postgres
   variables:
     POSTGRES_PASSWORD: c765064a49d18a95
     DATABASE_CONNECTION_STRING: "postgresql://postgres:c765064a49d18a95@postgres/postgres"
