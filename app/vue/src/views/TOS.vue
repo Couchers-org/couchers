@@ -4,13 +4,17 @@
       <error-alert :error="error" />
       <h1>Terms of Service</h1>
       <p>Please accept the TOS before continuing to Couchers.org</p>
-      <p>I understand Couchers.org is not a dating platform, etc, etc.</p>
+      <p>
+        This is a test TOS. I agree to follow the
+        <a href="https://community.couchers.org/faq">Couchers guidelines</a>. I
+        understand this is a preview of couchers.org and my data may be erased.
+      </p>
       <v-checkbox v-model="accept" label="I accept the Terms of Service" />
       <v-btn
         :loading="loading"
         :disabled="acceptedTos"
         v-on:click="acceptTos"
-        >{{ acceptedTos ? "Already accpeted" : "Accept" }}</v-btn
+        >{{ acceptedTos ? "Already accepted" : "Accept" }}</v-btn
       >
     </v-container>
   </v-main>

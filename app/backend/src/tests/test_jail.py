@@ -29,7 +29,7 @@ def test_jail_basic(db):
 
     with real_jail_session(db, token1) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
-        # check every field is true
+        # check every field is false
         for field in res.DESCRIPTOR.fields:
             assert getattr(res, field.name) == False
 
@@ -48,7 +48,7 @@ def test_jail_basic(db):
 
         reason_count = 0
 
-        # check every field is true
+        # check at least one field is true
         for field in res.DESCRIPTOR.fields:
             reason_count += getattr(res, field.name) == True
 
