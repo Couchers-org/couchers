@@ -20,6 +20,11 @@ server {
     ssl_certificate /certs/live/preview.coucher.org/fullchain.pem;
     ssl_certificate_key /certs/live/preview.coucher.org/privkey.pem;
 
+    location = /robots.txt {
+        add_header Content-Type text/plain;
+        return 200 "User-agent: *\nDisallow: /\n";
+    }
+
     location / {
         # we want to do some logic based on upstream errors
         proxy_intercept_errors on;
