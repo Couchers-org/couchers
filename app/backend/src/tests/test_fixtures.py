@@ -5,6 +5,8 @@ from unittest.mock import patch
 
 import grpc
 import pytest
+from alembic import command
+from alembic.config import Config
 from sqlalchemy import create_engine
 from sqlalchemy.event import listen, remove
 from sqlalchemy.orm import sessionmaker
@@ -12,7 +14,7 @@ from sqlalchemy.pool import NullPool
 
 from couchers.config import config
 from couchers.crypto import random_hex
-from couchers.db import session_scope
+from couchers.db import apply_migrations, session_scope
 from couchers.models import Base, FriendRelationship, FriendStatus, User
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
@@ -38,8 +40,11 @@ def db():
     """
     engine = create_engine(config["DATABASE_CONNECTION_STRING"], poolclass=NullPool)
 
-    Base.metadata.drop_all(engine)
-    Base.metadata.create_all(engine)
+    # drop everything currently in the database
+    engine.execute("DROP SCHEMA public CASCADE; CREATE SCHEMA public;")
+
+    # rebuild it with alembic migrations
+    apply_migrations()
 
     return sessionmaker(bind=engine)
 

@@ -3,6 +3,8 @@ import logging
 import re
 from contextlib import contextmanager
 
+from alembic import command
+from alembic.config import Config
 from sqlalchemy.sql import and_, or_
 
 from couchers.crypto import urlsafe_secure_token
@@ -11,6 +13,13 @@ from couchers.utils import now
 from pb import api_pb2
 
 logger = logging.getLogger(__name__)
+
+
+def apply_migrations():
+    alembic_cfg = Config("alembic.ini")
+    # alembic screws up logging config by default, this tells it not to screw it up if being run at startup like this
+    alembic_cfg.set_main_option("dont_mess_up_logging", "False")
+    command.upgrade(alembic_cfg, "head")
 
 
 @contextmanager
