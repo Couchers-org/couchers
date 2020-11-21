@@ -8,6 +8,7 @@ import Login from "../views/Login.vue"
 import Profile from "../views/Profile.vue"
 import Logout from "../views/Logout.vue"
 import SSO from "../views/SSO.vue"
+import AddLocation from "../views/AddLocation.vue"
 import TOS from "../views/TOS.vue"
 import Friends from "../views/Friends.vue"
 import Messages from "../views/Messages.vue"
@@ -52,6 +53,11 @@ const routes: Array<RouteConfig> = [
     path: "/tos",
     name: "TOS",
     component: TOS,
+  },
+  {
+    path: "/location",
+    name: "AddLocation",
+    component: AddLocation,
   },
 
   {

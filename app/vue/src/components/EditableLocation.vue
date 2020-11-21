@@ -60,11 +60,11 @@
 
           Drag the markers to indicate what will be shown to other users.
 
-          <div style="height: 350px;">
+          <div style="height: 350px">
             <l-map
               :zoom="zoom"
               :center="center"
-              style="width: 100%; height: 100%;"
+              style="width: 100%; height: 100%"
             >
               <l-tile-layer :url="url" :attribution="attribution" />
               <l-marker
@@ -74,9 +74,7 @@
                 :icon="homeIcon"
               >
                 <l-tooltip :options="{ interactive: true }">
-                  <div>
-                    Searched location
-                  </div>
+                  <div>Searched location</div>
                 </l-tooltip>
               </l-marker>
               <l-circle
@@ -90,9 +88,7 @@
                 :visible="decorationsVisible"
               >
                 <l-tooltip :options="{ interactive: true }">
-                  <div>
-                    Location displayed to other users
-                  </div>
+                  <div>Location displayed to other users</div>
                 </l-tooltip>
               </l-marker>
             </l-map>
