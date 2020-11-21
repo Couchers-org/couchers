@@ -46,7 +46,7 @@ def db():
     return sessionmaker(bind=engine)
 
 
-def _raw_generate_user(session, username, jailed):
+def _raw_generate_user(session, username):
     """
     Internal user creation code
     """
@@ -72,7 +72,7 @@ def _raw_generate_user(session, username, jailed):
         countries_visited="Testing country",
         countries_lived="Wonderland",
         # you need to make sure to update this logic to make sure the user is jailed/not on request
-        accepted_tos=0 if jailed else 1,
+        accepted_tos=1,
     )
 
     session.add(user)
@@ -81,12 +81,12 @@ def _raw_generate_user(session, username, jailed):
     session.commit()
 
     # there should also be tests to check this
-    assert user.is_jailed == jailed
+    assert not user.is_jailed
 
     return user
 
 
-def generate_user(db, username=None, jailed=False):
+def generate_user(db, username=None):
     """
     Create a new user, return session token
 
@@ -97,7 +97,7 @@ def generate_user(db, username=None, jailed=False):
     auth = Auth(db)
 
     with session_scope(db) as session:
-        user = _raw_generate_user(session, username=username, jailed=jailed)
+        user = _raw_generate_user(session, username=username)
 
         # refresh it, undoes the expiry
         session.refresh(user)
@@ -110,7 +110,7 @@ def generate_user(db, username=None, jailed=False):
     return user, token
 
 
-def generate_user_for_session(session, db, username=None, jailed=False):
+def generate_user_for_session(session, db, username=None):
     """
     Create a new user *boudn to session*, return session token
 
@@ -118,7 +118,7 @@ def generate_user_for_session(session, db, username=None, jailed=False):
     """
     auth = Auth(db)
 
-    user = _raw_generate_user(session, username=username, jailed=jailed)
+    user = _raw_generate_user(session, username=username)
 
     with patch("couchers.servicers.auth.verify_password", lambda hashed, password: password == "password"):
         token = auth.Authenticate(auth_pb2.AuthReq(user=user.username, password="password"), "Dummy context").token
