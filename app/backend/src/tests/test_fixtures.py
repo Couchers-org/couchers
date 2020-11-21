@@ -44,7 +44,7 @@ def db():
     return sessionmaker(bind=engine)
 
 
-def generate_user(db, username=None):
+def generate_user(db, username=None, jailed=False):
     """
     Create a new user, return session token
     """
@@ -72,12 +72,17 @@ def generate_user(db, username=None):
             about_place="My place has a lot of testing paraphenelia",
             countries_visited="Testing country",
             countries_lived="Wonderland",
+            # you need to make sure to update this logic to make sure the user is jailed/not on request
+            accepted_tos=0 if jailed else 1,
         )
 
         session.add(user)
 
         # this expires the user, so now it's "dirty"
         session.commit()
+
+        # there should also be tests to check this
+        assert user.is_jailed == jailed
 
         # refresh it, undoes the expiry
         session.refresh(user)
