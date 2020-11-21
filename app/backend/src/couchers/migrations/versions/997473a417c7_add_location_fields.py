@@ -1,8 +1,8 @@
 """Add location fields
 
-Revision ID: 398ef021e653
-Revises: 3c0f67ff3ea2
-Create Date: 2020-10-23 17:14:18.918433
+Revision ID: 997473a417c7
+Revises: 69a91fcdc73c
+Create Date: 2020-11-21 16:56:26.374842
 
 """
 import geoalchemy2
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "398ef021e653"
-down_revision = "3c0f67ff3ea2"
+revision = "997473a417c7"
+down_revision = "69a91fcdc73c"
 branch_labels = None
 depends_on = None
 
