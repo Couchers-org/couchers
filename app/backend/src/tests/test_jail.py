@@ -33,6 +33,8 @@ def test_jail_basic(db):
         for field in res.DESCRIPTOR.fields:
             assert getattr(res, field.name) == False
 
+        assert not res.jailed
+
     user2, token2 = generate_user(db, jailed=True)
 
     with real_api_session(db, token2) as api, pytest.raises(grpc.RpcError) as e:
@@ -41,6 +43,8 @@ def test_jail_basic(db):
 
     with real_jail_session(db, token2) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
+
+        assert res.jailed
 
         reason_count = 0
 
@@ -61,6 +65,7 @@ def test_JailInfo(db):
 
     with real_jail_session(db, token1) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
+        assert res.jailed
         assert res.has_not_accepted_tos
 
     with real_api_session(db, token1) as api, pytest.raises(grpc.RpcError) as e:
@@ -76,6 +81,7 @@ def test_JailInfo(db):
 
     with real_jail_session(db, token2) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
+        assert not res.jailed
         assert not res.has_not_accepted_tos
 
     with real_api_session(db, token2) as api:
@@ -92,18 +98,21 @@ def test_AcceptTOS(db):
 
     with real_jail_session(db, token1) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
+        assert res.jailed
         assert res.has_not_accepted_tos
 
         # calling with accept=False changes nothing
         res = jail.AcceptTOS(jail_pb2.AcceptTOSReq(accept=False))
 
         res = jail.JailInfo(empty_pb2.Empty())
+        assert res.jailed
         assert res.has_not_accepted_tos
 
         # now accept
         res = jail.AcceptTOS(jail_pb2.AcceptTOSReq(accept=True))
 
         res = jail.JailInfo(empty_pb2.Empty())
+        assert not res.jailed
         assert not res.has_not_accepted_tos
 
         # make sure we can't unaccept
@@ -121,6 +130,7 @@ def test_AcceptTOS(db):
 
     with real_jail_session(db, token2) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
+        assert not res.jailed
         assert not res.has_not_accepted_tos
 
         # make sure we can't unaccept
@@ -133,4 +143,5 @@ def test_AcceptTOS(db):
         res = jail.AcceptTOS(jail_pb2.AcceptTOSReq(accept=True))
 
         res = jail.JailInfo(empty_pb2.Empty())
+        assert not res.jailed
         assert not res.has_not_accepted_tos
