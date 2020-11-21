@@ -27,11 +27,18 @@ const opts = {
   streamInterceptors: [interceptor],
 };
 
-export default {
+const apis = {
+  // @ts-ignore
   api: new APIPromiseClient(URL, null, opts),
+  // @ts-ignore
   bugs: new BugsPromiseClient(URL, null, opts),
+  // @ts-ignore
   sso: new SSOPromiseClient(URL, null, opts),
+  // @ts-ignore
   conversations: new ConversationsPromiseClient(URL, null, opts),
   auth: new AuthPromiseClient(URL),
+  // @ts-ignore
   requests: new RequestsPromiseClient(URL, null, opts),
 };
+
+export default apis;
