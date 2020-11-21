@@ -2,7 +2,7 @@ import logging
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy import func
+from sqlalchemy.sql import func
 
 from couchers.crypto import secure_compare
 from couchers.db import session_scope

@@ -27,12 +27,9 @@ service Jail {
     // Accept to TOS
   }
 
-  rpc GetLocation(google.protobuf.Empty) returns (GetLocationRes) {
-    // Get whether the user has added a location or not
-  }
-
-  rpc SetLocation(SetLocationReq) returns (GetLocationRes) {
+  rpc SetLocation(SetLocationReq) returns (JailInfoRes) {
     // Set the user's location
+    // If you're not jailed, do this with api.UpdateProfile!
   }
 }
 
@@ -40,16 +37,16 @@ message JailInfoRes {
   bool jailed = 1;
 
   bool has_not_accepted_tos = 2;
+  bool has_not_added_location = 3;
 }
 
 message AcceptTOSReq {
   bool accept = 1;
 }
 
-message GetLocationRes {
-  bool has_location = 1;
-}
-
 message SetLocationReq {
-  // todo
+  string city = 1;
+  double lat = 2;
+  double lng = 3;
+  double radius = 4;
 }
