@@ -4,7 +4,7 @@ import grpc
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import User, UserSession
+from couchers.models import User
 from pb import jail_pb2, jail_pb2_grpc
 
 logger = logging.getLogger(__name__)
@@ -31,6 +31,10 @@ class Jail(jail_pb2_grpc.JailServicer):
     def AcceptTOS(self, request, context):
         with session_scope(self._Session) as session:
             user = session.query(User).filter(User.id == context.user_id).one()
+
+            if user.accepted_tos == 1 and not request.accept:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_UNACCEPT_TOS)
+
             user.accepted_tos = 1 if request.accept else 0
             session.commit()
             return jail_pb2.GetTOSRes(accepted_tos=user.accepted_tos)

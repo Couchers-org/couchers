@@ -120,12 +120,12 @@ def generate_user(db, username=None, jailed=False):
         session.expunge(user)
 
     with patch("couchers.servicers.auth.verify_password", lambda hashed, password: password == "password"):
-        token = auth.Authenticate(auth_pb2.AuthReq(user=username, password="password"), "Dummy context").token
+        token = auth.Authenticate(auth_pb2.AuthReq(user=user.username, password="password"), "Dummy context").token
 
     return user, token
 
 
-def generate_user_for_session(db, session, username=None, jailed=False):
+def generate_user_for_session(session, db, username=None, jailed=False):
     """
     Create a new user *boudn to session*, return session token
 
@@ -136,7 +136,7 @@ def generate_user_for_session(db, session, username=None, jailed=False):
     user = _raw_generate_user(session, username=username, jailed=jailed)
 
     with patch("couchers.servicers.auth.verify_password", lambda hashed, password: password == "password"):
-        token = auth.Authenticate(auth_pb2.AuthReq(user=username, password="password"), "Dummy context").token
+        token = auth.Authenticate(auth_pb2.AuthReq(user=user.username, password="password"), "Dummy context").token
 
     return user, token
 
