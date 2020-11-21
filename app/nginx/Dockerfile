@@ -18,4 +18,7 @@ RUN wget https://github.com/acmesh-official/acme.sh/archive/2.8.7.tar.gz \
 COPY scripts/ ./
 COPY domains ./
 
+ARG version
+ENV VERSION=$version
+
 CMD [ "sh", "/scripts/run.sh" ]

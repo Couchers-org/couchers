@@ -8,7 +8,7 @@ RUN yarn --frozen-lockfile
 COPY . /app
 
 ARG version
-ENV VUE_APP_VERSION=$version
+ENV REACT_APP_VERSION=$version
 
 RUN yarn build
 
