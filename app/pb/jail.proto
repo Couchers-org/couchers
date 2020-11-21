@@ -29,7 +29,9 @@ service Jail {
 }
 
 message JailInfoRes {
-  bool has_not_accepted_tos = 1;
+  bool jailed = 1;
+
+  bool has_not_accepted_tos = 2;
 }
 
 message AcceptTOSReq {

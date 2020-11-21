@@ -23,9 +23,17 @@ class Jail(jail_pb2_grpc.JailServicer):
         self._Session = Session
 
     def _get_jail_info(self, user):
-        return jail_pb2.JailInfoRes(
+        res = jail_pb2.JailInfoRes(
             has_not_accepted_tos=user.accepted_tos != 1,
         )
+
+        # if any of the bools in res are true, we're jailed
+        jailed = False
+        for field in res.DESCRIPTOR.fields:
+            if getattr(res, field.name):
+                jailed = True
+        res.jailed = jailed
+        return res
 
     def JailInfo(self, request, context):
         with session_scope(self._Session) as session:
