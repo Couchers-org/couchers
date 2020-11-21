@@ -5,8 +5,6 @@ from unittest.mock import patch
 
 import grpc
 import pytest
-from alembic import command
-from alembic.config import Config
 from sqlalchemy import create_engine
 from sqlalchemy.event import listen, remove
 from sqlalchemy.orm import sessionmaker
