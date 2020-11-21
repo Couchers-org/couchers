@@ -5,7 +5,9 @@ stages:
   - release
 
 variables:
-  GIT_DEPTH: 1
+  GIT_DEPTH: 10
+  DOCKER_HOST: tcp://docker:2376
+  DOCKER_TLS_CERTDIR: "/certs"
   RELEASE_BRANCH: develop
   GRPC_TAG: $CI_REGISTRY/couchers/grpc:latest
   PROXY_RELEASE_TAG: $CI_REGISTRY_IMAGE/proxy:latest
@@ -49,7 +51,8 @@ protos:
 build:proxy:
   stage: build
   script:
-    - docker build -t $PROXY_TAG app/proxy/
+    - docker pull $PROXY_RELEASE_TAG || true
+    - docker build --cache-from $PROXY_TAG -t $PROXY_TAG app/proxy/
     - docker push $PROXY_TAG
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
@@ -63,7 +66,8 @@ build:proxy:
 build:nginx:
   stage: build
   script:
-    - docker build -t $NGINX_TAG app/nginx/
+    - docker pull $NGINX_RELEASE_TAG || true
+    - docker build --cache-from $NGINX_TAG -t $NGINX_TAG app/nginx/
     - docker push $NGINX_TAG
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
@@ -77,7 +81,8 @@ build:nginx:
 build:backend:
   stage: build
   script:
-    - docker build -t $BACKEND_TAG app/backend/
+    - docker pull $BACKEND_RELEASE_TAG || true
+    - docker build --cache-from $BACKEND_TAG -t $BACKEND_TAG app/backend/
     - docker push $BACKEND_TAG
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
@@ -91,7 +96,8 @@ build:backend:
 build:media:
   stage: build
   script:
-    - docker build -t $MEDIA_TAG app/media/
+    - docker pull $MEDIA_RELEASE_TAG || true
+    - docker build --cache-from $MEDIA_TAG -t $MEDIA_TAG app/media/
     - docker push $MEDIA_TAG
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
@@ -105,7 +111,8 @@ build:media:
 build:frontend:
   stage: build
   script:
-    - docker build -t $FRONTEND_TAG app/frontend/
+    - docker pull $FRONTEND_RELEASE_TAG || true
+    - docker build --cache-from $FRONTEND_TAG -t $FRONTEND_TAG app/frontend/
     - docker push $FRONTEND_TAG
     # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
     - mkdir -p artifacts && docker cp $(docker create $FRONTEND_TAG):/app/build artifacts/frontend
@@ -124,7 +131,8 @@ build:frontend:
 build:vue:
   stage: build
   script:
-    - docker build -t $VUE_TAG app/vue/
+    - docker pull $VUE_RELEASE_TAG || true
+    - docker build --cache-from $VUE_TAG -t $VUE_TAG app/vue/
     - docker push $VUE_TAG
     # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
     - mkdir -p artifacts && docker cp $(docker create $VUE_TAG):/app/dist artifacts/vue
