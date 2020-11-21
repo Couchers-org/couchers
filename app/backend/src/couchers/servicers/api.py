@@ -6,7 +6,6 @@ from urllib.parse import urlencode
 import grpc
 from google.protobuf import empty_pb2
 from google.protobuf.timestamp_pb2 import Timestamp
-from sqlalchemy import func, or_
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, or_
 
@@ -29,7 +28,7 @@ from couchers.models import (
     User,
 )
 from couchers.tasks import send_friend_request_email, send_report_email
-from couchers.utils import Timestamp_from_datetime, now
+from couchers.utils import Timestamp_from_datetime, get_coordinates, now
 from pb import api_pb2, api_pb2_grpc, media_pb2
 
 reftype2sql = {
@@ -164,7 +163,7 @@ class API(api_pb2_grpc.APIServicer):
                 user.city = request.city.value
 
             if request.HasField("lat") and request.HasField("lng"):
-                user.geom = func.ST_SetSRID(func.ST_MakePoint(request.lng.value, request.lat.value), 4326)
+                user.geom = create_coordinate(request.lat.value, request.lng.value)
 
             if request.HasField("radius"):
                 user.geom_radius = request.radius.value
@@ -545,8 +544,8 @@ def user_model_to_pb(db_user, session, context):
         username=db_user.username,
         name=db_user.name,
         city=db_user.city,
-        lat=db_user.lat,
-        lng=db_user.lng,
+        lat=db_user.coordinates[0],
+        lng=db_user.coordinates[1],
         radius=db_user.geom_radius,
         verification=db_user.verification,
         community_standing=db_user.community_standing,

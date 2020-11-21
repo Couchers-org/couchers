@@ -2,7 +2,6 @@ import enum
 from calendar import monthrange
 from datetime import date
 
-from geoalchemy2.shape import to_shape
 from geoalchemy2.types import Geometry
 from sqlalchemy import Boolean, Column, Date, DateTime, Enum, Float, ForeignKey, Integer
 from sqlalchemy import LargeBinary as Binary
@@ -14,6 +13,7 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func
 
 from couchers.config import config
+from couchers.utils import get_coordinates
 
 meta = MetaData(
     naming_convention={
@@ -138,12 +138,14 @@ class User(Base):
         return not self.geom or not self.geom_radius
 
     @property
-    def lng(self):
-        return to_shape(self.geom).x if self.geom else None
-
-    @property
-    def lat(self):
-        return to_shape(self.geom).y if self.geom else None
+    def coordinates(self):
+        # returns (lat, lng)
+        # we put people without coords on null island
+        # https://en.wikipedia.org/wiki/Null_Island
+        if self.geom:
+            return get_coordinates(self.geom)
+        else:
+            return (0.0, 0.0)
 
     @property
     def age(self):
