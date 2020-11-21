@@ -173,7 +173,7 @@ test:backend:
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
       - app/pb/**/*
-      - app/media/**/*
+      - app/backend/**/*
 
 test:media:
   stage: test
