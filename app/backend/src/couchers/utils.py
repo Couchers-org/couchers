@@ -54,7 +54,7 @@ def create_coordinate(lat, lng):
 
 def get_coordinates(geom):
     """
-    Returns EPSG4326 (lat, lng) pair for a given WKT geom object
+    Returns EPSG4326 (lat, lng) pair for a given WKT geom point
     """
     shp = to_shape(geom)
     # note the funiness with 4326 normally being (x, y) = (lng, lat)
