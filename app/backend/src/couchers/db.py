@@ -92,6 +92,7 @@ def get_user_by_field(session, field):
     """
     Returns the user based on any of those three
     """
+    field = field.lower()
     if is_valid_user_id(field):
         logger.debug(f"Field matched to type user id")
         return session.query(User).filter(User.id == field).one_or_none()
