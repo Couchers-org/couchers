@@ -2,13 +2,12 @@ import {
   AppBar,
   BottomNavigation,
   BottomNavigationAction,
-  Collapse,
   Hidden,
   Typography,
   makeStyles,
 } from "@material-ui/core";
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React from "react";
+import { Link, NavLink } from "react-router-dom";
 import {
   profileRoute,
   messagesRoute,
@@ -16,7 +15,6 @@ import {
   logoutRoute,
 } from "../AppRoutes";
 import { useTypedSelector } from "../store";
-import classNames from "classnames";
 import SearchBox from "./SearchBox";
 
 const menu = [
@@ -68,11 +66,6 @@ export default function Navigation() {
   const classes = useStyles();
 
   const user = useTypedSelector((state) => state.auth.user);
-  const [open, setOpen] = useState(false);
-
-  const handleClick = () => {
-    setOpen(!open);
-  };
 
   return (
     <AppBar 
@@ -81,9 +74,7 @@ export default function Navigation() {
     >
       <BottomNavigation
         showLabels
-        classes={{
-          root: classes.bottomNav
-        }}
+        classes={{root: classes.bottomNav}}
       >
         <Hidden mdDown>
           <Typography 
@@ -95,18 +86,22 @@ export default function Navigation() {
         </Hidden>
         {menu.map(item => (
           <BottomNavigationAction
-            component={Link}
-            to={item.route}
+            activeClassName="Mui-selected"
+            component={NavLink}
+            exact
             label={item.name}
+            to={item.route}
           />
         ))}
         <Hidden mdDown>
-          <BottomNavigationAction
-            component={Link}
-            to={logoutRoute}
-            label="Logout"
-            showLabel
-          />
+          { user && (
+            <BottomNavigationAction
+              component={Link}
+              to={logoutRoute}
+              label="Logout"
+              showLabel
+            />
+          )}
           <div className={classes.search}>
             <SearchBox />
           </div>
