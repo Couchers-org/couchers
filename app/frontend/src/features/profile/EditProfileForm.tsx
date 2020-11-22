@@ -3,6 +3,7 @@ import { Autocomplete } from "@material-ui/lab";
 import { unwrapResult } from "@reduxjs/toolkit";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { theme } from "../../theme";
 import Alert from "../../components/Alert";
 import Button from "../../components/Button";
 import TextField from "../../components/TextField";
@@ -14,10 +15,11 @@ import { useAppDispatch, useTypedSelector } from "../../store";
 const useStyles = makeStyles({
   buttonContainer: {
     display: "flex",
+    paddingTop: theme.spacing(1),
   },
 });
 
-export default function UserInfoForm() {
+export default function EditProfileForm() {
   const classes = useStyles();
   const dispatch = useAppDispatch();
   const user = useTypedSelector((state) => state.auth.user);

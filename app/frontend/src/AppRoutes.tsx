@@ -9,16 +9,20 @@ import Signup from "./features/auth/signup/Signup";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./reducers";
 import { authError } from "./features/auth/authSlice";
+import EditProfilePage from "./features/profile/EditProfilePage";
 import UserPage from "./features/userPage/UserPage";
 import SearchPage from "./features/search/SearchPage";
+import EditHostingPreferencePage from "./features/profile/EditHostingPreferencePage";
 
 export const loginRoute = "/login";
 export const loginPasswordRoute = `${loginRoute}/password`;
 
 export const signupRoute = "/signup";
 export const profileRoute = "/profile";
+export const editProfileRoute = "/profile/edit";
+export const editHostingPreferenceRoute = "/hosting-preference/edit";
 export const messagesRoute = "/messages";
-export const requestsRoute = "/messages";
+export const requestsRoute = "/requests";
 export const logoutRoute = "/logout";
 
 export const userRoute = "/user";
@@ -33,6 +37,12 @@ export default function AppRoutes() {
       <Route path={`${signupRoute}/:urlToken?`}>
         <Signup />
       </Route>
+      <PrivateRoute path={editProfileRoute}>
+        <EditProfilePage />
+      </PrivateRoute>
+      <PrivateRoute path={editHostingPreferenceRoute}>
+        <EditHostingPreferencePage />
+      </PrivateRoute>
       <PrivateRoute path={profileRoute}>
         <ProfilePage />
       </PrivateRoute>
