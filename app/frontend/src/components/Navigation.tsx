@@ -1,8 +1,9 @@
 import {
   AppBar,
-  BottomNavigation,
-  BottomNavigationAction,
+  Button,
+  Grid,
   Hidden,
+  Toolbar,
   Typography,
   makeStyles,
 } from "@material-ui/core";
@@ -38,31 +39,51 @@ const menu = [
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
-    bottom: 'auto',
     top: 0,
-    [theme.breakpoints.down("md")]: {
+    bottom: 'auto',
+    [theme.breakpoints.down("sm")]: {
       bottom: 0,
       top: 'auto',
     },
   },
-  bottomNav: {
-    [theme.breakpoints.up("md")]: {
-      alignItems: 'center',
-      padding: '0 3rem',
-      height: '62px',
-    },
-  },
-  label: {
-    fontSize: '.9rem',
-  },
   search: {
     flexGrow: 3,
     display: 'flex',
-    justifyCotent: 'flex-end',
+    justifyContent: 'flex-end',
   },
   title: {
     fontWeight: "bold",
   },
+  gutters: {
+    [theme.breakpoints.down("sm")]: {
+      paddingLeft: 0,
+      paddingRight: 0,
+    },
+  },
+  label: {
+    fontSize: '0.7rem',
+  },
+  flex: {
+    width: 'auto',
+    flex: 0,
+    padding: '0 3rem',
+    [theme.breakpoints.down("sm")]: {
+      flex: 1,
+    },
+  },
+  item: {
+    transition: theme.transitions.create(['color', 'padding-top'], {
+      duration: theme.transitions.duration.short,
+    }),
+    padding: '6px 12px 8px',
+    minWidth: 80,
+    maxWidth: 168,
+    color: theme.palette.text.secondary,
+    flex: '1',
+  },
+  selected: {
+    color: theme.palette.primary.main,
+  }
 }));
 
 export default function Navigation() {
@@ -71,48 +92,69 @@ export default function Navigation() {
   const user = useTypedSelector((state) => state.auth.user);
 
   return (
-    <AppBar 
-      position="fixed" 
-      className={classes.appBar}
+    <AppBar
+      position="fixed"
+      classes={{
+        root: classes.appBar
+      }}
+      color="inherit"
     >
-      <BottomNavigation
-        showLabels
-        classes={{root: classes.bottomNav}}
+      <Toolbar
+        classes={{
+          gutters: classes.gutters
+        }}
       >
         <Hidden mdDown>
           <Typography 
-            variant="h6" 
+            variant="h5" 
             className={classes.title}
           >
             Couchers
           </Typography>
         </Hidden>
+        <Grid
+          container
+          wrap="nowrap"
+          classes={{
+            root: classes.flex
+          }}
+        >
         {menu.map(item => (
-          <BottomNavigationAction
-            activeClassName="Mui-selected"
-            classes={{label: classes.label}}
+          <Button
+            activeClassName={classes.selected}
+            classes={{
+              root: classes.item,
+              label: classes.label
+            }}
             component={NavLink}
             exact
-            label={item.name}
             to={item.route}
             key={item.name}
-          />
+          >
+          {item.name}
+          </Button>
         ))}
         <Hidden mdDown>
           { user && (
-            <BottomNavigationAction
-              classes={{label: classes.label}}
+            <Button
+              classes={{
+                root: classes.item,
+                label: classes.label
+              }}
               component={Link}
               to={logoutRoute}
-              label="Logout"
-              showLabel
-            />
+            >
+            Logout
+            </Button>
           )}
+        </Hidden>
+        </Grid>
+        <Hidden mdDown>
           <div className={classes.search}>
             <SearchBox />
           </div>
         </Hidden>
-      </BottomNavigation>
+      </Toolbar>
     </AppBar>
   );
 }
