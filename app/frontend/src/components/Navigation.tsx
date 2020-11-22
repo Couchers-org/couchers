@@ -48,18 +48,21 @@ const useStyles = makeStyles((theme) => ({
   bottomNav: {
     [theme.breakpoints.up("md")]: {
       alignItems: 'center',
-      padding: '.2rem 3rem',
-      height: 'auto',
+      padding: '0 3rem',
+      height: '62px',
     },
   },
-  title: {
-    fontWeight: "bold",
+  label: {
+    fontSize: '.9rem',
   },
   search: {
     flexGrow: 3,
     display: 'flex',
     justifyCotent: 'flex-end',
-  }
+  },
+  title: {
+    fontWeight: "bold",
+  },
 }));
 
 export default function Navigation() {
@@ -87,15 +90,18 @@ export default function Navigation() {
         {menu.map(item => (
           <BottomNavigationAction
             activeClassName="Mui-selected"
+            classes={{label: classes.label}}
             component={NavLink}
             exact
             label={item.name}
             to={item.route}
+            key={item.name}
           />
         ))}
         <Hidden mdDown>
           { user && (
             <BottomNavigationAction
+              classes={{label: classes.label}}
               component={Link}
               to={logoutRoute}
               label="Logout"
