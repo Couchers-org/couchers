@@ -179,8 +179,6 @@ class Auth(auth_pb2_grpc.AuthServicer):
             if not is_valid_email(signup_token.email):
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_EMAIL)
 
-            username = request.username.lower()
-
             # check username validity
             if not is_valid_username(username):
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_USERNAME)
