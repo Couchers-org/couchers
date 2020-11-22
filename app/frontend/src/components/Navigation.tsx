@@ -4,6 +4,7 @@ import {
   BottomNavigationAction,
   Collapse,
   Hidden,
+  Typography,
   makeStyles,
 } from "@material-ui/core";
 import React, { useState } from "react";
@@ -39,13 +40,28 @@ const menu = [
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
-    top: 'auto',
-    bottom: 0,
-    [theme.breakpoints.up("md")]: {
-      top: 0,
-      bottom: 'auto'
+    bottom: 'auto',
+    top: 0,
+    [theme.breakpoints.down("md")]: {
+      bottom: 0,
+      top: 'auto',
     },
   },
+  bottomNav: {
+    [theme.breakpoints.up("md")]: {
+      alignItems: 'center',
+      padding: '.2rem 3rem',
+      height: 'auto',
+    },
+  },
+  title: {
+    fontWeight: "bold",
+  },
+  search: {
+    flexGrow: 3,
+    display: 'flex',
+    justifyCotent: 'flex-end',
+  }
 }));
 
 export default function Navigation() {
@@ -61,13 +77,22 @@ export default function Navigation() {
   return (
     <AppBar 
       position="fixed" 
-      color="primary" 
       className={classes.appBar}
     >
       <BottomNavigation
         showLabels
-        component='nav'
+        classes={{
+          root: classes.bottomNav
+        }}
       >
+        <Hidden mdDown>
+          <Typography 
+            variant="h6" 
+            className={classes.title}
+          >
+            Couchers
+          </Typography>
+        </Hidden>
         {menu.map(item => (
           <BottomNavigationAction
             component={Link}
@@ -75,6 +100,17 @@ export default function Navigation() {
             label={item.name}
           />
         ))}
+        <Hidden mdDown>
+          <BottomNavigationAction
+            component={Link}
+            to={logoutRoute}
+            label="Logout"
+            showLabel
+          />
+          <div className={classes.search}>
+            <SearchBox />
+          </div>
+        </Hidden>
       </BottomNavigation>
     </AppBar>
   );
