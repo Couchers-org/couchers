@@ -3,13 +3,13 @@ import { Autocomplete } from "@material-ui/lab";
 import { unwrapResult } from "@reduxjs/toolkit";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { theme } from "../../theme";
 import Alert from "../../components/Alert";
 import Button from "../../components/Button";
 import TextField from "../../components/TextField";
-import { ProfileFormData } from "../../service/user";
-import ProfileTextInput from "./ProfileTextInput";
 import { updateUserProfile } from "./index";
+import ProfileTextInput from "./ProfileTextInput";
+import { ProfileFormData } from "../../service/user";
+import { theme } from "../../theme";
 import { useAppDispatch, useTypedSelector } from "../../store";
 
 const useStyles = makeStyles({

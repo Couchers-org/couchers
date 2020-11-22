@@ -1,4 +1,4 @@
-import { makeStyles } from "@material-ui/core";
+import { makeStyles, TextFieldProps } from "@material-ui/core";
 import {
   Autocomplete as MuiAutocomplete,
   AutocompleteProps,
@@ -23,6 +23,9 @@ type AppAutocompleteProps<
   "renderInput"
 > & {
   label: string;
+  helperText?: string;
+  inputVariant?: TextFieldProps["variant"];
+  margin?: TextFieldProps["margin"];
 };
 
 export default function Autocomplete<
@@ -31,8 +34,11 @@ export default function Autocomplete<
   DisableClearable extends boolean | undefined,
   FreeSolo extends boolean | undefined
 >({
+  helperText,
   label,
+  margin,
   options,
+  inputVariant,
   className,
   ...otherProps
 }: AppAutocompleteProps<T, Multiple, DisableClearable, FreeSolo>) {
@@ -43,7 +49,15 @@ export default function Autocomplete<
       {...otherProps}
       options={options}
       className={classNames(classes.root, className)}
-      renderInput={(params) => <TextInput {...params} label={label} />}
+      renderInput={(params) => (
+        <TextInput
+          {...params}
+          helperText={helperText}
+          label={label}
+          margin={margin}
+          variant={inputVariant}
+        />
+      )}
     ></MuiAutocomplete>
   );
 }

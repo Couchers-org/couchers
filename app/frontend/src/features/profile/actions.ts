@@ -19,3 +19,19 @@ export const updateUserProfile = createAsyncThunk<
 
   return service.user.getUser(username);
 });
+
+export const updateHostingPreference = createAsyncThunk<
+  User.AsObject,
+  ProfileFormData,
+  { state: RootState }
+>("profile/updateHostingPreference", async (userData, { getState }) => {
+  const username = getState().auth.user?.username;
+
+  if (!username) {
+    throw Error("User is not connected.");
+  }
+
+  await service.user.updateHostingPreference(userData);
+
+  return service.user.getUser(username);
+});

@@ -1,4 +1,8 @@
-import { StringValue } from "google-protobuf/google/protobuf/wrappers_pb";
+import {
+  BoolValue,
+  StringValue,
+  UInt32Value,
+} from "google-protobuf/google/protobuf/wrappers_pb";
 
 import {
   RepeatedStringValue,
@@ -11,10 +15,14 @@ export type ProtoToJsTypes<T> = T extends StringValue.AsObject
   ? string
   : T extends RepeatedStringValue.AsObject
   ? string[]
+  : T extends BoolValue.AsObject
+  ? boolean
   : T extends NullableUInt32Value.AsObject
   ? number | null
   : T extends NullableBoolValue.AsObject
   ? boolean | null
   : T extends NullableStringValue.AsObject
   ? string | null
+  : T extends UInt32Value.AsObject
+  ? number | null
   : T;
