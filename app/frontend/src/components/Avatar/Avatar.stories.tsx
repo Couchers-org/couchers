@@ -21,9 +21,12 @@ const user = {
 const Template: Story<AvatarProps> = (args) => (
   <>
     <div style={{ display: "flex" }}>
-      <Avatar {...args} />A default sized Avatar with default sized text.
+      <Avatar {...args} />A default sized Avatar.
     </div>
-    <div style={{ width: "400px", height: "400px" }}>
+    <div style={{ display: "flex" }}>
+      <Avatar style={{ width:'100px', height: '50px' }} {...args} />An explicitly sized Avatar.
+    </div>
+    <div style={{ width: "400px", height: "400px",border:'1px solid black' }}>
       <Avatar grow {...args} />
       An Avatar set to grow to the width of the containing block.
     </div>
