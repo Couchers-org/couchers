@@ -1,8 +1,8 @@
 <template>
   <div>
     <v-snackbar v-model="successVisible" color="success" top>
-      <b>Thank you</b> for reporting that bug, it was sent to the devs! The bug
-      ID is <b>{{ reportIdentifier }}</b
+      <b>Thank you</b> for reporting that bug and making Couchers.org better, a
+      report was sent to the devs! The bug ID is <b>{{ reportIdentifier }}</b
       >.
       <template v-slot:action="{ attrs }">
         <v-btn dark text v-bind="attrs" @click="successVisible = false"
@@ -40,6 +40,11 @@
           <v-card-title class="headline">Report a problem</v-card-title>
           <v-card-text>
             <error-alert :error="error" />
+            <p>
+              Please note that this information, as well as diagnostic
+              information including which page you are on, what browser you are
+              using, and your user ID will be saved to a public list of bugs.
+            </p>
             <v-text-field
               label="Brief description of the bug"
               v-model="subject"
