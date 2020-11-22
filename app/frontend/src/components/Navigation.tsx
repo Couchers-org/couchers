@@ -1,9 +1,9 @@
 import {
+  AppBar,
+  BottomNavigation,
+  BottomNavigationAction,
   Collapse,
   Hidden,
-  List,
-  ListItem,
-  ListItemText,
   makeStyles,
 } from "@material-ui/core";
 import React, { useState } from "react";
@@ -18,22 +18,33 @@ import { useTypedSelector } from "../store";
 import classNames from "classnames";
 import SearchBox from "./SearchBox";
 
+const menu = [
+  {
+    name: "Dashboard",
+    route: "/"
+  },
+  {
+    name: "Messages",
+    route: messagesRoute
+  },
+  {
+    name: "Requests",
+    route: requestsRoute
+  },
+  {
+    name: "Profile",
+    route: profileRoute
+  },
+];
+
 const useStyles = makeStyles((theme) => ({
-  listContainer: {
-    display: "block",
-    width: "100%",
+  appBar: {
+    top: 'auto',
+    bottom: 0,
     [theme.breakpoints.up("md")]: {
-      display: "flex",
-      flexWrap: "wrap",
+      top: 0,
+      bottom: 'auto'
     },
-  },
-  menuList: {
-    [theme.breakpoints.down("sm")]: {
-      marginLeft: "1em",
-    },
-  },
-  item: {
-    width: "fit-content",
   },
 }));
 
@@ -47,67 +58,24 @@ export default function Navigation() {
     setOpen(!open);
   };
 
-  const menu = (
-    <List className={classNames(classes.listContainer, classes.menuList)}>
-      <ListItem button component={Link} to="/" className={classes.item}>
-        <ListItemText>Dashboard</ListItemText>
-      </ListItem>
-      <ListItem
-        button
-        component={Link}
-        to={profileRoute}
-        className={classes.item}
-      >
-        <ListItemText>Profile</ListItemText>
-      </ListItem>
-      <ListItem
-        button
-        component={Link}
-        to={messagesRoute}
-        className={classes.item}
-      >
-        <ListItemText>Messages</ListItemText>
-      </ListItem>
-      <ListItem
-        button
-        component={Link}
-        to={requestsRoute}
-        className={classes.item}
-      >
-        <ListItemText>Requests</ListItemText>
-      </ListItem>
-      {user ? (
-        <ListItem
-          button
-          component={Link}
-          to={logoutRoute}
-          className={classes.item}
-        >
-          <ListItemText>Logout</ListItemText>
-        </ListItem>
-      ) : null}
-      <SearchBox />
-    </List>
-  );
-
-  //this puts the navigation under a collapsable button on mobile only
   return (
-    <nav>
-      <Hidden mdUp>
-        <ListItem
-          button
-          component="a"
-          onClick={handleClick}
-          className={classes.item}
-        >
-          <ListItemText>Navigation</ListItemText>
-        </ListItem>
-        <Collapse in={open} timeout="auto">
-          {menu}
-        </Collapse>
-      </Hidden>
-
-      <Hidden smDown>{menu}</Hidden>
-    </nav>
+    <AppBar 
+      position="fixed" 
+      color="primary" 
+      className={classes.appBar}
+    >
+      <BottomNavigation
+        showLabels
+        component='nav'
+      >
+        {menu.map(item => (
+          <BottomNavigationAction
+            component={Link}
+            to={item.route}
+            label={item.name}
+          />
+        ))}
+      </BottomNavigation>
+    </AppBar>
   );
 }
