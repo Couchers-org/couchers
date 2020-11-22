@@ -69,6 +69,8 @@ const useStyles = makeStyles((theme) => ({
     padding: '0 3rem',
     [theme.breakpoints.down("sm")]: {
       flex: 1,
+      padding: 0,
+      justifyContent: "space-evenly",
     },
   },
   item: {
@@ -104,7 +106,7 @@ export default function Navigation() {
           gutters: classes.gutters
         }}
       >
-        <Hidden mdDown>
+        <Hidden smDown>
           <Typography 
             variant="h5" 
             className={classes.title}
@@ -134,7 +136,7 @@ export default function Navigation() {
           {item.name}
           </Button>
         ))}
-        <Hidden mdDown>
+        <Hidden smDown>
           { user && (
             <Button
               classes={{
@@ -149,7 +151,7 @@ export default function Navigation() {
           )}
         </Hidden>
         </Grid>
-        <Hidden mdDown>
+        <Hidden smDown>
           <div className={classes.search}>
             <SearchBox />
           </div>
