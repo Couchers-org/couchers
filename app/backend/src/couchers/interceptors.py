@@ -142,3 +142,41 @@ class UpdateLastActiveTimeInterceptor(grpc.ServerInterceptor):
             request_deserializer=handler.request_deserializer,
             response_serializer=handler.response_serializer,
         )
+
+
+class ErrorSanitizationInterceptor(grpc.ServerInterceptor):
+    """
+    If the call resulted in a non-gRPC error, this strips away the error details.
+    """
+
+    class _BackendError(Exception):
+        pass
+
+    def intercept_service(self, continuation, handler_call_details):
+        handler = continuation(handler_call_details)
+        prev_func = handler.unary_unary
+
+        def sanitizing_function(req, context):
+            try:
+                res = prev_func(req, context)
+            except Exception as e:
+                try:
+                    # need a funky condition variable here, just in case
+                    with context._state.condition:
+                        code = context._state.code
+                    # the code is one of the RPC error codes if this was failed through abort(), otherwise it's None
+                    if not code:
+                        logger.error(f"Probably an unknown error! Sanitizing...")
+                        raise self._BackendError("An unknown backend error occured. Please consider filing a bug!")
+                    else:
+                        logger.error(f"RPC error: {code}")
+                        raise e
+                except Exception as e:
+                    raise e
+            return res
+
+        return grpc.unary_unary_rpc_method_handler(
+            sanitizing_function,
+            request_deserializer=handler.request_deserializer,
+            response_serializer=handler.response_serializer,
+        )
