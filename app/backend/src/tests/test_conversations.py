@@ -2,12 +2,11 @@ from datetime import datetime
 
 import grpc
 import pytest
-from google.protobuf import empty_pb2, wrappers_pb2
+from google.protobuf import wrappers_pb2
 
 from couchers import errors
-from couchers.models import User
 from pb import api_pb2, conversations_pb2
-from tests.test_fixtures import api_session, conversations_session, db, generate_user, make_friends, testconfig
+from tests.test_fixtures import api_session, conversations_session, generate_user, make_friends
 
 
 @pytest.fixture(autouse=True)

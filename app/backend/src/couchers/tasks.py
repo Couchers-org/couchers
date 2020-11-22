@@ -2,7 +2,6 @@ import logging
 
 from couchers import email, urls
 from couchers.config import config
-from couchers.models import FriendRelationship, HostRequest, User
 
 logger = logging.getLogger(__name__)
 

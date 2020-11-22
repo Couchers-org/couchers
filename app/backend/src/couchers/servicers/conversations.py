@@ -1,15 +1,10 @@
-import logging
-from datetime import datetime
-
 import grpc
 from google.protobuf import empty_pb2
-from google.protobuf.timestamp_pb2 import Timestamp
-from sqlalchemy.orm import aliased
-from sqlalchemy.sql import and_, func, or_
+from sqlalchemy.sql import func, or_
 
 from couchers import errors
-from couchers.db import get_friends_status, get_user_by_field, session_scope
-from couchers.models import Conversation, GroupChat, GroupChatRole, GroupChatSubscription, Message, MessageType, User
+from couchers.db import get_friends_status, session_scope
+from couchers.models import Conversation, GroupChat, GroupChatRole, GroupChatSubscription, Message, MessageType
 from couchers.utils import Timestamp_from_datetime
 from pb import api_pb2, conversations_pb2, conversations_pb2_grpc
 

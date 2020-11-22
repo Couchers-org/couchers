@@ -3,7 +3,6 @@ import logging
 
 import grpc
 from google.protobuf import empty_pb2
-from google.protobuf.timestamp_pb2 import Timestamp
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, or_
 

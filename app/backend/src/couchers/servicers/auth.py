@@ -1,6 +1,5 @@
 import logging
 from datetime import datetime
-from typing import Union
 
 import grpc
 from sqlalchemy import func

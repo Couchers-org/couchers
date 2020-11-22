@@ -1,12 +1,11 @@
 from concurrent import futures
 from contextlib import contextmanager
-from datetime import date, timedelta
+from datetime import date
 from unittest.mock import patch
 
 import grpc
 import pytest
 from sqlalchemy import create_engine
-from sqlalchemy.event import listen, remove
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 

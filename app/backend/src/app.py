@@ -1,5 +1,4 @@
 import logging
-import os
 import sys
 from concurrent import futures
 
@@ -12,7 +11,6 @@ from sqlalchemy.orm import sessionmaker
 from couchers import config
 from couchers.db import session_scope
 from couchers.interceptors import LoggingInterceptor, UpdateLastActiveTimeInterceptor
-from couchers.models import Base
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
 from couchers.servicers.bugs import Bugs

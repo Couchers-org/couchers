@@ -1,11 +1,11 @@
 import logging
-from urllib.parse import parse_qs, quote, unquote, urlencode
+from urllib.parse import parse_qs, unquote, urlencode
 
 import grpc
 
 from couchers import errors
 from couchers.crypto import base64decode, base64encode, sso_check_hmac, sso_create_hmac
-from couchers.db import get_friends_status, get_user_by_field, is_valid_color, is_valid_name, session_scope
+from couchers.db import session_scope
 from couchers.models import User
 from pb import sso_pb2, sso_pb2_grpc
 

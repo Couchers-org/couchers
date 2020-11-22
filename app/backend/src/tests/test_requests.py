@@ -2,15 +2,12 @@ from datetime import datetime, timedelta
 
 import grpc
 import pytest
-from google.protobuf import empty_pb2, wrappers_pb2
-from sqlalchemy.orm import aliased
-from sqlalchemy.sql import and_
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType
+from couchers.models import Message, MessageType
 from pb import api_pb2, conversations_pb2, requests_pb2
-from tests.test_fixtures import api_session, db, generate_user, make_friends, requests_session, testconfig
+from tests.test_fixtures import api_session, generate_user, requests_session
 
 
 @pytest.fixture(autouse=True)

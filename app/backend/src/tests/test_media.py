@@ -1,5 +1,5 @@
 from base64 import urlsafe_b64decode
-from urllib.parse import parse_qs, quote, unquote, urlencode, urlparse
+from urllib.parse import parse_qs, urlparse
 
 import pytest
 from google.protobuf import empty_pb2
@@ -7,8 +7,8 @@ from google.protobuf import empty_pb2
 from couchers.crypto import random_hex
 from couchers.db import session_scope
 from couchers.models import InitiatedUpload, User
-from pb import api_pb2, media_pb2
-from tests.test_fixtures import api_session, db, generate_user, media_session, testconfig
+from pb import media_pb2
+from tests.test_fixtures import api_session, generate_user, media_session
 
 
 @pytest.fixture(autouse=True)

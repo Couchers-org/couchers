@@ -1,14 +1,11 @@
-from concurrent import futures
-from contextlib import contextmanager
-
 import grpc
 import pytest
 
 from couchers.crypto import random_hex
 from couchers.db import session_scope
-from couchers.models import Base, LoginToken, SignupToken, User
-from pb import api_pb2, auth_pb2, auth_pb2_grpc, bugs_pb2_grpc
-from tests.test_fixtures import auth_api_session, db, generate_user, real_api_session, testconfig
+from couchers.models import LoginToken, SignupToken, User
+from pb import api_pb2, auth_pb2
+from tests.test_fixtures import auth_api_session, generate_user, real_api_session
 
 
 @pytest.fixture(autouse=True)

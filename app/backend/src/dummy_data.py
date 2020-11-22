@@ -8,7 +8,6 @@ from sqlalchemy.exc import IntegrityError
 from couchers.crypto import hash_password
 from couchers.db import get_user_by_field, session_scope
 from couchers.models import (
-    Base,
     Conversation,
     FriendRelationship,
     FriendStatus,
@@ -22,7 +21,6 @@ from couchers.models import (
     User,
 )
 from couchers.servicers.api import hostingstatus2sql
-from couchers.utils import Timestamp_from_datetime
 from pb.api_pb2 import HostingStatus
 
 logger = logging.getLogger(__name__)
