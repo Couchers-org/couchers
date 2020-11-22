@@ -1,10 +1,10 @@
 // also exported from '@storybook/react' if you can deal with breaking changes in 6.1
 import { Meta, Story } from "@storybook/react/types-6-0";
 import * as React from "react";
+
+import { Avatar, AvatarProps } from ".";
 // @ts-ignore
 import imageFile from "../../stories/assets/funnycat.jpg";
-
-import Avatar, { AvatarProps } from "../Avatar";
 
 export default {
   title: "Components/Avatar",
@@ -23,13 +23,9 @@ const Template: Story<AvatarProps> = (args) => (
     <div style={{ display: "flex" }}>
       <Avatar {...args} />A default sized Avatar with default sized text.
     </div>
-    <div style={{ display: "flex", fontSize: "40px" }}>
-      <Avatar {...args} />A default sized Avatar with big text makes the Avatar
-      also big.
-    </div>
-    <div style={{ display: "flex" }}>
-      <Avatar style={{ width: "4em", height: "4em" }} {...args} />
-      An explicitly sized Avatar with default sized text.
+    <div style={{ width: "400px", height: "400px" }}>
+      <Avatar grow {...args} />
+      An Avatar set to grow to the width of the containing block.
     </div>
   </>
 );
