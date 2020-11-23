@@ -5,35 +5,36 @@ export const mockedService = {} as typeof originalService;
 export const service = new Proxy(
   {},
   {
-    get(target: {}, name: PropertyKey): any {
+    get(target: {}, serviceName: PropertyKey): any {
       return new Proxy(
         {},
         {
-          get(target: {}, serviceName: PropertyKey): any {
-
+          get(target: {}, methodName: PropertyKey): any {
             const serviceMethod =
-              (mockedService as any)[name] &&
-              (mockedService as any)[name][serviceName];
+              (mockedService as any)[serviceName] &&
+              (mockedService as any)[serviceName][methodName];
             if (serviceMethod) {
-              return async(...args:any[]) => {
-                  console.log(
-                      `Service method '${String(name)}.${String(
-                          serviceName
-                      )}' is called with args:`,...args
-                  );
-                  const result=await serviceMethod(...args)
-                  console.log('Result: ', result)
-                  return Promise.resolve(result);
+              return async (...args: any[]) => {
+                console.log(
+                  `Service method '${String(serviceName)}.${String(
+                    methodName
+                  )}' is called with args:`,
+                  ...args
+                );
+                const result = await serviceMethod(...args);
+                console.log("Result: ", result);
+                return Promise.resolve(result);
               };
-            } else
+            } else {
               return () => {
                 console.warn(
-                  `Service method '${String(name)}.${String(
-                    serviceName
+                  `Service method '${String(serviceName)}.${String(
+                    methodName
                   )}' is called. You should probably mock it.`
                 );
                 return Promise.resolve();
               };
+            }
           },
         }
       );
