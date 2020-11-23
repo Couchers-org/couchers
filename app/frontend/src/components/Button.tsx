@@ -5,24 +5,29 @@ import {
   CircularProgress,
   Box,
 } from "@material-ui/core";
-import React from "react";
+import React, { ElementType } from "react";
 import classNames from "classnames";
 
 const useStyles = makeStyles({
   root: {},
 });
 
-type AppButtonProps = ButtonProps & {
+//type generics required to allow component prop
+//see https://github.com/mui-org/material-ui/issues/15827
+type AppButtonProps<D extends ElementType = "button", P = {}> = ButtonProps<
+  D,
+  P
+> & {
   loading?: boolean;
 };
 
-export default function Button({
+export default function Button<D extends ElementType = "button", P = {}>({
   children,
   disabled,
   className,
   loading,
   ...otherProps
-}: AppButtonProps) {
+}: AppButtonProps<D, P>) {
   const classes = useStyles();
   return (
     <MuiButton

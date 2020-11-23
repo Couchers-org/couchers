@@ -7,7 +7,13 @@ import {
   ListItemText,
   makeStyles,
 } from "@material-ui/core";
-import Icon from "../../components/Icon";
+import {
+  CakeIcon,
+  LanguageIcon,
+  LocationIcon,
+  PersonIcon,
+  WorkIcon,
+} from "../../components/Icons";
 import UserSection from "./UserSection";
 
 const useStyles = makeStyles((theme) => ({
@@ -28,28 +34,28 @@ export default function UserSummary({ user }: { user: User.AsObject }) {
         <List>
           <ListItem>
             <ListItemIcon>
-              <Icon type="cake" titleAccess="Age" />
+              <CakeIcon titleAccess="Age" />
             </ListItemIcon>
             <ListItemText primary={user.age} />
           </ListItem>
           {user.gender && (
             <ListItem>
               <ListItemIcon>
-                <Icon type="gender" titleAccess="Gender" />
+                <PersonIcon titleAccess="Gender" />
               </ListItemIcon>
               <ListItemText primary={user.gender} />
             </ListItem>
           )}
           <ListItem>
             <ListItemIcon>
-              <Icon type="location" titleAccess="Location" />
+              <LocationIcon titleAccess="Location" />
             </ListItemIcon>
             <ListItemText primary="(Location placeholder)" />
           </ListItem>
           {user.languagesList && (
             <ListItem>
               <ListItemIcon>
-                <Icon type="language" titleAccess="Languages spoken" />
+                <LanguageIcon titleAccess="Languages spoken" />
               </ListItemIcon>
               <ListItemText primary={user.languagesList.join(", ")} />
             </ListItem>
@@ -57,7 +63,7 @@ export default function UserSummary({ user }: { user: User.AsObject }) {
           {user.occupation && (
             <ListItem>
               <ListItemIcon>
-                <Icon type="work" titleAccess="Occupation" />
+                <WorkIcon titleAccess="Occupation" />
               </ListItemIcon>
               <ListItemText primary={user.occupation} />
             </ListItem>

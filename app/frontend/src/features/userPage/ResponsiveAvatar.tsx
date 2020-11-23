@@ -1,7 +1,6 @@
 import React from "react";
 import { User } from "../../pb/api_pb";
 import { makeStyles } from "@material-ui/core";
-import PageTitle from "../../components/PageTitle";
 import Avatar from "../../components/Avatar";
 
 const useStyles = makeStyles({
@@ -24,10 +23,8 @@ const useStyles = makeStyles({
 export default function ReponsiveAvatar({ user }: { user: User.AsObject }) {
   const classes = useStyles();
   return (
-    <>
-      <div className={classes.root}>
-        <Avatar user={user} className={classes.avatar} />
-      </div>
-    </>
+    <div className={classes.root}>
+      <Avatar user={user} className={classes.avatar} />
+    </div>
   );
 }
