@@ -25,7 +25,7 @@ export interface AvatarProps extends MuiAvatarProps {
   grow?: boolean;
 }
 
-export function Avatar({ user, grow, ...otherProps }: AvatarProps) {
+export default function Avatar({ user, grow, ...otherProps }: AvatarProps) {
   const classes = useStyles();
   return (
     <MuiAvatar
