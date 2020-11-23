@@ -15,7 +15,7 @@ import {
   CompleteTokenLoginReq,
 } from "../pb/auth_pb";
 import { ProtoToJsTypes } from "../utils/types";
-import client from "./api";
+import client from "./client";
 
 type RequiredUpdateProfileReq = Required<UpdateProfileReq.AsObject>;
 export type ProfileFormData = {
@@ -56,9 +56,6 @@ export async function passwordLogin(
 
 /**
  * Login user using a login token and returns session token
- *
- * @param {string} token
- * @returns {Promise<string>}
  */
 export async function tokenLogin(loginToken: string): Promise<string> {
   const req = new CompleteTokenLoginReq();

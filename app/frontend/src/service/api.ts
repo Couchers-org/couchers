@@ -1,39 +1,9 @@
-import { APIPromiseClient } from "../pb/api_grpc_web_pb";
-import { AuthPromiseClient } from "../pb/auth_grpc_web_pb";
-import { BugsPromiseClient } from "../pb/bugs_grpc_web_pb";
-import { ConversationsPromiseClient } from "../pb/conversations_grpc_web_pb";
-import { RequestsPromiseClient } from "../pb/requests_grpc_web_pb";
-import { SSOPromiseClient } from "../pb/sso_grpc_web_pb";
-import { store } from "../store";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import client from "./client";
 
-const URL = process.env.REACT_APP_API_BASE_URL;
+export async function listFriends() {
+  const req = new Empty();
 
-class AuthInterceptor {
-  intercept(request: any, invoker: (request: any) => any) {
-    const authorizationHeader = request.getMetadata().authorization;
-
-    if (!authorizationHeader) {
-      const { authToken } = store.getState().auth;
-      request.getMetadata().authorization = `Bearer ${authToken}`;
-    }
-    return invoker(request);
-  }
+  const response = await client.api.listFriends(req);
+  return response.toObject().userIdsList;
 }
-
-const interceptor = new AuthInterceptor();
-
-const opts = {
-  unaryInterceptors: [interceptor],
-  streamInterceptors: [interceptor],
-};
-
-const apis = {
-  api: new APIPromiseClient(URL, null, opts),
-  bugs: new BugsPromiseClient(URL, null, opts),
-  sso: new SSOPromiseClient(URL, null, opts),
-  conversations: new ConversationsPromiseClient(URL, null, opts),
-  auth: new AuthPromiseClient(URL),
-  requests: new RequestsPromiseClient(URL, null, opts),
-};
-
-export default apis;

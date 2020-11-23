@@ -4,7 +4,7 @@ import {
   SignupTokenInfoReq,
   UsernameValidReq,
 } from "../pb/auth_pb";
-import client from "./api";
+import client from "./client";
 
 export async function checkUsername(username: string) {
   const req = new LoginReq();
