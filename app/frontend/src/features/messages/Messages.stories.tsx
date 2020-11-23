@@ -4,7 +4,7 @@ import * as React from "react";
 import { Provider } from "react-redux";
 import { store } from "../../store";
 
-import Messages from "./index";
+import Messages from "./Messages";
 
 export default {
   title: "Messages",
