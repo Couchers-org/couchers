@@ -13,9 +13,10 @@
             <h3 class="title is-3">Positions available</h3>
             <p class="content">At the moment, we are specifically looking for:<ul>
               <li>Senior <b>UI/UX manager</b></li>
-              <li><b>Digital marketers</b>: email and social media</li>
+              <li><b>Digital marketers</b></li>
               <li><b>Branding and graphic desginers</b></li>
-              <li><b>Frontend engineers</b> (especially with skills in React)</li>
+              <li><b>Frontend engineers</b> (especially with skills in React and TypeScript)</li>
+              <li><b>Backend engineers</b> (we work in Python)</li>
             </ul></p>
             <p class="content">If you think you could help in other ways, we'd still love to hear from you!</p>
             <p><a class="button is-primary" href="/signup">Join the team</a></p>
