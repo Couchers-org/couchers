@@ -1,10 +1,14 @@
+---
+subject: "User Report"
+---
+
 User Report
 
-Reported by: {{author}}
+Reported by: {{ escape(complaint.author_user.username) }}
 
-Reported User: {{reported_user}}
+Reported User: {{ escape(complaint.reported_user.username) }}
 
-Reason: {{reason}}
+Reason: {{ complaint.reason }}
 
 Description:
-{{description}}
+{{ complaint.description }}

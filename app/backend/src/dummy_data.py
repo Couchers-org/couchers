@@ -2,6 +2,9 @@ import json
 import logging
 from datetime import date
 
+from dateutil import parser
+from sqlalchemy.exc import IntegrityError
+
 from couchers.crypto import hash_password
 from couchers.db import get_user_by_field, session_scope
 from couchers.models import (
@@ -13,15 +16,14 @@ from couchers.models import (
     GroupChatRole,
     GroupChatSubscription,
     Message,
+    MessageType,
     Reference,
     ReferenceType,
     User,
 )
 from couchers.servicers.api import hostingstatus2sql
-from pb.api_pb2 import HostingStatus
 from couchers.utils import Timestamp_from_datetime
-from dateutil import parser
-from sqlalchemy.exc import IntegrityError
+from pb.api_pb2 import HostingStatus
 
 logger = logging.getLogger(__name__)
 
@@ -116,6 +118,7 @@ def add_dummy_data(Session, file_name):
                 for message in group_chat["messages"]:
                     session.add(
                         Message(
+                            message_type=MessageType.text,
                             conversation=chat.conversation,
                             author_id=get_user_by_field(session, message["author"]).id,
                             time=parser.isoparse(message["time"]),

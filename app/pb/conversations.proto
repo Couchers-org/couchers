@@ -67,11 +67,56 @@ service Conversations {
   }
 }
 
+message MessageContentText {
+  string text = 1;
+}
+
+message MessageContentChatCreated {}
+
+message MessageContentChatEdited {}
+
+message MessageContentUserInvited {
+  uint64 target_user_id = 1;
+}
+
+message MessageContentUserLeft {}
+
+message MessageContentUserMadeAdmin {
+  uint64 target_user_id = 1;
+}
+
+message MessageContentUserRemovedAdmin {
+  uint64 target_user_id = 1;
+}
+
+enum HostRequestStatus {
+  HOST_REQUEST_STATUS_PENDING = 0;
+  HOST_REQUEST_STATUS_ACCEPTED = 1;
+  HOST_REQUEST_STATUS_REJECTED = 2;
+  HOST_REQUEST_STATUS_CONFIRMED = 3;
+  HOST_REQUEST_STATUS_CANCELLED = 4;
+}
+
+message MessageContentHostRequestStatusChanged {
+  //this is the new host request status
+  HostRequestStatus status = 1;
+}
+
 message Message {
   uint64 message_id = 1;
   uint64 author_user_id = 2;
   google.protobuf.Timestamp time = 3;
-  string text = 4;
+  oneof content {
+    MessageContentText text = 4;
+
+    MessageContentChatCreated chat_created = 5;
+    MessageContentChatEdited chat_edited = 6;
+    MessageContentUserInvited user_invited = 7;
+    MessageContentUserLeft user_left = 8;
+    MessageContentUserMadeAdmin user_made_admin = 9;
+    MessageContentUserRemovedAdmin user_removed_admin = 10;
+    MessageContentHostRequestStatusChanged host_request_status_changed = 11;
+  }
 }
 
 message GroupChat {

@@ -1,25 +1,74 @@
-version: "3"
+version: "3.8"
 services:
-  proxy:
-    image: 694904428454.dkr.ecr.us-east-1.amazonaws.com/couchers/proxy
-    restart: on-failure
+  postgres:
+    image: postgis/postgis:13-3.0
+    restart: always
+    env_file: postgres.prod.env
+    volumes:
+      - "./data/postgres/pgdata/:/var/lib/postgresql/data/"
     ports:
-      - 8888:8888
-      - 9901:9901
+      - 5432:5432
+    networks:
+      - postgres_backend
   backend:
-    image: 694904428454.dkr.ecr.us-east-1.amazonaws.com/couchers/backend
-    restart: on-failure
-    ports:
-      - 1751:1751
-      - 1752:1752
-      - 1753:1753
+    image: registry.gitlab.com/couchers/couchers/backend
+    restart: always
+    env_file: backend.prod.env
+    expose:
+      - 1751
+      - 1752
+      - 1753
+    depends_on:
+      - postgres
+    networks:
+      - postgres_backend
+      - backend_media
+      - backend_envoy
   media:
-    image: 694904428454.dkr.ecr.us-east-1.amazonaws.com/couchers/media
-    env_file: media/prod.env
-    restart: on-failure
-    ports:
-      - 5000:5000
+    image: registry.gitlab.com/couchers/couchers/media
+    restart: always
+    env_file: media.prod.env
+    volumes:
+      - "./data/media/uploads/:/uploads/"
+    expose:
+      - 5000
     depends_on:
       - backend
-    links:
-      - backend
+    networks:
+      - backend_media
+      - media_nginx
+  envoy:
+    image: registry.gitlab.com/couchers/couchers/proxy
+    restart: always
+    expose:
+      - 8888
+      - 9901
+    networks:
+      - backend_envoy
+      - envoy_nginx
+  nginx:
+    image: registry.gitlab.com/couchers/couchers/nginx
+    restart: always
+    build: nginx
+    env_file: nginx.prod.env
+    volumes:
+      - "./data/certs/:/certs/"
+      - "./data/nginx/logs/:/var/log/nginx/"
+    ports:
+      # we don't support HTTP on the APIs, etc, users don't access these URLs directly anyway, so no redicrect is OK
+      #- 80:80
+      - 443:443
+    networks:
+      - media_nginx
+      - envoy_nginx
+networks:
+  postgres_backend:
+    driver: bridge
+  backend_media:
+    driver: bridge
+  backend_envoy:
+    driver: bridge
+  media_nginx:
+    driver: bridge
+  envoy_nginx:
+    driver: bridge

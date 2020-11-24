@@ -1,60 +1,96 @@
 {
-  "name": "couchers",
+  "name": "couchers-react",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "dev": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint",
-    "format": "prettier --write src/"
-  },
   "dependencies": {
-    "@types/punycode": "^2.1.0",
-    "axios": "^0.19.2",
-    "core-js": "^3.6.5",
-    "google-protobuf": "^3.12.2",
-    "grpc-web": "^1.1.0",
-    "markdown-it": "^10.0.0",
-    "moment": "^2.26.0",
-    "prettier": "^2.0.5",
-    "vue": "^2.6.11",
-    "vue-class-component": "^7.2.3",
-    "vue-property-decorator": "^8.4.2",
-    "vue-router": "^3.2.0",
-    "vuetify": "^2.2.11",
-    "vuex": "^3.4.0",
-    "vuex-persistedstate": "^3.0.1"
+    "@material-ui/core": "^4.11.0",
+    "@material-ui/lab": "^4.0.0-alpha.56",
+    "@reduxjs/toolkit": "^1.4.0",
+    "classnames": "^2.2.6",
+    "google-protobuf": "^3.13.0",
+    "grpc-web": "^1.2.1",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-hook-form": "^6.9.2",
+    "react-redux": "^7.2.1",
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "4.0.0",
+    "redux-persist": "^6.0.0",
+    "typescript": "~4.0.5"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "format": "prettier --write src/",
+    "test-travis": "NODE_ENV=test && react-scripts test --coverage --watchAll=false",
+    "storybook": "start-storybook -p 6006 -s public --no-dll",
+    "build-storybook": "build-storybook -s public --no-dll"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "prettier",
+      "prettier/@typescript-eslint",
+      "prettier/react"
+    ]
+  },
+  "eslintIgnore": [
+    "src/pb/**"
+  ],
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   },
   "devDependencies": {
-    "@types/google-protobuf": "^3.7.2",
-    "@types/markdown-it": "^10.0.2",
-    "@typescript-eslint/eslint-plugin": "^2.33.0",
-    "@typescript-eslint/parser": "^2.33.0",
-    "@vue/cli-plugin-babel": "~4.4.0",
-    "@vue/cli-plugin-eslint": "~4.4.0",
-    "@vue/cli-plugin-router": "~4.4.0",
-    "@vue/cli-plugin-typescript": "~4.4.0",
-    "@vue/cli-plugin-vuex": "~4.4.0",
-    "@vue/cli-service": "~4.4.0",
-    "@vue/eslint-config-typescript": "^5.0.2",
-    "eslint": "^6.7.2",
-    "eslint-plugin-vue": "^6.2.2",
-    "sass": "^1.19.0",
-    "sass-loader": "^8.0.0",
-    "typescript": "~3.9.3",
-    "vue-cli-plugin-vuetify": "~2.0.5",
-    "vue-template-compiler": "^2.6.11",
-    "vuetify-loader": "^1.3.0"
+    "@babel/core": "^7.12.3",
+    "@storybook/addon-actions": "^6.0.28",
+    "@storybook/addon-essentials": "^6.0.28",
+    "@storybook/addon-links": "^6.0.28",
+    "@storybook/node-logger": "^6.0.28",
+    "@storybook/preset-create-react-app": "^3.1.5",
+    "@storybook/react": "^6.0.28",
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^9.3.2",
+    "@testing-library/user-event": "^7.1.2",
+    "@types/classnames": "^2.2.11",
+    "@types/google-protobuf": "^3.7.3",
+    "@types/jest": "^26.0.14",
+    "@types/node": "^12.0.0",
+    "@types/react": "^16.9.0",
+    "@types/react-dom": "^16.9.0",
+    "@types/react-redux": "^7.1.9",
+    "@types/react-router-dom": "^5.1.5",
+    "@types/react-test-renderer": "^16.9.3",
+    "@types/redux-persist": "^4.3.1",
+    "@types/webpack-env": "^1.15.3",
+    "coveralls": "^3.1.0",
+    "eslint-config-prettier": "^6.12.0",
+    "husky": "^4.3.0",
+    "lint-staged": "^10.5.1",
+    "prettier": "^2.1.2",
+    "react-is": "^17.0.1",
+    "react-test-renderer": "^16.13.1"
   },
-  "prettier": {
-    "semi": false,
-    "tabWidth": 2,
-    "trailingComma": "es5",
-    "overrides": [
-      {
-        "files": "src/pb/**",
-        "excludeFiles": true
-      }
+  "jest": {
+    "collectCoverageFrom": [
+      "src/**/*.{ts,tsx}",
+      "!**/node_modules/**",
+      "!src/pb/*"
+    ]
+  },
+  "lint-staged": {
+    "src/**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
+      "prettier --write"
     ]
   }
 }

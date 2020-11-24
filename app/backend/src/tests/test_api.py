@@ -1,19 +1,25 @@
-from datetime import timedelta
-from datetime import datetime
-
-from google.protobuf import empty_pb2, wrappers_pb2
+from datetime import datetime, timedelta
 
 import grpc
 import pytest
+from google.protobuf import empty_pb2, wrappers_pb2
+
+from couchers.db import session_scope
 from couchers.models import Complaint
+from couchers.utils import to_aware_datetime
 from pb import api_pb2
-from tests.test_fixtures import api_session, db, generate_user, make_friends
+from tests.test_fixtures import api_session, db, generate_user, make_friends, real_api_session, testconfig
+
+
+@pytest.fixture(autouse=True)
+def _(testconfig):
+    pass
 
 
 def test_ping(db):
     user, token = generate_user(db, "tester")
 
-    with api_session(db, token) as api:
+    with real_api_session(db, token) as api:
         res = api.Ping(api_pb2.PingReq())
 
     assert res.user.user_id == user.id
@@ -29,9 +35,9 @@ def test_ping(db):
 
     # the joined time is fuzzed
     # but shouldn't be before actual joined time, or more than one hour behind
-    assert user.joined - timedelta(hours=1) <= res.user.joined.ToDatetime() <= user.joined
+    assert user.joined - timedelta(hours=1) <= to_aware_datetime(res.user.joined) <= user.joined
     # same for last_active
-    assert user.last_active - timedelta(hours=1) <= res.user.last_active.ToDatetime() <= user.last_active
+    assert user.last_active - timedelta(hours=1) <= to_aware_datetime(res.user.last_active) <= user.last_active
 
     assert res.user.hosting_status == api_pb2.HOSTING_STATUS_UNKNOWN
 
@@ -462,13 +468,14 @@ def test_reporting(db):
         )
     assert isinstance(res, empty_pb2.Empty)
 
-    entries = db().query(Complaint).all()
+    with session_scope(db) as session:
+        entries = session.query(Complaint).all()
 
-    assert len(entries) == 1
-    assert entries[0].author_user_id == user1.id
-    assert entries[0].reported_user_id == user2.id
-    assert entries[0].reason == "reason text"
-    assert entries[0].description == "description text"
+        assert len(entries) == 1
+        assert entries[0].author_user_id == user1.id
+        assert entries[0].reported_user_id == user2.id
+        assert entries[0].reason == "reason text"
+        assert entries[0].description == "description text"
 
     # Test that reporting oneself and reporting nonexisting user fails
     report_req = api_pb2.ReportReq(reported_user_id=user1.id, reason="foo", description="bar")

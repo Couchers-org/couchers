@@ -1,12 +1,13 @@
 import logging
-from datetime import datetime
 
 import grpc
+from google.protobuf import empty_pb2
+from sqlalchemy import func
+
 from couchers.crypto import secure_compare
 from couchers.db import session_scope
 from couchers.interceptors import ManualAuthValidatorInterceptor
 from couchers.models import InitiatedUpload
-from google.protobuf import empty_pb2
 from pb import media_pb2, media_pb2_grpc
 
 logger = logging.getLogger(__name__)
@@ -25,12 +26,11 @@ class Media(media_pb2_grpc.MediaServicer):
 
     def UploadConfirmation(self, request, context):
         with session_scope(self._Session) as session:
-            now = datetime.utcnow()
             upload = (
                 session.query(InitiatedUpload)
                 .filter(InitiatedUpload.key == request.key)
-                .filter(InitiatedUpload.created <= now)
-                .filter(InitiatedUpload.expiry >= now)
+                .filter(InitiatedUpload.created <= func.now())
+                .filter(InitiatedUpload.expiry >= func.now())
                 .one_or_none()
             )
 

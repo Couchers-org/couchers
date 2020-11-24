@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>{{ subject }}</title>
+    <title>{{ frontmatter.subject }}</title>
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400">
   </head>
@@ -9,7 +9,7 @@
       {% if content %}
       {{ content }}
       {% else %}
-      <p>Sorry, an unknown error occured, please forward this email to <a href="mailto:bugs@couchers.org">bugs@couchers.org</a> so we can investigate further.</p>
+      <p>Sorry, an unknown error occurred, please forward this email to <a href="mailto:bugs@couchers.org">bugs@couchers.org</a> so we can investigate further.</p>
       {% endif %}
       <hr />
       <p>You're receiving this email because you signed up for Couchers.org. If you have any issues, email us at contact@couchers.org.</p>

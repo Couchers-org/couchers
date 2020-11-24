@@ -4,16 +4,21 @@ import sys
 from concurrent import futures
 
 import grpc
-from couchers.config import config
+from alembic import command
+from alembic.config import Config
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+from couchers import config
+from couchers.db import session_scope
 from couchers.interceptors import LoggingInterceptor, UpdateLastActiveTimeInterceptor
 from couchers.models import Base
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
 from couchers.servicers.bugs import Bugs
 from couchers.servicers.conversations import Conversations
-from couchers.servicers.media import Media
-from couchers.servicers.requests import Requests
 from couchers.servicers.media import Media, get_media_auth_interceptor
+from couchers.servicers.requests import Requests
 from couchers.servicers.sso import SSO
 from dummy_data import add_dummy_data
 from pb import (
@@ -25,14 +30,14 @@ from pb import (
     requests_pb2_grpc,
     sso_pb2_grpc,
 )
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+
+config.check_config()
 
 # hex-encoded secret key, used for signatures that  verify main & media server
 # are talking to each other
-MEDIA_SERVER_BEARER_TOKEN = config["MEDIA_SERVER_BEARER_TOKEN"]
+MEDIA_SERVER_BEARER_TOKEN = config.config["MEDIA_SERVER_BEARER_TOKEN"]
 
-logging.basicConfig(format="%(asctime)s.%(msecs)03d: %(process)d: %(message)s", datefmt="%F %T", level=logging.INFO)
+logging.basicConfig(format="%(asctime)s: %(name)d: %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -47,13 +52,27 @@ def log_unhandled_exception(exc_type, exc_value, exc_traceback):
 
 sys.excepthook = log_unhandled_exception
 
-logger.info(f"Starting")
-
-engine = create_engine("sqlite:///db.sqlite", echo=False)
-Base.metadata.create_all(engine)
+engine = create_engine(config.config["DATABASE_CONNECTION_STRING"], echo=False)
 Session = sessionmaker(bind=engine)
 
-add_dummy_data(Session, "src/dummy_data.json")
+logger.info(f"Checking DB connection")
+
+with session_scope(Session) as session:
+    res = session.execute("SELECT 42;")
+    if list(res) != [(42,)]:
+        raise Exception("Failed to connect to DB")
+
+logger.info(f"Running DB migrations")
+
+alembic_cfg = Config("alembic.ini")
+# alembic screws up logging config by default, this tells it not to screw it up if being run at startup like this
+alembic_cfg.set_main_option("dont_mess_up_logging", "False")
+command.upgrade(alembic_cfg, "head")
+
+if config.config["ADD_DUMMY_DATA"]:
+    add_dummy_data(Session, "src/dummy_data.json")
+
+logger.info(f"Starting")
 
 auth = Auth(Session)
 open_server = grpc.server(futures.ThreadPoolExecutor(2), interceptors=[LoggingInterceptor()])

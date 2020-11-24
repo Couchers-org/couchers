@@ -2,12 +2,18 @@ from base64 import urlsafe_b64decode
 from urllib.parse import parse_qs, quote, unquote, urlencode, urlparse
 
 import pytest
+from google.protobuf import empty_pb2
+
 from couchers.crypto import random_hex
 from couchers.db import session_scope
 from couchers.models import InitiatedUpload, User
-from google.protobuf import empty_pb2
 from pb import api_pb2, media_pb2
-from tests.test_fixtures import api_session, db, generate_user, media_session
+from tests.test_fixtures import api_session, db, generate_user, media_session, testconfig
+
+
+@pytest.fixture(autouse=True)
+def _(testconfig):
+    pass
 
 
 def test_media_upload(db):
@@ -26,7 +32,7 @@ def test_media_upload(db):
 
     filename = random_hex(32)
 
-    req = media_pb2.UploadConfirmationReq(key=key, filename=filename,)
+    req = media_pb2.UploadConfirmationReq(key=key, filename=filename)
 
     with media_session(db, media_bearer_token) as media:
         res = media.UploadConfirmation(req)

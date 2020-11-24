@@ -4,7 +4,13 @@ from datetime import datetime, timedelta
 from urllib.parse import urlencode
 
 import grpc
-from couchers import errors
+from google.protobuf import empty_pb2
+from google.protobuf.timestamp_pb2 import Timestamp
+from sqlalchemy import func, or_
+from sqlalchemy.orm import aliased
+from sqlalchemy.sql import and_, func, or_
+
+from couchers import errors, urls
 from couchers.config import config
 from couchers.crypto import generate_hash_signature, random_hex
 from couchers.db import get_friends_status, get_user_by_field, is_valid_color, is_valid_name, session_scope
@@ -22,12 +28,9 @@ from couchers.models import (
     SmokingLocation,
     User,
 )
-from couchers.tasks import send_report_email
-from couchers.utils import Timestamp_from_datetime
-from google.protobuf import empty_pb2
-from google.protobuf.timestamp_pb2 import Timestamp
+from couchers.tasks import send_friend_request_email, send_report_email
+from couchers.utils import Timestamp_from_datetime, now
 from pb import api_pb2, api_pb2_grpc, media_pb2
-from sqlalchemy.sql import func, or_
 
 reftype2sql = {
     api_pb2.ReferenceType.FRIEND: ReferenceType.FRIEND,
@@ -81,27 +84,37 @@ class API(api_pb2_grpc.APIServicer):
     def update_last_active_time(self, user_id):
         with session_scope(self._Session) as session:
             user = session.query(User).filter(User.id == user_id).one()
-            user.last_active = datetime.utcnow()
+            user.last_active = func.now()
 
     def Ping(self, request, context):
         with session_scope(self._Session) as session:
             # auth ought to make sure the user exists
             user = session.query(User).filter(User.id == context.user_id).one()
 
+            # gets only the max message by self-joining messages which have a greater id
+            # if it doesn't have a greater id, it's the biggest
+            message_2 = aliased(Message)
             unseen_host_request_count_1 = (
-                session.query(Message, HostRequest)
-                .outerjoin(HostRequest, Message.conversation_id == HostRequest.conversation_id)
+                session.query(Message.id)
+                .join(HostRequest, Message.conversation_id == HostRequest.conversation_id)
+                .outerjoin(
+                    message_2, and_(Message.conversation_id == message_2.conversation_id, Message.id < message_2.id)
+                )
                 .filter(HostRequest.from_user_id == context.user_id)
+                .filter(message_2.id == None)
                 .filter(HostRequest.from_last_seen_message_id < Message.id)
-                .group_by(Message.conversation_id)
                 .count()
             )
+
             unseen_host_request_count_2 = (
-                session.query(Message, HostRequest)
-                .outerjoin(HostRequest, Message.conversation_id == HostRequest.conversation_id)
+                session.query(Message.id)
+                .join(HostRequest, Message.conversation_id == HostRequest.conversation_id)
+                .outerjoin(
+                    message_2, and_(Message.conversation_id == message_2.conversation_id, Message.id < message_2.id)
+                )
                 .filter(HostRequest.to_user_id == context.user_id)
+                .filter(message_2.id == None)
                 .filter(HostRequest.to_last_seen_message_id < Message.id)
-                .group_by(Message.conversation_id)
                 .count()
             )
 
@@ -285,8 +298,10 @@ class API(api_pb2_grpc.APIServicer):
 
             # Race condition!
 
-            friend_relationship = FriendRelationship(from_user=from_user, to_user=to_user, status=FriendStatus.pending,)
+            friend_relationship = FriendRelationship(from_user=from_user, to_user=to_user, status=FriendStatus.pending)
             session.add(friend_relationship)
+
+            send_friend_request_email(friend_relationship)
 
             return empty_pb2.Empty()
 
@@ -340,7 +355,7 @@ class API(api_pb2_grpc.APIServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.FRIEND_REQUEST_NOT_FOUND)
 
             friend_request.status = FriendStatus.accepted if request.accept else FriendStatus.rejected
-            friend_request.time_responded = datetime.utcnow()
+            friend_request.time_responded = func.now()
 
             session.commit()
 
@@ -360,7 +375,7 @@ class API(api_pb2_grpc.APIServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.FRIEND_REQUEST_NOT_FOUND)
 
             friend_request.status = FriendStatus.cancelled
-            friend_request.time_responded = datetime.utcnow()
+            friend_request.time_responded = func.now()
 
             session.commit()
 
@@ -371,7 +386,7 @@ class API(api_pb2_grpc.APIServicer):
             users = []
             for user in (
                 session.query(User)
-                .filter(or_(User.name.ilike(f"%{request.query}%"), User.username.ilike(f"%{request.query}%"),))
+                .filter(or_(User.name.ilike(f"%{request.query}%"), User.username.ilike(f"%{request.query}%")))
                 .all()
             ):
                 users.append(user_model_to_pb(user, session, context))
@@ -382,21 +397,25 @@ class API(api_pb2_grpc.APIServicer):
         if context.user_id == request.reported_user_id:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REPORT_SELF)
 
-        message = Complaint(
-            author_user_id=context.user_id,
-            reported_user_id=request.reported_user_id,
-            reason=request.reason,
-            description=request.description,
-        )
         with session_scope(self._Session) as session:
             reported_user = session.query(User).filter(User.id == request.reported_user_id).one_or_none()
+
             if not reported_user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
-            session.add(message)
 
-            reporting_user = session.query(User).filter(User.id == context.user_id).one()
+            complaint = Complaint(
+                author_user_id=context.user_id,
+                reported_user_id=request.reported_user_id,
+                reason=request.reason,
+                description=request.description,
+            )
 
-            send_report_email(reporting_user, reported_user, request.reason, request.description)
+            session.add(complaint)
+
+            # commit here so that send_report_email can lazy-load stuff it needs
+            session.commit()
+
+            send_report_email(complaint)
 
             return empty_pb2.Empty()
 
@@ -464,11 +483,11 @@ class API(api_pb2_grpc.APIServicer):
     def InitiateMediaUpload(self, request, context):
         key = random_hex()
 
-        now = datetime.utcnow()
-        expiry = now + timedelta(minutes=20)
+        created = now()
+        expiry = created + timedelta(minutes=20)
 
         with session_scope(self._Session) as session:
-            upload = InitiatedUpload(key=key, created=now, expiry=expiry, user_id=context.user_id,)
+            upload = InitiatedUpload(key=key, created=created, expiry=expiry, user_id=context.user_id)
             session.add(upload)
             session.commit()
 
@@ -487,7 +506,8 @@ class API(api_pb2_grpc.APIServicer):
         path = "upload?" + urlencode({"data": data, "sig": sig})
 
         return api_pb2.InitiateMediaUploadRes(
-            upload_url=f"{config['MEDIA_SERVER_BASE_URL']}/{path}", expiry=Timestamp_from_datetime(expiry),
+            upload_url=urls.media_upload_url(path),
+            expiry=Timestamp_from_datetime(expiry),
         )
 
 
@@ -536,7 +556,7 @@ def user_model_to_pb(db_user, session, context):
         countries_lived=db_user.countries_lived.split("|") if db_user.countries_lived else [],
         friends=get_friends_status(session, context.user_id, db_user.id),
         mutual_friends=[
-            api_pb2.MutualFriend(user_id=mutual_friend.id, username=mutual_friend.username, name=mutual_friend.name,)
+            api_pb2.MutualFriend(user_id=mutual_friend.id, username=mutual_friend.username, name=mutual_friend.name)
             for mutual_friend in db_user.mutual_friends(context.user_id)
         ],
         smoking_allowed=smokinglocation2api[db_user.smoking_allowed],

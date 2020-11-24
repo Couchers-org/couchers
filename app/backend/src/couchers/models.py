@@ -2,16 +2,26 @@ import enum
 from calendar import monthrange
 from datetime import date
 
-from couchers.config import config
 from sqlalchemy import Boolean, Column, Date, DateTime, Enum, Float, ForeignKey, Integer
 from sqlalchemy import LargeBinary as Binary
-from sqlalchemy import String, UniqueConstraint
+from sqlalchemy import MetaData, String, UniqueConstraint, func
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import backref, relationship
 from sqlalchemy.orm.session import Session
-from sqlalchemy.sql import func
 
-Base = declarative_base()
+from couchers.config import config
+
+meta = MetaData(
+    naming_convention={
+        "ix": "ix_%(column_0_label)s",
+        "uq": "uq_%(table_name)s_%(column_0_name)s",
+        "ck": "ck_%(table_name)s_%(constraint_name)s",
+        "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+        "pk": "pk_%(table_name)s",
+    }
+)
+
+Base = declarative_base(metadata=meta)
 
 
 class PhoneStatus(enum.Enum):
@@ -342,7 +352,7 @@ class GroupChatSubscription(Base):
     last_seen_message_id = Column(Integer, nullable=False, default=0)
 
     user = relationship("User", backref="group_chat_subscriptions")
-    group_chat = relationship("GroupChat", backref="subscriptions")
+    group_chat = relationship("GroupChat", backref=backref("subscriptions", lazy="dynamic"))
 
     @property
     def unseen_message_count(self):
@@ -351,34 +361,82 @@ class GroupChatSubscription(Base):
         session = Session.object_session(self)
 
         return (
-            session.query(func.count(Message.id).label("count"))
+            session.query(Message.id)
             .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
             .filter(GroupChatSubscription.id == self.id)
             .filter(Message.id > GroupChatSubscription.last_seen_message_id)
-            .one()
-        ).count
+            .count()
+        )
 
     def __repr__(self):
         return f"GroupChatSubscription(id={self.id}, user={self.user}, joined={self.joined}, left={self.left}, role={self.role}, group_chat={self.group_chat})"
 
 
+class MessageType(enum.Enum):
+    text = 0
+    # e.g.
+    # image =
+    # emoji =
+    # ...
+    chat_created = 1
+    chat_edited = 2
+    user_invited = 3
+    user_left = 4
+    user_made_admin = 5
+    user_removed_admin = 6
+    host_request_status_changed = 7
+
+
+class HostRequestStatus(enum.Enum):
+    pending = 0
+    accepted = 1
+    rejected = 2
+    confirmed = 3
+    cancelled = 4
+
+
 class Message(Base):
     """
-    Message content.
+    A message.
+
+    If message_type = text, then the message is a normal text message, otherwise, it's a special control message.
     """
 
     __tablename__ = "messages"
 
     id = Column(Integer, primary_key=True)
 
+    # which conversation the message belongs in
     conversation_id = Column(ForeignKey("conversations.id"), nullable=False)
+
+    # the user that sent the message/command
     author_id = Column(ForeignKey("users.id"), nullable=False)
 
+    # the message type, "text" is a text message, otherwise a "control message"
+    message_type = Column(Enum(MessageType), nullable=False)
+
+    # the target if a control message and requires target, e.g. if inviting a user, the user invited is the target
+    target_id = Column(ForeignKey("users.id"), nullable=True)
+
+    # time sent
     time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    text = Column(String, nullable=False)
+
+    # the message text if not control
+    text = Column(String, nullable=True)
+
+    # the new host request status if the message type is host_request_status_changed
+    host_request_status_target = Column(Enum(HostRequestStatus), nullable=True)
 
     conversation = relationship("Conversation", backref="messages", order_by="Message.time.desc()")
-    author = relationship("User")
+    author = relationship("User", foreign_keys="Message.author_id")
+    target = relationship("User", foreign_keys="Message.target_id")
+
+    @property
+    def is_normal_message(self):
+        """
+        There's only one normal type atm, text
+        """
+        return self.message_type == MessageType.text
 
     def __repr__(self):
         return f"Message(id={self.id}, time={self.time}, text={self.text}, author={self.author}, conversation={self.conversation})"
@@ -401,6 +459,9 @@ class Complaint(Base):
     reason = Column(String, nullable=False)
     description = Column(String, nullable=False)
 
+    author_user = relationship("User", foreign_keys="Complaint.author_user_id")
+    reported_user = relationship("User", foreign_keys="Complaint.reported_user_id")
+
 
 class Email(Base):
     """
@@ -422,14 +483,6 @@ class Email(Base):
     html = Column(String, nullable=False)
 
 
-class HostRequestStatus(enum.Enum):
-    pending = 0
-    accepted = 1
-    rejected = 2
-    confirmed = 3
-    cancelled = 4
-
-
 class HostRequest(Base):
     """
     A request to stay with a host
@@ -437,7 +490,7 @@ class HostRequest(Base):
 
     __tablename__ = "host_requests"
 
-    id = Column(Integer, primary_key=True)
+    conversation_id = Column("id", ForeignKey("conversations.id"), nullable=False, primary_key=True)
     from_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     to_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
@@ -447,45 +500,15 @@ class HostRequest(Base):
 
     status = Column(Enum(HostRequestStatus), nullable=False)
 
-    conversation_id = Column(Integer, ForeignKey("conversations.id"), nullable=False)
-    # initial message will have a timestamp for creation time
-    initial_message_id = Column(Integer, ForeignKey("messages.id"), nullable=False)
-
     to_last_seen_message_id = Column(Integer, nullable=False, default=0)
     from_last_seen_message_id = Column(Integer, nullable=False, default=0)
 
     from_user = relationship("User", backref="host_requests_sent", foreign_keys="HostRequest.from_user_id")
     to_user = relationship("User", backref="host_requests_received", foreign_keys="HostRequest.to_user_id")
     conversation = relationship("Conversation")
-    initial_message = relationship("Message")
 
     def __repr__(self):
         return f"HostRequest(id={self.id}, from_user_id={self.from_user_id}, to_user_id={self.to_user_id}...)"
-
-
-class HostRequestEventType(enum.Enum):
-    created = 0  # will be pending upon creation, can't change back
-    status_change_accepted = 1
-    status_change_rejected = 2
-    status_change_confirmed = 3
-    status_change_cancelled = 4
-
-
-class HostRequestEvent(Base):
-    """
-    A change in a HostRequest
-    """
-
-    __tablename__ = "host_request_events"
-
-    id = Column(Integer, primary_key=True)
-    host_request_id = Column(Integer, ForeignKey("host_requests.id"))
-
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    event_type = Column(Enum(HostRequestEventType), nullable=False)
-    # no foreign key, can be 0 for before all messages
-    after_message_id = Column(Integer, nullable=False)
-    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
 
 class InitiatedUpload(Base):

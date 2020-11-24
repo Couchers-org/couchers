@@ -4,15 +4,14 @@ from time import perf_counter_ns
 
 import grpc
 
-
 LOG_VERBOSE_PB = "LOG_VERBOSE_PB" in os.environ
 
 logger = logging.getLogger(__name__)
 
 
-def aborting_handler(code, reason):
+def unauthenticated_handler():
     def f(request, context):
-        context.abort(code, reason)
+        context.abort(grpc.StatusCode.UNAUTHENTICATED, "Unauthorized")
 
     return grpc.unary_unary_rpc_method_handler(f)
 
@@ -31,16 +30,16 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
         metadata = dict(handler_call_details.invocation_metadata)
 
         if "authorization" not in metadata:
-            return aborting_handler(grpc.StatusCode.UNAUTHENTICATED, "Unauthorized")
+            return unauthenticated_handler()
 
         authorization = metadata["authorization"]
         if not authorization.startswith("Bearer "):
-            return aborting_handler(grpc.StatusCode.UNAUTHENTICATED, "Unauthorized")
+            return unauthenticated_handler()
 
         user_id = self._get_user_for_session_token(token=authorization[7:])
 
         if not user_id:
-            return aborting_handler(grpc.StatusCode.UNAUTHENTICATED, "Unauthorized")
+            return unauthenticated_handler()
 
         handler = continuation(handler_call_details)
         user_aware_function = handler.unary_unary
@@ -70,14 +69,14 @@ class ManualAuthValidatorInterceptor(grpc.ServerInterceptor):
         metadata = dict(handler_call_details.invocation_metadata)
 
         if "authorization" not in metadata:
-            return aborting_handler(grpc.StatusCode.UNAUTHENTICATED, "Unauthorized")
+            return unauthenticated_handler()
 
         authorization = metadata["authorization"]
         if not authorization.startswith("Bearer "):
-            return aborting_handler(grpc.StatusCode.UNAUTHENTICATED, "Unauthorized")
+            return unauthenticated_handler()
 
         if not self._is_authorized(token=authorization[7:]):
-            return aborting_handler(grpc.StatusCode.UNAUTHENTICATED, "Unauthorized")
+            return unauthenticated_handler()
 
         return continuation(handler_call_details)
 

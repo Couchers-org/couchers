@@ -1,0 +1,20 @@
+import { StringValue } from "google-protobuf/google/protobuf/wrappers_pb";
+
+import {
+  RepeatedStringValue,
+  NullableUInt32Value,
+  NullableBoolValue,
+  NullableStringValue,
+} from "../pb/api_pb";
+
+export type ProtoToJsTypes<T> = T extends StringValue.AsObject
+  ? string
+  : T extends RepeatedStringValue.AsObject
+  ? string[]
+  : T extends NullableUInt32Value.AsObject
+  ? number | null
+  : T extends NullableBoolValue.AsObject
+  ? boolean | null
+  : T extends NullableStringValue.AsObject
+  ? string | null
+  : T;

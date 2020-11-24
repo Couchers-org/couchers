@@ -1,14 +1,10 @@
 """
 A simple config system
 """
-import logging
 import os
-import sys
-from pathlib import Path
 
-from dotenv import load_dotenv
-
-logger = logging.getLogger(__name__)
+# Sender name for outgoing notification emails e.g. "Couchers.org"
+NOTIFICATION_EMAIL_SENDER = "Couchers.org"
 
 # Allowed config options, as tuples (name, type, default).
 # All fields are required
@@ -19,10 +15,12 @@ CONFIG_OPTIONS = [
     ("VERSION", str, "unknown"),
     # Base URL
     ("BASE_URL", str),
+    # SQLAlchemy database connection string
+    ("DATABASE_CONNECTION_STRING", str),
+    # Whether to try adding dummy data
+    ("ADD_DUMMY_DATA", bool),
     # Email
     ("ENABLE_EMAIL", bool),
-    # Sender name for outgoing notification emails e.g. "Couchers.org"
-    ("NOTIFICATION_EMAIL_SENDER", str),
     # Sender email, e.g. "notify@couchers.org"
     ("NOTIFICATION_EMAIL_ADDRESS", str),
     # Address to send emails about reported users
@@ -44,17 +42,6 @@ CONFIG_OPTIONS = [
     ("BUG_TOOL_GITHUB_TOKEN", str),
 ]
 
-
-if "pytest" in sys.modules:
-    logger.info("Running in TEST")
-    load_dotenv(Path(__file__).parent / ".." / ".." / "test.env")
-else:
-    dot = Path(".")
-    if (dot / ".env").is_file():
-        load_dotenv(dot / ".env")
-    else:
-        load_dotenv(dot / "dev.env")
-
 config = {}
 
 for config_option in CONFIG_OPTIONS:
@@ -71,7 +58,9 @@ for config_option in CONFIG_OPTIONS:
 
     if not value:
         if not optional:
-            raise ValueError(f"Required config value {name} not set")
+            # config value not set - will cause a KeyError when trying
+            # to access it.
+            continue
         else:
             value = default_value
 
@@ -90,10 +79,14 @@ for config_option in CONFIG_OPTIONS:
 
 
 ## Config checks
+def check_config():
+    for name, *_ in CONFIG_OPTIONS:
+        if name not in config:
+            raise ValueError(f"Required config value {name} not set")
 
-if not config["DEV"]:
-    # checks for prod
-    if "https" not in config["BASE_URL"]:
-        raise Exception("Production site must be over HTTPS")
-    if not config["ENABLE_EMAIL"]:
-        raise Exception("Production site must have email enabled")
+    if not config["DEV"]:
+        # checks for prod
+        if "https" not in config["BASE_URL"]:
+            raise Exception("Production site must be over HTTPS")
+        if not config["ENABLE_EMAIL"]:
+            raise Exception("Production site must have email enabled")

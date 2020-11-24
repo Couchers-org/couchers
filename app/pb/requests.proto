@@ -10,6 +10,8 @@ import "pb/conversations.proto";
 service Requests {
   rpc CreateHostRequest(CreateHostRequestReq) returns (CreateHostRequestRes);
   
+  rpc GetHostRequest(GetHostRequestReq) returns (HostRequest);
+  
   // Change the status of a host request.
   // Throws NOT_FOUND if you don't have a host request of that id, NOT_AUTHORIZED
   // if you try to change the status to one you aren't allowed.
@@ -43,24 +45,20 @@ message CreateHostRequestReq {
   string text = 4;
 }
 
-enum HostRequestStatus {
-  HOST_REQUEST_STATUS_PENDING = 0;
-  HOST_REQUEST_STATUS_ACCEPTED = 1;
-  HOST_REQUEST_STATUS_REJECTED = 2;
-  HOST_REQUEST_STATUS_CONFIRMED = 3;
-  HOST_REQUEST_STATUS_CANCELLED = 4;
-}
-
 message HostRequest {
   uint64 host_request_id = 1;
   uint64 from_user_id = 2;
   uint64 to_user_id = 3;
-  HostRequestStatus status = 4;
+  org.couchers.api.conversations.HostRequestStatus status = 4;
   google.protobuf.Timestamp created = 5;
   string from_date = 6;
   string to_date = 7;
   uint64 last_seen_message_id = 8;
   org.couchers.api.conversations.Message latest_message = 9;
+}
+
+message GetHostRequestReq {
+  uint64 host_request_id = 1;
 }
 
 message CreateHostRequestRes {
@@ -69,12 +67,12 @@ message CreateHostRequestRes {
 
 message RespondHostRequestReq {
   uint64 host_request_id = 1;
-  HostRequestStatus status = 2;
+  org.couchers.api.conversations.HostRequestStatus status = 2;
   string text = 3;
 }
 
 message ListHostRequestsReq {
-  uint64 last_request_id = 1;
+  uint64 last_message_id = 1;
   uint32 number = 2;
   
   // Whether to only show pending, accepted and
@@ -98,26 +96,10 @@ message GetHostRequestMessagesReq {
   uint32 number = 3;
 }
 
-message HostRequestEvent {
-  enum HostRequestEventType {
-    HOST_REQUEST_EVENT_TYPE_CREATED = 0;
-    HOST_REQUEST_EVENT_TYPE_ACCEPTED = 1;
-    HOST_REQUEST_EVENT_TYPE_REJECTED = 2;
-    HOST_REQUEST_EVENT_TYPE_CONFIRMED = 3;
-    HOST_REQUEST_EVENT_TYPE_CANCELLED = 4;
-  }
-  
-  HostRequestEventType event_type = 1;
-  uint64 user_id = 2;
-  uint64 after_message_id = 3;
-  google.protobuf.Timestamp time = 4;
-}
-
 message GetHostRequestMessagesRes {
   repeated org.couchers.api.conversations.Message messages = 1;
-  repeated HostRequestEvent events = 2;
-  uint64 next_message_id = 3;
-  bool no_more = 4;
+  uint64 next_message_id = 4;
+  bool no_more = 5;
 }
 
 message SendHostRequestMessageReq {
@@ -135,8 +117,8 @@ message GetHostRequestUpdatesReq {
 message HostRequestUpdate {
   uint64 host_request_id = 1;
   org.couchers.api.conversations.Message message = 2;
-  HostRequestEvent event = 3;
-  HostRequestStatus status = 4;
+  //the current status of the host request, regardless of this update
+  org.couchers.api.conversations.HostRequestStatus status = 3;
 }
 
 message GetHostRequestUpdatesRes {
