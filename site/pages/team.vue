@@ -16,6 +16,7 @@
               <li><b>Digital marketers</b></li>
               <li><b>Branding and graphic desginers</b></li>
               <li><b>Frontend engineers</b> (especially with skills in React and TypeScript)</li>
+              <li><b>Backend engineers</b> (we work in Python)</li>
             </ul></p>
             <p class="content">If you think you could help in other ways, we'd still love to hear from you!</p>
             <p><a class="button is-primary" href="/signup">Join the team</a></p>
