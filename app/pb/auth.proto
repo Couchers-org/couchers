@@ -95,7 +95,9 @@ message SignupTokenInfoRes {
 message CompleteSignupReq {
   string signup_token = 1;
 
+  // Should be lowercase ascii, matching regex [a-z][0-9a-z_]*[a-z0-9]
   string username = 2;
+
   string name = 3;
   string city = 4;
   string birthdate = 5; // in YYYY-MM-DD format

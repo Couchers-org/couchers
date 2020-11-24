@@ -23,6 +23,7 @@ def test_is_valid_username():
     assert not is_valid_username("us_")
     assert not is_valid_username("u")
     assert not is_valid_username("1us")
+    assert not is_valid_username("User")
 
 
 def test_is_valid_name():
