@@ -5,32 +5,32 @@ import { SignupArguments } from "../../service/user";
 export const passwordLogin = createAsyncThunk(
   "auth/passwordLogin",
   async ({ username, password }: { username: string; password: string }) => {
-    const token = await service.user.passwordLogin(username, password);
+    const auth = await service.user.passwordLogin(username, password);
 
-    const user = await service.user.getUser(username, token);
+    const user = await service.user.getUser(username, auth.token);
 
-    return { token, user };
+    return { token: auth.token, jailed: auth.jailed, user };
   }
 );
 
 export const tokenLogin = createAsyncThunk(
   "auth/tokenLogin",
   async (loginToken: string) => {
-    const token = await service.user.tokenLogin(loginToken);
+    const auth = await service.user.tokenLogin(loginToken);
 
-    const user = await service.user.getCurrentUser(token);
+    const user = await service.user.getCurrentUser(auth.token);
 
-    return { token, user };
+    return { token: auth.token, jailed: auth.jailed, user };
   }
 );
 
 export const signup = createAsyncThunk(
   "auth/signup",
   async (signupArguments: SignupArguments) => {
-    const token = await service.user.completeSignup(signupArguments);
+    const auth = await service.user.completeSignup(signupArguments);
 
-    const user = await service.user.getCurrentUser(token);
+    const user = await service.user.getCurrentUser(auth.token);
 
-    return { token, user };
+    return { token: auth.token, jailed: auth.jailed, user };
   }
 );
