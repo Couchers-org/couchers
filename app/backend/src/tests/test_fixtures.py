@@ -36,14 +36,14 @@ def db(request):
     """
     Connect to a running Postgres database, and return the Session object.
 
-    request.params tells whether the db should be built from alembic migrations or using metadata.create_all()
+    request.param tells whether the db should be built from alembic migrations or using metadata.create_all()
     """
     engine = create_engine(config["DATABASE_CONNECTION_STRING"], poolclass=NullPool)
 
     # drop everything currently in the database
     engine.execute("DROP SCHEMA public CASCADE; CREATE SCHEMA public;")
 
-    if request.params:
+    if request.param:
         # rebuild it with alembic migrations
         apply_migrations()
     else:
