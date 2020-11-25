@@ -40,8 +40,6 @@ CONFIG_OPTIONS = [
     ("BUG_TOOL_GITHUB_REPO", str),
     ("BUG_TOOL_GITHUB_USERNAME", str),
     ("BUG_TOOL_GITHUB_TOKEN", str),
-    # Whether we should build the database from models or migrations in tests
-    ("TEST_BUILD_DB_FROM_MIGRATIONS", bool, False),
 ]
 
 config = {}
