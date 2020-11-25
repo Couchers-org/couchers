@@ -13,32 +13,32 @@ const {
 export const passwordLogin = createAsyncThunk(
   "auth/passwordLogin",
   async ({ username, password }: { username: string; password: string }) => {
-    const token = await apiPasswordLogin(username, password);
+    const auth = await apiPasswordLogin(username, password);
 
-    const user = await getUser(username, token);
+    const user = auth.jailed ? null : await getUser(username, auth.token);
 
-    return { token, user };
+    return { token: auth.token, jailed: auth.jailed, user };
   }
 );
 
 export const tokenLogin = createAsyncThunk(
   "auth/tokenLogin",
   async (loginToken: string) => {
-    const token = await apiTokenLogin(loginToken);
+    const auth = await apiTokenLogin(loginToken);
 
-    const user = await getCurrentUser(token);
+    const user = auth.jailed ? null : await getCurrentUser(auth.token);
 
-    return { token, user };
+    return { token: auth.token, jailed: auth.jailed, user };
   }
 );
 
 export const signup = createAsyncThunk(
   "auth/signup",
   async (signupArguments: SignupArguments) => {
-    const token = await completeSignup(signupArguments);
+    const auth = await completeSignup(signupArguments);
 
-    const user = await getCurrentUser(token);
+    const user = auth.jailed ? null : await getCurrentUser(auth.token);
 
-    return { token, user };
+    return { token: auth.token, jailed: auth.jailed, user };
   }
 );

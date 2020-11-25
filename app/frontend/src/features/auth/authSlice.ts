@@ -2,16 +2,19 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { User } from "../../pb/api_pb";
 import { passwordLogin, tokenLogin, signup } from "./index";
 import { updateUserProfile } from "../profile";
+import { updateJailStatus } from "./jail/jailActions";
 
 export interface AuthState {
   authToken: null | string;
   user: null | User.AsObject;
+  jailed: boolean;
   loading: boolean;
   error?: string | null;
 }
 
 const initialState: AuthState = {
   authToken: null,
+  jailed: false,
   user: null,
   //it isn't good practice to keep ui state in the store
   //these refer to authentication loading and error in general
@@ -47,6 +50,7 @@ export const authSlice = createSlice({
       })
       .addCase(passwordLogin.fulfilled, (state, action) => {
         state.authToken = action.payload.token;
+        state.jailed = action.payload.jailed;
         state.user = action.payload.user;
         state.loading = false;
       })
@@ -62,6 +66,7 @@ export const authSlice = createSlice({
       })
       .addCase(tokenLogin.fulfilled, (state, action) => {
         state.authToken = action.payload.token;
+        state.jailed = action.payload.jailed;
         state.user = action.payload.user;
         state.loading = false;
       })
@@ -77,6 +82,7 @@ export const authSlice = createSlice({
       })
       .addCase(signup.fulfilled, (state, action) => {
         state.authToken = action.payload.token;
+        state.jailed = action.payload.jailed;
         state.user = action.payload.user;
         state.loading = false;
       })
@@ -86,6 +92,19 @@ export const authSlice = createSlice({
       })
       .addCase(updateUserProfile.fulfilled, (state, action) => {
         state.user = action.payload;
+      })
+      .addCase(updateJailStatus.pending, (state) => {
+        state.error = null;
+        state.loading = true;
+      })
+      .addCase(updateJailStatus.fulfilled, (state, action) => {
+        state.jailed = action.payload.isJailed;
+        state.user = action.payload.user;
+        state.loading = false;
+      })
+      .addCase(updateJailStatus.rejected, (state, action) => {
+        state.error = action.error.message;
+        state.loading = false;
       });
   },
 });

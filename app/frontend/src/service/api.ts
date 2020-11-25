@@ -2,6 +2,7 @@ import { APIPromiseClient } from "../pb/api_grpc_web_pb";
 import { AuthPromiseClient } from "../pb/auth_grpc_web_pb";
 import { BugsPromiseClient } from "../pb/bugs_grpc_web_pb";
 import { ConversationsPromiseClient } from "../pb/conversations_grpc_web_pb";
+import { JailPromiseClient } from "../pb/jail_grpc_web_pb";
 import { RequestsPromiseClient } from "../pb/requests_grpc_web_pb";
 import { SSOPromiseClient } from "../pb/sso_grpc_web_pb";
 import { store } from "../store";
@@ -34,4 +35,5 @@ export default {
   conversations: new ConversationsPromiseClient(URL, null, opts),
   auth: new AuthPromiseClient(URL),
   requests: new RequestsPromiseClient(URL, null, opts),
+  jail: new JailPromiseClient(URL, null, opts),
 };

@@ -11,6 +11,8 @@ import { RootState } from "./reducers";
 import { authError } from "./features/auth/authSlice";
 import UserPage from "./features/userPage/UserPage";
 import SearchPage from "./features/search/SearchPage";
+import Jail from "./features/auth/jail/Jail";
+import TOS from "./components/TOS";
 
 export const loginRoute = "/login";
 export const loginPasswordRoute = `${loginRoute}/password`;
@@ -23,6 +25,8 @@ export const logoutRoute = "/logout";
 
 export const userRoute = "/user";
 export const searchRoute = "/search";
+export const jailRoute = "/restricted";
+export const tosRoute = "/tos";
 
 export default function AppRoutes() {
   return (
@@ -32,6 +36,9 @@ export default function AppRoutes() {
       </Route>
       <Route path={`${signupRoute}/:urlToken?`}>
         <Signup />
+      </Route>
+      <Route path={tosRoute}>
+        <TOS />
       </Route>
       <PrivateRoute path={profileRoute}>
         <ProfilePage />
@@ -44,6 +51,9 @@ export default function AppRoutes() {
       </PrivateRoute>
       <PrivateRoute path={`${searchRoute}/:query?`}>
         <SearchPage />
+      </PrivateRoute>
+      <PrivateRoute path={jailRoute}>
+        <Jail />
       </PrivateRoute>
       <PrivateRoute exact path="/">
         <Home />
@@ -61,6 +71,9 @@ const PrivateRoute = ({ children, ...otherProps }: RouteProps) => {
   const isAuthenticated = useSelector<RootState, boolean>(
     (state) => state.auth.authToken !== null
   );
+  const isJailed = useSelector<RootState, boolean>(
+    (state) => state.auth.jailed
+  );
   useEffect(() => {
     if (!isAuthenticated) {
       dispatch(authError("Please log in."));
@@ -70,7 +83,8 @@ const PrivateRoute = ({ children, ...otherProps }: RouteProps) => {
   return (
     <>
       <Route {...otherProps}>
-        {!isAuthenticated && <Redirect to="/login" />}
+        {!isAuthenticated && <Redirect to={loginRoute} />}
+        {isJailed && <Redirect to={jailRoute} />}
         {children}
       </Route>
     </>
