@@ -69,5 +69,3 @@ Additionally, we strive to use the ["Google" docstring format](https://sphinxcon
 Please use double quotes `"`, instead of single quotes `'`.
 
 In the **frontend**, make sure to run `yarn format` in `app/frontend` before asking for a review.
-
-The server should operate in UTC, and we should always use datetimes with timezones. Please use the utility functions in `couchers.utils`. For now we pretend the whole world operates in UTC, which will of course have to change soon given we're going to care about local times. How this responsibility is divided up between the frontend and backend is not entirely clear yet though.
