@@ -32,18 +32,18 @@ from pb import (
 
 
 @pytest.fixture(params=[False, True])
-def db(build_db_from_migration):
+def db(request):
     """
     Connect to a running Postgres database, and return the Session object.
 
-    build_db_from_migration tells whether the db should be built from alembic migrations or using metadata.create_all()
+    request.params tells whether the db should be built from alembic migrations or using metadata.create_all()
     """
     engine = create_engine(config["DATABASE_CONNECTION_STRING"], poolclass=NullPool)
 
     # drop everything currently in the database
     engine.execute("DROP SCHEMA public CASCADE; CREATE SCHEMA public;")
 
-    if build_db_from_migration:
+    if request.params:
         # rebuild it with alembic migrations
         apply_migrations()
     else:
