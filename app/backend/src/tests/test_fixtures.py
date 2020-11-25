@@ -41,8 +41,12 @@ def db():
     # drop everything currently in the database
     engine.execute("DROP SCHEMA public CASCADE; CREATE SCHEMA public;")
 
-    # rebuild it with alembic migrations
-    apply_migrations()
+    if config["TEST_BUILD_DB_FROM_MIGRATIONS"]:
+        # rebuild it with alembic migrations
+        apply_migrations()
+    else:
+        # create everything from the current models, not incrementally through migrations
+        Base.metadata.create_all(engine)
 
     return sessionmaker(bind=engine)
 
