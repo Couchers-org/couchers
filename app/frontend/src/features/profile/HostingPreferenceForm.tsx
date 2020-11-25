@@ -12,12 +12,11 @@ import { Controller, useForm, UseFormMethods } from "react-hook-form";
 import { updateHostingPreference } from "./index";
 import Alert from "../../components/Alert";
 import Button from "../../components/Button";
+import { smokingLocationLabels } from "./constants";
 import ProfileTextInput from "./ProfileTextInput";
 import { ProfileFormData } from "../../service/user";
 import { useAppDispatch, useTypedSelector } from "../../store";
-import { theme } from "../../theme";
 import { SmokingLocation } from "../../pb/api_pb";
-import { smokingLocationLabels } from "../../constants";
 
 interface HostingPreferenceCheckboxProps {
   className: string;
@@ -46,14 +45,11 @@ function HostingPreferenceCheckbox({
   );
 }
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   alert: {
     marginBottom: theme.spacing(3),
   },
   form: {
-    "& h2": {
-      margin: 0,
-    },
     marginBottom: theme.spacing(2),
   },
   formControl: {
@@ -62,7 +58,7 @@ const useStyles = makeStyles({
   preferenceSection: {
     paddingTop: theme.spacing(3),
   },
-});
+}));
 
 export default function HostingPreferenceForm() {
   const classes = useStyles();
