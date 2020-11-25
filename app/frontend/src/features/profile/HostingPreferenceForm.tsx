@@ -3,11 +3,12 @@ import {
   FormControl,
   FormControlLabel,
   makeStyles,
+  Typography,
 } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
 import { unwrapResult } from "@reduxjs/toolkit";
 import React, { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, UseFormMethods } from "react-hook-form";
 import { updateHostingPreference } from "./index";
 import Alert from "../../components/Alert";
 import Button from "../../components/Button";
@@ -17,6 +18,33 @@ import { useAppDispatch, useTypedSelector } from "../../store";
 import { theme } from "../../theme";
 import { SmokingLocation } from "../../pb/api_pb";
 import { smokingLocationLabels } from "../../constants";
+
+interface HostingPreferenceCheckboxProps {
+  className: string;
+  defaultValue: boolean;
+  name: string;
+  label: string;
+  register: UseFormMethods<ProfileFormData>["register"];
+}
+
+function HostingPreferenceCheckbox({
+  className,
+  defaultValue,
+  label,
+  name,
+  register,
+}: HostingPreferenceCheckboxProps) {
+  return (
+    <FormControl className={className} margin="dense">
+      <FormControlLabel
+        control={<Checkbox color="primary" defaultChecked={defaultValue} />}
+        label={label}
+        name={name}
+        inputRef={register}
+      />
+    </FormControl>
+  );
+}
 
 const useStyles = makeStyles({
   alert: {
@@ -71,72 +99,42 @@ export default function HostingPreferenceForm() {
       ) : null}
       {user && (
         <form className={classes.form} onSubmit={onSubmit}>
-          <h2>Hosting preferences</h2>
-          <FormControl className={classes.formControl} margin="dense">
-            <FormControlLabel
-              control={
-                <Checkbox
-                  color="primary"
-                  defaultChecked={!!user.multipleGroups?.value}
-                />
-              }
-              label="Multiple groups accepted"
-              name="multipleGroups"
-              inputRef={register}
-            />
-          </FormControl>
-          <FormControl className={classes.formControl} margin="dense">
-            <FormControlLabel
-              control={
-                <Checkbox
-                  color="primary"
-                  defaultChecked={!!user.acceptsKids?.value}
-                />
-              }
-              label="Kids OK"
-              name="acceptsKids"
-              inputRef={register}
-            />
-          </FormControl>
-          <FormControl className={classes.formControl} margin="dense">
-            <FormControlLabel
-              control={
-                <Checkbox
-                  color="primary"
-                  defaultChecked={!!user.acceptsPets?.value}
-                />
-              }
-              label="Pets OK"
-              name="acceptsPets"
-              inputRef={register}
-            />
-          </FormControl>
-          <FormControl className={classes.formControl} margin="dense">
-            <FormControlLabel
-              control={
-                <Checkbox
-                  color="primary"
-                  defaultChecked={!!user.lastMinute?.value}
-                />
-              }
-              label="Last minute requests OK"
-              name="lastMinute"
-              inputRef={register}
-            />
-          </FormControl>
-          <FormControl className={classes.formControl} margin="dense">
-            <FormControlLabel
-              control={
-                <Checkbox
-                  color="primary"
-                  defaultChecked={!!user.wheelchairAccessible?.value}
-                />
-              }
-              label="Wheelchair accessible"
-              name="wheelchairAccessible"
-              inputRef={register}
-            />
-          </FormControl>
+          <Typography variant="h2">Hosting preferences</Typography>
+          <HostingPreferenceCheckbox
+            className={classes.formControl}
+            defaultValue={!!user.multipleGroups?.value}
+            label="Multiple groups accepted"
+            name="multipleGroups"
+            register={register}
+          />
+          <HostingPreferenceCheckbox
+            className={classes.formControl}
+            defaultValue={!!user.acceptsKids?.value}
+            label="Kids OK"
+            name="acceptsKids"
+            register={register}
+          />
+          <HostingPreferenceCheckbox
+            className={classes.formControl}
+            defaultValue={!!user.acceptsPets?.value}
+            label="Pets OK"
+            name="acceptsPets"
+            register={register}
+          />
+          <HostingPreferenceCheckbox
+            className={classes.formControl}
+            defaultValue={!!user.lastMinute?.value}
+            label="Last minute requests OK"
+            name="lastMinute"
+            register={register}
+          />
+          <HostingPreferenceCheckbox
+            className={classes.formControl}
+            defaultValue={!!user.wheelchairAccessible?.value}
+            label="Wheelchair accessible"
+            name="wheelchairAccessible"
+            register={register}
+          />
           <Controller
             control={control}
             defaultValue={user.maxGuests?.value ?? null}

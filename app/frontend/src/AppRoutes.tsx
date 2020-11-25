@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { Switch, Route, RouteProps, Redirect } from "react-router-dom";
 import Login from "./features/auth/login/Login";
-import ProfilePage from "./features/profile/ProfilePage";
 import Home from "./features/Home";
 import Messages from "./features/messages/index";
 import Logout from "./features/auth/Logout";
@@ -9,10 +8,13 @@ import Signup from "./features/auth/signup/Signup";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./reducers";
 import { authError } from "./features/auth/authSlice";
-import EditProfilePage from "./features/profile/EditProfilePage";
+import {
+  EditProfilePage,
+  EditHostingPreferencePage,
+  ProfilePage,
+} from "./features/profile";
 import UserPage from "./features/userPage/UserPage";
 import SearchPage from "./features/search/SearchPage";
-import EditHostingPreferencePage from "./features/profile/EditHostingPreferencePage";
 
 export const loginRoute = "/login";
 export const loginPasswordRoute = `${loginRoute}/password`;
