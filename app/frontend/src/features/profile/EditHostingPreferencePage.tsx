@@ -7,7 +7,7 @@ import { theme } from "../../theme";
 const useStyles = makeStyles({
   title: {
     marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(4),
+    marginBottom: theme.spacing(2),
   },
 });
 

@@ -4,18 +4,17 @@ import {
   FormControlLabel,
   makeStyles,
 } from "@material-ui/core";
+import { Autocomplete } from "@material-ui/lab";
 import { unwrapResult } from "@reduxjs/toolkit";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { updateHostingPreference } from "./index";
 import Alert from "../../components/Alert";
-import Autocomplete from "../../components/Autocomplete";
 import Button from "../../components/Button";
 import ProfileTextInput from "./ProfileTextInput";
 import { ProfileFormData } from "../../service/user";
 import { useAppDispatch, useTypedSelector } from "../../store";
 import { theme } from "../../theme";
-import { numberValidationPattern } from "../../utils/validation";
 import { SmokingLocation } from "../../pb/api_pb";
 import { smokingLocationLabels } from "../../constants";
 
@@ -45,7 +44,9 @@ export default function HostingPreferenceForm() {
     "success" | "error" | undefined
   >();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { control, register, handleSubmit } = useForm<ProfileFormData>();
+  const { control, errors, register, handleSubmit } = useForm<ProfileFormData>({
+    mode: "onBlur",
+  });
 
   const onSubmit = handleSubmit(async (data) => {
     try {
@@ -70,6 +71,72 @@ export default function HostingPreferenceForm() {
       ) : null}
       {user && (
         <form className={classes.form} onSubmit={onSubmit}>
+          <h2>Hosting preferences</h2>
+          <FormControl className={classes.formControl} margin="dense">
+            <FormControlLabel
+              control={
+                <Checkbox
+                  color="primary"
+                  defaultChecked={!!user.multipleGroups?.value}
+                />
+              }
+              label="Multiple groups accepted"
+              name="multipleGroups"
+              inputRef={register}
+            />
+          </FormControl>
+          <FormControl className={classes.formControl} margin="dense">
+            <FormControlLabel
+              control={
+                <Checkbox
+                  color="primary"
+                  defaultChecked={!!user.acceptsKids?.value}
+                />
+              }
+              label="Kids OK"
+              name="acceptsKids"
+              inputRef={register}
+            />
+          </FormControl>
+          <FormControl className={classes.formControl} margin="dense">
+            <FormControlLabel
+              control={
+                <Checkbox
+                  color="primary"
+                  defaultChecked={!!user.acceptsPets?.value}
+                />
+              }
+              label="Pets OK"
+              name="acceptsPets"
+              inputRef={register}
+            />
+          </FormControl>
+          <FormControl className={classes.formControl} margin="dense">
+            <FormControlLabel
+              control={
+                <Checkbox
+                  color="primary"
+                  defaultChecked={!!user.lastMinute?.value}
+                />
+              }
+              label="Last minute requests OK"
+              name="lastMinute"
+              inputRef={register}
+            />
+          </FormControl>
+          <FormControl className={classes.formControl} margin="dense">
+            <FormControlLabel
+              control={
+                <Checkbox
+                  color="primary"
+                  defaultChecked={!!user.wheelchairAccessible?.value}
+                />
+              }
+              label="Wheelchair accessible"
+              name="wheelchairAccessible"
+              inputRef={register}
+            />
+          </FormControl>
           <Controller
             control={control}
             defaultValue={user.maxGuests?.value ?? null}
@@ -78,17 +145,28 @@ export default function HostingPreferenceForm() {
               <Autocomplete
                 disableClearable={false}
                 defaultValue={user.maxGuests?.value}
+                forcePopupIcon
                 freeSolo
                 getOptionLabel={(option) => option.toString()}
-                inputVariant="outlined"
-                label="Max. number of guests"
                 options={[0, 1, 2, 3, 4, 5]}
                 onChange={(e, value) => onChange(value)}
                 multiple={false}
-                forcePopupIcon
+                renderInput={(params) => (
+                  <ProfileTextInput
+                    {...params}
+                    error={!!errors?.maxGuests?.message}
+                    helperText={errors?.maxGuests?.message}
+                    label="Max. number of guests"
+                    name="maxGuests"
+                    onChange={(e) => onChange(Number(e.target.value))}
+                  />
+                )}
               />
             )}
-            rules={{ pattern: numberValidationPattern }}
+            rules={{
+              validate: (value) =>
+                isNaN(value) ? "Invalid number provided" : true,
+            }}
           />
           <ProfileTextInput
             label="Description of your place"
@@ -106,107 +184,43 @@ export default function HostingPreferenceForm() {
             rowsMax={5}
             multiline
           />
-          <div className={classes.preferenceSection}>
-            <h2>Hosting preferences</h2>
-            <FormControl className={classes.formControl}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    color="primary"
-                    defaultChecked={!!user.multipleGroups?.value}
+          <Controller
+            control={control}
+            defaultValue={user.smokingAllowed}
+            name="smokingAllowed"
+            render={({ onChange }) => (
+              <Autocomplete
+                disableClearable
+                defaultValue={user.smokingAllowed}
+                forcePopupIcon
+                freeSolo={false}
+                getOptionLabel={(option) => smokingLocationLabels[option]}
+                multiple={false}
+                options={[
+                  SmokingLocation.SMOKING_LOCATION_YES,
+                  SmokingLocation.SMOKING_LOCATION_WINDOW,
+                  SmokingLocation.SMOKING_LOCATION_OUTSIDE,
+                  SmokingLocation.SMOKING_LOCATION_NO,
+                ]}
+                onChange={(e, value) => onChange(value)}
+                renderInput={(params) => (
+                  <ProfileTextInput
+                    {...params}
+                    label="Smoking allowed?"
+                    name="maxGuests"
                   />
-                }
-                label="Multiple groups accepted"
-                name="multipleGroups"
-                inputRef={register}
+                )}
               />
-            </FormControl>
-            <FormControl className={classes.formControl}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    color="primary"
-                    defaultChecked={!!user.acceptsKids?.value}
-                  />
-                }
-                label="Kids OK"
-                name="acceptsKids"
-                inputRef={register}
-              />
-            </FormControl>
-            <FormControl className={classes.formControl}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    color="primary"
-                    defaultChecked={!!user.acceptsPets?.value}
-                  />
-                }
-                label="Pets OK"
-                name="acceptsPets"
-                inputRef={register}
-              />
-            </FormControl>
-            <FormControl className={classes.formControl}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    color="primary"
-                    defaultChecked={!!user.lastMinute?.value}
-                  />
-                }
-                label="Last minute requests OK"
-                name="lastMinute"
-                inputRef={register}
-              />
-            </FormControl>
-            <FormControl className={classes.formControl}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    color="primary"
-                    defaultChecked={!!user.wheelchairAccessible?.value}
-                  />
-                }
-                label="Wheelchair accessible"
-                name="wheelchairAccessible"
-                inputRef={register}
-              />
-            </FormControl>
-            <Controller
-              control={control}
-              defaultValue={user.smokingAllowed}
-              name="smokingAllowed"
-              render={({ onChange }) => (
-                <Autocomplete
-                  disableClearable
-                  defaultValue={user.smokingAllowed}
-                  forcePopupIcon
-                  freeSolo
-                  getOptionLabel={(option) => smokingLocationLabels[option]}
-                  inputVariant="outlined"
-                  label="Smoking allowed?"
-                  margin="normal"
-                  options={[
-                    SmokingLocation.SMOKING_LOCATION_YES,
-                    SmokingLocation.SMOKING_LOCATION_WINDOW,
-                    SmokingLocation.SMOKING_LOCATION_OUTSIDE,
-                    SmokingLocation.SMOKING_LOCATION_NO,
-                  ]}
-                  onChange={(e, value) => onChange(value)}
-                  multiple={false}
-                />
-              )}
-            />
-            <ProfileTextInput
-              label="Sleeping arrangements"
-              name="sleepingArrangement"
-              defaultValue={user.sleepingArrangement?.value ?? ""}
-              inputRef={register}
-              rowsMax={5}
-              multiline
-            />
-          </div>
+            )}
+          />
+          <ProfileTextInput
+            label="Sleeping arrangements"
+            name="sleepingArrangement"
+            defaultValue={user.sleepingArrangement?.value ?? ""}
+            inputRef={register}
+            rowsMax={5}
+            multiline
+          />
           <Button
             type="submit"
             variant="contained"
