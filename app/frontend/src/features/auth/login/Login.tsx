@@ -32,7 +32,7 @@ export default function Login() {
 
   return (
     <>
-      {authToken && <Redirect to={from.pathname} />}
+      {authToken && <Redirect to={redirectTo} />}
       <Typography variant="h2">Login</Typography>
       {error && <Alert severity="error">{error}</Alert>}
 
