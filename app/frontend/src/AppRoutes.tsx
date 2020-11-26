@@ -69,10 +69,21 @@ const PrivateRoute = ({ children, ...otherProps }: RouteProps) => {
 
   return (
     <>
-      <Route {...otherProps}>
-        {!isAuthenticated && <Redirect to="/login" />}
-        {children}
-      </Route>
+      <Route
+        {...otherProps}
+        render={({ location }) =>
+          isAuthenticated ? (
+            children
+          ) : (
+            <Redirect
+              to={{
+                pathname: "/login",
+                state: { from: location },
+              }}
+            />
+          )
+        }
+      />
     </>
   );
 };
