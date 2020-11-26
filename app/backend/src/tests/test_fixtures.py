@@ -31,7 +31,7 @@ from pb import (
 )
 
 
-@pytest.fixture(params=[False, True])
+@pytest.fixture(params=["migrations", "models"])
 def db(request):
     """
     Connect to a running Postgres database, and return the Session object.
@@ -43,7 +43,7 @@ def db(request):
     # drop everything currently in the database
     engine.execute("DROP SCHEMA public CASCADE; CREATE SCHEMA public;")
 
-    if request.param:
+    if request.param == "migrations":
         # rebuild it with alembic migrations
         apply_migrations()
     else:
