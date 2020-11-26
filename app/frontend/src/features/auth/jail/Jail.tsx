@@ -1,5 +1,5 @@
 import { Backdrop, makeStyles } from "@material-ui/core";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Redirect } from "react-router-dom";
 import Alert from "../../../components/Alert";
 import CircularProgress from "../../../components/CircularProgress";
@@ -23,7 +23,7 @@ export default function Jail() {
   const authError = useTypedSelector((state) => state.auth.error);
 
   const [loading, setLoading] = useState(false);
-  const [jailInfo, setJailInfo] = useState(null as null | JailInfoRes.AsObject);
+  const [jailInfo, setJailInfo] = useState<null | JailInfoRes.AsObject>(null);
 
   useEffect(() => {
     (async () => {
@@ -35,11 +35,11 @@ export default function Jail() {
     })();
   }, [dispatch]);
 
-  const updateJailed = useCallback(async () => {
+  const updateJailed = async () => {
     setLoading(true);
     await dispatch(updateJailStatus());
     setLoading(false);
-  }, [dispatch]);
+  };
 
   return (
     <>
