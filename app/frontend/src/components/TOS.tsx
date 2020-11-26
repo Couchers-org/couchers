@@ -1,13 +1,13 @@
 import { Link } from "@material-ui/core";
 import React from "react";
 import PageTitle from "./PageTitle";
-import BodyText from "./TextBody";
+import TextBody from "./TextBody";
 
 export default function TOS() {
   return (
     <>
       <PageTitle>Terms of Service</PageTitle>
-      <BodyText>
+      <TextBody>
         This is a test TOS. I agree to follow the&nbsp;
         <Link href="https://community.couchers.org/faq">
           Couchers guidelines
@@ -28,7 +28,7 @@ export default function TOS() {
         containing Lorem Ipsum passages, and more recently with desktop
         publishing software like Aldus PageMaker including versions of Lorem
         Ipsum.
-      </BodyText>
+      </TextBody>
     </>
   );
 }
