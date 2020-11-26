@@ -21,35 +21,35 @@ import SearchBox from "./SearchBox";
 const menu = [
   {
     name: "Dashboard",
-    route: "/"
+    route: "/",
   },
   {
     name: "Messages",
-    route: messagesRoute
+    route: messagesRoute,
   },
   {
     name: "Requests",
-    route: requestsRoute
+    route: requestsRoute,
   },
   {
     name: "Profile",
-    route: profileRoute
+    route: profileRoute,
   },
 ];
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
     bottom: 0,
-    top: 'auto',
+    top: "auto",
     [theme.breakpoints.up("md")]: {
       top: 0,
-      bottom: 'auto',
+      bottom: "auto",
     },
   },
   search: {
     flexGrow: 3,
-    display: 'flex',
-    justifyContent: 'flex-end',
+    display: "flex",
+    justifyContent: "flex-end",
   },
   title: {
     fontWeight: "bold",
@@ -58,37 +58,37 @@ const useStyles = makeStyles((theme) => ({
     paddingLeft: 0,
     paddingRight: 0,
     [theme.breakpoints.up("md")]: {
-      paddingLeft: '2rem',
-      paddingRight: '2rem'
+      paddingLeft: "2rem",
+      paddingRight: "2rem",
     },
   },
   label: {
-    fontSize: '0.7rem',
+    fontSize: "0.7rem",
   },
   flex: {
     flex: 1,
     padding: 0,
-    justifyContent: 'space-evenly',
+    justifyContent: "space-evenly",
     [theme.breakpoints.up("md")]: {
-      width: 'auto',
+      width: "auto",
       flex: 0,
-      padding: '0 3rem',
-      justifyContent: 'flex-start',
+      padding: "0 3rem",
+      justifyContent: "flex-start",
     },
   },
   item: {
-    transition: theme.transitions.create(['color', 'padding-top'], {
+    transition: theme.transitions.create(["color", "padding-top"], {
       duration: theme.transitions.duration.short,
     }),
-    padding: '6px 12px 8px',
+    padding: "6px 12px 8px",
     minWidth: 80,
     maxWidth: 168,
     color: theme.palette.text.secondary,
-    flex: '1',
+    flex: "1",
   },
   selected: {
     color: theme.palette.primary.main,
-  }
+  },
 }));
 
 export default function Navigation() {
@@ -100,20 +100,17 @@ export default function Navigation() {
     <AppBar
       position="fixed"
       classes={{
-        root: classes.appBar
+        root: classes.appBar,
       }}
       color="inherit"
     >
       <Toolbar
         classes={{
-          gutters: classes.gutters
+          gutters: classes.gutters,
         }}
       >
         <Hidden smDown>
-          <Typography 
-            variant="h5" 
-            className={classes.title}
-          >
+          <Typography variant="h5" className={classes.title}>
             Couchers
           </Typography>
         </Hidden>
@@ -121,38 +118,38 @@ export default function Navigation() {
           container
           wrap="nowrap"
           classes={{
-            root: classes.flex
+            root: classes.flex,
           }}
         >
-        {menu.map(item => (
-          <Button
-            activeClassName={classes.selected}
-            classes={{
-              root: classes.item,
-              label: classes.label
-            }}
-            component={NavLink}
-            exact
-            to={item.route}
-            key={item.name}
-          >
-          {item.name}
-          </Button>
-        ))}
-        <Hidden smDown>
-          { user && (
+          {menu.map((item) => (
             <Button
+              activeClassName={classes.selected}
               classes={{
                 root: classes.item,
-                label: classes.label
+                label: classes.label,
               }}
-              component={Link}
-              to={logoutRoute}
+              component={NavLink}
+              exact
+              to={item.route}
+              key={item.name}
             >
-            Logout
+              {item.name}
             </Button>
-          )}
-        </Hidden>
+          ))}
+          <Hidden smDown>
+            {user && (
+              <Button
+                classes={{
+                  root: classes.item,
+                  label: classes.label,
+                }}
+                component={Link}
+                to={logoutRoute}
+              >
+                Logout
+              </Button>
+            )}
+          </Hidden>
         </Grid>
         <Hidden smDown>
           <div className={classes.search}>
