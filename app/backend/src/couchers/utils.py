@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 import pytz
 from google.protobuf.timestamp_pb2 import Timestamp
@@ -31,7 +31,7 @@ def largest_current_date():
     """
     # This is not the right way to do it, timezones can change
     # at the time of writing, Samoa observes UTC+14 in Summer
-    return datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=14))).strftime("%Y-%m-%d")
+    return datetime.now(timezone(timedelta(hours=14))).strftime("%Y-%m-%d")
 
 
 def least_current_date():
@@ -40,4 +40,4 @@ def least_current_date():
     """
     # This is not the right way to do it, timezones can change
     # at the time of writing, Baker Island observes UTC-12
-    return datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=-12))).strftime("%Y-%m-%d")
+    return datetime.now(timezone(timedelta(hours=-12))).strftime("%Y-%m-%d")
