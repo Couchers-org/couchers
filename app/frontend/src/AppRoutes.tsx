@@ -55,7 +55,6 @@ export default function AppRoutes() {
   );
 }
 
-// TODO: Redirect to requested route after login
 const PrivateRoute = ({ children, ...otherProps }: RouteProps) => {
   const dispatch = useDispatch();
   const isAuthenticated = useSelector<RootState, boolean>(
