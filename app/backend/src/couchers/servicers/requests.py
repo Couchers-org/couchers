@@ -11,7 +11,7 @@ from couchers import errors
 from couchers.db import is_valid_date, session_scope
 from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType, User
 from couchers.tasks import send_host_request_email
-from couchers.utils import Timestamp_from_datetime
+from couchers.utils import Timestamp_from_datetime, largest_current_date, least_current_date
 from pb import conversations_pb2, requests_pb2, requests_pb2_grpc
 
 logger = logging.getLogger(__name__)
@@ -55,10 +55,6 @@ def message_to_pb(message: Message):
         )
 
 
-def now_date_in_timezone(hours):
-    return datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=hours))).strftime("%Y-%m-%d")
-
-
 class Requests(requests_pb2_grpc.RequestsServicer):
     def __init__(self, Session):
         self._Session = Session
@@ -78,7 +74,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if request.from_date >= request.to_date:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_FROM_AFTER_TO)
 
-            if request.to_date < now_date_in_timezone(-12):
+            if request.to_date < least_current_date():
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_TO_BEFORE_TODAY)
 
             conversation = Conversation()
@@ -199,7 +195,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     )
                 )
                 # As we don't store the user's timezone yet, assume far east
-                today = now_date_in_timezone(+12)
+                today = largest_current_date()
                 # Is this string comparison a bad idea?
                 query = query.filter(HostRequest.to_date <= today)
 
@@ -250,7 +246,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
 
             # As we don't store user's timezone yet, assume far west
-            today = now_date_in_timezone(-12)
+            today = least_current_date()
             if host_request.to_date < today:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.HOST_REQUEST_IN_PAST)
 
