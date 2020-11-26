@@ -39,11 +39,11 @@ const menu = [
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
-    top: 0,
-    bottom: 'auto',
-    [theme.breakpoints.down("sm")]: {
-      bottom: 0,
-      top: 'auto',
+    bottom: 0,
+    top: 'auto',
+    [theme.breakpoints.up("md")]: {
+      top: 0,
+      bottom: 'auto',
     },
   },
   search: {
@@ -55,22 +55,25 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: "bold",
   },
   gutters: {
-    [theme.breakpoints.down("sm")]: {
-      paddingLeft: 0,
-      paddingRight: 0,
+    paddingLeft: 0,
+    paddingRight: 0,
+    [theme.breakpoints.up("md")]: {
+      paddingLeft: '2rem',
+      paddingRight: '2rem'
     },
   },
   label: {
     fontSize: '0.7rem',
   },
   flex: {
-    width: 'auto',
-    flex: 0,
-    padding: '0 3rem',
-    [theme.breakpoints.down("sm")]: {
-      flex: 1,
-      padding: 0,
-      justifyContent: "space-evenly",
+    flex: 1,
+    padding: 0,
+    justifyContent: 'space-evenly',
+    [theme.breakpoints.up("md")]: {
+      width: 'auto',
+      flex: 0,
+      padding: '0 3rem',
+      justifyContent: 'flex-start',
     },
   },
   item: {
