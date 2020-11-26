@@ -14,7 +14,16 @@ import PageTitle from "./components/PageTitle";
 import { theme } from "./theme";
 
 const useStyles = makeStyles((theme) => ({
-  offset: theme.mixins.toolbar,
+  offset: {
+    paddingBottom: 56,
+    [`${theme.breakpoints.up("xs")} and (orientation: landscape)`]: {
+      paddingBottom: 48,
+    },
+    [theme.breakpoints.up("md")]: {
+      paddingBottom: 0,
+      paddingTop: 64,
+    },
+  },
 }));
 
 function App() {
@@ -24,10 +33,7 @@ function App() {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Navigation />
-        <Hidden smDown>
-          <div className={classes.offset} />
-        </Hidden>
-        <Container maxWidth="md">
+        <Container maxWidth="md" className={classes.offset}>
           <Hidden mdUp>
             <PageTitle>Couchers</PageTitle>
           </Hidden>
