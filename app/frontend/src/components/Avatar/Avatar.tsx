@@ -32,6 +32,8 @@ export default function Avatar({ user, grow, ...otherProps }: AvatarProps) {
       {...otherProps}
       className={classNames(classes.root, { [classes.grow]: grow })}
       src={user.avatarUrl}
-    />
+    >
+      {user.name.split(" ").map((name) => name.charAt(0))}
+    </MuiAvatar>
   );
 }
