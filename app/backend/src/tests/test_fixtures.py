@@ -13,7 +13,7 @@ from sqlalchemy.pool import NullPool
 
 from couchers.config import config
 from couchers.crypto import random_hex
-from couchers.db import session_scope
+from couchers.db import apply_migrations, session_scope
 from couchers.models import Base, FriendRelationship, FriendStatus, User
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
@@ -32,10 +32,12 @@ from pb import (
 )
 
 
-@pytest.fixture
-def db():
+@pytest.fixture(params=["migrations", "models"])
+def db(request):
     """
     Connect to a running Postgres database, and return the Session object.
+
+    request.param tells whether the db should be built from alembic migrations or using metadata.create_all()
     """
 
     # running in non-UTC catches some timezone errors
@@ -44,8 +46,15 @@ def db():
 
     engine = create_engine(config["DATABASE_CONNECTION_STRING"], poolclass=NullPool)
 
-    Base.metadata.drop_all(engine)
-    Base.metadata.create_all(engine)
+    # drop everything currently in the database
+    engine.execute("DROP SCHEMA public CASCADE; CREATE SCHEMA public;")
+
+    if request.param == "migrations":
+        # rebuild it with alembic migrations
+        apply_migrations()
+    else:
+        # create everything from the current models, not incrementally through migrations
+        Base.metadata.create_all(engine)
 
     return sessionmaker(bind=engine)
 
