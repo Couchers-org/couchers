@@ -25,8 +25,8 @@
     "eject": "react-scripts eject",
     "format": "prettier --write src/",
     "test-travis": "NODE_ENV=test && react-scripts test --coverage --watchAll=false",
-    "storybook": "start-storybook -p 6006 -s public --no-dll",
-    "build-storybook": "build-storybook -s public --no-dll"
+    "storybook": "start-storybook -p 6006 -s public",
+    "build-storybook": "build-storybook -s public"
   },
   "eslintConfig": {
     "extends": [
