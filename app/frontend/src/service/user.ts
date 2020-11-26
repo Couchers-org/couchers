@@ -1,21 +1,37 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import wrappers from "google-protobuf/google/protobuf/wrappers_pb";
-import client from "./api";
 import {
   GetUserReq,
+  HostingStatus,
+  NullableStringValue,
   PingReq,
+  RepeatedStringValue,
   UpdateProfileReq,
   User,
-  NullableStringValue,
-  RepeatedStringValue,
-  HostingStatus,
 } from "../pb/api_pb";
 import {
   AuthReq,
-  CompleteTokenLoginReq,
   CompleteSignupReq,
+  CompleteTokenLoginReq,
 } from "../pb/auth_pb";
-import { ProfileFormData } from "../features/profile";
+import { ProtoToJsTypes } from "../utils/types";
+import client from "./client";
+
+type RequiredUpdateProfileReq = Required<UpdateProfileReq.AsObject>;
+export type ProfileFormData = {
+  [K in keyof RequiredUpdateProfileReq]: ProtoToJsTypes<
+    RequiredUpdateProfileReq[K]
+  >;
+};
+export type SignupArguments = {
+  signupToken: string;
+  username: string;
+  name: string;
+  city: string;
+  birthdate: string;
+  gender: string;
+  hostingStatus: HostingStatus;
+};
 
 /**
  * Login user using password and returns session token
@@ -24,10 +40,10 @@ import { ProfileFormData } from "../features/profile";
  * @param {string} password
  * @returns {Promise<string>}
  */
-export const passwordLogin = async (
+export async function passwordLogin(
   username: string,
   password: string
-): Promise<string> => {
+): Promise<string> {
   const req = new AuthReq();
   req.setUser(username);
   req.setPassword(password);
@@ -36,15 +52,12 @@ export const passwordLogin = async (
   const token = response.getToken();
 
   return token;
-};
+}
 
 /**
  * Login user using a login token and returns session token
- *
- * @param {string} token
- * @returns {Promise<string>}
  */
-export const tokenLogin = async (loginToken: string): Promise<string> => {
+export async function tokenLogin(loginToken: string): Promise<string> {
   const req = new CompleteTokenLoginReq();
   req.setLoginToken(loginToken);
 
@@ -52,16 +65,14 @@ export const tokenLogin = async (loginToken: string): Promise<string> => {
   const token = response.getToken();
 
   return token;
-};
+}
 
 /**
  * Returns User record of logged in user
  *
  * @returns {Promise<User.AsObject>}
  */
-export const getCurrentUser = async (
-  token?: string
-): Promise<User.AsObject> => {
+export async function getCurrentUser(token?: string): Promise<User.AsObject> {
   const req = new PingReq();
 
   const response = await client.api.ping(
@@ -70,7 +81,7 @@ export const getCurrentUser = async (
   );
 
   return response.getUser()!.toObject();
-};
+}
 
 /**
  * Returns User record by Username or id
@@ -79,10 +90,10 @@ export const getCurrentUser = async (
  * @param {string} token
  * @returns {Promise<User.AsObject>}
  */
-export const getUser = async (
+export async function getUser(
   user: string,
   token?: string
-): Promise<User.AsObject> => {
+): Promise<User.AsObject> {
   const userReq = new GetUserReq();
   userReq.setUser(user || "");
 
@@ -92,7 +103,7 @@ export const getUser = async (
   );
 
   return response.toObject();
-};
+}
 
 /**
  * Updates user
@@ -100,9 +111,9 @@ export const getUser = async (
  * @param {User.AsObject} reqObject
  * @returns {Promise<Empty>}
  */
-export const updateProfile = async (
+export async function updateProfile(
   reqObject: ProfileFormData
-): Promise<Empty> => {
+): Promise<Empty> {
   const req = new UpdateProfileReq();
 
   const name = new wrappers.StringValue().setValue(reqObject.name);
@@ -133,17 +144,7 @@ export const updateProfile = async (
     .setCountriesLived(countriesLived);
 
   return client.api.updateProfile(req);
-};
-
-export type SignupArguments = {
-  signupToken: string;
-  username: string;
-  name: string;
-  city: string;
-  birthdate: string;
-  gender: string;
-  hostingStatus: HostingStatus;
-};
+}
 
 /**
  * Completes the signup process
@@ -151,7 +152,7 @@ export type SignupArguments = {
  * @param {SignupArguments} signup arguments
  * @returns {Promise<string>} session token
  */
-export const completeSignup = async ({
+export async function completeSignup({
   signupToken,
   username,
   name,
@@ -159,7 +160,7 @@ export const completeSignup = async ({
   birthdate,
   gender,
   hostingStatus,
-}: SignupArguments) => {
+}: SignupArguments) {
   const req = new CompleteSignupReq();
   req.setSignupToken(signupToken);
   req.setUsername(username);
@@ -171,4 +172,4 @@ export const completeSignup = async ({
 
   const res = await client.auth.completeSignup(req);
   return res.getToken();
-};
+}

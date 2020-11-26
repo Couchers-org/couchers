@@ -5,15 +5,20 @@ stages:
   - release
 
 variables:
-  GIT_DEPTH: 1
+  GIT_DEPTH: 10
+  DOCKER_HOST: tcp://docker:2376
+  DOCKER_TLS_CERTDIR: "/certs"
   RELEASE_BRANCH: develop
   GRPC_TAG: $CI_REGISTRY/couchers/grpc:latest
   PROXY_RELEASE_TAG: $CI_REGISTRY_IMAGE/proxy:latest
+  NGINX_RELEASE_TAG: $CI_REGISTRY_IMAGE/nginx:latest
   BACKEND_RELEASE_TAG: $CI_REGISTRY_IMAGE/backend:latest
   MEDIA_RELEASE_TAG: $CI_REGISTRY_IMAGE/media:latest
   FRONTEND_RELEASE_TAG: $CI_REGISTRY_IMAGE/frontend:latest
   VUE_RELEASE_TAG: $CI_REGISTRY_IMAGE/vue:latest
+  SLUG: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   PROXY_TAG: $CI_REGISTRY_IMAGE/proxy:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+  NGINX_TAG: $CI_REGISTRY_IMAGE/nginx:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   BACKEND_TAG: $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   MEDIA_TAG: $CI_REGISTRY_IMAGE/media:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   FRONTEND_TAG: $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
@@ -46,7 +51,8 @@ protos:
 build:proxy:
   stage: build
   script:
-    - docker build -t $PROXY_TAG app/proxy/
+    - docker pull $PROXY_RELEASE_TAG || true
+    - docker build --build-arg version=$SLUG --cache-from $PROXY_RELEASE_TAG -t $PROXY_TAG app/proxy/
     - docker push $PROXY_TAG
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
@@ -57,10 +63,26 @@ build:proxy:
       - app/pb/**/*
       - app/proxy/**/*
 
+build:nginx:
+  stage: build
+  script:
+    - docker pull $NGINX_RELEASE_TAG || true
+    - docker build --build-arg version=$SLUG --cache-from $NGINX_RELEASE_TAG -t $NGINX_TAG app/nginx/
+    - docker push $NGINX_TAG
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+      - app/**/*
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
+      changes:
+      - app/pb/**/*
+      - app/nginx/**/*
+
 build:backend:
   stage: build
   script:
-    - docker build -t $BACKEND_TAG app/backend/
+    - docker pull $BACKEND_RELEASE_TAG || true
+    - docker build --build-arg version=$SLUG --cache-from $BACKEND_RELEASE_TAG -t $BACKEND_TAG app/backend/
     - docker push $BACKEND_TAG
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
@@ -74,7 +96,8 @@ build:backend:
 build:media:
   stage: build
   script:
-    - docker build -t $MEDIA_TAG app/media/
+    - docker pull $MEDIA_RELEASE_TAG || true
+    - docker build --build-arg version=$SLUG --cache-from $MEDIA_RELEASE_TAG -t $MEDIA_TAG app/media/
     - docker push $MEDIA_TAG
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
@@ -88,10 +111,11 @@ build:media:
 build:frontend:
   stage: build
   script:
-    - docker build -t $FRONTEND_TAG app/frontend/
+    - docker pull $FRONTEND_RELEASE_TAG || true
+    - docker build --build-arg version=$SLUG --cache-from $FRONTEND_RELEASE_TAG -t $FRONTEND_TAG app/frontend/
     - docker push $FRONTEND_TAG
     # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
-    - mkdir -p artifacts/frontend && docker cp $(docker create $FRONTEND_TAG):/app/build artifacts/frontend
+    - mkdir -p artifacts && docker cp $(docker create $FRONTEND_TAG):/app/build artifacts/frontend
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
@@ -107,10 +131,11 @@ build:frontend:
 build:vue:
   stage: build
   script:
-    - docker build -t $VUE_TAG app/vue/
+    - docker pull $VUE_RELEASE_TAG || true
+    - docker build --build-arg version=$SLUG --cache-from $VUE_RELEASE_TAG -t $VUE_TAG app/vue/
     - docker push $VUE_TAG
     # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
-    - mkdir -p artifacts/vue && docker cp $(docker create $VUE_TAG):/app/dist artifacts/vue
+    - mkdir -p artifacts && docker cp $(docker create $VUE_TAG):/app/dist artifacts/vue
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
@@ -137,9 +162,10 @@ test:backend:
     DATABASE_CONNECTION_STRING: "postgresql://postgres:c765064a49d18a95@postgres/postgres"
   script:
     - cd /app && pytest src --junitxml=test-results/junit.xml
+    - cp /app/test-results/junit.xml junit.xml
   artifacts:
-    paths:
-      - /app/test-results/
+    reports:
+      junit: junit.xml
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
@@ -147,7 +173,7 @@ test:backend:
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
       - app/pb/**/*
-      - app/media/**/*
+      - app/backend/**/*
 
 test:media:
   stage: test
@@ -159,9 +185,10 @@ test:media:
     MEDIA_SERVER_FROM_ENV: 0
   script:
     - cd /app && pytest src --junitxml=test-results/junit.xml
+    - cp /app/test-results/junit.xml junit.xml
   artifacts:
-    paths:
-      - /app/test-results
+    reports:
+      junit: junit.xml
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
@@ -172,12 +199,60 @@ test:media:
       - app/media/**/*
 
 
+preview:frontend:
+  stage: test
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - aws s3 cp artifacts/frontend s3://$AWS_PREVIEW_BUCKET/frontend/$SLUG/ --recursive
+    - echo "Done, preview available at https://$SLUG--frontend.preview.coucher.org/"
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+      - app/**/*
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
+      changes:
+      - app/pb/**/*
+      - app/frontend/**/*
+
+preview:vue:
+  stage: test
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - aws s3 cp artifacts/vue s3://$AWS_PREVIEW_BUCKET/vue/$SLUG/ --recursive
+    - echo "Done, preview available at https://$SLUG--vue.preview.coucher.org/"
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+      - app/**/*
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
+      changes:
+      - app/pb/**/*
+      - app/vue/**/*
+
+
 release:proxy:
   stage: release
   script:
     - docker pull $PROXY_TAG
     - docker tag $PROXY_TAG $PROXY_RELEASE_TAG
     - docker push $PROXY_RELEASE_TAG
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+      - app/**/*
+
+release:nginx:
+  stage: release
+  script:
+    - docker pull $NGINX_TAG
+    - docker tag $NGINX_TAG $NGINX_RELEASE_TAG
+    - docker push $NGINX_RELEASE_TAG
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:

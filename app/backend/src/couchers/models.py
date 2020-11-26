@@ -63,6 +63,7 @@ class User(Base):
     phone = Column(String, nullable=True, unique=True)
     phone_status = Column(Enum(PhoneStatus), nullable=True)
 
+    # timezones should always be UTC
     joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     last_active = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
@@ -70,7 +71,7 @@ class User(Base):
     name = Column(String, nullable=False)
     city = Column(String, nullable=False)
     gender = Column(String, nullable=False)
-    birthdate = Column(Date, nullable=False)
+    birthdate = Column(Date, nullable=False)  # in the timezone of birthplace
 
     # name as on official docs for verification, etc. not needed until verification
     full_name = Column(String, nullable=True)
@@ -203,6 +204,7 @@ class FriendRelationship(Base):
 
     status = Column(Enum(FriendStatus), nullable=False, default=FriendStatus.pending)
 
+    # timezones should always be UTC
     time_sent = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     time_responded = Column(DateTime(timezone=True), nullable=True)
 
@@ -220,6 +222,7 @@ class SignupToken(Base):
 
     email = Column(String, nullable=False)
 
+    # timezones should always be UTC
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     expiry = Column(DateTime(timezone=True), nullable=False)
 
@@ -237,6 +240,7 @@ class LoginToken(Base):
 
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
+    # timezones should always be UTC
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     expiry = Column(DateTime(timezone=True), nullable=False)
 
@@ -256,6 +260,7 @@ class UserSession(Base):
 
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
+    # timezone should always be UTC
     started = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     user = relationship("User", backref="sessions")
@@ -276,6 +281,7 @@ class Reference(Base):
     __table_args__ = (UniqueConstraint("from_user_id", "to_user_id", "reference_type"),)
 
     id = Column(Integer, primary_key=True)
+    # timezone should always be UTC
     time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     from_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -300,6 +306,7 @@ class Conversation(Base):
     __tablename__ = "conversations"
 
     id = Column(Integer, primary_key=True)
+    # timezone should always be UTC
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     def __repr__(self):
@@ -344,6 +351,7 @@ class GroupChatSubscription(Base):
     user_id = Column(ForeignKey("users.id"), nullable=False)
     group_chat_id = Column(ForeignKey("group_chats.id"), nullable=False)
 
+    # timezones should always be UTC
     joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     left = Column(DateTime(timezone=True), nullable=True)
 
@@ -418,7 +426,7 @@ class Message(Base):
     # the target if a control message and requires target, e.g. if inviting a user, the user invited is the target
     target_id = Column(ForeignKey("users.id"), nullable=True)
 
-    # time sent
+    # time sent, timezone should always be UTC
     time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     # the message text if not control
@@ -451,6 +459,7 @@ class Complaint(Base):
 
     id = Column(Integer, primary_key=True)
 
+    # timezone should always be UTC
     time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     author_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -471,6 +480,8 @@ class Email(Base):
     __tablename__ = "emails"
 
     id = Column(String, primary_key=True)
+
+    # timezone should always be UTC
     time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     sender_name = Column(String, nullable=False)
@@ -494,7 +505,7 @@ class HostRequest(Base):
     from_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     to_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
-    # dates as "YYYY-MM-DD"
+    # dates as "YYYY-MM-DD", in the timezone of the host
     from_date = Column(String, nullable=False)
     to_date = Column(String, nullable=False)
 
@@ -522,6 +533,7 @@ class InitiatedUpload(Base):
 
     key = Column(String, primary_key=True)
 
+    # timezones should always be UTC
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     expiry = Column(DateTime(timezone=True), nullable=False)
 

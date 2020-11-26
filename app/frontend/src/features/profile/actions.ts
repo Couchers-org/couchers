@@ -1,8 +1,8 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { ProfileFormData } from "./index";
 import { service } from "../../service";
 import { User } from "../../pb/api_pb";
 import { RootState } from "../../reducers";
+import { ProfileFormData } from "../../service/user";
 
 export const updateUserProfile = createAsyncThunk<
   User.AsObject,

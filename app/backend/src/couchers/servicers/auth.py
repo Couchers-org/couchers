@@ -132,7 +132,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         """
         Runs a username availability and validity check.
         """
-        return auth_pb2.UsernameValidRes(valid=self._username_available(request.username))
+        return auth_pb2.UsernameValidRes(valid=self._username_available(request.username.lower()))
 
     def SignupTokenInfo(self, request, context):
         """
@@ -189,6 +189,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
             if not request.hosting_status:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.HOSTING_STATUS_REQUIRED)
+
+            if not self._username_available(request.username):
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.USERNAME_NOT_AVAILABLE)
 
             user = User(
                 email=signup_token.email,
