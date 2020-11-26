@@ -26,6 +26,9 @@ const themeOptions: ThemeOptions = {
     h4: {
       fontSize: "24px",
     },
+    h5: {
+      fontSize: "20px",
+    },
   },
   shape: {
     borderRadius: 16,
