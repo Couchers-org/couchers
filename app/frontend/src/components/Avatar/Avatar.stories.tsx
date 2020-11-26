@@ -16,6 +16,12 @@ export default {
 
 const user = {
   avatarUrl: imageFile,
+  name: "Test User",
+} as AvatarProps["user"];
+
+const userNoImage = {
+  avatarUrl: "",
+  name: "Test User",
 } as AvatarProps["user"];
 
 const Template: Story<AvatarProps> = (args) => (
@@ -37,4 +43,9 @@ const Template: Story<AvatarProps> = (args) => (
 export const Primary = Template.bind({});
 Primary.args = {
   user,
+};
+
+export const NoImage = Template.bind({});
+NoImage.args = {
+  user: userNoImage,
 };
