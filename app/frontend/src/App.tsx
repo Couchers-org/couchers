@@ -22,7 +22,9 @@ function App() {
           <div className={classes.offset} />
         </Hidden>
         <Container maxWidth="md">
-          <PageTitle>Couchers</PageTitle>
+          <Hidden mdUp>
+            <PageTitle>Couchers</PageTitle>
+          </Hidden>
           <AppRoutes />
         </Container>
       </ThemeProvider>
