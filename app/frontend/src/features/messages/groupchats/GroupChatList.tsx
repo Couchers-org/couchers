@@ -49,9 +49,6 @@ export default function GroupChatList({
   groupChats,
   setGroupChat,
 }: GroupChatListProps) {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
   const classes = useStyles();
 
   return (

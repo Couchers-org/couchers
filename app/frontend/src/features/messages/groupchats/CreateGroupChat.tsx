@@ -1,9 +1,11 @@
-import { BoxProps } from "@material-ui/core";
+import { Box, BoxProps } from '@material-ui/core';
 import { makeStyles } from "@material-ui/core/styles";
 import { Autocomplete } from "@material-ui/lab";
 import React, { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import Alert from '../../../components/Alert';
 import Button from "../../../components/Button";
+import CircularProgress from '../../../components/CircularProgress';
 import TextField from "../../../components/TextField";
 import { User } from "../../../pb/api_pb";
 import { service } from "../../../service";
@@ -82,7 +84,10 @@ export default function CreateGroupChat({
   return (
     <form onSubmit={onSubmit}>
       <TextField label="Title" name="title" inputRef={register} />
-      <Controller
+      {error && <Alert severity={"error"}>{error}</Alert>}
+      {loading ? (
+        <CircularProgress />
+      ) : <Controller
         control={control}
         defaultValue={friends}
         name="users"
@@ -106,7 +111,7 @@ export default function CreateGroupChat({
             )}
           />
         )}
-      />
+      />}
       <Button
         type="submit"
         variant="contained"
