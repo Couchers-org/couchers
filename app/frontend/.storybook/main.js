@@ -9,6 +9,9 @@ module.exports = {
     config.resolve.alias["../../service"] = require.resolve(
       "../src/__mocks__/service.ts"
     );
+    config.resolve.alias["../../../service"] = require.resolve(
+      "../src/__mocks__/service.ts"
+    );
     return config;
   },
 };
