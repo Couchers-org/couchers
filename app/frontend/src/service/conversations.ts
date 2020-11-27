@@ -1,3 +1,5 @@
+import { StringValue } from "google-protobuf/google/protobuf/wrappers_pb";
+import { User } from "../pb/api_pb";
 import {
   CreateGroupChatReq,
   GetGroupChatMessagesReq,
@@ -7,7 +9,6 @@ import {
   SendMessageReq,
 } from "../pb/conversations_pb";
 import client from "./client";
-import { User } from "../pb/api_pb";
 
 export async function listGroupChats(): Promise<GroupChat.AsObject[]> {
   const req = new ListGroupChatsReq();
@@ -30,10 +31,13 @@ export async function getGroupChatMessages(
   return messages.map((message) => message.toObject());
 }
 
-export async function createGroupChat(users: User.AsObject[]): Promise<number> {
+export async function createGroupChat(
+  title: string,
+  users: User.AsObject[]
+): Promise<number> {
   const req = new CreateGroupChatReq();
   req.setRecipientUserIdsList(users.map((user) => user.userId));
-
+  req.setTitle(new StringValue().setValue(title));
   const response = await client.conversations.createGroupChat(req);
   const groupChatId = response.getGroupChatId();
 

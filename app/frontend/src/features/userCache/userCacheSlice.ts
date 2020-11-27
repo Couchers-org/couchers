@@ -63,7 +63,7 @@ const selectors = cachedUserAdapter.getSelectors<RootState>(
 export const getUser = (state: RootState, id: number) =>
   selectors.selectById(state, id)?.user;
 
-const getUsers = selectors.selectEntities;
+export const getUsers = selectors.selectEntities;
 const getUsernameIds = (state: RootState) => state.userCache.usernameIds;
 export const getUserByUsernameSelector = createSelector(
   getUsers,

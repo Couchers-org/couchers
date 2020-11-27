@@ -28,7 +28,6 @@ export default function TabBar<T extends Record<string, string>>({
       textColor="primary"
       scrollButtons="auto"
       variant="scrollable"
-      centered
     >
       {Object.entries(labels).map(([value, label]) => (
         <Tab key={value} label={label} value={value} />

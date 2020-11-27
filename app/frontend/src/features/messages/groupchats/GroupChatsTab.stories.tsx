@@ -2,11 +2,11 @@ import * as React from "react";
 // also exported from '@storybook/react' if you can deal with breaking changes in 6.1
 import { Meta, Story } from "@storybook/react/types-6-0";
 import { Provider } from "react-redux";
-import { store } from "../../store";
+import { store } from "../../../store";
+import GroupChatsTab from "./GroupChatsTab";
 
-import Messages from "./index";
-import MessageView, { MessageProps } from "./messagelist/Message";
-import { mockedService } from "../../__mocks__/service";
+import MessageView, { MessageProps } from "../messagelist/Message";
+import { mockedService } from "../../../__mocks__/service";
 
 Object.assign(mockedService, {
   conversations: {
@@ -30,8 +30,8 @@ Object.assign(mockedService, {
 });
 
 export default {
-  title: "Messages",
-  component: Messages,
+  title: "GroupChatsTab",
+  component: GroupChatsTab,
   argTypes: {},
   decorators: [
     (storyFn) => {
@@ -40,10 +40,10 @@ export default {
   ],
 } as Meta;
 
-const Template: Story<any> = (args) => <Messages {...args} />;
+const Template: Story<any> = (args) => <GroupChatsTab {...args} />;
 
-export const Assembled = Template.bind({});
-Assembled.args = {};
+export const Tab = Template.bind({});
+Tab.args = {};
 
 const message: MessageProps["message"] = {
   messageId: 1,
