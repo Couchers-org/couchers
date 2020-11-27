@@ -184,7 +184,7 @@ export default function HostingPreferenceForm() {
             name="smokingAllowed"
             render={({ onChange }) => (
               <Autocomplete
-                disableClearable
+                disableClearable={false}
                 defaultValue={user.smokingAllowed}
                 forcePopupIcon
                 freeSolo={false}
@@ -196,7 +196,9 @@ export default function HostingPreferenceForm() {
                   SmokingLocation.SMOKING_LOCATION_OUTSIDE,
                   SmokingLocation.SMOKING_LOCATION_NO,
                 ]}
-                onChange={(e, value) => onChange(value)}
+                onChange={(e, value) =>
+                  onChange(value ?? SmokingLocation.SMOKING_LOCATION_UNKNOWN)
+                }
                 renderInput={(params) => (
                   <ProfileTextInput
                     {...params}

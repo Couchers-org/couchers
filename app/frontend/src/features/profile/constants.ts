@@ -5,6 +5,6 @@ export const smokingLocationLabels = {
   [SmokingLocation.SMOKING_LOCATION_OUTSIDE]: "Outside",
   [SmokingLocation.SMOKING_LOCATION_WINDOW]: "Window",
   [SmokingLocation.SMOKING_LOCATION_YES]: "Yes",
-  [SmokingLocation.SMOKING_LOCATION_UNSPECIFIED]: "",
-  [SmokingLocation.SMOKING_LOCATION_UNKNOWN]: "Unknown",
+  [SmokingLocation.SMOKING_LOCATION_UNKNOWN]: "",
+  [SmokingLocation.SMOKING_LOCATION_UNSPECIFIED]: "Unspecified",
 };
