@@ -1,6 +1,15 @@
-import { Typography, TypographyProps } from "@material-ui/core";
+import { makeStyles, Typography, TypographyProps } from "@material-ui/core";
 import React from "react";
 
+const useStyles = makeStyles((theme) => ({
+  root: {
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+  },
+}));
+
 export default function PageTitle(props: TypographyProps) {
-  return <Typography {...props} variant="h1" />;
+  const classes = useStyles();
+
+  return <Typography {...props} classes={{ h1: classes.root }} variant="h1" />;
 }
