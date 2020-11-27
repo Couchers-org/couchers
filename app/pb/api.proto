@@ -169,6 +169,7 @@ message User {
 
   // doubles are enough to describe lat/lng
   // in EPSG4326, lat & lon are in degress, check the EPS4326 definition for details
+  // returned as 0.0 (default) if these are not set, note this should only happen with incomplete profiles!
   double lat = 33;
   double lng = 34;
   double radius = 35; // meters
@@ -223,9 +224,11 @@ message UpdateProfileReq {
   google.protobuf.StringValue name = 1;
 
   google.protobuf.StringValue city = 2;
+  // doubles are enough to describe lat/lng
+  // in EPSG4326, lat & lon are in degress, check the EPS4326 definition for details
   google.protobuf.DoubleValue lat = 22;
   google.protobuf.DoubleValue lng = 23;
-  google.protobuf.DoubleValue radius = 24;
+  google.protobuf.DoubleValue radius = 24; // metres
 
   google.protobuf.StringValue gender = 3;
   NullableStringValue occupation = 4;
