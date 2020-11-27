@@ -1,10 +1,9 @@
 import { TabContext, TabPanel } from "@material-ui/lab";
 import * as React from "react";
 import PageTitle from "../../components/PageTitle";
-import GroupChatsTab from "./groupchats/GroupChatsTab";
-import SurfingTab from "./surfing/SurfingTab";
-import TabBar from "./TabBar";
 import { labels } from "./constants";
+import GroupChatsTab from "./groupchats/GroupChatsTab";
+import TabBar from "./TabBar";
 
 export default function Messages() {
   const [value, setValue] = React.useState<keyof typeof labels>("TAB_ALL");
