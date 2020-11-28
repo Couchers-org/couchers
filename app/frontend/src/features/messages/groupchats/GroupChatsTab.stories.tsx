@@ -40,7 +40,7 @@ export default {
   ],
 } as Meta;
 
-const Template: Story<any> = (args) => <GroupChatsTab {...args} />;
+const Template: Story = (args) => <GroupChatsTab {...args} />;
 
 export const Tab = Template.bind({});
 Tab.args = {};
