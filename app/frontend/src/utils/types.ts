@@ -24,5 +24,5 @@ export type ProtoToJsTypes<T> = T extends StringValue.AsObject
   : T extends NullableStringValue.AsObject
   ? string | null
   : T extends UInt32Value.AsObject
-  ? number | null
+  ? number
   : T;
