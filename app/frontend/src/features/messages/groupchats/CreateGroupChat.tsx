@@ -15,7 +15,7 @@ import { fetchUsers, getUsers } from "../../userCache";
 const useStyles = makeStyles({ root: {} });
 
 export interface GroupChatListProps extends BoxProps {
-  createGroupChat: (title: string, users: User.AsObject[]) => void;
+  createGroupChat: (title: string, users: User.AsObject[]) => Promise<void>;
 }
 
 interface CreateGroupChatFormData {
