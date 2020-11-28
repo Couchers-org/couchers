@@ -2,7 +2,7 @@ import { Box, BoxProps, Link } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import React from "react";
 import { GroupChat } from "../../../pb/conversations_pb";
-import GroupChatItem from "./GroupChatItem";
+import GroupChatListItem from "./GroupChatListItem";
 
 const useStyles = makeStyles({ root: {} });
 
@@ -25,7 +25,7 @@ export default function GroupChatList({
             key={groupChat.groupChatId}
             onClick={() => setGroupChat(groupChat)}
           >
-            <GroupChatItem groupChat={groupChat} />
+            <GroupChatListItem groupChat={groupChat} />
           </Link>
         ))}
       </Box>

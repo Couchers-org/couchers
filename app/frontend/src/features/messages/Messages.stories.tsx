@@ -1,33 +1,11 @@
-import * as React from "react";
-// also exported from '@storybook/react' if you can deal with breaking changes in 6.1
 import { Meta, Story } from "@storybook/react/types-6-0";
+import * as React from "react";
 import { Provider } from "react-redux";
+import { message1 } from "../../__mocks__/service";
 import { store } from "../../store";
 
 import Messages from "./index";
 import MessageView, { MessageProps } from "./messagelist/Message";
-import { mockedService } from "../../__mocks__/service";
-
-Object.assign(mockedService, {
-  conversations: {
-    listGroupChats: () =>
-      Promise.resolve([
-        {
-          groupChatId: 3,
-          title: "groupchattitle",
-          memberUserIdsList: [],
-          adminUserIdsList: [],
-          onlyAdminsInvite: true,
-          isDm: false,
-          // created?: google_protobuf_timestamp_pb.Timestamp.AsObject,
-          unseenMessageCount: 0,
-          lastSeenMessageId: 4,
-          latestMessage: message,
-        },
-      ]),
-    getGroupChatMessages: () => Promise.resolve([message, message2]),
-  },
-});
 
 export default {
   title: "Messages",
@@ -45,38 +23,9 @@ const Template: Story<any> = (args) => <Messages {...args} />;
 export const Assembled = Template.bind({});
 Assembled.args = {};
 
-const message: MessageProps["message"] = {
-  messageId: 1,
-  authorUserId: 2,
-  // time?: google_protobuf_timestamp_pb.Timestamp.AsObject,
-  text: { text: "testtext" },
-  time: { seconds: Math.floor(+new Date(2020, 0, 1) / 1e3), nanos: 0 },
-  // chatCreated?: MessageContentChatCreated.AsObject,
-  // chatEdited?: MessageContentChatEdited.AsObject,
-  // userInvited?: MessageContentUserInvited.AsObject,
-  // userLeft?: MessageContentUserLeft.AsObject,
-  // userMadeAdmin?: MessageContentUserMadeAdmin.AsObject,
-  // userRemovedAdmin?: MessageContentUserRemovedAdmin.AsObject,
-  // hostRequestStatusChanged?: MessageContentHostRequestStatusChanged.AsObject,
-};
-const message2: MessageProps["message"] = {
-  messageId: 2,
-  authorUserId: 2,
-  // time?: google_protobuf_timestamp_pb.Timestamp.AsObject,
-  text: { text: "testtext" },
-  time: { seconds: Math.floor(+new Date(2020, 0, 1) / 1e3), nanos: 0 },
-  // chatCreated?: MessageContentChatCreated.AsObject,
-  // chatEdited?: MessageContentChatEdited.AsObject,
-  // userInvited?: MessageContentUserInvited.AsObject,
-  // userLeft?: MessageContentUserLeft.AsObject,
-  // userMadeAdmin?: MessageContentUserMadeAdmin.AsObject,
-  // userRemovedAdmin?: MessageContentUserRemovedAdmin.AsObject,
-  // hostRequestStatusChanged?: MessageContentHostRequestStatusChanged.AsObject,
-};
-
 const MessageTemplate: Story<MessageProps> = (args) => (
   <MessageView {...args} />
 );
 
 export const Collapsed = MessageTemplate.bind({});
-Collapsed.args = { message };
+Collapsed.args = { message: message1 };

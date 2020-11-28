@@ -6,11 +6,13 @@ import MessageView from "../messagelist/Message";
 
 const useStyles = makeStyles({ root: {} });
 
-export interface GroupChatViewProps extends BoxProps {
+export interface GroupChatListItemProps extends BoxProps {
   groupChat: GroupChat.AsObject;
 }
 
-export default function GroupChatItem({ groupChat }: GroupChatViewProps) {
+export default function GroupChatListItem({
+  groupChat,
+}: GroupChatListItemProps) {
   const classes = useStyles();
   return (
     <Box className={classes.root}>

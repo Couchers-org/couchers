@@ -46,9 +46,11 @@ export default function MessageList({
 
       <>
         {messages.length ? (
-          messages.map((message) => (
-            <MessageView key={message.messageId} message={message} />
-          ))
+          messages
+            .reverse()
+            .map((message) => (
+              <MessageView key={message.messageId} message={message} />
+            ))
         ) : (
           <>No messages</>
         )}

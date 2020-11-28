@@ -1,8 +1,8 @@
 import { makeStyles } from "@material-ui/core/styles";
-import { Autocomplete } from "@material-ui/lab";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import Alert from "../../../components/Alert";
+import Autocomplete from "../../../components/Autocomplete";
 import Button from "../../../components/Button";
 import CircularProgress from "../../../components/CircularProgress";
 import TextField from "../../../components/TextField";
@@ -46,7 +46,7 @@ export default function CreateGroupChat({
       }
       setLoading(false);
     })();
-  }, []);
+  }, [dispatch]);
   const { control, register, handleSubmit } = useForm<
     CreateGroupChatFormData
   >();
@@ -78,13 +78,7 @@ export default function CreateGroupChat({
               getOptionLabel={(user) => {
                 return user.name;
               }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  helperText="Press 'Enter' to add"
-                  label="Friends"
-                />
-              )}
+              label="Friends"
             />
           )}
         />
