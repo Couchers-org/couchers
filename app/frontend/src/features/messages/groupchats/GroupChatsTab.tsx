@@ -52,7 +52,7 @@ export default function GroupChatsTab() {
   }
 
   useEffect(() => {
-    fetchGroupChats();
+    void fetchGroupChats();
   }, []);
 
   const classes = useStyles();

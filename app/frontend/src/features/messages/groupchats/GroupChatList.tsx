@@ -1,4 +1,4 @@
-import { Box, BoxProps, Link } from "@material-ui/core";
+import { Box, Link } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import React from "react";
 import { GroupChat } from "../../../pb/conversations_pb";
