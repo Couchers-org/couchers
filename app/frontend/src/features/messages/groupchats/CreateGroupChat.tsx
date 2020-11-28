@@ -53,7 +53,7 @@ export default function CreateGroupChat({
 
   const classes = useStyles();
 
-  const onSubmit = handleSubmit(async (data: CreateGroupChatFormData) => {
+  const onSubmit = handleSubmit((data: CreateGroupChatFormData) => {
     createGroupChat(data.title, data.users);
   });
   return (
