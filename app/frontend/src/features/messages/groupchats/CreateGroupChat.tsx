@@ -31,7 +31,7 @@ export default function CreateGroupChat({
   const [friendIds, setFriendIds] = React.useState<number[]>([]);
   const allUsers = useTypedSelector((state) => getUsers(state));
   const friends = friendIds
-    .map((friendId) => allUsers["" + friendId]?.user)
+    .map((friendId) => allUsers[friendId]?.user)
     .filter(Boolean) as User.AsObject[];
   const dispatch = useAppDispatch();
 
