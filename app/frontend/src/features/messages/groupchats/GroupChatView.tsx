@@ -29,7 +29,7 @@ export default function GroupChatView({
     await fetchMessages();
   };
 
-  async function fetchMessages() {
+  const fetchMessages = useCallback(async () => {
     try {
       const messages = await service.conversations.getGroupChatMessages(
         groupChat.groupChatId
@@ -38,7 +38,7 @@ export default function GroupChatView({
     } catch (error) {
       setError(error.message);
     }
-  }
+  }, [groupChat.groupChatId]);
 
   useEffect(() => {
     (async () => {
