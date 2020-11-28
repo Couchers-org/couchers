@@ -1,4 +1,4 @@
-import { Box, BoxProps } from "@material-ui/core";
+import { Box } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import React, { useEffect, useState } from "react";
 import Alert from "../../../components/Alert";
