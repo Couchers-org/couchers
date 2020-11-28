@@ -47,6 +47,7 @@ export default function MessageList({
       <>
         {messages.length ? (
           messages
+            .slice()
             .reverse()
             .map((message) => (
               <MessageView key={message.messageId} message={message} />
