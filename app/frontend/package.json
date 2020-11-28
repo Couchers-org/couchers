@@ -26,6 +26,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "format": "prettier --write src/",
+    "lint": "eslint src/",
     "test-travis": "NODE_ENV=test && react-scripts test --coverage --watchAll=false",
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "build-storybook -s public"
@@ -36,6 +37,21 @@
       "prettier",
       "prettier/@typescript-eslint",
       "prettier/react"
+    ],
+    "overrides": [
+      {
+        "files": [
+          "**/*.ts?(x)"
+        ],
+        "rules": {
+          "@typescript-eslint/no-unused-vars": [
+            "warn",
+            {
+              "varsIgnorePattern": "classes"
+            }
+          ]
+        }
+      }
     ]
   },
   "eslintIgnore": [
