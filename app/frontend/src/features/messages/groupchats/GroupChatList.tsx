@@ -6,7 +6,7 @@ import GroupChatItem from "./GroupChatItem";
 
 const useStyles = makeStyles({ root: {} });
 
-interface GroupChatListProps extends BoxProps {
+interface GroupChatListProps {
   setGroupChat: (groupChat: GroupChat.AsObject) => void;
   groupChats: Array<GroupChat.AsObject>;
 }
