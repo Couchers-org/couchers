@@ -46,7 +46,7 @@ export default function GroupChatView({
       await fetchMessages();
       setLoading(false);
     })();
-  }, [groupChat.groupChatId]);
+  }, [fetchMessages]);
   const classes = useStyles();
   return (
     <Box className={classes.root}>
