@@ -1,18 +1,40 @@
-import { makeStyles } from "@material-ui/core";
+import { makeStyles, List, ListItem } from "@material-ui/core";
+import { Link } from "react-router-dom";
 import React from "react";
-import UserInfoForm from "./UserInfoForm";
+
+import { editHostingPreferenceRoute, editProfileRoute } from "../../AppRoutes";
+import PageTitle from "../../components/PageTitle";
 
 const useStyles = makeStyles({
-  root: {},
+  linkStyle: {
+    color: "inherit",
+    fontSize: "1rem",
+    textDecoration: "none",
+  },
 });
 
 export default function ProfilePage() {
   const classes = useStyles();
 
   return (
-    <div className={classes.root}>
-      <h1>Profile</h1>
-      <UserInfoForm />
-    </div>
+    <>
+      <PageTitle>Profile</PageTitle>
+      <List>
+        <ListItem
+          className={classes.linkStyle}
+          component={Link}
+          to={editProfileRoute}
+        >
+          Edit my profile
+        </ListItem>
+        <ListItem
+          className={classes.linkStyle}
+          component={Link}
+          to={editHostingPreferenceRoute}
+        >
+          Edit my place
+        </ListItem>
+      </List>
+    </>
   );
 }

@@ -17,7 +17,7 @@ import {
   nameValidationPattern,
   usernameValidationPattern,
   validatePastDate,
-} from "./validation";
+} from "../../../utils/validation";
 
 type SignupInputs = {
   email: string;

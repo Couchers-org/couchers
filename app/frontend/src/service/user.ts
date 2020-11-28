@@ -3,7 +3,9 @@ import wrappers from "google-protobuf/google/protobuf/wrappers_pb";
 import {
   GetUserReq,
   HostingStatus,
+  NullableBoolValue,
   NullableStringValue,
+  NullableUInt32Value,
   PingReq,
   RepeatedStringValue,
   UpdateProfileReq,
@@ -142,6 +144,52 @@ export async function updateProfile(
     .setAboutPlace(aboutPlace)
     .setCountriesVisited(countriesVisited)
     .setCountriesLived(countriesLived);
+
+  return client.api.updateProfile(req);
+}
+
+export function updateHostingPreference(preferences: ProfileFormData) {
+  const req = new UpdateProfileReq();
+
+  const maxGuests =
+    preferences.maxGuests !== null
+      ? new NullableUInt32Value()
+          .setValue(preferences.maxGuests)
+          .setIsNull(false)
+      : new NullableUInt32Value().setIsNull(true);
+  const area = new NullableStringValue().setValue(preferences.area);
+  const houseRules = new NullableStringValue().setValue(preferences.houseRules);
+  const multipleGroups = new NullableBoolValue()
+    .setValue(preferences.multipleGroups)
+    .setIsNull(false);
+  const acceptsKids = new NullableBoolValue()
+    .setValue(preferences.acceptsKids)
+    .setIsNull(false);
+  const acceptsPets = new NullableBoolValue()
+    .setValue(preferences.acceptsPets)
+    .setIsNull(false);
+  const lastMinute = new NullableBoolValue()
+    .setValue(preferences.lastMinute)
+    .setIsNull(false);
+  const wheelchairAccessible = new NullableBoolValue()
+    .setValue(preferences.wheelchairAccessible)
+    .setIsNull(false);
+  const smokingAllowed = preferences.smokingAllowed;
+  const sleepingArrangement = new NullableStringValue().setValue(
+    preferences.sleepingArrangement
+  );
+
+  req
+    .setMaxGuests(maxGuests)
+    .setArea(area)
+    .setHouseRules(houseRules)
+    .setMultipleGroups(multipleGroups)
+    .setAcceptsKids(acceptsKids)
+    .setAcceptsPets(acceptsPets)
+    .setLastMinute(lastMinute)
+    .setWheelchairAccessible(wheelchairAccessible)
+    .setSmokingAllowed(smokingAllowed)
+    .setSleepingArrangement(sleepingArrangement);
 
   return client.api.updateProfile(req);
 }
