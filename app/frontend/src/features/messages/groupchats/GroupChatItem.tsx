@@ -14,7 +14,7 @@ export default function GroupChatItem({ groupChat }: GroupChatViewProps) {
   const classes = useStyles();
   return (
     <Box className={classes.root}>
-      <Typography variant={"h3"}>{groupChat.title}</Typography>
+      <Typography variant="h3">{groupChat.title}</Typography>
       {groupChat.latestMessage && (
         <MessageView message={groupChat.latestMessage} />
       )}

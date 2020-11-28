@@ -1,5 +1,6 @@
 import { Box, BoxProps, IconButton, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
+import CloseIcon from "@material-ui/icons/Close";
 import * as React from "react";
 import { useEffect, useState } from "react";
 import Alert from "../../../components/Alert";
@@ -7,7 +8,6 @@ import CircularProgress from "../../../components/CircularProgress";
 import { GroupChat, Message } from "../../../pb/conversations_pb";
 import { service } from "../../../service";
 import MessageList from "../messagelist/MessageList";
-import CloseIcon from "@material-ui/icons/Close";
 
 const useStyles = makeStyles({ root: {} });
 
@@ -41,18 +41,20 @@ export default function GroupChatView({
   }
 
   useEffect(() => {
-    setLoading(true);
-    fetchMessages();
-    setLoading(false);
+    (async () => {
+      setLoading(true);
+      await fetchMessages();
+      setLoading(false);
+    })();
   }, [groupChat.groupChatId]);
   const classes = useStyles();
   return (
     <Box className={classes.root}>
-      <Typography variant={"h3"}>{groupChat.title}</Typography>
+      <Typography variant="h3">{groupChat.title}</Typography>
       <IconButton onClick={handleClose}>
         <CloseIcon />
       </IconButton>
-      {error && <Alert severity={"error"}>{error}</Alert>}
+      {error && <Alert severity="error">{error}</Alert>}
       {loading ? (
         <CircularProgress />
       ) : (
