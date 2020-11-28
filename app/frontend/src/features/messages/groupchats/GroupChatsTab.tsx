@@ -12,10 +12,6 @@ import GroupChatView from "./GroupChatView";
 
 const useStyles = makeStyles({ root: {} });
 
-export interface GroupChatListProps extends BoxProps {
-  groupChats: Array<GroupChat.AsObject>;
-}
-
 export default function GroupChatsTab() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");

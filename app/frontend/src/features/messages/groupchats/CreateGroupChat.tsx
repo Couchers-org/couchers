@@ -1,4 +1,3 @@
-import { BoxProps } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Autocomplete } from "@material-ui/lab";
 import React, { useEffect, useState } from "react";
@@ -14,7 +13,7 @@ import { fetchUsers, getUsers } from "../../userCache";
 
 const useStyles = makeStyles({ root: {} });
 
-export interface GroupChatListProps extends BoxProps {
+interface CreateGroupChatProps {
   createGroupChat: (title: string, users: User.AsObject[]) => Promise<void>;
 }
 
@@ -25,7 +24,7 @@ interface CreateGroupChatFormData {
 
 export default function CreateGroupChat({
   createGroupChat,
-}: GroupChatListProps) {
+}: CreateGroupChatProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [friendIds, setFriendIds] = React.useState<number[]>([]);
@@ -55,11 +54,7 @@ export default function CreateGroupChat({
   const classes = useStyles();
 
   const onSubmit = handleSubmit(async (data: CreateGroupChatFormData) => {
-    try {
-      createGroupChat(data.title, data.users);
-    } catch (error) {
-      setError(error.message);
-    }
+    createGroupChat(data.title, data.users);
   });
   return (
     <form onSubmit={onSubmit}>
