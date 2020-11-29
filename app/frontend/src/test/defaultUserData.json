@@ -1,0 +1,31 @@
+{
+  "userId": 1,
+  "username": "aapeli",
+  "name": "Aapeli Vuorinen",
+  "city": "Brisbane, Queensland, Australia",
+  "verification": 0.98,
+  "communityStanding": 0.87,
+  "numReferences": 0,
+  "gender": "Male",
+  "age": 30,
+  "color": "#40a6e7",
+  "joined": {
+    "seconds": 1602806400,
+    "nanos": 0
+  },
+  "lastActive": {
+    "seconds": 1606613400,
+    "nanos": 0
+  },
+  "hostingStatus": 2,
+  "occupation": "Mathematician",
+  "aboutMe": "Some generic stuff.",
+  "aboutPlace": "About Aapeli's place",
+  "languagesList": ["English", "Finnish"],
+  "countriesVisitedList": ["Australia"],
+  "countriesLivedList": ["Australia", "Finland", "Sweden", "United States"],
+  "friends": 3,
+  "mutualFriendsList": [],
+  "smokingAllowed": 1,
+  "avatarUrl": "http://127.0.0.1:5000/img/avatar/default.jpg"
+}

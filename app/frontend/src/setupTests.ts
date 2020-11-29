@@ -3,3 +3,31 @@
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
 import "@testing-library/jest-dom/extend-expect";
+
+import { store as reduxStore } from "./store";
+import { reset } from "./test/utils";
+import user from "./test/defaultUserData.json";
+
+jest.mock("./service");
+
+global.store = reduxStore;
+global.defaultUser = user;
+
+beforeEach(() => {
+  reduxStore.dispatch({
+    type: "auth/passwordLogin/fulfilled",
+    payload: {
+      token: "9hhiwXCaCzmTM6ZB7rfaJ0yZIlSsXTOQUZagihbcrAw=",
+      user: defaultUser,
+    },
+  });
+});
+
+afterEach(() => {
+  reduxStore.dispatch(reset());
+});
+
+declare global {
+  var store: typeof reduxStore;
+  var defaultUser: typeof user;
+}
