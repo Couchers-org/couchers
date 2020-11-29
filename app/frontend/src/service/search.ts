@@ -1,5 +1,5 @@
 import { SearchReq, User } from "../pb/api_pb";
-import client from "./api";
+import client from "./client";
 
 /**
  * Perform a search and return a list of users.

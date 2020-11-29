@@ -11,7 +11,7 @@ from couchers import errors
 from couchers.db import is_valid_date, session_scope
 from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType, User
 from couchers.tasks import send_host_request_email
-from couchers.utils import Timestamp_from_datetime
+from couchers.utils import Timestamp_from_datetime, largest_current_date, least_current_date
 from pb import conversations_pb2, requests_pb2, requests_pb2_grpc
 
 logger = logging.getLogger(__name__)
@@ -71,10 +71,10 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if not is_valid_date(request.from_date) or not is_valid_date(request.to_date):
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_DATE)
 
-            if request.from_date > request.to_date:
+            if request.from_date >= request.to_date:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_FROM_AFTER_TO)
 
-            if request.to_date < datetime.datetime.now().strftime("%Y-%m-%d"):
+            if request.to_date < least_current_date():
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_TO_BEFORE_TODAY)
 
             conversation = Conversation()
@@ -194,8 +194,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                         HostRequest.status == HostRequestStatus.confirmed,
                     )
                 )
-                # TODO: This uses the server timezone, how to use users'?
-                today = datetime.datetime.now().strftime("%Y-%m-%d")
+                # As we don't store the user's timezone yet, assume far east
+                today = largest_current_date()
                 # Is this string comparison a bad idea?
                 query = query.filter(HostRequest.to_date <= today)
 
@@ -245,8 +245,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if request.status == conversations_pb2.HOST_REQUEST_STATUS_PENDING:
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
 
-            # TODO: user local time
-            today = datetime.datetime.now().strftime("%Y-%m-%d")
+            # As we don't store user's timezone yet, assume far west
+            today = least_current_date()
             if host_request.to_date < today:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.HOST_REQUEST_IN_PAST)
 

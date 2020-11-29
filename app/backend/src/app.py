@@ -4,13 +4,11 @@ import sys
 from concurrent import futures
 
 import grpc
-from alembic import command
-from alembic.config import Config
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from couchers import config
-from couchers.db import session_scope
+from couchers.db import apply_migrations, session_scope
 from couchers.interceptors import LoggingInterceptor, UpdateLastActiveTimeInterceptor
 from couchers.models import Base
 from couchers.servicers.api import API
@@ -64,10 +62,7 @@ with session_scope(Session) as session:
 
 logger.info(f"Running DB migrations")
 
-alembic_cfg = Config("alembic.ini")
-# alembic screws up logging config by default, this tells it not to screw it up if being run at startup like this
-alembic_cfg.set_main_option("dont_mess_up_logging", "False")
-command.upgrade(alembic_cfg, "head")
+apply_migrations()
 
 if config.config["ADD_DUMMY_DATA"]:
     add_dummy_data(Session, "src/dummy_data.json")

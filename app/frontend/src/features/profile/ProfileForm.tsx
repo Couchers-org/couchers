@@ -6,18 +6,20 @@ import { Controller, useForm } from "react-hook-form";
 import Alert from "../../components/Alert";
 import Button from "../../components/Button";
 import TextField from "../../components/TextField";
-import { ProfileFormData } from "../../service/user";
-import ProfileTextInput from "./ProfileTextInput";
 import { updateUserProfile } from "./index";
+import ProfileTextInput from "./ProfileTextInput";
+import { ProfileFormData } from "../../service/user";
+import { theme } from "../../theme";
 import { useAppDispatch, useTypedSelector } from "../../store";
 
 const useStyles = makeStyles({
   buttonContainer: {
     display: "flex",
+    paddingTop: theme.spacing(1),
   },
 });
 
-export default function UserInfoForm() {
+export default function EditProfileForm() {
   const classes = useStyles();
   const dispatch = useAppDispatch();
   const user = useTypedSelector((state) => state.auth.user);

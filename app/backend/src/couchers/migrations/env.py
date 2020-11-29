@@ -10,7 +10,7 @@ from couchers.config import config as couchers_config
 # access to the values within the .ini file in use.
 config = context.config
 
-config.set_main_option("sqlalchemy.url", couchers_config.get("DATABASE_CONNECTION_STRING"))
+config.set_main_option("sqlalchemy.url", couchers_config["DATABASE_CONNECTION_STRING"])
 
 
 # Interpret the config file for Python logging.
