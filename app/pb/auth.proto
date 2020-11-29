@@ -65,8 +65,12 @@ service Auth {
     // Invalidate a session, deauthing a user
   }
 
-  rpc ForgotPassword(ForgotPasswordReq) returns (google.protobuf.Empty) {
+  rpc ResetPassword(ResetPasswordReq) returns (google.protobuf.Empty) {
     // Sends a forgot password email to the given user if the user exists, returns no output (so you can't go around guessing email addresses)
+  }
+
+  rpc CompletePasswordReset(CompletePasswordResetReq) returns (google.protobuf.Empty) {
+    // Triggered when the user goes to the link sent in the forgot password email
   }
 
   rpc ConfirmChangeEmail(ConfirmChangeEmailReq) returns (google.protobuf.Empty) {
@@ -151,8 +155,12 @@ message DeAuthReq {
   string token = 1;
 }
 
-message ForgotPasswordReq {
+message ResetPasswordReq {
   string user = 1;
+}
+
+message CompletePasswordResetReq {
+  string password_reset_token = 1;
 }
 
 message ConfirmChangeEmailReq {

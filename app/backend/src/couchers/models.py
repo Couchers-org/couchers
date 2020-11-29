@@ -256,6 +256,21 @@ class LoginToken(Base):
         return f"LoginToken(token={self.token}, user={self.user}, created={self.created}, expiry={self.expiry})"
 
 
+class PasswordResetToken(Base):
+    __tablename__ = "password_reset_tokens"
+    token = Column(String, primary_key=True)
+
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    expiry = Column(DateTime(timezone=True), nullable=False)
+
+    user = relationship("User", backref="password_reset_tokens")
+
+    def __repr__(self):
+        return f"PasswordResetToken(token={self.token}, user={self.user}, created={self.created}, expiry={self.expiry})"
+
+
 class UserSession(Base):
     """
     Active session on the app, for auth
