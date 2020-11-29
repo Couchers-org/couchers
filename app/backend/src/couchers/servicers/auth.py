@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Union
 
 import grpc
+from google.protobuf import empty_pb2
 from sqlalchemy import func
 
 from couchers import errors
@@ -314,7 +315,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         """
         logger.info(f"Deauthenticate(token={request.token})")
         if self._delete_session(token=request.token):
-            return auth_pb2.DeAuthRes()
+            return empty_pb2.Empty()
         else:
             # probably caused by token not existing
             context.abort(grpc.StatusCode.UNKNOWN, errors.LOGOUT_FAILED)
