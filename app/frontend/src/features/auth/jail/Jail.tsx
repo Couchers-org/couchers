@@ -21,24 +21,23 @@ export default function Jail() {
   const dispatch = useAppDispatch();
   const isJailed = useTypedSelector((state) => state.auth.jailed);
   const authError = useTypedSelector((state) => state.auth.error);
+  const authLoading = useTypedSelector((state) => state.auth.loading);
 
   const [loading, setLoading] = useState(false);
   const [jailInfo, setJailInfo] = useState<null | JailInfoRes.AsObject>(null);
 
   useEffect(() => {
     (async () => {
+      //just in case the store is stale
+      dispatch(updateJailStatus());
       setLoading(true);
       setJailInfo(await getJailInfo());
       setLoading(false);
-      //just in case the store is stale
-      dispatch(updateJailStatus());
     })();
   }, [dispatch]);
 
-  const updateJailed = async () => {
-    setLoading(true);
-    await dispatch(updateJailStatus());
-    setLoading(false);
+  const updateJailed = () => {
+    dispatch(updateJailStatus());
   };
 
   return (
@@ -49,7 +48,7 @@ export default function Jail() {
       <TextBody className={classes.bottomMargin}>
         Please check the following in order to continue.
       </TextBody>
-      <Backdrop open={loading}>
+      <Backdrop open={loading || authLoading}>
         <CircularProgress />
       </Backdrop>
       {jailInfo?.hasNotAcceptedTos && (
