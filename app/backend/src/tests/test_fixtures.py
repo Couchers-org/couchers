@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 import grpc
 import pytest
+from nacl.hash import blake2b
 from sqlalchemy import create_engine
 from sqlalchemy.event import listen, remove
 from sqlalchemy.orm import sessionmaker
@@ -63,47 +64,7 @@ def db(request):
     return sessionmaker(bind=engine)
 
 
-def _raw_generate_user(session, username):
-    """
-    Internal user creation code
-    """
-    if not username:
-        username = "test_user_" + random_hex(16)
-
-    user = User(
-        username=username,
-        email=f"{username}@dev.couchers.org",
-        # password is just 'password'
-        # this is hardcoded because the password is slow to hash (so would slow down tests otherwise)
-        hashed_password=b"$argon2id$v=19$m=65536,t=2,p=1$4cjGg1bRaZ10k+7XbIDmFg$tZG7JaLrkfyfO7cS233ocq7P8rf3znXR7SAfUt34kJg",
-        name=username.capitalize(),
-        city="Testing city",
-        verification=0.5,
-        community_standing=0.5,
-        birthdate=date(year=2000, month=1, day=1),
-        gender="N/A",
-        languages="Testing language 1|Testing language 2",
-        occupation="Tester",
-        about_me="I test things",
-        about_place="My place has a lot of testing paraphenelia",
-        countries_visited="Testing country",
-        countries_lived="Wonderland",
-        # you need to make sure to update this logic to make sure the user is jailed/not on request
-        accepted_tos=1,
-    )
-
-    session.add(user)
-
-    # this expires the user, so now it's "dirty"
-    session.commit()
-
-    # there should also be tests to check this
-    assert not user.is_jailed
-
-    return user
-
-
-def generate_user(db, username=None):
+def generate_user(db, *_, **kwargs):
     """
     Create a new user, return session token
 
@@ -114,31 +75,46 @@ def generate_user(db, username=None):
     auth = Auth(db)
 
     with session_scope(db) as session:
-        user = _raw_generate_user(session, username=username)
+        # default args
+        username = "test_user_" + random_hex(16)
+        user_opts = {
+            "username": username,
+            "email": f"{username}@dev.couchers.org",
+            # password is just 'password'
+            # this is hardcoded because the password is slow to hash (so would slow down tests otherwise)
+            "hashed_password": b"$argon2id$v=19$m=65536,t=2,p=1$4cjGg1bRaZ10k+7XbIDmFg$tZG7JaLrkfyfO7cS233ocq7P8rf3znXR7SAfUt34kJg",
+            "name": username.capitalize(),
+            "city": "Testing city",
+            "verification": 0.5,
+            "community_standing": 0.5,
+            "birthdate": date(year=2000, month=1, day=1),
+            "gender": "N/A",
+            "languages": "Testing language 1|Testing language 2",
+            "occupation": "Tester",
+            "about_me": "I test things",
+            "about_place": "My place has a lot of testing paraphenelia",
+            "countries_visited": "Testing country",
+            "countries_lived": "Wonderland",
+            # you need to make sure to update this logic to make sure the user is jailed/not on request
+            "accepted_tos": 1,
+        }
+
+        for key, value in kwargs.items():
+            user_opts[key] = value
+
+        user = User(**user_opts)
+
+        session.add(user)
+
+        # this expires the user, so now it's "dirty"
+        session.commit()
+
+        token = auth._create_session("Dummy context", session, user)
 
         # refresh it, undoes the expiry
         session.refresh(user)
         # allows detaches the user from the session, allowing its use outside this session
         session.expunge(user)
-
-    with patch("couchers.servicers.auth.verify_password", lambda hashed, password: password == "password"):
-        token = auth.Authenticate(auth_pb2.AuthReq(user=user.username, password="password"), "Dummy context").token
-
-    return user, token
-
-
-def generate_user_for_session(session, db, username=None):
-    """
-    Create a new user *boudn to session*, return session token
-
-    Use this if you need to modify the user straight after creation
-    """
-    auth = Auth(db)
-
-    user = _raw_generate_user(session, username=username)
-
-    with patch("couchers.servicers.auth.verify_password", lambda hashed, password: password == "password"):
-        token = auth.Authenticate(auth_pb2.AuthReq(user=user.username, password="password"), "Dummy context").token
 
     return user, token
 
@@ -364,3 +340,19 @@ def testconfig():
 
     config.clear()
     config.update(prevconfig)
+
+
+@pytest.fixture
+def fast_passwords():
+    # password hashing, by design, takes a lot of time, which slows down the tests. here we jump through some hoops to
+    # make this fast by replacing the hashing algo with a fast (non-password) hash, blake2b
+
+    def fast_verify(hashed: bytes, password: bytes) -> bool:
+        return hashed == blake2b(password)
+
+    def fast_hash(password: bytes) -> bytes:
+        return blake2b(password)
+
+    with patch("couchers.crypto.nacl.pwhash.verify", fast_verify) as patched_verify_password:
+        with patch("couchers.crypto.nacl.pwhash.str", fast_hash) as patched_hash_password:
+            yield

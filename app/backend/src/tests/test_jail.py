@@ -6,14 +6,7 @@ from couchers import errors
 from couchers.db import session_scope
 from couchers.models import User
 from pb import api_pb2, auth_pb2, jail_pb2
-from tests.test_fixtures import (
-    db,
-    generate_user,
-    generate_user_for_session,
-    real_api_session,
-    real_jail_session,
-    testconfig,
-)
+from tests.test_fixtures import db, generate_user, real_api_session, real_jail_session, testconfig
 
 
 @pytest.fixture(autouse=True)
@@ -35,12 +28,8 @@ def test_jail_basic(db):
 
         assert not res.jailed
 
-    with session_scope(db) as session:
-        user2, token2 = generate_user_for_session(session, db)
-
-        # make the user jailed
-        user2.accepted_tos = 0
-        session.commit()
+    # make the user jailed
+    user2, token2 = generate_user(db, accepted_tos=0)
 
     with real_api_session(db, token2) as api, pytest.raises(grpc.RpcError) as e:
         res = api.Ping(api_pb2.PingReq())
@@ -61,12 +50,7 @@ def test_jail_basic(db):
 
 
 def test_JailInfo(db):
-    with session_scope(db) as session:
-        user1, token1 = generate_user_for_session(session, db)
-
-        # make the user jailed
-        user1.accepted_tos = 0
-        session.commit()
+    user1, token1 = generate_user(db, accepted_tos=0)
 
     with real_jail_session(db, token1) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
@@ -77,12 +61,8 @@ def test_JailInfo(db):
         res = api.Ping(api_pb2.PingReq())
     assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
 
-    with session_scope(db) as session:
-        user2, token2 = generate_user_for_session(session, db)
-
-        # make the user not jailed
-        user2.accepted_tos = 1
-        session.commit()
+    # make the user not jailed
+    user2, token2 = generate_user(db, accepted_tos=1)
 
     with real_jail_session(db, token2) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
@@ -94,12 +74,8 @@ def test_JailInfo(db):
 
 
 def test_AcceptTOS(db):
-    with session_scope(db) as session:
-        user1, token1 = generate_user_for_session(session, db)
-
-        # make them have not accepted TOS
-        user1.accepted_tos = 0
-        session.commit()
+    # make them have not accepted TOS
+    user1, token1 = generate_user(db, accepted_tos=0)
 
     with real_jail_session(db, token1) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
@@ -126,12 +102,8 @@ def test_AcceptTOS(db):
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == errors.CANT_UNACCEPT_TOS
 
-    with session_scope(db) as session:
-        user2, token2 = generate_user_for_session(session, db)
-
-        # make them have accepted TOS
-        user2.accepted_tos = 1
-        session.commit()
+    # make them have accepted TOS
+    user2, token2 = generate_user(db, accepted_tos=1)
 
     with real_jail_session(db, token2) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
