@@ -67,7 +67,6 @@ export default function AppRoutes() {
   );
 }
 
-// TODO: Redirect to requested route after login
 const PrivateRoute = ({ children, ...otherProps }: RouteProps) => {
   const dispatch = useDispatch();
   const isAuthenticated = useSelector<RootState, boolean>(
@@ -81,10 +80,21 @@ const PrivateRoute = ({ children, ...otherProps }: RouteProps) => {
 
   return (
     <>
-      <Route {...otherProps}>
-        {!isAuthenticated && <Redirect to="/login" />}
-        {children}
-      </Route>
+      <Route
+        {...otherProps}
+        render={({ location }) =>
+          isAuthenticated ? (
+            children
+          ) : (
+            <Redirect
+              to={{
+                pathname: "/login",
+                state: { from: location },
+              }}
+            />
+          )
+        }
+      />
     </>
   );
 };

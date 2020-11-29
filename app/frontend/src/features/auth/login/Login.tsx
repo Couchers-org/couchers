@@ -19,7 +19,8 @@ export default function Login() {
   const authToken = useTypedSelector((state) => state.auth.authToken);
   const error = useTypedSelector((state) => state.auth.error);
 
-  const location = useLocation();
+  const location = useLocation<undefined | { from: Location }>();
+  const redirectTo = location.state?.from.pathname || "/";
   const { urlToken } = useParams<{ urlToken: string }>();
 
   useEffect(() => {
@@ -31,7 +32,7 @@ export default function Login() {
 
   return (
     <>
-      {authToken && <Redirect to="/" />}
+      {authToken && <Redirect to={redirectTo} />}
       <Typography variant="h2">Login</Typography>
       {error && <Alert severity="error">{error}</Alert>}
 
