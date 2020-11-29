@@ -41,7 +41,7 @@ export type UpdateUserProfileData = Pick<
 
 export type HostingPreferenceData = Omit<
   ProfileFormData,
-  keyof UpdateUserProfileData | "color"
+  keyof UpdateUserProfileData | "color" | "hostingStatus"
 >;
 
 export type SignupArguments = {

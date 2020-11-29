@@ -13,16 +13,6 @@ jest.mock("./service");
 global.store = reduxStore;
 global.defaultUser = user;
 
-beforeEach(() => {
-  reduxStore.dispatch({
-    type: "auth/passwordLogin/fulfilled",
-    payload: {
-      token: "9hhiwXCaCzmTM6ZB7rfaJ0yZIlSsXTOQUZagihbcrAw=",
-      user: defaultUser,
-    },
-  });
-});
-
 afterEach(() => {
   reduxStore.dispatch(reset());
 });
