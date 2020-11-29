@@ -8,7 +8,7 @@ import Button from "../../components/Button";
 import TextField from "../../components/TextField";
 import { updateUserProfile } from "./index";
 import ProfileTextInput from "./ProfileTextInput";
-import { ProfileFormData } from "../../service/user";
+import { UpdateUserProfileData } from "../../service/user";
 import { theme } from "../../theme";
 import { useAppDispatch, useTypedSelector } from "../../store";
 
@@ -27,9 +27,9 @@ export default function EditProfileForm() {
     "success" | "error" | undefined
   >();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { control, register, handleSubmit } = useForm<ProfileFormData>();
+  const { control, register, handleSubmit } = useForm<UpdateUserProfileData>();
 
-  const onSubmit = handleSubmit(async (data: ProfileFormData) => {
+  const onSubmit = handleSubmit(async (data: UpdateUserProfileData) => {
     try {
       unwrapResult(await dispatch(updateUserProfile(data)));
       setShowAlertState("success");

@@ -11,3 +11,9 @@ export const service = {
   conversations,
   api,
 } as const;
+
+export type {
+  HostingPreferenceData,
+  SignupArguments,
+  UpdateUserProfileData,
+} from "./user";

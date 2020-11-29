@@ -20,11 +20,30 @@ import { ProtoToJsTypes } from "../utils/types";
 import client from "./client";
 
 type RequiredUpdateProfileReq = Required<UpdateProfileReq.AsObject>;
-export type ProfileFormData = {
+type ProfileFormData = {
   [K in keyof RequiredUpdateProfileReq]: ProtoToJsTypes<
     RequiredUpdateProfileReq[K]
   >;
 };
+
+export type UpdateUserProfileData = Pick<
+  ProfileFormData,
+  | "name"
+  | "city"
+  | "gender"
+  | "occupation"
+  | "languages"
+  | "aboutMe"
+  | "aboutPlace"
+  | "countriesVisited"
+  | "countriesLived"
+>;
+
+export type HostingPreferenceData = Omit<
+  ProfileFormData,
+  keyof UpdateUserProfileData | "color"
+>;
+
 export type SignupArguments = {
   signupToken: string;
   username: string;
@@ -108,31 +127,28 @@ export async function getUser(
 }
 
 /**
- * Updates user
- *
- * @param {User.AsObject} reqObject
- * @returns {Promise<Empty>}
+ * Updates user profile
  */
 export async function updateProfile(
-  reqObject: ProfileFormData
+  profile: UpdateUserProfileData
 ): Promise<Empty> {
   const req = new UpdateProfileReq();
 
-  const name = new wrappers.StringValue().setValue(reqObject.name);
-  const city = new wrappers.StringValue().setValue(reqObject.city);
-  const gender = new wrappers.StringValue().setValue(reqObject.gender);
-  const occupation = new NullableStringValue().setValue(reqObject.occupation);
+  const name = new wrappers.StringValue().setValue(profile.name);
+  const city = new wrappers.StringValue().setValue(profile.city);
+  const gender = new wrappers.StringValue().setValue(profile.gender);
+  const occupation = new NullableStringValue().setValue(profile.occupation);
   const languages = new RepeatedStringValue()
-    .setValueList(reqObject.languages)
-    .setExists(!!reqObject.languages);
-  const aboutMe = new NullableStringValue().setValue(reqObject.aboutMe);
-  const aboutPlace = new NullableStringValue().setValue(reqObject.aboutPlace);
+    .setValueList(profile.languages)
+    .setExists(!!profile.languages);
+  const aboutMe = new NullableStringValue().setValue(profile.aboutMe);
+  const aboutPlace = new NullableStringValue().setValue(profile.aboutPlace);
   const countriesVisited = new RepeatedStringValue()
-    .setValueList(reqObject.countriesVisited)
-    .setExists(!!reqObject.countriesVisited);
+    .setValueList(profile.countriesVisited)
+    .setExists(!!profile.countriesVisited);
   const countriesLived = new RepeatedStringValue()
-    .setValueList(reqObject.countriesLived)
-    .setExists(!!reqObject.countriesLived);
+    .setValueList(profile.countriesLived)
+    .setExists(!!profile.countriesLived);
 
   req
     .setName(name)
@@ -148,7 +164,7 @@ export async function updateProfile(
   return client.api.updateProfile(req);
 }
 
-export function updateHostingPreference(preferences: ProfileFormData) {
+export function updateHostingPreference(preferences: HostingPreferenceData) {
   const req = new UpdateProfileReq();
 
   const maxGuests =
