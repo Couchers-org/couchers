@@ -1,15 +1,15 @@
 import { Meta, Story } from "@storybook/react/types-6-0";
 import * as React from "react";
 import { Provider } from "react-redux";
-import { message1 } from "../../__mocks__/service";
-import { store } from "../../store";
+import { message1 } from "../../../__mocks__/service";
+import { store } from "../../../store";
 
-import Messages from "./index";
-import MessageView, { MessageProps } from "./messagelist/Message";
+import MessageView, { MessageProps } from "../messagelist/Message";
+import GroupChatsTab from "./GroupChatsTab";
 
 export default {
-  title: "Messages",
-  component: Messages,
+  title: "GroupChatsTab",
+  component: GroupChatsTab,
   argTypes: {},
   decorators: [
     (storyFn) => {
@@ -18,10 +18,10 @@ export default {
   ],
 } as Meta;
 
-const Template: Story<any> = (args) => <Messages {...args} />;
+const Template: Story = (args) => <GroupChatsTab {...args} />;
 
-export const Assembled = Template.bind({});
-Assembled.args = {};
+export const Tab = Template.bind({});
+Tab.args = {};
 
 const MessageTemplate: Story<MessageProps> = (args) => (
   <MessageView {...args} />

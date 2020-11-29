@@ -1,8 +1,9 @@
 import { TabContext, TabPanel } from "@material-ui/lab";
 import * as React from "react";
 import PageTitle from "../../components/PageTitle";
-import TabBar from "./TabBar";
 import { labels } from "./constants";
+import GroupChatsTab from "./groupchats/GroupChatsTab";
+import TabBar from "./TabBar";
 
 export default function Messages() {
   const [value, setValue] = React.useState<keyof typeof labels>("TAB_ALL");
@@ -12,7 +13,9 @@ export default function Messages() {
       <TabContext value={value}>
         <TabBar value={value} setValue={setValue} labels={labels} />
         <TabPanel value={"TAB_ALL"}>ALL</TabPanel>
-        <TabPanel value={"TAB_GROUPCHATS"}>GROUPCHATS</TabPanel>
+        <TabPanel value={"TAB_GROUPCHATS"}>
+          <GroupChatsTab />
+        </TabPanel>
         <TabPanel value={"TAB_HOSTING"}>HOSTING</TabPanel>
         <TabPanel value={"TAB_SURFING"}>SURFING</TabPanel>
         <TabPanel value={"TAB_MEET"}>MEET</TabPanel>

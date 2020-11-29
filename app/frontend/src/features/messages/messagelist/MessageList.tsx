@@ -9,7 +9,13 @@ import TextField from "../../../components/TextField";
 import { Message } from "../../../pb/conversations_pb";
 import MessageView from "./Message";
 
-const useStyles = makeStyles({ root: {} });
+const useStyles = makeStyles({
+  root: {},
+  list: {
+    display: "flex",
+    flexDirection: "column-reverse",
+  },
+});
 
 interface MessageFormData {
   text: string;
@@ -44,7 +50,7 @@ export default function MessageList({
     <Box className={classes.root}>
       {error && <Alert severity="error">{error}</Alert>}
 
-      <>
+      <Box className={classes.list}>
         {messages.length ? (
           messages.map((message) => (
             <MessageView key={message.messageId} message={message} />
@@ -52,7 +58,7 @@ export default function MessageList({
         ) : (
           <>No messages</>
         )}
-      </>
+      </Box>
 
       <form onSubmit={onSubmit}>
         <TextField
