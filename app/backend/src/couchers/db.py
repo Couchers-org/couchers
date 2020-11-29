@@ -161,6 +161,21 @@ def new_password_reset_token(session, user, hours=2):
     return password_reset_token, f"{hours} hours"
 
 
+def set_email_change_token(session, user, hours=2):
+    """
+    Make a new email change token that's valid for `hours` hours for this user
+
+    Note: does not call session.commit()
+
+    Returns token and expiry text
+    """
+    token = urlsafe_secure_token()
+    user.new_email_token = token
+    user.new_email_token_created = now()
+    user.new_email_token_expiry = now() + datetime.timedelta(hours=hours)
+    return token, f"{hours} hours"
+
+
 def get_friends_status(session, user1_id, user2_id):
     if user1_id == user2_id:
         return api_pb2.User.FriendshipStatus.NA

@@ -181,3 +181,6 @@ def test_password_reset_invalid_token(db, fast_passwords):
     with session_scope(db) as session:
         user = session.query(User).one()
         assert user.hashed_password == hash_password(password)
+
+
+# CompleteChangeEmail tested in test_account.py

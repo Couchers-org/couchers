@@ -111,6 +111,12 @@ class User(Base):
 
     accepted_tos = Column(Integer, nullable=False, default=0)
 
+    # for changing their email
+    new_email = Column(String, nullable=True)
+    new_email_token = Column(String, nullable=True)
+    new_email_token_created = Column(DateTime(timezone=True), nullable=True)
+    new_email_token_expiry = Column(DateTime(timezone=True), nullable=True)
+
     @property
     def is_jailed(self):
         return self.accepted_tos < 1

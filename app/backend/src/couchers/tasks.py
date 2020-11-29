@@ -104,3 +104,26 @@ def send_password_changed_email(user):
     """
     logger.info(f"Sending password changed (notification) email to {user=}")
     return email.send_email_template(user.email, "password_changed", template_args={"user": user})
+
+
+def send_email_changed_notification_email(user):
+    """
+    Send the user an email saying their email has changed. Goes to the old address
+    """
+    logger.info(
+        f"Sending email changed (notification) email to {user=} (old email: {user.email=}, new email: {user.new_email=})"
+    )
+    return email.send_email_template(user.email, "email_changed_notification", template_args={"user": user})
+
+
+def send_email_changed_confirmation_email(user, token, expiry_text):
+    """
+    Send the user an email confirming their new email. Goes to the new address
+    """
+    logger.info(
+        f"Sending email changed (confirmation) email to {user=} (old email: {user.email=}, new email: {user.new_email=})"
+    )
+    confirmation_link = urls.change_email_link(confirmation_token=token)
+    return email.send_email_template(
+        user.email, "email_changed_confirmation", template_args={"user": user, "confirmation_link": confirmation_link}
+    )

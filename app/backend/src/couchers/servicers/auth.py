@@ -361,3 +361,28 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 return empty_pb2.Empty()
             else:
                 context.abort(grpc.StatusCode.UNAUTHENTICATED, errors.INVALID_TOKEN)
+
+    def CompleteChangeEmail(self, request, context):
+        """
+        Completes an email change request.
+
+        Removes the old email and replaces with the new
+        """
+        with session_scope(self._Session) as session:
+            user = (
+                session.query(User)
+                .filter(User.new_email_token == request.change_email_token)
+                .filter(User.new_email_token_created <= func.now())
+                .filter(User.new_email_token_expiry >= func.now())
+                .one_or_none()
+            )
+            if user:
+                user.email = user.new_email
+                user.new_email = None
+                user.new_email_token = None
+                user.new_email_token_created = None
+                user.new_email_token_expiry = None
+                session.commit()
+                return empty_pb2.Empty()
+            else:
+                context.abort(grpc.StatusCode.UNAUTHENTICATED, errors.INVALID_TOKEN)
