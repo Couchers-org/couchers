@@ -1,6 +1,12 @@
-import { Card, CardContent, makeStyles, Typography } from "@material-ui/core";
+import {
+  Card,
+  CardContent,
+  CardProps,
+  makeStyles,
+  Typography,
+} from "@material-ui/core";
 import classNames from "classnames";
-import React, { ReactElement } from "react";
+import React from "react";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -12,25 +18,24 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface UserSectionProps {
+interface UserSectionProps extends CardProps {
   title: string;
-  content: ReactElement;
   className?: string;
 }
 
 export default function UserSection({
-  content,
   title,
   className,
+  children,
 }: UserSectionProps) {
   const classes = useStyles();
   return (
-    <Card className={classNames([className, classes.root])}>
+    <Card className={classNames(className, classes.root)}>
       <CardContent>
         <Typography variant="h2" className={classes.title}>
           {title}
         </Typography>
-        {content}
+        {children}
       </CardContent>
     </Card>
   );

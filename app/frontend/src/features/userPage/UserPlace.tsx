@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: "bold",
   },
   subheading: {
-    fontSize: theme.typography.h5.fontSize,
+    fontSize: "1.25rem",
   },
 }));
 

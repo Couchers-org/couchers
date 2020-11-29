@@ -4,8 +4,7 @@ import { Box, makeStyles, Typography } from "@material-ui/core";
 import PageTitle from "../../components/PageTitle";
 import ScoreBar from "../../components/ScoreBar";
 import { CouchIcon, EditIcon } from "../../components/Icons";
-///TODO: Replace this with upstream avatar
-import ResponsiveAvatar from "./ResponsiveAvatar";
+import Avatar from "../../components/Avatar";
 import { useTypedSelector } from "../../store";
 import { Link } from "react-router-dom";
 import { profileRoute } from "../../AppRoutes";
@@ -55,7 +54,7 @@ export default function UserHeader({ user }: { user: User.AsObject }) {
   return (
     <div className={classes.root}>
       <div className={classes.avatar}>
-        <ResponsiveAvatar user={user} />
+        <Avatar grow user={user} />
       </div>
       <PageTitle className={classes.name}>{user.name}</PageTitle>
 

@@ -27,49 +27,45 @@ const useStyles = makeStyles((theme) => ({
 export default function UserSummary({ user }: { user: User.AsObject }) {
   const classes = useStyles();
   return (
-    <UserSection
-      title="Summary"
-      className={classes.root}
-      content={
-        <List>
+    <UserSection title="Summary" className={classes.root}>
+      <List>
+        <ListItem>
+          <ListItemIcon>
+            <CakeIcon titleAccess="Age" />
+          </ListItemIcon>
+          <ListItemText primary={user.age} />
+        </ListItem>
+        {user.gender && (
           <ListItem>
             <ListItemIcon>
-              <CakeIcon titleAccess="Age" />
+              <PersonIcon titleAccess="Gender" />
             </ListItemIcon>
-            <ListItemText primary={user.age} />
+            <ListItemText primary={user.gender} />
           </ListItem>
-          {user.gender && (
-            <ListItem>
-              <ListItemIcon>
-                <PersonIcon titleAccess="Gender" />
-              </ListItemIcon>
-              <ListItemText primary={user.gender} />
-            </ListItem>
-          )}
+        )}
+        <ListItem>
+          <ListItemIcon>
+            <LocationIcon titleAccess="Location" />
+          </ListItemIcon>
+          <ListItemText primary="(Location placeholder)" />
+        </ListItem>
+        {user.languagesList && (
           <ListItem>
             <ListItemIcon>
-              <LocationIcon titleAccess="Location" />
+              <LanguageIcon titleAccess="Languages spoken" />
             </ListItemIcon>
-            <ListItemText primary="(Location placeholder)" />
+            <ListItemText primary={user.languagesList.join(", ")} />
           </ListItem>
-          {user.languagesList && (
-            <ListItem>
-              <ListItemIcon>
-                <LanguageIcon titleAccess="Languages spoken" />
-              </ListItemIcon>
-              <ListItemText primary={user.languagesList.join(", ")} />
-            </ListItem>
-          )}
-          {user.occupation && (
-            <ListItem>
-              <ListItemIcon>
-                <WorkIcon titleAccess="Occupation" />
-              </ListItemIcon>
-              <ListItemText primary={user.occupation} />
-            </ListItem>
-          )}
-        </List>
-      }
-    />
+        )}
+        {user.occupation && (
+          <ListItem>
+            <ListItemIcon>
+              <WorkIcon titleAccess="Occupation" />
+            </ListItemIcon>
+            <ListItemText primary={user.occupation} />
+          </ListItem>
+        )}
+      </List>
+    </UserSection>
   );
 }

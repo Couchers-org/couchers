@@ -17,7 +17,7 @@ export default function Avatar({ user, className }: AvatarProps) {
   const classes = useStyles();
   return (
     <MuiAvatar
-      className={classNames([className, classes.root])}
+      className={classNames(className, classes.root)}
       src={user.avatarUrl}
     />
   );
