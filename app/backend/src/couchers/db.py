@@ -9,7 +9,7 @@ from alembic.config import Config
 from sqlalchemy.sql import and_, or_
 
 from couchers.crypto import urlsafe_secure_token
-from couchers.models import FriendRelationship, FriendStatus, LoginToken, SignupToken, User
+from couchers.models import FriendRelationship, FriendStatus, LoginToken, PasswordResetToken, SignupToken, User
 from couchers.utils import now
 from pb import api_pb2
 
@@ -146,6 +146,19 @@ def new_login_token(session, user, hours=2):
     session.add(login_token)
     session.commit()
     return login_token, f"{hours} hours"
+
+
+def new_password_reset_token(session, user, hours=2):
+    """
+    Make a password reset token that's valid for `hours` hours
+
+    Returns token and expiry text
+    """
+    token = urlsafe_secure_token()
+    password_reset_token = PasswordResetToken(token=token, user=user, expiry=now() + datetime.timedelta(hours=hours))
+    session.add(password_reset_token)
+    session.commit()
+    return password_reset_token, f"{hours} hours"
 
 
 def get_friends_status(session, user1_id, user2_id):

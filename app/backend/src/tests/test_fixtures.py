@@ -353,6 +353,6 @@ def fast_passwords():
     def fast_hash(password: bytes) -> bytes:
         return blake2b(password)
 
-    with patch("couchers.crypto.nacl.pwhash.verify", fast_verify) as patched_verify_password:
-        with patch("couchers.crypto.nacl.pwhash.str", fast_hash) as patched_hash_password:
+    with patch("couchers.crypto.nacl.pwhash.verify", fast_verify):
+        with patch("couchers.crypto.nacl.pwhash.str", fast_hash):
             yield
