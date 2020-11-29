@@ -15,6 +15,7 @@ from couchers.config import config
 from couchers.crypto import random_hex
 from couchers.db import apply_migrations, session_scope
 from couchers.models import Base, FriendRelationship, FriendStatus, User
+from couchers.servicers.account import Account
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
 from couchers.servicers.bugs import Bugs
@@ -23,6 +24,7 @@ from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
 from couchers.servicers.requests import Requests
 from pb import (
+    account_pb2_grpc,
     api_pb2_grpc,
     auth_pb2,
     auth_pb2_grpc,
@@ -283,6 +285,18 @@ def requests_session(db, token):
     channel = FakeChannel(user_id=user_id)
     requests_pb2_grpc.add_RequestsServicer_to_server(Requests(db), channel)
     yield requests_pb2_grpc.RequestsStub(channel)
+
+
+@contextmanager
+def account_session(db, token):
+    """
+    Create a Account API for testing, uses the token for auth
+    """
+    auth_interceptor = Auth(db).get_auth_interceptor(allow_jailed=False)
+    user_id, jailed = Auth(db).get_session_for_token(token)
+    channel = FakeChannel(user_id=user_id)
+    account_pb2_grpc.add_AccountServicer_to_server(Account(db), channel)
+    yield account_pb2_grpc.AccountStub(channel)
 
 
 @contextmanager

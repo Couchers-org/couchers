@@ -88,3 +88,11 @@ def send_friend_request_email(friend_relationship):
             "friend_requests_link": friend_requests_link,
         },
     )
+
+
+def send_password_changed_email(user):
+    """
+    Send the user an email saying their password has been changed.
+    """
+    logger.info(f"Sending password changed (notification) email to {user=}")
+    return email.send_email_template(user.email, "password_changed", template_args={"user": user})
