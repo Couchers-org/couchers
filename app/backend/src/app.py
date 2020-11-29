@@ -11,6 +11,7 @@ from couchers import config
 from couchers.db import apply_migrations, session_scope
 from couchers.interceptors import LoggingInterceptor, UpdateLastActiveTimeInterceptor
 from couchers.models import Base
+from couchers.servicers.account import Account
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
 from couchers.servicers.bugs import Bugs
@@ -21,6 +22,7 @@ from couchers.servicers.requests import Requests
 from couchers.servicers.sso import SSO
 from dummy_data import add_dummy_data
 from pb import (
+    account_pb2_grpc,
     api_pb2_grpc,
     auth_pb2_grpc,
     bugs_pb2_grpc,
@@ -95,10 +97,13 @@ server = grpc.server(
     ],
 )
 server.add_insecure_port("[::]:1751")
+
+account_pb2_grpc.add_AccountServicer_to_server(Account(Session), server)
 api_pb2_grpc.add_APIServicer_to_server(servicer, server)
-sso_pb2_grpc.add_SSOServicer_to_server(SSO(Session), server)
 conversations_pb2_grpc.add_ConversationsServicer_to_server(Conversations(Session), server)
 requests_pb2_grpc.add_RequestsServicer_to_server(Requests(Session), server)
+sso_pb2_grpc.add_SSOServicer_to_server(SSO(Session), server)
+
 server.start()
 
 media_server = grpc.server(
