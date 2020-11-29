@@ -27,3 +27,7 @@ def friend_requests_link():
 
 def media_upload_url(path):
     return f"{config['MEDIA_SERVER_BASE_URL']}/{path}"
+
+
+def change_email_link(confirmation_token):
+    return f"{config['BASE_URL']}/confirmemail/{confirmation_token}"
