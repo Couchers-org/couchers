@@ -68,6 +68,10 @@ service Auth {
   rpc ForgotPassword(ForgotPasswordReq) returns (google.protobuf.Empty) {
     // Sends a forgot password email to the given user if the user exists, returns no output (so you can't go around guessing email addresses)
   }
+
+  rpc ConfirmChangeEmail(ConfirmChangeEmailReq) returns (google.protobuf.Empty) {
+    // When a user opens a changed email confirmation, the frontend should call this function with the token
+  }
 }
 
 message SignupReq {
@@ -149,4 +153,8 @@ message DeAuthReq {
 
 message ForgotPasswordReq {
   string user = 1;
+}
+
+message ConfirmChangeEmailReq {
+  string token = 1;
 }
