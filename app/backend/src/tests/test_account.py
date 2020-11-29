@@ -42,12 +42,15 @@ def test_ChangePassword_normal(db):
     with account_session(db, token) as account:
         with patch("couchers.servicers.account.verify_password", dummy_verify_password) as patched_verify_password:
             with patch("couchers.servicers.account.hash_password", dummy_hash_password) as patched_hash_password:
-                account.ChangePassword(
-                    account_pb2.ChangePasswordReq(
-                        old_password=wrappers_pb2.StringValue(value=old_password),
-                        new_password=wrappers_pb2.StringValue(value=new_password),
+                with patch("couchers.servicers.account.send_password_changed_email") as mock:
+                    account.ChangePassword(
+                        account_pb2.ChangePasswordReq(
+                            old_password=wrappers_pb2.StringValue(value=old_password),
+                            new_password=wrappers_pb2.StringValue(value=new_password),
+                        )
                     )
-                )
+
+                mock.assert_called_once()
 
     with session_scope(db) as session:
         user = session.query(User).filter(User.id == user_id).one()
@@ -147,11 +150,13 @@ def test_ChangePassword_add(db):
     with account_session(db, token) as account:
         with patch("couchers.servicers.account.verify_password", dummy_verify_password) as patched_verify_password:
             with patch("couchers.servicers.account.hash_password", dummy_hash_password) as patched_hash_password:
-                account.ChangePassword(
-                    account_pb2.ChangePasswordReq(
-                        new_password=wrappers_pb2.StringValue(value=new_password),
+                with patch("couchers.servicers.account.send_password_changed_email") as mock:
+                    account.ChangePassword(
+                        account_pb2.ChangePasswordReq(
+                            new_password=wrappers_pb2.StringValue(value=new_password),
+                        )
                     )
-                )
+                mock.assert_called_once()
 
     with session_scope(db) as session:
         user = session.query(User).filter(User.id == user_id).one()
@@ -219,11 +224,13 @@ def test_ChangePassword_remove(db):
     with account_session(db, token) as account:
         with patch("couchers.servicers.account.verify_password", dummy_verify_password) as patched_verify_password:
             with patch("couchers.servicers.account.hash_password", dummy_hash_password) as patched_hash_password:
-                account.ChangePassword(
-                    account_pb2.ChangePasswordReq(
-                        old_password=wrappers_pb2.StringValue(value=old_password),
+                with patch("couchers.servicers.account.send_password_changed_email") as mock:
+                    account.ChangePassword(
+                        account_pb2.ChangePasswordReq(
+                            old_password=wrappers_pb2.StringValue(value=old_password),
+                        )
                     )
-                )
+                mock.assert_called_once()
 
     with session_scope(db) as session:
         user = session.query(User).filter(User.id == user_id).one()
