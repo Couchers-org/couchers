@@ -71,7 +71,7 @@ services:
     command: sh -c "yarn && yarn start"
     restart: on-failure
     ports:
-      - 3000:3000
+      - 3000:3001
     depends_on:
       - backend
     links:
