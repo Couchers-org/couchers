@@ -6,7 +6,7 @@ import { acceptTOS } from "../../../service/jail";
 export default function TOSSection({
   updateJailed,
 }: {
-  updateJailed: () => Promise<any>;
+  updateJailed: () => void;
 }) {
   const [completed, setCompleted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -14,9 +14,13 @@ export default function TOSSection({
   const accept = async () => {
     setLoading(true);
     const info = await acceptTOS();
-    if (!info.isJailed) await updateJailed();
-    setLoading(false);
-    setCompleted(true);
+    if (!info.isJailed) {
+      updateJailed();
+    } else {
+      //if user is no longer jailed, this component will be unmounted anyway
+      setLoading(false);
+      setCompleted(true);
+    }
   };
 
   return (
