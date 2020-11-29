@@ -30,5 +30,6 @@ message ChangePasswordReq {
 }
 
 message ChangeEmailReq {
-  string new_email = 1;
+  google.protobuf.StringValue password = 1;
+  string new_email = 2;
 }
