@@ -1,5 +1,10 @@
-import React from "react";
-import { Container, LinearProgress, makeStyles } from "@material-ui/core";
+import React, { ReactChildren } from "react";
+import {
+  Container,
+  ContainerProps,
+  LinearProgress,
+  makeStyles,
+} from "@material-ui/core";
 import TextBody from "./TextBody";
 
 const useStyles = makeStyles((theme) => ({
@@ -26,12 +31,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface ScoreBarProps {
+interface ScoreBarProps extends ContainerProps {
   value: number;
-  label?: string;
 }
 
-export default function SearchResult({ value, label }: ScoreBarProps) {
+export default function SearchResult({ value, children }: ScoreBarProps) {
   const classes = useStyles();
   return (
     <Container disableGutters className={classes.root}>
@@ -40,7 +44,7 @@ export default function SearchResult({ value, label }: ScoreBarProps) {
         value={value}
         className={classes.scoreBar}
       />
-      <TextBody className={classes.scoreBarLabel}>{label}</TextBody>
+      <TextBody className={classes.scoreBarLabel}>{children}</TextBody>
     </Container>
   );
 }

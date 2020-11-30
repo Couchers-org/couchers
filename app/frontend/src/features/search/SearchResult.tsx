@@ -62,14 +62,12 @@ export default function SearchResult({ user }: { user: User.AsObject }) {
               </Container>
             </Box>
 
-            <ScoreBar
-              label="Community Standing"
-              value={user.communityStanding * 100}
-            />
-            <ScoreBar
-              label="Verification Score"
-              value={user.verification * 100}
-            />
+            <ScoreBar value={user.communityStanding * 100}>
+              Community Standing
+            </ScoreBar>
+            <ScoreBar value={user.verification * 100}>
+              Verification Score
+            </ScoreBar>
 
             {user.aboutMe.length < 300
               ? user.aboutMe

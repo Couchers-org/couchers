@@ -41,12 +41,15 @@ export default function UserPage() {
             <UserSummary user={user} />
           </Grid>
           <Grid item xs={12} sm={6} md={8}>
-            <UserSection title="About" content={<UserAbout user={user} />} />
-            <UserSection title="My Place" content={<UserPlace user={user} />} />
-            <UserSection
-              title="Guestbook"
-              content={<UserGuestbook user={user} />}
-            />
+            <UserSection title="About">
+              <UserAbout user={user} />
+            </UserSection>
+            <UserSection title="My Place">
+              <UserPlace user={user} />
+            </UserSection>
+            <UserSection title="Guestbook">
+              <UserGuestbook user={user} />
+            </UserSection>
           </Grid>
         </Grid>
       ) : null}

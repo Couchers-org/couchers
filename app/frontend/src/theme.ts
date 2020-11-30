@@ -12,22 +12,16 @@ const themeOptions: ThemeOptions = {
   typography: {
     fontFamily: "Lato, Arial, sans-serif",
     h1: {
-      fontSize: "48px",
+      fontSize: 48,
       marginTop: "16px",
     },
     h2: {
-      fontSize: "36px",
+      fontSize: 36,
       marginTop: "8px",
     },
     h3: {
-      fontSize: "28px",
+      fontSize: 28,
       marginTop: "8px",
-    },
-    h4: {
-      fontSize: "24px",
-    },
-    h5: {
-      fontSize: "20px",
     },
   },
   shape: {

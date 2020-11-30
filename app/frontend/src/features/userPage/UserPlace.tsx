@@ -2,7 +2,7 @@ import React from "react";
 import { SmokingLocation, User } from "../../pb/api_pb";
 import { makeStyles, Typography } from "@material-ui/core";
 import TextBody from "../../components/TextBody";
-import { smokingLocationLabels } from "../../constants";
+import { smokingLocationLabels } from "../profile/constants";
 
 const useStyles = makeStyles((theme) => ({
   list: {
@@ -25,61 +25,55 @@ const useStyles = makeStyles((theme) => ({
 export default function UserPlace({ user }: { user: User.AsObject }) {
   const classes = useStyles();
 
-  const preferences = [
-    [
-      !!user.lastMinute,
-      "Last minute requests ok?",
-      user.lastMinute?.value ? "Yes" : "No",
-    ],
-    [!!user.maxGuests, "Max guests", user.maxGuests?.value.toString()],
-    [
-      !!user.multipleGroups,
-      "Multiple groups ok?",
-      user.multipleGroups?.value ? "Yes" : "No",
-    ],
-    [
-      !!user.wheelchairAccessible,
-      "Wheelchair accessible",
-      user.wheelchairAccessible?.value ? "Yes" : "No",
-    ],
-    [
-      user.smokingAllowed !== SmokingLocation.SMOKING_LOCATION_UNKNOWN &&
-        user.smokingAllowed !== SmokingLocation.SMOKING_LOCATION_UNSPECIFIED,
-      "Smoking allowed?",
-      smokingLocationLabels[user.smokingAllowed],
-    ],
-    [
-      !!user.acceptsKids,
-      "Kids allowed?",
-      user.acceptsKids?.value ? "Yes" : "No",
-    ],
-    [
-      !!user.acceptsPets,
-      "Pets allowed?",
-      user.acceptsPets?.value ? "Yes" : "No",
-    ],
-  ];
-
   return (
     <>
       <Typography variant="h3" className={classes.subheading}>
         Hosting preferences
       </Typography>
       <ul className={classes.list}>
-        {preferences.map((pref, index) =>
-          pref[0] ? (
-            <li
-              className={classes.listItem}
-              key={`hosting-preference-${index}`}
-            >
-              <TextBody>
-                {pref[1]}{" "}
-                <span className={classes.hostingPreferenceResponse}>
-                  {pref[2]}
-                </span>
-              </TextBody>
-            </li>
-          ) : null
+        {user.lastMinute && (
+          <HostingPreferenceListItem
+            label="Last minute requests ok?"
+            value={user.lastMinute?.value ? "Yes" : "No"}
+          />
+        )}
+        {user.maxGuests && (
+          <HostingPreferenceListItem
+            label="Max guests"
+            value={user.maxGuests?.value.toString()}
+          />
+        )}
+        {user.multipleGroups && (
+          <HostingPreferenceListItem
+            label="Multiple groups ok?"
+            value={user.multipleGroups?.value ? "Yes" : "No"}
+          />
+        )}
+        {user.wheelchairAccessible && (
+          <HostingPreferenceListItem
+            label="Wheelchair accessible"
+            value={user.wheelchairAccessible?.value ? "Yes" : "No"}
+          />
+        )}
+        {user.smokingAllowed !== SmokingLocation.SMOKING_LOCATION_UNKNOWN &&
+          user.smokingAllowed !==
+            SmokingLocation.SMOKING_LOCATION_UNSPECIFIED && (
+            <HostingPreferenceListItem
+              label="Smoking allowed?"
+              value={smokingLocationLabels[user.smokingAllowed]}
+            />
+          )}
+        {user.acceptsKids && (
+          <HostingPreferenceListItem
+            label="Kids allowed?"
+            value={user.acceptsKids?.value ? "Yes" : "No"}
+          />
+        )}
+        {user.acceptsPets && (
+          <HostingPreferenceListItem
+            label="Pets allowed?"
+            value={user.acceptsPets?.value ? "Yes" : "No"}
+          />
         )}
       </ul>
       <Typography variant="h3" className={classes.subheading}>
@@ -107,3 +101,23 @@ export default function UserPlace({ user }: { user: User.AsObject }) {
     </>
   );
 }
+
+interface HostingPreferenceListItemProps {
+  label: string;
+  value: string;
+}
+
+const HostingPreferenceListItem = ({
+  label,
+  value,
+}: HostingPreferenceListItemProps) => {
+  const classes = useStyles();
+  return (
+    <li className={classes.listItem}>
+      <TextBody>
+        {`${label} `}
+        <span className={classes.hostingPreferenceResponse}>{value}</span>
+      </TextBody>
+    </li>
+  );
+};

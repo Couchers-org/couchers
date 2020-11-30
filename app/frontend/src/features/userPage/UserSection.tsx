@@ -14,7 +14,7 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(2),
   },
   title: {
-    fontSize: theme.typography.h4.fontSize,
+    fontSize: "1.5rem",
   },
 }));
 
