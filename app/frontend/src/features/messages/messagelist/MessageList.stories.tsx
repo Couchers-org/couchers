@@ -3,7 +3,7 @@ import { Meta, Story } from "@storybook/react/types-6-0";
 import * as React from "react";
 import { Provider } from "react-redux";
 
-import { user1 } from "../../../__mocks__/service";
+import { user1 } from "../../../service/__mocks__";
 import { Message } from "../../../pb/conversations_pb";
 import rootReducer from "../../../reducers";
 import MessageList, { MessageListProps } from "./MessageList";

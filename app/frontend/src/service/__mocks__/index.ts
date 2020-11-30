@@ -1,5 +1,7 @@
-import { User } from "../../pb/api_pb";
 import { service as originalService } from "..";
+import { MessageProps } from "../../features/messages/messagelist/Message";
+import { User } from "../../pb/api_pb";
+import { Message } from "../../pb/conversations_pb";
 import funnycat from "../../stories/assets/funnycat.jpg";
 import funnydog from "../../stories/assets/funnydog.jpg";
 import funnykid from "../../stories/assets/funnykid.jpg";
@@ -25,11 +27,24 @@ const user3 = {
   avatarUrl: funnykid,
 } as User.AsObject;
 
+export const message1: MessageProps["message"] = {
+  messageId: 1,
+  authorUserId: 2,
+  text: { text: "testtext" },
+  time: { seconds: Math.floor(+new Date(2020, 0, 1) / 1e3), nanos: 0 },
+} as Message.AsObject;
+const message2: MessageProps["message"] = {
+  messageId: 2,
+  authorUserId: 2,
+  text: { text: "testtext" },
+  time: { seconds: Math.floor(+new Date(2020, 0, 1) / 1e3), nanos: 0 },
+};
+
 const userMap = new Map(
   [user1, user2, user3].map((user) => [user.userId, user])
 );
 
-export const mockedService = {
+export const mockedService = ({
   user: {
     getUser: (id: string) => {
       const result = userMap.get(+id);
@@ -37,7 +52,25 @@ export const mockedService = {
     },
   },
   api: { listFriends: () => Promise.resolve([user2.userId, user3.userId]) },
-} as typeof originalService;
+  conversations: {
+    listGroupChats: () =>
+      Promise.resolve([
+        {
+          groupChatId: 3,
+          title: "groupchattitle",
+          memberUserIdsList: [],
+          adminUserIdsList: [],
+          onlyAdminsInvite: true,
+          isDm: false,
+          // created?: google_protobuf_timestamp_pb.Timestamp.AsObject,
+          unseenMessageCount: 0,
+          lastSeenMessageId: 4,
+          latestMessage: message1,
+        },
+      ]),
+    getGroupChatMessages: () => Promise.resolve([message1, message2]),
+  },
+} as unknown) as typeof originalService;
 
 export const service = new Proxy(
   {},
@@ -81,9 +114,8 @@ export const service = new Proxy(
 
             const emptyDecoratedMethod = () => {
               console.warn(
-                `Service method '${String(serviceName)}.${String(
-                  methodName
-                )}' is called. You should probably mock it.`
+                `Service method '${serviceName}.${methodName}' is called without a mock implementation.
+                You should probably provide one.`
               );
               return Promise.resolve();
             };

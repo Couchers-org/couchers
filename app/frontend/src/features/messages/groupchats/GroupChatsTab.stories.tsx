@@ -1,7 +1,7 @@
 import { Meta, Story } from "@storybook/react/types-6-0";
 import * as React from "react";
 import { Provider } from "react-redux";
-import { message1 } from "../../../__mocks__/service";
+import { message1 } from "../../../service/__mocks__";
 import { store } from "../../../store";
 
 import MessageView, { MessageProps } from "../messagelist/Message";
