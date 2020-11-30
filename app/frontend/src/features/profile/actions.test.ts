@@ -1,3 +1,4 @@
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import type { RootState } from "../../reducers";
 import { service } from "../../service";
 import { addDefaultUser } from "../../test/utils";
@@ -34,7 +35,7 @@ describe("updateUserProfile thunk", () => {
       languages: ["English", "Finnish", "Spanish"],
       countriesVisited: [...countriesVisitedList, "United States"],
     };
-    updateProfileMock.mockResolvedValue(undefined);
+    updateProfileMock.mockResolvedValue(new Empty());
     getUserMock.mockResolvedValue({
       ...newUserProfileData,
       countriesLivedList,
@@ -126,7 +127,7 @@ describe("updateHostingPreference thunk", () => {
       },
       {}
     );
-    updateHostingPreferenceMock.mockResolvedValue(undefined);
+    updateHostingPreferenceMock.mockResolvedValue(new Empty());
     getUserMock.mockResolvedValue({
       ...defaultUser,
       ...newUserPref,

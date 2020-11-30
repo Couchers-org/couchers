@@ -6,7 +6,7 @@ import "@testing-library/jest-dom/extend-expect";
 
 import { store as reduxStore } from "./store";
 import { reset } from "./test/utils";
-import user from "./test/defaultUserData.json";
+import user from "./test/defaultUser.json";
 
 jest.mock("./service");
 
