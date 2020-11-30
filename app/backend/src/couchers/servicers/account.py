@@ -18,27 +18,28 @@ from couchers.utils import now
 from pb import account_pb2, account_pb2_grpc
 
 
+def _check_password(self, user, field_name, request, context):
+    """
+    Internal utility function: given a request with a StringValue `field_name` field, checks the password is correct or that the user does not have a password
+    """
+    if user.hashed_password:
+        # the user has a password
+        if not request.HasField(field_name):
+            # no password supplied
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PASSWORD)
+
+        if not verify_password(user.hashed_password, getattr(request, field_name).value):
+            # wrong password
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_USERNAME_OR_PASSWORD)
+
+    if request.HasField(field_name) and not user.hashed_password:
+        # the user doesn't have a password but one was supplied
+        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NO_PASSWORD)
+
+
 class Account(account_pb2_grpc.AccountServicer):
     def __init__(self, Session):
         self._Session = Session
-
-    def _check_password(self, user, field_name, request, context):
-        """
-        Internal utility function: given a request with a StringValue `field_name` field, checks the password is correct or that the user does not have a password
-        """
-        if user.hashed_password:
-            # the user has a password
-            if not request.HasField(field_name):
-                # no password supplied
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PASSWORD)
-
-            if not verify_password(user.hashed_password, getattr(request, field_name).value):
-                # wrong password
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_USERNAME_OR_PASSWORD)
-
-        if request.HasField(field_name) and not user.hashed_password:
-            # the user doesn't have a password but one was supplied
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NO_PASSWORD)
 
     def ChangePassword(self, request, context):
         """
@@ -52,7 +53,7 @@ class Account(account_pb2_grpc.AccountServicer):
             if not request.HasField("old_password") and not request.HasField("new_password"):
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_BOTH_PASSWORDS)
 
-            self._check_password(user, "old_password", request, context)
+            _check_password(user, "old_password", request, context)
 
             # password correct or no password
 
@@ -79,23 +80,19 @@ class Account(account_pb2_grpc.AccountServicer):
         # check password first
         with session_scope(self._Session) as session:
             user = session.query(User).filter(User.id == context.user_id).one()
-            self._check_password(user, "password", request, context)
+            _check_password(user, "password", request, context)
 
         # not a valid email
         if not is_valid_email(request.new_email):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_EMAIL)
 
-        # email already in use
+        # email already in use (possibly by this user)
         with session_scope(self._Session) as session:
             if session.query(User).filter(User.email == request.new_email).one_or_none():
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_EMAIL)
 
         with session_scope(self._Session) as session:
             user = session.query(User).filter(User.id == context.user_id).one()
-
-            # same as existing email
-            if user.email == request.new_email:
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_EMAIL)
 
             # otherwise we're good
             user.new_email = request.new_email
