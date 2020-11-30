@@ -10,7 +10,7 @@ import TextBody from "./TextBody";
 const useStyles = makeStyles((theme) => ({
   root: {
     position: "relative",
-    height: "1.6rem",
+    height: theme.spacing(3),
     marginInlineStart: 0,
     marginBottom: theme.spacing(1),
     width: "100%",
@@ -20,14 +20,14 @@ const useStyles = makeStyles((theme) => ({
     position: "absolute",
     width: "100%",
     height: "100%",
-    borderRadius: ".8rem",
+    borderRadius: theme.spacing(1.5),
   },
   scoreBarLabel: {
     position: "absolute",
     width: "100%",
-    lineHeight: "1.6rem",
+    lineHeight: theme.spacing(3),
     verticalAlign: "middle",
-    paddingLeft: theme.spacing(1),
+    paddingLeft: theme.spacing(3),
   },
 }));
 

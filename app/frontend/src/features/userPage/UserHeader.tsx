@@ -26,9 +26,7 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(1),
   },
   hostStatusIcon: {
-    //workaround for https://github.com/cssinjs/jss/issues/1414
-    //still present despite upgrading to 10.5.0
-    marginInlineEnd: `${theme.spacing(1)}px`,
+    marginInlineEnd: theme.spacing(1),
     display: "inline",
   },
   hostStatusLabel: {

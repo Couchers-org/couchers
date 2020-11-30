@@ -9,9 +9,7 @@ const useStyles = makeStyles((theme) => ({
     listStyle: "none",
     padding: 0,
     marginBlockStart: 0,
-    //workaround for https://github.com/cssinjs/jss/issues/1414
-    //still present despite upgrading to 10.5.0
-    marginBlockEnd: `${theme.spacing(1)}px`,
+    marginBlockEnd: theme.spacing(1),
   },
   listItem: {},
   hostingPreferenceResponse: {
