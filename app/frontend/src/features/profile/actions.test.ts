@@ -10,7 +10,7 @@ const updateHostingPreferenceMock = service.user
   .updateHostingPreference as jest.Mock;
 
 describe("updateUserProfile thunk", () => {
-  test("updates the store with the latest user profile info", async () => {
+  it("updates the store with the latest user profile info", async () => {
     addDefaultUser();
     const {
       aboutMe,
@@ -68,7 +68,7 @@ describe("updateUserProfile thunk", () => {
     });
   });
 
-  test("does not update the existing user if the API call failed", async () => {
+  it("does not update the existing user if the API call failed", async () => {
     addDefaultUser();
     updateProfileMock.mockRejectedValue(new Error("API error"));
 
@@ -85,7 +85,7 @@ describe("updateUserProfile thunk", () => {
     expect(state.auth.user).toEqual(defaultUser);
   });
 
-  test("does not try to update profile if a user does not exist in store", async () => {
+  it("does not try to update profile if a user does not exist in store", async () => {
     await store.dispatch(
       updateUserProfile({
         ...defaultUser,
@@ -114,7 +114,7 @@ describe("updateHostingPreference thunk", () => {
     sleepingArrangement: "",
   };
 
-  test("updates the store with the latest user hosting preference", async () => {
+  it("updates the store with the latest user hosting preference", async () => {
     addDefaultUser();
     const newUserPref = Object.entries(newHostingPreferenceData).reduce(
       (acc: Record<string, unknown>, [key, value]) => {
@@ -160,7 +160,7 @@ describe("updateHostingPreference thunk", () => {
     expect(state.auth.user).toMatchObject(defaultUser);
   });
 
-  test("does not update the existing user if the API call failed", async () => {
+  it("does not update the existing user if the API call failed", async () => {
     addDefaultUser();
     updateHostingPreferenceMock.mockRejectedValue(new Error("API error"));
 
@@ -170,7 +170,7 @@ describe("updateHostingPreference thunk", () => {
     expect(state.auth.user).toEqual(defaultUser);
   });
 
-  test("does not try to update preference if a user does not exist in store", async () => {
+  it("does not try to update preference if a user does not exist in store", async () => {
     await store.dispatch(updateHostingPreference(newHostingPreferenceData));
 
     expect(updateHostingPreferenceMock).not.toHaveBeenCalled();

@@ -73,37 +73,21 @@ export const service = new Proxy(
               methodName
             ];
             if (serviceMethod) {
-              const decoratedMethod = async (...args: any[]) => {
-                console.log(
-                  `Service method '${String(serviceName)}.${String(
-                    methodName
-                  )}' is called with args:`,
-                  ...args
-                );
-                const result = await serviceMethod(...args);
-                return result;
-              };
-
-              const proxiedMockFn =
-                process.env.NODE_ENV === "test"
-                  ? jest.fn(decoratedMethod)
-                  : decoratedMethod;
+              const proxiedMockFn = jest.fn((...args: any[]) => {
+                return serviceMethod(...args);
+              });
               innerTarget[methodName] = proxiedMockFn;
 
               return proxiedMockFn;
             }
 
-            const emptyDecoratedMethod = () => {
+            const emptyMockFn = jest.fn(() => {
               console.warn(
                 `Service method '${serviceName}.${methodName}' is called without a mock implementation.
                 You should probably provide one.`
               );
               return Promise.resolve();
-            };
-            const emptyMockFn =
-              process.env.NODE_ENV === "test"
-                ? jest.fn(emptyDecoratedMethod)
-                : emptyDecoratedMethod;
+            });
             innerTarget[methodName] = emptyMockFn;
 
             return emptyMockFn;
