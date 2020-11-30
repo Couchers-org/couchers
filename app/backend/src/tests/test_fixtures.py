@@ -6,7 +6,6 @@ from unittest.mock import patch
 
 import grpc
 import pytest
-from nacl.hash import blake2b
 from sqlalchemy import create_engine
 from sqlalchemy.event import listen, remove
 from sqlalchemy.orm import sessionmaker
@@ -345,13 +344,13 @@ def testconfig():
 @pytest.fixture
 def fast_passwords():
     # password hashing, by design, takes a lot of time, which slows down the tests. here we jump through some hoops to
-    # make this fast by replacing the hashing algo with a fast (non-password) hash, blake2b
-
-    def fast_verify(hashed: bytes, password: bytes) -> bool:
-        return hashed == blake2b(password)
+    # make this fast by removing the hashing step
 
     def fast_hash(password: bytes) -> bytes:
-        return blake2b(password)
+        return b"fake hash:" + password
+
+    def fast_verify(hashed: bytes, password: bytes) -> bool:
+        return hashed == fast_hash(password)
 
     with patch("couchers.crypto.nacl.pwhash.verify", fast_verify):
         with patch("couchers.crypto.nacl.pwhash.str", fast_hash):
