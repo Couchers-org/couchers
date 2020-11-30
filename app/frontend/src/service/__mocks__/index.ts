@@ -1,44 +1,25 @@
 import { service as originalService } from "..";
-import { MessageProps } from "../../features/messages/messagelist/Message";
 import { User } from "../../pb/api_pb";
-import { Message } from "../../pb/conversations_pb";
 import funnycat from "../../stories/assets/funnycat.jpg";
 import funnydog from "../../stories/assets/funnydog.jpg";
 import funnykid from "../../stories/assets/funnykid.jpg";
+import messages from "../../test/fixtures/messages.json";
+import users from "../../test/fixtures/users.json";
 
-export const user1 = {
-  name: "Funny Cat current User",
-  userId: 1,
-  username: "funnycat",
+const user1 = {
+  ...users[0],
   avatarUrl: funnycat,
 } as User.AsObject;
 
 const user2 = {
-  name: "Funny Dog",
-  userId: 2,
-  username: "funnydog",
+  ...users[1],
   avatarUrl: funnydog,
 } as User.AsObject;
 
 const user3 = {
-  name: "Funny Kid",
-  userId: 3,
-  username: "funnykid",
+  ...users[2],
   avatarUrl: funnykid,
 } as User.AsObject;
-
-export const message1: MessageProps["message"] = {
-  messageId: 1,
-  authorUserId: 2,
-  text: { text: "testtext" },
-  time: { seconds: Math.floor(+new Date(2020, 0, 1) / 1e3), nanos: 0 },
-} as Message.AsObject;
-const message2: MessageProps["message"] = {
-  messageId: 2,
-  authorUserId: 2,
-  text: { text: "testtext" },
-  time: { seconds: Math.floor(+new Date(2020, 0, 1) / 1e3), nanos: 0 },
-};
 
 const userMap = new Map(
   [user1, user2, user3].map((user) => [user.userId, user])
@@ -65,10 +46,10 @@ export const mockedService = ({
           // created?: google_protobuf_timestamp_pb.Timestamp.AsObject,
           unseenMessageCount: 0,
           lastSeenMessageId: 4,
-          latestMessage: message1,
+          latestMessage: messages[0],
         },
       ]),
-    getGroupChatMessages: () => Promise.resolve([message1, message2]),
+    getGroupChatMessages: () => Promise.resolve(messages),
   },
 } as unknown) as typeof originalService;
 

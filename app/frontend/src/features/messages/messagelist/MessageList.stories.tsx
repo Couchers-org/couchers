@@ -2,11 +2,14 @@ import { configureStore } from "@reduxjs/toolkit";
 import { Meta, Story } from "@storybook/react/types-6-0";
 import * as React from "react";
 import { Provider } from "react-redux";
-
-import { user1 } from "../../../service/__mocks__";
+import users from "../../../test/fixtures/users.json";
+import { User } from "../../../pb/api_pb";
 import { Message } from "../../../pb/conversations_pb";
 import rootReducer from "../../../reducers";
+import funnycat from "../../../stories/assets/funnycat.jpg";
 import MessageList, { MessageListProps } from "./MessageList";
+
+const user1 = { ...users[0], avatarUrl: funnycat } as User.AsObject;
 
 const message1: Message.AsObject = {
   messageId: 1,
@@ -94,7 +97,7 @@ Filled.args = { messages: [message1, message2, message3] };
 export const ErrorOnSend = Template.bind({});
 ErrorOnSend.args = {
   messages: [],
-  handleSend: async (text: string) => {
+  handleSend: async () => {
     await wait(5e3);
     throw new Error("Fetch error");
   },
