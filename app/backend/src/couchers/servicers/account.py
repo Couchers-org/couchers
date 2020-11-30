@@ -18,7 +18,7 @@ from couchers.utils import now
 from pb import account_pb2, account_pb2_grpc
 
 
-def _check_password(self, user, field_name, request, context):
+def _check_password(user, field_name, request, context):
     """
     Internal utility function: given a request with a StringValue `field_name` field, checks the password is correct or that the user does not have a password
     """
