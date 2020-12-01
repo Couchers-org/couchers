@@ -7,8 +7,18 @@
             <h2 class="title is-2">
               The Couchers.org team
             </h2>
-            <p class="content">We are a group of hosts and surfers who are also a mix of designers, software engineers, data scientists, and experienced community members and leaders. We've all gotten a lot of joy out of couch surfing and would like to make that experience even better. We're made up of a group of people dedicated to building the platform, along with a large network of couch-surfers that we consult for advice.</p>
-            <p class="content">We are actively looking for people to join the team, we need a broad range of experiences, expertise, and cultural backgrounds. Please consider joining us, whether you have skills, ideas, complaints, or just want to see this done right.</p>
+            <p class="content">We are all couch-surfers. Hosts, surfers, community members and community leaders who are putting in our time and skills to bring this project to life! Our team is made of dozens of designers, software engineers, data scientists, digital marketers, and other skilled professionals; with the team's couch-surfing experience going back to the early 2000s.</p>
+            <p class="content">The team spans every continent (except Antarctica, sorry penguins), and although many of us have only met in the last few months, what brings us together is that we've all gotten a lot of joy out of couch-surfing and would like to spend our time making that experience better. We want to build an improved, safer and more inclusive platform that can support and sustainably grow the couch-surfing community and bring its values to the world. If you feel the same way and you'd like to contribute, then we'd love to talk to you.</p>
+            <p class="content">We are actively looking for people to join the team. We need a broad range of experiences, expertise, and cultural backgrounds. Please consider joining us, whether you have skills, ideas, complaints, or just want to see this done right.</p>
+            <h3 class="title is-3">Positions available</h3>
+            <p class="content">At the moment, we are specifically looking for:<ul>
+              <li>Senior <b>UI/UX manager</b></li>
+              <li><b>Digital marketers</b></li>
+              <li><b>Branding and graphic desginers</b></li>
+              <li><b>Frontend engineers</b> (especially with skills in React and TypeScript)</li>
+              <li><b>Backend engineers</b> (we work in Python)</li>
+            </ul></p>
+            <p class="content">If you think you could help in other ways, we'd still love to hear from you!</p>
             <p><a class="button is-primary" href="/signup">Join the team</a></p>
           </div>
         </div>
@@ -17,6 +27,7 @@
     <div class="container">
       <section class="section">
         <h2 class="title is-2">Who we are</h2>
+        <p class="content">We have dozens of people on the team, here are a few friendly faces</p>
       </section>
     </div>
     <div class="wide-container">
