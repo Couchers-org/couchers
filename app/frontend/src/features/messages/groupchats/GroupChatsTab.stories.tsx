@@ -1,11 +1,13 @@
 import { Meta, Story } from "@storybook/react/types-6-0";
 import * as React from "react";
 import { Provider } from "react-redux";
-import { message1 } from "../../../__mocks__/service";
+import messages from "../../../test/fixtures/messages.json";
 import { store } from "../../../store";
 
 import MessageView, { MessageProps } from "../messagelist/Message";
 import GroupChatsTab from "./GroupChatsTab";
+
+const [message1] = messages;
 
 export default {
   title: "GroupChatsTab",

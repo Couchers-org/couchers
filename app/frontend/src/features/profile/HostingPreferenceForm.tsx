@@ -14,7 +14,7 @@ import Alert from "../../components/Alert";
 import Button from "../../components/Button";
 import { smokingLocationLabels } from "./constants";
 import ProfileTextInput from "./ProfileTextInput";
-import { ProfileFormData } from "../../service/user";
+import { HostingPreferenceData } from "../../service";
 import { useAppDispatch, useTypedSelector } from "../../store";
 import { SmokingLocation } from "../../pb/api_pb";
 
@@ -23,7 +23,7 @@ interface HostingPreferenceCheckboxProps {
   defaultValue: boolean;
   name: string;
   label: string;
-  register: UseFormMethods<ProfileFormData>["register"];
+  register: UseFormMethods<HostingPreferenceData>["register"];
 }
 
 function HostingPreferenceCheckbox({
@@ -68,7 +68,9 @@ export default function HostingPreferenceForm() {
     "success" | "error" | undefined
   >();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { control, errors, register, handleSubmit } = useForm<ProfileFormData>({
+  const { control, errors, register, handleSubmit } = useForm<
+    HostingPreferenceData
+  >({
     mode: "onBlur",
   });
 

@@ -1,12 +1,15 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { service } from "../../service";
+import {
+  HostingPreferenceData,
+  UpdateUserProfileData,
+  service,
+} from "../../service";
 import { User } from "../../pb/api_pb";
 import { RootState } from "../../reducers";
-import { ProfileFormData } from "../../service/user";
 
 export const updateUserProfile = createAsyncThunk<
   User.AsObject,
-  ProfileFormData,
+  UpdateUserProfileData,
   { state: RootState }
 >("profile/updateUserProfile", async (userData, { getState }) => {
   const username = getState().auth.user?.username;
@@ -22,16 +25,16 @@ export const updateUserProfile = createAsyncThunk<
 
 export const updateHostingPreference = createAsyncThunk<
   User.AsObject,
-  ProfileFormData,
+  HostingPreferenceData,
   { state: RootState }
->("profile/updateHostingPreference", async (userData, { getState }) => {
+>("profile/updateHostingPreference", async (preferences, { getState }) => {
   const username = getState().auth.user?.username;
 
   if (!username) {
     throw Error("User is not connected.");
   }
 
-  await service.user.updateHostingPreference(userData);
+  await service.user.updateHostingPreference(preferences);
 
   return service.user.getUser(username);
 });
