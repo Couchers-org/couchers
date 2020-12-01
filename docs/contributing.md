@@ -68,4 +68,4 @@ Additionally, we strive to use the ["Google" docstring format](https://sphinxcon
 
 Please use double quotes `"`, instead of single quotes `'`.
 
-In the **frontend**, make sure to run `yarn format` in app/frontend before asking for a review.
+In the **frontend**, make sure to run `yarn format` in `app/frontend` before asking for a review.

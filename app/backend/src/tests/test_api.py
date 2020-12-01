@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import grpc
 import pytest
@@ -6,7 +6,7 @@ from google.protobuf import empty_pb2, wrappers_pb2
 
 from couchers.db import session_scope
 from couchers.models import Complaint
-from couchers.utils import to_aware_datetime
+from couchers.utils import now, to_aware_datetime
 from pb import api_pb2
 from tests.test_fixtures import api_session, db, generate_user, make_friends, real_api_session, testconfig
 
@@ -514,7 +514,7 @@ def test_references(db):
         assert res.references[0].from_user_id == user1.id
         assert res.references[0].to_user_id == user2.id
         assert res.references[0].text == "kinda weird sometimes"
-        assert abs(res.references[0].written_time.ToDatetime() - datetime.now()) <= timedelta(days=32)
+        assert abs(to_aware_datetime(res.references[0].written_time) - now()) <= timedelta(days=32)
         assert res.references[0].reference_type not in seen_types
         seen_types.add(res.references[0].reference_type)
     assert seen_types == alltypes

@@ -1,21 +1,58 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import wrappers from "google-protobuf/google/protobuf/wrappers_pb";
-import client from "./api";
 import {
   GetUserReq,
+  HostingStatus,
+  NullableBoolValue,
+  NullableStringValue,
+  NullableUInt32Value,
   PingReq,
+  RepeatedStringValue,
   UpdateProfileReq,
   User,
-  NullableStringValue,
-  RepeatedStringValue,
-  HostingStatus,
 } from "../pb/api_pb";
 import {
   AuthReq,
-  CompleteTokenLoginReq,
   CompleteSignupReq,
+  CompleteTokenLoginReq,
 } from "../pb/auth_pb";
-import { ProfileFormData } from "../features/profile";
+import { ProtoToJsTypes } from "../utils/types";
+import client from "./client";
+
+type RequiredUpdateProfileReq = Required<UpdateProfileReq.AsObject>;
+type ProfileFormData = {
+  [K in keyof RequiredUpdateProfileReq]: ProtoToJsTypes<
+    RequiredUpdateProfileReq[K]
+  >;
+};
+
+export type UpdateUserProfileData = Pick<
+  ProfileFormData,
+  | "name"
+  | "city"
+  | "gender"
+  | "occupation"
+  | "languages"
+  | "aboutMe"
+  | "aboutPlace"
+  | "countriesVisited"
+  | "countriesLived"
+>;
+
+export type HostingPreferenceData = Omit<
+  ProfileFormData,
+  keyof UpdateUserProfileData | "color" | "hostingStatus"
+>;
+
+export type SignupArguments = {
+  signupToken: string;
+  username: string;
+  name: string;
+  city: string;
+  birthdate: string;
+  gender: string;
+  hostingStatus: HostingStatus;
+};
 
 /**
  * Login user using password and returns session token
@@ -24,10 +61,10 @@ import { ProfileFormData } from "../features/profile";
  * @param {string} password
  * @returns {Promise<string>}
  */
-export const passwordLogin = async (
+export async function passwordLogin(
   username: string,
   password: string
-): Promise<string> => {
+): Promise<string> {
   const req = new AuthReq();
   req.setUser(username);
   req.setPassword(password);
@@ -36,15 +73,12 @@ export const passwordLogin = async (
   const token = response.getToken();
 
   return token;
-};
+}
 
 /**
  * Login user using a login token and returns session token
- *
- * @param {string} token
- * @returns {Promise<string>}
  */
-export const tokenLogin = async (loginToken: string): Promise<string> => {
+export async function tokenLogin(loginToken: string): Promise<string> {
   const req = new CompleteTokenLoginReq();
   req.setLoginToken(loginToken);
 
@@ -52,16 +86,14 @@ export const tokenLogin = async (loginToken: string): Promise<string> => {
   const token = response.getToken();
 
   return token;
-};
+}
 
 /**
  * Returns User record of logged in user
  *
  * @returns {Promise<User.AsObject>}
  */
-export const getCurrentUser = async (
-  token?: string
-): Promise<User.AsObject> => {
+export async function getCurrentUser(token?: string): Promise<User.AsObject> {
   const req = new PingReq();
 
   const response = await client.api.ping(
@@ -70,7 +102,7 @@ export const getCurrentUser = async (
   );
 
   return response.getUser()!.toObject();
-};
+}
 
 /**
  * Returns User record by Username or id
@@ -79,10 +111,10 @@ export const getCurrentUser = async (
  * @param {string} token
  * @returns {Promise<User.AsObject>}
  */
-export const getUser = async (
+export async function getUser(
   user: string,
   token?: string
-): Promise<User.AsObject> => {
+): Promise<User.AsObject> {
   const userReq = new GetUserReq();
   userReq.setUser(user || "");
 
@@ -92,34 +124,31 @@ export const getUser = async (
   );
 
   return response.toObject();
-};
+}
 
 /**
- * Updates user
- *
- * @param {User.AsObject} reqObject
- * @returns {Promise<Empty>}
+ * Updates user profile
  */
-export const updateProfile = async (
-  reqObject: ProfileFormData
-): Promise<Empty> => {
+export async function updateProfile(
+  profile: UpdateUserProfileData
+): Promise<Empty> {
   const req = new UpdateProfileReq();
 
-  const name = new wrappers.StringValue().setValue(reqObject.name);
-  const city = new wrappers.StringValue().setValue(reqObject.city);
-  const gender = new wrappers.StringValue().setValue(reqObject.gender);
-  const occupation = new NullableStringValue().setValue(reqObject.occupation);
+  const name = new wrappers.StringValue().setValue(profile.name);
+  const city = new wrappers.StringValue().setValue(profile.city);
+  const gender = new wrappers.StringValue().setValue(profile.gender);
+  const occupation = new NullableStringValue().setValue(profile.occupation);
   const languages = new RepeatedStringValue()
-    .setValueList(reqObject.languages)
-    .setExists(!!reqObject.languages);
-  const aboutMe = new NullableStringValue().setValue(reqObject.aboutMe);
-  const aboutPlace = new NullableStringValue().setValue(reqObject.aboutPlace);
+    .setValueList(profile.languages)
+    .setExists(!!profile.languages);
+  const aboutMe = new NullableStringValue().setValue(profile.aboutMe);
+  const aboutPlace = new NullableStringValue().setValue(profile.aboutPlace);
   const countriesVisited = new RepeatedStringValue()
-    .setValueList(reqObject.countriesVisited)
-    .setExists(!!reqObject.countriesVisited);
+    .setValueList(profile.countriesVisited)
+    .setExists(!!profile.countriesVisited);
   const countriesLived = new RepeatedStringValue()
-    .setValueList(reqObject.countriesLived)
-    .setExists(!!reqObject.countriesLived);
+    .setValueList(profile.countriesLived)
+    .setExists(!!profile.countriesLived);
 
   req
     .setName(name)
@@ -133,17 +162,53 @@ export const updateProfile = async (
     .setCountriesLived(countriesLived);
 
   return client.api.updateProfile(req);
-};
+}
 
-export type SignupArguments = {
-  signupToken: string;
-  username: string;
-  name: string;
-  city: string;
-  birthdate: string;
-  gender: string;
-  hostingStatus: HostingStatus;
-};
+export function updateHostingPreference(preferences: HostingPreferenceData) {
+  const req = new UpdateProfileReq();
+
+  const maxGuests =
+    preferences.maxGuests !== null
+      ? new NullableUInt32Value()
+          .setValue(preferences.maxGuests)
+          .setIsNull(false)
+      : new NullableUInt32Value().setIsNull(true);
+  const area = new NullableStringValue().setValue(preferences.area);
+  const houseRules = new NullableStringValue().setValue(preferences.houseRules);
+  const multipleGroups = new NullableBoolValue()
+    .setValue(preferences.multipleGroups)
+    .setIsNull(false);
+  const acceptsKids = new NullableBoolValue()
+    .setValue(preferences.acceptsKids)
+    .setIsNull(false);
+  const acceptsPets = new NullableBoolValue()
+    .setValue(preferences.acceptsPets)
+    .setIsNull(false);
+  const lastMinute = new NullableBoolValue()
+    .setValue(preferences.lastMinute)
+    .setIsNull(false);
+  const wheelchairAccessible = new NullableBoolValue()
+    .setValue(preferences.wheelchairAccessible)
+    .setIsNull(false);
+  const smokingAllowed = preferences.smokingAllowed;
+  const sleepingArrangement = new NullableStringValue().setValue(
+    preferences.sleepingArrangement
+  );
+
+  req
+    .setMaxGuests(maxGuests)
+    .setArea(area)
+    .setHouseRules(houseRules)
+    .setMultipleGroups(multipleGroups)
+    .setAcceptsKids(acceptsKids)
+    .setAcceptsPets(acceptsPets)
+    .setLastMinute(lastMinute)
+    .setWheelchairAccessible(wheelchairAccessible)
+    .setSmokingAllowed(smokingAllowed)
+    .setSleepingArrangement(sleepingArrangement);
+
+  return client.api.updateProfile(req);
+}
 
 /**
  * Completes the signup process
@@ -151,7 +216,7 @@ export type SignupArguments = {
  * @param {SignupArguments} signup arguments
  * @returns {Promise<string>} session token
  */
-export const completeSignup = async ({
+export async function completeSignup({
   signupToken,
   username,
   name,
@@ -159,7 +224,7 @@ export const completeSignup = async ({
   birthdate,
   gender,
   hostingStatus,
-}: SignupArguments) => {
+}: SignupArguments) {
   const req = new CompleteSignupReq();
   req.setSignupToken(signupToken);
   req.setUsername(username);
@@ -171,4 +236,4 @@ export const completeSignup = async ({
 
   const res = await client.auth.completeSignup(req);
   return res.getToken();
-};
+}

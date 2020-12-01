@@ -4,11 +4,13 @@
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.11.0",
+    "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.56",
     "@reduxjs/toolkit": "^1.4.0",
     "classnames": "^2.2.6",
     "google-protobuf": "^3.13.0",
     "grpc-web": "^1.2.1",
+    "moment": "^2.29.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-hook-form": "^6.9.2",
@@ -24,10 +26,11 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "format": "prettier --write src/",
+    "lint": "eslint src/",
     "test-travis": "NODE_ENV=test && react-scripts test --coverage --watchAll=false",
-    "storybook": "start-storybook -p 6006 -s public --no-dll",
-    "build-storybook": "build-storybook -s public --no-dll",
-    "jest": "jest"
+    "jest": "jest",
+    "storybook": "start-storybook -p 6006 -s public",
+    "build-storybook": "build-storybook -s public"
   },
   "eslintConfig": {
     "extends": [
@@ -35,6 +38,21 @@
       "prettier",
       "prettier/@typescript-eslint",
       "prettier/react"
+    ],
+    "overrides": [
+      {
+        "files": [
+          "**/*.ts?(x)"
+        ],
+        "rules": {
+          "@typescript-eslint/no-unused-vars": [
+            "warn",
+            {
+              "varsIgnorePattern": "classes"
+            }
+          ]
+        }
+      }
     ]
   },
   "eslintIgnore": [
@@ -54,12 +72,12 @@
   },
   "devDependencies": {
     "@babel/core": "^7.12.3",
-    "@storybook/addon-actions": "^6.0.28",
-    "@storybook/addon-essentials": "^6.0.28",
-    "@storybook/addon-links": "^6.0.28",
-    "@storybook/node-logger": "^6.0.28",
+    "@storybook/addon-actions": "^6.1.2",
+    "@storybook/addon-essentials": "^6.1.2",
+    "@storybook/addon-links": "^6.1.2",
+    "@storybook/node-logger": "^6.1.2",
     "@storybook/preset-create-react-app": "^3.1.5",
-    "@storybook/react": "^6.0.28",
+    "@storybook/react": "^6.1.2",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
@@ -76,7 +94,6 @@
     "@types/webpack-env": "^1.15.3",
     "coveralls": "^3.1.0",
     "eslint-config-prettier": "^6.12.0",
-    "husky": "^4.3.0",
     "lint-staged": "^10.5.1",
     "prettier": "^2.1.2",
     "react-is": "^17.0.1",
@@ -91,11 +108,6 @@
     "transformIgnorePatterns": [
       "node_modules/(?!variables/.*)"
     ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged && jest"
-    }
   },
   "lint-staged": {
     "src/**/*.{js,jsx,ts,tsx,json,css,scss,md}": [

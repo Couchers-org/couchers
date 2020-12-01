@@ -1,7 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { User } from "../../pb/api_pb";
 import { passwordLogin, tokenLogin, signup } from "./index";
-import { updateUserProfile } from "../profile";
+import { updateUserProfile, updateHostingPreference } from "../profile";
+import { reset } from "../../test/utils";
 
 export interface AuthState {
   authToken: null | string;
@@ -86,6 +87,12 @@ export const authSlice = createSlice({
       })
       .addCase(updateUserProfile.fulfilled, (state, action) => {
         state.user = action.payload;
+      })
+      .addCase(updateHostingPreference.fulfilled, (state, action) => {
+        state.user = action.payload;
+      })
+      .addCase(reset, () => {
+        return initialState;
       });
   },
 });

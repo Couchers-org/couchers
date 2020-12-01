@@ -12,7 +12,7 @@ The platform will be divided into two parts: the backend and a frontend. The bac
 
 The backend will be written in Python and use gRPC for API calls. These will interface to a PostgreSQL database, and be reverse proxied and load balanced through an nginx instance. This allows us to conveniently use the same backend for both web and mobile apps.
 
-The frontend will be written in TypeScript with Vue.js, and an appropriate widget framework, such as Bulma (like this site) or Vuetify.js. An additional gRPC web proxy will proxy calls from the web frontend.
+The frontend will be written in TypeScript with React, and an appropriate widget framework. An additional gRPC web proxy will proxy calls from the web frontend.
 
 This setup should easily last us well into the first couple of hundred thousand active users. **Once we begin to scale the service beyond that, there are a variety of steps we can take**, such as provisioning geographically distributed middleware servers to front TLS connections and send preprocessed RPC requests to the central server with the master database. This, along with larger servers, should easily scale for another while. If there is need for additional server-side rendering, we will build a middleware layer fronted by these local servers.
 

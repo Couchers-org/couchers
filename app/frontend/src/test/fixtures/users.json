@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Funny Cat current User",
+    "userId": 1,
+    "username": "funnycat"
+  },
+  {
+    "name": "Funny Dog",
+    "userId": 2,
+    "username": "funnydog"
+  },
+  {
+    "name": "Funny Kid",
+    "userId": 3,
+    "username": "funnykid"
+  }
+]

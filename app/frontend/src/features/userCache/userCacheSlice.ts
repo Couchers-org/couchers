@@ -7,6 +7,7 @@ import {
 import { User } from "../../pb/api_pb";
 import { RootState } from "../../reducers";
 import { fetchUsers } from "./index";
+import { reset } from "../../test/utils";
 
 export type CachedUser = {
   fetched: Date;
@@ -50,6 +51,9 @@ export const userCacheSlice = createSlice({
       .addCase(fetchUsers.rejected, (state, action) => {
         state.error = action.error.message;
         state.loading = false;
+      })
+      .addCase(reset, () => {
+        return initialState;
       });
   },
 });
@@ -63,7 +67,7 @@ const selectors = cachedUserAdapter.getSelectors<RootState>(
 export const getUser = (state: RootState, id: number) =>
   selectors.selectById(state, id)?.user;
 
-const getUsers = selectors.selectEntities;
+export const getUsers = selectors.selectEntities;
 const getUsernameIds = (state: RootState) => state.userCache.usernameIds;
 export const getUserByUsernameSelector = createSelector(
   getUsers,
