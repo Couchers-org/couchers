@@ -10,7 +10,7 @@ import { Link } from "react-router-dom";
 import { profileRoute } from "../../AppRoutes";
 import Button from "../../components/Button";
 import { timeAgo } from "../../utils/timeAgo";
-import { hostingStatusLabels } from "../../constants";
+import { hostingStatusLabels } from "../profile/constants";
 import TextBody from "../../components/TextBody";
 
 const useStyles = makeStyles((theme) => ({

@@ -10,7 +10,7 @@ import {
 } from "@material-ui/core";
 import { User } from "../../pb/api_pb";
 import TextBody from "../../components/TextBody";
-import { hostingStatusLabels } from "../../constants";
+import { hostingStatusLabels } from "../profile/constants";
 import { Link } from "react-router-dom";
 import { userRoute } from "../../AppRoutes";
 import Avatar from "../../components/Avatar";

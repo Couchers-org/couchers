@@ -7,7 +7,7 @@ import Autocomplete from "../../../components/Autocomplete";
 import Button from "../../../components/Button";
 import CircularProgress from "../../../components/CircularProgress";
 import TextField from "../../../components/TextField";
-import { hostingStatusLabels } from "../../../constants";
+import { hostingStatusLabels } from "../../profile/constants";
 import { HostingStatus } from "../../../pb/api_pb";
 import { useAppDispatch, useTypedSelector } from "../../../store";
 import { signup } from "../authActions";
