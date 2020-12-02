@@ -28,6 +28,7 @@
     "format": "prettier --write src/",
     "lint": "eslint src/",
     "test-travis": "NODE_ENV=test && react-scripts test --coverage --watchAll=false",
+    "jest": "jest",
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "build-storybook -s public"
   },
@@ -93,19 +94,20 @@
     "@types/webpack-env": "^1.15.3",
     "coveralls": "^3.1.0",
     "eslint-config-prettier": "^6.12.0",
-    "husky": "^4.3.0",
     "lint-staged": "^10.5.1",
     "prettier": "^2.1.2",
     "react-is": "^17.0.1",
     "react-test-renderer": "^16.13.1"
   },
   "jest": {
-    "collectCoverageFrom": [
-      "src/**/*.{ts,tsx}",
-      "!**/node_modules/**",
-      "!src/pb/*"
-    ],
-    "resetMocks": true
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "transform": {
+      "node_modules/variables/.+\\.(j|t)sx?$": "ts-jest"
+    },
+    "transformIgnorePatterns": [
+      "node_modules/(?!variables/.*)"
+    ]
   },
   "lint-staged": {
     "src/**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
