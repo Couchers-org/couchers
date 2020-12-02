@@ -23,7 +23,11 @@ All our code is in one repository (monorepo). We currently use the pull request 
 
 In addition to maintaining high code quality, the purpose of code review is to make sure that each team member learns from their peers, and we all assimilate knowledge from each other. You're sure to learn a lot from reviewing other people's code and having your code reviewed by others. It also helps maintain our code so that we have some shared patterns and standard way of doing things.
 
-## Writing issues
+## CI/CD
+
+We have a CI/CD (continuous integration/continuous delivery) pipeline set up on [GitLab.com/couchers/couchers](https://gitlab.com/couchers/couchers/). When you open a PR, a pipeline will automatically run the tests, deploy previews of the frontend, and compute code coverage. You can check the status of your pipeline in the GitHub status check or by going to [the pipelines page](https://gitlab.com/couchers/couchers/-/pipelines).
+
+## Opening and writing issues
 
 We're a very asynchronous team: everyone is basically in a different timezone, and it's rare that people are working at the same time.
 
