@@ -52,7 +52,7 @@ def db(request):
     engine = create_engine(config["DATABASE_CONNECTION_STRING"], poolclass=NullPool)
 
     # drop everything currently in the database
-    engine.execute("DROP SCHEMA public CASCADE; CREATE SCHEMA public;")
+    engine.execute("DROP SCHEMA public CASCADE; CREATE SCHEMA public; CREATE EXTENSION postgis;")
 
     if request.param == "migrations":
         # rebuild it with alembic migrations
