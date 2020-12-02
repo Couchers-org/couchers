@@ -6,7 +6,7 @@ import funnykid from "../../stories/assets/funnykid.jpg";
 import messages from "../../test/fixtures/messages.json";
 import users from "../../test/fixtures/users.json";
 
-const user1 = {
+export const user1 = {
   ...users[0],
   avatarUrl: funnycat,
 } as User.AsObject;
