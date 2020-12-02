@@ -206,7 +206,7 @@ test:media:
 
 
 preview:backend:
-  stage: upload
+  stage: preview
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
   inherit:
     # no docker login
@@ -224,7 +224,7 @@ preview:backend:
       - app/backend/**/*
 
 preview:frontend:
-  stage: upload
+  stage: preview
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
   inherit:
     # no docker login
@@ -242,7 +242,7 @@ preview:frontend:
       - app/frontend/**/*
 
 preview:vue:
-  stage: upload
+  stage: preview
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
   inherit:
     # no docker login
