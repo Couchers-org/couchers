@@ -1,5 +1,5 @@
 import { AcceptTOSReq, JailInfoRes } from "../pb/jail_pb";
-import client from "./api";
+import client from "./client";
 import { getCurrentUser } from "./user";
 
 export async function getIsJailed() {
