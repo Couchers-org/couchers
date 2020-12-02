@@ -1,16 +1,16 @@
 """Add agreed to TOS int field
 
-Revision ID: 69a91fcdc73c
-Revises: 3c0f67ff3ea2
-Create Date: 2020-11-17 17:45:08.567033
+Revision ID: 51398a87b2ef
+Revises: 95c58503e9c0
+Create Date: 2020-12-02 09:43:04.949189
 
 """
 import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "69a91fcdc73c"
-down_revision = "3c0f67ff3ea2"
+revision = "51398a87b2ef"
+down_revision = "95c58503e9c0"
 branch_labels = None
 depends_on = None
 
