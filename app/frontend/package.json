@@ -103,6 +103,12 @@
     "react-test-renderer": "^16.13.1"
   },
   "jest": {
+    "collectCoverageFrom": [
+      "src/**/*.{ts,tsx}",
+      "!**/node_modules/**",
+      "!src/pb/*"
+    ],
+    "resetMocks": true,
     "preset": "ts-jest",
     "testEnvironment": "node",
     "transform": {
