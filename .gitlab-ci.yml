@@ -204,6 +204,33 @@ test:media:
       - app/pb/**/*
       - app/media/**/*
 
+test:frontend:
+  stage: test
+  image: $FRONTEND_TAG
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - cd /app && yarn test-ci
+    - cp /app/junit.xml $CI_PROJECT_DIR/
+    - cp /app/coverage/cobertura-coverage.xml $CI_PROJECT_DIR/
+    - cp -a /app/coverage/lcov-report $CI_PROJECT_DIR/artifacts/
+  coverage: '/^All files[^|]*\|[^|]*\s+([\d\.]+)/'
+  artifacts:
+    reports:
+      cobertura: cobertura-coverage.xml
+      junit: junit.xml
+    paths:
+      - artifacts/lcov-report
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+      - app/**/*
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
+      changes:
+      - app/pb/**/*
+      - app/frontend/**/*
+
 test:storybook:
   stage: test
   image: $FRONTEND_TAG
@@ -226,15 +253,15 @@ test:storybook:
       - app/frontend/**/*
 
 
-preview:backend:
+preview:backend-coverage:
   stage: preview
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
   inherit:
     # no docker login
     default: false
   script:
-    - aws s3 cp artifacts/htmlcov s3://$AWS_PREVIEW_BUCKET/cov/$SLUG/ --recursive
-    - echo "Done, coverage report available at https://$SLUG--cov.preview.coucher.org/"
+    - aws s3 cp artifacts/htmlcov s3://$AWS_PREVIEW_BUCKET/bcov/$SLUG/ --recursive
+    - echo "Done, coverage report available at https://$SLUG--bcov.preview.coucher.org/"
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
@@ -253,6 +280,24 @@ preview:frontend:
   script:
     - aws s3 cp artifacts/frontend s3://$AWS_PREVIEW_BUCKET/frontend/$SLUG/ --recursive
     - echo "Done, preview available at https://$SLUG--frontend.preview.coucher.org/"
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+      - app/**/*
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
+      changes:
+      - app/pb/**/*
+      - app/frontend/**/*
+
+preview:frontend-coverage:
+  stage: preview
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - aws s3 cp artifacts/lcov-report s3://$AWS_PREVIEW_BUCKET/fcov/$SLUG/ --recursive
+    - echo "Done, coverage report available at https://$SLUG--fcov.preview.coucher.org/"
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
