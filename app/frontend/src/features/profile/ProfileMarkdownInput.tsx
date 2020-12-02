@@ -34,6 +34,9 @@ export default function ProfileMarkdownInput({
             value={value}
           />
           <Box className={classes.reverseAlignment}>
+            <Button component={Link} href="https://www.markdowntutorial.com/">
+              Formatting?
+            </Button>
             <Button component={Link} onClick={() => setPreview(!preview)}>
               Preview?
             </Button>
