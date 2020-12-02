@@ -111,6 +111,12 @@ class User(Base):
 
     accepted_tos = Column(Integer, nullable=False, default=0)
 
+    # for changing their email
+    new_email = Column(String, nullable=True)
+    new_email_token = Column(String, nullable=True)
+    new_email_token_created = Column(DateTime(timezone=True), nullable=True)
+    new_email_token_expiry = Column(DateTime(timezone=True), nullable=True)
+
     @property
     def is_jailed(self):
         return self.accepted_tos < 1
@@ -254,6 +260,21 @@ class LoginToken(Base):
 
     def __repr__(self):
         return f"LoginToken(token={self.token}, user={self.user}, created={self.created}, expiry={self.expiry})"
+
+
+class PasswordResetToken(Base):
+    __tablename__ = "password_reset_tokens"
+    token = Column(String, primary_key=True)
+
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    expiry = Column(DateTime(timezone=True), nullable=False)
+
+    user = relationship("User", backref="password_reset_tokens")
+
+    def __repr__(self):
+        return f"PasswordResetToken(token={self.token}, user={self.user}, created={self.created}, expiry={self.expiry})"
 
 
 class UserSession(Base):

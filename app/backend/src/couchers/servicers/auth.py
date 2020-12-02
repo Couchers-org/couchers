@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Union
 
 import grpc
+from google.protobuf import empty_pb2
 from sqlalchemy import func
 
 from couchers import errors
@@ -13,13 +14,14 @@ from couchers.db import (
     is_valid_name,
     is_valid_username,
     new_login_token,
+    new_password_reset_token,
     new_signup_token,
     session_scope,
 )
 from couchers.interceptors import AuthValidatorInterceptor
-from couchers.models import LoginToken, SignupToken, User, UserSession
+from couchers.models import LoginToken, PasswordResetToken, SignupToken, User, UserSession
 from couchers.servicers.api import hostingstatus2sql
-from couchers.tasks import send_login_email, send_signup_email
+from couchers.tasks import send_login_email, send_password_reset_email, send_signup_email
 from pb import auth_pb2, auth_pb2_grpc
 
 logger = logging.getLogger(__name__)
@@ -314,7 +316,73 @@ class Auth(auth_pb2_grpc.AuthServicer):
         """
         logger.info(f"Deauthenticate(token={request.token})")
         if self._delete_session(token=request.token):
-            return auth_pb2.DeAuthRes()
+            return empty_pb2.Empty()
         else:
             # probably caused by token not existing
             context.abort(grpc.StatusCode.UNKNOWN, errors.LOGOUT_FAILED)
+
+    def ResetPassword(self, request, context):
+        """
+        If the user does not exist, do nothing.
+
+        If the user exists, we send them an email. If they have a password, clicking that email will remove the password.
+        If they don't have a password, it sends them an email saying someone tried to reset the password but there was none.
+
+        Note that as long as emails are send synchronously, this is far from constant time regardless of output.
+        """
+        with session_scope(self._Session) as session:
+            user = get_user_by_field(session, request.user)
+            if user:
+                password_reset_token, expiry_text = new_password_reset_token(session, user)
+                session.add(send_password_reset_email(user, password_reset_token, expiry_text))
+            else:  # user not found
+                logger.debug(f"Didn't find user")
+
+        return empty_pb2.Empty()
+
+    def CompletePasswordReset(self, request, context):
+        """
+        Completes the password reset: just clears the user's password
+        """
+        with session_scope(self._Session) as session:
+            res = (
+                session.query(PasswordResetToken, User)
+                .join(User, User.id == PasswordResetToken.user_id)
+                .filter(PasswordResetToken.token == request.password_reset_token)
+                .filter(PasswordResetToken.created <= func.now())
+                .filter(PasswordResetToken.expiry >= func.now())
+                .one_or_none()
+            )
+            if res:
+                password_reset_token, user = res
+                session.delete(password_reset_token)
+                user.hashed_password = None
+                session.commit()
+                return empty_pb2.Empty()
+            else:
+                context.abort(grpc.StatusCode.UNAUTHENTICATED, errors.INVALID_TOKEN)
+
+    def CompleteChangeEmail(self, request, context):
+        """
+        Completes an email change request.
+
+        Removes the old email and replaces with the new
+        """
+        with session_scope(self._Session) as session:
+            user = (
+                session.query(User)
+                .filter(User.new_email_token == request.change_email_token)
+                .filter(User.new_email_token_created <= func.now())
+                .filter(User.new_email_token_expiry >= func.now())
+                .one_or_none()
+            )
+            if user:
+                user.email = user.new_email
+                user.new_email = None
+                user.new_email_token = None
+                user.new_email_token_created = None
+                user.new_email_token_expiry = None
+                session.commit()
+                return empty_pb2.Empty()
+            else:
+                context.abort(grpc.StatusCode.UNAUTHENTICATED, errors.INVALID_TOKEN)

@@ -15,6 +15,7 @@ from couchers.config import config
 from couchers.crypto import random_hex
 from couchers.db import apply_migrations, session_scope
 from couchers.models import Base, FriendRelationship, FriendStatus, User
+from couchers.servicers.account import Account
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
 from couchers.servicers.bugs import Bugs
@@ -23,6 +24,7 @@ from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
 from couchers.servicers.requests import Requests
 from pb import (
+    account_pb2_grpc,
     api_pb2_grpc,
     auth_pb2,
     auth_pb2_grpc,
@@ -61,47 +63,7 @@ def db(request):
     return sessionmaker(bind=engine)
 
 
-def _raw_generate_user(session, username):
-    """
-    Internal user creation code
-    """
-    if not username:
-        username = "test_user_" + random_hex(16)
-
-    user = User(
-        username=username,
-        email=f"{username}@dev.couchers.org",
-        # password is just 'password'
-        # this is hardcoded because the password is slow to hash (so would slow down tests otherwise)
-        hashed_password=b"$argon2id$v=19$m=65536,t=2,p=1$4cjGg1bRaZ10k+7XbIDmFg$tZG7JaLrkfyfO7cS233ocq7P8rf3znXR7SAfUt34kJg",
-        name=username.capitalize(),
-        city="Testing city",
-        verification=0.5,
-        community_standing=0.5,
-        birthdate=date(year=2000, month=1, day=1),
-        gender="N/A",
-        languages="Testing language 1|Testing language 2",
-        occupation="Tester",
-        about_me="I test things",
-        about_place="My place has a lot of testing paraphenelia",
-        countries_visited="Testing country",
-        countries_lived="Wonderland",
-        # you need to make sure to update this logic to make sure the user is jailed/not on request
-        accepted_tos=1,
-    )
-
-    session.add(user)
-
-    # this expires the user, so now it's "dirty"
-    session.commit()
-
-    # there should also be tests to check this
-    assert not user.is_jailed
-
-    return user
-
-
-def generate_user(db, username=None):
+def generate_user(db, *_, **kwargs):
     """
     Create a new user, return session token
 
@@ -112,31 +74,46 @@ def generate_user(db, username=None):
     auth = Auth(db)
 
     with session_scope(db) as session:
-        user = _raw_generate_user(session, username=username)
+        # default args
+        username = "test_user_" + random_hex(16)
+        user_opts = {
+            "username": username,
+            "email": f"{username}@dev.couchers.org",
+            # password is just 'password'
+            # this is hardcoded because the password is slow to hash (so would slow down tests otherwise)
+            "hashed_password": b"$argon2id$v=19$m=65536,t=2,p=1$4cjGg1bRaZ10k+7XbIDmFg$tZG7JaLrkfyfO7cS233ocq7P8rf3znXR7SAfUt34kJg",
+            "name": username.capitalize(),
+            "city": "Testing city",
+            "verification": 0.5,
+            "community_standing": 0.5,
+            "birthdate": date(year=2000, month=1, day=1),
+            "gender": "N/A",
+            "languages": "Testing language 1|Testing language 2",
+            "occupation": "Tester",
+            "about_me": "I test things",
+            "about_place": "My place has a lot of testing paraphenelia",
+            "countries_visited": "Testing country",
+            "countries_lived": "Wonderland",
+            # you need to make sure to update this logic to make sure the user is jailed/not on request
+            "accepted_tos": 1,
+        }
+
+        for key, value in kwargs.items():
+            user_opts[key] = value
+
+        user = User(**user_opts)
+
+        session.add(user)
+
+        # this expires the user, so now it's "dirty"
+        session.commit()
+
+        token = auth._create_session("Dummy context", session, user)
 
         # refresh it, undoes the expiry
         session.refresh(user)
         # allows detaches the user from the session, allowing its use outside this session
         session.expunge(user)
-
-    with patch("couchers.servicers.auth.verify_password", lambda hashed, password: password == "password"):
-        token = auth.Authenticate(auth_pb2.AuthReq(user=user.username, password="password"), "Dummy context").token
-
-    return user, token
-
-
-def generate_user_for_session(session, db, username=None):
-    """
-    Create a new user *boudn to session*, return session token
-
-    Use this if you need to modify the user straight after creation
-    """
-    auth = Auth(db)
-
-    user = _raw_generate_user(session, username=username)
-
-    with patch("couchers.servicers.auth.verify_password", lambda hashed, password: password == "password"):
-        token = auth.Authenticate(auth_pb2.AuthReq(user=user.username, password="password"), "Dummy context").token
 
     return user, token
 
@@ -286,6 +263,18 @@ def requests_session(db, token):
 
 
 @contextmanager
+def account_session(db, token):
+    """
+    Create a Account API for testing, uses the token for auth
+    """
+    auth_interceptor = Auth(db).get_auth_interceptor(allow_jailed=False)
+    user_id, jailed = Auth(db).get_session_for_token(token)
+    channel = FakeChannel(user_id=user_id)
+    account_pb2_grpc.add_AccountServicer_to_server(Account(db), channel)
+    yield account_pb2_grpc.AccountStub(channel)
+
+
+@contextmanager
 def bugs_session():
     channel = FakeChannel()
     bugs_pb2_grpc.add_BugsServicer_to_server(Bugs(), channel)
@@ -350,3 +339,19 @@ def testconfig():
 
     config.clear()
     config.update(prevconfig)
+
+
+@pytest.fixture
+def fast_passwords():
+    # password hashing, by design, takes a lot of time, which slows down the tests. here we jump through some hoops to
+    # make this fast by removing the hashing step
+
+    def fast_hash(password: bytes) -> bytes:
+        return b"fake hash:" + password
+
+    def fast_verify(hashed: bytes, password: bytes) -> bool:
+        return hashed == fast_hash(password)
+
+    with patch("couchers.crypto.nacl.pwhash.verify", fast_verify):
+        with patch("couchers.crypto.nacl.pwhash.str", fast_hash):
+            yield
