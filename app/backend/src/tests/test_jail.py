@@ -125,13 +125,8 @@ def test_AcceptTOS(db):
 
 
 def test_SetLocation(db):
-    with session_scope(db) as session:
-        user1, token1 = generate_user_for_session(session, db, jailed=False)
-
-        # make them have not added a location
-        user1.geom = None
-        user1.geom_radius = None
-        session.commit()
+    # make them have not added a location
+    user1, token1 = generate_user(db, geom=None, geom_radius=None)
 
     with real_jail_session(db, token1) as jail:
         res = jail.JailInfo(empty_pb2.Empty())

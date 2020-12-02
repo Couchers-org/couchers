@@ -97,8 +97,8 @@ def generate_user(db, *_, **kwargs):
             "countries_lived": "Wonderland",
             # you need to make sure to update this logic to make sure the user is jailed/not on request
             "accepted_tos": 1,
-            "geom": None if jailed else create_coordinate(40.7108, -73.9740),
-            "geom_radius": None if jailed else 100,
+            "geom": create_coordinate(40.7108, -73.9740),
+            "geom_radius": 100,
         }
 
         for key, value in kwargs.items():
