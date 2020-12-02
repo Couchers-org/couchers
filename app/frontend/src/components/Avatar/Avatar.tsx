@@ -1,26 +1,29 @@
-import {
-  Avatar as MuiAvatar,
-  AvatarProps as MuiAvatarProps,
-} from "@material-ui/core";
+import { Avatar as MuiAvatar, Box, BoxProps } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import classNames from "classnames";
 import React from "react";
 import { User } from "../../pb/api_pb";
 
 const useStyles = makeStyles({
-  root: { height: "3rem", width: "3rem" },
+  root: {
+    position: "relative",
+    height: "3rem",
+    width: "3rem",
+  },
   grow: {
     height: 0,
     width: "100%",
     paddingTop: "100%",
-    "& .MuiAvatar-img": {
-      position: "absolute",
-      top: 0,
-    },
+  },
+  avatar: {
+    width: "100%",
+    height: "100%",
+    position: "absolute",
+    top: 0,
   },
 });
 
-export interface AvatarProps extends MuiAvatarProps {
+export interface AvatarProps extends BoxProps {
   user: User.AsObject;
   grow?: boolean;
 }
@@ -28,13 +31,17 @@ export interface AvatarProps extends MuiAvatarProps {
 export default function Avatar({ user, grow, ...otherProps }: AvatarProps) {
   const classes = useStyles();
   return (
-    <MuiAvatar
-      {...otherProps}
+    <Box
       className={classNames(classes.root, { [classes.grow]: grow })}
-      alt={user.name}
-      src={user.avatarUrl}
+      {...otherProps}
     >
-      {user.name.split(/\s+/).map((name) => name[0])}
-    </MuiAvatar>
+      <MuiAvatar
+        className={classes.avatar}
+        alt={user.name}
+        src={user.avatarUrl}
+      >
+        {user.name.split(/\s+/).map((name) => name[0])}
+      </MuiAvatar>
+    </Box>
   );
 }

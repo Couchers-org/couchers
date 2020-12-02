@@ -1,5 +1,7 @@
 import { createMuiTheme, ThemeOptions } from "@material-ui/core";
 
+const spacing = (factor: number) => `${0.5 * factor}rem`;
+
 const themeOptions: ThemeOptions = {
   palette: {
     primary: {
@@ -9,20 +11,24 @@ const themeOptions: ThemeOptions = {
       main: "#b8574c",
     },
   },
+  spacing: spacing,
   typography: {
     fontFamily: "Lato, Arial, sans-serif",
     h1: {
-      fontSize: "48px",
-      marginTop: "16px",
+      fontSize: 48,
+      marginTop: spacing(2),
     },
     h2: {
-      fontSize: "36px",
-      marginTop: "8px",
+      fontSize: 36,
+      marginTop: spacing(1),
     },
     h3: {
-      fontSize: "28px",
-      marginTop: "8px",
+      fontSize: 28,
+      marginTop: spacing(1),
     },
+  },
+  shape: {
+    borderRadius: 16,
   },
   props: {
     MuiButtonBase: {
