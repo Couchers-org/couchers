@@ -1,16 +1,16 @@
 """Add account management fields
 
-Revision ID: f7aa46d2a8d4
-Revises: 69a91fcdc73c
-Create Date: 2020-11-29 14:16:40.402472
+Revision ID: aef55e9fa4a9
+Revises: 51398a87b2ef
+Create Date: 2020-12-02 10:18:41.253310
 
 """
 import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "f7aa46d2a8d4"
-down_revision = "69a91fcdc73c"
+revision = "aef55e9fa4a9"
+down_revision = "51398a87b2ef"
 branch_labels = None
 depends_on = None
 
