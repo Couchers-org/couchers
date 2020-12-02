@@ -58,7 +58,7 @@ export default Vue.extend({
     async acceptTos() {
       this.loading = true
       const req = new AcceptTOSReq()
-      req.setAccept(true)
+      req.setAccept(this.accept)
       const res = await jailClient.acceptTOS(req)
       if (!res.getHasNotAcceptedTos()) {
         Store.dispatch("ping")
