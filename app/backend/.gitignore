@@ -10,5 +10,6 @@ src/pb
 
 .env
 
+# coverage reports
 .coverage
 htmlcov/
