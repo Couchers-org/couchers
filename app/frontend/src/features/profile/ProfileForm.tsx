@@ -1,4 +1,4 @@
-import { Link, makeStyles } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
 import { unwrapResult } from "@reduxjs/toolkit";
 import React, { useState } from "react";
@@ -12,7 +12,6 @@ import { ProfileFormData } from "../../service/user";
 import { theme } from "../../theme";
 import { useAppDispatch, useTypedSelector } from "../../store";
 import ProfileMarkdownInput from "./ProfileMarkdownInput";
-import TextBody from "../../components/TextBody";
 
 const useStyles = makeStyles({
   buttonContainer: {
@@ -110,11 +109,6 @@ export default function EditProfileForm() {
               />
             )}
           />
-          <TextBody>
-            <Link href="https://www.markdowntutorial.com/">
-              Formatting help?
-            </Link>
-          </TextBody>
           <Controller
             control={control}
             defaultValue={user.aboutPlace}
