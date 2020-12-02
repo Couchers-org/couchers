@@ -12,7 +12,6 @@ from tests.test_fixtures import (
     api_session,
     db,
     generate_user,
-    generate_user_for_session,
     make_friends,
     real_api_session,
     real_jail_session,
@@ -65,19 +64,9 @@ def test_ping(db):
 
 
 def test_coords(db):
-    with session_scope(db) as session:
-        user1, token1 = generate_user_for_session(session, db, jailed=False)
-
-        # we can't access user1 after the with ... session block
-        user1_username = user1.username
-        user1_city = user1.city
-
-        # make them have not added a location
-        user1.geom = None
-        user1.geom_radius = None
-        session.commit()
-
-    user2, token2 = generate_user(db, "tester")
+    # make them have not added a location
+    user1, token1 = generate_user(db, geom=None, geom_radius=None)
+    user2, token2 = generate_user(db)
 
     with api_session(db, token2) as api:
         res = api.Ping(api_pb2.PingReq())
@@ -88,8 +77,8 @@ def test_coords(db):
         assert res.user.radius == user2.geom_radius
 
     with api_session(db, token2) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=user1_username))
-        assert res.city == user1_city
+        res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
+        assert res.city == user1.city
         assert res.lat == 0.0
         assert res.lng == 0.0
         assert res.radius == 0.0
@@ -116,7 +105,7 @@ def test_coords(db):
         assert not res.has_not_added_location
 
     with api_session(db, token2) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=user1_username))
+        res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
         assert res.city == "New York City"
         assert res.lat == 40.7812
         assert res.lng == -73.9647
