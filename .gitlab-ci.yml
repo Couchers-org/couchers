@@ -161,11 +161,11 @@ test:backend:
     POSTGRES_PASSWORD: c765064a49d18a95
     DATABASE_CONNECTION_STRING: "postgresql://postgres:c765064a49d18a95@postgres/postgres"
   script:
-    - cd /app && pytest src --cov=couchers --cov-report html --junitxml=test-results/junit.xml
-    - cp /app/test-results/junit.xml junit.xml
+    - cd /app && pytest src --cov=couchers --junitxml=test-results/junit.xml && coverage xml && coverage html
   artifacts:
     reports:
-      junit: junit.xml
+      cobertura: coverage.xml
+      junit: /app/test-results/junit.xml
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
