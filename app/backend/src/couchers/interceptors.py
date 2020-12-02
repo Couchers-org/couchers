@@ -9,9 +9,9 @@ LOG_VERBOSE_PB = "LOG_VERBOSE_PB" in os.environ
 logger = logging.getLogger(__name__)
 
 
-def unauthenticated_handler():
+def unauthenticated_handler(message="Unauthorized"):
     def f(request, context):
-        context.abort(grpc.StatusCode.UNAUTHENTICATED, "Unauthorized")
+        context.abort(grpc.StatusCode.UNAUTHENTICATED, message)
 
     return grpc.unary_unary_rpc_method_handler(f)
 
@@ -23,8 +23,9 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
     terminates the call with an HTTP error code.
     """
 
-    def __init__(self, get_user_for_session_token):
-        self._get_user_for_session_token = get_user_for_session_token
+    def __init__(self, get_session_for_token, allow_jailed=True):
+        self._get_session_for_token = get_session_for_token
+        self._allow_jailed = allow_jailed
 
     def intercept_service(self, continuation, handler_call_details):
         metadata = dict(handler_call_details.invocation_metadata)
@@ -36,10 +37,16 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
         if not authorization.startswith("Bearer "):
             return unauthenticated_handler()
 
-        user_id = self._get_user_for_session_token(token=authorization[7:])
+        # None or (user_id, jailed)
+        res = self._get_session_for_token(token=authorization[7:])
 
-        if not user_id:
+        if not res:
             return unauthenticated_handler()
+
+        user_id, jailed = res
+
+        if not self._allow_jailed and jailed:
+            return unauthenticated_handler("Permission denied")
 
         handler = continuation(handler_call_details)
         user_aware_function = handler.unary_unary

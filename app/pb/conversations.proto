@@ -7,6 +7,8 @@ import "google/protobuf/wrappers.proto";
 import "google/protobuf/empty.proto";
 
 service Conversations {
+  // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to auth.proto and jail.proto
+
   rpc ListGroupChats(ListGroupChatsReq) returns (ListGroupChatsRes) {
     // Retrieves list of group chats (ordered by last message), paginated
   }

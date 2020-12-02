@@ -56,36 +56,31 @@ export type SignupArguments = {
 
 /**
  * Login user using password and returns session token
- *
- * @param {string} username
- * @param {string} password
- * @returns {Promise<string>}
  */
-export async function passwordLogin(
-  username: string,
-  password: string
-): Promise<string> {
+export async function passwordLogin(username: string, password: string) {
   const req = new AuthReq();
   req.setUser(username);
   req.setPassword(password);
 
   const response = await client.auth.authenticate(req);
   const token = response.getToken();
+  const jailed = response.getJailed();
 
-  return token;
+  return { token, jailed };
 }
 
 /**
  * Login user using a login token and returns session token
  */
-export async function tokenLogin(loginToken: string): Promise<string> {
+export async function tokenLogin(loginToken: string) {
   const req = new CompleteTokenLoginReq();
   req.setLoginToken(loginToken);
 
   const response = await client.auth.completeTokenLogin(req);
   const token = response.getToken();
+  const jailed = response.getJailed();
 
-  return token;
+  return { token, jailed };
 }
 
 /**
@@ -212,9 +207,6 @@ export function updateHostingPreference(preferences: HostingPreferenceData) {
 
 /**
  * Completes the signup process
- *
- * @param {SignupArguments} signup arguments
- * @returns {Promise<string>} session token
  */
 export async function completeSignup({
   signupToken,
@@ -235,5 +227,7 @@ export async function completeSignup({
   req.setHostingStatus(hostingStatus);
 
   const res = await client.auth.completeSignup(req);
-  return res.getToken();
+  const sessionToken = res.getToken();
+  const jailed = res.getJailed();
+  return { token: sessionToken, jailed };
 }

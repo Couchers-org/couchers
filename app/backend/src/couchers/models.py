@@ -109,6 +109,12 @@ class User(Base):
     area = Column(String, nullable=True)
     house_rules = Column(String, nullable=True)
 
+    accepted_tos = Column(Integer, nullable=False, default=0)
+
+    @property
+    def is_jailed(self):
+        return self.accepted_tos < 1
+
     @property
     def age(self):
         max_day = monthrange(date.today().year, self.birthdate.month)[1]

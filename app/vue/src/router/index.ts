@@ -8,6 +8,7 @@ import Login from "../views/Login.vue"
 import Profile from "../views/Profile.vue"
 import Logout from "../views/Logout.vue"
 import SSO from "../views/SSO.vue"
+import TOS from "../views/TOS.vue"
 import Friends from "../views/Friends.vue"
 import Messages from "../views/Messages.vue"
 import Search from "../views/Search.vue"
@@ -45,6 +46,12 @@ const routes: Array<RouteConfig> = [
     name: "CompleteLogin",
     component: CompleteLogin,
     meta: { noAuth: true },
+  },
+
+  {
+    path: "/tos",
+    name: "TOS",
+    component: TOS,
   },
 
   {
