@@ -26,11 +26,12 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "test": "react-scripts test",
     "eject": "react-scripts eject",
     "format": "prettier --write src/",
     "lint": "eslint src/",
-    "test": "jest",
-    "test-ci": "NODE_ENV=test jest --coverage --watchAll=false",
+    "test-travis": "NODE_ENV=test && react-scripts test --coverage --watchAll=false",
+    "jest": "jest",
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "build-storybook -s public"
   },
@@ -85,7 +86,7 @@
     "@testing-library/user-event": "^7.1.2",
     "@types/classnames": "^2.2.11",
     "@types/google-protobuf": "^3.7.3",
-    "@types/jest": "^26.0.16",
+    "@types/jest": "^26.0.14",
     "@types/node": "^12.0.0",
     "@types/react": "^16.9.0",
     "@types/react-dom": "^16.9.0",
@@ -94,15 +95,12 @@
     "@types/react-test-renderer": "^16.9.3",
     "@types/redux-persist": "^4.3.1",
     "@types/webpack-env": "^1.15.3",
-    "babel-loader": "8.1.0",
     "coveralls": "^3.1.0",
     "eslint-config-prettier": "^6.12.0",
-    "jest-junit": "^12.0.0",
     "lint-staged": "^10.5.1",
     "prettier": "^2.1.2",
     "react-is": "^17.0.1",
-    "react-test-renderer": "^16.13.1",
-    "ts-jest": "^26.4.4"
+    "react-test-renderer": "^16.13.1"
   },
   "jest": {
     "collectCoverageFrom": [
