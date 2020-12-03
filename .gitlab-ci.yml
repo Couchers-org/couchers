@@ -162,7 +162,9 @@ test:backend:
     POSTGRES_PASSWORD: c765064a49d18a95
     DATABASE_CONNECTION_STRING: "postgresql://postgres:c765064a49d18a95@postgres/postgres"
   script:
-    - cd /app && pytest --junitxml=junit.xml --cov=couchers src && coverage xml && coverage html
+    - cd /app && pytest --junitxml=junit.xml --cov=couchers src
+  after_script:
+    - cd /app && coverage xml && coverage html
     - cp /app/junit.xml $CI_PROJECT_DIR/
     - cp /app/coverage.xml $CI_PROJECT_DIR/
     - cp -a /app/htmlcov $CI_PROJECT_DIR/artifacts/
@@ -192,6 +194,7 @@ test:media:
     MEDIA_SERVER_FROM_ENV: 0
   script:
     - cd /app && pytest src --junitxml=junit.xml
+  after_script:
     - cp /app/junit.xml $CI_PROJECT_DIR/junit.xml
   artifacts:
     reports:
@@ -213,6 +216,7 @@ test:frontend:
     default: false
   script:
     - cd /app && yarn test-ci
+  after_script:
     - cp /app/junit.xml $CI_PROJECT_DIR/
     - cp /app/coverage/cobertura-coverage.xml $CI_PROJECT_DIR/
     - cp -a /app/coverage/lcov-report $CI_PROJECT_DIR/artifacts/
