@@ -1,5 +1,6 @@
 import { Box, BoxProps } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
+import { unwrapResult } from "@reduxjs/toolkit";
 import * as React from "react";
 import { useEffect, useState } from "react";
 import { useDispatch, useStore } from "react-redux";
@@ -28,7 +29,9 @@ export default function SurfingTab() {
     (async () => {
       setLoading(true);
       try {
-        await dispatch(fetchHostRequests({}));
+        const actionCreator = fetchHostRequests({});
+        const action = await dispatch(actionCreator);
+        await unwrapResult(action as any);
       } catch (e) {
         setError(e.message);
       }

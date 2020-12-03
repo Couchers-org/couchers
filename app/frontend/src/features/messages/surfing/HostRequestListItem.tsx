@@ -6,7 +6,7 @@ import React, { useState } from "react";
 import Avatar from "../../../components/Avatar";
 import { HostRequest } from "../../../pb/requests_pb";
 import { formatDate } from "../../../utils/date";
-import { useFindUser } from "../messagelist/Message";
+import { useGetUser } from "../messagelist/Message";
 import TimeInterval from "../messagelist/MomentIndication";
 import UserName from "../messagelist/UserName";
 
@@ -25,7 +25,7 @@ export default function HostRequestListItem({
 }: HostRequestListItemProps) {
   const [expanded, setExpanded] = useState<boolean>(false);
   const classes = useStyles();
-  const otherUser = useFindUser(hostRequest.fromUserId);
+  const otherUser = useGetUser(hostRequest.fromUserId);
   return (
     <>
       <Card className={classes.root}>

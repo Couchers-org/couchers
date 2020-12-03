@@ -3,8 +3,6 @@ import { HostRequest } from "../../../pb/requests_pb";
 
 const initialState = {
   hostRequests: [] as HostRequest.AsObject[],
-  loading: false,
-  error: null as string | null | undefined,
 };
 
 export type RequestsState = typeof initialState;
