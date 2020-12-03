@@ -8,6 +8,7 @@ import CircularProgress from "../../../components/CircularProgress";
 import { Message } from "../../../pb/conversations_pb";
 import { HostRequest } from "../../../pb/requests_pb";
 import { service } from "../../../service";
+import { useAppDispatch } from "../../../store";
 import { fetchUsers, getUser } from "../../userCache";
 import MessageList from "../messagelist/MessageList";
 
@@ -21,6 +22,7 @@ export default function HostRequestView({ hostRequest }: HostRequestViewProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [messages, setMessages] = useState<Message.AsObject[]>([]);
+  const dispatch = useAppDispatch();
   const fetchMessages = useCallback(async () => {
     setLoading(true);
     try {
