@@ -6,7 +6,7 @@ import CircularProgress from "../../../components/CircularProgress";
 import PageTitle from "../../../components/PageTitle";
 import TextBody from "../../../components/TextBody";
 import { JailInfoRes } from "../../../pb/jail_pb";
-import { getJailInfo } from "../../../service/jail";
+import { service } from "../../../service";
 import { useAppDispatch, useTypedSelector } from "../../../store";
 import { updateJailStatus } from "./jailActions";
 import TOSSection from "./TOSSection";
@@ -31,7 +31,7 @@ export default function Jail() {
       //just in case the store is stale
       dispatch(updateJailStatus());
       setLoading(true);
-      setJailInfo(await getJailInfo());
+      setJailInfo(await service.jail.getJailInfo());
       setLoading(false);
     })();
   }, [dispatch]);
