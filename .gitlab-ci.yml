@@ -215,7 +215,7 @@ test:frontend:
     # no docker login
     default: false
   script:
-    - cd /app && yarn test-ci || true
+    - cd /app && yarn test-ci
   after_script:
     - cp /app/junit.xml $CI_PROJECT_DIR/
     - cp /app/coverage/cobertura-coverage.xml $CI_PROJECT_DIR/
