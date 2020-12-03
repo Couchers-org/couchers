@@ -10,18 +10,17 @@
     "classnames": "^2.2.6",
     "google-protobuf": "^3.13.0",
     "grpc-web": "^1.2.1",
+    "leaflet": "^1.7.1",
     "moment": "^2.29.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-hook-form": "^6.9.2",
+    "react-leaflet": "^3.0.2",
     "react-redux": "^7.2.1",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.0",
     "redux-persist": "^6.0.0",
     "typescript": "~4.0.5"
-  },
-  "resolutions": {
-    "react-jss": "^10.5.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -32,8 +31,8 @@
     "lint": "eslint src/",
     "test-travis": "NODE_ENV=test && react-scripts test --coverage --watchAll=false",
     "jest": "jest",
-    "storybook": "start-storybook -p 6006 -s public",
-    "build-storybook": "build-storybook -s public"
+    "storybook": "NODE_PATH=. start-storybook -p 6006 -s public",
+    "build-storybook": "NODE_PATH=. build-storybook -s public"
   },
   "eslintConfig": {
     "extends": [
@@ -87,6 +86,7 @@
     "@types/classnames": "^2.2.11",
     "@types/google-protobuf": "^3.7.3",
     "@types/jest": "^26.0.14",
+    "@types/leaflet": "^1.5.19",
     "@types/node": "^12.0.0",
     "@types/react": "^16.9.0",
     "@types/react-dom": "^16.9.0",
