@@ -12,7 +12,7 @@ import { fetchUsers, getUser } from "../../userCache";
 import TimeInterval from "./MomentIndication";
 import UserName from "./UserName";
 
-export function useFindUser(id: number): User.AsObject | null {
+export function useGetUser(id: number): User.AsObject | null {
   const user = useTypedSelector((state) => getUser(state, id)) || null;
   const dispatch = useAppDispatch();
   if (!user) {
@@ -35,7 +35,7 @@ export interface MessageProps {
 export default function MessageView({ message }: MessageProps) {
   const [expanded, setExpanded] = useState<boolean>(false);
   const classes = useStyles();
-  const author = useFindUser(message.authorUserId);
+  const author = useGetUser(message.authorUserId);
   const store = useStore();
   const currentUser = store.getState().auth.user;
   const isCurrentUser = author?.userId === currentUser?.userId;
