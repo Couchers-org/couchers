@@ -22,5 +22,5 @@ If you are a developer, please read [docs/contributing.md](docs/contributing.md)
 * Architectural overview: [docs/architecture.md](docs/architecture.md) outlines the basic workings of the app, the different components, and the way they interact.
 * Developer Contributor Guide: [docs/contributing.md](docs/contributing.md) explains how we work with this codebase and helps you get up and running with development.
 * CI/CD goodies: [docs/cicd.md](docs/cicd.md) lists the different CI/CD functionality that we've got set up and how you can use this to simplify life
-* Database migrations: [docs/migrations.md](docs/migrations.md) explains how we version the database with Alembic and update it when new tables or columns are added
+* Database & migrations: [docs/database.md](docs/database.md) explains how to use the database and how we version the database with Alembic and update it when new tables or columns are added
 * Docker: [docs/docker.md](docs/docker.md) has some tips on how to work with docker and be less miserable
