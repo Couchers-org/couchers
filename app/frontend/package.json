@@ -30,7 +30,7 @@
     "eject": "react-scripts eject",
     "format": "prettier --write src/",
     "lint": "eslint src/",
-    "test-travis": "NODE_ENV=test && react-scripts test --coverage --watchAll=false",
+    "test-ci": "NODE_ENV=test && react-scripts test --coverageReporters=\"text\" --coverageReporters=\"cobertura\" --coverageReporters=\"lcov\" --reporters=\"default\" --reporters=\"jest-junit\" --coverage --watchAll=false",
     "jest": "jest",
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "build-storybook -s public"
@@ -97,6 +97,7 @@
     "@types/webpack-env": "^1.15.3",
     "coveralls": "^3.1.0",
     "eslint-config-prettier": "^6.12.0",
+    "jest-junit": "^12.0.0",
     "lint-staged": "^10.5.1",
     "prettier": "^2.1.2",
     "react-is": "^17.0.1",
