@@ -55,7 +55,7 @@ export default function HostRequestView({ hostRequest }: HostRequestViewProps) {
   const host = getUser(store.getState(), hostRequest.toUserId);
   const currentUser = store.getState().auth.user;
   const surferName =
-    currentUser?.userId === surfer?.userId ? "you" : surfer?.name;
+    currentUser?.userId === surfer?.userId ? "You" : surfer?.name;
   const hostName = currentUser?.userId === host?.userId ? "you" : host?.name;
   const title = `${surferName} requested to be hosted by ${hostName}`;
 
