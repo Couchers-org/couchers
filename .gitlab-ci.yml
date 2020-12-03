@@ -215,7 +215,7 @@ test:frontend:
     # no docker login
     default: false
   script:
-    - cd /app && yarn test-ci
+    - cd /app && yarn test-ci || true
   after_script:
     - cp /app/junit.xml $CI_PROJECT_DIR/
     - cp /app/coverage/cobertura-coverage.xml $CI_PROJECT_DIR/
@@ -265,8 +265,9 @@ preview:backend-coverage:
     # no docker login
     default: false
   script:
-    - aws s3 cp artifacts/htmlcov s3://$AWS_PREVIEW_BUCKET/bcov/$SLUG/ --recursive
-    - echo "Done, coverage report available at https://$SLUG--bcov.preview.coucher.org/"
+    - aws s3 cp artifacts/htmlcov s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 cp artifacts/htmlcov s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_REF_SLUG/ --recursive
+    - echo "Done, coverage report available at https://$CI_COMMIT_SHORT_SHA--bcov.preview.coucher.org/ and https://$CI_COMMIT_REF_SLUG--bcov.preview.coucher.org/"
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
@@ -283,8 +284,9 @@ preview:frontend:
     # no docker login
     default: false
   script:
-    - aws s3 cp artifacts/frontend s3://$AWS_PREVIEW_BUCKET/frontend/$SLUG/ --recursive
-    - echo "Done, preview available at https://$SLUG--frontend.preview.coucher.org/"
+    - aws s3 cp artifacts/frontend s3://$AWS_PREVIEW_BUCKET/frontend/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 cp artifacts/frontend s3://$AWS_PREVIEW_BUCKET/frontend/$CI_COMMIT_REF_SLUG/ --recursive
+    - echo "Done, preview available at https://$CI_COMMIT_SHORT_SHA--frontend.preview.coucher.org/ and https://$CI_COMMIT_REF_SLUG--frontend.preview.coucher.org/"
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
@@ -301,8 +303,9 @@ preview:frontend-coverage:
     # no docker login
     default: false
   script:
-    - aws s3 cp artifacts/lcov-report s3://$AWS_PREVIEW_BUCKET/fcov/$SLUG/ --recursive
-    - echo "Done, coverage report available at https://$SLUG--fcov.preview.coucher.org/"
+    - aws s3 cp artifacts/lcov-report s3://$AWS_PREVIEW_BUCKET/fcov/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 cp artifacts/lcov-report s3://$AWS_PREVIEW_BUCKET/fcov/$CI_COMMIT_REF_SLUG/ --recursive
+    - echo "Done, coverage report available at https://$CI_COMMIT_SHORT_SHA--fcov.preview.coucher.org/ and https://$CI_COMMIT_REF_SLUG--fcov.preview.coucher.org/"
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
@@ -319,8 +322,9 @@ preview:storybook:
     # no docker login
     default: false
   script:
-    - aws s3 cp artifacts/storybook-static s3://$AWS_PREVIEW_BUCKET/storybook/$SLUG/ --recursive
-    - echo "Done, storybook available at https://$SLUG--storybook.preview.coucher.org/"
+    - aws s3 cp artifacts/storybook-static s3://$AWS_PREVIEW_BUCKET/storybook/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 cp artifacts/storybook-static s3://$AWS_PREVIEW_BUCKET/storybook/$CI_COMMIT_REF_SLUG/ --recursive
+    - echo "Done, storybook available at https://$CI_COMMIT_SHORT_SHA--storybook.preview.coucher.org/ and https://$CI_COMMIT_REF_SLUG--storybook.preview.coucher.org/"
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
@@ -337,8 +341,9 @@ preview:vue:
     # no docker login
     default: false
   script:
-    - aws s3 cp artifacts/vue s3://$AWS_PREVIEW_BUCKET/vue/$SLUG/ --recursive
-    - echo "Done, preview available at https://$SLUG--vue.preview.coucher.org/"
+    - aws s3 cp artifacts/vue s3://$AWS_PREVIEW_BUCKET/vue/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 cp artifacts/vue s3://$AWS_PREVIEW_BUCKET/vue/$CI_COMMIT_REF_SLUG/ --recursive
+    - echo "Done, preview available at https://$CI_COMMIT_SHORT_SHA--vue.preview.coucher.org/ and https://$CI_COMMIT_REF_SLUG--vue.preview.coucher.org/"
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
