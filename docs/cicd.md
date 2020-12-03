@@ -4,14 +4,14 @@ This lists some of the stuff the CI/CD pipeline does.
 
 It runs on GitLab at [couchers/couchers](https://gitlab.com/couchers/couchers/). Their CI/CD is super awesome and we're supposed to be getting an open-source license to get even more of that good stuff.
 
-Note on slugs: each branch has a slug, normally you just replace non-alphanumberic stuff with dashes, so `frontend/feature/login` becomes `frontend-feature-login`. The previews and artifacts can usually be identified based on this slug or the commit hash.
+Note on slugs: each branch has a slug generated from the branch name, normally you just replace non-alphanumberic stuff with dashes, so a branch name of `frontend/feature/login` gets a slug of `frontend-feature-login`. The previews and artifacts can usually be identified based on this slug or the commit hash. (The slug is useful for use in places where you can't use slashes, e.g. URLs or docker image names).
 
 ## Quick links
 
 * Latest compiled protos: <https://gitlab.com/couchers/couchers/-/jobs/artifacts/develop/download?job=protos>
 * Built react frontend: <https://gitlab.com/couchers/couchers/-/jobs/artifacts/develop/download?job=build:frontend>
 * Frontend as at `develop`: <https://develop--frontend.preview.coucher.org/>
-* (legaccy) vue frontend from `develop`: <https://develop--vue.preview.coucher.org/>
+* (Legacy) vue frontend from `develop`: <https://develop--vue.preview.coucher.org/>
 * Storybook previews off `develop`: <https://develop--storybook.preview.coucher.org/>
 * Current backend test coverage on `develop`: <https://develop--bcov.preview.coucher.org/>
 * Current frontend test coverage on `develop`: <https://develop--fcov.preview.coucher.org/>

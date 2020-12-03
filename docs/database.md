@@ -9,7 +9,7 @@ This page is pretty short, but I'll outline basically how to create a migration.
 Alembic is able to do some kinds of merges and whatnot, but we don't need that, it's much easier to have a linear history. Each PR that makes changes to the database should have one migration. Do it right at the end before merging. You might want to make some migrations while working (to get the tests to run, and try it out, etc), but remove all of them before continuing.
 
 ```sh
-# start by clearning current dirty migrations
+# start by clearing current dirty migrations
 pushd app/backend/src/couchers/migrations/versions
 # remove all migrations...
 rm *.py

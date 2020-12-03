@@ -49,10 +49,10 @@ Options:
 ### Run only the proxy, backend, and database
 
 ```
-docker-compose up --build --no-deps proxy backend postgres
+docker-compose up --build proxy backend
 ```
 
-This will spin up the proxy, backend and postgres database. You can then do queries against it at `localhost:8888`.
+This will spin up the proxy, backend and postgres database (since the postgres container is a dependency of the backend). You can then do queries against the backend at `localhost:8888` (which hits the proxy that redirects it to the backend, which will mutate the database).
 
 ### Run the backend tests with postgres in background
 
