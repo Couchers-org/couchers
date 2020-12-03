@@ -1,9 +1,9 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { configureStore, Store } from "@reduxjs/toolkit";
 import { Meta, Story } from "@storybook/react/types-6-0";
 import * as React from "react";
 import { Provider } from "react-redux";
 
-import { mockedService, user1 } from "../../../service/__mocks__";
+import { mockedService, user1 } from "../../../stories/__mocks__/service";
 import { User } from "../../../pb/api_pb";
 import * as pb_conversations_pb from "../../../pb/conversations_pb";
 import { Message } from "../../../pb/conversations_pb";
@@ -52,17 +52,26 @@ const hostRequest1: HostRequest.AsObject = {
   latestMessage: message2,
 };
 
+function wait(milliSeconds: number) {
+  return new Promise((resolve) => setTimeout(resolve, milliSeconds));
+}
+
 Object.assign(mockedService, {
   requests: {
-    listHostRequests: () => Promise.resolve([hostRequest1]),
-    getHostRequestMessages: () => Promise.resolve([message2, message1]),
+    async getHostRequestMessages() {
+      await wait(1e3);
+      return Promise.resolve([message2, message1]);
+    },
   },
 });
 
-const store = configureStore({
-  reducer: rootReducer,
-  preloadedState: { auth: { user: user1 as User.AsObject } },
-});
+let store: Store;
+function resetStore() {
+  store = configureStore({
+    reducer: rootReducer,
+    preloadedState: { auth: { user: user1 as User.AsObject } },
+  });
+}
 
 export default {
   title: "SurfingTab",
@@ -70,12 +79,25 @@ export default {
   argTypes: {},
   decorators: [
     (storyFn) => {
+      resetStore();
       return <Provider store={store}>{storyFn()}</Provider>;
     },
   ],
 } as Meta;
 
-const Template: Story<any> = (args) => <SurfingTab {...args} />;
+const Template: Story<any> = (args) => {
+  mockedService.requests.listHostRequests = async () => {
+    await wait(1e3);
+    if (args.failing) {
+      throw new Error("An error happened!");
+    }
+    return [hostRequest1];
+  };
+  return <SurfingTab />;
+};
 
 export const Tab = Template.bind({});
 Tab.args = {};
+
+export const Failing = Template.bind({});
+Failing.args = { failing: true };

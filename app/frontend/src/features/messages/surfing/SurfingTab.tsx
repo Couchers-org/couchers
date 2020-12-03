@@ -26,6 +26,7 @@ export default function SurfingTab() {
   const [error, setError] = useState("");
   const dispatch = useDispatch();
   useEffect(() => {
+    setError("");
     (async () => {
       setLoading(true);
       try {
