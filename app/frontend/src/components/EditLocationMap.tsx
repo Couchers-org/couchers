@@ -107,6 +107,7 @@ function AdjustableCircle({
       }
     },
     mouseup() {
+      if (!clicked) return;
       map.dragging.enable();
       setRadius(dirtyRadius);
       setClicked(false);
