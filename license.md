@@ -1,6 +1,7 @@
 MIT License
 
-Copyright (c) 2020 Cross-Cultural Exchange and Communities Foundation Limited and Contributors.
+Copyright (c) 2020 Cross-Cultural Exchange and Communities Foundation Limited
+and Contributors.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
