@@ -35,7 +35,7 @@ export default function HostRequestView({ hostRequest }: HostRequestViewProps) {
   }, [hostRequest.hostRequestId]);
 
   useEffect(() => {
-    fetchUsers({ userIds: [hostRequest.fromUserId, hostRequest.toUserId] });
+    dispatch(fetchUsers({ userIds: [hostRequest.fromUserId, hostRequest.toUserId] }));
   }, [hostRequest.fromUserId, hostRequest.toUserId]);
 
   useEffect(() => {
