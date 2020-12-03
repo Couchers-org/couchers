@@ -1,10 +1,10 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { getIsJailed } from "../../../service/jail";
+import { service } from "../../../service";
 
 export const updateJailStatus = createAsyncThunk(
   "jail/updateJailStatus",
   async () => {
-    const isJailed = await getIsJailed();
+    const isJailed = await service.jail.getIsJailed();
 
     return isJailed;
   }

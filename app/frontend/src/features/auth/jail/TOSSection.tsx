@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Button from "../../../components/Button";
 import TOS from "../../../components/TOS";
-import { acceptTOS } from "../../../service/jail";
+import { service } from "../../../service";
 
 export default function TOSSection({
   updateJailed,
@@ -13,7 +13,7 @@ export default function TOSSection({
 
   const accept = async () => {
     setLoading(true);
-    const info = await acceptTOS();
+    const info = await service.jail.acceptTOS();
     if (!info.isJailed) {
       updateJailed();
     } else {
