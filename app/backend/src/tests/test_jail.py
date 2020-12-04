@@ -15,12 +15,12 @@ def _(testconfig):
 
 
 def test_jail_basic(db):
-    user1, token1 = generate_user(db)
+    user1, token1 = generate_user()
 
-    with real_api_session(db, token1) as api:
+    with real_api_session(token1) as api:
         res = api.Ping(api_pb2.PingReq())
 
-    with real_jail_session(db, token1) as jail:
+    with real_jail_session(token1) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
         # check every field is false
         for field in res.DESCRIPTOR.fields:
@@ -29,13 +29,13 @@ def test_jail_basic(db):
         assert not res.jailed
 
     # make the user jailed
-    user2, token2 = generate_user(db, accepted_tos=0)
+    user2, token2 = generate_user(accepted_tos=0)
 
-    with real_api_session(db, token2) as api, pytest.raises(grpc.RpcError) as e:
+    with real_api_session(token2) as api, pytest.raises(grpc.RpcError) as e:
         res = api.Ping(api_pb2.PingReq())
     assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
 
-    with real_jail_session(db, token2) as jail:
+    with real_jail_session(token2) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
 
         assert res.jailed
@@ -50,34 +50,34 @@ def test_jail_basic(db):
 
 
 def test_JailInfo(db):
-    user1, token1 = generate_user(db, accepted_tos=0)
+    user1, token1 = generate_user(accepted_tos=0)
 
-    with real_jail_session(db, token1) as jail:
+    with real_jail_session(token1) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
         assert res.jailed
         assert res.has_not_accepted_tos
 
-    with real_api_session(db, token1) as api, pytest.raises(grpc.RpcError) as e:
+    with real_api_session(token1) as api, pytest.raises(grpc.RpcError) as e:
         res = api.Ping(api_pb2.PingReq())
     assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
 
     # make the user not jailed
-    user2, token2 = generate_user(db, accepted_tos=1)
+    user2, token2 = generate_user(accepted_tos=1)
 
-    with real_jail_session(db, token2) as jail:
+    with real_jail_session(token2) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
         assert not res.jailed
         assert not res.has_not_accepted_tos
 
-    with real_api_session(db, token2) as api:
+    with real_api_session(token2) as api:
         res = api.Ping(api_pb2.PingReq())
 
 
 def test_AcceptTOS(db):
     # make them have not accepted TOS
-    user1, token1 = generate_user(db, accepted_tos=0)
+    user1, token1 = generate_user(accepted_tos=0)
 
-    with real_jail_session(db, token1) as jail:
+    with real_jail_session(token1) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
         assert res.jailed
         assert res.has_not_accepted_tos
@@ -103,9 +103,9 @@ def test_AcceptTOS(db):
         assert e.value.details() == errors.CANT_UNACCEPT_TOS
 
     # make them have accepted TOS
-    user2, token2 = generate_user(db, accepted_tos=1)
+    user2, token2 = generate_user(accepted_tos=1)
 
-    with real_jail_session(db, token2) as jail:
+    with real_jail_session(token2) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
         assert not res.jailed
         assert not res.has_not_accepted_tos

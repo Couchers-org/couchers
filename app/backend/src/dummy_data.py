@@ -28,10 +28,10 @@ from pb.api_pb2 import HostingStatus
 logger = logging.getLogger(__name__)
 
 
-def add_dummy_data(Session, file_name):
+def add_dummy_data(file_name):
     try:
         logger.info(f"Adding dummy data")
-        with session_scope(Session) as session:
+        with session_scope() as session:
             with open(file_name, "r") as file:
                 data = json.loads(file.read())
 

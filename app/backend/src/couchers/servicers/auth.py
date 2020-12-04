@@ -34,10 +34,6 @@ class Auth(auth_pb2_grpc.AuthServicer):
     This class services the Auth service/API.
     """
 
-    def __init__(self, Session):
-        super().__init__()
-        self._Session = Session
-
     def get_auth_interceptor(self, allow_jailed):
         """
         Returns an auth interceptor.
@@ -54,7 +50,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         TODO(aapeli): session expiry
         """
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             result = (
                 session.query(User, UserSession)
                 .join(User, User.id == UserSession.user_id)
@@ -95,7 +91,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         Returns True if the session was found, False otherwise.
         """
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             user_session = session.query(UserSession).filter(UserSession.token == token).one_or_none()
             if user_session:
                 session.delete(user_session)
@@ -117,7 +113,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         logger.debug(f"Signup with {request.email=}")
         if not is_valid_email(request.email):
             return auth_pb2.SignupRes(next_step=auth_pb2.SignupRes.SignupStep.INVALID_EMAIL)
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             user = session.query(User).filter(User.email == request.email).one_or_none()
             if not user:
                 token, expiry_text = new_signup_token(session, request.email)
@@ -133,7 +129,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         logger.debug(f"Checking if {username=} is valid")
         if not is_valid_username(username):
             return False
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             user = session.query(User).filter(User.username == username).one_or_none()
             # return False if user exists, True otherwise
             return user is None
@@ -149,7 +145,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         Returns the email for a given SignupToken (which will be shown on the UI on the singup form).
         """
         logger.debug(f"Signup token info for {request.signup_token=}")
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             signup_token = (
                 session.query(SignupToken)
                 .filter(SignupToken.token == request.signup_token)
@@ -168,7 +164,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         TODO: nice error handling for dupe username/email?
         """
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             signup_token = (
                 session.query(SignupToken)
                 .filter(SignupToken.token == request.signup_token)
@@ -237,7 +233,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         If the user exists but does not have a password, generates a login token, send it in the email and returns SENT_LOGIN_EMAIL.
         """
         logger.debug(f"Attempting login for {request.user=}")
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             # Gets user by one of id/username/email or None if not found
             user = get_user_by_field(session, request.user)
             if user:
@@ -261,7 +257,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         Or fails with grpc.UNAUTHENTICATED if LoginToken is invalid.
         """
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             res = (
                 session.query(LoginToken, User)
                 .join(User, User.id == LoginToken.user_id)
@@ -288,7 +284,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         request.user can be any of id/username/email
         """
         logger.debug(f"Logging in with {request.user=}, password=*******")
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             user = get_user_by_field(session, request.user)
             if user:
                 logger.debug(f"Found user")
@@ -330,7 +326,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         Note that as long as emails are send synchronously, this is far from constant time regardless of output.
         """
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             user = get_user_by_field(session, request.user)
             if user:
                 password_reset_token, expiry_text = new_password_reset_token(session, user)
@@ -344,7 +340,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         """
         Completes the password reset: just clears the user's password
         """
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             res = (
                 session.query(PasswordResetToken, User)
                 .join(User, User.id == PasswordResetToken.user_id)
@@ -368,7 +364,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         Removes the old email and replaces with the new
         """
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             user = (
                 session.query(User)
                 .filter(User.new_email_token == request.change_email_token)

@@ -21,11 +21,8 @@ def get_media_auth_interceptor(secret_token):
 
 
 class Media(media_pb2_grpc.MediaServicer):
-    def __init__(self, Session):
-        self._Session = Session
-
     def UploadConfirmation(self, request, context):
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             upload = (
                 session.query(InitiatedUpload)
                 .filter(InitiatedUpload.key == request.key)
