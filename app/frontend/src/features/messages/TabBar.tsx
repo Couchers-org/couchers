@@ -1,7 +1,6 @@
 import { Tab, Tabs } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import React from "react";
-import { TabList } from "@material-ui/lab";
 
 const useStyles = makeStyles({ root: {} });
 
