@@ -20,7 +20,7 @@ export default function Login() {
   const error = useTypedSelector((state) => state.auth.error);
 
   const location = useLocation<undefined | { from: Location }>();
-  const redirectTo = location.state?.from.pathname || "/";
+  const redirectTo = location.state?.from?.pathname || "/";
   const { urlToken } = useParams<{ urlToken: string }>();
 
   useEffect(() => {
