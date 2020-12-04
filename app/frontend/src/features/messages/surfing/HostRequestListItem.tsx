@@ -5,7 +5,7 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import React, { useState } from "react";
 import Avatar from "../../../components/Avatar";
 import { HostRequest } from "../../../pb/requests_pb";
-import { formatDate } from "../../../utils/date";
+import { formatDate, timestamp2Date } from "../../../utils/date";
 import { useGetUser } from "../messagelist/Message";
 import TimeInterval from "../messagelist/MomentIndication";
 import UserName from "../messagelist/UserName";
@@ -35,7 +35,7 @@ export default function HostRequestListItem({
             {otherUser && (
               <UserName user={otherUser} className={classes.name} />
             )}
-            <TimeInterval date={new Date(hostRequest.created!.seconds * 1e3)} />
+            <TimeInterval date={timestamp2Date(hostRequest.created!)} />
             <IconButton
               onClick={(event) => {
                 event.stopPropagation();
