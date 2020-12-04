@@ -59,6 +59,10 @@ export const mockedService = ({
   },
 } as unknown) as typeof originalService;
 
+function wait(milliSeconds: number) {
+  return new Promise((resolve) => setTimeout(resolve, milliSeconds));
+}
+
 export const service = new Proxy(
   {},
   {
@@ -78,6 +82,7 @@ export const service = new Proxy(
                   )}' is called with args:`,
                   ...args
                 );
+                await wait(1e3);
                 const result = await serviceMethod(...args);
                 console.log("Result: ", result);
                 return Promise.resolve(result);

@@ -52,14 +52,9 @@ const hostRequest1: HostRequest.AsObject = {
   latestMessage: message2,
 };
 
-function wait(milliSeconds: number) {
-  return new Promise((resolve) => setTimeout(resolve, milliSeconds));
-}
-
 Object.assign(mockedService, {
   requests: {
     async getHostRequestMessages() {
-      await wait(1e3);
       return Promise.resolve([message2, message1]);
     },
   },
@@ -87,7 +82,6 @@ export default {
 
 const Template: Story<any> = (args) => {
   mockedService.requests.listHostRequests = async () => {
-    await wait(1e3);
     if (args.failing) {
       throw new Error("An error happened!");
     }
