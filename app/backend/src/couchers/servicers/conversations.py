@@ -111,11 +111,8 @@ def _add_message_to_subscription(session, subscription, **kwargs):
 
 
 class Conversations(conversations_pb2_grpc.ConversationsServicer):
-    def __init__(self, Session):
-        self._Session = Session
-
     def ListGroupChats(self, request, context):
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             # select group chats where you have a subscription, and for each of
             # these, the latest message from them
 
@@ -168,7 +165,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             )
 
     def GetGroupChat(self, request, context):
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             result = (
                 session.query(GroupChat, GroupChatSubscription, Message)
                 .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
@@ -198,7 +195,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             )
 
     def GetDirectMessage(self, request, context):
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             count = func.count(GroupChatSubscription.id).label("count")
             subquery = (
                 session.query(GroupChatSubscription.group_chat_id)
@@ -245,7 +242,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             )
 
     def GetUpdates(self, request, context):
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             results = (
                 session.query(Message)
                 .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
@@ -270,7 +267,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             )
 
     def GetGroupChatMessages(self, request, context):
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             results = (
                 session.query(Message)
                 .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
@@ -292,7 +289,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             )
 
     def MarkLastSeenGroupChat(self, request, context):
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             subscription = (
                 session.query(GroupChatSubscription)
                 .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
@@ -312,7 +309,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         return empty_pb2.Empty()
 
     def SearchMessages(self, request, context):
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             results = (
                 session.query(Message)
                 .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
@@ -349,7 +346,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         if context.user_id in request.recipient_user_ids:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_ADD_SELF)
 
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             if len(request.recipient_user_ids) == 1:
                 # can only have one DM at a time between any two users
                 other_user_id = request.recipient_user_ids[0]
@@ -427,7 +424,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         if request.text == "":
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_MESSAGE)
 
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             subscription = (
                 session.query(GroupChatSubscription)
                 .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
@@ -443,7 +440,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         return empty_pb2.Empty()
 
     def EditGroupChat(self, request, context):
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             subscription = (
                 session.query(GroupChatSubscription)
                 .filter(GroupChatSubscription.user_id == context.user_id)
@@ -469,7 +466,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         return empty_pb2.Empty()
 
     def MakeGroupChatAdmin(self, request, context):
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             your_subscription = (
                 session.query(GroupChatSubscription)
                 .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
@@ -510,7 +507,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         return empty_pb2.Empty()
 
     def RemoveGroupChatAdmin(self, request, context):
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             your_subscription = (
                 session.query(GroupChatSubscription)
                 .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
@@ -559,7 +556,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         return empty_pb2.Empty()
 
     def InviteToGroupChat(self, request, context):
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             result = (
                 session.query(GroupChatSubscription, GroupChat)
                 .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
@@ -616,7 +613,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         return empty_pb2.Empty()
 
     def LeaveGroupChat(self, request, context):
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             subscription = (
                 session.query(GroupChatSubscription)
                 .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)

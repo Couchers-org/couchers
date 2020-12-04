@@ -5,7 +5,6 @@ import grpc
 
 from couchers import errors
 from couchers.crypto import base64decode, base64encode, sso_check_hmac, sso_create_hmac
-from couchers.db import session_scope
 from couchers.models import User
 from pb import sso_pb2, sso_pb2_grpc
 
@@ -15,12 +14,9 @@ logger = logging.getLogger(__name__)
 
 
 class SSO(sso_pb2_grpc.SSOServicer):
-    def __init__(self, Session):
-        self._Session = Session
-
     def SSO(self, request, context):
         # Protocol description: https://meta.discourse.org/t/official-single-sign-on-for-discourse-sso/13045
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             sso = request.sso
             sig = request.sig
 

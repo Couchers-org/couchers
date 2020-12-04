@@ -31,11 +31,11 @@ def _(testconfig):
 
 
 def test_login_email(db):
-    user, api_token = generate_user(db)
+    user, api_token = generate_user()
 
     message_id = random_hex(64)
 
-    with session_scope(db) as session:
+    with session_scope() as session:
         login_token, expiry_text = new_login_token(session, user)
 
         @create_autospec
@@ -53,12 +53,12 @@ def test_login_email(db):
 
 
 def test_signup_email(db):
-    user, api_token = generate_user(db)
+    user, api_token = generate_user()
 
     request_email = f"{random_hex(12)}@couchers.org.invalid"
     message_id = random_hex(64)
 
-    with session_scope(db) as session:
+    with session_scope() as session:
         token, expiry_text = new_signup_token(session, request_email)
 
         @create_autospec
@@ -75,9 +75,9 @@ def test_signup_email(db):
 
 
 def test_report_email(db):
-    with session_scope(db):
-        user_author, api_token_author = generate_user(db)
-        user_reported, api_token_reported = generate_user(db)
+    with session_scope():
+        user_author, api_token_author = generate_user()
+        user_reported, api_token_reported = generate_user()
 
         complaint = Complaint(
             author_user=user_author, reported_user=user_reported, reason=random_hex(64), description=random_hex(256)
@@ -106,9 +106,9 @@ def test_report_email(db):
 
 
 def test_host_request_email(db):
-    with session_scope(db) as session:
-        from_user, api_token_from = generate_user(db)
-        to_user, api_token_to = generate_user(db)
+    with session_scope() as session:
+        from_user, api_token_from = generate_user()
+        to_user, api_token_to = generate_user()
         from_date = "2020-01-01"
         to_date = "2020-01-05"
 
@@ -155,7 +155,7 @@ def test_host_request_email(db):
 
 
 def test_message_received_email(db):
-    user, api_token = generate_user(db)
+    user, api_token = generate_user()
 
     message_id = random_hex(64)
 
@@ -174,9 +174,9 @@ def test_message_received_email(db):
 
 
 def test_friend_request_email(db):
-    with session_scope(db) as session:
-        from_user, api_token_from = generate_user(db)
-        to_user, api_token_to = generate_user(db)
+    with session_scope() as session:
+        from_user, api_token_from = generate_user()
+        to_user, api_token_to = generate_user()
         friend_relationship = FriendRelationship(from_user=from_user, to_user=to_user, status=FriendStatus.pending)
 
         message_id = random_hex(64)
@@ -208,9 +208,9 @@ def test_email_patching_fails(db):
     printing function was called instead, this makes sure the patching is
     actually done
     """
-    with session_scope(db) as session:
-        from_user, api_token_from = generate_user(db)
-        to_user, api_token_to = generate_user(db)
+    with session_scope() as session:
+        from_user, api_token_from = generate_user()
+        to_user, api_token_to = generate_user()
         friend_relationship = FriendRelationship(from_user=from_user, to_user=to_user, status=FriendStatus.pending)
 
         patched_msg = random_hex(64)
