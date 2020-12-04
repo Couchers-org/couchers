@@ -7,9 +7,12 @@ export const passwordLogin = createAsyncThunk(
   async ({ username, password }: { username: string; password: string }) => {
     const auth = await service.user.passwordLogin(username, password);
 
-    const user = await service.user.getUser(username, auth.token);
+    if (auth.token && !auth.jailed) {
+      const user = await service.user.getUser(username, auth.token);
+      return { token: auth.token, jailed: auth.jailed, user };
+    }
 
-    return { token: auth.token, jailed: auth.jailed, user };
+    return { token: auth.token, jailed: auth.jailed, user: null };
   }
 );
 
@@ -18,9 +21,12 @@ export const tokenLogin = createAsyncThunk(
   async (loginToken: string) => {
     const auth = await service.user.tokenLogin(loginToken);
 
-    const user = await service.user.getCurrentUser(auth.token);
+    if (auth.token && !auth.jailed) {
+      const user = await service.user.getCurrentUser(auth.token);
+      return { token: auth.token, jailed: auth.jailed, user };
+    }
 
-    return { token: auth.token, jailed: auth.jailed, user };
+    return { token: auth.token, jailed: auth.jailed, user: null };
   }
 );
 
@@ -29,8 +35,11 @@ export const signup = createAsyncThunk(
   async (signupArguments: SignupArguments) => {
     const auth = await service.user.completeSignup(signupArguments);
 
-    const user = await service.user.getCurrentUser(auth.token);
+    if (auth.token && !auth.jailed) {
+      const user = await service.user.getCurrentUser(auth.token);
+      return { token: auth.token, jailed: auth.jailed, user };
+    }
 
-    return { token: auth.token, jailed: auth.jailed, user };
+    return { token: auth.token, jailed: auth.jailed, user: null };
   }
 );
