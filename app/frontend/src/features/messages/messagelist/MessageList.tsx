@@ -30,20 +30,17 @@ export default function MessageList({
   messages,
   handleSend,
 }: MessageListProps) {
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const { register, handleSubmit } = useForm<MessageFormData>();
   const classes = useStyles();
 
   const onSubmit = handleSubmit(async (data: MessageFormData) => {
-    setLoading(true);
     setError("");
     try {
       await handleSend(data.text);
     } catch (error) {
       setError(error.message);
     }
-    setLoading(false);
   });
 
   return (
@@ -71,7 +68,6 @@ export default function MessageList({
         />
 
         <Button
-          loading={loading}
           type="submit"
           variant="contained"
           color="primary"
