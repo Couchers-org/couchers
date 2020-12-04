@@ -4,6 +4,7 @@ import * as React from "react";
 import { Marker } from "react-leaflet";
 
 import Map, { MapProps } from "./Map";
+import MapSearch from "./MapSearch";
 
 export default {
   title: "Components/Map",
@@ -19,6 +20,11 @@ const Template: Story<MapProps> = (args) => (
   <>
     <Map {...args}>
       <Marker position={defaultCenter} />
+    </Map>
+    <p>A default sized Map with a marker.</p>
+    <Map {...args}>
+      <Marker position={defaultCenter} />
+      <MapSearch color="blue" position="bottomleft" />
     </Map>
     <p>A default sized Map with a marker.</p>
     <div style={{ width: "400px", border: "1px solid black" }}>
