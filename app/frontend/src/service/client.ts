@@ -38,4 +38,17 @@ const apis = {
   jail: new JailPromiseClient(URL, null, opts),
 };
 
+// @ts-ignore
+const grpcWebTools = window.__GRPCWEB_DEVTOOLS__ || (() => {});
+
+grpcWebTools([
+  apis.api,
+  apis.bugs,
+  apis.sso,
+  apis.conversations,
+  apis.auth,
+  apis.requests,
+  apis.jail,
+]);
+
 export default apis;
