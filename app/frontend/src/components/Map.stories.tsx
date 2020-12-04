@@ -17,14 +17,10 @@ const defaultCenter = new LatLng(51.5, -0.1);
 
 const Template: Story<MapProps> = (args) => (
   <>
-    <Map {...args} />
-    <p>A default sized Map.</p>
     <Map {...args}>
       <Marker position={defaultCenter} />
     </Map>
-    <p>A Map with a marker.</p>
-    <Map style={{ width: "400px", height: "50px" }} {...args} />
-    <p>An explicitly sized Map.</p>
+    <p>A default sized Map with a marker.</p>
     <div style={{ width: "400px", border: "1px solid black" }}>
       <Map {...args} grow />
     </div>
