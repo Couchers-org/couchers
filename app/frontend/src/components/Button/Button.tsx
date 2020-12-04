@@ -5,7 +5,7 @@ import {
   CircularProgress,
   Box,
 } from "@material-ui/core";
-import React, { ElementType } from "react";
+import React, { ElementType, useState } from "react";
 import classNames from "classnames";
 
 const useStyles = makeStyles({
@@ -26,17 +26,28 @@ export default function Button<D extends ElementType = "button", P = {}>({
   disabled,
   className,
   loading,
+  onClick,
   ...otherProps
 }: AppButtonProps<D, P>) {
+  const [waiting, setWaiting] = useState(false);
   const classes = useStyles();
+  async function asyncOnClick(event: any) {
+    try {
+      setWaiting(true);
+      await onClick(event);
+    } finally {
+      setWaiting(false);
+    }
+  }
   return (
     <MuiButton
       {...otherProps}
-      disabled={disabled ? true : loading}
+      onClick={onClick && asyncOnClick}
+      disabled={disabled ? true : loading || waiting}
       className={classNames(classes.root, className)}
     >
       {children}
-      {loading && (
+      {(loading || waiting) && (
         <Box marginLeft="8px">
           <CircularProgress />
         </Box>
