@@ -13,7 +13,15 @@ from sqlalchemy.sql import and_, func, or_
 from couchers import errors, urls
 from couchers.config import config
 from couchers.crypto import generate_hash_signature, random_hex
-from couchers.db import get_friends_status, get_user_by_field, is_valid_color, is_valid_name, session_scope
+from couchers.db import (
+    get_friends_status,
+    get_user_by_field,
+    is_valid_color,
+    is_valid_name,
+    session_scope,
+    with_session,
+    with_session_and_user,
+)
 from couchers.models import (
     Complaint,
     FriendRelationship,
@@ -78,345 +86,338 @@ smokinglocation2api = {
 
 
 class API(api_pb2_grpc.APIServicer):
-    def update_last_active_time(self, user_id):
-        with session_scope() as session:
-            user = session.query(User).filter(User.id == user_id).one()
-            user.last_active = func.now()
+    @with_session
+    def update_last_active_time(self, user_id, session):
+        user = session.query(User).filter(User.id == user_id).one()
+        user.last_active = func.now()
 
-    def Ping(self, request, context):
-        with session_scope() as session:
-            # auth ought to make sure the user exists
-            user = session.query(User).filter(User.id == context.user_id).one()
+    @with_session_and_user
+    def Ping(self, request, context, session, user):
+        # auth ought to make sure the user exists
+        # gets only the max message by self-joining messages which have a greater id
+        # if it doesn't have a greater id, it's the biggest
+        message_2 = aliased(Message)
+        unseen_host_request_count_1 = (
+            session.query(Message.id)
+            .join(HostRequest, Message.conversation_id == HostRequest.conversation_id)
+            .outerjoin(message_2, and_(Message.conversation_id == message_2.conversation_id, Message.id < message_2.id))
+            .filter(HostRequest.from_user_id == context.user_id)
+            .filter(message_2.id == None)
+            .filter(HostRequest.from_last_seen_message_id < Message.id)
+            .count()
+        )
 
-            # gets only the max message by self-joining messages which have a greater id
-            # if it doesn't have a greater id, it's the biggest
-            message_2 = aliased(Message)
-            unseen_host_request_count_1 = (
-                session.query(Message.id)
-                .join(HostRequest, Message.conversation_id == HostRequest.conversation_id)
-                .outerjoin(
-                    message_2, and_(Message.conversation_id == message_2.conversation_id, Message.id < message_2.id)
+        unseen_host_request_count_2 = (
+            session.query(Message.id)
+            .join(HostRequest, Message.conversation_id == HostRequest.conversation_id)
+            .outerjoin(message_2, and_(Message.conversation_id == message_2.conversation_id, Message.id < message_2.id))
+            .filter(HostRequest.to_user_id == context.user_id)
+            .filter(message_2.id == None)
+            .filter(HostRequest.to_last_seen_message_id < Message.id)
+            .count()
+        )
+
+        unseen_message_count = (
+            session.query(Message.id)
+            .outerjoin(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
+            .filter(GroupChatSubscription.user_id == context.user_id)
+            .filter(Message.time >= GroupChatSubscription.joined)
+            .filter(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
+            .filter(Message.id > GroupChatSubscription.last_seen_message_id)
+            .count()
+        )
+
+        pending_friend_request_count = (
+            session.query(FriendRelationship)
+            .filter(FriendRelationship.to_user_id == context.user_id)
+            .filter(FriendRelationship.status == FriendStatus.pending)
+            .count()
+        )
+
+        return api_pb2.PingRes(
+            user=user_model_to_pb(user, session, context),
+            unseen_message_count=unseen_message_count,
+            unseen_host_request_count=unseen_host_request_count_1 + unseen_host_request_count_2,
+            pending_friend_request_count=pending_friend_request_count,
+        )
+
+    @with_session
+    def GetUser(self, request, context, session):
+        user = get_user_by_field(session, request.user)
+
+        if not user:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+
+        return user_model_to_pb(user, session, context)
+
+    @with_session_and_user
+    def UpdateProfile(self, request, context, session, user):
+        if request.HasField("name"):
+            if not is_valid_name(request.name.value):
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_NAME)
+            user.name = request.name.value
+
+        if request.HasField("city"):
+            user.city = request.city.value
+
+        if request.HasField("gender"):
+            user.gender = request.gender.value
+
+        if request.HasField("occupation"):
+            if request.occupation.is_null:
+                user.occupation = None
+            else:
+                user.occupation = request.occupation.value
+
+        if request.HasField("about_me"):
+            if request.about_me.is_null:
+                user.about_me = None
+            else:
+                user.about_me = request.about_me.value
+
+        if request.HasField("about_place"):
+            if request.about_place.is_null:
+                user.about_place = None
+            else:
+                user.about_place = request.about_place.value
+
+        if request.HasField("color"):
+            color = request.color.value.lower()
+            if not is_valid_color(color):
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COLOR)
+            user.color = color
+
+        if request.hosting_status != api_pb2.HOSTING_STATUS_UNSPECIFIED:
+            user.hosting_status = hostingstatus2sql[request.hosting_status]
+
+        if request.languages.exists:
+            user.languages = "|".join(request.languages.value)
+
+        if request.countries_visited.exists:
+            user.countries_visited = "|".join(request.countries_visited.value)
+
+        if request.countries_lived.exists:
+            user.countries_lived = "|".join(request.countries_lived.value)
+
+        if request.HasField("max_guests"):
+            if request.max_guests.is_null:
+                user.max_guests = None
+            else:
+                user.max_guests = request.max_guests.value
+
+        if request.HasField("multiple_groups"):
+            if request.multiple_groups.is_null:
+                user.multiple_groups = None
+            else:
+                user.multiple_groups = request.multiple_groups.value
+
+        if request.HasField("last_minute"):
+            if request.last_minute.is_null:
+                user.last_minute = None
+            else:
+                user.last_minute = request.last_minute.value
+
+        if request.HasField("accepts_pets"):
+            if request.accepts_pets.is_null:
+                user.accepts_pets = None
+            else:
+                user.accepts_pets = request.accepts_pets.value
+
+        if request.HasField("accepts_kids"):
+            if request.accepts_kids.is_null:
+                user.accepts_kids = None
+            else:
+                user.accepts_kids = request.accepts_kids.value
+
+        if request.HasField("wheelchair_accessible"):
+            if request.wheelchair_accessible.is_null:
+                user.wheelchair_accessible = None
+            else:
+                user.wheelchair_accessible = request.wheelchair_accessible.value
+
+        if request.smoking_allowed != api_pb2.SMOKING_LOCATION_UNSPECIFIED:
+            user.smoking_allowed = smokinglocation2sql[request.smoking_allowed]
+
+        if request.HasField("sleeping_arrangement"):
+            if request.sleeping_arrangement.is_null:
+                user.sleeping_arrangement = None
+            else:
+                user.sleeping_arrangement = request.sleeping_arrangement.value
+
+        if request.HasField("area"):
+            if request.area.is_null:
+                user.area = None
+            else:
+                user.area = request.area.value
+
+        if request.HasField("house_rules"):
+            if request.house_rules.is_null:
+                user.house_rules = None
+            else:
+                user.house_rules = request.house_rules.value
+
+        # save updates
+        session.commit()
+
+        return empty_pb2.Empty()
+
+    @with_session
+    def ListFriends(self, request, context, session):
+        rels = (
+            session.query(FriendRelationship)
+            .filter(
+                or_(
+                    FriendRelationship.from_user_id == context.user_id,
+                    FriendRelationship.to_user_id == context.user_id,
                 )
-                .filter(HostRequest.from_user_id == context.user_id)
-                .filter(message_2.id == None)
-                .filter(HostRequest.from_last_seen_message_id < Message.id)
-                .count()
             )
+            .filter(FriendRelationship.status == FriendStatus.accepted)
+            .all()
+        )
+        return api_pb2.ListFriendsRes(
+            user_ids=[rel.from_user.id if rel.from_user.id != context.user_id else rel.to_user.id for rel in rels],
+        )
 
-            unseen_host_request_count_2 = (
-                session.query(Message.id)
-                .join(HostRequest, Message.conversation_id == HostRequest.conversation_id)
-                .outerjoin(
-                    message_2, and_(Message.conversation_id == message_2.conversation_id, Message.id < message_2.id)
-                )
-                .filter(HostRequest.to_user_id == context.user_id)
-                .filter(message_2.id == None)
-                .filter(HostRequest.to_last_seen_message_id < Message.id)
-                .count()
-            )
+    @with_session
+    def SendFriendRequest(self, request, context, session):
+        from_user = session.query(User).filter(User.id == context.user_id).one_or_none()
 
-            unseen_message_count = (
-                session.query(Message.id)
-                .outerjoin(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
-                .filter(GroupChatSubscription.user_id == context.user_id)
-                .filter(Message.time >= GroupChatSubscription.joined)
-                .filter(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
-                .filter(Message.id > GroupChatSubscription.last_seen_message_id)
-                .count()
-            )
+        if not from_user:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
-            pending_friend_request_count = (
-                session.query(FriendRelationship)
-                .filter(FriendRelationship.to_user_id == context.user_id)
-                .filter(FriendRelationship.status == FriendStatus.pending)
-                .count()
-            )
+        to_user = session.query(User).filter(User.id == request.user_id).one_or_none()
 
-            return api_pb2.PingRes(
-                user=user_model_to_pb(user, session, context),
-                unseen_message_count=unseen_message_count,
-                unseen_host_request_count=unseen_host_request_count_1 + unseen_host_request_count_2,
-                pending_friend_request_count=pending_friend_request_count,
-            )
+        if not to_user:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
-    def GetUser(self, request, context):
-        with session_scope() as session:
-            user = get_user_by_field(session, request.user)
+        if get_friends_status(session, from_user.id, to_user.id) != api_pb2.User.FriendshipStatus.NOT_FRIENDS:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.FRIENDS_ALREADY_OR_PENDING)
 
-            if not user:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+        # Race condition!
 
-            return user_model_to_pb(user, session, context)
+        friend_relationship = FriendRelationship(from_user=from_user, to_user=to_user, status=FriendStatus.pending)
+        session.add(friend_relationship)
 
-    def UpdateProfile(self, request, context):
-        with session_scope() as session:
-            user = session.query(User).filter(User.id == context.user_id).one()
+        send_friend_request_email(friend_relationship)
 
-            if request.HasField("name"):
-                if not is_valid_name(request.name.value):
-                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_NAME)
-                user.name = request.name.value
+        return empty_pb2.Empty()
 
-            if request.HasField("city"):
-                user.city = request.city.value
-
-            if request.HasField("gender"):
-                user.gender = request.gender.value
-
-            if request.HasField("occupation"):
-                if request.occupation.is_null:
-                    user.occupation = None
-                else:
-                    user.occupation = request.occupation.value
-
-            if request.HasField("about_me"):
-                if request.about_me.is_null:
-                    user.about_me = None
-                else:
-                    user.about_me = request.about_me.value
-
-            if request.HasField("about_place"):
-                if request.about_place.is_null:
-                    user.about_place = None
-                else:
-                    user.about_place = request.about_place.value
-
-            if request.HasField("color"):
-                color = request.color.value.lower()
-                if not is_valid_color(color):
-                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COLOR)
-                user.color = color
-
-            if request.hosting_status != api_pb2.HOSTING_STATUS_UNSPECIFIED:
-                user.hosting_status = hostingstatus2sql[request.hosting_status]
-
-            if request.languages.exists:
-                user.languages = "|".join(request.languages.value)
-
-            if request.countries_visited.exists:
-                user.countries_visited = "|".join(request.countries_visited.value)
-
-            if request.countries_lived.exists:
-                user.countries_lived = "|".join(request.countries_lived.value)
-
-            if request.HasField("max_guests"):
-                if request.max_guests.is_null:
-                    user.max_guests = None
-                else:
-                    user.max_guests = request.max_guests.value
-
-            if request.HasField("multiple_groups"):
-                if request.multiple_groups.is_null:
-                    user.multiple_groups = None
-                else:
-                    user.multiple_groups = request.multiple_groups.value
-
-            if request.HasField("last_minute"):
-                if request.last_minute.is_null:
-                    user.last_minute = None
-                else:
-                    user.last_minute = request.last_minute.value
-
-            if request.HasField("accepts_pets"):
-                if request.accepts_pets.is_null:
-                    user.accepts_pets = None
-                else:
-                    user.accepts_pets = request.accepts_pets.value
-
-            if request.HasField("accepts_kids"):
-                if request.accepts_kids.is_null:
-                    user.accepts_kids = None
-                else:
-                    user.accepts_kids = request.accepts_kids.value
-
-            if request.HasField("wheelchair_accessible"):
-                if request.wheelchair_accessible.is_null:
-                    user.wheelchair_accessible = None
-                else:
-                    user.wheelchair_accessible = request.wheelchair_accessible.value
-
-            if request.smoking_allowed != api_pb2.SMOKING_LOCATION_UNSPECIFIED:
-                user.smoking_allowed = smokinglocation2sql[request.smoking_allowed]
-
-            if request.HasField("sleeping_arrangement"):
-                if request.sleeping_arrangement.is_null:
-                    user.sleeping_arrangement = None
-                else:
-                    user.sleeping_arrangement = request.sleeping_arrangement.value
-
-            if request.HasField("area"):
-                if request.area.is_null:
-                    user.area = None
-                else:
-                    user.area = request.area.value
-
-            if request.HasField("house_rules"):
-                if request.house_rules.is_null:
-                    user.house_rules = None
-                else:
-                    user.house_rules = request.house_rules.value
-
-            # save updates
-            session.commit()
-
-            return empty_pb2.Empty()
-
-    def ListFriends(self, request, context):
-        with session_scope() as session:
-            rels = (
-                session.query(FriendRelationship)
-                .filter(
-                    or_(
-                        FriendRelationship.from_user_id == context.user_id,
-                        FriendRelationship.to_user_id == context.user_id,
-                    )
-                )
-                .filter(FriendRelationship.status == FriendStatus.accepted)
-                .all()
-            )
-            return api_pb2.ListFriendsRes(
-                user_ids=[rel.from_user.id if rel.from_user.id != context.user_id else rel.to_user.id for rel in rels],
-            )
-
-    def SendFriendRequest(self, request, context):
-        with session_scope() as session:
-            from_user = session.query(User).filter(User.id == context.user_id).one_or_none()
-
-            if not from_user:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
-
-            to_user = session.query(User).filter(User.id == request.user_id).one_or_none()
-
-            if not to_user:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
-
-            if get_friends_status(session, from_user.id, to_user.id) != api_pb2.User.FriendshipStatus.NOT_FRIENDS:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.FRIENDS_ALREADY_OR_PENDING)
-
-            # Race condition!
-
-            friend_relationship = FriendRelationship(from_user=from_user, to_user=to_user, status=FriendStatus.pending)
-            session.add(friend_relationship)
-
-            send_friend_request_email(friend_relationship)
-
-            return empty_pb2.Empty()
-
-    def ListFriendRequests(self, request, context):
+    @with_session
+    def ListFriendRequests(self, request, context, session):
         # both sent and received
-        with session_scope() as session:
-            sent_requests = (
-                session.query(FriendRelationship)
-                .filter(FriendRelationship.from_user_id == context.user_id)
-                .filter(FriendRelationship.status == FriendStatus.pending)
-                .all()
-            )
+        sent_requests = (
+            session.query(FriendRelationship)
+            .filter(FriendRelationship.from_user_id == context.user_id)
+            .filter(FriendRelationship.status == FriendStatus.pending)
+            .all()
+        )
 
-            received_requests = (
-                session.query(FriendRelationship)
-                .filter(FriendRelationship.to_user_id == context.user_id)
-                .filter(FriendRelationship.status == FriendStatus.pending)
-                .all()
-            )
+        received_requests = (
+            session.query(FriendRelationship)
+            .filter(FriendRelationship.to_user_id == context.user_id)
+            .filter(FriendRelationship.status == FriendStatus.pending)
+            .all()
+        )
 
-            return api_pb2.ListFriendRequestsRes(
-                sent=[
-                    api_pb2.FriendRequest(
-                        friend_request_id=friend_request.id,
-                        state=api_pb2.FriendRequest.FriendRequestStatus.PENDING,
-                        user_id=friend_request.to_user.id,
-                    )
-                    for friend_request in sent_requests
-                ],
-                received=[
-                    api_pb2.FriendRequest(
-                        friend_request_id=friend_request.id,
-                        state=api_pb2.FriendRequest.FriendRequestStatus.PENDING,
-                        user_id=friend_request.from_user.id,
-                    )
-                    for friend_request in received_requests
-                ],
-            )
+        return api_pb2.ListFriendRequestsRes(
+            sent=[
+                api_pb2.FriendRequest(
+                    friend_request_id=friend_request.id,
+                    state=api_pb2.FriendRequest.FriendRequestStatus.PENDING,
+                    user_id=friend_request.to_user.id,
+                )
+                for friend_request in sent_requests
+            ],
+            received=[
+                api_pb2.FriendRequest(
+                    friend_request_id=friend_request.id,
+                    state=api_pb2.FriendRequest.FriendRequestStatus.PENDING,
+                    user_id=friend_request.from_user.id,
+                )
+                for friend_request in received_requests
+            ],
+        )
 
-    def RespondFriendRequest(self, request, context):
-        with session_scope() as session:
-            friend_request = (
-                session.query(FriendRelationship)
-                .filter(FriendRelationship.to_user_id == context.user_id)
-                .filter(FriendRelationship.status == FriendStatus.pending)
-                .filter(FriendRelationship.id == request.friend_request_id)
-                .one_or_none()
-            )
+    @with_session
+    def RespondFriendRequest(self, request, context, session):
+        friend_request = (
+            session.query(FriendRelationship)
+            .filter(FriendRelationship.to_user_id == context.user_id)
+            .filter(FriendRelationship.status == FriendStatus.pending)
+            .filter(FriendRelationship.id == request.friend_request_id)
+            .one_or_none()
+        )
 
-            if not friend_request:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.FRIEND_REQUEST_NOT_FOUND)
+        if not friend_request:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.FRIEND_REQUEST_NOT_FOUND)
 
-            friend_request.status = FriendStatus.accepted if request.accept else FriendStatus.rejected
-            friend_request.time_responded = func.now()
+        friend_request.status = FriendStatus.accepted if request.accept else FriendStatus.rejected
+        friend_request.time_responded = func.now()
 
-            session.commit()
+        session.commit()
 
-            return empty_pb2.Empty()
+        return empty_pb2.Empty()
 
-    def CancelFriendRequest(self, request, context):
-        with session_scope() as session:
-            friend_request = (
-                session.query(FriendRelationship)
-                .filter(FriendRelationship.from_user_id == context.user_id)
-                .filter(FriendRelationship.status == FriendStatus.pending)
-                .filter(FriendRelationship.id == request.friend_request_id)
-                .one_or_none()
-            )
+    @with_session
+    def CancelFriendRequest(self, request, context, session):
+        friend_request = (
+            session.query(FriendRelationship)
+            .filter(FriendRelationship.from_user_id == context.user_id)
+            .filter(FriendRelationship.status == FriendStatus.pending)
+            .filter(FriendRelationship.id == request.friend_request_id)
+            .one_or_none()
+        )
 
-            if not friend_request:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.FRIEND_REQUEST_NOT_FOUND)
+        if not friend_request:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.FRIEND_REQUEST_NOT_FOUND)
 
-            friend_request.status = FriendStatus.cancelled
-            friend_request.time_responded = func.now()
+        friend_request.status = FriendStatus.cancelled
+        friend_request.time_responded = func.now()
 
-            session.commit()
+        session.commit()
 
-            return empty_pb2.Empty()
+        return empty_pb2.Empty()
 
-    def Search(self, request, context):
-        with session_scope() as session:
-            users = []
-            for user in (
-                session.query(User)
-                .filter(or_(User.name.ilike(f"%{request.query}%"), User.username.ilike(f"%{request.query}%")))
-                .all()
-            ):
-                users.append(user_model_to_pb(user, session, context))
+    @with_session
+    def Search(self, request, context, session):
+        users = []
+        for user in (
+            session.query(User)
+            .filter(or_(User.name.ilike(f"%{request.query}%"), User.username.ilike(f"%{request.query}%")))
+            .all()
+        ):
+            users.append(user_model_to_pb(user, session, context))
 
-            return api_pb2.SearchRes(users=users)
+        return api_pb2.SearchRes(users=users)
 
-    def Report(self, request, context):
+    @with_session
+    def Report(self, request, context, session):
         if context.user_id == request.reported_user_id:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REPORT_SELF)
 
-        with session_scope() as session:
-            reported_user = session.query(User).filter(User.id == request.reported_user_id).one_or_none()
+        reported_user = session.query(User).filter(User.id == request.reported_user_id).one_or_none()
 
-            if not reported_user:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+        if not reported_user:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
-            complaint = Complaint(
-                author_user_id=context.user_id,
-                reported_user_id=request.reported_user_id,
-                reason=request.reason,
-                description=request.description,
-            )
+        complaint = Complaint(
+            author_user_id=context.user_id,
+            reported_user_id=request.reported_user_id,
+            reason=request.reason,
+            description=request.description,
+        )
 
-            session.add(complaint)
+        session.add(complaint)
 
-            # commit here so that send_report_email can lazy-load stuff it needs
-            session.commit()
+        # commit here so that send_report_email can lazy-load stuff it needs
+        session.commit()
 
-            send_report_email(complaint)
+        send_report_email(complaint)
 
-            return empty_pb2.Empty()
+        return empty_pb2.Empty()
 
-    def WriteReference(self, request, context):
+    @with_session
+    def WriteReference(self, request, context, session):
         if context.user_id == request.to_user_id:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, "Can't refer yourself")
 
@@ -428,38 +429,40 @@ class API(api_pb2_grpc.APIServicer):
             was_safe=request.was_safe,
             rating=request.rating,
         )
-        with session_scope() as session:
-            if not session.query(User).filter(User.id == request.to_user_id).one_or_none():
-                context.abort(grpc.StatusCode.NOT_FOUND, "User not found")
 
-            if (
-                session.query(Reference)
-                .filter(Reference.from_user_id == context.user_id)
-                .filter(Reference.to_user_id == request.to_user_id)
-                .filter(Reference.reference_type == reftype2sql[request.reference_type])
-                .one_or_none()
-            ):
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, "Reference already given")
-            session.add(reference)
+        if not session.query(User).filter(User.id == request.to_user_id).one_or_none():
+            context.abort(grpc.StatusCode.NOT_FOUND, "User not found")
+
+        if (
+            session.query(Reference)
+            .filter(Reference.from_user_id == context.user_id)
+            .filter(Reference.to_user_id == request.to_user_id)
+            .filter(Reference.reference_type == reftype2sql[request.reference_type])
+            .one_or_none()
+        ):
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, "Reference already given")
+        session.add(reference)
+
         return empty_pb2.Empty()
 
-    def GetGivenReferences(self, request, context):
-        with session_scope() as session:
-            query = session.query(Reference)
-            query = query.filter(Reference.from_user_id == request.from_user_id)
-            if request.HasField("type_filter"):
-                query = query.filter(Reference.reference_type == reftype2sql[request.type_filter.value])
-            return paginate_references_result(request, query)
+    @with_session
+    def GetGivenReferences(self, request, context, session):
+        query = session.query(Reference)
+        query = query.filter(Reference.from_user_id == request.from_user_id)
+        if request.HasField("type_filter"):
+            query = query.filter(Reference.reference_type == reftype2sql[request.type_filter.value])
+        return paginate_references_result(request, query)
 
-    def GetReceivedReferences(self, request, context):
-        with session_scope() as session:
-            query = session.query(Reference)
-            query = query.filter(Reference.to_user_id == request.to_user_id)
-            if request.HasField("type_filter"):
-                query = query.filter(Reference.reference_type == reftype2sql[request.type_filter.value])
-            return paginate_references_result(request, query)
+    @with_session
+    def GetReceivedReferences(self, request, context, session):
+        query = session.query(Reference)
+        query = query.filter(Reference.to_user_id == request.to_user_id)
+        if request.HasField("type_filter"):
+            query = query.filter(Reference.reference_type == reftype2sql[request.type_filter.value])
+        return paginate_references_result(request, query)
 
-    def AvailableWriteReferenceTypes(self, request, context):
+    @with_session
+    def AvailableWriteReferenceTypes(self, request, context, session):
         available = {
             ReferenceType.FRIEND,
             ReferenceType.SURFED,
@@ -467,12 +470,11 @@ class API(api_pb2_grpc.APIServicer):
         }
 
         # Filter out already written ones.
-        with session_scope() as session:
-            query = session.query(Reference)
-            query = query.filter(Reference.from_user_id == context.user_id)
-            query = query.filter(Reference.to_user_id == request.to_user_id)
-            for reference in query.all():
-                available.remove(reference.reference_type)
+        query = session.query(Reference)
+        query = query.filter(Reference.from_user_id == context.user_id)
+        query = query.filter(Reference.to_user_id == request.to_user_id)
+        for reference in query.all():
+            available.remove(reference.reference_type)
 
         # TODO: make surfing/hosted only available if you actually have been surfing/hosting
         return api_pb2.AvailableWriteReferenceTypesRes(reference_types=[reftype2api[r] for r in available])

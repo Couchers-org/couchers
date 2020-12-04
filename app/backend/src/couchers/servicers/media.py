@@ -5,7 +5,7 @@ from google.protobuf import empty_pb2
 from sqlalchemy import func
 
 from couchers.crypto import secure_compare
-from couchers.db import session_scope
+from couchers.db import with_session
 from couchers.interceptors import ManualAuthValidatorInterceptor
 from couchers.models import InitiatedUpload
 from pb import media_pb2, media_pb2_grpc
@@ -21,19 +21,19 @@ def get_media_auth_interceptor(secret_token):
 
 
 class Media(media_pb2_grpc.MediaServicer):
-    def UploadConfirmation(self, request, context):
-        with session_scope() as session:
-            upload = (
-                session.query(InitiatedUpload)
-                .filter(InitiatedUpload.key == request.key)
-                .filter(InitiatedUpload.created <= func.now())
-                .filter(InitiatedUpload.expiry >= func.now())
-                .one_or_none()
-            )
+    @with_session
+    def UploadConfirmation(self, request, context, session):
+        upload = (
+            session.query(InitiatedUpload)
+            .filter(InitiatedUpload.key == request.key)
+            .filter(InitiatedUpload.created <= func.now())
+            .filter(InitiatedUpload.expiry >= func.now())
+            .one_or_none()
+        )
 
-            if not upload:
-                context.abort(grpc.StatusCode.NOT_FOUND, "Upload not found.")
+        if not upload:
+            context.abort(grpc.StatusCode.NOT_FOUND, "Upload not found.")
 
-            upload.user.avatar_filename = request.filename
+        upload.user.avatar_filename = request.filename
 
-            return empty_pb2.Empty()
+        return empty_pb2.Empty()

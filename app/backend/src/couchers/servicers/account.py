@@ -7,7 +7,7 @@ from sqlalchemy.sql import func
 
 from couchers import errors, urls
 from couchers.crypto import hash_password, verify_password
-from couchers.db import is_valid_email, session_scope, set_email_change_token
+from couchers.db import is_valid_email, set_email_change_token, with_session_and_user
 from couchers.models import User
 from couchers.tasks import (
     send_email_changed_confirmation_email,
@@ -38,35 +38,34 @@ def _check_password(user, field_name, request, context):
 
 
 class Account(account_pb2_grpc.AccountServicer):
-    def ChangePassword(self, request, context):
+    @with_session_and_user
+    def ChangePassword(self, request, context, session, user):
         """
         Changes the user's password. They have to confirm their old password just in case.
 
         If they didn't have an old password previously, then we don't check that.
         """
-        with session_scope() as session:
-            user = session.query(User).filter(User.id == context.user_id).one()
+        if not request.HasField("old_password") and not request.HasField("new_password"):
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_BOTH_PASSWORDS)
 
-            if not request.HasField("old_password") and not request.HasField("new_password"):
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_BOTH_PASSWORDS)
+        _check_password(user, "old_password", request, context)
 
-            _check_password(user, "old_password", request, context)
+        # password correct or no password
 
-            # password correct or no password
+        if not request.HasField("new_password"):
+            # the user wants to unset their password
+            user.hashed_password = None
+        else:
+            user.hashed_password = hash_password(request.new_password.value)
 
-            if not request.HasField("new_password"):
-                # the user wants to unset their password
-                user.hashed_password = None
-            else:
-                user.hashed_password = hash_password(request.new_password.value)
+        session.commit()
 
-            session.commit()
-
-            send_password_changed_email(user)
+        send_password_changed_email(user)
 
         return empty_pb2.Empty()
 
-    def ChangeEmail(self, request, context):
+    @with_session_and_user
+    def ChangeEmail(self, request, context, session, user):
         """
         Change the user's email address.
 
@@ -75,27 +74,23 @@ class Account(account_pb2_grpc.AccountServicer):
         The user then has to click on the confirmation email which actually changes the emails
         """
         # check password first
-        with session_scope() as session:
-            user = session.query(User).filter(User.id == context.user_id).one()
-            _check_password(user, "password", request, context)
+        _check_password(user, "password", request, context)
 
         # not a valid email
         if not is_valid_email(request.new_email):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_EMAIL)
 
         # email already in use (possibly by this user)
-        with session_scope() as session:
-            if session.query(User).filter(User.email == request.new_email).one_or_none():
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_EMAIL)
+        if session.query(User).filter(User.email == request.new_email).one_or_none():
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_EMAIL)
 
-        with session_scope() as session:
-            user = session.query(User).filter(User.id == context.user_id).one()
+        # otherwise we're good
+        user.new_email = request.new_email
+        token, expiry_text = set_email_change_token(session, user)
 
-            # otherwise we're good
-            user.new_email = request.new_email
-            token, expiry_text = set_email_change_token(session, user)
+        session.add(send_email_changed_notification_email(user))
+        session.add(send_email_changed_confirmation_email(user, token, expiry_text))
 
-            session.add(send_email_changed_notification_email(user))
-            session.add(send_email_changed_confirmation_email(user, token, expiry_text))
-            # session autocommit
+        session.commit()
+
         return empty_pb2.Empty()

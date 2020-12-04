@@ -67,6 +67,23 @@ def session_scope():
         session.close()
 
 
+def with_session(func):
+    def patched_func(self, *args, **kwargs):
+        with session_scope() as session:
+            return func(self, *args, **kwargs, session=session)
+
+    return patched_func
+
+
+def with_session_and_user(func):
+    def patched_func(self, request, context):
+        with session_scope() as session:
+            user = session.query(User).filter(User.id == context.user_id).one()
+            return func(self, request, context, session, user)
+
+    return patched_func
+
+
 # When a user logs in, they can basically input one of three things: user id, username, or email
 # These are three non-intersecting sets
 # * user_ids are numeric representations in base 10

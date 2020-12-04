@@ -3,7 +3,7 @@ import logging
 import grpc
 
 from couchers import errors
-from couchers.db import session_scope
+from couchers.db import with_session_and_user
 from couchers.models import User
 from pb import jail_pb2, jail_pb2_grpc
 
@@ -35,19 +35,16 @@ class Jail(jail_pb2_grpc.JailServicer):
 
         return res
 
-    def JailInfo(self, request, context):
-        with session_scope() as session:
-            user = session.query(User).filter(User.id == context.user_id).one()
-            return self._get_jail_info(user)
+    @with_session_and_user
+    def JailInfo(self, request, context, session, user):
+        return self._get_jail_info(user)
 
-    def AcceptTOS(self, request, context):
-        with session_scope() as session:
-            user = session.query(User).filter(User.id == context.user_id).one()
+    @with_session_and_user
+    def AcceptTOS(self, request, context, session, user):
+        if user.accepted_tos == 1 and not request.accept:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_UNACCEPT_TOS)
 
-            if user.accepted_tos == 1 and not request.accept:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_UNACCEPT_TOS)
+        user.accepted_tos = 1 if request.accept else 0
+        session.commit()
 
-            user.accepted_tos = 1 if request.accept else 0
-            session.commit()
-
-            return self._get_jail_info(user)
+        return self._get_jail_info(user)
