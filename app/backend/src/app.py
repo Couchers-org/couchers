@@ -76,7 +76,8 @@ bugs_pb2_grpc.add_BugsServicer_to_server(Bugs(), open_server)
 open_server.start()
 
 jailed_server = grpc.server(
-    futures.ThreadPoolExecutor(2), interceptors=[LoggingInterceptor(), auth.get_auth_interceptor(allow_jailed=True)]
+    futures.ThreadPoolExecutor(2),
+    interceptors=[ErrorSanitizationInterceptor(), LoggingInterceptor(), auth.get_auth_interceptor(allow_jailed=True)],
 )
 jailed_server.add_insecure_port("[::]:1754")
 jail_pb2_grpc.add_JailServicer_to_server(Jail(), jailed_server)
@@ -104,11 +105,7 @@ server.start()
 
 media_server = grpc.server(
     futures.ThreadPoolExecutor(2),
-    interceptors=[
-        ErrorSanitizationInterceptor(),
-        LoggingInterceptor(),
-        get_media_auth_interceptor(MEDIA_SERVER_BEARER_TOKEN),
-    ],
+    interceptors=[LoggingInterceptor(), get_media_auth_interceptor(MEDIA_SERVER_BEARER_TOKEN)],
 )
 media_server.add_insecure_port("[::]:1753")
 media_pb2_grpc.add_MediaServicer_to_server(Media(), media_server)

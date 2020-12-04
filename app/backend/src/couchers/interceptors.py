@@ -164,7 +164,8 @@ class ErrorSanitizationInterceptor(grpc.ServerInterceptor):
                     code = context._state.code
                 # the code is one of the RPC error codes if this was failed through abort(), otherwise it's None
                 if not code:
-                    logger.error(f"Probably an unknown error! Sanitizing...")
+                    logger.exception(error)
+                    logger.info(f"Probably an unknown error! Sanitizing...")
                     context.abort(grpc.StatusCode.INTERNAL, errors.UNKNOWN_ERROR)
                 else:
                     logger.error(f"RPC error: {code}")

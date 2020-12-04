@@ -114,7 +114,7 @@ def test_interceptor_div0():
 
 def test_interceptor_raise():
     def TestRpc(request, context):
-        raise Exception("This is a custom exception")
+        raise Exception()
 
     with error_sanitizing_interceptor_dummy_api(TestRpc) as call_rpc:
         with pytest.raises(grpc.RpcError) as e:
