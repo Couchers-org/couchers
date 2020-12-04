@@ -3,6 +3,7 @@ import { SmokingLocation, User } from "../../pb/api_pb";
 import { makeStyles, Typography } from "@material-ui/core";
 import TextBody from "../../components/TextBody";
 import { smokingLocationLabels } from "../profile/constants";
+import Markdown from "../../components/Markdown";
 
 const useStyles = makeStyles((theme) => ({
   list: {
@@ -77,9 +78,11 @@ export default function UserPlace({ user }: { user: User.AsObject }) {
       <Typography variant="h3" className={classes.subheading}>
         About my place
       </Typography>
-      <TextBody>
-        {user.aboutPlace || `${user.name} hasn't put any place info yet.`}
-      </TextBody>{" "}
+      <Markdown
+        source={
+          user.aboutPlace || `${user.name} hasn't put any place info yet.`
+        }
+      />
       {user.area && (
         <>
           <Typography variant="h3" className={classes.subheading}>

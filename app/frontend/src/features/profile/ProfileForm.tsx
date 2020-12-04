@@ -11,6 +11,7 @@ import ProfileTextInput from "./ProfileTextInput";
 import { UpdateUserProfileData } from "../../service/user";
 import { theme } from "../../theme";
 import { useAppDispatch, useTypedSelector } from "../../store";
+import ProfileMarkdownInput from "./ProfileMarkdownInput";
 
 const useStyles = makeStyles({
   buttonContainer: {
@@ -95,22 +96,32 @@ export default function EditProfileForm() {
               />
             )}
           />
-          <ProfileTextInput
-            label="About me"
-            name="aboutMe"
+
+          <Controller
+            control={control}
             defaultValue={user.aboutMe}
-            inputRef={register}
-            rowsMax={5}
-            multiline
+            name="aboutMe"
+            render={({ onChange, value }) => (
+              <ProfileMarkdownInput
+                label="About me"
+                onChange={onChange}
+                value={value}
+              />
+            )}
           />
-          <ProfileTextInput
-            label="About my place"
-            name="aboutPlace"
+          <Controller
+            control={control}
             defaultValue={user.aboutPlace}
-            inputRef={register}
-            rowsMax={5}
-            multiline
+            name="aboutPlace"
+            render={({ onChange, value }) => (
+              <ProfileMarkdownInput
+                label="About my place"
+                onChange={onChange}
+                value={value}
+              />
+            )}
           />
+
           <Controller
             control={control}
             defaultValue={user.countriesVisitedList}
