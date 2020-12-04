@@ -153,8 +153,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             signup_token = (
                 session.query(SignupToken)
                 .filter(SignupToken.token == request.signup_token)
-                .filter(SignupToken.created <= func.now())
-                .filter(SignupToken.expiry >= func.now())
+                .filter(SignupToken.is_valid)
                 .one_or_none()
             )
             if not signup_token:
@@ -172,8 +171,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             signup_token = (
                 session.query(SignupToken)
                 .filter(SignupToken.token == request.signup_token)
-                .filter(SignupToken.created <= func.now())
-                .filter(SignupToken.expiry >= func.now())
+                .filter(SignupToken.is_valid)
                 .one_or_none()
             )
             if not signup_token:
@@ -266,8 +264,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 session.query(LoginToken, User)
                 .join(User, User.id == LoginToken.user_id)
                 .filter(LoginToken.token == request.login_token)
-                .filter(LoginToken.created <= func.now())
-                .filter(LoginToken.expiry >= func.now())
+                .filter(LoginToken.is_valid)
                 .one_or_none()
             )
             if res:
@@ -349,8 +346,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 session.query(PasswordResetToken, User)
                 .join(User, User.id == PasswordResetToken.user_id)
                 .filter(PasswordResetToken.token == request.password_reset_token)
-                .filter(PasswordResetToken.created <= func.now())
-                .filter(PasswordResetToken.expiry >= func.now())
+                .filter(PasswordResetToken.is_valid)
                 .one_or_none()
             )
             if res:
