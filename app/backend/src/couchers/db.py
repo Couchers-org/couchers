@@ -16,7 +16,10 @@ from pb import api_pb2
 logger = logging.getLogger(__name__)
 
 
-def apply_migrations():
+def apply_migrations(action="upgrade", revision=None):
+    if action not in ["upgrade", "downgrade"]:
+        raise ValueError("Unknown action")
+
     alembic_dir = os.path.dirname(__file__) + "/../.."
     cwd = os.getcwd()
     try:
@@ -24,7 +27,12 @@ def apply_migrations():
         alembic_cfg = Config("alembic.ini")
         # alembic screws up logging config by default, this tells it not to screw it up if being run at startup like this
         alembic_cfg.set_main_option("dont_mess_up_logging", "False")
-        command.upgrade(alembic_cfg, "head")
+        if action == "upgrade":
+            # upgrade
+            command.upgrade(alembic_cfg, revision or "head")
+        elif action == "downgrade":
+            # downgrade
+            command.downgrade(alembic_cfg, revision or "base")
     finally:
         os.chdir(cwd)
 
