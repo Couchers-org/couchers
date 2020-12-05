@@ -22,7 +22,7 @@ class GIS(gis_pb2_grpc.GISServicer):
                     'type', 'FeatureCollection',
                     'features', json_agg(ST_AsGeoJSON(t.*)::json)
                 )
-            from (select username, id, geom from users) as t;
+            from (select username, id, geom from users where geom is not null) as t;
             """
             )
 
