@@ -5,10 +5,22 @@
       <MglMap :accessToken="accessToken" :mapStyle="mapStyle">
         <MglScaleControl />
         <MglGeojsonLayer
-          sourceId="usersSourceId"
+          sourceId="users"
           :source="usersSource"
-          layerId="usersLayerId"
-          :layer="usersLayer"
+          layerId="clusters"
+          :layer="clusterLayer"
+        />
+        <MglGeojsonLayer
+          sourceId="users"
+          :source="usersSource"
+          layerId="clusters-count"
+          :layer="clusterCountLayer"
+        />
+        <MglGeojsonLayer
+          sourceId="users"
+          :source="usersSource"
+          layerId="unclustered-points"
+          :layer="unclusteredPointLayer"
         />
       </MglMap>
     </div>
@@ -44,14 +56,53 @@ export default Vue.extend({
     mapStyle: "mapbox://styles/mapbox/light-v10",
 
     error: null as Error | null,
-    usersSource: { type: "geojson", data: URL + "/geojson/users" },
-    usersLayer: {
-      id: "usersLayerId",
+    usersSource: {
+      type: "geojson",
+      data: URL + "/geojson/users",
+      cluster: true,
+      clusterMaxZoom: 14, // Max zoom to cluster points on
+      clusterRadius: 50, // Radius of each cluster when clustering points (defaults to 50)
+    },
+    clusterLayer: {
+      id: "clusterLayer",
       type: "circle",
+      filter: ["has", "point_count"],
       paint: {
-        "circle-radius": 5,
-        "circle-color": "red",
-        "circle-opacity": 0.4,
+        // Use step expressions (https://docs.mapbox.com/mapbox-gl-js/style-spec/#expressions-step)
+        // with three steps to implement three types of circles:
+        //   * Blue, 20px circles when point count is less than 100
+        //   * Yellow, 30px circles when point count is between 100 and 750
+        //   * Pink, 40px circles when point count is greater than or equal to 750
+        "circle-color": [
+          "step",
+          ["get", "point_count"],
+          "#51bbd6",
+          100,
+          "#f1f075",
+          750,
+          "#f28cb1",
+        ],
+        "circle-radius": ["step", ["get", "point_count"], 20, 100, 30, 750, 40],
+      },
+    },
+    clusterCountLayer: {
+      id: "clusters-count",
+      type: "symbol",
+      filter: ["has", "point_count"],
+      layout: {
+        "text-field": "{point_count_abbreviated}",
+        "text-size": 12,
+      },
+    },
+    unclusteredPointLayer: {
+      id: "unclustered-points",
+      type: "circle",
+      filter: ["!", ["has", "point_count"]],
+      paint: {
+        "circle-color": "#11b4da",
+        "circle-radius": 8,
+        "circle-stroke-width": 1,
+        "circle-stroke-color": "#fff",
       },
     },
   }),
