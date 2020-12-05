@@ -49,6 +49,7 @@ export default function GroupChatsTab() {
 
   function handleClose() {
     setGroupChat(null);
+    void fetchGroupChats();
   }
 
   useEffect(() => {

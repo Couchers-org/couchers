@@ -32,6 +32,7 @@ export default function GroupChatView({
   const leaveGroupChat = async () => {
     try {
       await service.conversations.leaveGroupChat(groupChat.groupChatId);
+      handleClose();
     } catch (error) {
       setError(error.message);
     }
