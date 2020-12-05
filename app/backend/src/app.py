@@ -6,7 +6,7 @@ from concurrent import futures
 import grpc
 
 from couchers import config
-from couchers.db import apply_migrations, session_scope, session_scope_experimental
+from couchers.db import apply_migrations, session_scope
 from couchers.interceptors import LoggingInterceptor, UpdateLastActiveTimeInterceptor
 from couchers.models import Base
 from couchers.servicers.account import Account
