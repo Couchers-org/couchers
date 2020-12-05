@@ -1,4 +1,5 @@
 import datetime
+import functools
 import logging
 import os
 import re
@@ -33,30 +34,25 @@ def apply_migrations():
         os.chdir(cwd)
 
 
-__engine = None
-__Session = None
-
-
+@functools.cache
 def get_engine():
-    global __engine
+    if config.config["IN_TEST"]:
+        return create_engine(config.config["DATABASE_CONNECTION_STRING"], poolclass=NullPool)
+    else:
+        return create_engine(config.config["DATABASE_CONNECTION_STRING"])
 
-    if not __engine:
-        if config.config["IN_TEST"]:
-            __engine = create_engine(config.config["DATABASE_CONNECTION_STRING"], poolclass=NullPool)
-        else:
-            __engine = create_engine(config.config["DATABASE_CONNECTION_STRING"])
 
-    return __engine
+@functools.cache
+def get_session():
+    return sessionmaker(bind=get_engine())
 
 
 @contextmanager
 def session_scope():
-    global __Session
-
-    if not __Session:
-        __Session = sessionmaker(bind=get_engine())
-
-    session = __Session()
+    # get factory...
+    factory = get_session_factory()
+    # ...then call it to get session
+    session = factory()
     try:
         yield session
         session.commit()
