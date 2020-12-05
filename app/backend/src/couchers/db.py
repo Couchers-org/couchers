@@ -43,7 +43,7 @@ def get_engine():
 
 
 @functools.cache
-def get_session():
+def get_session_factory():
     return sessionmaker(bind=get_engine())
 
 
