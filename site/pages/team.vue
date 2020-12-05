@@ -39,7 +39,7 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/itsi-head.jpg" alt="Headshot of Itsi">
+                      <img class="is-rounded" src="/img/head-itsi.jpg" alt="Headshot of Itsi">
                     </figure>
                   </div>
                   <div class="media-content">
@@ -58,13 +58,13 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/aapeli-head.jpg" alt="Headshot of Aapeli">
+                      <img class="is-rounded" src="/img/head-aapeli.jpg" alt="Headshot of Aapeli">
                     </figure>
                   </div>
                   <div class="media-content">
                     <p class="title is-4">Aapeli Vuorinen</p>
                     <p class="subtitle is-6 role">Dev Team Lead</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>New York City, US</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>New York City, USA</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-web"></i></span><a href="https://www.aapelivuorinen.com">aapelivuorinen.com</a></p>
                   </div>
                 </div>
@@ -77,12 +77,12 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/marlies-head.jpg" alt="Headshot of Marlies">
+                      <img class="is-rounded" src="/img/head-marlies.jpg" alt="Headshot of Marlies">
                     </figure>
                   </div>
                   <div class="media-content">
                     <p class="title is-4">Marlies Iserlohe</p>
-                    <p class="subtitle is-6 role">Community</p>
+                    <p class="subtitle is-6 role">Community Outreach</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Copenhagen, Denmark</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/in/marlies-iserlohe-90282a89">Marlies Iserlohe</a></p>
                   </div>
@@ -96,14 +96,52 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/val-head.jpg" alt="Headshot of Val">
+                      <img class="is-rounded" src="/img/head-val.jpg" alt="Headshot of Val">
                     </figure>
                   </div>
                   <div class="media-content">
                     <p class="title is-4">Val Natanelov</p>
-                    <p class="subtitle is-6 role">Strategy</p>
+                    <p class="subtitle is-6 role">Strategic Advisor</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Brisbane, Australia</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/public-profile/in/valerinatanelov">valerinatanelov</a></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-emily.jpg" alt="Headshot of Val">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Emily Damgali</p>
+                    <p class="subtitle is-6 role">Community Engagement Coordinator</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Aukland, New Zealand</p>
+                    <!-- <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/public-profile/in/valerinatanelov">valerinatanelov</a></p> -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-jakub.jpg" alt="Headshot of Val">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Jakub Szwedo</p>
+                    <p class="subtitle is-6 role">Head of UX</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Poznań, Poland</p>
+                    <!-- <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/public-profile/in/valerinatanelov">valerinatanelov</a></p> -->
                   </div>
                 </div>
               </div>
