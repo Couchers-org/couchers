@@ -1,7 +1,9 @@
+import json
 import logging
 
 import grpc
 
+from couchers.db import session_scope
 from pb import gis_pb2, gis_pb2_grpc
 from pb.google.api import httpbody_pb2
 
@@ -13,7 +15,18 @@ class GIS(gis_pb2_grpc.GISServicer):
         self._Session = Session
 
     def GetUsers(self, request, context):
-        return httpbody_pb2.HttpBody(
-            content_type="text/plain",
-            data=b"Hello there!\n",
-        )
+        with session_scope(self._Session) as session:
+            out = session.execute(
+                """
+            select json_build_object(
+                    'type', 'FeatureCollection',
+                    'features', json_agg(ST_AsGeoJSON(t.*)::json)
+                )
+            from (select username, id, geom from users) as t;
+            """
+            )
+
+            return httpbody_pb2.HttpBody(
+                content_type="application/json",
+                data=json.dumps(out.scalar()).encode("utf8"),
+            )
