@@ -53,8 +53,6 @@ export default function Map({
 }: MapProps) {
   const classes = useStyles();
 
-  useEffect(() => {}, []);
-
   const tileUrl = process.env.REACT_APP_TILE_URL || "";
   const tileAttribution = process.env.REACT_APP_TILE_ATTRIBUTION;
 
