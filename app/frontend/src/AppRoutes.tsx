@@ -69,9 +69,9 @@ export default function AppRoutes() {
       <PrivateRoute exact path="/">
         <Home />
       </PrivateRoute>
-      <PrivateRoute exact path={logoutRoute}>
+      <Route exact path={logoutRoute}>
         <Logout />
-      </PrivateRoute>
+      </Route>
     </Switch>
   );
 }
