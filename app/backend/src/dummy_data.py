@@ -22,7 +22,7 @@ from couchers.models import (
     User,
 )
 from couchers.servicers.api import hostingstatus2sql
-from couchers.utils import Timestamp_from_datetime
+from couchers.utils import Timestamp_from_datetime, create_coordinate
 from pb.api_pb2 import HostingStatus
 
 logger = logging.getLogger(__name__)
@@ -41,7 +41,9 @@ def add_dummy_data(Session, file_name):
                     email=user["email"],
                     hashed_password=hash_password(user["password"]) if user["password"] else None,
                     name=user["name"],
-                    city=user["city"],
+                    city=user["location"]["city"],
+                    geom=create_coordinate(user["location"]["lat"], user["location"]["lng"]),
+                    geom_radius=user["location"]["radius"],
                     verification=user["verification"],
                     community_standing=user["community_standing"],
                     birthdate=date(
