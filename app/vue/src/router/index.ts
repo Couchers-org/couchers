@@ -7,6 +7,7 @@ import User from "../views/User.vue"
 import Login from "../views/Login.vue"
 import Profile from "../views/Profile.vue"
 import Logout from "../views/Logout.vue"
+import Map from "../views/Map.vue"
 import SSO from "../views/SSO.vue"
 import AddLocation from "../views/AddLocation.vue"
 import TOS from "../views/TOS.vue"
@@ -69,6 +70,11 @@ const routes: Array<RouteConfig> = [
     path: "/sso",
     name: "SSO",
     component: SSO,
+  },
+  {
+    path: "/map",
+    name: "Map",
+    component: Map,
   },
   {
     path: "/friends",

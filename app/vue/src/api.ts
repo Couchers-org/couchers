@@ -1,4 +1,4 @@
-const URL = process.env.VUE_APP_API_URL
+export const URL = process.env.VUE_APP_API_URL
 
 export const ACCESS_TOKEN = process.env.VUE_APP_ACCESS_TOKEN
 
