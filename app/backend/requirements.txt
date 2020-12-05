@@ -7,7 +7,7 @@ markdown2
 protobuf
 psycopg2-binary
 pynacl
-pytest
+pytest==4.6
 pytest-cov
 pytest-pythonpath
 python-dateutil
