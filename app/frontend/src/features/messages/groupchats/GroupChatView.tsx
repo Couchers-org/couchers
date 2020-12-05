@@ -2,7 +2,7 @@ import { Box, BoxProps, IconButton, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import CloseIcon from "@material-ui/icons/Close";
 import * as React from "react";
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from "react";
 import Alert from "../../../components/Alert";
 import CircularProgress from "../../../components/CircularProgress";
 import { GroupChat, Message } from "../../../pb/conversations_pb";
@@ -29,6 +29,14 @@ export default function GroupChatView({
     await fetchMessages();
   };
 
+  const leaveGroupChat = async () => {
+    try {
+      await service.conversations.leaveGroupChat(groupChat.groupChatId);
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
   const fetchMessages = useCallback(async () => {
     try {
       const messages = await service.conversations.getGroupChatMessages(
@@ -53,6 +61,11 @@ export default function GroupChatView({
       <Typography variant="h3">{groupChat.title}</Typography>
       <IconButton onClick={handleClose}>
         <CloseIcon />
+        (close)
+      </IconButton>
+      <IconButton onClick={leaveGroupChat}>
+        <CloseIcon />
+        (leave)
       </IconButton>
       {error && <Alert severity="error">{error}</Alert>}
       {loading ? (
