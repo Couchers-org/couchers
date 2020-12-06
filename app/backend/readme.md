@@ -7,7 +7,7 @@ You can run the whole thing through Docker and docker-compose (see the readme in
 Create a virtual environment and install the requirements.
 
 ```sh
-virtualenv venv -p python3.8
+virtualenv venv -p python3.9
 pip install -r requirements.txt
 ```
 
