@@ -9,6 +9,9 @@ import React from "react";
 const useStyles = makeStyles({
   root: {
     display: "block",
+    "& .MuiOutlinedInput-root": {
+      borderRadius: 10,
+    },
   },
 });
 

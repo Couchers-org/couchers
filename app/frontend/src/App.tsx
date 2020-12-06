@@ -14,14 +14,16 @@ import PageTitle from "./components/PageTitle";
 import { theme } from "./theme";
 
 const useStyles = makeStyles((theme) => ({
-  offset: {
-    paddingBottom: 56,
+  padding: {
+    paddingBottom: theme.spacing(7),
+    paddingLeft: theme.spacing(3),
+    paddingRight: theme.spacing(3),
     [`${theme.breakpoints.up("xs")} and (orientation: landscape)`]: {
-      paddingBottom: 48,
+      paddingBottom: theme.spacing(6),
     },
     [theme.breakpoints.up("md")]: {
       paddingBottom: 0,
-      paddingTop: 64,
+      paddingTop: theme.spacing(8),
     },
   },
 }));
@@ -33,7 +35,7 @@ function App() {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Navigation />
-        <Container maxWidth="md" className={classes.offset}>
+        <Container maxWidth="md" className={classes.padding}>
           <Hidden mdUp>
             <PageTitle>Couchers</PageTitle>
           </Hidden>

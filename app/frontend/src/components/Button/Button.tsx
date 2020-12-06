@@ -9,7 +9,9 @@ import React, { ElementType, useState } from "react";
 import classNames from "classnames";
 
 const useStyles = makeStyles({
-  root: {},
+  root: {
+    borderRadius: 20,
+  },
 });
 
 //type generics required to allow component prop

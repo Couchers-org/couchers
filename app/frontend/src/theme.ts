@@ -15,17 +15,21 @@ const themeOptions: ThemeOptions = {
   typography: {
     fontFamily: "Lato, Arial, sans-serif",
     h1: {
-      fontSize: 48,
+      fontSize: 24,
       marginTop: spacing(2),
     },
     h2: {
-      fontSize: 36,
+      fontSize: 20,
       marginTop: spacing(1),
     },
     h3: {
-      fontSize: 28,
+      fontSize: 16,
       marginTop: spacing(1),
     },
+    caption: {
+      fontSize: 10,
+    },
+    fontSize: 14,
   },
   shape: {
     borderRadius: 16,
