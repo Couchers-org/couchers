@@ -64,7 +64,7 @@ export default function UserHeader({ user }: { user: User.AsObject }) {
       {user.lastActive && (
         <Box mb={2}>
           <Typography component="p" variant="caption" gutterBottom>
-            Last active {timeAgo(user.lastActive.seconds * 1000)}
+            Last active {timeAgo(timestamp2Date(user.lastActive))}
           </Typography>
         </Box>
       )}
