@@ -52,8 +52,8 @@ export async function sendMessage(groupChatId: number, text: string) {
   return await client.conversations.sendMessage(req);
 }
 
-export async function leaveGroupChat(groupChatId: number) {
+export function leaveGroupChat(groupChatId: number) {
   const req = new LeaveGroupChatReq();
   req.setGroupChatId(groupChatId);
-  return await client.conversations.leaveGroupChat(req);
+  return client.conversations.leaveGroupChat(req);
 }
