@@ -61,4 +61,4 @@ In the same folder, run the following command:
 docker-compose up --build
 ```
 
-This will take a few minutes, after which you can go to <http://localhost:8080/>, and you should see the app there.
+This will take a few minutes, after which you can go to <http://localhost:3000/>, and you should see the app there.
