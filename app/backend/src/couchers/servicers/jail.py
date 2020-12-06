@@ -55,7 +55,7 @@ class Jail(jail_pb2_grpc.JailServicer):
             return self._get_jail_info(user)
 
     def SetLocation(self, request, context):
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             user = session.query(User).filter(User.id == context.user_id).one()
 
             user.city = request.city
