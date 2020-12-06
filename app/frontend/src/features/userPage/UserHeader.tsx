@@ -62,17 +62,11 @@ export default function UserHeader({ user }: { user: User.AsObject }) {
       </Box>
 
       {user.lastActive && (
-<<<<<<< HEAD
-        <Typography component="p" className={classes.lastActive}>
-          Last active {timeAgo(timestamp2Date(user.lastActive))}
-        </Typography>
-=======
         <Box mb={2}>
           <Typography component="p" variant="caption" gutterBottom>
             Last active {timeAgo(user.lastActive.seconds * 1000)}
           </Typography>
         </Box>
->>>>>>> uxui meeting notes
       )}
 
       {isCurrentUser && (
