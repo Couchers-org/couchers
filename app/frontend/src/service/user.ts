@@ -241,6 +241,4 @@ export async function logout(sessionToken: string) {
   req.setToken(sessionToken);
 
   await client.auth.deauthenticate(req);
-
-  return null;
 }

@@ -1,7 +1,6 @@
 import { useEffect } from "react";
-import { logout } from "./authSlice";
 import { useAppDispatch, useTypedSelector } from "../../store";
-import { tokenLogout } from "./authActions";
+import { logout } from "./authActions";
 
 export default function Logout() {
   const dispatch = useAppDispatch();
@@ -9,9 +8,8 @@ export default function Logout() {
 
   useEffect(() => {
     if (authToken) {
-      tokenLogout(authToken);
+      dispatch(logout(authToken));
     }
-    dispatch(logout());
   });
 
   return null;

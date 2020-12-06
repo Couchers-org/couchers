@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { User } from "../../pb/api_pb";
-import { passwordLogin, tokenLogin, signup } from "./index";
+import { passwordLogin, tokenLogin, signup, logout } from "./index";
 import { updateJailStatus } from "./jail/jailActions";
 import { updateUserProfile, updateHostingPreference } from "../profile";
 import { reset } from "../../test/utils";
@@ -32,12 +32,6 @@ export const authSlice = createSlice({
     },
     authError(state, action: PayloadAction<string>) {
       state.error = action.payload;
-      state.loading = false;
-    },
-    logout(state) {
-      state.authToken = null;
-      state.user = null;
-      state.error = null;
       state.loading = false;
     },
   },
@@ -110,11 +104,25 @@ export const authSlice = createSlice({
       .addCase(updateHostingPreference.fulfilled, (state, action) => {
         state.user = action.payload;
       })
+      .addCase(logout.pending, (state) => {
+        state.error = null;
+        state.loading = true;
+      })
+      .addCase(logout.fulfilled, (state) => {
+        state.authToken = null;
+        state.user = null;
+        state.error = null;
+        state.loading = false;
+      })
+      .addCase(logout.rejected, (state, action) => {
+        state.error = action.error.message;
+        state.loading = false;
+      })
       .addCase(reset, () => {
         return initialState;
       });
   },
 });
 
-export const { clearError, authError, logout } = authSlice.actions;
+export const { clearError, authError } = authSlice.actions;
 export default authSlice.reducer;
