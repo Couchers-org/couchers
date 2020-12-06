@@ -65,10 +65,10 @@ def test_ping(db):
 
 def test_coords(db):
     # make them have not added a location
-    user1, token1 = generate_user(db, geom=None, geom_radius=None)
-    user2, token2 = generate_user(db)
+    user1, token1 = generate_user(geom=None, geom_radius=None)
+    user2, token2 = generate_user()
 
-    with api_session(db, token2) as api:
+    with api_session(token2) as api:
         res = api.Ping(api_pb2.PingReq())
         assert res.user.city == user2.city
         lat, lng = user2.coordinates
@@ -76,14 +76,14 @@ def test_coords(db):
         assert res.user.lng == lng
         assert res.user.radius == user2.geom_radius
 
-    with api_session(db, token2) as api:
+    with api_session(token2) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
         assert res.city == user1.city
         assert res.lat == 0.0
         assert res.lng == 0.0
         assert res.radius == 0.0
 
-    with real_jail_session(db, token1) as jail:
+    with real_jail_session(token1) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
         assert res.jailed
         assert res.has_not_added_location
@@ -104,7 +104,7 @@ def test_coords(db):
         assert not res.jailed
         assert not res.has_not_added_location
 
-    with api_session(db, token2) as api:
+    with api_session(token2) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
         assert res.city == "New York City"
         assert res.lat == 40.7812
