@@ -8,7 +8,6 @@ import grpc
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.event import listen, remove
-from sqlalchemy.orm import sessionmaker
 
 from couchers.config import config
 from couchers.crypto import random_hex
