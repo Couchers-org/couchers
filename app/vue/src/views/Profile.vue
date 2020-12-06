@@ -143,8 +143,14 @@
                 <v-tab-item value="info">
                   <h3>Name</h3>
                   <editable-text-field :text="user.name" :save="saveName" />
-                  <h3>City</h3>
-                  <editable-text-field :text="user.city" :save="saveCity" />
+                  <h3>Location</h3>
+                  <editable-location
+                    :address="user.city"
+                    :latitude="user.lat"
+                    :longitude="user.lng"
+                    :radius="user.radius"
+                    :save="saveLocation"
+                  />
                   <h3>Hosting Status</h3>
                   <editable-dropdown
                     :value="user.hostingStatus == 0 ? 1 : user.hostingStatus"
@@ -287,6 +293,7 @@ import EditableDropdown from "../components/EditableDropdown.vue"
 import EditableAvatar from "../components/EditableAvatar.vue"
 import EditableTextarea from "../components/EditableTextarea.vue"
 import EditableTextField from "../components/EditableTextField.vue"
+import EditableLocation from "../components/EditableLocation.vue"
 import EditableList from "../components/EditableList.vue"
 import EditableColor from "../components/EditableColor.vue"
 import ErrorAlert from "../components/ErrorAlert.vue"
@@ -338,6 +345,7 @@ export default Vue.extend({
     EditableAvatar,
     EditableTextarea,
     EditableTextField,
+    EditableLocation,
     EditableList,
     EditableColor,
     ErrorAlert,
@@ -395,11 +403,26 @@ export default Vue.extend({
       this.updateProfile(req)
     },
 
-    saveCity(text: string) {
+    saveLocation(
+      address: string,
+      latitude: number,
+      longitude: number,
+      radius: number
+    ) {
+      console.log(address, latitude, longitude, radius)
       const req = new UpdateProfileReq()
-      const wrapper = new wrappers.StringValue()
-      wrapper.setValue(text)
-      req.setCity(wrapper)
+      const addressWrapper = new wrappers.StringValue()
+      addressWrapper.setValue(address)
+      req.setCity(addressWrapper)
+      const latWrapper = new wrappers.DoubleValue()
+      latWrapper.setValue(latitude)
+      req.setLat(latWrapper)
+      const lngWrapper = new wrappers.DoubleValue()
+      lngWrapper.setValue(longitude)
+      req.setLng(lngWrapper)
+      const radiusWrapper = new wrappers.DoubleValue()
+      radiusWrapper.setValue(radius)
+      req.setRadius(radiusWrapper)
       this.updateProfile(req)
     },
 

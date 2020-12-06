@@ -2,15 +2,18 @@ import enum
 from calendar import monthrange
 from datetime import date
 
+from geoalchemy2.types import Geometry
 from sqlalchemy import Boolean, Column, Date, DateTime, Enum, Float, ForeignKey, Integer
 from sqlalchemy import LargeBinary as Binary
-from sqlalchemy import MetaData, String, UniqueConstraint, func
+from sqlalchemy import MetaData, String, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import backref, relationship
 from sqlalchemy.orm.session import Session
+from sqlalchemy.sql import func
 
 from couchers.config import config
+from couchers.utils import get_coordinates
 
 meta = MetaData(
     naming_convention={
@@ -65,12 +68,20 @@ class User(Base):
     phone_status = Column(Enum(PhoneStatus), nullable=True)
 
     # timezones should always be UTC
+    ## location
+    # point describing their location. EPSG4326 is the SRS (spatial ref system, = way to describe a point on earth) used
+    # by GPS, it has the WGS84 geoid with lat/lon
+    geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
+    # their display location (displayed to other users), in meters
+    geom_radius = Column(Float, nullable=True)
+    # the display address (text) shown on their profile
+    city = Column(String, nullable=False)
+
     joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     last_active = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     # display name
     name = Column(String, nullable=False)
-    city = Column(String, nullable=False)
     gender = Column(String, nullable=False)
     birthdate = Column(Date, nullable=False)  # in the timezone of birthplace
 
@@ -120,7 +131,21 @@ class User(Base):
 
     @hybrid_property
     def is_jailed(self):
-        return self.accepted_tos < 1
+        return self.accepted_tos < 1 or self.is_missing_location
+
+    @property
+    def is_missing_location(self):
+        return not self.geom or not self.geom_radius
+
+    @property
+    def coordinates(self):
+        # returns (lat, lng)
+        # we put people without coords on null island
+        # https://en.wikipedia.org/wiki/Null_Island
+        if self.geom:
+            return get_coordinates(self.geom)
+        else:
+            return (0.0, 0.0)
 
     @property
     def age(self):

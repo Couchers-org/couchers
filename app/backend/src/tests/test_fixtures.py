@@ -21,6 +21,7 @@ from couchers.servicers.conversations import Conversations
 from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
 from couchers.servicers.requests import Requests
+from couchers.utils import create_coordinate
 from pb import (
     account_pb2_grpc,
     api_pb2_grpc,
@@ -48,7 +49,7 @@ def db(request):
 
     # drop everything currently in the database
     with session_scope() as session:
-        session.execute("DROP SCHEMA public CASCADE; CREATE SCHEMA public;")
+        session.execute("DROP SCHEMA public CASCADE; CREATE SCHEMA public; CREATE EXTENSION postgis;")
 
     if request.param == "migrations":
         # rebuild it with alembic migrations
@@ -93,6 +94,8 @@ def generate_user(*_, **kwargs):
             "countries_lived": "Wonderland",
             # you need to make sure to update this logic to make sure the user is jailed/not on request
             "accepted_tos": 1,
+            "geom": create_coordinate(40.7108, -73.9740),
+            "geom_radius": 100,
         }
 
         for key, value in kwargs.items():

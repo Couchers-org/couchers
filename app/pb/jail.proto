@@ -26,14 +26,27 @@ service Jail {
   rpc AcceptTOS(AcceptTOSReq) returns (JailInfoRes) {
     // Accept to TOS
   }
+
+  rpc SetLocation(SetLocationReq) returns (JailInfoRes) {
+    // Set the user's location
+    // If you're not jailed, do this with api.UpdateProfile!
+  }
 }
 
 message JailInfoRes {
   bool jailed = 1;
 
   bool has_not_accepted_tos = 2;
+  bool has_not_added_location = 3;
 }
 
 message AcceptTOSReq {
   bool accept = 1;
+}
+
+message SetLocationReq {
+  string city = 1;
+  double lat = 2;
+  double lng = 3;
+  double radius = 4;
 }

@@ -7,8 +7,16 @@ from google.protobuf import empty_pb2, wrappers_pb2
 from couchers.db import session_scope
 from couchers.models import Complaint
 from couchers.utils import now, to_aware_datetime
-from pb import api_pb2
-from tests.test_fixtures import api_session, db, generate_user, make_friends, real_api_session, testconfig
+from pb import api_pb2, jail_pb2
+from tests.test_fixtures import (
+    api_session,
+    db,
+    generate_user,
+    make_friends,
+    real_api_session,
+    real_jail_session,
+    testconfig,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -33,6 +41,8 @@ def test_ping(db):
     assert res.user.age == user.age
     assert res.user.color == user.color
 
+    assert (res.user.lat, res.user.lng) == user.coordinates
+
     # the joined time is fuzzed
     # but shouldn't be before actual joined time, or more than one hour behind
     assert user.joined - timedelta(hours=1) <= to_aware_datetime(res.user.joined) <= user.joined
@@ -51,6 +61,55 @@ def test_ping(db):
 
     assert res.user.friends == api_pb2.User.FriendshipStatus.NA
     assert len(res.user.mutual_friends) == 0
+
+
+def test_coords(db):
+    # make them have not added a location
+    user1, token1 = generate_user(db, geom=None, geom_radius=None)
+    user2, token2 = generate_user(db)
+
+    with api_session(db, token2) as api:
+        res = api.Ping(api_pb2.PingReq())
+        assert res.user.city == user2.city
+        lat, lng = user2.coordinates
+        assert res.user.lat == lat
+        assert res.user.lng == lng
+        assert res.user.radius == user2.geom_radius
+
+    with api_session(db, token2) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
+        assert res.city == user1.city
+        assert res.lat == 0.0
+        assert res.lng == 0.0
+        assert res.radius == 0.0
+
+    with real_jail_session(db, token1) as jail:
+        res = jail.JailInfo(empty_pb2.Empty())
+        assert res.jailed
+        assert res.has_not_added_location
+
+        res = jail.SetLocation(
+            jail_pb2.SetLocationReq(
+                city="New York City",
+                lat=40.7812,
+                lng=-73.9647,
+                radius=250,
+            )
+        )
+
+        assert not res.jailed
+        assert not res.has_not_added_location
+
+        res = jail.JailInfo(empty_pb2.Empty())
+        assert not res.jailed
+        assert not res.has_not_added_location
+
+    with api_session(db, token2) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
+        assert res.city == "New York City"
+        assert res.lat == 40.7812
+        assert res.lng == -73.9647
+        assert res.radius == 250
 
 
 def test_get_user(db):

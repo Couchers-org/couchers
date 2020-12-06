@@ -6,7 +6,12 @@
       "password": "Aapeli's password",
       "display_name": "Aapeli",
       "name": "Aapeli Vuorinen",
-      "city": "Brisbane, Queensland, Australia",
+      "location": {
+        "city": "Morningside Heights, New York City",
+        "lat": 40.8086,
+        "lng": -73.9616,
+        "radius": 500
+      },
       "verification": 0.98,
       "community_standing": 0.87,
       "gender": "Male",
@@ -35,7 +40,12 @@
       "password": null,
       "display_name": "Itsi",
       "name": "Itsi Weinstock",
-      "city": "Sydney, New South Wales, Australia",
+      "location": {
+        "city": "Sydney, New South Wales, Australia",
+        "lat": -33.89079,
+        "lng": 151.18896,
+        "radius": 1200
+      },
       "verification": 0.73,
       "community_standing": 0.41,
       "gender": "Male",
@@ -75,7 +85,12 @@
       "password": null,
       "display_name": "Lucas",
       "name": "Lucas Levin",
-      "city": "London, UK",
+      "location": {
+        "city": "London, UK",
+        "lat": 51.5216,
+        "lng": -0.1559,
+        "radius": 1763
+      },
       "verification": 0.4,
       "community_standing": 0.3,
       "gender": "Male",
@@ -99,7 +114,12 @@
       "password": null,
       "display_name": "Kelly",
       "name": "Kelly",
-      "city": "Singapore",
+      "location": {
+        "city": "Singapore",
+        "lat": 1.2908,
+        "lng": 103.8517,
+        "radius": 1892
+      },
       "verification": 0.94,
       "community_standing": 0.97,
       "gender": "Female",
@@ -123,7 +143,12 @@
       "password": null,
       "display_name": "Val",
       "name": "Val Natanelov",
-      "city": "Brisbane, Australia",
+      "location": {
+        "city": "Gold Coast, Australia",
+        "lat": -28.0033,
+        "lng": 153.4139,
+        "radius": 422
+      },
       "verification": 0.96,
       "community_standing": 0.82,
       "gender": "Male",
@@ -147,7 +172,12 @@
       "password": null,
       "display_name": "Vivi",
       "name": "Vivan",
-      "city": "Portland, Maine, USA",
+      "location": {
+        "city": "Portland, Maine, USA",
+        "lat": 43.6614,
+        "lng": -70.2559,
+        "radius": 1312
+      },
       "verification": 0.78,
       "community_standing": 0.99,
       "gender": "Female",
@@ -171,7 +201,12 @@
       "password": null,
       "display_name": "debbie1",
       "name": "Deborah Barb",
-      "city": "Canberra, ACT, Australia",
+      "location": {
+        "city": "Canberra, ACT, Australia",
+        "lat": -35.30819,
+        "lng": 149.12443,
+        "radius": 10
+      },
       "verification": 0.81,
       "community_standing": 0.22,
       "gender": "Female",
@@ -195,7 +230,12 @@
       "password": null,
       "display_name": "Josh Mc",
       "name": "Joshua Mcdonald",
-      "city": "Brisbane, Queensland, Australia",
+      "location": {
+        "city": "Brisbane, Queensland, Australia",
+        "lat": -27.47705,
+        "lng": 153.02145,
+        "radius": 1212
+      },
       "verification": 0.8,
       "community_standing": 0.7,
       "gender": "Male",
@@ -219,7 +259,12 @@
       "password": null,
       "display_name": "Chagai Friedlander",
       "name": "Chagai Friedlander",
-      "city": "Bern, Switzerland",
+      "location": {
+        "city": "Bern, Switzerland",
+        "lat": 46.9478,
+        "lng": 7.4529,
+        "radius": 213
+      },
       "verification": 0.89,
       "community_standing": 0.76,
       "gender": "",
