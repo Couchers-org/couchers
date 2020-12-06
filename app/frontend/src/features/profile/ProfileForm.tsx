@@ -79,7 +79,6 @@ export default function EditProfileForm() {
             name="languages"
             render={({ onChange, value }) => (
               <Autocomplete
-                defaultValue={user.languagesList}
                 disableClearable={false}
                 freeSolo
                 multiple
@@ -130,7 +129,6 @@ export default function EditProfileForm() {
             name="countriesVisited"
             render={({ onChange, value }) => (
               <Autocomplete
-                defaultValue={user.countriesVisitedList}
                 disableClearable={false}
                 freeSolo
                 multiple
@@ -154,7 +152,6 @@ export default function EditProfileForm() {
             name="countriesLived"
             render={({ onChange, value }) => (
               <Autocomplete
-                defaultValue={user.countriesLivedList}
                 disableClearable={false}
                 freeSolo
                 multiple
