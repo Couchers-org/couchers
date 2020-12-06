@@ -15,6 +15,7 @@ import {
   AuthReq,
   CompleteSignupReq,
   CompleteTokenLoginReq,
+  DeAuthReq,
 } from "../pb/auth_pb";
 import { ProtoToJsTypes } from "../utils/types";
 import client from "./client";
@@ -230,4 +231,16 @@ export async function completeSignup({
   const sessionToken = res.getToken();
   const jailed = res.getJailed();
   return { token: sessionToken, jailed };
+}
+
+/**
+ * Logout user using a session token
+ */
+export async function logout(sessionToken: string) {
+  const req = new DeAuthReq();
+  req.setToken(sessionToken);
+
+  await client.auth.deauthenticate(req);
+
+  return null;
 }

@@ -43,3 +43,12 @@ export const signup = createAsyncThunk(
     return { token: auth.token, jailed: auth.jailed, user: null };
   }
 );
+
+export const tokenLogout = createAsyncThunk(
+  "auth/logout",
+  async (sessionToken: string) => {
+    await service.user.logout(sessionToken);
+
+    return { token: null, jailed: null, user: null };
+  }
+);
