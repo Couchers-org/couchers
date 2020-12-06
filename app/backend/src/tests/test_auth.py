@@ -1,14 +1,12 @@
-from concurrent import futures
-from contextlib import contextmanager
-
 import grpc
 import pytest
 
-from couchers.crypto import random_hex
+from couchers import errors
+from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
-from couchers.models import Base, LoginToken, SignupToken, User
-from pb import api_pb2, auth_pb2, auth_pb2_grpc, bugs_pb2_grpc
-from tests.test_fixtures import auth_api_session, db, generate_user, real_api_session, testconfig
+from couchers.models import Base, LoginToken, PasswordResetToken, SignupToken, User
+from pb import api_pb2, auth_pb2, auth_pb2_grpc
+from tests.test_fixtures import auth_api_session, db, fast_passwords, generate_user, real_api_session, testconfig
 
 
 @pytest.fixture(autouse=True)
@@ -122,3 +120,67 @@ def test_invalid_token(db):
 
     assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
     assert e.value.details() == "Unauthorized"
+
+
+def test_password_reset(db, fast_passwords):
+    user, token = generate_user(db, hashed_password=hash_password("mypassword"))
+
+    with auth_api_session(db) as auth_api:
+        res = auth_api.ResetPassword(
+            auth_pb2.ResetPasswordReq(
+                user=user.username,
+            )
+        )
+
+    with session_scope(db) as session:
+        token = session.query(PasswordResetToken).one_or_none().token
+
+    with auth_api_session(db) as auth_api:
+        res = auth_api.CompletePasswordReset(auth_pb2.CompletePasswordResetReq(password_reset_token=token))
+
+    with session_scope(db) as session:
+        user = session.query(User).one()
+        assert user.hashed_password is None
+
+
+def test_password_reset_no_such_user(db):
+    user, token = generate_user(db)
+
+    with auth_api_session(db) as auth_api:
+        res = auth_api.ResetPassword(
+            auth_pb2.ResetPasswordReq(
+                user="nonexistentuser",
+            )
+        )
+
+    with session_scope(db) as session:
+        res = session.query(PasswordResetToken).one_or_none()
+
+    assert res is None
+
+
+def test_password_reset_invalid_token(db, fast_passwords):
+    password = random_hex()
+    user, token = generate_user(db, hashed_password=hash_password(password))
+
+    with auth_api_session(db) as auth_api:
+        res = auth_api.ResetPassword(
+            auth_pb2.ResetPasswordReq(
+                user=user.username,
+            )
+        )
+
+    with session_scope(db) as session:
+        token = session.query(PasswordResetToken).one_or_none().token
+
+    with auth_api_session(db) as auth_api, pytest.raises(grpc.RpcError) as e:
+        res = auth_api.CompletePasswordReset(auth_pb2.CompletePasswordResetReq(password_reset_token="wrongtoken"))
+    assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
+    assert e.value.details() == errors.INVALID_TOKEN
+
+    with session_scope(db) as session:
+        user = session.query(User).one()
+        assert user.hashed_password == hash_password(password)
+
+
+# CompleteChangeEmail tested in test_account.py

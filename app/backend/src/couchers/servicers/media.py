@@ -29,8 +29,7 @@ class Media(media_pb2_grpc.MediaServicer):
             upload = (
                 session.query(InitiatedUpload)
                 .filter(InitiatedUpload.key == request.key)
-                .filter(InitiatedUpload.created <= func.now())
-                .filter(InitiatedUpload.expiry >= func.now())
+                .filter(InitiatedUpload.is_valid)
                 .one_or_none()
             )
 

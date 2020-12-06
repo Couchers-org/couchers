@@ -6,6 +6,7 @@ from sqlalchemy import Boolean, Column, Date, DateTime, Enum, Float, ForeignKey,
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import MetaData, String, UniqueConstraint, func
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import backref, relationship
 from sqlalchemy.orm.session import Session
 
@@ -108,6 +109,18 @@ class User(Base):
     sleeping_arrangement = Column(String, nullable=True)
     area = Column(String, nullable=True)
     house_rules = Column(String, nullable=True)
+
+    accepted_tos = Column(Integer, nullable=False, default=0)
+
+    # for changing their email
+    new_email = Column(String, nullable=True)
+    new_email_token = Column(String, nullable=True)
+    new_email_token_created = Column(DateTime(timezone=True), nullable=True)
+    new_email_token_expiry = Column(DateTime(timezone=True), nullable=True)
+
+    @hybrid_property
+    def is_jailed(self):
+        return self.accepted_tos < 1
 
     @property
     def age(self):
@@ -226,6 +239,10 @@ class SignupToken(Base):
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     expiry = Column(DateTime(timezone=True), nullable=False)
 
+    @hybrid_property
+    def is_valid(self):
+        return (self.created <= func.now()) & (self.expiry >= func.now())
+
     def __repr__(self):
         return f"SignupToken(token={self.token}, email={self.email}, created={self.created}, expiry={self.expiry})"
 
@@ -246,8 +263,31 @@ class LoginToken(Base):
 
     user = relationship("User", backref="login_tokens")
 
+    @hybrid_property
+    def is_valid(self):
+        return (self.created <= func.now()) & (self.expiry >= func.now())
+
     def __repr__(self):
         return f"LoginToken(token={self.token}, user={self.user}, created={self.created}, expiry={self.expiry})"
+
+
+class PasswordResetToken(Base):
+    __tablename__ = "password_reset_tokens"
+    token = Column(String, primary_key=True)
+
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    expiry = Column(DateTime(timezone=True), nullable=False)
+
+    user = relationship("User", backref="password_reset_tokens")
+
+    @hybrid_property
+    def is_valid(self):
+        return (self.created <= func.now()) & (self.expiry >= func.now())
+
+    def __repr__(self):
+        return f"PasswordResetToken(token={self.token}, user={self.user}, created={self.created}, expiry={self.expiry})"
 
 
 class UserSession(Base):
@@ -540,3 +580,7 @@ class InitiatedUpload(Base):
     user_id = Column(ForeignKey("users.id"), nullable=False)
 
     user = relationship("User")
+
+    @hybrid_property
+    def is_valid(self):
+        return (self.created <= func.now()) & (self.expiry >= func.now())

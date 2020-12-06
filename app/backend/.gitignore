@@ -9,3 +9,7 @@ __pycache__/
 src/pb
 
 .env
+
+# coverage reports
+.coverage
+htmlcov/

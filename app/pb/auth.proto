@@ -2,9 +2,13 @@ syntax = "proto3";
 
 package org.couchers.auth;
 
+import "google/protobuf/empty.proto";
+
 import "pb/api.proto";
 
 service Auth {
+  // This is an open service, no authentication is needed
+
   /*
   Authentication API
 
@@ -57,8 +61,20 @@ service Auth {
     // Auth a user with username + password
   }
 
-  rpc Deauthenticate(DeAuthReq) returns (DeAuthRes) {
+  rpc Deauthenticate(DeAuthReq) returns (google.protobuf.Empty) {
     // Invalidate a session, deauthing a user
+  }
+
+  rpc ResetPassword(ResetPasswordReq) returns (google.protobuf.Empty) {
+    // Sends a forgot password email to the given user if the user exists, returns no output (so you can't go around guessing email addresses)
+  }
+
+  rpc CompletePasswordReset(CompletePasswordResetReq) returns (google.protobuf.Empty) {
+    // Triggered when the user goes to the link sent in the forgot password email
+  }
+
+  rpc CompleteChangeEmail(CompleteChangeEmailReq) returns (google.protobuf.Empty) {
+    // When a user opens a changed email confirmation, the frontend should call this function with the token
   }
 }
 
@@ -130,10 +146,23 @@ message AuthReq {
 
 message AuthRes {
   string token = 1;
+  // whether the user has to complete some additional steps to continue to the
+  // platform
+  bool jailed = 2;
 }
 
 message DeAuthReq {
   string token = 1;
 }
 
-message DeAuthRes {}
+message ResetPasswordReq {
+  string user = 1;
+}
+
+message CompletePasswordResetReq {
+  string password_reset_token = 1;
+}
+
+message CompleteChangeEmailReq {
+  string change_email_token = 1;
+}

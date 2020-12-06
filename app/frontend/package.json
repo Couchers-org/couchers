@@ -10,6 +10,7 @@
     "classnames": "^2.2.6",
     "google-protobuf": "^3.13.0",
     "grpc-web": "^1.2.1",
+    "markdown-it": "^12.0.2",
     "moment": "^2.29.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
@@ -20,6 +21,9 @@
     "redux-persist": "^6.0.0",
     "typescript": "~4.0.5"
   },
+  "resolutions": {
+    "react-jss": "^10.5.0"
+  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
@@ -27,7 +31,8 @@
     "eject": "react-scripts eject",
     "format": "prettier --write src/",
     "lint": "eslint src/",
-    "test-travis": "NODE_ENV=test && react-scripts test --coverage --watchAll=false",
+    "test-ci": "NODE_ENV=test && react-scripts test --coverageReporters=\"text\" --coverageReporters=\"cobertura\" --coverageReporters=\"lcov\" --reporters=\"default\" --reporters=\"jest-junit\" --coverage --watchAll=false",
+    "jest": "jest",
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "build-storybook -s public"
   },
@@ -83,6 +88,7 @@
     "@types/classnames": "^2.2.11",
     "@types/google-protobuf": "^3.7.3",
     "@types/jest": "^26.0.14",
+    "@types/markdown-it": "^10.0.3",
     "@types/node": "^12.0.0",
     "@types/react": "^16.9.0",
     "@types/react-dom": "^16.9.0",
@@ -93,7 +99,7 @@
     "@types/webpack-env": "^1.15.3",
     "coveralls": "^3.1.0",
     "eslint-config-prettier": "^6.12.0",
-    "husky": "^4.3.0",
+    "jest-junit": "^12.0.0",
     "lint-staged": "^10.5.1",
     "prettier": "^2.1.2",
     "react-is": "^17.0.1",

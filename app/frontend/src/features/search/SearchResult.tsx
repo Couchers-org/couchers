@@ -5,16 +5,16 @@ import {
   CardActionArea,
   CardContent,
   Container,
-  LinearProgress,
   makeStyles,
   Typography,
 } from "@material-ui/core";
 import { User } from "../../pb/api_pb";
 import TextBody from "../../components/TextBody";
-import { hostingStatusLabels } from "../../constants";
+import { hostingStatusLabels } from "../profile/constants";
 import { Link } from "react-router-dom";
 import { userRoute } from "../../AppRoutes";
 import Avatar from "../../components/Avatar";
+import ScoreBar from "../../components/ScoreBar";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   card: {
-    borderRadius: 16,
+    borderRadius: theme.shape.borderRadius,
   },
   resultHeader: {
     marginBottom: theme.spacing(1),
@@ -36,27 +36,6 @@ const useStyles = makeStyles((theme) => ({
   },
   subtitle: {
     fontSize: "1.5em",
-  },
-  scoreBarContainer: {
-    position: "relative",
-    height: "1.6rem",
-    width: 300,
-    maxWidth: "100%",
-    marginInlineStart: 0,
-    marginBottom: theme.spacing(1),
-  },
-  scoreBar: {
-    position: "absolute",
-    width: "100%",
-    height: "100%",
-    borderRadius: ".8rem",
-  },
-  scoreBarLabel: {
-    position: "absolute",
-    width: "100%",
-    lineHeight: "1.6rem",
-    verticalAlign: "middle",
-    paddingLeft: theme.spacing(1),
   },
 }));
 
@@ -83,26 +62,12 @@ export default function SearchResult({ user }: { user: User.AsObject }) {
               </Container>
             </Box>
 
-            <Container disableGutters className={classes.scoreBarContainer}>
-              <LinearProgress
-                variant="determinate"
-                value={user.communityStanding * 100}
-                className={classes.scoreBar}
-              />
-              <TextBody className={classes.scoreBarLabel}>
-                Community Standing
-              </TextBody>
-            </Container>
-            <Container disableGutters className={classes.scoreBarContainer}>
-              <LinearProgress
-                variant="determinate"
-                value={user.verification * 100}
-                className={classes.scoreBar}
-              />
-              <TextBody className={classes.scoreBarLabel}>
-                Verification Score
-              </TextBody>
-            </Container>
+            <ScoreBar value={user.communityStanding * 100}>
+              Community Standing
+            </ScoreBar>
+            <ScoreBar value={user.verification * 100}>
+              Verification Score
+            </ScoreBar>
 
             {user.aboutMe.length < 300
               ? user.aboutMe

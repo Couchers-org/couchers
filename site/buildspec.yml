@@ -12,8 +12,6 @@ phases:
   build:
     commands:
       - yarn generate-all
-  post_build:
-    commands:
       - aws s3 sync dist/ s3://$BUCKET_NAME --delete --acl public-read
       - bash ./create-redirects.sh
       - echo "Done."

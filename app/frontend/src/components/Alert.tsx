@@ -6,9 +6,11 @@ import {
 import React from "react";
 import classNames from "classnames";
 
-const useStyles = makeStyles({
-  root: {},
-});
+const useStyles = makeStyles((theme) => ({
+  root: {
+    marginBottom: theme.spacing(2),
+  },
+}));
 
 interface AlertProps extends MuiAlertProps {
   severity: MuiAlertProps["severity"];

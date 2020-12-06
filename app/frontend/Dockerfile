@@ -12,4 +12,4 @@ ENV REACT_APP_VERSION=$version
 
 RUN yarn build
 
-CMD yarn serve
+CMD yarn start

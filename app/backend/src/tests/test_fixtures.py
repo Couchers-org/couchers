@@ -15,18 +15,22 @@ from couchers.config import config
 from couchers.crypto import random_hex
 from couchers.db import apply_migrations, session_scope
 from couchers.models import Base, FriendRelationship, FriendStatus, User
+from couchers.servicers.account import Account
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
 from couchers.servicers.bugs import Bugs
 from couchers.servicers.conversations import Conversations
+from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
 from couchers.servicers.requests import Requests
 from pb import (
+    account_pb2_grpc,
     api_pb2_grpc,
     auth_pb2,
     auth_pb2_grpc,
     bugs_pb2_grpc,
     conversations_pb2_grpc,
+    jail_pb2_grpc,
     media_pb2_grpc,
     requests_pb2_grpc,
 )
@@ -59,48 +63,57 @@ def db(request):
     return sessionmaker(bind=engine)
 
 
-def generate_user(db, username=None):
+def generate_user(db, *_, **kwargs):
     """
     Create a new user, return session token
+
+    The user is detached from any session, and you can access its static attributes, but you can't modify it
+
+    Use this most of the time
     """
     auth = Auth(db)
 
     with session_scope(db) as session:
-        if not username:
-            username = "test_user_" + random_hex(16)
-
-        user = User(
-            username=username,
-            email=f"{username}@dev.couchers.org",
+        # default args
+        username = "test_user_" + random_hex(16)
+        user_opts = {
+            "username": username,
+            "email": f"{username}@dev.couchers.org",
             # password is just 'password'
             # this is hardcoded because the password is slow to hash (so would slow down tests otherwise)
-            hashed_password=b"$argon2id$v=19$m=65536,t=2,p=1$4cjGg1bRaZ10k+7XbIDmFg$tZG7JaLrkfyfO7cS233ocq7P8rf3znXR7SAfUt34kJg",
-            name=username.capitalize(),
-            city="Testing city",
-            verification=0.5,
-            community_standing=0.5,
-            birthdate=date(year=2000, month=1, day=1),
-            gender="N/A",
-            languages="Testing language 1|Testing language 2",
-            occupation="Tester",
-            about_me="I test things",
-            about_place="My place has a lot of testing paraphenelia",
-            countries_visited="Testing country",
-            countries_lived="Wonderland",
-        )
+            "hashed_password": b"$argon2id$v=19$m=65536,t=2,p=1$4cjGg1bRaZ10k+7XbIDmFg$tZG7JaLrkfyfO7cS233ocq7P8rf3znXR7SAfUt34kJg",
+            "name": username.capitalize(),
+            "city": "Testing city",
+            "verification": 0.5,
+            "community_standing": 0.5,
+            "birthdate": date(year=2000, month=1, day=1),
+            "gender": "N/A",
+            "languages": "Testing language 1|Testing language 2",
+            "occupation": "Tester",
+            "about_me": "I test things",
+            "about_place": "My place has a lot of testing paraphenelia",
+            "countries_visited": "Testing country",
+            "countries_lived": "Wonderland",
+            # you need to make sure to update this logic to make sure the user is jailed/not on request
+            "accepted_tos": 1,
+        }
+
+        for key, value in kwargs.items():
+            user_opts[key] = value
+
+        user = User(**user_opts)
 
         session.add(user)
 
         # this expires the user, so now it's "dirty"
         session.commit()
 
+        token = auth._create_session("Dummy context", session, user)
+
         # refresh it, undoes the expiry
         session.refresh(user)
         # allows detaches the user from the session, allowing its use outside this session
         session.expunge(user)
-
-    with patch("couchers.servicers.auth.verify_password", lambda hashed, password: password == "password"):
-        token = auth.Authenticate(auth_pb2.AuthReq(user=username, password="password"), "Dummy context").token
 
     return user, token
 
@@ -172,7 +185,7 @@ def api_session(db, token):
     """
     Create an API for testing, uses the token for auth
     """
-    user_id = Auth(db).get_user_for_session_token(token)
+    user_id, jailed = Auth(db).get_session_for_token(token)
     channel = FakeChannel(user_id=user_id)
     api_pb2_grpc.add_APIServicer_to_server(API(db), channel)
     yield api_pb2_grpc.APIStub(channel)
@@ -183,7 +196,7 @@ def real_api_session(db, token):
     """
     Create an API for testing, using TCP sockets, uses the token for auth
     """
-    auth_interceptor = Auth(db).get_auth_interceptor()
+    auth_interceptor = Auth(db).get_auth_interceptor(allow_jailed=False)
 
     with futures.ThreadPoolExecutor(1) as executor:
         server = grpc.server(executor, interceptors=[auth_interceptor])
@@ -203,11 +216,35 @@ def real_api_session(db, token):
 
 
 @contextmanager
+def real_jail_session(db, token):
+    """
+    Create a Jail service for testing, using TCP sockets, uses the token for auth
+    """
+    auth_interceptor = Auth(db).get_auth_interceptor(allow_jailed=True)
+
+    with futures.ThreadPoolExecutor(1) as executor:
+        server = grpc.server(executor, interceptors=[auth_interceptor])
+        port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
+        servicer = Jail(db)
+        jail_pb2_grpc.add_JailServicer_to_server(servicer, server)
+        server.start()
+
+        call_creds = grpc.access_token_call_credentials(token)
+        comp_creds = grpc.composite_channel_credentials(grpc.local_channel_credentials(), call_creds)
+
+        try:
+            with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
+                yield jail_pb2_grpc.JailStub(channel)
+        finally:
+            server.stop(None).wait()
+
+
+@contextmanager
 def conversations_session(db, token):
     """
     Create a Conversations API for testing, uses the token for auth
     """
-    user_id = Auth(db).get_user_for_session_token(token)
+    user_id, jailed = Auth(db).get_session_for_token(token)
     channel = FakeChannel(user_id=user_id)
     conversations_pb2_grpc.add_ConversationsServicer_to_server(Conversations(db), channel)
     yield conversations_pb2_grpc.ConversationsStub(channel)
@@ -218,11 +255,23 @@ def requests_session(db, token):
     """
     Create a Requests API for testing, uses the token for auth
     """
-    auth_interceptor = Auth(db).get_auth_interceptor()
-    user_id = Auth(db).get_user_for_session_token(token)
+    auth_interceptor = Auth(db).get_auth_interceptor(allow_jailed=False)
+    user_id, jailed = Auth(db).get_session_for_token(token)
     channel = FakeChannel(user_id=user_id)
     requests_pb2_grpc.add_RequestsServicer_to_server(Requests(db), channel)
     yield requests_pb2_grpc.RequestsStub(channel)
+
+
+@contextmanager
+def account_session(db, token):
+    """
+    Create a Account API for testing, uses the token for auth
+    """
+    auth_interceptor = Auth(db).get_auth_interceptor(allow_jailed=False)
+    user_id, jailed = Auth(db).get_session_for_token(token)
+    channel = FakeChannel(user_id=user_id)
+    account_pb2_grpc.add_AccountServicer_to_server(Account(db), channel)
+    yield account_pb2_grpc.AccountStub(channel)
 
 
 @contextmanager
@@ -290,3 +339,19 @@ def testconfig():
 
     config.clear()
     config.update(prevconfig)
+
+
+@pytest.fixture
+def fast_passwords():
+    # password hashing, by design, takes a lot of time, which slows down the tests. here we jump through some hoops to
+    # make this fast by removing the hashing step
+
+    def fast_hash(password: bytes) -> bytes:
+        return b"fake hash:" + password
+
+    def fast_verify(hashed: bytes, password: bytes) -> bool:
+        return hashed == fast_hash(password)
+
+    with patch("couchers.crypto.nacl.pwhash.verify", fast_verify):
+        with patch("couchers.crypto.nacl.pwhash.str", fast_hash):
+            yield

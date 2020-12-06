@@ -10,7 +10,7 @@ services:
     image: postgres:12
     env_file: postgres.dev.env
     volumes:
-      - "./pgdata:/var/lib/postgresql/data"
+      - "./data/postgres/pgdata:/var/lib/postgresql/data"
     restart: on-failure
     ports:
       - 6545:6545

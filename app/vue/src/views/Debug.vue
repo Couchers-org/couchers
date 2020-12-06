@@ -53,7 +53,7 @@ export default Vue.extend({
       try {
         const res = await authClient.authenticate(req)
         console.debug("Logged in")
-        Store.dispatch("auth", res.getToken())
+        Store.dispatch("auth", res)
       } catch (err) {
         console.error(err)
       }

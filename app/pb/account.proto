@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package org.couchers.api.account;
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+
+service Account {
+  // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to auth.proto and jail.proto
+
+  // account management APIs
+
+  rpc ChangePassword(ChangePasswordReq) returns (google.protobuf.Empty) {
+    // Change, set, or unset the user's password
+    // we will send and an email to the user saying their password was changed
+  }
+
+  rpc ChangeEmail(ChangeEmailReq) returns (google.protobuf.Empty) {
+    // Change the user's email address
+    // we will send and email saying the email changed to the old email, and confirmation email to the new email
+  }
+}
+
+message ChangePasswordReq {
+  // a null value indicates that the password wasn't set before
+  google.protobuf.StringValue old_password = 1;
+  // a null value indicates that the password should be unset (removed)
+  // the frontend should ask for the password twice and whatnot
+  google.protobuf.StringValue new_password = 2;
+}
+
+message ChangeEmailReq {
+  google.protobuf.StringValue password = 1;
+  string new_email = 2;
+}

@@ -155,7 +155,7 @@ export default Vue.extend({
         try {
           const res = await authClient.authenticate(req)
           this.successMessages = ["Success."]
-          Store.dispatch("auth", res.getToken())
+          Store.dispatch("auth", res)
           Router.push("/")
         } catch (err) {
           if (err.code == StatusCode.UNAUTHENTICATED) {

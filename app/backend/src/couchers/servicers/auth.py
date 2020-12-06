@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Union
 
 import grpc
+from google.protobuf import empty_pb2
 from sqlalchemy import func
 
 from couchers import errors
@@ -13,13 +14,14 @@ from couchers.db import (
     is_valid_name,
     is_valid_username,
     new_login_token,
+    new_password_reset_token,
     new_signup_token,
     session_scope,
 )
 from couchers.interceptors import AuthValidatorInterceptor
-from couchers.models import LoginToken, SignupToken, User, UserSession
+from couchers.models import LoginToken, PasswordResetToken, SignupToken, User, UserSession
 from couchers.servicers.api import hostingstatus2sql
-from couchers.tasks import send_login_email, send_signup_email
+from couchers.tasks import send_login_email, send_password_reset_email, send_signup_email
 from pb import auth_pb2, auth_pb2_grpc
 
 logger = logging.getLogger(__name__)
@@ -35,9 +37,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
     def __init__(self, Session):
         super().__init__()
         self._Session = Session
-        self.auth_interceptor = AuthValidatorInterceptor(self.get_user_for_session_token)
 
-    def get_auth_interceptor(self):
+    def get_auth_interceptor(self, allow_jailed):
         """
         Returns an auth interceptor.
 
@@ -45,17 +46,26 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         The user_id will be available in the RPC context through context.user_id.
         """
-        return self.auth_interceptor
+        return AuthValidatorInterceptor(self.get_session_for_token, allow_jailed)
 
-    def get_user_for_session_token(self, token):
+    def get_session_for_token(self, token):
         """
-        Returns None if the session token is not valid, and the `user_id` of the corresponding to the session token otherwise.
+        Returns None if the session token is not valid, and (user_id, jailed) corresponding to the session token otherwise.
 
         TODO(aapeli): session expiry
         """
         with session_scope(self._Session) as session:
-            user_session = session.query(UserSession).filter(UserSession.token == token).one_or_none()
-            return user_session.user_id if user_session else None
+            result = (
+                session.query(User, UserSession)
+                .join(User, User.id == UserSession.user_id)
+                .filter(UserSession.token == token)
+                .one_or_none()
+            )
+
+            if not result:
+                return None
+            else:
+                return result.User.id, result.User.is_jailed
 
     def _create_session(self, context, session, user):
         """
@@ -143,8 +153,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             signup_token = (
                 session.query(SignupToken)
                 .filter(SignupToken.token == request.signup_token)
-                .filter(SignupToken.created <= func.now())
-                .filter(SignupToken.expiry >= func.now())
+                .filter(SignupToken.is_valid)
                 .one_or_none()
             )
             if not signup_token:
@@ -162,8 +171,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             signup_token = (
                 session.query(SignupToken)
                 .filter(SignupToken.token == request.signup_token)
-                .filter(SignupToken.created <= func.now())
-                .filter(SignupToken.expiry >= func.now())
+                .filter(SignupToken.is_valid)
                 .one_or_none()
             )
             if not signup_token:
@@ -212,7 +220,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
             token = self._create_session(context, session, user)
 
-            return auth_pb2.AuthRes(token=token)
+            return auth_pb2.AuthRes(token=token, jailed=user.is_jailed)
 
     def Login(self, request, context):
         """
@@ -252,20 +260,21 @@ class Auth(auth_pb2_grpc.AuthServicer):
         Or fails with grpc.UNAUTHENTICATED if LoginToken is invalid.
         """
         with session_scope(self._Session) as session:
-            login_token = (
-                session.query(LoginToken)
+            res = (
+                session.query(LoginToken, User)
+                .join(User, User.id == LoginToken.user_id)
                 .filter(LoginToken.token == request.login_token)
-                .filter(LoginToken.created <= func.now())
-                .filter(LoginToken.expiry >= func.now())
+                .filter(LoginToken.is_valid)
                 .one_or_none()
             )
-            if login_token:
+            if res:
+                login_token, user = res
                 # this is the bearer token
-                token = self._create_session(context, session, user=login_token.user)
+                token = self._create_session(context, session, user=user)
                 # delete the login token so it can't be reused
                 session.delete(login_token)
                 session.commit()
-                return auth_pb2.AuthRes(token=token)
+                return auth_pb2.AuthRes(token=token, jailed=user.is_jailed)
             else:
                 context.abort(grpc.StatusCode.UNAUTHENTICATED, errors.INVALID_TOKEN)
 
@@ -287,7 +296,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     logger.debug(f"Right password")
                     # correct password
                     token = self._create_session(context, session, user)
-                    return auth_pb2.AuthRes(token=token)
+                    return auth_pb2.AuthRes(token=token, jailed=user.is_jailed)
                 else:
                     logger.debug(f"Wrong password")
                     # wrong password
@@ -304,7 +313,72 @@ class Auth(auth_pb2_grpc.AuthServicer):
         """
         logger.info(f"Deauthenticate(token={request.token})")
         if self._delete_session(token=request.token):
-            return auth_pb2.DeAuthRes()
+            return empty_pb2.Empty()
         else:
             # probably caused by token not existing
             context.abort(grpc.StatusCode.UNKNOWN, errors.LOGOUT_FAILED)
+
+    def ResetPassword(self, request, context):
+        """
+        If the user does not exist, do nothing.
+
+        If the user exists, we send them an email. If they have a password, clicking that email will remove the password.
+        If they don't have a password, it sends them an email saying someone tried to reset the password but there was none.
+
+        Note that as long as emails are send synchronously, this is far from constant time regardless of output.
+        """
+        with session_scope(self._Session) as session:
+            user = get_user_by_field(session, request.user)
+            if user:
+                password_reset_token, expiry_text = new_password_reset_token(session, user)
+                session.add(send_password_reset_email(user, password_reset_token, expiry_text))
+            else:  # user not found
+                logger.debug(f"Didn't find user")
+
+        return empty_pb2.Empty()
+
+    def CompletePasswordReset(self, request, context):
+        """
+        Completes the password reset: just clears the user's password
+        """
+        with session_scope(self._Session) as session:
+            res = (
+                session.query(PasswordResetToken, User)
+                .join(User, User.id == PasswordResetToken.user_id)
+                .filter(PasswordResetToken.token == request.password_reset_token)
+                .filter(PasswordResetToken.is_valid)
+                .one_or_none()
+            )
+            if res:
+                password_reset_token, user = res
+                session.delete(password_reset_token)
+                user.hashed_password = None
+                session.commit()
+                return empty_pb2.Empty()
+            else:
+                context.abort(grpc.StatusCode.UNAUTHENTICATED, errors.INVALID_TOKEN)
+
+    def CompleteChangeEmail(self, request, context):
+        """
+        Completes an email change request.
+
+        Removes the old email and replaces with the new
+        """
+        with session_scope(self._Session) as session:
+            user = (
+                session.query(User)
+                .filter(User.new_email_token == request.change_email_token)
+                .filter(User.new_email_token_created <= func.now())
+                .filter(User.new_email_token_expiry >= func.now())
+                .one_or_none()
+            )
+            if user:
+                user.email = user.new_email
+                user.new_email = None
+                user.new_email_token = None
+                user.new_email_token_created = None
+                user.new_email_token_expiry = None
+                session.commit()
+                return empty_pb2.Empty()
+            else:
+                context.abort(grpc.StatusCode.UNAUTHENTICATED, errors.INVALID_TOKEN)

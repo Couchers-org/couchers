@@ -8,6 +8,7 @@ protobuf
 psycopg2-binary
 pynacl
 pytest
+pytest-cov
 pytest-pythonpath
 python-dateutil
 pytz
