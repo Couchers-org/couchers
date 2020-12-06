@@ -15,12 +15,9 @@ logger = logging.getLogger(__name__)
 
 
 class SSO(sso_pb2_grpc.SSOServicer):
-    def __init__(self, Session):
-        self._Session = Session
-
     def SSO(self, request, context):
         # Protocol description: https://meta.discourse.org/t/official-single-sign-on-for-discourse-sso/13045
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             sso = request.sso
             sig = request.sig
 

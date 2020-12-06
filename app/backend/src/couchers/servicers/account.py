@@ -38,16 +38,13 @@ def _check_password(user, field_name, request, context):
 
 
 class Account(account_pb2_grpc.AccountServicer):
-    def __init__(self, Session):
-        self._Session = Session
-
     def ChangePassword(self, request, context):
         """
         Changes the user's password. They have to confirm their old password just in case.
 
         If they didn't have an old password previously, then we don't check that.
         """
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             user = session.query(User).filter(User.id == context.user_id).one()
 
             if not request.HasField("old_password") and not request.HasField("new_password"):
@@ -78,7 +75,7 @@ class Account(account_pb2_grpc.AccountServicer):
         The user then has to click on the confirmation email which actually changes the emails
         """
         # check password first
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             user = session.query(User).filter(User.id == context.user_id).one()
             _check_password(user, "password", request, context)
 
@@ -87,11 +84,11 @@ class Account(account_pb2_grpc.AccountServicer):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_EMAIL)
 
         # email already in use (possibly by this user)
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             if session.query(User).filter(User.email == request.new_email).one_or_none():
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_EMAIL)
 
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             user = session.query(User).filter(User.id == context.user_id).one()
 
             # otherwise we're good

@@ -4,8 +4,6 @@ import sys
 from concurrent import futures
 
 import grpc
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
 from couchers import config
 from couchers.db import apply_migrations, session_scope
@@ -54,12 +52,9 @@ def log_unhandled_exception(exc_type, exc_value, exc_traceback):
 
 sys.excepthook = log_unhandled_exception
 
-engine = create_engine(config.config["DATABASE_CONNECTION_STRING"], echo=False)
-Session = sessionmaker(bind=engine)
-
 logger.info(f"Checking DB connection")
 
-with session_scope(Session) as session:
+with session_scope() as session:
     res = session.execute("SELECT 42;")
     if list(res) != [(42,)]:
         raise Exception("Failed to connect to DB")
@@ -69,11 +64,11 @@ logger.info(f"Running DB migrations")
 apply_migrations()
 
 if config.config["ADD_DUMMY_DATA"]:
-    add_dummy_data(Session, "src/dummy_data.json")
+    add_dummy_data("src/dummy_data.json")
 
 logger.info(f"Starting")
 
-auth = Auth(Session)
+auth = Auth()
 open_server = grpc.server(futures.ThreadPoolExecutor(2), interceptors=[LoggingInterceptor()])
 open_server.add_insecure_port("[::]:1752")
 auth_pb2_grpc.add_AuthServicer_to_server(auth, open_server)
@@ -84,10 +79,10 @@ jailed_server = grpc.server(
     futures.ThreadPoolExecutor(2), interceptors=[LoggingInterceptor(), auth.get_auth_interceptor(allow_jailed=True)]
 )
 jailed_server.add_insecure_port("[::]:1754")
-jail_pb2_grpc.add_JailServicer_to_server(Jail(Session), jailed_server)
+jail_pb2_grpc.add_JailServicer_to_server(Jail(), jailed_server)
 jailed_server.start()
 
-servicer = API(Session)
+servicer = API()
 server = grpc.server(
     futures.ThreadPoolExecutor(2),
     interceptors=[
@@ -98,11 +93,11 @@ server = grpc.server(
 )
 server.add_insecure_port("[::]:1751")
 
-account_pb2_grpc.add_AccountServicer_to_server(Account(Session), server)
+account_pb2_grpc.add_AccountServicer_to_server(Account(), server)
 api_pb2_grpc.add_APIServicer_to_server(servicer, server)
-conversations_pb2_grpc.add_ConversationsServicer_to_server(Conversations(Session), server)
-requests_pb2_grpc.add_RequestsServicer_to_server(Requests(Session), server)
-sso_pb2_grpc.add_SSOServicer_to_server(SSO(Session), server)
+conversations_pb2_grpc.add_ConversationsServicer_to_server(Conversations(), server)
+requests_pb2_grpc.add_RequestsServicer_to_server(Requests(), server)
+sso_pb2_grpc.add_SSOServicer_to_server(SSO(), server)
 
 server.start()
 
@@ -111,7 +106,7 @@ media_server = grpc.server(
     interceptors=[LoggingInterceptor(), get_media_auth_interceptor(MEDIA_SERVER_BEARER_TOKEN)],
 )
 media_server.add_insecure_port("[::]:1753")
-media_pb2_grpc.add_MediaServicer_to_server(Media(Session), media_server)
+media_pb2_grpc.add_MediaServicer_to_server(Media(), media_server)
 media_server.start()
 
 logger.info(f"Serving on 1751 (secure), 1752 (auth), 1753 (media), and 1754 (jailed)")

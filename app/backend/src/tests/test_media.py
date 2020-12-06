@@ -17,11 +17,11 @@ def _(testconfig):
 
 
 def test_media_upload(db):
-    user, token = generate_user(db, "tester")
+    user, token = generate_user("tester")
 
     media_bearer_token = random_hex(32)
 
-    with api_session(db, token) as api:
+    with api_session(token) as api:
         res = api.InitiateMediaUpload(empty_pb2.Empty())
 
     params = parse_qs(urlparse(res.upload_url).query)
@@ -34,10 +34,10 @@ def test_media_upload(db):
 
     req = media_pb2.UploadConfirmationReq(key=key, filename=filename)
 
-    with media_session(db, media_bearer_token) as media:
+    with media_session(media_bearer_token) as media:
         res = media.UploadConfirmation(req)
 
-    with session_scope(db) as session:
+    with session_scope() as session:
         # make sure it exists
         upload = session.query(InitiatedUpload).filter(InitiatedUpload.key == key).one()
 

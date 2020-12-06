@@ -1,4 +1,5 @@
 import datetime
+import functools
 import logging
 import os
 import re
@@ -6,8 +7,12 @@ from contextlib import contextmanager
 
 from alembic import command
 from alembic.config import Config
+from sqlalchemy import create_engine
+from sqlalchemy.orm.session import Session
+from sqlalchemy.pool import NullPool
 from sqlalchemy.sql import and_, or_
 
+from couchers import config
 from couchers.crypto import urlsafe_secure_token
 from couchers.models import FriendRelationship, FriendStatus, LoginToken, PasswordResetToken, SignupToken, User
 from couchers.utils import now
@@ -29,10 +34,17 @@ def apply_migrations():
         os.chdir(cwd)
 
 
+@functools.cache
+def get_engine():
+    if config.config["IN_TEST"]:
+        return create_engine(config.config["DATABASE_CONNECTION_STRING"], poolclass=NullPool)
+    else:
+        return create_engine(config.config["DATABASE_CONNECTION_STRING"])
+
+
 @contextmanager
-def session_scope(Session):
-    """Provide a transactional scope around a series of operations."""
-    session = Session()
+def session_scope():
+    session = Session(get_engine())
     try:
         yield session
         session.commit()
