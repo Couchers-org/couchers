@@ -8,7 +8,7 @@ from contextlib import contextmanager
 from alembic import command
 from alembic.config import Config
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm.session import Session
 from sqlalchemy.pool import NullPool
 from sqlalchemy.sql import and_, or_
 
@@ -50,17 +50,9 @@ def get_engine():
         return create_engine(config.config["DATABASE_CONNECTION_STRING"])
 
 
-@functools.cache
-def get_session_factory():
-    return sessionmaker(bind=get_engine())
-
-
 @contextmanager
 def session_scope():
-    # get factory...
-    factory = get_session_factory()
-    # ...then call it to get session
-    session = factory()
+    session = Session(get_engine())
     try:
         yield session
         session.commit()
