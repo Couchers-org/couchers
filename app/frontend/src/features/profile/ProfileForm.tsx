@@ -77,18 +77,20 @@ export default function EditProfileForm() {
             control={control}
             defaultValue={user.languagesList}
             name="languages"
-            render={({ onChange }) => (
+            render={({ onChange, value }) => (
               <Autocomplete
                 defaultValue={user.languagesList}
                 disableClearable={false}
                 freeSolo
                 multiple
                 onChange={(_, value) => onChange(value)}
+                value={value}
                 open={false}
                 options={[""]}
                 renderInput={(params) => (
                   <TextField
                     {...params}
+                    variant="outlined"
                     helperText="Press 'Enter' to add"
                     label="Languages"
                   />
@@ -126,13 +128,14 @@ export default function EditProfileForm() {
             control={control}
             defaultValue={user.countriesVisitedList}
             name="countriesVisited"
-            render={({ onChange }) => (
+            render={({ onChange, value }) => (
               <Autocomplete
                 defaultValue={user.countriesVisitedList}
                 disableClearable={false}
                 freeSolo
                 multiple
                 onChange={(_, value) => onChange(value)}
+                value={value}
                 open={false}
                 options={[""]}
                 renderInput={(params) => (
@@ -149,13 +152,14 @@ export default function EditProfileForm() {
             control={control}
             defaultValue={user.countriesLivedList}
             name="countriesLived"
-            render={({ onChange }) => (
+            render={({ onChange, value }) => (
               <Autocomplete
                 defaultValue={user.countriesLivedList}
                 disableClearable={false}
                 freeSolo
                 multiple
                 onChange={(_, value) => onChange(value)}
+                value={value}
                 open={false}
                 options={[""]}
                 renderInput={(params) => (
