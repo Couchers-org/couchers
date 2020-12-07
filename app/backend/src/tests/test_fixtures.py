@@ -8,10 +8,12 @@ import grpc
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.event import listen, remove
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import NullPool
 
 from couchers.config import config
 from couchers.crypto import random_hex
-from couchers.db import apply_migrations, get_engine, session_scope
+from couchers.db import apply_migrations, session_scope
 from couchers.models import Base, FriendRelationship, FriendStatus, User
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
@@ -47,21 +49,22 @@ def db(request):
     # os.environ["TZ"] = "Etc/UTC"
     os.environ["TZ"] = "America/New_York"
 
+    engine = create_engine(config["DATABASE_CONNECTION_STRING"], poolclass=NullPool)
+
     # drop everything currently in the database
-    with session_scope() as session:
-        session.execute("DROP SCHEMA public CASCADE; CREATE SCHEMA public; CREATE EXTENSION postgis;")
+    engine.execute("DROP SCHEMA public CASCADE; CREATE SCHEMA public; CREATE EXTENSION postgis;")
 
     if request.param == "migrations":
         # rebuild it with alembic migrations
         apply_migrations()
     else:
         # create everything from the current models, not incrementally through migrations
-        Base.metadata.create_all(get_engine())
+        Base.metadata.create_all(engine)
 
-    yield
+    return sessionmaker(bind=engine)
 
 
-def generate_user(*_, **kwargs):
+def generate_user(db, *_, **kwargs):
     """
     Create a new user, return session token
 
@@ -69,9 +72,9 @@ def generate_user(*_, **kwargs):
 
     Use this most of the time
     """
-    auth = Auth()
+    auth = Auth(db)
 
-    with session_scope() as session:
+    with session_scope(db) as session:
         # default args
         username = "test_user_" + random_hex(16)
         user_opts = {
@@ -118,8 +121,8 @@ def generate_user(*_, **kwargs):
     return user, token
 
 
-def make_friends(user1, user2):
-    with session_scope() as session:
+def make_friends(db, user1, user2):
+    with session_scope(db) as session:
         friend_relationship = FriendRelationship(
             from_user_id=user1.id,
             to_user_id=user2.id,
@@ -171,37 +174,37 @@ class FakeChannel:
 
 
 @contextmanager
-def auth_api_session():
+def auth_api_session(db):
     """
     Create an Auth API for testing
     """
     channel = FakeChannel()
-    auth_pb2_grpc.add_AuthServicer_to_server(Auth(), channel)
+    auth_pb2_grpc.add_AuthServicer_to_server(Auth(db), channel)
     yield auth_pb2_grpc.AuthStub(channel)
 
 
 @contextmanager
-def api_session(token):
+def api_session(db, token):
     """
     Create an API for testing, uses the token for auth
     """
-    user_id, jailed = Auth().get_session_for_token(token)
+    user_id, jailed = Auth(db).get_session_for_token(token)
     channel = FakeChannel(user_id=user_id)
-    api_pb2_grpc.add_APIServicer_to_server(API(), channel)
+    api_pb2_grpc.add_APIServicer_to_server(API(db), channel)
     yield api_pb2_grpc.APIStub(channel)
 
 
 @contextmanager
-def real_api_session(token):
+def real_api_session(db, token):
     """
     Create an API for testing, using TCP sockets, uses the token for auth
     """
-    auth_interceptor = Auth().get_auth_interceptor(allow_jailed=False)
+    auth_interceptor = Auth(db).get_auth_interceptor(allow_jailed=False)
 
     with futures.ThreadPoolExecutor(1) as executor:
         server = grpc.server(executor, interceptors=[auth_interceptor])
         port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
-        servicer = API()
+        servicer = API(db)
         api_pb2_grpc.add_APIServicer_to_server(servicer, server)
         server.start()
 
@@ -216,16 +219,16 @@ def real_api_session(token):
 
 
 @contextmanager
-def real_jail_session(token):
+def real_jail_session(db, token):
     """
     Create a Jail service for testing, using TCP sockets, uses the token for auth
     """
-    auth_interceptor = Auth().get_auth_interceptor(allow_jailed=True)
+    auth_interceptor = Auth(db).get_auth_interceptor(allow_jailed=True)
 
     with futures.ThreadPoolExecutor(1) as executor:
         server = grpc.server(executor, interceptors=[auth_interceptor])
         port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
-        servicer = Jail()
+        servicer = Jail(db)
         jail_pb2_grpc.add_JailServicer_to_server(servicer, server)
         server.start()
 
@@ -240,37 +243,37 @@ def real_jail_session(token):
 
 
 @contextmanager
-def conversations_session(token):
+def conversations_session(db, token):
     """
     Create a Conversations API for testing, uses the token for auth
     """
-    user_id, jailed = Auth().get_session_for_token(token)
+    user_id, jailed = Auth(db).get_session_for_token(token)
     channel = FakeChannel(user_id=user_id)
-    conversations_pb2_grpc.add_ConversationsServicer_to_server(Conversations(), channel)
+    conversations_pb2_grpc.add_ConversationsServicer_to_server(Conversations(db), channel)
     yield conversations_pb2_grpc.ConversationsStub(channel)
 
 
 @contextmanager
-def requests_session(token):
+def requests_session(db, token):
     """
     Create a Requests API for testing, uses the token for auth
     """
-    auth_interceptor = Auth().get_auth_interceptor(allow_jailed=False)
-    user_id, jailed = Auth().get_session_for_token(token)
+    auth_interceptor = Auth(db).get_auth_interceptor(allow_jailed=False)
+    user_id, jailed = Auth(db).get_session_for_token(token)
     channel = FakeChannel(user_id=user_id)
-    requests_pb2_grpc.add_RequestsServicer_to_server(Requests(), channel)
+    requests_pb2_grpc.add_RequestsServicer_to_server(Requests(db), channel)
     yield requests_pb2_grpc.RequestsStub(channel)
 
 
 @contextmanager
-def account_session(token):
+def account_session(db, token):
     """
     Create a Account API for testing, uses the token for auth
     """
-    auth_interceptor = Auth().get_auth_interceptor(allow_jailed=False)
-    user_id, jailed = Auth().get_session_for_token(token)
+    auth_interceptor = Auth(db).get_auth_interceptor(allow_jailed=False)
+    user_id, jailed = Auth(db).get_session_for_token(token)
     channel = FakeChannel(user_id=user_id)
-    account_pb2_grpc.add_AccountServicer_to_server(Account(), channel)
+    account_pb2_grpc.add_AccountServicer_to_server(Account(db), channel)
     yield account_pb2_grpc.AccountStub(channel)
 
 
@@ -282,7 +285,7 @@ def bugs_session():
 
 
 @contextmanager
-def media_session(bearer_token):
+def media_session(db, bearer_token):
     """
     Create a fresh Media API for testing, uses the bearer token for media auth
     """
@@ -291,7 +294,7 @@ def media_session(bearer_token):
     with futures.ThreadPoolExecutor(1) as executor:
         server = grpc.server(executor, interceptors=[media_auth_interceptor])
         port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
-        servicer = Media()
+        servicer = Media(db)
         media_pb2_grpc.add_MediaServicer_to_server(servicer, server)
         server.start()
 
@@ -310,8 +313,6 @@ def testconfig():
     prevconfig = config.copy()
     config.clear()
     config.update(prevconfig)
-
-    config["IN_TEST"] = True
 
     config["DEV"] = True
     config["VERSION"] = "testing_version"
