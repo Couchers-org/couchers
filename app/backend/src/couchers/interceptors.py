@@ -21,9 +21,10 @@ def unauthenticated_handler(message="Unauthorized"):
 
 class AuthValidatorInterceptor(grpc.ServerInterceptor):
     """
-    Extracts an "Authorization: Bearer <hex>" header and authenticates
-    a user. Sets context.user_id if authenticated, otherwise
-    terminates the call with an HTTP error code.
+    Extracts a session token from a cookie, and authenticates a user with †hat.
+
+    Sets context.user_id and context.token if authenticated, otherwise
+    terminates the call with an UNAUTHENTICATED error code.
     """
 
     def __init__(self, get_session_for_token, allow_jailed=True):

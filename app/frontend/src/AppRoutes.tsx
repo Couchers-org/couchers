@@ -79,7 +79,7 @@ export default function AppRoutes() {
 const PrivateRoute = ({ children, ...otherProps }: RouteProps) => {
   const dispatch = useAppDispatch();
   const isAuthenticated = useTypedSelector(
-    (state) => state.auth.authToken !== null
+    (state) => state.auth.authenticated
   );
   const isJailed = useTypedSelector((state) => state.auth.jailed);
   useEffect(() => {

@@ -16,7 +16,7 @@ import UsernameForm from "./UsernameForm";
 
 export default function Login() {
   const dispatch = useAppDispatch();
-  const authToken = useTypedSelector((state) => state.auth.authToken);
+  const authenticated = useTypedSelector((state) => state.auth.authenticated);
   const error = useTypedSelector((state) => state.auth.error);
 
   const location = useLocation<undefined | { from: Location }>();
@@ -32,7 +32,7 @@ export default function Login() {
 
   return (
     <>
-      {authToken && <Redirect to={redirectTo} />}
+      {authenticated && <Redirect to={redirectTo} />}
       <Typography variant="h2">Login</Typography>
       {error && <Alert severity="error">{error}</Alert>}
 

@@ -15,7 +15,6 @@ import {
   AuthReq,
   CompleteSignupReq,
   CompleteTokenLoginReq,
-  DeAuthReq,
 } from "../pb/auth_pb";
 import { ProtoToJsTypes } from "../utils/types";
 import client from "./client";
@@ -64,10 +63,9 @@ export async function passwordLogin(username: string, password: string) {
   req.setPassword(password);
 
   const response = await client.auth.authenticate(req);
-  const token = response.getToken();
   const jailed = response.getJailed();
 
-  return { token, jailed };
+  return { jailed };
 }
 
 /**
@@ -78,10 +76,9 @@ export async function tokenLogin(loginToken: string) {
   req.setLoginToken(loginToken);
 
   const response = await client.auth.completeTokenLogin(req);
-  const token = response.getToken();
   const jailed = response.getJailed();
 
-  return { token, jailed };
+  return { jailed };
 }
 
 /**
@@ -92,10 +89,7 @@ export async function tokenLogin(loginToken: string) {
 export async function getCurrentUser(token?: string): Promise<User.AsObject> {
   const req = new PingReq();
 
-  const response = await client.api.ping(
-    req,
-    token ? { authorization: `Bearer ${token}` } : undefined
-  );
+  const response = await client.api.ping(req);
 
   return response.getUser()!.toObject();
 }
@@ -114,10 +108,7 @@ export async function getUser(
   const userReq = new GetUserReq();
   userReq.setUser(user || "");
 
-  const response = await client.api.getUser(
-    userReq,
-    token ? { authorization: `Bearer ${token}` } : undefined
-  );
+  const response = await client.api.getUser(userReq);
 
   return response.toObject();
 }
@@ -228,17 +219,13 @@ export async function completeSignup({
   req.setHostingStatus(hostingStatus);
 
   const res = await client.auth.completeSignup(req);
-  const sessionToken = res.getToken();
   const jailed = res.getJailed();
-  return { token: sessionToken, jailed };
+  return { jailed };
 }
 
 /**
- * Logout user using a session token
+ * Logout user
  */
-export function logout(sessionToken: string) {
-  const req = new DeAuthReq();
-  req.setToken(sessionToken);
-
-  return client.auth.deauthenticate(req);
+export function logout() {
+  return client.auth.deauthenticate(new Empty());
 }

@@ -8,12 +8,12 @@ import CompleteSignupForm from "./CompleteSignupForm";
 import EmailForm from "./EmailForm";
 
 export default function Signup() {
-  const authToken = useTypedSelector((state) => state.auth.authToken);
+  const authenticated = useTypedSelector((state) => state.auth.authenticated);
   const error = useTypedSelector((state) => state.auth.error);
 
   return (
     <>
-      {authToken && <Redirect to="/" />}
+      {authenticated && <Redirect to="/" />}
       <PageTitle>Signup</PageTitle>
       {error && <Alert severity="error">{error}</Alert>}
 
