@@ -1,10 +1,8 @@
 import { Meta, Story } from "@storybook/react";
 import * as React from "react";
+import { SetLocationReq } from "../pb/jail_pb";
 
-import EditLocationMap, {
-  EditLocationMapProps,
-  UserLocation,
-} from "./EditLocationMap";
+import EditLocationMap, { EditLocationMapProps } from "./EditLocationMap";
 
 export default {
   title: "Components/EditLocationMap",
@@ -20,7 +18,7 @@ const user = {
   radius: 200,
 } as EditLocationMapProps["user"];
 
-const setLocation = (location: UserLocation) => {
+const setLocation = (location: SetLocationReq.AsObject) => {
   console.log(location);
 };
 

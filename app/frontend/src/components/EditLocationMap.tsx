@@ -1,25 +1,31 @@
-import { Box, BoxProps, makeStyles } from "@material-ui/core";
-import { LatLng } from "leaflet";
-import React, { useMemo, useRef, useState } from "react";
-import { Circle, Marker, useMapEvents } from "react-leaflet";
-import { userLocationMaxRadius, userLocationMinRadius } from "../constants";
+import { BoxProps, makeStyles } from "@material-ui/core";
+import { LngLat } from "mapbox-gl";
+import ReactMapGL, { DraggableControlProps } from "react-map-gl";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { DragEvent, Marker } from "react-map-gl";
+import {
+  userLocationDefault,
+  userLocationDefaultRadius,
+  userLocationMaxRadius,
+  userLocationMinRadius,
+} from "../constants";
 import { User } from "../pb/api_pb";
+import { SetLocationReq } from "../pb/jail_pb";
 import Map from "./Map";
 
 const useStyles = makeStyles({
   root: {},
 });
 
-export interface UserLocation {
-  lat: number;
-  lng: number;
-  //meters
-  radius: number;
-}
-
 export interface EditLocationMapProps extends BoxProps {
-  user: User.AsObject;
-  setLocation: (location: UserLocation) => void;
+  user?: User.AsObject;
+  setLocation: (location: SetLocationReq.AsObject) => void;
 }
 
 export default function EditLocationMap({
@@ -29,105 +35,136 @@ export default function EditLocationMap({
 }: EditLocationMapProps) {
   const classes = useStyles();
 
-  const center = useMemo(() => new LatLng(user.lat, user.lng), [user]);
-  //What type is this useRef supposed to be!? Marker doesn't want to work
-  const markerRef = useRef<any>(null);
-
-  const [markerPos, setMarkerPos] = useState(new LatLng(user.lat, user.lng));
-  const [radius, setRadius] = useState(user.radius);
-
-  const markerEventHandlers = useMemo(
-    () => ({
-      dragend() {
-        const marker = markerRef.current;
-        if (marker != null) {
-          const pos = marker.getLatLng();
-          setMarkerPos(pos);
-          setLocation({ lat: pos.lat, lng: pos.lng, radius: radius });
-        }
-      },
-    }),
-    [radius, setLocation]
+  const center = useMemo(
+    () => (user ? new LngLat(user.lng, user.lat) : userLocationDefault),
+    [user]
   );
 
-  const updateRadius = (value: number) => {
-    setRadius(value);
-    const marker = markerRef.current;
-    if (marker != null) {
-      const pos = marker.getLatLng();
-      setMarkerPos(pos);
-      setLocation({ lat: pos.lat, lng: pos.lng, radius: value });
-    }
+  const [city, setCity] = useState("city");
+  const [markerPos, setMarkerPos] = useState(center);
+  const [markerRadius, setMarkerRadius] = useState(0);
+  const [radius, setRadius] = useState(
+    user?.radius || userLocationDefaultRadius
+  );
+  const mapRef = useRef<ReactMapGL>(null);
+
+  const markerDrag = (event: DragEvent) => {
+    const pos = LngLat.convert(event.lngLat);
+    setMarkerPos(pos);
   };
+  const markerDragEnd = (event: DragEvent) => {
+    markerDrag(event);
+    setLocation({ city, lat: markerPos.lat, lng: markerPos.lng, radius });
+  };
+
+  const updateRadius = useCallback(
+    (value: number) => {
+      setRadius(value);
+      setLocation({
+        city,
+        lat: markerPos.lat,
+        lng: markerPos.lng,
+        radius: value,
+      });
+    },
+    [city, markerPos, setLocation]
+  );
+
+  useEffect(() => {
+    const circleCenter = mapRef.current?.getMap().project(markerPos);
+    const circleEdge = markerPos.toBounds(radius);
+    const circleEdgePoint = mapRef.current
+      ?.getMap()
+      .project([circleEdge.getEast(), markerPos.lat]);
+    setMarkerRadius(
+      circleEdgePoint && circleCenter
+        ? Math.abs(circleEdgePoint.x - circleCenter.x)
+        : 0
+    );
+  }, [mapRef, markerPos, radius]);
 
   return (
     <>
-      <Box {...otherProps}>
-        <Map center={center} zoom={13}>
-          <Marker
-            position={markerPos}
-            draggable
-            eventHandlers={markerEventHandlers}
-            ref={markerRef}
-          />
-          <AdjustableCircle
-            position={markerPos}
-            radius={radius}
-            setRadius={updateRadius}
-          />
-        </Map>
-      </Box>
+      <Map
+        initialCenter={center}
+        initialZoom={13}
+        mapRef={mapRef}
+        {...otherProps}
+      >
+        <Marker
+          draggable
+          latitude={markerPos.lat}
+          longitude={markerPos.lng}
+          offsetLeft={-markerRadius}
+          offsetTop={-markerRadius}
+          onDrag={markerDrag}
+          onDragEnd={markerDragEnd}
+        >
+          <svg
+            height={markerRadius * 2}
+            viewBox={`0 0 ${markerRadius * 2} ${markerRadius * 2}`}
+            fillOpacity="0.2"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <circle cx={markerRadius} cy={markerRadius} r={markerRadius} />
+          </svg>
+        </Marker>
+        <AdjustableCircleHandle
+          position={markerPos}
+          size={10}
+          radius={radius}
+          setRadius={updateRadius}
+        />
+      </Map>
     </>
   );
 }
 
-interface AdjustableCircleProps {
-  position: LatLng;
+interface AdjustableCircleHandleProps extends DraggableControlProps {
+  position: LngLat;
+  size: number;
   radius: number;
   setRadius: (radius: number) => void;
 }
 
-function AdjustableCircle({
+function AdjustableCircleHandle({
   position,
+  size,
   radius,
   setRadius,
-}: AdjustableCircleProps) {
-  const [clicked, setClicked] = useState(false);
-  const [dirtyRadius, setDirtyRadius] = useState(radius);
+}: AdjustableCircleHandleProps) {
+  const [lngLat, setLngLat] = useState([
+    position.toBounds(radius).getEast(),
+    position.lat,
+  ]);
 
-  const map = useMapEvents({
-    mousemove(event) {
-      if (clicked) {
-        const r = event.latlng.distanceTo(position);
-        const clampedR = Math.min(
-          Math.max(r, userLocationMinRadius),
-          userLocationMaxRadius
-        );
-        setDirtyRadius(clampedR);
-      }
-    },
-    mouseup() {
-      if (!clicked) return;
-      map.dragging.enable();
-      setRadius(dirtyRadius);
-      setClicked(false);
-    },
-  });
-
-  const eventHandlers = {
-    mousedown() {
-      map.dragging.disable();
-      setClicked(true);
-    },
+  const onDrag = (event: DragEvent) => {
+    setLngLat(event.lngLat);
+    setRadius(position.distanceTo(LngLat.convert(event.lngLat)));
   };
+
+  useEffect(() => {
+    setLngLat([position.toBounds(radius).getEast(), position.lat]);
+  }, [position]);
 
   return (
     <>
-      <Circle
-        center={position}
-        radius={dirtyRadius}
-        eventHandlers={eventHandlers}
-      />
+      <Marker
+        draggable
+        longitude={lngLat[0]}
+        latitude={lngLat[1]}
+        offsetLeft={-size / 2}
+        offsetTop={-size / 2}
+        onDrag={onDrag}
+      >
+        <svg
+          height={size}
+          viewBox={`0 0 ${size} ${size}`}
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <circle cx={size / 2} cy={size / 2} r={size / 2} />
+        </svg>
+      </Marker>
     </>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { RefObject, useState } from "react";
 import { Box, BoxProps, makeStyles } from "@material-ui/core";
 import classNames from "classnames";
 import ReactMapGL, { ViewportProps } from "react-map-gl";
@@ -23,7 +23,8 @@ const useStyles = makeStyles({
 export interface MapProps extends BoxProps {
   initialCenter: LngLat;
   initialZoom: number;
-  onUpdate: (center: LngLat, zoom: number) => void;
+  mapRef?: RefObject<ReactMapGL>;
+  onUpdate?: (center: LngLat, zoom: number) => void;
   grow?: boolean;
 }
 
@@ -34,6 +35,7 @@ export default function Map({
   onUpdate,
   children,
   className,
+  mapRef,
   ...otherProps
 }: MapProps) {
   const classes = useStyles();
@@ -45,7 +47,12 @@ export default function Map({
 
   const updateViewport = (viewport: ViewportProps) => {
     setViewport({ ...viewport });
-    onUpdate(new LngLat(viewport.longitude, viewport.latitude), viewport.zoom);
+    if (onUpdate) {
+      onUpdate(
+        new LngLat(viewport.longitude, viewport.latitude),
+        viewport.zoom
+      );
+    }
   };
 
   return (
@@ -65,6 +72,7 @@ export default function Map({
           onViewportChange={updateViewport}
           className={classes.map}
           mapboxApiAccessToken={process.env.REACT_APP_MAPBOX_KEY || ""}
+          ref={mapRef}
         >
           {children}
         </ReactMapGL>
