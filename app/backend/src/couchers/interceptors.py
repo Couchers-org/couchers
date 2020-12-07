@@ -1,4 +1,3 @@
-import http.cookies
 import logging
 import os
 from time import perf_counter_ns
