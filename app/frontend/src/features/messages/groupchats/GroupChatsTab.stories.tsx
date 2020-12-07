@@ -2,6 +2,7 @@ import { Meta, Story } from "@storybook/react/types-6-0";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import * as React from "react";
 import { Provider } from "react-redux";
+import { setGroupChat } from ".";
 import { groupChat, mockedService } from "../../../stories/__mocks__/service";
 import { store } from "../../../stories/__mocks__/store";
 import messages from "../../../test/fixtures/messages.json";
@@ -17,7 +18,11 @@ export default {
   argTypes: {},
   decorators: [
     (storyFn) => {
-      return <Provider store={store}>{storyFn()}</Provider>;
+      return (
+        <Provider store={storyFn !== View ? store : store}>
+          {storyFn()}
+        </Provider>
+      );
     },
   ],
 } as Meta;
@@ -27,7 +32,7 @@ mockedService.conversations.createGroupChat = async () => {
 };
 
 const Template: Story = (args) => {
-  store.dispatch({ type: "groupChats/setGroupChat", payload: null });
+  store.dispatch(setGroupChat(null));
   mockedService.conversations.leaveGroupChat = async () => {
     return new Empty();
   };
@@ -45,7 +50,7 @@ export const Collapsed = MessageTemplate.bind({});
 Collapsed.args = { message: message1 };
 
 const GroupChatViewTemplate: Story<any> = (args) => {
-  store.dispatch({ type: "groupChats/setGroupChat", payload: groupChat });
+  store.dispatch(setGroupChat(groupChat));
   mockedService.conversations.leaveGroupChat = async () => {
     throw new Error("impossible to leave");
   };

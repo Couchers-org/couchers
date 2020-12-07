@@ -20,29 +20,27 @@ const useStyles = makeStyles({ root: {} });
 export default function GroupChatView() {
   const dispatch = useAppDispatch();
   const { error, loading, groupChat, messages } = useTypedSelector((state) => {
-    const componentState = state.groupChats.groupChatView;
-    if (componentState.groupChat) {
-      return { ...componentState, groupChat: componentState.groupChat };
-    } else {
-      throw new Error("No groupChat");
-    }
+    return state.groupChats.groupChatView;
+    // if (componentState.groupChat) {
+    //   return { ...componentState, groupChat: componentState.groupChat };
+    // } else {
+    //   throw new Error("No groupChat");
+    // }
   });
 
   const handleSend = (text: string) =>
-    dispatch(sendMessageThunk({ groupChat, text }));
+    dispatch(sendMessageThunk({ groupChat: groupChat!, text }));
 
   const closeGroupChat = () => dispatch(setGroupChat(null));
 
-  const leaveGroupChat = () => dispatch(leaveGroupChatThunk(groupChat));
+  const leaveGroupChat = () => dispatch(leaveGroupChatThunk(groupChat!));
 
-  useEffect(() => {
-    dispatch(fetchMessagesThunk(groupChat));
-  }, [dispatch, groupChat]);
+  useEffect(() => void dispatch(fetchMessagesThunk(groupChat!)), []);
 
   const classes = useStyles();
   return (
     <Box className={classes.root}>
-      <Typography variant="h3">{groupChat.title}</Typography>
+      <Typography variant="h3">{groupChat!.title}</Typography>
       <Button onClick={closeGroupChat}>
         <CloseIcon />
         (close)

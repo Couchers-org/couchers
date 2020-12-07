@@ -17,7 +17,7 @@ export default function GroupChatsTab() {
 
   useEffect(() => {
     dispatch(fetchGroupChatsThunk());
-  }, []);
+  }, [dispatch]);
 
   const classes = useStyles();
   return (
