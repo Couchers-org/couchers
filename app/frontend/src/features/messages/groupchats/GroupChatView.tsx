@@ -3,12 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import CloseIcon from "@material-ui/icons/Close";
 import * as React from "react";
 import { useEffect } from "react";
-import {
-  fetchMessagesThunk,
-  leaveGroupChatThunk,
-  sendMessageThunk,
-  setGroupChat,
-} from ".";
+import { fetchMessages, leaveGroupChat, sendMessage, setGroupChat } from ".";
 import Alert from "../../../components/Alert";
 import Button from "../../../components/Button";
 import CircularProgress from "../../../components/CircularProgress";
@@ -29,13 +24,13 @@ export default function GroupChatView() {
   });
 
   const handleSend = (text: string) =>
-    dispatch(sendMessageThunk({ groupChat: groupChat!, text }));
+    dispatch(sendMessage({ groupChat: groupChat!, text }));
 
   const closeGroupChat = () => dispatch(setGroupChat(null));
 
-  const leaveGroupChat = () => dispatch(leaveGroupChatThunk(groupChat!));
+  const handleLeaveGroupChat = () => dispatch(leaveGroupChat(groupChat!));
 
-  useEffect(() => void dispatch(fetchMessagesThunk(groupChat!)), []);
+  useEffect(() => void dispatch(fetchMessages(groupChat!)), []);
 
   const classes = useStyles();
   return (
@@ -45,7 +40,7 @@ export default function GroupChatView() {
         <CloseIcon />
         (close)
       </Button>
-      <Button onClick={leaveGroupChat}>
+      <Button onClick={handleLeaveGroupChat}>
         <CloseIcon />
         (leave)
       </Button>

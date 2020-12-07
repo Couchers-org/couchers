@@ -7,7 +7,7 @@ import { groupChatsFetched, setGroupChat, setMessages } from ".";
 
 type FetchGroupChatsArguments = void;
 
-export const fetchGroupChatsThunk = createAsyncThunk<
+export const fetchGroupChats = createAsyncThunk<
   void,
   FetchGroupChatsArguments,
   { state: RootState }
@@ -16,7 +16,7 @@ export const fetchGroupChatsThunk = createAsyncThunk<
   thunkApi.dispatch(groupChatsFetched(groupChats));
 });
 
-export const fetchMessagesThunk = createAsyncThunk<
+export const fetchMessages = createAsyncThunk<
   void,
   GroupChat.AsObject,
   { state: RootState }
@@ -27,13 +27,13 @@ export const fetchMessagesThunk = createAsyncThunk<
   thunkApi.dispatch(setMessages(messages));
 });
 
-export const createGroupChatThunk = createAsyncThunk<
+export const createGroupChat = createAsyncThunk<
   void,
   { title: string; users: User.AsObject[] },
   { state: RootState }
 >("hostRequests/setGroupChat", async ({ title, users }, thunkApi) => {
   const groupChatId = await service.conversations.createGroupChat(title, users);
-  thunkApi.dispatch(fetchGroupChatsThunk());
+  thunkApi.dispatch(fetchGroupChats());
   const groupChat =
     thunkApi
       .getState()
@@ -43,21 +43,21 @@ export const createGroupChatThunk = createAsyncThunk<
   thunkApi.dispatch(setGroupChat(groupChat));
 });
 
-export const leaveGroupChatThunk = createAsyncThunk<
+export const leaveGroupChat = createAsyncThunk<
   void,
   GroupChat.AsObject,
   { state: RootState }
 >("hostRequests/leaveGroupChat", async (groupChat, thunkApi) => {
   await service.conversations.leaveGroupChat(groupChat.groupChatId);
   thunkApi.dispatch(setGroupChat(null));
-  thunkApi.dispatch(fetchGroupChatsThunk());
+  thunkApi.dispatch(fetchGroupChats());
 });
 
-export const sendMessageThunk = createAsyncThunk<
+export const sendMessage = createAsyncThunk<
   void,
   { groupChat: GroupChat.AsObject; text: string },
   { state: RootState }
 >("hostRequests/sendMessage", async ({ groupChat, text }, thunkApi) => {
   await service.conversations.sendMessage(groupChat.groupChatId, text);
-  thunkApi.dispatch(fetchMessagesThunk(groupChat));
+  thunkApi.dispatch(fetchMessages(groupChat));
 });

@@ -1,7 +1,7 @@
 import { Box } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import React, { useEffect } from "react";
-import { fetchGroupChatsThunk } from ".";
+import { fetchGroupChats } from ".";
 import Alert from "../../../components/Alert";
 import CircularProgress from "../../../components/CircularProgress";
 import { useAppDispatch, useTypedSelector } from "../../../store";
@@ -16,7 +16,7 @@ export default function GroupChatsTab() {
   const state = useTypedSelector((state) => state.groupChats);
 
   useEffect(() => {
-    dispatch(fetchGroupChatsThunk());
+    dispatch(fetchGroupChats());
   }, [dispatch]);
 
   const classes = useStyles();
