@@ -138,6 +138,9 @@ def test_update_profile(db):
             api_pb2.UpdateProfileReq(
                 name=wrappers_pb2.StringValue(value="New name"),
                 city=wrappers_pb2.StringValue(value="Timbuktu"),
+                lat=wrappers_pb2.DoubleValue(value=0.01),
+                lng=wrappers_pb2.DoubleValue(value=-2),
+                radius=wrappers_pb2.DoubleValue(value=321),
                 gender=wrappers_pb2.StringValue(value="Bot"),
                 occupation=api_pb2.NullableStringValue(value="Testing"),
                 about_me=api_pb2.NullableStringValue(value="I rule"),
@@ -156,6 +159,9 @@ def test_update_profile(db):
         user = api.GetUser(api_pb2.GetUserReq(user=user.username))
         assert user.name == "New name"
         assert user.city == "Timbuktu"
+        assert user.lat == 0.01
+        assert user.lng == -2
+        assert user.radius == 321
         assert user.hosting_status == api_pb2.HOSTING_STATUS_CAN_HOST
         assert "Binary" in user.languages
         assert "English" in user.languages
