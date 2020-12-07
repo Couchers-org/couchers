@@ -61,7 +61,7 @@ service Auth {
     // Auth a user with username + password
   }
 
-  rpc Deauthenticate(DeAuthReq) returns (google.protobuf.Empty) {
+  rpc Deauthenticate(google.protobuf.Empty) returns (google.protobuf.Empty) {
     // Invalidate a session, deauthing a user
   }
 
@@ -142,17 +142,15 @@ message CompleteTokenLoginReq {
 message AuthReq {
   string user = 1;
   string password = 2;
+
+  // whether to remember the browser or not, see models.UserSession docstring
+  bool remember_device = 3;
 }
 
 message AuthRes {
-  string token = 1;
   // whether the user has to complete some additional steps to continue to the
   // platform
   bool jailed = 2;
-}
-
-message DeAuthReq {
-  string token = 1;
 }
 
 message ResetPasswordReq {

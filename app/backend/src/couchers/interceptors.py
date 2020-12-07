@@ -1,3 +1,4 @@
+import http.cookies
 import logging
 import os
 from time import perf_counter_ns
@@ -32,15 +33,20 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
     def intercept_service(self, continuation, handler_call_details):
         metadata = dict(handler_call_details.invocation_metadata)
 
-        if "authorization" not in metadata:
+        if "cookie" not in metadata:
             return unauthenticated_handler()
 
-        authorization = metadata["authorization"]
-        if not authorization.startswith("Bearer "):
+        # parse the cookie
+        cookie = http.cookies.SimpleCookie(metadata["cookie"])
+
+        # get the token key-value pair
+        session_cookie = cookie.get("couchers-sesh")
+
+        if not session_cookie:
             return unauthenticated_handler()
 
         # None or (user_id, jailed)
-        res = self._get_session_for_token(token=authorization[7:])
+        res = self._get_session_for_token(token=session_cookie.value)
 
         if not res:
             return unauthenticated_handler()
@@ -55,6 +61,7 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
 
         def user_unaware_function(req, context):
             context.user_id = user_id
+            context.token = session_cookie.value
             return user_aware_function(req, context)
 
         return grpc.unary_unary_rpc_method_handler(
