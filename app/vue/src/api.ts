@@ -52,17 +52,18 @@ export const authClient = new AuthPromiseClient(URL)
 // @ts-ignore
 export const requestsClient = new RequestsPromiseClient(URL, null, opts) as RequestsPromiseClient
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-// @ts-ignore
-// eslint-disable-next-line @typescript-eslint/no-empty-function
-const grpcWebTools = window.__GRPCWEB_DEVTOOLS__ || (() => {})
-
-grpcWebTools([
-  client,
-  jailClient,
-  bugsClient,
-  SSOclient,
-  conversations,
-  authClient,
-  requestsClient,
-])
+if (process.env.NODE_ENV === "development") {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+  // @ts-ignore
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  const grpcWebTools = window.__GRPCWEB_DEVTOOLS__ || (() => {})
+  grpcWebTools([
+    client,
+    jailClient,
+    bugsClient,
+    SSOclient,
+    conversations,
+    authClient,
+    requestsClient,
+  ])
+}
