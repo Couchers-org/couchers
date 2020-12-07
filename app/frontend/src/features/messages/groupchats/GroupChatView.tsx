@@ -16,11 +16,6 @@ export default function GroupChatView() {
   const dispatch = useAppDispatch();
   const { error, loading, groupChat, messages } = useTypedSelector((state) => {
     return state.groupChats.groupChatView;
-    // if (componentState.groupChat) {
-    //   return { ...componentState, groupChat: componentState.groupChat };
-    // } else {
-    //   throw new Error("No groupChat");
-    // }
   });
 
   const handleSend = (text: string) =>
