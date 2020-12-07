@@ -28,7 +28,7 @@ from couchers.models import (
     User,
 )
 from couchers.tasks import send_friend_request_email, send_report_email
-from couchers.utils import Timestamp_from_datetime, get_coordinates, now
+from couchers.utils import Timestamp_from_datetime, create_coordinate, get_coordinates, now
 from pb import api_pb2, api_pb2_grpc, media_pb2
 
 reftype2sql = {
