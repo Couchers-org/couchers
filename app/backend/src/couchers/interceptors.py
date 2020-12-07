@@ -4,6 +4,8 @@ from time import perf_counter_ns
 
 import grpc
 
+from couchers import errors
+
 LOG_VERBOSE_PB = "LOG_VERBOSE_PB" in os.environ
 
 logger = logging.getLogger(__name__)
@@ -139,6 +141,41 @@ class UpdateLastActiveTimeInterceptor(grpc.ServerInterceptor):
 
         return grpc.unary_unary_rpc_method_handler(
             updating_function,
+            request_deserializer=handler.request_deserializer,
+            response_serializer=handler.response_serializer,
+        )
+
+
+class ErrorSanitizationInterceptor(grpc.ServerInterceptor):
+    """
+    If the call resulted in a non-gRPC error, this strips away the error details.
+
+    It's important to put this first, so that it does not interfere with other interceptors.
+    """
+
+    def intercept_service(self, continuation, handler_call_details):
+        handler = continuation(handler_call_details)
+        prev_func = handler.unary_unary
+
+        def sanitizing_function(req, context):
+            try:
+                res = prev_func(req, context)
+            except Exception as e:
+                # need a funky condition variable here, just in case
+                with context._state.condition:
+                    code = context._state.code
+                # the code is one of the RPC error codes if this was failed through abort(), otherwise it's None
+                if not code:
+                    logger.exception(e)
+                    logger.info(f"Probably an unknown error! Sanitizing...")
+                    context.abort(grpc.StatusCode.INTERNAL, errors.UNKNOWN_ERROR)
+                else:
+                    logger.error(f"RPC error: {code}")
+                    raise e
+            return res
+
+        return grpc.unary_unary_rpc_method_handler(
+            sanitizing_function,
             request_deserializer=handler.request_deserializer,
             response_serializer=handler.response_serializer,
         )
