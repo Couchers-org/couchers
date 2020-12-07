@@ -69,7 +69,9 @@ if config.config["ADD_DUMMY_DATA"]:
 logger.info(f"Starting")
 
 auth = Auth()
-open_server = grpc.server(futures.ThreadPoolExecutor(2), interceptors=[ErrorSanitizationInterceptor(), LoggingInterceptor()])
+open_server = grpc.server(
+    futures.ThreadPoolExecutor(2), interceptors=[ErrorSanitizationInterceptor(), LoggingInterceptor()]
+)
 open_server.add_insecure_port("[::]:1752")
 auth_pb2_grpc.add_AuthServicer_to_server(auth, open_server)
 bugs_pb2_grpc.add_BugsServicer_to_server(Bugs(), open_server)
