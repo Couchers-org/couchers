@@ -1,5 +1,9 @@
 const URL = process.env.VUE_APP_API_URL
 
+export const ACCESS_TOKEN = process.env.VUE_APP_ACCESS_TOKEN
+
+export const nominatimURL = process.env.VUE_APP_NOMINATIM_URL
+
 import { AuthPromiseClient } from "./pb/auth_grpc_web_pb"
 import { JailPromiseClient } from "./pb/jail_grpc_web_pb"
 import { APIPromiseClient } from "./pb/api_grpc_web_pb"

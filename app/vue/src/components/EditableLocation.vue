@@ -132,6 +132,8 @@
 <script lang="ts">
 import Vue, { PropType } from "vue"
 
+import { nominatimURL, ACCESS_TOKEN } from "../api"
+
 import axios from "axios"
 
 import "mapbox-gl/dist/mapbox-gl.css"
@@ -144,11 +146,6 @@ import {
   MglGeojsonLayer,
   MglPopup,
 } from "vue-mapbox"
-
-const ACCESS_TOKEN =
-  "pk.eyJ1IjoiY291Y2hlcnMiLCJhIjoiY2tpYnJtNjlpMHYzMzJxbWd5anIyNXg0YSJ9.mfpO3-lIzJZNu5-hUUdsRQ"
-
-const nominatimURL = process.env.VUE_APP_NOMINATIM_URL
 
 const createGeoJSONCircle = function (
   center: any,
