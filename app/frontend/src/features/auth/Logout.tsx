@@ -1,6 +1,8 @@
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { logout } from "./authSlice";
 import { useAppDispatch } from "../../store";
+import { Redirect } from "react-router-dom";
+import { loginRoute } from "../../AppRoutes";
 
 export default function Logout() {
   const dispatch = useAppDispatch();
@@ -9,5 +11,5 @@ export default function Logout() {
     dispatch(logout());
   });
 
-  return null;
+  return <Redirect to={loginRoute} />;
 }

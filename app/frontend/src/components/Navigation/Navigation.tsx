@@ -94,7 +94,7 @@ const useStyles = makeStyles((theme) => ({
 export default function Navigation() {
   const classes = useStyles();
 
-  const user = useTypedSelector((state) => state.auth.user);
+  const authToken = useTypedSelector((state) => state.auth.authToken);
 
   return (
     <AppBar
@@ -137,7 +137,7 @@ export default function Navigation() {
             </Button>
           ))}
           <Hidden smDown>
-            {user && (
+            {authToken && (
               <Button
                 classes={{
                   root: classes.item,
