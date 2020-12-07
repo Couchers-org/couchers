@@ -58,7 +58,9 @@
             label="Display address (shown to other users)"
           ></v-text-field>
 
-          Drag the markers to indicate what will be shown to other users.
+          Drag the red marker (and adjust the radius) to indicate what will be
+          shown to other users. (The red marker shows the address you searched
+          for).
 
           <div style="height: 350px">
             <MglMap
