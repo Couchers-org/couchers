@@ -35,7 +35,7 @@ from pb import (
 )
 
 
-@pytest.fixture(params=["models"])  # "migrations", "models"])
+@pytest.fixture(params=["migrations", "models"])
 def db(request):
     """
     Connect to a running Postgres database, and return the Session object.
@@ -49,14 +49,13 @@ def db(request):
 
     # drop everything currently in the database
     with session_scope() as session:
-        pass  # session.execute("DROP SCHEMA public CASCADE; CREATE SCHEMA public; CREATE EXTENSION postgis;")
+        session.execute("DROP SCHEMA public CASCADE; CREATE SCHEMA public; CREATE EXTENSION postgis;")
 
     if request.param == "migrations":
         # rebuild it with alembic migrations
         apply_migrations()
     else:
         # create everything from the current models, not incrementally through migrations
-        Base.metadata.drop_all(get_engine())
         Base.metadata.create_all(get_engine())
 
     yield
