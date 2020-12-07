@@ -286,6 +286,25 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-sherri.jpg" alt="Headshot of Val">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Sherri Cui</p>
+                    <p class="subtitle is-6 role">Frontend Developer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Italy</p>
+                    <!-- <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/public-profile/in/valerinatanelov">valerinatanelov</a></p> -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
                       <img class="is-rounded" src="/img/head-jesse.jpg" alt="Headshot of Val">
                     </figure>
                   </div>
