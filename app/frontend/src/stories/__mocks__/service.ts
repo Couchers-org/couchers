@@ -40,21 +40,7 @@ export const mockedService = ({
   },
   api: { listFriends: () => Promise.resolve([user2.userId, user3.userId]) },
   conversations: {
-    listGroupChats: () =>
-      Promise.resolve([
-        {
-          groupChatId: 3,
-          title: "groupchattitle",
-          memberUserIdsList: [],
-          adminUserIdsList: [],
-          onlyAdminsInvite: true,
-          isDm: false,
-          // created?: google_protobuf_timestamp_pb.Timestamp.AsObject,
-          unseenMessageCount: 0,
-          lastSeenMessageId: 4,
-          latestMessage: message1,
-        },
-      ]),
+    listGroupChats: () => Promise.resolve([groupChat]),
     getGroupChatMessages: () => Promise.resolve([message1, message2]),
   },
 } as unknown) as typeof originalService;
@@ -115,4 +101,17 @@ const message2: MessageProps["message"] = {
   authorUserId: 2,
   text: { text: "testtext" },
   time: { seconds: Math.floor(+new Date(2020, 0, 1) / 1e3), nanos: 0 },
+};
+
+export const groupChat = {
+  groupChatId: 3,
+  title: "groupchattitle",
+  memberUserIdsList: [],
+  adminUserIdsList: [],
+  onlyAdminsInvite: true,
+  isDm: false,
+  // created?: google_protobuf_timestamp_pb.Timestamp.AsObject,
+  unseenMessageCount: 0,
+  lastSeenMessageId: 4,
+  latestMessage: message1,
 };
