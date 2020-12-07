@@ -14,7 +14,7 @@ FROM base
 
 COPY --from=build /usr/local/bin/entr /usr/local/bin/entr
 
-RUN apt-get update && apt-get install -y libgeos-dev
+RUN apt-get update && apt-get install -y libgeos-c1v5
 
 WORKDIR /app
 
