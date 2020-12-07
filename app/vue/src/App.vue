@@ -51,8 +51,8 @@ export default Vue.extend({
       // * user is not jailed
       return this.authenticated && !this.jailed // && !this.$route.meta.noAuth
     },
-    ...mapGetters(["authenticated", "jailed"]),
-    ...mapState(["drawerOpen"]),
+    ...mapGetters(["jailed"]),
+    ...mapState(["authenticated", "drawerOpen"]),
   },
 
   methods: {
