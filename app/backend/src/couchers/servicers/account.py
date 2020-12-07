@@ -37,6 +37,18 @@ def _check_password(user, field_name, request, context):
         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NO_PASSWORD)
 
 
+def _abort_if_terrible_password(field_name, request, context):
+    """
+    Internal utility function: given a request with a StringValue `field_name` field, aborts if password is unforgivably insecure
+    """
+    if len(getattr(request, field_name).value) < 8:
+        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.PASSWORD_TOO_SHORT)
+
+    # check for most common weak passwords (not meant to be an exhaustive check!)
+    if getattr(request, field_name).value.lower() in ("password", "12345678", "couchers", "couchers1"):
+        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INSECURE_PASSWORD)
+
+
 class Account(account_pb2_grpc.AccountServicer):
     def ChangePassword(self, request, context):
         """
@@ -58,6 +70,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 # the user wants to unset their password
                 user.hashed_password = None
             else:
+                _abort_if_terrible_password("new_password", request, context)
                 user.hashed_password = hash_password(request.new_password.value)
 
             session.commit()
