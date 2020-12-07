@@ -10,21 +10,16 @@ import { User } from "../../../pb/api_pb";
 import { service } from "../../../service";
 import { useAppDispatch, useTypedSelector } from "../../../store";
 import { fetchUsers, getUsers } from "../../userCache";
+import { createGroupChatThunk } from "./groupChatsActions";
 
 const useStyles = makeStyles({ root: {} });
-
-interface CreateGroupChatProps {
-  createGroupChat: (title: string, users: User.AsObject[]) => Promise<void>;
-}
 
 interface CreateGroupChatFormData {
   title: string;
   users: User.AsObject[];
 }
 
-export default function CreateGroupChat({
-  createGroupChat,
-}: CreateGroupChatProps) {
+export default function CreateGroupChat() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [friendIds, setFriendIds] = React.useState<number[]>([]);
@@ -53,9 +48,14 @@ export default function CreateGroupChat({
 
   const classes = useStyles();
 
-  const onSubmit = handleSubmit((data: CreateGroupChatFormData) => {
-    createGroupChat(data.title, data.users);
-  });
+  const onSubmit = handleSubmit((data: CreateGroupChatFormData) =>
+    dispatch(
+      createGroupChatThunk({
+        title: data.title,
+        users: data.users,
+      })
+    )
+  );
   return (
     <form onSubmit={onSubmit}>
       <TextField label="Title" name="title" inputRef={register} />
