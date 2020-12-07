@@ -10,7 +10,7 @@ import { User } from "../../../pb/api_pb";
 import { service } from "../../../service";
 import { useAppDispatch, useTypedSelector } from "../../../store";
 import { fetchUsers, getUsers } from "../../userCache";
-import { createGroupChatThunk } from "./groupChatsActions";
+import { createGroupChat } from "./groupChatsActions";
 
 const useStyles = makeStyles({ root: {} });
 
@@ -50,7 +50,7 @@ export default function CreateGroupChat() {
 
   const onSubmit = handleSubmit((data: CreateGroupChatFormData) =>
     dispatch(
-      createGroupChatThunk({
+      createGroupChat({
         title: data.title,
         users: data.users,
       })

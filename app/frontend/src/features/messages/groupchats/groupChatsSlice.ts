@@ -1,10 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import {
-  fetchGroupChatsThunk,
-  fetchMessagesThunk,
-  leaveGroupChatThunk,
-  sendMessageThunk,
-} from ".";
+import { fetchGroupChats, fetchMessages, leaveGroupChat, sendMessage } from ".";
 import { GroupChat, Message } from "../../../pb/conversations_pb";
 
 const initialState = {
@@ -37,43 +32,43 @@ export const groupChatsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchGroupChatsThunk.pending, (state) => {
+      .addCase(fetchGroupChats.pending, (state) => {
         state.error = "";
         state.loading = true;
       })
-      .addCase(fetchGroupChatsThunk.fulfilled, (state) => {
+      .addCase(fetchGroupChats.fulfilled, (state) => {
         state.loading = false;
       })
-      .addCase(fetchGroupChatsThunk.rejected, (state, action) => {
+      .addCase(fetchGroupChats.rejected, (state, action) => {
         state.error = action.error.message || "";
         state.loading = false;
       })
-      .addCase(fetchMessagesThunk.pending, (state) => {
+      .addCase(fetchMessages.pending, (state) => {
         state.groupChatView.error = "";
         state.groupChatView.loading = true;
       })
-      .addCase(fetchMessagesThunk.fulfilled, (state) => {
+      .addCase(fetchMessages.fulfilled, (state) => {
         state.groupChatView.loading = false;
       })
-      .addCase(fetchMessagesThunk.rejected, (state, action) => {
+      .addCase(fetchMessages.rejected, (state, action) => {
         state.groupChatView.error = action.error.message || "";
         state.groupChatView.loading = false;
       })
-      .addCase(leaveGroupChatThunk.pending, (state) => {
+      .addCase(leaveGroupChat.pending, (state) => {
         state.groupChatView.error = "";
       })
-      .addCase(leaveGroupChatThunk.fulfilled, (state) => {})
-      .addCase(leaveGroupChatThunk.rejected, (state, action) => {
+      .addCase(leaveGroupChat.fulfilled, (state) => {})
+      .addCase(leaveGroupChat.rejected, (state, action) => {
         state.groupChatView.error = action.error.message || "";
       })
-      .addCase(sendMessageThunk.pending, (state) => {
+      .addCase(sendMessage.pending, (state) => {
         state.groupChatView.error = "";
         state.groupChatView.loading = true;
       })
-      .addCase(sendMessageThunk.fulfilled, (state) => {
+      .addCase(sendMessage.fulfilled, (state) => {
         state.groupChatView.loading = false;
       })
-      .addCase(sendMessageThunk.rejected, (state, action) => {
+      .addCase(sendMessage.rejected, (state, action) => {
         state.groupChatView.error = action.error.message || "";
         state.groupChatView.loading = false;
       });
