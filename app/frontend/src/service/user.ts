@@ -55,7 +55,7 @@ export type SignupArguments = {
 };
 
 /**
- * Login user using password and returns session token
+ * Login user using password
  */
 export async function passwordLogin(username: string, password: string) {
   const req = new AuthReq();
@@ -69,7 +69,7 @@ export async function passwordLogin(username: string, password: string) {
 }
 
 /**
- * Login user using a login token and returns session token
+ * Login user using a login token
  */
 export async function tokenLogin(loginToken: string) {
   const req = new CompleteTokenLoginReq();
@@ -86,7 +86,7 @@ export async function tokenLogin(loginToken: string) {
  *
  * @returns {Promise<User.AsObject>}
  */
-export async function getCurrentUser(token?: string): Promise<User.AsObject> {
+export async function getCurrentUser(): Promise<User.AsObject> {
   const req = new PingReq();
 
   const response = await client.api.ping(req);
@@ -98,12 +98,10 @@ export async function getCurrentUser(token?: string): Promise<User.AsObject> {
  * Returns User record by Username or id
  *
  * @param {string} user
- * @param {string} token
  * @returns {Promise<User.AsObject>}
  */
 export async function getUser(
-  user: string,
-  token?: string
+  user: string
 ): Promise<User.AsObject> {
   const userReq = new GetUserReq();
   userReq.setUser(user || "");
