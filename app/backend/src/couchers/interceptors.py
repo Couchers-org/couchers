@@ -149,6 +149,8 @@ class UpdateLastActiveTimeInterceptor(grpc.ServerInterceptor):
 class ErrorSanitizationInterceptor(grpc.ServerInterceptor):
     """
     If the call resulted in a non-gRPC error, this strips away the error details.
+
+    It's important to put this first, so that it does not interfere with other interceptors.
     """
 
     def intercept_service(self, continuation, handler_call_details):
