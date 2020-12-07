@@ -59,7 +59,7 @@
           ></v-text-field>
 
           Drag the red marker (and adjust the radius) to indicate what will be
-          shown to other users. (The red marker shows the address you searched
+          shown to other users. (The blue marker shows the address you searched
           for).
 
           <div style="height: 350px">
