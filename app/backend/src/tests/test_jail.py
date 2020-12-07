@@ -126,9 +126,9 @@ def test_AcceptTOS(db):
 
 def test_SetLocation(db):
     # make them have not added a location
-    user1, token1 = generate_user(db, geom=None, geom_radius=None)
+    user1, token1 = generate_user(geom=None, geom_radius=None)
 
-    with real_jail_session(db, token1) as jail:
+    with real_jail_session(token1) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
         assert res.jailed
         assert res.has_not_added_location
