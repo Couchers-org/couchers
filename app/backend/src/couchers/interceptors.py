@@ -6,6 +6,7 @@ from time import perf_counter_ns
 import grpc
 
 from couchers import errors
+from couchers.utils import parse_session_cookie
 
 LOG_VERBOSE_PB = "LOG_VERBOSE_PB" in os.environ
 
@@ -31,22 +32,13 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
         self._allow_jailed = allow_jailed
 
     def intercept_service(self, continuation, handler_call_details):
-        metadata = dict(handler_call_details.invocation_metadata)
+        token = parse_session_cookie(dict(handler_call_details.invocation_metadata))
 
-        if "cookie" not in metadata:
-            return unauthenticated_handler()
-
-        # parse the cookie
-        cookie = http.cookies.SimpleCookie(metadata["cookie"])
-
-        # get the token key-value pair
-        session_cookie = cookie.get("couchers-sesh")
-
-        if not session_cookie:
+        if not token:
             return unauthenticated_handler()
 
         # None or (user_id, jailed)
-        res = self._get_session_for_token(token=session_cookie.value)
+        res = self._get_session_for_token(token=token)
 
         if not res:
             return unauthenticated_handler()
@@ -61,7 +53,7 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
 
         def user_unaware_function(req, context):
             context.user_id = user_id
-            context.token = session_cookie.value
+            context.token = token
             return user_aware_function(req, context)
 
         return grpc.unary_unary_rpc_method_handler(

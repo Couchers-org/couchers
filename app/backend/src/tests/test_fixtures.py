@@ -35,7 +35,7 @@ from pb import (
 )
 
 
-@pytest.fixture(params=["migrations", "models"])
+@pytest.fixture(params=["models"])  # "migrations", "models"])
 def db(request):
     """
     Connect to a running Postgres database, and return the Session object.
@@ -49,13 +49,14 @@ def db(request):
 
     # drop everything currently in the database
     with session_scope() as session:
-        session.execute("DROP SCHEMA public CASCADE; CREATE SCHEMA public; CREATE EXTENSION postgis;")
+        pass  # session.execute("DROP SCHEMA public CASCADE; CREATE SCHEMA public; CREATE EXTENSION postgis;")
 
     if request.param == "migrations":
         # rebuild it with alembic migrations
         apply_migrations()
     else:
         # create everything from the current models, not incrementally through migrations
+        Base.metadata.drop_all(get_engine())
         Base.metadata.create_all(get_engine())
 
     yield
@@ -201,7 +202,19 @@ def auth_api_session():
 
         try:
             with grpc.secure_channel(f"localhost:{port}", grpc.local_channel_credentials()) as channel:
-                yield auth_pb2_grpc.AuthStub(channel)
+
+                class _MetadataKeeperInterceptor(grpc.UnaryUnaryClientInterceptor):
+                    def __init__(self):
+                        self.latest_headers = {}
+
+                    def intercept_unary_unary(self, continuation, client_call_details, request):
+                        call = continuation(client_call_details, request)
+                        self.latest_headers = dict(call.initial_metadata())
+                        return call
+
+                metadata_interceptor = _MetadataKeeperInterceptor()
+                channel = grpc.intercept_channel(channel, metadata_interceptor)
+                yield auth_pb2_grpc.AuthStub(channel), metadata_interceptor
         finally:
             server.stop(None).wait()
 
