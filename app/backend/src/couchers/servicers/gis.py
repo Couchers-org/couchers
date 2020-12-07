@@ -11,11 +11,8 @@ logger = logging.getLogger(__name__)
 
 
 class GIS(gis_pb2_grpc.GISServicer):
-    def __init__(self, Session):
-        self._Session = Session
-
     def GetUsers(self, request, context):
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             out = session.execute(
                 """
             select json_build_object(
