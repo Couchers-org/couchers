@@ -115,7 +115,7 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-emily.jpg" alt="Headshot of Val">
+                      <img class="is-rounded" src="/img/head-emily.jpg" alt="Headshot of Emily">
                     </figure>
                   </div>
                   <div class="media-content">
@@ -134,7 +134,7 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-darren.jpg" alt="Headshot of Val">
+                      <img class="is-rounded" src="/img/head-darren.jpg" alt="Headshot of Darren">
                     </figure>
                   </div>
                   <div class="media-content">
@@ -153,7 +153,7 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-jakub.jpg" alt="Headshot of Val">
+                      <img class="is-rounded" src="/img/head-jakub.jpg" alt="Headshot of Jakub">
                     </figure>
                   </div>
                   <div class="media-content">
@@ -172,7 +172,7 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-miuriel.jpg" alt="Headshot of Val">
+                      <img class="is-rounded" src="/img/head-miuriel.jpg" alt="Headshot of Miuriel">
                     </figure>
                   </div>
                   <div class="media-content">
@@ -191,7 +191,7 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-nolo.jpg" alt="Headshot of Val">
+                      <img class="is-rounded" src="/img/head-nolo.jpg" alt="Headshot of Nolo">
                     </figure>
                   </div>
                   <div class="media-content">
@@ -210,7 +210,7 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-tina.jpg" alt="Headshot of Val">
+                      <img class="is-rounded" src="/img/head-tina.jpg" alt="Headshot of Tina">
                     </figure>
                   </div>
                   <div class="media-content">
@@ -229,7 +229,7 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-colin.jpg" alt="Headshot of Val">
+                      <img class="is-rounded" src="/img/head-colin.jpg" alt="Headshot of Colin">
                     </figure>
                   </div>
                   <div class="media-content">
@@ -248,7 +248,7 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-dom.jpg" alt="Headshot of Val">
+                      <img class="is-rounded" src="/img/head-dom.jpg" alt="Headshot of Dom">
                     </figure>
                   </div>
                   <div class="media-content">
@@ -267,7 +267,7 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-lucas.jpg" alt="Headshot of Val">
+                      <img class="is-rounded" src="/img/head-lucas.jpg" alt="Headshot of Lucas">
                     </figure>
                   </div>
                   <div class="media-content">
@@ -286,13 +286,13 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-sherri.jpg" alt="Headshot of Val">
+                      <img class="is-rounded" src="/img/head-sherri.jpg" alt="Headshot of Sherri">
                     </figure>
                   </div>
                   <div class="media-content">
                     <p class="title is-4">Sherri Cui</p>
                     <p class="subtitle is-6 role">Frontend Developer</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Italy</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Ancona, Italy</p>
                     <!-- <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/public-profile/in/valerinatanelov">valerinatanelov</a></p> -->
                   </div>
                 </div>
@@ -305,7 +305,7 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-jesse.jpg" alt="Headshot of Val">
+                      <img class="is-rounded" src="/img/head-jesse.jpg" alt="Headshot of Jesse">
                     </figure>
                   </div>
                   <div class="media-content">
@@ -324,7 +324,7 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-mindy.jpg" alt="Headshot of Val">
+                      <img class="is-rounded" src="/img/head-mindy.jpg" alt="Headshot of Mindy">
                     </figure>
                   </div>
                   <div class="media-content">
@@ -343,7 +343,7 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-marco.jpg" alt="Headshot of Val">
+                      <img class="is-rounded" src="/img/head-marco.jpg" alt="Headshot of Marco">
                     </figure>
                   </div>
                   <div class="media-content">
