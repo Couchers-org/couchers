@@ -59,3 +59,14 @@ const GroupChatViewTemplate: Story<any> = (args) => {
 
 export const View = GroupChatViewTemplate.bind({});
 View.args = {};
+
+const GroupChatViewTemplate: Story<any> = (args) => {
+  store.dispatch(setGroupChat(groupChat));
+  mockedService.conversations.leaveGroupChat = async () => {
+    throw new Error("impossible to leave");
+  };
+  return <GroupChatView {...args} />;
+};
+
+export const View = GroupChatViewTemplate.bind({});
+View.args = {};

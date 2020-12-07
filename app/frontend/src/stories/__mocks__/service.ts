@@ -115,3 +115,16 @@ export const groupChat = {
   lastSeenMessageId: 4,
   latestMessage: message1,
 };
+
+export const groupChat = {
+  groupChatId: 3,
+  title: "groupchattitle",
+  memberUserIdsList: [],
+  adminUserIdsList: [],
+  onlyAdminsInvite: true,
+  isDm: false,
+  // created?: google_protobuf_timestamp_pb.Timestamp.AsObject,
+  unseenMessageCount: 0,
+  lastSeenMessageId: 4,
+  latestMessage: message1,
+};
