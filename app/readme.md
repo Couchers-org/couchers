@@ -17,6 +17,9 @@ To get the code onto your machine, clone the git respository from GitHub with th
 git clone https://github.com/Couchers-org/couchers.git
 ```
 
+If you use Windows clone the repo using [WSL2](https://docs.microsoft.com/en-us/windows/wsl/install-win10).
+WSL2 lets you easily use docker and linux utilities on Windows. This also avoids a problem with the [dev env on native windows](https://github.com/Couchers-org/couchers/issues/389).
+
 Open a command line or terminal, and navigate to the `app` folder (where this `readme.md` is), for example with `cd couchers/app`.
 
 
