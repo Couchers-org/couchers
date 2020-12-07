@@ -2,13 +2,12 @@ import { Meta, Story } from "@storybook/react/types-6-0";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import * as React from "react";
 import { Provider } from "react-redux";
-import { store } from "../../../store";
 import { groupChat, mockedService } from "../../../stories/__mocks__/service";
+import { store } from "../../../stories/__mocks__/store";
 import messages from "../../../test/fixtures/messages.json";
-
 import MessageView, { MessageProps } from "../messagelist/Message";
 import GroupChatsTab from "./GroupChatsTab";
-import GroupChatView, { GroupChatViewProps } from "./GroupChatView";
+import GroupChatView from "./GroupChatView";
 
 const [message1] = messages;
 
@@ -23,7 +22,12 @@ export default {
   ],
 } as Meta;
 
+mockedService.conversations.createGroupChat = async () => {
+  return 1234;
+};
+
 const Template: Story = (args) => {
+  store.dispatch({ type: "groupChats/setGroupChat", payload: null });
   mockedService.conversations.leaveGroupChat = async () => {
     return new Empty();
   };
@@ -41,6 +45,7 @@ export const Collapsed = MessageTemplate.bind({});
 Collapsed.args = { message: message1 };
 
 const GroupChatViewTemplate: Story<any> = (args) => {
+  store.dispatch({ type: "groupChats/setGroupChat", payload: groupChat });
   mockedService.conversations.leaveGroupChat = async () => {
     throw new Error("impossible to leave");
   };
@@ -48,4 +53,4 @@ const GroupChatViewTemplate: Story<any> = (args) => {
 };
 
 export const View = GroupChatViewTemplate.bind({});
-View.args = { groupChat };
+View.args = {};

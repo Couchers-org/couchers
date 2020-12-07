@@ -1,73 +1,56 @@
-import { Box, BoxProps, IconButton, Typography } from "@material-ui/core";
+import { Box, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import CloseIcon from "@material-ui/icons/Close";
 import * as React from "react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect } from "react";
+import {
+  fetchMessagesThunk,
+  leaveGroupChatThunk,
+  sendMessageThunk,
+  setGroupChat,
+} from ".";
 import Alert from "../../../components/Alert";
+import Button from "../../../components/Button";
 import CircularProgress from "../../../components/CircularProgress";
-import { GroupChat, Message } from "../../../pb/conversations_pb";
-import { service } from "../../../service";
+import { useAppDispatch, useTypedSelector } from "../../../store";
 import MessageList from "../messagelist/MessageList";
 
 const useStyles = makeStyles({ root: {} });
 
-export interface GroupChatViewProps extends BoxProps {
-  groupChat: GroupChat.AsObject;
-  handleClose: () => void;
-}
-
-export default function GroupChatView({
-  groupChat,
-  handleClose,
-}: GroupChatViewProps) {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [messages, setMessages] = useState<Message.AsObject[]>([]);
-
-  const handleSend = async (text: string) => {
-    await service.conversations.sendMessage(groupChat.groupChatId, text);
-    await fetchMessages();
-  };
-
-  const leaveGroupChat = async () => {
-    try {
-      await service.conversations.leaveGroupChat(groupChat.groupChatId);
-      handleClose();
-    } catch (error) {
-      setError(error.message);
+export default function GroupChatView() {
+  const dispatch = useAppDispatch();
+  const { error, loading, groupChat, messages } = useTypedSelector((state) => {
+    const componentState = state.groupChats.groupChatView;
+    if (componentState.groupChat) {
+      return { ...componentState, groupChat: componentState.groupChat };
+    } else {
+      throw new Error("No groupChat");
     }
-  };
+  });
 
-  const fetchMessages = useCallback(async () => {
-    try {
-      const messages = await service.conversations.getGroupChatMessages(
-        groupChat.groupChatId
-      );
-      setMessages(messages);
-    } catch (error) {
-      setError(error.message);
-    }
-  }, [groupChat.groupChatId]);
+  const handleSend = (text: string) =>
+    dispatch(sendMessageThunk({ groupChat, text }));
+
+  const closeGroupChat = () => dispatch(setGroupChat(null));
+
+  const leaveGroupChat = () => dispatch(leaveGroupChatThunk(groupChat));
 
   useEffect(() => {
-    (async () => {
-      setLoading(true);
-      await fetchMessages();
-      setLoading(false);
-    })();
-  }, [fetchMessages]);
+    dispatch(fetchMessagesThunk(groupChat));
+  }, [dispatch, groupChat]);
+
   const classes = useStyles();
   return (
     <Box className={classes.root}>
       <Typography variant="h3">{groupChat.title}</Typography>
-      <IconButton onClick={handleClose}>
+      <Button onClick={closeGroupChat}>
         <CloseIcon />
         (close)
-      </IconButton>
-      <IconButton onClick={leaveGroupChat}>
+      </Button>
+      <Button onClick={leaveGroupChat}>
         <CloseIcon />
         (leave)
-      </IconButton>
+      </Button>
       {error && <Alert severity="error">{error}</Alert>}
       {loading ? (
         <CircularProgress />
