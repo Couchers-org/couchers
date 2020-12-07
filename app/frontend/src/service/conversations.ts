@@ -57,9 +57,3 @@ export function leaveGroupChat(groupChatId: number) {
   req.setGroupChatId(groupChatId);
   return client.conversations.leaveGroupChat(req);
 }
-
-export function leaveGroupChat(groupChatId: number) {
-  const req = new LeaveGroupChatReq();
-  req.setGroupChatId(groupChatId);
-  return client.conversations.leaveGroupChat(req);
-}
