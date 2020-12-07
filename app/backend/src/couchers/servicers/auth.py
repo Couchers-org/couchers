@@ -72,21 +72,20 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
                 return user.id, user.is_jailed
 
-    def _create_session_cookie(self, context, session, user, long_lived):
+    def _create_session(self, context, session, user, long_lived):
         """
-        Creates a session for the given user and returns the set-cookie header
-        as a tuple as (header name, header value).
+        Creates a session for the given user and returns the token and expiry.
 
         You need to give an active DB session as nested sessions don't really
         work here due to the active User object.
 
         Will abort the API calling context if the user is banned from logging in.
 
-        You can send the returns header to the client with
+        You can set the cookie on the client with
 
         ```py3
-        cookie_header = _create_session_cookie(...)
-        context.send_initial_metadata((cookie_header,))
+        token, expiry = self._create_session(...)
+        context.send_initial_metadata((("set-cookie", create_session_cookie(token, expiry)),))
         ```
         """
         if user.is_banned:
@@ -107,10 +106,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
         session.add(user_session)
         session.commit()
 
-        cookie_header = ("set-cookie", create_session_cookie(token, user_session.expiry))
-
         logger.debug(f"Handing out {token=} to {user=}")
-        return cookie_header
+        return token, user_session.expiry
 
     def _delete_session(self, token):
         """
@@ -243,8 +240,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
             session.add(user)
             session.commit()
 
-            cookie_header = self._create_session_cookie(context, session, user, False)
-            context.send_initial_metadata((cookie_header,))
+            token, expiry = self._create_session(context, session, user, False)
+            context.send_initial_metadata((("set-cookie", create_session_cookie(token, expiry)),))
             return auth_pb2.AuthRes(jailed=user.is_jailed)
 
     def Login(self, request, context):
@@ -300,8 +297,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 session.commit()
 
                 # create a session
-                cookie_header = self._create_session_cookie(context, session, user, False)
-                context.send_initial_metadata((cookie_header,))
+                token, expiry = self._create_session(context, session, user, False)
+                context.send_initial_metadata((("set-cookie", create_session_cookie(token, expiry)),))
                 return auth_pb2.AuthRes(jailed=user.is_jailed)
             else:
                 context.abort(grpc.StatusCode.UNAUTHENTICATED, errors.INVALID_TOKEN)
@@ -323,8 +320,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 if verify_password(user.hashed_password, request.password):
                     logger.debug(f"Right password")
                     # correct password
-                    cookie_header = self._create_session_cookie(context, session, user, request.remember_device)
-                    context.send_initial_metadata((cookie_header,))
+                    token, expiry = self._create_session(context, session, user, request.remember_device)
+                    context.send_initial_metadata((("set-cookie", create_session_cookie(token, expiry)),))
                     return auth_pb2.AuthRes(jailed=user.is_jailed)
                 else:
                     logger.debug(f"Wrong password")

@@ -108,7 +108,7 @@ def generate_user(*_, **kwargs):
         # this expires the user, so now it's "dirty"
         session.commit()
 
-        token = auth._create_session("Dummy context", session, user)
+        token, _ = auth._create_session("Dummy context", session, user, False)
 
         # refresh it, undoes the expiry
         session.refresh(user)
