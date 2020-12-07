@@ -108,7 +108,11 @@ def generate_user(*_, **kwargs):
         # this expires the user, so now it's "dirty"
         session.commit()
 
-        token, _ = auth._create_session("Dummy context", session, user, False)
+        class _DummyContext:
+            def invocation_metadata(self):
+                return {}
+
+        token, _ = auth._create_session(_DummyContext(), session, user, False)
 
         # refresh it, undoes the expiry
         session.refresh(user)
@@ -126,6 +130,18 @@ def make_friends(user1, user2):
             status=FriendStatus.accepted,
         )
         session.add(friend_relationship)
+
+
+class CookieMetadataPlugin(grpc.AuthMetadataPlugin):
+    """
+    Injects the right `cookie: couchers-sesh=...` header into the metadata
+    """
+
+    def __init__(self, token):
+        self.token = token
+
+    def __call__(self, context, callback):
+        callback((("cookie", f"couchers-sesh={self.token}"),), None)
 
 
 class FakeRpcError(grpc.RpcError):
@@ -174,10 +190,20 @@ class FakeChannel:
 def auth_api_session():
     """
     Create an Auth API for testing
+
+    This needs to use the real server since it plays around with headers
     """
-    channel = FakeChannel()
-    auth_pb2_grpc.add_AuthServicer_to_server(Auth(), channel)
-    yield auth_pb2_grpc.AuthStub(channel)
+    with futures.ThreadPoolExecutor(1) as executor:
+        server = grpc.server(executor)
+        port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
+        auth_pb2_grpc.add_AuthServicer_to_server(Auth(), server)
+        server.start()
+
+        try:
+            with grpc.secure_channel(f"localhost:{port}", grpc.local_channel_credentials()) as channel:
+                yield auth_pb2_grpc.AuthStub(channel)
+        finally:
+            server.stop(None).wait()
 
 
 @contextmanager
@@ -205,7 +231,7 @@ def real_api_session(token):
         api_pb2_grpc.add_APIServicer_to_server(servicer, server)
         server.start()
 
-        call_creds = grpc.access_token_call_credentials(token)
+        call_creds = grpc.metadata_call_credentials(CookieMetadataPlugin(token))
         comp_creds = grpc.composite_channel_credentials(grpc.local_channel_credentials(), call_creds)
 
         try:
@@ -229,7 +255,7 @@ def real_jail_session(token):
         jail_pb2_grpc.add_JailServicer_to_server(servicer, server)
         server.start()
 
-        call_creds = grpc.access_token_call_credentials(token)
+        call_creds = grpc.metadata_call_credentials(CookieMetadataPlugin(token))
         comp_creds = grpc.composite_channel_credentials(grpc.local_channel_credentials(), call_creds)
 
         try:
