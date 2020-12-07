@@ -236,9 +236,9 @@ export async function completeSignup({
 /**
  * Logout user using a session token
  */
-export async function logout(sessionToken: string) {
+export function logout(sessionToken: string) {
   const req = new DeAuthReq();
   req.setToken(sessionToken);
 
-  await client.auth.deauthenticate(req);
+  return client.auth.deauthenticate(req);
 }
