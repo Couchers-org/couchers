@@ -12,6 +12,7 @@ import { UpdateUserProfileData } from "../../service/user";
 import { theme } from "../../theme";
 import { useAppDispatch, useTypedSelector } from "../../store";
 import ProfileMarkdownInput from "./ProfileMarkdownInput";
+import ProfileTagInput from "./ProfileTagInput";
 
 const useStyles = makeStyles({
   buttonContainer: {
@@ -94,6 +95,20 @@ export default function EditProfileForm() {
                     label="Languages"
                   />
                 )}
+              />
+            )}
+          />
+
+          <Controller
+            control={control}
+            defaultValue={user.languagesList}
+            name="languages"
+            render={({ onChange, value }) => (
+              <ProfileTagInput
+                onChange={(_, value) => onChange(value)}
+                value={value}
+                options={[""]}
+                label="Languages I speak"
               />
             )}
           />
