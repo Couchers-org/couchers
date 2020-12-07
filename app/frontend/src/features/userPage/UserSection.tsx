@@ -10,7 +10,7 @@ import React from "react";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    borderRadius: theme.shape.borderRadius,
+    borderRadius: `${theme.shape.borderRadius * 2}px`,
     marginBottom: theme.spacing(2),
   },
   title: {

@@ -6,14 +6,14 @@ import {
 import classNames from "classnames";
 import React from "react";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   root: {
     display: "block",
     "& .MuiOutlinedInput-root": {
-      borderRadius: 10,
+      borderRadius: theme.shape.borderRadius,
     },
   },
-});
+}));
 
 export default function TextField({
   className,

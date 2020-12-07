@@ -32,7 +32,7 @@ const themeOptions: ThemeOptions = {
     fontSize: 14,
   },
   shape: {
-    borderRadius: 16,
+    borderRadius: 10,
   },
   props: {
     MuiButtonBase: {
