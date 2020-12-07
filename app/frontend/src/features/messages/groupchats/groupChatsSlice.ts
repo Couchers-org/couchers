@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createAction, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { fetchGroupChats, fetchMessages, leaveGroupChat, sendMessage } from ".";
 import { GroupChat, Message } from "../../../pb/conversations_pb";
 
@@ -15,6 +15,7 @@ const initialState = {
 };
 
 export type RequestsState = typeof initialState;
+export const setMessages = createAction<Message.AsObject[]>("setMessages");
 
 export const groupChatsSlice = createSlice({
   name: "groupChats",
@@ -26,12 +27,12 @@ export const groupChatsSlice = createSlice({
     setGroupChat(state, action: PayloadAction<GroupChat.AsObject | null>) {
       state.groupChatView.groupChat = action.payload;
     },
-    setMessages(state, action: PayloadAction<Message.AsObject[]>) {
-      state.groupChatView.messages = action.payload;
-    },
   },
   extraReducers: (builder) => {
     builder
+      .addCase(setMessages, (state, action) => {
+        state.groupChatView.messages = action.payload;
+      })
       .addCase(fetchGroupChats.pending, (state) => {
         state.error = "";
         state.loading = true;
@@ -75,9 +76,5 @@ export const groupChatsSlice = createSlice({
   },
 });
 
-export const {
-  groupChatsFetched,
-  setGroupChat,
-  setMessages,
-} = groupChatsSlice.actions;
+export const { groupChatsFetched, setGroupChat } = groupChatsSlice.actions;
 export default groupChatsSlice.reducer;
