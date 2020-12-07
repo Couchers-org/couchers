@@ -15,6 +15,8 @@ CONFIG_OPTIONS = [
     ("VERSION", str, "unknown"),
     # Base URL
     ("BASE_URL", str),
+    # Domain that cookies should set as their domain value
+    ("COOKIE_DOMAIN", str),
     # SQLAlchemy database connection string
     ("DATABASE_CONNECTION_STRING", str),
     # Whether to try adding dummy data

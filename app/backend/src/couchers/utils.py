@@ -7,6 +7,8 @@ from geoalchemy2.shape import to_shape
 from google.protobuf.timestamp_pb2 import Timestamp
 from sqlalchemy.sql import func
 
+from couchers.config import config
+
 utc = pytz.UTC
 
 
@@ -78,7 +80,7 @@ def create_session_cookie(token, expiry):
     # tell the browser when to stop sending the cookie
     cookie["expires"] = http_date(expiry)
     # restrict to our domain, note if there's no domain, it won't include subdomains
-    cookie["domain"] = "localhost"
+    cookie["domain"] = config["COOKIE_DOMAIN"]
     # path so that it's accessible for all API requests, otherwise defaults to something like /org.couchers.auth/
     cookie["path"] = "/"
     # allow cross-domain requests
