@@ -4,7 +4,7 @@ import React from "react";
 import { GroupChat } from "../../../pb/conversations_pb";
 import { useAppDispatch, useTypedSelector } from "../../../store";
 import GroupChatListItem from "./GroupChatListItem";
-import { setGroupChat } from "./groupChatsSlice";
+import { setGroupChat } from ".";
 
 const useStyles = makeStyles({ root: {} });
 

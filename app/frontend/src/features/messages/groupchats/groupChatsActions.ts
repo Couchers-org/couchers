@@ -3,7 +3,7 @@ import { User } from "../../../pb/api_pb";
 import { GroupChat } from "../../../pb/conversations_pb";
 import { RootState } from "../../../reducers";
 import { service } from "../../../service";
-import { groupChatsFetched, setGroupChat, setMessages } from ".";
+import { groupChatsFetched, messagesFetched, groupChatSet } from ".";
 
 type FetchGroupChatsArguments = void;
 
@@ -24,7 +24,18 @@ export const fetchMessages = createAsyncThunk<
   const messages = await service.conversations.getGroupChatMessages(
     groupChat.groupChatId
   );
-  thunkApi.dispatch(setMessages(messages));
+  thunkApi.dispatch(messagesFetched(messages));
+});
+
+export const setGroupChat = createAsyncThunk<
+  void,
+  GroupChat.AsObject | null,
+  { state: RootState }
+>("hostRequests/fetchMessages", async (groupChat, thunkApi) => {
+  thunkApi.dispatch(groupChatSet(groupChat));
+  if (groupChat) {
+    thunkApi.dispatch(fetchMessages(groupChat));
+  }
 });
 
 export const createGroupChat = createAsyncThunk<
