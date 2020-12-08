@@ -9,7 +9,7 @@ import {
 import Autocomplete, {
   AutocompleteCloseReason,
 } from "@material-ui/lab/Autocomplete";
-import { DoneIcon, CloseIcon } from "../../components/Icons";
+import { DoneIcon, CloseIcon, ExpandMore } from "../../components/Icons";
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -24,9 +24,23 @@ const useStyles = makeStyles((theme) =>
     },
     button: {
       borderRadius: theme.shape.borderRadius,
-      borderColor: theme.palette.text.primary,
+      borderColor: "rgba(0, 0, 0, 0.23)",
       borderWidth: 1,
+      borderStyle: "solid",
       padding: "18.5px 14px",
+      width: "100%",
+      fontSize: "16px",
+      justifyContent: "space-between",
+    },
+    tag: {
+      padding: "0 14px",
+      margin: "18.5px 0",
+      fontSize: "16px",
+      display: "flex",
+      alignItems: "center",
+    },
+    tagLabel: {
+      marginLeft: theme.spacing(1),
     },
   })
 );
@@ -82,12 +96,18 @@ export default function ProfileTagInput({
         disableRipple
         aria-describedby={id}
         onClick={handleClick}
-        className={classes.button}
+        classes={{
+          root: classes.button,
+        }}
       >
         <span>{label}</span>
+        <ExpandMore />
       </ButtonBase>
       {valueState.map((tag) => (
-        <div key={tag}>{tag}</div>
+        <div key={tag} className={classes.tag}>
+          <CloseIcon fontSize="small" />
+          <span className={classes.tagLabel}>{tag}</span>
+        </div>
       ))}
       <Popper
         id={id}

@@ -7,3 +7,4 @@ export { default as PersonIcon } from "@material-ui/icons/EmojiPeopleOutlined";
 export { default as WorkIcon } from "@material-ui/icons/WorkOutlined";
 export { default as DoneIcon } from "@material-ui/icons/Done";
 export { default as CloseIcon } from "@material-ui/icons/Close";
+export { default as ExpandMore } from "@material-ui/icons/ExpandMore";

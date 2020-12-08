@@ -80,13 +80,12 @@ export default function EditProfileForm() {
             name="languages"
             render={({ onChange, value }) => (
               <Autocomplete
-                disableClearable={false}
                 freeSolo
                 multiple
                 onChange={(_, value) => onChange(value)}
                 value={value}
-                open={false}
-                options={[""]}
+                options={["French", "English"]}
+                open={true}
                 renderInput={(params) => (
                   <TextField
                     {...params}
@@ -107,7 +106,7 @@ export default function EditProfileForm() {
               <ProfileTagInput
                 onChange={(_, value) => onChange(value)}
                 value={value}
-                options={[""]}
+                options={["French", "English"]}
                 label="Languages I speak"
               />
             )}
