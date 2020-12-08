@@ -1,8 +1,9 @@
+import { configureStore, createStore } from "@reduxjs/toolkit";
 import { Meta, Story } from "@storybook/react/types-6-0";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import * as React from "react";
 import { Provider } from "react-redux";
-import { setGroupChat } from ".";
+import rootReducer from "../../../reducers";
 import { groupChat, mockedService } from "../../../stories/__mocks__/service";
 import { store } from "../../../stories/__mocks__/store";
 import messages from "../../../test/fixtures/messages.json";
@@ -12,17 +13,31 @@ import GroupChatView from "./GroupChatView";
 
 const [message1] = messages;
 
+const state = store.getState();
+const chatGroupViewState = {
+  ...state,
+  groupChats: {
+    ...state.groupChats,
+    groupChatView: {
+      ...state.groupChats.groupChatView,
+      groupChat,
+      messages,
+    },
+  },
+};
+
 export default {
   title: "GroupChatsTab",
   component: GroupChatsTab,
   argTypes: {},
   decorators: [
-    (storyFn) => {
-      return (
-        <Provider store={storyFn !== View ? store : store}>
-          {storyFn()}
-        </Provider>
-      );
+    (storyFn, { args }) => {
+      const usedStore = configureStore({
+        reducer: rootReducer,
+        preloadedState: args.state || state,
+      });
+
+      return <Provider store={usedStore}>{storyFn()}</Provider>;
     },
   ],
 } as Meta;
@@ -32,7 +47,6 @@ mockedService.conversations.createGroupChat = async () => {
 };
 
 const Template: Story = (args) => {
-  store.dispatch(setGroupChat(null));
   mockedService.conversations.leaveGroupChat = async () => {
     return new Empty();
   };
@@ -50,7 +64,6 @@ export const Collapsed = MessageTemplate.bind({});
 Collapsed.args = { message: message1 };
 
 const GroupChatViewTemplate: Story<any> = (args) => {
-  store.dispatch(setGroupChat(groupChat));
   mockedService.conversations.leaveGroupChat = async () => {
     throw new Error("impossible to leave");
   };
@@ -58,4 +71,4 @@ const GroupChatViewTemplate: Story<any> = (args) => {
 };
 
 export const View = GroupChatViewTemplate.bind({});
-View.args = {};
+View.args = { state: chatGroupViewState };

@@ -1,8 +1,14 @@
-import { createAction, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { fetchGroupChats, fetchMessages, leaveGroupChat, sendMessage } from ".";
+import { createAction, createSlice } from "@reduxjs/toolkit";
+import {
+  fetchGroupChats,
+  fetchMessages,
+  leaveGroupChat,
+  sendMessage,
+  setGroupChat,
+} from ".";
 import { GroupChat, Message } from "../../../pb/conversations_pb";
 
-const initialState = {
+export const initialState = {
   groupChats: [] as GroupChat.AsObject[],
   error: "",
   loading: false,
@@ -22,24 +28,27 @@ export const messagesFetched = createAction<Message.AsObject[]>(
 export const groupChatsSlice = createSlice({
   name: "groupChats",
   initialState,
-  reducers: {
-    groupChatsFetched(state, action: PayloadAction<GroupChat.AsObject[]>) {
-      state.groupChats = action.payload;
-    },
-    groupChatSet(state, action: PayloadAction<GroupChat.AsObject | null>) {
-      state.groupChatView.groupChat = action.payload;
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(messagesFetched, (state, action) => {
-        state.groupChatView.messages = action.payload;
+      .addCase(setGroupChat.pending, (state) => {
+        state.error = "";
+        state.loading = true;
+      })
+      .addCase(setGroupChat.fulfilled, (state, action) => {
+        state.groupChatView.groupChat = action.payload;
+        state.loading = false;
+      })
+      .addCase(setGroupChat.rejected, (state, action) => {
+        state.error = action.error.message!;
+        state.loading = false;
       })
       .addCase(fetchGroupChats.pending, (state) => {
         state.error = "";
         state.loading = true;
       })
-      .addCase(fetchGroupChats.fulfilled, (state) => {
+      .addCase(fetchGroupChats.fulfilled, (state, action) => {
+        state.groupChats = action.payload;
         state.loading = false;
       })
       .addCase(fetchGroupChats.rejected, (state, action) => {
@@ -50,7 +59,8 @@ export const groupChatsSlice = createSlice({
         state.groupChatView.error = "";
         state.groupChatView.loading = true;
       })
-      .addCase(fetchMessages.fulfilled, (state) => {
+      .addCase(fetchMessages.fulfilled, (state, action) => {
+        state.groupChatView.messages = action.payload;
         state.groupChatView.loading = false;
       })
       .addCase(fetchMessages.rejected, (state, action) => {
@@ -60,7 +70,9 @@ export const groupChatsSlice = createSlice({
       .addCase(leaveGroupChat.pending, (state) => {
         state.groupChatView.error = "";
       })
-      .addCase(leaveGroupChat.fulfilled, (state) => {})
+      .addCase(leaveGroupChat.fulfilled, (state) => {
+        state.groupChatView.groupChat = null;
+      })
       .addCase(leaveGroupChat.rejected, (state, action) => {
         state.groupChatView.error = action.error.message || "";
       })
@@ -78,5 +90,5 @@ export const groupChatsSlice = createSlice({
   },
 });
 
-export const { groupChatsFetched, groupChatSet } = groupChatsSlice.actions;
+export const {} = groupChatsSlice.actions;
 export default groupChatsSlice.reducer;
