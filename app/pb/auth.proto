@@ -143,7 +143,9 @@ message AuthReq {
   string user = 1;
   string password = 2;
 
-  // whether to remember the browser or not, see models.UserSession docstring
+  // whether to remember the browser or not
+  // if false, the session will time out after 2 hours of inactivity (no API calls)
+  // if true, the session is valid from creation until expiry, with no need to be used in between
   bool remember_device = 3;
 }
 

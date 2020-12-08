@@ -85,7 +85,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         ```py3
         token, expiry = self._create_session(...)
-        context.send_initial_metadata((("set-cookie", create_session_cookie(token, expiry)),))
+        context.send_initial_metadata([("set-cookie", create_session_cookie(token, expiry)),])
         ```
         """
         if user.is_banned:
@@ -241,7 +241,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             session.commit()
 
             token, expiry = self._create_session(context, session, user, False)
-            context.send_initial_metadata((("set-cookie", create_session_cookie(token, expiry)),))
+            context.send_initial_metadata([("set-cookie", create_session_cookie(token, expiry)),])
             return auth_pb2.AuthRes(jailed=user.is_jailed)
 
     def Login(self, request, context):
@@ -298,7 +298,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
                 # create a session
                 token, expiry = self._create_session(context, session, user, False)
-                context.send_initial_metadata((("set-cookie", create_session_cookie(token, expiry)),))
+                context.send_initial_metadata([("set-cookie", create_session_cookie(token, expiry)),])
                 return auth_pb2.AuthRes(jailed=user.is_jailed)
             else:
                 context.abort(grpc.StatusCode.UNAUTHENTICATED, errors.INVALID_TOKEN)
@@ -321,7 +321,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     logger.debug(f"Right password")
                     # correct password
                     token, expiry = self._create_session(context, session, user, request.remember_device)
-                    context.send_initial_metadata((("set-cookie", create_session_cookie(token, expiry)),))
+                    context.send_initial_metadata([("set-cookie", create_session_cookie(token, expiry)),])
                     return auth_pb2.AuthRes(jailed=user.is_jailed)
                 else:
                     logger.debug(f"Wrong password")
