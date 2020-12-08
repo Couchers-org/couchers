@@ -21,7 +21,7 @@ export const fetchMessages = createAsyncThunk(
 
 export const setGroupChat = createAsyncThunk(
   "hostRequests/setGroupChat",
-  async (groupChat: GroupChat.AsObject, thunkApi) => {
+  async (groupChat: GroupChat.AsObject | null, thunkApi) => {
     if (groupChat) {
       thunkApi.dispatch(fetchMessages(groupChat));
     }
