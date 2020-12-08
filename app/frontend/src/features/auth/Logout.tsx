@@ -1,6 +1,8 @@
-import { useEffect } from "react";
-import { useAppDispatch, useTypedSelector } from "../../store";
+import React, { useEffect } from "react";
 import { logout } from "./authActions";
+import { useAppDispatch, useTypedSelector  } from "../../store";
+import { Redirect } from "react-router-dom";
+import { loginRoute } from "../../AppRoutes";
 
 export default function Logout() {
   const dispatch = useAppDispatch();
@@ -12,5 +14,5 @@ export default function Logout() {
     }
   });
 
-  return null;
+  return <Redirect to={loginRoute} />;
 }

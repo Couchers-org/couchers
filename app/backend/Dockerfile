@@ -1,4 +1,4 @@
-FROM python:3.8-buster as base
+FROM python:3.9-buster as base
 
 FROM base as build
 
@@ -13,6 +13,8 @@ RUN wget http://eradman.com/entrproject/code/entr-4.6.tar.gz \
 FROM base
 
 COPY --from=build /usr/local/bin/entr /usr/local/bin/entr
+
+RUN apt-get update && apt-get install -y libgeos-c1v5
 
 WORKDIR /app
 

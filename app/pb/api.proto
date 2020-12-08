@@ -166,6 +166,14 @@ message User {
   string username = 2;
   string name = 3;
   string city = 4;
+
+  // doubles are enough to describe lat/lng
+  // in EPSG4326, lat & lon are in degress, check the EPS4326 definition for details
+  // returned as 0.0 (default) if these are not set, note this should only happen with incomplete profiles!
+  double lat = 33;
+  double lng = 34;
+  double radius = 35; // meters
+
   double verification = 5;
   double community_standing = 6;
   uint32 num_references = 7;
@@ -184,7 +192,7 @@ message User {
 
   FriendshipStatus friends = 20;
   repeated MutualFriend mutual_friends = 21;
-  
+
   google.protobuf.UInt32Value max_guests = 22;
   google.protobuf.BoolValue multiple_groups = 23;
   google.protobuf.BoolValue last_minute = 24;
@@ -214,19 +222,26 @@ message UpdateProfileReq {
   // These StringValue types allow us to determine if the value is absent versus ""
 
   google.protobuf.StringValue name = 1;
+
   google.protobuf.StringValue city = 2;
+  // doubles are enough to describe lat/lng
+  // in EPSG4326, lat & lon are in degress, check the EPS4326 definition for details
+  google.protobuf.DoubleValue lat = 22;
+  google.protobuf.DoubleValue lng = 23;
+  google.protobuf.DoubleValue radius = 24; // metres
+
   google.protobuf.StringValue gender = 3;
   NullableStringValue occupation = 4;
   NullableStringValue about_me = 5;
   NullableStringValue about_place = 6;
   google.protobuf.StringValue color = 7;
-  
+
   HostingStatus hosting_status = 8;
 
   RepeatedStringValue languages = 9;
   RepeatedStringValue countries_visited = 10;
   RepeatedStringValue countries_lived = 11;
-  
+
   NullableUInt32Value max_guests = 12;
   NullableBoolValue multiple_groups = 13;
   NullableBoolValue last_minute = 14;

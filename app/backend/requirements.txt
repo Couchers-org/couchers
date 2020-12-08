@@ -1,5 +1,6 @@
 alembic
 black
+geoalchemy2
 grpcio
 isort
 Jinja2
@@ -14,4 +15,5 @@ python-dateutil
 pytz
 pyyaml
 requests
+Shapely
 sqlalchemy

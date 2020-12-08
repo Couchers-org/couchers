@@ -5,8 +5,6 @@ import Home from "./features/Home";
 import Messages from "./features/messages/index";
 import Logout from "./features/auth/Logout";
 import Signup from "./features/auth/signup/Signup";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "./reducers";
 import { authError } from "./features/auth/authSlice";
 import {
   EditProfilePage,
@@ -17,6 +15,7 @@ import UserPage from "./features/userPage/UserPage";
 import SearchPage from "./features/search/SearchPage";
 import Jail from "./features/auth/jail/Jail";
 import TOS from "./components/TOS";
+import { useAppDispatch, useTypedSelector } from "./store";
 
 export const loginRoute = "/login";
 export const loginPasswordRoute = `${loginRoute}/password`;
@@ -64,27 +63,25 @@ export default function AppRoutes() {
       <PrivateRoute path={`${searchRoute}/:query?`}>
         <SearchPage />
       </PrivateRoute>
-      <PrivateRoute path={jailRoute}>
+      <Route path={jailRoute}>
         <Jail />
-      </PrivateRoute>
+      </Route>
       <PrivateRoute exact path="/">
         <Home />
       </PrivateRoute>
-      <PrivateRoute exact path={logoutRoute}>
+      <Route exact path={logoutRoute}>
         <Logout />
-      </PrivateRoute>
+      </Route>
     </Switch>
   );
 }
 
 const PrivateRoute = ({ children, ...otherProps }: RouteProps) => {
-  const dispatch = useDispatch();
-  const isAuthenticated = useSelector<RootState, boolean>(
+  const dispatch = useAppDispatch();
+  const isAuthenticated = useTypedSelector(
     (state) => state.auth.authToken !== null
   );
-  const isJailed = useSelector<RootState, boolean>(
-    (state) => state.auth.jailed
-  );
+  const isJailed = useTypedSelector((state) => state.auth.jailed);
   useEffect(() => {
     if (!isAuthenticated) {
       dispatch(authError("Please log in."));

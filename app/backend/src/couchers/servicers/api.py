@@ -6,7 +6,6 @@ from urllib.parse import urlencode
 import grpc
 from google.protobuf import empty_pb2
 from google.protobuf.timestamp_pb2 import Timestamp
-from sqlalchemy import func, or_
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, or_
 
@@ -29,7 +28,7 @@ from couchers.models import (
     User,
 )
 from couchers.tasks import send_friend_request_email, send_report_email
-from couchers.utils import Timestamp_from_datetime, now
+from couchers.utils import Timestamp_from_datetime, create_coordinate, get_coordinates, now
 from pb import api_pb2, api_pb2_grpc, media_pb2
 
 reftype2sql = {
@@ -78,16 +77,13 @@ smokinglocation2api = {
 
 
 class API(api_pb2_grpc.APIServicer):
-    def __init__(self, Session):
-        self._Session = Session
-
     def update_last_active_time(self, user_id):
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             user = session.query(User).filter(User.id == user_id).one()
             user.last_active = func.now()
 
     def Ping(self, request, context):
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             # auth ought to make sure the user exists
             user = session.query(User).filter(User.id == context.user_id).one()
 
@@ -143,7 +139,7 @@ class API(api_pb2_grpc.APIServicer):
             )
 
     def GetUser(self, request, context):
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             user = get_user_by_field(session, request.user)
 
             if not user:
@@ -152,7 +148,7 @@ class API(api_pb2_grpc.APIServicer):
             return user_model_to_pb(user, session, context)
 
     def UpdateProfile(self, request, context):
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             user = session.query(User).filter(User.id == context.user_id).one()
 
             if request.HasField("name"):
@@ -162,6 +158,12 @@ class API(api_pb2_grpc.APIServicer):
 
             if request.HasField("city"):
                 user.city = request.city.value
+
+            if request.HasField("lat") and request.HasField("lng"):
+                user.geom = create_coordinate(request.lat.value, request.lng.value)
+
+            if request.HasField("radius"):
+                user.geom_radius = request.radius.value
 
             if request.HasField("gender"):
                 user.gender = request.gender.value
@@ -265,7 +267,7 @@ class API(api_pb2_grpc.APIServicer):
             return empty_pb2.Empty()
 
     def ListFriends(self, request, context):
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             rels = (
                 session.query(FriendRelationship)
                 .filter(
@@ -282,7 +284,7 @@ class API(api_pb2_grpc.APIServicer):
             )
 
     def SendFriendRequest(self, request, context):
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             from_user = session.query(User).filter(User.id == context.user_id).one_or_none()
 
             if not from_user:
@@ -307,7 +309,7 @@ class API(api_pb2_grpc.APIServicer):
 
     def ListFriendRequests(self, request, context):
         # both sent and received
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             sent_requests = (
                 session.query(FriendRelationship)
                 .filter(FriendRelationship.from_user_id == context.user_id)
@@ -342,7 +344,7 @@ class API(api_pb2_grpc.APIServicer):
             )
 
     def RespondFriendRequest(self, request, context):
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             friend_request = (
                 session.query(FriendRelationship)
                 .filter(FriendRelationship.to_user_id == context.user_id)
@@ -362,7 +364,7 @@ class API(api_pb2_grpc.APIServicer):
             return empty_pb2.Empty()
 
     def CancelFriendRequest(self, request, context):
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             friend_request = (
                 session.query(FriendRelationship)
                 .filter(FriendRelationship.from_user_id == context.user_id)
@@ -382,7 +384,7 @@ class API(api_pb2_grpc.APIServicer):
             return empty_pb2.Empty()
 
     def Search(self, request, context):
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             users = []
             for user in (
                 session.query(User)
@@ -397,7 +399,7 @@ class API(api_pb2_grpc.APIServicer):
         if context.user_id == request.reported_user_id:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REPORT_SELF)
 
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             reported_user = session.query(User).filter(User.id == request.reported_user_id).one_or_none()
 
             if not reported_user:
@@ -431,7 +433,7 @@ class API(api_pb2_grpc.APIServicer):
             was_safe=request.was_safe,
             rating=request.rating,
         )
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             if not session.query(User).filter(User.id == request.to_user_id).one_or_none():
                 context.abort(grpc.StatusCode.NOT_FOUND, "User not found")
 
@@ -447,7 +449,7 @@ class API(api_pb2_grpc.APIServicer):
         return empty_pb2.Empty()
 
     def GetGivenReferences(self, request, context):
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             query = session.query(Reference)
             query = query.filter(Reference.from_user_id == request.from_user_id)
             if request.HasField("type_filter"):
@@ -455,7 +457,7 @@ class API(api_pb2_grpc.APIServicer):
             return paginate_references_result(request, query)
 
     def GetReceivedReferences(self, request, context):
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             query = session.query(Reference)
             query = query.filter(Reference.to_user_id == request.to_user_id)
             if request.HasField("type_filter"):
@@ -470,7 +472,7 @@ class API(api_pb2_grpc.APIServicer):
         }
 
         # Filter out already written ones.
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             query = session.query(Reference)
             query = query.filter(Reference.from_user_id == context.user_id)
             query = query.filter(Reference.to_user_id == request.to_user_id)
@@ -486,7 +488,7 @@ class API(api_pb2_grpc.APIServicer):
         created = now()
         expiry = created + timedelta(minutes=20)
 
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             upload = InitiatedUpload(key=key, created=created, expiry=expiry, user_id=context.user_id)
             session.add(upload)
             session.commit()
@@ -539,6 +541,9 @@ def user_model_to_pb(db_user, session, context):
         username=db_user.username,
         name=db_user.name,
         city=db_user.city,
+        lat=db_user.coordinates[0],
+        lng=db_user.coordinates[1],
+        radius=db_user.geom_radius,
         verification=db_user.verification,
         community_standing=db_user.community_standing,
         num_references=num_references,
