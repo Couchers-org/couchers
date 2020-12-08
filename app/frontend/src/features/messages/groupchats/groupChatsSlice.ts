@@ -15,7 +15,9 @@ const initialState = {
 };
 
 export type RequestsState = typeof initialState;
-export const setMessages = createAction<Message.AsObject[]>("setMessages");
+export const messagesFetched = createAction<Message.AsObject[]>(
+  "messagesFetched"
+);
 
 export const groupChatsSlice = createSlice({
   name: "groupChats",
@@ -24,13 +26,13 @@ export const groupChatsSlice = createSlice({
     groupChatsFetched(state, action: PayloadAction<GroupChat.AsObject[]>) {
       state.groupChats = action.payload;
     },
-    setGroupChat(state, action: PayloadAction<GroupChat.AsObject | null>) {
+    groupChatSet(state, action: PayloadAction<GroupChat.AsObject | null>) {
       state.groupChatView.groupChat = action.payload;
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(setMessages, (state, action) => {
+      .addCase(messagesFetched, (state, action) => {
         state.groupChatView.messages = action.payload;
       })
       .addCase(fetchGroupChats.pending, (state) => {
@@ -41,7 +43,7 @@ export const groupChatsSlice = createSlice({
         state.loading = false;
       })
       .addCase(fetchGroupChats.rejected, (state, action) => {
-        state.error = action.error.message || "";
+        state.error = action.error.message!;
         state.loading = false;
       })
       .addCase(fetchMessages.pending, (state) => {
@@ -76,5 +78,5 @@ export const groupChatsSlice = createSlice({
   },
 });
 
-export const { groupChatsFetched, setGroupChat } = groupChatsSlice.actions;
+export const { groupChatsFetched, groupChatSet } = groupChatsSlice.actions;
 export default groupChatsSlice.reducer;

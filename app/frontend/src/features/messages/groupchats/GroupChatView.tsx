@@ -2,8 +2,7 @@ import { Box, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import CloseIcon from "@material-ui/icons/Close";
 import * as React from "react";
-import { useEffect } from "react";
-import { fetchMessages, leaveGroupChat, sendMessage, setGroupChat } from ".";
+import { leaveGroupChat, sendMessage, setGroupChat } from ".";
 import Alert from "../../../components/Alert";
 import Button from "../../../components/Button";
 import CircularProgress from "../../../components/CircularProgress";
@@ -24,8 +23,6 @@ export default function GroupChatView() {
   const closeGroupChat = () => dispatch(setGroupChat(null));
 
   const handleLeaveGroupChat = () => dispatch(leaveGroupChat(groupChat!));
-
-  useEffect(() => void dispatch(fetchMessages(groupChat!)), []);
 
   const classes = useStyles();
   return (
