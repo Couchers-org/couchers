@@ -8,23 +8,11 @@ import { groupChat, mockedService } from "../../../stories/__mocks__/service";
 import { store } from "../../../stories/__mocks__/store";
 import messages from "../../../test/fixtures/messages.json";
 import MessageView, { MessageProps } from "../messagelist/Message";
+import { groupChatsState } from "./groupChatsSlice";
 import GroupChatsTab from "./GroupChatsTab";
 import GroupChatView from "./GroupChatView";
 
 const [message1] = messages;
-
-const state = store.getState();
-const chatGroupViewState = {
-  ...state,
-  groupChats: {
-    ...state.groupChats,
-    groupChatView: {
-      ...state.groupChats.groupChatView,
-      groupChat,
-      messages,
-    },
-  },
-};
 
 export default {
   title: "GroupChatsTab",
@@ -32,12 +20,7 @@ export default {
   argTypes: {},
   decorators: [
     (storyFn, { args }) => {
-      const usedStore = configureStore({
-        reducer: rootReducer,
-        preloadedState: args.state || state,
-      });
-
-      return <Provider store={usedStore}>{storyFn()}</Provider>;
+      return <Provider store={store}>{storyFn()}</Provider>;
     },
   ],
 } as Meta;
@@ -47,6 +30,7 @@ mockedService.conversations.createGroupChat = async () => {
 };
 
 const Template: Story = (args) => {
+  groupChatsState.groupChatView.setGroupChat(null);
   mockedService.conversations.leaveGroupChat = async () => {
     return new Empty();
   };
@@ -64,6 +48,7 @@ export const Collapsed = MessageTemplate.bind({});
 Collapsed.args = { message: message1 };
 
 const GroupChatViewTemplate: Story<any> = (args) => {
+  groupChatsState.groupChatView.setGroupChat(groupChat);
   mockedService.conversations.leaveGroupChat = async () => {
     throw new Error("impossible to leave");
   };
@@ -71,4 +56,4 @@ const GroupChatViewTemplate: Story<any> = (args) => {
 };
 
 export const View = GroupChatViewTemplate.bind({});
-View.args = { state: chatGroupViewState };
+View.args = {};

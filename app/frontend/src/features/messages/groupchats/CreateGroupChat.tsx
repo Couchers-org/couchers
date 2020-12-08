@@ -1,4 +1,5 @@
 import { makeStyles } from "@material-ui/core/styles";
+import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import Alert from "../../../components/Alert";
@@ -10,7 +11,7 @@ import { User } from "../../../pb/api_pb";
 import { service } from "../../../service";
 import { useAppDispatch, useTypedSelector } from "../../../store";
 import { fetchUsers, getUsers } from "../../userCache";
-import { createGroupChat } from "./groupChatsActions";
+import { groupChatsState } from "./groupChatsSlice";
 
 const useStyles = makeStyles({ root: {} });
 
@@ -19,7 +20,7 @@ interface CreateGroupChatFormData {
   users: User.AsObject[];
 }
 
-export default function CreateGroupChat() {
+export default observer(function CreateGroupChat() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [friendIds, setFriendIds] = React.useState<number[]>([]);
@@ -49,12 +50,7 @@ export default function CreateGroupChat() {
   const classes = useStyles();
 
   const onSubmit = handleSubmit((data: CreateGroupChatFormData) =>
-    dispatch(
-      createGroupChat({
-        title: data.title,
-        users: data.users,
-      })
-    )
+    groupChatsState.createGroupChat(data.title, data.users)
   );
   return (
     <form onSubmit={onSubmit}>
@@ -93,4 +89,4 @@ export default function CreateGroupChat() {
       </Button>
     </form>
   );
-}
+});
