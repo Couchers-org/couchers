@@ -11,19 +11,15 @@ To **run the app locally**, you need to do **four things**:
 
 ## 1. Clone the git repository and navigate to the `app` folder
 
-### Windows Users: prerequisite step
-
-
 To get the code onto your machine, clone the git respository from GitHub with the following command:
 
 ```sh
 git clone https://github.com/Couchers-org/couchers.git
 ```
 
-Note for Windows users: It's suggested that you use WSL2, which lets you easily use docker and linux utilities. Install [WSL2](https://docs.microsoft.com/en-us/windows/wsl/install-win10) and clone the repo there. This also avoids a problem with the [dev env on native Windows](https://github.com/Couchers-org/couchers/issues/389).
-
 Open a command line or terminal, and navigate to the `app` folder (where this `readme.md` is), for example with `cd couchers/app`.
 
+Note for Windows users: It's suggested that you use WSL2, which lets you easily use docker and linux utilities. Install [WSL2](https://docs.microsoft.com/en-us/windows/wsl/install-win10) and clone the repo there. This also avoids a problem with the [dev env on native Windows](https://github.com/Couchers-org/couchers/issues/389).
 
 ## 2. Install `docker` and `docker-compose`
 
