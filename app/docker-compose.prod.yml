@@ -49,7 +49,6 @@ services:
   nginx:
     image: registry.gitlab.com/couchers/couchers/nginx
     restart: always
-    build: nginx
     env_file: nginx.prod.env
     volumes:
       - "./data/certs/:/certs/"
