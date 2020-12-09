@@ -25,7 +25,7 @@ const Template: Story<MapProps> = (args) => (
       A default sized Map with a marker. Moving logs new position to console.
     </p>
     <Map {...args}>
-      <MapSearch />
+      <MapSearch options={[]} label="Search" />
     </Map>
     <p>A Map with search box.</p>
     <div

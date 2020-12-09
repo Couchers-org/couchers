@@ -1,7 +1,6 @@
 import { Meta, Story } from "@storybook/react";
 import { LngLat } from "mapbox-gl";
 import * as React from "react";
-import ReactMapGL from "react-map-gl";
 
 import ApproximateLocationMap, {
   ApproximateLocation,
@@ -27,7 +26,6 @@ const setLocation = (location: ApproximateLocation) => {
 };
 
 const Template: Story<ApproximateLocationMapProps> = (args) => {
-  const mapRef = React.useRef<ReactMapGL>(null);
   return (
     <>
       <ApproximateLocationMap {...args} setLocation={setLocation} />

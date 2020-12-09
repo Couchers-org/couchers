@@ -1,7 +1,7 @@
 import { BoxProps, makeStyles } from "@material-ui/core";
 import { LngLat } from "mapbox-gl";
 import ReactMapGL, { PointerEvent } from "react-map-gl";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { RefObject, useEffect, useMemo, useRef, useState } from "react";
 import { DragEvent, Marker } from "react-map-gl";
 import {
   userLocationDefault,
@@ -11,9 +11,19 @@ import {
 } from "../constants";
 import Map from "./Map";
 
-const useStyles = makeStyles({
-  root: {},
-});
+const useStyles = makeStyles((theme) => ({
+  circle: {
+    fillOpacity: 0.3,
+    fill: theme.palette.primary.main,
+    strokeWidth: 1,
+    stroke: "white",
+  },
+  handle: {
+    fill: theme.palette.primary.main,
+    strokeWidth: 2,
+    stroke: "white",
+  },
+}));
 
 export interface ApproximateLocation {
   location: LngLat;
@@ -27,6 +37,9 @@ export interface ApproximateLocationMapProps extends BoxProps {
   handleSize: number;
   //this function is called on mouse release
   setLocation: (location: ApproximateLocation) => void;
+  //I would prefer this not to be a required prop but I'm not
+  //sure how to do that and have the ref in the parent too
+  mapRef: RefObject<ReactMapGL>;
 }
 
 export default function ApproximateLocationMap({
@@ -35,6 +48,7 @@ export default function ApproximateLocationMap({
   handleSize,
   setLocation,
   children,
+  mapRef,
   ...otherProps
 }: ApproximateLocationMapProps) {
   const classes = useStyles();
@@ -53,7 +67,6 @@ export default function ApproximateLocationMap({
   //If it is state, it can be updated when mapRef changes using useEffect.
   const [screenRadius, setScreenRadius] = useState(0);
 
-  const mapRef = useRef<ReactMapGL>(null);
   //We need the calculate the angle to preserve the handle's position when
   //dragging the circle. However it should not  trigger re-renders so we
   //use a ref.
@@ -112,6 +125,8 @@ export default function ApproximateLocationMap({
 
   useEffect(updateScreenRadius, [mapRef, circlePos, radius]);
 
+  if (mapRef.current?.getMap().isMoving()) updateScreenRadius();
+
   //below code turns the angle and radius into a LngLat for the <Marker>
   let handleLngLat: LngLat;
   const circlePosXY = mapRef.current?.getMap().project(circlePos);
@@ -148,10 +163,14 @@ export default function ApproximateLocationMap({
           <svg
             height={screenRadius * 2}
             viewBox={`0 0 ${screenRadius * 2} ${screenRadius * 2}`}
-            fillOpacity="0.2"
             xmlns="http://www.w3.org/2000/svg"
           >
-            <circle cx={screenRadius} cy={screenRadius} r={screenRadius} />
+            <circle
+              cx={screenRadius}
+              cy={screenRadius}
+              r={screenRadius}
+              className={classes.circle}
+            />
           </svg>
         </Marker>
         <Marker
@@ -172,6 +191,7 @@ export default function ApproximateLocationMap({
               cx={handleSize / 2}
               cy={handleSize / 2}
               r={handleSize / 2}
+              className={classes.handle}
             />
           </svg>
         </Marker>

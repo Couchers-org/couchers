@@ -2,7 +2,7 @@ import { Theme } from "@material-ui/core";
 import withStyles, { WithStyles } from "@material-ui/core/styles/withStyles";
 import React from "react";
 import { BaseControl, BaseControlProps } from "react-map-gl";
-import TextField from "./TextField";
+import Autocomplete, { AutocompleteProps } from "./Autocomplete";
 
 const styles = (theme: Theme) => ({
   root: {
@@ -15,25 +15,29 @@ const styles = (theme: Theme) => ({
   },
 });
 
-interface MapSearchProps extends BaseControlProps, WithStyles<typeof styles> {
-  //onChange: (value: string) => void;
-}
+interface MapSearchProps<T>
+  extends BaseControlProps,
+    //T false false true == T Multiple DisableClearable Freesolo
+    Omit<AutocompleteProps<T, false, false, true>, "classes">,
+    WithStyles<typeof styles> {}
 
-class MapSearch extends BaseControl<MapSearchProps, HTMLDivElement> {
+class MapSearch<T> extends BaseControl<MapSearchProps<T>, HTMLDivElement> {
   //value = "";
   _render() {
     return (
       <div ref={this._containerRef}>
-        <TextField
-          variant="outlined"
-          fullWidth
+        <Autocomplete
+          {...this.props}
+          options={this.props.options}
+          freeSolo={true}
           className={this.props.classes.root}
-          //onChange={(event) => this.props.onChange(event.target.value)}
-          //value={this.value}
         />
       </div>
     );
   }
 }
 
-export default withStyles(styles)(MapSearch);
+type MapSearchWithGenericType = <T>(
+  props: Omit<MapSearchProps<T>, "classes">
+) => JSX.Element;
+export default withStyles(styles)(MapSearch) as MapSearchWithGenericType;
