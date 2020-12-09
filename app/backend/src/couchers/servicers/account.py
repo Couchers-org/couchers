@@ -44,6 +44,10 @@ def _abort_if_terrible_password(field_name, request, context):
     if len(getattr(request, field_name).value) < 8:
         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.PASSWORD_TOO_SHORT)
 
+    if len(getattr(request, field_name).value) > 256:
+        # Hey, what are you trying to do? Give us a DDOS attack?
+        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.PASSWORD_TOO_LONG)
+
     # check for most common weak passwords (not meant to be an exhaustive check!)
     if getattr(request, field_name).value.lower() in ("password", "12345678", "couchers", "couchers1"):
         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INSECURE_PASSWORD)
