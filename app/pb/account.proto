@@ -18,6 +18,7 @@ service Account {
   rpc ChangeEmail(ChangeEmailReq) returns (google.protobuf.Empty) {
     // Change the user's email address
     // we will send and email saying the email changed to the old email, and confirmation email to the new email
+    // Raises INVALID_ARGUMENT if password is too small or too large or insecure or wrong or not supplied.
   }
 }
 
