@@ -8,7 +8,7 @@ import { groupChat, mockedService } from "../../../stories/__mocks__/service";
 import { store } from "../../../stories/__mocks__/store";
 import messages from "../../../test/fixtures/messages.json";
 import MessageView, { MessageProps } from "../messagelist/Message";
-import { groupChatsState } from "./groupChatsSlice";
+import { groupChatsState, setGroupChat } from "./groupChatsSlice";
 import GroupChatsTab from "./GroupChatsTab";
 import GroupChatView from "./GroupChatView";
 
@@ -30,7 +30,7 @@ mockedService.conversations.createGroupChat = async () => {
 };
 
 const Template: Story = (args) => {
-  groupChatsState.groupChatView.setGroupChat(null);
+  setGroupChat(null);
   mockedService.conversations.leaveGroupChat = async () => {
     return new Empty();
   };
@@ -48,7 +48,7 @@ export const Collapsed = MessageTemplate.bind({});
 Collapsed.args = { message: message1 };
 
 const GroupChatViewTemplate: Story<any> = (args) => {
-  groupChatsState.groupChatView.setGroupChat(groupChat);
+  setGroupChat(groupChat);
   mockedService.conversations.leaveGroupChat = async () => {
     throw new Error("impossible to leave");
   };

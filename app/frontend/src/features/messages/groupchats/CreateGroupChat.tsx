@@ -11,7 +11,7 @@ import { User } from "../../../pb/api_pb";
 import { service } from "../../../service";
 import { useAppDispatch, useTypedSelector } from "../../../store";
 import { fetchUsers, getUsers } from "../../userCache";
-import { groupChatsState } from "./groupChatsSlice";
+import { createGroupChat, groupChatsState } from "./groupChatsSlice";
 
 const useStyles = makeStyles({ root: {} });
 
@@ -50,7 +50,7 @@ export default observer(function CreateGroupChat() {
   const classes = useStyles();
 
   const onSubmit = handleSubmit((data: CreateGroupChatFormData) =>
-    groupChatsState.createGroupChat(data.title, data.users)
+    createGroupChat(data.title, data.users)
   );
   return (
     <form onSubmit={onSubmit}>

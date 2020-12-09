@@ -4,13 +4,13 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 import { GroupChat } from "../../../pb/conversations_pb";
 import GroupChatListItem from "./GroupChatListItem";
-import { groupChatsState } from "./groupChatsSlice";
+import { groupChatsState, setGroupChat } from "./groupChatsSlice";
 
 const useStyles = makeStyles({ root: {} });
 
 export default observer(function GroupChatList() {
   const dispatchSetGroupChat = (groupChat: GroupChat.AsObject | null) =>
-    groupChatsState.groupChatView.setGroupChat(groupChat!);
+    setGroupChat(groupChat!);
 
   const classes = useStyles();
   return (

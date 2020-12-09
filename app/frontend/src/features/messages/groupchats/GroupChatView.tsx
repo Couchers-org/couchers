@@ -7,18 +7,22 @@ import Alert from "../../../components/Alert";
 import Button from "../../../components/Button";
 import CircularProgress from "../../../components/CircularProgress";
 import MessageList from "../messagelist/MessageList";
-import { groupChatsState } from "./groupChatsSlice";
+import {
+  groupChatsState,
+  leaveGroupChat,
+  sendMessage,
+  setGroupChat,
+} from "./groupChatsSlice";
 
 const useStyles = makeStyles({ root: {} });
 
 export default observer(function GroupChatView() {
   const state = groupChatsState.groupChatView;
-  const handleSend = (text: string) =>
-    state.sendMessage(state.groupChat!, text);
+  const handleSend = (text: string) => sendMessage(state.groupChat!, text);
 
-  const closeGroupChat = () => state.setGroupChat(null);
+  const closeGroupChat = () => setGroupChat(null);
 
-  const handleLeaveGroupChat = () => state.leaveGroupChat(state.groupChat!);
+  const handleLeaveGroupChat = () => leaveGroupChat(state.groupChat!);
 
   const classes = useStyles();
   return (

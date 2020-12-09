@@ -6,7 +6,7 @@ import Alert from "../../../components/Alert";
 import CircularProgress from "../../../components/CircularProgress";
 import CreateGroupChat from "./CreateGroupChat";
 import GroupChatList from "./GroupChatList";
-import { groupChatsState } from "./groupChatsSlice";
+import { fetchGroupChats, groupChatsState } from "./groupChatsSlice";
 import GroupChatView from "./GroupChatView";
 
 const useStyles = makeStyles({ root: {} });
@@ -15,7 +15,7 @@ export default observer(function GroupChatsTab() {
   const state = groupChatsState;
 
   useEffect(() => {
-    groupChatsState.fetchGroupChats();
+    fetchGroupChats();
   }, []);
 
   const classes = useStyles();
