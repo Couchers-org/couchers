@@ -8,9 +8,11 @@ import {
 import React, { ElementType, useState } from "react";
 import classNames from "classnames";
 
-const useStyles = makeStyles({
-  root: {},
-});
+const useStyles = makeStyles((theme) => ({
+  root: {
+    borderRadius: `${theme.shape.borderRadius * 2}px`,
+  },
+}));
 
 //type generics required to allow component prop
 //see https://github.com/mui-org/material-ui/issues/15827
