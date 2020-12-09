@@ -74,7 +74,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 # the user wants to unset their password
                 user.hashed_password = None
             else:
-                _abort_if_terrible_password(request.new_password, context)
+                _abort_if_terrible_password(request.new_password.value, context)
                 user.hashed_password = hash_password(request.new_password.value)
 
             session.commit()
