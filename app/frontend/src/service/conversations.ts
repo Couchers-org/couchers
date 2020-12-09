@@ -4,6 +4,7 @@ import {
   CreateGroupChatReq,
   GetGroupChatMessagesReq,
   GroupChat,
+  LeaveGroupChatReq,
   ListGroupChatsReq,
   Message,
   SendMessageReq,
@@ -49,4 +50,10 @@ export async function sendMessage(groupChatId: number, text: string) {
   req.setGroupChatId(groupChatId);
   req.setText(text);
   return await client.conversations.sendMessage(req);
+}
+
+export function leaveGroupChat(groupChatId: number) {
+  const req = new LeaveGroupChatReq();
+  req.setGroupChatId(groupChatId);
+  return client.conversations.leaveGroupChat(req);
 }
