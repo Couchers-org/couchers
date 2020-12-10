@@ -1,12 +1,14 @@
 import { BoxProps, makeStyles, useTheme } from "@material-ui/core";
 import Map from "./Map";
-import { GeoJSONSource, LngLat, MapMouseEvent } from "mapbox-gl";
+import { GeoJSONSource, LngLat, MapMouseEvent, MapTouchEvent } from "mapbox-gl";
 import React, { useRef, useState } from "react";
 import { User } from "../pb/api_pb";
 import Alert from "./Alert";
 import { AutocompleteChangeReason } from "@material-ui/lab";
+import { userLocationMaxRadius, userLocationMinRadius } from "../constants";
 
 const nominatimURL = process.env.REACT_APP_NOMINATIM_URL;
+const handleOffset = 10;
 
 const useStyles = makeStyles((theme) => ({
   circle: {
@@ -51,18 +53,16 @@ export default function EditUserLocationMap({
   const classes = useStyles();
   const theme = useTheme();
 
-  const [searchOptionsLoading, setSearchOptionsLoading] = useState(false);
-  const [searchOptions, setSearchOptions] = useState<SearchOption[]>([]);
+  /*const [searchOptionsLoading, setSearchOptionsLoading] = useState(false);
+  const [searchOptions, setSearchOptions] = useState<SearchOption[]>([]);*/
   const [error, setError] = useState("");
 
   //map is imperative so these don't need to cause re-render
   const dirtyCoords = useRef<LngLat | null>(new LngLat(user.lng, user.lat));
   const dirtyRadius = useRef<number | null>(user.radius);
-  const handleCoords = useRef<LngLat | null>(
-    displaceLngLat(dirtyCoords.current!, user.radius, 0)
-  );
+  const handleCoords = useRef<LngLat | null>(null);
 
-  const loadSearchOptions = async (value: string) => {
+  /*const loadSearchOptions = async (value: string) => {
     setError("");
     if (!value) {
       setSearchOptions([]);
@@ -102,7 +102,7 @@ export default function EditUserLocationMap({
     mapRef.current?.getMap().flyTo({
       center: { lat: searchOption.lat, lng: searchOption.lng },
       zoom: 13,
-    });*/
+    });
   };
 
   const searchSubmit = (
@@ -117,26 +117,43 @@ export default function EditUserLocationMap({
     }
     const searchOption = value as SearchOption;
     flyTo(searchOption);
+  };*/
+
+  const onCircleMouseDown = (
+    e: MapMouseEvent | MapTouchEvent,
+    map: mapboxgl.Map
+  ) => {
+    // Prevent the default map drag behavior.
+    e.preventDefault();
+
+    map.getCanvas().style.cursor = "grab";
+
+    const moveEvent = (e: MapMouseEvent | MapTouchEvent) =>
+      onCircleMove(e, map);
+    map.on("mousemove", moveEvent);
+    map.once("mouseup", (e) => onCircleUp(e, map, moveEvent));
   };
 
-  const onCircleMove = (lngLat: LngLat, map: mapboxgl.Map) => {
-    const lat1 = (dirtyCoords.current!.lat / 360) * 2 * Math.PI;
-    const lng1 = (dirtyCoords.current!.lng / 360) * 2 * Math.PI;
-    const lat2 = (handleCoords.current!.lat / 360) * 2 * Math.PI;
-    const lng2 = (handleCoords.current!.lng / 360) * 2 * Math.PI;
-    const lngDiff = lng2 - lng1;
-    const bearing = Math.atan2(
-      Math.sin(lngDiff) * Math.cos(lat2),
-      Math.cos(lat1) * Math.sin(lat2) -
-        Math.sin(lat1) * Math.cos(lat2) * Math.cos(lngDiff)
+  const onCircleMove = (
+    e: MapMouseEvent | MapTouchEvent,
+    map: mapboxgl.Map
+  ) => {
+    const bearing = calculateBearing(
+      dirtyCoords.current!,
+      handleCoords.current!
     );
 
-    dirtyCoords.current = lngLat;
-    handleCoords.current = displaceLngLat(
-      lngLat,
-      dirtyRadius.current!,
-      bearing
+    dirtyCoords.current = e.lngLat;
+
+    handleCoords.current = map.unproject(
+      offsetPoint(
+        map.project(displaceLngLat(e.lngLat, dirtyRadius.current!, bearing)),
+        //I have no idea why this is -handleOffset
+        -handleOffset,
+        bearing
+      )
     );
+
     (map.getSource("circle") as GeoJSONSource).setData(
       circleGeoJson(dirtyCoords.current!, dirtyRadius.current!)
     );
@@ -146,22 +163,48 @@ export default function EditUserLocationMap({
   };
 
   const onCircleUp = (
-    lngLat: LngLat,
+    e: MapMouseEvent | MapTouchEvent,
     map: mapboxgl.Map,
     moveEvent: (x: any) => void
   ) => {
-    onCircleMove(lngLat, map);
+    map.off("mousemove", moveEvent);
+    map.off("touchmove", moveEvent);
+
+    if (e.lngLat.distanceTo(handleCoords.current!) < 10) return;
+    onCircleMove(e, map);
     setLocation({
       location: dirtyCoords.current!,
       radius: dirtyRadius.current!,
     });
-
-    map.off("mousemove", moveEvent);
-    map.off("touchmove", moveEvent);
   };
-  const onHandleMove = (lngLat: LngLat, map: mapboxgl.Map) => {
-    dirtyRadius.current = dirtyCoords.current!.distanceTo(lngLat);
-    handleCoords.current = lngLat;
+
+  const onHandleMouseDown = (
+    e: MapMouseEvent | MapTouchEvent,
+    map: mapboxgl.Map
+  ) => {
+    // Prevent the default map drag behavior.
+    e.preventDefault();
+
+    map.getCanvas().style.cursor = "grab";
+
+    const moveEvent = (e: MapMouseEvent) => onHandleMove(e, map);
+    map.on("mousemove", moveEvent);
+    map.once("mouseup", (e) => onHandleUp(e, map, moveEvent));
+  };
+
+  const onHandleMove = (
+    e: MapMouseEvent | MapTouchEvent,
+    map: mapboxgl.Map
+  ) => {
+    const bearing = calculateBearing(dirtyCoords.current!, e.lngLat);
+    dirtyRadius.current = dirtyCoords.current!.distanceTo(
+      map.unproject(offsetPoint(e.point, handleOffset, bearing))
+    );
+    dirtyRadius.current = Math.max(
+      Math.min(dirtyRadius.current, userLocationMaxRadius),
+      userLocationMinRadius
+    );
+    handleCoords.current = e.lngLat;
     (map.getSource("circle") as GeoJSONSource).setData(
       circleGeoJson(dirtyCoords.current!, dirtyRadius.current!)
     );
@@ -171,11 +214,20 @@ export default function EditUserLocationMap({
   };
 
   const onHandleUp = (
-    lngLat: LngLat,
+    e: MapMouseEvent | MapTouchEvent,
     map: mapboxgl.Map,
     moveEvent: (x: any) => void
   ) => {
-    onHandleMove(lngLat, map);
+    onHandleMove(e, map);
+    //onCircleMove will move the handle appropriately in case
+    //the user has gone above/below the limit
+    onCircleMove(
+      {
+        ...e,
+        lngLat: dirtyCoords.current!,
+      } as MapMouseEvent,
+      map
+    );
     setLocation({
       location: dirtyCoords.current!,
       radius: dirtyRadius.current!,
@@ -186,17 +238,33 @@ export default function EditUserLocationMap({
   };
 
   const initializeMap = (map: mapboxgl.Map) => {
-    const canvas = map.getCanvas();
     map.on("load", () => {
+      //do handle first so it's drag events take priority
+      const handlePoint = map.project(
+        displaceLngLat(dirtyCoords.current!, dirtyRadius.current!, Math.PI / 2)
+      );
+      handleCoords.current = map.unproject([
+        handlePoint.x + handleOffset,
+        handlePoint.y,
+      ]);
+      map.addSource("handle", {
+        type: "geojson",
+        data: pointGeoJson(handleCoords.current),
+      });
+
       map.addSource("circle", {
         type: "geojson",
         data: circleGeoJson(dirtyCoords.current!, dirtyRadius.current!),
       });
-      map.addSource("handle", {
-        type: "geojson",
-        data: pointGeoJson(
-          displaceLngLat(dirtyCoords.current!, dirtyRadius.current!, 0)
-        ),
+
+      map.addLayer({
+        id: "handle",
+        type: "circle",
+        source: "handle",
+        paint: {
+          "circle-radius": 10,
+          "circle-color": theme.palette.primary.main,
+        },
       });
 
       map.addLayer({
@@ -209,73 +277,39 @@ export default function EditUserLocationMap({
           "fill-opacity": 0.5,
         },
       });
-      map.addLayer({
-        id: "handle",
-        type: "circle",
-        source: "handle",
-        paint: {
-          "circle-radius": 10,
-          "circle-color": theme.palette.primary.main,
-        },
-      });
 
       map.on("dblclick", (e) => {
         e.preventDefault();
-        onHandleMove(e.lngLat, map);
-        console.log(e.lngLat);
+        onHandleMove(e, map);
         map.flyTo({ center: e.lngLat });
       });
 
-      map.on("mousedown", "circle", function (e) {
-        //don't continue if the marker received the event already
-        if (e.originalEvent.cancelBubble || e.originalEvent.defaultPrevented)
-          return;
-        // Prevent the default map drag behavior.
-        e.preventDefault();
+      map.on("mousedown", "handle", (e) => onHandleMouseDown(e, map));
 
-        canvas.style.cursor = "grab";
-
-        const moveEvent = (e: MapMouseEvent) => onCircleMove(e.lngLat, map);
-        map.on("mousemove", moveEvent);
-        map.once("mouseup", (e) => onCircleUp(e.lngLat, map, moveEvent));
-      });
-
-      map.on("touchstart", "circle", function (e) {
+      map.on("touchstart", "handle", (e) => {
         if (e.points.length !== 1) return;
-        if (e.originalEvent.cancelBubble || e.originalEvent.defaultPrevented)
-          return;
-
-        // Prevent the default map drag behavior.
-        e.preventDefault();
-
-        const moveEvent = (e: MapMouseEvent) => onCircleMove(e.lngLat, map);
-        map.on("mousemove", moveEvent);
-        map.once("touchend", (e) => onCircleUp(e.lngLat, map, moveEvent));
-      });
-      map.on("mousedown", "handle", function (e) {
-        e.originalEvent.cancelBubble = true;
-        // Prevent the default map drag behavior.
-        e.preventDefault();
-
-        canvas.style.cursor = "grab";
-
-        const moveEvent = (e: MapMouseEvent) => onHandleMove(e.lngLat, map);
-        map.on("mousemove", moveEvent);
-        map.once("mouseup", (e) => onHandleUp(e.lngLat, map, moveEvent));
-      });
-
-      map.on("touchstart", "handle", function (e) {
-        if (e.points.length !== 1) return;
-        e.originalEvent.cancelBubble = true;
-
-        // Prevent the default map drag behavior.
-        e.preventDefault();
-
-        const moveEvent = (e: MapMouseEvent) => onHandleMove(e.lngLat, map);
-        map.on("touchmove", moveEvent);
-        map.once("touchend", (e) => onHandleUp(e.lngLat, map, moveEvent));
+        onHandleMouseDown(e, map);
       });
     });
+
+    map.on("mousedown", "circle", (e) => onCircleMouseDown(e, map));
+
+    map.on("touchstart", "circle", (e) => {
+      if (e.points.length !== 1) return;
+      onCircleMouseDown(e, map);
+    });
+
+    //because of the handle offset, zooming causes the handle to not be at the edge of the radius
+    //to solve, trigger a fake "circleMove" with the same coordinates as current
+    map.on("zoom", (e) =>
+      onCircleMove(
+        {
+          ...e,
+          lngLat: dirtyCoords.current!,
+        } as MapMouseEvent,
+        map
+      )
+    );
   };
 
   return (
@@ -372,4 +406,30 @@ function displaceLngLat(coords: LngLat, distance: number, angle: number) {
       distance *
       Math.sin(angle);
   return new LngLat(lng, lat);
+}
+
+function calculateBearing(l1: LngLat, l2: LngLat) {
+  const lat1 = (l1.lat / 360) * 2 * Math.PI;
+  const lng1 = (l1.lng / 360) * 2 * Math.PI;
+  const lat2 = (l2.lat / 360) * 2 * Math.PI;
+  const lng2 = (l2.lng / 360) * 2 * Math.PI;
+  const lngDiff = lng2 - lng1;
+  return Math.atan2(
+    Math.sin(lngDiff) * Math.cos(lat2),
+    Math.cos(lat1) * Math.sin(lat2) -
+      Math.sin(lat1) * Math.cos(lat2) * Math.cos(lngDiff)
+  );
+}
+
+function offsetPoint(
+  p: mapboxgl.Point,
+  distance: number,
+  bearing: number
+): [number, number] {
+  const offset = [
+    //map bearing is 0 = up but xy bearing is 0 = right
+    distance * Math.cos(bearing - Math.PI / 2),
+    distance * Math.sin(bearing - Math.PI / 2),
+  ];
+  return [p.x - offset[0], p.y - offset[1]];
 }
