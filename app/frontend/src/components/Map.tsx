@@ -1,8 +1,10 @@
-import React, { RefObject, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { Box, BoxProps, makeStyles } from "@material-ui/core";
 import classNames from "classnames";
-import ReactMapGL, { InteractiveMapProps, ViewportProps } from "react-map-gl";
-import { LngLat } from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
+import mapboxgl, { LngLat } from "mapbox-gl";
+
+mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_KEY!;
 
 const useStyles = makeStyles({
   root: {
@@ -17,15 +19,17 @@ const useStyles = makeStyles({
   map: {
     position: "absolute",
     top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
   },
 });
 
 export interface MapProps extends BoxProps {
   initialCenter: LngLat;
   initialZoom: number;
-  mapRef?: RefObject<ReactMapGL>;
+  postMapInitialize?: (map: mapboxgl.Map) => void;
   onUpdate?: (center: LngLat, zoom: number) => void;
-  mapProps: Partial<InteractiveMapProps>;
   grow?: boolean;
 }
 
@@ -33,29 +37,32 @@ export default function Map({
   initialCenter,
   initialZoom,
   grow,
+  postMapInitialize,
   onUpdate,
-  children,
   className,
-  mapRef,
-  mapProps,
   ...otherProps
 }: MapProps) {
   const classes = useStyles();
-  const [viewport, setViewport] = useState({
-    latitude: initialCenter.lat,
-    longitude: initialCenter.lng,
-    zoom: initialZoom,
-  });
 
-  const updateViewport = (viewport: ViewportProps) => {
-    setViewport({ ...viewport });
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const map = new mapboxgl.Map({
+      container: containerRef.current,
+      style: "mapbox://styles/mapbox/streets-v11",
+      center: initialCenter,
+      zoom: initialZoom,
+    });
+
+    map.addControl(new mapboxgl.NavigationControl({ showCompass: false }));
+
     if (onUpdate) {
-      onUpdate(
-        new LngLat(viewport.longitude, viewport.latitude),
-        viewport.zoom
-      );
+      map.on("moveend", () => onUpdate(map.getCenter(), map.getZoom()));
     }
-  };
+
+    if (postMapInitialize) postMapInitialize(map);
+  }, []); // eslint-disable-line
 
   return (
     <>
@@ -67,18 +74,7 @@ export default function Map({
         )}
         {...otherProps}
       >
-        <ReactMapGL
-          {...viewport}
-          {...mapProps}
-          width="100%"
-          height="100%"
-          onViewportChange={updateViewport}
-          className={classes.map}
-          mapboxApiAccessToken={process.env.REACT_APP_MAPBOX_KEY || ""}
-          ref={mapRef}
-        >
-          {children}
-        </ReactMapGL>
+        <div className={classes.map} ref={containerRef} />
       </Box>
     </>
   );

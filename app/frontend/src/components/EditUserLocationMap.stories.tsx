@@ -1,7 +1,5 @@
 import { Meta, Story } from "@storybook/react";
-import { LngLat } from "mapbox-gl";
 import * as React from "react";
-import { Marker } from "react-map-gl";
 import EditUserLocationMap, {
   EditUserLocationMapProps,
 } from "./EditUserLocationMap";
