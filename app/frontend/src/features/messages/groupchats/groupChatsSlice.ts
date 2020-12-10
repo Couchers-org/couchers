@@ -3,7 +3,7 @@ import { User } from "../../../pb/api_pb";
 import { GroupChat, Message } from "../../../pb/conversations_pb";
 import { service } from "../../../service";
 
-export const initialState = observable({
+export const groupChatsState = observable({
   groupChats: [] as GroupChat.AsObject[],
   error: "",
   loading: false,
@@ -15,94 +15,68 @@ export const initialState = observable({
   },
 });
 
+export const fetchGroupChats = async () => {
+  const state = groupChatsState;
+  state.groupChats = await service.conversations.listGroupChats();
+};
+
 export const fetchMessages = async (groupChat: GroupChat.AsObject) => {
   const state = groupChatsState.groupChatView;
-  state.error = "";
-  state.loading = true;
-  try {
-    state.messages = await service.conversations.getGroupChatMessages(
-      groupChat.groupChatId
-    );
-  } catch (error) {
-    state.error = error.message;
-  }
-  state.loading = false;
+  state.messages = await service.conversations.getGroupChatMessages(
+    groupChat.groupChatId
+  );
 };
+
 export const sendMessage = async (
   groupChat: GroupChat.AsObject,
   text: string
 ) => {
   const state = groupChatsState.groupChatView;
-  state.error = "";
-  state.loading = true;
-  try {
-    await service.conversations.sendMessage(groupChat.groupChatId, text);
-    await fetchMessages(groupChat);
-  } catch (error) {
-    state.error = error.message!;
-  }
-  state.loading = false;
+  await service.conversations.sendMessage(groupChat.groupChatId, text);
+  await fetchMessages(groupChat);
 };
+
 export const setGroupChat = async (groupChat: GroupChat.AsObject | null) => {
   const state = groupChatsState.groupChatView;
-  state.error = "";
-  state.loading = true;
-  try {
-    state.groupChat = groupChat;
-    if (groupChat) {
-      await fetchMessages(groupChat);
-    }
-  } catch (error) {
-    state.error = error.message;
+  state.groupChat = groupChat;
+  if (groupChat) {
+    await fetchMessages(groupChat);
   }
-  state.loading = false;
 };
+
 export const leaveGroupChat = async (groupChat: GroupChat.AsObject) => {
   const state = groupChatsState.groupChatView;
-  state.error = "";
-  state.loading = true;
-  try {
-    await service.conversations.leaveGroupChat(groupChat.groupChatId);
-    await fetchGroupChats();
-    state.groupChat = null;
-  } catch (error) {
-    state.error = error.message;
-  }
-  state.loading = false;
+  await service.conversations.leaveGroupChat(groupChat.groupChatId);
+  await fetchGroupChats();
+  state.groupChat = null;
 };
-export const fetchGroupChats = async () => {
-  const state = groupChatsState;
-  state.error = "";
-  state.loading = true;
-  try {
-    state.groupChats = await service.conversations.listGroupChats();
-  } catch (error) {
-    state.error = error.message!;
-  }
-  state.loading = false;
-};
+
 export const createGroupChat = async (
   title: string,
   users: User.AsObject[]
 ) => {
   const state = groupChatsState;
-  state.error = "";
-  state.loading = true;
-  try {
-    const groupChatId = await service.conversations.createGroupChat(
-      title,
-      users
-    );
-    await fetchGroupChats();
-    const groupChat =
-      state.groupChats.find(
-        (groupChat) => groupChat.groupChatId === groupChatId
-      ) || null;
-    setGroupChat(groupChat);
-  } catch (error) {
-    state.error = error.message!;
-  }
-  state.loading = false;
+  const groupChatId = await service.conversations.createGroupChat(title, users);
+  await fetchGroupChats();
+  const groupChat =
+    state.groupChats.find(
+      (groupChat) => groupChat.groupChatId === groupChatId
+    ) || null;
+  setGroupChat(groupChat);
 };
 
-export const groupChatsState = initialState;
+export function handleLoadingAndError(
+  state: { loading: boolean; error: string },
+  target: (...args: any[]) => Promise<any>
+) {
+  return async function (...args: any[]) {
+    state.error = "";
+    state.loading = true;
+    try {
+      await target(...args);
+    } catch (error) {
+      state.error = error.message;
+    }
+    state.loading = false;
+  };
+}
