@@ -121,30 +121,6 @@ class LoggingInterceptor(grpc.ServerInterceptor):
         )
 
 
-class UpdateLastActiveTimeInterceptor(grpc.ServerInterceptor):
-    """
-    Calls the given update_last_active_time(user_id) function before
-    servicing each call.
-    """
-
-    def __init__(self, update_last_active_time):
-        self._update_last_active_time = update_last_active_time
-
-    def intercept_service(self, continuation, handler_call_details):
-        handler = continuation(handler_call_details)
-        prev_func = handler.unary_unary
-
-        def updating_function(req, context):
-            self._update_last_active_time(context.user_id)
-            return prev_func(req, context)
-
-        return grpc.unary_unary_rpc_method_handler(
-            updating_function,
-            request_deserializer=handler.request_deserializer,
-            response_serializer=handler.response_serializer,
-        )
-
-
 class ErrorSanitizationInterceptor(grpc.ServerInterceptor):
     """
     If the call resulted in a non-gRPC error, this strips away the error details.

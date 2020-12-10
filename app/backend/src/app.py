@@ -7,7 +7,7 @@ import grpc
 
 from couchers import config
 from couchers.db import apply_migrations, session_scope
-from couchers.interceptors import ErrorSanitizationInterceptor, LoggingInterceptor, UpdateLastActiveTimeInterceptor
+from couchers.interceptors import ErrorSanitizationInterceptor, LoggingInterceptor
 from couchers.models import Base
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
@@ -92,7 +92,6 @@ server = grpc.server(
         ErrorSanitizationInterceptor(),
         LoggingInterceptor(),
         auth.get_auth_interceptor(allow_jailed=False),
-        UpdateLastActiveTimeInterceptor(servicer.update_last_active_time),
     ],
 )
 server.add_insecure_port("[::]:1751")
