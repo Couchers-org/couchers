@@ -77,11 +77,6 @@ smokinglocation2api = {
 
 
 class API(api_pb2_grpc.APIServicer):
-    def update_last_active_time(self, user_id):
-        with session_scope() as session:
-            user = session.query(User).filter(User.id == user_id).one()
-            user.last_active = func.now()
-
     def Ping(self, request, context):
         with session_scope() as session:
             # auth ought to make sure the user exists

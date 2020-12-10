@@ -6,11 +6,11 @@ import { loginRoute } from "../../AppRoutes";
 
 export default function Logout() {
   const dispatch = useAppDispatch();
-  const authToken = useTypedSelector((state) => state.auth.authToken);
+  const authenticated = useTypedSelector((state) => state.auth.authenticated);
 
   useEffect(() => {
-    if (authToken) {
-      dispatch(logout(authToken));
+    if (authenticated) {
+      dispatch(logout());
     }
   });
 

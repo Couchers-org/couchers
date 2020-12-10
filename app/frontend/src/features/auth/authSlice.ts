@@ -6,7 +6,7 @@ import { updateUserProfile, updateHostingPreference } from "../profile";
 import { reset } from "../../test/utils";
 
 export interface AuthState {
-  authToken: null | string;
+  authenticated: boolean;
   user: null | User.AsObject;
   jailed: boolean;
   loading: boolean;
@@ -14,7 +14,7 @@ export interface AuthState {
 }
 
 const initialState: AuthState = {
-  authToken: null,
+  authenticated: false,
   jailed: false,
   user: null,
   //it isn't good practice to keep ui state in the store
@@ -38,13 +38,13 @@ export const authSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(passwordLogin.pending, (state) => {
-        state.authToken = null;
+        state.authenticated = false;
         state.user = null;
         state.error = null;
         state.loading = true;
       })
       .addCase(passwordLogin.fulfilled, (state, action) => {
-        state.authToken = action.payload.token;
+        state.authenticated = true;
         state.jailed = action.payload.jailed;
         state.user = action.payload.user;
         state.loading = false;
@@ -54,13 +54,13 @@ export const authSlice = createSlice({
         state.loading = false;
       })
       .addCase(tokenLogin.pending, (state) => {
-        state.authToken = null;
+        state.authenticated = false;
         state.user = null;
         state.error = null;
         state.loading = true;
       })
       .addCase(tokenLogin.fulfilled, (state, action) => {
-        state.authToken = action.payload.token;
+        state.authenticated = true;
         state.jailed = action.payload.jailed;
         state.user = action.payload.user;
         state.loading = false;
@@ -70,13 +70,13 @@ export const authSlice = createSlice({
         state.loading = false;
       })
       .addCase(signup.pending, (state) => {
-        state.authToken = null;
+        state.authenticated = false;
         state.user = null;
         state.error = null;
         state.loading = true;
       })
       .addCase(signup.fulfilled, (state, action) => {
-        state.authToken = action.payload.token;
+        state.authenticated = true;
         state.jailed = action.payload.jailed;
         state.user = action.payload.user;
         state.loading = false;
@@ -109,7 +109,7 @@ export const authSlice = createSlice({
         state.loading = true;
       })
       .addCase(logout.fulfilled, (state) => {
-        state.authToken = null;
+        state.authenticated = false;
         state.user = null;
         state.error = null;
         state.loading = false;

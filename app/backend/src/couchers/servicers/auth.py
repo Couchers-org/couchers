@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Union
 
 import grpc
@@ -7,7 +7,7 @@ from google.protobuf import empty_pb2
 from sqlalchemy.sql import func
 
 from couchers import errors
-from couchers.crypto import hash_password, urlsafe_secure_token, verify_password
+from couchers.crypto import cookiesafe_secure_token, hash_password, urlsafe_secure_token, verify_password
 from couchers.db import (
     get_user_by_field,
     is_valid_email,
@@ -22,6 +22,7 @@ from couchers.interceptors import AuthValidatorInterceptor
 from couchers.models import LoginToken, PasswordResetToken, SignupToken, User, UserSession
 from couchers.servicers.api import hostingstatus2sql
 from couchers.tasks import send_login_email, send_password_reset_email, send_signup_email
+from couchers.utils import create_session_cookie, http_date, now, parse_session_cookie
 from pb import auth_pb2, auth_pb2_grpc
 
 logger = logging.getLogger(__name__)
@@ -48,42 +49,68 @@ class Auth(auth_pb2_grpc.AuthServicer):
         """
         Returns None if the session token is not valid, and (user_id, jailed) corresponding to the session token otherwise.
 
-        TODO(aapeli): session expiry
+        Also updates the user last active time, token last active time, and increments API call count.
         """
         with session_scope() as session:
             result = (
                 session.query(User, UserSession)
                 .join(User, User.id == UserSession.user_id)
                 .filter(UserSession.token == token)
+                .filter(UserSession.is_valid)
                 .one_or_none()
             )
 
             if not result:
                 return None
             else:
-                return result.User.id, result.User.is_jailed
+                user, user_session = result
 
-    def _create_session(self, context, session, user):
+                # update user last active time
+                user.last_active = func.now()
+
+                # let's update the token
+                user_session.last_seen = func.now()
+                user_session.api_calls += 1
+                session.flush()
+
+                return user.id, user.is_jailed
+
+    def _create_session(self, context, session, user, long_lived):
         """
-        Creates a session for the given user and returns the bearer token.
+        Creates a session for the given user and returns the token and expiry.
 
-        You need to give an active DB session as nested sessions don't
-        really work here due to the active User object.
+        You need to give an active DB session as nested sessions don't really
+        work here due to the active User object.
 
         Will abort the API calling context if the user is banned from logging in.
+
+        You can set the cookie on the client with
+
+        ```py3
+        token, expiry = self._create_session(...)
+        context.send_initial_metadata([("set-cookie", create_session_cookie(token, expiry)),])
+        ```
         """
         if user.is_banned:
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ACCOUNT_SUSPENDED)
 
-        token = urlsafe_secure_token()
+        token = cookiesafe_secure_token()
 
-        user_session = UserSession(user=user, token=token)
+        headers = dict(context.invocation_metadata())
+
+        user_session = UserSession(
+            token=token,
+            user=user,
+            long_lived=long_lived,
+            ip_address=headers.get("x-forwarded-for"),
+            user_agent=headers.get("user-agent"),
+        )
 
         session.add(user_session)
         session.commit()
 
         logger.debug(f"Handing out {token=} to {user=}")
-        return token
+        return token, user_session.expiry
 
     def _delete_session(self, token):
         """
@@ -92,9 +119,11 @@ class Auth(auth_pb2_grpc.AuthServicer):
         Returns True if the session was found, False otherwise.
         """
         with session_scope() as session:
-            user_session = session.query(UserSession).filter(UserSession.token == token).one_or_none()
+            user_session = (
+                session.query(UserSession).filter(UserSession.token == token).filter(UserSession.is_valid).one_or_none()
+            )
             if user_session:
-                session.delete(user_session)
+                user_session.deleted = func.now()
                 session.commit()
                 return True
             else:
@@ -214,9 +243,13 @@ class Auth(auth_pb2_grpc.AuthServicer):
             session.add(user)
             session.commit()
 
-            token = self._create_session(context, session, user)
-
-            return auth_pb2.AuthRes(token=token, jailed=user.is_jailed)
+            token, expiry = self._create_session(context, session, user, False)
+            context.send_initial_metadata(
+                [
+                    ("set-cookie", create_session_cookie(token, expiry)),
+                ]
+            )
+            return auth_pb2.AuthRes(jailed=user.is_jailed)
 
     def Login(self, request, context):
         """
@@ -265,12 +298,19 @@ class Auth(auth_pb2_grpc.AuthServicer):
             )
             if res:
                 login_token, user = res
-                # this is the bearer token
-                token = self._create_session(context, session, user=user)
+
                 # delete the login token so it can't be reused
                 session.delete(login_token)
                 session.commit()
-                return auth_pb2.AuthRes(token=token, jailed=user.is_jailed)
+
+                # create a session
+                token, expiry = self._create_session(context, session, user, False)
+                context.send_initial_metadata(
+                    [
+                        ("set-cookie", create_session_cookie(token, expiry)),
+                    ]
+                )
+                return auth_pb2.AuthRes(jailed=user.is_jailed)
             else:
                 context.abort(grpc.StatusCode.UNAUTHENTICATED, errors.INVALID_TOKEN)
 
@@ -291,8 +331,13 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 if verify_password(user.hashed_password, request.password):
                     logger.debug(f"Right password")
                     # correct password
-                    token = self._create_session(context, session, user)
-                    return auth_pb2.AuthRes(token=token, jailed=user.is_jailed)
+                    token, expiry = self._create_session(context, session, user, request.remember_device)
+                    context.send_initial_metadata(
+                        [
+                            ("set-cookie", create_session_cookie(token, expiry)),
+                        ]
+                    )
+                    return auth_pb2.AuthRes(jailed=user.is_jailed)
                 else:
                     logger.debug(f"Wrong password")
                     # wrong password
@@ -307,8 +352,10 @@ class Auth(auth_pb2_grpc.AuthServicer):
         """
         Removes an active session.
         """
-        logger.info(f"Deauthenticate(token={request.token})")
-        if self._delete_session(token=request.token):
+        token = parse_session_cookie(dict(context.invocation_metadata()))
+        logger.info(f"Deauthenticate(token={token})")
+
+        if token and self._delete_session(token):
             return empty_pb2.Empty()
         else:
             # probably caused by token not existing

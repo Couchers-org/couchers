@@ -5,27 +5,12 @@ import { ConversationsPromiseClient } from "../pb/conversations_grpc_web_pb";
 import { JailPromiseClient } from "../pb/jail_grpc_web_pb";
 import { RequestsPromiseClient } from "../pb/requests_grpc_web_pb";
 import { SSOPromiseClient } from "../pb/sso_grpc_web_pb";
-import { store } from "../store";
 
 const URL = process.env.REACT_APP_API_BASE_URL;
 
-class AuthInterceptor {
-  intercept(request: any, invoker: (request: any) => any) {
-    const authorizationHeader = request.getMetadata().authorization;
-
-    if (!authorizationHeader) {
-      const { authToken } = store.getState().auth;
-      request.getMetadata().authorization = `Bearer ${authToken}`;
-    }
-    return invoker(request);
-  }
-}
-
-const interceptor = new AuthInterceptor();
-
 const opts = {
-  unaryInterceptors: [interceptor],
-  streamInterceptors: [interceptor],
+  // this modifies the behaviour on the API so that it will send cookies on the requests
+  withCredentials: true,
 };
 
 const apis = {
@@ -33,7 +18,7 @@ const apis = {
   bugs: new BugsPromiseClient(URL, null, opts),
   sso: new SSOPromiseClient(URL, null, opts),
   conversations: new ConversationsPromiseClient(URL, null, opts),
-  auth: new AuthPromiseClient(URL),
+  auth: new AuthPromiseClient(URL, null, opts),
   requests: new RequestsPromiseClient(URL, null, opts),
   jail: new JailPromiseClient(URL, null, opts),
 };

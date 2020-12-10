@@ -402,7 +402,7 @@ def test_ChangeEmail_wrong_token(db, fast_passwords):
 
         token = user_updated.new_email_token
 
-    with auth_api_session() as auth_api:
+    with auth_api_session() as (auth_api, metadata_interceptor):
         with pytest.raises(grpc.RpcError) as e:
             res = auth_api.CompleteChangeEmail(
                 auth_pb2.CompleteChangeEmailReq(
@@ -441,7 +441,7 @@ def test_ChangeEmail(db, fast_passwords):
 
         token = user_updated.new_email_token
 
-    with auth_api_session() as auth_api:
+    with auth_api_session() as (auth_api, metadata_interceptor):
         res = auth_api.CompleteChangeEmail(
             auth_pb2.CompleteChangeEmailReq(
                 change_email_token=token,

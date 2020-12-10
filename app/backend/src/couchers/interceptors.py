@@ -5,6 +5,7 @@ from time import perf_counter_ns
 import grpc
 
 from couchers import errors
+from couchers.utils import parse_session_cookie
 
 LOG_VERBOSE_PB = "LOG_VERBOSE_PB" in os.environ
 
@@ -20,9 +21,10 @@ def unauthenticated_handler(message="Unauthorized"):
 
 class AuthValidatorInterceptor(grpc.ServerInterceptor):
     """
-    Extracts an "Authorization: Bearer <hex>" header and authenticates
-    a user. Sets context.user_id if authenticated, otherwise
-    terminates the call with an HTTP error code.
+    Extracts a session token from a cookie, and authenticates a user with that.
+
+    Sets context.user_id and context.token if authenticated, otherwise
+    terminates the call with an UNAUTHENTICATED error code.
     """
 
     def __init__(self, get_session_for_token, allow_jailed=True):
@@ -30,17 +32,13 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
         self._allow_jailed = allow_jailed
 
     def intercept_service(self, continuation, handler_call_details):
-        metadata = dict(handler_call_details.invocation_metadata)
+        token = parse_session_cookie(dict(handler_call_details.invocation_metadata))
 
-        if "authorization" not in metadata:
-            return unauthenticated_handler()
-
-        authorization = metadata["authorization"]
-        if not authorization.startswith("Bearer "):
+        if not token:
             return unauthenticated_handler()
 
         # None or (user_id, jailed)
-        res = self._get_session_for_token(token=authorization[7:])
+        res = self._get_session_for_token(token=token)
 
         if not res:
             return unauthenticated_handler()
@@ -55,6 +53,7 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
 
         def user_unaware_function(req, context):
             context.user_id = user_id
+            context.token = token
             return user_aware_function(req, context)
 
         return grpc.unary_unary_rpc_method_handler(
@@ -117,30 +116,6 @@ class LoggingInterceptor(grpc.ServerInterceptor):
 
         return grpc.unary_unary_rpc_method_handler(
             timetaking_function,
-            request_deserializer=handler.request_deserializer,
-            response_serializer=handler.response_serializer,
-        )
-
-
-class UpdateLastActiveTimeInterceptor(grpc.ServerInterceptor):
-    """
-    Calls the given update_last_active_time(user_id) function before
-    servicing each call.
-    """
-
-    def __init__(self, update_last_active_time):
-        self._update_last_active_time = update_last_active_time
-
-    def intercept_service(self, continuation, handler_call_details):
-        handler = continuation(handler_call_details)
-        prev_func = handler.unary_unary
-
-        def updating_function(req, context):
-            self._update_last_active_time(context.user_id)
-            return prev_func(req, context)
-
-        return grpc.unary_unary_rpc_method_handler(
-            updating_function,
             request_deserializer=handler.request_deserializer,
             response_serializer=handler.response_serializer,
         )

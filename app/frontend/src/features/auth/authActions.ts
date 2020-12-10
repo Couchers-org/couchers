@@ -7,12 +7,12 @@ export const passwordLogin = createAsyncThunk(
   async ({ username, password }: { username: string; password: string }) => {
     const auth = await service.user.passwordLogin(username, password);
 
-    if (auth.token && !auth.jailed) {
-      const user = await service.user.getUser(username, auth.token);
-      return { token: auth.token, jailed: auth.jailed, user };
+    if (!auth.jailed) {
+      const user = await service.user.getUser(username);
+      return { jailed: auth.jailed, user };
     }
 
-    return { token: auth.token, jailed: auth.jailed, user: null };
+    return { jailed: auth.jailed, user: null };
   }
 );
 
@@ -21,12 +21,12 @@ export const tokenLogin = createAsyncThunk(
   async (loginToken: string) => {
     const auth = await service.user.tokenLogin(loginToken);
 
-    if (auth.token && !auth.jailed) {
-      const user = await service.user.getCurrentUser(auth.token);
-      return { token: auth.token, jailed: auth.jailed, user };
+    if (!auth.jailed) {
+      const user = await service.user.getCurrentUser();
+      return { jailed: auth.jailed, user };
     }
 
-    return { token: auth.token, jailed: auth.jailed, user: null };
+    return { jailed: auth.jailed, user: null };
   }
 );
 
@@ -35,18 +35,18 @@ export const signup = createAsyncThunk(
   async (signupArguments: SignupArguments) => {
     const auth = await service.user.completeSignup(signupArguments);
 
-    if (auth.token && !auth.jailed) {
-      const user = await service.user.getCurrentUser(auth.token);
-      return { token: auth.token, jailed: auth.jailed, user };
+    if (!auth.jailed) {
+      const user = await service.user.getCurrentUser();
+      return { jailed: auth.jailed, user };
     }
 
-    return { token: auth.token, jailed: auth.jailed, user: null };
+    return { jailed: auth.jailed, user: null };
   }
 );
 
 export const logout = createAsyncThunk(
   "auth/logout",
-  (sessionToken: string) => {
-    return service.user.logout(sessionToken);
+  () => {
+    return service.user.logout();
   }
 );

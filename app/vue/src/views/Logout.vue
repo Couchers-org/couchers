@@ -13,7 +13,7 @@
 import Vue from "vue"
 
 import { authClient } from "../api"
-import { DeAuthReq } from "../pb/auth_pb"
+import { Empty } from "google-protobuf/google/protobuf/empty_pb"
 
 import Store from "../store"
 import Router from "../router"
@@ -32,10 +32,8 @@ export default Vue.extend({
   },
 
   async mounted() {
-    const req = new DeAuthReq()
-    req.setToken(Store.state.authToken!)
     try {
-      await authClient.deauthenticate(req)
+      await authClient.deauthenticate(new Empty())
       Store.commit("deauth")
     } catch (err) {
       this.loading = false
