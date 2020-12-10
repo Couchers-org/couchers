@@ -402,8 +402,6 @@ export default {
 </script>
 
 <style scoped>
-@import url("node_modules/@mdi/font/css/materialdesignicons.css");
-
 .role {
   margin-bottom: 0.2rem !important;
   font-weight: 600;
