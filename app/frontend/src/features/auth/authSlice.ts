@@ -109,7 +109,7 @@ export const authSlice = createSlice({
         state.loading = true;
       })
       .addCase(logout.fulfilled, (state) => {
-        state.authToken = null;
+        state.authenticated = false;
         state.user = null;
         state.error = null;
         state.loading = false;

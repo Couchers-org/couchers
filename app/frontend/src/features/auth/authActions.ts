@@ -46,7 +46,7 @@ export const signup = createAsyncThunk(
 
 export const logout = createAsyncThunk(
   "auth/logout",
-  (sessionToken: string) => {
-    return service.user.logout(sessionToken);
+  () => {
+    return service.user.logout();
   }
 );

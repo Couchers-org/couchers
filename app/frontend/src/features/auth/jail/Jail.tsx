@@ -24,7 +24,7 @@ export default function Jail() {
   const authError = useTypedSelector((state) => state.auth.error);
   const authLoading = useTypedSelector((state) => state.auth.loading);
   const isAuthenticated = useTypedSelector(
-    (state) => state.auth.authToken !== null
+    (state) => state.auth.authenticated === true
   );
 
   const [loading, setLoading] = useState(false);
