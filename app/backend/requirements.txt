@@ -17,5 +17,4 @@ pyyaml
 requests
 Shapely
 sqlalchemy
-names
 faker
