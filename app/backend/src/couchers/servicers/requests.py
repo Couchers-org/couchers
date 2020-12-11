@@ -56,11 +56,8 @@ def message_to_pb(message: Message):
 
 
 class Requests(requests_pb2_grpc.RequestsServicer):
-    def __init__(self, Session):
-        self._Session = Session
-
     def CreateHostRequest(self, request, context):
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             if request.to_user_id == context.user_id:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REQUEST_SELF)
             # just to check the host exists
@@ -109,7 +106,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             return requests_pb2.CreateHostRequestRes(host_request_id=host_request.conversation_id)
 
     def GetHostRequest(self, request, context):
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             host_request = (
                 session.query(HostRequest)
                 .filter(HostRequest.conversation_id == request.host_request_id)
@@ -156,7 +153,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if request.only_sent and request.only_received:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.HOST_REQUEST_SENT_OR_RECEIVED)
 
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             pagination = request.number if request.number > 0 else PAGINATION_LENGTH
 
             # By outer joining messages on itself where the second id is bigger, only the highest IDs will have
@@ -231,7 +228,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             )
 
     def RespondHostRequest(self, request, context):
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             host_request = (
                 session.query(HostRequest).filter(HostRequest.conversation_id == request.host_request_id).one_or_none()
             )
@@ -328,7 +325,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             return empty_pb2.Empty()
 
     def GetHostRequestMessages(self, request, context):
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             host_request = (
                 session.query(HostRequest).filter(HostRequest.conversation_id == request.host_request_id).one_or_none()
             )
@@ -363,7 +360,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
     def SendHostRequestMessage(self, request, context):
         if request.text == "":
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_MESSAGE)
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             host_request = (
                 session.query(HostRequest).filter(HostRequest.conversation_id == request.host_request_id).one_or_none()
             )
@@ -404,7 +401,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if request.only_sent and request.only_received:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.HOST_REQUEST_SENT_OR_RECEIVED)
 
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             if request.newest_message_id == 0:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_MESSAGE)
 
@@ -450,7 +447,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             )
 
     def MarkLastSeenHostRequest(self, request, context):
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             host_request = (
                 session.query(HostRequest).filter(HostRequest.conversation_id == request.host_request_id).one_or_none()
             )

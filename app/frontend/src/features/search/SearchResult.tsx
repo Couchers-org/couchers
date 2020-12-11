@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   card: {
-    borderRadius: theme.shape.borderRadius,
+    borderRadius: `${theme.shape.borderRadius * 2}px`,
   },
   resultHeader: {
     marginBottom: theme.spacing(1),

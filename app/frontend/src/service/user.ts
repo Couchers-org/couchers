@@ -55,7 +55,7 @@ export type SignupArguments = {
 };
 
 /**
- * Login user using password and returns session token
+ * Login user using password
  */
 export async function passwordLogin(username: string, password: string) {
   const req = new AuthReq();
@@ -63,24 +63,22 @@ export async function passwordLogin(username: string, password: string) {
   req.setPassword(password);
 
   const response = await client.auth.authenticate(req);
-  const token = response.getToken();
   const jailed = response.getJailed();
 
-  return { token, jailed };
+  return { jailed };
 }
 
 /**
- * Login user using a login token and returns session token
+ * Login user using a login token
  */
 export async function tokenLogin(loginToken: string) {
   const req = new CompleteTokenLoginReq();
   req.setLoginToken(loginToken);
 
   const response = await client.auth.completeTokenLogin(req);
-  const token = response.getToken();
   const jailed = response.getJailed();
 
-  return { token, jailed };
+  return { jailed };
 }
 
 /**
@@ -88,13 +86,10 @@ export async function tokenLogin(loginToken: string) {
  *
  * @returns {Promise<User.AsObject>}
  */
-export async function getCurrentUser(token?: string): Promise<User.AsObject> {
+export async function getCurrentUser(): Promise<User.AsObject> {
   const req = new PingReq();
 
-  const response = await client.api.ping(
-    req,
-    token ? { authorization: `Bearer ${token}` } : undefined
-  );
+  const response = await client.api.ping(req);
 
   return response.getUser()!.toObject();
 }
@@ -103,20 +98,15 @@ export async function getCurrentUser(token?: string): Promise<User.AsObject> {
  * Returns User record by Username or id
  *
  * @param {string} user
- * @param {string} token
  * @returns {Promise<User.AsObject>}
  */
 export async function getUser(
-  user: string,
-  token?: string
+  user: string
 ): Promise<User.AsObject> {
   const userReq = new GetUserReq();
   userReq.setUser(user || "");
 
-  const response = await client.api.getUser(
-    userReq,
-    token ? { authorization: `Bearer ${token}` } : undefined
-  );
+  const response = await client.api.getUser(userReq);
 
   return response.toObject();
 }
@@ -227,7 +217,13 @@ export async function completeSignup({
   req.setHostingStatus(hostingStatus);
 
   const res = await client.auth.completeSignup(req);
-  const sessionToken = res.getToken();
   const jailed = res.getJailed();
-  return { token: sessionToken, jailed };
+  return { jailed };
+}
+
+/**
+ * Logout user
+ */
+export function logout() {
+  return client.auth.deauthenticate(new Empty());
 }

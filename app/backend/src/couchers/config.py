@@ -15,6 +15,8 @@ CONFIG_OPTIONS = [
     ("VERSION", str, "unknown"),
     # Base URL
     ("BASE_URL", str),
+    # Domain that cookies should set as their domain value
+    ("COOKIE_DOMAIN", str),
     # SQLAlchemy database connection string
     ("DATABASE_CONNECTION_STRING", str),
     # Whether to try adding dummy data
@@ -40,6 +42,8 @@ CONFIG_OPTIONS = [
     ("BUG_TOOL_GITHUB_REPO", str),
     ("BUG_TOOL_GITHUB_USERNAME", str),
     ("BUG_TOOL_GITHUB_TOKEN", str),
+    # Whether we're in test
+    ("IN_TEST", bool, "0"),
 ]
 
 config = {}
@@ -90,3 +94,5 @@ def check_config():
             raise Exception("Production site must be over HTTPS")
         if not config["ENABLE_EMAIL"]:
             raise Exception("Production site must have email enabled")
+        if config["IN_TEST"]:
+            raise Exception("IN_TEST while not DEV")

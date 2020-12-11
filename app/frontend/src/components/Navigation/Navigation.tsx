@@ -58,8 +58,8 @@ const useStyles = makeStyles((theme) => ({
     paddingLeft: 0,
     paddingRight: 0,
     [theme.breakpoints.up("md")]: {
-      paddingLeft: "2rem",
-      paddingRight: "2rem",
+      paddingRight: theme.spacing(3),
+      paddingLeft: theme.spacing(3),
     },
   },
   label: {
@@ -72,7 +72,8 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.up("md")]: {
       width: "auto",
       flex: 0,
-      padding: "0 3rem",
+      paddingRight: theme.spacing(3),
+      paddingLeft: theme.spacing(3),
       justifyContent: "flex-start",
     },
   },
@@ -80,9 +81,9 @@ const useStyles = makeStyles((theme) => ({
     transition: theme.transitions.create(["color", "padding-top"], {
       duration: theme.transitions.duration.short,
     }),
-    padding: "6px 12px 8px",
-    minWidth: 80,
-    maxWidth: 168,
+    padding: theme.spacing(1, 1.5),
+    minWidth: theme.spacing(10),
+    maxWidth: theme.spacing(21),
     color: theme.palette.text.secondary,
     flex: "1",
   },
@@ -94,7 +95,7 @@ const useStyles = makeStyles((theme) => ({
 export default function Navigation() {
   const classes = useStyles();
 
-  const user = useTypedSelector((state) => state.auth.user);
+  const authenticated = useTypedSelector((state) => state.auth.authenticated);
 
   return (
     <AppBar
@@ -137,7 +138,7 @@ export default function Navigation() {
             </Button>
           ))}
           <Hidden smDown>
-            {user && (
+            {authenticated && (
               <Button
                 classes={{
                   root: classes.item,

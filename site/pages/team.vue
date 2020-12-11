@@ -32,143 +32,329 @@
     </div>
     <div class="wide-container">
       <section class="section">
-        <div class="columns">
-          <div class="column">
+        <div class="columns is-vcentered is-multiline is-centered">
+          <div class="column is-one-third">
             <div class="card">
-              <div class="card-image">
-                <figure class="image is-4by3 headshot">
-                  <img src="/img/itsi-friends.jpg" alt="Photo of Itsi with couch-surfing friends">
-                </figure>
-              </div>
               <div class="card-content">
                 <div class="media">
                   <div class="media-left">
-                    <figure class="image is-48x48">
-                      <img class="is-rounded" src="/img/itsi-head.jpg" alt="Headshot of Itsi">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-itsi.jpg" alt="Headshot of Itsi">
                     </figure>
                   </div>
                   <div class="media-content">
                     <p class="title is-4">Itsi Weinstock</p>
-                    <p class="subtitle is-6">Team Lead: Community</p>
+                    <p class="subtitle is-6 role">Community Team Lead</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Sydney, Australia</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-web"></i></span><a href="https://www.itsiweinstock.com">itsiweinstock.com</a></p>
                   </div>
-                </div>
-                <div class="content">
-                  <p>Itsi is a data scientist and community organizer from Sydney, Australia. He has years of leadership experience in community and event management in non-profits. He has expertise in machine learning, algorithm design and network modeling.</p>
-
-                  <p>Couch-surfing story: Zemo Alvani, Georgia. A man invites me for dinner while I wait for my host. I have to navigate drinking enough homemade wine to not be rude and not drinking too much for when I meet my host. Didn't go well but after a sleep-in we still managed to drive up a very dangerous road for hours to hang out with my host's cowboy buddies in the mountains. <a href="https://github.com/itsiw">@itsiw</a> on GitHub.</p>
                 </div>
               </div>
             </div>
           </div>
-          <div class="column">
+          <div class="column is-one-third">
             <div class="card">
-              <div class="card-image">
-                <figure class="image is-4by3 headshot">
-                  <img src="/img/aapeli-friends.jpg" alt="Photo of Aapeli with couch-surfing friends">
-                </figure>
-              </div>
               <div class="card-content">
                 <div class="media">
                   <div class="media-left">
-                    <figure class="image is-48x48">
-                      <img class="is-rounded" src="/img/aapeli-head.jpg" alt="Headshot of Aapeli">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-aapeli.jpg" alt="Headshot of Aapeli">
                     </figure>
                   </div>
                   <div class="media-content">
                     <p class="title is-4">Aapeli Vuorinen</p>
-                    <p class="subtitle is-6">Team Lead: Backend</p>
+                    <p class="subtitle is-6 role">Dev Team Lead</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>New York City, USA</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-web"></i></span><a href="https://www.aapelivuorinen.com">aapelivuorinen.com</a></p>
                   </div>
-                </div>
-
-                <div class="content">
-                  <p>Aapeli is a software engineer from Helsinki, Finland with over a decade of experience designing and building scalable yet performant systems. He has taken several projects from idea to execution, bringing them up to production standards quickly and efficiently.</p>
-
-                  <p>Couch-surfing story: Arkhangelsk, Russian Federation. My host showed me the museum of military medicine that he had curated at the local university, and introduced me to the head of the medical school. We later went to check out a Cold War nuclear fallout shelter that was filled with ice as it was the middle of winter in the Arctic Circle. <a href="https://github.com/aapeliv">@aapeliv</a> on GitHub.</p>
                 </div>
               </div>
             </div>
           </div>
-          <div class="column">
+          <div class="column is-one-third">
             <div class="card">
-              <div class="card-image">
-                <figure class="image is-4by3 headshot">
-                  <img src="/img/marlies-friends.jpg" alt="Photo of Marlies with couch-surfing friends">
-                </figure>
-              </div>
               <div class="card-content">
                 <div class="media">
                   <div class="media-left">
-                    <figure class="image is-48x48">
-                      <img class="is-rounded" src="/img/marlies-head.jpg" alt="Headshot of Marlies">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-marlies.jpg" alt="Headshot of Marlies">
                     </figure>
                   </div>
                   <div class="media-content">
                     <p class="title is-4">Marlies Iserlohe</p>
-                    <p class="subtitle is-6">Community Organizer</p>
+                    <p class="subtitle is-6 role">Community Outreach</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Copenhagen, Denmark</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/in/marlies-iserlohe-90282a89">Marlies Iserlohe</a></p>
                   </div>
-                </div>
-                <div class="content">
-                  <p>Marlies is a grants administrator and global health student from Melbourne, Australia. She has backpacked through over 40 countries, spending the last year in South America learning Spanish and starting to appreciate why bananas go with every meal. Having been introduced to couch-surfing in 2015, Marlies loves being dragged into various activities in a new city and prides herself on being the host who introduced 2 surfers that are now engaged.</p>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-        <div class="columns">
-          <div class="column">
+          <div class="column is-one-third">
             <div class="card">
-              <div class="card-image">
-                <figure class="image is-4by3 headshot">
-                  <img src="/img/val-friends.jpg" alt="Photo of Val with couch-surfing friends">
-                </figure>
-              </div>
               <div class="card-content">
                 <div class="media">
                   <div class="media-left">
-                    <figure class="image is-48x48">
-                      <img class="is-rounded" src="/img/val-head.jpg" alt="Headshot of Val">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-val.jpg" alt="Headshot of Val">
                     </figure>
                   </div>
                   <div class="media-content">
                     <p class="title is-4">Val Natanelov</p>
-                    <p class="subtitle is-6">Strategy Architect</p>
+                    <p class="subtitle is-6 role">Strategic Advisor</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Brisbane, Australia</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/public-profile/in/valerinatanelov">valerinatanelov</a></p>
                   </div>
-                </div>
-
-                <div class="content">
-                  <p>Val is a lifelong entrepreneur from Tbilisi, Georgia, with international innovation and business experience, in particular in the area of design thinking and knowledge systems. Having worked for a wide range of organizations ranging from startups to universities, solving difficult problems is in the fabric of his being.</p>
                 </div>
               </div>
             </div>
           </div>
-          <div class="column">
+          <div class="column is-one-third">
             <div class="card">
-              <div class="card-image">
-                <figure class="image is-4by3 headshot">
-                  <img src="/img/coucher-avatar.jpg" alt="Avatar pic">
-                </figure>
-              </div>
               <div class="card-content">
                 <div class="media">
                   <div class="media-left">
-                    <figure class="image is-48x48">
-                      <img class="is-rounded" src="/img/question.jpg" alt="question profile">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-emily.jpg" alt="Headshot of Val">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Emily Damgali</p>
+                    <p class="subtitle is-6 role">Community Engagement</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Kaitaia, New Zealand</p>
+                    <!-- <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/public-profile/in/valerinatanelov">valerinatanelov</a></p> -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-darren.jpg" alt="Headshot of Val">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Darren Vong</p>
+                    <p class="subtitle is-6 role">Frontend Developer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>London, United Kingdom</p>
+                    <!-- <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/public-profile/in/valerinatanelov">valerinatanelov</a></p> -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-jakub.jpg" alt="Headshot of Val">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Jakub Szwedo</p>
+                    <p class="subtitle is-6 role">Head of UX</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Poznań, Poland</p>
+                    <!-- <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/public-profile/in/valerinatanelov">valerinatanelov</a></p> -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-miuriel.jpg" alt="Headshot of Val">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Miuriel Kochva</p>
+                    <p class="subtitle is-6 role">Head of Graphic Design</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Amsterdam, Netherlands</p>
+                    <!-- <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/public-profile/in/valerinatanelov">valerinatanelov</a></p> -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-nolo.jpg" alt="Headshot of Val">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Manuel Mohammady</p>
+                    <p class="subtitle is-6 role">Forum Designer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Islas Canarias</p>
+                    <!-- <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/public-profile/in/valerinatanelov">valerinatanelov</a></p> -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-tina.jpg" alt="Headshot of Val">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Martina Ferrari</p>
+                    <p class="subtitle is-6 role">Community Structure Designer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Dublin, Ireland</p>
+                    <!-- <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/public-profile/in/valerinatanelov">valerinatanelov</a></p> -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-colin.jpg" alt="Headshot of Val">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Colin Ashby</p>
+                    <p class="subtitle is-6 role">Digital Marketer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Houston, USA</p>
+                    <!-- <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/public-profile/in/valerinatanelov">valerinatanelov</a></p> -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-dom.jpg" alt="Headshot of Val">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Dominic Nayan</p>
+                    <p class="subtitle is-6 role">UX Designer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Louisville, USA</p>
+                    <!-- <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/public-profile/in/valerinatanelov">valerinatanelov</a></p> -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-lucas.jpg" alt="Headshot of Val">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Lucas Levin</p>
+                    <p class="subtitle is-6 role">Head of Frontend</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>London, United Kingdom</p>
+                    <!-- <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/public-profile/in/valerinatanelov">valerinatanelov</a></p> -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-jesse.jpg" alt="Headshot of Val">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Jesse Allhands</p>
+                    <p class="subtitle is-6 role">UX Designer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Madison, USA</p>
+                    <!-- <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/public-profile/in/valerinatanelov">valerinatanelov</a></p> -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-mindy.jpg" alt="Headshot of Val">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Mindy Curtis</p>
+                    <p class="subtitle is-6 role">Graphic Designer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Los Angeles, USA</p>
+                    <!-- <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/public-profile/in/valerinatanelov">valerinatanelov</a></p> -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-marco.jpg" alt="Headshot of Val">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Marco de Wit</p>
+                    <p class="subtitle is-6 role">Frontend Developer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>London, United Kingdom</p>
+                    <!-- <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/public-profile/in/valerinatanelov">valerinatanelov</a></p> -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/question.jpg" alt="Photo of question mark">
                     </figure>
                   </div>
                   <div class="media-content">
                     <p class="title is-4">You</p>
-                    <p class="subtitle is-6">Contributor</p>
+                    <p class="subtitle is-6 role">Contributor</p>
+                    <p><a class="button is-primary" href = "/signup">Join our team</a></p>
                   </div>
-                </div>
-                <div class="content">
-                  <p>We're looking for people with all kinds of skills to join the team and bring this project to life. If you think you can help out, we'd love to chat.</p>
-                  <p><a class="button is-primary" href = "/signup">Join our team</a></p>
                 </div>
               </div>
             </div>
           </div>
-          <!-- Needed here or the last two cards spread out -->
-          <div class="column"></div>
         </div>
       </section>
     </div>
@@ -195,3 +381,12 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+@import url("node_modules/@mdi/font/css/materialdesignicons.css");
+
+.role {
+  margin-bottom: 0.2rem !important;
+  font-weight: 600;
+}
+</style>

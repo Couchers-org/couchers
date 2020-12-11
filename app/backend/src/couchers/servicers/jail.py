@@ -19,10 +19,6 @@ class Jail(jail_pb2_grpc.JailServicer):
     fully active
     """
 
-    def __init__(self, Session):
-        super().__init__()
-        self._Session = Session
-
     def _get_jail_info(self, user):
         res = jail_pb2.JailInfoRes(
             has_not_accepted_tos=user.accepted_tos != 1,
@@ -42,12 +38,12 @@ class Jail(jail_pb2_grpc.JailServicer):
         return res
 
     def JailInfo(self, request, context):
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             user = session.query(User).filter(User.id == context.user_id).one()
             return self._get_jail_info(user)
 
     def AcceptTOS(self, request, context):
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             user = session.query(User).filter(User.id == context.user_id).one()
 
             if user.accepted_tos == 1 and not request.accept:
@@ -59,7 +55,7 @@ class Jail(jail_pb2_grpc.JailServicer):
             return self._get_jail_info(user)
 
     def SetLocation(self, request, context):
-        with session_scope(self._Session) as session:
+        with session_scope() as session:
             user = session.query(User).filter(User.id == context.user_id).one()
 
             user.city = request.city

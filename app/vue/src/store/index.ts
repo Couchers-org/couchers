@@ -29,18 +29,18 @@ export default new Vuex.Store({
     unseenHostRequestCount: 0,
     unseenMessageCount: 0,
     pendingFriendRequestCount: 0,
-    authToken: null as null | string,
+    authenticated: false,
     jailed: false,
     lastPing: 0,
     pingTimeout: null as null | number,
   },
   mutations: {
     auth(state, authRes: AuthRes) {
-      state.authToken = authRes.getToken()
+      state.authenticated = true
       state.jailed = authRes.getJailed()
     },
     deauth(state, reason) {
-      state.authToken = null
+      state.authenticated = false
       state.jailed = false
       state.user = null
       Router.push({
@@ -84,7 +84,7 @@ export default new Vuex.Store({
     async ping(ctx) {
       // gets a whole bunch of latest info from server if logged in
       ctx.commit("updateLastPing")
-      if (ctx.getters.authenticated) {
+      if (ctx.state.authenticated) {
         if (ctx.getters.jailed) {
           try {
             const res = await jailClient.jailInfo(new Empty())
@@ -174,7 +174,6 @@ export default new Vuex.Store({
   },
   modules: {},
   getters: {
-    authenticated: (state) => state.authToken !== null,
     jailed: (state) => state.jailed === true,
   },
   plugins: [createPersistedState()],

@@ -9,6 +9,7 @@ import { useTypedSelector } from "../../store";
 import { Link } from "react-router-dom";
 import { profileRoute } from "../../AppRoutes";
 import Button from "../../components/Button";
+import { timestamp2Date } from "../../utils/date";
 import { timeAgo } from "../../utils/timeAgo";
 import { hostingStatusLabels } from "../profile/constants";
 import TextBody from "../../components/TextBody";
@@ -33,11 +34,6 @@ const useStyles = makeStyles((theme) => ({
     display: "inline",
   },
   editButton: {
-    marginBottom: theme.spacing(2),
-  },
-  lastActive: {
-    fontSize: theme.typography.caption.fontSize,
-    color: theme.typography.caption.color,
     marginBottom: theme.spacing(2),
   },
 }));
@@ -66,9 +62,11 @@ export default function UserHeader({ user }: { user: User.AsObject }) {
       </Box>
 
       {user.lastActive && (
-        <Typography component="p" className={classes.lastActive}>
-          Last active {timeAgo(user.lastActive.seconds * 1000)}
-        </Typography>
+        <Box mb={2}>
+          <Typography component="p" variant="caption" gutterBottom>
+            Last active {timeAgo(timestamp2Date(user.lastActive))}
+          </Typography>
+        </Box>
       )}
 
       {isCurrentUser && (

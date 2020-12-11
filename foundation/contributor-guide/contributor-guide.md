@@ -86,11 +86,13 @@ To get started, do the following tasks:
 4. Send a message to your team lead to introduce yourself (if they haven’t already). Please contact Itsi or Aapeli if you don’t know who you should contact. Your team lead will give you the relevant team document that explains how that team functions.
 5. Join the next team meeting where you can meet your new team!
 
-## The Contributor Agreements
+## The Contributor Assignment Agreement
 
-The [Contributor License Agreement (CLA)](https://couchers.org/contributors/cla.pdf) and the [Contributor Assignment Agreement (CAA)](https://couchers.org/contributors/caa.pdf) clarify what happens to intellectual property that you contribute and produce while working on Couchers.org. This is explained in more depth in the "Legal Stuff" section.
+If you work on stuff that's for the exclusive use of Couchers.org, for example logos or designs, we ask that you sign the Contributor Assignment Agreement to transfer ownership of such intellectual property to the non-profit foundation. This allows us to build a solid brand and make sure we have the legal right to use work that everyone contributes.
 
-Please download these forms from <https://couchers.org/contributors/cla.pdf> and <https://couchers.org/contributors/caa.pdf>, sign them, and return to Marlies!
+The [Contributor Assignment Agreement (CAA)](https://couchers.org/contributors/caa.pdf) clarifies what happens to intellectual property that you contribute and produce while working on Couchers.org. This is explained in more depth in the "Legal Stuff" section.
+
+Please download the form from <https://couchers.org/contributors/caa.pdf>, sign it, and return to Marlies!
 
 \newpage
 
@@ -137,16 +139,18 @@ We will inevitably be compared frequently to other hospex platforms, or asked wh
 
 The Couchers.org project is legally a not-for-profit that guards its assets and gives team members protection from legal issues.
 
-We ask you to sign a Contributor License Agreement (CLA) and a Contributor Assignment Agreement (CAA) to license and assign your work to the foundation. The purpose is to protect the foundation and you from legal issues.
+We ask you to sign a Contributor Assignment Agreement (CAA) to assign your work to the foundation if you're contributing something that's for the sole use of Couchers.org. That's most things apart from source code. The purpose is to protect the foundation and you from legal issues.
+
+The source code for the project is licensed under the MIT license, a permissive license that basically grants anyone the right to use, copy, modify, publish, distribute, and sell copies of our software. The only requirement is that they keep a notice on all copies and portions of used software. If you contribute code to the project, you contribute it under the MIT license also, which allows us to use it too. This guarantees that the project continues in an open and transparent way and that others are able to use the work we've put into to do other cool, awesome stuff.
 
 ## Long version
 
-The Couchers.org project is owned and supported by the “Cross-Cultural Exchange and Communities Foundation Limited” (the foundation). This is a public not-for-profit company limited by guarantee, formed in Australia specifically for the Couchers.org project.
+The Couchers.org project is owned and supported by the "Cross-Cultural Exchange and Communities Foundation Limited" (the foundation). This is a public not-for-profit company limited by guarantee, formed in Australia specifically for the Couchers.org project.
 
 The constitution is [available online](https://couchers.org/foundation/constitution.pdf), and includes a not-for-profit clause, meaning that the foundation can’t sell its surplus assets to a for-profit company. The foundation is run as transparently as possible.
 
 The foundation legally owns the intellectual property of the project, such as the brand, the user database, the domain, and all these documents. This structure limits the liability of team members, so no one is personally liable if anything go wrong on the platform.
 
-It’s important that the foundation legally owns or has a license to use the work that we all put in. This stops, for example, past team members from suing the foundation if they become disgruntled, and it clarifies the ownership of the intellectual property. To this end, we have a Contributor License Agreement (CLA) and a Contributor Assignment Agreement (CAA) that we ask contributors to sign. The CLA gives the foundation a license to use your work; it does not change your rights to use your own Contributions for any other purpose. The CAA gives the foundation ownership of your contributions, and its purpose is to apply to work that’s for the “exclusive use” of the project, such as the brand, and the marketing material.
+It’s important that the foundation legally owns or has a license to use the work that we all put in. This stops, for example, past team members from suing the foundation if they become disgruntled, and it clarifies the ownership of the intellectual property. To this end, we have a a Contributor Assignment Agreement (CAA) that we ask contributors to sign. The CAA gives the foundation ownership of your contributions, and its purpose is to apply to work that’s for the "exclusive use" of the project, such as the brand, and the marketing material.
 
 These agreements are for your protection as a Contributor as well as the protection of the Foundation and its users, so please read them carefully and return a signed copy to us.

@@ -1,12 +1,13 @@
 import { Backdrop, makeStyles } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
 import { Redirect } from "react-router-dom";
+import { loginRoute } from "../../../AppRoutes";
 import Alert from "../../../components/Alert";
 import CircularProgress from "../../../components/CircularProgress";
 import PageTitle from "../../../components/PageTitle";
 import TextBody from "../../../components/TextBody";
 import { JailInfoRes } from "../../../pb/jail_pb";
-import { getJailInfo } from "../../../service/jail";
+import { service } from "../../../service";
 import { useAppDispatch, useTypedSelector } from "../../../store";
 import { updateJailStatus } from "./jailActions";
 import TOSSection from "./TOSSection";
@@ -22,6 +23,9 @@ export default function Jail() {
   const isJailed = useTypedSelector((state) => state.auth.jailed);
   const authError = useTypedSelector((state) => state.auth.error);
   const authLoading = useTypedSelector((state) => state.auth.loading);
+  const isAuthenticated = useTypedSelector(
+    (state) => state.auth.authenticated === true
+  );
 
   const [loading, setLoading] = useState(false);
   const [jailInfo, setJailInfo] = useState<null | JailInfoRes.AsObject>(null);
@@ -31,7 +35,7 @@ export default function Jail() {
       //just in case the store is stale
       dispatch(updateJailStatus());
       setLoading(true);
-      setJailInfo(await getJailInfo());
+      setJailInfo(await service.jail.getJailInfo());
       setLoading(false);
     })();
   }, [dispatch]);
@@ -39,6 +43,8 @@ export default function Jail() {
   const updateJailed = () => {
     dispatch(updateJailStatus());
   };
+
+  if (!isAuthenticated) return <Redirect to={loginRoute} />;
 
   return (
     <>

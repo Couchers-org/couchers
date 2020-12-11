@@ -1,4 +1,5 @@
 import datetime
+import functools
 import logging
 import os
 import re
@@ -6,8 +7,12 @@ from contextlib import contextmanager
 
 from alembic import command
 from alembic.config import Config
+from sqlalchemy import create_engine
+from sqlalchemy.orm.session import Session
+from sqlalchemy.pool import NullPool
 from sqlalchemy.sql import and_, or_
 
+from couchers import config
 from couchers.crypto import urlsafe_secure_token
 from couchers.models import FriendRelationship, FriendStatus, LoginToken, PasswordResetToken, SignupToken, User
 from couchers.utils import now
@@ -16,10 +21,7 @@ from pb import api_pb2
 logger = logging.getLogger(__name__)
 
 
-def apply_migrations(action="upgrade", revision=None):
-    if action not in ["upgrade", "downgrade"]:
-        raise ValueError("Unknown action")
-
+def apply_migrations():
     alembic_dir = os.path.dirname(__file__) + "/../.."
     cwd = os.getcwd()
     try:
@@ -27,20 +29,22 @@ def apply_migrations(action="upgrade", revision=None):
         alembic_cfg = Config("alembic.ini")
         # alembic screws up logging config by default, this tells it not to screw it up if being run at startup like this
         alembic_cfg.set_main_option("dont_mess_up_logging", "False")
-        if action == "upgrade":
-            # upgrade
-            command.upgrade(alembic_cfg, revision or "head")
-        elif action == "downgrade":
-            # downgrade
-            command.downgrade(alembic_cfg, revision or "base")
+        command.upgrade(alembic_cfg, "head")
     finally:
         os.chdir(cwd)
 
 
+@functools.cache
+def get_engine():
+    if config.config["IN_TEST"]:
+        return create_engine(config.config["DATABASE_CONNECTION_STRING"], poolclass=NullPool)
+    else:
+        return create_engine(config.config["DATABASE_CONNECTION_STRING"])
+
+
 @contextmanager
-def session_scope(Session):
-    """Provide a transactional scope around a series of operations."""
-    session = Session()
+def session_scope():
+    session = Session(get_engine())
     try:
         yield session
         session.commit()

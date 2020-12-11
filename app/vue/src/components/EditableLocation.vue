@@ -58,7 +58,9 @@
             label="Display address (shown to other users)"
           ></v-text-field>
 
-          Drag the markers to indicate what will be shown to other users.
+          Drag the red marker (and adjust the radius) to indicate what will be
+          shown to other users. (The blue marker shows the address you searched
+          for).
 
           <div style="height: 350px">
             <MglMap
@@ -130,6 +132,8 @@
 <script lang="ts">
 import Vue, { PropType } from "vue"
 
+import { nominatimURL, ACCESS_TOKEN } from "../api"
+
 import axios from "axios"
 
 import "mapbox-gl/dist/mapbox-gl.css"
@@ -142,11 +146,6 @@ import {
   MglGeojsonLayer,
   MglPopup,
 } from "vue-mapbox"
-
-const ACCESS_TOKEN =
-  "pk.eyJ1IjoiY291Y2hlcnMiLCJhIjoiY2tpYnJtNjlpMHYzMzJxbWd5anIyNXg0YSJ9.mfpO3-lIzJZNu5-hUUdsRQ"
-
-const nominatimURL = process.env.VUE_APP_NOMINATIM_URL
 
 const createGeoJSONCircle = function (
   center: any,

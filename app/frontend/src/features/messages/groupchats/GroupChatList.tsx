@@ -2,28 +2,26 @@ import { Box, Link } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import React from "react";
 import { GroupChat } from "../../../pb/conversations_pb";
+import { useAppDispatch, useTypedSelector } from "../../../store";
 import GroupChatListItem from "./GroupChatListItem";
+import { setGroupChat } from ".";
 
 const useStyles = makeStyles({ root: {} });
 
-interface GroupChatListProps {
-  setGroupChat: (groupChat: GroupChat.AsObject) => void;
-  groupChats: Array<GroupChat.AsObject>;
-}
+export default function GroupChatList() {
+  const { groupChats } = useTypedSelector((state) => state.groupChats);
+  const dispatch = useAppDispatch();
+  const dispatchSetGroupChat = (groupChat: GroupChat.AsObject | null) =>
+    dispatch(setGroupChat(groupChat));
 
-export default function GroupChatList({
-  groupChats,
-  setGroupChat,
-}: GroupChatListProps) {
   const classes = useStyles();
-
   return (
     <>
       <Box className={classes.root}>
         {groupChats.map((groupChat) => (
           <Link
             key={groupChat.groupChatId}
-            onClick={() => setGroupChat(groupChat)}
+            onClick={() => dispatchSetGroupChat(groupChat)}
           >
             <GroupChatListItem groupChat={groupChat} />
           </Link>

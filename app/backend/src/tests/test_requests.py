@@ -20,13 +20,13 @@ def _(testconfig):
 
 
 def test_create_request(db):
-    user1, token1 = generate_user(db)
-    user2, token2 = generate_user(db)
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
     today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
     today_plus_3 = (now() + timedelta(days=3)).strftime("%Y-%m-%d")
     today_minus_2 = (now() - timedelta(days=2)).strftime("%Y-%m-%d")
     today_minus_3 = (now() - timedelta(days=3)).strftime("%Y-%m-%d")
-    with requests_session(db, token1) as api:
+    with requests_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
@@ -86,7 +86,7 @@ def test_create_request(db):
 
 
 def add_message(db, text, author_id, conversation_id):
-    with session_scope(db) as session:
+    with session_scope() as session:
         message = Message(
             conversation_id=conversation_id, author_id=author_id, text=text, message_type=MessageType.text
         )
@@ -95,12 +95,12 @@ def add_message(db, text, author_id, conversation_id):
 
 
 def test_get_host_request(db):
-    user1, token1 = generate_user(db)
-    user2, token2 = generate_user(db)
-    user3, token3 = generate_user(db)
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
     today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
     today_plus_3 = (now() + timedelta(days=3)).strftime("%Y-%m-%d")
-    with requests_session(db, token1) as api:
+    with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 1"
@@ -120,12 +120,12 @@ def test_get_host_request(db):
 
 
 def test_list_requests(db):
-    user1, token1 = generate_user(db)
-    user2, token2 = generate_user(db)
-    user3, token3 = generate_user(db)
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
     today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
     today_plus_3 = (now() + timedelta(days=3)).strftime("%Y-%m-%d")
-    with requests_session(db, token1) as api:
+    with requests_session(token1) as api:
         host_request_1 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 1"
@@ -142,7 +142,7 @@ def test_list_requests(db):
         assert res.no_more
         assert len(res.host_requests) == 2
 
-    with requests_session(db, token2) as api:
+    with requests_session(token2) as api:
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
         assert res.no_more
         assert len(res.host_requests) == 1
@@ -167,13 +167,13 @@ def test_list_requests(db):
     add_message(db, "Test request 2 message 1", user1.id, host_request_2)
     add_message(db, "Test request 2 message 2", user3.id, host_request_2)
 
-    with requests_session(db, token3) as api:
+    with requests_session(token3) as api:
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
         assert res.no_more
         assert len(res.host_requests) == 1
         assert res.host_requests[0].latest_message.text.text == "Test request 2 message 2"
 
-    with requests_session(db, token1) as api:
+    with requests_session(token1) as api:
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
         assert len(res.host_requests) == 1
 
@@ -182,12 +182,12 @@ def test_list_requests(db):
 
 
 def test_list_host_requests_active_filter(db):
-    user1, token1 = generate_user(db)
-    user2, token2 = generate_user(db)
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
     today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
     today_plus_3 = (now() + timedelta(days=3)).strftime("%Y-%m-%d")
 
-    with requests_session(db, token1) as api:
+    with requests_session(token1) as api:
         request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 1"
@@ -199,7 +199,7 @@ def test_list_host_requests_active_filter(db):
             )
         )
 
-    with requests_session(db, token2) as api:
+    with requests_session(token2) as api:
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
         assert len(res.host_requests) == 1
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_active=True))
@@ -207,13 +207,13 @@ def test_list_host_requests_active_filter(db):
 
 
 def test_respond_host_requests(db):
-    user1, token1 = generate_user(db)
-    user2, token2 = generate_user(db)
-    user3, token3 = generate_user(db)
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
     today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
     today_plus_3 = (now() + timedelta(days=3)).strftime("%Y-%m-%d")
 
-    with requests_session(db, token1) as api:
+    with requests_session(token1) as api:
         request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 1"
@@ -221,7 +221,7 @@ def test_respond_host_requests(db):
         ).host_request_id
 
     # another user can't access
-    with requests_session(db, token3) as api:
+    with requests_session(token3) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.RespondHostRequest(
                 requests_pb2.RespondHostRequestReq(
@@ -230,7 +230,7 @@ def test_respond_host_requests(db):
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
-    with requests_session(db, token2) as api:
+    with requests_session(token2) as api:
         # non existing id
         with pytest.raises(grpc.RpcError) as e:
             api.RespondHostRequest(
@@ -274,7 +274,7 @@ def test_respond_host_requests(db):
             )
         )
 
-    with requests_session(db, token1) as api:
+    with requests_session(token1) as api:
         # can't make pending
         with pytest.raises(grpc.RpcError) as e:
             api.RespondHostRequest(
@@ -308,7 +308,7 @@ def test_respond_host_requests(db):
 
     # at this point there should be 7 messages
     # 2 for creation, 2 for the status change with message, 3 for the other status changed
-    with requests_session(db, token1) as api:
+    with requests_session(token1) as api:
         res = api.GetHostRequestMessages(requests_pb2.GetHostRequestMessagesReq(host_request_id=request_id))
         assert len(res.messages) == 7
         assert res.messages[0].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
@@ -319,11 +319,11 @@ def test_respond_host_requests(db):
 
 
 def test_get_host_request_messages(db):
-    user1, token1 = generate_user(db)
-    user2, token2 = generate_user(db)
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
     today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
     today_plus_3 = (now() + timedelta(days=3)).strftime("%Y-%m-%d")
-    with requests_session(db, token1) as api:
+    with requests_session(token1) as api:
         res = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 1"
@@ -335,7 +335,7 @@ def test_get_host_request_messages(db):
     add_message(db, "Test request 1 message 2", user1.id, conversation_id)
     add_message(db, "Test request 1 message 3", user1.id, conversation_id)
 
-    with requests_session(db, token2) as api:
+    with requests_session(token2) as api:
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=conversation_id, status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
@@ -351,7 +351,7 @@ def test_get_host_request_messages(db):
             )
         )
 
-    with requests_session(db, token1) as api:
+    with requests_session(token1) as api:
         res = api.GetHostRequestMessages(requests_pb2.GetHostRequestMessagesReq(host_request_id=conversation_id))
         # 9 including initial message
         assert len(res.messages) == 9
@@ -384,12 +384,12 @@ def test_get_host_request_messages(db):
 
 
 def test_send_message(db):
-    user1, token1 = generate_user(db)
-    user2, token2 = generate_user(db)
-    user3, token3 = generate_user(db)
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
     today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
     today_plus_3 = (now() + timedelta(days=3)).strftime("%Y-%m-%d")
-    with requests_session(db, token1) as api:
+    with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 1"
@@ -413,7 +413,7 @@ def test_send_message(db):
         assert res.messages[0].text.text == "Test message 1"
         assert res.messages[0].author_user_id == user1.id
 
-    with requests_session(db, token3) as api:
+    with requests_session(token3) as api:
         # other user can't send
         with pytest.raises(grpc.RpcError) as e:
             api.SendHostRequestMessage(
@@ -421,7 +421,7 @@ def test_send_message(db):
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
-    with requests_session(db, token2) as api:
+    with requests_session(token2) as api:
         api.SendHostRequestMessage(
             requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 2")
         )
@@ -450,7 +450,7 @@ def test_send_message(db):
             )
         )
 
-    with requests_session(db, token1) as api:
+    with requests_session(token1) as api:
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED
@@ -477,12 +477,12 @@ def test_send_message(db):
 
 
 def test_get_updates(db):
-    user1, token1 = generate_user(db)
-    user2, token2 = generate_user(db)
-    user3, token3 = generate_user(db)
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
     today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
     today_plus_3 = (now() + timedelta(days=3)).strftime("%Y-%m-%d")
-    with requests_session(db, token1) as api:
+    with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test message 0"
@@ -545,19 +545,19 @@ def test_get_updates(db):
         assert res.updates[0].message.text.text == "Test message 2"
         assert res.updates[0].status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
 
-    with requests_session(db, token3) as api:
+    with requests_session(token3) as api:
         # other user can't access
         res = api.GetHostRequestUpdates(requests_pb2.GetHostRequestUpdatesReq(newest_message_id=message_id_1))
         assert len(res.updates) == 0
 
 
 def test_mark_last_seen(db):
-    user1, token1 = generate_user(db)
-    user2, token2 = generate_user(db)
-    user3, token3 = generate_user(db)
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
     today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
     today_plus_3 = (now() + timedelta(days=3)).strftime("%Y-%m-%d")
-    with requests_session(db, token1) as api:
+    with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test message 0"
@@ -585,13 +585,13 @@ def test_mark_last_seen(db):
         )
 
     # test Ping unseen host request count, should be automarked after sending
-    with api_session(db, token1) as api:
+    with api_session(token1) as api:
         assert api.Ping(api_pb2.PingReq()).unseen_host_request_count == 0
 
-    with api_session(db, token2) as api:
+    with api_session(token2) as api:
         assert api.Ping(api_pb2.PingReq()).unseen_host_request_count == 2
 
-    with requests_session(db, token2) as api:
+    with requests_session(token2) as api:
         assert api.ListHostRequests(requests_pb2.ListHostRequestsReq()).host_requests[0].last_seen_message_id == 0
 
         api.MarkLastSeenHostRequest(
@@ -619,14 +619,14 @@ def test_mark_last_seen(db):
             requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id_2, text="Test")
         )
 
-    with api_session(db, token2) as api:
+    with api_session(token2) as api:
         assert api.Ping(api_pb2.PingReq()).unseen_host_request_count == 1
 
     # make sure sent and received count for unseen notifications
-    with requests_session(db, token1) as api:
+    with requests_session(token1) as api:
         api.SendHostRequestMessage(
             requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id_3, text="Test message")
         )
 
-    with api_session(db, token2) as api:
+    with api_session(token2) as api:
         assert api.Ping(api_pb2.PingReq()).unseen_host_request_count == 2

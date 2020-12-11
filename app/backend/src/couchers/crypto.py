@@ -48,6 +48,10 @@ def urlsafe_secure_token():
     return urlsafe_random_bytes(32)
 
 
+def cookiesafe_secure_token():
+    return random_hex(32)
+
+
 def hash_password(password: str):
     return nacl.pwhash.str(password.encode("utf-8"))
 
