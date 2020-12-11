@@ -1,23 +1,24 @@
-import { BoxProps, makeStyles, useTheme } from "@material-ui/core";
+import { Box, BoxProps, makeStyles, useTheme } from "@material-ui/core";
 import Map from "./Map";
 import { GeoJSONSource, LngLat, MapMouseEvent, MapTouchEvent } from "mapbox-gl";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { User } from "../pb/api_pb";
 import { userLocationMaxRadius, userLocationMinRadius } from "../constants";
+import Alert from "./Alert";
+import classNames from "classnames";
+import MapSearch from "./MapSearch";
 
 const handleRadius = 10;
 
 const useStyles = makeStyles((theme) => ({
-  circle: {
-    fillOpacity: 0.3,
-    fill: theme.palette.primary.main,
-    strokeWidth: 1,
-    stroke: "white",
+  root: {
+    position: "relative",
+    height: 200,
+    width: 400,
   },
-  handle: {
-    fill: theme.palette.primary.main,
-    strokeWidth: 2,
-    stroke: "white",
+  grow: {
+    width: "100%",
+    height: "100%",
   },
 }));
 
@@ -33,17 +34,23 @@ export interface EditUserLocationMapProps extends BoxProps {
   setLocation: (value: ApproximateLocation) => void;
   //this function is called on every change
   setCity: (value: string) => void;
+  grow: boolean;
 }
 
 export default function EditUserLocationMap({
   user,
   setCity,
   setLocation,
+  className,
+  grow,
   ...otherProps
 }: EditUserLocationMapProps) {
   const classes = useStyles();
   const theme = useTheme();
 
+  const [error, setError] = useState("");
+
+  const map = useRef<mapboxgl.Map | null>(null);
   //map is imperative so these don't need to cause re-render
   const centerCoords = useRef<LngLat | null>(new LngLat(user.lng, user.lat));
   const radius = useRef<number | null>(user.radius);
@@ -54,25 +61,18 @@ export default function EditUserLocationMap({
   //so is set on map load.
   const handleCoords = useRef<LngLat | null>(null);
 
-  const onCircleMouseDown = (
-    e: MapMouseEvent | MapTouchEvent,
-    map: mapboxgl.Map
-  ) => {
+  const onCircleMouseDown = (e: MapMouseEvent | MapTouchEvent) => {
     // Prevent the default map drag behavior.
     e.preventDefault();
 
-    map.getCanvas().style.cursor = "grab";
+    map.current!.getCanvas().style.cursor = "grab";
 
-    const moveEvent = (e: MapMouseEvent | MapTouchEvent) =>
-      onCircleMove(e, map);
-    map.on("mousemove", moveEvent);
-    map.once("mouseup", (e) => onCircleUp(e, map, moveEvent));
+    const moveEvent = (e: MapMouseEvent | MapTouchEvent) => onCircleMove(e);
+    map.current!.on("mousemove", moveEvent);
+    map.current!.once("mouseup", (e) => onCircleUp(e, moveEvent));
   };
 
-  const onCircleMove = (
-    e: MapMouseEvent | MapTouchEvent,
-    map: mapboxgl.Map
-  ) => {
+  const onCircleMove = (e: MapMouseEvent | MapTouchEvent) => {
     const bearing = calculateBearing(
       centerCoords.current!,
       handleCoords.current!
@@ -80,122 +80,114 @@ export default function EditUserLocationMap({
 
     centerCoords.current = e.lngLat;
 
-    handleCoords.current = map.unproject(
+    handleCoords.current = map.current!.unproject(
       offsetPoint(
-        map.project(displaceLngLat(e.lngLat, radius.current!, bearing)),
+        map.current!.project(
+          displaceLngLat(e.lngLat, radius.current!, bearing)
+        ),
         //I have no idea why this is -handleRadius
         -handleRadius,
         bearing
       )
     );
 
-    (map.getSource("circle") as GeoJSONSource).setData(
+    (map.current!.getSource("circle") as GeoJSONSource).setData(
       circleGeoJson(centerCoords.current!, radius.current!)
     );
-    (map.getSource("handle") as GeoJSONSource).setData(
+    (map.current!.getSource("handle") as GeoJSONSource).setData(
       pointGeoJson(handleCoords.current!)
     );
   };
 
   const onCircleUp = (
     e: MapMouseEvent | MapTouchEvent,
-    map: mapboxgl.Map,
     moveEvent: (x: any) => void
   ) => {
-    map.off("mousemove", moveEvent);
-    map.off("touchmove", moveEvent);
-    map.getCanvas().style.cursor = "move";
+    map.current!.off("mousemove", moveEvent);
+    map.current!.off("touchmove", moveEvent);
+    map.current!.getCanvas().style.cursor = "move";
 
     if (e.lngLat.distanceTo(handleCoords.current!) < 10) return;
-    onCircleMove(e, map);
+    onCircleMove(e);
     setLocation({
       location: centerCoords.current!,
       radius: radius.current!,
     });
   };
 
-  const onHandleMouseDown = (
-    e: MapMouseEvent | MapTouchEvent,
-    map: mapboxgl.Map
-  ) => {
-    // Prevent the default map drag behavior.
+  const onHandleMouseDown = (e: MapMouseEvent | MapTouchEvent) => {
+    // Prevent the default map.current! drag behavior.
     e.preventDefault();
 
-    map.getCanvas().style.cursor = "grab";
+    map.current!.getCanvas().style.cursor = "grab";
 
-    const moveEvent = (e: MapMouseEvent) => onHandleMove(e, map);
-    map.on("mousemove", moveEvent);
-    map.once("mouseup", (e) => onHandleUp(e, map, moveEvent));
+    const moveEvent = (e: MapMouseEvent) => onHandleMove(e);
+    map.current!.on("mousemove", moveEvent);
+    map.current!.once("mouseup", (e) => onHandleUp(e, moveEvent));
   };
 
-  const onHandleMove = (
-    e: MapMouseEvent | MapTouchEvent,
-    map: mapboxgl.Map
-  ) => {
+  const onHandleMove = (e: MapMouseEvent | MapTouchEvent) => {
     const bearing = calculateBearing(centerCoords.current!, e.lngLat);
     radius.current = centerCoords.current!.distanceTo(
-      map.unproject(offsetPoint(e.point, handleRadius, bearing))
+      map.current!.unproject(offsetPoint(e.point, handleRadius, bearing))
     );
     radius.current = Math.max(
       Math.min(radius.current, userLocationMaxRadius),
       userLocationMinRadius
     );
     handleCoords.current = e.lngLat;
-    (map.getSource("circle") as GeoJSONSource).setData(
+    (map.current!.getSource("circle") as GeoJSONSource).setData(
       circleGeoJson(centerCoords.current!, radius.current!)
     );
-    (map.getSource("handle") as GeoJSONSource).setData(
+    (map.current!.getSource("handle") as GeoJSONSource).setData(
       pointGeoJson(handleCoords.current!)
     );
   };
 
   const onHandleUp = (
     e: MapMouseEvent | MapTouchEvent,
-    map: mapboxgl.Map,
     moveEvent: (x: any) => void
   ) => {
-    map.off("mousemove", moveEvent);
-    map.off("touchmove", moveEvent);
-    map.getCanvas().style.cursor = "move";
+    map.current!.off("mousemove", moveEvent);
+    map.current!.off("touchmove", moveEvent);
+    map.current!.getCanvas().style.cursor = "move";
 
-    onHandleMove(e, map);
+    onHandleMove(e);
     //onCircleMove will move the handle appropriately in case
     //the user has gone above/below the limit
-    onCircleMove(
-      {
-        ...e,
-        //fake the lngLat to pretend it has just moved to it's current position
-        lngLat: centerCoords.current!,
-      } as MapMouseEvent,
-      map
-    );
+    onCircleMove({
+      ...e,
+      //fake the lngLat to pretend it has just moved to it's current position
+      lngLat: centerCoords.current!,
+    } as MapMouseEvent);
     setLocation({
       location: centerCoords.current!,
       radius: radius.current!,
     });
   };
 
-  const initializeMap = (map: mapboxgl.Map) => {
-    map.on("load", () => {
-      const handlePoint = map.project(
+  const initializeMap = (mapRef: mapboxgl.Map) => {
+    map.current = mapRef;
+    map.current!.on("load", () => {
+      const handlePoint = map.current!.project(
         displaceLngLat(centerCoords.current!, radius.current!, Math.PI / 2)
       );
-      handleCoords.current = map.unproject([
+      handleCoords.current = map.current!.unproject([
         handlePoint.x + handleRadius,
         handlePoint.y,
       ]);
 
-      map.addSource("handle", {
+      map.current!.addSource("handle", {
         type: "geojson",
         data: pointGeoJson(handleCoords.current),
       });
 
-      map.addSource("circle", {
+      map.current!.addSource("circle", {
         type: "geojson",
         data: circleGeoJson(centerCoords.current!, radius.current!),
       });
 
-      map.addLayer({
+      map.current!.addLayer({
         id: "handle",
         type: "circle",
         source: "handle",
@@ -205,7 +197,7 @@ export default function EditUserLocationMap({
         },
       });
 
-      map.addLayer({
+      map.current!.addLayer({
         id: "circle",
         type: "fill",
         source: "circle",
@@ -216,62 +208,83 @@ export default function EditUserLocationMap({
         },
       });
 
-      map.on("dblclick", (e) => {
+      map.current!.on("dblclick", (e) => {
         e.preventDefault();
-        onHandleMove(e, map);
-        map.flyTo({ center: e.lngLat });
+        onCircleUp(e, () => null);
       });
 
-      map.on("mousedown", "handle", (e) => onHandleMouseDown(e, map));
+      map.current!.on("mousedown", "handle", onHandleMouseDown);
 
-      map.on("touchstart", "handle", (e) => {
+      map.current!.on("touchstart", "handle", (e) => {
         if (e.points.length !== 1) return;
-        onHandleMouseDown(e, map);
+        onHandleMouseDown(e);
       });
     });
 
-    map.on("mousedown", "circle", (e) => onCircleMouseDown(e, map));
+    map.current!.on("mousedown", "circle", onCircleMouseDown);
 
-    map.on("touchstart", "circle", (e) => {
+    map.current!.on("touchstart", "circle", (e) => {
       if (e.points.length !== 1) return;
-      onCircleMouseDown(e, map);
+      onCircleMouseDown(e);
     });
 
-    const canvas = map.getCanvas();
-    map.on("mouseenter", "handle", () => {
+    const canvas = map.current!.getCanvas();
+    map.current!.on("mouseenter", "handle", () => {
       canvas.style.cursor = "move";
     });
-    map.on("mouseleave", "handle", () => {
+    map.current!.on("mouseleave", "handle", () => {
       canvas.style.cursor = "";
     });
-    map.on("mouseenter", "circle", () => {
+    map.current!.on("mouseenter", "circle", () => {
       canvas.style.cursor = "move";
     });
-    map.on("mouseleave", "circle", () => {
+    map.current!.on("mouseleave", "circle", () => {
       canvas.style.cursor = "";
     });
 
     //because of the handle offset, zooming causes the handle to not be at the edge of the radius
     //to solve, trigger a fake "circleMove" with the same coordinates as current
-    map.on("zoom", (e) =>
-      onCircleMove(
-        {
-          ...e,
-          lngLat: centerCoords.current!,
-        } as MapMouseEvent,
-        map
-      )
+    map.current!.on("zoom", (e) =>
+      onCircleMove({
+        ...e,
+        lngLat: centerCoords.current!,
+      } as MapMouseEvent)
+    );
+  };
+
+  const flyToSearch = (location: LngLat) => {
+    map.current!.flyTo({ center: location, zoom: 13 });
+    onCircleUp(
+      {
+        lngLat: location,
+      } as MapMouseEvent,
+      () => null
     );
   };
 
   return (
     <>
-      <Map
-        initialZoom={13}
-        initialCenter={new LngLat(user.lng, user.lat)}
-        postMapInitialize={initializeMap}
-        {...otherProps}
-      />
+      {error && <Alert severity="error">{error}</Alert>}
+      <Box
+        className={classNames(
+          classes.root,
+          { [classes.grow]: grow },
+          className
+        )}
+      >
+        <Map
+          initialZoom={13}
+          initialCenter={new LngLat(user.lng, user.lat)}
+          postMapInitialize={initializeMap}
+          grow
+          {...otherProps}
+        />
+        <MapSearch
+          setError={setError}
+          setCity={setCity}
+          setMarker={flyToSearch}
+        />
+      </Box>
     </>
   );
 }
