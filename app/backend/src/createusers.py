@@ -35,6 +35,7 @@ cities = []
 countries = set()
 worldpopulation = 0
 
+// data from https://simplemaps.com/data/world-cities
 file_name = 'src/data/worldcities.csv'
 with open(file_name, "r") as file:
     reader = csv.reader(file)
@@ -77,8 +78,7 @@ def generate_dummy_data():
                     userlong = citylong + (random.random() - .5) / 10
                     new_user = User(
                         username=username.lower().replace(' ', '') + str(random.random()),
-                        email=username.lower().replace(' ', '') + '_' + str(usernumber) + '_' + str(
-                            city[10]) + '@couchers.org',
+                        email=username.lower().replace(' ', '') + '_' + str(random.random()) + '@couchers.org',
                         hashed_password=hashedpassword,
                         name=username,
                         city=city[0] + ', ' + city[4],
