@@ -7,9 +7,11 @@
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.56",
     "@reduxjs/toolkit": "^1.4.0",
+    "@types/mapbox-gl": "<2.0.0",
     "classnames": "^2.2.6",
     "google-protobuf": "^3.13.0",
     "grpc-web": "^1.2.1",
+    "mapbox-gl": "<2.0.0",
     "markdown-it": "^12.0.2",
     "moment": "^2.29.1",
     "react": "^16.13.1",
@@ -21,9 +23,6 @@
     "redux-persist": "^6.0.0",
     "typescript": "~4.0.5"
   },
-  "resolutions": {
-    "react-jss": "^10.5.0"
-  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
@@ -33,8 +32,8 @@
     "lint": "eslint src/",
     "test-ci": "NODE_ENV=test && react-scripts test --coverageReporters=\"text\" --coverageReporters=\"cobertura\" --coverageReporters=\"lcov\" --reporters=\"default\" --reporters=\"jest-junit\" --coverage --watchAll=false",
     "jest": "jest",
-    "storybook": "start-storybook -p 6006 -s public",
-    "build-storybook": "build-storybook -s public"
+    "storybook": "NODE_PATH=. start-storybook -p 6006 -s public",
+    "build-storybook": "NODE_PATH=. build-storybook -s public"
   },
   "eslintConfig": {
     "extends": [
