@@ -10,6 +10,7 @@ import { JailInfoRes } from "../../../pb/jail_pb";
 import { service } from "../../../service";
 import { useAppDispatch, useTypedSelector } from "../../../store";
 import { updateJailStatus } from "./jailActions";
+import LocationSection from "./LocationSection";
 import TOSSection from "./TOSSection";
 
 const useStyles = makeStyles((theme) => ({
@@ -59,6 +60,9 @@ export default function Jail() {
       </Backdrop>
       {jailInfo?.hasNotAcceptedTos && (
         <TOSSection updateJailed={updateJailed} />
+      )}
+      {jailInfo?.hasNotAddedLocation && (
+        <LocationSection updateJailed={updateJailed} />
       )}
     </>
   );

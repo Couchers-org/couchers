@@ -12,6 +12,7 @@ import { UpdateUserProfileData } from "../../service/user";
 import { theme } from "../../theme";
 import { useAppDispatch, useTypedSelector } from "../../store";
 import ProfileMarkdownInput from "./ProfileMarkdownInput";
+import EditUserLocationMap from "../../components/EditUserLocationMap";
 
 const useStyles = makeStyles({
   buttonContainer: {
@@ -28,7 +29,16 @@ export default function EditProfileForm() {
     "success" | "error" | undefined
   >();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { control, register, handleSubmit } = useForm<UpdateUserProfileData>();
+  const { control, register, handleSubmit, setValue, getValues } = useForm<
+    UpdateUserProfileData
+  >({
+    defaultValues: {
+      city: user?.city ?? undefined,
+      lat: user?.lat ?? undefined,
+      lng: user?.lng ?? undefined,
+      radius: user?.radius ?? undefined,
+    },
+  });
 
   const onSubmit = handleSubmit(async (data: UpdateUserProfileData) => {
     try {
@@ -55,11 +65,23 @@ export default function EditProfileForm() {
             defaultValue={user.name}
             inputRef={register}
           />
-          <ProfileTextInput
-            label="City"
-            name="city"
-            defaultValue={user.city}
-            inputRef={register}
+          <Controller
+            name="location"
+            control={control}
+            //to avoid console warning
+            defaultValue={null}
+            render={() => (
+              <EditUserLocationMap
+                user={user}
+                city={getValues("city")}
+                setCity={(value) => setValue("city", value)}
+                setLocation={(location) => {
+                  setValue("lat", location.lat);
+                  setValue("lng", location.lng);
+                  setValue("radius", location.radius);
+                }}
+              />
+            )}
           />
           <ProfileTextInput
             label="Gender"

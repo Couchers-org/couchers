@@ -38,13 +38,15 @@ interface SearchOption {
 }
 
 interface MapSearchProps {
-  setCity: (value: string) => void;
+  value: string;
+  setValue: (value: string) => void;
   setError: (error: string) => void;
   setMarker: (lngLat: LngLat) => void;
 }
 
 export default function MapSearch({
-  setCity,
+  value,
+  setValue,
   setError,
   setMarker,
 }: MapSearchProps) {
@@ -74,7 +76,6 @@ export default function MapSearch({
     try {
       const res = await fetch(url, options);
       const data = (await res.json()) as Array<any>;
-      console.log(data);
       setSearchOptions(
         data.map((obj) => ({
           name: obj["display_name"],
@@ -88,23 +89,19 @@ export default function MapSearch({
     setSearchOptionsLoading(false);
   };
 
-  const searchSubmit = (
-    value: string | SearchOption | null,
-    reason: AutocompleteChangeReason
-  ) => {
-    console.log(reason);
+  const searchSubmit = (value: string, reason: AutocompleteChangeReason) => {
     if (reason === "blur") {
       setOpen(false);
       return;
     }
-    if (!(value as SearchOption)?.name) {
-      setCity(value as string);
+    const searchOption = searchOptions.find((o) => value === o.name);
+    if (!searchOption) {
+      setValue(value);
       //create-option is when enter is pressed on user-entered string
       if (reason === "create-option") {
-        loadSearchOptions(value as string);
+        loadSearchOptions(value);
       }
     } else {
-      const searchOption = value as SearchOption;
       setMarker(searchOption.location);
       setOpen(false);
     }
@@ -113,15 +110,19 @@ export default function MapSearch({
   return (
     <Autocomplete
       label="My location"
-      //hint="Press enter to search the map, then customize the text."
+      value={value}
       size="small"
-      options={searchOptions}
-      getOptionLabel={(o) => (!!o.name ? o.name : String(o))}
+      options={searchOptions.map((o) => o.name)}
       loading={searchOptionsLoading}
       open={open}
       onBlur={() => setOpen(false)}
-      onChange={(_, value, reason) => searchSubmit(value, reason)}
-      onInputChange={(_, value) => setCity(value)}
+      onChange={(e, inputValue, reason) => {
+        e.stopPropagation();
+        e.preventDefault();
+        setValue(inputValue ?? "");
+        searchSubmit(inputValue ?? "", reason);
+      }}
+      onInputChange={(_, inputValue) => setValue(inputValue)}
       freeSolo
       multiple={false}
       disableClearable={false}
