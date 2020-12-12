@@ -16,6 +16,7 @@ import SearchPage from "./features/search/SearchPage";
 import Jail from "./features/auth/jail/Jail";
 import TOS from "./components/TOS";
 import { useAppDispatch, useTypedSelector } from "./store";
+import FriendsPage from "./features/friends/FriendsPage";
 
 export const loginRoute = "/login";
 export const loginPasswordRoute = `${loginRoute}/password`;
@@ -27,6 +28,7 @@ export const editHostingPreferenceRoute = "/hosting-preference/edit";
 export const messagesRoute = "/messages";
 export const requestsRoute = "/requests";
 export const logoutRoute = "/logout";
+export const friendsRoute = "/friends";
 
 export const userRoute = "/user";
 export const searchRoute = "/search";
@@ -44,6 +46,12 @@ export default function AppRoutes() {
       </Route>
       <Route path={tosRoute}>
         <TOS />
+      </Route>
+      <Route path={jailRoute}>
+        <Jail />
+      </Route>
+      <Route exact path={logoutRoute}>
+        <Logout />
       </Route>
       <PrivateRoute path={editProfileRoute}>
         <EditProfilePage />
@@ -63,24 +71,19 @@ export default function AppRoutes() {
       <PrivateRoute path={`${searchRoute}/:query?`}>
         <SearchPage />
       </PrivateRoute>
-      <Route path={jailRoute}>
-        <Jail />
-      </Route>
+      <PrivateRoute path={friendsRoute}>
+        <FriendsPage />
+      </PrivateRoute>
       <PrivateRoute exact path="/">
         <Home />
       </PrivateRoute>
-      <Route exact path={logoutRoute}>
-        <Logout />
-      </Route>
     </Switch>
   );
 }
 
 const PrivateRoute = ({ children, ...otherProps }: RouteProps) => {
   const dispatch = useAppDispatch();
-  const isAuthenticated = useTypedSelector(
-    (state) => state.auth.authenticated
-  );
+  const isAuthenticated = useTypedSelector((state) => state.auth.authenticated);
   const isJailed = useTypedSelector((state) => state.auth.jailed);
   useEffect(() => {
     if (!isAuthenticated) {
