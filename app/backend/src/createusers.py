@@ -28,8 +28,9 @@ file_name = "src/data/worldcities.csv"
 with open(file_name, "r") as file:
     reader = csv.reader(file)
     try:
+        reader.__next__()
         for row in reader:
-            if row[0] != "city" and row[9] != "":
+            if row[9] != "":
                 cities.append(row)
                 world_population += int(float(row[9]))
                 countries.add(row[4])
@@ -53,8 +54,8 @@ def generate_city_users(city):
         for user_number in range(0, users_for_this_city):
             gender = random.choice(["Male", "Female"])
             username = fake.name_male() if gender == "Male" else fake.name_female()
-            user_lat = city_lat + (2 * random.random() - 1) * city_radius / meter_per_degree
-            user_long = city_long + (2 * random.random() - 1) * city_radius / meter_per_degree
+            user_lat = city_lat + random.uniform(-1, 1) * city_radius / meter_per_degree
+            user_long = city_long + random.uniform(-1, 1) * city_radius / meter_per_degree
             new_user = User(
                 username=username.lower().replace(" ", "") + str(random.random()),
                 email="generated_" + str(random.random()) + "@couchers.org",
@@ -62,7 +63,7 @@ def generate_city_users(city):
                 name=username,
                 city=city[0] + ", " + city[4],
                 geom=create_coordinate(user_lat, user_long),
-                geom_radius=random.random() * city_radius / 10,
+                geom_radius=random.uniform(0, city_radius / 10),
                 verification=random.random(),
                 community_standing=random.random(),
                 birthdate=fake.date_between("-100y", "-15y"),
