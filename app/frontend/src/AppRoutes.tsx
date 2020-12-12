@@ -16,6 +16,7 @@ import SearchPage from "./features/search/SearchPage";
 import Jail from "./features/auth/jail/Jail";
 import TOS from "./components/TOS";
 import { useAuthContext } from "./features/auth/AuthProvider";
+import FriendsPage from "./features/friends/FriendsPage";
 
 export const loginRoute = "/login";
 export const loginPasswordRoute = `${loginRoute}/password`;
@@ -28,6 +29,7 @@ export const messagesRoute = "/messages";
 export const requestsRoute = "/requests";
 export const mapRoute = "/map";
 export const logoutRoute = "/logout";
+export const friendsRoute = "/friends";
 
 export const userRoute = "/user";
 export const searchRoute = "/search";
@@ -49,6 +51,12 @@ export default function AppRoutes() {
       <PrivateRoute path={mapRoute}>
         <MapPage />
       </PrivateRoute>
+      <Route path={jailRoute}>
+        <Jail />
+      </Route>
+      <Route exact path={logoutRoute}>
+        <Logout />
+      </Route>
       <PrivateRoute path={editProfileRoute}>
         <EditProfilePage />
       </PrivateRoute>
@@ -67,15 +75,12 @@ export default function AppRoutes() {
       <PrivateRoute path={`${searchRoute}/:query?`}>
         <SearchPage />
       </PrivateRoute>
-      <Route path={jailRoute}>
-        <Jail />
-      </Route>
+      <PrivateRoute path={friendsRoute}>
+        <FriendsPage />
+      </PrivateRoute>
       <PrivateRoute exact path="/">
         <Home />
       </PrivateRoute>
-      <Route exact path={logoutRoute}>
-        <Logout />
-      </Route>
     </Switch>
   );
 }
