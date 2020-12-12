@@ -51,7 +51,7 @@ with open(file_name, "r") as file:
 
 useramount = 1000000
 users = []
-hashedpassword = hash_password('MAGA2020')
+hashedpassword = hash_password('password')
 
 
 def getsomecountries(k):
