@@ -1,7 +1,9 @@
 import csv
 import sys
 import math
-from random import random
+import random
+import logging
+import faker
 from couchers.models import (
     Base,
     Conversation,
@@ -17,18 +19,12 @@ from couchers.models import (
     User,
 )
 from couchers import config
-
-import random
 from couchers.crypto import hash_password
 from couchers.servicers.api import hostingstatus2sql
-from couchers.utils import Timestamp_from_datetime, create_coordinate
-from pb.api_pb2 import _HOSTINGSTATUS
-from datetime import date
-from couchers.db import get_user_by_field, session_scope
-import logging
-from faker import Faker
+from couchers.utils import create_coordinate
+from couchers.db import session_scope
 
-fake = Faker()
+fake = faker.Faker()
 
 logger = logging.getLogger(__name__)
 
@@ -49,17 +45,15 @@ with open(file_name, "r") as file:
     except csv.Error as e:
         sys.exit("file {}, line {}: {}".format(file_name, reader.line_num, e))
 
-useramount = 1000000
-users = []
-hashedpassword = hash_password("password")
-
 
 def getsomecountries(k):
     return random.choices(list(countries), k=k)
 
 
 config.check_config()
-
+useramount = 1000000
+users = []
+hashedpassword = hash_password("password")
 populationperuser = worldpopulation / useramount
 meterperdegree = 111111
 
