@@ -1,21 +1,12 @@
 import csv
+import os
 import sys
 import math
 import random
 import logging
 import faker
+import multiprocessing
 from couchers.models import (
-    Base,
-    Conversation,
-    FriendRelationship,
-    FriendStatus,
-    GroupChat,
-    GroupChatRole,
-    GroupChatSubscription,
-    Message,
-    MessageType,
-    Reference,
-    ReferenceType,
     User,
 )
 from couchers import config
@@ -30,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 cities = []
 countries = set()
-worldpopulation = 0
+world_population = 0
 
 # data from https://simplemaps.com/data/world-cities
 file_name = "src/data/worldcities.csv"
@@ -40,70 +31,58 @@ with open(file_name, "r") as file:
         for row in reader:
             if row[0] != "city" and row[9] != "":
                 cities.append(row)
-                worldpopulation += int(float(row[9]))
+                world_population += int(float(row[9]))
                 countries.add(row[4])
     except csv.Error as e:
         sys.exit("file {}, line {}: {}".format(file_name, reader.line_num, e))
 
-
-def getsomecountries(k):
-    return random.choices(list(countries), k=k)
-
-
 config.check_config()
-useramount = 1000000
-users = []
-hashedpassword = hash_password("password")
-populationperuser = worldpopulation / useramount
-meterperdegree = 111111
+user_amount = 1000000
+hashed_password = hash_password("password")
+population_per_user = world_population / user_amount
+meter_per_degree = 111111
+
+
+def generate_city_users(city):
+    with session_scope() as session:
+        city_population = int(float(city[9]))
+        city_radius = math.sqrt(city_population) * 10
+        users_for_this_city = round(city_population / population_per_user)
+        city_lat = float(city[2])
+        city_long = float(city[3])
+        for user_number in range(0, users_for_this_city):
+            gender = random.choice(["Male", "Female"])
+            username = fake.name_male() if gender == "Male" else fake.name_female()
+            user_lat = city_lat + (2 * random.random() - 1) * city_radius / meter_per_degree
+            user_long = city_long + (2 * random.random() - 1) * city_radius / meter_per_degree
+            new_user = User(
+                username=username.lower().replace(" ", "") + str(random.random()),
+                email="generated_" + str(random.random()) + "@couchers.org",
+                hashed_password=hashed_password,
+                name=username,
+                city=city[0] + ", " + city[4],
+                geom=create_coordinate(user_lat, user_long),
+                geom_radius=random.random() * city_radius / 10,
+                verification=random.random(),
+                community_standing=random.random(),
+                birthdate=fake.date_between("-100y", "-15y"),
+                gender=gender,
+                languages=", ".join(set([fake.language_name() for _ in range(random.randrange(1, 6))])),
+                occupation=fake.job(),
+                about_me=fake.text(),
+                about_place=fake.text(),
+                color=fake.safe_color_name(),
+                countries_visited="|".join(random.choices(list(countries), k=32)),
+                countries_lived="|".join(random.choices(list(countries), k=8)),
+                hosting_status=hostingstatus2sql[random.randint(1, 5)],
+            )
+            session.add(new_user)
+        session.commit()
 
 
 def generate_dummy_data():
-    try:
-        with session_scope() as session:
-            for city in cities:
-                citypopulation = int(float(city[9]))
-                cityradius = math.sqrt(citypopulation) * 10
-                usersforthiscity = round(citypopulation / populationperuser)
-                citylat = float(city[2])
-                citylong = float(city[3])
-                for usernumber in range(0, usersforthiscity):
-                    gender = random.choice(["Male", "Female"])
-                    username = fake.name_male() if gender == "Male" else fake.name_female()
-                    userlat = citylat + (2 * random.random() - 1) * cityradius / meterperdegree
-                    userlong = citylong + (2 * random.random() - 1) * cityradius / meterperdegree
-                    new_user = User(
-                        username=username.lower().replace(" ", "") + str(random.random()),
-                        email=username.lower().replace(" ", "") + "_" + str(random.random()) + "@couchers.org",
-                        hashed_password=hashedpassword,
-                        name=username,
-                        city=city[0] + ", " + city[4],
-                        geom=create_coordinate(userlat, userlong),
-                        geom_radius=random.random() * cityradius / 10,
-                        verification=random.random(),
-                        community_standing=random.random(),
-                        birthdate=fake.date_between("-100y", "-15y"),
-                        gender=gender,
-                        languages=", ".join(set([fake.language_name() for i in range(random.randrange(4))])),
-                        occupation=fake.job(),
-                        about_me=fake.text(),
-                        about_place=fake.text(),
-                        color=fake.safe_color_name(),
-                        countries_visited="|".join(getsomecountries(32)),
-                        countries_lived="|".join(getsomecountries(8)),
-                        hosting_status=hostingstatus2sql[random.randint(1, 5)],
-                    )
-                    users.append(new_user)
-                    if len(users) == 10000:
-                        session.add_all(users)
-                        users.clear()
-                        session.commit()
-            if len(users) > 0:
-                session.add_all(users)
-                session.commit()
-
-    except Exception as e:
-        logger.error("Failed to insert dummy data", e)
+    with multiprocessing.Pool(os.cpu_count() * 2) as pool:
+        pool.map(generate_city_users, cities)
 
 
 generate_dummy_data()
