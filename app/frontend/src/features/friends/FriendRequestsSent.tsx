@@ -10,25 +10,9 @@ import Alert from "../../components/Alert";
 import { useIsMounted, useSafeState } from "../../utils/hooks";
 import useFriendsBaseStyles from "./useFriendsBaseStyles";
 
-const useStyles = makeStyles((theme) => ({
-  circularProgress: {
-    display: "block",
-    margin: `0 auto ${theme.spacing(1)}`,
-  },
-  container: {
-    "& > :last-child > $friendItemContent": {
-      marginBottom: theme.spacing(1),
-    },
-  },
-  errorAlert: {
-    borderRadius: 0,
-  },
-  header: {
-    marginLeft: theme.spacing(1),
-    marginBottom: theme.spacing(2),
-    fontWeight: theme.typography.fontWeightBold,
-  },
-}));
+const useStyles = makeStyles({
+  root: {},
+});
 
 function FriendRequestsSent() {
   const baseClasses = useFriendsBaseStyles();

@@ -10,9 +10,9 @@ import Alert from "../../components/Alert";
 import useFriendsBaseStyles from "./useFriendsBaseStyles";
 import { useIsMounted, useSafeState } from "../../utils/hooks";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles({
   root: {},
-}));
+});
 
 function FriendRequests() {
   const baseClasses = useFriendsBaseStyles();
