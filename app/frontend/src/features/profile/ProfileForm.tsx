@@ -1,7 +1,7 @@
 import { makeStyles } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
 import { unwrapResult } from "@reduxjs/toolkit";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import Alert from "../../components/Alert";
 import Button from "../../components/Button";
@@ -29,7 +29,7 @@ export default function EditProfileForm() {
     "success" | "error" | undefined
   >();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { control, register, handleSubmit, setValue, getValues } = useForm<
+  const { control, register, handleSubmit, setValue } = useForm<
     UpdateUserProfileData
   >({
     defaultValues: {
@@ -39,6 +39,13 @@ export default function EditProfileForm() {
       radius: user?.radius ?? undefined,
     },
   });
+
+  useEffect(() => {
+    //register here because these don't exist as actual fields
+    register("lat");
+    register("lng");
+    register("radius");
+  }, [register]);
 
   const onSubmit = handleSubmit(async (data: UpdateUserProfileData) => {
     try {
@@ -66,15 +73,13 @@ export default function EditProfileForm() {
             inputRef={register}
           />
           <Controller
-            name="location"
+            name="city"
             control={control}
-            //to avoid console warning
-            defaultValue={null}
-            render={() => (
+            render={({ value, onChange }) => (
               <EditUserLocationMap
                 user={user}
-                city={getValues("city")}
-                setCity={(value) => setValue("city", value)}
+                city={value}
+                setCity={(newValue) => onChange(newValue)}
                 setLocation={(location) => {
                   setValue("lat", location.lat);
                   setValue("lng", location.lng);

@@ -1,5 +1,5 @@
 import { makeStyles } from "@material-ui/core";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import Button from "../../../components/Button";
 import EditUserLocationMap, {
@@ -25,9 +25,14 @@ export default function LocationSection({
   const [completed, setCompleted] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const { control, handleSubmit, getValues, setValue } = useForm<LocationInfo>({
+  const { control, register, handleSubmit, getValues, setValue } = useForm<
+    LocationInfo
+  >({
     defaultValues: { city: "", location: {} },
   });
+
+  //city isn't an actual field anywhere, so register here
+  useEffect(() => register("city"), [register]);
 
   const save = handleSubmit(async ({ city, location }) => {
     const { lat, lng, radius } = location;

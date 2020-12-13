@@ -1,8 +1,9 @@
-import { makeStyles } from "@material-ui/core";
-import { AutocompleteChangeReason } from "@material-ui/lab";
+import { Box, IconButton, makeStyles } from "@material-ui/core";
+import { AutocompleteChangeReason } from "@material-ui/lab/Autocomplete";
 import { LngLat } from "mapbox-gl";
 import React, { useState } from "react";
 import Autocomplete from "./Autocomplete";
+import { SearchIcon } from "./Icons";
 
 const nominatimURL = process.env.REACT_APP_NOMINATIM_URL;
 
@@ -12,6 +13,7 @@ const useSearchStyles = makeStyles((theme) => ({
     left: 10,
     top: 10,
     width: "70%",
+    display: "flex",
     padding: theme.spacing(1),
     borderRadius: theme.shape.borderRadius,
     zIndex: 1,
@@ -30,6 +32,7 @@ const useSearchStyles = makeStyles((theme) => ({
       fontSize: "0.65rem",
     },
   },
+  autocomplete: { flexGrow: 1 },
 }));
 
 interface SearchOption {
@@ -108,25 +111,36 @@ export default function MapSearch({
   };
 
   return (
-    <Autocomplete
-      label="My location"
-      value={value}
-      size="small"
-      options={searchOptions.map((o) => o.name)}
-      loading={searchOptionsLoading}
-      open={open}
-      onBlur={() => setOpen(false)}
-      onChange={(e, inputValue, reason) => {
-        e.stopPropagation();
-        e.preventDefault();
-        setValue(inputValue ?? "");
-        searchSubmit(inputValue ?? "", reason);
-      }}
-      onInputChange={(_, inputValue) => setValue(inputValue)}
-      freeSolo
-      multiple={false}
-      disableClearable={false}
-      className={classes.root}
-    />
+    <Box className={classes.root}>
+      <Autocomplete
+        label="My location"
+        value={value}
+        size="small"
+        options={searchOptions.map((o) => o.name)}
+        loading={searchOptionsLoading}
+        open={open}
+        onBlur={() => setOpen(false)}
+        onChange={(e, inputValue, reason) => {
+          e.stopPropagation();
+          e.preventDefault();
+          setValue(inputValue ?? "");
+          searchSubmit(inputValue ?? "", reason);
+        }}
+        onInputChange={(_, inputValue) => setValue(inputValue)}
+        freeSolo
+        multiple={false}
+        disableClearable={false}
+        className={classes.autocomplete}
+      />
+      <IconButton
+        size="small"
+        onClick={() => {
+          setValue(value);
+          searchSubmit(value, "create-option");
+        }}
+      >
+        <SearchIcon />
+      </IconButton>
+    </Box>
   );
 }
