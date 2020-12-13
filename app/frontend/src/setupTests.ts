@@ -12,6 +12,7 @@ jest.mock("./service");
 
 global.store = reduxStore;
 global.defaultUser = user;
+window.URL.createObjectURL = jest.fn();
 
 afterEach(() => {
   reduxStore.dispatch(reset());

@@ -51,10 +51,30 @@ export default function EditUserLocationMap({
 
   const [error, setError] = useState("");
 
+  const setCenterFromPosition = () => {
+    navigator.geolocation.getCurrentPosition((position) => {
+      onCircleUp(
+        {
+          //fake the lngLat to pretend it has just moved to it's current position
+          lngLat: new LngLat(
+            position.coords.longitude,
+            position.coords.latitude
+          ),
+        } as MapMouseEvent,
+        () => null
+      );
+    });
+  };
+
   const map = useRef<mapboxgl.Map | null>(null);
   //map is imperative so these don't need to cause re-render
   const centerCoords = useRef<LngLat | null>(
-    user ? new LngLat(user.lng, user.lat) : new LngLat(151.2099, -33.865143)
+    user
+      ? new LngLat(user.lng, user.lat)
+      : (() => {
+          setCenterFromPosition();
+          return new LngLat(151.2099, -33.865143);
+        })()
   );
   const radius = useRef<number | null>(user?.radius ?? 200);
   //The handle is draggable to resize the radius.

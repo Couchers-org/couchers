@@ -23,7 +23,6 @@ export default function LocationSection({
   const classes = useStyles();
 
   const [completed, setCompleted] = useState(false);
-  const [loading, setLoading] = useState(false);
 
   const { control, register, handleSubmit, getValues, setValue } = useForm<
     LocationInfo
@@ -36,13 +35,11 @@ export default function LocationSection({
 
   const save = handleSubmit(async ({ city, location }) => {
     const { lat, lng, radius } = location;
-    setLoading(true);
     const info = await service.jail.setLocation(city, lat, lng, radius);
     if (!info.isJailed) {
       updateJailed();
     } else {
       //if user is no longer jailed, this component will be unmounted anyway
-      setLoading(false);
       setCompleted(true);
     }
   });
@@ -70,15 +67,11 @@ export default function LocationSection({
         />
 
         <TextBody>
-          <Button
-            loading={loading}
-            onClick={save}
-            disabled={completed || loading}
-          >
+          <Button onClick={save} disabled={completed}>
             {completed ? "Thanks!" : "Save"}
           </Button>
           {completed && (
-            <Button component="a" onClick={save} disable={loading}>
+            <Button component="a" onClick={save}>
               Re-submit
             </Button>
           )}
