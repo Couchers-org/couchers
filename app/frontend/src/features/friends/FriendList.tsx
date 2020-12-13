@@ -15,20 +15,9 @@ import { useAppDispatch, useTypedSelector } from "../../store";
 import { service } from "../../service";
 import { getUsers, fetchUsers } from "../userCache";
 import { useIsMounted, useSafeState } from "../../utils/hooks";
+import useFriendsBaseStyles from "./useFriendsBaseStyles";
 
 const useStyles = makeStyles((theme) => ({
-  circularProgress: {
-    display: "block",
-    margin: `0 auto ${theme.spacing(1)}`,
-  },
-  errorAlert: {
-    borderRadius: 0,
-  },
-  friendListContainer: {
-    "& > :last-child > $friendItemContent": {
-      marginBottom: theme.spacing(1),
-    },
-  },
   friendItemContent: {
     padding: `0 ${theme.spacing(1)}`,
   },
@@ -36,14 +25,15 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.text.primary,
     textDecoration: "none",
   },
-  header: {
-    marginLeft: theme.spacing(1),
-    marginBottom: theme.spacing(2),
-    fontWeight: theme.typography.fontWeightBold,
+  container: {
+    "& > :last-child > $friendItemContent": {
+      marginBottom: theme.spacing(1),
+    },
   },
 }));
 
 function FriendList() {
+  const baseClasses = useFriendsBaseStyles();
   const classes = useStyles();
   const isMounted = useIsMounted();
   const [errorMessage, setErrorMessage] = useSafeState(isMounted, "");
@@ -68,14 +58,14 @@ function FriendList() {
 
   return (
     <Card>
-      <Box className={classes.friendListContainer}>
-        <Typography className={classes.header} variant="h2">
+      <Box className={classes.container}>
+        <Typography className={baseClasses.header} variant="h2">
           Your friends
         </Typography>
         {loading ? (
-          <CircularProgress className={classes.circularProgress} />
+          <CircularProgress className={baseClasses.circularProgress} />
         ) : errorMessage ? (
-          <Alert className={classes.errorAlert} severity="error">
+          <Alert className={baseClasses.errorAlert} severity="error">
             {errorMessage}
           </Alert>
         ) : (

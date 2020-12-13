@@ -51,7 +51,7 @@
           "@typescript-eslint/no-unused-vars": [
             "warn",
             {
-              "varsIgnorePattern": "classes"
+              "varsIgnorePattern": "classes|useStyles"
             }
           ]
         }
