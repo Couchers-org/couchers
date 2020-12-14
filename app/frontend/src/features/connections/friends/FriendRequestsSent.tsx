@@ -6,15 +6,15 @@ import {
   Typography,
 } from "@material-ui/core";
 import React from "react";
-import Alert from "../../components/Alert";
+import Alert from "../../../components/Alert";
+import { useIsMounted, useSafeState } from "../../../utils/hooks";
 import useFriendsBaseStyles from "./useFriendsBaseStyles";
-import { useIsMounted, useSafeState } from "../../utils/hooks";
 
 const useStyles = makeStyles({
   root: {},
 });
 
-function FriendRequests() {
+function FriendRequestsSent() {
   const baseClasses = useFriendsBaseStyles();
   const isMounted = useIsMounted();
   const [errorMessage] = useSafeState(isMounted, "");
@@ -24,7 +24,7 @@ function FriendRequests() {
     <Card>
       <Box>
         <Typography className={baseClasses.header} variant="h2">
-          Friend requests
+          Friend requests you sent
         </Typography>
         {loading ? (
           <CircularProgress className={baseClasses.circularProgress} />
@@ -38,4 +38,4 @@ function FriendRequests() {
   );
 }
 
-export default FriendRequests;
+export default FriendRequestsSent;
