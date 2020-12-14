@@ -5,7 +5,7 @@ import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_
-
+from datetime import date
 from couchers import errors
 from couchers.db import session_scope
 from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType
@@ -83,6 +83,32 @@ def test_create_request(db):
             .latest_message.text.text
             == "Test request"
         )
+
+    today_plus_more_than_one_year_plus_2 = (date.today() + timedelta(days=370)).isoformat()
+    today_plus_more_than_one_year_plus_3 = (date.today() + timedelta(days=371)).isoformat()
+    with pytest.raises(grpc.RpcError) as e:
+        api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                to_user_id=user2.id,
+                from_date=today_plus_more_than_one_year_plus_2,
+                to_date=today_plus_more_than_one_year_plus_3,
+                text="Test from date after one year",
+            )
+        )
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == errors.DATE_FROM_AFTER_ONE_YEAR
+
+    with pytest.raises(grpc.RpcError) as e:
+        api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                to_user_id=user2.id,
+                from_date=today_plus_2,
+                to_date=today_plus_more_than_one_year_plus_3,
+                text="Test to date one year after from date",
+            )
+        )
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == errors.DATE_TO_AFTER_ONE_YEAR
 
 
 def add_message(db, text, author_id, conversation_id):
