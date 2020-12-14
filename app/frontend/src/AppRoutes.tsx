@@ -16,7 +16,7 @@ import SearchPage from "./features/search/SearchPage";
 import Jail from "./features/auth/jail/Jail";
 import TOS from "./components/TOS";
 import { useAppDispatch, useTypedSelector } from "./store";
-import FriendsPage from "./features/friends/FriendsPage";
+import FriendsPage from "./features/connections/friends/FriendsPage";
 
 export const loginRoute = "/login";
 export const loginPasswordRoute = `${loginRoute}/password`;

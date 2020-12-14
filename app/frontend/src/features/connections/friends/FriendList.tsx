@@ -8,13 +8,13 @@ import {
 import { unwrapResult } from "@reduxjs/toolkit";
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
-import Alert from "../../components/Alert";
-import CircularProgress from "../../components/CircularProgress";
-import TextBody from "../../components/TextBody";
-import { useAppDispatch, useTypedSelector } from "../../store";
-import { service } from "../../service";
-import { getUsers, fetchUsers } from "../userCache";
-import { useIsMounted, useSafeState } from "../../utils/hooks";
+import Alert from "../../../components/Alert";
+import CircularProgress from "../../../components/CircularProgress";
+import TextBody from "../../../components/TextBody";
+import { useAppDispatch, useTypedSelector } from "../../../store";
+import { service } from "../../../service";
+import { getUsers, fetchUsers } from "../../userCache";
+import { useIsMounted, useSafeState } from "../../../utils/hooks";
 import useFriendsBaseStyles from "./useFriendsBaseStyles";
 
 const useStyles = makeStyles((theme) => ({

@@ -2,7 +2,7 @@ import { Meta, Story } from "@storybook/react/types-6-0";
 import React from "react";
 import { MemoryRouter } from "react-router-dom";
 import { Provider } from "react-redux";
-import { store } from "../../stories/__mocks__/store";
+import { store } from "../../../stories/__mocks__/store";
 import FriendList from "./FriendList";
 
 export default {

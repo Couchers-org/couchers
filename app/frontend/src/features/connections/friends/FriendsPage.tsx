@@ -1,6 +1,6 @@
 import { Grid } from "@material-ui/core";
 import React from "react";
-import PageTitle from "../../components/PageTitle";
+import PageTitle from "../../../components/PageTitle";
 import FriendList from "./FriendList";
 import FriendRequests from "./FriendRequests";
 import FriendRequestsSent from "./FriendRequestsSent";
