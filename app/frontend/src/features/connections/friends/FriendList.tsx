@@ -1,7 +1,7 @@
 import {
   Box,
   Card,
-  CardActionArea,
+  IconButton,
   makeStyles,
   Typography,
 } from "@material-ui/core";
@@ -16,19 +16,30 @@ import { service } from "../../../service";
 import { getUsers, fetchUsers } from "../../userCache";
 import { useIsMounted, useSafeState } from "../../../utils/hooks";
 import useFriendsBaseStyles from "./useFriendsBaseStyles";
+import { CloseIcon, EmailIcon } from "../../../components/Icons";
 
 const useStyles = makeStyles((theme) => ({
-  friendItemContent: {
-    padding: `0 ${theme.spacing(1)}`,
-  },
-  friendItem: {
-    color: theme.palette.text.primary,
-    textDecoration: "none",
+  actionButton: {
+    borderRadius: "100%",
+    minWidth: "auto",
+    height: theme.spacing(3),
+    width: theme.spacing(3),
+    padding: 0,
   },
   container: {
-    "& > :last-child > $friendItemContent": {
+    "& > :last-child": {
       marginBottom: theme.spacing(1),
     },
+  },
+  friendItem: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: `0 ${theme.spacing(1)}`,
+  },
+  friendLink: {
+    color: theme.palette.text.primary,
+    textDecoration: "none",
   },
 }));
 
@@ -72,18 +83,25 @@ function FriendList() {
           friendIds.map((friendId) => {
             const friend = users[friendId]?.user;
             return (
-              <Link
-                className={classes.friendItem}
-                key={friendId}
-                to={`/user/${friend?.username}`}
-              >
-                <CardActionArea className={classes.friendItemContent}>
+              <Box className={classes.friendItem} key={friendId}>
+                <Link
+                  className={classes.friendLink}
+                  to={`/user/${friend?.username}`}
+                >
                   <Typography variant="h2" component="h3">
                     {friend?.name}
                   </Typography>
                   <TextBody>@{friend?.username}</TextBody>
-                </CardActionArea>
-              </Link>
+                </Link>
+                <Box>
+                  <IconButton aria-label="Direct message">
+                    <EmailIcon />
+                  </IconButton>
+                  <IconButton aria-label="Unfriend">
+                    <CloseIcon />
+                  </IconButton>
+                </Box>
+              </Box>
             );
           })
         )}

@@ -19,7 +19,7 @@ export default {
   ],
 } as Meta;
 
-const Template: Story<{ customLoading?: boolean }> = () => (
+const Template: Story<{}> = () => (
   <div style={{ width: "50%" }}>
     <FriendList />
   </div>
