@@ -84,14 +84,14 @@ def test_create_request(db):
             == "Test request"
         )
 
-    today_plus_more_than_one_year_plus_2 = (date.today() + timedelta(days=370)).isoformat()
-    today_plus_more_than_one_year_plus_3 = (date.today() + timedelta(days=371)).isoformat()
+    today_plus_one_year_plus_2 = (date.today() + timedelta(days=370)).isoformat()
+    today_plus_one_year_plus_3 = (date.today() + timedelta(days=371)).isoformat()
     with pytest.raises(grpc.RpcError) as e:
         api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 to_user_id=user2.id,
-                from_date=today_plus_more_than_one_year_plus_2,
-                to_date=today_plus_more_than_one_year_plus_3,
+                from_date=today_plus_one_year_plus_2,
+                to_date=today_plus_one_year_plus_3,
                 text="Test from date after one year",
             )
         )
@@ -103,7 +103,7 @@ def test_create_request(db):
             requests_pb2.CreateHostRequestReq(
                 to_user_id=user2.id,
                 from_date=today_plus_2,
-                to_date=today_plus_more_than_one_year_plus_3,
+                to_date=today_plus_one_year_plus_3,
                 text="Test to date one year after from date",
             )
         )
