@@ -15,11 +15,15 @@ interface LocationInfo {
   location: ApproximateLocation;
 }
 
+interface LocationSectionProps {
+  updateJailed: () => void;
+  className?: string;
+}
+
 export default function LocationSection({
   updateJailed,
-}: {
-  updateJailed: () => void;
-}) {
+  className,
+}: LocationSectionProps) {
   const classes = useStyles();
 
   const [completed, setCompleted] = useState(false);
@@ -46,14 +50,16 @@ export default function LocationSection({
 
   return (
     <>
-      <form onSubmit={save}>
+      <form onSubmit={save} className={className}>
         <Controller
           name="location"
           control={control}
           render={({ onChange }) => (
             <EditUserLocationMap
               className={classes.map}
-              city={getValues("city")}
+              //react-hook-forms doesn't set value immediately
+              //so || "" prevents a uncontrolled->controlled warning
+              city={getValues("city") || ""}
               setCity={(value) => setValue("city", value)}
               setLocation={(location) =>
                 onChange({

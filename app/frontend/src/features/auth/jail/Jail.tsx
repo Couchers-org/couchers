@@ -15,6 +15,7 @@ import TOSSection from "./TOSSection";
 
 const useStyles = makeStyles((theme) => ({
   bottomMargin: { marginBottom: theme.spacing(4) },
+  section: { marginBottom: theme.spacing(4) },
 }));
 
 export default function Jail() {
@@ -59,10 +60,13 @@ export default function Jail() {
         <CircularProgress />
       </Backdrop>
       {jailInfo?.hasNotAcceptedTos && (
-        <TOSSection updateJailed={updateJailed} />
+        <TOSSection updateJailed={updateJailed} className={classes.section} />
       )}
       {jailInfo?.hasNotAddedLocation && (
-        <LocationSection updateJailed={updateJailed} />
+        <LocationSection
+          updateJailed={updateJailed}
+          className={classes.section}
+        />
       )}
     </>
   );

@@ -2,15 +2,17 @@ import {
   makeStyles,
   Button as MuiButton,
   ButtonProps,
-  CircularProgress,
-  Box,
 } from "@material-ui/core";
 import React, { ElementType, useState } from "react";
 import classNames from "classnames";
+import CircularProgress from "../CircularProgress";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     borderRadius: `${theme.shape.borderRadius * 2}px`,
+  },
+  loading: {
+    marginLeft: theme.spacing(1),
   },
 }));
 
@@ -49,11 +51,7 @@ export default function Button<D extends ElementType = "button", P = {}>({
       className={classNames(classes.root, className)}
     >
       {children}
-      {(loading || waiting) && (
-        <Box marginLeft="8px">
-          <CircularProgress />
-        </Box>
-      )}
+      {(loading || waiting) && <CircularProgress className={classes.loading} />}
     </MuiButton>
   );
 }

@@ -51,30 +51,10 @@ export default function EditUserLocationMap({
 
   const [error, setError] = useState("");
 
-  const setCenterFromPosition = () => {
-    navigator.geolocation.getCurrentPosition((position) => {
-      onCircleUp(
-        {
-          //fake the lngLat to pretend it has just moved to it's current position
-          lngLat: new LngLat(
-            position.coords.longitude,
-            position.coords.latitude
-          ),
-        } as MapMouseEvent,
-        () => null
-      );
-    });
-  };
-
   const map = useRef<mapboxgl.Map | null>(null);
   //map is imperative so these don't need to cause re-render
   const centerCoords = useRef<LngLat | null>(
-    user
-      ? new LngLat(user.lng, user.lat)
-      : (() => {
-          setCenterFromPosition();
-          return new LngLat(151.2099, -33.865143);
-        })()
+    user ? new LngLat(user.lng, user.lat) : new LngLat(151.2099, -33.865143)
   );
   const radius = useRef<number | null>(user?.radius ?? 200);
   //The handle is draggable to resize the radius.
@@ -130,7 +110,6 @@ export default function EditUserLocationMap({
     map.current!.off("touchmove", moveEvent);
     map.current!.getCanvas().style.cursor = "move";
 
-    if (e.lngLat.distanceTo(handleCoords.current!) < 10) return;
     onCircleMove(e);
     setLocation({
       lat: centerCoords.current!.lat,
@@ -233,17 +212,26 @@ export default function EditUserLocationMap({
         },
       });
 
-      map.current!.on("dblclick", (e) => {
-        e.preventDefault();
-        onCircleUp(e, () => null);
-      });
+      //if no user is specified, ask to get the location from browser
+      if (!user) {
+        navigator.geolocation.getCurrentPosition((position) => {
+          flyToSearch(
+            new LngLat(position.coords.longitude, position.coords.latitude)
+          );
+        });
+      }
+    });
 
-      map.current!.on("mousedown", "handle", onHandleMouseDown);
+    map.current!.on("dblclick", (e) => {
+      e.preventDefault();
+      onCircleUp(e, () => null);
+    });
 
-      map.current!.on("touchstart", "handle", (e) => {
-        if (e.points.length !== 1) return;
-        onHandleMouseDown(e);
-      });
+    map.current!.on("mousedown", "handle", onHandleMouseDown);
+
+    map.current!.on("touchstart", "handle", (e) => {
+      if (e.points.length !== 1) return;
+      onHandleMouseDown(e);
     });
 
     map.current!.on("mousedown", "circle", onCircleMouseDown);
