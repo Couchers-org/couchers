@@ -15,8 +15,8 @@ import UserPage from "./features/userPage/UserPage";
 import SearchPage from "./features/search/SearchPage";
 import Jail from "./features/auth/jail/Jail";
 import TOS from "./components/TOS";
+import { ConnectionsPage } from "./features/connections";
 import { useAppDispatch, useTypedSelector } from "./store";
-import FriendsPage from "./features/connections/friends/FriendsPage";
 
 export const loginRoute = "/login";
 export const loginPasswordRoute = `${loginRoute}/password`;
@@ -28,7 +28,7 @@ export const editHostingPreferenceRoute = "/hosting-preference/edit";
 export const messagesRoute = "/messages";
 export const requestsRoute = "/requests";
 export const logoutRoute = "/logout";
-export const friendsRoute = "/friends";
+export const connectionsRoute = "/connections";
 
 export const userRoute = "/user";
 export const searchRoute = "/search";
@@ -71,8 +71,8 @@ export default function AppRoutes() {
       <PrivateRoute path={`${searchRoute}/:query?`}>
         <SearchPage />
       </PrivateRoute>
-      <PrivateRoute path={friendsRoute}>
-        <FriendsPage />
+      <PrivateRoute path={connectionsRoute}>
+        <ConnectionsPage />
       </PrivateRoute>
       <PrivateRoute exact path="/">
         <Home />

@@ -10,7 +10,7 @@ import {
 import React from "react";
 import { Link, NavLink } from "react-router-dom";
 import {
-  friendsRoute,
+  connectionsRoute,
   profileRoute,
   messagesRoute,
   requestsRoute,
@@ -37,8 +37,8 @@ const menu = [
     route: profileRoute,
   },
   {
-    name: "Friends",
-    route: friendsRoute,
+    name: "Connections",
+    route: connectionsRoute,
   },
 ];
 
