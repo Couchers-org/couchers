@@ -92,7 +92,7 @@
           <div class="navbar-item">
             <div class="buttons">
               <a class="button is-light" href="/signup">
-                <strong>Join the Team!</strong>
+                <strong>Sign up!</strong>
               </a>
             </div>
           </div>
