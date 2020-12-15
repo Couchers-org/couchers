@@ -196,8 +196,8 @@
                   </div>
                   <div class="media-content">
                     <p class="title is-4">Manuel Mohammady</p>
-                    <p class="subtitle is-6 role">Forum Designer</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Islas Canarias</p>
+                    <p class="subtitle is-6 role">Community Forum</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Las Palmas, Spain</p>
                     <!-- <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/public-profile/in/valerinatanelov">valerinatanelov</a></p> -->
                   </div>
                 </div>
