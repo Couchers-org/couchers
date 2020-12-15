@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import date, timedelta
 
 import grpc
 import pytest
@@ -83,6 +83,34 @@ def test_create_request(db):
             .latest_message.text.text
             == "Test request"
         )
+
+    today = now().date()
+    today_plus_one_year = today.replace(year=today.year + 1)
+    today_plus_one_year_plus_2 = (today_plus_one_year + timedelta(days=2)).isoformat()
+    today_plus_one_year_plus_3 = (today_plus_one_year + timedelta(days=3)).isoformat()
+    with pytest.raises(grpc.RpcError) as e:
+        api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                to_user_id=user2.id,
+                from_date=today_plus_one_year_plus_2,
+                to_date=today_plus_one_year_plus_3,
+                text="Test from date after one year",
+            )
+        )
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == errors.DATE_FROM_AFTER_ONE_YEAR
+
+    with pytest.raises(grpc.RpcError) as e:
+        api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                to_user_id=user2.id,
+                from_date=today_plus_2,
+                to_date=today_plus_one_year_plus_3,
+                text="Test to date one year after from date",
+            )
+        )
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == errors.DATE_TO_AFTER_ONE_YEAR
 
 
 def add_message(db, text, author_id, conversation_id):

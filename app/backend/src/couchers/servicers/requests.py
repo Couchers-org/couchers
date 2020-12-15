@@ -1,5 +1,6 @@
 import datetime
 import logging
+from datetime import date, timedelta
 
 import grpc
 from google.protobuf import empty_pb2
@@ -73,6 +74,16 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
             if request.to_date < least_current_date():
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_TO_BEFORE_TODAY)
+
+            today = date.fromisoformat(largest_current_date())
+            today_plus_one_year = today.replace(year=today.year + 1).isoformat()
+            if request.from_date > today_plus_one_year:
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_FROM_AFTER_ONE_YEAR)
+
+            from_date = date.fromisoformat(request.from_date)
+            from_date_plus_one_year = (from_date.replace(year=from_date.year + 1)).isoformat()
+            if request.to_date > from_date_plus_one_year:
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_TO_AFTER_ONE_YEAR)
 
             conversation = Conversation()
             session.add(conversation)
