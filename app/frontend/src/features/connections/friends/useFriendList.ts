@@ -9,7 +9,7 @@ function useFriendList() {
     Error
   >("friendIds", service.api.listFriends);
 
-  const friendQueries = useQueries(
+  const friendQueries = useQueries<User.AsObject, Error>(
     (friendIds ?? []).map((friendId) => {
       return {
         queryKey: ["user", friendId],
@@ -31,9 +31,7 @@ function useFriendList() {
     isLoading: isLoading || friendQueries.some((query) => query.isLoading),
     isError: hasErrors,
     errors,
-    friends: friendQueries.map((query) =>
-      query.isError ? null : (query.data as User.AsObject)
-    ),
+    friendQueries,
   };
 }
 

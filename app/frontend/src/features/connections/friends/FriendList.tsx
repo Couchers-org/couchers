@@ -42,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
 function FriendList() {
   const baseClasses = useFriendsBaseStyles();
   const classes = useStyles();
-  const { errors, isLoading, isError, friends } = useFriendList();
+  const { errors, isLoading, isError, friendQueries } = useFriendList();
 
   return (
     <Card>
@@ -57,7 +57,7 @@ function FriendList() {
             {errors.join("\n")}
           </Alert>
         ) : (
-          friends.map((user) =>
+          friendQueries.map(({ data: user }) =>
             user ? (
               <Box className={classes.friendItem} key={user.userId}>
                 <Link
