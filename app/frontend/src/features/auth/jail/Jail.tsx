@@ -8,8 +8,7 @@ import PageTitle from "../../../components/PageTitle";
 import TextBody from "../../../components/TextBody";
 import { JailInfoRes } from "../../../pb/jail_pb";
 import { service } from "../../../service";
-import { useAppDispatch, useTypedSelector } from "../../../store";
-import { updateJailStatus } from "./jailActions";
+import { AuthContext, useAppContext } from "../AuthProvider";
 import LocationSection from "./LocationSection";
 import TOSSection from "./TOSSection";
 
@@ -21,29 +20,28 @@ const useStyles = makeStyles((theme) => ({
 export default function Jail() {
   const classes = useStyles(makeStyles);
 
-  const dispatch = useAppDispatch();
-  const isJailed = useTypedSelector((state) => state.auth.jailed);
-  const authError = useTypedSelector((state) => state.auth.error);
-  const authLoading = useTypedSelector((state) => state.auth.loading);
-  const isAuthenticated = useTypedSelector(
-    (state) => state.auth.authenticated === true
-  );
+  const authContext = useAppContext(AuthContext);
+  const isJailed = authContext.jailed;
+  const authError = authContext.error;
+  const authLoading = authContext.loading;
+  const isAuthenticated = authContext.authenticated;
 
   const [loading, setLoading] = useState(false);
   const [jailInfo, setJailInfo] = useState<null | JailInfoRes.AsObject>(null);
 
+  ///TODO: This could fire twice because of authContext dependency
   useEffect(() => {
     (async () => {
       //just in case the store is stale
-      dispatch(updateJailStatus());
+      authContext.updateJailStatus();
       setLoading(true);
       setJailInfo(await service.jail.getJailInfo());
       setLoading(false);
     })();
-  }, [dispatch]);
+  }, [authContext]);
 
   const updateJailed = () => {
-    dispatch(updateJailStatus());
+    authContext.updateJailStatus();
   };
 
   if (!isAuthenticated) return <Redirect to={loginRoute} />;

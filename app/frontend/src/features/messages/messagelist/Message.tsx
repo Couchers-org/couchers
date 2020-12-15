@@ -3,12 +3,12 @@ import { makeStyles } from "@material-ui/core/styles";
 import ExpandLessIcon from "@material-ui/icons/ExpandLess";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import React, { useState } from "react";
-import { useStore } from "react-redux";
 import Avatar from "../../../components/Avatar";
 import { User } from "../../../pb/api_pb";
 import { Message } from "../../../pb/conversations_pb";
 import { useAppDispatch, useTypedSelector } from "../../../store";
 import { timestamp2Date } from "../../../utils/date";
+import { AuthContext, useAppContext } from "../../auth/AuthProvider";
 import { fetchUsers, getUser } from "../../userCache";
 import TimeInterval from "./MomentIndication";
 import UserName from "./UserName";
@@ -37,8 +37,7 @@ export default function MessageView({ message }: MessageProps) {
   const [expanded, setExpanded] = useState<boolean>(false);
   const classes = useStyles();
   const author = useGetUser(message.authorUserId);
-  const store = useStore();
-  const currentUser = store.getState().auth.user;
+  const currentUser = useAppContext(AuthContext).user;
   const isCurrentUser = author?.userId === currentUser?.userId;
   return (
     <Card className={classes.root}>

@@ -1,18 +1,16 @@
 import { makeStyles } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
-import { unwrapResult } from "@reduxjs/toolkit";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import Alert from "../../components/Alert";
 import Button from "../../components/Button";
 import TextField from "../../components/TextField";
-import { updateUserProfile } from "./index";
 import ProfileTextInput from "./ProfileTextInput";
 import { UpdateUserProfileData } from "../../service/user";
 import { theme } from "../../theme";
-import { useAppDispatch, useTypedSelector } from "../../store";
 import ProfileMarkdownInput from "./ProfileMarkdownInput";
 import EditUserLocationMap from "../../components/EditUserLocationMap";
+import { AuthContext, useAppContext } from "../auth/AuthProvider";
 
 const useStyles = makeStyles({
   buttonContainer: {
@@ -23,8 +21,8 @@ const useStyles = makeStyles({
 
 export default function EditProfileForm() {
   const classes = useStyles();
-  const dispatch = useAppDispatch();
-  const user = useTypedSelector((state) => state.auth.user);
+  const authContext = useAppContext(AuthContext);
+  const user = authContext.user;
   const [alertState, setShowAlertState] = useState<
     "success" | "error" | undefined
   >();
@@ -49,7 +47,7 @@ export default function EditProfileForm() {
 
   const onSubmit = handleSubmit(async (data: UpdateUserProfileData) => {
     try {
-      unwrapResult(await dispatch(updateUserProfile(data)));
+      await authContext.updateUserProfile(data);
       setShowAlertState("success");
     } catch (error) {
       setShowAlertState("error");

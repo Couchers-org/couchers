@@ -66,7 +66,6 @@ const message3: Message.AsObject = {
 
 const store = configureStore({
   reducer: rootReducer,
-  preloadedState: { auth: { user: user1 } },
 });
 
 export default {

@@ -6,7 +6,6 @@ import {
 } from "@reduxjs/toolkit";
 import { createSelectorHook, useDispatch } from "react-redux";
 import {
-  createTransform,
   FLUSH,
   PAUSE,
   PERSIST,
@@ -18,28 +17,11 @@ import {
 } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import rootReducer, { RootState } from "./reducers";
-import { AuthState } from "./features/auth";
-
-const authTransform = createTransform<AuthState, AuthState>(
-  undefined,
-  (outboundState, key) => {
-    if (key === "auth") {
-      return {
-        ...outboundState,
-        loading: false,
-        error: undefined,
-      };
-    } else {
-      return outboundState;
-    }
-  }
-);
 
 const persistConfig = {
   key: "root",
   version: 1,
   storage,
-  transforms: [authTransform],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

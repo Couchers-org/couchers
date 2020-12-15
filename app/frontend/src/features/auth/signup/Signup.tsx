@@ -3,13 +3,14 @@ import { Redirect, Route, Switch } from "react-router-dom";
 import { signupRoute } from "../../../AppRoutes";
 import Alert from "../../../components/Alert";
 import PageTitle from "../../../components/PageTitle";
-import { useTypedSelector } from "../../../store";
+import { AuthContext, useAppContext } from "../AuthProvider";
 import CompleteSignupForm from "./CompleteSignupForm";
 import EmailForm from "./EmailForm";
 
 export default function Signup() {
-  const authenticated = useTypedSelector((state) => state.auth.authenticated);
-  const error = useTypedSelector((state) => state.auth.error);
+  const authContext = useAppContext(AuthContext);
+  const authenticated = authContext.authenticated;
+  const error = authContext.error;
 
   return (
     <>

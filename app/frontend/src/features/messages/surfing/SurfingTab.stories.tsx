@@ -64,7 +64,6 @@ let store: Store;
 function resetStore() {
   store = configureStore({
     reducer: rootReducer,
-    preloadedState: { auth: { user: user1 as User.AsObject } },
   });
 }
 

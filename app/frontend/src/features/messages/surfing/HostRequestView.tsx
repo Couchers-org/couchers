@@ -9,6 +9,7 @@ import { Message } from "../../../pb/conversations_pb";
 import { HostRequest } from "../../../pb/requests_pb";
 import { service } from "../../../service";
 import { useAppDispatch } from "../../../store";
+import { AuthContext, useAppContext } from "../../auth/AuthProvider";
 import { fetchUsers, getUser } from "../../userCache";
 import MessageList from "../messagelist/MessageList";
 
@@ -37,7 +38,9 @@ export default function HostRequestView({ hostRequest }: HostRequestViewProps) {
   }, [hostRequest.hostRequestId]);
 
   useEffect(() => {
-    dispatch(fetchUsers({ userIds: [hostRequest.fromUserId, hostRequest.toUserId] }));
+    dispatch(
+      fetchUsers({ userIds: [hostRequest.fromUserId, hostRequest.toUserId] })
+    );
   }, [hostRequest.fromUserId, hostRequest.toUserId]);
 
   useEffect(() => {
@@ -55,7 +58,7 @@ export default function HostRequestView({ hostRequest }: HostRequestViewProps) {
   const store = useStore();
   const surfer = getUser(store.getState(), hostRequest.fromUserId);
   const host = getUser(store.getState(), hostRequest.toUserId);
-  const currentUser = store.getState().auth.user;
+  const currentUser = useAppContext(AuthContext).user;
   const surferName =
     currentUser?.userId === surfer?.userId ? "you" : surfer?.name;
   const hostName = currentUser?.userId === host?.userId ? "you" : host?.name;
