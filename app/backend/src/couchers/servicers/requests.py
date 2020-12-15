@@ -1,12 +1,12 @@
 import datetime
 import logging
+from datetime import date, timedelta
 
 import grpc
 from google.protobuf import empty_pb2
 from google.protobuf.timestamp_pb2 import Timestamp
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, or_
-from datetime import date, timedelta
 
 from couchers import errors
 from couchers.db import is_valid_date, session_scope
@@ -75,12 +75,13 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if request.to_date < least_current_date():
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_TO_BEFORE_TODAY)
 
-            today = date.fromisoformat(least_current_date())
-            one_year_from_now = (today + timedelta(days=365)).isoformat()
-            if request.from_date > one_year_from_now:
+            today = date.fromisoformat(largest_current_date())
+            today_plus_one_year = today.replace(year=today.year + 1).isoformat()
+            if request.from_date > today_plus_one_year:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_FROM_AFTER_ONE_YEAR)
 
-            from_date_plus_one_year = (date.fromisoformat(request.from_date) + timedelta(days=365)).isoformat()
+            from_date = date.fromisoformat(request.from_date)
+            from_date_plus_one_year = (from_date.replace(year=from_date.year + 1)).isoformat()
             if request.to_date > from_date_plus_one_year:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_TO_AFTER_ONE_YEAR)
 
