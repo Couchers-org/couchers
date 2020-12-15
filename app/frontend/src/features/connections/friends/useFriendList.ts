@@ -18,27 +18,16 @@ function useFriendList() {
   );
 
   const hasErrors = isError || friendQueries.every((query) => query.isError);
-  let errors: string[] = [];
-  if (hasErrors) {
-    if (friendQueries.length > 0) {
-      // the friend/individual user query started fetching, so error must have happened here
-      // as they won't fetch before `friendIds` have succeeded
-      errors = friendQueries.reduce(
-        (errors, query: UseQueryResult<unknown, Error>) => {
-          if (query.error && query.error.message)
-            errors.push(query.error.message);
-          return errors;
-        },
-        errors
-      );
-    } else {
-      errors = error && error.message ? [error.message] : [];
-    }
-  }
+  const errors = [
+    error?.message,
+    ...friendQueries.map(
+      (query: UseQueryResult<unknown, Error>) => query.error?.message
+    ),
+  ].filter((e): e is string => typeof e === "string");
 
   return {
     isLoading: isLoading || friendQueries.some((query) => query.isLoading),
-    isError: isError || friendQueries.every((query) => query.isError),
+    isError: hasErrors,
     errors,
     friendQueries,
   };
