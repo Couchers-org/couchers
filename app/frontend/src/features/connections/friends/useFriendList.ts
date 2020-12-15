@@ -1,4 +1,6 @@
+import { Error } from "grpc-web";
 import { useQuery, useQueries, UseQueryResult } from "react-query";
+import { User } from "../../../pb/api_pb";
 import { service } from "../../../service";
 
 function useFriendList() {
@@ -29,7 +31,9 @@ function useFriendList() {
     isLoading: isLoading || friendQueries.some((query) => query.isLoading),
     isError: hasErrors,
     errors,
-    friendQueries,
+    friends: friendQueries.map((query) =>
+      query.isError ? null : (query.data as User.AsObject)
+    ),
   };
 }
 

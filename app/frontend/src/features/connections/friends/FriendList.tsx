@@ -12,7 +12,6 @@ import CircularProgress from "../../../components/CircularProgress";
 import TextBody from "../../../components/TextBody";
 import useFriendsBaseStyles from "./useFriendsBaseStyles";
 import { CloseIcon, EmailIcon } from "../../../components/Icons";
-import { User } from "../../../pb/api_pb";
 import useFriendList from "./useFriendList";
 
 const useStyles = makeStyles((theme) => ({
@@ -43,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
 function FriendList() {
   const baseClasses = useFriendsBaseStyles();
   const classes = useStyles();
-  const { errors, isLoading, isError, friendQueries } = useFriendList();
+  const { errors, isLoading, isError, friends } = useFriendList();
 
   return (
     <Card>
@@ -51,16 +50,15 @@ function FriendList() {
         <Typography className={baseClasses.header} variant="h2">
           Your friends
         </Typography>
-        {isLoading || friendQueries.some((query) => query.isLoading) ? (
+        {isLoading ? (
           <CircularProgress className={baseClasses.circularProgress} />
         ) : isError ? (
           <Alert className={baseClasses.errorAlert} severity="error">
             {errors.join("\n")}
           </Alert>
         ) : (
-          friendQueries.map((payload) => {
-            const user = payload.data as User.AsObject;
-            return (
+          friends.map((user) =>
+            user ? (
               <Box className={classes.friendItem} key={user.userId}>
                 <Link
                   className={classes.friendLink}
@@ -80,8 +78,8 @@ function FriendList() {
                   </IconButton>
                 </Box>
               </Box>
-            );
-          })
+            ) : null
+          )
         )}
       </Box>
     </Card>
