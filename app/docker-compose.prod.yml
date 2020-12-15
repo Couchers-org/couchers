@@ -60,6 +60,8 @@ services:
     networks:
       - media_nginx
       - envoy_nginx
+  cron:
+    build: cron
 networks:
   postgres_backend:
     driver: bridge

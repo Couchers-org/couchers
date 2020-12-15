@@ -88,3 +88,5 @@ services:
 #      - backend
 #    links:
 #      - backend
+  cron:
+    build: cron
