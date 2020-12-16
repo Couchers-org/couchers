@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Checkbox,
   IconButton,
@@ -108,7 +108,8 @@ export default function ProfileTagInput({
 }: ProfileTagInputProps) {
   const classes = useStyles();
 
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [open, setOpen] = useState<boolean>(false);
+  const anchorEl = useRef<null | HTMLButtonElement>(null);
   const [valueState, setValueState] = useState<string[]>(value);
   const [pendingValue, setPendingValue] = useState<string[]>([]);
 
@@ -118,7 +119,7 @@ export default function ProfileTagInput({
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setPendingValue(value);
-    setAnchorEl(event.currentTarget);
+    setOpen(true);
   };
 
   const handleClose = (
@@ -129,10 +130,7 @@ export default function ProfileTagInput({
       return;
     }
     onChange(null, pendingValue);
-    if (anchorEl) {
-      anchorEl.focus();
-    }
-    setAnchorEl(null);
+    setOpen(false);
   };
 
   const handleRemove = (tag: string) => {
@@ -142,15 +140,12 @@ export default function ProfileTagInput({
     );
   };
 
-  const open = Boolean(anchorEl);
-  const id = open ? "github-label" : undefined;
-
   return (
     <>
       <ButtonBase
         disableRipple
-        aria-describedby={id}
         onClick={handleClick}
+        ref={anchorEl}
         classes={{
           root: classes.button,
         }}
@@ -173,7 +168,7 @@ export default function ProfileTagInput({
       <Popper
         id={id}
         open={open}
-        anchorEl={anchorEl}
+        anchorEl={anchorEl.current}
         placement="bottom-start"
         className={classes.popper}
       >
@@ -204,7 +199,7 @@ export default function ProfileTagInput({
           disablePortal
           renderTags={() => null}
           noOptionsText="No Languages"
-          options={options}
+          options={options.concat(value)}
           renderOption={(option, { selected }) => (
             <>
               <Checkbox
