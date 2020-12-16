@@ -83,6 +83,7 @@ export default function EditProfileForm() {
                 value={value}
                 options={["French", "English"]}
                 label="Languages I speak"
+                id="languages"
               />
             )}
           />
@@ -122,6 +123,7 @@ export default function EditProfileForm() {
                 value={value}
                 options={[]}
                 label="Countries I've Visited"
+                id="countries-visited"
               />
             )}
           />
@@ -136,6 +138,7 @@ export default function EditProfileForm() {
                 value={value}
                 options={[]}
                 label="Countries I've Lived In"
+                id="countries-lived"
               />
             )}
           />

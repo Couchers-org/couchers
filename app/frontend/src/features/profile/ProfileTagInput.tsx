@@ -17,12 +17,14 @@ import { CloseIcon, ExpandMore } from "../../components/Icons";
 const useStyles = makeStyles((theme) =>
   createStyles({
     popper: {
-      border: "1px solid rgba(27,31,35,.15)",
-      boxShadow: "0 3px 12px rgba(27,31,35,.15)",
-      borderRadius: 3,
+      borderRadius: theme.shape.borderRadius,
+      borderWidth: 1,
+      borderStyle: "solid",
+      borderColor: "rgba(0, 0, 0, 0.23)",
+      boxShadow: theme.shadows[3],
       zIndex: 1,
-      color: "#586069",
-      backgroundColor: "#f6f8fa",
+      backgroundColor: theme.palette.background.default,
+      marginTop: theme.spacing(1),
     },
     button: {
       borderRadius: theme.shape.borderRadius,
@@ -38,7 +40,7 @@ const useStyles = makeStyles((theme) =>
     tag: {
       padding: "0 14px",
       margin: theme.spacing(1, 0),
-      fontSize: "16px",
+      fontSize: theme.typography.fontSize,
       display: "flex",
       alignItems: "center",
     },
@@ -46,21 +48,26 @@ const useStyles = makeStyles((theme) =>
       marginLeft: theme.spacing(1),
     },
     header: {
-      borderBottom: "1px solid #e1e4e8",
-      padding: "8px 10px",
-      fontWeight: 600,
+      fontSize: theme.typography.fontSize,
+      borderBottomWidth: 1,
+      borderBottomStyle: "solid",
+      borderBottomColor: theme.palette.divider,
+      padding: theme.spacing(1, 2),
     },
     inputBase: {
-      padding: 10,
+      padding: theme.spacing(2),
       width: "100%",
-      borderBottom: "1px solid #dfe2e5",
+      borderBottomWidth: 1,
+      borderBottomStyle: "solid",
+      borderBottomColor: theme.palette.divider,
       "& input": {
-        borderRadius: 4,
+        borderRadius: theme.shape.borderRadius,
         backgroundColor: theme.palette.common.white,
-        padding: 8,
+        padding: theme.spacing(1),
         transition: theme.transitions.create(["border-color", "box-shadow"]),
-        border: "1px solid #ced4da",
-        fontSize: 14,
+        borderWidth: 1,
+        borderStyle: "solid",
+        borderColor: theme.palette.divider,
         "&:focus": {
           boxShadow: `${fade(theme.palette.primary.main, 0.25)} 0 0 0 0.2rem`,
           borderColor: theme.palette.primary.main,
@@ -70,12 +77,11 @@ const useStyles = makeStyles((theme) =>
     paper: {
       boxShadow: "none",
       margin: 0,
-      color: "#586069",
     },
     option: {
       minHeight: "auto",
       alignItems: "flex-start",
-      padding: 8,
+      padding: theme.spacing(1),
       '&[aria-selected="true"]': {
         backgroundColor: "transparent",
       },
@@ -98,6 +104,7 @@ interface ProfileTagInputProps {
   value: string[];
   options: string[];
   label: string;
+  id: string;
 }
 
 export default function ProfileTagInput({
@@ -105,6 +112,7 @@ export default function ProfileTagInput({
   value,
   options,
   label,
+  id,
 }: ProfileTagInputProps) {
   const classes = useStyles();
 
@@ -140,13 +148,13 @@ export default function ProfileTagInput({
     );
   };
 
-  const id = open ? "" : undefined;
+  const popperId = open ? id : undefined;
 
   return (
     <>
       <ButtonBase
         disableRipple
-        aria-describedby={id}
+        aria-describedby={popperId}
         onClick={handleClick}
         ref={anchorEl}
         classes={{
@@ -169,7 +177,7 @@ export default function ProfileTagInput({
         </div>
       ))}
       <Popper
-        id={id}
+        id={popperId}
         open={open}
         anchorEl={anchorEl.current}
         placement="bottom-start"
