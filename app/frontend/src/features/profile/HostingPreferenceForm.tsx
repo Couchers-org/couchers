@@ -14,7 +14,7 @@ import { smokingLocationLabels } from "./constants";
 import ProfileTextInput from "./ProfileTextInput";
 import { HostingPreferenceData } from "../../service";
 import { SmokingLocation } from "../../pb/api_pb";
-import { AuthContext, useAppContext } from "../auth/AuthProvider";
+import { useAuthContext } from "../auth/AuthProvider";
 
 interface HostingPreferenceCheckboxProps {
   className: string;
@@ -60,8 +60,8 @@ const useStyles = makeStyles((theme) => ({
 
 export default function HostingPreferenceForm() {
   const classes = useStyles();
-  const authContext = useAppContext(AuthContext);
-  const user = authContext.user;
+  const {authState, authActions} = useAuthContext();
+  const user = authState.user;
   const [alertState, setShowAlertState] = useState<
     "success" | "error" | undefined
   >();
@@ -74,7 +74,7 @@ export default function HostingPreferenceForm() {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await authContext.updateHostingPreferences(data);
+      await authActions.updateHostingPreferences(data);
       setShowAlertState("success");
     } catch (error) {
       setShowAlertState("error");

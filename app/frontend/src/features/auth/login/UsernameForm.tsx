@@ -8,7 +8,7 @@ import TextBody from "../../../components/TextBody";
 import TextField from "../../../components/TextField";
 import { LoginRes } from "../../../pb/auth_pb";
 import { service } from "../../../service";
-import { AuthContext, useAppContext } from "../AuthProvider";
+import { useAuthContext } from "../AuthProvider";
 
 const useStyles = makeStyles({
   signUpButton: {
@@ -18,8 +18,8 @@ const useStyles = makeStyles({
 
 export default function UsernameForm() {
   const classes = useStyles();
-  const authContext = useAppContext(AuthContext);
-  const authLoading = authContext.loading;
+  const {authState, authActions} = useAuthContext();
+  const authLoading = authState.loading;
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -37,12 +37,12 @@ export default function UsernameForm() {
 
   const onSubmit = handleSubmit(async (data: { username: string }) => {
     setLoading(true);
-    authContext.clearError();
+    authActions.clearError();
     try {
       const next = await service.auth.checkUsername(data.username);
       switch (next) {
         case LoginRes.LoginStep.INVALID_USER:
-          authContext.authError("Couldn't find that user.");
+          authActions.authError("Couldn't find that user.");
           break;
 
         case LoginRes.LoginStep.NEED_PASSWORD:
@@ -56,7 +56,7 @@ export default function UsernameForm() {
           break;
       }
     } catch (e) {
-      authContext.authError(e.message);
+      authActions.authError(e.message);
     }
     setLoading(false);
   });

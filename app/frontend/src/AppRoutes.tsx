@@ -14,7 +14,7 @@ import UserPage from "./features/userPage/UserPage";
 import SearchPage from "./features/search/SearchPage";
 import Jail from "./features/auth/jail/Jail";
 import TOS from "./components/TOS";
-import { AuthContext, useAppContext } from "./features/auth/AuthProvider";
+import { useAuthContext } from "./features/auth/AuthProvider";
 
 export const loginRoute = "/login";
 export const loginPasswordRoute = `${loginRoute}/password`;
@@ -76,12 +76,12 @@ export default function AppRoutes() {
 }
 
 const PrivateRoute = ({ children, ...otherProps }: RouteProps) => {
-  const authContext = useAppContext(AuthContext);
-  const isAuthenticated = authContext.authenticated;
-  const isJailed = authContext.jailed;
+  const {authState, authActions} = useAuthContext();
+  const isAuthenticated = authState.authenticated;
+  const isJailed = authState.jailed;
   useEffect(() => {
     if (!isAuthenticated) {
-      authContext.authError("Please log in.");
+      authActions.authError("Please log in.");
     }
   });
 

@@ -3,14 +3,14 @@ import { Redirect, Route, Switch } from "react-router-dom";
 import { signupRoute } from "../../../AppRoutes";
 import Alert from "../../../components/Alert";
 import PageTitle from "../../../components/PageTitle";
-import { AuthContext, useAppContext } from "../AuthProvider";
+import { useAuthContext } from "../AuthProvider";
 import CompleteSignupForm from "./CompleteSignupForm";
 import EmailForm from "./EmailForm";
 
 export default function Signup() {
-  const authContext = useAppContext(AuthContext);
-  const authenticated = authContext.authenticated;
-  const error = authContext.error;
+  const {authState} = useAuthContext();
+  const authenticated = authState.authenticated;
+  const error = authState.error;
 
   return (
     <>

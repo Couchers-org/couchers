@@ -15,7 +15,7 @@ import {
   usernameValidationPattern,
   validatePastDate,
 } from "../../../utils/validation";
-import { AuthContext, useAppContext } from "../AuthProvider";
+import { useAuthContext } from "../AuthProvider";
 
 type SignupInputs = {
   email: string;
@@ -28,8 +28,8 @@ type SignupInputs = {
 };
 
 export default function CompleteSignup() {
-  const authContext = useAppContext(AuthContext);
-  const authLoading = authContext.loading;
+  const {authState, authActions} = useAuthContext();
+  const authLoading = authState.loading;
 
   const {
     control,
@@ -58,17 +58,17 @@ export default function CompleteSignup() {
             shouldDirty: true,
           });
         } catch (err) {
-          authContext.authError(err.message);
+          authActions.authError(err.message);
           history.push(signupRoute);
           return;
         }
         setLoading(false);
       }
     })();
-  }, [urlToken, authContext, location.pathname, setValue, history]);
+  }, [urlToken, authActions, location.pathname, setValue, history]);
 
   const completeSignup = handleSubmit(async (data: SignupInputs) => {
-    authContext.signup({
+    authActions.signup({
       signupToken: urlToken,
       username: data.username,
       name: data.name,

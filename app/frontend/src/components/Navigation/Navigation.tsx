@@ -15,7 +15,7 @@ import {
   requestsRoute,
   logoutRoute,
 } from "../../AppRoutes";
-import { AuthContext, useAppContext } from "../../features/auth/AuthProvider";
+import { useAuthContext } from "../../features/auth/AuthProvider";
 import SearchBox from "../SearchBox";
 
 const menu = [
@@ -95,7 +95,7 @@ const useStyles = makeStyles((theme) => ({
 export default function Navigation() {
   const classes = useStyles();
 
-  const authenticated = useAppContext(AuthContext).authenticated;
+  const authenticated = useAuthContext().authState.authenticated;
 
   return (
     <AppBar

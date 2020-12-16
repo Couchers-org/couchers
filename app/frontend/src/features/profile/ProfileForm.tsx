@@ -10,7 +10,7 @@ import { UpdateUserProfileData } from "../../service/user";
 import { theme } from "../../theme";
 import ProfileMarkdownInput from "./ProfileMarkdownInput";
 import EditUserLocationMap from "../../components/EditUserLocationMap";
-import { AuthContext, useAppContext } from "../auth/AuthProvider";
+import { useAuthContext } from "../auth/AuthProvider";
 
 const useStyles = makeStyles({
   buttonContainer: {
@@ -21,8 +21,8 @@ const useStyles = makeStyles({
 
 export default function EditProfileForm() {
   const classes = useStyles();
-  const authContext = useAppContext(AuthContext);
-  const user = authContext.user;
+  const {authState, authActions} = useAuthContext();
+  const user = authState.user;
   const [alertState, setShowAlertState] = useState<
     "success" | "error" | undefined
   >();
@@ -47,7 +47,7 @@ export default function EditProfileForm() {
 
   const onSubmit = handleSubmit(async (data: UpdateUserProfileData) => {
     try {
-      await authContext.updateUserProfile(data);
+      await authActions.updateUserProfile(data);
       setShowAlertState("success");
     } catch (error) {
       setShowAlertState("error");

@@ -1,14 +1,14 @@
 import React, { useEffect } from "react";
 import { Redirect } from "react-router-dom";
 import { loginRoute } from "../../AppRoutes";
-import { AuthContext, useAppContext } from "./AuthProvider";
+import { useAuthContext } from "./AuthProvider";
 
 export default function Logout() {
-  const authContext = useAppContext(AuthContext);
+  const {authState, authActions} = useAuthContext();
 
   useEffect(() => {
-    if (authContext.authenticated) {
-      authContext.logout();
+    if (authState.authenticated) {
+      authActions.logout();
     }
   });
 

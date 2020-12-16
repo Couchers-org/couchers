@@ -8,7 +8,7 @@ import { User } from "../../../pb/api_pb";
 import { Message } from "../../../pb/conversations_pb";
 import { useAppDispatch, useTypedSelector } from "../../../store";
 import { timestamp2Date } from "../../../utils/date";
-import { AuthContext, useAppContext } from "../../auth/AuthProvider";
+import { useAuthContext } from "../../auth/AuthProvider";
 import { fetchUsers, getUser } from "../../userCache";
 import TimeInterval from "./MomentIndication";
 import UserName from "./UserName";
@@ -37,7 +37,7 @@ export default function MessageView({ message }: MessageProps) {
   const [expanded, setExpanded] = useState<boolean>(false);
   const classes = useStyles();
   const author = useGetUser(message.authorUserId);
-  const currentUser = useAppContext(AuthContext).user;
+  const currentUser = useAuthContext().authState.user;
   const isCurrentUser = author?.userId === currentUser?.userId;
   return (
     <Card className={classes.root}>

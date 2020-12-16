@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { User } from "../../pb/api_pb";
 import { service, SignupArguments } from "../../service";
 import {
@@ -33,12 +33,10 @@ export default function useAuthStore() {
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  return {
-    authenticated,
-    jailed,
-    user,
-    loading,
-    error,
+  
+  //useRef provides referential equality between renders
+  //(setState functions remain consistent)
+  const { current: authActions } = useRef({
     clearError() {
       setError(null);
     },
@@ -149,7 +147,15 @@ export default function useAuthStore() {
 
       setUser(await service.user.getUser(username));
     },
-  };
+  });
+
+  return {authState: {
+    authenticated,
+    jailed,
+    user,
+    loading,
+    error,
+  }, authActions};
 }
 
 export type AuthStoreType = ReturnType<typeof useAuthStore>;

@@ -12,7 +12,7 @@ import { timestamp2Date } from "../../utils/date";
 import { timeAgo } from "../../utils/timeAgo";
 import { hostingStatusLabels } from "../profile/constants";
 import TextBody from "../../components/TextBody";
-import { AuthContext, useAppContext } from "../auth/AuthProvider";
+import { useAuthContext } from "../auth/AuthProvider";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -41,7 +41,7 @@ const useStyles = makeStyles((theme) => ({
 export default function UserHeader({ user }: { user: User.AsObject }) {
   const classes = useStyles();
 
-  const isCurrentUser = useAppContext(AuthContext).user?.userId === user.userId;
+  const isCurrentUser = useAuthContext().authState.user?.userId === user.userId;
 
   return (
     <div className={classes.root}>

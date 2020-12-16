@@ -3,7 +3,7 @@ import useAuthStore, { AuthStoreType } from "./useAuthStore";
 
 export const AuthContext = React.createContext<null | AuthStoreType>(null);
 
-export function useAppContext<T>(context: Context<T | null>) {
+function useAppContext<T>(context: Context<T | null>) {
   const contextValue = useContext(context);
   if (contextValue === null) {
     throw Error("No context provided!");
@@ -15,3 +15,5 @@ export default function AuthProvider({ children }: { children: ReactChild }) {
   const store = useAuthStore();
   return <AuthContext.Provider value={store}>{children}</AuthContext.Provider>;
 }
+
+export const useAuthContext = () => useAppContext(AuthContext);

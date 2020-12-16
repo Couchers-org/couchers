@@ -5,10 +5,10 @@ import TextBody from "../../../components/TextBody";
 import TextField from "../../../components/TextField";
 import { SignupRes } from "../../../pb/auth_pb";
 import { service } from "../../../service";
-import { AuthContext, useAppContext } from "../AuthProvider";
+import { useAuthContext } from "../AuthProvider";
 
 export default function EmailForm() {
-  const authContext = useAppContext(AuthContext);
+  const {authActions} = useAuthContext();
 
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -19,22 +19,22 @@ export default function EmailForm() {
 
   const onSubmit = handleSubmit(async ({ email }) => {
     setLoading(true);
-    authContext.clearError();
+    authActions.clearError();
     try {
       const next = await service.auth.createEmailSignup(email);
       switch (next) {
         case SignupRes.SignupStep.EMAIL_EXISTS:
-          authContext.authError("That email is already in use.");
+          authActions.authError("That email is already in use.");
           break;
         case SignupRes.SignupStep.INVALID_EMAIL:
-          authContext.authError("That email isn't valid.");
+          authActions.authError("That email isn't valid.");
           break;
         case SignupRes.SignupStep.SENT_SIGNUP_EMAIL:
           setSent(true);
           break;
       }
     } catch (err) {
-      authContext.authError(err.message);
+      authActions.authError(err.message);
     }
     setLoading(false);
   });
