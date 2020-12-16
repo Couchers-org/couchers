@@ -4,8 +4,6 @@ package org.couchers.api.communities;
 
 import "google/protobuf/timestamp.proto";
 
-import "pb/api.proto";
-
 message Point {
   double lat = 1;
   double lng = 2;
@@ -14,7 +12,7 @@ message Point {
 message Node {
   int32 node_id = 1;
   string name = 2;
-  org.couchers.api.core.NullableInt32Value parent_node = 3;
+  int32 parent_node = 3;
   repeated Point polygon = 4;
   int32 official_cluster = 5;
   google.protobuf.Timestamp created = 6;

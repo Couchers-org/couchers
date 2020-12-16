@@ -139,11 +139,6 @@ enum SmokingLocation {
   SMOKING_LOCATION_NO = 5;
 }
 
-message NullableInt32Value {
-  bool is_null = 1;
-  int32 value = 2;
-}
-
 message NullableUInt32Value {
   bool is_null = 1;
   uint32 value = 2;

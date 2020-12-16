@@ -666,6 +666,6 @@ class Node(Base):
 
     name = Column(String, nullable=False)
     parent_node = Column(Integer, ForeignKey("nodes.id"))
-    polygon = Column(Geometry(geometry_type="POLYGON", srid=4326), nullable=True)
+    polygon = Column(Geometry(geometry_type="POLYGON", srid=4326))
     # official_cluster = Column(Integer, ForeignKey("clusters.id"))
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
