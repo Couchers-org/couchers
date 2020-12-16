@@ -19,3 +19,7 @@ message Node {
   int32 official_cluster = 5;
   google.protobuf.Timestamp created = 6;
 }
+
+service Communities {
+
+}
