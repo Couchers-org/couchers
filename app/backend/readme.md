@@ -25,11 +25,11 @@ source venv/bin/activate
 
 `export DATABASE_CONNECTION_STRING=postgresql://postgres:06b3890acd2c235c41be0bbfe22f1b386a04bf02eedf8c977486355616be2aa1@localhost:6544/postgres`
 
-3. Run `py.test` in the `app/backend/src/` folder.
+3. Run `pytest` in the `app/backend/src/` folder.
 
 ```sh
 cd src
-py.test
+pytest
 ```
 
 ## Q/A:
