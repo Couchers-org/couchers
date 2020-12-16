@@ -653,3 +653,19 @@ class InitiatedUpload(Base):
     @hybrid_property
     def is_valid(self):
         return (self.created <= func.now()) & (self.expiry >= func.now())
+
+
+class Node(Base):
+    """
+    Node, i.e. geographical subdivision of the world
+    """
+
+    __tablename__ = "nodes"
+
+    id = Column(Integer, primary_key=True)
+
+    name = Column(String, nullable=False)
+    parent_node = Column(Integer, ForeignKey("nodes.id"))
+    polygon = Column(Geometry(geometry_type="POLYGON", srid=4326), nullable=True)
+    # official_cluster = Column(Integer, ForeignKey("clusters.id"))
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
