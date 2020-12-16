@@ -86,8 +86,9 @@ def create_session_cookie(token, expiry):
     # send only on requests from first-party domains
     # cookie["samesite"] = "Strict"
     cookie["samesite"] = "None"
-    # only set cookie on HTTPS sites in production
-    cookie["secure"] = True
+    if not config["DEV"]:
+        # only set cookie on HTTPS sites in production
+        cookie["secure"] = True
     # not accessible from javascript
     cookie["httponly"] = True
 
