@@ -81,7 +81,7 @@ export default function EditProfileForm() {
               <ProfileTagInput
                 onChange={(_, value) => onChange(value)}
                 value={value}
-                options={["French", "English"]}
+                options={[]}
                 label="Languages I speak"
                 id="languages"
               />
