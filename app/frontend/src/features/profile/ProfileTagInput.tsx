@@ -140,10 +140,13 @@ export default function ProfileTagInput({
     );
   };
 
+  const id = open ? "" : undefined;
+
   return (
     <>
       <ButtonBase
         disableRipple
+        aria-describedby={id}
         onClick={handleClick}
         ref={anchorEl}
         classes={{
@@ -199,7 +202,9 @@ export default function ProfileTagInput({
           disablePortal
           renderTags={() => null}
           noOptionsText="No Languages"
-          options={options.concat(value)}
+          options={options
+            .concat(value.filter((item) => options.indexOf(item) < 0))
+            .sort((a, b) => -b[0].localeCompare(a[0]))}
           renderOption={(option, { selected }) => (
             <>
               <Checkbox
