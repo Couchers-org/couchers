@@ -133,6 +133,7 @@ export default function MapSearch({
         className={classes.autocomplete}
       />
       <IconButton
+        aria-label="Search location"
         size="small"
         onClick={() => {
           setValue(value);
