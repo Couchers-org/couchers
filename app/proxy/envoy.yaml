@@ -38,10 +38,16 @@ static_resources:
                   max_grpc_timeout: 0s
               cors:
                 allow_origin_string_match:
-                - suffix: .coucher.org
-                - suffix: .couchers.org
-                - exact: 127.0.0.1
-                - exact: localhost
+                # main site
+                - exact: https://app.couchers.org
+                # deploy preview sites
+                - suffix: .preview.coucher.org
+                # react
+                - exact: http://127.0.0.1:3000
+                - exact: http://localhost:3000
+                # vue
+                - exact: http://127.0.0.1:8080
+                - exact: http://localhost:8080
                 allow_methods: GET, PUT, DELETE, POST, OPTIONS
                 allow_headers: keep-alive,user-agent,cache-control,content-type,content-transfer-encoding,x-accept-content-transfer-encoding,x-accept-response-streaming,x-user-agent,x-grpc-web,grpc-timeout,authorization,cookie
                 max_age: "1728000"
