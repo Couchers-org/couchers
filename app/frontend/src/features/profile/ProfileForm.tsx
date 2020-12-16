@@ -120,7 +120,7 @@ export default function EditProfileForm() {
               <ProfileTagInput
                 onChange={(_, value) => onChange(value)}
                 value={value}
-                options={["Australia", "Austria", "Angola"]}
+                options={[]}
                 label="Countries I've Visited"
               />
             )}
@@ -134,7 +134,7 @@ export default function EditProfileForm() {
               <ProfileTagInput
                 onChange={(_, value) => onChange(value)}
                 value={value}
-                options={["Australia", "Austria", "Angola"]}
+                options={[]}
                 label="Countries I've Lived In"
               />
             )}

@@ -200,8 +200,6 @@ export default function ProfileTagInput({
           )}
           disableCloseOnSelect
           disablePortal
-          renderTags={() => null}
-          noOptionsText="No Languages"
           options={options
             .concat(value.filter((item) => options.indexOf(item) < 0))
             .sort((a, b) => -b[0].localeCompare(a[0]))}
