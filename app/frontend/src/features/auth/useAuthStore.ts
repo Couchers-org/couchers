@@ -6,7 +6,7 @@ import {
   UpdateUserProfileData,
 } from "../../service/user";
 
-function usePersistedState<T>(
+export function usePersistedState<T>(
   key: string,
   defaultValue: T
 ): [T, (value: T) => void] {
@@ -33,7 +33,7 @@ export default function useAuthStore() {
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   //useRef provides referential equality between renders
   //(setState functions remain consistent)
   const { current: authActions } = useRef({
@@ -149,13 +149,16 @@ export default function useAuthStore() {
     },
   });
 
-  return {authState: {
-    authenticated,
-    jailed,
-    user,
-    loading,
-    error,
-  }, authActions};
+  return {
+    authState: {
+      authenticated,
+      jailed,
+      user,
+      loading,
+      error,
+    },
+    authActions,
+  };
 }
 
 export type AuthStoreType = ReturnType<typeof useAuthStore>;
