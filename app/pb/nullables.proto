@@ -1,0 +1,6 @@
+syntax = "proto3";
+
+message NullableBoolValue {
+  bool is_null = 1;
+  bool value = 2;
+}
