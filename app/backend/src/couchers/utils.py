@@ -83,11 +83,14 @@ def create_session_cookie(token, expiry):
     cookie["domain"] = config["COOKIE_DOMAIN"]
     # path so that it's accessible for all API requests, otherwise defaults to something like /org.couchers.auth/
     cookie["path"] = "/"
-    # send only on requests from first-party domains
-    # cookie["samesite"] = "Strict"
-    cookie["samesite"] = "None"
-    # only set cookie on HTTPS sites in production
-    cookie["secure"] = True
+    if config["DEV"]:
+        # send only on requests from first-party domains
+        cookie["samesite"] = "Strict"
+    else:
+        # send on all requests, requires Secure
+        cookie["samesite"] = "None"
+        # only set cookie on HTTPS sites in production
+        cookie["secure"] = True
     # not accessible from javascript
     cookie["httponly"] = True
 
