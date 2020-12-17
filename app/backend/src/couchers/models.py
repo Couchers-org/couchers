@@ -3,7 +3,7 @@ from calendar import monthrange
 from datetime import date
 
 from geoalchemy2.types import Geometry
-from sqlalchemy import Boolean, Column, Date, DateTime, Enum, Float, ForeignKey, Integer
+from sqlalchemy import BigInteger, Boolean, Column, Date, DateTime, Enum, Float, ForeignKey, Integer
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import MetaData, String, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
@@ -56,7 +56,7 @@ class User(Base):
 
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(BigInteger, primary_key=True)
 
     username = Column(String, nullable=False, unique=True)
     email = Column(String, nullable=False, unique=True)
@@ -235,10 +235,10 @@ class FriendRelationship(Base):
 
     __tablename__ = "friend_relationships"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(BigInteger, primary_key=True)
 
-    from_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    to_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    from_user_id = Column(BigInteger, ForeignKey("users.id"), nullable=False)
+    to_user_id = Column(BigInteger, ForeignKey("users.id"), nullable=False)
 
     status = Column(Enum(FriendStatus), nullable=False, default=FriendStatus.pending)
 
@@ -280,7 +280,7 @@ class LoginToken(Base):
     __tablename__ = "login_tokens"
     token = Column(String, primary_key=True)
 
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(BigInteger, ForeignKey("users.id"), nullable=False)
 
     # timezones should always be UTC
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
@@ -300,7 +300,7 @@ class PasswordResetToken(Base):
     __tablename__ = "password_reset_tokens"
     token = Column(String, primary_key=True)
 
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(BigInteger, ForeignKey("users.id"), nullable=False)
 
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     expiry = Column(DateTime(timezone=True), nullable=False)
@@ -333,7 +333,7 @@ class UserSession(Base):
     __tablename__ = "sessions"
     token = Column(String, primary_key=True)
 
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(BigInteger, ForeignKey("users.id"), nullable=False)
 
     # whether it's a long-lived or short-lived session
     long_lived = Column(Boolean, nullable=False)
@@ -389,12 +389,12 @@ class Reference(Base):
     __tablename__ = "references"
     __table_args__ = (UniqueConstraint("from_user_id", "to_user_id", "reference_type"),)
 
-    id = Column(Integer, primary_key=True)
+    id = Column(BigInteger, primary_key=True)
     # timezone should always be UTC
     time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
-    from_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    to_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    from_user_id = Column(BigInteger, ForeignKey("users.id"), nullable=False)
+    to_user_id = Column(BigInteger, ForeignKey("users.id"), nullable=False)
 
     reference_type = Column(Enum(ReferenceType), nullable=False)
 
@@ -414,7 +414,7 @@ class Conversation(Base):
 
     __tablename__ = "conversations"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(BigInteger, primary_key=True)
     # timezone should always be UTC
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
@@ -454,7 +454,7 @@ class GroupChatSubscription(Base):
     """
 
     __tablename__ = "group_chat_subscriptions"
-    id = Column(Integer, primary_key=True)
+    id = Column(BigInteger, primary_key=True)
 
     # TODO: DB constraint on only one user+group_chat combo at a given time
     user_id = Column(ForeignKey("users.id"), nullable=False)
@@ -466,7 +466,7 @@ class GroupChatSubscription(Base):
 
     role = Column(Enum(GroupChatRole), nullable=False)
 
-    last_seen_message_id = Column(Integer, nullable=False, default=0)
+    last_seen_message_id = Column(BigInteger, nullable=False, default=0)
 
     user = relationship("User", backref="group_chat_subscriptions")
     group_chat = relationship("GroupChat", backref=backref("subscriptions", lazy="dynamic"))
@@ -521,7 +521,7 @@ class Message(Base):
 
     __tablename__ = "messages"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(BigInteger, primary_key=True)
 
     # which conversation the message belongs in
     conversation_id = Column(ForeignKey("conversations.id"), nullable=False)
@@ -566,13 +566,13 @@ class Complaint(Base):
 
     __tablename__ = "complaints"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(BigInteger, primary_key=True)
 
     # timezone should always be UTC
     time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
-    author_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    reported_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    author_user_id = Column(BigInteger, ForeignKey("users.id"), nullable=False)
+    reported_user_id = Column(BigInteger, ForeignKey("users.id"), nullable=False)
 
     reason = Column(String, nullable=False)
     description = Column(String, nullable=False)
@@ -611,8 +611,8 @@ class HostRequest(Base):
     __tablename__ = "host_requests"
 
     conversation_id = Column("id", ForeignKey("conversations.id"), nullable=False, primary_key=True)
-    from_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    to_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    from_user_id = Column(BigInteger, ForeignKey("users.id"), nullable=False)
+    to_user_id = Column(BigInteger, ForeignKey("users.id"), nullable=False)
 
     # dates as "YYYY-MM-DD", in the timezone of the host
     from_date = Column(String, nullable=False)
@@ -620,8 +620,8 @@ class HostRequest(Base):
 
     status = Column(Enum(HostRequestStatus), nullable=False)
 
-    to_last_seen_message_id = Column(Integer, nullable=False, default=0)
-    from_last_seen_message_id = Column(Integer, nullable=False, default=0)
+    to_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
+    from_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
 
     from_user = relationship("User", backref="host_requests_sent", foreign_keys="HostRequest.from_user_id")
     to_user = relationship("User", backref="host_requests_received", foreign_keys="HostRequest.to_user_id")
