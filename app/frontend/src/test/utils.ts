@@ -1,13 +1,9 @@
 import { createAction } from "@reduxjs/toolkit";
 
 export function addDefaultUser() {
-  store.dispatch({
-    type: "auth/passwordLogin/fulfilled",
-    payload: {
-      token: "9hhiwXCaCzmTM6ZB7rfaJ0yZIlSsXTOQUZagihbcrAw=",
-      user: defaultUser,
-    },
-  });
+  window.localStorage.setItem("auth.authenticated", JSON.stringify(true));
+  window.localStorage.setItem("auth.jailed", JSON.stringify(false));
+  window.localStorage.setItem("auth.user", JSON.stringify(defaultUser));
 }
 
 export const reset = createAction("reset");
