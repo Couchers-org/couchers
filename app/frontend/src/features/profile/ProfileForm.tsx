@@ -1,7 +1,7 @@
 import { makeStyles } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
 import { unwrapResult } from "@reduxjs/toolkit";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import Alert from "../../components/Alert";
 import Button from "../../components/Button";
@@ -12,6 +12,7 @@ import { UpdateUserProfileData } from "../../service/user";
 import { theme } from "../../theme";
 import { useAppDispatch, useTypedSelector } from "../../store";
 import ProfileMarkdownInput from "./ProfileMarkdownInput";
+import EditUserLocationMap from "../../components/EditUserLocationMap";
 
 const useStyles = makeStyles({
   buttonContainer: {
@@ -28,7 +29,23 @@ export default function EditProfileForm() {
     "success" | "error" | undefined
   >();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { control, register, handleSubmit } = useForm<UpdateUserProfileData>();
+  const { control, register, handleSubmit, setValue } = useForm<
+    UpdateUserProfileData
+  >({
+    defaultValues: {
+      city: user?.city ?? undefined,
+      lat: user?.lat ?? undefined,
+      lng: user?.lng ?? undefined,
+      radius: user?.radius ?? undefined,
+    },
+  });
+
+  useEffect(() => {
+    //register here because these don't exist as actual fields
+    register("lat");
+    register("lng");
+    register("radius");
+  }, [register]);
 
   const onSubmit = handleSubmit(async (data: UpdateUserProfileData) => {
     try {
@@ -55,11 +72,21 @@ export default function EditProfileForm() {
             defaultValue={user.name}
             inputRef={register}
           />
-          <ProfileTextInput
-            label="City"
+          <Controller
             name="city"
-            defaultValue={user.city}
-            inputRef={register}
+            control={control}
+            render={({ value, onChange }) => (
+              <EditUserLocationMap
+                user={user}
+                city={value}
+                setCity={(newValue) => onChange(newValue)}
+                setLocation={(location) => {
+                  setValue("lat", location.lat);
+                  setValue("lng", location.lng);
+                  setValue("radius", location.radius);
+                }}
+              />
+            )}
           />
           <ProfileTextInput
             label="Gender"

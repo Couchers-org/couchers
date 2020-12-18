@@ -31,7 +31,6 @@ const Template: Story<EditUserLocationMapProps> = (args) => (
 export const Primary = Template.bind({});
 Primary.args = {
   user,
-  setCity: console.log,
   setLocation: console.log,
   grow: true,
 };
