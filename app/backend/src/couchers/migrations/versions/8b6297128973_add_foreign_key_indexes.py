@@ -1,4 +1,4 @@
-"""Modify the database
+"""Add foreign key indexes
 
 Revision ID: 8b6297128973
 Revises: 34cb1d27d207
