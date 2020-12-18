@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { User } from "../../pb/api_pb";
 import { service, SignupArguments } from "../../service";
 import {
@@ -34,9 +34,7 @@ export default function useAuthStore() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  //useRef provides referential equality between renders
-  //(setState functions remain consistent)
-  const { current: authActions } = useRef({
+  const authActions = {
     clearError() {
       setError(null);
     },
@@ -105,6 +103,9 @@ export default function useAuthStore() {
     async updateJailStatus() {
       setError(null);
       setLoading(true);
+      if (!authenticated) {
+        throw Error("User is not connected.");
+      }
       try {
         const isJailed = (await service.jail.getIsJailed()).isJailed;
         setJailed(isJailed);
@@ -147,7 +148,7 @@ export default function useAuthStore() {
 
       setUser(await service.user.getUser(username));
     },
-  });
+  };
 
   return {
     authState: {

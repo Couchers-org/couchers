@@ -1,9 +1,20 @@
 import { renderHook } from "@testing-library/react-hooks";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { act } from "react-test-renderer";
+import { JailInfoRes } from "../../pb/jail_pb";
 import { service } from "../../service";
 import { addDefaultUser } from "../../test/utils";
 import useAuthStore, { usePersistedState } from "./useAuthStore";
+
+const getUserMock = service.user.getUser as jest.Mock;
+const updateProfileMock = service.user.updateProfile as jest.Mock;
+const updateHostingPreferenceMock = service.user
+  .updateHostingPreference as jest.Mock;
+const passwordLoginMock = service.user.passwordLogin as jest.Mock;
+const tokenLoginMock = service.user.tokenLogin as jest.Mock;
+const signupMock = service.user.completeSignup as jest.Mock;
+const getIsJailedMock = service.jail.getIsJailed as jest.Mock;
+const logoutMock = service.user.logout as jest.Mock;
 
 describe("usePersistedState hook", () => {
   it("uses a default value", () => {
@@ -27,21 +38,57 @@ describe("usePersistedState hook", () => {
 });
 
 describe("useAuthStore hook", () => {
-  it("keeps referential equality of actions between state changes", () => {
-    const render = renderHook(() => useAuthStore());
-    const firstActions = render.result.current.authActions;
-    render.rerender();
-    const secondActions = render.result.current.authActions;
-    expect(firstActions).toBe(secondActions);
+  it("sets and clears an error", async () => {
+    const { result } = renderHook(() => useAuthStore());
+    act(() => result.current.authActions.authError("error1"));
+    expect(result.current.authState.error).toBe("error1");
+    act(() => result.current.authActions.clearError());
+    expect(result.current.authState.error).toBeNull();
+  });
+
+  it("logs out", async () => {
+    logoutMock.mockResolvedValue(new Empty());
+    addDefaultUser();
+    const { result } = renderHook(() => useAuthStore());
+    expect(result.current.authState.authenticated).toBe(true);
+    await act(() => result.current.authActions.logout());
+    expect(result.current.authState.authenticated).toBe(false);
+    expect(result.current.authState.error).toBeNull();
   });
 });
 
-const getUserMock = service.user.getUser as jest.Mock;
-const updateProfileMock = service.user.updateProfile as jest.Mock;
-const updateHostingPreferenceMock = service.user
-  .updateHostingPreference as jest.Mock;
+describe("updateJailStatus action", () => {
+  it("sets jailed to true for jailed user", async () => {
+    getIsJailedMock.mockResolvedValue({ isJailed: true });
+    addDefaultUser();
+    const { result } = renderHook(() => useAuthStore());
+    await act(() => result.current.authActions.updateJailStatus());
+    expect(result.current.authState.jailed).toBe(true);
+    expect(result.current.authState.authenticated).toBe(true);
+  });
+  it("sets jailed to false for non-jailed user", async () => {
+    getIsJailedMock.mockResolvedValue({ isJailed: false });
+    addDefaultUser();
+    const { result } = renderHook(() => useAuthStore());
+    await act(() => result.current.authActions.updateJailStatus());
+    expect(result.current.authState.jailed).toBe(false);
+    expect(result.current.authState.authenticated).toBe(true);
+  });
+  it("throws if not logged in", async () => {
+    logoutMock.mockResolvedValue(new Empty());
+    addDefaultUser();
+    const { result } = renderHook(() => useAuthStore());
+    await act(async () => await result.current.authActions.logout());
+    expect.assertions(1);
+    try {
+      await act(() => result.current.authActions.updateJailStatus());
+    } catch (e) {
+      expect(e).toBeDefined();
+    }
+  });
+});
 
-describe("updateUserProfile thunk", () => {
+describe("updateUserProfile action", () => {
   it("updates the store with the latest user profile info", async () => {
     addDefaultUser();
     const {
@@ -145,7 +192,7 @@ describe("updateUserProfile thunk", () => {
   });
 });
 
-describe("updateHostingPreference thunk", () => {
+describe("updateHostingPreference action", () => {
   const newHostingPreferenceData = {
     multipleGroups: false,
     acceptsKids: false,
