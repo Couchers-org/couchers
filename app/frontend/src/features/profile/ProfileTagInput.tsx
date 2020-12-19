@@ -28,15 +28,19 @@ const useStyles = makeStyles((theme) =>
     },
     button: {
       borderRadius: theme.shape.borderRadius,
-      borderColor: "rgba(0, 0, 0, 0.23)",
-      borderWidth: 1,
-      borderStyle: "solid",
+      boxShadow: `0 0 0 1px rgba(0, 0, 0, 0.23)`,
       padding: "18.5px 14px",
       margin: theme.spacing(1, 0),
       width: "100%",
       fontSize: "16px",
       fontFamily: "inherit",
       justifyContent: "space-between",
+      "&:hover": {
+        boxShadow: `0 0 0 1px ${theme.palette.text.primary}`,
+      },
+      "&:focus": {
+        boxShadow: `0 0 0 2px ${theme.palette.primary.main}`,
+      },
     },
     tag: {
       padding: "0 14px",
@@ -154,7 +158,6 @@ export default function ProfileTagInput({
   return (
     <>
       <ButtonBase
-        disableRipple
         aria-describedby={popperId}
         onClick={handleClick}
         ref={anchorEl}
