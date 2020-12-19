@@ -118,8 +118,8 @@ export default Vue.extend({
       }
     },
 
-    clickedUser({ mapboxEvent }) {
-      const username = mapboxEvent.features[0].properties.username
+    clickedUser(event: any) {
+      const username = event.mapboxEvent.features[0].properties.username
       Router.push({ name: "User", params: { user: username } })
     },
   },
