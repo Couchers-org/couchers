@@ -35,7 +35,7 @@ const useStyles = makeStyles((theme) =>
       margin: theme.spacing(1, 0),
       width: "100%",
       fontSize: "16px",
-      fontFamily: "inherit"
+      fontFamily: "inherit",
       justifyContent: "space-between",
     },
     tag: {
@@ -210,7 +210,7 @@ export default function ProfileTagInput({
           disableCloseOnSelect
           disablePortal
           options={options
-            .concat(value.filter((item) => options.indexOf(item) < 0))
+            .concat(pendingValue.filter((item) => options.indexOf(item) < 0))
             .sort((a, b) => -b[0].localeCompare(a[0]))}
           renderOption={(option, { selected }) => (
             <>
