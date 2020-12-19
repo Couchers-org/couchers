@@ -5,6 +5,7 @@
         :accessToken="accessToken"
         :mapStyle="mapStyle"
         :transformRequest="transformRequest"
+        hash="map"
       >
         <MglScaleControl position="top-right" />
         <MglNavigationControl position="top-left" />
