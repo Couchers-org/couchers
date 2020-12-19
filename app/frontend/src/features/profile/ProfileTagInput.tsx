@@ -125,7 +125,7 @@ export default function ProfileTagInput({
     setValueState(value);
   }, [value]);
 
-  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+  const handleClick = () => {
     setPendingValue(value);
     setOpen(true);
   };
