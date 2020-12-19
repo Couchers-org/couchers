@@ -69,7 +69,8 @@
               :zoom="zoom"
               :center="center"
             >
-              <MglScaleControl />
+              <MglScaleControl position="top-right" />
+              <MglNavigationControl position="top-left" />
               <MglMarker
                 :coordinates="searchedLocation"
                 :draggable="false"
@@ -140,11 +141,12 @@ import "mapbox-gl/dist/mapbox-gl.css"
 
 import Mapbox from "mapbox-gl"
 import {
+  MglGeojsonLayer,
   MglMap,
   MglMarker,
-  MglScaleControl,
-  MglGeojsonLayer,
+  MglNavigationControl,
   MglPopup,
+  MglScaleControl,
 } from "vue-mapbox"
 
 const createGeoJSONCircle = function (
@@ -209,11 +211,12 @@ export default Vue.extend({
   },
 
   components: {
+    MglGeojsonLayer,
     MglMap,
     MglMarker,
-    MglScaleControl,
-    MglGeojsonLayer,
+    MglNavigationControl,
     MglPopup,
+    MglScaleControl,
   },
 
   created() {

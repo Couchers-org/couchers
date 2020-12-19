@@ -6,7 +6,8 @@
         :mapStyle="mapStyle"
         :transformRequest="transformRequest"
       >
-        <MglScaleControl />
+        <MglScaleControl position="top-right" />
+        <MglNavigationControl position="top-left" />
         <MglGeojsonLayer
           sourceId="users"
           :source="usersSource"
@@ -43,11 +44,10 @@ import { URL, ACCESS_TOKEN } from "../api"
 
 import Mapbox from "mapbox-gl"
 import {
-  MglMap,
-  MglMarker,
-  MglScaleControl,
   MglGeojsonLayer,
-  MglPopup,
+  MglMap,
+  MglNavigationControl,
+  MglScaleControl,
 } from "vue-mapbox"
 
 export default Vue.extend({
@@ -103,9 +103,10 @@ export default Vue.extend({
   }),
 
   components: {
-    MglMap,
-    MglScaleControl,
     MglGeojsonLayer,
+    MglMap,
+    MglNavigationControl,
+    MglScaleControl,
   },
 
   methods: {
