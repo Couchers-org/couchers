@@ -9,6 +9,19 @@
     <v-dialog v-model="dialog">
       <v-card>
         <v-card-title class="headline">Update your location</v-card-title>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            class="mx-2 my-2"
+            v-on:click="saveLocation"
+            color="success"
+            :loading="savingLocation"
+            >Save</v-btn
+          >
+          <v-btn class="mx-2 my-2" v-on:click="cancel" color="warning"
+            >Cancel</v-btn
+          >
+        </v-card-actions>
         <v-card-text>
           <h2>Step 1: search for your location</h2>
           <v-text-field
@@ -25,27 +38,25 @@
             >Search</v-btn
           >
 
-          <v-card>
-            <v-list dense>
-              <v-list-item-group color="primary" v-model="selectedOsmResponse">
-                <v-list-item
-                  v-for="(result, index) in osmResponses"
-                  :key="index"
-                >
-                  <v-list-item-content>
-                    <v-list-item-title>{{
-                      result.display_name
-                    }}</v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-                <v-list-item v-if="!osmResponses.length">
-                  <v-list-item-content>
-                    <v-list-item-title>No results.</v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-              </v-list-item-group>
-            </v-list>
-          </v-card>
+          <v-list dense>
+            <v-list-item-group color="primary" v-model="selectedOsmResponse">
+              <v-list-item v-for="(result, index) in osmResponses" :key="index">
+                <v-list-item-content>
+                  <v-list-item-title>{{
+                    result.display_name
+                  }}</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item v-if="!osmResponses.length">
+                <v-list-item-content>
+                  <v-list-item-title
+                    >No results yet. Click "Search" to search for
+                    addresses.</v-list-item-title
+                  >
+                </v-list-item-content>
+              </v-list-item>
+            </v-list-item-group>
+          </v-list>
 
           <h2>Step 2: customize how your location is displayed</h2>
 
@@ -71,7 +82,7 @@
             >
               <MglScaleControl position="top-right" />
               <MglNavigationControl position="top-left" />
-              <MglMarker
+              <!-- <MglMarker
                 :coordinates="searchedLocation"
                 :draggable="false"
                 :visible="decorationsVisible"
@@ -80,7 +91,7 @@
                 <MglPopup>
                   <div>Searched location</div>
                 </MglPopup>
-              </MglMarker>
+              </MglMarker> -->
               <MglMarker
                 :coordinates.sync="displayLocation"
                 :draggable="true"
@@ -112,19 +123,6 @@
             display address.
           </p>
         </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn
-            class="mx-2 my-2"
-            v-on:click="saveLocation"
-            color="success"
-            :loading="savingLocation"
-            >Save</v-btn
-          >
-          <v-btn class="mx-2 my-2" v-on:click="cancel" color="warning"
-            >Cancel</v-btn
-          >
-        </v-card-actions>
       </v-card>
     </v-dialog>
   </div>
@@ -244,7 +242,7 @@ export default Vue.extend({
     // whether to show markers/etc on map
     decorationsVisible: true,
 
-    zoom: 15,
+    zoom: 14,
     center: [0, 0],
     url: process.env.VUE_APP_TILE_URL,
     attribution: process.env.VUE_APP_TILE_ATTRIBUTION,
@@ -275,7 +273,6 @@ export default Vue.extend({
       if (to !== undefined && to !== null) {
         const selected = this.osmResponses[to] as any
 
-        this.center = [selected.lon, selected.lat]
         this.searchedLocation = [selected.lon, selected.lat]
         // give them a random location within random angle and distance randomly between 50m - 500m from current location
         // this is not truely uniformly random in the circle, but close enough
@@ -291,6 +288,9 @@ export default Vue.extend({
           parseFloat(selected.lon) + lonOffset,
           parseFloat(selected.lat) + latOffset,
         ]
+
+        this.zoom = 14
+        this.center = this.displayLocation
 
         const nominatimId = selected.osm_type[0].toUpperCase() + selected.osm_id
 
