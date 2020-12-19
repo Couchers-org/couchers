@@ -1,7 +1,11 @@
 <template>
   <v-main>
     <div class="mx-0 my-0" style="width: 100%; height: 100%">
-      <MglMap :accessToken="accessToken" :mapStyle="mapStyle">
+      <MglMap
+        :accessToken="accessToken"
+        :mapStyle="mapStyle"
+        :transformRequest="transformRequest"
+      >
         <MglScaleControl />
         <MglGeojsonLayer
           sourceId="users"
@@ -103,12 +107,15 @@ export default Vue.extend({
     MglGeojsonLayer,
   },
 
-  created() {
-    //
-  },
-
   methods: {
-    //
+    transformRequest(url: string, resourceType: string) {
+      if (url.startsWith(URL)) {
+        return {
+          url: url,
+          credentials: "include",
+        }
+      }
+    },
   },
 })
 </script>
