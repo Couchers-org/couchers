@@ -18,7 +18,7 @@ const useStyles = makeStyles({
 
 export default function UsernameForm() {
   const classes = useStyles();
-  const {authState, authActions} = useAuthContext();
+  const { authState, authActions } = useAuthContext();
   const authLoading = authState.loading;
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);

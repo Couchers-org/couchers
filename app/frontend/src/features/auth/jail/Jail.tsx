@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
 export default function Jail() {
   const classes = useStyles(makeStyles);
 
-  const {authState, authActions} = useAuthContext();
+  const { authState, authActions } = useAuthContext();
   const isJailed = authState.jailed;
   const authError = authState.error;
   const authLoading = authState.loading;

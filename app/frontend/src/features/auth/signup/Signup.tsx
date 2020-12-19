@@ -8,7 +8,7 @@ import CompleteSignupForm from "./CompleteSignupForm";
 import EmailForm from "./EmailForm";
 
 export default function Signup() {
-  const {authState} = useAuthContext();
+  const { authState } = useAuthContext();
   const authenticated = authState.authenticated;
   const error = authState.error;
 

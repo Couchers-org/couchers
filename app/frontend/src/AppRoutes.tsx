@@ -76,7 +76,7 @@ export default function AppRoutes() {
 }
 
 const PrivateRoute = ({ children, ...otherProps }: RouteProps) => {
-  const {authState, authActions} = useAuthContext();
+  const { authState, authActions } = useAuthContext();
   const isAuthenticated = authState.authenticated;
   const isJailed = authState.jailed;
   useEffect(() => {

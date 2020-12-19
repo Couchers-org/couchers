@@ -21,7 +21,7 @@ const useStyles = makeStyles({
 
 export default function EditProfileForm() {
   const classes = useStyles();
-  const {authState, authActions} = useAuthContext();
+  const { authState, authActions } = useAuthContext();
   const user = authState.user;
   const [alertState, setShowAlertState] = useState<
     "success" | "error" | undefined

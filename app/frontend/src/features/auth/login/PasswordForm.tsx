@@ -7,7 +7,7 @@ import TextField from "../../../components/TextField";
 import { useAuthContext } from "../AuthProvider";
 
 export default function PasswordForm() {
-  const {authState, authActions} = useAuthContext();
+  const { authState, authActions } = useAuthContext();
   const authLoading = authState.loading;
 
   const { handleSubmit, register } = useForm<{ password: string }>();

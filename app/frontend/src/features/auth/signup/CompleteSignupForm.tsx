@@ -28,7 +28,7 @@ type SignupInputs = {
 };
 
 export default function CompleteSignup() {
-  const {authState, authActions} = useAuthContext();
+  const { authState, authActions } = useAuthContext();
   const authLoading = authState.loading;
 
   const {

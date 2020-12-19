@@ -14,7 +14,7 @@ import PasswordForm from "./PasswordForm";
 import UsernameForm from "./UsernameForm";
 
 export default function Login() {
-  const {authState, authActions} = useAuthContext();
+  const { authState, authActions } = useAuthContext();
   const authenticated = authState.authenticated;
   const error = authState.error;
 

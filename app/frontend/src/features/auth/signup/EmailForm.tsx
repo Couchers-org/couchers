@@ -8,7 +8,7 @@ import { service } from "../../../service";
 import { useAuthContext } from "../AuthProvider";
 
 export default function EmailForm() {
-  const {authActions} = useAuthContext();
+  const { authActions } = useAuthContext();
 
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
