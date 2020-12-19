@@ -175,9 +175,10 @@ class User(Base):
 
     @property
     def avatar_url(self):
-        # TODO(aapeli): don't hardcode
-        filename = self.avatar_filename or "default.jpg"
-        return f"{config['MEDIA_SERVER_BASE_URL']}/img/avatar/{filename}"
+        if self.avatar_filename:
+            return f"{config['MEDIA_SERVER_BASE_URL']}/img/avatar/{self.avatar_filename}"
+        else:
+            return ""
 
     def mutual_friends(self, target_id):
         if target_id == self.id:
