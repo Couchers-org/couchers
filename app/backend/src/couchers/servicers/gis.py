@@ -4,7 +4,7 @@ import logging
 import grpc
 
 from couchers.db import session_scope
-from pb import gis_pb2, gis_pb2_grpc
+from pb import gis_pb2_grpc
 from pb.google.api import httpbody_pb2
 
 logger = logging.getLogger(__name__)
@@ -25,5 +25,6 @@ class GIS(gis_pb2_grpc.GISServicer):
 
             return httpbody_pb2.HttpBody(
                 content_type="application/json",
-                data=json.dumps(out.scalar()).encode("utf8"),
+                # json.dumps escapes non-ascii characters
+                data=json.dumps(out.scalar()).encode("ascii"),
             )
