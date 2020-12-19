@@ -39,7 +39,7 @@ static_resources:
               # json transcoded stuff
               - match: { prefix: "/org.couchers.json" }
                 route:
-                  cluster: open_service # TODO: couchers_service
+                  cluster: couchers_service
                   max_grpc_timeout: 0s
               cors:
                 allow_origin_string_match:

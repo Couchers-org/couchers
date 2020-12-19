@@ -77,8 +77,6 @@ open_server = grpc.server(
 open_server.add_insecure_port("[::]:1752")
 auth_pb2_grpc.add_AuthServicer_to_server(auth, open_server)
 bugs_pb2_grpc.add_BugsServicer_to_server(Bugs(), open_server)
-# TODO: secure server
-gis_pb2_grpc.add_GISServicer_to_server(GIS(), open_server)
 open_server.start()
 
 jailed_server = grpc.server(
@@ -103,6 +101,7 @@ server.add_insecure_port("[::]:1751")
 account_pb2_grpc.add_AccountServicer_to_server(Account(), server)
 api_pb2_grpc.add_APIServicer_to_server(servicer, server)
 conversations_pb2_grpc.add_ConversationsServicer_to_server(Conversations(), server)
+gis_pb2_grpc.add_GISServicer_to_server(GIS(), server)
 requests_pb2_grpc.add_RequestsServicer_to_server(Requests(), server)
 sso_pb2_grpc.add_SSOServicer_to_server(SSO(), server)
 
