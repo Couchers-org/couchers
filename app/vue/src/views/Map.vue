@@ -24,6 +24,7 @@
           :source="usersSource"
           layerId="unclustered-points"
           :layer="unclusteredPointLayer"
+          @click="clickedUser"
         />
       </MglMap>
     </div>
@@ -115,6 +116,11 @@ export default Vue.extend({
           credentials: "include",
         }
       }
+    },
+
+    clickedUser({ mapboxEvent }) {
+      const username = mapboxEvent.features[0].properties.username
+      Router.push({ name: "User", params: { user: username } })
     },
   },
 })
