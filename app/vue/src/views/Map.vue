@@ -1,7 +1,6 @@
 <template>
   <v-main>
-    <div class="mx-0" style="width: 100%; height: 100%">
-      <error-alert :error="error" />
+    <div class="mx-0 my-0" style="width: 100%; height: 100%">
       <MglMap :accessToken="accessToken" :mapStyle="mapStyle">
         <MglScaleControl />
         <MglGeojsonLayer
@@ -32,7 +31,6 @@ import Vue from "vue"
 
 import Store from "../store"
 import Router from "../router"
-import ErrorAlert from "../components/ErrorAlert.vue"
 
 import "mapbox-gl/dist/mapbox-gl.css"
 
@@ -103,7 +101,6 @@ export default Vue.extend({
     MglMap,
     MglScaleControl,
     MglGeojsonLayer,
-    ErrorAlert,
   },
 
   created() {
