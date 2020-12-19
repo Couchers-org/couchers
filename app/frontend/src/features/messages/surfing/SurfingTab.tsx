@@ -3,11 +3,11 @@ import { makeStyles } from "@material-ui/core/styles";
 import { unwrapResult } from "@reduxjs/toolkit";
 import * as React from "react";
 import { useEffect, useState } from "react";
-import { useDispatch, useStore } from "react-redux";
 import Alert from "../../../components/Alert";
 import CircularProgress from "../../../components/CircularProgress";
 import { GroupChat } from "../../../pb/conversations_pb";
 import { HostRequest } from "../../../pb/requests_pb";
+import { useAppDispatch, useTypedSelector } from "../../../store";
 import HostRequestList from "./HostRequestList";
 import { fetchHostRequests } from "./hostRequestsActions";
 import HostRequestView from "./HostRequestView";
@@ -24,7 +24,7 @@ export default function SurfingTab() {
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   useEffect(() => {
     setError("");
     (async () => {
@@ -39,8 +39,10 @@ export default function SurfingTab() {
       setLoading(false);
     })();
   }, [dispatch]);
-  const store = useStore();
-  const hostRequests = store.getState().hostRequests.hostRequests;
+  const hostRequests = useTypedSelector(
+    (state) => state.hostRequests.hostRequests
+  );
+  console.log(hostRequests);
 
   const classes = useStyles();
   return (
@@ -53,10 +55,12 @@ export default function SurfingTab() {
           {loading ? (
             <CircularProgress />
           ) : (
-            <HostRequestList
-              hostRequests={hostRequests}
-              setHostRequest={setHostRequest}
-            />
+            hostRequests && (
+              <HostRequestList
+                hostRequests={hostRequests}
+                setHostRequest={setHostRequest}
+              />
+            )
           )}
         </>
       )}

@@ -15,7 +15,11 @@ export function usePersistedState<T>(
     saved !== null ? JSON.parse(saved) : defaultValue
   );
   const setState = (value: T) => {
-    window.localStorage.setItem(key, JSON.stringify(value));
+    if (value === undefined) {
+      console.warn(`${key} can't be stored as undefined, casting to null.`);
+    }
+    const v = value === undefined ? null : value;
+    window.localStorage.setItem(key, JSON.stringify(v));
     _setState(value);
   };
   return [_state, setState];

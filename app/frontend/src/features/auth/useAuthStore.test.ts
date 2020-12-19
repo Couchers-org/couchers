@@ -1,12 +1,13 @@
 import { renderHook } from "@testing-library/react-hooks";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { StatusCode } from "grpc-web";
 import { act } from "react-test-renderer";
-import { JailInfoRes } from "../../pb/jail_pb";
-import { service } from "../../service";
+import { service, SignupArguments } from "../../service";
 import { addDefaultUser } from "../../test/utils";
 import useAuthStore, { usePersistedState } from "./useAuthStore";
 
 const getUserMock = service.user.getUser as jest.Mock;
+const getCurrentUserMock = service.user.getCurrentUser as jest.Mock;
 const updateProfileMock = service.user.updateProfile as jest.Mock;
 const updateHostingPreferenceMock = service.user
   .updateHostingPreference as jest.Mock;
@@ -54,6 +55,86 @@ describe("useAuthStore hook", () => {
     await act(() => result.current.authActions.logout());
     expect(result.current.authState.authenticated).toBe(false);
     expect(result.current.authState.error).toBeNull();
+  });
+});
+
+describe("passwordLogin action", () => {
+  it("sets authenticated correctly", async () => {
+    passwordLoginMock.mockResolvedValue({ jailed: false });
+    getUserMock.mockResolvedValue(null);
+    const { result } = renderHook(() => useAuthStore());
+    expect(result.current.authState.authenticated).toBe(false);
+    await act(() =>
+      result.current.authActions.passwordLogin({
+        username: "user",
+        password: "pass",
+      })
+    );
+    expect(result.current.authState.authenticated).toBe(true);
+  });
+  it("sets error correctly for login fail", async () => {
+    passwordLoginMock.mockRejectedValue({
+      code: StatusCode.PERMISSION_DENIED,
+      message: "Invalid username or password.",
+    });
+    const { result } = renderHook(() => useAuthStore());
+    expect(result.current.authState.authenticated).toBe(false);
+    await act(() =>
+      result.current.authActions.passwordLogin({
+        username: "user",
+        password: "pass",
+      })
+    );
+    expect(result.current.authState.authenticated).toBe(false);
+    expect(result.current.authState.error).toBe(
+      "Invalid username or password."
+    );
+  });
+});
+
+describe("tokenLogin action", () => {
+  it("sets authenticated correctly", async () => {
+    tokenLoginMock.mockResolvedValue({ jailed: false });
+    getCurrentUserMock.mockResolvedValue(null);
+    const { result } = renderHook(() => useAuthStore());
+    expect(result.current.authState.authenticated).toBe(false);
+    await act(() => result.current.authActions.tokenLogin("token"));
+    expect(result.current.authState.authenticated).toBe(true);
+  });
+  it("sets error correctly for login fail", async () => {
+    tokenLoginMock.mockRejectedValue({
+      code: StatusCode.PERMISSION_DENIED,
+      message: "Invalid token.",
+    });
+    const { result } = renderHook(() => useAuthStore());
+    expect(result.current.authState.authenticated).toBe(false);
+    await act(() => result.current.authActions.tokenLogin("token"));
+    expect(result.current.authState.authenticated).toBe(false);
+    expect(result.current.authState.error).toBe("Invalid token.");
+  });
+});
+
+describe("signup action", () => {
+  //not testing for the user itself, as that is handled by getUser
+  //and getCurrentUser
+  it("sets authenticated correctly", async () => {
+    signupMock.mockResolvedValue({ jailed: false });
+    getCurrentUserMock.mockResolvedValue(null);
+    const { result } = renderHook(() => useAuthStore());
+    expect(result.current.authState.authenticated).toBe(false);
+    await act(() => result.current.authActions.signup({} as SignupArguments));
+    expect(result.current.authState.authenticated).toBe(true);
+  });
+  it("sets error correctly for login fail", async () => {
+    signupMock.mockRejectedValue({
+      code: StatusCode.PERMISSION_DENIED,
+      message: "Invalid token.",
+    });
+    const { result } = renderHook(() => useAuthStore());
+    expect(result.current.authState.authenticated).toBe(false);
+    await act(() => result.current.authActions.signup({} as SignupArguments));
+    expect(result.current.authState.authenticated).toBe(false);
+    expect(result.current.authState.error).toBe("Invalid token.");
   });
 });
 

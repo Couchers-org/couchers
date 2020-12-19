@@ -6,6 +6,7 @@ import { store } from "../../store";
 
 import Messages from "./index";
 import MessageView, { MessageProps } from "./messagelist/Message";
+import AuthProvider from "../auth/AuthProvider";
 
 const [message1] = messages;
 
@@ -15,7 +16,11 @@ export default {
   argTypes: {},
   decorators: [
     (storyFn) => {
-      return <Provider store={store}>{storyFn()}</Provider>;
+      return (
+        <AuthProvider>
+          <Provider store={store}>{storyFn()}</Provider>
+        </AuthProvider>
+      );
     },
   ],
 } as Meta;

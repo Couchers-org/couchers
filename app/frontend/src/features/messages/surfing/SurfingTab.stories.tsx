@@ -10,6 +10,7 @@ import { Message } from "../../../pb/conversations_pb";
 import { HostRequest } from "../../../pb/requests_pb";
 import rootReducer from "../../../reducers";
 import SurfingTab from "./SurfingTab";
+import AuthProvider from "../../auth/AuthProvider";
 
 const message1: Message.AsObject = {
   messageId: 1,
@@ -74,7 +75,11 @@ export default {
   decorators: [
     (storyFn) => {
       resetStore();
-      return <Provider store={store}>{storyFn()}</Provider>;
+      return (
+        <AuthProvider>
+          <Provider store={store}>{storyFn()}</Provider>
+        </AuthProvider>
+      );
     },
   ],
 } as Meta;

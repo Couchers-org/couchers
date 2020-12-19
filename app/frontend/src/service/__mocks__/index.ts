@@ -1,5 +1,6 @@
 import { service as originalService } from "..";
 import { User } from "../../pb/api_pb";
+import { HostRequestStatus } from "../../pb/conversations_pb";
 import funnycat from "../../stories/assets/funnycat.jpg";
 import funnydog from "../../stories/assets/funnydog.jpg";
 import funnykid from "../../stories/assets/funnykid.jpg";
@@ -50,6 +51,22 @@ export const mockedService = ({
         },
       ]),
     getGroupChatMessages: () => Promise.resolve(messages),
+  },
+  requests: {
+    listHostRequests: () =>
+      Promise.resolve([
+        {
+          hostRequestId: 1,
+          fromUserId: 1,
+          toUserId: 2,
+          status: HostRequestStatus.HOST_REQUEST_STATUS_PENDING,
+          created: { seconds: Date.now() / 1000, nanos: 0 },
+          fromDate: "2020/12/01",
+          toDate: "2020/12/06",
+          lastSeenMessageId: 0,
+          latestMessage: messages[0],
+        },
+      ]),
   },
 } as unknown) as typeof originalService;
 
