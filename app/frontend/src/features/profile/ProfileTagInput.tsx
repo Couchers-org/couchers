@@ -35,6 +35,7 @@ const useStyles = makeStyles((theme) =>
       margin: theme.spacing(1, 0),
       width: "100%",
       fontSize: "16px",
+      fontFamily: "inherit"
       justifyContent: "space-between",
     },
     tag: {
