@@ -1,4 +1,4 @@
-"""Modify the database
+"""Change ids to signed 64bit
 
 Revision ID: 34cb1d27d207
 Revises: f85e551b9334
