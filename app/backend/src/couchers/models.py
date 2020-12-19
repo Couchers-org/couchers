@@ -178,7 +178,7 @@ class User(Base):
         if self.avatar_filename:
             return f"{config['MEDIA_SERVER_BASE_URL']}/img/avatar/{self.avatar_filename}"
         else:
-            return ""
+            return None
 
     def mutual_friends(self, target_id):
         if target_id == self.id:
