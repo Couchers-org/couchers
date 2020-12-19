@@ -132,7 +132,7 @@
 <script lang="ts">
 import Vue, { PropType } from "vue"
 
-import { nominatimURL, ACCESS_TOKEN } from "../api"
+import { NOMINATIM_URL, ACCESS_TOKEN } from "../api"
 
 import axios from "axios"
 
@@ -293,7 +293,7 @@ export default Vue.extend({
 
         this.loadingDisplayAddress = true
         const res = await axios.get(
-          nominatimURL +
+          NOMINATIM_URL +
             "lookup?format=jsonv2&osm_ids=" +
             encodeURIComponent(nominatimId)
         )
@@ -335,7 +335,7 @@ export default Vue.extend({
     async searchAddress() {
       this.loadingAddressQuery = true
       const res = await axios.get(
-        nominatimURL +
+        NOMINATIM_URL +
           "search?format=jsonv2&q=" +
           encodeURIComponent(this.addressQuery)
       )

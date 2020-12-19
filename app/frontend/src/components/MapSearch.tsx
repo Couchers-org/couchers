@@ -5,7 +5,7 @@ import React, { useState } from "react";
 import Autocomplete from "./Autocomplete";
 import { SearchIcon } from "./Icons";
 
-const nominatimURL = process.env.REACT_APP_NOMINATIM_URL;
+const NOMINATIM_URL = process.env.REACT_APP_NOMINATIM_URL;
 
 const useSearchStyles = makeStyles((theme) => ({
   root: {
@@ -68,7 +68,7 @@ export default function MapSearch({
     }
     setSearchOptionsLoading(true);
     const url =
-      nominatimURL! + "search?format=jsonv2&q=" + encodeURIComponent(value);
+      NOMINATIM_URL! + "search?format=jsonv2&q=" + encodeURIComponent(value);
     const options = {
       method: "GET",
       headers: {
