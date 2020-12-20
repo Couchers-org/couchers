@@ -666,7 +666,7 @@ class Node(Base):
     id = Column(BigInteger, primary_key=True)
 
     name = Column(String, nullable=False)
-    parent_node_id = Column(ForeignKey("nodes.id"), index=True)
+    parent_node_id = Column(ForeignKey("nodes.id"), nullable=True, index=True)
     geom = Column(Geometry(geometry_type="POLYGON", srid=4326), nullable=False)
     official_cluster_id = Column(ForeignKey("clusters.id"), nullable=False, unique=True, index=True)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
@@ -718,7 +718,7 @@ class ClusterSubscription(Base):
     cluster_id = Column(ForeignKey("clusters.id"), nullable=False, index=True)
     role = Column(Enum(GroupRole), nullable=False)
     joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    left = Column(DateTime(timezone=True))
+    left = Column(DateTime(timezone=True), nullable=True)
 
 
 class ClusterPageAssociation(Base):
@@ -754,8 +754,8 @@ class Page(Base):
     type = Column(Enum(PageType), nullable=False)
     thread_id = Column(ForeignKey("threads.id"), nullable=False, unique=True, index=True)
     creator_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    owner_user_id = Column(ForeignKey("users.id"), index=True)
-    owner_cluster_id = Column(ForeignKey("clusters.id"), unique=True, index=True)
+    owner_user_id = Column(ForeignKey("users.id"), nullable=True, index=True)
+    owner_cluster_id = Column(ForeignKey("clusters.id"), nullable=True, unique=True, index=True)
 
     # Only one of owner_user and owner_cluster should be set
     CheckConstraint(
@@ -777,7 +777,7 @@ class PageVersion(Base):
     editor_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     title = Column(String, nullable=False)
     content = Column(String, nullable=False)
-    geom = Column(Geometry(geometry_type="POINT", srid=4326))
+    geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
 
@@ -874,7 +874,7 @@ class DiscussionSubscription(Base):
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     discussion_id = Column(ForeignKey("discussions.id"), nullable=False, index=True)
     joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    left = Column(DateTime(timezone=True))
+    left = Column(DateTime(timezone=True), nullable=True)
 
 
 class Thread(Base):
@@ -888,7 +888,7 @@ class Thread(Base):
 
     title = Column(String, nullable=False)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    deleted = Column(DateTime(timezone=True))
+    deleted = Column(DateTime(timezone=True), nullable=True)
 
 
 class Comment(Base):
@@ -903,7 +903,7 @@ class Comment(Base):
     thread_id = Column(ForeignKey("threads.id"), nullable=False, index=True)
     content = Column(String, nullable=False)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    deleted = Column(DateTime(timezone=True))
+    deleted = Column(DateTime(timezone=True), nullable=True)
 
 
 class Reply(Base):
@@ -918,4 +918,4 @@ class Reply(Base):
     comment_id = Column(ForeignKey("comments.id"), nullable=False, index=True)
     content = Column(String, nullable=False)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    deleted = Column(DateTime(timezone=True))
+    deleted = Column(DateTime(timezone=True), nullable=True)
