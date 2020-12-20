@@ -17,14 +17,16 @@ function useAppContext<T>(context: Context<T | null>) {
 export default function AuthProvider({ children }: { children: ReactChild }) {
   const store = useAuthStore();
 
-  const history = useHistory();
+  const push = useHistory().push;
 
-  useEffect(() =>
-    setUnauthenticatedErrorHandler(() => {
-      store.authActions.logout();
-      store.authActions.authError("You were logged out.");
-      history.push(loginRoute);
-    })
+  useEffect(
+    () =>
+      setUnauthenticatedErrorHandler(() => {
+        store.authActions.logout();
+        store.authActions.authError("You were logged out.");
+        push(loginRoute);
+      }),
+    [push, store.authActions]
   );
 
   return <AuthContext.Provider value={store}>{children}</AuthContext.Provider>;
