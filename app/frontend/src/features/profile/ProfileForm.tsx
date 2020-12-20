@@ -65,13 +65,15 @@ export default function EditProfileForm() {
         <Alert severity={alertState}>{errorMessage}</Alert>
       ) : null}
       {user && (
-        <form onSubmit={onSubmit}>
-          <ProfileTextInput
-            label="Name"
-            name="name"
-            defaultValue={user.name}
-            inputRef={register}
-          />
+        <>
+          <form onSubmit={onSubmit}>
+            <ProfileTextInput
+              label="Name"
+              name="name"
+              defaultValue={user.name}
+              inputRef={register}
+            />
+          </form>
           <Controller
             name="city"
             control={control}
@@ -88,124 +90,126 @@ export default function EditProfileForm() {
               />
             )}
           />
-          <ProfileTextInput
-            label="Gender"
-            name="gender"
-            defaultValue={user.gender}
-            inputRef={register}
-          />
-          <ProfileTextInput
-            label="Occupation"
-            name="occupation"
-            defaultValue={user.occupation}
-            inputRef={register}
-          />
-          <Controller
-            control={control}
-            defaultValue={user.languagesList}
-            name="languages"
-            render={({ onChange }) => (
-              <Autocomplete
-                defaultValue={user.languagesList}
-                disableClearable={false}
-                freeSolo
-                multiple
-                onChange={(_, value) => onChange(value)}
-                open={false}
-                options={[""]}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    helperText="Press 'Enter' to add"
-                    label="Languages"
-                  />
-                )}
-              />
-            )}
-          />
+          <form onSubmit={onSubmit}>
+            <ProfileTextInput
+              label="Gender"
+              name="gender"
+              defaultValue={user.gender}
+              inputRef={register}
+            />
+            <ProfileTextInput
+              label="Occupation"
+              name="occupation"
+              defaultValue={user.occupation}
+              inputRef={register}
+            />
+            <Controller
+              control={control}
+              defaultValue={user.languagesList}
+              name="languages"
+              render={({ onChange }) => (
+                <Autocomplete
+                  defaultValue={user.languagesList}
+                  disableClearable={false}
+                  freeSolo
+                  multiple
+                  onChange={(_, value) => onChange(value)}
+                  open={false}
+                  options={[""]}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      helperText="Press 'Enter' to add"
+                      label="Languages"
+                    />
+                  )}
+                />
+              )}
+            />
 
-          <Controller
-            control={control}
-            defaultValue={user.aboutMe}
-            name="aboutMe"
-            render={({ onChange, value }) => (
-              <ProfileMarkdownInput
-                label="About me"
-                onChange={onChange}
-                value={value}
-              />
-            )}
-          />
-          <Controller
-            control={control}
-            defaultValue={user.aboutPlace}
-            name="aboutPlace"
-            render={({ onChange, value }) => (
-              <ProfileMarkdownInput
-                label="About my place"
-                onChange={onChange}
-                value={value}
-              />
-            )}
-          />
+            <Controller
+              control={control}
+              defaultValue={user.aboutMe}
+              name="aboutMe"
+              render={({ onChange, value }) => (
+                <ProfileMarkdownInput
+                  label="About me"
+                  onChange={onChange}
+                  value={value}
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              defaultValue={user.aboutPlace}
+              name="aboutPlace"
+              render={({ onChange, value }) => (
+                <ProfileMarkdownInput
+                  label="About my place"
+                  onChange={onChange}
+                  value={value}
+                />
+              )}
+            />
 
-          <Controller
-            control={control}
-            defaultValue={user.countriesVisitedList}
-            name="countriesVisited"
-            render={({ onChange }) => (
-              <Autocomplete
-                defaultValue={user.countriesVisitedList}
-                disableClearable={false}
-                freeSolo
-                multiple
-                onChange={(_, value) => onChange(value)}
-                open={false}
-                options={[""]}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    helperText="Press 'Enter' to add"
-                    label="Countries I visited"
-                  />
-                )}
-              />
-            )}
-          />
-          <Controller
-            control={control}
-            defaultValue={user.countriesLivedList}
-            name="countriesLived"
-            render={({ onChange }) => (
-              <Autocomplete
-                defaultValue={user.countriesLivedList}
-                disableClearable={false}
-                freeSolo
-                multiple
-                onChange={(_, value) => onChange(value)}
-                open={false}
-                options={[""]}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    helperText="Press 'Enter' to add"
-                    label="Countries I lived in"
-                  />
-                )}
-              />
-            )}
-          />
-          <div className={classes.buttonContainer}>
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              onClick={onSubmit}
-            >
-              Save
-            </Button>
-          </div>
-        </form>
+            <Controller
+              control={control}
+              defaultValue={user.countriesVisitedList}
+              name="countriesVisited"
+              render={({ onChange }) => (
+                <Autocomplete
+                  defaultValue={user.countriesVisitedList}
+                  disableClearable={false}
+                  freeSolo
+                  multiple
+                  onChange={(_, value) => onChange(value)}
+                  open={false}
+                  options={[""]}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      helperText="Press 'Enter' to add"
+                      label="Countries I visited"
+                    />
+                  )}
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              defaultValue={user.countriesLivedList}
+              name="countriesLived"
+              render={({ onChange }) => (
+                <Autocomplete
+                  defaultValue={user.countriesLivedList}
+                  disableClearable={false}
+                  freeSolo
+                  multiple
+                  onChange={(_, value) => onChange(value)}
+                  open={false}
+                  options={[""]}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      helperText="Press 'Enter' to add"
+                      label="Countries I lived in"
+                    />
+                  )}
+                />
+              )}
+            />
+            <div className={classes.buttonContainer}>
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                onClick={onSubmit}
+              >
+                Save
+              </Button>
+            </div>
+          </form>
+        </>
       )}
     </>
   );
