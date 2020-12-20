@@ -36,6 +36,11 @@ static_resources:
                 route:
                   cluster: couchers_service
                   max_grpc_timeout: 0s
+              # json transcoded stuff
+              - match: { prefix: "/org.couchers.json" }
+                route:
+                  cluster: couchers_service
+                  max_grpc_timeout: 0s
               cors:
                 allow_origin_string_match:
                 # main site
@@ -55,6 +60,16 @@ static_resources:
                 expose_headers: grpc-status,grpc-message,set-cookie
           http_filters:
           - name: envoy.filters.http.grpc_web
+          - name: envoy.filters.http.grpc_json_transcoder
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.filters.http.grpc_json_transcoder.v3.GrpcJsonTranscoder
+              proto_descriptor: "/tmp/envoy/protos.pb"
+              services: ["org.couchers.json.GIS"]
+              print_options:
+                add_whitespace: true
+                always_print_primitive_fields: true
+                always_print_enums_as_ints: false
+                preserve_proto_field_names: false
           - name: envoy.filters.http.cors
           - name: envoy.filters.http.router
   clusters:
