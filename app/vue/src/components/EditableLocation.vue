@@ -123,6 +123,19 @@
             display address.
           </p>
         </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            class="mx-2 my-2"
+            v-on:click="saveLocation"
+            color="success"
+            :loading="savingLocation"
+            >Save</v-btn
+          >
+          <v-btn class="mx-2 my-2" v-on:click="cancel" color="warning"
+            >Cancel</v-btn
+          >
+        </v-card-actions>
       </v-card>
     </v-dialog>
   </div>
