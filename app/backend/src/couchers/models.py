@@ -129,11 +129,6 @@ class User(Base):
     new_email_token_created = Column(DateTime(timezone=True), nullable=True)
     new_email_token_expiry = Column(DateTime(timezone=True), nullable=True)
 
-    editing_pages = relationship("Page", backref="editors", secondary="page_versions")
-    clusters = relationship("Cluster", backref="subscribers", secondary="cluster_subscriptions")
-    events = relationship("Event", backref="subscribers", secondary="event_subscriptions")
-    discussions = relationship("Discussion", backref="subscribers", secondary="discussion_subscriptions")
-
     @hybrid_property
     def is_jailed(self):
         return self.accepted_tos < 1 or self.is_missing_location
@@ -676,7 +671,7 @@ class Node(Base):
     official_cluster_id = Column(ForeignKey("clusters.id"), nullable=False, unique=True, index=True)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
-    parent_node = relationship("Node", backref="child_nodes")
+    parent_node = relationship("Node", backref="child_nodes", remote_side="Node.id")
     official_cluster = relationship("Cluster", backref="node", uselist=False)
 
 
@@ -692,12 +687,13 @@ class Cluster(Base):
     main_page_id = Column(ForeignKey("pages.id"), nullable=False, unique=True, index=True)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
-    main_page = relationship("Page", backref="cluster", uselist=False)
+    main_page = relationship("Page", backref="cluster", uselist=False, foreign_keys="Cluster.main_page_id")
 
     nodes = relationship("Cluster", backref="clusters", secondary="node_cluster_associations")
     pages = relationship("Page", backref="clusters", secondary="cluster_page_associations")
     events = relationship("Event", backref="clusters", secondary="cluster_event_associations")
     discussions = relationship("Discussion", backref="clusters", secondary="cluster_discussion_associations")
+    subscribers = relationship("User", backref="clusters", secondary="cluster_subscriptions")
 
 
 class NodeClusterAssociation(Base):
@@ -782,9 +778,11 @@ class Page(Base):
     owner_cluster_id = Column(ForeignKey("clusters.id"), nullable=True, unique=True, index=True)
 
     thread = relationship("Thread", backref="page", uselist=False)
-    creator_user = relationship("User", backref="created_pages", foreign_keys="creator_user_id")
-    owner_user = relationship("User", backref="owned_pages", foreign_keys="owner_user_id")
-    owner_cluster = relationship("Cluster", backref="owned_page", uselist=False)
+    creator_user = relationship("User", backref="created_pages", foreign_keys="Page.creator_user_id")
+    owner_user = relationship("User", backref="owned_pages", foreign_keys="Page.owner_user_id")
+    owner_cluster = relationship("Cluster", backref="owned_page", uselist=False, foreign_keys="Page.owner_cluster_id")
+
+    editors = relationship("User", backref="editing_pages", secondary="page_versions")
 
     # Only one of owner_user and owner_cluster should be set
     CheckConstraint(
@@ -798,7 +796,7 @@ class PageVersion(Base):
     version of page content
     """
 
-    __tablename__ = "pageversions"
+    __tablename__ = "page_versions"
 
     id = Column(BigInteger, primary_key=True)
 
@@ -855,13 +853,15 @@ class Event(Base):
     owner_user = relationship("User", backref="owned_events")
     owner_cluster = relationship("Cluster", backref="owned event", uselist=False)
 
+    suscribers = relationship("User", backref="events", secondary="event_subscriptions")
+
 
 class EventSubscription(Base):
     """
     users subscriptions to events
     """
 
-    __tablename__ = "eventsubscriptions"
+    __tablename__ = "event_subscriptions"
     __table_args__ = (UniqueConstraint("event_id", "user_id"),)
 
     id = Column(BigInteger, primary_key=True)
@@ -906,6 +906,8 @@ class Discussion(Base):
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     thread = relationship("Thread", backref="discussions")
+
+    subscribers = relationship("User", backref="discussions", secondary="discussion_subscriptions")
 
 
 class DiscussionSubscription(Base):
