@@ -129,6 +129,11 @@ class User(Base):
     new_email_token_created = Column(DateTime(timezone=True), nullable=True)
     new_email_token_expiry = Column(DateTime(timezone=True), nullable=True)
 
+    editing_pages = relationship("Page", backref="editors", secondary="page_versions")
+    clusters = relationship("Cluster", backref="subscribers", secondary="cluster_subscriptions")
+    events = relationship("Event", backref="subscribers", secondary="event_subscriptions")
+    discussions = relationship("Discussion", backref="subscribers", secondary="discussion_subscriptions")
+
     @hybrid_property
     def is_jailed(self):
         return self.accepted_tos < 1 or self.is_missing_location
@@ -671,6 +676,9 @@ class Node(Base):
     official_cluster_id = Column(ForeignKey("clusters.id"), nullable=False, unique=True, index=True)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
+    parent_node = relationship("Node", backref="child_nodes")
+    official_cluster = relationship("Cluster", backref="node", uselist=False)
+
 
 class Cluster(Base):
     """
@@ -683,6 +691,13 @@ class Cluster(Base):
     name = Column(String, nullable=False)
     main_page_id = Column(ForeignKey("pages.id"), nullable=False, unique=True, index=True)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    main_page = relationship("Page", backref="cluster", uselist=False)
+
+    nodes = relationship("Cluster", backref="clusters", secondary="node_cluster_associations")
+    pages = relationship("Page", backref="clusters", secondary="cluster_page_associations")
+    events = relationship("Event", backref="clusters", secondary="cluster_event_associations")
+    discussions = relationship("Discussion", backref="clusters", secondary="cluster_discussion_associations")
 
 
 class NodeClusterAssociation(Base):
@@ -697,6 +712,9 @@ class NodeClusterAssociation(Base):
 
     node_id = Column(ForeignKey("nodes.id"), nullable=False, index=True)
     cluster_id = Column(ForeignKey("clusters.id"), nullable=False, index=True)
+
+    node = relationship("Node", backref="node_cluster_associations")
+    cluster = relationship("Cluster", backref="node_cluster_associations")
 
 
 class GroupRole(enum.Enum):
@@ -720,6 +738,9 @@ class ClusterSubscription(Base):
     joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     left = Column(DateTime(timezone=True), nullable=True)
 
+    user = relationship("User", backref="cluster_subscriptions")
+    cluster = relationship("Cluster", backref="cluster_subscriptions")
+
 
 class ClusterPageAssociation(Base):
     """
@@ -733,6 +754,9 @@ class ClusterPageAssociation(Base):
 
     page_id = Column(ForeignKey("pages.id"), nullable=False, index=True)
     cluster_id = Column(ForeignKey("clusters.id"), nullable=False, index=True)
+
+    page = relationship("Page", backref="cluster_page_associations")
+    cluster = relationship("Cluster", backref="cluster_page_associations")
 
 
 class PageType(enum.Enum):
@@ -757,6 +781,11 @@ class Page(Base):
     owner_user_id = Column(ForeignKey("users.id"), nullable=True, index=True)
     owner_cluster_id = Column(ForeignKey("clusters.id"), nullable=True, unique=True, index=True)
 
+    thread = relationship("Thread", backref="page", uselist=False)
+    creator_user = relationship("User", backref="created_pages", foreign_keys="creator_user_id")
+    owner_user = relationship("User", backref="owned_pages", foreign_keys="owner_user_id")
+    owner_cluster = relationship("Cluster", backref="owned_page", uselist=False)
+
     # Only one of owner_user and owner_cluster should be set
     CheckConstraint(
         "owner_user_id IS NULL AND owner_cluster_id IS NOT NULL OR owner_user_id IS NOT NULL AND owner_cluster_id IS NULL",
@@ -780,6 +809,9 @@ class PageVersion(Base):
     geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
+    page = relationship("Page", backref="versions")
+    editor_user = relationship("User", backref="edited_pages")
+
 
 class ClusterEventAssociation(Base):
     """
@@ -793,6 +825,9 @@ class ClusterEventAssociation(Base):
 
     event_id = Column(ForeignKey("events.id"), nullable=False, index=True)
     cluster_id = Column(ForeignKey("clusters.id"), nullable=False, index=True)
+
+    event = relationship("Event", backref="cluster_event_associations")
+    cluster = relationship("Cluster", backref="cluster_event_associations")
 
 
 class Event(Base):
@@ -816,6 +851,10 @@ class Event(Base):
     owner_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     owner_cluster_id = Column(ForeignKey("clusters.id"), nullable=False, unique=True, index=True)
 
+    thread = relationship("Thread", backref="events")
+    owner_user = relationship("User", backref="owned_events")
+    owner_cluster = relationship("Cluster", backref="owned event", uselist=False)
+
 
 class EventSubscription(Base):
     """
@@ -831,6 +870,9 @@ class EventSubscription(Base):
     event_id = Column(ForeignKey("events.id"), nullable=False, index=True)
     joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
+    user = relationship("User", backref="event_subscriptions")
+    event = relationship("Event", backref="event_subscriptions")
+
 
 class ClusterDiscussionAssociation(Base):
     """
@@ -844,6 +886,9 @@ class ClusterDiscussionAssociation(Base):
 
     discussion_id = Column(ForeignKey("discussions.id"), nullable=False, index=True)
     cluster_id = Column(ForeignKey("clusters.id"), nullable=False, index=True)
+
+    discussion = relationship("Discussion", backref="cluster_discussion_associations")
+    cluster = relationship("Cluster", backref="cluster_discussion_associations")
 
 
 class Discussion(Base):
@@ -860,6 +905,8 @@ class Discussion(Base):
     thread_id = Column(ForeignKey("threads.id"), nullable=False, index=True)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
+    thread = relationship("Thread", backref="discussions")
+
 
 class DiscussionSubscription(Base):
     """
@@ -875,6 +922,9 @@ class DiscussionSubscription(Base):
     discussion_id = Column(ForeignKey("discussions.id"), nullable=False, index=True)
     joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     left = Column(DateTime(timezone=True), nullable=True)
+
+    user = relationship("User", backref="discussion_subscriptions")
+    discussion = relationship("Discussion", backref="discussion_subscriptions")
 
 
 class Thread(Base):
@@ -905,6 +955,8 @@ class Comment(Base):
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     deleted = Column(DateTime(timezone=True), nullable=True)
 
+    thread = relationship("Thread", backref="comments")
+
 
 class Reply(Base):
     """
@@ -919,3 +971,5 @@ class Reply(Base):
     content = Column(String, nullable=False)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     deleted = Column(DateTime(timezone=True), nullable=True)
+
+    comment = relationship("Comment", backref="replies")
