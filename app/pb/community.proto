@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package org.couchers.community;
+import "google/protobuf/timestamp.proto";
+
+import "pb/nullables.proto";
+
+message Point{
+  float lat = 1;
+  float lng = 2;
+}
+
+enum PageType{
+  main_page = 0;
+  point_of_interest = 1;
+  guide = 2;
+  event = 3;
+}
+
+message CreatePageReq {
+  PageType type = 1;
+}
+
+message Page{
+  int64 id = 1;
+  PageType type = 2;
+  int64 thread = 3;
+  int64  creator_user = 4;
+  org.couchers.nullables.NullableInt64Value  owner_user = 5;
+  org.couchers.nullables.NullableInt64Value  owner_cluster = 6;
+}
+
+message PageVersion{
+  int64 id = 1;
+  int64 page = 2;
+  int64 editor_user = 3;
+  string title = 4;
+  string content = 5;
+  Point geom = 6;
+  google.protobuf.Timestamp created = 7;
+}
+
+message Thread{
+  int64 id = 1;
+  string title = 2;
+  google.protobuf.Timestamp created = 3;
+  org.couchers.nullables.NullableTimestampValue deleted = 4;
+}
+
+message CreatePageRes{
+  Page page = 1;
+  Thread thread = 2;
+  PageVersion page_version = 3;
+}
+
+service Community{
+  rpc CreatePage(CreatePageReq)returns(CreatePageRes);
+}
