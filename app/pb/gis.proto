@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package org.couchers.json;
+
+import "google/protobuf/empty.proto";
+
+import "pb/google/api/annotations.proto";
+import "pb/google/api/httpbody.proto";
+
+service GIS {
+  // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to auth.proto and jail.proto
+
+  rpc GetUsers(google.protobuf.Empty) returns (google.api.HttpBody) {
+    option (google.api.http) = {
+      get: "/geojson/users"
+    };
+  }
+}

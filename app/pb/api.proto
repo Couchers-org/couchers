@@ -70,11 +70,11 @@ message SearchRes {
 }
 
 message SendFriendRequestReq {
-  uint64 user_id = 1;
+  int64 user_id = 1;
 }
 
 message FriendRequest {
-  uint64 friend_request_id = 1;
+  int64 friend_request_id = 1;
 
   enum FriendRequestStatus {
     // these are the only two states that a user will see
@@ -84,17 +84,17 @@ message FriendRequest {
 
   FriendRequestStatus state = 2;
 
-  uint64 user_id = 3;
+  int64 user_id = 3;
 }
 
 message RespondFriendRequestReq {
-  uint64 friend_request_id = 1;
+  int64 friend_request_id = 1;
 
   bool accept = 2;
 }
 
 message CancelFriendRequestReq {
-  uint64 friend_request_id = 1;
+  int64 friend_request_id = 1;
 }
 
 message ListFriendRequestsRes {
@@ -103,7 +103,7 @@ message ListFriendRequestsRes {
 }
 
 message ListFriendsRes {
-  repeated uint64 user_ids = 1;
+  repeated int64 user_ids = 1;
 }
 
 message PingReq {}
@@ -116,7 +116,7 @@ message PingRes {
 }
 
 message MutualFriend {
-  uint64 user_id = 1;
+  int64 user_id = 1;
   string username = 2;
   string name = 3;
 }
@@ -162,7 +162,7 @@ message User {
     NA = 3; // not applicable, e.g. user requesting is self
   }
 
-  uint64 user_id = 1;
+  int64 user_id = 1;
   string username = 2;
   string name = 3;
   string city = 4;
@@ -255,7 +255,7 @@ message UpdateProfileReq {
 }
 
 message ReportReq {
-  uint64 reported_user_id = 1;
+  int64 reported_user_id = 1;
 
   // one-line summary
   string reason = 2;
@@ -275,7 +275,7 @@ message OptionalReferenceType {
 }
 
 message GetGivenReferencesReq {
-  uint64 from_user_id = 2;
+  int64 from_user_id = 2;
   OptionalReferenceType type_filter = 3;                // optional
 
   // Pagination; default is to get the N latest references that matches the filter,
@@ -285,7 +285,7 @@ message GetGivenReferencesReq {
 }
 
 message GetReceivedReferencesReq {
-  uint64 to_user_id = 2;
+  int64 to_user_id = 2;
   OptionalReferenceType type_filter = 3;
 
   // Pagination; default is to get the N latest references that matches the filter,
@@ -295,8 +295,8 @@ message GetReceivedReferencesReq {
 }
 
 message Reference {
-  uint64 from_user_id = 1;
-  uint64 to_user_id = 2;
+  int64 from_user_id = 1;
+  int64 to_user_id = 2;
   ReferenceType reference_type = 3;
   string text = 4;
   google.protobuf.Timestamp written_time = 5;  // not exact
@@ -311,7 +311,7 @@ message GetReferencesRes {
 }
 
 message AvailableWriteReferenceTypesReq {
-  uint64 to_user_id = 1;
+  int64 to_user_id = 1;
 }
 
 message AvailableWriteReferenceTypesRes {
@@ -319,7 +319,7 @@ message AvailableWriteReferenceTypesRes {
 }
 
 message WriteReferenceReq {
-  uint64 to_user_id = 1;
+  int64 to_user_id = 1;
   ReferenceType reference_type = 2;
   string text = 3;
   bool was_safe = 4;

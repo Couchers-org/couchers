@@ -18,6 +18,9 @@ describe("updateProfile", () => {
   const nonEmptyUserValues = {
     name: user.name,
     city: user.city,
+    lat: user.lat,
+    lng: user.lng,
+    radius: user.radius,
     gender: user.gender,
     occupation: user.occupation,
     aboutMe: user.aboutMe,

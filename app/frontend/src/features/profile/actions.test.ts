@@ -15,6 +15,7 @@ describe("updateUserProfile thunk", () => {
     const {
       aboutMe,
       aboutPlace,
+      radius,
       countriesLivedList,
       countriesVisitedList,
       gender,
@@ -31,6 +32,9 @@ describe("updateUserProfile thunk", () => {
       countriesLived: countriesLivedList,
       // Changed data
       city: "New York",
+      lat: 40.7306,
+      lng: -73.9352,
+      radius,
       hostingStatus: 3,
       languages: ["English", "Finnish", "Spanish"],
       countriesVisited: [...countriesVisitedList, "United States"],
