@@ -181,6 +181,10 @@ export default Vue.extend({
   },
 
   watch: {
+    username() {
+      this.username = this.username.toLowerCase()
+    },
+
     dateText() {
       const date = new Date(this.dateText)
       if (

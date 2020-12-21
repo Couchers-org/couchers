@@ -107,6 +107,8 @@ export default Vue.extend({
     username() {
       this.errorMessages = []
       this.successMessages = []
+
+      this.username = this.username.toLowerCase()
     },
 
     password() {
