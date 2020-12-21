@@ -195,8 +195,8 @@
                     </figure>
                   </div>
                   <div class="media-content">
-                    <p class="title is-4">Miuriel Kochva</p>
-                    <p class="subtitle is-6 role">Head of Graphic Design</p>
+                    <p class="title is-4">Miuriel Feliks Kochva</p>
+                    <p class="subtitle is-6 role">Head of Graphic Design &amp; UX designer</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Amsterdam, Netherlands</p>
                     <!-- <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/public-profile/in/valerinatanelov">valerinatanelov</a></p> -->
                   </div>
