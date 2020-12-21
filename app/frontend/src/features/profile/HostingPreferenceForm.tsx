@@ -60,7 +60,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function HostingPreferenceForm() {
   const classes = useStyles();
-  const { authState, authActions } = useAuthContext();
+  const { authState, profileActions } = useAuthContext();
   const user = authState.user;
   const [alertState, setShowAlertState] = useState<
     "success" | "error" | undefined
@@ -74,7 +74,7 @@ export default function HostingPreferenceForm() {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await authActions.updateHostingPreferences(data);
+      await profileActions.updateHostingPreferences(data);
       setShowAlertState("success");
     } catch (error) {
       setShowAlertState("error");

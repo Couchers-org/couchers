@@ -8,6 +8,7 @@ import TextBody from "../../../components/TextBody";
 import TextField from "../../../components/TextField";
 import { LoginRes } from "../../../pb/auth_pb";
 import { service } from "../../../service";
+import { useIsMounted, useSafeState } from "../../../utils/hooks";
 import { useAuthContext } from "../AuthProvider";
 
 const useStyles = makeStyles({
@@ -21,7 +22,7 @@ export default function UsernameForm() {
   const { authState, authActions } = useAuthContext();
   const authLoading = authState.loading;
   const [sent, setSent] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useSafeState(useIsMounted(), false);
 
   const { handleSubmit, register, setValue } = useForm<{ username: string }>();
   //this username state in the location is in case the back button was pressed from

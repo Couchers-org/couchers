@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { User } from "../../pb/api_pb";
 import { service, SignupArguments } from "../../service";
 import {
@@ -38,98 +38,106 @@ export default function useAuthStore() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const authActions = {
-    clearError() {
-      setError(null);
-    },
-    authError(message: string) {
-      setError(message);
-    },
-    async passwordLogin({
-      username,
-      password,
-    }: {
-      username: string;
-      password: string;
-    }) {
-      setError(null);
-      setLoading(true);
-      try {
-        const auth = await service.user.passwordLogin(username, password);
-        setJailed(auth.jailed);
+  const authActions = useMemo(
+    () => ({
+      clearError() {
+        setError(null);
+      },
+      authError(message: string) {
+        setError(message);
+      },
+      async passwordLogin({
+        username,
+        password,
+      }: {
+        username: string;
+        password: string;
+      }) {
+        setError(null);
+        setLoading(true);
+        try {
+          const auth = await service.user.passwordLogin(username, password);
+          setJailed(auth.jailed);
 
-        if (!auth.jailed) {
-          const user = await service.user.getUser(username);
-          setUser(user);
+          if (!auth.jailed) {
+            const user = await service.user.getUser(username);
+            setUser(user);
+          }
+          setAuthenticated(true);
+        } catch (e) {
+          setError(e.message);
         }
-        setAuthenticated(true);
-      } catch (e) {
-        setError(e.message);
-      }
-      setLoading(false);
-    },
-    async tokenLogin(loginToken: string) {
-      setError(null);
-      setLoading(true);
-      try {
-        const auth = await service.user.tokenLogin(loginToken);
-        setJailed(auth.jailed);
+        setLoading(false);
+      },
+      async tokenLogin(loginToken: string) {
+        setError(null);
+        setLoading(true);
+        try {
+          const auth = await service.user.tokenLogin(loginToken);
+          setJailed(auth.jailed);
 
-        if (!auth.jailed) {
-          const user = await service.user.getCurrentUser();
-          setUser(user);
+          if (!auth.jailed) {
+            const user = await service.user.getCurrentUser();
+            setUser(user);
+          }
+
+          setAuthenticated(true);
+        } catch (e) {
+          setError(e.message);
+        }
+        setLoading(false);
+      },
+      async signup(signupArguments: SignupArguments) {
+        setError(null);
+        setLoading(true);
+        try {
+          const auth = await service.user.completeSignup(signupArguments);
+          setJailed(auth.jailed);
+
+          if (!auth.jailed) {
+            const user = await service.user.getCurrentUser();
+            setUser(user);
+          }
+          setAuthenticated(true);
+        } catch (e) {
+          setError(e.message);
         }
 
-        setAuthenticated(true);
-      } catch (e) {
-        setError(e.message);
-      }
-      setLoading(false);
-    },
-    async signup(signupArguments: SignupArguments) {
-      setError(null);
-      setLoading(true);
-      try {
-        const auth = await service.user.completeSignup(signupArguments);
-        setJailed(auth.jailed);
-
-        if (!auth.jailed) {
-          const user = await service.user.getCurrentUser();
-          setUser(user);
+        setLoading(false);
+      },
+      async updateJailStatus() {
+        setError(null);
+        setLoading(true);
+        if (!authenticated) {
+          throw Error("User is not connected.");
         }
-        setAuthenticated(true);
-      } catch (e) {
-        setError(e.message);
-      }
+        try {
+          const isJailed = (await service.jail.getIsJailed()).isJailed;
+          setJailed(isJailed);
+        } catch (e) {
+          setError(e.message);
+        }
+        setLoading(false);
+      },
+      async logout() {
+        setError(null);
+        setLoading(true);
+        try {
+          service.user.logout();
+          setUser(null);
+          setAuthenticated(false);
+        } catch (e) {
+          setError(e.message);
+        }
+        setLoading(false);
+      },
+    }),
 
-      setLoading(false);
-    },
-    async updateJailStatus() {
-      setError(null);
-      setLoading(true);
-      if (!authenticated) {
-        throw Error("User is not connected.");
-      }
-      try {
-        const isJailed = (await service.jail.getIsJailed()).isJailed;
-        setJailed(isJailed);
-      } catch (e) {
-        setError(e.message);
-      }
-      setLoading(false);
-    },
-    async logout() {
-      setError(null);
-      setLoading(true);
-      try {
-        service.user.logout();
-        setUser(null);
-        setAuthenticated(false);
-      } catch (e) {
-        setError(e.message);
-      }
-      setLoading(false);
-    },
+    [authenticated, setAuthenticated, setJailed, setUser]
+  );
+
+  // TODO: this should be refactored to react-query when user is replaced with userId
+  const profileActions = {
     async updateUserProfile(userData: UpdateUserProfileData) {
       const username = user?.username;
 
@@ -163,6 +171,7 @@ export default function useAuthStore() {
       error,
     },
     authActions,
+    profileActions,
   };
 }
 

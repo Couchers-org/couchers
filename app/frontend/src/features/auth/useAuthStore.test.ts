@@ -208,7 +208,7 @@ describe("updateUserProfile action", () => {
     const { result } = renderHook(() => useAuthStore());
 
     await act(() =>
-      result.current.authActions.updateUserProfile(newUserProfileData)
+      result.current.profileActions.updateUserProfile(newUserProfileData)
     );
 
     expect(updateProfileMock).toHaveBeenCalledTimes(1);
@@ -243,7 +243,7 @@ describe("updateUserProfile action", () => {
 
     expect(
       act(() =>
-        result.current.authActions.updateUserProfile({
+        result.current.profileActions.updateUserProfile({
           ...defaultUser,
           languages: defaultUser.languagesList,
           countriesLived: ["Ecuador"],
@@ -259,7 +259,7 @@ describe("updateUserProfile action", () => {
     const { result } = renderHook(() => useAuthStore());
     expect(
       act(() =>
-        result.current.authActions.updateUserProfile({
+        result.current.profileActions.updateUserProfile({
           ...defaultUser,
           languages: defaultUser.languagesList,
           countriesLived: defaultUser.countriesLivedList,
@@ -308,7 +308,7 @@ describe("updateHostingPreference action", () => {
     const { result } = renderHook(() => useAuthStore());
 
     await act(() =>
-      result.current.authActions.updateHostingPreferences(
+      result.current.profileActions.updateHostingPreferences(
         newHostingPreferenceData
       )
     );
@@ -343,7 +343,7 @@ describe("updateHostingPreference action", () => {
 
     expect(
       act(() =>
-        result.current.authActions.updateHostingPreferences(
+        result.current.profileActions.updateHostingPreferences(
           newHostingPreferenceData
         )
       )
@@ -356,7 +356,7 @@ describe("updateHostingPreference action", () => {
     const { result } = renderHook(() => useAuthStore());
     expect(
       act(() =>
-        result.current.authActions.updateHostingPreferences(
+        result.current.profileActions.updateHostingPreferences(
           newHostingPreferenceData
         )
       )

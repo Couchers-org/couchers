@@ -21,7 +21,7 @@ const useStyles = makeStyles({
 
 export default function EditProfileForm() {
   const classes = useStyles();
-  const { authState, authActions } = useAuthContext();
+  const { authState, profileActions } = useAuthContext();
   const user = authState.user;
   const [alertState, setShowAlertState] = useState<
     "success" | "error" | undefined
@@ -47,7 +47,7 @@ export default function EditProfileForm() {
 
   const onSubmit = handleSubmit(async (data: UpdateUserProfileData) => {
     try {
-      await authActions.updateUserProfile(data);
+      await profileActions.updateUserProfile(data);
       setShowAlertState("success");
     } catch (error) {
       setShowAlertState("error");
