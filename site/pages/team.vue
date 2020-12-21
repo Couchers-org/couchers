@@ -172,6 +172,25 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-paulo.jpg" alt="Headshot of Paulo">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Paulo Carlos</p>
+                    <p class="subtitle is-6 role">UX Designer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Vancouver, Canada</p>
+                    <!-- <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/public-profile/in/valerinatanelov">valerinatanelov</a></p> -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
                       <img class="is-rounded" src="/img/head-miuriel.jpg" alt="Headshot of Miuriel">
                     </figure>
                   </div>
@@ -198,6 +217,25 @@
                     <p class="title is-4">Manuel Mohammady</p>
                     <p class="subtitle is-6 role">Community Forum</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Las Palmas, Spain</p>
+                    <!-- <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/public-profile/in/valerinatanelov">valerinatanelov</a></p> -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-julia.jpg" alt="Headshot of Julia">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Julia Evteeva</p>
+                    <p class="subtitle is-6 role">UX Designer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Vancouver, Canada</p>
                     <!-- <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/public-profile/in/valerinatanelov">valerinatanelov</a></p> -->
                   </div>
                 </div>
