@@ -1,17 +1,26 @@
 import { Meta, Story } from "@storybook/react/types-6-0";
-import * as React from "react";
+import React, { useState } from "react";
 
 import ProfileTagInput from "./ProfileTagInput";
 
 export default {
   title: "Profile/ProfileTagInput",
   component: ProfileTagInput,
-  argTypes: {
-    onChange: { action: "Change value through react-hook-form" },
-  },
+  argTypes: {},
 } as Meta;
 
-const Template: Story<any> = (args) => <ProfileTagInput {...args} />;
+const Template: Story<any> = (args) => {
+  const [value, setState] = useState(args.value);
+  return (
+    <ProfileTagInput
+      {...args}
+      value={value}
+      onChange={(_, newValue) => {
+        setState(newValue);
+      }}
+    />
+  );
+};
 
 export const Default = Template.bind({});
 Default.args = {
