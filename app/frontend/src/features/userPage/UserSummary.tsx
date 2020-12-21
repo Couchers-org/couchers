@@ -47,7 +47,7 @@ export default function UserSummary({ user }: { user: User.AsObject }) {
           <ListItemIcon>
             <LocationIcon titleAccess="Location" />
           </ListItemIcon>
-          <ListItemText primary="(Location placeholder)" />
+          <ListItemText primary={user.city} />
         </ListItem>
         {user.languagesList && (
           <ListItem>

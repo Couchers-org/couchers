@@ -25,6 +25,14 @@
           <v-list-item-title>Home</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
+      <v-list-item link to="/map">
+        <v-list-item-icon>
+          <v-icon>mdi-earth</v-icon>
+        </v-list-item-icon>
+        <v-list-item-content>
+          <v-list-item-title>Map</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
       <v-list-item link to="/profile">
         <v-list-item-icon>
           <v-icon>mdi-account</v-icon>

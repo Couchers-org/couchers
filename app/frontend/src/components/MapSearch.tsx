@@ -1,10 +1,11 @@
-import { makeStyles } from "@material-ui/core";
-import { AutocompleteChangeReason } from "@material-ui/lab";
+import { Box, IconButton, makeStyles } from "@material-ui/core";
+import { AutocompleteChangeReason } from "@material-ui/lab/Autocomplete";
 import { LngLat } from "mapbox-gl";
 import React, { useState } from "react";
 import Autocomplete from "./Autocomplete";
+import { SearchIcon } from "./Icons";
 
-const nominatimURL = process.env.REACT_APP_NOMINATIM_URL;
+const NOMINATIM_URL = process.env.REACT_APP_NOMINATIM_URL;
 
 const useSearchStyles = makeStyles((theme) => ({
   root: {
@@ -12,6 +13,7 @@ const useSearchStyles = makeStyles((theme) => ({
     left: 10,
     top: 10,
     width: "70%",
+    display: "flex",
     padding: theme.spacing(1),
     borderRadius: theme.shape.borderRadius,
     zIndex: 1,
@@ -30,6 +32,7 @@ const useSearchStyles = makeStyles((theme) => ({
       fontSize: "0.65rem",
     },
   },
+  autocomplete: { flexGrow: 1 },
 }));
 
 interface SearchOption {
@@ -38,13 +41,15 @@ interface SearchOption {
 }
 
 interface MapSearchProps {
-  setCity: (value: string) => void;
+  value: string;
+  setValue: (value: string) => void;
   setError: (error: string) => void;
   setMarker: (lngLat: LngLat) => void;
 }
 
 export default function MapSearch({
-  setCity,
+  value,
+  setValue,
   setError,
   setMarker,
 }: MapSearchProps) {
@@ -63,7 +68,7 @@ export default function MapSearch({
     }
     setSearchOptionsLoading(true);
     const url =
-      nominatimURL! + "search?format=jsonv2&q=" + encodeURIComponent(value);
+      NOMINATIM_URL! + "search?format=jsonv2&q=" + encodeURIComponent(value);
     const options = {
       method: "GET",
       headers: {
@@ -74,7 +79,6 @@ export default function MapSearch({
     try {
       const res = await fetch(url, options);
       const data = (await res.json()) as Array<any>;
-      console.log(data);
       setSearchOptions(
         data.map((obj) => ({
           name: obj["display_name"],
@@ -88,44 +92,56 @@ export default function MapSearch({
     setSearchOptionsLoading(false);
   };
 
-  const searchSubmit = (
-    value: string | SearchOption | null,
-    reason: AutocompleteChangeReason
-  ) => {
-    console.log(reason);
+  const searchSubmit = (value: string, reason: AutocompleteChangeReason) => {
     if (reason === "blur") {
       setOpen(false);
       return;
     }
-    if (!(value as SearchOption)?.name) {
-      setCity(value as string);
+    const searchOption = searchOptions.find((o) => value === o.name);
+    if (!searchOption) {
+      setValue(value);
       //create-option is when enter is pressed on user-entered string
       if (reason === "create-option") {
-        loadSearchOptions(value as string);
+        loadSearchOptions(value);
       }
     } else {
-      const searchOption = value as SearchOption;
       setMarker(searchOption.location);
       setOpen(false);
     }
   };
 
   return (
-    <Autocomplete
-      label="My location"
-      //hint="Press enter to search the map, then customize the text."
-      size="small"
-      options={searchOptions}
-      getOptionLabel={(o) => (!!o.name ? o.name : String(o))}
-      loading={searchOptionsLoading}
-      open={open}
-      onBlur={() => setOpen(false)}
-      onChange={(_, value, reason) => searchSubmit(value, reason)}
-      onInputChange={(_, value) => setCity(value)}
-      freeSolo
-      multiple={false}
-      disableClearable={false}
-      className={classes.root}
-    />
+    <Box className={classes.root}>
+      <Autocomplete
+        label="My location"
+        value={value}
+        size="small"
+        options={searchOptions.map((o) => o.name)}
+        loading={searchOptionsLoading}
+        open={open}
+        onBlur={() => setOpen(false)}
+        onChange={(e, inputValue, reason) => {
+          e.stopPropagation();
+          e.preventDefault();
+          setValue(inputValue ?? "");
+          searchSubmit(inputValue ?? "", reason);
+        }}
+        onInputChange={(_, inputValue) => setValue(inputValue)}
+        freeSolo
+        multiple={false}
+        disableClearable={false}
+        className={classes.autocomplete}
+      />
+      <IconButton
+        aria-label="Search location"
+        size="small"
+        onClick={() => {
+          setValue(value);
+          searchSubmit(value, "create-option");
+        }}
+      >
+        <SearchIcon />
+      </IconButton>
+    </Box>
   );
 }

@@ -30,6 +30,9 @@ export type UpdateUserProfileData = Pick<
   ProfileFormData,
   | "name"
   | "city"
+  | "lat"
+  | "lng"
+  | "radius"
   | "gender"
   | "occupation"
   | "languages"
@@ -100,9 +103,7 @@ export async function getCurrentUser(): Promise<User.AsObject> {
  * @param {string} user
  * @returns {Promise<User.AsObject>}
  */
-export async function getUser(
-  user: string
-): Promise<User.AsObject> {
+export async function getUser(user: string): Promise<User.AsObject> {
   const userReq = new GetUserReq();
   userReq.setUser(user || "");
 
@@ -121,6 +122,9 @@ export async function updateProfile(
 
   const name = new wrappers.StringValue().setValue(profile.name);
   const city = new wrappers.StringValue().setValue(profile.city);
+  const lat = new wrappers.DoubleValue().setValue(profile.lat);
+  const lng = new wrappers.DoubleValue().setValue(profile.lng);
+  const radius = new wrappers.DoubleValue().setValue(profile.radius);
   const gender = new wrappers.StringValue().setValue(profile.gender);
   const occupation = new NullableStringValue().setValue(profile.occupation);
   const languages = new RepeatedStringValue()
@@ -138,6 +142,9 @@ export async function updateProfile(
   req
     .setName(name)
     .setCity(city)
+    .setLat(lat)
+    .setLng(lng)
+    .setRadius(radius)
     .setGender(gender)
     .setOccupation(occupation)
     .setLanguages(languages)

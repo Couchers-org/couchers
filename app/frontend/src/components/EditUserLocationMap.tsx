@@ -10,7 +10,7 @@ import MapSearch from "./MapSearch";
 
 const handleRadius = 10;
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles({
   root: {
     position: "relative",
     height: 200,
@@ -20,25 +20,26 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
     height: "100%",
   },
-}));
+});
 
 export interface ApproximateLocation {
-  location: LngLat;
-  //meters
+  lat: number;
+  lng: number;
   radius: number;
 }
 
 export interface EditUserLocationMapProps extends BoxProps {
-  user: User.AsObject;
+  user?: User.AsObject;
+  city: string;
+  setCity: (value: string) => void;
   //this function is called on mouse release
   setLocation: (value: ApproximateLocation) => void;
-  //this function is called on every change
-  setCity: (value: string) => void;
-  grow: boolean;
+  grow?: boolean;
 }
 
 export default function EditUserLocationMap({
   user,
+  city,
   setCity,
   setLocation,
   className,
@@ -52,8 +53,10 @@ export default function EditUserLocationMap({
 
   const map = useRef<mapboxgl.Map | null>(null);
   //map is imperative so these don't need to cause re-render
-  const centerCoords = useRef<LngLat | null>(new LngLat(user.lng, user.lat));
-  const radius = useRef<number | null>(user.radius);
+  const centerCoords = useRef<LngLat | null>(
+    user ? new LngLat(user.lng, user.lat) : new LngLat(151.2099, -33.865143)
+  );
+  const radius = useRef<number | null>(user?.radius ?? 200);
   //The handle is draggable to resize the radius.
   //It is offset to avoid overlap with the circle,
   //as this causes both click events to fire.
@@ -107,10 +110,10 @@ export default function EditUserLocationMap({
     map.current!.off("touchmove", moveEvent);
     map.current!.getCanvas().style.cursor = "move";
 
-    if (e.lngLat.distanceTo(handleCoords.current!) < 10) return;
     onCircleMove(e);
     setLocation({
-      location: centerCoords.current!,
+      lat: centerCoords.current!.lat,
+      lng: centerCoords.current!.lng,
       radius: radius.current!,
     });
   };
@@ -161,7 +164,8 @@ export default function EditUserLocationMap({
       lngLat: centerCoords.current!,
     } as MapMouseEvent);
     setLocation({
-      location: centerCoords.current!,
+      lat: centerCoords.current!.lat,
+      lng: centerCoords.current!.lng,
       radius: radius.current!,
     });
   };
@@ -208,17 +212,26 @@ export default function EditUserLocationMap({
         },
       });
 
-      map.current!.on("dblclick", (e) => {
-        e.preventDefault();
-        onCircleUp(e, () => null);
-      });
+      //if no user is specified, ask to get the location from browser
+      if (!user) {
+        navigator.geolocation.getCurrentPosition((position) => {
+          flyToSearch(
+            new LngLat(position.coords.longitude, position.coords.latitude)
+          );
+        });
+      }
+    });
 
-      map.current!.on("mousedown", "handle", onHandleMouseDown);
+    map.current!.on("dblclick", (e) => {
+      e.preventDefault();
+      onCircleUp(e, () => null);
+    });
 
-      map.current!.on("touchstart", "handle", (e) => {
-        if (e.points.length !== 1) return;
-        onHandleMouseDown(e);
-      });
+    map.current!.on("mousedown", "handle", onHandleMouseDown);
+
+    map.current!.on("touchstart", "handle", (e) => {
+      if (e.points.length !== 1) return;
+      onHandleMouseDown(e);
     });
 
     map.current!.on("mousedown", "circle", onCircleMouseDown);
@@ -273,15 +286,16 @@ export default function EditUserLocationMap({
         )}
       >
         <Map
-          initialZoom={13}
-          initialCenter={new LngLat(user.lng, user.lat)}
+          initialZoom={user ? 13 : 2}
+          initialCenter={centerCoords.current!}
           postMapInitialize={initializeMap}
           grow
           {...otherProps}
         />
         <MapSearch
+          value={city}
           setError={setError}
-          setCity={setCity}
+          setValue={setCity}
           setMarker={flyToSearch}
         />
       </Box>
