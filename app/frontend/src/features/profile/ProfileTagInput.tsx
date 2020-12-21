@@ -123,12 +123,7 @@ export default function ProfileTagInput({
 
   const [open, setOpen] = useState<boolean>(false);
   const anchorEl = useRef<null | HTMLButtonElement>(null);
-  const [valueState, setValueState] = useState<string[]>(value);
   const [pendingValue, setPendingValue] = useState<string[]>([]);
-
-  useEffect(() => {
-    setValueState(value);
-  }, [value]);
 
   const handleClick = () => {
     setPendingValue(value);
@@ -168,7 +163,7 @@ export default function ProfileTagInput({
         <span>{label}</span>
         <ExpandMore />
       </ButtonBase>
-      {valueState.map((tag) => (
+      {value.map((tag) => (
         <div key={tag} className={classes.tag}>
           <IconButton
             aria-label={`Remove ${tag}`}
