@@ -46,7 +46,7 @@ message GetCommentsReq {
 
 message GetRepliesReq {
   int64 comment_id = 1;
-  // Only get messages posted before the given reply id. Pass -1 to get all.
+  // Only get messages posted before the given reply id. Pass 0 to get all.
   int64 posted_before_reply_id = 2;
   // Maximum number of replies to return
   uint32 number = 3;
