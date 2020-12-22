@@ -67,7 +67,7 @@ message GetRepliesRes {
 
   // number of replies posted earlier than the ones returned in `replies`.
   // zero if all replies has been returned to the client.
-  int64 nr_earlier_replies = 2;
+  uint32 nr_earlier_replies = 2;
 }
 
 message Comment {
