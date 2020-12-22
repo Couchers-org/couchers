@@ -759,7 +759,6 @@ class PageType(enum.Enum):
     main_page = 1
     point_of_interest = 2
     guide = 3
-    event = 4
 
 
 class Page(Base):
