@@ -7,7 +7,7 @@ import "google/protobuf/timestamp.proto";
 service Communities {
   // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to auth.proto and jail.proto
 
-  // Discussion threads are organized in three levels:
+  // Discussion threads are organized into three levels:
   // thread1
   // +- comment1
   // |  +- reply1
@@ -23,24 +23,26 @@ service Communities {
   //    +- reply7
   //    +- reply8
 
-  // Get non-deleted comments belonging to a thread
+  // Get non-deleted comments belonging to a thread, sorted in reverse time order.
+  // Pagination is supported by the posted_before_comment_id and number fields.
   rpc GetComments(GetCommentsReq) returns (GetCommentsRes);
 
-  // Get non-deleted replies belonging to a comment
+  // Get non-deleted replies belonging to a comment, sorted in reverse time order.
+  // Pagination is supported by the posted_before_reply_id and number fields.
   rpc GetReplies(GetRepliesReq) returns (GetRepliesRes);
 
-  // Post a new comment on a thread
+  // Post a new comment on a thread.
   rpc PostComment(PostCommentReq) returns (PostCommentRes);
 
-  // Post a new reply to a comment
+  // Post a new reply to a comment.
   rpc PostReply(PostReplyReq) returns (PostReplyRes);
 }
 
 message GetCommentsReq {
   int64 thread_id = 1;
-  // Only get messages posted before the given comment id. Pass -1 to get all.
+  // Only get messages posted before the given reply id. Pass 0 to get all.
   int64 posted_before_comment_id = 2;
-  // Maximum number of comments to return
+  // Maximum number of replies to return
   uint32 number = 3;
 }
 
