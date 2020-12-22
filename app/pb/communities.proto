@@ -60,7 +60,7 @@ message GetCommentsRes {
 
   // number of comments posted earlier than the ones returned in `comments`
   // zero if all comments has been returned to the client.
-  uint32 nr_earlier_comments = 2;
+  uint32 num_earlier_comments = 2;
 }
 
 message GetRepliesRes {
@@ -69,7 +69,7 @@ message GetRepliesRes {
 
   // number of replies posted earlier than the ones returned in `replies`.
   // zero if all replies has been returned to the client.
-  uint32 nr_earlier_replies = 2;
+  uint32 num_earlier_replies = 2;
 }
 
 message Comment {
@@ -77,6 +77,9 @@ message Comment {
   string content = 2;  // markdown without images
   int64 author_user_id = 3;
   google.protobuf.Timestamp created_time = 4;
+
+  // total number of replies to this comment
+  uint32 num_replies = 5;
 }
 
 message Reply {
