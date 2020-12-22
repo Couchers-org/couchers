@@ -17,7 +17,7 @@ class GIS(gis_pb2_grpc.GISServicer):
                 """
             select json_build_object(
                     'type', 'FeatureCollection',
-                    'features', json_agg(ST_AsGeoJSON(t.*)::json)
+                    'features', json_agg(ST_AsGeoJSON(t.*, 'geom', 6)::json)
                 )
             from (select username, id, geom from users where geom is not null) as t;
             """
@@ -27,4 +27,23 @@ class GIS(gis_pb2_grpc.GISServicer):
                 content_type="application/json",
                 # json.dumps escapes non-ascii characters
                 data=json.dumps(out.scalar()).encode("ascii"),
+            )
+
+    def GetCommunities(self, request, context):
+        with session_scope() as session:
+            out = session.execute(
+                """
+            select json_build_object(
+                    'type', 'FeatureCollection',
+                    'features', json_agg(ST_AsGeoJSON(t.*, 'geom', 6)::json)
+                )
+            from (select * from nodes where geom is not null) as t;
+            """
+            )
+
+            data = json.dumps(out.scalar()).encode("ascii")
+
+            return httpbody_pb2.HttpBody(
+                content_type="application/json",
+                data=data,
             )

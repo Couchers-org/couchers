@@ -5,7 +5,7 @@ from datetime import date
 from geoalchemy2.types import Geometry
 from sqlalchemy import BigInteger, Boolean, CheckConstraint, Column, Date, DateTime, Enum, Float, ForeignKey, Integer
 from sqlalchemy import LargeBinary as Binary
-from sqlalchemy import MetaData, String, UniqueConstraint
+from sqlalchemy import MetaData, Sequence, String, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import backref, relationship
@@ -656,6 +656,9 @@ class InitiatedUpload(Base):
         return (self.created <= func.now()) & (self.expiry >= func.now())
 
 
+communities_seq = Sequence("communities_seq")
+
+
 class Node(Base):
     """
     Node, i.e. geographical subdivision of the world
@@ -663,11 +666,11 @@ class Node(Base):
 
     __tablename__ = "nodes"
 
-    id = Column(BigInteger, primary_key=True)
+    id = Column(BigInteger, communities_seq, primary_key=True)
 
     name = Column(String, nullable=False)
     parent_node_id = Column(ForeignKey("nodes.id"), nullable=True, index=True)
-    geom = Column(Geometry(geometry_type="POLYGON", srid=4326), nullable=False)
+    geom = Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False)
     official_cluster_id = Column(ForeignKey("clusters.id"), nullable=False, unique=True, index=True)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
@@ -682,7 +685,7 @@ class Cluster(Base):
 
     __tablename__ = "clusters"
 
-    id = Column(BigInteger, primary_key=True)
+    id = Column(BigInteger, communities_seq, primary_key=True)
     name = Column(String, nullable=False)
     main_page_id = Column(ForeignKey("pages.id"), nullable=False, unique=True, index=True)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
@@ -693,7 +696,6 @@ class Cluster(Base):
     pages = relationship("Page", backref="clusters", secondary="cluster_page_associations")
     events = relationship("Event", backref="clusters", secondary="cluster_event_associations")
     discussions = relationship("Discussion", backref="clusters", secondary="cluster_discussion_associations")
-    subscribers = relationship("User", backref="clusters", secondary="cluster_subscriptions")
 
 
 class NodeClusterAssociation(Base):
@@ -713,7 +715,7 @@ class NodeClusterAssociation(Base):
     cluster = relationship("Cluster", backref="node_cluster_associations")
 
 
-class GroupRole(enum.Enum):
+class ClusterRole(enum.Enum):
     member = 1
     admin = 2
 
@@ -730,7 +732,7 @@ class ClusterSubscription(Base):
 
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     cluster_id = Column(ForeignKey("clusters.id"), nullable=False, index=True)
-    role = Column(Enum(GroupRole), nullable=False)
+    role = Column(Enum(ClusterRole), nullable=False)
     joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     left = Column(DateTime(timezone=True), nullable=True)
 
@@ -768,10 +770,10 @@ class Page(Base):
 
     __tablename__ = "pages"
 
-    id = Column(BigInteger, primary_key=True)
+    id = Column(BigInteger, communities_seq, primary_key=True)
 
     type = Column(Enum(PageType), nullable=False)
-    thread_id = Column(ForeignKey("threads.id"), nullable=False, unique=True, index=True)
+    thread_id = Column(ForeignKey("threads.id"), nullable=True, unique=True, index=True)
     creator_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     owner_user_id = Column(ForeignKey("users.id"), nullable=True, index=True)
     owner_cluster_id = Column(ForeignKey("clusters.id"), nullable=True, unique=True, index=True)
@@ -834,7 +836,7 @@ class Event(Base):
 
     __tablename__ = "events"
 
-    id = Column(BigInteger, primary_key=True)
+    id = Column(BigInteger, communities_seq, primary_key=True)
 
     title = Column(String, nullable=False)
     content = Column(String, nullable=False)
@@ -897,7 +899,7 @@ class Discussion(Base):
 
     __tablename__ = "discussions"
 
-    id = Column(BigInteger, primary_key=True)
+    id = Column(BigInteger, communities_seq, primary_key=True)
 
     title = Column(String, nullable=False)
     is_private = Column(Boolean, nullable=False)
