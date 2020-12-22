@@ -3,7 +3,7 @@ from calendar import monthrange
 from datetime import date
 
 from geoalchemy2.types import Geometry
-from sqlalchemy import BigInteger, Boolean, Column, Date, DateTime, Enum, Float, ForeignKey, Integer
+from sqlalchemy import BigInteger, Boolean, CheckConstraint, Column, Date, DateTime, Enum, Float, ForeignKey, Integer
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import MetaData, String, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
@@ -654,3 +654,323 @@ class InitiatedUpload(Base):
     @hybrid_property
     def is_valid(self):
         return (self.created <= func.now()) & (self.expiry >= func.now())
+
+
+class Node(Base):
+    """
+    Node, i.e. geographical subdivision of the world
+    """
+
+    __tablename__ = "nodes"
+
+    id = Column(BigInteger, primary_key=True)
+
+    name = Column(String, nullable=False)
+    parent_node_id = Column(ForeignKey("nodes.id"), nullable=True, index=True)
+    geom = Column(Geometry(geometry_type="POLYGON", srid=4326), nullable=False)
+    official_cluster_id = Column(ForeignKey("clusters.id"), nullable=False, unique=True, index=True)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    parent_node = relationship("Node", backref="child_nodes", remote_side="Node.id")
+    official_cluster = relationship("Cluster", backref="node", uselist=False)
+
+
+class Cluster(Base):
+    """
+    Cluster, administered grouping of content
+    """
+
+    __tablename__ = "clusters"
+
+    id = Column(BigInteger, primary_key=True)
+    name = Column(String, nullable=False)
+    main_page_id = Column(ForeignKey("pages.id"), nullable=False, unique=True, index=True)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    main_page = relationship("Page", backref="cluster", uselist=False, foreign_keys="Cluster.main_page_id")
+
+    nodes = relationship("Cluster", backref="clusters", secondary="node_cluster_associations")
+    pages = relationship("Page", backref="clusters", secondary="cluster_page_associations")
+    events = relationship("Event", backref="clusters", secondary="cluster_event_associations")
+    discussions = relationship("Discussion", backref="clusters", secondary="cluster_discussion_associations")
+    subscribers = relationship("User", backref="clusters", secondary="cluster_subscriptions")
+
+
+class NodeClusterAssociation(Base):
+    """
+    NodeClusterAssociation, grouping of nodes
+    """
+
+    __tablename__ = "node_cluster_associations"
+    __table_args__ = (UniqueConstraint("node_id", "cluster_id"),)
+
+    id = Column(BigInteger, primary_key=True)
+
+    node_id = Column(ForeignKey("nodes.id"), nullable=False, index=True)
+    cluster_id = Column(ForeignKey("clusters.id"), nullable=False, index=True)
+
+    node = relationship("Node", backref="node_cluster_associations")
+    cluster = relationship("Cluster", backref="node_cluster_associations")
+
+
+class GroupRole(enum.Enum):
+    member = 1
+    admin = 2
+
+
+class ClusterSubscription(Base):
+    """
+    ClusterSubscription of a user
+    """
+
+    __tablename__ = "cluster_subscriptions"
+    __table_args__ = (UniqueConstraint("user_id", "cluster_id"),)
+
+    id = Column(BigInteger, primary_key=True)
+
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    cluster_id = Column(ForeignKey("clusters.id"), nullable=False, index=True)
+    role = Column(Enum(GroupRole), nullable=False)
+    joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    left = Column(DateTime(timezone=True), nullable=True)
+
+    user = relationship("User", backref="cluster_subscriptions")
+    cluster = relationship("Cluster", backref="cluster_subscriptions")
+
+
+class ClusterPageAssociation(Base):
+    """
+    pages related to clusters
+    """
+
+    __tablename__ = "cluster_page_associations"
+    __table_args__ = (UniqueConstraint("page_id", "cluster_id"),)
+
+    id = Column(BigInteger, primary_key=True)
+
+    page_id = Column(ForeignKey("pages.id"), nullable=False, index=True)
+    cluster_id = Column(ForeignKey("clusters.id"), nullable=False, index=True)
+
+    page = relationship("Page", backref="cluster_page_associations")
+    cluster = relationship("Cluster", backref="cluster_page_associations")
+
+
+class PageType(enum.Enum):
+    main_page = 1
+    point_of_interest = 2
+    guide = 3
+
+
+class Page(Base):
+    """
+    similar to a wiki page about a community, POI or guide
+    """
+
+    __tablename__ = "pages"
+
+    id = Column(BigInteger, primary_key=True)
+
+    type = Column(Enum(PageType), nullable=False)
+    thread_id = Column(ForeignKey("threads.id"), nullable=False, unique=True, index=True)
+    creator_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    owner_user_id = Column(ForeignKey("users.id"), nullable=True, index=True)
+    owner_cluster_id = Column(ForeignKey("clusters.id"), nullable=True, unique=True, index=True)
+
+    thread = relationship("Thread", backref="page", uselist=False)
+    creator_user = relationship("User", backref="created_pages", foreign_keys="Page.creator_user_id")
+    owner_user = relationship("User", backref="owned_pages", foreign_keys="Page.owner_user_id")
+    owner_cluster = relationship("Cluster", backref="owned_page", uselist=False, foreign_keys="Page.owner_cluster_id")
+
+    editors = relationship("User", backref="editing_pages", secondary="page_versions")
+
+    # Only one of owner_user and owner_cluster should be set
+    CheckConstraint(
+        "owner_user_id IS NULL AND owner_cluster_id IS NOT NULL OR owner_user_id IS NOT NULL AND owner_cluster_id IS NULL",
+        name="one_owner",
+    )
+
+
+class PageVersion(Base):
+    """
+    version of page content
+    """
+
+    __tablename__ = "page_versions"
+
+    id = Column(BigInteger, primary_key=True)
+
+    page_id = Column(ForeignKey("pages.id"), nullable=False, index=True)
+    editor_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    title = Column(String, nullable=False)
+    content = Column(String, nullable=False)
+    geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    page = relationship("Page", backref="versions")
+    editor_user = relationship("User", backref="edited_pages")
+
+
+class ClusterEventAssociation(Base):
+    """
+    events related to clusters
+    """
+
+    __tablename__ = "cluster_event_associations"
+    __table_args__ = (UniqueConstraint("event_id", "cluster_id"),)
+
+    id = Column(BigInteger, primary_key=True)
+
+    event_id = Column(ForeignKey("events.id"), nullable=False, index=True)
+    cluster_id = Column(ForeignKey("clusters.id"), nullable=False, index=True)
+
+    event = relationship("Event", backref="cluster_event_associations")
+    cluster = relationship("Cluster", backref="cluster_event_associations")
+
+
+class Event(Base):
+    """
+    A happening
+    """
+
+    __tablename__ = "events"
+
+    id = Column(BigInteger, primary_key=True)
+
+    title = Column(String, nullable=False)
+    content = Column(String, nullable=False)
+    thread_id = Column(ForeignKey("threads.id"), nullable=False, index=True)
+    geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=False)
+    address = Column(String, nullable=False)
+    photo = Column(String, nullable=False)
+    start_time = Column(DateTime(timezone=True), nullable=False)
+    end_time = Column(DateTime(timezone=True), nullable=False)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    owner_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    owner_cluster_id = Column(ForeignKey("clusters.id"), nullable=False, unique=True, index=True)
+
+    thread = relationship("Thread", backref="events")
+    owner_user = relationship("User", backref="owned_events")
+    owner_cluster = relationship("Cluster", backref="owned event", uselist=False)
+
+    suscribers = relationship("User", backref="events", secondary="event_subscriptions")
+
+
+class EventSubscription(Base):
+    """
+    users subscriptions to events
+    """
+
+    __tablename__ = "event_subscriptions"
+    __table_args__ = (UniqueConstraint("event_id", "user_id"),)
+
+    id = Column(BigInteger, primary_key=True)
+
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    event_id = Column(ForeignKey("events.id"), nullable=False, index=True)
+    joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    user = relationship("User", backref="event_subscriptions")
+    event = relationship("Event", backref="event_subscriptions")
+
+
+class ClusterDiscussionAssociation(Base):
+    """
+    discussions related to clusters
+    """
+
+    __tablename__ = "cluster_discussion_associations"
+    __table_args__ = (UniqueConstraint("discussion_id", "cluster_id"),)
+
+    id = Column(BigInteger, primary_key=True)
+
+    discussion_id = Column(ForeignKey("discussions.id"), nullable=False, index=True)
+    cluster_id = Column(ForeignKey("clusters.id"), nullable=False, index=True)
+
+    discussion = relationship("Discussion", backref="cluster_discussion_associations")
+    cluster = relationship("Cluster", backref="cluster_discussion_associations")
+
+
+class Discussion(Base):
+    """
+    forum board
+    """
+
+    __tablename__ = "discussions"
+
+    id = Column(BigInteger, primary_key=True)
+
+    title = Column(String, nullable=False)
+    is_private = Column(Boolean, nullable=False)
+    thread_id = Column(ForeignKey("threads.id"), nullable=False, index=True)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    thread = relationship("Thread", backref="discussions")
+
+    subscribers = relationship("User", backref="discussions", secondary="discussion_subscriptions")
+
+
+class DiscussionSubscription(Base):
+    """
+    users subscriptions to discussions
+    """
+
+    __tablename__ = "discussion_subscriptions"
+    __table_args__ = (UniqueConstraint("discussion_id", "user_id"),)
+
+    id = Column(BigInteger, primary_key=True)
+
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    discussion_id = Column(ForeignKey("discussions.id"), nullable=False, index=True)
+    joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    left = Column(DateTime(timezone=True), nullable=True)
+
+    user = relationship("User", backref="discussion_subscriptions")
+    discussion = relationship("Discussion", backref="discussion_subscriptions")
+
+
+class Thread(Base):
+    """
+    Thread
+    """
+
+    __tablename__ = "threads"
+
+    id = Column(BigInteger, primary_key=True)
+
+    title = Column(String, nullable=False)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    deleted = Column(DateTime(timezone=True), nullable=True)
+
+
+class Comment(Base):
+    """
+    Comment
+    """
+
+    __tablename__ = "comments"
+
+    id = Column(BigInteger, primary_key=True)
+
+    thread_id = Column(ForeignKey("threads.id"), nullable=False, index=True)
+    content = Column(String, nullable=False)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    deleted = Column(DateTime(timezone=True), nullable=True)
+
+    thread = relationship("Thread", backref="comments")
+
+
+class Reply(Base):
+    """
+    Reply
+    """
+
+    __tablename__ = "replies"
+
+    id = Column(BigInteger, primary_key=True)
+
+    comment_id = Column(ForeignKey("comments.id"), nullable=False, index=True)
+    content = Column(String, nullable=False)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    deleted = Column(DateTime(timezone=True), nullable=True)
+
+    comment = relationship("Comment", backref="replies")
