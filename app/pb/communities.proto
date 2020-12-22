@@ -1,0 +1,105 @@
+syntax = "proto3";
+
+package org.couchers.api.communities;
+
+import "google/protobuf/timestamp.proto";
+
+service Communities {
+  // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to auth.proto and jail.proto
+
+  // Discussion threads are organized in three levels:
+  // thread1
+  // +- comment1
+  // |  +- reply1
+  // |  +- reply2
+  // +- comment2
+  //    +- reply3
+  //    +- reply4
+  // thread2
+  // +- comment3
+  // |  +- reply5
+  // |  +- reply6
+  // +- comment4
+  //    +- reply7
+  //    +- reply8
+
+  // Get non-deleted comments belonging to a thread
+  rpc GetComments(GetCommentsReq) returns (GetCommentsRes);
+
+  // Get non-deleted replies belonging to a comment
+  rpc GetReplies(GetRepliesReq) returns (GetRepliesRes);
+
+  // Post a new comment on a thread
+  rpc PostComment(PostCommentReq) returns (PostCommentRes);
+
+  // Post a new reply to a comment
+  rpc PostReply(PostReplyReq) returns (PostReplyRes);
+}
+
+message GetCommentsReq {
+  int64 thread_id = 1;
+  // Only get messages posted before the given comment id. Pass -1 to get all.
+  int64 posted_before_comment_id = 2;
+  // Maximum number of comments to return
+  uint32 number = 3;
+}
+
+message GetRepliesReq {
+  int64 comment_id = 1;
+  // Only get messages posted before the given reply id. Pass -1 to get all.
+  int64 posted_before_reply_id = 2;
+  // Maximum number of replies to return
+  uint32 number = 3;
+}
+
+message GetCommentsRes {
+  // sorted in inverse time order, latest comment first.
+  repeated Comment comments = 1;
+
+  // number of comments posted earlier than the ones returned in `comments`
+  // zero if all comments has been returned to the client.
+  int64 nr_earlier_comments = 2;
+}
+
+message GetRepliesRes {
+  // sorted in inverse time order, latest reply first.
+  repeated Reply replies = 1;
+
+  // number of replies posted earlier than the ones returned in `replies`.
+  // zero if all replies has been returned to the client.
+  int64 nr_earlier_replies = 2;
+}
+
+message Comment {
+  int64 comment_id = 1;
+  string content = 2;  // markdown without images
+  int64 author_user_id = 3;
+  google.protobuf.Timestamp created_time = 4;
+}
+
+message Reply {
+  int64 reply_id = 1;
+  string content = 2;  // markdown without images
+  int64 author_user_id = 3;
+  google.protobuf.Timestamp created_time = 4;
+}
+
+message PostCommentReq {
+  int64 thread_id = 1;
+  string content = 2;  // markdown without images
+}
+
+message PostReplyReq {
+  int64 comment_id = 1;
+  string content = 2;  // markdown without images
+}
+
+message PostCommentRes {
+  // The id of the just posted comment
+  int64 comment_id = 1;
+}
+
+message PostReplyRes {
+  // The id of the just posted reply
+  int64 reply_id = 1;
+}
