@@ -16,8 +16,8 @@ class Pages(pages_pb2_grpc.PagesServicer):
     def EditPage(self, request: pages_pb2.EditPageReq, context):
         with session_scope() as session:
             page = session.query(Page).get(request.page_id)
-            if page.can_edit(context.user_id):
+            try:
                 page.edit(context.user_id, **request)
-            else:
+            except:
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.ONLY_ADMIN_CAN_EDIT)
         return empty_pb2.Empty

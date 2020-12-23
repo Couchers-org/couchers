@@ -13,7 +13,7 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func, text
 
 from couchers.config import config
-from couchers.utils import get_coordinates
+from couchers.utils import create_coordinate, get_coordinates
 
 meta = MetaData(
     naming_convention={
@@ -798,8 +798,7 @@ class Page(Base):
         page = Page(type=page_type, thread_id=thread.id, creator_user_id=user_id)
         session.add(page)
         session.flush()
-        page_version = PageVersion(page_id=page.id, editor_user_id=user_id, title="Title", content="")
-        session.add(page_version)
+        page.edit(user_id, "title", "content", None)
         page_id = page.id
         return page_id
 
@@ -814,11 +813,11 @@ class Page(Base):
 
     def edit(self, user_id, title, content, geom):
         page_version = PageVersion(
-            page_id=self.page.id,
+            page_id=self.id,
             editor_user_id=user_id,
             title=title,
             content=content,
-            geom=create_coordinate(**geom),
+            geom=geom and create_coordinate(**geom),
         )
         session = Session.object_session(self)
         session.add(page_version)
