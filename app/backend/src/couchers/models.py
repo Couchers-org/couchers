@@ -799,8 +799,7 @@ class Page(Base):
         session.add(page)
         session.flush()
         page.edit(user_id, "title", "content", None)
-        page_id = page.id
-        return page_id
+        return page.id
 
     def can_edit(self, user_id):
         if page.owner_user_id == user_id:
