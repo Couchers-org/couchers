@@ -19,15 +19,17 @@ export default function AuthProvider({ children }: { children: ReactChild }) {
 
   const push = useHistory().push;
 
-  useEffect(
-    () =>
-      setUnauthenticatedErrorHandler(() => {
-        store.authActions.logout();
-        store.authActions.authError("You were logged out.");
-        push(loginRoute);
-      }),
-    [push, store.authActions]
-  );
+  useEffect(() => {
+    setUnauthenticatedErrorHandler(async () => {
+      await store.authActions.logout();
+      store.authActions.authError("You were logged out.");
+      push(loginRoute);
+    });
+
+    return () => {
+      setUnauthenticatedErrorHandler(async () => {});
+    };
+  }, [push, store.authActions]);
 
   return <AuthContext.Provider value={store}>{children}</AuthContext.Provider>;
 }

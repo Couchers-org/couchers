@@ -10,7 +10,9 @@ import { SSOPromiseClient } from "../pb/sso_grpc_web_pb";
 const URL = process.env.REACT_APP_API_BASE_URL;
 
 let _unauthenticatedErrorHandler: (e: object) => void = () => {};
-export const setUnauthenticatedErrorHandler = (f: (e: object) => void) => {
+export const setUnauthenticatedErrorHandler = (
+  f: (e: object) => Promise<void>
+) => {
   _unauthenticatedErrorHandler = f;
 };
 
