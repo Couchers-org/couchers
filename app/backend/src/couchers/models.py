@@ -838,7 +838,7 @@ class Event(Base):
 
     title = Column(String, nullable=False)
     content = Column(String, nullable=False)
-    thread_id = Column(ForeignKey("threads.id"), nullable=False, index=True)
+    thread_id = Column(ForeignKey("threads.id"), nullable=False, index=True, unique=True)
     geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=False)
     address = Column(String, nullable=False)
     photo = Column(String, nullable=False)
@@ -848,7 +848,7 @@ class Event(Base):
     owner_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     owner_cluster_id = Column(ForeignKey("clusters.id"), nullable=False, unique=True, index=True)
 
-    thread = relationship("Thread", backref="events")
+    thread = relationship("Thread", backref="event", uselist=False)
     owner_user = relationship("User", backref="owned_events")
     owner_cluster = relationship("Cluster", backref="owned event", uselist=False)
 
@@ -901,10 +901,10 @@ class Discussion(Base):
 
     title = Column(String, nullable=False)
     is_private = Column(Boolean, nullable=False)
-    thread_id = Column(ForeignKey("threads.id"), nullable=False, index=True)
+    thread_id = Column(ForeignKey("threads.id"), nullable=False, index=True, unique=True)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
-    thread = relationship("Thread", backref="discussions")
+    thread = relationship("Thread", backref="discussion", uselist=False)
 
     subscribers = relationship("User", backref="discussions", secondary="discussion_subscriptions")
 
