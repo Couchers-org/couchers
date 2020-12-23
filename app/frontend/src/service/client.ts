@@ -6,7 +6,7 @@ import { JailPromiseClient } from "../pb/jail_grpc_web_pb";
 import { RequestsPromiseClient } from "../pb/requests_grpc_web_pb";
 import { SSOPromiseClient } from "../pb/sso_grpc_web_pb";
 
-export const URL = process.env.REACT_APP_API_BASE_URL;
+const URL = process.env.REACT_APP_API_BASE_URL;
 
 const opts = {
   // this modifies the behaviour on the API so that it will send cookies on the requests

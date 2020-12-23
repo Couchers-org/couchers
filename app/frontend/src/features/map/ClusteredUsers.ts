@@ -1,5 +1,6 @@
 import { Map as MapboxMap } from "mapbox-gl";
-import { URL } from "../../service/client";
+
+const URL = process.env.REACT_APP_API_BASE_URL;
 
 export const sources = {
   "clustered-users": {
@@ -18,6 +19,7 @@ export const layers = {
     type: "circle",
     filter: ["has", "point_count"],
     paint: {
+      // step expression: https://docs.mapbox.com/mapbox-gl-js/style-spec/expressions/#step
       "circle-color": [
         "step",
         ["get", "point_count"],
@@ -55,9 +57,8 @@ export const layers = {
 };
 
 // the types ain't too useful for this
-export type userClickedCallback = (ev: any) => void
 
-export const addClusteredUsersToMap = (map: MapboxMap, userClickedCallback?: userClickedCallback) => {
+export const addClusteredUsersToMap = (map: MapboxMap, userClickedCallback?: (ev: any) => void) => {
   map.addSource("clustered-users", sources["clustered-users"] as any);
   map.addLayer(layers["clusterLayer"] as any);
   map.addLayer(layers["clusterCountLayer"] as any);

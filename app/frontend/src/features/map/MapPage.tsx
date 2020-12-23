@@ -5,21 +5,21 @@ import { userRoute } from "../../AppRoutes";
 import { LngLat, Map as MapboxMap } from "mapbox-gl";
 import { useHistory, useLocation } from "react-router-dom";
 
-import { addClusteredUsersToMap } from "./ClusteredUsers";
+import { addClusteredUsersToMap } from "./clusteredUsers";
 
 export default function MapPage() {
   const history = useHistory();
 
   const location = useLocation();
 
-  const userClicked = (ev: any) => {
+  const handleClick = (ev: any) => {
     const username = ev.features[0].properties.username
     history.push(`${userRoute}/${username}`, location.state);
   };
 
   const initializeMap = (map: MapboxMap) => {
     map.on("load", () => {
-      addClusteredUsersToMap(map, userClicked);
+      addClusteredUsersToMap(map, handleClick);
     });
   };
 

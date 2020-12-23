@@ -3,7 +3,8 @@ import { Box, BoxProps, makeStyles } from "@material-ui/core";
 import classNames from "classnames";
 import "mapbox-gl/dist/mapbox-gl.css";
 import mapboxgl, { LngLat, ResourceType, RequestParameters } from "mapbox-gl";
-import { URL } from "../service/client";
+
+const URL = process.env.REACT_APP_API_BASE_URL;
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_KEY!;
 
@@ -58,11 +59,11 @@ export default function Map({
   ): RequestParameters => {
     if (url.startsWith(URL)) {
       return {
-        url: url,
+        url,
         credentials: "include",
       };
     }
-    return { url: url };
+    return { url };
   };
 
   useEffect(() => {
@@ -73,7 +74,7 @@ export default function Map({
       center: initialCenter,
       zoom: initialZoom,
       hash: "map",
-      transformRequest: transformRequest,
+      transformRequest,
     });
 
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false }));
