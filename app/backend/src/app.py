@@ -66,7 +66,7 @@ logger.info(f"Running DB migrations")
 apply_migrations()
 
 if config.config["ADD_DUMMY_DATA"]:
-    add_dummy_data("src/dummy_data.json")
+    add_dummy_data()
 
 logger.info(f"Starting")
 
