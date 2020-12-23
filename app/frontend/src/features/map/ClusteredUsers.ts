@@ -54,11 +54,17 @@ export const layers = {
   },
 };
 
-export const addClusteredUsersToMap = (map: MapboxMap) => {
+// the types ain't too useful for this
+export type userClickedCallback = (ev: any) => void
+
+export const addClusteredUsersToMap = (map: MapboxMap, userClickedCallback?: userClickedCallback) => {
   map.addSource("clustered-users", sources["clustered-users"] as any);
   map.addLayer(layers["clusterLayer"] as any);
   map.addLayer(layers["clusterCountLayer"] as any);
   map.addLayer(layers["unclusteredPointLayer"] as any);
+  if (userClickedCallback) {
+    map.on("click", layers["unclusteredPointLayer"].id, userClickedCallback)
+  }
 };
 
 export default addClusteredUsersToMap;
