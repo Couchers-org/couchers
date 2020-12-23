@@ -20,6 +20,7 @@ from couchers.servicers.bugs import Bugs
 from couchers.servicers.conversations import Conversations
 from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
+from couchers.servicers.pages import Pages
 from couchers.servicers.requests import Requests
 from couchers.utils import create_coordinate
 from pb import (
@@ -31,6 +32,8 @@ from pb import (
     conversations_pb2_grpc,
     jail_pb2_grpc,
     media_pb2_grpc,
+    pages_pb2,
+    pages_pb2_grpc,
     requests_pb2_grpc,
 )
 
@@ -396,3 +399,14 @@ def fast_passwords():
     with patch("couchers.crypto.nacl.pwhash.verify", fast_verify):
         with patch("couchers.crypto.nacl.pwhash.str", fast_hash):
             yield
+
+
+@contextmanager
+def page_session(token):
+    """
+    Create a Page API for testing, uses the token for auth
+    """
+    user_id, jailed = Auth().get_session_for_token(token)
+    channel = FakeChannel(user_id=user_id)
+    pages_pb2_grpc.add_PagesServicer_to_server(Pages(), channel)
+    yield pages_pb2_grpc.PagesStub(channel)

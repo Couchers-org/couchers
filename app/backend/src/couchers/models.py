@@ -789,6 +789,40 @@ class Page(Base):
         name="one_owner",
     )
 
+    @classmethod
+    def create(cls, session, type, user_id):
+        thread = Thread(title="Threadtitle")
+        page_type = PageType(type)
+        session.add(thread)
+        session.flush()
+        page = Page(type=page_type, thread_id=thread.id, creator_user_id=user_id)
+        session.add(page)
+        session.flush()
+        page_version = PageVersion(page_id=page.id, editor_user_id=user_id, title="Title", content="")
+        session.add(page_version)
+        page_id = page.id
+        return page_id
+
+    def can_edit(self, user_id):
+        if page.owner_user_id == user_id:
+            return True
+        else:
+            subscriptions = self.owner_cluster.cluster_subscriptions
+            admin_subscriptions = filter(lambda subscription: subscription.role == GroupRole.admin, subscriptions)
+            admin_ids = map(lambda subscription: subscription.user_id, subscriptions)
+            return user_id in admin_ids
+
+    def edit(self, user_id, title, content, geom):
+        page_version = PageVersion(
+            page_id=self.page.id,
+            editor_user_id=user_id,
+            title=title,
+            content=content,
+            geom=create_coordinate(**geom),
+        )
+        session = Session.object_session(self)
+        session.add(page_version)
+
 
 class PageVersion(Base):
     """
