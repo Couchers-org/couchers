@@ -15,6 +15,18 @@ from sqlalchemy.sql import func, text
 from couchers.config import config
 from couchers.utils import create_coordinate, get_coordinates
 
+
+class ModelException(Exception):
+    """Exception raised for errors in the model.
+
+    Attributes:
+        code -- the code of the error
+    """
+
+    def __init__(self, code):
+        self.code = code
+
+
 meta = MetaData(
     naming_convention={
         "ix": "ix_%(column_0_label)s",
@@ -812,7 +824,7 @@ class Page(Base):
 
     def edit(self, user_id, title, content, geom):
         if not self.can_edit(user_id):
-            raise Exception(code="ONLY_ADMIN_CAN_EDIT")
+            raise ModelException(code="ONLY_ADMIN_CAN_EDIT")
         page_version = PageVersion(
             page_id=self.id,
             editor_user_id=user_id,
