@@ -7,8 +7,8 @@ import "google/protobuf/empty.proto";
 import "pb/nullables.proto";
 
 message Point{
-  float lat = 1;
-  float lng = 2;
+  double lat = 1;
+  double lng = 2;
 }
 
 enum PageType{
