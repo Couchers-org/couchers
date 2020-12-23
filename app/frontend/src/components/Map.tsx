@@ -2,7 +2,8 @@ import React, { useEffect, useRef } from "react";
 import { Box, BoxProps, makeStyles } from "@material-ui/core";
 import classNames from "classnames";
 import "mapbox-gl/dist/mapbox-gl.css";
-import mapboxgl, { LngLat } from "mapbox-gl";
+import mapboxgl, { LngLat, ResourceType, RequestParameters } from "mapbox-gl";
+import { URL } from "../service/client";
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_KEY!;
 
@@ -46,6 +47,24 @@ export default function Map({
 
   const containerRef = useRef<HTMLDivElement>(null);
 
+  /*
+  Allows sending cookies (counted as sensitive "credentials") on cross-origin requests when we grab GeoJSON/other data from the API.
+
+  Those APIs will return an error if the session cookie is not set as these APIs are secure and not public.
+  */
+  const transformRequest = (
+    url: string,
+    resourceType: ResourceType
+  ): RequestParameters => {
+    if (url.startsWith(URL)) {
+      return {
+        url: url,
+        credentials: "include",
+      };
+    }
+    return { url: url };
+  };
+
   useEffect(() => {
     if (!containerRef.current) return;
     const map = new mapboxgl.Map({
@@ -53,6 +72,8 @@ export default function Map({
       style: "mapbox://styles/mapbox/streets-v11",
       center: initialCenter,
       zoom: initialZoom,
+      hash: "map",
+      transformRequest: transformRequest,
     });
 
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false }));
