@@ -18,6 +18,10 @@ class Pages(pages_pb2_grpc.PagesServicer):
             page = session.query(Page).get(request.page_id)
             try:
                 page.edit(context.user_id, **request)
-            except:
-                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.ONLY_ADMIN_CAN_EDIT)
+            except Exception as e:
+                if e.code == "ONLY_ADMIN_CAN_EDIT":
+                    grpc_StatusCode = "PERMISSION_DENIED"
+                else:
+                    grpc_StatusCode = "UNKNOWN"
+                context.abort(grpc.StatusCode[grpc_StatusCode], errors[e.code])
         return empty_pb2.Empty

@@ -811,6 +811,8 @@ class Page(Base):
             return user_id in admin_ids
 
     def edit(self, user_id, title, content, geom):
+        if not self.can_edit(user_id):
+            raise Exception(code="ONLY_ADMIN_CAN_EDIT")
         page_version = PageVersion(
             page_id=self.id,
             editor_user_id=user_id,
