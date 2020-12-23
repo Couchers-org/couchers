@@ -70,8 +70,7 @@
           ></v-text-field>
 
           Drag the red marker (and adjust the radius) to indicate what will be
-          shown to other users. (The blue marker shows the address you searched
-          for).
+          shown to other users.
 
           <div style="height: 350px">
             <MglMap
