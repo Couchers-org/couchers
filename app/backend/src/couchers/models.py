@@ -795,14 +795,14 @@ class Page(Base):
         page_type = PageType(type)
         session.add(thread)
         session.flush()
-        page = Page(type=page_type, thread_id=thread.id, creator_user_id=user_id)
+        page = Page(type=page_type, thread_id=thread.id, creator_user_id=user_id, owner_user_id=user_id)
         session.add(page)
         session.flush()
         page.edit(user_id, "title", "content", None)
         return page.id
 
     def can_edit(self, user_id):
-        if page.owner_user_id == user_id:
+        if self.owner_user_id == user_id:
             return True
         else:
             subscriptions = self.owner_cluster.cluster_subscriptions
