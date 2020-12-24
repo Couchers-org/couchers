@@ -25,16 +25,16 @@ describe("usePersistedState hook", () => {
   });
 
   it("saves then loads a value", () => {
-    const value = "Test string";
-    renderHook(() => {
-      const [state, setState] = usePersistedState("key", "");
-      expect(state).toBe("");
-      setState(value);
-      expect(state).toBe(value);
-    });
+    const value = { test: "Test string" };
+    const { result } = renderHook(() => usePersistedState("key", { test: "" }));
+    expect(result.current[0]).toStrictEqual({ test: "" });
+    act(() => result.current[1](value));
+    expect(result.current[0]).toStrictEqual(value);
     expect(localStorage.getItem("key")).toBe(JSON.stringify(value));
-    const { result } = renderHook(() => usePersistedState("key", ""));
-    expect(result.current[0]).toBe(value);
+    const { result: result2 } = renderHook(() =>
+      usePersistedState("key", { test: "" })
+    );
+    expect(result2.current[0]).toStrictEqual(value);
   });
 });
 
@@ -55,6 +55,7 @@ describe("useAuthStore hook", () => {
     await act(() => result.current.authActions.logout());
     expect(result.current.authState.authenticated).toBe(false);
     expect(result.current.authState.error).toBeNull();
+    expect(result.current.authState.user).toBeNull();
   });
 });
 
@@ -164,7 +165,7 @@ describe("updateJailStatus action", () => {
     try {
       await act(() => result.current.authActions.updateJailStatus());
     } catch (e) {
-      expect(e).toBeDefined();
+      expect(e.message).toBe("User is not connected.");
     }
   });
 });
@@ -225,6 +226,8 @@ describe("updateUserProfile action", () => {
       languages: ["English", "Finnish", "Spanish"],
       countriesLivedList: ["Australia", "Finland", "Sweden", "United States"],
       countriesVisitedList: ["Australia", "United States"],
+      lat: 40.7306,
+      lng: -73.9352,
     });
     // Things haven't been updated should remain the same
     expect(state.user).toMatchObject({
@@ -233,6 +236,7 @@ describe("updateUserProfile action", () => {
       occupation: "Mathematician",
       aboutMe: "Some generic stuff.",
       aboutPlace: "About Aapeli's place",
+      radius: 200,
     });
   });
 

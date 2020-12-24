@@ -42,7 +42,6 @@ export default function SurfingTab() {
   const hostRequests = useTypedSelector(
     (state) => state.hostRequests.hostRequests
   );
-  console.log(hostRequests);
 
   const classes = useStyles();
   return (
