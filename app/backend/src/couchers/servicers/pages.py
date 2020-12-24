@@ -14,7 +14,7 @@ def _can_edit(page, user_id):
     else:
         subscriptions = page.owner_cluster.cluster_subscriptions
         admin_subscriptions = filter(lambda subscription: subscription.role == GroupRole.admin, subscriptions)
-        admin_ids = map(lambda subscription: subscription.user_id, subscriptions)
+        admin_ids = map(lambda subscription: subscription.user_id, admin_subscriptions)
         return user_id in admin_ids
 
 
