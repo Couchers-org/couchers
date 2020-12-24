@@ -19,7 +19,9 @@ function useFriendList() {
     })
   );
 
-  const hasErrors = isError || friendQueries.every((query) => query.isError);
+  const hasErrors =
+    isError ||
+    !!(friendQueries.length && friendQueries.every((query) => query.isError));
   const errors = [
     error?.message,
     ...friendQueries.map(
