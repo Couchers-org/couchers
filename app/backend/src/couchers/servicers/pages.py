@@ -8,7 +8,7 @@ from couchers.utils import create_coordinate
 from pb import api_pb2, pages_pb2, pages_pb2_grpc
 
 
-def create_page(session, type, user_id):
+def _create_page(session, type, user_id):
     thread = Thread(title="Threadtitle")
     page_type = PageType(type)
     session.add(thread)
@@ -16,11 +16,11 @@ def create_page(session, type, user_id):
     page = Page(type=page_type, thread_id=thread.id, creator_user_id=user_id, owner_user_id=user_id)
     session.add(page)
     session.flush()
-    edit_page(page, user_id, "title", "content", None)
+    _edit_page(page, user_id, "title", "content", None)
     return page.id
 
 
-def can_edit(page, user_id):
+def _can_edit(page, user_id):
     if page.owner_user_id == user_id:
         return True
     else:
@@ -30,8 +30,8 @@ def can_edit(page, user_id):
         return user_id in admin_ids
 
 
-def edit_page(page, user_id, title, content, geom):
-    if not can_edit(page, user_id):
+def _edit_page(page, user_id, title, content, geom):
+    if not _can_edit(page, user_id):
         context.abort(grpc.StatusCode["PERMISSION_DENIED"], "ONLY_ADMIN_CAN_EDIT")
     page_version = PageVersion(
         page_id=page.id,
