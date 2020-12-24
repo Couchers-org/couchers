@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { User } from "../../pb/api_pb";
 import { service, SignupArguments } from "../../service";
 import {
@@ -14,14 +14,17 @@ export function usePersistedState<T>(
   const [_state, _setState] = useState<T>(
     saved !== null ? JSON.parse(saved) : defaultValue
   );
-  const setState = (value: T) => {
-    if (value === undefined) {
-      console.warn(`${key} can't be stored as undefined, casting to null.`);
-    }
-    const v = value === undefined ? null : value;
-    window.localStorage.setItem(key, JSON.stringify(v));
-    _setState(value);
-  };
+  const setState = useCallback(
+    (value: T) => {
+      if (value === undefined) {
+        console.warn(`${key} can't be stored as undefined, casting to null.`);
+      }
+      const v = value === undefined ? null : value;
+      window.localStorage.setItem(key, JSON.stringify(v));
+      _setState(value);
+    },
+    [key]
+  );
   return [_state, setState];
 }
 

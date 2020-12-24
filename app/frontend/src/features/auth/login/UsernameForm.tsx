@@ -1,4 +1,4 @@
-import { makeStyles } from "@material-ui/core";
+import { Box, makeStyles } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useHistory, useLocation } from "react-router-dom";
@@ -11,11 +11,18 @@ import { service } from "../../../service";
 import { useIsMounted, useSafeState } from "../../../utils/hooks";
 import { useAuthContext } from "../AuthProvider";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   signUpButton: {
     textDecoration: "none",
   },
-});
+  submitRow: {
+    display: "flex",
+    alignItems: "center",
+  },
+  button: {
+    marginInlineEnd: theme.spacing(1),
+  },
+}));
 
 export default function UsernameForm() {
   const classes = useStyles();
@@ -62,9 +69,6 @@ export default function UsernameForm() {
     setLoading(false);
   });
 
-  if (sent) {
-    return <TextBody>Check your email for a link to log in! :)</TextBody>;
-  }
   return (
     <>
       <form onSubmit={onSubmit}>
@@ -72,14 +76,22 @@ export default function UsernameForm() {
           label="Username/email"
           name="username"
           inputRef={register({ required: true })}
-        ></TextField>
-        <Button
-          onClick={onSubmit}
-          loading={loading || authLoading}
-          type="submit"
-        >
-          Next
-        </Button>
+          disabled={sent}
+        />
+        <Box className={classes.submitRow}>
+          <Button
+            onClick={onSubmit}
+            loading={loading || authLoading}
+            disabled={sent}
+            className={classes.button}
+            type="submit"
+          >
+            Next
+          </Button>
+          {sent && (
+            <TextBody>Check your email for a link to log in! :)</TextBody>
+          )}
+        </Box>
       </form>
       <Link className={classes.signUpButton} to={signupRoute}>
         <Button>Create an account</Button>
