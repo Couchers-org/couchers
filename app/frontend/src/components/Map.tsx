@@ -73,7 +73,7 @@ export default function Map({
       style: "mapbox://styles/mapbox/streets-v11",
       center: initialCenter,
       zoom: initialZoom,
-      hash: "map",
+      hash: "loc",
       transformRequest,
     });
 

@@ -56,8 +56,6 @@ export const layers = {
   },
 };
 
-// the types ain't too useful for this
-
 export const addClusteredUsersToMap = (
   map: MapboxMap,
   userClickedCallback?: (ev: any) => void

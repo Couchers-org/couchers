@@ -5,7 +5,6 @@ import Map from "../../components/Map";
 import { userRoute } from "../../AppRoutes";
 import { LngLat, Map as MapboxMap } from "mapbox-gl";
 import { useHistory, useLocation } from "react-router-dom";
-import classNames from "classnames";
 
 import { addClusteredUsersToMap } from "./clusteredUsers";
 
@@ -43,7 +42,7 @@ export default function MapPage() {
         initialCenter={new LngLat(0, 0)}
         grow
         postMapInitialize={initializeMap}
-        className={classNames(classes.root)}
+        className={classes.root}
       />
     </>
   );
