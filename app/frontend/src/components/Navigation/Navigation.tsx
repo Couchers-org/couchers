@@ -11,6 +11,7 @@ import React from "react";
 import { Link, NavLink } from "react-router-dom";
 import {
   profileRoute,
+  mapRoute,
   messagesRoute,
   requestsRoute,
   logoutRoute,
@@ -22,6 +23,10 @@ const menu = [
   {
     name: "Dashboard",
     route: "/",
+  },
+  {
+    name: "Map",
+    route: mapRoute,
   },
   {
     name: "Messages",

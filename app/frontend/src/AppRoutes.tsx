@@ -11,6 +11,7 @@ import {
   EditHostingPreferencePage,
   ProfilePage,
 } from "./features/profile";
+import MapPage from "./features/map/MapPage";
 import UserPage from "./features/userPage/UserPage";
 import SearchPage from "./features/search/SearchPage";
 import Jail from "./features/auth/jail/Jail";
@@ -26,6 +27,7 @@ export const editProfileRoute = "/profile/edit";
 export const editHostingPreferenceRoute = "/hosting-preference/edit";
 export const messagesRoute = "/messages";
 export const requestsRoute = "/requests";
+export const mapRoute = "/map";
 export const logoutRoute = "/logout";
 
 export const userRoute = "/user";
@@ -45,6 +47,9 @@ export default function AppRoutes() {
       <Route path={tosRoute}>
         <TOS />
       </Route>
+      <PrivateRoute path={mapRoute}>
+        <MapPage />
+      </PrivateRoute>
       <PrivateRoute path={editProfileRoute}>
         <EditProfilePage />
       </PrivateRoute>
