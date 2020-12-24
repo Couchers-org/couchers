@@ -21,7 +21,7 @@ class AuthInterceptor {
       response = await invoker(request);
     } catch (e) {
       if (e.code === StatusCode.UNAUTHENTICATED) {
-        _unauthenticatedErrorHandler(e);
+        _unauthenticatedErrorHandler();
       } else {
         throw e;
       }
