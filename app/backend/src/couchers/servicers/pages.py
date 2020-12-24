@@ -47,11 +47,11 @@ def _edit_page(page, user_id, title, content, geom):
 class Pages(pages_pb2_grpc.PagesServicer):
     def CreatePage(page, request: pages_pb2.CreatePageReq, context):
         with session_scope() as session:
-            page_id = create_page(session, request.type, context.user_id)
+            page_id = _create_page(session, request.type, context.user_id)
         return pages_pb2.CreatePageRes(page_id=page_id)
 
     def EditPage(page, request: pages_pb2.EditPageReq, context):
         with session_scope() as session:
             page = session.query(Page).get(request.page_id)
-            edit_page(page, context.user_id, **request)
+            _edit_page(page, context.user_id, **request)
         return empty_pb2.Empty
