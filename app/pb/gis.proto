@@ -21,4 +21,16 @@ service GIS {
       get: "/geojson/communities"
     };
   }
+
+  // Returns whether the given point is on land or not
+  rpc IsOnLand(IsOnLandReq) returns (IsOnLandRes);
+}
+
+message IsOnLandReq {
+  double lat = 1;
+  double lng = 2;
+}
+
+message IsOnLandRes {
+  bool on_land = 1;
 }
