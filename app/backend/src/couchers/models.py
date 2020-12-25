@@ -5,7 +5,7 @@ from datetime import date
 from geoalchemy2.types import Geometry
 from sqlalchemy import BigInteger, Boolean, CheckConstraint, Column, Date, DateTime, Enum, Float, ForeignKey, Integer
 from sqlalchemy import LargeBinary as Binary
-from sqlalchemy import MetaData, Sequence, String, UniqueConstraint
+from sqlalchemy import MetaData, Sequence, SmallInteger, String, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import backref, relationship
@@ -976,3 +976,16 @@ class Reply(Base):
     deleted = Column(DateTime(timezone=True), nullable=True)
 
     comment = relationship("Comment", backref="replies")
+
+
+class LandPolygon(Base):
+    """
+    This table allows checking very accurately whether a point is on land in about 1 ms.
+    """
+
+    __tablename__ = "land_polygons"
+
+    id = Column(BigInteger, primary_key=True)
+    x = Column(SmallInteger)
+    y = Column(SmallInteger)
+    geom = Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False)
