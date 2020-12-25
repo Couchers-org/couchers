@@ -2,6 +2,7 @@ import { APIPromiseClient } from "../pb/api_grpc_web_pb";
 import { AuthPromiseClient } from "../pb/auth_grpc_web_pb";
 import { BugsPromiseClient } from "../pb/bugs_grpc_web_pb";
 import { ConversationsPromiseClient } from "../pb/conversations_grpc_web_pb";
+import { GISPromiseClient } from "../pb/gis_grpc_web_pb";
 import { JailPromiseClient } from "../pb/jail_grpc_web_pb";
 import { RequestsPromiseClient } from "../pb/requests_grpc_web_pb";
 import { SSOPromiseClient } from "../pb/sso_grpc_web_pb";
@@ -15,12 +16,13 @@ const opts = {
 
 const apis = {
   api: new APIPromiseClient(URL, null, opts),
-  bugs: new BugsPromiseClient(URL, null, opts),
-  sso: new SSOPromiseClient(URL, null, opts),
-  conversations: new ConversationsPromiseClient(URL, null, opts),
   auth: new AuthPromiseClient(URL, null, opts),
-  requests: new RequestsPromiseClient(URL, null, opts),
+  bugs: new BugsPromiseClient(URL, null, opts),
+  conversations: new ConversationsPromiseClient(URL, null, opts),
+  gis: new GISPromiseClient(URL, null, opts),
   jail: new JailPromiseClient(URL, null, opts),
+  requests: new RequestsPromiseClient(URL, null, opts),
+  sso: new SSOPromiseClient(URL, null, opts),
 };
 
 if (process.env.NODE_ENV === "development") {
@@ -29,12 +31,13 @@ if (process.env.NODE_ENV === "development") {
 
   grpcWebTools([
     apis.api,
-    apis.bugs,
-    apis.sso,
-    apis.conversations,
     apis.auth,
-    apis.requests,
+    apis.bugs,
+    apis.conversations,
+    apis.gis,
     apis.jail,
+    apis.requests,
+    apis.sso,
   ]);
 }
 
