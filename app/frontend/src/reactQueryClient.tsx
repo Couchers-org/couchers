@@ -7,8 +7,11 @@ import {
 } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
 import { persistWithLocalStorage } from "react-query/persist-localstorage-experimental";
+import { reactQueryRetries } from "./constants";
 
-export const queryClient = new QueryClient();
+export const queryClient = new QueryClient({
+  defaultOptions: { queries: { retry: reactQueryRetries } },
+});
 
 persistWithLocalStorage(queryClient);
 interface ReactQueryClientProviderProps {

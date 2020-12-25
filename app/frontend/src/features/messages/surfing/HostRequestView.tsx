@@ -1,16 +1,15 @@
 import { Box, BoxProps, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
+import { Skeleton } from "@material-ui/lab";
 import * as React from "react";
 import { useCallback, useEffect, useState } from "react";
-import { useStore } from "react-redux";
 import Alert from "../../../components/Alert";
 import CircularProgress from "../../../components/CircularProgress";
 import { Message } from "../../../pb/conversations_pb";
 import { HostRequest } from "../../../pb/requests_pb";
 import { service } from "../../../service";
-import { useAppDispatch } from "../../../store";
 import { useAuthContext } from "../../auth/AuthProvider";
-import { fetchUsers, getUser } from "../../userCache";
+import { useUser } from "../../userQueries/useUsers";
 import MessageList from "../messagelist/MessageList";
 
 const useStyles = makeStyles({ root: {} });
@@ -23,7 +22,6 @@ export default function HostRequestView({ hostRequest }: HostRequestViewProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [messages, setMessages] = useState<Message.AsObject[]>([]);
-  const dispatch = useAppDispatch();
   const fetchMessages = useCallback(async () => {
     setLoading(true);
     try {
@@ -38,12 +36,6 @@ export default function HostRequestView({ hostRequest }: HostRequestViewProps) {
   }, [hostRequest.hostRequestId]);
 
   useEffect(() => {
-    dispatch(
-      fetchUsers({ userIds: [hostRequest.fromUserId, hostRequest.toUserId] })
-    );
-  }, [hostRequest.fromUserId, hostRequest.toUserId]);
-
-  useEffect(() => {
     fetchMessages();
   }, [fetchMessages]);
 
@@ -55,9 +47,10 @@ export default function HostRequestView({ hostRequest }: HostRequestViewProps) {
     await fetchMessages();
   };
 
-  const store = useStore();
-  const surfer = getUser(store.getState(), hostRequest.fromUserId);
-  const host = getUser(store.getState(), hostRequest.toUserId);
+  const { data: surfer, isLoading: surferLoading } = useUser(
+    hostRequest.fromUserId
+  );
+  const { data: host, isLoading: hostLoading } = useUser(hostRequest.toUserId);
   const currentUser = useAuthContext().authState.user;
   const surferName =
     currentUser?.userId === surfer?.userId ? "you" : surfer?.name;
@@ -67,7 +60,9 @@ export default function HostRequestView({ hostRequest }: HostRequestViewProps) {
   const classes = useStyles();
   return (
     <Box className={classes.root}>
-      <Typography variant="h3">{title}</Typography>
+      <Typography variant="h3">
+        {surferLoading || hostLoading ? <Skeleton /> : title}
+      </Typography>
       {error && <Alert severity={"error"}>{error}</Alert>}
       {loading ? (
         <CircularProgress />

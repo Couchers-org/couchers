@@ -1,9 +1,10 @@
-import { Error } from "grpc-web";
+import { Error, StatusCode } from "grpc-web";
 import { useEffect } from "react";
 import { useQuery, useQueryClient } from "react-query";
+import { reactQueryRetries } from "../../constants";
 import { User } from "../../pb/api_pb";
 import { service } from "../../service";
-import { userStaleTime } from "./useUsers";
+import { username2IdStaleTime, userStaleTime } from "./constants";
 
 export default function useUserByUsername(
   username: string,
@@ -20,6 +21,12 @@ export default function useUserByUsername(
     },
     staleTime: username2IdStaleTime,
     cacheTime: username2IdStaleTime,
+    retry: (failureCount, error) => {
+      //don't retry if the user isn't found
+      return (
+        error.code !== StatusCode.NOT_FOUND && failureCount <= reactQueryRetries
+      );
+    },
   });
 
   const queryClient = useQueryClient();
@@ -37,7 +44,7 @@ export default function useUserByUsername(
     enabled: !!usernameQuery.data,
   });
 
-  const errors = [
+  const error = [
     usernameQuery.error?.message || "",
     query.error?.message || "",
   ].join("\n");
@@ -47,7 +54,7 @@ export default function useUserByUsername(
   return {
     isLoading,
     isError,
-    errors,
+    error,
     data: query.data,
   };
 }
