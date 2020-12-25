@@ -75,7 +75,7 @@ def upgrade():
     op.create_check_constraint(
         "ck_page_one_owner",
         "pages",
-        "owner_user_id IS NULL AND owner_cluster_id IS NOT NULL OR owner_user_id IS NOT NULL AND owner_cluster_id IS NULL",
+        "(owner_user_id IS NULL AND owner_cluster_id IS NOT NULL) OR (owner_user_id IS NOT NULL AND owner_cluster_id IS NULL)",
     )
     op.create_foreign_key("fk_clusters_main_page_id_pages", "clusters", "pages", ["main_page_id"], ["id"])
     op.create_index(op.f("ix_pages_creator_user_id"), "pages", ["creator_user_id"], unique=False)
