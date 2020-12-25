@@ -11,6 +11,7 @@ import "./App.css";
 import AppRoutes from "./AppRoutes";
 import Navigation from "./components/Navigation";
 import PageTitle from "./components/PageTitle";
+import { ReactQueryClientProvider } from "./reactQueryClient";
 import { theme } from "./theme";
 
 const useStyles = makeStyles((theme) => ({
@@ -33,14 +34,16 @@ function App() {
   return (
     <Router>
       <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <Navigation />
-        <Container maxWidth="md" className={classes.padding}>
-          <Hidden mdUp>
-            <PageTitle>Couchers</PageTitle>
-          </Hidden>
-          <AppRoutes />
-        </Container>
+        <ReactQueryClientProvider>
+          <CssBaseline />
+          <Navigation />
+          <Container maxWidth="md" className={classes.padding}>
+            <Hidden mdUp>
+              <PageTitle>Couchers</PageTitle>
+            </Hidden>
+            <AppRoutes />
+          </Container>
+        </ReactQueryClientProvider>
       </ThemeProvider>
     </Router>
   );
