@@ -5,7 +5,7 @@ import Map from "../../components/Map";
 import { userRoute } from "../../AppRoutes";
 import { LngLat, Map as MapboxMap } from "mapbox-gl";
 import { useHistory, useLocation } from "react-router-dom";
-import { onLand } from "./mapActions"
+import { onLand, getRegion } from "./mapActions";
 import { useAppDispatch } from "../../store";
 import { addClusteredUsersToMap } from "./clusteredUsers";
 
@@ -35,9 +35,10 @@ export default function MapPage() {
     map.on("load", () => {
       addClusteredUsersToMap(map, handleClick);
       map.on("click", (ev: any) => {
-        console.log(ev.lngLat.lat, ev.lngLat.lng)
-        dispatch(onLand({lat: ev.lngLat.lat, lng: ev.lngLat.lng}))
-      })
+        console.log(ev.lngLat.lat, ev.lngLat.lng);
+        dispatch(onLand({ lat: ev.lngLat.lat, lng: ev.lngLat.lng }));
+        dispatch(getRegion({ lat: ev.lngLat.lat, lng: ev.lngLat.lng }));
+      });
     });
   };
 
