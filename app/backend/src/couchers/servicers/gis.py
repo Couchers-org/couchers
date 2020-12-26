@@ -54,5 +54,7 @@ class GIS(gis_pb2_grpc.GISServicer):
     def IsOnLand(self, request, context):
         with session_scope() as session:
             coordinate = create_coordinate(request.lat, request.lng)
-            on_land = session.query(exists().where(func.ST_Contains(LandPolygon.geom, coordinate))).scalar()
+            on_land = session.query(
+                session.query(LandPolygon).filter(func.ST_Contains(LandPolygon.geom, coordinate)).exists()
+            ).scalar()
         return gis_pb2.IsOnLandRes(on_land=on_land)
