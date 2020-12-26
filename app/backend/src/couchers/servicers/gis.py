@@ -2,10 +2,10 @@ import json
 import logging
 
 import grpc
-from sqlalchemy.sql import exists, func
+from sqlalchemy.sql import exists, func, select
 
 from couchers.db import session_scope
-from couchers.models import LandPolygon
+from couchers.models import LandPolygon, RegionPolygon
 from couchers.utils import create_coordinate
 from pb import gis_pb2, gis_pb2_grpc
 from pb.google.api import httpbody_pb2
@@ -58,3 +58,14 @@ class GIS(gis_pb2_grpc.GISServicer):
                 session.query(LandPolygon).filter(func.ST_Contains(LandPolygon.geom, coordinate)).exists()
             ).scalar()
         return gis_pb2.IsOnLandRes(on_land=on_land)
+
+    def GetRegion(self, request, context):
+        with session_scope() as session:
+            coordinate = create_coordinate(request.lat, request.lng)
+            region = (
+                session.query(RegionPolygon.alpha3)
+                .filter(func.ST_Contains(RegionPolygon.geom, coordinate))
+                .order_by(RegionPolygon.admin_level.desc(), RegionPolygon.area)
+                .first()
+            )
+            return gis_pb2.GetRegionRes(region=region.alpha3 if region else None)

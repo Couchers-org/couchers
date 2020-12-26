@@ -24,6 +24,9 @@ service GIS {
 
   // Returns whether the given point is on land or not
   rpc IsOnLand(IsOnLandReq) returns (IsOnLandRes);
+
+  // Returns the region that the given point lies in
+  rpc GetRegion(GetRegionReq) returns (GetRegionRes);
 }
 
 message IsOnLandReq {
@@ -33,4 +36,13 @@ message IsOnLandReq {
 
 message IsOnLandRes {
   bool on_land = 1;
+}
+
+message GetRegionReq {
+  double lat = 1;
+  double lng = 2;
+}
+
+message GetRegionRes {
+  string region = 1;
 }
