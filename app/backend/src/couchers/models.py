@@ -787,7 +787,7 @@ class Page(Base):
 
     # Only one of owner_user and owner_cluster should be set
     CheckConstraint(
-        "owner_user_id IS NULL AND owner_cluster_id IS NOT NULL OR owner_user_id IS NOT NULL AND owner_cluster_id IS NULL",
+        "(owner_user_id IS NULL AND owner_cluster_id IS NOT NULL) OR (owner_user_id IS NOT NULL AND owner_cluster_id IS NULL)",
         name="one_owner",
     )
 
