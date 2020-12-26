@@ -9,6 +9,7 @@ from couchers import config
 from couchers.db import apply_migrations, session_scope
 from couchers.interceptors import ErrorSanitizationInterceptor, LoggingInterceptor
 from couchers.models import Base
+from couchers.regions import update_regions
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
@@ -64,6 +65,9 @@ with session_scope() as session:
 logger.info(f"Running DB migrations")
 
 apply_migrations()
+
+# update the database regions
+update_regions()
 
 if config.config["ADD_DUMMY_DATA"]:
     add_dummy_data()

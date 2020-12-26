@@ -989,3 +989,44 @@ class LandPolygon(Base):
     x = Column(SmallInteger)
     y = Column(SmallInteger)
     geom = Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False)
+
+
+class Region(Base):
+    """
+    A region/country in our system
+    """
+
+    __tablename__ = "regions"
+
+    # iso 3166-1 alpha3 code, e.g. FIN, USA
+    alpha3 = Column(String(3), primary_key=True)
+
+    # iso 3166-1 alpha2 code, e.g. FI, US
+    alpha2 = Column(String(2), nullable=False, unique=True)
+
+    # the name, e.g. Finland, United States
+    # this is the display name in English, should be the "common name", not "Republic of Finland"
+    name = Column(String, nullable=False, unique=True)
+
+    # helps with ranking
+    population = Column(Integer, nullable=True)
+
+    # helps with linking it up
+    wikidata_id = Column(String, nullable=False)
+
+
+class RegionPolygon(Base):
+    """
+    A contiguous polygon part of a country.
+
+    We use this instead of MultiPolygon in the Region table due to indexing reasons (MyltiPolygons have huge BBoxes)
+    """
+
+    __tablename__ = "region_polygons"
+
+    id = Column(BigInteger, primary_key=True)
+
+    alpha3 = Column(ForeignKey("regions.alpha3"), nullable=False)
+    geom = Column(Geometry(geometry_type="POLYGON", srid=4326), nullable=False)
+    admin_level = Column(SmallInteger, nullable=True)
+    area = Column(Float, nullable=False)

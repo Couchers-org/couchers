@@ -1,3 +1,8 @@
+# land_polygons.sh
 /land-polygons-split-4326.zip
 /land-polygons-split-4326/*
 /land_polygons.sql
+
+# extract_regions.sh
+/all_geom.osm
+/region_polygons.data
