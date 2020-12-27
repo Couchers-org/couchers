@@ -96,7 +96,6 @@ export default function useAuthStore() {
         try {
           const auth = await service.user.completeSignup(signupArguments);
           setJailed(auth.jailed);
-
           if (!auth.jailed) {
             const user = await service.user.getCurrentUser();
             setUser(user);
@@ -111,9 +110,6 @@ export default function useAuthStore() {
       async updateJailStatus() {
         setError(null);
         setLoading(true);
-        if (!authenticated) {
-          throw Error("User is not connected.");
-        }
         try {
           const isJailed = (await service.jail.getIsJailed()).isJailed;
           setJailed(isJailed);
@@ -135,8 +131,9 @@ export default function useAuthStore() {
         setLoading(false);
       },
     }),
-
-    [authenticated, setAuthenticated, setJailed, setUser]
+    //note: there should be no dependenices on the state, or
+    //some useEffects will break. Eg. the token login in Login.tsx
+    [setAuthenticated, setJailed, setUser]
   );
 
   // TODO: this should be refactored to react-query when user is replaced with userId
