@@ -12,5 +12,5 @@ def run_background():
     return None
 
 
-def terminate_background(bundle):
+def wait_for_background(bundle):
     pass

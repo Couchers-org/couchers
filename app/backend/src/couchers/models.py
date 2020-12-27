@@ -1105,7 +1105,7 @@ class BackgroundJob(Base):
     queued = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     # time at which we may next attempt it, for implementing exponential backoff
-    next_attempt = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    next_attempt_after = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     # used to count number of retries for failed jobs
     try_count = Column(Integer, nullable=False, default=0)
@@ -1114,3 +1114,14 @@ class BackgroundJob(Base):
 
     # protobuf encoded job payload
     payload = Column(Binary, nullable=False)
+
+    # if the job failed, we write that info here
+    failure_info = Column(String, nullable=True)
+
+    @hybrid_property
+    def is_ready(self):
+        return (
+            (self.state == BackgroundJobState.pending)
+            & (self.next_attempt_after <= func.now())
+            & (self.try_count < self.max_tries)
+        )

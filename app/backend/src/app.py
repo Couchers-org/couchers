@@ -1,8 +1,8 @@
 import logging
 import sys
 
-from app_bg import run_background, terminate_background
-from app_fg import run_foreground, terminate_foreground
+from app_bg import run_background, wait_for_background
+from app_fg import run_foreground, wait_for_foreground
 from couchers import config
 from couchers.db import apply_migrations, session_scope
 from dummy_data import add_dummy_data
@@ -46,10 +46,5 @@ if config.config["ROLE"] in ["fg", "both"]:
 if config.config["ROLE"] in ["bg", "both"]:
     bg = run_background()
 
-# ... TODO TODO TODO
-from time import sleep
-
-sleep(1000000)
-
-terminate_foreground(fg)
-terminate_background(bg)
+wait_for_foreground(fg)
+wait_for_background(bg)
