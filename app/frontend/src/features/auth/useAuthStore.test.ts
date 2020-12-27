@@ -156,18 +156,6 @@ describe("updateJailStatus action", () => {
     expect(result.current.authState.jailed).toBe(false);
     expect(result.current.authState.authenticated).toBe(true);
   });
-  it("throws if not logged in", async () => {
-    logoutMock.mockResolvedValue(new Empty());
-    addDefaultUser();
-    const { result } = renderHook(() => useAuthStore());
-    await act(async () => await result.current.authActions.logout());
-    expect.assertions(1);
-    try {
-      await act(() => result.current.authActions.updateJailStatus());
-    } catch (e) {
-      expect(e.message).toBe("User is not connected.");
-    }
-  });
 });
 
 describe("updateUserProfile action", () => {
