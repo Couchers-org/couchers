@@ -13,7 +13,6 @@ const useSearchStyles = makeStyles((theme) => ({
     left: 10,
     top: 10,
     width: "70%",
-    display: "flex",
     padding: theme.spacing(1),
     borderRadius: theme.shape.borderRadius,
     zIndex: 1,
@@ -32,6 +31,7 @@ const useSearchStyles = makeStyles((theme) => ({
       fontSize: "0.65rem",
     },
   },
+  form: { width: "100%", display: "flex" },
   autocomplete: { flexGrow: 1 },
 }));
 
@@ -112,36 +112,42 @@ export default function MapSearch({
 
   return (
     <Box className={classes.root}>
-      <Autocomplete
-        label="My location"
-        value={value}
-        size="small"
-        options={searchOptions.map((o) => o.name)}
-        loading={searchOptionsLoading}
-        open={open}
-        onBlur={() => setOpen(false)}
-        onChange={(e, inputValue, reason) => {
-          e.stopPropagation();
+      <form
+        onSubmit={(e) => {
           e.preventDefault();
-          setValue(inputValue ?? "");
-          searchSubmit(inputValue ?? "", reason);
-        }}
-        onInputChange={(_, inputValue) => setValue(inputValue)}
-        freeSolo
-        multiple={false}
-        disableClearable={false}
-        className={classes.autocomplete}
-      />
-      <IconButton
-        aria-label="Search location"
-        size="small"
-        onClick={() => {
-          setValue(value);
           searchSubmit(value, "create-option");
         }}
+        className={classes.form}
       >
-        <SearchIcon />
-      </IconButton>
+        <Autocomplete
+          label="My location"
+          value={value}
+          size="small"
+          options={searchOptions.map((o) => o.name)}
+          loading={searchOptionsLoading}
+          open={open}
+          onBlur={() => setOpen(false)}
+          onChange={(e, inputValue, reason) => {
+            setValue(inputValue ?? "");
+            searchSubmit(inputValue ?? "", reason);
+          }}
+          onInputChange={(_, inputValue) => setValue(inputValue)}
+          freeSolo
+          multiple={false}
+          disableClearable={false}
+          className={classes.autocomplete}
+        />
+        <IconButton
+          aria-label="Search location"
+          size="small"
+          onClick={() => {
+            setValue(value);
+            searchSubmit(value, "create-option");
+          }}
+        >
+          <SearchIcon />
+        </IconButton>
+      </form>
     </Box>
   );
 }
