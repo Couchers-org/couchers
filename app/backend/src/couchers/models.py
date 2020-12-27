@@ -1068,3 +1068,49 @@ class Reply(Base):
     deleted = Column(DateTime(timezone=True), nullable=True)
 
     comment = relationship("Comment", backref="replies")
+
+
+class BackgroundJobType(enum.Enum):
+    # payload: org.couchers.internal.jobs.SendEmailPayload
+    send_email = 1
+
+
+class BackgroundJobState(enum.Enum):
+    # job is fresh, waiting to be picked off the queue
+    pending = 1
+    # job has been grabbed by a worker, and is being worked on
+    working = 2
+    # job complete
+    completed = 3
+    # error occured, will be retried
+    error = 4
+    # failed too many times, not retrying anymore
+    failed = 5
+
+
+class BackgroundJob(Base):
+    """
+    This table implements a queue of background jobs.
+    """
+
+    __tablename__ = "background_jobs"
+
+    id = Column(BigInteger, primary_key=True)
+
+    # used to discern which function should be triggered to service it
+    job_type = Column(Enum(BackgroundJobType), nullable=False)
+    state = Column(Enum(BackgroundJobState), nullable=False, default=BackgroundJobState.pending)
+
+    # time queued
+    queued = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    # time at which we may next attempt it, for implementing exponential backoff
+    next_attempt = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    # used to count number of retries for failed jobs
+    try_count = Column(Integer, nullable=False, default=0)
+
+    max_tries = Column(Integer, nullable=False, default=5)
+
+    # protobuf encoded job payload
+    payload = Column(Binary, nullable=False)

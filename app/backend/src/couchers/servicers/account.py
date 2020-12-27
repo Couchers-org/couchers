@@ -122,7 +122,7 @@ class Account(account_pb2_grpc.AccountServicer):
             user.new_email = request.new_email
             token, expiry_text = set_email_change_token(session, user)
 
-            session.add(send_email_changed_notification_email(user))
-            session.add(send_email_changed_confirmation_email(user, token, expiry_text))
+            send_email_changed_notification_email(user)
+            send_email_changed_confirmation_email(user, token, expiry_text)
             # session autocommit
         return empty_pb2.Empty()

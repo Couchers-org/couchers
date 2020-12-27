@@ -1,0 +1,13 @@
+// background job stuff, not an API
+syntax = "proto3";
+
+package org.couchers.internal.jobs;
+
+message SendEmailPayload {
+  string sender_name = 1;
+  string sender_email = 2;
+  string recipient = 3;
+  string subject = 4;
+  string plain = 5;
+  string html = 6;
+}
