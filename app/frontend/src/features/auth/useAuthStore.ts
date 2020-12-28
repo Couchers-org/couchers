@@ -113,6 +113,11 @@ export default function useAuthStore() {
         try {
           const isJailed = (await service.jail.getIsJailed()).isJailed;
           setJailed(isJailed);
+          if (!isJailed) {
+            ///TODO: Remove this when changing to userId
+            const user = await service.user.getCurrentUser();
+            setUser(user);
+          }
         } catch (e) {
           setError(e.message);
         }
