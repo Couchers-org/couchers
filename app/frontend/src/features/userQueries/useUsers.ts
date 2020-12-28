@@ -33,7 +33,7 @@ export default function useUsers(ids: number[], invalidate: boolean = false) {
 
   const usersById = isLoading
     ? undefined
-    : new Map(queries.map((q) => [q.data!.userId, q.data!]));
+    : new Map(queries.map((q, index) => [ids[index], q.data]));
 
   return {
     isLoading,
