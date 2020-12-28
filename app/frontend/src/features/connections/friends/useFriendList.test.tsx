@@ -56,6 +56,7 @@ describe("when the listFriends query succeeds", () => {
     });
     await waitForNextUpdate();
 
+    // Called twice since the user has two friends in the fixture data
     expect(getUserMock).toHaveBeenCalledTimes(2);
     expect(result.current).toEqual({
       isLoading: false,
@@ -86,13 +87,13 @@ describe("when the listFriends query succeeds", () => {
     getUserMock.mockImplementation((userId: string) => {
       return userId === "2"
         ? getUser(userId)
-        : new Promise((r) => setTimeout(() => r(getUser(userId)), 1));
+        : new Promise((r) => setTimeout(() => r(getUser(userId)), 50));
     });
 
     const { result, waitForNextUpdate } = renderHook(() => useFriendList(), {
       wrapper,
     });
-    await waitForNextUpdate();
+    await waitForNextUpdate({ timeout: 10 });
 
     expect(result.current).toMatchObject({
       isLoading: true,
