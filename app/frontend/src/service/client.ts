@@ -14,7 +14,7 @@ export const setUnauthenticatedErrorHandler = (f: () => Promise<void>) => {
   _unauthenticatedErrorHandler = f;
 };
 
-class AuthInterceptor {
+export class AuthInterceptor {
   async intercept(request: any, invoker: (request: any) => any) {
     let response;
     try {
