@@ -150,6 +150,7 @@ describe("updateJailStatus action", () => {
   });
   it("sets jailed to false for non-jailed user", async () => {
     getIsJailedMock.mockResolvedValue({ isJailed: false });
+    getCurrentUserMock.mockResolvedValue({});
     addDefaultUser();
     const { result } = renderHook(() => useAuthStore());
     await act(() => result.current.authActions.updateJailStatus());
