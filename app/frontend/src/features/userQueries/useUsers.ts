@@ -12,7 +12,7 @@ export default function useUsers(ids: number[], invalidate: boolean = false) {
       queryClient.invalidateQueries({
         predicate: (query) =>
           query.queryKey[0] === "user" &&
-          ids.indexOf(query.queryKey[1] as number) > -1,
+          ids.includes(query.queryKey[1] as number),
       });
     }
   }, [invalidate, queryClient, ids]);
@@ -29,7 +29,7 @@ export default function useUsers(ids: number[], invalidate: boolean = false) {
     .map((query) => query.error?.message)
     .filter((e): e is string => typeof e === "string");
   const isLoading = queries.some((query) => query.isLoading);
-  const isError = !errors.length;
+  const isError = !!errors.length;
 
   const usersById = isLoading
     ? undefined
@@ -49,6 +49,6 @@ export function useUser(id: number, invalidate: boolean = false) {
     isLoading: result.isLoading,
     isError: result.isError,
     error: result.errors.join("\n"),
-    data: result.data?.get(id) ?? undefined,
+    data: result.data?.get(id),
   };
 }
