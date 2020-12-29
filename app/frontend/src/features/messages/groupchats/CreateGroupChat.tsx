@@ -78,7 +78,7 @@ export default function CreateGroupChat() {
               multiple={true}
               options={Array.from(friends!.values())}
               getOptionLabel={(friend) => {
-                return friend.name;
+                return friend?.name ?? "(User load error)";
               }}
               label="Friends"
             />
