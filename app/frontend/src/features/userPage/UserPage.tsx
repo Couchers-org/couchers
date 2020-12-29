@@ -42,14 +42,7 @@ export default function UserPage() {
             </UserSection>
           </Grid>
         </Grid>
-      ) : (
-        !isLoading &&
-        !isError && (
-          <Alert severity="error">
-            Error: finished loading but no user set.
-          </Alert>
-        )
-      )}
+      ) : null}
     </>
   );
 }
