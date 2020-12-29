@@ -28,12 +28,13 @@ function useFriendList() {
       (query: UseQueryResult<unknown, Error>) => query.error?.message
     ),
   ].filter((e): e is string => typeof e === "string");
+  const data = friendIds && friendQueries.map((query) => query.data);
 
   return {
     isLoading: isLoading || friendQueries.some((query) => query.isLoading),
     isError: hasErrors,
     errors,
-    friendQueries,
+    data,
   };
 }
 

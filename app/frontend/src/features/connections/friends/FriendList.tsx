@@ -42,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
 function FriendList() {
   const baseClasses = useFriendsBaseStyles();
   const classes = useStyles();
-  const { errors, isLoading, isError, friendQueries } = useFriendList();
+  const { errors, isLoading, isError, data: friends } = useFriendList();
 
   return (
     <Card>
@@ -50,24 +50,25 @@ function FriendList() {
         <Typography className={baseClasses.header} variant="h2">
           Your friends
         </Typography>
-        {isLoading ? (
-          <CircularProgress className={baseClasses.circularProgress} />
-        ) : isError ? (
+        {isError && (
           <Alert className={baseClasses.errorAlert} severity="error">
             {errors.join("\n")}
           </Alert>
+        )}
+        {isLoading ? (
+          <CircularProgress className={baseClasses.circularProgress} />
         ) : (
-          friendQueries.map(({ data: user }) =>
-            user ? (
-              <Box className={classes.friendItem} key={user.userId}>
+          friends!.map((friend) =>
+            friend ? (
+              <Box className={classes.friendItem} key={friend.userId}>
                 <Link
                   className={classes.friendLink}
-                  to={`/user/${user.username}`}
+                  to={`/user/${friend.username}`}
                 >
                   <Typography variant="h2" component="h3">
-                    {user.name}
+                    {friend.name}
                   </Typography>
-                  <TextBody>@{user.username}</TextBody>
+                  <TextBody>@{friend.username}</TextBody>
                 </Link>
                 <Box>
                   <IconButton aria-label="Direct message">

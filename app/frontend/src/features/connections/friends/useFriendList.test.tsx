@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import React from "react";
 import { service } from "../../../service";
 import useFriendList from "./useFriendList";
+import { wait } from "../../../test/utils";
 import { getUser, listFriends } from "../../../test/serviceMockDefaults";
 
 const listFriendsMock = service.api.listFriends as jest.Mock;
@@ -41,7 +42,7 @@ describe("when the listFriends query is loading", () => {
       isLoading: true,
       isError: false,
       errors: [],
-      friendQueries: [],
+      data: undefined,
     });
     expect(getUserMock).not.toHaveBeenCalled();
 
@@ -62,23 +63,19 @@ describe("when the listFriends query succeeds", () => {
       isLoading: false,
       isError: false,
       errors: [],
-      friendQueries: [
-        expect.objectContaining({
-          data: {
-            name: "Funny Dog",
-            userId: 2,
-            username: "funnydog",
-            avatarUrl: "funnydog.jpg",
-          },
-        }),
-        expect.objectContaining({
-          data: {
-            name: "Funny Kid",
-            userId: 3,
-            username: "funnykid",
-            avatarUrl: "funnykid.jpg",
-          },
-        }),
+      data: [
+        {
+          name: "Funny Dog",
+          userId: 2,
+          username: "funnydog",
+          avatarUrl: "funnydog.jpg",
+        },
+        {
+          name: "Funny Kid",
+          userId: 3,
+          username: "funnykid",
+          avatarUrl: "funnykid.jpg",
+        },
       ],
     });
   });
@@ -99,22 +96,14 @@ describe("when the listFriends query succeeds", () => {
       isLoading: true,
       isError: false,
       errors: [],
-      friendQueries: [
+      data: [
         {
-          isLoading: false,
-          isError: false,
-          data: {
-            name: "Funny Dog",
-            userId: 2,
-            username: "funnydog",
-            avatarUrl: "funnydog.jpg",
-          },
+          name: "Funny Dog",
+          userId: 2,
+          username: "funnydog",
+          avatarUrl: "funnydog.jpg",
         },
-        {
-          isLoading: true,
-          isError: false,
-          data: undefined,
-        },
+        undefined,
       ],
     });
   });
@@ -135,28 +124,20 @@ describe("when the listFriends query succeeds", () => {
       isLoading: false,
       isError: false,
       errors: ["Error fetching user 2"],
-      friendQueries: [
+      data: [
+        undefined,
         {
-          isLoading: false,
-          isError: true,
-          data: undefined,
-        },
-        {
-          isLoading: false,
-          isError: false,
-          data: {
-            name: "Funny Kid",
-            userId: 3,
-            username: "funnykid",
-            avatarUrl: "funnykid.jpg",
-          },
+          name: "Funny Kid",
+          userId: 3,
+          username: "funnykid",
+          avatarUrl: "funnykid.jpg",
         },
       ],
     });
   });
 
   it("returns isError as true with errors if all getUser queries fail", async () => {
-    getUserMock.mockRejectedValue(new Error(`Error fetching user data`));
+    getUserMock.mockRejectedValue(new Error("Error fetching user data"));
 
     const { result, waitForNextUpdate } = renderHook(() => useFriendList(), {
       wrapper,
@@ -167,18 +148,7 @@ describe("when the listFriends query succeeds", () => {
       isLoading: false,
       isError: true,
       errors: ["Error fetching user data", "Error fetching user data"],
-      friendQueries: [
-        {
-          isLoading: false,
-          isError: true,
-          data: undefined,
-        },
-        {
-          isLoading: false,
-          isError: true,
-          data: undefined,
-        },
-      ],
+      data: [undefined, undefined],
     });
   });
 });
@@ -196,8 +166,61 @@ describe("when the listFriends query failed", () => {
       isLoading: false,
       isError: true,
       errors: ["Error listing friends"],
-      friendQueries: [],
+      data: undefined,
     });
     expect(getUserMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("with cached user data", () => {
+  it("returns isError as true with the stale data if subsequent refetch queries fail", async () => {
+    const sharedClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    const sharedClientWrapper = ({
+      children,
+    }: {
+      children: React.ReactNode;
+    }) => (
+      <QueryClientProvider client={sharedClient}>
+        {children}
+      </QueryClientProvider>
+    );
+    renderHook(() => useFriendList(), {
+      wrapper: sharedClientWrapper,
+    });
+    await wait(0);
+
+    listFriendsMock.mockRejectedValue(new Error("Error listing friends"));
+    getUserMock.mockRejectedValue(new Error("Error fetching user data"));
+
+    const { result, waitForNextUpdate } = renderHook(() => useFriendList(), {
+      wrapper: sharedClientWrapper,
+    });
+    await waitForNextUpdate();
+
+    expect(result.current).toMatchObject({
+      isLoading: false,
+      isError: true,
+      errors: [
+        "Error listing friends",
+        "Error fetching user data",
+        "Error fetching user data",
+      ],
+      data: [
+        {
+          name: "Funny Dog",
+          userId: 2,
+          username: "funnydog",
+          avatarUrl: "funnydog.jpg",
+        },
+        {
+          name: "Funny Kid",
+          userId: 3,
+          username: "funnykid",
+          avatarUrl: "funnykid.jpg",
+        },
+      ],
+    });
   });
 });

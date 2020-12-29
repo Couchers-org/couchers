@@ -7,3 +7,7 @@ export function addDefaultUser() {
 }
 
 export const reset = createAction("reset");
+
+export function wait(milliSeconds: number) {
+  return new Promise((resolve) => setTimeout(resolve, milliSeconds));
+}
