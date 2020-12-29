@@ -4,7 +4,7 @@ import PageTitle from "../../components/PageTitle";
 import { labels } from "./constants";
 import GroupChatsTab from "./groupchats/GroupChatsTab";
 import SurfingTab from "./surfing/SurfingTab";
-import TabBar from "./TabBar";
+import TabBar from "../../components/TabBar";
 
 export default function Messages() {
   const [value, setValue] = React.useState<keyof typeof labels>("TAB_ALL");

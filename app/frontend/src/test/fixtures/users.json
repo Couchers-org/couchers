@@ -2,16 +2,19 @@
   {
     "name": "Funny Cat current User",
     "userId": 1,
-    "username": "funnycat"
+    "username": "funnycat",
+    "avatarUrl": "funnycat.jpg"
   },
   {
     "name": "Funny Dog",
     "userId": 2,
-    "username": "funnydog"
+    "username": "funnydog",
+    "avatarUrl": "funnydog.jpg"
   },
   {
     "name": "Funny Kid",
     "userId": 3,
-    "username": "funnykid"
+    "username": "funnykid",
+    "avatarUrl": "funnykid.jpg"
   }
 ]
