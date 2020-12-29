@@ -1,23 +1,35 @@
 import { TabContext, TabPanel } from "@material-ui/lab";
-import React, { useState } from "react";
+import React from "react";
+import { useHistory, useParams } from "react-router";
+import { connectionsRoute } from "../../AppRoutes";
 import PageTitle from "../../components/PageTitle";
 import FriendsTab from "./friends/FriendsTab";
 import TabBar from "../../components/TabBar";
 
 const labels = {
-  TAB_ALL: "All",
-  TAB_FRIENDS: "Friends",
+  all: "All",
+  friends: "Friends",
 };
 
 function ConnectionsPage() {
-  const [value, setValue] = useState<keyof typeof labels>("TAB_ALL");
+  const history = useHistory();
+  const { type = "all" } = useParams<{ type: keyof typeof labels }>();
+
   return (
     <>
       <PageTitle>My Connections</PageTitle>
-      <TabContext value={value}>
-        <TabBar value={value} setValue={setValue} labels={labels} />
-        <TabPanel value="TAB_ALL">ALL</TabPanel>
-        <TabPanel value="TAB_FRIENDS">
+      <TabContext value={type}>
+        <TabBar
+          value={type}
+          setValue={(newType) =>
+            history.push(
+              `${connectionsRoute}/${newType !== "all" ? newType : ""}`
+            )
+          }
+          labels={labels}
+        />
+        <TabPanel value="all">ALL</TabPanel>
+        <TabPanel value="friends">
           <FriendsTab />
         </TabPanel>
       </TabContext>

@@ -75,7 +75,7 @@ export default function AppRoutes() {
       <PrivateRoute path={`${searchRoute}/:query?`}>
         <SearchPage />
       </PrivateRoute>
-      <PrivateRoute path={connectionsRoute}>
+      <PrivateRoute path={`${connectionsRoute}/:type?`}>
         <ConnectionsPage />
       </PrivateRoute>
       <PrivateRoute exact path="/">
