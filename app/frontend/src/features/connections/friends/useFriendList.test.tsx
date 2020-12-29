@@ -82,15 +82,13 @@ describe("when the listFriends query succeeds", () => {
 
   it("returns isLoading as true with no errors if some getUser queries are loading", async () => {
     getUserMock.mockImplementation((userId: string) => {
-      return userId === "2"
-        ? getUser(userId)
-        : new Promise((r) => setTimeout(() => r(getUser(userId)), 50));
+      return userId === "2" ? getUser(userId) : new Promise(() => void 0);
     });
 
     const { result, waitForNextUpdate } = renderHook(() => useFriendList(), {
       wrapper,
     });
-    await waitForNextUpdate({ timeout: 10 });
+    await waitForNextUpdate();
 
     expect(result.current).toMatchObject({
       isLoading: true,
