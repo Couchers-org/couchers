@@ -58,28 +58,27 @@ def update_regions(include_population=False):
         populations = _get_populations_from_wikidata()
 
     with session_scope() as session:
-        for region in data:
-            name = region["name"]
-            wikidata = region["wikidata"]
-            alpha2 = region["alpha2"]
-            alpha3 = region["alpha3"]
+        for region_data in data:
+            name = region_data["name"]
+            wikidata = region_data["wikidata"]
+            alpha2 = region_data["alpha2"]
+            alpha3 = region_data["alpha3"]
 
-            reg = session.query(Region).filter(Region.alpha3 == alpha3).one_or_none()
+            region = session.query(Region).filter(Region.alpha3 == alpha3).one_or_none()
 
-            if reg:
+            if region:
                 # region exists, check it matches json
                 if (
-                    reg.alpha2 != alpha2
-                    or reg.name != name
-                    or reg.wikidata_id != wikidata
-                    or (include_population and reg.population != populations.get(alpha3, 0))
+                    region.alpha2 != alpha2
+                    or region.name != name
+                    or region.wikidata_id != wikidata
+                    or (include_population and region.population != populations.get(alpha3, 0))
                 ):
-                    reg.alpha2 = alpha2
-                    reg.name = name
-                    reg.wikidata_id = wikidata
+                    region.alpha2 = alpha2
+                    region.name = name
+                    region.wikidata_id = wikidata
                     if include_population:
-                        reg.population = populations.get(alpha3, 0)
-                    session.commit()
+                        region.population = populations.get(alpha3, 0)
             else:
                 session.add(
                     Region(
@@ -90,4 +89,3 @@ def update_regions(include_population=False):
                         wikidata_id=wikidata,
                     )
                 )
-                session.commit()
