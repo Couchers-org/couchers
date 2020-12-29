@@ -9,15 +9,13 @@ import CircularProgress from "../../../components/CircularProgress";
 import TextField from "../../../components/TextField";
 import { hostingStatusLabels } from "../../profile/constants";
 import { HostingStatus } from "../../../pb/api_pb";
-import { useAppDispatch, useTypedSelector } from "../../../store";
-import { signup } from "../authActions";
-import { authError } from "../authSlice";
 import { service } from "../../../service";
 import {
   nameValidationPattern,
   usernameValidationPattern,
   validatePastDate,
 } from "../../../utils/validation";
+import { useAuthContext } from "../AuthProvider";
 
 type SignupInputs = {
   email: string;
@@ -30,8 +28,8 @@ type SignupInputs = {
 };
 
 export default function CompleteSignup() {
-  const dispatch = useAppDispatch();
-  const authLoading = useTypedSelector((state) => state.auth.loading);
+  const { authState, authActions } = useAuthContext();
+  const authLoading = authState.loading;
 
   const {
     control,
@@ -60,27 +58,25 @@ export default function CompleteSignup() {
             shouldDirty: true,
           });
         } catch (err) {
-          dispatch(authError(err.message));
+          authActions.authError(err.message);
           history.push(signupRoute);
           return;
         }
         setLoading(false);
       }
     })();
-  }, [urlToken, dispatch, location.pathname, setValue, history]);
+  }, [urlToken, authActions, location.pathname, setValue, history]);
 
   const completeSignup = handleSubmit(async (data: SignupInputs) => {
-    dispatch(
-      signup({
-        signupToken: urlToken,
-        username: data.username,
-        name: data.name,
-        city: data.city,
-        birthdate: data.birthdate,
-        gender: data.gender,
-        hostingStatus: data.hostingStatus,
-      })
-    );
+    authActions.signup({
+      signupToken: urlToken,
+      username: data.username,
+      name: data.name,
+      city: data.city,
+      birthdate: data.birthdate,
+      gender: data.gender,
+      hostingStatus: data.hostingStatus,
+    });
   });
 
   return (

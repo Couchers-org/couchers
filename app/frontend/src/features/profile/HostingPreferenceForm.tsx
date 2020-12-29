@@ -6,17 +6,15 @@ import {
   Typography,
 } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
-import { unwrapResult } from "@reduxjs/toolkit";
 import React, { useState } from "react";
 import { Controller, useForm, UseFormMethods } from "react-hook-form";
-import { updateHostingPreference } from "./index";
 import Alert from "../../components/Alert";
 import Button from "../../components/Button";
 import { smokingLocationLabels } from "./constants";
 import ProfileTextInput from "./ProfileTextInput";
 import { HostingPreferenceData } from "../../service";
-import { useAppDispatch, useTypedSelector } from "../../store";
 import { SmokingLocation } from "../../pb/api_pb";
+import { useAuthContext } from "../auth/AuthProvider";
 
 interface HostingPreferenceCheckboxProps {
   className: string;
@@ -62,8 +60,8 @@ const useStyles = makeStyles((theme) => ({
 
 export default function HostingPreferenceForm() {
   const classes = useStyles();
-  const dispatch = useAppDispatch();
-  const user = useTypedSelector((state) => state.auth.user);
+  const { authState, profileActions } = useAuthContext();
+  const user = authState.user;
   const [alertState, setShowAlertState] = useState<
     "success" | "error" | undefined
   >();
@@ -76,7 +74,7 @@ export default function HostingPreferenceForm() {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      unwrapResult(await dispatch(updateHostingPreference(data)));
+      await profileActions.updateHostingPreferences(data);
       setShowAlertState("success");
     } catch (error) {
       setShowAlertState("error");

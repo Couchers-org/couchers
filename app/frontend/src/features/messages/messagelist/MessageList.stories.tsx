@@ -8,6 +8,7 @@ import { Message } from "../../../pb/conversations_pb";
 import rootReducer from "../../../reducers";
 import funnycat from "../../../stories/assets/funnycat.jpg";
 import MessageList, { MessageListProps } from "./MessageList";
+import AuthProvider from "../../auth/AuthProvider";
 
 const user1 = { ...users[0], avatarUrl: funnycat } as User.AsObject;
 
@@ -66,7 +67,6 @@ const message3: Message.AsObject = {
 
 const store = configureStore({
   reducer: rootReducer,
-  preloadedState: { auth: { user: user1 } },
 });
 
 export default {
@@ -75,7 +75,11 @@ export default {
   argTypes: {},
   decorators: [
     (storyFn) => {
-      return <Provider store={store}>{storyFn()}</Provider>;
+      return (
+        <AuthProvider>
+          <Provider store={store}>{storyFn()}</Provider>
+        </AuthProvider>
+      );
     },
   ],
 } as Meta;

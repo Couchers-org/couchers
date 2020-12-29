@@ -9,10 +9,7 @@ export const fetchHostRequests = createAsyncThunk<
   void,
   FetchHostRequestsArguments,
   { state: RootState }
->(
-  "hostRequests/fetchHostRequests",
-  async ({}: FetchHostRequestsArguments = {}, thunkApi) => {
-    const hostRequests = await service.requests.listHostRequests();
-    thunkApi.dispatch(hostRequestsFetched(hostRequests));
-  }
-);
+>("hostRequests/fetchHostRequests", async (_, thunkApi) => {
+  const hostRequests = await service.requests.listHostRequests();
+  thunkApi.dispatch(hostRequestsFetched(hostRequests));
+});

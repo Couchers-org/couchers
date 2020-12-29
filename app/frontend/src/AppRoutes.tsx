@@ -5,7 +5,6 @@ import Home from "./features/Home";
 import Messages from "./features/messages/index";
 import Logout from "./features/auth/Logout";
 import Signup from "./features/auth/signup/Signup";
-import { authError } from "./features/auth/authSlice";
 import {
   EditProfilePage,
   EditHostingPreferencePage,
@@ -16,7 +15,7 @@ import UserPage from "./features/userPage/UserPage";
 import SearchPage from "./features/search/SearchPage";
 import Jail from "./features/auth/jail/Jail";
 import TOS from "./components/TOS";
-import { useAppDispatch, useTypedSelector } from "./store";
+import { useAuthContext } from "./features/auth/AuthProvider";
 
 export const loginRoute = "/login";
 export const loginPasswordRoute = `${loginRoute}/password`;
@@ -82,14 +81,12 @@ export default function AppRoutes() {
 }
 
 const PrivateRoute = ({ children, ...otherProps }: RouteProps) => {
-  const dispatch = useAppDispatch();
-  const isAuthenticated = useTypedSelector(
-    (state) => state.auth.authenticated
-  );
-  const isJailed = useTypedSelector((state) => state.auth.jailed);
+  const { authState, authActions } = useAuthContext();
+  const isAuthenticated = authState.authenticated;
+  const isJailed = authState.jailed;
   useEffect(() => {
     if (!isAuthenticated) {
-      dispatch(authError("Please log in."));
+      authActions.authError("Please log in.");
     }
   });
 

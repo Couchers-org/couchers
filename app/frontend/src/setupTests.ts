@@ -12,12 +12,44 @@ jest.mock("./service");
 
 global.store = reduxStore;
 global.defaultUser = user;
+global.localStorage = createLocalStorageMock();
 
 afterEach(() => {
   reduxStore.dispatch(reset());
+  global.localStorage.clear();
 });
 
 declare global {
   var store: typeof reduxStore;
   var defaultUser: typeof user;
+}
+
+function createLocalStorageMock() {
+  return {
+    store: {} as Record<string, string>,
+
+    clear() {
+      this.store = {};
+    },
+
+    getItem(key: string) {
+      return this.store[key] || null;
+    },
+
+    setItem(key: string, value: string) {
+      this.store[key] = value;
+    },
+
+    removeItem(key: string) {
+      delete this.store[key];
+    },
+
+    get length() {
+      return Object.keys(this.store).length;
+    },
+
+    key(index: number) {
+      return this.store[Object.keys(this.store)[index]];
+    },
+  };
 }

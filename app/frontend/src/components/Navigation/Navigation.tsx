@@ -16,7 +16,7 @@ import {
   requestsRoute,
   logoutRoute,
 } from "../../AppRoutes";
-import { useTypedSelector } from "../../store";
+import { useAuthContext } from "../../features/auth/AuthProvider";
 import SearchBox from "../SearchBox";
 
 const menu = [
@@ -100,7 +100,7 @@ const useStyles = makeStyles((theme) => ({
 export default function Navigation() {
   const classes = useStyles();
 
-  const authenticated = useTypedSelector((state) => state.auth.authenticated);
+  const authenticated = useAuthContext().authState.authenticated;
 
   return (
     <AppBar
