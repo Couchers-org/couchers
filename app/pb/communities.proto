@@ -7,7 +7,7 @@ import "google/protobuf/timestamp.proto";
 service Communities {
   // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to auth.proto and jail.proto
 
-  // Discussion threads are organized into three levels:
+  // Discussion threads are organized as a tree with maximum three levels depth:
   // thread1
   // +- comment1
   // |  +- reply1
@@ -23,38 +23,26 @@ service Communities {
   //    +- reply7
   //    +- reply8
 
-  // Get non-deleted comments belonging to a thread, sorted in reverse time order.
-  // Pagination is supported by the posted_before_comment_id and number fields.
-  rpc GetComments(GetCommentsReq) returns (GetCommentsRes);
+  // The same API is used regardless of level. All posts are using the same id namespace.
 
-  // Get non-deleted replies belonging to a comment, sorted in reverse time order.
-  // Pagination is supported by the posted_before_reply_id and number fields.
-  rpc GetReplies(GetRepliesReq) returns (GetRepliesRes);
+  // Get non-deleted posts belonging to a thread, sorted in reverse time order.
+  // Pagination is supported by the posted_before_thread_id and number fields.
+  rpc ReadThread(ReadThreadReq) returns (ReadThreadRes);
 
-  // Post a new comment on a thread.
+  // Post a new comment on a thread. The post can not be changed or deleted after posting.
+  // Throws INVALID_ARGUMENT if thread_id corresponds to a nesting level 3 reply, since no futher nesting is allowed.
   rpc PostComment(PostCommentReq) returns (PostCommentRes);
-
-  // Post a new reply to a comment.
-  rpc PostReply(PostReplyReq) returns (PostReplyRes);
 }
 
-message GetCommentsReq {
+message ReadThreadReq {
   int64 thread_id = 1;
-  // Only get messages posted before the given reply id. Pass 0 to get all.
-  int64 posted_before_comment_id = 2;
-  // Maximum number of replies to return
+  // Only get comments posted before the comment having this thread_id. Pass 0 to get all.
+  int64 posted_before_thread_id = 2;
+  // Maximum number of comments to return.
   uint32 number = 3;
 }
 
-message GetRepliesReq {
-  int64 comment_id = 1;
-  // Only get messages posted before the given reply id. Pass 0 to get all.
-  int64 posted_before_reply_id = 2;
-  // Maximum number of replies to return
-  uint32 number = 3;
-}
-
-message GetCommentsRes {
+message ReadThreadRes {
   // sorted in inverse time order, latest comment first.
   repeated Comment comments = 1;
 
@@ -65,7 +53,7 @@ message GetCommentsRes {
 
 message GetRepliesRes {
   // sorted in inverse time order, latest reply first.
-  repeated Reply replies = 1;
+  repeated Comment replies = 1;
 
   // number of replies posted earlier than the ones returned in `replies`.
   // zero if all replies has been returned to the client.
@@ -73,7 +61,7 @@ message GetRepliesRes {
 }
 
 message Comment {
-  int64 comment_id = 1;
+  int64 thread_id = 1;
   string content = 2;  // markdown without images
   int64 author_user_id = 3;
   google.protobuf.Timestamp created_time = 4;
@@ -82,29 +70,12 @@ message Comment {
   uint32 num_replies = 5;
 }
 
-message Reply {
-  int64 reply_id = 1;
-  string content = 2;  // markdown without images
-  int64 author_user_id = 3;
-  google.protobuf.Timestamp created_time = 4;
-}
-
 message PostCommentReq {
   int64 thread_id = 1;
   string content = 2;  // markdown without images
 }
 
-message PostReplyReq {
-  int64 comment_id = 1;
-  string content = 2;  // markdown without images
-}
-
 message PostCommentRes {
   // The id of the just posted comment
-  int64 comment_id = 1;
-}
-
-message PostReplyRes {
-  // The id of the just posted reply
-  int64 reply_id = 1;
+  int64 thread_id = 1;
 }
