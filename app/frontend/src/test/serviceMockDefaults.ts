@@ -1,3 +1,4 @@
+import { HostRequestStatus } from "../pb/conversations_pb";
 import messages from "./fixtures/messages.json";
 import users from "./fixtures/users.json";
 
@@ -31,6 +32,22 @@ export async function listGroupChats() {
       // created?: google_protobuf_timestamp_pb.Timestamp.AsObject,
       unseenMessageCount: 0,
       lastSeenMessageId: 4,
+      latestMessage: messages[0],
+    },
+  ];
+}
+
+export async function listHostRequests() {
+  return [
+    {
+      hostRequestId: 1,
+      fromUserId: 1,
+      toUserId: 2,
+      status: HostRequestStatus.HOST_REQUEST_STATUS_PENDING,
+      created: { seconds: Date.now() / 1000, nanos: 0 },
+      fromDate: "2020/12/01",
+      toDate: "2020/12/06",
+      lastSeenMessageId: 0,
       latestMessage: messages[0],
     },
   ];
