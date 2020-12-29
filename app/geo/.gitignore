@@ -6,3 +6,9 @@
 # extract_regions.sh
 /all_geom.osm
 /region_polygons.data
+
+# regions_geojson.sh
+/ne_50m_admin_0_countries
+/alpha2to3.csv
+/countries.sql
+/regions.geojson

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { makeStyles } from "@material-ui/core";
+import { makeStyles, useTheme } from "@material-ui/core";
 import PageTitle from "../../components/PageTitle";
 import Map from "../../components/Map";
 import { userRoute } from "../../AppRoutes";
@@ -8,6 +8,7 @@ import { useHistory, useLocation } from "react-router-dom";
 import { onLand, getRegion } from "./mapActions";
 import { useAppDispatch } from "../../store";
 import { addClusteredUsersToMap } from "./clusteredUsers";
+import { addUserRegionsToMap } from "./userRegions";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -24,6 +25,8 @@ export default function MapPage() {
 
   const classes = useStyles();
 
+  const theme = useTheme();
+
   const dispatch = useAppDispatch();
 
   const handleClick = (ev: any) => {
@@ -33,6 +36,13 @@ export default function MapPage() {
 
   const initializeMap = (map: MapboxMap) => {
     map.on("load", () => {
+      // TODO: get these from the API
+      // note visited is wrong, does not have all from surfed
+      const visited = ["USA", "FIN", "FRA", "DEU", "CAN"]
+      const lived = ["USA", "FIN"]
+      const surfed = ["RUS"]
+      const hosted = ["MEX"]
+      addUserRegionsToMap(map, theme, visited, lived, surfed, hosted);
       addClusteredUsersToMap(map, handleClick);
       map.on("click", (ev: any) => {
         console.log(ev.lngLat.lat, ev.lngLat.lng);
