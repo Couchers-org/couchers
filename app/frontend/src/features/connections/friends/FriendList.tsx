@@ -57,8 +57,8 @@ function FriendList() {
         )}
         {isLoading ? (
           <CircularProgress className={baseClasses.circularProgress} />
-        ) : (
-          friends!.map((friend) =>
+        ) : friends ? (
+          friends.map((friend) =>
             friend ? (
               <Box className={classes.friendItem} key={friend.userId}>
                 <Link
@@ -81,7 +81,7 @@ function FriendList() {
               </Box>
             ) : null
           )
-        )}
+        ) : null}
       </Box>
     </Card>
   );

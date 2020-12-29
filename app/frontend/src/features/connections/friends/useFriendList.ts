@@ -4,10 +4,10 @@ import { User } from "../../../pb/api_pb";
 import { service } from "../../../service";
 
 function useFriendList() {
-  const { data: friendIds, error, isLoading, isError } = useQuery<
-    number[],
-    Error
-  >("friendIds", service.api.listFriends);
+  const { data: friendIds, error, isLoading } = useQuery<number[], Error>(
+    "friendIds",
+    service.api.listFriends
+  );
 
   const friendQueries = useQueries<User.AsObject, Error>(
     (friendIds ?? []).map((friendId) => {
@@ -19,9 +19,6 @@ function useFriendList() {
     })
   );
 
-  const hasErrors =
-    isError ||
-    !!(friendQueries.length && friendQueries.every((query) => query.isError));
   const errors = [
     error?.message,
     ...friendQueries.map(
@@ -32,7 +29,7 @@ function useFriendList() {
 
   return {
     isLoading: isLoading || friendQueries.some((query) => query.isLoading),
-    isError: hasErrors,
+    isError: !!errors.length,
     errors,
     data,
   };

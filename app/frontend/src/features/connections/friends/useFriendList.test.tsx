@@ -108,7 +108,7 @@ describe("when the listFriends query succeeds", () => {
     });
   });
 
-  it("returns some friends data with errors if some getUser queries failed", async () => {
+  it("returns isError as true and some friends data with the errors if some getUser queries failed", async () => {
     getUserMock.mockImplementation((userId: string) => {
       return userId === "2"
         ? Promise.reject(new Error(`Error fetching user ${userId}`))
@@ -122,7 +122,7 @@ describe("when the listFriends query succeeds", () => {
 
     expect(result.current).toMatchObject({
       isLoading: false,
-      isError: false,
+      isError: true,
       errors: ["Error fetching user 2"],
       data: [
         undefined,
