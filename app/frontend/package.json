@@ -31,9 +31,9 @@
     "eject": "react-scripts eject",
     "format": "prettier --write src/",
     "lint": "eslint src/",
-    "test-ci": "NODE_ENV=test && react-scripts test --coverageReporters=\"text\" --coverageReporters=\"cobertura\" --coverageReporters=\"lcov\" --reporters=\"default\" --reporters=\"jest-junit\" --coverage --watchAll=false",
+    "test-ci": "CI=true react-scripts test --coverageReporters=\"text\" --coverageReporters=\"cobertura\" --coverageReporters=\"lcov\" --reporters=\"default\" --reporters=\"jest-junit\" --coverage",
     "jest": "jest",
-    "storybook": "NODE_PATH=. start-storybook -p 6006 -s public",
+    "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "NODE_PATH=. build-storybook -s public"
   },
   "eslintConfig": {
@@ -52,7 +52,7 @@
           "@typescript-eslint/no-unused-vars": [
             "warn",
             {
-              "varsIgnorePattern": "classes"
+              "varsIgnorePattern": "classes|useStyles"
             }
           ]
         }
@@ -110,7 +110,7 @@
     "collectCoverageFrom": [
       "src/**/*.{ts,tsx}",
       "!**/node_modules/**",
-      "!src/pb/*"
+      "!src/pb/**"
     ],
     "resetMocks": true
   },

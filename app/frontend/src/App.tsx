@@ -12,8 +12,8 @@ import AppRoutes from "./AppRoutes";
 import Navigation from "./components/Navigation";
 import PageTitle from "./components/PageTitle";
 import AuthProvider from "./features/auth/AuthProvider";
-import { ReactQueryClientProvider } from "./reactQueryClient";
 import { theme } from "./theme";
+import { ReactQueryClientProvider } from "./reactQueryClient";
 
 const useStyles = makeStyles((theme) => ({
   padding: {
@@ -34,8 +34,8 @@ function App() {
   const classes = useStyles();
   return (
     <Router>
-      <AuthProvider>
-        <ThemeProvider theme={theme}>
+      <ThemeProvider theme={theme}>
+        <AuthProvider>
           <ReactQueryClientProvider>
             <CssBaseline />
             <Navigation />
@@ -46,8 +46,8 @@ function App() {
               <AppRoutes />
             </Container>
           </ReactQueryClientProvider>
-        </ThemeProvider>
-      </AuthProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </Router>
   );
 }

@@ -1,14 +1,13 @@
 import { makeStyles } from "@material-ui/core";
-import { Autocomplete } from "@material-ui/lab";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import Alert from "../../components/Alert";
 import Button from "../../components/Button";
-import TextField from "../../components/TextField";
 import ProfileTextInput from "./ProfileTextInput";
 import { UpdateUserProfileData } from "../../service/user";
 import { theme } from "../../theme";
 import ProfileMarkdownInput from "./ProfileMarkdownInput";
+import ProfileTagInput from "./ProfileTagInput";
 import EditUserLocationMap from "../../components/EditUserLocationMap";
 import { useAuthContext } from "../auth/AuthProvider";
 
@@ -101,30 +100,21 @@ export default function EditProfileForm() {
               defaultValue={user.occupation}
               inputRef={register}
             />
+
             <Controller
               control={control}
               defaultValue={user.languagesList}
               name="languages"
-              render={({ onChange }) => (
-                <Autocomplete
-                  defaultValue={user.languagesList}
-                  disableClearable={false}
-                  freeSolo
-                  multiple
+              render={({ onChange, value }) => (
+                <ProfileTagInput
                   onChange={(_, value) => onChange(value)}
-                  open={false}
-                  options={[""]}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      helperText="Press 'Enter' to add"
-                      label="Languages"
-                    />
-                  )}
+                  value={value}
+                  options={[]}
+                  label="Languages I speak"
+                  id="languages"
                 />
               )}
             />
-
             <Controller
               control={control}
               defaultValue={user.aboutMe}
@@ -154,48 +144,32 @@ export default function EditProfileForm() {
               control={control}
               defaultValue={user.countriesVisitedList}
               name="countriesVisited"
-              render={({ onChange }) => (
-                <Autocomplete
-                  defaultValue={user.countriesVisitedList}
-                  disableClearable={false}
-                  freeSolo
-                  multiple
+              render={({ onChange, value }) => (
+                <ProfileTagInput
                   onChange={(_, value) => onChange(value)}
-                  open={false}
-                  options={[""]}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      helperText="Press 'Enter' to add"
-                      label="Countries I visited"
-                    />
-                  )}
+                  value={value}
+                  options={[]}
+                  label="Countries I've Visited"
+                  id="countries-visited"
                 />
               )}
             />
+
             <Controller
               control={control}
               defaultValue={user.countriesLivedList}
               name="countriesLived"
-              render={({ onChange }) => (
-                <Autocomplete
-                  defaultValue={user.countriesLivedList}
-                  disableClearable={false}
-                  freeSolo
-                  multiple
+              render={({ onChange, value }) => (
+                <ProfileTagInput
                   onChange={(_, value) => onChange(value)}
-                  open={false}
-                  options={[""]}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      helperText="Press 'Enter' to add"
-                      label="Countries I lived in"
-                    />
-                  )}
+                  value={value}
+                  options={[]}
+                  label="Countries I've Lived In"
+                  id="countries-lived"
                 />
               )}
             />
+
             <div className={classes.buttonContainer}>
               <Button
                 type="submit"

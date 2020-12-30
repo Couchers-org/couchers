@@ -5,27 +5,15 @@ from datetime import date
 from geoalchemy2.types import Geometry
 from sqlalchemy import BigInteger, Boolean, Column, Date, DateTime, Enum, Float, ForeignKey, Integer
 from sqlalchemy import LargeBinary as Binary
-from sqlalchemy import MetaData, String, UniqueConstraint
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import String, UniqueConstraint
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import backref, relationship
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func, text
 
 from couchers.config import config
+from couchers.models.base import Base
 from couchers.utils import get_coordinates
-
-meta = MetaData(
-    naming_convention={
-        "ix": "ix_%(column_0_label)s",
-        "uq": "uq_%(table_name)s_%(column_0_name)s",
-        "ck": "ck_%(table_name)s_%(constraint_name)s",
-        "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
-        "pk": "pk_%(table_name)s",
-    }
-)
-
-Base = declarative_base(metadata=meta)
 
 
 class PhoneStatus(enum.Enum):
