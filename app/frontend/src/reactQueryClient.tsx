@@ -11,7 +11,13 @@ import { reactQueryRetries } from "./constants";
 
 export const queryClient = new QueryClient({
   //grpc-web has built in timeout, so better not use the default exponential backoff
-  defaultOptions: { queries: { retry: reactQueryRetries, retryDelay: 0 } },
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: reactQueryRetries,
+      retryDelay: 0,
+    },
+  },
 });
 
 persistWithLocalStorage(queryClient);
