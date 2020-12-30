@@ -1,4 +1,4 @@
-import { configureStore, createStore } from "@reduxjs/toolkit";
+import { configureStore } from "@reduxjs/toolkit";
 import { Meta, Story } from "@storybook/react/types-6-0";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import * as React from "react";
@@ -7,6 +7,7 @@ import rootReducer from "../../../reducers";
 import { groupChat, mockedService } from "../../../stories/__mocks__/service";
 import { store } from "../../../stories/__mocks__/store";
 import messages from "../../../test/fixtures/messages.json";
+import AuthProvider from "../../auth/AuthProvider";
 import MessageView, { MessageProps } from "../messagelist/Message";
 import GroupChatsTab from "./GroupChatsTab";
 import GroupChatView from "./GroupChatView";
@@ -37,7 +38,11 @@ export default {
         preloadedState: args.state || state,
       });
 
-      return <Provider store={usedStore}>{storyFn()}</Provider>;
+      return (
+        <AuthProvider>
+          <Provider store={usedStore}>{storyFn()}</Provider>
+        </AuthProvider>
+      );
     },
   ],
 } as Meta;

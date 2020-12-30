@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import App from "./App";
+import AuthProvider from "./features/auth/AuthProvider";
 import "./index.css";
 import * as serviceWorker from "./serviceWorker";
 import { persistor, store } from "./store";

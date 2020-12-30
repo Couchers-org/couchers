@@ -1,3 +1,4 @@
+import { StatusCode } from "grpc-web";
 import { APIPromiseClient } from "../pb/api_grpc_web_pb";
 import { AuthPromiseClient } from "../pb/auth_grpc_web_pb";
 import { BugsPromiseClient } from "../pb/bugs_grpc_web_pb";
@@ -8,9 +9,34 @@ import { SSOPromiseClient } from "../pb/sso_grpc_web_pb";
 
 const URL = process.env.REACT_APP_API_BASE_URL;
 
+let _unauthenticatedErrorHandler: () => Promise<void> = async () => {};
+export const setUnauthenticatedErrorHandler = (f: () => Promise<void>) => {
+  _unauthenticatedErrorHandler = f;
+};
+
+export class AuthInterceptor {
+  async intercept(request: any, invoker: (request: any) => any) {
+    let response;
+    try {
+      response = await invoker(request);
+    } catch (e) {
+      if (e.code === StatusCode.UNAUTHENTICATED) {
+        _unauthenticatedErrorHandler();
+      } else {
+        throw e;
+      }
+    }
+    return response;
+  }
+}
+
+const interceptor = new AuthInterceptor();
+
 const opts = {
   // this modifies the behaviour on the API so that it will send cookies on the requests
   withCredentials: true,
+  unaryInterceptors: [interceptor],
+  /// TODO: streaming interceptor for auth https://grpc.io/blog/grpc-web-interceptor/
 };
 
 const apis = {

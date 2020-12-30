@@ -5,7 +5,6 @@ import PageTitle from "../../components/PageTitle";
 import ScoreBar from "../../components/ScoreBar";
 import { CouchIcon, EditIcon } from "../../components/Icons";
 import Avatar from "../../components/Avatar";
-import { useTypedSelector } from "../../store";
 import { Link } from "react-router-dom";
 import { profileRoute } from "../../AppRoutes";
 import Button from "../../components/Button";
@@ -13,6 +12,7 @@ import { timestamp2Date } from "../../utils/date";
 import { timeAgo } from "../../utils/timeAgo";
 import { hostingStatusLabels } from "../profile/constants";
 import TextBody from "../../components/TextBody";
+import { useAuthContext } from "../auth/AuthProvider";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -41,9 +41,7 @@ const useStyles = makeStyles((theme) => ({
 export default function UserHeader({ user }: { user: User.AsObject }) {
   const classes = useStyles();
 
-  const isCurrentUser = useTypedSelector(
-    (store) => store.auth.user?.userId === user.userId
-  );
+  const isCurrentUser = useAuthContext().authState.user?.userId === user.userId;
 
   return (
     <div className={classes.root}>

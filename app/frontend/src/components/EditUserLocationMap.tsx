@@ -267,9 +267,14 @@ export default function EditUserLocationMap({
 
   const flyToSearch = (location: LngLat) => {
     map.current!.flyTo({ center: location, zoom: 13 });
+    const randomizedLocation = displaceLngLat(
+      location,
+      Math.random() * radius.current!,
+      Math.random() * 2 * Math.PI
+    );
     onCircleUp(
       {
-        lngLat: location,
+        lngLat: randomizedLocation,
       } as MapMouseEvent,
       () => null
     );

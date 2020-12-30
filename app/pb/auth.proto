@@ -144,7 +144,7 @@ message AuthReq {
   string password = 2;
 
   // whether to remember the browser or not
-  // if false, the session will time out after 2 hours of inactivity (no API calls)
+  // if false, the session will time out after 7 days of inactivity (no API calls)
   // if true, the session is valid from creation until expiry, with no need to be used in between
   bool remember_device = 3;
 }
