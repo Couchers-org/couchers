@@ -11,6 +11,7 @@ import "./App.css";
 import AppRoutes from "./AppRoutes";
 import Navigation from "./components/Navigation";
 import PageTitle from "./components/PageTitle";
+import AuthProvider from "./features/auth/AuthProvider";
 import { theme } from "./theme";
 import { ReactQueryClientProvider } from "./reactQueryClient";
 import AuthProvider from "./features/auth/AuthProvider";
