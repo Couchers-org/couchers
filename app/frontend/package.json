@@ -17,6 +17,7 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-hook-form": "^6.9.2",
+    "react-query": "^3.2.0",
     "react-redux": "^7.2.1",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.0",
@@ -30,7 +31,7 @@
     "eject": "react-scripts eject",
     "format": "prettier --write src/",
     "lint": "eslint src/",
-    "test-ci": "NODE_ENV=test && react-scripts test --coverageReporters=\"text\" --coverageReporters=\"cobertura\" --coverageReporters=\"lcov\" --reporters=\"default\" --reporters=\"jest-junit\" --coverage --watchAll=false",
+    "test-ci": "CI=true react-scripts test --coverageReporters=\"text\" --coverageReporters=\"cobertura\" --coverageReporters=\"lcov\" --reporters=\"default\" --reporters=\"jest-junit\" --coverage",
     "jest": "jest",
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "NODE_PATH=. build-storybook -s public"
@@ -51,7 +52,7 @@
           "@typescript-eslint/no-unused-vars": [
             "warn",
             {
-              "varsIgnorePattern": "classes"
+              "varsIgnorePattern": "classes|useStyles"
             }
           ]
         }
@@ -109,7 +110,7 @@
     "collectCoverageFrom": [
       "src/**/*.{ts,tsx}",
       "!**/node_modules/**",
-      "!src/pb/*"
+      "!src/pb/**"
     ],
     "resetMocks": true
   },

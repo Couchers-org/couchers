@@ -13,6 +13,8 @@ import Navigation from "./components/Navigation";
 import PageTitle from "./components/PageTitle";
 import AuthProvider from "./features/auth/AuthProvider";
 import { theme } from "./theme";
+import { ReactQueryClientProvider } from "./reactQueryClient";
+import AuthProvider from "./features/auth/AuthProvider";
 
 const useStyles = makeStyles((theme) => ({
   padding: {
@@ -33,18 +35,20 @@ function App() {
   const classes = useStyles();
   return (
     <Router>
-      <AuthProvider>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <Navigation />
-          <Container maxWidth="md" className={classes.padding}>
-            <Hidden mdUp>
-              <PageTitle>Couchers</PageTitle>
-            </Hidden>
-            <AppRoutes />
-          </Container>
-        </ThemeProvider>
-      </AuthProvider>
+      <ThemeProvider theme={theme}>
+        <AuthProvider>
+          <ReactQueryClientProvider>
+            <CssBaseline />
+            <Navigation />
+            <Container maxWidth="md" className={classes.padding}>
+              <Hidden mdUp>
+                <PageTitle>Couchers</PageTitle>
+              </Hidden>
+              <AppRoutes />
+            </Container>
+          </ReactQueryClientProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </Router>
   );
 }

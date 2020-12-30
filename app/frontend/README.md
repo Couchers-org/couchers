@@ -1,9 +1,6 @@
 # couchers-react
 
-[![Build Status](https://travis-ci.org/Couchers-org/couchers-react.svg?branch=dev)](https://travis-ci.org/Couchers-org/couchers-react)
-[![Coverage Status](https://coveralls.io/repos/github/Couchers-org/couchers-react/badge.svg?branch=dev)](https://coveralls.io/github/Couchers-org/couchers-react?branch=dev)
-
-This is the react frontend for couchers.org. We are using [Redux with Redux Toolkit](https://redux-toolkit.js.org/) for state management and [Material UI](https://material-ui.com/) for components.
+This is the react frontend for couchers.org. We are using Typescript with [React Query](https://react-query.tanstack.com/) for data fetching and [Material UI](https://material-ui.com/) for components.
 
 Communication with the backend is via [protobuf messages](https://github.com/protocolbuffers/protobuf/tree/master/js) and [grpc_web](https://github.com/grpc/grpc-web). You can find some helpful documentation on [protobuf messages in javascript here](https://developers.google.com/protocol-buffers/docs/reference/javascript-generated).
 
