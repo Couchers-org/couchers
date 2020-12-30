@@ -11,16 +11,19 @@ const labels = {
   friends: "Friends",
 };
 
+type ConnectionType = keyof typeof labels;
+
 function ConnectionsPage() {
   const history = useHistory();
-  const { type = "all" } = useParams<{ type: keyof typeof labels }>();
+  const { type = "all" } = useParams<{ type: string }>();
+  const connectionType = type in labels ? (type as ConnectionType) : "all";
 
   return (
     <>
       <PageTitle>My Connections</PageTitle>
-      <TabContext value={type}>
+      <TabContext value={connectionType}>
         <TabBar
-          value={type}
+          value={connectionType}
           setValue={(newType) =>
             history.push(
               `${connectionsRoute}/${newType !== "all" ? newType : ""}`
