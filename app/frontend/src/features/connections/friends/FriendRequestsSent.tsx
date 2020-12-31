@@ -76,14 +76,14 @@ function useCancelFriendRequest(
 export type SetMutationError = React.Dispatch<React.SetStateAction<string>>;
 
 interface FriendRequestItemProps {
-  friendRequest: Omit<FriendRequest.AsObject, "userId"> & {
+  friendRequest: FriendRequest.AsObject & {
     friend?: User.AsObject;
   };
   setMutationError: SetMutationError;
 }
 
 function FriendRequestItem({
-  friendRequest: { friendRequestId, state, friend },
+  friendRequest: { friend, friendRequestId, state, userId },
   setMutationError,
 }: FriendRequestItemProps) {
   const classes = useStyles();
@@ -112,7 +112,9 @@ function FriendRequestItem({
         </Box>
       )}
     </Box>
-  ) : null;
+  ) : (
+    <Alert severity="error">Error loading user {userId}</Alert>
+  );
 }
 
 function FriendRequestsSent() {

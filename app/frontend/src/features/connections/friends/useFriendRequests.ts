@@ -29,10 +29,9 @@ export default function useFriendRequests() {
 
   const data =
     !isLoading && usersData
-      ? friendRequestLists.map(({ friendRequestId, state, userId }) => ({
-          friendRequestId,
-          state,
-          friend: usersData.get(userId),
+      ? friendRequestLists.map((friendRequest) => ({
+          ...friendRequest,
+          friend: usersData.get(friendRequest.userId),
         }))
       : void 0;
 
