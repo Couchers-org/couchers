@@ -21,7 +21,6 @@ import { useIsMounted, useSafeState } from "../../../utils/hooks";
 import { service } from "../../../service";
 
 const useStyles = makeStyles((theme) => ({
-  root: {},
   actionButton: {
     borderRadius: "100%",
     minWidth: "auto",
@@ -46,6 +45,9 @@ const useStyles = makeStyles((theme) => ({
   },
   noPendingRequestText: {
     marginLeft: theme.spacing(1),
+  },
+  userLoadErrorAlert: {
+    borderRadius: 0,
   },
 }));
 
@@ -113,7 +115,9 @@ function FriendRequestItem({
       )}
     </Box>
   ) : (
-    <Alert severity="error">Error loading user {userId}</Alert>
+    <Alert className={classes.userLoadErrorAlert} severity="error">
+      Error loading user {userId}
+    </Alert>
   );
 }
 
