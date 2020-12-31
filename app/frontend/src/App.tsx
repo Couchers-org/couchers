@@ -14,7 +14,6 @@ import PageTitle from "./components/PageTitle";
 import AuthProvider from "./features/auth/AuthProvider";
 import { theme } from "./theme";
 import { ReactQueryClientProvider } from "./reactQueryClient";
-import AuthProvider from "./features/auth/AuthProvider";
 
 const useStyles = makeStyles((theme) => ({
   padding: {

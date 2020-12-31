@@ -1,10 +1,9 @@
 import { Grid } from "@material-ui/core";
-import React, { useEffect } from "react";
+import React from "react";
 import { useParams } from "react-router-dom";
 import Alert from "../../components/Alert";
 import CircularProgress from "../../components/CircularProgress";
-import { useAppDispatch, useTypedSelector } from "../../store";
-import { fetchUsers, getUserByUsernameSelector } from "../userCache";
+import useUserByUsername from "../userQueries/useUserByUsername";
 import UserAbout from "./UserAbout";
 import UserGuestbook from "./UserGuestbook";
 import UserHeader from "./UserHeader";
@@ -13,28 +12,19 @@ import UserSection from "./UserSection";
 import UserSummary from "./UserSummary";
 
 export default function UserPage() {
-  const dispatch = useAppDispatch();
-
-  const usersLoading = useTypedSelector((state) => state.userCache.loading);
-  const usersError = useTypedSelector((state) => state.userCache.error);
-
   const { username } = useParams<{ username: string }>();
-  useEffect(() => {
-    dispatch(fetchUsers({ forceInvalidate: true, usernames: [username] }));
-  }, [dispatch, username]);
-
-  const getUserByUsername = useTypedSelector((state) =>
-    getUserByUsernameSelector(state)
+  const { data: user, isLoading, isError, error } = useUserByUsername(
+    username,
+    true
   );
-  const user = getUserByUsername(username);
 
   return (
     <>
-      {usersError && <Alert severity="error">{usersError}</Alert>}
+      {isError && <Alert severity="error">{error}</Alert>}
 
-      {usersLoading && <CircularProgress />}
+      {isLoading && <CircularProgress />}
 
-      {user && !usersLoading ? (
+      {user && !isLoading ? (
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6} md={4}>
             <UserHeader user={user} />

@@ -4,23 +4,12 @@ import ExpandLessIcon from "@material-ui/icons/ExpandLess";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import React, { useState } from "react";
 import Avatar from "../../../components/Avatar";
-import { User } from "../../../pb/api_pb";
 import { Message } from "../../../pb/conversations_pb";
-import { useAppDispatch, useTypedSelector } from "../../../store";
 import { timestamp2Date } from "../../../utils/date";
 import { useAuthContext } from "../../auth/AuthProvider";
-import { fetchUsers, getUser } from "../../userCache";
+import { useUser } from "../../userQueries/useUsers";
 import TimeInterval from "./MomentIndication";
 import UserName from "./UserName";
-
-export function useGetUser(id: number): User.AsObject | null {
-  const user = useTypedSelector((state) => getUser(state, id)) || null;
-  const dispatch = useAppDispatch();
-  if (!user) {
-    dispatch(fetchUsers({ userIds: [id] }));
-  }
-  return user;
-}
 
 const useStyles = makeStyles({
   root: { display: "flex" },
@@ -36,7 +25,7 @@ export interface MessageProps {
 export default function MessageView({ message }: MessageProps) {
   const [expanded, setExpanded] = useState<boolean>(false);
   const classes = useStyles();
-  const author = useGetUser(message.authorUserId);
+  const { data: author } = useUser(message.authorUserId);
   const currentUser = useAuthContext().authState.user;
   const isCurrentUser = author?.userId === currentUser?.userId;
   return (

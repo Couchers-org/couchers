@@ -7,8 +7,12 @@ import {
 } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
 import { persistWithLocalStorage } from "react-query/persist-localstorage-experimental";
+import { reactQueryRetries } from "./constants";
 
-export const queryClient = new QueryClient();
+export const queryClient = new QueryClient({
+  //grpc-web has built in timeout, so better not use the default exponential backoff
+  defaultOptions: { queries: { retry: reactQueryRetries, retryDelay: 0 } },
+});
 
 persistWithLocalStorage(queryClient);
 interface ReactQueryClientProviderProps {

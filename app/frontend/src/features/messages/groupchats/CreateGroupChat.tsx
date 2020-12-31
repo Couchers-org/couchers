@@ -8,8 +8,8 @@ import CircularProgress from "../../../components/CircularProgress";
 import TextField from "../../../components/TextField";
 import { User } from "../../../pb/api_pb";
 import { service } from "../../../service";
-import { useAppDispatch, useTypedSelector } from "../../../store";
-import { fetchUsers, getUsers } from "../../userCache";
+import { useAppDispatch } from "../../../store";
+import useUsers from "../../userQueries/useUsers";
 import { createGroupChat } from "./groupChatsActions";
 
 const useStyles = makeStyles({ root: {} });
@@ -23,10 +23,11 @@ export default function CreateGroupChat() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [friendIds, setFriendIds] = React.useState<number[]>([]);
-  const allUsers = useTypedSelector((state) => getUsers(state));
-  const friends = friendIds
-    .map((friendId) => allUsers[friendId]?.user)
-    .filter(Boolean) as User.AsObject[];
+  const {
+    data: friends,
+    errors: queryErrors,
+    isLoading: queryIsLoading,
+  } = useUsers(friendIds);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -34,7 +35,6 @@ export default function CreateGroupChat() {
       setLoading(true);
       try {
         const friendIds = await service.api.listFriends();
-        await dispatch(fetchUsers({ userIds: friendIds }));
         setFriendIds(friendIds);
       } catch (error) {
         setError(error.message);
@@ -58,9 +58,11 @@ export default function CreateGroupChat() {
   );
   return (
     <form onSubmit={onSubmit}>
+      {(error || !!queryErrors.length) && (
+        <Alert severity={"error"}>{[error, ...queryErrors].join("\n")}</Alert>
+      )}
       <TextField label="Title" name="title" inputRef={register} />
-      {error && <Alert severity={"error"}>{error}</Alert>}
-      {loading ? (
+      {loading || queryIsLoading ? (
         <CircularProgress />
       ) : (
         <Controller
@@ -74,9 +76,9 @@ export default function CreateGroupChat() {
                 onChange(value);
               }}
               multiple={true}
-              options={friends}
-              getOptionLabel={(user) => {
-                return user.name;
+              options={Array.from(friends!.values())}
+              getOptionLabel={(friend) => {
+                return friend?.name ?? "(User load error)";
               }}
               label="Friends"
             />
