@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
     padding: 0,
   },
   container: {
-    "& > div:last-child": {
+    "& > :last-child": {
       marginBottom: theme.spacing(1),
     },
   },
@@ -43,6 +43,9 @@ const useStyles = makeStyles((theme) => ({
   friendLink: {
     color: theme.palette.text.primary,
     textDecoration: "none",
+  },
+  noPendingRequestText: {
+    marginLeft: theme.spacing(1),
   },
 }));
 
@@ -137,7 +140,7 @@ function FriendRequestsSent() {
         ) : null}
         {isLoading ? (
           <CircularProgress className={baseClasses.circularProgress} />
-        ) : friendRequestsSentData ? (
+        ) : friendRequestsSentData && friendRequestsSentData.length ? (
           friendRequestsSentData.map((friendRequest) => (
             <FriendRequestItem
               key={friendRequest.friendRequestId}
@@ -145,7 +148,11 @@ function FriendRequestsSent() {
               setMutationError={setMutationError}
             />
           ))
-        ) : null}
+        ) : (
+          <TextBody className={classes.noPendingRequestText}>
+            No pending friend requests!
+          </TextBody>
+        )}
       </Box>
     </Card>
   );

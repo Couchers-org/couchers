@@ -37,6 +37,9 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.text.primary,
     textDecoration: "none",
   },
+  noFriendsText: {
+    marginLeft: theme.spacing(1),
+  },
 }));
 
 function FriendList() {
@@ -57,7 +60,7 @@ function FriendList() {
         )}
         {isLoading ? (
           <CircularProgress className={baseClasses.circularProgress} />
-        ) : friends ? (
+        ) : friends && friends.length ? (
           friends.map((friend) =>
             friend ? (
               <Box className={classes.friendItem} key={friend.userId}>
@@ -81,7 +84,11 @@ function FriendList() {
               </Box>
             ) : null
           )
-        ) : null}
+        ) : (
+          <TextBody className={classes.noFriendsText}>
+            No friends available :(
+          </TextBody>
+        )}
       </Box>
     </Card>
   );
