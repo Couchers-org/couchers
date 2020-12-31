@@ -14,7 +14,7 @@ const useStyles = makeStyles({
   root: {},
 });
 
-function FriendRequests() {
+function FriendRequestsReceived() {
   const baseClasses = useFriendsBaseStyles();
   const isMounted = useIsMounted();
   const [errorMessage] = useSafeState(isMounted, "");
@@ -38,4 +38,4 @@ function FriendRequests() {
   );
 }
 
-export default FriendRequests;
+export default FriendRequestsReceived;

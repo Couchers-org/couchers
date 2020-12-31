@@ -131,7 +131,7 @@ function FriendRequestsSent() {
     isLoading,
     isError,
     errors,
-  } = useFriendRequests();
+  } = useFriendRequests("sent");
 
   return (
     <Card>

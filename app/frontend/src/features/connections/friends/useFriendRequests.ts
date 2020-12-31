@@ -4,7 +4,9 @@ import useUsers from "../../userQueries/useUsers";
 import { ListFriendRequestsRes } from "../../../pb/api_pb";
 import { service } from "../../../service";
 
-export default function useFriendRequests() {
+export default function useFriendRequests(
+  friendRequestType: "sent" | "received"
+) {
   const {
     data: friendRequestsData,
     isLoading: isFriendReqLoading,
@@ -14,8 +16,11 @@ export default function useFriendRequests() {
     service.api.listFriendRequests
   );
 
-  const friendRequestLists =
-    (friendRequestsData && friendRequestsData.sentList) ?? [];
+  const friendRequestLists = friendRequestsData
+    ? friendRequestType === "sent"
+      ? friendRequestsData.sentList
+      : friendRequestsData.receivedList
+    : [];
 
   const {
     data: usersData,

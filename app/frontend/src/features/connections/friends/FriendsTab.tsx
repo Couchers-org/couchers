@@ -1,7 +1,7 @@
 import { Grid } from "@material-ui/core";
 import React from "react";
 import FriendList from "./FriendList";
-import FriendRequests from "./FriendRequests";
+import FriendRequestsReceived from "./FriendRequestsReceived";
 import FriendRequestsSent from "./FriendRequestsSent";
 
 function FriendsTab() {
@@ -12,7 +12,7 @@ function FriendsTab() {
           <FriendList />
         </Grid>
         <Grid item xs={12} md={6}>
-          <FriendRequests />
+          <FriendRequestsReceived />
         </Grid>
         <Grid item xs={12} md={6}>
           <FriendRequestsSent />
