@@ -138,6 +138,20 @@ enum MeetupStatus {
     MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP = 4;
 }
 
+message LanguageAbility {
+  enum Fluency {
+      FLUENCY_UNSPECIFIED= 0;
+      FLUENCY_SAY_HELLO = 1;
+      FLUENCY_BEGINNER = 2;
+      FLUENCY_INTERMEDIATE = 3;
+      FLUENCY_ADVANCED = 4;
+      FLUENCY_FLUENT = 5;
+      FLUENCY_NATIVE = 6;
+  }
+  string code = 1; //ISO639-3
+  Fluency fluency = 2;
+}
+
 enum SmokingLocation {
   SMOKING_LOCATION_UNSPECIFIED = 0;
   SMOKING_LOCATION_UNKNOWN = 1;
@@ -215,7 +229,7 @@ message User {
   string my_travels = 104;
   string things_i_like = 105;
   string about_place = 16;
-  repeated string languages = 17;
+  repeated LanguageAbility languages = 17;
   repeated string countries_visited = 18;
   repeated string countries_lived = 19;
   string additional_information = 106;
@@ -286,7 +300,7 @@ message UpdateProfileReq {
   HostingStatus hosting_status = 8;
   MeetupStatus meetup_status = 105;
 
-  RepeatedStringValue languages = 9;
+  LanguageAbility languages = 9;
   RepeatedStringValue countries_visited = 10;
   RepeatedStringValue countries_lived = 11;
   NullableStringValue additional_information = 106;
