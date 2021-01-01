@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+package org.couchers.api.pages;
+
+import "google/protobuf/timestamp.proto";
+
+service Pages {
+  // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to auth.proto and jail.proto
+
+  rpc CreatePage(CreatePageReq) returns (CreatePageRes) {
+    // Creates a page
+  }
+
+  rpc GetPage(GetPageReq) returns (GetPageRes) {
+    // Gets a page
+  }
+}
+
+message Coordinate {
+  double lat = 1;
+  double lng = 2;
+}
+
+message Page {
+  int64 page_id = 1;
+  string slug = 2;
+  google.protobuf.Timestamp created = 3;
+  google.protobuf.Timestamp last_edited = 4;
+  int64 last_editor_user_id = 5;
+  int64 creator_user_id = 6;
+  oneof owner {
+    int64 owner_user_id = 7;
+    int64 owner_cluster_id = 8;
+  }
+  int64 thread_id = 9;
+  string title = 10;
+  string content = 11;
+  string address = 12;
+  Coordinate location = 13;
+  repeated int64 editor_user_ids = 14;
+}
+
+message CreatePageReq {
+  string title = 1;
+  string content = 2;
+  string address = 3;
+  Coordinate location = 4;
+}
+
+message CreatePageRes {
+  Page page = 1;
+}
+
+message GetPageReq {
+  int64 page_id = 1;
+}
+
+message GetPageRes {
+  Page page = 1;
+}
