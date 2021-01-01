@@ -4,12 +4,19 @@ import grpc
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Page, PageType, PageVersion
+from couchers.models import Page, PageType, PageVersion, User
 from couchers.utils import Timestamp_from_datetime, create_coordinate, slugify
 from pb import pages_pb2, pages_pb2_grpc
 
 
-def _page_to_pb(page: Page):
+def _check_update_permission(page: Page, user_id):
+    if page.owner_user_id == user_id:
+        return True
+    # elif page.owner_cluster_id # TODO
+    return False
+
+
+def _page_to_pb(page: Page, user_id):
     first_version = page.versions[0]
     current_version = page.versions[-1]
     lat, lng = current_version.coordinates
@@ -31,6 +38,7 @@ def _page_to_pb(page: Page):
             lng=lng,
         ),
         # editor_user_ids=..., # TODO
+        can_edit=_check_update_permission(page, user_id),
     )
 
 
@@ -62,7 +70,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
             )
             session.add(page_version)
             session.commit()
-            return pages_pb2.CreatePageRes(page=_page_to_pb(page))
+            return _page_to_pb(page, context.user_id)
 
     def GetPage(self, request, context):
         with session_scope() as session:
@@ -70,4 +78,32 @@ class Pages(pages_pb2_grpc.PagesServicer):
             if not page:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.PAGE_NOT_FOUND)
 
-            return pages_pb2.GetPageRes(page=_page_to_pb(page))
+            return _page_to_pb(page, context.user_id)
+
+    def UpdatePage(self, request, context):
+        with session_scope() as session:
+            page = session.query(Page).filter(Page.id == request.page_id).one_or_none()
+            if not page:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.PAGE_NOT_FOUND)
+
+            if not _check_update_permission(page, context.user_id):
+                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.PAGE_UPDATE_PERMISSION_DENIED)
+
+            version = page.versions[-1]
+
+            page_version = PageVersion(
+                page=page,
+                editor_user_id=context.user_id,
+            )
+
+            if request.HasField("title"):
+                page_version.title = request.title
+
+            if request.HasField("content"):
+                page_version.content = request.content
+
+            if request.HasField("location"):
+                page_version.geom = create_coordinate(request.location.lat, request.location.lng)
+
+            session.commit()
+            return _page_to_pb(page, context.user_id)

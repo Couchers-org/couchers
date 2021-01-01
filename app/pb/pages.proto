@@ -3,16 +3,21 @@ syntax = "proto3";
 package org.couchers.api.pages;
 
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
 
 service Pages {
   // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to auth.proto and jail.proto
 
-  rpc CreatePage(CreatePageReq) returns (CreatePageRes) {
+  rpc CreatePage(CreatePageReq) returns (Page) {
     // Creates a page
   }
 
-  rpc GetPage(GetPageReq) returns (GetPageRes) {
+  rpc GetPage(GetPageReq) returns (Page) {
     // Gets a page
+  }
+
+  rpc UpdatePage(UpdatePageReq) returns (Page) {
+    // Edit a page
   }
 }
 
@@ -38,6 +43,7 @@ message Page {
   string address = 12;
   Coordinate location = 13;
   repeated int64 editor_user_ids = 14;
+  bool can_edit = 15;
 }
 
 message CreatePageReq {
@@ -47,14 +53,17 @@ message CreatePageReq {
   Coordinate location = 4;
 }
 
-message CreatePageRes {
-  Page page = 1;
-}
-
 message GetPageReq {
   int64 page_id = 1;
 }
 
-message GetPageRes {
-  Page page = 1;
+message UpdatePageReq {
+  int64 page_id = 1;
+
+  google.protobuf.StringValue title = 2;
+  google.protobuf.StringValue content = 3;
+  google.protobuf.StringValue address = 4;
+
+  // we can detect lack of this sub-message without *Value stuff, and location cannot be set to null
+  Coordinate location = 5;
 }

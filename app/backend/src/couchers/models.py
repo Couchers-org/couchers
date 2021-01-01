@@ -808,7 +808,7 @@ class PageVersion(Base):
     geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
-    page = relationship("Page", backref="versions")
+    page = relationship("Page", backref="versions", order_by="PageVersion.id")
     editor_user = relationship("User", backref="edited_pages")
 
     @property
