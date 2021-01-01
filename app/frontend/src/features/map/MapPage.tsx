@@ -6,6 +6,8 @@ import { userRoute } from "../../AppRoutes";
 import { LngLat, Map as MapboxMap } from "mapbox-gl";
 import { useHistory, useLocation } from "react-router-dom";
 
+import { addCommunitiesToMap } from "./communities";
+import { addPagesToMap } from "./pages";
 import { addClusteredUsersToMap } from "./clusteredUsers";
 
 const useStyles = makeStyles((theme) => ({
@@ -30,6 +32,8 @@ export default function MapPage() {
 
   const initializeMap = (map: MapboxMap) => {
     map.on("load", () => {
+      addCommunitiesToMap(map);
+      addPagesToMap(map);
       addClusteredUsersToMap(map, handleClick);
     });
   };
