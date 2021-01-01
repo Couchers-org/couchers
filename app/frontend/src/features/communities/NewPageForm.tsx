@@ -10,6 +10,8 @@ import { createPage } from "./actions"
 import ProfileMarkdownInput from "../profile/ProfileMarkdownInput";
 import EditLocationMap from "../../components/EditLocationMap";
 import { unwrapResult } from "@reduxjs/toolkit";
+import { pageRoute } from "../../AppRoutes";
+import { Page } from "../../pb/pages_pb"
 
 type NewPageInputs = {
   title: string;
@@ -47,8 +49,9 @@ export default function CompleteSignup() {
 
   const submitForm = handleSubmit(async (data: NewPageInputs) => {
     try {
-      unwrapResult(await dispatch(createPage(data)));
+      const page = unwrapResult(await dispatch(createPage(data))) as Page.AsObject;
       setShowAlertState("success");
+      history.push(`${pageRoute}/${page.pageId}/${page.slug}`);
     } catch (error) {
       setShowAlertState("error");
       setErrorMessage(error.message);
@@ -58,7 +61,7 @@ export default function CompleteSignup() {
   return (
     <>
       {alertState === "success" ? (
-        <Alert severity={alertState}>Successfully updated profile!</Alert>
+        <Alert severity={alertState}>Successfully created page!</Alert>
       ) : alertState === "error" ? (
         <Alert severity={alertState}>{errorMessage}</Alert>
       ) : null}

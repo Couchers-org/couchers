@@ -24,10 +24,15 @@ export const layers = {
 };
 
 export const addPagesToMap = (
-  map: MapboxMap
+  map: MapboxMap,
+  pageClickedCallback?: (ev: any) => void
 ) => {
   map.addSource("pages", sources["pages"] as any);
   map.addLayer(layers["pageLayer"] as any);
+
+  if (pageClickedCallback) {
+    map.on("click", layers["pageLayer"].id, pageClickedCallback);
+  }
 };
 
 export default addPagesToMap;

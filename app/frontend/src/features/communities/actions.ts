@@ -25,7 +25,7 @@ export const createPage = createAsyncThunk(
       lng
     )
 
-    return { page };
+    return page;
   }
 );
 
