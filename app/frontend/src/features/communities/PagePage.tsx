@@ -47,11 +47,12 @@ export default function PagePage() {
       ) : page ?
       <>
         <PageTitle>{page.title}</PageTitle>
-        <p>Owner: {page.ownerUserId === 0 ? "user " + page.ownerUserId : "cluster " + page.ownerClusterId}</p>
+        <p>Owner: {page.ownerUserId !== 0 ? "user " + page.ownerUserId : "cluster " + page.ownerClusterId}</p>
         <p>Last edited at {page.lastEdited?.seconds} by {page.lastEditorUserId}</p>
         <p>Created at {page.created?.seconds} by {page.creatorUserId}</p>
         <p>Address: {page.address} (coords: {page.location!.lat}, {page.location!.lng})</p>
         <Markdown source={page.content} />
+        <p>You <b>{page.canEdit ? "can" : "cannot"}</b> edit this page.</p>
       </> :
         <TextBody>Error?</TextBody>
       }

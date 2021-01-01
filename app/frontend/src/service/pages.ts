@@ -13,12 +13,12 @@ export async function createPage(title: string, content: string, address: string
 
   const response = await client.pages.createPage(req);
 
-  return response!.getPage()!.toObject()
+  return response.toObject()
 }
 
 export async function getPage(pageId: number) {
   const req = new GetPageReq();
   req.setPageId(pageId)
   const response = await client.pages.getPage(req);
-  return response!.getPage()!.toObject()
+  return response.toObject()
 }
