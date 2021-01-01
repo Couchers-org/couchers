@@ -783,7 +783,7 @@ class Page(Base):
     owner_user = relationship("User", backref="owned_pages", foreign_keys="Page.owner_user_id")
     owner_cluster = relationship("Cluster", backref="owned_page", uselist=False, foreign_keys="Page.owner_cluster_id")
 
-    editors = relationship("User", backref="editing_pages", secondary="page_versions")
+    editors = relationship("User", secondary="page_versions")
 
     # Only one of owner_user and owner_cluster should be set
     CheckConstraint(
@@ -810,6 +810,16 @@ class PageVersion(Base):
 
     page = relationship("Page", backref="versions")
     editor_user = relationship("User", backref="edited_pages")
+
+    @property
+    def coordinates(self):
+        # returns (lat, lng)
+        # we put people without coords on null island
+        # https://en.wikipedia.org/wiki/Null_Island
+        if self.geom:
+            return get_coordinates(self.geom)
+        else:
+            return (0.0, 0.0)
 
 
 class ClusterEventAssociation(Base):
