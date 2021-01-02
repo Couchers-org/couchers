@@ -147,3 +147,11 @@ def parse_session_cookie(headers):
 
 def slugify(text):
     return slugify_slugify(text, max_length=15, word_boundary=True)
+
+
+def remove_duplicates_retain_order(list_):
+    out = []
+    for item in list_:
+        if item not in out:
+            out.append(item)
+    return out

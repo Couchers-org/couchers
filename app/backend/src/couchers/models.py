@@ -805,6 +805,8 @@ class PageVersion(Base):
     editor_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     title = Column(String, nullable=False)
     content = Column(String, nullable=False)
+    # the human-readable address
+    address = Column(String, nullable=False)
     geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 

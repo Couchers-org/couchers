@@ -25,7 +25,7 @@ def test_create_page_errors(db):
                 pages_pb2.CreatePageReq(
                     title=None,
                     content="dummy content",
-                    address="dummy location",
+                    address="dummy address",
                     location=pages_pb2.Coordinate(
                         lat=1,
                         lng=1,
@@ -41,7 +41,7 @@ def test_create_page_errors(db):
                 pages_pb2.CreatePageReq(
                     title="dummy title",
                     content=None,
-                    address="dummy location",
+                    address="dummy address",
                     location=pages_pb2.Coordinate(
                         lat=1,
                         lng=1,
@@ -76,7 +76,7 @@ def test_create_page_errors(db):
                     address="dummy address",
                     location=pages_pb2.Coordinate(
                         lat=None,
-                        lng=1,
+                        lng=None,
                     ),
                 )
             )
@@ -90,10 +90,6 @@ def test_create_page_errors(db):
                     title="dummy title",
                     content="dummy content",
                     address="dummy address",
-                    location=pages_pb2.Coordinate(
-                        lat=1,
-                        lng=None,
-                    ),
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -107,7 +103,7 @@ def test_create_page(db):
             pages_pb2.CreatePageReq(
                 title="dummy title",
                 content="dummy content",
-                address="dummy location",
+                address="dummy address",
                 location=pages_pb2.Coordinate(
                     lat=1,
                     lng=2,
@@ -142,7 +138,7 @@ def test_get_page(db):
             pages_pb2.CreatePageReq(
                 title="dummy title",
                 content="dummy content",
-                address="dummy location",
+                address="dummy address",
                 location=pages_pb2.Coordinate(
                     lat=1,
                     lng=2,
@@ -168,7 +164,7 @@ def test_get_page(db):
         assert res.owner_user_id == user1.id
         assert not res.owner_cluster_id
         assert res.editor_user_ids == [user1.id]
-        assert res.can_edit
+        assert not res.can_edit
 
 
 def test_update_page(db):
@@ -178,7 +174,7 @@ def test_update_page(db):
             pages_pb2.CreatePageReq(
                 title="dummy title",
                 content="dummy content",
-                address="dummy location",
+                address="dummy address",
                 location=pages_pb2.Coordinate(
                     lat=1,
                     lng=2,
@@ -193,6 +189,7 @@ def test_update_page(db):
             )
         )
 
+        res = api.GetPage(pages_pb2.GetPageReq(page_id=page_id))
         assert res.title == "test title"
         assert res.content == "dummy content"
         assert res.address == "dummy address"
@@ -204,7 +201,7 @@ def test_update_page(db):
             to_aware_datetime(res.last_edited) > now() - timedelta(seconds=10)
             and to_aware_datetime(res.last_edited) < now()
         )
-        assert to_aware_datetime(res.last_edited) < to_aware_datetime(res.created)
+        assert to_aware_datetime(res.created) < to_aware_datetime(res.last_edited)
         assert res.last_editor_user_id == user.id
         assert res.creator_user_id == user.id
         assert res.owner_user_id == user.id
@@ -219,6 +216,7 @@ def test_update_page(db):
             )
         )
 
+        res = api.GetPage(pages_pb2.GetPageReq(page_id=page_id))
         assert res.title == "test title"
         assert res.content == "test content"
         assert res.address == "dummy address"
@@ -230,7 +228,7 @@ def test_update_page(db):
             to_aware_datetime(res.last_edited) > now() - timedelta(seconds=10)
             and to_aware_datetime(res.last_edited) < now()
         )
-        assert to_aware_datetime(res.last_edited) < to_aware_datetime(res.created)
+        assert to_aware_datetime(res.created) < to_aware_datetime(res.last_edited)
         assert res.last_editor_user_id == user.id
         assert res.creator_user_id == user.id
         assert res.owner_user_id == user.id
@@ -245,6 +243,7 @@ def test_update_page(db):
             )
         )
 
+        res = api.GetPage(pages_pb2.GetPageReq(page_id=page_id))
         assert res.title == "test title"
         assert res.content == "test content"
         assert res.address == "test address"
@@ -256,7 +255,7 @@ def test_update_page(db):
             to_aware_datetime(res.last_edited) > now() - timedelta(seconds=10)
             and to_aware_datetime(res.last_edited) < now()
         )
-        assert to_aware_datetime(res.last_edited) < to_aware_datetime(res.created)
+        assert to_aware_datetime(res.created) < to_aware_datetime(res.last_edited)
         assert res.last_editor_user_id == user.id
         assert res.creator_user_id == user.id
         assert res.owner_user_id == user.id
@@ -274,6 +273,7 @@ def test_update_page(db):
             )
         )
 
+        res = api.GetPage(pages_pb2.GetPageReq(page_id=page_id))
         assert res.title == "test title"
         assert res.content == "test content"
         assert res.address == "test address"
@@ -285,7 +285,7 @@ def test_update_page(db):
             to_aware_datetime(res.last_edited) > now() - timedelta(seconds=10)
             and to_aware_datetime(res.last_edited) < now()
         )
-        assert to_aware_datetime(res.last_edited) < to_aware_datetime(res.created)
+        assert to_aware_datetime(res.created) < to_aware_datetime(res.last_edited)
         assert res.last_editor_user_id == user.id
         assert res.creator_user_id == user.id
         assert res.owner_user_id == user.id
@@ -301,7 +301,7 @@ def test_update_page_errors(db):
             pages_pb2.CreatePageReq(
                 title="dummy title",
                 content="dummy content",
-                address="dummy location",
+                address="dummy address",
                 location=pages_pb2.Coordinate(
                     lat=1,
                     lng=2,
@@ -364,9 +364,9 @@ def test_update_page_errors(db):
             to_aware_datetime(res.last_edited) > now() - timedelta(seconds=10)
             and to_aware_datetime(res.last_edited) < now()
         )
-        assert res.last_editor_user_id == user1.id
-        assert res.creator_user_id == user1.id
-        assert res.owner_user_id == user1.id
+        assert res.last_editor_user_id == user.id
+        assert res.creator_user_id == user.id
+        assert res.owner_user_id == user.id
         assert not res.owner_cluster_id
-        assert res.editor_user_ids == [user1.id]
+        assert res.editor_user_ids == [user.id]
         assert res.can_edit

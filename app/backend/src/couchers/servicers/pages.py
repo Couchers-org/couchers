@@ -5,7 +5,7 @@ import grpc
 from couchers import errors
 from couchers.db import session_scope
 from couchers.models import Page, PageType, PageVersion, User
-from couchers.utils import Timestamp_from_datetime, create_coordinate, slugify
+from couchers.utils import Timestamp_from_datetime, create_coordinate, remove_duplicates_retain_order, slugify
 from pb import pages_pb2, pages_pb2_grpc
 
 
@@ -32,12 +32,12 @@ def _page_to_pb(page: Page, user_id):
         thread_id=None,  # TODO
         title=current_version.title,
         content=current_version.content,
-        address=None,  # TODO current_version.address,
+        address=current_version.address,
         location=pages_pb2.Coordinate(
             lat=lat,
             lng=lng,
         ),
-        # editor_user_ids=..., # TODO
+        editor_user_ids=remove_duplicates_retain_order([version.editor_user_id for version in page.versions]),
         can_edit=_check_update_permission(page, user_id),
     )
 
@@ -66,6 +66,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
                 editor_user_id=context.user_id,
                 title=request.title,
                 content=request.content,
+                address=request.address,
                 geom=create_coordinate(request.location.lat, request.location.lng),
             )
             session.add(page_version)
@@ -89,27 +90,31 @@ class Pages(pages_pb2_grpc.PagesServicer):
             if not _check_update_permission(page, context.user_id):
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.PAGE_UPDATE_PERMISSION_DENIED)
 
-            version = page.versions[-1]
+            current_version = page.versions[-1]
 
             page_version = PageVersion(
                 page=page,
                 editor_user_id=context.user_id,
+                title=current_version.title,
+                content=current_version.content,
+                address=current_version.address,
+                geom=current_version.geom,
             )
 
             if request.HasField("title"):
-                if not request.title:
+                if not request.title.value:
                     context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_TITLE)
-                page_version.title = request.title
+                page_version.title = request.title.value
 
             if request.HasField("content"):
-                if not request.content:
+                if not request.content.value:
                     context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_CONTENT)
-                page_version.content = request.content
+                page_version.content = request.content.value
 
             if request.HasField("address"):
-                if not request.address:
+                if not request.address.value:
                     context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_ADDRESS)
-                # page_version.address = request.address
+                page_version.address = request.address.value
 
             if request.HasField("location"):
                 if not request.location.lat and not request.location.lng:
