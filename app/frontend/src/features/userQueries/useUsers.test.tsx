@@ -1,8 +1,7 @@
-import { act, renderHook } from "@testing-library/react-hooks";
+import { renderHook } from "@testing-library/react-hooks";
 import { QueryClient, QueryClientProvider } from "react-query";
 import React from "react";
 import { service } from "../../service";
-import { wait } from "../../test/utils";
 import { getUser } from "../../test/serviceMockDefaults";
 import useUsers from "./useUsers";
 const getUserMock = service.user.getUser as jest.Mock;
@@ -31,21 +30,17 @@ beforeEach(() => {
 
 describe("while queries are loading", () => {
   it("returns loading with no errors", async () => {
-    const { result, waitForNextUpdate } = renderHook(
-      () => useUsers([1, 2, 3]),
-      {
-        wrapper,
-      }
-    );
+    const { result } = renderHook(() => useUsers([1, 2, 3]), {
+      wrapper,
+    });
 
     expect(result.current).toEqual({
       isLoading: true,
+      isFetching: true,
       isError: false,
       errors: [],
       data: undefined,
     });
-
-    //await waitForNextUpdate();
   });
 });
 
@@ -62,6 +57,7 @@ describe("when useUsers has loaded", () => {
     expect(getUserMock).toHaveBeenCalledTimes(3);
     expect(result.current).toEqual({
       isLoading: false,
+      isFetching: false,
       isError: false,
       errors: [],
       data: new Map([
@@ -113,6 +109,7 @@ describe("when useUsers has loaded", () => {
 
     expect(result.current).toMatchObject({
       isLoading: false,
+      isFetching: false,
       isError: true,
       errors: ["Error fetching user 2"],
       data: new Map([
@@ -148,10 +145,11 @@ describe("when useUsers has loaded", () => {
         wrapper,
       }
     );
-    await act(() => wait(0));
+    await waitForNextUpdate();
 
     expect(result.current).toMatchObject({
       isLoading: false,
+      isFetching: false,
       isError: true,
       errors: [
         "Error fetching user data",
@@ -181,16 +179,17 @@ describe("cached data", () => {
         {children}
       </QueryClientProvider>
     );
-    const { unmount } = renderHook(() => useUsers([1, 2, 3]), {
+    const { waitForNextUpdate } = renderHook(() => useUsers([1, 2, 3]), {
       wrapper: sharedClientWrapper,
     });
     expect(getUserMock).toBeCalledTimes(3);
-    unmount();
-    await wait(0);
+    await waitForNextUpdate();
+
     const { result } = renderHook(() => useUsers([1, 2, 3]), {
       wrapper: sharedClientWrapper,
     });
     expect(getUserMock).toBeCalledTimes(3);
+    expect(result.current.isFetching).toBe(false);
     expect(result.current.isLoading).toBe(false);
   });
 
@@ -211,13 +210,12 @@ describe("cached data", () => {
       wrapper: sharedClientWrapper,
     });
     expect(getUserMock).toBeCalledTimes(3);
+    await waitForNextUpdate();
 
-    const { result } = renderHook(() => useUsers([1, 2, 3], true), {
+    renderHook(() => useUsers([1, 2, 3], true), {
       wrapper: sharedClientWrapper,
     });
-    //causes hang
-    //await waitForNextUpdate();
-    expect(result.current.isLoading).toBe(false);
+
     expect(getUserMock).toBeCalledTimes(6);
   });
 
@@ -234,22 +232,23 @@ describe("cached data", () => {
         {children}
       </QueryClientProvider>
     );
-    renderHook(() => useUsers([1, 2, 3]), {
+    const { waitForNextUpdate } = renderHook(() => useUsers([1, 2, 3]), {
       wrapper: sharedClientWrapper,
     });
+    await waitForNextUpdate();
 
     getUserMock.mockRejectedValue(new Error("Error fetching user data"));
-    const { result, waitForValueToChange } = renderHook(
+    const { result, waitForNextUpdate: wait2 } = renderHook(
       () => useUsers([1, 2, 3], true),
       {
         wrapper: sharedClientWrapper,
       }
     );
-    //causes hang
-    //await waitForValueToChange(() => result.current.errors);
+    await wait2();
 
     expect(result.current).toMatchObject({
       isLoading: false,
+      isFetching: false,
       isError: true,
       errors: [
         "Error fetching user data",

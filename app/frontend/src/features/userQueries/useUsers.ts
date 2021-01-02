@@ -15,7 +15,9 @@ export default function useUsers(ids: number[], invalidate: boolean = false) {
           ids.includes(query.queryKey[1] as number),
       });
     }
-  }, [invalidate, queryClient, ids]);
+    //for some reason, using just 'ids' was causing the effect to always run
+    //even though ids is never mutated
+  }, [invalidate, queryClient, JSON.stringify(ids)]); //eslint-disable-line react-hooks/exhaustive-deps
 
   const queries = useQueries<User.AsObject, Error>(
     ids.map((id) => ({
@@ -29,6 +31,7 @@ export default function useUsers(ids: number[], invalidate: boolean = false) {
     .map((query) => query.error?.message)
     .filter((e): e is string => typeof e === "string");
   const isLoading = queries.some((query) => query.isLoading);
+  const isFetching = queries.some((query) => query.isFetching);
   const isError = !!errors.length;
 
   const usersById = isLoading
@@ -37,6 +40,7 @@ export default function useUsers(ids: number[], invalidate: boolean = false) {
 
   return {
     isLoading,
+    isFetching,
     isError,
     errors,
     data: usersById,
