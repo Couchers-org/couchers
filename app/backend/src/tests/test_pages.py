@@ -93,8 +93,25 @@ def test_create_page_errors(db):
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == errors.MISSING_PAGE_LOCATION
 
+    with pages_session(token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreatePage(
+                pages_pb2.CreatePageReq(
+                    type=pages_pb2.PAGE_TYPE_MAIN_PAGE,
+                    title="dummy title",
+                    content="dummy content",
+                    address="dummy address",
+                    location=pages_pb2.Coordinate(
+                        lat=1,
+                        lng=3,
+                    ),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.CANNOT_CREATE_PAGE_TYPE
 
-def test_create_page(db):
+
+def test_create_page_poi(db):
     user, token = generate_user()
     with pages_session(token) as api:
         res = api.CreatePage(
@@ -106,10 +123,48 @@ def test_create_page(db):
                     lat=1,
                     lng=2,
                 ),
+                type=pages_pb2.PAGE_TYPE_POI,
             )
         )
 
         assert res.title == "dummy title"
+        assert res.type == pages_pb2.PAGE_TYPE_POI
+        assert res.content == "dummy content"
+        assert res.address == "dummy address"
+        assert res.location.lat == 1
+        assert res.location.lng == 2
+        assert res.slug == "dummy-title"
+        assert to_aware_datetime(res.created) > now() - timedelta(seconds=10) and to_aware_datetime(res.created) < now()
+        assert (
+            to_aware_datetime(res.last_edited) > now() - timedelta(seconds=10)
+            and to_aware_datetime(res.last_edited) < now()
+        )
+        assert res.last_editor_user_id == user.id
+        assert res.creator_user_id == user.id
+        assert res.owner_user_id == user.id
+        assert not res.owner_cluster_id
+        assert res.editor_user_ids == [user.id]
+        assert res.can_edit
+
+
+def test_create_page_guide(db):
+    user, token = generate_user()
+    with pages_session(token) as api:
+        res = api.CreatePage(
+            pages_pb2.CreatePageReq(
+                title="dummy title",
+                content="dummy content",
+                address="dummy address",
+                location=pages_pb2.Coordinate(
+                    lat=1,
+                    lng=2,
+                ),
+                type=pages_pb2.PAGE_TYPE_GUIDE,
+            )
+        )
+
+        assert res.title == "dummy title"
+        assert res.type == pages_pb2.PAGE_TYPE_GUIDE
         assert res.content == "dummy content"
         assert res.address == "dummy address"
         assert res.location.lat == 1

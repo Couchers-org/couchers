@@ -16,12 +16,26 @@ def _check_update_permission(page: Page, user_id):
     return False
 
 
+pagetype2sql = {
+    pages_pb2.PAGE_TYPE_POI: PageType.point_of_interest,
+    pages_pb2.PAGE_TYPE_GUIDE: PageType.guide,
+    pages_pb2.PAGE_TYPE_MAIN_PAGE: PageType.main_page,
+}
+
+pagetype2api = {
+    PageType.point_of_interest: pages_pb2.PAGE_TYPE_POI,
+    PageType.guide: pages_pb2.PAGE_TYPE_GUIDE,
+    PageType.main_page: pages_pb2.PAGE_TYPE_MAIN_PAGE,
+}
+
+
 def _page_to_pb(page: Page, user_id):
     first_version = page.versions[0]
     current_version = page.versions[-1]
     lat, lng = current_version.coordinates or (0, 0)
     return pages_pb2.Page(
         page_id=page.id,
+        type=pagetype2api[page.type],
         slug=slugify(current_version.title),
         created=Timestamp_from_datetime(first_version.created),
         last_edited=Timestamp_from_datetime(current_version.created),
@@ -52,10 +66,12 @@ class Pages(pages_pb2_grpc.PagesServicer):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_ADDRESS)
         if not request.location.lat and not request.location.lng:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_LOCATION)
+        if request.type not in [pages_pb2.PAGE_TYPE_POI, pages_pb2.PAGE_TYPE_GUIDE]:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANNOT_CREATE_PAGE_TYPE)
 
         with session_scope() as session:
             page = Page(
-                type=PageType.point_of_interest,
+                type=pagetype2sql[request.type],
                 creator_user_id=context.user_id,
                 owner_user_id=context.user_id,
             )

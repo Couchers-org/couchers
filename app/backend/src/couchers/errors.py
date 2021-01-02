@@ -3,6 +3,7 @@
 ACCOUNT_SUSPENDED = "Your account is suspended."
 ALREADY_ADMIN = "That user is already an admin."
 ALREADY_IN_CHAT = "That user is already in the chat."
+CANNOT_CREATE_PAGE_TYPE = "You cannot create that kind of page."
 CANT_ADD_SELF = "You can't add yourself to a group chat."
 CANT_INVITE_SELF = "You can't invite yourself to a chat."
 CANT_INVITE_TO_DM = "You can't invite other users to a direct message."
