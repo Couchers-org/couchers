@@ -95,7 +95,7 @@ message ClusterMember {
 }
 
 message ListClusterMembersRes {
-  repeated org.couchers.api.core.User members = 1;
+  repeated ClusterMember members = 1;
 
   string next_page_token = 2;
 }
