@@ -31,10 +31,10 @@ export default function useUserByUsername(
 
   const queryClient = useQueryClient();
   useEffect(() => {
-    if (invalidate && usernameQuery.data) {
+    if (invalidate && usernameQuery.data?.userId) {
       queryClient.invalidateQueries(["user", usernameQuery.data.userId]);
     }
-  }, [invalidate, queryClient, usernameQuery.data]);
+  }, [invalidate, queryClient, usernameQuery.data?.userId]);
 
   const query = useQuery<User.AsObject, Error>({
     queryKey: ["user", usernameQuery.data?.userId],
@@ -44,15 +44,22 @@ export default function useUserByUsername(
     enabled: !!usernameQuery.data,
   });
 
-  const error = [
-    usernameQuery.error?.message || "",
-    query.error?.message || "",
-  ].join("\n");
+  const errors = [];
+  if (usernameQuery.isError) {
+    errors.push(usernameQuery.error?.message || "");
+  }
+  if (query.isError) {
+    errors.push(query.error?.message || "");
+  }
+
+  const error = errors.join("\n");
   const isLoading = usernameQuery.isLoading || query.isLoading;
+  const isFetching = usernameQuery.isFetching || query.isFetching;
   const isError = usernameQuery.isError || query.isError;
 
   return {
     isLoading,
+    isFetching,
     isError,
     error,
     data: query.data,

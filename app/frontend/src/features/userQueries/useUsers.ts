@@ -51,6 +51,7 @@ export function useUser(id: number, invalidate: boolean = false) {
   const result = useUsers([id], invalidate);
   return {
     isLoading: result.isLoading,
+    isFetching: result.isFetching,
     isError: result.isError,
     error: result.errors.join("\n"),
     data: result.data?.get(id),

@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import React from "react";
 import { service } from "../../service";
 import { getUser } from "../../test/serviceMockDefaults";
-import useUsers from "./useUsers";
+import useUsers, { useUser } from "./useUsers";
 const getUserMock = service.user.getUser as jest.Mock;
 
 const wrapper = ({ children }: { children: React.ReactNode }) => {
@@ -40,6 +40,29 @@ describe("while queries are loading", () => {
       isError: false,
       errors: [],
       data: undefined,
+    });
+  });
+});
+
+describe("useUser (singular)", () => {
+  it("works", async () => {
+    const { result, waitForNextUpdate } = renderHook(() => useUser(1), {
+      wrapper,
+    });
+    await waitForNextUpdate();
+
+    expect(getUserMock).toHaveBeenCalledTimes(1);
+    expect(result.current).toEqual({
+      isLoading: false,
+      isFetching: false,
+      isError: false,
+      error: "",
+      data: {
+        name: "Funny Cat current User",
+        userId: 1,
+        username: "funnycat",
+        avatarUrl: "funnycat.jpg",
+      },
     });
   });
 });
