@@ -51,26 +51,29 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function useCancelFriendRequest(
-  friendRequestId: number,
-  setMutationError: SetMutationError
-) {
+interface CancelFriendRequestVariables {
+  friendRequestId: number;
+  setMutationError: SetMutationError;
+}
+
+function useCancelFriendRequest() {
   const queryClient = useQueryClient();
-  const { mutate: cancelFriendRequest } = useMutation<Empty, Error>(
-    () => service.api.cancelFriendRequest(friendRequestId),
-    {
-      onMutate: async () => {
-        setMutationError("");
-        await queryClient.cancelQueries("friendRequestsSent");
-      },
-      onSuccess: () => {
-        queryClient.invalidateQueries("friendRequestsSent");
-      },
-      onError: (error) => {
-        setMutationError(error.message);
-      },
-    }
-  );
+  const { mutate: cancelFriendRequest } = useMutation<
+    Empty,
+    Error,
+    CancelFriendRequestVariables
+  >(({ friendRequestId }) => service.api.cancelFriendRequest(friendRequestId), {
+    onMutate: async ({ setMutationError }) => {
+      setMutationError("");
+      await queryClient.cancelQueries("friendRequestsSent");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries("friendRequestsSent");
+    },
+    onError: (error, { setMutationError }) => {
+      setMutationError(error.message);
+    },
+  });
 
   return cancelFriendRequest;
 }
@@ -90,10 +93,7 @@ function FriendRequestItem({
 }: FriendRequestItemProps) {
   const classes = useStyles();
 
-  const cancelFriendRequest = useCancelFriendRequest(
-    friendRequestId,
-    setMutationError
-  );
+  const cancelFriendRequest = useCancelFriendRequest();
 
   return friend ? (
     <Box className={classes.friendItem} key={friend.userId}>
@@ -107,7 +107,9 @@ function FriendRequestItem({
         <Box>
           <IconButton
             aria-label="Cancel request"
-            onClick={() => cancelFriendRequest()}
+            onClick={() =>
+              cancelFriendRequest({ friendRequestId, setMutationError })
+            }
           >
             <CloseIcon />
           </IconButton>
