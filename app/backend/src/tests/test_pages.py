@@ -1,12 +1,10 @@
-from datetime import date, timedelta
+from datetime import timedelta
 
 import grpc
 import pytest
-from google.protobuf import empty_pb2, wrappers_pb2
+from google.protobuf import wrappers_pb2
 
 from couchers import errors
-from couchers.db import session_scope
-from couchers.models import Page, PageType
 from couchers.utils import now, to_aware_datetime
 from pb import pages_pb2
 from tests.test_fixtures import db, generate_user, pages_session, testconfig
