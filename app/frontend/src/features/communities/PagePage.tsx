@@ -14,7 +14,7 @@ import Markdown from "../../components/Markdown";
 export default function PagePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [page, setPage] = useState(null as Page.AsObject | null);
+  const [page, setPage] = useState<Page.AsObject | null>(null);
 
   const dispatch = useAppDispatch();
   const history = useHistory();
@@ -33,6 +33,7 @@ export default function PagePage() {
           history.push(`${pageRoute}/${page.pageId}/${page.slug}`);
         }
       } catch (e) {
+        console.error(e)
         setError(e.message);
       }
       setLoading(false);

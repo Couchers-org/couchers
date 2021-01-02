@@ -53,6 +53,7 @@ export default function CompleteSignup() {
       setShowAlertState("success");
       history.push(`${pageRoute}/${page.pageId}/${page.slug}`);
     } catch (error) {
+      console.error(error)
       setShowAlertState("error");
       setErrorMessage(error.message);
     }
