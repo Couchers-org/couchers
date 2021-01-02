@@ -19,7 +19,7 @@ def _check_update_permission(page: Page, user_id):
 def _page_to_pb(page: Page, user_id):
     first_version = page.versions[0]
     current_version = page.versions[-1]
-    lat, lng = current_version.coordinates
+    lat, lng = current_version.coordinates or (0, 0)
     return pages_pb2.Page(
         page_id=page.id,
         slug=slugify(current_version.title),

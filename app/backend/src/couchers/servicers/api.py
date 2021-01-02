@@ -28,7 +28,7 @@ from couchers.models import (
     User,
 )
 from couchers.tasks import send_friend_request_email, send_report_email
-from couchers.utils import Timestamp_from_datetime, create_coordinate, get_coordinates, now
+from couchers.utils import Timestamp_from_datetime, create_coordinate, now
 from pb import api_pb2, api_pb2_grpc, media_pb2
 
 reftype2sql = {
@@ -531,13 +531,18 @@ def paginate_references_result(request, query):
 def user_model_to_pb(db_user, session, context):
     num_references = session.query(Reference.from_user_id).filter(Reference.to_user_id == db_user.id).count()
 
+    # returns (lat, lng)
+    # we put people without coords on null island
+    # https://en.wikipedia.org/wiki/Null_Island
+    lat, lng = db_user.coordinates or (0, 0)
+
     user = api_pb2.User(
         user_id=db_user.id,
         username=db_user.username,
         name=db_user.name,
         city=db_user.city,
-        lat=db_user.coordinates[0],
-        lng=db_user.coordinates[1],
+        lat=lat,
+        lng=lng,
         radius=db_user.geom_radius,
         verification=db_user.verification,
         community_standing=db_user.community_standing,

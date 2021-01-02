@@ -186,6 +186,7 @@ def add_dummy_communities():
                     editor_user=admins[0],
                     title=f"Main page for the {name} community",
                     content="There is nothing here yet...",
+                    address=f"Address of {name}",
                 )
 
                 session.add(page_version)

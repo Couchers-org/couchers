@@ -139,13 +139,10 @@ class User(Base):
 
     @property
     def coordinates(self):
-        # returns (lat, lng)
-        # we put people without coords on null island
-        # https://en.wikipedia.org/wiki/Null_Island
         if self.geom:
             return get_coordinates(self.geom)
         else:
-            return (0.0, 0.0)
+            return None
 
     @property
     def age(self):
@@ -815,13 +812,11 @@ class PageVersion(Base):
 
     @property
     def coordinates(self):
-        # returns (lat, lng)
-        # we put people without coords on null island
-        # https://en.wikipedia.org/wiki/Null_Island
+        # returns (lat, lng) or None
         if self.geom:
             return get_coordinates(self.geom)
         else:
-            return (0.0, 0.0)
+            return None
 
 
 class ClusterEventAssociation(Base):
