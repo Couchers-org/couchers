@@ -1,0 +1,132 @@
+syntax = "proto3";
+
+package org.couchers.api.communities;
+
+import "google/protobuf/timestamp.proto";
+
+import "pb/api.proto";
+import "pb/pages.proto";
+
+service Communities {
+  // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to auth.proto and jail.proto
+
+  rpc GetNode(GetNodeReq) returns (Node) {
+    // Get info about a Node
+  }
+
+  rpc GetCluster(GetClusterReq) returns (Cluster) {
+    // Get info about a cluster
+  }
+
+  rpc ListNodeClusters(ListNodeClustersReq) returns (ListNodeClustersRes) {
+    // Gets a paginated list of clusters associated with a node
+  }
+
+  rpc ListClusterMembers(ListClusterMembersReq) returns (ListClusterMembersRes) {
+    // Gets a paginated list of cluster members
+  }
+
+  rpc ListClusterPages(ListClusterPagesReq) returns (ListClusterPagesRes) {
+    // Returns a paginated list of pages associated with a cluster
+  }
+
+  rpc ListClusterDiscussions(ListClusterDiscussionsReq) returns (ListClusterDiscussionsRes) {
+    // Returns a paginated list of discussions associated with a cluster
+  }
+}
+
+message Node {
+  int64 node_id = 1;
+  string name = 2;
+  string description = 3;
+  google.protobuf.Timestamp created = 4;
+  // list of parents, ordered according to inclusion, e.g. World, US, New York, (> NYC)
+  repeated int64 parent_node_ids = 5;
+  Cluster official_cluster = 6;
+  // we do not return the geometry here? (it's a potentially very big multipolygon)
+}
+
+message Cluster {
+  int64 cluster_id = 1;
+  string name = 2;
+  string description = 3;
+  google.protobuf.Timestamp created = 4;
+  org.couchers.api.pages.Page main_page = 5;
+}
+
+message GetNodeReq {
+  int64 node_id = 1;
+}
+
+message GetClusterReq {
+  int64 cluster_id = 1;
+}
+
+message ListNodeClustersReq {
+  int64 node_id = 1;
+
+  uint32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListNodeClustersRes {
+  repeated Cluster clusters = 1;
+
+  string next_page_token = 2;
+}
+
+message ListClusterMembersReq {
+  int64 cluster_id = 1;
+  bool only_admins = 2;
+
+  uint32 page_size = 3;
+  string page_token = 4;
+}
+
+enum ClusterMemberRole {
+  MEMBER = 0;
+  ADMIN = 1;
+}
+
+message ClusterMember {
+  org.couchers.api.core.User user = 1;
+  ClusterMemberRole role = 2;
+  google.protobuf.Timestamp joined = 3;
+}
+
+message ListClusterMembersRes {
+  repeated org.couchers.api.core.User members = 1;
+
+  string next_page_token = 2;
+}
+
+message ListClusterPagesReq {
+  int64 cluster_id = 1;
+  org.couchers.api.pages.PageType type = 2;
+
+  uint32 page_size = 3;
+  string page_token = 4;
+}
+
+message ListClusterPagesRes {
+  repeated org.couchers.api.pages.Page pages = 1;
+
+  string next_page_token = 2;
+}
+
+message Discussion {
+  // TODO
+}
+
+message ListClusterDiscussionsReq {
+  int64 cluster_id = 1;
+
+  uint32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListClusterDiscussionsRes {
+  repeated Discussion discussions = 1;
+
+  string next_page_token = 2;
+}
