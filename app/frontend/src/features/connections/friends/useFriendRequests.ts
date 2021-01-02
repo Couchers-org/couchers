@@ -5,19 +5,19 @@ import { ListFriendRequestsRes } from "../../../pb/api_pb";
 import { service } from "../../../service";
 
 export default function useFriendRequests(
-  friendRequestType: "sent" | "received"
+  friendRequestType: "Sent" | "Received"
 ) {
   const {
     data: friendRequestsData,
     isLoading: isFriendReqLoading,
     error,
   } = useQuery<ListFriendRequestsRes.AsObject, Error>(
-    "friendRequests",
+    `friendRequests${friendRequestType}`,
     service.api.listFriendRequests
   );
 
   const friendRequestLists = friendRequestsData
-    ? friendRequestType === "sent"
+    ? friendRequestType === "Sent"
       ? friendRequestsData.sentList
       : friendRequestsData.receivedList
     : [];

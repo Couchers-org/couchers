@@ -61,10 +61,10 @@ function useCancelFriendRequest(
     {
       onMutate: async () => {
         setMutationError("");
-        await queryClient.cancelQueries("friendRequests");
+        await queryClient.cancelQueries("friendRequestsSent");
       },
       onSuccess: () => {
-        queryClient.invalidateQueries("friendRequests");
+        queryClient.invalidateQueries("friendRequestsSent");
       },
       onError: (error) => {
         setMutationError(error.message);
@@ -131,7 +131,7 @@ function FriendRequestsSent() {
     isLoading,
     isError,
     errors,
-  } = useFriendRequests("sent");
+  } = useFriendRequests("Sent");
 
   return (
     <Card>
