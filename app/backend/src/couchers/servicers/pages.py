@@ -50,7 +50,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_CONTENT)
         if not request.address:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_ADDRESS)
-        if not request.location.lat or not request.location.lng:
+        if not request.location.lat and not request.location.lng:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_LOCATION)
 
         with session_scope() as session:
@@ -97,12 +97,24 @@ class Pages(pages_pb2_grpc.PagesServicer):
             )
 
             if request.HasField("title"):
+                if not request.title:
+                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_TITLE)
                 page_version.title = request.title
 
             if request.HasField("content"):
+                if not request.content:
+                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_CONTENT)
                 page_version.content = request.content
 
+            if request.HasField("address"):
+                if not request.address:
+                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_ADDRESS)
+                # page_version.address = request.address
+
             if request.HasField("location"):
+                if not request.location.lat and not request.location.lng:
+                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_LOCATION)
+
                 page_version.geom = create_coordinate(request.location.lat, request.location.lng)
 
             session.commit()
