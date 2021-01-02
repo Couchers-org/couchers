@@ -37,23 +37,23 @@ enum PageType {
 
 message Page {
   int64 page_id = 1;
-  PageType type = 16;
-  string slug = 2;
-  google.protobuf.Timestamp created = 3;
-  google.protobuf.Timestamp last_edited = 4;
-  int64 last_editor_user_id = 5;
-  int64 creator_user_id = 6;
+  PageType type = 2;
+  string slug = 3;
+  google.protobuf.Timestamp created = 4;
+  google.protobuf.Timestamp last_edited = 5;
+  int64 last_editor_user_id = 6;
+  int64 creator_user_id = 7;
   oneof owner {
-    int64 owner_user_id = 7;
-    int64 owner_cluster_id = 8;
+    int64 owner_user_id = 8;
+    int64 owner_cluster_id = 9;
   }
-  int64 thread_id = 9;
-  string title = 10;
-  string content = 11;
-  string address = 12;
-  Coordinate location = 13;
-  repeated int64 editor_user_ids = 14;
-  bool can_edit = 15;
+  int64 thread_id = 10;
+  string title = 11;
+  string content = 12;
+  string address = 13;
+  Coordinate location = 14;
+  repeated int64 editor_user_ids = 15;
+  bool can_edit = 16;
 }
 
 message CreatePageReq {
