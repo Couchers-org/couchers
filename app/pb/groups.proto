@@ -1,93 +1,78 @@
 syntax = "proto3";
 
-package org.couchers.api.communities;
+package org.couchers.api.groups;
 
 import "google/protobuf/timestamp.proto";
 
 import "pb/api.proto";
-import "pb/groups.proto";
 import "pb/pages.proto";
 
-service Communities {
+service Groups {
   // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to auth.proto and jail.proto
 
-  rpc GetCommunity(GetCommunityReq) returns (Community) {
-    // Get info about a Community
-  }
-
-  rpc ListGroups(ListGroupsReq) returns (ListGroupsRes) {
-    // Gets a paginated list of groups associated with a community
+  rpc GetGroup(GetGroupReq) returns (Group) {
+    // Get info about a group
   }
 
   rpc ListMembers(ListMembersReq) returns (ListMembersRes) {
-    // Gets a paginated list of community members
+    // Gets a paginated list of group members
   }
 
   rpc ListPages(ListPagesReq) returns (ListPagesRes) {
-    // Returns a paginated list of pages associated with a community
+    // Returns a paginated list of pages associated with a group
   }
 
   rpc ListDiscussions(ListDiscussionsReq) returns (ListDiscussionsRes) {
-    // Returns a paginated list of discussions associated with a community
+    // Returns a paginated list of discussions associated with a group
   }
 }
 
-message Community {
-  int64 community_id = 1;
+message Group {
+  int64 group_id = 1;
   string name = 2;
   string slug = 3;
   string description = 4;
   google.protobuf.Timestamp created = 5;
-  // list of parents, ordered according to inclusion, e.g. World, US, New York, (NYC)
+  // list of parents, ordered according to inclusion, e.g. World, Australia, (East Coast Hitchhikers)
   repeated int64 parent_community_ids = 6;
-  // we do not return the geometry here? (it's a potentially very big multipolygon)
   org.couchers.api.pages.Page main_page = 7;
 }
 
-message GetCommunityReq {
-  int64 community_id = 1;
+message GetNodeReq {
+  int64 group_id = 1;
 }
 
-message ListGroupsReq {
-  int64 community_id = 1;
-
-  uint32 page_size = 2;
-  string page_token = 3;
-}
-
-message ListGroupsRes {
-  repeated org.couchers.api.groups.Group groups = 1;
-
-  string next_page_token = 2;
+message GetGroupReq {
+  int64 group_id = 1;
 }
 
 message ListMembersReq {
-  int64 community_id = 1;
+  int64 group_id = 1;
   bool only_admins = 2;
 
   uint32 page_size = 3;
   string page_token = 4;
 }
 
-enum CommunityMemberRole {
+enum GroupMemberRole {
   MEMBER = 0;
   ADMIN = 1;
 }
 
-message CommunityMember {
+message GroupMember {
   org.couchers.api.core.User user = 1;
-  CommunityMemberRole role = 2;
+  GroupMemberRole role = 2;
   google.protobuf.Timestamp joined = 3;
 }
 
 message ListMembersRes {
-  repeated CommunityMemberRole members = 1;
+  repeated GroupMember members = 1;
 
   string next_page_token = 2;
 }
 
 message ListPagesReq {
-  int64 community_id = 1;
+  int64 group_id = 1;
   org.couchers.api.pages.PageType type = 2;
 
   uint32 page_size = 3;
@@ -105,7 +90,7 @@ message Discussion {
 }
 
 message ListDiscussionsReq {
-  int64 community_id = 1;
+  int64 group_id = 1;
 
   uint32 page_size = 2;
   string page_token = 3;
