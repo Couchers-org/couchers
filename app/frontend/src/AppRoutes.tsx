@@ -14,6 +14,8 @@ import {
 import MapPage from "./features/map/MapPage";
 import UserPage from "./features/userPage/UserPage";
 import SearchPage from "./features/search/SearchPage";
+import NewPagePage from "./features/communities/NewPagePage";
+import PagePage from "./features/communities/PagePage";
 import Jail from "./features/auth/jail/Jail";
 import TOS from "./components/TOS";
 import { useAppDispatch, useTypedSelector } from "./store";
@@ -34,6 +36,9 @@ export const userRoute = "/user";
 export const searchRoute = "/search";
 export const jailRoute = "/restricted";
 export const tosRoute = "/tos";
+
+export const newPageRoute = "/page/new";
+export const pageRoute = "/page";
 
 export default function AppRoutes() {
   return (
@@ -67,6 +72,12 @@ export default function AppRoutes() {
       </PrivateRoute>
       <PrivateRoute path={`${searchRoute}/:query?`}>
         <SearchPage />
+      </PrivateRoute>
+      <PrivateRoute path={newPageRoute}>
+        <NewPagePage />
+      </PrivateRoute>
+      <PrivateRoute path={`${pageRoute}/:pageId/:pageSlug?`}>
+        <PagePage />
       </PrivateRoute>
       <Route path={jailRoute}>
         <Jail />

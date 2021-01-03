@@ -41,7 +41,7 @@ def test_ping(db):
     assert res.user.age == user.age
     assert res.user.color == user.color
 
-    assert (res.user.lat, res.user.lng) == user.coordinates
+    assert (res.user.lat, res.user.lng) == (user.coordinates or (0, 0))
 
     # the joined time is fuzzed
     # but shouldn't be before actual joined time, or more than one hour behind
@@ -71,7 +71,7 @@ def test_coords(db):
     with api_session(token2) as api:
         res = api.Ping(api_pb2.PingReq())
         assert res.user.city == user2.city
-        lat, lng = user2.coordinates
+        lat, lng = user2.coordinates or (0, 0)
         assert res.user.lat == lat
         assert res.user.lng == lng
         assert res.user.radius == user2.geom_radius

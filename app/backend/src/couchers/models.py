@@ -139,13 +139,10 @@ class User(Base):
 
     @property
     def coordinates(self):
-        # returns (lat, lng)
-        # we put people without coords on null island
-        # https://en.wikipedia.org/wiki/Null_Island
         if self.geom:
             return get_coordinates(self.geom)
         else:
-            return (0.0, 0.0)
+            return None
 
     @property
     def age(self):
@@ -783,7 +780,7 @@ class Page(Base):
     owner_user = relationship("User", backref="owned_pages", foreign_keys="Page.owner_user_id")
     owner_cluster = relationship("Cluster", backref="owned_page", uselist=False, foreign_keys="Page.owner_cluster_id")
 
-    editors = relationship("User", backref="editing_pages", secondary="page_versions")
+    editors = relationship("User", secondary="page_versions")
 
     # Only one of owner_user and owner_cluster should be set
     CheckConstraint(
@@ -805,11 +802,21 @@ class PageVersion(Base):
     editor_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     title = Column(String, nullable=False)
     content = Column(String, nullable=False)
+    # the human-readable address
+    address = Column(String, nullable=False)
     geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
-    page = relationship("Page", backref="versions")
+    page = relationship("Page", backref="versions", order_by="PageVersion.id")
     editor_user = relationship("User", backref="edited_pages")
+
+    @property
+    def coordinates(self):
+        # returns (lat, lng) or None
+        if self.geom:
+            return get_coordinates(self.geom)
+        else:
+            return None
 
 
 class ClusterEventAssociation(Base):

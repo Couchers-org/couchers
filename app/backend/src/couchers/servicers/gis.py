@@ -47,3 +47,25 @@ class GIS(gis_pb2_grpc.GISServicer):
                 content_type="application/json",
                 data=data,
             )
+
+    def GetPages(self, request, context):
+        with session_scope() as session:
+            # TODO: this might get very slow, very quickly
+            out = session.execute(
+                """
+            select json_build_object(
+                    'type', 'FeatureCollection',
+                    'features', json_agg(ST_AsGeoJSON(t.*, 'geom', 6)::json)
+                )
+            from (
+                select page_id as id, geom from page_versions where id in (select max(id) from page_versions group by page_id) and geom is not null
+            ) as t;
+            """
+            )
+
+            data = json.dumps(out.scalar()).encode("ascii")
+
+            return httpbody_pb2.HttpBody(
+                content_type="application/json",
+                data=data,
+            )

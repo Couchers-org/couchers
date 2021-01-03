@@ -20,6 +20,7 @@ from couchers.servicers.bugs import Bugs
 from couchers.servicers.conversations import Conversations
 from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
+from couchers.servicers.pages import Pages
 from couchers.servicers.requests import Requests
 from couchers.utils import create_coordinate
 from pb import (
@@ -31,6 +32,7 @@ from pb import (
     conversations_pb2_grpc,
     jail_pb2_grpc,
     media_pb2_grpc,
+    pages_pb2_grpc,
     requests_pb2_grpc,
 )
 
@@ -298,6 +300,15 @@ def requests_session(token):
     channel = FakeChannel(user_id=user_id)
     requests_pb2_grpc.add_RequestsServicer_to_server(Requests(), channel)
     yield requests_pb2_grpc.RequestsStub(channel)
+
+
+@contextmanager
+def pages_session(token):
+    auth_interceptor = Auth().get_auth_interceptor(allow_jailed=False)
+    user_id, jailed = Auth().get_session_for_token(token)
+    channel = FakeChannel(user_id=user_id)
+    pages_pb2_grpc.add_PagesServicer_to_server(Pages(), channel)
+    yield pages_pb2_grpc.PagesStub(channel)
 
 
 @contextmanager

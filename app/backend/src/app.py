@@ -17,6 +17,7 @@ from couchers.servicers.conversations import Conversations
 from couchers.servicers.gis import GIS
 from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
+from couchers.servicers.pages import Pages
 from couchers.servicers.requests import Requests
 from couchers.servicers.sso import SSO
 from dummy_data import add_dummy_data
@@ -29,6 +30,7 @@ from pb import (
     gis_pb2_grpc,
     jail_pb2_grpc,
     media_pb2_grpc,
+    pages_pb2_grpc,
     requests_pb2_grpc,
     sso_pb2_grpc,
 )
@@ -101,6 +103,7 @@ server.add_insecure_port("[::]:1751")
 account_pb2_grpc.add_AccountServicer_to_server(Account(), server)
 api_pb2_grpc.add_APIServicer_to_server(servicer, server)
 conversations_pb2_grpc.add_ConversationsServicer_to_server(Conversations(), server)
+pages_pb2_grpc.add_PagesServicer_to_server(Pages(), server)
 gis_pb2_grpc.add_GISServicer_to_server(GIS(), server)
 requests_pb2_grpc.add_RequestsServicer_to_server(Requests(), server)
 sso_pb2_grpc.add_SSOServicer_to_server(SSO(), server)
