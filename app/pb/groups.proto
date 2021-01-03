@@ -38,10 +38,6 @@ message Group {
   org.couchers.api.pages.Page main_page = 7;
 }
 
-message GetNodeReq {
-  int64 group_id = 1;
-}
-
 message GetGroupReq {
   int64 group_id = 1;
 }

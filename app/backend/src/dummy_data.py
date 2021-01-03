@@ -172,14 +172,34 @@ def add_dummy_communities():
                 admins = session.query(User).filter(User.username.in_(node_data["admins"])).all()
                 members = session.query(User).filter(User.username.in_(node_data["members"])).all()
 
+                parent_name = node_data["parent"]
+
+                if parent_name:
+                    parent_node = session.query(Node).join(Cluster).filter(Cluster.name == node_data["parent"]).one()
+
+                node = Node(
+                    geom=to_multi(geom),
+                    parent_node=parent_node if parent_name else None,
+                )
+
+                session.add(node)
+
+                cluster = Cluster(
+                    name=f"{name}",
+                    description=f"Description for {name}",
+                    official_cluster_for_node=node,
+                )
+
+                session.add(cluster)
+
                 main_page = Page(
                     creator_user=admins[0],
                     owner_user=admins[0],
                     type=PageType.main_page,
+                    main_page_for_cluster=cluster,
                 )
 
                 session.add(main_page)
-                session.flush()
 
                 page_version = PageVersion(
                     page=main_page,
@@ -190,12 +210,6 @@ def add_dummy_communities():
                 )
 
                 session.add(page_version)
-                session.flush()
-
-                cluster = Cluster(
-                    name=f"{name} cluster",
-                    main_page=main_page,
-                )
 
                 for admin in admins:
                     cluster.cluster_subscriptions.append(
@@ -215,17 +229,6 @@ def add_dummy_communities():
                         )
                     )
 
-                session.add(cluster)
-                session.flush()
-
-                node = Node(
-                    name=name,
-                    geom=to_multi(geom),
-                    parent_node=None if node_data["parent"] else None,
-                    official_cluster=cluster,
-                )
-
-                session.add(node)
                 session.commit()
 
     except IntegrityError as e:

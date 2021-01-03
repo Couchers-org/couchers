@@ -659,20 +659,20 @@ communities_seq = Sequence("communities_seq")
 class Node(Base):
     """
     Node, i.e. geographical subdivision of the world
+
+    Administered by the official cluster
     """
 
     __tablename__ = "nodes"
 
     id = Column(BigInteger, communities_seq, primary_key=True)
 
-    name = Column(String, nullable=False)
+    # name and description come from official cluster
     parent_node_id = Column(ForeignKey("nodes.id"), nullable=True, index=True)
     geom = Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False)
-    official_cluster_id = Column(ForeignKey("clusters.id"), nullable=False, unique=True, index=True)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     parent_node = relationship("Node", backref="child_nodes", remote_side="Node.id")
-    official_cluster = relationship("Cluster", backref="node", uselist=False)
 
 
 class Cluster(Base):
@@ -684,10 +684,13 @@ class Cluster(Base):
 
     id = Column(BigInteger, communities_seq, primary_key=True)
     name = Column(String, nullable=False)
-    main_page_id = Column(ForeignKey("pages.id"), nullable=False, unique=True, index=True)
+    # short description
+    description = Column(String, nullable=False)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
-    main_page = relationship("Page", backref="cluster", uselist=False, foreign_keys="Cluster.main_page_id")
+    official_cluster_for_node_id = Column(ForeignKey("nodes.id"), nullable=False, unique=True, index=True)
+
+    official_cluster_for_node = relationship("Node", backref="official_cluster", uselist=False)
 
     nodes = relationship("Cluster", backref="clusters", secondary="node_cluster_associations")
     pages = relationship("Page", backref="clusters", secondary="cluster_page_associations")
@@ -773,7 +776,13 @@ class Page(Base):
     thread_id = Column(ForeignKey("threads.id"), nullable=True, unique=True, index=True)
     creator_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     owner_user_id = Column(ForeignKey("users.id"), nullable=True, index=True)
-    owner_cluster_id = Column(ForeignKey("clusters.id"), nullable=True, unique=True, index=True)
+    owner_cluster_id = Column(ForeignKey("clusters.id"), nullable=True, index=True)
+
+    main_page_for_cluster_id = Column(ForeignKey("clusters.id"), nullable=True, unique=True, index=True)
+
+    main_page_for_cluster = relationship(
+        "Cluster", backref="main_page", uselist=False, foreign_keys="Page.main_page_for_cluster_id"
+    )
 
     thread = relationship("Thread", backref="page", uselist=False)
     creator_user = relationship("User", backref="created_pages", foreign_keys="Page.creator_user_id")
