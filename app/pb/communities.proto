@@ -36,19 +36,25 @@ service Communities {
 
 message GetThreadReq {
   int64 thread_id = 1;
-  // Only get comments posted before the comment having this thread_id. Pass 0 to get all.
-  int64 posted_before_thread_id = 2;
-  // Maximum number of comments to return.
-  uint32 number = 3;
+
+  // Maximum number of comments to return. Defaults to 1000.
+  int32 page_size = 2;
+
+  // A page token, received from a previous `GetThread` call.
+  // Provide this to retrieve the subsequent page.
+  //
+  // When paginating, `thread_id` must match
+  // the call that provided the page token.
+  string page_token = 3;
 }
 
 message GetThreadRes {
   // sorted in inverse time order, latest comment first.
   repeated Comment comments = 1;
 
-  // number of comments posted earlier than the ones returned in `comments`
-  // zero if all comments has been returned to the client.
-  uint32 num_earlier_comments = 2;
+  // A token that can be sent as `page_token` to retrieve the next page.
+  // If this field is omitted, there are no subsequent pages.
+  string next_page_token = 2;
 }
 
 message Comment {
