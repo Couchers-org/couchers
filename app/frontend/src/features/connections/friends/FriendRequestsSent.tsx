@@ -1,43 +1,13 @@
 import { Box, IconButton } from "@material-ui/core";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { Error } from "grpc-web";
 import React from "react";
-import { useMutation, useQueryClient } from "react-query";
 import { CloseIcon } from "../../../components/Icons";
 import { FriendRequest } from "../../../pb/api_pb";
 import FriendSummaryView from "./FriendSummaryView";
 import FriendTile from "./FriendTile";
+import useCancelFriendRequest from "../useCancelFriendRequest";
 import useFriendRequests from "./useFriendRequests";
 import { useIsMounted, useSafeState } from "../../../utils/hooks";
-import { service } from "../../../service";
 import type { SetMutationError } from ".";
-
-interface CancelFriendRequestVariables {
-  friendRequestId: number;
-  setMutationError: SetMutationError;
-}
-
-export function useCancelFriendRequest() {
-  const queryClient = useQueryClient();
-  const { mutate: cancelFriendRequest } = useMutation<
-    Empty,
-    Error,
-    CancelFriendRequestVariables
-  >(({ friendRequestId }) => service.api.cancelFriendRequest(friendRequestId), {
-    onMutate: async ({ setMutationError }) => {
-      setMutationError("");
-      await queryClient.cancelQueries("friendRequestsSent");
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries("friendRequestsSent");
-    },
-    onError: (error, { setMutationError }) => {
-      setMutationError(error.message);
-    },
-  });
-
-  return cancelFriendRequest;
-}
 interface CancelFriendRequestActionProps {
   friendRequestId: number;
   state: FriendRequest.FriendRequestStatus;
@@ -81,14 +51,11 @@ function FriendRequestsSent() {
       noDataMessage="No pending friend requests!"
     >
       {data &&
-        data.map((friendRequest) => (
-          <FriendSummaryView
-            key={friendRequest.friendRequestId}
-            friendRequest={friendRequest}
-          >
+        data.map(({ friendRequestId, friend, state }) => (
+          <FriendSummaryView key={friendRequestId} friend={friend}>
             <CancelFriendRequestAction
-              friendRequestId={friendRequest.friendRequestId}
-              state={friendRequest.state}
+              friendRequestId={friendRequestId}
+              state={state}
               setMutationError={setMutationError}
             />
           </FriendSummaryView>
