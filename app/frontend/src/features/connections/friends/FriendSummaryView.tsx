@@ -1,9 +1,8 @@
 import { Box, makeStyles, Typography } from "@material-ui/core";
 import React from "react";
 import { Link } from "react-router-dom";
-import Alert from "../../../components/Alert";
 import TextBody from "../../../components/TextBody";
-import { FriendRequest, User } from "../../../pb/api_pb";
+import { User } from "../../../pb/api_pb";
 
 const useStyles = makeStyles((theme) => ({
   friendItem: {
@@ -21,19 +20,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface FriendRequestWithUser extends FriendRequest.AsObject {
+interface FriendSummaryViewProps {
+  children?: React.ReactNode;
   friend?: User.AsObject;
 }
 
-interface FriendSummaryViewProps {
-  children?: React.ReactNode;
-  friendRequest: FriendRequestWithUser;
-}
-
-function FriendSummaryView({
-  children,
-  friendRequest: { friend, userId },
-}: FriendSummaryViewProps) {
+function FriendSummaryView({ children, friend }: FriendSummaryViewProps) {
   const classes = useStyles();
 
   return friend ? (
@@ -46,11 +38,7 @@ function FriendSummaryView({
       </Link>
       {children}
     </Box>
-  ) : (
-    <Alert className={classes.userLoadErrorAlert} severity="error">
-      Error loading user {userId}
-    </Alert>
-  );
+  ) : null;
 }
 
 export default FriendSummaryView;
