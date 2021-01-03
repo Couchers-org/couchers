@@ -1,22 +1,13 @@
-import {
-  Box,
-  Card,
-  CircularProgress,
-  IconButton,
-  makeStyles,
-  Typography,
-} from "@material-ui/core";
+import { Box, IconButton } from "@material-ui/core";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error } from "grpc-web";
 import React from "react";
 import { useMutation, useQueryClient } from "react-query";
-import Alert from "../../../components/Alert";
 import { CheckIcon, CloseIcon } from "../../../components/Icons";
-import TextBody from "../../../components/TextBody";
 import { FriendRequest } from "../../../pb/api_pb";
 import { service } from "../../../service";
 import FriendSummaryView from "./FriendSummaryView";
-import useFriendsBaseStyles from "./useFriendsBaseStyles";
+import FriendTile from "./FriendTile";
 import useFriendRequests from "./useFriendRequests";
 import { useIsMounted, useSafeState } from "../../../utils/hooks";
 import type { SetMutationError } from ".";
@@ -98,44 +89,34 @@ function RespondToFriendRequestAction({
 }
 
 function FriendRequestsReceived() {
-  const baseClasses = useFriendsBaseStyles();
   const isMounted = useIsMounted();
   const [mutationError, setMutationError] = useSafeState(isMounted, "");
   const { data, isLoading, isError, errors } = useFriendRequests("Received");
 
   return (
-    <Card>
-      <Box className={baseClasses.container}>
-        <Typography className={baseClasses.header} variant="h2">
-          Friend requests
-        </Typography>
-        {isError || mutationError ? (
-          <Alert className={baseClasses.errorAlert} severity="error">
-            {isError ? errors.join("\n") : mutationError}
-          </Alert>
-        ) : null}
-        {isLoading ? (
-          <CircularProgress className={baseClasses.circularProgress} />
-        ) : data && data.length ? (
-          data.map((friendRequest) => (
-            <FriendSummaryView
-              key={friendRequest.friendRequestId}
-              friendRequest={friendRequest}
-            >
-              <RespondToFriendRequestAction
-                friendRequestId={friendRequest.friendRequestId}
-                state={friendRequest.state}
-                setMutationError={setMutationError}
-              />
-            </FriendSummaryView>
-          ))
-        ) : (
-          <TextBody className={baseClasses.noFriendItemText}>
-            No pending friend requests!
-          </TextBody>
-        )}
-      </Box>
-    </Card>
+    <FriendTile
+      title="Friend requests"
+      errorMessage={
+        isError ? errors.join("\n") : mutationError ? mutationError : null
+      }
+      isLoading={isLoading}
+      hasData={!!(data && data.length)}
+      noDataMessage="No pending friend requests!"
+    >
+      {data &&
+        data.map((friendRequest) => (
+          <FriendSummaryView
+            key={friendRequest.friendRequestId}
+            friendRequest={friendRequest}
+          >
+            <RespondToFriendRequestAction
+              friendRequestId={friendRequest.friendRequestId}
+              state={friendRequest.state}
+              setMutationError={setMutationError}
+            />
+          </FriendSummaryView>
+        ))}
+    </FriendTile>
   );
 }
 
