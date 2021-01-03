@@ -133,8 +133,6 @@ class Pages(pages_pb2_grpc.PagesServicer):
                 page_version.address = request.address.value
 
             if request.HasField("location"):
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_LOCATION)
-
                 page_version.geom = create_coordinate(request.location.lat, request.location.lng)
 
             session.commit()
