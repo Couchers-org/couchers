@@ -391,35 +391,3 @@ def test_update_page_errors(db):
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == errors.MISSING_PAGE_ADDRESS
-
-        with pytest.raises(grpc.RpcError) as e:
-            api.UpdatePage(
-                pages_pb2.UpdatePageReq(
-                    page_id=page_id,
-                    location=pages_pb2.Coordinate(
-                        lat=0,
-                        lng=0,
-                    ),
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.MISSING_PAGE_LOCATION
-
-        res = api.GetPage(pages_pb2.GetPageReq(page_id=page_id))
-        assert res.title == "dummy title"
-        assert res.content == "dummy content"
-        assert res.address == "dummy address"
-        assert res.location.lat == 1
-        assert res.location.lng == 2
-        assert res.slug == "dummy-title"
-        assert to_aware_datetime(res.created) > now() - timedelta(seconds=10) and to_aware_datetime(res.created) < now()
-        assert (
-            to_aware_datetime(res.last_edited) > now() - timedelta(seconds=10)
-            and to_aware_datetime(res.last_edited) < now()
-        )
-        assert res.last_editor_user_id == user.id
-        assert res.creator_user_id == user.id
-        assert res.owner_user_id == user.id
-        assert not res.owner_cluster_id
-        assert res.editor_user_ids == [user.id]
-        assert res.can_edit
