@@ -1,4 +1,5 @@
 import { Error } from "grpc-web";
+import { useMemo } from "react";
 import { useQuery } from "react-query";
 import useUsers from "../../userQueries/useUsers";
 import { ListFriendRequestsRes } from "../../../pb/api_pb";
@@ -16,17 +17,26 @@ export default function useFriendRequests(
     service.api.listFriendRequests
   );
 
-  const friendRequestLists = friendRequestsData
-    ? friendRequestType === "Sent"
-      ? friendRequestsData.sentList
-      : friendRequestsData.receivedList
-    : [];
+  const friendRequestLists = useMemo(
+    () =>
+      friendRequestsData
+        ? friendRequestType === "Sent"
+          ? friendRequestsData.sentList
+          : friendRequestsData.receivedList
+        : [],
+    [friendRequestType, friendRequestsData]
+  );
+
+  const userIds = useMemo(
+    () => friendRequestLists.map((friendReq) => friendReq.userId),
+    [friendRequestLists]
+  );
 
   const {
     data: usersData,
     isLoading: isUsersLoading,
     errors: usersErrors,
-  } = useUsers(friendRequestLists.map((friendReq) => friendReq.userId));
+  } = useUsers(userIds);
 
   const errors = error ? [error.message, ...usersErrors] : usersErrors;
 
