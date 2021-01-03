@@ -5,6 +5,11 @@ const useFriendsBaseStyles = makeStyles((theme) => ({
     display: "block",
     margin: `0 auto ${theme.spacing(1)}`,
   },
+  container: {
+    "& > :last-child": {
+      marginBottom: theme.spacing(1),
+    },
+  },
   errorAlert: {
     borderRadius: 0,
   },
@@ -12,6 +17,9 @@ const useFriendsBaseStyles = makeStyles((theme) => ({
     marginLeft: theme.spacing(1),
     marginBottom: theme.spacing(2),
     fontWeight: theme.typography.fontWeightBold,
+  },
+  noFriendItemText: {
+    marginLeft: theme.spacing(1),
   },
 }));
 

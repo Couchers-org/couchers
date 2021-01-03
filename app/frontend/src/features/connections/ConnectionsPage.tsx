@@ -3,7 +3,7 @@ import React from "react";
 import { useHistory, useParams } from "react-router";
 import { connectionsRoute } from "../../AppRoutes";
 import PageTitle from "../../components/PageTitle";
-import FriendsTab from "./friends/FriendsTab";
+import { FriendsTab } from "./friends";
 import TabBar from "../../components/TabBar";
 
 const labels = {

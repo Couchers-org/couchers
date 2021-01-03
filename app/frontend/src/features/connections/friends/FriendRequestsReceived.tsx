@@ -10,46 +10,16 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error } from "grpc-web";
 import React from "react";
 import { useMutation, useQueryClient } from "react-query";
-import { Link } from "react-router-dom";
 import Alert from "../../../components/Alert";
 import { CheckIcon, CloseIcon } from "../../../components/Icons";
 import TextBody from "../../../components/TextBody";
-import { FriendRequest, User } from "../../../pb/api_pb";
+import { FriendRequest } from "../../../pb/api_pb";
 import { service } from "../../../service";
+import FriendSummaryView from "./FriendSummaryView";
 import useFriendsBaseStyles from "./useFriendsBaseStyles";
 import useFriendRequests from "./useFriendRequests";
 import { useIsMounted, useSafeState } from "../../../utils/hooks";
-
-const useStyles = makeStyles((theme) => ({
-  actionButton: {
-    borderRadius: "100%",
-    minWidth: "auto",
-    height: theme.spacing(3),
-    width: theme.spacing(3),
-    padding: 0,
-  },
-  container: {
-    "& > :last-child": {
-      marginBottom: theme.spacing(1),
-    },
-  },
-  friendItem: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: `0 ${theme.spacing(1)}`,
-  },
-  friendLink: {
-    color: theme.palette.text.primary,
-    textDecoration: "none",
-  },
-  noPendingRequestText: {
-    marginLeft: theme.spacing(1),
-  },
-  userLoadErrorAlert: {
-    borderRadius: 0,
-  },
-}));
+import type { SetMutationError } from ".";
 
 interface RespondToFriendRequestVariables {
   accept: boolean;
@@ -84,76 +54,58 @@ export function useRespondToFriendRequest() {
   return respondToFriendRequest;
 }
 
-export type SetMutationError = React.Dispatch<React.SetStateAction<string>>;
-
-interface FriendRequestItemProps {
-  friendRequest: FriendRequest.AsObject & {
-    friend?: User.AsObject;
-  };
+interface RespondToFriendRequestActionProps {
+  friendRequestId: number;
+  state: FriendRequest.FriendRequestStatus;
   setMutationError: SetMutationError;
 }
 
-function FriendRequestItem({
-  friendRequest: { friend, friendRequestId, state, userId },
+function RespondToFriendRequestAction({
+  friendRequestId,
+  state,
   setMutationError,
-}: FriendRequestItemProps) {
-  const classes = useStyles();
+}: RespondToFriendRequestActionProps) {
   const respondToFriendRequest = useRespondToFriendRequest();
 
-  return friend ? (
-    <Box className={classes.friendItem} key={friend.userId}>
-      <Link className={classes.friendLink} to={`/user/${friend.username}`}>
-        <Typography variant="h2" component="h3">
-          {friend.name}
-        </Typography>
-        <TextBody>@{friend.username}</TextBody>
-      </Link>
-      {state === FriendRequest.FriendRequestStatus.PENDING && (
-        <Box>
-          <IconButton
-            aria-label="Accept request"
-            onClick={() =>
-              respondToFriendRequest({
-                accept: true,
-                friendRequestId,
-                setMutationError,
-              })
-            }
-          >
-            <CheckIcon />
-          </IconButton>
-          <IconButton
-            aria-label="Decline request"
-            onClick={() =>
-              respondToFriendRequest({
-                accept: false,
-                friendRequestId,
-                setMutationError,
-              })
-            }
-          >
-            <CloseIcon />
-          </IconButton>
-        </Box>
-      )}
+  return state === FriendRequest.FriendRequestStatus.PENDING ? (
+    <Box>
+      <IconButton
+        aria-label="Accept request"
+        onClick={() =>
+          respondToFriendRequest({
+            accept: true,
+            friendRequestId,
+            setMutationError,
+          })
+        }
+      >
+        <CheckIcon />
+      </IconButton>
+      <IconButton
+        aria-label="Decline request"
+        onClick={() =>
+          respondToFriendRequest({
+            accept: false,
+            friendRequestId,
+            setMutationError,
+          })
+        }
+      >
+        <CloseIcon />
+      </IconButton>
     </Box>
-  ) : (
-    <Alert className={classes.userLoadErrorAlert} severity="error">
-      Error loading user {userId}
-    </Alert>
-  );
+  ) : null;
 }
 
 function FriendRequestsReceived() {
   const baseClasses = useFriendsBaseStyles();
-  const classes = useStyles();
   const isMounted = useIsMounted();
   const [mutationError, setMutationError] = useSafeState(isMounted, "");
   const { data, isLoading, isError, errors } = useFriendRequests("Received");
 
   return (
     <Card>
-      <Box className={classes.container}>
+      <Box className={baseClasses.container}>
         <Typography className={baseClasses.header} variant="h2">
           Friend requests
         </Typography>
@@ -166,14 +118,19 @@ function FriendRequestsReceived() {
           <CircularProgress className={baseClasses.circularProgress} />
         ) : data && data.length ? (
           data.map((friendRequest) => (
-            <FriendRequestItem
+            <FriendSummaryView
               key={friendRequest.friendRequestId}
               friendRequest={friendRequest}
-              setMutationError={setMutationError}
-            />
+            >
+              <RespondToFriendRequestAction
+                friendRequestId={friendRequest.friendRequestId}
+                state={friendRequest.state}
+                setMutationError={setMutationError}
+              />
+            </FriendSummaryView>
           ))
         ) : (
-          <TextBody className={classes.noPendingRequestText}>
+          <TextBody className={baseClasses.noFriendItemText}>
             No pending friend requests!
           </TextBody>
         )}

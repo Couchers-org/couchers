@@ -10,53 +10,23 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error } from "grpc-web";
 import React from "react";
 import { useMutation, useQueryClient } from "react-query";
-import { Link } from "react-router-dom";
 import Alert from "../../../components/Alert";
 import { CloseIcon } from "../../../components/Icons";
 import TextBody from "../../../components/TextBody";
-import { FriendRequest, User } from "../../../pb/api_pb";
+import { FriendRequest } from "../../../pb/api_pb";
+import FriendSummaryView from "./FriendSummaryView";
 import useFriendsBaseStyles from "./useFriendsBaseStyles";
 import useFriendRequests from "./useFriendRequests";
 import { useIsMounted, useSafeState } from "../../../utils/hooks";
 import { service } from "../../../service";
-
-const useStyles = makeStyles((theme) => ({
-  actionButton: {
-    borderRadius: "100%",
-    minWidth: "auto",
-    height: theme.spacing(3),
-    width: theme.spacing(3),
-    padding: 0,
-  },
-  container: {
-    "& > :last-child": {
-      marginBottom: theme.spacing(1),
-    },
-  },
-  friendItem: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: `0 ${theme.spacing(1)}`,
-  },
-  friendLink: {
-    color: theme.palette.text.primary,
-    textDecoration: "none",
-  },
-  noPendingRequestText: {
-    marginLeft: theme.spacing(1),
-  },
-  userLoadErrorAlert: {
-    borderRadius: 0,
-  },
-}));
+import type { SetMutationError } from ".";
 
 interface CancelFriendRequestVariables {
   friendRequestId: number;
   setMutationError: SetMutationError;
 }
 
-function useCancelFriendRequest() {
+export function useCancelFriendRequest() {
   const queryClient = useQueryClient();
   const { mutate: cancelFriendRequest } = useMutation<
     Empty,
@@ -77,57 +47,37 @@ function useCancelFriendRequest() {
 
   return cancelFriendRequest;
 }
-
-export type SetMutationError = React.Dispatch<React.SetStateAction<string>>;
-
-interface FriendRequestItemProps {
-  friendRequest: FriendRequest.AsObject & {
-    friend?: User.AsObject;
-  };
+interface CancelFriendRequestActionProps {
+  friendRequestId: number;
+  state: FriendRequest.FriendRequestStatus;
   setMutationError: SetMutationError;
 }
 
-function FriendRequestItem({
-  friendRequest: { friend, friendRequestId, state, userId },
+function CancelFriendRequestAction({
+  friendRequestId,
+  state,
   setMutationError,
-}: FriendRequestItemProps) {
-  const classes = useStyles();
-
+}: CancelFriendRequestActionProps) {
   const cancelFriendRequest = useCancelFriendRequest();
 
-  return friend ? (
-    <Box className={classes.friendItem} key={friend.userId}>
-      <Link className={classes.friendLink} to={`/user/${friend.username}`}>
-        <Typography variant="h2" component="h3">
-          {friend.name}
-        </Typography>
-        <TextBody>@{friend.username}</TextBody>
-      </Link>
-      {state === FriendRequest.FriendRequestStatus.PENDING && (
-        <Box>
-          <IconButton
-            aria-label="Cancel request"
-            onClick={() =>
-              cancelFriendRequest({ friendRequestId, setMutationError })
-            }
-          >
-            <CloseIcon />
-          </IconButton>
-        </Box>
-      )}
+  return state === FriendRequest.FriendRequestStatus.PENDING ? (
+    <Box>
+      <IconButton
+        aria-label="Cancel request"
+        onClick={() =>
+          cancelFriendRequest({ friendRequestId, setMutationError })
+        }
+      >
+        <CloseIcon />
+      </IconButton>
     </Box>
-  ) : (
-    <Alert className={classes.userLoadErrorAlert} severity="error">
-      Error loading user {userId}
-    </Alert>
-  );
+  ) : null;
 }
 
 function FriendRequestsSent() {
   const isMounted = useIsMounted();
   const [mutationError, setMutationError] = useSafeState(isMounted, "");
   const baseClasses = useFriendsBaseStyles();
-  const classes = useStyles();
   const {
     data: friendRequestsSentData,
     isLoading,
@@ -137,7 +87,7 @@ function FriendRequestsSent() {
 
   return (
     <Card>
-      <Box className={classes.container}>
+      <Box className={baseClasses.container}>
         <Typography className={baseClasses.header} variant="h2">
           Friend requests you sent
         </Typography>
@@ -150,14 +100,19 @@ function FriendRequestsSent() {
           <CircularProgress className={baseClasses.circularProgress} />
         ) : friendRequestsSentData && friendRequestsSentData.length ? (
           friendRequestsSentData.map((friendRequest) => (
-            <FriendRequestItem
+            <FriendSummaryView
               key={friendRequest.friendRequestId}
               friendRequest={friendRequest}
-              setMutationError={setMutationError}
-            />
+            >
+              <CancelFriendRequestAction
+                friendRequestId={friendRequest.friendRequestId}
+                state={friendRequest.state}
+                setMutationError={setMutationError}
+              />
+            </FriendSummaryView>
           ))
         ) : (
-          <TextBody className={classes.noPendingRequestText}>
+          <TextBody className={baseClasses.noFriendItemText}>
             No pending friend requests!
           </TextBody>
         )}
