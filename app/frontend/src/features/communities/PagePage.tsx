@@ -1,7 +1,6 @@
 import PageTitle from "../../components/PageTitle";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useAppDispatch } from "../../store";
 import { Page } from "../../pb/pages_pb"
 import { service } from "../../service";
 import Alert from "../../components/Alert";
@@ -16,7 +15,6 @@ export default function PagePage() {
   const [error, setError] = useState("");
   const [page, setPage] = useState<Page.AsObject | null>(null);
 
-  const dispatch = useAppDispatch();
   const history = useHistory();
 
   const { pageId, pageSlug } = useParams<{ pageId: string, pageSlug?: string }>();

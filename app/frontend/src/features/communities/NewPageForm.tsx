@@ -4,7 +4,7 @@ import { useHistory, useLocation } from "react-router-dom";
 import Button from "../../components/Button";
 import CircularProgress from "../../components/CircularProgress";
 import TextField from "../../components/TextField";
-import { useAppDispatch, useTypedSelector } from "../../store";
+import { useAppDispatch } from "../../store";
 import Alert from "../../components/Alert";
 import { createPage } from "./actions"
 import ProfileMarkdownInput from "../profile/ProfileMarkdownInput";
@@ -23,7 +23,6 @@ type NewPageInputs = {
 
 export default function CompleteSignup() {
   const dispatch = useAppDispatch();
-  const authLoading = useTypedSelector((state) => state.auth.loading);
 
   const {
     control,
@@ -105,7 +104,7 @@ export default function CompleteSignup() {
             )}
           />
 
-          <Button onClick={submitForm} loading={authLoading || loading}>
+          <Button onClick={submitForm} loading={loading}>
             Create page
           </Button>
         </form>
