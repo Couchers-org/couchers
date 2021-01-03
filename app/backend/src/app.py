@@ -13,8 +13,10 @@ from couchers.servicers.account import Account
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
 from couchers.servicers.bugs import Bugs
+from couchers.servicers.communities import Communities
 from couchers.servicers.conversations import Conversations
 from couchers.servicers.gis import GIS
+from couchers.servicers.groups import Groups
 from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
 from couchers.servicers.pages import Pages
@@ -26,8 +28,10 @@ from pb import (
     api_pb2_grpc,
     auth_pb2_grpc,
     bugs_pb2_grpc,
+    communities_pb2_grpc,
     conversations_pb2_grpc,
     gis_pb2_grpc,
+    groups_pb2_grpc,
     jail_pb2_grpc,
     media_pb2_grpc,
     pages_pb2_grpc,
@@ -102,9 +106,11 @@ server.add_insecure_port("[::]:1751")
 
 account_pb2_grpc.add_AccountServicer_to_server(Account(), server)
 api_pb2_grpc.add_APIServicer_to_server(servicer, server)
+communities_pb2_grpc.add_CommunitiesServicer_to_server(Communities(), server)
 conversations_pb2_grpc.add_ConversationsServicer_to_server(Conversations(), server)
 pages_pb2_grpc.add_PagesServicer_to_server(Pages(), server)
 gis_pb2_grpc.add_GISServicer_to_server(GIS(), server)
+groups_pb2_grpc.add_GroupsServicer_to_server(Groups(), server)
 requests_pb2_grpc.add_RequestsServicer_to_server(Requests(), server)
 sso_pb2_grpc.add_SSOServicer_to_server(SSO(), server)
 
