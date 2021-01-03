@@ -64,7 +64,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_CONTENT)
         if not request.address:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_ADDRESS)
-        if request.HasField("location"):
+        if not request.HasField("location"):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_LOCATION)
         if request.type not in [pages_pb2.PAGE_TYPE_POI, pages_pb2.PAGE_TYPE_GUIDE]:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANNOT_CREATE_PAGE_TYPE)
@@ -133,8 +133,6 @@ class Pages(pages_pb2_grpc.PagesServicer):
                 page_version.address = request.address.value
 
             if request.HasField("location"):
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_LOCATION)
-
                 page_version.geom = create_coordinate(request.location.lat, request.location.lng)
 
             session.commit()
