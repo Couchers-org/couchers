@@ -31,13 +31,13 @@ service Communities {
 
   // Post a new comment on a thread. The post can not be changed or deleted after posting.
   // Throws INVALID_ARGUMENT if thread_id corresponds to a nesting level 3 reply, since no futher nesting is allowed.
-  rpc PostComment(PostCommentReq) returns (PostCommentRes);
+  rpc PostReply(PostReplyReq) returns (PostReplyRes);
 }
 
 message GetThreadReq {
   int64 thread_id = 1;
 
-  // Maximum number of comments to return. Defaults to 1000.
+  // Maximum number of replies to return. Defaults to 1000.
   int32 page_size = 2;
 
   // A page token, received from a previous `GetThread` call.
@@ -49,17 +49,17 @@ message GetThreadReq {
 }
 
 message GetThreadRes {
-  // sorted in inverse time order, latest comment first.
-  repeated Comment comments = 1;
+  // sorted in inverse time order, latest reply first.
+  repeated Reply replies = 1;
 
   // A token that can be sent as `page_token` to retrieve the next page.
   // If this field is omitted, there are no subsequent pages.
   string next_page_token = 2;
 }
 
-message Comment {
-  int64 thread_id = 1;
-  string content = 2;  // markdown without images
+message Reply {
+  int64 thread_id = 1;  // id of this comment
+  string content = 2;   // markdown without images
   int64 author_user_id = 3;
   google.protobuf.Timestamp created_time = 4;
 
@@ -67,12 +67,12 @@ message Comment {
   uint32 num_replies = 5;
 }
 
-message PostCommentReq {
-  int64 thread_id = 1;
-  string content = 2;  // markdown without images
+message PostReplyReq {
+  int64 thread_id = 1;  // The comment to reply to
+  string content = 2;   // markdown without images
 }
 
-message PostCommentRes {
+message PostReplyRes {
   // The id of the just posted comment
   int64 thread_id = 1;
 }
