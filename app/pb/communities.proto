@@ -27,14 +27,14 @@ service Communities {
 
   // Get non-deleted posts belonging to a thread, sorted in reverse time order.
   // Pagination is supported by the posted_before_thread_id and number fields.
-  rpc ReadThread(ReadThreadReq) returns (ReadThreadRes);
+  rpc GetThread(GetThreadReq) returns (GetThreadRes);
 
   // Post a new comment on a thread. The post can not be changed or deleted after posting.
   // Throws INVALID_ARGUMENT if thread_id corresponds to a nesting level 3 reply, since no futher nesting is allowed.
   rpc PostComment(PostCommentReq) returns (PostCommentRes);
 }
 
-message ReadThreadReq {
+message GetThreadReq {
   int64 thread_id = 1;
   // Only get comments posted before the comment having this thread_id. Pass 0 to get all.
   int64 posted_before_thread_id = 2;
@@ -42,7 +42,7 @@ message ReadThreadReq {
   uint32 number = 3;
 }
 
-message ReadThreadRes {
+message GetThreadRes {
   // sorted in inverse time order, latest comment first.
   repeated Comment comments = 1;
 
