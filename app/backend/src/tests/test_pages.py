@@ -72,22 +72,6 @@ def test_create_page_errors(db):
                     title="dummy title",
                     content="dummy content",
                     address="dummy address",
-                    location=pages_pb2.Coordinate(
-                        lat=None,
-                        lng=None,
-                    ),
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.MISSING_PAGE_LOCATION
-
-    with pages_session(token) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.CreatePage(
-                pages_pb2.CreatePageReq(
-                    title="dummy title",
-                    content="dummy content",
-                    address="dummy address",
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
