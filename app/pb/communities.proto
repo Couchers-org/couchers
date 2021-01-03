@@ -51,15 +51,6 @@ message GetThreadRes {
   uint32 num_earlier_comments = 2;
 }
 
-message GetRepliesRes {
-  // sorted in inverse time order, latest reply first.
-  repeated Comment replies = 1;
-
-  // number of replies posted earlier than the ones returned in `replies`.
-  // zero if all replies has been returned to the client.
-  uint32 num_earlier_replies = 2;
-}
-
 message Comment {
   int64 thread_id = 1;
   string content = 2;  // markdown without images
