@@ -23,10 +23,12 @@ export default function useUsers(ids: number[], invalidate: boolean = false) {
   }, [handleInvalidation]);
 
   //arrays use reference equality, so you can't use ids in useEffect directly
-  if (!arrayEq(idsRef.current, ids)) {
-    idsRef.current = ids;
-    handleInvalidation();
-  }
+  useEffect(() => {
+    if (!arrayEq(idsRef.current, ids)) {
+      idsRef.current = ids;
+      handleInvalidation();
+    }
+  });
 
   const queries = useQueries<User.AsObject, Error>(
     ids.map((id) => ({

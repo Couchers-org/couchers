@@ -50,7 +50,6 @@ describe("when user has loaded", () => {
     getUserMock.mockResolvedValueOnce({ userId: 2, username: "funnydog" });
   });
   it("returns the user data with no errors", async () => {
-    //getUserMock.mockResolvedValueOnce({ userId: 2, username: "funnydog" });
     const { result, waitFor } = renderHook(
       () => useUserByUsername("funnydog"),
       {
@@ -122,7 +121,7 @@ describe("cached data", () => {
       wrapper: sharedClientWrapper,
     });
 
-    expect(getUserMock).toBeCalledTimes(0);
+    expect(getUserMock).not.toHaveBeenCalled();
     expect(result.current.isFetching).toBe(false);
     expect(result.current.isLoading).toBe(false);
   });

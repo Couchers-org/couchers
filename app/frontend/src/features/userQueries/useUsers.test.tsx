@@ -222,7 +222,7 @@ describe("cached data", () => {
     const { result } = renderHook(() => useUsers([1, 2, 3]), {
       wrapper: sharedClientWrapper,
     });
-    expect(getUserMock).toBeCalledTimes(0);
+    expect(getUserMock).not.toHaveBeenCalled();
     expect(result.current.isFetching).toBe(false);
     expect(result.current.isLoading).toBe(false);
   });
