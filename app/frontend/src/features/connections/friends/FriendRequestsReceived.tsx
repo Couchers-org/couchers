@@ -1,4 +1,4 @@
-import { Box, IconButton } from "@material-ui/core";
+import { Box, CircularProgress, IconButton } from "@material-ui/core";
 import React from "react";
 import { CheckIcon, CloseIcon } from "../../../components/Icons";
 import { FriendRequest } from "../../../pb/api_pb";
@@ -20,34 +20,44 @@ function RespondToFriendRequestAction({
   state,
   setMutationError,
 }: RespondToFriendRequestActionProps) {
-  const respondToFriendRequest = useRespondToFriendRequest();
+  const {
+    isLoading,
+    isSuccess,
+    respondToFriendRequest,
+  } = useRespondToFriendRequest();
 
   return state === FriendRequest.FriendRequestStatus.PENDING ? (
     <Box>
-      <IconButton
-        aria-label="Accept request"
-        onClick={() =>
-          respondToFriendRequest({
-            accept: true,
-            friendRequestId,
-            setMutationError,
-          })
-        }
-      >
-        <CheckIcon />
-      </IconButton>
-      <IconButton
-        aria-label="Decline request"
-        onClick={() =>
-          respondToFriendRequest({
-            accept: false,
-            friendRequestId,
-            setMutationError,
-          })
-        }
-      >
-        <CloseIcon />
-      </IconButton>
+      {isLoading || isSuccess ? (
+        <CircularProgress />
+      ) : (
+        <>
+          <IconButton
+            aria-label="Accept request"
+            onClick={() =>
+              respondToFriendRequest({
+                accept: true,
+                friendRequestId,
+                setMutationError,
+              })
+            }
+          >
+            <CheckIcon />
+          </IconButton>
+          <IconButton
+            aria-label="Decline request"
+            onClick={() =>
+              respondToFriendRequest({
+                accept: false,
+                friendRequestId,
+                setMutationError,
+              })
+            }
+          >
+            <CloseIcon />
+          </IconButton>
+        </>
+      )}
     </Box>
   ) : null;
 }

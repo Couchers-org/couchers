@@ -11,7 +11,7 @@ interface CancelFriendRequestVariables {
 
 export default function useCancelFriendRequest() {
   const queryClient = useQueryClient();
-  const { mutate: cancelFriendRequest } = useMutation<
+  const { mutate: cancelFriendRequest, isLoading, isSuccess } = useMutation<
     Empty,
     Error,
     CancelFriendRequestVariables
@@ -28,5 +28,5 @@ export default function useCancelFriendRequest() {
     },
   });
 
-  return cancelFriendRequest;
+  return { cancelFriendRequest, isLoading, isSuccess };
 }

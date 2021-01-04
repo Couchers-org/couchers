@@ -1,4 +1,4 @@
-import { Box, IconButton } from "@material-ui/core";
+import { Box, CircularProgress, IconButton } from "@material-ui/core";
 import React from "react";
 import { CloseIcon } from "../../../components/Icons";
 import { FriendRequest } from "../../../pb/api_pb";
@@ -19,18 +19,26 @@ function CancelFriendRequestAction({
   state,
   setMutationError,
 }: CancelFriendRequestActionProps) {
-  const cancelFriendRequest = useCancelFriendRequest();
+  const {
+    cancelFriendRequest,
+    isLoading,
+    isSuccess,
+  } = useCancelFriendRequest();
 
   return state === FriendRequest.FriendRequestStatus.PENDING ? (
     <Box>
-      <IconButton
-        aria-label="Cancel request"
-        onClick={() =>
-          cancelFriendRequest({ friendRequestId, setMutationError })
-        }
-      >
-        <CloseIcon />
-      </IconButton>
+      {isLoading || isSuccess ? (
+        <CircularProgress />
+      ) : (
+        <IconButton
+          aria-label="Cancel request"
+          onClick={() =>
+            cancelFriendRequest({ friendRequestId, setMutationError })
+          }
+        >
+          <CloseIcon />
+        </IconButton>
+      )}
     </Box>
   ) : null;
 }

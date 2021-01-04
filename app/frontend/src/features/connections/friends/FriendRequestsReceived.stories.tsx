@@ -5,11 +5,11 @@ import { Provider } from "react-redux";
 import { store } from "../../../stories/__mocks__/store";
 import { mockedService } from "../../../stories/__mocks__/service";
 import { FriendRequest } from "../../../pb/api_pb";
-import FriendRequestsSent from "./FriendRequestsSent";
+import FriendRequestsReceived from "./FriendRequestsReceived";
 
 export default {
-  title: "FriendRequestsSent",
-  component: FriendRequestsSent,
+  title: "FriendRequestsReceived",
+  component: FriendRequestsReceived,
   decorators: [
     (Story) => (
       <Provider store={store}>
@@ -26,7 +26,7 @@ interface FriendRequestsState {
 
 interface MockOverrides {
   listFriendRequests?: () => Promise<FriendRequestsState>;
-  cancelFriendRequest?: () => Promise<Empty>;
+  respondFriendRequest?: () => Promise<Empty>;
 }
 
 const Template: Story<{
@@ -42,7 +42,7 @@ const Template: Story<{
 
   return (
     <div style={{ width: "50%" }}>
-      <FriendRequestsSent />
+      <FriendRequestsReceived />
     </div>
   );
 };
@@ -50,32 +50,32 @@ const Template: Story<{
 export const WithPendingRequests = Template.bind({});
 WithPendingRequests.args = {
   friendRequests: {
-    sentList: [
+    sentList: [],
+    receivedList: [
       {
         friendRequestId: 1,
         state: FriendRequest.FriendRequestStatus.PENDING,
         userId: 3,
       },
     ],
-    receivedList: [],
   },
 };
 
-export const ErrorCancellingRequest = Template.bind({});
-ErrorCancellingRequest.args = {
+export const ErrorRespondingToRequest = Template.bind({});
+ErrorRespondingToRequest.args = {
   friendRequests: {
-    sentList: [
+    sentList: [],
+    receivedList: [
       {
         friendRequestId: 1,
         state: FriendRequest.FriendRequestStatus.PENDING,
         userId: 3,
       },
     ],
-    receivedList: [],
   },
   overrides: {
-    cancelFriendRequest: async () => {
-      throw new Error("Can't cancel friend request...");
+    respondFriendRequest: async () => {
+      throw new Error("Can't respond to friend request...");
     },
   },
 };
@@ -88,8 +88,8 @@ function setFriendRequestsMocks(
   overrides: any = {}
 ) {
   mockedService.api.listFriendRequests = async () => friendRequests.current;
-  mockedService.api.cancelFriendRequest =
-    overrides.cancelFriendRequest ??
+  mockedService.api.respondFriendRequest =
+    overrides.respondFriendRequest ??
     (async () => {
       friendRequests.current = { sentList: [], receivedList: [] };
       return new Empty();
