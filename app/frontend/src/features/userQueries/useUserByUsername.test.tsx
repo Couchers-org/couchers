@@ -25,10 +25,7 @@ beforeAll(() => {
 });
 
 beforeEach(() => {
-  getUserMock
-    .mockImplementation(getUser)
-    //all tests get userId 2, the mock implementation only supports fetch by id
-    .mockResolvedValueOnce({ userId: 2, username: "funnydog" });
+  getUserMock.mockImplementation(getUser);
 });
 
 describe("while loading", () => {
@@ -48,7 +45,12 @@ describe("while loading", () => {
 });
 
 describe("when user has loaded", () => {
+  beforeEach(() => {
+    //these tests get userId 2, the mock implementation only supports fetch by id
+    getUserMock.mockResolvedValueOnce({ userId: 2, username: "funnydog" });
+  });
   it("returns the user data with no errors", async () => {
+    //getUserMock.mockResolvedValueOnce({ userId: 2, username: "funnydog" });
     const { result, waitFor } = renderHook(
       () => useUserByUsername("funnydog"),
       {
@@ -94,94 +96,54 @@ describe("when user has loaded", () => {
 });
 
 describe("cached data", () => {
-  it("is used instead of refetching", async () => {
-    const sharedClient = new QueryClient({
-      defaultOptions: { queries: { retry: false } },
+  const sharedClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  const sharedClientWrapper = ({ children }: { children: React.ReactNode }) => (
+    <QueryClientProvider client={sharedClient}>{children}</QueryClientProvider>
+  );
+  beforeEach(async () => {
+    sharedClient.clear();
+    sharedClient.setQueryData(["username2Id", "funnydog"], {
+      username: "funnydog",
+      userId: 2,
     });
-    const sharedClientWrapper = ({
-      children,
-    }: {
-      children: React.ReactNode;
-    }) => (
-      <QueryClientProvider client={sharedClient}>
-        {children}
-      </QueryClientProvider>
-    );
-    const { waitForNextUpdate } = renderHook(
-      () => useUserByUsername("funnydog"),
-      {
-        wrapper: sharedClientWrapper,
-      }
-    );
-    await waitForNextUpdate();
-    expect(getUserMock).toBeCalledTimes(2);
+    sharedClient.setQueryData(["user", 2], {
+      name: "Funny Dog",
+      userId: 2,
+      username: "funnydog",
+      avatarUrl: "funnydog.jpg",
+    });
+    await sharedClient.refetchQueries();
+  });
 
+  it("is used instead of refetching", async () => {
     const { result } = renderHook(() => useUserByUsername("funnydog"), {
       wrapper: sharedClientWrapper,
     });
-    expect(getUserMock).toBeCalledTimes(2);
+
+    expect(getUserMock).toBeCalledTimes(0);
     expect(result.current.isFetching).toBe(false);
     expect(result.current.isLoading).toBe(false);
   });
 
   it("is invalidated when requested, userid2user map not invalidated", async () => {
-    const sharedClient = new QueryClient({
-      defaultOptions: { queries: { retry: false } },
-    });
-    const sharedClientWrapper = ({
-      children,
-    }: {
-      children: React.ReactNode;
-    }) => (
-      <QueryClientProvider client={sharedClient}>
-        {children}
-      </QueryClientProvider>
-    );
-    const { waitForNextUpdate } = renderHook(
-      () => useUserByUsername("funnydog"),
-      {
-        wrapper: sharedClientWrapper,
-      }
-    );
-    await waitForNextUpdate();
-    expect(getUserMock).toBeCalledTimes(2);
-
     renderHook(() => useUserByUsername("funnydog", true), {
       wrapper: sharedClientWrapper,
     });
 
-    expect(getUserMock).toBeCalledTimes(3);
+    expect(getUserMock).toBeCalledTimes(1);
   });
 
   it("is returned when stale if subsequent refetch queries fail", async () => {
-    const sharedClient = new QueryClient({
-      defaultOptions: { queries: { retry: false } },
-    });
-    const sharedClientWrapper = ({
-      children,
-    }: {
-      children: React.ReactNode;
-    }) => (
-      <QueryClientProvider client={sharedClient}>
-        {children}
-      </QueryClientProvider>
-    );
-    const { waitForNextUpdate } = renderHook(
-      () => useUserByUsername("funnydog"),
-      {
-        wrapper: sharedClientWrapper,
-      }
-    );
-    await waitForNextUpdate();
-
     getUserMock.mockRejectedValue(new Error("Error fetching user data"));
-    const { result, waitForNextUpdate: wait2 } = renderHook(
+    const { result, waitForNextUpdate } = renderHook(
       () => useUserByUsername("funnydog", true),
       {
         wrapper: sharedClientWrapper,
       }
     );
-    await wait2();
+    await waitForNextUpdate();
 
     expect(result.current).toMatchObject({
       isLoading: false,

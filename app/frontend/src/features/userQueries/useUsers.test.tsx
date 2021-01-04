@@ -1,6 +1,6 @@
-import { renderHook } from "@testing-library/react-hooks";
+import { act, renderHook } from "@testing-library/react-hooks";
 import { QueryClient, QueryClientProvider } from "react-query";
-import React from "react";
+import React, { useState } from "react";
 import { service } from "../../service";
 import { getUser } from "../../test/serviceMockDefaults";
 import useUsers, { useUser } from "./useUsers";
@@ -189,85 +189,61 @@ describe("when useUsers has loaded", () => {
 });
 
 describe("cached data", () => {
-  it("is used instead of refetching", async () => {
-    const sharedClient = new QueryClient({
-      defaultOptions: { queries: { retry: false } },
+  const sharedClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  const sharedClientWrapper = ({ children }: { children: React.ReactNode }) => (
+    <QueryClientProvider client={sharedClient}>{children}</QueryClientProvider>
+  );
+  beforeEach(async () => {
+    sharedClient.clear();
+    sharedClient.setQueryData(["user", 1], {
+      name: "Funny Cat current User",
+      userId: 1,
+      username: "funnycat",
+      avatarUrl: "funnycat.jpg",
     });
-    const sharedClientWrapper = ({
-      children,
-    }: {
-      children: React.ReactNode;
-    }) => (
-      <QueryClientProvider client={sharedClient}>
-        {children}
-      </QueryClientProvider>
-    );
-    const { waitForNextUpdate } = renderHook(() => useUsers([1, 2, 3]), {
-      wrapper: sharedClientWrapper,
+    sharedClient.setQueryData(["user", 2], {
+      name: "Funny Dog",
+      userId: 2,
+      username: "funnydog",
+      avatarUrl: "funnydog.jpg",
     });
-    expect(getUserMock).toBeCalledTimes(3);
-    await waitForNextUpdate();
+    sharedClient.setQueryData(["user", 3], {
+      name: "Funny Kid",
+      userId: 3,
+      username: "funnykid",
+      avatarUrl: "funnykid.jpg",
+    });
+    await sharedClient.refetchQueries();
+  });
 
+  it("is used instead of refetching", async () => {
     const { result } = renderHook(() => useUsers([1, 2, 3]), {
       wrapper: sharedClientWrapper,
     });
-    expect(getUserMock).toBeCalledTimes(3);
+    expect(getUserMock).toBeCalledTimes(0);
     expect(result.current.isFetching).toBe(false);
     expect(result.current.isLoading).toBe(false);
   });
 
   it("is invalidated when requested", async () => {
-    const sharedClient = new QueryClient({
-      defaultOptions: { queries: { retry: false } },
-    });
-    const sharedClientWrapper = ({
-      children,
-    }: {
-      children: React.ReactNode;
-    }) => (
-      <QueryClientProvider client={sharedClient}>
-        {children}
-      </QueryClientProvider>
-    );
-    const { waitForNextUpdate } = renderHook(() => useUsers([1, 2, 3]), {
-      wrapper: sharedClientWrapper,
-    });
-    expect(getUserMock).toBeCalledTimes(3);
-    await waitForNextUpdate();
-
     renderHook(() => useUsers([1, 2, 3], true), {
       wrapper: sharedClientWrapper,
     });
 
-    expect(getUserMock).toBeCalledTimes(6);
+    expect(getUserMock).toBeCalledTimes(3);
   });
 
   it("is returned when stale if subsequent refetch queries fail", async () => {
-    const sharedClient = new QueryClient({
-      defaultOptions: { queries: { retry: false } },
-    });
-    const sharedClientWrapper = ({
-      children,
-    }: {
-      children: React.ReactNode;
-    }) => (
-      <QueryClientProvider client={sharedClient}>
-        {children}
-      </QueryClientProvider>
-    );
-    const { waitForNextUpdate } = renderHook(() => useUsers([1, 2, 3]), {
-      wrapper: sharedClientWrapper,
-    });
-    await waitForNextUpdate();
-
     getUserMock.mockRejectedValue(new Error("Error fetching user data"));
-    const { result, waitForNextUpdate: wait2 } = renderHook(
+    const { result, waitForNextUpdate } = renderHook(
       () => useUsers([1, 2, 3], true),
       {
         wrapper: sharedClientWrapper,
       }
     );
-    await wait2();
+    await waitForNextUpdate();
 
     expect(result.current).toMatchObject({
       isLoading: false,
@@ -308,5 +284,65 @@ describe("cached data", () => {
         ],
       ]),
     });
+  });
+
+  it("is only invalidated on first render with invalidate=true", async () => {
+    const { waitForNextUpdate, rerender } = renderHook(
+      () => useUsers([1, 2, 3], true),
+      {
+        wrapper: sharedClientWrapper,
+      }
+    );
+    expect(
+      sharedClient
+        .getQueryCache()
+        .getAll()
+        .every((query) => query.state.isInvalidated)
+    ).toBe(true);
+    await waitForNextUpdate();
+    expect(
+      sharedClient
+        .getQueryCache()
+        .getAll()
+        .every((query) => query.state.isInvalidated)
+    ).toBe(false);
+    rerender();
+    expect(
+      sharedClient
+        .getQueryCache()
+        .getAll()
+        .every((query) => query.state.isInvalidated)
+    ).toBe(false);
+  });
+
+  it("is invalidated with invalidate=true on id change", async () => {
+    const { result, waitForNextUpdate } = renderHook(
+      () => {
+        const [ids, setIds] = useState([1, 2, 3]);
+        const users = useUsers(ids, true);
+        return { users, setIds };
+      },
+      {
+        wrapper: sharedClientWrapper,
+      }
+    );
+    expect(
+      sharedClient
+        .getQueryCache()
+        .getAll()
+        .every((query) => query.state.isInvalidated)
+    ).toBe(true);
+    await waitForNextUpdate();
+    expect(
+      sharedClient
+        .getQueryCache()
+        .getAll()
+        .every((query) => query.state.isInvalidated)
+    ).toBe(false);
+    getUserMock.mockClear();
+    await act(() => result.current.setIds([1, 2]));
+    //testing for query.state.isInvalidated doesn't work here
+    //probably await act(... waits too long
+    expect(getUserMock).toBeCalledTimes(2);
   });
 });

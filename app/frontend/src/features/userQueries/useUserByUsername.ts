@@ -45,10 +45,10 @@ export default function useUserByUsername(
   });
 
   const errors = [];
-  if (usernameQuery.isError) {
+  if (usernameQuery.error?.message) {
     errors.push(usernameQuery.error?.message || "");
   }
-  if (query.isError) {
+  if (query.error?.message) {
     errors.push(query.error?.message || "");
   }
 

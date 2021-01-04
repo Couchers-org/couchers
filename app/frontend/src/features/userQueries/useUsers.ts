@@ -1,23 +1,32 @@
 import { Error } from "grpc-web";
-import { useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useQueries, useQueryClient } from "react-query";
 import { User } from "../../pb/api_pb";
 import { service } from "../../service";
+import { arrayEq } from "../../utils/arrayEq";
 import { userStaleTime } from "./constants";
 
 export default function useUsers(ids: number[], invalidate: boolean = false) {
   const queryClient = useQueryClient();
-  useEffect(() => {
+  const idsRef = useRef(ids);
+  const handleInvalidation = useCallback(() => {
     if (invalidate) {
       queryClient.invalidateQueries({
         predicate: (query) =>
           query.queryKey[0] === "user" &&
-          ids.includes(query.queryKey[1] as number),
+          idsRef.current.includes(query.queryKey[1] as number),
       });
     }
-    //for some reason, using just 'ids' was causing the effect to always run
-    //even though ids is never mutated
-  }, [invalidate, queryClient, JSON.stringify(ids)]); //eslint-disable-line react-hooks/exhaustive-deps
+  }, [invalidate, queryClient]);
+  useEffect(() => {
+    handleInvalidation();
+  }, [handleInvalidation]);
+
+  //arrays use reference equality, so you can't use ids in useEffect directly
+  if (!arrayEq(idsRef.current, ids)) {
+    idsRef.current = ids;
+    handleInvalidation();
+  }
 
   const queries = useQueries<User.AsObject, Error>(
     ids.map((id) => ({
