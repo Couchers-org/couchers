@@ -1,40 +1,74 @@
-import {
-  Box,
-  Card,
-  CircularProgress,
-  makeStyles,
-  Typography,
-} from "@material-ui/core";
+import { Box, CircularProgress, IconButton } from "@material-ui/core";
 import React from "react";
-import Alert from "../../../components/Alert";
+import { CloseIcon } from "../../../components/Icons";
+import { FriendRequest } from "../../../pb/api_pb";
+import FriendSummaryView from "./FriendSummaryView";
+import FriendTile from "./FriendTile";
+import useCancelFriendRequest from "../useCancelFriendRequest";
+import useFriendRequests from "./useFriendRequests";
 import { useIsMounted, useSafeState } from "../../../utils/hooks";
-import useFriendsBaseStyles from "./useFriendsBaseStyles";
+import type { SetMutationError } from ".";
+interface CancelFriendRequestActionProps {
+  friendRequestId: number;
+  state: FriendRequest.FriendRequestStatus;
+  setMutationError: SetMutationError;
+}
 
-const useStyles = makeStyles({
-  root: {},
-});
+function CancelFriendRequestAction({
+  friendRequestId,
+  state,
+  setMutationError,
+}: CancelFriendRequestActionProps) {
+  const {
+    cancelFriendRequest,
+    isLoading,
+    isSuccess,
+  } = useCancelFriendRequest();
+
+  return state === FriendRequest.FriendRequestStatus.PENDING ? (
+    <Box>
+      {isLoading || isSuccess ? (
+        <CircularProgress />
+      ) : (
+        <IconButton
+          aria-label="Cancel request"
+          onClick={() =>
+            cancelFriendRequest({ friendRequestId, setMutationError })
+          }
+        >
+          <CloseIcon />
+        </IconButton>
+      )}
+    </Box>
+  ) : null;
+}
 
 function FriendRequestsSent() {
-  const baseClasses = useFriendsBaseStyles();
   const isMounted = useIsMounted();
-  const [errorMessage] = useSafeState(isMounted, "");
-  const [loading] = useSafeState(isMounted, false);
+  const [mutationError, setMutationError] = useSafeState(isMounted, "");
+  const { data, isLoading, isError, errors } = useFriendRequests("Sent");
 
   return (
-    <Card>
-      <Box>
-        <Typography className={baseClasses.header} variant="h2">
-          Friend requests you sent
-        </Typography>
-        {loading ? (
-          <CircularProgress className={baseClasses.circularProgress} />
-        ) : errorMessage ? (
-          <Alert className={baseClasses.errorAlert} severity="error">
-            {errorMessage}
-          </Alert>
-        ) : null}
-      </Box>
-    </Card>
+    <FriendTile
+      title="Friend requests you sent"
+      errorMessage={
+        isError ? errors.join("\n") : mutationError ? mutationError : null
+      }
+      isLoading={isLoading}
+      hasData={!!data?.length}
+      noDataMessage="No pending friend requests!"
+    >
+      {data &&
+        data.map(({ friendRequestId, friend, state }) => (
+          <FriendSummaryView key={friendRequestId} friend={friend}>
+            <CancelFriendRequestAction
+              friendRequestId={friendRequestId}
+              state={state}
+              setMutationError={setMutationError}
+            />
+          </FriendSummaryView>
+        ))}
+    </FriendTile>
   );
 }
 

@@ -1,4 +1,5 @@
 export { default as CakeIcon } from "@material-ui/icons/CakeOutlined";
+export { default as CheckIcon } from "@material-ui/icons/Check";
 export { default as CloseIcon } from "@material-ui/icons/Close";
 export { default as CouchIcon } from "@material-ui/icons/HotelOutlined";
 export { default as DoneIcon } from "@material-ui/icons/Done";

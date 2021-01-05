@@ -140,7 +140,7 @@ export default function Navigation() {
                 label: classes.label,
               }}
               component={NavLink}
-              exact
+              exact={item.route === "/"}
               to={item.route}
               key={item.name}
             >
