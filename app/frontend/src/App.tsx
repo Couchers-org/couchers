@@ -35,8 +35,8 @@ function App() {
   return (
     <Router>
       <ThemeProvider theme={theme}>
-        <AuthProvider>
-          <ReactQueryClientProvider>
+        <ReactQueryClientProvider>
+          <AuthProvider>
             <CssBaseline />
             <Navigation />
             <Container maxWidth="md" className={classes.padding}>
@@ -45,8 +45,8 @@ function App() {
               </Hidden>
               <AppRoutes />
             </Container>
-          </ReactQueryClientProvider>
-        </AuthProvider>
+          </AuthProvider>
+        </ReactQueryClientProvider>
       </ThemeProvider>
     </Router>
   );

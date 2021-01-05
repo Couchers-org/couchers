@@ -26,3 +26,7 @@ export type ProtoToJsTypes<T> = T extends StringValue.AsObject
   : T extends UInt32Value.AsObject
   ? number
   : T;
+
+export type SetMutationError = React.Dispatch<
+  React.SetStateAction<string | null>
+>;
