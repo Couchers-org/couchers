@@ -74,7 +74,7 @@ function FriendRequestsReceived() {
         isError ? errors.join("\n") : mutationError ? mutationError : null
       }
       isLoading={isLoading}
-      hasData={!!(data && data.length)}
+      hasData={!!data?.length}
       noDataMessage="No pending friend requests!"
     >
       {data &&

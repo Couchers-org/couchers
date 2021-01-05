@@ -29,9 +29,9 @@ function FriendSummaryView({ children, friend }: FriendSummaryViewProps) {
   const classes = useStyles();
 
   return friend ? (
-    <Box className={classes.friendItem} key={friend.userId}>
+    <Box className={classes.friendItem}>
       <Link className={classes.friendLink} to={`/user/${friend.username}`}>
-        <Typography variant="h2" component="h3">
+        <Typography component="h3" variant="h2">
           {friend.name}
         </Typography>
         <TextBody>@{friend.username}</TextBody>

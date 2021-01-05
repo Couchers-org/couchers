@@ -26,7 +26,7 @@ function FriendList() {
       title="Your friends"
       errorMessage={isError ? errors.join("\n") : null}
       isLoading={isLoading}
-      hasData={!!(friends && friends.length)}
+      hasData={!!friends?.length}
       noDataMessage="No friends available :("
     >
       {friends &&
