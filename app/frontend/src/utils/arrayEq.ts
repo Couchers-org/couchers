@@ -1,4 +1,4 @@
-export function arrayEq(a: any[], b: any[]) {
+export function arrayEq(a: (number | string | boolean)[], b: (number | string | boolean)[]) {
   if (a === b) return true;
   if (a == null || b == null) return false;
   if (a.length !== b.length) return false;
