@@ -4,9 +4,7 @@ from datetime import date, timedelta
 
 import grpc
 from google.protobuf import empty_pb2
-from google.protobuf.timestamp_pb2 import Timestamp
-from sqlalchemy.orm import aliased
-from sqlalchemy.sql import and_, or_
+from sqlalchemy.sql import func
 
 from couchers import errors
 from couchers.db import is_valid_date, session_scope
@@ -32,21 +30,27 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         with session_scope() as session:
             database_id, depth = unpack_thread_id(request.thread_id)
             if depth == 0:
-                res = session.query(Comment).filter(Comment.thread_id == database_id).order_by(Comment.created.desc()).all()
+                res = (session.query(Comment,
+                                     func.count(Reply.id))
+                       .filter(Comment.thread_id == database_id)
+                       .filter(Reply.comment_id == Comment.id)
+                       .group_by(Comment.id)
+                       .order_by(Comment.created.desc())
+                       .all())
                 replies=[
                     communities_pb2.Reply(thread_id=pack_thread_id(r.id, 1),
                                           content=r.content,
-                                          author_user_id=1, # fixme
+                                          author_user_id=r.author_user_id,
                                           created_time=Timestamp_from_datetime(r.created),
-                                          num_replies=3)
-                    for r in res]
+                                          num_replies=n)
+                    for r, n in res]
 
             elif depth == 1:
                 res = session.query(Reply).filter(Reply.comment_id == database_id).order_by(Reply.created.desc()).all()
                 replies=[
                     communities_pb2.Reply(thread_id=pack_thread_id(r.id, 2),
                                           content=r.content,
-                                          author_user_id=1, # fixme
+                                          author_user_id=r.author_user_id,
                                           created_time=Timestamp_from_datetime(r.created),
                                           num_replies=0)
                     for r in res]
@@ -60,9 +64,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         with session_scope() as session:
             database_id, depth = unpack_thread_id(request.thread_id)
             if depth == 0:
-                object_to_add = Comment(thread_id=database_id, content=request.content)
+                object_to_add = Comment(thread_id=database_id, author_user_id=context.user_id, content=request.content)
             elif depth == 1:
-                object_to_add = Reply(comment_id=database_id, content=request.content)
+                object_to_add = Reply(comment_id=database_id, author_user_id=context.user_id, content=request.content)
             else:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, "bad depth")
             session.add(object_to_add)
