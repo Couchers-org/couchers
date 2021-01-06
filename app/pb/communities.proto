@@ -63,7 +63,7 @@ message Reply {
   int64 author_user_id = 3;
   google.protobuf.Timestamp created_time = 4;
 
-  // total number of replies to this comment
+  // number of replies to this comment
   uint32 num_replies = 5;
 }
 
