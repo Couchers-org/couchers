@@ -1,6 +1,4 @@
-import datetime
 import logging
-from datetime import date, timedelta
 
 import grpc
 from google.protobuf import empty_pb2
@@ -8,13 +6,18 @@ from sqlalchemy.sql import func
 
 from couchers import errors
 from couchers.db import is_valid_date, session_scope
-from couchers.models import Thread, Comment, Reply
+from couchers.models import Comment, Reply, Thread
 from couchers.utils import Timestamp_from_datetime
 from pb import threads_pb2, threads_pb2_grpc
 
 logger = logging.getLogger(__name__)
 
 PAGINATION_LENGTH = 10
+
+
+# Since the API exposes a single ID space regardless of nesting level,
+# we construct the API id by appending the the nesting level to the
+# database ID.
 
 
 def unpack_thread_id(thread_id):
@@ -29,40 +32,50 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
     def GetThread(self, request, context):
         database_id, depth = unpack_thread_id(request.thread_id)
         page_size = request.page_size or 1000
-        page_start = unpack_thread_id(int(request.page_token))[0] if request.page_token else 2**50
+        page_start = unpack_thread_id(int(request.page_token))[0] if request.page_token else 2 ** 50
 
         with session_scope() as session:
             if depth == 0:
-                res = (session.query(Comment, func.count(Reply.id))
-                       .outerjoin(Reply, Reply.comment_id == Comment.id)
-                       .filter(Comment.thread_id == database_id)
-                       .filter(Comment.id < page_start)
-                       .group_by(Comment.id)
-                       .order_by(Comment.created.desc())
-                       .limit(page_size + 1)
-                       .all())
+                res = (
+                    session.query(Comment, func.count(Reply.id))
+                    .outerjoin(Reply, Reply.comment_id == Comment.id)
+                    .filter(Comment.thread_id == database_id)
+                    .filter(Comment.id < page_start)
+                    .group_by(Comment.id)
+                    .order_by(Comment.created.desc())
+                    .limit(page_size + 1)
+                    .all()
+                )
                 replies = [
-                    threads_pb2.Reply(thread_id=pack_thread_id(r.id, 1),
-                                      content=r.content,
-                                      author_user_id=r.author_user_id,
-                                      created_time=Timestamp_from_datetime(r.created),
-                                      num_replies=n)
-                    for r, n in res[:page_size]]
+                    threads_pb2.Reply(
+                        thread_id=pack_thread_id(r.id, 1),
+                        content=r.content,
+                        author_user_id=r.author_user_id,
+                        created_time=Timestamp_from_datetime(r.created),
+                        num_replies=n,
+                    )
+                    for r, n in res[:page_size]
+                ]
 
             elif depth == 1:
-                res = (session.query(Reply)
-                       .filter(Reply.comment_id == database_id)
-                       .filter(Reply.id < page_start)
-                       .order_by(Reply.created.desc())
-                       .limit(page_size + 1)
-                       .all())
+                res = (
+                    session.query(Reply)
+                    .filter(Reply.comment_id == database_id)
+                    .filter(Reply.id < page_start)
+                    .order_by(Reply.created.desc())
+                    .limit(page_size + 1)
+                    .all()
+                )
                 replies = [
-                    threads_pb2.Reply(thread_id=pack_thread_id(r.id, 2),
-                                      content=r.content,
-                                      author_user_id=r.author_user_id,
-                                      created_time=Timestamp_from_datetime(r.created),
-                                      num_replies=0)
-                    for r in res[:page_size]]
+                    threads_pb2.Reply(
+                        thread_id=pack_thread_id(r.id, 2),
+                        content=r.content,
+                        author_user_id=r.author_user_id,
+                        created_time=Timestamp_from_datetime(r.created),
+                        num_replies=0,
+                    )
+                    for r in res[:page_size]
+                ]
 
             else:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, "bad depth")

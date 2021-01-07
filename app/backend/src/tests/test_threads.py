@@ -1,4 +1,3 @@
-from datetime import date, timedelta
 import contextlib
 import string
 
@@ -9,11 +8,11 @@ from sqlalchemy.sql import and_
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.utils import now
-from pb import threads_pb2_grpc, threads_pb2
-from tests.test_fixtures import api_session, db, generate_user, testconfig, fake_channel
-from couchers.servicers.threads import Threads
 from couchers.models import Thread
+from couchers.servicers.threads import Threads
+from couchers.utils import now
+from pb import threads_pb2, threads_pb2_grpc
+from tests.test_fixtures import api_session, db, fake_channel, generate_user, testconfig
 
 
 @pytest.fixture(autouse=True)
@@ -42,26 +41,20 @@ def test_threads_basic(db):
         session.add(Thread(id=1, title="foo"))
 
     with threads_session(token1) as api:
-        bat_id = api.PostReply(threads_pb2.PostReplyReq(
-            thread_id=PARENT_THREAD_ID,
-            content="bat")).thread_id
+        bat_id = api.PostReply(threads_pb2.PostReplyReq(thread_id=PARENT_THREAD_ID, content="bat")).thread_id
 
-        cat_id = api.PostReply(threads_pb2.PostReplyReq(
-            thread_id=PARENT_THREAD_ID,
-            content="cat")).thread_id
+        cat_id = api.PostReply(threads_pb2.PostReplyReq(thread_id=PARENT_THREAD_ID, content="cat")).thread_id
 
-        dog_id = api.PostReply(threads_pb2.PostReplyReq(
-            thread_id=PARENT_THREAD_ID,
-            content="dog")).thread_id
+        dog_id = api.PostReply(threads_pb2.PostReplyReq(thread_id=PARENT_THREAD_ID, content="dog")).thread_id
 
-        dogs = [api.PostReply(threads_pb2.PostReplyReq(
-            thread_id=dog_id,
-            content=animal)).thread_id for animal in
-                ["hyena", "wolf", "prariewolf"]]
-        cats = [api.PostReply(threads_pb2.PostReplyReq(
-            thread_id=cat_id,
-            content=animal)).thread_id for animal in
-                ["cheetah", "lynx", "panther"]]
+        dogs = [
+            api.PostReply(threads_pb2.PostReplyReq(thread_id=dog_id, content=animal)).thread_id
+            for animal in ["hyena", "wolf", "prariewolf"]
+        ]
+        cats = [
+            api.PostReply(threads_pb2.PostReplyReq(thread_id=cat_id, content=animal)).thread_id
+            for animal in ["cheetah", "lynx", "panther"]
+        ]
 
         # Make some queries
         ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=PARENT_THREAD_ID))
@@ -96,17 +89,13 @@ def test_threads_basic(db):
 def pagination_test(api, parent_id):
     # Post some data
     for c in string.ascii_lowercase:
-        api.PostReply(threads_pb2.PostReplyReq(
-            thread_id=parent_id,
-            content=c))
+        api.PostReply(threads_pb2.PostReplyReq(thread_id=parent_id, content=c))
 
     # Get it with pagination
     token = ""
     accumulator = []
     while True:
-        ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_id,
-                                                     page_size=5,
-                                                     page_token=token))
+        ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_id, page_size=5, page_token=token))
         assert 0 < len(ret.replies) <= 5
         accumulator += [x.content for x in ret.replies]
         assert len(accumulator) <= len(string.ascii_lowercase)
@@ -117,9 +106,9 @@ def pagination_test(api, parent_id):
         assert len(ret.replies) == 5
         token = ret.next_page_token
 
-    assert ''.join(reversed(accumulator)) == string.ascii_lowercase
+    assert "".join(reversed(accumulator)) == string.ascii_lowercase
 
-    return ret.replies[0].thread_id   # to be used as a test one level deeper
+    return ret.replies[0].thread_id  # to be used as a test one level deeper
 
 
 def test_threads_pagination(db):
