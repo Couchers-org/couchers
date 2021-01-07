@@ -1,10 +1,10 @@
 syntax = "proto3";
 
-package org.couchers.api.communities;
+package org.couchers.api.threads;
 
 import "google/protobuf/timestamp.proto";
 
-service Communities {
+service Threads {
   // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to auth.proto and jail.proto
 
   // Discussion threads are organized as a tree with maximum three levels depth:

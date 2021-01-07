@@ -10,7 +10,7 @@ from couchers import errors
 from couchers.db import is_valid_date, session_scope
 from couchers.models import Thread, Comment, Reply
 from couchers.utils import Timestamp_from_datetime
-from pb import communities_pb2, communities_pb2_grpc
+from pb import threads_pb2, threads_pb2_grpc
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +25,7 @@ def pack_thread_id(database_id, depth):
     return database_id * 10 + depth
 
 
-class Communities(communities_pb2_grpc.CommunitiesServicer):
+class Threads(threads_pb2_grpc.ThreadsServicer):
     def GetThread(self, request, context):
         database_id, depth = unpack_thread_id(request.thread_id)
         page_size = request.page_size or 1000
@@ -42,11 +42,11 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                        .limit(page_size + 1)
                        .all())
                 replies = [
-                    communities_pb2.Reply(thread_id=pack_thread_id(r.id, 1),
-                                          content=r.content,
-                                          author_user_id=r.author_user_id,
-                                          created_time=Timestamp_from_datetime(r.created),
-                                          num_replies=n)
+                    threads_pb2.Reply(thread_id=pack_thread_id(r.id, 1),
+                                      content=r.content,
+                                      author_user_id=r.author_user_id,
+                                      created_time=Timestamp_from_datetime(r.created),
+                                      num_replies=n)
                     for r, n in res[:page_size]]
 
             elif depth == 1:
@@ -57,11 +57,11 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                        .limit(page_size + 1)
                        .all())
                 replies = [
-                    communities_pb2.Reply(thread_id=pack_thread_id(r.id, 2),
-                                          content=r.content,
-                                          author_user_id=r.author_user_id,
-                                          created_time=Timestamp_from_datetime(r.created),
-                                          num_replies=0)
+                    threads_pb2.Reply(thread_id=pack_thread_id(r.id, 2),
+                                      content=r.content,
+                                      author_user_id=r.author_user_id,
+                                      created_time=Timestamp_from_datetime(r.created),
+                                      num_replies=0)
                     for r in res[:page_size]]
 
             else:
@@ -73,7 +73,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             else:
                 next_page_token = ""
 
-        return communities_pb2.GetThreadRes(replies=replies, next_page_token=next_page_token)
+        return threads_pb2.GetThreadRes(replies=replies, next_page_token=next_page_token)
 
     def PostReply(self, request, context):
         with session_scope() as session:
@@ -87,4 +87,4 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             session.add(object_to_add)
             session.flush()
             session.refresh(object_to_add)
-            return communities_pb2.PostReplyRes(thread_id=pack_thread_id(object_to_add.id, depth + 1))
+            return threads_pb2.PostReplyRes(thread_id=pack_thread_id(object_to_add.id, depth + 1))

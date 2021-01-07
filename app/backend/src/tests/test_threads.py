@@ -10,9 +10,9 @@ from sqlalchemy.sql import and_
 from couchers import errors
 from couchers.db import session_scope
 from couchers.utils import now
-from pb import communities_pb2_grpc, communities_pb2
+from pb import threads_pb2_grpc, threads_pb2
 from tests.test_fixtures import api_session, db, generate_user, testconfig, fake_channel
-from couchers.servicers.threads import Communities
+from couchers.servicers.threads import Threads
 from couchers.models import Thread
 
 
@@ -22,13 +22,13 @@ def _(testconfig):
 
 
 @contextlib.contextmanager
-def communities_session(token):
+def threads_session(token):
     """
     Create a communities API for testing, uses the token for auth
     """
     channel = fake_channel(token)
-    communities_pb2_grpc.add_CommunitiesServicer_to_server(Communities(), channel)
-    yield communities_pb2_grpc.CommunitiesStub(channel)
+    threads_pb2_grpc.add_ThreadsServicer_to_server(Threads(), channel)
+    yield threads_pb2_grpc.ThreadsStub(channel)
 
 
 def test_threads_basic(db):
@@ -41,30 +41,30 @@ def test_threads_basic(db):
     with session_scope() as session:
         session.add(Thread(id=1, title="foo"))
 
-    with communities_session(token1) as api:
-        bat_id = api.PostReply(communities_pb2.PostReplyReq(
+    with threads_session(token1) as api:
+        bat_id = api.PostReply(threads_pb2.PostReplyReq(
             thread_id=PARENT_THREAD_ID,
             content="bat")).thread_id
 
-        cat_id = api.PostReply(communities_pb2.PostReplyReq(
+        cat_id = api.PostReply(threads_pb2.PostReplyReq(
             thread_id=PARENT_THREAD_ID,
             content="cat")).thread_id
 
-        dog_id = api.PostReply(communities_pb2.PostReplyReq(
+        dog_id = api.PostReply(threads_pb2.PostReplyReq(
             thread_id=PARENT_THREAD_ID,
             content="dog")).thread_id
 
-        dogs = [api.PostReply(communities_pb2.PostReplyReq(
+        dogs = [api.PostReply(threads_pb2.PostReplyReq(
             thread_id=dog_id,
             content=animal)).thread_id for animal in
                 ["hyena", "wolf", "prariewolf"]]
-        cats = [api.PostReply(communities_pb2.PostReplyReq(
+        cats = [api.PostReply(threads_pb2.PostReplyReq(
             thread_id=cat_id,
             content=animal)).thread_id for animal in
                 ["cheetah", "lynx", "panther"]]
 
         # Make some queries
-        ret = api.GetThread(communities_pb2.GetThreadReq(thread_id=PARENT_THREAD_ID))
+        ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=PARENT_THREAD_ID))
         assert len(ret.replies) == 3
         assert ret.next_page_token == ""
         assert ret.replies[0].thread_id == dog_id
@@ -82,12 +82,12 @@ def test_threads_basic(db):
         assert ret.replies[2].author_user_id == user1.id
         assert ret.replies[2].num_replies == 0
 
-        ret = api.GetThread(communities_pb2.GetThreadReq(thread_id=cat_id))
+        ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=cat_id))
         assert len(ret.replies) == 3
         assert ret.next_page_token == ""
         assert [reply.thread_id for reply in ret.replies] == cats[::-1]
 
-        ret = api.GetThread(communities_pb2.GetThreadReq(thread_id=dog_id))
+        ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=dog_id))
         assert len(ret.replies) == 3
         assert ret.next_page_token == ""
         assert [reply.thread_id for reply in ret.replies] == dogs[::-1]
@@ -96,7 +96,7 @@ def test_threads_basic(db):
 def pagination_test(api, parent_id):
     # Post some data
     for c in string.ascii_lowercase:
-        api.PostReply(communities_pb2.PostReplyReq(
+        api.PostReply(threads_pb2.PostReplyReq(
             thread_id=parent_id,
             content=c))
 
@@ -104,9 +104,9 @@ def pagination_test(api, parent_id):
     token = ""
     accumulator = []
     while True:
-        ret = api.GetThread(communities_pb2.GetThreadReq(thread_id=parent_id,
-                                                         page_size=5,
-                                                         page_token=token))
+        ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_id,
+                                                     page_size=5,
+                                                     page_token=token))
         assert 0 < len(ret.replies) <= 5
         accumulator += [x.content for x in ret.replies]
         assert len(accumulator) <= len(string.ascii_lowercase)
@@ -131,6 +131,6 @@ def test_threads_pagination(db):
     with session_scope() as session:
         session.add(Thread(id=1, title="foo"))
 
-    with communities_session(token1) as api:
+    with threads_session(token1) as api:
         comment_id = pagination_test(api, PARENT_THREAD_ID)
         pagination_test(api, comment_id)
