@@ -1,5 +1,5 @@
 import { makeStyles } from "@material-ui/core";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import Alert from "../../components/Alert";
 import Button from "../../components/Button";
@@ -12,6 +12,7 @@ import EditUserLocationMap from "../../components/EditUserLocationMap";
 import CircularProgress from "../../components/CircularProgress";
 import useCurrentUser from "../userQueries/useCurrentUser";
 import useUpdateUserProfile from "./useUpdateUserProfile";
+import { useIsMounted, useSafeState } from "../../utils/hooks";
 
 const useStyles = makeStyles({
   buttonContainer: {
@@ -28,7 +29,11 @@ export default function EditProfileForm() {
     reset: resetUpdate,
   } = useUpdateUserProfile();
   const { data: user } = useCurrentUser();
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const isMounted = useIsMounted();
+  const [errorMessage, setErrorMessage] = useSafeState<string | null>(
+    isMounted,
+    null
+  );
   const { control, register, handleSubmit, setValue } = useForm<
     UpdateUserProfileData
   >({
