@@ -118,8 +118,8 @@ export default function useAuthStore() {
         try {
           const res = await service.jail.getIsJailed();
           if (!res.isJailed) {
-            setUserId(res.user!.userId);
-            queryClient.setQueryData(["user", res.user!.userId], res.user);
+            setUserId(res.user.userId);
+            queryClient.setQueryData(["user", res.user.userId], res.user);
           }
           setJailed(res.isJailed);
         } catch (e) {
