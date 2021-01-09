@@ -16,5 +16,11 @@
     "userId": 3,
     "username": "funnykid",
     "avatarUrl": "funnykid.jpg"
+  },
+  {
+    "name": "Funny Chicken",
+    "userId": 4,
+    "username": "funnyChicken",
+    "avatarUrl": "funnyChicken.jpg"
   }
 ]

@@ -1,4 +1,6 @@
 import { createAction } from "@reduxjs/toolkit";
+import React from "react";
+import { QueryClient, QueryClientProvider } from "react-query";
 
 export function addDefaultUser() {
   window.localStorage.setItem("auth.authenticated", JSON.stringify(true));
@@ -10,4 +12,20 @@ export const reset = createAction("reset");
 
 export function wait(milliSeconds: number) {
   return new Promise((resolve) => setTimeout(resolve, milliSeconds));
+}
+
+export function ReactQueryTestWrapper({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const client = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+    },
+  });
+
+  return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
 }
