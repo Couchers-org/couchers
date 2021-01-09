@@ -4,18 +4,22 @@ Background job workers
 
 import logging
 import traceback
+from datetime import timedelta
 from multiprocessing import Process
-from time import sleep
+from sched import scheduler
+from time import sleep, time
+
+from google.protobuf import empty_pb2
+from psycopg2.errors import LockNotAvailable
+from sqlalchemy.exc import OperationalError
 
 from couchers.db import session_scope
-from couchers.jobs.definitions import JOBS
+from couchers.jobs.definitions import JOBS, SCHEDULE
+from couchers.jobs.enqueue import queue_job
 from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)
-
-# Note that the database stuff here isn't perfect, it has some issues with having multiple parallel servicers
-# See: https://www.2ndquadrant.com/en/blog/what-is-select-skip-locked-for-in-postgresql-9-5/
 
 
 def process_job(job_id):
@@ -25,16 +29,24 @@ def process_job(job_id):
         # modify the job at a time, the NOWAIT (instead of e.g. FOR UPDATE) means that if the job is locked, the
         # transaction will fail without waiting. If we weren't picking out one particular job, we could instead use
         # FOR UPDATE and pick the first ready job
-        job = (
-            session.query(BackgroundJob)
-            .filter(BackgroundJob.id == job_id)
-            .filter(BackgroundJob.is_ready)
-            .with_for_update(nowait=True)
-            .one_or_none()
-        )
+        try:
+            job = (
+                session.query(BackgroundJob)
+                .filter(BackgroundJob.id == job_id)
+                .filter(BackgroundJob.is_ready)
+                .with_for_update(nowait=True)
+                .first()
+            )
+        except OperationalError as e:
+            if isinstance(e.orig, LockNotAvailable):
+                logger.info("Job locked")
+                return
+            else:
+                raise
 
         # if it's gone, too bad
         if not job:
+            logger.info("Job gone")
             return
 
         job.try_count += 1
@@ -50,28 +62,55 @@ def process_job(job_id):
             else:
                 job.state = BackgroundJobState.error
             # exponential backoff
-            job.next_attempt_after = 15 * (2 ** job.try_count)
+            job.next_attempt_after += timedelta(seconds=15 * (2 ** job.try_count))
             # add some info for debugging
             job.failure_info = traceback.format_exc()
 
-        # also releases the row lock
-        session.commit()
+        # exiting ctx manager also releases the row lock
 
 
 def service_jobs():
     # There should only be one of these service schedulers running at one time
     while True:
         with session_scope() as session:
-            job = session.query(BackgroundJob).filter(BackgroundJob.is_ready).first()
-            if job:
-                process_job(job.id)
+            job_id = (
+                session.query(BackgroundJob.id)
+                .filter(BackgroundJob.is_ready)
+                .order_by(BackgroundJob.id)
+                .with_for_update(skip_locked=True)
+                .first()
+            )
         # end the transaction and don't keep it open while sleeping
-        if not job:
-            sleep(2)
-            continue
+        if job_id:
+            process_job(job_id)
+        else:
+            sleep(1)
+
+
+def run_scheduler():
+    """
+    Schedules jobs according to schedule in .definitions
+    """
+    sched = scheduler(time, sleep)
+
+    def _queue_job(schedule_id):
+        job_type, frequency = SCHEDULE[schedule_id]
+        logger.info(f"Scheduling job of type {job_type}")
+        # queue the job
+        queue_job(job_type, empty_pb2.Empty())
+        # wake ourselves up after frequency timedelta
+        sched.enter(frequency.total_seconds(), 1, _queue_job, argument=(schedule_id,))
+
+    for schedule_id, _ in enumerate(SCHEDULE):
+        sched.enter(0, 1, _queue_job, argument=(schedule_id,))
+
+    sched.run()
+    raise Exception("End of scheduler?")
 
 
 def start_job_servicer():
-    bg = Process(target=service_jobs)
-    bg.start()
-    return bg
+    bg_loop = Process(target=service_jobs)
+    bg_loop.start()
+    bg_scheduler = Process(target=run_scheduler)
+    bg_scheduler.start()
+    return (bg_loop, bg_scheduler)

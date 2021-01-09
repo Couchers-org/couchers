@@ -1074,6 +1074,8 @@ class Reply(Base):
 class BackgroundJobType(enum.Enum):
     # payload: org.couchers.internal.jobs.SendEmailPayload
     send_email = 1
+    # payload: google.protobuf.Empty
+    purge_login_tokens = 2
 
 
 class BackgroundJobState(enum.Enum):
@@ -1124,3 +1126,18 @@ class BackgroundJob(Base):
             & (self.next_attempt_after <= func.now())
             & (self.try_count < self.max_tries)
         )
+
+
+class RepeatedJobs(Base):
+    """
+    A job that's kicked off every n minutes
+    """
+
+    __tablename__ = "repeated_jobs"
+
+    id = Column(BigInteger, primary_key=True)
+
+    job_type = Column(Enum(BackgroundJobType), nullable=False)
+
+    # number of minutes between kicking off these jobs
+    run_every = Column(Integer, nullable=False)
