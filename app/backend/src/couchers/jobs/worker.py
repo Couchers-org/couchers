@@ -4,10 +4,11 @@ Background job workers
 
 import logging
 import traceback
+from multiprocessing import Process
 from time import sleep
 
 from couchers.db import session_scope
-from couchers.jobs import JOBS
+from couchers.jobs.definitions import JOBS
 from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType
 from couchers.utils import now
 
@@ -59,3 +60,9 @@ def service_jobs():
                 continue
             else:
                 process_job(job.id)
+
+
+def start_job_servicer():
+    bg = Process(target=service_jobs)
+    bg.start()
+    return bg

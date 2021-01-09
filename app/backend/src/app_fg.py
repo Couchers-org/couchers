@@ -102,11 +102,3 @@ def run_foreground():
 
     fg = (server, jailed_server, open_server, media_server)
     return fg
-
-
-def wait_for_foreground(fg):
-    server, jailed_server, open_server, media_server = fg
-    server.wait_for_termination()
-    jailed_server.wait_for_termination()
-    open_server.wait_for_termination()
-    media_server.wait_for_termination()
