@@ -4,6 +4,7 @@ Background job workers
 
 import logging
 import traceback
+from concurrent import futures
 from datetime import timedelta
 from multiprocessing import Process
 from sched import scheduler
@@ -24,7 +25,6 @@ logger = logging.getLogger(__name__)
 
 def process_job(job_id):
     with session_scope(isolation_level="REPEATABLE READ") as session:
-        # grab the job
         # a combination of REPEATABLE READ and SELECT ... FOR UPDATE NOWAIT makes sure that only one transaction will
         # modify the job at a time, the NOWAIT (instead of e.g. FOR UPDATE) means that if the job is locked, the
         # transaction will fail without waiting. If we weren't picking out one particular job, we could instead use
@@ -39,13 +39,14 @@ def process_job(job_id):
             )
         except OperationalError as e:
             if isinstance(e.orig, LockNotAvailable):
+                # job locked, someone else is working on it
                 logger.info("Job locked")
                 return
             else:
                 raise
 
-        # if it's gone, too bad
         if not job:
+            # it's been processed already
             logger.info("Job gone")
             return
 
@@ -70,21 +71,31 @@ def process_job(job_id):
 
 
 def service_jobs():
-    # There should only be one of these service schedulers running at one time
-    while True:
-        with session_scope() as session:
-            job_id = (
-                session.query(BackgroundJob.id)
-                .filter(BackgroundJob.is_ready)
-                .order_by(BackgroundJob.id)
-                .with_for_update(skip_locked=True)
-                .first()
-            )
-        # end the transaction and don't keep it open while sleeping
-        if job_id:
-            process_job(job_id)
-        else:
-            sleep(1)
+    MAX_WORKERS = 8
+    with futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+        jobs = []
+        while True:
+            # jobs should be list of currently running jobs
+            jobs = [job for job in jobs if not job.done()]
+            if len(jobs) == MAX_WORKERS:
+                futures.wait(jobs, return_when=futures.FIRST_COMPLETED)
+                continue
+
+            with session_scope() as session:
+                job_id = (
+                    session.query(BackgroundJob.id)
+                    .filter(BackgroundJob.is_ready)
+                    .order_by(BackgroundJob.id)
+                    .with_for_update(skip_locked=True)
+                    .first()
+                )
+
+            # end the transaction and don't keep it open while sleeping
+            if job_id:
+                logger.info(f"Dispatching job id {job_id}")
+                jobs.append(executor.submit(process_job, job_id))
+            else:
+                sleep(1)
 
 
 def run_scheduler():
