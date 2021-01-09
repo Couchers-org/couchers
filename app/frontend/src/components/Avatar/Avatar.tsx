@@ -1,5 +1,6 @@
 import { Avatar as MuiAvatar, Box, BoxProps } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
+import { Skeleton } from "@material-ui/lab";
 import classNames from "classnames";
 import React from "react";
 import { User } from "../../pb/api_pb";
@@ -24,7 +25,7 @@ const useStyles = makeStyles({
 });
 
 export interface AvatarProps extends BoxProps {
-  user: User.AsObject;
+  user?: User.AsObject;
   grow?: boolean;
 }
 
@@ -35,13 +36,17 @@ export default function Avatar({ user, grow, ...otherProps }: AvatarProps) {
       className={classNames(classes.root, { [classes.grow]: grow })}
       {...otherProps}
     >
-      <MuiAvatar
-        className={classes.avatar}
-        alt={user.name}
-        src={user.avatarUrl}
-      >
-        {user.name.split(/\s+/).map((name) => name[0])}
-      </MuiAvatar>
+      {user ? (
+        <MuiAvatar
+          className={classes.avatar}
+          alt={user.name}
+          src={user.avatarUrl}
+        >
+          {user.name.split(/\s+/).map((name) => name[0])}
+        </MuiAvatar>
+      ) : (
+        <Skeleton variant="circle" className={classes.avatar} />
+      )}
     </Box>
   );
 }
