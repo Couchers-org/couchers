@@ -7,6 +7,8 @@ import { store } from "../../store";
 import Messages from "./index";
 import MessageView, { MessageProps } from "./messagelist/Message";
 import AuthProvider from "../auth/AuthProvider";
+import { QueryClient, QueryClientProvider } from "react-query";
+import { Route } from "react-router-dom";
 
 const [message1] = messages;
 
@@ -16,23 +18,23 @@ export default {
   argTypes: {},
   decorators: [
     (storyFn) => {
+      const queryClient = new QueryClient();
       return (
-        <AuthProvider>
-          <Provider store={store}>{storyFn()}</Provider>
-        </AuthProvider>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <Provider store={store}>
+              <Route path="*">{storyFn()}</Route>
+            </Provider>
+          </AuthProvider>
+        </QueryClientProvider>
       );
     },
   ],
 } as Meta;
 
-const Template: Story<any> = (args) => <Messages {...args} />;
-
-export const Assembled = Template.bind({});
-Assembled.args = {};
-
 const MessageTemplate: Story<MessageProps> = (args) => (
   <MessageView {...args} />
 );
 
-export const Collapsed = MessageTemplate.bind({});
-Collapsed.args = { message: message1 };
+export const Message = MessageTemplate.bind({});
+Message.args = { message: message1 };

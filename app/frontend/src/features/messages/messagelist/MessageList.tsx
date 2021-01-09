@@ -1,12 +1,12 @@
 import { Box, BoxProps } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import * as React from "react";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import Alert from "../../../components/Alert";
 import Button from "../../../components/Button";
 import TextField from "../../../components/TextField";
 import { Message } from "../../../pb/conversations_pb";
+import { useIsMounted, useSafeState } from "../../../utils/hooks";
 import MessageView from "./Message";
 
 const useStyles = makeStyles({
@@ -30,14 +30,15 @@ export default function MessageList({
   messages,
   handleSend,
 }: MessageListProps) {
-  const [error, setError] = useState("");
+  const isMounted = useIsMounted();
+  const [error, setError] = useSafeState(isMounted, "");
   const { register, handleSubmit } = useForm<MessageFormData>();
   const classes = useStyles();
 
   const onSubmit = handleSubmit(async (data: MessageFormData) => {
     setError("");
     try {
-      await handleSend(data.text);
+      handleSend(data.text);
     } catch (error) {
       setError(error.message);
     }

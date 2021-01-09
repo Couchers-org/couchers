@@ -6,7 +6,6 @@ import React, { useState } from "react";
 import Avatar from "../../../components/Avatar";
 import { Message } from "../../../pb/conversations_pb";
 import { timestamp2Date } from "../../../utils/date";
-import { useAuthContext } from "../../auth/AuthProvider";
 import useCurrentUser from "../../userQueries/useCurrentUser";
 import { useUser } from "../../userQueries/useUsers";
 import TimeInterval from "./MomentIndication";
@@ -50,7 +49,7 @@ export default function MessageView({ message }: MessageProps) {
           {message.text?.text || ""}
         </CardContent>
       </Box>
-      {author && isCurrentUser && <Avatar user={author} />}
+      {currentUser && isCurrentUser && <Avatar user={currentUser} />}
     </Card>
   );
 }

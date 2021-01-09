@@ -2,17 +2,15 @@ import { configureStore } from "@reduxjs/toolkit";
 import { Meta, Story } from "@storybook/react/types-6-0";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import * as React from "react";
+import { QueryClient, QueryClientProvider } from "react-query";
 import { Provider } from "react-redux";
 import rootReducer from "../../../reducers";
 import { groupChat, mockedService } from "../../../stories/__mocks__/service";
 import { store } from "../../../stories/__mocks__/store";
 import messages from "../../../test/fixtures/messages.json";
 import AuthProvider from "../../auth/AuthProvider";
-import MessageView, { MessageProps } from "../messagelist/Message";
 import GroupChatsTab from "./GroupChatsTab";
 import GroupChatView from "./GroupChatView";
-
-const [message1] = messages;
 
 const state = store.getState();
 const chatGroupViewState = {
@@ -37,11 +35,13 @@ export default {
         reducer: rootReducer,
         preloadedState: args.state || state,
       });
-
+      const queryClient = new QueryClient();
       return (
-        <AuthProvider>
-          <Provider store={usedStore}>{storyFn()}</Provider>
-        </AuthProvider>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <Provider store={usedStore}>{storyFn()}</Provider>
+          </AuthProvider>
+        </QueryClientProvider>
       );
     },
   ],
@@ -60,13 +60,6 @@ const Template: Story = (args) => {
 
 export const Tab = Template.bind({});
 Tab.args = {};
-
-const MessageTemplate: Story<MessageProps> = (args) => (
-  <MessageView {...args} />
-);
-
-export const Collapsed = MessageTemplate.bind({});
-Collapsed.args = { message: message1 };
 
 const GroupChatViewTemplate: Story<any> = (args) => {
   mockedService.conversations.leaveGroupChat = async () => {

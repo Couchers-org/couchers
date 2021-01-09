@@ -2,15 +2,11 @@ import { configureStore } from "@reduxjs/toolkit";
 import { Meta, Story } from "@storybook/react/types-6-0";
 import * as React from "react";
 import { Provider } from "react-redux";
-import users from "../../../test/fixtures/users.json";
-import { User } from "../../../pb/api_pb";
 import { Message } from "../../../pb/conversations_pb";
 import rootReducer from "../../../reducers";
-import funnycat from "../../../stories/assets/funnycat.jpg";
 import MessageList, { MessageListProps } from "./MessageList";
 import AuthProvider from "../../auth/AuthProvider";
-
-const user1 = { ...users[0], avatarUrl: funnycat } as User.AsObject;
+import { QueryClient, QueryClientProvider } from "react-query";
 
 const message1: Message.AsObject = {
   messageId: 1,
@@ -75,10 +71,13 @@ export default {
   argTypes: {},
   decorators: [
     (storyFn) => {
+      const queryClient = new QueryClient();
       return (
-        <AuthProvider>
-          <Provider store={store}>{storyFn()}</Provider>
-        </AuthProvider>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <Provider store={store}>{storyFn()}</Provider>
+          </AuthProvider>
+        </QueryClientProvider>
       );
     },
   ],
