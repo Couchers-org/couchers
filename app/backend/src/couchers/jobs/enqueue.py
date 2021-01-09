@@ -18,4 +18,3 @@ def queue_job(job_type: BackgroundJobType, payload, max_tries=2):
             max_tries=max_tries,
         )
         session.add(job)
-        return job.id

@@ -82,7 +82,7 @@ def queue_email(sender_name, sender_email, recipient, subject, plain, html):
         plain=plain,
         html=html,
     )
-    return queue_job(
+    queue_job(
         job_type=BackgroundJobType.send_email,
         payload=payload,
     )
@@ -90,7 +90,7 @@ def queue_email(sender_name, sender_email, recipient, subject, plain, html):
 
 def send_email_template(recipient, template_file, template_args={}):
     frontmatter, plain, html = _render_email(template_file, template_args)
-    return queue_email(
+    queue_email(
         config.NOTIFICATION_EMAIL_SENDER,
         config.config["NOTIFICATION_EMAIL_ADDRESS"],
         recipient,

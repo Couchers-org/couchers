@@ -1081,12 +1081,14 @@ class BackgroundJobType(enum.Enum):
 class BackgroundJobState(enum.Enum):
     # job is fresh, waiting to be picked off the queue
     pending = 1
+    # job has been grabbed by a worker, and is being worked on
+    working = 2
     # job complete
-    completed = 2
+    completed = 3
     # error occured, will be retried
-    error = 3
+    error = 4
     # failed too many times, not retrying anymore
-    failed = 4
+    failed = 5
 
 
 class BackgroundJob(Base):
