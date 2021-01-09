@@ -1,15 +1,12 @@
 import { renderHook } from "@testing-library/react-hooks";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import React from "react";
-import { QueryClient, QueryClientProvider } from "react-query";
-import { MemoryRouter } from "react-router-dom";
 import { act } from "react-test-renderer";
 import { service } from "../../service";
 import { addDefaultUser } from "../../test/utils";
-import AuthProvider from "../auth/AuthProvider";
 import useAuthStore from "../auth/useAuthStore";
 import useCurrentUser from "../userQueries/useCurrentUser";
 import useUpdateHostingPreferences from "./useUpdateHostingPreferences";
+import wrapper from "../../test/hookWrapper";
 
 const getUserMock = service.user.getUser as jest.Mock;
 const updateHostingPreferenceMock = service.user
@@ -20,23 +17,6 @@ beforeAll(() => {
   // an error is intentionally thrown for negative tests
   jest.spyOn(console, "error").mockReturnValue(undefined);
 });
-
-const wrapper = ({ children }: { children: any }) => {
-  const client = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-      },
-    },
-  });
-  return (
-    <MemoryRouter>
-      <QueryClientProvider client={client}>
-        <AuthProvider>{children}</AuthProvider>
-      </QueryClientProvider>
-    </MemoryRouter>
-  );
-};
 
 describe("useUpdateHostingPreference hook", () => {
   const newHostingPreferenceData = {
@@ -127,7 +107,6 @@ describe("useUpdateHostingPreference hook", () => {
     const { result, waitFor } = renderHook(
       () => ({
         mutate: useUpdateHostingPreferences(),
-        currentUser: useCurrentUser(),
       }),
       { wrapper }
     );
