@@ -35,16 +35,30 @@ def apply_migrations():
 
 
 @functools.cache
-def get_engine():
+def _get_base_engine():
     if config.config["IN_TEST"]:
         return create_engine(config.config["DATABASE_CONNECTION_STRING"], poolclass=NullPool)
     else:
         return create_engine(config.config["DATABASE_CONNECTION_STRING"])
 
 
+@functools.cache
+def get_engine(isolation_level=None):
+    """
+    Creates an engine with the given isolation level.
+
+    Do not change isolation_level unless you know what you're doing!
+    """
+    # creates a shallow copy with the given isolation level
+    if not isolation_level:
+        return _get_base_engine()
+    else:
+        return _get_base_engine().execution_options(isolation_level=isolation_level)
+
+
 @contextmanager
-def session_scope():
-    session = Session(get_engine())
+def session_scope(isolation_level=None):
+    session = Session(get_engine(isolation_level=isolation_level))
     try:
         yield session
         session.commit()

@@ -19,19 +19,25 @@ logger = logging.getLogger(__name__)
 
 
 def process_job(job_id):
-    with session_scope() as session:
+    with session_scope(isolation_level="REPEATABLE READ") as session:
         # grab the job
+        # a combination of REPEATABLE READ and SELECT ... FOR UPDATE NOWAIT makes sure that only one transaction will
+        # modify the job at a time, the NOWAIT (instead of e.g. FOR UPDATE) means that if the job is locked, the
+        # transaction will fail without waiting. If we weren't picking out one particular job, we could instead use
+        # FOR UPDATE and pick the first ready job
         job = (
-            session.query(BackgroundJob).filter(BackgroundJob.id == job_id).filter(BackgroundJob.is_ready).one_or_none()
+            session.query(BackgroundJob)
+            .filter(BackgroundJob.id == job_id)
+            .filter(BackgroundJob.is_ready)
+            .with_for_update(nowait=True)
+            .one_or_none()
         )
+
         # if it's gone, too bad
         if not job:
             return
 
-        # mark it as ours
-        job.state = BackgroundJobState.working
         job.try_count += 1
-        session.commit()
 
         try:
             message_type, func = JOBS[job.job_type]
@@ -47,6 +53,8 @@ def process_job(job_id):
             job.next_attempt_after = 5 * (2 ** job.try_count)
             # add some info for debugging
             job.failure_info = traceback.format_exc()
+
+        # also releases the row lock
         session.commit()
 
 
@@ -55,11 +63,12 @@ def service_jobs():
     while True:
         with session_scope() as session:
             job = session.query(BackgroundJob).filter(BackgroundJob.is_ready).first()
-            if not job:
-                sleep(2)
-                continue
-            else:
+            if job:
                 process_job(job.id)
+        # end the transaction and don't keep it open while sleeping
+        if not job:
+            sleep(2)
+            continue
 
 
 def start_job_servicer():
