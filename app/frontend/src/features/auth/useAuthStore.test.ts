@@ -9,8 +9,6 @@ import useAuthStore, { usePersistedState } from "./useAuthStore";
 const getUserMock = service.user.getUser as jest.Mock;
 const getCurrentUserMock = service.user.getCurrentUser as jest.Mock;
 const updateProfileMock = service.user.updateProfile as jest.Mock;
-const updateHostingPreferenceMock = service.user
-  .updateHostingPreference as jest.Mock;
 const passwordLoginMock = service.user.passwordLogin as jest.Mock;
 const tokenLoginMock = service.user.tokenLogin as jest.Mock;
 const signupMock = service.user.completeSignup as jest.Mock;
@@ -55,7 +53,7 @@ describe("useAuthStore hook", () => {
     await act(() => result.current.authActions.logout());
     expect(result.current.authState.authenticated).toBe(false);
     expect(result.current.authState.error).toBeNull();
-    expect(result.current.authState.user).toBeNull();
+    expect(result.current.authState.userId).toBeNull();
   });
 });
 
@@ -262,100 +260,6 @@ describe("updateUserProfile action", () => {
     ).rejects.toBeDefined();
 
     expect(updateProfileMock).not.toHaveBeenCalled();
-    expect(getUserMock).not.toHaveBeenCalled();
-  });
-});
-
-describe("updateHostingPreference action", () => {
-  const newHostingPreferenceData = {
-    multipleGroups: false,
-    acceptsKids: false,
-    acceptsPets: false,
-    lastMinute: true,
-    wheelchairAccessible: true,
-    maxGuests: null,
-    area: "",
-    houseRules: "",
-    smokingAllowed: 1,
-    sleepingArrangement: "",
-  };
-
-  it("updates the store with the latest user hosting preference", async () => {
-    addDefaultUser();
-    const newUserPref = Object.entries(newHostingPreferenceData).reduce(
-      (acc: Record<string, unknown>, [key, value]) => {
-        if (key !== "smokingAllowed") {
-          acc[key] = { value };
-        } else {
-          acc[key] = value;
-        }
-        return acc;
-      },
-      {}
-    );
-    updateHostingPreferenceMock.mockResolvedValue(new Empty());
-    getUserMock.mockResolvedValue({
-      ...defaultUser,
-      ...newUserPref,
-    });
-    const { result } = renderHook(() => useAuthStore());
-
-    await act(() =>
-      result.current.profileActions.updateHostingPreferences(
-        newHostingPreferenceData
-      )
-    );
-
-    expect(updateHostingPreferenceMock).toHaveBeenCalledTimes(1);
-    expect(updateHostingPreferenceMock).toHaveBeenCalledWith(
-      newHostingPreferenceData
-    );
-    expect(getUserMock).toHaveBeenCalledTimes(1);
-    expect(getUserMock).toHaveBeenCalledWith("aapeli");
-    // Things that have been updated are being reflected
-    expect(result.current.authState.user).toMatchObject({
-      multipleGroups: { value: false },
-      acceptsKids: { value: false },
-      acceptsPets: { value: false },
-      lastMinute: { value: true },
-      wheelchairAccessible: { value: true },
-      maxGuests: { value: null },
-      area: { value: "" },
-      houseRules: { value: "" },
-      smokingAllowed: 1,
-      sleepingArrangement: { value: "" },
-    });
-    // Rest of profile should be the same as before
-    expect(result.current.authState.user).toMatchObject(defaultUser);
-  });
-
-  it("does not update the existing user if the API call failed", async () => {
-    addDefaultUser();
-    updateHostingPreferenceMock.mockRejectedValue(new Error("API error"));
-    const { result } = renderHook(() => useAuthStore());
-
-    expect(
-      act(() =>
-        result.current.profileActions.updateHostingPreferences(
-          newHostingPreferenceData
-        )
-      )
-    ).rejects.toThrow();
-
-    expect(result.current.authState.user).toEqual(defaultUser);
-  });
-
-  it("does not try to update preference if a user does not exist in store", async () => {
-    const { result } = renderHook(() => useAuthStore());
-    expect(
-      act(() =>
-        result.current.profileActions.updateHostingPreferences(
-          newHostingPreferenceData
-        )
-      )
-    ).rejects.toThrow();
-
-    expect(updateHostingPreferenceMock).not.toHaveBeenCalled();
     expect(getUserMock).not.toHaveBeenCalled();
   });
 });

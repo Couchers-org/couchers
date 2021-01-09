@@ -6,9 +6,27 @@ import { MemoryRouter } from "react-router-dom";
 import * as client from "../../service/client";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { service } from "../../service";
+import { QueryClient, QueryClientProvider } from "react-query";
 
 const logoutMock = service.user.logout as jest.Mock;
 logoutMock.mockResolvedValue(new Empty());
+
+const wrapper = ({ children }: { children: any }) => {
+  const client = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+    },
+  });
+  return (
+    <MemoryRouter>
+      <QueryClientProvider client={client}>
+        <AuthProvider>{children}</AuthProvider>
+      </QueryClientProvider>
+    </MemoryRouter>
+  );
+};
 
 describe("AuthProvider", () => {
   it("sets an unauthenticatedErrorHandler function that logs out correctly", async () => {
@@ -24,11 +42,6 @@ describe("AuthProvider", () => {
       .spyOn(client, "setUnauthenticatedErrorHandler")
       .mockImplementation(mockSetHandler);
 
-    const wrapper = ({ children }: { children: any }) => (
-      <MemoryRouter>
-        <AuthProvider>{children}</AuthProvider>
-      </MemoryRouter>
-    );
     const { result } = renderHook(() => useAuthContext(), {
       wrapper,
     });
