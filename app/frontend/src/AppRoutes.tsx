@@ -66,7 +66,7 @@ export default function AppRoutes() {
       <PrivateRoute path={profileRoute}>
         <ProfilePage />
       </PrivateRoute>
-      <PrivateRoute path={messagesRoute}>
+      <PrivateRoute path={`${messagesRoute}/:type?`}>
         <Messages />
       </PrivateRoute>
       <PrivateRoute path={`${userRoute}/:username`}>
