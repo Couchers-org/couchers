@@ -1,5 +1,5 @@
 """
-Background job servicers
+Email background jobs
 """
 
 import logging

@@ -13,6 +13,7 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func, text
 
 from couchers.config import config
+from couchers.models.base import Base
 from couchers.utils import get_coordinates
 
 meta = MetaData(
@@ -1078,14 +1079,12 @@ class BackgroundJobType(enum.Enum):
 class BackgroundJobState(enum.Enum):
     # job is fresh, waiting to be picked off the queue
     pending = 1
-    # job has been grabbed by a worker, and is being worked on
-    working = 2
     # job complete
-    completed = 3
+    completed = 2
     # error occured, will be retried
-    error = 4
+    error = 3
     # failed too many times, not retrying anymore
-    failed = 5
+    failed = 4
 
 
 class BackgroundJob(Base):
@@ -1110,7 +1109,7 @@ class BackgroundJob(Base):
     # used to count number of retries for failed jobs
     try_count = Column(Integer, nullable=False, default=0)
 
-    max_tries = Column(Integer, nullable=False, default=5)
+    max_tries = Column(Integer, nullable=False, default=2)
 
     # protobuf encoded job payload
     payload = Column(Binary, nullable=False)

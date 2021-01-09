@@ -50,7 +50,7 @@ def process_job(job_id):
             else:
                 job.state = BackgroundJobState.error
             # exponential backoff
-            job.next_attempt_after = 5 * (2 ** job.try_count)
+            job.next_attempt_after = 15 * (2 ** job.try_count)
             # add some info for debugging
             job.failure_info = traceback.format_exc()
 
