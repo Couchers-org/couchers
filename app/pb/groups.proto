@@ -27,6 +27,27 @@ service Groups {
   }
 }
 
+message CommunityParent {
+  int64 community_id = 1;
+  string name = 2;
+  string slug = 3;
+  string description = 4;
+}
+
+message GroupParent {
+  int64 group_id = 1;
+  string name = 2;
+  string slug = 3;
+  string description = 4;
+}
+
+message Parent {
+  oneof parent {
+    CommunityParent community = 1;
+    GroupParent group = 2;
+  }
+}
+
 message Group {
   int64 group_id = 1;
   string name = 2;
@@ -34,7 +55,7 @@ message Group {
   string description = 4;
   google.protobuf.Timestamp created = 5;
   // list of parents, ordered according to inclusion, e.g. World, Australia, (East Coast Hitchhikers)
-  repeated int64 parent_community_ids = 6;
+  repeated Parent parents = 6;
   org.couchers.api.pages.Page main_page = 7;
 }
 

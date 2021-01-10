@@ -12,6 +12,10 @@ from pb import groups_pb2, groups_pb2_grpc
 logger = logging.getLogger(__name__)
 
 
+def _parents_to_pb(cluster: Cluster):
+    return []
+
+
 def _group_to_pb(cluster: Cluster):
     return groups_pb2.Group(
         group_id=cluster.id,
@@ -19,7 +23,7 @@ def _group_to_pb(cluster: Cluster):
         slug=slugify(cluster.name),
         description=cluster.description,
         created=Timestamp_from_datetime(cluster.created),
-        parent_community_ids=0,  # TODO
+        parents=_parents_to_pb(cluster),  # TODO
         main_page=_page_to_pb(cluster.main_page),
     )
 

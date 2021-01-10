@@ -690,7 +690,7 @@ class Cluster(Base):
 
     official_cluster_for_node_id = Column(ForeignKey("nodes.id"), nullable=False, unique=True, index=True)
 
-    official_cluster_for_node = relationship("Node", backref="official_cluster", uselist=False)
+    official_cluster_for_node = relationship("Node", backref=backref("official_cluster", uselist=False), uselist=False)
 
     nodes = relationship("Cluster", backref="clusters", secondary="node_cluster_associations")
     pages = relationship("Page", backref="clusters", secondary="cluster_page_associations")
@@ -781,7 +781,10 @@ class Page(Base):
     main_page_for_cluster_id = Column(ForeignKey("clusters.id"), nullable=True, unique=True, index=True)
 
     main_page_for_cluster = relationship(
-        "Cluster", backref="main_page", uselist=False, foreign_keys="Page.main_page_for_cluster_id"
+        "Cluster",
+        backref=backref("main_page", uselist=False),
+        uselist=False,
+        foreign_keys="Page.main_page_for_cluster_id",
     )
 
     thread = relationship("Thread", backref="page", uselist=False)

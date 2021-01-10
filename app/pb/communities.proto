@@ -39,7 +39,7 @@ message Community {
   string description = 4;
   google.protobuf.Timestamp created = 5;
   // list of parents, ordered according to inclusion, e.g. World, US, New York, (NYC)
-  repeated int64 parent_community_ids = 6;
+  repeated org.couchers.api.Parent parents = 6;
   // we do not return the geometry here? (it's a potentially very big multipolygon)
   org.couchers.api.pages.Page main_page = 7;
 }
