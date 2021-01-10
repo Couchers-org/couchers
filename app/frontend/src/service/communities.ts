@@ -1,4 +1,4 @@
-import { GetCommunityReq, ListCommunitiesReq, ListGroupsReq } from "../pb/communities_pb";
+import { GetCommunityReq, ListAdminsReq, ListCommunitiesReq, ListGroupsReq } from "../pb/communities_pb";
 import client from "./client";
 
 export async function getCommunity(communityId: number) {
@@ -28,5 +28,15 @@ export async function listGroups(communityId: number, pageToken?: string) {
     req.setPageToken(pageToken)
   }
   const response = await client.communities.listGroups(req)
+  return response.toObject()
+}
+
+export async function listAdmins(communityId: number, pageToken?: string) {
+  const req = new ListAdminsReq();
+  req.setCommunityId(communityId)
+  if (pageToken) {
+    req.setPageToken(pageToken)
+  }
+  const response = await client.communities.listAdmins(req)
   return response.toObject()
 }

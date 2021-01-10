@@ -23,8 +23,12 @@ service Communities {
     // Gets a paginated list of groups associated with a community
   }
 
+  rpc ListAdmins(ListAdminsReq) returns (ListAdminsRes) {
+    // Gets a paginated list of community admins only
+  }
+
   rpc ListMembers(ListMembersReq) returns (ListMembersRes) {
-    // Gets a paginated list of community members
+    // Gets a paginated list of community members, excluding admins
   }
 
   rpc ListPlaces(ListPlacesReq) returns (ListPlacesRes) {
@@ -89,27 +93,33 @@ message ListGroupsRes {
   string next_page_token = 2;
 }
 
-message ListMembersReq {
+message ListAdminsReq {
   int64 community_id = 1;
-  bool only_admins = 2;
 
-  uint32 page_size = 3;
-  string page_token = 4;
-}
-
-enum CommunityMemberRole {
-  MEMBER = 0;
-  ADMIN = 1;
+  uint32 page_size = 2;
+  string page_token = 3;
 }
 
 message CommunityMember {
   org.couchers.api.core.User user = 1;
-  CommunityMemberRole role = 2;
-  google.protobuf.Timestamp joined = 3;
+  google.protobuf.Timestamp joined = 2;
+}
+
+message ListAdminsRes {
+  repeated CommunityMember admins = 1;
+
+  string next_page_token = 2;
+}
+
+message ListMembersReq {
+  int64 community_id = 1;
+
+  uint32 page_size = 2;
+  string page_token = 3;
 }
 
 message ListMembersRes {
-  repeated CommunityMemberRole members = 1;
+  repeated CommunityMember members = 1;
 
   string next_page_token = 2;
 }

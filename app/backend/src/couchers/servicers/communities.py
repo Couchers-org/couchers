@@ -91,7 +91,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
 
     def ListGroups(self, request, context):
         with session_scope() as session:
-            page_size = min(MAX_PAGINATION_LENGTH, request.page_size if request.page_size else MAX_PAGINATION_LENGTH)
+            page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
             next_cluster_id = int(request.page_token) if request.page_token else 0
             clusters = (
                 session.query(Cluster)
@@ -106,6 +106,10 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 groups=[_group_to_pb(cluster, context.user_id) for cluster in clusters[:page_size]],
                 next_page_token=str(clusters[-1].id) if len(clusters) > page_size else None,
             )
+
+    def ListAdmins(self, request, context):
+        raise NotImplementedError()
+        return communities_pb2.ListAdminsRes()
 
     def ListMembers(self, request, context):
         raise NotImplementedError()
