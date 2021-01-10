@@ -131,9 +131,18 @@ def run_scheduler():
     raise Exception("End of scheduler?")
 
 
+def _run_forever(func):
+    while True:
+        try:
+            logger.critical("Background worker starting")
+            func()
+        except Exception as e:
+            logger.critical("Unhandled exception in background worker", exc_info=e)
+
+
 def start_job_servicer():
-    bg_loop = Process(target=service_jobs)
+    bg_loop = Process(target=_run_forever, args=(service_jobs,))
     bg_loop.start()
-    bg_scheduler = Process(target=run_scheduler)
+    bg_scheduler = Process(target=_run_forever, args=(run_scheduler,))
     bg_scheduler.start()
     return (bg_loop, bg_scheduler)
