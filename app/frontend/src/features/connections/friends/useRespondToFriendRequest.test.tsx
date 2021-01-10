@@ -1,9 +1,8 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import React from "react";
-import { QueryClient, QueryClientProvider } from "react-query";
 import { ListFriendRequestsRes } from "../../../pb/api_pb";
 import { service } from "../../../service";
+import { getHookWrapperWithClient } from "../../../test/hookWrapper";
 import useRespondToFriendRequest from "./useRespondToFriendRequest";
 
 const respondToFriendRequestMock = service.api
@@ -11,17 +10,7 @@ const respondToFriendRequestMock = service.api
   ReturnType<typeof service.api.respondFriendRequest>
 >;
 
-const client = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false,
-    },
-  },
-});
-
-const wrapper = ({ children }: { children: React.ReactNode }) => {
-  return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
-};
+const { client, wrapper } = getHookWrapperWithClient();
 
 afterEach(() => {
   client.clear();
@@ -48,7 +37,7 @@ describe("useRespondToFriendRequest hook", () => {
     client.setQueryData<number[]>("friendIds", []);
   });
 
-  it("invalidates the friend request received list and the friend list", async () => {
+  it("invalidates the friend request received list and the friend list if the mutation succeeded", async () => {
     respondToFriendRequestMock.mockResolvedValue(new Empty());
     const { result, waitForNextUpdate } = renderHook(
       () => useRespondToFriendRequest(),
