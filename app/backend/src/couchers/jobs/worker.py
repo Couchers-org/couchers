@@ -11,13 +11,12 @@ from sched import scheduler
 from time import sleep, time
 
 from google.protobuf import empty_pb2
-from psycopg2.errors import ProgrammingError
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.sql import func
 
 from couchers.db import get_engine, session_scope
 from couchers.jobs.definitions import JOBS, SCHEDULE
 from couchers.jobs.enqueue import queue_job
-from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType
+from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType, RepeatedJob
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)
@@ -71,6 +70,8 @@ def service_jobs():
     """
     Don't run many of these simultaneously: it'll work but it'll conflict and cause a lot of missed job processing.
     """
+    # multiprocessing uses fork() which in turn copies file descriptors, so the engine may have connections in its pool
+    # that we don't want to reuse. This is the SQLALchemy-recommended way of clearing the connection pool in this thread
     get_engine().dispose()
 
     MAX_WORKERS = 8
@@ -86,8 +87,6 @@ def service_jobs():
 
                 # loop back to start, it's cleaner
                 continue
-
-            wait = False
 
             with session_scope() as session:
                 job_ids = (
@@ -112,20 +111,37 @@ def run_scheduler():
     """
     Schedules jobs according to schedule in .definitions
     """
+    # multiprocessing uses fork() which in turn copies file descriptors, so the engine may have connections in its pool
+    # that we don't want to reuse. This is the SQLALchemy-recommended way of clearing the connection pool in this thread
     get_engine().dispose()
 
     sched = scheduler(time, sleep)
 
-    def _queue_job(schedule_id):
+    def _try_run_job(schedule_id):
         job_type, frequency = SCHEDULE[schedule_id]
-        logger.info(f"Scheduling job of type {job_type}")
+        logger.info(f"Processing job of type {job_type}")
+        with session_scope() as session:
+            rjob = session.query(RepeatedJob).filter(RepeatedJob.job_type == job_type).one()
+            rjob.last_run = func.now()
+
+        # wake ourselves up after frequency
+        sched.enter(frequency.total_seconds(), 1, _try_run_job, argument=(schedule_id,))
+
         # queue the job
         queue_job(job_type, empty_pb2.Empty())
-        # wake ourselves up after frequency timedelta
-        sched.enter(frequency.total_seconds(), 1, _queue_job, argument=(schedule_id,))
 
-    for schedule_id, _ in enumerate(SCHEDULE):
-        sched.enter(0, 1, _queue_job, argument=(schedule_id,))
+    for schedule_id, (job_type, frequency) in enumerate(SCHEDULE):
+        # make sure we don't repeat the job all the time if we keep on crashing
+        with session_scope() as session:
+            rjob = session.query(RepeatedJob).filter(RepeatedJob.job_type == job_type).one_or_none()
+            if not rjob:
+                rjob = RepeatedJob(job_type=job_type, last_run=func.now())
+                session.add(rjob)
+                next_run = 0
+            else:
+                next_run = max(0, (frequency - (now() - rjob.last_run)).total_seconds())
+
+        sched.enter(next_run, 1, _try_run_job, argument=(schedule_id,))
 
     sched.run()
     raise Exception("End of scheduler?")

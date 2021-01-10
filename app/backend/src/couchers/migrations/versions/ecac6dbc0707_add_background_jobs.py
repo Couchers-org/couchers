@@ -1,8 +1,8 @@
 """Add background jobs
 
-Revision ID: 210e7ac1e9b4
+Revision ID: ecac6dbc0707
 Revises: 8b6297128973
-Create Date: 2021-01-09 23:06:23.464884
+Create Date: 2021-01-10 18:38:56.767309
 
 """
 import geoalchemy2
@@ -11,7 +11,7 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = "210e7ac1e9b4"
+revision = "ecac6dbc0707"
 down_revision = "8b6297128973"
 branch_labels = None
 depends_on = None
@@ -35,6 +35,14 @@ def upgrade():
         sa.Column("payload", sa.LargeBinary(), nullable=False),
         sa.Column("failure_info", sa.String(), nullable=True),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_background_jobs")),
+    )
+    op.create_table(
+        "repeated_jobs",
+        sa.Column("id", sa.BigInteger(), nullable=False),
+        sa.Column("job_type", sa.Enum("send_email", "purge_login_tokens", name="backgroundjobtype"), nullable=False),
+        sa.Column("last_run", sa.DateTime(timezone=True), nullable=False),
+        sa.PrimaryKeyConstraint("id", name=op.f("pk_repeated_jobs")),
+        sa.UniqueConstraint("job_type", name=op.f("uq_repeated_jobs_job_type")),
     )
     # ### end Alembic commands ###
 

@@ -1126,16 +1126,16 @@ class BackgroundJob(Base):
         return (self.next_attempt_after <= func.now()) & (self.try_count < self.max_tries)
 
 
-class RepeatedJobs(Base):
+class RepeatedJob(Base):
     """
-    A job that's kicked off every n minutes
+    A job that's kicked off periodically
+
+    The schedule is not kept in the database, this is just here to persist info in case the worker dies
     """
 
     __tablename__ = "repeated_jobs"
 
     id = Column(BigInteger, primary_key=True)
 
-    job_type = Column(Enum(BackgroundJobType), nullable=False)
-
-    # number of minutes between kicking off these jobs
-    run_every = Column(Integer, nullable=False)
+    job_type = Column(Enum(BackgroundJobType), nullable=False, unique=True)
+    last_run = Column(DateTime(timezone=True), nullable=False)
