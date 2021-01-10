@@ -3,8 +3,6 @@ Background job servicers
 """
 
 import logging
-from random import uniform
-from time import sleep
 
 from couchers import config
 from couchers.db import session_scope
@@ -34,9 +32,3 @@ def process_purge_login_tokens(payload):
     logger.info(f"Purging login tokens")
     with session_scope() as session:
         session.query(LoginToken).filter(LoginToken.is_valid == False).delete(synchronize_session=False)
-
-
-def process_sleep_and_log(payload):
-    logger.info(f"About to sleep for a bit...")
-    sleep(uniform(0, 2.4))
-    logger.info(f"Done sleeping")

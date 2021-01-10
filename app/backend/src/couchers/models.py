@@ -1122,7 +1122,7 @@ class BackgroundJob(Base):
     failure_info = Column(String, nullable=True)
 
     @hybrid_property
-    def retry_ready(self):
+    def ready_for_retry(self):
         return (self.next_attempt_after <= func.now()) & (self.try_count < self.max_tries)
 
 

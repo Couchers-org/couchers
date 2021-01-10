@@ -23,26 +23,26 @@ from couchers.utils import now
 logger = logging.getLogger(__name__)
 
 
-def process_job(job_id):
-    logger.info(f"Processing job id {job_id}")
+def process_job():
+    logger.info(f"Processing a job")
     with session_scope(isolation_level="REPEATABLE READ") as session:
-        logger.info(id(session))
         # a combination of REPEATABLE READ and SELECT ... FOR UPDATE SKIP LOCKED makes sure that only one transaction
         # will modify the job at a time. SKIP UPDATE means that if the job is locked, then we ignore that row, it's
         # easier to use SKIP LOCKED vs NOWAIT in the ORM, with NOWAIT you get an ugly error from psycopg2
         job = (
             session.query(BackgroundJob)
-            .filter(BackgroundJob.id == job_id)
-            .filter(BackgroundJob.retry_ready)
-            .filter(BackgroundJob.state == BackgroundJobState.reserved)
+            .filter(BackgroundJob.ready_for_retry)
+            .filter(BackgroundJob.state == BackgroundJobState.pending)
             .with_for_update(skip_locked=True)
-            .one_or_none()
+            .first()
         )
 
         if not job:
-            # it's locked or has been processed already
-            logger.info(f"Job {job_id} gone")
+            logger.info(f"No pending jobs")
             return
+
+        # we've got a lock for a job now, it's "pending" until we commit or the lock is gone
+        logger.info(f"Job #{job.id} grabbed")
 
         job.try_count += 1
 
@@ -50,17 +50,17 @@ def process_job(job_id):
             message_type, func = JOBS[job.job_type]
             ret = func(message_type.FromString(job.payload))
             job.state = BackgroundJobState.completed
-            logger.info(f"{job_id} complete on try #{job.try_count}")
+            logger.info(f"Job #{job.id} complete on try number {job.try_count}")
         except Exception as e:
             if job.try_count >= job.max_tries:
                 # if we already tried max_tries times, it's permanently failed
                 job.state = BackgroundJobState.failed
-                logger.info(f"{job_id} failed on try #{job.try_count}")
+                logger.info(f"Job #{job.id} failed on try number {job.try_count}")
             else:
                 job.state = BackgroundJobState.error
                 # exponential backoff
                 job.next_attempt_after += timedelta(seconds=15 * (2 ** job.try_count))
-                logger.info(f"{job_id} error on try #{job.try_count}, next try at {job.next_attempt_after}")
+                logger.info(f"Job #{job.id} error on try number {job.try_count}, next try at {job.next_attempt_after}")
             # add some info for debugging
             job.failure_info = traceback.format_exc()
 
@@ -68,9 +68,12 @@ def process_job(job_id):
 
 
 def service_jobs():
+    """
+    Don't run many of these simultaneously: it'll work but it'll conflict and cause a lot of missed job processing.
+    """
     get_engine().dispose()
 
-    MAX_WORKERS = 32
+    MAX_WORKERS = 8
     with futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         jobs = []
         while True:
@@ -86,31 +89,21 @@ def service_jobs():
 
             wait = False
 
-            with session_scope(isolation_level="REPEATABLE READ") as session:
-                new_jobs = (
-                    session.query(BackgroundJob)
-                    .filter(BackgroundJob.retry_ready)
+            with session_scope() as session:
+                job_ids = (
+                    session.query(BackgroundJob.id)
+                    .filter(BackgroundJob.ready_for_retry)
                     .filter(BackgroundJob.state == BackgroundJobState.pending)
-                    .order_by(BackgroundJob.id)
                     .limit(idle_workers)
                     .with_for_update(skip_locked=True)
                     .all()
                 )
-                job_ids = []
-                for job in new_jobs:
-                    job.state = BackgroundJobState.reserved
-                    job_ids.append(job.id)
                 # end the transaction and don't keep it open while sleeping, etc
 
             if len(job_ids) > 0:
-                for job_id in job_ids:
-                    logger.info(f"Dispatching job id {job_id}")
-                    jobs.append(executor.submit(process_job, job_id))
-
-            if len(job_ids) < idle_workers:
-                wait = True
-
-            if wait:
+                for _ in range(min(len(job_ids), idle_workers)):
+                    jobs.append(executor.submit(process_job))
+            else:
                 # no jobs to work on, don't hammer the DB, we can wait a second
                 sleep(1)
 
@@ -141,8 +134,6 @@ def run_scheduler():
 def start_job_servicer():
     bg_loop = Process(target=service_jobs)
     bg_loop.start()
-    bg_loop2 = Process(target=service_jobs)
-    bg_loop2.start()
     bg_scheduler = Process(target=run_scheduler)
     bg_scheduler.start()
     return (bg_loop, bg_scheduler)
