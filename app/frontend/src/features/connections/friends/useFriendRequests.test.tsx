@@ -9,12 +9,6 @@ const listFriendRequestsMock = service.api.listFriendRequests as jest.Mock<
   ReturnType<typeof service.api.listFriendRequests>
 >;
 
-beforeAll(() => {
-  // Mock out console.error so the test output is less noisy when
-  // an error is intentionally thrown for negative tests
-  jest.spyOn(console, "error").mockReturnValue(undefined);
-});
-
 beforeEach(() => {
   getUserMock.mockImplementation(getUser);
   listFriendRequestsMock.mockResolvedValue({
@@ -22,6 +16,8 @@ beforeEach(() => {
     receivedList: [],
   });
 });
+
+afterEach(() => jest.restoreAllMocks());
 
 describe("when the listFriendRequests query is loading", () => {
   it("returns isLoading as true with no errors and shouldn't try to load users", async () => {
@@ -189,6 +185,7 @@ describe("when the listFriendRequests succeeds", () => {
         ? Promise.reject(new Error(`Error fetching user ${userId}`))
         : getUser(userId);
     });
+    jest.spyOn(console, "error").mockReturnValue(undefined);
 
     const { result, waitForNextUpdate } = renderHook(
       () => useFriendRequests("Received"),
@@ -228,6 +225,8 @@ describe("when the listFriendRequests query failed", () => {
     listFriendRequestsMock.mockRejectedValue(
       new Error("Error listing friend requests")
     );
+    jest.spyOn(console, "error").mockReturnValue(undefined);
+
     const { result, waitForNextUpdate } = renderHook(
       () => useFriendRequests("Sent"),
       { wrapper }
