@@ -6,9 +6,10 @@ import Messages from "./index";
 import MessageView, { MessageProps } from "./messagelist/MessageView";
 import AuthProvider from "../auth/AuthProvider";
 import { QueryClient, QueryClientProvider } from "react-query";
-import { Route } from "react-router-dom";
+import { MemoryRouter, Route } from "react-router-dom";
+import ControlMessageView from "./messagelist/ControlMessageView";
 
-const [message1] = messages;
+const [controlMessage, message1] = messages;
 
 export default {
   title: "Messages",
@@ -18,11 +19,13 @@ export default {
     (storyFn) => {
       const queryClient = new QueryClient();
       return (
-        <QueryClientProvider client={queryClient}>
-          <AuthProvider>
-            <Route path="*">{storyFn()}</Route>
-          </AuthProvider>
-        </QueryClientProvider>
+        <MemoryRouter>
+          <QueryClientProvider client={queryClient}>
+            <AuthProvider>
+              <Route path="*">{storyFn()}</Route>
+            </AuthProvider>
+          </QueryClientProvider>
+        </MemoryRouter>
       );
     },
   ],
@@ -34,3 +37,10 @@ const MessageTemplate: Story<MessageProps> = (args) => (
 
 export const Message = MessageTemplate.bind({});
 Message.args = { message: message1 };
+
+const ControlMessageTemplate: Story<MessageProps> = (args) => (
+  <ControlMessageView {...args} />
+);
+
+export const ControlMessage = ControlMessageTemplate.bind({});
+ControlMessage.args = { message: controlMessage };

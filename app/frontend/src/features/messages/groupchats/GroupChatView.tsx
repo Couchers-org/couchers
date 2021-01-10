@@ -37,11 +37,7 @@ export default function GroupChatView() {
         (leave)
       </Button>
       {error && <Alert severity="error">{error}</Alert>}
-      {loading ? (
-        <CircularProgress />
-      ) : (
-        <MessageList messages={messages} handleSend={handleSend} />
-      )}
+      {loading ? <CircularProgress /> : <MessageList messages={messages} />}
     </Box>
   );
 }

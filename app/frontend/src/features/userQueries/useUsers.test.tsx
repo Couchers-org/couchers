@@ -68,6 +68,27 @@ describe("useUser (singular)", () => {
 });
 
 describe("when useUsers has loaded", () => {
+  it("returns undefined for falsey user id", async () => {
+    const { result, waitForNextUpdate } = renderHook(
+      () => useUsers([0, undefined]),
+      {
+        wrapper,
+      }
+    );
+    await waitForNextUpdate();
+    expect(getUserMock).not.toHaveBeenCalled();
+    expect(result.current).toEqual({
+      isLoading: false,
+      isFetching: false,
+      isError: false,
+      errors: [],
+      data: new Map([
+        [0, undefined],
+        [undefined, undefined],
+      ]),
+    });
+  });
+
   it("returns the user data with no errors if all queries succeed", async () => {
     const { result, waitForNextUpdate } = renderHook(
       () => useUsers([1, 2, 3]),
