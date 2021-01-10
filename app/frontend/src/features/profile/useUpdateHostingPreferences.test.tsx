@@ -94,6 +94,7 @@ describe("useUpdateHostingPreference hook", () => {
   it("does not update the existing user if the API call failed", async () => {
     addDefaultUser();
     updateHostingPreferenceMock.mockRejectedValue(new Error("API error"));
+    jest.spyOn(console, "error").mockReturnValue(undefined);
     getUserMock.mockResolvedValue(defaultUser);
     const setError = jest.fn();
 
