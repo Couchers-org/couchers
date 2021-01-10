@@ -9,13 +9,20 @@ import Alert from "../../components/Alert";
 import CircularProgress from "../../components/CircularProgress";
 import TextBody from "../../components/TextBody";
 import { useHistory } from "react-router-dom";
-import { communityRoute } from "../../AppRoutes"
+import { communityRoute, groupRoute } from "../../AppRoutes"
 import Markdown from "../../components/Markdown";
+import { Group } from "../../pb/groups_pb";
 
 export default function CommunityPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [community, setCommunity] = useState<Community.AsObject | null>(null);
+
+  const [subCommunitiesLoading, setSubCommunitiesLoading] = useState(false);
+  const [subCommunities, setSubCommunities] = useState<Array<Community.AsObject> | null>(null);
+
+  const [groupsLoading, setGroupsLoading] = useState(false);
+  const [groups, setGroups] = useState<Array<Group.AsObject> | null>(null);
 
   const history = useHistory();
 
@@ -37,6 +44,26 @@ export default function CommunityPage() {
         setError(e.message);
       }
       setLoading(false);
+
+      setSubCommunitiesLoading(true);
+      try {
+        const res = await service.communities.listCommunities(Number(communityId))
+        setSubCommunities(res.communitiesList.length ? res.communitiesList : null)
+      } catch (e) {
+        console.error(e)
+        setError(e.message);
+      }
+      setSubCommunitiesLoading(false);
+
+      setGroupsLoading(true);
+      try {
+        const res = await service.communities.listGroups(Number(communityId))
+        setGroups(res.groupsList.length ? res.groupsList : null)
+      } catch (e) {
+        console.error(e)
+        setError(e.message);
+      }
+      setGroupsLoading(false);
     })();
   }, [communityId]);
 
@@ -66,6 +93,36 @@ export default function CommunityPage() {
         <p>Created at {community.created?.seconds} by {community.mainPage!.creatorUserId}</p>
         <Markdown source={community.mainPage!.content} />
         <p>You <b>{community.mainPage!.canEdit ? "can" : "cannot"}</b> edit this page.</p>
+        <h1>Sub-communities</h1>
+        {subCommunitiesLoading ? <CircularProgress /> :
+        subCommunities ?
+          subCommunities.map(subCommunity => {
+            return (
+              <>
+                <Link to={`${communityRoute}/${subCommunity.communityId}/${subCommunity.slug}`}>
+                  {subCommunity.name}
+                </Link>
+                <br />
+              </>
+            )
+          })
+          : <p>This community has no sub-communities.</p>
+        }
+        <h1>Groups</h1>
+        {groupsLoading ? <CircularProgress /> :
+        groups ?
+          groups.map(group => {
+            return (
+              <>
+                <Link to={`${groupRoute}/${group.groupId}/${group.slug}`}>
+                  {group.name}
+                </Link>
+                <br />
+              </>
+            )
+          })
+          : <p>This community has no groups.</p>
+        }
       </> :
         <TextBody>Error?</TextBody>
       }

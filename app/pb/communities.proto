@@ -15,6 +15,10 @@ service Communities {
     // Get info about a Community
   }
 
+  rpc ListCommunities(ListCommunitiesReq) returns (ListCommunitiesRes) {
+    // Gets a paginated list of sub-communities associated with a community
+  }
+
   rpc ListGroups(ListGroupsReq) returns (ListGroupsRes) {
     // Gets a paginated list of groups associated with a community
   }
@@ -23,8 +27,16 @@ service Communities {
     // Gets a paginated list of community members
   }
 
-  rpc ListPages(ListPagesReq) returns (ListPagesRes) {
-    // Returns a paginated list of pages associated with a community
+  rpc ListPlaces(ListPlacesReq) returns (ListPlacesRes) {
+    // Returns a paginated list of places associated with a community
+  }
+
+  rpc ListGuides(ListGuidesReq) returns (ListGuidesRes) {
+    // Returns a paginated list of guides associated with a community
+  }
+
+  rpc ListEvents(ListEventsReq) returns (ListEventsRes) {
+    // Returns a paginated events of guides associated with a community
   }
 
   rpc ListDiscussions(ListDiscussionsReq) returns (ListDiscussionsRes) {
@@ -39,7 +51,7 @@ message Community {
   string description = 4;
   google.protobuf.Timestamp created = 5;
   // list of parents, ordered according to inclusion, e.g. World, US, New York, (NYC)
-  repeated org.couchers.api.Parent parents = 6;
+  repeated org.couchers.api.groups.Parent parents = 6;
   // we do not return the geometry here? (it's a potentially very big multipolygon)
   org.couchers.api.pages.Page main_page = 7;
   // whether the requesting user is member/admin
@@ -49,6 +61,19 @@ message Community {
 
 message GetCommunityReq {
   int64 community_id = 1;
+}
+
+message ListCommunitiesReq {
+  int64 community_id = 1;
+
+  uint32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListCommunitiesRes {
+  repeated Community communities = 1;
+
+  string next_page_token = 2;
 }
 
 message ListGroupsReq {
@@ -89,16 +114,41 @@ message ListMembersRes {
   string next_page_token = 2;
 }
 
-message ListPagesReq {
+message ListPlacesReq {
   int64 community_id = 1;
-  org.couchers.api.pages.PageType type = 2;
 
-  uint32 page_size = 3;
-  string page_token = 4;
+  uint32 page_size = 2;
+  string page_token = 3;
 }
 
-message ListPagesRes {
-  repeated org.couchers.api.pages.Page pages = 1;
+message ListPlacesRes {
+  repeated org.couchers.api.pages.Page places = 1;
+
+  string next_page_token = 2;
+}
+
+message ListGuidesReq {
+  int64 community_id = 1;
+
+  uint32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListGuidesRes {
+  repeated org.couchers.api.pages.Page guides = 1;
+
+  string next_page_token = 2;
+}
+
+message ListEventsReq {
+  int64 community_id = 1;
+
+  uint32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListEventsRes {
+  repeated org.couchers.api.pages.Page events = 1;
 
   string next_page_token = 2;
 }
