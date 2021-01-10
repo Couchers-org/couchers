@@ -104,6 +104,7 @@ class LoggingInterceptor(grpc.ServerInterceptor):
                 logger.info(f"Got request: {method}. Request: {request}")
             else:
                 logger.info(f"Got request: {method}")
+            logger.info(f"RPC being handled in PID {os.getpid()}")
             start = perf_counter_ns()
             res = prev_func(request, context)
             finished = perf_counter_ns()

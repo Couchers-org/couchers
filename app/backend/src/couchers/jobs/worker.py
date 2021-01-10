@@ -14,7 +14,7 @@ from google.protobuf import empty_pb2
 from psycopg2.errors import ProgrammingError
 from sqlalchemy.exc import OperationalError
 
-from couchers.db import session_scope
+from couchers.db import get_engine, session_scope
 from couchers.jobs.definitions import JOBS, SCHEDULE
 from couchers.jobs.enqueue import queue_job
 from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType
@@ -68,6 +68,8 @@ def process_job(job_id):
 
 
 def service_jobs():
+    get_engine().dispose()
+
     MAX_WORKERS = 32
     with futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         jobs = []
@@ -117,6 +119,8 @@ def run_scheduler():
     """
     Schedules jobs according to schedule in .definitions
     """
+    get_engine().dispose()
+
     sched = scheduler(time, sleep)
 
     def _queue_job(schedule_id):
@@ -137,6 +141,8 @@ def run_scheduler():
 def start_job_servicer():
     bg_loop = Process(target=service_jobs)
     bg_loop.start()
+    bg_loop2 = Process(target=service_jobs)
+    bg_loop2.start()
     bg_scheduler = Process(target=run_scheduler)
     bg_scheduler.start()
     return (bg_loop, bg_scheduler)
