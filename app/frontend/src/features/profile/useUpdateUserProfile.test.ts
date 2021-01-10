@@ -11,12 +11,6 @@ import useUpdateUserProfile from "./useUpdateUserProfile";
 const getUserMock = service.user.getUser as jest.Mock;
 const updateProfileMock = service.user.updateProfile as jest.Mock;
 
-beforeAll(() => {
-  // Mock out console.error so the test output is less noisy when
-  // an error is intentionally thrown for negative tests
-  jest.spyOn(console, "error").mockReturnValue(undefined);
-});
-
 describe("updateUserProfile action", () => {
   it("updates the store with the latest user profile info", async () => {
     addDefaultUser();
@@ -55,14 +49,13 @@ describe("updateUserProfile action", () => {
     });
     const { result, waitFor } = renderHook(
       () => ({
-        authStore: useAuthStore(),
         mutate: useUpdateUserProfile(),
         currentUser: useCurrentUser(),
       }),
       { wrapper }
     );
 
-    await act(() =>
+    act(() =>
       result.current.mutate.updateUserProfile({
         profileData: newUserProfileData,
         setMutationError: () => null,
@@ -75,7 +68,7 @@ describe("updateUserProfile action", () => {
     expect(updateProfileMock).toHaveBeenCalledWith(newUserProfileData);
     //once for getCurrentUser then once for invalidation
     expect(getUserMock).toHaveBeenCalledTimes(2);
-    //expect(getUserMock).toHaveBeenCalledWith("aapeli");
+    expect(getUserMock).toHaveBeenCalledWith("" + defaultUser.userId);
 
     const currentUser = result.current.currentUser.data;
 

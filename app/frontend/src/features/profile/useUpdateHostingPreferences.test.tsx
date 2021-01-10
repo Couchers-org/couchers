@@ -12,12 +12,6 @@ const getUserMock = service.user.getUser as jest.Mock;
 const updateHostingPreferenceMock = service.user
   .updateHostingPreference as jest.Mock;
 
-beforeAll(() => {
-  // Mock out console.error so the test output is less noisy when
-  // an error is intentionally thrown for negative tests
-  jest.spyOn(console, "error").mockReturnValue(undefined);
-});
-
 describe("useUpdateHostingPreference hook", () => {
   const newHostingPreferenceData = {
     multipleGroups: false,
@@ -58,7 +52,6 @@ describe("useUpdateHostingPreference hook", () => {
     });
     const { result, waitFor } = renderHook(
       () => ({
-        store: useAuthStore(),
         mutate: useUpdateHostingPreferences(),
         currentUser: useCurrentUser(),
       }),
@@ -80,7 +73,7 @@ describe("useUpdateHostingPreference hook", () => {
     );
     //once for getCurrentUser then once for invalidation
     expect(getUserMock).toHaveBeenCalledTimes(2);
-    //expect(getUserMock).toHaveBeenCalledWith(defaultUser.userId);
+    expect(getUserMock).toHaveBeenCalledWith("" + defaultUser.userId);
     // Things that have been updated are being reflected
     expect(result.current.currentUser.data).toMatchObject({
       multipleGroups: { value: false },

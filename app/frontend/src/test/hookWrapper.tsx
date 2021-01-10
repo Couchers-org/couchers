@@ -3,7 +3,11 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import { MemoryRouter } from "react-router-dom";
 import AuthProvider from "../features/auth/AuthProvider";
 
-export default function hookWrapper({ children }: { children: any }) {
+export default function hookWrapper({
+  children,
+}: {
+  children?: React.ReactNode;
+}) {
   const client = new QueryClient({
     defaultOptions: {
       queries: {
