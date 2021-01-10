@@ -3,6 +3,7 @@ Background job servicers
 """
 
 import logging
+from random import uniform
 from time import sleep
 
 from couchers import config
@@ -37,5 +38,5 @@ def process_purge_login_tokens(payload):
 
 def process_sleep_and_log(payload):
     logger.info(f"About to sleep for a bit...")
-    sleep(2.4)
+    sleep(uniform(0, 2.4))
     logger.info(f"Done sleeping")

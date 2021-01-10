@@ -1082,7 +1082,7 @@ class BackgroundJobState(enum.Enum):
     # job is fresh, waiting to be picked off the queue
     pending = 1
     # job has been grabbed by a worker, and is being worked on
-    working = 2
+    reserved = 2
     # job complete
     completed = 3
     # error occured, will be retried
@@ -1122,12 +1122,8 @@ class BackgroundJob(Base):
     failure_info = Column(String, nullable=True)
 
     @hybrid_property
-    def is_ready(self):
-        return (
-            (self.state == BackgroundJobState.pending)
-            & (self.next_attempt_after <= func.now())
-            & (self.try_count < self.max_tries)
-        )
+    def retry_ready(self):
+        return (self.next_attempt_after <= func.now()) & (self.try_count < self.max_tries)
 
 
 class RepeatedJobs(Base):

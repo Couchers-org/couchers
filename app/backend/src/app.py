@@ -8,10 +8,10 @@ from couchers import config
 from couchers.db import apply_migrations, session_scope
 from dummy_data import add_dummy_data
 
-config.check_config()
-
-logging.basicConfig(format="%(asctime)s: %(name)d: %(message)s", level=logging.INFO)
+logging.basicConfig(format="%(asctime)s: (%(name)-30s) %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+config.check_config()
 
 
 def log_unhandled_exception(exc_type, exc_value, exc_traceback):

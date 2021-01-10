@@ -15,5 +15,5 @@ JOBS = {
 SCHEDULE = [
     # it doesn't need to be this frequent
     # (BackgroundJobType.purge_login_tokens, timedelta(hours=24)),
-    (BackgroundJobType.purge_login_tokens, timedelta(seconds=1.3))
+    (BackgroundJobType.purge_login_tokens, timedelta(seconds=0.1))
 ]

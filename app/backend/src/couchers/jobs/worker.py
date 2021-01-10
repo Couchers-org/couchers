@@ -11,6 +11,8 @@ from sched import scheduler
 from time import sleep, time
 
 from google.protobuf import empty_pb2
+from psycopg2.errors import ProgrammingError
+from sqlalchemy.exc import OperationalError
 
 from couchers.db import session_scope
 from couchers.jobs.definitions import JOBS, SCHEDULE
@@ -24,13 +26,15 @@ logger = logging.getLogger(__name__)
 def process_job(job_id):
     logger.info(f"Processing job id {job_id}")
     with session_scope(isolation_level="REPEATABLE READ") as session:
+        logger.info(id(session))
         # a combination of REPEATABLE READ and SELECT ... FOR UPDATE SKIP LOCKED makes sure that only one transaction
         # will modify the job at a time. SKIP UPDATE means that if the job is locked, then we ignore that row, it's
         # easier to use SKIP LOCKED vs NOWAIT in the ORM, with NOWAIT you get an ugly error from psycopg2
         job = (
             session.query(BackgroundJob)
             .filter(BackgroundJob.id == job_id)
-            .filter(BackgroundJob.is_ready)
+            .filter(BackgroundJob.retry_ready)
+            .filter(BackgroundJob.state == BackgroundJobState.reserved)
             .with_for_update(skip_locked=True)
             .one_or_none()
         )
@@ -64,37 +68,47 @@ def process_job(job_id):
 
 
 def service_jobs():
-    MAX_WORKERS = 8
+    MAX_WORKERS = 32
     with futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         jobs = []
         while True:
             # jobs should be list of currently running jobs
-            jobs = [(job_id, future) for (job_id, future) in jobs if not future.done()]
+            jobs = [job for job in jobs if not job.done()]
             idle_workers = MAX_WORKERS - len(jobs)
             if idle_workers == 0:
                 # if we're at max capacity, then wait for one job to finish
-                futures.wait([future for (job_id, future) in jobs], return_when=futures.FIRST_COMPLETED)
+                futures.wait(jobs, return_when=futures.FIRST_COMPLETED)
 
                 # loop back to start, it's cleaner
                 continue
 
-            with session_scope() as session:
+            wait = False
+
+            with session_scope(isolation_level="REPEATABLE READ") as session:
                 new_jobs = (
-                    session.query(BackgroundJob.id)
-                    .filter(BackgroundJob.is_ready)
+                    session.query(BackgroundJob)
+                    .filter(BackgroundJob.retry_ready)
+                    .filter(BackgroundJob.state == BackgroundJobState.pending)
                     .order_by(BackgroundJob.id)
-                    .with_for_update(skip_locked=True)
                     .limit(idle_workers)
+                    .with_for_update(skip_locked=True)
                     .all()
                 )
+                job_ids = []
+                for job in new_jobs:
+                    job.state = BackgroundJobState.reserved
+                    job_ids.append(job.id)
                 # end the transaction and don't keep it open while sleeping, etc
 
-            if len(new_jobs) > 0:
-                for job in new_jobs:
-                    if not job.id in [job_id for (job_id, future) in jobs]:
-                        logger.info(f"Dispatching job id {job.id}")
-                        jobs.append((job.id, executor.submit(process_job, job.id)))
-            else:
+            if len(job_ids) > 0:
+                for job_id in job_ids:
+                    logger.info(f"Dispatching job id {job_id}")
+                    jobs.append(executor.submit(process_job, job_id))
+
+            if len(job_ids) < idle_workers:
+                wait = True
+
+            if wait:
                 # no jobs to work on, don't hammer the DB, we can wait a second
                 sleep(1)
 

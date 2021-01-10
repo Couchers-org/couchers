@@ -3,11 +3,13 @@ import functools
 import logging
 import os
 import re
+import threading
 from contextlib import contextmanager
 
 from alembic import command
 from alembic.config import Config
 from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.orm.session import Session
 from sqlalchemy.pool import NullPool
 from sqlalchemy.sql import and_, or_
@@ -34,7 +36,7 @@ def apply_migrations():
         os.chdir(cwd)
 
 
-@functools.cache
+# @functools.cache
 def _get_base_engine():
     if config.config["IN_TEST"]:
         return create_engine(config.config["DATABASE_CONNECTION_STRING"], poolclass=NullPool)
@@ -42,7 +44,7 @@ def _get_base_engine():
         return create_engine(config.config["DATABASE_CONNECTION_STRING"])
 
 
-@functools.cache
+# @functools.cache
 def get_engine(isolation_level=None):
     """
     Creates an engine with the given isolation level.
@@ -56,9 +58,19 @@ def get_engine(isolation_level=None):
         return _get_base_engine().execution_options(isolation_level=isolation_level)
 
 
+# @functools.cache
+def _sessionmaker(isolation_level=None):
+    return sessionmaker(bind=get_engine(isolation_level=isolation_level))
+
+
+def _scoped_session(isolation_level=None):
+    return scoped_session(_sessionmaker(isolation_level=isolation_level))
+
+
 @contextmanager
 def session_scope(isolation_level=None):
-    session = Session(get_engine(isolation_level=isolation_level))
+    Session = _scoped_session()
+    session = Session()
     try:
         yield session
         session.commit()
@@ -67,6 +79,7 @@ def session_scope(isolation_level=None):
         raise
     finally:
         session.close()
+        Session.remove()
 
 
 # When a user logs in, they can basically input one of three things: user id, username, or email
