@@ -223,8 +223,7 @@ def api_session(token):
     """
     Create an API for testing, uses the token for auth
     """
-    user_id, jailed = Auth().get_session_for_token(token)
-    channel = FakeChannel(user_id=user_id)
+    channel = fake_channel(token)
     api_pb2_grpc.add_APIServicer_to_server(API(), channel)
     yield api_pb2_grpc.APIStub(channel)
 
