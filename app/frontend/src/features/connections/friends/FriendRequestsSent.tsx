@@ -4,7 +4,7 @@ import { CloseIcon } from "../../../components/Icons";
 import { FriendRequest } from "../../../pb/api_pb";
 import FriendSummaryView from "./FriendSummaryView";
 import FriendTile from "./FriendTile";
-import useCancelFriendRequest from "../useCancelFriendRequest";
+import useCancelFriendRequest from "./useCancelFriendRequest";
 import useFriendRequests from "./useFriendRequests";
 import { useIsMounted, useSafeState } from "../../../utils/hooks";
 import type { SetMutationError } from ".";
@@ -23,6 +23,7 @@ function CancelFriendRequestAction({
     cancelFriendRequest,
     isLoading,
     isSuccess,
+    reset,
   } = useCancelFriendRequest();
 
   return state === FriendRequest.FriendRequestStatus.PENDING ? (
@@ -32,9 +33,10 @@ function CancelFriendRequestAction({
       ) : (
         <IconButton
           aria-label="Cancel request"
-          onClick={() =>
-            cancelFriendRequest({ friendRequestId, setMutationError })
-          }
+          onClick={() => {
+            reset();
+            cancelFriendRequest({ friendRequestId, setMutationError });
+          }}
         >
           <CloseIcon />
         </IconButton>
