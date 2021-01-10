@@ -1,7 +1,7 @@
 import { renderHook } from "@testing-library/react-hooks";
 import { service } from "../../../service";
 import { getUser } from "../../../test/serviceMockDefaults";
-import { ReactQueryTestWrapper } from "../../../test/utils";
+import wrapper from "../../../test/hookWrapper";
 import useFriendRequests from "./useFriendRequests";
 
 const getUserMock = service.user.getUser as jest.Mock;
@@ -25,8 +25,8 @@ beforeEach(() => {
 
 describe("when the listFriendRequests query is loading", () => {
   it("returns isLoading as true with no errors and shouldn't try to load users", async () => {
-    const { result } = renderHook(() => useFriendRequests("Sent"), {
-      wrapper: ReactQueryTestWrapper,
+    const { result, unmount } = renderHook(() => useFriendRequests("Sent"), {
+      wrapper,
     });
 
     expect(result.current).toEqual({
@@ -36,6 +36,8 @@ describe("when the listFriendRequests query is loading", () => {
       data: undefined,
     });
     expect(getUserMock).not.toHaveBeenCalled();
+
+    unmount();
   });
 });
 
@@ -69,7 +71,7 @@ describe("when the listFriendRequests succeeds", () => {
 
     const { result, waitForNextUpdate } = renderHook(
       () => useFriendRequests("Sent"),
-      { wrapper: ReactQueryTestWrapper }
+      { wrapper }
     );
     await waitForNextUpdate();
 
@@ -84,7 +86,7 @@ describe("when the listFriendRequests succeeds", () => {
   it("returns the friend requests sent if 'Sent' is passed to the hook", async () => {
     const { result, waitForNextUpdate } = renderHook(
       () => useFriendRequests("Sent"),
-      { wrapper: ReactQueryTestWrapper }
+      { wrapper }
     );
     await waitForNextUpdate();
 
@@ -111,7 +113,7 @@ describe("when the listFriendRequests succeeds", () => {
   it("returns the friend requests received if 'Received' is passed to the hook", async () => {
     const { result, waitForNextUpdate } = renderHook(
       () => useFriendRequests("Received"),
-      { wrapper: ReactQueryTestWrapper }
+      { wrapper }
     );
     await waitForNextUpdate();
 
@@ -156,7 +158,7 @@ describe("when the listFriendRequests succeeds", () => {
       result: receivedRequests,
       waitForNextUpdate: waitForReceivedFriendRequests,
     } = renderHook(() => useFriendRequests("Received"), {
-      wrapper: ReactQueryTestWrapper,
+      wrapper,
     });
     await waitForReceivedFriendRequests();
     expect(receivedRequests.current).toEqual({
@@ -170,7 +172,7 @@ describe("when the listFriendRequests succeeds", () => {
       result: sentRequests,
       waitForNextUpdate: waitForSentFriendRequests,
     } = renderHook(() => useFriendRequests("Sent"), {
-      wrapper: ReactQueryTestWrapper,
+      wrapper,
     });
     await waitForSentFriendRequests();
     expect(sentRequests.current).toEqual({
@@ -190,7 +192,7 @@ describe("when the listFriendRequests succeeds", () => {
 
     const { result, waitForNextUpdate } = renderHook(
       () => useFriendRequests("Received"),
-      { wrapper: ReactQueryTestWrapper }
+      { wrapper }
     );
     await waitForNextUpdate();
 
@@ -228,7 +230,7 @@ describe("when the listFriendRequests query failed", () => {
     );
     const { result, waitForNextUpdate } = renderHook(
       () => useFriendRequests("Sent"),
-      { wrapper: ReactQueryTestWrapper }
+      { wrapper }
     );
     await waitForNextUpdate();
 

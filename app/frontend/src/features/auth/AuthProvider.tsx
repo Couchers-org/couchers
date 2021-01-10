@@ -1,4 +1,4 @@
-import React, { Context, ReactChild, useContext, useEffect } from "react";
+import React, { Context, ReactNode, useContext, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { loginRoute } from "../../AppRoutes";
 import { setUnauthenticatedErrorHandler } from "../../service/client";
@@ -14,7 +14,7 @@ function useAppContext<T>(context: Context<T | null>) {
   return contextValue;
 }
 
-export default function AuthProvider({ children }: { children: ReactChild }) {
+export default function AuthProvider({ children }: { children: ReactNode }) {
   const store = useAuthStore();
 
   const push = useHistory().push;
