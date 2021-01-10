@@ -12,11 +12,12 @@ interface RespondToFriendRequestVariables {
 
 export default function useRespondToFriendRequest() {
   const queryClient = useQueryClient();
-  const { mutate: respondToFriendRequest, isLoading, isSuccess } = useMutation<
-    Empty,
-    Error,
-    RespondToFriendRequestVariables
-  >(
+  const {
+    mutate: respondToFriendRequest,
+    isLoading,
+    isSuccess,
+    reset,
+  } = useMutation<Empty, Error, RespondToFriendRequestVariables>(
     ({ friendRequestId, accept }) =>
       service.api.respondFriendRequest(friendRequestId, accept),
     {
@@ -34,5 +35,5 @@ export default function useRespondToFriendRequest() {
     }
   );
 
-  return { isLoading, isSuccess, respondToFriendRequest };
+  return { isLoading, isSuccess, reset, respondToFriendRequest };
 }

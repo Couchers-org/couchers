@@ -23,6 +23,7 @@ function RespondToFriendRequestAction({
   const {
     isLoading,
     isSuccess,
+    reset,
     respondToFriendRequest,
   } = useRespondToFriendRequest();
 
@@ -34,25 +35,27 @@ function RespondToFriendRequestAction({
         <>
           <IconButton
             aria-label="Accept request"
-            onClick={() =>
+            onClick={() => {
+              reset();
               respondToFriendRequest({
                 accept: true,
                 friendRequestId,
                 setMutationError,
-              })
-            }
+              });
+            }}
           >
             <CheckIcon />
           </IconButton>
           <IconButton
             aria-label="Decline request"
-            onClick={() =>
+            onClick={() => {
+              reset();
               respondToFriendRequest({
                 accept: false,
                 friendRequestId,
                 setMutationError,
-              })
-            }
+              });
+            }}
           >
             <CloseIcon />
           </IconButton>
