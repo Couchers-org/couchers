@@ -99,5 +99,4 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, "bad depth")
             session.add(object_to_add)
             session.flush()
-            session.refresh(object_to_add)
             return threads_pb2.PostReplyRes(thread_id=pack_thread_id(object_to_add.id, depth + 1))
