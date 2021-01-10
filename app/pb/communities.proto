@@ -42,6 +42,9 @@ message Community {
   repeated org.couchers.api.Parent parents = 6;
   // we do not return the geometry here? (it's a potentially very big multipolygon)
   org.couchers.api.pages.Page main_page = 7;
+  // whether the requesting user is member/admin
+  bool is_member = 8;
+  bool is_admin = 9;
 }
 
 message GetCommunityReq {

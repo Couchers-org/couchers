@@ -146,7 +146,7 @@ def parse_session_cookie(headers):
 
 
 def slugify(text):
-    return slugify_slugify(text, max_length=15, word_boundary=True)
+    return slugify_slugify(text, max_length=64, word_boundary=True)
 
 
 def remove_duplicates_retain_order(list_):

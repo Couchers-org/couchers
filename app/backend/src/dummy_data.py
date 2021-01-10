@@ -153,29 +153,34 @@ def add_dummy_communities():
             with open("src/data/dummy_communities.json", "r") as file:
                 data = json.loads(file.read())
 
-            for node_data in data["nodes"]:
+            for community in data["communities"]:
                 geom = None
-                if "coordinates" in node_data:
-                    geom = create_polygon_lng_lat(node_data["coordinates"])
-                elif "osm_id" in node_data:
-                    with open(f"src/data/osm/{node_data['osm_id']}.geojson") as f:
+                if "coordinates" in community:
+                    geom = create_polygon_lng_lat(community["coordinates"])
+                elif "osm_id" in community:
+                    with open(f"src/data/osm/{community['osm_id']}.geojson") as f:
                         geojson = json.loads(f.read())
                     # pick the first feature
                     geom = geojson_to_geom(geojson["features"][0]["geometry"])
-                    if "geom_simplify" in node_data:
-                        geom = func.ST_Simplify(geom, node_data["geom_simplify"], True)
+                    if "geom_simplify" in community:
+                        geom = func.ST_Simplify(geom, community["geom_simplify"], True)
                 else:
-                    ValueError("No geom specified for node")
+                    ValueError("No geom or osm_id specified for node")
 
-                name = node_data["name"]
+                name = community["name"]
 
-                admins = session.query(User).filter(User.username.in_(node_data["admins"])).all()
-                members = session.query(User).filter(User.username.in_(node_data["members"])).all()
+                admins = session.query(User).filter(User.username.in_(community["admins"])).all()
+                members = session.query(User).filter(User.username.in_(community["members"])).all()
 
-                parent_name = node_data["parent"]
+                parent_name = community["parent"]
 
                 if parent_name:
-                    parent_node = session.query(Node).join(Cluster).filter(Cluster.name == node_data["parent"]).one()
+                    parent_node = (
+                        session.query(Node)
+                        .join(Cluster, Cluster.official_cluster_for_node_id == Node.id)
+                        .filter(Cluster.name == community["parent"])
+                        .one()
+                    )
 
                 node = Node(
                     geom=to_multi(geom),
@@ -187,6 +192,7 @@ def add_dummy_communities():
                 cluster = Cluster(
                     name=f"{name}",
                     description=f"Description for {name}",
+                    parent_node=node,
                     official_cluster_for_node=node,
                 )
 
@@ -206,7 +212,6 @@ def add_dummy_communities():
                     editor_user=admins[0],
                     title=f"Main page for the {name} community",
                     content="There is nothing here yet...",
-                    address=f"Address of {name}",
                 )
 
                 session.add(page_version)
@@ -229,7 +234,65 @@ def add_dummy_communities():
                         )
                     )
 
-                session.commit()
+            for group in data["groups"]:
+                name = group["name"]
+
+                admins = session.query(User).filter(User.username.in_(group["admins"])).all()
+                members = session.query(User).filter(User.username.in_(group["members"])).all()
+
+                parent_name = group["parent"]
+
+                if parent_name:
+                    parent_node = (
+                        session.query(Node)
+                        .join(Cluster, Cluster.official_cluster_for_node_id == Node.id)
+                        .filter(Cluster.name == group["parent"])
+                        .one()
+                    )
+
+                cluster = Cluster(
+                    name=f"{name}",
+                    description=f"Description for the group {name}",
+                    parent_node=parent_node,
+                )
+
+                session.add(cluster)
+
+                main_page = Page(
+                    creator_user=admins[0],
+                    owner_user=admins[0],
+                    type=PageType.main_page,
+                    main_page_for_cluster=cluster,
+                )
+
+                session.add(main_page)
+
+                page_version = PageVersion(
+                    page=main_page,
+                    editor_user=admins[0],
+                    title=f"Main page for the {name} group",
+                    content="There is nothing here yet...",
+                )
+
+                session.add(page_version)
+
+                for admin in admins:
+                    cluster.cluster_subscriptions.append(
+                        ClusterSubscription(
+                            user=admin,
+                            cluster=cluster,
+                            role=ClusterRole.admin,
+                        )
+                    )
+
+                for member in members:
+                    cluster.cluster_subscriptions.append(
+                        ClusterSubscription(
+                            user=member,
+                            cluster=cluster,
+                            role=ClusterRole.member,
+                        )
+                    )
 
     except IntegrityError as e:
         logger.error("Failed to insert dummy communities, are they already inserted?")

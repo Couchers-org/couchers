@@ -17,6 +17,7 @@ import SearchPage from "./features/search/SearchPage";
 import NewPagePage from "./features/communities/NewPagePage";
 import PagePage from "./features/communities/PagePage";
 import CommunityPage from "./features/communities/CommunityPage";
+import GroupPage from "./features/communities/GroupPage";
 import Jail from "./features/auth/jail/Jail";
 import TOS from "./components/TOS";
 import { useAppDispatch, useTypedSelector } from "./store";
@@ -85,6 +86,9 @@ export default function AppRoutes() {
       </PrivateRoute>
       <PrivateRoute path={`${communityRoute}/:communityId/:communitySlug?`}>
         <CommunityPage />
+      </PrivateRoute>
+      <PrivateRoute path={`${groupRoute}/:groupId/:groupSlug?`}>
+        <GroupPage />
       </PrivateRoute>
       <Route path={jailRoute}>
         <Jail />

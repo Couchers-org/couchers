@@ -6,6 +6,7 @@ from sqlalchemy.sql import literal
 from couchers import errors
 from couchers.db import session_scope
 from couchers.models import Cluster, Node
+from couchers.servicers.groups import _group_to_pb  # TODO
 from couchers.servicers.pages import _page_to_pb  # TODO
 from couchers.utils import Timestamp_from_datetime, slugify
 from pb import communities_pb2, communities_pb2_grpc, groups_pb2
@@ -18,7 +19,7 @@ def _parents_to_pb(node_id):
         top = (
             session.query(Node.id, Node.parent_node_id, literal(0).label("level"))
             .filter(Node.id == node_id)
-            .cte("parents_q", recursive=True)
+            .cte("parents", recursive=True)
         )
         subquery = session.query(
             top.union(
@@ -55,6 +56,8 @@ def _community_to_pb(node: Node, user_id):
         created=Timestamp_from_datetime(node.created),
         parents=_parents_to_pb(node.id),
         main_page=_page_to_pb(node.official_cluster.main_page, user_id),
+        # is_member=,  # TODO
+        # is_admin=,  # TODO
     )
 
 

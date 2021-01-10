@@ -683,19 +683,32 @@ class Cluster(Base):
     __tablename__ = "clusters"
 
     id = Column(BigInteger, communities_seq, primary_key=True)
+    parent_node_id = Column(ForeignKey("nodes.id"), nullable=False, index=True)
     name = Column(String, nullable=False)
     # short description
     description = Column(String, nullable=False)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
-    official_cluster_for_node_id = Column(ForeignKey("nodes.id"), nullable=False, unique=True, index=True)
+    official_cluster_for_node_id = Column(ForeignKey("nodes.id"), nullable=True, unique=True, index=True)
 
-    official_cluster_for_node = relationship("Node", backref=backref("official_cluster", uselist=False), uselist=False)
+    official_cluster_for_node = relationship(
+        "Node",
+        backref=backref("official_cluster", uselist=False),
+        uselist=False,
+        foreign_keys="Cluster.official_cluster_for_node_id",
+    )
+
+    parent_node = relationship(
+        "Node", backref="child_clusters", remote_side="Node.id", foreign_keys="Cluster.parent_node_id"
+    )
 
     nodes = relationship("Cluster", backref="clusters", secondary="node_cluster_associations")
     pages = relationship("Page", backref="clusters", secondary="cluster_page_associations")
     events = relationship("Event", backref="clusters", secondary="cluster_event_associations")
     discussions = relationship("Discussion", backref="clusters", secondary="cluster_discussion_associations")
+
+    # make sure if the parent_node_id and official_cluster_for_node_id match
+    CheckConstraint("(official_cluster_for_node_id IS NULL) OR (official_cluster_for_node_id = parent_node_id)")
 
 
 class NodeClusterAssociation(Base):
@@ -738,6 +751,10 @@ class ClusterSubscription(Base):
 
     user = relationship("User", backref="cluster_subscriptions")
     cluster = relationship("Cluster", backref="cluster_subscriptions")
+
+    @hybrid_property
+    def is_current(self):
+        return (self.joined <= func.now()) & ((not self.left) | (self.left >= func.now()))
 
 
 class ClusterPageAssociation(Base):
@@ -815,7 +832,7 @@ class PageVersion(Base):
     title = Column(String, nullable=False)
     content = Column(String, nullable=False)
     # the human-readable address
-    address = Column(String, nullable=False)
+    address = Column(String, nullable=True)
     geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 

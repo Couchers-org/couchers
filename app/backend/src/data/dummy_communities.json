@@ -1,5 +1,5 @@
 {
-  "nodes": [
+  "communities": [
     {
       "name": "World",
       "admins": ["aapeli", "itsi", "lucas", "val"],
@@ -214,6 +214,26 @@
           60.03673122854703
         ]
       ]
+    }
+  ],
+  "groups": [
+    {
+      "name": "Sydney Foodies",
+      "admins": ["itsi", "val"],
+      "members": ["aapeli"],
+      "parent": "Sydney"
+    },
+    {
+      "name": "East Coast Hitchhikers",
+      "admins": ["itsi"],
+      "members": ["aapeli", "val", "misspoptart"],
+      "parent": "Australia"
+    },
+    {
+      "name": "New York City Nightlifers",
+      "admins": ["aapeli"],
+      "members": ["itsi", "val", "misspoptart"],
+      "parent": "New York City"
     }
   ]
 }
