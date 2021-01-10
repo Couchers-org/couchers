@@ -1,11 +1,9 @@
 import { Meta, Story } from "@storybook/react/types-6-0";
 import * as React from "react";
-import { Provider } from "react-redux";
 import messages from "../../test/fixtures/messages.json";
-import { store } from "../../store";
 
 import Messages from "./index";
-import MessageView, { MessageProps } from "./messagelist/Message";
+import MessageView, { MessageProps } from "./messagelist/MessageView";
 import AuthProvider from "../auth/AuthProvider";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { Route } from "react-router-dom";
@@ -22,9 +20,7 @@ export default {
       return (
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
-            <Provider store={store}>
-              <Route path="*">{storyFn()}</Route>
-            </Provider>
+            <Route path="*">{storyFn()}</Route>
           </AuthProvider>
         </QueryClientProvider>
       );

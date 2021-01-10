@@ -49,7 +49,7 @@ export default function MessageView({ message }: MessageProps) {
           {message.text?.text || ""}
         </CardContent>
       </Box>
-      {currentUser && isCurrentUser && <Avatar user={currentUser} />}
+      {author && isCurrentUser && <Avatar user={author} />}
     </Card>
   );
 }

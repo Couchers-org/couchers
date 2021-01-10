@@ -1,13 +1,10 @@
-import { configureStore, Store } from "@reduxjs/toolkit";
 import { Meta, Story } from "@storybook/react/types-6-0";
 import * as React from "react";
-import { Provider } from "react-redux";
 
 import { mockedService } from "../../../stories/__mocks__/service";
 import * as pb_conversations_pb from "../../../pb/conversations_pb";
 import { Message } from "../../../pb/conversations_pb";
 import { HostRequest } from "../../../pb/requests_pb";
-import rootReducer from "../../../reducers";
 import SurfingTab from "./SurfingTab";
 import AuthProvider from "../../auth/AuthProvider";
 import { QueryClient, QueryClientProvider } from "react-query";
@@ -61,26 +58,16 @@ Object.assign(mockedService, {
   },
 });
 
-let store: Store;
-function resetStore() {
-  store = configureStore({
-    reducer: rootReducer,
-  });
-}
-
 export default {
   title: "SurfingTab",
   component: SurfingTab,
   argTypes: {},
   decorators: [
     (storyFn) => {
-      resetStore();
       const queryClient = new QueryClient();
       return (
         <QueryClientProvider client={queryClient}>
-          <AuthProvider>
-            <Provider store={store}>{storyFn()}</Provider>
-          </AuthProvider>
+          <AuthProvider>{storyFn()}</AuthProvider>
         </QueryClientProvider>
       );
     },
@@ -94,7 +81,7 @@ const Template: Story<any> = (args) => {
     }
     return [hostRequest1];
   };
-  return <SurfingTab />;
+  return <SurfingTab type="all" />;
 };
 
 export const Tab = Template.bind({});

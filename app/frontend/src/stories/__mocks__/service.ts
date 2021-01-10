@@ -1,4 +1,4 @@
-import { MessageProps } from "../../features/messages/messagelist/Message";
+import { MessageProps } from "../../features/messages/messagelist/MessageView";
 import { User } from "../../pb/api_pb";
 import { Message } from "../../pb/conversations_pb";
 import { service as originalService } from "../../service";

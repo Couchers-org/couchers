@@ -35,9 +35,11 @@ export default function Messages() {
         <TabPanel value="groupchats">
           <GroupChatsTab />
         </TabPanel>
-        <TabPanel value="hosting">HOSTING</TabPanel>
+        <TabPanel value="hosting">
+          <SurfingTab type="hosting" />
+        </TabPanel>
         <TabPanel value="surfing">
-          <SurfingTab />
+          <SurfingTab type="surfing" />
         </TabPanel>
         <TabPanel value="meet">MEET</TabPanel>
         <TabPanel value="archived">ARCHIVED</TabPanel>

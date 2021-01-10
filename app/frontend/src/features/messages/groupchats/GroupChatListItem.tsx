@@ -2,7 +2,7 @@ import { Box, BoxProps, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import React from "react";
 import { GroupChat } from "../../../pb/conversations_pb";
-import MessageView from "../messagelist/Message";
+import MessageView from "../messagelist/MessageView";
 
 const useStyles = makeStyles({ root: {} });
 
