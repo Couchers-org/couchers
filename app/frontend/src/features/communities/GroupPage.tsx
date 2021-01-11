@@ -17,6 +17,12 @@ export default function GroupPage() {
   const [error, setError] = useState("");
   const [group, setGroup] = useState<Group.AsObject | null>(null);
 
+  const [adminsLoading, setAdminsLoading] = useState(false);
+  const [admins, setAdmins] = useState<number[] | null>(null);
+
+  const [membersLoading, setMembersLoading] = useState(false);
+  const [members, setMembers] = useState<number[] | null>(null);
+
   const history = useHistory();
 
   const { groupId, groupSlug } = useParams<{ groupId: string, groupSlug?: string }>();
@@ -37,6 +43,26 @@ export default function GroupPage() {
         setError(e.message);
       }
       setLoading(false);
+
+      setAdminsLoading(true);
+      try {
+        const res = await service.groups.listAdmins(Number(groupId))
+        setAdmins(res.adminUserIdsList.length ? res.adminUserIdsList : null)
+      } catch (e) {
+        console.error(e)
+        setError(e.message);
+      }
+      setAdminsLoading(false);
+
+      setMembersLoading(true);
+      try {
+        const res = await service.groups.listMembers(Number(groupId))
+        setMembers(res.memberUserIdsList.length ? res.memberUserIdsList : null)
+      } catch (e) {
+        console.error(e)
+        setError(e.message);
+      }
+      setMembersLoading(false);
     })();
   }, [groupId]);
 
@@ -72,6 +98,32 @@ export default function GroupPage() {
         <p>Created at {group.created?.seconds} by {group.mainPage!.creatorUserId}</p>
         <Markdown source={group.mainPage!.content} />
         <p>You <b>{group.mainPage!.canEdit ? "can" : "cannot"}</b> edit this page.</p>
+        <h1>Admins</h1>
+        {adminsLoading ? <CircularProgress /> :
+        admins ?
+          admins.map(admin => {
+            return (
+              <>
+                ID: {admin}
+                <br />
+              </>
+            )
+          })
+          : <p>This community has no admins.</p>
+        }
+        <h1>Members</h1>
+        {membersLoading ? <CircularProgress /> :
+        members ?
+          members.map(member => {
+            return (
+              <>
+                ID: {member}
+                <br />
+              </>
+            )
+          })
+          : <p>This community has no members.</p>
+        }
       </> :
         <TextBody>Error?</TextBody>
       }

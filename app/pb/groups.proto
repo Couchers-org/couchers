@@ -4,7 +4,6 @@ package org.couchers.api.groups;
 
 import "google/protobuf/timestamp.proto";
 
-import "pb/api.proto";
 import "pb/pages.proto";
 
 service Groups {
@@ -14,12 +13,24 @@ service Groups {
     // Get info about a group
   }
 
-  rpc ListMembers(ListMembersReq) returns (ListMembersRes) {
-    // Gets a paginated list of group members
+  rpc ListAdmins(ListAdminsReq) returns (ListAdminsRes) {
+    // Gets a paginated list of group admins
   }
 
-  rpc ListPages(ListPagesReq) returns (ListPagesRes) {
-    // Returns a paginated list of pages associated with a group
+  rpc ListMembers(ListMembersReq) returns (ListMembersRes) {
+    // Gets a paginated list of group members, including admins
+  }
+
+  rpc ListPlaces(ListPlacesReq) returns (ListPlacesRes) {
+    // Returns a paginated list of places associated with a group
+  }
+
+  rpc ListGuides(ListGuidesReq) returns (ListGuidesRes) {
+    // Returns a paginated list of guides associated with a group
+  }
+
+  rpc ListEvents(ListEventsReq) returns (ListEventsRes) {
+    // Returns a paginated events of guides associated with a group
   }
 
   rpc ListDiscussions(ListDiscussionsReq) returns (ListDiscussionsRes) {
@@ -67,41 +78,67 @@ message GetGroupReq {
   int64 group_id = 1;
 }
 
-message ListMembersReq {
+message ListAdminsReq {
   int64 group_id = 1;
-  bool only_admins = 2;
 
-  uint32 page_size = 3;
-  string page_token = 4;
+  uint32 page_size = 2;
+  string page_token = 3;
 }
 
-enum GroupMemberRole {
-  MEMBER = 0;
-  ADMIN = 1;
-}
-
-message GroupMember {
-  org.couchers.api.core.User user = 1;
-  GroupMemberRole role = 2;
-  google.protobuf.Timestamp joined = 3;
-}
-
-message ListMembersRes {
-  repeated GroupMember members = 1;
+message ListAdminsRes {
+  repeated int64 admin_user_ids = 1;
 
   string next_page_token = 2;
 }
 
-message ListPagesReq {
+message ListMembersReq {
   int64 group_id = 1;
-  org.couchers.api.pages.PageType type = 2;
 
-  uint32 page_size = 3;
-  string page_token = 4;
+  uint32 page_size = 2;
+  string page_token = 3;
 }
 
-message ListPagesRes {
-  repeated org.couchers.api.pages.Page pages = 1;
+message ListMembersRes {
+  repeated int64 member_user_ids = 1;
+
+  string next_page_token = 2;
+}
+
+message ListPlacesReq {
+  int64 group_id = 1;
+
+  uint32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListPlacesRes {
+  repeated org.couchers.api.pages.Page places = 1;
+
+  string next_page_token = 2;
+}
+
+message ListGuidesReq {
+  int64 group_id = 1;
+
+  uint32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListGuidesRes {
+  repeated org.couchers.api.pages.Page guides = 1;
+
+  string next_page_token = 2;
+}
+
+message ListEventsReq {
+  int64 group_id = 1;
+
+  uint32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListEventsRes {
+  repeated org.couchers.api.pages.Page events = 1;
 
   string next_page_token = 2;
 }

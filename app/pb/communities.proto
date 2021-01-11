@@ -27,7 +27,7 @@ service Communities {
   }
 
   rpc ListMembers(ListMembersReq) returns (ListMembersRes) {
-    // Gets a paginated list of community members, excluding admins
+    // Gets a paginated list of community members, including admins
   }
 
   rpc ListPlaces(ListPlacesReq) returns (ListPlacesRes) {

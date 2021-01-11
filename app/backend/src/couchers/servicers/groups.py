@@ -5,12 +5,14 @@ from sqlalchemy.sql import literal
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Cluster, Node, Page
+from couchers.models import Cluster, Node, Page, User
 from couchers.servicers.pages import _page_to_pb  # TODO
 from couchers.utils import Timestamp_from_datetime, slugify
 from pb import groups_pb2, groups_pb2_grpc
 
 logger = logging.getLogger(__name__)
+
+MAX_PAGINATION_LENGTH = 25
 
 
 def _parents_to_pb(cluster: Cluster, user_id):
@@ -81,13 +83,53 @@ class Groups(groups_pb2_grpc.GroupsServicer):
 
             return _group_to_pb(cluster, context.user_id)
 
-    def ListMembers(self, request, context):
-        raise NotImplementedError()
-        return groups_pb2.ListMembersRes()
+    def ListAdmins(self, request, context):
+        with session_scope() as session:
+            page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+            next_admin_id = int(request.page_token) if request.page_token else 0
+            cluster = (
+                session.query(Cluster)
+                .filter(Cluster.official_cluster_for_node_id == None)
+                .filter(Cluster.id == request.group_id)
+                .one_or_none()
+            )
+            if not cluster:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
+            admins = cluster.admins.filter(User.id >= next_admin_id).order_by(User.id).limit(page_size + 1).all()
+            return groups_pb2.ListAdminsRes(
+                admin_user_ids=[admin.id for admin in admins[:page_size]],
+                next_page_token=str(admins[-1].id) if len(admins) > page_size else None,
+            )
 
-    def ListPages(self, request, context):
+    def ListMembers(self, request, context):
+        with session_scope() as session:
+            page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+            next_member_id = int(request.page_token) if request.page_token else 0
+            cluster = (
+                session.query(Cluster)
+                .filter(Cluster.official_cluster_for_node_id == None)
+                .filter(Cluster.id == request.group_id)
+                .one_or_none()
+            )
+            if not cluster:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
+            members = cluster.members.filter(User.id >= next_member_id).order_by(User.id).limit(page_size + 1).all()
+            return groups_pb2.ListMembersRes(
+                member_user_ids=[member.id for member in members[:page_size]],
+                next_page_token=str(members[-1].id) if len(members) > page_size else None,
+            )
+
+    def ListPlaces(self, request, context):
         raise NotImplementedError()
-        return groups_pb2.ListPagesRes()
+        return groups_pb2.ListPlacesRes()
+
+    def ListGuides(self, request, context):
+        raise NotImplementedError()
+        return groups_pb2.ListGuidesRes()
+
+    def ListEvents(self, request, context):
+        raise NotImplementedError()
+        return groups_pb2.ListEventsRes()
 
     def ListDiscussions(self, request, context):
         raise NotImplementedError()
