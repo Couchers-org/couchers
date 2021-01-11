@@ -66,6 +66,10 @@ def _group_to_pb(cluster: Cluster, user_id):
         created=Timestamp_from_datetime(cluster.created),
         parents=_parents_to_pb(cluster, user_id),
         main_page=_page_to_pb(cluster.main_page, user_id),
+        member=cluster.members.filter(User.id == user_id).first() is not None,
+        admin=cluster.admins.filter(User.id == user_id).first() is not None,
+        member_count=cluster.members.count(),
+        admin_count=cluster.admins.count(),
     )
 
 
