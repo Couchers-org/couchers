@@ -2,17 +2,14 @@ import { HostRequestStatus } from "../pb/conversations_pb";
 import messages from "./fixtures/messages.json";
 import users from "./fixtures/users.json";
 
-const [user1, user2, user3] = users;
-
-const userMap = new Map(
-  [user1, user2, user3].map((user) => [user.userId, user])
-);
+const userMap = new Map(users.map((user) => [user.userId, user]));
 
 export async function getUser(userId: string) {
   return userMap.get(+userId);
 }
 
 export async function listFriends() {
+  const [, user2, user3] = users;
   return [user2.userId, user3.userId];
 }
 
