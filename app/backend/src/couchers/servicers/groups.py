@@ -6,7 +6,7 @@ from sqlalchemy.sql import literal
 from couchers import errors
 from couchers.db import session_scope
 from couchers.models import Cluster, Node, Page, PageType, User
-from couchers.servicers.pages import _page_to_pb
+from couchers.servicers.pages import page_to_pb
 from couchers.utils import Timestamp_from_datetime, slugify
 from pb import groups_pb2, groups_pb2_grpc
 
@@ -57,7 +57,7 @@ def _parents_to_pb(cluster: Cluster, user_id):
         ]
 
 
-def _group_to_pb(cluster: Cluster, user_id):
+def group_to_pb(cluster: Cluster, user_id):
     return groups_pb2.Group(
         group_id=cluster.id,
         name=cluster.name,
@@ -65,7 +65,7 @@ def _group_to_pb(cluster: Cluster, user_id):
         description=cluster.description,
         created=Timestamp_from_datetime(cluster.created),
         parents=_parents_to_pb(cluster, user_id),
-        main_page=_page_to_pb(cluster.main_page, user_id),
+        main_page=page_to_pb(cluster.main_page, user_id),
         member=cluster.members.filter(User.id == user_id).first() is not None,
         admin=cluster.admins.filter(User.id == user_id).first() is not None,
         member_count=cluster.members.count(),
@@ -85,7 +85,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             if not cluster:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
 
-            return _group_to_pb(cluster, context.user_id)
+            return group_to_pb(cluster, context.user_id)
 
     def ListAdmins(self, request, context):
         with session_scope() as session:
@@ -143,7 +143,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
                 .all()
             )
             return groups_pb2.ListPlacesRes(
-                places=[_page_to_pb(page, context.user_id) for page in places[:page_size]],
+                places=[page_to_pb(page, context.user_id) for page in places[:page_size]],
                 next_page_token=str(places[-1].id) if len(places) > page_size else None,
             )
 
@@ -167,7 +167,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
                 .all()
             )
             return groups_pb2.ListGuidesRes(
-                guides=[_page_to_pb(page, context.user_id) for page in guides[:page_size]],
+                guides=[page_to_pb(page, context.user_id) for page in guides[:page_size]],
                 next_page_token=str(guides[-1].id) if len(guides) > page_size else None,
             )
 

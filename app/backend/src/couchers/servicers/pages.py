@@ -29,7 +29,7 @@ pagetype2api = {
 }
 
 
-def _page_to_pb(page: Page, user_id):
+def page_to_pb(page: Page, user_id):
     first_version = page.versions[0]
     current_version = page.versions[-1]
     lat, lng = current_version.coordinates or (0, 0)
@@ -87,7 +87,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
             )
             session.add(page_version)
             session.commit()
-            return _page_to_pb(page, context.user_id)
+            return page_to_pb(page, context.user_id)
 
     def GetPage(self, request, context):
         with session_scope() as session:
@@ -95,7 +95,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
             if not page:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.PAGE_NOT_FOUND)
 
-            return _page_to_pb(page, context.user_id)
+            return page_to_pb(page, context.user_id)
 
     def UpdatePage(self, request, context):
         with session_scope() as session:
@@ -136,4 +136,4 @@ class Pages(pages_pb2_grpc.PagesServicer):
                 page_version.geom = create_coordinate(request.location.lat, request.location.lng)
 
             session.commit()
-            return _page_to_pb(page, context.user_id)
+            return page_to_pb(page, context.user_id)

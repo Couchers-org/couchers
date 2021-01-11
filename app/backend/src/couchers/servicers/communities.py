@@ -6,8 +6,8 @@ from sqlalchemy.sql import func, literal
 from couchers import errors
 from couchers.db import session_scope
 from couchers.models import Cluster, Node, Page, PageType, User
-from couchers.servicers.groups import _group_to_pb
-from couchers.servicers.pages import _page_to_pb
+from couchers.servicers.groups import group_to_pb
+from couchers.servicers.pages import page_to_pb
 from couchers.utils import Timestamp_from_datetime, slugify
 from pb import communities_pb2, communities_pb2_grpc, groups_pb2
 
@@ -49,7 +49,7 @@ def _parents_to_pb(node_id, user_id):
         ]
 
 
-def _community_to_pb(node: Node, user_id):
+def community_to_pb(node: Node, user_id):
     return communities_pb2.Community(
         community_id=node.id,
         name=node.official_cluster.name,
@@ -57,7 +57,7 @@ def _community_to_pb(node: Node, user_id):
         description=node.official_cluster.description,
         created=Timestamp_from_datetime(node.created),
         parents=_parents_to_pb(node.id, user_id),
-        main_page=_page_to_pb(node.official_cluster.main_page, user_id),
+        main_page=page_to_pb(node.official_cluster.main_page, user_id),
         member=node.official_cluster.members.filter(User.id == user_id).first() is not None,
         admin=node.official_cluster.admins.filter(User.id == user_id).first() is not None,
         member_count=node.official_cluster.members.count(),
@@ -72,7 +72,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             if not node:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
 
-            return _community_to_pb(node, context.user_id)
+            return community_to_pb(node, context.user_id)
 
     def ListCommunities(self, request, context):
         with session_scope() as session:
@@ -87,7 +87,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 .all()
             )
             return communities_pb2.ListCommunitiesRes(
-                communities=[_community_to_pb(node, context.user_id) for node in nodes[:page_size]],
+                communities=[community_to_pb(node, context.user_id) for node in nodes[:page_size]],
                 next_page_token=str(nodes[-1].id) if len(nodes) > page_size else None,
             )
 
@@ -105,7 +105,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 .all()
             )
             return communities_pb2.ListGroupsRes(
-                groups=[_group_to_pb(cluster, context.user_id) for cluster in clusters[:page_size]],
+                groups=[group_to_pb(cluster, context.user_id) for cluster in clusters[:page_size]],
                 next_page_token=str(clusters[-1].id) if len(clusters) > page_size else None,
             )
 
@@ -173,7 +173,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 .all()
             )
             return communities_pb2.ListPlacesRes(
-                places=[_page_to_pb(page, context.user_id) for page in places[:page_size]],
+                places=[page_to_pb(page, context.user_id) for page in places[:page_size]],
                 next_page_token=str(places[-1].id) if len(places) > page_size else None,
             )
 
@@ -192,7 +192,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 .all()
             )
             return communities_pb2.ListGuidesRes(
-                guides=[_page_to_pb(page, context.user_id) for page in guides[:page_size]],
+                guides=[page_to_pb(page, context.user_id) for page in guides[:page_size]],
                 next_page_token=str(guides[-1].id) if len(guides) > page_size else None,
             )
 
