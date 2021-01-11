@@ -9,8 +9,9 @@ import Alert from "../../components/Alert";
 import CircularProgress from "../../components/CircularProgress";
 import TextBody from "../../components/TextBody";
 import { useHistory } from "react-router-dom";
-import { groupRoute, communityRoute } from "../../AppRoutes"
+import { groupRoute, communityRoute, pageRoute } from "../../AppRoutes"
 import Markdown from "../../components/Markdown";
+import { Page } from "../../pb/pages_pb";
 
 export default function GroupPage() {
   const [loading, setLoading] = useState(false);
@@ -22,6 +23,12 @@ export default function GroupPage() {
 
   const [membersLoading, setMembersLoading] = useState(false);
   const [members, setMembers] = useState<number[] | null>(null);
+
+  const [placesLoading, setPlacesLoading] = useState(false);
+  const [places, setPlaces] = useState<Array<Page.AsObject> | null>(null);
+
+  const [guidesLoading, setGuidesLoading] = useState(false);
+  const [guides, setGuides] = useState<Array<Page.AsObject> | null>(null);
 
   const history = useHistory();
 
@@ -63,6 +70,26 @@ export default function GroupPage() {
         setError(e.message);
       }
       setMembersLoading(false);
+
+      setPlacesLoading(true);
+      try {
+        const res = await service.groups.listPlaces(Number(groupId))
+        setPlaces(res.placesList.length ? res.placesList : null)
+      } catch (e) {
+        console.error(e)
+        setError(e.message);
+      }
+      setPlacesLoading(false);
+
+      setGuidesLoading(true);
+      try {
+        const res = await service.groups.listGuides(Number(groupId))
+        setGuides(res.guidesList.length ? res.guidesList : null)
+      } catch (e) {
+        console.error(e)
+        setError(e.message);
+      }
+      setGuidesLoading(false);
     })();
   }, [groupId]);
 
@@ -127,6 +154,36 @@ export default function GroupPage() {
             )
           })
           : <p>This community has no members.</p>
+        }
+        <h1>Places/points of interest</h1>
+        {placesLoading ? <CircularProgress /> :
+        places ?
+          places.map(place => {
+            return (
+              <>
+                <Link to={`${pageRoute}/${place.pageId}/${place.slug}`}>
+                  {place.title}
+                </Link>
+                <br />
+              </>
+            )
+          })
+          : <p>This community contains no places.</p>
+        }
+        <h1>Guides</h1>
+        {guidesLoading ? <CircularProgress /> :
+        guides ?
+          guides.map(guide => {
+            return (
+              <>
+                <Link to={`${pageRoute}/${guide.pageId}/${guide.slug}`}>
+                  {guide.title}
+                </Link>
+                <br />
+              </>
+            )
+          })
+          : <p>This community contains no guides.</p>
         }
       </> :
         <TextBody>Error</TextBody>
