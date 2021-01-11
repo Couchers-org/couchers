@@ -41,6 +41,7 @@ service Groups {
 message CommunityParent {
   int64 community_id = 1;
   string name = 2;
+  // a short URL fragment generated from the name, e.g. New York City: a guide to Phở might become new-york-city-guide-to-pho
   string slug = 3;
   string description = 4;
 }
@@ -48,6 +49,7 @@ message CommunityParent {
 message GroupParent {
   int64 group_id = 1;
   string name = 2;
+  // a short URL fragment generated from the name, e.g. New York City: a guide to Phở might become new-york-city-guide-to-pho
   string slug = 3;
   string description = 4;
 }
@@ -62,6 +64,7 @@ message Parent {
 message Group {
   int64 group_id = 1;
   string name = 2;
+  // a short URL fragment generated from the name, e.g. New York City: a guide to Phở might become new-york-city-guide-to-pho
   string slug = 3;
   string description = 4;
   google.protobuf.Timestamp created = 5;
