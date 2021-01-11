@@ -5,7 +5,7 @@ from sqlalchemy.sql import literal
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Cluster, Node
+from couchers.models import Cluster, Node, User
 from couchers.servicers.groups import _group_to_pb
 from couchers.servicers.pages import _page_to_pb
 from couchers.utils import Timestamp_from_datetime, slugify
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 MAX_PAGINATION_LENGTH = 25
 
 
-def _parents_to_pb(node_id):
+def _parents_to_pb(node_id, user_id):
     with session_scope() as session:
         top = (
             session.query(Node.id, Node.parent_node_id, literal(0).label("level"))
@@ -56,10 +56,12 @@ def _community_to_pb(node: Node, user_id):
         slug=slugify(node.official_cluster.name),
         description=node.official_cluster.description,
         created=Timestamp_from_datetime(node.created),
-        parents=_parents_to_pb(node.id),
+        parents=_parents_to_pb(node.id, user_id),
         main_page=_page_to_pb(node.official_cluster.main_page, user_id),
-        # is_member=,  # TODO
-        # is_admin=,  # TODO
+        member=node.official_cluster.members.filter(User.id == user_id).first() is not None,
+        admin=node.official_cluster.admins.filter(User.id == user_id).first() is not None,
+        member_count=node.official_cluster.members.count(),
+        admin_count=node.official_cluster.admins.count(),
     )
 
 
@@ -108,12 +110,40 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             )
 
     def ListAdmins(self, request, context):
-        raise NotImplementedError()
-        return communities_pb2.ListAdminsRes()
+        with session_scope() as session:
+            page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+            next_admin_id = int(request.page_token) if request.page_token else 0
+            node = session.query(Node).filter(Node.id == request.community_id).one_or_none()
+            if not node:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+            admins = (
+                node.official_cluster.admins.filter(User.id >= next_admin_id)
+                .order_by(User.id)
+                .limit(page_size + 1)
+                .all()
+            )
+            return communities_pb2.ListAdminsRes(
+                admin_user_ids=[admin.id for admin in admins[:page_size]],
+                next_page_token=str(admins[-1].id) if len(admins) > page_size else None,
+            )
 
     def ListMembers(self, request, context):
-        raise NotImplementedError()
-        return communities_pb2.ListMembersRes()
+        with session_scope() as session:
+            page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+            next_member_id = int(request.page_token) if request.page_token else 0
+            node = session.query(Node).filter(Node.id == request.community_id).one_or_none()
+            if not node:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+            members = (
+                node.official_cluster.members.filter(User.id >= next_member_id)
+                .order_by(User.id)
+                .limit(page_size + 1)
+                .all()
+            )
+            return communities_pb2.ListMembersRes(
+                member_user_ids=[member.id for member in members[:page_size]],
+                next_page_token=str(members[-1].id) if len(members) > page_size else None,
+            )
 
     def ListPlaces(self, request, context):
         raise NotImplementedError()

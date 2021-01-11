@@ -4,7 +4,6 @@ package org.couchers.api.communities;
 
 import "google/protobuf/timestamp.proto";
 
-import "pb/api.proto";
 import "pb/groups.proto";
 import "pb/pages.proto";
 
@@ -59,8 +58,10 @@ message Community {
   // we do not return the geometry here? (it's a potentially very big multipolygon)
   org.couchers.api.pages.Page main_page = 7;
   // whether the requesting user is member/admin
-  bool is_member = 8;
-  bool is_admin = 9;
+  bool member = 8;
+  bool admin = 9;
+  uint32 member_count = 10;
+  uint32 admin_count = 11;
 }
 
 message GetCommunityReq {
@@ -100,13 +101,8 @@ message ListAdminsReq {
   string page_token = 3;
 }
 
-message CommunityMember {
-  org.couchers.api.core.User user = 1;
-  google.protobuf.Timestamp joined = 2;
-}
-
 message ListAdminsRes {
-  repeated CommunityMember admins = 1;
+  repeated int64 admin_user_ids = 1;
 
   string next_page_token = 2;
 }
@@ -119,7 +115,7 @@ message ListMembersReq {
 }
 
 message ListMembersRes {
-  repeated CommunityMember members = 1;
+  repeated int64 member_user_ids = 1;
 
   string next_page_token = 2;
 }

@@ -24,6 +24,12 @@ export default function CommunityPage() {
   const [groupsLoading, setGroupsLoading] = useState(false);
   const [groups, setGroups] = useState<Array<Group.AsObject> | null>(null);
 
+  const [adminsLoading, setAdminsLoading] = useState(false);
+  const [admins, setAdmins] = useState<number[] | null>(null);
+
+  const [membersLoading, setMembersLoading] = useState(false);
+  const [members, setMembers] = useState<number[] | null>(null);
+
   const history = useHistory();
 
   const { communityId, communitySlug } = useParams<{ communityId: string, communitySlug?: string }>();
@@ -64,6 +70,26 @@ export default function CommunityPage() {
         setError(e.message);
       }
       setGroupsLoading(false);
+
+      setAdminsLoading(true);
+      try {
+        const res = await service.communities.listAdmins(Number(communityId))
+        setAdmins(res.adminUserIdsList.length ? res.adminUserIdsList : null)
+      } catch (e) {
+        console.error(e)
+        setError(e.message);
+      }
+      setAdminsLoading(false);
+
+      setMembersLoading(true);
+      try {
+        const res = await service.communities.listMembers(Number(communityId))
+        setMembers(res.memberUserIdsList.length ? res.memberUserIdsList : null)
+      } catch (e) {
+        console.error(e)
+        setError(e.message);
+      }
+      setMembersLoading(false);
     })();
   }, [communityId]);
 
@@ -122,6 +148,32 @@ export default function CommunityPage() {
             )
           })
           : <p>This community has no groups.</p>
+        }
+        <h1>Admins</h1>
+        {adminsLoading ? <CircularProgress /> :
+        admins ?
+          admins.map(admin => {
+            return (
+              <>
+                ID: {admin}
+                <br />
+              </>
+            )
+          })
+          : <p>This community has no admins.</p>
+        }
+        <h1>Members</h1>
+        {membersLoading ? <CircularProgress /> :
+        members ?
+          members.map(member => {
+            return (
+              <>
+                ID: {member}
+                <br />
+              </>
+            )
+          })
+          : <p>This community has no members.</p>
         }
       </> :
         <TextBody>Error?</TextBody>

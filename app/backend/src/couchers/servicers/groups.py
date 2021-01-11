@@ -62,7 +62,7 @@ def _group_to_pb(cluster: Cluster, user_id):
         slug=slugify(cluster.name),
         description=cluster.description,
         created=Timestamp_from_datetime(cluster.created),
-        parents=_parents_to_pb(cluster, user_id),  # TODO
+        parents=_parents_to_pb(cluster, user_id),
         main_page=_page_to_pb(cluster.main_page, user_id),
     )
 

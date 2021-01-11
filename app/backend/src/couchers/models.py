@@ -703,9 +703,29 @@ class Cluster(Base):
     )
 
     nodes = relationship("Cluster", backref="clusters", secondary="node_cluster_associations")
+    # all pages
     pages = relationship("Page", backref="clusters", secondary="cluster_page_associations")
     events = relationship("Event", backref="clusters", secondary="cluster_event_associations")
     discussions = relationship("Discussion", backref="clusters", secondary="cluster_discussion_associations")
+
+    # includes also admins
+    members = relationship(
+        "User",
+        lazy="dynamic",
+        backref="cluster_memberships",
+        secondary="cluster_subscriptions",
+        primaryjoin="Cluster.id == ClusterSubscription.cluster_id",
+        secondaryjoin="User.id == ClusterSubscription.user_id",
+    )
+
+    admins = relationship(
+        "User",
+        lazy="dynamic",
+        backref="cluster_adminships",
+        secondary="cluster_subscriptions",
+        primaryjoin="Cluster.id == ClusterSubscription.cluster_id",
+        secondaryjoin="and_(User.id == ClusterSubscription.user_id, ClusterSubscription.role == 'admin')",
+    )
 
     # make sure if the parent_node_id and official_cluster_for_node_id match
     CheckConstraint("(official_cluster_for_node_id IS NULL) OR (official_cluster_for_node_id = parent_node_id)")
