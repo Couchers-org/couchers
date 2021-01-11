@@ -240,15 +240,12 @@ def add_dummy_communities():
                 admins = session.query(User).filter(User.username.in_(group["admins"])).all()
                 members = session.query(User).filter(User.username.in_(group["members"])).all()
 
-                parent_name = group["parent"]
-
-                if parent_name:
-                    parent_node = (
-                        session.query(Node)
-                        .join(Cluster, Cluster.official_cluster_for_node_id == Node.id)
-                        .filter(Cluster.name == group["parent"])
-                        .one()
-                    )
+                parent_node = (
+                    session.query(Node)
+                    .join(Cluster, Cluster.official_cluster_for_node_id == Node.id)
+                    .filter(Cluster.name == group["parent"])
+                    .one()
+                )
 
                 cluster = Cluster(
                     name=f"{name}",
@@ -293,6 +290,50 @@ def add_dummy_communities():
                             role=ClusterRole.member,
                         )
                     )
+
+            for place in data["places"]:
+                owner_cluster = session.query(Cluster).filter(Cluster.name == place["owner"]).one()
+                creator = session.query(User).filter(User.username == place["creator"]).one()
+
+                page = Page(
+                    creator_user=creator,
+                    owner_cluster=owner_cluster,
+                    type=PageType.point_of_interest,
+                )
+
+                session.add(page)
+
+                page_version = PageVersion(
+                    page=page,
+                    editor_user=creator,
+                    title=place["title"],
+                    content=place["content"],
+                    address=place["address"],
+                    geom=create_coordinate(place["coordinate"][1], place["coordinate"][0]),
+                )
+
+                session.add(page_version)
+
+            for guide in data["guides"]:
+                owner_cluster = session.query(Cluster).filter(Cluster.name == guide["owner"]).one()
+                creator = session.query(User).filter(User.username == guide["creator"]).one()
+
+                page = Page(
+                    creator_user=creator,
+                    owner_cluster=owner_cluster,
+                    type=PageType.guide,
+                )
+
+                session.add(page)
+
+                page_version = PageVersion(
+                    page=page,
+                    editor_user=creator,
+                    title=guide["title"],
+                    content=guide["content"],
+                )
+
+                session.add(page_version)
 
     except IntegrityError as e:
         logger.error("Failed to insert dummy communities, are they already inserted?")

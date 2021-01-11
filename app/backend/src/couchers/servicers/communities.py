@@ -5,7 +5,7 @@ from sqlalchemy.sql import func, literal
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Cluster, Node, User
+from couchers.models import Cluster, Node, Page, PageType, User
 from couchers.servicers.groups import _group_to_pb
 from couchers.servicers.pages import _page_to_pb
 from couchers.utils import Timestamp_from_datetime, slugify
@@ -159,12 +159,42 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             )
 
     def ListPlaces(self, request, context):
-        raise NotImplementedError()
-        return communities_pb2.ListPlacesRes()
+        with session_scope() as session:
+            page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+            next_page_id = int(request.page_token) if request.page_token else 0
+            node = session.query(Node).filter(Node.id == request.community_id).one_or_none()
+            if not node:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+            places = (
+                node.official_cluster.owned_pages.filter(Page.type == PageType.point_of_interest)
+                .filter(Page.id >= next_page_id)
+                .order_by(Page.id)
+                .limit(page_size + 1)
+                .all()
+            )
+            return communities_pb2.ListPlacesRes(
+                places=[_page_to_pb(page, context.user_id) for page in places[:page_size]],
+                next_page_token=str(places[-1].id) if len(places) > page_size else None,
+            )
 
     def ListGuides(self, request, context):
-        raise NotImplementedError()
-        return communities_pb2.ListGuidesRes()
+        with session_scope() as session:
+            page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+            next_page_id = int(request.page_token) if request.page_token else 0
+            node = session.query(Node).filter(Node.id == request.community_id).one_or_none()
+            if not node:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+            guides = (
+                node.official_cluster.owned_pages.filter(Page.type == PageType.guide)
+                .filter(Page.id >= next_page_id)
+                .order_by(Page.id)
+                .limit(page_size + 1)
+                .all()
+            )
+            return communities_pb2.ListGuidesRes(
+                guides=[_page_to_pb(page, context.user_id) for page in guides[:page_size]],
+                next_page_token=str(guides[-1].id) if len(guides) > page_size else None,
+            )
 
     def ListEvents(self, request, context):
         raise NotImplementedError()

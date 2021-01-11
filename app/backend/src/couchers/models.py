@@ -712,7 +712,7 @@ class Cluster(Base):
 
     nodes = relationship("Cluster", backref="clusters", secondary="node_cluster_associations")
     # all pages
-    pages = relationship("Page", backref="clusters", secondary="cluster_page_associations")
+    pages = relationship("Page", backref="clusters", secondary="cluster_page_associations", lazy="dynamic")
     events = relationship("Event", backref="clusters", secondary="cluster_event_associations")
     discussions = relationship("Discussion", backref="clusters", secondary="cluster_discussion_associations")
 
@@ -735,7 +735,7 @@ class Cluster(Base):
         secondaryjoin="and_(User.id == ClusterSubscription.user_id, ClusterSubscription.role == 'admin')",
     )
 
-    # make sure if the parent_node_id and official_cluster_for_node_id match
+    # make sure the parent_node_id and official_cluster_for_node_id match
     CheckConstraint("(official_cluster_for_node_id IS NULL) OR (official_cluster_for_node_id = parent_node_id)")
 
 
@@ -835,7 +835,9 @@ class Page(Base):
     thread = relationship("Thread", backref="page", uselist=False)
     creator_user = relationship("User", backref="created_pages", foreign_keys="Page.creator_user_id")
     owner_user = relationship("User", backref="owned_pages", foreign_keys="Page.owner_user_id")
-    owner_cluster = relationship("Cluster", backref="owned_page", uselist=False, foreign_keys="Page.owner_cluster_id")
+    owner_cluster = relationship(
+        "Cluster", backref=backref("owned_pages", lazy="dynamic"), uselist=False, foreign_keys="Page.owner_cluster_id"
+    )
 
     editors = relationship("User", secondary="page_versions")
 

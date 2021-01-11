@@ -1,4 +1,4 @@
-import { GetCommunityReq, ListAdminsReq, ListCommunitiesReq, ListGroupsReq, ListMembersReq, ListNearbyUsersReq } from "../pb/communities_pb";
+import { GetCommunityReq, ListAdminsReq, ListCommunitiesReq, ListGroupsReq, ListMembersReq, ListNearbyUsersReq, ListGuidesReq, ListPlacesReq } from "../pb/communities_pb";
 import client from "./client";
 
 export async function getCommunity(communityId: number) {
@@ -58,5 +58,25 @@ export async function listNearbyUsers(communityId: number, pageToken?: string) {
     req.setPageToken(pageToken)
   }
   const response = await client.communities.listNearbyUsers(req)
+  return response.toObject()
+}
+
+export async function listPlaces(communityId: number, pageToken?: string) {
+  const req = new ListPlacesReq();
+  req.setCommunityId(communityId)
+  if (pageToken) {
+    req.setPageToken(pageToken)
+  }
+  const response = await client.communities.listPlaces(req)
+  return response.toObject()
+}
+
+export async function listGuides(communityId: number, pageToken?: string) {
+  const req = new ListGuidesReq();
+  req.setCommunityId(communityId)
+  if (pageToken) {
+    req.setPageToken(pageToken)
+  }
+  const response = await client.communities.listGuides(req)
   return response.toObject()
 }

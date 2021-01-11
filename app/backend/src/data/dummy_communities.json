@@ -235,5 +235,57 @@
       "members": ["itsi", "val", "misspoptart"],
       "parent": "New York City"
     }
+  ],
+  "places": [
+    {
+      "owner": "Sydney",
+      "title": "Sydney Opera House",
+      "creator": "itsi",
+      "content": "# Sydney's Opera House: what to see and what to do\n\nSomething about the SOH...",
+      "address": "Bennelong Point, Sydney",
+      "coordinate": [151.214167, -33.858611]
+    },
+    {
+      "owner": "Sydney",
+      "title": "Sydney Harbour Bridge",
+      "creator": "itsi",
+      "content": "# Sydney's Harbour Bridge\n\n...",
+      "address": "Dawes Point to Milsons Point",
+      "coordinate": [151.210556, -33.852222]
+    },
+    {
+      "owner": "East Coast Hitchhikers",
+      "title": "Good hitchhiking spot North",
+      "creator": "aapeli",
+      "content": "# Good hitchhiking spot North\n\nIf you stand here you can easily hitch a ride up north.",
+      "address": "Pacific Motorway on-ramp",
+      "coordinate": [151.10724, -33.71995]
+    }
+  ],
+  "guides": [
+    {
+      "owner": "Sydney",
+      "title": "A Guide to Sightseeing in Sydney",
+      "creator": "itsi",
+      "content": "# A Guide to Sightseeing in Sydney\n\nEmpty for now."
+    },
+    {
+      "owner": "Sydney",
+      "title": "A Guide to Eating in Sydney",
+      "creator": "itsi",
+      "content": "# A Guide to Eating in Sydney\n\nEmpty for now."
+    },
+    {
+      "owner": "East Coast Hitchhikers",
+      "title": "A Guide to Hitchhiking around the East Coast",
+      "creator": "aapeli",
+      "content": "# A Guide to Hitchhiking around the East Coast\n\nYou know, you've gotta use ye thumb."
+    },
+    {
+      "owner": "East Coast Hitchhikers",
+      "title": "Hitchhiking from Sydney to Brisbane",
+      "creator": "aapeli",
+      "content": "# Hitchhiking from Sydney to Brisbane"
+    }
   ]
 }

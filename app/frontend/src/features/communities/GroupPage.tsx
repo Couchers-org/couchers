@@ -129,7 +129,7 @@ export default function GroupPage() {
           : <p>This community has no members.</p>
         }
       </> :
-        <TextBody>Error?</TextBody>
+        <TextBody>Error</TextBody>
       }
     </>
   );
