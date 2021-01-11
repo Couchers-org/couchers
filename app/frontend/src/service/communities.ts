@@ -1,4 +1,4 @@
-import { GetCommunityReq, ListAdminsReq, ListCommunitiesReq, ListGroupsReq, ListMembersReq } from "../pb/communities_pb";
+import { GetCommunityReq, ListAdminsReq, ListCommunitiesReq, ListGroupsReq, ListMembersReq, ListNearbyUsersReq } from "../pb/communities_pb";
 import client from "./client";
 
 export async function getCommunity(communityId: number) {
@@ -48,5 +48,15 @@ export async function listMembers(communityId: number, pageToken?: string) {
     req.setPageToken(pageToken)
   }
   const response = await client.communities.listMembers(req)
+  return response.toObject()
+}
+
+export async function listNearbyUsers(communityId: number, pageToken?: string) {
+  const req = new ListNearbyUsersReq();
+  req.setCommunityId(communityId)
+  if (pageToken) {
+    req.setPageToken(pageToken)
+  }
+  const response = await client.communities.listNearbyUsers(req)
   return response.toObject()
 }

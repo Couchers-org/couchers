@@ -8,7 +8,7 @@ from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import MetaData, Sequence, String, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import backref, relationship
+from sqlalchemy.orm import backref, foreign, relationship
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func, text
 
@@ -673,6 +673,14 @@ class Node(Base):
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     parent_node = relationship("Node", backref="child_nodes", remote_side="Node.id")
+
+    nearby_users = relationship(
+        "User",
+        lazy="dynamic",
+        primaryjoin="func.ST_Contains(foreign(Node.geom), User.geom).as_comparison(1, 2)",
+        viewonly=True,
+        uselist=True,
+    )
 
 
 class Cluster(Base):

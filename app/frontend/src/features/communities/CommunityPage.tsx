@@ -30,6 +30,9 @@ export default function CommunityPage() {
   const [membersLoading, setMembersLoading] = useState(false);
   const [members, setMembers] = useState<number[] | null>(null);
 
+  const [nearbyUsersLoading, setNearbyUsersLoading] = useState(false);
+  const [nearbyUsers, setNearbyUsers] = useState<number[] | null>(null);
+
   const history = useHistory();
 
   const { communityId, communitySlug } = useParams<{ communityId: string, communitySlug?: string }>();
@@ -90,6 +93,16 @@ export default function CommunityPage() {
         setError(e.message);
       }
       setMembersLoading(false);
+
+      setNearbyUsersLoading(true);
+      try {
+        const res = await service.communities.listNearbyUsers(Number(communityId))
+        setNearbyUsers(res.nearbyUserIdsList.length ? res.nearbyUserIdsList : null)
+      } catch (e) {
+        console.error(e)
+        setError(e.message);
+      }
+      setNearbyUsersLoading(false);
     })();
   }, [communityId]);
 
@@ -178,6 +191,19 @@ export default function CommunityPage() {
             )
           })
           : <p>This community has no members.</p>
+        }
+        <h1>Users in this community</h1>
+        {nearbyUsersLoading ? <CircularProgress /> :
+        nearbyUsers ?
+          nearbyUsers.map(user => {
+            return (
+              <>
+                ID: {user}
+                <br />
+              </>
+            )
+          })
+          : <p>This community contains no users.</p>
         }
       </> :
         <TextBody>Error?</TextBody>

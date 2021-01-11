@@ -1,7 +1,7 @@
 import logging
 
 import grpc
-from sqlalchemy.sql import literal
+from sqlalchemy.sql import func, literal
 
 from couchers import errors
 from couchers.db import session_scope
@@ -143,6 +143,19 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             return communities_pb2.ListMembersRes(
                 member_user_ids=[member.id for member in members[:page_size]],
                 next_page_token=str(members[-1].id) if len(members) > page_size else None,
+            )
+
+    def ListNearbyUsers(self, request, context):
+        with session_scope() as session:
+            page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+            next_nearby_id = int(request.page_token) if request.page_token else 0
+            node = session.query(Node).filter(Node.id == request.community_id).one_or_none()
+            if not node:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+            nearbys = node.nearby_users.filter(User.id >= next_nearby_id).order_by(User.id).limit(page_size + 1).all()
+            return communities_pb2.ListNearbyUsersRes(
+                nearby_user_ids=[nearby.id for nearby in nearbys[:page_size]],
+                next_page_token=str(nearbys[-1].id) if len(nearbys) > page_size else None,
             )
 
     def ListPlaces(self, request, context):
