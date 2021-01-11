@@ -99,6 +99,7 @@ export default function GroupPage() {
         <Markdown source={group.mainPage!.content} />
         <p>You <b>{group.mainPage!.canEdit ? "can" : "cannot"}</b> edit this page.</p>
         <h1>Admins</h1>
+        <p>Total {group.adminCount} admins.</p>
         {adminsLoading ? <CircularProgress /> :
         admins ?
           admins.map(admin => {
@@ -112,6 +113,7 @@ export default function GroupPage() {
           : <p>This community has no admins.</p>
         }
         <h1>Members</h1>
+        <p>Total {group.memberCount} members.</p>
         {membersLoading ? <CircularProgress /> :
         members ?
           members.map(member => {

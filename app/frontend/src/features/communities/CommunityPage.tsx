@@ -150,6 +150,7 @@ export default function CommunityPage() {
           : <p>This community has no groups.</p>
         }
         <h1>Admins</h1>
+        <p>Total {community.adminCount} admins.</p>
         {adminsLoading ? <CircularProgress /> :
         admins ?
           admins.map(admin => {
@@ -163,6 +164,7 @@ export default function CommunityPage() {
           : <p>This community has no admins.</p>
         }
         <h1>Members</h1>
+        <p>Total {community.memberCount} members.</p>
         {membersLoading ? <CircularProgress /> :
         members ?
           members.map(member => {

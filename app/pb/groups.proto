@@ -137,8 +137,12 @@ message ListEventsReq {
   string page_token = 3;
 }
 
+message Event {
+  // TODO
+}
+
 message ListEventsRes {
-  repeated org.couchers.api.pages.Page events = 1;
+  repeated Event events = 1;
 
   string next_page_token = 2;
 }
