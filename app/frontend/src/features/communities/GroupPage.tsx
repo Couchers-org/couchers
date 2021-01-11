@@ -94,6 +94,8 @@ export default function GroupPage() {
           }
         </Breadcrumbs>
         <p>Description: {group.description}</p>
+        <p>You <b>{group.member ? "are" : "are not"}</b> a member of this group.</p>
+        <p>You <b>{group.admin ? "are" : "are not"}</b> an admin of this group.</p>
         <p>Last edited at {group.mainPage!.lastEdited?.seconds} by {group.mainPage!.lastEditorUserId}</p>
         <p>Created at {group.created?.seconds} by {group.mainPage!.creatorUserId}</p>
         <Markdown source={group.mainPage!.content} />

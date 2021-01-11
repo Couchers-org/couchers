@@ -115,6 +115,8 @@ export default function CommunityPage() {
           }
         </Breadcrumbs>
         <p>Description: {community.description}</p>
+        <p>You <b>{community.member ? "are" : "are not"}</b> a member of this community.</p>
+        <p>You <b>{community.admin ? "are" : "are not"}</b> an admin of this community.</p>
         <p>Last edited at {community.mainPage!.lastEdited?.seconds} by {community.mainPage!.lastEditorUserId}</p>
         <p>Created at {community.created?.seconds} by {community.mainPage!.creatorUserId}</p>
         <Markdown source={community.mainPage!.content} />
