@@ -25,6 +25,7 @@ export default function SurfingTab({
   type: "all" | "hosting" | "surfing";
   onlyActive?: boolean;
 }) {
+  ///TODO: add url chat opening
   const [hostRequest, setHostRequest] = useState<HostRequest.AsObject | null>(
     null
   );

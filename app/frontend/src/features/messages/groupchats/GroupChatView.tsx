@@ -2,29 +2,66 @@ import { Box, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import CloseIcon from "@material-ui/icons/Close";
 import * as React from "react";
-import { leaveGroupChat, sendMessage, setGroupChat } from ".";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import Alert from "../../../components/Alert";
 import Button from "../../../components/Button";
 import CircularProgress from "../../../components/CircularProgress";
-import { useAppDispatch, useTypedSelector } from "../../../store";
+import { Error as GrpcError } from "grpc-web";
+import { GroupChat, Message } from "../../../pb/conversations_pb";
 import MessageList from "../messagelist/MessageList";
+import { service } from "../../../service";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import SendField from "../SendField";
 
 const useStyles = makeStyles({ root: {} });
 
-export default function GroupChatView() {
-  const dispatch = useAppDispatch();
-  const { error, loading, groupChat, messages } = useTypedSelector((state) => {
-    return state.groupChats.groupChatView;
-  });
+interface GroupChatViewProps {
+  groupChat: GroupChat.AsObject;
+  closeGroupChat: () => void;
+}
 
-  const handleSend = (text: string) =>
-    dispatch(sendMessage({ groupChat: groupChat!, text }));
-
-  const closeGroupChat = () => dispatch(setGroupChat(null));
-
-  const handleLeaveGroupChat = () => dispatch(leaveGroupChat(groupChat!));
-
+export default function GroupChatView({
+  groupChat,
+  closeGroupChat,
+}: GroupChatViewProps) {
   const classes = useStyles();
+
+  const { data: messages, isLoading, error } = useQuery<
+    Message.AsObject[],
+    GrpcError
+  >(["groupChatMessages", groupChat.groupChatId], () =>
+    service.conversations.getGroupChatMessages(groupChat.groupChatId)
+  );
+
+  const queryClient = useQueryClient();
+  const sendMutation = useMutation<Empty, GrpcError, string>(
+    (text: string) =>
+      service.conversations.sendMessage(groupChat.groupChatId, text),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries([
+          "groupChatMessages",
+          groupChat.groupChatId,
+        ]);
+        queryClient.invalidateQueries(["groupChats"]);
+      },
+    }
+  );
+
+  const leaveGroupChatMutation = useMutation<Empty, GrpcError, void>(
+    () => service.conversations.leaveGroupChat(groupChat.groupChatId),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries([
+          "groupChatMessages",
+          groupChat.groupChatId,
+        ]);
+        queryClient.invalidateQueries(["groupChats"]);
+      },
+    }
+  );
+
+  const handleLeaveGroupChat = () => leaveGroupChatMutation.mutate();
   return (
     <Box className={classes.root}>
       <Typography variant="h3">{groupChat!.title}</Typography>
@@ -36,8 +73,21 @@ export default function GroupChatView() {
         <CloseIcon />
         (leave)
       </Button>
-      {error && <Alert severity="error">{error}</Alert>}
-      {loading ? <CircularProgress /> : <MessageList messages={messages} />}
+      {(error || sendMutation.error || leaveGroupChatMutation.error) && (
+        <Alert severity="error">
+          {error ||
+            sendMutation.error?.message ||
+            leaveGroupChatMutation.error?.message}
+        </Alert>
+      )}
+      {isLoading ? (
+        <CircularProgress />
+      ) : (
+        <>
+          <MessageList messages={messages!} />
+          <SendField mutation={sendMutation} />
+        </>
+      )}
     </Box>
   );
 }

@@ -2,7 +2,7 @@ import { Box, BoxProps, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
 import * as React from "react";
-import { useQuery } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import Alert from "../../../components/Alert";
 import CircularProgress from "../../../components/CircularProgress";
 import { Message } from "../../../pb/conversations_pb";
@@ -12,7 +12,6 @@ import { useUser } from "../../userQueries/useUsers";
 import MessageList from "../messagelist/MessageList";
 import { Error as GrpcError } from "grpc-web";
 import { useAuthContext } from "../../auth/AuthProvider";
-import { useIsMounted, useSafeState } from "../../../utils/hooks";
 import SendField from "../SendField";
 
 const useStyles = makeStyles({ root: {} });
@@ -29,12 +28,6 @@ export default function HostRequestView({ hostRequest }: HostRequestViewProps) {
     service.requests.getHostRequestMessages(hostRequest.hostRequestId)
   );
 
-  const isMounted = useIsMounted();
-  const [sendError, setSendError] = useSafeState<string | null>(
-    isMounted,
-    null
-  );
-
   const { data: surfer, isLoading: surferLoading } = useUser(
     hostRequest.fromUserId
   );
@@ -44,21 +37,36 @@ export default function HostRequestView({ hostRequest }: HostRequestViewProps) {
   const hostName = currentUserId === host?.userId ? "you" : host?.name;
   const title = `${surferName} requested to be hosted by ${hostName}`;
 
+  const queryClient = useQueryClient();
+  const mutation = useMutation<string | undefined, GrpcError, string>(
+    (text: string) =>
+      service.requests.sendHostRequestMessage(hostRequest.hostRequestId, text),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries([
+          "hostRequestMessages",
+          hostRequest.hostRequestId,
+        ]);
+        queryClient.invalidateQueries(["hostRequests"]);
+      },
+    }
+  );
+
   const classes = useStyles();
   return (
     <Box className={classes.root}>
       <Typography variant="h3">
         {surferLoading || hostLoading ? <Skeleton /> : title}
       </Typography>
-      {(error || sendError) && (
-        <Alert severity={"error"}>{error?.message || sendError}</Alert>
+      {(error || mutation.error) && (
+        <Alert severity={"error"}>{error?.message || mutation.error}</Alert>
       )}
       {isLoading ? (
         <CircularProgress />
       ) : (
         <>
           <MessageList messages={messages!} />
-          <SendField hostRequest={hostRequest} setError={setSendError} />
+          <SendField mutation={mutation} />
         </>
       )}
     </Box>

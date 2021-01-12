@@ -1,50 +1,21 @@
 import { BoxProps, Box, TextField } from "@material-ui/core";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { useQueryClient, useMutation } from "react-query";
-import { HostRequest } from "../../pb/requests_pb";
-import { service } from "../../service";
+import { UseMutationResult } from "react-query";
 import { Error as GrpcError } from "grpc-web";
 import Button from "../../components/Button";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 
 interface MessageFormData {
   text: string;
 }
 
 export interface SendFieldProps extends BoxProps {
-  hostRequest: HostRequest.AsObject;
-  setError: (text: string | null) => void;
+  mutation: UseMutationResult<string | undefined | Empty, GrpcError, string>;
 }
 
-export default function SendField({
-  hostRequest,
-  setError,
-  ...otherProps
-}: SendFieldProps) {
-  const queryClient = useQueryClient();
-  const { mutate: handleSend, isLoading } = useMutation<
-    string | undefined,
-    GrpcError,
-    string
-  >(
-    (text) =>
-      service.requests.sendHostRequestMessage(hostRequest.hostRequestId, text),
-    {
-      onMutate: () => {
-        setError(null);
-      },
-      onSuccess: () => {
-        queryClient.invalidateQueries([
-          "hostRequestMessages",
-          hostRequest.hostRequestId,
-        ]);
-        queryClient.invalidateQueries(["hostRequests"]);
-      },
-      onError: (error) => {
-        setError(error.message);
-      },
-    }
-  );
+export default function SendField({ mutation, ...otherProps }: SendFieldProps) {
+  const { mutate: handleSend, isLoading } = mutation;
 
   const { register, handleSubmit } = useForm<MessageFormData>();
   const onSubmit = handleSubmit(async (data: MessageFormData) => {
