@@ -3,7 +3,6 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { act } from "react-test-renderer";
 import { service } from "../../service";
 import { addDefaultUser } from "../../test/utils";
-import useAuthStore from "../auth/useAuthStore";
 import useCurrentUser from "../userQueries/useCurrentUser";
 import wrapper from "../../test/hookWrapper";
 import useUpdateUserProfile from "./useUpdateUserProfile";
@@ -68,7 +67,7 @@ describe("updateUserProfile action", () => {
     expect(updateProfileMock).toHaveBeenCalledWith(newUserProfileData);
     //once for getCurrentUser then once for invalidation
     expect(getUserMock).toHaveBeenCalledTimes(2);
-    expect(getUserMock).toHaveBeenCalledWith("" + defaultUser.userId);
+    expect(getUserMock).toHaveBeenCalledWith(`${defaultUser.userId}`);
 
     const currentUser = result.current.currentUser.data;
 
@@ -121,5 +120,6 @@ describe("updateUserProfile action", () => {
     await waitFor(() => result.current.mutate.status === "error");
 
     expect(setError).toBeCalledWith("API error");
+    expect(setError).toBeCalledTimes(2);
   });
 });

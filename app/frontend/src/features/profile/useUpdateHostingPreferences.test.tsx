@@ -3,7 +3,6 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { act } from "react-test-renderer";
 import { service } from "../../service";
 import { addDefaultUser } from "../../test/utils";
-import useAuthStore from "../auth/useAuthStore";
 import useCurrentUser from "../userQueries/useCurrentUser";
 import useUpdateHostingPreferences from "./useUpdateHostingPreferences";
 import wrapper from "../../test/hookWrapper";
@@ -73,7 +72,7 @@ describe("useUpdateHostingPreference hook", () => {
     );
     //once for getCurrentUser then once for invalidation
     expect(getUserMock).toHaveBeenCalledTimes(2);
-    expect(getUserMock).toHaveBeenCalledWith("" + defaultUser.userId);
+    expect(getUserMock).toHaveBeenCalledWith(`${defaultUser.userId}`);
     // Things that have been updated are being reflected
     expect(result.current.currentUser.data).toMatchObject({
       multipleGroups: { value: false },
@@ -115,5 +114,6 @@ describe("useUpdateHostingPreference hook", () => {
     await waitFor(() => result.current.mutate.status === "error");
 
     expect(setError).toBeCalledWith("API error");
+    expect(setError).toBeCalledTimes(2);
   });
 });
