@@ -1,33 +1,66 @@
-import { Grid } from "@material-ui/core";
+import { Grid, makeStyles } from "@material-ui/core";
 import React from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
+import { profileRoute } from "../../AppRoutes";
 import Alert from "../../components/Alert";
+import Button from "../../components/Button";
 import CircularProgress from "../../components/CircularProgress";
+import { EditIcon } from "../../components/Icons";
+import AddFriendButton from "../connections/friends/AddFriendButton";
+import { User } from "../../pb/api_pb";
 import useUserByUsername from "../userQueries/useUserByUsername";
+import useCurrentUser from "../userQueries/useCurrentUser";
 import UserAbout from "./UserAbout";
 import UserGuestbook from "./UserGuestbook";
 import UserHeader from "./UserHeader";
 import UserPlace from "./UserPlace";
 import UserSection from "./UserSection";
 import UserSummary from "./UserSummary";
+import { useIsMounted, useSafeState } from "../../utils/hooks";
+
+const useStyles = makeStyles((theme) => ({
+  editButton: {
+    marginBottom: theme.spacing(2),
+  },
+}));
 
 export default function UserPage() {
+  const classes = useStyles();
   const { username } = useParams<{ username: string }>();
   const { data: user, isLoading, isError, error } = useUserByUsername(
     username,
     true
   );
+  const [mutationError, setMutationError] = useSafeState(useIsMounted(), "");
+  const isCurrentUser = useCurrentUser().data?.userId === user?.userId;
 
   return (
     <>
-      {isError && <Alert severity="error">{error}</Alert>}
-
-      {isLoading && <CircularProgress />}
-
-      {user && !isLoading ? (
+      {mutationError ? <Alert severity="error">{mutationError}</Alert> : null}
+      {isError ? (
+        <Alert severity="error">{error}</Alert>
+      ) : isLoading ? (
+        <CircularProgress />
+      ) : user && !isLoading ? (
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6} md={4}>
-            <UserHeader user={user} />
+            <UserHeader user={user}>
+              {isCurrentUser ? (
+                <Button
+                  startIcon={<EditIcon />}
+                  component={Link}
+                  to={profileRoute}
+                  className={classes.editButton}
+                >
+                  Edit your profile
+                </Button>
+              ) : user.friends === User.FriendshipStatus.NOT_FRIENDS ? (
+                <AddFriendButton
+                  userId={user.userId}
+                  setMutationError={setMutationError}
+                />
+              ) : null}
+            </UserHeader>
             <UserSummary user={user} />
           </Grid>
           <Grid item xs={12} sm={6} md={8}>
