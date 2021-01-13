@@ -21,7 +21,7 @@ export function controlMessageText(
   targetName?: string
 ) {
   const authorCap = authorName.charAt(0).toUpperCase() + authorName.slice(1);
-  if (message.chatCreated !== undefined) {
+  if (message.chatCreated) {
     return `${authorCap} created the chat`;
   } else if (message.chatEdited !== undefined) {
     return `${authorCap} edited the chat`;

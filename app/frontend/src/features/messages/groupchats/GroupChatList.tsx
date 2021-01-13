@@ -18,6 +18,7 @@ export default function GroupChatList({
   const classes = useStyles();
 
   return (
+    ///TODO: Empty state
     <>
       <Box className={classes.root}>
         {groupChats.map((groupChat) => (

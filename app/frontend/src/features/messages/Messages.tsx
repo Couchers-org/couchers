@@ -16,16 +16,19 @@ const labels = {
   archived: "Archived",
 };
 
+type MessageType = keyof typeof labels;
+
 export default function Messages() {
   const history = useHistory();
   const { type = "all" } = useParams<{ type: keyof typeof labels }>();
+  const messageType = type in labels ? (type as MessageType) : "all";
 
   return (
     <>
       <PageTitle>Messages</PageTitle>
-      <TabContext value={type}>
+      <TabContext value={messageType}>
         <TabBar
-          value={type}
+          value={messageType}
           setValue={(newType) =>
             history.push(`${messagesRoute}/${newType !== "all" ? newType : ""}`)
           }

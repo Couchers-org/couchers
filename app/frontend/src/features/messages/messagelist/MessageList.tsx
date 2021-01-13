@@ -1,6 +1,7 @@
 import { Box, BoxProps } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import * as React from "react";
+import TextBody from "../../../components/TextBody";
 import { Message } from "../../../pb/conversations_pb";
 import { isControlMessage } from "../utils";
 import ControlMessageView from "./ControlMessageView";
@@ -31,7 +32,7 @@ export default function MessageList({ messages }: MessageListProps) {
           )
         )
       ) : (
-        <>No messages</>
+        <TextBody>No messages</TextBody>
       )}
     </Box>
   );

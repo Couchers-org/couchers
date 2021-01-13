@@ -58,15 +58,15 @@ export default function HostRequestView({ hostRequest }: HostRequestViewProps) {
       <Typography variant="h3">
         {surferLoading || hostLoading ? <Skeleton /> : title}
       </Typography>
-      {(error || mutation.error) && (
-        <Alert severity={"error"}>{error?.message || mutation.error}</Alert>
-      )}
+      {mutation.error && <Alert severity={"error"}>{mutation.error}</Alert>}
       {isLoading ? (
         <CircularProgress />
+      ) : error ? (
+        <Alert severity={"error"}>{error.message}</Alert>
       ) : (
         <>
           <MessageList messages={messages!} />
-          <SendField mutation={mutation} />
+          <SendField sendMutation={mutation} />
         </>
       )}
     </Box>

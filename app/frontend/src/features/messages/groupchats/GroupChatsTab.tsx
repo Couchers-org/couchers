@@ -36,10 +36,15 @@ export default function GroupChatsTab() {
       ) : groupChat ? (
         <GroupChatView groupChat={groupChat} closeGroupChat={closeGroupChat} />
       ) : (
-        <>
-          <GroupChatList groupChats={groupChats!} setGroupChat={setGroupChat} />
-          <CreateGroupChat />
-        </>
+        groupChats !== undefined && (
+          <>
+            <GroupChatList
+              groupChats={groupChats}
+              setGroupChat={setGroupChat}
+            />
+            <CreateGroupChat />
+          </>
+        )
       )}
     </Box>
   );

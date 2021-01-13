@@ -85,7 +85,7 @@ export default function GroupChatView({
       ) : (
         <>
           <MessageList messages={messages!} />
-          <SendField mutation={sendMutation} />
+          <SendField sendMutation={sendMutation} />
         </>
       )}
     </Box>

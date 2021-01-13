@@ -11,11 +11,18 @@ interface MessageFormData {
 }
 
 export interface SendFieldProps extends BoxProps {
-  mutation: UseMutationResult<string | undefined | Empty, GrpcError, string>;
+  sendMutation: UseMutationResult<
+    string | undefined | Empty,
+    GrpcError,
+    string
+  >;
 }
 
-export default function SendField({ mutation, ...otherProps }: SendFieldProps) {
-  const { mutate: handleSend, isLoading } = mutation;
+export default function SendField({
+  sendMutation,
+  ...otherProps
+}: SendFieldProps) {
+  const { mutate: handleSend, isLoading } = sendMutation;
 
   const { register, handleSubmit } = useForm<MessageFormData>();
   const onSubmit = handleSubmit(async (data: MessageFormData) => {

@@ -32,7 +32,7 @@ export default function CreateGroupChat() {
     isLoading: isCreateLoading,
     error: createError,
   } = useMutation<number, GrpcError, CreateGroupChatFormData>(
-    (data) => service.conversations.createGroupChat(data.title, data.users),
+    ({ title, users }) => service.conversations.createGroupChat(title, users),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["groupChats"]);
@@ -40,11 +40,8 @@ export default function CreateGroupChat() {
     }
   );
 
-  const onSubmit = handleSubmit((data: CreateGroupChatFormData) =>
-    createGroupChat({
-      title: data.title,
-      users: data.users,
-    })
+  const onSubmit = handleSubmit(({ title, users }: CreateGroupChatFormData) =>
+    createGroupChat({ title, users })
   );
 
   const errors = [...friends.errors];
