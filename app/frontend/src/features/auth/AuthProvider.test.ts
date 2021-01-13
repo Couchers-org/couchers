@@ -1,11 +1,10 @@
-import React from "react";
 import { act, renderHook } from "@testing-library/react-hooks";
-import AuthProvider, { useAuthContext } from "./AuthProvider";
+import { useAuthContext } from "./AuthProvider";
 import { addDefaultUser } from "../../test/utils";
-import { MemoryRouter } from "react-router-dom";
 import * as client from "../../service/client";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { service } from "../../service";
+import wrapper from "../../test/hookWrapper";
 
 const logoutMock = service.user.logout as jest.Mock;
 logoutMock.mockResolvedValue(new Empty());
@@ -24,11 +23,6 @@ describe("AuthProvider", () => {
       .spyOn(client, "setUnauthenticatedErrorHandler")
       .mockImplementation(mockSetHandler);
 
-    const wrapper = ({ children }: { children: any }) => (
-      <MemoryRouter>
-        <AuthProvider>{children}</AuthProvider>
-      </MemoryRouter>
-    );
     const { result } = renderHook(() => useAuthContext(), {
       wrapper,
     });
