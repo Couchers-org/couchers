@@ -8,16 +8,19 @@ import useCancelFriendRequest from "./useCancelFriendRequest";
 import useFriendRequests from "./useFriendRequests";
 import { useIsMounted, useSafeState } from "../../../utils/hooks";
 import type { SetMutationError } from ".";
+
 interface CancelFriendRequestActionProps {
   friendRequestId: number;
   state: FriendRequest.FriendRequestStatus;
   setMutationError: SetMutationError;
+  userId: number;
 }
 
 function CancelFriendRequestAction({
   friendRequestId,
   state,
   setMutationError,
+  userId,
 }: CancelFriendRequestActionProps) {
   const {
     cancelFriendRequest,
@@ -35,7 +38,7 @@ function CancelFriendRequestAction({
           aria-label="Cancel request"
           onClick={() => {
             reset();
-            cancelFriendRequest({ friendRequestId, setMutationError });
+            cancelFriendRequest({ friendRequestId, setMutationError, userId });
           }}
         >
           <CloseIcon />
@@ -61,12 +64,13 @@ function FriendRequestsSent() {
       noDataMessage="No pending friend requests!"
     >
       {data &&
-        data.map(({ friendRequestId, friend, state }) => (
+        data.map(({ friendRequestId, friend, userId, state }) => (
           <FriendSummaryView key={friendRequestId} friend={friend}>
             <CancelFriendRequestAction
               friendRequestId={friendRequestId}
               state={state}
               setMutationError={setMutationError}
+              userId={userId}
             />
           </FriendSummaryView>
         ))}
