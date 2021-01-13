@@ -1,5 +1,5 @@
 import { makeStyles } from "@material-ui/core";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import Alert from "../../components/Alert";
 import Button from "../../components/Button";
@@ -9,7 +9,10 @@ import { theme } from "../../theme";
 import ProfileMarkdownInput from "./ProfileMarkdownInput";
 import ProfileTagInput from "./ProfileTagInput";
 import EditUserLocationMap from "../../components/EditUserLocationMap";
-import { useAuthContext } from "../auth/AuthProvider";
+import CircularProgress from "../../components/CircularProgress";
+import useCurrentUser from "../userQueries/useCurrentUser";
+import useUpdateUserProfile from "./useUpdateUserProfile";
+import { useIsMounted, useSafeState } from "../../utils/hooks";
 
 const useStyles = makeStyles({
   buttonContainer: {
@@ -20,12 +23,17 @@ const useStyles = makeStyles({
 
 export default function EditProfileForm() {
   const classes = useStyles();
-  const { authState, profileActions } = useAuthContext();
-  const user = authState.user;
-  const [alertState, setShowAlertState] = useState<
-    "success" | "error" | undefined
-  >();
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const {
+    updateUserProfile,
+    status: updateStatus,
+    reset: resetUpdate,
+  } = useUpdateUserProfile();
+  const { data: user } = useCurrentUser();
+  const isMounted = useIsMounted();
+  const [errorMessage, setErrorMessage] = useSafeState<string | null>(
+    isMounted,
+    null
+  );
   const { control, register, handleSubmit, setValue } = useForm<
     UpdateUserProfileData
   >({
@@ -44,24 +52,19 @@ export default function EditProfileForm() {
     register("radius");
   }, [register]);
 
-  const onSubmit = handleSubmit(async (data: UpdateUserProfileData) => {
-    try {
-      await profileActions.updateUserProfile(data);
-      setShowAlertState("success");
-    } catch (error) {
-      setShowAlertState("error");
-      setErrorMessage(error.message);
-    }
+  const onSubmit = handleSubmit((data) => {
+    resetUpdate();
+    updateUserProfile({ profileData: data, setMutationError: setErrorMessage });
   });
 
   return (
     <>
-      {alertState === "success" ? (
-        <Alert severity={alertState}>Successfully updated profile!</Alert>
-      ) : alertState === "error" ? (
-        <Alert severity={alertState}>{errorMessage}</Alert>
+      {updateStatus === "success" ? (
+        <Alert severity="success">Successfully updated profile!</Alert>
+      ) : updateStatus === "error" ? (
+        <Alert severity="error">{errorMessage}</Alert>
       ) : null}
-      {user && (
+      {user ? (
         <>
           <form onSubmit={onSubmit}>
             <ProfileTextInput
@@ -182,6 +185,8 @@ export default function EditProfileForm() {
             </div>
           </form>
         </>
+      ) : (
+        <CircularProgress />
       )}
     </>
   );

@@ -7,6 +7,7 @@ import Avatar from "../../../components/Avatar";
 import { Message } from "../../../pb/conversations_pb";
 import { timestamp2Date } from "../../../utils/date";
 import { useAuthContext } from "../../auth/AuthProvider";
+import useCurrentUser from "../../userQueries/useCurrentUser";
 import { useUser } from "../../userQueries/useUsers";
 import TimeInterval from "./MomentIndication";
 import UserName from "./UserName";
@@ -26,7 +27,7 @@ export default function MessageView({ message }: MessageProps) {
   const [expanded, setExpanded] = useState<boolean>(false);
   const classes = useStyles();
   const { data: author } = useUser(message.authorUserId);
-  const currentUser = useAuthContext().authState.user;
+  const { data: currentUser } = useCurrentUser();
   const isCurrentUser = author?.userId === currentUser?.userId;
   return (
     <Card className={classes.root}>

@@ -8,7 +8,7 @@ import CircularProgress from "../../../components/CircularProgress";
 import { Message } from "../../../pb/conversations_pb";
 import { HostRequest } from "../../../pb/requests_pb";
 import { service } from "../../../service";
-import { useAuthContext } from "../../auth/AuthProvider";
+import useCurrentUser from "../../userQueries/useCurrentUser";
 import { useUser } from "../../userQueries/useUsers";
 import MessageList from "../messagelist/MessageList";
 
@@ -51,7 +51,7 @@ export default function HostRequestView({ hostRequest }: HostRequestViewProps) {
     hostRequest.fromUserId
   );
   const { data: host, isLoading: hostLoading } = useUser(hostRequest.toUserId);
-  const currentUser = useAuthContext().authState.user;
+  const { data: currentUser } = useCurrentUser();
   const surferName =
     currentUser?.userId === surfer?.userId ? "you" : surfer?.name;
   const hostName = currentUser?.userId === host?.userId ? "you" : host?.name;
