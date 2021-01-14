@@ -17,7 +17,7 @@ function useAppContext<T>(context: Context<T | null>) {
 export default function AuthProvider({ children }: { children: ReactNode }) {
   const store = useAuthStore();
 
-  const push = useHistory()?.push;
+  const push = useHistory().push;
 
   useEffect(() => {
     setUnauthenticatedErrorHandler(async () => {

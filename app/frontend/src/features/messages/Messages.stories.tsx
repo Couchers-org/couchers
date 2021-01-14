@@ -5,13 +5,18 @@ import messages from "../../test/fixtures/messages.json";
 import Messages from "./index";
 import MessageView, { MessageProps } from "./messagelist/MessageView";
 import ControlMessageView from "./messagelist/ControlMessageView";
+import AuthProvider from "../auth/AuthProvider";
+import { addDefaultUser } from "../../test/utils";
 
 const [controlMessage, message1] = messages;
+
+addDefaultUser(1);
 
 export default {
   title: "Messages",
   component: Messages,
   argTypes: {},
+  decorators: [(story) => <AuthProvider>{story()}</AuthProvider>],
 } as Meta;
 
 const MessageTemplate: Story<MessageProps> = (args) => (

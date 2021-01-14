@@ -1,8 +1,6 @@
 import { Meta, Story } from "@storybook/react/types-6-0";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import React, { useRef } from "react";
-import { Provider } from "react-redux";
-import { store } from "../../../stories/__mocks__/store";
 import { mockedService } from "../../../stories/__mocks__/service";
 import { FriendRequest } from "../../../pb/api_pb";
 import FriendRequestsSent from "./FriendRequestsSent";
@@ -10,13 +8,6 @@ import FriendRequestsSent from "./FriendRequestsSent";
 export default {
   title: "FriendRequestsSent",
   component: FriendRequestsSent,
-  decorators: [
-    (Story) => (
-      <Provider store={store}>
-        <Story />
-      </Provider>
-    ),
-  ],
 } as Meta;
 
 interface FriendRequestsState {

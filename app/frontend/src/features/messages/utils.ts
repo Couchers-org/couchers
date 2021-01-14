@@ -23,17 +23,17 @@ export function controlMessageText(
   const authorCap = authorName.charAt(0).toUpperCase() + authorName.slice(1);
   if (message.chatCreated) {
     return `${authorCap} created the chat`;
-  } else if (message.chatEdited !== undefined) {
+  } else if (message.chatEdited) {
     return `${authorCap} edited the chat`;
-  } else if (message.userInvited !== undefined) {
+  } else if (message.userInvited) {
     return `${authorCap} invited ${targetName}`;
-  } else if (message.userLeft !== undefined) {
+  } else if (message.userLeft) {
     return `${authorCap} left the chat`;
-  } else if (message.userMadeAdmin !== undefined) {
+  } else if (message.userMadeAdmin) {
     return `${authorCap} made ${targetName} an admin`;
-  } else if (message.userRemovedAdmin !== undefined) {
+  } else if (message.userRemovedAdmin) {
     return `${authorCap} removed ${targetName} as admin`;
-  } else if (message.hostRequestStatusChanged !== undefined) {
+  } else if (message.hostRequestStatusChanged) {
     return `${authorCap} changed the request to ${
       hostRequestStatusLabels[message.hostRequestStatusChanged.status]
     }`;
