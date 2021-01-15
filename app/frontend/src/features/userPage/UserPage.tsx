@@ -17,6 +17,7 @@ import UserPlace from "./UserPlace";
 import UserSection from "./UserSection";
 import UserSummary from "./UserSummary";
 import { useIsMounted, useSafeState } from "../../utils/hooks";
+import TextBody from "../../components/TextBody";
 
 const useStyles = makeStyles((theme) => ({
   editButton: {
@@ -59,6 +60,10 @@ export default function UserPage() {
                   userId={user.userId}
                   setMutationError={setMutationError}
                 />
+              ) : user.friends === User.FriendshipStatus.PENDING ? (
+                <TextBody className={classes.editButton}>
+                  Pending friend request...
+                </TextBody>
               ) : null}
             </UserHeader>
             <UserSummary user={user} />
