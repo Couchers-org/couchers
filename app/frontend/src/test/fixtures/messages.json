@@ -2,11 +2,17 @@
   {
     "messageId": 1,
     "authorUserId": 2,
-    "text": { "text": "testtext" },
+    "chatCreated": {},
     "time": { "seconds": 1577836800, "nanos": 0 }
   },
   {
     "messageId": 2,
+    "authorUserId": 2,
+    "text": { "text": "testtext" },
+    "time": { "seconds": 1577836800, "nanos": 0 }
+  },
+  {
+    "messageId": 3,
     "authorUserId": 2,
     "text": { "text": "testtext" },
     "time": { "seconds": 1577836800, "nanos": 0 }

@@ -1,8 +1,9 @@
-export const labels = {
-  TAB_ALL: "All",
-  TAB_GROUPCHATS: "Chats",
-  TAB_HOSTING: "Hosting",
-  TAB_SURFING: "Surfing",
-  TAB_MEET: "Meet",
-  TAB_ARCHIVED: "Archived",
+import { HostRequestStatus } from "../../pb/conversations_pb";
+
+export const hostRequestStatusLabels = {
+  [HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED]: "Accepted",
+  [HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED]: "Cancelled",
+  [HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED]: "Confirmed",
+  [HostRequestStatus.HOST_REQUEST_STATUS_PENDING]: "Pending",
+  [HostRequestStatus.HOST_REQUEST_STATUS_REJECTED]: "Rejected",
 };

@@ -6,7 +6,10 @@ import { service } from "../../service";
 import { arrayEq } from "../../utils/arrayEq";
 import { userStaleTime } from "./constants";
 
-export default function useUsers(ids: number[], invalidate: boolean = false) {
+export default function useUsers(
+  ids: (number | undefined)[],
+  invalidate: boolean = false
+) {
   const queryClient = useQueryClient();
   const idsRef = useRef(ids);
   const handleInvalidation = useCallback(() => {
@@ -31,11 +34,13 @@ export default function useUsers(ids: number[], invalidate: boolean = false) {
   });
 
   const queries = useQueries<User.AsObject, Error>(
-    ids.map((id) => ({
-      queryKey: ["user", id],
-      queryFn: () => service.user.getUser(id.toString()),
-      staleTime: userStaleTime,
-    }))
+    ids
+      .filter((id): id is number => !!id)
+      .map((id) => ({
+        queryKey: ["user", id],
+        queryFn: () => service.user.getUser(id.toString()),
+        staleTime: userStaleTime,
+      }))
   );
 
   const errors = queries
@@ -58,7 +63,7 @@ export default function useUsers(ids: number[], invalidate: boolean = false) {
   };
 }
 
-export function useUser(id: number, invalidate: boolean = false) {
+export function useUser(id: number | undefined, invalidate: boolean = false) {
   const result = useUsers([id], invalidate);
   return {
     isLoading: result.isLoading,
