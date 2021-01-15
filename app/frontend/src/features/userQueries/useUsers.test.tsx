@@ -65,27 +65,37 @@ describe("useUser (singular)", () => {
       },
     });
   });
+
+  it("returns undefined when given undefined userId", async () => {
+    const { result, waitFor } = renderHook(() => useUser(undefined), {
+      wrapper,
+    });
+    await waitFor(() => !result.current.isLoading);
+
+    expect(getUserMock).not.toHaveBeenCalled();
+    expect(result.current).toEqual({
+      isLoading: false,
+      isFetching: false,
+      isError: false,
+      error: "",
+      data: undefined,
+    });
+  });
 });
 
 describe("when useUsers has loaded", () => {
-  it("returns undefined for falsey user id", async () => {
-    const { result, waitForNextUpdate } = renderHook(
-      () => useUsers([0, undefined]),
-      {
-        wrapper,
-      }
-    );
-    await waitForNextUpdate();
+  it("omits falsey user id", async () => {
+    const { result, waitFor } = renderHook(() => useUsers([0, undefined]), {
+      wrapper,
+    });
+    await waitFor(() => !result.current.isLoading);
     expect(getUserMock).not.toHaveBeenCalled();
     expect(result.current).toEqual({
       isLoading: false,
       isFetching: false,
       isError: false,
       errors: [],
-      data: new Map([
-        [0, undefined],
-        [undefined, undefined],
-      ]),
+      data: new Map(),
     });
   });
 

@@ -83,10 +83,12 @@ export default function GroupChatView({
       {isLoading ? (
         <CircularProgress />
       ) : (
-        <>
-          <MessageList messages={messages!} />
-          <SendField sendMutation={sendMutation} />
-        </>
+        messages && (
+          <>
+            <MessageList messages={messages} />
+            <SendField sendMutation={sendMutation} />
+          </>
+        )
       )}
     </Box>
   );

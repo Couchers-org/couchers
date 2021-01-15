@@ -61,12 +61,15 @@ export default function HostRequestView({ hostRequest }: HostRequestViewProps) {
       {mutation.error && <Alert severity={"error"}>{mutation.error}</Alert>}
       {isLoading ? (
         <CircularProgress />
-      ) : error ? (
-        <Alert severity={"error"}>{error.message}</Alert>
       ) : (
         <>
-          <MessageList messages={messages!} />
-          <SendField sendMutation={mutation} />
+          {error && <Alert severity={"error"}>{error.message}</Alert>}
+          {messages && (
+            <>
+              <MessageList messages={messages} />
+              <SendField sendMutation={mutation} />
+            </>
+          )}
         </>
       )}
     </Box>

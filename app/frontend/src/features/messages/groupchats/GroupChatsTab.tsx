@@ -36,7 +36,7 @@ export default function GroupChatsTab() {
       ) : groupChat ? (
         <GroupChatView groupChat={groupChat} closeGroupChat={closeGroupChat} />
       ) : (
-        groupChats !== undefined && (
+        groupChats && (
           <>
             <GroupChatList
               groupChats={groupChats}
