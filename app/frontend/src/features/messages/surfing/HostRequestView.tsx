@@ -1,4 +1,4 @@
-import { Box, BoxProps, Typography } from "@material-ui/core";
+import { Box, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
 import * as React from "react";
@@ -13,57 +13,82 @@ import MessageList from "../messagelist/MessageList";
 import { Error as GrpcError } from "grpc-web";
 import { useAuthContext } from "../../auth/AuthProvider";
 import SendField from "../SendField";
+import { useParams } from "react-router-dom";
+import { firstName } from "../../../utils/names";
 
 const useStyles = makeStyles({ root: {} });
 
-export interface HostRequestViewProps extends BoxProps {
-  hostRequest: HostRequest.AsObject;
-}
+export default function HostRequestView() {
+  const classes = useStyles();
 
-export default function HostRequestView({ hostRequest }: HostRequestViewProps) {
-  const { data: messages, isLoading, error } = useQuery<
-    Message.AsObject[],
+  const hostRequestId = +(
+    useParams<{ hostRequestId?: string }>().hostRequestId || 0
+  );
+
+  const { data: hostRequest, error: hostRequestError } = useQuery<
+    HostRequest.AsObject,
     GrpcError
-  >(["hostRequestMessages", hostRequest.hostRequestId], () =>
-    service.requests.getHostRequestMessages(hostRequest.hostRequestId)
+  >(
+    ["hostRequest", hostRequestId],
+    () => service.requests.getHostRequest(hostRequestId),
+    {
+      enabled: !!hostRequestId,
+    }
   );
 
-  const { data: surfer, isLoading: surferLoading } = useUser(
-    hostRequest.fromUserId
+  const {
+    data: messages,
+    isLoading: isMessagesLoading,
+    error: messagesError,
+  } = useQuery<Message.AsObject[], GrpcError>(
+    ["hostRequestMessages", hostRequestId],
+    () => service.requests.getHostRequestMessages(hostRequestId),
+    { enabled: !!hostRequestId }
   );
-  const { data: host, isLoading: hostLoading } = useUser(hostRequest.toUserId);
+
+  const { data: surfer } = useUser(hostRequest?.fromUserId);
+  const { data: host } = useUser(hostRequest?.toUserId);
   const currentUserId = useAuthContext().authState.userId;
   const surferName = currentUserId === surfer?.userId ? "you" : surfer?.name;
   const hostName = currentUserId === host?.userId ? "you" : host?.name;
-  const title = `${surferName} requested to be hosted by ${hostName}`;
+  const title =
+    surferName && hostName
+      ? `${firstName(surferName)} requested to be hosted by ${firstName(
+          hostName
+        )}`
+      : undefined;
 
   const queryClient = useQueryClient();
   const mutation = useMutation<string | undefined, GrpcError, string>(
     (text: string) =>
-      service.requests.sendHostRequestMessage(hostRequest.hostRequestId, text),
+      service.requests.sendHostRequestMessage(hostRequestId, text),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries([
-          "hostRequestMessages",
-          hostRequest.hostRequestId,
-        ]);
+        queryClient.invalidateQueries(["hostRequestMessages", hostRequestId]);
         queryClient.invalidateQueries(["hostRequests"]);
       },
     }
   );
 
-  const classes = useStyles();
-  return (
+  return !hostRequestId ? (
+    <Alert severity={"error"}>Invalid host request id.</Alert>
+  ) : (
     <Box className={classes.root}>
       <Typography variant="h3">
-        {surferLoading || hostLoading ? <Skeleton /> : title}
+        {!title || hostRequestError ? <Skeleton width="100" /> : title}
       </Typography>
-      {mutation.error && <Alert severity={"error"}>{mutation.error}</Alert>}
-      {isLoading ? (
+      {(mutation.error || hostRequestError) && (
+        <Alert severity={"error"}>
+          {mutation.error?.message || hostRequestError?.message}
+        </Alert>
+      )}
+      {isMessagesLoading ? (
         <CircularProgress />
       ) : (
         <>
-          {error && <Alert severity={"error"}>{error.message}</Alert>}
+          {messagesError && (
+            <Alert severity={"error"}>{messagesError.message}</Alert>
+          )}
           {messages && (
             <>
               <MessageList messages={messages} />

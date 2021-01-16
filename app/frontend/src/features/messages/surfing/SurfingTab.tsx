@@ -8,9 +8,11 @@ import CircularProgress from "../../../components/CircularProgress";
 import { GroupChat } from "../../../pb/conversations_pb";
 import { HostRequest } from "../../../pb/requests_pb";
 import { service } from "../../../service";
-import HostRequestList from "./HostRequestList";
-import HostRequestView from "./HostRequestView";
 import { Error as GrpcError } from "grpc-web";
+import { Link } from "react-router-dom";
+import TextBody from "../../../components/TextBody";
+import HostRequestListItem from "./HostRequestListItem";
+import { messagesRoute } from "../../../AppRoutes";
 
 const useStyles = makeStyles({ root: {} });
 
@@ -25,10 +27,6 @@ export default function SurfingTab({
   type: "all" | "hosting" | "surfing";
   onlyActive?: boolean;
 }) {
-  ///TODO: add url chat opening
-  const [hostRequest, setHostRequest] = useState<HostRequest.AsObject | null>(
-    null
-  );
   const { data: hostRequests, isLoading, error } = useQuery<
     HostRequest.AsObject[],
     GrpcError
@@ -39,22 +37,23 @@ export default function SurfingTab({
   const classes = useStyles();
   return (
     <Box className={classes.root}>
-      {hostRequest ? (
-        <HostRequestView hostRequest={hostRequest} />
+      {error && <Alert severity="error">{error.message}</Alert>}
+      {isLoading ? (
+        <CircularProgress />
       ) : (
-        <>
-          {error && <Alert severity="error">{error.message}</Alert>}
-          {isLoading ? (
-            <CircularProgress />
-          ) : (
-            hostRequests && (
-              <HostRequestList
-                hostRequests={hostRequests}
-                setHostRequest={setHostRequest}
-              />
-            )
-          )}
-        </>
+        hostRequests &&
+        (!hostRequests.length ? (
+          <TextBody>No requests yet.</TextBody>
+        ) : (
+          hostRequests.map((hostRequest) => (
+            <Link
+              to={`${messagesRoute}/request/${hostRequest.hostRequestId}`}
+              key={hostRequest.hostRequestId}
+            >
+              <HostRequestListItem hostRequest={hostRequest} />
+            </Link>
+          ))
+        ))
       )}
     </Box>
   );

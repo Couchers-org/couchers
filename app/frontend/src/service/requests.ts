@@ -1,6 +1,8 @@
 import { Message } from "../pb/conversations_pb";
 import {
+  CreateHostRequestReq,
   GetHostRequestMessagesReq,
+  GetHostRequestReq,
   ListHostRequestsReq,
   SendHostRequestMessageReq,
 } from "../pb/requests_pb";
@@ -19,6 +21,13 @@ export async function listHostRequests(
   const hostRequests = response.getHostRequestsList();
 
   return hostRequests.map((hostRequest) => hostRequest.toObject());
+}
+
+export async function getHostRequest(id: number) {
+  const req = new GetHostRequestReq();
+  req.setHostRequestId(id);
+  const response = await client.requests.getHostRequest(req);
+  return response.toObject();
 }
 
 export async function sendHostRequestMessage(id: number, text: string) {
@@ -42,4 +51,18 @@ export async function getHostRequestMessages(
   const messages = response.getMessagesList();
 
   return messages.map((message) => message.toObject());
+}
+
+export async function createHostRequest(
+  data: Required<CreateHostRequestReq.AsObject>
+) {
+  const req = new CreateHostRequestReq();
+  req.setToUserId(data.toUserId);
+  req.setFromDate(data.fromDate);
+  req.setToDate(data.toDate);
+  req.setText(data.text);
+
+  const response = await client.requests.createHostRequest(req);
+
+  return response.getHostRequestId();
 }

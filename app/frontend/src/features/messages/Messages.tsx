@@ -6,6 +6,8 @@ import TabBar from "../../components/TabBar";
 import { Route, Switch, useHistory, useParams } from "react-router-dom";
 import { messagesRoute } from "../../AppRoutes";
 import GroupChatView from "./groupchats/GroupChatView";
+import HostRequestView from "./surfing/HostRequestView";
+import NewHostRequest from "./surfing/NewHostRequest";
 
 const labels = {
   all: "All",
@@ -46,15 +48,15 @@ export default function Messages() {
           {header}
           <GroupChatsTab />
         </Route>
-        <Route path={`${messagesRoute}/hosting/:hostRequestId`}>
-          (Host Request)
+        <Route path={`${messagesRoute}/request/new/:userId`}>
+          <NewHostRequest />
+        </Route>
+        <Route path={`${messagesRoute}/request/:hostRequestId`}>
+          <HostRequestView />
         </Route>
         <Route path={`${messagesRoute}/hosting`}>
           {header}
           <SurfingTab type="hosting" />
-        </Route>
-        <Route path={`${messagesRoute}/surfing/:hostRequestId`}>
-          (Host Request)
         </Route>
         <Route path={`${messagesRoute}/surfing`}>
           {header}

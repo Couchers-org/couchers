@@ -46,15 +46,13 @@ export default function GroupChatView() {
 
   const groupChatId = +(useParams<{ groupChatId?: string }>().groupChatId || 0);
 
-  const { data: groupChat, error: idError } = useQuery<
+  const { data: groupChat, error: groupChatError } = useQuery<
     GroupChat.AsObject,
     GrpcError
   >(
     ["groupChat", groupChatId],
     () => service.conversations.getGroupChat(groupChatId),
-    {
-      enabled: !!groupChatId,
-    }
+    { enabled: !!groupChatId }
   );
 
   //for title text
@@ -114,7 +112,7 @@ export default function GroupChatView() {
                   groupChatMembersQuery,
                   currentUserId
                 )
-              ) : idError ? (
+              ) : groupChatError ? (
                 "Error"
               ) : (
                 <Skeleton width={100} />
@@ -144,12 +142,12 @@ export default function GroupChatView() {
               </MenuItem>
             </Menu>
           </Box>
-          {(idError ||
+          {(groupChatError ||
             messagesError ||
             sendMutation.error ||
             leaveGroupChatMutation.error) && (
             <Alert severity="error">
-              {idError?.message ||
+              {groupChatError?.message ||
                 messagesError?.message ||
                 sendMutation.error?.message ||
                 leaveGroupChatMutation.error?.message}
