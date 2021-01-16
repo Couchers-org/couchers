@@ -23,7 +23,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "CI=true react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "format": "prettier --write src/",
@@ -49,6 +49,7 @@
           "@typescript-eslint/no-unused-vars": [
             "warn",
             {
+              "argsIgnorePattern": "theme",
               "varsIgnorePattern": "classes|useStyles"
             }
           ]
