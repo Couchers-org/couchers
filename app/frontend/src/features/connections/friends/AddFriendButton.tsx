@@ -25,7 +25,7 @@ export default function AddFriendButton({
   const classes = useStyles();
   const queryClient = useQueryClient();
 
-  const { isLoading, mutate: sendFriendRequest, reset } = useMutation<
+  const { isLoading, mutate: sendFriendRequest } = useMutation<
     Empty,
     Error,
     AddFriendButtonProps
@@ -46,7 +46,6 @@ export default function AddFriendButton({
       startIcon={<PersonAddIcon />}
       className={classes.editButton}
       onClick={() => {
-        reset();
         sendFriendRequest({ userId, setMutationError });
       }}
       loading={isLoading}

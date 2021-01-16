@@ -42,45 +42,47 @@ export default function UserPage() {
         <Alert severity="error">{error}</Alert>
       ) : isLoading ? (
         <CircularProgress />
-      ) : user && !isLoading ? (
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6} md={4}>
-            <UserHeader user={user}>
-              {isCurrentUser ? (
-                <Button
-                  startIcon={<EditIcon />}
-                  component={Link}
-                  to={profileRoute}
-                  className={classes.editButton}
-                >
-                  Edit your profile
-                </Button>
-              ) : user.friends === User.FriendshipStatus.NOT_FRIENDS ? (
-                <AddFriendButton
-                  userId={user.userId}
-                  setMutationError={setMutationError}
-                />
-              ) : user.friends === User.FriendshipStatus.PENDING ? (
-                <TextBody className={classes.editButton}>
-                  Pending friend request...
-                </TextBody>
-              ) : null}
-            </UserHeader>
-            <UserSummary user={user} />
+      ) : (
+        user && (
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6} md={4}>
+              <UserHeader user={user}>
+                {isCurrentUser ? (
+                  <Button
+                    startIcon={<EditIcon />}
+                    component={Link}
+                    to={profileRoute}
+                    className={classes.editButton}
+                  >
+                    Edit your profile
+                  </Button>
+                ) : user.friends === User.FriendshipStatus.NOT_FRIENDS ? (
+                  <AddFriendButton
+                    userId={user.userId}
+                    setMutationError={setMutationError}
+                  />
+                ) : user.friends === User.FriendshipStatus.PENDING ? (
+                  <TextBody className={classes.editButton}>
+                    Pending friend request...
+                  </TextBody>
+                ) : null}
+              </UserHeader>
+              <UserSummary user={user} />
+            </Grid>
+            <Grid item xs={12} sm={6} md={8}>
+              <UserSection title="About">
+                <UserAbout user={user} />
+              </UserSection>
+              <UserSection title="My Place">
+                <UserPlace user={user} />
+              </UserSection>
+              <UserSection title="Guestbook">
+                <UserGuestbook user={user} />
+              </UserSection>
+            </Grid>
           </Grid>
-          <Grid item xs={12} sm={6} md={8}>
-            <UserSection title="About">
-              <UserAbout user={user} />
-            </UserSection>
-            <UserSection title="My Place">
-              <UserPlace user={user} />
-            </UserSection>
-            <UserSection title="Guestbook">
-              <UserGuestbook user={user} />
-            </UserSection>
-          </Grid>
-        </Grid>
-      ) : null}
+        )
+      )}
     </>
   );
 }
