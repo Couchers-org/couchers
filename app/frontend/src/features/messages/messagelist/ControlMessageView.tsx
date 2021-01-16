@@ -10,12 +10,21 @@ import { controlMessageText, messageTargetId } from "../utils";
 import { MessageProps } from "./MessageView";
 import TimeInterval from "./MomentIndication";
 
-const useStyles = makeStyles({
-  root: { display: "flex" },
-  timestamp: {},
-  message: {},
+const useStyles = makeStyles((theme) => ({
+  root: {
+    marginTop: theme.spacing(2),
+    marginInline: "auto",
+    textAlign: "center",
+  },
+  timestamp: {
+    color: theme.typography.caption.color,
+    fontSize: theme.typography.caption.fontSize,
+  },
+  message: {
+    paddingInlineEnd: theme.spacing(1),
+  },
   skeleton: { minWidth: 100 },
-});
+}));
 
 export default function ControlMessageView({ message }: MessageProps) {
   const classes = useStyles();

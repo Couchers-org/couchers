@@ -1,3 +1,4 @@
+export { default as BackIcon } from "@material-ui/icons/ArrowBackOutlined";
 export { default as CakeIcon } from "@material-ui/icons/CakeOutlined";
 export { default as CheckIcon } from "@material-ui/icons/Check";
 export { default as CloseIcon } from "@material-ui/icons/Close";
@@ -11,4 +12,5 @@ export { default as LocationIcon } from "@material-ui/icons/LocationOnOutlined";
 export { default as PersonAddIcon } from "@material-ui/icons/PersonAddOutlined";
 export { default as PersonIcon } from "@material-ui/icons/EmojiPeopleOutlined";
 export { default as SearchIcon } from "@material-ui/icons/SearchOutlined";
+export { default as SettingsIcon } from "@material-ui/icons/SettingsOutlined";
 export { default as WorkIcon } from "@material-ui/icons/WorkOutlined";

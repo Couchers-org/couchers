@@ -1,4 +1,10 @@
-import { Box, Card, CardContent, IconButton } from "@material-ui/core";
+import {
+  Box,
+  Card,
+  CardContent,
+  IconButton,
+  Typography,
+} from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import ExpandLessIcon from "@material-ui/icons/ExpandLess";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
@@ -9,14 +15,34 @@ import { timestamp2Date } from "../../../utils/date";
 import useCurrentUser from "../../userQueries/useCurrentUser";
 import { useUser } from "../../userQueries/useUsers";
 import TimeInterval from "./MomentIndication";
-import UserName from "./UserName";
 
-const useStyles = makeStyles({
-  root: { display: "flex" },
-  card: { flexGrow: 1 },
-  header: { display: "flex" },
-  name: { flexGrow: 1 },
-});
+const useStyles = makeStyles((theme) => ({
+  root: {
+    display: "flex",
+    marginTop: theme.spacing(2),
+    "& > :first-child": { marginRight: theme.spacing(2) },
+  },
+  card: {
+    [theme.breakpoints.up("xs")]: {
+      flexGrow: 1,
+    },
+    [theme.breakpoints.up("sm")]: {
+      flexGrow: 0.8,
+    },
+    [theme.breakpoints.up("md")]: {
+      flexGrow: 0.7,
+    },
+    borderRadius: theme.shape.borderRadius,
+  },
+  header: { display: "flex", padding: theme.spacing(2), alignItems: "center" },
+  messageTime: {
+    color: theme.typography.caption.color,
+    fontSize: theme.typography.caption.fontSize,
+    paddingInlineEnd: theme.spacing(1),
+  },
+  name: { flexGrow: 1, margin: 0 },
+  expandButton: { width: 20, height: 20 },
+}));
 
 export interface MessageProps {
   message: Message.AsObject;
@@ -29,13 +55,24 @@ export default function MessageView({ message }: MessageProps) {
   const { data: currentUser } = useCurrentUser();
   const isCurrentUser = author?.userId === currentUser?.userId;
   return (
-    <Card className={classes.root}>
+    <Box
+      className={classes.root}
+      style={{ justifyContent: !isCurrentUser ? "flex-start" : "flex-end" }}
+    >
       {author && !isCurrentUser && <Avatar user={author} />}
-      <Box className={classes.card}>
+      <Card className={classes.card}>
         <Box className={classes.header}>
-          {author && <UserName user={author} className={classes.name} />}
-          <TimeInterval date={timestamp2Date(message.time!)} />
+          {author && (
+            <Typography variant="h3" className={classes.name}>
+              {author.name}
+            </Typography>
+          )}
+          <TimeInterval
+            date={timestamp2Date(message.time!)}
+            className={classes.messageTime}
+          />
           <IconButton
+            className={classes.expandButton}
             onClick={(event) => {
               event.stopPropagation();
               setExpanded(!expanded);
@@ -45,11 +82,13 @@ export default function MessageView({ message }: MessageProps) {
           </IconButton>
         </Box>
 
-        <CardContent style={{ maxHeight: expanded ? "unset" : "4em" }}>
-          {message.text?.text || ""}
+        <CardContent>
+          {expanded || (message.text?.text.length ?? 0) <= 100
+            ? message.text?.text || ""
+            : message.text?.text.substr(0, 100) + "..." || ""}
         </CardContent>
-      </Box>
+      </Card>
       {author && isCurrentUser && <Avatar user={author} />}
-    </Card>
+    </Box>
   );
 }

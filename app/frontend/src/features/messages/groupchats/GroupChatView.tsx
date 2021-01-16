@@ -1,10 +1,8 @@
-import { Box, Typography } from "@material-ui/core";
+import { Box, IconButton, Menu, MenuItem, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import CloseIcon from "@material-ui/icons/Close";
-import * as React from "react";
+import React, { useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import Alert from "../../../components/Alert";
-import Button from "../../../components/Button";
 import CircularProgress from "../../../components/CircularProgress";
 import { Error as GrpcError } from "grpc-web";
 import { GroupChat, Message } from "../../../pb/conversations_pb";
@@ -12,8 +10,13 @@ import MessageList from "../messagelist/MessageList";
 import { service } from "../../../service";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import SendField from "../SendField";
+import { BackIcon, SettingsIcon } from "../../../components/Icons";
 
-const useStyles = makeStyles({ root: {} });
+const useStyles = makeStyles({
+  root: {},
+  header: { display: "flex" },
+  title: { flexGrow: 1, textAlign: "center" },
+});
 
 interface GroupChatViewProps {
   groupChat: GroupChat.AsObject;
@@ -25,6 +28,17 @@ export default function GroupChatView({
   closeGroupChat,
 }: GroupChatViewProps) {
   const classes = useStyles();
+
+  const menuAnchor = useRef<HTMLAnchorElement>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const handleClick = () => {
+    setMenuOpen(true);
+  };
+
+  const handleClose = () => {
+    setMenuOpen(false);
+  };
 
   const { data: messages, isLoading, error } = useQuery<
     Message.AsObject[],
@@ -64,15 +78,33 @@ export default function GroupChatView({
   const handleLeaveGroupChat = () => leaveGroupChatMutation.mutate();
   return (
     <Box className={classes.root}>
-      <Typography variant="h3">{groupChat!.title}</Typography>
-      <Button onClick={closeGroupChat}>
-        <CloseIcon />
-        (close)
-      </Button>
-      <Button onClick={handleLeaveGroupChat}>
-        <CloseIcon />
-        (leave)
-      </Button>
+      <Box className={classes.header}>
+        <IconButton onClick={closeGroupChat} aria-label="Back">
+          <BackIcon />
+        </IconButton>
+
+        <Typography variant="h2" className={classes.title}>
+          {groupChat!.title}
+        </Typography>
+
+        <IconButton
+          onClick={handleClick}
+          aria-label="Menu"
+          aria-haspopup="true"
+          innerRef={menuAnchor}
+        >
+          <SettingsIcon />
+        </IconButton>
+        <Menu
+          id="simple-menu"
+          anchorEl={menuAnchor.current}
+          keepMounted
+          open={menuOpen}
+          onClose={handleClose}
+        >
+          <MenuItem onClick={handleLeaveGroupChat}>Leave chat</MenuItem>
+        </Menu>
+      </Box>
       {(error || sendMutation.error || leaveGroupChatMutation.error) && (
         <Alert severity="error">
           {error ||
