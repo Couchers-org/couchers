@@ -1,16 +1,35 @@
-import { BoxProps, Box, TextField } from "@material-ui/core";
+import { BoxProps, Box, makeStyles, Grid } from "@material-ui/core";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { UseMutationResult } from "react-query";
 import { Error as GrpcError } from "grpc-web";
 import Button from "../../components/Button";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import TextField from "../../components/TextField";
+
+const useStyles = makeStyles((theme) => ({
+  root: { marginTop: theme.spacing(2) },
+  container: {
+    [theme.breakpoints.up("md")]: {
+      display: "flex",
+    },
+  },
+  sendButton: {
+    display: "block",
+    marginInline: "auto",
+    marginTop: theme.spacing(2),
+    [theme.breakpoints.up("md")]: {
+      margin: 0,
+      marginInlineStart: theme.spacing(2),
+    },
+  },
+}));
 
 interface MessageFormData {
   text: string;
 }
 
-export interface SendFieldProps extends BoxProps {
+export interface SendFieldProps {
   sendMutation: UseMutationResult<
     string | undefined | Empty,
     GrpcError,
@@ -18,10 +37,9 @@ export interface SendFieldProps extends BoxProps {
   >;
 }
 
-export default function SendField({
-  sendMutation,
-  ...otherProps
-}: SendFieldProps) {
+export default function SendField({ sendMutation }: SendFieldProps) {
+  const classes = useStyles();
+
   const { mutate: handleSend, isLoading } = sendMutation;
 
   const { register, handleSubmit } = useForm<MessageFormData>();
@@ -30,15 +48,17 @@ export default function SendField({
   });
 
   return (
-    <Box {...otherProps}>
-      <form onSubmit={onSubmit}>
+    <Box className={classes.root}>
+      <form onSubmit={onSubmit} className={classes.container}>
         <TextField
-          label="Text"
+          label="Message"
           name="text"
           defaultValue={""}
           inputRef={register}
           rowsMax={5}
+          variant="outlined"
           multiline
+          fullWidth
         />
 
         <Button
@@ -47,6 +67,7 @@ export default function SendField({
           color="primary"
           onClick={onSubmit}
           loading={isLoading}
+          className={classes.sendButton}
         >
           Send
         </Button>

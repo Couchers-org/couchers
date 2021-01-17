@@ -4,7 +4,10 @@ import React from "react";
 import { GroupChat } from "../../../pb/conversations_pb";
 import GroupChatListItem from "./GroupChatListItem";
 
-const useStyles = makeStyles({ root: {} });
+const useStyles = makeStyles({
+  root: {},
+  link: { "&:hover": { textDecoration: "none" } },
+});
 
 interface GroupChatListProps {
   groupChats: GroupChat.AsObject[];
@@ -25,6 +28,7 @@ export default function GroupChatList({
           <Link
             key={groupChat.groupChatId}
             onClick={() => setGroupChat(groupChat)}
+            className={classes.link}
           >
             <GroupChatListItem groupChat={groupChat} />
           </Link>

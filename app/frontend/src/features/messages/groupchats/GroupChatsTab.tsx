@@ -38,11 +38,11 @@ export default function GroupChatsTab() {
       ) : (
         groupChats && (
           <>
+            <CreateGroupChat />
             <GroupChatList
               groupChats={groupChats}
               setGroupChat={setGroupChat}
             />
-            <CreateGroupChat />
           </>
         )
       )}

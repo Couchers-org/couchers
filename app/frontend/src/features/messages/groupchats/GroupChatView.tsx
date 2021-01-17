@@ -11,6 +11,9 @@ import { service } from "../../../service";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import SendField from "../SendField";
 import { BackIcon, SettingsIcon } from "../../../components/Icons";
+import { groupChatTitleText } from "../utils";
+import { useAuthContext } from "../../auth/AuthProvider";
+import useUsers from "../../userQueries/useUsers";
 
 const useStyles = makeStyles({
   root: {},
@@ -39,6 +42,10 @@ export default function GroupChatView({
   const handleClose = () => {
     setMenuOpen(false);
   };
+
+  //for title text
+  const currentUserId = useAuthContext().authState.userId!;
+  const groupChatMembersQuery = useUsers(groupChat.memberUserIdsList);
 
   const { data: messages, isLoading, error } = useQuery<
     Message.AsObject[],
@@ -84,7 +91,7 @@ export default function GroupChatView({
         </IconButton>
 
         <Typography variant="h2" className={classes.title}>
-          {groupChat!.title}
+          {groupChatTitleText(groupChat, groupChatMembersQuery, currentUserId)}
         </Typography>
 
         <IconButton

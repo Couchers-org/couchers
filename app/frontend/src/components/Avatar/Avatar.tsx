@@ -44,6 +44,8 @@ export default function Avatar({ user, grow, ...otherProps }: AvatarProps) {
         >
           {user.name.split(/\s+/).map((name) => name[0])}
         </MuiAvatar>
+      ) : otherProps.children ? (
+        <MuiAvatar className={classes.avatar}>{otherProps.children}</MuiAvatar>
       ) : (
         <Skeleton variant="circle" className={classes.avatar} />
       )}

@@ -1,4 +1,6 @@
-import { Message } from "../../pb/conversations_pb";
+import { GroupChat, Message } from "../../pb/conversations_pb";
+import { firstName } from "../../utils/names";
+import useUsers from "../userQueries/useUsers";
 import { hostRequestStatusLabels } from "./constants";
 
 export function isControlMessage(message: Message.AsObject) {
@@ -40,4 +42,19 @@ export function controlMessageText(
   } else {
     throw Error("Unknown control message.");
   }
+}
+
+export function groupChatTitleText(
+  groupChat: GroupChat.AsObject,
+  groupChatMembersQuery: ReturnType<typeof useUsers>,
+  currentUserId: number
+) {
+  return groupChat.title
+    ? groupChat.title
+    : groupChatMembersQuery.isLoading
+    ? "Chat"
+    : Array.from(groupChatMembersQuery.data?.values() ?? [])
+        .filter((user) => user?.userId !== currentUserId)
+        .map((user) => firstName(user?.name) || "")
+        .join(", ");
 }

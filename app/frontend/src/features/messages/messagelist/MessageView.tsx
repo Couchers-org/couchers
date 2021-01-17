@@ -1,14 +1,6 @@
-import {
-  Box,
-  Card,
-  CardContent,
-  IconButton,
-  Typography,
-} from "@material-ui/core";
+import { Box, Card, CardContent, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import ExpandLessIcon from "@material-ui/icons/ExpandLess";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import React, { useState } from "react";
+import React from "react";
 import Avatar from "../../../components/Avatar";
 import { Message } from "../../../pb/conversations_pb";
 import { timestamp2Date } from "../../../utils/date";
@@ -24,13 +16,13 @@ const useStyles = makeStyles((theme) => ({
   },
   card: {
     [theme.breakpoints.up("xs")]: {
-      flexGrow: 1,
+      width: "100%",
     },
     [theme.breakpoints.up("sm")]: {
-      flexGrow: 0.8,
+      width: "80%",
     },
     [theme.breakpoints.up("md")]: {
-      flexGrow: 0.7,
+      width: "70%",
     },
     borderRadius: theme.shape.borderRadius,
   },
@@ -41,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
     paddingInlineEnd: theme.spacing(1),
   },
   name: { flexGrow: 1, margin: 0 },
-  expandButton: { width: 20, height: 20 },
+  messageBody: { paddingTop: 0 },
 }));
 
 export interface MessageProps {
@@ -49,7 +41,6 @@ export interface MessageProps {
 }
 
 export default function MessageView({ message }: MessageProps) {
-  const [expanded, setExpanded] = useState<boolean>(false);
   const classes = useStyles();
   const { data: author } = useUser(message.authorUserId);
   const { data: currentUser } = useCurrentUser();
@@ -71,21 +62,10 @@ export default function MessageView({ message }: MessageProps) {
             date={timestamp2Date(message.time!)}
             className={classes.messageTime}
           />
-          <IconButton
-            className={classes.expandButton}
-            onClick={(event) => {
-              event.stopPropagation();
-              setExpanded(!expanded);
-            }}
-          >
-            {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-          </IconButton>
         </Box>
 
-        <CardContent>
-          {expanded || (message.text?.text.length ?? 0) <= 100
-            ? message.text?.text || ""
-            : message.text?.text.substr(0, 100) + "..." || ""}
+        <CardContent className={classes.messageBody}>
+          {message.text?.text || ""}
         </CardContent>
       </Card>
       {author && isCurrentUser && <Avatar user={author} />}
