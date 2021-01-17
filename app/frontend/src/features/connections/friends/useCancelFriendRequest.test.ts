@@ -45,6 +45,7 @@ describe("useCancelFriendRequest hook", () => {
       result.current.cancelFriendRequest({
         friendRequestId: 1,
         setMutationError,
+        userId: 2,
       });
     });
 
@@ -70,6 +71,7 @@ describe("useCancelFriendRequest hook", () => {
       result.current.cancelFriendRequest({
         friendRequestId: 1,
         setMutationError,
+        userId: 2,
       });
     });
 
