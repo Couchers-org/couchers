@@ -275,6 +275,13 @@ message RepeatedStringValue {
   repeated string value = 2;
 }
 
+message RepeatedLanguageAbilityValue {
+  // A RepeatedLanguageAbilityValue is like a "protobuf wrapper" (like {Type}Value) but for repeated LanguageAbility
+  // allows us to determine if the user wanted to remote this list of LanguageAbility's
+  bool exists = 1;
+  repeated LanguageAbility value = 2;
+}
+
 message UpdateProfileReq {
   // These StringValue types allow us to determine if the value is absent versus ""
 
@@ -300,7 +307,7 @@ message UpdateProfileReq {
   HostingStatus hosting_status = 8;
   MeetupStatus meetup_status = 105;
 
-  LanguageAbility languages = 9;
+  RepeatedLanguageAbilityValue languages = 9;
   RepeatedStringValue countries_visited = 10;
   RepeatedStringValue countries_lived = 11;
   NullableStringValue additional_information = 106;
