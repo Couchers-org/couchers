@@ -146,6 +146,7 @@ export async function updateProfile(
   const hostingStatus = profile.hostingStatus;
   const meetupStatus = profile.meetupStatus;
   const languages = new RepeatedStringValue()
+    // @ts-expect-error languages has new type, but old type still works for now
     .setValueList(profile.languages)
     .setExists(!!profile.languages);
   const countriesVisited = new RepeatedStringValue()
@@ -169,6 +170,7 @@ export async function updateProfile(
     .setPronouns(pronouns)
     .setOccupation(occupation)
     .setEducation(education)
+    .setLanguages(languages)
     .setAboutMe(aboutMe)
     .setMyTravels(myTravels)
     .setThingsILike(thingsILike)
@@ -189,8 +191,8 @@ export function updateHostingPreference(preferences: HostingPreferenceData) {
   const maxGuests =
     preferences.maxGuests !== null
       ? new NullableUInt32Value()
-          .setValue(preferences.maxGuests)
-          .setIsNull(false)
+        .setValue(preferences.maxGuests)
+        .setIsNull(false)
       : new NullableUInt32Value().setIsNull(true);
   const lastMinute = new NullableBoolValue()
     .setValue(preferences.lastMinute)
