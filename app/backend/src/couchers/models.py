@@ -1199,7 +1199,7 @@ class LanguageAbilities(Base):
     __tablename__ = "language_abilities"
 
     language = Column(String(length=3), nullable=False)
-    fluency = Column(Enum(Fluency), nullable=False, default=Fluency.FLUENCY_UNSPECIFIED)
+    fluency = Column(Enum(Fluency), nullable=False, default=Fluency.fluency_unspecified)
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
 
     user = relationship("User", backref="language_abilities")
