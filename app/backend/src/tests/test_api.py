@@ -155,7 +155,13 @@ def test_update_profile(db):
                 about_place=api_pb2.NullableStringValue(value="My place"),
                 hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
                 meetup_status=api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP,
-                languages=api_pb2.RepeatedStringValue(exists=True, value=["Binary", "English"]),
+                languages=api_pb2.RepeatedLanguageAbilityValue(
+                    exists=True,
+                    value=api_pb2.LanguageAbility(
+                        code=wrappers_pb2.StringValue(value="eng"),
+                        fluency=api_pb2._LANGUAGEABILITY_FLUENCY.FLUENCY_NATIVE,
+                    ),
+                ),
                 countries_visited=api_pb2.RepeatedStringValue(exists=True, value=["UK", "Aus"]),
                 countries_lived=api_pb2.RepeatedStringValue(exists=True, value=["UK", "Aus"]),
                 additional_information=api_pb2.NullableStringValue(value="I <3 Couchers"),
@@ -182,13 +188,12 @@ def test_update_profile(db):
         assert user.about_place == "My place"
         assert user.hosting_status == api_pb2.HOSTING_STATUS_CAN_HOST
         assert user.meetup_status == api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP
-        assert "Binary" in user.languages
-        assert "English" in user.languages
         assert user.additional_information == "I <3 Couchers"
         assert "UK" in user.countries_visited
         assert "Aus" in user.countries_visited
         assert "UK" in user.countries_lived
         assert "Aus" in user.countries_lived
+        assert user.language_abilities[0].language == "eng"
 
 
 def test_pending_friend_request_count(db):

@@ -78,6 +78,16 @@ class ParkingDetails(enum.Enum):
     paid_offsite = enum.auto()
 
 
+class Fluency(enum.Enum):
+    fluency_unspecified = 0
+    fluency_say_hello = 1
+    fluency_beginner = 2
+    fluency_intermediate = 3
+    fluency_advanced = 4
+    fluency_fluent = 5
+    fluency_native = 6
+
+
 class User(Base):
     """
     Basic user and profile details
@@ -134,7 +144,7 @@ class User(Base):
     things_i_like = Column(String, nullable=True)
     about_place = Column(String, nullable=True)
     avatar_filename = Column(String, nullable=True)
-    # TODO: array types once we go postgres
+    # deprecated
     languages = Column(String, nullable=True)
     countries_visited = Column(String, nullable=True)
     countries_lived = Column(String, nullable=True)
@@ -1183,3 +1193,13 @@ class BackgroundJob(Base):
 
     def __repr__(self):
         return f"BackgroundJob(id={self.id}, job_type={self.job_type}, state={self.state}, next_attempt_after={self.next_attempt_after}, try_count={self.try_count}, failure_info={self.failure_info})"
+
+
+class LanguageAbilities(Base):
+    __tablename__ = "language_abilities"
+
+    language = Column(String(length=3), nullable=False)
+    fluency = Column(Enum(Fluency), nullable=False, default=Fluency.FLUENCY_UNSPECIFIED)
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+
+    user = relationship("User", backref="language_abilities")
