@@ -1,7 +1,6 @@
 import {
   Container,
   CssBaseline,
-  Hidden,
   ThemeProvider,
   makeStyles,
 } from "@material-ui/core";

@@ -1,4 +1,4 @@
-import { Box, IconButton, Menu, MenuItem, Typography } from "@material-ui/core";
+import { Box, IconButton, Menu, MenuItem } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import React, { useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
@@ -15,6 +15,8 @@ import { groupChatTitleText } from "../utils";
 import { useAuthContext } from "../../auth/AuthProvider";
 import useUsers from "../../userQueries/useUsers";
 import PageTitle from "../../../components/PageTitle";
+import { useHistory, useParams } from "react-router-dom";
+import { Skeleton } from "@material-ui/lab";
 
 const useStyles = makeStyles({
   root: {},
@@ -24,15 +26,7 @@ const useStyles = makeStyles({
   },
 });
 
-interface GroupChatViewProps {
-  groupChat: GroupChat.AsObject;
-  closeGroupChat: () => void;
-}
-
-export default function GroupChatView({
-  groupChat,
-  closeGroupChat,
-}: GroupChatViewProps) {
+export default function GroupChatView() {
   const classes = useStyles();
 
   const menuAnchor = useRef<HTMLAnchorElement>(null);
@@ -46,55 +40,73 @@ export default function GroupChatView({
     setMenuOpen(false);
   };
 
+  const groupChatId = +(useParams<{ groupChatId?: string }>().groupChatId || 0);
+
+  const { data: groupChat, error: idError } = useQuery<
+    GroupChat.AsObject,
+    GrpcError
+  >(
+    ["groupChat", groupChatId],
+    () => service.conversations.getGroupChat(groupChatId),
+    {
+      enabled: !!groupChatId,
+    }
+  );
+
   //for title text
   const currentUserId = useAuthContext().authState.userId!;
-  const groupChatMembersQuery = useUsers(groupChat.memberUserIdsList);
+  const groupChatMembersQuery = useUsers(groupChat?.memberUserIdsList);
 
-  const { data: messages, isLoading, error } = useQuery<
-    Message.AsObject[],
-    GrpcError
-  >(["groupChatMessages", groupChat.groupChatId], () =>
-    service.conversations.getGroupChatMessages(groupChat.groupChatId)
+  const {
+    data: messages,
+    isLoading: isMessagesLoading,
+    error: messagesError,
+  } = useQuery<Message.AsObject[], GrpcError>(
+    ["groupChatMessages", groupChatId],
+    () => service.conversations.getGroupChatMessages(groupChatId),
+    { enabled: !!groupChatId }
   );
 
   const queryClient = useQueryClient();
   const sendMutation = useMutation<Empty, GrpcError, string>(
-    (text: string) =>
-      service.conversations.sendMessage(groupChat.groupChatId, text),
+    (text: string) => service.conversations.sendMessage(groupChatId, text),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries([
-          "groupChatMessages",
-          groupChat.groupChatId,
-        ]);
+        queryClient.invalidateQueries(["groupChatMessages", groupChatId]);
         queryClient.invalidateQueries(["groupChats"]);
       },
     }
   );
 
   const leaveGroupChatMutation = useMutation<Empty, GrpcError, void>(
-    () => service.conversations.leaveGroupChat(groupChat.groupChatId),
+    () => service.conversations.leaveGroupChat(groupChatId),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries([
-          "groupChatMessages",
-          groupChat.groupChatId,
-        ]);
+        queryClient.invalidateQueries(["groupChatMessages", groupChatId]);
         queryClient.invalidateQueries(["groupChats"]);
       },
     }
   );
 
+  const history = useHistory();
+
   const handleLeaveGroupChat = () => leaveGroupChatMutation.mutate();
+  const handleBack = () => history.goBack();
   return (
     <Box className={classes.root}>
       <Box className={classes.header}>
-        <IconButton onClick={closeGroupChat} aria-label="Back">
+        <IconButton onClick={handleBack} aria-label="Back">
           <BackIcon />
         </IconButton>
 
         <PageTitle className={classes.title}>
-          {groupChatTitleText(groupChat, groupChatMembersQuery, currentUserId)}
+          {groupChat ? (
+            groupChatTitleText(groupChat, groupChatMembersQuery, currentUserId)
+          ) : idError ? (
+            "Error"
+          ) : (
+            <Skeleton width={100} />
+          )}
         </PageTitle>
 
         <IconButton
@@ -115,14 +127,18 @@ export default function GroupChatView({
           <MenuItem onClick={handleLeaveGroupChat}>Leave chat</MenuItem>
         </Menu>
       </Box>
-      {(error || sendMutation.error || leaveGroupChatMutation.error) && (
+      {(idError ||
+        messagesError ||
+        sendMutation.error ||
+        leaveGroupChatMutation.error) && (
         <Alert severity="error">
-          {error ||
+          {idError?.message ||
+            messagesError?.message ||
             sendMutation.error?.message ||
             leaveGroupChatMutation.error?.message}
         </Alert>
       )}
-      {isLoading ? (
+      {isMessagesLoading ? (
         <CircularProgress />
       ) : (
         messages && (
