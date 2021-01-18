@@ -17,19 +17,14 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  DialogActions,
+  DialogContentText,
 } from "@material-ui/core";
 import { AddIcon } from "../../../components/Icons";
 import Avatar from "../../../components/Avatar";
 
 const useStyles = makeStyles((theme) => ({
-  title: { paddingBottom: 0 },
   field: { marginTop: theme.spacing(1) },
-  button: {
-    display: "block",
-    marginInline: "auto",
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(1),
-  },
 }));
 
 interface CreateGroupChatFormData {
@@ -85,11 +80,9 @@ export default function CreateGroupChat() {
         open={isOpen}
         onClose={() => setIsOpen(false)}
       >
-        <DialogTitle id="create-dialog-title" className={classes.title}>
-          Create group chat
-        </DialogTitle>
-        <DialogContent>
-          <form onSubmit={onSubmit}>
+        <form onSubmit={onSubmit}>
+          <DialogTitle id="create-dialog-title">Create group chat</DialogTitle>
+          <DialogContent>
             {!!errors.length && (
               <Alert severity={"error"}>{errors.join("\n")}</Alert>
             )}
@@ -120,18 +113,19 @@ export default function CreateGroupChat() {
                 />
               )}
             />
+          </DialogContent>
+          <DialogActions>
             <Button
               type="submit"
               variant="contained"
               color="primary"
               onClick={onSubmit}
               loading={isCreateLoading}
-              className={classes.button}
             >
               Create
             </Button>
-          </form>
-        </DialogContent>
+          </DialogActions>
+        </form>
       </Dialog>
     </>
   );

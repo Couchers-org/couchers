@@ -32,11 +32,38 @@ const themeOptions: ThemeOptions = {
     fontSize: 14,
   },
   shape: {
-    borderRadius: 10,
+    borderRadius: 5,
   },
   props: {
     MuiButtonBase: {
       disableRipple: true,
+    },
+  },
+  overrides: {
+    MuiDialog: { paper: { padding: 0 } },
+    MuiDialogTitle: {
+      root: {
+        padding: spacing(2),
+        paddingBottom: 0,
+        textAlign: "center",
+        //default typography is h2 with h6 styling
+        "& > h2": {
+          fontSize: 16,
+          fontWeight: "bold",
+        },
+      },
+    },
+    MuiDialogContent: { root: { padding: spacing(2) } },
+    MuiDialogContentText: { root: { padding: spacing(2) } },
+    MuiDialogActions: {
+      root: {
+        display: "flex",
+        justifyContent: "space-between",
+        padding: spacing(2),
+        paddingTop: 0,
+        margin: 0,
+        "& > button": { marginInline: "auto" },
+      },
     },
   },
 };
