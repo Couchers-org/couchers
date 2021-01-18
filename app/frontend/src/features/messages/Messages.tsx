@@ -6,13 +6,6 @@ import SurfingTab from "./surfing/SurfingTab";
 import TabBar from "../../components/TabBar";
 import { useHistory, useParams } from "react-router-dom";
 import { messagesRoute } from "../../AppRoutes";
-import { makeStyles } from "@material-ui/core";
-
-const useStyles = makeStyles((theme) => ({
-  panel: {
-    paddingInline: 0,
-  },
-}));
 
 const labels = {
   all: "All",
@@ -26,7 +19,6 @@ const labels = {
 type MessageType = keyof typeof labels;
 
 export default function Messages() {
-  const classes = useStyles();
   const history = useHistory();
   const { type = "all" } = useParams<{ type: keyof typeof labels }>();
   const messageType = type in labels ? (type as MessageType) : "all";
@@ -42,24 +34,18 @@ export default function Messages() {
           }
           labels={labels}
         />
-        <TabPanel value="all" className={classes.panel}>
-          ALL
-        </TabPanel>
-        <TabPanel value="groupchats" className={classes.panel}>
+        <TabPanel value="all">ALL</TabPanel>
+        <TabPanel value="groupchats">
           <GroupChatsTab />
         </TabPanel>
-        <TabPanel value="hosting" className={classes.panel}>
+        <TabPanel value="hosting">
           <SurfingTab type="hosting" />
         </TabPanel>
-        <TabPanel value="surfing" className={classes.panel}>
+        <TabPanel value="surfing">
           <SurfingTab type="surfing" />
         </TabPanel>
-        <TabPanel value="meet" className={classes.panel}>
-          MEET
-        </TabPanel>
-        <TabPanel value="archived" className={classes.panel}>
-          ARCHIVED
-        </TabPanel>
+        <TabPanel value="meet">MEET</TabPanel>
+        <TabPanel value="archived">ARCHIVED</TabPanel>
       </TabContext>
     </>
   );

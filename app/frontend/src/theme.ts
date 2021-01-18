@@ -1,14 +1,16 @@
 import { createMuiTheme, ThemeOptions } from "@material-ui/core";
+import type {} from "@material-ui/lab/themeAugmentation";
 
 const spacing = (factor: number) => `${0.5 * factor}rem`;
+const borderRadius = 10;
 
 const themeOptions: ThemeOptions = {
   palette: {
     primary: {
-      main: "#f8aa3a",
+      main: "#7d4cb8",
     },
     secondary: {
-      main: "#b8574c",
+      main: "#f8aa3a",
     },
   },
   spacing: spacing,
@@ -32,7 +34,7 @@ const themeOptions: ThemeOptions = {
     fontSize: 14,
   },
   shape: {
-    borderRadius: 5,
+    borderRadius,
   },
   props: {
     MuiButtonBase: {
@@ -40,29 +42,10 @@ const themeOptions: ThemeOptions = {
     },
   },
   overrides: {
-    MuiDialog: { paper: { padding: 0 } },
-    MuiDialogTitle: {
+    MuiListItem: { gutters: { paddingLeft: 0, paddingRight: 0 } },
+    MuiTabPanel: {
       root: {
-        padding: spacing(2),
-        paddingBottom: 0,
-        textAlign: "center",
-        //default typography is h2 with h6 styling
-        "& > h2": {
-          fontSize: 16,
-          fontWeight: "bold",
-        },
-      },
-    },
-    MuiDialogContent: { root: { padding: spacing(2) } },
-    MuiDialogContentText: { root: { padding: spacing(2) } },
-    MuiDialogActions: {
-      root: {
-        display: "flex",
-        justifyContent: "space-between",
-        padding: spacing(2),
-        paddingTop: 0,
-        margin: 0,
-        "& > button": { marginInline: "auto" },
+        padding: 0,
       },
     },
   },

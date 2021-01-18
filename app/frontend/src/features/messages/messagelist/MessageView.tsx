@@ -7,6 +7,7 @@ import { timestamp2Date } from "../../../utils/date";
 import useCurrentUser from "../../userQueries/useCurrentUser";
 import { useUser } from "../../userQueries/useUsers";
 import TimeInterval from "./MomentIndication";
+import classnames from "classnames";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -24,7 +25,14 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.up("md")]: {
       width: "70%",
     },
+    border: "1px solid",
     borderRadius: theme.shape.borderRadius,
+  },
+  userCard: {
+    borderColor: theme.palette.secondary.main,
+  },
+  otherCard: {
+    borderColor: theme.palette.primary.main,
   },
   header: { display: "flex", padding: theme.spacing(2), alignItems: "center" },
   messageTime: {
@@ -32,6 +40,7 @@ const useStyles = makeStyles((theme) => ({
     fontSize: theme.typography.caption.fontSize,
     paddingInlineEnd: theme.spacing(1),
   },
+  avatar: { width: 40, height: 40 },
   name: { flexGrow: 1, margin: 0 },
   messageBody: { paddingTop: 0 },
 }));
@@ -50,8 +59,15 @@ export default function MessageView({ message }: MessageProps) {
       className={classes.root}
       style={{ justifyContent: !isCurrentUser ? "flex-start" : "flex-end" }}
     >
-      {author && !isCurrentUser && <Avatar user={author} />}
-      <Card className={classes.card}>
+      {author && !isCurrentUser && (
+        <Avatar user={author} className={classes.avatar} />
+      )}
+      <Card
+        className={classnames(classes.card, {
+          [classes.userCard]: isCurrentUser,
+          [classes.otherCard]: !isCurrentUser,
+        })}
+      >
         <Box className={classes.header}>
           {author && (
             <Typography variant="h3" className={classes.name}>
@@ -68,7 +84,9 @@ export default function MessageView({ message }: MessageProps) {
           {message.text?.text || ""}
         </CardContent>
       </Card>
-      {author && isCurrentUser && <Avatar user={author} />}
+      {author && isCurrentUser && (
+        <Avatar user={author} className={classes.avatar} />
+      )}
     </Box>
   );
 }

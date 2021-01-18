@@ -14,11 +14,14 @@ import { BackIcon, SettingsIcon } from "../../../components/Icons";
 import { groupChatTitleText } from "../utils";
 import { useAuthContext } from "../../auth/AuthProvider";
 import useUsers from "../../userQueries/useUsers";
+import PageTitle from "../../../components/PageTitle";
 
 const useStyles = makeStyles({
   root: {},
-  header: { display: "flex" },
-  title: { flexGrow: 1, textAlign: "center" },
+  header: { display: "flex", alignItems: "center" },
+  title: {
+    flexGrow: 1,
+  },
 });
 
 interface GroupChatViewProps {
@@ -90,9 +93,9 @@ export default function GroupChatView({
           <BackIcon />
         </IconButton>
 
-        <Typography variant="h2" className={classes.title}>
+        <PageTitle className={classes.title}>
           {groupChatTitleText(groupChat, groupChatMembersQuery, currentUserId)}
-        </Typography>
+        </PageTitle>
 
         <IconButton
           onClick={handleClick}

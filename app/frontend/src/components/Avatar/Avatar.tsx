@@ -8,6 +8,9 @@ import { User } from "../../pb/api_pb";
 const useStyles = makeStyles({
   root: {
     position: "relative",
+    flexShrink: 0,
+  },
+  defaultSize: {
     height: "3rem",
     width: "3rem",
   },
@@ -27,13 +30,24 @@ const useStyles = makeStyles({
 export interface AvatarProps extends BoxProps {
   user?: User.AsObject;
   grow?: boolean;
+  className?: string;
 }
 
-export default function Avatar({ user, grow, ...otherProps }: AvatarProps) {
+export default function Avatar({
+  user,
+  grow,
+  className,
+  ...otherProps
+}: AvatarProps) {
   const classes = useStyles();
   return (
     <Box
-      className={classNames(classes.root, { [classes.grow]: grow })}
+      className={classNames(
+        className,
+        { [classes.defaultSize]: !className },
+        classes.root,
+        { [classes.grow]: grow }
+      )}
       {...otherProps}
     >
       {user ? (

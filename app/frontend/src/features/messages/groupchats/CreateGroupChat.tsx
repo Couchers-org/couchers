@@ -10,16 +10,13 @@ import TextField from "../../../components/TextField";
 import { User } from "../../../pb/api_pb";
 import useFriendList from "../../connections/friends/useFriendList";
 import { service } from "../../../service";
+import { ListItem, ListItemAvatar, ListItemText } from "@material-ui/core";
 import {
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
-  DialogContentText,
-} from "@material-ui/core";
+} from "../../../components/Dialog";
 import { AddIcon } from "../../../components/Icons";
 import Avatar from "../../../components/Avatar";
 
@@ -94,7 +91,7 @@ export default function CreateGroupChat() {
             />
             <Controller
               control={control}
-              defaultValue={friends}
+              defaultValue={[]}
               name="users"
               onChange={([, data]: any) => data}
               render={({ onChange }) => (

@@ -10,7 +10,7 @@ import { useIsMounted, useSafeState } from "../../utils/hooks";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    borderRadius: `${theme.shape.borderRadius * 2}px`,
+    borderRadius: `${theme.shape.borderRadius}px`,
   },
   loading: {
     marginLeft: theme.spacing(1),
