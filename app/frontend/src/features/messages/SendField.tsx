@@ -8,10 +8,18 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import TextField from "../../components/TextField";
 
 const useStyles = makeStyles((theme) => ({
-  root: { marginTop: theme.spacing(2) },
+  root: { marginBlock: theme.spacing(2) },
   container: {
     [theme.breakpoints.up("md")]: {
       display: "flex",
+    },
+  },
+  field: {
+    "& .MuiOutlinedInput-notchedOutline": {
+      borderColor: theme.palette.grey[900],
+    },
+    "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline": {
+      borderColor: theme.palette.grey[500],
     },
   },
   sendButton: {
@@ -55,10 +63,12 @@ export default function SendField({ sendMutation }: SendFieldProps) {
           name="text"
           defaultValue={""}
           inputRef={register}
-          rowsMax={5}
+          rows={4}
+          rowsMax={6}
           variant="outlined"
           multiline
           fullWidth
+          className={classes.field}
         />
 
         <Button

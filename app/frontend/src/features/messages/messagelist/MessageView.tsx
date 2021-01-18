@@ -34,15 +34,35 @@ const useStyles = makeStyles((theme) => ({
   otherCard: {
     borderColor: theme.palette.primary.main,
   },
-  header: { display: "flex", padding: theme.spacing(2), alignItems: "center" },
+  header: {
+    display: "flex",
+    padding: theme.spacing(2),
+    paddingBottom: theme.spacing(1),
+    alignItems: "center",
+  },
+  footer: {
+    display: "flex",
+    paddingInline: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
+    justifyContent: "flex-end",
+  },
   messageTime: {
     color: theme.typography.caption.color,
     fontSize: theme.typography.caption.fontSize,
     paddingInlineEnd: theme.spacing(1),
   },
   avatar: { width: 40, height: 40 },
-  name: { flexGrow: 1, margin: 0 },
-  messageBody: { paddingTop: 0 },
+  name: {
+    flexGrow: 1,
+    margin: 0,
+    fontSize: theme.typography.body2.fontSize,
+    fontWeight: "bold",
+  },
+  messageBody: {
+    paddingTop: 0,
+    paddingBottom: theme.spacing(1),
+    "&:last-child": { paddingBottom: theme.spacing(2) },
+  },
 }));
 
 export interface MessageProps {
@@ -70,19 +90,30 @@ export default function MessageView({ message }: MessageProps) {
       >
         <Box className={classes.header}>
           {author && (
-            <Typography variant="h3" className={classes.name}>
+            <Typography variant="h5" className={classes.name}>
               {author.name}
             </Typography>
           )}
-          <TimeInterval
-            date={timestamp2Date(message.time!)}
-            className={classes.messageTime}
-          />
+          {!isCurrentUser && (
+            <TimeInterval
+              date={timestamp2Date(message.time!)}
+              className={classes.messageTime}
+            />
+          )}
         </Box>
 
         <CardContent className={classes.messageBody}>
           {message.text?.text || ""}
         </CardContent>
+
+        {isCurrentUser && (
+          <Box className={classes.footer}>
+            <TimeInterval
+              date={timestamp2Date(message.time!)}
+              className={classes.messageTime}
+            />
+          </Box>
+        )}
       </Card>
       {author && isCurrentUser && (
         <Avatar user={author} className={classes.avatar} />

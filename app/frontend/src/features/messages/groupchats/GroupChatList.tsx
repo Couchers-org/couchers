@@ -9,7 +9,11 @@ import GroupChatListItem from "./GroupChatListItem";
 
 const useStyles = makeStyles({
   root: {},
-  link: { textDecoration: "none", "&:hover": { textDecoration: "none" } },
+  link: {
+    color: "inherit",
+    textDecoration: "none",
+    "&:hover": { textDecoration: "none" },
+  },
 });
 
 interface GroupChatListProps {

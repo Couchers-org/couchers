@@ -16,7 +16,8 @@ import { ReactQueryClientProvider } from "./reactQueryClient";
 const useStyles = makeStyles((theme) => ({
   padding: {
     paddingBottom: theme.spacing(7),
-    paddingInline: theme.spacing(2),
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
     [`${theme.breakpoints.up("xs")} and (orientation: landscape)`]: {
       paddingBottom: theme.spacing(6),
     },
