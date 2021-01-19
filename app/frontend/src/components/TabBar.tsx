@@ -2,15 +2,19 @@ import { Tab, Tabs } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import React from "react";
 
-const useStyles = makeStyles({ root: {} });
+const useStyles = makeStyles((theme) => ({
+  tabRoot: {
+    minWidth: theme.spacing(25),
+  },
+}));
 
-export interface TabBarProps<T extends Record<string, string>> {
+export interface TabBarProps<T extends Record<string, React.ReactNode>> {
   value: keyof T;
   setValue: (value: keyof T) => void;
   labels: T;
 }
 
-export default function TabBar<T extends Record<string, string>>({
+export default function TabBar<T extends Record<string, React.ReactNode>>({
   value,
   setValue,
   labels,
@@ -29,7 +33,12 @@ export default function TabBar<T extends Record<string, string>>({
       variant="scrollable"
     >
       {Object.entries(labels).map(([value, label]) => (
-        <Tab key={value} label={label} value={value} />
+        <Tab
+          classes={{ root: classes.tabRoot }}
+          key={value}
+          label={label}
+          value={value}
+        />
       ))}
     </Tabs>
   );
