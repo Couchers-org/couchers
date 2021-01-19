@@ -7,10 +7,33 @@ import TabBar from "../../components/TabBar";
 import { useHistory, useParams } from "react-router-dom";
 import { messagesRoute } from "../../AppRoutes";
 
+import NotificationBadge from "../../components/NotificationBadge";
+import useNotifications from "../useNotifications";
+
+export function MessagesNotification() {
+  const { data } = useNotifications();
+
+  return (
+    <NotificationBadge count={data?.unseenMessageCount}>
+      Group Chats
+    </NotificationBadge>
+  );
+}
+
+export function CouchRequestsNotification() {
+  const { data } = useNotifications();
+
+  return (
+    <NotificationBadge count={data?.unseenHostRequestCount}>
+      Hosting
+    </NotificationBadge>
+  );
+}
+
 const labels = {
   all: "All",
-  groupchats: "Group Chats",
-  hosting: "Hosting",
+  groupchats: <MessagesNotification />,
+  hosting: <CouchRequestsNotification />,
   surfing: "Surfing",
   meet: "Meet",
   archived: "Archived",

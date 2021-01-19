@@ -4,11 +4,23 @@ import { useHistory, useParams } from "react-router";
 import { connectionsRoute } from "../../AppRoutes";
 import PageTitle from "../../components/PageTitle";
 import { FriendsTab } from "./friends";
+import NotificationBadge from "../../components/NotificationBadge";
 import TabBar from "../../components/TabBar";
+import useNotifications from "../useNotifications";
+
+function FriendsNotification() {
+  const { data } = useNotifications();
+
+  return (
+    <NotificationBadge count={data?.pendingFriendRequestCount}>
+      Friends
+    </NotificationBadge>
+  );
+}
 
 const labels = {
   all: "All",
-  friends: "Friends",
+  friends: <FriendsNotification />,
 };
 
 type ConnectionType = keyof typeof labels;
