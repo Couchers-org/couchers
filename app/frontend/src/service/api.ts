@@ -1,6 +1,7 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import {
   CancelFriendRequestReq,
+  PingReq,
   RespondFriendRequestReq,
   SendFriendRequestReq,
 } from "../pb/api_pb";
@@ -39,4 +40,11 @@ export function sendFriendRequest(userId: number) {
   const req = new SendFriendRequestReq();
   req.setUserId(userId);
   return client.api.sendFriendRequest(req);
+}
+
+export async function ping() {
+  const req = new PingReq();
+  const response = await client.api.ping(req);
+
+  return response.toObject();
 }
