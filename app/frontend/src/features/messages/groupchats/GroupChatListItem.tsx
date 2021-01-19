@@ -18,6 +18,7 @@ import {
   isControlMessage,
   messageTargetId,
 } from "../utils";
+import classnames from "classnames";
 
 const useStyles = makeStyles({ root: {} });
 
@@ -27,6 +28,7 @@ export interface GroupChatListItemProps extends ListItemProps {
 
 export default function GroupChatListItem({
   groupChat,
+  className,
 }: GroupChatListItemProps) {
   const classes = useStyles();
   const currentUserId = useAuthContext().authState.userId!;
@@ -71,7 +73,7 @@ export default function GroupChatListItem({
     : "";
 
   return (
-    <ListItem button className={classes.root}>
+    <ListItem button className={classnames(classes.root, className)}>
       <ListItemAvatar>
         {groupChatMembersQuery.isLoading ? (
           <Skeleton />

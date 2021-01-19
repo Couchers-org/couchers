@@ -1,4 +1,4 @@
-import { Box, IconButton, Menu, MenuItem } from "@material-ui/core";
+import { Box, Menu, MenuItem } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import React, { useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
@@ -17,14 +17,16 @@ import useUsers from "../../userQueries/useUsers";
 import PageTitle from "../../../components/PageTitle";
 import { useHistory, useParams } from "react-router-dom";
 import { Skeleton } from "@material-ui/lab";
+import HeaderButton from "../../../components/HeaderButton";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   root: {},
   header: { display: "flex", alignItems: "center" },
   title: {
     flexGrow: 1,
+    marginInline: theme.spacing(2),
   },
-});
+}));
 
 export default function GroupChatView() {
   const classes = useStyles();
@@ -95,9 +97,9 @@ export default function GroupChatView() {
   return (
     <Box className={classes.root}>
       <Box className={classes.header}>
-        <IconButton onClick={handleBack} aria-label="Back">
+        <HeaderButton onClick={handleBack} aria-label="Back">
           <BackIcon />
-        </IconButton>
+        </HeaderButton>
 
         <PageTitle className={classes.title}>
           {groupChat ? (
@@ -109,14 +111,14 @@ export default function GroupChatView() {
           )}
         </PageTitle>
 
-        <IconButton
+        <HeaderButton
           onClick={handleClick}
           aria-label="Menu"
           aria-haspopup="true"
           innerRef={menuAnchor}
         >
           <SettingsIcon />
-        </IconButton>
+        </HeaderButton>
         <Menu
           id="simple-menu"
           anchorEl={menuAnchor.current}

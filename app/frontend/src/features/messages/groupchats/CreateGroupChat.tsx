@@ -29,7 +29,7 @@ interface CreateGroupChatFormData {
   users: User.AsObject[];
 }
 
-export default function CreateGroupChat() {
+export default function CreateGroupChat({ className }: { className?: string }) {
   const classes = useStyles();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -64,7 +64,7 @@ export default function CreateGroupChat() {
 
   return (
     <>
-      <ListItem button onClick={() => setIsOpen(true)}>
+      <ListItem button onClick={() => setIsOpen(true)} className={className}>
         <ListItemAvatar>
           <Avatar>
             <AddIcon />

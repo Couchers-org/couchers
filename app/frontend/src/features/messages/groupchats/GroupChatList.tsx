@@ -7,14 +7,18 @@ import TextBody from "../../../components/TextBody";
 import { GroupChat } from "../../../pb/conversations_pb";
 import GroupChatListItem from "./GroupChatListItem";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   root: {},
   link: {
     color: "inherit",
     textDecoration: "none",
     "&:hover": { textDecoration: "none" },
   },
-});
+  listItem: {
+    marginInline: `-${theme.spacing(2)}`,
+    paddingInline: `${theme.spacing(2)}`,
+  },
+}));
 
 interface GroupChatListProps {
   groupChats: GroupChat.AsObject[];
@@ -36,7 +40,10 @@ export default function GroupChatList({ groupChats }: GroupChatListProps) {
               to={`${messagesRoute}/groupchats/${groupChat.groupChatId}`}
               className={classes.link}
             >
-              <GroupChatListItem groupChat={groupChat} />
+              <GroupChatListItem
+                groupChat={groupChat}
+                className={classes.listItem}
+              />
             </Link>
           ))
         )}

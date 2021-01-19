@@ -12,6 +12,7 @@ const useStyles = makeStyles((theme) => ({
   container: {
     [theme.breakpoints.up("md")]: {
       display: "flex",
+      alignItems: "flex-start",
     },
   },
   field: {
