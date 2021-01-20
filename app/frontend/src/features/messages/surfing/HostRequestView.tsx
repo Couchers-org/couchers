@@ -6,18 +6,18 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 import Alert from "../../../components/Alert";
 import CircularProgress from "../../../components/CircularProgress";
 import { Message } from "../../../pb/conversations_pb";
-import { HostRequest } from "../../../pb/requests_pb";
+import { HostRequest, RespondHostRequestReq } from "../../../pb/requests_pb";
 import { service } from "../../../service";
 import { useUser } from "../../userQueries/useUsers";
 import MessageList from "../messagelist/MessageList";
 import { Error as GrpcError } from "grpc-web";
 import { useAuthContext } from "../../auth/AuthProvider";
-import SendField from "../SendField";
+import HostRequestSendField from "./HostRequestSendField";
 import { useHistory, useParams } from "react-router-dom";
 import { firstName } from "../../../utils/names";
 import { useRef, useState } from "react";
 import HeaderButton from "../../../components/HeaderButton";
-import { BackIcon, SettingsIcon } from "../../../components/Icons";
+import { BackIcon, OverflowMenuIcon } from "../../../components/Icons";
 import PageTitle from "../../../components/PageTitle";
 
 const useStyles = makeStyles((theme) => ({
@@ -81,7 +81,7 @@ export default function HostRequestView() {
       : undefined;
 
   const queryClient = useQueryClient();
-  const mutation = useMutation<string | undefined, GrpcError, string>(
+  const sendMutation = useMutation<string | undefined, GrpcError, string>(
     (text: string) =>
       service.requests.sendHostRequestMessage(hostRequestId, text),
     {
@@ -89,6 +89,30 @@ export default function HostRequestView() {
         queryClient.invalidateQueries(["hostRequestMessages", hostRequestId]);
         queryClient.invalidateQueries(["hostRequests"]);
       },
+    }
+  );
+  const respondMutation = useMutation<
+    void,
+    GrpcError,
+    Required<RespondHostRequestReq.AsObject>
+  >(
+    (req) =>
+      service.requests.respondHostRequest(
+        req.hostRequestId,
+        req.status,
+        req.text
+      ),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries([
+          "hostRequest",
+          hostRequest?.hostRequestId,
+        ]);
+        queryClient.invalidateQueries(["hostRequestMessages", hostRequestId]);
+        queryClient.invalidateQueries(["hostRequests"]);
+      },
+      onMutate: console.log,
+      onError: console.log,
     }
   );
 
@@ -113,12 +137,13 @@ export default function HostRequestView() {
           onClick={handleClick}
           aria-label="Menu"
           aria-haspopup="true"
+          aria-controls="more-menu"
           innerRef={menuAnchor}
         >
-          <SettingsIcon />
+          <OverflowMenuIcon />
         </HeaderButton>
         <Menu
-          id="simple-menu"
+          id="more-menu"
           anchorEl={menuAnchor.current}
           keepMounted
           open={menuOpen}
@@ -128,9 +153,11 @@ export default function HostRequestView() {
         </Menu>
       </Box>
 
-      {(mutation.error || hostRequestError) && (
+      {(respondMutation.error || sendMutation.error || hostRequestError) && (
         <Alert severity={"error"}>
-          {mutation.error?.message || hostRequestError?.message}
+          {respondMutation.error?.message ||
+            sendMutation.error?.message ||
+            hostRequestError?.message}
         </Alert>
       )}
       {isMessagesLoading ? (
@@ -140,10 +167,14 @@ export default function HostRequestView() {
           {messagesError && (
             <Alert severity={"error"}>{messagesError.message}</Alert>
           )}
-          {messages && (
+          {messages && hostRequest && (
             <>
               <MessageList messages={messages} />
-              <SendField sendMutation={mutation} />
+              <HostRequestSendField
+                hostRequest={hostRequest}
+                sendMutation={sendMutation}
+                respondMutation={respondMutation}
+              />
             </>
           )}
         </>

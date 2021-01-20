@@ -10,6 +10,7 @@ export { default as EmailIcon } from "@material-ui/icons/Email";
 export { default as ExpandMore } from "@material-ui/icons/ExpandMore";
 export { default as LanguageIcon } from "@material-ui/icons/LanguageOutlined";
 export { default as LocationIcon } from "@material-ui/icons/LocationOnOutlined";
+export { default as OverflowMenuIcon } from "@material-ui/icons/MoreVertOutlined";
 export { default as PersonAddIcon } from "@material-ui/icons/PersonAddOutlined";
 export { default as PersonIcon } from "@material-ui/icons/EmojiPeopleOutlined";
 export { default as SearchIcon } from "@material-ui/icons/SearchOutlined";

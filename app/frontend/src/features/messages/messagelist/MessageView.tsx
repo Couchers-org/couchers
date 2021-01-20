@@ -7,7 +7,7 @@ import { timestamp2Date } from "../../../utils/date";
 import useCurrentUser from "../../userQueries/useCurrentUser";
 import { useUser } from "../../userQueries/useUsers";
 import TimeInterval from "./MomentIndication";
-import classnames from "classnames";
+import classNames from "classnames";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -83,7 +83,7 @@ export default function MessageView({ message }: MessageProps) {
         <Avatar user={author} className={classes.avatar} />
       )}
       <Card
-        className={classnames(classes.card, {
+        className={classNames(classes.card, {
           [classes.userCard]: isCurrentUser,
           [classes.otherCard]: !isCurrentUser,
         })}

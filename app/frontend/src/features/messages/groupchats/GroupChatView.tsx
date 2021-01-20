@@ -9,8 +9,8 @@ import { GroupChat, Message } from "../../../pb/conversations_pb";
 import MessageList from "../messagelist/MessageList";
 import { service } from "../../../service";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import SendField from "../SendField";
-import { BackIcon, SettingsIcon } from "../../../components/Icons";
+import GroupChatSendField from "./GroupChatSendField";
+import { BackIcon, OverflowMenuIcon } from "../../../components/Icons";
 import { groupChatTitleText } from "../utils";
 import { useAuthContext } from "../../auth/AuthProvider";
 import useUsers from "../../userQueries/useUsers";
@@ -123,9 +123,10 @@ export default function GroupChatView() {
               onClick={handleClick}
               aria-label="Menu"
               aria-haspopup="true"
+              aria-controls="more-menu"
               innerRef={menuAnchor}
             >
-              <SettingsIcon />
+              <OverflowMenuIcon />
             </HeaderButton>
             <Menu
               id="simple-menu"
@@ -159,7 +160,7 @@ export default function GroupChatView() {
             messages && (
               <>
                 <MessageList messages={messages} />
-                <SendField sendMutation={sendMutation} />
+                <GroupChatSendField sendMutation={sendMutation} />
               </>
             )
           )}

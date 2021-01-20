@@ -1,9 +1,10 @@
-import { Message } from "../pb/conversations_pb";
+import { HostRequestStatus, Message } from "../pb/conversations_pb";
 import {
   CreateHostRequestReq,
   GetHostRequestMessagesReq,
   GetHostRequestReq,
   ListHostRequestsReq,
+  RespondHostRequestReq,
   SendHostRequestMessageReq,
 } from "../pb/requests_pb";
 import client from "./client";
@@ -39,6 +40,18 @@ export async function sendHostRequestMessage(id: number, text: string) {
   const messageId = response.getJsPbMessageId();
 
   return messageId;
+}
+
+export async function respondHostRequest(
+  id: number,
+  status: HostRequestStatus,
+  text: string
+) {
+  const req = new RespondHostRequestReq();
+  req.setHostRequestId(id);
+  req.setStatus(status);
+  req.setText(text);
+  await client.requests.respondHostRequest(req);
 }
 
 export async function getHostRequestMessages(
