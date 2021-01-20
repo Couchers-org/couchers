@@ -1,7 +1,6 @@
 import { Box, BoxProps } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import * as React from "react";
-import { useState } from "react";
 import { useQuery } from "react-query";
 import Alert from "../../../components/Alert";
 import CircularProgress from "../../../components/CircularProgress";

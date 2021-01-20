@@ -1,4 +1,4 @@
-import { Box, Typography } from "@material-ui/core";
+import { Box, Menu, MenuItem } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
 import * as React from "react";
@@ -13,13 +13,35 @@ import MessageList from "../messagelist/MessageList";
 import { Error as GrpcError } from "grpc-web";
 import { useAuthContext } from "../../auth/AuthProvider";
 import SendField from "../SendField";
-import { useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import { firstName } from "../../../utils/names";
+import { useRef, useState } from "react";
+import HeaderButton from "../../../components/HeaderButton";
+import { BackIcon, SettingsIcon } from "../../../components/Icons";
+import PageTitle from "../../../components/PageTitle";
 
-const useStyles = makeStyles({ root: {} });
+const useStyles = makeStyles((theme) => ({
+  root: {},
+  header: { display: "flex", alignItems: "center" },
+  title: {
+    flexGrow: 1,
+    marginInline: theme.spacing(2),
+  },
+}));
 
 export default function HostRequestView() {
   const classes = useStyles();
+
+  const menuAnchor = useRef<HTMLAnchorElement>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const handleClick = () => {
+    setMenuOpen(true);
+  };
+
+  const handleClose = () => {
+    setMenuOpen(false);
+  };
 
   const hostRequestId = +(
     useParams<{ hostRequestId?: string }>().hostRequestId || 0
@@ -49,7 +71,7 @@ export default function HostRequestView() {
   const { data: surfer } = useUser(hostRequest?.fromUserId);
   const { data: host } = useUser(hostRequest?.toUserId);
   const currentUserId = useAuthContext().authState.userId;
-  const surferName = currentUserId === surfer?.userId ? "you" : surfer?.name;
+  const surferName = currentUserId === surfer?.userId ? "You" : surfer?.name;
   const hostName = currentUserId === host?.userId ? "you" : host?.name;
   const title =
     surferName && hostName
@@ -70,13 +92,42 @@ export default function HostRequestView() {
     }
   );
 
+  const history = useHistory();
+
+  const handleBack = () => history.goBack();
+
   return !hostRequestId ? (
     <Alert severity={"error"}>Invalid host request id.</Alert>
   ) : (
     <Box className={classes.root}>
-      <Typography variant="h3">
-        {!title || hostRequestError ? <Skeleton width="100" /> : title}
-      </Typography>
+      <Box className={classes.header}>
+        <HeaderButton onClick={handleBack} aria-label="Back">
+          <BackIcon />
+        </HeaderButton>
+
+        <PageTitle className={classes.title}>
+          {!title || hostRequestError ? <Skeleton width="100" /> : title}
+        </PageTitle>
+
+        <HeaderButton
+          onClick={handleClick}
+          aria-label="Menu"
+          aria-haspopup="true"
+          innerRef={menuAnchor}
+        >
+          <SettingsIcon />
+        </HeaderButton>
+        <Menu
+          id="simple-menu"
+          anchorEl={menuAnchor.current}
+          keepMounted
+          open={menuOpen}
+          onClose={handleClose}
+        >
+          <MenuItem onClick={() => null}>Placeholder</MenuItem>
+        </Menu>
+      </Box>
+
       {(mutation.error || hostRequestError) && (
         <Alert severity={"error"}>
           {mutation.error?.message || hostRequestError?.message}
