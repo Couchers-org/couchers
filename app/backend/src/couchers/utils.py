@@ -3,8 +3,10 @@ from datetime import datetime, timedelta, timezone
 from email.utils import formatdate
 
 import pytz
-from geoalchemy2.shape import to_shape
+from geoalchemy2.shape import from_shape, to_shape
 from google.protobuf.timestamp_pb2 import Timestamp
+from shapely.geometry import Point, Polygon, shape
+from slugify import slugify as slugify_slugify
 from sqlalchemy.sql import func
 
 from couchers.config import config
@@ -49,11 +51,41 @@ def least_current_date():
     return datetime.now(timezone(timedelta(hours=-12))).strftime("%Y-%m-%d")
 
 
+# Note: be very careful with ordering of lat/lng!
+# In a lot of cases they come as (lng, lat), but us humans tend to use them from GPS as (lat, lng)...
+# When entering as EPSG4326, we also need it in (lng, lat)
+
+
 def create_coordinate(lat, lng):
     """
     Creates a WKT point from a (lat, lng) tuple in EPSG4326 coordinate system (normal GPS-coordinates)
     """
-    return func.ST_SetSRID(func.ST_MakePoint(lng, lat), 4326)
+    return from_shape(Point(lng, lat), srid=4326)
+
+
+def create_polygon_lat_lng(points):
+    """
+    Creates a EPSG4326 WKT polygon from a list of (lat, lng) tuples
+    """
+    return from_shape(Polygon([(lng, lat) for (lat, lng) in points]), srid=4326)
+
+
+def create_polygon_lng_lat(points):
+    """
+    Creates a EPSG4326 WKT polygon from a list of (lng, lat) tuples
+    """
+    return from_shape(Polygon(points), srid=4326)
+
+
+def geojson_to_geom(geojson):
+    """
+    Turns GeoJSON to PostGIS geom data in EPSG4326
+    """
+    return from_shape(shape(geojson), srid=4326)
+
+
+def to_multi(polygon):
+    return func.ST_Multi(polygon)
 
 
 def get_coordinates(geom):
@@ -111,3 +143,15 @@ def parse_session_cookie(headers):
         return None
 
     return cookie.value
+
+
+def slugify(text):
+    return slugify_slugify(text, max_length=15, word_boundary=True)
+
+
+def remove_duplicates_retain_order(list_):
+    out = []
+    for item in list_:
+        if item not in out:
+            out.append(item)
+    return out

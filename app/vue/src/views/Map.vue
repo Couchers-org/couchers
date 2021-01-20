@@ -5,8 +5,14 @@
         :accessToken="accessToken"
         :mapStyle="mapStyle"
         :transformRequest="transformRequest"
-        hash="map"
+        hash
       >
+        <MglGeojsonLayer
+          sourceId="communities"
+          :source="communitiesSource"
+          layerId="communities-layer"
+          :layer="communitiesLayer"
+        />
         <MglScaleControl position="top-right" />
         <MglNavigationControl position="top-left" />
         <MglGeojsonLayer
@@ -64,6 +70,10 @@ export default Vue.extend({
       clusterMaxZoom: 14, // Max zoom to cluster points on
       clusterRadius: 50, // Radius of each cluster when clustering points (defaults to 50)
     },
+    communitiesSource: {
+      type: "geojson",
+      data: URL + "/geojson/communities",
+    },
     clusterLayer: {
       id: "clusterLayer",
       type: "circle",
@@ -99,6 +109,14 @@ export default Vue.extend({
         "circle-radius": 8,
         "circle-stroke-width": 1,
         "circle-stroke-color": "#fff",
+      },
+    },
+    communitiesLayer: {
+      id: "communities-layer",
+      type: "fill",
+      paint: {
+        "fill-color": "#cebf8e",
+        "fill-opacity": 0.6,
       },
     },
   }),
