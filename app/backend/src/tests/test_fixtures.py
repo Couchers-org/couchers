@@ -37,9 +37,7 @@ from pb import (
 )
 
 
-# TODO: enable migrations tests before merging to develop!
-# @pytest.fixture(params=["migrations", "models"])
-@pytest.fixture(params=["models"])
+@pytest.fixture(params=["migrations", "models"])
 def db(request):
     """
     Connect to a running Postgres database, and return the Session object.
