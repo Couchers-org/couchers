@@ -9,7 +9,7 @@ from sqlalchemy.sql import and_
 from couchers import errors
 from couchers.db import session_scope
 from couchers.models import Thread
-from couchers.servicers.threads import Threads
+from couchers.servicers.threads import Threads, pack_thread_id
 from couchers.utils import now
 from pb import threads_pb2, threads_pb2_grpc
 from tests.test_fixtures import api_session, db, fake_channel, generate_user, testconfig
@@ -34,11 +34,12 @@ def test_threads_basic(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    PARENT_THREAD_ID = 10
-
     # Create a dummy Thread (should be replaced by pages later on)
     with session_scope() as session:
-        session.add(Thread(id=1, title="foo"))
+        dummy_thread = Thread(title="foo")
+        session.add(dummy_thread)
+        session.flush()
+        PARENT_THREAD_ID = pack_thread_id(database_id=dummy_thread.id, depth=0)
 
     with threads_session(token1) as api:
         bat_id = api.PostReply(threads_pb2.PostReplyReq(thread_id=PARENT_THREAD_ID, content="bat")).thread_id
