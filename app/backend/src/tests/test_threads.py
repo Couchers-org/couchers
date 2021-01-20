@@ -89,25 +89,18 @@ def test_threads_basic(db):
 
 def pagination_test(api, parent_id):
     # Post some data
-    for c in string.ascii_lowercase:
+    for c in reversed(string.ascii_lowercase):
         api.PostReply(threads_pb2.PostReplyReq(thread_id=parent_id, content=c))
 
     # Get it with pagination
     token = ""
-    accumulator = []
-    while True:
+    import textwrap
+    for expected_page in textwrap.wrap(string.ascii_lowercase, 5):
         ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_id, page_size=5, page_token=token))
-        assert 0 < len(ret.replies) <= 5
-        accumulator += [x.content for x in ret.replies]
-        assert len(accumulator) <= len(string.ascii_lowercase)
-        if len(accumulator) == len(string.ascii_lowercase):
-            assert ret.next_page_token == ""
-            break
-        assert ret.next_page_token != ""
-        assert len(ret.replies) == 5
+        assert ''.join(x.content for x in ret.replies) == expected_page
         token = ret.next_page_token
 
-    assert "".join(reversed(accumulator)) == string.ascii_lowercase
+    assert token == ""
 
     return ret.replies[0].thread_id  # to be used as a test one level deeper
 
