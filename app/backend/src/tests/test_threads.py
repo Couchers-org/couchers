@@ -95,9 +95,10 @@ def pagination_test(api, parent_id):
     # Get it with pagination
     token = ""
     import textwrap
+
     for expected_page in textwrap.wrap(string.ascii_lowercase, 5):
         ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_id, page_size=5, page_token=token))
-        assert ''.join(x.content for x in ret.replies) == expected_page
+        assert "".join(x.content for x in ret.replies) == expected_page
         token = ret.next_page_token
 
     assert token == ""
