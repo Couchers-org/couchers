@@ -961,6 +961,7 @@ class Comment(Base):
     id = Column(BigInteger, primary_key=True)
 
     thread_id = Column(ForeignKey("threads.id"), nullable=False, index=True)
+    author_user_id = Column(ForeignKey("users.id"), nullable=False)
     content = Column(String, nullable=False)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     deleted = Column(DateTime(timezone=True), nullable=True)
@@ -978,6 +979,7 @@ class Reply(Base):
     id = Column(BigInteger, primary_key=True)
 
     comment_id = Column(ForeignKey("comments.id"), nullable=False, index=True)
+    author_user_id = Column(ForeignKey("users.id"), nullable=False)
     content = Column(String, nullable=False)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     deleted = Column(DateTime(timezone=True), nullable=True)

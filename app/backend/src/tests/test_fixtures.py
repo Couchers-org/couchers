@@ -225,8 +225,7 @@ def api_session(token):
     """
     Create an API for testing, uses the token for auth
     """
-    user_id, jailed = Auth().get_session_for_token(token)
-    channel = FakeChannel(user_id=user_id)
+    channel = fake_channel(token)
     api_pb2_grpc.add_APIServicer_to_server(API(), channel)
     yield api_pb2_grpc.APIStub(channel)
 
@@ -279,13 +278,17 @@ def real_jail_session(token):
             server.stop(None).wait()
 
 
+def fake_channel(token):
+    user_id, jailed = Auth().get_session_for_token(token)
+    return FakeChannel(user_id=user_id)
+
+
 @contextmanager
 def conversations_session(token):
     """
     Create a Conversations API for testing, uses the token for auth
     """
-    user_id, jailed = Auth().get_session_for_token(token)
-    channel = FakeChannel(user_id=user_id)
+    channel = fake_channel(token)
     conversations_pb2_grpc.add_ConversationsServicer_to_server(Conversations(), channel)
     yield conversations_pb2_grpc.ConversationsStub(channel)
 
@@ -295,9 +298,7 @@ def requests_session(token):
     """
     Create a Requests API for testing, uses the token for auth
     """
-    auth_interceptor = Auth().get_auth_interceptor(allow_jailed=False)
-    user_id, jailed = Auth().get_session_for_token(token)
-    channel = FakeChannel(user_id=user_id)
+    channel = fake_channel(token)
     requests_pb2_grpc.add_RequestsServicer_to_server(Requests(), channel)
     yield requests_pb2_grpc.RequestsStub(channel)
 
@@ -316,9 +317,7 @@ def account_session(token):
     """
     Create a Account API for testing, uses the token for auth
     """
-    auth_interceptor = Auth().get_auth_interceptor(allow_jailed=False)
-    user_id, jailed = Auth().get_session_for_token(token)
-    channel = FakeChannel(user_id=user_id)
+    channel = fake_channel(token)
     account_pb2_grpc.add_AccountServicer_to_server(Account(), channel)
     yield account_pb2_grpc.AccountStub(channel)
 
