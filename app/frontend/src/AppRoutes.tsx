@@ -16,6 +16,8 @@ import UserPage from "./features/userPage/UserPage";
 import SearchPage from "./features/search/SearchPage";
 import NewPagePage from "./features/communities/NewPagePage";
 import PagePage from "./features/communities/PagePage";
+import CommunityPage from "./features/communities/CommunityPage";
+import GroupPage from "./features/communities/GroupPage";
 import Jail from "./features/auth/jail/Jail";
 import TOS from "./components/TOS";
 import { useAppDispatch, useTypedSelector } from "./store";
@@ -39,6 +41,9 @@ export const tosRoute = "/tos";
 
 export const newPageRoute = "/page/new";
 export const pageRoute = "/page";
+
+export const communityRoute = "/community"; ///:communityId/:communitySlug";
+export const groupRoute = "/group"; ///:groupId/:groupSlug";
 
 export default function AppRoutes() {
   return (
@@ -78,6 +83,12 @@ export default function AppRoutes() {
       </PrivateRoute>
       <PrivateRoute path={`${pageRoute}/:pageId/:pageSlug?`}>
         <PagePage />
+      </PrivateRoute>
+      <PrivateRoute path={`${communityRoute}/:communityId/:communitySlug?`}>
+        <CommunityPage />
+      </PrivateRoute>
+      <PrivateRoute path={`${groupRoute}/:groupId/:groupSlug?`}>
+        <GroupPage />
       </PrivateRoute>
       <Route path={jailRoute}>
         <Jail />

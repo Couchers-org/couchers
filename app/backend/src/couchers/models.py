@@ -8,7 +8,7 @@ from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import MetaData, Sequence, String, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import backref, relationship
+from sqlalchemy.orm import backref, foreign, relationship
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func, text
 
@@ -659,20 +659,28 @@ communities_seq = Sequence("communities_seq")
 class Node(Base):
     """
     Node, i.e. geographical subdivision of the world
+
+    Administered by the official cluster
     """
 
     __tablename__ = "nodes"
 
     id = Column(BigInteger, communities_seq, primary_key=True)
 
-    name = Column(String, nullable=False)
+    # name and description come from official cluster
     parent_node_id = Column(ForeignKey("nodes.id"), nullable=True, index=True)
     geom = Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False)
-    official_cluster_id = Column(ForeignKey("clusters.id"), nullable=False, unique=True, index=True)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     parent_node = relationship("Node", backref="child_nodes", remote_side="Node.id")
-    official_cluster = relationship("Cluster", backref="node", uselist=False)
+
+    nearby_users = relationship(
+        "User",
+        lazy="dynamic",
+        primaryjoin="func.ST_Contains(foreign(Node.geom), User.geom).as_comparison(1, 2)",
+        viewonly=True,
+        uselist=True,
+    )
 
 
 class Cluster(Base):
@@ -683,16 +691,52 @@ class Cluster(Base):
     __tablename__ = "clusters"
 
     id = Column(BigInteger, communities_seq, primary_key=True)
+    parent_node_id = Column(ForeignKey("nodes.id"), nullable=False, index=True)
     name = Column(String, nullable=False)
-    main_page_id = Column(ForeignKey("pages.id"), nullable=False, unique=True, index=True)
+    # short description
+    description = Column(String, nullable=False)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
-    main_page = relationship("Page", backref="cluster", uselist=False, foreign_keys="Cluster.main_page_id")
+    official_cluster_for_node_id = Column(ForeignKey("nodes.id"), nullable=True, unique=True, index=True)
+
+    official_cluster_for_node = relationship(
+        "Node",
+        backref=backref("official_cluster", uselist=False),
+        uselist=False,
+        foreign_keys="Cluster.official_cluster_for_node_id",
+    )
+
+    parent_node = relationship(
+        "Node", backref="child_clusters", remote_side="Node.id", foreign_keys="Cluster.parent_node_id"
+    )
 
     nodes = relationship("Cluster", backref="clusters", secondary="node_cluster_associations")
-    pages = relationship("Page", backref="clusters", secondary="cluster_page_associations")
+    # all pages
+    pages = relationship("Page", backref="clusters", secondary="cluster_page_associations", lazy="dynamic")
     events = relationship("Event", backref="clusters", secondary="cluster_event_associations")
     discussions = relationship("Discussion", backref="clusters", secondary="cluster_discussion_associations")
+
+    # includes also admins
+    members = relationship(
+        "User",
+        lazy="dynamic",
+        backref="cluster_memberships",
+        secondary="cluster_subscriptions",
+        primaryjoin="Cluster.id == ClusterSubscription.cluster_id",
+        secondaryjoin="User.id == ClusterSubscription.user_id",
+    )
+
+    admins = relationship(
+        "User",
+        lazy="dynamic",
+        backref="cluster_adminships",
+        secondary="cluster_subscriptions",
+        primaryjoin="Cluster.id == ClusterSubscription.cluster_id",
+        secondaryjoin="and_(User.id == ClusterSubscription.user_id, ClusterSubscription.role == 'admin')",
+    )
+
+    # make sure the parent_node_id and official_cluster_for_node_id match
+    CheckConstraint("(official_cluster_for_node_id IS NULL) OR (official_cluster_for_node_id = parent_node_id)")
 
 
 class NodeClusterAssociation(Base):
@@ -736,6 +780,10 @@ class ClusterSubscription(Base):
     user = relationship("User", backref="cluster_subscriptions")
     cluster = relationship("Cluster", backref="cluster_subscriptions")
 
+    @hybrid_property
+    def is_current(self):
+        return (self.joined <= func.now()) & ((not self.left) | (self.left >= func.now()))
+
 
 class ClusterPageAssociation(Base):
     """
@@ -773,12 +821,23 @@ class Page(Base):
     thread_id = Column(ForeignKey("threads.id"), nullable=True, unique=True, index=True)
     creator_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     owner_user_id = Column(ForeignKey("users.id"), nullable=True, index=True)
-    owner_cluster_id = Column(ForeignKey("clusters.id"), nullable=True, unique=True, index=True)
+    owner_cluster_id = Column(ForeignKey("clusters.id"), nullable=True, index=True)
+
+    main_page_for_cluster_id = Column(ForeignKey("clusters.id"), nullable=True, unique=True, index=True)
+
+    main_page_for_cluster = relationship(
+        "Cluster",
+        backref=backref("main_page", uselist=False),
+        uselist=False,
+        foreign_keys="Page.main_page_for_cluster_id",
+    )
 
     thread = relationship("Thread", backref="page", uselist=False)
     creator_user = relationship("User", backref="created_pages", foreign_keys="Page.creator_user_id")
     owner_user = relationship("User", backref="owned_pages", foreign_keys="Page.owner_user_id")
-    owner_cluster = relationship("Cluster", backref="owned_page", uselist=False, foreign_keys="Page.owner_cluster_id")
+    owner_cluster = relationship(
+        "Cluster", backref=backref("owned_pages", lazy="dynamic"), uselist=False, foreign_keys="Page.owner_cluster_id"
+    )
 
     editors = relationship("User", secondary="page_versions")
 
@@ -803,7 +862,7 @@ class PageVersion(Base):
     title = Column(String, nullable=False)
     content = Column(String, nullable=False)
     # the human-readable address
-    address = Column(String, nullable=False)
+    address = Column(String, nullable=True)
     geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 

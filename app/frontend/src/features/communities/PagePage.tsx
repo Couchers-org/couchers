@@ -53,7 +53,7 @@ export default function PagePage() {
         <Markdown source={page.content} />
         <p>You <b>{page.canEdit ? "can" : "cannot"}</b> edit this page.</p>
       </> :
-        <TextBody>Error?</TextBody>
+        <TextBody>Error</TextBody>
       }
     </>
   );
