@@ -34,7 +34,7 @@ from pb import (
     pages_pb2_grpc,
     requests_pb2_grpc,
     sso_pb2_grpc,
-    threads_pb2_grpc
+    threads_pb2_grpc,
 )
 
 config.check_config()
