@@ -32,7 +32,6 @@ def threads_session(token):
 
 def test_threads_basic(db):
     user1, token1 = generate_user()
-    user2, token2 = generate_user()
 
     # Create a dummy Thread (should be replaced by pages later on)
     with session_scope() as session:
@@ -85,6 +84,34 @@ def test_threads_basic(db):
         assert len(ret.replies) == 3
         assert ret.next_page_token == ""
         assert [reply.thread_id for reply in ret.replies] == dogs[::-1]
+
+
+def test_threads_errors(db):
+    user1, token1 = generate_user()
+    with threads_session(token1) as api:
+        # request non-existing comment
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetThread(threads_pb2.GetThreadReq(thread_id=11))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.THREAD_NOT_FOUND
+
+        # request non-existing depth digit
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetThread(threads_pb2.GetThreadReq(thread_id=19))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.THREAD_NOT_FOUND
+
+        # post on non-existing comment
+        with pytest.raises(grpc.RpcError) as e:
+            api.PostReply(threads_pb2.PostReplyReq(thread_id=11, content="foo"))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.THREAD_NOT_FOUND
+
+        # post on non-existing depth
+        with pytest.raises(grpc.RpcError) as e:
+            api.PostReply(threads_pb2.PostReplyReq(thread_id=19, content="foo"))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.THREAD_NOT_FOUND
 
 
 def pagination_test(api, parent_id):

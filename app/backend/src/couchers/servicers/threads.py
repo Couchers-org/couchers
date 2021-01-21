@@ -1,6 +1,7 @@
 import logging
 
 import grpc
+import sqlalchemy.exc
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import func
 
@@ -34,6 +35,9 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
 
         with session_scope() as session:
             if depth == 0:
+                if not session.query(Thread).filter(Thread.id == database_id).one_or_none():
+                    context.abort(grpc.StatusCode.NOT_FOUND, errors.THREAD_NOT_FOUND)
+
                 res = (
                     session.query(Comment, func.count(Reply.id))
                     .outerjoin(Reply, Reply.comment_id == Comment.id)
@@ -56,6 +60,9 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
                 ]
 
             elif depth == 1:
+                if not session.query(Comment).filter(Comment.id == database_id).one_or_none():
+                    context.abort(grpc.StatusCode.NOT_FOUND, errors.THREAD_NOT_FOUND)
+
                 res = (
                     session.query(Reply)
                     .filter(Reply.comment_id == database_id)
@@ -76,7 +83,7 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
                 ]
 
             else:
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, "bad depth")
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.THREAD_NOT_FOUND)
 
             if len(res) > page_size:
                 # There's more!
@@ -94,7 +101,11 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
             elif depth == 1:
                 object_to_add = Reply(comment_id=database_id, author_user_id=context.user_id, content=request.content)
             else:
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, "bad depth")
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.THREAD_NOT_FOUND)
             session.add(object_to_add)
-            session.flush()
+            try:
+                session.flush()
+            except sqlalchemy.exc.IntegrityError:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.THREAD_NOT_FOUND)
+
             return threads_pb2.PostReplyRes(thread_id=pack_thread_id(object_to_add.id, depth + 1))
