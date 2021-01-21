@@ -17,12 +17,13 @@ logger = logging.getLogger(__name__)
 # database ID.
 
 
-def unpack_thread_id(thread_id):
-    return divmod(thread_id, 10)
-
-
-def pack_thread_id(database_id, depth):
+def pack_thread_id(database_id: int, depth: int) -> int:
     return database_id * 10 + depth
+
+
+def unpack_thread_id(thread_id: int) -> (int, int):
+    """Returns (database_id, depth) tuple."""
+    return divmod(thread_id, 10)
 
 
 class Threads(threads_pb2_grpc.ThreadsServicer):
