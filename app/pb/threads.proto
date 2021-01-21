@@ -26,11 +26,10 @@ service Threads {
   // The same API is used regardless of level. All posts are using the same id namespace.
 
   // Get non-deleted posts belonging to a thread, sorted in reverse time order.
-  // Pagination is supported by the posted_before_thread_id and number fields.
   rpc GetThread(GetThreadReq) returns (GetThreadRes);
 
   // Post a new comment on a thread. The post can not be changed or deleted after posting.
-  // Throws INVALID_ARGUMENT if thread_id corresponds to a nesting level 3 reply, since no futher nesting is allowed.
+  // Throws NOT_FOUND if thread_id corresponds to a nesting level 3 reply, since no futher nesting is allowed.
   rpc PostReply(PostReplyReq) returns (PostReplyRes);
 }
 
@@ -38,7 +37,7 @@ message GetThreadReq {
   int64 thread_id = 1;
 
   // Maximum number of replies to return. Defaults to 1000.
-  int32 page_size = 2;
+  uint32 page_size = 2;
 
   // A page token, received from a previous `GetThread` call.
   // Provide this to retrieve the subsequent page.
