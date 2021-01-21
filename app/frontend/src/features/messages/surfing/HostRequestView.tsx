@@ -1,16 +1,18 @@
 import { Box, BoxProps, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
+import { Skeleton } from "@material-ui/lab";
 import * as React from "react";
-import { useCallback, useEffect, useState } from "react";
-import { useStore } from "react-redux";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import Alert from "../../../components/Alert";
 import CircularProgress from "../../../components/CircularProgress";
 import { Message } from "../../../pb/conversations_pb";
 import { HostRequest } from "../../../pb/requests_pb";
 import { service } from "../../../service";
-import { useAppDispatch } from "../../../store";
-import { fetchUsers, getUser } from "../../userCache";
+import { useUser } from "../../userQueries/useUsers";
 import MessageList from "../messagelist/MessageList";
+import { Error as GrpcError } from "grpc-web";
+import { useAuthContext } from "../../auth/AuthProvider";
+import SendField from "../SendField";
 
 const useStyles = makeStyles({ root: {} });
 
@@ -19,57 +21,56 @@ export interface HostRequestViewProps extends BoxProps {
 }
 
 export default function HostRequestView({ hostRequest }: HostRequestViewProps) {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [messages, setMessages] = useState<Message.AsObject[]>([]);
-  const dispatch = useAppDispatch();
-  const fetchMessages = useCallback(async () => {
-    setLoading(true);
-    try {
-      const messages = await service.requests.getHostRequestMessages(
-        hostRequest.hostRequestId
-      );
-      setMessages(messages);
-    } catch (error) {
-      setError(error.message);
-    }
-    setLoading(false);
-  }, [hostRequest.hostRequestId]);
+  const { data: messages, isLoading, error } = useQuery<
+    Message.AsObject[],
+    GrpcError
+  >(["hostRequestMessages", hostRequest.hostRequestId], () =>
+    service.requests.getHostRequestMessages(hostRequest.hostRequestId)
+  );
 
-  useEffect(() => {
-    dispatch(fetchUsers({ userIds: [hostRequest.fromUserId, hostRequest.toUserId] }));
-  }, [hostRequest.fromUserId, hostRequest.toUserId]);
-
-  useEffect(() => {
-    fetchMessages();
-  }, [fetchMessages]);
-
-  const handleSend = async (text: string) => {
-    await service.requests.sendHostRequestMessage(
-      hostRequest.hostRequestId,
-      text
-    );
-    await fetchMessages();
-  };
-
-  const store = useStore();
-  const surfer = getUser(store.getState(), hostRequest.fromUserId);
-  const host = getUser(store.getState(), hostRequest.toUserId);
-  const currentUser = store.getState().auth.user;
-  const surferName =
-    currentUser?.userId === surfer?.userId ? "you" : surfer?.name;
-  const hostName = currentUser?.userId === host?.userId ? "you" : host?.name;
+  const { data: surfer, isLoading: surferLoading } = useUser(
+    hostRequest.fromUserId
+  );
+  const { data: host, isLoading: hostLoading } = useUser(hostRequest.toUserId);
+  const currentUserId = useAuthContext().authState.userId;
+  const surferName = currentUserId === surfer?.userId ? "you" : surfer?.name;
+  const hostName = currentUserId === host?.userId ? "you" : host?.name;
   const title = `${surferName} requested to be hosted by ${hostName}`;
+
+  const queryClient = useQueryClient();
+  const mutation = useMutation<string | undefined, GrpcError, string>(
+    (text: string) =>
+      service.requests.sendHostRequestMessage(hostRequest.hostRequestId, text),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries([
+          "hostRequestMessages",
+          hostRequest.hostRequestId,
+        ]);
+        queryClient.invalidateQueries(["hostRequests"]);
+      },
+    }
+  );
 
   const classes = useStyles();
   return (
     <Box className={classes.root}>
-      <Typography variant="h3">{title}</Typography>
-      {error && <Alert severity={"error"}>{error}</Alert>}
-      {loading ? (
+      <Typography variant="h3">
+        {surferLoading || hostLoading ? <Skeleton /> : title}
+      </Typography>
+      {mutation.error && <Alert severity={"error"}>{mutation.error}</Alert>}
+      {isLoading ? (
         <CircularProgress />
       ) : (
-        <MessageList messages={messages} handleSend={handleSend} />
+        <>
+          {error && <Alert severity={"error"}>{error.message}</Alert>}
+          {messages && (
+            <>
+              <MessageList messages={messages} />
+              <SendField sendMutation={mutation} />
+            </>
+          )}
+        </>
       )}
     </Box>
   );

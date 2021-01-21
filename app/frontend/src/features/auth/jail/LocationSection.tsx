@@ -1,4 +1,4 @@
-import { makeStyles } from "@material-ui/core";
+import { Box, makeStyles } from "@material-ui/core";
 import React, { useState, useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import Button from "../../../components/Button";
@@ -50,7 +50,7 @@ export default function LocationSection({
 
   return (
     <>
-      <form onSubmit={save} className={className}>
+      <Box className={className}>
         <Controller
           name="location"
           control={control}
@@ -82,7 +82,7 @@ export default function LocationSection({
             </Button>
           )}
         </TextBody>
-      </form>
+      </Box>
     </>
   );
 }

@@ -1,15 +1,9 @@
-import { configureStore } from "@reduxjs/toolkit";
-import { Meta, Story } from "@storybook/react/types-6-0";
+import { Meta, Story } from "@storybook/react";
 import * as React from "react";
-import { Provider } from "react-redux";
-import users from "../../../test/fixtures/users.json";
-import { User } from "../../../pb/api_pb";
 import { Message } from "../../../pb/conversations_pb";
-import rootReducer from "../../../reducers";
-import funnycat from "../../../stories/assets/funnycat.jpg";
 import MessageList, { MessageListProps } from "./MessageList";
-
-const user1 = { ...users[0], avatarUrl: funnycat } as User.AsObject;
+import AuthProvider from "../../auth/AuthProvider";
+import { QueryClient, QueryClientProvider } from "react-query";
 
 const message1: Message.AsObject = {
   messageId: 1,
@@ -64,27 +58,23 @@ const message3: Message.AsObject = {
   // hostRequestStatusChanged?: MessageContentHostRequestStatusChanged.AsObject,
 };
 
-const store = configureStore({
-  reducer: rootReducer,
-  preloadedState: { auth: { user: user1 } },
-});
-
 export default {
   title: "MessageList",
   component: MessageList,
   argTypes: {},
   decorators: [
     (storyFn) => {
-      return <Provider store={store}>{storyFn()}</Provider>;
+      const queryClient = new QueryClient();
+      return (
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>{storyFn()}</AuthProvider>
+        </QueryClientProvider>
+      );
     },
   ],
 } as Meta;
 
 const Template: Story<MessageListProps> = (args) => <MessageList {...args} />;
-
-async function wait(milliSeconds: number) {
-  return new Promise((resolve) => setTimeout(resolve, milliSeconds));
-}
 
 export const Empty = Template.bind({});
 Empty.args = {
@@ -94,11 +84,4 @@ Empty.args = {
 export const Filled = Template.bind({});
 Filled.args = { messages: [message1, message2, message3] };
 
-export const ErrorOnSend = Template.bind({});
-ErrorOnSend.args = {
-  messages: [],
-  handleSend: async () => {
-    await wait(5e3);
-    throw new Error("Fetch error");
-  },
-};
+///TODO: re-add error-on-send story

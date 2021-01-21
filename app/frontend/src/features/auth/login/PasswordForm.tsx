@@ -4,29 +4,25 @@ import { Redirect, useHistory, useLocation } from "react-router-dom";
 import { loginRoute } from "../../../AppRoutes";
 import Button from "../../../components/Button";
 import TextField from "../../../components/TextField";
-import { useAppDispatch, useTypedSelector } from "../../../store";
-import { passwordLogin } from "../authActions";
-import { clearError } from "../authSlice";
+import { useAuthContext } from "../AuthProvider";
 
 export default function PasswordForm() {
-  const dispatch = useAppDispatch();
-  const authLoading = useTypedSelector((state) => state.auth.loading);
+  const { authState, authActions } = useAuthContext();
+  const authLoading = authState.loading;
 
   const { handleSubmit, register } = useForm<{ password: string }>();
   const history = useHistory();
   const location = useLocation<{ username: string }>();
 
   const onSubmit = handleSubmit(async (data: { password: string }) => {
-    dispatch(
-      passwordLogin({
-        username: location.state.username,
-        password: data.password,
-      })
-    );
+    authActions.passwordLogin({
+      username: location.state.username,
+      password: data.password,
+    });
   });
 
   const backClicked = () => {
-    dispatch(clearError());
+    authActions.clearError();
     history.push(loginRoute, location.state);
   };
 

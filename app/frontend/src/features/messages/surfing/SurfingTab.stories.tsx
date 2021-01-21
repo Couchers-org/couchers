@@ -1,15 +1,13 @@
-import { configureStore, Store } from "@reduxjs/toolkit";
 import { Meta, Story } from "@storybook/react/types-6-0";
 import * as React from "react";
-import { Provider } from "react-redux";
 
-import { mockedService, user1 } from "../../../stories/__mocks__/service";
-import { User } from "../../../pb/api_pb";
+import { mockedService } from "../../../stories/__mocks__/service";
 import * as pb_conversations_pb from "../../../pb/conversations_pb";
 import { Message } from "../../../pb/conversations_pb";
 import { HostRequest } from "../../../pb/requests_pb";
-import rootReducer from "../../../reducers";
 import SurfingTab from "./SurfingTab";
+import AuthProvider from "../../auth/AuthProvider";
+import { QueryClient, QueryClientProvider } from "react-query";
 
 const message1: Message.AsObject = {
   messageId: 1,
@@ -60,22 +58,18 @@ Object.assign(mockedService, {
   },
 });
 
-let store: Store;
-function resetStore() {
-  store = configureStore({
-    reducer: rootReducer,
-    preloadedState: { auth: { user: user1 as User.AsObject } },
-  });
-}
-
 export default {
   title: "SurfingTab",
   component: SurfingTab,
   argTypes: {},
   decorators: [
     (storyFn) => {
-      resetStore();
-      return <Provider store={store}>{storyFn()}</Provider>;
+      const queryClient = new QueryClient();
+      return (
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>{storyFn()}</AuthProvider>
+        </QueryClientProvider>
+      );
     },
   ],
 } as Meta;
@@ -87,7 +81,7 @@ const Template: Story<any> = (args) => {
     }
     return [hostRequest1];
   };
-  return <SurfingTab />;
+  return <SurfingTab type="all" />;
 };
 
 export const Tab = Template.bind({});

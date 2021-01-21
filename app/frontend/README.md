@@ -1,9 +1,6 @@
 # couchers-react
 
-[![Build Status](https://travis-ci.org/Couchers-org/couchers-react.svg?branch=dev)](https://travis-ci.org/Couchers-org/couchers-react)
-[![Coverage Status](https://coveralls.io/repos/github/Couchers-org/couchers-react/badge.svg?branch=dev)](https://coveralls.io/github/Couchers-org/couchers-react?branch=dev)
-
-This is the react frontend for couchers.org. We are using [Redux with Redux Toolkit](https://redux-toolkit.js.org/) for state management and [Material UI](https://material-ui.com/) for components.
+This is the react frontend for couchers.org. We are using Typescript with [React Query](https://react-query.tanstack.com/) for data fetching and [Material UI](https://material-ui.com/) for components.
 
 Communication with the backend is via [protobuf messages](https://github.com/protocolbuffers/protobuf/tree/master/js) and [grpc_web](https://github.com/grpc/grpc-web). You can find some helpful documentation on [protobuf messages in javascript here](https://developers.google.com/protocol-buffers/docs/reference/javascript-generated).
 
@@ -17,13 +14,13 @@ Communication with the backend is via [protobuf messages](https://github.com/pro
 
 4. Do some code! It is good to commit regularly, but if possible your code should successfully compile with each commit.
 
-5. Create a pull request and request a code review from someone. It can be good to open a PR before you are finished, add [WIP] before the title in that case.
+5. Create a pull request and request a code review from someone. It can be good to open a PR before you are finished, make it a draft PR in that case.
 
 6. Listen to the feedback and make any necessary changes. Remember, code review can sometimes seem very direct if your are not accustomed to it, but we are all learning and all comments are intended to be kind and constructive. :)
 
 7. Remember to also get review on your post-review changes.
 
-8. Once everything is resolved, you can merge the PR if you feel confident, or ask someone to merge for you.
+8. Once everything is resolved, you can merge the PR if you feel confident, or ask someone to merge for you. If there are merge conflicts, merge the base branch (probably `develop`) into your branch first, and make sure everything is still okay.
 
 ## Setting up the dev environment
 

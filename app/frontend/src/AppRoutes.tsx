@@ -5,7 +5,6 @@ import Home from "./features/Home";
 import Messages from "./features/messages/index";
 import Logout from "./features/auth/Logout";
 import Signup from "./features/auth/signup/Signup";
-import { authError } from "./features/auth/authSlice";
 import {
   EditProfilePage,
   EditHostingPreferencePage,
@@ -20,7 +19,8 @@ import CommunityPage from "./features/communities/CommunityPage";
 import GroupPage from "./features/communities/GroupPage";
 import Jail from "./features/auth/jail/Jail";
 import TOS from "./components/TOS";
-import { useAppDispatch, useTypedSelector } from "./store";
+import { useAuthContext } from "./features/auth/AuthProvider";
+import { ConnectionsPage } from "./features/connections";
 
 export const loginRoute = "/login";
 export const loginPasswordRoute = `${loginRoute}/password`;
@@ -33,6 +33,7 @@ export const messagesRoute = "/messages";
 export const requestsRoute = "/requests";
 export const mapRoute = "/map";
 export const logoutRoute = "/logout";
+export const connectionsRoute = "/connections";
 
 export const userRoute = "/user";
 export const searchRoute = "/search";
@@ -60,6 +61,12 @@ export default function AppRoutes() {
       <PrivateRoute path={mapRoute}>
         <MapPage />
       </PrivateRoute>
+      <Route path={jailRoute}>
+        <Jail />
+      </Route>
+      <Route exact path={logoutRoute}>
+        <Logout />
+      </Route>
       <PrivateRoute path={editProfileRoute}>
         <EditProfilePage />
       </PrivateRoute>
@@ -69,7 +76,7 @@ export default function AppRoutes() {
       <PrivateRoute path={profileRoute}>
         <ProfilePage />
       </PrivateRoute>
-      <PrivateRoute path={messagesRoute}>
+      <PrivateRoute path={`${messagesRoute}/:type?`}>
         <Messages />
       </PrivateRoute>
       <PrivateRoute path={`${userRoute}/:username`}>
@@ -90,28 +97,23 @@ export default function AppRoutes() {
       <PrivateRoute path={`${groupRoute}/:groupId/:groupSlug?`}>
         <GroupPage />
       </PrivateRoute>
-      <Route path={jailRoute}>
-        <Jail />
-      </Route>
+      <PrivateRoute path={`${connectionsRoute}/:type?`}>
+        <ConnectionsPage />
+      </PrivateRoute>
       <PrivateRoute exact path="/">
         <Home />
       </PrivateRoute>
-      <Route exact path={logoutRoute}>
-        <Logout />
-      </Route>
     </Switch>
   );
 }
 
 const PrivateRoute = ({ children, ...otherProps }: RouteProps) => {
-  const dispatch = useAppDispatch();
-  const isAuthenticated = useTypedSelector(
-    (state) => state.auth.authenticated
-  );
-  const isJailed = useTypedSelector((state) => state.auth.jailed);
+  const { authState, authActions } = useAuthContext();
+  const isAuthenticated = authState.authenticated;
+  const isJailed = authState.jailed;
   useEffect(() => {
     if (!isAuthenticated) {
-      dispatch(authError("Please log in."));
+      authActions.authError("Please log in.");
     }
   });
 

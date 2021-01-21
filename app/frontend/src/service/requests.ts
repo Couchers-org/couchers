@@ -6,11 +6,14 @@ import {
 } from "../pb/requests_pb";
 import client from "./client";
 
-export async function listHostRequests() {
+export async function listHostRequests(
+  type: "all" | "hosting" | "surfing",
+  onlyActive: boolean = false
+) {
   const req = new ListHostRequestsReq();
-  req.setOnlyActive(false);
-  req.setOnlyReceived(false);
-  req.setOnlySent(false);
+  req.setOnlyActive(onlyActive);
+  req.setOnlyReceived(type === "hosting");
+  req.setOnlySent(type === "surfing");
 
   const response = await client.requests.listHostRequests(req);
   const hostRequests = response.getHostRequestsList();

@@ -1,10 +1,9 @@
 import { Meta, Story } from "@storybook/react/types-6-0";
 import * as React from "react";
-import { Provider } from "react-redux";
 import { MemoryRouter as Router } from "react-router-dom";
-import { store } from "../../store";
 
 import Navigation from ".";
+import AuthProvider from "../../features/auth/AuthProvider";
 
 export default {
   title: "Components/Navigation",
@@ -13,9 +12,9 @@ export default {
   decorators: [
     (storyFn) => {
       return (
-        <Provider store={store}>
+        <AuthProvider>
           <Router>{storyFn()}</Router>
-        </Provider>
+        </AuthProvider>
       );
     },
   ],

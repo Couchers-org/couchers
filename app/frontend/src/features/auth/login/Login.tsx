@@ -9,15 +9,14 @@ import {
 } from "react-router-dom";
 import { loginPasswordRoute, loginRoute } from "../../../AppRoutes";
 import Alert from "../../../components/Alert";
-import { useAppDispatch, useTypedSelector } from "../../../store";
-import { tokenLogin } from "../authActions";
+import { useAuthContext } from "../AuthProvider";
 import PasswordForm from "./PasswordForm";
 import UsernameForm from "./UsernameForm";
 
 export default function Login() {
-  const dispatch = useAppDispatch();
-  const authenticated = useTypedSelector((state) => state.auth.authenticated);
-  const error = useTypedSelector((state) => state.auth.error);
+  const { authState, authActions } = useAuthContext();
+  const authenticated = authState.authenticated;
+  const error = authState.error;
 
   const location = useLocation<undefined | { from: Location }>();
   const redirectTo = location.state?.from?.pathname || "/";
@@ -26,9 +25,9 @@ export default function Login() {
   useEffect(() => {
     //check for a login token
     if (urlToken && location.pathname !== loginPasswordRoute) {
-      dispatch(tokenLogin(urlToken));
+      authActions.tokenLogin(urlToken);
     }
-  }, [urlToken, dispatch, location.pathname]);
+  }, [urlToken, authActions, location.pathname]);
 
   return (
     <>

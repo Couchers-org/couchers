@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { Box, BoxProps, makeStyles } from "@material-ui/core";
 import classNames from "classnames";
 import "mapbox-gl/dist/mapbox-gl.css";
-import mapboxgl, { LngLat, ResourceType, RequestParameters } from "mapbox-gl";
+import mapboxgl, { LngLat, RequestParameters } from "mapbox-gl";
 
 const URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -53,10 +53,7 @@ export default function Map({
 
   Those APIs will return an error if the session cookie is not set as these APIs are secure and not public.
   */
-  const transformRequest = (
-    url: string,
-    resourceType: ResourceType
-  ): RequestParameters => {
+  const transformRequest = (url: string): RequestParameters => {
     if (url.startsWith(URL)) {
       return {
         url,

@@ -325,7 +325,7 @@ class UserSession(Base):
 
     Long-lived tokens are valid from `created` until `expiry`.
 
-    Short-lived tokens expire after 2 hours if they are not used.
+    Short-lived tokens expire after 168 hours (7 days) if they are not used.
     """
 
     __tablename__ = "sessions"
@@ -340,7 +340,7 @@ class UserSession(Base):
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     # the expiry of the session: the session *cannot* be refreshed past this
-    expiry = Column(DateTime(timezone=True), nullable=False, server_default=func.now() + text("interval '7 days'"))
+    expiry = Column(DateTime(timezone=True), nullable=False, server_default=func.now() + text("interval '90 days'"))
 
     # the time at which the token was invalidated, allows users to delete sessions
     deleted = Column(DateTime(timezone=True), nullable=True, default=None)
@@ -363,13 +363,13 @@ class UserSession(Base):
         """
         It must have been created and not be expired or deleted.
 
-        Also, if it's a short lived token, it must have been used in the last 2 hours.
+        Also, if it's a short lived token, it must have been used in the last 168 hours.
         """
         return (
             (self.created <= func.now())
             & (self.expiry >= func.now())
             & (self.deleted == None)
-            & (self.long_lived | (func.now() - self.last_seen < text("interval '2 hours'")))
+            & (self.long_lived | (func.now() - self.last_seen < text("interval '168 hours'")))
         )
 
 

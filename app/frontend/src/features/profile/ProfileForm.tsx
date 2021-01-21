@@ -1,18 +1,18 @@
 import { makeStyles } from "@material-ui/core";
-import { Autocomplete } from "@material-ui/lab";
-import { unwrapResult } from "@reduxjs/toolkit";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import Alert from "../../components/Alert";
 import Button from "../../components/Button";
-import TextField from "../../components/TextField";
-import { updateUserProfile } from "./index";
 import ProfileTextInput from "./ProfileTextInput";
 import { UpdateUserProfileData } from "../../service/user";
 import { theme } from "../../theme";
-import { useAppDispatch, useTypedSelector } from "../../store";
 import ProfileMarkdownInput from "./ProfileMarkdownInput";
+import ProfileTagInput from "./ProfileTagInput";
 import EditUserLocationMap from "../../components/EditUserLocationMap";
+import CircularProgress from "../../components/CircularProgress";
+import useCurrentUser from "../userQueries/useCurrentUser";
+import useUpdateUserProfile from "./useUpdateUserProfile";
+import { useIsMounted, useSafeState } from "../../utils/hooks";
 
 const useStyles = makeStyles({
   buttonContainer: {
@@ -23,12 +23,17 @@ const useStyles = makeStyles({
 
 export default function EditProfileForm() {
   const classes = useStyles();
-  const dispatch = useAppDispatch();
-  const user = useTypedSelector((state) => state.auth.user);
-  const [alertState, setShowAlertState] = useState<
-    "success" | "error" | undefined
-  >();
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const {
+    updateUserProfile,
+    status: updateStatus,
+    reset: resetUpdate,
+  } = useUpdateUserProfile();
+  const { data: user } = useCurrentUser();
+  const isMounted = useIsMounted();
+  const [errorMessage, setErrorMessage] = useSafeState<string | null>(
+    isMounted,
+    null
+  );
   const { control, register, handleSubmit, setValue } = useForm<
     UpdateUserProfileData
   >({
@@ -47,31 +52,28 @@ export default function EditProfileForm() {
     register("radius");
   }, [register]);
 
-  const onSubmit = handleSubmit(async (data: UpdateUserProfileData) => {
-    try {
-      unwrapResult(await dispatch(updateUserProfile(data)));
-      setShowAlertState("success");
-    } catch (error) {
-      setShowAlertState("error");
-      setErrorMessage(error.message);
-    }
+  const onSubmit = handleSubmit((data) => {
+    resetUpdate();
+    updateUserProfile({ profileData: data, setMutationError: setErrorMessage });
   });
 
   return (
     <>
-      {alertState === "success" ? (
-        <Alert severity={alertState}>Successfully updated profile!</Alert>
-      ) : alertState === "error" ? (
-        <Alert severity={alertState}>{errorMessage}</Alert>
+      {updateStatus === "success" ? (
+        <Alert severity="success">Successfully updated profile!</Alert>
+      ) : updateStatus === "error" ? (
+        <Alert severity="error">{errorMessage}</Alert>
       ) : null}
-      {user && (
-        <form onSubmit={onSubmit}>
-          <ProfileTextInput
-            label="Name"
-            name="name"
-            defaultValue={user.name}
-            inputRef={register}
-          />
+      {user ? (
+        <>
+          <form onSubmit={onSubmit}>
+            <ProfileTextInput
+              label="Name"
+              name="name"
+              defaultValue={user.name}
+              inputRef={register}
+            />
+          </form>
           <Controller
             name="city"
             control={control}
@@ -88,124 +90,103 @@ export default function EditProfileForm() {
               />
             )}
           />
-          <ProfileTextInput
-            label="Gender"
-            name="gender"
-            defaultValue={user.gender}
-            inputRef={register}
-          />
-          <ProfileTextInput
-            label="Occupation"
-            name="occupation"
-            defaultValue={user.occupation}
-            inputRef={register}
-          />
-          <Controller
-            control={control}
-            defaultValue={user.languagesList}
-            name="languages"
-            render={({ onChange }) => (
-              <Autocomplete
-                defaultValue={user.languagesList}
-                disableClearable={false}
-                freeSolo
-                multiple
-                onChange={(_, value) => onChange(value)}
-                open={false}
-                options={[""]}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    helperText="Press 'Enter' to add"
-                    label="Languages"
-                  />
-                )}
-              />
-            )}
-          />
+          <form onSubmit={onSubmit}>
+            <ProfileTextInput
+              label="Gender"
+              name="gender"
+              defaultValue={user.gender}
+              inputRef={register}
+            />
+            <ProfileTextInput
+              label="Occupation"
+              name="occupation"
+              defaultValue={user.occupation}
+              inputRef={register}
+            />
 
-          <Controller
-            control={control}
-            defaultValue={user.aboutMe}
-            name="aboutMe"
-            render={({ onChange, value }) => (
-              <ProfileMarkdownInput
-                label="About me"
-                onChange={onChange}
-                value={value}
-              />
-            )}
-          />
-          <Controller
-            control={control}
-            defaultValue={user.aboutPlace}
-            name="aboutPlace"
-            render={({ onChange, value }) => (
-              <ProfileMarkdownInput
-                label="About my place"
-                onChange={onChange}
-                value={value}
-              />
-            )}
-          />
+            <Controller
+              control={control}
+              defaultValue={user.languagesList}
+              name="languages"
+              render={({ onChange, value }) => (
+                <ProfileTagInput
+                  onChange={(_, value) => onChange(value)}
+                  value={value}
+                  options={[]}
+                  label="Languages I speak"
+                  id="languages"
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              defaultValue={user.aboutMe}
+              name="aboutMe"
+              render={({ onChange, value }) => (
+                <ProfileMarkdownInput
+                  label="About me"
+                  onChange={onChange}
+                  value={value}
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              defaultValue={user.aboutPlace}
+              name="aboutPlace"
+              render={({ onChange, value }) => (
+                <ProfileMarkdownInput
+                  label="About my place"
+                  onChange={onChange}
+                  value={value}
+                />
+              )}
+            />
 
-          <Controller
-            control={control}
-            defaultValue={user.countriesVisitedList}
-            name="countriesVisited"
-            render={({ onChange }) => (
-              <Autocomplete
-                defaultValue={user.countriesVisitedList}
-                disableClearable={false}
-                freeSolo
-                multiple
-                onChange={(_, value) => onChange(value)}
-                open={false}
-                options={[""]}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    helperText="Press 'Enter' to add"
-                    label="Countries I visited"
-                  />
-                )}
-              />
-            )}
-          />
-          <Controller
-            control={control}
-            defaultValue={user.countriesLivedList}
-            name="countriesLived"
-            render={({ onChange }) => (
-              <Autocomplete
-                defaultValue={user.countriesLivedList}
-                disableClearable={false}
-                freeSolo
-                multiple
-                onChange={(_, value) => onChange(value)}
-                open={false}
-                options={[""]}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    helperText="Press 'Enter' to add"
-                    label="Countries I lived in"
-                  />
-                )}
-              />
-            )}
-          />
-          <div className={classes.buttonContainer}>
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              onClick={onSubmit}
-            >
-              Save
-            </Button>
-          </div>
-        </form>
+            <Controller
+              control={control}
+              defaultValue={user.countriesVisitedList}
+              name="countriesVisited"
+              render={({ onChange, value }) => (
+                <ProfileTagInput
+                  onChange={(_, value) => onChange(value)}
+                  value={value}
+                  options={[]}
+                  label="Countries I've Visited"
+                  id="countries-visited"
+                />
+              )}
+            />
+
+            <Controller
+              control={control}
+              defaultValue={user.countriesLivedList}
+              name="countriesLived"
+              render={({ onChange, value }) => (
+                <ProfileTagInput
+                  onChange={(_, value) => onChange(value)}
+                  value={value}
+                  options={[]}
+                  label="Countries I've Lived In"
+                  id="countries-lived"
+                />
+              )}
+            />
+
+            <div className={classes.buttonContainer}>
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                onClick={onSubmit}
+              >
+                Save
+              </Button>
+            </div>
+          </form>
+        </>
+      ) : (
+        <CircularProgress />
       )}
     </>
   );

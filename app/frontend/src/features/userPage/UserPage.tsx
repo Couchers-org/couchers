@@ -1,58 +1,88 @@
-import { Grid } from "@material-ui/core";
-import React, { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { Grid, makeStyles } from "@material-ui/core";
+import React from "react";
+import { useParams, Link } from "react-router-dom";
+import { profileRoute } from "../../AppRoutes";
 import Alert from "../../components/Alert";
+import Button from "../../components/Button";
 import CircularProgress from "../../components/CircularProgress";
-import { useAppDispatch, useTypedSelector } from "../../store";
-import { fetchUsers, getUserByUsernameSelector } from "../userCache";
+import { EditIcon } from "../../components/Icons";
+import AddFriendButton from "../connections/friends/AddFriendButton";
+import { User } from "../../pb/api_pb";
+import useUserByUsername from "../userQueries/useUserByUsername";
+import useCurrentUser from "../userQueries/useCurrentUser";
 import UserAbout from "./UserAbout";
 import UserGuestbook from "./UserGuestbook";
 import UserHeader from "./UserHeader";
 import UserPlace from "./UserPlace";
 import UserSection from "./UserSection";
 import UserSummary from "./UserSummary";
+import { useIsMounted, useSafeState } from "../../utils/hooks";
+import TextBody from "../../components/TextBody";
+
+const useStyles = makeStyles((theme) => ({
+  editButton: {
+    marginBottom: theme.spacing(2),
+  },
+}));
 
 export default function UserPage() {
-  const dispatch = useAppDispatch();
-
-  const usersLoading = useTypedSelector((state) => state.userCache.loading);
-  const usersError = useTypedSelector((state) => state.userCache.error);
-
+  const classes = useStyles();
   const { username } = useParams<{ username: string }>();
-  useEffect(() => {
-    dispatch(fetchUsers({ forceInvalidate: true, usernames: [username] }));
-  }, [dispatch, username]);
-
-  const getUserByUsername = useTypedSelector((state) =>
-    getUserByUsernameSelector(state)
+  const { data: user, isLoading, isError, error } = useUserByUsername(
+    username,
+    true
   );
-  const user = getUserByUsername(username);
+  const [mutationError, setMutationError] = useSafeState(useIsMounted(), "");
+  const isCurrentUser = useCurrentUser().data?.userId === user?.userId;
 
   return (
     <>
-      {usersError && <Alert severity="error">{usersError}</Alert>}
-
-      {usersLoading && <CircularProgress />}
-
-      {user && !usersLoading ? (
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6} md={4}>
-            <UserHeader user={user} />
-            <UserSummary user={user} />
+      {mutationError ? <Alert severity="error">{mutationError}</Alert> : null}
+      {isError ? (
+        <Alert severity="error">{error}</Alert>
+      ) : isLoading ? (
+        <CircularProgress />
+      ) : (
+        user && (
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6} md={4}>
+              <UserHeader user={user}>
+                {isCurrentUser ? (
+                  <Button
+                    startIcon={<EditIcon />}
+                    component={Link}
+                    to={profileRoute}
+                    className={classes.editButton}
+                  >
+                    Edit your profile
+                  </Button>
+                ) : user.friends === User.FriendshipStatus.NOT_FRIENDS ? (
+                  <AddFriendButton
+                    userId={user.userId}
+                    setMutationError={setMutationError}
+                  />
+                ) : user.friends === User.FriendshipStatus.PENDING ? (
+                  <TextBody className={classes.editButton}>
+                    Pending friend request...
+                  </TextBody>
+                ) : null}
+              </UserHeader>
+              <UserSummary user={user} />
+            </Grid>
+            <Grid item xs={12} sm={6} md={8}>
+              <UserSection title="About">
+                <UserAbout user={user} />
+              </UserSection>
+              <UserSection title="My Place">
+                <UserPlace user={user} />
+              </UserSection>
+              <UserSection title="Guestbook">
+                <UserGuestbook user={user} />
+              </UserSection>
+            </Grid>
           </Grid>
-          <Grid item xs={12} sm={6} md={8}>
-            <UserSection title="About">
-              <UserAbout user={user} />
-            </UserSection>
-            <UserSection title="My Place">
-              <UserPlace user={user} />
-            </UserSection>
-            <UserSection title="Guestbook">
-              <UserGuestbook user={user} />
-            </UserSection>
-          </Grid>
-        </Grid>
-      ) : null}
+        )
+      )}
     </>
   );
 }

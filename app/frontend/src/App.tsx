@@ -11,7 +11,9 @@ import "./App.css";
 import AppRoutes from "./AppRoutes";
 import Navigation from "./components/Navigation";
 import PageTitle from "./components/PageTitle";
+import AuthProvider from "./features/auth/AuthProvider";
 import { theme } from "./theme";
+import { ReactQueryClientProvider } from "./reactQueryClient";
 
 const useStyles = makeStyles((theme) => ({
   padding: {
@@ -33,14 +35,18 @@ function App() {
   return (
     <Router>
       <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <Navigation />
-        <Container maxWidth="md" className={classes.padding}>
-          <Hidden mdUp>
-            <PageTitle>Couchers</PageTitle>
-          </Hidden>
-          <AppRoutes />
-        </Container>
+        <ReactQueryClientProvider>
+          <AuthProvider>
+            <CssBaseline />
+            <Navigation />
+            <Container maxWidth="md" className={classes.padding}>
+              <Hidden mdUp>
+                <PageTitle>Couchers</PageTitle>
+              </Hidden>
+              <AppRoutes />
+            </Container>
+          </AuthProvider>
+        </ReactQueryClientProvider>
       </ThemeProvider>
     </Router>
   );

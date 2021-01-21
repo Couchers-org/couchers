@@ -1,6 +1,7 @@
 import { Box, BoxProps, Link, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import * as React from "react";
+import TextBody from "../../../components/TextBody";
 import { HostRequest } from "../../../pb/requests_pb";
 import HostRequestListItem from "./HostRequestListItem";
 
@@ -21,14 +22,18 @@ export default function HostRequestList({
     <>
       <Box className={classes.root}>
         <Typography variant="h2">Requests</Typography>
-        {hostRequests.map((hostRequest) => (
-          <Link
-            key={hostRequest.hostRequestId}
-            onClick={() => setHostRequest(hostRequest)}
-          >
-            <HostRequestListItem hostRequest={hostRequest} />
-          </Link>
-        ))}
+        {!hostRequests.length ? (
+          <TextBody>No requests yet.</TextBody>
+        ) : (
+          hostRequests.map((hostRequest) => (
+            <Link
+              key={hostRequest.hostRequestId}
+              onClick={() => setHostRequest(hostRequest)}
+            >
+              <HostRequestListItem hostRequest={hostRequest} />
+            </Link>
+          ))
+        )}
       </Box>
     </>
   );

@@ -3,12 +3,8 @@ import { User } from "../../pb/api_pb";
 import { Box, makeStyles, Typography } from "@material-ui/core";
 import PageTitle from "../../components/PageTitle";
 import ScoreBar from "../../components/ScoreBar";
-import { CouchIcon, EditIcon } from "../../components/Icons";
+import { CouchIcon } from "../../components/Icons";
 import Avatar from "../../components/Avatar";
-import { useTypedSelector } from "../../store";
-import { Link } from "react-router-dom";
-import { profileRoute } from "../../AppRoutes";
-import Button from "../../components/Button";
 import { timestamp2Date } from "../../utils/date";
 import { timeAgo } from "../../utils/timeAgo";
 import { hostingStatusLabels } from "../profile/constants";
@@ -38,12 +34,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function UserHeader({ user }: { user: User.AsObject }) {
-  const classes = useStyles();
+interface UserHeaderProps {
+  children?: React.ReactNode;
+  user: User.AsObject;
+}
 
-  const isCurrentUser = useTypedSelector(
-    (store) => store.auth.user?.userId === user.userId
-  );
+export default function UserHeader({ children, user }: UserHeaderProps) {
+  const classes = useStyles();
 
   return (
     <div className={classes.root}>
@@ -69,16 +66,7 @@ export default function UserHeader({ user }: { user: User.AsObject }) {
         </Box>
       )}
 
-      {isCurrentUser && (
-        <Button
-          startIcon={<EditIcon />}
-          component={Link}
-          to={profileRoute}
-          className={classes.editButton}
-        >
-          Edit your profile
-        </Button>
-      )}
+      {children}
 
       <ScoreBar value={user.communityStanding * 100}>
         Community Standing
