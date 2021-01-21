@@ -48,7 +48,7 @@
     semver "^5.4.1"
     source-map "^0.5.0"
 
-"@babel/core@7.12.3", "@babel/core@^7.1.0", "@babel/core@^7.12.3", "@babel/core@^7.7.5", "@babel/core@^7.8.4", "@babel/core@^7.9.0":
+"@babel/core@7.12.3":
   version "7.12.3"
   resolved "https://registry.yarnpkg.com/@babel/core/-/core-7.12.3.tgz#1b436884e1e3bff6fb1328dc02b208759de92ad8"
   integrity sha512-0qXcZYKZp3/6N2jKYVxZv0aNCsxTSVCiK72DTiTYZAu7sjg73W0/aynWjMbiGd87EQL4WyA8reiJVh92AVla9g==
@@ -70,7 +70,7 @@
     semver "^5.4.1"
     source-map "^0.5.0"
 
-"@babel/core@^7.12.1":
+"@babel/core@^7.1.0", "@babel/core@^7.12.1", "@babel/core@^7.12.3", "@babel/core@^7.7.5", "@babel/core@^7.8.4", "@babel/core@^7.9.0":
   version "7.12.7"
   resolved "https://registry.yarnpkg.com/@babel/core/-/core-7.12.7.tgz#bf55363c08c8352a37691f7216ec30090bf7e3bf"
   integrity sha512-tRKx9B53kJe8NCGGIxEQb2Bkr0riUIEuN7Sc1fxhs5H8lKlCWUvQCSNMVIB0Meva7hcbCRJ76de15KoLltdoqw==
@@ -8410,7 +8410,7 @@ inquirer@7.0.4:
     strip-ansi "^5.1.0"
     through "^2.3.6"
 
-inquirer@7.3.3, inquirer@^7.0.0:
+inquirer@^7.0.0:
   version "7.3.3"
   resolved "https://registry.yarnpkg.com/inquirer/-/inquirer-7.3.3.tgz#04d176b2af04afc157a83fd7c100e98ee0aad003"
   integrity sha512-JG3eIAj5V9CwcGvuOmoo6LB9kbAYT8HXffUl6memuszlwDC/qvFAJw49XJ5NROSFNPxp3iQg1GqkFhaY/CR0IA==
@@ -12259,7 +12259,7 @@ promise@^8.1.0:
   dependencies:
     asap "~2.0.6"
 
-prompts@^2.0.1:
+prompts@2.4.0, prompts@^2.0.1:
   version "2.4.0"
   resolved "https://registry.yarnpkg.com/prompts/-/prompts-2.4.0.tgz#4aa5de0723a231d1ee9121c40fdf663df73f61d7"
   integrity sha512-awZAKrk3vN6CroQukBL+R9051a4R3zCZBlJm/HBfrSZ8iTpYix3VX1vU4mveiLpiwmOJT4wokTF9m6HUk4KqWQ==
@@ -12516,10 +12516,10 @@ react-dev-utils@^10.0.0:
     strip-ansi "6.0.0"
     text-table "0.2.0"
 
-react-dev-utils@^11.0.0:
-  version "11.0.0"
-  resolved "https://registry.yarnpkg.com/react-dev-utils/-/react-dev-utils-11.0.0.tgz#9fdb1b173f4ffc1f23fcf98465d93b16a860b73e"
-  integrity sha512-uIZTUZXB5tbiM/0auUkLVjWhZGM7DSI304iGunyhA9m985iIDVXd9I4z6MkNa9jeLzeUJbU9A7TUNrcbXAahxw==
+react-dev-utils@^11.0.1:
+  version "11.0.1"
+  resolved "https://registry.yarnpkg.com/react-dev-utils/-/react-dev-utils-11.0.1.tgz#30106c2055acfd6b047d2dc478a85c356e66fe45"
+  integrity sha512-rlgpCupaW6qQqvu0hvv2FDv40QG427fjghV56XyPcP5aKtOAPzNAhQ7bHqk1YdS2vpW1W7aSV3JobedxuPlBAA==
   dependencies:
     "@babel/code-frame" "7.10.4"
     address "1.1.2"
@@ -12535,11 +12535,11 @@ react-dev-utils@^11.0.0:
     globby "11.0.1"
     gzip-size "5.1.1"
     immer "7.0.9"
-    inquirer "7.3.3"
     is-root "2.1.0"
     loader-utils "2.0.0"
     open "^7.0.2"
     pkg-up "3.1.0"
+    prompts "2.4.0"
     react-error-overlay "^6.0.8"
     recursive-readdir "2.2.2"
     shell-quote "1.7.2"
@@ -12735,10 +12735,10 @@ react-router@5.2.0:
     tiny-invariant "^1.0.2"
     tiny-warning "^1.0.0"
 
-react-scripts@4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/react-scripts/-/react-scripts-4.0.0.tgz#36f3d84ffff708ac0618fd61e71eaaea11c26417"
-  integrity sha512-icJ/ctwV5XwITUOupBP9TUVGdWOqqZ0H08tbJ1kVC5VpNWYzEZ3e/x8axhV15ZXRsixLo27snwQE7B6Zd9J2Tg==
+react-scripts@4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/react-scripts/-/react-scripts-4.0.1.tgz#34974c0f4cfdf1655906c95df6a04d80db8b88f0"
+  integrity sha512-NnniMSC/wjwhcJAyPJCWtxx6CWONqgvGgV9+QXj1bwoW/JI++YF1eEf3Upf/mQ9KmP57IBdjzWs1XvnPq7qMTQ==
   dependencies:
     "@babel/core" "7.12.3"
     "@pmmmwh/react-refresh-webpack-plugin" "0.4.2"
@@ -12782,8 +12782,9 @@ react-scripts@4.0.0:
     postcss-normalize "8.0.1"
     postcss-preset-env "6.7.0"
     postcss-safe-parser "5.0.2"
+    prompts "2.4.0"
     react-app-polyfill "^2.0.0"
-    react-dev-utils "^11.0.0"
+    react-dev-utils "^11.0.1"
     react-refresh "^0.8.3"
     resolve "1.18.1"
     resolve-url-loader "^3.1.2"
