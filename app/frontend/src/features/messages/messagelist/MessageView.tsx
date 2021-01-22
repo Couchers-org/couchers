@@ -73,7 +73,7 @@ export default function MessageView({ message }: MessageProps) {
   const isCurrentUser = author?.userId === currentUser?.userId;
   return (
     <Box
-      className={classnames(classes.root, {
+      className={classNames(classes.root, {
         [classes.userRoot]: isCurrentUser,
         [classes.otherRoot]: !isCurrentUser,
       })}
