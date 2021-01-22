@@ -15,8 +15,8 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(2),
     "& > :first-child": { marginRight: theme.spacing(2) },
   },
-  userRoot: { justifyContent: "flex-start" },
-  otherRoot: { justifyContent: "flex-end" },
+  userRoot: { justifyContent: "flex-end" },
+  otherRoot: { justifyContent: "flex-start" },
   card: {
     [theme.breakpoints.up("xs")]: {
       width: "100%",
@@ -48,11 +48,6 @@ const useStyles = makeStyles((theme) => ({
     paddingBottom: theme.spacing(2),
     justifyContent: "flex-end",
   },
-  messageTime: {
-    color: theme.typography.caption.color,
-    fontSize: theme.typography.caption.fontSize,
-    paddingInlineEnd: theme.spacing(1),
-  },
   avatar: { width: 40, height: 40 },
   name: {
     flexGrow: 1,
@@ -80,7 +75,7 @@ export default function MessageView({ message }: MessageProps) {
     <Box
       className={classnames(classes.root, {
         [classes.userRoot]: isCurrentUser,
-        [classes.otherCard]: !isCurrentUser,
+        [classes.otherRoot]: !isCurrentUser,
       })}
       style={{}}
     >
@@ -100,10 +95,7 @@ export default function MessageView({ message }: MessageProps) {
             </Typography>
           )}
           {!isCurrentUser && (
-            <TimeInterval
-              date={timestamp2Date(message.time!)}
-              className={classes.messageTime}
-            />
+            <TimeInterval date={timestamp2Date(message.time!)} />
           )}
         </Box>
 
@@ -113,10 +105,7 @@ export default function MessageView({ message }: MessageProps) {
 
         {isCurrentUser && (
           <Box className={classes.footer}>
-            <TimeInterval
-              date={timestamp2Date(message.time!)}
-              className={classes.messageTime}
-            />
+            <TimeInterval date={timestamp2Date(message.time!)} />
           </Box>
         )}
       </Card>

@@ -4,7 +4,13 @@ import React from "react";
 import moment from "moment";
 import classnames from "classnames";
 
-const useStyles = makeStyles({ root: {} });
+const useStyles = makeStyles((theme) => ({
+  root: {
+    color: theme.typography.caption.color,
+    fontSize: theme.typography.caption.fontSize,
+    paddingInlineEnd: theme.spacing(1),
+  },
+}));
 
 export interface MomentIndicationProps {
   date: Date;
