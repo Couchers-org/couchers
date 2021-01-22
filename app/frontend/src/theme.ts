@@ -46,6 +46,7 @@ const themeOptions: ThemeOptions = {
     MuiTabPanel: {
       root: {
         padding: 0,
+        paddingTop: spacing(1),
       },
     },
   },

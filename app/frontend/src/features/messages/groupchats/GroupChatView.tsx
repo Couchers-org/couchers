@@ -57,7 +57,7 @@ export default function GroupChatView() {
 
   //for title text
   const currentUserId = useAuthContext().authState.userId!;
-  const groupChatMembersQuery = useUsers(groupChat?.memberUserIdsList);
+  const groupChatMembersQuery = useUsers(groupChat?.memberUserIdsList ?? []);
 
   const {
     data: messages,
@@ -96,59 +96,69 @@ export default function GroupChatView() {
   const handleBack = () => history.goBack();
   return (
     <Box className={classes.root}>
-      <Box className={classes.header}>
-        <HeaderButton onClick={handleBack} aria-label="Back">
-          <BackIcon />
-        </HeaderButton>
-
-        <PageTitle className={classes.title}>
-          {groupChat ? (
-            groupChatTitleText(groupChat, groupChatMembersQuery, currentUserId)
-          ) : idError ? (
-            "Error"
-          ) : (
-            <Skeleton width={100} />
-          )}
-        </PageTitle>
-
-        <HeaderButton
-          onClick={handleClick}
-          aria-label="Menu"
-          aria-haspopup="true"
-          innerRef={menuAnchor}
-        >
-          <SettingsIcon />
-        </HeaderButton>
-        <Menu
-          id="simple-menu"
-          anchorEl={menuAnchor.current}
-          keepMounted
-          open={menuOpen}
-          onClose={handleClose}
-        >
-          <MenuItem onClick={handleLeaveGroupChat}>Leave chat</MenuItem>
-        </Menu>
-      </Box>
-      {(idError ||
-        messagesError ||
-        sendMutation.error ||
-        leaveGroupChatMutation.error) && (
-        <Alert severity="error">
-          {idError?.message ||
-            messagesError?.message ||
-            sendMutation.error?.message ||
-            leaveGroupChatMutation.error?.message}
-        </Alert>
-      )}
-      {isMessagesLoading ? (
-        <CircularProgress />
+      {!groupChatId ? (
+        <Alert severity="error">Invalid chat id.</Alert>
       ) : (
-        messages && (
-          <>
-            <MessageList messages={messages} />
-            <SendField sendMutation={sendMutation} />
-          </>
-        )
+        <>
+          <Box className={classes.header}>
+            <HeaderButton onClick={handleBack} aria-label="Back">
+              <BackIcon />
+            </HeaderButton>
+
+            <PageTitle className={classes.title}>
+              {groupChat ? (
+                groupChatTitleText(
+                  groupChat,
+                  groupChatMembersQuery,
+                  currentUserId
+                )
+              ) : idError ? (
+                "Error"
+              ) : (
+                <Skeleton width={100} />
+              )}
+            </PageTitle>
+
+            <HeaderButton
+              onClick={handleClick}
+              aria-label="Menu"
+              aria-haspopup="true"
+              innerRef={menuAnchor}
+            >
+              <SettingsIcon />
+            </HeaderButton>
+            <Menu
+              id="simple-menu"
+              anchorEl={menuAnchor.current}
+              keepMounted
+              open={menuOpen}
+              onClose={handleClose}
+            >
+              <MenuItem onClick={handleLeaveGroupChat}>Leave chat</MenuItem>
+            </Menu>
+          </Box>
+          {(idError ||
+            messagesError ||
+            sendMutation.error ||
+            leaveGroupChatMutation.error) && (
+            <Alert severity="error">
+              {idError?.message ||
+                messagesError?.message ||
+                sendMutation.error?.message ||
+                leaveGroupChatMutation.error?.message}
+            </Alert>
+          )}
+          {isMessagesLoading ? (
+            <CircularProgress />
+          ) : (
+            messages && (
+              <>
+                <MessageList messages={messages} />
+                <SendField sendMutation={sendMutation} />
+              </>
+            )
+          )}
+        </>
       )}
     </Box>
   );

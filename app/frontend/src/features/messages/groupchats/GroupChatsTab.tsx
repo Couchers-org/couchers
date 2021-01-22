@@ -18,6 +18,7 @@ const useStyles = makeStyles((theme) => ({
   list: {
     //margin won't go on the right, so make the width longer
     width: `calc(100% + ${theme.spacing(4)})`,
+    overflow: "visible",
   },
   link: {
     color: "inherit",

@@ -5,7 +5,6 @@ import * as React from "react";
 
 import { Dialog, DialogContentText, DialogTitle } from "./Dialog";
 import Button from "./Button";
-// @ts-ignore
 
 export default {
   title: "Components/Dialog",

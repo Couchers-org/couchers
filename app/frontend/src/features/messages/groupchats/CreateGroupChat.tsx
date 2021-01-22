@@ -44,6 +44,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
     mutate: createGroupChat,
     isLoading: isCreateLoading,
     error: createError,
+    reset: resetMutationStatus,
   } = useMutation<number, GrpcError, CreateGroupChatFormData>(
     ({ title, users }) => service.conversations.createGroupChat(title, users),
     {
@@ -58,6 +59,12 @@ export default function CreateGroupChat({ className }: { className?: string }) {
   const onSubmit = handleSubmit(({ title, users }: CreateGroupChatFormData) =>
     createGroupChat({ title, users })
   );
+
+  const handleClose = () => {
+    setIsOpen(false);
+    resetForm();
+    resetMutationStatus();
+  };
 
   const errors = [...friends.errors];
   if (createError) errors.push(createError.message);
@@ -75,7 +82,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
       <Dialog
         aria-labelledby="create-dialog-title"
         open={isOpen}
-        onClose={() => setIsOpen(false)}
+        onClose={handleClose}
       >
         <form onSubmit={onSubmit}>
           <DialogTitle id="create-dialog-title">Create group chat</DialogTitle>

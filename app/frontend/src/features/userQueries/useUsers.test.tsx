@@ -28,22 +28,6 @@ beforeEach(() => {
   getUserMock.mockImplementation(getUser);
 });
 
-describe("when called with ids = undefined", () => {
-  it("returns undefined data and isLoading/isFetching are true", () => {
-    const { result } = renderHook(() => useUsers(undefined), {
-      wrapper,
-    });
-
-    expect(result.current).toEqual({
-      isLoading: true,
-      isFetching: true,
-      isError: false,
-      errors: [],
-      data: undefined,
-    });
-  });
-});
-
 describe("while queries are loading", () => {
   it("returns loading with no errors", async () => {
     const { result } = renderHook(() => useUsers([1, 2, 3]), {

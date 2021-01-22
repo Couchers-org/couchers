@@ -15,6 +15,8 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(2),
     "& > :first-child": { marginRight: theme.spacing(2) },
   },
+  userRoot: { justifyContent: "flex-start" },
+  otherRoot: { justifyContent: "flex-end" },
   card: {
     [theme.breakpoints.up("xs")]: {
       width: "100%",
@@ -76,8 +78,11 @@ export default function MessageView({ message }: MessageProps) {
   const isCurrentUser = author?.userId === currentUser?.userId;
   return (
     <Box
-      className={classes.root}
-      style={{ justifyContent: !isCurrentUser ? "flex-start" : "flex-end" }}
+      className={classnames(classes.root, {
+        [classes.userRoot]: isCurrentUser,
+        [classes.otherCard]: !isCurrentUser,
+      })}
+      style={{}}
     >
       {author && !isCurrentUser && (
         <Avatar user={author} className={classes.avatar} />

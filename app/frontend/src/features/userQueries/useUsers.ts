@@ -7,7 +7,7 @@ import { arrayEq } from "../../utils/arrayEq";
 import { userStaleTime } from "./constants";
 
 export default function useUsers(
-  ids: (number | undefined)[] | undefined,
+  ids: (number | undefined)[],
   invalidate: boolean = false
 ) {
   const queryClient = useQueryClient();
@@ -17,7 +17,7 @@ export default function useUsers(
       queryClient.invalidateQueries({
         predicate: (query) =>
           query.queryKey[0] === "user" &&
-          !!idsRef.current?.includes(query.queryKey[1] as number),
+          !!idsRef.current.includes(query.queryKey[1] as number),
       });
     }
   }, [invalidate, queryClient]);
@@ -27,14 +27,14 @@ export default function useUsers(
 
   //arrays use reference equality, so you can't use ids in useEffect directly
   useEffect(() => {
-    if (!arrayEq(idsRef.current || [], ids || [])) {
+    if (!arrayEq(idsRef.current, ids)) {
       idsRef.current = ids;
       handleInvalidation();
     }
   });
 
   const queries = useQueries<User.AsObject, Error>(
-    (ids ?? [])
+    ids
       .filter((id): id is number => !!id)
       .map((id) => ({
         queryKey: ["user", id],
@@ -46,16 +46,13 @@ export default function useUsers(
   const errors = queries
     .map((query) => query.error?.message)
     .filter((e): e is string => typeof e === "string");
-  const isLoading =
-    queries.some((query) => query.isLoading) || ids === undefined;
-  const isFetching =
-    queries.some((query) => query.isFetching) || ids === undefined;
+  const isLoading = queries.some((query) => query.isLoading);
+  const isFetching = queries.some((query) => query.isFetching);
   const isError = !!errors.length;
 
-  const usersById =
-    isLoading || ids === undefined
-      ? undefined
-      : new Map(queries.map((q, index) => [ids[index], q.data]));
+  const usersById = isLoading
+    ? undefined
+    : new Map(queries.map((q, index) => [ids[index], q.data]));
 
   return {
     isLoading,

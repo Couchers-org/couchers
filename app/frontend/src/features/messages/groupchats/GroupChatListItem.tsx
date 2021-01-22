@@ -49,28 +49,31 @@ export default function GroupChatListItem({
     groupChatMembersQuery,
     currentUserId
   );
-  //text is the control message text or message text, truncated
-  const text = groupChat.latestMessage
-    ? isControlMessage(groupChat.latestMessage)
-      ? controlMessageText(
-          groupChat.latestMessage,
-          firstName(
-            groupChatMembersQuery.data?.get(
-              groupChat.latestMessage.authorUserId
-            )?.name
-          ) || "",
-          firstName(
+  //text is the control message text or message text
+  let text = "";
+  if (groupChat.latestMessage) {
+    const authorName =
+      firstName(
+        groupChatMembersQuery.data?.get(groupChat.latestMessage?.authorUserId)
+          ?.name
+      ) || "";
+    if (isControlMessage(groupChat.latestMessage)) {
+      const targetName = groupChat.latestMessage
+        ? firstName(
             groupChatMembersQuery.data?.get(
               messageTargetId(groupChat.latestMessage)
             )?.name
           ) || ""
-        )
-      : //if it's a normal message, show "<User's Name>: <The message>"
-        `${firstName(
-          groupChatMembersQuery.data?.get(groupChat.latestMessage.authorUserId)
-            ?.name
-        )}: ${groupChat.latestMessage.text?.text || ""}`
-    : "";
+        : undefined;
+      text = controlMessageText(
+        groupChat.latestMessage,
+        authorName,
+        targetName
+      );
+    } else {
+      text = `${authorName}: ${groupChat.latestMessage.text?.text || ""}`;
+    }
+  }
 
   return (
     <ListItem button className={classnames(classes.root, className)}>
