@@ -19,6 +19,8 @@ import { useRef, useState } from "react";
 import HeaderButton from "../../../components/HeaderButton";
 import { BackIcon, OverflowMenuIcon } from "../../../components/Icons";
 import PageTitle from "../../../components/PageTitle";
+import UserSummaryListItem from "../../../components/UserSummaryListItem";
+import Divider from "../../../components/Divider";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -71,14 +73,13 @@ export default function HostRequestView() {
   const { data: surfer } = useUser(hostRequest?.fromUserId);
   const { data: host } = useUser(hostRequest?.toUserId);
   const currentUserId = useAuthContext().authState.userId;
-  const surferName = currentUserId === surfer?.userId ? "You" : surfer?.name;
-  const hostName = currentUserId === host?.userId ? "you" : host?.name;
-  const title =
-    surferName && hostName
-      ? `${firstName(surferName)} requested to be hosted by ${firstName(
-          hostName
-        )}`
-      : undefined;
+  const isHost = host?.userId === currentUserId;
+  const otherUser = isHost ? surfer : host;
+  const title = otherUser
+    ? isHost
+      ? `Request from ${firstName(otherUser.name)}`
+      : `Request to ${firstName(otherUser.name)}`
+    : undefined;
 
   const queryClient = useQueryClient();
   const sendMutation = useMutation<string | undefined, GrpcError, string>(
@@ -152,6 +153,10 @@ export default function HostRequestView() {
           <MenuItem onClick={() => null}>Placeholder</MenuItem>
         </Menu>
       </Box>
+
+      <UserSummaryListItem user={otherUser} />
+
+      <Divider />
 
       {(respondMutation.error || sendMutation.error || hostRequestError) && (
         <Alert severity={"error"}>
