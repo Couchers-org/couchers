@@ -1,5 +1,4 @@
-import { Box, BoxProps } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { Box, BoxProps, List } from "@material-ui/core";
 import * as React from "react";
 import { useQuery } from "react-query";
 import Alert from "../../../components/Alert";
@@ -12,8 +11,7 @@ import { Link } from "react-router-dom";
 import TextBody from "../../../components/TextBody";
 import HostRequestListItem from "./HostRequestListItem";
 import { messagesRoute } from "../../../AppRoutes";
-
-const useStyles = makeStyles({ root: {} });
+import useMessageListStyles from "../useMessageListStyles";
 
 export interface GroupChatListProps extends BoxProps {
   groupChats: Array<GroupChat.AsObject>;
@@ -33,7 +31,7 @@ export default function SurfingTab({
     service.requests.listHostRequests(type, onlyActive)
   );
 
-  const classes = useStyles();
+  const classes = useMessageListStyles();
   return (
     <Box className={classes.root}>
       {error && <Alert severity="error">{error.message}</Alert>}
@@ -44,14 +42,20 @@ export default function SurfingTab({
         (!hostRequests.length ? (
           <TextBody>No requests yet.</TextBody>
         ) : (
-          hostRequests.map((hostRequest) => (
-            <Link
-              to={`${messagesRoute}/request/${hostRequest.hostRequestId}`}
-              key={hostRequest.hostRequestId}
-            >
-              <HostRequestListItem hostRequest={hostRequest} />
-            </Link>
-          ))
+          <List className={classes.list}>
+            {hostRequests.map((hostRequest) => (
+              <Link
+                to={`${messagesRoute}/request/${hostRequest.hostRequestId}`}
+                key={hostRequest.hostRequestId}
+                className={classes.link}
+              >
+                <HostRequestListItem
+                  hostRequest={hostRequest}
+                  className={classes.listItem}
+                />
+              </Link>
+            ))}
+          </List>
         ))
       )}
     </Box>
