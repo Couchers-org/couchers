@@ -28,7 +28,6 @@ export default function CompleteSignup() {
     handleSubmit,
     setValue,
     errors,
-    getValues,
   } = useForm<NewPageInputs>({
     shouldUnregister: false,
     mode: "onBlur",
@@ -44,7 +43,6 @@ export default function CompleteSignup() {
   const {
     mutate: createPage,
     isLoading: isCreateLoading,
-    error: createError,
   } = useMutation<Page.AsObject, GrpcError, NewPageInputs>(
     ({title, content, address, lat, lng}: NewPageInputs) => service.pages.createPage(title, content, address, lat, lng),
     {
