@@ -1,5 +1,5 @@
 import { TabContext, TabPanel } from "@material-ui/lab";
-import * as React from "react";
+import React from "react";
 import PageTitle from "../../components/PageTitle";
 import GroupChatsTab from "./groupchats/GroupChatsTab";
 import SurfingTab from "./surfing/SurfingTab";
