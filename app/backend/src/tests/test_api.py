@@ -155,7 +155,7 @@ def test_update_profile(db):
                 about_place=api_pb2.NullableStringValue(value="My place"),
                 hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
                 meetup_status=api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP,
-                languages=api_pb2.RepeatedLanguageAbilityValue(
+                language_abilities=api_pb2.RepeatedLanguageAbilityValue(
                     exists=True,
                     value=api_pb2.LanguageAbility(
                         code=wrappers_pb2.StringValue(value="eng"),
@@ -193,6 +193,8 @@ def test_update_profile(db):
         assert "Aus" in user.countries_visited
         assert "UK" in user.countries_lived
         assert "Aus" in user.countries_lived
+        assert "Binary" in user.languages
+        assert "English" in user.languages
         assert user.language_abilities[0].language == "eng"
 
 

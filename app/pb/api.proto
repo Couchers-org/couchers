@@ -262,6 +262,7 @@ message User {
   google.protobuf.BoolValue camping_ok = 121;
 
   string avatar_url = 32;
+  repeated LanguageAbility language_abilities = 36;
 }
 
 message GetUserReq {
@@ -307,7 +308,6 @@ message UpdateProfileReq {
   HostingStatus hosting_status = 8;
   MeetupStatus meetup_status = 105;
 
-  RepeatedStringValue languages = 9;
   RepeatedStringValue countries_visited = 10;
   RepeatedStringValue countries_lived = 11;
   NullableStringValue additional_information = 106;
@@ -335,6 +335,7 @@ message UpdateProfileReq {
   NullableBoolValue parking = 119;
   ParkingDetails parking_details = 120;
   NullableBoolValue camping_ok = 121;
+  RepeatedLanguageAbilityValue language_abilities = 25;
 }
 
 message ReportReq {

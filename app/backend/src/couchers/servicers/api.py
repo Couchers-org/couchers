@@ -258,11 +258,10 @@ class API(api_pb2_grpc.APIServicer):
                 user.meetup_status = meetupstatus2sql[request.meetup_status]
 
             if request.languages.exists:
-                if type(request.languages.value) is str:
-                    # deprecated
-                    user.languages = "|".join(request.languages.value)
-                else:
-                    user.language_abilities = request.languages.value
+                user.languages = "|".join(request.languages.value)
+
+            if request.language_abilities:
+                user.language_abilities = request.language_abilities.value
 
             if request.countries_visited.exists:
                 user.countries_visited = "|".join(request.countries_visited.value)
