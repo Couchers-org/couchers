@@ -38,8 +38,7 @@ class PhoneStatus(enum.Enum):
 class HostingStatus(enum.Enum):
     can_host = 1
     maybe = 2
-    difficult = 3
-    cant_host = 4
+    cant_host = 3
 
 
 class MeetupStatus(enum.Enum):
@@ -109,7 +108,6 @@ class User(Base):
     about_me = Column(String, nullable=True)
     about_place = Column(String, nullable=True)
     # profile color
-    color = Column(String, nullable=False, default="#643073")
     avatar_filename = Column(String, nullable=True)
     # TODO: array types once we go postgres
     languages = Column(String, nullable=True)
@@ -120,7 +118,6 @@ class User(Base):
 
     # hosting preferences
     max_guests = Column(Integer, nullable=True)
-    multiple_groups = Column(Boolean, nullable=True)
     last_minute = Column(Boolean, nullable=True)
     accepts_pets = Column(Boolean, nullable=True)
     accepts_kids = Column(Boolean, nullable=True)
