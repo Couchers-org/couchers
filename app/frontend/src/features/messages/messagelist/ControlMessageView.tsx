@@ -46,7 +46,7 @@ export default function ControlMessageView({ message }: MessageProps) {
 
       <Box className={classes.message}>
         {!isAuthorLoading && !isTargetLoading ? (
-          controlMessageText(message, authorName!, targetName)
+          controlMessageText(message, authorName, targetName)
         ) : (
           <Skeleton className={classes.skeleton} />
         )}

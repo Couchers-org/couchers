@@ -51,28 +51,17 @@ export default function GroupChatListItem({
   );
   //text is the control message text or message text
   let text = "";
-  if (groupChat.latestMessage) {
-    const authorName =
-      firstName(
-        groupChatMembersQuery.data?.get(groupChat.latestMessage?.authorUserId)
-          ?.name
-      ) || "";
-    if (isControlMessage(groupChat.latestMessage)) {
-      const targetName = groupChat.latestMessage
-        ? firstName(
-            groupChatMembersQuery.data?.get(
-              messageTargetId(groupChat.latestMessage)
-            )?.name
-          ) || ""
-        : undefined;
-      text = controlMessageText(
-        groupChat.latestMessage,
-        authorName,
-        targetName
-      );
-    } else {
-      text = `${authorName}: ${groupChat.latestMessage.text?.text || ""}`;
-    }
+  const authorName = firstName(
+    groupChatMembersQuery.data?.get(groupChat.latestMessage?.authorUserId)?.name
+  );
+  if (groupChat.latestMessage && isControlMessage(groupChat.latestMessage)) {
+    const targetName = firstName(
+      groupChatMembersQuery.data?.get(messageTargetId(groupChat.latestMessage))
+        ?.name
+    );
+    text = controlMessageText(groupChat.latestMessage, authorName, targetName);
+  } else {
+    text = `${authorName}: ${groupChat.latestMessage?.text?.text || ""}`;
   }
 
   return (

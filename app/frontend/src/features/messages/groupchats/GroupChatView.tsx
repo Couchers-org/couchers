@@ -20,11 +20,13 @@ import { Skeleton } from "@material-ui/lab";
 import HeaderButton from "../../../components/HeaderButton";
 
 const useStyles = makeStyles((theme) => ({
-  root: {},
   header: { display: "flex", alignItems: "center" },
   title: {
     flexGrow: 1,
     marginInline: theme.spacing(2),
+  },
+  menuItem: {
+    paddingInline: theme.spacing(2),
   },
 }));
 
@@ -95,7 +97,7 @@ export default function GroupChatView() {
   const handleLeaveGroupChat = () => leaveGroupChatMutation.mutate();
   const handleBack = () => history.goBack();
   return (
-    <Box className={classes.root}>
+    <Box>
       {!groupChatId ? (
         <Alert severity="error">Invalid chat id.</Alert>
       ) : (
@@ -134,7 +136,12 @@ export default function GroupChatView() {
               open={menuOpen}
               onClose={handleClose}
             >
-              <MenuItem onClick={handleLeaveGroupChat}>Leave chat</MenuItem>
+              <MenuItem
+                onClick={handleLeaveGroupChat}
+                className={classes.menuItem}
+              >
+                Leave chat
+              </MenuItem>
             </Menu>
           </Box>
           {(idError ||

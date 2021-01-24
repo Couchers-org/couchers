@@ -55,6 +55,6 @@ export function groupChatTitleText(
     ? "Chat"
     : Array.from(groupChatMembersQuery.data?.values() ?? [])
         .filter((user) => user?.userId !== currentUserId)
-        .map((user) => firstName(user?.name) || "")
+        .map((user) => firstName(user?.name))
         .join(", ");
 }
