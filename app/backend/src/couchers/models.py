@@ -42,6 +42,12 @@ class HostingStatus(enum.Enum):
     cant_host = 4
 
 
+class MeetupStatus(enum.Enum):
+    wants_to_meetup = 1
+    open_to_meetup = 2
+    does_not_want_meetup = 3
+
+
 class SmokingLocation(enum.Enum):
     yes = 1
     window = 2
@@ -76,6 +82,7 @@ class User(Base):
     geom_radius = Column(Float, nullable=True)
     # the display address (text) shown on their profile
     city = Column(String, nullable=False)
+    hometown = Column(String, nullable=True)
 
     joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     last_active = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
@@ -83,12 +90,14 @@ class User(Base):
     # display name
     name = Column(String, nullable=False)
     gender = Column(String, nullable=False)
+    pronouns = Column(String, nullable=True)
     birthdate = Column(Date, nullable=False)  # in the timezone of birthplace
 
     # name as on official docs for verification, etc. not needed until verification
     full_name = Column(String, nullable=True)
 
     hosting_status = Column(Enum(HostingStatus), nullable=True)
+    meetup_status = Column(Enum(MeetupStatus), nullable=True)
 
     # verification score
     verification = Column(Float, nullable=True)
@@ -96,6 +105,7 @@ class User(Base):
     community_standing = Column(Float, nullable=True)
 
     occupation = Column(String, nullable=True)
+    education = Column(String, nullable=True)
     about_me = Column(String, nullable=True)
     about_place = Column(String, nullable=True)
     # profile color
