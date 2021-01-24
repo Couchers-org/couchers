@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useHistory } from "react-router-dom";
 import { useMutation } from "react-query";
@@ -35,25 +35,15 @@ export default function CompleteSignup() {
 
   const history = useHistory();
 
-  const [alertState, setShowAlertState] = useState<
-    "success" | "error" | undefined
-  >();
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
   const {
     mutate: createPage,
     isLoading: isCreateLoading,
+    error: createError
   } = useMutation<Page.AsObject, GrpcError, NewPageInputs>(
     ({title, content, address, lat, lng}: NewPageInputs) => service.pages.createPage(title, content, address, lat, lng),
     {
       onSuccess: (page) => {
-      setShowAlertState("success");
-      history.push(`${pageRoute}/${page.pageId}/${page.slug}`);
-    },
-      onError: (error) => {
-        console.error(error)
-        setShowAlertState("error");
-        setErrorMessage(error.message);
+        history.push(`${pageRoute}/${page.pageId}/${page.slug}`);
       }
     }
   );
@@ -64,7 +54,7 @@ export default function CompleteSignup() {
 
   return (
     <>
-      {alertState && <Alert severity={alertState}>{errorMessage || "Successfully created page!"}</Alert>}
+      {createError && <Alert severity="error">{createError?.message}</Alert>}
       {isCreateLoading ? (
         <CircularProgress />
       ) : (
