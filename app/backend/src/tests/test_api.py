@@ -157,10 +157,10 @@ def test_update_profile(db):
                 meetup_status=api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP,
                 language_abilities=api_pb2.RepeatedLanguageAbilityValue(
                     exists=True,
-                    value=api_pb2.LanguageAbility(
+                    value=[api_pb2.LanguageAbility(
                         code="eng",
                         fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE,
-                    ),
+                    )],
                 ),
                 countries_visited=api_pb2.RepeatedStringValue(exists=True, value=["UK", "Aus"]),
                 countries_lived=api_pb2.RepeatedStringValue(exists=True, value=["UK", "Aus"]),
