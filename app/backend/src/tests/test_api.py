@@ -159,7 +159,7 @@ def test_update_profile(db):
                     exists=True,
                     value=api_pb2.LanguageAbility(
                         code=wrappers_pb2.StringValue(value="eng"),
-                        fluency=api_pb2._LANGUAGEABILITY_FLUENCY.FLUENCY_NATIVE,
+                        fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE,
                     ),
                 ),
                 countries_visited=api_pb2.RepeatedStringValue(exists=True, value=["UK", "Aus"]),
