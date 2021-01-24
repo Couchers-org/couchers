@@ -158,7 +158,7 @@ def test_update_profile(db):
                 language_abilities=api_pb2.RepeatedLanguageAbilityValue(
                     exists=True,
                     value=api_pb2.LanguageAbility(
-                        code=wrappers_pb2.StringValue(value="eng"),
+                        code="eng",
                         fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE,
                     ),
                 ),
