@@ -710,6 +710,7 @@ def user_model_to_pb(db_user, session, context):
         things_i_like=db_user.things_i_like,
         about_place=db_user.about_place,
         languages=db_user.languages.split("|") if db_user.languages else [],
+        language_abilities=db_user.language_abilities,
         countries_visited=db_user.countries_visited.split("|") if db_user.countries_visited else [],
         countries_lived=db_user.countries_lived.split("|") if db_user.countries_lived else [],
         additional_information=db_user.additional_information,
