@@ -1,6 +1,5 @@
 import {
   Box,
-  ListItem,
   ListItemAvatar,
   ListItemText,
   makeStyles,
@@ -14,7 +13,7 @@ import Avatar from "./Avatar";
 import HostStatus from "./HostStatus";
 
 const useStyles = makeStyles((theme) => ({
-  root: { padding: 0 },
+  root: { display: "flex", alignItems: "center", padding: 0 },
   title: {
     marginBottom: theme.spacing(1),
   },
@@ -29,16 +28,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface UserSummaryListItemProps {
+interface UserSummaryProps {
   user?: User.AsObject;
 }
 
-export default function UserSummaryListItem({
-  user,
-}: UserSummaryListItemProps) {
+export default function UserSummary({ user }: UserSummaryProps) {
   const classes = useStyles();
   return (
-    <ListItem className={classes.root}>
+    <Box className={classes.root}>
       <ListItemAvatar>
         {!user ? (
           <Skeleton variant="circle" className={classes.avatar} />
@@ -49,7 +46,7 @@ export default function UserSummaryListItem({
       <ListItemText
         disableTypography
         primary={
-          <Typography variant="h6" noWrap className={classes.title}>
+          <Typography variant="h2" noWrap className={classes.title}>
             {!user ? <Skeleton /> : `${user.name}, ${user.age}, ${user.city}`}
           </Typography>
         }
@@ -66,6 +63,6 @@ export default function UserSummaryListItem({
           </>
         }
       />
-    </ListItem>
+    </Box>
   );
 }

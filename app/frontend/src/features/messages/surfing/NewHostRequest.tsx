@@ -16,7 +16,13 @@ import { validateFutureDate } from "../../../utils/validation";
 import Button from "../../../components/Button";
 import { messagesRoute } from "../../../AppRoutes";
 
-const useStyles = makeStyles({ root: {} });
+const useStyles = makeStyles((theme) => ({
+  form: {
+    "& > *": {
+      marginTop: theme.spacing(2),
+    },
+  },
+}));
 
 export default function NewHostRequest() {
   const classes = useStyles();
@@ -61,8 +67,8 @@ export default function NewHostRequest() {
     validateFutureDate(stringDate) || "Must be a valid date in the future.";
 
   return (
-    <Box className={classes.root}>
-      <Typography variant="h3">
+    <Box>
+      <Typography variant="h1">
         {hostLoading ? <Skeleton width="100" /> : title ?? null}
       </Typography>
       {mutation.error && (
@@ -71,7 +77,7 @@ export default function NewHostRequest() {
       {hostError ? (
         <Alert severity={"error"}>{hostError}</Alert>
       ) : (
-        <form onSubmit={onSubmit}>
+        <form onSubmit={onSubmit} className={classes.form}>
           <TextField
             name="fromDate"
             label="Date from"
@@ -105,7 +111,6 @@ export default function NewHostRequest() {
             inputRef={register({ required: "Enter a request message" })}
             rows={4}
             rowsMax={6}
-            variant="outlined"
             multiline
             fullWidth
           />

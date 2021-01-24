@@ -129,7 +129,7 @@ export default function GroupChatView() {
               <OverflowMenuIcon />
             </HeaderButton>
             <Menu
-              id="simple-menu"
+              id="more-menu"
               anchorEl={menuAnchor.current}
               keepMounted
               open={menuOpen}

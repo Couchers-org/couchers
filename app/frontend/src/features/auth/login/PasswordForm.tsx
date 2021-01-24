@@ -34,7 +34,6 @@ export default function PasswordForm() {
           label="Username/email"
           value={location.state.username}
           disabled
-          fullWidth={false}
         ></TextField>
         <TextField
           label="Password"

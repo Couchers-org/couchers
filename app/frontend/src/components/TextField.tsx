@@ -1,7 +1,7 @@
 import {
   makeStyles,
+  OutlinedTextFieldProps,
   TextField as MuiTextField,
-  TextFieldProps,
   useMediaQuery,
   useTheme,
 } from "@material-ui/core";
@@ -15,6 +15,11 @@ const useStyles = makeStyles((theme) => ({
       borderRadius: theme.shape.borderRadius,
     },
   },
+  minWidth: {
+    "& .MuiOutlinedInput-root": {
+      minWidth: 400,
+    },
+  },
   multiline: {
     "& .MuiOutlinedInput-notchedOutline": {
       borderColor: theme.palette.grey[900],
@@ -25,8 +30,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+interface TextFieldProps extends Omit<OutlinedTextFieldProps, "variant"> {
+  minWidth?: boolean;
+}
+
 export default function TextField({
   className,
+  minWidth = true,
   ...otherProps
 }: TextFieldProps) {
   const classes = useStyles();
@@ -34,11 +44,12 @@ export default function TextField({
   const isLarge = useMediaQuery(theme.breakpoints.up("sm"));
   return (
     <MuiTextField
+      {...otherProps}
       variant="outlined"
       fullWidth={!isLarge}
-      {...otherProps}
       className={classNames(classes.root, className, {
         [classes.multiline]: otherProps.multiline,
+        [classes.minWidth]: minWidth,
       })}
     />
   );

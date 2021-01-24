@@ -28,9 +28,9 @@ export default function SearchBox() {
       <form onSubmit={onSubmit} className={classes.root}>
         <TextField
           name="query"
-          variant="outlined"
           label="Search"
           inputRef={register}
+          minWidth={false}
         ></TextField>
       </form>
     </>

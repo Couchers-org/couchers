@@ -95,7 +95,7 @@ export default function HostRequestListItem({
       <ListItemText
         disableTypography
         primary={
-          <Typography variant="h6">
+          <Typography variant="h2">
             {!otherUser ? <Skeleton /> : otherUser.name}
           </Typography>
         }

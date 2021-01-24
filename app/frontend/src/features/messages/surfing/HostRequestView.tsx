@@ -19,7 +19,7 @@ import { useRef, useState } from "react";
 import HeaderButton from "../../../components/HeaderButton";
 import { BackIcon, OverflowMenuIcon } from "../../../components/Icons";
 import PageTitle from "../../../components/PageTitle";
-import UserSummaryListItem from "../../../components/UserSummaryListItem";
+import UserSummary from "../../../components/UserSummary";
 import Divider from "../../../components/Divider";
 
 const useStyles = makeStyles((theme) => ({
@@ -112,8 +112,6 @@ export default function HostRequestView() {
         queryClient.invalidateQueries(["hostRequestMessages", hostRequestId]);
         queryClient.invalidateQueries(["hostRequests"]);
       },
-      onMutate: console.log,
-      onError: console.log,
     }
   );
 
@@ -154,7 +152,7 @@ export default function HostRequestView() {
         </Menu>
       </Box>
 
-      <UserSummaryListItem user={otherUser} />
+      <UserSummary user={otherUser} />
 
       <Divider />
 

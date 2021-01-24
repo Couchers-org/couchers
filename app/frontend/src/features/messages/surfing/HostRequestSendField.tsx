@@ -30,6 +30,30 @@ export interface HostRequestSendFieldProps {
   >;
 }
 
+function FieldButton({
+  children,
+  callback,
+  isLoading,
+}: {
+  children: string;
+  callback: () => void;
+  isLoading: boolean;
+}) {
+  const classes = useSendFieldStyles();
+  return (
+    <Button
+      type="submit"
+      variant="contained"
+      color="primary"
+      onClick={callback}
+      loading={isLoading}
+      className={classes.button}
+    >
+      {children}
+    </Button>
+  );
+}
+
 export default function HostRequestSendField({
   hostRequest,
   sendMutation,
@@ -73,26 +97,7 @@ export default function HostRequestSendField({
     HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED
   );
 
-  function FieldButton({
-    children,
-    callback,
-  }: {
-    children: string;
-    callback: () => void;
-  }) {
-    return (
-      <Button
-        type="submit"
-        variant="contained"
-        color="primary"
-        onClick={callback}
-        loading={isLoading || isResponseLoading}
-        className={classes.button}
-      >
-        {children}
-      </Button>
-    );
-  }
+  const isButtonLoading = isLoading || isResponseLoading;
 
   return (
     <form onSubmit={onSubmit} className={classNames(classes.root)}>
@@ -103,7 +108,9 @@ export default function HostRequestSendField({
               HostRequestStatus.HOST_REQUEST_STATUS_PENDING ||
               hostRequest.status ===
                 HostRequestStatus.HOST_REQUEST_STATUS_REJECTED) && (
-              <FieldButton callback={handleAccept}>Accept</FieldButton>
+              <FieldButton callback={handleAccept} isLoading={isButtonLoading}>
+                Accept
+              </FieldButton>
             )}
             {(hostRequest.status ===
               HostRequestStatus.HOST_REQUEST_STATUS_PENDING ||
@@ -111,7 +118,9 @@ export default function HostRequestSendField({
                 HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED ||
               hostRequest.status ===
                 HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED) && (
-              <FieldButton callback={handleReject}>Reject</FieldButton>
+              <FieldButton callback={handleReject} isLoading={isButtonLoading}>
+                Reject
+              </FieldButton>
             )}
           </>
         ) : (
@@ -119,7 +128,9 @@ export default function HostRequestSendField({
           <>
             {hostRequest.status ===
               HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED && (
-              <FieldButton callback={handleConfirm}>Confirm</FieldButton>
+              <FieldButton callback={handleConfirm} isLoading={isButtonLoading}>
+                Confirm
+              </FieldButton>
             )}
             {(hostRequest.status ===
               HostRequestStatus.HOST_REQUEST_STATUS_PENDING ||
@@ -129,7 +140,9 @@ export default function HostRequestSendField({
                 HostRequestStatus.HOST_REQUEST_STATUS_REJECTED ||
               hostRequest.status ===
                 HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED) && (
-              <FieldButton callback={handleCancel}>Cancel</FieldButton>
+              <FieldButton callback={handleCancel} isLoading={isButtonLoading}>
+                Cancel
+              </FieldButton>
             )}
           </>
         )}
@@ -145,7 +158,9 @@ export default function HostRequestSendField({
           multiline
           fullWidth
         />
-        <FieldButton callback={onSubmit}>Send</FieldButton>
+        <FieldButton callback={onSubmit} isLoading={isButtonLoading}>
+          Send
+        </FieldButton>
       </Box>
     </form>
   );
