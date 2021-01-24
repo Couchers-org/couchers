@@ -190,8 +190,8 @@ export function updateHostingPreference(preferences: HostingPreferenceData) {
   const maxGuests =
     preferences.maxGuests !== null
       ? new NullableUInt32Value()
-        .setValue(preferences.maxGuests)
-        .setIsNull(false)
+          .setValue(preferences.maxGuests)
+          .setIsNull(false)
       : new NullableUInt32Value().setIsNull(true);
   const lastMinute = new NullableBoolValue()
     .setValue(preferences.lastMinute)
