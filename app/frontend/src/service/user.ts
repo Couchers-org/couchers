@@ -146,7 +146,6 @@ export async function updateProfile(
   const hostingStatus = profile.hostingStatus;
   const meetupStatus = profile.meetupStatus;
   const languages = new RepeatedStringValue()
-    // @ts-expect-error languages has new type, but old type still works for now
     .setValueList(profile.languages)
     .setExists(!!profile.languages);
   const countriesVisited = new RepeatedStringValue()
