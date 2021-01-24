@@ -229,7 +229,7 @@ message User {
   string my_travels = 104;
   string things_i_like = 105;
   string about_place = 16;
-  repeated LanguageAbility languages = 17;
+  repeated string languages = 17;
   repeated string countries_visited = 18;
   repeated string countries_lived = 19;
   string additional_information = 106;
@@ -307,7 +307,7 @@ message UpdateProfileReq {
   HostingStatus hosting_status = 8;
   MeetupStatus meetup_status = 105;
 
-  RepeatedLanguageAbilityValue languages = 9;
+  RepeatedStringValue languages = 9;
   RepeatedStringValue countries_visited = 10;
   RepeatedStringValue countries_lived = 11;
   NullableStringValue additional_information = 106;
