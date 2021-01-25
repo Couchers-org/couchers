@@ -20,7 +20,7 @@ export function MessagesNotification() {
   );
 }
 
-export function CouchRequestsNotification() {
+export function HostRequestsNotification() {
   const { data } = useNotifications();
 
   return (
@@ -33,7 +33,7 @@ export function CouchRequestsNotification() {
 const labels = {
   all: "All",
   groupchats: <MessagesNotification />,
-  hosting: <CouchRequestsNotification />,
+  hosting: <HostRequestsNotification />,
   surfing: "Surfing",
   meet: "Meet",
   archived: "Archived",

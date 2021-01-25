@@ -11,6 +11,10 @@ export default function Logout() {
   useEffect(() => {
     if (authState.authenticated) {
       authActions.logout();
+      queryClient.resetQueries("groupChats");
+      queryClient.resetQueries("groupChatMessages");
+      queryClient.resetQueries("hostRequestMessages");
+      queryClient.resetQueries("hostRequests");
       queryClient.resetQueries("ping");
     }
   });

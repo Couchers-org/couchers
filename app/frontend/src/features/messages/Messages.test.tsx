@@ -3,7 +3,7 @@ import React from "react";
 import wrapper from "../../test/hookWrapper";
 import user from "../../test/fixtures/defaultUser.json";
 import { service } from "../../service";
-import { CouchRequestsNotification, MessagesNotification } from "./Messages";
+import { HostRequestsNotification, MessagesNotification } from "./Messages";
 
 const pingMock = service.api.ping as jest.Mock<
   ReturnType<typeof service.api.ping>,
@@ -15,9 +15,9 @@ afterEach(() => {
 });
 
 describe.each`
-  name                           | label            | count   | Component
-  ${"CouchRequestsNotification"} | ${"Hosting"}     | ${"99"} | ${CouchRequestsNotification}
-  ${"MessagesNotification"}      | ${"Group Chats"} | ${"99"} | ${MessagesNotification}
+  name                          | label            | count   | Component
+  ${"HostRequestsNotification"} | ${"Hosting"}     | ${"99"} | ${HostRequestsNotification}
+  ${"MessagesNotification"}     | ${"Group Chats"} | ${"99"} | ${MessagesNotification}
 `("$name", ({ label, count, Component }) => {
   it("shows the label with the number of unseen messages in a badge", async () => {
     pingMock.mockResolvedValue({
