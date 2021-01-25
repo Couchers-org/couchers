@@ -1,18 +1,19 @@
 import { makeStyles } from "@material-ui/core";
 import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
+
 import Alert from "../../components/Alert";
 import Button from "../../components/Button";
-import ProfileTextInput from "./ProfileTextInput";
+import CircularProgress from "../../components/CircularProgress";
+import EditUserLocationMap from "../../components/EditUserLocationMap";
 import { UpdateUserProfileData } from "../../service/user";
 import { theme } from "../../theme";
+import { useIsMounted, useSafeState } from "../../utils/hooks";
+import useCurrentUser from "../userQueries/useCurrentUser";
 import ProfileMarkdownInput from "./ProfileMarkdownInput";
 import ProfileTagInput from "./ProfileTagInput";
-import EditUserLocationMap from "../../components/EditUserLocationMap";
-import CircularProgress from "../../components/CircularProgress";
-import useCurrentUser from "../userQueries/useCurrentUser";
+import ProfileTextInput from "./ProfileTextInput";
 import useUpdateUserProfile from "./useUpdateUserProfile";
-import { useIsMounted, useSafeState } from "../../utils/hooks";
 
 const useStyles = makeStyles({
   buttonContainer: {

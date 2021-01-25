@@ -1,11 +1,11 @@
-import * as React from "react";
 import { makeStyles } from "@material-ui/core";
-import PageTitle from "../../components/PageTitle";
-import Map from "../../components/Map";
-import { userRoute } from "../../AppRoutes";
 import { LngLat, Map as MapboxMap } from "mapbox-gl";
+import * as React from "react";
 import { useHistory, useLocation } from "react-router-dom";
 
+import { userRoute } from "../../AppRoutes";
+import Map from "../../components/Map";
+import PageTitle from "../../components/PageTitle";
 import { addClusteredUsersToMap } from "./clusteredUsers";
 
 const useStyles = makeStyles((theme) => ({

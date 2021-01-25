@@ -1,17 +1,19 @@
+import "./App.css";
+
 import {
   Container,
   CssBaseline,
-  ThemeProvider,
   makeStyles,
+  ThemeProvider,
 } from "@material-ui/core";
 import React from "react";
 import { BrowserRouter as Router } from "react-router-dom";
-import "./App.css";
+
 import AppRoutes from "./AppRoutes";
 import Navigation from "./components/Navigation";
 import AuthProvider from "./features/auth/AuthProvider";
-import { theme } from "./theme";
 import { ReactQueryClientProvider } from "./reactQueryClient";
+import { theme } from "./theme";
 
 const useStyles = makeStyles((theme) => ({
   padding: {

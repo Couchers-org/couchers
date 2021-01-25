@@ -1,17 +1,17 @@
-import React from "react";
 import {
   Dialog as MuiDialog,
   DialogActions as MuiDialogActions,
-  DialogContent as MuiDialogContent,
-  DialogContentText as MuiDialogContentText,
-  DialogTitle as MuiDialogTitle,
-  DialogProps,
-  makeStyles,
   DialogActionsProps,
+  DialogContent as MuiDialogContent,
   DialogContentProps,
+  DialogContentText as MuiDialogContentText,
   DialogContentTextProps,
+  DialogProps,
+  DialogTitle as MuiDialogTitle,
   DialogTitleProps,
+  makeStyles,
 } from "@material-ui/core";
+import React from "react";
 
 const useStyles = makeStyles((theme) => ({
   dialog: { padding: 0 },

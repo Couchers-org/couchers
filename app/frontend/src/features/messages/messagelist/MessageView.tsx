@@ -1,13 +1,14 @@
 import { Box, Card, CardContent, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
+import classNames from "classnames";
 import React from "react";
+
 import Avatar from "../../../components/Avatar";
 import { Message } from "../../../pb/conversations_pb";
 import { timestamp2Date } from "../../../utils/date";
 import useCurrentUser from "../../userQueries/useCurrentUser";
 import { useUser } from "../../userQueries/useUsers";
 import TimeInterval from "./MomentIndication";
-import classNames from "classnames";
 
 const useStyles = makeStyles((theme) => ({
   root: {

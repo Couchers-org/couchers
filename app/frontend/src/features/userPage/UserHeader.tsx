@@ -1,10 +1,11 @@
-import React from "react";
-import { User } from "../../pb/api_pb";
 import { Box, makeStyles, Typography } from "@material-ui/core";
-import PageTitle from "../../components/PageTitle";
-import ScoreBar from "../../components/ScoreBar";
+import React from "react";
+
 import Avatar from "../../components/Avatar";
 import HostStatus from "../../components/HostStatus";
+import PageTitle from "../../components/PageTitle";
+import ScoreBar from "../../components/ScoreBar";
+import { User } from "../../pb/api_pb";
 import { timestamp2Date } from "../../utils/date";
 import { timeAgo } from "../../utils/timeAgo";
 

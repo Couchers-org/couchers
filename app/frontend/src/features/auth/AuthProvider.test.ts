@@ -1,10 +1,11 @@
 import { act, renderHook } from "@testing-library/react-hooks";
-import { useAuthContext } from "./AuthProvider";
-import { addDefaultUser } from "../../test/utils";
-import * as client from "../../service/client";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+
 import { service } from "../../service";
+import * as client from "../../service/client";
 import wrapper from "../../test/hookWrapper";
+import { addDefaultUser } from "../../test/utils";
+import { useAuthContext } from "./AuthProvider";
 
 const logoutMock = service.user.logout as jest.Mock;
 logoutMock.mockResolvedValue(new Empty());

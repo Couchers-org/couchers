@@ -1,7 +1,8 @@
 import { renderHook } from "@testing-library/react-hooks";
+
 import { service } from "../../../service";
-import { getUser } from "../../../test/serviceMockDefaults";
 import wrapper from "../../../test/hookWrapper";
+import { getUser } from "../../../test/serviceMockDefaults";
 import useFriendRequests from "./useFriendRequests";
 
 const getUserMock = service.user.getUser as jest.Mock;

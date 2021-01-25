@@ -1,17 +1,18 @@
 import { Box, BoxProps, List } from "@material-ui/core";
+import { Error as GrpcError } from "grpc-web";
 import * as React from "react";
 import { useQuery } from "react-query";
+import { Link } from "react-router-dom";
+
+import { messagesRoute } from "../../../AppRoutes";
 import Alert from "../../../components/Alert";
 import CircularProgress from "../../../components/CircularProgress";
+import TextBody from "../../../components/TextBody";
 import { GroupChat } from "../../../pb/conversations_pb";
 import { HostRequest } from "../../../pb/requests_pb";
 import { service } from "../../../service";
-import { Error as GrpcError } from "grpc-web";
-import { Link } from "react-router-dom";
-import TextBody from "../../../components/TextBody";
-import HostRequestListItem from "./HostRequestListItem";
-import { messagesRoute } from "../../../AppRoutes";
 import useMessageListStyles from "../useMessageListStyles";
+import HostRequestListItem from "./HostRequestListItem";
 
 export interface GroupChatListProps extends BoxProps {
   groupChats: Array<GroupChat.AsObject>;

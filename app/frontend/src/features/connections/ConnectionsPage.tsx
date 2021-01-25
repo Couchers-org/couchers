@@ -1,10 +1,11 @@
 import { TabContext, TabPanel } from "@material-ui/lab";
 import React from "react";
 import { useHistory, useParams } from "react-router";
+
 import { connectionsRoute } from "../../AppRoutes";
 import PageTitle from "../../components/PageTitle";
-import { FriendsTab } from "./friends";
 import TabBar from "../../components/TabBar";
+import { FriendsTab } from "./friends";
 
 const labels = {
   all: "All",
