@@ -1,4 +1,4 @@
-import { Box, Menu, MenuItem } from "@material-ui/core";
+import { Box } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import React, { useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
@@ -18,6 +18,10 @@ import PageTitle from "../../../components/PageTitle";
 import { useHistory, useParams } from "react-router-dom";
 import { Skeleton } from "@material-ui/lab";
 import HeaderButton from "../../../components/HeaderButton";
+import Menu, { MenuItem } from "../../../components/Menu";
+import InviteDialog from "./InviteDialog";
+import LeaveDialog from "./LeaveDialog";
+import MembersDialog from "./MembersDialog";
 
 const useStyles = makeStyles((theme) => ({
   header: { display: "flex", alignItems: "center" },
@@ -25,23 +29,30 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
     marginInline: theme.spacing(2),
   },
-  menuItem: {
-    paddingInline: theme.spacing(2),
-  },
 }));
 
 export default function GroupChatView() {
   const classes = useStyles();
 
   const menuAnchor = useRef<HTMLAnchorElement>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState({
+    menu: false,
+    invite: false,
+    members: false,
+    leave: false,
+  });
 
-  const handleClick = () => {
-    setMenuOpen(true);
+  const handleClick = (what: keyof typeof isOpen) => {
+    //close the menu if a menu item was selected
+    if (what !== "menu") {
+      setIsOpen({ ...isOpen, [what]: true, menu: false });
+    } else {
+      setIsOpen({ ...isOpen, [what]: true });
+    }
   };
 
-  const handleClose = () => {
-    setMenuOpen(false);
+  const handleClose = (what: keyof typeof isOpen) => {
+    setIsOpen({ ...isOpen, [what]: false });
   };
 
   const groupChatId = +(useParams<{ groupChatId?: string }>().groupChatId || 0);
@@ -80,19 +91,8 @@ export default function GroupChatView() {
     }
   );
 
-  const leaveGroupChatMutation = useMutation<Empty, GrpcError, void>(
-    () => service.conversations.leaveGroupChat(groupChatId),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(["groupChatMessages", groupChatId]);
-        queryClient.invalidateQueries(["groupChats"]);
-      },
-    }
-  );
-
   const history = useHistory();
 
-  const handleLeaveGroupChat = () => leaveGroupChatMutation.mutate();
   const handleBack = () => history.goBack();
   return (
     <Box>
@@ -119,39 +119,55 @@ export default function GroupChatView() {
               )}
             </PageTitle>
 
-            <HeaderButton
-              onClick={handleClick}
-              aria-label="Menu"
-              aria-haspopup="true"
-              aria-controls="more-menu"
-              innerRef={menuAnchor}
-            >
-              <OverflowMenuIcon />
-            </HeaderButton>
-            <Menu
-              id="more-menu"
-              anchorEl={menuAnchor.current}
-              keepMounted
-              open={menuOpen}
-              onClose={handleClose}
-            >
-              <MenuItem
-                onClick={handleLeaveGroupChat}
-                className={classes.menuItem}
-              >
-                Leave chat
-              </MenuItem>
-            </Menu>
+            {!groupChat?.isDm && (
+              <>
+                <HeaderButton
+                  onClick={() => handleClick("menu")}
+                  aria-label="Menu"
+                  aria-haspopup="true"
+                  aria-controls="more-menu"
+                  innerRef={menuAnchor}
+                >
+                  <OverflowMenuIcon />
+                </HeaderButton>
+                <Menu
+                  id="more-menu"
+                  anchorEl={menuAnchor.current}
+                  keepMounted
+                  open={isOpen.menu}
+                  onClose={() => handleClose("menu")}
+                >
+                  <MenuItem onClick={() => handleClick("invite")}>
+                    Invite to chat
+                  </MenuItem>
+                  <MenuItem onClick={() => handleClick("members")}>
+                    Chat Members
+                  </MenuItem>
+                  <MenuItem onClick={() => handleClick("leave")}>
+                    Leave chat
+                  </MenuItem>
+                </Menu>
+                <InviteDialog
+                  open={isOpen.invite}
+                  onClose={() => handleClose("invite")}
+                />
+                <MembersDialog
+                  open={isOpen.members}
+                  onClose={() => handleClose("members")}
+                />
+                <LeaveDialog
+                  open={isOpen.leave}
+                  onClose={() => handleClose("leave")}
+                  groupChatId={groupChatId}
+                />
+              </>
+            )}
           </Box>
-          {(groupChatError ||
-            messagesError ||
-            sendMutation.error ||
-            leaveGroupChatMutation.error) && (
+          {(groupChatError || messagesError || sendMutation.error) && (
             <Alert severity="error">
               {groupChatError?.message ||
                 messagesError?.message ||
-                sendMutation.error?.message ||
-                leaveGroupChatMutation.error?.message}
+                sendMutation.error?.message}
             </Alert>
           )}
           {isMessagesLoading ? (

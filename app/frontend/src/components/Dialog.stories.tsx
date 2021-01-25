@@ -3,7 +3,12 @@ import { DialogActions } from "@material-ui/core";
 import { Meta, Story } from "@storybook/react/types-6-0";
 import * as React from "react";
 
-import { Dialog, DialogContentText, DialogTitle } from "./Dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+} from "./Dialog";
 import Button from "./Button";
 
 export default {
@@ -18,10 +23,12 @@ const Template: Story<any> = (args) => {
       <Button onClick={() => setIsOpen(true)}>Open dialog</Button>
       <Dialog {...args} open={isOpen} onClose={() => setIsOpen(false)}>
         <DialogTitle>Example dialog</DialogTitle>
-        <DialogContentText>
-          Here is some dialog text. Dialog often contains text and one or more
-          action buttons. So handy!
-        </DialogContentText>
+        <DialogContent>
+          <DialogContentText>
+            Here is some dialog text. Dialog often contains text and one or more
+            action buttons. So handy!
+          </DialogContentText>
+        </DialogContent>
         <DialogActions>
           <Button>Action 1</Button>
           <Button>Action 2</Button>

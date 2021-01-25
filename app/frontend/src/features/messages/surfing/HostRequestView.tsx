@@ -1,4 +1,4 @@
-import { Box, Menu, MenuItem } from "@material-ui/core";
+import { Box } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
 import * as React from "react";
@@ -21,6 +21,7 @@ import { BackIcon, OverflowMenuIcon } from "../../../components/Icons";
 import PageTitle from "../../../components/PageTitle";
 import UserSummary from "../../../components/UserSummary";
 import Divider from "../../../components/Divider";
+import Menu, { MenuItem } from "../../../components/Menu";
 
 const useStyles = makeStyles((theme) => ({
   root: {},

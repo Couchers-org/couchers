@@ -36,7 +36,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export function Dialog(props: Omit<DialogProps, "className">) {
+export type AccessibleDialogProps = Required<
+  Pick<DialogProps, "aria-labelledby">
+> &
+  Omit<DialogProps, "aria-labelledby">;
+
+export function Dialog(props: Omit<AccessibleDialogProps, "className">) {
   const classes = useStyles();
   return <MuiDialog {...props} className={classes.dialog} />;
 }
