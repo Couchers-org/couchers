@@ -28,6 +28,7 @@ export default function useRespondToFriendRequest() {
       onSuccess: () => {
         queryClient.invalidateQueries("friendIds");
         queryClient.invalidateQueries("friendRequestsReceived");
+        queryClient.invalidateQueries("ping");
       },
       onError: (error, { setMutationError }) => {
         setMutationError(error.message);
