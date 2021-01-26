@@ -119,7 +119,7 @@ class User(Base):
 
     occupation = Column(String, nullable=True)
     education = Column(String, nullable=True)
-    about_me = Column(String, nullable=True)
+    about_me = Column(String, nullable=True, default="Current Mission:\n\nWhat I do in my free time:\n")
     about_place = Column(String, nullable=True)
     # profile color
     avatar_filename = Column(String, nullable=True)
