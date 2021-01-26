@@ -41,7 +41,7 @@ def _parents_to_pb(cluster: Cluster, user_id):
                     community_id=node_id,
                     name=cluster.name,
                     slug=slugify(cluster.name),
-                    description=cluster.name,
+                    description=cluster.description,
                 )
             )
             for node_id, parent_node_id, level, cluster in parents
@@ -51,7 +51,7 @@ def _parents_to_pb(cluster: Cluster, user_id):
                     group_id=cluster.id,
                     name=cluster.name,
                     slug=slugify(cluster.name),
-                    description=cluster.name,
+                    description=cluster.description,
                 )
             )
         ]

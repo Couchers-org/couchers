@@ -238,13 +238,13 @@ def test_GetCommunity(db, testing_communities):
         assert res.main_page.owner_user_id == 1
         assert res.main_page.title == "Main page for the World community"
         assert res.main_page.content == "There is nothing here yet..."
+        # assert not res.main_page.can_edit # TODO
         assert lists_equal(res.main_page.editor_user_ids, [1])
         assert res.member
         assert not res.admin
         assert res.member_count == 8
         assert res.admin_count == 3
 
-    with communities_session(token2) as api:
         res = api.GetCommunity(
             communities_pb2.GetCommunityReq(
                 community_id=c1r1c1_id,
@@ -282,13 +282,13 @@ def test_GetCommunity(db, testing_communities):
         assert res.main_page.owner_user_id == 2
         assert res.main_page.title == "Main page for the Country 1, Region 1, City 1 community"
         assert res.main_page.content == "There is nothing here yet..."
+        # assert res.main_page.can_edit # TODO
         assert lists_equal(res.main_page.editor_user_ids, [2])
         assert res.member
         assert res.admin
         assert res.member_count == 3
         assert res.admin_count == 1
 
-    with communities_session(token2) as api:
         res = api.GetCommunity(
             communities_pb2.GetCommunityReq(
                 community_id=c2_id,
@@ -316,6 +316,7 @@ def test_GetCommunity(db, testing_communities):
         assert res.main_page.owner_user_id == 6
         assert res.main_page.title == "Main page for the Country 2 community"
         assert res.main_page.content == "There is nothing here yet..."
+        # assert not res.main_page.can_edit # TODO
         assert lists_equal(res.main_page.editor_user_ids, [6])
         assert not res.member
         assert not res.admin
