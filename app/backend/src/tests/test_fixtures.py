@@ -39,7 +39,7 @@ from pb import (
 )
 
 
-@pytest.fixture(params=["models"])  # "migrations", "models"])
+@pytest.fixture(params=["migrations", "models"])
 def db(request):
     """
     Connect to a running Postgres database, and return the Session object.
