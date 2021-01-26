@@ -1,4 +1,10 @@
-import { Box, Card, CardContent, IconButton } from "@material-ui/core";
+import {
+  Box,
+  Card,
+  CardContent,
+  IconButton,
+  Typography,
+} from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import ExpandLessIcon from "@material-ui/icons/ExpandLess";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
@@ -8,7 +14,6 @@ import { HostRequest } from "../../../pb/requests_pb";
 import { formatDate, timestamp2Date } from "../../../utils/date";
 import { useUser } from "../../userQueries/useUsers";
 import TimeInterval from "../messagelist/MomentIndication";
-import UserName from "../messagelist/UserName";
 
 const useStyles = makeStyles({
   root: { display: "flex" },
@@ -32,9 +37,7 @@ export default function HostRequestListItem({
         {otherUser && <Avatar user={otherUser} />}
         <Box className={classes.card}>
           <Box className={classes.root}>
-            {otherUser && (
-              <UserName user={otherUser} className={classes.name} />
-            )}
+            {otherUser && <Typography className={classes.name}></Typography>}
             <TimeInterval date={timestamp2Date(hostRequest.created!)} />
             <IconButton
               onClick={(event) => {

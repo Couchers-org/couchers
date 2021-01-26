@@ -3,6 +3,7 @@ import { User } from "../pb/api_pb";
 import {
   CreateGroupChatReq,
   GetGroupChatMessagesReq,
+  GetGroupChatReq,
   GroupChat,
   LeaveGroupChatReq,
   ListGroupChatsReq,
@@ -18,6 +19,13 @@ export async function listGroupChats(): Promise<GroupChat.AsObject[]> {
   const groupChats = response.getGroupChatsList();
 
   return groupChats.map((groupChat) => groupChat.toObject());
+}
+
+export async function getGroupChat(id: number) {
+  const req = new GetGroupChatReq();
+  req.setGroupChatId(id);
+  const response = await client.conversations.getGroupChat(req);
+  return response.toObject();
 }
 
 export async function getGroupChatMessages(
