@@ -680,6 +680,7 @@ def test_hosting_preferences(db):
         assert res.smoking_allowed == api_pb2.SMOKING_LOCATION_WINDOW
         assert not res.HasField("sleeping_arrangement")
         assert res.HasField("area")
+        assert res.area.value == "Public transit:/n/nParking:/n/nAccessibility:/n!"
         assert res.house_rules.value == "RULES!"
 
     with api_session(token1) as api:
