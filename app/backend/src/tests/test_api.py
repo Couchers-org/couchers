@@ -56,6 +56,7 @@ def test_ping(db):
     assert res.user.occupation == user.occupation
     assert res.user.education == user.education
     assert res.user.about_me == user.about_me
+    assert res.user.my_travels == user.my_travels
     assert res.user.about_place == user.about_place
     # TODO: this list serialisation will be fixed hopefully soon
     assert res.user.languages == user.languages.split("|")
@@ -146,6 +147,7 @@ def test_update_profile(db):
                 gender=wrappers_pb2.StringValue(value="Bot"),
                 occupation=api_pb2.NullableStringValue(value="Testing"),
                 about_me=api_pb2.NullableStringValue(value="I rule"),
+                my_travels=api_pb2.NullableStringValue(value="Oh the places you'll go!"),
                 about_place=api_pb2.NullableStringValue(value="My place"),
                 hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
                 languages=api_pb2.RepeatedStringValue(exists=True, value=["Binary", "English"]),
