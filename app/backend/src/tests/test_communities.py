@@ -192,7 +192,7 @@ def testing_communities(db):
         c2r1 = _create_community(session, 52, 71, "Country 2, Region 1", [user6], [user8], c2)
         c2r1c1 = _create_community(session, 53, 70, "Country 2, Region 1, City 1", [user8], [], c2r1)
 
-        _create_group(session, "Gobblywobs", [user1, user2], [user5, user8], w)
+        _create_group(session, "Hitchhikers", [user1, user2], [user5, user8], w)
         _create_group(session, "Country 1, Region 1, Foodies", [user1], [user2, user4], c1r1)
         _create_group(session, "Country 1, Region 1, Skaters", [user2], [user1], c1r1)
         _create_group(session, "Country 1, Region 2, Foodies", [user2], [user4, user5], c1r2)
@@ -345,7 +345,7 @@ def test_ListGroups(db, testing_communities):
         user1_id, token1 = get_user_id_and_token(session, "user1")
         user5_id, token5 = get_user_id_and_token(session, "user5")
         w_id = get_community_id(session, "World")
-        gobblywobs_id = get_group_id(session, "Gobblywobs")
+        hitchhikers_id = get_group_id(session, "Hitchhikers")
         c1r1_id = get_community_id(session, "Country 1, Region 1")
         foodies_id = get_group_id(session, "Country 1, Region 1, Foodies")
         skaters_id = get_group_id(session, "Country 1, Region 1, Skaters")
@@ -365,7 +365,7 @@ def test_ListGroups(db, testing_communities):
             )
         )
         assert len(res.groups) == 1
-        assert res.groups[0].group_id == gobblywobs_id
+        assert res.groups[0].group_id == hitchhikers_id
 
 
 def test_ListAdmins(db, testing_communities):
