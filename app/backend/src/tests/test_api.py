@@ -41,7 +41,6 @@ def test_ping(db):
     assert res.user.gender == user.gender
     assert res.user.pronouns == user.pronouns
     assert res.user.age == user.age
-    assert res.user.color == user.color
 
     assert (res.user.lat, res.user.lng) == user.coordinates
 
@@ -134,9 +133,6 @@ def test_update_profile(db):
         with pytest.raises(grpc.RpcError) as e:
             api.UpdateProfile(api_pb2.UpdateProfileReq(name=wrappers_pb2.StringValue(value="  ")))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        with pytest.raises(grpc.RpcError) as e:
-            api.UpdateProfile(api_pb2.UpdateProfileReq(color=wrappers_pb2.StringValue(value="color")))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
         res = api.UpdateProfile(
             api_pb2.UpdateProfileReq(
@@ -149,7 +145,6 @@ def test_update_profile(db):
                 occupation=api_pb2.NullableStringValue(value="Testing"),
                 about_me=api_pb2.NullableStringValue(value="I rule"),
                 about_place=api_pb2.NullableStringValue(value="My place"),
-                color=wrappers_pb2.StringValue(value="#111111"),
                 hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
                 languages=api_pb2.RepeatedStringValue(exists=True, value=["Binary", "English"]),
                 countries_visited=api_pb2.RepeatedStringValue(exists=True, value=["UK", "Aus"]),
@@ -651,7 +646,6 @@ def test_hosting_preferences(db):
     with api_session(token1) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user2.username))
         assert not res.HasField("max_guests")
-        assert not res.HasField("multiple_groups")
         assert not res.HasField("last_minute")
         assert not res.HasField("accepts_pets")
         assert not res.HasField("accepts_kids")
@@ -673,7 +667,6 @@ def test_hosting_preferences(db):
     with api_session(token2) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
         assert res.max_guests.value == 3
-        assert not res.HasField("multiple_groups")
         assert not res.HasField("last_minute")
         assert not res.HasField("accepts_pets")
         assert not res.HasField("accepts_kids")
@@ -697,7 +690,6 @@ def test_hosting_preferences(db):
 
         res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
         assert not res.HasField("max_guests")
-        assert not res.HasField("multiple_groups")
         assert not res.HasField("last_minute")
         assert not res.HasField("accepts_pets")
         assert not res.HasField("accepts_kids")
