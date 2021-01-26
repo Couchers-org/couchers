@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@material-ui/core": "^4.11.0",
+    "@material-ui/core": "^4.11.2",
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.56",
     "@types/mapbox-gl": "<2.0.0",
@@ -13,12 +13,12 @@
     "mapbox-gl": "<2.0.0",
     "markdown-it": "^12.0.2",
     "moment": "^2.29.1",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
+    "react": "^17.0.0",
+    "react-dom": "^17.0.0",
     "react-hook-form": "^6.14.2",
-    "react-query": "^3.5.5",
+    "react-query": "^3.6.0",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "4.0.0",
+    "react-scripts": "4.0.1",
     "typescript": "~4.0.5"
   },
   "scripts": {
@@ -89,8 +89,8 @@
     "@types/jest": "^26.0.14",
     "@types/markdown-it": "^10.0.3",
     "@types/node": "^12.0.0",
-    "@types/react": "^16.9.0",
-    "@types/react-dom": "^16.9.0",
+    "@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.0",
     "@types/react-router-dom": "^5.1.5",
     "@types/react-test-renderer": "^16.9.3",
     "@types/webpack-env": "^1.15.3",
@@ -99,8 +99,7 @@
     "jest-junit": "^12.0.0",
     "lint-staged": "^10.5.1",
     "prettier": "^2.1.2",
-    "react-is": "^17.0.1",
-    "react-test-renderer": "^16.13.1"
+    "react-test-renderer": "^17.0.0"
   },
   "jest": {
     "collectCoverageFrom": [
