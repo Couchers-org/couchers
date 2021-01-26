@@ -105,7 +105,9 @@
     "collectCoverageFrom": [
       "src/**/*.{ts,tsx}",
       "!**/node_modules/**",
-      "!src/pb/**"
+      "!src/pb/**",
+      "!src/stories/**",
+      "!src/**/*.stories.tsx"
     ],
     "resetMocks": true
   },
