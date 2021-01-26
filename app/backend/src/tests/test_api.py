@@ -51,7 +51,7 @@ def test_ping(db):
     assert user.last_active - timedelta(hours=1) <= to_aware_datetime(res.user.last_active) <= user.last_active
 
     assert res.user.hosting_status == api_pb2.HOSTING_STATUS_UNKNOWN
-    # TODO: Test meeetup status
+    assert res.user.meetup_status == api_pb2.MEETUP_STATUS_UNKNOWN
 
     assert res.user.occupation == user.occupation
     assert res.user.education == user.education
