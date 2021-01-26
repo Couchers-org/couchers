@@ -34,10 +34,12 @@ def test_ping(db):
     assert res.user.username == user.username
     assert res.user.name == user.name
     assert res.user.city == user.city
+    assert res.user.hometown == user.hometown
     assert res.user.verification == user.verification
     assert res.user.community_standing == user.community_standing
     assert res.user.num_references == 0
     assert res.user.gender == user.gender
+    assert res.user.pronouns == user.pronouns
     assert res.user.age == user.age
     assert res.user.color == user.color
 
@@ -50,8 +52,10 @@ def test_ping(db):
     assert user.last_active - timedelta(hours=1) <= to_aware_datetime(res.user.last_active) <= user.last_active
 
     assert res.user.hosting_status == api_pb2.HOSTING_STATUS_UNKNOWN
+    # TODO: Test meeetup status
 
     assert res.user.occupation == user.occupation
+    assert res.user.education == user.education
     assert res.user.about_me == user.about_me
     assert res.user.about_place == user.about_place
     # TODO: this list serialisation will be fixed hopefully soon
