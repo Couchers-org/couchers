@@ -121,6 +121,7 @@ class User(Base):
     education = Column(String, nullable=True)
     about_me = Column(String, nullable=True, default="Current Mission:\n\nWhat I do in my free time:\n")
     my_travels = Column(String, nullable=True, default="Why I use Couchers:\n\nMy favorite travel story:\n")
+    things_i_like = Column(String, nullable=True, default="Art:\n\nBooks:\n\nMovies:\n\nMusic:\n")
     about_place = Column(String, nullable=True)
     # profile color
     avatar_filename = Column(String, nullable=True)
