@@ -131,7 +131,7 @@ export default function CommunityPage() {
       }
       setGuidesLoading(false);
     })();
-  }, [communityId]);
+  }, [communityId, communitySlug, history]);
 
   return (
     <>
@@ -143,15 +143,11 @@ export default function CommunityPage() {
         <PageTitle>{community.name} Community Page</PageTitle>
         <Breadcrumbs aria-label="breadcrumb">
           {
-            community.parentsList.map(parent => {
-              if (parent.community) {
-                return (
-                  <Link to={`${communityRoute}/${parent.community.communityId}/${parent.community.slug}`}>
-                    {parent.community.name}
-                  </Link>
-                )
-              }
-            })
+            community.parentsList.filter(parent => !!parent.community).map(parent => 
+                <Link to={`${communityRoute}/${parent.community!.communityId}/${parent.community!.slug}`}>
+                  {parent.community!.name}
+                </Link>
+            )
           }
         </Breadcrumbs>
         <p>Description: {community.description}</p>
@@ -164,32 +160,26 @@ export default function CommunityPage() {
         <h1>Sub-communities</h1>
         {subCommunitiesLoading ? <CircularProgress /> :
         subCommunities ?
-          subCommunities.map(subCommunity => {
-            return (
-              <>
-                <Link to={`${communityRoute}/${subCommunity.communityId}/${subCommunity.slug}`}>
-                  {subCommunity.name}
-                </Link>
-                <br />
-              </>
-            )
-          })
-          : <p>This community has no sub-communities.</p>
+          subCommunities.map(subCommunity => 
+            <>
+              <Link to={`${communityRoute}/${subCommunity.communityId}/${subCommunity.slug}`}>
+                {subCommunity.name}
+              </Link>
+              <br />
+            </>
+          ) : <p>This community has no sub-communities.</p>
         }
         <h1>Groups</h1>
         {groupsLoading ? <CircularProgress /> :
         groups ?
-          groups.map(group => {
-            return (
-              <>
-                <Link to={`${groupRoute}/${group.groupId}/${group.slug}`}>
-                  {group.name}
-                </Link>
-                <br />
-              </>
-            )
-          })
-          : <p>This community has no groups.</p>
+          groups.map(group => 
+            <>
+              <Link to={`${groupRoute}/${group.groupId}/${group.slug}`}>
+                {group.name}
+              </Link>
+              <br />
+            </>
+          ) : <p>This community has no groups.</p>
         }
         <h1>Admins</h1>
         <p>Total {community.adminCount} admins.</p>

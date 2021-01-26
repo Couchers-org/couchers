@@ -36,7 +36,7 @@ export default function PagePage() {
       }
       setLoading(false);
     })();
-  }, [pageId]);
+  }, [pageId, pageSlug, history]);
 
   return (
     <>

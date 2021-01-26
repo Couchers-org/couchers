@@ -91,7 +91,7 @@ export default function GroupPage() {
       }
       setGuidesLoading(false);
     })();
-  }, [groupId]);
+  }, [groupId, groupSlug, history]);
 
   return (
     <>
@@ -103,7 +103,7 @@ export default function GroupPage() {
         <PageTitle>{group.name} Group Page</PageTitle>
         <Breadcrumbs aria-label="breadcrumb">
           {
-            group.parentsList.map(parent => {
+            group.parentsList.filter(parent => !!parent.community || !!parent.group).map(parent => {
               if (parent.community) {
                 return (
                   <Link to={`${communityRoute}/${parent.community.communityId}/${parent.community.slug}`}>
@@ -116,6 +116,8 @@ export default function GroupPage() {
                     {parent.group.name}
                   </Link>
                 )
+              } else {
+                return (<></>)
               }
             })
           }

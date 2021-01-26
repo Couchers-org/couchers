@@ -1,17 +1,17 @@
-import React, { useState } from "react";
+import React from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useHistory, useLocation } from "react-router-dom";
+import { useHistory } from "react-router-dom";
+import { useMutation } from "react-query";
+import { Error as GrpcError } from "grpc-web";
 import Button from "../../components/Button";
 import CircularProgress from "../../components/CircularProgress";
 import TextField from "../../components/TextField";
-import { useAppDispatch } from "../../store";
 import Alert from "../../components/Alert";
-import { createPage } from "./actions"
 import ProfileMarkdownInput from "../profile/ProfileMarkdownInput";
 import EditLocationMap from "../../components/EditLocationMap";
-import { unwrapResult } from "@reduxjs/toolkit";
 import { pageRoute } from "../../AppRoutes";
 import { Page } from "../../pb/pages_pb"
+import { service } from "../../service";
 
 type NewPageInputs = {
   title: string;
@@ -22,53 +22,43 @@ type NewPageInputs = {
 };
 
 export default function CompleteSignup() {
-  const dispatch = useAppDispatch();
-
   const {
     control,
     register,
     handleSubmit,
     setValue,
     errors,
-    getValues,
   } = useForm<NewPageInputs>({
     shouldUnregister: false,
     mode: "onBlur",
   });
 
-  const [loading, setLoading] = useState(false);
-
-  const location = useLocation();
   const history = useHistory();
 
-  const [alertState, setShowAlertState] = useState<
-    "success" | "error" | undefined
-  >();
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  const submitForm = handleSubmit(async (data: NewPageInputs) => {
-    try {
-      const page = unwrapResult(await dispatch(createPage(data))) as Page.AsObject;
-      setShowAlertState("success");
-      history.push(`${pageRoute}/${page.pageId}/${page.slug}`);
-    } catch (error) {
-      console.error(error)
-      setShowAlertState("error");
-      setErrorMessage(error.message);
+  const {
+    mutate: createPage,
+    isLoading: isCreateLoading,
+    error: createError
+  } = useMutation<Page.AsObject, GrpcError, NewPageInputs>(
+    ({title, content, address, lat, lng}: NewPageInputs) => service.pages.createPage(title, content, address, lat, lng),
+    {
+      onSuccess: (page) => {
+        history.push(`${pageRoute}/${page.pageId}/${page.slug}`);
+      }
     }
-  });
+  );
+
+  const onSubmit = handleSubmit((data: NewPageInputs) =>
+    createPage(data)
+  );
 
   return (
     <>
-      {alertState === "success" ? (
-        <Alert severity={alertState}>Successfully created page!</Alert>
-      ) : alertState === "error" ? (
-        <Alert severity={alertState}>{errorMessage}</Alert>
-      ) : null}
-      {loading ? (
+      {createError && <Alert severity="error">{createError?.message}</Alert>}
+      {isCreateLoading ? (
         <CircularProgress />
       ) : (
-        <form onSubmit={submitForm}>
+        <form onSubmit={onSubmit}>
           <TextField
             name="title"
             label="Page Title"
@@ -104,7 +94,7 @@ export default function CompleteSignup() {
             )}
           />
 
-          <Button onClick={submitForm} loading={loading}>
+          <Button onClick={onSubmit} loading={isCreateLoading}>
             Create page
           </Button>
         </form>
