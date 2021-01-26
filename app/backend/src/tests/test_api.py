@@ -658,7 +658,7 @@ def test_hosting_preferences(db):
         assert not res.HasField("wheelchair_accessible")
         assert res.smoking_allowed == api_pb2.SMOKING_LOCATION_UNKNOWN
         assert not res.HasField("sleeping_arrangement")
-        assert not res.HasField("area")
+        assert res.HasField("area")
         assert not res.HasField("house_rules")
 
         api.UpdateProfile(
@@ -679,7 +679,7 @@ def test_hosting_preferences(db):
         assert not res.wheelchair_accessible.value
         assert res.smoking_allowed == api_pb2.SMOKING_LOCATION_WINDOW
         assert not res.HasField("sleeping_arrangement")
-        assert not res.HasField("area")
+        assert res.HasField("area")
         assert res.house_rules.value == "RULES!"
 
     with api_session(token1) as api:

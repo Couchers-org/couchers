@@ -153,7 +153,7 @@ class User(Base):
 
     sleeping_arrangement = Column(Enum(SleepingArrangement), nullable=True)
     sleeping_details = Column(String, nullable=True)
-    area = Column(String, nullable=True)
+    area = Column(String, nullable=True, default="Public transit:/n/nParking:/n/nAccessibility:/n")
     house_rules = Column(String, nullable=True)
     parking = Column(Boolean, nullable=True)
     parking_details = Column(Enum(ParkingDetails), nullable=True)
