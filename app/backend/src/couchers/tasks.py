@@ -1,8 +1,11 @@
 import logging
 
+from sqlalchemy.sql import func
+
 from couchers import email, urls
 from couchers.config import config
-from couchers.models import FriendRelationship, HostRequest, User
+from couchers.db import session_scope
+from couchers.models import Cluster, ClusterRole, ClusterSubscription, FriendRelationship, HostRequest, Node, User
 
 logger = logging.getLogger(__name__)
 
@@ -127,3 +130,28 @@ def send_email_changed_confirmation_email(user, token, expiry_text):
     return email.send_email_template(
         user.email, "email_changed_confirmation", template_args={"user": user, "confirmation_link": confirmation_link}
     )
+
+
+def enforce_community_memberships():
+    """
+    Go through all communities and make sure every user in the polygon is also a member
+    """
+    with session_scope() as session:
+        for node in session.query(Node).all():
+            existing_users = (
+                session.query(ClusterSubscription.user_id)
+                .filter(ClusterSubscription.cluster == node.official_cluster)
+                .subquery()
+            )
+            users_needing_adding = (
+                session.query(User).filter(func.ST_Contains(node.geom, User.geom)).filter(~User.id.in_(existing_users))
+            )
+            for user in users_needing_adding.all():
+                node.official_cluster.cluster_subscriptions.append(
+                    ClusterSubscription(
+                        user=user,
+                        cluster=node.official_cluster,
+                        role=ClusterRole.member,
+                    )
+                )
+            session.commit()

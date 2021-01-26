@@ -674,7 +674,7 @@ class Node(Base):
 
     parent_node = relationship("Node", backref="child_nodes", remote_side="Node.id")
 
-    nearby_users = relationship(
+    contained_users = relationship(
         "User",
         lazy="dynamic",
         primaryjoin="func.ST_Contains(foreign(Node.geom), User.geom).as_comparison(1, 2)",

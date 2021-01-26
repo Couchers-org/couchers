@@ -17,6 +17,7 @@ from couchers.servicers.account import Account
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
 from couchers.servicers.bugs import Bugs
+from couchers.servicers.communities import Communities
 from couchers.servicers.conversations import Conversations
 from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
@@ -29,6 +30,7 @@ from pb import (
     auth_pb2,
     auth_pb2_grpc,
     bugs_pb2_grpc,
+    communities_pb2_grpc,
     conversations_pb2_grpc,
     jail_pb2_grpc,
     media_pb2_grpc,
@@ -310,6 +312,15 @@ def pages_session(token):
     channel = FakeChannel(user_id=user_id)
     pages_pb2_grpc.add_PagesServicer_to_server(Pages(), channel)
     yield pages_pb2_grpc.PagesStub(channel)
+
+
+@contextmanager
+def communities_session(token):
+    auth_interceptor = Auth().get_auth_interceptor(allow_jailed=False)
+    user_id, jailed = Auth().get_session_for_token(token)
+    channel = FakeChannel(user_id=user_id)
+    communities_pb2_grpc.add_CommunitiesServicer_to_server(Communities(), channel)
+    yield communities_pb2_grpc.CommunitiesStub(channel)
 
 
 @contextmanager
