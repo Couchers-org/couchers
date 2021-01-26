@@ -1,10 +1,5 @@
-from datetime import timedelta
-
-import grpc
 import pytest
-from google.protobuf import wrappers_pb2
 
-from couchers import errors
 from couchers.db import session_scope
 from couchers.models import (
     Cluster,
@@ -148,13 +143,13 @@ def _create_place(token, title, content, address, x):
         )
 
 
-def _get_user_id_and_token(session, username):
+def get_user_id_and_token(session, username):
     user_id = session.query(User).filter(User.username == username).one().id
     token = session.query(UserSession).filter(UserSession.user_id == user_id).one().token
     return user_id, token
 
 
-def _get_community_id(session, community_name):
+def get_community_id(session, community_name):
     return (
         session.query(Cluster)
         .filter(Cluster.official_cluster_for_node_id != None)
@@ -164,7 +159,7 @@ def _get_community_id(session, community_name):
     )
 
 
-def _get_group_id(session, group_name):
+def get_group_id(session, group_name):
     return (
         session.query(Cluster)
         .filter(Cluster.official_cluster_for_node_id == None)
@@ -214,12 +209,12 @@ def testing_communities(db):
 
 def test_GetCommunity(db, testing_communities):
     with session_scope() as session:
-        user2_id, token2 = _get_user_id_and_token(session, "user2")
-        w_id = _get_community_id(session, "World")
-        c1_id = _get_community_id(session, "Country 1")
-        c1r1_id = _get_community_id(session, "Country 1, Region 1")
-        c1r1c1_id = _get_community_id(session, "Country 1, Region 1, City 1")
-        c2_id = _get_community_id(session, "Country 2")
+        user2_id, token2 = get_user_id_and_token(session, "user2")
+        w_id = get_community_id(session, "World")
+        c1_id = get_community_id(session, "Country 1")
+        c1r1_id = get_community_id(session, "Country 1, Region 1")
+        c1r1c1_id = get_community_id(session, "Country 1, Region 1, City 1")
+        c2_id = get_community_id(session, "Country 2")
 
     with communities_session(token2) as api:
         res = api.GetCommunity(
@@ -330,10 +325,10 @@ def test_GetCommunity(db, testing_communities):
 
 def test_ListCommunities(db, testing_communities):
     with session_scope() as session:
-        user1_id, token1 = _get_user_id_and_token(session, "user1")
-        c1_id = _get_community_id(session, "Country 1")
-        c1r1_id = _get_community_id(session, "Country 1, Region 1")
-        c1r2_id = _get_community_id(session, "Country 1, Region 2")
+        user1_id, token1 = get_user_id_and_token(session, "user1")
+        c1_id = get_community_id(session, "Country 1")
+        c1r1_id = get_community_id(session, "Country 1, Region 1")
+        c1r2_id = get_community_id(session, "Country 1, Region 2")
 
     with communities_session(token1) as api:
         res = api.ListCommunities(
@@ -346,13 +341,13 @@ def test_ListCommunities(db, testing_communities):
 
 def test_ListGroups(db, testing_communities):
     with session_scope() as session:
-        user1_id, token1 = _get_user_id_and_token(session, "user1")
-        user5_id, token5 = _get_user_id_and_token(session, "user5")
-        w_id = _get_community_id(session, "World")
-        gobblywobs_id = _get_group_id(session, "Gobblywobs")
-        c1r1_id = _get_community_id(session, "Country 1, Region 1")
-        foodies_id = _get_group_id(session, "Country 1, Region 1, Foodies")
-        skaters_id = _get_group_id(session, "Country 1, Region 1, Skaters")
+        user1_id, token1 = get_user_id_and_token(session, "user1")
+        user5_id, token5 = get_user_id_and_token(session, "user5")
+        w_id = get_community_id(session, "World")
+        gobblywobs_id = get_group_id(session, "Gobblywobs")
+        c1r1_id = get_community_id(session, "Country 1, Region 1")
+        foodies_id = get_group_id(session, "Country 1, Region 1, Foodies")
+        skaters_id = get_group_id(session, "Country 1, Region 1, Skaters")
 
     with communities_session(token1) as api:
         res = api.ListGroups(
@@ -374,13 +369,13 @@ def test_ListGroups(db, testing_communities):
 
 def test_ListAdmins(db, testing_communities):
     with session_scope() as session:
-        user1_id, token1 = _get_user_id_and_token(session, "user1")
-        user3_id, token3 = _get_user_id_and_token(session, "user3")
-        user4_id, token4 = _get_user_id_and_token(session, "user4")
-        user5_id, token5 = _get_user_id_and_token(session, "user5")
-        user7_id, token7 = _get_user_id_and_token(session, "user7")
-        w_id = _get_community_id(session, "World")
-        c1r1c2_id = _get_community_id(session, "Country 1, Region 1, City 2")
+        user1_id, token1 = get_user_id_and_token(session, "user1")
+        user3_id, token3 = get_user_id_and_token(session, "user3")
+        user4_id, token4 = get_user_id_and_token(session, "user4")
+        user5_id, token5 = get_user_id_and_token(session, "user5")
+        user7_id, token7 = get_user_id_and_token(session, "user7")
+        w_id = get_community_id(session, "World")
+        c1r1c2_id = get_community_id(session, "Country 1, Region 1, City 2")
 
     with communities_session(token1) as api:
         res = api.ListAdmins(
@@ -400,16 +395,16 @@ def test_ListAdmins(db, testing_communities):
 
 def test_ListMembers(db, testing_communities):
     with session_scope() as session:
-        user1_id, token1 = _get_user_id_and_token(session, "user1")
-        user2_id, token2 = _get_user_id_and_token(session, "user2")
-        user3_id, token3 = _get_user_id_and_token(session, "user3")
-        user4_id, token4 = _get_user_id_and_token(session, "user4")
-        user5_id, token5 = _get_user_id_and_token(session, "user5")
-        user6_id, token6 = _get_user_id_and_token(session, "user6")
-        user7_id, token7 = _get_user_id_and_token(session, "user7")
-        user8_id, token8 = _get_user_id_and_token(session, "user8")
-        w_id = _get_community_id(session, "World")
-        c1r1c2_id = _get_community_id(session, "Country 1, Region 1, City 2")
+        user1_id, token1 = get_user_id_and_token(session, "user1")
+        user2_id, token2 = get_user_id_and_token(session, "user2")
+        user3_id, token3 = get_user_id_and_token(session, "user3")
+        user4_id, token4 = get_user_id_and_token(session, "user4")
+        user5_id, token5 = get_user_id_and_token(session, "user5")
+        user6_id, token6 = get_user_id_and_token(session, "user6")
+        user7_id, token7 = get_user_id_and_token(session, "user7")
+        user8_id, token8 = get_user_id_and_token(session, "user8")
+        w_id = get_community_id(session, "World")
+        c1r1c2_id = get_community_id(session, "Country 1, Region 1, City 2")
 
     with communities_session(token1) as api:
         res = api.ListMembers(
@@ -431,16 +426,16 @@ def test_ListMembers(db, testing_communities):
 
 def test_ListNearbyUsers(db, testing_communities):
     with session_scope() as session:
-        user1_id, token1 = _get_user_id_and_token(session, "user1")
-        user2_id, token2 = _get_user_id_and_token(session, "user2")
-        user3_id, token3 = _get_user_id_and_token(session, "user3")
-        user4_id, token4 = _get_user_id_and_token(session, "user4")
-        user5_id, token5 = _get_user_id_and_token(session, "user5")
-        user6_id, token6 = _get_user_id_and_token(session, "user6")
-        user7_id, token7 = _get_user_id_and_token(session, "user7")
-        user8_id, token8 = _get_user_id_and_token(session, "user8")
-        w_id = _get_community_id(session, "World")
-        c1r1c2_id = _get_community_id(session, "Country 1, Region 1, City 2")
+        user1_id, token1 = get_user_id_and_token(session, "user1")
+        user2_id, token2 = get_user_id_and_token(session, "user2")
+        user3_id, token3 = get_user_id_and_token(session, "user3")
+        user4_id, token4 = get_user_id_and_token(session, "user4")
+        user5_id, token5 = get_user_id_and_token(session, "user5")
+        user6_id, token6 = get_user_id_and_token(session, "user6")
+        user7_id, token7 = get_user_id_and_token(session, "user7")
+        user8_id, token8 = get_user_id_and_token(session, "user8")
+        w_id = get_community_id(session, "World")
+        c1r1c2_id = get_community_id(session, "Country 1, Region 1, City 2")
 
     with communities_session(token1) as api:
         res = api.ListNearbyUsers(

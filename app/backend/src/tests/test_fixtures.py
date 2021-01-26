@@ -19,6 +19,7 @@ from couchers.servicers.auth import Auth
 from couchers.servicers.bugs import Bugs
 from couchers.servicers.communities import Communities
 from couchers.servicers.conversations import Conversations
+from couchers.servicers.groups import Groups
 from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
 from couchers.servicers.pages import Pages
@@ -32,6 +33,7 @@ from pb import (
     bugs_pb2_grpc,
     communities_pb2_grpc,
     conversations_pb2_grpc,
+    groups_pb2_grpc,
     jail_pb2_grpc,
     media_pb2_grpc,
     pages_pb2_grpc,
@@ -307,20 +309,23 @@ def requests_session(token):
 
 @contextmanager
 def pages_session(token):
-    auth_interceptor = Auth().get_auth_interceptor(allow_jailed=False)
-    user_id, jailed = Auth().get_session_for_token(token)
-    channel = FakeChannel(user_id=user_id)
+    channel = fake_channel(token)
     pages_pb2_grpc.add_PagesServicer_to_server(Pages(), channel)
     yield pages_pb2_grpc.PagesStub(channel)
 
 
 @contextmanager
 def communities_session(token):
-    auth_interceptor = Auth().get_auth_interceptor(allow_jailed=False)
-    user_id, jailed = Auth().get_session_for_token(token)
-    channel = FakeChannel(user_id=user_id)
+    channel = fake_channel(token)
     communities_pb2_grpc.add_CommunitiesServicer_to_server(Communities(), channel)
     yield communities_pb2_grpc.CommunitiesStub(channel)
+
+
+@contextmanager
+def groups_session(token):
+    channel = fake_channel(token)
+    groups_pb2_grpc.add_GroupsServicer_to_server(Groups(), channel)
+    yield groups_pb2_grpc.GroupsStub(channel)
 
 
 @contextmanager
