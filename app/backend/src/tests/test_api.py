@@ -62,6 +62,8 @@ def test_ping(db):
     assert res.user.countries_visited == user.countries_visited.split("|")
     assert res.user.countries_lived == user.countries_lived.split("|")
 
+    assert res.user.additional_information == user.additional_information
+
     assert res.user.friends == api_pb2.User.FriendshipStatus.NA
     assert len(res.user.mutual_friends) == 0
 
