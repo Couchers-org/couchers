@@ -26,12 +26,7 @@ export default function SearchBox() {
   return (
     <>
       <form onSubmit={onSubmit} className={classes.root}>
-        <TextField
-          name="query"
-          label="Search"
-          inputRef={register}
-          minWidth={false}
-        ></TextField>
+        <TextField name="query" label="Search" inputRef={register}></TextField>
       </form>
     </>
   );

@@ -58,6 +58,16 @@ const useStyles = makeStyles((theme) => ({
   preferenceSection: {
     paddingTop: theme.spacing(3),
   },
+  field: {
+    "& > .MuiInputBase-root": {
+      width: "100%",
+    },
+    [theme.breakpoints.up("md")]: {
+      "& > .MuiInputBase-root": {
+        width: 400,
+      },
+    },
+  },
 }));
 
 export default function HostingPreferenceForm() {
@@ -154,6 +164,7 @@ export default function HostingPreferenceForm() {
                     label="Max. number of guests"
                     name="maxGuests"
                     onChange={(e) => onChange(Number(e.target.value))}
+                    className={classes.field}
                   />
                 )}
               />
@@ -170,6 +181,7 @@ export default function HostingPreferenceForm() {
             inputRef={register}
             rowsMax={5}
             multiline
+            className={classes.field}
           />
           <ProfileTextInput
             label="House rules"
@@ -178,6 +190,7 @@ export default function HostingPreferenceForm() {
             inputRef={register}
             rowsMax={5}
             multiline
+            className={classes.field}
           />
           <Controller
             control={control}
@@ -205,6 +218,7 @@ export default function HostingPreferenceForm() {
                     {...params}
                     label="Smoking allowed?"
                     name="maxGuests"
+                    className={classes.field}
                   />
                 )}
               />
@@ -217,6 +231,7 @@ export default function HostingPreferenceForm() {
             inputRef={register}
             rowsMax={5}
             multiline
+            className={classes.field}
           />
           <Button
             type="submit"

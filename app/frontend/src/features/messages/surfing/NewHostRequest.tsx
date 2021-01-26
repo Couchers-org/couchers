@@ -52,10 +52,7 @@ export default function NewHostRequest() {
     (data: Required<CreateHostRequestReq.AsObject>) =>
       service.requests.createHostRequest(data),
     {
-      onMutate: console.log,
-      onError: console.log,
       onSuccess: (hostRequestId) => {
-        console.log(hostRequestId);
         history.push(`${messagesRoute}/request/${hostRequestId}`);
       },
     }
