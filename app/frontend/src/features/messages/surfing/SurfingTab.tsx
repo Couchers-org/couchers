@@ -27,7 +27,7 @@ export default function SurfingTab({
   const { data: hostRequests, isLoading, error } = useQuery<
     HostRequest.AsObject[],
     GrpcError
-  >(["hostRequests", type, onlyActive], () =>
+  >(["hostRequests", { type, onlyActive }], () =>
     service.requests.listHostRequests(type, onlyActive)
   );
 
