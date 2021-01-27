@@ -1,0 +1,291 @@
+{
+  "communities": [
+    {
+      "name": "World",
+      "admins": ["aapeli", "itsi", "lucas", "val"],
+      "members": ["kellyt", "misspoptart", "debbie", "joshua", "chagai"],
+      "parent": null,
+      "coordinates": [
+        [
+          -180.0,
+          -90
+        ],
+        [
+          180.0,
+          -90
+        ],
+        [
+          180,
+          90
+        ],
+        [
+          -180.0,
+          90
+        ],
+        [
+          -180.0,
+          -90
+        ]
+      ]
+    },
+    {
+      "name": "United States",
+      "admins": ["aapeli", "val"],
+      "members": ["misspoptart", "joshua"],
+      "parent": "World",
+      "osm_id": 148838,
+      "geom_simplify": 0.1
+    },
+    {
+      "name": "Australia",
+      "admins": ["itsi", "val"],
+      "members": ["debbie", "joshua"],
+      "parent": "World",
+      "osm_id": 80500,
+      "geom_simplify": 0.1
+    },
+    {
+      "name": "United Kingdom",
+      "admins": ["lucas"],
+      "members": ["kellyt", "aapeli"],
+      "parent": "World",
+      "osm_id": 62149,
+      "geom_simplify": 0.1
+    },
+    {
+      "name": "Finland",
+      "admins": ["aapeli"],
+      "members": [],
+      "parent": "World",
+      "osm_id": 54224,
+      "geom_simplify": 0.1
+    },
+    {
+      "name": "New York State",
+      "admins": ["aapeli"],
+      "members": ["debbie"],
+      "parent": "United States",
+      "osm_id": 61320,
+      "geom_simplify": 0.01
+    },
+    {
+      "name": "New York City",
+      "admins": ["aapeli"],
+      "members": ["debbie"],
+      "parent": "New York State",
+      "osm_id": 175905
+    },
+    {
+      "name": "Sydney",
+      "admins": ["itsi", "val"],
+      "members": ["aapeli"],
+      "parent": "Australia",
+      "coordinates": [
+        [
+          151.446533203125,
+          -33.584879281829856
+        ],
+        [
+          150.76263427734375,
+          -33.426856918285
+        ],
+        [
+          150.303955078125,
+          -33.690067083222004
+        ],
+        [
+          150.44677734375,
+          -34.161818161230386
+        ],
+        [
+          151.1553955078125,
+          -34.29126107845569
+        ],
+        [
+          151.358642578125,
+          -33.96386430820155
+        ],
+        [
+          151.446533203125,
+          -33.584879281829856
+        ]
+      ]
+    },
+    {
+      "name": "Melbourne",
+      "admins": ["itsi", "val"],
+      "members": ["aapeli", "misspoptart"],
+      "parent": "Australia",
+      "coordinates": [
+        [
+          144.73251342773438,
+          -37.95502661288624
+        ],
+        [
+          145.1788330078125,
+          -38.23602279968667
+        ],
+        [
+          145.43426513671875,
+          -37.91061711049341
+        ],
+        [
+          145.250244140625,
+          -37.56526268088996
+        ],
+        [
+          144.81216430664062,
+          -37.543488458649975
+        ],
+        [
+          144.59518432617188,
+          -37.77505678240507
+        ],
+        [
+          144.73251342773438,
+          -37.95502661288624
+        ]
+      ]
+    },
+    {
+      "name": "London",
+      "admins": ["lucas"],
+      "members": ["kellyt", "aapeli"],
+      "parent": "United Kingdom",
+      "coordinates": [
+        [
+          -0.22247314453125,
+          51.72872938200587
+        ],
+        [
+          -0.5767822265625,
+          51.68447672270844
+        ],
+        [
+          -0.61248779296875,
+          51.342623007528275
+        ],
+        [
+          -0.1043701171875,
+          51.23956626148356
+        ],
+        [
+          0.28839111328125,
+          51.30657945585936
+        ],
+        [
+          0.32135009765625,
+          51.674258422595145
+        ],
+        [
+          -0.22247314453125,
+          51.72872938200587
+        ]
+      ]
+    },
+    {
+      "name": "Helsinki",
+      "admins": ["aapeli"],
+      "members": ["lucas"],
+      "parent": "Finland",
+      "coordinates": [
+        [
+          24.60800170898437,
+          60.03673122854703
+        ],
+        [
+          25.39215087890625,
+          60.12098715359594
+        ],
+        [
+          25.125732421875,
+          60.333745513303114
+        ],
+        [
+          24.82086181640625,
+          60.342580498397126
+        ],
+        [
+          24.491271972656246,
+          60.19069475310575
+        ],
+        [
+          24.60800170898437,
+          60.03673122854703
+        ]
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "name": "Sydney Foodies",
+      "admins": ["itsi", "val"],
+      "members": ["aapeli"],
+      "parent": "Sydney"
+    },
+    {
+      "name": "East Coast Hitchhikers",
+      "admins": ["itsi"],
+      "members": ["aapeli", "val", "misspoptart"],
+      "parent": "Australia"
+    },
+    {
+      "name": "New York City Nightlifers",
+      "admins": ["aapeli"],
+      "members": ["itsi", "val", "misspoptart"],
+      "parent": "New York City"
+    }
+  ],
+  "places": [
+    {
+      "owner": "Sydney",
+      "title": "Sydney Opera House",
+      "creator": "itsi",
+      "content": "# Sydney's Opera House: what to see and what to do\n\nSomething about the SOH...",
+      "address": "Bennelong Point, Sydney",
+      "coordinate": [151.214167, -33.858611]
+    },
+    {
+      "owner": "Sydney",
+      "title": "Sydney Harbour Bridge",
+      "creator": "itsi",
+      "content": "# Sydney's Harbour Bridge\n\n...",
+      "address": "Dawes Point to Milsons Point",
+      "coordinate": [151.210556, -33.852222]
+    },
+    {
+      "owner": "East Coast Hitchhikers",
+      "title": "Good hitchhiking spot North",
+      "creator": "aapeli",
+      "content": "# Good hitchhiking spot North\n\nIf you stand here you can easily hitch a ride up north.",
+      "address": "Pacific Motorway on-ramp",
+      "coordinate": [151.10724, -33.71995]
+    }
+  ],
+  "guides": [
+    {
+      "owner": "Sydney",
+      "title": "A Guide to Sightseeing in Sydney",
+      "creator": "itsi",
+      "content": "# A Guide to Sightseeing in Sydney\n\nEmpty for now."
+    },
+    {
+      "owner": "Sydney",
+      "title": "A Guide to Eating in Sydney",
+      "creator": "itsi",
+      "content": "# A Guide to Eating in Sydney\n\nEmpty for now."
+    },
+    {
+      "owner": "East Coast Hitchhikers",
+      "title": "A Guide to Hitchhiking around the East Coast",
+      "creator": "aapeli",
+      "content": "# A Guide to Hitchhiking around the East Coast\n\nYou know, you've gotta use ye thumb."
+    },
+    {
+      "owner": "East Coast Hitchhikers",
+      "title": "Hitchhiking from Sydney to Brisbane",
+      "creator": "aapeli",
+      "content": "# Hitchhiking from Sydney to Brisbane"
+    }
+  ]
+}

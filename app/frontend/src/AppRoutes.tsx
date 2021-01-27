@@ -13,6 +13,10 @@ import {
 import MapPage from "./features/map/MapPage";
 import UserPage from "./features/userPage/UserPage";
 import SearchPage from "./features/search/SearchPage";
+import NewPagePage from "./features/communities/NewPagePage";
+import PagePage from "./features/communities/PagePage";
+import CommunityPage from "./features/communities/CommunityPage";
+import GroupPage from "./features/communities/GroupPage";
 import Jail from "./features/auth/jail/Jail";
 import TOS from "./components/TOS";
 import { useAuthContext } from "./features/auth/AuthProvider";
@@ -35,6 +39,12 @@ export const userRoute = "/user";
 export const searchRoute = "/search";
 export const jailRoute = "/restricted";
 export const tosRoute = "/tos";
+
+export const newPageRoute = "/page/new";
+export const pageRoute = "/page";
+
+export const communityRoute = "/community"; ///:communityId/:communitySlug";
+export const groupRoute = "/group"; ///:groupId/:groupSlug";
 
 export default function AppRoutes() {
   return (
@@ -74,6 +84,18 @@ export default function AppRoutes() {
       </PrivateRoute>
       <PrivateRoute path={`${searchRoute}/:query?`}>
         <SearchPage />
+      </PrivateRoute>
+      <PrivateRoute path={newPageRoute}>
+        <NewPagePage />
+      </PrivateRoute>
+      <PrivateRoute path={`${pageRoute}/:pageId/:pageSlug?`}>
+        <PagePage />
+      </PrivateRoute>
+      <PrivateRoute path={`${communityRoute}/:communityId/:communitySlug?`}>
+        <CommunityPage />
+      </PrivateRoute>
+      <PrivateRoute path={`${groupRoute}/:groupId/:groupSlug?`}>
+        <GroupPage />
       </PrivateRoute>
       <PrivateRoute path={`${connectionsRoute}/:type?`}>
         <ConnectionsPage />

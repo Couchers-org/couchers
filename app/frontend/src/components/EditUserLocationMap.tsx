@@ -54,6 +54,7 @@ export default function EditUserLocationMap({
   const map = useRef<mapboxgl.Map | null>(null);
   //map is imperative so these don't need to cause re-render
   const centerCoords = useRef<LngLat | null>(
+    // TODO: better default?
     user ? new LngLat(user.lng, user.lat) : new LngLat(151.2099, -33.865143)
   );
   const radius = useRef<number | null>(user?.radius ?? 200);
