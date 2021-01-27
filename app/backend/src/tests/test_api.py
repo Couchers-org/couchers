@@ -63,7 +63,6 @@ def test_ping(db):
     assert res.user.languages == user.languages.split("|")
     assert res.user.countries_visited == user.countries_visited.split("|")
     assert res.user.countries_lived == user.countries_lived.split("|")
-
     assert res.user.additional_information == user.additional_information
 
     assert res.user.friends == api_pb2.User.FriendshipStatus.NA
@@ -159,6 +158,7 @@ def test_update_profile(db):
                 languages=api_pb2.RepeatedStringValue(exists=True, value=["Binary", "English"]),
                 countries_visited=api_pb2.RepeatedStringValue(exists=True, value=["UK", "Aus"]),
                 countries_lived=api_pb2.RepeatedStringValue(exists=True, value=["UK", "Aus"]),
+                additional_information=api_pb2.NullableStringValue(value="I <3 Couchers")
             )
         )
         # all fields changed
@@ -177,7 +177,8 @@ def test_update_profile(db):
         assert user.hosting_status == api_pb2.HOSTING_STATUS_CAN_HOST
         assert user.meetup_status == api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP
         assert "Binary" in user.languages
-        assert "English" in user.languages
+        assert "English" in user.language
+        assert user.additional_information == "I <3 Couchers"
 
 
 def test_pending_friend_request_count(db):
