@@ -142,16 +142,20 @@ def test_update_profile(db):
             api_pb2.UpdateProfileReq(
                 name=wrappers_pb2.StringValue(value="New name"),
                 city=wrappers_pb2.StringValue(value="Timbuktu"),
+                hometown=wrappers_pb2.StringValue(value="Walla Walla"),
                 lat=wrappers_pb2.DoubleValue(value=0.01),
                 lng=wrappers_pb2.DoubleValue(value=-2),
                 radius=wrappers_pb2.DoubleValue(value=321),
                 gender=wrappers_pb2.StringValue(value="Bot"),
+                pronouns=wrappers_pb2.StringValue(value="Ro, Robo, Robots"),
                 occupation=api_pb2.NullableStringValue(value="Testing"),
+                education=api_pb2.NullableStringValue(value="Couchers U"),
                 about_me=api_pb2.NullableStringValue(value="I rule"),
                 my_travels=api_pb2.NullableStringValue(value="Oh the places you'll go!"),
                 things_i_like=api_pb2.NullableStringValue(value="Couchers"),
                 about_place=api_pb2.NullableStringValue(value="My place"),
                 hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                meetup_status=api_pb2.HOSTING_STATUS_WANTS_TO_MEETUP,
                 languages=api_pb2.RepeatedStringValue(exists=True, value=["Binary", "English"]),
                 countries_visited=api_pb2.RepeatedStringValue(exists=True, value=["UK", "Aus"]),
                 countries_lived=api_pb2.RepeatedStringValue(exists=True, value=["UK", "Aus"]),
@@ -164,10 +168,14 @@ def test_update_profile(db):
         user = api.GetUser(api_pb2.GetUserReq(user=user.username))
         assert user.name == "New name"
         assert user.city == "Timbuktu"
+        assert user.hometown == "Walla Walla"
+        assert user.pronouns == "Ro, Robo, Robots"
+        assert user.education == "Couchers U"
         assert user.lat == 0.01
         assert user.lng == -2
         assert user.radius == 321
         assert user.hosting_status == api_pb2.HOSTING_STATUS_CAN_HOST
+        assert user.meetup_status == api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP
         assert "Binary" in user.languages
         assert "English" in user.languages
 
