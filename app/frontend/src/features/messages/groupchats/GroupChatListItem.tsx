@@ -34,7 +34,12 @@ export default function GroupChatListItem({
   const currentUserId = useAuthContext().authState.userId!;
   const latestMessageAuthorId = groupChat.latestMessage?.authorUserId;
 
-  const groupChatMembersQuery = useUsers(groupChat.memberUserIdsList);
+  //It is possible the last message is sent by someone who has left
+  //so include it just in case
+  const groupChatMembersQuery = useUsers([
+    ...groupChat.memberUserIdsList,
+    latestMessageAuthorId,
+  ]);
 
   //the avatar is of the latest message author (if it's not the logged in user),
   //otherwise any user that's not the logged in user, otherwise logged in user
