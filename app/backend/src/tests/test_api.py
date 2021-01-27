@@ -677,7 +677,8 @@ def test_hosting_preferences(db):
         assert not res.HasField("smokes_at_home")
         assert not res.HasField("drinking_allowed")
         assert not res.HasField("drinks_at_home")
-        assert not res.HasField("other_host_info")
+        assert res.HasField("other_host_info")
+        assert res.other_host_info.value == "What I can share with guests:\n"
         assert res.sleeping_arrangement == api_pb2.SLEEPINGG_ARRANGEMENT_UNKNOWN
         assert not res.HasField("sleeping_details")
         assert res.HasField("area")
@@ -709,7 +710,8 @@ def test_hosting_preferences(db):
         assert not res.HasField("smokes_at_home")
         assert not res.HasField("drinking_allowed")
         assert not res.HasField("drinks_at_home")
-        assert not res.HasField("other_host_info")
+        assert res.HasField("other_host_info")
+        assert res.other_host_info.value == "What I can share with guests:\n"
         assert res.sleeping_arrangement == api_pb2.SLEEPINGG_ARRANGEMENT_UNKNOWN
         assert not res.HasField("sleeping_details")
         assert res.HasField("area")
@@ -747,7 +749,8 @@ def test_hosting_preferences(db):
         assert not res.HasField("smokes_at_home")
         assert not res.HasField("drinking_allowed")
         assert not res.HasField("drinks_at_home")
-        assert not res.HasField("other_host_info")
+        assert res.HasField("other_host_info")
+        assert res.other_host_info.value == "What I can share with guests:\n"
         assert res.sleeping_arrangement == api_pb2.SLEEPINGG_ARRANGEMENT_UNKNOWN
         assert not res.HasField("sleeping_details")
         assert res.area.value == "area!"

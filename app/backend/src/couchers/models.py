@@ -149,7 +149,7 @@ class User(Base):
     smokes_at_home = Column(Boolean, nullable=True)
     drinking_allowed = Column(Boolean, nullable=True)
     drinks_at_home = Column(Boolean, nullable=True)
-    other_host_info = Column(String, nullable=True)
+    other_host_info = Column(String, nullable=True, default="What I can share with guests:\n")
 
     sleeping_arrangement = Column(Enum(SleepingArrangement), nullable=True)
     sleeping_details = Column(String, nullable=True)
