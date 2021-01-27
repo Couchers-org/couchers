@@ -5,6 +5,7 @@ import {
   GetGroupChatMessagesReq,
   GetGroupChatReq,
   GroupChat,
+  InviteToGroupChatReq,
   LeaveGroupChatReq,
   ListGroupChatsReq,
   Message,
@@ -64,4 +65,14 @@ export function leaveGroupChat(groupChatId: number) {
   const req = new LeaveGroupChatReq();
   req.setGroupChatId(groupChatId);
   return client.conversations.leaveGroupChat(req);
+}
+
+export function inviteToGroupChat(groupChatId: number, users: User.AsObject[]) {
+  const promises = users.map((user) => {
+    const req = new InviteToGroupChatReq();
+    req.setGroupChatId(groupChatId);
+    req.setUserId(user.userId);
+    return client.conversations.inviteToGroupChat(req);
+  });
+  return Promise.all(promises);
 }

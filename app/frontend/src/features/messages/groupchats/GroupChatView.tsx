@@ -68,6 +68,7 @@ export default function GroupChatView() {
 
   //for title text
   const currentUserId = useAuthContext().authState.userId!;
+  const isChatAdmin = groupChat?.adminUserIdsList.includes(currentUserId);
   const groupChatMembersQuery = useUsers(groupChat?.memberUserIdsList ?? []);
 
   const {
@@ -137,19 +138,24 @@ export default function GroupChatView() {
                   open={isOpen.menu}
                   onClose={() => handleClose("menu")}
                 >
-                  <MenuItem onClick={() => handleClick("invite")}>
-                    Invite to chat
-                  </MenuItem>
+                  {(!groupChat?.onlyAdminsInvite || isChatAdmin) && (
+                    <MenuItem onClick={() => handleClick("invite")}>
+                      Invite to chat
+                    </MenuItem>
+                  )}
                   <MenuItem onClick={() => handleClick("members")}>
                     Chat Members
                   </MenuItem>
-                  <MenuItem onClick={() => handleClick("leave")}>
-                    Leave chat
-                  </MenuItem>
+                  {groupChat?.memberUserIdsList.includes(currentUserId) && (
+                    <MenuItem onClick={() => handleClick("leave")}>
+                      Leave chat
+                    </MenuItem>
+                  )}
                 </Menu>
                 <InviteDialog
                   open={isOpen.invite}
                   onClose={() => handleClose("invite")}
+                  groupChat={groupChat}
                 />
                 <MembersDialog
                   open={isOpen.members}

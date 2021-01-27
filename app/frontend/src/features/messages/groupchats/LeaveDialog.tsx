@@ -25,6 +25,7 @@ export default function MembersDialog({
       onSuccess: () => {
         queryClient.invalidateQueries(["groupChatMessages", groupChatId]);
         queryClient.invalidateQueries(["groupChats"]);
+        queryClient.invalidateQueries(["groupChat", groupChatId]);
         if (props.onClose) props.onClose({}, "escapeKeyDown");
       },
     }
