@@ -682,6 +682,7 @@ def test_hosting_preferences(db):
         assert res.sleeping_arrangement == api_pb2.SLEEPINGG_ARRANGEMENT_UNKNOWN
         assert not res.HasField("sleeping_details")
         assert res.HasField("area")
+        assert res.area.value == "Public transit:/n/nParking:/n/nAccessibility:/n!"
         assert not res.HasField("house_rules")
 
         api.UpdateProfile(
