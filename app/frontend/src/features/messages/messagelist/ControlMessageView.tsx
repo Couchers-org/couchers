@@ -9,6 +9,7 @@ import { useUser } from "../../userQueries/useUsers";
 import { controlMessageText, messageTargetId } from "../utils";
 import { MessageProps } from "./MessageView";
 import TimeInterval from "./MomentIndication";
+import useOnVisibleEffect from "./useOnVisibleEffect";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -26,7 +27,10 @@ const useStyles = makeStyles((theme) => ({
   skeleton: { minWidth: 100 },
 }));
 
-export default function ControlMessageView({ message }: MessageProps) {
+export default function ControlMessageView({
+  message,
+  onVisible,
+}: MessageProps) {
   const classes = useStyles();
   const currentUserId = useAuthContext().authState.userId;
   const { data: author, isLoading: isAuthorLoading } = useUser(
@@ -35,11 +39,13 @@ export default function ControlMessageView({ message }: MessageProps) {
   const { data: target, isLoading: isTargetLoading } = useUser(
     messageTargetId(message)
   );
+  const { ref } = useOnVisibleEffect(message.messageId, onVisible);
+
   const isCurrentUser = author?.userId === currentUserId;
   const authorName = isCurrentUser ? "you" : firstName(author?.name);
   const targetName = firstName(target?.name);
   return (
-    <Box className={classes.root}>
+    <Box className={classes.root} ref={ref}>
       <Box className={classes.timestamp}>
         <TimeInterval date={timestamp2Date(message.time!)} />
       </Box>
