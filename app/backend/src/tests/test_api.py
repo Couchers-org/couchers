@@ -715,6 +715,9 @@ def test_hosting_preferences(db):
         assert res.HasField("area")
         assert res.area.value == "Public transit:/n/nParking:/n/nAccessibility:/n!"
         assert res.house_rules.value == "RULES!"
+        assert not res.HasField("parking")
+        assert res.parking_details == api_pb2.PARKING_DETAILS_UNKNOWN
+        assert not res.HasField("camping_ok")
 
     with api_session(token1) as api:
         # test unsetting
