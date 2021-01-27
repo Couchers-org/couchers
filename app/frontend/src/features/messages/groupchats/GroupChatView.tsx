@@ -18,6 +18,7 @@ import PageTitle from "../../../components/PageTitle";
 import { useHistory, useParams } from "react-router-dom";
 import { Skeleton } from "@material-ui/lab";
 import HeaderButton from "../../../components/HeaderButton";
+import useMarkLastSeenGroupChat from "./useMarkLastSeenGroupChat";
 
 const useStyles = makeStyles((theme) => ({
   header: { display: "flex", alignItems: "center" },
@@ -90,10 +91,16 @@ export default function GroupChatView() {
     }
   );
 
+  const { handleVisible } = useMarkLastSeenGroupChat(
+    groupChatId,
+    groupChat?.lastSeenMessageId
+  );
+
   const history = useHistory();
 
   const handleLeaveGroupChat = () => leaveGroupChatMutation.mutate();
   const handleBack = () => history.goBack();
+
   return (
     <Box>
       {!groupChatId ? (
@@ -159,7 +166,10 @@ export default function GroupChatView() {
           ) : (
             messages && (
               <>
-                <MessageList messages={messages} />
+                <MessageList
+                  handleVisible={handleVisible}
+                  messages={messages}
+                />
                 <GroupChatSendField sendMutation={sendMutation} />
               </>
             )

@@ -7,7 +7,7 @@ import { timestamp2Date } from "../../../utils/date";
 import useCurrentUser from "../../userQueries/useCurrentUser";
 import { useUser } from "../../userQueries/useUsers";
 import TimeInterval from "./MomentIndication";
-import classnames from "classnames";
+import classNames from "classnames";
 import useOnVisibleEffect from "./useOnVisibleEffect";
 
 const useStyles = makeStyles((theme) => ({

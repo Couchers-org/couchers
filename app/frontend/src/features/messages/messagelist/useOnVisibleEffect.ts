@@ -5,7 +5,7 @@ export default function useOnVisibleEffect(
   messageId: number,
   onVisible?: (id: number) => void
 ) {
-  const { ref, inView } = useInView({ threshold: 0.5 });
+  const { ref, inView } = useInView();
 
   useEffect(() => {
     if (inView && onVisible) {
