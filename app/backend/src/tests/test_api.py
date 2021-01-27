@@ -674,6 +674,9 @@ def test_hosting_preferences(db):
         assert not res.HasField("housemate_details")
         assert not res.HasField("wheelchair_accessible")
         assert res.smoking_allowed == api_pb2.SMOKING_LOCATION_UNKNOWN
+        assert not res.HasField("smokes_at_home")
+        assert not res.HasField("drinking_allowed")
+        assert not res.HasField("drinks_at_home")
         assert not res.HasField("sleeping_arrangement")
         assert res.HasField("area")
         assert not res.HasField("house_rules")
@@ -701,6 +704,9 @@ def test_hosting_preferences(db):
         assert not res.HasField("housemate_details")
         assert not res.wheelchair_accessible.value
         assert res.smoking_allowed == api_pb2.SMOKING_LOCATION_WINDOW
+        assert not res.HasField("smokes_at_home")
+        assert not res.HasField("drinking_allowed")
+        assert not res.HasField("drinks_at_home")
         assert not res.HasField("sleeping_arrangement")
         assert res.HasField("area")
         assert res.area.value == "Public transit:/n/nParking:/n/nAccessibility:/n!"
@@ -731,6 +737,9 @@ def test_hosting_preferences(db):
         assert not res.HasField("housemate_details")
         assert res.wheelchair_accessible.value
         assert res.smoking_allowed == api_pb2.SMOKING_LOCATION_UNKNOWN
+        assert not res.HasField("smokes_at_home")
+        assert not res.HasField("drinking_allowed")
+        assert not res.HasField("drinks_at_home")
         assert not res.HasField("sleeping_arrangement")
         assert res.area.value == "area!"
         assert not res.HasField("house_rules")
