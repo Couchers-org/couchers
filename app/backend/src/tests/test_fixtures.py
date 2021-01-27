@@ -363,7 +363,7 @@ def testconfig():
 
     config["DEV"] = True
     config["VERSION"] = "testing_version"
-    config["BASE_URL"] = "http://localhost:8080"
+    config["BASE_URL"] = "http://localhost:3000"
     config["COOKIE_DOMAIN"] = "localhost"
     config["ENABLE_EMAIL"] = False
     config["NOTIFICATION_EMAIL_ADDRESS"] = "notify@couchers.org.invalid"
