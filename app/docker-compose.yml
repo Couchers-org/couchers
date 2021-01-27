@@ -76,15 +76,3 @@ services:
       - backend
     links:
       - backend
-#  vue:
-#    build: vue
-#    volumes:
-#      - "./vue:/app"
-#    command: sh -c "yarn && yarn dev"
-#    restart: on-failure
-#    ports:
-#      - 8080:8080
-#    depends_on:
-#      - backend
-#    links:
-#      - backend
