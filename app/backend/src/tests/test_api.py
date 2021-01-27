@@ -664,8 +664,12 @@ def test_hosting_preferences(db):
         res = api.GetUser(api_pb2.GetUserReq(user=user2.username))
         assert not res.HasField("max_guests")
         assert not res.HasField("last_minute")
+        assert not res.HasField("has_pets")
         assert not res.HasField("accepts_pets")
+        assert not res.HasField("pets_details")
+        assert not res.HasField("has_kids")
         assert not res.HasField("accepts_kids")
+        assert not res.HasField("kid_details")
         assert not res.HasField("wheelchair_accessible")
         assert res.smoking_allowed == api_pb2.SMOKING_LOCATION_UNKNOWN
         assert not res.HasField("sleeping_arrangement")
@@ -685,8 +689,12 @@ def test_hosting_preferences(db):
         res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
         assert res.max_guests.value == 3
         assert not res.HasField("last_minute")
+        assert not res.HasField("has_pets")
         assert not res.HasField("accepts_pets")
+        assert not res.HasField("pets_details")
+        assert not res.HasField("has_kids")
         assert not res.HasField("accepts_kids")
+        assert not res.HasField("kid_details")
         assert not res.wheelchair_accessible.value
         assert res.smoking_allowed == api_pb2.SMOKING_LOCATION_WINDOW
         assert not res.HasField("sleeping_arrangement")
@@ -709,8 +717,12 @@ def test_hosting_preferences(db):
         res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
         assert not res.HasField("max_guests")
         assert not res.HasField("last_minute")
+        assert not res.HasField("has_pets")
         assert not res.HasField("accepts_pets")
+        assert not res.HasField("pets_details")
+        assert not res.HasField("has_kids")
         assert not res.HasField("accepts_kids")
+        assert not res.HasField("kid_details")
         assert res.wheelchair_accessible.value
         assert res.smoking_allowed == api_pb2.SMOKING_LOCATION_UNKNOWN
         assert not res.HasField("sleeping_arrangement")
