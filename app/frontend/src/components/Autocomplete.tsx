@@ -4,7 +4,7 @@ import {
   AutocompleteProps as MuiAutocompleteProps,
 } from "@material-ui/lab";
 import React from "react";
-import TextInput from "./TextField";
+import TextField from "./TextField";
 import classNames from "classnames";
 
 const useStyles = makeStyles({
@@ -41,7 +41,7 @@ export default function Autocomplete<
     <MuiAutocomplete
       {...otherProps}
       className={classNames(classes.root, className)}
-      renderInput={(params) => <TextInput {...params} label={label} />}
+      renderInput={(params) => <TextField {...params} label={label} />}
     ></MuiAutocomplete>
   );
 }

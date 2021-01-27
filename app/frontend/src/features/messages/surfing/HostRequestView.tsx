@@ -1,4 +1,4 @@
-import { Box, BoxProps, Typography } from "@material-ui/core";
+import { Box, Menu, MenuItem } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
 import * as React from "react";
@@ -6,68 +6,178 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 import Alert from "../../../components/Alert";
 import CircularProgress from "../../../components/CircularProgress";
 import { Message } from "../../../pb/conversations_pb";
-import { HostRequest } from "../../../pb/requests_pb";
+import { HostRequest, RespondHostRequestReq } from "../../../pb/requests_pb";
 import { service } from "../../../service";
 import { useUser } from "../../userQueries/useUsers";
 import MessageList from "../messagelist/MessageList";
 import { Error as GrpcError } from "grpc-web";
 import { useAuthContext } from "../../auth/AuthProvider";
-import SendField from "../SendField";
+import HostRequestSendField from "./HostRequestSendField";
+import { useHistory, useParams } from "react-router-dom";
+import { firstName } from "../../../utils/names";
+import { useRef, useState } from "react";
+import HeaderButton from "../../../components/HeaderButton";
+import { BackIcon, OverflowMenuIcon } from "../../../components/Icons";
+import PageTitle from "../../../components/PageTitle";
+import UserSummary from "../../../components/UserSummary";
+import Divider from "../../../components/Divider";
 
-const useStyles = makeStyles({ root: {} });
+const useStyles = makeStyles((theme) => ({
+  root: {},
+  header: { display: "flex", alignItems: "center" },
+  title: {
+    flexGrow: 1,
+    marginInline: theme.spacing(2),
+  },
+}));
 
-export interface HostRequestViewProps extends BoxProps {
-  hostRequest: HostRequest.AsObject;
-}
+export default function HostRequestView() {
+  const classes = useStyles();
 
-export default function HostRequestView({ hostRequest }: HostRequestViewProps) {
-  const { data: messages, isLoading, error } = useQuery<
-    Message.AsObject[],
+  const menuAnchor = useRef<HTMLAnchorElement>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const handleClick = () => {
+    setMenuOpen(true);
+  };
+
+  const handleClose = () => {
+    setMenuOpen(false);
+  };
+
+  const hostRequestId = +(
+    useParams<{ hostRequestId?: string }>().hostRequestId || 0
+  );
+
+  const { data: hostRequest, error: hostRequestError } = useQuery<
+    HostRequest.AsObject,
     GrpcError
-  >(["hostRequestMessages", hostRequest.hostRequestId], () =>
-    service.requests.getHostRequestMessages(hostRequest.hostRequestId)
+  >(
+    ["hostRequest", hostRequestId],
+    () => service.requests.getHostRequest(hostRequestId),
+    {
+      enabled: !!hostRequestId,
+    }
   );
 
-  const { data: surfer, isLoading: surferLoading } = useUser(
-    hostRequest.fromUserId
+  const {
+    data: messages,
+    isLoading: isMessagesLoading,
+    error: messagesError,
+  } = useQuery<Message.AsObject[], GrpcError>(
+    ["hostRequestMessages", hostRequestId],
+    () => service.requests.getHostRequestMessages(hostRequestId),
+    { enabled: !!hostRequestId }
   );
-  const { data: host, isLoading: hostLoading } = useUser(hostRequest.toUserId);
+
+  const { data: surfer } = useUser(hostRequest?.fromUserId);
+  const { data: host } = useUser(hostRequest?.toUserId);
   const currentUserId = useAuthContext().authState.userId;
-  const surferName = currentUserId === surfer?.userId ? "you" : surfer?.name;
-  const hostName = currentUserId === host?.userId ? "you" : host?.name;
-  const title = `${surferName} requested to be hosted by ${hostName}`;
+  const isHost = host?.userId === currentUserId;
+  const otherUser = isHost ? surfer : host;
+  const title = otherUser
+    ? isHost
+      ? `Request from ${firstName(otherUser.name)}`
+      : `Request to ${firstName(otherUser.name)}`
+    : undefined;
 
   const queryClient = useQueryClient();
-  const mutation = useMutation<string | undefined, GrpcError, string>(
+  const sendMutation = useMutation<string | undefined, GrpcError, string>(
     (text: string) =>
-      service.requests.sendHostRequestMessage(hostRequest.hostRequestId, text),
+      service.requests.sendHostRequestMessage(hostRequestId, text),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["hostRequestMessages", hostRequestId]);
+        queryClient.invalidateQueries(["hostRequests"]);
+      },
+    }
+  );
+  const respondMutation = useMutation<
+    void,
+    GrpcError,
+    Required<RespondHostRequestReq.AsObject>
+  >(
+    (req) =>
+      service.requests.respondHostRequest(
+        req.hostRequestId,
+        req.status,
+        req.text
+      ),
     {
       onSuccess: () => {
         queryClient.invalidateQueries([
-          "hostRequestMessages",
-          hostRequest.hostRequestId,
+          "hostRequest",
+          hostRequest?.hostRequestId,
         ]);
+        queryClient.invalidateQueries(["hostRequestMessages", hostRequestId]);
         queryClient.invalidateQueries(["hostRequests"]);
       },
     }
   );
 
-  const classes = useStyles();
-  return (
+  const history = useHistory();
+
+  const handleBack = () => history.goBack();
+
+  return !hostRequestId ? (
+    <Alert severity={"error"}>Invalid host request id.</Alert>
+  ) : (
     <Box className={classes.root}>
-      <Typography variant="h3">
-        {surferLoading || hostLoading ? <Skeleton /> : title}
-      </Typography>
-      {mutation.error && <Alert severity={"error"}>{mutation.error}</Alert>}
-      {isLoading ? (
+      <Box className={classes.header}>
+        <HeaderButton onClick={handleBack} aria-label="Back">
+          <BackIcon />
+        </HeaderButton>
+
+        <PageTitle className={classes.title}>
+          {!title || hostRequestError ? <Skeleton width="100" /> : title}
+        </PageTitle>
+
+        <HeaderButton
+          onClick={handleClick}
+          aria-label="Menu"
+          aria-haspopup="true"
+          aria-controls="more-menu"
+          innerRef={menuAnchor}
+        >
+          <OverflowMenuIcon />
+        </HeaderButton>
+        <Menu
+          id="more-menu"
+          anchorEl={menuAnchor.current}
+          keepMounted
+          open={menuOpen}
+          onClose={handleClose}
+        >
+          <MenuItem onClick={() => null}>Placeholder</MenuItem>
+        </Menu>
+      </Box>
+
+      <UserSummary user={otherUser} />
+
+      <Divider />
+
+      {(respondMutation.error || sendMutation.error || hostRequestError) && (
+        <Alert severity={"error"}>
+          {respondMutation.error?.message ||
+            sendMutation.error?.message ||
+            hostRequestError?.message}
+        </Alert>
+      )}
+      {isMessagesLoading ? (
         <CircularProgress />
       ) : (
         <>
-          {error && <Alert severity={"error"}>{error.message}</Alert>}
-          {messages && (
+          {messagesError && (
+            <Alert severity={"error"}>{messagesError.message}</Alert>
+          )}
+          {messages && hostRequest && (
             <>
               <MessageList messages={messages} />
-              <SendField sendMutation={mutation} />
+              <HostRequestSendField
+                hostRequest={hostRequest}
+                sendMutation={sendMutation}
+                respondMutation={respondMutation}
+              />
             </>
           )}
         </>

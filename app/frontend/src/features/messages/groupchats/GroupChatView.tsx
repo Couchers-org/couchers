@@ -9,8 +9,8 @@ import { GroupChat, Message } from "../../../pb/conversations_pb";
 import MessageList from "../messagelist/MessageList";
 import { service } from "../../../service";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import SendField from "../SendField";
-import { BackIcon, SettingsIcon } from "../../../components/Icons";
+import GroupChatSendField from "./GroupChatSendField";
+import { BackIcon, OverflowMenuIcon } from "../../../components/Icons";
 import { groupChatTitleText } from "../utils";
 import { useAuthContext } from "../../auth/AuthProvider";
 import useUsers from "../../userQueries/useUsers";
@@ -46,15 +46,13 @@ export default function GroupChatView() {
 
   const groupChatId = +(useParams<{ groupChatId?: string }>().groupChatId || 0);
 
-  const { data: groupChat, error: idError } = useQuery<
+  const { data: groupChat, error: groupChatError } = useQuery<
     GroupChat.AsObject,
     GrpcError
   >(
     ["groupChat", groupChatId],
     () => service.conversations.getGroupChat(groupChatId),
-    {
-      enabled: !!groupChatId,
-    }
+    { enabled: !!groupChatId }
   );
 
   //for title text
@@ -114,7 +112,7 @@ export default function GroupChatView() {
                   groupChatMembersQuery,
                   currentUserId
                 )
-              ) : idError ? (
+              ) : groupChatError ? (
                 "Error"
               ) : (
                 <Skeleton width={100} />
@@ -125,12 +123,13 @@ export default function GroupChatView() {
               onClick={handleClick}
               aria-label="Menu"
               aria-haspopup="true"
+              aria-controls="more-menu"
               innerRef={menuAnchor}
             >
-              <SettingsIcon />
+              <OverflowMenuIcon />
             </HeaderButton>
             <Menu
-              id="simple-menu"
+              id="more-menu"
               anchorEl={menuAnchor.current}
               keepMounted
               open={menuOpen}
@@ -144,12 +143,12 @@ export default function GroupChatView() {
               </MenuItem>
             </Menu>
           </Box>
-          {(idError ||
+          {(groupChatError ||
             messagesError ||
             sendMutation.error ||
             leaveGroupChatMutation.error) && (
             <Alert severity="error">
-              {idError?.message ||
+              {groupChatError?.message ||
                 messagesError?.message ||
                 sendMutation.error?.message ||
                 leaveGroupChatMutation.error?.message}
@@ -161,7 +160,7 @@ export default function GroupChatView() {
             messages && (
               <>
                 <MessageList messages={messages} />
-                <SendField sendMutation={sendMutation} />
+                <GroupChatSendField sendMutation={sendMutation} />
               </>
             )
           )}

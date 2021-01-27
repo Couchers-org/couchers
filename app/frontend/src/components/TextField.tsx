@@ -1,7 +1,7 @@
 import {
   makeStyles,
+  OutlinedTextFieldProps,
   TextField as MuiTextField,
-  TextFieldProps,
 } from "@material-ui/core";
 import classNames from "classnames";
 import React from "react";
@@ -13,17 +13,28 @@ const useStyles = makeStyles((theme) => ({
       borderRadius: theme.shape.borderRadius,
     },
   },
+  multiline: {
+    "& .MuiOutlinedInput-notchedOutline": {
+      borderColor: theme.palette.grey[900],
+    },
+    "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline": {
+      borderColor: theme.palette.grey[500],
+    },
+  },
 }));
 
 export default function TextField({
   className,
   ...otherProps
-}: TextFieldProps) {
+}: Omit<OutlinedTextFieldProps, "variant">) {
   const classes = useStyles();
   return (
     <MuiTextField
       {...otherProps}
-      className={classNames(classes.root, className)}
+      variant="outlined"
+      className={classNames(classes.root, className, {
+        [classes.multiline]: otherProps.multiline,
+      })}
     />
   );
 }

@@ -2,7 +2,7 @@ import { Box } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import React from "react";
 import moment from "moment";
-import classnames from "classnames";
+import classNames from "classnames";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -23,7 +23,7 @@ export default function TimeInterval({
 }: MomentIndicationProps) {
   const classes = useStyles();
   return (
-    <Box className={classnames(className, classes.root)}>
+    <Box className={classNames(className, classes.root)}>
       {moment(date).fromNow()}
     </Box>
   );

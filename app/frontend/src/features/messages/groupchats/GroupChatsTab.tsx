@@ -1,5 +1,4 @@
 import { Box, List } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
 import React from "react";
 import { useQuery } from "react-query";
 import Alert from "../../../components/Alert";
@@ -12,27 +11,10 @@ import { messagesRoute } from "../../../AppRoutes";
 import TextBody from "../../../components/TextBody";
 import GroupChatListItem from "./GroupChatListItem";
 import { Link } from "react-router-dom";
-
-const useStyles = makeStyles((theme) => ({
-  root: {},
-  list: {
-    //margin won't go on the right, so make the width longer
-    width: `calc(100% + ${theme.spacing(4)})`,
-    overflow: "visible",
-  },
-  link: {
-    color: "inherit",
-    textDecoration: "none",
-    "&:hover": { textDecoration: "none" },
-  },
-  listItem: {
-    marginInline: `-${theme.spacing(2)}`,
-    paddingInline: `${theme.spacing(2)}`,
-  },
-}));
+import useMessageListStyles from "../useMessageListStyles";
 
 export default function GroupChatsTab() {
-  const classes = useStyles();
+  const classes = useMessageListStyles();
 
   /// TODO: Pagination
   const { data: groupChats, isLoading, error } = useQuery<

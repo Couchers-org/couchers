@@ -1,7 +1,10 @@
-import { Message } from "../pb/conversations_pb";
+import { HostRequestStatus, Message } from "../pb/conversations_pb";
 import {
+  CreateHostRequestReq,
   GetHostRequestMessagesReq,
+  GetHostRequestReq,
   ListHostRequestsReq,
+  RespondHostRequestReq,
   SendHostRequestMessageReq,
 } from "../pb/requests_pb";
 import client from "./client";
@@ -21,6 +24,13 @@ export async function listHostRequests(
   return hostRequests.map((hostRequest) => hostRequest.toObject());
 }
 
+export async function getHostRequest(id: number) {
+  const req = new GetHostRequestReq();
+  req.setHostRequestId(id);
+  const response = await client.requests.getHostRequest(req);
+  return response.toObject();
+}
+
 export async function sendHostRequestMessage(id: number, text: string) {
   const req = new SendHostRequestMessageReq();
   req.setHostRequestId(id);
@@ -30,6 +40,18 @@ export async function sendHostRequestMessage(id: number, text: string) {
   const messageId = response.getJsPbMessageId();
 
   return messageId;
+}
+
+export async function respondHostRequest(
+  id: number,
+  status: HostRequestStatus,
+  text: string
+) {
+  const req = new RespondHostRequestReq();
+  req.setHostRequestId(id);
+  req.setStatus(status);
+  req.setText(text);
+  await client.requests.respondHostRequest(req);
 }
 
 export async function getHostRequestMessages(
@@ -42,4 +64,18 @@ export async function getHostRequestMessages(
   const messages = response.getMessagesList();
 
   return messages.map((message) => message.toObject());
+}
+
+export async function createHostRequest(
+  data: Required<CreateHostRequestReq.AsObject>
+) {
+  const req = new CreateHostRequestReq();
+  req.setToUserId(data.toUserId);
+  req.setFromDate(data.fromDate);
+  req.setToDate(data.toDate);
+  req.setText(data.text);
+
+  const response = await client.requests.createHostRequest(req);
+
+  return response.getHostRequestId();
 }

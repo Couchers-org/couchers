@@ -110,6 +110,7 @@ interface ProfileTagInputProps {
   options: string[];
   label: string;
   id: string;
+  className?: string;
 }
 
 export default function ProfileTagInput({
@@ -118,6 +119,7 @@ export default function ProfileTagInput({
   options,
   label,
   id,
+  className,
 }: ProfileTagInputProps) {
   const classes = useStyles();
 
@@ -159,6 +161,7 @@ export default function ProfileTagInput({
         classes={{
           root: classes.button,
         }}
+        className={className}
       >
         <span>{label}</span>
         <ExpandMore />

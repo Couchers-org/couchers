@@ -5,7 +5,6 @@ import Alert from "../../components/Alert";
 import Button from "../../components/Button";
 import ProfileTextInput from "./ProfileTextInput";
 import { UpdateUserProfileData } from "../../service/user";
-import { theme } from "../../theme";
 import ProfileMarkdownInput from "./ProfileMarkdownInput";
 import ProfileTagInput from "./ProfileTagInput";
 import EditUserLocationMap from "../../components/EditUserLocationMap";
@@ -14,12 +13,28 @@ import useCurrentUser from "../userQueries/useCurrentUser";
 import useUpdateUserProfile from "./useUpdateUserProfile";
 import { useIsMounted, useSafeState } from "../../utils/hooks";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   buttonContainer: {
     display: "flex",
     paddingTop: theme.spacing(1),
   },
-});
+  field: {
+    "& > .MuiInputBase-root": {
+      width: "100%",
+    },
+    [theme.breakpoints.up("md")]: {
+      "& > .MuiInputBase-root": {
+        width: 400,
+      },
+    },
+  },
+  tagInput: {
+    width: "100%",
+    [theme.breakpoints.up("md")]: {
+      width: 400,
+    },
+  },
+}));
 
 export default function EditProfileForm() {
   const classes = useStyles();
@@ -72,6 +87,7 @@ export default function EditProfileForm() {
               name="name"
               defaultValue={user.name}
               inputRef={register}
+              className={classes.field}
             />
           </form>
           <Controller
@@ -96,12 +112,14 @@ export default function EditProfileForm() {
               name="gender"
               defaultValue={user.gender}
               inputRef={register}
+              className={classes.field}
             />
             <ProfileTextInput
               label="Occupation"
               name="occupation"
               defaultValue={user.occupation}
               inputRef={register}
+              className={classes.field}
             />
 
             <Controller
@@ -115,6 +133,7 @@ export default function EditProfileForm() {
                   options={[]}
                   label="Languages I speak"
                   id="languages"
+                  className={classes.tagInput}
                 />
               )}
             />
@@ -154,6 +173,7 @@ export default function EditProfileForm() {
                   options={[]}
                   label="Countries I've Visited"
                   id="countries-visited"
+                  className={classes.tagInput}
                 />
               )}
             />
@@ -169,6 +189,7 @@ export default function EditProfileForm() {
                   options={[]}
                   label="Countries I've Lived In"
                   id="countries-lived"
+                  className={classes.tagInput}
                 />
               )}
             />

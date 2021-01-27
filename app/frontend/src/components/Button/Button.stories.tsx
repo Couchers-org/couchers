@@ -15,8 +15,21 @@ export default {
 
 const Template: Story<any> = (args) => (
   <>
-    <div style={{ display: "flex" }}>
+    <div>
       <Button {...args}>Click</Button>
+    </div>
+    <div>
+      <Button {...args}>Longer text button</Button>
+    </div>
+    <div>
+      <Button {...args} variant="contained">
+        Click
+      </Button>
+    </div>
+    <div>
+      <Button {...args} variant="contained">
+        Longer text button
+      </Button>
     </div>
   </>
 );

@@ -18,7 +18,7 @@ import {
   isControlMessage,
   messageTargetId,
 } from "../utils";
-import classnames from "classnames";
+import classNames from "classnames";
 
 const useStyles = makeStyles({ root: {} });
 
@@ -65,7 +65,7 @@ export default function GroupChatListItem({
   }
 
   return (
-    <ListItem button className={classnames(classes.root, className)}>
+    <ListItem button className={classNames(classes.root, className)}>
       <ListItemAvatar>
         {groupChatMembersQuery.isLoading ? (
           <Skeleton />
