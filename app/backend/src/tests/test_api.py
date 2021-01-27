@@ -171,6 +171,8 @@ def test_update_profile(db):
         assert user.hometown == "Walla Walla"
         assert user.pronouns == "Ro, Robo, Robots"
         assert user.education == "Couchers U"
+        assert user.my_travels == "Oh the places you'll go!"
+        assert user.things_i_like == "Couchers"
         assert user.lat == 0.01
         assert user.lng == -2
         assert user.radius == 321
