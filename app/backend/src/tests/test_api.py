@@ -670,6 +670,8 @@ def test_hosting_preferences(db):
         assert not res.HasField("has_kids")
         assert not res.HasField("accepts_kids")
         assert not res.HasField("kid_details")
+        assert not res.HasField("has_housemates")
+        assert not res.HasField("housemate_details")
         assert not res.HasField("wheelchair_accessible")
         assert res.smoking_allowed == api_pb2.SMOKING_LOCATION_UNKNOWN
         assert not res.HasField("sleeping_arrangement")
@@ -695,6 +697,8 @@ def test_hosting_preferences(db):
         assert not res.HasField("has_kids")
         assert not res.HasField("accepts_kids")
         assert not res.HasField("kid_details")
+        assert not res.HasField("has_housemates")
+        assert not res.HasField("housemate_details")
         assert not res.wheelchair_accessible.value
         assert res.smoking_allowed == api_pb2.SMOKING_LOCATION_WINDOW
         assert not res.HasField("sleeping_arrangement")
@@ -723,6 +727,8 @@ def test_hosting_preferences(db):
         assert not res.HasField("has_kids")
         assert not res.HasField("accepts_kids")
         assert not res.HasField("kid_details")
+        assert not res.HasField("has_housemates")
+        assert not res.HasField("housemate_details")
         assert res.wheelchair_accessible.value
         assert res.smoking_allowed == api_pb2.SMOKING_LOCATION_UNKNOWN
         assert not res.HasField("sleeping_arrangement")
