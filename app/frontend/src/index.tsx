@@ -21,7 +21,7 @@ serviceWorker.unregister();
 // since the types are wrong. It's fixed in v5 of Material UI so once it's stable and we
 // can upgrade to it, we can remove this
 declare module "@material-ui/core" {
-  export interface BoxProps {
+  interface BoxProps {
     ref?: React.Ref<HTMLElement>;
   }
 }

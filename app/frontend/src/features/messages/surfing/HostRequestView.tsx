@@ -116,7 +116,7 @@ export default function HostRequestView() {
     }
   );
 
-  const { handleVisible } = useMarkLastRequestSeen(
+  const { markLastSeen } = useMarkLastRequestSeen(
     hostRequestId,
     hostRequest?.lastSeenMessageId
   );
@@ -178,7 +178,7 @@ export default function HostRequestView() {
           )}
           {messages && hostRequest && (
             <>
-              <MessageList handleVisible={handleVisible} messages={messages} />
+              <MessageList markLastSeen={markLastSeen} messages={messages} />
               <HostRequestSendField
                 hostRequest={hostRequest}
                 sendMutation={sendMutation}

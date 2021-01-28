@@ -4,6 +4,7 @@ import { Error } from "grpc-web";
 import { useEffect, useMemo, useRef } from "react";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "../../../service";
+import { MARK_LAST_SEEN_TIMEOUT } from "../constants";
 import { isValidMessageThreadId } from "../utils";
 
 interface MarkLastSeenGroupChatVariables {
@@ -31,29 +32,35 @@ export default function useMarkLastSeenGroupChat(
   );
 
   const maxMessageIdRef = useRef(0);
-
-  const handleVisible = useMemo(
-    () =>
-      debounce((messageId: number) => {
-        if (
-          isValidMessageThreadId(groupChatId) &&
-          messageId > maxMessageIdRef.current
-        ) {
-          maxMessageIdRef.current = messageId;
-          markLastSeenGroupChat({ groupChatId, messageId });
-        }
-      }, 100),
-    [groupChatId, markLastSeenGroupChat]
-  );
-
   // Sync with latest lastSeenMessageId so anything below that ID doesn't get tried again.
   // Needed since lastSeenMessageId comes from react query which is initially
   // undefined so can't do useRef(lastSeenMessageId).
   useEffect(() => {
     if (lastSeenMessageId) {
-      maxMessageIdRef.current = lastSeenMessageId;
+      maxMessageIdRef.current = Math.max(
+        maxMessageIdRef.current,
+        lastSeenMessageId
+      );
     }
   }, [lastSeenMessageId]);
 
-  return { handleVisible };
+  const debouncedMarkLastSeen = useMemo(
+    () =>
+      debounce((messageId: number) => {
+        markLastSeenGroupChat({ groupChatId, messageId });
+      }, MARK_LAST_SEEN_TIMEOUT),
+    [groupChatId, markLastSeenGroupChat]
+  );
+
+  const markLastSeen = (messageId: number) => {
+    if (
+      isValidMessageThreadId(groupChatId) &&
+      messageId > maxMessageIdRef.current
+    ) {
+      maxMessageIdRef.current = messageId;
+      debouncedMarkLastSeen(messageId);
+    }
+  };
+
+  return { markLastSeen };
 }

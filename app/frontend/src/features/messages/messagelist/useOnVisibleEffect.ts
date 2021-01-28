@@ -3,7 +3,7 @@ import { useInView } from "react-intersection-observer";
 
 export default function useOnVisibleEffect(
   messageId: number,
-  onVisible?: (id: number) => void
+  onVisible?: (messageId: number) => void
 ) {
   const { ref, inView } = useInView();
 

@@ -91,7 +91,7 @@ export default function GroupChatView() {
     }
   );
 
-  const { handleVisible } = useMarkLastSeenGroupChat(
+  const { markLastSeen } = useMarkLastSeenGroupChat(
     groupChatId,
     groupChat?.lastSeenMessageId
   );
@@ -166,10 +166,7 @@ export default function GroupChatView() {
           ) : (
             messages && (
               <>
-                <MessageList
-                  handleVisible={handleVisible}
-                  messages={messages}
-                />
+                <MessageList markLastSeen={markLastSeen} messages={messages} />
                 <GroupChatSendField sendMutation={sendMutation} />
               </>
             )
