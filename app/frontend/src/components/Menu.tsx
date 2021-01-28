@@ -19,7 +19,21 @@ export default function Menu(props: Omit<MenuProps, "className">) {
   return <MuiMenu {...props} className={classes.menu} />;
 }
 
-export function MenuItem(props: Omit<MenuItemProps, "className">) {
-  const classes = useStyles();
-  return <MuiMenuItem {...props} className={classes.item} button={true} />;
-}
+//forwarding ref is necessary because Menu
+//injects refs into MenuItems
+export const MenuItem = React.forwardRef(
+  (
+    props: Omit<MenuItemProps, "className">,
+    ref: React.ForwardedRef<HTMLLIElement>
+  ) => {
+    const classes = useStyles();
+    return (
+      <MuiMenuItem
+        {...props}
+        className={classes.item}
+        button={true}
+        ref={ref}
+      />
+    );
+  }
+);

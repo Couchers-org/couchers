@@ -22,6 +22,7 @@ import Menu, { MenuItem } from "../../../components/Menu";
 import InviteDialog from "./InviteDialog";
 import LeaveDialog from "./LeaveDialog";
 import MembersDialog from "./MembersDialog";
+import GroupChatSettingsDialog from "./GroupChatSettingsDialog";
 
 const useStyles = makeStyles((theme) => ({
   header: { display: "flex", alignItems: "center" },
@@ -39,6 +40,7 @@ export default function GroupChatView() {
     menu: false,
     invite: false,
     members: false,
+    settings: false,
     leave: false,
   });
 
@@ -144,8 +146,13 @@ export default function GroupChatView() {
                     </MenuItem>
                   )}
                   <MenuItem onClick={() => handleClick("members")}>
-                    Chat Members
+                    Chat members
                   </MenuItem>
+                  {isChatAdmin && (
+                    <MenuItem onClick={() => handleClick("settings")}>
+                      Chat settings
+                    </MenuItem>
+                  )}
                   {groupChat?.memberUserIdsList.includes(currentUserId) && (
                     <MenuItem onClick={() => handleClick("leave")}>
                       Leave chat
@@ -160,7 +167,15 @@ export default function GroupChatView() {
                 <MembersDialog
                   open={isOpen.members}
                   onClose={() => handleClose("members")}
+                  groupChat={groupChat}
                 />
+                {groupChat && (
+                  <GroupChatSettingsDialog
+                    open={isOpen.settings}
+                    onClose={() => handleClose("settings")}
+                    groupChat={groupChat}
+                  />
+                )}
                 <LeaveDialog
                   open={isOpen.leave}
                   onClose={() => handleClose("leave")}
