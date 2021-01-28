@@ -1,13 +1,13 @@
 server {
     listen 443 http2 ssl;
 
-    server_name user-media.coucher.org;
+    server_name dev-user-media.coucher.org;
 
-    access_log /var/log/nginx/user-media.coucher.org.access.log;
-    error_log /var/log/nginx/user-media.coucher.org.error.log;
+    access_log /var/log/nginx/dev-user-media.coucher.org.access.log;
+    error_log /var/log/nginx/dev-user-media.coucher.org.error.log;
 
-    ssl_certificate /certs/live/user-media.coucher.org/fullchain.pem;
-    ssl_certificate_key /certs/live/user-media.coucher.org/privkey.pem;
+    ssl_certificate /certs/live/dev-user-media.coucher.org/fullchain.pem;
+    ssl_certificate_key /certs/live/dev-user-media.coucher.org/privkey.pem;
 
     location /media/ {
         proxy_http_version 1.1;
