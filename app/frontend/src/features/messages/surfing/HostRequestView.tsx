@@ -21,6 +21,7 @@ import { BackIcon, OverflowMenuIcon } from "../../../components/Icons";
 import PageTitle from "../../../components/PageTitle";
 import UserSummary from "../../../components/UserSummary";
 import Divider from "../../../components/Divider";
+import useMarkLastRequestSeen from "./useMarkLastRequestSeen";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -115,6 +116,11 @@ export default function HostRequestView() {
     }
   );
 
+  const { handleVisible } = useMarkLastRequestSeen(
+    hostRequestId,
+    hostRequest?.lastSeenMessageId
+  );
+
   const history = useHistory();
 
   const handleBack = () => history.goBack();
@@ -172,7 +178,7 @@ export default function HostRequestView() {
           )}
           {messages && hostRequest && (
             <>
-              <MessageList messages={messages} />
+              <MessageList handleVisible={handleVisible} messages={messages} />
               <HostRequestSendField
                 hostRequest={hostRequest}
                 sendMutation={sendMutation}

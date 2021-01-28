@@ -6,26 +6,26 @@ import { useMutation, useQueryClient } from "react-query";
 import { service } from "../../../service";
 import { isValidMessageThreadId } from "../utils";
 
-interface MarkLastSeenGroupChatVariables {
-  groupChatId: number;
+interface MarkLastRequestSeenVariables {
+  hostRequestId: number;
   messageId: number;
 }
 
-export default function useMarkLastSeenGroupChat(
-  groupChatId: number,
+export default function useMarkLastRequestSeen(
+  hostRequestId: number,
   lastSeenMessageId?: number
 ) {
   const queryClient = useQueryClient();
-  const { mutate: markLastSeenGroupChat } = useMutation<
+  const { mutate: markLastRequestSeen } = useMutation<
     Empty,
     Error,
-    MarkLastSeenGroupChatVariables
+    MarkLastRequestSeenVariables
   >(
-    ({ groupChatId, messageId }) =>
-      service.conversations.markLastSeenGroupChat(groupChatId, messageId),
+    ({ hostRequestId, messageId }) =>
+      service.requests.markLastRequestSeen(hostRequestId, messageId),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(["groupChat", groupChatId]);
+        queryClient.invalidateQueries(["hostRequest", hostRequestId]);
       },
     }
   );
@@ -36,14 +36,14 @@ export default function useMarkLastSeenGroupChat(
     () =>
       debounce((messageId: number) => {
         if (
-          isValidMessageThreadId(groupChatId) &&
+          isValidMessageThreadId(hostRequestId) &&
           messageId > maxMessageIdRef.current
         ) {
           maxMessageIdRef.current = messageId;
-          markLastSeenGroupChat({ groupChatId, messageId });
+          markLastRequestSeen({ hostRequestId, messageId });
         }
       }, 100),
-    [groupChatId, markLastSeenGroupChat]
+    [hostRequestId, markLastRequestSeen]
   );
 
   // Sync with latest lastSeenMessageId so anything below that ID doesn't get tried again.
@@ -51,7 +51,10 @@ export default function useMarkLastSeenGroupChat(
   // undefined so can't do useRef(lastSeenMessageId).
   useEffect(() => {
     if (lastSeenMessageId) {
-      maxMessageIdRef.current = lastSeenMessageId;
+      maxMessageIdRef.current = Math.max(
+        maxMessageIdRef.current,
+        lastSeenMessageId
+      );
     }
   }, [lastSeenMessageId]);
 
