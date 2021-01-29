@@ -8,7 +8,7 @@ from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import MetaData, Sequence, String, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import backref, foreign, relationship
+from sqlalchemy.orm import backref, column_property, foreign, relationship
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func, text
 
@@ -706,6 +706,8 @@ class Cluster(Base):
 
     official_cluster_for_node_id = Column(ForeignKey("nodes.id"), nullable=True, unique=True, index=True)
 
+    slug = column_property(func.slugify(name))
+
     official_cluster_for_node = relationship(
         "Node",
         backref=backref("official_cluster", uselist=False),
@@ -875,6 +877,8 @@ class PageVersion(Base):
     address = Column(String, nullable=True)
     geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    slug = column_property(func.slugify(title))
 
     page = relationship("Page", backref="versions", order_by="PageVersion.id")
     editor_user = relationship("User", backref="edited_pages")

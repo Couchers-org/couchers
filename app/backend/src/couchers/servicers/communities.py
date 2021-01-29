@@ -8,7 +8,7 @@ from couchers.db import session_scope
 from couchers.models import Cluster, Node, Page, PageType, User
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
-from couchers.utils import Timestamp_from_datetime, slugify
+from couchers.utils import Timestamp_from_datetime
 from pb import communities_pb2, communities_pb2_grpc, groups_pb2
 
 logger = logging.getLogger(__name__)
@@ -41,7 +41,7 @@ def _parents_to_pb(node_id, user_id):
                 community=groups_pb2.CommunityParent(
                     community_id=node_id,
                     name=cluster.name,
-                    slug=slugify(cluster.name),
+                    slug=cluster.slug,
                     description=cluster.description,
                 )
             )
@@ -53,7 +53,7 @@ def community_to_pb(node: Node, user_id):
     return communities_pb2.Community(
         community_id=node.id,
         name=node.official_cluster.name,
-        slug=slugify(node.official_cluster.name),
+        slug=node.official_cluster.slug,
         description=node.official_cluster.description,
         created=Timestamp_from_datetime(node.created),
         parents=_parents_to_pb(node.id, user_id),

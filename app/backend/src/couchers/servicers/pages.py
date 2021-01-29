@@ -5,7 +5,7 @@ import grpc
 from couchers import errors
 from couchers.db import session_scope
 from couchers.models import Cluster, Node, Page, PageType, PageVersion, User
-from couchers.utils import Timestamp_from_datetime, create_coordinate, remove_duplicates_retain_order, slugify
+from couchers.utils import Timestamp_from_datetime, create_coordinate, remove_duplicates_retain_order
 from pb import pages_pb2, pages_pb2_grpc
 
 
@@ -36,7 +36,7 @@ def page_to_pb(page: Page, user_id):
     return pages_pb2.Page(
         page_id=page.id,
         type=pagetype2api[page.type],
-        slug=slugify(current_version.title),
+        slug=current_version.slug,
         created=Timestamp_from_datetime(first_version.created),
         last_edited=Timestamp_from_datetime(current_version.created),
         last_editor_user_id=current_version.editor_user_id,
