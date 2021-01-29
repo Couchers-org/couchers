@@ -21,6 +21,10 @@ def upgrade():
         """
     CREATE EXTENSION IF NOT EXISTS "unaccent";
 
+    -- slugify takes an arbitrary piece of text and turns it into a "slug" by replacing occurences of non-alphanumber
+    -- characters with dashes, truncating, and then cleaning that up. We attempt to turn non-ascii characters to close
+    -- ascii characters with unaccent. Slugs are useful in URLs, giving users a preview yet being URL "nice".
+    -- e.g. slugify('Detta är ett test!') -> detta-ar-ett-test
     CREATE OR REPLACE FUNCTION slugify("text" TEXT)
     RETURNS TEXT AS $$
     SELECT regexp_replace(
@@ -29,7 +33,7 @@ def upgrade():
           regexp_replace(
             lower(unaccent("text")),
             '[^a-z0-9\\-_]+', '-', 'gi'
-          ), from 0 for 64
+          ) from 0 for 64
         ), '\-+$', ''
       ), '^\-', ''
     );
