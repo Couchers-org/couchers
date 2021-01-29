@@ -2,7 +2,7 @@ import React from "react";
 import Button from "../components/Button";
 import { Link } from "react-router-dom";
 import {
-  newPageRoute,
+  newPlaceRoute,
 } from "../AppRoutes";
 import TextBody from "../components/TextBody";
 import useCurrentUser from "./userQueries/useCurrentUser";
@@ -14,9 +14,9 @@ export default function Home() {
     {name ? <TextBody>Hello, {name}.</TextBody> : null}
     <Button
       component={Link}
-      to={newPageRoute}
+      to={newPlaceRoute}
     >
-      Create a new page
+      Create a new place
     </Button>
   </>;
 }

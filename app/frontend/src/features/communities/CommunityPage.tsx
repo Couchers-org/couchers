@@ -9,7 +9,7 @@ import Alert from "../../components/Alert";
 import CircularProgress from "../../components/CircularProgress";
 import TextBody from "../../components/TextBody";
 import { useHistory } from "react-router-dom";
-import { communityRoute, groupRoute, pageRoute } from "../../AppRoutes"
+import { communityRoute, groupRoute, placeRoute, guideRoute } from "../../AppRoutes"
 import Markdown from "../../components/Markdown";
 import { Group } from "../../pb/groups_pb";
 import { Page } from "../../pb/pages_pb";
@@ -228,7 +228,7 @@ export default function CommunityPage() {
           places.map(place => {
             return (
               <>
-                <Link to={`${pageRoute}/${place.pageId}/${place.slug}`}>
+                <Link to={`${placeRoute}/${place.pageId}/${place.slug}`}>
                   {place.title}
                 </Link>
                 <br />
@@ -243,7 +243,7 @@ export default function CommunityPage() {
           guides.map(guide => {
             return (
               <>
-                <Link to={`${pageRoute}/${guide.pageId}/${guide.slug}`}>
+                <Link to={`${guideRoute}/${guide.pageId}/${guide.slug}`}>
                   {guide.title}
                 </Link>
                 <br />
