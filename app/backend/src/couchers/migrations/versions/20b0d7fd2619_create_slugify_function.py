@@ -24,14 +24,15 @@ def upgrade():
     CREATE OR REPLACE FUNCTION slugify("text" TEXT)
     RETURNS TEXT AS $$
     SELECT regexp_replace(
-    regexp_replace(
+      regexp_replace(
         substring(
-        regexp_replace(
+          regexp_replace(
             lower(unaccent("text")),
-            '[^a-z0-9\\-_]+', '-', 'gi')
-        from 0 for 64),
-        '\-+$', ''),
-    '^\-', '');
+            '[^a-z0-9\\-_]+', '-', 'gi'
+          ), from 0 for 64
+        ), '\-+$', ''
+      ), '^\-', ''
+    );
     $$ LANGUAGE SQL STRICT IMMUTABLE;
     """
     )
