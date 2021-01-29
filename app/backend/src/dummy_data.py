@@ -298,7 +298,7 @@ def add_dummy_communities():
                 page = Page(
                     creator_user=creator,
                     owner_cluster=owner_cluster,
-                    type=PageType.point_of_interest,
+                    type=PageType.place,
                 )
 
                 session.add(page)
