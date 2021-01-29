@@ -13,7 +13,6 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func, text
 
 from couchers.config import config
-from couchers.models.base import Base
 from couchers.utils import get_coordinates
 
 meta = MetaData(
