@@ -8,7 +8,7 @@ from concurrent import futures
 from datetime import timedelta
 from multiprocessing import Process
 from sched import scheduler
-from time import sleep, time
+from time import monotonic, sleep
 
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import func
@@ -107,6 +107,28 @@ def service_jobs():
                 sleep(1)
 
 
+def _run_job_and_schedule(sched, schedule_id):
+    job_type, frequency = SCHEDULE[schedule_id]
+    logger.info(f"Processing job of type {job_type}")
+    with session_scope() as session:
+        rjob = session.query(RepeatedJob).filter(RepeatedJob.job_type == job_type).one()
+        rjob.last_run = func.now()
+
+    # wake ourselves up after frequency
+    sched.enter(
+        frequency.total_seconds(),
+        1,
+        _run_job_and_schedule,
+        argument=(
+            sched,
+            schedule_id,
+        ),
+    )
+
+    # queue the job
+    queue_job(job_type, empty_pb2.Empty())
+
+
 def run_scheduler():
     """
     Schedules jobs according to schedule in .definitions
@@ -115,20 +137,7 @@ def run_scheduler():
     # that we don't want to reuse. This is the SQLALchemy-recommended way of clearing the connection pool in this thread
     get_engine().dispose()
 
-    sched = scheduler(time, sleep)
-
-    def _try_run_job(schedule_id):
-        job_type, frequency = SCHEDULE[schedule_id]
-        logger.info(f"Processing job of type {job_type}")
-        with session_scope() as session:
-            rjob = session.query(RepeatedJob).filter(RepeatedJob.job_type == job_type).one()
-            rjob.last_run = func.now()
-
-        # wake ourselves up after frequency
-        sched.enter(frequency.total_seconds(), 1, _try_run_job, argument=(schedule_id,))
-
-        # queue the job
-        queue_job(job_type, empty_pb2.Empty())
+    sched = scheduler(monotonic, sleep)
 
     for schedule_id, (job_type, frequency) in enumerate(SCHEDULE):
         # make sure we don't repeat the job all the time if we keep on crashing
@@ -141,7 +150,15 @@ def run_scheduler():
             else:
                 next_run = max(0, (frequency - (now() - rjob.last_run)).total_seconds())
 
-        sched.enter(next_run, 1, _try_run_job, argument=(schedule_id,))
+        sched.enter(
+            next_run,
+            1,
+            _run_job_and_schedule,
+            argument=(
+                sched,
+                schedule_id,
+            ),
+        )
 
     sched.run()
 

@@ -1,3 +1,4 @@
+from datetime import timedelta
 from unittest.mock import create_autospec, patch
 
 import pytest
@@ -8,7 +9,7 @@ from couchers.crypto import random_hex
 from couchers.db import new_login_token, session_scope
 from couchers.email import queue_email
 from couchers.jobs.enqueue import queue_job
-from couchers.jobs.worker import process_job, service_jobs
+from couchers.jobs.worker import _run_job_and_schedule, process_job, run_scheduler, service_jobs
 from couchers.models import BackgroundJobType, LoginToken, SignupToken
 from couchers.tasks import send_login_email
 from pb import auth_pb2
@@ -115,9 +116,67 @@ def test_service_jobs(db):
     def raising_sleep(seconds):
         raise HitSleep()
 
-    with patch("couchers.jobs.handlers.print_dev_email", mock_email_sender) as mock:
-        with patch("couchers.jobs.worker.sleep", raising_sleep):
-            with pytest.raises(HitSleep) as e:
+    with pytest.raises(HitSleep):
+        with patch("couchers.jobs.handlers.print_dev_email", mock_email_sender) as mock:
+            with patch("couchers.jobs.worker.sleep", raising_sleep):
                 service_jobs()
 
     assert mock.call_count == 1
+
+
+def test_scheduler(db):
+    MOCK_SCHEDULE = [
+        (BackgroundJobType.purge_login_tokens, timedelta(seconds=7)),
+        (BackgroundJobType.purge_signup_tokens, timedelta(seconds=11)),
+    ]
+
+    current_time = 0
+    end_time = 70
+
+    class EndOfTime(Exception):
+        pass
+
+    def mock_monotonic():
+        nonlocal current_time
+        return current_time
+
+    def mock_sleep(seconds):
+        nonlocal current_time
+        current_time += seconds
+        if current_time > end_time:
+            raise EndOfTime()
+
+    realized_schedule = []
+
+    def mock_run_job_and_schedule(sched, schedule_id):
+        nonlocal current_time
+        realized_schedule.append((current_time, schedule_id))
+        _run_job_and_schedule(sched, schedule_id)
+
+    with pytest.raises(EndOfTime):
+        with patch("couchers.jobs.worker._run_job_and_schedule", mock_run_job_and_schedule):
+            with patch("couchers.jobs.worker.SCHEDULE", MOCK_SCHEDULE):
+                with patch("couchers.jobs.worker.monotonic", mock_monotonic):
+                    with patch("couchers.jobs.worker.sleep", mock_sleep):
+                        run_scheduler()
+
+    assert realized_schedule == [
+        (0.0, 0),
+        (0.0, 1),
+        (7.0, 0),
+        (11.0, 1),
+        (14.0, 0),
+        (21.0, 0),
+        (22.0, 1),
+        (28.0, 0),
+        (33.0, 1),
+        (35.0, 0),
+        (42.0, 0),
+        (44.0, 1),
+        (49.0, 0),
+        (55.0, 1),
+        (56.0, 0),
+        (63.0, 0),
+        (66.0, 1),
+        (70.0, 0),
+    ]
