@@ -47,6 +47,6 @@ if config.config["ROLE"] in ["fg", "both"]:
 if config.config["ROLE"] in ["bg", "both"]:
     bg = run_background()
 
-logger.info("Falling into an eternal slumber, only to be awoken by signals from higher above...")
+logger.info("App waiting for signal...")
 
 signal.pause()
