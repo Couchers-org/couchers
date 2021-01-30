@@ -1,18 +1,17 @@
 """Add background jobs
 
-Revision ID: ecac6dbc0707
-Revises: 8b6297128973
-Create Date: 2021-01-10 18:38:56.767309
+Revision ID: 9ee63fbcbca7
+Revises: 2affc63b4a01
+Create Date: 2021-01-29 19:21:57.646520
 
 """
 import geoalchemy2
 import sqlalchemy as sa
 from alembic import op
-from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = "ecac6dbc0707"
-down_revision = "8b6297128973"
+revision = "9ee63fbcbca7"
+down_revision = "2affc63b4a01"
 branch_labels = None
 depends_on = None
 
