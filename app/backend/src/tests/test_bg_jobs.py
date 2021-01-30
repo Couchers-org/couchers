@@ -54,7 +54,7 @@ def test_email_job(db):
         assert subject == "subject"
         assert plain == "plain"
         assert html == "html"
-        return message_id
+        return ""
 
     with patch("couchers.jobs.handlers.print_dev_email", mock_email_sender) as mock:
         process_job()
@@ -75,3 +75,28 @@ def test_purge_login_tokens(db):
 
     with session_scope() as session:
         assert session.query(LoginToken).count() == 0
+
+
+def _make_loop_condition(loops=None):
+    if loops is None:
+        loops = 1
+
+    def loop():
+        nonlocal loops
+        loops -= 1
+        return loops > 0
+
+    return loop
+
+
+def test_service_jobs(db):
+    queue_email("sender_name", "sender_email", "recipient", "subject", "plain", "html")
+
+    @create_autospec
+    def mock_email_sender(sender_name, sender_email, recipient, subject, plain, html):
+        return ""
+
+    with patch("couchers.jobs.handlers.print_dev_email", mock_email_sender) as mock:
+        service_jobs(keep_looping=_make_loop_condition(2))
+
+    assert mock.call_count == 1

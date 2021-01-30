@@ -66,9 +66,11 @@ def process_job():
         # exiting ctx manager commits and releases the row lock
 
 
-def service_jobs():
+def service_jobs(keep_looping=lambda: True):
     """
     Don't run many of these simultaneously: it'll work but it'll conflict and cause a lot of missed job processing.
+
+    keep_looping allows setting a max number of loops for tests
     """
     # multiprocessing uses fork() which in turn copies file descriptors, so the engine may have connections in its pool
     # that we don't want to reuse. This is the SQLALchemy-recommended way of clearing the connection pool in this thread
@@ -77,7 +79,7 @@ def service_jobs():
     MAX_WORKERS = 8
     with futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         jobs = []
-        while True:
+        while keep_looping():
             # jobs should be list of currently running jobs
             jobs = [job for job in jobs if not job.done()]
             idle_workers = MAX_WORKERS - len(jobs)
@@ -144,7 +146,6 @@ def run_scheduler():
         sched.enter(next_run, 1, _try_run_job, argument=(schedule_id,))
 
     sched.run()
-    raise Exception("End of scheduler?")
 
 
 def _run_forever(func):
