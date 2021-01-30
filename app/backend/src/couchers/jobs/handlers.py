@@ -8,7 +8,7 @@ from couchers import config
 from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email
-from couchers.models import LoginToken
+from couchers.models import LoginToken, SignupToken
 
 logger = logging.getLogger(__name__)
 
@@ -32,3 +32,9 @@ def process_purge_login_tokens(payload):
     logger.info(f"Purging login tokens")
     with session_scope() as session:
         session.query(LoginToken).filter(LoginToken.is_valid == False).delete(synchronize_session=False)
+
+
+def process_purge_signup_tokens(payload):
+    logger.info(f"Purging signup tokens")
+    with session_scope() as session:
+        session.query(SignupToken).filter(SignupToken.is_valid == False).delete(synchronize_session=False)

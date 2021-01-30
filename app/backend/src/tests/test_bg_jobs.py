@@ -9,9 +9,10 @@ from couchers.db import new_login_token, session_scope
 from couchers.email import queue_email
 from couchers.jobs.enqueue import queue_job
 from couchers.jobs.worker import process_job, service_jobs
-from couchers.models import BackgroundJobType, LoginToken
+from couchers.models import BackgroundJobType, LoginToken, SignupToken
 from couchers.tasks import send_login_email
-from tests.test_fixtures import db, generate_user, testconfig
+from pb import auth_pb2
+from tests.test_fixtures import auth_api_session, db, generate_user, testconfig
 
 
 @pytest.fixture(autouse=True)
@@ -75,6 +76,27 @@ def test_purge_login_tokens(db):
 
     with session_scope() as session:
         assert session.query(LoginToken).count() == 0
+
+
+def test_purge_signup_tokens(db):
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        reply = auth_api.Signup(auth_pb2.SignupReq(email="a@b.com"))
+
+    # send email
+    process_job()
+
+    with session_scope() as session:
+        signup_token = session.query(SignupToken).one()
+        signup_token.expiry = func.now()
+        assert session.query(SignupToken).count() == 1
+
+    queue_job(BackgroundJobType.purge_signup_tokens, empty_pb2.Empty())
+
+    # purge tokens
+    process_job()
+
+    with session_scope() as session:
+        assert session.query(SignupToken).count() == 0
 
 
 def test_service_jobs(db):

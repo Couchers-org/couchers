@@ -1075,6 +1075,8 @@ class BackgroundJobType(enum.Enum):
     send_email = 1
     # payload: google.protobuf.Empty
     purge_login_tokens = 2
+    # payload: google.protobuf.Empty
+    purge_signup_tokens = 3
 
 
 class BackgroundJobState(enum.Enum):
