@@ -1,5 +1,6 @@
 import { Box, Menu, MenuItem } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
+import { Error } from "grpc-web";
 import React, { useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import Alert from "../../../components/Alert";
@@ -18,7 +19,7 @@ import PageTitle from "../../../components/PageTitle";
 import { useHistory, useParams } from "react-router-dom";
 import { Skeleton } from "@material-ui/lab";
 import HeaderButton from "../../../components/HeaderButton";
-import useMarkLastSeenGroupChat from "./useMarkLastSeenGroupChat";
+import useMarkLastSeen, { MarkLastSeenVariables } from "../useMarkLastSeen";
 
 const useStyles = makeStyles((theme) => ({
   header: { display: "flex", alignItems: "center" },
@@ -72,7 +73,7 @@ export default function GroupChatView() {
 
   const queryClient = useQueryClient();
   const sendMutation = useMutation<Empty, GrpcError, string>(
-    (text: string) => service.conversations.sendMessage(groupChatId, text),
+    (text) => service.conversations.sendMessage(groupChatId, text),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["groupChatMessages", groupChatId]);
@@ -91,8 +92,21 @@ export default function GroupChatView() {
     }
   );
 
-  const { markLastSeen } = useMarkLastSeenGroupChat(
-    groupChatId,
+  const { mutate: markLastSeenGroupChat } = useMutation<
+    Empty,
+    Error,
+    MarkLastSeenVariables
+  >(
+    (messageId) =>
+      service.conversations.markLastSeenGroupChat(groupChatId, messageId),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["groupChat", groupChatId]);
+      },
+    }
+  );
+  const { markLastSeen } = useMarkLastSeen(
+    markLastSeenGroupChat,
     groupChat?.lastSeenMessageId
   );
 
