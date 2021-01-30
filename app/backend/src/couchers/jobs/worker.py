@@ -29,11 +29,7 @@ def process_job():
         # will modify the job at a time. SKIP UPDATE means that if the job is locked, then we ignore that row, it's
         # easier to use SKIP LOCKED vs NOWAIT in the ORM, with NOWAIT you get an ugly error from psycopg2
         job = (
-            session.query(BackgroundJob)
-            .filter(BackgroundJob.ready_for_retry)
-            .filter(BackgroundJob.state == BackgroundJobState.pending)
-            .with_for_update(skip_locked=True)
-            .first()
+            session.query(BackgroundJob).filter(BackgroundJob.ready_for_retry).with_for_update(skip_locked=True).first()
         )
 
         if not job:
@@ -90,18 +86,18 @@ def service_jobs():
                 continue
 
             with session_scope() as session:
-                job_ids = (
+                subquery = (
                     session.query(BackgroundJob.id)
                     .filter(BackgroundJob.ready_for_retry)
-                    .filter(BackgroundJob.state == BackgroundJobState.pending)
                     .limit(idle_workers)
                     .with_for_update(skip_locked=True)
-                    .all()
+                    .subquery()
                 )
+                job_count = session.query(subquery).count()
                 # end the transaction and don't keep it open while sleeping, etc
 
-            if len(job_ids) > 0:
-                for _ in range(min(len(job_ids), idle_workers)):
+            if job_count > 0:
+                for _ in range(min(job_count, idle_workers)):
                     jobs.append(executor.submit(process_job))
             else:
                 # no jobs to work on, don't hammer the DB, we can wait a second

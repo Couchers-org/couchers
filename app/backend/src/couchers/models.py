@@ -1114,7 +1114,7 @@ class BackgroundJob(Base):
     # used to count number of retries for failed jobs
     try_count = Column(Integer, nullable=False, default=0)
 
-    max_tries = Column(Integer, nullable=False, default=2)
+    max_tries = Column(Integer, nullable=False, default=5)
 
     # protobuf encoded job payload
     payload = Column(Binary, nullable=False)
@@ -1124,10 +1124,14 @@ class BackgroundJob(Base):
 
     @hybrid_property
     def ready_for_retry(self):
-        return (self.next_attempt_after <= func.now()) & (self.try_count < self.max_tries)
+        return (
+            (self.next_attempt_after <= func.now())
+            & (self.try_count < self.max_tries)
+            & ((self.state == BackgroundJobState.pending) | (self.state == BackgroundJobState.error))
+        )
 
     def __repr__(self):
-        return f"BackgroundJob(id={self.id}, job_type={self.job_type}, state={self.state}, failure_info={self.failure_info})"
+        return f"BackgroundJob(id={self.id}, job_type={self.job_type}, state={self.state}, next_attempt_after={self.next_attempt_after}, try_count={self.try_count}, failure_info={self.failure_info})"
 
 
 class RepeatedJob(Base):

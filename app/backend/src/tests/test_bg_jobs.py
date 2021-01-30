@@ -37,7 +37,7 @@ def test_login_email_full(db):
             assert login_token.token in html
             return print_dev_email(sender_name, sender_email, recipient, subject, plain, html)
 
-        with patch("couchers.jobs.handlers.print_dev_email", mock_print_dev_email) as mock:
+        with patch("couchers.jobs.handlers.print_dev_email", mock_print_dev_email):
             process_job()
 
     with session_scope() as session:
@@ -57,7 +57,7 @@ def test_email_job(db):
         assert html == "html"
         return print_dev_email(sender_name, sender_email, recipient, subject, plain, html)
 
-    with patch("couchers.jobs.handlers.print_dev_email", mock_print_dev_email) as mock:
+    with patch("couchers.jobs.handlers.print_dev_email", mock_print_dev_email):
         process_job()
 
     with session_scope() as session:
@@ -190,3 +190,40 @@ def test_scheduler(db):
     with session_scope() as session:
         assert session.query(BackgroundJob).filter(BackgroundJob.state == BackgroundJobState.pending).count() == 18
         assert session.query(BackgroundJob).filter(BackgroundJob.state != BackgroundJobState.pending).count() == 0
+
+
+def test_job_retry(db):
+    queue_job(BackgroundJobType.purge_login_tokens, empty_pb2.Empty())
+
+    called_count = 0
+
+    def mock_handler(payload):
+        nonlocal called_count
+        called_count += 1
+        raise Exception()
+
+    MOCK_JOBS = {
+        BackgroundJobType.purge_login_tokens: (empty_pb2.Empty, mock_handler),
+    }
+
+    with patch("couchers.jobs.worker.JOBS", MOCK_JOBS):
+        process_job()
+        with session_scope() as session:
+            job = session.query(BackgroundJob).one()
+            job.next_attempt_after = func.now()
+        process_job()
+        with session_scope() as session:
+            session.query(BackgroundJob).one().next_attempt_after = func.now()
+        process_job()
+        with session_scope() as session:
+            session.query(BackgroundJob).one().next_attempt_after = func.now()
+        process_job()
+        with session_scope() as session:
+            session.query(BackgroundJob).one().next_attempt_after = func.now()
+        process_job()
+
+    with session_scope() as session:
+        print(session.query(func.now()).all())
+        print(session.query(BackgroundJob).all())
+        assert session.query(BackgroundJob).filter(BackgroundJob.state == BackgroundJobState.failed).count() == 1
+        assert session.query(BackgroundJob).filter(BackgroundJob.state != BackgroundJobState.failed).count() == 0
