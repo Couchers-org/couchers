@@ -114,14 +114,14 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-val.jpg" alt="Headshot of Val">
+                      <img class="is-rounded" src="/img/head-lucas.jpg" alt="Headshot of Lucas">
                     </figure>
                   </div>
                   <div class="media-content">
-                    <p class="title is-4">Val Natanelov</p>
-                    <p class="subtitle is-6 role">Strategic Advisor</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Brisbane, Australia</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/public-profile/in/valerinatanelov">valerinatanelov</a></p>
+                    <p class="title is-4">Lucas Levin</p>
+                    <p class="subtitle is-6 role">Head of Frontend</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>London, United Kingdom</p>
+                    <!-- <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/public-profile/in/valerinatanelov">valerinatanelov</a></p> -->
                   </div>
                 </div>
               </div>
@@ -217,6 +217,25 @@
                     <p class="subtitle is-6 role">Head of Graphic Design &amp; UX designer</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Amsterdam, Netherlands</p>
                     <!-- <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/public-profile/in/valerinatanelov">valerinatanelov</a></p> -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-val.jpg" alt="Headshot of Val">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Val Natanelov</p>
+                    <p class="subtitle is-6 role">Strategic Advisor</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Brisbane, Australia</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/public-profile/in/valerinatanelov">valerinatanelov</a></p>
                   </div>
                 </div>
               </div>
@@ -329,25 +348,6 @@
                     <p class="title is-4">Dominic Nayan</p>
                     <p class="subtitle is-6 role">UX Designer</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Louisville, USA</p>
-                    <!-- <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/public-profile/in/valerinatanelov">valerinatanelov</a></p> -->
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="column is-one-third">
-            <div class="card">
-              <div class="card-content">
-                <div class="media">
-                  <div class="media-left">
-                    <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-lucas.jpg" alt="Headshot of Lucas">
-                    </figure>
-                  </div>
-                  <div class="media-content">
-                    <p class="title is-4">Lucas Levin</p>
-                    <p class="subtitle is-6 role">Head of Frontend</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>London, United Kingdom</p>
                     <!-- <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/public-profile/in/valerinatanelov">valerinatanelov</a></p> -->
                   </div>
                 </div>
