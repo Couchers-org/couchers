@@ -94,7 +94,7 @@
             <div class="card">
               <div class="card-content">
                 <div class="media">
-                  <div class="media-left">s
+                  <div class="media-left">
                     <figure class="image is-96x96">
                       <img class="is-rounded" src="/img/head-keni.jpg" alt="Headshot of Keni">
                     </figure>
