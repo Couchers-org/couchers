@@ -190,6 +190,25 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-miuriel.jpg" alt="Headshot of Miuriel">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Miuriel Feliks Kochva</p>
+                    <p class="subtitle is-6 role">Head of Graphic Design &amp; UX designer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Amsterdam, Netherlands</p>
+                    <!-- <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/public-profile/in/valerinatanelov">valerinatanelov</a></p> -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
                       <img class="is-rounded" src="/img/head-paulo.jpg" alt="Headshot of Paulo">
                     </figure>
                   </div>
@@ -209,14 +228,14 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-miuriel.jpg" alt="Headshot of Miuriel">
+                      <img class="is-rounded" src="/img/head-marta.jpg" alt="Headshot of Marta">
                     </figure>
                   </div>
                   <div class="media-content">
-                    <p class="title is-4">Miuriel Feliks Kochva</p>
-                    <p class="subtitle is-6 role">Head of Graphic Design &amp; UX designer</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Amsterdam, Netherlands</p>
-                    <!-- <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/public-profile/in/valerinatanelov">valerinatanelov</a></p> -->
+                    <p class="title is-4">Marta Zaczek</p>
+                    <p class="subtitle is-6 role">UX and Graphic Designer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Wroc&#322;aw, Poland</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/in/marta-zaczek-576289201/">marta-zaczek</a></p>
                   </div>
                 </div>
               </div>
