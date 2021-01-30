@@ -51,6 +51,7 @@ def process_job():
             job.state = BackgroundJobState.completed
             logger.info(f"Job #{job.id} complete on try number {job.try_count}")
         except Exception as e:
+            logger.exception(e)
             if job.try_count >= job.max_tries:
                 # if we already tried max_tries times, it's permanently failed
                 job.state = BackgroundJobState.failed

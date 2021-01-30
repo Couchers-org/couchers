@@ -1126,6 +1126,9 @@ class BackgroundJob(Base):
     def ready_for_retry(self):
         return (self.next_attempt_after <= func.now()) & (self.try_count < self.max_tries)
 
+    def __repr__(self):
+        return f"BackgroundJob(id={self.id}, job_type={self.job_type}, state={self.state}, failure_info={self.failure_info})"
+
 
 class RepeatedJob(Base):
     """

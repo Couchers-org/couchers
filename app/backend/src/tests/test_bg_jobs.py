@@ -5,12 +5,12 @@ import pytest
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import func
 
-from couchers.crypto import random_hex
 from couchers.db import new_login_token, session_scope
 from couchers.email import queue_email
+from couchers.email.dev import print_dev_email
 from couchers.jobs.enqueue import queue_job
 from couchers.jobs.worker import _run_job_and_schedule, process_job, run_scheduler, service_jobs
-from couchers.models import BackgroundJobType, LoginToken, SignupToken
+from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType, Email, LoginToken, SignupToken
 from couchers.tasks import send_login_email
 from pb import auth_pb2
 from tests.test_fixtures import auth_api_session, db, generate_user, testconfig
@@ -23,45 +23,46 @@ def _(testconfig):
 
 def test_login_email_full(db):
     user, api_token = generate_user()
-
-    message_id = random_hex(64)
+    user_email = user.email
 
     with session_scope() as session:
         login_token, expiry_text = new_login_token(session, user)
         send_login_email(user, login_token, expiry_text)
         token = login_token.token
 
-    @create_autospec
-    def mock_email_sender(sender_name, sender_email, recipient, subject, plain, html):
-        assert recipient == user.email
-        assert "login" in subject.lower()
-        assert login_token.token in plain
-        assert login_token.token in html
-        return message_id
+        def mock_print_dev_email(sender_name, sender_email, recipient, subject, plain, html):
+            assert recipient == user.email
+            assert "login" in subject.lower()
+            assert login_token.token in plain
+            assert login_token.token in html
+            return print_dev_email(sender_name, sender_email, recipient, subject, plain, html)
 
-    with patch("couchers.jobs.handlers.print_dev_email", mock_email_sender) as mock:
-        process_job()
+        with patch("couchers.jobs.handlers.print_dev_email", mock_print_dev_email) as mock:
+            process_job()
 
-    assert mock.call_count == 1
+    with session_scope() as session:
+        assert session.query(BackgroundJob).filter(BackgroundJob.state == BackgroundJobState.completed).count() == 1
+        assert session.query(BackgroundJob).filter(BackgroundJob.state != BackgroundJobState.completed).count() == 0
 
 
 def test_email_job(db):
     queue_email("sender_name", "sender_email", "recipient", "subject", "plain", "html")
 
-    @create_autospec
-    def mock_email_sender(sender_name, sender_email, recipient, subject, plain, html):
+    def mock_print_dev_email(sender_name, sender_email, recipient, subject, plain, html):
         assert sender_name == "sender_name"
         assert sender_email == "sender_email"
         assert recipient == "recipient"
         assert subject == "subject"
         assert plain == "plain"
         assert html == "html"
-        return ""
+        return print_dev_email(sender_name, sender_email, recipient, subject, plain, html)
 
-    with patch("couchers.jobs.handlers.print_dev_email", mock_email_sender) as mock:
+    with patch("couchers.jobs.handlers.print_dev_email", mock_print_dev_email) as mock:
         process_job()
 
-    assert mock.call_count == 1
+    with session_scope() as session:
+        assert session.query(BackgroundJob).filter(BackgroundJob.state == BackgroundJobState.completed).count() == 1
+        assert session.query(BackgroundJob).filter(BackgroundJob.state != BackgroundJobState.completed).count() == 0
 
 
 def test_purge_login_tokens(db):
@@ -77,6 +78,10 @@ def test_purge_login_tokens(db):
 
     with session_scope() as session:
         assert session.query(LoginToken).count() == 0
+
+    with session_scope() as session:
+        assert session.query(BackgroundJob).filter(BackgroundJob.state == BackgroundJobState.completed).count() == 1
+        assert session.query(BackgroundJob).filter(BackgroundJob.state != BackgroundJobState.completed).count() == 0
 
 
 def test_purge_signup_tokens(db):
@@ -99,13 +104,13 @@ def test_purge_signup_tokens(db):
     with session_scope() as session:
         assert session.query(SignupToken).count() == 0
 
+    with session_scope() as session:
+        assert session.query(BackgroundJob).filter(BackgroundJob.state == BackgroundJobState.completed).count() == 2
+        assert session.query(BackgroundJob).filter(BackgroundJob.state != BackgroundJobState.completed).count() == 0
+
 
 def test_service_jobs(db):
     queue_email("sender_name", "sender_email", "recipient", "subject", "plain", "html")
-
-    @create_autospec
-    def mock_email_sender(sender_name, sender_email, recipient, subject, plain, html):
-        return ""
 
     # we create this HitSleep exception here, and mock out the normal sleep(1) in the infinite loop to instead raise
     # this. that allows us to conveniently get out of the infinite loop and know we had no more jobs left
@@ -117,11 +122,12 @@ def test_service_jobs(db):
         raise HitSleep()
 
     with pytest.raises(HitSleep):
-        with patch("couchers.jobs.handlers.print_dev_email", mock_email_sender) as mock:
-            with patch("couchers.jobs.worker.sleep", raising_sleep):
-                service_jobs()
+        with patch("couchers.jobs.worker.sleep", raising_sleep):
+            service_jobs()
 
-    assert mock.call_count == 1
+    with session_scope() as session:
+        assert session.query(BackgroundJob).filter(BackgroundJob.state == BackgroundJobState.completed).count() == 1
+        assert session.query(BackgroundJob).filter(BackgroundJob.state != BackgroundJobState.completed).count() == 0
 
 
 def test_scheduler(db):
@@ -180,3 +186,7 @@ def test_scheduler(db):
         (66.0, 1),
         (70.0, 0),
     ]
+
+    with session_scope() as session:
+        assert session.query(BackgroundJob).filter(BackgroundJob.state == BackgroundJobState.pending).count() == 18
+        assert session.query(BackgroundJob).filter(BackgroundJob.state != BackgroundJobState.pending).count() == 0

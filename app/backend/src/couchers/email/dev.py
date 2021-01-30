@@ -1,6 +1,5 @@
 import logging
 
-from couchers.config import config
 from couchers.crypto import random_hex
 from couchers.models import Email
 
