@@ -1,20 +1,15 @@
 from unittest.mock import create_autospec, patch
 
 import pytest
+from google.protobuf import empty_pb2
+from sqlalchemy.sql import func
 
 from couchers.crypto import random_hex
 from couchers.db import new_login_token, session_scope
 from couchers.email import queue_email
+from couchers.jobs.enqueue import queue_job
 from couchers.jobs.worker import process_job, service_jobs
-from couchers.models import (
-    Complaint,
-    Conversation,
-    FriendRelationship,
-    FriendStatus,
-    HostRequest,
-    HostRequestStatus,
-    Message,
-)
+from couchers.models import BackgroundJobType, LoginToken
 from couchers.tasks import send_login_email
 from tests.test_fixtures import db, generate_user, testconfig
 
@@ -65,3 +60,18 @@ def test_email_job(db):
         process_job()
 
     assert mock.call_count == 1
+
+
+def test_purge_login_tokens(db):
+    user, api_token = generate_user()
+
+    with session_scope() as session:
+        login_token, expiry_text = new_login_token(session, user)
+        login_token.expiry = func.now()
+        assert session.query(LoginToken).count() == 1
+
+    queue_job(BackgroundJobType.purge_login_tokens, empty_pb2.Empty())
+    process_job()
+
+    with session_scope() as session:
+        assert session.query(LoginToken).count() == 0
