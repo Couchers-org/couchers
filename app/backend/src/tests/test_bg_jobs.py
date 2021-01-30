@@ -96,7 +96,15 @@ def test_service_jobs(db):
     def mock_email_sender(sender_name, sender_email, recipient, subject, plain, html):
         return ""
 
+    class HitSleep(Exception):
+        pass
+
+    def raising_sleep(seconds):
+        raise HitSleep()
+
     with patch("couchers.jobs.handlers.print_dev_email", mock_email_sender) as mock:
-        service_jobs(keep_looping=_make_loop_condition(2))
+        with patch("couchers.jobs.worker.sleep", raising_sleep):
+            with pytest.raises(HitSleep) as e:
+                service_jobs()
 
     assert mock.call_count == 1
