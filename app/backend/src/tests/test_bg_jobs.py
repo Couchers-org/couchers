@@ -77,18 +77,6 @@ def test_purge_login_tokens(db):
         assert session.query(LoginToken).count() == 0
 
 
-def _make_loop_condition(loops=None):
-    if loops is None:
-        loops = 1
-
-    def loop():
-        nonlocal loops
-        loops -= 1
-        return loops > 0
-
-    return loop
-
-
 def test_service_jobs(db):
     queue_email("sender_name", "sender_email", "recipient", "subject", "plain", "html")
 
@@ -96,9 +84,12 @@ def test_service_jobs(db):
     def mock_email_sender(sender_name, sender_email, recipient, subject, plain, html):
         return ""
 
+    # we create this HitSleep exception here, and mock out the normal sleep(1) in the infinite loop to instead raise
+    # this. that allows us to conveniently get out of the infinite loop and know we had no more jobs left
     class HitSleep(Exception):
         pass
 
+    # the mock `sleep` function that instead raises the aforementioned exception
     def raising_sleep(seconds):
         raise HitSleep()
 
