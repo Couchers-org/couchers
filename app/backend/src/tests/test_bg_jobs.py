@@ -223,7 +223,12 @@ def test_job_retry(db):
         process_job()
 
     with session_scope() as session:
-        print(session.query(func.now()).all())
-        print(session.query(BackgroundJob).all())
         assert session.query(BackgroundJob).filter(BackgroundJob.state == BackgroundJobState.failed).count() == 1
         assert session.query(BackgroundJob).filter(BackgroundJob.state != BackgroundJobState.failed).count() == 0
+
+
+def test_no_jobs_no_problem(db):
+    process_job()
+
+    with session_scope() as session:
+        assert session.query(BackgroundJob).count() == 0
