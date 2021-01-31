@@ -58,7 +58,3 @@ export function groupChatTitleText(
         .map((user) => firstName(user?.name))
         .join(", ");
 }
-
-export function isValidMessageThreadId(id: number) {
-  return !isNaN(id) && id > 0;
-}
