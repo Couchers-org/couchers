@@ -2,6 +2,7 @@ import { Box, makeStyles } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useHistory, useLocation } from "react-router-dom";
+
 import { loginPasswordRoute, signupRoute } from "../../../AppRoutes";
 import Button from "../../../components/Button";
 import TextBody from "../../../components/TextBody";

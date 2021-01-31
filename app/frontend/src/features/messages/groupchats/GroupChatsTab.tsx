@@ -1,17 +1,18 @@
 import { Box, List } from "@material-ui/core";
+import { Error as GrpcError } from "grpc-web";
 import React from "react";
 import { useQuery } from "react-query";
+import { Link } from "react-router-dom";
+
+import { messagesRoute } from "../../../AppRoutes";
 import Alert from "../../../components/Alert";
 import CircularProgress from "../../../components/CircularProgress";
-import { Error as GrpcError } from "grpc-web";
-import { GroupChat } from "../../../pb/conversations_pb";
-import CreateGroupChat from "./CreateGroupChat";
-import { service } from "../../../service";
-import { messagesRoute } from "../../../AppRoutes";
 import TextBody from "../../../components/TextBody";
-import GroupChatListItem from "./GroupChatListItem";
-import { Link } from "react-router-dom";
+import { GroupChat } from "../../../pb/conversations_pb";
+import { service } from "../../../service";
 import useMessageListStyles from "../useMessageListStyles";
+import CreateGroupChat from "./CreateGroupChat";
+import GroupChatListItem from "./GroupChatListItem";
 
 export default function GroupChatsTab() {
   const classes = useMessageListStyles();

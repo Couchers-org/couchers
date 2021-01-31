@@ -3,13 +3,13 @@ import { DialogActions } from "@material-ui/core";
 import { Meta, Story } from "@storybook/react/types-6-0";
 import * as React from "react";
 
+import Button from "./Button";
 import {
   Dialog,
   DialogContent,
   DialogContentText,
   DialogTitle,
 } from "./Dialog";
-import Button from "./Button";
 
 export default {
   title: "Components/Dialog",

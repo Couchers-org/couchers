@@ -1,16 +1,16 @@
 import * as React from "react";
-import PageTitle from "../../components/PageTitle";
-import GroupChatsTab from "./groupchats/GroupChatsTab";
-import SurfingTab from "./surfing/SurfingTab";
-import TabBar from "../../components/TabBar";
 import { Route, Switch, useHistory, useParams } from "react-router-dom";
+
 import { messagesRoute } from "../../AppRoutes";
+import NotificationBadge from "../../components/NotificationBadge";
+import PageTitle from "../../components/PageTitle";
+import TabBar from "../../components/TabBar";
+import useNotifications from "../useNotifications";
+import GroupChatsTab from "./groupchats/GroupChatsTab";
 import GroupChatView from "./groupchats/GroupChatView";
 import HostRequestView from "./surfing/HostRequestView";
 import NewHostRequest from "./surfing/NewHostRequest";
-
-import NotificationBadge from "../../components/NotificationBadge";
-import useNotifications from "../useNotifications";
+import SurfingTab from "./surfing/SurfingTab";
 
 export function MessagesNotification() {
   const { data } = useNotifications();

@@ -1,8 +1,9 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error } from "grpc-web";
-import { useQueryClient, useMutation } from "react-query";
-import { SetMutationError } from ".";
+import { useMutation,useQueryClient } from "react-query";
+
 import { service } from "../../../service";
+import { SetMutationError } from ".";
 
 interface RespondToFriendRequestVariables {
   accept: boolean;

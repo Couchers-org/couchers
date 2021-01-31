@@ -1,6 +1,7 @@
 import React from "react";
-import ProfileForm from "./ProfileForm";
+
 import PageTitle from "../../components/PageTitle";
+import ProfileForm from "./ProfileForm";
 
 function EditProfilePage() {
   return (

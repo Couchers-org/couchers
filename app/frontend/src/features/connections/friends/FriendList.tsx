@@ -1,5 +1,6 @@
 import { Box, IconButton } from "@material-ui/core";
 import React from "react";
+
 import { CloseIcon, EmailIcon } from "../../../components/Icons";
 import FriendSummaryView from "./FriendSummaryView";
 import FriendTile from "./FriendTile";

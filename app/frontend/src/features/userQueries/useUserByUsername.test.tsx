@@ -1,9 +1,11 @@
 import { renderHook } from "@testing-library/react-hooks";
-import { QueryClient, QueryClientProvider } from "react-query";
 import React from "react";
+import { QueryClient, QueryClientProvider } from "react-query";
+
 import { service } from "../../service";
 import { getUser } from "../../test/serviceMockDefaults";
 import useUserByUsername from "./useUserByUsername";
+
 const getUserMock = service.user.getUser as jest.Mock;
 
 const wrapper = ({ children }: { children: React.ReactNode }) => {

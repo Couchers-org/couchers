@@ -1,10 +1,11 @@
-import React from "react";
 import {
   IconButton as MuiIconButton,
   IconButtonProps,
   makeStyles,
   useTheme,
 } from "@material-ui/core";
+import React from "react";
+
 import CircularProgress from "./CircularProgress";
 
 const useStyles = makeStyles((theme) => ({

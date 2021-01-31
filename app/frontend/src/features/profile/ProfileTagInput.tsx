@@ -1,17 +1,18 @@
-import React, { useState, useRef } from "react";
 import {
+  ButtonBase,
   Checkbox,
+  createStyles,
+  fade,
   IconButton,
   InputBase,
-  ButtonBase,
-  Popper,
-  fade,
   makeStyles,
-  createStyles,
+  Popper,
 } from "@material-ui/core";
 import Autocomplete, {
   AutocompleteCloseReason,
 } from "@material-ui/lab/Autocomplete";
+import React, { useRef,useState } from "react";
+
 import { CloseIcon, ExpandMore } from "../../components/Icons";
 
 const useStyles = makeStyles((theme) =>

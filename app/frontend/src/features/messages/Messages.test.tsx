@@ -1,8 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import wrapper from "../../test/hookWrapper";
-import user from "../../test/fixtures/defaultUser.json";
+
 import { service } from "../../service";
+import user from "../../test/fixtures/defaultUser.json";
+import wrapper from "../../test/hookWrapper";
 import { HostRequestsNotification, MessagesNotification } from "./Messages";
 
 const pingMock = service.api.ping as jest.Mock<

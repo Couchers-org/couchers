@@ -1,17 +1,18 @@
+import { Error as GrpcError } from "grpc-web";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useHistory } from "react-router-dom";
 import { useMutation } from "react-query";
-import { Error as GrpcError } from "grpc-web";
+import { useHistory } from "react-router-dom";
+
+import { pageRoute } from "../../AppRoutes";
+import Alert from "../../components/Alert";
 import Button from "../../components/Button";
 import CircularProgress from "../../components/CircularProgress";
-import TextField from "../../components/TextField";
-import Alert from "../../components/Alert";
-import ProfileMarkdownInput from "../profile/ProfileMarkdownInput";
 import EditLocationMap from "../../components/EditLocationMap";
-import { pageRoute } from "../../AppRoutes";
-import { Page } from "../../pb/pages_pb"
+import TextField from "../../components/TextField";
+import { Page } from "../../pb/pages_pb";
 import { service } from "../../service";
+import ProfileMarkdownInput from "../profile/ProfileMarkdownInput";
 
 type NewPageInputs = {
   title: string;
@@ -22,13 +23,9 @@ type NewPageInputs = {
 };
 
 export default function CompleteSignup() {
-  const {
-    control,
-    register,
-    handleSubmit,
-    setValue,
-    errors,
-  } = useForm<NewPageInputs>({
+  const { control, register, handleSubmit, setValue, errors } = useForm<
+    NewPageInputs
+  >({
     shouldUnregister: false,
     mode: "onBlur",
   });
@@ -38,19 +35,18 @@ export default function CompleteSignup() {
   const {
     mutate: createPage,
     isLoading: isCreateLoading,
-    error: createError
+    error: createError,
   } = useMutation<Page.AsObject, GrpcError, NewPageInputs>(
-    ({title, content, address, lat, lng}: NewPageInputs) => service.pages.createPage(title, content, address, lat, lng),
+    ({ title, content, address, lat, lng }: NewPageInputs) =>
+      service.pages.createPage(title, content, address, lat, lng),
     {
       onSuccess: (page) => {
         history.push(`${pageRoute}/${page.pageId}/${page.slug}`);
-      }
+      },
     }
   );
 
-  const onSubmit = handleSubmit((data: NewPageInputs) =>
-    createPage(data)
-  );
+  const onSubmit = handleSubmit((data: NewPageInputs) => createPage(data));
 
   return (
     <>

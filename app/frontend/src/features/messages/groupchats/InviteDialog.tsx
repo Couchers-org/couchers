@@ -1,22 +1,23 @@
-import Button from "../../../components/Button";
+import { DialogProps } from "@material-ui/core";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { Error as GrpcError } from "grpc-web";
 import React from "react";
+import { Controller, useForm } from "react-hook-form";
+import { useMutation, useQueryClient } from "react-query";
+
+import Alert from "../../../components/Alert";
+import Autocomplete from "../../../components/Autocomplete";
+import Button from "../../../components/Button";
 import {
   Dialog,
   DialogActions,
-  DialogTitle,
   DialogContent,
+  DialogTitle,
 } from "../../../components/Dialog";
-import { DialogProps } from "@material-ui/core";
 import { User } from "../../../pb/api_pb";
-import { Controller, useForm } from "react-hook-form";
-import useFriendList from "../../connections/friends/useFriendList";
-import Alert from "../../../components/Alert";
-import Autocomplete from "../../../components/Autocomplete";
-import { useMutation, useQueryClient } from "react-query";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { Error as GrpcError } from "grpc-web";
-import { service } from "../../../service";
 import { GroupChat } from "../../../pb/conversations_pb";
+import { service } from "../../../service";
+import useFriendList from "../../connections/friends/useFriendList";
 
 export default function InviteDialog({
   groupChat,

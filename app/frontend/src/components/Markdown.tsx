@@ -1,6 +1,6 @@
-import React from "react";
-import MarkdownIt from "markdown-it";
 import { Box, BoxProps } from "@material-ui/core";
+import MarkdownIt from "markdown-it";
+import React from "react";
 
 const md = new MarkdownIt().disable("image");
 

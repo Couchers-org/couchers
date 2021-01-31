@@ -8,15 +8,16 @@ import {
 import { Autocomplete } from "@material-ui/lab";
 import React, { useState } from "react";
 import { Controller, useForm, UseFormMethods } from "react-hook-form";
+
 import Alert from "../../components/Alert";
 import Button from "../../components/Button";
+import CircularProgress from "../../components/CircularProgress";
+import { SmokingLocation } from "../../pb/api_pb";
+import { HostingPreferenceData } from "../../service";
+import useCurrentUser from "../userQueries/useCurrentUser";
 import { smokingLocationLabels } from "./constants";
 import ProfileTextInput from "./ProfileTextInput";
-import { HostingPreferenceData } from "../../service";
-import { SmokingLocation } from "../../pb/api_pb";
 import useUpdateHostingPreferences from "./useUpdateHostingPreferences";
-import useCurrentUser from "../userQueries/useCurrentUser";
-import CircularProgress from "../../components/CircularProgress";
 
 interface HostingPreferenceCheckboxProps {
   className: string;

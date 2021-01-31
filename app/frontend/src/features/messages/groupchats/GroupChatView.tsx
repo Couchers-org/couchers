@@ -1,28 +1,29 @@
 import { Box } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
+import { Skeleton } from "@material-ui/lab";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { Error as GrpcError } from "grpc-web";
 import React, { useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useHistory, useParams } from "react-router-dom";
+
 import Alert from "../../../components/Alert";
 import CircularProgress from "../../../components/CircularProgress";
-import { Error as GrpcError } from "grpc-web";
-import { GroupChat, Message } from "../../../pb/conversations_pb";
-import MessageList from "../messagelist/MessageList";
-import { service } from "../../../service";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import GroupChatSendField from "./GroupChatSendField";
+import HeaderButton from "../../../components/HeaderButton";
 import { BackIcon, OverflowMenuIcon } from "../../../components/Icons";
-import { groupChatTitleText } from "../utils";
+import Menu, { MenuItem } from "../../../components/Menu";
+import PageTitle from "../../../components/PageTitle";
+import { GroupChat, Message } from "../../../pb/conversations_pb";
+import { service } from "../../../service";
 import { useAuthContext } from "../../auth/AuthProvider";
 import useUsers from "../../userQueries/useUsers";
-import PageTitle from "../../../components/PageTitle";
-import { useHistory, useParams } from "react-router-dom";
-import { Skeleton } from "@material-ui/lab";
-import HeaderButton from "../../../components/HeaderButton";
-import Menu, { MenuItem } from "../../../components/Menu";
+import MessageList from "../messagelist/MessageList";
+import { groupChatTitleText } from "../utils";
+import GroupChatSendField from "./GroupChatSendField";
+import GroupChatSettingsDialog from "./GroupChatSettingsDialog";
 import InviteDialog from "./InviteDialog";
 import LeaveDialog from "./LeaveDialog";
 import MembersDialog from "./MembersDialog";
-import GroupChatSettingsDialog from "./GroupChatSettingsDialog";
 
 const useStyles = makeStyles((theme) => ({
   header: { display: "flex", alignItems: "center" },
