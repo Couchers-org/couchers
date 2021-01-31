@@ -26,7 +26,7 @@ export function HostRequestsNotification() {
   const { data } = useNotifications();
 
   return (
-    <NotificationBadge count={data?.unseenHostRequestCount}>
+    <NotificationBadge count={data?.unseenSentHostRequestCount}>
       Hosting
     </NotificationBadge>
   );
