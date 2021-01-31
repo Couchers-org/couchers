@@ -2,7 +2,7 @@ import { DialogProps } from "@material-ui/core";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
 import React from "react";
-import { useMutation,useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 
 import Alert from "../../../components/Alert";
 import Button from "../../../components/Button";

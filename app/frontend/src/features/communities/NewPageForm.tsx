@@ -23,9 +23,13 @@ type NewPageInputs = {
 };
 
 export default function CompleteSignup() {
-  const { control, register, handleSubmit, setValue, errors } = useForm<
-    NewPageInputs
-  >({
+  const {
+    control,
+    register,
+    handleSubmit,
+    setValue,
+    errors,
+  } = useForm<NewPageInputs>({
     shouldUnregister: false,
     mode: "onBlur",
   });

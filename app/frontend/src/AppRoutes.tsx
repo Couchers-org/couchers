@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Redirect,Route, RouteProps, Switch } from "react-router-dom";
+import { Redirect, Route, RouteProps, Switch } from "react-router-dom";
 
 import TOS from "./components/TOS";
 import { useAuthContext } from "./features/auth/AuthProvider";

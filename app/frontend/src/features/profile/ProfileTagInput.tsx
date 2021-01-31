@@ -11,7 +11,7 @@ import {
 import Autocomplete, {
   AutocompleteCloseReason,
 } from "@material-ui/lab/Autocomplete";
-import React, { useRef,useState } from "react";
+import React, { useRef, useState } from "react";
 
 import { CloseIcon, ExpandMore } from "../../components/Icons";
 

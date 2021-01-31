@@ -1,6 +1,6 @@
 import { Breadcrumbs } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
-import { Link , useHistory,useParams  } from "react-router-dom";
+import { Link, useHistory, useParams } from "react-router-dom";
 
 import { communityRoute, groupRoute, pageRoute } from "../../AppRoutes";
 import Alert from "../../components/Alert";

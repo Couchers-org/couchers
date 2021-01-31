@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useHistory,useParams  } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 
 import { pageRoute } from "../../AppRoutes";
 import Alert from "../../components/Alert";

@@ -80,9 +80,12 @@ export default function HostingPreferenceForm() {
   } = useUpdateHostingPreferences();
   const { data: user } = useCurrentUser();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { control, errors, register, handleSubmit } = useForm<
-    HostingPreferenceData
-  >({
+  const {
+    control,
+    errors,
+    register,
+    handleSubmit,
+  } = useForm<HostingPreferenceData>({
     mode: "onBlur",
   });
 

@@ -1,6 +1,6 @@
 import { Breadcrumbs } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
-import { Link , useHistory,useParams  } from "react-router-dom";
+import { Link, useHistory, useParams } from "react-router-dom";
 
 import { communityRoute, groupRoute, pageRoute } from "../../AppRoutes";
 import Alert from "../../components/Alert";
@@ -19,9 +19,10 @@ export default function CommunityPage() {
   const [community, setCommunity] = useState<Community.AsObject | null>(null);
 
   const [subCommunitiesLoading, setSubCommunitiesLoading] = useState(false);
-  const [subCommunities, setSubCommunities] = useState<Array<
-    Community.AsObject
-  > | null>(null);
+  const [
+    subCommunities,
+    setSubCommunities,
+  ] = useState<Array<Community.AsObject> | null>(null);
 
   const [groupsLoading, setGroupsLoading] = useState(false);
   const [groups, setGroups] = useState<Array<Group.AsObject> | null>(null);
