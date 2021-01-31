@@ -1,9 +1,12 @@
+from datetime import timedelta
+
 import pytest
 
+from couchers import errors
 from couchers.db import session_scope
 from pb import groups_pb2, pages_pb2
 from tests.test_communities import get_community_id, get_group_id, get_user_id_and_token, testing_communities
-from tests.test_fixtures import db_module, groups_session, lists_equal, testconfig
+from tests.test_fixtures import db, generate_user, groups_session, lists_equal, testconfig
 
 
 @pytest.fixture(autouse=True)
@@ -11,7 +14,7 @@ def _(testconfig):
     pass
 
 
-def test_GetGroup(testing_communities):
+def test_GetGroup(db, testing_communities):
     with session_scope() as session:
         user2_id, token2 = get_user_id_and_token(session, "user2")
         w_id = get_community_id(session, "World")
@@ -148,7 +151,7 @@ def test_GetGroup(testing_communities):
         assert res.admin_count == 1
 
 
-def test_ListAdmins(testing_communities):
+def test_ListAdmins(db, testing_communities):
     with session_scope() as session:
         user1_id, token1 = get_user_id_and_token(session, "user1")
         user2_id, token2 = get_user_id_and_token(session, "user2")
@@ -171,7 +174,7 @@ def test_ListAdmins(testing_communities):
         assert lists_equal(res.admin_user_ids, [user2_id])
 
 
-def test_ListMembers(testing_communities):
+def test_ListMembers(db, testing_communities):
     with session_scope() as session:
         user1_id, token1 = get_user_id_and_token(session, "user1")
         user2_id, token2 = get_user_id_and_token(session, "user2")
@@ -200,14 +203,14 @@ def test_ListMembers(testing_communities):
 # TODO: also requires implementing content transfer functionality
 # Note: allegedly groups cannot contain content other than discussions!
 
-# def test_ListPlaces(testing_communities):
+# def test_ListPlaces(db, testing_communities):
 #     pass
 
-# def test_ListGuides(testing_communities):
+# def test_ListGuides(db, testing_communities):
 #     pass
 
-# def test_ListEvents(testing_communities):
+# def test_ListEvents(db, testing_communities):
 #     pass
 
-# def test_ListDiscussions(testing_communities):
+# def test_ListDiscussions(db, testing_communities):
 #     pass

@@ -15,7 +15,7 @@ from couchers.models import (
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_aware_datetime, to_multi
 from pb import communities_pb2, pages_pb2
-from tests.test_fixtures import communities_session, db_module, generate_user, lists_equal, pages_session, testconfig
+from tests.test_fixtures import communities_session, db, generate_user, lists_equal, pages_session, testconfig
 
 
 @pytest.fixture(autouse=True)
@@ -169,8 +169,8 @@ def get_group_id(session, group_name):
     )
 
 
-@pytest.fixture(scope="module")
-def testing_communities(db_module):
+@pytest.fixture()
+def testing_communities(db):
     user1, token1 = generate_user(username="user1", geom=_create_1d_point(1), geom_radius=0.1)
     user2, token2 = generate_user(username="user2", geom=_create_1d_point(2), geom_radius=0.1)
     user3, token3 = generate_user(username="user3", geom=_create_1d_point(3), geom_radius=0.1)
@@ -207,7 +207,7 @@ def testing_communities(db_module):
     _create_place(token6, "Country 2, Region 1, Attraction", "Place content", "Somewhere in c2r1", 59)
 
 
-def test_GetCommunity(testing_communities):
+def test_GetCommunity(db, testing_communities):
     with session_scope() as session:
         user2_id, token2 = get_user_id_and_token(session, "user2")
         w_id = get_community_id(session, "World")
@@ -324,7 +324,7 @@ def test_GetCommunity(testing_communities):
         assert res.admin_count == 2
 
 
-def test_ListCommunities(testing_communities):
+def test_ListCommunities(db, testing_communities):
     with session_scope() as session:
         user1_id, token1 = get_user_id_and_token(session, "user1")
         c1_id = get_community_id(session, "Country 1")
@@ -340,7 +340,7 @@ def test_ListCommunities(testing_communities):
         assert lists_equal([c.community_id for c in res.communities], [c1r1_id, c1r2_id])
 
 
-def test_ListGroups(testing_communities):
+def test_ListGroups(db, testing_communities):
     with session_scope() as session:
         user1_id, token1 = get_user_id_and_token(session, "user1")
         user5_id, token5 = get_user_id_and_token(session, "user5")
@@ -368,7 +368,7 @@ def test_ListGroups(testing_communities):
         assert res.groups[0].group_id == hitchhikers_id
 
 
-def test_ListAdmins(testing_communities):
+def test_ListAdmins(db, testing_communities):
     with session_scope() as session:
         user1_id, token1 = get_user_id_and_token(session, "user1")
         user3_id, token3 = get_user_id_and_token(session, "user3")
@@ -394,7 +394,7 @@ def test_ListAdmins(testing_communities):
         assert lists_equal(res.admin_user_ids, [user4_id, user5_id])
 
 
-def test_ListMembers(testing_communities):
+def test_ListMembers(db, testing_communities):
     with session_scope() as session:
         user1_id, token1 = get_user_id_and_token(session, "user1")
         user2_id, token2 = get_user_id_and_token(session, "user2")
@@ -425,7 +425,7 @@ def test_ListMembers(testing_communities):
         assert lists_equal(res.member_user_ids, [user2_id, user4_id, user5_id])
 
 
-def test_ListNearbyUsers(testing_communities):
+def test_ListNearbyUsers(db, testing_communities):
     with session_scope() as session:
         user1_id, token1 = get_user_id_and_token(session, "user1")
         user2_id, token2 = get_user_id_and_token(session, "user2")
@@ -458,14 +458,14 @@ def test_ListNearbyUsers(testing_communities):
 
 # TODO: requires transferring of content
 
-# def test_ListPlaces(testing_communities):
+# def test_ListPlaces(db, testing_communities):
 #     pass
 
-# def test_ListGuides(testing_communities):
+# def test_ListGuides(db, testing_communities):
 #     pass
 
-# def test_ListEvents(testing_communities):
+# def test_ListEvents(db, testing_communities):
 #     pass
 
-# def test_ListDiscussions(testing_communities):
+# def test_ListDiscussions(db, testing_communities):
 #     pass
