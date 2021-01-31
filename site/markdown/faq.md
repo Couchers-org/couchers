@@ -6,8 +6,15 @@ title: Frequently asked questions
 
 We fundamentally believe that [attempting to make a profit out of couch-surfing is a bad idea](/issues/profit-and-incentives). It introduces incentives that damage the community and would not make financial sense — the couch-surfing idea, based on non-transactional experiences, is not monetizable. This is about societal value, not monetary value.
 
-While we haven't solidified it just yet, the plan is to [build the community into the functioning](/solutions/communities-and-trust) of the platform, and you can look at some potential ideas for how we'll achieve this on our [governance models](/governance) discussion. We do encourage you to sign up and contribute ideas for how we could achieve this as best as possible.
+We intend to keep the platform as non-profit forever. Our plan to follow this relies on three fundamental pillars:
 
+1. We are legally established as a **non-profit foundation**, and our [constitution](/foundation) contains provisions that prevents the company from ceasing to be a non-profit, or transferring its assets to an entity that is not a non-profit.
+
+2. We will carry out a policy of **distributed moderation**, so that we will engage hundreds of moderators as volunteers around the world to moderate their own communities. We will make the platform reliant on volunteers, and so the entity controlling the platform could not be a for-profit business without violating laws in many countries. The foundation would have to remain as a non-profit to continue operating.
+
+3. Our code base is **open source**. If the community ever feels like the leaders of the platform are not acting in their interest, they can simply fork the codebase, making a copy that is under control of new management.
+
+We do encourage you to [sign up](/signup) and contribute ideas for how we can further secure Couchers.org as being non-profit forever.
 
 ### Why are you working on this? What are you getting out of it?
 
@@ -29,7 +36,6 @@ We're really excited to hear that you're interested in the idea, but we don't be
 
 If you want to help out in other ways, please get in touch and [join the team](/signup).
 
-
 ### How do you plan on funding this? Doesn't it cost a lot of money?
 
 There are three main costs that Couchsurfing&#8482; needs to cover that we will need to replicate:
@@ -44,12 +50,10 @@ On the development end, we will initially handle the [build and development](/so
 
 Server hosting will be our main cost, but we believe we will easily be able to cover the cost of hosting through donations from the community. We also believe Couchsurfing&#8482; was [built poorly](/issues/the-build), increasing the hosting costs. We believe that if we build a great platform for the community, the community will be willing to pitch in enough to keep it going.
 
-
 ### How can you remain competitive or even build something good if you're so focused on not making money?
 
 There are many companies that are not profit-seeking that perform far better than their competitors and provide greater societal value, including Wikipedia, TED, Khan Academy and the Red Cross (go donate some blood).
 
-
 ### When do you think this will be ready to launch?
 
-We have a bit of flexibility as people aren't traveling so much right now. Our aim is to have it ready by the time people are on the road again.
+We have a bit of flexibility as people aren't traveling so much right now. Our aim is to have it ready by the time people are on the road again. Please [sign up](/signup) for regular updates, or join our [community forum](https://community.couchers.org) to get access to early testing versions which have already been released.
