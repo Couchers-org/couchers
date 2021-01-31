@@ -41,7 +41,8 @@ from pb import (
 )
 
 
-def db_impl(request):
+@pytest.fixture(params=["migrations", "models"])
+def db(request):
     """
     Connect to a running Postgres database, and return the Session object.
 
@@ -64,16 +65,6 @@ def db_impl(request):
         Base.metadata.create_all(get_engine())
 
     yield
-
-
-@pytest.fixture(params=["migrations", "models"], scope="function")
-def db(request):
-    yield from db_impl(request)
-
-
-@pytest.fixture(params=["migrations", "models"], scope="module")
-def db_module(request):
-    yield from db_impl(request)
 
 
 def generate_user(*_, **kwargs):
