@@ -44,17 +44,17 @@ export default function GroupChatView() {
     leave: false,
   });
 
-  const handleClick = (what: keyof typeof isOpen) => {
+  const handleClick = (item: keyof typeof isOpen) => {
     //close the menu if a menu item was selected
-    if (what !== "menu") {
-      setIsOpen({ ...isOpen, [what]: true, menu: false });
+    if (item !== "menu") {
+      setIsOpen({ ...isOpen, [item]: true, menu: false });
     } else {
-      setIsOpen({ ...isOpen, [what]: true });
+      setIsOpen({ ...isOpen, [item]: true });
     }
   };
 
-  const handleClose = (what: keyof typeof isOpen) => {
-    setIsOpen({ ...isOpen, [what]: false });
+  const handleClose = (item: keyof typeof isOpen) => {
+    setIsOpen({ ...isOpen, [item]: false });
   };
 
   const groupChatId = +(useParams<{ groupChatId?: string }>().groupChatId || 0);

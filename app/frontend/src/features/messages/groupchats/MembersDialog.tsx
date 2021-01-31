@@ -1,4 +1,5 @@
 import Button from "../../../components/Button";
+import IconButton from "../../../components/IconButton";
 import React, { useState } from "react";
 import {
   Dialog,
@@ -11,8 +12,6 @@ import {
   DialogProps,
   List,
   ListItem,
-  ListItemAvatar,
-  ListItemText,
   makeStyles,
 } from "@material-ui/core";
 import { GroupChat } from "../../../pb/conversations_pb";
@@ -26,19 +25,18 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
 import { service } from "../../../service";
 import Alert from "../../../components/Alert";
+import { AddIcon, CloseIcon } from "../../../components/Icons";
 
 const useStyles = makeStyles((theme) => ({
-  memberListItemTextContainer: {
+  memberListItemContainer: {
     display: "flex",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
     alignItems: "center",
   },
   avatar: {
     width: 30,
     height: 30,
-  },
-  avatarContainer: {
-    minWidth: `calc(30px + ${theme.spacing(1)})`,
+    marginInlineEnd: theme.spacing(1),
   },
 }));
 
@@ -87,29 +85,31 @@ function MemberListItem({
   const handleRemoveAdmin = () => removeAdmin.mutate();
 
   return (
-    <ListItem dense>
-      <ListItemAvatar className={classes.avatarContainer}>
-        <Avatar user={member} className={classes.avatar} />
-      </ListItemAvatar>
-      <ListItemText
-        disableTypography
-        className={classes.memberListItemTextContainer}
-      >
-        <TextBody>
-          {member.name}
-          {memberIsAdmin && " (admin)"}
-        </TextBody>
-        {userIsAdmin &&
-          (memberIsAdmin ? (
-            <Button loading={removeAdmin.isLoading} onClick={handleRemoveAdmin}>
-              Remove as admin
-            </Button>
-          ) : (
-            <Button loading={makeAdmin.isLoading} onClick={handleMakeAdmin}>
-              Make admin
-            </Button>
-          ))}
-      </ListItemText>
+    <ListItem dense className={classes.memberListItemContainer}>
+      {userIsAdmin &&
+        //TODO: Colours
+        (memberIsAdmin ? (
+          <IconButton
+            size="small"
+            loading={removeAdmin.isLoading}
+            onClick={handleRemoveAdmin}
+          >
+            <CloseIcon />
+          </IconButton>
+        ) : (
+          <IconButton
+            size="small"
+            loading={makeAdmin.isLoading}
+            onClick={handleMakeAdmin}
+          >
+            <AddIcon />
+          </IconButton>
+        ))}
+      <Avatar user={member} className={classes.avatar} />
+      <TextBody noWrap>
+        {member.name}
+        {memberIsAdmin && " (admin)"}
+      </TextBody>
     </ListItem>
   );
 }
@@ -135,9 +135,7 @@ export default function MembersDialog({
           {members.isLoading ? (
             <CircularProgress />
           ) : (
-            Array.from(
-              (members.data ?? new Map<undefined, undefined>()).values()
-            ).map((user) =>
+            Array.from(members.data?.values() ?? []).map((user) =>
               user ? (
                 <MemberListItem
                   key={`members-dialog-${user.userId}`}
