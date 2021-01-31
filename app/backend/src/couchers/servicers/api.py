@@ -85,7 +85,7 @@ class API(api_pb2_grpc.APIServicer):
             # gets only the max message by self-joining messages which have a greater id
             # if it doesn't have a greater id, it's the biggest
             message_2 = aliased(Message)
-            unseen_host_request_count_1 = (
+            unseen_sent_host_request_count = (
                 session.query(Message.id)
                 .join(HostRequest, Message.conversation_id == HostRequest.conversation_id)
                 .outerjoin(
@@ -97,7 +97,7 @@ class API(api_pb2_grpc.APIServicer):
                 .count()
             )
 
-            unseen_host_request_count_2 = (
+            unseen_received_host_request_count = (
                 session.query(Message.id)
                 .join(HostRequest, Message.conversation_id == HostRequest.conversation_id)
                 .outerjoin(
@@ -129,7 +129,8 @@ class API(api_pb2_grpc.APIServicer):
             return api_pb2.PingRes(
                 user=user_model_to_pb(user, session, context),
                 unseen_message_count=unseen_message_count,
-                unseen_host_request_count=unseen_host_request_count_1 + unseen_host_request_count_2,
+                unseen_sent_host_request_count=unseen_sent_host_request_count,
+                unseen_received_host_request_count=unseen_received_host_request_count,
                 pending_friend_request_count=pending_friend_request_count,
             )
 
