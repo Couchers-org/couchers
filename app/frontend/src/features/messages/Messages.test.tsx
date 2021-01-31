@@ -23,7 +23,8 @@ describe.each`
     pingMock.mockResolvedValue({
       user,
       pendingFriendRequestCount: 99,
-      unseenHostRequestCount: 99,
+      unseenSentHostRequestCount: 99,
+      unseenReceivedHostRequestCount: 99,
       unseenMessageCount: 99,
     });
     render(<Component />, { wrapper });
