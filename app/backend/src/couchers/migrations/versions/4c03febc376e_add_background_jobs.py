@@ -1,8 +1,8 @@
 """Add background jobs
 
-Revision ID: 9ee63fbcbca7
+Revision ID: 4c03febc376e
 Revises: 2affc63b4a01
-Create Date: 2021-01-29 19:21:57.646520
+Create Date: 2021-01-30 19:06:17.086704
 
 """
 import geoalchemy2
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "9ee63fbcbca7"
+revision = "4c03febc376e"
 down_revision = "2affc63b4a01"
 branch_labels = None
 depends_on = None
@@ -21,7 +21,11 @@ def upgrade():
     op.create_table(
         "background_jobs",
         sa.Column("id", sa.BigInteger(), nullable=False),
-        sa.Column("job_type", sa.Enum("send_email", "purge_login_tokens", name="backgroundjobtype"), nullable=False),
+        sa.Column(
+            "job_type",
+            sa.Enum("send_email", "purge_login_tokens", "purge_signup_tokens", name="backgroundjobtype"),
+            nullable=False,
+        ),
         sa.Column(
             "state",
             sa.Enum("pending", "reserved", "completed", "error", "failed", name="backgroundjobstate"),
@@ -38,7 +42,11 @@ def upgrade():
     op.create_table(
         "repeated_jobs",
         sa.Column("id", sa.BigInteger(), nullable=False),
-        sa.Column("job_type", sa.Enum("send_email", "purge_login_tokens", name="backgroundjobtype"), nullable=False),
+        sa.Column(
+            "job_type",
+            sa.Enum("send_email", "purge_login_tokens", "purge_signup_tokens", name="backgroundjobtype"),
+            nullable=False,
+        ),
         sa.Column("last_run", sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_repeated_jobs")),
         sa.UniqueConstraint("job_type", name=op.f("uq_repeated_jobs_job_type")),
