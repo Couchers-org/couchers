@@ -305,6 +305,9 @@ def test_job_retry(db):
     with patch("couchers.jobs.worker.JOBS", MOCK_JOBS):
         process_job()
         with session_scope() as session:
+            assert session.query(BackgroundJob).filter(BackgroundJob.state == BackgroundJobState.error).count() == 1
+            assert session.query(BackgroundJob).filter(BackgroundJob.state != BackgroundJobState.error).count() == 0
+
             session.query(BackgroundJob).one().next_attempt_after = func.now()
         process_job()
         with session_scope() as session:
