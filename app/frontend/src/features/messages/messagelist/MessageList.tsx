@@ -26,7 +26,7 @@ export default function MessageList({
   const classes = useStyles();
 
   return (
-    <Box className={classes.list}>
+    <Box className={classes.list} data-testid="message-list">
       {messages.length ? (
         messages.map((message) =>
           isControlMessage(message) ? (

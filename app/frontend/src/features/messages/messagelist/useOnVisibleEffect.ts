@@ -8,8 +8,8 @@ export default function useOnVisibleEffect(
   const { ref, inView } = useInView();
 
   useEffect(() => {
-    if (inView && onVisible) {
-      onVisible(messageId);
+    if (inView) {
+      onVisible?.(messageId);
     }
   }, [inView, onVisible, messageId]);
 

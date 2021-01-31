@@ -45,7 +45,11 @@ export default function ControlMessageView({
   const authorName = isCurrentUser ? "you" : firstName(author?.name);
   const targetName = firstName(target?.name);
   return (
-    <Box className={classes.root} ref={ref}>
+    <Box
+      className={classes.root}
+      data-testid={`message-${message.messageId}`}
+      ref={ref}
+    >
       <Box className={classes.timestamp}>
         <TimeInterval date={timestamp2Date(message.time!)} />
       </Box>

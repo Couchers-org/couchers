@@ -82,6 +82,7 @@ export default function MessageView({ message, onVisible }: MessageProps) {
         [classes.userRoot]: isCurrentUser,
         [classes.otherRoot]: !isCurrentUser,
       })}
+      data-testid={`message-${message.messageId}`}
       ref={ref}
       style={{}}
     >
