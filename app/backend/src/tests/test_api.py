@@ -166,7 +166,6 @@ def test_update_profile(db):
         assert user.occupation == "Testing"
         assert user.about_me == "I rule"
         assert user.about_place == "My place"
-        assert user.color == "#111111"
         assert user.hosting_status == api_pb2.HOSTING_STATUS_CAN_HOST
         assert "Binary" in user.languages
         assert "English" in user.languages
