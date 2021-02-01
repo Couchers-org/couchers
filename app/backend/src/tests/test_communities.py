@@ -15,7 +15,7 @@ from couchers.models import (
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_aware_datetime, to_multi
 from pb import communities_pb2, pages_pb2
-from tests.test_fixtures import communities_session, db, generate_user, pages_session, testconfig
+from tests.test_fixtures import communities_session, db_class, generate_user, pages_session, testconfig
 
 
 @pytest.fixture(autouse=True)
@@ -170,7 +170,7 @@ def get_group_id(session, group_name):
 
 
 @pytest.fixture(scope="class")
-def testing_communities(db):
+def testing_communities(db_class):
     user1, token1 = generate_user(username="user1", geom=_create_1d_point(1), geom_radius=0.1)
     user2, token2 = generate_user(username="user2", geom=_create_1d_point(2), geom_radius=0.1)
     user3, token3 = generate_user(username="user3", geom=_create_1d_point(3), geom_radius=0.1)
@@ -207,6 +207,7 @@ def testing_communities(db):
     _create_place(token6, "Country 2, Region 1, Attraction", "Place content", "Somewhere in c2r1", 59)
 
 
+@pytest.mark.usefixtures("testing_communities")
 class TestCommunities:
     def test_GetCommunity(testing_communities):
         with session_scope() as session:
