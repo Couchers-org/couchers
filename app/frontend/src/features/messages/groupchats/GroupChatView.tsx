@@ -19,6 +19,7 @@ import { useAuthContext } from "../../auth/AuthProvider";
 import useUsers from "../../userQueries/useUsers";
 import MessageList from "../messagelist/MessageList";
 import { groupChatTitleText } from "../utils";
+import AdminsDialog from "./AdminsDialog";
 import GroupChatSendField from "./GroupChatSendField";
 import GroupChatSettingsDialog from "./GroupChatSettingsDialog";
 import InviteDialog from "./InviteDialog";
@@ -41,6 +42,7 @@ export default function GroupChatView() {
     menu: false,
     invite: false,
     members: false,
+    admins: false,
     settings: false,
     leave: false,
   });
@@ -150,10 +152,19 @@ export default function GroupChatView() {
                     Chat members
                   </MenuItem>
                   {isChatAdmin && (
-                    <MenuItem onClick={() => handleClick("settings")}>
-                      Chat settings
+                    <MenuItem onClick={() => handleClick("admins")}>
+                      Manage chat admins
                     </MenuItem>
                   )}
+
+                  {
+                    //<Menu> doesn't accept JSX Fragment children
+                    isChatAdmin && (
+                      <MenuItem onClick={() => handleClick("settings")}>
+                        Chat settings
+                      </MenuItem>
+                    )
+                  }
                   {groupChat?.memberUserIdsList.includes(currentUserId) && (
                     <MenuItem onClick={() => handleClick("leave")}>
                       Leave chat
@@ -171,11 +182,18 @@ export default function GroupChatView() {
                   groupChat={groupChat}
                 />
                 {groupChat && (
-                  <GroupChatSettingsDialog
-                    open={isOpen.settings}
-                    onClose={() => handleClose("settings")}
-                    groupChat={groupChat}
-                  />
+                  <>
+                    <AdminsDialog
+                      open={isOpen.admins}
+                      onClose={() => handleClose("admins")}
+                      groupChat={groupChat}
+                    />
+                    <GroupChatSettingsDialog
+                      open={isOpen.settings}
+                      onClose={() => handleClose("settings")}
+                      groupChat={groupChat}
+                    />
+                  </>
                 )}
                 <LeaveDialog
                   open={isOpen.leave}

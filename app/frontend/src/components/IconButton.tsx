@@ -1,6 +1,6 @@
 import {
   IconButton as MuiIconButton,
-  IconButtonProps,
+  IconButtonProps as MuiIconButtonProps,
   makeStyles,
   useTheme,
 } from "@material-ui/core";
@@ -14,10 +14,15 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+interface IconButtonProps extends MuiIconButtonProps {
+  "aria-label": string;
+  loading?: boolean;
+}
+
 export default function IconButton({
   loading,
   ...otherProps
-}: IconButtonProps & { loading?: boolean }) {
+}: IconButtonProps) {
   const classes = useStyles();
   const theme = useTheme();
   return (

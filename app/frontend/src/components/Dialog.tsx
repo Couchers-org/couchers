@@ -33,6 +33,9 @@ const useStyles = makeStyles((theme) => ({
       fontSize: 16,
       fontWeight: "bold",
     },
+    "&:not(:nth-child(1))": {
+      paddingTop: 0,
+    },
   },
 }));
 
