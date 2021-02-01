@@ -6,7 +6,7 @@ from couchers import errors
 from couchers.db import session_scope
 from pb import groups_pb2, pages_pb2
 from tests.test_communities import get_community_id, get_group_id, get_user_id_and_token, testing_communities
-from tests.test_fixtures import db, generate_user, groups_session, lists_equal, testconfig
+from tests.test_fixtures import db, generate_user, groups_session, testconfig
 
 
 @pytest.fixture(autouse=True)
@@ -56,7 +56,7 @@ class TestGroups:
             assert res.main_page.title == "Main page for the Hitchhikers community"
             assert res.main_page.content == "There is nothing here yet..."
             # assert res.main_page.can_edit # TODO
-            assert lists_equal(res.main_page.editor_user_ids, [1])
+            assert res.main_page.editor_user_ids == [1]
             assert res.member
             assert res.admin
             assert res.member_count == 4
@@ -100,7 +100,7 @@ class TestGroups:
             assert res.main_page.title == "Main page for the Country 1, Region 2, Foodies community"
             assert res.main_page.content == "There is nothing here yet..."
             # assert res.main_page.can_edit # TODO
-            assert lists_equal(res.main_page.editor_user_ids, [2])
+            assert res.main_page.editor_user_ids == [2]
             assert res.member
             assert res.admin
             assert res.member_count == 3
@@ -145,7 +145,7 @@ class TestGroups:
             assert res.main_page.title == "Main page for the Country 2, Region 1, Foodies community"
             assert res.main_page.content == "There is nothing here yet..."
             # assert res.main_page.can_edit # TODO
-            assert lists_equal(res.main_page.editor_user_ids, [6])
+            assert res.main_page.editor_user_ids == [6]
             assert not res.member
             assert not res.admin
             assert res.member_count == 2
@@ -164,14 +164,14 @@ class TestGroups:
                     group_id=hitchhikers_id,
                 )
             )
-            assert lists_equal(res.admin_user_ids, [user1_id, user2_id])
+            assert res.admin_user_ids == [user1_id, user2_id]
 
             res = api.ListAdmins(
                 groups_pb2.ListAdminsReq(
                     group_id=c1r2foodies_id,
                 )
             )
-            assert lists_equal(res.admin_user_ids, [user2_id])
+            assert res.admin_user_ids == [user2_id]
 
     def test_ListMembers(testing_communities):
         with session_scope() as session:
@@ -189,14 +189,14 @@ class TestGroups:
                     group_id=hitchhikers_id,
                 )
             )
-            assert lists_equal(res.member_user_ids, [user1_id, user2_id, user5_id, user8_id])
+            assert res.member_user_ids == [user1_id, user2_id, user5_id, user8_id]
 
             res = api.ListMembers(
                 groups_pb2.ListMembersReq(
                     group_id=c1r2foodies_id,
                 )
             )
-            assert lists_equal(res.member_user_ids, [user2_id, user4_id, user5_id])
+            assert res.member_user_ids == [user2_id, user4_id, user5_id]
 
 
 # TODO: also requires implementing content transfer functionality

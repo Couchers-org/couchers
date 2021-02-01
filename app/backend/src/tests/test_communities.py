@@ -15,7 +15,7 @@ from couchers.models import (
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_aware_datetime, to_multi
 from pb import communities_pb2, pages_pb2
-from tests.test_fixtures import communities_session, db, generate_user, lists_equal, pages_session, testconfig
+from tests.test_fixtures import communities_session, db, generate_user, pages_session, testconfig
 
 
 @pytest.fixture(autouse=True)
@@ -240,7 +240,7 @@ class TestCommunities:
             assert res.main_page.title == "Main page for the World community"
             assert res.main_page.content == "There is nothing here yet..."
             # assert not res.main_page.can_edit # TODO
-            assert lists_equal(res.main_page.editor_user_ids, [1])
+            assert res.main_page.editor_user_ids == [1]
             assert res.member
             assert not res.admin
             assert res.member_count == 8
@@ -284,7 +284,7 @@ class TestCommunities:
             assert res.main_page.title == "Main page for the Country 1, Region 1, City 1 community"
             assert res.main_page.content == "There is nothing here yet..."
             # assert res.main_page.can_edit # TODO
-            assert lists_equal(res.main_page.editor_user_ids, [2])
+            assert res.main_page.editor_user_ids == [2]
             assert res.member
             assert res.admin
             assert res.member_count == 3
@@ -318,7 +318,7 @@ class TestCommunities:
             assert res.main_page.title == "Main page for the Country 2 community"
             assert res.main_page.content == "There is nothing here yet..."
             # assert not res.main_page.can_edit # TODO
-            assert lists_equal(res.main_page.editor_user_ids, [6])
+            assert res.main_page.editor_user_ids == [6]
             assert not res.member
             assert not res.admin
             assert res.member_count == 2
@@ -337,7 +337,7 @@ class TestCommunities:
                     community_id=c1_id,
                 )
             )
-            assert lists_equal([c.community_id for c in res.communities], [c1r1_id, c1r2_id])
+            assert [c.community_id for c in res.communities] == [c1r1_id, c1r2_id]
 
     def test_ListGroups(testing_communities):
         with session_scope() as session:
@@ -355,7 +355,7 @@ class TestCommunities:
                     community_id=c1r1_id,
                 )
             )
-            assert lists_equal([g.group_id for g in res.groups], [foodies_id, skaters_id])
+            assert [g.group_id for g in res.groups] == [foodies_id, skaters_id]
 
         with communities_session(token5) as api:
             res = api.ListGroups(
@@ -382,14 +382,14 @@ class TestCommunities:
                     community_id=w_id,
                 )
             )
-            assert lists_equal(res.admin_user_ids, [user1_id, user3_id, user7_id])
+            assert res.admin_user_ids == [user1_id, user3_id, user7_id]
 
             res = api.ListAdmins(
                 communities_pb2.ListAdminsReq(
                     community_id=c1r1c2_id,
                 )
             )
-            assert lists_equal(res.admin_user_ids, [user4_id, user5_id])
+            assert res.admin_user_ids == [user4_id, user5_id]
 
     def test_ListMembers(testing_communities):
         with session_scope() as session:
@@ -410,16 +410,23 @@ class TestCommunities:
                     community_id=w_id,
                 )
             )
-            assert lists_equal(
-                res.member_user_ids, [user1_id, user2_id, user3_id, user4_id, user5_id, user6_id, user7_id, user8_id]
-            )
+            assert res.member_user_ids == [
+                user1_id,
+                user2_id,
+                user3_id,
+                user4_id,
+                user5_id,
+                user6_id,
+                user7_id,
+                user8_id,
+            ]
 
             res = api.ListMembers(
                 communities_pb2.ListMembersReq(
                     community_id=c1r1c2_id,
                 )
             )
-            assert lists_equal(res.member_user_ids, [user2_id, user4_id, user5_id])
+            assert res.member_user_ids == [user2_id, user4_id, user5_id]
 
     def test_ListNearbyUsers(testing_communities):
         with session_scope() as session:
@@ -440,16 +447,23 @@ class TestCommunities:
                     community_id=w_id,
                 )
             )
-            assert lists_equal(
-                res.nearby_user_ids, [user1_id, user2_id, user3_id, user4_id, user5_id, user6_id, user7_id, user8_id]
-            )
+            assert res.nearby_user_ids == [
+                user1_id,
+                user2_id,
+                user3_id,
+                user4_id,
+                user5_id,
+                user6_id,
+                user7_id,
+                user8_id,
+            ]
 
             res = api.ListNearbyUsers(
                 communities_pb2.ListNearbyUsersReq(
                     community_id=c1r1c2_id,
                 )
             )
-            assert lists_equal(res.nearby_user_ids, [user4_id])
+            assert res.nearby_user_ids == [user4_id]
 
 
 # TODO: requires transferring of content

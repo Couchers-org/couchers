@@ -422,8 +422,3 @@ def fast_passwords():
     with patch("couchers.crypto.nacl.pwhash.verify", fast_verify):
         with patch("couchers.crypto.nacl.pwhash.str", fast_hash):
             yield
-
-
-def lists_equal(list1, list2):
-    """Compare equality of (hashable) elements in two lists, by computing size of symmetric set difference"""
-    return len(set(list1) ^ set(list2)) == 0
