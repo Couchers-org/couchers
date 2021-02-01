@@ -422,7 +422,7 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-janis.jpg" alt="Headshot of Henri">
+                      <img class="is-rounded" src="/img/head-henri.jpg" alt="Headshot of Henri">
                     </figure>
                   </div>
                   <div class="media-content">

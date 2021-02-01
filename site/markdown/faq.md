@@ -22,13 +22,11 @@ Everyone in our team has had amazing experiences using Couchsurfing&#8482;, but 
 
 We don't plan on making money out of this. [There is no money to be made out of this](/issues/profit-and-incentives). That's one important lesson we can learn from the monetization of Couchsurfing&#8482;.
 
-
 ### Why don't you just work with any of the other non-profit platforms?
 
 We are approaching this from a different angle. BeWelcome and TrustRoots have built platforms that are functionally different from Couchsurfing&#8482;, whereas we aim to build a platform that is functionally more similar (hosting, surfing, hangouts, events, etc. in a convenient app), but is modernized, far better designed and built, and with the community interests as the main priority.
 
 There are also some core ideas that we want to build into the foundations, and that requires something new. We fundamentally believe that some of the actions taken by Couchsurfing&#8482; in the design of its platform have damaged communities, but we also believe that the reverse can be true. With good architecture and design we can encourage healthy communities, user's safety, filter out creeps and freeloaders, and make the experience a better one for all users. You can read about our [ideas for the design](/solutions/) to achieve this.
-
 
 ### This sounds great! Can I donate some money to help out?
 
@@ -40,7 +38,7 @@ If you want to help out in other ways, please get in touch and [join the team](/
 
 There are three main costs that Couchsurfing&#8482; needs to cover that we will need to replicate:
 
-1. Moderators (following up on reports about bad user behavior, etc)
+1. Moderators (following up on reports about bad user behavior, etc.)
 2. Developers
 3. Server hosting and third-party services
 
