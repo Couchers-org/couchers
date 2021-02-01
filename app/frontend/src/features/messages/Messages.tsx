@@ -22,12 +22,22 @@ export function MessagesNotification() {
   );
 }
 
-export function HostRequestsNotification() {
+export function HostRequestsReceivedNotification() {
+  const { data } = useNotifications();
+
+  return (
+    <NotificationBadge count={data?.unseenReceivedHostRequestCount}>
+      Hosting
+    </NotificationBadge>
+  );
+}
+
+export function HostRequestsSentNotification() {
   const { data } = useNotifications();
 
   return (
     <NotificationBadge count={data?.unseenSentHostRequestCount}>
-      Hosting
+      Surfing
     </NotificationBadge>
   );
 }
@@ -35,8 +45,8 @@ export function HostRequestsNotification() {
 const labels = {
   all: "All",
   groupchats: <MessagesNotification />,
-  hosting: <HostRequestsNotification />,
-  surfing: "Surfing",
+  hosting: <HostRequestsReceivedNotification />,
+  surfing: <HostRequestsSentNotification />,
   meet: "Meet",
   archived: "Archived",
 };

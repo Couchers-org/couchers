@@ -8,6 +8,7 @@ import useCurrentUser from "../../userQueries/useCurrentUser";
 import { useUser } from "../../userQueries/useUsers";
 import TimeInterval from "./MomentIndication";
 import classNames from "classnames";
+import useOnVisibleEffect from "./useOnVisibleEffect";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -64,19 +65,25 @@ const useStyles = makeStyles((theme) => ({
 
 export interface MessageProps {
   message: Message.AsObject;
+  onVisible?(messageId: number): void;
 }
 
-export default function MessageView({ message }: MessageProps) {
+export default function MessageView({ message, onVisible }: MessageProps) {
   const classes = useStyles();
   const { data: author } = useUser(message.authorUserId);
   const { data: currentUser } = useCurrentUser();
   const isCurrentUser = author?.userId === currentUser?.userId;
+
+  const { ref } = useOnVisibleEffect(message.messageId, onVisible);
+
   return (
     <Box
       className={classNames(classes.root, {
         [classes.userRoot]: isCurrentUser,
         [classes.otherRoot]: !isCurrentUser,
       })}
+      data-testid={`message-${message.messageId}`}
+      ref={ref}
       style={{}}
     >
       {author && !isCurrentUser && (

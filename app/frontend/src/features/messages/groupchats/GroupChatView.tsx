@@ -1,23 +1,24 @@
 import { Box, Menu, MenuItem } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
+import { Skeleton } from "@material-ui/lab";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { Error, Error as GrpcError } from "grpc-web";
 import React, { useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useHistory, useParams } from "react-router-dom";
 import Alert from "../../../components/Alert";
 import CircularProgress from "../../../components/CircularProgress";
-import { Error as GrpcError } from "grpc-web";
-import { GroupChat, Message } from "../../../pb/conversations_pb";
-import MessageList from "../messagelist/MessageList";
-import { service } from "../../../service";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import GroupChatSendField from "./GroupChatSendField";
+import HeaderButton from "../../../components/HeaderButton";
 import { BackIcon, OverflowMenuIcon } from "../../../components/Icons";
-import { groupChatTitleText } from "../utils";
+import PageTitle from "../../../components/PageTitle";
+import { GroupChat, Message } from "../../../pb/conversations_pb";
+import { service } from "../../../service";
 import { useAuthContext } from "../../auth/AuthProvider";
 import useUsers from "../../userQueries/useUsers";
-import PageTitle from "../../../components/PageTitle";
-import { useHistory, useParams } from "react-router-dom";
-import { Skeleton } from "@material-ui/lab";
-import HeaderButton from "../../../components/HeaderButton";
+import MessageList from "../messagelist/MessageList";
+import useMarkLastSeen, { MarkLastSeenVariables } from "../useMarkLastSeen";
+import { groupChatTitleText } from "../utils";
+import GroupChatSendField from "./GroupChatSendField";
 
 const useStyles = makeStyles((theme) => ({
   header: { display: "flex", alignItems: "center" },
@@ -71,7 +72,7 @@ export default function GroupChatView() {
 
   const queryClient = useQueryClient();
   const sendMutation = useMutation<Empty, GrpcError, string>(
-    (text: string) => service.conversations.sendMessage(groupChatId, text),
+    (text) => service.conversations.sendMessage(groupChatId, text),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["groupChatMessages", groupChatId]);
@@ -90,10 +91,29 @@ export default function GroupChatView() {
     }
   );
 
+  const { mutate: markLastSeenGroupChat } = useMutation<
+    Empty,
+    Error,
+    MarkLastSeenVariables
+  >(
+    (messageId) =>
+      service.conversations.markLastSeenGroupChat(groupChatId, messageId),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["groupChat", groupChatId]);
+      },
+    }
+  );
+  const { markLastSeen } = useMarkLastSeen(
+    markLastSeenGroupChat,
+    groupChat?.lastSeenMessageId
+  );
+
   const history = useHistory();
 
   const handleLeaveGroupChat = () => leaveGroupChatMutation.mutate();
   const handleBack = () => history.goBack();
+
   return (
     <Box>
       {!groupChatId ? (
@@ -159,7 +179,7 @@ export default function GroupChatView() {
           ) : (
             messages && (
               <>
-                <MessageList messages={messages} />
+                <MessageList markLastSeen={markLastSeen} messages={messages} />
                 <GroupChatSendField sendMutation={sendMutation} />
               </>
             )

@@ -1,26 +1,27 @@
 import { Box, Menu, MenuItem } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
-import * as React from "react";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { Error, Error as GrpcError } from "grpc-web";
+import { useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useHistory, useParams } from "react-router-dom";
 import Alert from "../../../components/Alert";
 import CircularProgress from "../../../components/CircularProgress";
-import { Message } from "../../../pb/conversations_pb";
-import { HostRequest, RespondHostRequestReq } from "../../../pb/requests_pb";
-import { service } from "../../../service";
-import { useUser } from "../../userQueries/useUsers";
-import MessageList from "../messagelist/MessageList";
-import { Error as GrpcError } from "grpc-web";
-import { useAuthContext } from "../../auth/AuthProvider";
-import HostRequestSendField from "./HostRequestSendField";
-import { useHistory, useParams } from "react-router-dom";
-import { firstName } from "../../../utils/names";
-import { useRef, useState } from "react";
+import Divider from "../../../components/Divider";
 import HeaderButton from "../../../components/HeaderButton";
 import { BackIcon, OverflowMenuIcon } from "../../../components/Icons";
 import PageTitle from "../../../components/PageTitle";
 import UserSummary from "../../../components/UserSummary";
-import Divider from "../../../components/Divider";
+import { Message } from "../../../pb/conversations_pb";
+import { HostRequest, RespondHostRequestReq } from "../../../pb/requests_pb";
+import { service } from "../../../service";
+import { firstName } from "../../../utils/names";
+import { useAuthContext } from "../../auth/AuthProvider";
+import { useUser } from "../../userQueries/useUsers";
+import MessageList from "../messagelist/MessageList";
+import useMarkLastSeen, { MarkLastSeenVariables } from "../useMarkLastSeen";
+import HostRequestSendField from "./HostRequestSendField";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -115,6 +116,24 @@ export default function HostRequestView() {
     }
   );
 
+  const { mutate: markLastRequestSeen } = useMutation<
+    Empty,
+    Error,
+    MarkLastSeenVariables
+  >(
+    (messageId) =>
+      service.requests.markLastRequestSeen(hostRequestId, messageId),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["hostRequest", hostRequestId]);
+      },
+    }
+  );
+  const { markLastSeen } = useMarkLastSeen(
+    markLastRequestSeen,
+    hostRequest?.lastSeenMessageId
+  );
+
   const history = useHistory();
 
   const handleBack = () => history.goBack();
@@ -172,7 +191,7 @@ export default function HostRequestView() {
           )}
           {messages && hostRequest && (
             <>
-              <MessageList messages={messages} />
+              <MessageList markLastSeen={markLastSeen} messages={messages} />
               <HostRequestSendField
                 hostRequest={hostRequest}
                 sendMutation={sendMutation}

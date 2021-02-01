@@ -4,6 +4,7 @@ import {
   GetHostRequestMessagesReq,
   GetHostRequestReq,
   ListHostRequestsReq,
+  MarkLastSeenHostRequestReq,
   RespondHostRequestReq,
   SendHostRequestMessageReq,
 } from "../pb/requests_pb";
@@ -78,4 +79,12 @@ export async function createHostRequest(
   const response = await client.requests.createHostRequest(req);
 
   return response.getHostRequestId();
+}
+
+export function markLastRequestSeen(hostRequestId: number, messageId: number) {
+  const req = new MarkLastSeenHostRequestReq();
+  req.setHostRequestId(hostRequestId);
+  req.setLastSeenMessageId(messageId);
+
+  return client.requests.markLastSeenHostRequest(req);
 }

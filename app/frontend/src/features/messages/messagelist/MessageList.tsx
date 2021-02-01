@@ -16,19 +16,31 @@ const useStyles = makeStyles({
 
 export interface MessageListProps extends BoxProps {
   messages: Array<Message.AsObject>;
+  markLastSeen(messageId: number): void;
 }
 
-export default function MessageList({ messages }: MessageListProps) {
+export default function MessageList({
+  markLastSeen,
+  messages,
+}: MessageListProps) {
   const classes = useStyles();
 
   return (
-    <Box className={classes.list}>
+    <Box className={classes.list} data-testid="message-list">
       {messages.length ? (
         messages.map((message) =>
           isControlMessage(message) ? (
-            <ControlMessageView key={message.messageId} message={message} />
+            <ControlMessageView
+              key={message.messageId}
+              onVisible={markLastSeen}
+              message={message}
+            />
           ) : (
-            <MessageView key={message.messageId} message={message} />
+            <MessageView
+              key={message.messageId}
+              onVisible={markLastSeen}
+              message={message}
+            />
           )
         )
       ) : (

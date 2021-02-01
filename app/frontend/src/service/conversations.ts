@@ -7,6 +7,7 @@ import {
   GroupChat,
   LeaveGroupChatReq,
   ListGroupChatsReq,
+  MarkLastSeenGroupChatReq,
   Message,
   SendMessageReq,
 } from "../pb/conversations_pb";
@@ -64,4 +65,14 @@ export function leaveGroupChat(groupChatId: number) {
   const req = new LeaveGroupChatReq();
   req.setGroupChatId(groupChatId);
   return client.conversations.leaveGroupChat(req);
+}
+
+export function markLastSeenGroupChat(
+  groupChatId: number,
+  lastSeenMessageId: number
+) {
+  const req = new MarkLastSeenGroupChatReq();
+  req.setGroupChatId(groupChatId);
+  req.setLastSeenMessageId(lastSeenMessageId);
+  return client.conversations.markLastSeenGroupChat(req);
 }

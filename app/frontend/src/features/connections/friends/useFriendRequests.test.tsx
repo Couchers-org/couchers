@@ -99,7 +99,7 @@ describe("when the listFriendRequests succeeds", () => {
             name: "Funny Dog",
             userId: 2,
             username: "funnydog",
-            avatarUrl: "funnydog.jpg",
+            avatarUrl: "",
           },
         },
       ],

@@ -3,7 +3,11 @@ import React from "react";
 import wrapper from "../../test/hookWrapper";
 import user from "../../test/fixtures/defaultUser.json";
 import { service } from "../../service";
-import { HostRequestsNotification, MessagesNotification } from "./Messages";
+import {
+  HostRequestsReceivedNotification,
+  HostRequestsSentNotification,
+  MessagesNotification,
+} from "./Messages";
 
 const pingMock = service.api.ping as jest.Mock<
   ReturnType<typeof service.api.ping>,
@@ -15,17 +19,18 @@ afterEach(() => {
 });
 
 describe.each`
-  name                          | label            | count   | Component
-  ${"HostRequestsNotification"} | ${"Hosting"}     | ${"99"} | ${HostRequestsNotification}
-  ${"MessagesNotification"}     | ${"Group Chats"} | ${"99"} | ${MessagesNotification}
+  name                                  | label            | count   | Component
+  ${"HostRequestsReceivedNotification"} | ${"Hosting"}     | ${"12"} | ${HostRequestsReceivedNotification}
+  ${"HostRequestsSentNotification"}     | ${"Surfing"}     | ${"34"} | ${HostRequestsSentNotification}
+  ${"MessagesNotification"}             | ${"Group Chats"} | ${"56"} | ${MessagesNotification}
 `("$name", ({ label, count, Component }) => {
   it("shows the label with the number of unseen messages in a badge", async () => {
     pingMock.mockResolvedValue({
       user,
       pendingFriendRequestCount: 99,
-      unseenSentHostRequestCount: 99,
-      unseenReceivedHostRequestCount: 99,
-      unseenMessageCount: 99,
+      unseenSentHostRequestCount: 34,
+      unseenReceivedHostRequestCount: 12,
+      unseenMessageCount: 56,
     });
     render(<Component />, { wrapper });
 

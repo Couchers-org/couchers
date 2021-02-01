@@ -10,3 +10,8 @@ export function addDefaultUser(userId?: number) {
 export function wait(milliSeconds: number) {
   return new Promise((resolve) => setTimeout(resolve, milliSeconds));
 }
+
+export type MockedService<T extends (...args: any) => any> = jest.Mock<
+  ReturnType<T>,
+  Parameters<T>
+>;
