@@ -210,6 +210,7 @@ def testing_communities(request):
     yield
 
 
+@pytest.mark.usefixtures("testing_communities")
 class TestCommunities:
     @staticmethod
     def test_GetCommunity(testing_communities):
