@@ -25,7 +25,7 @@ export default function hookWrapper({
 }
 
 interface HookWrapperConfig {
-  initialEntries?: string[];
+  initialRouterEntries?: string[];
 }
 
 /**
@@ -33,7 +33,7 @@ interface HookWrapperConfig {
  * Useful for when you need access to the client as well for certain tests.
  */
 export function getHookWrapperWithClient({
-  initialEntries,
+  initialRouterEntries,
 }: HookWrapperConfig = {}) {
   const client = new QueryClient({
     defaultOptions: {
@@ -43,7 +43,7 @@ export function getHookWrapperWithClient({
     },
   });
   const wrapper = ({ children }: { children?: React.ReactNode }) => (
-    <MemoryRouter initialEntries={initialEntries}>
+    <MemoryRouter initialEntries={initialRouterEntries}>
       <QueryClientProvider client={client}>
         <AuthProvider>{children}</AuthProvider>
       </QueryClientProvider>

@@ -63,7 +63,7 @@ beforeEach(() => {
 
 function renderGroupChatView() {
   const { client, wrapper } = getHookWrapperWithClient({
-    initialEntries: [`${messagesRoute}/groupchats/1`],
+    initialRouterEntries: [`${messagesRoute}/groupchats/1`],
   });
   render(
     <Route path={`${messagesRoute}/groupchats/:groupChatId`}>

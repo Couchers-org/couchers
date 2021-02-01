@@ -22,7 +22,7 @@ export function MessagesNotification() {
   );
 }
 
-export function HostRequestsSentNotification() {
+export function HostRequestsReceivedNotification() {
   const { data } = useNotifications();
 
   return (
@@ -32,7 +32,7 @@ export function HostRequestsSentNotification() {
   );
 }
 
-export function HostRequestsReceivedNotification() {
+export function HostRequestsSentNotification() {
   const { data } = useNotifications();
 
   return (
@@ -45,8 +45,8 @@ export function HostRequestsReceivedNotification() {
 const labels = {
   all: "All",
   groupchats: <MessagesNotification />,
-  hosting: <HostRequestsSentNotification />,
-  surfing: <HostRequestsReceivedNotification />,
+  hosting: <HostRequestsReceivedNotification />,
+  surfing: <HostRequestsSentNotification />,
   meet: "Meet",
   archived: "Archived",
 };

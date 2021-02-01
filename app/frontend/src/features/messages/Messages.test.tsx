@@ -20,16 +20,16 @@ afterEach(() => {
 
 describe.each`
   name                                  | label            | count   | Component
-  ${"HostRequestsSentNotification"}     | ${"Hosting"}     | ${"12"} | ${HostRequestsSentNotification}
-  ${"HostRequestsReceivedNotification"} | ${"Surfing"}     | ${"34"} | ${HostRequestsReceivedNotification}
+  ${"HostRequestsReceivedNotification"} | ${"Hosting"}     | ${"12"} | ${HostRequestsReceivedNotification}
+  ${"HostRequestsSentNotification"}     | ${"Surfing"}     | ${"34"} | ${HostRequestsSentNotification}
   ${"MessagesNotification"}             | ${"Group Chats"} | ${"56"} | ${MessagesNotification}
 `("$name", ({ label, count, Component }) => {
   it("shows the label with the number of unseen messages in a badge", async () => {
     pingMock.mockResolvedValue({
       user,
       pendingFriendRequestCount: 99,
-      unseenSentHostRequestCount: 12,
-      unseenReceivedHostRequestCount: 34,
+      unseenSentHostRequestCount: 34,
+      unseenReceivedHostRequestCount: 12,
       unseenMessageCount: 56,
     });
     render(<Component />, { wrapper });
