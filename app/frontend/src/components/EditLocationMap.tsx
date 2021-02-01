@@ -52,7 +52,9 @@ export default function EditLocationMap({
   //map is imperative so these don't need to cause re-render
   const centerCoords = useRef<LngLat | null>(
     // TODO: better default?
-    location ? new LngLat(location.lng, location.lat) : new LngLat(151.2099, -33.865143)
+    location
+      ? new LngLat(location.lng, location.lat)
+      : new LngLat(151.2099, -33.865143)
   );
 
   const onMouseDown = (e: MapMouseEvent | MapTouchEvent) => {
@@ -104,7 +106,7 @@ export default function EditLocationMap({
         layout: {},
         paint: {
           "circle-color": theme.palette.primary.main,
-          "circle-radius": 10
+          "circle-radius": 10,
         },
       });
     });

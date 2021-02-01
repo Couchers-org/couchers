@@ -49,9 +49,12 @@ export default function EditProfileForm() {
     isMounted,
     null
   );
-  const { control, register, handleSubmit, setValue } = useForm<
-    UpdateUserProfileData
-  >({
+  const {
+    control,
+    register,
+    handleSubmit,
+    setValue,
+  } = useForm<UpdateUserProfileData>({
     defaultValues: {
       city: user?.city ?? undefined,
       lat: user?.lat ?? undefined,

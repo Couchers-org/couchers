@@ -9,10 +9,10 @@ import TextField from "../../components/TextField";
 import Alert from "../../components/Alert";
 import ProfileMarkdownInput from "../profile/ProfileMarkdownInput";
 import EditLocationMap from "../../components/EditLocationMap";
-import { Page } from "../../pb/pages_pb"
+import { Page } from "../../pb/pages_pb";
 import { service } from "../../service";
-import { PageType } from "../../pb/pages_pb"
-import {pageURL} from "./redirect"
+import { PageType } from "../../pb/pages_pb";
+import { pageURL } from "./redirect";
 
 type NewPageInputs = {
   title: string;
@@ -22,7 +22,7 @@ type NewPageInputs = {
   lng: number;
 };
 
-export default function NewPageForm({pageType}: {pageType: PageType}) {
+export default function NewPageForm({ pageType }: { pageType: PageType }) {
   const {
     control,
     register,
@@ -39,19 +39,18 @@ export default function NewPageForm({pageType}: {pageType: PageType}) {
   const {
     mutate: createPage,
     isLoading: isCreateLoading,
-    error: createError
+    error: createError,
   } = useMutation<Page.AsObject, GrpcError, NewPageInputs>(
-    ({title, content, address, lat, lng}: NewPageInputs) => service.pages.createPage(title, content, address, lat, lng, pageType),
+    ({ title, content, address, lat, lng }: NewPageInputs) =>
+      service.pages.createPage(title, content, address, lat, lng, pageType),
     {
       onSuccess: (page) => {
         history.push(pageURL(page));
-      }
+      },
     }
   );
 
-  const onSubmit = handleSubmit((data: NewPageInputs) =>
-    createPage(data)
-  );
+  const onSubmit = handleSubmit((data: NewPageInputs) => createPage(data));
 
   return (
     <>

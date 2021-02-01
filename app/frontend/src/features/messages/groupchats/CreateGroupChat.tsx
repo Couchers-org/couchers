@@ -35,9 +35,12 @@ export default function CreateGroupChat({ className }: { className?: string }) {
   const [isOpen, setIsOpen] = useState(false);
 
   const friends = useFriendList();
-  const { control, register, handleSubmit, reset: resetForm } = useForm<
-    CreateGroupChatFormData
-  >();
+  const {
+    control,
+    register,
+    handleSubmit,
+    reset: resetForm,
+  } = useForm<CreateGroupChatFormData>();
 
   const queryClient = useQueryClient();
   const {
