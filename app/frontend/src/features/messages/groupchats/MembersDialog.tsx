@@ -1,12 +1,3 @@
-import Button from "../../../components/Button";
-import IconButton from "../../../components/IconButton";
-import React, { useState } from "react";
-import {
-  Dialog,
-  DialogActions,
-  DialogTitle,
-  DialogContent,
-} from "../../../components/Dialog";
 import {
   CircularProgress,
   DialogProps,
@@ -14,18 +5,28 @@ import {
   ListItem,
   makeStyles,
 } from "@material-ui/core";
-import { GroupChat } from "../../../pb/conversations_pb";
-import useUsers from "../../userQueries/useUsers";
-import Avatar from "../../../components/Avatar";
-import { User } from "../../../pb/api_pb";
-import useAuthStore from "../../auth/useAuthStore";
-import TextBody from "../../../components/TextBody";
-import { useMutation, useQueryClient } from "react-query";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
-import { service } from "../../../service";
+import React, { useState } from "react";
+import { useMutation, useQueryClient } from "react-query";
+
 import Alert from "../../../components/Alert";
+import Avatar from "../../../components/Avatar";
+import Button from "../../../components/Button";
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+} from "../../../components/Dialog";
+import IconButton from "../../../components/IconButton";
 import { AddIcon, CloseIcon } from "../../../components/Icons";
+import TextBody from "../../../components/TextBody";
+import { User } from "../../../pb/api_pb";
+import { GroupChat } from "../../../pb/conversations_pb";
+import { service } from "../../../service";
+import useAuthStore from "../../auth/useAuthStore";
+import useUsers from "../../userQueries/useUsers";
 
 const useStyles = makeStyles((theme) => ({
   memberListItemContainer: {

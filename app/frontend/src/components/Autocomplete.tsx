@@ -3,9 +3,10 @@ import {
   Autocomplete as MuiAutocomplete,
   AutocompleteProps as MuiAutocompleteProps,
 } from "@material-ui/lab";
-import React from "react";
-import TextField from "./TextField";
 import classNames from "classnames";
+import React from "react";
+
+import TextField from "./TextField";
 
 const useStyles = makeStyles({
   root: {

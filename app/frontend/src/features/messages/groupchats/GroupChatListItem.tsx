@@ -6,7 +6,9 @@ import {
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
+import classNames from "classnames";
 import React from "react";
+
 import Avatar from "../../../components/Avatar";
 import { GroupChat } from "../../../pb/conversations_pb";
 import { firstName } from "../../../utils/names";
@@ -18,7 +20,6 @@ import {
   isControlMessage,
   messageTargetId,
 } from "../utils";
-import classNames from "classnames";
 
 const useStyles = makeStyles({ root: {} });
 

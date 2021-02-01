@@ -1,23 +1,24 @@
 import { Grid, makeStyles } from "@material-ui/core";
 import React from "react";
-import { useParams, Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
+
 import { messagesRoute, profileRoute } from "../../AppRoutes";
 import Alert from "../../components/Alert";
 import Button from "../../components/Button";
 import CircularProgress from "../../components/CircularProgress";
 import { CouchIcon, EditIcon } from "../../components/Icons";
-import AddFriendButton from "../connections/friends/AddFriendButton";
+import TextBody from "../../components/TextBody";
 import { User } from "../../pb/api_pb";
-import useUserByUsername from "../userQueries/useUserByUsername";
+import { useIsMounted, useSafeState } from "../../utils/hooks";
+import AddFriendButton from "../connections/friends/AddFriendButton";
 import useCurrentUser from "../userQueries/useCurrentUser";
+import useUserByUsername from "../userQueries/useUserByUsername";
 import UserAbout from "./UserAbout";
 import UserGuestbook from "./UserGuestbook";
 import UserHeader from "./UserHeader";
 import UserPlace from "./UserPlace";
 import UserSection from "./UserSection";
 import UserSummary from "./UserSummary";
-import { useIsMounted, useSafeState } from "../../utils/hooks";
-import TextBody from "../../components/TextBody";
 
 const useStyles = makeStyles((theme) => ({
   actionButton: {

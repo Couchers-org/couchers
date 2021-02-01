@@ -1,12 +1,13 @@
 import React from "react";
 import {
-  UseQueryOptions,
-  UseQueryResult,
   QueryClient,
   QueryClientProvider,
+  UseQueryOptions,
+  UseQueryResult,
 } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
 import { persistWithLocalStorage } from "react-query/persist-localstorage-experimental";
+
 import { reactQueryRetries } from "./constants";
 
 export const queryClient = new QueryClient({

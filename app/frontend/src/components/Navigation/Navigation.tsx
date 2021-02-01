@@ -3,19 +3,20 @@ import {
   Button,
   Grid,
   Hidden,
+  makeStyles,
   Toolbar,
   Typography,
-  makeStyles,
 } from "@material-ui/core";
 import React from "react";
 import { Link, NavLink } from "react-router-dom";
+
 import {
   connectionsRoute,
-  profileRoute,
+  logoutRoute,
   mapRoute,
   messagesRoute,
+  profileRoute,
   requestsRoute,
-  logoutRoute,
 } from "../../AppRoutes";
 import { useAuthContext } from "../../features/auth/AuthProvider";
 import SearchBox from "../SearchBox";

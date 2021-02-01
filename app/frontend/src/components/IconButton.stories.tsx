@@ -1,8 +1,8 @@
-import React from "react";
 import { Meta, Story } from "@storybook/react";
-import { CouchIcon } from "./Icons";
+import React from "react";
 
 import IconButton from "./IconButton";
+import { CouchIcon } from "./Icons";
 
 export default {
   title: "Components/IconButton",

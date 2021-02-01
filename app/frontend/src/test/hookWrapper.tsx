@@ -1,6 +1,7 @@
 import React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { MemoryRouter } from "react-router-dom";
+
 import AuthProvider from "../features/auth/AuthProvider";
 
 export default function hookWrapper({

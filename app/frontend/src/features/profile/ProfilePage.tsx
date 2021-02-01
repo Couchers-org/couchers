@@ -1,6 +1,6 @@
-import { makeStyles, List, ListItem } from "@material-ui/core";
-import { Link } from "react-router-dom";
+import { List, ListItem, makeStyles } from "@material-ui/core";
 import React from "react";
+import { Link } from "react-router-dom";
 
 import { editHostingPreferenceRoute, editProfileRoute } from "../../AppRoutes";
 import PageTitle from "../../components/PageTitle";

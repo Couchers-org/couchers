@@ -1,11 +1,12 @@
 import { renderHook } from "@testing-library/react-hooks";
-import { QueryClient, QueryClientProvider } from "react-query";
 import React from "react";
+import { QueryClient, QueryClientProvider } from "react-query";
+
 import { service } from "../../../service";
-import useFriendList from "./useFriendList";
-import { wait } from "../../../test/utils";
-import { getUser, listFriends } from "../../../test/serviceMockDefaults";
 import wrapper from "../../../test/hookWrapper";
+import { getUser, listFriends } from "../../../test/serviceMockDefaults";
+import { wait } from "../../../test/utils";
+import useFriendList from "./useFriendList";
 
 const listFriendsMock = service.api.listFriends as jest.Mock;
 const getUserMock = service.user.getUser as jest.Mock;
