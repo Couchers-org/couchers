@@ -6,7 +6,7 @@
     "@material-ui/core": "^4.11.2",
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.56",
-    "@types/mapbox-gl": "<2.0.0",
+    "@types/mapbox-gl": "<3.0.0",
     "classnames": "^2.2.6",
     "google-protobuf": "^3.13.0",
     "grpc-web": "^1.2.1",
