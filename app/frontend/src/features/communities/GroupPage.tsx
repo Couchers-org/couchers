@@ -9,7 +9,7 @@ import Alert from "../../components/Alert";
 import CircularProgress from "../../components/CircularProgress";
 import TextBody from "../../components/TextBody";
 import { useHistory } from "react-router-dom";
-import { groupRoute, communityRoute, pageRoute } from "../../AppRoutes"
+import { groupRoute, communityRoute, placeRoute, guideRoute } from "../../AppRoutes"
 import Markdown from "../../components/Markdown";
 import { Page } from "../../pb/pages_pb";
 
@@ -157,13 +157,13 @@ export default function GroupPage() {
           })
           : <p>This community has no members.</p>
         }
-        <h1>Places/points of interest</h1>
+        <h1>Places</h1>
         {placesLoading ? <CircularProgress /> :
         places ?
           places.map(place => {
             return (
               <>
-                <Link to={`${pageRoute}/${place.pageId}/${place.slug}`}>
+                <Link to={`${placeRoute}/${place.pageId}/${place.slug}`}>
                   {place.title}
                 </Link>
                 <br />
@@ -178,7 +178,7 @@ export default function GroupPage() {
           guides.map(guide => {
             return (
               <>
-                <Link to={`${pageRoute}/${guide.pageId}/${guide.slug}`}>
+                <Link to={`${guideRoute}/${guide.pageId}/${guide.slug}`}>
                   {guide.title}
                 </Link>
                 <br />

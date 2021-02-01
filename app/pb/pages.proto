@@ -28,7 +28,7 @@ message Coordinate {
 
 enum PageType {
   // point of intereset
-  PAGE_TYPE_POI = 0;
+  PAGE_TYPE_PLACE = 0;
   // guide
   PAGE_TYPE_GUIDE = 1;
   // main page of a cluster

@@ -17,13 +17,13 @@ def _check_update_permission(page: Page, user_id):
 
 
 pagetype2sql = {
-    pages_pb2.PAGE_TYPE_POI: PageType.point_of_interest,
+    pages_pb2.PAGE_TYPE_PLACE: PageType.place,
     pages_pb2.PAGE_TYPE_GUIDE: PageType.guide,
     pages_pb2.PAGE_TYPE_MAIN_PAGE: PageType.main_page,
 }
 
 pagetype2api = {
-    PageType.point_of_interest: pages_pb2.PAGE_TYPE_POI,
+    PageType.place: pages_pb2.PAGE_TYPE_PLACE,
     PageType.guide: pages_pb2.PAGE_TYPE_GUIDE,
     PageType.main_page: pages_pb2.PAGE_TYPE_MAIN_PAGE,
 }
@@ -66,7 +66,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_ADDRESS)
         if not request.HasField("location"):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_LOCATION)
-        if request.type not in [pages_pb2.PAGE_TYPE_POI, pages_pb2.PAGE_TYPE_GUIDE]:
+        if request.type not in [pages_pb2.PAGE_TYPE_PLACE, pages_pb2.PAGE_TYPE_GUIDE]:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANNOT_CREATE_PAGE_TYPE)
 
         with session_scope() as session:

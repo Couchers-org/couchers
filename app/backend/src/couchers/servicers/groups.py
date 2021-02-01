@@ -136,7 +136,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             if not cluster:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
             places = (
-                cluster.owned_pages.filter(Page.type == PageType.point_of_interest)
+                cluster.owned_pages.filter(Page.type == PageType.place)
                 .filter(Page.id >= next_page_id)
                 .order_by(Page.id)
                 .limit(page_size + 1)

@@ -9,9 +9,10 @@ import TextField from "../../components/TextField";
 import Alert from "../../components/Alert";
 import ProfileMarkdownInput from "../profile/ProfileMarkdownInput";
 import EditLocationMap from "../../components/EditLocationMap";
-import { pageRoute } from "../../AppRoutes";
 import { Page } from "../../pb/pages_pb"
 import { service } from "../../service";
+import { PageType } from "../../pb/pages_pb"
+import {pageURL} from "./redirect"
 
 type NewPageInputs = {
   title: string;
@@ -21,7 +22,7 @@ type NewPageInputs = {
   lng: number;
 };
 
-export default function CompleteSignup() {
+export default function NewPageForm({pageType}: {pageType: PageType}) {
   const {
     control,
     register,
@@ -40,10 +41,10 @@ export default function CompleteSignup() {
     isLoading: isCreateLoading,
     error: createError
   } = useMutation<Page.AsObject, GrpcError, NewPageInputs>(
-    ({title, content, address, lat, lng}: NewPageInputs) => service.pages.createPage(title, content, address, lat, lng),
+    ({title, content, address, lat, lng}: NewPageInputs) => service.pages.createPage(title, content, address, lat, lng, pageType),
     {
       onSuccess: (page) => {
-        history.push(`${pageRoute}/${page.pageId}/${page.slug}`);
+        history.push(pageURL(page));
       }
     }
   );
