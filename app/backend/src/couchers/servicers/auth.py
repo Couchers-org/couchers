@@ -341,7 +341,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 else:
                     logger.debug(f"Wrong password")
                     # wrong password
-                    context.abort(grpc.StatusCode.UNAUTHENTICATED, errors.INVALID_USERNAME_OR_PASSWORD)
+                    context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_USERNAME_OR_PASSWORD)
             else:  # user not found
                 logger.debug(f"Didn't find user")
                 # do about as much work as if the user was found, reduces timing based username enumeration attacks
