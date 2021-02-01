@@ -1,4 +1,4 @@
-import { Map as MapboxMap } from "mapbox-gl";
+import { Map as MaplibreMap } from "maplibre-gl";
 
 const URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -57,7 +57,7 @@ export const layers = {
 };
 
 export const addClusteredUsersToMap = (
-  map: MapboxMap,
+  map: MaplibreMap,
   userClickedCallback?: (ev: any) => void
 ) => {
   map.addSource("clustered-users", sources["clustered-users"] as any);

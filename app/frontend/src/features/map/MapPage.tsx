@@ -3,7 +3,7 @@ import { makeStyles } from "@material-ui/core";
 import PageTitle from "../../components/PageTitle";
 import Map from "../../components/Map";
 import { placeRoute, userRoute } from "../../AppRoutes";
-import { LngLat, Map as MapboxMap } from "mapbox-gl";
+import { LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { useHistory, useLocation } from "react-router-dom";
 
 import { addCommunitiesToMap } from "./communities";
@@ -36,7 +36,7 @@ export default function MapPage() {
     history.push(`${userRoute}/${username}`, location.state);
   };
 
-  const initializeMap = (map: MapboxMap) => {
+  const initializeMap = (map: MaplibreMap) => {
     map.on("load", () => {
       addCommunitiesToMap(map);
       addPagesToMap(map, handlePageClick);
