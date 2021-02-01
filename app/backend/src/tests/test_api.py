@@ -129,16 +129,6 @@ def test_get_user(db):
         assert res.name == user2.name
 
 
-def test_default_values(db):
-    user, token = generate_user()
-
-    with api_session(token) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
-        assert res.about_me == "Current Mission:\n\nWhat I do in my free time:\n"
-        assert res.my_travels == "Why I use Couchers:\n\nMy favorite travel story:\n"
-        assert res.things_i_like == "Art:\n\nBooks:\n\nMovies:\n\nMusic:\n"
-
-
 def test_update_profile(db):
     user, token = generate_user()
 
@@ -687,8 +677,7 @@ def test_hosting_preferences(db):
         assert not res.HasField("smokes_at_home")
         assert not res.HasField("drinking_allowed")
         assert not res.HasField("drinks_at_home")
-        assert res.HasField("other_host_info")
-        assert res.other_host_info.value == "What I can share with guests:\n"
+        assert not res.HasField("other_host_info")
         assert res.sleeping_arrangement == api_pb2.SLEEPINGG_ARRANGEMENT_UNKNOWN
         assert not res.HasField("sleeping_details")
         assert res.HasField("area")
@@ -721,8 +710,7 @@ def test_hosting_preferences(db):
         assert not res.HasField("smokes_at_home")
         assert not res.HasField("drinking_allowed")
         assert not res.HasField("drinks_at_home")
-        assert res.HasField("other_host_info")
-        assert res.other_host_info.value == "What I can share with guests:\n"
+        assert not res.HasField("other_host_info")
         assert res.sleeping_arrangement == api_pb2.SLEEPINGG_ARRANGEMENT_UNKNOWN
         assert not res.HasField("sleeping_details")
         assert res.HasField("area")
@@ -760,8 +748,7 @@ def test_hosting_preferences(db):
         assert not res.HasField("smokes_at_home")
         assert not res.HasField("drinking_allowed")
         assert not res.HasField("drinks_at_home")
-        assert res.HasField("other_host_info")
-        assert res.other_host_info.value == "What I can share with guests:\n"
+        assert not res.HasField("other_host_info")
         assert res.sleeping_arrangement == api_pb2.SLEEPINGG_ARRANGEMENT_UNKNOWN
         assert not res.HasField("sleeping_details")
         assert res.area.value == "area!"

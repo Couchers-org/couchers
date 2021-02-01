@@ -119,9 +119,9 @@ class User(Base):
 
     occupation = Column(String, nullable=True)
     education = Column(String, nullable=True)
-    about_me = Column(String, nullable=True, default="Current Mission:\n\nWhat I do in my free time:\n")
-    my_travels = Column(String, nullable=True, default="Why I use Couchers:\n\nMy favorite travel story:\n")
-    things_i_like = Column(String, nullable=True, default="Art:\n\nBooks:\n\nMovies:\n\nMusic:\n")
+    about_me = Column(String, nullable=True)
+    my_travels = Column(String, nullable=True)
+    things_i_like = Column(String, nullable=True)
     about_place = Column(String, nullable=True)
     # profile color
     avatar_filename = Column(String, nullable=True)
@@ -149,11 +149,11 @@ class User(Base):
     smokes_at_home = Column(Boolean, nullable=True)
     drinking_allowed = Column(Boolean, nullable=True)
     drinks_at_home = Column(Boolean, nullable=True)
-    other_host_info = Column(String, nullable=True, default="What I can share with guests:\n")
+    other_host_info = Column(String, nullable=True)
 
     sleeping_arrangement = Column(Enum(SleepingArrangement), nullable=True)
     sleeping_details = Column(String, nullable=True)
-    area = Column(String, nullable=True, default="Public transit:/n/nParking:/n/nAccessibility:/n")
+    area = Column(String, nullable=True)
     house_rules = Column(String, nullable=True)
     parking = Column(Boolean, nullable=True)
     parking_details = Column(Enum(ParkingDetails), nullable=True)
