@@ -1,4 +1,4 @@
-import { Map as MapboxMap } from "mapbox-gl";
+import { Map as MaplibreMap } from "maplibre-gl";
 
 const URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -24,7 +24,7 @@ export const layers = {
 };
 
 export const addPagesToMap = (
-  map: MapboxMap,
+  map: MaplibreMap,
   pageClickedCallback?: (ev: any) => void
 ) => {
   map.addSource("pages", sources["pages"] as any);

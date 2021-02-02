@@ -286,7 +286,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         Validates the given LoginToken (sent in email), creates a new session and returns bearer token.
 
-        Or fails with grpc.UNAUTHENTICATED if LoginToken is invalid.
+        Or fails with grpc.NOT_FOUND if LoginToken is invalid.
         """
         with session_scope() as session:
             res = (
@@ -312,7 +312,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 )
                 return auth_pb2.AuthRes(jailed=user.is_jailed)
             else:
-                context.abort(grpc.StatusCode.UNAUTHENTICATED, errors.INVALID_TOKEN)
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
 
     def Authenticate(self, request, context):
         """
@@ -341,12 +341,12 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 else:
                     logger.debug(f"Wrong password")
                     # wrong password
-                    context.abort(grpc.StatusCode.UNAUTHENTICATED, errors.INVALID_USERNAME_OR_PASSWORD)
+                    context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_USERNAME_OR_PASSWORD)
             else:  # user not found
                 logger.debug(f"Didn't find user")
                 # do about as much work as if the user was found, reduces timing based username enumeration attacks
                 hash_password(request.password)
-                context.abort(grpc.StatusCode.UNAUTHENTICATED, errors.INVALID_USERNAME_OR_PASSWORD)
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_USERNAME_OR_PASSWORD)
 
     def Deauthenticate(self, request, context):
         """
@@ -399,7 +399,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 session.commit()
                 return empty_pb2.Empty()
             else:
-                context.abort(grpc.StatusCode.UNAUTHENTICATED, errors.INVALID_TOKEN)
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
 
     def CompleteChangeEmail(self, request, context):
         """
@@ -424,4 +424,4 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 session.commit()
                 return empty_pb2.Empty()
             else:
-                context.abort(grpc.StatusCode.UNAUTHENTICATED, errors.INVALID_TOKEN)
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)

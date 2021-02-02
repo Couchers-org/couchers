@@ -1,4 +1,4 @@
-import { LngLat } from "mapbox-gl";
+import { LngLat } from "maplibre-gl";
 
 export const userLocationMaxRadius = 2000;
 export const userLocationMinRadius = 50;
