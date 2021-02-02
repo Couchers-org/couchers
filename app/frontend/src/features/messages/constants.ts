@@ -7,3 +7,5 @@ export const hostRequestStatusLabels = {
   [HostRequestStatus.HOST_REQUEST_STATUS_PENDING]: "Pending",
   [HostRequestStatus.HOST_REQUEST_STATUS_REJECTED]: "Rejected",
 };
+
+export const MARK_LAST_SEEN_TIMEOUT = 500;

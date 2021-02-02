@@ -69,7 +69,7 @@ describe("when user has loaded", () => {
         name: "Funny Dog",
         userId: 2,
         username: "funnydog",
-        avatarUrl: "funnydog.jpg",
+        avatarUrl: "",
       },
     });
     expect(getUserMock).toHaveBeenCalledTimes(2);

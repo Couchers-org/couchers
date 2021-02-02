@@ -14,6 +14,7 @@ import {
   LeaveGroupChatReq,
   ListGroupChatsReq,
   MakeGroupChatAdminReq,
+  MarkLastSeenGroupChatReq,
   Message,
   RemoveGroupChatAdminReq,
   SendMessageReq,
@@ -109,4 +110,14 @@ export function editGroupChat(
   if (onlyAdminsInvite !== undefined)
     req.setOnlyAdminsInvite(new BoolValue().setValue(onlyAdminsInvite));
   return client.conversations.editGroupChat(req);
+}
+
+export function markLastSeenGroupChat(
+  groupChatId: number,
+  lastSeenMessageId: number
+) {
+  const req = new MarkLastSeenGroupChatReq();
+  req.setGroupChatId(groupChatId);
+  req.setLastSeenMessageId(lastSeenMessageId);
+  return client.conversations.markLastSeenGroupChat(req);
 }

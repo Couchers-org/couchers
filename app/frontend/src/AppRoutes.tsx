@@ -22,6 +22,7 @@ import {
 } from "./features/profile";
 import SearchPage from "./features/search/SearchPage";
 import UserPage from "./features/userPage/UserPage";
+import { PageType } from "./pb/pages_pb";
 
 export const loginRoute = "/login";
 export const loginPasswordRoute = `${loginRoute}/password`;
@@ -41,8 +42,11 @@ export const searchRoute = "/search";
 export const jailRoute = "/restricted";
 export const tosRoute = "/tos";
 
-export const newPageRoute = "/page/new";
-export const pageRoute = "/page";
+export const newPlaceRoute = "/place/new";
+export const placeRoute = "/place";
+
+export const newGuideRoute = "/guide/new";
+export const guideRoute = "/guide";
 
 export const communityRoute = "/community"; ///:communityId/:communitySlug";
 export const groupRoute = "/group"; ///:groupId/:groupSlug";
@@ -86,11 +90,17 @@ export default function AppRoutes() {
       <PrivateRoute path={`${searchRoute}/:query?`}>
         <SearchPage />
       </PrivateRoute>
-      <PrivateRoute path={newPageRoute}>
-        <NewPagePage />
+      <PrivateRoute path={newPlaceRoute}>
+        <NewPagePage pageType={PageType.PAGE_TYPE_PLACE} />
       </PrivateRoute>
-      <PrivateRoute path={`${pageRoute}/:pageId/:pageSlug?`}>
-        <PagePage />
+      <PrivateRoute path={`${placeRoute}/:pageId/:pageSlug?`}>
+        <PagePage pageType={PageType.PAGE_TYPE_PLACE} />
+      </PrivateRoute>
+      <PrivateRoute path={newGuideRoute}>
+        <NewPagePage pageType={PageType.PAGE_TYPE_PLACE} />
+      </PrivateRoute>
+      <PrivateRoute path={`${guideRoute}/:pageId/:pageSlug?`}>
+        <PagePage pageType={PageType.PAGE_TYPE_GUIDE} />
       </PrivateRoute>
       <PrivateRoute path={`${communityRoute}/:communityId/:communitySlug?`}>
         <CommunityPage />

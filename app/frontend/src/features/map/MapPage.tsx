@@ -3,7 +3,7 @@ import { LngLat, Map as MapboxMap } from "mapbox-gl";
 import * as React from "react";
 import { useHistory, useLocation } from "react-router-dom";
 
-import { pageRoute, userRoute } from "../../AppRoutes";
+import { placeRoute, userRoute } from "../../AppRoutes";
 import Map from "../../components/Map";
 import PageTitle from "../../components/PageTitle";
 import { addClusteredUsersToMap } from "./clusteredUsers";
@@ -27,7 +27,8 @@ export default function MapPage() {
 
   const handlePageClick = (ev: any) => {
     const pageId = ev.features[0].properties.id;
-    history.push(`${pageRoute}/${pageId}`, location.state);
+    // TODO: slug, guide/place/etc
+    history.push(`${placeRoute}/${pageId}`, location.state);
   };
 
   const handleClick = (ev: any) => {

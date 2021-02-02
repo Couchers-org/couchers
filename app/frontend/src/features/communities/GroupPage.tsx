@@ -2,7 +2,12 @@ import { Breadcrumbs } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
 
-import { communityRoute, groupRoute, pageRoute } from "../../AppRoutes";
+import {
+  communityRoute,
+  groupRoute,
+  guideRoute,
+  placeRoute,
+} from "../../AppRoutes";
 import Alert from "../../components/Alert";
 import CircularProgress from "../../components/CircularProgress";
 import Markdown from "../../components/Markdown";
@@ -188,7 +193,7 @@ export default function GroupPage() {
             places.map((place) => {
               return (
                 <>
-                  <Link to={`${pageRoute}/${place.pageId}/${place.slug}`}>
+                  <Link to={`${placeRoute}/${place.pageId}/${place.slug}`}>
                     {place.title}
                   </Link>
                   <br />
@@ -205,7 +210,7 @@ export default function GroupPage() {
             guides.map((guide) => {
               return (
                 <>
-                  <Link to={`${pageRoute}/${guide.pageId}/${guide.slug}`}>
+                  <Link to={`${guideRoute}/${guide.pageId}/${guide.slug}`}>
                     {guide.title}
                   </Link>
                   <br />

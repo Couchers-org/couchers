@@ -4,15 +4,15 @@ import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { useHistory } from "react-router-dom";
 
-import { pageRoute } from "../../AppRoutes";
 import Alert from "../../components/Alert";
 import Button from "../../components/Button";
 import CircularProgress from "../../components/CircularProgress";
 import EditLocationMap from "../../components/EditLocationMap";
 import TextField from "../../components/TextField";
-import { Page } from "../../pb/pages_pb";
+import { Page, PageType } from "../../pb/pages_pb";
 import { service } from "../../service";
 import ProfileMarkdownInput from "../profile/ProfileMarkdownInput";
+import { pageURL } from "./redirect";
 
 type NewPageInputs = {
   title: string;
@@ -22,7 +22,7 @@ type NewPageInputs = {
   lng: number;
 };
 
-export default function CompleteSignup() {
+export default function NewPageForm({ pageType }: { pageType: PageType }) {
   const {
     control,
     register,
@@ -42,10 +42,10 @@ export default function CompleteSignup() {
     error: createError,
   } = useMutation<Page.AsObject, GrpcError, NewPageInputs>(
     ({ title, content, address, lat, lng }: NewPageInputs) =>
-      service.pages.createPage(title, content, address, lat, lng),
+      service.pages.createPage(title, content, address, lat, lng, pageType),
     {
       onSuccess: (page) => {
-        history.push(`${pageRoute}/${page.pageId}/${page.slug}`);
+        history.push(pageURL(page));
       },
     }
   );

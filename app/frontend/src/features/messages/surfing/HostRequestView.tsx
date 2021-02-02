@@ -1,6 +1,7 @@
 import { Box } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
 import * as React from "react";
 import { useRef, useState } from "react";
@@ -22,6 +23,7 @@ import { firstName } from "../../../utils/names";
 import { useAuthContext } from "../../auth/AuthProvider";
 import { useUser } from "../../userQueries/useUsers";
 import MessageList from "../messagelist/MessageList";
+import useMarkLastSeen, { MarkLastSeenVariables } from "../useMarkLastSeen";
 import HostRequestSendField from "./HostRequestSendField";
 
 const useStyles = makeStyles((theme) => ({
@@ -117,6 +119,24 @@ export default function HostRequestView() {
     }
   );
 
+  const { mutate: markLastRequestSeen } = useMutation<
+    Empty,
+    GrpcError,
+    MarkLastSeenVariables
+  >(
+    (messageId) =>
+      service.requests.markLastRequestSeen(hostRequestId, messageId),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["hostRequest", hostRequestId]);
+      },
+    }
+  );
+  const { markLastSeen } = useMarkLastSeen(
+    markLastRequestSeen,
+    hostRequest?.lastSeenMessageId
+  );
+
   const history = useHistory();
 
   const handleBack = () => history.goBack();
@@ -174,7 +194,7 @@ export default function HostRequestView() {
           )}
           {messages && hostRequest && (
             <>
-              <MessageList messages={messages} />
+              <MessageList markLastSeen={markLastSeen} messages={messages} />
               <HostRequestSendField
                 hostRequest={hostRequest}
                 sendMutation={sendMutation}

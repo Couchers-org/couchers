@@ -18,6 +18,7 @@ import { service } from "../../../service";
 import { useAuthContext } from "../../auth/AuthProvider";
 import useUsers from "../../userQueries/useUsers";
 import MessageList from "../messagelist/MessageList";
+import useMarkLastSeen, { MarkLastSeenVariables } from "../useMarkLastSeen";
 import { groupChatTitleText } from "../utils";
 import AdminsDialog from "./AdminsDialog";
 import GroupChatSendField from "./GroupChatSendField";
@@ -88,7 +89,7 @@ export default function GroupChatView() {
 
   const queryClient = useQueryClient();
   const sendMutation = useMutation<Empty, GrpcError, string>(
-    (text: string) => service.conversations.sendMessage(groupChatId, text),
+    (text) => service.conversations.sendMessage(groupChatId, text),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["groupChatMessages", groupChatId]);
@@ -97,9 +98,28 @@ export default function GroupChatView() {
     }
   );
 
+  const { mutate: markLastSeenGroupChat } = useMutation<
+    Empty,
+    GrpcError,
+    MarkLastSeenVariables
+  >(
+    (messageId) =>
+      service.conversations.markLastSeenGroupChat(groupChatId, messageId),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["groupChat", groupChatId]);
+      },
+    }
+  );
+  const { markLastSeen } = useMarkLastSeen(
+    markLastSeenGroupChat,
+    groupChat?.lastSeenMessageId
+  );
+
   const history = useHistory();
 
   const handleBack = () => history.goBack();
+
   return (
     <Box>
       {!groupChatId ? (
@@ -215,7 +235,7 @@ export default function GroupChatView() {
           ) : (
             messages && (
               <>
-                <MessageList messages={messages} />
+                <MessageList markLastSeen={markLastSeen} messages={messages} />
                 <GroupChatSendField sendMutation={sendMutation} />
               </>
             )

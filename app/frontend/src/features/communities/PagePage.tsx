@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 
-import { pageRoute } from "../../AppRoutes";
 import Alert from "../../components/Alert";
 import CircularProgress from "../../components/CircularProgress";
 import Markdown from "../../components/Markdown";
 import PageTitle from "../../components/PageTitle";
 import TextBody from "../../components/TextBody";
-import { Page } from "../../pb/pages_pb";
+import { Page, PageType } from "../../pb/pages_pb";
 import { service } from "../../service";
+import { pageURL } from "./redirect";
 
-export default function PagePage() {
+export default function PagePage({ pageType }: { pageType: PageType }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [page, setPage] = useState<Page.AsObject | null>(null);
@@ -28,10 +28,11 @@ export default function PagePage() {
       setLoading(true);
       try {
         const page = await service.pages.getPage(Number(pageId));
-        setPage(page);
-        if (page.slug !== pageSlug) {
+        if (page.slug !== pageSlug || page.type !== pageType) {
           // if the address is wrong, redirect to the right place
-          history.push(`${pageRoute}/${page.pageId}/${page.slug}`);
+          history.push(pageURL(page));
+        } else {
+          setPage(page);
         }
       } catch (e) {
         console.error(e);
@@ -39,7 +40,7 @@ export default function PagePage() {
       }
       setLoading(false);
     })();
-  }, [pageId, pageSlug, history]);
+  }, [pageType, pageId, pageSlug, history]);
 
   return (
     <>

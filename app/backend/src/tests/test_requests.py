@@ -614,10 +614,12 @@ def test_mark_last_seen(db):
 
     # test Ping unseen host request count, should be automarked after sending
     with api_session(token1) as api:
-        assert api.Ping(api_pb2.PingReq()).unseen_host_request_count == 0
+        assert api.Ping(api_pb2.PingReq()).unseen_received_host_request_count == 0
+        assert api.Ping(api_pb2.PingReq()).unseen_sent_host_request_count == 0
 
     with api_session(token2) as api:
-        assert api.Ping(api_pb2.PingReq()).unseen_host_request_count == 2
+        assert api.Ping(api_pb2.PingReq()).unseen_received_host_request_count == 2
+        assert api.Ping(api_pb2.PingReq()).unseen_sent_host_request_count == 0
 
     with requests_session(token2) as api:
         assert api.ListHostRequests(requests_pb2.ListHostRequestsReq()).host_requests[0].last_seen_message_id == 0
@@ -648,7 +650,8 @@ def test_mark_last_seen(db):
         )
 
     with api_session(token2) as api:
-        assert api.Ping(api_pb2.PingReq()).unseen_host_request_count == 1
+        assert api.Ping(api_pb2.PingReq()).unseen_received_host_request_count == 1
+        assert api.Ping(api_pb2.PingReq()).unseen_sent_host_request_count == 0
 
     # make sure sent and received count for unseen notifications
     with requests_session(token1) as api:
@@ -657,4 +660,5 @@ def test_mark_last_seen(db):
         )
 
     with api_session(token2) as api:
-        assert api.Ping(api_pb2.PingReq()).unseen_host_request_count == 2
+        assert api.Ping(api_pb2.PingReq()).unseen_received_host_request_count == 1
+        assert api.Ping(api_pb2.PingReq()).unseen_sent_host_request_count == 1

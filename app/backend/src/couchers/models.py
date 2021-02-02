@@ -804,7 +804,7 @@ class ClusterPageAssociation(Base):
 
 class PageType(enum.Enum):
     main_page = 1
-    point_of_interest = 2
+    place = 2
     guide = 3
 
 

@@ -58,7 +58,7 @@ describe("when the listFriends query succeeds", () => {
           name: "Funny Dog",
           userId: 2,
           username: "funnydog",
-          avatarUrl: "funnydog.jpg",
+          avatarUrl: "",
         },
         {
           name: "Funny Kid",
@@ -89,7 +89,7 @@ describe("when the listFriends query succeeds", () => {
           name: "Funny Dog",
           userId: 2,
           username: "funnydog",
-          avatarUrl: "funnydog.jpg",
+          avatarUrl: "",
         },
         undefined,
       ],
@@ -200,7 +200,7 @@ describe("with cached user data", () => {
           name: "Funny Dog",
           userId: 2,
           username: "funnydog",
-          avatarUrl: "funnydog.jpg",
+          avatarUrl: "",
         },
         {
           name: "Funny Kid",

@@ -1,4 +1,9 @@
-import { Coordinate, CreatePageReq, GetPageReq } from "../pb/pages_pb";
+import {
+  Coordinate,
+  CreatePageReq,
+  GetPageReq,
+  PageType,
+} from "../pb/pages_pb";
 import client from "./client";
 
 export async function createPage(
@@ -6,12 +11,14 @@ export async function createPage(
   content: string,
   address: string,
   lat: number,
-  lng: number
+  lng: number,
+  pageType: PageType
 ) {
   const req = new CreatePageReq();
   req.setTitle(title);
   req.setContent(content);
   req.setAddress(address);
+  req.setType(pageType);
   const coordinate = new Coordinate();
   coordinate.setLat(lat);
   coordinate.setLng(lng);

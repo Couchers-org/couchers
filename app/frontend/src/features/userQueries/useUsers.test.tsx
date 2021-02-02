@@ -132,7 +132,7 @@ describe("when useUsers has loaded", () => {
             name: "Funny Dog",
             userId: 2,
             username: "funnydog",
-            avatarUrl: "funnydog.jpg",
+            avatarUrl: "",
           },
         ],
         [

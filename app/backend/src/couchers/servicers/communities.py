@@ -166,7 +166,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             if not node:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
             places = (
-                node.official_cluster.owned_pages.filter(Page.type == PageType.point_of_interest)
+                node.official_cluster.owned_pages.filter(Page.type == PageType.place)
                 .filter(Page.id >= next_page_id)
                 .order_by(Page.id)
                 .limit(page_size + 1)

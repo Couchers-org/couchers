@@ -95,7 +95,7 @@ def test_create_page_errors(db):
         assert e.value.details() == errors.CANNOT_CREATE_PAGE_TYPE
 
 
-def test_create_page_poi(db):
+def test_create_page_place(db):
     user, token = generate_user()
     with pages_session(token) as api:
         res = api.CreatePage(
@@ -107,12 +107,12 @@ def test_create_page_poi(db):
                     lat=1,
                     lng=2,
                 ),
-                type=pages_pb2.PAGE_TYPE_POI,
+                type=pages_pb2.PAGE_TYPE_PLACE,
             )
         )
 
         assert res.title == "dummy title"
-        assert res.type == pages_pb2.PAGE_TYPE_POI
+        assert res.type == pages_pb2.PAGE_TYPE_PLACE
         assert res.content == "dummy content"
         assert res.address == "dummy address"
         assert res.location.lat == 1
