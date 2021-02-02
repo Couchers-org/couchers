@@ -140,7 +140,7 @@ def test_invalid_token(db):
         res = api.GetUser(api_pb2.GetUserReq(user=user2.username))
 
     assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
-    assert e.value.details() == errors.INVALID_TOKEN
+    assert e.value.details() == "Unauthorized"
 
 
 def test_password_reset(db, fast_passwords):
