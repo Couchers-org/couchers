@@ -2,4 +2,5 @@
 window.URL.createObjectURL = jest.fn();
 
 const mapboxgl = require("maplibre-gl");
+
 module.exports = mapboxgl;
