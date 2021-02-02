@@ -162,9 +162,17 @@ def test_update_profile(db):
         assert user.lat == 0.01
         assert user.lng == -2
         assert user.radius == 321
+        assert user.gender == "Bot"
+        assert user.occupation == "Testing"
+        assert user.about_me == "I rule"
+        assert user.about_place == "My place"
         assert user.hosting_status == api_pb2.HOSTING_STATUS_CAN_HOST
         assert "Binary" in user.languages
         assert "English" in user.languages
+        assert "UK" in user.countries_visited
+        assert "Aus" in user.countries_visited
+        assert "UK" in user.countries_lived
+        assert "Aus" in user.countries_lived
 
 
 def test_pending_friend_request_count(db):
@@ -666,6 +674,8 @@ def test_hosting_preferences(db):
             )
         )
 
+    # Use a second user to view the hosting preferences just to check
+    # that it is public information.
     with api_session(token2) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
         assert res.max_guests.value == 3
