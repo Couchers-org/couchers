@@ -1,6 +1,6 @@
 import { Box, BoxProps, makeStyles, useTheme } from "@material-ui/core";
 import Map from "./Map";
-import { GeoJSONSource, LngLat, MapMouseEvent, MapTouchEvent } from "mapbox-gl";
+import { GeoJSONSource, LngLat, MapMouseEvent, MapTouchEvent } from "maplibre-gl";
 import React, { useRef, useState } from "react";
 import { User } from "../pb/api_pb";
 import { userLocationMaxRadius, userLocationMinRadius } from "../constants";

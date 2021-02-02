@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from "react";
 import { Box, BoxProps, makeStyles } from "@material-ui/core";
 import classNames from "classnames";
-import "mapbox-gl/dist/mapbox-gl.css";
-import mapboxgl, { LngLat, RequestParameters } from "mapbox-gl";
+import "maplibre-gl/dist/mapbox-gl.css";
+import mapboxgl, { LngLat, RequestParameters } from "maplibre-gl";
 
 const URL = process.env.REACT_APP_API_BASE_URL;
 
