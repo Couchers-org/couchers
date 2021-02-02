@@ -1,37 +1,69 @@
-import { createMuiTheme, ThemeOptions } from "@material-ui/core";
+import { createMuiTheme, makeStyles, ThemeOptions } from "@material-ui/core";
 import type {} from "@material-ui/lab/themeAugmentation";
 
 const spacing = (factor: number) => `${0.5 * factor}rem`;
-const borderRadius = 10;
+const borderRadius = 12;
+
+const useGlobalStyles = makeStyles((theme) => ({
+  h1Large: {
+    fontSize: "1.5rem", //24px
+  },
+}));
+export { useGlobalStyles };
 
 const themeOptions: ThemeOptions = {
   palette: {
     primary: {
-      main: "#7d4cb8",
+      main: "#55185d",
+      light: "#84458b",
+      dark: "#2a0033",
     },
     secondary: {
-      main: "#f8aa3a",
+      main: "#ffd524",
+      light: "#ffff60",
+      dark: "#c7a400",
+    },
+    error: {
+      main: "#ff0000",
+    },
+    success: {
+      main: "#1ac302",
     },
   },
   spacing: spacing,
   typography: {
-    fontFamily: "Lato, Arial, sans-serif",
+    fontFamily: "Ubuntu, sans-serif",
     h1: {
-      fontSize: 24,
+      fontSize: "1.25rem", //20px
+      fontWeight: "bold",
       marginTop: spacing(2),
     },
     h2: {
-      fontSize: 20,
+      fontSize: "1rem", //16px
+      fontWeight: "bold",
       marginTop: spacing(1),
     },
     h3: {
-      fontSize: 16,
+      fontSize: "0.75rem", //12px
+      fontWeight: "bold",
       marginTop: spacing(1),
     },
-    caption: {
-      fontSize: 10,
+    body1: {
+      fontSize: "0.875rem", //14px
     },
-    fontSize: 14,
+    body2: {
+      fontSize: "0.75rem", //12px
+    },
+    caption: {
+      fontSize: "0.625rem", //10px
+    },
+    overline: {
+      fontSize: "0.875rem", //14px
+      fontStyle: "italic",
+    },
+    button: {
+      fontSize: "0.875rem", //14px
+    },
   },
   shape: {
     borderRadius,
