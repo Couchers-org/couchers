@@ -409,7 +409,7 @@ def test_ChangeEmail_wrong_token(db, fast_passwords):
                     change_email_token="wrongtoken",
                 )
             )
-        assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
         assert e.value.details() == errors.INVALID_TOKEN
 
     with session_scope() as session:
