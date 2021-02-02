@@ -139,7 +139,7 @@ def test_invalid_token(db):
     with real_api_session(wrong_token) as api, pytest.raises(grpc.RpcError) as e:
         res = api.GetUser(api_pb2.GetUserReq(user=user2.username))
 
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
     assert e.value.details() == errors.INVALID_TOKEN
 
 
