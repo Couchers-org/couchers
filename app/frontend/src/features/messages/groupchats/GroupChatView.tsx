@@ -178,7 +178,7 @@ export default function GroupChatView() {
                   )}
 
                   {
-                    //<Menu> doesn't accept JSX Fragment children
+                    //<Menu> gives console warning for JSX Fragment children
                     isChatAdmin && (
                       <MenuItem onClick={() => handleClick("settings")}>
                         Chat settings

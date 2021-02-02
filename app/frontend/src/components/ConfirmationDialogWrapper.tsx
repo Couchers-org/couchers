@@ -1,4 +1,4 @@
-import React, { cloneElement, ReactElement, useState } from "react";
+import React, { ReactElement, useState } from "react";
 
 import Button from "./Button";
 import {
@@ -9,32 +9,28 @@ import {
   DialogTitle,
 } from "./Dialog";
 
-interface ConfirmationDialogWrapperProps<P extends { onClick: () => void }> {
-  children: ReactElement<P>;
+interface ConfirmationDialogWrapperProps {
+  children: (setIsOpen: (value: boolean) => void) => ReactElement;
   title: string;
   message: string;
+  onConfirm: () => void;
 }
 
-export default function ConfirmationDialogWrapper<
-  P extends { onClick: () => void }
->({ children, title, message }: ConfirmationDialogWrapperProps<P>) {
-  if (!children.props.onClick) {
-    throw new Error(
-      "Child of ConfirmationDialogWrapper must have onClick prop"
-    );
-  }
+export default function ConfirmationDialogWrapper({
+  children,
+  title,
+  message,
+  onConfirm,
+}: ConfirmationDialogWrapperProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const child = cloneElement<P>(children, {
-    onClick: () => setIsOpen(true),
-  } as P);
   const ariaLabel = `${title.replace(/\s+/g, "")}-confirmation-dialog`;
   const handleConfirm = () => {
-    children.props.onClick();
+    onConfirm();
     setIsOpen(false);
   };
   return (
     <>
-      {child}
+      {children(setIsOpen)}
       <Dialog aria-labelledby={ariaLabel} open={isOpen}>
         <DialogTitle id={ariaLabel}>{title}</DialogTitle>
         <DialogContent>

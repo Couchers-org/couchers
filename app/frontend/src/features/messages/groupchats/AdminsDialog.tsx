@@ -62,7 +62,9 @@ function AdminListItem({
           "groupChat",
           groupChatId,
         ]);
-        const newAdminUserIdsList = previousGroupChat?.adminUserIdsList ?? [];
+        const newAdminUserIdsList = Array.from(
+          previousGroupChat?.adminUserIdsList ?? []
+        );
         newAdminUserIdsList.push(member.userId);
         queryClient.setQueryData(["groupChat", groupChatId], {
           ...previousGroupChat,
@@ -82,7 +84,9 @@ function AdminListItem({
           "groupChat",
           groupChatId,
         ]);
-        const newAdminUserIdsList = previousGroupChat?.adminUserIdsList ?? [];
+        const newAdminUserIdsList = Array.from(
+          previousGroupChat?.adminUserIdsList ?? []
+        );
         newAdminUserIdsList.splice(
           newAdminUserIdsList.indexOf(member.userId),
           1
@@ -113,15 +117,18 @@ function AdminListItem({
                 `of this group chat? You will not be able to become ` +
                 `an admin again unless another admin adds you.`
               }
+              onConfirm={handleRemoveAdmin}
             >
-              <IconButton
-                aria-label="Remove as admin"
-                size="small"
-                loading={removeAdmin.isLoading}
-                onClick={handleRemoveAdmin}
-              >
-                <CloseIcon />
-              </IconButton>
+              {(setIsOpen) => (
+                <IconButton
+                  aria-label="Remove as admin"
+                  size="small"
+                  loading={removeAdmin.isLoading}
+                  onClick={() => setIsOpen(true)}
+                >
+                  <CloseIcon />
+                </IconButton>
+              )}
             </ConfirmationDialogWrapper>
           ) : (
             <IconButton
