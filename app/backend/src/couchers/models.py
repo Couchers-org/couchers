@@ -1071,7 +1071,7 @@ class Reply(Base):
 
 
 class BackgroundJobType(enum.Enum):
-    # payload: org.couchers.internal.jobs.SendEmailPayload
+    # payload: jobs.SendEmailPayload
     send_email = 1
     # payload: google.protobuf.Empty
     purge_login_tokens = 2

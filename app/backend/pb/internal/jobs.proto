@@ -1,7 +1,7 @@
-// background job stuff, not an API
+// background job stuff
 syntax = "proto3";
 
-package org.couchers.internal.jobs;
+package jobs;
 
 message SendEmailPayload {
   string sender_name = 1;
