@@ -19,6 +19,10 @@ service Pages {
   rpc UpdatePage(UpdatePageReq) returns (Page) {
     // Edit a page
   }
+
+  rpc TransferPage(TransferPageReq) returns (Page) {
+    // Transfer a page you own to either a group or a community
+  }
 }
 
 message Coordinate {
@@ -31,7 +35,7 @@ enum PageType {
   PAGE_TYPE_PLACE = 0;
   // guide
   PAGE_TYPE_GUIDE = 1;
-  // main page of a cluster
+  // main page of a group or a community
   PAGE_TYPE_MAIN_PAGE = 2;
 }
 
@@ -46,7 +50,8 @@ message Page {
   int64 creator_user_id = 7;
   oneof owner {
     int64 owner_user_id = 8;
-    int64 owner_cluster_id = 9;
+    int64 owner_group_id = 9;
+    int64 owner_community_id = 17;
   }
   int64 thread_id = 10;
   string title = 11;
@@ -79,4 +84,12 @@ message UpdatePageReq {
 
   // we can detect lack of this sub-message without *Value stuff, and location cannot be set to null
   Coordinate location = 5;
+}
+
+message TransferPageReq {
+  int64 page_id = 1;
+  oneof new_owner {
+    int64 new_owner_group_id = 2;
+    int64 new_owner_community_id = 3;
+  }
 }

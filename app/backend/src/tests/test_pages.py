@@ -5,7 +5,9 @@ import pytest
 from google.protobuf import wrappers_pb2
 
 from couchers import errors
-from couchers.utils import now, to_aware_datetime
+from couchers.db import session_scope
+from couchers.models import Cluster, Node, Page, PageType, PageVersion
+from couchers.utils import create_polygon_lat_lng, now, to_aware_datetime, to_multi
 from pb import pages_pb2
 from tests.test_fixtures import db, generate_user, pages_session, testconfig
 
@@ -375,3 +377,151 @@ def test_update_page_errors(db):
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == errors.MISSING_PAGE_ADDRESS
+
+
+def test_page_transfer(db):
+    user, token = generate_user()
+    with session_scope() as session:
+        # create a community
+        node = Node(geom=to_multi(create_polygon_lat_lng([[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]])))
+        session.add(node)
+        community_cluster = Cluster(
+            name=f"Testing Community",
+            description=f"Description for testing community",
+            parent_node=node,
+            official_cluster_for_node=node,
+        )
+        session.add(community_cluster)
+        main_page = Page(
+            creator_user_id=user.id,
+            owner_user_id=user.id,
+            type=PageType.main_page,
+            main_page_for_cluster=community_cluster,
+        )
+        session.add(main_page)
+        session.add(
+            PageVersion(
+                page=main_page,
+                editor_user_id=user.id,
+                title=f"Main page for the testing community",
+                content="Empty.",
+            )
+        )
+
+        # create a group
+        group_cluster = Cluster(
+            name=f"Testing Group",
+            description=f"Description for testing group",
+            parent_node=node,
+        )
+        session.add(group_cluster)
+        main_page = Page(
+            creator_user_id=user.id,
+            owner_user_id=user.id,
+            type=PageType.main_page,
+            main_page_for_cluster=group_cluster,
+        )
+        session.add(main_page)
+        session.add(
+            PageVersion(
+                page=main_page,
+                editor_user_id=user.id,
+                title=f"Main page for the testing community",
+                content="Empty.",
+            )
+        )
+        session.flush()
+
+        community_id = node.id
+        community_cluster_id = community_cluster.id
+        group_id = group_cluster.id
+
+    with pages_session(token) as api:
+        create_page_req = pages_pb2.CreatePageReq(
+            title="title",
+            content="content",
+            address="address",
+            location=pages_pb2.Coordinate(
+                lat=1,
+                lng=2,
+            ),
+        )
+
+        # transfer should work fine to a community
+        page1 = api.CreatePage(create_page_req)
+        assert page1.owner_user_id == user.id
+
+        page1 = api.TransferPage(
+            pages_pb2.TransferPageReq(
+                page_id=page1.page_id,
+                new_owner_community_id=community_id,
+            )
+        )
+        assert page1.owner_community_id == community_id
+
+        # now we're no longer the owner, can't transfer
+        with pytest.raises(grpc.RpcError) as e:
+            api.TransferPage(
+                pages_pb2.TransferPageReq(
+                    page_id=page1.page_id,
+                    new_owner_group_id=group_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+        assert e.value.details() == errors.PAGE_TRANSFER_PERMISSION_DENIED
+        page1 = api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id))
+        assert page1.owner_community_id == community_id
+
+        # try a new page, just for fun
+        page2 = api.CreatePage(create_page_req)
+        assert page2.owner_user_id == user.id
+
+        page2 = api.TransferPage(
+            pages_pb2.TransferPageReq(
+                page_id=page2.page_id,
+                new_owner_community_id=community_id,
+            )
+        )
+        assert page2.owner_community_id == community_id
+
+        # can't transfer a page to an official cluster, only through community
+        page3 = api.CreatePage(create_page_req)
+        assert page3.owner_user_id == user.id
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.TransferPage(
+                pages_pb2.TransferPageReq(
+                    page_id=page3.page_id,
+                    new_owner_community_id=community_cluster_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.GROUP_OR_COMMUNITY_NOT_FOUND
+        page3 = api.GetPage(pages_pb2.GetPageReq(page_id=page3.page_id))
+        assert page3.owner_user_id == user.id
+
+        # can transfer to group
+        page4 = api.CreatePage(create_page_req)
+        assert page4.owner_user_id == user.id
+
+        page4 = api.TransferPage(
+            pages_pb2.TransferPageReq(
+                page_id=page4.page_id,
+                new_owner_group_id=group_id,
+            )
+        )
+        print(page4)
+        assert page4.owner_group_id == group_id
+
+        # now we're no longer the owner, can't transfer
+        with pytest.raises(grpc.RpcError) as e:
+            api.TransferPage(
+                pages_pb2.TransferPageReq(
+                    page_id=page4.page_id,
+                    new_owner_community_id=community_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+        assert e.value.details() == errors.PAGE_TRANSFER_PERMISSION_DENIED
+        page4 = api.GetPage(pages_pb2.GetPageReq(page_id=page4.page_id))
+        assert page4.owner_group_id == group_id
