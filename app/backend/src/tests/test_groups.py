@@ -14,7 +14,6 @@ def _(testconfig):
     pass
 
 
-@pytest.mark.usefixtures("testing_communities")
 class TestGroups:
     @staticmethod
     def test_GetGroup(testing_communities):
