@@ -177,6 +177,7 @@ message User {
   double community_standing = 6;
   uint32 num_references = 7;
   string gender = 8;
+  string pronouns = ; #TODO add number
   uint32 age = 9;
   google.protobuf.Timestamp joined = 11; // not exact
   google.protobuf.Timestamp last_active = 12; // not exact
@@ -228,6 +229,7 @@ message UpdateProfileReq {
   google.protobuf.DoubleValue radius = 24; // metres
 
   google.protobuf.StringValue gender = 3;
+  NullableStringValue pronouns = ; #TODO  Add number
   NullableStringValue occupation = 4;
   NullableStringValue about_me = 5;
   NullableStringValue about_place = 6;

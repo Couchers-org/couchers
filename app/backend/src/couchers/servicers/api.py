@@ -161,6 +161,9 @@ class API(api_pb2_grpc.APIServicer):
             if request.HasField("gender"):
                 user.gender = request.gender.value
 
+            if request.HasField("pronouns"):
+                user.pronouns = request.pronouns.value
+
             if request.HasField("occupation"):
                 if request.occupation.is_null:
                     user.occupation = None
@@ -529,6 +532,7 @@ def user_model_to_pb(db_user, session, context):
         community_standing=db_user.community_standing,
         num_references=num_references,
         gender=db_user.gender,
+        pronouns=db_user.pronouns,
         age=db_user.age,
         joined=Timestamp_from_datetime(db_user.display_joined),
         last_active=Timestamp_from_datetime(db_user.display_last_active),
