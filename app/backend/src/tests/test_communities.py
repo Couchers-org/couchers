@@ -15,7 +15,7 @@ from couchers.models import (
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_aware_datetime, to_multi
 from pb import communities_pb2, pages_pb2
-from tests.test_fixtures import communities_session, db, generate_user, pages_session, testconfig
+from tests.test_fixtures import communities_session, db_impl, generate_user, pages_session, testconfig
 
 
 @pytest.fixture(autouse=True)
@@ -169,8 +169,9 @@ def get_group_id(session, group_name):
     )
 
 
-@pytest.fixture(scope="class")
-def testing_communities(db):
+@pytest.fixture(params=["models", "migrations"], scope="class")
+def testing_communities(request):
+    db_impl(request.param)
     user1, token1 = generate_user(username="user1", geom=_create_1d_point(1), geom_radius=0.1)
     user2, token2 = generate_user(username="user2", geom=_create_1d_point(2), geom_radius=0.1)
     user3, token3 = generate_user(username="user3", geom=_create_1d_point(3), geom_radius=0.1)
@@ -206,8 +207,11 @@ def testing_communities(db):
     _create_place(token8, "World, Attraction", "Place content", "Somewhere in w", 51.5)
     _create_place(token6, "Country 2, Region 1, Attraction", "Place content", "Somewhere in c2r1", 59)
 
+    yield
+
 
 class TestCommunities:
+    @staticmethod
     def test_GetCommunity(testing_communities):
         with session_scope() as session:
             user2_id, token2 = get_user_id_and_token(session, "user2")
@@ -324,6 +328,7 @@ class TestCommunities:
             assert res.member_count == 2
             assert res.admin_count == 2
 
+    @staticmethod
     def test_ListCommunities(testing_communities):
         with session_scope() as session:
             user1_id, token1 = get_user_id_and_token(session, "user1")
@@ -339,6 +344,7 @@ class TestCommunities:
             )
             assert [c.community_id for c in res.communities] == [c1r1_id, c1r2_id]
 
+    @staticmethod
     def test_ListGroups(testing_communities):
         with session_scope() as session:
             user1_id, token1 = get_user_id_and_token(session, "user1")
@@ -366,6 +372,7 @@ class TestCommunities:
             assert len(res.groups) == 1
             assert res.groups[0].group_id == hitchhikers_id
 
+    @staticmethod
     def test_ListAdmins(testing_communities):
         with session_scope() as session:
             user1_id, token1 = get_user_id_and_token(session, "user1")
@@ -391,6 +398,7 @@ class TestCommunities:
             )
             assert res.admin_user_ids == [user4_id, user5_id]
 
+    @staticmethod
     def test_ListMembers(testing_communities):
         with session_scope() as session:
             user1_id, token1 = get_user_id_and_token(session, "user1")
@@ -428,6 +436,7 @@ class TestCommunities:
             )
             assert res.member_user_ids == [user2_id, user4_id, user5_id]
 
+    @staticmethod
     def test_ListNearbyUsers(testing_communities):
         with session_scope() as session:
             user1_id, token1 = get_user_id_and_token(session, "user1")

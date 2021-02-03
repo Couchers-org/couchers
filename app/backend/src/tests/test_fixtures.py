@@ -41,12 +41,11 @@ from pb import (
 )
 
 
-@pytest.fixture(params=["migrations", "models"])
-def db(request):
+def db_impl(param):
     """
-    Connect to a running Postgres database, and return the Session object.
+    Connect to a running Postgres database
 
-    request.param tells whether the db should be built from alembic migrations or using metadata.create_all()
+    param tells whether the db should be built from alembic migrations or using metadata.create_all()
     """
 
     # running in non-UTC catches some timezone errors
@@ -57,14 +56,23 @@ def db(request):
     with session_scope() as session:
         session.execute("DROP SCHEMA public CASCADE; CREATE SCHEMA public; CREATE EXTENSION postgis;")
 
-    if request.param == "migrations":
+    if param == "migrations":
         # rebuild it with alembic migrations
         apply_migrations()
     else:
         # create everything from the current models, not incrementally through migrations
         Base.metadata.create_all(get_engine())
 
-    yield
+
+@pytest.fixture(params=["migrations", "models"])
+def db(request):
+    """
+    Pytest fixture to connect to a running Postgres database.
+
+    request.param tells whether the db should be built from alembic migrations or using metadata.create_all()
+    """
+
+    db_impl(request.param)
 
 
 def generate_user(*_, **kwargs):

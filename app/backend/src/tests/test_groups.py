@@ -15,6 +15,7 @@ def _(testconfig):
 
 
 class TestGroups:
+    @staticmethod
     def test_GetGroup(testing_communities):
         with session_scope() as session:
             user2_id, token2 = get_user_id_and_token(session, "user2")
@@ -151,6 +152,7 @@ class TestGroups:
             assert res.member_count == 2
             assert res.admin_count == 1
 
+    @staticmethod
     def test_ListAdmins(testing_communities):
         with session_scope() as session:
             user1_id, token1 = get_user_id_and_token(session, "user1")
@@ -173,6 +175,7 @@ class TestGroups:
             )
             assert res.admin_user_ids == [user2_id]
 
+    @staticmethod
     def test_ListMembers(testing_communities):
         with session_scope() as session:
             user1_id, token1 = get_user_id_and_token(session, "user1")
