@@ -75,16 +75,6 @@ def db(request):
     db_impl(request.param)
 
 
-@pytest.fixture(params=["migrations", "models"], scope="function")
-def db(request):
-    yield from db_impl(request)
-
-
-@pytest.fixture(params=["migrations", "models"], scope="class")
-def db_class(request):
-    yield from db_impl(request)
-
-
 def generate_user(*_, **kwargs):
     """
     Create a new user, return session token

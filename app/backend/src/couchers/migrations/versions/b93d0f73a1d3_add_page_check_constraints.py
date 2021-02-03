@@ -1,7 +1,7 @@
 """Add page check constraints
 
 Revision ID: b93d0f73a1d3
-Revises: 2affc63b4a01
+Revises: 7a8a6ae25c7d
 Create Date: 2021-02-03 10:20:46.238345
 
 """
@@ -11,7 +11,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "b93d0f73a1d3"
-down_revision = "2affc63b4a01"
+down_revision = "7a8a6ae25c7d"
 branch_labels = None
 depends_on = None
 

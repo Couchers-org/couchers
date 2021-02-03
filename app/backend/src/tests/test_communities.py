@@ -134,7 +134,7 @@ def _create_place(token, title, content, address, x):
                     lat=x,
                     lng=1,
                 ),
-                type=pages_pb2.PAGE_TYPE_POI,
+                type=pages_pb2.PAGE_TYPE_PLACE,
             )
         )
 
