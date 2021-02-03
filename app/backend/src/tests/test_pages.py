@@ -407,7 +407,7 @@ def test_page_transfer(db):
         session.add(community_cluster)
         main_page = Page(
             creator_user_id=user2.id,
-            owner_user_id=user2.id,
+            owner_cluster=community_cluster,
             type=PageType.main_page,
             main_page_for_cluster=community_cluster,
         )
@@ -442,7 +442,7 @@ def test_page_transfer(db):
         session.add(group_cluster)
         main_page = Page(
             creator_user_id=user2.id,
-            owner_user_id=user2.id,
+            owner_cluster=group_cluster,
             type=PageType.main_page,
             main_page_for_cluster=group_cluster,
         )
