@@ -6,7 +6,7 @@ from couchers import errors
 from couchers.db import session_scope
 from pb import groups_pb2, pages_pb2
 from tests.test_communities import get_community_id, get_group_id, get_user_id_and_token, testing_communities
-from tests.test_fixtures import db, generate_user, groups_session, testconfig
+from tests.test_fixtures import generate_user, groups_session, testconfig
 
 
 @pytest.fixture(autouse=True)
@@ -53,10 +53,10 @@ class TestGroups:
             assert res.main_page.slug == "main-page-for-the-hitchhikers-community"
             assert res.main_page.last_editor_user_id == 1
             assert res.main_page.creator_user_id == 1
-            assert res.main_page.owner_user_id == 1
+            assert res.main_page.owner_group_id == hitchhikers_id
             assert res.main_page.title == "Main page for the Hitchhikers community"
             assert res.main_page.content == "There is nothing here yet..."
-            # assert res.main_page.can_edit # TODO
+            assert res.main_page.can_edit
             assert res.main_page.editor_user_ids == [1]
             assert res.member
             assert res.admin
@@ -97,10 +97,10 @@ class TestGroups:
             assert res.main_page.slug == "main-page-for-the-country-1-region-2-foodies-community"
             assert res.main_page.last_editor_user_id == 2
             assert res.main_page.creator_user_id == 2
-            assert res.main_page.owner_user_id == 2
+            assert res.main_page.owner_group_id == c1r2foodies_id
             assert res.main_page.title == "Main page for the Country 1, Region 2, Foodies community"
             assert res.main_page.content == "There is nothing here yet..."
-            # assert res.main_page.can_edit # TODO
+            assert res.main_page.can_edit
             assert res.main_page.editor_user_ids == [2]
             assert res.member
             assert res.admin
@@ -112,7 +112,6 @@ class TestGroups:
                     group_id=c2r1foodies_id,
                 )
             )
-            print(res)
             assert res.group_id == c2r1foodies_id
             assert res.name == "Country 2, Region 1, Foodies"
             assert res.slug == "country-2-region-1-foodies"
@@ -142,10 +141,10 @@ class TestGroups:
             assert res.main_page.slug == "main-page-for-the-country-2-region-1-foodies-community"
             assert res.main_page.last_editor_user_id == 6
             assert res.main_page.creator_user_id == 6
-            assert res.main_page.owner_user_id == 6
+            assert res.main_page.owner_group_id == c2r1foodies_id
             assert res.main_page.title == "Main page for the Country 2, Region 1, Foodies community"
             assert res.main_page.content == "There is nothing here yet..."
-            # assert res.main_page.can_edit # TODO
+            assert not res.main_page.can_edit
             assert res.main_page.editor_user_ids == [6]
             assert not res.member
             assert not res.admin

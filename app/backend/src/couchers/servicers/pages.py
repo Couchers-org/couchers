@@ -4,16 +4,16 @@ import grpc
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Page, PageType, PageVersion, User
+from couchers.models import Cluster, Node, Page, PageType, PageVersion, User
 from couchers.utils import Timestamp_from_datetime, create_coordinate, remove_duplicates_retain_order, slugify
 from pb import pages_pb2, pages_pb2_grpc
 
 
 def _check_update_permission(page: Page, user_id):
-    if page.owner_user_id == user_id:
-        return True
-    # elif page.owner_cluster_id # TODO
-    return False
+    if page.owner_user:
+        return page.owner_user_id == user_id
+    # otherwise owned by a cluster
+    return page.owner_cluster.admins.filter(User.id == user_id).one_or_none() is not None
 
 
 pagetype2sql = {
@@ -42,7 +42,12 @@ def page_to_pb(page: Page, user_id):
         last_editor_user_id=current_version.editor_user_id,
         creator_user_id=page.creator_user_id,
         owner_user_id=page.owner_user_id,
-        owner_cluster_id=page.owner_cluster_id,
+        owner_group_id=page.owner_cluster.id
+        if page.owner_cluster and page.owner_cluster.official_cluster_for_node_id is None
+        else None,
+        owner_community_id=page.owner_cluster.official_cluster_for_node_id
+        if page.owner_cluster and page.owner_cluster.official_cluster_for_node_id is not None
+        else None,
         thread_id=None,  # TODO
         title=current_version.title,
         content=current_version.content,
@@ -134,6 +139,47 @@ class Pages(pages_pb2_grpc.PagesServicer):
 
             if request.HasField("location"):
                 page_version.geom = create_coordinate(request.location.lat, request.location.lng)
+
+            session.commit()
+            return page_to_pb(page, context.user_id)
+
+    def TransferPage(self, request, context):
+        with session_scope() as session:
+            page = (
+                session.query(Page)
+                .filter(Page.id == request.page_id)
+                .filter(Page.type != PageType.main_page)
+                .one_or_none()
+            )
+
+            if not page:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.PAGE_NOT_FOUND)
+
+            if not page.owner_user_id == context.user_id:
+                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.PAGE_TRANSFER_PERMISSION_DENIED)
+
+            if request.WhichOneof("new_owner") == "new_owner_group_id":
+                cluster = (
+                    session.query(Cluster)
+                    .filter(Cluster.official_cluster_for_node_id == None)
+                    .filter(Cluster.id == request.new_owner_group_id)
+                    .one_or_none()
+                )
+            elif request.WhichOneof("new_owner") == "new_owner_community_id":
+                cluster = (
+                    session.query(Cluster)
+                    .filter(Cluster.official_cluster_for_node_id == request.new_owner_community_id)
+                    .one_or_none()
+                )
+            else:
+                # i'm not sure if this needs to be checked
+                context.abort(grpc.StatusCode.UNKNOWN, errors.UNKNOWN_ERROR)
+
+            if not cluster:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_OR_COMMUNITY_NOT_FOUND)
+
+            page.owner_user = None
+            page.owner_cluster = cluster
 
             session.commit()
             return page_to_pb(page, context.user_id)

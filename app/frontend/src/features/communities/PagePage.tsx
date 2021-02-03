@@ -47,7 +47,7 @@ export default function PagePage({pageType}: {pageType: PageType}) {
       ) : page ?
       <>
         <PageTitle>{page.title}</PageTitle>
-        <p>Owner: {page.ownerUserId !== 0 ? "user " + page.ownerUserId : "cluster " + page.ownerClusterId}</p>
+        <p>Owner: {!!page.ownerUserId ? "user " + page.ownerUserId : !!page.ownerGroupId ? "group " + page.ownerGroupId : "community " + page.ownerCommunityId}</p>
         <p>Last edited at {page.lastEdited?.seconds} by {page.lastEditorUserId}</p>
         <p>Created at {page.created?.seconds} by {page.creatorUserId}</p>
         <p>Address: {page.address} (coords: {page.location!.lat}, {page.location!.lng})</p>

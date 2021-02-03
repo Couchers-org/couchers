@@ -150,7 +150,6 @@ def enforce_community_memberships():
                 node.official_cluster.cluster_subscriptions.append(
                     ClusterSubscription(
                         user=user,
-                        cluster=node.official_cluster,
                         role=ClusterRole.member,
                     )
                 )

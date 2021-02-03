@@ -689,6 +689,13 @@ class Cluster(Base):
     """
 
     __tablename__ = "clusters"
+    __table_args__ = (
+        CheckConstraint(
+            # make sure the parent_node_id and official_cluster_for_node_id match
+            "(official_cluster_for_node_id IS NULL) OR (official_cluster_for_node_id = parent_node_id)",
+            name="official_cluster_matches_parent_node",
+        ),
+    )
 
     id = Column(BigInteger, communities_seq, primary_key=True)
     parent_node_id = Column(ForeignKey("nodes.id"), nullable=False, index=True)
@@ -734,9 +741,6 @@ class Cluster(Base):
         primaryjoin="Cluster.id == ClusterSubscription.cluster_id",
         secondaryjoin="and_(User.id == ClusterSubscription.user_id, ClusterSubscription.role == 'admin')",
     )
-
-    # make sure the parent_node_id and official_cluster_for_node_id match
-    CheckConstraint("(official_cluster_for_node_id IS NULL) OR (official_cluster_for_node_id = parent_node_id)")
 
 
 class NodeClusterAssociation(Base):
@@ -814,6 +818,18 @@ class Page(Base):
     """
 
     __tablename__ = "pages"
+    __table_args__ = (
+        # Only one of owner_user and owner_cluster should be set
+        CheckConstraint(
+            "(owner_user_id IS NULL AND owner_cluster_id IS NOT NULL) OR (owner_user_id IS NOT NULL AND owner_cluster_id IS NULL)",
+            name="one_owner",
+        ),
+        # if the page is a main page, it must be owned by that cluster
+        CheckConstraint(
+            "(main_page_for_cluster_id IS NULL) OR (owner_cluster_id IS NOT NULL AND main_page_for_cluster_id = owner_cluster_id)",
+            name="main_page_owned_by_cluster",
+        ),
+    )
 
     id = Column(BigInteger, communities_seq, primary_key=True)
 
@@ -840,12 +856,6 @@ class Page(Base):
     )
 
     editors = relationship("User", secondary="page_versions")
-
-    # Only one of owner_user and owner_cluster should be set
-    CheckConstraint(
-        "(owner_user_id IS NULL AND owner_cluster_id IS NOT NULL) OR (owner_user_id IS NOT NULL AND owner_cluster_id IS NULL)",
-        name="one_owner",
-    )
 
 
 class PageVersion(Base):

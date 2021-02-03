@@ -221,5 +221,4 @@ def test_email_patching_fails(db):
         with pytest.raises(Exception) as e:
             with patch("couchers.email.send_email", mock_send_email):
                 send_friend_request_email(friend_relationship)
-        print(e.value)
         assert str(e.value) == patched_msg

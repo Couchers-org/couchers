@@ -53,7 +53,7 @@ def _create_community(session, interval_lb, interval_ub, name, admins, extra_mem
     session.add(cluster)
     main_page = Page(
         creator_user=admins[0],
-        owner_user=admins[0],
+        owner_cluster=cluster,
         type=PageType.main_page,
         main_page_for_cluster=cluster,
     )
@@ -69,7 +69,6 @@ def _create_community(session, interval_lb, interval_ub, name, admins, extra_mem
         cluster.cluster_subscriptions.append(
             ClusterSubscription(
                 user=admin,
-                cluster=cluster,
                 role=ClusterRole.admin,
             )
         )
@@ -77,7 +76,6 @@ def _create_community(session, interval_lb, interval_ub, name, admins, extra_mem
         cluster.cluster_subscriptions.append(
             ClusterSubscription(
                 user=member,
-                cluster=cluster,
                 role=ClusterRole.member,
             )
         )
@@ -95,7 +93,7 @@ def _create_group(session, name, admins, members, parent_community):
     session.add(cluster)
     main_page = Page(
         creator_user=admins[0],
-        owner_user=admins[0],
+        owner_cluster=cluster,
         type=PageType.main_page,
         main_page_for_cluster=cluster,
     )
@@ -111,7 +109,6 @@ def _create_group(session, name, admins, members, parent_community):
         cluster.cluster_subscriptions.append(
             ClusterSubscription(
                 user=admin,
-                cluster=cluster,
                 role=ClusterRole.admin,
             )
         )
@@ -119,7 +116,6 @@ def _create_group(session, name, admins, members, parent_community):
         cluster.cluster_subscriptions.append(
             ClusterSubscription(
                 user=member,
-                cluster=cluster,
                 role=ClusterRole.member,
             )
         )
@@ -138,7 +134,7 @@ def _create_place(token, title, content, address, x):
                     lat=x,
                     lng=1,
                 ),
-                type=pages_pb2.PAGE_TYPE_POI,
+                type=pages_pb2.PAGE_TYPE_PLACE,
             )
         )
 
@@ -240,10 +236,10 @@ class TestCommunities:
             assert res.main_page.slug == "main-page-for-the-world-community"
             assert res.main_page.last_editor_user_id == 1
             assert res.main_page.creator_user_id == 1
-            assert res.main_page.owner_user_id == 1
+            assert res.main_page.owner_community_id == w_id
             assert res.main_page.title == "Main page for the World community"
             assert res.main_page.content == "There is nothing here yet..."
-            # assert not res.main_page.can_edit # TODO
+            assert not res.main_page.can_edit
             assert res.main_page.editor_user_ids == [1]
             assert res.member
             assert not res.admin
@@ -284,10 +280,10 @@ class TestCommunities:
             assert res.main_page.slug == "main-page-for-the-country-1-region-1-city-1-community"
             assert res.main_page.last_editor_user_id == 2
             assert res.main_page.creator_user_id == 2
-            assert res.main_page.owner_user_id == 2
+            assert res.main_page.owner_community_id == c1r1c1_id
             assert res.main_page.title == "Main page for the Country 1, Region 1, City 1 community"
             assert res.main_page.content == "There is nothing here yet..."
-            # assert res.main_page.can_edit # TODO
+            assert res.main_page.can_edit
             assert res.main_page.editor_user_ids == [2]
             assert res.member
             assert res.admin
@@ -318,10 +314,10 @@ class TestCommunities:
             assert res.main_page.slug == "main-page-for-the-country-2-community"
             assert res.main_page.last_editor_user_id == 6
             assert res.main_page.creator_user_id == 6
-            assert res.main_page.owner_user_id == 6
+            assert res.main_page.owner_community_id == c2_id
             assert res.main_page.title == "Main page for the Country 2 community"
             assert res.main_page.content == "There is nothing here yet..."
-            # assert not res.main_page.can_edit # TODO
+            assert not res.main_page.can_edit
             assert res.main_page.editor_user_ids == [6]
             assert not res.member
             assert not res.admin
