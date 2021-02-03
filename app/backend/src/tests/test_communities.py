@@ -69,7 +69,6 @@ def _create_community(session, interval_lb, interval_ub, name, admins, extra_mem
         cluster.cluster_subscriptions.append(
             ClusterSubscription(
                 user=admin,
-                cluster=cluster,
                 role=ClusterRole.admin,
             )
         )
@@ -77,7 +76,6 @@ def _create_community(session, interval_lb, interval_ub, name, admins, extra_mem
         cluster.cluster_subscriptions.append(
             ClusterSubscription(
                 user=member,
-                cluster=cluster,
                 role=ClusterRole.member,
             )
         )
@@ -111,7 +109,6 @@ def _create_group(session, name, admins, members, parent_community):
         cluster.cluster_subscriptions.append(
             ClusterSubscription(
                 user=admin,
-                cluster=cluster,
                 role=ClusterRole.admin,
             )
         )
@@ -119,7 +116,6 @@ def _create_group(session, name, admins, members, parent_community):
         cluster.cluster_subscriptions.append(
             ClusterSubscription(
                 user=member,
-                cluster=cluster,
                 role=ClusterRole.member,
             )
         )
