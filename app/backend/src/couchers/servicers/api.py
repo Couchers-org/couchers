@@ -197,12 +197,6 @@ class API(api_pb2_grpc.APIServicer):
                 else:
                     user.max_guests = request.max_guests.value
 
-            if request.HasField("multiple_groups"):
-                if request.multiple_groups.is_null:
-                    user.multiple_groups = None
-                else:
-                    user.multiple_groups = request.multiple_groups.value
-
             if request.HasField("last_minute"):
                 if request.last_minute.is_null:
                     user.last_minute = None
@@ -556,9 +550,6 @@ def user_model_to_pb(db_user, session, context):
 
     if db_user.max_guests is not None:
         user.max_guests.value = db_user.max_guests
-
-    if db_user.multiple_groups is not None:
-        user.multiple_groups.value = db_user.multiple_groups
 
     if db_user.last_minute is not None:
         user.last_minute.value = db_user.last_minute

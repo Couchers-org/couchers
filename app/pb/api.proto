@@ -192,7 +192,6 @@ message User {
   repeated MutualFriend mutual_friends = 21;
 
   google.protobuf.UInt32Value max_guests = 22;
-  google.protobuf.BoolValue multiple_groups = 23;
   google.protobuf.BoolValue last_minute = 24;
   google.protobuf.BoolValue accepts_pets = 25;
   google.protobuf.BoolValue accepts_kids = 26;
@@ -240,7 +239,6 @@ message UpdateProfileReq {
   RepeatedStringValue countries_lived = 11;
 
   NullableUInt32Value max_guests = 12;
-  NullableBoolValue multiple_groups = 13;
   NullableBoolValue last_minute = 14;
   NullableBoolValue accepts_pets = 15;
   NullableBoolValue accepts_kids = 16;
