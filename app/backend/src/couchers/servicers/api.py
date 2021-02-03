@@ -12,7 +12,7 @@ from sqlalchemy.sql import and_, func, or_
 from couchers import errors, urls
 from couchers.config import config
 from couchers.crypto import generate_hash_signature, random_hex
-from couchers.db import get_friends_status, get_user_by_field, is_valid_color, is_valid_name, session_scope
+from couchers.db import get_friends_status, get_user_by_field, is_valid_name, session_scope
 from couchers.models import (
     Complaint,
     FriendRelationship,
@@ -178,12 +178,6 @@ class API(api_pb2_grpc.APIServicer):
                     user.about_place = None
                 else:
                     user.about_place = request.about_place.value
-
-            if request.HasField("color"):
-                color = request.color.value.lower()
-                if not is_valid_color(color):
-                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COLOR)
-                user.color = color
 
             if request.hosting_status != api_pb2.HOSTING_STATUS_UNSPECIFIED:
                 user.hosting_status = hostingstatus2sql[request.hosting_status]
@@ -542,7 +536,6 @@ def user_model_to_pb(db_user, session, context):
         num_references=num_references,
         gender=db_user.gender,
         age=db_user.age,
-        color=db_user.color,
         joined=Timestamp_from_datetime(db_user.display_joined),
         last_active=Timestamp_from_datetime(db_user.display_last_active),
         hosting_status=hostingstatus2api[db_user.hosting_status],

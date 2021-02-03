@@ -178,7 +178,6 @@ message User {
   uint32 num_references = 7;
   string gender = 8;
   uint32 age = 9;
-  string color = 10; // web color, e.g. #643073, case doesn't matter
   google.protobuf.Timestamp joined = 11; // not exact
   google.protobuf.Timestamp last_active = 12; // not exact
   HostingStatus hosting_status = 13;
@@ -233,7 +232,6 @@ message UpdateProfileReq {
   NullableStringValue occupation = 4;
   NullableStringValue about_me = 5;
   NullableStringValue about_place = 6;
-  google.protobuf.StringValue color = 7;
 
   HostingStatus hosting_status = 8;
 
