@@ -16,14 +16,12 @@ variables:
   BACKEND_RELEASE_TAG: $CI_REGISTRY_IMAGE/backend:latest
   MEDIA_RELEASE_TAG: $CI_REGISTRY_IMAGE/media:latest
   FRONTEND_RELEASE_TAG: $CI_REGISTRY_IMAGE/frontend:latest
-  VUE_RELEASE_TAG: $CI_REGISTRY_IMAGE/vue:latest
   SLUG: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   PROXY_TAG: $CI_REGISTRY_IMAGE/proxy:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   NGINX_TAG: $CI_REGISTRY_IMAGE/nginx:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   BACKEND_TAG: $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   MEDIA_TAG: $CI_REGISTRY_IMAGE/media:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   FRONTEND_TAG: $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
-  VUE_TAG: $CI_REGISTRY_IMAGE/vue:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
 
 default:
   image: docker
@@ -129,26 +127,6 @@ build:frontend:
     paths:
       - artifacts/frontend/
 
-build:vue:
-  stage: build
-  script:
-    - docker pull $VUE_RELEASE_TAG || true
-    - docker build --build-arg version=$SLUG --cache-from $VUE_RELEASE_TAG -t $VUE_TAG app/vue/
-    - docker push $VUE_TAG
-    # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
-    - mkdir -p artifacts && docker cp $(docker create $VUE_TAG):/app/dist artifacts/vue
-  rules:
-    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
-      changes:
-      - app/**/*
-    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
-      changes:
-      - app/pb/**/*
-      - app/vue/**/*
-  artifacts:
-    paths:
-      - artifacts/vue/
-
 
 test:backend:
   stage: test
@@ -220,7 +198,7 @@ test:frontend:
   after_script:
     - cp /app/junit.xml $CI_PROJECT_DIR/
     - cp /app/coverage/cobertura-coverage.xml $CI_PROJECT_DIR/
-    - cp -a /app/coverage/lcov-report $CI_PROJECT_DIR/artifacts/
+    - mkdir -p artifacts && cp -a /app/coverage/lcov-report $CI_PROJECT_DIR/artifacts/
   coverage: '/^All files[^|]*\|[^|]*\s+([\d\.]+)/'
   artifacts:
     reports:
@@ -245,7 +223,7 @@ test:storybook:
     default: false
   script:
     - cd /app && yarn build-storybook
-    - cp -a /app/storybook-static $CI_PROJECT_DIR/artifacts/
+    - mkdir -p artifacts && cp -a /app/storybook-static $CI_PROJECT_DIR/artifacts/
   artifacts:
     paths:
       - artifacts/storybook-static
@@ -335,25 +313,6 @@ preview:storybook:
       - app/pb/**/*
       - app/frontend/**/*
 
-preview:vue:
-  stage: preview
-  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
-  inherit:
-    # no docker login
-    default: false
-  script:
-    - aws s3 cp artifacts/vue s3://$AWS_PREVIEW_BUCKET/vue/$CI_COMMIT_SHORT_SHA/ --recursive
-    - aws s3 cp artifacts/vue s3://$AWS_PREVIEW_BUCKET/vue/$CI_COMMIT_REF_SLUG/ --recursive
-    - echo "Done, preview available at https://$CI_COMMIT_SHORT_SHA--vue.preview.coucher.org/ and https://$CI_COMMIT_REF_SLUG--vue.preview.coucher.org/"
-  rules:
-    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
-      changes:
-      - app/**/*
-    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
-      changes:
-      - app/pb/**/*
-      - app/vue/**/*
-
 
 release:proxy:
   stage: release
@@ -405,17 +364,6 @@ release:frontend:
     - docker pull $FRONTEND_TAG
     - docker tag $FRONTEND_TAG $FRONTEND_RELEASE_TAG
     - docker push $FRONTEND_RELEASE_TAG
-  rules:
-    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
-      changes:
-      - app/**/*
-
-release:vue:
-  stage: release
-  script:
-    - docker pull $VUE_TAG
-    - docker tag $VUE_TAG $VUE_RELEASE_TAG
-    - docker push $VUE_RELEASE_TAG
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:

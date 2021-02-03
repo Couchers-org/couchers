@@ -1,5 +1,6 @@
 alembic
 black
+faker
 geoalchemy2
 grpcio
 isort
@@ -12,9 +13,9 @@ pytest
 pytest-cov
 pytest-pythonpath
 python-dateutil
+python-slugify
 pytz
 pyyaml
 requests
 Shapely
 sqlalchemy
-faker

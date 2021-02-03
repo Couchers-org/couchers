@@ -1,38 +1,34 @@
 import { Meta, Story } from "@storybook/react/types-6-0";
 import * as React from "react";
-import { Provider } from "react-redux";
 import messages from "../../test/fixtures/messages.json";
-import { store } from "../../store";
 
 import Messages from "./index";
-import MessageView, { MessageProps } from "./messagelist/Message";
+import MessageView, { MessageProps } from "./messagelist/MessageView";
+import ControlMessageView from "./messagelist/ControlMessageView";
 import AuthProvider from "../auth/AuthProvider";
+import { addDefaultUser } from "../../test/utils";
 
-const [message1] = messages;
+const [controlMessage, message1] = messages;
+
+addDefaultUser(1);
 
 export default {
   title: "Messages",
   component: Messages,
   argTypes: {},
-  decorators: [
-    (storyFn) => {
-      return (
-        <AuthProvider>
-          <Provider store={store}>{storyFn()}</Provider>
-        </AuthProvider>
-      );
-    },
-  ],
+  decorators: [(story) => <AuthProvider>{story()}</AuthProvider>],
 } as Meta;
-
-const Template: Story<any> = (args) => <Messages {...args} />;
-
-export const Assembled = Template.bind({});
-Assembled.args = {};
 
 const MessageTemplate: Story<MessageProps> = (args) => (
   <MessageView {...args} />
 );
 
-export const Collapsed = MessageTemplate.bind({});
-Collapsed.args = { message: message1 };
+export const Message = MessageTemplate.bind({});
+Message.args = { message: message1 };
+
+const ControlMessageTemplate: Story<MessageProps> = (args) => (
+  <ControlMessageView {...args} />
+);
+
+export const ControlMessage = ControlMessageTemplate.bind({});
+ControlMessage.args = { message: controlMessage };

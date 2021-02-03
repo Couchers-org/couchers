@@ -1,10 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
-import { User } from "../../pb/api_pb";
+import { useQueryClient } from "react-query";
 import { service, SignupArguments } from "../../service";
-import {
-  HostingPreferenceData,
-  UpdateUserProfileData,
-} from "../../service/user";
 
 export function usePersistedState<T>(
   key: string,
@@ -34,12 +30,16 @@ export default function useAuthStore() {
     false
   );
   const [jailed, setJailed] = usePersistedState("auth.jailed", false);
-  const [user, setUser] = usePersistedState<User.AsObject | null>(
-    "auth.user",
+  const [userId, setUserId] = usePersistedState<number | null>(
+    "auth.userId",
     null
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  //this is used to set the current user in the user cache
+  //may as well not waste the api call since it is needed for userId
+  const queryClient = useQueryClient();
 
   const authActions = useMemo(
     () => ({
@@ -60,12 +60,16 @@ export default function useAuthStore() {
         setLoading(true);
         try {
           const auth = await service.user.passwordLogin(username, password);
-          setJailed(auth.jailed);
 
           if (!auth.jailed) {
             const user = await service.user.getUser(username);
-            setUser(user);
+            setUserId(user.userId);
+            queryClient.setQueryData(["user", user.userId], user);
           }
+          //this must come after setting the userId, because calling setQueryData
+          //will also cause that query to be background fetched, and it needs
+          //userId to be set.
+          setJailed(auth.jailed);
           setAuthenticated(true);
         } catch (e) {
           setError(e.message);
@@ -77,13 +81,13 @@ export default function useAuthStore() {
         setLoading(true);
         try {
           const auth = await service.user.tokenLogin(loginToken);
-          setJailed(auth.jailed);
 
           if (!auth.jailed) {
             const user = await service.user.getCurrentUser();
-            setUser(user);
+            setUserId(user.userId);
+            queryClient.setQueryData(["user", user.userId], user);
           }
-
+          setJailed(auth.jailed);
           setAuthenticated(true);
         } catch (e) {
           setError(e.message);
@@ -95,11 +99,12 @@ export default function useAuthStore() {
         setLoading(true);
         try {
           const auth = await service.user.completeSignup(signupArguments);
-          setJailed(auth.jailed);
           if (!auth.jailed) {
             const user = await service.user.getCurrentUser();
-            setUser(user);
+            setUserId(user.userId);
+            queryClient.setQueryData(["user", user.userId], user);
           }
+          setJailed(auth.jailed);
           setAuthenticated(true);
         } catch (e) {
           setError(e.message);
@@ -111,13 +116,12 @@ export default function useAuthStore() {
         setError(null);
         setLoading(true);
         try {
-          const isJailed = (await service.jail.getIsJailed()).isJailed;
-          setJailed(isJailed);
-          if (!isJailed) {
-            ///TODO: Remove this when changing to userId
-            const user = await service.user.getCurrentUser();
-            setUser(user);
+          const res = await service.jail.getIsJailed();
+          if (!res.isJailed) {
+            setUserId(res.user.userId);
+            queryClient.setQueryData(["user", res.user.userId], res.user);
           }
+          setJailed(res.isJailed);
         } catch (e) {
           setError(e.message);
         }
@@ -127,8 +131,7 @@ export default function useAuthStore() {
         setError(null);
         setLoading(true);
         try {
-          service.user.logout();
-          setUser(null);
+          await service.user.logout();          setUserId(null);
           setAuthenticated(false);
         } catch (e) {
           setError(e.message);
@@ -138,45 +141,18 @@ export default function useAuthStore() {
     }),
     //note: there should be no dependenices on the state, or
     //some useEffects will break. Eg. the token login in Login.tsx
-    [setAuthenticated, setJailed, setUser]
+    [setAuthenticated, setJailed, setUserId, queryClient]
   );
-
-  // TODO: this should be refactored to react-query when user is replaced with userId
-  const profileActions = {
-    async updateUserProfile(userData: UpdateUserProfileData) {
-      const username = user?.username;
-
-      if (!username) {
-        throw Error("User is not connected.");
-      }
-
-      await service.user.updateProfile(userData);
-
-      setUser(await service.user.getUser(username));
-    },
-    async updateHostingPreferences(preferences: HostingPreferenceData) {
-      const username = user?.username;
-
-      if (!username) {
-        throw Error("User is not connected.");
-      }
-
-      await service.user.updateHostingPreference(preferences);
-
-      setUser(await service.user.getUser(username));
-    },
-  };
 
   return {
     authState: {
       authenticated,
       jailed,
-      user,
+      userId,
       loading,
       error,
     },
     authActions,
-    profileActions,
   };
 }
 

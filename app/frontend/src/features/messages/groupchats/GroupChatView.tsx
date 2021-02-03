@@ -1,46 +1,190 @@
-import { Box, Typography } from "@material-ui/core";
+import { Box, Menu, MenuItem } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import CloseIcon from "@material-ui/icons/Close";
-import * as React from "react";
-import { leaveGroupChat, sendMessage, setGroupChat } from ".";
+import { Skeleton } from "@material-ui/lab";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { Error, Error as GrpcError } from "grpc-web";
+import React, { useRef, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useHistory, useParams } from "react-router-dom";
 import Alert from "../../../components/Alert";
-import Button from "../../../components/Button";
 import CircularProgress from "../../../components/CircularProgress";
-import { useAppDispatch, useTypedSelector } from "../../../store";
+import HeaderButton from "../../../components/HeaderButton";
+import { BackIcon, OverflowMenuIcon } from "../../../components/Icons";
+import PageTitle from "../../../components/PageTitle";
+import { GroupChat, Message } from "../../../pb/conversations_pb";
+import { service } from "../../../service";
+import { useAuthContext } from "../../auth/AuthProvider";
+import useUsers from "../../userQueries/useUsers";
 import MessageList from "../messagelist/MessageList";
+import useMarkLastSeen, { MarkLastSeenVariables } from "../useMarkLastSeen";
+import { groupChatTitleText } from "../utils";
+import GroupChatSendField from "./GroupChatSendField";
 
-const useStyles = makeStyles({ root: {} });
+const useStyles = makeStyles((theme) => ({
+  header: { display: "flex", alignItems: "center" },
+  title: {
+    flexGrow: 1,
+    marginInline: theme.spacing(2),
+  },
+  menuItem: {
+    paddingInline: theme.spacing(2),
+  },
+}));
 
 export default function GroupChatView() {
-  const dispatch = useAppDispatch();
-  const { error, loading, groupChat, messages } = useTypedSelector((state) => {
-    return state.groupChats.groupChatView;
-  });
-
-  const handleSend = (text: string) =>
-    dispatch(sendMessage({ groupChat: groupChat!, text }));
-
-  const closeGroupChat = () => dispatch(setGroupChat(null));
-
-  const handleLeaveGroupChat = () => dispatch(leaveGroupChat(groupChat!));
-
   const classes = useStyles();
+
+  const menuAnchor = useRef<HTMLAnchorElement>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const handleClick = () => {
+    setMenuOpen(true);
+  };
+
+  const handleClose = () => {
+    setMenuOpen(false);
+  };
+
+  const groupChatId = +(useParams<{ groupChatId?: string }>().groupChatId || 0);
+
+  const { data: groupChat, error: groupChatError } = useQuery<
+    GroupChat.AsObject,
+    GrpcError
+  >(
+    ["groupChat", groupChatId],
+    () => service.conversations.getGroupChat(groupChatId),
+    { enabled: !!groupChatId }
+  );
+
+  //for title text
+  const currentUserId = useAuthContext().authState.userId!;
+  const groupChatMembersQuery = useUsers(groupChat?.memberUserIdsList ?? []);
+
+  const {
+    data: messages,
+    isLoading: isMessagesLoading,
+    error: messagesError,
+  } = useQuery<Message.AsObject[], GrpcError>(
+    ["groupChatMessages", groupChatId],
+    () => service.conversations.getGroupChatMessages(groupChatId),
+    { enabled: !!groupChatId }
+  );
+
+  const queryClient = useQueryClient();
+  const sendMutation = useMutation<Empty, GrpcError, string>(
+    (text) => service.conversations.sendMessage(groupChatId, text),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["groupChatMessages", groupChatId]);
+        queryClient.invalidateQueries(["groupChats"]);
+      },
+    }
+  );
+
+  const leaveGroupChatMutation = useMutation<Empty, GrpcError, void>(
+    () => service.conversations.leaveGroupChat(groupChatId),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["groupChatMessages", groupChatId]);
+        queryClient.invalidateQueries(["groupChats"]);
+      },
+    }
+  );
+
+  const { mutate: markLastSeenGroupChat } = useMutation<
+    Empty,
+    Error,
+    MarkLastSeenVariables
+  >(
+    (messageId) =>
+      service.conversations.markLastSeenGroupChat(groupChatId, messageId),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["groupChat", groupChatId]);
+      },
+    }
+  );
+  const { markLastSeen } = useMarkLastSeen(
+    markLastSeenGroupChat,
+    groupChat?.lastSeenMessageId
+  );
+
+  const history = useHistory();
+
+  const handleLeaveGroupChat = () => leaveGroupChatMutation.mutate();
+  const handleBack = () => history.goBack();
+
   return (
-    <Box className={classes.root}>
-      <Typography variant="h3">{groupChat!.title}</Typography>
-      <Button onClick={closeGroupChat}>
-        <CloseIcon />
-        (close)
-      </Button>
-      <Button onClick={handleLeaveGroupChat}>
-        <CloseIcon />
-        (leave)
-      </Button>
-      {error && <Alert severity="error">{error}</Alert>}
-      {loading ? (
-        <CircularProgress />
+    <Box>
+      {!groupChatId ? (
+        <Alert severity="error">Invalid chat id.</Alert>
       ) : (
-        <MessageList messages={messages} handleSend={handleSend} />
+        <>
+          <Box className={classes.header}>
+            <HeaderButton onClick={handleBack} aria-label="Back">
+              <BackIcon />
+            </HeaderButton>
+
+            <PageTitle className={classes.title}>
+              {groupChat ? (
+                groupChatTitleText(
+                  groupChat,
+                  groupChatMembersQuery,
+                  currentUserId
+                )
+              ) : groupChatError ? (
+                "Error"
+              ) : (
+                <Skeleton width={100} />
+              )}
+            </PageTitle>
+
+            <HeaderButton
+              onClick={handleClick}
+              aria-label="Menu"
+              aria-haspopup="true"
+              aria-controls="more-menu"
+              innerRef={menuAnchor}
+            >
+              <OverflowMenuIcon />
+            </HeaderButton>
+            <Menu
+              id="more-menu"
+              anchorEl={menuAnchor.current}
+              keepMounted
+              open={menuOpen}
+              onClose={handleClose}
+            >
+              <MenuItem
+                onClick={handleLeaveGroupChat}
+                className={classes.menuItem}
+              >
+                Leave chat
+              </MenuItem>
+            </Menu>
+          </Box>
+          {(groupChatError ||
+            messagesError ||
+            sendMutation.error ||
+            leaveGroupChatMutation.error) && (
+            <Alert severity="error">
+              {groupChatError?.message ||
+                messagesError?.message ||
+                sendMutation.error?.message ||
+                leaveGroupChatMutation.error?.message}
+            </Alert>
+          )}
+          {isMessagesLoading ? (
+            <CircularProgress />
+          ) : (
+            messages && (
+              <>
+                <MessageList markLastSeen={markLastSeen} messages={messages} />
+                <GroupChatSendField sendMutation={sendMutation} />
+              </>
+            )
+          )}
+        </>
       )}
     </Box>
   );

@@ -20,6 +20,7 @@ from couchers.servicers.bugs import Bugs
 from couchers.servicers.conversations import Conversations
 from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
+from couchers.servicers.pages import Pages
 from couchers.servicers.requests import Requests
 from couchers.utils import create_coordinate
 from pb import (
@@ -31,6 +32,7 @@ from pb import (
     conversations_pb2_grpc,
     jail_pb2_grpc,
     media_pb2_grpc,
+    pages_pb2_grpc,
     requests_pb2_grpc,
 )
 
@@ -223,8 +225,7 @@ def api_session(token):
     """
     Create an API for testing, uses the token for auth
     """
-    user_id, jailed = Auth().get_session_for_token(token)
-    channel = FakeChannel(user_id=user_id)
+    channel = fake_channel(token)
     api_pb2_grpc.add_APIServicer_to_server(API(), channel)
     yield api_pb2_grpc.APIStub(channel)
 
@@ -277,13 +278,17 @@ def real_jail_session(token):
             server.stop(None).wait()
 
 
+def fake_channel(token):
+    user_id, jailed = Auth().get_session_for_token(token)
+    return FakeChannel(user_id=user_id)
+
+
 @contextmanager
 def conversations_session(token):
     """
     Create a Conversations API for testing, uses the token for auth
     """
-    user_id, jailed = Auth().get_session_for_token(token)
-    channel = FakeChannel(user_id=user_id)
+    channel = fake_channel(token)
     conversations_pb2_grpc.add_ConversationsServicer_to_server(Conversations(), channel)
     yield conversations_pb2_grpc.ConversationsStub(channel)
 
@@ -293,11 +298,18 @@ def requests_session(token):
     """
     Create a Requests API for testing, uses the token for auth
     """
+    channel = fake_channel(token)
+    requests_pb2_grpc.add_RequestsServicer_to_server(Requests(), channel)
+    yield requests_pb2_grpc.RequestsStub(channel)
+
+
+@contextmanager
+def pages_session(token):
     auth_interceptor = Auth().get_auth_interceptor(allow_jailed=False)
     user_id, jailed = Auth().get_session_for_token(token)
     channel = FakeChannel(user_id=user_id)
-    requests_pb2_grpc.add_RequestsServicer_to_server(Requests(), channel)
-    yield requests_pb2_grpc.RequestsStub(channel)
+    pages_pb2_grpc.add_PagesServicer_to_server(Pages(), channel)
+    yield pages_pb2_grpc.PagesStub(channel)
 
 
 @contextmanager
@@ -305,9 +317,7 @@ def account_session(token):
     """
     Create a Account API for testing, uses the token for auth
     """
-    auth_interceptor = Auth().get_auth_interceptor(allow_jailed=False)
-    user_id, jailed = Auth().get_session_for_token(token)
-    channel = FakeChannel(user_id=user_id)
+    channel = fake_channel(token)
     account_pb2_grpc.add_AccountServicer_to_server(Account(), channel)
     yield account_pb2_grpc.AccountStub(channel)
 
@@ -353,7 +363,7 @@ def testconfig():
 
     config["DEV"] = True
     config["VERSION"] = "testing_version"
-    config["BASE_URL"] = "http://localhost:8080"
+    config["BASE_URL"] = "http://localhost:3000"
     config["COOKIE_DOMAIN"] = "localhost"
     config["ENABLE_EMAIL"] = False
     config["NOTIFICATION_EMAIL_ADDRESS"] = "notify@couchers.org.invalid"

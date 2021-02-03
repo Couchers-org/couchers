@@ -11,7 +11,6 @@ Note on slugs: each branch has a slug generated from the branch name, normally y
 * Latest compiled protos: <https://gitlab.com/couchers/couchers/-/jobs/artifacts/develop/download?job=protos>
 * Built react frontend: <https://gitlab.com/couchers/couchers/-/jobs/artifacts/develop/download?job=build:frontend>
 * Frontend as at `develop`: <https://develop--frontend.preview.coucher.org/>
-* (Legacy) vue frontend from `develop`: <https://develop--vue.preview.coucher.org/>
 * Storybook previews off `develop`: <https://develop--storybook.preview.coucher.org/>
 * Current backend test coverage on `develop`: <https://develop--bcov.preview.coucher.org/>
 * Current frontend test coverage on `develop`: <https://develop--fcov.preview.coucher.org/>
@@ -28,7 +27,7 @@ Similarly you can download a built frontend, e.g. at <https://gitlab.com/coucher
 
 ## Frontend previews
 
-The pipeline builds previews of the react frontend (`frontend`), the old vue frontend (`vue`), the storybook boards (`storybook`), and code coverage for backend (`bcov`) and frontend (`fcov`). You can access these are <https://{slug/hash}--{type}.preview.coucher.org> where `slug/hash` is either the branch slug or its short hash (first 8 characters of the commit hash), `type` is one of `frontend/vue/storybook/bcov/fcov`. The previews point to the current prod API.
+The pipeline builds previews of the frontend (`frontend`), the storybook boards (`storybook`), and code coverage for backend (`bcov`) and frontend (`fcov`). You can access these are <https://{slug/hash}--{type}.preview.coucher.org> where `slug/hash` is either the branch slug or its short hash (first 8 characters of the commit hash), `type` is one of `frontend/storybook/bcov/fcov`. The previews point to the current prod API.
 
 These links are also printed at the end of the `preview` jobs in the pipeline.
 

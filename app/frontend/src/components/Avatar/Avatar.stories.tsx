@@ -49,3 +49,8 @@ export const NoImage = Template.bind({});
 NoImage.args = {
   user: userNoImage,
 };
+
+export const LoadingUser = Template.bind({});
+LoadingUser.args = {
+  user: undefined,
+};

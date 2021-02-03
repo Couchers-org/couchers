@@ -30,6 +30,7 @@ export default function ProfileMarkdownInput({
             label={label}
             rowsMax={5}
             multiline
+            fullWidth
             onChange={(event) => onChange(event.target.value)}
             value={value}
           />

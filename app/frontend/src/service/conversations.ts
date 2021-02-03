@@ -3,9 +3,11 @@ import { User } from "../pb/api_pb";
 import {
   CreateGroupChatReq,
   GetGroupChatMessagesReq,
+  GetGroupChatReq,
   GroupChat,
   LeaveGroupChatReq,
   ListGroupChatsReq,
+  MarkLastSeenGroupChatReq,
   Message,
   SendMessageReq,
 } from "../pb/conversations_pb";
@@ -18,6 +20,13 @@ export async function listGroupChats(): Promise<GroupChat.AsObject[]> {
   const groupChats = response.getGroupChatsList();
 
   return groupChats.map((groupChat) => groupChat.toObject());
+}
+
+export async function getGroupChat(id: number) {
+  const req = new GetGroupChatReq();
+  req.setGroupChatId(id);
+  const response = await client.conversations.getGroupChat(req);
+  return response.toObject();
 }
 
 export async function getGroupChatMessages(
@@ -56,4 +65,14 @@ export function leaveGroupChat(groupChatId: number) {
   const req = new LeaveGroupChatReq();
   req.setGroupChatId(groupChatId);
   return client.conversations.leaveGroupChat(req);
+}
+
+export function markLastSeenGroupChat(
+  groupChatId: number,
+  lastSeenMessageId: number
+) {
+  const req = new MarkLastSeenGroupChatReq();
+  req.setGroupChatId(groupChatId);
+  req.setLastSeenMessageId(lastSeenMessageId);
+  return client.conversations.markLastSeenGroupChat(req);
 }

@@ -1,31 +1,54 @@
 import { makeStyles } from "@material-ui/core";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import Alert from "../../components/Alert";
 import Button from "../../components/Button";
 import ProfileTextInput from "./ProfileTextInput";
 import { UpdateUserProfileData } from "../../service/user";
-import { theme } from "../../theme";
 import ProfileMarkdownInput from "./ProfileMarkdownInput";
 import ProfileTagInput from "./ProfileTagInput";
 import EditUserLocationMap from "../../components/EditUserLocationMap";
-import { useAuthContext } from "../auth/AuthProvider";
+import CircularProgress from "../../components/CircularProgress";
+import useCurrentUser from "../userQueries/useCurrentUser";
+import useUpdateUserProfile from "./useUpdateUserProfile";
+import { useIsMounted, useSafeState } from "../../utils/hooks";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   buttonContainer: {
     display: "flex",
     paddingTop: theme.spacing(1),
   },
-});
+  field: {
+    "& > .MuiInputBase-root": {
+      width: "100%",
+    },
+    [theme.breakpoints.up("md")]: {
+      "& > .MuiInputBase-root": {
+        width: 400,
+      },
+    },
+  },
+  tagInput: {
+    width: "100%",
+    [theme.breakpoints.up("md")]: {
+      width: 400,
+    },
+  },
+}));
 
 export default function EditProfileForm() {
   const classes = useStyles();
-  const { authState, profileActions } = useAuthContext();
-  const user = authState.user;
-  const [alertState, setShowAlertState] = useState<
-    "success" | "error" | undefined
-  >();
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const {
+    updateUserProfile,
+    status: updateStatus,
+    reset: resetUpdate,
+  } = useUpdateUserProfile();
+  const { data: user } = useCurrentUser();
+  const isMounted = useIsMounted();
+  const [errorMessage, setErrorMessage] = useSafeState<string | null>(
+    isMounted,
+    null
+  );
   const { control, register, handleSubmit, setValue } = useForm<
     UpdateUserProfileData
   >({
@@ -44,24 +67,19 @@ export default function EditProfileForm() {
     register("radius");
   }, [register]);
 
-  const onSubmit = handleSubmit(async (data: UpdateUserProfileData) => {
-    try {
-      await profileActions.updateUserProfile(data);
-      setShowAlertState("success");
-    } catch (error) {
-      setShowAlertState("error");
-      setErrorMessage(error.message);
-    }
+  const onSubmit = handleSubmit((data) => {
+    resetUpdate();
+    updateUserProfile({ profileData: data, setMutationError: setErrorMessage });
   });
 
   return (
     <>
-      {alertState === "success" ? (
-        <Alert severity={alertState}>Successfully updated profile!</Alert>
-      ) : alertState === "error" ? (
-        <Alert severity={alertState}>{errorMessage}</Alert>
+      {updateStatus === "success" ? (
+        <Alert severity="success">Successfully updated profile!</Alert>
+      ) : updateStatus === "error" ? (
+        <Alert severity="error">{errorMessage}</Alert>
       ) : null}
-      {user && (
+      {user ? (
         <>
           <form onSubmit={onSubmit}>
             <ProfileTextInput
@@ -69,6 +87,7 @@ export default function EditProfileForm() {
               name="name"
               defaultValue={user.name}
               inputRef={register}
+              className={classes.field}
             />
           </form>
           <Controller
@@ -93,12 +112,14 @@ export default function EditProfileForm() {
               name="gender"
               defaultValue={user.gender}
               inputRef={register}
+              className={classes.field}
             />
             <ProfileTextInput
               label="Occupation"
               name="occupation"
               defaultValue={user.occupation}
               inputRef={register}
+              className={classes.field}
             />
 
             <Controller
@@ -112,6 +133,7 @@ export default function EditProfileForm() {
                   options={[]}
                   label="Languages I speak"
                   id="languages"
+                  className={classes.tagInput}
                 />
               )}
             />
@@ -151,6 +173,7 @@ export default function EditProfileForm() {
                   options={[]}
                   label="Countries I've Visited"
                   id="countries-visited"
+                  className={classes.tagInput}
                 />
               )}
             />
@@ -166,6 +189,7 @@ export default function EditProfileForm() {
                   options={[]}
                   label="Countries I've Lived In"
                   id="countries-lived"
+                  className={classes.tagInput}
                 />
               )}
             />
@@ -182,6 +206,8 @@ export default function EditProfileForm() {
             </div>
           </form>
         </>
+      ) : (
+        <CircularProgress />
       )}
     </>
   );

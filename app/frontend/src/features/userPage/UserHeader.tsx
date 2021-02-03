@@ -3,16 +3,10 @@ import { User } from "../../pb/api_pb";
 import { Box, makeStyles, Typography } from "@material-ui/core";
 import PageTitle from "../../components/PageTitle";
 import ScoreBar from "../../components/ScoreBar";
-import { CouchIcon, EditIcon } from "../../components/Icons";
 import Avatar from "../../components/Avatar";
-import { Link } from "react-router-dom";
-import { profileRoute } from "../../AppRoutes";
-import Button from "../../components/Button";
+import HostStatus from "../../components/HostStatus";
 import { timestamp2Date } from "../../utils/date";
 import { timeAgo } from "../../utils/timeAgo";
-import { hostingStatusLabels } from "../profile/constants";
-import TextBody from "../../components/TextBody";
-import { useAuthContext } from "../auth/AuthProvider";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -26,22 +20,18 @@ const useStyles = makeStyles((theme) => ({
   name: {
     marginBottom: theme.spacing(1),
   },
-  hostStatusIcon: {
-    marginInlineEnd: theme.spacing(1),
-    display: "inline",
-  },
-  hostStatusLabel: {
-    display: "inline",
-  },
   editButton: {
     marginBottom: theme.spacing(2),
   },
 }));
 
-export default function UserHeader({ user }: { user: User.AsObject }) {
-  const classes = useStyles();
+interface UserHeaderProps {
+  children?: React.ReactNode;
+  user: User.AsObject;
+}
 
-  const isCurrentUser = useAuthContext().authState.user?.userId === user.userId;
+export default function UserHeader({ children, user }: UserHeaderProps) {
+  const classes = useStyles();
 
   return (
     <div className={classes.root}>
@@ -50,14 +40,7 @@ export default function UserHeader({ user }: { user: User.AsObject }) {
       </div>
       <PageTitle className={classes.name}>{user.name}</PageTitle>
 
-      <Box>
-        <Box className={classes.hostStatusIcon}>
-          <CouchIcon />
-        </Box>
-        <TextBody className={classes.hostStatusLabel}>
-          {hostingStatusLabels[user.hostingStatus]}
-        </TextBody>
-      </Box>
+      <HostStatus user={user} />
 
       {user.lastActive && (
         <Box mb={2}>
@@ -67,16 +50,7 @@ export default function UserHeader({ user }: { user: User.AsObject }) {
         </Box>
       )}
 
-      {isCurrentUser && (
-        <Button
-          startIcon={<EditIcon />}
-          component={Link}
-          to={profileRoute}
-          className={classes.editButton}
-        >
-          Edit your profile
-        </Button>
-      )}
+      {children}
 
       <ScoreBar value={user.communityStanding * 100}>
         Community Standing

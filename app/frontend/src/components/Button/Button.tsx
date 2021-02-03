@@ -3,13 +3,14 @@ import {
   Button as MuiButton,
   ButtonProps,
 } from "@material-ui/core";
-import React, { ElementType, useState } from "react";
+import React, { ElementType } from "react";
 import classNames from "classnames";
 import CircularProgress from "../CircularProgress";
+import { useIsMounted, useSafeState } from "../../utils/hooks";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    borderRadius: `${theme.shape.borderRadius * 2}px`,
+    borderRadius: `${theme.shape.borderRadius}px`,
   },
   loading: {
     marginLeft: theme.spacing(1),
@@ -33,7 +34,8 @@ export default function Button<D extends ElementType = "button", P = {}>({
   onClick,
   ...otherProps
 }: AppButtonProps<D, P>) {
-  const [waiting, setWaiting] = useState(false);
+  const isMounted = useIsMounted();
+  const [waiting, setWaiting] = useSafeState(isMounted, false);
   const classes = useStyles();
   async function asyncOnClick(event: any) {
     try {

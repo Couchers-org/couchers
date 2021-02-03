@@ -1,21 +1,35 @@
-import { Message } from "../pb/conversations_pb";
+import { HostRequestStatus, Message } from "../pb/conversations_pb";
 import {
+  CreateHostRequestReq,
   GetHostRequestMessagesReq,
+  GetHostRequestReq,
   ListHostRequestsReq,
+  MarkLastSeenHostRequestReq,
+  RespondHostRequestReq,
   SendHostRequestMessageReq,
 } from "../pb/requests_pb";
 import client from "./client";
 
-export async function listHostRequests() {
+export async function listHostRequests(
+  type: "all" | "hosting" | "surfing",
+  onlyActive: boolean = false
+) {
   const req = new ListHostRequestsReq();
-  req.setOnlyActive(false);
-  req.setOnlyReceived(false);
-  req.setOnlySent(false);
+  req.setOnlyActive(onlyActive);
+  req.setOnlyReceived(type === "hosting");
+  req.setOnlySent(type === "surfing");
 
   const response = await client.requests.listHostRequests(req);
   const hostRequests = response.getHostRequestsList();
 
   return hostRequests.map((hostRequest) => hostRequest.toObject());
+}
+
+export async function getHostRequest(id: number) {
+  const req = new GetHostRequestReq();
+  req.setHostRequestId(id);
+  const response = await client.requests.getHostRequest(req);
+  return response.toObject();
 }
 
 export async function sendHostRequestMessage(id: number, text: string) {
@@ -29,6 +43,18 @@ export async function sendHostRequestMessage(id: number, text: string) {
   return messageId;
 }
 
+export async function respondHostRequest(
+  id: number,
+  status: HostRequestStatus,
+  text: string
+) {
+  const req = new RespondHostRequestReq();
+  req.setHostRequestId(id);
+  req.setStatus(status);
+  req.setText(text);
+  await client.requests.respondHostRequest(req);
+}
+
 export async function getHostRequestMessages(
   id: number
 ): Promise<Message.AsObject[]> {
@@ -39,4 +65,26 @@ export async function getHostRequestMessages(
   const messages = response.getMessagesList();
 
   return messages.map((message) => message.toObject());
+}
+
+export async function createHostRequest(
+  data: Required<CreateHostRequestReq.AsObject>
+) {
+  const req = new CreateHostRequestReq();
+  req.setToUserId(data.toUserId);
+  req.setFromDate(data.fromDate);
+  req.setToDate(data.toDate);
+  req.setText(data.text);
+
+  const response = await client.requests.createHostRequest(req);
+
+  return response.getHostRequestId();
+}
+
+export function markLastRequestSeen(hostRequestId: number, messageId: number) {
+  const req = new MarkLastSeenHostRequestReq();
+  req.setHostRequestId(hostRequestId);
+  req.setLastSeenMessageId(messageId);
+
+  return client.requests.markLastSeenHostRequest(req);
 }

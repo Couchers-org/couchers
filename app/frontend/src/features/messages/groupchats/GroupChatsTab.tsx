@@ -1,37 +1,54 @@
-import { Box } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import React, { useEffect } from "react";
-import { fetchGroupChats } from ".";
+import { Box, List } from "@material-ui/core";
+import React from "react";
+import { useQuery } from "react-query";
 import Alert from "../../../components/Alert";
 import CircularProgress from "../../../components/CircularProgress";
-import { useAppDispatch, useTypedSelector } from "../../../store";
+import { Error as GrpcError } from "grpc-web";
+import { GroupChat } from "../../../pb/conversations_pb";
 import CreateGroupChat from "./CreateGroupChat";
-import GroupChatList from "./GroupChatList";
-import GroupChatView from "./GroupChatView";
-
-const useStyles = makeStyles({ root: {} });
+import { service } from "../../../service";
+import { messagesRoute } from "../../../AppRoutes";
+import TextBody from "../../../components/TextBody";
+import GroupChatListItem from "./GroupChatListItem";
+import { Link } from "react-router-dom";
+import useMessageListStyles from "../useMessageListStyles";
 
 export default function GroupChatsTab() {
-  const dispatch = useAppDispatch();
-  const state = useTypedSelector((state) => state.groupChats);
+  const classes = useMessageListStyles();
 
-  useEffect(() => {
-    dispatch(fetchGroupChats());
-  }, [dispatch]);
+  /// TODO: Pagination
+  const { data: groupChats, isLoading, error } = useQuery<
+    GroupChat.AsObject[],
+    GrpcError
+  >(["groupChats"], () => service.conversations.listGroupChats());
 
-  const classes = useStyles();
   return (
     <Box className={classes.root}>
-      {state.error && <Alert severity={"error"}>{state.error}</Alert>}
-      {state.loading ? (
+      {error && <Alert severity={"error"}>{error.message}</Alert>}
+      {isLoading ? (
         <CircularProgress />
-      ) : state.groupChatView.groupChat ? (
-        <GroupChatView />
       ) : (
-        <>
-          <GroupChatList />
-          <CreateGroupChat />
-        </>
+        groupChats && (
+          <List className={classes.list}>
+            <CreateGroupChat className={classes.listItem} />
+            {groupChats.length === 0 ? (
+              <TextBody>No group chats yet.</TextBody>
+            ) : (
+              groupChats.map((groupChat) => (
+                <Link
+                  key={groupChat.groupChatId}
+                  to={`${messagesRoute}/groupchats/${groupChat.groupChatId}`}
+                  className={classes.link}
+                >
+                  <GroupChatListItem
+                    groupChat={groupChat}
+                    className={classes.listItem}
+                  />
+                </Link>
+              ))
+            )}
+          </List>
+        )
       )}
     </Box>
   );

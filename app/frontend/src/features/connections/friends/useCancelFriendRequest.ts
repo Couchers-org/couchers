@@ -6,6 +6,7 @@ import { SetMutationError } from ".";
 
 interface CancelFriendRequestVariables {
   friendRequestId: number;
+  userId: number;
   setMutationError: SetMutationError;
 }
 
@@ -21,10 +22,10 @@ export default function useCancelFriendRequest() {
     {
       onMutate: async ({ setMutationError }) => {
         setMutationError("");
-        await queryClient.cancelQueries("friendRequestsSent");
       },
-      onSuccess: () => {
+      onSuccess: (_, { userId }) => {
         queryClient.invalidateQueries("friendRequestsSent");
+        queryClient.invalidateQueries(["user", userId]);
       },
       onError: (error, { setMutationError }) => {
         setMutationError(error.message);

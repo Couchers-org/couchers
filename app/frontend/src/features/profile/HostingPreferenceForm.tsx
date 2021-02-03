@@ -14,7 +14,9 @@ import { smokingLocationLabels } from "./constants";
 import ProfileTextInput from "./ProfileTextInput";
 import { HostingPreferenceData } from "../../service";
 import { SmokingLocation } from "../../pb/api_pb";
-import { useAuthContext } from "../auth/AuthProvider";
+import useUpdateHostingPreferences from "./useUpdateHostingPreferences";
+import useCurrentUser from "../userQueries/useCurrentUser";
+import CircularProgress from "../../components/CircularProgress";
 
 interface HostingPreferenceCheckboxProps {
   className: string;
@@ -56,15 +58,26 @@ const useStyles = makeStyles((theme) => ({
   preferenceSection: {
     paddingTop: theme.spacing(3),
   },
+  field: {
+    "& > .MuiInputBase-root": {
+      width: "100%",
+    },
+    [theme.breakpoints.up("md")]: {
+      "& > .MuiInputBase-root": {
+        width: 400,
+      },
+    },
+  },
 }));
 
 export default function HostingPreferenceForm() {
   const classes = useStyles();
-  const { authState, profileActions } = useAuthContext();
-  const user = authState.user;
-  const [alertState, setShowAlertState] = useState<
-    "success" | "error" | undefined
-  >();
+  const {
+    updateHostingPreferences,
+    status: updateStatus,
+    reset: resetUpdate,
+  } = useUpdateHostingPreferences();
+  const { data: user } = useCurrentUser();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { control, errors, register, handleSubmit } = useForm<
     HostingPreferenceData
@@ -72,28 +85,26 @@ export default function HostingPreferenceForm() {
     mode: "onBlur",
   });
 
-  const onSubmit = handleSubmit(async (data) => {
-    try {
-      await profileActions.updateHostingPreferences(data);
-      setShowAlertState("success");
-    } catch (error) {
-      setShowAlertState("error");
-      setErrorMessage(error.message);
-    }
+  const onSubmit = handleSubmit((data) => {
+    resetUpdate();
+    updateHostingPreferences({
+      preferenceData: data,
+      setMutationError: setErrorMessage,
+    });
   });
 
   return (
     <>
-      {alertState === "success" ? (
-        <Alert className={classes.alert} severity={alertState}>
+      {updateStatus === "success" ? (
+        <Alert className={classes.alert} severity="success">
           Successfully updated hosting preference!
         </Alert>
-      ) : alertState === "error" ? (
-        <Alert className={classes.alert} severity={alertState}>
+      ) : updateStatus === "error" ? (
+        <Alert className={classes.alert} severity="error">
           {errorMessage}
         </Alert>
       ) : null}
-      {user && (
+      {user ? (
         <form className={classes.form} onSubmit={onSubmit}>
           <Typography variant="h2">Hosting preferences</Typography>
           <HostingPreferenceCheckbox
@@ -153,6 +164,7 @@ export default function HostingPreferenceForm() {
                     label="Max. number of guests"
                     name="maxGuests"
                     onChange={(e) => onChange(Number(e.target.value))}
+                    className={classes.field}
                   />
                 )}
               />
@@ -169,6 +181,7 @@ export default function HostingPreferenceForm() {
             inputRef={register}
             rowsMax={5}
             multiline
+            className={classes.field}
           />
           <ProfileTextInput
             label="House rules"
@@ -177,6 +190,7 @@ export default function HostingPreferenceForm() {
             inputRef={register}
             rowsMax={5}
             multiline
+            className={classes.field}
           />
           <Controller
             control={control}
@@ -204,6 +218,7 @@ export default function HostingPreferenceForm() {
                     {...params}
                     label="Smoking allowed?"
                     name="maxGuests"
+                    className={classes.field}
                   />
                 )}
               />
@@ -216,6 +231,7 @@ export default function HostingPreferenceForm() {
             inputRef={register}
             rowsMax={5}
             multiline
+            className={classes.field}
           />
           <Button
             type="submit"
@@ -226,6 +242,8 @@ export default function HostingPreferenceForm() {
             Save
           </Button>
         </form>
+      ) : (
+        <CircularProgress />
       )}
     </>
   );

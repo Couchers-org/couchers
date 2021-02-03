@@ -1,5 +1,5 @@
 import { Meta, Story } from "@storybook/react";
-import { LngLat } from "mapbox-gl";
+import { LngLat } from "maplibre-gl";
 import * as React from "react";
 
 import Map, { MapProps } from "./Map";

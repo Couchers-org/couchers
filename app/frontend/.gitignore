@@ -26,3 +26,6 @@ yarn-error.log*
 src/pb/**
 
 storybook-static/
+
+# ESLint cache
+.eslintcache

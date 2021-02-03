@@ -5,8 +5,12 @@ import { getCurrentUser } from "./user";
 export async function getIsJailed() {
   const req = new JailInfoRes();
   const isJailed = (await client.jail.jailInfo(req)).getJailed();
-  const user = isJailed ? null : await getCurrentUser();
-  return { isJailed, user };
+  if (!isJailed) {
+    const user = await getCurrentUser();
+    return { isJailed, user };
+  }
+
+  return { isJailed, user: null };
 }
 
 export async function getJailInfo() {

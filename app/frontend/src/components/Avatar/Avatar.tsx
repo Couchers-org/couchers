@@ -1,5 +1,6 @@
 import { Avatar as MuiAvatar, Box, BoxProps } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
+import { Skeleton } from "@material-ui/lab";
 import classNames from "classnames";
 import React from "react";
 import { User } from "../../pb/api_pb";
@@ -7,6 +8,9 @@ import { User } from "../../pb/api_pb";
 const useStyles = makeStyles({
   root: {
     position: "relative",
+    flexShrink: 0,
+  },
+  defaultSize: {
     height: "3rem",
     width: "3rem",
   },
@@ -24,24 +28,41 @@ const useStyles = makeStyles({
 });
 
 export interface AvatarProps extends BoxProps {
-  user: User.AsObject;
+  user?: User.AsObject;
   grow?: boolean;
+  className?: string;
 }
 
-export default function Avatar({ user, grow, ...otherProps }: AvatarProps) {
+export default function Avatar({
+  user,
+  grow,
+  className,
+  ...otherProps
+}: AvatarProps) {
   const classes = useStyles();
   return (
     <Box
-      className={classNames(classes.root, { [classes.grow]: grow })}
+      className={classNames(
+        className,
+        { [classes.defaultSize]: !className },
+        classes.root,
+        { [classes.grow]: grow }
+      )}
       {...otherProps}
     >
-      <MuiAvatar
-        className={classes.avatar}
-        alt={user.name}
-        src={user.avatarUrl}
-      >
-        {user.name.split(/\s+/).map((name) => name[0])}
-      </MuiAvatar>
+      {user ? (
+        <MuiAvatar
+          className={classes.avatar}
+          alt={user.name}
+          src={user.avatarUrl}
+        >
+          {user.name.split(/\s+/).map((name) => name[0])}
+        </MuiAvatar>
+      ) : otherProps.children ? (
+        <MuiAvatar className={classes.avatar}>{otherProps.children}</MuiAvatar>
+      ) : (
+        <Skeleton variant="circle" className={classes.avatar} />
+      )}
     </Box>
   );
 }

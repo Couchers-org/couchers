@@ -65,9 +65,40 @@ describe("useUser (singular)", () => {
       },
     });
   });
+
+  it("returns undefined when given undefined userId", async () => {
+    const { result, waitFor } = renderHook(() => useUser(undefined), {
+      wrapper,
+    });
+    await waitFor(() => !result.current.isLoading);
+
+    expect(getUserMock).not.toHaveBeenCalled();
+    expect(result.current).toEqual({
+      isLoading: false,
+      isFetching: false,
+      isError: false,
+      error: "",
+      data: undefined,
+    });
+  });
 });
 
 describe("when useUsers has loaded", () => {
+  it("omits falsey user id", async () => {
+    const { result, waitFor } = renderHook(() => useUsers([0, undefined]), {
+      wrapper,
+    });
+    await waitFor(() => !result.current.isLoading);
+    expect(getUserMock).not.toHaveBeenCalled();
+    expect(result.current).toEqual({
+      isLoading: false,
+      isFetching: false,
+      isError: false,
+      errors: [],
+      data: new Map(),
+    });
+  });
+
   it("returns the user data with no errors if all queries succeed", async () => {
     const { result, waitForNextUpdate } = renderHook(
       () => useUsers([1, 2, 3]),
@@ -99,7 +130,7 @@ describe("when useUsers has loaded", () => {
             name: "Funny Dog",
             userId: 2,
             username: "funnydog",
-            avatarUrl: "funnydog.jpg",
+            avatarUrl: "",
           },
         ],
         [

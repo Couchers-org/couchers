@@ -5,21 +5,10 @@ import { service } from "../../../service";
 import useFriendList from "./useFriendList";
 import { wait } from "../../../test/utils";
 import { getUser, listFriends } from "../../../test/serviceMockDefaults";
+import wrapper from "../../../test/hookWrapper";
 
 const listFriendsMock = service.api.listFriends as jest.Mock;
 const getUserMock = service.user.getUser as jest.Mock;
-
-const wrapper = ({ children }: { children: React.ReactNode }) => {
-  const client = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-      },
-    },
-  });
-
-  return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
-};
 
 beforeAll(() => {
   // Mock out console.error so the test output is less noisy when
@@ -68,7 +57,7 @@ describe("when the listFriends query succeeds", () => {
           name: "Funny Dog",
           userId: 2,
           username: "funnydog",
-          avatarUrl: "funnydog.jpg",
+          avatarUrl: "",
         },
         {
           name: "Funny Kid",
@@ -99,7 +88,7 @@ describe("when the listFriends query succeeds", () => {
           name: "Funny Dog",
           userId: 2,
           username: "funnydog",
-          avatarUrl: "funnydog.jpg",
+          avatarUrl: "",
         },
         undefined,
       ],
@@ -210,7 +199,7 @@ describe("with cached user data", () => {
           name: "Funny Dog",
           userId: 2,
           username: "funnydog",
-          avatarUrl: "funnydog.jpg",
+          avatarUrl: "",
         },
         {
           name: "Funny Kid",
