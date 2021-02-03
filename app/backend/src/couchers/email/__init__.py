@@ -88,7 +88,7 @@ def queue_email(sender_name, sender_email, recipient, subject, plain, html):
     )
 
 
-def send_email_template(recipient, template_file, template_args={}):
+def enqueue_email_from_template(recipient, template_file, template_args={}):
     frontmatter, plain, html = _render_email(template_file, template_args)
     queue_email(
         config.NOTIFICATION_EMAIL_SENDER,

@@ -23,11 +23,12 @@ logger = logging.getLogger(__name__)
 
 
 def process_job():
-    logger.info(f"Processing a job")
+    logger.info(f"Looking for a job")
     with session_scope(isolation_level="REPEATABLE READ") as session:
         # a combination of REPEATABLE READ and SELECT ... FOR UPDATE SKIP LOCKED makes sure that only one transaction
         # will modify the job at a time. SKIP UPDATE means that if the job is locked, then we ignore that row, it's
-        # easier to use SKIP LOCKED vs NOWAIT in the ORM, with NOWAIT you get an ugly error from psycopg2
+        # easier to use SKIP LOCKED vs NOWAIT in the ORM, with NOWAIT you get an ugly exception from deep inside
+        # psycopg2 that's quite annoying to catch and deal with
         job = (
             session.query(BackgroundJob).filter(BackgroundJob.ready_for_retry).with_for_update(skip_locked=True).first()
         )
@@ -41,8 +42,9 @@ def process_job():
 
         job.try_count += 1
 
+        message_type, func = JOBS[job.job_type]
+
         try:
-            message_type, func = JOBS[job.job_type]
             ret = func(message_type.FromString(job.payload))
             job.state = BackgroundJobState.completed
             logger.info(f"Job #{job.id} complete on try number {job.try_count}")

@@ -15,7 +15,9 @@ logger = logging.getLogger(__name__)
 
 def process_send_email(payload):
     logger.info(f"Sending email with subject '{payload.subject}' to '{payload.recipient}'")
+    # selects a "sender", which either prints the email to the logger or sends it out with SMTP
     sender = send_smtp_email if config.config["ENABLE_EMAIL"] else print_dev_email
+    # the sender must return a models.Email object that can be added to the database
     email = sender(
         sender_name=payload.sender_name,
         sender_email=payload.sender_email,

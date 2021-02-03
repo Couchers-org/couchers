@@ -3,7 +3,6 @@ import functools
 import logging
 import os
 import re
-import threading
 from contextlib import contextmanager
 
 from alembic import command
@@ -44,12 +43,9 @@ def _get_base_engine():
         return create_engine(config.config["DATABASE_CONNECTION_STRING"])
 
 
-@functools.cache
 def get_engine(isolation_level=None):
     """
     Creates an engine with the given isolation level.
-
-    Do not change isolation_level unless you know what you're doing!
     """
     # creates a shallow copy with the given isolation level
     if not isolation_level:
