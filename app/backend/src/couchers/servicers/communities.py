@@ -42,7 +42,7 @@ def _parents_to_pb(node_id, user_id):
                     community_id=node_id,
                     name=cluster.name,
                     slug=slugify(cluster.name),
-                    description=cluster.name,
+                    description=cluster.description,
                 )
             )
             for node_id, parent_node_id, level, cluster in parents
@@ -152,7 +152,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             node = session.query(Node).filter(Node.id == request.community_id).one_or_none()
             if not node:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
-            nearbys = node.nearby_users.filter(User.id >= next_nearby_id).order_by(User.id).limit(page_size + 1).all()
+            nearbys = (
+                node.contained_users.filter(User.id >= next_nearby_id).order_by(User.id).limit(page_size + 1).all()
+            )
             return communities_pb2.ListNearbyUsersRes(
                 nearby_user_ids=[nearby.id for nearby in nearbys[:page_size]],
                 next_page_token=str(nearbys[-1].id) if len(nearbys) > page_size else None,
