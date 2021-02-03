@@ -47,7 +47,6 @@ hostingstatus2sql = {
     api_pb2.HOSTING_STATUS_UNKNOWN: None,
     api_pb2.HOSTING_STATUS_CAN_HOST: HostingStatus.can_host,
     api_pb2.HOSTING_STATUS_MAYBE: HostingStatus.maybe,
-    api_pb2.HOSTING_STATUS_DIFFICULT: HostingStatus.difficult,
     api_pb2.HOSTING_STATUS_CANT_HOST: HostingStatus.cant_host,
 }
 
@@ -55,7 +54,6 @@ hostingstatus2api = {
     None: api_pb2.HOSTING_STATUS_UNKNOWN,
     HostingStatus.can_host: api_pb2.HOSTING_STATUS_CAN_HOST,
     HostingStatus.maybe: api_pb2.HOSTING_STATUS_MAYBE,
-    HostingStatus.difficult: api_pb2.HOSTING_STATUS_DIFFICULT,
     HostingStatus.cant_host: api_pb2.HOSTING_STATUS_CANT_HOST,
 }
 
