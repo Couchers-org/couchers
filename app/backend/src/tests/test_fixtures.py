@@ -2,6 +2,7 @@ import os
 from concurrent import futures
 from contextlib import contextmanager
 from datetime import date, timedelta
+from pathlib import Path
 from unittest.mock import patch
 
 import grpc
@@ -60,6 +61,11 @@ def db_impl(param):
         # rebuild it with alembic migrations
         apply_migrations()
     else:
+        # create the slugify function
+        functions = Path(__file__).parent / "slugify.sql"
+        with open(functions) as f, session_scope() as session:
+            session.execute(f.read())
+
         # create everything from the current models, not incrementally through migrations
         Base.metadata.create_all(get_engine())
 
