@@ -10,7 +10,6 @@ from pb import pages_pb2, pages_pb2_grpc
 
 
 def _check_update_permission(page: Page, user_id):
-    print(page, page.owner_cluster, user_id)
     if page.owner_user:
         return page.owner_user_id == user_id
     # otherwise owned by a cluster

@@ -53,7 +53,7 @@ def _create_community(session, interval_lb, interval_ub, name, admins, extra_mem
     session.add(cluster)
     main_page = Page(
         creator_user=admins[0],
-        owner_user=admins[0],
+        owner_cluster=cluster,
         type=PageType.main_page,
         main_page_for_cluster=cluster,
     )
@@ -93,7 +93,7 @@ def _create_group(session, name, admins, members, parent_community):
     session.add(cluster)
     main_page = Page(
         creator_user=admins[0],
-        owner_user=admins[0],
+        owner_cluster=cluster,
         type=PageType.main_page,
         main_page_for_cluster=cluster,
     )
@@ -236,7 +236,7 @@ class TestCommunities:
             assert res.main_page.slug == "main-page-for-the-world-community"
             assert res.main_page.last_editor_user_id == 1
             assert res.main_page.creator_user_id == 1
-            assert res.main_page.owner_user_id == 1
+            assert res.main_page.owner_community_id == w_id
             assert res.main_page.title == "Main page for the World community"
             assert res.main_page.content == "There is nothing here yet..."
             assert not res.main_page.can_edit
@@ -280,7 +280,7 @@ class TestCommunities:
             assert res.main_page.slug == "main-page-for-the-country-1-region-1-city-1-community"
             assert res.main_page.last_editor_user_id == 2
             assert res.main_page.creator_user_id == 2
-            assert res.main_page.owner_user_id == 2
+            assert res.main_page.owner_community_id == c1r1c1_id
             assert res.main_page.title == "Main page for the Country 1, Region 1, City 1 community"
             assert res.main_page.content == "There is nothing here yet..."
             assert res.main_page.can_edit
@@ -314,7 +314,7 @@ class TestCommunities:
             assert res.main_page.slug == "main-page-for-the-country-2-community"
             assert res.main_page.last_editor_user_id == 6
             assert res.main_page.creator_user_id == 6
-            assert res.main_page.owner_user_id == 6
+            assert res.main_page.owner_community_id == c2_id
             assert res.main_page.title == "Main page for the Country 2 community"
             assert res.main_page.content == "There is nothing here yet..."
             assert not res.main_page.can_edit

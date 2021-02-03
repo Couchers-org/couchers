@@ -461,7 +461,6 @@ def test_get_group_chat_info_left(db):
         # this user left when user4 wasn't a member,
         # so the returned members should be user1, user2, and user3 only
         res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
-        print(res.member_user_ids)
         assert len(res.member_user_ids) == 3
         assert user1.id in res.member_user_ids
         assert user2.id in res.member_user_ids
