@@ -1,7 +1,7 @@
 """Create slugify function
 
 Revision ID: 20b0d7fd2619
-Revises: 2affc63b4a01
+Revises: b93d0f73a1d3
 Create Date: 2021-01-29 16:35:16.092332
 
 """
@@ -11,7 +11,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "20b0d7fd2619"
-down_revision = "2affc63b4a01"
+down_revision = "b93d0f73a1d3"
 branch_labels = None
 depends_on = None
 
