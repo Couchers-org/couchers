@@ -128,7 +128,8 @@ def test_create_page_place(db):
         assert res.last_editor_user_id == user.id
         assert res.creator_user_id == user.id
         assert res.owner_user_id == user.id
-        assert not res.owner_cluster_id
+        assert not res.owner_community_id
+        assert not res.owner_group_id
         assert res.editor_user_ids == [user.id]
         assert res.can_edit
 
@@ -164,7 +165,8 @@ def test_create_page_guide(db):
         assert res.last_editor_user_id == user.id
         assert res.creator_user_id == user.id
         assert res.owner_user_id == user.id
-        assert not res.owner_cluster_id
+        assert not res.owner_community_id
+        assert not res.owner_group_id
         assert res.editor_user_ids == [user.id]
         assert res.can_edit
 
@@ -201,7 +203,8 @@ def test_get_page(db):
         assert res.last_editor_user_id == user1.id
         assert res.creator_user_id == user1.id
         assert res.owner_user_id == user1.id
-        assert not res.owner_cluster_id
+        assert not res.owner_community_id
+        assert not res.owner_group_id
         assert res.editor_user_ids == [user1.id]
         assert not res.can_edit
 
@@ -244,7 +247,8 @@ def test_update_page(db):
         assert res.last_editor_user_id == user.id
         assert res.creator_user_id == user.id
         assert res.owner_user_id == user.id
-        assert not res.owner_cluster_id
+        assert not res.owner_community_id
+        assert not res.owner_group_id
         assert res.editor_user_ids == [user.id]
         assert res.can_edit
 
@@ -271,7 +275,8 @@ def test_update_page(db):
         assert res.last_editor_user_id == user.id
         assert res.creator_user_id == user.id
         assert res.owner_user_id == user.id
-        assert not res.owner_cluster_id
+        assert not res.owner_community_id
+        assert not res.owner_group_id
         assert res.editor_user_ids == [user.id]
         assert res.can_edit
 
@@ -298,7 +303,8 @@ def test_update_page(db):
         assert res.last_editor_user_id == user.id
         assert res.creator_user_id == user.id
         assert res.owner_user_id == user.id
-        assert not res.owner_cluster_id
+        assert not res.owner_community_id
+        assert not res.owner_group_id
         assert res.editor_user_ids == [user.id]
         assert res.can_edit
 
@@ -328,7 +334,8 @@ def test_update_page(db):
         assert res.last_editor_user_id == user.id
         assert res.creator_user_id == user.id
         assert res.owner_user_id == user.id
-        assert not res.owner_cluster_id
+        assert not res.owner_community_id
+        assert not res.owner_group_id
         assert res.editor_user_ids == [user.id]
         assert res.can_edit
 
