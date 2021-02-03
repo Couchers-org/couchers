@@ -391,6 +391,8 @@ def test_page_transfer(db):
     user1, token1 = generate_user()
     # admin of the community/group
     user2, token2 = generate_user()
+    # member of the community/group, shouldn't ever have edit access to anything
+    user3, token3 = generate_user()
     with session_scope() as session:
         # create a community
         node = Node(geom=to_multi(create_polygon_lat_lng([[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]])))
@@ -423,6 +425,12 @@ def test_page_transfer(db):
                 role=ClusterRole.admin,
             )
         )
+        community_cluster.cluster_subscriptions.append(
+            ClusterSubscription(
+                user_id=user3.id,
+                role=ClusterRole.member,
+            )
+        )
 
         # create a group
         group_cluster = Cluster(
@@ -452,6 +460,12 @@ def test_page_transfer(db):
                 role=ClusterRole.admin,
             )
         )
+        group_cluster.cluster_subscriptions.append(
+            ClusterSubscription(
+                user_id=user3.id,
+                role=ClusterRole.member,
+            )
+        )
         session.flush()
 
         community_id = node.id
@@ -477,6 +491,9 @@ def test_page_transfer(db):
     with pages_session(token2) as api:
         assert not api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id)).can_edit
 
+    with pages_session(token3) as api:
+        assert not api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id)).can_edit
+
     with pages_session(token1) as api:
         page1 = api.TransferPage(
             pages_pb2.TransferPageReq(
@@ -489,6 +506,9 @@ def test_page_transfer(db):
 
     with pages_session(token2) as api:
         assert api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id)).can_edit
+
+    with pages_session(token3) as api:
+        assert not api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id)).can_edit
 
     with pages_session(token1) as api:
         # now we're no longer the owner, can't transfer
@@ -509,6 +529,9 @@ def test_page_transfer(db):
     with pages_session(token2) as api:
         assert api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id)).can_edit
 
+    with pages_session(token3) as api:
+        assert not api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id)).can_edit
+
     with pages_session(token1) as api:
         # try a new page, just for fun
         page2 = api.CreatePage(create_page_req)
@@ -524,6 +547,9 @@ def test_page_transfer(db):
 
     with pages_session(token2) as api:
         assert api.GetPage(pages_pb2.GetPageReq(page_id=page2.page_id)).can_edit
+
+    with pages_session(token3) as api:
+        assert not api.GetPage(pages_pb2.GetPageReq(page_id=page2.page_id)).can_edit
 
     with pages_session(token1) as api:
         # can't transfer a page to an official cluster, only through community
@@ -550,6 +576,9 @@ def test_page_transfer(db):
     with pages_session(token2) as api:
         assert not api.GetPage(pages_pb2.GetPageReq(page_id=page4.page_id)).can_edit
 
+    with pages_session(token3) as api:
+        assert not api.GetPage(pages_pb2.GetPageReq(page_id=page4.page_id)).can_edit
+
     with pages_session(token1) as api:
         page4 = api.TransferPage(
             pages_pb2.TransferPageReq(
@@ -562,6 +591,9 @@ def test_page_transfer(db):
 
     with pages_session(token2) as api:
         assert api.GetPage(pages_pb2.GetPageReq(page_id=page4.page_id)).can_edit
+
+    with pages_session(token3) as api:
+        assert not api.GetPage(pages_pb2.GetPageReq(page_id=page4.page_id)).can_edit
 
     with pages_session(token1) as api:
         # now we're no longer the owner, can't transfer
