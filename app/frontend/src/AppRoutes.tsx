@@ -17,7 +17,7 @@ import Jail from "./features/auth/jail/Jail";
 import TOS from "./components/TOS";
 import { useAuthContext } from "./features/auth/AuthProvider";
 import { ConnectionsPage } from "./features/connections";
-import NotFound from "./features/NotFoundPage";
+import NotFoundPage from "./features/NotFoundPage";
 
 export const loginRoute = "/login";
 export const loginPasswordRoute = `${loginRoute}/password`;
@@ -84,7 +84,7 @@ export default function AppRoutes() {
         <Home />
       </PrivateRoute>
       <Route exact path={notFoundRoute}>
-        <NotFound />
+        <NotFoundPage />
       </Route>
       <Redirect from="*" to={notFoundRoute} />
     </Switch>
