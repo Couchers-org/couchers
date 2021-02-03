@@ -56,7 +56,7 @@ class TestGroups:
             assert res.main_page.owner_user_id == 1
             assert res.main_page.title == "Main page for the Hitchhikers community"
             assert res.main_page.content == "There is nothing here yet..."
-            # assert res.main_page.can_edit # TODO
+            assert res.main_page.can_edit
             assert res.main_page.editor_user_ids == [1]
             assert res.member
             assert res.admin
@@ -100,7 +100,7 @@ class TestGroups:
             assert res.main_page.owner_user_id == 2
             assert res.main_page.title == "Main page for the Country 1, Region 2, Foodies community"
             assert res.main_page.content == "There is nothing here yet..."
-            # assert res.main_page.can_edit # TODO
+            assert res.main_page.can_edit
             assert res.main_page.editor_user_ids == [2]
             assert res.member
             assert res.admin
@@ -145,7 +145,7 @@ class TestGroups:
             assert res.main_page.owner_user_id == 6
             assert res.main_page.title == "Main page for the Country 2, Region 1, Foodies community"
             assert res.main_page.content == "There is nothing here yet..."
-            # assert res.main_page.can_edit # TODO
+            assert res.main_page.can_edit
             assert res.main_page.editor_user_ids == [6]
             assert not res.member
             assert not res.admin

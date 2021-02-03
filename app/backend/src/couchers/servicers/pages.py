@@ -10,11 +10,11 @@ from pb import pages_pb2, pages_pb2_grpc
 
 
 def _check_update_permission(page: Page, user_id):
+    print(page, page.owner_cluster, user_id)
     if page.owner_user:
         return page.owner_user_id == user_id
-    elif page.owner_cluster:
-        return page.owner_cluster.admins.filter(User.id == user_id).one_or_none() is not None
-    raise Exception("Page must have an owner.")
+    # otherwise owned by a cluster
+    return page.owner_cluster.admins.filter(User.id == user_id).one_or_none() is not None
 
 
 pagetype2sql = {

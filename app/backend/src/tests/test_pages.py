@@ -3,6 +3,7 @@ from datetime import timedelta
 import grpc
 import pytest
 from google.protobuf import wrappers_pb2
+from sqlalchemy.exc import IntegrityError
 
 from couchers import errors
 from couchers.db import session_scope
@@ -608,3 +609,82 @@ def test_page_transfer(db):
         assert e.value.details() == errors.PAGE_TRANSFER_PERMISSION_DENIED
         page4 = api.GetPage(pages_pb2.GetPageReq(page_id=page4.page_id))
         assert page4.owner_group_id == group_id
+
+
+def test_page_constraints(db):
+    user, token = generate_user()
+
+    # check we can't create a page without an owner
+    with pytest.raises(IntegrityError) as e:
+        with session_scope() as session:
+            page = Page(
+                # note no owner
+                creator_user_id=user.id,
+                type=PageType.guide,
+            )
+            session.add(page)
+            session.add(
+                PageVersion(
+                    page=page,
+                    editor_user_id=user.id,
+                    title=f"Title",
+                    content="Content",
+                )
+            )
+    assert "violates check constraint" in str(e.value)
+    assert "one_owner" in str(e.value)
+
+    with session_scope() as session:
+        node = Node(geom=to_multi(create_polygon_lat_lng([[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]])))
+        session.add(node)
+        cluster = Cluster(
+            name=f"Testing Community",
+            description=f"Description for testing community",
+            parent_node=node,
+        )
+        session.add(cluster)
+        session.flush()
+        cluster_id = cluster.id
+
+    # check we can't create a page with two owners
+    with pytest.raises(IntegrityError) as e:
+        with session_scope() as session:
+            page = Page(
+                creator_user_id=user.id,
+                owner_cluster_id=cluster_id,
+                owner_user_id=user.id,
+                type=PageType.guide,
+            )
+            session.add(page)
+            session.add(
+                PageVersion(
+                    page=page,
+                    editor_user_id=user.id,
+                    title=f"Title",
+                    content="Content",
+                )
+            )
+    assert "violates check constraint" in str(e.value)
+    assert "one_owner" in str(e.value)
+
+    # main page must be owned by the right cluster
+    with pytest.raises(IntegrityError) as e:
+        with session_scope() as session:
+            main_page = Page(
+                # note owner is not cluster
+                creator_user_id=user.id,
+                owner_user_id=user.id,
+                type=PageType.main_page,
+                main_page_for_cluster_id=cluster_id,
+            )
+            session.add(main_page)
+            session.add(
+                PageVersion(
+                    page=main_page,
+                    editor_user_id=user.id,
+                    title=f"Main page for the testing community",
+                    content="Empty.",
+                )
+            )
+    assert "violates check constraint" in str(e.value)
+    assert "main_page_owned_by_cluster" in str(e.value)
