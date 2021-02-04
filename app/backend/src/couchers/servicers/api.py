@@ -27,6 +27,7 @@ from couchers.models import (
     ReferenceType,
     SmokingLocation,
     SleepingArrangement,
+    ParkingDetails,
     User,
 )
 from couchers.tasks import send_friend_request_email, send_report_email
@@ -104,6 +105,23 @@ sleepingarrangement2api = {
     SleepingArrangement.shared_room: api_pb2.SLEEPING_ARRANGEMENT_SHARED_ROOM,
     SleepingArrangement.shared_space: api_pb2.SLEEPING_ARRANGEMENT_SHARED_SPACE,
 }
+
+parkingdetails2sql = {
+    api_pb2.PARKING_DETAILS_UNKNONW: None,
+    api_pb2.PARKING_DETAILS_FREE_ONSITE: ParkingDetails.free_onsite,
+    api_pb2.PARKING_DETAILS_FREE_OFFSITE: ParkingDetails.free_offsite,
+    api_pb2.PARKING_DETAILS_PAID_ONSITE: ParkingDetails.paid_onsite,
+    api_pb2.PARKING_DETAILS_PAID_OFFSITE: ParkingDetails.paid_offsite,
+}
+
+parkingdetails2api = {
+    None: api_pb2.PARKING_DETAILS_UNKNONW,
+    ParkingDetails.free_onsite: api_pb2.PARKING_DETAILS_FREE_ONSITE,
+    ParkingDetails.free_offsite: api_pb2.PARKING_DETAILS_FREE_OFFSITE,
+    ParkingDetails.paid_onsite: api_pb2.PARKING_DETAILS_PAID_ONSITE,
+    ParkingDetails.paid_offsite: api_pb2.PARKING_DETAILS_PAID_OFFSITE,
+}
+
 
 class API(api_pb2_grpc.APIServicer):
     def Ping(self, request, context):
@@ -374,6 +392,9 @@ class API(api_pb2_grpc.APIServicer):
                     user.parking = None
                 else:
                     user.parking = request.parking.value
+
+            if request.parking_details != api_pb2.PARKING_DETAILS_UNKNOWN:
+                user.parking_details = parkingdetails2sql[request.parking_details]
 
             if request.HasField("camping_OK"):
                 if request.camping_OK.is_null:
@@ -692,6 +713,7 @@ def user_model_to_pb(db_user, session, context):
         ],
         smoking_allowed=smokinglocation2api[db_user.smoking_allowed],
         sleeping_arrangement=sleepingarrangement2api[db_user.sleeping_arrangement],
+        parking_details=parkingdetails2api[db_user.parking_details],
         avatar_url=db_user.avatar_url,
     )
 

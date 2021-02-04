@@ -154,6 +154,14 @@ enum SleepingArrangement {
   SLEEPING_ARRANGEMENT_SHARED_SPACE = 4;
 }
 
+enum ParkingDetails {
+  PARKING_DETAILS_UNKNONW = 0;
+  PARKING_DETAILS_FREE_ONSITE = 1;
+  PARKING_DETAILS_FREE_OFFSITE = 2;
+  PARKING_DETAILS_PAID_ONSITE = 3;
+  PARKING_DETAILS_PAID_OFFSITE = 4;
+}
+
 message NullableUInt32Value {
   bool is_null = 1;
   uint32 value = 2;
@@ -234,6 +242,7 @@ message User {
   google.protobuf.StringValue area = 30;
   google.protobuf.StringValue house_rules = 31;
   google.protobuf.BoolValue parking = ; #TODO Add Number
+  ParkingDetails parking_details = ; #TODO Add number
   google.protobuf.BoolValue camping_OK = ; #TODO Add Number
 
   string avatar_url = 32;
@@ -301,6 +310,7 @@ message UpdateProfileReq {
   NullableStringValue area = 20;
   NullableStringValue house_rules = 21;
   NullableBoolValue parking = ; #TODO Add number
+  ParkingDetails parking_details = ; #TODO Add Number
   NullableBoolValue Camping_OK = ; #TODO Add number
 }
 
