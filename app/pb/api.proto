@@ -229,15 +229,16 @@ message User {
   google.protobuf.StringValue pet_details = ; #TODO Add number
   google.protobuf.BoolValue has_kids = ; #TODO Add number
   google.protobuf.BoolValue accepts_kids = 26;
-  google.protobuf.StringValue kid_details = ; #TODO Add number  google.protobuf.BoolValue wheelchair_accessible = 27;
+  google.protobuf.StringValue kid_details = ; #TODO Add number
   google.protobuf.BoolValue has_housemates = ; #TODO Add number
-  google.protobuf.StringValue housemate_details = ; #TODO Add number  google.protobuf.BoolValue wheelchair_accessible = 27;
+  google.protobuf.StringValue housemate_details = ; #TODO Add number
+  google.protobuf.BoolValue wheelchair_accessible = 27;
   SmokingLocation smoking_allowed = 28;
   google.protobug.BoolValue smokes_at_home = ; #TODO Add number
   google.protobug.BoolValue drinks_allowed = ; #TODO Add number
   google.protobug.BoolValue drinks_at_home = ; #TODO Add number
   google.protobuf.StringValue other_host_info = ; #TODO Add number
-  SleepingArrangement sleeping_arrangement = 29;
+  SleepingArrangement sleeping_arrangement = ; #TODO Add number
   google.protobuf.StringValue sleeping_details = ; #TODO Add number
   google.protobuf.StringValue area = 30;
   google.protobuf.StringValue house_rules = 31;
