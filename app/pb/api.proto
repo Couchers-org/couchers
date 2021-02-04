@@ -189,7 +189,7 @@ message User {
   string username = 2;
   string name = 3;
   string city = 4;
-  string hometown = ; #TODO Add number
+  string hometown = 100;
 
   // doubles are enough to describe lat/lng
   // in EPSG4326, lat & lon are in degress, check the EPS4326 definition for details
@@ -202,49 +202,49 @@ message User {
   double community_standing = 6;
   uint32 num_references = 7;
   string gender = 8;
-  string pronouns = ; #TODO add number
+  string pronouns = 101;
   uint32 age = 9;
   google.protobuf.Timestamp joined = 11; // not exact
   google.protobuf.Timestamp last_active = 12; // not exact
   HostingStatus hosting_status = 13;
-  MeetupStatus meetup_status = ; #TODO add number
+  MeetupStatus meetup_status = 102;
   string occupation = 14;
-  string education = ; #TODO add number
+  string education = 103;
   string about_me = 15;
-  string my_travels = ; #TODO add number
-  string things_i_like = ; #TODO add number
+  string my_travels = 104;
+  string things_i_like = 105;
   string about_place = 16;
   repeated string languages = 17;
   repeated string countries_visited = 18;
   repeated string countries_lived = 19;
-  string additional_information = ; #TODO add number
+  string additional_information = 106;
 
   FriendshipStatus friends = 20;
   repeated MutualFriend mutual_friends = 21;
 
   google.protobuf.UInt32Value max_guests = 22;
   google.protobuf.BoolValue last_minute = 24;
-  google.protobuf.BoolValue has_pets = ; #TODO Add number
+  google.protobuf.BoolValue has_pets = 107;
   google.protobuf.BoolValue accepts_pets = 25;
-  google.protobuf.StringValue pet_details = ; #TODO Add number
-  google.protobuf.BoolValue has_kids = ; #TODO Add number
+  google.protobuf.StringValue pet_details = 108;
+  google.protobuf.BoolValue has_kids = 109;
   google.protobuf.BoolValue accepts_kids = 26;
-  google.protobuf.StringValue kid_details = ; #TODO Add number
-  google.protobuf.BoolValue has_housemates = ; #TODO Add number
-  google.protobuf.StringValue housemate_details = ; #TODO Add number
+  google.protobuf.StringValue kid_details = 110;
+  google.protobuf.BoolValue has_housemates = 111;
+  google.protobuf.StringValue housemate_details = 112;
   google.protobuf.BoolValue wheelchair_accessible = 27;
   SmokingLocation smoking_allowed = 28;
-  google.protobug.BoolValue smokes_at_home = ; #TODO Add number
-  google.protobug.BoolValue drinks_allowed = ; #TODO Add number
-  google.protobug.BoolValue drinks_at_home = ; #TODO Add number
-  google.protobuf.StringValue other_host_info = ; #TODO Add number
-  SleepingArrangement sleeping_arrangement = ; #TODO Add number
-  google.protobuf.StringValue sleeping_details = ; #TODO Add number
+  google.protobug.BoolValue smokes_at_home = 113;
+  google.protobug.BoolValue drinks_allowed = 114;
+  google.protobug.BoolValue drinks_at_home = 115;
+  google.protobuf.StringValue other_host_info = 116;
+  SleepingArrangement sleeping_arrangement = 117;
+  google.protobuf.StringValue sleeping_details = 118;
   google.protobuf.StringValue area = 30;
   google.protobuf.StringValue house_rules = 31;
-  google.protobuf.BoolValue parking = ; #TODO Add Number
-  ParkingDetails parking_details = ; #TODO Add number
-  google.protobuf.BoolValue camping_OK = ; #TODO Add Number
+  google.protobuf.BoolValue parking = 119;
+  ParkingDetails parking_details = 120;
+  google.protobuf.BoolValue camping_OK = 121;
 
   string avatar_url = 32;
 }
@@ -266,7 +266,7 @@ message UpdateProfileReq {
   google.protobuf.StringValue name = 1;
 
   google.protobuf.StringValue city = 2;
-  NullableStringValue hometown = ; #TODO Add number
+  NullableStringValue hometown = 100;
   // doubles are enough to describe lat/lng
   // in EPSG4326, lat & lon are in degress, check the EPS4326 definition for details
   google.protobuf.DoubleValue lat = 22;
@@ -274,45 +274,45 @@ message UpdateProfileReq {
   google.protobuf.DoubleValue radius = 24; // metres
 
   google.protobuf.StringValue gender = 3;
-  NullableStringValue pronouns = ; #TODO Add number
+  NullableStringValue pronouns = 101;
   NullableStringValue occupation = 4;
-  NullableStringValue education = ; #TODO Add number
+  NullableStringValue education = 102;
   NullableStringValue about_me = 5;
-  NullableStringValue my_travels = ; #TODO Add number
-  NullableStringValue things_i_like = ; #TODO Add number
+  NullableStringValue my_travels = 103;
+  NullableStringValue things_i_like = 104;
   NullableStringValue about_place = 6;
 
   HostingStatus hosting_status = 8;
-  MeetupStatus meetup_staus = ; #TODO Add number
+  MeetupStatus meetup_staus = 105;
 
   RepeatedStringValue languages = 9;
   RepeatedStringValue countries_visited = 10;
   RepeatedStringValue countries_lived = 11;
-  NullableStringValue additional_information = ; #TODO add number
+  NullableStringValue additional_information = 106;
 
   NullableUInt32Value max_guests = 12;
   NullableBoolValue last_minute = 14;
-  NullableBoolValue has_pets = ; #TODO Add number
+  NullableBoolValue has_pets = 107;
   NullableBoolValue accepts_pets = 15;
-  NullableStringValue pet_details = ; #TODO Add number
-  NullableBoolValue has_kids = ; #TODO Add number
+  NullableStringValue pet_details = 108;
+  NullableBoolValue has_kids = 109;
   NullableBoolValue accepts_kids = 16;
-  NullableStringValue kid_details = ; #TODO Add number
-  NullableBoolValue has_housemates = ; #TODO Add number
-  NullableStringValue housemate_details = ; #TODO Add number
+  NullableStringValue kid_details = 110;
+  NullableBoolValue has_housemates = 111;
+  NullableStringValue housemate_details = 112;
   NullableBoolValue wheelchair_accessible = 17;
   SmokingLocation smoking_allowed = 18;
-  NullableBoolValue smokes_at_home = ; #TODO Add number
-  NullableBoolValue drinks_allowed = ; #TODO Add number
-  NullableBoolValue drinks_at_home = ; #TODO Add number
-  NullableStringValue other_host_info = ; #TODO Add number
-  SleepingArrangement sleeping_arrangement = ; #TODO Add number
-  NullableStringValue sleeping_details = ; #TODO Add number
+  NullableBoolValue smokes_at_home = 113;
+  NullableBoolValue drinks_allowed = 114;
+  NullableBoolValue drinks_at_home = 115;
+  NullableStringValue other_host_info = 116;
+  SleepingArrangement sleeping_arrangement = 117;
+  NullableStringValue sleeping_details = 118;
   NullableStringValue area = 20;
   NullableStringValue house_rules = 21;
-  NullableBoolValue parking = ; #TODO Add number
-  ParkingDetails parking_details = ; #TODO Add Number
-  NullableBoolValue Camping_OK = ; #TODO Add number
+  NullableBoolValue parking = 119;
+  ParkingDetails parking_details = 120;
+  NullableBoolValue Camping_OK = 121;
 }
 
 message ReportReq {
