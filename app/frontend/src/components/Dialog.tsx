@@ -28,11 +28,7 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2),
     paddingBottom: 0,
     textAlign: "center",
-    //default typography is h2 with h6 styling
-    "& > h2": {
-      fontSize: 16,
-      fontWeight: "bold",
-    },
+    "& > h2": theme.typography.h2,
     "&:not(:nth-child(1))": {
       paddingTop: 0,
     },
