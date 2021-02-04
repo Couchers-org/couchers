@@ -189,7 +189,7 @@ def test_update_profile(db):
         assert user.hosting_status == api_pb2.HOSTING_STATUS_CAN_HOST
         assert user.meetup_status == api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP
         assert "Binary" in user.languages
-        assert "English" in user.language
+        assert "English" in user.languages
         assert user.additional_information == "I <3 Couchers"
 
 
