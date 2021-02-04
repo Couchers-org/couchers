@@ -214,6 +214,8 @@ message User {
   google.protobuf.BoolValue has_kids = ; #TODO Add number
   google.protobuf.BoolValue accepts_kids = 26;
   google.protobuf.StringValue kid_details = ; #TODO Add number  google.protobuf.BoolValue wheelchair_accessible = 27;
+  google.protobuf.BoolValue has_housemates = ; #TODO Add number
+  google.protobuf.StringValue housemate_details = ; #TODO Add number  google.protobuf.BoolValue wheelchair_accessible = 27;
   SmokingLocation smoking_allowed = 28;
   google.protobuf.StringValue sleeping_arrangement = 29;
   google.protobuf.StringValue area = 30;
@@ -271,6 +273,8 @@ message UpdateProfileReq {
   NullableBoolValue has_kids = ; #TODO Add number
   NullableBoolValue accepts_kids = 16;
   NullableStringValue kid_details = ; #TODO Add number
+  NullableBoolValue has_housemates = ; #TODO Add number
+  NullableStringValue housemate_details = ; #TODO Add number
   NullableBoolValue wheelchair_accessible = 17;
   SmokingLocation smoking_allowed = 18;
   NullableStringValue sleeping_arrangement = 19;
