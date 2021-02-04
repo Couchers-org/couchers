@@ -1,17 +1,17 @@
-import React from "react";
 import {
   Dialog as MuiDialog,
   DialogActions as MuiDialogActions,
-  DialogContent as MuiDialogContent,
-  DialogContentText as MuiDialogContentText,
-  DialogTitle as MuiDialogTitle,
-  DialogProps,
-  makeStyles,
   DialogActionsProps,
+  DialogContent as MuiDialogContent,
   DialogContentProps,
+  DialogContentText as MuiDialogContentText,
   DialogContentTextProps,
+  DialogProps,
+  DialogTitle as MuiDialogTitle,
   DialogTitleProps,
+  makeStyles,
 } from "@material-ui/core";
+import React from "react";
 
 const useStyles = makeStyles((theme) => ({
   dialog: { padding: 0 },
@@ -33,10 +33,17 @@ const useStyles = makeStyles((theme) => ({
       fontSize: 16,
       fontWeight: "bold",
     },
+    "&:not(:nth-child(1))": {
+      paddingTop: 0,
+    },
   },
 }));
 
-export function Dialog(props: Omit<DialogProps, "className">) {
+export interface AccessibleDialogProps extends Omit<DialogProps, "className"> {
+  "aria-labelledby": string;
+}
+
+export function Dialog(props: AccessibleDialogProps) {
   const classes = useStyles();
   return <MuiDialog {...props} className={classes.dialog} />;
 }

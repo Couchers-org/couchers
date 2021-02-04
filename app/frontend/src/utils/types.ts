@@ -5,10 +5,10 @@ import {
 } from "google-protobuf/google/protobuf/wrappers_pb";
 
 import {
-  RepeatedStringValue,
-  NullableUInt32Value,
   NullableBoolValue,
   NullableStringValue,
+  NullableUInt32Value,
+  RepeatedStringValue,
 } from "../pb/api_pb";
 
 export type ProtoToJsTypes<T> = T extends StringValue.AsObject

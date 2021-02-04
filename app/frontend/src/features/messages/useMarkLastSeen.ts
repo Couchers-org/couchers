@@ -3,6 +3,7 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error } from "grpc-web";
 import { useEffect, useMemo, useRef } from "react";
 import { UseMutateFunction } from "react-query";
+
 import { MARK_LAST_SEEN_TIMEOUT } from "./constants";
 
 export type MarkLastSeenVariables = number;

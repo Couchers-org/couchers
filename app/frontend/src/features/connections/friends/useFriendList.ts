@@ -1,5 +1,6 @@
 import { Error } from "grpc-web";
-import { useQuery, useQueries, UseQueryResult } from "react-query";
+import { useQueries, useQuery, UseQueryResult } from "react-query";
+
 import { User } from "../../../pb/api_pb";
 import { service } from "../../../service";
 

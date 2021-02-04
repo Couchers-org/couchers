@@ -2,12 +2,12 @@ import { Typography } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useHistory, useLocation, useParams } from "react-router-dom";
+
 import { signupRoute } from "../../../AppRoutes";
 import Autocomplete from "../../../components/Autocomplete";
 import Button from "../../../components/Button";
 import CircularProgress from "../../../components/CircularProgress";
 import TextField from "../../../components/TextField";
-import { hostingStatusLabels } from "../../profile/constants";
 import { HostingStatus } from "../../../pb/api_pb";
 import { service } from "../../../service";
 import {
@@ -15,6 +15,7 @@ import {
   usernameValidationPattern,
   validatePastDate,
 } from "../../../utils/validation";
+import { hostingStatusLabels } from "../../profile/constants";
 import { useAuthContext } from "../AuthProvider";
 
 type SignupInputs = {

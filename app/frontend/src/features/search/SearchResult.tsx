@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Box,
   Card,
@@ -8,13 +7,15 @@ import {
   makeStyles,
   Typography,
 } from "@material-ui/core";
-import { User } from "../../pb/api_pb";
-import TextBody from "../../components/TextBody";
-import { hostingStatusLabels } from "../profile/constants";
+import React from "react";
 import { Link } from "react-router-dom";
+
 import { userRoute } from "../../AppRoutes";
 import Avatar from "../../components/Avatar";
 import ScoreBar from "../../components/ScoreBar";
+import TextBody from "../../components/TextBody";
+import { User } from "../../pb/api_pb";
+import { hostingStatusLabels } from "../profile/constants";
 
 const useStyles = makeStyles((theme) => ({
   root: {

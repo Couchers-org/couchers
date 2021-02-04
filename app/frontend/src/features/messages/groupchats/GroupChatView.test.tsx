@@ -6,6 +6,7 @@ import {
   mockIsIntersecting,
 } from "react-intersection-observer/test-utils";
 import { Route } from "react-router-dom";
+
 import { messagesRoute } from "../../../AppRoutes";
 import { service } from "../../../service";
 import messageData from "../../../test/fixtures/messages.json";
@@ -51,11 +52,11 @@ const markLastSeenGroupChatMock = service.conversations
 
 // TODO: tests involving these mutations - maybe these can be localised only
 // in test blocks that need them
-const sendMessageMock = service.conversations.sendMessage as MockedService<
+/*const sendMessageMock = service.conversations.sendMessage as MockedService<
   typeof service.conversations.sendMessage
 >;
 const leaveGroupChatMock = service.conversations
-  .leaveGroupChat as MockedService<typeof service.conversations.leaveGroupChat>;
+  .leaveGroupChat as MockedService<typeof service.conversations.leaveGroupChat>;*/
 
 beforeEach(() => {
   addDefaultUser();

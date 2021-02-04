@@ -1,10 +1,11 @@
-import React from "react";
 import { makeStyles } from "@material-ui/core";
-import { useHistory } from "react-router-dom";
-import { searchRoute } from "../AppRoutes";
-import TextField from "./TextField";
+import React from "react";
 import { useForm } from "react-hook-form";
+import { useHistory } from "react-router-dom";
+
+import { searchRoute } from "../AppRoutes";
 import { SearchQuery } from "../features/search/constants";
+import TextField from "./TextField";
 
 const useStyles = makeStyles({
   root: {

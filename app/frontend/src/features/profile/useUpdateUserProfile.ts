@@ -1,5 +1,6 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { useMutation, useQueryClient } from "react-query";
+
 import { service, UpdateUserProfileData } from "../../service";
 import { SetMutationError } from "../../utils/types";
 import { useAuthContext } from "../auth/AuthProvider";

@@ -1,10 +1,11 @@
-import React from "react";
 import {
   Container,
   ContainerProps,
   LinearProgress,
   makeStyles,
 } from "@material-ui/core";
+import React from "react";
+
 import TextBody from "./TextBody";
 
 const useStyles = makeStyles((theme) => ({

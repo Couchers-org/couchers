@@ -1,12 +1,13 @@
 import { TabContext, TabPanel } from "@material-ui/lab";
 import React from "react";
 import { useHistory, useParams } from "react-router";
+
 import { connectionsRoute } from "../../AppRoutes";
-import PageTitle from "../../components/PageTitle";
-import { FriendsTab } from "./friends";
 import NotificationBadge from "../../components/NotificationBadge";
+import PageTitle from "../../components/PageTitle";
 import TabBar from "../../components/TabBar";
 import useNotifications from "../useNotifications";
+import { FriendsTab } from "./friends";
 
 function FriendsNotification() {
   const { data } = useNotifications();

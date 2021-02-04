@@ -1,26 +1,27 @@
 import React, { useEffect } from "react";
-import { Switch, Route, RouteProps, Redirect } from "react-router-dom";
-import Login from "./features/auth/login/Login";
-import Home from "./features/Home";
-import Messages from "./features/messages/index";
-import Logout from "./features/auth/Logout";
-import Signup from "./features/auth/signup/Signup";
-import {
-  EditProfilePage,
-  EditHostingPreferencePage,
-  ProfilePage,
-} from "./features/profile";
-import MapPage from "./features/map/MapPage";
-import UserPage from "./features/userPage/UserPage";
-import SearchPage from "./features/search/SearchPage";
-import NewPagePage from "./features/communities/NewPagePage";
-import PagePage from "./features/communities/PagePage";
-import CommunityPage from "./features/communities/CommunityPage";
-import GroupPage from "./features/communities/GroupPage";
-import Jail from "./features/auth/jail/Jail";
+import { Redirect, Route, RouteProps, Switch } from "react-router-dom";
+
 import TOS from "./components/TOS";
 import { useAuthContext } from "./features/auth/AuthProvider";
+import Jail from "./features/auth/jail/Jail";
+import Login from "./features/auth/login/Login";
+import Logout from "./features/auth/Logout";
+import Signup from "./features/auth/signup/Signup";
+import CommunityPage from "./features/communities/CommunityPage";
+import GroupPage from "./features/communities/GroupPage";
+import NewPagePage from "./features/communities/NewPagePage";
+import PagePage from "./features/communities/PagePage";
 import { ConnectionsPage } from "./features/connections";
+import Home from "./features/Home";
+import MapPage from "./features/map/MapPage";
+import Messages from "./features/messages/index";
+import {
+  EditHostingPreferencePage,
+  EditProfilePage,
+  ProfilePage,
+} from "./features/profile";
+import SearchPage from "./features/search/SearchPage";
+import UserPage from "./features/userPage/UserPage";
 import { PageType } from "./pb/pages_pb";
 
 export const loginRoute = "/login";

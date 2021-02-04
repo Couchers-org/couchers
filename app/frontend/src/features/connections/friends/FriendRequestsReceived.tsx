@@ -1,13 +1,14 @@
 import { Box, CircularProgress, IconButton } from "@material-ui/core";
 import React from "react";
+
 import { CheckIcon, CloseIcon } from "../../../components/Icons";
 import { FriendRequest } from "../../../pb/api_pb";
+import { useIsMounted, useSafeState } from "../../../utils/hooks";
+import type { SetMutationError } from ".";
 import FriendSummaryView from "./FriendSummaryView";
 import FriendTile from "./FriendTile";
 import useFriendRequests from "./useFriendRequests";
 import useRespondToFriendRequest from "./useRespondToFriendRequest";
-import { useIsMounted, useSafeState } from "../../../utils/hooks";
-import type { SetMutationError } from ".";
 
 interface RespondToFriendRequestActionProps {
   friendRequestId: number;

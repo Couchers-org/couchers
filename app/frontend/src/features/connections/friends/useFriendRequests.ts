@@ -1,8 +1,9 @@
 import { Error } from "grpc-web";
 import { useQuery } from "react-query";
-import useUsers from "../../userQueries/useUsers";
+
 import { ListFriendRequestsRes } from "../../../pb/api_pb";
 import { service } from "../../../service";
+import useUsers from "../../userQueries/useUsers";
 
 export default function useFriendRequests(
   friendRequestType: "Sent" | "Received"

@@ -7,10 +7,11 @@ import {
 } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
 import React from "react";
+
 import { User } from "../pb/api_pb";
-import ScoreBar from "./ScoreBar";
 import Avatar from "./Avatar";
 import HostStatus from "./HostStatus";
+import ScoreBar from "./ScoreBar";
 
 const useStyles = makeStyles((theme) => ({
   root: { display: "flex", alignItems: "center", padding: 0 },

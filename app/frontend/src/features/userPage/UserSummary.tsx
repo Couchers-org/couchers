@@ -1,5 +1,3 @@
-import React from "react";
-import { User } from "../../pb/api_pb";
 import {
   List,
   ListItem,
@@ -7,6 +5,8 @@ import {
   ListItemText,
   makeStyles,
 } from "@material-ui/core";
+import React from "react";
+
 import {
   CakeIcon,
   LanguageIcon,
@@ -14,6 +14,7 @@ import {
   PersonIcon,
   WorkIcon,
 } from "../../components/Icons";
+import { User } from "../../pb/api_pb";
 import UserSection from "./UserSection";
 
 const useStyles = makeStyles((theme) => ({
