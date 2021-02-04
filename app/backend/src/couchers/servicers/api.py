@@ -272,11 +272,23 @@ class API(api_pb2_grpc.APIServicer):
                 else:
                     user.pet_details = request.pet_details.value
 
+            if request.HasField("has_kids"):
+                if request.has_kids.is_null:
+                    user.has_kids = None
+                else:
+                    user.has_kids = request.has_kids.value
+
             if request.HasField("accepts_kids"):
                 if request.accepts_kids.is_null:
                     user.accepts_kids = None
                 else:
                     user.accepts_kids = request.accepts_kids.value
+
+            if request.HasField("kid_details"):
+                if request.kid_details.is_null:
+                    user.kid_details = None
+                else:
+                    user.kid_details = request.kid_details.value
 
             if request.HasField("wheelchair_accessible"):
                 if request.wheelchair_accessible.is_null:
@@ -633,8 +645,14 @@ def user_model_to_pb(db_user, session, context):
     if db_user.pet_details is not None:
         user.pet_details.valu = db_user.pet_details
 
+    if db_user.has_kids is not None:
+        user.has_kids.value = db_user.has_kids
+
     if db_user.accepts_kids is not None:
         user.accepts_kids.value = db_user.accepts_kids
+
+    if db_user.kid_details is not None:
+        user.kid_details.value = db_user.kid_details
 
     if db_user.wheelchair_accessible is not None:
         user.wheelchair_accessible.value = db_user.wheelchair_accessible
