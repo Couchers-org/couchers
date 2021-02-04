@@ -254,11 +254,23 @@ class API(api_pb2_grpc.APIServicer):
                 else:
                     user.last_minute = request.last_minute.value
 
+            if request.HasField("has_pets"):
+                if request.has_pets.is_null:
+                    user.has_pets = None
+                else:
+                    user.has_pets = request.has_pets.value
+
             if request.HasField("accepts_pets"):
                 if request.accepts_pets.is_null:
                     user.accepts_pets = None
                 else:
                     user.accepts_pets = request.accepts_pets.value
+
+            if request.HasField("pet_details"):
+                if request.pet_details.is_null:
+                    user.pet_details = None
+                else:
+                    user.pet_details = request.pet_details.value
 
             if request.HasField("accepts_kids"):
                 if request.accepts_kids.is_null:
@@ -612,8 +624,14 @@ def user_model_to_pb(db_user, session, context):
     if db_user.last_minute is not None:
         user.last_minute.value = db_user.last_minute
 
+    if db_user.has_pets is not None:
+        user.has_pets.value = db_user.has_pets
+
     if db_user.accepts_pets is not None:
         user.accepts_pets.value = db_user.accepts_pets
+
+    if db_user.pet_details is not None:
+        user.pet_details.valu = db_user.pet_details
 
     if db_user.accepts_kids is not None:
         user.accepts_kids.value = db_user.accepts_kids

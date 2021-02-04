@@ -208,7 +208,9 @@ message User {
 
   google.protobuf.UInt32Value max_guests = 22;
   google.protobuf.BoolValue last_minute = 24;
+  google.protobuf.BoolValue has_pets = ; #TODO Add number
   google.protobuf.BoolValue accepts_pets = 25;
+  google.protobuf.StringValue pet_details = ; #TODO Add number
   google.protobuf.BoolValue accepts_kids = 26;
   google.protobuf.BoolValue wheelchair_accessible = 27;
   SmokingLocation smoking_allowed = 28;
@@ -262,7 +264,9 @@ message UpdateProfileReq {
 
   NullableUInt32Value max_guests = 12;
   NullableBoolValue last_minute = 14;
+  NullableBoolValue has_pets = ; #TODO Add number
   NullableBoolValue accepts_pets = 15;
+  NullableStringValue pet_details = ; #TODO Add number
   NullableBoolValue accepts_kids = 16;
   NullableBoolValue wheelchair_accessible = 17;
   SmokingLocation smoking_allowed = 18;
