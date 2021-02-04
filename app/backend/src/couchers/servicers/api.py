@@ -191,6 +191,12 @@ class API(api_pb2_grpc.APIServicer):
                 else:
                     user.occupation = request.occupation.value
 
+            if request.HasField("education"):
+                if request.education.is_null:
+                    user.education = None
+                else:
+                    user.education = request.education.value
+
             if request.HasField("about_me"):
                 if request.about_me.is_null:
                     user.about_me = None
@@ -564,6 +570,7 @@ def user_model_to_pb(db_user, session, context):
         hosting_status=hostingstatus2api[db_user.hosting_status],
         meetup_status=meetupstatus2api[db_user.meetup_status],
         occupation=db_user.occupation,
+        education=db_user.education,
         about_me=db_user.about_me,
         about_place=db_user.about_place,
         languages=db_user.languages.split("|") if db_user.languages else [],
