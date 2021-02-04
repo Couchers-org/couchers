@@ -6,7 +6,6 @@ import pytz
 from geoalchemy2.shape import from_shape, to_shape
 from google.protobuf.timestamp_pb2 import Timestamp
 from shapely.geometry import Point, Polygon, shape
-from slugify import slugify as slugify_slugify
 from sqlalchemy.sql import func
 
 from couchers.config import config
@@ -143,10 +142,6 @@ def parse_session_cookie(headers):
         return None
 
     return cookie.value
-
-
-def slugify(text):
-    return slugify_slugify(text, max_length=64, word_boundary=True)
 
 
 def remove_duplicates_retain_order(list_):

@@ -220,7 +220,6 @@ def add_dummy_communities():
                     cluster.cluster_subscriptions.append(
                         ClusterSubscription(
                             user=admin,
-                            cluster=cluster,
                             role=ClusterRole.admin,
                         )
                     )
@@ -229,7 +228,6 @@ def add_dummy_communities():
                     cluster.cluster_subscriptions.append(
                         ClusterSubscription(
                             user=member,
-                            cluster=cluster,
                             role=ClusterRole.member,
                         )
                     )
@@ -277,7 +275,6 @@ def add_dummy_communities():
                     cluster.cluster_subscriptions.append(
                         ClusterSubscription(
                             user=admin,
-                            cluster=cluster,
                             role=ClusterRole.admin,
                         )
                     )
@@ -286,7 +283,6 @@ def add_dummy_communities():
                     cluster.cluster_subscriptions.append(
                         ClusterSubscription(
                             user=member,
-                            cluster=cluster,
                             role=ClusterRole.member,
                         )
                     )

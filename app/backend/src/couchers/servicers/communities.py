@@ -8,7 +8,7 @@ from couchers.db import session_scope
 from couchers.models import Cluster, Node, Page, PageType, User
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
-from couchers.utils import Timestamp_from_datetime, slugify
+from couchers.utils import Timestamp_from_datetime
 from pb import communities_pb2, communities_pb2_grpc, groups_pb2
 
 logger = logging.getLogger(__name__)
@@ -41,8 +41,8 @@ def _parents_to_pb(node_id, user_id):
                 community=groups_pb2.CommunityParent(
                     community_id=node_id,
                     name=cluster.name,
-                    slug=slugify(cluster.name),
-                    description=cluster.name,
+                    slug=cluster.slug,
+                    description=cluster.description,
                 )
             )
             for node_id, parent_node_id, level, cluster in parents
@@ -53,7 +53,7 @@ def community_to_pb(node: Node, user_id):
     return communities_pb2.Community(
         community_id=node.id,
         name=node.official_cluster.name,
-        slug=slugify(node.official_cluster.name),
+        slug=node.official_cluster.slug,
         description=node.official_cluster.description,
         created=Timestamp_from_datetime(node.created),
         parents=_parents_to_pb(node.id, user_id),
@@ -152,7 +152,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             node = session.query(Node).filter(Node.id == request.community_id).one_or_none()
             if not node:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
-            nearbys = node.nearby_users.filter(User.id >= next_nearby_id).order_by(User.id).limit(page_size + 1).all()
+            nearbys = (
+                node.contained_users.filter(User.id >= next_nearby_id).order_by(User.id).limit(page_size + 1).all()
+            )
             return communities_pb2.ListNearbyUsersRes(
                 nearby_user_ids=[nearby.id for nearby in nearbys[:page_size]],
                 next_page_token=str(nearbys[-1].id) if len(nearbys) > page_size else None,
