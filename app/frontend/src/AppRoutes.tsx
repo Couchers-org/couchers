@@ -32,7 +32,6 @@ export const profileRoute = "/profile";
 export const editProfileRoute = "/profile/edit";
 export const editHostingPreferenceRoute = "/hosting-preference/edit";
 export const messagesRoute = "/messages";
-export const requestsRoute = "/requests";
 export const mapRoute = "/map";
 export const logoutRoute = "/logout";
 export const connectionsRoute = "/connections";
