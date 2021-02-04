@@ -1,3 +1,4 @@
+export { default as CommunityIcon } from "./CommunityIcon";
 export { default as AddIcon } from "@material-ui/icons/AddOutlined";
 export { default as BackIcon } from "@material-ui/icons/ArrowBackOutlined";
 export { default as CakeIcon } from "@material-ui/icons/CakeOutlined";

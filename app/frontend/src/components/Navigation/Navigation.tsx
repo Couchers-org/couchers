@@ -17,7 +17,7 @@ import {
 } from "../../AppRoutes";
 import { useAuthContext } from "../../features/auth/AuthProvider";
 import {
-  CouchIcon,
+  CommunityIcon,
   CrossIcon,
   EmailIcon,
   LocationIcon,
@@ -31,7 +31,7 @@ const menu = [
   {
     name: "Dashboard",
     route: "/",
-    icon: <CouchIcon fontSize="inherit" />,
+    icon: <CommunityIcon fontSize="inherit" />,
   },
   {
     name: "Messages",
