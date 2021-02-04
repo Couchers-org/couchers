@@ -351,6 +351,12 @@ class API(api_pb2_grpc.APIServicer):
             if request.sleeping_arrangement != api_pb2.SLEEPING_ARRANGEMENT_UNKNOWN:
                 user.sleeping_arrangement = smokinglocation2sql[request.sleeping_arrangement]
 
+            if request.HasField("sleeping_details"):
+                if request.sleeping_details.is_null:
+                    user.sleeping_details = None
+                else:
+                    user.sleeping_details = request.sleeping_details.value
+
             if request.HasField("area"):
                 if request.area.is_null:
                     user.area = None
@@ -727,6 +733,9 @@ def user_model_to_pb(db_user, session, context):
 
     if db_user.other_host_info is not None:
         user.other_host_info.value = db_user.other_host_info
+
+    if db_user.sleeping_details is not None:
+        user.sleeping_details.value = db_user.sleeping_details
 
     if db_user.area is not None:
         user.area.value = db_user.area
