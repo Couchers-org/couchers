@@ -311,6 +311,12 @@ class API(api_pb2_grpc.APIServicer):
             if request.smoking_allowed != api_pb2.SMOKING_LOCATION_UNSPECIFIED:
                 user.smoking_allowed = smokinglocation2sql[request.smoking_allowed]
 
+            if request.HasField("smokes_at_home"):
+                if request.smokes_at_home.is_null:
+                    user.smokes_at_home = None
+                else:
+                    user.smokes_at_home = request.smokes_at_home.value
+
             if request.HasField("sleeping_arrangement"):
                 if request.sleeping_arrangement.is_null:
                     user.sleeping_arrangement = None
@@ -655,7 +661,7 @@ def user_model_to_pb(db_user, session, context):
         user.accepts_pets.value = db_user.accepts_pets
 
     if db_user.pet_details is not None:
-        user.pet_details.valu = db_user.pet_details
+        user.pet_details.value = db_user.pet_details
 
     if db_user.has_kids is not None:
         user.has_kids.value = db_user.has_kids
@@ -674,6 +680,9 @@ def user_model_to_pb(db_user, session, context):
 
     if db_user.wheelchair_accessible is not None:
         user.wheelchair_accessible.value = db_user.wheelchair_accessible
+
+    if db_user.smokes_at_home is not None:
+        user.smokes_at_home.value = db_user.smokes_at_home
 
     if db_user.sleeping_arrangement is not None:
         user.sleeping_arrangement.value = db_user.sleeping_arrangement
