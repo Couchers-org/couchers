@@ -6,7 +6,7 @@ import {
   Toolbar,
   Typography,
 } from "@material-ui/core";
-import React from "react";
+import { Link, NavLink } from "react-router-dom";
 
 import {
   connectionsRoute,
@@ -24,6 +24,7 @@ import {
   PeopleIcon,
   PersonIcon,
 } from "../Icons";
+import BugReport from "../../features/BugReport";
 import SearchBox from "../SearchBox";
 import NavButton from "./NavButton";
 
@@ -141,6 +142,7 @@ export default function Navigation() {
             )}
           </Hidden>
         </Grid>
+        <BugReport />
         <Hidden smDown>
           <div className={classes.search}>
             <SearchBox />
