@@ -1,6 +1,5 @@
-// also exported from '@storybook/react' if you can deal with breaking changes in 6.1
 import { DialogActions } from "@material-ui/core";
-import { Meta, Story } from "@storybook/react/types-6-0";
+import { Meta, Story } from "@storybook/react";
 import * as React from "react";
 
 import Button from "./Button";
