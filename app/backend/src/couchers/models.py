@@ -44,7 +44,7 @@ class HostingStatus(enum.Enum):
 class MeetupStatus(enum.Enum):
     wants_to_meetup = 1
     open_to_meetup = 2
-    does_not_want_meetup = 3
+    does_not_want_to_meetup = 3
 
 
 class SmokingLocation(enum.Enum):

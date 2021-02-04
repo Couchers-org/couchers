@@ -19,6 +19,7 @@ from couchers.models import (
     FriendStatus,
     GroupChatSubscription,
     HostingStatus,
+    MeetupStatus,
     HostRequest,
     InitiatedUpload,
     Message,
@@ -56,6 +57,23 @@ hostingstatus2api = {
     HostingStatus.maybe: api_pb2.HOSTING_STATUS_MAYBE,
     HostingStatus.cant_host: api_pb2.HOSTING_STATUS_CANT_HOST,
 }
+
+
+meetupstatus2sql = {
+    api_pb2.MEETUP_STATUS_UNKNOWN: None,
+    api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP: MeetupStatus.wants_to_meetup,
+    api_pb2.MEETUP_STATUS_OPEN_TO_MEETUP: MeetupStatus.open_to_meetup,
+    api_pb2.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP: MeetupStatus.does_not_want_to_meetup,
+}
+
+
+meetupstatus2api = {
+    None: api_pb2.MEETUP_STATUS_UNKNOWN,
+    MeetupStatus.wants_to_meetup: api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP,
+    MeetupStatus.open_to_meetup: api_pb2.MEETUP_STATUS_OPEN_TO_MEETUP,
+    MeetupStatus.does_not_want_to_meetup: api_pb2.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP,
+}
+
 
 smokinglocation2sql = {
     api_pb2.SMOKING_LOCATION_UNKNOWN: None,
@@ -187,6 +205,9 @@ class API(api_pb2_grpc.APIServicer):
 
             if request.hosting_status != api_pb2.HOSTING_STATUS_UNSPECIFIED:
                 user.hosting_status = hostingstatus2sql[request.hosting_status]
+
+            if request.meetup_status != api_pb2.MEETUP_STATUS_UNSPECIFIED:
+                user.meetup_status = meetupstatus2sql[request.meetup_status]
 
             if request.languages.exists:
                 user.languages = "|".join(request.languages.value)
@@ -541,6 +562,7 @@ def user_model_to_pb(db_user, session, context):
         joined=Timestamp_from_datetime(db_user.display_joined),
         last_active=Timestamp_from_datetime(db_user.display_last_active),
         hosting_status=hostingstatus2api[db_user.hosting_status],
+        meetup_status=meetupstatus2api[db_user.meetup_status],
         occupation=db_user.occupation,
         about_me=db_user.about_me,
         about_place=db_user.about_place,

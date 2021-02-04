@@ -154,7 +154,7 @@ def test_update_profile(db):
                 things_i_like=api_pb2.NullableStringValue(value="Couchers"),
                 about_place=api_pb2.NullableStringValue(value="My place"),
                 hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
-                meetup_status=api_pb2.HOSTING_STATUS_WANTS_TO_MEETUP,
+                meetup_status=api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP,
                 languages=api_pb2.RepeatedStringValue(exists=True, value=["Binary", "English"]),
                 countries_visited=api_pb2.RepeatedStringValue(exists=True, value=["UK", "Aus"]),
                 countries_lived=api_pb2.RepeatedStringValue(exists=True, value=["UK", "Aus"]),

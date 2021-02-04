@@ -129,6 +129,14 @@ enum HostingStatus {
   HOSTING_STATUS_CANT_HOST = 4;
 }
 
+enum MeetupStatus {
+    MEETUP_STATUS_UNSPECIFIED = 0;
+    MEETUP_STATUS_UNKNOWN = 1;
+    MEETUP_STATUS_WANTS_TO_MEETUP = 2;
+    MEETUP_STATUS_OPEN_TO_MEETUP = 3;
+    MEETUP_STATUS_DOES_NOT_WANTS_TO_MEETUP = 4;
+}
+
 enum SmokingLocation {
   SMOKING_LOCATION_UNSPECIFIED = 0;
   SMOKING_LOCATION_UNKNOWN = 1;
@@ -183,6 +191,7 @@ message User {
   google.protobuf.Timestamp joined = 11; // not exact
   google.protobuf.Timestamp last_active = 12; // not exact
   HostingStatus hosting_status = 13;
+  MeetupStatus meetup_status = ; #TODO add number
   string occupation = 14;
   string about_me = 15;
   string about_place = 16;
@@ -237,6 +246,7 @@ message UpdateProfileReq {
   NullableStringValue about_place = 6;
 
   HostingStatus hosting_status = 8;
+  MeetupStatus meetup_staus = ; #TODO Add number
 
   RepeatedStringValue languages = 9;
   RepeatedStringValue countries_visited = 10;
