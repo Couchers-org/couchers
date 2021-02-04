@@ -329,6 +329,12 @@ class API(api_pb2_grpc.APIServicer):
                 else:
                     user.drinks_at_home = request.drinks_at_home.value
 
+            if request.HasField("other_host_info"):
+                if request.other_host_info.is_null:
+                    user.other_host_info = None
+                else:
+                    user.other_host_info = request.other_host_info.value
+
             if request.HasField("sleeping_arrangement"):
                 if request.sleeping_arrangement.is_null:
                     user.sleeping_arrangement = None
@@ -701,6 +707,9 @@ def user_model_to_pb(db_user, session, context):
 
     if db_user.drinks_at_home is not None:
         user.drinks_at_home.value = db_user.drinks_at_home
+
+    if db_user.other_host_info is not None:
+        user.other_host_info.value = db_user.other_host_info
 
     if db_user.sleeping_arrangement is not None:
         user.sleeping_arrangement.value = db_user.sleeping_arrangement

@@ -220,6 +220,7 @@ message User {
   google.protobug.BoolValue smokes_at_home = ; #TODO Add number
   google.protobug.BoolValue drinks_allowed = ; #TODO Add number
   google.protobug.BoolValue drinks_at_home = ; #TODO Add number
+  google.protobuf.StringValue other_host_info = ; #TODO Add number
   google.protobuf.StringValue sleeping_arrangement = 29;
   google.protobuf.StringValue area = 30;
   google.protobuf.StringValue house_rules = 31;
@@ -283,6 +284,7 @@ message UpdateProfileReq {
   NullableBoolValue smokes_at_home = ; #TODO Add number
   NullableBoolValue drinks_allowed = ; #TODO Add number
   NullableBoolValue drinks_at_home = ; #TODO Add number
+  NullableStringValue other_host_info = ; #TODO Add number
   NullableStringValue sleeping_arrangement = 19;
   NullableStringValue area = 20;
   NullableStringValue house_rules = 21;
