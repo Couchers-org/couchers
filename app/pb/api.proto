@@ -233,6 +233,7 @@ message User {
   google.protobuf.StringValue sleeping_details = ; #TODO Add number
   google.protobuf.StringValue area = 30;
   google.protobuf.StringValue house_rules = 31;
+  google.protobuf.BoolValue parking = ; #TODO Add Number
   google.protobuf.BoolValue camping_OK = ; #TODO Add Number
 
   string avatar_url = 32;
@@ -299,6 +300,7 @@ message UpdateProfileReq {
   NullableStringValue sleeping_details = ; #TODO Add number
   NullableStringValue area = 20;
   NullableStringValue house_rules = 21;
+  NullableBoolValue parking = ; #TODO Add number
   NullableBoolValue Camping_OK = ; #TODO Add number
 }
 
