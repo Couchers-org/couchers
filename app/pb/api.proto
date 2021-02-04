@@ -146,6 +146,14 @@ enum SmokingLocation {
   SMOKING_LOCATION_NO = 5;
 }
 
+enum SleepingArrangement {
+  SLEEPING_ARRANGEMENT_UNKNOWN = 0;
+  SLEEPING_ARRANGEMENT_PRIVATE = 1;
+  SLEEPING_ARRANGEMENT_COMMON = 2;
+  SLEEPING_ARRANGEMENT_SHARED_ROOM = 3;
+  SLEEPING_ARRANGEMENT_SHARED_SPACE = 4;
+}
+
 message NullableUInt32Value {
   bool is_null = 1;
   uint32 value = 2;
@@ -221,7 +229,7 @@ message User {
   google.protobug.BoolValue drinks_allowed = ; #TODO Add number
   google.protobug.BoolValue drinks_at_home = ; #TODO Add number
   google.protobuf.StringValue other_host_info = ; #TODO Add number
-  google.protobuf.StringValue sleeping_arrangement = 29;
+  SleepingArrangement sleeping_arrangement = 29;
   google.protobuf.StringValue area = 30;
   google.protobuf.StringValue house_rules = 31;
   google.protobuf.BoolValue camping_OK = ; #TODO Add Number
@@ -286,7 +294,7 @@ message UpdateProfileReq {
   NullableBoolValue drinks_allowed = ; #TODO Add number
   NullableBoolValue drinks_at_home = ; #TODO Add number
   NullableStringValue other_host_info = ; #TODO Add number
-  NullableStringValue sleeping_arrangement = 19;
+  SleepingArrangement sleeping_arrangement = ; #TODO Add number
   NullableStringValue area = 20;
   NullableStringValue house_rules = 21;
   NullableBoolValue Camping_OK = ; #TODO Add number

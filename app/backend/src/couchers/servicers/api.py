@@ -26,6 +26,7 @@ from couchers.models import (
     Reference,
     ReferenceType,
     SmokingLocation,
+    SleepingArrangement,
     User,
 )
 from couchers.tasks import send_friend_request_email, send_report_email
@@ -58,7 +59,6 @@ hostingstatus2api = {
     HostingStatus.cant_host: api_pb2.HOSTING_STATUS_CANT_HOST,
 }
 
-
 meetupstatus2sql = {
     api_pb2.MEETUP_STATUS_UNKNOWN: None,
     api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP: MeetupStatus.wants_to_meetup,
@@ -66,14 +66,12 @@ meetupstatus2sql = {
     api_pb2.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP: MeetupStatus.does_not_want_to_meetup,
 }
 
-
 meetupstatus2api = {
     None: api_pb2.MEETUP_STATUS_UNKNOWN,
     MeetupStatus.wants_to_meetup: api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP,
     MeetupStatus.open_to_meetup: api_pb2.MEETUP_STATUS_OPEN_TO_MEETUP,
     MeetupStatus.does_not_want_to_meetup: api_pb2.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP,
 }
-
 
 smokinglocation2sql = {
     api_pb2.SMOKING_LOCATION_UNKNOWN: None,
@@ -91,6 +89,21 @@ smokinglocation2api = {
     SmokingLocation.no: api_pb2.SMOKING_LOCATION_NO,
 }
 
+sleepingarrangement2sql = {
+    api_pb2.SLEEPING_ARRANGEMENT_UNKNOWN: None,
+    api_pb2.SLEEPING_ARRANGEMENT_PRIVATE: SleepingArrangement.private,
+    api_pb2.SLEEPING_ARRANGEMENT_COMMON: SleepingArrangement.common,
+    api_pb2.SLEEPING_ARRANGEMENT_SHARED_ROOM: SleepingArrangement.shared_room,
+    api_pb2.SLEEPING_ARRANGEMENT_SHARED_SPACE: SleepingArrangement.shared_space,
+}
+
+sleepingarrangement2api = {
+    None: api_pb2.SLEEPING_ARRANGEMENT_UNKNOWN,
+    SleepingArrangement.private: api_pb2.SLEEPING_ARRANGEMENT_PRIVATE,
+    SleepingArrangement.common: api_pb2.SLEEPING_ARRANGEMENT_COMMON,
+    SleepingArrangement.shared_room: api_pb2.SLEEPING_ARRANGEMENT_SHARED_ROOM,
+    SleepingArrangement.shared_space: api_pb2.SLEEPING_ARRANGEMENT_SHARED_SPACE,
+}
 
 class API(api_pb2_grpc.APIServicer):
     def Ping(self, request, context):
@@ -335,11 +348,8 @@ class API(api_pb2_grpc.APIServicer):
                 else:
                     user.other_host_info = request.other_host_info.value
 
-            if request.HasField("sleeping_arrangement"):
-                if request.sleeping_arrangement.is_null:
-                    user.sleeping_arrangement = None
-                else:
-                    user.sleeping_arrangement = request.sleeping_arrangement.value
+            if request.sleeping_arrangement != api_pb2.SLEEPING_ARRANGEMENT_UNKNOWN:
+                user.sleeping_arrangement = smokinglocation2sql[request.sleeping_arrangement]
 
             if request.HasField("area"):
                 if request.area.is_null:
@@ -669,6 +679,7 @@ def user_model_to_pb(db_user, session, context):
             for mutual_friend in db_user.mutual_friends(context.user_id)
         ],
         smoking_allowed=smokinglocation2api[db_user.smoking_allowed],
+        sleeping_arrangement=sleepingarrangement2api[db_user.sleeping_arrangement],
         avatar_url=db_user.avatar_url,
     )
 
@@ -716,9 +727,6 @@ def user_model_to_pb(db_user, session, context):
 
     if db_user.other_host_info is not None:
         user.other_host_info.value = db_user.other_host_info
-
-    if db_user.sleeping_arrangement is not None:
-        user.sleeping_arrangement.value = db_user.sleeping_arrangement
 
     if db_user.area is not None:
         user.area.value = db_user.area
