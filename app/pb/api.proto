@@ -234,9 +234,9 @@ message User {
   google.protobuf.StringValue housemate_details = 112;
   google.protobuf.BoolValue wheelchair_accessible = 27;
   SmokingLocation smoking_allowed = 28;
-  google.protobug.BoolValue smokes_at_home = 113;
-  google.protobug.BoolValue drinks_allowed = 114;
-  google.protobug.BoolValue drinks_at_home = 115;
+  google.protobuf.BoolValue smokes_at_home = 113;
+  google.protobuf.BoolValue drinks_allowed = 114;
+  google.protobuf.BoolValue drinks_at_home = 115;
   google.protobuf.StringValue other_host_info = 116;
   SleepingArrangement sleeping_arrangement = 117;
   google.protobuf.StringValue sleeping_details = 118;
