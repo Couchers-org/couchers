@@ -54,7 +54,7 @@ export default function PagePage({ pageType }: { pageType: PageType }) {
             Owner:{" "}
             {page.ownerUserId !== 0
               ? "user " + page.ownerUserId
-              : "cluster " + page.ownerClusterId}
+              : "cluster " + page.ownerGroupId}
           </p>
           <p>
             Last edited at {page.lastEdited?.seconds} by {page.lastEditorUserId}
