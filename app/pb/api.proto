@@ -201,6 +201,7 @@ message User {
   repeated string languages = 17;
   repeated string countries_visited = 18;
   repeated string countries_lived = 19;
+  string additional_information = ; #TODO add number
 
   FriendshipStatus friends = 20;
   repeated MutualFriend mutual_friends = 21;
@@ -257,6 +258,7 @@ message UpdateProfileReq {
   RepeatedStringValue languages = 9;
   RepeatedStringValue countries_visited = 10;
   RepeatedStringValue countries_lived = 11;
+  NullableStringValue additional_information = ; #TODO add number
 
   NullableUInt32Value max_guests = 12;
   NullableBoolValue last_minute = 14;

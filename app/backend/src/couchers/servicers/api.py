@@ -236,6 +236,12 @@ class API(api_pb2_grpc.APIServicer):
             if request.countries_lived.exists:
                 user.countries_lived = "|".join(request.countries_lived.value)
 
+            if request.HasField("additional_information"):
+                if request.additional_information.is_null:
+                    user.additional_information = None
+                else:
+                    user.additional_information = request.additional_information.value
+
             if request.HasField("max_guests"):
                 if request.max_guests.is_null:
                     user.max_guests = None
@@ -590,6 +596,7 @@ def user_model_to_pb(db_user, session, context):
         languages=db_user.languages.split("|") if db_user.languages else [],
         countries_visited=db_user.countries_visited.split("|") if db_user.countries_visited else [],
         countries_lived=db_user.countries_lived.split("|") if db_user.countries_lived else [],
+        additional_information=db_user.additional_information,
         friends=get_friends_status(session, context.user_id, db_user.id),
         mutual_friends=[
             api_pb2.MutualFriend(user_id=mutual_friend.id, username=mutual_friend.username, name=mutual_friend.name)
