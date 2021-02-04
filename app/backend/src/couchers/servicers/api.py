@@ -203,6 +203,12 @@ class API(api_pb2_grpc.APIServicer):
                 else:
                     user.about_me = request.about_me.value
 
+            if request.HasField("my_travels"):
+                if request.my_travels.is_null:
+                    user.my_travels = None
+                else:
+                    user.my_travels = request.my_travels.value
+
             if request.HasField("about_place"):
                 if request.about_place.is_null:
                     user.about_place = None
@@ -572,6 +578,7 @@ def user_model_to_pb(db_user, session, context):
         occupation=db_user.occupation,
         education=db_user.education,
         about_me=db_user.about_me,
+        my_travels=db.user.my_travels,
         about_place=db_user.about_place,
         languages=db_user.languages.split("|") if db_user.languages else [],
         countries_visited=db_user.countries_visited.split("|") if db_user.countries_visited else [],

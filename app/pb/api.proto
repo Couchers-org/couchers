@@ -195,6 +195,7 @@ message User {
   string occupation = 14;
   string education = ; #TODO add number
   string about_me = 15;
+  string my_travels = ; #TODO add number
   string about_place = 16;
   repeated string languages = 17;
   repeated string countries_visited = 18;
@@ -245,6 +246,7 @@ message UpdateProfileReq {
   NullableStringValue occupation = 4;
   NullableStringValue education = ; #TODO Add number
   NullableStringValue about_me = 5;
+  NullableStringValue my_travels = ; #TODO Add number
   NullableStringValue about_place = 6;
 
   HostingStatus hosting_status = 8;
