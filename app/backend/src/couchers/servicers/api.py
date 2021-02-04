@@ -353,6 +353,12 @@ class API(api_pb2_grpc.APIServicer):
                 else:
                     user.house_rules = request.house_rules.value
 
+            if request.HasField("camping_OK"):
+                if request.camping_OK.is_null:
+                    user.camping_OK = None
+                else:
+                    user.camping_OK = request.camping_OK.value
+
             # save updates
             session.commit()
 
@@ -719,5 +725,8 @@ def user_model_to_pb(db_user, session, context):
 
     if db_user.house_rules is not None:
         user.house_rules.value = db_user.house_rules
+
+    if db_user.camping_OK is not None:
+        user.camping_OK.value = db_user.camping_OK
 
     return user

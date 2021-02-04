@@ -224,6 +224,7 @@ message User {
   google.protobuf.StringValue sleeping_arrangement = 29;
   google.protobuf.StringValue area = 30;
   google.protobuf.StringValue house_rules = 31;
+  google.protobuf.BoolValue camping_OK = ; #TODO Add Number
 
   string avatar_url = 32;
 }
@@ -288,6 +289,7 @@ message UpdateProfileReq {
   NullableStringValue sleeping_arrangement = 19;
   NullableStringValue area = 20;
   NullableStringValue house_rules = 21;
+  NullableBoolValue Camping_OK = ; #TODO Add number
 }
 
 message ReportReq {
