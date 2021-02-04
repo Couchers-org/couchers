@@ -233,7 +233,7 @@ message UpdateProfileReq {
   google.protobuf.StringValue name = 1;
 
   google.protobuf.StringValue city = 2;
-  google.protobuf.StringValue hometown = ; #TODO Add number
+  NullableStringValue hometown = ; #TODO Add number
   // doubles are enough to describe lat/lng
   // in EPSG4326, lat & lon are in degress, check the EPS4326 definition for details
   google.protobuf.DoubleValue lat = 22;
