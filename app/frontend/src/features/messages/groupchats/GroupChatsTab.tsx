@@ -1,14 +1,15 @@
 import { Box, List } from "@material-ui/core";
 import { Error as GrpcError } from "grpc-web";
 import React from "react";
-import { useQuery } from "react-query";
+import { useInfiniteQuery } from "react-query";
 import { Link } from "react-router-dom";
 
 import { messagesRoute } from "../../../AppRoutes";
 import Alert from "../../../components/Alert";
+import Button from "../../../components/Button";
 import CircularProgress from "../../../components/CircularProgress";
 import TextBody from "../../../components/TextBody";
-import { GroupChat } from "../../../pb/conversations_pb";
+import { ListGroupChatsRes } from "../../../pb/conversations_pb";
 import { service } from "../../../service";
 import useMessageListStyles from "../useMessageListStyles";
 import CreateGroupChat from "./CreateGroupChat";
@@ -17,11 +18,24 @@ import GroupChatListItem from "./GroupChatListItem";
 export default function GroupChatsTab() {
   const classes = useMessageListStyles();
 
-  /// TODO: Pagination
-  const { data: groupChats, isLoading, error } = useQuery<
-    GroupChat.AsObject[],
-    GrpcError
-  >(["groupChats"], () => service.conversations.listGroupChats());
+  const {
+    data,
+    isLoading,
+    error,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery<ListGroupChatsRes.AsObject, GrpcError>(
+    ["groupChats"],
+    ({ pageParam: nextMessageId }) =>
+      service.conversations.listGroupChats(nextMessageId),
+    {
+      getNextPageParam: (lastPage) =>
+        lastPage.noMore ? undefined : lastPage.nextMessageId,
+    }
+  );
+
+  const loadMoreChats = () => fetchNextPage();
 
   return (
     <Box className={classes.root}>
@@ -29,24 +43,34 @@ export default function GroupChatsTab() {
       {isLoading ? (
         <CircularProgress />
       ) : (
-        groupChats && (
+        data && (
           <List className={classes.list}>
             <CreateGroupChat className={classes.listItem} />
-            {groupChats.length === 0 ? (
-              <TextBody>No group chats yet.</TextBody>
-            ) : (
-              groupChats.map((groupChat) => (
-                <Link
-                  key={groupChat.groupChatId}
-                  to={`${messagesRoute}/groupchats/${groupChat.groupChatId}`}
-                  className={classes.link}
-                >
-                  <GroupChatListItem
-                    groupChat={groupChat}
-                    className={classes.listItem}
-                  />
-                </Link>
-              ))
+            {data.pages.map((groupChatsRes, pageNumber) =>
+              pageNumber === 0 && groupChatsRes.groupChatsList.length === 0 ? (
+                <TextBody>No group chats yet.</TextBody>
+              ) : (
+                <React.Fragment key={`group-chats-page-${pageNumber}`}>
+                  {groupChatsRes.groupChatsList.map((groupChat) => (
+                    <Link
+                      key={groupChat.groupChatId}
+                      to={`${messagesRoute}/groupchats/${groupChat.groupChatId}`}
+                      className={classes.link}
+                    >
+                      <GroupChatListItem
+                        groupChat={groupChat}
+                        className={classes.listItem}
+                      />
+                    </Link>
+                  ))}
+                </React.Fragment>
+              )
+            )}
+
+            {hasNextPage && (
+              <Button onClick={loadMoreChats} loading={isFetchingNextPage}>
+                Load more
+              </Button>
             )}
           </List>
         )

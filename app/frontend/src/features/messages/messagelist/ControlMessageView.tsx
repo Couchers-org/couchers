@@ -7,10 +7,10 @@ import { timestamp2Date } from "../../../utils/date";
 import { firstName } from "../../../utils/names";
 import { useAuthContext } from "../../auth/AuthProvider";
 import { useUser } from "../../userQueries/useUsers";
+import useOnVisibleEffect from "../useOnVisibleEffect";
 import { controlMessageText, messageTargetId } from "../utils";
 import { MessageProps } from "./MessageView";
 import TimeInterval from "./MomentIndication";
-import useOnVisibleEffect from "./useOnVisibleEffect";
 
 const useStyles = makeStyles((theme) => ({
   root: {

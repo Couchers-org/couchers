@@ -40,7 +40,8 @@ export const mockedService = ({
   },
   api: { listFriends: () => Promise.resolve([user2.userId, user3.userId]) },
   conversations: {
-    listGroupChats: () => Promise.resolve([groupChat]),
+    listGroupChats: () =>
+      Promise.resolve({ groupChatsList: [groupChat], noMore: true }),
     getGroupChatMessages: () => Promise.resolve([message1, message2]),
   },
 } as unknown) as typeof originalService;

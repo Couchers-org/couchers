@@ -8,8 +8,8 @@ import { Message } from "../../../pb/conversations_pb";
 import { timestamp2Date } from "../../../utils/date";
 import useCurrentUser from "../../userQueries/useCurrentUser";
 import { useUser } from "../../userQueries/useUsers";
+import useOnVisibleEffect from "../useOnVisibleEffect";
 import TimeInterval from "./MomentIndication";
-import useOnVisibleEffect from "./useOnVisibleEffect";
 
 const useStyles = makeStyles((theme) => ({
   root: {

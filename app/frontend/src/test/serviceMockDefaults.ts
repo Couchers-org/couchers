@@ -18,20 +18,23 @@ export async function getGroupChatMessages() {
 }
 
 export async function listGroupChats() {
-  return [
-    {
-      groupChatId: 3,
-      title: "groupchattitle",
-      memberUserIdsList: [],
-      adminUserIdsList: [],
-      onlyAdminsInvite: true,
-      isDm: false,
-      // created?: google_protobuf_timestamp_pb.Timestamp.AsObject,
-      unseenMessageCount: 0,
-      lastSeenMessageId: 4,
-      latestMessage: messages[0],
-    },
-  ];
+  return {
+    groupChatsList: [
+      {
+        groupChatId: 3,
+        title: "groupchattitle",
+        memberUserIdsList: [],
+        adminUserIdsList: [],
+        onlyAdminsInvite: true,
+        isDm: false,
+        // created?: google_protobuf_timestamp_pb.Timestamp.AsObject,
+        unseenMessageCount: 0,
+        lastSeenMessageId: 4,
+        latestMessage: messages[0],
+      },
+    ],
+    noMore: true,
+  };
 }
 
 export async function listHostRequests() {

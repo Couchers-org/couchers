@@ -1,17 +1,17 @@
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 
-export default function useOnVisibleEffect(
-  messageId: number,
-  onVisible?: (messageId: number) => void
+export default function useOnVisibleEffect<Param>(
+  param: Param,
+  onVisible?: (param: Param) => void
 ) {
   const { ref, inView } = useInView();
 
   useEffect(() => {
     if (inView) {
-      onVisible?.(messageId);
+      onVisible?.(param);
     }
-  }, [inView, onVisible, messageId]);
+  }, [inView, onVisible, param]);
 
   return { ref };
 }

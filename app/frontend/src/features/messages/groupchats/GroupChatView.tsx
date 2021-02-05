@@ -120,6 +120,10 @@ export default function GroupChatView() {
 
   const handleBack = () => history.goBack();
 
+  /*const { ref: loadMoreRef } = useOnVisibleEffect(data?.nextMessageId, () => {
+    console.log(`More from: ${data?.nextMessageId}`);
+  });*/
+
   return (
     <Box>
       {!groupChatId ? (

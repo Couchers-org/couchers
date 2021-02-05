@@ -12,8 +12,10 @@ from couchers.models import Conversation, GroupChat, GroupChatRole, GroupChatSub
 from couchers.utils import Timestamp_from_datetime
 from pb import api_pb2, conversations_pb2, conversations_pb2_grpc
 
-# TODO: custom pagination length
+# TODO: Still needs custom pagination: GetUpdates
 PAGINATION_LENGTH = 20
+DEFAULT_LARGE_PAGINATION_LENGTH = 20
+DEFAULT_SMALL_PAGINATION_LENGTH = 10
 
 
 def _message_to_pb(message: Message):
@@ -113,6 +115,8 @@ def _add_message_to_subscription(session, subscription, **kwargs):
 class Conversations(conversations_pb2_grpc.ConversationsServicer):
     def ListGroupChats(self, request, context):
         with session_scope() as session:
+            page_size = request.number if request.number != 0 else DEFAULT_SMALL_PAGINATION_LENGTH
+
             # select group chats where you have a subscription, and for each of
             # these, the latest message from them
 
@@ -138,7 +142,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 .join(GroupChat, GroupChat.conversation_id == t.c.group_chat_id)
                 .filter(or_(t.c.message_id <= request.last_message_id, request.last_message_id == 0))
                 .order_by(t.c.message_id.desc())
-                .limit(PAGINATION_LENGTH + 1)
+                .limit(page_size + 1)
                 .all()
             )
 
@@ -156,12 +160,12 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                         last_seen_message_id=result.GroupChatSubscription.last_seen_message_id,
                         latest_message=_message_to_pb(result.Message) if result.Message else None,
                     )
-                    for result in results[:PAGINATION_LENGTH]
+                    for result in results[:page_size]
                 ],
-                next_message_id=min(map(lambda g: g.Message.id if g.Message else 1, results[:PAGINATION_LENGTH])) - 1
+                next_message_id=min(map(lambda g: g.Message.id if g.Message else 1, results[:page_size])) - 1
                 if len(results) > 0
                 else 0,  # TODO
-                no_more=len(results) <= PAGINATION_LENGTH,
+                no_more=len(results) <= page_size,
             )
 
     def GetGroupChat(self, request, context):
@@ -268,6 +272,8 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
     def GetGroupChatMessages(self, request, context):
         with session_scope() as session:
+            page_size = request.number if request.number != 0 else DEFAULT_LARGE_PAGINATION_LENGTH
+
             results = (
                 session.query(Message)
                 .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
@@ -278,14 +284,14 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 .filter(or_(Message.id < request.last_message_id, request.last_message_id == 0))
                 .filter(or_(Message.id > GroupChatSubscription.last_seen_message_id, request.only_unseen == 0))
                 .order_by(Message.id.desc())
-                .limit(PAGINATION_LENGTH + 1)
+                .limit(page_size + 1)
                 .all()
             )
 
             return conversations_pb2.GetGroupChatMessagesRes(
-                messages=[_message_to_pb(message) for message in results[:PAGINATION_LENGTH]],
+                messages=[_message_to_pb(message) for message in results[:page_size]],
                 next_message_id=results[-1].id if len(results) > 0 else 0,  # TODO
-                no_more=len(results) <= PAGINATION_LENGTH,
+                no_more=len(results) <= page_size,
             )
 
     def MarkLastSeenGroupChat(self, request, context):
@@ -310,6 +316,8 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
     def SearchMessages(self, request, context):
         with session_scope() as session:
+            page_size = request.number if request.number != 0 else DEFAULT_LARGE_PAGINATION_LENGTH
+
             results = (
                 session.query(Message)
                 .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
@@ -319,7 +327,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 .filter(or_(Message.id < request.last_message_id, request.last_message_id == 0))
                 .filter(Message.text.ilike(f"%{request.query}%"))
                 .order_by(Message.id.desc())
-                .limit(PAGINATION_LENGTH + 1)
+                .limit(page_size + 1)
                 .all()
             )
 
@@ -329,10 +337,10 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                         group_chat_id=message.conversation_id,
                         message=_message_to_pb(message),
                     )
-                    for message in results[:PAGINATION_LENGTH]
+                    for message in results[:page_size]
                 ],
                 next_message_id=results[-1].id if len(results) > 0 else 0,  # TODO
-                no_more=len(results) <= PAGINATION_LENGTH,
+                no_more=len(results) <= page_size,
             )
 
     def CreateGroupChat(self, request, context):
