@@ -200,7 +200,7 @@ def add_dummy_communities():
 
                 main_page = Page(
                     creator_user=admins[0],
-                    owner_user=admins[0],
+                    owner_cluster=cluster,
                     type=PageType.main_page,
                     main_page_for_cluster=cluster,
                 )
@@ -255,7 +255,7 @@ def add_dummy_communities():
 
                 main_page = Page(
                     creator_user=admins[0],
-                    owner_user=admins[0],
+                    owner_cluster=cluster,
                     type=PageType.main_page,
                     main_page_for_cluster=cluster,
                 )
