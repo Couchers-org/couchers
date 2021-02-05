@@ -5,7 +5,7 @@ files = files.map(d => d.substr(0, d.lastIndexOf('.')))
 
 export default {
   components: true,
-  mode: 'universal',
+  target: 'static',
   /*
   ** Headers of the page
   */
