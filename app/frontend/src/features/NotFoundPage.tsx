@@ -1,8 +1,9 @@
 import { Box, makeStyles } from "@material-ui/core";
 import React from "react";
 import { Link } from "react-router-dom";
+
 import TextBody from "../components/TextBody";
-import Graphic from "../resources/404graphic.png"
+import Graphic from "../resources/404graphic.png";
 
 const useStyles = makeStyles({
   root: {
@@ -16,7 +17,7 @@ const useStyles = makeStyles({
     height: "75%",
     width: "75%",
   },
-})
+});
 
 export default function NotFoundPage() {
   const classes = useStyles();
