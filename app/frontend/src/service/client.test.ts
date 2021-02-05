@@ -1,4 +1,5 @@
 import { StatusCode } from "grpc-web";
+
 import { AuthInterceptor, setUnauthenticatedErrorHandler } from "./client";
 
 describe("AuthInterceptor", () => {

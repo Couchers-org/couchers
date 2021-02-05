@@ -2,9 +2,9 @@
 import { Meta, Story } from "@storybook/react/types-6-0";
 import * as React from "react";
 
-import Avatar, { AvatarProps } from ".";
 // @ts-ignore
 import imageFile from "../../stories/assets/funnycat.jpg";
+import Avatar, { AvatarProps } from ".";
 
 export default {
   title: "Components/Avatar",

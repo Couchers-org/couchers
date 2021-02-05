@@ -13,7 +13,6 @@ pytest
 pytest-cov
 pytest-pythonpath
 python-dateutil
-python-slugify
 pytz
 pyyaml
 requests

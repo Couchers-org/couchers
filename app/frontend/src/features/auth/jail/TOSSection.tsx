@@ -1,5 +1,6 @@
 import { Box } from "@material-ui/core";
 import React, { useState } from "react";
+
 import Button from "../../../components/Button";
 import TOS from "../../../components/TOS";
 import { service } from "../../../service";

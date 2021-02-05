@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { useQueryClient } from "react-query";
+
 import { service, SignupArguments } from "../../service";
 
 export function usePersistedState<T>(
@@ -131,7 +132,8 @@ export default function useAuthStore() {
         setError(null);
         setLoading(true);
         try {
-          await service.user.logout();          setUserId(null);
+          await service.user.logout();
+          setUserId(null);
           setAuthenticated(false);
         } catch (e) {
           setError(e.message);

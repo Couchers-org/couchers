@@ -1,8 +1,9 @@
 import { Meta, Story } from "@storybook/react/types-6-0";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import React, { useRef } from "react";
-import { mockedService } from "../../../stories/__mocks__/service";
+
 import { FriendRequest } from "../../../pb/api_pb";
+import { mockedService } from "../../../stories/__mocks__/service";
 import FriendRequestsReceived from "./FriendRequestsReceived";
 
 export default {

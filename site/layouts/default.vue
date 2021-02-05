@@ -84,18 +84,22 @@
         <div class="navbar-end">
           <div class="navbar-item">
             <div class="buttons">
-              <a class="button is-light" href = "https://community.couchers.org/">
+              <a class="button is-light" href="https://community.couchers.org/">
                 <strong>Community Forum</strong>
               </a>
             </div>
           </div>
           <div class="navbar-item">
             <div class="buttons">
-              <a class="button is-light" href = "/signup">
-                <strong>Join the Team!</strong>
+              <a class="button is-light" href="/signup">
+                <strong>Sign up!</strong>
               </a>
             </div>
           </div>
+
+          <a class="navbar-item" href="https://github.com/couchers-org/couchers">
+            <span class="icon is-large"><i class="mdi mdi-github mdi-36px" aria-label="Couchers.org GitHub"></i></span>
+          </a>
         </div>
       </div>
     </nav>
@@ -124,7 +128,7 @@ export default {
     }
   },
   head () {
-    const description = "The new platform for couch-surfers. Non-profit. Community-focussed. Well built."
+    const description = "The new platform for couch-surfers. Non-profit. Community-focused. Well built."
     return {
       title: "Home",
       titleTemplate: '%s | Couchers.org',
@@ -158,6 +162,8 @@ export default {
 </script>
 
 <style>
+@import url("node_modules/@mdi/font/css/materialdesignicons.css");
+
 .brand {
   font-weight: 700;
 }

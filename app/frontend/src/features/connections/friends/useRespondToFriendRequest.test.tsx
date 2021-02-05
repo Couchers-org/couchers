@@ -1,5 +1,6 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+
 import { ListFriendRequestsRes } from "../../../pb/api_pb";
 import { service } from "../../../service";
 import { getHookWrapperWithClient } from "../../../test/hookWrapper";

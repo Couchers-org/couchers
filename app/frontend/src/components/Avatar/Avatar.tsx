@@ -3,6 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
 import classNames from "classnames";
 import React from "react";
+
 import { User } from "../../pb/api_pb";
 
 const useStyles = makeStyles({

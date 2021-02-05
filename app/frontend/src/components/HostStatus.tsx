@@ -1,10 +1,11 @@
 import { Box, makeStyles } from "@material-ui/core";
-import React from "react";
-import TextBody from "./TextBody";
-import { CouchIcon } from "./Icons";
-import { User } from "../pb/api_pb";
-import { hostingStatusLabels } from "../features/profile/constants";
 import classNames from "classnames";
+import React from "react";
+
+import { hostingStatusLabels } from "../features/profile/constants";
+import { User } from "../pb/api_pb";
+import { CouchIcon } from "./Icons";
+import TextBody from "./TextBody";
 
 const useStyles = makeStyles((theme) => ({
   root: {

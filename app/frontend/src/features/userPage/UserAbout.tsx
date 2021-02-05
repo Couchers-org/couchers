@@ -1,8 +1,9 @@
-import React from "react";
-import { User } from "../../pb/api_pb";
 import { makeStyles, Typography } from "@material-ui/core";
-import TextBody from "../../components/TextBody";
+import React from "react";
+
 import Markdown from "../../components/Markdown";
+import TextBody from "../../components/TextBody";
+import { User } from "../../pb/api_pb";
 
 const useStyles = makeStyles({
   subheading: {

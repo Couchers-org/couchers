@@ -3,8 +3,8 @@ import {
   Alert as MuiAlert,
   AlertProps as MuiAlertProps,
 } from "@material-ui/lab/";
-import React from "react";
 import classNames from "classnames";
+import React from "react";
 
 const useStyles = makeStyles((theme) => ({
   root: {

@@ -41,6 +41,17 @@
       "prettier/@typescript-eslint",
       "prettier/react"
     ],
+    "plugins": [
+      "eslint-plugin-simple-import-sort"
+    ],
+    "rules": {
+      "simple-import-sort/imports": "error",
+      "simple-import-sort/exports": "error",
+      "sort-imports": "off",
+      "import/first": "error",
+      "import/newline-after-import": "error",
+      "import/no-duplicates": "error"
+    },
     "overrides": [
       {
         "files": [
@@ -97,6 +108,7 @@
     "@types/webpack-env": "^1.15.3",
     "coveralls": "^3.1.0",
     "eslint-config-prettier": "^6.12.0",
+    "eslint-plugin-simple-import-sort": "^7.0.0",
     "jest-junit": "^12.0.0",
     "lint-staged": "^10.5.1",
     "prettier": "^2.1.2",

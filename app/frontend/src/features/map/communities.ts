@@ -3,7 +3,7 @@ import { Map as MaplibreMap } from "maplibre-gl";
 const URL = process.env.REACT_APP_API_BASE_URL;
 
 export const sources = {
-  "communities": {
+  communities: {
     type: "geojson",
     data: URL + "/geojson/communities",
   },
@@ -21,9 +21,7 @@ export const layers = {
   },
 };
 
-export const addCommunitiesToMap = (
-  map: MaplibreMap
-) => {
+export const addCommunitiesToMap = (map: MaplibreMap) => {
   map.addSource("communities", sources["communities"] as any);
   map.addLayer(layers["communitiesLayer"] as any);
 };

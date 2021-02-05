@@ -1,14 +1,13 @@
-import * as React from "react";
 import { makeStyles } from "@material-ui/core";
-import PageTitle from "../../components/PageTitle";
-import Map from "../../components/Map";
-import { placeRoute, userRoute } from "../../AppRoutes";
 import { LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { useHistory, useLocation } from "react-router-dom";
 
+import { placeRoute, userRoute } from "../../AppRoutes";
+import Map from "../../components/Map";
+import PageTitle from "../../components/PageTitle";
+import { addClusteredUsersToMap } from "./clusteredUsers";
 import { addCommunitiesToMap } from "./communities";
 import { addPagesToMap } from "./pages";
-import { addClusteredUsersToMap } from "./clusteredUsers";
 
 const useStyles = makeStyles((theme) => ({
   root: {

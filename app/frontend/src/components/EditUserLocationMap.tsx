@@ -1,11 +1,17 @@
 import { Box, BoxProps, makeStyles, useTheme } from "@material-ui/core";
-import Map from "./Map";
-import { GeoJSONSource, LngLat, MapMouseEvent, MapTouchEvent } from "maplibre-gl";
-import React, { useRef, useState } from "react";
-import { User } from "../pb/api_pb";
-import { userLocationMaxRadius, userLocationMinRadius } from "../constants";
-import Alert from "./Alert";
 import classNames from "classnames";
+import {
+  GeoJSONSource,
+  LngLat,
+  MapMouseEvent,
+  MapTouchEvent,
+} from "maplibre-gl";
+import React, { useRef, useState } from "react";
+
+import { userLocationMaxRadius, userLocationMinRadius } from "../constants";
+import { User } from "../pb/api_pb";
+import Alert from "./Alert";
+import Map from "./Map";
 import MapSearch from "./MapSearch";
 
 const handleRadius = 10;

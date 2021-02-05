@@ -1,9 +1,10 @@
 import { Meta, Story } from "@storybook/react";
 import * as React from "react";
-import { Message } from "../../../pb/conversations_pb";
-import MessageList, { MessageListProps } from "./MessageList";
-import AuthProvider from "../../auth/AuthProvider";
 import { QueryClient, QueryClientProvider } from "react-query";
+
+import { Message } from "../../../pb/conversations_pb";
+import AuthProvider from "../../auth/AuthProvider";
+import MessageList, { MessageListProps } from "./MessageList";
 
 const message1: Message.AsObject = {
   messageId: 1,

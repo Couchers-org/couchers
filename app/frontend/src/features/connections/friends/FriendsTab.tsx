@@ -1,5 +1,6 @@
 import { Grid } from "@material-ui/core";
 import React from "react";
+
 import FriendList from "./FriendList";
 import FriendRequestsReceived from "./FriendRequestsReceived";
 import FriendRequestsSent from "./FriendRequestsSent";

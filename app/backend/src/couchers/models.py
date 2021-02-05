@@ -8,7 +8,7 @@ from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import MetaData, Sequence, String, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import backref, foreign, relationship
+from sqlalchemy.orm import backref, column_property, foreign, relationship
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func, text
 
@@ -674,7 +674,7 @@ class Node(Base):
 
     parent_node = relationship("Node", backref="child_nodes", remote_side="Node.id")
 
-    nearby_users = relationship(
+    contained_users = relationship(
         "User",
         lazy="dynamic",
         primaryjoin="func.ST_Contains(foreign(Node.geom), User.geom).as_comparison(1, 2)",
@@ -689,6 +689,13 @@ class Cluster(Base):
     """
 
     __tablename__ = "clusters"
+    __table_args__ = (
+        CheckConstraint(
+            # make sure the parent_node_id and official_cluster_for_node_id match
+            "(official_cluster_for_node_id IS NULL) OR (official_cluster_for_node_id = parent_node_id)",
+            name="official_cluster_matches_parent_node",
+        ),
+    )
 
     id = Column(BigInteger, communities_seq, primary_key=True)
     parent_node_id = Column(ForeignKey("nodes.id"), nullable=False, index=True)
@@ -698,6 +705,8 @@ class Cluster(Base):
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     official_cluster_for_node_id = Column(ForeignKey("nodes.id"), nullable=True, unique=True, index=True)
+
+    slug = column_property(func.slugify(name))
 
     official_cluster_for_node = relationship(
         "Node",
@@ -734,9 +743,6 @@ class Cluster(Base):
         primaryjoin="Cluster.id == ClusterSubscription.cluster_id",
         secondaryjoin="and_(User.id == ClusterSubscription.user_id, ClusterSubscription.role == 'admin')",
     )
-
-    # make sure the parent_node_id and official_cluster_for_node_id match
-    CheckConstraint("(official_cluster_for_node_id IS NULL) OR (official_cluster_for_node_id = parent_node_id)")
 
 
 class NodeClusterAssociation(Base):
@@ -814,6 +820,18 @@ class Page(Base):
     """
 
     __tablename__ = "pages"
+    __table_args__ = (
+        # Only one of owner_user and owner_cluster should be set
+        CheckConstraint(
+            "(owner_user_id IS NULL AND owner_cluster_id IS NOT NULL) OR (owner_user_id IS NOT NULL AND owner_cluster_id IS NULL)",
+            name="one_owner",
+        ),
+        # if the page is a main page, it must be owned by that cluster
+        CheckConstraint(
+            "(main_page_for_cluster_id IS NULL) OR (owner_cluster_id IS NOT NULL AND main_page_for_cluster_id = owner_cluster_id)",
+            name="main_page_owned_by_cluster",
+        ),
+    )
 
     id = Column(BigInteger, communities_seq, primary_key=True)
 
@@ -841,12 +859,6 @@ class Page(Base):
 
     editors = relationship("User", secondary="page_versions")
 
-    # Only one of owner_user and owner_cluster should be set
-    CheckConstraint(
-        "(owner_user_id IS NULL AND owner_cluster_id IS NOT NULL) OR (owner_user_id IS NOT NULL AND owner_cluster_id IS NULL)",
-        name="one_owner",
-    )
-
 
 class PageVersion(Base):
     """
@@ -865,6 +877,8 @@ class PageVersion(Base):
     address = Column(String, nullable=True)
     geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    slug = column_property(func.slugify(title))
 
     page = relationship("Page", backref="versions", order_by="PageVersion.id")
     editor_user = relationship("User", backref="edited_pages")
