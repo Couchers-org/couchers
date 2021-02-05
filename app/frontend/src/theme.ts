@@ -1,15 +1,14 @@
-import { createMuiTheme, makeStyles, ThemeOptions } from "@material-ui/core";
+import { createMuiTheme, ThemeOptions } from "@material-ui/core";
 import type {} from "@material-ui/lab/themeAugmentation";
+
+declare module "@material-ui/core/styles/createTypography" {
+  interface TypographyOptions {
+    h1Large?: TypographyStyleOptions;
+  }
+}
 
 const spacing = (factor: number) => `${0.5 * factor}rem`;
 const borderRadius = 12;
-
-const useGlobalStyles = makeStyles((theme) => ({
-  h1Large: {
-    fontSize: "1.5rem", //24px
-  },
-}));
-export { useGlobalStyles };
 
 const themeOptions: ThemeOptions = {
   palette: {
@@ -37,6 +36,9 @@ const themeOptions: ThemeOptions = {
       fontSize: "1.25rem", //20px
       fontWeight: "bold",
       marginTop: spacing(2),
+    },
+    h1Large: {
+      fontSize: "1.5rem", //24px
     },
     h2: {
       fontSize: "1rem", //16px

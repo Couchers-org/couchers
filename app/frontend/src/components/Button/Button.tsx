@@ -14,6 +14,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     borderRadius: `${theme.shape.borderRadius * 2}px`,
     boxShadow: "0px 0px 5px rgba(0, 0, 0, 0.25)",
+    minHeight: "2.3rem",
   },
   loading: {
     height: theme.typography.button.fontSize,
@@ -60,13 +61,11 @@ export default function Button<D extends ElementType = "button", P = {}>({
       variant="contained"
       color="primary"
     >
-      &nbsp;
       {loading || waiting ? (
         <CircularProgress size={theme.typography.button.fontSize} />
       ) : (
         children
       )}
-      &nbsp;
     </MuiButton>
   );
 }
