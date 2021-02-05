@@ -15,6 +15,7 @@ import { ConnectionsPage } from "./features/connections";
 import Home from "./features/Home";
 import MapPage from "./features/map/MapPage";
 import Messages from "./features/messages/index";
+import NotFoundPage from "./features/NotFoundPage";
 import {
   EditHostingPreferencePage,
   EditProfilePage,
@@ -36,6 +37,7 @@ export const requestsRoute = "/requests";
 export const mapRoute = "/map";
 export const logoutRoute = "/logout";
 export const connectionsRoute = "/connections";
+export const notFoundRoute = "/notfound";
 
 export const userRoute = "/user";
 export const searchRoute = "/search";
@@ -114,6 +116,10 @@ export default function AppRoutes() {
       <PrivateRoute exact path="/">
         <Home />
       </PrivateRoute>
+      <Route exact path={notFoundRoute}>
+        <NotFoundPage />
+      </Route>
+      <Redirect from="*" to={notFoundRoute} />
     </Switch>
   );
 }
