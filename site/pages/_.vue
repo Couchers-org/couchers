@@ -33,14 +33,15 @@ export default {
     if (filename.substring(filename.length - 1) === "/") {
       filename = filename.substring(0, filename.length - 1)
     }
-    let md
+    let md, split_items
     try {
       md = await import(`@/markdown/${filename}.md`)
+      split_items = filename.split("/")
     } catch (err) {
       md = await import(`@/markdown/error.md`)
+      split_items = ["error"]
     }
 
-    const split_items = filename.split("/")
     let items = []
     for (let i = 0; i < split_items.length; i++) {
       const item = split_items[i]
