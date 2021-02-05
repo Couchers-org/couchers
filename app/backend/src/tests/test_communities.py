@@ -13,7 +13,7 @@ from couchers.models import (
     UserSession,
 )
 from couchers.tasks import enforce_community_memberships
-from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_aware_datetime, to_multi
+from couchers.utils import create_coordinate, create_polygon_lat_lng, to_multi
 from pb import communities_pb2, pages_pb2
 from tests.test_fixtures import communities_session, db_impl, generate_user, pages_session, testconfig
 

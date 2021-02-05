@@ -1,12 +1,9 @@
-from datetime import timedelta
-
 import pytest
 
-from couchers import errors
 from couchers.db import session_scope
 from pb import groups_pb2, pages_pb2
 from tests.test_communities import get_community_id, get_group_id, get_user_id_and_token, testing_communities
-from tests.test_fixtures import generate_user, groups_session, testconfig
+from tests.test_fixtures import db, groups_session, testconfig
 
 
 @pytest.fixture(autouse=True)

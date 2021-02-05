@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import yaml
-from jinja2 import Environment, FileSystemLoader, Template
+from jinja2 import Environment, FileSystemLoader
 from markdown2 import markdown
 
 from couchers import config

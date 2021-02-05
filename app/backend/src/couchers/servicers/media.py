@@ -2,13 +2,12 @@ import logging
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy.sql import func
 
 from couchers.crypto import secure_compare
 from couchers.db import session_scope
 from couchers.interceptors import ManualAuthValidatorInterceptor
 from couchers.models import InitiatedUpload
-from pb import media_pb2, media_pb2_grpc
+from pb import media_pb2_grpc
 
 logger = logging.getLogger(__name__)
 

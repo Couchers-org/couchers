@@ -1,9 +1,8 @@
-from datetime import timedelta
 from unittest.mock import patch
 
 import grpc
 import pytest
-from google.protobuf import empty_pb2, wrappers_pb2
+from google.protobuf import wrappers_pb2
 from sqlalchemy.sql import func
 
 from couchers import errors
@@ -307,7 +306,6 @@ def test_ChangeEmail_wrong_email(db, fast_passwords):
 
 def test_ChangeEmail_invalid_email(db, fast_passwords):
     password = random_hex()
-    new_email = f"{random_hex()}@couchers.org.invalid"
     user, token = generate_user(hashed_password=hash_password(password))
 
     with account_session(token) as account:
@@ -331,7 +329,6 @@ def test_ChangeEmail_invalid_email(db, fast_passwords):
 
 def test_ChangeEmail_email_in_use(db, fast_passwords):
     password = random_hex()
-    new_email = f"{random_hex()}@couchers.org.invalid"
     user, token = generate_user(hashed_password=hash_password(password))
     user2, token2 = generate_user(hashed_password=hash_password(password))
 
@@ -356,7 +353,6 @@ def test_ChangeEmail_email_in_use(db, fast_passwords):
 
 def test_ChangeEmail_no_change(db, fast_passwords):
     password = random_hex()
-    new_email = f"{random_hex()}@couchers.org.invalid"
     user, token = generate_user(hashed_password=hash_password(password))
 
     with account_session(token) as account:
