@@ -37,7 +37,7 @@ export default {
     try {
       md = await import(`@/markdown/${filename}.md`)
     } catch (err) {
-      error({ statusCode: 404, message: 'Page not found' })
+      md = await import(`@/markdown/error.md`)
     }
 
     const split_items = filename.split("/")
