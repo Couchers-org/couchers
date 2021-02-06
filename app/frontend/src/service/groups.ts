@@ -1,6 +1,7 @@
 import {
   GetGroupReq,
   ListAdminsReq,
+  ListDiscussionsReq,
   ListGuidesReq,
   ListMembersReq,
   ListPlacesReq,
@@ -51,5 +52,15 @@ export async function listGuides(groupId: number, pageToken?: string) {
     req.setPageToken(pageToken);
   }
   const response = await client.groups.listGuides(req);
+  return response.toObject();
+}
+
+export async function listDiscussions(groupId: number, pageToken?: string) {
+  const req = new ListDiscussionsReq();
+  req.setGroupId(groupId);
+  if (pageToken) {
+    req.setPageToken(pageToken);
+  }
+  const response = await client.groups.listDiscussions(req);
   return response.toObject();
 }

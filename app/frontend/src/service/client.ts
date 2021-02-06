@@ -5,6 +5,7 @@ import { AuthPromiseClient } from "../pb/auth_grpc_web_pb";
 import { BugsPromiseClient } from "../pb/bugs_grpc_web_pb";
 import { CommunitiesPromiseClient } from "../pb/communities_grpc_web_pb";
 import { ConversationsPromiseClient } from "../pb/conversations_grpc_web_pb";
+import { DiscussionsPromiseClient } from "../pb/discussions_grpc_web_pb";
 import { GroupsPromiseClient } from "../pb/groups_grpc_web_pb";
 import { JailPromiseClient } from "../pb/jail_grpc_web_pb";
 import { PagesPromiseClient } from "../pb/pages_grpc_web_pb";
@@ -50,6 +51,7 @@ const apis = {
   bugs: new BugsPromiseClient(URL, null, opts),
   communities: new CommunitiesPromiseClient(URL, null, opts),
   conversations: new ConversationsPromiseClient(URL, null, opts),
+  discussions: new DiscussionsPromiseClient(URL, null, opts),
   groups: new GroupsPromiseClient(URL, null, opts),
   jail: new JailPromiseClient(URL, null, opts),
   pages: new PagesPromiseClient(URL, null, opts),
@@ -68,6 +70,7 @@ if (process.env.NODE_ENV === "development") {
     apis.bugs,
     apis.communities,
     apis.conversations,
+    apis.discussions,
     apis.groups,
     apis.jail,
     apis.pages,

@@ -4,6 +4,7 @@ import { Link, useHistory, useParams } from "react-router-dom";
 
 import {
   communityRoute,
+  discussionRoute,
   groupRoute,
   guideRoute,
   placeRoute,
@@ -15,6 +16,7 @@ import Markdown from "../../components/Markdown";
 import PageTitle from "../../components/PageTitle";
 import TextBody from "../../components/TextBody";
 import { Community } from "../../pb/communities_pb";
+import { Discussion } from "../../pb/discussions_pb";
 import { Group } from "../../pb/groups_pb";
 import { Page } from "../../pb/pages_pb";
 import { service } from "../../service";
@@ -47,6 +49,12 @@ export default function CommunityPage() {
 
   const [guidesLoading, setGuidesLoading] = useState(false);
   const [guides, setGuides] = useState<Array<Page.AsObject> | null>(null);
+
+  const [discussionsLoading, setDiscussionsLoading] = useState(false);
+  const [
+    discussions,
+    setDiscussions,
+  ] = useState<Array<Discussion.AsObject> | null>(null);
 
   const history = useHistory();
 
@@ -153,6 +161,18 @@ export default function CommunityPage() {
         setError(e.message);
       }
       setGuidesLoading(false);
+
+      setDiscussionsLoading(true);
+      try {
+        const res = await service.communities.listDiscussions(
+          Number(communityId)
+        );
+        setDiscussions(res.discussionsList.length ? res.discussionsList : null);
+      } catch (e) {
+        console.error(e);
+        setError(e.message);
+      }
+      setDiscussionsLoading(false);
     })();
   }, [communityId, communitySlug, history]);
 
@@ -311,6 +331,25 @@ export default function CommunityPage() {
             })
           ) : (
             <p>This community contains no guides.</p>
+          )}
+          <h1>Discussions</h1>
+          {discussionsLoading ? (
+            <CircularProgress />
+          ) : discussions ? (
+            discussions.map((discussion) => {
+              return (
+                <>
+                  <Link
+                    to={`${discussionRoute}/${discussion.discussionId}/${discussion.slug}`}
+                  >
+                    {discussion.title}
+                  </Link>
+                  <br />
+                </>
+              );
+            })
+          ) : (
+            <p>This community contains no discussions.</p>
           )}
           <CommentBox threadId={community.threadId} />
         </>

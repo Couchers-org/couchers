@@ -3,6 +3,7 @@ import * as auth from "./auth";
 import * as bugs from "./bugs";
 import * as communities from "./communities";
 import * as conversations from "./conversations";
+import * as discussions from "./discussions";
 import * as groups from "./groups";
 import * as jail from "./jail";
 import * as pages from "./pages";
@@ -17,6 +18,7 @@ export const service = {
   bugs,
   communities,
   conversations,
+  discussions,
   groups,
   jail,
   pages,
