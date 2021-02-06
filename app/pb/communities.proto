@@ -4,6 +4,7 @@ package org.couchers.api.communities;
 
 import "google/protobuf/timestamp.proto";
 
+import "pb/discussions.proto";
 import "pb/groups.proto";
 import "pb/pages.proto";
 
@@ -183,10 +184,6 @@ message ListEventsRes {
   string next_page_token = 2;
 }
 
-message Discussion {
-  // TODO
-}
-
 message ListDiscussionsReq {
   int64 community_id = 1;
 
@@ -195,7 +192,7 @@ message ListDiscussionsReq {
 }
 
 message ListDiscussionsRes {
-  repeated Discussion discussions = 1;
+  repeated org.couchers.api.discussions.Discussion discussions = 1;
 
   string next_page_token = 2;
 }

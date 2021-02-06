@@ -985,13 +985,19 @@ class Discussion(Base):
     id = Column(BigInteger, communities_seq, primary_key=True)
 
     title = Column(String, nullable=False)
-    is_private = Column(Boolean, nullable=False)
+    content = Column(String, nullable=False)
     thread_id = Column(ForeignKey("threads.id"), nullable=False, unique=True)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    creator_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    owner_cluster_id = Column(ForeignKey("clusters.id"), nullable=False, index=True)
 
     thread = relationship("Thread", backref="discussion", uselist=False)
 
     subscribers = relationship("User", backref="discussions", secondary="discussion_subscriptions")
+
+    creator_user = relationship("User", backref="created_discussions", foreign_keys="Discussion.creator_user_id")
+    owner_cluster = relationship("Cluster", backref=backref("owned_discussions", lazy="dynamic"), uselist=False)
 
 
 class DiscussionSubscription(Base):

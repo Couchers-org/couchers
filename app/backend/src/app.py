@@ -13,6 +13,7 @@ from couchers.servicers.auth import Auth
 from couchers.servicers.bugs import Bugs
 from couchers.servicers.communities import Communities
 from couchers.servicers.conversations import Conversations
+from couchers.servicers.discussions import Discussions
 from couchers.servicers.gis import GIS
 from couchers.servicers.groups import Groups
 from couchers.servicers.jail import Jail
@@ -29,6 +30,7 @@ from pb import (
     bugs_pb2_grpc,
     communities_pb2_grpc,
     conversations_pb2_grpc,
+    discussions_pb2_grpc,
     gis_pb2_grpc,
     groups_pb2_grpc,
     jail_pb2_grpc,
@@ -108,9 +110,10 @@ account_pb2_grpc.add_AccountServicer_to_server(Account(), server)
 api_pb2_grpc.add_APIServicer_to_server(servicer, server)
 communities_pb2_grpc.add_CommunitiesServicer_to_server(Communities(), server)
 conversations_pb2_grpc.add_ConversationsServicer_to_server(Conversations(), server)
-pages_pb2_grpc.add_PagesServicer_to_server(Pages(), server)
+discussions_pb2_grpc.add_DiscussionsServicer_to_server(Discussions(), server)
 gis_pb2_grpc.add_GISServicer_to_server(GIS(), server)
 groups_pb2_grpc.add_GroupsServicer_to_server(Groups(), server)
+pages_pb2_grpc.add_PagesServicer_to_server(Pages(), server)
 requests_pb2_grpc.add_RequestsServicer_to_server(Requests(), server)
 sso_pb2_grpc.add_SSOServicer_to_server(SSO(), server)
 threads_pb2_grpc.add_ThreadsServicer_to_server(Threads(), server)
