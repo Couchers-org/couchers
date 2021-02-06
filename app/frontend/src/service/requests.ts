@@ -10,19 +10,27 @@ import {
 } from "../pb/requests_pb";
 import client from "./client";
 
-export async function listHostRequests(
-  type: "all" | "hosting" | "surfing",
-  onlyActive: boolean = false
-) {
+export async function listHostRequests({
+  lastRequestId = 0,
+  count = 10,
+  type = "all",
+  onlyActive = false,
+}: {
+  lastRequestId?: number;
+  count?: number;
+  type?: "all" | "hosting" | "surfing";
+  onlyActive?: boolean;
+}) {
   const req = new ListHostRequestsReq();
   req.setOnlyActive(onlyActive);
   req.setOnlyReceived(type === "hosting");
   req.setOnlySent(type === "surfing");
+  req.setLastRequestId(lastRequestId);
+  req.setNumber(count);
 
   const response = await client.requests.listHostRequests(req);
-  const hostRequests = response.getHostRequestsList();
 
-  return hostRequests.map((hostRequest) => hostRequest.toObject());
+  return response.toObject();
 }
 
 export async function getHostRequest(id: number) {

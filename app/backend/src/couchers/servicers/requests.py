@@ -179,7 +179,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 .join(HostRequest, HostRequest.conversation_id == Message.conversation_id)
                 .join(Conversation, Conversation.id == HostRequest.conversation_id)
                 .filter(message_2.id == None)
-                .filter(or_(Message.id < request.last_message_id, request.last_message_id == 0))
+                .filter(or_(HostRequest.conversation_id < request.last_request_id, request.last_request_id == 0))
             )
 
             if request.only_sent:
@@ -227,15 +227,15 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 )
                 for result in results[:pagination]
             ]
-            next_request_id = (
-                min(map(lambda g: g.HostRequest.conversation_id if g.HostRequest else 1, results)) - 1
+            last_request_id = (
+                min(map(lambda g: g.HostRequest.conversation_id if g.HostRequest else 1, results[:pagination]))
                 if len(results) > 0
                 else 0
             )  # TODO
             no_more = len(results) <= pagination
 
             return requests_pb2.ListHostRequestsRes(
-                next_request_id=next_request_id, no_more=no_more, host_requests=host_requests
+                last_request_id=last_request_id, no_more=no_more, host_requests=host_requests
             )
 
     def RespondHostRequest(self, request, context):
@@ -360,10 +360,10 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
             no_more = len(messages) <= pagination
 
-            next_message_id = min(map(lambda m: m.id if m else 1, messages)) - 1 if len(messages) > 0 else 0  # TODO
+            last_message_id = min(map(lambda m: m.id if m else 1, messages[:pagination])) if len(messages) > 0 else 0
 
             return requests_pb2.GetHostRequestMessagesRes(
-                next_message_id=next_message_id,
+                last_message_id=last_message_id,
                 no_more=no_more,
                 messages=[message_to_pb(message) for message in messages[:pagination]],
             )
@@ -443,7 +443,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
             no_more = len(query) <= pagination
 
-            next_message_id = min(map(lambda m: m.Message.id if m else 1, query)) - 1 if len(query) > 0 else 0  # TODO
+            last_message_id = min(map(lambda m: m.Message.id if m else 1, query[:pagination])) if len(query) > 0 else 0  # TODO
 
             return requests_pb2.GetHostRequestUpdatesRes(
                 no_more=no_more,

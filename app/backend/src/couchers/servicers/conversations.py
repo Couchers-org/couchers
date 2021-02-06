@@ -140,7 +140,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 .join(Message, Message.id == t.c.message_id)
                 .join(GroupChatSubscription, GroupChatSubscription.id == t.c.group_chat_subscriptions_id)
                 .join(GroupChat, GroupChat.conversation_id == t.c.group_chat_id)
-                .filter(or_(t.c.message_id <= request.last_message_id, request.last_message_id == 0))
+                .filter(or_(t.c.message_id < request.last_message_id, request.last_message_id == 0))
                 .order_by(t.c.message_id.desc())
                 .limit(page_size + 1)
                 .all()
@@ -162,7 +162,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                     )
                     for result in results[:page_size]
                 ],
-                next_message_id=min(map(lambda g: g.Message.id if g.Message else 1, results[:page_size])) - 1
+                last_message_id=min(map(lambda g: g.Message.id if g.Message else 1, results[:page_size]))
                 if len(results) > 0
                 else 0,  # TODO
                 no_more=len(results) <= page_size,
@@ -290,7 +290,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
             return conversations_pb2.GetGroupChatMessagesRes(
                 messages=[_message_to_pb(message) for message in results[:page_size]],
-                next_message_id=results[-1].id if len(results) > 0 else 0,  # TODO
+                last_message_id=results[-2].id if len(results) > 1 else 0,  # TODO
                 no_more=len(results) <= page_size,
             )
 
@@ -339,7 +339,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                     )
                     for message in results[:page_size]
                 ],
-                next_message_id=results[-1].id if len(results) > 0 else 0,  # TODO
+                last_message_id=results[-2].id if len(results) > 1 else 0,
                 no_more=len(results) <= page_size,
             )
 
