@@ -12,8 +12,8 @@ from pb import discussions_pb2, discussions_pb2_grpc
 
 def discussion_to_pb(discussion: Discussion, user_id):
     return discussions_pb2.Discussion(
-        discussions_id=discussion.id,
-        slug=current_version.slug,
+        discussion_id=discussion.id,
+        slug=discussion.slug,
         created=Timestamp_from_datetime(discussion.created),
         creator_user_id=discussion.creator_user_id,
         owner_group_id=discussion.owner_cluster.id
@@ -22,8 +22,8 @@ def discussion_to_pb(discussion: Discussion, user_id):
         owner_community_id=discussion.owner_cluster.official_cluster_for_node_id
         if discussion.owner_cluster.official_cluster_for_node_id is not None
         else None,
-        title=current_version.title,
-        content=current_version.content,
+        title=discussion.title,
+        content=discussion.content,
         thread_id=pack_thread_id(discussion.thread_id, 0),
     )
 
@@ -37,24 +37,24 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
         if not request.owner_community_id and not request.owner_group_id:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.GROUP_OR_COMMUNITY_NOT_FOUND)
 
-        if request.WhichOneof("owner") == "owner_group_id":
-            cluster = (
-                session.query(Cluster)
-                .filter(Cluster.official_cluster_for_node_id == None)
-                .filter(Cluster.id == request.owner_group_id)
-                .one_or_none()
-            )
-        elif request.WhichOneof("owner") == "owner_community_id":
-            cluster = (
-                session.query(Cluster)
-                .filter(Cluster.official_cluster_for_node_id == request.owner_community_id)
-                .one_or_none()
-            )
-
-        if not cluster:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_OR_COMMUNITY_NOT_FOUND)
-
         with session_scope() as session:
+            if request.WhichOneof("owner") == "owner_group_id":
+                cluster = (
+                    session.query(Cluster)
+                    .filter(Cluster.official_cluster_for_node_id == None)
+                    .filter(Cluster.id == request.owner_group_id)
+                    .one_or_none()
+                )
+            elif request.WhichOneof("owner") == "owner_community_id":
+                cluster = (
+                    session.query(Cluster)
+                    .filter(Cluster.official_cluster_for_node_id == request.owner_community_id)
+                    .one_or_none()
+                )
+
+            if not cluster:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_OR_COMMUNITY_NOT_FOUND)
+
             discussion = Discussion(
                 title=request.title,
                 content=request.content,

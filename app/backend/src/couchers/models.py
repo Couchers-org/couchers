@@ -992,6 +992,8 @@ class Discussion(Base):
     creator_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     owner_cluster_id = Column(ForeignKey("clusters.id"), nullable=False, index=True)
 
+    slug = column_property(func.slugify(title))
+
     thread = relationship("Thread", backref="discussion", uselist=False)
 
     subscribers = relationship("User", backref="discussions", secondary="discussion_subscriptions")
