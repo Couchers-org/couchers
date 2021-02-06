@@ -11,7 +11,7 @@ import TextBody from "../../components/TextBody";
 import { Discussion } from "../../pb/discussions_pb";
 import { service } from "../../service";
 
-export default function DiscussionDiscussion() {
+export default function DiscussionPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [discussion, setDiscussion] = useState<Discussion.AsObject | null>(
