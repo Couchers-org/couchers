@@ -704,6 +704,8 @@ class Cluster(Base):
 
     official_cluster_for_node_id = Column(ForeignKey("nodes.id"), nullable=True, unique=True, index=True)
 
+    thread_id = Column(ForeignKey("threads.id"), nullable=False, unique=True)
+
     slug = column_property(func.slugify(name))
 
     official_cluster_for_node = relationship(
@@ -741,6 +743,8 @@ class Cluster(Base):
         primaryjoin="Cluster.id == ClusterSubscription.cluster_id",
         secondaryjoin="and_(User.id == ClusterSubscription.user_id, ClusterSubscription.role == 'admin')",
     )
+
+    thread = relationship("Thread", backref="cluster", uselist=False)
 
 
 class NodeClusterAssociation(Base):
@@ -834,12 +838,13 @@ class Page(Base):
     id = Column(BigInteger, communities_seq, primary_key=True)
 
     type = Column(Enum(PageType), nullable=False)
-    thread_id = Column(ForeignKey("threads.id"), nullable=True, unique=True, index=True)
     creator_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     owner_user_id = Column(ForeignKey("users.id"), nullable=True, index=True)
     owner_cluster_id = Column(ForeignKey("clusters.id"), nullable=True, index=True)
 
     main_page_for_cluster_id = Column(ForeignKey("clusters.id"), nullable=True, unique=True, index=True)
+
+    thread_id = Column(ForeignKey("threads.id"), nullable=False, unique=True)
 
     main_page_for_cluster = relationship(
         "Cluster",
@@ -918,7 +923,7 @@ class Event(Base):
 
     title = Column(String, nullable=False)
     content = Column(String, nullable=False)
-    thread_id = Column(ForeignKey("threads.id"), nullable=False, index=True, unique=True)
+    thread_id = Column(ForeignKey("threads.id"), nullable=False, unique=True)
     geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=False)
     address = Column(String, nullable=False)
     photo = Column(String, nullable=False)
@@ -981,7 +986,7 @@ class Discussion(Base):
 
     title = Column(String, nullable=False)
     is_private = Column(Boolean, nullable=False)
-    thread_id = Column(ForeignKey("threads.id"), nullable=False, index=True, unique=True)
+    thread_id = Column(ForeignKey("threads.id"), nullable=False, unique=True)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     thread = relationship("Thread", backref="discussion", uselist=False)
@@ -1017,7 +1022,6 @@ class Thread(Base):
 
     id = Column(BigInteger, primary_key=True)
 
-    title = Column(String, nullable=False)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     deleted = Column(DateTime(timezone=True), nullable=True)
 

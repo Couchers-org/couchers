@@ -9,6 +9,7 @@ from couchers.models import (
     Page,
     PageType,
     PageVersion,
+    Thread,
     User,
     UserSession,
 )
@@ -49,6 +50,7 @@ def _create_community(session, interval_lb, interval_ub, name, admins, extra_mem
         description=f"Description for {name}",
         parent_node=node,
         official_cluster_for_node=node,
+        thread=Thread(),
     )
     session.add(cluster)
     main_page = Page(
@@ -56,6 +58,7 @@ def _create_community(session, interval_lb, interval_ub, name, admins, extra_mem
         owner_cluster=cluster,
         type=PageType.main_page,
         main_page_for_cluster=cluster,
+        thread=Thread(),
     )
     session.add(main_page)
     page_version = PageVersion(
@@ -89,6 +92,7 @@ def _create_group(session, name, admins, members, parent_community):
         name=f"{name}",
         description=f"Description for {name}",
         parent_node=parent_community,
+        thread=Thread(),
     )
     session.add(cluster)
     main_page = Page(
@@ -96,6 +100,7 @@ def _create_group(session, name, admins, members, parent_community):
         owner_cluster=cluster,
         type=PageType.main_page,
         main_page_for_cluster=cluster,
+        thread=Thread(),
     )
     session.add(main_page)
     page_version = PageVersion(

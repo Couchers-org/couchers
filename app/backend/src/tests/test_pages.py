@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Cluster, ClusterRole, ClusterSubscription, Node, Page, PageType, PageVersion
+from couchers.models import Cluster, ClusterRole, ClusterSubscription, Node, Page, PageType, PageVersion, Thread
 from couchers.utils import create_polygon_lat_lng, now, to_aware_datetime, to_multi
 from pb import pages_pb2
 from tests.test_fixtures import db, generate_user, pages_session, testconfig
@@ -403,6 +403,7 @@ def test_page_transfer(db):
             description=f"Description for testing community",
             parent_node=node,
             official_cluster_for_node=node,
+            thread=Thread(),
         )
         session.add(community_cluster)
         main_page = Page(
@@ -410,6 +411,7 @@ def test_page_transfer(db):
             owner_cluster=community_cluster,
             type=PageType.main_page,
             main_page_for_cluster=community_cluster,
+            thread=Thread(),
         )
         session.add(main_page)
         session.add(
@@ -438,6 +440,7 @@ def test_page_transfer(db):
             name=f"Testing Group",
             description=f"Description for testing group",
             parent_node=node,
+            thread=Thread(),
         )
         session.add(group_cluster)
         main_page = Page(
@@ -445,6 +448,7 @@ def test_page_transfer(db):
             owner_cluster=group_cluster,
             type=PageType.main_page,
             main_page_for_cluster=group_cluster,
+            thread=Thread(),
         )
         session.add(main_page)
         session.add(
@@ -621,6 +625,7 @@ def test_page_constraints(db):
                 # note no owner
                 creator_user_id=user.id,
                 type=PageType.guide,
+                thread=Thread(),
             )
             session.add(page)
             session.add(
@@ -641,6 +646,7 @@ def test_page_constraints(db):
             name=f"Testing Community",
             description=f"Description for testing community",
             parent_node=node,
+            thread=Thread(),
         )
         session.add(cluster)
         session.flush()
@@ -654,6 +660,7 @@ def test_page_constraints(db):
                 owner_cluster_id=cluster_id,
                 owner_user_id=user.id,
                 type=PageType.guide,
+                thread=Thread(),
             )
             session.add(page)
             session.add(
@@ -676,6 +683,7 @@ def test_page_constraints(db):
                 owner_user_id=user.id,
                 type=PageType.main_page,
                 main_page_for_cluster_id=cluster_id,
+                thread=Thread(),
             )
             session.add(main_page)
             session.add(

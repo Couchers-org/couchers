@@ -70,6 +70,7 @@ def group_to_pb(cluster: Cluster, user_id):
         admin=cluster.admins.filter(User.id == user_id).first() is not None,
         member_count=cluster.members.count(),
         admin_count=cluster.admins.count(),
+        thread_id=cluster.thread_id,
     )
 
 

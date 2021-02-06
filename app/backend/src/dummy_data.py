@@ -26,6 +26,7 @@ from couchers.models import (
     PageVersion,
     Reference,
     ReferenceType,
+    Thread,
     User,
 )
 from couchers.servicers.api import hostingstatus2sql
@@ -193,6 +194,7 @@ def add_dummy_communities():
                     description=f"Description for {name}",
                     parent_node=node,
                     official_cluster_for_node=node,
+                    thread=Thread(),
                 )
 
                 session.add(cluster)
@@ -202,6 +204,7 @@ def add_dummy_communities():
                     owner_cluster=cluster,
                     type=PageType.main_page,
                     main_page_for_cluster=cluster,
+                    thread=Thread(),
                 )
 
                 session.add(main_page)
@@ -248,6 +251,7 @@ def add_dummy_communities():
                     name=f"{name}",
                     description=f"Description for the group {name}",
                     parent_node=parent_node,
+                    thread=Thread(),
                 )
 
                 session.add(cluster)
@@ -257,6 +261,7 @@ def add_dummy_communities():
                     owner_cluster=cluster,
                     type=PageType.main_page,
                     main_page_for_cluster=cluster,
+                    thread=Thread(),
                 )
 
                 session.add(main_page)
@@ -294,6 +299,7 @@ def add_dummy_communities():
                     creator_user=creator,
                     owner_cluster=owner_cluster,
                     type=PageType.place,
+                    thread=Thread(),
                 )
 
                 session.add(page)
@@ -317,6 +323,7 @@ def add_dummy_communities():
                     creator_user=creator,
                     owner_cluster=owner_cluster,
                     type=PageType.guide,
+                    thread=Thread(),
                 )
 
                 session.add(page)

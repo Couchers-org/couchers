@@ -2,7 +2,7 @@ import grpc
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Cluster, Page, PageType, PageVersion, User
+from couchers.models import Cluster, Page, PageType, PageVersion, Thread, User
 from couchers.utils import Timestamp_from_datetime, create_coordinate, remove_duplicates_retain_order
 from pb import pages_pb2, pages_pb2_grpc
 
@@ -46,7 +46,7 @@ def page_to_pb(page: Page, user_id):
         owner_community_id=page.owner_cluster.official_cluster_for_node_id
         if page.owner_cluster and page.owner_cluster.official_cluster_for_node_id is not None
         else None,
-        thread_id=None,  # TODO
+        thread_id=page.thread_id,
         title=current_version.title,
         content=current_version.content,
         address=current_version.address,
@@ -77,6 +77,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
                 type=pagetype2sql[request.type],
                 creator_user_id=context.user_id,
                 owner_user_id=context.user_id,
+                thread=Thread(),
             )
             session.add(page)
             session.flush()
