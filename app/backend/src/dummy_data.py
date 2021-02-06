@@ -326,6 +326,9 @@ def add_dummy_communities():
                     editor_user=creator,
                     title=guide["title"],
                     content=guide["content"],
+                    geom=create_coordinate(guide["coordinate"][1], guide["coordinate"][0])
+                    if "coordinate" in guide
+                    else None,
                 )
 
                 session.add(page_version)
