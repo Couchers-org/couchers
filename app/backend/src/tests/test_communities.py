@@ -14,9 +14,16 @@ from couchers.models import (
     UserSession,
 )
 from couchers.tasks import enforce_community_memberships
-from couchers.utils import create_coordinate, create_polygon_lat_lng, to_multi
-from pb import communities_pb2, pages_pb2
-from tests.test_fixtures import communities_session, db_impl, generate_user, pages_session, testconfig
+from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_aware_datetime, to_multi
+from pb import communities_pb2, discussions_pb2, pages_pb2
+from tests.test_fixtures import (
+    communities_session,
+    db_impl,
+    discussions_session,
+    generate_user,
+    pages_session,
+    testconfig,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -144,6 +151,19 @@ def _create_place(token, title, content, address, x):
         )
 
 
+def _create_discussion(token, community_id, group_id, title, content):
+    # set group_id or community_id to None
+    with discussions_session(token) as api:
+        res = api.CreateDiscussion(
+            discussions_pb2.CreateDiscussionReq(
+                title=title,
+                content=content,
+                owner_community_id=community_id,
+                owner_group_id=group_id,
+            )
+        )
+
+
 def get_user_id_and_token(session, username):
     user_id = session.query(User).filter(User.username == username).one().id
     token = session.query(UserSession).filter(UserSession.user_id == user_id).one().token
@@ -194,11 +214,26 @@ def testing_communities(request):
         c2r1 = _create_community(session, 52, 71, "Country 2, Region 1", [user6], [user8], c2)
         c2r1c1 = _create_community(session, 53, 70, "Country 2, Region 1, City 1", [user8], [], c2r1)
 
-        _create_group(session, "Hitchhikers", [user1, user2], [user5, user8], w)
+        h = _create_group(session, "Hitchhikers", [user1, user2], [user5, user8], w)
         _create_group(session, "Country 1, Region 1, Foodies", [user1], [user2, user4], c1r1)
         _create_group(session, "Country 1, Region 1, Skaters", [user2], [user1], c1r1)
         _create_group(session, "Country 1, Region 2, Foodies", [user2], [user4, user5], c1r2)
         _create_group(session, "Country 2, Region 1, Foodies", [user6], [user7], c2r1)
+
+        _create_discussion(token1, w.id, None, "Discussion title 1", "Discussion content 1")
+        _create_discussion(token3, w.id, None, "Discussion title 2", "Discussion content 2")
+        _create_discussion(token3, w.id, None, "Discussion title 3", "Discussion content 3")
+        _create_discussion(token3, w.id, None, "Discussion title 4", "Discussion content 4")
+        _create_discussion(token3, w.id, None, "Discussion title 5", "Discussion content 5")
+        _create_discussion(token3, w.id, None, "Discussion title 6", "Discussion content 6")
+        _create_discussion(token4, c1r1c2.id, None, "Discussion title 7", "Discussion content 7")
+        _create_discussion(token5, None, h.id, "Discussion title 8", "Discussion content 8")
+        _create_discussion(token1, None, h.id, "Discussion title 9", "Discussion content 9")
+        _create_discussion(token2, None, h.id, "Discussion title 10", "Discussion content 10")
+        _create_discussion(token3, None, h.id, "Discussion title 11", "Discussion content 11")
+        _create_discussion(token4, None, h.id, "Discussion title 12", "Discussion content 12")
+        _create_discussion(token5, None, h.id, "Discussion title 13", "Discussion content 13")
+        _create_discussion(token8, None, h.id, "Discussion title 14", "Discussion content 14")
 
     enforce_community_memberships()
 
@@ -475,6 +510,58 @@ class TestCommunities:
             )
             assert res.nearby_user_ids == [user4_id]
 
+    @staticmethod
+    def test_ListDiscussions(testing_communities):
+        with session_scope() as session:
+            user1_id, token1 = get_user_id_and_token(session, "user1")
+            w_id = get_community_id(session, "World")
+            c1r1c2_id = get_community_id(session, "Country 1, Region 1, City 2")
+
+        with communities_session(token1) as api:
+            res = api.ListDiscussions(
+                communities_pb2.ListDiscussionsReq(
+                    community_id=w_id,
+                    page_size=3,
+                )
+            )
+            assert [d.title for d in res.discussions] == [
+                "Discussion title 1",
+                "Discussion title 2",
+                "Discussion title 3",
+            ]
+
+            res = api.ListDiscussions(
+                communities_pb2.ListDiscussionsReq(
+                    community_id=w_id,
+                    page_token=res.next_page_token,
+                    page_size=2,
+                )
+            )
+            assert [d.title for d in res.discussions] == [
+                "Discussion title 4",
+                "Discussion title 5",
+            ]
+
+            res = api.ListDiscussions(
+                communities_pb2.ListDiscussionsReq(
+                    community_id=w_id,
+                    page_token=res.next_page_token,
+                    page_size=2,
+                )
+            )
+            assert [d.title for d in res.discussions] == [
+                "Discussion title 6",
+            ]
+
+            res = api.ListDiscussions(
+                communities_pb2.ListDiscussionsReq(
+                    community_id=c1r1c2_id,
+                )
+            )
+            assert [d.title for d in res.discussions] == [
+                "Discussion title 7",
+            ]
+
 
 # TODO: requires transferring of content
 
@@ -485,7 +572,4 @@ class TestCommunities:
 #     pass
 
 # def test_ListEvents(db, testing_communities):
-#     pass
-
-# def test_ListDiscussions(db, testing_communities):
 #     pass

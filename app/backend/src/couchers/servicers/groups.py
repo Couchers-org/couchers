@@ -5,7 +5,8 @@ from sqlalchemy.sql import literal
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Cluster, Node, Page, PageType, User
+from couchers.models import Cluster, Discussion, Node, Page, PageType, User
+from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.pages import page_to_pb
 from couchers.servicers.threads import pack_thread_id
 from couchers.utils import Timestamp_from_datetime
@@ -178,5 +179,24 @@ class Groups(groups_pb2_grpc.GroupsServicer):
         return groups_pb2.ListEventsRes()
 
     def ListDiscussions(self, request, context):
-        raise NotImplementedError()
-        return groups_pb2.ListDiscussionsRes()
+        with session_scope() as session:
+            page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+            next_page_id = int(request.page_token) if request.page_token else 0
+            cluster = (
+                session.query(Cluster)
+                .filter(Cluster.official_cluster_for_node_id == None)
+                .filter(Cluster.id == request.group_id)
+                .one_or_none()
+            )
+            if not cluster:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+            discussions = (
+                cluster.owned_discussions.filter(Discussion.id >= next_page_id)
+                .order_by(Discussion.id)
+                .limit(page_size + 1)
+                .all()
+            )
+            return groups_pb2.ListDiscussionsRes(
+                discussions=[discussion_to_pb(discussion, context.user_id) for discussion in discussions[:page_size]],
+                next_page_token=str(discussions[-1].id) if len(discussions) > page_size else None,
+            )

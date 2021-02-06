@@ -42,7 +42,10 @@ def test_create_discussion_errors(db):
 
 
 def test_create_and_get_discussion(db):
+    generate_user()
     user, token = generate_user()
+    generate_user()
+    generate_user()
 
     with session_scope() as session:
         node = Node(geom=to_multi(create_polygon_lat_lng([[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]])))
