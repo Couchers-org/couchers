@@ -10,6 +10,7 @@ import {
 } from "../../AppRoutes";
 import Alert from "../../components/Alert";
 import CircularProgress from "../../components/CircularProgress";
+import CommentBox from "../../components/Comments/CommentBox";
 import Markdown from "../../components/Markdown";
 import PageTitle from "../../components/PageTitle";
 import TextBody from "../../components/TextBody";
@@ -168,7 +169,7 @@ export default function GroupPage() {
               );
             })
           ) : (
-            <p>This community has no admins.</p>
+            <p>This group has no admins.</p>
           )}
           <h1>Members</h1>
           <p>Total {group.memberCount} members.</p>
@@ -184,7 +185,7 @@ export default function GroupPage() {
               );
             })
           ) : (
-            <p>This community has no members.</p>
+            <p>This group has no members.</p>
           )}
           <h1>Places/points of interest</h1>
           {placesLoading ? (
@@ -201,7 +202,7 @@ export default function GroupPage() {
               );
             })
           ) : (
-            <p>This community contains no places.</p>
+            <p>This group contains no places.</p>
           )}
           <h1>Guides</h1>
           {guidesLoading ? (
@@ -218,8 +219,9 @@ export default function GroupPage() {
               );
             })
           ) : (
-            <p>This community contains no guides.</p>
+            <p>This group contains no guides.</p>
           )}
+          <CommentBox threadId={group.threadId} />
         </>
       ) : (
         <TextBody>Error</TextBody>

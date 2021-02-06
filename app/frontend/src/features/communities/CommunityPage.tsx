@@ -10,6 +10,7 @@ import {
 } from "../../AppRoutes";
 import Alert from "../../components/Alert";
 import CircularProgress from "../../components/CircularProgress";
+import CommentBox from "../../components/Comments/CommentBox";
 import Markdown from "../../components/Markdown";
 import PageTitle from "../../components/PageTitle";
 import TextBody from "../../components/TextBody";
@@ -311,6 +312,7 @@ export default function CommunityPage() {
           ) : (
             <p>This community contains no guides.</p>
           )}
+          <CommentBox threadId={community.threadId} />
         </>
       ) : (
         <TextBody>Error</TextBody>
