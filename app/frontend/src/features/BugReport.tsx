@@ -45,6 +45,7 @@ export default function BugReport() {
   const {
     data: reportIdentifier,
     error,
+    isLoading,
     mutate: reportBug,
     reset: resetMutation,
   } = useMutation<string, GrpcError, BugReportFormData>((formData) =>
@@ -135,6 +136,7 @@ export default function BugReport() {
               type="submit"
               variant="contained"
               color="primary"
+              loading={isLoading}
               onClick={onSubmit}
             >
               Submit

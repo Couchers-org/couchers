@@ -97,9 +97,10 @@ describe("BugReport", () => {
 
       await fillInAndSubmitBugReport(subjectFieldLabel, descriptionFieldLabel);
 
+      expect(await screen.findByRole("progressbar")).toBeVisible();
       const successMessage =
         "Thank you for reporting that bug and making Couchers better, a report was sent to the devs! The bug ID is 1";
-      const successAlert = await screen.findByRole("alert");
+      const successAlert = screen.getByRole("alert");
       expect(within(successAlert).getByText(successMessage)).toBeVisible();
       expect(reportBugMock).toHaveBeenCalledTimes(1);
       expect(reportBugMock).toHaveBeenCalledWith(
