@@ -1,4 +1,4 @@
-import { makeStyles } from "@material-ui/core";
+import { darken, makeStyles } from "@material-ui/core";
 import { Error as GrpcError } from "grpc-web";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -26,6 +26,12 @@ export interface BugReportFormData {
 }
 
 const useStyles = makeStyles((theme) => ({
+  button: {
+    backgroundColor: theme.palette.error.main,
+    "&:hover": {
+      backgroundColor: darken(theme.palette.error.main, 0.1),
+    },
+  },
   field: {
     "& + &": {
       marginBlockStart: theme.spacing(2),
@@ -64,7 +70,15 @@ export default function BugReport() {
 
   return (
     <>
-      <Button onClick={() => setIsOpen(true)} startIcon={<BugIcon />}>
+      <Button
+        onClick={() => setIsOpen(true)}
+        startIcon={<BugIcon />}
+        variant="contained"
+        color="primary"
+        classes={{
+          containedPrimary: classes.button,
+        }}
+      >
         Report a bug
       </Button>
       <Dialog

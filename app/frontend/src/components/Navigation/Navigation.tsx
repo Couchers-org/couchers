@@ -69,6 +69,7 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 3,
     display: "flex",
     justifyContent: "flex-end",
+    alignItems: "center",
   },
   title: {
     fontWeight: "bold",
@@ -142,9 +143,9 @@ export default function Navigation() {
             )}
           </Hidden>
         </Grid>
-        <BugReport />
         <Hidden smDown>
           <div className={classes.search}>
+            <BugReport />
             <SearchBox />
           </div>
         </Hidden>
