@@ -3,6 +3,7 @@ import { useHistory, useParams } from "react-router-dom";
 
 import Alert from "../../components/Alert";
 import CircularProgress from "../../components/CircularProgress";
+import CommentBox from "../../components/Comments/CommentBox";
 import Markdown from "../../components/Markdown";
 import PageTitle from "../../components/PageTitle";
 import TextBody from "../../components/TextBody";
@@ -70,6 +71,7 @@ export default function PagePage({ pageType }: { pageType: PageType }) {
           <p>
             You <b>{page.canEdit ? "can" : "cannot"}</b> edit this page.
           </p>
+          <CommentBox threadId={page.threadId} />
         </>
       ) : (
         <TextBody>Error</TextBody>

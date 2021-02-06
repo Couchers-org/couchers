@@ -8,20 +8,22 @@ import * as jail from "./jail";
 import * as pages from "./pages";
 import * as requests from "./requests";
 import * as search from "./search";
+import * as threads from "./threads";
 import * as user from "./user";
 
 export const service = {
-  search,
-  user,
+  api,
   auth,
   bugs,
-  conversations,
   communities,
+  conversations,
   groups,
-  api,
   jail,
   pages,
   requests,
+  search,
+  threads,
+  user,
 } as const;
 
 export type {

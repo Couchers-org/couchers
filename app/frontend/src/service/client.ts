@@ -10,6 +10,7 @@ import { JailPromiseClient } from "../pb/jail_grpc_web_pb";
 import { PagesPromiseClient } from "../pb/pages_grpc_web_pb";
 import { RequestsPromiseClient } from "../pb/requests_grpc_web_pb";
 import { SSOPromiseClient } from "../pb/sso_grpc_web_pb";
+import { ThreadsPromiseClient } from "../pb/threads_grpc_web_pb";
 
 const URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -45,15 +46,16 @@ const opts = {
 
 const apis = {
   api: new APIPromiseClient(URL, null, opts),
-  bugs: new BugsPromiseClient(URL, null, opts),
-  sso: new SSOPromiseClient(URL, null, opts),
-  conversations: new ConversationsPromiseClient(URL, null, opts),
-  communities: new CommunitiesPromiseClient(URL, null, opts),
-  groups: new GroupsPromiseClient(URL, null, opts),
   auth: new AuthPromiseClient(URL, null, opts),
+  bugs: new BugsPromiseClient(URL, null, opts),
+  communities: new CommunitiesPromiseClient(URL, null, opts),
+  conversations: new ConversationsPromiseClient(URL, null, opts),
+  groups: new GroupsPromiseClient(URL, null, opts),
+  jail: new JailPromiseClient(URL, null, opts),
   pages: new PagesPromiseClient(URL, null, opts),
   requests: new RequestsPromiseClient(URL, null, opts),
-  jail: new JailPromiseClient(URL, null, opts),
+  sso: new SSOPromiseClient(URL, null, opts),
+  threads: new ThreadsPromiseClient(URL, null, opts),
 };
 
 if (process.env.NODE_ENV === "development") {
@@ -62,15 +64,16 @@ if (process.env.NODE_ENV === "development") {
 
   grpcWebTools([
     apis.api,
-    apis.bugs,
-    apis.sso,
-    apis.conversations,
-    apis.communities,
-    apis.groups,
     apis.auth,
+    apis.bugs,
+    apis.communities,
+    apis.conversations,
+    apis.groups,
+    apis.jail,
     apis.pages,
     apis.requests,
-    apis.jail,
+    apis.sso,
+    apis.threads,
   ]);
 }
 
