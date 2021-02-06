@@ -56,7 +56,7 @@ export default function PagePage({ pageType }: { pageType: PageType }) {
             {page.ownerUserId !== 0
               ? "user " + page.ownerUserId
               : page.ownerCommunityId !== 0
-              ? "community " + page.ownerGroupId
+              ? "community " + page.ownerCommunityId
               : "group " + page.ownerGroupId}
           </p>
           <p>
