@@ -187,7 +187,7 @@ export default function GroupPage() {
           ) : (
             <p>This group has no members.</p>
           )}
-          <h1>Places/points of interest</h1>
+          <h1>Places</h1>
           {placesLoading ? (
             <CircularProgress />
           ) : places ? (

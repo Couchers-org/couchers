@@ -278,7 +278,7 @@ export default function CommunityPage() {
           ) : (
             <p>This community contains no users.</p>
           )}
-          <h1>Places/points of interest</h1>
+          <h1>Places</h1>
           {placesLoading ? (
             <CircularProgress />
           ) : places ? (
