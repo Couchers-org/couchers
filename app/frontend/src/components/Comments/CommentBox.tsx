@@ -34,7 +34,35 @@ export default function CommentBox({ threadId }: CommentBoxProps) {
 
   const [comments, setComments] = useState<Array<MultiLevelReply>>([]);
 
-  const refreshComments = async () => {
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      try {
+        const thread = await service.threads.getThread(threadId);
+        setComments(
+          await Promise.all(
+            thread.repliesList.map(async (reply) => {
+              return {
+                ...reply,
+                children:
+                  reply.numReplies > 0
+                    ? (await service.threads.getThread(reply.threadId))
+                        .repliesList
+                    : [],
+              };
+            })
+          )
+        );
+      } catch (e) {
+        console.error(e);
+        setError(e.message);
+      }
+      setLoading(false);
+    })();
+  }, [threadId]);
+
+  const onComment = async (threadId: number, content: string) => {
+    await service.threads.postReply(threadId, content);
     setLoading(true);
     try {
       const thread = await service.threads.getThread(threadId);
@@ -57,15 +85,6 @@ export default function CommentBox({ threadId }: CommentBoxProps) {
       setError(e.message);
     }
     setLoading(false);
-  };
-
-  useEffect(() => {
-    refreshComments();
-  }, [threadId]);
-
-  const onComment = async (threadId: number, content: string) => {
-    await service.threads.postReply(threadId, content);
-    await refreshComments();
   };
   return (
     <>
