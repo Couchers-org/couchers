@@ -7,6 +7,7 @@ from couchers import errors
 from couchers.db import session_scope
 from couchers.models import Cluster, Node, Page, PageType, User
 from couchers.servicers.pages import page_to_pb
+from couchers.servicers.threads import pack_thread_id
 from couchers.utils import Timestamp_from_datetime
 from pb import groups_pb2, groups_pb2_grpc
 
@@ -70,7 +71,7 @@ def group_to_pb(cluster: Cluster, user_id):
         admin=cluster.admins.filter(User.id == user_id).first() is not None,
         member_count=cluster.members.count(),
         admin_count=cluster.admins.count(),
-        thread_id=cluster.thread_id,
+        thread_id=pack_thread_id(cluster.thread_id, 0),
     )
 
 

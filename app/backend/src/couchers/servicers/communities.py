@@ -8,6 +8,7 @@ from couchers.db import session_scope
 from couchers.models import Cluster, Node, Page, PageType, User
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
+from couchers.servicers.threads import pack_thread_id
 from couchers.utils import Timestamp_from_datetime
 from pb import communities_pb2, communities_pb2_grpc, groups_pb2
 
@@ -62,7 +63,7 @@ def community_to_pb(node: Node, user_id):
         admin=node.official_cluster.admins.filter(User.id == user_id).first() is not None,
         member_count=node.official_cluster.members.count(),
         admin_count=node.official_cluster.admins.count(),
-        thread_id=node.official_cluster.thread_id,
+        thread_id=pack_thread_id(node.official_cluster.thread_id, 0),
     )
 
 

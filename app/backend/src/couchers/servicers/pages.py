@@ -3,6 +3,7 @@ import grpc
 from couchers import errors
 from couchers.db import session_scope
 from couchers.models import Cluster, Page, PageType, PageVersion, Thread, User
+from couchers.servicers.threads import pack_thread_id
 from couchers.utils import Timestamp_from_datetime, create_coordinate, remove_duplicates_retain_order
 from pb import pages_pb2, pages_pb2_grpc
 
@@ -46,7 +47,7 @@ def page_to_pb(page: Page, user_id):
         owner_community_id=page.owner_cluster.official_cluster_for_node_id
         if page.owner_cluster and page.owner_cluster.official_cluster_for_node_id is not None
         else None,
-        thread_id=page.thread_id,
+        thread_id=pack_thread_id(page.thread_id, 0),
         title=current_version.title,
         content=current_version.content,
         address=current_version.address,
