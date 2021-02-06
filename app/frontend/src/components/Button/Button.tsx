@@ -14,7 +14,9 @@ const useStyles = makeStyles((theme) => ({
   root: {
     borderRadius: `${theme.shape.borderRadius * 2}px`,
     boxShadow: "0px 0px 5px rgba(0, 0, 0, 0.25)",
-    minHeight: "2.3rem",
+    minHeight: `calc(calc(${theme.typography.button.lineHeight} * ${
+      theme.typography.button.fontSize
+    }) + ${theme.typography.pxToRem(12)})`, //from padding
   },
   loading: {
     height: theme.typography.button.fontSize,
@@ -50,8 +52,6 @@ export default function Button<D extends ElementType = "button", P = {}>({
       setWaiting(false);
     }
   }
-  //height is fontSize * lineHeight, but they use rem
-  //so just use a &nbsp; to get the right height for loading
   return (
     <MuiButton
       {...otherProps}

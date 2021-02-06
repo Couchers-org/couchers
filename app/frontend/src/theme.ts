@@ -64,7 +64,7 @@ const themeOptions: ThemeOptions = {
       fontStyle: "italic",
     },
     button: {
-      fontSize: "0.875rem", //14px\
+      fontSize: "0.875rem", //14px
       textTransform: "none", //don't capitalize
     },
   },
