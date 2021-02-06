@@ -58,7 +58,6 @@ export default function BugReport() {
   };
 
   const onSubmit = handleSubmit((data) => {
-    // TODO: send bug report
     reportBug(data);
   });
 
@@ -87,10 +86,8 @@ export default function BugReport() {
               information including which page you are on, what browser you are
               using, and your user ID will be saved to a public list of bugs.
             </DialogContentText>
-            {/* {!!errors.length && (
-                <Alert severity={"error"}>{errors.join("\n")}</Alert>
-              )} */}
             <TextField
+              id="bug-report-subject"
               className={classes.field}
               label="Brief description of the bug"
               name="subject"
@@ -99,6 +96,7 @@ export default function BugReport() {
             />
             <TextField
               className={classes.field}
+              id="bug-report-description"
               label="What's the problem?"
               name="description"
               inputRef={register({ required: true })}
@@ -109,6 +107,7 @@ export default function BugReport() {
             />
             <TextField
               className={classes.field}
+              id="bug-report-steps"
               defaultValue=""
               label="What did you do to trigger the bug?"
               name="steps"
@@ -120,6 +119,7 @@ export default function BugReport() {
             />
             <TextField
               className={classes.field}
+              id="bug-report-results"
               defaultValue=""
               label="What happened? What did you expect should have happened?"
               name="results"
