@@ -21,7 +21,7 @@ from couchers.interceptors import AuthValidatorInterceptor
 from couchers.models import LoginToken, PasswordResetToken, SignupToken, User, UserSession
 from couchers.servicers.api import hostingstatus2sql
 from couchers.tasks import send_login_email, send_password_reset_email, send_signup_email
-from couchers.utils import create_session_cookie, parse_session_cookie
+from couchers.utils import create_session_cookie, now, parse_session_cookie
 from pb import auth_pb2, auth_pb2_grpc
 
 logger = logging.getLogger(__name__)
@@ -354,11 +354,18 @@ class Auth(auth_pb2_grpc.AuthServicer):
         token = parse_session_cookie(dict(context.invocation_metadata()))
         logger.info(f"Deauthenticate(token={token})")
 
-        if token and self._delete_session(token):
-            return empty_pb2.Empty()
-        else:
-            # probably caused by token not existing
-            context.abort(grpc.StatusCode.UNKNOWN, errors.LOGOUT_FAILED)
+        # if we had a token, try to remove the session
+        if token:
+            self._delete_session(token)
+
+        # set the cookie to an empty string and expire immediately, should remove it from the browser
+        context.send_initial_metadata(
+            [
+                ("set-cookie", create_session_cookie("", now())),
+            ]
+        )
+
+        return empty_pb2.Empty()
 
     def ResetPassword(self, request, context):
         """
