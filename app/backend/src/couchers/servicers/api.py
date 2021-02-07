@@ -13,13 +13,13 @@ from couchers.crypto import generate_hash_signature, random_hex
 from couchers.db import get_friends_status, get_user_by_field, is_valid_name, session_scope
 from couchers.models import (
     Complaint,
-    Fluency,
     FriendRelationship,
     FriendStatus,
     GroupChatSubscription,
     HostingStatus,
     HostRequest,
     LanguageAbilities,
+    LanguageFluency,
     InitiatedUpload,
     MeetupStatus,
     Message,
@@ -123,23 +123,23 @@ parkingdetails2api = {
 }
 
 fluency2sql = {
-    api_pb2.LanguageAbility.Fluency.FLUENCY_UNSPECIFIED: Fluency.fluency_unspecified,
-    api_pb2.LanguageAbility.Fluency.FLUENCY_SAY_HELLO: Fluency.fluency_say_hello,
-    api_pb2.LanguageAbility.Fluency.FLUENCY_BEGINNER: Fluency.fluency_beginner,
-    api_pb2.LanguageAbility.Fluency.FLUENCY_INTERMEDIATE: Fluency.fluency_intermediate,
-    api_pb2.LanguageAbility.Fluency.FLUENCY_ADVANCED: Fluency.fluency_advanced,
-    api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT: Fluency.fluency_fluent,
-    api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE: Fluency.fluency_native,
+    api_pb2.LanguageAbility.Fluency.FLUENCY_UNSPECIFIED: LanguageFluency.unspecified,
+    api_pb2.LanguageAbility.Fluency.FLUENCY_SAY_HELLO: LanguageFluency.say_hello,
+    api_pb2.LanguageAbility.Fluency.FLUENCY_BEGINNER: LanguageFluency.beginner,
+    api_pb2.LanguageAbility.Fluency.FLUENCY_INTERMEDIATE: LanguageFluency.intermediate,
+    api_pb2.LanguageAbility.Fluency.FLUENCY_ADVANCED: LanguageFluency.advanced,
+    api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT: LanguageFluency.fluent,
+    api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE: LanguageFluency.native,
 }
 
 fluency2api = {
-    Fluency.fluency_unspecified: api_pb2.LanguageAbility.Fluency.FLUENCY_UNSPECIFIED,
-    Fluency.fluency_say_hello: api_pb2.LanguageAbility.Fluency.FLUENCY_SAY_HELLO,
-    Fluency.fluency_beginner: api_pb2.LanguageAbility.Fluency.FLUENCY_BEGINNER,
-    Fluency.fluency_intermediate: api_pb2.LanguageAbility.Fluency.FLUENCY_INTERMEDIATE,
-    Fluency.fluency_advanced: api_pb2.LanguageAbility.Fluency.FLUENCY_ADVANCED,
-    Fluency.fluency_fluent: api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT,
-    Fluency.fluency_native: api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE,
+    LanguageFluency.unspecified: api_pb2.LanguageAbility.Fluency.FLUENCY_UNSPECIFIED,
+    LanguageFluency.say_hello: api_pb2.LanguageAbility.Fluency.FLUENCY_SAY_HELLO,
+    LanguageFluency.beginner: api_pb2.LanguageAbility.Fluency.FLUENCY_BEGINNER,
+    LanguageFluency.intermediate: api_pb2.LanguageAbility.Fluency.FLUENCY_INTERMEDIATE,
+    LanguageFluency.advanced: api_pb2.LanguageAbility.Fluency.FLUENCY_ADVANCED,
+    LanguageFluency.fluent: api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT,
+    LanguageFluency.native: api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE,
 }
 
 

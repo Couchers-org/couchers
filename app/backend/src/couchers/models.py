@@ -78,14 +78,14 @@ class ParkingDetails(enum.Enum):
     paid_offsite = enum.auto()
 
 
-class Fluency(enum.Enum):
-    fluency_unspecified = 0
-    fluency_say_hello = 1
-    fluency_beginner = 2
-    fluency_intermediate = 3
-    fluency_advanced = 4
-    fluency_fluent = 5
-    fluency_native = 6
+class LanguageFluency(enum.Enum):
+    unspecified = 0
+    say_hello = 1
+    beginner = 2
+    intermediate = 3
+    advanced = 4
+    fluent = 5
+    native = 6
 
 
 class User(Base):
@@ -1200,7 +1200,7 @@ class LanguageAbilities(Base):
 
     id = Column(BigInteger, primary_key=True)
     language = Column(String(length=3), nullable=False)
-    fluency = Column(Enum(Fluency), nullable=False, default=Fluency.fluency_unspecified)
+    fluency = Column(Enum(LanguageFluency), nullable=False, LanguageFluency=LanguageFluency.unspecified)
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
 
     user = relationship("User", backref="language_abilities")
