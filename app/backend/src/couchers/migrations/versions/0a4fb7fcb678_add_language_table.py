@@ -1,7 +1,7 @@
 """Add language table
 
 Revision ID: 0a4fb7fcb678
-Revises: 8b6297128973
+Revises: 20b0d7fd2619
 Create Date: 2021-01-17 10:33:14.483955
 
 """
@@ -12,7 +12,7 @@ import geoalchemy2
 
 # revision identifiers, used by Alembic.
 revision = '0a4fb7fcb678'
-down_revision = '8b6297128973'
+down_revision = '20b0d7fd2619'
 branch_labels = None
 depends_on = None
 
