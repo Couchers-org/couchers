@@ -1,12 +1,11 @@
 import json
 import logging
 
-import grpc
 from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.sql import func
 
 from couchers.db import session_scope
-from couchers.models import Node, Page, PageVersion, User
+from couchers.models import Node, PageVersion, User
 from pb import gis_pb2_grpc
 from pb.google.api import httpbody_pb2
 

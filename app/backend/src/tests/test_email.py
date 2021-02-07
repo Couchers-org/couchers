@@ -3,7 +3,7 @@ from unittest.mock import create_autospec, patch
 import pytest
 
 from couchers.config import config
-from couchers.crypto import random_hex, urlsafe_secure_token
+from couchers.crypto import random_hex
 from couchers.db import new_login_token, new_signup_token, session_scope
 from couchers.models import (
     Complaint,

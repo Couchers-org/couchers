@@ -7,8 +7,8 @@ from google.protobuf import empty_pb2
 from couchers import errors
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
-from couchers.models import Base, LoginToken, PasswordResetToken, SignupToken, User, UserSession
-from pb import api_pb2, auth_pb2, auth_pb2_grpc
+from couchers.models import LoginToken, PasswordResetToken, SignupToken, User, UserSession
+from pb import api_pb2, auth_pb2
 from tests.test_fixtures import auth_api_session, db, fast_passwords, generate_user, real_api_session, testconfig
 
 

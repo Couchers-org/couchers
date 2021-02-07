@@ -1,14 +1,12 @@
 import os
 from concurrent import futures
 from contextlib import contextmanager
-from datetime import date, timedelta
+from datetime import date
 from pathlib import Path
 from unittest.mock import patch
 
 import grpc
 import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.event import listen, remove
 
 from couchers.config import config
 from couchers.crypto import random_hex
@@ -29,7 +27,6 @@ from couchers.utils import create_coordinate
 from pb import (
     account_pb2_grpc,
     api_pb2_grpc,
-    auth_pb2,
     auth_pb2_grpc,
     bugs_pb2_grpc,
     communities_pb2_grpc,

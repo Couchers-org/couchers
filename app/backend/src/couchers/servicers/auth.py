@@ -1,13 +1,12 @@
 import logging
-from datetime import datetime, timedelta
-from typing import Union
+from datetime import datetime
 
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import func
 
 from couchers import errors
-from couchers.crypto import cookiesafe_secure_token, hash_password, urlsafe_secure_token, verify_password
+from couchers.crypto import cookiesafe_secure_token, hash_password, verify_password
 from couchers.db import (
     get_user_by_field,
     is_valid_email,
@@ -22,7 +21,7 @@ from couchers.interceptors import AuthValidatorInterceptor
 from couchers.models import LoginToken, PasswordResetToken, SignupToken, User, UserSession
 from couchers.servicers.api import hostingstatus2sql
 from couchers.tasks import send_login_email, send_password_reset_email, send_signup_email
-from couchers.utils import create_session_cookie, http_date, now, parse_session_cookie
+from couchers.utils import create_session_cookie, parse_session_cookie
 from pb import auth_pb2, auth_pb2_grpc
 
 logger = logging.getLogger(__name__)

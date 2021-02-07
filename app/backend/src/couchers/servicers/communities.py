@@ -1,7 +1,7 @@
 import logging
 
 import grpc
-from sqlalchemy.sql import func, literal
+from sqlalchemy.sql import literal
 
 from couchers import errors
 from couchers.db import session_scope
