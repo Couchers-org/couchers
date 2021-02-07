@@ -1200,7 +1200,7 @@ class LanguageAbilities(Base):
 
     id = Column(BigInteger, primary_key=True)
     language = Column(String(length=3), nullable=False)
-    fluency = Column(Enum(LanguageFluency), nullable=False, LanguageFluency=LanguageFluency.unspecified)
+    fluency = Column(Enum(LanguageFluency), nullable=False, default=LanguageFluency.unspecified)
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
 
     user = relationship("User", backref="language_abilities")
