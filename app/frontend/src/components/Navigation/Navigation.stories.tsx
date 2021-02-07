@@ -1,4 +1,4 @@
-import { Meta, Story } from "@storybook/react/types-6-0";
+import { Meta, Story } from "@storybook/react";
 import * as React from "react";
 import { MemoryRouter as Router } from "react-router-dom";
 

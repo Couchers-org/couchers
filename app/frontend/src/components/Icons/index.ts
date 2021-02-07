@@ -1,3 +1,4 @@
+export { default as CommunityIcon } from "./CommunityIcon";
 export { default as AddIcon } from "@material-ui/icons/AddOutlined";
 export { default as BackIcon } from "@material-ui/icons/ArrowBackOutlined";
 export { default as CakeIcon } from "@material-ui/icons/CakeOutlined";
@@ -14,6 +15,7 @@ export { default as LanguageIcon } from "@material-ui/icons/LanguageOutlined";
 export { default as LocationIcon } from "@material-ui/icons/LocationOnOutlined";
 export { default as QuestionIcon } from "@material-ui/icons/MoreHorizOutlined";
 export { default as OverflowMenuIcon } from "@material-ui/icons/MoreVertOutlined";
+export { default as PeopleIcon } from "@material-ui/icons/PeopleOutlined";
 export { default as PersonAddIcon } from "@material-ui/icons/PersonAddOutlined";
 export { default as SearchIcon } from "@material-ui/icons/SearchOutlined";
 export { default as SettingsIcon } from "@material-ui/icons/SettingsOutlined";

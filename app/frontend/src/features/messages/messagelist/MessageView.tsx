@@ -52,9 +52,9 @@ const useStyles = makeStyles((theme) => ({
   },
   avatar: { width: 40, height: 40 },
   name: {
+    ...theme.typography.body2,
     flexGrow: 1,
     margin: 0,
-    fontSize: theme.typography.body2.fontSize,
     fontWeight: "bold",
   },
   messageBody: {
