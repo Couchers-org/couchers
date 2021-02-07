@@ -77,14 +77,13 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-marlies.jpg" alt="Headshot of Marlies">
+                      <img class="is-rounded" src="/img/head-heloise.jpg" alt="Headshot of Héloïse">
                     </figure>
                   </div>
                   <div class="media-content">
-                    <p class="title is-4">Marlies Iserlohe</p>
-                    <p class="subtitle is-6 role">Community Outreach</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Copenhagen, Denmark</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/in/marlies-iserlohe-90282a89">Marlies Iserlohe</a></p>
+                    <p class="title is-4">Héloïse Garry</p>
+                    <p class="subtitle is-6 role">Community Advocate</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>New York City, USA</p>
                   </div>
                 </div>
               </div>
@@ -448,6 +447,25 @@
                     <p class="subtitle is-6 role">Backend Developer</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Melbourne, Australia</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-web"></i></span><a href="https://www.lesinskis.com/">lesinskis.com</a></p>                    
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-marlies.jpg" alt="Headshot of Marlies">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Marlies Iserlohe</p>
+                    <p class="subtitle is-6 role">Community Outreach</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Copenhagen, Denmark</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/in/marlies-iserlohe-90282a89">Marlies Iserlohe</a></p>
                   </div>
                 </div>
               </div>
