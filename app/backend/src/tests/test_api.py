@@ -157,10 +157,12 @@ def test_update_profile(db):
                 meetup_status=api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP,
                 language_abilities=api_pb2.RepeatedLanguageAbilityValue(
                     exists=True,
-                    value=[api_pb2.LanguageAbility(
-                        code="eng",
-                        fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE,
-                    )],
+                    value=[
+                        api_pb2.LanguageAbility(
+                            code="eng",
+                            fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE,
+                        )
+                    ],
                 ),
                 countries_visited=api_pb2.RepeatedStringValue(exists=True, value=["UK", "Aus"]),
                 countries_lived=api_pb2.RepeatedStringValue(exists=True, value=["UK", "Aus"]),
@@ -195,7 +197,8 @@ def test_update_profile(db):
         assert "Aus" in user.countries_lived
         assert "Binary" in user.languages
         assert "English" in user.languages
-        assert user.language_abilities[0].language == "eng"
+        assert user.language_abilities[0].code == "eng"
+        assert user.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE
 
 
 def test_pending_friend_request_count(db):

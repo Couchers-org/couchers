@@ -13,11 +13,13 @@ from couchers.crypto import generate_hash_signature, random_hex
 from couchers.db import get_friends_status, get_user_by_field, is_valid_name, session_scope
 from couchers.models import (
     Complaint,
+    Fluency,
     FriendRelationship,
     FriendStatus,
     GroupChatSubscription,
     HostingStatus,
     HostRequest,
+    LanguageAbilities,
     InitiatedUpload,
     MeetupStatus,
     Message,
@@ -120,6 +122,26 @@ parkingdetails2api = {
     ParkingDetails.paid_offsite: api_pb2.PARKING_DETAILS_PAID_OFFSITE,
 }
 
+fluency2sql = {
+    api_pb2.LanguageAbility.Fluency.FLUENCY_UNSPECIFIED: Fluency.fluency_unspecified,
+    api_pb2.LanguageAbility.Fluency.FLUENCY_SAY_HELLO: Fluency.fluency_say_hello,
+    api_pb2.LanguageAbility.Fluency.FLUENCY_BEGINNER: Fluency.fluency_beginner,
+    api_pb2.LanguageAbility.Fluency.FLUENCY_INTERMEDIATE: Fluency.fluency_intermediate,
+    api_pb2.LanguageAbility.Fluency.FLUENCY_ADVANCED: Fluency.fluency_advanced,
+    api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT: Fluency.fluency_fluent,
+    api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE: Fluency.fluency_native,
+}
+
+fluency2api = {
+    Fluency.fluency_unspecified: api_pb2.LanguageAbility.Fluency.FLUENCY_UNSPECIFIED,
+    Fluency.fluency_say_hello: api_pb2.LanguageAbility.Fluency.FLUENCY_SAY_HELLO,
+    Fluency.fluency_beginner: api_pb2.LanguageAbility.Fluency.FLUENCY_BEGINNER,
+    Fluency.fluency_intermediate: api_pb2.LanguageAbility.Fluency.FLUENCY_INTERMEDIATE,
+    Fluency.fluency_advanced: api_pb2.LanguageAbility.Fluency.FLUENCY_ADVANCED,
+    Fluency.fluency_fluent: api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT,
+    Fluency.fluency_native: api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE,
+}
+
 
 class API(api_pb2_grpc.APIServicer):
     def Ping(self, request, context):
@@ -190,7 +212,7 @@ class API(api_pb2_grpc.APIServicer):
 
     def UpdateProfile(self, request, context):
         with session_scope() as session:
-            user = session.query(User).filter(User.id == context.user_id).one()
+            user: User = session.query(User).filter(User.id == context.user_id).one()
 
             if request.HasField("name"):
                 if not is_valid_name(request.name.value):
@@ -261,7 +283,10 @@ class API(api_pb2_grpc.APIServicer):
                 user.languages = "|".join(request.languages.value)
 
             if request.language_abilities:
-                user.language_abilities = request.language_abilities.value
+                user.language_abilities = [
+                    LanguageAbilities(language=l.code, fluency=fluency2sql[l.fluency])
+                    for l in request.language_abilities.value
+                ]
 
             if request.countries_visited.exists:
                 user.countries_visited = "|".join(request.countries_visited.value)
@@ -710,7 +735,9 @@ def user_model_to_pb(db_user, session, context):
         things_i_like=db_user.things_i_like,
         about_place=db_user.about_place,
         languages=db_user.languages.split("|") if db_user.languages else [],
-        language_abilities=db_user.language_abilities,
+        language_abilities=[
+            api_pb2.LanguageAbility(code=l.language, fluency=fluency2api[l.fluency]) for l in db_user.language_abilities
+        ],
         countries_visited=db_user.countries_visited.split("|") if db_user.countries_visited else [],
         countries_lived=db_user.countries_lived.split("|") if db_user.countries_lived else [],
         additional_information=db_user.additional_information,
