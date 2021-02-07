@@ -6,6 +6,8 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import mediaQuery from "css-mediaquery";
+import { report } from "process";
 
 import { service } from "../service";
 import wrapper from "../test/hookWrapper";
@@ -50,10 +52,50 @@ describe("BugReport", () => {
     reportBugMock.mockResolvedValue("1");
   });
 
-  it("only shows a button to open the bug report dialog initially", () => {
-    render(<BugReport />, { wrapper });
+  describe("when displayed on a screen at the medium breakpoint or above", () => {
+    it("shows a button to open the bug report dialog initially", () => {
+      render(<BugReport />, { wrapper });
 
-    expect(screen.getByRole("button", { name: "Report a bug" })).toBeVisible();
+      const reportBugButton = screen.getByRole("button", {
+        name: "Report a bug",
+      });
+      expect(reportBugButton).toBeVisible();
+      expect(reportBugButton).toHaveTextContent("Report a bug");
+    });
+  });
+
+  describe("when displayed in a small screen", () => {
+    function createMatchMedia(width: number) {
+      return (query: string) => ({
+        matches: mediaQuery.match(query, { width }),
+        addListener: jest.fn(),
+        removeListener: jest.fn(),
+      });
+    }
+
+    beforeEach(() => {
+      // @ts-ignore JSDom doesn't enforce this to be readonly, so less verbose to do this than
+      // using Object.defineProperty(...)
+      window.innerWidth = 959;
+      // @ts-ignore
+      window.matchMedia = createMatchMedia(window.innerWidth);
+    });
+
+    afterEach(() => {
+      // @ts-ignore reset back to default JSDom window width
+      window.innerWidth = 1024;
+      // @ts-ignore unset to prevent this from interferring tests below
+      window.matchMedia = undefined;
+    });
+
+    it("shows a button with only the bug report icon", () => {
+      render(<BugReport />, { wrapper });
+      const reportBugButton = screen.getByRole("button", {
+        name: "Report a bug",
+      });
+      expect(reportBugButton).toBeVisible();
+      expect(reportBugButton).not.toHaveTextContent("Report a bug");
+    });
   });
 
   describe('when the "report a bug" button is clicked', () => {

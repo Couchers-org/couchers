@@ -6,7 +6,6 @@ import {
   Toolbar,
   Typography,
 } from "@material-ui/core";
-import { Link, NavLink } from "react-router-dom";
 
 import {
   connectionsRoute,
@@ -16,6 +15,7 @@ import {
   profileRoute,
 } from "../../AppRoutes";
 import { useAuthContext } from "../../features/auth/AuthProvider";
+import BugReport from "../../features/BugReport";
 import {
   CommunityIcon,
   CrossIcon,
@@ -24,7 +24,6 @@ import {
   PeopleIcon,
   PersonIcon,
 } from "../Icons";
-import BugReport from "../../features/BugReport";
 import SearchBox from "../SearchBox";
 import NavButton from "./NavButton";
 
@@ -70,6 +69,9 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     justifyContent: "flex-end",
     alignItems: "center",
+    [theme.breakpoints.down("sm")]: {
+      marginInlineEnd: theme.spacing(1),
+    },
   },
   title: {
     fontWeight: "bold",
@@ -143,12 +145,12 @@ export default function Navigation() {
             )}
           </Hidden>
         </Grid>
-        <Hidden smDown>
-          <div className={classes.search}>
-            <BugReport />
+        <div className={classes.search}>
+          <BugReport />
+          <Hidden smDown>
             <SearchBox />
-          </div>
-        </Hidden>
+          </Hidden>
+        </div>
       </Toolbar>
     </AppBar>
   );

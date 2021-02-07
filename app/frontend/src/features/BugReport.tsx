@@ -1,4 +1,4 @@
-import { darken, makeStyles } from "@material-ui/core";
+import { darken, makeStyles, useMediaQuery, useTheme } from "@material-ui/core";
 import { Error as GrpcError } from "grpc-web";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -37,9 +37,17 @@ const useStyles = makeStyles((theme) => ({
       marginBlockStart: theme.spacing(2),
     },
   },
+  startIcon: {
+    [theme.breakpoints.down("sm")]: {
+      margin: 0,
+    },
+  },
 }));
 
 export default function BugReport() {
+  const theme = useTheme();
+  const isBelowMd = useMediaQuery(theme.breakpoints.down("sm"));
+
   const classes = useStyles();
   const [isOpen, setIsOpen] = useState(false);
   const {
@@ -71,15 +79,17 @@ export default function BugReport() {
   return (
     <>
       <Button
+        aria-label="Report a bug"
         onClick={() => setIsOpen(true)}
         startIcon={<BugIcon />}
         variant="contained"
         color="primary"
         classes={{
           containedPrimary: classes.button,
+          startIcon: classes.startIcon,
         }}
       >
-        Report a bug
+        {!isBelowMd && "Report a bug"}
       </Button>
       <Dialog
         aria-labelledby="bug-reporter"
