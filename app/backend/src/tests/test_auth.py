@@ -218,7 +218,7 @@ def test_logout_invalid_token(db):
         login_token = entry.token
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        reply = auth_api.CompleteTokenLogin(auth_pb2.CompleteTokenLoginReq(login_token=login_token))
+        auth_api.CompleteTokenLogin(auth_pb2.CompleteTokenLoginReq(login_token=login_token))
 
     reply_token = get_session_cookie_token(metadata_interceptor)
 
@@ -228,7 +228,7 @@ def test_logout_invalid_token(db):
 
     # log out with non-existent token should still return a valid result
     with auth_api_session() as (auth_api, metadata_interceptor):
-        reply = auth_api.Deauthenticate(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={reply_token}"),))
+        auth_api.Deauthenticate(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={reply_token}"),))
 
     reply_token = get_session_cookie_token(metadata_interceptor)
     # make sure we set an empty cookie
