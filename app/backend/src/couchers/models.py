@@ -1195,11 +1195,11 @@ class BackgroundJob(Base):
         return f"BackgroundJob(id={self.id}, job_type={self.job_type}, state={self.state}, next_attempt_after={self.next_attempt_after}, try_count={self.try_count}, failure_info={self.failure_info})"
 
 
-class LanguageAbilities(Base):
+class LanguageAbility(Base):
     __tablename__ = "language_abilities"
 
     id = Column(BigInteger, primary_key=True)
-    language = Column(String(length=3), nullable=False)
+    language = Column(String(length=3), nullable=False)  # ISO639-3 code lowercase
     fluency = Column(Enum(LanguageFluency), nullable=False, default=LanguageFluency.unspecified)
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
 

@@ -200,6 +200,56 @@ def test_update_profile(db):
         assert user.language_abilities[0].code == "eng"
         assert user.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE
 
+    return user, token
+
+
+def test_clear_profile(db):
+    user, token = test_update_profile(db)
+
+    with api_session(token) as api:
+
+        res = api.UpdateProfile(
+            api_pb2.UpdateProfileReq(
+                name=wrappers_pb2.StringValue(value="bob"),
+                city=wrappers_pb2.StringValue(value=""),
+                lat=wrappers_pb2.DoubleValue(value=0),
+                lng=wrappers_pb2.DoubleValue(value=0),
+                radius=wrappers_pb2.DoubleValue(value=0),
+                gender=wrappers_pb2.StringValue(value=""),
+                occupation=api_pb2.NullableStringValue(value=""),
+                about_me=api_pb2.NullableStringValue(value=""),
+                about_place=api_pb2.NullableStringValue(value=""),
+                color=wrappers_pb2.StringValue(value="#111111"),  # required
+                hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                languages=api_pb2.RepeatedStringValue(exists=True, value=["English"]),
+                language_abilities=api_pb2.RepeatedLanguageAbilityValue(
+                    exists=False,
+                    value=[],
+                ),
+                countries_visited=api_pb2.RepeatedStringValue(exists=True, value=[]),
+                countries_lived=api_pb2.RepeatedStringValue(exists=True, value=[]),
+            )
+        )
+
+        user = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        assert user.name == "bob"  # required
+        assert user.city == ""
+        assert user.lat == 0
+        assert user.lng == 0
+        assert user.radius == 0
+        assert user.gender == ""
+        assert user.occupation == ""
+        assert user.about_me == ""
+        assert user.about_place == ""
+        assert user.hosting_status == api_pb2.HOSTING_STATUS_CAN_HOST
+        assert "" in user.countries_visited
+        assert "" in user.countries_visited
+        assert "" in user.countries_lived
+        assert "" in user.countries_lived
+        assert "" in user.languages
+        assert "" in user.languages
+        assert len(user.language_abilities) == 0
+
 
 def test_pending_friend_request_count(db):
     user1, token1 = generate_user("user1")

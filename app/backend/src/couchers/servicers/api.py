@@ -18,7 +18,7 @@ from couchers.models import (
     GroupChatSubscription,
     HostingStatus,
     HostRequest,
-    LanguageAbilities,
+    LanguageAbility,
     LanguageFluency,
     InitiatedUpload,
     MeetupStatus,
@@ -282,11 +282,13 @@ class API(api_pb2_grpc.APIServicer):
             if request.languages.exists:
                 user.languages = "|".join(request.languages.value)
 
-            if request.language_abilities:
+            if request.language_abilities.exists:
                 user.language_abilities = [
-                    LanguageAbilities(language=l.code, fluency=fluency2sql[l.fluency])
+                    LanguageAbility(language=l.code, fluency=fluency2sql[l.fluency])
                     for l in request.language_abilities.value
                 ]
+            else:
+                user.language_abilities = []
 
             if request.countries_visited.exists:
                 user.countries_visited = "|".join(request.countries_visited.value)
