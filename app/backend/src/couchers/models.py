@@ -29,24 +29,22 @@ Base = declarative_base(metadata=meta)
 
 
 class PhoneStatus(enum.Enum):
-    # unverified
-    unverified = 1
-    # verified
-    verified = 2
+    unverified = enum.auto()
+    verified = enum.auto()
 
 
 class HostingStatus(enum.Enum):
-    can_host = 1
-    maybe = 2
-    difficult = 3
-    cant_host = 4
+    can_host = enum.auto()
+    maybe = enum.auto()
+    difficult = enum.auto()
+    cant_host = enum.auto()
 
 
 class SmokingLocation(enum.Enum):
-    yes = 1
-    window = 2
-    outside = 3
-    no = 4
+    yes = enum.auto()
+    window = enum.auto()
+    outside = enum.auto()
+    no = enum.auto()
 
 
 class User(Base):
@@ -218,10 +216,10 @@ class User(Base):
 
 
 class FriendStatus(enum.Enum):
-    pending = 1
-    accepted = 2
-    rejected = 3
-    cancelled = 4
+    pending = enum.auto()
+    accepted = enum.auto()
+    rejected = enum.auto()
+    cancelled = enum.auto()
 
 
 class FriendRelationship(Base):
@@ -374,9 +372,9 @@ class UserSession(Base):
 
 
 class ReferenceType(enum.Enum):
-    FRIEND = 1
-    SURFED = 2  # The "from" user have surfed at the "to" user
-    HOSTED = 3  # The "from" user have hosted the "to" user
+    FRIEND = enum.auto()
+    SURFED = enum.auto()  # The "from" user have surfed at the "to" user
+    HOSTED = enum.auto()  # The "from" user have hosted the "to" user
 
 
 class Reference(Base):
@@ -442,8 +440,8 @@ class GroupChat(Base):
 
 
 class GroupChatRole(enum.Enum):
-    admin = 1
-    participant = 2
+    admin = enum.auto()
+    participant = enum.auto()
 
 
 class GroupChatSubscription(Base):
@@ -488,26 +486,26 @@ class GroupChatSubscription(Base):
 
 
 class MessageType(enum.Enum):
-    text = 0
+    text = enum.auto()
     # e.g.
     # image =
     # emoji =
     # ...
-    chat_created = 1
-    chat_edited = 2
-    user_invited = 3
-    user_left = 4
-    user_made_admin = 5
-    user_removed_admin = 6
-    host_request_status_changed = 7
+    chat_created = enum.auto()
+    chat_edited = enum.auto()
+    user_invited = enum.auto()
+    user_left = enum.auto()
+    user_made_admin = enum.auto()
+    user_removed_admin = enum.auto()
+    host_request_status_changed = enum.auto()
 
 
 class HostRequestStatus(enum.Enum):
-    pending = 0
-    accepted = 1
-    rejected = 2
-    confirmed = 3
-    cancelled = 4
+    pending = enum.auto()
+    accepted = enum.auto()
+    rejected = enum.auto()
+    confirmed = enum.auto()
+    cancelled = enum.auto()
 
 
 class Message(Base):
@@ -763,8 +761,8 @@ class NodeClusterAssociation(Base):
 
 
 class ClusterRole(enum.Enum):
-    member = 1
-    admin = 2
+    member = enum.auto()
+    admin = enum.auto()
 
 
 class ClusterSubscription(Base):
@@ -809,9 +807,9 @@ class ClusterPageAssociation(Base):
 
 
 class PageType(enum.Enum):
-    main_page = 1
-    place = 2
-    guide = 3
+    main_page = enum.auto()
+    place = enum.auto()
+    guide = enum.auto()
 
 
 class Page(Base):
