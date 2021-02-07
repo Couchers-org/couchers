@@ -54,7 +54,11 @@ def db_impl(param):
 
     # drop everything currently in the database
     with session_scope() as session:
-        session.execute("DROP SCHEMA public CASCADE; CREATE SCHEMA public; CREATE EXTENSION postgis;")
+        session.execute(
+            """DROP SCHEMA public CASCADE; CREATE SCHEMA public; CREATE EXTENSION postgis;
+            CREATE EXTENSION fuzzystrmatch;CREATE EXTENSION postgis_tiger_geocoder;CREATE EXTENSION postgis_topology;
+            """
+        )
 
     if param == "migrations":
         # rebuild it with alembic migrations
