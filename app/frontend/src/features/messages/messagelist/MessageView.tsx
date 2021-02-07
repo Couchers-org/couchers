@@ -89,7 +89,7 @@ export default function MessageView({
       })}
       data-testid={`message-${message.messageId}`}
       ref={ref}
-      style={{}}
+      id={`message-${message.messageId}`}
     >
       {author && !isCurrentUser && (
         <Avatar user={author} className={classes.avatar} />

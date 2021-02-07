@@ -153,23 +153,32 @@ export default function GroupChatView() {
 
   const scrollRef = useRef<HTMLElement>(null);
   const prevScrollHeight = useRef<number | undefined>(undefined);
+  const prevTopMessageId = useRef<number | null>(null);
 
   const { ref: loadMoreRef } = useOnVisibleEffect(null, () => {
     prevScrollHeight.current = scrollRef.current?.scrollHeight;
+    if (messagesRes) {
+      prevTopMessageId.current =
+        messagesRes.pages[messagesRes.pages.length - 1].lastMessageId;
+    }
     fetchNextPage();
   });
 
   useEffect(() => {
-    console.log("!");
-    if (isFetchingNextPage || !scrollRef.current) return;
+    if (isFetchingNextPage) return;
+    document
+      .getElementById(`message-${prevTopMessageId.current}`)
+      ?.scrollIntoView();
+    //make up for circular progress offset
+    scrollRef.current?.scrollBy(0, -60);
+    /*if (isFetchingNextPage || !scrollRef.current) return;
     const newScrollHeight = scrollRef.current.scrollHeight;
     if (newScrollHeight === prevScrollHeight.current) return;
     scrollRef.current.scrollTo(
       0,
       newScrollHeight - (prevScrollHeight.current ?? newScrollHeight)
     );
-    console.log(`${prevScrollHeight.current}  ${newScrollHeight}`);
-    prevScrollHeight.current = newScrollHeight;
+    prevScrollHeight.current = newScrollHeight;*/
   }, [isFetchingNextPage]);
 
   useEffect(() => {
@@ -293,12 +302,9 @@ export default function GroupChatView() {
             messagesRes && (
               <>
                 <Box className={classes.scroll} ref={scrollRef}>
-                  {hasNextPage &&
-                    (isFetchingNextPage ? (
-                      <CircularProgress />
-                    ) : (
-                      <Box ref={loadMoreRef}></Box>
-                    ))}
+                  {hasNextPage && !messagesError && (
+                    <CircularProgress ref={loadMoreRef} />
+                  )}
                   <MessageList
                     markLastSeen={markLastSeen}
                     messages={messagesRes.pages

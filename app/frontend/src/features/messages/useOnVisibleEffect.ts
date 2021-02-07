@@ -5,7 +5,9 @@ export default function useOnVisibleEffect<Param>(
   param: Param,
   onVisible?: (param: Param) => void
 ) {
-  const { ref, inView } = useInView();
+  const { ref, inView } = useInView({
+    threshold: 0.9,
+  });
 
   useEffect(() => {
     if (inView) {

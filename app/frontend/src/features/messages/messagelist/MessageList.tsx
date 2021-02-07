@@ -41,7 +41,7 @@ export default function MessageList({
       data-testid="message-list"
     >
       {messages.length ? (
-        messages.map((message, index, array) =>
+        messages.map((message) =>
           isControlMessage(message) ? (
             <ControlMessageView
               key={message.messageId}

@@ -51,6 +51,7 @@ export default function ControlMessageView({
       className={classNames(classes.root, className)}
       data-testid={`message-${message.messageId}`}
       ref={ref}
+      id={`message-${message.messageId}`}
     >
       <Box className={classes.timestamp}>
         <TimeInterval date={timestamp2Date(message.time!)} />
