@@ -41,15 +41,18 @@ export async function getGroupChat(id: number) {
 }
 
 export async function getGroupChatMessages(
-  groupChatId: number
-): Promise<Message.AsObject[]> {
+  groupChatId: number,
+  lastMessageId: number = 0,
+  count: number = 2
+) {
   const req = new GetGroupChatMessagesReq();
   req.setGroupChatId(groupChatId);
+  req.setLastMessageId(lastMessageId);
+  req.setNumber(count);
 
   const response = await client.conversations.getGroupChatMessages(req);
-  const messages = response.getMessagesList();
 
-  return messages.map((message) => message.toObject());
+  return response.toObject();
 }
 
 export async function createGroupChat(

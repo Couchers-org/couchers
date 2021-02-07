@@ -3,8 +3,13 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
-import React, { useRef, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "react-query";
 import { useHistory, useParams } from "react-router-dom";
 
 import Alert from "../../../components/Alert";
@@ -13,12 +18,16 @@ import HeaderButton from "../../../components/HeaderButton";
 import { BackIcon, OverflowMenuIcon } from "../../../components/Icons";
 import Menu, { MenuItem } from "../../../components/Menu";
 import PageTitle from "../../../components/PageTitle";
-import { GroupChat, Message } from "../../../pb/conversations_pb";
+import {
+  GetGroupChatMessagesRes,
+  GroupChat,
+} from "../../../pb/conversations_pb";
 import { service } from "../../../service";
 import { useAuthContext } from "../../auth/AuthProvider";
 import useUsers from "../../userQueries/useUsers";
 import MessageList from "../messagelist/MessageList";
 import useMarkLastSeen, { MarkLastSeenVariables } from "../useMarkLastSeen";
+import useOnVisibleEffect from "../useOnVisibleEffect";
 import { groupChatTitleText } from "../utils";
 import AdminsDialog from "./AdminsDialog";
 import GroupChatSendField from "./GroupChatSendField";
@@ -28,10 +37,24 @@ import LeaveDialog from "./LeaveDialog";
 import MembersDialog from "./MembersDialog";
 
 const useStyles = makeStyles((theme) => ({
-  header: { display: "flex", alignItems: "center" },
+  pageWrapper: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "stretch",
+    height: `calc(100vh - ${theme.shape.navPaddingMobile})`,
+    [theme.breakpoints.up("md")]: {
+      height: `calc(100vh - ${theme.shape.navPaddingDesktop})`,
+    },
+  },
+  header: { display: "flex", alignItems: "center", flexGrow: 0 },
+  scroll: theme.shape.scrollBar,
+  footer: { flexGrow: 0 },
   title: {
     flexGrow: 1,
     marginInline: theme.spacing(2),
+  },
+  messageList: {
+    paddingBlock: theme.spacing(2),
   },
 }));
 
@@ -78,13 +101,21 @@ export default function GroupChatView() {
   const groupChatMembersQuery = useUsers(groupChat?.memberUserIdsList ?? []);
 
   const {
-    data: messages,
+    data: messagesRes,
     isLoading: isMessagesLoading,
     error: messagesError,
-  } = useQuery<Message.AsObject[], GrpcError>(
+    fetchNextPage,
+    isFetchingNextPage,
+    hasNextPage,
+  } = useInfiniteQuery<GetGroupChatMessagesRes.AsObject, GrpcError>(
     ["groupChatMessages", groupChatId],
-    () => service.conversations.getGroupChatMessages(groupChatId),
-    { enabled: !!groupChatId }
+    ({ pageParam: lastMessageId }) =>
+      service.conversations.getGroupChatMessages(groupChatId, lastMessageId),
+    {
+      enabled: !!groupChatId,
+      getNextPageParam: (lastPage) =>
+        lastPage.noMore ? undefined : lastPage.lastMessageId,
+    }
   );
 
   const queryClient = useQueryClient();
@@ -120,16 +151,38 @@ export default function GroupChatView() {
 
   const handleBack = () => history.goBack();
 
-  /*const { ref: loadMoreRef } = useOnVisibleEffect(data?.nextMessageId, () => {
-    console.log(`More from: ${data?.nextMessageId}`);
-  });*/
+  const scrollRef = useRef<HTMLElement>(null);
+  const prevScrollHeight = useRef<number | undefined>(undefined);
+
+  const { ref: loadMoreRef } = useOnVisibleEffect(null, () => {
+    prevScrollHeight.current = scrollRef.current?.scrollHeight;
+    fetchNextPage();
+  });
+
+  useEffect(() => {
+    console.log("!");
+    if (isFetchingNextPage || !scrollRef.current) return;
+    const newScrollHeight = scrollRef.current.scrollHeight;
+    if (newScrollHeight === prevScrollHeight.current) return;
+    scrollRef.current.scrollTo(
+      0,
+      newScrollHeight - (prevScrollHeight.current ?? newScrollHeight)
+    );
+    console.log(`${prevScrollHeight.current}  ${newScrollHeight}`);
+    prevScrollHeight.current = newScrollHeight;
+  }, [isFetchingNextPage]);
+
+  useEffect(() => {
+    if (!scrollRef.current) return;
+    scrollRef.current.scroll(0, scrollRef.current.scrollHeight);
+  }, [scrollRef]);
 
   return (
     <Box>
       {!groupChatId ? (
         <Alert severity="error">Invalid chat id.</Alert>
       ) : (
-        <>
+        <Box className={classes.pageWrapper}>
           <Box className={classes.header}>
             <HeaderButton onClick={handleBack} aria-label="Back">
               <BackIcon />
@@ -237,14 +290,30 @@ export default function GroupChatView() {
           {isMessagesLoading ? (
             <CircularProgress />
           ) : (
-            messages && (
+            messagesRes && (
               <>
-                <MessageList markLastSeen={markLastSeen} messages={messages} />
-                <GroupChatSendField sendMutation={sendMutation} />
+                <Box className={classes.scroll} ref={scrollRef}>
+                  {hasNextPage &&
+                    (isFetchingNextPage ? (
+                      <CircularProgress />
+                    ) : (
+                      <Box ref={loadMoreRef}></Box>
+                    ))}
+                  <MessageList
+                    markLastSeen={markLastSeen}
+                    messages={messagesRes.pages
+                      .map((page) => page.messagesList)
+                      .flat()}
+                    className={classes.messageList}
+                  />
+                </Box>
+                <Box className={classes.footer}>
+                  <GroupChatSendField sendMutation={sendMutation} />
+                </Box>
               </>
             )
           )}
-        </>
+        </Box>
       )}
     </Box>
   );

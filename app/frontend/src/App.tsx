@@ -15,20 +15,20 @@ import AuthProvider from "./features/auth/AuthProvider";
 import { ReactQueryClientProvider } from "./reactQueryClient";
 import { theme } from "./theme";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles({
   padding: {
     paddingBottom: theme.spacing(7),
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
     [`${theme.breakpoints.up("xs")} and (orientation: landscape)`]: {
-      paddingBottom: theme.spacing(6),
+      paddingBottom: theme.shape.navPaddingMobile,
     },
     [theme.breakpoints.up("md")]: {
       paddingBottom: 0,
-      paddingTop: theme.spacing(9),
+      paddingTop: theme.shape.navPaddingDesktop,
     },
   },
-}));
+});
 
 function App() {
   const classes = useStyles();

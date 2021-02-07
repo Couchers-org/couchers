@@ -23,6 +23,7 @@ import {
 } from "./features/profile";
 import SearchPage from "./features/search/SearchPage";
 import UserPage from "./features/userPage/UserPage";
+import { User } from "./pb/api_pb";
 import { PageType } from "./pb/pages_pb";
 
 export const loginRoute = "/login";
@@ -40,6 +41,8 @@ export const connectionsRoute = "/connections";
 export const notFoundRoute = "/notfound";
 
 export const userRoute = "/user";
+export const routeToUser = (user: User.AsObject) =>
+  `${userRoute}/${user.username}`;
 export const searchRoute = "/search";
 export const jailRoute = "/restricted";
 export const tosRoute = "/tos";

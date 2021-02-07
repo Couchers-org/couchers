@@ -14,7 +14,6 @@ import TimeInterval from "./MomentIndication";
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
-    marginTop: theme.spacing(2),
     "& > :first-child": { marginRight: theme.spacing(2) },
   },
   userRoot: { justifyContent: "flex-end" },
@@ -67,9 +66,14 @@ const useStyles = makeStyles((theme) => ({
 export interface MessageProps {
   message: Message.AsObject;
   onVisible?(messageId: number): void;
+  className?: string;
 }
 
-export default function MessageView({ message, onVisible }: MessageProps) {
+export default function MessageView({
+  message,
+  onVisible,
+  className,
+}: MessageProps) {
   const classes = useStyles();
   const { data: author } = useUser(message.authorUserId);
   const { data: currentUser } = useCurrentUser();
@@ -79,7 +83,7 @@ export default function MessageView({ message, onVisible }: MessageProps) {
 
   return (
     <Box
-      className={classNames(classes.root, {
+      className={classNames(classes.root, className, {
         [classes.userRoot]: isCurrentUser,
         [classes.otherRoot]: !isCurrentUser,
       })}

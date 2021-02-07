@@ -26,7 +26,11 @@ export default {
   ],
 } as Meta;
 
-mockedService.conversations.getGroupChatMessages = async () => messages;
+mockedService.conversations.getGroupChatMessages = async () => ({
+  messagesList: messages,
+  noMore: true,
+  lastMessageId: 0,
+});
 
 mockedService.conversations.createGroupChat = async () => {
   return 1234;

@@ -3,7 +3,9 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
 import classNames from "classnames";
 import React from "react";
+import { Link } from "react-router-dom";
 
+import { routeToUser } from "../../AppRoutes";
 import { User } from "../../pb/api_pb";
 
 const useStyles = makeStyles({
@@ -52,13 +54,15 @@ export default function Avatar({
       {...otherProps}
     >
       {user ? (
-        <MuiAvatar
-          className={classes.avatar}
-          alt={user.name}
-          src={user.avatarUrl}
-        >
-          {user.name.split(/\s+/).map((name) => name[0])}
-        </MuiAvatar>
+        <Link to={routeToUser(user)}>
+          <MuiAvatar
+            className={classes.avatar}
+            alt={user.name}
+            src={user.avatarUrl}
+          >
+            {user.name.split(/\s+/).map((name) => name[0])}
+          </MuiAvatar>
+        </Link>
       ) : otherProps.children ? (
         <MuiAvatar className={classes.avatar}>{otherProps.children}</MuiAvatar>
       ) : (

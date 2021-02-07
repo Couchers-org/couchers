@@ -1,6 +1,7 @@
 import { Box } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
+import classNames from "classnames";
 import React from "react";
 
 import { timestamp2Date } from "../../../utils/date";
@@ -14,7 +15,6 @@ import TimeInterval from "./MomentIndication";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    marginTop: theme.spacing(2),
     marginInline: "auto",
     textAlign: "center",
   },
@@ -31,6 +31,7 @@ const useStyles = makeStyles((theme) => ({
 export default function ControlMessageView({
   message,
   onVisible,
+  className,
 }: MessageProps) {
   const classes = useStyles();
   const currentUserId = useAuthContext().authState.userId;
@@ -47,7 +48,7 @@ export default function ControlMessageView({
   const targetName = firstName(target?.name);
   return (
     <Box
-      className={classes.root}
+      className={classNames(classes.root, className)}
       data-testid={`message-${message.messageId}`}
       ref={ref}
     >
