@@ -93,9 +93,9 @@ class User(Base):
     # community standing score
     community_standing = Column(Float, nullable=True)
 
-    occupation = Column(String, nullable=True)
-    about_me = Column(String, nullable=True)
-    about_place = Column(String, nullable=True)
+    occupation = Column(String, nullable=True)  # CommonMark without images
+    about_me = Column(String, nullable=True)  # CommonMark without images
+    about_place = Column(String, nullable=True)  # CommonMark without images
     # profile color
     color = Column(String, nullable=False, default="#643073")
     avatar_filename = Column(String, nullable=True)
@@ -115,9 +115,9 @@ class User(Base):
     wheelchair_accessible = Column(Boolean, nullable=True)
     smoking_allowed = Column(Enum(SmokingLocation), nullable=True)
 
-    sleeping_arrangement = Column(String, nullable=True)
-    area = Column(String, nullable=True)
-    house_rules = Column(String, nullable=True)
+    sleeping_arrangement = Column(String, nullable=True)  # CommonMark without images
+    area = Column(String, nullable=True)  # CommonMark without images
+    house_rules = Column(String, nullable=True)  # CommonMark without images
 
     accepted_tos = Column(Integer, nullable=False, default=0)
 
@@ -394,7 +394,7 @@ class Reference(Base):
 
     reference_type = Column(Enum(ReferenceType), nullable=False)
 
-    text = Column(String, nullable=True)
+    text = Column(String, nullable=True)  # CommonMark without images
 
     rating = Column(Integer, nullable=False)
     was_safe = Column(Boolean, nullable=False)
@@ -534,7 +534,7 @@ class Message(Base):
     # time sent, timezone should always be UTC
     time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
-    # the message text if not control
+    # the CommonMark-compliant message text if not control
     text = Column(String, nullable=True)
 
     # the new host request status if the message type is host_request_status_changed
@@ -870,7 +870,7 @@ class PageVersion(Base):
     page_id = Column(ForeignKey("pages.id"), nullable=False, index=True)
     editor_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     title = Column(String, nullable=False)
-    content = Column(String, nullable=False)
+    content = Column(String, nullable=False)  # CommonMark without images
     # the human-readable address
     address = Column(String, nullable=True)
     geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
@@ -917,7 +917,7 @@ class Event(Base):
     id = Column(BigInteger, communities_seq, primary_key=True)
 
     title = Column(String, nullable=False)
-    content = Column(String, nullable=False)
+    content = Column(String, nullable=False)  # CommonMark without images
     thread_id = Column(ForeignKey("threads.id"), nullable=False, index=True, unique=True)
     geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=False)
     address = Column(String, nullable=False)
@@ -1033,7 +1033,7 @@ class Comment(Base):
 
     thread_id = Column(ForeignKey("threads.id"), nullable=False, index=True)
     author_user_id = Column(ForeignKey("users.id"), nullable=False)
-    content = Column(String, nullable=False)
+    content = Column(String, nullable=False)  # CommonMark without images
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     deleted = Column(DateTime(timezone=True), nullable=True)
 
@@ -1051,7 +1051,7 @@ class Reply(Base):
 
     comment_id = Column(ForeignKey("comments.id"), nullable=False, index=True)
     author_user_id = Column(ForeignKey("users.id"), nullable=False)
-    content = Column(String, nullable=False)
+    content = Column(String, nullable=False)  # CommonMark without images
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     deleted = Column(DateTime(timezone=True), nullable=True)
 
