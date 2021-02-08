@@ -109,7 +109,7 @@ message Message {
   uint64 author_user_id = 2;
   google.protobuf.Timestamp time = 3;
   oneof content {
-    MessageContentText text = 4;
+    MessageContentText text = 4;  // CommonMark without images
 
     MessageContentChatCreated chat_created = 5;
     MessageContentChatEdited chat_edited = 6;

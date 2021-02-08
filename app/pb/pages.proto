@@ -55,7 +55,7 @@ message Page {
   }
   int64 thread_id = 10;
   string title = 11;
-  string content = 12;
+  string content = 12;  // CommonMark without images
   string address = 13;
   Coordinate location = 14;
   repeated int64 editor_user_ids = 15;

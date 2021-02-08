@@ -185,8 +185,8 @@ message User {
   google.protobuf.Timestamp last_active = 12; // not exact
   HostingStatus hosting_status = 13;
   string occupation = 14;
-  string about_me = 15;
-  string about_place = 16;
+  string about_me = 15;  // CommonMark without images
+  string about_place = 16;  // CommonMark without images
   repeated string languages = 17;
   repeated string countries_visited = 18;
   repeated string countries_lived = 19;
@@ -201,9 +201,9 @@ message User {
   google.protobuf.BoolValue accepts_kids = 26;
   google.protobuf.BoolValue wheelchair_accessible = 27;
   SmokingLocation smoking_allowed = 28;
-  google.protobuf.StringValue sleeping_arrangement = 29;
-  google.protobuf.StringValue area = 30;
-  google.protobuf.StringValue house_rules = 31;
+  google.protobuf.StringValue sleeping_arrangement = 29;  // CommonMark without images
+  google.protobuf.StringValue area = 30;  // CommonMark without images
+  google.protobuf.StringValue house_rules = 31;  // CommonMark withuot images
 
   string avatar_url = 32;
 }
@@ -233,8 +233,8 @@ message UpdateProfileReq {
 
   google.protobuf.StringValue gender = 3;
   NullableStringValue occupation = 4;
-  NullableStringValue about_me = 5;
-  NullableStringValue about_place = 6;
+  NullableStringValue about_me = 5;  // CommonMark without images
+  NullableStringValue about_place = 6;  // CommonMark without images
   google.protobuf.StringValue color = 7;
 
   HostingStatus hosting_status = 8;
@@ -250,9 +250,9 @@ message UpdateProfileReq {
   NullableBoolValue accepts_kids = 16;
   NullableBoolValue wheelchair_accessible = 17;
   SmokingLocation smoking_allowed = 18;
-  NullableStringValue sleeping_arrangement = 19;
-  NullableStringValue area = 20;
-  NullableStringValue house_rules = 21;
+  NullableStringValue sleeping_arrangement = 19;  // CommonMark without images
+  NullableStringValue area = 20;  // CommonMark without images
+  NullableStringValue house_rules = 21;  // CommonMark without images
 }
 
 message ReportReq {
@@ -299,7 +299,7 @@ message Reference {
   int64 from_user_id = 1;
   int64 to_user_id = 2;
   ReferenceType reference_type = 3;
-  string text = 4;
+  string text = 4;  // CommonMark without images
   google.protobuf.Timestamp written_time = 5;  // not exact
 }
 
@@ -322,7 +322,7 @@ message AvailableWriteReferenceTypesRes {
 message WriteReferenceReq {
   int64 to_user_id = 1;
   ReferenceType reference_type = 2;
-  string text = 3;
+  string text = 3;  // CommonMark without images
   bool was_safe = 4;
   int32 rating = 5;
 }
