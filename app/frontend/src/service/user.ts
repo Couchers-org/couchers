@@ -30,21 +30,29 @@ export type UpdateUserProfileData = Pick<
   ProfileFormData,
   | "name"
   | "city"
+  | "hometown"
   | "lat"
   | "lng"
   | "radius"
   | "gender"
+  | "pronouns"
   | "occupation"
-  | "languages"
+  | "education"
   | "aboutMe"
+  | "myTravels"
+  | "thingsILike"
   | "aboutPlace"
+  | "hostingStatus"
+  | "meetupStatus"
+  | "languages"
   | "countriesVisited"
   | "countriesLived"
+  | "additionalInformation"
 >;
 
 export type HostingPreferenceData = Omit<
   ProfileFormData,
-  keyof UpdateUserProfileData | "color" | "hostingStatus"
+  keyof UpdateUserProfileData
 >;
 
 export type SignupArguments = {
@@ -122,36 +130,54 @@ export async function updateProfile(
 
   const name = new wrappers.StringValue().setValue(profile.name);
   const city = new wrappers.StringValue().setValue(profile.city);
+  const hometown = new NullableStringValue().setValue(profile.hometown);
   const lat = new wrappers.DoubleValue().setValue(profile.lat);
   const lng = new wrappers.DoubleValue().setValue(profile.lng);
   const radius = new wrappers.DoubleValue().setValue(profile.radius);
   const gender = new wrappers.StringValue().setValue(profile.gender);
+  const pronouns = new NullableStringValue().setValue(profile.pronouns);
   const occupation = new NullableStringValue().setValue(profile.occupation);
+  const education = new NullableStringValue().setValue(profile.education);
+  const aboutMe = new NullableStringValue().setValue(profile.aboutMe);
+  const myTravels = new NullableStringValue().setValue(profile.myTravels);
+  const thingsILike = new NullableStringValue().setValue(profile.thingsILike);
+  const aboutPlace = new NullableStringValue().setValue(profile.aboutPlace);
+  const hostingStatus = profile.hostingStatus;
+  const meetupStatus = profile.meetupStatus;
   const languages = new RepeatedStringValue()
     .setValueList(profile.languages)
     .setExists(!!profile.languages);
-  const aboutMe = new NullableStringValue().setValue(profile.aboutMe);
-  const aboutPlace = new NullableStringValue().setValue(profile.aboutPlace);
   const countriesVisited = new RepeatedStringValue()
     .setValueList(profile.countriesVisited)
     .setExists(!!profile.countriesVisited);
   const countriesLived = new RepeatedStringValue()
     .setValueList(profile.countriesLived)
     .setExists(!!profile.countriesLived);
+  const additionalInformation = new NullableStringValue().setValue(
+    profile.additionalInformation
+  );
 
   req
     .setName(name)
     .setCity(city)
+    .setHometown(hometown)
     .setLat(lat)
     .setLng(lng)
     .setRadius(radius)
     .setGender(gender)
+    .setPronouns(pronouns)
     .setOccupation(occupation)
-    .setLanguages(languages)
+    .setEducation(education)
     .setAboutMe(aboutMe)
+    .setMyTravels(myTravels)
+    .setThingsILike(thingsILike)
     .setAboutPlace(aboutPlace)
+    .setHostingStatus(hostingStatus)
+    .setMeetupStatus(meetupStatus)
+    .setLanguages(languages)
     .setCountriesVisited(countriesVisited)
-    .setCountriesLived(countriesLived);
+    .setCountriesLived(countriesLived)
+    .setAdditionalInformation(additionalInformation);
 
   return client.api.updateProfile(req);
 }
@@ -165,39 +191,83 @@ export function updateHostingPreference(preferences: HostingPreferenceData) {
           .setValue(preferences.maxGuests)
           .setIsNull(false)
       : new NullableUInt32Value().setIsNull(true);
-  const area = new NullableStringValue().setValue(preferences.area);
-  const houseRules = new NullableStringValue().setValue(preferences.houseRules);
-  const multipleGroups = new NullableBoolValue()
-    .setValue(preferences.multipleGroups)
+  const lastMinute = new NullableBoolValue()
+    .setValue(preferences.lastMinute)
     .setIsNull(false);
-  const acceptsKids = new NullableBoolValue()
-    .setValue(preferences.acceptsKids)
+  const hasPets = new NullableBoolValue()
+    .setValue(preferences.hasPets)
     .setIsNull(false);
   const acceptsPets = new NullableBoolValue()
     .setValue(preferences.acceptsPets)
     .setIsNull(false);
-  const lastMinute = new NullableBoolValue()
-    .setValue(preferences.lastMinute)
+  const petDetails = new NullableStringValue().setValue(preferences.petDetails);
+  const hasKids = new NullableBoolValue()
+    .setValue(preferences.hasKids)
     .setIsNull(false);
+  const acceptsKids = new NullableBoolValue()
+    .setValue(preferences.acceptsKids)
+    .setIsNull(false);
+  const kidDetails = new NullableStringValue().setValue(preferences.kidDetails);
+  const hasHousemates = new NullableBoolValue()
+    .setValue(preferences.hasHousemates)
+    .setIsNull(false);
+  const housemateDetails = new NullableStringValue().setValue(
+    preferences.housemateDetails
+  );
   const wheelchairAccessible = new NullableBoolValue()
     .setValue(preferences.wheelchairAccessible)
     .setIsNull(false);
   const smokingAllowed = preferences.smokingAllowed;
-  const sleepingArrangement = new NullableStringValue().setValue(
-    preferences.sleepingArrangement
+  const smokesAtHome = new NullableBoolValue()
+    .setValue(preferences.smokesAtHome)
+    .setIsNull(false);
+  const drinksAllowed = new NullableBoolValue()
+    .setValue(preferences.drinksAllowed)
+    .setIsNull(false);
+  const drinksAtHome = new NullableBoolValue()
+    .setValue(preferences.drinksAtHome)
+    .setIsNull(false);
+  const otherHostInfo = new NullableStringValue().setValue(
+    preferences.otherHostInfo
   );
+  const sleepingArrangement = preferences.sleepingArrangement;
+  const sleepingDetails = new NullableStringValue().setValue(
+    preferences.sleepingDetails
+  );
+  const area = new NullableStringValue().setValue(preferences.area);
+  const houseRules = new NullableStringValue().setValue(preferences.houseRules);
+  const parking = new NullableBoolValue()
+    .setValue(preferences.parking)
+    .setIsNull(false);
+  const parkingDetails = preferences.parkingDetails;
+  const campingOk = new NullableBoolValue()
+    .setValue(preferences.campingOk)
+    .setIsNull(false);
 
   req
     .setMaxGuests(maxGuests)
-    .setArea(area)
-    .setHouseRules(houseRules)
-    .setMultipleGroups(multipleGroups)
-    .setAcceptsKids(acceptsKids)
-    .setAcceptsPets(acceptsPets)
     .setLastMinute(lastMinute)
+    .setHasPets(hasPets)
+    .setAcceptsPets(acceptsPets)
+    .setPetDetails(petDetails)
+    .setHasKids(hasKids)
+    .setAcceptsKids(acceptsKids)
+    .setKidDetails(kidDetails)
+    .setHasHousemates(hasHousemates)
+    .setHousemateDetails(housemateDetails)
     .setWheelchairAccessible(wheelchairAccessible)
     .setSmokingAllowed(smokingAllowed)
-    .setSleepingArrangement(sleepingArrangement);
+    .setSmokesAtHome(smokesAtHome)
+    .setDrinksAllowed(drinksAllowed)
+    .setDrinksAtHome(drinksAtHome)
+    .setOtherHostInfo(otherHostInfo)
+    .setSleepingArrangement(sleepingArrangement)
+    .setSleepingDetails(sleepingDetails)
+    .setArea(area)
+    .setHouseRules(houseRules)
+    .setParking(parking)
+    .setParkingDetails(parkingDetails)
+    .setCampingOk(campingOk);
 
   return client.api.updateProfile(req);
 }
