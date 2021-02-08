@@ -6,7 +6,6 @@ import {
   Toolbar,
   Typography,
 } from "@material-ui/core";
-import React from "react";
 
 import {
   connectionsRoute,
@@ -16,6 +15,7 @@ import {
   profileRoute,
 } from "../../AppRoutes";
 import { useAuthContext } from "../../features/auth/AuthProvider";
+import BugReport from "../../features/BugReport";
 import {
   CommunityIcon,
   CrossIcon,
@@ -68,6 +68,10 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 3,
     display: "flex",
     justifyContent: "flex-end",
+    alignItems: "center",
+    [theme.breakpoints.down("sm")]: {
+      marginInlineEnd: theme.spacing(1),
+    },
   },
   title: {
     fontWeight: "bold",
@@ -141,11 +145,12 @@ export default function Navigation() {
             )}
           </Hidden>
         </Grid>
-        <Hidden smDown>
-          <div className={classes.search}>
+        <div className={classes.search}>
+          <BugReport />
+          <Hidden smDown>
             <SearchBox />
-          </div>
-        </Hidden>
+          </Hidden>
+        </div>
       </Toolbar>
     </AppBar>
   );

@@ -7,11 +7,11 @@ import { searchRoute } from "../AppRoutes";
 import { SearchQuery } from "../features/search/constants";
 import TextField from "./TextField";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   root: {
-    marginLeft: "auto",
+    marginLeft: theme.spacing(2),
   },
-});
+}));
 
 export default function SearchBox() {
   const classes = useStyles();

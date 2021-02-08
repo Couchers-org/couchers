@@ -1,5 +1,6 @@
 import * as api from "./api";
 import * as auth from "./auth";
+import * as bugs from "./bugs";
 import * as communities from "./communities";
 import * as conversations from "./conversations";
 import * as groups from "./groups";
@@ -13,6 +14,7 @@ export const service = {
   search,
   user,
   auth,
+  bugs,
   conversations,
   communities,
   groups,
