@@ -45,7 +45,7 @@ from pb import (
 
 config.check_config()
 
-logging.basicConfig(format="%(asctime)s: (%(name)-30s) %(message)s", level=logging.INFO)
+logging.basicConfig(format="%(asctime)s: %(name)d: %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -137,7 +137,7 @@ if config.config["ROLE"] in ["scheduler", "all"]:
     scheduler = start_jobs_scheduler()
 
 if config.config["ROLE"] in ["worker", "all"]:
-    scheduler = start_jobs_worker()
+    worker = start_jobs_worker()
 
 logger.info("App waiting for signal...")
 
