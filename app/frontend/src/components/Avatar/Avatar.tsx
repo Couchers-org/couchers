@@ -53,7 +53,7 @@ export default function Avatar({
       )}
       {...otherProps}
     >
-      {user ? (
+      {user ? ( ///TODO: Add prop for no link in case its in a link already
         <Link to={routeToUser(user)}>
           <MuiAvatar
             className={classes.avatar}
