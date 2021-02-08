@@ -5,7 +5,7 @@ from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.sql import func
 
 from couchers.db import session_scope
-from couchers.models import Node, PageVersion, User
+from couchers.models import Node, Page, PageType, PageVersion, User
 from pb import gis_pb2_grpc
 from pb.google.api import httpbody_pb2
 
@@ -47,14 +47,38 @@ class GIS(gis_pb2_grpc.GISServicer):
 
             return _query_to_geojson_response(session, query)
 
-    def GetPages(self, request, context):
+    def GetPlaces(self, request, context):
         with session_scope() as session:
-            # TODO: this might get very slow, very quickly
-            latest_pages = session.query(func.max(PageVersion.id)).group_by(PageVersion.page_id).subquery()
+            # need to do a subquery here so we get pages without a geom, not just versions without geom
+            latest_pages = (
+                session.query(func.max(PageVersion.id).label("id"))
+                .join(Page, Page.id == PageVersion.page_id)
+                .filter(Page.type == PageType.place)
+                .group_by(PageVersion.page_id)
+                .subquery()
+            )
 
             query = (
-                session.query(PageVersion.page_id.label("id"), PageVersion.geom)
-                .filter(PageVersion.id.in_(latest_pages))
+                session.query(PageVersion.page_id.label("id"), PageVersion.slug.label("slug"), PageVersion.geom)
+                .join(latest_pages, latest_pages.c.id == PageVersion.id)
+                .filter(PageVersion.geom != None)
+            )
+
+            return _query_to_geojson_response(session, query)
+
+    def GetGuides(self, request, context):
+        with session_scope() as session:
+            latest_pages = (
+                session.query(func.max(PageVersion.id).label("id"))
+                .join(Page, Page.id == PageVersion.page_id)
+                .filter(Page.type == PageType.guide)
+                .group_by(PageVersion.page_id)
+                .subquery()
+            )
+
+            query = (
+                session.query(PageVersion.page_id.label("id"), PageVersion.slug.label("slug"), PageVersion.geom)
+                .join(latest_pages, latest_pages.c.id == PageVersion.id)
                 .filter(PageVersion.geom != None)
             )
 
