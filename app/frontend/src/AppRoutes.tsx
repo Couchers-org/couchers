@@ -98,7 +98,7 @@ export default function AppRoutes() {
         <PagePage pageType={PageType.PAGE_TYPE_PLACE} />
       </PrivateRoute>
       <PrivateRoute path={newGuideRoute}>
-        <NewPagePage pageType={PageType.PAGE_TYPE_PLACE} />
+        <NewPagePage pageType={PageType.PAGE_TYPE_GUIDE} />
       </PrivateRoute>
       <PrivateRoute path={`${guideRoute}/:pageId/:pageSlug?`}>
         <PagePage pageType={PageType.PAGE_TYPE_GUIDE} />

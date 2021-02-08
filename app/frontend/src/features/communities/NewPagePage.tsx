@@ -7,7 +7,7 @@ import NewPageForm from "./NewPageForm";
 export default function NewPagePage({ pageType }: { pageType: PageType }) {
   return (
     <>
-      <PageTitle>Create a new page</PageTitle>
+      <PageTitle>Create a new {pageType === PageType.PAGE_TYPE_GUIDE ? "guide" : "place"}</PageTitle>
       <NewPageForm pageType={pageType} />
     </>
   );
