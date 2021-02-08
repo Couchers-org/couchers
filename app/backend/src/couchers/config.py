@@ -11,8 +11,9 @@ NOTIFICATION_EMAIL_SENDER = "Couchers.org"
 CONFIG_OPTIONS = [
     # Whether we're in dev mode
     ("DEV", bool),
-    # Whether we're fg (answering API queries) or bg processing
-    ("ROLE", ["fg", "bg", "both"], "both"),
+    # Whether we're `api` mode (answering API queries) or `scheduler` (scheduling background jobs), or `worker`
+    # (servicing background jobs). Can also be set to `all` to do all three simultaneously
+    ("ROLE", ["api", "scheduler", "worker", "all"], "all"),
     # Version string
     ("VERSION", str, "unknown"),
     # Base URL

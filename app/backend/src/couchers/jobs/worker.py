@@ -171,9 +171,13 @@ def _run_forever(func):
             logger.critical("Unhandled exception in background worker", exc_info=e)
 
 
-def start_job_servicer():
-    bg_loop = Process(target=_run_forever, args=(service_jobs,))
-    bg_loop.start()
-    bg_scheduler = Process(target=_run_forever, args=(run_scheduler,))
-    bg_scheduler.start()
-    return (bg_loop, bg_scheduler)
+def start_jobs_scheduler():
+    scheduler = Process(target=_run_forever, args=(run_scheduler,))
+    scheduler.start()
+    return scheduler
+
+
+def start_jobs_worker():
+    worker = Process(target=_run_forever, args=(service_jobs,))
+    worker.start()
+    return worker
