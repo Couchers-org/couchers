@@ -46,7 +46,7 @@
         <div class="control content">
           <button class="button is-primary">Next</button>
         </div>
-	<p class="content has-text-grey is-italic">Your basic details will be submitted when you press Next</p>
+        <p class="content has-text-grey is-italic">Your basic details will be submitted when you press Next</p>
       </form>
     </section>
 
@@ -211,7 +211,7 @@ export default {
         }, 12000)
 
         const res = await this.$axios.$post(
-          'https://ja4o9uz9u3.execute-api.us-east-1.amazonaws.com/default/form_handler',
+          'https://ja4o9uz9u3.execute-api.us-east-1.amazonaws.com/form_handler',
           data,
           { cancelToken: source.token }
         ).then(res => {
