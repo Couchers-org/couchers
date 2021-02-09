@@ -134,7 +134,7 @@
 
     <section class="section" v-bind:class="{ 'is-hidden': !second_page_done || loading }">
       <h3 class="title is-3">Thank you!</h3>
-      <p class="subtitle is-5">We appreciate you taking the time to help us build Coucher.org</p>
+      <p class="subtitle is-5">We appreciate you taking the time to help us build Couchers.org</p>
     </section>
 
     <section v-bind:class="{ 'is-hidden': !loading || error }">
