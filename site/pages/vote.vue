@@ -29,7 +29,7 @@
                 <input type="radio" name="vote" value="option1" v-model="vote" />
                 <div class="media-left">
                   <figure class="image is-128x128">
-                    <img src="/vote-samples/option1.png" alt="Option 1">
+                    <img src="/img/head-itsi.jpg" alt="Option 1">
                   </figure>
                 </div>
               </label>
@@ -39,7 +39,7 @@
                 <input type="radio" name="vote" value="option2" v-model="vote" />
                 <div class="media-left">
                   <figure class="image is-128x128">
-                    <img src="/vote-samples/option2.png" alt="Option 2">
+                    <img src="/img/head-jesse.jpg" alt="Option 2">
                   </figure>
                 </div>
               </label>
@@ -49,7 +49,7 @@
                 <input type="radio" name="vote" value="option3" v-model="vote" />
                 <div class="media-left">
                   <figure class="image is-128x128">
-                    <img src="/vote-samples/option3.png" alt="Option 3">
+                    <img src="/img/head-emily.jpg" alt="Option 3">
                   </figure>
                 </div>
               </label>
