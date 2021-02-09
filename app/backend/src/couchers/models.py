@@ -123,7 +123,6 @@ class User(Base):
     my_travels = Column(String, nullable=True)
     things_i_like = Column(String, nullable=True)
     about_place = Column(String, nullable=True)
-    # profile color
     avatar_filename = Column(String, nullable=True)
     # TODO: array types once we go postgres
     languages = Column(String, nullable=True)
