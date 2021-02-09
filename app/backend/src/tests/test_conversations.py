@@ -1,10 +1,8 @@
 import grpc
 import pytest
-import pytz
-from google.protobuf import empty_pb2, wrappers_pb2
+from google.protobuf import wrappers_pb2
 
 from couchers import errors
-from couchers.models import User
 from couchers.utils import now, to_aware_datetime
 from pb import api_pb2, conversations_pb2
 from tests.test_fixtures import api_session, conversations_session, db, generate_user, make_friends, testconfig
@@ -461,7 +459,6 @@ def test_get_group_chat_info_left(db):
         # this user left when user4 wasn't a member,
         # so the returned members should be user1, user2, and user3 only
         res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
-        print(res.member_user_ids)
         assert len(res.member_user_ids) == 3
         assert user1.id in res.member_user_ids
         assert user2.id in res.member_user_ids

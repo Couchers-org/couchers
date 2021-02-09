@@ -1,5 +1,5 @@
 import logging
-from urllib.parse import parse_qs, quote, unquote, urlencode
+from urllib.parse import parse_qs, unquote, urlencode
 
 import grpc
 

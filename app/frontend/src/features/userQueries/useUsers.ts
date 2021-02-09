@@ -1,6 +1,7 @@
 import { Error } from "grpc-web";
 import { useCallback, useEffect, useRef } from "react";
 import { useQueries, useQueryClient } from "react-query";
+
 import { User } from "../../pb/api_pb";
 import { service } from "../../service";
 import { arrayEq } from "../../utils/arrayEq";
@@ -17,7 +18,7 @@ export default function useUsers(
       queryClient.invalidateQueries({
         predicate: (query) =>
           query.queryKey[0] === "user" &&
-          idsRef.current.includes(query.queryKey[1] as number),
+          !!idsRef.current.includes(query.queryKey[1] as number),
       });
     }
   }, [invalidate, queryClient]);

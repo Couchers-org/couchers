@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Box,
   Card,
@@ -8,13 +7,14 @@ import {
   makeStyles,
   Typography,
 } from "@material-ui/core";
-import { User } from "../../pb/api_pb";
-import TextBody from "../../components/TextBody";
-import { hostingStatusLabels } from "../profile/constants";
+import React from "react";
 import { Link } from "react-router-dom";
+
 import { userRoute } from "../../AppRoutes";
 import Avatar from "../../components/Avatar";
 import ScoreBar from "../../components/ScoreBar";
+import { User } from "../../pb/api_pb";
+import { hostingStatusLabels } from "../profile/constants";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -26,16 +26,10 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   card: {
-    borderRadius: `${theme.shape.borderRadius * 2}px`,
+    borderRadius: theme.shape.borderRadius,
   },
   resultHeader: {
     marginBottom: theme.spacing(1),
-  },
-  title: {
-    fontWeight: "bold",
-  },
-  subtitle: {
-    fontSize: "1.5em",
   },
 }));
 
@@ -53,12 +47,10 @@ export default function SearchResult({ user }: { user: User.AsObject }) {
             >
               <Avatar user={user} />
               <Container>
-                <Typography variant="h3" className={classes.title}>
-                  {user.name}
-                </Typography>
-                <TextBody className={classes.subtitle}>
+                <Typography variant="h2">{user.name}</Typography>
+                <Typography variant="subtitle1">
                   {hostingStatusLabels[user.hostingStatus]}
-                </TextBody>
+                </Typography>
               </Container>
             </Box>
 

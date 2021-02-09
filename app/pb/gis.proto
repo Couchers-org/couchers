@@ -15,4 +15,22 @@ service GIS {
       get: "/geojson/users"
     };
   }
+
+  rpc GetCommunities(google.protobuf.Empty) returns (google.api.HttpBody) {
+    option (google.api.http) = {
+      get: "/geojson/communities"
+    };
+  }
+
+  rpc GetPlaces(google.protobuf.Empty) returns (google.api.HttpBody) {
+    option (google.api.http) = {
+      get: "/geojson/places"
+    };
+  }
+
+  rpc GetGuides(google.protobuf.Empty) returns (google.api.HttpBody) {
+    option (google.api.http) = {
+      get: "/geojson/guides"
+    };
+  }
 }

@@ -1,55 +1,125 @@
-import { Box, Card, CardContent, IconButton } from "@material-ui/core";
+import { Box, Card, CardContent, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import ExpandLessIcon from "@material-ui/icons/ExpandLess";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import React, { useState } from "react";
+import classNames from "classnames";
+import React from "react";
+
 import Avatar from "../../../components/Avatar";
 import { Message } from "../../../pb/conversations_pb";
 import { timestamp2Date } from "../../../utils/date";
 import useCurrentUser from "../../userQueries/useCurrentUser";
 import { useUser } from "../../userQueries/useUsers";
 import TimeInterval from "./MomentIndication";
-import UserName from "./UserName";
+import useOnVisibleEffect from "./useOnVisibleEffect";
 
-const useStyles = makeStyles({
-  root: { display: "flex" },
-  card: { flexGrow: 1 },
-  header: { display: "flex" },
-  name: { flexGrow: 1 },
-});
+const useStyles = makeStyles((theme) => ({
+  root: {
+    display: "flex",
+    marginTop: theme.spacing(2),
+    "& > :first-child": { marginRight: theme.spacing(2) },
+  },
+  userRoot: { justifyContent: "flex-end" },
+  otherRoot: { justifyContent: "flex-start" },
+  card: {
+    [theme.breakpoints.up("xs")]: {
+      width: "100%",
+    },
+    [theme.breakpoints.up("sm")]: {
+      width: "80%",
+    },
+    [theme.breakpoints.up("md")]: {
+      width: "70%",
+    },
+    border: "1px solid",
+    borderRadius: theme.shape.borderRadius,
+  },
+  userCard: {
+    borderColor: theme.palette.secondary.main,
+  },
+  otherCard: {
+    borderColor: theme.palette.primary.main,
+  },
+  header: {
+    display: "flex",
+    padding: theme.spacing(2),
+    paddingBottom: theme.spacing(1),
+    alignItems: "center",
+  },
+  footer: {
+    display: "flex",
+    paddingInline: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
+    justifyContent: "flex-end",
+  },
+  avatar: { width: 40, height: 40 },
+  name: {
+    ...theme.typography.body2,
+    flexGrow: 1,
+    margin: 0,
+    fontWeight: "bold",
+  },
+  messageBody: {
+    paddingTop: 0,
+    paddingBottom: theme.spacing(1),
+    "&:last-child": { paddingBottom: theme.spacing(2) },
+  },
+}));
 
 export interface MessageProps {
   message: Message.AsObject;
+  onVisible?(messageId: number): void;
 }
 
-export default function MessageView({ message }: MessageProps) {
-  const [expanded, setExpanded] = useState<boolean>(false);
+export default function MessageView({ message, onVisible }: MessageProps) {
   const classes = useStyles();
   const { data: author } = useUser(message.authorUserId);
   const { data: currentUser } = useCurrentUser();
   const isCurrentUser = author?.userId === currentUser?.userId;
+
+  const { ref } = useOnVisibleEffect(message.messageId, onVisible);
+
   return (
-    <Card className={classes.root}>
-      {author && !isCurrentUser && <Avatar user={author} />}
-      <Box className={classes.card}>
+    <Box
+      className={classNames(classes.root, {
+        [classes.userRoot]: isCurrentUser,
+        [classes.otherRoot]: !isCurrentUser,
+      })}
+      data-testid={`message-${message.messageId}`}
+      ref={ref}
+      style={{}}
+    >
+      {author && !isCurrentUser && (
+        <Avatar user={author} className={classes.avatar} />
+      )}
+      <Card
+        className={classNames(classes.card, {
+          [classes.userCard]: isCurrentUser,
+          [classes.otherCard]: !isCurrentUser,
+        })}
+      >
         <Box className={classes.header}>
-          {author && <UserName user={author} className={classes.name} />}
-          <TimeInterval date={timestamp2Date(message.time!)} />
-          <IconButton
-            onClick={(event) => {
-              event.stopPropagation();
-              setExpanded(!expanded);
-            }}
-          >
-            {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-          </IconButton>
+          {author && (
+            <Typography variant="h5" className={classes.name}>
+              {author.name}
+            </Typography>
+          )}
+          {!isCurrentUser && (
+            <TimeInterval date={timestamp2Date(message.time!)} />
+          )}
         </Box>
 
-        <CardContent style={{ maxHeight: expanded ? "unset" : "4em" }}>
+        <CardContent className={classes.messageBody}>
           {message.text?.text || ""}
         </CardContent>
-      </Box>
-      {author && isCurrentUser && <Avatar user={author} />}
-    </Card>
+
+        {isCurrentUser && (
+          <Box className={classes.footer}>
+            <TimeInterval date={timestamp2Date(message.time!)} />
+          </Box>
+        )}
+      </Card>
+      {author && isCurrentUser && (
+        <Avatar user={author} className={classes.avatar} />
+      )}
+    </Box>
   );
 }

@@ -1,17 +1,18 @@
-import React, { useState, useRef } from "react";
 import {
+  ButtonBase,
   Checkbox,
+  createStyles,
+  fade,
   IconButton,
   InputBase,
-  ButtonBase,
-  Popper,
-  fade,
   makeStyles,
-  createStyles,
+  Popper,
 } from "@material-ui/core";
 import Autocomplete, {
   AutocompleteCloseReason,
 } from "@material-ui/lab/Autocomplete";
+import React, { useRef, useState } from "react";
+
 import { CloseIcon, ExpandMore } from "../../components/Icons";
 
 const useStyles = makeStyles((theme) =>
@@ -110,6 +111,7 @@ interface ProfileTagInputProps {
   options: string[];
   label: string;
   id: string;
+  className?: string;
 }
 
 export default function ProfileTagInput({
@@ -118,6 +120,7 @@ export default function ProfileTagInput({
   options,
   label,
   id,
+  className,
 }: ProfileTagInputProps) {
   const classes = useStyles();
 
@@ -159,6 +162,7 @@ export default function ProfileTagInput({
         classes={{
           root: classes.button,
         }}
+        className={className}
       >
         <span>{label}</span>
         <ExpandMore />

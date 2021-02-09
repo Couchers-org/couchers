@@ -4,7 +4,8 @@ let files = glob.sync('**/*.md', { cwd: 'markdown' })
 files = files.map(d => d.substr(0, d.lastIndexOf('.')))
 
 export default {
-  mode: 'universal',
+  components: true,
+  target: 'static',
   /*
   ** Headers of the page
   */

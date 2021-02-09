@@ -9,6 +9,7 @@ services:
   postgres:
     image: postgis/postgis:13-3.0
     env_file: postgres.dev.env
+    command: ["postgres", "-c", "log_statement=all"]
     volumes:
       - "./data/postgres/pgdata:/var/lib/postgresql/data"
     restart: on-failure
@@ -76,15 +77,3 @@ services:
       - backend
     links:
       - backend
-#  vue:
-#    build: vue
-#    volumes:
-#      - "./vue:/app"
-#    command: sh -c "yarn && yarn dev"
-#    restart: on-failure
-#    ports:
-#      - 8080:8080
-#    depends_on:
-#      - backend
-#    links:
-#      - backend

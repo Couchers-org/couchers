@@ -7,6 +7,11 @@ import "./reset.css";
 
 export const parameters = {
   actions: { argTypesRegex: "^on[A-Z].*" },
+  options: {
+    storySort: {
+      order: ["Couchers Storybook"],
+    }
+  }
 };
 
 export const decorators = [

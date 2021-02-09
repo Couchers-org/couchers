@@ -1,25 +1,41 @@
 import { makeStyles } from "@material-ui/core";
 import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
+
 import Alert from "../../components/Alert";
 import Button from "../../components/Button";
-import ProfileTextInput from "./ProfileTextInput";
+import CircularProgress from "../../components/CircularProgress";
+import EditUserLocationMap from "../../components/EditUserLocationMap";
 import { UpdateUserProfileData } from "../../service/user";
-import { theme } from "../../theme";
+import { useIsMounted, useSafeState } from "../../utils/hooks";
+import useCurrentUser from "../userQueries/useCurrentUser";
 import ProfileMarkdownInput from "./ProfileMarkdownInput";
 import ProfileTagInput from "./ProfileTagInput";
-import EditUserLocationMap from "../../components/EditUserLocationMap";
-import CircularProgress from "../../components/CircularProgress";
-import useCurrentUser from "../userQueries/useCurrentUser";
+import ProfileTextInput from "./ProfileTextInput";
 import useUpdateUserProfile from "./useUpdateUserProfile";
-import { useIsMounted, useSafeState } from "../../utils/hooks";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   buttonContainer: {
     display: "flex",
     paddingTop: theme.spacing(1),
   },
-});
+  field: {
+    "& > .MuiInputBase-root": {
+      width: "100%",
+    },
+    [theme.breakpoints.up("md")]: {
+      "& > .MuiInputBase-root": {
+        width: 400,
+      },
+    },
+  },
+  tagInput: {
+    width: "100%",
+    [theme.breakpoints.up("md")]: {
+      width: 400,
+    },
+  },
+}));
 
 export default function EditProfileForm() {
   const classes = useStyles();
@@ -34,9 +50,12 @@ export default function EditProfileForm() {
     isMounted,
     null
   );
-  const { control, register, handleSubmit, setValue } = useForm<
-    UpdateUserProfileData
-  >({
+  const {
+    control,
+    register,
+    handleSubmit,
+    setValue,
+  } = useForm<UpdateUserProfileData>({
     defaultValues: {
       city: user?.city ?? undefined,
       lat: user?.lat ?? undefined,
@@ -72,6 +91,7 @@ export default function EditProfileForm() {
               name="name"
               defaultValue={user.name}
               inputRef={register}
+              className={classes.field}
             />
           </form>
           <Controller
@@ -96,12 +116,14 @@ export default function EditProfileForm() {
               name="gender"
               defaultValue={user.gender}
               inputRef={register}
+              className={classes.field}
             />
             <ProfileTextInput
               label="Occupation"
               name="occupation"
               defaultValue={user.occupation}
               inputRef={register}
+              className={classes.field}
             />
 
             <Controller
@@ -115,6 +137,7 @@ export default function EditProfileForm() {
                   options={[]}
                   label="Languages I speak"
                   id="languages"
+                  className={classes.tagInput}
                 />
               )}
             />
@@ -154,6 +177,7 @@ export default function EditProfileForm() {
                   options={[]}
                   label="Countries I've Visited"
                   id="countries-visited"
+                  className={classes.tagInput}
                 />
               )}
             />
@@ -169,6 +193,7 @@ export default function EditProfileForm() {
                   options={[]}
                   label="Countries I've Lived In"
                   id="countries-lived"
+                  className={classes.tagInput}
                 />
               )}
             />

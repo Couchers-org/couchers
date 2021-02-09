@@ -1,13 +1,13 @@
-import { Meta, Story } from "@storybook/react/types-6-0";
+import { Meta, Story } from "@storybook/react";
 import * as React from "react";
+import { QueryClient, QueryClientProvider } from "react-query";
 
-import { mockedService } from "../../../stories/__mocks__/service";
 import * as pb_conversations_pb from "../../../pb/conversations_pb";
 import { Message } from "../../../pb/conversations_pb";
 import { HostRequest } from "../../../pb/requests_pb";
-import SurfingTab from "./SurfingTab";
+import { mockedService } from "../../../stories/__mocks__/service";
 import AuthProvider from "../../auth/AuthProvider";
-import { QueryClient, QueryClientProvider } from "react-query";
+import SurfingTab from "./SurfingTab";
 
 const message1: Message.AsObject = {
   messageId: 1,

@@ -1,6 +1,7 @@
 import { Box, makeStyles } from "@material-ui/core";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+
 import Button from "../../../components/Button";
 import EditUserLocationMap, {
   ApproximateLocation,
@@ -28,9 +29,13 @@ export default function LocationSection({
 
   const [completed, setCompleted] = useState(false);
 
-  const { control, register, handleSubmit, getValues, setValue } = useForm<
-    LocationInfo
-  >({
+  const {
+    control,
+    register,
+    handleSubmit,
+    getValues,
+    setValue,
+  } = useForm<LocationInfo>({
     defaultValues: { city: "", location: {} },
   });
 

@@ -1,6 +1,7 @@
 import React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { MemoryRouter } from "react-router-dom";
+
 import AuthProvider from "../features/auth/AuthProvider";
 
 export default function hookWrapper({
@@ -24,11 +25,17 @@ export default function hookWrapper({
   );
 }
 
+interface HookWrapperConfig {
+  initialRouterEntries?: string[];
+}
+
 /**
  * Test utility function for retrieving the wrapper with the React Query client.
  * Useful for when you need access to the client as well for certain tests.
  */
-export function getHookWrapperWithClient() {
+export function getHookWrapperWithClient({
+  initialRouterEntries,
+}: HookWrapperConfig = {}) {
   const client = new QueryClient({
     defaultOptions: {
       queries: {
@@ -37,7 +44,7 @@ export function getHookWrapperWithClient() {
     },
   });
   const wrapper = ({ children }: { children?: React.ReactNode }) => (
-    <MemoryRouter>
+    <MemoryRouter initialEntries={initialRouterEntries}>
       <QueryClientProvider client={client}>
         <AuthProvider>{children}</AuthProvider>
       </QueryClientProvider>

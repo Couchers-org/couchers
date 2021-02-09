@@ -1,42 +1,88 @@
 import { createMuiTheme, ThemeOptions } from "@material-ui/core";
+import type {} from "@material-ui/lab/themeAugmentation";
+
+declare module "@material-ui/core/styles/createTypography" {
+  interface TypographyOptions {
+    h1Large?: TypographyStyleOptions;
+  }
+}
 
 const spacing = (factor: number) => `${0.5 * factor}rem`;
+const borderRadius = 12;
 
 const themeOptions: ThemeOptions = {
   palette: {
     primary: {
-      main: "#f8aa3a",
+      main: "#55185d",
+      light: "#84458b",
+      dark: "#2a0033",
     },
     secondary: {
-      main: "#b8574c",
+      main: "#ffd524",
+      light: "#ffff60",
+      dark: "#c7a400",
+    },
+    error: {
+      main: "#ff0000",
+    },
+    success: {
+      main: "#1ac302",
     },
   },
   spacing: spacing,
   typography: {
-    fontFamily: "Lato, Arial, sans-serif",
+    fontFamily: "Ubuntu, sans-serif",
     h1: {
-      fontSize: 24,
+      fontSize: "1.25rem", //20px
+      fontWeight: "bold",
       marginTop: spacing(2),
     },
+    h1Large: {
+      fontSize: "1.5rem", //24px
+    },
     h2: {
-      fontSize: 20,
+      fontSize: "1rem", //16px
+      fontWeight: "bold",
       marginTop: spacing(1),
     },
     h3: {
-      fontSize: 16,
+      fontSize: "0.75rem", //12px
+      fontWeight: "bold",
       marginTop: spacing(1),
     },
-    caption: {
-      fontSize: 10,
+    body1: {
+      fontSize: "0.875rem", //14px
     },
-    fontSize: 14,
+    body2: {
+      fontSize: "0.75rem", //12px
+    },
+    caption: {
+      fontSize: "0.625rem", //10px
+    },
+    overline: {
+      fontSize: "0.875rem", //14px
+      fontStyle: "italic",
+    },
+    button: {
+      fontSize: "0.875rem", //14px
+      textTransform: "none", //don't capitalize
+    },
   },
   shape: {
-    borderRadius: 10,
+    borderRadius,
   },
   props: {
     MuiButtonBase: {
       disableRipple: true,
+    },
+  },
+  overrides: {
+    MuiListItem: { gutters: { paddingLeft: 0, paddingRight: 0 } },
+    MuiTabPanel: {
+      root: {
+        padding: 0,
+        paddingTop: spacing(1),
+      },
     },
   },
 };

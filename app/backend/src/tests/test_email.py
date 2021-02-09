@@ -3,7 +3,7 @@ from unittest.mock import create_autospec, patch
 import pytest
 
 from couchers.config import config
-from couchers.crypto import random_hex, urlsafe_secure_token
+from couchers.crypto import random_hex
 from couchers.db import new_login_token, new_signup_token, session_scope
 from couchers.models import (
     Complaint,
@@ -221,5 +221,4 @@ def test_email_patching_fails(db):
         with pytest.raises(Exception) as e:
             with patch("couchers.email.send_email", mock_send_email):
                 send_friend_request_email(friend_relationship)
-        print(e.value)
         assert str(e.value) == patched_msg

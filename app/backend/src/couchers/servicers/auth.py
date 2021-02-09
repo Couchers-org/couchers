@@ -1,13 +1,12 @@
 import logging
-from datetime import datetime, timedelta
-from typing import Union
+from datetime import datetime
 
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import func
 
 from couchers import errors
-from couchers.crypto import cookiesafe_secure_token, hash_password, urlsafe_secure_token, verify_password
+from couchers.crypto import cookiesafe_secure_token, hash_password, verify_password
 from couchers.db import (
     get_user_by_field,
     is_valid_email,
@@ -22,7 +21,7 @@ from couchers.interceptors import AuthValidatorInterceptor
 from couchers.models import LoginToken, PasswordResetToken, SignupToken, User, UserSession
 from couchers.servicers.api import hostingstatus2sql
 from couchers.tasks import send_login_email, send_password_reset_email, send_signup_email
-from couchers.utils import create_session_cookie, http_date, now, parse_session_cookie
+from couchers.utils import create_session_cookie, now, parse_session_cookie
 from pb import auth_pb2, auth_pb2_grpc
 
 logger = logging.getLogger(__name__)
@@ -286,7 +285,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         Validates the given LoginToken (sent in email), creates a new session and returns bearer token.
 
-        Or fails with grpc.UNAUTHENTICATED if LoginToken is invalid.
+        Or fails with grpc.NOT_FOUND if LoginToken is invalid.
         """
         with session_scope() as session:
             res = (
@@ -312,7 +311,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 )
                 return auth_pb2.AuthRes(jailed=user.is_jailed)
             else:
-                context.abort(grpc.StatusCode.UNAUTHENTICATED, errors.INVALID_TOKEN)
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
 
     def Authenticate(self, request, context):
         """
@@ -341,12 +340,12 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 else:
                     logger.debug(f"Wrong password")
                     # wrong password
-                    context.abort(grpc.StatusCode.UNAUTHENTICATED, errors.INVALID_USERNAME_OR_PASSWORD)
+                    context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_USERNAME_OR_PASSWORD)
             else:  # user not found
                 logger.debug(f"Didn't find user")
                 # do about as much work as if the user was found, reduces timing based username enumeration attacks
                 hash_password(request.password)
-                context.abort(grpc.StatusCode.UNAUTHENTICATED, errors.INVALID_USERNAME_OR_PASSWORD)
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_USERNAME_OR_PASSWORD)
 
     def Deauthenticate(self, request, context):
         """
@@ -355,11 +354,18 @@ class Auth(auth_pb2_grpc.AuthServicer):
         token = parse_session_cookie(dict(context.invocation_metadata()))
         logger.info(f"Deauthenticate(token={token})")
 
-        if token and self._delete_session(token):
-            return empty_pb2.Empty()
-        else:
-            # probably caused by token not existing
-            context.abort(grpc.StatusCode.UNKNOWN, errors.LOGOUT_FAILED)
+        # if we had a token, try to remove the session
+        if token:
+            self._delete_session(token)
+
+        # set the cookie to an empty string and expire immediately, should remove it from the browser
+        context.send_initial_metadata(
+            [
+                ("set-cookie", create_session_cookie("", now())),
+            ]
+        )
+
+        return empty_pb2.Empty()
 
     def ResetPassword(self, request, context):
         """
@@ -399,7 +405,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 session.commit()
                 return empty_pb2.Empty()
             else:
-                context.abort(grpc.StatusCode.UNAUTHENTICATED, errors.INVALID_TOKEN)
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
 
     def CompleteChangeEmail(self, request, context):
         """
@@ -424,4 +430,4 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 session.commit()
                 return empty_pb2.Empty()
             else:
-                context.abort(grpc.StatusCode.UNAUTHENTICATED, errors.INVALID_TOKEN)
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)

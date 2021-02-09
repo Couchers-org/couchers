@@ -1,17 +1,14 @@
-from datetime import date, timedelta
+from datetime import timedelta
 
 import grpc
 import pytest
-from google.protobuf import empty_pb2, wrappers_pb2
-from sqlalchemy.orm import aliased
-from sqlalchemy.sql import and_
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType
+from couchers.models import Message, MessageType
 from couchers.utils import now
 from pb import api_pb2, conversations_pb2, requests_pb2
-from tests.test_fixtures import api_session, db, generate_user, make_friends, requests_session, testconfig
+from tests.test_fixtures import api_session, db, generate_user, requests_session, testconfig
 
 
 @pytest.fixture(autouse=True)
@@ -614,10 +611,12 @@ def test_mark_last_seen(db):
 
     # test Ping unseen host request count, should be automarked after sending
     with api_session(token1) as api:
-        assert api.Ping(api_pb2.PingReq()).unseen_host_request_count == 0
+        assert api.Ping(api_pb2.PingReq()).unseen_received_host_request_count == 0
+        assert api.Ping(api_pb2.PingReq()).unseen_sent_host_request_count == 0
 
     with api_session(token2) as api:
-        assert api.Ping(api_pb2.PingReq()).unseen_host_request_count == 2
+        assert api.Ping(api_pb2.PingReq()).unseen_received_host_request_count == 2
+        assert api.Ping(api_pb2.PingReq()).unseen_sent_host_request_count == 0
 
     with requests_session(token2) as api:
         assert api.ListHostRequests(requests_pb2.ListHostRequestsReq()).host_requests[0].last_seen_message_id == 0
@@ -648,7 +647,8 @@ def test_mark_last_seen(db):
         )
 
     with api_session(token2) as api:
-        assert api.Ping(api_pb2.PingReq()).unseen_host_request_count == 1
+        assert api.Ping(api_pb2.PingReq()).unseen_received_host_request_count == 1
+        assert api.Ping(api_pb2.PingReq()).unseen_sent_host_request_count == 0
 
     # make sure sent and received count for unseen notifications
     with requests_session(token1) as api:
@@ -657,4 +657,5 @@ def test_mark_last_seen(db):
         )
 
     with api_session(token2) as api:
-        assert api.Ping(api_pb2.PingReq()).unseen_host_request_count == 2
+        assert api.Ping(api_pb2.PingReq()).unseen_received_host_request_count == 1
+        assert api.Ping(api_pb2.PingReq()).unseen_sent_host_request_count == 1

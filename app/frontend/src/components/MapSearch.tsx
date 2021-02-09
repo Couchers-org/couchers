@@ -1,7 +1,8 @@
 import { Box, IconButton, makeStyles } from "@material-ui/core";
 import { AutocompleteChangeReason } from "@material-ui/lab/Autocomplete";
-import { LngLat } from "mapbox-gl";
+import { LngLat } from "maplibre-gl";
 import React, { useState } from "react";
+
 import Autocomplete from "./Autocomplete";
 import { SearchIcon } from "./Icons";
 

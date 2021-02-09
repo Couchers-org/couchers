@@ -1,12 +1,14 @@
-import * as React from "react";
 import { makeStyles } from "@material-ui/core";
-import PageTitle from "../../components/PageTitle";
-import Map from "../../components/Map";
-import { userRoute } from "../../AppRoutes";
-import { LngLat, Map as MapboxMap } from "mapbox-gl";
+import { LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { useHistory, useLocation } from "react-router-dom";
 
+import { guideRoute, placeRoute, userRoute } from "../../AppRoutes";
+import Map from "../../components/Map";
+import PageTitle from "../../components/PageTitle";
 import { addClusteredUsersToMap } from "./clusteredUsers";
+import { addCommunitiesToMap } from "./communities";
+import { addGuidesToMap } from "./guides";
+import { addPlacesToMap } from "./places";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -23,13 +25,38 @@ export default function MapPage() {
 
   const classes = useStyles();
 
+  const handlePlaceClick = (ev: any) => {
+    const properties = ev.features[0].properties as {
+      id: number;
+      slug: string;
+    };
+    history.push(
+      `${placeRoute}/${properties.id}/${properties.slug}`,
+      location.state
+    );
+  };
+
+  const handleGuideClick = (ev: any) => {
+    const properties = ev.features[0].properties as {
+      id: number;
+      slug: string;
+    };
+    history.push(
+      `${guideRoute}/${properties.id}/${properties.slug}`,
+      location.state
+    );
+  };
+
   const handleClick = (ev: any) => {
     const username = ev.features[0].properties.username;
     history.push(`${userRoute}/${username}`, location.state);
   };
 
-  const initializeMap = (map: MapboxMap) => {
+  const initializeMap = (map: MaplibreMap) => {
     map.on("load", () => {
+      addCommunitiesToMap(map);
+      addPlacesToMap(map, handlePlaceClick);
+      addGuidesToMap(map, handleGuideClick);
       addClusteredUsersToMap(map, handleClick);
     });
   };

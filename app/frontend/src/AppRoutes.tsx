@@ -1,22 +1,29 @@
 import React, { useEffect } from "react";
-import { Switch, Route, RouteProps, Redirect } from "react-router-dom";
-import Login from "./features/auth/login/Login";
-import Home from "./features/Home";
-import Messages from "./features/messages/index";
-import Logout from "./features/auth/Logout";
-import Signup from "./features/auth/signup/Signup";
-import {
-  EditProfilePage,
-  EditHostingPreferencePage,
-  ProfilePage,
-} from "./features/profile";
-import MapPage from "./features/map/MapPage";
-import UserPage from "./features/userPage/UserPage";
-import SearchPage from "./features/search/SearchPage";
-import Jail from "./features/auth/jail/Jail";
+import { Redirect, Route, RouteProps, Switch } from "react-router-dom";
+
 import TOS from "./components/TOS";
 import { useAuthContext } from "./features/auth/AuthProvider";
+import Jail from "./features/auth/jail/Jail";
+import Login from "./features/auth/login/Login";
+import Logout from "./features/auth/Logout";
+import Signup from "./features/auth/signup/Signup";
+import CommunityPage from "./features/communities/CommunityPage";
+import GroupPage from "./features/communities/GroupPage";
+import NewPagePage from "./features/communities/NewPagePage";
+import PagePage from "./features/communities/PagePage";
 import { ConnectionsPage } from "./features/connections";
+import Home from "./features/Home";
+import MapPage from "./features/map/MapPage";
+import Messages from "./features/messages/index";
+import NotFoundPage from "./features/NotFoundPage";
+import {
+  EditHostingPreferencePage,
+  EditProfilePage,
+  ProfilePage,
+} from "./features/profile";
+import SearchPage from "./features/search/SearchPage";
+import UserPage from "./features/userPage/UserPage";
+import { PageType } from "./pb/pages_pb";
 
 export const loginRoute = "/login";
 export const loginPasswordRoute = `${loginRoute}/password`;
@@ -26,15 +33,24 @@ export const profileRoute = "/profile";
 export const editProfileRoute = "/profile/edit";
 export const editHostingPreferenceRoute = "/hosting-preference/edit";
 export const messagesRoute = "/messages";
-export const requestsRoute = "/requests";
 export const mapRoute = "/map";
 export const logoutRoute = "/logout";
 export const connectionsRoute = "/connections";
+export const notFoundRoute = "/notfound";
 
 export const userRoute = "/user";
 export const searchRoute = "/search";
 export const jailRoute = "/restricted";
 export const tosRoute = "/tos";
+
+export const newPlaceRoute = "/place/new";
+export const placeRoute = "/place";
+
+export const newGuideRoute = "/guide/new";
+export const guideRoute = "/guide";
+
+export const communityRoute = "/community"; ///:communityId/:communitySlug";
+export const groupRoute = "/group"; ///:groupId/:groupSlug";
 
 export default function AppRoutes() {
   return (
@@ -75,12 +91,34 @@ export default function AppRoutes() {
       <PrivateRoute path={`${searchRoute}/:query?`}>
         <SearchPage />
       </PrivateRoute>
+      <PrivateRoute path={newPlaceRoute}>
+        <NewPagePage pageType={PageType.PAGE_TYPE_PLACE} />
+      </PrivateRoute>
+      <PrivateRoute path={`${placeRoute}/:pageId/:pageSlug?`}>
+        <PagePage pageType={PageType.PAGE_TYPE_PLACE} />
+      </PrivateRoute>
+      <PrivateRoute path={newGuideRoute}>
+        <NewPagePage pageType={PageType.PAGE_TYPE_GUIDE} />
+      </PrivateRoute>
+      <PrivateRoute path={`${guideRoute}/:pageId/:pageSlug?`}>
+        <PagePage pageType={PageType.PAGE_TYPE_GUIDE} />
+      </PrivateRoute>
+      <PrivateRoute path={`${communityRoute}/:communityId/:communitySlug?`}>
+        <CommunityPage />
+      </PrivateRoute>
+      <PrivateRoute path={`${groupRoute}/:groupId/:groupSlug?`}>
+        <GroupPage />
+      </PrivateRoute>
       <PrivateRoute path={`${connectionsRoute}/:type?`}>
         <ConnectionsPage />
       </PrivateRoute>
       <PrivateRoute exact path="/">
         <Home />
       </PrivateRoute>
+      <Route exact path={notFoundRoute}>
+        <NotFoundPage />
+      </Route>
+      <Redirect from="*" to={notFoundRoute} />
     </Switch>
   );
 }

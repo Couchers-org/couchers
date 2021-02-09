@@ -1,11 +1,12 @@
 import { renderHook } from "@testing-library/react-hooks";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { act } from "react-test-renderer";
+
 import { service } from "../../service";
+import wrapper from "../../test/hookWrapper";
 import { addDefaultUser } from "../../test/utils";
 import useCurrentUser from "../userQueries/useCurrentUser";
 import useUpdateHostingPreferences from "./useUpdateHostingPreferences";
-import wrapper from "../../test/hookWrapper";
 
 const getUserMock = service.user.getUser as jest.Mock;
 const updateHostingPreferenceMock = service.user

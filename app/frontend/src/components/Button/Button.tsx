@@ -1,19 +1,25 @@
 import {
-  makeStyles,
   Button as MuiButton,
   ButtonProps,
+  makeStyles,
+  useTheme,
 } from "@material-ui/core";
-import React, { ElementType } from "react";
 import classNames from "classnames";
-import CircularProgress from "../CircularProgress";
+import React, { ElementType } from "react";
+
 import { useIsMounted, useSafeState } from "../../utils/hooks";
+import CircularProgress from "../CircularProgress";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     borderRadius: `${theme.shape.borderRadius * 2}px`,
+    boxShadow: "0px 0px 5px rgba(0, 0, 0, 0.25)",
+    minHeight: `calc(calc(${theme.typography.button.lineHeight} * ${
+      theme.typography.button.fontSize
+    }) + ${theme.typography.pxToRem(12)})`, //from padding
   },
   loading: {
-    marginLeft: theme.spacing(1),
+    height: theme.typography.button.fontSize,
   },
 }));
 
@@ -37,6 +43,7 @@ export default function Button<D extends ElementType = "button", P = {}>({
   const isMounted = useIsMounted();
   const [waiting, setWaiting] = useSafeState(isMounted, false);
   const classes = useStyles();
+  const theme = useTheme();
   async function asyncOnClick(event: any) {
     try {
       setWaiting(true);
@@ -51,9 +58,14 @@ export default function Button<D extends ElementType = "button", P = {}>({
       onClick={onClick && asyncOnClick}
       disabled={disabled ? true : loading || waiting}
       className={classNames(classes.root, className)}
+      variant="contained"
+      color="primary"
     >
-      {children}
-      {(loading || waiting) && <CircularProgress className={classes.loading} />}
+      {loading || waiting ? (
+        <CircularProgress size={theme.typography.button.fontSize} />
+      ) : (
+        children
+      )}
     </MuiButton>
   );
 }

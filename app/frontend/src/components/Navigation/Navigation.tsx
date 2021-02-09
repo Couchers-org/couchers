@@ -1,49 +1,57 @@
 import {
   AppBar,
-  Button,
   Grid,
   Hidden,
+  makeStyles,
   Toolbar,
   Typography,
-  makeStyles,
 } from "@material-ui/core";
-import React from "react";
-import { Link, NavLink } from "react-router-dom";
+
 import {
   connectionsRoute,
-  profileRoute,
+  logoutRoute,
   mapRoute,
   messagesRoute,
-  requestsRoute,
-  logoutRoute,
+  profileRoute,
 } from "../../AppRoutes";
 import { useAuthContext } from "../../features/auth/AuthProvider";
+import BugReport from "../../features/BugReport";
+import {
+  CommunityIcon,
+  CrossIcon,
+  EmailIcon,
+  LocationIcon,
+  PeopleIcon,
+  PersonIcon,
+} from "../Icons";
 import SearchBox from "../SearchBox";
+import NavButton from "./NavButton";
 
 const menu = [
   {
     name: "Dashboard",
     route: "/",
-  },
-  {
-    name: "Map",
-    route: mapRoute,
+    icon: <CommunityIcon fontSize="inherit" />,
   },
   {
     name: "Messages",
     route: messagesRoute,
+    icon: <EmailIcon fontSize="inherit" />,
   },
   {
-    name: "Requests",
-    route: requestsRoute,
+    name: "Map",
+    route: mapRoute,
+    icon: <LocationIcon fontSize="inherit" />,
   },
   {
     name: "Profile",
     route: profileRoute,
+    icon: <PeopleIcon fontSize="inherit" />,
   },
   {
     name: "Connections",
     route: connectionsRoute,
+    icon: <PersonIcon fontSize="inherit" />,
   },
 ];
 
@@ -60,6 +68,10 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 3,
     display: "flex",
     justifyContent: "flex-end",
+    alignItems: "center",
+    [theme.breakpoints.down("sm")]: {
+      marginInlineEnd: theme.spacing(1),
+    },
   },
   title: {
     fontWeight: "bold",
@@ -72,9 +84,6 @@ const useStyles = makeStyles((theme) => ({
       paddingLeft: theme.spacing(3),
     },
   },
-  label: {
-    fontSize: "0.7rem",
-  },
   flex: {
     flex: 1,
     padding: 0,
@@ -86,19 +95,6 @@ const useStyles = makeStyles((theme) => ({
       paddingLeft: theme.spacing(3),
       justifyContent: "flex-start",
     },
-  },
-  item: {
-    transition: theme.transitions.create(["color", "padding-top"], {
-      duration: theme.transitions.duration.short,
-    }),
-    padding: theme.spacing(1, 1.5),
-    minWidth: theme.spacing(10),
-    maxWidth: theme.spacing(21),
-    color: theme.palette.text.secondary,
-    flex: "1",
-  },
-  selected: {
-    color: theme.palette.primary.main,
   },
 }));
 
@@ -133,40 +129,28 @@ export default function Navigation() {
           }}
         >
           {menu.map((item) => (
-            <Button
-              activeClassName={classes.selected}
-              classes={{
-                root: classes.item,
-                label: classes.label,
-              }}
-              component={NavLink}
-              exact={item.route === "/"}
-              to={item.route}
-              key={item.name}
+            <NavButton
+              route={item.route}
+              label={item.name}
+              key={`${item.name}-nav-button`}
             >
-              {item.name}
-            </Button>
+              {item.icon}
+            </NavButton>
           ))}
           <Hidden smDown>
             {authenticated && (
-              <Button
-                classes={{
-                  root: classes.item,
-                  label: classes.label,
-                }}
-                component={Link}
-                to={logoutRoute}
-              >
-                Logout
-              </Button>
+              <NavButton route={logoutRoute} label="Log out">
+                <CrossIcon fontSize="inherit" />
+              </NavButton>
             )}
           </Hidden>
         </Grid>
-        <Hidden smDown>
-          <div className={classes.search}>
+        <div className={classes.search}>
+          <BugReport />
+          <Hidden smDown>
             <SearchBox />
-          </div>
-        </Hidden>
+          </Hidden>
+        </div>
       </Toolbar>
     </AppBar>
   );

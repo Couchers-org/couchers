@@ -7,8 +7,8 @@ from google.protobuf import empty_pb2
 from couchers import errors
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
-from couchers.models import Base, LoginToken, PasswordResetToken, SignupToken, User, UserSession
-from pb import api_pb2, auth_pb2, auth_pb2_grpc
+from couchers.models import LoginToken, PasswordResetToken, SignupToken, User, UserSession
+from pb import api_pb2, auth_pb2
 from tests.test_fixtures import auth_api_session, db, fast_passwords, generate_user, real_api_session, testconfig
 
 
@@ -36,7 +36,7 @@ def test_basic_signup(db):
 
     # read out the signup token directly from the database for now
     with session_scope() as session:
-        entry = session.query(SignupToken).filter(SignupToken.email == "a@b.com").one_or_none()
+        entry = session.query(SignupToken).filter(SignupToken.email == "a@b.com").one()
         signup_token = entry.token
 
     with auth_api_session() as (auth_api, metadata_interceptor):
@@ -73,7 +73,7 @@ def test_basic_login(db):
 
     # backdoor to find login token
     with session_scope() as session:
-        entry = session.query(LoginToken).one_or_none()
+        entry = session.query(LoginToken).one()
         login_token = entry.token
 
     with auth_api_session() as (auth_api, metadata_interceptor):
@@ -102,7 +102,7 @@ def test_login_tokens_invalidate_after_use(db):
     assert reply.next_step == auth_pb2.LoginRes.LoginStep.SENT_LOGIN_EMAIL
 
     with session_scope() as session:
-        login_token = session.query(LoginToken).one_or_none().token
+        login_token = session.query(LoginToken).one().token
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         auth_api.CompleteTokenLogin(auth_pb2.CompleteTokenLoginReq(login_token=login_token))
@@ -120,7 +120,7 @@ def test_banned_user(db):
     assert reply.next_step == auth_pb2.LoginRes.LoginStep.SENT_LOGIN_EMAIL
 
     with session_scope() as session:
-        login_token = session.query(LoginToken).one_or_none().token
+        login_token = session.query(LoginToken).one().token
 
     with session_scope() as session:
         session.query(User).one().is_banned = True
@@ -154,7 +154,7 @@ def test_password_reset(db, fast_passwords):
         )
 
     with session_scope() as session:
-        token = session.query(PasswordResetToken).one_or_none().token
+        token = session.query(PasswordResetToken).one().token
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         res = auth_api.CompletePasswordReset(auth_pb2.CompletePasswordResetReq(password_reset_token=token))
@@ -192,16 +192,47 @@ def test_password_reset_invalid_token(db, fast_passwords):
         )
 
     with session_scope() as session:
-        token = session.query(PasswordResetToken).one_or_none().token
+        token = session.query(PasswordResetToken).one().token
 
     with auth_api_session() as (auth_api, metadata_interceptor), pytest.raises(grpc.RpcError) as e:
         res = auth_api.CompletePasswordReset(auth_pb2.CompletePasswordResetReq(password_reset_token="wrongtoken"))
-    assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
+    assert e.value.code() == grpc.StatusCode.NOT_FOUND
     assert e.value.details() == errors.INVALID_TOKEN
 
     with session_scope() as session:
         user = session.query(User).one()
         assert user.hashed_password == hash_password(password)
+
+
+def test_logout_invalid_token(db):
+    # Create our test user using signup
+    test_basic_signup(db)
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        reply = auth_api.Login(auth_pb2.LoginReq(user="frodo"))
+    assert reply.next_step == auth_pb2.LoginRes.LoginStep.SENT_LOGIN_EMAIL
+
+    # backdoor to find login token
+    with session_scope() as session:
+        entry = session.query(LoginToken).one()
+        login_token = entry.token
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        auth_api.CompleteTokenLogin(auth_pb2.CompleteTokenLoginReq(login_token=login_token))
+
+    reply_token = get_session_cookie_token(metadata_interceptor)
+
+    # delete all login tokens
+    with session_scope() as session:
+        session.query(LoginToken).delete()
+
+    # log out with non-existent token should still return a valid result
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        auth_api.Deauthenticate(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={reply_token}"),))
+
+    reply_token = get_session_cookie_token(metadata_interceptor)
+    # make sure we set an empty cookie
+    assert reply_token == ""
 
 
 # CompleteChangeEmail tested in test_account.py

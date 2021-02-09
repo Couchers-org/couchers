@@ -1,11 +1,9 @@
-import logging
-from base64 import urlsafe_b64decode, urlsafe_b64encode
+from base64 import urlsafe_b64encode
 from datetime import timedelta
 from urllib.parse import urlencode
 
 import grpc
 from google.protobuf import empty_pb2
-from google.protobuf.timestamp_pb2 import Timestamp
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, or_
 
@@ -31,7 +29,7 @@ from couchers.models import (
     User,
 )
 from couchers.tasks import send_friend_request_email, send_report_email
-from couchers.utils import Timestamp_from_datetime, create_coordinate, get_coordinates, now
+from couchers.utils import Timestamp_from_datetime, create_coordinate, now
 from pb import api_pb2, api_pb2_grpc, media_pb2
 
 reftype2sql = {
@@ -132,7 +130,7 @@ class API(api_pb2_grpc.APIServicer):
             # gets only the max message by self-joining messages which have a greater id
             # if it doesn't have a greater id, it's the biggest
             message_2 = aliased(Message)
-            unseen_host_request_count_1 = (
+            unseen_sent_host_request_count = (
                 session.query(Message.id)
                 .join(HostRequest, Message.conversation_id == HostRequest.conversation_id)
                 .outerjoin(
@@ -144,7 +142,7 @@ class API(api_pb2_grpc.APIServicer):
                 .count()
             )
 
-            unseen_host_request_count_2 = (
+            unseen_received_host_request_count = (
                 session.query(Message.id)
                 .join(HostRequest, Message.conversation_id == HostRequest.conversation_id)
                 .outerjoin(
@@ -176,7 +174,8 @@ class API(api_pb2_grpc.APIServicer):
             return api_pb2.PingRes(
                 user=user_model_to_pb(user, session, context),
                 unseen_message_count=unseen_message_count,
-                unseen_host_request_count=unseen_host_request_count_1 + unseen_host_request_count_2,
+                unseen_sent_host_request_count=unseen_sent_host_request_count,
+                unseen_received_host_request_count=unseen_received_host_request_count,
                 pending_friend_request_count=pending_friend_request_count,
             )
 
@@ -677,14 +676,19 @@ def paginate_references_result(request, query):
 def user_model_to_pb(db_user, session, context):
     num_references = session.query(Reference.from_user_id).filter(Reference.to_user_id == db_user.id).count()
 
+    # returns (lat, lng)
+    # we put people without coords on null island
+    # https://en.wikipedia.org/wiki/Null_Island
+    lat, lng = db_user.coordinates or (0, 0)
+
     user = api_pb2.User(
         user_id=db_user.id,
         username=db_user.username,
         name=db_user.name,
         city=db_user.city,
         hometown=db_user.hometown,
-        lat=db_user.coordinates[0],
-        lng=db_user.coordinates[1],
+        lat=lat,
+        lng=lng,
         radius=db_user.geom_radius,
         verification=db_user.verification,
         community_standing=db_user.community_standing,

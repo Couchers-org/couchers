@@ -1,5 +1,6 @@
 import { Box, Button, Grid, Link, makeStyles } from "@material-ui/core";
 import React, { useState } from "react";
+
 import Markdown from "../../components/Markdown";
 import ProfileTextInput from "./ProfileTextInput";
 
@@ -30,6 +31,7 @@ export default function ProfileMarkdownInput({
             label={label}
             rowsMax={5}
             multiline
+            fullWidth
             onChange={(event) => onChange(event.target.value)}
             value={value}
           />

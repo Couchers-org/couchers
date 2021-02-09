@@ -1,13 +1,12 @@
 import os
 from concurrent import futures
 from contextlib import contextmanager
-from datetime import date, timedelta
+from datetime import date
+from pathlib import Path
 from unittest.mock import patch
 
 import grpc
 import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.event import listen, remove
 
 from couchers.config import config
 from couchers.crypto import random_hex
@@ -17,30 +16,34 @@ from couchers.servicers.account import Account
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
 from couchers.servicers.bugs import Bugs
+from couchers.servicers.communities import Communities
 from couchers.servicers.conversations import Conversations
+from couchers.servicers.groups import Groups
 from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
+from couchers.servicers.pages import Pages
 from couchers.servicers.requests import Requests
 from couchers.utils import create_coordinate
 from pb import (
     account_pb2_grpc,
     api_pb2_grpc,
-    auth_pb2,
     auth_pb2_grpc,
     bugs_pb2_grpc,
+    communities_pb2_grpc,
     conversations_pb2_grpc,
+    groups_pb2_grpc,
     jail_pb2_grpc,
     media_pb2_grpc,
+    pages_pb2_grpc,
     requests_pb2_grpc,
 )
 
 
-@pytest.fixture(params=["migrations", "models"])
-def db(request):
+def db_impl(param):
     """
-    Connect to a running Postgres database, and return the Session object.
+    Connect to a running Postgres database
 
-    request.param tells whether the db should be built from alembic migrations or using metadata.create_all()
+    param tells whether the db should be built from alembic migrations or using metadata.create_all()
     """
 
     # running in non-UTC catches some timezone errors
@@ -51,14 +54,28 @@ def db(request):
     with session_scope() as session:
         session.execute("DROP SCHEMA public CASCADE; CREATE SCHEMA public; CREATE EXTENSION postgis;")
 
-    if request.param == "migrations":
+    if param == "migrations":
         # rebuild it with alembic migrations
         apply_migrations()
     else:
+        # create the slugify function
+        functions = Path(__file__).parent / "slugify.sql"
+        with open(functions) as f, session_scope() as session:
+            session.execute(f.read())
+
         # create everything from the current models, not incrementally through migrations
         Base.metadata.create_all(get_engine())
 
-    yield
+
+@pytest.fixture(params=["migrations", "models"])
+def db(request):
+    """
+    Pytest fixture to connect to a running Postgres database.
+
+    request.param tells whether the db should be built from alembic migrations or using metadata.create_all()
+    """
+
+    db_impl(request.param)
 
 
 def generate_user(*_, **kwargs):
@@ -223,8 +240,7 @@ def api_session(token):
     """
     Create an API for testing, uses the token for auth
     """
-    user_id, jailed = Auth().get_session_for_token(token)
-    channel = FakeChannel(user_id=user_id)
+    channel = fake_channel(token)
     api_pb2_grpc.add_APIServicer_to_server(API(), channel)
     yield api_pb2_grpc.APIStub(channel)
 
@@ -277,13 +293,17 @@ def real_jail_session(token):
             server.stop(None).wait()
 
 
+def fake_channel(token):
+    user_id, jailed = Auth().get_session_for_token(token)
+    return FakeChannel(user_id=user_id)
+
+
 @contextmanager
 def conversations_session(token):
     """
     Create a Conversations API for testing, uses the token for auth
     """
-    user_id, jailed = Auth().get_session_for_token(token)
-    channel = FakeChannel(user_id=user_id)
+    channel = fake_channel(token)
     conversations_pb2_grpc.add_ConversationsServicer_to_server(Conversations(), channel)
     yield conversations_pb2_grpc.ConversationsStub(channel)
 
@@ -293,11 +313,30 @@ def requests_session(token):
     """
     Create a Requests API for testing, uses the token for auth
     """
-    auth_interceptor = Auth().get_auth_interceptor(allow_jailed=False)
-    user_id, jailed = Auth().get_session_for_token(token)
-    channel = FakeChannel(user_id=user_id)
+    channel = fake_channel(token)
     requests_pb2_grpc.add_RequestsServicer_to_server(Requests(), channel)
     yield requests_pb2_grpc.RequestsStub(channel)
+
+
+@contextmanager
+def pages_session(token):
+    channel = fake_channel(token)
+    pages_pb2_grpc.add_PagesServicer_to_server(Pages(), channel)
+    yield pages_pb2_grpc.PagesStub(channel)
+
+
+@contextmanager
+def communities_session(token):
+    channel = fake_channel(token)
+    communities_pb2_grpc.add_CommunitiesServicer_to_server(Communities(), channel)
+    yield communities_pb2_grpc.CommunitiesStub(channel)
+
+
+@contextmanager
+def groups_session(token):
+    channel = fake_channel(token)
+    groups_pb2_grpc.add_GroupsServicer_to_server(Groups(), channel)
+    yield groups_pb2_grpc.GroupsStub(channel)
 
 
 @contextmanager
@@ -305,9 +344,7 @@ def account_session(token):
     """
     Create a Account API for testing, uses the token for auth
     """
-    auth_interceptor = Auth().get_auth_interceptor(allow_jailed=False)
-    user_id, jailed = Auth().get_session_for_token(token)
-    channel = FakeChannel(user_id=user_id)
+    channel = fake_channel(token)
     account_pb2_grpc.add_AccountServicer_to_server(Account(), channel)
     yield account_pb2_grpc.AccountStub(channel)
 
@@ -353,7 +390,7 @@ def testconfig():
 
     config["DEV"] = True
     config["VERSION"] = "testing_version"
-    config["BASE_URL"] = "http://localhost:8080"
+    config["BASE_URL"] = "http://localhost:3000"
     config["COOKIE_DOMAIN"] = "localhost"
     config["ENABLE_EMAIL"] = False
     config["NOTIFICATION_EMAIL_ADDRESS"] = "notify@couchers.org.invalid"

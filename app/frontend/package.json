@@ -3,23 +3,24 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@material-ui/core": "^4.11.2",
+    "@material-ui/core": "^4.11.3",
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.56",
-    "@types/mapbox-gl": "<2.0.0",
+    "@types/maplibre-gl": "^1.13.0",
     "classnames": "^2.2.6",
     "google-protobuf": "^3.13.0",
     "grpc-web": "^1.2.1",
-    "mapbox-gl": "<2.0.0",
+    "maplibre-gl": "^1.13.0-rc.4",
     "markdown-it": "^12.0.2",
     "moment": "^2.29.1",
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
     "react-hook-form": "^6.14.2",
-    "react-query": "^3.5.16",
+    "react-intersection-observer": "^8.31.0",
+    "react-query": "^3.6.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.1",
-    "typescript": "~4.0.5"
+    "typescript": "~4.1.3"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -40,6 +41,17 @@
       "prettier/@typescript-eslint",
       "prettier/react"
     ],
+    "plugins": [
+      "eslint-plugin-simple-import-sort"
+    ],
+    "rules": {
+      "simple-import-sort/imports": "error",
+      "simple-import-sort/exports": "error",
+      "sort-imports": "off",
+      "import/first": "error",
+      "import/newline-after-import": "error",
+      "import/no-duplicates": "error"
+    },
     "overrides": [
       {
         "files": [
@@ -73,29 +85,31 @@
     ]
   },
   "devDependencies": {
-    "@babel/core": "^7.12.3",
-    "@storybook/addon-actions": "^6.1.2",
-    "@storybook/addon-essentials": "^6.1.2",
-    "@storybook/addon-links": "^6.1.2",
-    "@storybook/node-logger": "^6.1.2",
+    "@storybook/addon-actions": "^6.1.15",
+    "@storybook/addon-essentials": "^6.1.15",
+    "@storybook/addon-links": "^6.1.15",
+    "@storybook/node-logger": "^6.1.15",
     "@storybook/preset-create-react-app": "^3.1.5",
-    "@storybook/react": "^6.1.2",
+    "@storybook/react": "^6.1.15",
     "@testing-library/jest-dom": "^5.11.9",
-    "@testing-library/react": "^11.2.3",
-    "@testing-library/react-hooks": "^5.0.0",
+    "@testing-library/react": "^11.2.5",
+    "@testing-library/react-hooks": "^5.0.3",
     "@testing-library/user-event": "^12.6.0",
     "@types/classnames": "^2.2.11",
+    "@types/css-mediaquery": "^0.1.0",
     "@types/google-protobuf": "^3.7.3",
     "@types/jest": "^26.0.14",
-    "@types/markdown-it": "^10.0.3",
-    "@types/node": "^12.0.0",
-    "@types/react": "^17.0.0",
+    "@types/markdown-it": "^12.0.1",
+    "@types/node": "^14.14.22",
+    "@types/react": "^17.0.1",
     "@types/react-dom": "^17.0.0",
     "@types/react-router-dom": "^5.1.5",
-    "@types/react-test-renderer": "^16.9.3",
+    "@types/react-test-renderer": "^17.0.0",
     "@types/webpack-env": "^1.15.3",
     "coveralls": "^3.1.0",
+    "css-mediaquery": "^0.1.2",
     "eslint-config-prettier": "^6.12.0",
+    "eslint-plugin-simple-import-sort": "^7.0.0",
     "jest-junit": "^12.0.0",
     "lint-staged": "^10.5.1",
     "prettier": "^2.1.2",
@@ -105,7 +119,9 @@
     "collectCoverageFrom": [
       "src/**/*.{ts,tsx}",
       "!**/node_modules/**",
-      "!src/pb/**"
+      "!src/pb/**",
+      "!src/stories/**",
+      "!src/**/*.stories.tsx"
     ],
     "resetMocks": true
   },

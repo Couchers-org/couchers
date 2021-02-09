@@ -8,15 +8,16 @@ import {
 import { Autocomplete } from "@material-ui/lab";
 import React, { useState } from "react";
 import { Controller, useForm, UseFormMethods } from "react-hook-form";
+
 import Alert from "../../components/Alert";
 import Button from "../../components/Button";
+import CircularProgress from "../../components/CircularProgress";
+import { SmokingLocation } from "../../pb/api_pb";
+import { HostingPreferenceData } from "../../service";
+import useCurrentUser from "../userQueries/useCurrentUser";
 import { smokingLocationLabels } from "./constants";
 import ProfileTextInput from "./ProfileTextInput";
-import { HostingPreferenceData } from "../../service";
-import { SmokingLocation } from "../../pb/api_pb";
 import useUpdateHostingPreferences from "./useUpdateHostingPreferences";
-import useCurrentUser from "../userQueries/useCurrentUser";
-import CircularProgress from "../../components/CircularProgress";
 
 interface HostingPreferenceCheckboxProps {
   className: string;
@@ -58,6 +59,16 @@ const useStyles = makeStyles((theme) => ({
   preferenceSection: {
     paddingTop: theme.spacing(3),
   },
+  field: {
+    "& > .MuiInputBase-root": {
+      width: "100%",
+    },
+    [theme.breakpoints.up("md")]: {
+      "& > .MuiInputBase-root": {
+        width: 400,
+      },
+    },
+  },
 }));
 
 export default function HostingPreferenceForm() {
@@ -69,9 +80,12 @@ export default function HostingPreferenceForm() {
   } = useUpdateHostingPreferences();
   const { data: user } = useCurrentUser();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { control, errors, register, handleSubmit } = useForm<
-    HostingPreferenceData
-  >({
+  const {
+    control,
+    errors,
+    register,
+    handleSubmit,
+  } = useForm<HostingPreferenceData>({
     mode: "onBlur",
   });
 
@@ -154,6 +168,7 @@ export default function HostingPreferenceForm() {
                     label="Max. number of guests"
                     name="maxGuests"
                     onChange={(e) => onChange(Number(e.target.value))}
+                    className={classes.field}
                   />
                 )}
               />
@@ -170,6 +185,7 @@ export default function HostingPreferenceForm() {
             inputRef={register}
             rowsMax={5}
             multiline
+            className={classes.field}
           />
           <ProfileTextInput
             label="House rules"
@@ -178,6 +194,7 @@ export default function HostingPreferenceForm() {
             inputRef={register}
             rowsMax={5}
             multiline
+            className={classes.field}
           />
           <Controller
             control={control}
@@ -205,6 +222,7 @@ export default function HostingPreferenceForm() {
                     {...params}
                     label="Smoking allowed?"
                     name="maxGuests"
+                    className={classes.field}
                   />
                 )}
               />
@@ -217,6 +235,7 @@ export default function HostingPreferenceForm() {
             inputRef={register}
             rowsMax={5}
             multiline
+            className={classes.field}
           />
           <Button
             type="submit"

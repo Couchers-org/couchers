@@ -1,9 +1,11 @@
 import { act, renderHook } from "@testing-library/react-hooks";
-import { QueryClient, QueryClientProvider } from "react-query";
 import React, { useState } from "react";
+import { QueryClient, QueryClientProvider } from "react-query";
+
 import { service } from "../../service";
 import { getUser } from "../../test/serviceMockDefaults";
 import useUsers, { useUser } from "./useUsers";
+
 const getUserMock = service.user.getUser as jest.Mock;
 
 const wrapper = ({ children }: { children: React.ReactNode }) => {
@@ -130,7 +132,7 @@ describe("when useUsers has loaded", () => {
             name: "Funny Dog",
             userId: 2,
             username: "funnydog",
-            avatarUrl: "funnydog.jpg",
+            avatarUrl: "",
           },
         ],
         [

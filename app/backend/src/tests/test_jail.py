@@ -3,9 +3,7 @@ import pytest
 from google.protobuf import empty_pb2
 
 from couchers import errors
-from couchers.db import session_scope
-from couchers.models import User
-from pb import api_pb2, auth_pb2, jail_pb2
+from pb import api_pb2, jail_pb2
 from tests.test_fixtures import db, generate_user, real_api_session, real_jail_session, testconfig
 
 

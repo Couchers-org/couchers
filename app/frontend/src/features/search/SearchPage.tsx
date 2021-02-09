@@ -1,12 +1,13 @@
 import { Box } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+
 import Alert from "../../components/Alert";
 import CircularProgress from "../../components/CircularProgress";
 import PageTitle from "../../components/PageTitle";
 import TextBody from "../../components/TextBody";
-import { service } from "../../service";
 import { User } from "../../pb/api_pb";
+import { service } from "../../service";
 import { SearchQuery } from "./constants";
 import SearchResult from "./SearchResult";
 

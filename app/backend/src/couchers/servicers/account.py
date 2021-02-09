@@ -1,11 +1,7 @@
-import logging
-from datetime import timedelta
-
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy.sql import func
 
-from couchers import errors, urls
+from couchers import errors
 from couchers.crypto import hash_password, verify_password
 from couchers.db import is_valid_email, session_scope, set_email_change_token
 from couchers.models import User
@@ -14,8 +10,7 @@ from couchers.tasks import (
     send_email_changed_notification_email,
     send_password_changed_email,
 )
-from couchers.utils import now
-from pb import account_pb2, account_pb2_grpc
+from pb import account_pb2_grpc
 
 
 def _check_password(user, field_name, request, context):

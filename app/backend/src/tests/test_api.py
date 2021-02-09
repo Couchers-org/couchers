@@ -42,7 +42,7 @@ def test_ping(db):
     assert res.user.pronouns == user.pronouns
     assert res.user.age == user.age
 
-    assert (res.user.lat, res.user.lng) == user.coordinates
+    assert (res.user.lat, res.user.lng) == (user.coordinates or (0, 0))
 
     # the joined time is fuzzed
     # but shouldn't be before actual joined time, or more than one hour behind
@@ -77,7 +77,7 @@ def test_coords(db):
     with api_session(token2) as api:
         res = api.Ping(api_pb2.PingReq())
         assert res.user.city == user2.city
-        lat, lng = user2.coordinates
+        lat, lng = user2.coordinates or (0, 0)
         assert res.user.lat == lat
         assert res.user.lng == lng
         assert res.user.radius == user2.geom_radius
@@ -176,11 +176,19 @@ def test_update_profile(db):
         assert user.lat == 0.01
         assert user.lng == -2
         assert user.radius == 321
+        assert user.gender == "Bot"
+        assert user.occupation == "Testing"
+        assert user.about_me == "I rule"
+        assert user.about_place == "My place"
         assert user.hosting_status == api_pb2.HOSTING_STATUS_CAN_HOST
         assert user.meetup_status == api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP
         assert "Binary" in user.languages
         assert "English" in user.languages
         assert user.additional_information == "I <3 Couchers"
+        assert "UK" in user.countries_visited
+        assert "Aus" in user.countries_visited
+        assert "UK" in user.countries_lived
+        assert "Aus" in user.countries_lived
 
 
 def test_pending_friend_request_count(db):
@@ -692,6 +700,8 @@ def test_hosting_preferences(db):
             )
         )
 
+    # Use a second user to view the hosting preferences just to check
+    # that it is public information.
     with api_session(token2) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
         assert res.max_guests.value == 3

@@ -1,5 +1,6 @@
 alembic
 black
+faker
 geoalchemy2
 grpcio
 isort
@@ -17,4 +18,3 @@ pyyaml
 requests
 Shapely
 sqlalchemy
-faker

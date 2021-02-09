@@ -1,22 +1,23 @@
-// also exported from '@storybook/react' if you can deal with breaking changes in 6.1
-import { Meta, Story } from "@storybook/react/types-6-0";
+import { Meta, Story } from "@storybook/react";
 import * as React from "react";
 
 import Button from "./Button";
-// @ts-ignore
 
 export default {
   title: "Components/Button",
   component: Button,
-  argTypes: {
-    backgroundColor: { control: "color" },
-  },
 } as Meta;
 
 const Template: Story<any> = (args) => (
   <>
-    <div style={{ display: "flex" }}>
+    <div>
       <Button {...args}>Click</Button>
+    </div>
+    <div>
+      <Button {...args}>Ok</Button>
+    </div>
+    <div>
+      <Button {...args}>Longer text button</Button>
     </div>
   </>
 );
