@@ -91,7 +91,11 @@ export default function HostRequestListItem({
   return (
     <ListItem className={classNames(classes.root, className)}>
       <ListItemAvatar>
-        {!otherUser ? <Skeleton /> : <Avatar user={otherUser} />}
+        {!otherUser ? (
+          <Skeleton />
+        ) : (
+          <Avatar user={otherUser} isProfileLink={false} />
+        )}
       </ListItemAvatar>
       <ListItemText
         disableTypography

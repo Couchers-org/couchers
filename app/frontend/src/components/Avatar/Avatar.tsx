@@ -34,15 +34,24 @@ export interface AvatarProps extends BoxProps {
   user?: User.AsObject;
   grow?: boolean;
   className?: string;
+  isProfileLink?: boolean;
 }
 
 export default function Avatar({
   user,
   grow,
   className,
+  isProfileLink = true,
   ...otherProps
 }: AvatarProps) {
   const classes = useStyles();
+
+  const muiAvatar = (user: User.AsObject) => (
+    <MuiAvatar className={classes.avatar} alt={user.name} src={user.avatarUrl}>
+      {user.name.split(/\s+/).map((name) => name[0])}
+    </MuiAvatar>
+  );
+
   return (
     <Box
       className={classNames(
@@ -53,16 +62,12 @@ export default function Avatar({
       )}
       {...otherProps}
     >
-      {user ? ( ///TODO: Add prop for no link in case its in a link already
-        <Link to={routeToUser(user)}>
-          <MuiAvatar
-            className={classes.avatar}
-            alt={user.name}
-            src={user.avatarUrl}
-          >
-            {user.name.split(/\s+/).map((name) => name[0])}
-          </MuiAvatar>
-        </Link>
+      {user ? (
+        isProfileLink ? (
+          <Link to={routeToUser(user)}>{muiAvatar(user)}</Link>
+        ) : (
+          muiAvatar(user)
+        )
       ) : otherProps.children ? (
         <MuiAvatar className={classes.avatar}>{otherProps.children}</MuiAvatar>
       ) : (
