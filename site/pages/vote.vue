@@ -89,7 +89,7 @@ export default {
 
       done: false,
 
-      email: "",
+      email: this.$route.query.email || "",
       email_error: null,
 
       vote: null,
