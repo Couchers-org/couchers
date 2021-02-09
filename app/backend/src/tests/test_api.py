@@ -680,8 +680,7 @@ def test_hosting_preferences(db):
         assert not res.HasField("other_host_info")
         assert res.sleeping_arrangement == api_pb2.SLEEPINGG_ARRANGEMENT_UNKNOWN
         assert not res.HasField("sleeping_details")
-        assert res.HasField("area")
-        assert res.area.value == "Public transit:/n/nParking:/n/nAccessibility:/n!"
+        assert not res.HasField("area")
         assert not res.HasField("house_rules")
 
         api.UpdateProfile(
@@ -713,8 +712,7 @@ def test_hosting_preferences(db):
         assert not res.HasField("other_host_info")
         assert res.sleeping_arrangement == api_pb2.SLEEPINGG_ARRANGEMENT_UNKNOWN
         assert not res.HasField("sleeping_details")
-        assert res.HasField("area")
-        assert res.area.value == "Public transit:/n/nParking:/n/nAccessibility:/n!"
+        assert not res.HasField("area")
         assert res.house_rules.value == "RULES!"
         assert not res.HasField("parking")
         assert res.parking_details == api_pb2.PARKING_DETAILS_UNKNOWN
