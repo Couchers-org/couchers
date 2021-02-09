@@ -690,6 +690,9 @@ def test_hosting_preferences(db):
         assert not res.HasField("sleeping_details")
         assert not res.HasField("area")
         assert not res.HasField("house_rules")
+        assert not res.HasField("parking")
+        assert res.parking_details == api_pb2.PARKING_DETAILS_UNKNOWN
+        assert not res.HasField("camping_ok")
 
         api.UpdateProfile(
             api_pb2.UpdateProfileReq(
@@ -761,3 +764,6 @@ def test_hosting_preferences(db):
         assert not res.HasField("sleeping_details")
         assert res.area.value == "area!"
         assert not res.HasField("house_rules")
+        assert not res.HasField("parking")
+        assert res.parking_details == api_pb2.PARKING_DETAILS_UNKNOWN
+        assert not res.HasField("camping_ok")
