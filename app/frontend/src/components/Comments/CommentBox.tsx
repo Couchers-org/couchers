@@ -22,7 +22,7 @@ interface CommentBoxProps {
 
 // Reply with more Reply objects as children
 interface MultiLevelReply extends Reply.AsObject {
-  children: Array<Reply.AsObject>;
+  replies: Array<Reply.AsObject>;
   // page token, etc? not sure what's needed for react query
 }
 
@@ -44,7 +44,7 @@ export default function CommentBox({ threadId }: CommentBoxProps) {
             thread.repliesList.map(async (reply) => {
               return {
                 ...reply,
-                children:
+                replies:
                   reply.numReplies > 0
                     ? (await service.threads.getThread(reply.threadId))
                         .repliesList
@@ -61,7 +61,7 @@ export default function CommentBox({ threadId }: CommentBoxProps) {
     })();
   }, [threadId]);
 
-  const onComment = async (threadId: number, content: string) => {
+  const handleComment = async (threadId: number, content: string) => {
     await service.threads.postReply(threadId, content);
     setLoading(true);
     try {
@@ -71,7 +71,7 @@ export default function CommentBox({ threadId }: CommentBoxProps) {
           thread.repliesList.map(async (reply) => {
             return {
               ...reply,
-              children:
+              replies:
                 reply.numReplies > 0
                   ? (await service.threads.getThread(reply.threadId))
                       .repliesList
@@ -97,7 +97,7 @@ export default function CommentBox({ threadId }: CommentBoxProps) {
             {comment.createdTime!.seconds}, {comment.numReplies} replies.
             <Markdown source={comment.content} />
             Replies:
-            {comment.children.map((reply) => (
+            {comment.replies.map((reply) => (
               <>
                 <Card className={classes.card}>
                   Reply: by user id {reply.authorUserId}, posted at{" "}
@@ -107,12 +107,12 @@ export default function CommentBox({ threadId }: CommentBoxProps) {
               </>
             ))}
             <NewComment
-              onComment={(content) => onComment(comment.threadId, content)}
+              onComment={(content) => handleComment(comment.threadId, content)}
             />
           </Card>
         </>
       ))}
-      <NewComment onComment={(content) => onComment(threadId, content)} />
+      <NewComment onComment={(content) => handleComment(threadId, content)} />
     </>
   );
 }

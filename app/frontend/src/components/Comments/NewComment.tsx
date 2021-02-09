@@ -19,7 +19,7 @@ export default function NewComment({ onComment }: NewCommentProps) {
   const [preview, setPreview] = useState(false);
   const [comment, setComment] = useState("");
 
-  const onSave = async () => {
+  const handleSubmit = async () => {
     await onComment(comment);
     setComment("");
   };
@@ -53,7 +53,9 @@ export default function NewComment({ onComment }: NewCommentProps) {
           </Grid>
         )}
       </Grid>
-      <Button onClick={onSave}>Comment</Button>
+      <Button onClick={handleSubmit} type="submit">
+        Comment
+      </Button>
     </>
   );
 }
