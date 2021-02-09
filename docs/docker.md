@@ -37,12 +37,12 @@ docker logs --follow app_postgres_tests_1
 Options:
 
 * `--build` : you probably want to be using this most of the time if you're changing stuff that goes into containers, it'll recreate the container
-* `-d`: do it in "daemon" mode, in the background. This is also super useful if you want to 
+* `-d`: do it in "daemon" mode, in the background. This is also super useful if you want to run some containers in the background (e.g. the database) and monitor others in the foreground.
 * `docker-compose up {container1} {container2}` will only start container1 and container2
 * You can run multiple `docker-compose`s in different screens and they'll be able to communicate. This is very useful e.g. if you want to have the `postgres` container up and see the executed SQL queries in one window, and the `backend` container in another window and recreate it frequently
 * `--no-deps`: don't bring up other containers that this depends on
 * `--force-recreate`: forces the container to be recreated, if something happened outside the "context" of the container and you need to recreate it
-* `-f`: specify a different docker-compose file, e.g. `docker-compose up -f docker-compose.prod.yml postgres`
+* `-f`: specify a different docker-compose file, e.g. `docker-compose -f docker-compose.test.yml up postgres_tests`
 
 ## Some common patterns
 
@@ -59,6 +59,6 @@ This will spin up the proxy, backend and postgres database (since the postgres c
 Start postgres_tests in the background and run tests in foreground:
 
 ```
-docker-compose up -d postgres_tests
-docker-compose up --build --no-deps backend_tests
+docker-compose -f docker-compose.test.yml up -d postgres_tests
+docker-compose -f docker-compose.test.yml up --build --no-deps backend_tests
 ```
