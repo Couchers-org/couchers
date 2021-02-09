@@ -720,7 +720,7 @@ def test_hosting_preferences(db):
         assert not res.HasField("drinking_allowed")
         assert not res.HasField("drinks_at_home")
         assert not res.HasField("other_host_info")
-        assert res.sleeping_arrangement == api_pb2.SLEEPINGG_ARRANGEMENT_UNKNOWN
+        assert res.sleeping_arrangement == api_pb2.SLEEPING_ARRANGEMENT_UNKNOWN
         assert not res.HasField("sleeping_details")
         assert not res.HasField("area")
         assert res.house_rules.value == "RULES!"
