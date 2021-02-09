@@ -235,7 +235,7 @@ message User {
   google.protobuf.BoolValue wheelchair_accessible = 27;
   SmokingLocation smoking_allowed = 28;
   google.protobuf.BoolValue smokes_at_home = 113;
-  google.protobuf.BoolValue drinks_allowed = 114;
+  google.protobuf.BoolValue drinking_allowed = 114;
   google.protobuf.BoolValue drinks_at_home = 115;
   google.protobuf.StringValue other_host_info = 116;
   SleepingArrangement sleeping_arrangement = 117;
@@ -303,7 +303,7 @@ message UpdateProfileReq {
   NullableBoolValue wheelchair_accessible = 17;
   SmokingLocation smoking_allowed = 18;
   NullableBoolValue smokes_at_home = 113;
-  NullableBoolValue drinks_allowed = 114;
+  NullableBoolValue drinking_allowed = 114;
   NullableBoolValue drinks_at_home = 115;
   NullableStringValue other_host_info = 116;
   SleepingArrangement sleeping_arrangement = 117;

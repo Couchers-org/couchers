@@ -348,11 +348,11 @@ class API(api_pb2_grpc.APIServicer):
                 else:
                     user.smokes_at_home = request.smokes_at_home.value
 
-            if request.HasField("drinks_allowed"):
-                if request.drinks_allowed.is_null:
-                    user.drinks_allowed = None
+            if request.HasField("drinking_allowed"):
+                if request.drinking_allowed.is_null:
+                    user.drinking_allowed = None
                 else:
-                    user.drinks_allowed = request.drinks_allowed.value
+                    user.drinking_allowed = request.drinking_allowed.value
 
             if request.HasField("drinks_at_home"):
                 if request.drinks_at_home.is_null:
@@ -753,8 +753,8 @@ def user_model_to_pb(db_user, session, context):
     if db_user.smokes_at_home is not None:
         user.smokes_at_home.value = db_user.smokes_at_home
 
-    if db_user.drinks_allowed is not None:
-        user.drinks_allowed.value = db_user.drinks_allowed
+    if db_user.drinking_allowed is not None:
+        user.drinking_allowed.value = db_user.drinking_allowed
 
     if db_user.drinks_at_home is not None:
         user.drinks_at_home.value = db_user.drinks_at_home

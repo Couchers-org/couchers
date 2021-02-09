@@ -97,7 +97,7 @@ describe("updateHostingPreference", () => {
     wheelchairAccessible: true,
     smokingAllowed: 2,
     smokesAtHome: false,
-    drinksAllowed: true,
+    drinkingAllowed: true,
     drinksAtHome: false,
     sleepingArrangement: 1,
     sleepingDetails: "",

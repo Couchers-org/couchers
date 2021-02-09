@@ -221,8 +221,8 @@ export function updateHostingPreference(preferences: HostingPreferenceData) {
   const smokesAtHome = new NullableBoolValue()
     .setValue(preferences.smokesAtHome)
     .setIsNull(false);
-  const drinksAllowed = new NullableBoolValue()
-    .setValue(preferences.drinksAllowed)
+  const drinkingAllowed = new NullableBoolValue()
+    .setValue(preferences.drinkingAllowed)
     .setIsNull(false);
   const drinksAtHome = new NullableBoolValue()
     .setValue(preferences.drinksAtHome)
@@ -258,7 +258,7 @@ export function updateHostingPreference(preferences: HostingPreferenceData) {
     .setWheelchairAccessible(wheelchairAccessible)
     .setSmokingAllowed(smokingAllowed)
     .setSmokesAtHome(smokesAtHome)
-    .setDrinksAllowed(drinksAllowed)
+    .setDrinkingAllowed(drinkingAllowed)
     .setDrinksAtHome(drinksAtHome)
     .setOtherHostInfo(otherHostInfo)
     .setSleepingArrangement(sleepingArrangement)
