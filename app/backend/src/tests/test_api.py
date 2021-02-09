@@ -696,6 +696,7 @@ def test_hosting_preferences(db):
                 max_guests=api_pb2.NullableUInt32Value(value=3),
                 wheelchair_accessible=api_pb2.NullableBoolValue(value=False),
                 smoking_allowed=api_pb2.SMOKING_LOCATION_WINDOW,
+                area=api_pb2.NullableStringValue(value="area!"),
                 house_rules=api_pb2.NullableStringValue(value="RULES!"),
             )
         )
@@ -722,7 +723,7 @@ def test_hosting_preferences(db):
         assert not res.HasField("other_host_info")
         assert res.sleeping_arrangement == api_pb2.SLEEPINGG_ARRANGEMENT_UNKNOWN
         assert not res.HasField("sleeping_details")
-        assert not res.HasField("area")
+        assert res.area.value == "area!"
         assert res.house_rules.value == "RULES!"
         assert not res.HasField("parking")
         assert res.parking_details == api_pb2.PARKING_DETAILS_UNKNOWN
@@ -735,7 +736,7 @@ def test_hosting_preferences(db):
                 max_guests=api_pb2.NullableUInt32Value(is_null=True),
                 wheelchair_accessible=api_pb2.NullableBoolValue(value=True),
                 smoking_allowed=api_pb2.SMOKING_LOCATION_UNKNOWN,
-                area=api_pb2.NullableStringValue(value="area!"),
+                area=api_pb2.NullableStringValue(is_null=True),
                 house_rules=api_pb2.NullableStringValue(is_null=True),
             )
         )
@@ -759,5 +760,5 @@ def test_hosting_preferences(db):
         assert not res.HasField("other_host_info")
         assert res.sleeping_arrangement == api_pb2.SLEEPINGG_ARRANGEMENT_UNKNOWN
         assert not res.HasField("sleeping_details")
-        assert res.area.value == "area!"
+        assert not res.HasField("area")
         assert not res.HasField("house_rules")
