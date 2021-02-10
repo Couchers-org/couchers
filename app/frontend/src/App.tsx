@@ -17,12 +17,9 @@ import { theme } from "./theme";
 
 const useStyles = makeStyles({
   padding: {
-    paddingBottom: theme.spacing(7),
+    paddingBottom: theme.shape.navPaddingMobile,
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
-    [`${theme.breakpoints.up("xs")} and (orientation: landscape)`]: {
-      paddingBottom: theme.shape.navPaddingMobile,
-    },
     [theme.breakpoints.up("md")]: {
       paddingBottom: 0,
       paddingTop: theme.shape.navPaddingDesktop,

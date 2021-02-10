@@ -14,7 +14,6 @@ import {
   ListGroupChatsReq,
   MakeGroupChatAdminReq,
   MarkLastSeenGroupChatReq,
-  Message,
   RemoveGroupChatAdminReq,
   SendMessageReq,
 } from "../pb/conversations_pb";

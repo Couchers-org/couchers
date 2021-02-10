@@ -1,9 +1,9 @@
-import { Box } from "@material-ui/core";
+import { Box, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   useInfiniteQuery,
   useMutation,
@@ -36,6 +36,8 @@ import InviteDialog from "./InviteDialog";
 import LeaveDialog from "./LeaveDialog";
 import MembersDialog from "./MembersDialog";
 
+const loaderSize = 32; //px, necessary for scroll compensation
+
 const useStyles = makeStyles((theme) => ({
   pageWrapper: {
     display: "flex",
@@ -48,13 +50,18 @@ const useStyles = makeStyles((theme) => ({
   },
   header: { display: "flex", alignItems: "center", flexGrow: 0 },
   scroll: theme.shape.scrollBar,
-  footer: { flexGrow: 0 },
+  footer: { flexGrow: 0, paddingBottom: theme.spacing(2) },
   title: {
     flexGrow: 1,
     marginInline: theme.spacing(2),
   },
   messageList: {
     paddingBlock: theme.spacing(2),
+  },
+  loader: {
+    //px for easier scroll compensation
+    height: loaderSize,
+    minWidth: loaderSize,
   },
 }));
 
@@ -155,32 +162,44 @@ export default function GroupChatView() {
   const prevScrollHeight = useRef<number | undefined>(undefined);
   const prevTopMessageId = useRef<number | null>(null);
 
-  const { ref: loadMoreRef } = useOnVisibleEffect(null, () => {
+  const handleLoadMoreVisible = useCallback(() => {
+    //unset the secondary loadMoreRef to prevent double-fetch
+    hasScrolled.current = false;
     prevScrollHeight.current = scrollRef.current?.scrollHeight;
     if (messagesRes) {
       prevTopMessageId.current =
         messagesRes.pages[messagesRes.pages.length - 1].lastMessageId;
     }
     fetchNextPage();
-  });
+  }, [messagesRes, fetchNextPage]);
+
+  const { ref: loadMoreRef } = useOnVisibleEffect(null, handleLoadMoreVisible);
+
+  //because scrolling happens when once fetch is complete
+  //loadMoreRef is visible again briefly before the scroll
+  //so gets called a second time.
+  //So we use a second ref which is unset on fetch and
+  //re-set after scroll.
+  const hasScrolled = useRef<boolean>(true);
+  const loadMoreRefAfterScroll = (node: Element | null | undefined) =>
+    hasScrolled ? loadMoreRef(node) : undefined;
 
   useEffect(() => {
     if (isFetchingNextPage) return;
-    document
-      .getElementById(`message-${prevTopMessageId.current}`)
-      ?.scrollIntoView();
-    //make up for circular progress offset
-    scrollRef.current?.scrollBy(0, -60);
-    /*if (isFetchingNextPage || !scrollRef.current) return;
-    const newScrollHeight = scrollRef.current.scrollHeight;
-    if (newScrollHeight === prevScrollHeight.current) return;
-    scrollRef.current.scrollTo(
-      0,
-      newScrollHeight - (prevScrollHeight.current ?? newScrollHeight)
+    const messageEl = document.getElementById(
+      `message-${prevTopMessageId.current}`
     );
-    prevScrollHeight.current = newScrollHeight;*/
-  }, [isFetchingNextPage]);
+    messageEl?.scrollIntoView();
+    //make up for circular progress offset
+    const margin = parseFloat(
+      getComputedStyle(messageEl ?? document.documentElement).marginBottom
+    );
+    scrollRef.current?.scrollBy(0, -(loaderSize + margin));
+    //scroll is complete, put the loadMoreRef back
+    hasScrolled.current = true;
+  }, [isFetchingNextPage, loadMoreRef]);
 
+  //scroll to the bottom on page load
   useEffect(() => {
     if (!scrollRef.current) return;
     scrollRef.current.scroll(0, scrollRef.current.scrollHeight);
@@ -303,7 +322,15 @@ export default function GroupChatView() {
               <>
                 <Box className={classes.scroll} ref={scrollRef}>
                   {hasNextPage && !messagesError && (
-                    <CircularProgress ref={loadMoreRef} />
+                    <Box className={classes.loader}>
+                      {isFetchingNextPage ? (
+                        <CircularProgress size={32} />
+                      ) : (
+                        <Typography ref={loadMoreRefAfterScroll}>
+                          Load more...
+                        </Typography>
+                      )}
+                    </Box>
                   )}
                   <MessageList
                     markLastSeen={markLastSeen}
