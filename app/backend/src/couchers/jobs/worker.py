@@ -4,7 +4,6 @@ Background job workers
 
 import logging
 import traceback
-from concurrent import futures
 from datetime import timedelta
 from multiprocessing import Process
 from sched import scheduler
@@ -23,6 +22,10 @@ logger = logging.getLogger(__name__)
 
 
 def process_job():
+    """
+    Attempt to process one job from the job queue. Returns False if no job was found, True if a job was processed,
+    regardless of failure/success.
+    """
     logger.info(f"Looking for a job")
     with session_scope(isolation_level="REPEATABLE READ") as session:
         # a combination of REPEATABLE READ and SELECT ... FOR UPDATE SKIP LOCKED makes sure that only one transaction
@@ -35,7 +38,7 @@ def process_job():
 
         if not job:
             logger.info(f"No pending jobs")
-            return
+            return False
 
         # we've got a lock for a job now, it's "pending" until we commit or the lock is gone
         logger.info(f"Job #{job.id} grabbed")
@@ -63,47 +66,21 @@ def process_job():
             job.failure_info = traceback.format_exc()
 
         # exiting ctx manager commits and releases the row lock
+    return True
 
 
 def service_jobs():
     """
-    Don't run many of these simultaneously: it'll work but it'll conflict and cause a lot of missed job processing.
+    Service jobs in an infinite loop
     """
     # multiprocessing uses fork() which in turn copies file descriptors, so the engine may have connections in its pool
     # that we don't want to reuse. This is the SQLALchemy-recommended way of clearing the connection pool in this thread
     get_engine().dispose()
 
-    MAX_WORKERS = 8
-    with futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-        jobs = []
-        while True:
-            # jobs should be list of currently running jobs
-            jobs = [job for job in jobs if not job.done()]
-            idle_workers = MAX_WORKERS - len(jobs)
-            if idle_workers == 0:
-                # if we're at max capacity, then wait for one job to finish
-                futures.wait(jobs, return_when=futures.FIRST_COMPLETED)
-
-                # loop back to start, it's cleaner
-                continue
-
-            with session_scope() as session:
-                subquery = (
-                    session.query(BackgroundJob.id)
-                    .filter(BackgroundJob.ready_for_retry)
-                    .limit(idle_workers)
-                    .with_for_update(skip_locked=True)
-                    .subquery()
-                )
-                job_count = session.query(subquery).count()
-                # end the transaction and don't keep it open while sleeping, etc
-
-            if job_count > 0:
-                for _ in range(min(job_count, idle_workers)):
-                    jobs.append(executor.submit(process_job))
-            else:
-                # no jobs to work on, don't hammer the DB, we can wait a second
-                sleep(1)
+    while True:
+        # if no job was found, sleep for a second, otherwise query for another job straight away
+        if not process_job():
+            sleep(1)
 
 
 def _run_job_and_schedule(sched, schedule_id):
