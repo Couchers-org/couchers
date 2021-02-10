@@ -101,6 +101,7 @@ def test_create_page_errors(db):
 def test_create_page_place(db):
     user, token = generate_user()
     with pages_session(token) as api:
+        time_before = now()
         res = api.CreatePage(
             pages_pb2.CreatePageReq(
                 title="dummy title",
@@ -121,11 +122,8 @@ def test_create_page_place(db):
         assert res.location.lat == 1
         assert res.location.lng == 2
         assert res.slug == "dummy-title"
-        assert to_aware_datetime(res.created) > now() - timedelta(seconds=10) and to_aware_datetime(res.created) < now()
-        assert (
-            to_aware_datetime(res.last_edited) > now() - timedelta(seconds=10)
-            and to_aware_datetime(res.last_edited) < now()
-        )
+        assert time_before < to_aware_datetime(res.created) < now()
+        assert time_before < to_aware_datetime(res.last_edited) < now()
         assert res.last_editor_user_id == user.id
         assert res.creator_user_id == user.id
         assert res.owner_user_id == user.id
@@ -138,6 +136,7 @@ def test_create_page_place(db):
 def test_create_page_guide(db):
     user, token = generate_user()
     with pages_session(token) as api:
+        time_before = now()
         res = api.CreatePage(
             pages_pb2.CreatePageReq(
                 title="dummy title",
@@ -158,11 +157,8 @@ def test_create_page_guide(db):
         assert res.location.lat == 1
         assert res.location.lng == 2
         assert res.slug == "dummy-title"
-        assert to_aware_datetime(res.created) > now() - timedelta(seconds=10) and to_aware_datetime(res.created) < now()
-        assert (
-            to_aware_datetime(res.last_edited) > now() - timedelta(seconds=10)
-            and to_aware_datetime(res.last_edited) < now()
-        )
+        assert time_before < to_aware_datetime(res.created) < now()
+        assert time_before < to_aware_datetime(res.last_edited) < now()
         assert res.last_editor_user_id == user.id
         assert res.creator_user_id == user.id
         assert res.owner_user_id == user.id
@@ -176,6 +172,7 @@ def test_get_page(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     with pages_session(token1) as api:
+        time_before_create = now()
         page_id = api.CreatePage(
             pages_pb2.CreatePageReq(
                 title="dummy title",
@@ -189,6 +186,7 @@ def test_get_page(db):
         ).page_id
 
     with pages_session(token2) as api:
+        time_before_get = now()
         res = api.GetPage(pages_pb2.GetPageReq(page_id=page_id))
         assert res.title == "dummy title"
         assert res.content == "dummy content"
@@ -196,11 +194,8 @@ def test_get_page(db):
         assert res.location.lat == 1
         assert res.location.lng == 2
         assert res.slug == "dummy-title"
-        assert to_aware_datetime(res.created) > now() - timedelta(seconds=10) and to_aware_datetime(res.created) < now()
-        assert (
-            to_aware_datetime(res.last_edited) > now() - timedelta(seconds=10)
-            and to_aware_datetime(res.last_edited) < now()
-        )
+        assert time_before_create < to_aware_datetime(res.created) < time_before_get
+        assert time_before_create < to_aware_datetime(res.last_edited) < time_before_get
         assert res.last_editor_user_id == user1.id
         assert res.creator_user_id == user1.id
         assert res.owner_user_id == user1.id
@@ -213,6 +208,7 @@ def test_get_page(db):
 def test_update_page(db):
     user, token = generate_user()
     with pages_session(token) as api:
+        time_before_create = now()
         page_id = api.CreatePage(
             pages_pb2.CreatePageReq(
                 title="dummy title",
@@ -225,6 +221,7 @@ def test_update_page(db):
             )
         ).page_id
 
+        time_before_update = now()
         api.UpdatePage(
             pages_pb2.UpdatePageReq(
                 page_id=page_id,
@@ -232,6 +229,7 @@ def test_update_page(db):
             )
         )
 
+        time_before_get = now()
         res = api.GetPage(pages_pb2.GetPageReq(page_id=page_id))
         assert res.title == "test title"
         assert res.content == "dummy content"
@@ -239,11 +237,8 @@ def test_update_page(db):
         assert res.location.lat == 1
         assert res.location.lng == 2
         assert res.slug == "test-title"
-        assert to_aware_datetime(res.created) > now() - timedelta(seconds=10) and to_aware_datetime(res.created) < now()
-        assert (
-            to_aware_datetime(res.last_edited) > now() - timedelta(seconds=10)
-            and to_aware_datetime(res.last_edited) < now()
-        )
+        assert time_before_create < to_aware_datetime(res.created) < time_before_update
+        assert time_before_update < to_aware_datetime(res.last_edited) < time_before_get
         assert to_aware_datetime(res.created) < to_aware_datetime(res.last_edited)
         assert res.last_editor_user_id == user.id
         assert res.creator_user_id == user.id
@@ -253,6 +248,7 @@ def test_update_page(db):
         assert res.editor_user_ids == [user.id]
         assert res.can_edit
 
+        time_before_second_update = now()
         api.UpdatePage(
             pages_pb2.UpdatePageReq(
                 page_id=page_id,
@@ -260,6 +256,7 @@ def test_update_page(db):
             )
         )
 
+        time_before_second_get = now()
         res = api.GetPage(pages_pb2.GetPageReq(page_id=page_id))
         assert res.title == "test title"
         assert res.content == "test content"
@@ -267,11 +264,8 @@ def test_update_page(db):
         assert res.location.lat == 1
         assert res.location.lng == 2
         assert res.slug == "test-title"
-        assert to_aware_datetime(res.created) > now() - timedelta(seconds=10) and to_aware_datetime(res.created) < now()
-        assert (
-            to_aware_datetime(res.last_edited) > now() - timedelta(seconds=10)
-            and to_aware_datetime(res.last_edited) < now()
-        )
+        assert time_before_create < to_aware_datetime(res.created) < time_before_update
+        assert time_before_second_update < to_aware_datetime(res.last_edited) < time_before_second_get
         assert to_aware_datetime(res.created) < to_aware_datetime(res.last_edited)
         assert res.last_editor_user_id == user.id
         assert res.creator_user_id == user.id
@@ -281,6 +275,7 @@ def test_update_page(db):
         assert res.editor_user_ids == [user.id]
         assert res.can_edit
 
+        time_before_third_update = now()
         api.UpdatePage(
             pages_pb2.UpdatePageReq(
                 page_id=page_id,
@@ -288,6 +283,7 @@ def test_update_page(db):
             )
         )
 
+        time_before_third_get = now()
         res = api.GetPage(pages_pb2.GetPageReq(page_id=page_id))
         assert res.title == "test title"
         assert res.content == "test content"
@@ -295,11 +291,8 @@ def test_update_page(db):
         assert res.location.lat == 1
         assert res.location.lng == 2
         assert res.slug == "test-title"
-        assert to_aware_datetime(res.created) > now() - timedelta(seconds=10) and to_aware_datetime(res.created) < now()
-        assert (
-            to_aware_datetime(res.last_edited) > now() - timedelta(seconds=10)
-            and to_aware_datetime(res.last_edited) < now()
-        )
+        assert time_before_create < to_aware_datetime(res.created) < time_before_update
+        assert time_before_third_update < to_aware_datetime(res.last_edited) < time_before_third_get
         assert to_aware_datetime(res.created) < to_aware_datetime(res.last_edited)
         assert res.last_editor_user_id == user.id
         assert res.creator_user_id == user.id
@@ -309,6 +302,7 @@ def test_update_page(db):
         assert res.editor_user_ids == [user.id]
         assert res.can_edit
 
+        time_before_fourth_update = now()
         api.UpdatePage(
             pages_pb2.UpdatePageReq(
                 page_id=page_id,
@@ -319,6 +313,7 @@ def test_update_page(db):
             )
         )
 
+        time_before_fourth_get = now()
         res = api.GetPage(pages_pb2.GetPageReq(page_id=page_id))
         assert res.title == "test title"
         assert res.content == "test content"
@@ -326,11 +321,8 @@ def test_update_page(db):
         assert res.location.lat == 3
         assert res.location.lng == 1.222
         assert res.slug == "test-title"
-        assert to_aware_datetime(res.created) > now() - timedelta(seconds=10) and to_aware_datetime(res.created) < now()
-        assert (
-            to_aware_datetime(res.last_edited) > now() - timedelta(seconds=10)
-            and to_aware_datetime(res.last_edited) < now()
-        )
+        assert time_before_create < to_aware_datetime(res.created) < time_before_update
+        assert time_before_fourth_update < to_aware_datetime(res.last_edited) < time_before_fourth_get
         assert to_aware_datetime(res.created) < to_aware_datetime(res.last_edited)
         assert res.last_editor_user_id == user.id
         assert res.creator_user_id == user.id

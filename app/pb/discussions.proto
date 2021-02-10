@@ -22,8 +22,8 @@ message Discussion {
   google.protobuf.Timestamp created = 3;
   int64 creator_user_id = 4;
   oneof owner {
-    int64 owner_group_id = 5;
-    int64 owner_community_id = 6;
+    int64 owner_community_id = 5;
+    int64 owner_group_id = 6;
   }
   string title = 7;
   string content = 8;
@@ -34,8 +34,8 @@ message CreateDiscussionReq {
   string title = 1;
   string content = 2;
   oneof owner {
-    int64 owner_group_id = 3;
-    int64 owner_community_id = 4;
+    int64 owner_community_id = 3;
+    int64 owner_group_id = 4;
   }
 }
 

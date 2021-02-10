@@ -105,6 +105,7 @@ def test_create_and_get_discussion(db):
         group_id = group_cluster.id
 
     with discussions_session(token) as api:
+        time_before_create = now()
         res = api.CreateDiscussion(
             discussions_pb2.CreateDiscussionReq(
                 title="dummy title",
@@ -112,11 +113,12 @@ def test_create_and_get_discussion(db):
                 owner_community_id=community_id,
             )
         )
+        time_after_create = now()
 
         assert res.title == "dummy title"
         assert res.content == "dummy content"
         assert res.slug == "dummy-title"
-        assert to_aware_datetime(res.created) > now() - timedelta(seconds=10) and to_aware_datetime(res.created) < now()
+        assert time_before_create < to_aware_datetime(res.created) < time_after_create
         assert res.creator_user_id == user.id
         assert res.owner_community_id == community_id
 
@@ -132,11 +134,12 @@ def test_create_and_get_discussion(db):
         assert res.title == "dummy title"
         assert res.content == "dummy content"
         assert res.slug == "dummy-title"
-        assert to_aware_datetime(res.created) > now() - timedelta(seconds=10) and to_aware_datetime(res.created) < now()
+        assert time_before_create < to_aware_datetime(res.created) < time_after_create
         assert res.creator_user_id == user.id
         assert res.owner_community_id == community_id
 
     with discussions_session(token) as api:
+        time_before_create = now()
         res = api.CreateDiscussion(
             discussions_pb2.CreateDiscussionReq(
                 title="dummy title",
@@ -144,11 +147,12 @@ def test_create_and_get_discussion(db):
                 owner_group_id=group_id,
             )
         )
+        time_after_create = now()
 
         assert res.title == "dummy title"
         assert res.content == "dummy content"
         assert res.slug == "dummy-title"
-        assert to_aware_datetime(res.created) > now() - timedelta(seconds=10) and to_aware_datetime(res.created) < now()
+        assert time_before_create < to_aware_datetime(res.created) < time_after_create
         assert res.creator_user_id == user.id
         assert res.owner_group_id == group_id
 
@@ -164,6 +168,6 @@ def test_create_and_get_discussion(db):
         assert res.title == "dummy title"
         assert res.content == "dummy content"
         assert res.slug == "dummy-title"
-        assert to_aware_datetime(res.created) > now() - timedelta(seconds=10) and to_aware_datetime(res.created) < now()
+        assert time_before_create < to_aware_datetime(res.created) < time_after_create
         assert res.creator_user_id == user.id
         assert res.owner_group_id == group_id

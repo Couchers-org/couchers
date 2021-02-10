@@ -151,7 +151,7 @@ def _create_place(token, title, content, address, x):
         )
 
 
-def _create_discussion(token, community_id, group_id, title, content):
+def create_discussion(token, community_id, group_id, title, content):
     # set group_id or community_id to None
     with discussions_session(token) as api:
         res = api.CreateDiscussion(
@@ -220,20 +220,20 @@ def testing_communities(request):
         _create_group(session, "Country 1, Region 2, Foodies", [user2], [user4, user5], c1r2)
         _create_group(session, "Country 2, Region 1, Foodies", [user6], [user7], c2r1)
 
-        _create_discussion(token1, w.id, None, "Discussion title 1", "Discussion content 1")
-        _create_discussion(token3, w.id, None, "Discussion title 2", "Discussion content 2")
-        _create_discussion(token3, w.id, None, "Discussion title 3", "Discussion content 3")
-        _create_discussion(token3, w.id, None, "Discussion title 4", "Discussion content 4")
-        _create_discussion(token3, w.id, None, "Discussion title 5", "Discussion content 5")
-        _create_discussion(token3, w.id, None, "Discussion title 6", "Discussion content 6")
-        _create_discussion(token4, c1r1c2.id, None, "Discussion title 7", "Discussion content 7")
-        _create_discussion(token5, None, h.id, "Discussion title 8", "Discussion content 8")
-        _create_discussion(token1, None, h.id, "Discussion title 9", "Discussion content 9")
-        _create_discussion(token2, None, h.id, "Discussion title 10", "Discussion content 10")
-        _create_discussion(token3, None, h.id, "Discussion title 11", "Discussion content 11")
-        _create_discussion(token4, None, h.id, "Discussion title 12", "Discussion content 12")
-        _create_discussion(token5, None, h.id, "Discussion title 13", "Discussion content 13")
-        _create_discussion(token8, None, h.id, "Discussion title 14", "Discussion content 14")
+        create_discussion(token1, w.id, None, "Discussion title 1", "Discussion content 1")
+        create_discussion(token3, w.id, None, "Discussion title 2", "Discussion content 2")
+        create_discussion(token3, w.id, None, "Discussion title 3", "Discussion content 3")
+        create_discussion(token3, w.id, None, "Discussion title 4", "Discussion content 4")
+        create_discussion(token3, w.id, None, "Discussion title 5", "Discussion content 5")
+        create_discussion(token3, w.id, None, "Discussion title 6", "Discussion content 6")
+        create_discussion(token4, c1r1c2.id, None, "Discussion title 7", "Discussion content 7")
+        create_discussion(token5, None, h.id, "Discussion title 8", "Discussion content 8")
+        create_discussion(token1, None, h.id, "Discussion title 9", "Discussion content 9")
+        create_discussion(token2, None, h.id, "Discussion title 10", "Discussion content 10")
+        create_discussion(token3, None, h.id, "Discussion title 11", "Discussion content 11")
+        create_discussion(token4, None, h.id, "Discussion title 12", "Discussion content 12")
+        create_discussion(token5, None, h.id, "Discussion title 13", "Discussion content 13")
+        create_discussion(token8, None, h.id, "Discussion title 14", "Discussion content 14")
 
     enforce_community_memberships()
 

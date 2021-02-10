@@ -32,6 +32,15 @@ def page_to_pb(page: Page, user_id):
     first_version = page.versions[0]
     current_version = page.versions[-1]
     lat, lng = current_version.coordinates or (0, 0)
+
+    owner_community_id = None
+    owner_group_id = None
+    if page.owner_cluster:
+        if page.owner_cluster.official_cluster_for_node_id is None:
+            owner_group_id = page.owner_cluster.id
+        else:
+            owner_community_id = page.owner_cluster.official_cluster_for_node_id
+
     return pages_pb2.Page(
         page_id=page.id,
         type=pagetype2api[page.type],
@@ -41,12 +50,8 @@ def page_to_pb(page: Page, user_id):
         last_editor_user_id=current_version.editor_user_id,
         creator_user_id=page.creator_user_id,
         owner_user_id=page.owner_user_id,
-        owner_group_id=page.owner_cluster.id
-        if page.owner_cluster and page.owner_cluster.official_cluster_for_node_id is None
-        else None,
-        owner_community_id=page.owner_cluster.official_cluster_for_node_id
-        if page.owner_cluster and page.owner_cluster.official_cluster_for_node_id is not None
-        else None,
+        owner_community_id=owner_community_id,
+        owner_group_id=owner_group_id,
         thread_id=pack_thread_id(page.thread_id, 0),
         title=current_version.title,
         content=current_version.content,

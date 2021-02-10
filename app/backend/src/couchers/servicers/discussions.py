@@ -11,17 +11,20 @@ from pb import discussions_pb2, discussions_pb2_grpc
 
 
 def discussion_to_pb(discussion: Discussion, user_id):
+    owner_community_id = None
+    owner_group_id = None
+    if discussion.owner_cluster.official_cluster_for_node_id is None:
+        owner_group_id = discussion.owner_cluster.id
+    else:
+        owner_community_id = discussion.owner_cluster.official_cluster_for_node_id
+
     return discussions_pb2.Discussion(
         discussion_id=discussion.id,
         slug=discussion.slug,
         created=Timestamp_from_datetime(discussion.created),
         creator_user_id=discussion.creator_user_id,
-        owner_group_id=discussion.owner_cluster.id
-        if discussion.owner_cluster.official_cluster_for_node_id is None
-        else None,
-        owner_community_id=discussion.owner_cluster.official_cluster_for_node_id
-        if discussion.owner_cluster.official_cluster_for_node_id is not None
-        else None,
+        owner_community_id=owner_community_id,
+        owner_group_id=owner_group_id,
         title=discussion.title,
         content=discussion.content,
         thread_id=pack_thread_id(discussion.thread_id, 0),
