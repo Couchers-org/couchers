@@ -31,7 +31,7 @@ message Coordinate {
 }
 
 enum PageType {
-  // point of intereset
+  // point of interest, landmark, tourist attraction, etc
   PAGE_TYPE_PLACE = 0;
   // guide
   PAGE_TYPE_GUIDE = 1;
@@ -50,8 +50,8 @@ message Page {
   int64 creator_user_id = 7;
   oneof owner {
     int64 owner_user_id = 8;
-    int64 owner_group_id = 9;
     int64 owner_community_id = 17;
+    int64 owner_group_id = 9;
   }
   int64 thread_id = 10;
   string title = 11;
@@ -89,7 +89,7 @@ message UpdatePageReq {
 message TransferPageReq {
   int64 page_id = 1;
   oneof new_owner {
-    int64 new_owner_group_id = 2;
     int64 new_owner_community_id = 3;
+    int64 new_owner_group_id = 2;
   }
 }

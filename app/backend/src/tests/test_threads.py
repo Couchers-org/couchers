@@ -32,7 +32,7 @@ def test_threads_basic(db):
 
     # Create a dummy Thread (should be replaced by pages later on)
     with session_scope() as session:
-        dummy_thread = Thread(title="foo")
+        dummy_thread = Thread()
         session.add(dummy_thread)
         session.flush()
         PARENT_THREAD_ID = pack_thread_id(database_id=dummy_thread.id, depth=0)
@@ -137,7 +137,7 @@ def test_threads_pagination(db):
 
     # Create a dummy Thread (should be replaced by pages later on)
     with session_scope() as session:
-        session.add(Thread(id=1, title="foo"))
+        session.add(Thread(id=1))
 
     with threads_session(token1) as api:
         comment_id = pagination_test(api, PARENT_THREAD_ID)

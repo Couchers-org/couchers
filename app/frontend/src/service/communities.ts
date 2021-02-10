@@ -2,6 +2,7 @@ import {
   GetCommunityReq,
   ListAdminsReq,
   ListCommunitiesReq,
+  ListDiscussionsReq,
   ListGroupsReq,
   ListGuidesReq,
   ListMembersReq,
@@ -87,5 +88,15 @@ export async function listGuides(communityId: number, pageToken?: string) {
     req.setPageToken(pageToken);
   }
   const response = await client.communities.listGuides(req);
+  return response.toObject();
+}
+
+export async function listDiscussions(communityId: number, pageToken?: string) {
+  const req = new ListDiscussionsReq();
+  req.setCommunityId(communityId);
+  if (pageToken) {
+    req.setPageToken(pageToken);
+  }
+  const response = await client.communities.listDiscussions(req);
   return response.toObject();
 }

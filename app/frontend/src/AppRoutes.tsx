@@ -8,6 +8,7 @@ import Login from "./features/auth/login/Login";
 import Logout from "./features/auth/Logout";
 import Signup from "./features/auth/signup/Signup";
 import CommunityPage from "./features/communities/CommunityPage";
+import DiscussionPage from "./features/communities/DiscussionPage";
 import GroupPage from "./features/communities/GroupPage";
 import NewPagePage from "./features/communities/NewPagePage";
 import PagePage from "./features/communities/PagePage";
@@ -51,6 +52,8 @@ export const guideRoute = "/guide";
 
 export const communityRoute = "/community"; ///:communityId/:communitySlug";
 export const groupRoute = "/group"; ///:groupId/:groupSlug";
+
+export const discussionRoute = "/discussion";
 
 export default function AppRoutes() {
   return (
@@ -102,6 +105,9 @@ export default function AppRoutes() {
       </PrivateRoute>
       <PrivateRoute path={`${guideRoute}/:pageId/:pageSlug?`}>
         <PagePage pageType={PageType.PAGE_TYPE_GUIDE} />
+      </PrivateRoute>
+      <PrivateRoute path={`${discussionRoute}/:discussionId/:discussionSlug?`}>
+        <DiscussionPage />
       </PrivateRoute>
       <PrivateRoute path={`${communityRoute}/:communityId/:communitySlug?`}>
         <CommunityPage />

@@ -4,15 +4,18 @@ import { Link, useHistory, useParams } from "react-router-dom";
 
 import {
   communityRoute,
+  discussionRoute,
   groupRoute,
   guideRoute,
   placeRoute,
 } from "../../AppRoutes";
 import Alert from "../../components/Alert";
 import CircularProgress from "../../components/CircularProgress";
+import CommentBox from "../../components/Comments/CommentBox";
 import Markdown from "../../components/Markdown";
 import PageTitle from "../../components/PageTitle";
 import TextBody from "../../components/TextBody";
+import { Discussion } from "../../pb/discussions_pb";
 import { Group } from "../../pb/groups_pb";
 import { Page } from "../../pb/pages_pb";
 import { service } from "../../service";
@@ -33,6 +36,12 @@ export default function GroupPage() {
 
   const [guidesLoading, setGuidesLoading] = useState(false);
   const [guides, setGuides] = useState<Array<Page.AsObject> | null>(null);
+
+  const [discussionsLoading, setDiscussionsLoading] = useState(false);
+  const [
+    discussions,
+    setDiscussions,
+  ] = useState<Array<Discussion.AsObject> | null>(null);
 
   const history = useHistory();
 
@@ -97,6 +106,16 @@ export default function GroupPage() {
         setError(e.message);
       }
       setGuidesLoading(false);
+
+      setDiscussionsLoading(true);
+      try {
+        const res = await service.groups.listDiscussions(Number(groupId));
+        setDiscussions(res.discussionsList.length ? res.discussionsList : null);
+      } catch (e) {
+        console.error(e);
+        setError(e.message);
+      }
+      setDiscussionsLoading(false);
     })();
   }, [groupId, groupSlug, history]);
 
@@ -168,7 +187,7 @@ export default function GroupPage() {
               );
             })
           ) : (
-            <p>This community has no admins.</p>
+            <p>This group has no admins.</p>
           )}
           <h1>Members</h1>
           <p>Total {group.memberCount} members.</p>
@@ -184,9 +203,9 @@ export default function GroupPage() {
               );
             })
           ) : (
-            <p>This community has no members.</p>
+            <p>This group has no members.</p>
           )}
-          <h1>Places/points of interest</h1>
+          <h1>Places</h1>
           {placesLoading ? (
             <CircularProgress />
           ) : places ? (
@@ -201,7 +220,7 @@ export default function GroupPage() {
               );
             })
           ) : (
-            <p>This community contains no places.</p>
+            <p>This group contains no places.</p>
           )}
           <h1>Guides</h1>
           {guidesLoading ? (
@@ -218,8 +237,28 @@ export default function GroupPage() {
               );
             })
           ) : (
-            <p>This community contains no guides.</p>
+            <p>This group contains no guides.</p>
           )}
+          <h1>Discussions</h1>
+          {discussionsLoading ? (
+            <CircularProgress />
+          ) : discussions ? (
+            discussions.map((discussion) => {
+              return (
+                <>
+                  <Link
+                    to={`${discussionRoute}/${discussion.discussionId}/${discussion.slug}`}
+                  >
+                    {discussion.title}
+                  </Link>
+                  <br />
+                </>
+              );
+            })
+          ) : (
+            <p>This group contains no discussions.</p>
+          )}
+          <CommentBox threadId={group.threadId} />
         </>
       ) : (
         <TextBody>Error</TextBody>

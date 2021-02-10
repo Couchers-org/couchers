@@ -197,6 +197,38 @@ class TestGroups:
             )
             assert res.member_user_ids == [user2_id, user4_id, user5_id]
 
+    @staticmethod
+    def test_ListDiscussions(testing_communities):
+        with session_scope() as session:
+            user1_id, token1 = get_user_id_and_token(session, "user1")
+            hitchhikers_id = get_group_id(session, "Hitchhikers")
+
+        with groups_session(token1) as api:
+            res = api.ListDiscussions(
+                groups_pb2.ListDiscussionsReq(
+                    group_id=hitchhikers_id,
+                    page_size=5,
+                )
+            )
+            assert [d.title for d in res.discussions] == [
+                "Discussion title 8",
+                "Discussion title 9",
+                "Discussion title 10",
+                "Discussion title 11",
+                "Discussion title 12",
+            ]
+            res = api.ListDiscussions(
+                groups_pb2.ListDiscussionsReq(
+                    group_id=hitchhikers_id,
+                    page_token=res.next_page_token,
+                    page_size=5,
+                )
+            )
+            assert [d.title for d in res.discussions] == [
+                "Discussion title 13",
+                "Discussion title 14",
+            ]
+
 
 # TODO: also requires implementing content transfer functionality
 # Note: allegedly groups cannot contain content other than discussions!
@@ -208,7 +240,4 @@ class TestGroups:
 #     pass
 
 # def test_ListEvents(db, testing_communities):
-#     pass
-
-# def test_ListDiscussions(db, testing_communities):
 #     pass
