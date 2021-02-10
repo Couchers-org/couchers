@@ -24,12 +24,13 @@ export interface NominatimPlace {
 
 export const simplifyPlaceDisplayName = (place: NominatimPlace) => {
   const addressFields = [
+    "village",
+    "town",
     "neighbourhood",
     "suburb",
     "city",
+    "state",
     "country",
-    "town",
-    "village",
   ];
 
   const addressParts: Array<string> = [];
