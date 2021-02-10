@@ -141,7 +141,7 @@ def test_update_profile(db):
             api_pb2.UpdateProfileReq(
                 name=wrappers_pb2.StringValue(value="New name"),
                 city=wrappers_pb2.StringValue(value="Timbuktu"),
-                hometown=wrappers_pb2.StringValue(value="Walla Walla"),
+                hometown=api_pb2.NullableStringValue(value="Walla Walla"),
                 lat=wrappers_pb2.DoubleValue(value=0.01),
                 lng=wrappers_pb2.DoubleValue(value=-2),
                 radius=wrappers_pb2.DoubleValue(value=321),
@@ -674,7 +674,7 @@ def test_hosting_preferences(db):
         assert not res.HasField("last_minute")
         assert not res.HasField("has_pets")
         assert not res.HasField("accepts_pets")
-        assert not res.HasField("pets_details")
+        assert not res.HasField("pet_details")
         assert not res.HasField("has_kids")
         assert not res.HasField("accepts_kids")
         assert not res.HasField("kid_details")
