@@ -6,6 +6,7 @@ import { useAuthContext } from "./features/auth/AuthProvider";
 import Jail from "./features/auth/jail/Jail";
 import Login from "./features/auth/login/Login";
 import Logout from "./features/auth/Logout";
+import CompleteResetPasswordPage from "./features/auth/resetPassword/CompleteResetPasswordPage";
 import ResetPasswordPage from "./features/auth/resetPassword/ResetPasswordPage";
 import Signup from "./features/auth/signup/Signup";
 import CommunityPage from "./features/communities/CommunityPage";
@@ -66,8 +67,11 @@ export default function AppRoutes() {
       <Route path={`${signupRoute}/:urlToken?`}>
         <Signup />
       </Route>
-      <Route path={resetPasswordRoute}>
+      <Route exact path={resetPasswordRoute}>
         <ResetPasswordPage />
+      </Route>
+      <Route exact path={`${resetPasswordRoute}/:resetToken`}>
+        <CompleteResetPasswordPage />
       </Route>
       <Route path={tosRoute}>
         <TOS />
