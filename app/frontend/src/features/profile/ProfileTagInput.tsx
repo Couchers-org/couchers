@@ -111,6 +111,7 @@ interface ProfileTagInputProps {
   options: string[];
   label: string;
   id: string;
+  allowCsv?: boolean;
   className?: string;
 }
 
@@ -120,6 +121,7 @@ export default function ProfileTagInput({
   options,
   label,
   id,
+  allowCsv,
   className,
 }: ProfileTagInputProps) {
   const classes = useStyles();
@@ -198,7 +200,19 @@ export default function ProfileTagInput({
             popperDisablePortal: classes.popperDisablePortal,
           }}
           onChange={(_, newValue) => {
-            setPendingValue(newValue);
+            let uniqueValues: Set<string>;
+            if (allowCsv) {
+              const lastIndex = newValue.length - 1;
+              const latestEntry = newValue[lastIndex];
+              const previousEntries = newValue.slice(0, lastIndex);
+              uniqueValues = new Set([
+                ...previousEntries,
+                ...latestEntry.split(",").map((value) => value.trim()),
+              ]);
+            } else {
+              uniqueValues = new Set(newValue);
+            }
+            setPendingValue(Array.from(uniqueValues));
           }}
           value={pendingValue}
           renderInput={(params) => (

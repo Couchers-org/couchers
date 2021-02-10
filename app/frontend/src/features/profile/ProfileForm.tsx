@@ -178,6 +178,7 @@ export default function EditProfileForm() {
                   label="Countries I've Visited"
                   id="countries-visited"
                   className={classes.tagInput}
+                  allowCsv
                 />
               )}
             />
@@ -194,6 +195,7 @@ export default function EditProfileForm() {
                   label="Countries I've Lived In"
                   id="countries-lived"
                   className={classes.tagInput}
+                  allowCsv
                 />
               )}
             />
