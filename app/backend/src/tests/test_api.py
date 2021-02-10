@@ -729,7 +729,7 @@ def test_hosting_preferences(db):
         assert res.house_rules.value == "RULES!"
         assert not res.HasField("parking")
         assert res.parking_details == api_pb2.PARKING_DETAILS_UNKNOWN
-        assert not res.HasField("camping_ok")
+        assert not res.HasField("camping_OK")
 
     with api_session(token1) as api:
         # test unsetting
@@ -766,4 +766,4 @@ def test_hosting_preferences(db):
         assert not res.HasField("house_rules")
         assert not res.HasField("parking")
         assert res.parking_details == api_pb2.PARKING_DETAILS_UNKNOWN
-        assert not res.HasField("camping_ok")
+        assert not res.HasField("camping_OK")

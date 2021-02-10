@@ -313,7 +313,7 @@ message UpdateProfileReq {
   NullableStringValue house_rules = 21;
   NullableBoolValue parking = 119;
   ParkingDetails parking_details = 120;
-  NullableBoolValue Camping_OK = 121;
+  NullableBoolValue camping_OK = 121;
 }
 
 message ReportReq {
