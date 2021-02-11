@@ -146,7 +146,7 @@ def test_update_profile(db):
                 lng=wrappers_pb2.DoubleValue(value=-2),
                 radius=wrappers_pb2.DoubleValue(value=321),
                 gender=wrappers_pb2.StringValue(value="Bot"),
-                pronouns=wrappers_pb2.StringValue(value="Ro, Robo, Robots"),
+                pronouns=api_pb2.NullableStringValue(value="Ro, Robo, Robots"),
                 occupation=api_pb2.NullableStringValue(value="Testing"),
                 education=api_pb2.NullableStringValue(value="Couchers U"),
                 about_me=api_pb2.NullableStringValue(value="I rule"),
@@ -711,7 +711,7 @@ def test_hosting_preferences(db):
         assert not res.HasField("last_minute")
         assert not res.HasField("has_pets")
         assert not res.HasField("accepts_pets")
-        assert not res.HasField("pets_details")
+        assert not res.HasField("pet_details")
         assert not res.HasField("has_kids")
         assert not res.HasField("accepts_kids")
         assert not res.HasField("kid_details")

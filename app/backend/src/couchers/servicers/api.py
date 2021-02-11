@@ -105,7 +105,7 @@ sleepingarrangement2api = {
 }
 
 parkingdetails2sql = {
-    api_pb2.PARKING_DETAILS_UNKNONW: None,
+    api_pb2.PARKING_DETAILS_UNKNOWN: None,
     api_pb2.PARKING_DETAILS_FREE_ONSITE: ParkingDetails.free_onsite,
     api_pb2.PARKING_DETAILS_FREE_OFFSITE: ParkingDetails.free_offsite,
     api_pb2.PARKING_DETAILS_PAID_ONSITE: ParkingDetails.paid_onsite,
@@ -113,7 +113,7 @@ parkingdetails2sql = {
 }
 
 parkingdetails2api = {
-    None: api_pb2.PARKING_DETAILS_UNKNONW,
+    None: api_pb2.PARKING_DETAILS_UNKNOWN,
     ParkingDetails.free_onsite: api_pb2.PARKING_DETAILS_FREE_ONSITE,
     ParkingDetails.free_offsite: api_pb2.PARKING_DETAILS_FREE_OFFSITE,
     ParkingDetails.paid_onsite: api_pb2.PARKING_DETAILS_PAID_ONSITE,

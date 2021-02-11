@@ -140,7 +140,7 @@ class User(Base):
     accepts_kids = Column(Boolean, nullable=True)
     kid_details = Column(String, nullable=True)
     has_housemates = Column(Boolean, nullable=True)
-    housemates_details = Column(String, nullable=True)
+    housemate_details = Column(String, nullable=True)
     wheelchair_accessible = Column(Boolean, nullable=True)
     smoking_allowed = Column(Enum(SmokingLocation), nullable=True)
     smokes_at_home = Column(Boolean, nullable=True)
