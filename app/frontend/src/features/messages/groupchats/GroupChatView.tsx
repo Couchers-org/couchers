@@ -1,9 +1,9 @@
-import { Box, Typography } from "@material-ui/core";
+import { Box } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   useInfiniteQuery,
   useMutation,
@@ -25,9 +25,9 @@ import {
 import { service } from "../../../service";
 import { useAuthContext } from "../../auth/AuthProvider";
 import useUsers from "../../userQueries/useUsers";
+import InfiniteMessageLoader from "../messagelist/InfiniteMessageLoader";
 import MessageList from "../messagelist/MessageList";
 import useMarkLastSeen, { MarkLastSeenVariables } from "../useMarkLastSeen";
-import useOnVisibleEffect from "../useOnVisibleEffect";
 import { groupChatTitleText } from "../utils";
 import AdminsDialog from "./AdminsDialog";
 import GroupChatSendField from "./GroupChatSendField";
@@ -35,8 +35,6 @@ import GroupChatSettingsDialog from "./GroupChatSettingsDialog";
 import InviteDialog from "./InviteDialog";
 import LeaveDialog from "./LeaveDialog";
 import MembersDialog from "./MembersDialog";
-
-const loaderSize = 32; //px, necessary for scroll compensation
 
 const useStyles = makeStyles((theme) => ({
   pageWrapper: {
@@ -49,7 +47,6 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   header: { display: "flex", alignItems: "center", flexGrow: 0 },
-  scroll: theme.shape.scrollBar,
   footer: { flexGrow: 0, paddingBottom: theme.spacing(2) },
   title: {
     flexGrow: 1,
@@ -57,11 +54,6 @@ const useStyles = makeStyles((theme) => ({
   },
   messageList: {
     paddingBlock: theme.spacing(2),
-  },
-  loader: {
-    //px for easier scroll compensation
-    height: loaderSize,
-    minWidth: loaderSize,
   },
 }));
 
@@ -157,53 +149,6 @@ export default function GroupChatView() {
   const history = useHistory();
 
   const handleBack = () => history.goBack();
-
-  const scrollRef = useRef<HTMLElement>(null);
-  const prevScrollHeight = useRef<number | undefined>(undefined);
-  const prevTopMessageId = useRef<number | null>(null);
-
-  const handleLoadMoreVisible = useCallback(() => {
-    //unset the secondary loadMoreRef to prevent double-fetch
-    hasScrolled.current = false;
-    prevScrollHeight.current = scrollRef.current?.scrollHeight;
-    if (messagesRes) {
-      prevTopMessageId.current =
-        messagesRes.pages[messagesRes.pages.length - 1].lastMessageId;
-    }
-    fetchNextPage();
-  }, [messagesRes, fetchNextPage]);
-
-  const { ref: loadMoreRef } = useOnVisibleEffect(null, handleLoadMoreVisible);
-
-  //because scrolling happens when once fetch is complete
-  //loadMoreRef is visible again briefly before the scroll
-  //so gets called a second time.
-  //So we use a second ref which is unset on fetch and
-  //re-set after scroll.
-  const hasScrolled = useRef<boolean>(true);
-  const loadMoreRefAfterScroll = (node: Element | null | undefined) =>
-    hasScrolled ? loadMoreRef(node) : undefined;
-
-  useEffect(() => {
-    if (isFetchingNextPage) return;
-    const messageEl = document.getElementById(
-      `message-${prevTopMessageId.current}`
-    );
-    messageEl?.scrollIntoView();
-    //make up for circular progress offset
-    const margin = parseFloat(
-      getComputedStyle(messageEl ?? document.documentElement).marginBottom
-    );
-    scrollRef.current?.scrollBy(0, -(loaderSize + margin));
-    //scroll is complete, put the loadMoreRef back
-    hasScrolled.current = true;
-  }, [isFetchingNextPage, loadMoreRef]);
-
-  //scroll to the bottom on page load
-  useEffect(() => {
-    if (!scrollRef.current) return;
-    scrollRef.current.scroll(0, scrollRef.current.scrollHeight);
-  }, [scrollRef]);
 
   return (
     <Box>
@@ -320,26 +265,24 @@ export default function GroupChatView() {
           ) : (
             messagesRes && (
               <>
-                <Box className={classes.scroll} ref={scrollRef}>
-                  {hasNextPage && !messagesError && (
-                    <Box className={classes.loader}>
-                      {isFetchingNextPage ? (
-                        <CircularProgress size={32} />
-                      ) : (
-                        <Typography ref={loadMoreRefAfterScroll}>
-                          Load more...
-                        </Typography>
-                      )}
-                    </Box>
-                  )}
+                <InfiniteMessageLoader
+                  earliestMessageId={
+                    messagesRes.pages[messagesRes.pages.length - 1]
+                      .lastMessageId
+                  }
+                  fetchNextPage={fetchNextPage}
+                  isFetchingNextPage={isFetchingNextPage}
+                  hasNextPage={!!hasNextPage}
+                  isError={!!messagesError}
+                  className={classes.messageList}
+                >
                   <MessageList
                     markLastSeen={markLastSeen}
                     messages={messagesRes.pages
                       .map((page) => page.messagesList)
                       .flat()}
-                    className={classes.messageList}
                   />
-                </Box>
+                </InfiniteMessageLoader>
                 <Box className={classes.footer}>
                   <GroupChatSendField sendMutation={sendMutation} />
                 </Box>
