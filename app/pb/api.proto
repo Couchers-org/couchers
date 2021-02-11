@@ -260,7 +260,7 @@ message UpdateProfileReq {
 }
 
 message DeleteProfileReq {
-  bool is_deleted = 1
+  bool is_deleted = 1;
 }
 
 message ReportReq {
