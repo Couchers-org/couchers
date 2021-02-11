@@ -17,7 +17,7 @@ export default function CompleteResetPasswordPage() {
   useEffect(() => {
     setLoading(true);
     if (resetToken) {
-      service.auth
+      service.account
         .completePasswordReset(resetToken)
         .then(() => {
           setSuccess(true);

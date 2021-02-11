@@ -1,7 +1,5 @@
 import {
-  CompletePasswordResetReq,
   LoginReq,
-  ResetPasswordReq,
   SignupReq,
   SignupTokenInfoReq,
   UsernameValidReq,
@@ -34,16 +32,4 @@ export async function validateUsername(username: string) {
   req.setUsername(username);
   const res = await client.auth.usernameValid(req);
   return res.getValid();
-}
-
-export function resetPassword(userId: string) {
-  const req = new ResetPasswordReq();
-  req.setUser(userId);
-  return client.auth.resetPassword(req);
-}
-
-export function completePasswordReset(resetToken: string) {
-  const req = new CompletePasswordResetReq();
-  req.setPasswordResetToken(resetToken);
-  return client.auth.completePasswordReset(req);
 }

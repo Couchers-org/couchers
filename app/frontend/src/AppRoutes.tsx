@@ -6,8 +6,8 @@ import { useAuthContext } from "./features/auth/AuthProvider";
 import Jail from "./features/auth/jail/Jail";
 import Login from "./features/auth/login/Login";
 import Logout from "./features/auth/Logout";
-import CompleteResetPasswordPage from "./features/auth/resetPassword/CompleteResetPasswordPage";
-import ResetPasswordPage from "./features/auth/resetPassword/ResetPasswordPage";
+import CompleteResetPasswordPage from "./features/auth/password/CompleteResetPasswordPage";
+import ResetPasswordPage from "./features/auth/password/ResetPasswordPage";
 import Signup from "./features/auth/signup/Signup";
 import CommunityPage from "./features/communities/CommunityPage";
 import DiscussionPage from "./features/communities/DiscussionPage";
@@ -31,6 +31,7 @@ import { PageType } from "./pb/pages_pb";
 export const loginRoute = "/login";
 export const loginPasswordRoute = `${loginRoute}/password`;
 export const resetPasswordRoute = "/passwordreset";
+export const changePasswordRoute = "/change-password";
 
 export const signupRoute = "/signup";
 export const profileRoute = "/profile";

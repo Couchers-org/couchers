@@ -1,3 +1,4 @@
+import * as account from "./account";
 import * as api from "./api";
 import * as auth from "./auth";
 import * as bugs from "./bugs";
@@ -26,6 +27,7 @@ export const service = {
   search,
   threads,
   user,
+  account,
 } as const;
 
 export type {

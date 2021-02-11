@@ -32,7 +32,7 @@ export default function ResetPasswordPage() {
     Empty,
     GrpcError,
     string
-  >((userId) => service.auth.resetPassword(userId));
+  >((userId) => service.account.resetPassword(userId));
 
   const onSubmit = handleSubmit(({ userId }) => {
     resetPassword(userId);
