@@ -134,7 +134,7 @@ class User(Base):
 
     @hybrid_property
     def is_hidden(self):
-        return self.is_banned and self.is_jailed and self.is_deleted
+        return self.is_banned or self.is_jailed or self.is_deleted
 
     @property
     def is_missing_location(self):
