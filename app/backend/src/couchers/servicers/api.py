@@ -260,6 +260,16 @@ class API(api_pb2_grpc.APIServicer):
 
             return empty_pb2.Empty()
 
+    def delete_user(self, request, context):
+        with session_scope() as session:
+            user = session.query(User).filter(User.id == context.user_id).one()
+
+            user.is_deleted = True
+
+            session.commit()
+
+            return empty_pb2.Empty()
+
     def ListFriends(self, request, context):
         with session_scope() as session:
             rels = (

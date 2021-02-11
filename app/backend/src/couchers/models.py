@@ -105,6 +105,7 @@ class User(Base):
     countries_lived = Column(String, nullable=True)
 
     is_banned = Column(Boolean, nullable=False, default=False)
+    is_deleted = Column(Boolean, nullable=False, default=False)
 
     # hosting preferences
     max_guests = Column(Integer, nullable=True)

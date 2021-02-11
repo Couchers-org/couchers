@@ -712,3 +712,16 @@ def test_hosting_preferences(db):
         assert not res.HasField("sleeping_arrangement")
         assert res.area.value == "area!"
         assert not res.HasField("house_rules")
+
+def test_profile_deletion(db):
+    user, token = generate_user()
+
+    with api_session(token) as api:
+        res = api.DeleteProfile(
+            api_pb2.DeletProfileReq(
+                is_deleted=wrappers_pb2.BoolValue(value=True)
+            )
+        )
+
+        user = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        assert user.is_deleted == True

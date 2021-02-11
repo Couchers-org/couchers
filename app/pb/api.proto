@@ -22,6 +22,10 @@ service API {
     // *Nullable can be set to null to clear the value. is_null defaults to false.
   }
 
+  rpc DeleteProfile(DeleteProfileReq) returns (google.protobuf.Empty) {
+    // Marks user profile as deleted
+  }
+
   rpc SendFriendRequest(SendFriendRequestReq) returns (google.protobuf.Empty);
 
   rpc ListFriendRequests(google.protobuf.Empty) returns (ListFriendRequestsRes);
@@ -253,6 +257,10 @@ message UpdateProfileReq {
   NullableStringValue sleeping_arrangement = 19;
   NullableStringValue area = 20;
   NullableStringValue house_rules = 21;
+}
+
+message DeleteProfileReq {
+  bool is_deleted = 1
 }
 
 message ReportReq {
