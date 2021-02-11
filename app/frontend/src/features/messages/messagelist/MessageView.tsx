@@ -11,6 +11,8 @@ import { useUser } from "../../userQueries/useUsers";
 import useOnVisibleEffect from "../useOnVisibleEffect";
 import TimeInterval from "./MomentIndication";
 
+export const messageElementId = (id: number) => `message-${id}`;
+
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
@@ -89,7 +91,7 @@ export default function MessageView({
       })}
       data-testid={`message-${message.messageId}`}
       ref={ref}
-      id={`message-${message.messageId}`}
+      id={messageElementId(message.messageId)}
     >
       {author && !isCurrentUser && (
         <Avatar user={author} className={classes.avatar} />

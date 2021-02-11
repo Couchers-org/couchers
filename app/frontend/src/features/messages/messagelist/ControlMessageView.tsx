@@ -10,7 +10,7 @@ import { useAuthContext } from "../../auth/AuthProvider";
 import { useUser } from "../../userQueries/useUsers";
 import useOnVisibleEffect from "../useOnVisibleEffect";
 import { controlMessageText, messageTargetId } from "../utils";
-import { MessageProps } from "./MessageView";
+import { messageElementId, MessageProps } from "./MessageView";
 import TimeInterval from "./MomentIndication";
 
 const useStyles = makeStyles((theme) => ({
@@ -51,7 +51,7 @@ export default function ControlMessageView({
       className={classNames(classes.root, className)}
       data-testid={`message-${message.messageId}`}
       ref={ref}
-      id={`message-${message.messageId}`}
+      id={messageElementId(message.messageId)}
     >
       <Box className={classes.timestamp}>
         <TimeInterval date={timestamp2Date(message.time!)} />

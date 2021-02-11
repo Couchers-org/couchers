@@ -1,9 +1,10 @@
-import { Box, makeStyles, Typography } from "@material-ui/core";
+import { Box, makeStyles } from "@material-ui/core";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import classNames from "classnames";
-import React, { ReactNode, useCallback, useEffect, useRef } from "react";
+import React, { ReactNode, useCallback, useLayoutEffect, useRef } from "react";
 
 import useOnVisibleEffect from "../useOnVisibleEffect";
+import { messageElementId } from "./MessageView";
 
 const useStyles = makeStyles((theme) => ({
   loader: {
@@ -49,8 +50,6 @@ export default function InfiniteMessageLoader({
   const prevTopMessageId = useRef<number | null>(null);
 
   const handleLoadMoreVisible = useCallback(() => {
-    //unset the secondary loadMoreRef to prevent double-fetch
-    hasScrolled.current = false;
     prevScrollHeight.current = scrollRef.current?.scrollHeight;
     if (earliestMessageId) {
       prevTopMessageId.current = earliestMessageId;
@@ -60,27 +59,16 @@ export default function InfiniteMessageLoader({
 
   const { ref: loadMoreRef } = useOnVisibleEffect(null, handleLoadMoreVisible);
 
-  //because scrolling happens when once fetch is complete
-  //loadMoreRef is visible again briefly before the scroll
-  //so gets called a second time.
-  //So we use a second ref which is unset on fetch and
-  //re-set after scroll.
-  const hasScrolled = useRef<boolean>(true);
-  const loadMoreRefAfterScroll = (node: Element | null | undefined) =>
-    hasScrolled ? loadMoreRef(node) : undefined;
-
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (isFetchingNextPage) return;
     const messageEl = document.getElementById(
-      `message-${prevTopMessageId.current}`
+      messageElementId(prevTopMessageId.current ?? 0)
     );
     messageEl?.scrollIntoView();
-    //scroll is complete, put the loadMoreRef back
-    hasScrolled.current = true;
   }, [isFetchingNextPage, loadMoreRef]);
 
   //scroll to the bottom on page load
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!scrollRef.current) return;
     scrollRef.current.scroll(0, scrollRef.current.scrollHeight);
   }, [scrollRef]);
@@ -95,7 +83,7 @@ export default function InfiniteMessageLoader({
             <CircularProgress
               variant="determinate"
               value={0}
-              ref={loadMoreRefAfterScroll}
+              ref={loadMoreRef}
             />
           )}
         </Box>
