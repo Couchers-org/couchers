@@ -42,7 +42,7 @@ export async function getGroupChat(id: number) {
 export async function getGroupChatMessages(
   groupChatId: number,
   lastMessageId: number = 0,
-  count: number = 10
+  count: number = 20
 ) {
   const req = new GetGroupChatMessagesReq();
   req.setGroupChatId(groupChatId);

@@ -36,7 +36,7 @@ import InviteDialog from "./InviteDialog";
 import LeaveDialog from "./LeaveDialog";
 import MembersDialog from "./MembersDialog";
 
-const useStyles = makeStyles((theme) => ({
+export const useGroupChatViewStyles = makeStyles((theme) => ({
   pageWrapper: {
     display: "flex",
     flexDirection: "column",
@@ -58,7 +58,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function GroupChatView() {
-  const classes = useStyles();
+  const classes = useGroupChatViewStyles();
 
   const menuAnchor = useRef<HTMLAnchorElement>(null);
   const [isOpen, setIsOpen] = useState({

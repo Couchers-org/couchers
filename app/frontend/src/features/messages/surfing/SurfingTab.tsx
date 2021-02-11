@@ -57,7 +57,7 @@ export default function SurfingTab({
             data.pages.map((hostRequestsRes, pageNumber) =>
               pageNumber === 0 &&
               hostRequestsRes.hostRequestsList.length === 0 ? (
-                <TextBody>No requests yet.</TextBody>
+                <TextBody key="no-requests-text">No requests yet.</TextBody>
               ) : (
                 <React.Fragment key={`host-requests-page-${pageNumber}`}>
                   {hostRequestsRes.hostRequestsList.map((hostRequest) => (

@@ -48,7 +48,7 @@ export default function GroupChatsTab() {
             <CreateGroupChat className={classes.listItem} />
             {data.pages.map((groupChatsRes, pageNumber) =>
               pageNumber === 0 && groupChatsRes.groupChatsList.length === 0 ? (
-                <TextBody>No group chats yet.</TextBody>
+                <TextBody key="no-chats-text">No group chats yet.</TextBody>
               ) : (
                 <React.Fragment key={`group-chats-page-${pageNumber}`}>
                   {groupChatsRes.groupChatsList.map((groupChat) => (

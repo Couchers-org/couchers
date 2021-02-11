@@ -1,4 +1,4 @@
-import { HostRequestStatus, Message } from "../pb/conversations_pb";
+import { HostRequestStatus } from "../pb/conversations_pb";
 import {
   CreateHostRequestReq,
   GetHostRequestMessagesReq,
@@ -64,15 +64,18 @@ export async function respondHostRequest(
 }
 
 export async function getHostRequestMessages(
-  id: number
-): Promise<Message.AsObject[]> {
+  id: number,
+  lastMessageId: number = 0,
+  count: number = 20
+) {
   const req = new GetHostRequestMessagesReq();
   req.setHostRequestId(id);
+  req.setLastMessageId(lastMessageId);
+  req.setNumber(count);
 
   const response = await client.requests.getHostRequestMessages(req);
-  const messages = response.getMessagesList();
 
-  return messages.map((message) => message.toObject());
+  return response.toObject();
 }
 
 export async function createHostRequest(
