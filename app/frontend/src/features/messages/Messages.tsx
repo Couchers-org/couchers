@@ -107,9 +107,9 @@ export default function Messages() {
           {header}
           ARCHIVED
         </Route>
-        <Route path={`${messagesRoute}/:messageId?`}>
+        <Route path={`${messagesRoute}`}>
           {header}
-          All
+          <GroupChatsTab />
         </Route>
       </Switch>
     </>

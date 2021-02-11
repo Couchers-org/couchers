@@ -15,6 +15,8 @@ afterEach(() => {
   global.localStorage.clear();
 });
 
+Element.prototype.scroll = () => {};
+
 declare global {
   var defaultUser: typeof user;
 }

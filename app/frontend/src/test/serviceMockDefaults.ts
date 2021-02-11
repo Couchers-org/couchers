@@ -14,7 +14,11 @@ export async function listFriends() {
 }
 
 export async function getGroupChatMessages() {
-  return messages;
+  return {
+    messagesList: messages,
+    lastMessageId: 5,
+    noMore: true,
+  };
 }
 
 export async function listGroupChats() {
