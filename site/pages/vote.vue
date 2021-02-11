@@ -3,9 +3,11 @@
     <section class="hero">
       <div class="hero-body">
         <div class="container">
-          <h2 class="title is-2">Couchers.org Voting</h2>
+          <h2 class="title is-2">Couchers.org Logo Vote</h2>
           <p class="subtitle is-4">Voice your feedback and help us as we build Couchers.org for you</p>
-          <p class="content">Some text</p>
+          <p class="content">We need you. One of the first things people will see when they interact with Couchers is our logo. Logos grab attention, are memorable, and help communicate our mission. The mission of having a trusted hospitality exchange platform that is diverse, inclusive, collaborative, and adventurous.</p>
+          <p class="content">Four different choices. Cast your vote on the one you feel best represents Couchers and our mission.</p>
+          <p class="content">Your vote will be used in helping decide the direction of the Couchers logo. Thank you for your input!</p>
         </div>
       </div>
     </section>
@@ -63,8 +65,8 @@
     </section>
 
     <section class="section" v-bind:class="{ 'is-hidden': !done || loading }">
-      <h3 class="title is-3">Thank you!</h3>
-      <p class="subtitle is-5">We appreciate you taking the time to help us build Couchers.org</p>
+      <h3 class="title is-3">Thanks for voting!</h3>
+      <p class="subtitle is-5">We appreciate you taking the time to help us build Couchers.org.</p>
     </section>
 
     <section v-bind:class="{ 'is-hidden': !loading || error }">
