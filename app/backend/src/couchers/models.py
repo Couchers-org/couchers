@@ -132,6 +132,10 @@ class User(Base):
     def is_jailed(self):
         return self.accepted_tos < 1 or self.is_missing_location
 
+    @hybrid_property
+    def is_hidden(self):
+        return self.is_banned and self.is_jailed and self.is_deleted
+
     @property
     def is_missing_location(self):
         return not self.geom or not self.geom_radius
