@@ -18,6 +18,11 @@ import { validateFutureDate } from "../../../utils/validation";
 import { useUser } from "../../userQueries/useUsers";
 
 const useStyles = makeStyles((theme) => ({
+  buttonContainer: {
+    display: "flex",
+    paddingTop: theme.spacing(1),
+    justifyContent: "center",
+  },
   form: {
     "& > *": {
       marginTop: theme.spacing(2),
@@ -112,14 +117,16 @@ export default function NewHostRequest() {
             multiline
             fullWidth
           />
-          <Button
-            type="submit"
-            color="primary"
-            onClick={onSubmit}
-            loading={mutation.isLoading}
-          >
-            Send
-          </Button>
+          <div className={classes.buttonContainer}>
+            <Button
+              type="submit"
+              color="primary"
+              onClick={onSubmit}
+              loading={mutation.isLoading}
+            >
+              Send
+            </Button>
+          </div>
         </form>
       )}
     </Box>
