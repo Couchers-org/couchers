@@ -205,20 +205,20 @@ export default function ProfileTagInput({
               // For some reason I came across situations when there were undefined values in this array.
               newValue = newValue.filter((element) => element !== undefined);
 
-            if (allowCsv) {
-              const lastIndex = newValue.length - 1;
-              const latestEntry = newValue[lastIndex];
-              const previousEntries = newValue.slice(0, lastIndex);
-              uniqueValues = new Set([
-                ...previousEntries,
-                ...latestEntry.split(",").map((value) => value.trim()),
-              ]);
+              if (allowCsv) {
+                const lastIndex = newValue.length - 1;
+                const latestEntry = newValue[lastIndex];
+                const previousEntries = newValue.slice(0, lastIndex);
+                uniqueValues = new Set([
+                  ...previousEntries,
+                  ...latestEntry.split(",").map((value) => value.trim()),
+                ]);
+              } else {
+                uniqueValues = new Set(newValue);
+              }
             } else {
-              uniqueValues = new Set(newValue);
+              uniqueValues = new Set([]);
             }
-          } else {
-            uniqueValues = new Set([]);
-          }
             setPendingValue(
               Array.from(uniqueValues).filter((value) => !/^\s*$/.test(value))
             );
