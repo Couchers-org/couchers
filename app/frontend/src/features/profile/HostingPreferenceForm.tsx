@@ -50,6 +50,11 @@ const useStyles = makeStyles((theme) => ({
   alert: {
     marginBottom: theme.spacing(3),
   },
+  buttonContainer: {
+    display: "flex",
+    paddingTop: theme.spacing(1),
+    justifyContent: "center",
+  },
   form: {
     marginBottom: theme.spacing(2),
   },
@@ -237,14 +242,16 @@ export default function HostingPreferenceForm() {
             multiline
             className={classes.field}
           />
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            onClick={onSubmit}
-          >
-            Save
-          </Button>
+          <div className={classes.buttonContainer}>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              onClick={onSubmit}
+            >
+              Save
+            </Button>
+          </div>
         </form>
       ) : (
         <CircularProgress />

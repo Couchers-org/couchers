@@ -18,6 +18,7 @@ const useStyles = makeStyles((theme) => ({
   buttonContainer: {
     display: "flex",
     paddingTop: theme.spacing(1),
+    justifyContent: "center",
   },
   field: {
     "& > .MuiInputBase-root": {
