@@ -121,7 +121,7 @@ export default function ProfileTagInput({
   options,
   label,
   id,
-  allowCsv,
+  allowCsv = true,
   className,
 }: ProfileTagInputProps) {
   const classes = useStyles();
@@ -201,6 +201,10 @@ export default function ProfileTagInput({
           }}
           onChange={(_, newValue) => {
             let uniqueValues: Set<string>;
+            if (Array.isArray(newValue) && newValue.length) {
+              // For some reason I came across situations when there were undefined values in this array.
+              newValue = newValue.filter((element) => element !== undefined);
+
             if (allowCsv) {
               const lastIndex = newValue.length - 1;
               const latestEntry = newValue[lastIndex];
@@ -212,7 +216,12 @@ export default function ProfileTagInput({
             } else {
               uniqueValues = new Set(newValue);
             }
-            setPendingValue(Array.from(uniqueValues));
+          } else {
+            uniqueValues = new Set([]);
+          }
+            setPendingValue(
+              Array.from(uniqueValues).filter((value) => !/^\s*$/.test(value))
+            );
           }}
           value={pendingValue}
           renderInput={(params) => (
