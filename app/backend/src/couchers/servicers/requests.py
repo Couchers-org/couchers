@@ -17,7 +17,8 @@ from pb import conversations_pb2, requests_pb2, requests_pb2_grpc
 
 logger = logging.getLogger(__name__)
 
-PAGINATION_LENGTH = 10
+DEFAULT_PAGINATION_LENGTH = 10
+MAX_PAGE_SIZE = 50
 
 
 hostrequeststatus2api = {
@@ -165,7 +166,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.HOST_REQUEST_SENT_OR_RECEIVED)
 
         with session_scope() as session:
-            pagination = request.number if request.number > 0 else PAGINATION_LENGTH
+            pagination = request.number if request.number > 0 else DEFAULT_PAGINATION_LENGTH
+            pagination = min(pagination, MAX_PAGE_SIZE)
 
             # By outer joining messages on itself where the second id is bigger, only the highest IDs will have
             # none as message_2.id. So just filter for these ones to get highest messages only.
@@ -347,7 +349,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if host_request.from_user_id != context.user_id and host_request.to_user_id != context.user_id:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
 
-            pagination = request.number if request.number > 0 else PAGINATION_LENGTH
+            pagination = request.number if request.number > 0 else DEFAULT_PAGINATION_LENGTH
+            pagination = min(pagination, MAX_PAGE_SIZE)
 
             messages = (
                 session.query(Message)
@@ -418,7 +421,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
             newest_message = session.query(Message).filter(Message.id == request.newest_message_id).one_or_none()
 
-            pagination = request.number if request.number > 0 else PAGINATION_LENGTH
+            pagination = request.number if request.number > 0 else DEFAULT_PAGINATION_LENGTH
+            pagination = min(pagination, MAX_PAGE_SIZE)
 
             query = (
                 session.query(
@@ -443,7 +447,9 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
             no_more = len(query) <= pagination
 
-            last_message_id = min(map(lambda m: m.Message.id if m else 1, query[:pagination])) if len(query) > 0 else 0  # TODO
+            last_message_id = (
+                min(map(lambda m: m.Message.id if m else 1, query[:pagination])) if len(query) > 0 else 0
+            )  # TODO
 
             return requests_pb2.GetHostRequestUpdatesRes(
                 no_more=no_more,

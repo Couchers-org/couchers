@@ -13,9 +13,8 @@ from couchers.utils import Timestamp_from_datetime
 from pb import api_pb2, conversations_pb2, conversations_pb2_grpc
 
 # TODO: Still needs custom pagination: GetUpdates
-PAGINATION_LENGTH = 20
-DEFAULT_LARGE_PAGINATION_LENGTH = 20
-DEFAULT_SMALL_PAGINATION_LENGTH = 10
+DEFAULT_PAGINATION_LENGTH = 20
+MAX_PAGE_SIZE = 50
 
 
 def _message_to_pb(message: Message):
@@ -115,7 +114,8 @@ def _add_message_to_subscription(session, subscription, **kwargs):
 class Conversations(conversations_pb2_grpc.ConversationsServicer):
     def ListGroupChats(self, request, context):
         with session_scope() as session:
-            page_size = request.number if request.number != 0 else DEFAULT_SMALL_PAGINATION_LENGTH
+            page_size = request.number if request.number != 0 else DEFAULT_PAGINATION_LENGTH
+            page_size = min(page_size, MAX_PAGE_SIZE)
 
             # select group chats where you have a subscription, and for each of
             # these, the latest message from them
@@ -255,7 +255,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 .filter(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
                 .filter(Message.id > request.newest_message_id)
                 .order_by(Message.id.asc())
-                .limit(PAGINATION_LENGTH + 1)
+                .limit(DEFAULT_PAGINATION_LENGTH + 1)
                 .all()
             )
 
@@ -265,14 +265,15 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                         group_chat_id=message.conversation_id,
                         message=_message_to_pb(message),
                     )
-                    for message in sorted(results, key=lambda message: message.id)[:PAGINATION_LENGTH]
+                    for message in sorted(results, key=lambda message: message.id)[:DEFAULT_PAGINATION_LENGTH]
                 ],
-                no_more=len(results) <= PAGINATION_LENGTH,
+                no_more=len(results) <= DEFAULT_PAGINATION_LENGTH,
             )
 
     def GetGroupChatMessages(self, request, context):
         with session_scope() as session:
-            page_size = request.number if request.number != 0 else DEFAULT_LARGE_PAGINATION_LENGTH
+            page_size = request.number if request.number != 0 else DEFAULT_PAGINATION_LENGTH
+            page_size = min(page_size, MAX_PAGE_SIZE)
 
             results = (
                 session.query(Message)
@@ -316,7 +317,8 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
     def SearchMessages(self, request, context):
         with session_scope() as session:
-            page_size = request.number if request.number != 0 else DEFAULT_LARGE_PAGINATION_LENGTH
+            page_size = request.number if request.number != 0 else DEFAULT_PAGINATION_LENGTH
+            page_size = min(page_size, MAX_PAGE_SIZE)
 
             results = (
                 session.query(Message)
