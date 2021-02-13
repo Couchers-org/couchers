@@ -44,7 +44,7 @@ const themeOptions: ThemeOptions = {
   },
   shape: {
     borderRadius,
-    navPaddingDesktop: spacing(9),
+    navPaddingDesktop: spacing(10),
     navPaddingMobile: spacing(7),
     scrollBar: {
       paddingInlineEnd: spacing(1),
