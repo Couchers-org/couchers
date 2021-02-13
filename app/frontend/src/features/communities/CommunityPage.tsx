@@ -10,6 +10,7 @@ import {
   placeRoute,
 } from "../../AppRoutes";
 import Alert from "../../components/Alert";
+import Button from "../../components/Button";
 import CircularProgress from "../../components/CircularProgress";
 import CommentBox from "../../components/Comments/CommentBox";
 import Markdown from "../../components/Markdown";
@@ -62,6 +63,14 @@ export default function CommunityPage() {
     communityId: string;
     communitySlug?: string;
   }>();
+
+  const handleJoin = async () => {
+    await service.communities.joinCommunity(community!.communityId);
+  };
+
+  const handleLeave = async () => {
+    await service.communities.leaveCommunity(community!.communityId);
+  };
 
   useEffect(() => {
     if (!communityId) return;
@@ -199,8 +208,19 @@ export default function CommunityPage() {
           </Breadcrumbs>
           <p>Description: {community.description}</p>
           <p>
-            You <b>{community.member ? "are" : "are not"}</b> a member of this
-            community.
+            {community.member ? (
+              <>
+                You <b>are</b> a member of this community.
+                <br />
+                <Button onClick={handleLeave}>Leave community</Button>
+              </>
+            ) : (
+              <>
+                You <b>are not</b> a member of this community.
+                <br />
+                <Button onClick={handleJoin}>Join community</Button>
+              </>
+            )}
           </p>
           <p>
             You <b>{community.admin ? "are" : "are not"}</b> an admin of this

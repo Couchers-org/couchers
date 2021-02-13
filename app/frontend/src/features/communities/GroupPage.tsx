@@ -10,6 +10,7 @@ import {
   placeRoute,
 } from "../../AppRoutes";
 import Alert from "../../components/Alert";
+import Button from "../../components/Button";
 import CircularProgress from "../../components/CircularProgress";
 import CommentBox from "../../components/Comments/CommentBox";
 import Markdown from "../../components/Markdown";
@@ -49,6 +50,14 @@ export default function GroupPage() {
     groupId: string;
     groupSlug?: string;
   }>();
+
+  const handleJoin = async () => {
+    await service.groups.joinGroup(group!.groupId);
+  };
+
+  const handleLeave = async () => {
+    await service.groups.leaveGroup(group!.groupId);
+  };
 
   useEffect(() => {
     if (!groupId) return;
@@ -154,8 +163,19 @@ export default function GroupPage() {
           </Breadcrumbs>
           <p>Description: {group.description}</p>
           <p>
-            You <b>{group.member ? "are" : "are not"}</b> a member of this
-            group.
+            {group.member ? (
+              <>
+                You <b>are</b> a member of this group.
+                <br />
+                <Button onClick={handleLeave}>Leave group</Button>
+              </>
+            ) : (
+              <>
+                You <b>are not</b> a member of this group.
+                <br />
+                <Button onClick={handleJoin}>Join group</Button>
+              </>
+            )}
           </p>
           <p>
             You <b>{group.admin ? "are" : "are not"}</b> an admin of this group.
