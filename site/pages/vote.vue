@@ -55,12 +55,12 @@
             <hr />
             <div class="control">
               <label class="radio">
-                <input type="radio" name="vote" value="smiling-couch" v-model="vote" /> <b>Vote for "Smiling Couch"</b>
+                <input type="radio" name="vote" value="smiling-couch" v-model="vote" /> <b>Vote for "Couch with Pins"</b>
                 <div class="media-left">
                   <figure class="image is-128x128">
-                    <img src="/logo-vote/smiling-couch.png" alt="Smiling Couch logo">
+                    <img src="/logo-vote/smiling-couch.png" alt="Couch with Pins logo">
                   </figure>
-                  <a href="/logo-vote/smiling-couch-presentation.png" target="_blank"><img src="/logo-vote/smiling-couch-presentation.png" alt="Smiling Couch presentation"></a>
+                  <a href="/logo-vote/smiling-couch-presentation.png" target="_blank"><img src="/logo-vote/smiling-couch-presentation.png" alt="Couch withe Pins presentation"></a>
                 </div>
               </label>
               <p class="content has-text-grey is-italic">Click on the presentation to enlarge. Click on the logo or text to select this design for your vote.</p>
