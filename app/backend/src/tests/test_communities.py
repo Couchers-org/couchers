@@ -1,6 +1,7 @@
 import grpc
 import pytest
 
+from couchers import errors
 from couchers.db import session_scope
 from couchers.models import (
     Cluster,
@@ -632,7 +633,7 @@ def test_JoinCommunity_and_LeaveCommunity(testing_communities):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.ALREADY_PART_OF_COMMUNITY
+        assert e.value.details() == errors.ALREADY_IN_COMMUNITY
 
         assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
 
