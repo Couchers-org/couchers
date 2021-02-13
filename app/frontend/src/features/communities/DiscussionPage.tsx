@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 
-import { discussionRoute } from "../../AppRoutes";
+import { routeToDiscussion } from "../../AppRoutes";
 import Alert from "../../components/Alert";
 import CircularProgress from "../../components/CircularProgress";
 import CommentBox from "../../components/Comments/CommentBox";
@@ -35,7 +35,7 @@ export default function DiscussionPage() {
         );
         if (discussion.slug !== discussionSlug) {
           history.push(
-            `${discussionRoute}/${discussion.discussionId}/${discussion.slug}`
+            routeToDiscussion(discussion.discussionId, discussion.slug)
           );
         } else {
           setDiscussion(discussion);

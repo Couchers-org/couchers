@@ -2,7 +2,7 @@ import { makeStyles } from "@material-ui/core";
 import { LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { useHistory, useLocation } from "react-router-dom";
 
-import { guideRoute, placeRoute, userRoute } from "../../AppRoutes";
+import { routeToGuide, routeToPlace, routeToUser } from "../../AppRoutes";
 import Map from "../../components/Map";
 import PageTitle from "../../components/PageTitle";
 import { addClusteredUsersToMap } from "./clusteredUsers";
@@ -30,10 +30,7 @@ export default function MapPage() {
       id: number;
       slug: string;
     };
-    history.push(
-      `${placeRoute}/${properties.id}/${properties.slug}`,
-      location.state
-    );
+    history.push(routeToPlace(properties.id, properties.slug), location.state);
   };
 
   const handleGuideClick = (ev: any) => {
@@ -41,15 +38,12 @@ export default function MapPage() {
       id: number;
       slug: string;
     };
-    history.push(
-      `${guideRoute}/${properties.id}/${properties.slug}`,
-      location.state
-    );
+    history.push(routeToGuide(properties.id, properties.slug), location.state);
   };
 
   const handleClick = (ev: any) => {
     const username = ev.features[0].properties.username;
-    history.push(`${userRoute}/${username}`, location.state);
+    history.push(routeToUser(username), location.state);
   };
 
   const initializeMap = (map: MaplibreMap) => {

@@ -2,7 +2,7 @@ import { Grid, makeStyles } from "@material-ui/core";
 import React from "react";
 import { Link, useParams } from "react-router-dom";
 
-import { messagesRoute, profileRoute } from "../../AppRoutes";
+import { profileRoute, routeToNewHostRequest } from "../../AppRoutes";
 import Alert from "../../components/Alert";
 import Button from "../../components/Button";
 import CircularProgress from "../../components/CircularProgress";
@@ -71,7 +71,7 @@ export default function UserPage() {
                   <Button
                     startIcon={<CouchIcon />}
                     component={Link}
-                    to={`${messagesRoute}/request/new/${user.userId}`}
+                    to={routeToNewHostRequest(user.userId)}
                     className={classes.actionButton}
                   >
                     Request to stay

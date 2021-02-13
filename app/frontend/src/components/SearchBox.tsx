@@ -3,7 +3,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { useHistory } from "react-router-dom";
 
-import { searchRoute } from "../AppRoutes";
+import { routeToSearch } from "../AppRoutes";
 import { SearchQuery } from "../features/search/constants";
 import TextField from "./TextField";
 
@@ -21,7 +21,7 @@ export default function SearchBox() {
   const history = useHistory();
 
   const onSubmit = handleSubmit(({ query }) => {
-    history.push(`${searchRoute}/${encodeURIComponent(query)}`);
+    history.push(routeToSearch(encodeURIComponent(query)));
   });
 
   return (

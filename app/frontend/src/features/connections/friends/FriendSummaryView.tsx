@@ -2,6 +2,7 @@ import { Box, makeStyles, Typography } from "@material-ui/core";
 import React from "react";
 import { Link } from "react-router-dom";
 
+import { routeToUser } from "../../../AppRoutes";
 import TextBody from "../../../components/TextBody";
 import { User } from "../../../pb/api_pb";
 
@@ -31,7 +32,7 @@ function FriendSummaryView({ children, friend }: FriendSummaryViewProps) {
 
   return friend ? (
     <Box className={classes.friendItem}>
-      <Link className={classes.friendLink} to={`/user/${friend.username}`}>
+      <Link className={classes.friendLink} to={routeToUser(friend.username)}>
         <Typography component="h3" variant="h2">
           {friend.name}
         </Typography>

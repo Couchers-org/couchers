@@ -4,7 +4,7 @@ import * as React from "react";
 import { useQuery } from "react-query";
 import { Link } from "react-router-dom";
 
-import { messagesRoute } from "../../../AppRoutes";
+import { routeToHostRequest } from "../../../AppRoutes";
 import Alert from "../../../components/Alert";
 import CircularProgress from "../../../components/CircularProgress";
 import TextBody from "../../../components/TextBody";
@@ -46,7 +46,7 @@ export default function SurfingTab({
           <List className={classes.list}>
             {hostRequests.map((hostRequest) => (
               <Link
-                to={`${messagesRoute}/request/${hostRequest.hostRequestId}`}
+                to={routeToHostRequest(hostRequest.hostRequestId)}
                 key={hostRequest.hostRequestId}
                 className={classes.link}
               >

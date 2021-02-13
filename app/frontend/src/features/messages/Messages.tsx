@@ -1,7 +1,16 @@
 import * as React from "react";
 import { Route, Switch, useHistory, useParams } from "react-router-dom";
 
-import { messagesRoute } from "../../AppRoutes";
+import {
+  archivedMessagesRoute,
+  groupChatsRoute,
+  hostingRequestsRoute,
+  hostRequestRoute,
+  meetRoute,
+  messagesRoute,
+  newHostRequestRoute,
+  surfingRequestsRoute,
+} from "../../AppRoutes";
 import NotificationBadge from "../../components/NotificationBadge";
 import PageTitle from "../../components/PageTitle";
 import TabBar from "../../components/TabBar";
@@ -44,7 +53,7 @@ export function HostRequestsSentNotification() {
 
 const labels = {
   all: "All",
-  groupchats: <MessagesNotification />,
+  chats: <MessagesNotification />,
   hosting: <HostRequestsReceivedNotification />,
   surfing: <HostRequestsSentNotification />,
   meet: "Meet",
@@ -74,32 +83,32 @@ export default function Messages() {
   return (
     <>
       <Switch>
-        <Route path={`${messagesRoute}/groupchats/:groupChatId`}>
+        <Route path={`${groupChatsRoute}/:groupChatId`}>
           <GroupChatView />
         </Route>
-        <Route path={`${messagesRoute}/groupchats`}>
+        <Route path={groupChatsRoute}>
           {header}
           <GroupChatsTab />
         </Route>
-        <Route path={`${messagesRoute}/request/new/:userId`}>
+        <Route path={`${newHostRequestRoute}/:userId`}>
           <NewHostRequest />
         </Route>
-        <Route path={`${messagesRoute}/request/:hostRequestId`}>
+        <Route path={`${hostRequestRoute}/:hostRequestId`}>
           <HostRequestView />
         </Route>
-        <Route path={`${messagesRoute}/hosting`}>
+        <Route path={hostingRequestsRoute}>
           {header}
           <SurfingTab type="hosting" />
         </Route>
-        <Route path={`${messagesRoute}/surfing`}>
+        <Route path={surfingRequestsRoute}>
           {header}
           <SurfingTab type="surfing" />
         </Route>
-        <Route path={`${messagesRoute}/meet`}>
+        <Route path={meetRoute}>
           {header}
           MEET
         </Route>
-        <Route path={`${messagesRoute}/archived`}>
+        <Route path={archivedMessagesRoute}>
           {header}
           ARCHIVED
         </Route>
