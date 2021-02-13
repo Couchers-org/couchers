@@ -14,14 +14,7 @@
 
     <section class="section" v-bind:class="{ 'is-hidden': done || loading }">
       <form id="form" @submit.prevent="submit_form" action="#" method="post">
-        <div class="field">
-          <label class="label" for="email">Your email address</label>
-          <div class="control">
-            <input class="input" v-bind:class="{ 'is-danger': email_error !== null }" name="email" id="email" type="email" v-model="email" placeholder="Email address">
-          </div>
-          <p class="help is-danger" v-bind:class="{ 'is-hidden': email_error === null }">{{ email_error }}</p>
-          <p class="content has-text-grey is-italic">If you are not yet subscribed to our email updates, we will add you to the mailing list.</p>
-        </div>
+        <p class="subtitle is-4"><b>To submit, please click "Vote!" at the bottom of the page</b></p>
         <div class="field">
           <label class="label">Which logo concept do you prefer?</label>
           <p class="help is-danger" v-bind:class="{ 'is-hidden': vote_error === null }">{{ vote_error }}</p>
@@ -72,6 +65,15 @@
               </label>
             </div>
           </div>
+        </div>
+        <hr />
+        <div class="field">
+          <label class="label" for="email">Your email address</label>
+          <div class="control">
+            <input class="input" v-bind:class="{ 'is-danger': email_error !== null }" name="email" id="email" type="email" v-model="email" placeholder="Email address">
+          </div>
+          <p class="help is-danger" v-bind:class="{ 'is-hidden': email_error === null }">{{ email_error }}</p>
+          <p class="content has-text-grey is-italic">If you are not yet subscribed to our email updates, we will add you to the mailing list.</p>
         </div>
         <hr />
         <div class="field">
