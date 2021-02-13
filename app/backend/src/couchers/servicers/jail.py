@@ -4,7 +4,7 @@ import grpc
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import User
+from couchers.models.core import User
 from couchers.utils import create_coordinate
 from pb import jail_pb2, jail_pb2_grpc
 

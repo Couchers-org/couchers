@@ -4,7 +4,7 @@ from google.protobuf import empty_pb2
 from couchers import errors
 from couchers.crypto import hash_password, verify_password
 from couchers.db import is_valid_email, session_scope, set_email_change_token
-from couchers.models import User
+from couchers.models.core import User
 from couchers.tasks import (
     send_email_changed_confirmation_email,
     send_email_changed_notification_email,

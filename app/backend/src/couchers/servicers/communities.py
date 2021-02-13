@@ -5,7 +5,8 @@ from sqlalchemy.sql import literal
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Cluster, Discussion, Node, Page, PageType, User
+from couchers.models.communities import Cluster, Discussion, Node, Page, PageType
+from couchers.models.core import User
 from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb

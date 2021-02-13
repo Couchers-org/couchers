@@ -11,20 +11,10 @@ from couchers import errors, urls
 from couchers.config import config
 from couchers.crypto import generate_hash_signature, random_hex
 from couchers.db import get_friends_status, get_user_by_field, is_valid_color, is_valid_name, session_scope
-from couchers.models import (
-    Complaint,
-    FriendRelationship,
-    FriendStatus,
-    GroupChatSubscription,
-    HostingStatus,
-    HostRequest,
-    InitiatedUpload,
-    Message,
-    Reference,
-    ReferenceType,
-    SmokingLocation,
-    User,
-)
+from couchers.models.core import FriendRelationship, FriendStatus, HostingStatus, SmokingLocation, User
+from couchers.models.media import InitiatedUpload
+from couchers.models.messaging import Complaint, GroupChatSubscription, HostRequest, Message
+from couchers.models.references import Reference, ReferenceType
 from couchers.tasks import send_friend_request_email, send_report_email
 from couchers.utils import Timestamp_from_datetime, create_coordinate, now
 from pb import api_pb2, api_pb2_grpc, media_pb2

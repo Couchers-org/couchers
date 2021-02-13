@@ -3,6 +3,8 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
+from couchers.models.base import Base
+
 
 class InitiatedUpload(Base):
     """

@@ -18,7 +18,8 @@ from couchers.db import (
     session_scope,
 )
 from couchers.interceptors import AuthValidatorInterceptor
-from couchers.models import LoginToken, PasswordResetToken, SignupToken, User, UserSession
+from couchers.models.auth import LoginToken, PasswordResetToken, SignupToken, UserSession
+from couchers.models.core import User
 from couchers.servicers.api import hostingstatus2sql
 from couchers.tasks import send_login_email, send_password_reset_email, send_signup_email
 from couchers.utils import create_session_cookie, now, parse_session_cookie

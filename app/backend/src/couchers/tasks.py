@@ -5,7 +5,8 @@ from sqlalchemy.sql import func
 from couchers import email, urls
 from couchers.config import config
 from couchers.db import session_scope
-from couchers.models import ClusterRole, ClusterSubscription, Node, User
+from couchers.models.communities import ClusterRole, ClusterSubscription, Node
+from couchers.models.core import User
 
 logger = logging.getLogger(__name__)
 

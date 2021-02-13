@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from unittest.mock import patch
 
-from couchers.models import User
+from couchers.models.core import User
 
 
 class FakeDate(date):

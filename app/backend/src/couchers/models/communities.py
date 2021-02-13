@@ -16,8 +16,8 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import backref, column_property, relationship
 from sqlalchemy.sql import func
 
+from couchers.models.base import Base
 from couchers.utils import get_coordinates
-
 
 communities_seq = Sequence("communities_seq")
 

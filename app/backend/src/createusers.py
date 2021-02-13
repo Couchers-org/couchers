@@ -10,7 +10,7 @@ import faker
 
 from couchers.crypto import hash_password
 from couchers.db import session_scope
-from couchers.models import User
+from couchers.models.core import User
 from couchers.servicers.api import hostingstatus2sql
 from couchers.utils import create_coordinate
 

@@ -1,5 +1,5 @@
 from couchers.crypto import random_hex
-from couchers.models import Email
+from couchers.models.emails import Email
 
 
 def print_dev_email(sender_name, sender_email, recipient, subject, plain, html):

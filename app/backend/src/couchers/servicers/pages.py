@@ -2,7 +2,8 @@ import grpc
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Cluster, Page, PageType, PageVersion, Thread, User
+from couchers.models.communities import Cluster, Page, PageType, PageVersion, Thread
+from couchers.models.core import User
 from couchers.servicers.threads import pack_thread_id
 from couchers.utils import Timestamp_from_datetime, create_coordinate, remove_duplicates_retain_order
 from pb import pages_pb2, pages_pb2_grpc

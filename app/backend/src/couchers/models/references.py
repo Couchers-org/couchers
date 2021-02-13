@@ -4,6 +4,8 @@ from sqlalchemy import BigInteger, Boolean, Column, DateTime, Enum, ForeignKey, 
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
+from couchers.models.base import Base
+
 
 class ReferenceType(enum.Enum):
     FRIEND = enum.auto()

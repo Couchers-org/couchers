@@ -5,6 +5,8 @@ from sqlalchemy.orm import backref, relationship
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func
 
+from couchers.models.base import Base
+
 
 class Conversation(Base):
     """

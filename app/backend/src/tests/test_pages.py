@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 import grpc
 import pytest
 from google.protobuf import wrappers_pb2
@@ -7,7 +5,16 @@ from sqlalchemy.exc import IntegrityError
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Cluster, ClusterRole, ClusterSubscription, Node, Page, PageType, PageVersion, Thread
+from couchers.models.communities import (
+    Cluster,
+    ClusterRole,
+    ClusterSubscription,
+    Node,
+    Page,
+    PageType,
+    PageVersion,
+    Thread,
+)
 from couchers.utils import create_polygon_lat_lng, now, to_aware_datetime, to_multi
 from pb import pages_pb2
 from tests.test_fixtures import db, generate_user, pages_session, testconfig

@@ -5,7 +5,8 @@ from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.sql import func
 
 from couchers.db import session_scope
-from couchers.models import Node, Page, PageType, PageVersion, User
+from couchers.models.communities import Node, Page, PageType, PageVersion
+from couchers.models.core import User
 from pb import gis_pb2_grpc
 from pb.google.api import httpbody_pb2
 

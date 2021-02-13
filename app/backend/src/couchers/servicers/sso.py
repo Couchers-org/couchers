@@ -6,7 +6,7 @@ import grpc
 from couchers import errors
 from couchers.crypto import base64decode, base64encode, sso_check_hmac, sso_create_hmac
 from couchers.db import session_scope
-from couchers.models import User
+from couchers.models.core import User
 from pb import sso_pb2, sso_pb2_grpc
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d: %(process)d: %(message)s", datefmt="%F %T", level=logging.DEBUG)

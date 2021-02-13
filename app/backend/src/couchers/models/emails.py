@@ -1,6 +1,8 @@
 from sqlalchemy import Column, DateTime, String
 from sqlalchemy.sql import func
 
+from couchers.models.base import Base
+
 
 class Email(Base):
     """

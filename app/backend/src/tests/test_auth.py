@@ -7,7 +7,8 @@ from google.protobuf import empty_pb2
 from couchers import errors
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
-from couchers.models import LoginToken, PasswordResetToken, SignupToken, User, UserSession
+from couchers.models.auth import LoginToken, PasswordResetToken, SignupToken, UserSession
+from couchers.models.core import User
 from pb import api_pb2, auth_pb2
 from tests.test_fixtures import auth_api_session, db, fast_passwords, generate_user, real_api_session, testconfig
 
@@ -106,7 +107,7 @@ def test_login_tokens_invalidate_after_use(db):
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         auth_api.CompleteTokenLogin(auth_pb2.CompleteTokenLoginReq(login_token=login_token))
-    session_token = get_session_cookie_token(metadata_interceptor)
+    get_session_cookie_token(metadata_interceptor)
 
     with auth_api_session() as (auth_api, metadata_interceptor), pytest.raises(grpc.RpcError):
         # check we can't login again

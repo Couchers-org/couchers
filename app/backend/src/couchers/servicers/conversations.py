@@ -4,7 +4,14 @@ from sqlalchemy.sql import func, or_
 
 from couchers import errors
 from couchers.db import get_friends_status, session_scope
-from couchers.models import Conversation, GroupChat, GroupChatRole, GroupChatSubscription, Message, MessageType
+from couchers.models.messaging import (
+    Conversation,
+    GroupChat,
+    GroupChatRole,
+    GroupChatSubscription,
+    Message,
+    MessageType,
+)
 from couchers.utils import Timestamp_from_datetime
 from pb import api_pb2, conversations_pb2, conversations_pb2_grpc
 

@@ -8,27 +8,26 @@ from sqlalchemy.sql import func
 
 from couchers.crypto import hash_password
 from couchers.db import get_user_by_field, session_scope
-from couchers.models import (
+from couchers.models.communities import (
     Cluster,
     ClusterRole,
     ClusterSubscription,
+    Node,
+    Page,
+    PageType,
+    PageVersion,
+    Thread,
+)
+from couchers.models.core import FriendRelationship, FriendStatus, HostingStatus, User
+from couchers.models.messaging import (
     Conversation,
-    FriendRelationship,
-    FriendStatus,
     GroupChat,
     GroupChatRole,
     GroupChatSubscription,
     Message,
     MessageType,
-    Node,
-    Page,
-    PageType,
-    PageVersion,
-    Reference,
-    ReferenceType,
-    Thread,
-    User,
 )
+from couchers.models.references import Reference, ReferenceType
 from couchers.servicers.api import hostingstatus2sql
 from couchers.utils import create_coordinate, create_polygon_lng_lat, geojson_to_geom, to_multi
 from pb.api_pb2 import HostingStatus

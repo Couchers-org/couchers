@@ -6,7 +6,8 @@ from google.protobuf import empty_pb2
 
 from couchers.crypto import random_hex
 from couchers.db import session_scope
-from couchers.models import InitiatedUpload, User
+from couchers.models.core import User
+from couchers.models.media import InitiatedUpload
 from pb import media_pb2
 from tests.test_fixtures import api_session, db, generate_user, media_session, testconfig
 

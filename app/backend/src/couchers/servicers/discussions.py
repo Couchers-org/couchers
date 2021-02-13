@@ -1,10 +1,8 @@
-import logging
-
 import grpc
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Cluster, Discussion, Node, Thread
+from couchers.models.communities import Cluster, Discussion, Thread
 from couchers.servicers.threads import pack_thread_id
 from couchers.utils import Timestamp_from_datetime
 from pb import discussions_pb2, discussions_pb2_grpc

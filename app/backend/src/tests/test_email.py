@@ -5,15 +5,8 @@ import pytest
 from couchers.config import config
 from couchers.crypto import random_hex
 from couchers.db import new_login_token, new_signup_token, session_scope
-from couchers.models import (
-    Complaint,
-    Conversation,
-    FriendRelationship,
-    FriendStatus,
-    HostRequest,
-    HostRequestStatus,
-    Message,
-)
+from couchers.models.core import FriendRelationship, FriendStatus
+from couchers.models.messaging import Complaint, Conversation, HostRequest, HostRequestStatus, Message
 from couchers.tasks import (
     send_friend_request_email,
     send_host_request_email,

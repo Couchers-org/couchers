@@ -14,7 +14,8 @@ from sqlalchemy.sql import and_, or_
 
 from couchers import config
 from couchers.crypto import urlsafe_secure_token
-from couchers.models import FriendRelationship, FriendStatus, LoginToken, PasswordResetToken, SignupToken, User
+from couchers.models.auth import LoginToken, PasswordResetToken, SignupToken
+from couchers.models.core import FriendRelationship, FriendStatus, User
 from couchers.utils import now
 from pb import api_pb2
 

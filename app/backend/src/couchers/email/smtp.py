@@ -5,7 +5,7 @@ from email.mime.text import MIMEText
 
 from couchers.config import config
 from couchers.crypto import random_hex
-from couchers.models import Email
+from couchers.models.emails import Email
 
 
 def send_smtp_email(sender_name, sender_email, recipient, subject, plain, html):
