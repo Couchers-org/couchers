@@ -2,12 +2,12 @@ import { Backdrop, makeStyles } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
 import { Redirect } from "react-router-dom";
 
-import { loginRoute } from "../../../AppRoutes";
 import Alert from "../../../components/Alert";
 import CircularProgress from "../../../components/CircularProgress";
 import PageTitle from "../../../components/PageTitle";
 import TextBody from "../../../components/TextBody";
 import { JailInfoRes } from "../../../pb/jail_pb";
+import { loginRoute } from "../../../routes";
 import { service } from "../../../service";
 import { useAuthContext } from "../AuthProvider";
 import LocationSection from "./LocationSection";

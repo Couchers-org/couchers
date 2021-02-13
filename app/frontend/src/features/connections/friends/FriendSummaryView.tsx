@@ -2,9 +2,9 @@ import { Box, makeStyles, Typography } from "@material-ui/core";
 import React from "react";
 import { Link } from "react-router-dom";
 
-import { routeToUser } from "../../../AppRoutes";
 import TextBody from "../../../components/TextBody";
 import { User } from "../../../pb/api_pb";
+import { routeToUser } from "../../../routes";
 
 const useStyles = makeStyles((theme) => ({
   friendItem: {

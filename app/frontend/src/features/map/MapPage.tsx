@@ -2,9 +2,9 @@ import { makeStyles } from "@material-ui/core";
 import { LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { useHistory, useLocation } from "react-router-dom";
 
-import { routeToGuide, routeToPlace, routeToUser } from "../../AppRoutes";
 import Map from "../../components/Map";
 import PageTitle from "../../components/PageTitle";
+import { routeToGuide, routeToPlace, routeToUser } from "../../routes";
 import { addClusteredUsersToMap } from "./clusteredUsers";
 import { addCommunitiesToMap } from "./communities";
 import { addGuidesToMap } from "./guides";

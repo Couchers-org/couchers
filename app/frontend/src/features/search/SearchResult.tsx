@@ -10,10 +10,10 @@ import {
 import React from "react";
 import { Link } from "react-router-dom";
 
-import { routeToUser } from "../../AppRoutes";
 import Avatar from "../../components/Avatar";
 import ScoreBar from "../../components/ScoreBar";
 import { User } from "../../pb/api_pb";
+import { routeToUser } from "../../routes";
 import { hostingStatusLabels } from "../profile/constants";
 
 const useStyles = makeStyles((theme) => ({

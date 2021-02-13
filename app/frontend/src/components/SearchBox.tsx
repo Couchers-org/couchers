@@ -3,8 +3,8 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { useHistory } from "react-router-dom";
 
-import { routeToSearch } from "../AppRoutes";
 import { SearchQuery } from "../features/search/constants";
+import { routeToSearch } from "../routes";
 import TextField from "./TextField";
 
 const useStyles = makeStyles((theme) => ({

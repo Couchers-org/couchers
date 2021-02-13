@@ -2,13 +2,6 @@ import { Breadcrumbs } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
 
-import {
-  routeToCommunity,
-  routeToDiscussion,
-  routeToGroup,
-  routeToGuide,
-  routeToPlace,
-} from "../../AppRoutes";
 import Alert from "../../components/Alert";
 import CircularProgress from "../../components/CircularProgress";
 import CommentBox from "../../components/Comments/CommentBox";
@@ -18,6 +11,13 @@ import TextBody from "../../components/TextBody";
 import { Discussion } from "../../pb/discussions_pb";
 import { Group } from "../../pb/groups_pb";
 import { Page } from "../../pb/pages_pb";
+import {
+  routeToCommunity,
+  routeToDiscussion,
+  routeToGroup,
+  routeToGuide,
+  routeToPlace,
+} from "../../routes";
 import { service } from "../../service";
 
 export default function GroupPage() {

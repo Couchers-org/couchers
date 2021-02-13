@@ -4,11 +4,11 @@ import React from "react";
 import { useQuery } from "react-query";
 import { Link } from "react-router-dom";
 
-import { routeToGroupChat } from "../../../AppRoutes";
 import Alert from "../../../components/Alert";
 import CircularProgress from "../../../components/CircularProgress";
 import TextBody from "../../../components/TextBody";
 import { GroupChat } from "../../../pb/conversations_pb";
+import { routeToGroupChat } from "../../../routes";
 import { service } from "../../../service";
 import useMessageListStyles from "../useMessageListStyles";
 import CreateGroupChat from "./CreateGroupChat";

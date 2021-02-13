@@ -1,6 +1,9 @@
 import * as React from "react";
 import { Route, Switch, useHistory, useParams } from "react-router-dom";
 
+import NotificationBadge from "../../components/NotificationBadge";
+import PageTitle from "../../components/PageTitle";
+import TabBar from "../../components/TabBar";
 import {
   archivedMessagesRoute,
   groupChatsRoute,
@@ -10,10 +13,7 @@ import {
   messagesRoute,
   newHostRequestRoute,
   surfingRequestsRoute,
-} from "../../AppRoutes";
-import NotificationBadge from "../../components/NotificationBadge";
-import PageTitle from "../../components/PageTitle";
-import TabBar from "../../components/TabBar";
+} from "../../routes";
 import useNotifications from "../useNotifications";
 import GroupChatsTab from "./groupchats/GroupChatsTab";
 import GroupChatView from "./groupchats/GroupChatView";

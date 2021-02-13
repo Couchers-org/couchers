@@ -1,9 +1,9 @@
 import React from "react";
 import { Redirect, Route, Switch } from "react-router-dom";
 
-import { signupRoute } from "../../../AppRoutes";
 import Alert from "../../../components/Alert";
 import PageTitle from "../../../components/PageTitle";
+import { signupRoute } from "../../../routes";
 import { useAuthContext } from "../AuthProvider";
 import CompleteSignupForm from "./CompleteSignupForm";
 import EmailForm from "./EmailForm";
