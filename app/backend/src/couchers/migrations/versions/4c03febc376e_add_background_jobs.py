@@ -1,7 +1,7 @@
 """Add background jobs
 
 Revision ID: 4c03febc376e
-Revises: 20b0d7fd2619
+Revises: 71b0339a96bd
 Create Date: 2021-01-30 19:06:17.086704
 
 """
@@ -11,7 +11,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "4c03febc376e"
-down_revision = "20b0d7fd2619"
+down_revision = "71b0339a96bd"
 branch_labels = None
 depends_on = None
 
