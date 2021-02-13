@@ -9,6 +9,9 @@ service Account {
   // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to auth.proto and jail.proto
 
   // account management APIs
+  rpc GetAccountInfo(google.protobuf.Empty) returns (GetAccountInfoRes) {
+    // Get information about the user's account
+  }
 
   rpc ChangePassword(ChangePasswordReq) returns (google.protobuf.Empty) {
     // Change, set, or unset the user's password
@@ -20,6 +23,18 @@ service Account {
     // we will send and email saying the email changed to the old email, and confirmation email to the new email
     // Raises INVALID_ARGUMENT if password is too small or too large or insecure or wrong or not supplied.
   }
+}
+
+message GetAccountInfoRes {
+  enum LoginMethod {
+    MAGIC_LINK = 0;
+    PASSWORD = 1;
+  }
+
+  LoginMethod login_method = 1;
+  bool has_password = 2;
+
+  // e.g. bool account_public = 3;
 }
 
 message ChangePasswordReq {
