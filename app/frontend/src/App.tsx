@@ -17,7 +17,7 @@ import { theme } from "./theme";
 
 const useStyles = makeStyles((theme) => ({
   padding: {
-    paddingBottom: theme.spacing(7),
+    paddingBottom: theme.spacing(10),
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
     [`${theme.breakpoints.up("xs")} and (orientation: landscape)`]: {
