@@ -13,6 +13,7 @@ global.localStorage = createLocalStorageMock();
 
 afterEach(() => {
   global.localStorage.clear();
+  jest.restoreAllMocks();
 });
 
 declare global {

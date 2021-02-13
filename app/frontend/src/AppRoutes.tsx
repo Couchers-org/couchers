@@ -6,6 +6,11 @@ import { useAuthContext } from "./features/auth/AuthProvider";
 import Jail from "./features/auth/jail/Jail";
 import Login from "./features/auth/login/Login";
 import Logout from "./features/auth/Logout";
+import {
+  ChangePasswordPage,
+  CompleteResetPasswordPage,
+  ResetPasswordPage,
+} from "./features/auth/password";
 import Signup from "./features/auth/signup/Signup";
 import CommunityPage from "./features/communities/CommunityPage";
 import DiscussionPage from "./features/communities/DiscussionPage";
@@ -28,6 +33,8 @@ import { PageType } from "./pb/pages_pb";
 
 export const loginRoute = "/login";
 export const loginPasswordRoute = `${loginRoute}/password`;
+export const resetPasswordRoute = "/passwordreset";
+export const changePasswordRoute = "/change-password";
 
 export const signupRoute = "/signup";
 export const profileRoute = "/profile";
@@ -63,6 +70,15 @@ export default function AppRoutes() {
       </Route>
       <Route path={`${signupRoute}/:urlToken?`}>
         <Signup />
+      </Route>
+      <Route exact path={resetPasswordRoute}>
+        <ResetPasswordPage />
+      </Route>
+      <Route exact path={`${resetPasswordRoute}/:resetToken`}>
+        <CompleteResetPasswordPage />
+      </Route>
+      <Route path={changePasswordRoute}>
+        <ChangePasswordPage />
       </Route>
       <Route path={tosRoute}>
         <TOS />
