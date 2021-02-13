@@ -6,7 +6,7 @@
           <h2 class="title is-2">Couchers.org Logo Vote</h2>
           <p class="subtitle is-4">Voice your feedback and help us as we build Couchers.org for you</p>
           <p class="content">We need you. One of the first things people will see when they interact with Couchers is our logo. Logos grab attention, are memorable, and help communicate our mission. The mission of having a trusted hospitality exchange platform that is diverse, inclusive, collaborative, and adventurous.</p>
-          <p class="content">Four different choices. Cast your vote on the one you feel best represents Couchers and our mission.</p>
+          <p class="content">Three different choices. Cast your vote on the one you feel best represents Couchers and our mission.</p>
           <p class="content">Your vote will be used in helping decide the direction of the Couchers logo. Thank you for your input!</p>
         </div>
       </div>
@@ -25,37 +25,56 @@
         <div class="field">
           <label class="label">Which logo do you prefer?</label>
           <p class="help is-danger" v-bind:class="{ 'is-hidden': vote_error === null }">{{ vote_error }}</p>
-          <div class="columns">
-            <div class="control column">
+          <hr />
+          <div>
+            <div class="control">
               <label class="radio">
-                <input type="radio" name="vote" value="option1" v-model="vote" />
+                <input type="radio" name="vote" value="happy-couch" v-model="vote" /> <b>Vote for "Happy Couch"</b>
                 <div class="media-left">
                   <figure class="image is-128x128">
-                    <img src="/img/head-itsi.jpg" alt="Option 1">
+                    <img src="/logo-vote/happy-couch.png" alt="Happy Couch logo">
                   </figure>
+                  <img src="/logo-vote/happy-couch-presentation.png" alt="Happy Couch presentation">
                 </div>
               </label>
             </div>
-            <div class="control column">
+            <hr />
+            <div class="control">
               <label class="radio">
-                <input type="radio" name="vote" value="option2" v-model="vote" />
+                <input type="radio" name="vote" value="welcoming-hand" v-model="vote" /> <b>Vote for "Welcoming Hand"</b>
                 <div class="media-left">
                   <figure class="image is-128x128">
-                    <img src="/img/head-jesse.jpg" alt="Option 2">
+                    <img src="/logo-vote/welcoming-hand.png" alt="Welcoming Hand logo">
                   </figure>
+                  <img src="/logo-vote/welcoming-hand-presentation.png" alt="Welcoming Hand presentation">
                 </div>
               </label>
             </div>
-            <div class="control column">
+            <hr />
+            <div class="control">
               <label class="radio">
-                <input type="radio" name="vote" value="option3" v-model="vote" />
+                <input type="radio" name="vote" value="smiling-couch" v-model="vote" /> <b>Vote for "Smiling Couch"</b>
                 <div class="media-left">
                   <figure class="image is-128x128">
-                    <img src="/img/head-emily.jpg" alt="Option 3">
+                    <img src="/logo-vote/smiling-couch.png" alt="Smiling Couch logo">
                   </figure>
+                  <img src="/logo-vote/smiling-couch-presentation.png" alt="Smiling Couch presentation">
                 </div>
               </label>
             </div>
+            <hr />
+            <div class="control">
+              <label class="radio">
+                <input type="radio" name="vote" value="none-of-the-above" v-model="vote" /> <b>None of the above.</b>
+              </label>
+            </div>
+          </div>
+        </div>
+        <hr />
+        <div class="field">
+          <label class="label">Comment on the proposals</label>
+          <div class="control">
+            <textarea class="textarea" placeholder="" v-model="comment"></textarea>
           </div>
         </div>
         <div class="control content">
@@ -96,6 +115,8 @@ export default {
 
       vote: null,
       vote_error: null,
+
+      comment: ""
     }
   },
   methods: {
@@ -149,7 +170,8 @@ export default {
         this.done = true
         this.submit({
           email: this.email,
-          vote: this.vote
+          vote: this.vote,
+          comment: this.comment,
         })
       }
     }
