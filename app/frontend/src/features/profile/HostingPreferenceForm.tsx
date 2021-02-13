@@ -1,4 +1,5 @@
 import {
+  Box,
   Checkbox,
   FormControl,
   FormControlLabel,
@@ -242,7 +243,7 @@ export default function HostingPreferenceForm() {
             multiline
             className={classes.field}
           />
-          <div className={classes.buttonContainer}>
+          <Box className={classes.buttonContainer}>
             <Button
               type="submit"
               variant="contained"
@@ -251,7 +252,7 @@ export default function HostingPreferenceForm() {
             >
               Save
             </Button>
-          </div>
+          </Box>
         </form>
       ) : (
         <CircularProgress />

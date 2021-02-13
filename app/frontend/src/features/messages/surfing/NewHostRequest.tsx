@@ -117,7 +117,7 @@ export default function NewHostRequest() {
             multiline
             fullWidth
           />
-          <div className={classes.buttonContainer}>
+          <Box className={classes.buttonContainer}>
             <Button
               type="submit"
               color="primary"
@@ -126,7 +126,7 @@ export default function NewHostRequest() {
             >
               Send
             </Button>
-          </div>
+          </Box>
         </form>
       )}
     </Box>
