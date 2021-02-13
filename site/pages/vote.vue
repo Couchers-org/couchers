@@ -4,7 +4,7 @@
       <div class="hero-body">
         <div class="container">
           <h2 class="title is-2">Couchers.org Logo Vote</h2>
-          <p class="subtitle is-4">Voice your feedback and help us as we build Couchers.org for you</p>
+          <p class="subtitle is-4">Voice your feedback and help us build Couchers.org for you</p>
           <p class="content">We need you. One of the first things people will see when they interact with Couchers is our logo. Logos grab attention, are memorable, and help communicate our mission. The mission of having a trusted hospitality exchange platform that is diverse, inclusive, collaborative, and adventurous.</p>
           <p class="content">Three different choices. Cast your vote on the one you feel best represents Couchers and our mission.</p>
           <p class="content">Your vote will be used in helping decide the direction of the Couchers logo. Thank you for your input!</p>
@@ -34,9 +34,10 @@
                   <figure class="image is-128x128">
                     <img src="/logo-vote/happy-couch.png" alt="Happy Couch logo">
                   </figure>
-                  <img src="/logo-vote/happy-couch-presentation.png" alt="Happy Couch presentation">
+                  <a href="/logo-vote/happy-couch-presentation.png"><img src="/logo-vote/happy-couch-presentation.png" alt="Happy Couch presentation"></a>
                 </div>
               </label>
+              <p class="content has-text-grey is-italic">Click on the presentation to enlarge. Click on the logo or text to select this design for your vote.</p>
             </div>
             <hr />
             <div class="control">
@@ -46,9 +47,10 @@
                   <figure class="image is-128x128">
                     <img src="/logo-vote/welcoming-hand.png" alt="Welcoming Hand logo">
                   </figure>
-                  <img src="/logo-vote/welcoming-hand-presentation.png" alt="Welcoming Hand presentation">
+                  <a href="/logo-vote/welcoming-hand-presentation.png"><img src="/logo-vote/welcoming-hand-presentation.png" alt="Welcoming Hand presentation"></a>
                 </div>
               </label>
+              <p class="content has-text-grey is-italic">Click on the presentation to enlarge. Click on the logo or text to select this design for your vote.</p>
             </div>
             <hr />
             <div class="control">
@@ -58,9 +60,10 @@
                   <figure class="image is-128x128">
                     <img src="/logo-vote/smiling-couch.png" alt="Smiling Couch logo">
                   </figure>
-                  <img src="/logo-vote/smiling-couch-presentation.png" alt="Smiling Couch presentation">
+                  <a href="/logo-vote/smiling-couch-presentation.png"><img src="/logo-vote/smiling-couch-presentation.png" alt="Smiling Couch presentation"></a>
                 </div>
               </label>
+              <p class="content has-text-grey is-italic">Click on the presentation to enlarge. Click on the logo or text to select this design for your vote.</p>
             </div>
             <hr />
             <div class="control">
