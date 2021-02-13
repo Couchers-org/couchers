@@ -10,11 +10,11 @@ from alembic.config import Config
 from sqlalchemy import create_engine
 from sqlalchemy.orm.session import Session
 from sqlalchemy.pool import NullPool
-from sqlalchemy.sql import and_, or_
+from sqlalchemy.sql import and_, func, or_
 
 from couchers import config
 from couchers.crypto import urlsafe_secure_token
-from couchers.models import FriendRelationship, FriendStatus, LoginToken, PasswordResetToken, SignupToken, User
+from couchers.models import FriendRelationship, FriendStatus, LoginToken, Node, PasswordResetToken, SignupToken, User
 from couchers.utils import now
 from pb import api_pb2
 
@@ -212,3 +212,15 @@ def get_friends_status(session, user1_id, user2_id):
                 return api_pb2.User.FriendshipStatus.FRIENDS
             else:
                 return api_pb2.User.FriendshipStatus.PENDING
+
+
+def get_parent_node_at_location(session, shape):
+    """
+    Finds the smallest node containing the shape.
+
+    Shape can be any PostGIS geo object, e.g. output from create_coordinate
+    """
+
+    # Fin the lowest Node (in the Node tree) that contains the shape. By construction of nodes, the area of a sub-node
+    # must always be less than its parent Node, so no need to actually traverse the tree!
+    return session.query(Node).filter(func.ST_Contains(Node.geom, shape)).order_by(func.ST_Area(Node.geom)).first()

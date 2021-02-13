@@ -837,6 +837,7 @@ class Page(Base):
 
     id = Column(BigInteger, communities_seq, primary_key=True)
 
+    parent_node_id = Column(ForeignKey("nodes.id"), nullable=False, index=True)
     type = Column(Enum(PageType), nullable=False)
     creator_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     owner_user_id = Column(ForeignKey("users.id"), nullable=True, index=True)
@@ -845,6 +846,8 @@ class Page(Base):
     main_page_for_cluster_id = Column(ForeignKey("clusters.id"), nullable=True, unique=True, index=True)
 
     thread_id = Column(ForeignKey("threads.id"), nullable=False, unique=True)
+
+    parent_node = relationship("Node", backref="child_pages", remote_side="Node.id", foreign_keys="Page.parent_node_id")
 
     main_page_for_cluster = relationship(
         "Cluster",

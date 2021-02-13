@@ -37,18 +37,18 @@ def _(testconfig):
 # mostly fine
 
 
-def _create_1d_polygon(lb, ub):
+def create_1d_polygon(lb, ub):
     # given a lower bound and upper bound on x, creates the given interval
     return create_polygon_lat_lng([[lb, 0], [lb, 2], [ub, 2], [ub, 0], [lb, 0]])
 
 
-def _create_1d_point(x):
+def create_1d_point(x):
     return create_coordinate(x, 1)
 
 
-def _create_community(session, interval_lb, interval_ub, name, admins, extra_members, parent):
+def create_community(session, interval_lb, interval_ub, name, admins, extra_members, parent):
     node = Node(
-        geom=to_multi(_create_1d_polygon(interval_lb, interval_ub)),
+        geom=to_multi(create_1d_polygon(interval_lb, interval_ub)),
         parent_node=parent,
     )
     session.add(node)
@@ -61,7 +61,8 @@ def _create_community(session, interval_lb, interval_ub, name, admins, extra_mem
     )
     session.add(cluster)
     main_page = Page(
-        creator_user=admins[0],
+        parent_node=cluster.parent_node,
+        creator_user_id=admins[0].id,
         owner_cluster=cluster,
         type=PageType.main_page,
         main_page_for_cluster=cluster,
@@ -70,7 +71,7 @@ def _create_community(session, interval_lb, interval_ub, name, admins, extra_mem
     session.add(main_page)
     page_version = PageVersion(
         page=main_page,
-        editor_user=admins[0],
+        editor_user_id=admins[0].id,
         title=f"Main page for the {name} community",
         content="There is nothing here yet...",
     )
@@ -78,14 +79,14 @@ def _create_community(session, interval_lb, interval_ub, name, admins, extra_mem
     for admin in admins:
         cluster.cluster_subscriptions.append(
             ClusterSubscription(
-                user=admin,
+                user_id=admin.id,
                 role=ClusterRole.admin,
             )
         )
     for member in extra_members:
         cluster.cluster_subscriptions.append(
             ClusterSubscription(
-                user=member,
+                user_id=member.id,
                 role=ClusterRole.member,
             )
         )
@@ -94,7 +95,7 @@ def _create_community(session, interval_lb, interval_ub, name, admins, extra_mem
     return node
 
 
-def _create_group(session, name, admins, members, parent_community):
+def create_group(session, name, admins, members, parent_community):
     cluster = Cluster(
         name=f"{name}",
         description=f"Description for {name}",
@@ -103,6 +104,7 @@ def _create_group(session, name, admins, members, parent_community):
     )
     session.add(cluster)
     main_page = Page(
+        parent_node=cluster.parent_node,
         creator_user=admins[0],
         owner_cluster=cluster,
         type=PageType.main_page,
@@ -135,10 +137,10 @@ def _create_group(session, name, admins, members, parent_community):
     return cluster
 
 
-def _create_place(token, title, content, address, x):
+def create_place(token, title, content, address, x):
     with pages_session(token) as api:
-        res = api.CreatePage(
-            pages_pb2.CreatePageReq(
+        res = api.CreatePlace(
+            pages_pb2.CreatePlaceReq(
                 title=title,
                 content=content,
                 address=address,
@@ -146,7 +148,6 @@ def _create_place(token, title, content, address, x):
                     lat=x,
                     lng=1,
                 ),
-                type=pages_pb2.PAGE_TYPE_PLACE,
             )
         )
 
@@ -193,32 +194,32 @@ def get_group_id(session, group_name):
 @pytest.fixture(params=["models", "migrations"], scope="class")
 def testing_communities(request):
     db_impl(request.param)
-    user1, token1 = generate_user(username="user1", geom=_create_1d_point(1), geom_radius=0.1)
-    user2, token2 = generate_user(username="user2", geom=_create_1d_point(2), geom_radius=0.1)
-    user3, token3 = generate_user(username="user3", geom=_create_1d_point(3), geom_radius=0.1)
-    user4, token4 = generate_user(username="user4", geom=_create_1d_point(8), geom_radius=0.1)
-    user5, token5 = generate_user(username="user5", geom=_create_1d_point(6), geom_radius=0.1)
-    user6, token6 = generate_user(username="user6", geom=_create_1d_point(65), geom_radius=0.1)
-    user7, token7 = generate_user(username="user7", geom=_create_1d_point(80), geom_radius=0.1)
-    user8, token8 = generate_user(username="user8", geom=_create_1d_point(51), geom_radius=0.1)
+    user1, token1 = generate_user(username="user1", geom=create_1d_point(1), geom_radius=0.1)
+    user2, token2 = generate_user(username="user2", geom=create_1d_point(2), geom_radius=0.1)
+    user3, token3 = generate_user(username="user3", geom=create_1d_point(3), geom_radius=0.1)
+    user4, token4 = generate_user(username="user4", geom=create_1d_point(8), geom_radius=0.1)
+    user5, token5 = generate_user(username="user5", geom=create_1d_point(6), geom_radius=0.1)
+    user6, token6 = generate_user(username="user6", geom=create_1d_point(65), geom_radius=0.1)
+    user7, token7 = generate_user(username="user7", geom=create_1d_point(80), geom_radius=0.1)
+    user8, token8 = generate_user(username="user8", geom=create_1d_point(51), geom_radius=0.1)
 
     with session_scope() as session:
-        w = _create_community(session, 0, 100, "World", [user1, user3, user7], [], None)
-        c1 = _create_community(session, 0, 50, "Country 1", [user1, user2], [], w)
-        c1r1 = _create_community(session, 0, 10, "Country 1, Region 1", [user1, user2], [], c1)
-        c1r1c1 = _create_community(session, 0, 5, "Country 1, Region 1, City 1", [user2], [], c1r1)
-        c1r1c2 = _create_community(session, 7, 10, "Country 1, Region 1, City 2", [user4, user5], [user2], c1r1)
-        c1r2 = _create_community(session, 20, 25, "Country 1, Region 2", [user2], [], c1)
-        c1r2c1 = _create_community(session, 21, 23, "Country 1, Region 2, City 1", [user2], [], c1r2)
-        c2 = _create_community(session, 52, 100, "Country 2", [user6, user7], [], w)
-        c2r1 = _create_community(session, 52, 71, "Country 2, Region 1", [user6], [user8], c2)
-        c2r1c1 = _create_community(session, 53, 70, "Country 2, Region 1, City 1", [user8], [], c2r1)
+        w = create_community(session, 0, 100, "World", [user1, user3, user7], [], None)
+        c1 = create_community(session, 0, 50, "Country 1", [user1, user2], [], w)
+        c1r1 = create_community(session, 0, 10, "Country 1, Region 1", [user1, user2], [], c1)
+        c1r1c1 = create_community(session, 0, 5, "Country 1, Region 1, City 1", [user2], [], c1r1)
+        c1r1c2 = create_community(session, 7, 10, "Country 1, Region 1, City 2", [user4, user5], [user2], c1r1)
+        c1r2 = create_community(session, 20, 25, "Country 1, Region 2", [user2], [], c1)
+        c1r2c1 = create_community(session, 21, 23, "Country 1, Region 2, City 1", [user2], [], c1r2)
+        c2 = create_community(session, 52, 100, "Country 2", [user6, user7], [], w)
+        c2r1 = create_community(session, 52, 71, "Country 2, Region 1", [user6], [user8], c2)
+        c2r1c1 = create_community(session, 53, 70, "Country 2, Region 1, City 1", [user8], [], c2r1)
 
-        h = _create_group(session, "Hitchhikers", [user1, user2], [user5, user8], w)
-        _create_group(session, "Country 1, Region 1, Foodies", [user1], [user2, user4], c1r1)
-        _create_group(session, "Country 1, Region 1, Skaters", [user2], [user1], c1r1)
-        _create_group(session, "Country 1, Region 2, Foodies", [user2], [user4, user5], c1r2)
-        _create_group(session, "Country 2, Region 1, Foodies", [user6], [user7], c2r1)
+        h = create_group(session, "Hitchhikers", [user1, user2], [user5, user8], w)
+        create_group(session, "Country 1, Region 1, Foodies", [user1], [user2, user4], c1r1)
+        create_group(session, "Country 1, Region 1, Skaters", [user2], [user1], c1r1)
+        create_group(session, "Country 1, Region 2, Foodies", [user2], [user4, user5], c1r2)
+        create_group(session, "Country 2, Region 1, Foodies", [user6], [user7], c2r1)
 
         create_discussion(token1, w.id, None, "Discussion title 1", "Discussion content 1")
         create_discussion(token3, w.id, None, "Discussion title 2", "Discussion content 2")
@@ -237,11 +238,11 @@ def testing_communities(request):
 
     enforce_community_memberships()
 
-    _create_place(token1, "Country 1, Region 1, Attraction", "Place content", "Somewhere in c1r1", 6)
-    _create_place(token2, "Country 1, Region 1, City 1, Attraction 1", "Place content", "Somewhere in c1r1c1", 3)
-    _create_place(token2, "Country 1, Region 1, City 1, Attraction 2", "Place content", "Somewhere in c1r1c1", 4)
-    _create_place(token8, "World, Attraction", "Place content", "Somewhere in w", 51.5)
-    _create_place(token6, "Country 2, Region 1, Attraction", "Place content", "Somewhere in c2r1", 59)
+    create_place(token1, "Country 1, Region 1, Attraction", "Place content", "Somewhere in c1r1", 6)
+    create_place(token2, "Country 1, Region 1, City 1, Attraction 1", "Place content", "Somewhere in c1r1c1", 3)
+    create_place(token2, "Country 1, Region 1, City 1, Attraction 2", "Place content", "Somewhere in c1r1c1", 4)
+    create_place(token8, "World, Attraction", "Place content", "Somewhere in w", 51.5)
+    create_place(token6, "Country 2, Region 1, Attraction", "Place content", "Somewhere in c2r1", 59)
 
     yield
 

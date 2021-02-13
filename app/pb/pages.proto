@@ -8,8 +8,12 @@ import "google/protobuf/wrappers.proto";
 service Pages {
   // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to auth.proto and jail.proto
 
-  rpc CreatePage(CreatePageReq) returns (Page) {
-    // Creates a page
+  rpc CreatePlace(CreatePlaceReq) returns (Page) {
+    // Creates a place
+  }
+
+  rpc CreateGuide(CreateGuideReq) returns (Page) {
+    // Creates a guide
   }
 
   rpc GetPage(GetPageReq) returns (Page) {
@@ -62,13 +66,19 @@ message Page {
   bool can_edit = 16;
 }
 
-message CreatePageReq {
+message CreatePlaceReq {
   string title = 1;
   string content = 2;
   string address = 3;
   Coordinate location = 4;
-  // can't be PAGE_TYPE_MAIN_PAGE
-  PageType type = 5;
+}
+
+message CreateGuideReq {
+  string title = 1;
+  string content = 2;
+  int64 parent_community_id = 3;
+  string address = 4; // optional
+  Coordinate location = 5; // optional
 }
 
 message GetPageReq {

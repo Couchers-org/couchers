@@ -10,6 +10,7 @@ from couchers.db import session_scope
 from couchers.models import Cluster, ClusterRole, ClusterSubscription, Node, Page, PageType, PageVersion, Thread
 from couchers.utils import create_polygon_lat_lng, now, to_aware_datetime, to_multi
 from pb import pages_pb2
+from tests.test_communities import create_1d_point, create_community
 from tests.test_fixtures import db, generate_user, pages_session, testconfig
 
 
@@ -18,12 +19,15 @@ def _(testconfig):
     pass
 
 
-def test_create_page_errors(db):
+def test_create_place_errors(db):
     user, token = generate_user()
+    with session_scope() as session:
+        create_community(session, 0, 2, "Root node", [user], [], None)
+
     with pages_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:
-            api.CreatePage(
-                pages_pb2.CreatePageReq(
+            api.CreatePlace(
+                pages_pb2.CreatePlaceReq(
                     title=None,
                     content="dummy content",
                     address="dummy address",
@@ -38,8 +42,8 @@ def test_create_page_errors(db):
 
     with pages_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:
-            api.CreatePage(
-                pages_pb2.CreatePageReq(
+            api.CreatePlace(
+                pages_pb2.CreatePlaceReq(
                     title="dummy title",
                     content=None,
                     address="dummy address",
@@ -54,8 +58,8 @@ def test_create_page_errors(db):
 
     with pages_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:
-            api.CreatePage(
-                pages_pb2.CreatePageReq(
+            api.CreatePlace(
+                pages_pb2.CreatePlaceReq(
                     title="dummy title",
                     content="dummy content",
                     address=None,
@@ -70,8 +74,8 @@ def test_create_page_errors(db):
 
     with pages_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:
-            api.CreatePage(
-                pages_pb2.CreatePageReq(
+            api.CreatePlace(
+                pages_pb2.CreatePlaceReq(
                     title="dummy title",
                     content="dummy content",
                     address="dummy address",
@@ -80,38 +84,105 @@ def test_create_page_errors(db):
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == errors.MISSING_PAGE_LOCATION
 
+
+def test_create_guide_errors(db):
+    user, token = generate_user()
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Root node", [user], [], None).id
+
     with pages_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:
-            api.CreatePage(
-                pages_pb2.CreatePageReq(
-                    type=pages_pb2.PAGE_TYPE_MAIN_PAGE,
-                    title="dummy title",
+            api.CreateGuide(
+                pages_pb2.CreateGuideReq(
+                    title=None,
                     content="dummy content",
-                    address="dummy address",
-                    location=pages_pb2.Coordinate(
-                        lat=1,
-                        lng=3,
-                    ),
+                    parent_community_id=c_id,
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.CANNOT_CREATE_PAGE_TYPE
+        assert e.value.details() == errors.MISSING_PAGE_TITLE
+
+    with pages_session(token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateGuide(
+                pages_pb2.CreateGuideReq(
+                    title="dummy title",
+                    content=None,
+                    parent_community_id=c_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.MISSING_PAGE_CONTENT
+
+    with pages_session(token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateGuide(
+                pages_pb2.CreateGuideReq(
+                    title="dummy title",
+                    content="dummy content",
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.MISSING_PAGE_PARENT
+
+    with pages_session(token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateGuide(
+                pages_pb2.CreateGuideReq(
+                    title="dummy title",
+                    content="dummy content",
+                    parent_community_id=9999,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.COMMUNITY_NOT_FOUND
+
+    with pages_session(token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateGuide(
+                pages_pb2.CreateGuideReq(
+                    title="dummy title",
+                    content="dummy content",
+                    address="dummy address",
+                    parent_community_id=c_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.INVALID_GUIDE_LOCATION
+
+    with pages_session(token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateGuide(
+                pages_pb2.CreateGuideReq(
+                    title="dummy title",
+                    content="dummy content",
+                    location=pages_pb2.Coordinate(
+                        lat=1,
+                        lng=1,
+                    ),
+                    parent_community_id=c_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.INVALID_GUIDE_LOCATION
 
 
 def test_create_page_place(db):
     user, token = generate_user()
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Root node", [user], [], None).id
+
     with pages_session(token) as api:
         time_before = now()
-        res = api.CreatePage(
-            pages_pb2.CreatePageReq(
+        res = api.CreatePlace(
+            pages_pb2.CreatePlaceReq(
                 title="dummy title",
                 content="dummy content",
                 address="dummy address",
                 location=pages_pb2.Coordinate(
                     lat=1,
-                    lng=2,
+                    lng=1,
                 ),
-                type=pages_pb2.PAGE_TYPE_PLACE,
             )
         )
 
@@ -120,7 +191,7 @@ def test_create_page_place(db):
         assert res.content == "dummy content"
         assert res.address == "dummy address"
         assert res.location.lat == 1
-        assert res.location.lng == 2
+        assert res.location.lng == 1
         assert res.slug == "dummy-title"
         assert time_before < to_aware_datetime(res.created) < now()
         assert time_before < to_aware_datetime(res.last_edited) < now()
@@ -135,18 +206,21 @@ def test_create_page_place(db):
 
 def test_create_page_guide(db):
     user, token = generate_user()
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Root node", [user], [], None).id
+
     with pages_session(token) as api:
         time_before = now()
-        res = api.CreatePage(
-            pages_pb2.CreatePageReq(
+        res = api.CreateGuide(
+            pages_pb2.CreateGuideReq(
                 title="dummy title",
                 content="dummy content",
                 address="dummy address",
                 location=pages_pb2.Coordinate(
                     lat=1,
-                    lng=2,
+                    lng=1,
                 ),
-                type=pages_pb2.PAGE_TYPE_GUIDE,
+                parent_community_id=c_id,
             )
         )
 
@@ -155,7 +229,33 @@ def test_create_page_guide(db):
         assert res.content == "dummy content"
         assert res.address == "dummy address"
         assert res.location.lat == 1
-        assert res.location.lng == 2
+        assert res.location.lng == 1
+        assert res.slug == "dummy-title"
+        assert time_before < to_aware_datetime(res.created) < now()
+        assert time_before < to_aware_datetime(res.last_edited) < now()
+        assert res.last_editor_user_id == user.id
+        assert res.creator_user_id == user.id
+        assert res.owner_user_id == user.id
+        assert not res.owner_community_id
+        assert not res.owner_group_id
+        assert res.editor_user_ids == [user.id]
+        assert res.can_edit
+
+    with pages_session(token) as api:
+        time_before = now()
+        res = api.CreateGuide(
+            pages_pb2.CreateGuideReq(
+                title="dummy title",
+                content="dummy content",
+                parent_community_id=c_id,
+            )
+        )
+
+        assert res.title == "dummy title"
+        assert res.type == pages_pb2.PAGE_TYPE_GUIDE
+        assert res.content == "dummy content"
+        assert not res.address
+        assert not res.HasField("location")
         assert res.slug == "dummy-title"
         assert time_before < to_aware_datetime(res.created) < now()
         assert time_before < to_aware_datetime(res.last_edited) < now()
@@ -171,16 +271,19 @@ def test_create_page_guide(db):
 def test_get_page(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Root node", [user1], [], None).id
+
     with pages_session(token1) as api:
         time_before_create = now()
-        page_id = api.CreatePage(
-            pages_pb2.CreatePageReq(
+        page_id = api.CreatePlace(
+            pages_pb2.CreatePlaceReq(
                 title="dummy title",
                 content="dummy content",
                 address="dummy address",
                 location=pages_pb2.Coordinate(
                     lat=1,
-                    lng=2,
+                    lng=1,
                 ),
             )
         ).page_id
@@ -192,7 +295,7 @@ def test_get_page(db):
         assert res.content == "dummy content"
         assert res.address == "dummy address"
         assert res.location.lat == 1
-        assert res.location.lng == 2
+        assert res.location.lng == 1
         assert res.slug == "dummy-title"
         assert time_before_create < to_aware_datetime(res.created) < time_before_get
         assert time_before_create < to_aware_datetime(res.last_edited) < time_before_get
@@ -207,16 +310,19 @@ def test_get_page(db):
 
 def test_update_page(db):
     user, token = generate_user()
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Root node", [user], [], None).id
+
     with pages_session(token) as api:
         time_before_create = now()
-        page_id = api.CreatePage(
-            pages_pb2.CreatePageReq(
+        page_id = api.CreatePlace(
+            pages_pb2.CreatePlaceReq(
                 title="dummy title",
                 content="dummy content",
                 address="dummy address",
                 location=pages_pb2.Coordinate(
                     lat=1,
-                    lng=2,
+                    lng=1,
                 ),
             )
         ).page_id
@@ -235,7 +341,7 @@ def test_update_page(db):
         assert res.content == "dummy content"
         assert res.address == "dummy address"
         assert res.location.lat == 1
-        assert res.location.lng == 2
+        assert res.location.lng == 1
         assert res.slug == "test-title"
         assert time_before_create < to_aware_datetime(res.created) < time_before_update
         assert time_before_update < to_aware_datetime(res.last_edited) < time_before_get
@@ -262,7 +368,7 @@ def test_update_page(db):
         assert res.content == "test content"
         assert res.address == "dummy address"
         assert res.location.lat == 1
-        assert res.location.lng == 2
+        assert res.location.lng == 1
         assert res.slug == "test-title"
         assert time_before_create < to_aware_datetime(res.created) < time_before_update
         assert time_before_second_update < to_aware_datetime(res.last_edited) < time_before_second_get
@@ -289,7 +395,7 @@ def test_update_page(db):
         assert res.content == "test content"
         assert res.address == "test address"
         assert res.location.lat == 1
-        assert res.location.lng == 2
+        assert res.location.lng == 1
         assert res.slug == "test-title"
         assert time_before_create < to_aware_datetime(res.created) < time_before_update
         assert time_before_third_update < to_aware_datetime(res.last_edited) < time_before_third_get
@@ -335,15 +441,18 @@ def test_update_page(db):
 
 def test_update_page_errors(db):
     user, token = generate_user()
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Root node", [user], [], None).id
+
     with pages_session(token) as api:
-        page_id = api.CreatePage(
-            pages_pb2.CreatePageReq(
+        page_id = api.CreatePlace(
+            pages_pb2.CreatePlaceReq(
                 title="dummy title",
                 content="dummy content",
                 address="dummy address",
                 location=pages_pb2.Coordinate(
                     lat=1,
-                    lng=2,
+                    lng=1,
                 ),
             )
         ).page_id
@@ -388,7 +497,7 @@ def test_page_transfer(db):
     user3, token3 = generate_user()
     with session_scope() as session:
         # create a community
-        node = Node(geom=to_multi(create_polygon_lat_lng([[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]])))
+        node = Node(geom=to_multi(create_polygon_lat_lng([[0, 0], [0, 2], [2, 2], [2, 0], [0, 0]])))
         session.add(node)
         community_cluster = Cluster(
             name=f"Testing Community",
@@ -399,6 +508,7 @@ def test_page_transfer(db):
         )
         session.add(community_cluster)
         main_page = Page(
+            parent_node=community_cluster.parent_node,
             creator_user_id=user2.id,
             owner_cluster=community_cluster,
             type=PageType.main_page,
@@ -436,6 +546,7 @@ def test_page_transfer(db):
         )
         session.add(group_cluster)
         main_page = Page(
+            parent_node=group_cluster.parent_node,
             creator_user_id=user2.id,
             owner_cluster=group_cluster,
             type=PageType.main_page,
@@ -470,18 +581,18 @@ def test_page_transfer(db):
         group_id = group_cluster.id
 
     with pages_session(token1) as api:
-        create_page_req = pages_pb2.CreatePageReq(
+        create_page_req = pages_pb2.CreatePlaceReq(
             title="title",
             content="content",
             address="address",
             location=pages_pb2.Coordinate(
                 lat=1,
-                lng=2,
+                lng=1,
             ),
         )
 
         # transfer should work fine to a community
-        page1 = api.CreatePage(create_page_req)
+        page1 = api.CreatePlace(create_page_req)
         assert page1.owner_user_id == user1.id
         assert page1.can_edit
 
@@ -531,7 +642,7 @@ def test_page_transfer(db):
 
     with pages_session(token1) as api:
         # try a new page, just for fun
-        page2 = api.CreatePage(create_page_req)
+        page2 = api.CreatePlace(create_page_req)
         assert page2.owner_user_id == user1.id
 
         page2 = api.TransferPage(
@@ -550,7 +661,7 @@ def test_page_transfer(db):
 
     with pages_session(token1) as api:
         # can't transfer a page to an official cluster, only through community
-        page3 = api.CreatePage(create_page_req)
+        page3 = api.CreatePlace(create_page_req)
         assert page3.owner_user_id == user1.id
 
         with pytest.raises(grpc.RpcError) as e:
@@ -566,7 +677,7 @@ def test_page_transfer(db):
         assert page3.owner_user_id == user1.id
 
         # can transfer to group
-        page4 = api.CreatePage(create_page_req)
+        page4 = api.CreatePlace(create_page_req)
         assert page4.owner_user_id == user1.id
         assert page4.can_edit
 
@@ -610,10 +721,14 @@ def test_page_transfer(db):
 def test_page_constraints(db):
     user, token = generate_user()
 
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Root node", [user], [], None).id
+
     # check we can't create a page without an owner
     with pytest.raises(IntegrityError) as e:
         with session_scope() as session:
             page = Page(
+                parent_node_id=c_id,
                 # note no owner
                 creator_user_id=user.id,
                 type=PageType.guide,
@@ -632,7 +747,7 @@ def test_page_constraints(db):
     assert "one_owner" in str(e.value)
 
     with session_scope() as session:
-        node = Node(geom=to_multi(create_polygon_lat_lng([[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]])))
+        node = Node(geom=to_multi(create_polygon_lat_lng([[0, 0], [0, 2], [2, 2], [2, 0], [0, 0]])))
         session.add(node)
         cluster = Cluster(
             name=f"Testing Community",
@@ -642,12 +757,14 @@ def test_page_constraints(db):
         )
         session.add(cluster)
         session.flush()
+        cluster_parent_id = cluster.parent_node_id
         cluster_id = cluster.id
 
     # check we can't create a page with two owners
     with pytest.raises(IntegrityError) as e:
         with session_scope() as session:
             page = Page(
+                parent_node_id=cluster_parent_id,
                 creator_user_id=user.id,
                 owner_cluster_id=cluster_id,
                 owner_user_id=user.id,
@@ -670,6 +787,7 @@ def test_page_constraints(db):
     with pytest.raises(IntegrityError) as e:
         with session_scope() as session:
             main_page = Page(
+                parent_node_id=cluster_id,
                 # note owner is not cluster
                 creator_user_id=user.id,
                 owner_user_id=user.id,
