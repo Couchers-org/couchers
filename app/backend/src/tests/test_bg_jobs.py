@@ -12,15 +12,7 @@ from couchers.email import queue_email
 from couchers.email.dev import print_dev_email
 from couchers.jobs.enqueue import queue_job
 from couchers.jobs.worker import _run_job_and_schedule, process_job, run_scheduler, service_jobs
-from couchers.models import (
-    BackgroundJob,
-    BackgroundJobState,
-    BackgroundJobType,
-    Email,
-    LoginToken,
-    RepeatedJob,
-    SignupToken,
-)
+from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType, Email, LoginToken, SignupToken
 from couchers.tasks import send_login_email
 from pb import auth_pb2
 from tests.test_fixtures import auth_api_session, db, generate_user, testconfig

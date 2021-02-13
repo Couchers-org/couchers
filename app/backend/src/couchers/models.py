@@ -1130,18 +1130,3 @@ class BackgroundJob(Base):
 
     def __repr__(self):
         return f"BackgroundJob(id={self.id}, job_type={self.job_type}, state={self.state}, next_attempt_after={self.next_attempt_after}, try_count={self.try_count}, failure_info={self.failure_info})"
-
-
-class RepeatedJob(Base):
-    """
-    A job that's kicked off periodically
-
-    The schedule is not kept in the database, this is just here to persist info in case the worker dies
-    """
-
-    __tablename__ = "repeated_jobs"
-
-    id = Column(BigInteger, primary_key=True)
-
-    job_type = Column(Enum(BackgroundJobType), nullable=False, unique=True)
-    last_run = Column(DateTime(timezone=True), nullable=False)

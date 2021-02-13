@@ -15,7 +15,7 @@ from sqlalchemy.sql import func
 from couchers.db import get_engine, session_scope
 from couchers.jobs.definitions import JOBS, SCHEDULE
 from couchers.jobs.enqueue import queue_job
-from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType, RepeatedJob
+from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)
@@ -86,9 +86,6 @@ def service_jobs():
 def _run_job_and_schedule(sched, schedule_id):
     job_type, frequency = SCHEDULE[schedule_id]
     logger.info(f"Processing job of type {job_type}")
-    with session_scope() as session:
-        rjob = session.query(RepeatedJob).filter(RepeatedJob.job_type == job_type).one()
-        rjob.last_run = func.now()
 
     # wake ourselves up after frequency
     sched.enter(
@@ -116,18 +113,8 @@ def run_scheduler():
     sched = scheduler(monotonic, sleep)
 
     for schedule_id, (job_type, frequency) in enumerate(SCHEDULE):
-        # make sure we don't repeat the job all the time if we keep on crashing
-        with session_scope() as session:
-            rjob = session.query(RepeatedJob).filter(RepeatedJob.job_type == job_type).one_or_none()
-            if not rjob:
-                rjob = RepeatedJob(job_type=job_type, last_run=func.now())
-                session.add(rjob)
-                next_run = 0
-            else:
-                next_run = max(0, (frequency - (now() - rjob.last_run)).total_seconds())
-
         sched.enter(
-            next_run,
+            0,
             1,
             _run_job_and_schedule,
             argument=(
