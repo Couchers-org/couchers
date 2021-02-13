@@ -18,7 +18,8 @@ const useStyles = makeStyles((theme) => ({
     ...theme.typography.body1,
     color: "inherit",
     display: "block",
-    marginBlock: theme.spacing(2, 2),
+    marginBlockStart: theme.spacing(2),
+    marginBlockEnd: theme.spacing(2),
   },
   textField: {
     marginBlockStart: theme.spacing(1),
