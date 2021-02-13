@@ -5,9 +5,9 @@
         <div class="container">
           <h2 class="title is-2">Couchers.org Logo Vote</h2>
           <p class="subtitle is-4">Voice your feedback and help us build Couchers.org for you</p>
-          <p class="content">We need you. One of the first things people will see when they interact with Couchers is our logo. Logos grab attention, are memorable, and help communicate our mission. The mission of having a trusted hospitality exchange platform that is diverse, inclusive, collaborative, and adventurous.</p>
-          <p class="content">Three different choices. Cast your vote on the one you feel best represents Couchers and our mission.</p>
-          <p class="content">Your vote will be used in helping decide the direction of the Couchers logo. Thank you for your input!</p>
+          <p class="content">We need your help to decide the direction of our branding. One of the first things people will see when they interact with Couchers is our logo. Logos grab attention, are memorable, and help communicate our mission. The mission of having a trusted hospitality exchange platform that is diverse, inclusive, collaborative, and adventurous.</p>
+          <p class="content">We have not finished our designs, but we want you to tell us whcich idea we should focus our attention on.</p>
+          <p class="content">Three different choices. Cast your vote on the one you feel best represents Couchers and our mission. Thank you for your input!</p>
         </div>
       </div>
     </section>
@@ -23,7 +23,7 @@
           <p class="content has-text-grey is-italic">If you are not yet subscribed to our email updates, we will add you to the mailing list.</p>
         </div>
         <div class="field">
-          <label class="label">Which logo do you prefer?</label>
+          <label class="label">Which logo concept do you prefer?</label>
           <p class="help is-danger" v-bind:class="{ 'is-hidden': vote_error === null }">{{ vote_error }}</p>
           <hr />
           <div>
