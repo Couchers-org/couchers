@@ -1,11 +1,12 @@
 import logging
 
 import grpc
+from google.protobuf import empty_pb2
 from sqlalchemy.sql import literal
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Cluster, Discussion, Node, Page, PageType, User
+from couchers.models import Cluster, ClusterRole, ClusterSubscription, Discussion, Node, Page, PageType, User
 from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.pages import page_to_pb
 from couchers.servicers.threads import pack_thread_id
@@ -200,3 +201,47 @@ class Groups(groups_pb2_grpc.GroupsServicer):
                 discussions=[discussion_to_pb(discussion, context.user_id) for discussion in discussions[:page_size]],
                 next_page_token=str(discussions[-1].id) if len(discussions) > page_size else None,
             )
+
+    def JoinGroup(self, request, context):
+        with session_scope() as session:
+            cluster = (
+                session.query(Cluster)
+                .filter(Cluster.official_cluster_for_node_id == None)
+                .filter(Cluster.id == request.group_id)
+                .one_or_none()
+            )
+            if not cluster:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
+
+            current_membership = cluster.members.filter(User.id == context.user_id).one_or_none()
+            if current_membership:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ALREADY_IN_GROUP)
+
+            cluster.cluster_subscriptions.append(
+                ClusterSubscription(
+                    user_id=context.user_id,
+                    role=ClusterRole.member,
+                )
+            )
+
+            return empty_pb2.Empty()
+
+    def LeaveGroup(self, request, context):
+        with session_scope() as session:
+            cluster = (
+                session.query(Cluster)
+                .filter(Cluster.official_cluster_for_node_id == None)
+                .filter(Cluster.id == request.group_id)
+                .one_or_none()
+            )
+            if not cluster:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
+
+            current_membership = cluster.members.filter(User.id == context.user_id).one_or_none()
+
+            if not current_membership:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NOT_IN_GROUP)
+
+            session.query(ClusterSubscription).filter(ClusterSubscription.user_id == context.user_id).delete()
+
+            return empty_pb2.Empty()
