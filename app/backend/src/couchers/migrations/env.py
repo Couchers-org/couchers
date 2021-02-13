@@ -4,7 +4,7 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 
 from couchers.config import config as couchers_config
-from couchers.models.base import Base
+from couchers.models import auth, base, communities, core, emails, media, messaging, references
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -18,11 +18,9 @@ config.set_main_option("sqlalchemy.url", couchers_config["DATABASE_CONNECTION_ST
 if config.get_main_option("dont_mess_up_logging", "dont_care") == "dont_care":
     fileConfig(config.config_file_name)
 
-# add your model's MetaData object here
-# for 'autogenerate' support
-# from myapp import mymodel
-# target_metadata = mymodel.Base.metadata
-target_metadata = Base.metadata
+# note that you have to import every file that contains models, so sqlalchemy's magic will register the classes to this
+# Base and get the metadata right, otherwise it will detect those tables as being deleted (or just ignore them)
+target_metadata = base.Base.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
