@@ -1,7 +1,7 @@
 """Remove unused fields from ClusterSubscription
 
 Revision ID: 83e5a560bba3
-Revises: 71b0339a96bd
+Revises: 4c03febc376e
 Create Date: 2021-02-13 16:15:07.741684
 
 """
@@ -12,7 +12,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = "83e5a560bba3"
-down_revision = "71b0339a96bd"
+down_revision = "4c03febc376e"
 branch_labels = None
 depends_on = None
 

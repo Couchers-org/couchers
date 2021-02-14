@@ -1,7 +1,7 @@
 """Add page parent
 
 Revision ID: 93bda1361f40
-Revises: 71b0339a96bd
+Revises: 83e5a560bba3
 Create Date: 2021-02-13 17:20:28.345698
 
 """
@@ -11,7 +11,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "93bda1361f40"
-down_revision = "71b0339a96bd"
+down_revision = "83e5a560bba3"
 branch_labels = None
 depends_on = None
 
