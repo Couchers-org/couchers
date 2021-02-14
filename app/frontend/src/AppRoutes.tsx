@@ -15,7 +15,8 @@ import Signup from "./features/auth/signup/Signup";
 import CommunityPage from "./features/communities/CommunityPage";
 import DiscussionPage from "./features/communities/DiscussionPage";
 import GroupPage from "./features/communities/GroupPage";
-import NewPagePage from "./features/communities/NewPagePage";
+import NewGuidePage from "./features/communities/NewGuidePage";
+import NewPlacePage from "./features/communities/NewPlacePage";
 import PagePage from "./features/communities/PagePage";
 import { ConnectionsPage } from "./features/connections";
 import Home from "./features/Home";
@@ -111,13 +112,13 @@ export default function AppRoutes() {
         <SearchPage />
       </PrivateRoute>
       <PrivateRoute path={newPlaceRoute}>
-        <NewPagePage pageType={PageType.PAGE_TYPE_PLACE} />
+        <NewPlacePage />
       </PrivateRoute>
       <PrivateRoute path={`${placeRoute}/:pageId/:pageSlug?`}>
         <PagePage pageType={PageType.PAGE_TYPE_PLACE} />
       </PrivateRoute>
       <PrivateRoute path={newGuideRoute}>
-        <NewPagePage pageType={PageType.PAGE_TYPE_GUIDE} />
+        <NewGuidePage />
       </PrivateRoute>
       <PrivateRoute path={`${guideRoute}/:pageId/:pageSlug?`}>
         <PagePage pageType={PageType.PAGE_TYPE_GUIDE} />

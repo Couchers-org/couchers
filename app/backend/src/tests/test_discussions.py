@@ -59,6 +59,7 @@ def test_create_and_get_discussion(db):
         )
         session.add(community_cluster)
         main_page = Page(
+            parent_node=community_cluster.parent_node,
             creator_user_id=user.id,
             owner_cluster=community_cluster,
             type=PageType.main_page,
@@ -83,6 +84,7 @@ def test_create_and_get_discussion(db):
         )
         session.add(group_cluster)
         main_page = Page(
+            parent_node=group_cluster.parent_node,
             creator_user_id=user.id,
             owner_cluster=group_cluster,
             type=PageType.main_page,

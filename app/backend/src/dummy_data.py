@@ -200,6 +200,7 @@ def add_dummy_communities():
                 session.add(cluster)
 
                 main_page = Page(
+                    parent_node=node,
                     creator_user=admins[0],
                     owner_cluster=cluster,
                     type=PageType.main_page,
@@ -257,6 +258,7 @@ def add_dummy_communities():
                 session.add(cluster)
 
                 main_page = Page(
+                    parent_node=cluster.parent_node,
                     creator_user=admins[0],
                     owner_cluster=cluster,
                     type=PageType.main_page,
@@ -296,6 +298,7 @@ def add_dummy_communities():
                 creator = session.query(User).filter(User.username == place["creator"]).one()
 
                 page = Page(
+                    parent_node=owner_cluster.parent_node,
                     creator_user=creator,
                     owner_cluster=owner_cluster,
                     type=PageType.place,
@@ -320,6 +323,7 @@ def add_dummy_communities():
                 creator = session.query(User).filter(User.username == guide["creator"]).one()
 
                 page = Page(
+                    parent_node=owner_cluster.parent_node,
                     creator_user=creator,
                     owner_cluster=owner_cluster,
                     type=PageType.guide,
