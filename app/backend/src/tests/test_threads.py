@@ -3,16 +3,13 @@ import string
 
 import grpc
 import pytest
-from google.protobuf import empty_pb2, wrappers_pb2
-from sqlalchemy.sql import and_
 
 from couchers import errors
 from couchers.db import session_scope
 from couchers.models import Thread
 from couchers.servicers.threads import Threads, pack_thread_id
-from couchers.utils import now
 from pb import threads_pb2, threads_pb2_grpc
-from tests.test_fixtures import api_session, db, fake_channel, generate_user, testconfig
+from tests.test_fixtures import db, fake_channel, generate_user, testconfig
 
 
 @pytest.fixture(autouse=True)
@@ -35,7 +32,7 @@ def test_threads_basic(db):
 
     # Create a dummy Thread (should be replaced by pages later on)
     with session_scope() as session:
-        dummy_thread = Thread(title="foo")
+        dummy_thread = Thread()
         session.add(dummy_thread)
         session.flush()
         PARENT_THREAD_ID = pack_thread_id(database_id=dummy_thread.id, depth=0)
@@ -140,7 +137,7 @@ def test_threads_pagination(db):
 
     # Create a dummy Thread (should be replaced by pages later on)
     with session_scope() as session:
-        session.add(Thread(id=1, title="foo"))
+        session.add(Thread(id=1))
 
     with threads_session(token1) as api:
         comment_id = pagination_test(api, PARENT_THREAD_ID)

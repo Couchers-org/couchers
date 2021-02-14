@@ -1,11 +1,9 @@
-import logging
-from base64 import urlsafe_b64decode, urlsafe_b64encode
+from base64 import urlsafe_b64encode
 from datetime import timedelta
 from urllib.parse import urlencode
 
 import grpc
 from google.protobuf import empty_pb2
-from google.protobuf.timestamp_pb2 import Timestamp
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, or_
 

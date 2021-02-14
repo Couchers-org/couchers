@@ -19,10 +19,7 @@ const useStyles = makeStyles((theme) => ({
     marginInlineEnd: "auto",
     textAlign: "center",
   },
-  timestamp: {
-    color: theme.typography.caption.color,
-    fontSize: theme.typography.caption.fontSize,
-  },
+  timestamp: theme.typography.caption,
   message: {
     paddingInlineEnd: theme.spacing(1),
   },

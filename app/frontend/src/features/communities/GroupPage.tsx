@@ -2,19 +2,23 @@ import { Breadcrumbs } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
 
-import {
-  communityRoute,
-  groupRoute,
-  guideRoute,
-  placeRoute,
-} from "../../AppRoutes";
 import Alert from "../../components/Alert";
+import Button from "../../components/Button";
 import CircularProgress from "../../components/CircularProgress";
+import CommentBox from "../../components/Comments/CommentBox";
 import Markdown from "../../components/Markdown";
 import PageTitle from "../../components/PageTitle";
 import TextBody from "../../components/TextBody";
+import { Discussion } from "../../pb/discussions_pb";
 import { Group } from "../../pb/groups_pb";
 import { Page } from "../../pb/pages_pb";
+import {
+  routeToCommunity,
+  routeToDiscussion,
+  routeToGroup,
+  routeToGuide,
+  routeToPlace,
+} from "../../routes";
 import { service } from "../../service";
 
 export default function GroupPage() {
@@ -34,12 +38,26 @@ export default function GroupPage() {
   const [guidesLoading, setGuidesLoading] = useState(false);
   const [guides, setGuides] = useState<Array<Page.AsObject> | null>(null);
 
+  const [discussionsLoading, setDiscussionsLoading] = useState(false);
+  const [
+    discussions,
+    setDiscussions,
+  ] = useState<Array<Discussion.AsObject> | null>(null);
+
   const history = useHistory();
 
   const { groupId, groupSlug } = useParams<{
     groupId: string;
     groupSlug?: string;
   }>();
+
+  const handleJoin = async () => {
+    await service.groups.joinGroup(group!.groupId);
+  };
+
+  const handleLeave = async () => {
+    await service.groups.leaveGroup(group!.groupId);
+  };
 
   useEffect(() => {
     if (!groupId) return;
@@ -50,7 +68,7 @@ export default function GroupPage() {
         setGroup(group);
         if (group.slug !== groupSlug) {
           // if the address is wrong, redirect to the right place
-          history.push(`${groupRoute}/${group.groupId}/${group.slug}`);
+          history.push(routeToGroup(group.groupId, group.slug));
         }
       } catch (e) {
         console.error(e);
@@ -97,6 +115,16 @@ export default function GroupPage() {
         setError(e.message);
       }
       setGuidesLoading(false);
+
+      setDiscussionsLoading(true);
+      try {
+        const res = await service.groups.listDiscussions(Number(groupId));
+        setDiscussions(res.discussionsList.length ? res.discussionsList : null);
+      } catch (e) {
+        console.error(e);
+        setError(e.message);
+      }
+      setDiscussionsLoading(false);
     })();
   }, [groupId, groupSlug, history]);
 
@@ -115,7 +143,10 @@ export default function GroupPage() {
                 if (parent.community) {
                   return (
                     <Link
-                      to={`${communityRoute}/${parent.community.communityId}/${parent.community.slug}`}
+                      to={routeToCommunity(
+                        parent.community.communityId,
+                        parent.community.slug
+                      )}
                     >
                       {parent.community.name}
                     </Link>
@@ -123,7 +154,7 @@ export default function GroupPage() {
                 } else if (parent.group) {
                   return (
                     <Link
-                      to={`${groupRoute}/${parent.group.groupId}/${parent.group.slug}`}
+                      to={routeToGroup(parent.group.groupId, parent.group.slug)}
                     >
                       {parent.group.name}
                     </Link>
@@ -135,8 +166,19 @@ export default function GroupPage() {
           </Breadcrumbs>
           <p>Description: {group.description}</p>
           <p>
-            You <b>{group.member ? "are" : "are not"}</b> a member of this
-            group.
+            {group.member ? (
+              <>
+                You <b>are</b> a member of this group.
+                <br />
+                <Button onClick={handleLeave}>Leave group</Button>
+              </>
+            ) : (
+              <>
+                You <b>are not</b> a member of this group.
+                <br />
+                <Button onClick={handleJoin}>Join group</Button>
+              </>
+            )}
           </p>
           <p>
             You <b>{group.admin ? "are" : "are not"}</b> an admin of this group.
@@ -168,7 +210,7 @@ export default function GroupPage() {
               );
             })
           ) : (
-            <p>This community has no admins.</p>
+            <p>This group has no admins.</p>
           )}
           <h1>Members</h1>
           <p>Total {group.memberCount} members.</p>
@@ -184,16 +226,16 @@ export default function GroupPage() {
               );
             })
           ) : (
-            <p>This community has no members.</p>
+            <p>This group has no members.</p>
           )}
-          <h1>Places/points of interest</h1>
+          <h1>Places</h1>
           {placesLoading ? (
             <CircularProgress />
           ) : places ? (
             places.map((place) => {
               return (
                 <>
-                  <Link to={`${placeRoute}/${place.pageId}/${place.slug}`}>
+                  <Link to={routeToPlace(place.pageId, place.slug)}>
                     {place.title}
                   </Link>
                   <br />
@@ -201,7 +243,7 @@ export default function GroupPage() {
               );
             })
           ) : (
-            <p>This community contains no places.</p>
+            <p>This group contains no places.</p>
           )}
           <h1>Guides</h1>
           {guidesLoading ? (
@@ -210,7 +252,7 @@ export default function GroupPage() {
             guides.map((guide) => {
               return (
                 <>
-                  <Link to={`${guideRoute}/${guide.pageId}/${guide.slug}`}>
+                  <Link to={routeToGuide(guide.pageId, guide.slug)}>
                     {guide.title}
                   </Link>
                   <br />
@@ -218,8 +260,31 @@ export default function GroupPage() {
               );
             })
           ) : (
-            <p>This community contains no guides.</p>
+            <p>This group contains no guides.</p>
           )}
+          <h1>Discussions</h1>
+          {discussionsLoading ? (
+            <CircularProgress />
+          ) : discussions ? (
+            discussions.map((discussion) => {
+              return (
+                <>
+                  <Link
+                    to={routeToDiscussion(
+                      discussion.discussionId,
+                      discussion.slug
+                    )}
+                  >
+                    {discussion.title}
+                  </Link>
+                  <br />
+                </>
+              );
+            })
+          ) : (
+            <p>This group contains no discussions.</p>
+          )}
+          <CommentBox threadId={group.threadId} />
         </>
       ) : (
         <TextBody>Error</TextBody>

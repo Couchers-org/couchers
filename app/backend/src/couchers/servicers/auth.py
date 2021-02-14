@@ -1,13 +1,12 @@
 import logging
-from datetime import datetime, timedelta
-from typing import Union
+from datetime import datetime
 
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import func
 
 from couchers import errors
-from couchers.crypto import cookiesafe_secure_token, hash_password, urlsafe_secure_token, verify_password
+from couchers.crypto import cookiesafe_secure_token, hash_password, verify_password
 from couchers.db import (
     get_user_by_field,
     is_valid_email,
@@ -22,7 +21,7 @@ from couchers.interceptors import AuthValidatorInterceptor
 from couchers.models import LoginToken, PasswordResetToken, SignupToken, User, UserSession
 from couchers.servicers.api import hostingstatus2sql
 from couchers.tasks import send_login_email, send_password_reset_email, send_signup_email
-from couchers.utils import create_session_cookie, http_date, now, parse_session_cookie
+from couchers.utils import create_session_cookie, now, parse_session_cookie
 from pb import auth_pb2, auth_pb2_grpc
 
 logger = logging.getLogger(__name__)
@@ -146,7 +145,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             user = session.query(User).filter(User.email == request.email).one_or_none()
             if not user:
                 token, expiry_text = new_signup_token(session, request.email)
-                session.add(send_signup_email(request.email, token, expiry_text))
+                send_signup_email(request.email, token, expiry_text)
                 return auth_pb2.SignupRes(next_step=auth_pb2.SignupRes.SignupStep.SENT_SIGNUP_EMAIL)
             else:
                 return auth_pb2.SignupRes(next_step=auth_pb2.SignupRes.SignupStep.EMAIL_EXISTS)
@@ -274,7 +273,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 else:
                     logger.debug(f"Found user without password, sending login email")
                     login_token, expiry_text = new_login_token(session, user)
-                    session.add(send_login_email(user, login_token, expiry_text))
+                    send_login_email(user, login_token, expiry_text)
                     return auth_pb2.LoginRes(next_step=auth_pb2.LoginRes.LoginStep.SENT_LOGIN_EMAIL)
             else:  # user not found
                 logger.debug(f"Didn't find user")
@@ -355,11 +354,18 @@ class Auth(auth_pb2_grpc.AuthServicer):
         token = parse_session_cookie(dict(context.invocation_metadata()))
         logger.info(f"Deauthenticate(token={token})")
 
-        if token and self._delete_session(token):
-            return empty_pb2.Empty()
-        else:
-            # probably caused by token not existing
-            context.abort(grpc.StatusCode.UNKNOWN, errors.LOGOUT_FAILED)
+        # if we had a token, try to remove the session
+        if token:
+            self._delete_session(token)
+
+        # set the cookie to an empty string and expire immediately, should remove it from the browser
+        context.send_initial_metadata(
+            [
+                ("set-cookie", create_session_cookie("", now())),
+            ]
+        )
+
+        return empty_pb2.Empty()
 
     def ResetPassword(self, request, context):
         """
@@ -374,7 +380,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             user = get_user_by_field(session, request.user)
             if user:
                 password_reset_token, expiry_text = new_password_reset_token(session, user)
-                session.add(send_password_reset_email(user, password_reset_token, expiry_text))
+                send_password_reset_email(user, password_reset_token, expiry_text)
             else:  # user not found
                 logger.debug(f"Didn't find user")
 

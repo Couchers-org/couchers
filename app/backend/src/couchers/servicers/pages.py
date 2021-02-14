@@ -1,10 +1,9 @@
-import logging
-
 import grpc
 
 from couchers import errors
-from couchers.db import session_scope
-from couchers.models import Cluster, Node, Page, PageType, PageVersion, User
+from couchers.db import get_parent_node_at_location, session_scope
+from couchers.models import Cluster, Node, Page, PageType, PageVersion, Thread, User
+from couchers.servicers.threads import pack_thread_id
 from couchers.utils import Timestamp_from_datetime, create_coordinate, remove_duplicates_retain_order
 from pb import pages_pb2, pages_pb2_grpc
 
@@ -32,7 +31,15 @@ pagetype2api = {
 def page_to_pb(page: Page, user_id):
     first_version = page.versions[0]
     current_version = page.versions[-1]
-    lat, lng = current_version.coordinates or (0, 0)
+
+    owner_community_id = None
+    owner_group_id = None
+    if page.owner_cluster:
+        if page.owner_cluster.official_cluster_for_node_id is None:
+            owner_group_id = page.owner_cluster.id
+        else:
+            owner_community_id = page.owner_cluster.official_cluster_for_node_id
+
     return pages_pb2.Page(
         page_id=page.id,
         type=pagetype2api[page.type],
@@ -42,27 +49,25 @@ def page_to_pb(page: Page, user_id):
         last_editor_user_id=current_version.editor_user_id,
         creator_user_id=page.creator_user_id,
         owner_user_id=page.owner_user_id,
-        owner_group_id=page.owner_cluster.id
-        if page.owner_cluster and page.owner_cluster.official_cluster_for_node_id is None
-        else None,
-        owner_community_id=page.owner_cluster.official_cluster_for_node_id
-        if page.owner_cluster and page.owner_cluster.official_cluster_for_node_id is not None
-        else None,
-        thread_id=None,  # TODO
+        owner_community_id=owner_community_id,
+        owner_group_id=owner_group_id,
+        thread_id=pack_thread_id(page.thread_id, 0),
         title=current_version.title,
         content=current_version.content,
         address=current_version.address,
         location=pages_pb2.Coordinate(
-            lat=lat,
-            lng=lng,
-        ),
+            lat=current_version.coordinates[0],
+            lng=current_version.coordinates[1],
+        )
+        if current_version.coordinates
+        else None,
         editor_user_ids=remove_duplicates_retain_order([version.editor_user_id for version in page.versions]),
         can_edit=_check_update_permission(page, user_id),
     )
 
 
 class Pages(pages_pb2_grpc.PagesServicer):
-    def CreatePage(self, request, context):
+    def CreatePlace(self, request, context):
         if not request.title:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_TITLE)
         if not request.content:
@@ -71,14 +76,16 @@ class Pages(pages_pb2_grpc.PagesServicer):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_ADDRESS)
         if not request.HasField("location"):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_LOCATION)
-        if request.type not in [pages_pb2.PAGE_TYPE_PLACE, pages_pb2.PAGE_TYPE_GUIDE]:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANNOT_CREATE_PAGE_TYPE)
+
+        geom = create_coordinate(request.location.lat, request.location.lng)
 
         with session_scope() as session:
             page = Page(
-                type=pagetype2sql[request.type],
+                parent_node=get_parent_node_at_location(session, geom),
+                type=PageType.place,
                 creator_user_id=context.user_id,
                 owner_user_id=context.user_id,
+                thread=Thread(),
             )
             session.add(page)
             session.flush()
@@ -88,7 +95,52 @@ class Pages(pages_pb2_grpc.PagesServicer):
                 title=request.title,
                 content=request.content,
                 address=request.address,
-                geom=create_coordinate(request.location.lat, request.location.lng),
+                geom=geom,
+            )
+            session.add(page_version)
+            session.commit()
+            return page_to_pb(page, context.user_id)
+
+    def CreateGuide(self, request, context):
+        if not request.title:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_TITLE)
+        if not request.content:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_CONTENT)
+        if request.address and request.HasField("location"):
+            address = request.address
+            geom = create_coordinate(request.location.lat, request.location.lng)
+        elif not request.address and not request.HasField("location"):
+            address = None
+            geom = None
+        else:
+            # you have to have both or neither
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_GUIDE_LOCATION)
+
+        if not request.parent_community_id:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_PARENT)
+
+        with session_scope() as session:
+            parent_node = session.query(Node).filter(Node.id == request.parent_community_id).one_or_none()
+
+            if not parent_node:
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.COMMUNITY_NOT_FOUND)
+
+            page = Page(
+                parent_node=parent_node,
+                type=PageType.guide,
+                creator_user_id=context.user_id,
+                owner_user_id=context.user_id,
+                thread=Thread(),
+            )
+            session.add(page)
+            session.flush()
+            page_version = PageVersion(
+                page=page,
+                editor_user_id=context.user_id,
+                title=request.title,
+                content=request.content,
+                address=address,
+                geom=geom,
             )
             session.add(page_version)
             session.commit()

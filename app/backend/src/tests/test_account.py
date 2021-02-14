@@ -1,4 +1,3 @@
-from datetime import timedelta
 from unittest.mock import patch
 
 import grpc
@@ -17,6 +16,24 @@ from tests.test_fixtures import account_session, auth_api_session, db, fast_pass
 @pytest.fixture(autouse=True)
 def _(testconfig):
     pass
+
+
+def test_GetAccountInfo(db, fast_passwords):
+    # without password
+    user1, token1 = generate_user(hashed_password=None)
+
+    with account_session(token1) as account:
+        res = account.GetAccountInfo(empty_pb2.Empty())
+        assert res.login_method == account_pb2.GetAccountInfoRes.LoginMethod.MAGIC_LINK
+        assert not res.has_password
+
+    # with password
+    user1, token1 = generate_user(hashed_password=hash_password(random_hex()))
+
+    with account_session(token1) as account:
+        res = account.GetAccountInfo(empty_pb2.Empty())
+        assert res.login_method == account_pb2.GetAccountInfoRes.LoginMethod.PASSWORD
+        assert res.has_password
 
 
 def test_ChangePassword_normal(db, fast_passwords):
@@ -307,7 +324,6 @@ def test_ChangeEmail_wrong_email(db, fast_passwords):
 
 def test_ChangeEmail_invalid_email(db, fast_passwords):
     password = random_hex()
-    new_email = f"{random_hex()}@couchers.org.invalid"
     user, token = generate_user(hashed_password=hash_password(password))
 
     with account_session(token) as account:
@@ -331,7 +347,6 @@ def test_ChangeEmail_invalid_email(db, fast_passwords):
 
 def test_ChangeEmail_email_in_use(db, fast_passwords):
     password = random_hex()
-    new_email = f"{random_hex()}@couchers.org.invalid"
     user, token = generate_user(hashed_password=hash_password(password))
     user2, token2 = generate_user(hashed_password=hash_password(password))
 
@@ -356,7 +371,6 @@ def test_ChangeEmail_email_in_use(db, fast_passwords):
 
 def test_ChangeEmail_no_change(db, fast_passwords):
     password = random_hex()
-    new_email = f"{random_hex()}@couchers.org.invalid"
     user, token = generate_user(hashed_password=hash_password(password))
 
     with account_session(token) as account:

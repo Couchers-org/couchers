@@ -9,7 +9,6 @@ from sqlalchemy.sql import func
 from couchers.crypto import hash_password
 from couchers.db import get_user_by_field, session_scope
 from couchers.models import (
-    Base,
     Cluster,
     ClusterRole,
     ClusterSubscription,
@@ -27,10 +26,11 @@ from couchers.models import (
     PageVersion,
     Reference,
     ReferenceType,
+    Thread,
     User,
 )
 from couchers.servicers.api import hostingstatus2sql
-from couchers.utils import Timestamp_from_datetime, create_coordinate, create_polygon_lng_lat, geojson_to_geom, to_multi
+from couchers.utils import create_coordinate, create_polygon_lng_lat, geojson_to_geom, to_multi
 from pb.api_pb2 import HostingStatus
 
 logger = logging.getLogger(__name__)
@@ -138,7 +138,7 @@ def add_dummy_users():
 
             session.commit()
 
-    except IntegrityError as e:
+    except IntegrityError:
         logger.error("Failed to insert dummy users, is it already inserted?")
 
 
@@ -194,15 +194,18 @@ def add_dummy_communities():
                     description=f"Description for {name}",
                     parent_node=node,
                     official_cluster_for_node=node,
+                    thread=Thread(),
                 )
 
                 session.add(cluster)
 
                 main_page = Page(
+                    parent_node=node,
                     creator_user=admins[0],
-                    owner_user=admins[0],
+                    owner_cluster=cluster,
                     type=PageType.main_page,
                     main_page_for_cluster=cluster,
+                    thread=Thread(),
                 )
 
                 session.add(main_page)
@@ -249,15 +252,18 @@ def add_dummy_communities():
                     name=f"{name}",
                     description=f"Description for the group {name}",
                     parent_node=parent_node,
+                    thread=Thread(),
                 )
 
                 session.add(cluster)
 
                 main_page = Page(
+                    parent_node=cluster.parent_node,
                     creator_user=admins[0],
-                    owner_user=admins[0],
+                    owner_cluster=cluster,
                     type=PageType.main_page,
                     main_page_for_cluster=cluster,
+                    thread=Thread(),
                 )
 
                 session.add(main_page)
@@ -292,9 +298,11 @@ def add_dummy_communities():
                 creator = session.query(User).filter(User.username == place["creator"]).one()
 
                 page = Page(
+                    parent_node=owner_cluster.parent_node,
                     creator_user=creator,
                     owner_cluster=owner_cluster,
                     type=PageType.place,
+                    thread=Thread(),
                 )
 
                 session.add(page)
@@ -315,9 +323,11 @@ def add_dummy_communities():
                 creator = session.query(User).filter(User.username == guide["creator"]).one()
 
                 page = Page(
+                    parent_node=owner_cluster.parent_node,
                     creator_user=creator,
                     owner_cluster=owner_cluster,
                     type=PageType.guide,
+                    thread=Thread(),
                 )
 
                 session.add(page)
@@ -327,11 +337,14 @@ def add_dummy_communities():
                     editor_user=creator,
                     title=guide["title"],
                     content=guide["content"],
+                    geom=create_coordinate(guide["coordinate"][1], guide["coordinate"][0])
+                    if "coordinate" in guide
+                    else None,
                 )
 
                 session.add(page_version)
 
-    except IntegrityError as e:
+    except IntegrityError:
         logger.error("Failed to insert dummy communities, are they already inserted?")
 
 

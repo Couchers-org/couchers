@@ -3,15 +3,15 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { useHistory } from "react-router-dom";
 
-import { searchRoute } from "../AppRoutes";
 import { SearchQuery } from "../features/search/constants";
+import { routeToSearch } from "../routes";
 import TextField from "./TextField";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   root: {
-    marginLeft: "auto",
+    marginLeft: theme.spacing(2),
   },
-});
+}));
 
 export default function SearchBox() {
   const classes = useStyles();
@@ -21,7 +21,7 @@ export default function SearchBox() {
   const history = useHistory();
 
   const onSubmit = handleSubmit(({ query }) => {
-    history.push(`${searchRoute}/${encodeURIComponent(query)}`);
+    history.push(routeToSearch(encodeURIComponent(query)));
   });
 
   return (

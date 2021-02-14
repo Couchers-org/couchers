@@ -133,8 +133,8 @@ export default function useAuthStore() {
         setLoading(true);
         try {
           await service.user.logout();
-          setUserId(null);
           setAuthenticated(false);
+          setUserId(null);
         } catch (e) {
           setError(e.message);
         }

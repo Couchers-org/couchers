@@ -1,12 +1,13 @@
 from pathlib import Path
 
 import yaml
-from jinja2 import Environment, FileSystemLoader, Template
+from jinja2 import Environment, FileSystemLoader
 from markdown2 import markdown
 
 from couchers import config
-from couchers.email.dev import print_dev_email
-from couchers.email.smtp import send_smtp_email
+from couchers.jobs.enqueue import queue_job
+from couchers.models import BackgroundJobType
+from pb.internal import jobs_pb2
 
 loader = FileSystemLoader(Path(__file__).parent / ".." / ".." / ".." / "templates")
 env = Environment(loader=loader, trim_blocks=True)
@@ -72,16 +73,24 @@ def _render_email(template_file, template_args={}):
     return frontmatter, plain, html
 
 
-def send_email(sender_name, sender_email, recipient, subject, plain, html):
-    if config.config["ENABLE_EMAIL"]:
-        return send_smtp_email(sender_name, sender_email, recipient, subject, plain, html)
-    else:
-        return print_dev_email(sender_name, sender_email, recipient, subject, plain, html)
+def queue_email(sender_name, sender_email, recipient, subject, plain, html):
+    payload = jobs_pb2.SendEmailPayload(
+        sender_name=sender_name,
+        sender_email=sender_email,
+        recipient=recipient,
+        subject=subject,
+        plain=plain,
+        html=html,
+    )
+    queue_job(
+        job_type=BackgroundJobType.send_email,
+        payload=payload,
+    )
 
 
-def send_email_template(recipient, template_file, template_args={}):
+def enqueue_email_from_template(recipient, template_file, template_args={}):
     frontmatter, plain, html = _render_email(template_file, template_args)
-    return send_email(
+    queue_email(
         config.NOTIFICATION_EMAIL_SENDER,
         config.config["NOTIFICATION_EMAIL_ADDRESS"],
         recipient,

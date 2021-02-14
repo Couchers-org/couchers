@@ -1,10 +1,8 @@
 import grpc
 import pytest
-import pytz
-from google.protobuf import empty_pb2, wrappers_pb2
+from google.protobuf import wrappers_pb2
 
 from couchers import errors
-from couchers.models import User
 from couchers.utils import now, to_aware_datetime
 from pb import api_pb2, conversations_pb2
 from tests.test_fixtures import api_session, conversations_session, db, generate_user, make_friends, testconfig

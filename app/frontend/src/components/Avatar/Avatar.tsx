@@ -5,8 +5,8 @@ import classNames from "classnames";
 import React from "react";
 import { Link } from "react-router-dom";
 
-import { routeToUser } from "../../AppRoutes";
 import { User } from "../../pb/api_pb";
+import { routeToUser } from "../../routes";
 
 const useStyles = makeStyles({
   root: {
@@ -58,7 +58,7 @@ export default function Avatar({
     >
       {user ? (
         isProfileLink ? (
-          <Link to={routeToUser(user)}>
+          <Link to={routeToUser(user.username)}>
             <MuiAvatar
               className={classes.avatar}
               alt={user.name}

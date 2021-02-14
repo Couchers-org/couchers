@@ -3,7 +3,7 @@ from unittest.mock import create_autospec, patch
 import pytest
 
 from couchers.config import config
-from couchers.crypto import random_hex, urlsafe_secure_token
+from couchers.crypto import random_hex
 from couchers.db import new_login_token, new_signup_token, session_scope
 from couchers.models import (
     Complaint,
@@ -39,14 +39,14 @@ def test_login_email(db):
         login_token, expiry_text = new_login_token(session, user)
 
         @create_autospec
-        def mock_send_email(sender_name, sender_email, recipient, subject, plain, html):
+        def mock_queue_email(sender_name, sender_email, recipient, subject, plain, html):
             assert recipient == user.email
             assert "login" in subject.lower()
             assert login_token.token in plain
             assert login_token.token in html
             return message_id
 
-        with patch("couchers.email.send_email", mock_send_email) as mock:
+        with patch("couchers.email.queue_email", mock_queue_email) as mock:
             send_login_email(user, login_token, expiry_text)
 
         assert mock.call_count == 1
@@ -62,13 +62,13 @@ def test_signup_email(db):
         token, expiry_text = new_signup_token(session, request_email)
 
         @create_autospec
-        def mock_send_email(sender_name, sender_email, recipient, subject, plain, html):
+        def mock_queue_email(sender_name, sender_email, recipient, subject, plain, html):
             assert recipient == request_email
             assert token.token in plain
             assert token.token in html
             return message_id
 
-        with patch("couchers.email.send_email", mock_send_email) as mock:
+        with patch("couchers.email.queue_email", mock_queue_email) as mock:
             send_signup_email(request_email, token, expiry_text)
 
         assert mock.call_count == 1
@@ -86,7 +86,7 @@ def test_report_email(db):
         message_id = random_hex(64)
 
         @create_autospec
-        def mock_send_email(sender_name, sender_email, recipient, subject, plain, html):
+        def mock_queue_email(sender_name, sender_email, recipient, subject, plain, html):
             assert recipient == "reports@couchers.org.invalid"
             assert complaint.author_user.username in plain
             assert complaint.author_user.username in html
@@ -99,7 +99,7 @@ def test_report_email(db):
             assert "report" in subject.lower()
             return message_id
 
-        with patch("couchers.email.send_email", mock_send_email) as mock:
+        with patch("couchers.email.queue_email", mock_queue_email) as mock:
             send_report_email(complaint)
 
         assert mock.call_count == 1
@@ -131,7 +131,7 @@ def test_host_request_email(db):
         message_id = random_hex(64)
 
         @create_autospec
-        def mock_send_email(sender_name, sender_email, recipient, subject, plain, html):
+        def mock_queue_email(sender_name, sender_email, recipient, subject, plain, html):
             assert recipient == to_user.email
             assert "host request" in subject.lower()
             assert to_user.name in plain
@@ -148,7 +148,7 @@ def test_host_request_email(db):
             assert f"{config['BASE_URL']}/hostrequests/" in html
             return message_id
 
-        with patch("couchers.email.send_email", mock_send_email) as mock:
+        with patch("couchers.email.queue_email", mock_queue_email) as mock:
             send_host_request_email(host_request)
 
         assert mock.call_count == 1
@@ -160,14 +160,14 @@ def test_message_received_email(db):
     message_id = random_hex(64)
 
     @create_autospec
-    def mock_send_email(sender_name, sender_email, recipient, subject, plain, html):
+    def mock_queue_email(sender_name, sender_email, recipient, subject, plain, html):
         assert recipient == user.email
         assert "mail" in subject.lower()
         assert f"{config['BASE_URL']}/messages/" in plain
         assert f"{config['BASE_URL']}/messages/" in html
         return message_id
 
-    with patch("couchers.email.send_email", mock_send_email) as mock:
+    with patch("couchers.email.queue_email", mock_queue_email) as mock:
         send_message_received_email(user)
 
     assert mock.call_count == 1
@@ -182,7 +182,7 @@ def test_friend_request_email(db):
         message_id = random_hex(64)
 
         @create_autospec
-        def mock_send_email(sender_name, sender_email, recipient, subject, plain, html):
+        def mock_queue_email(sender_name, sender_email, recipient, subject, plain, html):
             assert recipient == to_user.email
             assert "friend" in subject.lower()
             assert to_user.name in plain
@@ -196,7 +196,7 @@ def test_friend_request_email(db):
             assert f"{config['BASE_URL']}/friends/" in html
             return message_id
 
-        with patch("couchers.email.send_email", mock_send_email) as mock:
+        with patch("couchers.email.queue_email", mock_queue_email) as mock:
             send_friend_request_email(friend_relationship)
 
         assert mock.call_count == 1
@@ -215,10 +215,10 @@ def test_email_patching_fails(db):
 
         patched_msg = random_hex(64)
 
-        def mock_send_email(sender_name, sender_email, recipient, subject, plain, html):
+        def mock_queue_email(sender_name, sender_email, recipient, subject, plain, html):
             raise Exception(patched_msg)
 
         with pytest.raises(Exception) as e:
-            with patch("couchers.email.send_email", mock_send_email):
+            with patch("couchers.email.queue_email", mock_queue_email):
                 send_friend_request_email(friend_relationship)
         assert str(e.value) == patched_msg

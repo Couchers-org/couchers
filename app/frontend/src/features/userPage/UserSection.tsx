@@ -10,11 +10,8 @@ import React from "react";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    borderRadius: `${theme.shape.borderRadius * 2}px`,
+    borderRadius: theme.shape.borderRadius,
     marginBottom: theme.spacing(2),
-  },
-  title: {
-    fontSize: "1.5rem",
   },
 }));
 
@@ -32,9 +29,7 @@ export default function UserSection({
   return (
     <Card className={classNames(className, classes.root)}>
       <CardContent>
-        <Typography variant="h2" className={classes.title}>
-          {title}
-        </Typography>
+        <Typography variant="h2">{title}</Typography>
         {children}
       </CardContent>
     </Card>

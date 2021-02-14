@@ -12,7 +12,6 @@ const useSendFieldStyles = makeStyles((theme) => ({
     display: "flex",
     justifyContent: "center",
     flexWrap: "wrap",
-    marginBottom: theme.spacing(2),
     "& > button": {
       marginInline: theme.spacing(2),
     },

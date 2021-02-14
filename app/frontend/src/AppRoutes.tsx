@@ -6,10 +6,17 @@ import { useAuthContext } from "./features/auth/AuthProvider";
 import Jail from "./features/auth/jail/Jail";
 import Login from "./features/auth/login/Login";
 import Logout from "./features/auth/Logout";
+import {
+  ChangePasswordPage,
+  CompleteResetPasswordPage,
+  ResetPasswordPage,
+} from "./features/auth/password";
 import Signup from "./features/auth/signup/Signup";
 import CommunityPage from "./features/communities/CommunityPage";
+import DiscussionPage from "./features/communities/DiscussionPage";
 import GroupPage from "./features/communities/GroupPage";
-import NewPagePage from "./features/communities/NewPagePage";
+import NewGuidePage from "./features/communities/NewGuidePage";
+import NewPlacePage from "./features/communities/NewPlacePage";
 import PagePage from "./features/communities/PagePage";
 import { ConnectionsPage } from "./features/connections";
 import Home from "./features/Home";
@@ -23,38 +30,32 @@ import {
 } from "./features/profile";
 import SearchPage from "./features/search/SearchPage";
 import UserPage from "./features/userPage/UserPage";
-import { User } from "./pb/api_pb";
 import { PageType } from "./pb/pages_pb";
-
-export const loginRoute = "/login";
-export const loginPasswordRoute = `${loginRoute}/password`;
-
-export const signupRoute = "/signup";
-export const profileRoute = "/profile";
-export const editProfileRoute = "/profile/edit";
-export const editHostingPreferenceRoute = "/hosting-preference/edit";
-export const messagesRoute = "/messages";
-export const requestsRoute = "/requests";
-export const mapRoute = "/map";
-export const logoutRoute = "/logout";
-export const connectionsRoute = "/connections";
-export const notFoundRoute = "/notfound";
-
-export const userRoute = "/user";
-export const routeToUser = (user: User.AsObject) =>
-  `${userRoute}/${user.username}`;
-export const searchRoute = "/search";
-export const jailRoute = "/restricted";
-export const tosRoute = "/tos";
-
-export const newPlaceRoute = "/place/new";
-export const placeRoute = "/place";
-
-export const newGuideRoute = "/guide/new";
-export const guideRoute = "/guide";
-
-export const communityRoute = "/community"; ///:communityId/:communitySlug";
-export const groupRoute = "/group"; ///:groupId/:groupSlug";
+import {
+  changePasswordRoute,
+  communityRoute,
+  connectionsRoute,
+  discussionRoute,
+  editHostingPreferenceRoute,
+  editProfileRoute,
+  groupRoute,
+  guideRoute,
+  jailRoute,
+  loginRoute,
+  logoutRoute,
+  mapRoute,
+  messagesRoute,
+  newGuideRoute,
+  newPlaceRoute,
+  notFoundRoute,
+  placeRoute,
+  profileRoute,
+  resetPasswordRoute,
+  searchRoute,
+  signupRoute,
+  tosRoute,
+  userRoute,
+} from "./routes";
 
 export default function AppRoutes() {
   return (
@@ -64,6 +65,15 @@ export default function AppRoutes() {
       </Route>
       <Route path={`${signupRoute}/:urlToken?`}>
         <Signup />
+      </Route>
+      <Route exact path={resetPasswordRoute}>
+        <ResetPasswordPage />
+      </Route>
+      <Route exact path={`${resetPasswordRoute}/:resetToken`}>
+        <CompleteResetPasswordPage />
+      </Route>
+      <Route path={changePasswordRoute}>
+        <ChangePasswordPage />
       </Route>
       <Route path={tosRoute}>
         <TOS />
@@ -96,16 +106,19 @@ export default function AppRoutes() {
         <SearchPage />
       </PrivateRoute>
       <PrivateRoute path={newPlaceRoute}>
-        <NewPagePage pageType={PageType.PAGE_TYPE_PLACE} />
+        <NewPlacePage />
       </PrivateRoute>
       <PrivateRoute path={`${placeRoute}/:pageId/:pageSlug?`}>
         <PagePage pageType={PageType.PAGE_TYPE_PLACE} />
       </PrivateRoute>
       <PrivateRoute path={newGuideRoute}>
-        <NewPagePage pageType={PageType.PAGE_TYPE_PLACE} />
+        <NewGuidePage />
       </PrivateRoute>
       <PrivateRoute path={`${guideRoute}/:pageId/:pageSlug?`}>
         <PagePage pageType={PageType.PAGE_TYPE_GUIDE} />
+      </PrivateRoute>
+      <PrivateRoute path={`${discussionRoute}/:discussionId/:discussionSlug?`}>
+        <DiscussionPage />
       </PrivateRoute>
       <PrivateRoute path={`${communityRoute}/:communityId/:communitySlug?`}>
         <CommunityPage />
@@ -151,7 +164,7 @@ const PrivateRoute = ({ children, ...otherProps }: RouteProps) => {
           ) : (
             <Redirect
               to={{
-                pathname: "/login",
+                pathname: loginRoute,
                 state: { from: location },
               }}
             />
