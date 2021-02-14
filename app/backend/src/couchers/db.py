@@ -8,6 +8,7 @@ from contextlib import contextmanager
 from alembic import command
 from alembic.config import Config
 from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.orm.session import Session
 from sqlalchemy.pool import NullPool
 from sqlalchemy.sql import and_, or_
@@ -35,16 +36,27 @@ def apply_migrations():
 
 
 @functools.cache
-def get_engine():
+def _get_base_engine():
     if config.config["IN_TEST"]:
         return create_engine(config.config["DATABASE_CONNECTION_STRING"], poolclass=NullPool)
     else:
         return create_engine(config.config["DATABASE_CONNECTION_STRING"])
 
 
+def get_engine(isolation_level=None):
+    """
+    Creates an engine with the given isolation level.
+    """
+    # creates a shallow copy with the given isolation level
+    if not isolation_level:
+        return _get_base_engine()
+    else:
+        return _get_base_engine().execution_options(isolation_level=isolation_level)
+
+
 @contextmanager
-def session_scope():
-    session = Session(get_engine())
+def session_scope(isolation_level=None):
+    session = Session(get_engine(isolation_level=isolation_level))
     try:
         yield session
         session.commit()

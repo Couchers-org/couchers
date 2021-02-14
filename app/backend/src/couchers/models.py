@@ -1068,3 +1068,65 @@ class Reply(Base):
     deleted = Column(DateTime(timezone=True), nullable=True)
 
     comment = relationship("Comment", backref="replies")
+
+
+class BackgroundJobType(enum.Enum):
+    # payload: jobs.SendEmailPayload
+    send_email = 1
+    # payload: google.protobuf.Empty
+    purge_login_tokens = 2
+    # payload: google.protobuf.Empty
+    purge_signup_tokens = 3
+
+
+class BackgroundJobState(enum.Enum):
+    # job is fresh, waiting to be picked off the queue
+    pending = 1
+    # job complete
+    completed = 2
+    # error occured, will be retried
+    error = 3
+    # failed too many times, not retrying anymore
+    failed = 4
+
+
+class BackgroundJob(Base):
+    """
+    This table implements a queue of background jobs.
+    """
+
+    __tablename__ = "background_jobs"
+
+    id = Column(BigInteger, primary_key=True)
+
+    # used to discern which function should be triggered to service it
+    job_type = Column(Enum(BackgroundJobType), nullable=False)
+    state = Column(Enum(BackgroundJobState), nullable=False, default=BackgroundJobState.pending)
+
+    # time queued
+    queued = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    # time at which we may next attempt it, for implementing exponential backoff
+    next_attempt_after = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    # used to count number of retries for failed jobs
+    try_count = Column(Integer, nullable=False, default=0)
+
+    max_tries = Column(Integer, nullable=False, default=5)
+
+    # protobuf encoded job payload
+    payload = Column(Binary, nullable=False)
+
+    # if the job failed, we write that info here
+    failure_info = Column(String, nullable=True)
+
+    @hybrid_property
+    def ready_for_retry(self):
+        return (
+            (self.next_attempt_after <= func.now())
+            & (self.try_count < self.max_tries)
+            & ((self.state == BackgroundJobState.pending) | (self.state == BackgroundJobState.error))
+        )
+
+    def __repr__(self):
+        return f"BackgroundJob(id={self.id}, job_type={self.job_type}, state={self.state}, next_attempt_after={self.next_attempt_after}, try_count={self.try_count}, failure_info={self.failure_info})"
