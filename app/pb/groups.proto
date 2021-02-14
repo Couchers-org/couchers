@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package org.couchers.api.groups;
 
+import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
 import "pb/discussions.proto";
@@ -36,6 +37,18 @@ service Groups {
 
   rpc ListDiscussions(ListDiscussionsReq) returns (ListDiscussionsRes) {
     // Returns a paginated list of discussions associated with a group
+  }
+
+  rpc JoinGroup(JoinGroupReq) returns (google.protobuf.Empty) {
+    // Join a group
+    //
+    // Raises: FAILED_PRECONDITION if the user is already part of the group
+  }
+
+  rpc LeaveGroup(LeaveGroupReq) returns (google.protobuf.Empty) {
+    // Leave a group
+    //
+    // Raises: FAILED_PRECONDITION if the user is not part of the group
   }
 }
 
@@ -163,4 +176,12 @@ message ListDiscussionsRes {
   repeated org.couchers.api.discussions.Discussion discussions = 1;
 
   string next_page_token = 2;
+}
+
+message JoinGroupReq {
+  int64 group_id = 1;
+}
+
+message LeaveGroupReq {
+  int64 group_id = 1;
 }

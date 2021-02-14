@@ -1,5 +1,7 @@
+import grpc
 import pytest
 
+from couchers import errors
 from couchers.db import session_scope
 from couchers.models import (
     Cluster,
@@ -562,6 +564,87 @@ class TestCommunities:
             assert [d.title for d in res.discussions] == [
                 "Discussion title 7",
             ]
+
+
+def test_JoinCommunity_and_LeaveCommunity(testing_communities):
+    # these are separate as they mutate the database
+    with session_scope() as session:
+        # at x=1, inside c1 (country 1)
+        user1_id, token1 = get_user_id_and_token(session, "user1")
+        # at x=51, not inside c1
+        user8_id, token8 = get_user_id_and_token(session, "user8")
+        c1_id = get_community_id(session, "Country 1")
+
+    with communities_session(token1) as api:
+        assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
+
+        # user1 is already part of c1, cannot join
+        with pytest.raises(grpc.RpcError) as e:
+            res = api.JoinCommunity(
+                communities_pb2.JoinCommunityReq(
+                    community_id=c1_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.ALREADY_IN_COMMUNITY
+
+        assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
+
+        # user1 is inside c1, cannot leave
+        with pytest.raises(grpc.RpcError) as e:
+            res = api.LeaveCommunity(
+                communities_pb2.LeaveCommunityReq(
+                    community_id=c1_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.CANNOT_LEAVE_CONTAINING_COMMUNITY
+
+        assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
+
+    with communities_session(token8) as api:
+        assert not api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
+
+        # user8 is not in c1 yet, cannot leave
+        with pytest.raises(grpc.RpcError) as e:
+            res = api.LeaveCommunity(
+                communities_pb2.LeaveCommunityReq(
+                    community_id=c1_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.NOT_IN_COMMUNITY
+
+        assert not api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
+
+        # user8 is not in c1 and not part, can join
+        res = api.JoinCommunity(
+            communities_pb2.JoinCommunityReq(
+                community_id=c1_id,
+            )
+        )
+
+        assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
+
+        # user8 is not in c1 and but now part, can't join again
+        with pytest.raises(grpc.RpcError) as e:
+            res = api.JoinCommunity(
+                communities_pb2.JoinCommunityReq(
+                    community_id=c1_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.ALREADY_IN_COMMUNITY
+
+        assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
+
+        # user8 is not in c1 yet, but part of it, can leave
+        res = api.LeaveCommunity(
+            communities_pb2.LeaveCommunityReq(
+                community_id=c1_id,
+            )
+        )
+        assert not api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
 
 
 # TODO: requires transferring of content

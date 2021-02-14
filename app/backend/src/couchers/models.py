@@ -782,15 +782,9 @@ class ClusterSubscription(Base):
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     cluster_id = Column(ForeignKey("clusters.id"), nullable=False, index=True)
     role = Column(Enum(ClusterRole), nullable=False)
-    joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    left = Column(DateTime(timezone=True), nullable=True)
 
     user = relationship("User", backref="cluster_subscriptions")
     cluster = relationship("Cluster", backref="cluster_subscriptions")
-
-    @hybrid_property
-    def is_current(self):
-        return (self.joined <= func.now()) & ((not self.left) | (self.left >= func.now()))
 
 
 class ClusterPageAssociation(Base):
