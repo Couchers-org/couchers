@@ -10,10 +10,10 @@ import {
 import React from "react";
 import { Link } from "react-router-dom";
 
-import { userRoute } from "../../AppRoutes";
 import Avatar from "../../components/Avatar";
 import ScoreBar from "../../components/ScoreBar";
 import { User } from "../../pb/api_pb";
+import { routeToUser } from "../../routes";
 import { hostingStatusLabels } from "../profile/constants";
 
 const useStyles = makeStyles((theme) => ({
@@ -36,7 +36,7 @@ const useStyles = makeStyles((theme) => ({
 export default function SearchResult({ user }: { user: User.AsObject }) {
   const classes = useStyles();
   return (
-    <Link to={`${userRoute}/${user.username}`} className={classes.root}>
+    <Link to={routeToUser(user.username)} className={classes.root}>
       <Card className={classes.card}>
         <CardActionArea>
           <CardContent>

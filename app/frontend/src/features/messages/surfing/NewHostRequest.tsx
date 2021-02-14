@@ -7,11 +7,11 @@ import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { useHistory, useParams } from "react-router-dom";
 
-import { messagesRoute } from "../../../AppRoutes";
 import Alert from "../../../components/Alert";
 import Button from "../../../components/Button";
 import TextField from "../../../components/TextField";
 import { CreateHostRequestReq } from "../../../pb/requests_pb";
+import { routeToHostRequest } from "../../../routes";
 import { service } from "../../../service";
 import { firstName } from "../../../utils/names";
 import { validateFutureDate } from "../../../utils/validation";
@@ -59,7 +59,7 @@ export default function NewHostRequest() {
       service.requests.createHostRequest(data),
     {
       onSuccess: (hostRequestId) => {
-        history.push(`${messagesRoute}/request/${hostRequestId}`);
+        history.push(routeToHostRequest(hostRequestId));
       },
     }
   );

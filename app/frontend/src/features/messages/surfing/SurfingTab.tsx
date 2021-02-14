@@ -4,12 +4,12 @@ import * as React from "react";
 import { useQuery } from "react-query";
 import { Link } from "react-router-dom";
 
-import { messagesRoute } from "../../../AppRoutes";
 import Alert from "../../../components/Alert";
 import CircularProgress from "../../../components/CircularProgress";
 import TextBody from "../../../components/TextBody";
 import { GroupChat } from "../../../pb/conversations_pb";
 import { HostRequest } from "../../../pb/requests_pb";
+import { routeToHostRequest } from "../../../routes";
 import { service } from "../../../service";
 import useMessageListStyles from "../useMessageListStyles";
 import HostRequestListItem from "./HostRequestListItem";
@@ -46,7 +46,7 @@ export default function SurfingTab({
           <List className={classes.list}>
             {hostRequests.map((hostRequest) => (
               <Link
-                to={`${messagesRoute}/request/${hostRequest.hostRequestId}`}
+                to={routeToHostRequest(hostRequest.hostRequestId)}
                 key={hostRequest.hostRequestId}
                 className={classes.link}
               >

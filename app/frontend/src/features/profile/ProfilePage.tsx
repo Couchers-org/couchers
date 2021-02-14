@@ -2,12 +2,12 @@ import { List, ListItem, makeStyles } from "@material-ui/core";
 import React from "react";
 import { Link } from "react-router-dom";
 
+import PageTitle from "../../components/PageTitle";
 import {
   changePasswordRoute,
   editHostingPreferenceRoute,
   editProfileRoute,
-} from "../../AppRoutes";
-import PageTitle from "../../components/PageTitle";
+} from "../../routes";
 
 const useStyles = makeStyles({
   linkStyle: {

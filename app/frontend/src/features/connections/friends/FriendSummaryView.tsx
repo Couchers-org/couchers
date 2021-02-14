@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 
 import TextBody from "../../../components/TextBody";
 import { User } from "../../../pb/api_pb";
+import { routeToUser } from "../../../routes";
 
 const useStyles = makeStyles((theme) => ({
   friendItem: {
@@ -31,7 +32,7 @@ function FriendSummaryView({ children, friend }: FriendSummaryViewProps) {
 
   return friend ? (
     <Box className={classes.friendItem}>
-      <Link className={classes.friendLink} to={`/user/${friend.username}`}>
+      <Link className={classes.friendLink} to={routeToUser(friend.username)}>
         <Typography component="h3" variant="h2">
           {friend.name}
         </Typography>

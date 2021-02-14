@@ -31,37 +31,31 @@ import {
 import SearchPage from "./features/search/SearchPage";
 import UserPage from "./features/userPage/UserPage";
 import { PageType } from "./pb/pages_pb";
-
-export const loginRoute = "/login";
-export const loginPasswordRoute = `${loginRoute}/password`;
-export const resetPasswordRoute = "/passwordreset";
-export const changePasswordRoute = "/change-password";
-
-export const signupRoute = "/signup";
-export const profileRoute = "/profile";
-export const editProfileRoute = "/profile/edit";
-export const editHostingPreferenceRoute = "/hosting-preference/edit";
-export const messagesRoute = "/messages";
-export const mapRoute = "/map";
-export const logoutRoute = "/logout";
-export const connectionsRoute = "/connections";
-export const notFoundRoute = "/notfound";
-
-export const userRoute = "/user";
-export const searchRoute = "/search";
-export const jailRoute = "/restricted";
-export const tosRoute = "/tos";
-
-export const newPlaceRoute = "/place/new";
-export const placeRoute = "/place";
-
-export const newGuideRoute = "/guide/new";
-export const guideRoute = "/guide";
-
-export const communityRoute = "/community"; ///:communityId/:communitySlug";
-export const groupRoute = "/group"; ///:groupId/:groupSlug";
-
-export const discussionRoute = "/discussion";
+import {
+  changePasswordRoute,
+  communityRoute,
+  connectionsRoute,
+  discussionRoute,
+  editHostingPreferenceRoute,
+  editProfileRoute,
+  groupRoute,
+  guideRoute,
+  jailRoute,
+  loginRoute,
+  logoutRoute,
+  mapRoute,
+  messagesRoute,
+  newGuideRoute,
+  newPlaceRoute,
+  notFoundRoute,
+  placeRoute,
+  profileRoute,
+  resetPasswordRoute,
+  searchRoute,
+  signupRoute,
+  tosRoute,
+  userRoute,
+} from "./routes";
 
 export default function AppRoutes() {
   return (
@@ -170,7 +164,7 @@ const PrivateRoute = ({ children, ...otherProps }: RouteProps) => {
           ) : (
             <Redirect
               to={{
-                pathname: "/login",
+                pathname: loginRoute,
                 state: { from: location },
               }}
             />

@@ -3,9 +3,9 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { Link, Redirect, useHistory, useLocation } from "react-router-dom";
 
-import { loginRoute, resetPasswordRoute } from "../../../AppRoutes";
 import Button from "../../../components/Button";
 import TextField from "../../../components/TextField";
+import { loginRoute, resetPasswordRoute } from "../../../routes";
 import { useAuthContext } from "../AuthProvider";
 
 const useStyles = makeStyles((theme) => ({
