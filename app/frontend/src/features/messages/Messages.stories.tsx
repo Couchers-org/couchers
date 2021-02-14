@@ -13,7 +13,7 @@ const [controlMessage, message1] = messages;
 addDefaultUser(1);
 
 export default {
-  title: "Messages",
+  title: "Messages/MessageView",
   component: Messages,
   argTypes: {},
   decorators: [(story) => <AuthProvider>{story()}</AuthProvider>],

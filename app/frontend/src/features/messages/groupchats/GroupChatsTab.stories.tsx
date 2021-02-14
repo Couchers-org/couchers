@@ -12,7 +12,7 @@ import GroupChatView from "./GroupChatView";
 const queryClient = new QueryClient();
 
 export default {
-  title: "GroupChatsTab",
+  title: "Messages/GroupChatsTab",
   component: GroupChatsTab,
   argTypes: {},
   decorators: [

@@ -11,7 +11,7 @@ import {
 } from "./Dialog";
 
 export default {
-  title: "Components/Dialog",
+  title: "Components/Large/Dialog",
   component: Dialog,
 } as Meta;
 

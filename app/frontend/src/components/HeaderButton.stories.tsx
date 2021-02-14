@@ -5,7 +5,7 @@ import HeaderButton from "./HeaderButton";
 import { DoneIcon } from "./Icons";
 
 export default {
-  title: "Components/HeaderButton",
+  title: "Components/Small/HeaderButton",
   component: HeaderButton,
 } as Meta;
 

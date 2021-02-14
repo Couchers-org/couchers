@@ -7,7 +7,7 @@ import EditUserLocationMap, {
 } from "./EditUserLocationMap";
 
 export default {
-  title: "Components/EditUserLocationMap",
+  title: "Components/Large/EditUserLocationMap",
   component: EditUserLocationMap,
   argTypes: {
     backgroundColor: { control: "color" },

@@ -60,7 +60,7 @@ const message3: Message.AsObject = {
 };
 
 export default {
-  title: "MessageList",
+  title: "Messages/MessageList",
   component: MessageList,
   argTypes: {},
   decorators: [

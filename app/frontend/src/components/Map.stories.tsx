@@ -5,7 +5,7 @@ import * as React from "react";
 import Map, { MapProps } from "./Map";
 
 export default {
-  title: "Components/Map",
+  title: "Components/Large/Map",
   component: Map,
   argTypes: {
     backgroundColor: { control: "color" },

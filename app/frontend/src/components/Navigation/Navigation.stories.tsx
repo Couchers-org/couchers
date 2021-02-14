@@ -6,7 +6,7 @@ import AuthProvider from "../../features/auth/AuthProvider";
 import Navigation from ".";
 
 export default {
-  title: "Components/Navigation",
+  title: "Components/Large/Navigation",
   component: Navigation,
   argTypes: {},
   decorators: [
