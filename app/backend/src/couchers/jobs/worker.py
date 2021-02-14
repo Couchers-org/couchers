@@ -133,6 +133,8 @@ def _run_forever(func):
             func()
         except Exception as e:
             logger.critical("Unhandled exception in background worker", exc_info=e)
+            # cool off in case we have some programming error to not hammer the database
+            sleep(60)
 
 
 def start_jobs_scheduler():
