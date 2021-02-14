@@ -50,7 +50,8 @@ export const useGroupChatViewStyles = makeStyles((theme) => ({
   footer: { flexGrow: 0, paddingBottom: theme.spacing(2) },
   title: {
     flexGrow: 1,
-    marginInline: theme.spacing(2),
+    marginInlineStart: theme.spacing(2),
+    marginInlineEnd: theme.spacing(2),
   },
   messageList: {
     paddingBlock: theme.spacing(2),

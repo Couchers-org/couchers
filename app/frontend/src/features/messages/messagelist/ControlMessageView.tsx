@@ -15,7 +15,8 @@ import TimeInterval from "./MomentIndication";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    marginInline: "auto",
+    marginInlineStart: "auto",
+    marginInlineEnd: "auto",
     textAlign: "center",
   },
   timestamp: {
@@ -41,7 +42,7 @@ export default function ControlMessageView({
   const { data: target, isLoading: isTargetLoading } = useUser(
     messageTargetId(message)
   );
-  const { ref } = useOnVisibleEffect(message.messageId, onVisible);
+  const { ref } = useOnVisibleEffect(onVisible);
 
   const isCurrentUser = author?.userId === currentUserId;
   const authorName = isCurrentUser ? "you" : firstName(author?.name);

@@ -47,7 +47,8 @@ const useStyles = makeStyles((theme) => ({
   },
   footer: {
     display: "flex",
-    paddingInline: theme.spacing(2),
+    paddingInlineStart: theme.spacing(2),
+    paddingInlineEnd: theme.spacing(2),
     paddingBottom: theme.spacing(2),
     justifyContent: "flex-end",
   },
@@ -67,7 +68,7 @@ const useStyles = makeStyles((theme) => ({
 
 export interface MessageProps {
   message: Message.AsObject;
-  onVisible?(messageId: number): void;
+  onVisible?(): void;
   className?: string;
 }
 
@@ -81,7 +82,7 @@ export default function MessageView({
   const { data: currentUser } = useCurrentUser();
   const isCurrentUser = author?.userId === currentUser?.userId;
 
-  const { ref } = useOnVisibleEffect(message.messageId, onVisible);
+  const { ref } = useOnVisibleEffect(onVisible);
 
   return (
     <Box

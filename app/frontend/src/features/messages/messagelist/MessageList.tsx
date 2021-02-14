@@ -45,14 +45,14 @@ export default function MessageList({
           isControlMessage(message) ? (
             <ControlMessageView
               key={message.messageId}
-              onVisible={markLastSeen}
+              onVisible={() => markLastSeen(message.messageId)}
               message={message}
               className={classes.message}
             />
           ) : (
             <MessageView
               key={message.messageId}
-              onVisible={markLastSeen}
+              onVisible={() => markLastSeen(message.messageId)}
               message={message}
               className={classes.message}
             />

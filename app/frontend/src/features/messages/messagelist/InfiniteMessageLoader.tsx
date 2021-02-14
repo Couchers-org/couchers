@@ -8,14 +8,14 @@ import { messageElementId } from "./MessageView";
 
 const useStyles = makeStyles((theme) => ({
   loader: {
-    //px for easier scroll compensation
     width: "100%",
     position: "absolute",
     top: 0,
     paddingTop: theme.spacing(1),
     "& > *": {
       display: "block",
-      marginInline: "auto",
+      marginInlineStart: "auto",
+      marginInlineEnd: "auto",
     },
   },
   scroll: {
@@ -57,7 +57,7 @@ export default function InfiniteMessageLoader({
     fetchNextPage();
   }, [earliestMessageId, fetchNextPage]);
 
-  const { ref: loadMoreRef } = useOnVisibleEffect(null, handleLoadMoreVisible);
+  const { ref: loadMoreRef } = useOnVisibleEffect(handleLoadMoreVisible);
 
   useLayoutEffect(() => {
     if (isFetchingNextPage) return;
@@ -65,7 +65,7 @@ export default function InfiniteMessageLoader({
       messageElementId(prevTopMessageId.current ?? 0)
     );
     messageEl?.scrollIntoView();
-  }, [isFetchingNextPage, loadMoreRef]);
+  }, [isFetchingNextPage]);
 
   //scroll to the bottom on page load
   useLayoutEffect(() => {

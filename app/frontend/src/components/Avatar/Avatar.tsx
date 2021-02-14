@@ -46,12 +46,6 @@ export default function Avatar({
 }: AvatarProps) {
   const classes = useStyles();
 
-  const muiAvatar = (user: User.AsObject) => (
-    <MuiAvatar className={classes.avatar} alt={user.name} src={user.avatarUrl}>
-      {user.name.split(/\s+/).map((name) => name[0])}
-    </MuiAvatar>
-  );
-
   return (
     <Box
       className={classNames(
@@ -64,9 +58,23 @@ export default function Avatar({
     >
       {user ? (
         isProfileLink ? (
-          <Link to={routeToUser(user)}>{muiAvatar(user)}</Link>
+          <Link to={routeToUser(user)}>
+            <MuiAvatar
+              className={classes.avatar}
+              alt={user.name}
+              src={user.avatarUrl}
+            >
+              {user.name.split(/\s+/).map((name) => name[0])}
+            </MuiAvatar>
+          </Link>
         ) : (
-          muiAvatar(user)
+          <MuiAvatar
+            className={classes.avatar}
+            alt={user.name}
+            src={user.avatarUrl}
+          >
+            {user.name.split(/\s+/).map((name) => name[0])}
+          </MuiAvatar>
         )
       ) : otherProps.children ? (
         <MuiAvatar className={classes.avatar}>{otherProps.children}</MuiAvatar>
