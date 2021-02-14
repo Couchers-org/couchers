@@ -26,7 +26,7 @@ export function MessagesNotification() {
 
   return (
     <NotificationBadge count={data?.unseenMessageCount}>
-      Group Chats
+      Chats
     </NotificationBadge>
   );
 }
