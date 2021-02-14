@@ -5,8 +5,8 @@ import { useEffect } from "react";
 import { useMutation } from "react-query";
 import { Link, useParams } from "react-router-dom";
 
-import { loginRoute } from "../../../AppRoutes";
 import Alert from "../../../components/Alert";
+import { loginRoute } from "../../../routes";
 import { service } from "../../../service";
 
 export default function CompleteResetPasswordPage() {
