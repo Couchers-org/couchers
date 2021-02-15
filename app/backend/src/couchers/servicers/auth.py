@@ -204,9 +204,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
             # check birthdate validity (YYYY-MM-DD format and in the past)
             try:
                 birthdate = datetime.fromisoformat(request.birthdate)
-                if birthdate >= datetime.now():
-                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_BIRTHDATE)
             except ValueError:
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_BIRTHDATE)
+            if utc.localize(birthdate) >= now():
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_BIRTHDATE)
 
             # check email again
