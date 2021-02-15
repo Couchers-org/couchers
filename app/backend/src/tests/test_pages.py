@@ -785,7 +785,7 @@ def test_page_constraints(db):
     with pytest.raises(IntegrityError) as e:
         with session_scope() as session:
             main_page = Page(
-                parent_node_id=cluster_id,
+                parent_node_id=cluster_parent_id,
                 # note owner is not cluster
                 creator_user_id=user.id,
                 owner_user_id=user.id,

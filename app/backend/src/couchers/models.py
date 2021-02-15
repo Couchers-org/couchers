@@ -863,6 +863,11 @@ class Page(Base):
             "(owner_user_id IS NULL AND owner_cluster_id IS NOT NULL) OR (owner_user_id IS NOT NULL AND owner_cluster_id IS NULL)",
             name="one_owner",
         ),
+        # Only clusters can own main pages
+        CheckConstraint(
+            "NOT (owner_cluster_id IS NULL AND type = 'main_page')",
+            name="main_page_owned_by_cluster",
+        ),
         # Each cluster can have at most one main page
         Index(
             "ix_pages_owner_cluster_id_type",
