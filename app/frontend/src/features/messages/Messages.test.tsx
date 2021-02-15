@@ -23,7 +23,7 @@ describe.each`
   name                                  | label            | count   | Component
   ${"HostRequestsReceivedNotification"} | ${"Hosting"}     | ${"12"} | ${HostRequestsReceivedNotification}
   ${"HostRequestsSentNotification"}     | ${"Surfing"}     | ${"34"} | ${HostRequestsSentNotification}
-  ${"MessagesNotification"}             | ${"Group Chats"} | ${"56"} | ${MessagesNotification}
+  ${"MessagesNotification"}             | ${"Chats"} | ${"56"} | ${MessagesNotification}
 `("$name", ({ label, count, Component }) => {
   it("shows the label with the number of unseen messages in a badge", async () => {
     pingMock.mockResolvedValue({
