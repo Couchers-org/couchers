@@ -2,6 +2,7 @@ import logging
 from datetime import datetime
 
 import grpc
+import pytz
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import func
 
@@ -206,7 +207,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 birthdate = datetime.fromisoformat(request.birthdate)
             except ValueError:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_BIRTHDATE)
-            if utc.localize(birthdate) >= now():
+            if pytz.UTC.localize(birthdate) >= now():
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_BIRTHDATE)
 
             # check email again
