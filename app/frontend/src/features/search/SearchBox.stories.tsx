@@ -3,7 +3,7 @@ import { Meta, Story } from "@storybook/react";
 import SearchBox from "./SearchBox";
 
 export default {
-  title: "Components/Large/SearchBox",
+  title: "Search/SearchBox",
   component: SearchBox,
 } as Meta;
 

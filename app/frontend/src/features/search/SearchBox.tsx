@@ -3,9 +3,9 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { useHistory } from "react-router-dom";
 
-import { SearchQuery } from "../features/search/constants";
-import { routeToSearch } from "../routes";
-import TextField from "./TextField";
+import TextField from "../../components/TextField";
+import { routeToSearch } from "../../routes";
+import { SearchQuery } from "./constants";
 
 const useStyles = makeStyles((theme) => ({
   root: {
