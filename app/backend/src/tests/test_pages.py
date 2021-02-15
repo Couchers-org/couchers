@@ -503,7 +503,7 @@ def test_page_transfer(db):
             name=f"Testing Community",
             description=f"Description for testing community",
             parent_node=node,
-            official_cluster_for_node=node,
+            is_official_cluster=True,
         )
         session.add(community_cluster)
         main_page = Page(

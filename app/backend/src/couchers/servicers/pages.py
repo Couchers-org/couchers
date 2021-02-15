@@ -35,10 +35,10 @@ def page_to_pb(page: Page, user_id):
     owner_community_id = None
     owner_group_id = None
     if page.owner_cluster:
-        if page.owner_cluster.official_cluster_for_node_id is None:
-            owner_group_id = page.owner_cluster.id
+        if page.owner_cluster.is_official_cluster:
+            owner_community_id = page.owner_cluster.parent_node_id
         else:
-            owner_community_id = page.owner_cluster.official_cluster_for_node_id
+            owner_group_id = page.owner_cluster.id
 
     return pages_pb2.Page(
         page_id=page.id,
@@ -213,14 +213,15 @@ class Pages(pages_pb2_grpc.PagesServicer):
             if request.WhichOneof("new_owner") == "new_owner_group_id":
                 cluster = (
                     session.query(Cluster)
-                    .filter(Cluster.official_cluster_for_node_id == None)
+                    .filter(~Cluster.is_official_cluster)
                     .filter(Cluster.id == request.new_owner_group_id)
                     .one_or_none()
                 )
             elif request.WhichOneof("new_owner") == "new_owner_community_id":
                 cluster = (
                     session.query(Cluster)
-                    .filter(Cluster.official_cluster_for_node_id == request.new_owner_community_id)
+                    .filter(Cluster.parent_node_id == request.new_owner_community_id)
+                    .filter(Cluster.is_official_cluster)
                     .one_or_none()
                 )
             else:
