@@ -201,11 +201,11 @@ class Auth(auth_pb2_grpc.AuthServicer):
             if not signup_token:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
 
-			# check birthdate validity (YYYY-MM-DD format and in the past)
+            # check birthdate validity (YYYY-MM-DD format and in the past)
             try:
                 birthdate = datetime.fromisoformat(request.birthdate)
-				if birthdate >= datetime.now():
-            	    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_BIRTHDATE)
+                if birthdate >= datetime.now():
+                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_BIRTHDATE)
             except ValueError:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_BIRTHDATE)
 
