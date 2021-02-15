@@ -10,7 +10,9 @@ export default {
     hostingStatus: {
       control: {
         type: "select",
-        options: Object.keys(HostingStatus).map((key) => HostingStatus[key]),
+        options: Object.keys(HostingStatus).map(
+          (key) => (HostingStatus as any)[key]
+        ),
       },
     },
   },
