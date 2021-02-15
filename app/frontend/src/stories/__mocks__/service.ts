@@ -1,5 +1,5 @@
 import { MessageProps } from "../../features/messages/messagelist/MessageView";
-import { User } from "../../pb/api_pb";
+import { HostingStatus, User } from "../../pb/api_pb";
 import { Message } from "../../pb/conversations_pb";
 import { service as originalService } from "../../service";
 import funnycat from "../assets/funnycat.jpg";
@@ -11,6 +11,9 @@ export const user1 = {
   userId: 1,
   username: "funnycat",
   avatarUrl: funnycat,
+  age: 28,
+  city: "Los Angeles",
+  hostingStatus: HostingStatus.HOSTING_STATUS_CAN_HOST,
 } as User.AsObject;
 
 const user2 = {
