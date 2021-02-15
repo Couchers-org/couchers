@@ -284,7 +284,7 @@ export default function GroupPage() {
           ) : (
             <p>This group contains no discussions.</p>
           )}
-          <CommentBox threadId={group.threadId} />
+          <CommentBox threadId={group.mainPage!.threadId} />
         </>
       ) : (
         <TextBody>Error</TextBody>

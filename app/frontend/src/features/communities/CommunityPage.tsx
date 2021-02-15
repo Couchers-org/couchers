@@ -376,7 +376,7 @@ export default function CommunityPage() {
           ) : (
             <p>This community contains no discussions.</p>
           )}
-          <CommentBox threadId={community.threadId} />
+          <CommentBox threadId={community.mainPage!.threadId} />
         </>
       ) : (
         <TextBody>Error</TextBody>
