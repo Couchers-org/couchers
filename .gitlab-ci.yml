@@ -269,7 +269,7 @@ preview:bcov:
       - app/backend/**/*
 
 preview:frontend:
-  needs: ["test:frontend"]
+  needs: ["build:frontend", "test:frontend"]
   stage: preview
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
   inherit:
