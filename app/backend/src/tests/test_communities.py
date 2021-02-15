@@ -650,7 +650,6 @@ def test_node_constraints(db):
                 description=f"Testing community description",
                 parent_node=node,
                 is_official_cluster=True,
-                thread=Thread(),
             )
             session.add(cluster1)
             cluster2 = Cluster(
@@ -658,7 +657,6 @@ def test_node_constraints(db):
                 description=f"Testing community description",
                 parent_node=node,
                 is_official_cluster=True,
-                thread=Thread(),
             )
             session.add(cluster2)
     assert "violates unique constraint" in str(e.value)
