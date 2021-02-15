@@ -83,7 +83,6 @@ message Community {
   uint32 member_count = 10;
   uint32 admin_count = 11;
   uint32 nearby_user_count = 12;
-  int64 thread_id = 13;
 }
 
 message GetCommunityReq {

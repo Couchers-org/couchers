@@ -504,7 +504,6 @@ def test_page_transfer(db):
             description=f"Description for testing community",
             parent_node=node,
             official_cluster_for_node=node,
-            thread=Thread(),
         )
         session.add(community_cluster)
         main_page = Page(
@@ -541,7 +540,6 @@ def test_page_transfer(db):
             name=f"Testing Group",
             description=f"Description for testing group",
             parent_node=node,
-            thread=Thread(),
         )
         session.add(group_cluster)
         main_page = Page(
@@ -751,7 +749,6 @@ def test_page_constraints(db):
             name=f"Testing Community",
             description=f"Description for testing community",
             parent_node=node,
-            thread=Thread(),
         )
         session.add(cluster)
         session.flush()

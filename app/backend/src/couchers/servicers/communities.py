@@ -65,7 +65,6 @@ def community_to_pb(node: Node, user_id):
         admin=node.official_cluster.admins.filter(User.id == user_id).one_or_none() is not None,
         member_count=node.official_cluster.members.count(),
         admin_count=node.official_cluster.admins.count(),
-        thread_id=pack_thread_id(node.official_cluster.thread_id, 0),
     )
 
 

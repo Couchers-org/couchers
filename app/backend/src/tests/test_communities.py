@@ -59,7 +59,6 @@ def create_community(session, interval_lb, interval_ub, name, admins, extra_memb
         description=f"Description for {name}",
         parent_node=node,
         official_cluster_for_node=node,
-        thread=Thread(),
     )
     session.add(cluster)
     main_page = Page(
@@ -101,7 +100,6 @@ def create_group(session, name, admins, members, parent_community):
         name=f"{name}",
         description=f"Description for {name}",
         parent_node=parent_community,
-        thread=Thread(),
     )
     session.add(cluster)
     main_page = Page(

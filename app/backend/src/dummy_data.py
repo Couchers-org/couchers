@@ -194,7 +194,6 @@ def add_dummy_communities():
                     description=f"Description for {name}",
                     parent_node=node,
                     official_cluster_for_node=node,
-                    thread=Thread(),
                 )
 
                 session.add(cluster)
@@ -251,7 +250,6 @@ def add_dummy_communities():
                     name=f"{name}",
                     description=f"Description for the group {name}",
                     parent_node=parent_node,
-                    thread=Thread(),
                 )
 
                 session.add(cluster)

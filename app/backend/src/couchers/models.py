@@ -716,8 +716,6 @@ class Cluster(Base):
 
     official_cluster_for_node_id = Column(ForeignKey("nodes.id"), nullable=True, unique=True, index=True)
 
-    thread_id = Column(ForeignKey("threads.id"), nullable=False, unique=True)
-
     slug = column_property(func.slugify(name))
 
     official_cluster_for_node = relationship(
@@ -755,8 +753,6 @@ class Cluster(Base):
         primaryjoin="Cluster.id == ClusterSubscription.cluster_id",
         secondaryjoin="and_(User.id == ClusterSubscription.user_id, ClusterSubscription.role == 'admin')",
     )
-
-    thread = relationship("Thread", backref="cluster", uselist=False)
 
     main_page = relationship(
         "Page",
