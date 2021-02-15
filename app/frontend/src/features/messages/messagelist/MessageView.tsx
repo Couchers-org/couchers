@@ -8,13 +8,14 @@ import { Message } from "../../../pb/conversations_pb";
 import { timestamp2Date } from "../../../utils/date";
 import useCurrentUser from "../../userQueries/useCurrentUser";
 import { useUser } from "../../userQueries/useUsers";
+import useOnVisibleEffect from "../useOnVisibleEffect";
 import TimeInterval from "./MomentIndication";
-import useOnVisibleEffect from "./useOnVisibleEffect";
+
+export const messageElementId = (id: number) => `message-${id}`;
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
-    marginTop: theme.spacing(2),
     "& > :first-child": { marginRight: theme.spacing(2) },
   },
   userRoot: { justifyContent: "flex-end" },
@@ -46,7 +47,8 @@ const useStyles = makeStyles((theme) => ({
   },
   footer: {
     display: "flex",
-    paddingInline: theme.spacing(2),
+    paddingInlineStart: theme.spacing(2),
+    paddingInlineEnd: theme.spacing(2),
     paddingBottom: theme.spacing(2),
     justifyContent: "flex-end",
   },
@@ -66,26 +68,31 @@ const useStyles = makeStyles((theme) => ({
 
 export interface MessageProps {
   message: Message.AsObject;
-  onVisible?(messageId: number): void;
+  onVisible?(): void;
+  className?: string;
 }
 
-export default function MessageView({ message, onVisible }: MessageProps) {
+export default function MessageView({
+  message,
+  onVisible,
+  className,
+}: MessageProps) {
   const classes = useStyles();
   const { data: author } = useUser(message.authorUserId);
   const { data: currentUser } = useCurrentUser();
   const isCurrentUser = author?.userId === currentUser?.userId;
 
-  const { ref } = useOnVisibleEffect(message.messageId, onVisible);
+  const { ref } = useOnVisibleEffect(onVisible);
 
   return (
     <Box
-      className={classNames(classes.root, {
+      className={classNames(classes.root, className, {
         [classes.userRoot]: isCurrentUser,
         [classes.otherRoot]: !isCurrentUser,
       })}
       data-testid={`message-${message.messageId}`}
       ref={ref}
-      style={{}}
+      id={messageElementId(message.messageId)}
     >
       {author && !isCurrentUser && (
         <Avatar user={author} className={classes.avatar} />

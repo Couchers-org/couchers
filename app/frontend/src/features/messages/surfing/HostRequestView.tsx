@@ -1,11 +1,15 @@
 import { Box } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
 import * as React from "react";
 import { useRef, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "react-query";
 import { useHistory, useParams } from "react-router-dom";
 
 import Alert from "../../../components/Alert";
@@ -16,27 +20,23 @@ import { BackIcon, OverflowMenuIcon } from "../../../components/Icons";
 import Menu, { MenuItem } from "../../../components/Menu";
 import PageTitle from "../../../components/PageTitle";
 import UserSummary from "../../../components/UserSummary";
-import { Message } from "../../../pb/conversations_pb";
-import { HostRequest, RespondHostRequestReq } from "../../../pb/requests_pb";
+import {
+  GetHostRequestMessagesRes,
+  HostRequest,
+  RespondHostRequestReq,
+} from "../../../pb/requests_pb";
 import { service } from "../../../service";
 import { firstName } from "../../../utils/names";
 import { useAuthContext } from "../../auth/AuthProvider";
 import { useUser } from "../../userQueries/useUsers";
+import { useGroupChatViewStyles } from "../groupchats/GroupChatView";
+import InfiniteMessageLoader from "../messagelist/InfiniteMessageLoader";
 import MessageList from "../messagelist/MessageList";
 import useMarkLastSeen, { MarkLastSeenVariables } from "../useMarkLastSeen";
 import HostRequestSendField from "./HostRequestSendField";
 
-const useStyles = makeStyles((theme) => ({
-  root: {},
-  header: { display: "flex", alignItems: "center" },
-  title: {
-    flexGrow: 1,
-    marginInline: theme.spacing(2),
-  },
-}));
-
 export default function HostRequestView() {
-  const classes = useStyles();
+  const classes = useGroupChatViewStyles();
 
   const menuAnchor = useRef<HTMLAnchorElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -65,13 +65,21 @@ export default function HostRequestView() {
   );
 
   const {
-    data: messages,
+    data: messagesRes,
     isLoading: isMessagesLoading,
     error: messagesError,
-  } = useQuery<Message.AsObject[], GrpcError>(
+    fetchNextPage,
+    isFetchingNextPage,
+    hasNextPage,
+  } = useInfiniteQuery<GetHostRequestMessagesRes.AsObject, GrpcError>(
     ["hostRequestMessages", hostRequestId],
-    () => service.requests.getHostRequestMessages(hostRequestId),
-    { enabled: !!hostRequestId }
+    ({ pageParam: lastMessageId }) =>
+      service.requests.getHostRequestMessages(hostRequestId, lastMessageId),
+    {
+      enabled: !!hostRequestId,
+      getNextPageParam: (lastPage) =>
+        lastPage.noMore ? undefined : lastPage.lastMessageId,
+    }
   );
 
   const { data: surfer } = useUser(hostRequest?.fromUserId);
@@ -144,7 +152,7 @@ export default function HostRequestView() {
   return !hostRequestId ? (
     <Alert severity={"error"}>Invalid host request id.</Alert>
   ) : (
-    <Box className={classes.root}>
+    <Box className={classes.pageWrapper}>
       <Box className={classes.header}>
         <HeaderButton onClick={handleBack} aria-label="Back">
           <BackIcon />
@@ -192,14 +200,32 @@ export default function HostRequestView() {
           {messagesError && (
             <Alert severity={"error"}>{messagesError.message}</Alert>
           )}
-          {messages && hostRequest && (
+          {messagesRes && hostRequest && (
             <>
-              <MessageList markLastSeen={markLastSeen} messages={messages} />
-              <HostRequestSendField
-                hostRequest={hostRequest}
-                sendMutation={sendMutation}
-                respondMutation={respondMutation}
-              />
+              <InfiniteMessageLoader
+                earliestMessageId={
+                  messagesRes.pages[messagesRes.pages.length - 1].lastMessageId
+                }
+                fetchNextPage={fetchNextPage}
+                isFetchingNextPage={isFetchingNextPage}
+                hasNextPage={!!hasNextPage}
+                isError={!!messagesError}
+                className={classes.messageList}
+              >
+                <MessageList
+                  markLastSeen={markLastSeen}
+                  messages={messagesRes.pages
+                    .map((page) => page.messagesList)
+                    .flat()}
+                />
+              </InfiniteMessageLoader>
+              <Box className={classes.footer}>
+                <HostRequestSendField
+                  hostRequest={hostRequest}
+                  sendMutation={sendMutation}
+                  respondMutation={respondMutation}
+                />
+              </Box>
             </>
           )}
         </>
