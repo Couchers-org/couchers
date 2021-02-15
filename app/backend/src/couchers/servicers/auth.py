@@ -38,7 +38,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         """
         Returns an auth interceptor.
 
-        By adding this interceptor to a service, all requests to that service will require an bearer authorization with a valid session from the Auth service.
+        By adding this interceptor to a service, all requests to that service will require a bearer authorization with a valid session from the Auth service.
 
         The user_id will be available in the RPC context through context.user_id.
         """
