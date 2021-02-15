@@ -1,7 +1,7 @@
 """Official cluster partial index
 
 Revision ID: 6507ac862688
-Revises: 0a761d533cd7
+Revises: 382aa8592af0
 Create Date: 2021-02-15 09:48:24.353370
 
 """
@@ -11,7 +11,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "6507ac862688"
-down_revision = "0a761d533cd7"
+down_revision = "382aa8592af0"
 branch_labels = None
 depends_on = None
 
