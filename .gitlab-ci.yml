@@ -32,6 +32,7 @@ default:
 
 
 protos:
+  needs: []
   stage: protos
   image: $GRPC_TAG
   inherit:
