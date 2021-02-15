@@ -512,7 +512,6 @@ def test_page_transfer(db):
             creator_user_id=user2.id,
             owner_cluster=community_cluster,
             type=PageType.main_page,
-            main_page_for_cluster=community_cluster,
             thread=Thread(),
         )
         session.add(main_page)
@@ -550,7 +549,6 @@ def test_page_transfer(db):
             creator_user_id=user2.id,
             owner_cluster=group_cluster,
             type=PageType.main_page,
-            main_page_for_cluster=group_cluster,
             thread=Thread(),
         )
         session.add(main_page)
@@ -787,12 +785,11 @@ def test_page_constraints(db):
     with pytest.raises(IntegrityError) as e:
         with session_scope() as session:
             main_page = Page(
-                parent_node_id=cluster_id,
+                parent_node_id=cluster_parent_id,
                 # note owner is not cluster
                 creator_user_id=user.id,
                 owner_user_id=user.id,
                 type=PageType.main_page,
-                main_page_for_cluster_id=cluster_id,
                 thread=Thread(),
             )
             session.add(main_page)
@@ -806,3 +803,41 @@ def test_page_constraints(db):
             )
     assert "violates check constraint" in str(e.value)
     assert "main_page_owned_by_cluster" in str(e.value)
+
+    # can only have one main page
+    with pytest.raises(IntegrityError) as e:
+        with session_scope() as session:
+            main_page1 = Page(
+                parent_node_id=cluster_parent_id,
+                creator_user_id=user.id,
+                owner_cluster_id=cluster_id,
+                type=PageType.main_page,
+                thread=Thread(),
+            )
+            session.add(main_page1)
+            session.add(
+                PageVersion(
+                    page=main_page1,
+                    editor_user_id=user.id,
+                    title=f"Main page 1 for the testing community",
+                    content="Empty.",
+                )
+            )
+            main_page2 = Page(
+                parent_node_id=cluster_parent_id,
+                creator_user_id=user.id,
+                owner_cluster_id=cluster_id,
+                type=PageType.main_page,
+                thread=Thread(),
+            )
+            session.add(main_page2)
+            session.add(
+                PageVersion(
+                    page=main_page2,
+                    editor_user_id=user.id,
+                    title=f"Main page 2 for the testing community",
+                    content="Empty.",
+                )
+            )
+    assert "violates unique constraint" in str(e.value)
+    assert "ix_pages_owner_cluster_id_type" in str(e.value)

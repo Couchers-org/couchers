@@ -67,7 +67,6 @@ def create_community(session, interval_lb, interval_ub, name, admins, extra_memb
         creator_user_id=admins[0].id,
         owner_cluster=cluster,
         type=PageType.main_page,
-        main_page_for_cluster=cluster,
         thread=Thread(),
     )
     session.add(main_page)
@@ -110,7 +109,6 @@ def create_group(session, name, admins, members, parent_community):
         creator_user=admins[0],
         owner_cluster=cluster,
         type=PageType.main_page,
-        main_page_for_cluster=cluster,
         thread=Thread(),
     )
     session.add(main_page)
