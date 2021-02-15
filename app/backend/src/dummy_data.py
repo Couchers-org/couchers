@@ -177,7 +177,8 @@ def add_dummy_communities():
                 if parent_name:
                     parent_node = (
                         session.query(Node)
-                        .join(Cluster, Cluster.official_cluster_for_node_id == Node.id)
+                        .join(Cluster, Cluster.parent_node_id == Node.id)
+                        .filter(Cluster.is_official_cluster)
                         .filter(Cluster.name == community["parent"])
                         .one()
                     )
@@ -193,7 +194,7 @@ def add_dummy_communities():
                     name=f"{name}",
                     description=f"Description for {name}",
                     parent_node=node,
-                    official_cluster_for_node=node,
+                    is_official_cluster=True,
                 )
 
                 session.add(cluster)
@@ -241,7 +242,8 @@ def add_dummy_communities():
 
                 parent_node = (
                     session.query(Node)
-                    .join(Cluster, Cluster.official_cluster_for_node_id == Node.id)
+                    .join(Cluster, Cluster.parent_node_id == Node.id)
+                    .filter(Cluster.is_official_cluster)
                     .filter(Cluster.name == group["parent"])
                     .one()
                 )

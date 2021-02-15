@@ -1,5 +1,6 @@
 import grpc
 import pytest
+from sqlalchemy.exc import IntegrityError
 
 from couchers import errors
 from couchers.db import session_scope
@@ -20,6 +21,7 @@ from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_aw
 from pb import communities_pb2, discussions_pb2, pages_pb2
 from tests.test_fixtures import (
     communities_session,
+    db,
     db_impl,
     discussions_session,
     generate_user,
@@ -58,7 +60,7 @@ def create_community(session, interval_lb, interval_ub, name, admins, extra_memb
         name=f"{name}",
         description=f"Description for {name}",
         parent_node=node,
-        official_cluster_for_node=node,
+        is_official_cluster=True,
     )
     session.add(cluster)
     main_page = Page(
@@ -172,21 +174,15 @@ def get_user_id_and_token(session, username):
 def get_community_id(session, community_name):
     return (
         session.query(Cluster)
-        .filter(Cluster.official_cluster_for_node_id != None)
+        .filter(Cluster.is_official_cluster)
         .filter(Cluster.name == community_name)
         .one()
-        .official_cluster_for_node_id
+        .parent_node_id
     )
 
 
 def get_group_id(session, group_name):
-    return (
-        session.query(Cluster)
-        .filter(Cluster.official_cluster_for_node_id == None)
-        .filter(Cluster.name == group_name)
-        .one()
-        .id
-    )
+    return session.query(Cluster).filter(~Cluster.is_official_cluster).filter(Cluster.name == group_name).one().id
 
 
 @pytest.fixture(params=["models", "migrations"], scope="class")
@@ -641,6 +637,30 @@ def test_JoinCommunity_and_LeaveCommunity(testing_communities):
             )
         )
         assert not api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
+
+
+def test_node_constraints(db):
+    # check we can't have two official clusters for a given node
+    with pytest.raises(IntegrityError) as e:
+        with session_scope() as session:
+            node = Node(geom=to_multi(create_1d_polygon(0, 2)))
+            session.add(node)
+            cluster1 = Cluster(
+                name=f"Testing community, cluster 1",
+                description=f"Testing community description",
+                parent_node=node,
+                is_official_cluster=True,
+            )
+            session.add(cluster1)
+            cluster2 = Cluster(
+                name=f"Testing community, cluster 2",
+                description=f"Testing community description",
+                parent_node=node,
+                is_official_cluster=True,
+            )
+            session.add(cluster2)
+    assert "violates unique constraint" in str(e.value)
+    assert "ix_clusters_owner_parent_node_id_is_official_cluster" in str(e.value)
 
 
 # TODO: requires transferring of content

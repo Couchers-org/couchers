@@ -699,13 +699,6 @@ class Cluster(Base):
     """
 
     __tablename__ = "clusters"
-    __table_args__ = (
-        CheckConstraint(
-            # make sure the parent_node_id and official_cluster_for_node_id match
-            "(official_cluster_for_node_id IS NULL) OR (official_cluster_for_node_id = parent_node_id)",
-            name="official_cluster_matches_parent_node",
-        ),
-    )
 
     id = Column(BigInteger, communities_seq, primary_key=True)
     parent_node_id = Column(ForeignKey("nodes.id"), nullable=False, index=True)
@@ -714,15 +707,15 @@ class Cluster(Base):
     description = Column(String, nullable=False)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
-    official_cluster_for_node_id = Column(ForeignKey("nodes.id"), nullable=True, unique=True, index=True)
+    is_official_cluster = Column(Boolean, nullable=False, default=False)
 
     slug = column_property(func.slugify(name))
 
     official_cluster_for_node = relationship(
         "Node",
+        primaryjoin="and_(Cluster.parent_node_id == Node.id, Cluster.is_official_cluster)",
         backref=backref("official_cluster", uselist=False),
         uselist=False,
-        foreign_keys="Cluster.official_cluster_for_node_id",
     )
 
     parent_node = relationship(
@@ -759,6 +752,17 @@ class Cluster(Base):
         primaryjoin="and_(Cluster.id == Page.owner_cluster_id, Page.type == 'main_page')",
         viewonly=True,
         uselist=False,
+    )
+
+    __table_args__ = (
+        # Each node can have at most one official cluster
+        Index(
+            "ix_clusters_owner_parent_node_id_is_official_cluster",
+            parent_node_id,
+            is_official_cluster,
+            unique=True,
+            postgresql_where=is_official_cluster,
+        ),
     )
 
 

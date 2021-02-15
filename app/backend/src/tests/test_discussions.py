@@ -54,7 +54,7 @@ def test_create_and_get_discussion(db):
             name=f"Testing Community",
             description=f"Description for testing community",
             parent_node=node,
-            official_cluster_for_node=node,
+            is_official_cluster=True,
         )
         session.add(community_cluster)
         main_page = Page(
