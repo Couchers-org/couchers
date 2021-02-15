@@ -1,12 +1,12 @@
 import { Meta, Story } from "@storybook/react";
 import * as React from "react";
 
-import messages from "../../test/fixtures/messages.json";
-import { addDefaultUser } from "../../test/utils";
-import AuthProvider from "../auth/AuthProvider";
-import Messages from "./index";
-import ControlMessageView from "./messagelist/ControlMessageView";
-import MessageView, { MessageProps } from "./messagelist/MessageView";
+import messages from "../../../test/fixtures/messages.json";
+import { addDefaultUser } from "../../../test/utils";
+import AuthProvider from "../../auth/AuthProvider";
+import Messages from "../index";
+import ControlMessageView from "./ControlMessageView";
+import MessageView, { MessageProps } from "./MessageView";
 
 const [controlMessage, message1] = messages;
 

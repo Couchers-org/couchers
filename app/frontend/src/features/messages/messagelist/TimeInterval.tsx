@@ -12,15 +12,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export interface MomentIndicationProps {
+export interface TimeIntervalProps {
   date: Date;
   className?: string;
 }
 
-export default function TimeInterval({
-  date,
-  className,
-}: MomentIndicationProps) {
+export default function TimeInterval({ date, className }: TimeIntervalProps) {
   const classes = useStyles();
   return (
     <Box className={classNames(className, classes.root)}>

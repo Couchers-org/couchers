@@ -11,7 +11,7 @@ import { useUser } from "../../userQueries/useUsers";
 import useOnVisibleEffect from "../useOnVisibleEffect";
 import { controlMessageText, messageTargetId } from "../utils";
 import { messageElementId, MessageProps } from "./MessageView";
-import TimeInterval from "./MomentIndication";
+import TimeInterval from "./TimeInterval";
 
 const useStyles = makeStyles((theme) => ({
   root: {

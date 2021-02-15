@@ -62,7 +62,11 @@ const message3: Message.AsObject = {
 export default {
   title: "Messages/MessageList",
   component: MessageList,
-  argTypes: {},
+  argTypes: {
+    markLastSeen: {
+      action: "markLastSeen",
+    },
+  },
   decorators: [
     (storyFn) => {
       const queryClient = new QueryClient();
@@ -84,5 +88,3 @@ Empty.args = {
 
 export const Filled = Template.bind({});
 Filled.args = { messages: [message1, message2, message3] };
-
-///TODO: re-add error-on-send story
