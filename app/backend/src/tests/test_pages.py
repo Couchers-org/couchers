@@ -803,3 +803,41 @@ def test_page_constraints(db):
             )
     assert "violates check constraint" in str(e.value)
     assert "main_page_owned_by_cluster" in str(e.value)
+
+    # can only have one main page
+    with pytest.raises(IntegrityError) as e:
+        with session_scope() as session:
+            main_page1 = Page(
+                parent_node_id=cluster_parent_id,
+                creator_user_id=user.id,
+                owner_cluster_id=cluster_id,
+                type=PageType.main_page,
+                thread=Thread(),
+            )
+            session.add(main_page1)
+            session.add(
+                PageVersion(
+                    page=main_page1,
+                    editor_user_id=user.id,
+                    title=f"Main page 1 for the testing community",
+                    content="Empty.",
+                )
+            )
+            main_page2 = Page(
+                parent_node_id=cluster_parent_id,
+                creator_user_id=user.id,
+                owner_cluster_id=cluster_id,
+                type=PageType.main_page,
+                thread=Thread(),
+            )
+            session.add(main_page2)
+            session.add(
+                PageVersion(
+                    page=main_page2,
+                    editor_user_id=user.id,
+                    title=f"Main page 2 for the testing community",
+                    content="Empty.",
+                )
+            )
+    assert "violates unique constraint" in str(e.value)
+    assert "ix_pages_owner_cluster_id_type" in str(e.value)
