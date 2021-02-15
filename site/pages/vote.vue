@@ -89,8 +89,11 @@
     </section>
 
     <section class="section" v-bind:class="{ 'is-hidden': !done || loading }">
-      <h3 class="title is-3">Thanks for voting!</h3>
-      <p class="subtitle is-5">We appreciate you taking the time to help us build Couchers.org.</p>
+      <div class="container">
+        <h3 class="title is-3">Thanks for voting!</h3>
+        <p class="subtitle is-5">We appreciate you taking the time to help us build Couchers.org.</p>
+        <p class="content">Head over to the <a href="https://community.couchers.org/t/logo-direction/957">community forum</a> if you'd like to discuss the concepts with the rest of the community</p>
+      </div>
     </section>
 
     <section v-bind:class="{ 'is-hidden': !loading || error }">
