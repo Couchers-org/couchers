@@ -63,7 +63,6 @@ def test_create_and_get_discussion(db):
             creator_user_id=user.id,
             owner_cluster=community_cluster,
             type=PageType.main_page,
-            main_page_for_cluster=community_cluster,
             thread=Thread(),
         )
         session.add(main_page)
@@ -88,7 +87,6 @@ def test_create_and_get_discussion(db):
             creator_user_id=user.id,
             owner_cluster=group_cluster,
             type=PageType.main_page,
-            main_page_for_cluster=group_cluster,
             thread=Thread(),
         )
         session.add(main_page)

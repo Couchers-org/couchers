@@ -3,7 +3,19 @@ from calendar import monthrange
 from datetime import date
 
 from geoalchemy2.types import Geometry
-from sqlalchemy import BigInteger, Boolean, CheckConstraint, Column, Date, DateTime, Enum, Float, ForeignKey, Integer
+from sqlalchemy import (
+    BigInteger,
+    Boolean,
+    CheckConstraint,
+    Column,
+    Date,
+    DateTime,
+    Enum,
+    Float,
+    ForeignKey,
+    Index,
+    Integer,
+)
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import MetaData, Sequence, String, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
@@ -746,6 +758,13 @@ class Cluster(Base):
 
     thread = relationship("Thread", backref="cluster", uselist=False)
 
+    main_page = relationship(
+        "Page",
+        primaryjoin="and_(Cluster.id == Page.owner_cluster_id, Page.type == 'main_page')",
+        viewonly=True,
+        uselist=False,
+    )
+
 
 class NodeClusterAssociation(Base):
     """
@@ -816,18 +835,6 @@ class Page(Base):
     """
 
     __tablename__ = "pages"
-    __table_args__ = (
-        # Only one of owner_user and owner_cluster should be set
-        CheckConstraint(
-            "(owner_user_id IS NULL AND owner_cluster_id IS NOT NULL) OR (owner_user_id IS NOT NULL AND owner_cluster_id IS NULL)",
-            name="one_owner",
-        ),
-        # if the page is a main page, it must be owned by that cluster
-        CheckConstraint(
-            "(main_page_for_cluster_id IS NULL) OR (owner_cluster_id IS NOT NULL AND main_page_for_cluster_id = owner_cluster_id)",
-            name="main_page_owned_by_cluster",
-        ),
-    )
 
     id = Column(BigInteger, communities_seq, primary_key=True)
 
@@ -837,18 +844,9 @@ class Page(Base):
     owner_user_id = Column(ForeignKey("users.id"), nullable=True, index=True)
     owner_cluster_id = Column(ForeignKey("clusters.id"), nullable=True, index=True)
 
-    main_page_for_cluster_id = Column(ForeignKey("clusters.id"), nullable=True, unique=True, index=True)
-
     thread_id = Column(ForeignKey("threads.id"), nullable=False, unique=True)
 
     parent_node = relationship("Node", backref="child_pages", remote_side="Node.id", foreign_keys="Page.parent_node_id")
-
-    main_page_for_cluster = relationship(
-        "Cluster",
-        backref=backref("main_page", uselist=False),
-        uselist=False,
-        foreign_keys="Page.main_page_for_cluster_id",
-    )
 
     thread = relationship("Thread", backref="page", uselist=False)
     creator_user = relationship("User", backref="created_pages", foreign_keys="Page.creator_user_id")
@@ -858,6 +856,22 @@ class Page(Base):
     )
 
     editors = relationship("User", secondary="page_versions")
+
+    __table_args__ = (
+        # Only one of owner_user and owner_cluster should be set
+        CheckConstraint(
+            "(owner_user_id IS NULL AND owner_cluster_id IS NOT NULL) OR (owner_user_id IS NOT NULL AND owner_cluster_id IS NULL)",
+            name="one_owner",
+        ),
+        # Each cluster can have at most one main page
+        Index(
+            "ix_pages_owner_cluster_id_type",
+            owner_cluster_id,
+            type,
+            unique=True,
+            postgresql_where=(type == PageType.main_page),
+        ),
+    )
 
 
 class PageVersion(Base):

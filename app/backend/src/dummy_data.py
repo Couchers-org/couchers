@@ -204,7 +204,6 @@ def add_dummy_communities():
                     creator_user=admins[0],
                     owner_cluster=cluster,
                     type=PageType.main_page,
-                    main_page_for_cluster=cluster,
                     thread=Thread(),
                 )
 
@@ -262,7 +261,6 @@ def add_dummy_communities():
                     creator_user=admins[0],
                     owner_cluster=cluster,
                     type=PageType.main_page,
-                    main_page_for_cluster=cluster,
                     thread=Thread(),
                 )
 

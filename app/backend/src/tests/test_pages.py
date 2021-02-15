@@ -512,7 +512,6 @@ def test_page_transfer(db):
             creator_user_id=user2.id,
             owner_cluster=community_cluster,
             type=PageType.main_page,
-            main_page_for_cluster=community_cluster,
             thread=Thread(),
         )
         session.add(main_page)
@@ -550,7 +549,6 @@ def test_page_transfer(db):
             creator_user_id=user2.id,
             owner_cluster=group_cluster,
             type=PageType.main_page,
-            main_page_for_cluster=group_cluster,
             thread=Thread(),
         )
         session.add(main_page)
@@ -792,7 +790,6 @@ def test_page_constraints(db):
                 creator_user_id=user.id,
                 owner_user_id=user.id,
                 type=PageType.main_page,
-                main_page_for_cluster_id=cluster_id,
                 thread=Thread(),
             )
             session.add(main_page)
