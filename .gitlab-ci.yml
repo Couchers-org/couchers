@@ -32,7 +32,6 @@ default:
 
 
 protos:
-  needs: []
   stage: protos
   image: $GRPC_TAG
   inherit:
@@ -49,7 +48,7 @@ protos:
 
 
 build:proxy:
-  needs: ["protos:protos"]
+  needs: ["protos"]
   stage: build
   script:
     - docker pull $PROXY_RELEASE_TAG || true
@@ -81,7 +80,7 @@ build:nginx:
       - app/nginx/**/*
 
 build:backend:
-  needs: ["protos:protos"]
+  needs: ["protos"]
   stage: build
   script:
     - docker pull $BACKEND_RELEASE_TAG || true
@@ -97,7 +96,7 @@ build:backend:
       - app/backend/**/*
 
 build:media:
-  needs: ["protos:protos"]
+  needs: ["protos"]
   stage: build
   script:
     - docker pull $MEDIA_RELEASE_TAG || true
@@ -113,7 +112,7 @@ build:media:
       - app/media/**/*
 
 build:frontend:
-  needs: ["protos:protos"]
+  needs: ["protos"]
   stage: build
   script:
     - docker pull $FRONTEND_RELEASE_TAG || true
