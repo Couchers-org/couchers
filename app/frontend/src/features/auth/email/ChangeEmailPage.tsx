@@ -1,4 +1,4 @@
-import { makeStyles, useMediaQuery, useTheme } from "@material-ui/core";
+import { useMediaQuery, useTheme } from "@material-ui/core";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
 import { useForm } from "react-hook-form";
@@ -11,17 +11,7 @@ import PageTitle from "../../../components/PageTitle";
 import TextField from "../../../components/TextField";
 import { service } from "../../../service";
 import useAccountInfo from "../useAccountInfo";
-
-const useStyles = makeStyles((theme) => ({
-  form: {
-    "& > * + *": {
-      marginBlockStart: theme.spacing(1),
-    },
-  },
-  infoText: {
-    marginBlockEnd: theme.spacing(1),
-  },
-}));
+import useChangeDetailsFormStyles from "../useChangeDetailsFormStyles";
 
 interface ChangeEmailFormData {
   newEmail: string;
@@ -29,7 +19,7 @@ interface ChangeEmailFormData {
 }
 
 export default function ChangeEmailPage() {
-  const classes = useStyles();
+  const classes = useChangeDetailsFormStyles();
   const theme = useTheme();
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
 
