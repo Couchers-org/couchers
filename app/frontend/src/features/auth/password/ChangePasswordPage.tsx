@@ -34,11 +34,12 @@ export default function ChangePasswordPage() {
     error: accountInfoError,
     isLoading: isAccountInfoLoading,
   } = useAccountInfo();
-  const { error, isLoading, isSuccess, mutate: changePassword } = useMutation<
-    Empty,
-    GrpcError,
-    ChangePasswordVariables
-  >(
+  const {
+    error: changePasswordError,
+    isLoading: isChangePasswordLoading,
+    isSuccess: isChangePasswordSuccess,
+    mutate: changePassword,
+  } = useMutation<Empty, GrpcError, ChangePasswordVariables>(
     ({ oldPassword, newPassword }) =>
       service.account.changePassword(oldPassword, newPassword),
     {
@@ -69,8 +70,10 @@ export default function ChangePasswordPage() {
         <Alert severity="error">{accountInfoError.message}</Alert>
       ) : (
         <>
-          {error && <Alert severity="error">{error.message}</Alert>}
-          {isSuccess && (
+          {changePasswordError && (
+            <Alert severity="error">{changePasswordError.message}</Alert>
+          )}
+          {isChangePasswordSuccess && (
             <Alert severity="success">
               Your password change has been processed. Check your email for
               confirmation.
@@ -113,7 +116,11 @@ export default function ChangePasswordPage() {
               type="password"
               helperText={errors.passwordConfirmation?.message}
             />
-            <Button fullWidth={!isMdOrWider} loading={isLoading} type="submit">
+            <Button
+              fullWidth={!isMdOrWider}
+              loading={isChangePasswordLoading}
+              type="submit"
+            >
               Submit
             </Button>
           </form>

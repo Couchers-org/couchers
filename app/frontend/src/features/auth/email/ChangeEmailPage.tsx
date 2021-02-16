@@ -29,12 +29,14 @@ export default function ChangeEmailPage() {
     isLoading: isAccountInfoLoading,
   } = useAccountInfo();
 
-  const { error, isLoading, isSuccess, mutate: changeEmail } = useMutation<
-    Empty,
-    GrpcError,
-    ChangeEmailFormData
-  >(({ currentPassword, newEmail }) =>
-    service.account.changeEmail(newEmail, currentPassword)
+  const {
+    error: changeEmailError,
+    isLoading: isChangeEmailLoading,
+    isSuccess: isChangeEmailSuccess,
+    mutate: changeEmail,
+  } = useMutation<Empty, GrpcError, ChangeEmailFormData>(
+    ({ currentPassword, newEmail }) =>
+      service.account.changeEmail(newEmail, currentPassword)
   );
 
   const { handleSubmit, register } = useForm<ChangeEmailFormData>();
@@ -51,8 +53,10 @@ export default function ChangeEmailPage() {
         <Alert severity="error">{accountInfoError.message}</Alert>
       ) : (
         <>
-          {error && <Alert severity="error">{error.message}</Alert>}
-          {isSuccess && (
+          {changeEmailError && (
+            <Alert severity="error">{changeEmailError.message}</Alert>
+          )}
+          {isChangeEmailSuccess && (
             <Alert severity="success">
               Your email change has been received. Check your new email to
               complete the change.
@@ -76,7 +80,11 @@ export default function ChangeEmailPage() {
               name="newEmail"
               fullWidth={!isMdOrWider}
             />
-            <Button fullWidth={!isMdOrWider} loading={isLoading} type="submit">
+            <Button
+              fullWidth={!isMdOrWider}
+              loading={isChangeEmailLoading}
+              type="submit"
+            >
               Submit
             </Button>
           </form>
