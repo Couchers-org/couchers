@@ -62,7 +62,6 @@ def add_dummy_users():
                     occupation=user["occupation"],
                     about_me=user["about_me"],
                     about_place=user["about_place"],
-                    color=user.get("color", None),
                     countries_visited="|".join(user["countries_visited"]),
                     countries_lived="|".join(user["countries_lived"]),
                     hosting_status=hostingstatus2sql[HostingStatus.Value(user["hosting_status"])]

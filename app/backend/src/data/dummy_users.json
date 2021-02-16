@@ -222,7 +222,7 @@
       "color": "#733630",
       "countries_visited": ["Austria", "Poland", "Viet Nam", "Turkey"],
       "countries_lived": ["Australia"],
-      "hosting_status": "HOSTING_STATUS_DIFFICULT"
+      "hosting_status": "HOSTING_STATUS_CANT_HOST"
     },
     {
       "username": "joshua",

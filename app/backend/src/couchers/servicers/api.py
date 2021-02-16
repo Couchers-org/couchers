@@ -17,15 +17,15 @@ from couchers.models import (
     FriendStatus,
     GroupChatSubscription,
     HostingStatus,
-    MeetupStatus,
     HostRequest,
     InitiatedUpload,
+    MeetupStatus,
     Message,
+    ParkingDetails,
     Reference,
     ReferenceType,
-    SmokingLocation,
     SleepingArrangement,
-    ParkingDetails,
+    SmokingLocation,
     User,
 )
 from couchers.tasks import send_friend_request_email, send_report_email
