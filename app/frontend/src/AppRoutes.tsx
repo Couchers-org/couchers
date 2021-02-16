@@ -3,6 +3,7 @@ import { Redirect, Route, RouteProps, Switch } from "react-router-dom";
 
 import TOS from "./components/TOS";
 import { useAuthContext } from "./features/auth/AuthProvider";
+import ChangeEmailPage from "./features/auth/email/ChangeEmailPage";
 import Jail from "./features/auth/jail/Jail";
 import Login from "./features/auth/login/Login";
 import Logout from "./features/auth/Logout";
@@ -32,6 +33,7 @@ import SearchPage from "./features/search/SearchPage";
 import UserPage from "./features/userPage/UserPage";
 import { PageType } from "./pb/pages_pb";
 import {
+  changeEmailRoute,
   changePasswordRoute,
   communityRoute,
   connectionsRoute,
@@ -72,9 +74,12 @@ export default function AppRoutes() {
       <Route exact path={`${resetPasswordRoute}/:resetToken`}>
         <CompleteResetPasswordPage />
       </Route>
-      <Route path={changePasswordRoute}>
+      <PrivateRoute path={changePasswordRoute}>
         <ChangePasswordPage />
-      </Route>
+      </PrivateRoute>
+      <PrivateRoute path={changeEmailRoute}>
+        <ChangeEmailPage />
+      </PrivateRoute>
       <Route path={tosRoute}>
         <TOS />
       </Route>
