@@ -4,6 +4,7 @@ import { Redirect, Route, RouteProps, Switch } from "react-router-dom";
 import TOS from "./components/TOS";
 import { useAuthContext } from "./features/auth/AuthProvider";
 import ChangeEmailPage from "./features/auth/email/ChangeEmailPage";
+import ConfirmChangeEmailPage from "./features/auth/email/ConfirmChangeEmailPage";
 import Jail from "./features/auth/jail/Jail";
 import Login from "./features/auth/login/Login";
 import Logout from "./features/auth/Logout";
@@ -36,6 +37,7 @@ import {
   changeEmailRoute,
   changePasswordRoute,
   communityRoute,
+  confirmChangeEmailRoute,
   connectionsRoute,
   discussionRoute,
   editHostingPreferenceRoute,
@@ -74,15 +76,18 @@ export default function AppRoutes() {
       <Route exact path={`${resetPasswordRoute}/:resetToken`}>
         <CompleteResetPasswordPage />
       </Route>
+      <Route path={`${confirmChangeEmailRoute}/:resetToken`}>
+        <ConfirmChangeEmailPage />
+      </Route>
+      <Route path={tosRoute}>
+        <TOS />
+      </Route>
       <PrivateRoute path={changePasswordRoute}>
         <ChangePasswordPage />
       </PrivateRoute>
       <PrivateRoute path={changeEmailRoute}>
         <ChangeEmailPage />
       </PrivateRoute>
-      <Route path={tosRoute}>
-        <TOS />
-      </Route>
       <PrivateRoute path={mapRoute}>
         <MapPage />
       </PrivateRoute>

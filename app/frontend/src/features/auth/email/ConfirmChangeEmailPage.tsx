@@ -9,30 +9,30 @@ import Alert from "../../../components/Alert";
 import { loginRoute } from "../../../routes";
 import { service } from "../../../service";
 
-export default function CompleteResetPasswordPage() {
+export default function ConfirmChangeEmailPage() {
   const { resetToken } = useParams<{ resetToken?: string }>();
 
   const {
     error,
     isLoading,
     isSuccess,
-    mutate: completePasswordReset,
+    mutate: completeChangeEmail,
   } = useMutation<Empty, GrpcError, string>((resetToken) =>
-    service.account.completePasswordReset(resetToken)
+    service.account.completeChangeEmail(resetToken)
   );
 
   useEffect(() => {
     if (resetToken) {
-      completePasswordReset(resetToken);
+      completeChangeEmail(resetToken);
     }
-  }, [completePasswordReset, resetToken]);
+  }, [completeChangeEmail, resetToken]);
 
   return isLoading ? (
-    <Typography variant="body1">Password reset in progress...</Typography>
+    <Typography variant="body1">Email change in progress...</Typography>
   ) : isSuccess ? (
     <>
       <Alert severity="success">
-        Your password has been reset successfully!
+        Your email has been changed successfully!
       </Alert>
       <Typography variant="body1" component={Link} to={loginRoute}>
         Click here to login
@@ -40,7 +40,7 @@ export default function CompleteResetPasswordPage() {
     </>
   ) : (
     error && (
-      <Alert severity="error">Error resetting password: {error.message}</Alert>
+      <Alert severity="error">Error changing email: {error.message}</Alert>
     )
   );
 }
