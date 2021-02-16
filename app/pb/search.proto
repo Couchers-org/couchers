@@ -1,0 +1,112 @@
+syntax = "proto3";
+
+package org.couchers.api.search;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+import "pb/api.proto";
+import "pb/communities.proto";
+import "pb/discussions.proto";
+import "pb/groups.proto";
+import "pb/pages.proto";
+
+service Search {
+  // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to auth.proto and jail.proto
+
+  rpc Search(SearchReq) returns (SearchRes) {
+    // Search all content
+  }
+
+  rpc UserSearch(UserSearchReq) returns (UserSearchRes) {
+    // Search for users in particular with extra filters, e.g. hosts
+  }
+}
+
+message Area {
+  double lat = 1;
+  double lng = 2;
+  // truncated to between 5000 (5 km) and 200000 (200 km) for privacy
+  double radius = 3; // m
+}
+
+message SearchReq {
+  string query = 1;
+
+  bool include_users = 4;
+  bool include_communities = 5;
+  bool include_groups = 6;
+  bool include_places = 7;
+  bool include_guides = 8;
+  bool include_discussions = 9;
+  // bool include_events = 10;
+
+  // at most one of the following
+  Area search_in_area = 11;
+  int64 search_in_community = 12;
+
+  bool exclude_title = 13;
+  bool exclude_content = 14;
+
+  uint32 page_size = 2;
+  string page_token = 3;
+}
+
+message Result {
+  // score between 0 and 1
+  double relevance = 1;
+
+  oneof result {
+    org.couchers.api.core.User user = 2;
+    org.couchers.api.communities.Community community = 3;
+    org.couchers.api.groups.Group group = 4;
+    org.couchers.api.pages.Page place = 5;
+    org.couchers.api.pages.Page guide = 6;
+    org.couchers.api.discussions.Discussion discussion = 7;
+    // org.couchers.api.events.Event event = 8;
+  }
+
+  bool matched_title = 9;
+  bool matched_content = 10;
+}
+
+message SearchRes {
+  repeated Result results = 1;
+
+  string next_page_token = 2;
+}
+
+message UserSearchReq {
+  google.protobuf.StringValue query = 3;
+
+  google.protobuf.StringValue gender = 4;
+
+  // coarsened, times less than one day mean no filter
+  google.protobuf.Timestamp last_active = 5;
+  google.protobuf.StringValue language = 6;
+  google.protobuf.BoolValue has_references = 7;
+  bool friends_only = 8;
+
+  google.protobuf.UInt32Value age_min = 9;
+  google.protobuf.UInt32Value age_max = 10;
+
+  repeated org.couchers.api.core.HostingStatus hosting_statuse_filter = 11;
+  repeated org.couchers.api.core.SmokingLocation smoking_location_filter = 12;
+
+  google.protobuf.UInt32Value min_guests = 13;
+  google.protobuf.BoolValue multiple_groups = 14;
+  google.protobuf.BoolValue last_minute = 15;
+  google.protobuf.BoolValue accepts_pets = 16;
+  google.protobuf.BoolValue accepts_kids = 17;
+  google.protobuf.BoolValue wheelchair_accessible = 18;
+
+  uint32 page_size = 1;
+  string page_token = 2;
+}
+
+message UserSearchRes {
+  // this will only contain users
+  repeated Result results = 1;
+
+  string next_page_token = 2;
+}

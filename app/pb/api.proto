@@ -32,10 +32,6 @@ service API {
 
   rpc CancelFriendRequest(CancelFriendRequestReq) returns (google.protobuf.Empty);
 
-  rpc Search(SearchReq) returns (SearchRes) {
-    // Search for user names and usernames (for now)
-  }
-
   // Report another user to admin. Raises INVALID_ARGUMENT if you
   // report yourself or NOT_FOUND if the reported user doesn't exist.
   rpc Report(ReportReq) returns (google.protobuf.Empty);
@@ -59,14 +55,6 @@ service API {
   rpc InitiateMediaUpload(google.protobuf.Empty) returns (InitiateMediaUploadRes) {
     // Initiate a media upload
   }
-}
-
-message SearchReq {
-  string query = 1;
-}
-
-message SearchRes {
-  repeated User users = 1;
 }
 
 message SendFriendRequestReq {
