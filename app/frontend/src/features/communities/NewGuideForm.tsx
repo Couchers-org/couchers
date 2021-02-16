@@ -9,27 +9,27 @@ import Button from "../../components/Button";
 import CircularProgress from "../../components/CircularProgress";
 import EditLocationMap from "../../components/EditLocationMap";
 import TextField from "../../components/TextField";
-import { Page, PageType } from "../../pb/pages_pb";
+import { Page } from "../../pb/pages_pb";
 import { service } from "../../service";
 import ProfileMarkdownInput from "../profile/ProfileMarkdownInput";
 import { pageURL } from "./redirect";
 
-type NewPageInputs = {
+type NewGuideInputs = {
   title: string;
   content: string;
   address: string;
-  lat: number;
-  lng: number;
+  lat?: number;
+  lng?: number;
 };
 
-export default function NewPageForm({ pageType }: { pageType: PageType }) {
+export default function NewGuideForm() {
   const {
     control,
     register,
     handleSubmit,
     setValue,
     errors,
-  } = useForm<NewPageInputs>({
+  } = useForm<NewGuideInputs>({
     shouldUnregister: false,
     mode: "onBlur",
   });
@@ -37,12 +37,13 @@ export default function NewPageForm({ pageType }: { pageType: PageType }) {
   const history = useHistory();
 
   const {
-    mutate: createPage,
+    mutate: createGuide,
     isLoading: isCreateLoading,
     error: createError,
-  } = useMutation<Page.AsObject, GrpcError, NewPageInputs>(
-    ({ title, content, address, lat, lng }: NewPageInputs) =>
-      service.pages.createPage(title, content, address, lat, lng, pageType),
+  } = useMutation<Page.AsObject, GrpcError, NewGuideInputs>(
+    ({ title, content, address, lat, lng }: NewGuideInputs) =>
+      // TODO: parent community ID
+      service.pages.createGuide(title, content, 1, address, lat, lng),
     {
       onSuccess: (page) => {
         history.push(pageURL(page));
@@ -50,7 +51,7 @@ export default function NewPageForm({ pageType }: { pageType: PageType }) {
     }
   );
 
-  const onSubmit = handleSubmit((data: NewPageInputs) => createPage(data));
+  const onSubmit = handleSubmit((data: NewGuideInputs) => createGuide(data));
 
   return (
     <>

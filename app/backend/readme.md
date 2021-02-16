@@ -2,30 +2,38 @@
 
 You can run the whole thing through Docker and docker-compose (see the readme in the `app/` folder).
 
-## Installation
+## Running tests in docker
 
-Create a virtual environment and install the requirements.
+You can run all tests in docker with the following command, executed in the `app` folder:
+
+```sh
+docker-compose -f docker-compose.test.yml up --build
+```
+
+## Running tests locally
+
+1. Create a virtual environment and install the requirements.
 
 ```sh
 virtualenv venv -p python3.9
 pip install -r requirements.txt
 ```
 
-Then enter the virtual environment:
+2. Then enter the virtual environment:
 
 ```sh
 source venv/bin/activate
 ```
 
-## Running tests
+3. Make sure the postgres_tests container is running: `docker-compose -f docker-compose.test.yml up postgres_tests`. (see the readme in the `app/` folder for getting docker setup). 
 
-1. Make sure the postgres_tests container is running: `docker-compose up postgres_tests`. (see the readme in the `app/` folder for getting docker setup). 
+4. Set the necessary env vars:
 
-2. Set the necessary env vars:
+```sh
+export DATABASE_CONNECTION_STRING=postgresql://postgres:06b3890acd2c235c41be0bbfe22f1b386a04bf02eedf8c977486355616be2aa1@localhost:6544/postgres
+```
 
-`export DATABASE_CONNECTION_STRING=postgresql://postgres:06b3890acd2c235c41be0bbfe22f1b386a04bf02eedf8c977486355616be2aa1@localhost:6544/postgres`
-
-3. Run `pytest` in the `app/backend/src/` folder.
+5. Run `pytest` in the `app/backend/src/` folder.
 
 ```sh
 cd src

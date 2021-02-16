@@ -8,8 +8,8 @@ import {
   useParams,
 } from "react-router-dom";
 
-import { loginPasswordRoute, loginRoute } from "../../../AppRoutes";
 import Alert from "../../../components/Alert";
+import { loginPasswordRoute, loginRoute } from "../../../routes";
 import { useAuthContext } from "../AuthProvider";
 import PasswordForm from "./PasswordForm";
 import UsernameForm from "./UsernameForm";

@@ -8,8 +8,12 @@ import "google/protobuf/wrappers.proto";
 service Pages {
   // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to auth.proto and jail.proto
 
-  rpc CreatePage(CreatePageReq) returns (Page) {
-    // Creates a page
+  rpc CreatePlace(CreatePlaceReq) returns (Page) {
+    // Creates a place
+  }
+
+  rpc CreateGuide(CreateGuideReq) returns (Page) {
+    // Creates a guide
   }
 
   rpc GetPage(GetPageReq) returns (Page) {
@@ -31,7 +35,7 @@ message Coordinate {
 }
 
 enum PageType {
-  // point of intereset
+  // point of interest, landmark, tourist attraction, etc
   PAGE_TYPE_PLACE = 0;
   // guide
   PAGE_TYPE_GUIDE = 1;
@@ -50,8 +54,8 @@ message Page {
   int64 creator_user_id = 7;
   oneof owner {
     int64 owner_user_id = 8;
-    int64 owner_group_id = 9;
     int64 owner_community_id = 17;
+    int64 owner_group_id = 9;
   }
   int64 thread_id = 10;
   string title = 11;
@@ -62,13 +66,19 @@ message Page {
   bool can_edit = 16;
 }
 
-message CreatePageReq {
+message CreatePlaceReq {
   string title = 1;
   string content = 2;
   string address = 3;
   Coordinate location = 4;
-  // can't be PAGE_TYPE_MAIN_PAGE
-  PageType type = 5;
+}
+
+message CreateGuideReq {
+  string title = 1;
+  string content = 2;
+  int64 parent_community_id = 3;
+  string address = 4; // optional
+  Coordinate location = 5; // optional
 }
 
 message GetPageReq {
@@ -89,7 +99,7 @@ message UpdatePageReq {
 message TransferPageReq {
   int64 page_id = 1;
   oneof new_owner {
-    int64 new_owner_group_id = 2;
     int64 new_owner_community_id = 3;
+    int64 new_owner_group_id = 2;
   }
 }

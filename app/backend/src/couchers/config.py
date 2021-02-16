@@ -11,6 +11,9 @@ NOTIFICATION_EMAIL_SENDER = "Couchers.org"
 CONFIG_OPTIONS = [
     # Whether we're in dev mode
     ("DEV", bool),
+    # Whether we're `api` mode (answering API queries) or `scheduler` (scheduling background jobs), or `worker`
+    # (servicing background jobs). Can also be set to `all` to do all three simultaneously
+    ("ROLE", ["api", "scheduler", "worker", "all"], "all"),
     # Version string
     ("VERSION", str, "unknown"),
     # Base URL
@@ -76,6 +79,10 @@ for config_option in CONFIG_OPTIONS:
     elif type_ == bytes:
         # decode from hex
         value = bytes.fromhex(value)
+    elif isinstance(type_, list):
+        # list of allowed string values
+        if value not in type_:
+            raise ValueError(f'Invalid value for {name}, need one of {", ".join(type_)}')
     else:
         value = type_(value)
 

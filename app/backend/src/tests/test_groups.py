@@ -1,5 +1,7 @@
+import grpc
 import pytest
 
+from couchers import errors
 from couchers.db import session_scope
 from pb import groups_pb2, pages_pb2
 from tests.test_communities import get_community_id, get_group_id, get_user_id_and_token, testing_communities
@@ -197,6 +199,95 @@ class TestGroups:
             )
             assert res.member_user_ids == [user2_id, user4_id, user5_id]
 
+    @staticmethod
+    def test_ListDiscussions(testing_communities):
+        with session_scope() as session:
+            user1_id, token1 = get_user_id_and_token(session, "user1")
+            hitchhikers_id = get_group_id(session, "Hitchhikers")
+
+        with groups_session(token1) as api:
+            res = api.ListDiscussions(
+                groups_pb2.ListDiscussionsReq(
+                    group_id=hitchhikers_id,
+                    page_size=5,
+                )
+            )
+            assert [d.title for d in res.discussions] == [
+                "Discussion title 8",
+                "Discussion title 9",
+                "Discussion title 10",
+                "Discussion title 11",
+                "Discussion title 12",
+            ]
+            res = api.ListDiscussions(
+                groups_pb2.ListDiscussionsReq(
+                    group_id=hitchhikers_id,
+                    page_token=res.next_page_token,
+                    page_size=5,
+                )
+            )
+            assert [d.title for d in res.discussions] == [
+                "Discussion title 13",
+                "Discussion title 14",
+            ]
+
+
+def test_JoinGroup_and_LeaveGroup(testing_communities):
+    # these tests are separate from above as they mutate the database
+    with session_scope() as session:
+        user_id, token = get_user_id_and_token(session, "user3")
+        h_id = get_group_id(session, "Hitchhikers")
+
+    with groups_session(token) as api:
+        # not in group at start
+        assert not api.GetGroup(groups_pb2.GetGroupReq(group_id=h_id)).member
+
+        # can't leave
+        with pytest.raises(grpc.RpcError) as e:
+            res = api.LeaveGroup(
+                groups_pb2.LeaveGroupReq(
+                    group_id=h_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.NOT_IN_GROUP
+
+        # didn't magically join
+        assert not api.GetGroup(groups_pb2.GetGroupReq(group_id=h_id)).member
+
+        # but can join
+        res = api.JoinGroup(
+            groups_pb2.JoinGroupReq(
+                group_id=h_id,
+            )
+        )
+
+        # should be there now
+        assert api.GetGroup(groups_pb2.GetGroupReq(group_id=h_id)).member
+
+        # can't join again
+        with pytest.raises(grpc.RpcError) as e:
+            res = api.JoinGroup(
+                groups_pb2.JoinGroupReq(
+                    group_id=h_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.ALREADY_IN_GROUP
+
+        # didn't magically leave
+        assert api.GetGroup(groups_pb2.GetGroupReq(group_id=h_id)).member
+
+        # now we can leave though
+        res = api.LeaveGroup(
+            groups_pb2.LeaveGroupReq(
+                group_id=h_id,
+            )
+        )
+
+        # managed to leave
+        assert not api.GetGroup(groups_pb2.GetGroupReq(group_id=h_id)).member
+
 
 # TODO: also requires implementing content transfer functionality
 # Note: allegedly groups cannot contain content other than discussions!
@@ -208,7 +299,4 @@ class TestGroups:
 #     pass
 
 # def test_ListEvents(db, testing_communities):
-#     pass
-
-# def test_ListDiscussions(db, testing_communities):
 #     pass

@@ -3,6 +3,7 @@ import { AutocompleteChangeReason } from "@material-ui/lab/Autocomplete";
 import { LngLat } from "maplibre-gl";
 import React, { useState } from "react";
 
+import { NominatimPlace, simplifyPlaceDisplayName } from "../utils/nominatim";
 import Autocomplete from "./Autocomplete";
 import { SearchIcon } from "./Icons";
 
@@ -38,6 +39,7 @@ const useSearchStyles = makeStyles((theme) => ({
 
 interface SearchOption {
   name: string;
+  simplifiedName: string;
   location: LngLat;
 }
 
@@ -68,8 +70,9 @@ export default function MapSearch({
       return;
     }
     setSearchOptionsLoading(true);
-    const url =
-      NOMINATIM_URL! + "search?format=jsonv2&q=" + encodeURIComponent(value);
+    const url = `${NOMINATIM_URL!}search?format=jsonv2&q=${encodeURIComponent(
+      value
+    )}&addressdetails=1`;
     const options = {
       method: "GET",
       headers: {
@@ -78,13 +81,17 @@ export default function MapSearch({
       },
     };
     try {
-      const res = await fetch(url, options);
-      const data = (await res.json()) as Array<any>;
+      const response = await fetch(url, options);
+      const nominatimResults = (await response.json()) as Array<NominatimPlace>;
+
       setSearchOptions(
-        data.map((obj) => ({
-          name: obj["display_name"],
-          location: new LngLat(Number(obj["lon"]), Number(obj["lat"])),
-        }))
+        nominatimResults.map((result) => {
+          return {
+            name: result["display_name"],
+            simplifiedName: simplifyPlaceDisplayName(result),
+            location: new LngLat(Number(result["lon"]), Number(result["lat"])),
+          };
+        })
       );
     } catch (e) {
       setError(e.message);
@@ -99,6 +106,7 @@ export default function MapSearch({
       return;
     }
     const searchOption = searchOptions.find((o) => value === o.name);
+
     if (!searchOption) {
       setValue(value);
       //create-option is when enter is pressed on user-entered string
@@ -107,6 +115,7 @@ export default function MapSearch({
       }
     } else {
       setMarker(searchOption.location);
+      setValue(searchOption.simplifiedName);
       setOpen(false);
     }
   };

@@ -1,4 +1,4 @@
-import { makeStyles } from "@material-ui/core";
+import { Box, makeStyles } from "@material-ui/core";
 import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 
@@ -18,6 +18,7 @@ const useStyles = makeStyles((theme) => ({
   buttonContainer: {
     display: "flex",
     paddingTop: theme.spacing(1),
+    justifyContent: "center",
   },
   field: {
     "& > .MuiInputBase-root": {
@@ -198,7 +199,7 @@ export default function EditProfileForm() {
               )}
             />
 
-            <div className={classes.buttonContainer}>
+            <Box className={classes.buttonContainer}>
               <Button
                 type="submit"
                 variant="contained"
@@ -207,7 +208,7 @@ export default function EditProfileForm() {
               >
                 Save
               </Button>
-            </div>
+            </Box>
           </form>
         </>
       ) : (

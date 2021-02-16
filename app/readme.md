@@ -4,12 +4,16 @@
 
 To **run the app locally**, you need to do **four things**:
 
-1. Clone the git repository and navigate to the `app` folder
-2. Install `docker` and `docker-compose`
-3. Compile the protocol buffers
-4. Run the `docker-compose` command
+1. Get the code, navigate to the `app` folder and install `docker` and `docker-compose`
+2. Compile the protocol buffers
+3. Launch the backend with `docker-compose`
+4. Install and launch the frontend with `yarn`
 
-## 1. Clone the git repository and navigate to the `app` folder
+### Note for Windows users
+
+We suggest you use WSL2, it lets you run Linux and docker much easier. Install [WSL2](https://docs.microsoft.com/en-us/windows/wsl/install-win10) and clone the repo there. This will save you a lot of time and avoid lots of issues!
+
+## 1. Get the code, navigate to the `app` folder and install `docker` and `docker-compose`
 
 To get the code onto your machine, clone the git respository from GitHub with the following command:
 
@@ -19,47 +23,48 @@ git clone https://github.com/Couchers-org/couchers.git
 
 Open a command line or terminal, and navigate to the `app` folder (where this `readme.md` is), for example with `cd couchers/app`.
 
-Note for Windows users: It's suggested that you use WSL2, which lets you easily use docker and linux utilities. Install [WSL2](https://docs.microsoft.com/en-us/windows/wsl/install-win10) and clone the repo there. This also avoids a problem with the [dev env on native Windows](https://github.com/Couchers-org/couchers/issues/389).
-
-## 2. Install `docker` and `docker-compose`
-
 Install `docker` from <https://docs.docker.com/engine/install/>.
 
 Install `docker-compose` from <https://docs.docker.com/compose/install/>.
 
-## 3. Compile the protocol buffers
 
-### macOS or Linux
+## 2. Compile the protocol buffers
 
-If you are on **Linux** or **macOS**, run the following command:
+### macOS, Linux or WSL2
+
+If you are on **macoS**, **Linux** or **WSL2**, run the following command:
 
 ```sh
 docker run --rm -w /app -v $(pwd):/app couchers/grpc ./generate_protos.sh
 ```
 
+An alternative on **macOS** is to install the tools locally with `brew install grpc protoc-gen-grpc-web`, then run `./generate_protos.sh`.
+
 ### Windows
 
-If you are on **Windows**, run the following command:
+If you are on **Windows** (without WSL2), run the following command:
 
 ```sh
 docker run --rm -w /app -v %cd%:/app couchers/grpc sh -c "cat generate_protos.sh | dos2unix | sh"
 ```
 
-### macOS (homebrew)
+## 3. Launch the backend with `docker-compose`
 
-You can install `grpc` and the gRPC-Web plugin locally with `brew install grpc protoc-gen-grpc-web`, then run:
-
-```sh
-./generate_protos.sh
-```
-
-
-## 4. Run the `docker-compose` command
-
-In the same folder, run the following command:
+In the `app` folder, run the following command:
 
 ```sh
 docker-compose up --build
 ```
 
-This will take a few minutes, after which you can go to <http://localhost:3000/>, and you should see the app there.
+This will build the backend, database, and proxy, and start them up.
+
+## 4. Install and launch the frontend with `yarn`
+
+Navigate to the `app/frontend` folder, and run the following commands to start the frontend:
+
+```sh
+yarn install
+yarn start
+```
+
+This will take a moment, after which you can go to <http://localhost:3000/>, and you should see the app there. The command might also open the page for you automatically.
