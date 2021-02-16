@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Route, Switch } from "react-router-dom";
 
-import { loginRoute, resetPasswordRoute } from "../../../AppRoutes";
+import { loginRoute, resetPasswordRoute } from "../../../routes";
 import { service } from "../../../service";
 import { getHookWrapperWithClient } from "../../../test/hookWrapper";
 import { MockedService } from "../../../test/utils";
@@ -70,6 +70,7 @@ describe("CompleteResetPasswordPage", () => {
   });
 
   it("shows an error alert if the reset password process failed to complete", async () => {
+    jest.spyOn(console, "error").mockReturnValue(undefined);
     completePasswordResetMock.mockRejectedValue(new Error("Invalid token"));
     renderPage();
 
