@@ -154,7 +154,7 @@ class User(Base):
     house_rules = Column(String, nullable=True)
     parking = Column(Boolean, nullable=True)
     parking_details = Column(Enum(ParkingDetails), nullable=True)
-    camping_OK = Column(Boolean, nullable=True)
+    camping_ok = Column(Boolean, nullable=True)
 
     accepted_tos = Column(Integer, nullable=False, default=0)
 

@@ -158,7 +158,7 @@ def test_update_profile(db):
                 languages=api_pb2.RepeatedStringValue(exists=True, value=["Binary", "English"]),
                 countries_visited=api_pb2.RepeatedStringValue(exists=True, value=["UK", "Aus"]),
                 countries_lived=api_pb2.RepeatedStringValue(exists=True, value=["UK", "Aus"]),
-                additional_information=api_pb2.NullableStringValue(value="I <3 Couchers")
+                additional_information=api_pb2.NullableStringValue(value="I <3 Couchers"),
             )
         )
         # all fields changed
@@ -686,7 +686,7 @@ def test_hosting_preferences(db):
         assert not res.HasField("drinking_allowed")
         assert not res.HasField("drinks_at_home")
         assert not res.HasField("other_host_info")
-        assert res.sleeping_arrangement == api_pb2.SLEEPINGG_ARRANGEMENT_UNKNOWN
+        assert res.sleeping_arrangement == api_pb2.SLEEPING_ARRANGEMENT_UNKNOWN
         assert not res.HasField("sleeping_details")
         assert not res.HasField("area")
         assert not res.HasField("house_rules")
@@ -729,7 +729,7 @@ def test_hosting_preferences(db):
         assert res.house_rules.value == "RULES!"
         assert not res.HasField("parking")
         assert res.parking_details == api_pb2.PARKING_DETAILS_UNKNOWN
-        assert not res.HasField("camping_OK")
+        assert not res.HasField("camping_ok")
 
     with api_session(token1) as api:
         # test unsetting
@@ -748,7 +748,7 @@ def test_hosting_preferences(db):
         assert not res.HasField("last_minute")
         assert not res.HasField("has_pets")
         assert not res.HasField("accepts_pets")
-        assert not res.HasField("pets_details")
+        assert not res.HasField("pet_details")
         assert not res.HasField("has_kids")
         assert not res.HasField("accepts_kids")
         assert not res.HasField("kid_details")
@@ -760,10 +760,10 @@ def test_hosting_preferences(db):
         assert not res.HasField("drinking_allowed")
         assert not res.HasField("drinks_at_home")
         assert not res.HasField("other_host_info")
-        assert res.sleeping_arrangement == api_pb2.SLEEPINGG_ARRANGEMENT_UNKNOWN
+        assert res.sleeping_arrangement == api_pb2.SLEEPING_ARRANGEMENT_UNKNOWN
         assert not res.HasField("sleeping_details")
         assert res.area.value == "area!"
         assert not res.HasField("house_rules")
         assert not res.HasField("parking")
         assert res.parking_details == api_pb2.PARKING_DETAILS_UNKNOWN
-        assert not res.HasField("camping_OK")
+        assert not res.HasField("camping_ok")

@@ -245,7 +245,7 @@ message User {
   google.protobuf.StringValue house_rules = 31;
   google.protobuf.BoolValue parking = 119;
   ParkingDetails parking_details = 120;
-  google.protobuf.BoolValue camping_OK = 121;
+  google.protobuf.BoolValue camping_ok = 121;
 
   string avatar_url = 32;
 }
@@ -313,7 +313,7 @@ message UpdateProfileReq {
   NullableStringValue house_rules = 21;
   NullableBoolValue parking = 119;
   ParkingDetails parking_details = 120;
-  NullableBoolValue camping_OK = 121;
+  NullableBoolValue camping_ok = 121;
 }
 
 message ReportReq {

@@ -395,11 +395,11 @@ class API(api_pb2_grpc.APIServicer):
             if request.parking_details != api_pb2.PARKING_DETAILS_UNKNOWN:
                 user.parking_details = parkingdetails2sql[request.parking_details]
 
-            if request.HasField("camping_OK"):
-                if request.camping_OK.is_null:
-                    user.camping_OK = None
+            if request.HasField("camping_ok"):
+                if request.camping_ok.is_null:
+                    user.camping_ok = None
                 else:
-                    user.camping_OK = request.camping_OK.value
+                    user.camping_ok = request.camping_ok.value
 
             # save updates
             session.commit()
@@ -778,7 +778,7 @@ def user_model_to_pb(db_user, session, context):
     if db_user.parking is not None:
         user.parking.value = db_user.parking
 
-    if db_user.camping_OK is not None:
-        user.camping_OK.value = db_user.camping_OK
+    if db_user.camping_ok is not None:
+        user.camping_ok.value = db_user.camping_ok
 
     return user
