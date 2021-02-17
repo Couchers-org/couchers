@@ -43,7 +43,7 @@ message SearchReq {
 
   // at most one of the following
   Area search_in_area = 11;
-  int64 search_in_community = 12;
+  int64 search_in_community_id = 12;
 
   bool exclude_title = 13;
   bool exclude_content = 14;
@@ -68,6 +68,9 @@ message Result {
 
   bool matched_title = 9;
   bool matched_content = 10;
+
+  // a snippet of the matched parts of the document
+  string snippet = 11;
 }
 
 message SearchRes {
@@ -81,7 +84,7 @@ message UserSearchReq {
 
   google.protobuf.StringValue gender = 4;
 
-  // coarsened, times less than one day mean no filter
+  // coarsened
   google.protobuf.Timestamp last_active = 5;
   google.protobuf.StringValue language = 6;
   google.protobuf.BoolValue has_references = 7;
