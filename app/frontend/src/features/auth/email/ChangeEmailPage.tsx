@@ -24,6 +24,15 @@ export default function ChangeEmailPage() {
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
 
   const {
+    handleSubmit,
+    register,
+    reset: resetForm,
+  } = useForm<ChangeEmailFormData>();
+  const onSubmit = handleSubmit(({ currentPassword, newEmail }) => {
+    changeEmail({ currentPassword, newEmail });
+  });
+
+  const {
     data: accountInfo,
     error: accountInfoError,
     isLoading: isAccountInfoLoading,
@@ -36,13 +45,13 @@ export default function ChangeEmailPage() {
     mutate: changeEmail,
   } = useMutation<Empty, GrpcError, ChangeEmailFormData>(
     ({ currentPassword, newEmail }) =>
-      service.account.changeEmail(newEmail, currentPassword)
+      service.account.changeEmail(newEmail, currentPassword),
+    {
+      onSuccess: () => {
+        resetForm();
+      },
+    }
   );
-
-  const { handleSubmit, register } = useForm<ChangeEmailFormData>();
-  const onSubmit = handleSubmit(({ currentPassword, newEmail }) => {
-    changeEmail({ currentPassword, newEmail });
-  });
 
   return (
     <>

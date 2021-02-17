@@ -87,6 +87,10 @@ describe("ChangeEmailPage", () => {
         "test@example.com",
         "password"
       );
+
+      // Also check form has been cleared
+      expect(screen.getByLabelText("Current password")).not.toHaveValue();
+      expect(screen.getByLabelText("New email")).not.toHaveValue();
     });
   });
 
@@ -126,6 +130,9 @@ describe("ChangeEmailPage", () => {
         "test@example.com",
         undefined
       );
+
+      // Also check form has been cleared
+      expect(screen.getByLabelText("New email")).not.toHaveValue();
     });
 
     it("shows an error alert if the change password request failed", async () => {

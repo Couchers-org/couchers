@@ -84,6 +84,11 @@ describe("ChangePasswordPage", () => {
         "old_password",
         "new_password"
       );
+
+      // Also check form has been cleared
+      expect(screen.getByLabelText("Old password")).not.toHaveValue();
+      expect(screen.getByLabelText("New password")).not.toHaveValue();
+      expect(screen.getByLabelText("Confirm password")).not.toHaveValue();
     });
 
     it("clears the user password successfully if no new password has been given", async () => {
@@ -102,6 +107,11 @@ describe("ChangePasswordPage", () => {
       );
       expect(changePasswordMock).toHaveBeenCalledTimes(1);
       expect(changePasswordMock).toHaveBeenCalledWith("old_password", "");
+
+      // Also check form has been cleared
+      expect(screen.getByLabelText("Old password")).not.toHaveValue();
+      expect(screen.getByLabelText("New password")).not.toHaveValue();
+      expect(screen.getByLabelText("Confirm password")).not.toHaveValue();
     });
   });
 
@@ -153,6 +163,10 @@ describe("ChangePasswordPage", () => {
         undefined,
         "new_password"
       );
+
+      // Also check form has been cleared
+      expect(screen.getByLabelText("New password")).not.toHaveValue();
+      expect(screen.getByLabelText("Confirm password")).not.toHaveValue();
     });
 
     it("shows an error alert if the change password request failed", async () => {

@@ -28,6 +28,19 @@ export default function ChangePasswordPage() {
   const theme = useTheme();
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
 
+  const {
+    errors,
+    getValues,
+    handleSubmit,
+    reset: resetForm,
+    register,
+  } = useForm<ChangePasswordFormData>({
+    mode: "onBlur",
+  });
+  const onSubmit = handleSubmit(({ oldPassword, newPassword }) => {
+    changePassword({ oldPassword, newPassword });
+  });
+
   const queryClient = useQueryClient();
   const {
     data: accountInfo,
@@ -45,21 +58,10 @@ export default function ChangePasswordPage() {
     {
       onSuccess: () => {
         queryClient.invalidateQueries(accountInfoQueryKey);
+        resetForm();
       },
     }
   );
-
-  const {
-    errors,
-    getValues,
-    handleSubmit,
-    register,
-  } = useForm<ChangePasswordFormData>({
-    mode: "onBlur",
-  });
-  const onSubmit = handleSubmit(({ oldPassword, newPassword }) => {
-    changePassword({ oldPassword, newPassword });
-  });
 
   return (
     <>
