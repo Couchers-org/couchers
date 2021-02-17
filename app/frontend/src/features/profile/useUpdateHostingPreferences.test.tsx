@@ -14,7 +14,6 @@ const updateHostingPreferenceMock = service.user
 
 describe("useUpdateHostingPreference hook", () => {
   const newHostingPreferenceData = {
-    multipleGroups: false,
     acceptsKids: false,
     acceptsPets: false,
     lastMinute: true,
@@ -23,7 +22,6 @@ describe("useUpdateHostingPreference hook", () => {
     area: "",
     houseRules: "",
     smokingAllowed: 1,
-    sleepingArrangement: "",
   };
 
   it("updates the store with the latest user hosting preference", async () => {
@@ -76,7 +74,6 @@ describe("useUpdateHostingPreference hook", () => {
     expect(getUserMock).toHaveBeenCalledWith(`${defaultUser.userId}`);
     // Things that have been updated are being reflected
     expect(result.current.currentUser.data).toMatchObject({
-      multipleGroups: { value: false },
       acceptsKids: { value: false },
       acceptsPets: { value: false },
       lastMinute: { value: true },
@@ -85,7 +82,6 @@ describe("useUpdateHostingPreference hook", () => {
       area: { value: "" },
       houseRules: { value: "" },
       smokingAllowed: 1,
-      sleepingArrangement: { value: "" },
     });
     // Rest of profile should be the same as before
     expect(result.current.currentUser.data).toMatchObject(defaultUser);
