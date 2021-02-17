@@ -3,26 +3,26 @@ import userEvent from "@testing-library/user-event";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Route, Switch } from "react-router-dom";
 
-import { loginRoute, resetPasswordRoute } from "../../../routes";
+import { confirmChangeEmailRoute, loginRoute } from "../../../routes";
 import { service } from "../../../service";
 import { getHookWrapperWithClient } from "../../../test/hookWrapper";
 import { MockedService } from "../../../test/utils";
-import CompleteResetPasswordPage from "./CompleteResetPasswordPage";
+import ConfirmChangeEmailPage from "./ConfirmChangeEmailPage";
 
-const completePasswordResetMock = service.account
-  .completePasswordReset as MockedService<
-  typeof service.account.completePasswordReset
+const completeChangeEmailMock = service.account
+  .completeChangeEmail as MockedService<
+  typeof service.account.completeChangeEmail
 >;
 
 function renderPage() {
   const { wrapper } = getHookWrapperWithClient({
-    initialRouterEntries: [`${resetPasswordRoute}/P4w0rdR3seTtok3n`],
+    initialRouterEntries: [`${confirmChangeEmailRoute}/Em4iLR3seTtok3n`],
   });
 
   render(
     <Switch>
-      <Route path={`${resetPasswordRoute}/:resetToken`}>
-        <CompleteResetPasswordPage />
+      <Route path={`${confirmChangeEmailRoute}/:resetToken`}>
+        <ConfirmChangeEmailPage />
       </Route>
       <Route path={loginRoute}>Log in page</Route>
     </Switch>,
@@ -30,21 +30,19 @@ function renderPage() {
   );
 }
 
-describe("CompleteResetPasswordPage", () => {
+describe("ConfirmChangeEmailPage", () => {
   it("shows the loading state on initial load", async () => {
-    completePasswordResetMock.mockImplementation(
-      () => new Promise(() => void 0)
-    );
+    completeChangeEmailMock.mockImplementation(() => new Promise(() => void 0));
     renderPage();
 
     expect(
-      await screen.findByText("Password reset in progress...")
+      await screen.findByText("Email change in progress...")
     ).toBeVisible();
   });
 
-  describe("when the reset password completes successfully", () => {
+  describe("when the change email completes successfully", () => {
     beforeEach(() => {
-      completePasswordResetMock.mockResolvedValue(new Empty());
+      completeChangeEmailMock.mockResolvedValue(new Empty());
       renderPage();
     });
 
@@ -52,11 +50,11 @@ describe("CompleteResetPasswordPage", () => {
       const successAlert = await screen.findByRole("alert");
       expect(successAlert).toBeVisible();
       expect(successAlert).toHaveTextContent(
-        "Your password has been reset successfully!"
+        "Your email has been changed successfully!"
       );
-      expect(completePasswordResetMock).toHaveBeenCalledTimes(1);
-      expect(completePasswordResetMock).toHaveBeenLastCalledWith(
-        "P4w0rdR3seTtok3n"
+      expect(completeChangeEmailMock).toHaveBeenCalledTimes(1);
+      expect(completeChangeEmailMock).toHaveBeenLastCalledWith(
+        "Em4iLR3seTtok3n"
       );
     });
 
@@ -71,13 +69,11 @@ describe("CompleteResetPasswordPage", () => {
 
   it("shows an error alert if the reset password process failed to complete", async () => {
     jest.spyOn(console, "error").mockReturnValue(undefined);
-    completePasswordResetMock.mockRejectedValue(new Error("Invalid token"));
+    completeChangeEmailMock.mockRejectedValue(new Error("Invalid token"));
     renderPage();
 
     const errorAlert = await screen.findByRole("alert");
     expect(errorAlert).toBeVisible();
-    expect(errorAlert).toHaveTextContent(
-      "Error resetting password: Invalid token"
-    );
+    expect(errorAlert).toHaveTextContent("Error changing email: Invalid token");
   });
 });
