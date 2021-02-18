@@ -48,8 +48,13 @@ class PhoneStatus(enum.Enum):
 class HostingStatus(enum.Enum):
     can_host = enum.auto()
     maybe = enum.auto()
-    difficult = enum.auto()
     cant_host = enum.auto()
+
+
+class MeetupStatus(enum.Enum):
+    wants_to_meetup = enum.auto()
+    open_to_meetup = enum.auto()
+    does_not_want_to_meetup = enum.auto()
 
 
 class SmokingLocation(enum.Enum):
@@ -57,6 +62,20 @@ class SmokingLocation(enum.Enum):
     window = enum.auto()
     outside = enum.auto()
     no = enum.auto()
+
+
+class SleepingArrangement(enum.Enum):
+    private = enum.auto()
+    common = enum.auto()
+    shared_room = enum.auto()
+    shared_space = enum.auto()
+
+
+class ParkingDetails(enum.Enum):
+    free_onsite = enum.auto()
+    free_offsite = enum.auto()
+    paid_onsite = enum.auto()
+    paid_offsite = enum.auto()
 
 
 class User(Base):
@@ -86,6 +105,7 @@ class User(Base):
     geom_radius = Column(Float, nullable=True)
     # the display address (text) shown on their profile
     city = Column(String, nullable=False)
+    hometown = Column(String, nullable=True)
 
     joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     last_active = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
@@ -93,12 +113,14 @@ class User(Base):
     # display name
     name = Column(String, nullable=False)
     gender = Column(String, nullable=False)
+    pronouns = Column(String, nullable=True)
     birthdate = Column(Date, nullable=False)  # in the timezone of birthplace
 
     # name as on official docs for verification, etc. not needed until verification
     full_name = Column(String, nullable=True)
 
     hosting_status = Column(Enum(HostingStatus), nullable=True)
+    meetup_status = Column(Enum(MeetupStatus), nullable=True)
 
     # verification score
     verification = Column(Float, nullable=True)
@@ -106,30 +128,45 @@ class User(Base):
     community_standing = Column(Float, nullable=True)
 
     occupation = Column(String, nullable=True)
+    education = Column(String, nullable=True)
     about_me = Column(String, nullable=True)
+    my_travels = Column(String, nullable=True)
+    things_i_like = Column(String, nullable=True)
     about_place = Column(String, nullable=True)
-    # profile color
-    color = Column(String, nullable=False, default="#643073")
     avatar_filename = Column(String, nullable=True)
     # TODO: array types once we go postgres
     languages = Column(String, nullable=True)
     countries_visited = Column(String, nullable=True)
     countries_lived = Column(String, nullable=True)
+    additional_information = Column(String, nullable=True)
 
     is_banned = Column(Boolean, nullable=False, default=False)
 
     # hosting preferences
     max_guests = Column(Integer, nullable=True)
-    multiple_groups = Column(Boolean, nullable=True)
     last_minute = Column(Boolean, nullable=True)
+    has_pets = Column(Boolean, nullable=True)
     accepts_pets = Column(Boolean, nullable=True)
+    pet_details = Column(String, nullable=True)
+    has_kids = Column(Boolean, nullable=True)
     accepts_kids = Column(Boolean, nullable=True)
+    kid_details = Column(String, nullable=True)
+    has_housemates = Column(Boolean, nullable=True)
+    housemate_details = Column(String, nullable=True)
     wheelchair_accessible = Column(Boolean, nullable=True)
     smoking_allowed = Column(Enum(SmokingLocation), nullable=True)
+    smokes_at_home = Column(Boolean, nullable=True)
+    drinking_allowed = Column(Boolean, nullable=True)
+    drinks_at_home = Column(Boolean, nullable=True)
+    other_host_info = Column(String, nullable=True)
 
-    sleeping_arrangement = Column(String, nullable=True)
+    sleeping_arrangement = Column(Enum(SleepingArrangement), nullable=True)
+    sleeping_details = Column(String, nullable=True)
     area = Column(String, nullable=True)
     house_rules = Column(String, nullable=True)
+    parking = Column(Boolean, nullable=True)
+    parking_details = Column(Enum(ParkingDetails), nullable=True)
+    camping_ok = Column(Boolean, nullable=True)
 
     accepted_tos = Column(Integer, nullable=False, default=0)
 

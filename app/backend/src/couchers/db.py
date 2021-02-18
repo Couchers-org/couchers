@@ -109,10 +109,6 @@ def is_valid_email(field):
     )
 
 
-def is_valid_color(color):
-    return re.match(r"#[0-9a-fA-F]{6}$", color) is not None
-
-
 def is_valid_date(date):
     """
     Checks if it is a date-only string in the format "YYYY-MM-DD"
