@@ -14,7 +14,11 @@ docker-compose -f docker-compose.test.yml up --build
 
 Prerequisite:
 
-If you haven't already, run the first two steps from the [readme in the `app/` folder](https://github.com/Couchers-org/couchers/blob/develop/app/readme.md). Then make sure the postgres_tests container is running:
+If you haven't already, run the first two steps from the [readme in the `app/` folder](https://github.com/Couchers-org/couchers/blob/develop/app/readme.md).
+
+Note that if you've made breaking changes, you may need to re-compile the protocol buffers.
+
+Then make sure the postgres_tests container is running:
 
 ```sh
 docker-compose -f docker-compose.test.yml up postgres_tests
