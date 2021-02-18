@@ -25,13 +25,19 @@ pip install -r requirements.txt
 source venv/bin/activate
 ```
 
-3. Make sure the postgres_tests container is running: `docker-compose -f docker-compose.test.yml up postgres_tests`. (see the readme in the `app/` folder for getting docker setup). 
+3. If you haven't already, run the first two steps from the [readme in the `app/` folder](https://github.com/Couchers-org/couchers/blob/develop/app/readme.md). Then make sure the postgres_tests container is running:
+
+```sh
+`docker-compose -f docker-compose.test.yml up postgres_tests`
+```
 
 4. Set the necessary env vars:
 
 ```sh
 export DATABASE_CONNECTION_STRING=postgresql://postgres:06b3890acd2c235c41be0bbfe22f1b386a04bf02eedf8c977486355616be2aa1@localhost:6544/postgres
 ```
+
+(Environment variables are non-persistent and must be set in the exact place where you plan to run the tests. For example, if using an IDE, they must be set within the IDE.)
 
 5. Run `pytest` in the `app/backend/src/` folder.
 
