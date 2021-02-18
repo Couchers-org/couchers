@@ -4,7 +4,7 @@ import { user1 } from "../stories/__mocks__/service";
 import UserSummary from "./UserSummary";
 
 export default {
-  title: "Components/Large/UserSummary",
+  title: "Components/Composite/UserSummary",
   component: UserSummary,
 } as Meta;
 

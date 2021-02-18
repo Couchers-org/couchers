@@ -8,7 +8,7 @@ import Messages from "../index";
 import ControlMessageView from "./ControlMessageView";
 import MessageView, { MessageProps } from "./MessageView";
 
-const [controlMessage, message1] = messages;
+const [controlMessage, message1] = [messages[messages.length - 1], messages[0]];
 
 addDefaultUser(1);
 

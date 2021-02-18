@@ -3,7 +3,7 @@ import { Meta, Story } from "@storybook/react";
 import PageTitle from "./PageTitle";
 
 export default {
-  title: "Components/Small/PageTitle",
+  title: "Components/Simple/PageTitle",
   component: PageTitle,
 } as Meta;
 

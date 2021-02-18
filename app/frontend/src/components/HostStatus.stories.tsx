@@ -4,7 +4,7 @@ import { HostingStatus, User } from "../pb/api_pb";
 import HostStatus from "./HostStatus";
 
 export default {
-  title: "Components/Large/HostStatus",
+  title: "Components/Composite/HostStatus",
   component: HostStatus,
   argTypes: {
     hostingStatus: {

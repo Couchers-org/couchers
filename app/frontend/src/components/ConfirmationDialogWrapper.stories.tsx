@@ -5,7 +5,7 @@ import Button from "./Button";
 import ConfirmationDialogWrapper from "./ConfirmationDialogWrapper";
 
 export default {
-  title: "Components/Large/ConfirmationDialogWrapper",
+  title: "Components/Composite/ConfirmationDialogWrapper",
   component: ConfirmationDialogWrapper,
   argTypes: {
     onConfirm: { action: "confirmed" },

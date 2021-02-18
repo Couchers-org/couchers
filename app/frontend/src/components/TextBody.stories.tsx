@@ -3,7 +3,7 @@ import { Meta, Story } from "@storybook/react";
 import TextBody from "./TextBody";
 
 export default {
-  title: "Components/Small/TextBody",
+  title: "Components/Simple/TextBody",
   component: TextBody,
 } as Meta;
 

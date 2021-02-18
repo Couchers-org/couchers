@@ -4,6 +4,7 @@ import { Skeleton } from "@material-ui/lab";
 import classNames from "classnames";
 import React from "react";
 
+import TextBody from "../../../components/TextBody";
 import { timestamp2Date } from "../../../utils/date";
 import { firstName } from "../../../utils/names";
 import { useAuthContext } from "../../auth/AuthProvider";
@@ -57,7 +58,9 @@ export default function ControlMessageView({
 
       <Box className={classes.message}>
         {!isAuthorLoading && !isTargetLoading ? (
-          controlMessageText(message, authorName, targetName)
+          <TextBody>
+            {controlMessageText(message, authorName, targetName)}
+          </TextBody>
         ) : (
           <Skeleton className={classes.skeleton} />
         )}

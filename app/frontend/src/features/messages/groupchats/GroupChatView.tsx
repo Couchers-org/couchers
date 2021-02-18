@@ -85,6 +85,7 @@ export default function GroupChatView() {
   };
 
   const groupChatId = +(useParams<{ groupChatId?: string }>().groupChatId || 0);
+  console.log(groupChatId);
 
   const { data: groupChat, error: groupChatError } = useQuery<
     GroupChat.AsObject,

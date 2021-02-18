@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Autocomplete from "./Autocomplete";
 
 export default {
-  title: "Components/Small/Autocomplete",
+  title: "Components/Simple/Autocomplete",
   component: Autocomplete,
 } as Meta;
 

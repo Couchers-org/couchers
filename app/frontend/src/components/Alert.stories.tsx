@@ -3,7 +3,7 @@ import { Meta, Story } from "@storybook/react";
 import Alert from "./Alert";
 
 export default {
-  title: "Components/Small/Alert",
+  title: "Components/Simple/Alert",
   component: Alert,
   argTypes: {
     severity: {

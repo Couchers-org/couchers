@@ -3,7 +3,7 @@ import { Meta, Story } from "@storybook/react";
 import Markdown from "./Markdown";
 
 export default {
-  title: "Components/Small/Markdown",
+  title: "Components/Simple/Markdown",
   component: Markdown,
 } as Meta;
 

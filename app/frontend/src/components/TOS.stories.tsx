@@ -3,7 +3,7 @@ import { Meta, Story } from "@storybook/react";
 import TOS from "./TOS";
 
 export default {
-  title: "Components/Large/TOS",
+  title: "Components/Composite/TOS",
   component: TOS,
 } as Meta;
 

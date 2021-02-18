@@ -3,7 +3,7 @@ import { Meta, Story } from "@storybook/react";
 import ScoreBar from "./ScoreBar";
 
 export default {
-  title: "Components/Large/ScoreBar",
+  title: "Components/Composite/ScoreBar",
   component: ScoreBar,
 } as Meta;
 
