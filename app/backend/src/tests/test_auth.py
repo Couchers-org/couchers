@@ -235,4 +235,35 @@ def test_logout_invalid_token(db):
     assert reply_token == ""
 
 
+def test_signup_invalid_birthdate(db):
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        reply = auth_api.Signup(auth_pb2.SignupReq(email="a@b.com"))
+    assert reply.next_step == auth_pb2.SignupRes.SignupStep.SENT_SIGNUP_EMAIL
+
+    # read out the signup token directly from the database for now
+    with session_scope() as session:
+        entry = session.query(SignupToken).filter(SignupToken.email == "a@b.com").one()
+        signup_token = entry.token
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        reply = auth_api.SignupTokenInfo(auth_pb2.SignupTokenInfoReq(signup_token=signup_token))
+
+    assert reply.email == "a@b.com"
+
+    with auth_api_session() as (auth_api, metadata_interceptor), pytest.raises(grpc.RpcError) as e:
+        reply = auth_api.CompleteSignup(
+            auth_pb2.CompleteSignupReq(
+                signup_token=signup_token,
+                username="frodo",
+                name="Räksmörgås",
+                city="Minas Tirith",
+                birthdate="9999-12-31", # arbitrary future birthdate
+                gender="Robot",
+                hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+            )
+        )
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == errors.INVALID_BIRTHDATE
+
+
 # CompleteChangeEmail tested in test_account.py
