@@ -12,7 +12,7 @@ docker-compose -f docker-compose.test.yml up --build
 
 ## Running tests locally
 
-Prerequisite:
+Prerequisites:
 
 If you haven't already, run the first two steps from the [readme in the `app/` folder](https://github.com/Couchers-org/couchers/blob/develop/app/readme.md).
 
