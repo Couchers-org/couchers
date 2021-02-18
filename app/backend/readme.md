@@ -28,7 +28,7 @@ source venv/bin/activate
 3. If you haven't already, run the first two steps from the [readme in the `app/` folder](https://github.com/Couchers-org/couchers/blob/develop/app/readme.md). Then make sure the postgres_tests container is running:
 
 ```sh
-`docker-compose -f docker-compose.test.yml up postgres_tests`
+docker-compose -f docker-compose.test.yml up postgres_tests
 ```
 
 4. Set the necessary env vars:
