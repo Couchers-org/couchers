@@ -43,6 +43,8 @@ source venv/bin/activate
 export DATABASE_CONNECTION_STRING=postgresql://postgres:06b3890acd2c235c41be0bbfe22f1b386a04bf02eedf8c977486355616be2aa1@localhost:6544/postgres
 ```
 
+**Windows** note: Replace "export" with "set"
+
 (Environment variables are non-persistent and must be set in the exact place where you plan to run the tests. For example, if using an IDE, they must be set within the IDE.)
 
 4. Run `pytest` in the `app/backend/src/` folder.
