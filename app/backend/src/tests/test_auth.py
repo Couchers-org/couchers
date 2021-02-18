@@ -257,7 +257,7 @@ def test_signup_invalid_birthdate(db):
                 username="frodo",
                 name="Räksmörgås",
                 city="Minas Tirith",
-                birthdate="9999-12-31", # arbitrary future birthdate
+                birthdate="9999-12-31",  # arbitrary future birthdate
                 gender="Robot",
                 hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
             )
