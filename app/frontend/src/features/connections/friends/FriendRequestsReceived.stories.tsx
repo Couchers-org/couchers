@@ -7,7 +7,7 @@ import { mockedService } from "../../../stories/__mocks__/service";
 import FriendRequestsReceived from "./FriendRequestsReceived";
 
 export default {
-  title: "FriendRequestsReceived",
+  title: "Me/Connections/FriendRequestsReceived",
   component: FriendRequestsReceived,
 } as Meta;
 

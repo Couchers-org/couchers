@@ -4,6 +4,7 @@ import { Skeleton } from "@material-ui/lab";
 import classNames from "classnames";
 import React from "react";
 
+import TextBody from "../../../components/TextBody";
 import { timestamp2Date } from "../../../utils/date";
 import { firstName } from "../../../utils/names";
 import { useAuthContext } from "../../auth/AuthProvider";
@@ -11,7 +12,7 @@ import { useUser } from "../../userQueries/useUsers";
 import useOnVisibleEffect from "../useOnVisibleEffect";
 import { controlMessageText, messageTargetId } from "../utils";
 import { messageElementId, MessageProps } from "./MessageView";
-import TimeInterval from "./MomentIndication";
+import TimeInterval from "./TimeInterval";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -57,7 +58,9 @@ export default function ControlMessageView({
 
       <Box className={classes.message}>
         {!isAuthorLoading && !isTargetLoading ? (
-          controlMessageText(message, authorName, targetName)
+          <TextBody>
+            {controlMessageText(message, authorName, targetName)}
+          </TextBody>
         ) : (
           <Skeleton className={classes.skeleton} />
         )}

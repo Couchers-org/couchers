@@ -13,7 +13,7 @@ import Autocomplete, {
 } from "@material-ui/lab/Autocomplete";
 import React, { useRef, useState } from "react";
 
-import { CloseIcon, ExpandMore } from "../../components/Icons";
+import { CloseIcon, ExpandMoreIcon } from "../../components/Icons";
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -167,7 +167,7 @@ export default function ProfileTagInput({
         className={className}
       >
         <span>{label}</span>
-        <ExpandMore />
+        <ExpandMoreIcon />
       </ButtonBase>
       {value.map((tag) => (
         <div key={tag} className={classes.tag}>

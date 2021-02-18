@@ -50,7 +50,7 @@ export default function HostRequestListItem({
   const classes = useStyles();
   const currentUserId = useAuthStore().authState.userId;
   const isHost = currentUserId === hostRequest.toUserId;
-  const { data: otherUser } = useUser(
+  const { data: otherUser, isLoading: isOtherUserLoading } = useUser(
     isHost ? hostRequest.fromUserId : hostRequest.toUserId
   );
 
@@ -91,17 +91,13 @@ export default function HostRequestListItem({
   return (
     <ListItem className={classNames(classes.root, className)}>
       <ListItemAvatar>
-        {!otherUser ? (
-          <Skeleton />
-        ) : (
-          <Avatar user={otherUser} isProfileLink={false} />
-        )}
+        <Avatar user={otherUser} isProfileLink={false} />
       </ListItemAvatar>
       <ListItemText
         disableTypography
         primary={
           <Typography variant="h2">
-            {!otherUser ? <Skeleton /> : otherUser.name}
+            {!otherUser ? <Skeleton width={100} /> : otherUser.name}
           </Typography>
         }
         secondary={
@@ -111,9 +107,17 @@ export default function HostRequestListItem({
                 hostRequest={hostRequest}
                 className={classes.hostStatusIcon}
               />
-              <Typography variant="body2">{statusText}</Typography>
+              <Typography variant="body2">
+                {isOtherUserLoading ? <Skeleton width={200} /> : statusText}
+              </Typography>
             </Box>
-            <TextBody noWrap>{latestMessageText}</TextBody>
+            <TextBody noWrap>
+              {isOtherUserLoading ? (
+                <Skeleton width={100} />
+              ) : (
+                latestMessageText
+              )}
+            </TextBody>
           </>
         }
       />

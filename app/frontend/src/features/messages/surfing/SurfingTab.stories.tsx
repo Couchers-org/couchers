@@ -59,7 +59,7 @@ Object.assign(mockedService, {
 });
 
 export default {
-  title: "SurfingTab",
+  title: "Messages/SurfingTab",
   component: SurfingTab,
   argTypes: {},
   decorators: [
