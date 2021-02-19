@@ -123,7 +123,7 @@ parkingdetails2api = {
 }
 
 fluency2sql = {
-    api_pb2.LanguageAbility.Fluency.FLUENCY_UNSPECIFIED: LanguageFluency.unspecified,
+    api_pb2.LanguageAbility.Fluency.FLUENCY_UNSPECIFIED: None,
     api_pb2.LanguageAbility.Fluency.FLUENCY_SAY_HELLO: LanguageFluency.say_hello,
     api_pb2.LanguageAbility.Fluency.FLUENCY_BEGINNER: LanguageFluency.beginner,
     api_pb2.LanguageAbility.Fluency.FLUENCY_INTERMEDIATE: LanguageFluency.intermediate,
@@ -133,7 +133,7 @@ fluency2sql = {
 }
 
 fluency2api = {
-    LanguageFluency.unspecified: api_pb2.LanguageAbility.Fluency.FLUENCY_UNSPECIFIED,
+    None: api_pb2.LanguageAbility.Fluency.FLUENCY_UNSPECIFIED,
     LanguageFluency.say_hello: api_pb2.LanguageAbility.Fluency.FLUENCY_SAY_HELLO,
     LanguageFluency.beginner: api_pb2.LanguageAbility.Fluency.FLUENCY_BEGINNER,
     LanguageFluency.intermediate: api_pb2.LanguageAbility.Fluency.FLUENCY_INTERMEDIATE,
@@ -212,7 +212,7 @@ class API(api_pb2_grpc.APIServicer):
 
     def UpdateProfile(self, request, context):
         with session_scope() as session:
-            user: User = session.query(User).filter(User.id == context.user_id).one()
+            user = session.query(User).filter(User.id == context.user_id).one()
 
             if request.HasField("name"):
                 if not is_valid_name(request.name.value):
