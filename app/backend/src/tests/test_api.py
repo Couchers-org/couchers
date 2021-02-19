@@ -697,9 +697,28 @@ def test_hosting_preferences(db):
         api.UpdateProfile(
             api_pb2.UpdateProfileReq(
                 max_guests=api_pb2.NullableUInt32Value(value=3),
-                wheelchair_accessible=api_pb2.NullableBoolValue(value=False),
+                last_minute=api_pb2.NullableBoolValue(value=True),
+                has_pets=api_pb2.NullableBoolValue(value=False),
+                accepts_pets=api_pb2.NullableBoolValue(value=True),
+                pet_details=api_pb2.NullableStringValue(value="I love dogs"),
+                has_kids=api_pb2.NullableBoolValue(value=False),
+                accepts_kids=api_pb2.NullableBoolValue(value=True),
+                kid_details=api_pb2.NullableStringValue(value="I hate kids"),
+                has_housemates=api_pb2.NullableBoolValue(value=False),
+                housemate_details=api_pb2.NullableStringValue(value="I have 7 housemates"),
+                wheelchair_accessible=api_pb2.NullableBoolValue(value=True),
                 smoking_allowed=api_pb2.SMOKING_LOCATION_WINDOW,
+                area=api_pb2.NullableStringValue(value="area!"),
+                smokes_at_home=api_pb2.NullableBoolValue(value=False),
+                drinking_allowed=api_pb2.NullableBoolValue(value=True),
+                drinks_at_home=api_pb2.NullableBoolValue(value=False),
+                other_host_info=api_pb2.NullableStringValue(value="I'm pretty swell"),
+                sleeping_arrangement=api_pb2.SLEEPING_ARRANGEMENT_COMMON,
+                sleeping_details=api_pb2.NullableStringValue(value="Couch in living room"),
                 house_rules=api_pb2.NullableStringValue(value="RULES!"),
+                parking=api_pb2.NullableBoolValue(value=True),
+                parking_details=api_pb2.PARKING_DETAILS_PAID_ONSITE,
+                camping_ok=api_pb2.NullableBoolValue(value=False),
             )
         )
 
@@ -708,38 +727,56 @@ def test_hosting_preferences(db):
     with api_session(token2) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
         assert res.max_guests.value == 3
-        assert not res.HasField("last_minute")
-        assert not res.HasField("has_pets")
-        assert not res.HasField("accepts_pets")
-        assert not res.HasField("pet_details")
-        assert not res.HasField("has_kids")
-        assert not res.HasField("accepts_kids")
-        assert not res.HasField("kid_details")
-        assert not res.HasField("has_housemates")
-        assert not res.HasField("housemate_details")
-        assert not res.wheelchair_accessible.value
+        assert res.last_minute.value is True
+        assert res.has_pets.value is False
+        assert res.accepts_pets.value is True
+        assert res.pet_details.value == "I love dogs"
+        assert res.has_kids.value is False
+        assert res.accepts_kids.value is True
+        assert res.kid_details.value == "I hate kids"
+        assert res.has_housemates.value is False
+        assert res.housemate_details.value == "I have 7 housemates"
+        assert res.wheelchair_accessible.value is True
         assert res.smoking_allowed == api_pb2.SMOKING_LOCATION_WINDOW
-        assert not res.HasField("smokes_at_home")
-        assert not res.HasField("drinking_allowed")
-        assert not res.HasField("drinks_at_home")
-        assert not res.HasField("other_host_info")
-        assert res.sleeping_arrangement == api_pb2.SLEEPING_ARRANGEMENT_UNKNOWN
-        assert not res.HasField("sleeping_details")
-        assert not res.HasField("area")
+        assert res.smokes_at_home.value is False
+        assert res.drinking_allowed.value is True
+        assert res.drinks_at_home.value is False
+        assert res.other_host_info.value == "I'm pretty swell"
+        assert res.sleeping_arrangement == api_pb2.SLEEPING_ARRANGEMENT_COMMON
+        assert res.sleeping_details.value == "Couch in living room"
+        assert res.area.value == "area!"
         assert res.house_rules.value == "RULES!"
-        assert not res.HasField("parking")
-        assert res.parking_details == api_pb2.PARKING_DETAILS_UNKNOWN
-        assert not res.HasField("camping_ok")
+        assert res.parking.value is True
+        assert res.parking_details == api_pb2.PARKING_DETAILS_PAID_ONSITE
+        assert res.camping_ok.value is False
 
     with api_session(token1) as api:
         # test unsetting
         api.UpdateProfile(
             api_pb2.UpdateProfileReq(
                 max_guests=api_pb2.NullableUInt32Value(is_null=True),
-                wheelchair_accessible=api_pb2.NullableBoolValue(value=True),
+                last_minute=api_pb2.NullableBoolValue(is_null=True),
+                has_pets=api_pb2.NullableBoolValue(is_null=True),
+                accepts_pets=api_pb2.NullableBoolValue(is_null=True),
+                pet_details=api_pb2.NullableStringValue(is_null=True),
+                has_kids=api_pb2.NullableBoolValue(is_null=True),
+                accepts_kids=api_pb2.NullableBoolValue(is_null=True),
+                kid_details=api_pb2.NullableStringValue(is_null=True),
+                has_housemates=api_pb2.NullableBoolValue(is_null=True),
+                housemate_details=api_pb2.NullableStringValue(is_null=True),
+                wheelchair_accessible=api_pb2.NullableBoolValue(is_null=True),
                 smoking_allowed=api_pb2.SMOKING_LOCATION_UNKNOWN,
-                area=api_pb2.NullableStringValue(value="area!"),
+                area=api_pb2.NullableStringValue(is_null=True),
+                smokes_at_home=api_pb2.NullableBoolValue(is_null=True),
+                drinking_allowed=api_pb2.NullableBoolValue(is_null=True),
+                drinks_at_home=api_pb2.NullableBoolValue(is_null=True),
+                other_host_info=api_pb2.NullableStringValue(is_null=True),
+                sleeping_arrangement=api_pb2.SLEEPING_ARRANGEMENT_UNKNOWN,
+                sleeping_details=api_pb2.NullableStringValue(is_null=True),
                 house_rules=api_pb2.NullableStringValue(is_null=True),
+                parking=api_pb2.NullableBoolValue(is_null=True),
+                parking_details=api_pb2.PARKING_DETAILS_UNKNOWN,
+                camping_ok=api_pb2.NullableBoolValue(is_null=True),
             )
         )
 
@@ -754,7 +791,7 @@ def test_hosting_preferences(db):
         assert not res.HasField("kid_details")
         assert not res.HasField("has_housemates")
         assert not res.HasField("housemate_details")
-        assert res.wheelchair_accessible.value
+        assert not res.HasField("wheelchair_accessible")
         assert res.smoking_allowed == api_pb2.SMOKING_LOCATION_UNKNOWN
         assert not res.HasField("smokes_at_home")
         assert not res.HasField("drinking_allowed")
@@ -762,7 +799,7 @@ def test_hosting_preferences(db):
         assert not res.HasField("other_host_info")
         assert res.sleeping_arrangement == api_pb2.SLEEPING_ARRANGEMENT_UNKNOWN
         assert not res.HasField("sleeping_details")
-        assert res.area.value == "area!"
+        assert not res.HasField("area")
         assert not res.HasField("house_rules")
         assert not res.HasField("parking")
         assert res.parking_details == api_pb2.PARKING_DETAILS_UNKNOWN
