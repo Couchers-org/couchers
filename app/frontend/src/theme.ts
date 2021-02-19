@@ -85,8 +85,10 @@ const themeOptions: ThemeOptions = {
       paddingInlineEnd: spacing(1),
       overflow: "auto",
       scrollbarWidth: "thin",
+      scrollbarHeight: "thin",
       "&::-webkit-scrollbar": {
         width: "0.5rem",
+        height: "0.5rem",
         background: "rgba(0,0,0,0)",
       },
       "&::-webkit-scrollbar:hover": {

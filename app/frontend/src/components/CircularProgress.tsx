@@ -1,26 +1,46 @@
 import {
+  Box,
   CircularProgress as MuiCircularProgress,
-  CircularProgressProps,
+  CircularProgressProps as MuiCircularProgressProps,
   makeStyles,
 } from "@material-ui/core";
 import classNames from "classnames";
 import React, { ForwardedRef } from "react";
 
-const useStyles = makeStyles({
-  root: {},
-});
+const useStyles = makeStyles((theme) => ({
+  root: {
+    padding: theme.spacing(0.5),
+    /// TODO: Not circular!! Why??
+    width: "fit-content",
+    height: "fit-content",
+  },
+  opaque: {
+    borderRadius: "50%",
+    backgroundColor: theme.palette.background.paper,
+    border: "1px solid",
+  },
+}));
+
+interface CircularProgressProps extends MuiCircularProgressProps {
+  opaque?: boolean;
+}
 
 function _CircularProgress(
-  { className, ...otherProps }: CircularProgressProps,
+  { opaque = false, className, ...otherProps }: CircularProgressProps,
   ref: ForwardedRef<any>
 ) {
   const classes = useStyles();
   return (
-    <MuiCircularProgress
-      {...otherProps}
-      className={classNames(classes.root, className)}
+    <Box
+      className={classNames(
+        { [classes.opaque]: opaque },
+        classes.root,
+        className
+      )}
       ref={ref}
-    />
+    >
+      <MuiCircularProgress {...otherProps} />
+    </Box>
   );
 }
 

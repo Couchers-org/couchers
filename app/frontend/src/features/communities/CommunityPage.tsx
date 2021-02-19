@@ -48,56 +48,56 @@ export default function CommunityPage() {
     isLoading: isSubCommunitiesLoading,
     error: subCommunitiesError,
     data: subCommunities,
-    fetchNextPage: fetchNextSubCommunitiesPage,
+    //fetchNextPage: fetchNextSubCommunitiesPage,
   } = useListSubCommunities(+communityId);
 
   const {
     isLoading: isGroupsLoading,
     error: groupsError,
     data: groups,
-    fetchNextPage: fetchNextGroupsPage,
+    //fetchNextPage: fetchNextGroupsPage,
   } = useListGroups(+communityId);
 
   const {
     isLoading: isPlacesLoading,
     error: placesError,
     data: places,
-    fetchNextPage: fetchNextPlacesPage,
+    //fetchNextPage: fetchNextPlacesPage,
   } = useListPlaces(+communityId);
 
   const {
     isLoading: isGuidesLoading,
     error: guidesError,
     data: guides,
-    fetchNextPage: fetchNextGuidesPage,
+    //fetchNextPage: fetchNextGuidesPage,
   } = useListGuides(+communityId);
 
   const {
     isLoading: isDiscussionsLoading,
     error: discussionsError,
     data: discussions,
-    fetchNextPage: fetchNextDiscussionsPage,
+    //fetchNextPage: fetchNextDiscussionsPage,
   } = useListDiscussions(+communityId);
 
   const {
     isLoading: isAdminsLoading,
     error: adminsError,
     data: admins,
-    fetchNextPage: fetchNextAdminsPage,
+    //fetchNextPage: fetchNextAdminsPage,
   } = useListAdmins(+communityId);
 
   const {
     isLoading: isMembersLoading,
     error: membersError,
     data: members,
-    fetchNextPage: fetchNextMembersPage,
+    //fetchNextPage: fetchNextMembersPage,
   } = useListMembers(+communityId);
 
   const {
     isLoading: isNearbyUsersLoading,
     error: nearbyUsersError,
     data: nearbyUsers,
-    fetchNextPage: fetchNextNearbyUsersPage,
+    //fetchNextPage: fetchNextNearbyUsersPage,
   } = useListNearbyUsers(+communityId);
 
   const handleJoin = async () => {

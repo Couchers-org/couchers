@@ -1,6 +1,7 @@
 import { MessageProps } from "../../features/messages/messagelist/MessageView";
 import { HostingStatus, User } from "../../pb/api_pb";
 import { HostRequestStatus, Message } from "../../pb/conversations_pb";
+import { PageType } from "../../pb/pages_pb";
 import { service as originalService } from "../../service";
 import funnycat from "../assets/funnycat.jpg";
 import funnydog from "../assets/funnydog.jpg";
@@ -136,4 +137,42 @@ export const hostRequest = {
   toDate: "2025-01-05",
   lastSeenMessageId: 0,
   latestMessage: message1,
+};
+
+export const community = {
+  community_id: 2,
+  name: "Amsterdam",
+  // a short URL fragment generated from the name, e.g. New York City: a guide to Phở might become new-york-city-guide-to-pho
+  slug: "amsterdam",
+  description: "This is amsterdam",
+  created: { seconds: Date.now(), nanos: 0 },
+  // list of parents, ordered according to inclusion, e.g. World, US, New York, (NYC)
+  parents: 1,
+  // we do not return the geometry here? (it's a potentially very big multipolygon)
+  mainPage: {},
+  // whether the requesting user is member/admin
+  member: true,
+  admin: false,
+  memberCount: 5,
+  adminCount: 2,
+  nearbyUserCount: 3,
+};
+
+export const place = {
+  pageId: 3,
+  type: PageType.PAGE_TYPE_PLACE,
+  slug: "concertgebouw",
+  created: { seconds: Date.now(), nanos: 0 },
+  lastEdited: { seconds: Date.now(), nanos: 0 },
+  lastEditorUserId: 2,
+  creatorUserId: 2,
+  ownerCommunityId: 2,
+  threadId: 2,
+  title: "Concertgebouw",
+  content:
+    "# Concerts!\nThis famous playhouse is one of the leading concert halls in Europe",
+  address: "Concertgebouwplein 10, 1071 LN Amsterdam, Netherlands",
+  location: { lat: 52.35623800180904, lng: 4.878839154826316 },
+  editorUserIdsList: [2],
+  canEdit: false,
 };

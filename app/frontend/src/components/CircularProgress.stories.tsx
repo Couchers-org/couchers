@@ -14,3 +14,4 @@ const Template: Story<any> = (args) => (
 );
 
 export const circularProgress = Template.bind({});
+circularProgress.args = { opaque: false };

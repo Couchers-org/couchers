@@ -12,14 +12,16 @@ import CircularProgress from "../CircularProgress";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    borderRadius: `${theme.shape.borderRadius * 2}px`,
-    boxShadow: "0px 0px 5px rgba(0, 0, 0, 0.25)",
     minHeight: `calc(calc(${theme.typography.button.lineHeight} * ${
       theme.typography.button.fontSize
     }) + ${theme.typography.pxToRem(12)})`, //from padding
   },
   loading: {
     height: theme.typography.button.fontSize,
+  },
+  contained: {
+    borderRadius: `${theme.shape.borderRadius * 2}px`,
+    boxShadow: "0px 0px 5px rgba(0, 0, 0, 0.25)",
   },
 }));
 
@@ -38,6 +40,7 @@ export default function Button<D extends ElementType = "button", P = {}>({
   className,
   loading,
   onClick,
+  variant = "contained",
   ...otherProps
 }: AppButtonProps<D, P>) {
   const isMounted = useIsMounted();
@@ -57,8 +60,10 @@ export default function Button<D extends ElementType = "button", P = {}>({
       {...otherProps}
       onClick={onClick && asyncOnClick}
       disabled={disabled ? true : loading || waiting}
-      className={classNames(classes.root, className)}
-      variant="contained"
+      className={classNames(classes.root, className, {
+        [classes.contained]: variant === "contained",
+      })}
+      variant={variant}
       color="primary"
     >
       {loading || waiting ? (
