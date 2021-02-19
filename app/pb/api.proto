@@ -140,15 +140,15 @@ enum MeetupStatus {
 
 message LanguageAbility {
   enum Fluency {
-      FLUENCY_UNSPECIFIED = 0;
-      FLUENCY_SAY_HELLO = 1;
-      FLUENCY_BEGINNER = 2;
-      FLUENCY_INTERMEDIATE = 3;
-      FLUENCY_ADVANCED = 4;
-      FLUENCY_FLUENT = 5;
-      FLUENCY_NATIVE = 6;
+      FLUENCY_SAY_HELLO = 0;
+      FLUENCY_BEGINNER = 1;
+      FLUENCY_INTERMEDIATE = 2;
+      FLUENCY_ADVANCED = 3;
+      FLUENCY_FLUENT = 4;
+      FLUENCY_NATIVE = 5;
   }
-  string code = 1; // ISO639-3
+  // ISO639-3 language code, only a subset is accepted, see ConstantData.GetLanguageList
+  string code = 1;
   Fluency fluency = 2;
 }
 
@@ -334,6 +334,8 @@ message UpdateProfileReq {
   NullableBoolValue parking = 119;
   ParkingDetails parking_details = 120;
   NullableBoolValue camping_ok = 121;
+  // replaces the current language abilities with a new list
+  // only a subset of language codes can be used, call ConstantData.GetLanguageList to get that list
   RepeatedLanguageAbilityValue language_abilities = 25;
 }
 

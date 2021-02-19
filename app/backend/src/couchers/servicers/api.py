@@ -123,7 +123,6 @@ parkingdetails2api = {
 }
 
 fluency2sql = {
-    api_pb2.LanguageAbility.Fluency.FLUENCY_UNSPECIFIED: None,
     api_pb2.LanguageAbility.Fluency.FLUENCY_SAY_HELLO: LanguageFluency.say_hello,
     api_pb2.LanguageAbility.Fluency.FLUENCY_BEGINNER: LanguageFluency.beginner,
     api_pb2.LanguageAbility.Fluency.FLUENCY_INTERMEDIATE: LanguageFluency.intermediate,
@@ -133,7 +132,6 @@ fluency2sql = {
 }
 
 fluency2api = {
-    None: api_pb2.LanguageAbility.Fluency.FLUENCY_UNSPECIFIED,
     LanguageFluency.say_hello: api_pb2.LanguageAbility.Fluency.FLUENCY_SAY_HELLO,
     LanguageFluency.beginner: api_pb2.LanguageAbility.Fluency.FLUENCY_BEGINNER,
     LanguageFluency.intermediate: api_pb2.LanguageAbility.Fluency.FLUENCY_INTERMEDIATE,

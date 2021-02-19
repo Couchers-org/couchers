@@ -6,7 +6,7 @@ from concurrent import futures
 import grpc
 
 from couchers import config
-from couchers.data import update_data
+from couchers.data import update_constant_data
 from couchers.db import apply_migrations, session_scope
 from couchers.interceptors import ErrorSanitizationInterceptor, LoggingInterceptor
 from couchers.jobs.worker import start_jobs_scheduler, start_jobs_worker
@@ -74,7 +74,7 @@ logger.info(f"Running DB migrations")
 
 apply_migrations()
 
-update_data()
+update_constant_data()
 
 if config.config["ADD_DUMMY_DATA"]:
     add_dummy_data()

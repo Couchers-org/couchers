@@ -36,5 +36,5 @@ def update_languages():
                 db_language.name = name
 
 
-def update_data():
+def update_constant_data():
     update_languages()
