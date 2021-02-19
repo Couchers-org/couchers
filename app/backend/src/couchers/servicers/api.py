@@ -17,15 +17,15 @@ from couchers.models import (
     FriendStatus,
     GroupChatSubscription,
     HostingStatus,
-    MeetupStatus,
     HostRequest,
     InitiatedUpload,
+    MeetupStatus,
     Message,
+    ParkingDetails,
     Reference,
     ReferenceType,
-    SmokingLocation,
     SleepingArrangement,
-    ParkingDetails,
+    SmokingLocation,
     User,
 )
 from couchers.tasks import send_friend_request_email, send_report_email
@@ -105,7 +105,7 @@ sleepingarrangement2api = {
 }
 
 parkingdetails2sql = {
-    api_pb2.PARKING_DETAILS_UNKNONW: None,
+    api_pb2.PARKING_DETAILS_UNKNOWN: None,
     api_pb2.PARKING_DETAILS_FREE_ONSITE: ParkingDetails.free_onsite,
     api_pb2.PARKING_DETAILS_FREE_OFFSITE: ParkingDetails.free_offsite,
     api_pb2.PARKING_DETAILS_PAID_ONSITE: ParkingDetails.paid_onsite,
@@ -113,7 +113,7 @@ parkingdetails2sql = {
 }
 
 parkingdetails2api = {
-    None: api_pb2.PARKING_DETAILS_UNKNONW,
+    None: api_pb2.PARKING_DETAILS_UNKNOWN,
     ParkingDetails.free_onsite: api_pb2.PARKING_DETAILS_FREE_ONSITE,
     ParkingDetails.free_offsite: api_pb2.PARKING_DETAILS_FREE_OFFSITE,
     ParkingDetails.paid_onsite: api_pb2.PARKING_DETAILS_PAID_ONSITE,
@@ -347,11 +347,11 @@ class API(api_pb2_grpc.APIServicer):
                 else:
                     user.smokes_at_home = request.smokes_at_home.value
 
-            if request.HasField("drinks_allowed"):
-                if request.drinks_allowed.is_null:
-                    user.drinks_allowed = None
+            if request.HasField("drinking_allowed"):
+                if request.drinking_allowed.is_null:
+                    user.drinking_allowed = None
                 else:
-                    user.drinks_allowed = request.drinks_allowed.value
+                    user.drinking_allowed = request.drinking_allowed.value
 
             if request.HasField("drinks_at_home"):
                 if request.drinks_at_home.is_null:
@@ -395,11 +395,11 @@ class API(api_pb2_grpc.APIServicer):
             if request.parking_details != api_pb2.PARKING_DETAILS_UNKNOWN:
                 user.parking_details = parkingdetails2sql[request.parking_details]
 
-            if request.HasField("camping_OK"):
-                if request.camping_OK.is_null:
-                    user.camping_OK = None
+            if request.HasField("camping_ok"):
+                if request.camping_ok.is_null:
+                    user.camping_ok = None
                 else:
-                    user.camping_OK = request.camping_OK.value
+                    user.camping_ok = request.camping_ok.value
 
             # save updates
             session.commit()
@@ -757,8 +757,8 @@ def user_model_to_pb(db_user, session, context):
     if db_user.smokes_at_home is not None:
         user.smokes_at_home.value = db_user.smokes_at_home
 
-    if db_user.drinks_allowed is not None:
-        user.drinks_allowed.value = db_user.drinks_allowed
+    if db_user.drinking_allowed is not None:
+        user.drinking_allowed.value = db_user.drinking_allowed
 
     if db_user.drinks_at_home is not None:
         user.drinks_at_home.value = db_user.drinks_at_home
@@ -778,7 +778,7 @@ def user_model_to_pb(db_user, session, context):
     if db_user.parking is not None:
         user.parking.value = db_user.parking
 
-    if db_user.camping_OK is not None:
-        user.camping_OK.value = db_user.camping_OK
+    if db_user.camping_ok is not None:
+        user.camping_ok.value = db_user.camping_ok
 
     return user

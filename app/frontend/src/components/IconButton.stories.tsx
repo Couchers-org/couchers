@@ -5,7 +5,7 @@ import IconButton from "./IconButton";
 import { CouchIcon } from "./Icons";
 
 export default {
-  title: "Components/IconButton",
+  title: "Components/Simple/IconButton",
   component: IconButton,
 } as Meta;
 

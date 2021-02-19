@@ -135,7 +135,7 @@ enum MeetupStatus {
     MEETUP_STATUS_UNKNOWN = 1;
     MEETUP_STATUS_WANTS_TO_MEETUP = 2;
     MEETUP_STATUS_OPEN_TO_MEETUP = 3;
-    MEETUP_STATUS_DOES_NOT_WANTS_TO_MEETUP = 4;
+    MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP = 4;
 }
 
 enum SmokingLocation {
@@ -156,7 +156,7 @@ enum SleepingArrangement {
 }
 
 enum ParkingDetails {
-  PARKING_DETAILS_UNKNONW = 0;
+  PARKING_DETAILS_UNKNOWN = 0;
   PARKING_DETAILS_FREE_ONSITE = 1;
   PARKING_DETAILS_FREE_OFFSITE = 2;
   PARKING_DETAILS_PAID_ONSITE = 3;
@@ -236,7 +236,7 @@ message User {
   google.protobuf.BoolValue wheelchair_accessible = 27;
   SmokingLocation smoking_allowed = 28;
   google.protobuf.BoolValue smokes_at_home = 113;
-  google.protobuf.BoolValue drinks_allowed = 114;
+  google.protobuf.BoolValue drinking_allowed = 114;
   google.protobuf.BoolValue drinks_at_home = 115;
   google.protobuf.StringValue other_host_info = 116;
   SleepingArrangement sleeping_arrangement = 117;
@@ -245,7 +245,7 @@ message User {
   google.protobuf.StringValue house_rules = 31;
   google.protobuf.BoolValue parking = 119;
   ParkingDetails parking_details = 120;
-  google.protobuf.BoolValue camping_OK = 121;
+  google.protobuf.BoolValue camping_ok = 121;
 
   string avatar_url = 32;
 }
@@ -284,7 +284,7 @@ message UpdateProfileReq {
   NullableStringValue about_place = 6;
 
   HostingStatus hosting_status = 8;
-  MeetupStatus meetup_staus = 105;
+  MeetupStatus meetup_status = 105;
 
   RepeatedStringValue languages = 9;
   RepeatedStringValue countries_visited = 10;
@@ -304,7 +304,7 @@ message UpdateProfileReq {
   NullableBoolValue wheelchair_accessible = 17;
   SmokingLocation smoking_allowed = 18;
   NullableBoolValue smokes_at_home = 113;
-  NullableBoolValue drinks_allowed = 114;
+  NullableBoolValue drinking_allowed = 114;
   NullableBoolValue drinks_at_home = 115;
   NullableStringValue other_host_info = 116;
   SleepingArrangement sleeping_arrangement = 117;
@@ -313,7 +313,7 @@ message UpdateProfileReq {
   NullableStringValue house_rules = 21;
   NullableBoolValue parking = 119;
   ParkingDetails parking_details = 120;
-  NullableBoolValue Camping_OK = 121;
+  NullableBoolValue camping_ok = 121;
 }
 
 message ReportReq {

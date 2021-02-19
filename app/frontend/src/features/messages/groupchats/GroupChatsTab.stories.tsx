@@ -2,8 +2,10 @@ import { Meta, Story } from "@storybook/react";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import * as React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { MemoryRouter, Route } from "react-router-dom";
 
-import { groupChat, mockedService } from "../../../stories/__mocks__/service";
+import { groupChatsRoute, routeToGroupChat } from "../../../routes";
+import { mockedService } from "../../../stories/__mocks__/service";
 import messages from "../../../test/fixtures/messages.json";
 import AuthProvider from "../../auth/AuthProvider";
 import GroupChatsTab from "./GroupChatsTab";
@@ -12,7 +14,7 @@ import GroupChatView from "./GroupChatView";
 const queryClient = new QueryClient();
 
 export default {
-  title: "GroupChatsTab",
+  title: "Messages/GroupChatsTab",
   component: GroupChatsTab,
   argTypes: {},
   decorators: [
@@ -50,8 +52,13 @@ const GroupChatViewTemplate: Story<any> = (args) => {
   mockedService.conversations.leaveGroupChat = async () => {
     throw new Error("impossible to leave");
   };
-  return <GroupChatView {...args} />;
+  return (
+    <MemoryRouter initialEntries={[routeToGroupChat(3)]}>
+      <Route path={`${groupChatsRoute}/:groupChatId?`}>
+        <GroupChatView {...args} />
+      </Route>
+    </MemoryRouter>
+  );
 };
 
 export const Chat = GroupChatViewTemplate.bind({});
-Chat.args = { groupChat, setGroupChat: () => null };
