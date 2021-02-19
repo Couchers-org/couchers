@@ -41,9 +41,13 @@ message SearchReq {
   bool include_discussions = 9;
   // bool include_events = 10;
 
-  // at most one of the following
-  Area search_in_area = 11;
-  int64 search_in_community_id = 12;
+  // restrictions on area
+  oneof search_in {
+    // search in given area
+    Area search_in_area = 11;
+    // search inside the area defined by the community
+    int64 search_in_community_id = 12;
+  }
 
   bool exclude_title = 13;
   bool exclude_content = 14;
@@ -93,7 +97,7 @@ message UserSearchReq {
   google.protobuf.UInt32Value age_min = 9;
   google.protobuf.UInt32Value age_max = 10;
 
-  repeated org.couchers.api.core.HostingStatus hosting_statuse_filter = 11;
+  repeated org.couchers.api.core.HostingStatus hosting_status_filter = 11;
   repeated org.couchers.api.core.SmokingLocation smoking_location_filter = 12;
 
   google.protobuf.UInt32Value min_guests = 13;
