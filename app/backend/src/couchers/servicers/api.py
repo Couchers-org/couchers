@@ -280,12 +280,20 @@ class API(api_pb2_grpc.APIServicer):
                 user.meetup_status = meetupstatus2sql[request.meetup_status]
 
             if request.language_abilities.exists:
-                user.language_abilities = [
-                    LanguageAbility(language=l.code, fluency=fluency2sql[l.fluency])
-                    for l in request.language_abilities.value
-                ]
-            else:
-                user.language_abilities = []
+                # delete all existing abilities
+                for ability in user.language_abilities:
+                    session.delete(ability)
+
+                # add the new ones
+                for language_ability in request.language_abilities.value:
+                    session.add(
+                        LanguageAbility(
+                            user=user,
+                            # non-existent codes give ugly errors...
+                            language_code=language_ability.code,
+                            fluency=fluency2sql[language_ability.fluency],
+                        )
+                    )
 
             if request.countries_visited.exists:
                 user.countries_visited = "|".join(request.countries_visited.value)
@@ -734,8 +742,8 @@ def user_model_to_pb(db_user, session, context):
         things_i_like=db_user.things_i_like,
         about_place=db_user.about_place,
         language_abilities=[
-            api_pb2.LanguageAbility(code=language.language, fluency=fluency2api[language.fluency])
-            for language in db_user.language_abilities
+            api_pb2.LanguageAbility(code=ability.language_code, fluency=fluency2api[ability.fluency])
+            for ability in db_user.language_abilities
         ],
         countries_visited=db_user.countries_visited.split("|") if db_user.countries_visited else [],
         countries_lived=db_user.countries_lived.split("|") if db_user.countries_lived else [],

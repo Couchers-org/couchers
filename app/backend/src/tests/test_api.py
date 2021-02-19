@@ -5,7 +5,7 @@ import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
 
 from couchers.db import session_scope
-from couchers.models import Complaint
+from couchers.models import Complaint, Language
 from couchers.utils import now, to_aware_datetime
 from pb import api_pb2, jail_pb2
 from tests.test_fixtures import (
@@ -198,6 +198,113 @@ def test_update_profile(db):
         assert user.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE
 
     return user, token
+
+
+def test_language_abilities(db):
+    user, token = generate_user()
+
+    with session_scope() as session:
+        session.add(Language(code="ln1", name="Language 1"))
+        session.add(Language(code="ln2", name="Language 2"))
+
+    with api_session(token) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        assert len(res.language_abilities) == 0
+
+        # can't add non-existent languages
+        with pytest.raises(Exception) as e:
+            res = api.UpdateProfile(
+                api_pb2.UpdateProfileReq(
+                    language_abilities=api_pb2.RepeatedLanguageAbilityValue(
+                        exists=True,
+                        value=[
+                            api_pb2.LanguageAbility(
+                                code="nxn",
+                                fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE,
+                            )
+                        ],
+                    ),
+                )
+            )
+        assert "violates foreign key constraint" in str(e.value)
+
+        # can't have multiple languages of the same type
+        with pytest.raises(Exception) as e:
+            res = api.UpdateProfile(
+                api_pb2.UpdateProfileReq(
+                    language_abilities=api_pb2.RepeatedLanguageAbilityValue(
+                        exists=True,
+                        value=[
+                            api_pb2.LanguageAbility(
+                                code="ln1",
+                                fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE,
+                            ),
+                            api_pb2.LanguageAbility(
+                                code="ln1",
+                                fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE,
+                            ),
+                        ],
+                    ),
+                )
+            )
+        assert "violates unique constraint" in str(e.value)
+
+        # nothing changed
+        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        assert len(res.language_abilities) == 0
+
+        # now actually add a value
+        api.UpdateProfile(
+            api_pb2.UpdateProfileReq(
+                language_abilities=api_pb2.RepeatedLanguageAbilityValue(
+                    exists=True,
+                    value=[
+                        api_pb2.LanguageAbility(
+                            code="ln1",
+                            fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE,
+                        )
+                    ],
+                ),
+            )
+        )
+
+        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        assert len(res.language_abilities) == 1
+        assert res.language_abilities[0].code == "ln1"
+        assert res.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE
+
+        # change the value to a new one
+        api.UpdateProfile(
+            api_pb2.UpdateProfileReq(
+                language_abilities=api_pb2.RepeatedLanguageAbilityValue(
+                    exists=True,
+                    value=[
+                        api_pb2.LanguageAbility(
+                            code="ln2",
+                            fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_SAY_HELLO,
+                        )
+                    ],
+                ),
+            )
+        )
+
+        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        assert len(res.language_abilities) == 1
+        assert res.language_abilities[0].code == "ln2"
+        assert res.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_SAY_HELLO
+
+        # remove value
+        api.UpdateProfile(
+            api_pb2.UpdateProfileReq(
+                language_abilities=api_pb2.RepeatedLanguageAbilityValue(
+                    exists=True,
+                    value=[],
+                ),
+            )
+        )
+
+        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        assert len(res.language_abilities) == 0
 
 
 def test_clear_profile(db):

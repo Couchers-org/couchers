@@ -148,7 +148,7 @@ message LanguageAbility {
       FLUENCY_FLUENT = 5;
       FLUENCY_NATIVE = 6;
   }
-  string code = 1; //ISO639-3
+  string code = 1; // ISO639-3
   Fluency fluency = 2;
 }
 
