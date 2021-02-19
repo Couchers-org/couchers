@@ -10,7 +10,7 @@ from sqlalchemy.sql import and_, func, or_
 from couchers import errors, urls
 from couchers.config import config
 from couchers.crypto import generate_hash_signature, random_hex
-from couchers.db import get_friends_status, get_user_by_field, is_valid_color, is_valid_name, session_scope
+from couchers.db import get_friends_status, get_user_by_field, is_valid_name, session_scope
 from couchers.models import (
     Complaint,
     FriendRelationship,
@@ -19,9 +19,12 @@ from couchers.models import (
     HostingStatus,
     HostRequest,
     InitiatedUpload,
+    MeetupStatus,
     Message,
+    ParkingDetails,
     Reference,
     ReferenceType,
+    SleepingArrangement,
     SmokingLocation,
     User,
 )
@@ -45,7 +48,6 @@ hostingstatus2sql = {
     api_pb2.HOSTING_STATUS_UNKNOWN: None,
     api_pb2.HOSTING_STATUS_CAN_HOST: HostingStatus.can_host,
     api_pb2.HOSTING_STATUS_MAYBE: HostingStatus.maybe,
-    api_pb2.HOSTING_STATUS_DIFFICULT: HostingStatus.difficult,
     api_pb2.HOSTING_STATUS_CANT_HOST: HostingStatus.cant_host,
 }
 
@@ -53,8 +55,21 @@ hostingstatus2api = {
     None: api_pb2.HOSTING_STATUS_UNKNOWN,
     HostingStatus.can_host: api_pb2.HOSTING_STATUS_CAN_HOST,
     HostingStatus.maybe: api_pb2.HOSTING_STATUS_MAYBE,
-    HostingStatus.difficult: api_pb2.HOSTING_STATUS_DIFFICULT,
     HostingStatus.cant_host: api_pb2.HOSTING_STATUS_CANT_HOST,
+}
+
+meetupstatus2sql = {
+    api_pb2.MEETUP_STATUS_UNKNOWN: None,
+    api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP: MeetupStatus.wants_to_meetup,
+    api_pb2.MEETUP_STATUS_OPEN_TO_MEETUP: MeetupStatus.open_to_meetup,
+    api_pb2.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP: MeetupStatus.does_not_want_to_meetup,
+}
+
+meetupstatus2api = {
+    None: api_pb2.MEETUP_STATUS_UNKNOWN,
+    MeetupStatus.wants_to_meetup: api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP,
+    MeetupStatus.open_to_meetup: api_pb2.MEETUP_STATUS_OPEN_TO_MEETUP,
+    MeetupStatus.does_not_want_to_meetup: api_pb2.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP,
 }
 
 smokinglocation2sql = {
@@ -71,6 +86,38 @@ smokinglocation2api = {
     SmokingLocation.window: api_pb2.SMOKING_LOCATION_WINDOW,
     SmokingLocation.outside: api_pb2.SMOKING_LOCATION_OUTSIDE,
     SmokingLocation.no: api_pb2.SMOKING_LOCATION_NO,
+}
+
+sleepingarrangement2sql = {
+    api_pb2.SLEEPING_ARRANGEMENT_UNKNOWN: None,
+    api_pb2.SLEEPING_ARRANGEMENT_PRIVATE: SleepingArrangement.private,
+    api_pb2.SLEEPING_ARRANGEMENT_COMMON: SleepingArrangement.common,
+    api_pb2.SLEEPING_ARRANGEMENT_SHARED_ROOM: SleepingArrangement.shared_room,
+    api_pb2.SLEEPING_ARRANGEMENT_SHARED_SPACE: SleepingArrangement.shared_space,
+}
+
+sleepingarrangement2api = {
+    None: api_pb2.SLEEPING_ARRANGEMENT_UNKNOWN,
+    SleepingArrangement.private: api_pb2.SLEEPING_ARRANGEMENT_PRIVATE,
+    SleepingArrangement.common: api_pb2.SLEEPING_ARRANGEMENT_COMMON,
+    SleepingArrangement.shared_room: api_pb2.SLEEPING_ARRANGEMENT_SHARED_ROOM,
+    SleepingArrangement.shared_space: api_pb2.SLEEPING_ARRANGEMENT_SHARED_SPACE,
+}
+
+parkingdetails2sql = {
+    api_pb2.PARKING_DETAILS_UNKNOWN: None,
+    api_pb2.PARKING_DETAILS_FREE_ONSITE: ParkingDetails.free_onsite,
+    api_pb2.PARKING_DETAILS_FREE_OFFSITE: ParkingDetails.free_offsite,
+    api_pb2.PARKING_DETAILS_PAID_ONSITE: ParkingDetails.paid_onsite,
+    api_pb2.PARKING_DETAILS_PAID_OFFSITE: ParkingDetails.paid_offsite,
+}
+
+parkingdetails2api = {
+    None: api_pb2.PARKING_DETAILS_UNKNOWN,
+    ParkingDetails.free_onsite: api_pb2.PARKING_DETAILS_FREE_ONSITE,
+    ParkingDetails.free_offsite: api_pb2.PARKING_DETAILS_FREE_OFFSITE,
+    ParkingDetails.paid_onsite: api_pb2.PARKING_DETAILS_PAID_ONSITE,
+    ParkingDetails.paid_offsite: api_pb2.PARKING_DETAILS_PAID_OFFSITE,
 }
 
 
@@ -153,6 +200,9 @@ class API(api_pb2_grpc.APIServicer):
             if request.HasField("city"):
                 user.city = request.city.value
 
+            if request.HasField("hometown"):
+                user.hometown = request.hometown.value
+
             if request.HasField("lat") and request.HasField("lng"):
                 user.geom = create_coordinate(request.lat.value, request.lng.value)
 
@@ -162,11 +212,20 @@ class API(api_pb2_grpc.APIServicer):
             if request.HasField("gender"):
                 user.gender = request.gender.value
 
+            if request.HasField("pronouns"):
+                user.pronouns = request.pronouns.value
+
             if request.HasField("occupation"):
                 if request.occupation.is_null:
                     user.occupation = None
                 else:
                     user.occupation = request.occupation.value
+
+            if request.HasField("education"):
+                if request.education.is_null:
+                    user.education = None
+                else:
+                    user.education = request.education.value
 
             if request.HasField("about_me"):
                 if request.about_me.is_null:
@@ -174,20 +233,29 @@ class API(api_pb2_grpc.APIServicer):
                 else:
                     user.about_me = request.about_me.value
 
+            if request.HasField("my_travels"):
+                if request.my_travels.is_null:
+                    user.my_travels = None
+                else:
+                    user.my_travels = request.my_travels.value
+
+            if request.HasField("things_i_like"):
+                if request.things_i_like.is_null:
+                    user.things_i_like = None
+                else:
+                    user.things_i_like = request.things_i_like.value
+
             if request.HasField("about_place"):
                 if request.about_place.is_null:
                     user.about_place = None
                 else:
                     user.about_place = request.about_place.value
 
-            if request.HasField("color"):
-                color = request.color.value.lower()
-                if not is_valid_color(color):
-                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COLOR)
-                user.color = color
-
             if request.hosting_status != api_pb2.HOSTING_STATUS_UNSPECIFIED:
                 user.hosting_status = hostingstatus2sql[request.hosting_status]
+
+            if request.meetup_status != api_pb2.MEETUP_STATUS_UNSPECIFIED:
+                user.meetup_status = meetupstatus2sql[request.meetup_status]
 
             if request.languages.exists:
                 user.languages = "|".join(request.languages.value)
@@ -198,17 +266,17 @@ class API(api_pb2_grpc.APIServicer):
             if request.countries_lived.exists:
                 user.countries_lived = "|".join(request.countries_lived.value)
 
+            if request.HasField("additional_information"):
+                if request.additional_information.is_null:
+                    user.additional_information = None
+                else:
+                    user.additional_information = request.additional_information.value
+
             if request.HasField("max_guests"):
                 if request.max_guests.is_null:
                     user.max_guests = None
                 else:
                     user.max_guests = request.max_guests.value
-
-            if request.HasField("multiple_groups"):
-                if request.multiple_groups.is_null:
-                    user.multiple_groups = None
-                else:
-                    user.multiple_groups = request.multiple_groups.value
 
             if request.HasField("last_minute"):
                 if request.last_minute.is_null:
@@ -216,17 +284,53 @@ class API(api_pb2_grpc.APIServicer):
                 else:
                     user.last_minute = request.last_minute.value
 
+            if request.HasField("has_pets"):
+                if request.has_pets.is_null:
+                    user.has_pets = None
+                else:
+                    user.has_pets = request.has_pets.value
+
             if request.HasField("accepts_pets"):
                 if request.accepts_pets.is_null:
                     user.accepts_pets = None
                 else:
                     user.accepts_pets = request.accepts_pets.value
 
+            if request.HasField("pet_details"):
+                if request.pet_details.is_null:
+                    user.pet_details = None
+                else:
+                    user.pet_details = request.pet_details.value
+
+            if request.HasField("has_kids"):
+                if request.has_kids.is_null:
+                    user.has_kids = None
+                else:
+                    user.has_kids = request.has_kids.value
+
             if request.HasField("accepts_kids"):
                 if request.accepts_kids.is_null:
                     user.accepts_kids = None
                 else:
                     user.accepts_kids = request.accepts_kids.value
+
+            if request.HasField("kid_details"):
+                if request.kid_details.is_null:
+                    user.kid_details = None
+                else:
+                    user.kid_details = request.kid_details.value
+
+            if request.HasField("has_housemates"):
+                if request.has_housemates.is_null:
+                    user.has_housemates = None
+                else:
+                    user.has_housemates = request.has_housemates.value
+
+            if request.HasField("housemate_details"):
+                if request.housemate_details.is_null:
+                    user.housemate_details = None
+                else:
+                    user.housemate_details = request.housemate_details.value
 
             if request.HasField("wheelchair_accessible"):
                 if request.wheelchair_accessible.is_null:
@@ -237,11 +341,38 @@ class API(api_pb2_grpc.APIServicer):
             if request.smoking_allowed != api_pb2.SMOKING_LOCATION_UNSPECIFIED:
                 user.smoking_allowed = smokinglocation2sql[request.smoking_allowed]
 
-            if request.HasField("sleeping_arrangement"):
-                if request.sleeping_arrangement.is_null:
-                    user.sleeping_arrangement = None
+            if request.HasField("smokes_at_home"):
+                if request.smokes_at_home.is_null:
+                    user.smokes_at_home = None
                 else:
-                    user.sleeping_arrangement = request.sleeping_arrangement.value
+                    user.smokes_at_home = request.smokes_at_home.value
+
+            if request.HasField("drinking_allowed"):
+                if request.drinking_allowed.is_null:
+                    user.drinking_allowed = None
+                else:
+                    user.drinking_allowed = request.drinking_allowed.value
+
+            if request.HasField("drinks_at_home"):
+                if request.drinks_at_home.is_null:
+                    user.drinks_at_home = None
+                else:
+                    user.drinks_at_home = request.drinks_at_home.value
+
+            if request.HasField("other_host_info"):
+                if request.other_host_info.is_null:
+                    user.other_host_info = None
+                else:
+                    user.other_host_info = request.other_host_info.value
+
+            if request.sleeping_arrangement != api_pb2.SLEEPING_ARRANGEMENT_UNSPECIFIED:
+                user.sleeping_arrangement = sleepingarrangement2sql[request.sleeping_arrangement]
+
+            if request.HasField("sleeping_details"):
+                if request.sleeping_details.is_null:
+                    user.sleeping_details = None
+                else:
+                    user.sleeping_details = request.sleeping_details.value
 
             if request.HasField("area"):
                 if request.area.is_null:
@@ -254,6 +385,21 @@ class API(api_pb2_grpc.APIServicer):
                     user.house_rules = None
                 else:
                     user.house_rules = request.house_rules.value
+
+            if request.HasField("parking"):
+                if request.parking.is_null:
+                    user.parking = None
+                else:
+                    user.parking = request.parking.value
+
+            if request.parking_details != api_pb2.PARKING_DETAILS_UNSPECIFIED:
+                user.parking_details = parkingdetails2sql[request.parking_details]
+
+            if request.HasField("camping_ok"):
+                if request.camping_ok.is_null:
+                    user.camping_ok = None
+                else:
+                    user.camping_ok = request.camping_ok.value
 
             # save updates
             session.commit()
@@ -550,6 +696,7 @@ def user_model_to_pb(db_user, session, context):
         username=db_user.username,
         name=db_user.name,
         city=db_user.city,
+        hometown=db_user.hometown,
         lat=lat,
         lng=lng,
         radius=db_user.geom_radius,
@@ -557,51 +704,91 @@ def user_model_to_pb(db_user, session, context):
         community_standing=db_user.community_standing,
         num_references=num_references,
         gender=db_user.gender,
+        pronouns=db_user.pronouns,
         age=db_user.age,
-        color=db_user.color,
         joined=Timestamp_from_datetime(db_user.display_joined),
         last_active=Timestamp_from_datetime(db_user.display_last_active),
         hosting_status=hostingstatus2api[db_user.hosting_status],
+        meetup_status=meetupstatus2api[db_user.meetup_status],
         occupation=db_user.occupation,
+        education=db_user.education,
         about_me=db_user.about_me,
+        my_travels=db_user.my_travels,
+        things_i_like=db_user.things_i_like,
         about_place=db_user.about_place,
         languages=db_user.languages.split("|") if db_user.languages else [],
         countries_visited=db_user.countries_visited.split("|") if db_user.countries_visited else [],
         countries_lived=db_user.countries_lived.split("|") if db_user.countries_lived else [],
+        additional_information=db_user.additional_information,
         friends=get_friends_status(session, context.user_id, db_user.id),
         mutual_friends=[
             api_pb2.MutualFriend(user_id=mutual_friend.id, username=mutual_friend.username, name=mutual_friend.name)
             for mutual_friend in db_user.mutual_friends(context.user_id)
         ],
         smoking_allowed=smokinglocation2api[db_user.smoking_allowed],
+        sleeping_arrangement=sleepingarrangement2api[db_user.sleeping_arrangement],
+        parking_details=parkingdetails2api[db_user.parking_details],
         avatar_url=db_user.avatar_url,
     )
 
     if db_user.max_guests is not None:
         user.max_guests.value = db_user.max_guests
 
-    if db_user.multiple_groups is not None:
-        user.multiple_groups.value = db_user.multiple_groups
-
     if db_user.last_minute is not None:
         user.last_minute.value = db_user.last_minute
+
+    if db_user.has_pets is not None:
+        user.has_pets.value = db_user.has_pets
 
     if db_user.accepts_pets is not None:
         user.accepts_pets.value = db_user.accepts_pets
 
+    if db_user.pet_details is not None:
+        user.pet_details.value = db_user.pet_details
+
+    if db_user.has_kids is not None:
+        user.has_kids.value = db_user.has_kids
+
     if db_user.accepts_kids is not None:
         user.accepts_kids.value = db_user.accepts_kids
+
+    if db_user.kid_details is not None:
+        user.kid_details.value = db_user.kid_details
+
+    if db_user.has_housemates is not None:
+        user.has_housemates.value = db_user.has_housemates
+
+    if db_user.housemate_details is not None:
+        user.housemate_details.value = db_user.housemate_details
 
     if db_user.wheelchair_accessible is not None:
         user.wheelchair_accessible.value = db_user.wheelchair_accessible
 
-    if db_user.sleeping_arrangement is not None:
-        user.sleeping_arrangement.value = db_user.sleeping_arrangement
+    if db_user.smokes_at_home is not None:
+        user.smokes_at_home.value = db_user.smokes_at_home
+
+    if db_user.drinking_allowed is not None:
+        user.drinking_allowed.value = db_user.drinking_allowed
+
+    if db_user.drinks_at_home is not None:
+        user.drinks_at_home.value = db_user.drinks_at_home
+
+    if db_user.other_host_info is not None:
+        user.other_host_info.value = db_user.other_host_info
+
+    if db_user.sleeping_details is not None:
+        user.sleeping_details.value = db_user.sleeping_details
 
     if db_user.area is not None:
         user.area.value = db_user.area
 
     if db_user.house_rules is not None:
         user.house_rules.value = db_user.house_rules
+
+    if db_user.parking is not None:
+        user.parking.value = db_user.parking
+
+    if db_user.camping_ok is not None:
+        user.camping_ok.value = db_user.camping_ok
 
     return user

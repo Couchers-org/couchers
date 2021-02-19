@@ -1,4 +1,6 @@
 #!/bin/sh
+
+# generate API protos and grpc stuff
 find pb -name '*.proto' | protoc -I. \
   --plugin=protoc-gen-grpc_python=$(which grpc_python_plugin) \
   --include_imports --include_source_info \
@@ -14,5 +16,11 @@ find pb -name '*.proto' | protoc -I. \
   --js_out="import_style=commonjs,binary:frontend/src" \
   --grpc-web_out="import_style=commonjs+dts,mode=grpcweb:frontend/src" \
   \
-  $(xargs) \
-  && echo "OK"
+  $(xargs)
+
+# create internal backend protos
+cd backend && find pb -name '*.proto' | protoc \
+  --python_out=src \
+  $(xargs)
+
+echo "OK"

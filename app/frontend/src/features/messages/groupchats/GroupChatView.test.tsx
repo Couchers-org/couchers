@@ -7,7 +7,7 @@ import {
 } from "react-intersection-observer/test-utils";
 import { Route } from "react-router-dom";
 
-import { messagesRoute } from "../../../AppRoutes";
+import { messagesRoute } from "../../../routes";
 import { service } from "../../../service";
 import messageData from "../../../test/fixtures/messages.json";
 import { getHookWrapperWithClient } from "../../../test/hookWrapper";

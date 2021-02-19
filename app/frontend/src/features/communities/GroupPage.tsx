@@ -2,14 +2,8 @@ import { Breadcrumbs } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
 
-import {
-  communityRoute,
-  discussionRoute,
-  groupRoute,
-  guideRoute,
-  placeRoute,
-} from "../../AppRoutes";
 import Alert from "../../components/Alert";
+import Button from "../../components/Button";
 import CircularProgress from "../../components/CircularProgress";
 import CommentBox from "../../components/Comments/CommentBox";
 import Markdown from "../../components/Markdown";
@@ -18,6 +12,13 @@ import TextBody from "../../components/TextBody";
 import { Discussion } from "../../pb/discussions_pb";
 import { Group } from "../../pb/groups_pb";
 import { Page } from "../../pb/pages_pb";
+import {
+  routeToCommunity,
+  routeToDiscussion,
+  routeToGroup,
+  routeToGuide,
+  routeToPlace,
+} from "../../routes";
 import { service } from "../../service";
 
 export default function GroupPage() {
@@ -50,6 +51,14 @@ export default function GroupPage() {
     groupSlug?: string;
   }>();
 
+  const handleJoin = async () => {
+    await service.groups.joinGroup(group!.groupId);
+  };
+
+  const handleLeave = async () => {
+    await service.groups.leaveGroup(group!.groupId);
+  };
+
   useEffect(() => {
     if (!groupId) return;
     (async () => {
@@ -59,7 +68,7 @@ export default function GroupPage() {
         setGroup(group);
         if (group.slug !== groupSlug) {
           // if the address is wrong, redirect to the right place
-          history.push(`${groupRoute}/${group.groupId}/${group.slug}`);
+          history.push(routeToGroup(group.groupId, group.slug));
         }
       } catch (e) {
         console.error(e);
@@ -134,7 +143,10 @@ export default function GroupPage() {
                 if (parent.community) {
                   return (
                     <Link
-                      to={`${communityRoute}/${parent.community.communityId}/${parent.community.slug}`}
+                      to={routeToCommunity(
+                        parent.community.communityId,
+                        parent.community.slug
+                      )}
                     >
                       {parent.community.name}
                     </Link>
@@ -142,7 +154,7 @@ export default function GroupPage() {
                 } else if (parent.group) {
                   return (
                     <Link
-                      to={`${groupRoute}/${parent.group.groupId}/${parent.group.slug}`}
+                      to={routeToGroup(parent.group.groupId, parent.group.slug)}
                     >
                       {parent.group.name}
                     </Link>
@@ -154,8 +166,19 @@ export default function GroupPage() {
           </Breadcrumbs>
           <p>Description: {group.description}</p>
           <p>
-            You <b>{group.member ? "are" : "are not"}</b> a member of this
-            group.
+            {group.member ? (
+              <>
+                You <b>are</b> a member of this group.
+                <br />
+                <Button onClick={handleLeave}>Leave group</Button>
+              </>
+            ) : (
+              <>
+                You <b>are not</b> a member of this group.
+                <br />
+                <Button onClick={handleJoin}>Join group</Button>
+              </>
+            )}
           </p>
           <p>
             You <b>{group.admin ? "are" : "are not"}</b> an admin of this group.
@@ -212,7 +235,7 @@ export default function GroupPage() {
             places.map((place) => {
               return (
                 <>
-                  <Link to={`${placeRoute}/${place.pageId}/${place.slug}`}>
+                  <Link to={routeToPlace(place.pageId, place.slug)}>
                     {place.title}
                   </Link>
                   <br />
@@ -229,7 +252,7 @@ export default function GroupPage() {
             guides.map((guide) => {
               return (
                 <>
-                  <Link to={`${guideRoute}/${guide.pageId}/${guide.slug}`}>
+                  <Link to={routeToGuide(guide.pageId, guide.slug)}>
                     {guide.title}
                   </Link>
                   <br />
@@ -247,7 +270,10 @@ export default function GroupPage() {
               return (
                 <>
                   <Link
-                    to={`${discussionRoute}/${discussion.discussionId}/${discussion.slug}`}
+                    to={routeToDiscussion(
+                      discussion.discussionId,
+                      discussion.slug
+                    )}
                   >
                     {discussion.title}
                   </Link>
@@ -258,7 +284,7 @@ export default function GroupPage() {
           ) : (
             <p>This group contains no discussions.</p>
           )}
-          <CommentBox threadId={group.threadId} />
+          <CommentBox threadId={group.mainPage!.threadId} />
         </>
       ) : (
         <TextBody>Error</TextBody>

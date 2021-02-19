@@ -9,25 +9,27 @@ import {
   EditGroupChatReq,
   GetGroupChatMessagesReq,
   GetGroupChatReq,
-  GroupChat,
   InviteToGroupChatReq,
   LeaveGroupChatReq,
   ListGroupChatsReq,
   MakeGroupChatAdminReq,
   MarkLastSeenGroupChatReq,
-  Message,
   RemoveGroupChatAdminReq,
   SendMessageReq,
 } from "../pb/conversations_pb";
 import client from "./client";
 
-export async function listGroupChats(): Promise<GroupChat.AsObject[]> {
+export async function listGroupChats(
+  lastMessageId: number = 0,
+  count: number = 10
+) {
   const req = new ListGroupChatsReq();
+  req.setLastMessageId(lastMessageId);
+  req.setNumber(count);
 
   const response = await client.conversations.listGroupChats(req);
-  const groupChats = response.getGroupChatsList();
 
-  return groupChats.map((groupChat) => groupChat.toObject());
+  return response.toObject();
 }
 
 export async function getGroupChat(id: number) {
@@ -38,15 +40,18 @@ export async function getGroupChat(id: number) {
 }
 
 export async function getGroupChatMessages(
-  groupChatId: number
-): Promise<Message.AsObject[]> {
+  groupChatId: number,
+  lastMessageId: number = 0,
+  count: number = 20
+) {
   const req = new GetGroupChatMessagesReq();
   req.setGroupChatId(groupChatId);
+  req.setLastMessageId(lastMessageId);
+  req.setNumber(count);
 
   const response = await client.conversations.getGroupChatMessages(req);
-  const messages = response.getMessagesList();
 
-  return messages.map((message) => message.toObject());
+  return response.toObject();
 }
 
 export async function createGroupChat(

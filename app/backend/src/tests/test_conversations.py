@@ -1182,11 +1182,11 @@ def test_regression_ListGroupChats_pagination(db):
 
         seen_group_chat_ids = []
 
-        next_message_id = 0
+        last_message_id = 0
         more = True
         while more:
-            res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq(last_message_id=next_message_id))
-            next_message_id = res.next_message_id
+            res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq(last_message_id=last_message_id))
+            last_message_id = res.last_message_id
             more = not res.no_more
 
             seen_group_chat_ids.extend([chat.group_chat_id for chat in res.group_chats])

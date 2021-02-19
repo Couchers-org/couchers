@@ -8,13 +8,14 @@ from contextlib import contextmanager
 from alembic import command
 from alembic.config import Config
 from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.orm.session import Session
 from sqlalchemy.pool import NullPool
-from sqlalchemy.sql import and_, or_
+from sqlalchemy.sql import and_, func, or_
 
 from couchers import config
 from couchers.crypto import urlsafe_secure_token
-from couchers.models import FriendRelationship, FriendStatus, LoginToken, PasswordResetToken, SignupToken, User
+from couchers.models import FriendRelationship, FriendStatus, LoginToken, Node, PasswordResetToken, SignupToken, User
 from couchers.utils import now
 from pb import api_pb2
 
@@ -35,16 +36,27 @@ def apply_migrations():
 
 
 @functools.cache
-def get_engine():
+def _get_base_engine():
     if config.config["IN_TEST"]:
         return create_engine(config.config["DATABASE_CONNECTION_STRING"], poolclass=NullPool)
     else:
         return create_engine(config.config["DATABASE_CONNECTION_STRING"])
 
 
+def get_engine(isolation_level=None):
+    """
+    Creates an engine with the given isolation level.
+    """
+    # creates a shallow copy with the given isolation level
+    if not isolation_level:
+        return _get_base_engine()
+    else:
+        return _get_base_engine().execution_options(isolation_level=isolation_level)
+
+
 @contextmanager
-def session_scope():
-    session = Session(get_engine())
+def session_scope(isolation_level=None):
+    session = Session(get_engine(isolation_level=isolation_level))
     try:
         yield session
         session.commit()
@@ -95,10 +107,6 @@ def is_valid_email(field):
         )
         is not None
     )
-
-
-def is_valid_color(color):
-    return re.match(r"#[0-9a-fA-F]{6}$", color) is not None
 
 
 def is_valid_date(date):
@@ -212,3 +220,15 @@ def get_friends_status(session, user1_id, user2_id):
                 return api_pb2.User.FriendshipStatus.FRIENDS
             else:
                 return api_pb2.User.FriendshipStatus.PENDING
+
+
+def get_parent_node_at_location(session, shape):
+    """
+    Finds the smallest node containing the shape.
+
+    Shape can be any PostGIS geo object, e.g. output from create_coordinate
+    """
+
+    # Fin the lowest Node (in the Node tree) that contains the shape. By construction of nodes, the area of a sub-node
+    # must always be less than its parent Node, so no need to actually traverse the tree!
+    return session.query(Node).filter(func.ST_Contains(Node.geom, shape)).order_by(func.ST_Area(Node.geom)).first()

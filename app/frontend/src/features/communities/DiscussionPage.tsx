@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 
-import { discussionRoute } from "../../AppRoutes";
 import Alert from "../../components/Alert";
 import CircularProgress from "../../components/CircularProgress";
 import CommentBox from "../../components/Comments/CommentBox";
@@ -9,6 +8,7 @@ import Markdown from "../../components/Markdown";
 import PageTitle from "../../components/PageTitle";
 import TextBody from "../../components/TextBody";
 import { Discussion } from "../../pb/discussions_pb";
+import { routeToDiscussion } from "../../routes";
 import { service } from "../../service";
 
 export default function DiscussionPage() {
@@ -35,7 +35,7 @@ export default function DiscussionPage() {
         );
         if (discussion.slug !== discussionSlug) {
           history.push(
-            `${discussionRoute}/${discussion.discussionId}/${discussion.slug}`
+            routeToDiscussion(discussion.discussionId, discussion.slug)
           );
         } else {
           setDiscussion(discussion);

@@ -37,7 +37,7 @@ export default function UserHeader({ children, user }: UserHeaderProps) {
   return (
     <div className={classes.root}>
       <div className={classes.avatar}>
-        <Avatar grow user={user} />
+        <Avatar grow user={user} isProfileLink={false} />
       </div>
       <PageTitle className={classes.name}>{user.name}</PageTitle>
 

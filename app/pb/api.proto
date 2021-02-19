@@ -131,8 +131,15 @@ enum HostingStatus {
   HOSTING_STATUS_UNKNOWN = 1;
   HOSTING_STATUS_CAN_HOST = 2;
   HOSTING_STATUS_MAYBE = 3;
-  HOSTING_STATUS_DIFFICULT = 4;
-  HOSTING_STATUS_CANT_HOST = 5;
+  HOSTING_STATUS_CANT_HOST = 4;
+}
+
+enum MeetupStatus {
+    MEETUP_STATUS_UNSPECIFIED = 0;
+    MEETUP_STATUS_UNKNOWN = 1;
+    MEETUP_STATUS_WANTS_TO_MEETUP = 2;
+    MEETUP_STATUS_OPEN_TO_MEETUP = 3;
+    MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP = 4;
 }
 
 enum SmokingLocation {
@@ -142,6 +149,24 @@ enum SmokingLocation {
   SMOKING_LOCATION_WINDOW = 3;
   SMOKING_LOCATION_OUTSIDE = 4;
   SMOKING_LOCATION_NO = 5;
+}
+
+enum SleepingArrangement {
+  SLEEPING_ARRANGEMENT_UNSPECIFIED = 0;
+  SLEEPING_ARRANGEMENT_UNKNOWN = 1;
+  SLEEPING_ARRANGEMENT_PRIVATE = 2;
+  SLEEPING_ARRANGEMENT_COMMON = 3;
+  SLEEPING_ARRANGEMENT_SHARED_ROOM = 4;
+  SLEEPING_ARRANGEMENT_SHARED_SPACE = 5;
+}
+
+enum ParkingDetails {
+  PARKING_DETAILS_UNSPECIFIED = 0;
+  PARKING_DETAILS_UNKNOWN = 1;
+  PARKING_DETAILS_FREE_ONSITE = 2;
+  PARKING_DETAILS_FREE_OFFSITE = 3;
+  PARKING_DETAILS_PAID_ONSITE = 4;
+  PARKING_DETAILS_PAID_OFFSITE = 5;
 }
 
 message NullableUInt32Value {
@@ -171,6 +196,7 @@ message User {
   string username = 2;
   string name = 3;
   string city = 4;
+  string hometown = 100;
 
   // doubles are enough to describe lat/lng
   // in EPSG4326, lat & lon are in degress, check the EPS4326 definition for details
@@ -183,31 +209,49 @@ message User {
   double community_standing = 6;
   uint32 num_references = 7;
   string gender = 8;
+  string pronouns = 101;
   uint32 age = 9;
-  string color = 10; // web color, e.g. #643073, case doesn't matter
   google.protobuf.Timestamp joined = 11; // not exact
   google.protobuf.Timestamp last_active = 12; // not exact
   HostingStatus hosting_status = 13;
+  MeetupStatus meetup_status = 102;
   string occupation = 14;
+  string education = 103;
   string about_me = 15;
+  string my_travels = 104;
+  string things_i_like = 105;
   string about_place = 16;
   repeated string languages = 17;
   repeated string countries_visited = 18;
   repeated string countries_lived = 19;
+  string additional_information = 106;
 
   FriendshipStatus friends = 20;
   repeated MutualFriend mutual_friends = 21;
 
   google.protobuf.UInt32Value max_guests = 22;
-  google.protobuf.BoolValue multiple_groups = 23;
   google.protobuf.BoolValue last_minute = 24;
+  google.protobuf.BoolValue has_pets = 107;
   google.protobuf.BoolValue accepts_pets = 25;
+  google.protobuf.StringValue pet_details = 108;
+  google.protobuf.BoolValue has_kids = 109;
   google.protobuf.BoolValue accepts_kids = 26;
+  google.protobuf.StringValue kid_details = 110;
+  google.protobuf.BoolValue has_housemates = 111;
+  google.protobuf.StringValue housemate_details = 112;
   google.protobuf.BoolValue wheelchair_accessible = 27;
   SmokingLocation smoking_allowed = 28;
-  google.protobuf.StringValue sleeping_arrangement = 29;
+  google.protobuf.BoolValue smokes_at_home = 113;
+  google.protobuf.BoolValue drinking_allowed = 114;
+  google.protobuf.BoolValue drinks_at_home = 115;
+  google.protobuf.StringValue other_host_info = 116;
+  SleepingArrangement sleeping_arrangement = 117;
+  google.protobuf.StringValue sleeping_details = 118;
   google.protobuf.StringValue area = 30;
   google.protobuf.StringValue house_rules = 31;
+  google.protobuf.BoolValue parking = 119;
+  ParkingDetails parking_details = 120;
+  google.protobuf.BoolValue camping_ok = 121;
 
   string avatar_url = 32;
 }
@@ -229,6 +273,7 @@ message UpdateProfileReq {
   google.protobuf.StringValue name = 1;
 
   google.protobuf.StringValue city = 2;
+  NullableStringValue hometown = 100;
   // doubles are enough to describe lat/lng
   // in EPSG4326, lat & lon are in degress, check the EPS4326 definition for details
   google.protobuf.DoubleValue lat = 22;
@@ -236,27 +281,45 @@ message UpdateProfileReq {
   google.protobuf.DoubleValue radius = 24; // metres
 
   google.protobuf.StringValue gender = 3;
+  NullableStringValue pronouns = 101;
   NullableStringValue occupation = 4;
+  NullableStringValue education = 102;
   NullableStringValue about_me = 5;
+  NullableStringValue my_travels = 103;
+  NullableStringValue things_i_like = 104;
   NullableStringValue about_place = 6;
-  google.protobuf.StringValue color = 7;
 
   HostingStatus hosting_status = 8;
+  MeetupStatus meetup_status = 105;
 
   RepeatedStringValue languages = 9;
   RepeatedStringValue countries_visited = 10;
   RepeatedStringValue countries_lived = 11;
+  NullableStringValue additional_information = 106;
 
   NullableUInt32Value max_guests = 12;
-  NullableBoolValue multiple_groups = 13;
   NullableBoolValue last_minute = 14;
+  NullableBoolValue has_pets = 107;
   NullableBoolValue accepts_pets = 15;
+  NullableStringValue pet_details = 108;
+  NullableBoolValue has_kids = 109;
   NullableBoolValue accepts_kids = 16;
+  NullableStringValue kid_details = 110;
+  NullableBoolValue has_housemates = 111;
+  NullableStringValue housemate_details = 112;
   NullableBoolValue wheelchair_accessible = 17;
   SmokingLocation smoking_allowed = 18;
-  NullableStringValue sleeping_arrangement = 19;
+  NullableBoolValue smokes_at_home = 113;
+  NullableBoolValue drinking_allowed = 114;
+  NullableBoolValue drinks_at_home = 115;
+  NullableStringValue other_host_info = 116;
+  SleepingArrangement sleeping_arrangement = 117;
+  NullableStringValue sleeping_details = 118;
   NullableStringValue area = 20;
   NullableStringValue house_rules = 21;
+  NullableBoolValue parking = 119;
+  ParkingDetails parking_details = 120;
+  NullableBoolValue camping_ok = 121;
 }
 
 message DeleteProfileReq {

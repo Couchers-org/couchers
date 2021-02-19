@@ -38,12 +38,6 @@ export default function UserPlace({ user }: { user: User.AsObject }) {
             value={user.maxGuests?.value.toString()}
           />
         )}
-        {user.multipleGroups && (
-          <HostingPreferenceListItem
-            label="Multiple groups ok?"
-            value={user.multipleGroups?.value ? "Yes" : "No"}
-          />
-        )}
         {user.wheelchairAccessible && (
           <HostingPreferenceListItem
             label="Wheelchair accessible"

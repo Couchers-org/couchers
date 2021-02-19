@@ -2,14 +2,8 @@ import { Breadcrumbs } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
 
-import {
-  communityRoute,
-  discussionRoute,
-  groupRoute,
-  guideRoute,
-  placeRoute,
-} from "../../AppRoutes";
 import Alert from "../../components/Alert";
+import Button from "../../components/Button";
 import CircularProgress from "../../components/CircularProgress";
 import CommentBox from "../../components/Comments/CommentBox";
 import Markdown from "../../components/Markdown";
@@ -19,6 +13,13 @@ import { Community } from "../../pb/communities_pb";
 import { Discussion } from "../../pb/discussions_pb";
 import { Group } from "../../pb/groups_pb";
 import { Page } from "../../pb/pages_pb";
+import {
+  routeToCommunity,
+  routeToDiscussion,
+  routeToGroup,
+  routeToGuide,
+  routeToPlace,
+} from "../../routes";
 import { service } from "../../service";
 
 export default function CommunityPage() {
@@ -63,6 +64,14 @@ export default function CommunityPage() {
     communitySlug?: string;
   }>();
 
+  const handleJoin = async () => {
+    await service.communities.joinCommunity(community!.communityId);
+  };
+
+  const handleLeave = async () => {
+    await service.communities.leaveCommunity(community!.communityId);
+  };
+
   useEffect(() => {
     if (!communityId) return;
     (async () => {
@@ -74,9 +83,7 @@ export default function CommunityPage() {
         setCommunity(community);
         if (community.slug !== communitySlug) {
           // if the address is wrong, redirect to the right place
-          history.push(
-            `${communityRoute}/${community.communityId}/${community.slug}`
-          );
+          history.push(routeToCommunity(community.communityId, community.slug));
         }
       } catch (e) {
         console.error(e);
@@ -189,9 +196,10 @@ export default function CommunityPage() {
               .filter((parent) => !!parent.community)
               .map((parent) => (
                 <Link
-                  to={`${communityRoute}/${parent.community!.communityId}/${
+                  to={routeToCommunity(
+                    parent.community!.communityId,
                     parent.community!.slug
-                  }`}
+                  )}
                 >
                   {parent.community!.name}
                 </Link>
@@ -199,8 +207,19 @@ export default function CommunityPage() {
           </Breadcrumbs>
           <p>Description: {community.description}</p>
           <p>
-            You <b>{community.member ? "are" : "are not"}</b> a member of this
-            community.
+            {community.member ? (
+              <>
+                You <b>are</b> a member of this community.
+                <br />
+                <Button onClick={handleLeave}>Leave community</Button>
+              </>
+            ) : (
+              <>
+                You <b>are not</b> a member of this community.
+                <br />
+                <Button onClick={handleJoin}>Join community</Button>
+              </>
+            )}
           </p>
           <p>
             You <b>{community.admin ? "are" : "are not"}</b> an admin of this
@@ -226,7 +245,10 @@ export default function CommunityPage() {
             subCommunities.map((subCommunity) => (
               <>
                 <Link
-                  to={`${communityRoute}/${subCommunity.communityId}/${subCommunity.slug}`}
+                  to={routeToCommunity(
+                    subCommunity.communityId,
+                    subCommunity.slug
+                  )}
                 >
                   {subCommunity.name}
                 </Link>
@@ -242,7 +264,7 @@ export default function CommunityPage() {
           ) : groups ? (
             groups.map((group) => (
               <>
-                <Link to={`${groupRoute}/${group.groupId}/${group.slug}`}>
+                <Link to={routeToGroup(group.groupId, group.slug)}>
                   {group.name}
                 </Link>
                 <br />
@@ -305,7 +327,7 @@ export default function CommunityPage() {
             places.map((place) => {
               return (
                 <>
-                  <Link to={`${placeRoute}/${place.pageId}/${place.slug}`}>
+                  <Link to={routeToPlace(place.pageId, place.slug)}>
                     {place.title}
                   </Link>
                   <br />
@@ -322,7 +344,7 @@ export default function CommunityPage() {
             guides.map((guide) => {
               return (
                 <>
-                  <Link to={`${guideRoute}/${guide.pageId}/${guide.slug}`}>
+                  <Link to={routeToGuide(guide.pageId, guide.slug)}>
                     {guide.title}
                   </Link>
                   <br />
@@ -340,7 +362,10 @@ export default function CommunityPage() {
               return (
                 <>
                   <Link
-                    to={`${discussionRoute}/${discussion.discussionId}/${discussion.slug}`}
+                    to={routeToDiscussion(
+                      discussion.discussionId,
+                      discussion.slug
+                    )}
                   >
                     {discussion.title}
                   </Link>
@@ -351,7 +376,7 @@ export default function CommunityPage() {
           ) : (
             <p>This community contains no discussions.</p>
           )}
-          <CommentBox threadId={community.threadId} />
+          <CommentBox threadId={community.mainPage!.threadId} />
         </>
       ) : (
         <TextBody>Error</TextBody>
