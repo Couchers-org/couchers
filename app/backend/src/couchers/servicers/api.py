@@ -279,9 +279,6 @@ class API(api_pb2_grpc.APIServicer):
             if request.meetup_status != api_pb2.MEETUP_STATUS_UNSPECIFIED:
                 user.meetup_status = meetupstatus2sql[request.meetup_status]
 
-            if request.languages.exists:
-                user.languages = "|".join(request.languages.value)
-
             if request.language_abilities.exists:
                 user.language_abilities = [
                     LanguageAbility(language=l.code, fluency=fluency2sql[l.fluency])
@@ -736,7 +733,6 @@ def user_model_to_pb(db_user, session, context):
         my_travels=db_user.my_travels,
         things_i_like=db_user.things_i_like,
         about_place=db_user.about_place,
-        languages=db_user.languages.split("|") if db_user.languages else [],
         language_abilities=[
             api_pb2.LanguageAbility(code=l.language, fluency=fluency2api[l.fluency]) for l in db_user.language_abilities
         ],

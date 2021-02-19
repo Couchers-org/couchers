@@ -58,7 +58,6 @@ def add_dummy_users():
                         year=user["birthdate"]["year"], month=user["birthdate"]["month"], day=user["birthdate"]["day"]
                     ),
                     gender=user["gender"],
-                    languages="|".join(user["languages"]),
                     occupation=user["occupation"],
                     about_me=user["about_me"],
                     about_place=user["about_place"],

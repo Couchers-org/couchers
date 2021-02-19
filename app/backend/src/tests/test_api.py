@@ -60,7 +60,6 @@ def test_ping(db):
     assert res.user.things_i_like == user.things_i_like
     assert res.user.about_place == user.about_place
     # TODO: this list serialisation will be fixed hopefully soon
-    assert res.user.languages == user.languages.split("|")
     assert res.user.countries_visited == user.countries_visited.split("|")
     assert res.user.countries_lived == user.countries_lived.split("|")
     assert res.user.additional_information == user.additional_information
@@ -195,8 +194,6 @@ def test_update_profile(db):
         assert "Aus" in user.countries_visited
         assert "UK" in user.countries_lived
         assert "Aus" in user.countries_lived
-        assert "Binary" in user.languages
-        assert "English" in user.languages
         assert user.language_abilities[0].code == "eng"
         assert user.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE
 
@@ -221,7 +218,6 @@ def test_clear_profile(db):
                 about_place=api_pb2.NullableStringValue(value=""),
                 color=wrappers_pb2.StringValue(value="#111111"),  # required
                 hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
-                languages=api_pb2.RepeatedStringValue(exists=True, value=["English"]),
                 language_abilities=api_pb2.RepeatedLanguageAbilityValue(
                     exists=False,
                     value=[],
@@ -246,8 +242,6 @@ def test_clear_profile(db):
         assert "" in user.countries_visited
         assert "" in user.countries_lived
         assert "" in user.countries_lived
-        assert "" in user.languages
-        assert "" in user.languages
         assert len(user.language_abilities) == 0
 
 

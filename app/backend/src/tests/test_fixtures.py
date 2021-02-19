@@ -111,7 +111,6 @@ def generate_user(*_, **kwargs):
             "birthdate": date(year=2000, month=1, day=1),
             "gender": "N/A",
             "pronouns": "",
-            "languages": "Testing language 1|Testing language 2",
             "occupation": "Tester",
             "education": "UST(esting)",
             "about_me": "I test things",

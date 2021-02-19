@@ -79,13 +79,24 @@ class ParkingDetails(enum.Enum):
 
 
 class LanguageFluency(enum.Enum):
-    unspecified = 0
+    # note that the numbering is important here, these are ordinal
     say_hello = 1
     beginner = 2
     intermediate = 3
     advanced = 4
     fluent = 5
     native = 6
+
+
+class LanguageAbility(Base):
+    __tablename__ = "language_abilities"
+
+    id = Column(BigInteger, primary_key=True)
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    language = Column(String(length=3), nullable=False)  # ISO639-3 code lowercase
+    fluency = Column(Enum(LanguageFluency), nullable=False)
+
+    user = relationship("User", backref="language_abilities")
 
 
 class User(Base):
@@ -144,8 +155,6 @@ class User(Base):
     things_i_like = Column(String, nullable=True)
     about_place = Column(String, nullable=True)
     avatar_filename = Column(String, nullable=True)
-    # deprecated
-    languages = Column(String, nullable=True)
     countries_visited = Column(String, nullable=True)
     countries_lived = Column(String, nullable=True)
     additional_information = Column(String, nullable=True)
@@ -1193,14 +1202,3 @@ class BackgroundJob(Base):
 
     def __repr__(self):
         return f"BackgroundJob(id={self.id}, job_type={self.job_type}, state={self.state}, next_attempt_after={self.next_attempt_after}, try_count={self.try_count}, failure_info={self.failure_info})"
-
-
-class LanguageAbility(Base):
-    __tablename__ = "language_abilities"
-
-    id = Column(BigInteger, primary_key=True)
-    language = Column(String(length=3), nullable=False)  # ISO639-3 code lowercase
-    fluency = Column(Enum(LanguageFluency), nullable=False, default=LanguageFluency.unspecified)
-    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-
-    user = relationship("User", backref="language_abilities")
