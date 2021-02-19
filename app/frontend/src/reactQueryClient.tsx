@@ -21,7 +21,7 @@ export const queryClient = new QueryClient({
   },
 });
 
-persistWithLocalStorage(queryClient);
+persistWithLocalStorage(queryClient, { maxAge: 14 * 24 * 60 * 60 * 1000 });
 interface ReactQueryClientProviderProps {
   children: React.ReactNode;
 }

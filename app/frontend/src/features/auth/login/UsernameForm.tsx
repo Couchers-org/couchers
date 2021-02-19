@@ -3,11 +3,11 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useHistory, useLocation } from "react-router-dom";
 
-import { loginPasswordRoute, signupRoute } from "../../../AppRoutes";
 import Button from "../../../components/Button";
 import TextBody from "../../../components/TextBody";
 import TextField from "../../../components/TextField";
 import { LoginRes } from "../../../pb/auth_pb";
+import { loginPasswordRoute, signupRoute } from "../../../routes";
 import { service } from "../../../service";
 import { useIsMounted, useSafeState } from "../../../utils/hooks";
 import { useAuthContext } from "../AuthProvider";

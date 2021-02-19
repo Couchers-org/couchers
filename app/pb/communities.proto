@@ -2,8 +2,10 @@ syntax = "proto3";
 
 package org.couchers.api.communities;
 
+import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
+import "pb/discussions.proto";
 import "pb/groups.proto";
 import "pb/pages.proto";
 
@@ -48,6 +50,19 @@ service Communities {
 
   rpc ListDiscussions(ListDiscussionsReq) returns (ListDiscussionsRes) {
     // Returns a paginated list of discussions associated with a community
+  }
+
+  rpc JoinCommunity(JoinCommunityReq) returns (google.protobuf.Empty) {
+    // Join a community you're not a part of
+    //
+    // Raises: FAILED_PRECONDITION if the user is already part of the community
+  }
+
+  rpc LeaveCommunity(LeaveCommunityReq) returns (google.protobuf.Empty) {
+    // Leave a community that you're not inside.
+    // You cannot leave a community that you live inside.
+    //
+    // Raises: FAILED_PRECONDITION if the user is not part of the community or if their location is within the community
   }
 }
 
@@ -182,10 +197,6 @@ message ListEventsRes {
   string next_page_token = 2;
 }
 
-message Discussion {
-  // TODO
-}
-
 message ListDiscussionsReq {
   int64 community_id = 1;
 
@@ -194,7 +205,15 @@ message ListDiscussionsReq {
 }
 
 message ListDiscussionsRes {
-  repeated Discussion discussions = 1;
+  repeated org.couchers.api.discussions.Discussion discussions = 1;
 
   string next_page_token = 2;
+}
+
+message JoinCommunityReq {
+  int64 community_id = 1;
+}
+
+message LeaveCommunityReq {
+  int64 community_id = 1;
 }

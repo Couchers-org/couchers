@@ -1,12 +1,15 @@
 import logging
 
 import grpc
+from google.protobuf import empty_pb2
 from sqlalchemy.sql import literal
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Cluster, Node, Page, PageType, User
+from couchers.models import Cluster, ClusterRole, ClusterSubscription, Discussion, Node, Page, PageType, User
+from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.pages import page_to_pb
+from couchers.servicers.threads import pack_thread_id
 from couchers.utils import Timestamp_from_datetime
 from pb import groups_pb2, groups_pb2_grpc
 
@@ -31,7 +34,8 @@ def _parents_to_pb(cluster: Cluster, user_id):
         ).subquery()
         parents = (
             session.query(subquery, Cluster)
-            .join(Cluster, Cluster.official_cluster_for_node_id == subquery.c.id)
+            .join(Cluster, Cluster.parent_node_id == subquery.c.id)
+            .filter(Cluster.is_official_cluster)
             .order_by(subquery.c.level.desc())
             .all()
         )
@@ -66,8 +70,8 @@ def group_to_pb(cluster: Cluster, user_id):
         created=Timestamp_from_datetime(cluster.created),
         parents=_parents_to_pb(cluster, user_id),
         main_page=page_to_pb(cluster.main_page, user_id),
-        member=cluster.members.filter(User.id == user_id).first() is not None,
-        admin=cluster.admins.filter(User.id == user_id).first() is not None,
+        member=cluster.members.filter(User.id == user_id).one_or_none() is not None,
+        admin=cluster.admins.filter(User.id == user_id).one_or_none() is not None,
         member_count=cluster.members.count(),
         admin_count=cluster.admins.count(),
     )
@@ -78,7 +82,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
         with session_scope() as session:
             cluster = (
                 session.query(Cluster)
-                .filter(Cluster.official_cluster_for_node_id == None)  # not an official group
+                .filter(~Cluster.is_official_cluster)  # not an official group
                 .filter(Cluster.id == request.group_id)
                 .one_or_none()
             )
@@ -93,7 +97,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             next_admin_id = int(request.page_token) if request.page_token else 0
             cluster = (
                 session.query(Cluster)
-                .filter(Cluster.official_cluster_for_node_id == None)
+                .filter(~Cluster.is_official_cluster)
                 .filter(Cluster.id == request.group_id)
                 .one_or_none()
             )
@@ -111,7 +115,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             next_member_id = int(request.page_token) if request.page_token else 0
             cluster = (
                 session.query(Cluster)
-                .filter(Cluster.official_cluster_for_node_id == None)
+                .filter(~Cluster.is_official_cluster)
                 .filter(Cluster.id == request.group_id)
                 .one_or_none()
             )
@@ -129,7 +133,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             next_page_id = int(request.page_token) if request.page_token else 0
             cluster = (
                 session.query(Cluster)
-                .filter(Cluster.official_cluster_for_node_id == None)
+                .filter(~Cluster.is_official_cluster)
                 .filter(Cluster.id == request.group_id)
                 .one_or_none()
             )
@@ -153,7 +157,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             next_page_id = int(request.page_token) if request.page_token else 0
             cluster = (
                 session.query(Cluster)
-                .filter(Cluster.official_cluster_for_node_id == None)
+                .filter(~Cluster.is_official_cluster)
                 .filter(Cluster.id == request.group_id)
                 .one_or_none()
             )
@@ -176,5 +180,68 @@ class Groups(groups_pb2_grpc.GroupsServicer):
         return groups_pb2.ListEventsRes()
 
     def ListDiscussions(self, request, context):
-        raise NotImplementedError()
-        return groups_pb2.ListDiscussionsRes()
+        with session_scope() as session:
+            page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+            next_page_id = int(request.page_token) if request.page_token else 0
+            cluster = (
+                session.query(Cluster)
+                .filter(~Cluster.is_official_cluster)
+                .filter(Cluster.id == request.group_id)
+                .one_or_none()
+            )
+            if not cluster:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+            discussions = (
+                cluster.owned_discussions.filter(Discussion.id >= next_page_id)
+                .order_by(Discussion.id)
+                .limit(page_size + 1)
+                .all()
+            )
+            return groups_pb2.ListDiscussionsRes(
+                discussions=[discussion_to_pb(discussion, context.user_id) for discussion in discussions[:page_size]],
+                next_page_token=str(discussions[-1].id) if len(discussions) > page_size else None,
+            )
+
+    def JoinGroup(self, request, context):
+        with session_scope() as session:
+            cluster = (
+                session.query(Cluster)
+                .filter(~Cluster.is_official_cluster)
+                .filter(Cluster.id == request.group_id)
+                .one_or_none()
+            )
+            if not cluster:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
+
+            current_membership = cluster.members.filter(User.id == context.user_id).one_or_none()
+            if current_membership:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ALREADY_IN_GROUP)
+
+            cluster.cluster_subscriptions.append(
+                ClusterSubscription(
+                    user_id=context.user_id,
+                    role=ClusterRole.member,
+                )
+            )
+
+            return empty_pb2.Empty()
+
+    def LeaveGroup(self, request, context):
+        with session_scope() as session:
+            cluster = (
+                session.query(Cluster)
+                .filter(~Cluster.is_official_cluster)
+                .filter(Cluster.id == request.group_id)
+                .one_or_none()
+            )
+            if not cluster:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
+
+            current_membership = cluster.members.filter(User.id == context.user_id).one_or_none()
+
+            if not current_membership:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NOT_IN_GROUP)
+
+            session.query(ClusterSubscription).filter(ClusterSubscription.user_id == context.user_id).delete()
+
+            return empty_pb2.Empty()

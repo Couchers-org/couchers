@@ -9,6 +9,11 @@ from couchers.models import Email
 
 
 def send_smtp_email(sender_name, sender_email, recipient, subject, plain, html):
+    """
+    Sends out the email through SMTP, settings from config.
+
+    Returns a models.Email object that can be straight away added to the database.
+    """
     message_id = random_hex()
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject

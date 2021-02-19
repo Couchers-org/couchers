@@ -10,11 +10,11 @@ def login_link(login_token):
 
 
 def password_reset_link(password_reset_token):
-    return f"{config['BASE_URL']}/passwordreset/{password_reset_token}"
+    return f"{config['BASE_URL']}/password-reset/{password_reset_token}"
 
 
 def host_request_link():
-    return f"{config['BASE_URL']}/hostrequests/"
+    return f"{config['BASE_URL']}/messages/hosting/"
 
 
 def messages_link():
@@ -22,7 +22,7 @@ def messages_link():
 
 
 def friend_requests_link():
-    return f"{config['BASE_URL']}/friends/"
+    return f"{config['BASE_URL']}/connections/friends/"
 
 
 def media_upload_url(path):
@@ -30,4 +30,4 @@ def media_upload_url(path):
 
 
 def change_email_link(confirmation_token):
-    return f"{config['BASE_URL']}/confirmemail/{confirmation_token}"
+    return f"{config['BASE_URL']}/confirm-email/{confirmation_token}"

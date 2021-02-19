@@ -10,7 +10,7 @@ from couchers.tasks import (
     send_email_changed_notification_email,
     send_password_changed_email,
 )
-from pb import account_pb2_grpc
+from pb import account_pb2, account_pb2_grpc
 
 
 def _check_password(user, field_name, request, context):
@@ -49,6 +49,21 @@ def _abort_if_terrible_password(password, context):
 
 
 class Account(account_pb2_grpc.AccountServicer):
+    def GetAccountInfo(self, request, context):
+        with session_scope() as session:
+            user = session.query(User).filter(User.id == context.user_id).one()
+
+            if not user.hashed_password:
+                return account_pb2.GetAccountInfoRes(
+                    login_method=account_pb2.GetAccountInfoRes.LoginMethod.MAGIC_LINK,
+                    has_password=False,
+                )
+            else:
+                return account_pb2.GetAccountInfoRes(
+                    login_method=account_pb2.GetAccountInfoRes.LoginMethod.PASSWORD,
+                    has_password=True,
+                )
+
     def ChangePassword(self, request, context):
         """
         Changes the user's password. They have to confirm their old password just in case.
@@ -107,7 +122,7 @@ class Account(account_pb2_grpc.AccountServicer):
             user.new_email = request.new_email
             token, expiry_text = set_email_change_token(session, user)
 
-            session.add(send_email_changed_notification_email(user))
-            session.add(send_email_changed_confirmation_email(user, token, expiry_text))
+            send_email_changed_notification_email(user)
+            send_email_changed_confirmation_email(user, token, expiry_text)
             # session autocommit
         return empty_pb2.Empty()

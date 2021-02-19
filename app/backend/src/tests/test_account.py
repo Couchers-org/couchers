@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import grpc
 import pytest
-from google.protobuf import wrappers_pb2
+from google.protobuf import empty_pb2, wrappers_pb2
 from sqlalchemy.sql import func
 
 from couchers import errors
@@ -16,6 +16,24 @@ from tests.test_fixtures import account_session, auth_api_session, db, fast_pass
 @pytest.fixture(autouse=True)
 def _(testconfig):
     pass
+
+
+def test_GetAccountInfo(db, fast_passwords):
+    # without password
+    user1, token1 = generate_user(hashed_password=None)
+
+    with account_session(token1) as account:
+        res = account.GetAccountInfo(empty_pb2.Empty())
+        assert res.login_method == account_pb2.GetAccountInfoRes.LoginMethod.MAGIC_LINK
+        assert not res.has_password
+
+    # with password
+    user1, token1 = generate_user(hashed_password=hash_password(random_hex()))
+
+    with account_session(token1) as account:
+        res = account.GetAccountInfo(empty_pb2.Empty())
+        assert res.login_method == account_pb2.GetAccountInfoRes.LoginMethod.PASSWORD
+        assert res.has_password
 
 
 def test_ChangePassword_normal(db, fast_passwords):

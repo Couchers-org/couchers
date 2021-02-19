@@ -2,14 +2,22 @@ import { List, ListItem, makeStyles } from "@material-ui/core";
 import React from "react";
 import { Link } from "react-router-dom";
 
-import { editHostingPreferenceRoute, editProfileRoute } from "../../AppRoutes";
 import PageTitle from "../../components/PageTitle";
+import {
+  changeEmailRoute,
+  changePasswordRoute,
+  editHostingPreferenceRoute,
+  editProfileRoute,
+} from "../../routes";
 
 const useStyles = makeStyles({
   linkStyle: {
     color: "inherit",
     fontSize: "1rem",
     textDecoration: "none",
+    "&:hover": {
+      textDecoration: "underline",
+    },
   },
 });
 
@@ -33,6 +41,20 @@ export default function ProfilePage() {
           to={editHostingPreferenceRoute}
         >
           Edit my place
+        </ListItem>
+        <ListItem
+          className={classes.linkStyle}
+          component={Link}
+          to={changeEmailRoute}
+        >
+          Change my email
+        </ListItem>
+        <ListItem
+          className={classes.linkStyle}
+          component={Link}
+          to={changePasswordRoute}
+        >
+          Change my password
         </ListItem>
       </List>
     </>

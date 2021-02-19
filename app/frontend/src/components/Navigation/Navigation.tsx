@@ -7,15 +7,15 @@ import {
   Typography,
 } from "@material-ui/core";
 
+import { useAuthContext } from "../../features/auth/AuthProvider";
+import BugReport from "../../features/BugReport";
 import {
   connectionsRoute,
   logoutRoute,
   mapRoute,
   messagesRoute,
   profileRoute,
-} from "../../AppRoutes";
-import { useAuthContext } from "../../features/auth/AuthProvider";
-import BugReport from "../../features/BugReport";
+} from "../../routes";
 import {
   CommunityIcon,
   CrossIcon,
