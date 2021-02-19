@@ -366,7 +366,7 @@ class API(api_pb2_grpc.APIServicer):
                     user.other_host_info = request.other_host_info.value
 
             if request.sleeping_arrangement != api_pb2.SLEEPING_ARRANGEMENT_UNSPECIFIED:
-                user.sleeping_arrangement = smokinglocation2sql[request.sleeping_arrangement]
+                user.sleeping_arrangement = sleepingarrangement2sql[request.sleeping_arrangement]
 
             if request.HasField("sleeping_details"):
                 if request.sleeping_details.is_null:
