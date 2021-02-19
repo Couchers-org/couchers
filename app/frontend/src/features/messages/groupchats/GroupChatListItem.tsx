@@ -76,7 +76,10 @@ export default function GroupChatListItem({
         {groupChatMembersQuery.isLoading ? (
           <Skeleton />
         ) : (
-          <Avatar user={groupChatMembersQuery.data?.get(avatarUserId)} />
+          <Avatar
+            user={groupChatMembersQuery.data?.get(avatarUserId)}
+            isProfileLink={false}
+          />
         )}
       </ListItemAvatar>
       {

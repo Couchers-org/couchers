@@ -1,4 +1,4 @@
-import { HostRequestStatus, Message } from "../pb/conversations_pb";
+import { HostRequestStatus } from "../pb/conversations_pb";
 import {
   CreateHostRequestReq,
   GetHostRequestMessagesReq,
@@ -10,19 +10,27 @@ import {
 } from "../pb/requests_pb";
 import client from "./client";
 
-export async function listHostRequests(
-  type: "all" | "hosting" | "surfing",
-  onlyActive: boolean = false
-) {
+export async function listHostRequests({
+  lastRequestId = 0,
+  count = 10,
+  type = "all",
+  onlyActive = false,
+}: {
+  lastRequestId?: number;
+  count?: number;
+  type?: "all" | "hosting" | "surfing";
+  onlyActive?: boolean;
+}) {
   const req = new ListHostRequestsReq();
   req.setOnlyActive(onlyActive);
   req.setOnlyReceived(type === "hosting");
   req.setOnlySent(type === "surfing");
+  req.setLastRequestId(lastRequestId);
+  req.setNumber(count);
 
   const response = await client.requests.listHostRequests(req);
-  const hostRequests = response.getHostRequestsList();
 
-  return hostRequests.map((hostRequest) => hostRequest.toObject());
+  return response.toObject();
 }
 
 export async function getHostRequest(id: number) {
@@ -56,15 +64,18 @@ export async function respondHostRequest(
 }
 
 export async function getHostRequestMessages(
-  id: number
-): Promise<Message.AsObject[]> {
+  id: number,
+  lastMessageId: number = 0,
+  count: number = 20
+) {
   const req = new GetHostRequestMessagesReq();
   req.setHostRequestId(id);
+  req.setLastMessageId(lastMessageId);
+  req.setNumber(count);
 
   const response = await client.requests.getHostRequestMessages(req);
-  const messages = response.getMessagesList();
 
-  return messages.map((message) => message.toObject());
+  return response.toObject();
 }
 
 export async function createHostRequest(

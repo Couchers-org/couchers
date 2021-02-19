@@ -1,5 +1,6 @@
 import { StatusCode } from "grpc-web";
 
+import { AccountPromiseClient } from "../pb/account_grpc_web_pb";
 import { APIPromiseClient } from "../pb/api_grpc_web_pb";
 import { AuthPromiseClient } from "../pb/auth_grpc_web_pb";
 import { BugsPromiseClient } from "../pb/bugs_grpc_web_pb";
@@ -46,6 +47,7 @@ const opts = {
 };
 
 const apis = {
+  account: new AccountPromiseClient(URL, null, opts),
   api: new APIPromiseClient(URL, null, opts),
   auth: new AuthPromiseClient(URL, null, opts),
   bugs: new BugsPromiseClient(URL, null, opts),
@@ -65,6 +67,7 @@ if (process.env.NODE_ENV === "development") {
   const grpcWebTools = window.__GRPCWEB_DEVTOOLS__ || (() => {});
 
   grpcWebTools([
+    apis.account,
     apis.api,
     apis.auth,
     apis.bugs,

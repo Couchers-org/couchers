@@ -3,12 +3,12 @@ import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useHistory, useLocation, useParams } from "react-router-dom";
 
-import { signupRoute } from "../../../AppRoutes";
 import Autocomplete from "../../../components/Autocomplete";
 import Button from "../../../components/Button";
 import CircularProgress from "../../../components/CircularProgress";
 import TextField from "../../../components/TextField";
 import { HostingStatus } from "../../../pb/api_pb";
+import { signupRoute } from "../../../routes";
 import { service } from "../../../service";
 import {
   nameValidationPattern,
@@ -164,7 +164,6 @@ export default function CompleteSignup() {
                 options={[
                   HostingStatus.HOSTING_STATUS_CAN_HOST,
                   HostingStatus.HOSTING_STATUS_MAYBE,
-                  HostingStatus.HOSTING_STATUS_DIFFICULT,
                   HostingStatus.HOSTING_STATUS_CANT_HOST,
                 ]}
                 getOptionLabel={(option) => hostingStatusLabels[option]}

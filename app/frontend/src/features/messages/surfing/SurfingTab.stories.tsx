@@ -59,7 +59,7 @@ Object.assign(mockedService, {
 });
 
 export default {
-  title: "SurfingTab",
+  title: "Messages/SurfingTab",
   component: SurfingTab,
   argTypes: {},
   decorators: [
@@ -79,7 +79,7 @@ const Template: Story<any> = (args) => {
     if (args.failing) {
       throw new Error("An error happened!");
     }
-    return [hostRequest1];
+    return { hostRequestsList: [hostRequest1], noMore: true, lastRequestId: 0 };
   };
   return <SurfingTab type="all" />;
 };

@@ -34,12 +34,13 @@ def test_ping(db):
     assert res.user.username == user.username
     assert res.user.name == user.name
     assert res.user.city == user.city
+    assert res.user.hometown == user.hometown
     assert res.user.verification == user.verification
     assert res.user.community_standing == user.community_standing
     assert res.user.num_references == 0
     assert res.user.gender == user.gender
+    assert res.user.pronouns == user.pronouns
     assert res.user.age == user.age
-    assert res.user.color == user.color
 
     assert (res.user.lat, res.user.lng) == (user.coordinates or (0, 0))
 
@@ -50,14 +51,19 @@ def test_ping(db):
     assert user.last_active - timedelta(hours=1) <= to_aware_datetime(res.user.last_active) <= user.last_active
 
     assert res.user.hosting_status == api_pb2.HOSTING_STATUS_UNKNOWN
+    assert res.user.meetup_status == api_pb2.MEETUP_STATUS_UNKNOWN
 
     assert res.user.occupation == user.occupation
+    assert res.user.education == user.education
     assert res.user.about_me == user.about_me
+    assert res.user.my_travels == user.my_travels
+    assert res.user.things_i_like == user.things_i_like
     assert res.user.about_place == user.about_place
     # TODO: this list serialisation will be fixed hopefully soon
     assert res.user.languages == user.languages.split("|")
     assert res.user.countries_visited == user.countries_visited.split("|")
     assert res.user.countries_lived == user.countries_lived.split("|")
+    assert res.user.additional_information == user.additional_information
 
     assert res.user.friends == api_pb2.User.FriendshipStatus.NA
     assert len(res.user.mutual_friends) == 0
@@ -130,26 +136,29 @@ def test_update_profile(db):
         with pytest.raises(grpc.RpcError) as e:
             api.UpdateProfile(api_pb2.UpdateProfileReq(name=wrappers_pb2.StringValue(value="  ")))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        with pytest.raises(grpc.RpcError) as e:
-            api.UpdateProfile(api_pb2.UpdateProfileReq(color=wrappers_pb2.StringValue(value="color")))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
         res = api.UpdateProfile(
             api_pb2.UpdateProfileReq(
                 name=wrappers_pb2.StringValue(value="New name"),
                 city=wrappers_pb2.StringValue(value="Timbuktu"),
+                hometown=api_pb2.NullableStringValue(value="Walla Walla"),
                 lat=wrappers_pb2.DoubleValue(value=0.01),
                 lng=wrappers_pb2.DoubleValue(value=-2),
                 radius=wrappers_pb2.DoubleValue(value=321),
                 gender=wrappers_pb2.StringValue(value="Bot"),
+                pronouns=api_pb2.NullableStringValue(value="Ro, Robo, Robots"),
                 occupation=api_pb2.NullableStringValue(value="Testing"),
+                education=api_pb2.NullableStringValue(value="Couchers U"),
                 about_me=api_pb2.NullableStringValue(value="I rule"),
+                my_travels=api_pb2.NullableStringValue(value="Oh the places you'll go!"),
+                things_i_like=api_pb2.NullableStringValue(value="Couchers"),
                 about_place=api_pb2.NullableStringValue(value="My place"),
-                color=wrappers_pb2.StringValue(value="#111111"),
                 hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                meetup_status=api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP,
                 languages=api_pb2.RepeatedStringValue(exists=True, value=["Binary", "English"]),
                 countries_visited=api_pb2.RepeatedStringValue(exists=True, value=["UK", "Aus"]),
                 countries_lived=api_pb2.RepeatedStringValue(exists=True, value=["UK", "Aus"]),
+                additional_information=api_pb2.NullableStringValue(value="I <3 Couchers"),
             )
         )
         # all fields changed
@@ -159,6 +168,11 @@ def test_update_profile(db):
         user = api.GetUser(api_pb2.GetUserReq(user=user.username))
         assert user.name == "New name"
         assert user.city == "Timbuktu"
+        assert user.hometown == "Walla Walla"
+        assert user.pronouns == "Ro, Robo, Robots"
+        assert user.education == "Couchers U"
+        assert user.my_travels == "Oh the places you'll go!"
+        assert user.things_i_like == "Couchers"
         assert user.lat == 0.01
         assert user.lng == -2
         assert user.radius == 321
@@ -167,8 +181,10 @@ def test_update_profile(db):
         assert user.about_me == "I rule"
         assert user.about_place == "My place"
         assert user.hosting_status == api_pb2.HOSTING_STATUS_CAN_HOST
+        assert user.meetup_status == api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP
         assert "Binary" in user.languages
         assert "English" in user.languages
+        assert user.additional_information == "I <3 Couchers"
         assert "UK" in user.countries_visited
         assert "Aus" in user.countries_visited
         assert "UK" in user.countries_lived
@@ -655,15 +671,28 @@ def test_hosting_preferences(db):
     with api_session(token1) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user2.username))
         assert not res.HasField("max_guests")
-        assert not res.HasField("multiple_groups")
         assert not res.HasField("last_minute")
+        assert not res.HasField("has_pets")
         assert not res.HasField("accepts_pets")
+        assert not res.HasField("pet_details")
+        assert not res.HasField("has_kids")
         assert not res.HasField("accepts_kids")
+        assert not res.HasField("kid_details")
+        assert not res.HasField("has_housemates")
+        assert not res.HasField("housemate_details")
         assert not res.HasField("wheelchair_accessible")
         assert res.smoking_allowed == api_pb2.SMOKING_LOCATION_UNKNOWN
-        assert not res.HasField("sleeping_arrangement")
+        assert not res.HasField("smokes_at_home")
+        assert not res.HasField("drinking_allowed")
+        assert not res.HasField("drinks_at_home")
+        assert not res.HasField("other_host_info")
+        assert res.sleeping_arrangement == api_pb2.SLEEPING_ARRANGEMENT_UNKNOWN
+        assert not res.HasField("sleeping_details")
         assert not res.HasField("area")
         assert not res.HasField("house_rules")
+        assert not res.HasField("parking")
+        assert res.parking_details == api_pb2.PARKING_DETAILS_UNKNOWN
+        assert not res.HasField("camping_ok")
 
         api.UpdateProfile(
             api_pb2.UpdateProfileReq(
@@ -679,15 +708,28 @@ def test_hosting_preferences(db):
     with api_session(token2) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
         assert res.max_guests.value == 3
-        assert not res.HasField("multiple_groups")
         assert not res.HasField("last_minute")
+        assert not res.HasField("has_pets")
         assert not res.HasField("accepts_pets")
+        assert not res.HasField("pet_details")
+        assert not res.HasField("has_kids")
         assert not res.HasField("accepts_kids")
+        assert not res.HasField("kid_details")
+        assert not res.HasField("has_housemates")
+        assert not res.HasField("housemate_details")
         assert not res.wheelchair_accessible.value
         assert res.smoking_allowed == api_pb2.SMOKING_LOCATION_WINDOW
-        assert not res.HasField("sleeping_arrangement")
+        assert not res.HasField("smokes_at_home")
+        assert not res.HasField("drinking_allowed")
+        assert not res.HasField("drinks_at_home")
+        assert not res.HasField("other_host_info")
+        assert res.sleeping_arrangement == api_pb2.SLEEPING_ARRANGEMENT_UNKNOWN
+        assert not res.HasField("sleeping_details")
         assert not res.HasField("area")
         assert res.house_rules.value == "RULES!"
+        assert not res.HasField("parking")
+        assert res.parking_details == api_pb2.PARKING_DETAILS_UNKNOWN
+        assert not res.HasField("camping_ok")
 
     with api_session(token1) as api:
         # test unsetting
@@ -703,15 +745,28 @@ def test_hosting_preferences(db):
 
         res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
         assert not res.HasField("max_guests")
-        assert not res.HasField("multiple_groups")
         assert not res.HasField("last_minute")
+        assert not res.HasField("has_pets")
         assert not res.HasField("accepts_pets")
+        assert not res.HasField("pet_details")
+        assert not res.HasField("has_kids")
         assert not res.HasField("accepts_kids")
+        assert not res.HasField("kid_details")
+        assert not res.HasField("has_housemates")
+        assert not res.HasField("housemate_details")
         assert res.wheelchair_accessible.value
         assert res.smoking_allowed == api_pb2.SMOKING_LOCATION_UNKNOWN
-        assert not res.HasField("sleeping_arrangement")
+        assert not res.HasField("smokes_at_home")
+        assert not res.HasField("drinking_allowed")
+        assert not res.HasField("drinks_at_home")
+        assert not res.HasField("other_host_info")
+        assert res.sleeping_arrangement == api_pb2.SLEEPING_ARRANGEMENT_UNKNOWN
+        assert not res.HasField("sleeping_details")
         assert res.area.value == "area!"
         assert not res.HasField("house_rules")
+        assert not res.HasField("parking")
+        assert res.parking_details == api_pb2.PARKING_DETAILS_UNKNOWN
+        assert not res.HasField("camping_ok")
 
 def test_profile_deletion(db):
     user, token = generate_user()

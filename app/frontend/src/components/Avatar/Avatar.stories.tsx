@@ -6,7 +6,7 @@ import imageFile from "../../stories/assets/funnycat.jpg";
 import Avatar, { AvatarProps } from ".";
 
 export default {
-  title: "Components/Avatar",
+  title: "Components/Simple/Avatar",
   component: Avatar,
   argTypes: {
     backgroundColor: { control: "color" },

@@ -7,7 +7,6 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import mediaQuery from "css-mediaquery";
-import { report } from "process";
 
 import { service } from "../service";
 import wrapper from "../test/hookWrapper";

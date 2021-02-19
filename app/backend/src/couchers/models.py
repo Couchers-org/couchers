@@ -3,7 +3,19 @@ from calendar import monthrange
 from datetime import date
 
 from geoalchemy2.types import Geometry
-from sqlalchemy import BigInteger, Boolean, CheckConstraint, Column, Date, DateTime, Enum, Float, ForeignKey, Integer
+from sqlalchemy import (
+    BigInteger,
+    Boolean,
+    CheckConstraint,
+    Column,
+    Date,
+    DateTime,
+    Enum,
+    Float,
+    ForeignKey,
+    Index,
+    Integer,
+)
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import MetaData, Sequence, String, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
@@ -36,8 +48,13 @@ class PhoneStatus(enum.Enum):
 class HostingStatus(enum.Enum):
     can_host = enum.auto()
     maybe = enum.auto()
-    difficult = enum.auto()
     cant_host = enum.auto()
+
+
+class MeetupStatus(enum.Enum):
+    wants_to_meetup = enum.auto()
+    open_to_meetup = enum.auto()
+    does_not_want_to_meetup = enum.auto()
 
 
 class SmokingLocation(enum.Enum):
@@ -45,6 +62,20 @@ class SmokingLocation(enum.Enum):
     window = enum.auto()
     outside = enum.auto()
     no = enum.auto()
+
+
+class SleepingArrangement(enum.Enum):
+    private = enum.auto()
+    common = enum.auto()
+    shared_room = enum.auto()
+    shared_space = enum.auto()
+
+
+class ParkingDetails(enum.Enum):
+    free_onsite = enum.auto()
+    free_offsite = enum.auto()
+    paid_onsite = enum.auto()
+    paid_offsite = enum.auto()
 
 
 class User(Base):
@@ -74,6 +105,7 @@ class User(Base):
     geom_radius = Column(Float, nullable=True)
     # the display address (text) shown on their profile
     city = Column(String, nullable=False)
+    hometown = Column(String, nullable=True)
 
     joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     last_active = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
@@ -81,12 +113,14 @@ class User(Base):
     # display name
     name = Column(String, nullable=False)
     gender = Column(String, nullable=False)
+    pronouns = Column(String, nullable=True)
     birthdate = Column(Date, nullable=False)  # in the timezone of birthplace
 
     # name as on official docs for verification, etc. not needed until verification
     full_name = Column(String, nullable=True)
 
     hosting_status = Column(Enum(HostingStatus), nullable=True)
+    meetup_status = Column(Enum(MeetupStatus), nullable=True)
 
     # verification score
     verification = Column(Float, nullable=True)
@@ -94,31 +128,46 @@ class User(Base):
     community_standing = Column(Float, nullable=True)
 
     occupation = Column(String, nullable=True)
+    education = Column(String, nullable=True)
     about_me = Column(String, nullable=True)
+    my_travels = Column(String, nullable=True)
+    things_i_like = Column(String, nullable=True)
     about_place = Column(String, nullable=True)
-    # profile color
-    color = Column(String, nullable=False, default="#643073")
     avatar_filename = Column(String, nullable=True)
     # TODO: array types once we go postgres
     languages = Column(String, nullable=True)
     countries_visited = Column(String, nullable=True)
     countries_lived = Column(String, nullable=True)
+    additional_information = Column(String, nullable=True)
 
     is_banned = Column(Boolean, nullable=False, default=False)
     is_deleted = Column(Boolean, nullable=False, default=False)
 
     # hosting preferences
     max_guests = Column(Integer, nullable=True)
-    multiple_groups = Column(Boolean, nullable=True)
     last_minute = Column(Boolean, nullable=True)
+    has_pets = Column(Boolean, nullable=True)
     accepts_pets = Column(Boolean, nullable=True)
+    pet_details = Column(String, nullable=True)
+    has_kids = Column(Boolean, nullable=True)
     accepts_kids = Column(Boolean, nullable=True)
+    kid_details = Column(String, nullable=True)
+    has_housemates = Column(Boolean, nullable=True)
+    housemate_details = Column(String, nullable=True)
     wheelchair_accessible = Column(Boolean, nullable=True)
     smoking_allowed = Column(Enum(SmokingLocation), nullable=True)
+    smokes_at_home = Column(Boolean, nullable=True)
+    drinking_allowed = Column(Boolean, nullable=True)
+    drinks_at_home = Column(Boolean, nullable=True)
+    other_host_info = Column(String, nullable=True)
 
-    sleeping_arrangement = Column(String, nullable=True)
+    sleeping_arrangement = Column(Enum(SleepingArrangement), nullable=True)
+    sleeping_details = Column(String, nullable=True)
     area = Column(String, nullable=True)
     house_rules = Column(String, nullable=True)
+    parking = Column(Boolean, nullable=True)
+    parking_details = Column(Enum(ParkingDetails), nullable=True)
+    camping_ok = Column(Boolean, nullable=True)
 
     accepted_tos = Column(Integer, nullable=False, default=0)
 
@@ -692,13 +741,6 @@ class Cluster(Base):
     """
 
     __tablename__ = "clusters"
-    __table_args__ = (
-        CheckConstraint(
-            # make sure the parent_node_id and official_cluster_for_node_id match
-            "(official_cluster_for_node_id IS NULL) OR (official_cluster_for_node_id = parent_node_id)",
-            name="official_cluster_matches_parent_node",
-        ),
-    )
 
     id = Column(BigInteger, communities_seq, primary_key=True)
     parent_node_id = Column(ForeignKey("nodes.id"), nullable=False, index=True)
@@ -707,17 +749,15 @@ class Cluster(Base):
     description = Column(String, nullable=False)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
-    official_cluster_for_node_id = Column(ForeignKey("nodes.id"), nullable=True, unique=True, index=True)
-
-    thread_id = Column(ForeignKey("threads.id"), nullable=False, unique=True)
+    is_official_cluster = Column(Boolean, nullable=False, default=False)
 
     slug = column_property(func.slugify(name))
 
     official_cluster_for_node = relationship(
         "Node",
+        primaryjoin="and_(Cluster.parent_node_id == Node.id, Cluster.is_official_cluster)",
         backref=backref("official_cluster", uselist=False),
         uselist=False,
-        foreign_keys="Cluster.official_cluster_for_node_id",
     )
 
     parent_node = relationship(
@@ -749,7 +789,23 @@ class Cluster(Base):
         secondaryjoin="and_(User.id == ClusterSubscription.user_id, ClusterSubscription.role == 'admin')",
     )
 
-    thread = relationship("Thread", backref="cluster", uselist=False)
+    main_page = relationship(
+        "Page",
+        primaryjoin="and_(Cluster.id == Page.owner_cluster_id, Page.type == 'main_page')",
+        viewonly=True,
+        uselist=False,
+    )
+
+    __table_args__ = (
+        # Each node can have at most one official cluster
+        Index(
+            "ix_clusters_owner_parent_node_id_is_official_cluster",
+            parent_node_id,
+            is_official_cluster,
+            unique=True,
+            postgresql_where=is_official_cluster,
+        ),
+    )
 
 
 class NodeClusterAssociation(Base):
@@ -787,15 +843,9 @@ class ClusterSubscription(Base):
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     cluster_id = Column(ForeignKey("clusters.id"), nullable=False, index=True)
     role = Column(Enum(ClusterRole), nullable=False)
-    joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    left = Column(DateTime(timezone=True), nullable=True)
 
     user = relationship("User", backref="cluster_subscriptions")
     cluster = relationship("Cluster", backref="cluster_subscriptions")
-
-    @hybrid_property
-    def is_current(self):
-        return (self.joined <= func.now()) & ((not self.left) | (self.left >= func.now()))
 
 
 class ClusterPageAssociation(Base):
@@ -827,36 +877,18 @@ class Page(Base):
     """
 
     __tablename__ = "pages"
-    __table_args__ = (
-        # Only one of owner_user and owner_cluster should be set
-        CheckConstraint(
-            "(owner_user_id IS NULL AND owner_cluster_id IS NOT NULL) OR (owner_user_id IS NOT NULL AND owner_cluster_id IS NULL)",
-            name="one_owner",
-        ),
-        # if the page is a main page, it must be owned by that cluster
-        CheckConstraint(
-            "(main_page_for_cluster_id IS NULL) OR (owner_cluster_id IS NOT NULL AND main_page_for_cluster_id = owner_cluster_id)",
-            name="main_page_owned_by_cluster",
-        ),
-    )
 
     id = Column(BigInteger, communities_seq, primary_key=True)
 
+    parent_node_id = Column(ForeignKey("nodes.id"), nullable=False, index=True)
     type = Column(Enum(PageType), nullable=False)
     creator_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     owner_user_id = Column(ForeignKey("users.id"), nullable=True, index=True)
     owner_cluster_id = Column(ForeignKey("clusters.id"), nullable=True, index=True)
 
-    main_page_for_cluster_id = Column(ForeignKey("clusters.id"), nullable=True, unique=True, index=True)
-
     thread_id = Column(ForeignKey("threads.id"), nullable=False, unique=True)
 
-    main_page_for_cluster = relationship(
-        "Cluster",
-        backref=backref("main_page", uselist=False),
-        uselist=False,
-        foreign_keys="Page.main_page_for_cluster_id",
-    )
+    parent_node = relationship("Node", backref="child_pages", remote_side="Node.id", foreign_keys="Page.parent_node_id")
 
     thread = relationship("Thread", backref="page", uselist=False)
     creator_user = relationship("User", backref="created_pages", foreign_keys="Page.creator_user_id")
@@ -866,6 +898,27 @@ class Page(Base):
     )
 
     editors = relationship("User", secondary="page_versions")
+
+    __table_args__ = (
+        # Only one of owner_user and owner_cluster should be set
+        CheckConstraint(
+            "(owner_user_id IS NULL AND owner_cluster_id IS NOT NULL) OR (owner_user_id IS NOT NULL AND owner_cluster_id IS NULL)",
+            name="one_owner",
+        ),
+        # Only clusters can own main pages
+        CheckConstraint(
+            "NOT (owner_cluster_id IS NULL AND type = 'main_page')",
+            name="main_page_owned_by_cluster",
+        ),
+        # Each cluster can have at most one main page
+        Index(
+            "ix_pages_owner_cluster_id_type",
+            owner_cluster_id,
+            type,
+            unique=True,
+            postgresql_where=(type == PageType.main_page),
+        ),
+    )
 
 
 class PageVersion(Base):
@@ -1073,3 +1126,65 @@ class Reply(Base):
     deleted = Column(DateTime(timezone=True), nullable=True)
 
     comment = relationship("Comment", backref="replies")
+
+
+class BackgroundJobType(enum.Enum):
+    # payload: jobs.SendEmailPayload
+    send_email = 1
+    # payload: google.protobuf.Empty
+    purge_login_tokens = 2
+    # payload: google.protobuf.Empty
+    purge_signup_tokens = 3
+
+
+class BackgroundJobState(enum.Enum):
+    # job is fresh, waiting to be picked off the queue
+    pending = 1
+    # job complete
+    completed = 2
+    # error occured, will be retried
+    error = 3
+    # failed too many times, not retrying anymore
+    failed = 4
+
+
+class BackgroundJob(Base):
+    """
+    This table implements a queue of background jobs.
+    """
+
+    __tablename__ = "background_jobs"
+
+    id = Column(BigInteger, primary_key=True)
+
+    # used to discern which function should be triggered to service it
+    job_type = Column(Enum(BackgroundJobType), nullable=False)
+    state = Column(Enum(BackgroundJobState), nullable=False, default=BackgroundJobState.pending)
+
+    # time queued
+    queued = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    # time at which we may next attempt it, for implementing exponential backoff
+    next_attempt_after = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    # used to count number of retries for failed jobs
+    try_count = Column(Integer, nullable=False, default=0)
+
+    max_tries = Column(Integer, nullable=False, default=5)
+
+    # protobuf encoded job payload
+    payload = Column(Binary, nullable=False)
+
+    # if the job failed, we write that info here
+    failure_info = Column(String, nullable=True)
+
+    @hybrid_property
+    def ready_for_retry(self):
+        return (
+            (self.next_attempt_after <= func.now())
+            & (self.try_count < self.max_tries)
+            & ((self.state == BackgroundJobState.pending) | (self.state == BackgroundJobState.error))
+        )
+
+    def __repr__(self):
+        return f"BackgroundJob(id={self.id}, job_type={self.job_type}, state={self.state}, next_attempt_after={self.next_attempt_after}, try_count={self.try_count}, failure_info={self.failure_info})"

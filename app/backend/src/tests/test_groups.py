@@ -1,5 +1,7 @@
+import grpc
 import pytest
 
+from couchers import errors
 from couchers.db import session_scope
 from pb import groups_pb2, pages_pb2
 from tests.test_communities import get_community_id, get_group_id, get_user_id_and_token, testing_communities
@@ -228,6 +230,63 @@ class TestGroups:
                 "Discussion title 13",
                 "Discussion title 14",
             ]
+
+
+def test_JoinGroup_and_LeaveGroup(testing_communities):
+    # these tests are separate from above as they mutate the database
+    with session_scope() as session:
+        user_id, token = get_user_id_and_token(session, "user3")
+        h_id = get_group_id(session, "Hitchhikers")
+
+    with groups_session(token) as api:
+        # not in group at start
+        assert not api.GetGroup(groups_pb2.GetGroupReq(group_id=h_id)).member
+
+        # can't leave
+        with pytest.raises(grpc.RpcError) as e:
+            res = api.LeaveGroup(
+                groups_pb2.LeaveGroupReq(
+                    group_id=h_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.NOT_IN_GROUP
+
+        # didn't magically join
+        assert not api.GetGroup(groups_pb2.GetGroupReq(group_id=h_id)).member
+
+        # but can join
+        res = api.JoinGroup(
+            groups_pb2.JoinGroupReq(
+                group_id=h_id,
+            )
+        )
+
+        # should be there now
+        assert api.GetGroup(groups_pb2.GetGroupReq(group_id=h_id)).member
+
+        # can't join again
+        with pytest.raises(grpc.RpcError) as e:
+            res = api.JoinGroup(
+                groups_pb2.JoinGroupReq(
+                    group_id=h_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.ALREADY_IN_GROUP
+
+        # didn't magically leave
+        assert api.GetGroup(groups_pb2.GetGroupReq(group_id=h_id)).member
+
+        # now we can leave though
+        res = api.LeaveGroup(
+            groups_pb2.LeaveGroupReq(
+                group_id=h_id,
+            )
+        )
+
+        # managed to leave
+        assert not api.GetGroup(groups_pb2.GetGroupReq(group_id=h_id)).member
 
 
 # TODO: also requires implementing content transfer functionality

@@ -13,10 +13,10 @@ from pb import discussions_pb2, discussions_pb2_grpc
 def discussion_to_pb(discussion: Discussion, user_id):
     owner_community_id = None
     owner_group_id = None
-    if discussion.owner_cluster.official_cluster_for_node_id is None:
-        owner_group_id = discussion.owner_cluster.id
+    if discussion.owner_cluster.is_official_cluster:
+        owner_community_id = discussion.owner_cluster.parent_node_id
     else:
-        owner_community_id = discussion.owner_cluster.official_cluster_for_node_id
+        owner_group_id = discussion.owner_cluster.id
 
     return discussions_pb2.Discussion(
         discussion_id=discussion.id,
@@ -44,14 +44,15 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
             if request.WhichOneof("owner") == "owner_group_id":
                 cluster = (
                     session.query(Cluster)
-                    .filter(Cluster.official_cluster_for_node_id == None)
+                    .filter(~Cluster.is_official_cluster)
                     .filter(Cluster.id == request.owner_group_id)
                     .one_or_none()
                 )
             elif request.WhichOneof("owner") == "owner_community_id":
                 cluster = (
                     session.query(Cluster)
-                    .filter(Cluster.official_cluster_for_node_id == request.owner_community_id)
+                    .filter(Cluster.parent_node_id == request.owner_community_id)
+                    .filter(Cluster.is_official_cluster)
                     .one_or_none()
                 )
 

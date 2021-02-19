@@ -5,7 +5,7 @@ import NotificationBadge from "../NotificationBadge";
 import TabBar, { TabBarProps } from "./TabBar";
 
 export default {
-  title: "Components/TabBar",
+  title: "Components/Composite/TabBar",
   component: TabBar,
 } as Meta;
 

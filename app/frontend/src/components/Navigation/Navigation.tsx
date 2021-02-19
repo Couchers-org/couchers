@@ -7,15 +7,16 @@ import {
   Typography,
 } from "@material-ui/core";
 
+import { useAuthContext } from "../../features/auth/AuthProvider";
+import BugReport from "../../features/BugReport";
+import SearchBox from "../../features/search/SearchBox";
 import {
   connectionsRoute,
   logoutRoute,
   mapRoute,
   messagesRoute,
   profileRoute,
-} from "../../AppRoutes";
-import { useAuthContext } from "../../features/auth/AuthProvider";
-import BugReport from "../../features/BugReport";
+} from "../../routes";
 import {
   CommunityIcon,
   CrossIcon,
@@ -24,7 +25,6 @@ import {
   PeopleIcon,
   PersonIcon,
 } from "../Icons";
-import SearchBox from "../SearchBox";
 import NavButton from "./NavButton";
 
 const menu = [

@@ -1,11 +1,12 @@
 import logging
 
 import grpc
+from google.protobuf import empty_pb2
 from sqlalchemy.sql import literal
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Cluster, Discussion, Node, Page, PageType, User
+from couchers.models import Cluster, ClusterRole, ClusterSubscription, Discussion, Node, Page, PageType, User
 from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
@@ -34,7 +35,8 @@ def _parents_to_pb(node_id, user_id):
         ).subquery()
         parents = (
             session.query(subquery, Cluster)
-            .join(Cluster, Cluster.official_cluster_for_node_id == subquery.c.id)
+            .join(Cluster, Cluster.parent_node_id == subquery.c.id)
+            .filter(Cluster.is_official_cluster)
             .order_by(subquery.c.level.desc())
             .all()
         )
@@ -60,11 +62,10 @@ def community_to_pb(node: Node, user_id):
         created=Timestamp_from_datetime(node.created),
         parents=_parents_to_pb(node.id, user_id),
         main_page=page_to_pb(node.official_cluster.main_page, user_id),
-        member=node.official_cluster.members.filter(User.id == user_id).first() is not None,
-        admin=node.official_cluster.admins.filter(User.id == user_id).first() is not None,
+        member=node.official_cluster.members.filter(User.id == user_id).one_or_none() is not None,
+        admin=node.official_cluster.admins.filter(User.id == user_id).one_or_none() is not None,
         member_count=node.official_cluster.members.count(),
         admin_count=node.official_cluster.admins.count(),
-        thread_id=pack_thread_id(node.official_cluster.thread_id, 0),
     )
 
 
@@ -100,7 +101,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             next_cluster_id = int(request.page_token) if request.page_token else 0
             clusters = (
                 session.query(Cluster)
-                .filter(Cluster.official_cluster_for_node_id == None)  # not an official group
+                .filter(~Cluster.is_official_cluster)  # not an official group
                 .filter(Cluster.parent_node_id == request.community_id)
                 .filter(Cluster.id >= next_cluster_id)
                 .order_by(Cluster.id)
@@ -222,3 +223,40 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 discussions=[discussion_to_pb(discussion, context.user_id) for discussion in discussions[:page_size]],
                 next_page_token=str(discussions[-1].id) if len(discussions) > page_size else None,
             )
+
+    def JoinCommunity(self, request, context):
+        with session_scope() as session:
+            node = session.query(Node).filter(Node.id == request.community_id).one_or_none()
+            if not node:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+
+            current_membership = node.official_cluster.members.filter(User.id == context.user_id).one_or_none()
+            if current_membership:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ALREADY_IN_COMMUNITY)
+
+            node.official_cluster.cluster_subscriptions.append(
+                ClusterSubscription(
+                    user_id=context.user_id,
+                    role=ClusterRole.member,
+                )
+            )
+
+            return empty_pb2.Empty()
+
+    def LeaveCommunity(self, request, context):
+        with session_scope() as session:
+            node = session.query(Node).filter(Node.id == request.community_id).one_or_none()
+            if not node:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+
+            current_membership = node.official_cluster.members.filter(User.id == context.user_id).one_or_none()
+
+            if not current_membership:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NOT_IN_COMMUNITY)
+
+            if node.contained_users.filter(User.id == context.user_id).one_or_none():
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANNOT_LEAVE_CONTAINING_COMMUNITY)
+
+            session.query(ClusterSubscription).filter(ClusterSubscription.user_id == context.user_id).delete()
+
+            return empty_pb2.Empty()

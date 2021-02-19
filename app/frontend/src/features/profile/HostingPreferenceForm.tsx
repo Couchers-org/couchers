@@ -1,4 +1,5 @@
 import {
+  Box,
   Checkbox,
   FormControl,
   FormControlLabel,
@@ -49,6 +50,11 @@ function HostingPreferenceCheckbox({
 const useStyles = makeStyles((theme) => ({
   alert: {
     marginBottom: theme.spacing(3),
+  },
+  buttonContainer: {
+    display: "flex",
+    paddingTop: theme.spacing(1),
+    justifyContent: "center",
   },
   form: {
     marginBottom: theme.spacing(2),
@@ -111,13 +117,6 @@ export default function HostingPreferenceForm() {
       {user ? (
         <form className={classes.form} onSubmit={onSubmit}>
           <Typography variant="h2">Hosting preferences</Typography>
-          <HostingPreferenceCheckbox
-            className={classes.formControl}
-            defaultValue={!!user.multipleGroups?.value}
-            label="Multiple groups accepted"
-            name="multipleGroups"
-            register={register}
-          />
           <HostingPreferenceCheckbox
             className={classes.formControl}
             defaultValue={!!user.acceptsKids?.value}
@@ -228,23 +227,16 @@ export default function HostingPreferenceForm() {
               />
             )}
           />
-          <ProfileTextInput
-            label="Sleeping arrangements"
-            name="sleepingArrangement"
-            defaultValue={user.sleepingArrangement?.value ?? ""}
-            inputRef={register}
-            rowsMax={5}
-            multiline
-            className={classes.field}
-          />
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            onClick={onSubmit}
-          >
-            Save
-          </Button>
+          <Box className={classes.buttonContainer}>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              onClick={onSubmit}
+            >
+              Save
+            </Button>
+          </Box>
         </form>
       ) : (
         <CircularProgress />
