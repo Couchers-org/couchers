@@ -90,7 +90,7 @@ message UserSearchReq {
 
   // coarsened
   google.protobuf.Timestamp last_active = 5;
-  google.protobuf.StringValue language = 6;
+  // google.protobuf.StringValue language = 6;
   google.protobuf.BoolValue has_references = 7;
   bool friends_only = 8;
 
