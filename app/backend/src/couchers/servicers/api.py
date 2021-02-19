@@ -734,7 +734,8 @@ def user_model_to_pb(db_user, session, context):
         things_i_like=db_user.things_i_like,
         about_place=db_user.about_place,
         language_abilities=[
-            api_pb2.LanguageAbility(code=l.language, fluency=fluency2api[l.fluency]) for l in db_user.language_abilities
+            api_pb2.LanguageAbility(code=language.language, fluency=fluency2api[language.fluency])
+            for language in db_user.language_abilities
         ],
         countries_visited=db_user.countries_visited.split("|") if db_user.countries_visited else [],
         countries_lived=db_user.countries_lived.split("|") if db_user.countries_lived else [],

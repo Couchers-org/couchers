@@ -78,27 +78,6 @@ class ParkingDetails(enum.Enum):
     paid_offsite = enum.auto()
 
 
-class LanguageFluency(enum.Enum):
-    # note that the numbering is important here, these are ordinal
-    say_hello = 1
-    beginner = 2
-    intermediate = 3
-    advanced = 4
-    fluent = 5
-    native = 6
-
-
-class LanguageAbility(Base):
-    __tablename__ = "language_abilities"
-
-    id = Column(BigInteger, primary_key=True)
-    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    language = Column(String(length=3), nullable=False)  # ISO639-3 code lowercase
-    fluency = Column(Enum(LanguageFluency), nullable=False)
-
-    user = relationship("User", backref="language_abilities")
-
-
 class User(Base):
     """
     Basic user and profile details
@@ -281,6 +260,46 @@ class User(Base):
 
     def __repr__(self):
         return f"User(id={self.id}, email={self.email}, username={self.username})"
+
+
+class LanguageFluency(enum.Enum):
+    # note that the numbering is important here, these are ordinal
+    say_hello = 1
+    beginner = 2
+    intermediate = 3
+    advanced = 4
+    fluent = 5
+    native = 6
+
+
+class Language(Base):
+    """
+    List of allowed languages
+    """
+
+    __tablename__ = "languages"
+
+    # ISO639-3 language code, in lowercase
+    code = Column(String(3), primary_key=True)
+
+    # the english name
+    name = Column(String, nullable=False, unique=True)
+
+
+class LanguageAbility(Base):
+    __tablename__ = "language_abilities"
+    __table_args__ = (
+        # Users can only have one language ability per language
+        UniqueConstraint("user_id", "language_code"),
+    )
+
+    id = Column(BigInteger, primary_key=True)
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    language_code = Column(ForeignKey("languages.code"), nullable=False)
+    fluency = Column(Enum(LanguageFluency), nullable=False)
+
+    user = relationship("User", backref="language_abilities")
+    language = relationship("Language", backref=backref("users", lazy="dynamic"))
 
 
 class FriendStatus(enum.Enum):

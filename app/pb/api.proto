@@ -140,7 +140,7 @@ enum MeetupStatus {
 
 message LanguageAbility {
   enum Fluency {
-      FLUENCY_UNSPECIFIED= 0;
+      FLUENCY_UNSPECIFIED = 0;
       FLUENCY_SAY_HELLO = 1;
       FLUENCY_BEGINNER = 2;
       FLUENCY_INTERMEDIATE = 3;
@@ -229,7 +229,6 @@ message User {
   string my_travels = 104;
   string things_i_like = 105;
   string about_place = 16;
-  repeated string languages = 17;
   repeated string countries_visited = 18;
   repeated string countries_lived = 19;
   string additional_information = 106;
