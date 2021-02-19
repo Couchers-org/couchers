@@ -365,7 +365,7 @@ class API(api_pb2_grpc.APIServicer):
                 else:
                     user.other_host_info = request.other_host_info.value
 
-            if request.sleeping_arrangement != api_pb2.SLEEPING_ARRANGEMENT_UNKNOWN:
+            if request.sleeping_arrangement != api_pb2.SLEEPING_ARRANGEMENT_UNSPECIFIED:
                 user.sleeping_arrangement = smokinglocation2sql[request.sleeping_arrangement]
 
             if request.HasField("sleeping_details"):
@@ -392,7 +392,7 @@ class API(api_pb2_grpc.APIServicer):
                 else:
                     user.parking = request.parking.value
 
-            if request.parking_details != api_pb2.PARKING_DETAILS_UNKNOWN:
+            if request.parking_details != api_pb2.PARKING_DETAILS_UNSPECIFIED:
                 user.parking_details = parkingdetails2sql[request.parking_details]
 
             if request.HasField("camping_ok"):
