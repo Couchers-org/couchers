@@ -1,7 +1,7 @@
 """Add language table
 
 Revision ID: 0a4fb7fcb678
-Revises: 20b0d7fd2619
+Revises: c4445e08ea86
 Create Date: 2021-01-17 10:33:14.483955
 
 """
@@ -11,7 +11,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "0a4fb7fcb678"
-down_revision = "20b0d7fd2619"
+down_revision = "c4445e08ea86"
 branch_labels = None
 depends_on = None
 
