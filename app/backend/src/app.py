@@ -15,6 +15,7 @@ from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
 from couchers.servicers.bugs import Bugs
 from couchers.servicers.communities import Communities
+from couchers.servicers.constant_data import ConstantData
 from couchers.servicers.conversations import Conversations
 from couchers.servicers.discussions import Discussions
 from couchers.servicers.gis import GIS
@@ -32,6 +33,7 @@ from pb import (
     auth_pb2_grpc,
     bugs_pb2_grpc,
     communities_pb2_grpc,
+    constant_data_pb2_grpc,
     conversations_pb2_grpc,
     discussions_pb2_grpc,
     gis_pb2_grpc,
@@ -117,11 +119,12 @@ if config.config["ROLE"] in ["api", "all"]:
     account_pb2_grpc.add_AccountServicer_to_server(Account(), server)
     api_pb2_grpc.add_APIServicer_to_server(servicer, server)
     communities_pb2_grpc.add_CommunitiesServicer_to_server(Communities(), server)
+    constant_data_pb2_grpc.add_ConstantDataServicer_to_server(ConstantData(), server)
     conversations_pb2_grpc.add_ConversationsServicer_to_server(Conversations(), server)
     discussions_pb2_grpc.add_DiscussionsServicer_to_server(Discussions(), server)
-    pages_pb2_grpc.add_PagesServicer_to_server(Pages(), server)
     gis_pb2_grpc.add_GISServicer_to_server(GIS(), server)
     groups_pb2_grpc.add_GroupsServicer_to_server(Groups(), server)
+    pages_pb2_grpc.add_PagesServicer_to_server(Pages(), server)
     requests_pb2_grpc.add_RequestsServicer_to_server(Requests(), server)
     sso_pb2_grpc.add_SSOServicer_to_server(SSO(), server)
     threads_pb2_grpc.add_ThreadsServicer_to_server(Threads(), server)
