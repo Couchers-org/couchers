@@ -1,4 +1,13 @@
-import { Typography } from "@material-ui/core";
+import {
+  FormControlLabel,
+  InputLabel,
+  makeStyles,
+  Radio,
+  RadioGroup,
+  TextField as MuiTextField,
+  Typography,
+} from "@material-ui/core";
+import AccessibilityIcon from "@material-ui/icons/Accessibility";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useHistory, useLocation, useParams } from "react-router-dom";
@@ -23,10 +32,38 @@ type SignupInputs = {
   username: string;
   name: string;
   birthdate: string;
-  city: string;
+  location: string;
   gender: string;
   hostingStatus: HostingStatus;
 };
+
+const useStyles = makeStyles((theme) => ({
+  completeSignupForm: {
+    display: "flex",
+    flexDirection: "column",
+    marginBottom: theme.spacing(5),
+    width: "100%",
+  },
+  formField: {
+    marginBottom: theme.spacing(2),
+  },
+  formLabel: {
+    color: "#333333",
+    fontWeight: 700,
+  },
+  button: {
+    marginTop: theme.spacing(4),
+  },
+  buttonText: {
+    color: "#ffffff",
+    fontWeight: 700,
+  },
+  genderRadio: {
+    display: "flex",
+    flexDirection: "row",
+  },
+  genderRadioButton: {},
+}));
 
 export default function CompleteSignup() {
   const { authState, authActions } = useAuthContext();
@@ -49,6 +86,7 @@ export default function CompleteSignup() {
   const { urlToken } = useParams<{ urlToken: string }>();
   const location = useLocation();
   const history = useHistory();
+  const classes = useStyles();
 
   useEffect(() => {
     (async () => {
@@ -73,7 +111,7 @@ export default function CompleteSignup() {
       signupToken: urlToken,
       username: data.username,
       name: data.name,
-      city: data.city,
+      city: data.location,
       birthdate: data.birthdate,
       gender: data.gender,
       hostingStatus: data.hostingStatus,
@@ -85,11 +123,14 @@ export default function CompleteSignup() {
       {loading ? (
         <CircularProgress />
       ) : (
-        <form onSubmit={completeSignup}>
-          <Typography variant="h3">{getValues("email")}</Typography>
-          <TextField
+        <form className={classes.completeSignupForm} onSubmit={completeSignup}>
+          <InputLabel className={classes.formLabel} htmlFor="full-name">
+            Full name
+          </InputLabel>
+          <MuiTextField
+            id="full-name"
+            className={classes.formField}
             name="name"
-            label="Name"
             inputRef={register({
               required: "Enter your name",
               pattern: {
@@ -99,9 +140,43 @@ export default function CompleteSignup() {
             })}
             helperText={errors?.name?.message}
           />
-          <TextField
+          <InputLabel className={classes.formLabel} htmlFor="full-name">
+            Birthday
+          </InputLabel>
+          <MuiTextField
+            id="birthday"
+            className={classes.formField}
+            name="birthdate"
+            type="date"
+            InputLabelProps={{
+              shrink: true,
+            }}
+            inputRef={register({
+              required: "Enter your birthdate",
+              validate: (stringDate) =>
+                validatePastDate(stringDate) ||
+                "Must be a valid date in the past.",
+            })}
+            helperText={errors?.birthdate?.message}
+          />
+          <InputLabel className={classes.formLabel} htmlFor="location">
+            Your location
+          </InputLabel>
+          <MuiTextField
+            id="location"
+            className={classes.formField}
+            name="location"
+            inputRef={register({
+              required: "Enter your location",
+            })}
+            helperText={errors?.location?.message}
+          />
+          <InputLabel className={classes.formLabel} htmlFor="username">
+            Username
+          </InputLabel>
+          <MuiTextField
+            className={classes.formField}
             name="username"
-            label="Username"
             inputRef={register({
               required: "Enter your username",
               pattern: {
@@ -117,49 +192,17 @@ export default function CompleteSignup() {
             })}
             helperText={errors?.username?.message}
           />
-          <TextField
-            name="city"
-            label="City"
-            inputRef={register({
-              required: "Enter your city",
-            })}
-            helperText={errors?.city?.message}
-          />
-          <Controller
-            control={control}
-            name="gender"
-            defaultValue=""
-            render={({ onChange }) => (
-              <Autocomplete
-                label="Gender"
-                onInputChange={(_, value) => onChange(value)}
-                options={["Male", "Female", "<Type anything you like>"]}
-                freeSolo
-              />
-            )}
-          />
-          <TextField
-            name="birthdate"
-            label="Birthdate"
-            type="date"
-            InputLabelProps={{
-              shrink: true,
-            }}
-            inputRef={register({
-              required: "Enter your birthdate",
-              validate: (stringDate) =>
-                validatePastDate(stringDate) ||
-                "Must be a valid date in the past.",
-            })}
-            helperText={errors?.birthdate?.message}
-          />
+          <InputLabel className={classes.formLabel} htmlFor="hosting-status">
+            Hosting status
+          </InputLabel>
           <Controller
             control={control}
             name="hostingStatus"
             defaultValue={null}
             render={({ onChange }) => (
               <Autocomplete
-                label="Hosting status"
+                id="hosting-status"
+                label=""
                 onChange={(_, option) => onChange(option)}
                 options={[
                   HostingStatus.HOSTING_STATUS_CAN_HOST,
@@ -167,15 +210,70 @@ export default function CompleteSignup() {
                   HostingStatus.HOSTING_STATUS_DIFFICULT,
                   HostingStatus.HOSTING_STATUS_CANT_HOST,
                 ]}
-                getOptionLabel={(option) => hostingStatusLabels[option]}
-                disableClearable
+                // getOptionLabel={(option) => hostingStatusLabels[option]}
+                // disableClearable
                 //below required for type inference
-                multiple={false}
-                freeSolo={false}
+                // multiple={false}
+                // freeSolo={false}
               />
             )}
           />
-          <Button onClick={completeSignup} loading={authLoading || loading}>
+          <InputLabel className={classes.formLabel} htmlFor="gender">
+            I identify as ....
+          </InputLabel>
+          <Controller
+            id="gender"
+            control={control}
+            name="gender"
+            defaultValue=""
+            render={({ onChange }) => (
+              // <Autocomplete
+              //   label="Gender"
+              //   onInputChange={(_, value) => onChange(value)}
+              //   options={["Male", "Female", "<Type anything you like>"]}
+              //   // freeSolo
+              // />
+              <RadioGroup
+                className={classes.genderRadio}
+                aria-label="gender"
+                name="gender1"
+                // value={value}
+                onChange={onChange}
+              >
+                <FormControlLabel
+                  value="female"
+                  control={
+                    <Radio classes={{ root: classes.genderRadioButton }} />
+                  } // icon={AccessibilityIcon}
+                  label="Woman"
+                />
+                <FormControlLabel
+                  value="male"
+                  control={
+                    <Radio classes={{ root: classes.genderRadioButton }} />
+                  }
+                  label="Man"
+                />
+                <FormControlLabel
+                  value="other"
+                  control={
+                    <Radio classes={{ root: classes.genderRadioButton }} />
+                  }
+                  label="Non-binary"
+                />
+              </RadioGroup>
+            )}
+          />
+          <Button
+            classes={{
+              root: classes.button,
+              label: classes.buttonText,
+            }}
+            color="secondary"
+            onClick={completeSignup}
+            type="submit"
+            loading={authLoading || loading}
+          >
             Sign up
           </Button>
         </form>

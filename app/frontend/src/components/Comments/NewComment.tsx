@@ -34,7 +34,7 @@ export default function NewComment({ onComment }: NewCommentProps) {
             rowsMax={5}
             multiline
             fullWidth
-            onChange={(e) => setComment(e.target.value)}
+            onChange={(e: any) => setComment(e.target.value)}
             value={comment}
             margin="normal"
           />

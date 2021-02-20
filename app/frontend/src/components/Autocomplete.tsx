@@ -42,7 +42,7 @@ export default function Autocomplete<
     <MuiAutocomplete
       {...otherProps}
       className={classNames(classes.root, className)}
-      renderInput={(params) => <TextField {...params} label={label} />}
+      renderInput={(params) => <TextField variant="standard" {...params} label={label} />}
     ></MuiAutocomplete>
   );
 }

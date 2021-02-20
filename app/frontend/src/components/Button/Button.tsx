@@ -38,6 +38,7 @@ export default function Button<D extends ElementType = "button", P = {}>({
   className,
   loading,
   onClick,
+  color = "primary",
   ...otherProps
 }: AppButtonProps<D, P>) {
   const isMounted = useIsMounted();
@@ -59,7 +60,7 @@ export default function Button<D extends ElementType = "button", P = {}>({
       disabled={disabled ? true : loading || waiting}
       className={classNames(classes.root, className)}
       variant="contained"
-      color="primary"
+      color={color}
     >
       {loading || waiting ? (
         <CircularProgress size={theme.typography.button.fontSize} />
