@@ -295,13 +295,14 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-julia.jpg" alt="Headshot of Julia">
+                      <img class="is-rounded" src="/img/head-krzysztof.jpg" alt="Headshot of Krzysztof">
                     </figure>
                   </div>
                   <div class="media-content">
-                    <p class="title is-4">Julia Evteeva</p>
-                    <p class="subtitle is-6 role">UX Designer</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Vancouver, Canada</p>
+                    <p class="title is-4">Krzysztof Kosecki</p>
+                    <p class="subtitle is-6 role">Frontend Developer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Kraków, Poland</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/in/krzysztof-kosecki">krzysztof-kosecki</a></p>
                   </div>
                 </div>
               </div>
