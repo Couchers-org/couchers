@@ -41,20 +41,22 @@ export default function DiscussionCard({
   //although we are only using 1 page of query, still use infinite as that
   //is how data is stored under that query key
   const { data: thread } = useInfiniteQuery<GetThreadRes.AsObject, GrpcError>(
-    threadKey(creator?.threadId),
-    () => service.threads.getThread(creator!.threadId),
+    threadKey(discussion.threadId),
+    () => service.threads.getThread(discussion.threadId),
     {
       enabled: !!creator,
     }
   );
   const replyUserIds =
     (thread?.pages.length ?? 0) > 0
-      ? thread.pages[0].repliesList.map((reply) => reply.authorUserId)
+      ? thread!.pages[0].repliesList.map((reply) => reply.authorUserId)
       : [];
   const { data: replyUsers } = useUsers(replyUserIds);
 
-  const date = timestamp2Date(discussion.created);
-  const posted = timeAgo(date, false);
+  const date = discussion.created
+    ? timestamp2Date(discussion.created)
+    : undefined;
+  const posted = date ? timeAgo(date, false) : "sometime";
   const strippedText = useMemo(
     () => stripMarkdown(discussion.content.replace("\n", " ")),
     [discussion.content]
@@ -97,14 +99,14 @@ export default function DiscussionCard({
                       key={reply.threadId}
                     >
                       {replyUsers?.get(reply.authorUserId) ? (
-                        firstName(replyUsers.get(reply.authorUserId).name)
+                        firstName(replyUsers.get(reply.authorUserId)?.name)
                       ) : (
                         <Skeleton className={classes.userLoading} />
                       )}
                       : {stripMarkdown(reply.content)}
                     </Typography>
                   ))}
-                  {thread?.pages[0].repliesList.length > 3 && (
+                  {(thread?.pages[0].repliesList.length ?? 0) > 3 && (
                     <Typography variant="body2">More replies...</Typography>
                   )}
                 </>
