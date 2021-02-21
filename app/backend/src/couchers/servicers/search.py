@@ -17,79 +17,164 @@ from pb import search_pb2, search_pb2_grpc
 # searches are a bit expensive, we'd rather send back a bunch of results at once than lots of small pages
 MAX_PAGINATION_LENGTH = 50
 
+regconfig = "english"
+
+
+def _build_tsv(A, B=[], C=[], D=[]):
+    """
+    Given lists for A, B, C, and D, builds a tsvector from them.
+
+    See postgres full text docs for what these are.
+    """
+    tsv = func.setweight(func.to_tsvector(regconfig, " ".join([func.coalesce(bit, "") for bit in A])), "A")
+    if B:
+        tsv = tsv.concat(
+            func.setweight(func.to_tsvector(regconfig, " ".join([func.coalesce(bit, "") for bit in B])), "B")
+        )
+    if C:
+        tsv = tsv.concat(
+            func.setweight(func.to_tsvector(regconfig, " ".join([func.coalesce(bit, "") for bit in C])), "C")
+        )
+    if D:
+        tsv = tsv.concat(
+            func.setweight(func.to_tsvector(regconfig, " ".join([func.coalesce(bit, "") for bit in D])), "D")
+        )
+    return tsv
+
+
+def _build_doc(A, B=[], C=[], D=[]):
+    """
+    Builds the raw document (without to_tsvector and weighting), used for extracting snippet
+    """
+    return (
+        " ".join([func.coalesce(bit, "") for bit in A])
+        + " ".join([func.coalesce(bit, "") for bit in B])
+        + " ".join([func.coalesce(bit, "") for bit in C])
+        + " ".join([func.coalesce(bit, "") for bit in D])
+    )
+
+
+def _search_users(session, search_query, next_rank, user_id):
+    query = func.websearch_to_tsquery(regconfig, search_query)
+
+    tsv = _build_tsv(
+        [User.username],
+        [User.name, User.about_me],
+        [User.my_travels, User.things_i_like, User.about_place, User.avatar_filename, User.additional_information],
+    )
+
+    rank = func.ts_rank_cd(tsv, query).label("rank")
+
+    # document to generate snippet from
+    doc = _build_docs(
+        [User.username],
+        [User.name, User.about_me],
+        [User.my_travels, User.things_i_like, User.about_place, User.avatar_filename, User.additional_information],
+    )
+
+    snippet = func.ts_headline(regconfig, doc, query, "StartSel=**,StopSel=**").label("snippet")
+
+    latest_pages = (
+        session.query(func.max(PageVersion.id).label("id"))
+        .join(Page, Page.id == PageVersion.page_id)
+        .filter(
+            or_(
+                (Page.type == PageType.place) if include_places else False,
+                (Page.type == PageType.guide) if include_guides else False,
+            )
+        )
+        .group_by(PageVersion.page_id)
+        .subquery()
+    )
+
+    pages = (
+        session.query(Page, rank, snippet)
+        .join(PageVersion, PageVersion.page_id == Page.id)
+        .join(latest_pages, latest_pages.c.id == PageVersion.id)
+        .filter(tsv.op("@@")(query))
+        .filter(rank <= next_rank if next_rank is not None else True)
+        .order_by(rank.desc())
+        .all()
+    )
+
+    return [
+        search_pb2.Result(
+            rank=rank,
+            place=page_to_pb(page, user_id) if page.type == PageType.place else None,
+            guide=page_to_pb(page, user_id) if page.type == PageType.guide else None,
+            snippet=snippet,
+        )
+        for page, rank, snippet in pages
+    ]
+
+
+def _search_pages(session, search_query, next_rank, user_id, include_places, include_guides):
+    query = func.websearch_to_tsquery(regconfig, search_query)
+
+    # the tsvector column that we want to search against for a PageVersion
+    tsv = (
+        func.setweight(func.to_tsvector(regconfig, func.coalesce(PageVersion.title, "")), "A")
+        .concat(func.setweight(func.to_tsvector(regconfig, func.coalesce(PageVersion.address, "")), "B"))
+        .concat(func.setweight(func.to_tsvector(regconfig, func.coalesce(PageVersion.content, "")), "C"))
+    )
+
+    rank = func.ts_rank_cd(tsv, query).label("rank")
+
+    # document to generate snippet from
+    doc = (
+        func.coalesce(PageVersion.title, "")
+        + " "
+        + func.coalesce(PageVersion.address, "")
+        + " "
+        + func.coalesce(PageVersion.content, "")
+    )
+
+    snippet = func.ts_headline(regconfig, doc, query, "StartSel=**,StopSel=**").label("snippet")
+
+    latest_pages = (
+        session.query(func.max(PageVersion.id).label("id"))
+        .join(Page, Page.id == PageVersion.page_id)
+        .filter(
+            or_(
+                (Page.type == PageType.place) if include_places else False,
+                (Page.type == PageType.guide) if include_guides else False,
+            )
+        )
+        .group_by(PageVersion.page_id)
+        .subquery()
+    )
+
+    pages = (
+        session.query(Page, rank, snippet)
+        .join(PageVersion, PageVersion.page_id == Page.id)
+        .join(latest_pages, latest_pages.c.id == PageVersion.id)
+        .filter(tsv.op("@@")(query))
+        .filter(rank <= next_rank if next_rank is not None else True)
+        .order_by(rank.desc())
+        .all()
+    )
+
+    return [
+        search_pb2.Result(
+            rank=rank,
+            place=page_to_pb(page, user_id) if page.type == PageType.place else None,
+            guide=page_to_pb(page, user_id) if page.type == PageType.guide else None,
+            snippet=snippet,
+        )
+        for page, rank, snippet in pages
+    ]
+
 
 class Search(search_pb2_grpc.SearchServicer):
     def Search(self, request, context):
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+        # this is nto an ideal page token, some results have equal rank
         next_rank = float(request.page_token) if request.page_token else None
         with session_scope() as session:
-
-            # the SQL queries are something like the following:
-            # tsv =
-            # setweight(to_tsvector('english', coalesce(title,'')), 'A')   ||
-            # setweight(to_tsvector('english', coalesce(address,'')), 'B') ||
-            # setweight(to_tsvector('english', coalesce(content,'')), 'C');
-
-            # SELECT
-            #   title,
-            #   ts_rank_cd(tsv, query) AS rank,
-            #   ts_headline('english', coalesce(title,'') || ' ' || coalesce(address,'') || ' ' || coalesce(content,''), query, 'StartSel=*,StopSel=*') AS snippet
-            # FROM page_versions, websearch_to_tsquery('english', 'city') query
-            # WHERE query @@ tsv
-            # ORDER BY rank DESC
-
-            regconfig = "english"
-
-            latest_pages = (
-                session.query(func.max(PageVersion.id).label("id"))
-                .join(Page, Page.id == PageVersion.page_id)
-                .filter(or_(Page.type == PageType.place, Page.type == PageType.guide))
-                .group_by(PageVersion.page_id)
-                .subquery()
+            # pages
+            page_results = _search_pages(
+                session, request.query, next_rank, context.user_id, request.include_places, request.include_guides
             )
-
-            query = func.websearch_to_tsquery(regconfig, request.query)
-
-            # the tsvector column that we want to search against for a PageVersion
-            tsv = (
-                func.setweight(func.to_tsvector(regconfig, func.coalesce(PageVersion.title, "")), "A")
-                .concat(func.setweight(func.to_tsvector(regconfig, func.coalesce(PageVersion.address, "")), "B"))
-                .concat(func.setweight(func.to_tsvector(regconfig, func.coalesce(PageVersion.content, "")), "C"))
-            )
-
-            rank = func.ts_rank_cd(tsv, query).label("rank")
-
-            # document to generate snippet from
-            doc = (
-                func.coalesce(PageVersion.title, "")
-                + " "
-                + func.coalesce(PageVersion.address, "")
-                + " "
-                + func.coalesce(PageVersion.content, "")
-            )
-
-            snippet = func.ts_headline(regconfig, doc, query, "StartSel=**,StopSel=**").label("snippet")
-
-            pages = (
-                session.query(Page, rank, snippet)
-                .join(PageVersion, PageVersion.page_id == Page.id)
-                .join(latest_pages, latest_pages.c.id == PageVersion.id)
-                .filter(tsv.op("@@")(query))
-                .filter(rank <= next_rank if next_rank is not None else True)
-                .order_by(rank.desc())
-                .all()
-            )
-
-            page_results = [
-                search_pb2.Result(
-                    rank=rank,
-                    place=page_to_pb(page, context.user_id) if page.type == PageType.place else None,
-                    guide=page_to_pb(page, context.user_id) if page.type == PageType.guide else None,
-                    snippet=snippet,
-                )
-                for page, rank, snippet in pages[:page_size]
-            ]
-
             return search_pb2.SearchRes(
                 results=page_results,
                 next_page_token=str(page_results[page_size].rank) if len(page_results) > page_size else None,
