@@ -20,24 +20,31 @@ MAX_PAGINATION_LENGTH = 50
 regconfig = "english"
 
 
+def _join_with_space(coalesces):
+    if not coalesces:
+        return None
+    out = coalesces[0]
+    for coalesce in coalesces[1:]:
+        out = " " + coalesce
+    return out
+
+
 def _build_tsv(A, B=[], C=[], D=[]):
     """
     Given lists for A, B, C, and D, builds a tsvector from them.
-
-    See postgres full text docs for what these are.
     """
-    tsv = func.setweight(func.to_tsvector(regconfig, " ".join([func.coalesce(bit, "") for bit in A])), "A")
+    tsv = func.setweight(func.to_tsvector(regconfig, _join_with_space([func.coalesce(bit, "") for bit in A])), "A")
     if B:
         tsv = tsv.concat(
-            func.setweight(func.to_tsvector(regconfig, " ".join([func.coalesce(bit, "") for bit in B])), "B")
+            func.setweight(func.to_tsvector(regconfig, _join_with_space([func.coalesce(bit, "") for bit in B])), "B")
         )
     if C:
         tsv = tsv.concat(
-            func.setweight(func.to_tsvector(regconfig, " ".join([func.coalesce(bit, "") for bit in C])), "C")
+            func.setweight(func.to_tsvector(regconfig, _join_with_space([func.coalesce(bit, "") for bit in C])), "C")
         )
     if D:
         tsv = tsv.concat(
-            func.setweight(func.to_tsvector(regconfig, " ".join([func.coalesce(bit, "") for bit in D])), "D")
+            func.setweight(func.to_tsvector(regconfig, _join_with_space([func.coalesce(bit, "") for bit in D])), "D")
         )
     return tsv
 
@@ -47,51 +54,44 @@ def _build_doc(A, B=[], C=[], D=[]):
     Builds the raw document (without to_tsvector and weighting), used for extracting snippet
     """
     return (
-        " ".join([func.coalesce(bit, "") for bit in A])
-        + " ".join([func.coalesce(bit, "") for bit in B])
-        + " ".join([func.coalesce(bit, "") for bit in C])
-        + " ".join([func.coalesce(bit, "") for bit in D])
+        _join_with_space([func.coalesce(bit, "") for bit in A])
+        + _join_with_space([func.coalesce(bit, "") for bit in B])
+        + _join_with_space([func.coalesce(bit, "") for bit in C])
+        + _join_with_space([func.coalesce(bit, "") for bit in D])
     )
 
 
-def _search_users(session, search_query, next_rank, user_id):
-    query = func.websearch_to_tsquery(regconfig, search_query)
+def _gen_search_elements(search_query, A, B=[], C=[], D=[]):
+    # a postgres tsquery object that can be used to match against a tsvector
+    tsq = func.websearch_to_tsquery(regconfig, search_query)
 
-    tsv = _build_tsv(
-        [User.username],
-        [User.name, User.about_me],
-        [User.my_travels, User.things_i_like, User.about_place, User.avatar_filename, User.additional_information],
-    )
+    # the tsvector object that we want to search against with out tsquery
+    tsv = _build_tsv(A, B, C, D)
 
-    rank = func.ts_rank_cd(tsv, query).label("rank")
+    # ranking algo
+    rank = func.ts_rank_cd(tsv, tsq).label("rank")
 
     # document to generate snippet from
-    doc = _build_docs(
+    doc = _build_doc(A, B, C, D)
+
+    # the snippet with results highlighted
+    snippet = func.ts_headline(regconfig, doc, tsq, "StartSel=**,StopSel=**").label("snippet")
+
+    return tsq, tsv, doc, rank, snippet
+
+
+def _search_users(session, search_query, next_rank, page_size, context):
+    tsq, tsv, doc, rank, snippet = _gen_search_elements(
+        search_query,
         [User.username],
         [User.name, User.about_me],
         [User.my_travels, User.things_i_like, User.about_place, User.avatar_filename, User.additional_information],
     )
 
-    snippet = func.ts_headline(regconfig, doc, query, "StartSel=**,StopSel=**").label("snippet")
-
-    latest_pages = (
-        session.query(func.max(PageVersion.id).label("id"))
-        .join(Page, Page.id == PageVersion.page_id)
-        .filter(
-            or_(
-                (Page.type == PageType.place) if include_places else False,
-                (Page.type == PageType.guide) if include_guides else False,
-            )
-        )
-        .group_by(PageVersion.page_id)
-        .subquery()
-    )
-
-    pages = (
-        session.query(Page, rank, snippet)
-        .join(PageVersion, PageVersion.page_id == Page.id)
-        .join(latest_pages, latest_pages.c.id == PageVersion.id)
-        .filter(tsv.op("@@")(query))
+    users = (
+        session.query(User, rank, snippet)
+        .filter(~User.is_banned)
+        .filter(tsv.op("@@")(tsq))
         .filter(rank <= next_rank if next_rank is not None else True)
         .order_by(rank.desc())
         .all()
@@ -100,36 +100,18 @@ def _search_users(session, search_query, next_rank, user_id):
     return [
         search_pb2.Result(
             rank=rank,
-            place=page_to_pb(page, user_id) if page.type == PageType.place else None,
-            guide=page_to_pb(page, user_id) if page.type == PageType.guide else None,
+            # TODO: user_model_to_pb should accept just user_id, not full context
+            user=user_model_to_pb(page, context),
             snippet=snippet,
         )
-        for page, rank, snippet in pages
+        for page, rank, snippet in users
     ]
 
 
-def _search_pages(session, search_query, next_rank, user_id, include_places, include_guides):
-    query = func.websearch_to_tsquery(regconfig, search_query)
-
-    # the tsvector column that we want to search against for a PageVersion
-    tsv = (
-        func.setweight(func.to_tsvector(regconfig, func.coalesce(PageVersion.title, "")), "A")
-        .concat(func.setweight(func.to_tsvector(regconfig, func.coalesce(PageVersion.address, "")), "B"))
-        .concat(func.setweight(func.to_tsvector(regconfig, func.coalesce(PageVersion.content, "")), "C"))
+def _search_pages(session, search_query, next_rank, page_size, user_id, include_places, include_guides):
+    tsq, tsv, doc, rank, snippet = _gen_search_elements(
+        search_query, [PageVersion.title], [PageVersion.address], [PageVersion.content]
     )
-
-    rank = func.ts_rank_cd(tsv, query).label("rank")
-
-    # document to generate snippet from
-    doc = (
-        func.coalesce(PageVersion.title, "")
-        + " "
-        + func.coalesce(PageVersion.address, "")
-        + " "
-        + func.coalesce(PageVersion.content, "")
-    )
-
-    snippet = func.ts_headline(regconfig, doc, query, "StartSel=**,StopSel=**").label("snippet")
 
     latest_pages = (
         session.query(func.max(PageVersion.id).label("id"))
@@ -148,9 +130,10 @@ def _search_pages(session, search_query, next_rank, user_id, include_places, inc
         session.query(Page, rank, snippet)
         .join(PageVersion, PageVersion.page_id == Page.id)
         .join(latest_pages, latest_pages.c.id == PageVersion.id)
-        .filter(tsv.op("@@")(query))
+        .filter(tsv.op("@@")(tsq))
         .filter(rank <= next_rank if next_rank is not None else True)
         .order_by(rank.desc())
+        .limit(page_size + 1)
         .all()
     )
 
@@ -173,10 +156,23 @@ class Search(search_pb2_grpc.SearchServicer):
         with session_scope() as session:
             # pages
             page_results = _search_pages(
-                session, request.query, next_rank, context.user_id, request.include_places, request.include_guides
+                session,
+                request.query,
+                next_rank,
+                page_size,
+                context.user_id,
+                request.include_places,
+                request.include_guides,
+            )
+            user_results = _search_users(
+                session,
+                request.query,
+                next_rank,
+                page_size,
+                context,
             )
             return search_pb2.SearchRes(
-                results=page_results,
+                results=page_results + user_results,
                 next_page_token=str(page_results[page_size].rank) if len(page_results) > page_size else None,
             )
 
