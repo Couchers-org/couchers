@@ -46,30 +46,30 @@ export default function AppRoute({
 
   if (isPrivate) {
     return (
-      <>
-        <Route
-          {...otherProps}
-          render={({ location }) =>
-            isAuthenticated ? (
-              isJailed ? (
+      <Route
+        {...otherProps}
+        render={({ location }) =>
+          isAuthenticated ? (
+            <Container maxWidth="md" className={classes.standardContainer}>
+              {isJailed ? (
                 <Redirect to={jailRoute} />
               ) : (
                 <>
                   <Navigation />
                   {children}
                 </>
-              )
-            ) : (
-              <Redirect
-                to={{
-                  pathname: loginRoute,
-                  state: { from: location },
-                }}
-              />
-            )
-          }
-        />
-      </>
+              )}
+            </Container>
+          ) : (
+            <Redirect
+              to={{
+                pathname: loginRoute,
+                state: { from: location },
+              }}
+            />
+          )
+        }
+      />
     );
   } else {
     return (
