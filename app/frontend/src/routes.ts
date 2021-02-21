@@ -1,4 +1,3 @@
-export const authRoute = "/auth";
 export const loginRoute = "/login";
 export const loginPasswordRoute = `${loginRoute}/password`;
 export const resetPasswordRoute = "/password-reset";

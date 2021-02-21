@@ -36,7 +36,6 @@ import SearchPage from "./features/search/SearchPage";
 import UserPage from "./features/userPage/UserPage";
 import { PageType } from "./pb/pages_pb";
 import {
-  authRoute,
   changeEmailRoute,
   changePasswordRoute,
   communityRoute,
@@ -70,9 +69,6 @@ export default function AppRoutes() {
 
   return (
     <Switch>
-      <AppRoute isPrivate={false} isFullscreen path={authRoute}>
-        <AuthPage />
-      </AppRoute>
       <AppRoute
         isPrivate={false}
         isFullscreen

@@ -58,7 +58,7 @@ export default function UsernameForm() {
             //return here to avoid setLoading when
             //this component is no longer mounted
             setLoginWithLink(false);
-            return;
+            break;
 
           case LoginRes.LoginStep.SENT_LOGIN_EMAIL:
             setSent(true);
