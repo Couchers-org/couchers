@@ -4,9 +4,9 @@ import { Link, Redirect, Route, Switch } from "react-router-dom";
 
 import Alert from "../../../components/Alert";
 import AuthHeader from "../../../components/AuthHeader";
-import AuthBg from "../../../resources/auth-bg.png";
 import { loginRoute, signupRoute } from "../../../routes";
 import { useAuthContext } from "../AuthProvider";
+import AuthBg from "../resources/auth-bg.png";
 import CompleteSignupForm from "./CompleteSignupForm";
 import EmailForm from "./EmailForm";
 

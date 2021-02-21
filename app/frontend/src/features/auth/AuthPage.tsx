@@ -4,8 +4,8 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 import Button from "../../components/Button";
-import AuthBg from "../../resources/auth-bg.png";
 import { loginRoute, signupRoute } from "../../routes";
+import AuthBg from "./resources/auth-bg.png";
 
 const useStyles = makeStyles((theme) => ({
   authPage: {

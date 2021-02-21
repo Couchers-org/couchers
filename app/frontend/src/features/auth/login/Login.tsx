@@ -4,9 +4,9 @@ import { Link, Redirect, useLocation, useParams } from "react-router-dom";
 
 import Alert from "../../../components/Alert";
 import Header from "../../../components/AuthHeader";
-import AuthBg from "../../../resources/auth-bg.png";
 import { loginPasswordRoute, signupRoute } from "../../../routes";
 import { useAuthContext } from "../AuthProvider";
+import AuthBg from "../resources/auth-bg.png";
 import LoginForm from "./LoginForm";
 
 const useStyles = makeStyles((theme) => ({
