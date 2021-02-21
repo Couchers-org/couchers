@@ -61,18 +61,33 @@ def _build_doc(A, B=[], C=[], D=[]):
     )
 
 
-def _gen_search_elements(search_query, A, B=[], C=[], D=[]):
-    # a postgres tsquery object that can be used to match against a tsvector
-    tsq = func.websearch_to_tsquery(regconfig, search_query)
+def _gen_search_elements(query, exclude_content, A, B=[], C=[], D=[]):
+    """
+    Given a query and four sets of fields, (A, B, C, D), generates a bunch of postgres expressions for full text search.
 
-    # the tsvector object that we want to search against with out tsquery
-    tsv = _build_tsv(A, B, C, D)
+    The four sets are in decreasing order of "importance" for ranking.
+
+    A should be the "title", the others can be anything.
+
+    If exclude_content=True, we ignore B/C/D and only match against A
+    """
+    # a postgres tsquery object that can be used to match against a tsvector
+    tsq = func.websearch_to_tsquery(regconfig, query)
+
+    # the tsvector object that we want to search against with our tsquery
+    if not exclude_content:
+        tsv = _build_tsv(A, B, C, D)
+    else:
+        tsv = _build_tsv(A)
+
+    # document to generate snippet from
+    if not exclude_content:
+        doc = _build_doc(A, B, C, D)
+    else:
+        doc = _build_doc(A)
 
     # ranking algo
     rank = func.ts_rank_cd(tsv, tsq).label("rank")
-
-    # document to generate snippet from
-    doc = _build_doc(A, B, C, D)
 
     # the snippet with results highlighted
     snippet = func.ts_headline(regconfig, doc, tsq, "StartSel=**,StopSel=**").label("snippet")
@@ -80,9 +95,10 @@ def _gen_search_elements(search_query, A, B=[], C=[], D=[]):
     return tsq, tsv, doc, rank, snippet
 
 
-def _search_users(session, search_query, next_rank, page_size, context):
+def _search_users(session, search_query, exclude_content, next_rank, page_size, context):
     tsq, tsv, doc, rank, snippet = _gen_search_elements(
         search_query,
+        exclude_content,
         [User.username],
         [User.name, User.about_me],
         [User.my_travels, User.things_i_like, User.about_place, User.avatar_filename, User.additional_information],
@@ -108,9 +124,11 @@ def _search_users(session, search_query, next_rank, page_size, context):
     ]
 
 
-def _search_pages(session, search_query, next_rank, page_size, user_id, include_places, include_guides):
+def _search_pages(
+    session, search_query, exclude_content, next_rank, page_size, user_id, include_places, include_guides
+):
     tsq, tsv, doc, rank, snippet = _gen_search_elements(
-        search_query, [PageVersion.title], [PageVersion.address], [PageVersion.content]
+        search_query, exclude_content, [PageVersion.title], [PageVersion.address], [PageVersion.content]
     )
 
     latest_pages = (
@@ -158,6 +176,7 @@ class Search(search_pb2_grpc.SearchServicer):
             page_results = _search_pages(
                 session,
                 request.query,
+                request.exclude_content,
                 next_rank,
                 page_size,
                 context.user_id,
@@ -167,6 +186,7 @@ class Search(search_pb2_grpc.SearchServicer):
             user_results = _search_users(
                 session,
                 request.query,
+                request.exclude_content,
                 next_rank,
                 page_size,
                 context,

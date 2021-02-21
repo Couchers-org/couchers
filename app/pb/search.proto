@@ -49,8 +49,7 @@ message SearchReq {
     int64 search_in_community_id = 12;
   }
 
-  bool exclude_title = 13;
-  bool exclude_content = 14;
+  bool exclude_content = 13;
 
   uint32 page_size = 2;
   string page_token = 3;
