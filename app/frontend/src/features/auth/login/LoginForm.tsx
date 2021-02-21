@@ -27,7 +27,6 @@ const useStyles = makeStyles((theme) => ({
   },
   forgotPasswordLink: {
     color: theme.palette.text.primary,
-    // lineHeight: theme.spacing(5),
   },
 }));
 
