@@ -24,6 +24,7 @@ from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
 from couchers.servicers.pages import Pages
 from couchers.servicers.requests import Requests
+from couchers.servicers.search import Search
 from couchers.utils import create_coordinate
 from pb import (
     account_pb2_grpc,
@@ -38,6 +39,7 @@ from pb import (
     media_pb2_grpc,
     pages_pb2_grpc,
     requests_pb2_grpc,
+    search_pb2_grpc,
 )
 
 
@@ -69,7 +71,7 @@ def db_impl(param):
         Base.metadata.create_all(get_engine())
 
 
-@pytest.fixture(params=["migrations", "models"])
+@pytest.fixture(params=["models"])  # migrations", "models"])
 def db(request):
     """
     Pytest fixture to connect to a running Postgres database.
@@ -362,6 +364,16 @@ def account_session(token):
     channel = fake_channel(token)
     account_pb2_grpc.add_AccountServicer_to_server(Account(), channel)
     yield account_pb2_grpc.AccountStub(channel)
+
+
+@contextmanager
+def search_session(token):
+    """
+    Create a Search API for testing, uses the token for auth
+    """
+    channel = fake_channel(token)
+    search_pb2_grpc.add_SearchServicer_to_server(Search(), channel)
+    yield search_pb2_grpc.SearchStub(channel)
 
 
 @contextmanager

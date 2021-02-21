@@ -1,4 +1,5 @@
-import { SearchReq, User } from "../pb/api_pb";
+import { User } from "../pb/api_pb";
+import { SearchReq } from "../pb/search_pb";
 import client from "./client";
 
 /**
@@ -11,8 +12,8 @@ export async function search(query: string): Promise<User.AsObject[]> {
   const req = new SearchReq();
   req.setQuery(query);
 
-  const response = await client.api.search(req);
-  const users = response.getUsersList();
+  const response = await client.search.search(req);
+  const users = response.getResultsList().filter(res => res.hasUser()).map(res => res.getUser());
 
-  return users.map((user) => user.toObject());
+  return users.map((user) => user!.toObject());
 }

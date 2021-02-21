@@ -1,8 +1,8 @@
-from sqlalchemy.sql import func, or_
+from sqlalchemy.sql import func, or_, text
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import FriendRelationship, User
+from couchers.models import FriendRelationship, Page, PageType, PageVersion, User
 from couchers.servicers.api import (
     hostingstatus2sql,
     parkingdetails2sql,
@@ -10,24 +10,90 @@ from couchers.servicers.api import (
     smokinglocation2sql,
     user_model_to_pb,
 )
+from couchers.servicers.pages import page_to_pb
 from couchers.utils import create_coordinate, to_aware_datetime
 from pb import search_pb2, search_pb2_grpc
 
+# searches are a bit expensive, we'd rather send back a bunch of results at once than lots of small pages
 MAX_PAGINATION_LENGTH = 50
 
 
 class Search(search_pb2_grpc.SearchServicer):
     def Search(self, request, context):
+        page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+        next_rank = float(request.page_token) if request.page_token else None
         with session_scope() as session:
-            users = []
-            for user in (
-                session.query(User)
-                .filter(or_(User.name.ilike(f"%{request.query}%"), User.username.ilike(f"%{request.query}%")))
-                .all()
-            ):
-                users.append(user_model_to_pb(user, session, context))
 
-            return api_pb2.SearchRes(users=users)
+            # the SQL queries are something like the following:
+            # tsv =
+            # setweight(to_tsvector('english', coalesce(title,'')), 'A')   ||
+            # setweight(to_tsvector('english', coalesce(address,'')), 'B') ||
+            # setweight(to_tsvector('english', coalesce(content,'')), 'C');
+
+            # SELECT
+            #   title,
+            #   ts_rank_cd(tsv, query) AS rank,
+            #   ts_headline('english', coalesce(title,'') || ' ' || coalesce(address,'') || ' ' || coalesce(content,''), query, 'StartSel=*,StopSel=*') AS snippet
+            # FROM page_versions, websearch_to_tsquery('english', 'city') query
+            # WHERE query @@ tsv
+            # ORDER BY rank DESC
+
+            regconfig = "english"
+
+            latest_pages = (
+                session.query(func.max(PageVersion.id).label("id"))
+                .join(Page, Page.id == PageVersion.page_id)
+                .filter(or_(Page.type == PageType.place, Page.type == PageType.guide))
+                .group_by(PageVersion.page_id)
+                .subquery()
+            )
+
+            query = func.websearch_to_tsquery(regconfig, request.query)
+
+            # the tsvector column that we want to search against for a PageVersion
+            tsv = (
+                func.setweight(func.to_tsvector(regconfig, func.coalesce(PageVersion.title, "")), "A")
+                .concat(func.setweight(func.to_tsvector(regconfig, func.coalesce(PageVersion.address, "")), "B"))
+                .concat(func.setweight(func.to_tsvector(regconfig, func.coalesce(PageVersion.content, "")), "C"))
+            )
+
+            rank = func.ts_rank_cd(tsv, query).label("rank")
+
+            # document to generate snippet from
+            doc = (
+                func.coalesce(PageVersion.title, "")
+                + " "
+                + func.coalesce(PageVersion.address, "")
+                + " "
+                + func.coalesce(PageVersion.content, "")
+            )
+
+            snippet = func.ts_headline(regconfig, doc, query, "StartSel=**,StopSel=**").label("snippet")
+
+            pages = (
+                session.query(Page, rank, snippet)
+                .join(PageVersion, PageVersion.page_id == Page.id)
+                .join(latest_pages, latest_pages.c.id == PageVersion.id)
+                .filter(tsv.op("@@")(query))
+                .filter(rank <= next_rank if next_rank is not None else True)
+                .order_by(rank.desc())
+                .all()
+            )
+
+            page_results = [
+                search_pb2.Result(
+                    rank=rank,
+                    place=page_to_pb(page, context.user_id) if page.type == PageType.place else None,
+                    guide=page_to_pb(page, context.user_id) if page.type == PageType.guide else None,
+                    snippet=snippet,
+                )
+                for page, rank, snippet in pages[:page_size]
+            ]
+
+            return search_pb2.SearchRes(
+                results=page_results,
+                next_page_token=str(page_results[page_size].rank) if len(page_results) > page_size else None,
+            )
 
     def UserSearch(self, request, context):
         with session_scope() as session:
@@ -140,7 +206,7 @@ class Search(search_pb2_grpc.SearchServicer):
             return search_pb2.UserSearchRes(
                 results=[
                     search_pb2.Result(
-                        relevance=1,
+                        rank=1,
                         user=user_model_to_pb(user, session, context),
                     )
                     for user in users[:page_size]
