@@ -99,16 +99,16 @@ export default function UsernameForm() {
     <>
       {sent && <TextBody>Check your email for a link to log in! :)</TextBody>}
       <form className={classes.loginForm} onSubmit={onSubmit}>
-        <InputLabel className={classes.formLabel} htmlFor="email">
-          Email
+        <InputLabel className={classes.formLabel} htmlFor="username">
+          Email/Username
         </InputLabel>
         <TextField
           className={classes.formField}
           disabled={sent}
           fullWidth
-          id="email"
+          id="username"
           inputRef={register({ required: true })}
-          name="email"
+          name="username"
           variant="standard"
         />
         {!loginWithLink && (
