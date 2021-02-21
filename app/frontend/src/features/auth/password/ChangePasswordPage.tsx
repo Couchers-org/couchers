@@ -82,8 +82,9 @@ export default function ChangePasswordPage() {
             </Alert>
           )}
           <Typography className={classes.infoText} variant="body1">
-            Please enter a new password, or leave the "New password" and
-            "Confirm password" fields blank to unset your password.
+            {accountInfo?.hasPassword
+              ? 'Please enter a password, or leave the "New password" and "Confirm password" fields blank to unset your password.'
+              : "Leave the fields blank to unset your password."}
           </Typography>
           <form className={classes.form} onSubmit={onSubmit}>
             {accountInfo && accountInfo.hasPassword && (
