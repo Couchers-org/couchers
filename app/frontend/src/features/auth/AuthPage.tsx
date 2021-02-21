@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import Button from "../../components/Button";
 import { loginRoute, signupRoute } from "../../routes";
 import AuthBg from "./resources/auth-bg.png";
+import useAuthStyles from "./useAuthStyles";
 
 const useStyles = makeStyles((theme) => ({
   authPage: {
@@ -32,24 +33,10 @@ const useStyles = makeStyles((theme) => ({
   subtitle: {
     marginTop: theme.spacing(1),
   },
-  divider: {
-    width: theme.spacing(16),
-    marginTop: theme.spacing(2),
-    marginLeft: "auto",
-    marginRight: "auto",
-    borderTop: "1px solid #333333",
-  },
   navigation: {
     display: "flex",
     justifyContent: "space-around",
     marginTop: theme.spacing(3),
-  },
-  button: {
-    width: "45%",
-  },
-  buttonText: {
-    color: "#ffffff",
-    fontWeight: 700,
   },
   aboutUs: {
     marginTop: "auto",
@@ -64,6 +51,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function AuthPage() {
   const classes = useStyles();
+  const authClasses = useAuthStyles();
 
   return (
     <Box className={classes.authPage}>
@@ -72,14 +60,14 @@ export default function AuthPage() {
         <Typography classes={{ root: classes.subtitle }}>
           Build collaboratively and always free
         </Typography>
-        <Divider classes={{ root: classes.divider }} flexItem />
+        <Divider classes={{ root: authClasses.divider }} flexItem />
         <Box className={classes.navigation}>
           <Button
             component={Link}
             to={loginRoute}
             classes={{
-              root: classes.button,
-              label: classes.buttonText,
+              root: authClasses.button,
+              label: authClasses.buttonText,
             }}
             color="secondary"
           >
@@ -89,8 +77,8 @@ export default function AuthPage() {
             component={Link}
             to={signupRoute}
             classes={{
-              root: classes.button,
-              label: classes.buttonText,
+              root: authClasses.button,
+              label: authClasses.buttonText,
             }}
             color="secondary"
           >

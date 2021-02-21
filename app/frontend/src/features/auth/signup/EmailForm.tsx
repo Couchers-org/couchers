@@ -1,4 +1,4 @@
-import { InputLabel, makeStyles } from "@material-ui/core";
+import { InputLabel } from "@material-ui/core";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -8,27 +8,7 @@ import TextField from "../../../components/TextField";
 import { SignupRes } from "../../../pb/auth_pb";
 import { service } from "../../../service";
 import { useAuthContext } from "../AuthProvider";
-
-const useStyles = makeStyles((theme) => ({
-  signupForm: {
-    display: "flex",
-    flexDirection: "column",
-    marginBottom: theme.spacing(5),
-    width: "100%",
-  },
-  formField: {},
-  formLabel: {
-    color: "#333333",
-    fontWeight: 700,
-  },
-  button: {
-    marginTop: theme.spacing(4),
-  },
-  buttonText: {
-    color: "#ffffff",
-    fontWeight: 700,
-  },
-}));
+import useAuthStyles from "../useAuthStyles";
 
 export default function EmailForm() {
   const { authActions } = useAuthContext();
@@ -36,7 +16,7 @@ export default function EmailForm() {
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const classes = useStyles();
+  const authClasses = useAuthStyles();
 
   const { register, handleSubmit, getValues } = useForm<{ email: string }>({
     shouldUnregister: false,
@@ -74,8 +54,8 @@ export default function EmailForm() {
 
   return (
     <>
-      <form className={classes.signupForm} onSubmit={onSubmit}>
-        <InputLabel className={classes.formLabel} htmlFor="email">
+      <form className={authClasses.form} onSubmit={onSubmit}>
+        <InputLabel className={authClasses.formLabel} htmlFor="email">
           Email
         </InputLabel>
         <TextField
@@ -89,8 +69,8 @@ export default function EmailForm() {
         />
         <Button
           classes={{
-            root: classes.button,
-            label: classes.buttonText,
+            root: authClasses.button,
+            label: authClasses.buttonText,
           }}
           color="secondary"
           onClick={onSubmit}

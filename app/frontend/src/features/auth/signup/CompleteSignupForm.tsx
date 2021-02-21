@@ -23,6 +23,7 @@ import {
 } from "../../../utils/validation";
 import { hostingStatusLabels } from "../../profile/constants";
 import { useAuthContext } from "../AuthProvider";
+import useAuthStyles from "../useAuthStyles";
 
 type SignupInputs = {
   email: string;
@@ -35,26 +36,6 @@ type SignupInputs = {
 };
 
 const useStyles = makeStyles((theme) => ({
-  completeSignupForm: {
-    display: "flex",
-    flexDirection: "column",
-    marginBottom: theme.spacing(5),
-    width: "100%",
-  },
-  formField: {
-    marginBottom: theme.spacing(2),
-  },
-  formLabel: {
-    color: "#333333",
-    fontWeight: 700,
-  },
-  button: {
-    marginTop: theme.spacing(4),
-  },
-  buttonText: {
-    color: "#ffffff",
-    fontWeight: 700,
-  },
   genderRadio: {
     display: "flex",
     flexDirection: "row",
@@ -83,6 +64,7 @@ export default function CompleteSignup() {
   const location = useLocation();
   const history = useHistory();
   const classes = useStyles();
+  const authClasses = useAuthStyles();
 
   useEffect(() => {
     (async () => {
@@ -119,12 +101,12 @@ export default function CompleteSignup() {
       {loading ? (
         <CircularProgress />
       ) : (
-        <form className={classes.completeSignupForm} onSubmit={completeSignup}>
-          <InputLabel className={classes.formLabel} htmlFor="username">
+        <form className={authClasses.form} onSubmit={completeSignup}>
+          <InputLabel className={authClasses.formLabel} htmlFor="username">
             Username
           </InputLabel>
           <TextField
-            className={classes.formField}
+            className={authClasses.formField}
             variant="standard"
             name="username"
             fullWidth
@@ -143,12 +125,12 @@ export default function CompleteSignup() {
             })}
             helperText={errors?.username?.message}
           />
-          <InputLabel className={classes.formLabel} htmlFor="full-name">
+          <InputLabel className={authClasses.formLabel} htmlFor="full-name">
             Full name
           </InputLabel>
           <TextField
             id="full-name"
-            className={classes.formField}
+            className={authClasses.formField}
             variant="standard"
             name="name"
             fullWidth
@@ -161,13 +143,13 @@ export default function CompleteSignup() {
             })}
             helperText={errors?.name?.message}
           />
-          <InputLabel className={classes.formLabel} htmlFor="full-name">
+          <InputLabel className={authClasses.formLabel} htmlFor="full-name">
             Birthday
           </InputLabel>
           <TextField
             id="birthday"
             fullWidth
-            className={classes.formField}
+            className={authClasses.formField}
             variant="standard"
             name="birthdate"
             type="date"
@@ -182,12 +164,12 @@ export default function CompleteSignup() {
             })}
             helperText={errors?.birthdate?.message}
           />
-          <InputLabel className={classes.formLabel} htmlFor="location">
+          <InputLabel className={authClasses.formLabel} htmlFor="location">
             Your location
           </InputLabel>
           <TextField
             id="location"
-            className={classes.formField}
+            className={authClasses.formField}
             variant="standard"
             name="location"
             fullWidth
@@ -196,7 +178,10 @@ export default function CompleteSignup() {
             })}
             helperText={errors?.location?.message}
           />
-          <InputLabel className={classes.formLabel} htmlFor="hosting-status">
+          <InputLabel
+            className={authClasses.formLabel}
+            htmlFor="hosting-status"
+          >
             Hosting status
           </InputLabel>
           <Controller
@@ -205,7 +190,7 @@ export default function CompleteSignup() {
             defaultValue={null}
             render={({ onChange }) => (
               <Autocomplete
-                className={classes.formField}
+                className={authClasses.formField}
                 id="hosting-status"
                 label=""
                 onChange={(_, option) => onChange(option)}
@@ -222,7 +207,7 @@ export default function CompleteSignup() {
               />
             )}
           />
-          <InputLabel className={classes.formLabel} htmlFor="gender">
+          <InputLabel className={authClasses.formLabel} htmlFor="gender">
             I identify as ....
           </InputLabel>
           <Controller
@@ -264,8 +249,8 @@ export default function CompleteSignup() {
           />
           <Button
             classes={{
-              root: classes.button,
-              label: classes.buttonText,
+              root: authClasses.button,
+              label: authClasses.buttonText,
             }}
             color="secondary"
             onClick={completeSignup}

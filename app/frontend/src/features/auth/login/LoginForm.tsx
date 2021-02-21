@@ -18,26 +18,9 @@ import { loginPasswordRoute, resetPasswordRoute } from "../../../routes";
 import { service } from "../../../service";
 import { useIsMounted, useSafeState } from "../../../utils/hooks";
 import { useAuthContext } from "../AuthProvider";
+import useAuthStyles from "../useAuthStyles";
 
 const useStyles = makeStyles((theme) => ({
-  loginForm: {
-    display: "flex",
-    flexDirection: "column",
-    marginBottom: theme.spacing(5),
-    width: "100%",
-  },
-  formField: {},
-  formLabel: {
-    color: "#333333",
-    fontWeight: 700,
-  },
-  button: {
-    marginTop: theme.spacing(4),
-  },
-  buttonText: {
-    color: "#ffffff",
-    fontWeight: 700,
-  },
   loginOptions: {
     display: "flex",
     marginTop: theme.spacing(2),
@@ -50,6 +33,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function UsernameForm() {
   const classes = useStyles();
+  const authClasses = useAuthStyles();
   const { authState, authActions } = useAuthContext();
   const authLoading = authState.loading;
   const [sent, setSent] = useState(false);
@@ -98,12 +82,12 @@ export default function UsernameForm() {
   return (
     <>
       {sent && <TextBody>Check your email for a link to log in! :)</TextBody>}
-      <form className={classes.loginForm} onSubmit={onSubmit}>
-        <InputLabel className={classes.formLabel} htmlFor="username">
+      <form className={authClasses.form} onSubmit={onSubmit}>
+        <InputLabel className={authClasses.formLabel} htmlFor="username">
           Email/Username
         </InputLabel>
         <TextField
-          className={classes.formField}
+          className={authClasses.formField}
           disabled={sent}
           fullWidth
           id="username"
@@ -113,11 +97,11 @@ export default function UsernameForm() {
         />
         {!loginWithLink && (
           <>
-            <InputLabel className={classes.formLabel} htmlFor="password">
+            <InputLabel className={authClasses.formLabel} htmlFor="password">
               Password
             </InputLabel>
             <TextField
-              className={classes.formField}
+              className={authClasses.formField}
               fullWidth
               id="password"
               label="Enter your password"
@@ -130,8 +114,8 @@ export default function UsernameForm() {
         )}
         <Button
           classes={{
-            root: classes.button,
-            label: classes.buttonText,
+            root: authClasses.button,
+            label: authClasses.buttonText,
           }}
           type="submit"
           variant="contained"

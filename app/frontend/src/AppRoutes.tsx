@@ -171,10 +171,10 @@ export default function AppRoutes() {
       <AppRoute isPrivate exact path="/">
         <Home />
       </AppRoute>
-      <AppRoute exact path={notFoundRoute}>
+      <AppRoute isPrivate={false} exact path={notFoundRoute}>
         <NotFoundPage />
       </AppRoute>
-      <AppRoute path="/"></AppRoute>
+      <AppRoute isPrivate={false} path="/"></AppRoute>
       <Redirect from="*" to={notFoundRoute} />
     </Switch>
   );

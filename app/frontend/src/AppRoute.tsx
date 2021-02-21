@@ -18,18 +18,18 @@ const useStyles = makeStyles((theme) => ({
   },
   fullscreenContainer: {
     padding: 0,
-    margin: 0,
+    margin: "0 auto",
   },
 }));
 
 interface AppRouteProps extends RouteProps {
-  isPrivate?: boolean;
+  isPrivate: boolean;
   isFullscreen?: boolean;
 }
 
 export default function AppRoute({
   children,
-  isPrivate = true,
+  isPrivate,
   isFullscreen = false,
   ...otherProps
 }: AppRouteProps) {
