@@ -228,21 +228,21 @@ export default function CompleteSignup() {
                   control={
                     <Radio classes={{ root: classes.genderRadioButton }} />
                   }
-                  label="Woman"
+                  label="female"
                 />
                 <FormControlLabel
                   value="male"
                   control={
                     <Radio classes={{ root: classes.genderRadioButton }} />
                   }
-                  label="Man"
+                  label="male"
                 />
                 <FormControlLabel
                   value="other"
                   control={
                     <Radio classes={{ root: classes.genderRadioButton }} />
                   }
-                  label="Non-binary"
+                  label="other"
                 />
               </RadioGroup>
             )}

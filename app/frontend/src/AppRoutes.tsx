@@ -4,6 +4,7 @@ import { Redirect, Switch } from "react-router-dom";
 import AppRoute from "./AppRoute";
 import TOS from "./components/TOS";
 import AuthPage from "./features/auth/AuthPage";
+import { useAuthContext } from "./features/auth/AuthProvider";
 import ChangeEmailPage from "./features/auth/email/ChangeEmailPage";
 import ConfirmChangeEmailPage from "./features/auth/email/ConfirmChangeEmailPage";
 import Jail from "./features/auth/jail/Jail";
@@ -64,6 +65,9 @@ import {
 } from "./routes";
 
 export default function AppRoutes() {
+  const { authState } = useAuthContext();
+  const isAuthenticated = authState.authenticated;
+
   return (
     <Switch>
       <AppRoute isPrivate={false} isFullscreen path={authRoute}>
@@ -89,7 +93,6 @@ export default function AppRoutes() {
       </AppRoute>
       <AppRoute
         isPrivate={false}
-        isFullscreen
         exact
         path={`${resetPasswordRoute}/:resetToken`}
       >
@@ -97,7 +100,6 @@ export default function AppRoutes() {
       </AppRoute>
       <AppRoute
         isPrivate={false}
-        isFullscreen
         path={`${confirmChangeEmailRoute}/:resetToken`}
       >
         <ConfirmChangeEmailPage />
@@ -168,13 +170,18 @@ export default function AppRoutes() {
       <AppRoute isPrivate path={`${connectionsRoute}/:type?`}>
         <ConnectionsPage />
       </AppRoute>
-      <AppRoute isPrivate exact path="/">
-        <Home />
+
+      <AppRoute
+        isPrivate={isAuthenticated}
+        isFullscreen={!isAuthenticated}
+        exact
+        path="/"
+      >
+        {isAuthenticated ? <Home /> : <AuthPage />}
       </AppRoute>
       <AppRoute isPrivate={false} exact path={notFoundRoute}>
         <NotFoundPage />
       </AppRoute>
-      <AppRoute isPrivate={false} path="/"></AppRoute>
       <Redirect from="*" to={notFoundRoute} />
     </Switch>
   );

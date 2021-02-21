@@ -46,7 +46,7 @@ export default function EmailForm() {
 
   if (sent) {
     return (
-      <TextBody>
+      <TextBody className={authClasses.feedbackMessage}>
         A link to continue has been sent to {getValues("email")}.
       </TextBody>
     );

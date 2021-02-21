@@ -1,8 +1,7 @@
 import {
-  BaseTextFieldProps,
   makeStyles,
-  OutlinedInputProps,
   TextField as MuiTextField,
+  TextFieldProps,
 } from "@material-ui/core";
 import classNames from "classnames";
 import React from "react";
@@ -24,20 +23,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-// todo: I had to do this because I wasn't able to select custom variant for TextField on login pages. Let me know how to do it properly ;)
-interface NotInsaneTextFieldProps extends BaseTextFieldProps {
-  onBlur?: OutlinedInputProps["onBlur"];
-  onChange?: OutlinedInputProps["onChange"];
-  onFocus?: OutlinedInputProps["onFocus"];
-  InputProps?: Partial<OutlinedInputProps>;
-  inputProps?: OutlinedInputProps["inputProps"];
-}
-
 export default function TextField({
   className,
   variant = "outlined",
   ...otherProps
-}: NotInsaneTextFieldProps) {
+}: TextFieldProps) {
   const classes = useStyles();
   return (
     <MuiTextField

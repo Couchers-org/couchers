@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "center",
     alignItems: "flex-end",
     height: "100vh",
-    padding: `${theme.spacing(1)} ${theme.spacing(4)}`,
+    padding: `${theme.spacing(1, 4)}`,
   },
   content: {
     display: "flex",
@@ -37,6 +37,9 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     justifyContent: "space-around",
     marginTop: theme.spacing(3),
+  },
+  button: {
+    width: "45%",
   },
   aboutUs: {
     marginTop: "auto",
@@ -66,7 +69,7 @@ export default function AuthPage() {
             component={Link}
             to={loginRoute}
             classes={{
-              root: authClasses.button,
+              root: `${authClasses.button} ${classes.button}`,
               label: authClasses.buttonText,
             }}
             color="secondary"
@@ -77,7 +80,7 @@ export default function AuthPage() {
             component={Link}
             to={signupRoute}
             classes={{
-              root: authClasses.button,
+              root: `${authClasses.button} ${classes.button}`,
               label: authClasses.buttonText,
             }}
             color="secondary"

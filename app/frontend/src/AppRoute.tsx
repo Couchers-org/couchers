@@ -44,12 +44,12 @@ export default function AppRoute({
 
   const classes = useStyles();
 
-  if (isPrivate) {
-    return (
-      <Route
-        {...otherProps}
-        render={({ location }) =>
-          isAuthenticated ? (
+  return isPrivate ? (
+    <Route
+      {...otherProps}
+      render={({ location }) => (
+        <>
+          {isAuthenticated ? (
             <Container maxWidth="md" className={classes.standardContainer}>
               {isJailed ? (
                 <Redirect to={jailRoute} />
@@ -67,24 +67,22 @@ export default function AppRoute({
                 state: { from: location },
               }}
             />
-          )
-        }
-      />
-    );
-  } else {
-    return (
-      <>
-        {isFullscreen ? (
-          <Container maxWidth="md" className={classes.fullscreenContainer}>
-            <Route {...otherProps} render={() => children} />
-          </Container>
-        ) : (
-          <Container maxWidth="md" className={classes.standardContainer}>
-            <Navigation />
-            <Route {...otherProps} render={() => children} />
-          </Container>
-        )}
-      </>
-    );
-  }
+          )}
+        </>
+      )}
+    />
+  ) : (
+    <>
+      {isFullscreen ? (
+        <Container maxWidth="md" className={classes.fullscreenContainer}>
+          <Route {...otherProps} render={() => children} />
+        </Container>
+      ) : (
+        <Container maxWidth="md" className={classes.standardContainer}>
+          <Navigation />
+          <Route {...otherProps} render={() => children} />
+        </Container>
+      )}
+    </>
+  );
 }

@@ -26,8 +26,8 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(2),
   },
   forgotPasswordLink: {
-    color: "#333333",
-    lineHeight: theme.spacing(5),
+    color: theme.palette.text.primary,
+    // lineHeight: theme.spacing(5),
   },
 }));
 
@@ -81,7 +81,11 @@ export default function UsernameForm() {
 
   return (
     <>
-      {sent && <TextBody>Check your email for a link to log in! :)</TextBody>}
+      {sent && (
+        <TextBody className={authClasses.feedbackMessage}>
+          Check your email for a link to log in! :)
+        </TextBody>
+      )}
       <form className={authClasses.form} onSubmit={onSubmit}>
         <InputLabel className={authClasses.formLabel} htmlFor="username">
           Email/Username
@@ -104,7 +108,6 @@ export default function UsernameForm() {
               className={authClasses.formField}
               fullWidth
               id="password"
-              label="Enter your password"
               name="password"
               inputRef={register({ required: true })}
               type="password"

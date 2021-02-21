@@ -31,7 +31,10 @@ const useAuthStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(2),
     marginLeft: "auto",
     marginRight: "auto",
-    borderTop: "1px solid #333333",
+    borderTop: `1px solid ${theme.palette.text.primary}`,
+  },
+  feedbackMessage: {
+    textAlign: "center",
   },
   form: {
     display: "flex",
@@ -41,14 +44,14 @@ const useAuthStyles = makeStyles((theme) => ({
   },
   formField: {},
   formLabel: {
-    color: "#333333",
+    color: theme.palette.text.primary,
     fontWeight: 700,
   },
   button: {
     marginTop: theme.spacing(4),
   },
   buttonText: {
-    color: "#ffffff",
+    color: theme.palette.secondary.contrastText,
     fontWeight: 700,
   },
   /* disabled for beta:
@@ -60,7 +63,7 @@ const useAuthStyles = makeStyles((theme) => ({
     minHeight: `calc(calc(${theme.typography.button.lineHeight} * ${
       theme.typography.button.fontSize
     }) + ${theme.typography.pxToRem(12)})`, // from padding
-    color: "#ffffff",
+    color: theme.palette.secondary.contrastText,
     fontWeight: 700,
     backgroundColor: "#2d4486",
     marginTop: theme.spacing(6),
@@ -74,7 +77,7 @@ const useAuthStyles = makeStyles((theme) => ({
     minHeight: `calc(calc(${theme.typography.button.lineHeight} * ${
       theme.typography.button.fontSize
     }) + ${theme.typography.pxToRem(12)})`, // from padding
-    color: "#ffffff",
+    color: theme.palette.secondary.contrastText,
     fontWeight: 700,
     backgroundColor: "#d9472e",
   },
