@@ -21,8 +21,8 @@ from couchers.servicers.groups import Groups
 from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
 from couchers.servicers.pages import Pages
-from couchers.servicers.search import Search
 from couchers.servicers.requests import Requests
+from couchers.servicers.search import Search
 from couchers.servicers.sso import SSO
 from couchers.servicers.threads import Threads
 from dummy_data import add_dummy_data
@@ -35,12 +35,12 @@ from pb import (
     conversations_pb2_grpc,
     discussions_pb2_grpc,
     gis_pb2_grpc,
-    search_pb2_grpc,
     groups_pb2_grpc,
     jail_pb2_grpc,
     media_pb2_grpc,
     pages_pb2_grpc,
     requests_pb2_grpc,
+    search_pb2_grpc,
     sso_pb2_grpc,
     threads_pb2_grpc,
 )

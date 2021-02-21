@@ -85,27 +85,47 @@ message SearchRes {
 
 message UserSearchReq {
   google.protobuf.StringValue query = 3;
-
-  google.protobuf.StringValue gender = 4;
+  // whether the query (if any) should only search through username and display name
+  bool query_name_only = 30;
 
   // coarsened
-  google.protobuf.Timestamp last_active = 5;
-  // google.protobuf.StringValue language = 6;
-  google.protobuf.BoolValue has_references = 7;
-  bool friends_only = 8;
+  google.protobuf.Timestamp last_active = 4;
 
-  google.protobuf.UInt32Value age_min = 9;
-  google.protobuf.UInt32Value age_max = 10;
+  // restrictions on area
+  oneof search_in {
+    // search in given area
+    Area search_in_area = 28;
+    // search inside the area defined by the community
+    int64 search_in_community_id = 29;
+  }
 
-  repeated org.couchers.api.core.HostingStatus hosting_status_filter = 11;
-  repeated org.couchers.api.core.SmokingLocation smoking_location_filter = 12;
+  repeated org.couchers.api.core.HostingStatus hosting_status_filter = 5;
+  repeated org.couchers.api.core.SmokingLocation smoking_location_filter = 6;
+  repeated org.couchers.api.core.SleepingArrangement sleeping_arrangement_filter = 7;
+  repeated org.couchers.api.core.ParkingDetails parking_details_filter = 8;
 
-  google.protobuf.UInt32Value min_guests = 13;
-  google.protobuf.BoolValue multiple_groups = 14;
-  google.protobuf.BoolValue last_minute = 15;
-  google.protobuf.BoolValue accepts_pets = 16;
-  google.protobuf.BoolValue accepts_kids = 17;
-  google.protobuf.BoolValue wheelchair_accessible = 18;
+  google.protobuf.StringValue gender = 9;
+  google.protobuf.UInt32Value guests = 10;
+  // google.protobuf.StringValue language = 11;
+  bool only_with_references = 12;
+
+  bool friends_only = 13;
+
+  google.protobuf.UInt32Value age_min = 14;
+  google.protobuf.UInt32Value age_max = 15;
+
+  google.protobuf.BoolValue last_minute = 16;
+  google.protobuf.BoolValue has_pets = 17;
+  google.protobuf.BoolValue accepts_pets = 18;
+  google.protobuf.BoolValue has_kids = 19;
+  google.protobuf.BoolValue accepts_kids = 20;
+  google.protobuf.BoolValue has_housemates = 21;
+  google.protobuf.BoolValue wheelchair_accessible = 22;
+  google.protobuf.BoolValue smokes_at_home = 23;
+  google.protobuf.BoolValue drinking_allowed = 24;
+  google.protobuf.BoolValue drinks_at_home = 25;
+  google.protobuf.BoolValue parking = 26;
+  google.protobuf.BoolValue camping_ok = 27;
 
   uint32 page_size = 1;
   string page_token = 2;
