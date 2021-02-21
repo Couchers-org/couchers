@@ -41,7 +41,7 @@ message SearchReq {
   bool include_discussions = 9;
   // bool include_events = 10;
 
-  // restrictions on area
+  // restrictions on area — not implemented!
   oneof search_in {
     // search in given area
     Area search_in_area = 11;

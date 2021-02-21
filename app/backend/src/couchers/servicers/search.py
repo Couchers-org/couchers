@@ -2,7 +2,7 @@ from sqlalchemy.sql import func, or_, text
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import FriendRelationship, Page, PageType, PageVersion, User
+from couchers.models import Cluster, FriendRelationship, Page, PageType, PageVersion, User
 from couchers.servicers.api import (
     hostingstatus2sql,
     parkingdetails2sql,
@@ -10,6 +10,8 @@ from couchers.servicers.api import (
     smokinglocation2sql,
     user_model_to_pb,
 )
+from couchers.servicers.communities import community_to_pb
+from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
 from couchers.utils import create_coordinate, to_aware_datetime
 from pb import search_pb2, search_pb2_grpc
@@ -166,6 +168,52 @@ def _search_pages(
     ]
 
 
+def _search_clusters(
+    session, search_query, exclude_content, next_rank, page_size, user_id, include_communities, include_groups
+):
+    tsq, tsv, doc, rank, snippet = _gen_search_elements(
+        search_query,
+        exclude_content,
+        [Cluster.name],
+        [Cluster.description, PageVersion.title, PageVersion.address],
+        [PageVersion.content],
+    )
+
+    latest_pages = (
+        session.query(func.max(PageVersion.id).label("id"))
+        .join(Page, Page.id == PageVersion.page_id)
+        .filter(Page.type == PageType.main_page)
+        .group_by(PageVersion.page_id)
+        .subquery()
+    )
+
+    clusters = (
+        session.query(Cluster, rank, snippet)
+        .join(Page, Page.owner_cluster_id == Cluster.id)
+        .join(PageVersion, PageVersion.page_id == Page.id)
+        .join(latest_pages, latest_pages.c.id == PageVersion.id)
+        .filter(tsv.op("@@")(tsq))
+        .filter(rank <= next_rank if next_rank is not None else True)
+        .filter(Cluster.is_official_cluster if include_communities and not include_groups else True)
+        .filter(~Cluster.is_official_cluster if not include_communities and include_groups else True)
+        .order_by(rank.desc())
+        .limit(page_size + 1)
+        .all()
+    )
+
+    return [
+        search_pb2.Result(
+            rank=rank,
+            community=community_to_pb(cluster.official_cluster_for_node, user_id)
+            if cluster.is_official_cluster
+            else None,
+            groups=group_to_pb(cluster.id, user_id) if not cluster.is_official_cluster else None,
+            snippet=snippet,
+        )
+        for cluster, rank, snippet in clusters
+    ]
+
+
 class Search(search_pb2_grpc.SearchServicer):
     def Search(self, request, context):
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
@@ -191,8 +239,19 @@ class Search(search_pb2_grpc.SearchServicer):
                 page_size,
                 context,
             )
+            cluster_results = _search_clusters(
+                session,
+                request.query,
+                request.exclude_content,
+                next_rank,
+                page_size,
+                context.user_id,
+                request.include_communities,
+                request.include_groups,
+            )
+            # todo: sort
             return search_pb2.SearchRes(
-                results=page_results + user_results,
+                results=page_results + user_results + cluster_results,
                 next_page_token=str(page_results[page_size].rank) if len(page_results) > page_size else None,
             )
 
