@@ -10,7 +10,6 @@ import { timestamp2Date } from "../../../utils/date";
 const useStyles = makeStyles((theme) => ({
   root: {
     maxWidth: 120,
-    height: 120,
   },
   title: {
     marginTop: 0,
