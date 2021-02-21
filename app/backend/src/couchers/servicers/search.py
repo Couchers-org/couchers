@@ -221,38 +221,41 @@ class Search(search_pb2_grpc.SearchServicer):
         next_rank = float(request.page_token) if request.page_token else None
         with session_scope() as session:
             # pages
-            page_results = _search_pages(
-                session,
-                request.query,
-                request.exclude_content,
-                next_rank,
-                page_size,
-                context.user_id,
-                request.include_places,
-                request.include_guides,
+            all_results = (
+                _search_pages(
+                    session,
+                    request.query,
+                    request.exclude_content,
+                    next_rank,
+                    page_size,
+                    context.user_id,
+                    request.include_places,
+                    request.include_guides,
+                )
+                + _search_users(
+                    session,
+                    request.query,
+                    request.exclude_content,
+                    next_rank,
+                    page_size,
+                    context,
+                )
+                + _search_clusters(
+                    session,
+                    request.query,
+                    request.exclude_content,
+                    next_rank,
+                    page_size,
+                    context.user_id,
+                    request.include_communities,
+                    request.include_groups,
+                )
             )
-            user_results = _search_users(
-                session,
-                request.query,
-                request.exclude_content,
-                next_rank,
-                page_size,
-                context,
-            )
-            cluster_results = _search_clusters(
-                session,
-                request.query,
-                request.exclude_content,
-                next_rank,
-                page_size,
-                context.user_id,
-                request.include_communities,
-                request.include_groups,
-            )
+            all_results.sort(key=lambda result: result.rank)
             # todo: sort
             return search_pb2.SearchRes(
-                results=page_results + user_results + cluster_results,
-                next_page_token=str(page_results[page_size].rank) if len(page_results) > page_size else None,
+                results=all_results[:page_size],
+                next_page_token=str(all_results[page_size].rank) if len(all_results) > page_size else None,
             )
 
     def UserSearch(self, request, context):
