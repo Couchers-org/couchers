@@ -200,13 +200,12 @@ export default function CompleteSignup() {
             Hosting status
           </InputLabel>
           <Controller
-            
             control={control}
             name="hostingStatus"
             defaultValue={null}
             render={({ onChange }) => (
               <Autocomplete
-              className={classes.formField}
+                className={classes.formField}
                 id="hosting-status"
                 label=""
                 onChange={(_, option) => onChange(option)}
