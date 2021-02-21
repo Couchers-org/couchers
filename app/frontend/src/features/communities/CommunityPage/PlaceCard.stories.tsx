@@ -10,9 +10,7 @@ export default {
 
 const Template: Story<any> = (args) => (
   <>
-    <div style={{ maxWidth: 180 }}>
-      <PlaceCard {...args} />
-    </div>
+    <PlaceCard {...args} />
   </>
 );
 

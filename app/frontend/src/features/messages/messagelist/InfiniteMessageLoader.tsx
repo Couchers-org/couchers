@@ -78,10 +78,9 @@ export default function InfiniteMessageLoader({
       {hasNextPage && !isError && (
         <Box className={classes.loader}>
           {isFetchingNextPage ? (
-            <CircularProgress opaque />
+            <CircularProgress />
           ) : (
             <CircularProgress
-              opaque
               variant="determinate"
               value={0}
               ref={loadMoreRef}

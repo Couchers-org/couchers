@@ -64,7 +64,7 @@ export default function Button<D extends ElementType = "button", P = {}>({
         [classes.contained]: variant === "contained",
       })}
       variant={variant}
-      color="primary"
+      color={variant === "contained" ? "primary" : undefined}
     >
       {loading || waiting ? (
         <CircularProgress size={theme.typography.button.fontSize} />

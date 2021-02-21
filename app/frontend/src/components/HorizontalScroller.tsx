@@ -16,13 +16,11 @@ const useStyles = makeStyles((theme) => ({
     "& > *": {
       flex: "0 0 auto",
     },
-    ...theme.shape.scrollBar,
   },
   loader: {},
 }));
 
-/// TODO: Improve for desktop (left/right arrows, index dots display)
-/// TODO: Padding is not shows at end of list (maybe storybook only?)
+/// TODO: Padding is not showing at end of list (maybe storybook only?)
 
 interface HorizontalScrollerProps {
   fetchNext?: () => void;
@@ -47,14 +45,9 @@ export default function HorizontalScroller({
       {fetchNext && (
         <Box className={classes.loader}>
           {isFetching ? (
-            <CircularProgress opaque />
+            <CircularProgress />
           ) : (
-            <CircularProgress
-              opaque
-              variant="determinate"
-              value={0}
-              ref={loaderRef}
-            />
+            <CircularProgress variant="determinate" value={0} ref={loaderRef} />
           )}
         </Box>
       )}

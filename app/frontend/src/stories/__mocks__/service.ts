@@ -54,6 +54,9 @@ export const mockedService = ({
     getGroupChatMessages: () => Promise.resolve([message1, message2]),
     getGroupChat: () => Promise.resolve(groupChat),
   },
+  threads: {
+    getThread: () => Promise.resolve(getThreadRes),
+  },
 } as unknown) as typeof originalService;
 
 function wait(milliSeconds: number) {
@@ -145,7 +148,7 @@ export const community = {
   // a short URL fragment generated from the name, e.g. New York City: a guide to Phở might become new-york-city-guide-to-pho
   slug: "amsterdam",
   description: "This is amsterdam",
-  created: { seconds: Date.now(), nanos: 0 },
+  created: { seconds: Date.now() / 1000, nanos: 0 },
   // list of parents, ordered according to inclusion, e.g. World, US, New York, (NYC)
   parents: 1,
   // we do not return the geometry here? (it's a potentially very big multipolygon)
@@ -162,8 +165,8 @@ export const place = {
   pageId: 3,
   type: PageType.PAGE_TYPE_PLACE,
   slug: "concertgebouw",
-  created: { seconds: Date.now(), nanos: 0 },
-  lastEdited: { seconds: Date.now(), nanos: 0 },
+  created: { seconds: Date.now() / 1000, nanos: 0 },
+  lastEdited: { seconds: Date.now() / 1000, nanos: 0 },
   lastEditorUserId: 2,
   creatorUserId: 2,
   ownerCommunityId: 2,
@@ -175,4 +178,49 @@ export const place = {
   location: { lat: 52.35623800180904, lng: 4.878839154826316 },
   editorUserIdsList: [2],
   canEdit: false,
+};
+
+export const discussion = {
+  discussionId: 1,
+  slug: "what-is-there-to-do-in-amsterdam",
+  created: { seconds: Date.now() / 1000, nanos: 0 },
+  creatorUserId: 1,
+  ownerCommunityId: 1,
+  title: "What is there to do in Amsterdam?",
+  content: "# Hi everyone,\nI'm looking for *fun* activities to do here!",
+  threadId: 2,
+};
+
+const getThreadRes = {
+  repliesList: [
+    {
+      threadId: 3,
+      content: "Very interesting!",
+      authorUserId: 2,
+      createdTime: { seconds: Date.now() / 1000, nanos: 0 },
+      numReplies: 1,
+    },
+    {
+      threadId: 4,
+      content: "Thanks so much (:",
+      authorUserId: 1,
+      createdTime: { seconds: Date.now() / 1000, nanos: 0 },
+      numReplies: 0,
+    },
+    {
+      threadId: 5,
+      content:
+        "You're welcome, by the way, check out my other favourite place.",
+      authorUserId: 1,
+      createdTime: { seconds: Date.now() / 1000, nanos: 0 },
+      numReplies: 0,
+    },
+    {
+      threadId: 6,
+      content: "Sure, I will do that.",
+      authorUserId: 1,
+      createdTime: { seconds: Date.now() / 1000, nanos: 0 },
+      numReplies: 0,
+    },
+  ],
 };

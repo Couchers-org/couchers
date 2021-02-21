@@ -1,5 +1,5 @@
 import { makeStyles, Typography } from "@material-ui/core";
-import React from "react";
+import React, { useMemo } from "react";
 
 import {
   Card,
@@ -8,8 +8,10 @@ import {
   CardMedia,
 } from "../../../components/Card";
 import { Page } from "../../../pb/pages_pb";
+import stripMarkdown from "../../../utils/stripMarkdown";
 
 const useStyles = makeStyles((theme) => ({
+  root: { maxWidth: 120 },
   image: { height: 80 },
   title: {
     marginTop: 0,
@@ -25,9 +27,10 @@ export default function PlaceCard({
   className?: string;
 }) {
   const classes = useStyles();
-  const contentPreview = place.content
-    .split("\n")
-    .find((line) => line.charAt(0) !== "#");
+  const contentPreview = useMemo(
+    () => stripMarkdown(place.content.substr(0, 300).replace("\n", " ")),
+    [place.content]
+  );
   return (
     <Card className={className}>
       <CardActionArea>
