@@ -278,7 +278,7 @@ class API(api_pb2_grpc.APIServicer):
             if request.meetup_status != api_pb2.MEETUP_STATUS_UNSPECIFIED:
                 user.meetup_status = meetupstatus2sql[request.meetup_status]
 
-            if request.language_abilities.exists:
+            if request.HasField("language_abilities"):
                 # delete all existing abilities
                 for ability in user.language_abilities:
                     session.delete(ability)

@@ -280,8 +280,7 @@ message RepeatedStringValue {
 message RepeatedLanguageAbilityValue {
   // A RepeatedLanguageAbilityValue is like a "protobuf wrapper" (like {Type}Value) but for repeated LanguageAbility
   // allows us to determine if the user wanted to remote this list of LanguageAbility's
-  bool exists = 1;
-  repeated LanguageAbility value = 2;
+  repeated LanguageAbility value = 1;
 }
 
 message UpdateProfileReq {

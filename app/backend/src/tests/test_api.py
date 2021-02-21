@@ -156,7 +156,6 @@ def test_update_profile(db):
                 hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
                 meetup_status=api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP,
                 language_abilities=api_pb2.RepeatedLanguageAbilityValue(
-                    exists=True,
                     value=[
                         api_pb2.LanguageAbility(
                             code="eng",
@@ -213,7 +212,6 @@ def test_language_abilities(db):
             res = api.UpdateProfile(
                 api_pb2.UpdateProfileReq(
                     language_abilities=api_pb2.RepeatedLanguageAbilityValue(
-                        exists=True,
                         value=[
                             api_pb2.LanguageAbility(
                                 code="QQQ",
@@ -231,7 +229,6 @@ def test_language_abilities(db):
             res = api.UpdateProfile(
                 api_pb2.UpdateProfileReq(
                     language_abilities=api_pb2.RepeatedLanguageAbilityValue(
-                        exists=True,
                         value=[
                             api_pb2.LanguageAbility(
                                 code="eng",
@@ -255,7 +252,6 @@ def test_language_abilities(db):
         api.UpdateProfile(
             api_pb2.UpdateProfileReq(
                 language_abilities=api_pb2.RepeatedLanguageAbilityValue(
-                    exists=True,
                     value=[
                         api_pb2.LanguageAbility(
                             code="eng",
@@ -275,7 +271,6 @@ def test_language_abilities(db):
         api.UpdateProfile(
             api_pb2.UpdateProfileReq(
                 language_abilities=api_pb2.RepeatedLanguageAbilityValue(
-                    exists=True,
                     value=[
                         api_pb2.LanguageAbility(
                             code="fin",
@@ -291,11 +286,18 @@ def test_language_abilities(db):
         assert res.language_abilities[0].code == "fin"
         assert res.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_SAY_HELLO
 
+        # don't change it
+        api.UpdateProfile(api_pb2.UpdateProfileReq())
+
+        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        assert len(res.language_abilities) == 1
+        assert res.language_abilities[0].code == "fin"
+        assert res.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_SAY_HELLO
+
         # remove value
         api.UpdateProfile(
             api_pb2.UpdateProfileReq(
                 language_abilities=api_pb2.RepeatedLanguageAbilityValue(
-                    exists=True,
                     value=[],
                 ),
             )
