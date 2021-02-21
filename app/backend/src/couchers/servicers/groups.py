@@ -34,7 +34,8 @@ def _parents_to_pb(cluster: Cluster, user_id):
         ).subquery()
         parents = (
             session.query(subquery, Cluster)
-            .join(Cluster, Cluster.official_cluster_for_node_id == subquery.c.id)
+            .join(Cluster, Cluster.parent_node_id == subquery.c.id)
+            .filter(Cluster.is_official_cluster)
             .order_by(subquery.c.level.desc())
             .all()
         )
@@ -73,7 +74,6 @@ def group_to_pb(cluster: Cluster, user_id):
         admin=cluster.admins.filter(User.id == user_id).one_or_none() is not None,
         member_count=cluster.members.count(),
         admin_count=cluster.admins.count(),
-        thread_id=pack_thread_id(cluster.thread_id, 0),
     )
 
 
@@ -82,7 +82,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
         with session_scope() as session:
             cluster = (
                 session.query(Cluster)
-                .filter(Cluster.official_cluster_for_node_id == None)  # not an official group
+                .filter(~Cluster.is_official_cluster)  # not an official group
                 .filter(Cluster.id == request.group_id)
                 .one_or_none()
             )
@@ -97,7 +97,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             next_admin_id = int(request.page_token) if request.page_token else 0
             cluster = (
                 session.query(Cluster)
-                .filter(Cluster.official_cluster_for_node_id == None)
+                .filter(~Cluster.is_official_cluster)
                 .filter(Cluster.id == request.group_id)
                 .one_or_none()
             )
@@ -115,7 +115,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             next_member_id = int(request.page_token) if request.page_token else 0
             cluster = (
                 session.query(Cluster)
-                .filter(Cluster.official_cluster_for_node_id == None)
+                .filter(~Cluster.is_official_cluster)
                 .filter(Cluster.id == request.group_id)
                 .one_or_none()
             )
@@ -133,7 +133,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             next_page_id = int(request.page_token) if request.page_token else 0
             cluster = (
                 session.query(Cluster)
-                .filter(Cluster.official_cluster_for_node_id == None)
+                .filter(~Cluster.is_official_cluster)
                 .filter(Cluster.id == request.group_id)
                 .one_or_none()
             )
@@ -157,7 +157,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             next_page_id = int(request.page_token) if request.page_token else 0
             cluster = (
                 session.query(Cluster)
-                .filter(Cluster.official_cluster_for_node_id == None)
+                .filter(~Cluster.is_official_cluster)
                 .filter(Cluster.id == request.group_id)
                 .one_or_none()
             )
@@ -185,7 +185,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             next_page_id = int(request.page_token) if request.page_token else 0
             cluster = (
                 session.query(Cluster)
-                .filter(Cluster.official_cluster_for_node_id == None)
+                .filter(~Cluster.is_official_cluster)
                 .filter(Cluster.id == request.group_id)
                 .one_or_none()
             )
@@ -206,7 +206,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
         with session_scope() as session:
             cluster = (
                 session.query(Cluster)
-                .filter(Cluster.official_cluster_for_node_id == None)
+                .filter(~Cluster.is_official_cluster)
                 .filter(Cluster.id == request.group_id)
                 .one_or_none()
             )
@@ -230,7 +230,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
         with session_scope() as session:
             cluster = (
                 session.query(Cluster)
-                .filter(Cluster.official_cluster_for_node_id == None)
+                .filter(~Cluster.is_official_cluster)
                 .filter(Cluster.id == request.group_id)
                 .one_or_none()
             )

@@ -62,7 +62,6 @@ def add_dummy_users():
                     occupation=user["occupation"],
                     about_me=user["about_me"],
                     about_place=user["about_place"],
-                    color=user.get("color", None),
                     countries_visited="|".join(user["countries_visited"]),
                     countries_lived="|".join(user["countries_lived"]),
                     hosting_status=hostingstatus2sql[HostingStatus.Value(user["hosting_status"])]
@@ -177,7 +176,8 @@ def add_dummy_communities():
                 if parent_name:
                     parent_node = (
                         session.query(Node)
-                        .join(Cluster, Cluster.official_cluster_for_node_id == Node.id)
+                        .join(Cluster, Cluster.parent_node_id == Node.id)
+                        .filter(Cluster.is_official_cluster)
                         .filter(Cluster.name == community["parent"])
                         .one()
                     )
@@ -193,8 +193,7 @@ def add_dummy_communities():
                     name=f"{name}",
                     description=f"Description for {name}",
                     parent_node=node,
-                    official_cluster_for_node=node,
-                    thread=Thread(),
+                    is_official_cluster=True,
                 )
 
                 session.add(cluster)
@@ -204,7 +203,6 @@ def add_dummy_communities():
                     creator_user=admins[0],
                     owner_cluster=cluster,
                     type=PageType.main_page,
-                    main_page_for_cluster=cluster,
                     thread=Thread(),
                 )
 
@@ -243,7 +241,8 @@ def add_dummy_communities():
 
                 parent_node = (
                     session.query(Node)
-                    .join(Cluster, Cluster.official_cluster_for_node_id == Node.id)
+                    .join(Cluster, Cluster.parent_node_id == Node.id)
+                    .filter(Cluster.is_official_cluster)
                     .filter(Cluster.name == group["parent"])
                     .one()
                 )
@@ -252,7 +251,6 @@ def add_dummy_communities():
                     name=f"{name}",
                     description=f"Description for the group {name}",
                     parent_node=parent_node,
-                    thread=Thread(),
                 )
 
                 session.add(cluster)
@@ -262,7 +260,6 @@ def add_dummy_communities():
                     creator_user=admins[0],
                     owner_cluster=cluster,
                     type=PageType.main_page,
-                    main_page_for_cluster=cluster,
                     thread=Thread(),
                 )
 

@@ -21,15 +21,12 @@ import { theme } from "./theme";
 
 const useStyles = makeStyles((theme) => ({
   standardContainer: {
-    paddingBottom: theme.spacing(10),
+    paddingBottom: theme.shape.navPaddingMobile,
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
-    [`${theme.breakpoints.up("xs")} and (orientation: landscape)`]: {
-      paddingBottom: theme.spacing(6),
-    },
     [theme.breakpoints.up("md")]: {
       paddingBottom: 0,
-      paddingTop: theme.spacing(9),
+      paddingTop: theme.shape.navPaddingDesktop,
     },
   },
   fullscreenContainer: {

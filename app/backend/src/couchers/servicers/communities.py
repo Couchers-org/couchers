@@ -35,7 +35,8 @@ def _parents_to_pb(node_id, user_id):
         ).subquery()
         parents = (
             session.query(subquery, Cluster)
-            .join(Cluster, Cluster.official_cluster_for_node_id == subquery.c.id)
+            .join(Cluster, Cluster.parent_node_id == subquery.c.id)
+            .filter(Cluster.is_official_cluster)
             .order_by(subquery.c.level.desc())
             .all()
         )
@@ -65,7 +66,6 @@ def community_to_pb(node: Node, user_id):
         admin=node.official_cluster.admins.filter(User.id == user_id).one_or_none() is not None,
         member_count=node.official_cluster.members.count(),
         admin_count=node.official_cluster.admins.count(),
-        thread_id=pack_thread_id(node.official_cluster.thread_id, 0),
     )
 
 
@@ -101,7 +101,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             next_cluster_id = int(request.page_token) if request.page_token else 0
             clusters = (
                 session.query(Cluster)
-                .filter(Cluster.official_cluster_for_node_id == None)  # not an official group
+                .filter(~Cluster.is_official_cluster)  # not an official group
                 .filter(Cluster.parent_node_id == request.community_id)
                 .filter(Cluster.id >= next_cluster_id)
                 .order_by(Cluster.id)

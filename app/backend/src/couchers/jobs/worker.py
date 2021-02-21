@@ -26,7 +26,7 @@ def process_job():
     Attempt to process one job from the job queue. Returns False if no job was found, True if a job was processed,
     regardless of failure/success.
     """
-    logger.info(f"Looking for a job")
+    logger.debug(f"Looking for a job")
     with session_scope(isolation_level="REPEATABLE READ") as session:
         # a combination of REPEATABLE READ and SELECT ... FOR UPDATE SKIP LOCKED makes sure that only one transaction
         # will modify the job at a time. SKIP UPDATE means that if the job is locked, then we ignore that row, it's
@@ -37,7 +37,7 @@ def process_job():
         )
 
         if not job:
-            logger.info(f"No pending jobs")
+            logger.debug(f"No pending jobs")
             return False
 
         # we've got a lock for a job now, it's "pending" until we commit or the lock is gone

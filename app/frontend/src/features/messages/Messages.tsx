@@ -26,7 +26,7 @@ export function MessagesNotification() {
 
   return (
     <NotificationBadge count={data?.unseenMessageCount}>
-      Group Chats
+      Chats
     </NotificationBadge>
   );
 }
@@ -52,29 +52,27 @@ export function HostRequestsSentNotification() {
 }
 
 const labels = {
-  all: "All",
+  //all: "All",
   chats: <MessagesNotification />,
   hosting: <HostRequestsReceivedNotification />,
   surfing: <HostRequestsSentNotification />,
-  meet: "Meet",
-  archived: "Archived",
+  //meet: "Meet",
+  //archived: "Archived",
 };
 
 type MessageType = keyof typeof labels;
 
 export default function Messages() {
   const history = useHistory();
-  const { type = "all" } = useParams<{ type: keyof typeof labels }>();
-  const messageType = type in labels ? (type as MessageType) : "all";
+  const { type = "chats" } = useParams<{ type: keyof typeof labels }>();
+  const messageType = type in labels ? (type as MessageType) : "chats";
 
   const header = (
     <>
       <PageTitle>Messages</PageTitle>
       <TabBar
         value={messageType}
-        setValue={(newType) =>
-          history.push(`${messagesRoute}/${newType !== "all" ? newType : ""}`)
-        }
+        setValue={(newType) => history.push(`${messagesRoute}/${newType}`)}
         labels={labels}
       />
     </>
@@ -112,9 +110,9 @@ export default function Messages() {
           {header}
           ARCHIVED
         </Route>
-        <Route path={`${messagesRoute}/:messageId?`}>
+        <Route path={`${messagesRoute}`}>
           {header}
-          All
+          <GroupChatsTab />
         </Route>
       </Switch>
     </>

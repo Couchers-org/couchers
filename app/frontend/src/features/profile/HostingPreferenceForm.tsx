@@ -119,13 +119,6 @@ export default function HostingPreferenceForm() {
           <Typography variant="h2">Hosting preferences</Typography>
           <HostingPreferenceCheckbox
             className={classes.formControl}
-            defaultValue={!!user.multipleGroups?.value}
-            label="Multiple groups accepted"
-            name="multipleGroups"
-            register={register}
-          />
-          <HostingPreferenceCheckbox
-            className={classes.formControl}
             defaultValue={!!user.acceptsKids?.value}
             label="Kids OK"
             name="acceptsKids"
@@ -233,15 +226,6 @@ export default function HostingPreferenceForm() {
                 )}
               />
             )}
-          />
-          <ProfileTextInput
-            label="Sleeping arrangements"
-            name="sleepingArrangement"
-            defaultValue={user.sleepingArrangement?.value ?? ""}
-            inputRef={register}
-            rowsMax={5}
-            multiline
-            className={classes.field}
           />
           <Box className={classes.buttonContainer}>
             <Button

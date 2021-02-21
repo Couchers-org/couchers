@@ -9,6 +9,7 @@ import {
 
 import { useAuthContext } from "../../features/auth/AuthProvider";
 import BugReport from "../../features/BugReport";
+import SearchBox from "../../features/search/SearchBox";
 import {
   connectionsRoute,
   logoutRoute,
@@ -24,7 +25,6 @@ import {
   PeopleIcon,
   PersonIcon,
 } from "../Icons";
-import SearchBox from "../SearchBox";
 import NavButton from "./NavButton";
 
 const menu = [

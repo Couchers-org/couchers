@@ -16,6 +16,8 @@ afterEach(() => {
   jest.restoreAllMocks();
 });
 
+Element.prototype.scroll = () => {};
+
 declare global {
   var defaultUser: typeof user;
 }

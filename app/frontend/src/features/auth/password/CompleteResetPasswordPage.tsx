@@ -38,7 +38,9 @@ export default function CompleteResetPasswordPage() {
         Click here to login
       </Typography>
     </>
-  ) : error ? (
-    <Alert severity="error">Error resetting password: {error.message}</Alert>
-  ) : null;
+  ) : (
+    error && (
+      <Alert severity="error">Error resetting password: {error.message}</Alert>
+    )
+  );
 }

@@ -48,6 +48,8 @@ config.check_config()
 logging.basicConfig(format="%(asctime)s: %(name)d: %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+logging.getLogger("couchers.jobs.worker").setLevel(logging.INFO)
+
 
 def log_unhandled_exception(exc_type, exc_value, exc_traceback):
     """Make sure that any unhandled exceptions will write to the logs"""

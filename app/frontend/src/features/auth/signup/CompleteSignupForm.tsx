@@ -213,7 +213,6 @@ export default function CompleteSignup() {
                 options={[
                   HostingStatus.HOSTING_STATUS_CAN_HOST,
                   HostingStatus.HOSTING_STATUS_MAYBE,
-                  HostingStatus.HOSTING_STATUS_DIFFICULT,
                   HostingStatus.HOSTING_STATUS_CANT_HOST,
                 ]}
                 getOptionLabel={(option) => hostingStatusLabels[option]}

@@ -2,6 +2,7 @@ import logging
 from datetime import datetime
 
 import grpc
+import pytz
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import func
 
@@ -38,7 +39,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         """
         Returns an auth interceptor.
 
-        By adding this interceptor to a service, all requests to that service will require an bearer authorization with a valid session from the Auth service.
+        By adding this interceptor to a service, all requests to that service will require a bearer authorization with a valid session from the Auth service.
 
         The user_id will be available in the RPC context through context.user_id.
         """
@@ -201,10 +202,12 @@ class Auth(auth_pb2_grpc.AuthServicer):
             if not signup_token:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
 
-            # should be in YYYY-MM-DD format
+            # check birthdate validity (YYYY-MM-DD format and in the past)
             try:
                 birthdate = datetime.fromisoformat(request.birthdate)
             except ValueError:
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_BIRTHDATE)
+            if pytz.UTC.localize(birthdate) >= now():
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_BIRTHDATE)
 
             # check email again

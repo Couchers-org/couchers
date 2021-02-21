@@ -1,6 +1,5 @@
 alembic
 black
-faker
 geoalchemy2
 grpcio
 isort
