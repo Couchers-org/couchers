@@ -272,20 +272,6 @@ class LanguageFluency(enum.Enum):
     native = 6
 
 
-class Language(Base):
-    """
-    List of allowed languages
-    """
-
-    __tablename__ = "languages"
-
-    # ISO639-3 language code, in lowercase
-    code = Column(String(3), primary_key=True)
-
-    # the english name
-    name = Column(String, nullable=False, unique=True)
-
-
 class LanguageAbility(Base):
     __tablename__ = "language_abilities"
     __table_args__ = (
@@ -295,11 +281,10 @@ class LanguageAbility(Base):
 
     id = Column(BigInteger, primary_key=True)
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    language_code = Column(ForeignKey("languages.code"), nullable=False)
+    language_code = Column(String(3), nullable=False)
     fluency = Column(Enum(LanguageFluency), nullable=False)
 
     user = relationship("User", backref="language_abilities")
-    language = relationship("Language", backref=backref("users", lazy="dynamic"))
 
 
 class FriendStatus(enum.Enum):

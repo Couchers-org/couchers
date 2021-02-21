@@ -147,7 +147,9 @@ message LanguageAbility {
       FLUENCY_FLUENT = 4;
       FLUENCY_NATIVE = 5;
   }
-  // ISO639-3 language code, only a subset is accepted, see ConstantData.GetLanguageList
+  // ISO639-3 language code, only a subset is accepted, see the languages.json in the source tree
+  // frontends are responsible for translation between language name and code
+  // backend will double check the code is allowed
   string code = 1;
   Fluency fluency = 2;
 }
@@ -335,7 +337,7 @@ message UpdateProfileReq {
   ParkingDetails parking_details = 120;
   NullableBoolValue camping_ok = 121;
   // replaces the current language abilities with a new list
-  // only a subset of language codes can be used, call ConstantData.GetLanguageList to get that list
+  // only a subset of language codes can be used, see languages.json for that list
   RepeatedLanguageAbilityValue language_abilities = 25;
 }
 

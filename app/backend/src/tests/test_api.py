@@ -4,8 +4,9 @@ import grpc
 import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
 
+from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Complaint, Language
+from couchers.models import Complaint
 from couchers.utils import now, to_aware_datetime
 from pb import api_pb2, jail_pb2
 from tests.test_fixtures import (
@@ -131,9 +132,6 @@ def test_get_user(db):
 def test_update_profile(db):
     user, token = generate_user()
 
-    with session_scope() as session:
-        session.add(Language(code="eng", name="English"))
-
     with api_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.UpdateProfile(api_pb2.UpdateProfileReq(name=wrappers_pb2.StringValue(value="  ")))
@@ -206,30 +204,27 @@ def test_update_profile(db):
 def test_language_abilities(db):
     user, token = generate_user()
 
-    with session_scope() as session:
-        session.add(Language(code="ln1", name="Language 1"))
-        session.add(Language(code="ln2", name="Language 2"))
-
     with api_session(token) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user.username))
         assert len(res.language_abilities) == 0
 
         # can't add non-existent languages
-        with pytest.raises(Exception) as e:
+        with pytest.raises(grpc.RpcError) as e:
             res = api.UpdateProfile(
                 api_pb2.UpdateProfileReq(
                     language_abilities=api_pb2.RepeatedLanguageAbilityValue(
                         exists=True,
                         value=[
                             api_pb2.LanguageAbility(
-                                code="nxn",
+                                code="QQQ",
                                 fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE,
                             )
                         ],
                     ),
                 )
             )
-        assert "violates foreign key constraint" in str(e.value)
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.INVALID_LANGUAGE
 
         # can't have multiple languages of the same type
         with pytest.raises(Exception) as e:
@@ -239,11 +234,11 @@ def test_language_abilities(db):
                         exists=True,
                         value=[
                             api_pb2.LanguageAbility(
-                                code="ln1",
+                                code="eng",
                                 fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE,
                             ),
                             api_pb2.LanguageAbility(
-                                code="ln1",
+                                code="eng",
                                 fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE,
                             ),
                         ],
@@ -263,7 +258,7 @@ def test_language_abilities(db):
                     exists=True,
                     value=[
                         api_pb2.LanguageAbility(
-                            code="ln1",
+                            code="eng",
                             fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE,
                         )
                     ],
@@ -273,7 +268,7 @@ def test_language_abilities(db):
 
         res = api.GetUser(api_pb2.GetUserReq(user=user.username))
         assert len(res.language_abilities) == 1
-        assert res.language_abilities[0].code == "ln1"
+        assert res.language_abilities[0].code == "eng"
         assert res.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE
 
         # change the value to a new one
@@ -283,7 +278,7 @@ def test_language_abilities(db):
                     exists=True,
                     value=[
                         api_pb2.LanguageAbility(
-                            code="ln2",
+                            code="fin",
                             fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_SAY_HELLO,
                         )
                     ],
@@ -293,7 +288,7 @@ def test_language_abilities(db):
 
         res = api.GetUser(api_pb2.GetUserReq(user=user.username))
         assert len(res.language_abilities) == 1
-        assert res.language_abilities[0].code == "ln2"
+        assert res.language_abilities[0].code == "fin"
         assert res.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_SAY_HELLO
 
         # remove value

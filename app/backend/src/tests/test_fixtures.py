@@ -17,7 +17,6 @@ from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
 from couchers.servicers.bugs import Bugs
 from couchers.servicers.communities import Communities
-from couchers.servicers.constant_data import ConstantData
 from couchers.servicers.conversations import Conversations
 from couchers.servicers.discussions import Discussions
 from couchers.servicers.groups import Groups
@@ -32,7 +31,6 @@ from pb import (
     auth_pb2_grpc,
     bugs_pb2_grpc,
     communities_pb2_grpc,
-    constant_data_pb2_grpc,
     conversations_pb2_grpc,
     discussions_pb2_grpc,
     groups_pb2_grpc,
@@ -315,16 +313,6 @@ def conversations_session(token):
     channel = fake_channel(token)
     conversations_pb2_grpc.add_ConversationsServicer_to_server(Conversations(), channel)
     yield conversations_pb2_grpc.ConversationsStub(channel)
-
-
-@contextmanager
-def constant_data_session(token):
-    """
-    Create a ConstantData API for testing, uses the token for auth
-    """
-    channel = fake_channel(token)
-    constant_data_pb2_grpc.add_ConstantDataServicer_to_server(ConstantData(), channel)
-    yield constant_data_pb2_grpc.ConstantDataStub(channel)
 
 
 @contextmanager
