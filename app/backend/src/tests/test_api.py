@@ -496,20 +496,6 @@ def test_reject_friend_request(db):
         assert res.sent[0].user_id == user2.id
 
 
-def test_search(db):
-    user1, token1 = generate_user("user1")
-    user2, token2 = generate_user("user2")
-    user3, token3 = generate_user("user3")
-    user4, token4 = generate_user("user4")
-
-    with api_session(token1) as api:
-        res = api.Search(api_pb2.SearchReq(query="user"))
-        assert len(res.users) == 4
-
-        res = api.Search(api_pb2.SearchReq(query="user5"))
-        assert len(res.users) == 0
-
-
 def test_mutual_friends_self(db):
     user1, token1 = generate_user("user1")
     user2, token2 = generate_user("user2")

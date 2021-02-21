@@ -13,9 +13,7 @@ def _(testconfig):
     pass
 
 
-def test_search_new(testing_communities):
+def test_search(testing_communities):
     user, token = generate_user()
     with search_session(token) as api:
         res = api.Search(search_pb2.SearchReq(query="attraction city", include_places=True))
-        print("res:", res)
-        assert False
