@@ -1,13 +1,10 @@
-import {
-  InputLabel,
-  makeStyles,
-  TextField as MuiTextField,
-} from "@material-ui/core";
+import { InputLabel, makeStyles } from "@material-ui/core";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 
 import Button from "../../../components/Button";
 import TextBody from "../../../components/TextBody";
+import TextField from "../../../components/TextField";
 import { SignupRes } from "../../../pb/auth_pb";
 import { service } from "../../../service";
 import { useAuthContext } from "../AuthProvider";
@@ -81,10 +78,11 @@ export default function EmailForm() {
         <InputLabel className={classes.formLabel} htmlFor="email">
           Email
         </InputLabel>
-        <MuiTextField
+        <TextField
           id="email"
+          fullWidth
           name="email"
-          label="name@sample.com"
+          variant="standard"
           inputRef={register({
             required: true,
           })}
@@ -100,7 +98,7 @@ export default function EmailForm() {
           disabled={sent}
           loading={loading}
         >
-          Sign up
+          Continue
         </Button>
       </form>
     </>

@@ -4,7 +4,6 @@ import {
   InputLabel,
   makeStyles,
   Switch,
-  TextField as MuiTextField,
   Typography,
 } from "@material-ui/core";
 import React, { useState } from "react";
@@ -13,6 +12,7 @@ import { Link, useHistory } from "react-router-dom";
 
 import Button from "../../../components/Button";
 import TextBody from "../../../components/TextBody";
+import TextField from "../../../components/TextField";
 import { LoginRes } from "../../../pb/auth_pb";
 import { loginPasswordRoute, resetPasswordRoute } from "../../../routes";
 import { service } from "../../../service";
@@ -102,26 +102,29 @@ export default function UsernameForm() {
         <InputLabel className={classes.formLabel} htmlFor="email">
           Email
         </InputLabel>
-        <MuiTextField
-          id="email"
+        <TextField
           className={classes.formField}
-          label="name@sample.com"
-          name="email"
-          inputRef={register({ required: true })}
           disabled={sent}
+          fullWidth
+          id="email"
+          inputRef={register({ required: true })}
+          name="email"
+          variant="standard"
         />
         {!loginWithLink && (
           <>
             <InputLabel className={classes.formLabel} htmlFor="password">
               Password
             </InputLabel>
-            <MuiTextField
+            <TextField
               className={classes.formField}
+              fullWidth
               id="password"
               label="Enter your password"
               name="password"
               inputRef={register({ required: true })}
               type="password"
+              variant="standard"
             />
           </>
         )}

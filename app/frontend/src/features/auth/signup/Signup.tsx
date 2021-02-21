@@ -1,5 +1,5 @@
 import { Box, makeStyles, Typography } from "@material-ui/core";
-import React from "react";
+import React, { useEffect } from "react";
 import { Link, Redirect, Route, Switch } from "react-router-dom";
 
 import Alert from "../../../components/Alert";
@@ -81,10 +81,14 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Signup() {
-  const { authState } = useAuthContext();
+  const { authState, authActions } = useAuthContext();
   const authenticated = authState.authenticated;
   const error = authState.error;
   const classes = useStyles();
+
+  useEffect(() => {
+    authActions.clearError();
+  }, [authActions]);
 
   return (
     <>

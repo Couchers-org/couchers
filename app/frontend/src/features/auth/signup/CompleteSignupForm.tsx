@@ -4,10 +4,7 @@ import {
   makeStyles,
   Radio,
   RadioGroup,
-  TextField as MuiTextField,
-  Typography,
 } from "@material-ui/core";
-import AccessibilityIcon from "@material-ui/icons/Accessibility";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useHistory, useLocation, useParams } from "react-router-dom";
@@ -75,7 +72,6 @@ export default function CompleteSignup() {
     handleSubmit,
     setValue,
     errors,
-    getValues,
   } = useForm<SignupInputs>({
     shouldUnregister: false,
     mode: "onBlur",
@@ -124,13 +120,38 @@ export default function CompleteSignup() {
         <CircularProgress />
       ) : (
         <form className={classes.completeSignupForm} onSubmit={completeSignup}>
+          <InputLabel className={classes.formLabel} htmlFor="username">
+            Username
+          </InputLabel>
+          <TextField
+            className={classes.formField}
+            variant="standard"
+            name="username"
+            fullWidth
+            inputRef={register({
+              required: "Enter your username",
+              pattern: {
+                //copied from backend, added ^ at the start
+                value: usernameValidationPattern,
+                message:
+                  "Username can only have lowercase letters, numbers or _, starting with a letter.",
+              },
+              validate: async (username) => {
+                const valid = await service.auth.validateUsername(username);
+                return valid || "This username is taken.";
+              },
+            })}
+            helperText={errors?.username?.message}
+          />
           <InputLabel className={classes.formLabel} htmlFor="full-name">
             Full name
           </InputLabel>
-          <MuiTextField
+          <TextField
             id="full-name"
             className={classes.formField}
+            variant="standard"
             name="name"
+            fullWidth
             inputRef={register({
               required: "Enter your name",
               pattern: {
@@ -143,9 +164,11 @@ export default function CompleteSignup() {
           <InputLabel className={classes.formLabel} htmlFor="full-name">
             Birthday
           </InputLabel>
-          <MuiTextField
+          <TextField
             id="birthday"
+            fullWidth
             className={classes.formField}
+            variant="standard"
             name="birthdate"
             type="date"
             InputLabelProps={{
@@ -162,45 +185,28 @@ export default function CompleteSignup() {
           <InputLabel className={classes.formLabel} htmlFor="location">
             Your location
           </InputLabel>
-          <MuiTextField
+          <TextField
             id="location"
             className={classes.formField}
+            variant="standard"
             name="location"
+            fullWidth
             inputRef={register({
               required: "Enter your location",
             })}
             helperText={errors?.location?.message}
           />
-          <InputLabel className={classes.formLabel} htmlFor="username">
-            Username
-          </InputLabel>
-          <MuiTextField
-            className={classes.formField}
-            name="username"
-            inputRef={register({
-              required: "Enter your username",
-              pattern: {
-                //copied from backend, added ^ at the start
-                value: usernameValidationPattern,
-                message:
-                  "Username can only have lowercase letters, numbers or _, starting with a letter.",
-              },
-              validate: async (username) => {
-                const valid = await service.auth.validateUsername(username);
-                return valid || "This username is taken.";
-              },
-            })}
-            helperText={errors?.username?.message}
-          />
           <InputLabel className={classes.formLabel} htmlFor="hosting-status">
             Hosting status
           </InputLabel>
           <Controller
+            
             control={control}
             name="hostingStatus"
             defaultValue={null}
             render={({ onChange }) => (
               <Autocomplete
+              className={classes.formField}
                 id="hosting-status"
                 label=""
                 onChange={(_, option) => onChange(option)}
@@ -210,11 +216,11 @@ export default function CompleteSignup() {
                   HostingStatus.HOSTING_STATUS_DIFFICULT,
                   HostingStatus.HOSTING_STATUS_CANT_HOST,
                 ]}
-                // getOptionLabel={(option) => hostingStatusLabels[option]}
-                // disableClearable
-                //below required for type inference
-                // multiple={false}
-                // freeSolo={false}
+                getOptionLabel={(option) => hostingStatusLabels[option]}
+                disableClearable
+                // below required for type inference
+                multiple={false}
+                freeSolo={false}
               />
             )}
           />
@@ -227,16 +233,10 @@ export default function CompleteSignup() {
             name="gender"
             defaultValue=""
             render={({ onChange }) => (
-              // <Autocomplete
-              //   label="Gender"
-              //   onInputChange={(_, value) => onChange(value)}
-              //   options={["Male", "Female", "<Type anything you like>"]}
-              //   // freeSolo
-              // />
               <RadioGroup
                 className={classes.genderRadio}
                 aria-label="gender"
-                name="gender1"
+                name="gender-radio"
                 // value={value}
                 onChange={onChange}
               >
@@ -244,7 +244,7 @@ export default function CompleteSignup() {
                   value="female"
                   control={
                     <Radio classes={{ root: classes.genderRadioButton }} />
-                  } // icon={AccessibilityIcon}
+                  }
                   label="Woman"
                 />
                 <FormControlLabel

@@ -104,8 +104,8 @@ export default function Login() {
       {authenticated && <Redirect to={redirectTo} />}
       <Box className={classes.backgroundImage}></Box>
       <Box className={classes.loginPage}>
-        {error && <Alert severity="error">{error}</Alert>}
         <Header>Welcome back!</Header>
+        {error && <Alert severity="error">{error}</Alert>}
         <LoginForm />
         {/* <Divider>Or</Divider>  not yet available: https://next.material-ui.com/components/dividers/ */}
         {/* Disabled for beta:
