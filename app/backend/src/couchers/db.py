@@ -17,6 +17,8 @@ from couchers import config
 from couchers.crypto import urlsafe_secure_token
 from couchers.models import (
     Cluster,
+    ClusterRole,
+    ClusterSubscription,
     FriendRelationship,
     FriendStatus,
     LoginToken,
@@ -267,4 +269,38 @@ def get_node_parents_recursively(session, node_id):
         .filter(Cluster.is_official_cluster)
         .order_by(subquery.c.level.desc())
         .all()
+    )
+
+
+def _can_moderate_any_cluster(session, user_id, cluster_ids):
+    return (
+        session.query(ClusterSubscription)
+        .filter(ClusterSubscription.role == ClusterRole.admin)
+        .filter(ClusterSubscription.user_id == user_id)
+        .filter(ClusterSubscription.cluster_id.in_(cluster_ids))
+        .count()
+        > 0
+    )
+
+
+def can_moderate_at(session, user_id, shape):
+    """
+    Returns True if the user_id can moderate a given geo-shape (i.e., if the shape is contained in any Node that the user is an admin of)
+    """
+    cluster_ids = list(
+        session.query(Cluster.id)
+        .join(Node, Node.id == Cluster.parent_node_id)
+        .filter(Cluster.is_official_cluster)
+        .filter(func.ST_Contains(Node.geom, shape))
+        .all()
+    )
+    return _can_moderate_any_cluster(session, user_id, cluster_ids)
+
+
+def can_moderate_node(session, user_id, node_id):
+    """
+    Returns True if the user_id can moderate the given node (i.e., if they are admin of any community that is a parent of the node)
+    """
+    return _can_moderate_any_cluster(
+        session, user_id, [cluster.id for _, _, _, cluster in get_node_parents_recursively(session, node_id)]
     )

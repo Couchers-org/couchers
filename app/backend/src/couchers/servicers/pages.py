@@ -2,7 +2,13 @@ import grpc
 from sqlalchemy.sql import func
 
 from couchers import errors
-from couchers.db import get_node_parents_recursively, get_parent_node_at_location, session_scope
+from couchers.db import (
+    can_moderate_at,
+    can_moderate_node,
+    get_node_parents_recursively,
+    get_parent_node_at_location,
+    session_scope,
+)
 from couchers.models import Cluster, ClusterRole, ClusterSubscription, Node, Page, PageType, PageVersion, Thread, User
 from couchers.servicers.threads import pack_thread_id
 from couchers.utils import Timestamp_from_datetime, create_coordinate, remove_duplicates_retain_order
@@ -31,40 +37,24 @@ def _is_page_owner(page: Page, user_id):
     return page.owner_cluster.admins.filter(User.id == user_id).one_or_none() is not None
 
 
-def _is_page_moderator(page: Page, user_id):
+def _can_moderate_page(page: Page, user_id):
     """
     Checks if the user is allowed to moderate this page
     """
     # checks if either the page is in the exclusive moderation area of a node
     with session_scope() as session:
-        # we fill this up with all cluster ids that will give us admin rights, then check in one select
-        cluster_ids_to_check = []
-
         latest_version = page.versions[-1]
 
         # if the page has a location, we firstly check if we are the moderator of any node that contains this page
-        if latest_version.geom is not None:
-            cluster_ids_to_check += list(
-                session.query(Cluster.id)
-                .join(Node, Node.id == Cluster.parent_node_id)
-                .filter(Cluster.is_official_cluster)
-                .filter(func.ST_Contains(Node.geom, latest_version.geom))
-                .all()
-            )
+        if latest_version.geom is not None and can_moderate_at(session, user_id, latest_version.geom):
+            return True
 
-        # then we check the parent tree upwards
-        parents = get_node_parents_recursively(session, page.parent_node_id)
-        for node_id, parent_node_id, level, cluster in parents:
-            cluster_ids_to_check += [cluster.id]
+        # if the page is owned by a cluster, then any moderator of that cluster can moderate this page
+        if page.owner_cluster is not None and can_moderate_node(session, user_id, page.owner_cluster.parent_node_id):
+            return True
 
-        return (
-            session.query(ClusterSubscription)
-            .filter(ClusterSubscription.role == ClusterRole.admin)
-            .filter(ClusterSubscription.user_id == user_id)
-            .filter(ClusterSubscription.cluster_id.in_(cluster_ids_to_check))
-            .count()
-            > 0
-        )
+        # finally check if the user can moderate the parent node of the cluster
+        return can_moderate_node(session, user_id, page.parent_node_id)
 
 
 def page_to_pb(page: Page, user_id):
@@ -102,7 +92,7 @@ def page_to_pb(page: Page, user_id):
         else None,
         editor_user_ids=remove_duplicates_retain_order([version.editor_user_id for version in page.versions]),
         can_edit=_is_page_owner(page, user_id),
-        can_moderate=_is_page_moderator(page, user_id),
+        can_moderate=_can_moderate_page(page, user_id),
     )
 
 
@@ -200,7 +190,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
             if not page:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.PAGE_NOT_FOUND)
 
-            if not _is_page_owner(page, context.user_id) and not _is_page_moderator(page, context.user_id):
+            if not _is_page_owner(page, context.user_id) and not _can_moderate_page(page, context.user_id):
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.PAGE_UPDATE_PERMISSION_DENIED)
 
             current_version = page.versions[-1]
@@ -247,7 +237,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
             if not page:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.PAGE_NOT_FOUND)
 
-            if not _is_page_owner(page, context.user_id) and not _is_page_moderator(page, context.user_id):
+            if not _is_page_owner(page, context.user_id) and not _can_moderate_page(page, context.user_id):
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.PAGE_TRANSFER_PERMISSION_DENIED)
 
             if request.WhichOneof("new_owner") == "new_owner_group_id":
