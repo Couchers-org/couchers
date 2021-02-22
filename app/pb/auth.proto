@@ -122,7 +122,7 @@ message CompleteSignupReq {
   string city = 8;
   double lat = 9;
   double lng = 10;
-  double radius = 11;
+  double radius = 11; // meters
 
   bool accept_tos = 12;
 }
