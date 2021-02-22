@@ -952,6 +952,7 @@ class PageVersion(Base):
     editor_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     title = Column(String, nullable=False)
     content = Column(String, nullable=False)
+    photo_key = Column(ForeignKey("uploads.key"), nullable=True)
     # the human-readable address
     address = Column(String, nullable=True)
     geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
@@ -961,6 +962,7 @@ class PageVersion(Base):
 
     page = relationship("Page", backref="versions", order_by="PageVersion.id")
     editor_user = relationship("User", backref="edited_pages")
+    photo = relationship("Upload")
 
     @property
     def coordinates(self):

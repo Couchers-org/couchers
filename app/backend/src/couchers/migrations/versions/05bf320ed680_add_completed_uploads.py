@@ -43,9 +43,21 @@ def upgrade():
     )
     op.execute("UPDATE users SET avatar_key = substr(avatar_filename, 1, 64) WHERE avatar_filename IS NOT NULL")
     op.drop_column("users", "avatar_filename")
+    op.create_index(
+        op.f("ix_initiated_uploads_initiator_user_id"), "initiated_uploads", ["initiator_user_id"], unique=False
+    )
+    op.drop_index("ix_initiated_uploads_user_id", table_name="initiated_uploads")
+    op.add_column("page_versions", sa.Column("photo_key", sa.String(), nullable=True))
+    op.create_foreign_key(
+        op.f("fk_page_versions_photo_key_uploads"), "page_versions", "uploads", ["photo_key"], ["key"]
+    )
 
 
 def downgrade():
+    op.drop_constraint(op.f("fk_page_versions_photo_key_uploads"), "page_versions", type_="foreignkey")
+    op.drop_column("page_versions", "photo_key")
+    op.create_index("ix_initiated_uploads_user_id", "initiated_uploads", ["initiator_user_id"], unique=False)
+    op.drop_index(op.f("ix_initiated_uploads_initiator_user_id"), table_name="initiated_uploads")
     op.drop_constraint(op.f("fk_users_avatar_key_uploads"), "users", type_="foreignkey")
     op.alter_column("initiated_uploads", "initiator_user_id", new_column_name="user_id")
     op.drop_table("uploads")

@@ -83,6 +83,7 @@ def page_to_pb(page: Page, user_id):
         thread_id=pack_thread_id(page.thread_id, 0),
         title=current_version.title,
         content=current_version.content,
+        photo_url=current_version.photo_key.full_url if current_version.photo_key else None,
         address=current_version.address,
         location=pages_pb2.Coordinate(
             lat=current_version.coordinates[0],
@@ -124,6 +125,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
                 editor_user_id=context.user_id,
                 title=request.title,
                 content=request.content,
+                photo_key=request.photo_key if request.photo_key else None,
                 address=request.address,
                 geom=geom,
             )
@@ -169,6 +171,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
                 editor_user_id=context.user_id,
                 title=request.title,
                 content=request.content,
+                photo_key=request.photo_key if request.photo_key else None,
                 address=address,
                 geom=geom,
             )
@@ -200,6 +203,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
                 editor_user_id=context.user_id,
                 title=current_version.title,
                 content=current_version.content,
+                photo_key=current_version.photo_key,
                 address=current_version.address,
                 geom=current_version.geom,
             )
@@ -213,6 +217,11 @@ class Pages(pages_pb2_grpc.PagesServicer):
                 if not request.content.value:
                     context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_CONTENT)
                 page_version.content = request.content.value
+
+            if request.HasField("photo_key"):
+                if not request.content.value:
+                    page_version.photo_key = None
+                page_version.photo_key = request.photo_key.value
 
             if request.HasField("address"):
                 if not request.address.value:
