@@ -73,7 +73,7 @@ def db_impl(param):
         Base.metadata.create_all(get_engine())
 
 
-@pytest.fixture(params=["models"])  # migrations", "models"])
+@pytest.fixture(params=["migrations", "models"])
 def db(request):
     """
     Pytest fixture to connect to a running Postgres database.

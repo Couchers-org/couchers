@@ -263,10 +263,9 @@ def _search_clusters(
 class Search(search_pb2_grpc.SearchServicer):
     def Search(self, request, context):
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-        # this is nto an ideal page token, some results have equal rank
+        # this is not an ideal page token, some results have equal rank (unlikely)
         next_rank = float(request.page_token) if request.page_token else None
         with session_scope() as session:
-            # pages
             all_results = (
                 _search_users(
                     session,
@@ -299,7 +298,6 @@ class Search(search_pb2_grpc.SearchServicer):
                 )
             )
             all_results.sort(key=lambda result: result.rank, reverse=True)
-            # todo: sort
             return search_pb2.SearchRes(
                 results=all_results[:page_size],
                 next_page_token=str(all_results[page_size].rank) if len(all_results) > page_size else None,

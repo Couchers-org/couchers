@@ -185,7 +185,7 @@ def get_group_id(session, group_name):
     return session.query(Cluster).filter(~Cluster.is_official_cluster).filter(Cluster.name == group_name).one().id
 
 
-@pytest.fixture(params=["models"], scope="class")  # , "migrations"
+@pytest.fixture(params=["models", "migrations"], scope="class")
 def testing_communities(request):
     db_impl(request.param)
     user1, token1 = generate_user(username="user1", geom=create_1d_point(1), geom_radius=0.1)
