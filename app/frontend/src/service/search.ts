@@ -11,6 +11,7 @@ import client from "./client";
 export async function search(query: string): Promise<User.AsObject[]> {
   const req = new SearchReq();
   req.setQuery(query);
+  req.setIncludeUsers(true);
 
   const response = await client.search.search(req);
   const users = response.getResultsList().filter(res => res.hasUser()).map(res => res.getUser());

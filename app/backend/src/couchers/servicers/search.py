@@ -154,7 +154,7 @@ def _search_users(session, search_query, title_only, next_rank, page_size, conte
         next_rank,
         page_size,
         [User.username, User.name],
-        [User.about_me],
+        [User.about_me, User.city],
         [User.my_travels, User.things_i_like, User.about_place, User.avatar_filename, User.additional_information],
     )
 
@@ -164,7 +164,7 @@ def _search_users(session, search_query, title_only, next_rank, page_size, conte
         search_pb2.Result(
             rank=rank,
             # TODO: user_model_to_pb should accept just user_id, not full context
-            user=user_model_to_pb(page, context),
+            user=user_model_to_pb(page, session, context),
             snippet=snippet,
         )
         for page, rank, snippet in users
