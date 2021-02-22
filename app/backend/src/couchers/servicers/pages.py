@@ -1,13 +1,12 @@
 import grpc
+from sqlalchemy.sql import func
 
 from couchers import errors
 from couchers.db import get_node_parents_recursively, get_parent_node_at_location, session_scope
-from couchers.models import Cluster, Node, Page, PageType, PageVersion, Thread, User
+from couchers.models import Cluster, ClusterRole, ClusterSubscription, Node, Page, PageType, PageVersion, Thread, User
 from couchers.servicers.threads import pack_thread_id
 from couchers.utils import Timestamp_from_datetime, create_coordinate, remove_duplicates_retain_order
 from pb import pages_pb2, pages_pb2_grpc
-
-
 
 pagetype2sql = {
     pages_pb2.PAGE_TYPE_PLACE: PageType.place,
@@ -20,6 +19,7 @@ pagetype2api = {
     PageType.guide: pages_pb2.PAGE_TYPE_GUIDE,
     PageType.main_page: pages_pb2.PAGE_TYPE_MAIN_PAGE,
 }
+
 
 def _is_page_owner(page: Page, user_id):
     """
@@ -44,22 +44,27 @@ def _is_page_moderator(page: Page, user_id):
 
         # if the page has a location, we firstly check if we are the moderator of any node that contains this page
         if latest_version.geom is not None:
-            geom_parents = (
-                session.query(Node)
-                .filter(Node.official_cluster.admins.filter(User.id == user_id))
+            cluster_ids_to_check += list(
+                session.query(Cluster.id)
+                .join(Node, Node.id == Cluster.parent_node_id)
+                .filter(Cluster.is_official_cluster)
                 .filter(func.ST_Contains(Node.geom, latest_version.geom))
-                .count()
+                .all()
             )
-            if geom_parents > 0:
-                return True
 
         # then we check the parent tree upwards
         parents = get_node_parents_recursively(session, page.parent_node_id)
         for node_id, parent_node_id, level, cluster in parents:
-            if cluster.admins.filter(User.id == user_id).one_or_none() is not None:
-                return True
+            cluster_ids_to_check += [cluster.id]
 
-        return False
+        return (
+            session.query(ClusterSubscription)
+            .filter(ClusterSubscription.role == ClusterRole.admin)
+            .filter(ClusterSubscription.user_id == user_id)
+            .filter(ClusterSubscription.cluster_id.in_(cluster_ids_to_check))
+            .count()
+            > 0
+        )
 
 
 def page_to_pb(page: Page, user_id):
