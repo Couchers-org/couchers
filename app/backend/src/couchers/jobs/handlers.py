@@ -62,11 +62,13 @@ def process_send_message_notifications(payload):
             .filter(Message.time >= GroupChatSubscription.joined)
             .filter(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
             .filter(Message.id > User.last_notified_message_id)
+            .filter(Message.id > GroupChatSubscription.last_seen_message_id)
             .filter(Message.time < now() - timedelta(minutes=30))
-            .filter(Message.message_type == MessageType.text)  # TODO: only do text messages for now
+            .filter(Message.message_type == MessageType.text)  # TODO: only text messages for now
             .group_by(User)
             .all()
         )
+
         for user in users:
             # now actually grab all the group chats, not just less than 30 min old
             subquery = (
@@ -74,12 +76,14 @@ def process_send_message_notifications(payload):
                     GroupChatSubscription.group_chat_id.label("group_chat_id"),
                     func.max(GroupChatSubscription.id).label("group_chat_subscriptions_id"),
                     func.max(Message.id).label("message_id"),
+                    func.count(Message.id).label("count_unseen"),
                 )
                 .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
                 .filter(GroupChatSubscription.user_id == user.id)
-                .filter(Message.id > User.last_notified_message_id)
+                .filter(Message.id > user.last_notified_message_id)
+                .filter(Message.id > GroupChatSubscription.last_seen_message_id)
                 .filter(Message.time >= GroupChatSubscription.joined)
-                .filter(Message.message_type == MessageType.text)  # TODO: only do text messages for now
+                .filter(Message.message_type == MessageType.text)  # TODO: only text messages for now
                 .filter(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
                 .group_by(GroupChatSubscription.group_chat_id)
                 .order_by(func.max(Message.id).desc())
@@ -87,23 +91,27 @@ def process_send_message_notifications(payload):
             )
 
             unseen_messages = (
-                session.query(GroupChat, GroupChatSubscription, Message)
+                session.query(GroupChat, Message, subquery.c.count_unseen)
                 .join(subquery, subquery.c.message_id == Message.id)
-                .join(GroupChatSubscription, GroupChatSubscription.id == subquery.c.group_chat_subscriptions_id)
                 .join(GroupChat, GroupChat.conversation_id == subquery.c.group_chat_id)
                 .order_by(subquery.c.message_id.desc())
                 .all()
             )
 
-            user.last_notified_message_id = max([message.id for _, _, message in unseen_messages])
+            user.last_notified_message_id = max([message.id for _, message, _ in unseen_messages])
             session.commit()
+
+            total_unseen_message_count = sum([count for _, _, count in unseen_messages])
 
             email.enqueue_email_from_template(
                 user.email,
                 "unseen_messages",
                 template_args={
                     "user": user,
-                    "unseen_messages": unseen_messages,
+                    "total_unseen_message_count": total_unseen_message_count,
+                    "unseen_messages": [
+                        (group_chat, latest_message, count) for group_chat, latest_message, count in unseen_messages
+                    ],
                     "group_chats_link": urls.messages_link(),
                 },
             )
