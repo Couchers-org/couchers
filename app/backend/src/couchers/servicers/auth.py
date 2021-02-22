@@ -1,3 +1,4 @@
+from couchers.utils import create_coordinate
 import logging
 from datetime import datetime
 
@@ -236,6 +237,10 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 gender=request.gender,
                 birthdate=birthdate,
                 hosting_status=hostingstatus2sql[request.hosting_status],
+                city=request.city,
+                geom=create_coordinate(request.lat, request.lng),
+                geom_radius=request.radius,
+                accepted_tos=1 if request.accept_tos else 0,
             )
 
             # happens in same transaction
