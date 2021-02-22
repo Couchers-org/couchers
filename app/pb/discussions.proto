@@ -28,6 +28,7 @@ message Discussion {
   string title = 7;
   string content = 8;
   int64 thread_id = 9;
+  bool can_moderate = 10;
 }
 
 message CreateDiscussionReq {

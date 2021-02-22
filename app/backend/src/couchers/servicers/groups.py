@@ -5,7 +5,7 @@ from google.protobuf import empty_pb2
 from sqlalchemy.sql import literal
 
 from couchers import errors
-from couchers.db import get_node_parents_recursively, session_scope
+from couchers.db import can_moderate_node, get_node_parents_recursively, session_scope
 from couchers.models import Cluster, ClusterRole, ClusterSubscription, Discussion, Node, Page, PageType, User
 from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.pages import page_to_pb
@@ -44,6 +44,9 @@ def _parents_to_pb(cluster: Cluster, user_id):
 
 
 def group_to_pb(cluster: Cluster, user_id):
+    with session_scope() as session:
+        can_moderate = can_moderate_node(session, user_id, cluster.parent_node_id)
+
     return groups_pb2.Group(
         group_id=cluster.id,
         name=cluster.name,
@@ -56,6 +59,7 @@ def group_to_pb(cluster: Cluster, user_id):
         admin=cluster.admins.filter(User.id == user_id).one_or_none() is not None,
         member_count=cluster.members.count(),
         admin_count=cluster.admins.count(),
+        can_moderate=can_moderate,
     )
 
 

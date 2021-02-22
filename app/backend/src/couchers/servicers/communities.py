@@ -4,7 +4,7 @@ import grpc
 from google.protobuf import empty_pb2
 
 from couchers import errors
-from couchers.db import get_node_parents_recursively, session_scope
+from couchers.db import can_moderate_node, get_node_parents_recursively, session_scope
 from couchers.models import Cluster, ClusterRole, ClusterSubscription, Discussion, Node, Page, PageType, User
 from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.groups import group_to_pb
@@ -35,6 +35,9 @@ def _parents_to_pb(node_id, user_id):
 
 
 def community_to_pb(node: Node, user_id):
+    with session_scope() as session:
+        can_moderate = can_moderate_node(session, user_id, node.id)
+
     return communities_pb2.Community(
         community_id=node.id,
         name=node.official_cluster.name,
@@ -47,6 +50,7 @@ def community_to_pb(node: Node, user_id):
         admin=node.official_cluster.admins.filter(User.id == user_id).one_or_none() is not None,
         member_count=node.official_cluster.members.count(),
         admin_count=node.official_cluster.admins.count(),
+        can_moderate=can_moderate,
     )
 
 
