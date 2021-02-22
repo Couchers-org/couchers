@@ -135,7 +135,7 @@ describe("ChangePasswordPage", () => {
       // gonna be true
       expect(await screen.findByLabelText("New password")).toBeVisible();
       expect(
-        screen.getByText("Please enter a password")
+        screen.getByText("Please enter a password.")
       ).toBeVisible();
       expect(screen.queryByLabelText("Old password")).not.toBeInTheDocument();
     });
