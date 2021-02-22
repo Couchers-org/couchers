@@ -24,6 +24,7 @@ const useStyles = makeStyles((theme) => ({
   loginOptions: {
     display: "flex",
     marginTop: theme.spacing(2),
+    alignItems: "center",
   },
   forgotPasswordLink: {
     color: theme.palette.text.primary,
