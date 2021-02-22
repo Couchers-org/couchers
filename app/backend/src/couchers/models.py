@@ -716,7 +716,7 @@ class Upload(Base):
             return None
 
     @property
-    def avatar_url(self):
+    def thumbnail_url(self):
         return self._url("avatar")
 
     @property
