@@ -13,6 +13,7 @@ from couchers.models import (
     HostRequest,
     HostRequestStatus,
     Message,
+    MessageType,
 )
 from couchers.tasks import (
     send_friend_request_email,
@@ -101,13 +102,15 @@ def test_host_request_email(db):
         to_date = "2020-01-05"
 
         conversation = Conversation()
-        message = Message()
-        message.conversation_id = conversation.id
-        message.author_id = from_user.id
-        message.text = random_hex(64)
+        message = Message(
+            conversation=conversation,
+            author_id=from_user.id,
+            text=random_hex(64),
+            message_type=MessageType.text,
+        )
 
         host_request = HostRequest(
-            conversation_id=conversation.id,
+            conversation=conversation,
             from_user=from_user,
             to_user=to_user,
             from_date=from_date,
@@ -131,8 +134,8 @@ def test_host_request_email(db):
         assert from_date in html
         assert to_date in plain
         assert to_date in html
-        assert from_user.avatar_url not in plain
-        assert from_user.avatar_url in html
+        assert from_user.avatar_filename not in plain
+        assert from_user.avatar_filename in html
         assert f"{config['BASE_URL']}/hostrequests/" in plain
         assert f"{config['BASE_URL']}/hostrequests/" in html
 
@@ -158,6 +161,7 @@ def test_friend_request_email(db):
         from_user, api_token_from = generate_user()
         to_user, api_token_to = generate_user()
         friend_relationship = FriendRelationship(from_user=from_user, to_user=to_user, status=FriendStatus.pending)
+        session.add(friend_relationship)
 
         with patch("couchers.email.queue_email") as mock:
             send_friend_request_email(friend_relationship)
@@ -171,8 +175,8 @@ def test_friend_request_email(db):
         assert from_user.name in subject
         assert from_user.name in plain
         assert from_user.name in html
-        assert from_user.avatar_url not in plain
-        assert from_user.avatar_url in html
+        assert from_user.avatar_filename not in plain
+        assert from_user.avatar_filename in html
         assert f"{config['BASE_URL']}/friends/" in plain
         assert f"{config['BASE_URL']}/friends/" in html
 
@@ -187,6 +191,7 @@ def test_email_patching_fails(db):
         from_user, api_token_from = generate_user()
         to_user, api_token_to = generate_user()
         friend_relationship = FriendRelationship(from_user=from_user, to_user=to_user, status=FriendStatus.pending)
+        session.add(friend_relationship)
 
         patched_msg = random_hex(64)
 

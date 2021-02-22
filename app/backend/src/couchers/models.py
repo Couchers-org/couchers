@@ -709,12 +709,19 @@ class Uploads(Base):
 
     creator_user = relationship("User", backref="uploads", foreign_keys="Uploads.creator_user_id")
 
-    @property
-    def url(self):
+    def _url(self, size):
         if self.filename:
-            return f"{config['MEDIA_SERVER_BASE_URL']}/img/avatar/{self.filename}"
+            return f"{config['MEDIA_SERVER_BASE_URL']}/img/{size}/{self.filename}"
         else:
             return None
+
+    @property
+    def avatar_url(self):
+        return self._url("avatar")
+
+    @property
+    def full_url(self):
+        return self._url("full")
 
 
 communities_seq = Sequence("communities_seq")
