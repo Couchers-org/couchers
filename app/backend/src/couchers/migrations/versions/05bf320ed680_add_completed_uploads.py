@@ -31,6 +31,16 @@ def upgrade():
     op.alter_column("initiated_uploads", "user_id", new_column_name="initiator_user_id")
     op.add_column("users", sa.Column("avatar_key", sa.String(), nullable=True))
     op.create_foreign_key(op.f("fk_users_avatar_key_uploads"), "users", "uploads", ["avatar_key"], ["key"])
+    op.execute(
+        """
+        INSERT INTO uploads
+        SELECT
+            id AS creator_user_id,
+            substr(avatar_filename, 1, 64) AS key,
+            avatar_filename AS filename
+        FROM users
+        WHERE avatar_filename IS NOT NULL"""
+    )
     op.drop_column("users", "avatar_filename")
 
 
