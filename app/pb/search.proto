@@ -26,7 +26,6 @@ service Search {
 message Area {
   double lat = 1;
   double lng = 2;
-  // truncated to between 5000 (5 km) and 200000 (200 km) for privacy
   double radius = 3; // m
 }
 
@@ -41,13 +40,13 @@ message SearchReq {
   // bool include_discussions = 9;
   // bool include_events = 10;
 
-  // restrictions on area — not implemented!
-  oneof search_in {
-    // search in given area
-    Area search_in_area = 11;
-    // search inside the area defined by the community
-    int64 search_in_community_id = 12;
-  }
+  // restrictions on area
+  // oneof search_in {
+  //   // search in given area
+  //   Area search_in_area = 11;
+  //   // search inside the area defined by the community
+  //   int64 search_in_community_id = 12;
+  // }
 
   // whether to only perform a trigram based search on titles and not do full text search
   bool title_only = 13;
@@ -70,7 +69,7 @@ message Result {
     org.couchers.api.pages.Page place = 6;
     org.couchers.api.pages.Page guide = 7;
     // org.couchers.api.events.Event event = 8;
-    org.couchers.api.discussions.Discussion discussion = 9;
+    // org.couchers.api.discussions.Discussion discussion = 9;
   }
 }
 
@@ -106,10 +105,10 @@ message UserSearchReq {
   // google.protobuf.StringValue language = 11;
   bool only_with_references = 12;
 
-  bool friends_only = 13;
+  // bool friends_only = 13;
 
-  google.protobuf.UInt32Value age_min = 14;
-  google.protobuf.UInt32Value age_max = 15;
+  // google.protobuf.UInt32Value age_min = 14;
+  // google.protobuf.UInt32Value age_max = 15;
 
   google.protobuf.BoolValue last_minute = 16;
   google.protobuf.BoolValue has_pets = 17;
