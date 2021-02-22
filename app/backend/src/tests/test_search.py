@@ -16,7 +16,24 @@ def _(testconfig):
 def test_search(testing_communities):
     user, token = generate_user()
     with search_session(token) as api:
-        res = api.Search(search_pb2.SearchReq(query="Country 1, Region 1", include_places=True))
-        print(res)
-        print(len(res.results))
-        raise Exception()
+        res = api.Search(
+            search_pb2.SearchReq(
+                query="Country 1, Region 1",
+                include_users=True,
+                include_communities=True,
+                include_groups=True,
+                include_places=True,
+                include_guides=True,
+            )
+        )
+        res = api.Search(
+            search_pb2.SearchReq(
+                query="Country 1, Region 1, Attraction",
+                title_only=True,
+                include_users=True,
+                include_communities=True,
+                include_groups=True,
+                include_places=True,
+                include_guides=True,
+            )
+        )

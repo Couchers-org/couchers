@@ -20,7 +20,8 @@ from pb import search_pb2, search_pb2_grpc
 MAX_PAGINATION_LENGTH = 50
 
 regconfig = "english"
-TRI_SIMILARITY_THRESHOLD = 0.7
+TRI_SIMILARITY_THRESHOLD = 0.6
+TRI_SIMILARITY_WEIGHT = 5
 
 
 def _join_with_space(coalesces):
@@ -28,7 +29,7 @@ def _join_with_space(coalesces):
         return ""
     out = coalesces[0]
     for coalesce in coalesces[1:]:
-        out = " " + coalesce
+        out += " " + coalesce
     return out
 
 
@@ -56,12 +57,18 @@ def _build_doc(A, B=[], C=[], D=[]):
     """
     Builds the raw document (without to_tsvector and weighting), used for extracting snippet
     """
-    return (
-        _join_with_space([func.coalesce(bit, "") for bit in A])
-        + _join_with_space([func.coalesce(bit, "") for bit in B])
-        + _join_with_space([func.coalesce(bit, "") for bit in C])
-        + _join_with_space([func.coalesce(bit, "") for bit in D])
-    )
+    doc = _join_with_space([func.coalesce(bit, "") for bit in A])
+    if B:
+        doc += " " + _join_with_space([func.coalesce(bit, "") for bit in B])
+    if C:
+        doc += " " + _join_with_space([func.coalesce(bit, "") for bit in C])
+    if D:
+        doc += " " + _join_with_space([func.coalesce(bit, "") for bit in D])
+    return doc
+
+
+def _similarity(query, text):
+    return func.word_similarity(func.lower(func.unaccent(query)), func.lower(func.unaccent(text)))
 
 
 def _gen_search_elements(query, title_only, next_rank, page_size, A, B=[], C=[], D=[]):
@@ -72,44 +79,75 @@ def _gen_search_elements(query, title_only, next_rank, page_size, A, B=[], C=[],
 
     A should be the "title", the others can be anything.
 
-    If title_only=True, we only perform a tirgram search against A
+    If title_only=True, we only perform a trigram search against A only
     """
-    # a postgres tsquery object that can be used to match against a tsvector
-    tsq = func.websearch_to_tsquery(regconfig, query)
+    if not title_only:
+        # a postgres tsquery object that can be used to match against a tsvector
+        tsq = func.websearch_to_tsquery(regconfig, query)
 
-    # the tsvector object that we want to search against with our tsquery
-    tsv = _build_tsv(A, B, C, D)
+        # the tsvector object that we want to search against with our tsquery
+        tsv = _build_tsv(A, B, C, D)
 
-    # document to generate snippet from
-    doc = _build_doc(A, B, C, D)
+        # document to generate snippet from
+        doc = _build_doc(A, B, C, D)
 
-    title = _build_doc(A)
+        title = _build_doc(A)
 
-    # trigram based text similarity between title and query string
-    sim = func.similarity(title, query)
+        # trigram based text similarity between title and query string
+        sim = _similarity(query, title)
 
-    # ranking algo, weigh the similarity a lot, the text-based ranking less
-    rank = (10 * sim + func.ts_rank_cd(tsv, tsq)).label("rank")
+        # ranking algo, weigh the similarity a lot, the text-based ranking less
+        rank = (TRI_SIMILARITY_WEIGHT * sim + func.ts_rank_cd(tsv, tsq)).label("rank")
 
-    # the snippet with results highlighted
-    snippet = func.ts_headline(regconfig, doc, tsq, "StartSel=**,StopSel=**").label("snippet")
+        # the snippet with results highlighted
+        snippet = func.ts_headline(regconfig, doc, tsq, "StartSel=**,StopSel=**").label("snippet")
 
-    def do_search_query(orig_query):
-        """
-        Does the right search filtering, limiting, and ordering for the query
-        """
-        return (
-            orig_query.filter(or_(tsv.op("@@")(tsq), sim > TRI_SIMILARITY_THRESHOLD))
-            .filter(rank <= next_rank if next_rank is not None else True)
-            .order_by(rank.desc())
-            .limit(page_size + 1)
-            .all()
-        )
+        def do_search_query(orig_query):
+            """
+            Does the right search filtering, limiting, and ordering for the query
+            """
+            return (
+                orig_query.filter(or_(tsv.op("@@")(tsq), sim > TRI_SIMILARITY_THRESHOLD))
+                .filter(rank <= next_rank if next_rank is not None else True)
+                .order_by(rank.desc())
+                .limit(page_size + 1)
+                .all()
+            )
+
+    else:
+        title = _build_doc(A)
+
+        # trigram based text similarity between title and query string
+        sim = _similarity(query, title)
+
+        # ranking algo, weigh the similarity a lot, the text-based ranking less
+        rank = sim.label("rank")
+
+        # used only for headline
+        tsq = func.websearch_to_tsquery(regconfig, query)
+        doc = _build_doc(A, B, C, D)
+
+        # the snippet with results highlighted
+        snippet = func.ts_headline(regconfig, doc, tsq, "StartSel=**,StopSel=**").label("snippet")
+
+        def do_search_query(orig_query):
+            """
+            Does the right search filtering, limiting, and ordering for the query
+            """
+            return (
+                orig_query.filter(sim > TRI_SIMILARITY_THRESHOLD)
+                .filter(rank <= next_rank if next_rank is not None else True)
+                .order_by(rank.desc())
+                .limit(page_size + 1)
+                .all()
+            )
 
     return rank, snippet, do_search_query
 
 
-def _search_users(session, search_query, title_only, next_rank, page_size, context):
+def _search_users(session, search_query, title_only, next_rank, page_size, context, include_users):
+    if not include_users:
+        return []
     rank, snippet, do_search_query = _gen_search_elements(
         search_query,
         title_only,
@@ -143,6 +181,8 @@ def _search_pages(session, search_query, title_only, next_rank, page_size, user_
         [PageVersion.address],
         [PageVersion.content],
     )
+    if not include_places and not include_guides:
+        return []
 
     latest_pages = (
         session.query(func.max(PageVersion.id).label("id"))
@@ -177,6 +217,9 @@ def _search_pages(session, search_query, title_only, next_rank, page_size, user_
 def _search_clusters(
     session, search_query, title_only, next_rank, page_size, user_id, include_communities, include_groups
 ):
+    if not include_communities and not include_groups:
+        return []
+
     rank, snippet, do_search_query = _gen_search_elements(
         search_query,
         title_only,
@@ -225,7 +268,16 @@ class Search(search_pb2_grpc.SearchServicer):
         with session_scope() as session:
             # pages
             all_results = (
-                _search_pages(
+                _search_users(
+                    session,
+                    request.query,
+                    request.title_only,
+                    next_rank,
+                    page_size,
+                    context,
+                    request.include_users,
+                )
+                + _search_pages(
                     session,
                     request.query,
                     request.title_only,
@@ -234,14 +286,6 @@ class Search(search_pb2_grpc.SearchServicer):
                     context.user_id,
                     request.include_places,
                     request.include_guides,
-                )
-                + _search_users(
-                    session,
-                    request.query,
-                    request.title_only,
-                    next_rank,
-                    page_size,
-                    context,
                 )
                 + _search_clusters(
                     session,

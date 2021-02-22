@@ -38,7 +38,7 @@ message SearchReq {
   bool include_groups = 6;
   bool include_places = 7;
   bool include_guides = 8;
-  bool include_discussions = 9;
+  // bool include_discussions = 9;
   // bool include_events = 10;
 
   // restrictions on area — not implemented!
@@ -49,7 +49,7 @@ message SearchReq {
     int64 search_in_community_id = 12;
   }
 
-  // whether to perform a trigram based search on titles only, and not do full text search
+  // whether to only perform a trigram based search on titles and not do full text search
   bool title_only = 13;
 
   uint32 page_size = 2;
@@ -60,21 +60,18 @@ message Result {
   // a ranking score, higher is more relevant
   double rank = 1;
 
-  oneof result {
-    org.couchers.api.core.User user = 2;
-    org.couchers.api.communities.Community community = 3;
-    org.couchers.api.groups.Group group = 4;
-    org.couchers.api.pages.Page place = 5;
-    org.couchers.api.pages.Page guide = 6;
-    org.couchers.api.discussions.Discussion discussion = 7;
-    // org.couchers.api.events.Event event = 8;
-  }
-
-  bool matched_title = 9;
-  bool matched_content = 10;
-
   // a snippet of the matched parts of the document
-  string snippet = 11;
+  string snippet = 2;
+
+  oneof result {
+    org.couchers.api.core.User user = 3;
+    org.couchers.api.communities.Community community = 4;
+    org.couchers.api.groups.Group group = 5;
+    org.couchers.api.pages.Page place = 6;
+    org.couchers.api.pages.Page guide = 7;
+    // org.couchers.api.events.Event event = 8;
+    org.couchers.api.discussions.Discussion discussion = 9;
+  }
 }
 
 message SearchRes {
