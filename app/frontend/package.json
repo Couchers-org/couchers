@@ -37,9 +37,7 @@
   "eslintConfig": {
     "extends": [
       "react-app",
-      "prettier",
-      "prettier/@typescript-eslint",
-      "prettier/react"
+      "prettier"
     ],
     "plugins": [
       "eslint-plugin-simple-import-sort"
