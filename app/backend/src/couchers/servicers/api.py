@@ -11,7 +11,7 @@ from couchers import errors, urls
 from couchers.config import config
 from couchers.crypto import generate_hash_signature, random_hex
 from couchers.db import get_friends_status, get_user_by_field, is_valid_name, session_scope
-from couchers.languages import check_language_allowed
+from couchers.languages import language_is_allowed
 from couchers.models import (
     Complaint,
     FriendRelationship,
@@ -285,7 +285,7 @@ class API(api_pb2_grpc.APIServicer):
 
                 # add the new ones
                 for language_ability in request.language_abilities.value:
-                    if not check_language_allowed(language_ability.code):
+                    if not language_is_allowed(language_ability.code):
                         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_LANGUAGE)
                     session.add(
                         LanguageAbility(

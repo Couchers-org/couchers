@@ -12,7 +12,7 @@ def get_language_list():
         return set(language["code"] for language in json.loads(f.read()))
 
 
-def check_language_allowed(code):
+def language_is_allowed(code):
     """
     Check a language code is valid
     """

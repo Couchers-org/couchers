@@ -40,8 +40,8 @@ def add_dummy_users():
     try:
         logger.info(f"Adding dummy users")
         with session_scope() as session:
-            with open("src/data/dummy_users.json", "r") as file:
-                data = json.loads(file.read())
+            with open("src/data/dummy_users.json", "r") as f:
+                data = json.load(f)
 
             for user in data["users"]:
                 new_user = User(
@@ -149,8 +149,8 @@ def add_dummy_communities():
                 logger.info("Nodes not empty, not adding dummy communities")
                 return
 
-            with open("src/data/dummy_communities.json", "r") as file:
-                data = json.loads(file.read())
+            with open("src/data/dummy_communities.json", "r") as f:
+                data = json.load(f)
 
             for community in data["communities"]:
                 geom = None
@@ -158,7 +158,7 @@ def add_dummy_communities():
                     geom = create_polygon_lng_lat(community["coordinates"])
                 elif "osm_id" in community:
                     with open(f"src/data/osm/{community['osm_id']}.geojson") as f:
-                        geojson = json.loads(f.read())
+                        geojson = json.load(f)
                     # pick the first feature
                     geom = geojson_to_geom(geojson["features"][0]["geometry"])
                     if "geom_simplify" in community:
