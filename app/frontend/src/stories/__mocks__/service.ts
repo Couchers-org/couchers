@@ -53,6 +53,7 @@ export const mockedService = ({
     getGroupChatMessages: () => Promise.resolve([message1, message2]),
     getGroupChat: () => Promise.resolve(groupChat),
   },
+  account: {},
 } as unknown) as typeof originalService;
 
 function wait(milliSeconds: number) {

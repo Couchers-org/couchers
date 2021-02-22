@@ -35,6 +35,11 @@ describe("ChangePasswordPage", () => {
         screen.getByRole("heading", { name: "Change password" })
       ).toBeVisible();
       expect(await screen.findByLabelText("Old password")).toBeVisible();
+      expect(
+        screen.getByText(
+          /Please enter a password, or leave the "New password" and "Confirm password" fields blank/i
+        )
+      ).toBeVisible();
       expect(screen.getByLabelText("New password")).toBeVisible();
       expect(screen.getByLabelText("Confirm password")).toBeVisible();
       expect(screen.getByRole("button", { name: "Submit" })).toBeVisible();
@@ -129,6 +134,9 @@ describe("ChangePasswordPage", () => {
       // Wait for new password field/form to show up first, otherwise old password not visible is always
       // gonna be true
       expect(await screen.findByLabelText("New password")).toBeVisible();
+      expect(
+        screen.getByText("Please enter a password.")
+      ).toBeVisible();
       expect(screen.queryByLabelText("Old password")).not.toBeInTheDocument();
     });
 
