@@ -6,7 +6,7 @@ from google.protobuf import empty_pb2
 from couchers.crypto import secure_compare
 from couchers.db import session_scope
 from couchers.interceptors import ManualAuthValidatorInterceptor
-from couchers.models import InitiatedUpload
+from couchers.models import InitiatedUpload, Upload
 from pb import media_pb2_grpc
 
 logger = logging.getLogger(__name__)
@@ -22,16 +22,24 @@ def get_media_auth_interceptor(secret_token):
 class Media(media_pb2_grpc.MediaServicer):
     def UploadConfirmation(self, request, context):
         with session_scope() as session:
-            upload = (
+            initiated_upload = (
                 session.query(InitiatedUpload)
                 .filter(InitiatedUpload.key == request.key)
                 .filter(InitiatedUpload.is_valid)
                 .one_or_none()
             )
 
-            if not upload:
+            if not initiated_upload:
                 context.abort(grpc.StatusCode.NOT_FOUND, "Upload not found.")
 
-            upload.user.avatar_filename = request.filename
+            # move it to a completed upload
+            upload = Upload(
+                filename=request.filename,
+                creator_user_id=initiated_upload.initiator_user_id,
+            )
+            session.add(upload)
+
+            # delete the old upload
+            session.delete(initiated_upload)
 
             return empty_pb2.Empty()

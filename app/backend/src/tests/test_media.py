@@ -6,7 +6,7 @@ from google.protobuf import empty_pb2
 
 from couchers.crypto import random_hex
 from couchers.db import session_scope
-from couchers.models import InitiatedUpload, User
+from couchers.models import InitiatedUpload, Upload, User
 from pb import media_pb2
 from tests.test_fixtures import api_session, db, generate_user, media_session, testconfig
 
@@ -34,13 +34,18 @@ def test_media_upload(db):
 
     req = media_pb2.UploadConfirmationReq(key=key, filename=filename)
 
+    with session_scope() as session:
+        # make sure it exists
+        session.query(InitiatedUpload).filter(InitiatedUpload.key == key).one()
+
     with media_session(media_bearer_token) as media:
         res = media.UploadConfirmation(req)
 
     with session_scope() as session:
         # make sure it exists
-        upload = session.query(InitiatedUpload).filter(InitiatedUpload.key == key).one()
+        upload = session.query(Upload).filter(Upload.filename == filename).one()
+        assert upload.creator_user_id == user.id
 
-        updated_user = session.query(User).filter(User.id == user.id).one()
-
-        assert updated_user.avatar_filename == filename
+    with session_scope() as session:
+        # make sure it was deleted
+        assert not session.query(InitiatedUpload).one_or_none()

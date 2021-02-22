@@ -629,7 +629,7 @@ class API(api_pb2_grpc.APIServicer):
         expiry = created + timedelta(minutes=20)
 
         with session_scope() as session:
-            upload = InitiatedUpload(key=key, created=created, expiry=expiry, user_id=context.user_id)
+            upload = InitiatedUpload(key=key, created=created, expiry=expiry, initiator_user_id=context.user_id)
             session.add(upload)
             session.commit()
 

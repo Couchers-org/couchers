@@ -180,7 +180,7 @@ class User(Base):
     new_email_token_created = Column(DateTime(timezone=True), nullable=True)
     new_email_token_expiry = Column(DateTime(timezone=True), nullable=True)
 
-    avatar = relationship("Uploads", foreign_keys="User.avatar_filename")
+    avatar = relationship("Upload", foreign_keys="User.avatar_filename")
 
     @hybrid_property
     def is_jailed(self):
@@ -694,7 +694,7 @@ class InitiatedUpload(Base):
         return (self.created <= func.now()) & (self.expiry >= func.now())
 
 
-class Uploads(Base):
+class Upload(Base):
     """
     Completed uploads.
     """
@@ -707,7 +707,7 @@ class Uploads(Base):
 
     credit = Column(String, nullable=True)
 
-    creator_user = relationship("User", backref="uploads", foreign_keys="Uploads.creator_user_id")
+    creator_user = relationship("User", backref="uploads", foreign_keys="Upload.creator_user_id")
 
     def _url(self, size):
         if self.filename:
