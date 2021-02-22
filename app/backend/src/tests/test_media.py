@@ -43,8 +43,13 @@ def test_media_upload(db):
 
     with session_scope() as session:
         # make sure it exists
-        upload = session.query(Upload).filter(Upload.filename == filename).one()
-        assert upload.creator_user_id == user.id
+        upload = (
+            session.query(Upload)
+            .filter(Upload.key == key)
+            .filter(Upload.filename == filename)
+            .filter(Upload.creator_user_id == user.id)
+            .one()
+        )
 
     with session_scope() as session:
         # make sure it was deleted

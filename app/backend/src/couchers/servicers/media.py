@@ -34,6 +34,7 @@ class Media(media_pb2_grpc.MediaServicer):
 
             # move it to a completed upload
             upload = Upload(
+                key=request.key,
                 filename=request.filename,
                 creator_user_id=initiated_upload.initiator_user_id,
             )

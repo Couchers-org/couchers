@@ -122,7 +122,7 @@ class User(Base):
     # name as on official docs for verification, etc. not needed until verification
     full_name = Column(String, nullable=True)
 
-    avatar_filename = Column(ForeignKey("uploads.filename"), nullable=True)
+    avatar_key = Column(ForeignKey("uploads.key"), nullable=True)
 
     hosting_status = Column(Enum(HostingStatus), nullable=True)
     meetup_status = Column(Enum(MeetupStatus), nullable=True)
@@ -180,7 +180,7 @@ class User(Base):
     new_email_token_created = Column(DateTime(timezone=True), nullable=True)
     new_email_token_expiry = Column(DateTime(timezone=True), nullable=True)
 
-    avatar = relationship("Upload", foreign_keys="User.avatar_filename")
+    avatar = relationship("Upload", foreign_keys="User.avatar_key")
 
     @hybrid_property
     def is_jailed(self):
@@ -700,11 +700,13 @@ class Upload(Base):
     """
 
     __tablename__ = "uploads"
-    filename = Column(String, primary_key=True)
+    key = Column(String, primary_key=True)
 
+    filename = Column(String, nullable=False)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     creator_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
 
+    # photo credit, etc
     credit = Column(String, nullable=True)
 
     creator_user = relationship("User", backref="uploads", foreign_keys="Upload.creator_user_id")
