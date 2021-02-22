@@ -712,10 +712,7 @@ class Upload(Base):
     creator_user = relationship("User", backref="uploads", foreign_keys="Upload.creator_user_id")
 
     def _url(self, size):
-        if self.filename:
-            return f"{config['MEDIA_SERVER_BASE_URL']}/img/{size}/{self.filename}"
-        else:
-            return None
+        return f"{config['MEDIA_SERVER_BASE_URL']}/img/{size}/{self.filename}"
 
     @property
     def thumbnail_url(self):

@@ -721,7 +721,7 @@ def user_model_to_pb(db_user, session, context):
         smoking_allowed=smokinglocation2api[db_user.smoking_allowed],
         sleeping_arrangement=sleepingarrangement2api[db_user.sleeping_arrangement],
         parking_details=parkingdetails2api[db_user.parking_details],
-        avatar_url=db_user.avatar.thumbnail_url,
+        avatar_url=db_user.avatar.thumbnail_url if db_user.avatar else None,
     )
 
     if db_user.max_guests is not None:
