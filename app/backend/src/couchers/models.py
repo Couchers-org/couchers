@@ -512,18 +512,16 @@ class GroupChatSubscription(Base):
     role = Column(Enum(GroupChatRole), nullable=False)
 
     last_seen_message_id = Column(BigInteger, nullable=False, default=0)
+    last_notified_message_id = Column(BigInteger, nullable=False, default=0)
 
     user = relationship("User", backref="group_chat_subscriptions")
     group_chat = relationship("GroupChat", backref=backref("subscriptions", lazy="dynamic"))
 
     @property
     def unseen_message_count(self):
-        # TODO: possibly slow
-
-        session = Session.object_session(self)
-
         return (
-            session.query(Message.id)
+            Session.object_session(self)
+            .query(Message.id)
             .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
             .filter(GroupChatSubscription.id == self.id)
             .filter(Message.id > GroupChatSubscription.last_seen_message_id)
@@ -1130,6 +1128,8 @@ class BackgroundJobType(enum.Enum):
     purge_login_tokens = 2
     # payload: google.protobuf.Empty
     purge_signup_tokens = 3
+    # payload: google.protobuf.Empty
+    send_message_notifications = 4
 
 
 class BackgroundJobState(enum.Enum):
