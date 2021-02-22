@@ -202,6 +202,7 @@ def test_create_page_place(db):
         assert not res.owner_group_id
         assert res.editor_user_ids == [user.id]
         assert res.can_edit
+        assert res.can_moderate
 
 
 def test_create_page_guide(db):
@@ -240,6 +241,7 @@ def test_create_page_guide(db):
         assert not res.owner_group_id
         assert res.editor_user_ids == [user.id]
         assert res.can_edit
+        assert res.can_moderate
 
     with pages_session(token) as api:
         time_before = now()
@@ -266,6 +268,7 @@ def test_create_page_guide(db):
         assert not res.owner_group_id
         assert res.editor_user_ids == [user.id]
         assert res.can_edit
+        assert res.can_moderate
 
 
 def test_get_page(db):
@@ -306,6 +309,7 @@ def test_get_page(db):
         assert not res.owner_group_id
         assert res.editor_user_ids == [user1.id]
         assert not res.can_edit
+        assert not res.can_moderate
 
 
 def test_update_page(db):
@@ -353,6 +357,7 @@ def test_update_page(db):
         assert not res.owner_group_id
         assert res.editor_user_ids == [user.id]
         assert res.can_edit
+        assert res.can_moderate
 
         time_before_second_update = now()
         api.UpdatePage(
@@ -380,6 +385,7 @@ def test_update_page(db):
         assert not res.owner_group_id
         assert res.editor_user_ids == [user.id]
         assert res.can_edit
+        assert res.can_moderate
 
         time_before_third_update = now()
         api.UpdatePage(
@@ -407,6 +413,7 @@ def test_update_page(db):
         assert not res.owner_group_id
         assert res.editor_user_ids == [user.id]
         assert res.can_edit
+        assert res.can_moderate
 
         time_before_fourth_update = now()
         api.UpdatePage(
@@ -437,6 +444,65 @@ def test_update_page(db):
         assert not res.owner_group_id
         assert res.editor_user_ids == [user.id]
         assert res.can_edit
+        assert res.can_moderate
+
+
+def test_owner_not_moderator(db):
+    """
+    You can be the owner of content yet not have moderation rights
+    """
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Root node", [user1], [], None).id
+
+    # user2 makes page, is owner but not moderator, so can edit, not moderate
+    with pages_session(token2) as api:
+        res = api.CreatePlace(
+            pages_pb2.CreatePlaceReq(
+                title="dummy title",
+                content="dummy content",
+                address="dummy address",
+                location=pages_pb2.Coordinate(
+                    lat=1,
+                    lng=1,
+                ),
+            )
+        )
+        assert res.title == "dummy title"
+        assert res.content == "dummy content"
+        assert res.address == "dummy address"
+        assert res.location.lat == 1
+        assert res.location.lng == 1
+        assert res.slug == "dummy-title"
+        assert res.last_editor_user_id == user2.id
+        assert res.creator_user_id == user2.id
+        assert res.owner_user_id == user2.id
+        assert not res.owner_community_id
+        assert not res.owner_group_id
+        assert res.editor_user_ids == [user2.id]
+        assert res.can_edit
+        assert not res.can_moderate
+
+        page_id = res.page_id
+
+    # user1 is not owner so can't edit but can moderate
+    with pages_session(token1) as api:
+        res = api.GetPage(pages_pb2.GetPageReq(page_id=page_id))
+        assert res.title == "dummy title"
+        assert res.content == "dummy content"
+        assert res.address == "dummy address"
+        assert res.location.lat == 1
+        assert res.location.lng == 1
+        assert res.slug == "dummy-title"
+        assert res.last_editor_user_id == user2.id
+        assert res.creator_user_id == user2.id
+        assert res.owner_user_id == user2.id
+        assert not res.owner_community_id
+        assert not res.owner_group_id
+        assert res.editor_user_ids == [user2.id]
+        assert not res.can_edit
+        assert res.can_moderate
 
 
 def test_update_page_errors(db):
@@ -591,12 +657,15 @@ def test_page_transfer(db):
         page1 = api.CreatePlace(create_page_req)
         assert page1.owner_user_id == user1.id
         assert page1.can_edit
+        assert not page1.can_moderate
 
     with pages_session(token2) as api:
         assert not api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id)).can_edit
+        assert api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id)).can_moderate
 
     with pages_session(token3) as api:
         assert not api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id)).can_edit
+        assert not api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id)).can_moderate
 
     with pages_session(token1) as api:
         page1 = api.TransferPage(
@@ -607,12 +676,15 @@ def test_page_transfer(db):
         )
         assert page1.owner_community_id == community_id
         assert not page1.can_edit
+        assert not page1.can_moderate
 
     with pages_session(token2) as api:
         assert api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id)).can_edit
+        assert api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id)).can_moderate
 
     with pages_session(token3) as api:
         assert not api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id)).can_edit
+        assert not api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id)).can_moderate
 
     with pages_session(token1) as api:
         # now we're no longer the owner, can't transfer
@@ -629,12 +701,15 @@ def test_page_transfer(db):
         page1 = api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id))
         assert page1.owner_community_id == community_id
         assert not page1.can_edit
+        assert not page1.can_moderate
 
     with pages_session(token2) as api:
         assert api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id)).can_edit
+        assert api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id)).can_moderate
 
     with pages_session(token3) as api:
         assert not api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id)).can_edit
+        assert not api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id)).can_moderate
 
     with pages_session(token1) as api:
         # try a new page, just for fun
@@ -651,9 +726,11 @@ def test_page_transfer(db):
 
     with pages_session(token2) as api:
         assert api.GetPage(pages_pb2.GetPageReq(page_id=page2.page_id)).can_edit
+        assert api.GetPage(pages_pb2.GetPageReq(page_id=page2.page_id)).can_moderate
 
     with pages_session(token3) as api:
         assert not api.GetPage(pages_pb2.GetPageReq(page_id=page2.page_id)).can_edit
+        assert not api.GetPage(pages_pb2.GetPageReq(page_id=page2.page_id)).can_moderate
 
     with pages_session(token1) as api:
         # can't transfer a page to an official cluster, only through community
@@ -676,12 +753,15 @@ def test_page_transfer(db):
         page4 = api.CreatePlace(create_page_req)
         assert page4.owner_user_id == user1.id
         assert page4.can_edit
+        assert not page4.can_moderate
 
     with pages_session(token2) as api:
         assert not api.GetPage(pages_pb2.GetPageReq(page_id=page4.page_id)).can_edit
+        assert api.GetPage(pages_pb2.GetPageReq(page_id=page4.page_id)).can_moderate
 
     with pages_session(token3) as api:
         assert not api.GetPage(pages_pb2.GetPageReq(page_id=page4.page_id)).can_edit
+        assert not api.GetPage(pages_pb2.GetPageReq(page_id=page4.page_id)).can_moderate
 
     with pages_session(token1) as api:
         page4 = api.TransferPage(
@@ -692,12 +772,15 @@ def test_page_transfer(db):
         )
         assert page4.owner_group_id == group_id
         assert not page4.can_edit
+        assert not page4.can_moderate
 
     with pages_session(token2) as api:
         assert api.GetPage(pages_pb2.GetPageReq(page_id=page4.page_id)).can_edit
+        assert api.GetPage(pages_pb2.GetPageReq(page_id=page4.page_id)).can_moderate
 
     with pages_session(token3) as api:
         assert not api.GetPage(pages_pb2.GetPageReq(page_id=page4.page_id)).can_edit
+        assert not api.GetPage(pages_pb2.GetPageReq(page_id=page4.page_id)).can_moderate
 
     with pages_session(token1) as api:
         # now we're no longer the owner, can't transfer
