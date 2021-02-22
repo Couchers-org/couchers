@@ -20,11 +20,12 @@ from pb import search_pb2, search_pb2_grpc
 MAX_PAGINATION_LENGTH = 50
 
 regconfig = "english"
+TRI_SIMILARITY_THRESHOLD = 0.7
 
 
 def _join_with_space(coalesces):
     if not coalesces:
-        return None
+        return ""
     out = coalesces[0]
     for coalesce in coalesces[1:]:
         out = " " + coalesce
@@ -63,7 +64,7 @@ def _build_doc(A, B=[], C=[], D=[]):
     )
 
 
-def _gen_search_elements(query, exclude_content, A, B=[], C=[], D=[]):
+def _gen_search_elements(query, title_only, A, B=[], C=[], D=[]):
     """
     Given a query and four sets of fields, (A, B, C, D), generates a bunch of postgres expressions for full text search.
 
@@ -71,47 +72,46 @@ def _gen_search_elements(query, exclude_content, A, B=[], C=[], D=[]):
 
     A should be the "title", the others can be anything.
 
-    If exclude_content=True, we ignore B/C/D and only match against A
+    If title_only=True, we only perform a tirgram search against A
     """
     # a postgres tsquery object that can be used to match against a tsvector
     tsq = func.websearch_to_tsquery(regconfig, query)
 
     # the tsvector object that we want to search against with our tsquery
-    if not exclude_content:
-        tsv = _build_tsv(A, B, C, D)
-    else:
-        tsv = _build_tsv(A)
+    tsv = _build_tsv(A, B, C, D)
 
     # document to generate snippet from
-    if not exclude_content:
-        doc = _build_doc(A, B, C, D)
-    else:
-        doc = _build_doc(A)
+    doc = _build_doc(A, B, C, D)
+
+    title = _build_doc(A)
+
+    sim = func.similarity(title, query)
 
     # ranking algo
-    rank = func.ts_rank_cd(tsv, tsq).label("rank")
+    rank = (10 * sim + func.ts_rank_cd(tsv, tsq)).label("rank")
 
     # the snippet with results highlighted
     snippet = func.ts_headline(regconfig, doc, tsq, "StartSel=**,StopSel=**").label("snippet")
 
-    return tsq, tsv, doc, rank, snippet
+    return tsq, tsv, sim, doc, rank, snippet
 
 
-def _search_users(session, search_query, exclude_content, next_rank, page_size, context):
-    tsq, tsv, doc, rank, snippet = _gen_search_elements(
+def _search_users(session, search_query, title_only, next_rank, page_size, context):
+    tsq, tsv, sim, doc, rank, snippet = _gen_search_elements(
         search_query,
-        exclude_content,
-        [User.username],
-        [User.name, User.about_me],
+        title_only,
+        [User.username, User.name],
+        [User.about_me],
         [User.my_travels, User.things_i_like, User.about_place, User.avatar_filename, User.additional_information],
     )
 
     users = (
         session.query(User, rank, snippet)
         .filter(~User.is_banned)
-        .filter(tsv.op("@@")(tsq))
+        .filter(or_(tsv.op("@@")(tsq), sim > TRI_SIMILARITY_THRESHOLD))
         .filter(rank <= next_rank if next_rank is not None else True)
         .order_by(rank.desc())
+        .limit(page_size + 1)
         .all()
     )
 
@@ -126,11 +126,9 @@ def _search_users(session, search_query, exclude_content, next_rank, page_size, 
     ]
 
 
-def _search_pages(
-    session, search_query, exclude_content, next_rank, page_size, user_id, include_places, include_guides
-):
-    tsq, tsv, doc, rank, snippet = _gen_search_elements(
-        search_query, exclude_content, [PageVersion.title], [PageVersion.address], [PageVersion.content]
+def _search_pages(session, search_query, title_only, next_rank, page_size, user_id, include_places, include_guides):
+    tsq, tsv, sim, doc, rank, snippet = _gen_search_elements(
+        search_query, title_only, [PageVersion.title], [PageVersion.address], [PageVersion.content]
     )
 
     latest_pages = (
@@ -150,7 +148,7 @@ def _search_pages(
         session.query(Page, rank, snippet)
         .join(PageVersion, PageVersion.page_id == Page.id)
         .join(latest_pages, latest_pages.c.id == PageVersion.id)
-        .filter(tsv.op("@@")(tsq))
+        .filter(or_(tsv.op("@@")(tsq), sim > TRI_SIMILARITY_THRESHOLD))
         .filter(rank <= next_rank if next_rank is not None else True)
         .order_by(rank.desc())
         .limit(page_size + 1)
@@ -169,11 +167,11 @@ def _search_pages(
 
 
 def _search_clusters(
-    session, search_query, exclude_content, next_rank, page_size, user_id, include_communities, include_groups
+    session, search_query, title_only, next_rank, page_size, user_id, include_communities, include_groups
 ):
-    tsq, tsv, doc, rank, snippet = _gen_search_elements(
+    tsq, tsv, sim, doc, rank, snippet = _gen_search_elements(
         search_query,
-        exclude_content,
+        title_only,
         [Cluster.name],
         [Cluster.description, PageVersion.title, PageVersion.address],
         [PageVersion.content],
@@ -192,10 +190,10 @@ def _search_clusters(
         .join(Page, Page.owner_cluster_id == Cluster.id)
         .join(PageVersion, PageVersion.page_id == Page.id)
         .join(latest_pages, latest_pages.c.id == PageVersion.id)
-        .filter(tsv.op("@@")(tsq))
-        .filter(rank <= next_rank if next_rank is not None else True)
         .filter(Cluster.is_official_cluster if include_communities and not include_groups else True)
         .filter(~Cluster.is_official_cluster if not include_communities and include_groups else True)
+        .filter(or_(tsv.op("@@")(tsq), sim > TRI_SIMILARITY_THRESHOLD))
+        .filter(rank <= next_rank if next_rank is not None else True)
         .order_by(rank.desc())
         .limit(page_size + 1)
         .all()
@@ -207,7 +205,7 @@ def _search_clusters(
             community=community_to_pb(cluster.official_cluster_for_node, user_id)
             if cluster.is_official_cluster
             else None,
-            groups=group_to_pb(cluster.id, user_id) if not cluster.is_official_cluster else None,
+            group=group_to_pb(cluster, user_id) if not cluster.is_official_cluster else None,
             snippet=snippet,
         )
         for cluster, rank, snippet in clusters
@@ -225,7 +223,7 @@ class Search(search_pb2_grpc.SearchServicer):
                 _search_pages(
                     session,
                     request.query,
-                    request.exclude_content,
+                    request.title_only,
                     next_rank,
                     page_size,
                     context.user_id,
@@ -235,7 +233,7 @@ class Search(search_pb2_grpc.SearchServicer):
                 + _search_users(
                     session,
                     request.query,
-                    request.exclude_content,
+                    request.title_only,
                     next_rank,
                     page_size,
                     context,
@@ -243,7 +241,7 @@ class Search(search_pb2_grpc.SearchServicer):
                 + _search_clusters(
                     session,
                     request.query,
-                    request.exclude_content,
+                    request.title_only,
                     next_rank,
                     page_size,
                     context.user_id,
@@ -251,7 +249,7 @@ class Search(search_pb2_grpc.SearchServicer):
                     request.include_groups,
                 )
             )
-            all_results.sort(key=lambda result: result.rank)
+            all_results.sort(key=lambda result: result.rank, reverse=True)
             # todo: sort
             return search_pb2.SearchRes(
                 results=all_results[:page_size],

@@ -16,4 +16,4 @@ def _(testconfig):
 def test_search(testing_communities):
     user, token = generate_user()
     with search_session(token) as api:
-        res = api.Search(search_pb2.SearchReq(query="attraction city", include_places=True))
+        res = api.Search(search_pb2.SearchReq(query="Country 1, Region 1", include_places=True))

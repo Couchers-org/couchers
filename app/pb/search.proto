@@ -49,7 +49,8 @@ message SearchReq {
     int64 search_in_community_id = 12;
   }
 
-  bool exclude_content = 13;
+  // whether to perform a trigram based search on titles only, and not do full text search
+  bool title_only = 13;
 
   uint32 page_size = 2;
   string page_token = 3;
