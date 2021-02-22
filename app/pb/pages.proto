@@ -64,6 +64,7 @@ message Page {
   Coordinate location = 14;
   repeated int64 editor_user_ids = 15;
   bool can_edit = 16;
+  bool can_moderate = 18;
 }
 
 message CreatePlaceReq {
