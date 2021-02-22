@@ -1,4 +1,4 @@
-"""Add last_notified_message_id to GroupChatSubscription
+"""Add last_notified_message_id to User
 
 Revision ID: 065886328b03
 Revises: c4445e08ea86
@@ -17,7 +17,7 @@ depends_on = None
 
 
 def upgrade():
-    op.add_column("group_chat_subscriptions", sa.Column("last_notified_message_id", sa.BigInteger(), nullable=False))
+    op.add_column("users", sa.Column("last_notified_message_id", sa.BigInteger(), nullable=False))
     op.execute("ALTER TYPE backgroundjobtype ADD VALUE 'send_message_notifications'")
 
 

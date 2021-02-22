@@ -110,6 +110,9 @@ class User(Base):
     joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     last_active = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
+    # id of the last message that they received a notification about
+    last_notified_message_id = Column(BigInteger, nullable=False, default=0)
+
     # display name
     name = Column(String, nullable=False)
     gender = Column(String, nullable=False)
@@ -512,7 +515,6 @@ class GroupChatSubscription(Base):
     role = Column(Enum(GroupChatRole), nullable=False)
 
     last_seen_message_id = Column(BigInteger, nullable=False, default=0)
-    last_notified_message_id = Column(BigInteger, nullable=False, default=0)
 
     user = relationship("User", backref="group_chat_subscriptions")
     group_chat = relationship("GroupChat", backref=backref("subscriptions", lazy="dynamic"))

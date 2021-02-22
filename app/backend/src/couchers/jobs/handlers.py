@@ -7,11 +7,11 @@ from datetime import timedelta
 
 from sqlalchemy.sql import func, or_
 
-from couchers import config
+from couchers import config, email, urls
 from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email
-from couchers.models import GroupChat, GroupChatSubscription, LoginToken, Message, SignupToken, User
+from couchers.models import GroupChat, GroupChatSubscription, LoginToken, Message, MessageType, SignupToken, User
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)
@@ -54,19 +54,56 @@ def process_send_message_notifications(payload):
     logger.info(f"Sending out email notifications for unseen messages")
 
     with session_scope() as session:
-        for user_id in session.query(User.id).filter(~User.is_banned).all():
-            max_view_size = 5
-            group_chats = (
-                session.query(GroupChat, GroupChatSubscription, func.count(Message.id), func.max(Message.id))
-                .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == GroupChat.conversation_id)
+        # users who have unnotified messages older than 30 minutes in any group chat
+        users = (
+            session.query(User)
+            .join(GroupChatSubscription, GroupChatSubscription.user_id == User.id)
+            .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
+            .filter(Message.time >= GroupChatSubscription.joined)
+            .filter(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
+            .filter(Message.id > User.last_notified_message_id)
+            .filter(Message.time < now() - timedelta(minutes=30))
+            .filter(Message.message_type == MessageType.text)  # TODO: only do text messages for now
+            .group_by(User)
+            .all()
+        )
+        for user in users:
+            # now actually grab all the group chats, not just less than 30 min old
+            subquery = (
+                session.query(
+                    GroupChatSubscription.group_chat_id.label("group_chat_id"),
+                    func.max(GroupChatSubscription.id).label("group_chat_subscriptions_id"),
+                    func.max(Message.id).label("message_id"),
+                )
                 .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
-                .filter(GroupChatSubscription.user_id == user_id)
+                .filter(GroupChatSubscription.user_id == user.id)
+                .filter(Message.id > User.last_notified_message_id)
                 .filter(Message.time >= GroupChatSubscription.joined)
+                .filter(Message.message_type == MessageType.text)  # TODO: only do text messages for now
                 .filter(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
-                .filter(Message.id > GroupChatSubscription.last_notified_message_id)
-                .filter(Message.time < now() - timedelta(minutes=30))
-                .group_by(GroupChat, GroupChatSubscription)
+                .group_by(GroupChatSubscription.group_chat_id)
                 .order_by(func.max(Message.id).desc())
+                .subquery()
+            )
+
+            unseen_messages = (
+                session.query(GroupChat, GroupChatSubscription, Message)
+                .join(subquery, subquery.c.message_id == Message.id)
+                .join(GroupChatSubscription, GroupChatSubscription.id == subquery.c.group_chat_subscriptions_id)
+                .join(GroupChat, GroupChat.conversation_id == subquery.c.group_chat_id)
+                .order_by(subquery.c.message_id.desc())
                 .all()
             )
-            logger.info(group_chats)
+
+            user.last_notified_message_id = max([message.id for _, _, message in unseen_messages])
+            session.commit()
+
+            email.enqueue_email_from_template(
+                user.email,
+                "unseen_messages",
+                template_args={
+                    "user": user,
+                    "unseen_messages": unseen_messages,
+                    "group_chats_link": urls.messages_link(),
+                },
+            )
