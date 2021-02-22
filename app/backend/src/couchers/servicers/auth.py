@@ -232,7 +232,6 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 email=signup_token.email,
                 username=request.username,
                 name=request.name,
-                city=request.city,
                 gender=request.gender,
                 birthdate=birthdate,
                 hosting_status=hostingstatus2sql[request.hosting_status],
