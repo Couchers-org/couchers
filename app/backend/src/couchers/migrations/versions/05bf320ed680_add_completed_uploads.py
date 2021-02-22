@@ -33,14 +33,15 @@ def upgrade():
     op.create_foreign_key(op.f("fk_users_avatar_key_uploads"), "users", "uploads", ["avatar_key"], ["key"])
     op.execute(
         """
-        INSERT INTO uploads
+        INSERT INTO uploads (creator_user_id, key, filename)
         SELECT
-            id AS creator_user_id,
-            substr(avatar_filename, 1, 64) AS key,
-            avatar_filename AS filename
+            id,
+            substr(avatar_filename, 1, 64),
+            avatar_filename
         FROM users
         WHERE avatar_filename IS NOT NULL"""
     )
+    op.execute("UPDATE users SET avatar_key = substr(avatar_filename, 1, 64) WHERE avatar_filename IS NOT NULL")
     op.drop_column("users", "avatar_filename")
 
 
