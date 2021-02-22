@@ -9,7 +9,7 @@ const useAuthStyles = makeStyles((theme) => ({
     flexDirection: "column",
     alignItems: "center",
     height: "100vh",
-    padding: `${theme.spacing(1)} ${theme.spacing(6)}`,
+    padding: `${theme.spacing(1, 6)}`,
   },
   backgroundBlurImage: {
     position: "fixed",
