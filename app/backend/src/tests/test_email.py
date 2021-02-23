@@ -134,8 +134,8 @@ def test_host_request_email(db):
         assert from_date in html
         assert to_date in plain
         assert to_date in html
-        assert from_user.avatar_filename not in plain
-        assert from_user.avatar_filename in html
+        assert from_user.avatar.thumbnail_url not in plain
+        assert from_user.avatar.thumbnail_url in html
         assert f"{config['BASE_URL']}/hostrequests/" in plain
         assert f"{config['BASE_URL']}/hostrequests/" in html
 
@@ -175,8 +175,8 @@ def test_friend_request_email(db):
         assert from_user.name in subject
         assert from_user.name in plain
         assert from_user.name in html
-        assert from_user.avatar_filename not in plain
-        assert from_user.avatar_filename in html
+        assert from_user.avatar.thumbnail_url not in plain
+        assert from_user.avatar.thumbnail_url in html
         assert f"{config['BASE_URL']}/friends/" in plain
         assert f"{config['BASE_URL']}/friends/" in html
 

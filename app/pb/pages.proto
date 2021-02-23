@@ -60,6 +60,7 @@ message Page {
   int64 thread_id = 10;
   string title = 11;
   string content = 12;
+  // empty string if no photo
   string photo_url = 19;
   string address = 13;
   Coordinate location = 14;
@@ -71,6 +72,7 @@ message Page {
 message CreatePlaceReq {
   string title = 1;
   string content = 2;
+  // from media server
   string photo_key = 5;
   string address = 3;
   Coordinate location = 4;
@@ -79,6 +81,7 @@ message CreatePlaceReq {
 message CreateGuideReq {
   string title = 1;
   string content = 2;
+  // from media server
   string photo_key = 6;
   int64 parent_community_id = 3;
   string address = 4; // optional
@@ -94,7 +97,7 @@ message UpdatePageReq {
 
   google.protobuf.StringValue title = 2;
   google.protobuf.StringValue content = 3;
-  // set to empty string to clear
+  // from media server, set to empty string to clear
   google.protobuf.StringValue photo_key = 6;
   google.protobuf.StringValue address = 4;
 
