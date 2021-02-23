@@ -15,7 +15,7 @@ import ScoreBar from "./Bar/ScoreBar";
 import { CouchIcon } from "./Icons";
 import IconText from "./IconText";
 
-const useStyles = makeStyles((theme) => ({
+export const useStyles = makeStyles((theme) => ({
   root: { display: "flex", alignItems: "center", padding: 0 },
   title: {
     marginBottom: theme.spacing(1),
