@@ -1,4 +1,10 @@
-import { Typography } from "@material-ui/core";
+import {
+  FormControlLabel,
+  InputLabel,
+  makeStyles,
+  Radio,
+  RadioGroup,
+} from "@material-ui/core";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useHistory, useLocation, useParams } from "react-router-dom";
@@ -17,16 +23,25 @@ import {
 } from "../../../utils/validation";
 import { hostingStatusLabels } from "../../profile/constants";
 import { useAuthContext } from "../AuthProvider";
+import useAuthStyles from "../useAuthStyles";
 
 type SignupInputs = {
   email: string;
   username: string;
   name: string;
   birthdate: string;
-  city: string;
+  location: string;
   gender: string;
   hostingStatus: HostingStatus;
 };
+
+const useStyles = makeStyles((theme) => ({
+  genderRadio: {
+    display: "flex",
+    flexDirection: "row",
+  },
+  genderRadioButton: {},
+}));
 
 export default function CompleteSignup() {
   const { authState, authActions } = useAuthContext();
@@ -38,7 +53,6 @@ export default function CompleteSignup() {
     handleSubmit,
     setValue,
     errors,
-    getValues,
   } = useForm<SignupInputs>({
     shouldUnregister: false,
     mode: "onBlur",
@@ -49,6 +63,8 @@ export default function CompleteSignup() {
   const { urlToken } = useParams<{ urlToken: string }>();
   const location = useLocation();
   const history = useHistory();
+  const classes = useStyles();
+  const authClasses = useAuthStyles();
 
   useEffect(() => {
     (async () => {
@@ -73,7 +89,7 @@ export default function CompleteSignup() {
       signupToken: urlToken,
       username: data.username,
       name: data.name,
-      city: data.city,
+      city: data.location,
       birthdate: data.birthdate,
       gender: data.gender,
       hostingStatus: data.hostingStatus,
@@ -85,23 +101,14 @@ export default function CompleteSignup() {
       {loading ? (
         <CircularProgress />
       ) : (
-        <form onSubmit={completeSignup}>
-          <Typography variant="h3">{getValues("email")}</Typography>
+        <form className={authClasses.form} onSubmit={completeSignup}>
+          <InputLabel className={authClasses.formLabel} htmlFor="username">
+            Username
+          </InputLabel>
           <TextField
-            name="name"
-            label="Name"
-            inputRef={register({
-              required: "Enter your name",
-              pattern: {
-                value: nameValidationPattern,
-                message: "Name can't be just white space.",
-              },
-            })}
-            helperText={errors?.name?.message}
-          />
-          <TextField
+            variant="standard"
             name="username"
-            label="Username"
+            fullWidth
             inputRef={register({
               required: "Enter your username",
               pattern: {
@@ -117,30 +124,31 @@ export default function CompleteSignup() {
             })}
             helperText={errors?.username?.message}
           />
+          <InputLabel className={authClasses.formLabel} htmlFor="full-name">
+            Full name
+          </InputLabel>
           <TextField
-            name="city"
-            label="City"
+            id="full-name"
+            variant="standard"
+            name="name"
+            fullWidth
             inputRef={register({
-              required: "Enter your city",
+              required: "Enter your name",
+              pattern: {
+                value: nameValidationPattern,
+                message: "Name can't be just white space.",
+              },
             })}
-            helperText={errors?.city?.message}
+            helperText={errors?.name?.message}
           />
-          <Controller
-            control={control}
-            name="gender"
-            defaultValue=""
-            render={({ onChange }) => (
-              <Autocomplete
-                label="Gender"
-                onInputChange={(_, value) => onChange(value)}
-                options={["Male", "Female", "<Type anything you like>"]}
-                freeSolo
-              />
-            )}
-          />
+          <InputLabel className={authClasses.formLabel} htmlFor="full-name">
+            Birthday
+          </InputLabel>
           <TextField
+            id="birthday"
+            fullWidth
+            variant="standard"
             name="birthdate"
-            label="Birthdate"
             type="date"
             InputLabelProps={{
               shrink: true,
@@ -153,13 +161,33 @@ export default function CompleteSignup() {
             })}
             helperText={errors?.birthdate?.message}
           />
+          <InputLabel className={authClasses.formLabel} htmlFor="location">
+            Your location
+          </InputLabel>
+          <TextField
+            id="location"
+            variant="standard"
+            name="location"
+            fullWidth
+            inputRef={register({
+              required: "Enter your location",
+            })}
+            helperText={errors?.location?.message}
+          />
+          <InputLabel
+            className={authClasses.formLabel}
+            htmlFor="hosting-status"
+          >
+            Hosting status
+          </InputLabel>
           <Controller
             control={control}
             name="hostingStatus"
             defaultValue={null}
             render={({ onChange }) => (
               <Autocomplete
-                label="Hosting status"
+                id="hosting-status"
+                label=""
                 onChange={(_, option) => onChange(option)}
                 options={[
                   HostingStatus.HOSTING_STATUS_CAN_HOST,
@@ -168,13 +196,62 @@ export default function CompleteSignup() {
                 ]}
                 getOptionLabel={(option) => hostingStatusLabels[option]}
                 disableClearable
-                //below required for type inference
+                // below required for type inference
                 multiple={false}
                 freeSolo={false}
               />
             )}
           />
-          <Button onClick={completeSignup} loading={authLoading || loading}>
+          <InputLabel className={authClasses.formLabel} htmlFor="gender">
+            I identify as ....
+          </InputLabel>
+          <Controller
+            id="gender"
+            control={control}
+            name="gender"
+            defaultValue=""
+            render={({ onChange }) => (
+              <RadioGroup
+                className={classes.genderRadio}
+                aria-label="gender"
+                name="gender-radio"
+                // value={value}
+                onChange={onChange}
+              >
+                <FormControlLabel
+                  value="Woman"
+                  control={
+                    <Radio classes={{ root: classes.genderRadioButton }} />
+                  }
+                  label="Woman"
+                />
+                <FormControlLabel
+                  value="Man"
+                  control={
+                    <Radio classes={{ root: classes.genderRadioButton }} />
+                  }
+                  label="Man"
+                />
+                <FormControlLabel
+                  value="Non-binary"
+                  control={
+                    <Radio classes={{ root: classes.genderRadioButton }} />
+                  }
+                  label="Non-binary"
+                />
+              </RadioGroup>
+            )}
+          />
+          <Button
+            classes={{
+              root: authClasses.button,
+              label: authClasses.buttonText,
+            }}
+            color="secondary"
+            onClick={completeSignup}
+            type="submit"
+            loading={authLoading || loading}
+          >
             Sign up
           </Button>
         </form>

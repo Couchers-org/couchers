@@ -103,6 +103,9 @@ export default function Navigation() {
 
   const authenticated = useAuthContext().authState.authenticated;
 
+  if (!authenticated) {
+    return null;
+  }
   return (
     <AppBar
       position="fixed"
@@ -138,11 +141,9 @@ export default function Navigation() {
             </NavButton>
           ))}
           <Hidden smDown>
-            {authenticated && (
-              <NavButton route={logoutRoute} label="Log out">
-                <CrossIcon fontSize="inherit" />
-              </NavButton>
-            )}
+            <NavButton route={logoutRoute} label="Log out">
+              <CrossIcon fontSize="inherit" />
+            </NavButton>
           </Hidden>
         </Grid>
         <div className={classes.search}>
