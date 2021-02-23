@@ -149,7 +149,7 @@ test:backend:
     POSTGRES_PASSWORD: c765064a49d18a95
     DATABASE_CONNECTION_STRING: "postgresql://postgres:c765064a49d18a95@postgres/postgres"
   script:
-    - cd /app && pytest --junitxml=junit.xml --cov=couchers src
+    - cd /app && pytest --junitxml=junit.xml --cov=src src
   after_script:
     - cd /app && coverage xml && coverage html
     - cp /app/junit.xml $CI_PROJECT_DIR/
