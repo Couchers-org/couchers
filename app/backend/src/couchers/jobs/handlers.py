@@ -65,7 +65,6 @@ def process_send_message_notifications(payload):
             .filter(Message.id > GroupChatSubscription.last_seen_message_id)
             .filter(Message.time < now() - timedelta(minutes=30))
             .filter(Message.message_type == MessageType.text)  # TODO: only text messages for now
-            .group_by(User)
             .all()
         )
 
@@ -98,10 +97,10 @@ def process_send_message_notifications(payload):
                 .all()
             )
 
-            user.last_notified_message_id = max([message.id for _, message, _ in unseen_messages])
+            user.last_notified_message_id = max(message.id for _, message, _ in unseen_messages)
             session.commit()
 
-            total_unseen_message_count = sum([count for _, _, count in unseen_messages])
+            total_unseen_message_count = sum(count for _, _, count in unseen_messages)
 
             email.enqueue_email_from_template(
                 user.email,
