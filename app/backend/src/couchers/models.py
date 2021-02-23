@@ -110,6 +110,9 @@ class User(Base):
     joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     last_active = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
+    # id of the last message that they received a notification about
+    last_notified_message_id = Column(BigInteger, nullable=False, default=0)
+
     # display name
     name = Column(String, nullable=False)
     gender = Column(String, nullable=False)
@@ -518,12 +521,9 @@ class GroupChatSubscription(Base):
 
     @property
     def unseen_message_count(self):
-        # TODO: possibly slow
-
-        session = Session.object_session(self)
-
         return (
-            session.query(Message.id)
+            Session.object_session(self)
+            .query(Message.id)
             .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
             .filter(GroupChatSubscription.id == self.id)
             .filter(Message.id > GroupChatSubscription.last_seen_message_id)
@@ -1130,6 +1130,8 @@ class BackgroundJobType(enum.Enum):
     purge_login_tokens = 2
     # payload: google.protobuf.Empty
     purge_signup_tokens = 3
+    # payload: google.protobuf.Empty
+    send_message_notifications = 4
 
 
 class BackgroundJobState(enum.Enum):
