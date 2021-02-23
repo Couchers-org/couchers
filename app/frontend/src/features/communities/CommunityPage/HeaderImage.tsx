@@ -9,7 +9,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     width: "100vw",
     height: "8rem",
-    [theme.breakpoints.up("md")]: {
+    [theme.breakpoints.down("sm")]: {
       position: "relative",
       left: "50%",
       right: "50%",

@@ -97,6 +97,7 @@ export default function DiscussionCard({
                       variant="body2"
                       className={classes.replies}
                       key={reply.threadId}
+                      noWrap
                     >
                       {replyUsers?.get(reply.authorUserId) ? (
                         firstName(replyUsers.get(reply.authorUserId)?.name)

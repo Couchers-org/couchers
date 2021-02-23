@@ -12,7 +12,7 @@ import {
 } from "./Card";
 
 export default {
-  title: "Components/Simple/Card",
+  title: "Components/Compound/Card",
   component: Card,
 } as Meta;
 

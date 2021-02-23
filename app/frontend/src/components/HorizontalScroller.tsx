@@ -17,7 +17,6 @@ const useStyles = makeStyles((theme) => ({
       flex: "0 0 auto",
     },
   },
-  loader: {},
 }));
 
 /// TODO: Padding is not showing at end of list (maybe storybook only?)
@@ -43,7 +42,7 @@ export default function HorizontalScroller({
     <Box className={classNames(classes.root, className)}>
       {children}
       {fetchNext && (
-        <Box className={classes.loader}>
+        <Box>
           {isFetching ? (
             <CircularProgress />
           ) : (
