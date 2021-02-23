@@ -1,7 +1,7 @@
 """Add completed uploads
 
 Revision ID: 05bf320ed680
-Revises: c4445e08ea86
+Revises: 065886328b03
 Create Date: 2021-02-22 16:42:00.690943
 
 """
@@ -11,7 +11,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "05bf320ed680"
-down_revision = "c4445e08ea86"
+down_revision = "065886328b03"
 branch_labels = None
 depends_on = None
 
