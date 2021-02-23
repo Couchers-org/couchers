@@ -275,6 +275,7 @@ class TestCommunities:
             assert res.main_page.title == "Main page for the World community"
             assert res.main_page.content == "There is nothing here yet..."
             assert not res.main_page.can_edit
+            assert not res.main_page.can_moderate
             assert res.main_page.editor_user_ids == [1]
             assert res.member
             assert not res.admin
@@ -319,6 +320,7 @@ class TestCommunities:
             assert res.main_page.title == "Main page for the Country 1, Region 1, City 1 community"
             assert res.main_page.content == "There is nothing here yet..."
             assert res.main_page.can_edit
+            assert res.main_page.can_moderate
             assert res.main_page.editor_user_ids == [2]
             assert res.member
             assert res.admin
@@ -353,6 +355,7 @@ class TestCommunities:
             assert res.main_page.title == "Main page for the Country 2 community"
             assert res.main_page.content == "There is nothing here yet..."
             assert not res.main_page.can_edit
+            assert not res.main_page.can_moderate
             assert res.main_page.editor_user_ids == [6]
             assert not res.member
             assert not res.admin

@@ -1,19 +1,18 @@
 import grpc
+from sqlalchemy.sql import func
 
 from couchers import errors
-from couchers.db import get_parent_node_at_location, session_scope
-from couchers.models import Cluster, Node, Page, PageType, PageVersion, Thread, User
+from couchers.db import (
+    can_moderate_at,
+    can_moderate_node,
+    get_node_parents_recursively,
+    get_parent_node_at_location,
+    session_scope,
+)
+from couchers.models import Cluster, ClusterRole, ClusterSubscription, Node, Page, PageType, PageVersion, Thread, User
 from couchers.servicers.threads import pack_thread_id
 from couchers.utils import Timestamp_from_datetime, create_coordinate, remove_duplicates_retain_order
 from pb import pages_pb2, pages_pb2_grpc
-
-
-def _check_update_permission(page: Page, user_id):
-    if page.owner_user:
-        return page.owner_user_id == user_id
-    # otherwise owned by a cluster
-    return page.owner_cluster.admins.filter(User.id == user_id).one_or_none() is not None
-
 
 pagetype2sql = {
     pages_pb2.PAGE_TYPE_PLACE: PageType.place,
@@ -26,6 +25,36 @@ pagetype2api = {
     PageType.guide: pages_pb2.PAGE_TYPE_GUIDE,
     PageType.main_page: pages_pb2.PAGE_TYPE_MAIN_PAGE,
 }
+
+
+def _is_page_owner(page: Page, user_id):
+    """
+    Checks whether the user can act as an owner of the page
+    """
+    if page.owner_user:
+        return page.owner_user_id == user_id
+    # otherwise owned by a cluster
+    return page.owner_cluster.admins.filter(User.id == user_id).one_or_none() is not None
+
+
+def _can_moderate_page(page: Page, user_id):
+    """
+    Checks if the user is allowed to moderate this page
+    """
+    # checks if either the page is in the exclusive moderation area of a node
+    with session_scope() as session:
+        latest_version = page.versions[-1]
+
+        # if the page has a location, we firstly check if we are the moderator of any node that contains this page
+        if latest_version.geom is not None and can_moderate_at(session, user_id, latest_version.geom):
+            return True
+
+        # if the page is owned by a cluster, then any moderator of that cluster can moderate this page
+        if page.owner_cluster is not None and can_moderate_node(session, user_id, page.owner_cluster.parent_node_id):
+            return True
+
+        # finally check if the user can moderate the parent node of the cluster
+        return can_moderate_node(session, user_id, page.parent_node_id)
 
 
 def page_to_pb(page: Page, user_id):
@@ -62,7 +91,8 @@ def page_to_pb(page: Page, user_id):
         if current_version.coordinates
         else None,
         editor_user_ids=remove_duplicates_retain_order([version.editor_user_id for version in page.versions]),
-        can_edit=_check_update_permission(page, user_id),
+        can_edit=_is_page_owner(page, user_id),
+        can_moderate=_can_moderate_page(page, user_id),
     )
 
 
@@ -160,7 +190,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
             if not page:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.PAGE_NOT_FOUND)
 
-            if not _check_update_permission(page, context.user_id):
+            if not _is_page_owner(page, context.user_id) and not _can_moderate_page(page, context.user_id):
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.PAGE_UPDATE_PERMISSION_DENIED)
 
             current_version = page.versions[-1]
@@ -207,7 +237,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
             if not page:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.PAGE_NOT_FOUND)
 
-            if not page.owner_user_id == context.user_id:
+            if not _is_page_owner(page, context.user_id) and not _can_moderate_page(page, context.user_id):
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.PAGE_TRANSFER_PERMISSION_DENIED)
 
             if request.WhichOneof("new_owner") == "new_owner_group_id":
