@@ -106,7 +106,6 @@ export default function CompleteSignup() {
             Username
           </InputLabel>
           <TextField
-            className={authClasses.formField}
             variant="standard"
             name="username"
             fullWidth
@@ -130,7 +129,6 @@ export default function CompleteSignup() {
           </InputLabel>
           <TextField
             id="full-name"
-            className={authClasses.formField}
             variant="standard"
             name="name"
             fullWidth
@@ -149,7 +147,6 @@ export default function CompleteSignup() {
           <TextField
             id="birthday"
             fullWidth
-            className={authClasses.formField}
             variant="standard"
             name="birthdate"
             type="date"
@@ -169,7 +166,6 @@ export default function CompleteSignup() {
           </InputLabel>
           <TextField
             id="location"
-            className={authClasses.formField}
             variant="standard"
             name="location"
             fullWidth
@@ -190,7 +186,6 @@ export default function CompleteSignup() {
             defaultValue={null}
             render={({ onChange }) => (
               <Autocomplete
-                className={authClasses.formField}
                 id="hosting-status"
                 label=""
                 onChange={(_, option) => onChange(option)}

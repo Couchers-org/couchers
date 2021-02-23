@@ -56,8 +56,6 @@ export default function UsernameForm() {
 
           case LoginRes.LoginStep.NEED_PASSWORD:
             history.push(loginPasswordRoute, data);
-            //return here to avoid setLoading when
-            //this component is no longer mounted
             setLoginWithLink(false);
             break;
 
@@ -91,7 +89,6 @@ export default function UsernameForm() {
           Email/Username
         </InputLabel>
         <TextField
-          className={authClasses.formField}
           disabled={sent}
           fullWidth
           id="username"
@@ -105,7 +102,6 @@ export default function UsernameForm() {
               Password
             </InputLabel>
             <TextField
-              className={authClasses.formField}
               fullWidth
               id="password"
               name="password"

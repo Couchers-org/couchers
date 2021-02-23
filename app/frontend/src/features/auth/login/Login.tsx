@@ -10,11 +10,6 @@ import useAuthStyles from "../useAuthStyles";
 import LoginForm from "./LoginForm";
 
 const useStyles = makeStyles((theme) => ({
-  button: {
-    width: "100%",
-    color: "#ffffff",
-    fontWeight: 700,
-  },
   signUp: {
     marginTop: "auto",
   },
@@ -50,7 +45,7 @@ export default function Login() {
       <Box className={authClasses.backgroundBlurImage}></Box>
       <Box className={authClasses.page}>
         <AuthHeader>Welcome back!</AuthHeader>
-        {error && <Alert severity="error">{error}</Alert>}
+        {error && <Alert className={authClasses.errorMessage} severity="error">{error}</Alert>}
         <LoginForm />
         {/* <Divider>Or</Divider>  not yet available: https://next.material-ui.com/components/dividers/ */}
         {/* Disabled for beta:

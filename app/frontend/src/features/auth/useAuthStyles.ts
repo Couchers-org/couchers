@@ -33,6 +33,9 @@ const useAuthStyles = makeStyles((theme) => ({
     marginRight: "auto",
     borderTop: `1px solid ${theme.palette.text.primary}`,
   },
+  errorMessage: {
+    width: "100%",
+  },
   feedbackMessage: {
     textAlign: "center",
   },
@@ -42,7 +45,6 @@ const useAuthStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(5),
     width: "100%",
   },
-  formField: {},
   formLabel: {
     color: theme.palette.text.primary,
     fontWeight: 700,
