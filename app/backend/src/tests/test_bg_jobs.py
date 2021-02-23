@@ -235,7 +235,10 @@ def test_job_retry(db):
 
 
 def test_no_jobs_no_problem(db):
-    process_job()
+    with session_scope() as session:
+        assert session.query(BackgroundJob).count() == 0
+
+    assert not process_job()
 
     with session_scope() as session:
         assert session.query(BackgroundJob).count() == 0
@@ -254,7 +257,7 @@ def test_process_send_message_notifications_basic(db):
 
     # should find no jobs, since there's no messages
     with session_scope() as session:
-        assert session.query(BackgroundJob).count() == 0
+        assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 0
 
     with conversations_session(token1) as c:
         group_chat_id = c.CreateGroupChat(
@@ -276,7 +279,7 @@ def test_process_send_message_notifications_basic(db):
 
     # no emails sent out
     with session_scope() as session:
-        assert session.query(BackgroundJob).count() == 0
+        assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 0
 
     def now_30_min_in_future():
         return now() + timedelta(minutes=30)
@@ -286,7 +289,7 @@ def test_process_send_message_notifications_basic(db):
         process_send_message_notifications(empty_pb2.Empty())
 
     with session_scope() as session:
-        assert session.query(BackgroundJob).count() == 2
+        assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 2
         # delete them all
         session.query(BackgroundJob).delete(synchronize_session=False)
 
@@ -295,7 +298,7 @@ def test_process_send_message_notifications_basic(db):
         process_send_message_notifications(empty_pb2.Empty())
 
     with session_scope() as session:
-        assert session.query(BackgroundJob).count() == 0
+        assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 0
 
 
 def test_process_send_message_notifications_seen(db):
@@ -308,7 +311,7 @@ def test_process_send_message_notifications_seen(db):
 
     # should find no jobs, since there's no messages
     with session_scope() as session:
-        assert session.query(BackgroundJob).count() == 0
+        assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 0
 
     with conversations_session(token1) as c:
         group_chat_id = c.CreateGroupChat(
@@ -330,7 +333,7 @@ def test_process_send_message_notifications_seen(db):
 
     # no emails sent out
     with session_scope() as session:
-        assert session.query(BackgroundJob).count() == 0
+        assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 0
 
     def now_30_min_in_future():
         return now() + timedelta(minutes=30)
@@ -340,4 +343,4 @@ def test_process_send_message_notifications_seen(db):
         process_send_message_notifications(empty_pb2.Empty())
 
     with session_scope() as session:
-        assert session.query(BackgroundJob).count() == 0
+        assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 0
