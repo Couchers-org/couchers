@@ -17,7 +17,9 @@ depends_on = None
 
 
 def upgrade():
-    op.add_column("users", sa.Column("last_notified_message_id", sa.BigInteger(), nullable=False))
+    op.add_column("users", sa.Column("last_notified_message_id", sa.BigInteger(), nullable=False, server_default="0"))
+    # drop default
+    op.alter_column("users", "last_notified_message_id", server_default=None)
     op.execute("ALTER TYPE backgroundjobtype ADD VALUE 'send_message_notifications'")
 
 
