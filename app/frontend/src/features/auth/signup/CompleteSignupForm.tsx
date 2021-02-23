@@ -219,25 +219,25 @@ export default function CompleteSignup() {
                 onChange={onChange}
               >
                 <FormControlLabel
-                  value="female"
+                  value="Woman"
                   control={
                     <Radio classes={{ root: classes.genderRadioButton }} />
                   }
-                  label="female"
+                  label="Woman"
                 />
                 <FormControlLabel
-                  value="male"
+                  value="Man"
                   control={
                     <Radio classes={{ root: classes.genderRadioButton }} />
                   }
-                  label="male"
+                  label="Man"
                 />
                 <FormControlLabel
-                  value="other"
+                  value="Non-binary"
                   control={
                     <Radio classes={{ root: classes.genderRadioButton }} />
                   }
-                  label="other"
+                  label="Non-binary"
                 />
               </RadioGroup>
             )}
