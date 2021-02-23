@@ -24,6 +24,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function TextField({
+  id,
   className,
   ...otherProps
 }: Omit<OutlinedTextFieldProps, "variant">) {
@@ -31,6 +32,7 @@ export default function TextField({
   return (
     <MuiTextField
       {...otherProps}
+      id={id}
       variant="outlined"
       className={classNames(classes.root, className, {
         [classes.multiline]: otherProps.multiline,
