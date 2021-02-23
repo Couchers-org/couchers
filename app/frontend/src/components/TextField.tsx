@@ -23,11 +23,15 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+interface TextfieldProps extends OutlinedTextFieldProps {
+  id: string;
+}
+
 export default function TextField({
   id,
   className,
   ...otherProps
-}: Omit<OutlinedTextFieldProps, "variant">) {
+}: Omit<TextfieldProps, "variant">) {
   const classes = useStyles();
   return (
     <MuiTextField
