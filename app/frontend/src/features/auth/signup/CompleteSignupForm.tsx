@@ -88,6 +88,7 @@ export default function CompleteSignup() {
         <form onSubmit={completeSignup}>
           <Typography variant="h3">{getValues("email")}</Typography>
           <TextField
+            id="name"
             name="name"
             label="Name"
             inputRef={register({
@@ -100,6 +101,7 @@ export default function CompleteSignup() {
             helperText={errors?.name?.message}
           />
           <TextField
+            id="username"
             name="username"
             label="Username"
             inputRef={register({
@@ -118,6 +120,7 @@ export default function CompleteSignup() {
             helperText={errors?.username?.message}
           />
           <TextField
+            id="city"
             name="city"
             label="City"
             inputRef={register({
@@ -139,6 +142,7 @@ export default function CompleteSignup() {
             )}
           />
           <TextField
+            id="birthdate"
             name="birthdate"
             label="Birthdate"
             type="date"

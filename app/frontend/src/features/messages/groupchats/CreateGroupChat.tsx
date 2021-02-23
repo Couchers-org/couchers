@@ -95,6 +95,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
               <Alert severity={"error"}>{errors.join("\n")}</Alert>
             )}
             <TextField
+              id="group-chat-title"
               label="Title"
               name="title"
               inputRef={register}

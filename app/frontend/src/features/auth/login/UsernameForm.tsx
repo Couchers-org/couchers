@@ -74,6 +74,7 @@ export default function UsernameForm() {
     <>
       <form onSubmit={onSubmit}>
         <TextField
+          id="username/email"
           label="Username/email"
           name="username"
           inputRef={register({ required: true })}

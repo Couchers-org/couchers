@@ -52,6 +52,7 @@ export default function EmailForm() {
     <>
       <form onSubmit={onSubmit}>
         <TextField
+          id="email"
           name="email"
           label="Email"
           inputRef={register({
