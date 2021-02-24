@@ -150,18 +150,18 @@ class User(Base):
     last_minute = Column(Boolean, nullable=True)
     has_pets = Column(Boolean, nullable=True)
     accepts_pets = Column(Boolean, nullable=True)
-    pet_details = Column(String, nullable=True)
+    pet_details = Column(String, nullable=True)  # CommonMark without images
     has_kids = Column(Boolean, nullable=True)
     accepts_kids = Column(Boolean, nullable=True)
-    kid_details = Column(String, nullable=True)
+    kid_details = Column(String, nullable=True)  # CommonMark without images
     has_housemates = Column(Boolean, nullable=True)
-    housemate_details = Column(String, nullable=True)
+    housemate_details = Column(String, nullable=True)  # CommonMark without images
     wheelchair_accessible = Column(Boolean, nullable=True)
     smoking_allowed = Column(Enum(SmokingLocation), nullable=True)
     smokes_at_home = Column(Boolean, nullable=True)
     drinking_allowed = Column(Boolean, nullable=True)
     drinks_at_home = Column(Boolean, nullable=True)
-    other_host_info = Column(String, nullable=True)
+    other_host_info = Column(String, nullable=True)  # CommonMark without images
 
     sleeping_arrangement = Column(Enum(SleepingArrangement), nullable=True)
     sleeping_details = Column(String, nullable=True)  # CommonMark without images
