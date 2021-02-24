@@ -50,7 +50,7 @@ https://www.postgresql.org/docs/current/textsearch.html
 
 ### Implementation details
 
-We use the A/B/C/D for ranking, where each different searchable type has different sets of A/B/C/D. A is normally the title, name, display name + username, etc. B is normally address or the user's typed in city, and C is anything else.
+We use the A/B/C/D for ranking, where each different searchable type has different sets of A/B/C/D. A is normally the title of the entity, e.g. the name of the community, the name of the user (or their username), page title, etc. B is normally the address or the user's typed in city, etc. C is any other primary text that's more important than just the content. D is all other text, main content, etc.
 
 We use `websearch_to_tsquery` to turn an input into a `tsquery`. It's safe to use with user-supplied input, and it does the following to text
 

@@ -158,8 +158,9 @@ def _search_users(session, search_query, title_only, next_rank, page_size, conte
         next_rank,
         page_size,
         [User.username, User.name],
-        [User.about_me, User.city],
-        [User.my_travels, User.things_i_like, User.about_place, User.avatar_filename, User.additional_information],
+        [User.city],
+        [User.about_me],
+        [User.my_travels, User.things_i_like, User.about_place, User.additional_information],
     )
 
     users = do_search_query(session.query(User, rank, snippet).filter(~User.is_banned))
@@ -183,6 +184,7 @@ def _search_pages(session, search_query, title_only, next_rank, page_size, user_
         page_size,
         [PageVersion.title],
         [PageVersion.address],
+        [],
         [PageVersion.content],
     )
     if not include_places and not include_guides:
@@ -230,7 +232,8 @@ def _search_clusters(
         next_rank,
         page_size,
         [Cluster.name],
-        [Cluster.description, PageVersion.title, PageVersion.address],
+        [PageVersion.address, PageVersion.title],
+        [Cluster.description],
         [PageVersion.content],
     )
 
