@@ -82,6 +82,7 @@ export default function NewHostRequest() {
       ) : (
         <form onSubmit={onSubmit} className={classes.form}>
           <TextField
+            id="from-date"
             name="fromDate"
             label="Date from"
             type="date"
@@ -95,6 +96,7 @@ export default function NewHostRequest() {
             helperText={formErrors?.fromDate?.message}
           />
           <TextField
+            id="to-date"
             name="toDate"
             label="Date to"
             type="date"
@@ -108,6 +110,7 @@ export default function NewHostRequest() {
             helperText={formErrors?.toDate?.message}
           />
           <TextField
+            id="host-request-message"
             label="Message"
             name="text"
             defaultValue={""}

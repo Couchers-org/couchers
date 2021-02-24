@@ -68,11 +68,14 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if not is_valid_date(request.from_date) or not is_valid_date(request.to_date):
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_DATE)
 
-            if request.from_date >= request.to_date:
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_FROM_AFTER_TO)
+            if request.from_date < least_current_date():
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_FROM_BEFORE_TODAY)
 
             if request.to_date < least_current_date():
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_TO_BEFORE_TODAY)
+
+            if request.from_date >= request.to_date:
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_FROM_AFTER_TO)
 
             today = date.fromisoformat(largest_current_date())
             today_plus_one_year = today.replace(year=today.year + 1).isoformat()

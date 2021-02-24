@@ -150,6 +150,7 @@ export default function HostRequestSendField({
       </Box>
       <Box className={classes.container}>
         <TextField
+          id="host-request-message"
           label="Message"
           name="text"
           defaultValue={""}

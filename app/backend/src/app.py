@@ -22,6 +22,7 @@ from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
 from couchers.servicers.pages import Pages
 from couchers.servicers.requests import Requests
+from couchers.servicers.search import Search
 from couchers.servicers.sso import SSO
 from couchers.servicers.threads import Threads
 from dummy_data import add_dummy_data
@@ -39,6 +40,7 @@ from pb import (
     media_pb2_grpc,
     pages_pb2_grpc,
     requests_pb2_grpc,
+    search_pb2_grpc,
     sso_pb2_grpc,
     threads_pb2_grpc,
 )
@@ -120,6 +122,7 @@ if config.config["ROLE"] in ["api", "all"]:
     gis_pb2_grpc.add_GISServicer_to_server(GIS(), server)
     groups_pb2_grpc.add_GroupsServicer_to_server(Groups(), server)
     requests_pb2_grpc.add_RequestsServicer_to_server(Requests(), server)
+    search_pb2_grpc.add_SearchServicer_to_server(Search(), server)
     sso_pb2_grpc.add_SSOServicer_to_server(SSO(), server)
     threads_pb2_grpc.add_ThreadsServicer_to_server(Threads(), server)
 

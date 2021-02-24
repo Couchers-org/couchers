@@ -116,7 +116,7 @@ def create_app(
         # let the main server know the upload succeeded, or delete the file
         try:
             send_confirmation_to_main_server(req.key, filename)
-            return {"ok": True}
+            return {"ok": True, "key": req.key}
         except Exception as e:
             os.remove(path)
             raise e
