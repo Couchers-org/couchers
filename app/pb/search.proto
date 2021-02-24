@@ -30,6 +30,15 @@ message Area {
 }
 
 message SearchReq {
+  // there are two modes: full text search and fuzzy title search (trigram), see `//docs/search.md` for overview
+  // in normal mode we use full text to search through all content (including titles) plus fuzzy search through titles
+  // only, in rankings fuzzy has a bit higher weight because of the inner workings
+  // when you set title_only, we don't do full text search, only fuzzy title search
+  // in full text search, you can use the following operators:
+  // * `"quote text"`` to search for a chunk of consequtive text
+  // * `or` to search for one or another search term
+  // * `-` (minus) to ignore a search term
+  // in the fuzzy search these have no meaning
   string query = 1;
 
   bool include_users = 4;
@@ -74,6 +83,7 @@ message Result {
 }
 
 message SearchRes {
+  // sorted with highest rank first
   repeated Result results = 1;
 
   string next_page_token = 2;
@@ -128,6 +138,7 @@ message UserSearchReq {
 }
 
 message UserSearchRes {
+  // sorted with highest rank first
   // this will only contain users
   repeated Result results = 1;
 

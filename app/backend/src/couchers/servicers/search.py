@@ -1,3 +1,6 @@
+"""
+See //docs/search.md for overview.
+"""
 from sqlalchemy.sql import func, or_, text
 
 from couchers import errors
@@ -19,12 +22,13 @@ from pb import search_pb2, search_pb2_grpc
 # searches are a bit expensive, we'd rather send back a bunch of results at once than lots of small pages
 MAX_PAGINATION_LENGTH = 50
 
-regconfig = "english"
+REGCONFIG = "english"
 TRI_SIMILARITY_THRESHOLD = 0.6
 TRI_SIMILARITY_WEIGHT = 5
 
 
 def _join_with_space(coalesces):
+    # the objects in coalesces are not strings, so we can't do " ".join(coalesces). They're SQLAlchemy magic.
     if not coalesces:
         return ""
     out = coalesces[0]
@@ -37,18 +41,18 @@ def _build_tsv(A, B=[], C=[], D=[]):
     """
     Given lists for A, B, C, and D, builds a tsvector from them.
     """
-    tsv = func.setweight(func.to_tsvector(regconfig, _join_with_space([func.coalesce(bit, "") for bit in A])), "A")
+    tsv = func.setweight(func.to_tsvector(REGCONFIG, _join_with_space([func.coalesce(bit, "") for bit in A])), "A")
     if B:
         tsv = tsv.concat(
-            func.setweight(func.to_tsvector(regconfig, _join_with_space([func.coalesce(bit, "") for bit in B])), "B")
+            func.setweight(func.to_tsvector(REGCONFIG, _join_with_space([func.coalesce(bit, "") for bit in B])), "B")
         )
     if C:
         tsv = tsv.concat(
-            func.setweight(func.to_tsvector(regconfig, _join_with_space([func.coalesce(bit, "") for bit in C])), "C")
+            func.setweight(func.to_tsvector(REGCONFIG, _join_with_space([func.coalesce(bit, "") for bit in C])), "C")
         )
     if D:
         tsv = tsv.concat(
-            func.setweight(func.to_tsvector(regconfig, _join_with_space([func.coalesce(bit, "") for bit in D])), "D")
+            func.setweight(func.to_tsvector(REGCONFIG, _join_with_space([func.coalesce(bit, "") for bit in D])), "D")
         )
     return tsv
 
@@ -68,7 +72,7 @@ def _build_doc(A, B=[], C=[], D=[]):
 
 
 def _similarity(query, text):
-    return func.word_similarity(func.lower(func.unaccent(query)), func.lower(func.unaccent(text)))
+    return func.word_similarity(func.unaccent(query), func.unaccent(text))
 
 
 def _gen_search_elements(query, title_only, next_rank, page_size, A, B=[], C=[], D=[]):
@@ -83,7 +87,7 @@ def _gen_search_elements(query, title_only, next_rank, page_size, A, B=[], C=[],
     """
     if not title_only:
         # a postgres tsquery object that can be used to match against a tsvector
-        tsq = func.websearch_to_tsquery(regconfig, query)
+        tsq = func.websearch_to_tsquery(REGCONFIG, query)
 
         # the tsvector object that we want to search against with our tsquery
         tsv = _build_tsv(A, B, C, D)
@@ -100,7 +104,7 @@ def _gen_search_elements(query, title_only, next_rank, page_size, A, B=[], C=[],
         rank = (TRI_SIMILARITY_WEIGHT * sim + func.ts_rank_cd(tsv, tsq)).label("rank")
 
         # the snippet with results highlighted
-        snippet = func.ts_headline(regconfig, doc, tsq, "StartSel=**,StopSel=**").label("snippet")
+        snippet = func.ts_headline(REGCONFIG, doc, tsq, "StartSel=**,StopSel=**").label("snippet")
 
         def do_search_query(orig_query):
             """
@@ -124,11 +128,11 @@ def _gen_search_elements(query, title_only, next_rank, page_size, A, B=[], C=[],
         rank = sim.label("rank")
 
         # used only for headline
-        tsq = func.websearch_to_tsquery(regconfig, query)
+        tsq = func.websearch_to_tsquery(REGCONFIG, query)
         doc = _build_doc(A, B, C, D)
 
         # the snippet with results highlighted
-        snippet = func.ts_headline(regconfig, doc, tsq, "StartSel=**,StopSel=**").label("snippet")
+        snippet = func.ts_headline(REGCONFIG, doc, tsq, "StartSel=**,StopSel=**").label("snippet")
 
         def do_search_query(orig_query):
             """
