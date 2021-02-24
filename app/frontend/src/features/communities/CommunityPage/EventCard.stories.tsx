@@ -1,6 +1,6 @@
 import { Meta, Story } from "@storybook/react";
 
-//import { event } from "../../../stories/__mocks__/service";
+//import { event } from "../../../test/fixtures/event.json";
 import EventCard from "./EventCard";
 
 export default {

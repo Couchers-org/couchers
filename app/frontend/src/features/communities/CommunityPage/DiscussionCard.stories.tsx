@@ -1,6 +1,6 @@
 import { Meta, Story } from "@storybook/react";
 
-import { discussion } from "../../../stories/__mocks__/service";
+import discussion from "../../../test/fixtures/discussion.json";
 import DiscussionCard from "./DiscussionCard";
 
 export default {

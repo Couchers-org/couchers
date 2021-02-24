@@ -1,6 +1,6 @@
 import { Meta, Story } from "@storybook/react";
 
-import { place } from "../../../stories/__mocks__/service";
+import place from "../../../test/fixtures/place.json";
 import PlaceCard from "./PlaceCard";
 
 export default {

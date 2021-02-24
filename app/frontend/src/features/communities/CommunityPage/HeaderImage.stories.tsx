@@ -1,6 +1,6 @@
 import { Meta, Story } from "@storybook/react";
 
-import { community } from "../../../stories/__mocks__/service";
+import community from "../../../test/fixtures/community.json";
 import HeaderImage from "./HeaderImage";
 
 export default {
