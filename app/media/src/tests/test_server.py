@@ -121,7 +121,9 @@ def test_image_upload(client_with_secrets):
         with open(DATADIR / "1x1.jpg", "rb") as f:
             rv = client.post(upload_path, data={"file": (f, "1x1.jpg")})
 
-        assert json.loads(rv.data)["ok"]
+        jd = json.loads(rv.data)
+        assert jd["ok"]
+        assert jd["key"] == key
 
 def test_image_resizing(client_with_secrets):
     client, secret_key, bearer_token = client_with_secrets
@@ -133,7 +135,9 @@ def test_image_resizing(client_with_secrets):
         with open(DATADIR / "5000x5000.jpg", "rb") as f:
             rv = client.post(upload_path, data={"file": (f, "img.jpg")})
 
-        assert json.loads(rv.data)["ok"]
+        jd = json.loads(rv.data)
+        assert jd["ok"]
+        assert jd["key"] == key
 
         rv = client.get(f"/img/full/{key}.jpg")
         assert rv.status_code == 200
@@ -155,7 +159,9 @@ def test_avatar_downscaling(client_with_secrets):
         with open(DATADIR / "5000x5000.jpg", "rb") as f:
             rv = client.post(upload_path, data={"file": (f, "img.jpg")})
 
-        assert json.loads(rv.data)["ok"]
+        jd = json.loads(rv.data)
+        assert jd["ok"]
+        assert jd["key"] == key
 
         rv = client.get(f"/img/avatar/{key}.jpg")
         assert rv.status_code == 200
@@ -175,7 +181,9 @@ def test_avatar_upscaling(client_with_secrets):
         with open(DATADIR / "1x1.jpg", "rb") as f:
             rv = client.post(upload_path, data={"file": (f, "img.jpg")})
 
-        assert json.loads(rv.data)["ok"]
+        jd = json.loads(rv.data)
+        assert jd["ok"]
+        assert jd["key"] == key
 
         rv = client.get(f"/img/avatar/{key}.jpg")
         assert rv.status_code == 200
@@ -222,7 +230,9 @@ def test_wrong_filename(client_with_secrets):
             # filename shouldn't matter
             rv = client.post(upload_path, data={"file": (f, "wrongname.exe")})
 
-        assert json.loads(rv.data)["ok"]
+        jd = json.loads(rv.data)
+        assert jd["ok"]
+        assert jd["key"] == key
 
         rv = client.get(f"/img/full/{key}.jpg")
         assert rv.status_code == 200
@@ -243,7 +253,9 @@ def test_strips_exif(client_with_secrets):
         with open(DATADIR / "exif.jpg", "rb") as f:
             rv = client.post(upload_path, data={"file": (f, "1x1.jpg")})
 
-        assert json.loads(rv.data)["ok"]
+        jd = json.loads(rv.data)
+        assert jd["ok"]
+        assert jd["key"] == key
 
         rv = client.get(f"/img/full/{key}.jpg")
         assert rv.status_code == 200
@@ -262,7 +274,9 @@ def test_jpg_pixel(client_with_secrets):
         with open(DATADIR / "1x1.jpg", "rb") as f:
             rv = client.post(upload_path, data={"file": (f, "pixel")})
 
-        assert json.loads(rv.data)["ok"]
+        jd = json.loads(rv.data)
+        assert jd["ok"]
+        assert jd["key"] == key
 
         rv = client.get(f"/img/full/{key}.jpg")
         assert rv.status_code == 200
@@ -279,7 +293,9 @@ def test_png_pixel(client_with_secrets):
         with open(DATADIR / "1x1.png", "rb") as f:
             rv = client.post(upload_path, data={"file": (f, "pixel")})
 
-        assert json.loads(rv.data)["ok"]
+        jd = json.loads(rv.data)
+        assert jd["ok"]
+        assert jd["key"] == key
 
         rv = client.get(f"/img/full/{key}.jpg")
         assert rv.status_code == 200
@@ -296,7 +312,9 @@ def test_gif_pixel(client_with_secrets):
         with open(DATADIR / "1x1.gif", "rb") as f:
             rv = client.post(upload_path, data={"file": (f, "pixel")})
 
-        assert json.loads(rv.data)["ok"]
+        jd = json.loads(rv.data)
+        assert jd["ok"]
+        assert jd["key"] == key
 
         rv = client.get(f"/img/full/{key}.jpg")
         assert rv.status_code == 200
@@ -326,7 +344,9 @@ def test_cant_reuse(client_with_secrets):
         with open(DATADIR / "1x1.jpg", "rb") as f:
             rv = client.post(upload_path, data={"file": (f, "pixel.jpg")})
 
-        assert json.loads(rv.data)["ok"]
+        jd = json.loads(rv.data)
+        assert jd["ok"]
+        assert jd["key"] == key
 
         rv = client.get(f"/img/full/{key}.jpg")
         assert rv.status_code == 200
@@ -393,7 +413,10 @@ def test_cache_headers(client_with_secrets):
     with mock_main_server(bearer_token, lambda x: True):
         rv = client.post(upload_path, data={"file": (f, "f")})
     assert rv.status_code == 200
-    assert json.loads(rv.data)["ok"]
+    jd = json.loads(rv.data)
+
+    assert jd["ok"]
+    assert jd["key"] == key
 
     rv = client.get(f"/img/full/{key}.jpg")
     assert rv.status_code == 200

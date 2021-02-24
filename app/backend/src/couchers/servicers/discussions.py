@@ -3,7 +3,7 @@ import logging
 import grpc
 
 from couchers import errors
-from couchers.db import session_scope
+from couchers.db import can_moderate_node, session_scope
 from couchers.models import Cluster, Discussion, Node, Thread
 from couchers.servicers.threads import pack_thread_id
 from couchers.utils import Timestamp_from_datetime
@@ -18,6 +18,9 @@ def discussion_to_pb(discussion: Discussion, user_id):
     else:
         owner_group_id = discussion.owner_cluster.id
 
+    with session_scope() as session:
+        can_moderate = can_moderate_node(session, user_id, discussion.owner_cluster.parent_node_id)
+
     return discussions_pb2.Discussion(
         discussion_id=discussion.id,
         slug=discussion.slug,
@@ -28,6 +31,7 @@ def discussion_to_pb(discussion: Discussion, user_id):
         title=discussion.title,
         content=discussion.content,
         thread_id=pack_thread_id(discussion.thread_id, 0),
+        can_moderate=can_moderate,
     )
 
 

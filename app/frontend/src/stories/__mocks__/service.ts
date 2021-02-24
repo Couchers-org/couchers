@@ -25,6 +25,7 @@ export const mockedService = ({
   threads: {
     getThread: () => Promise.resolve(getThreadRes),
   },
+  account: {},
 } as unknown) as typeof originalService;
 
 function wait(milliSeconds: number) {

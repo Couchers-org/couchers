@@ -41,6 +41,7 @@ export default function Button<D extends ElementType = "button", P = {}>({
   loading,
   onClick,
   variant = "contained",
+  color = "primary",
   ...otherProps
 }: AppButtonProps<D, P>) {
   const isMounted = useIsMounted();
@@ -55,6 +56,9 @@ export default function Button<D extends ElementType = "button", P = {}>({
       setWaiting(false);
     }
   }
+  if (variant !== "contained" && color !== "primary") {
+    throw new Error("Only contained buttons should have color.");
+  }
   return (
     <MuiButton
       {...otherProps}
@@ -64,7 +68,7 @@ export default function Button<D extends ElementType = "button", P = {}>({
         [classes.contained]: variant === "contained",
       })}
       variant={variant}
-      color={variant === "contained" ? "primary" : undefined}
+      color={variant === "contained" ? color : undefined}
     >
       {loading || waiting ? (
         <CircularProgress size={theme.typography.button.fontSize} />
