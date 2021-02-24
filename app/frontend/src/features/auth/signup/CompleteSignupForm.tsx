@@ -142,7 +142,7 @@ export default function CompleteSignup() {
             })}
             helperText={errors?.name?.message}
           />
-          <InputLabel className={authClasses.formLabel} htmlFor="full-name">
+          <InputLabel className={authClasses.formLabel} htmlFor="birthdate">
             Birthday
           </InputLabel>
           <TextField
