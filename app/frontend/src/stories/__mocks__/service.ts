@@ -1,8 +1,8 @@
 import { service as originalService } from "../../service";
+import getThreadRes from "../../test/fixtures/getThreadRes.json";
+import groupChat from "../../test/fixtures/groupChat.json";
 import messages from "../../test/fixtures/messages.json";
 import users from "../../test/fixtures/users.json";
-import getThreadRes from "../../text/fixtures/getThreadRes.json";
-import groupChat from "../../text/fixtures/groupChat.json";
 
 const userMap = new Map(users.map((user) => [user.userId, user]));
 
