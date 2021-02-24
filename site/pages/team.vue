@@ -277,6 +277,25 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-andrea.jpg" alt="Headshot of Andrea">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Andrea Wu</p>
+                    <p class="subtitle is-6 role">Frontend Developer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>USA</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="http://www.linkedin.com/in/andreaowu">andreaowu</a></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
                       <img class="is-rounded" src="/img/head-julia.jpg" alt="Headshot of Julia">
                     </figure>
                   </div>
