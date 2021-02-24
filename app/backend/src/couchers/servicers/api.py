@@ -526,18 +526,6 @@ class API(api_pb2_grpc.APIServicer):
 
             return empty_pb2.Empty()
 
-    def Search(self, request, context):
-        with session_scope() as session:
-            users = []
-            for user in (
-                session.query(User)
-                .filter(or_(User.name.ilike(f"%{request.query}%"), User.username.ilike(f"%{request.query}%")))
-                .all()
-            ):
-                users.append(user_model_to_pb(user, session, context))
-
-            return api_pb2.SearchRes(users=users)
-
     def Report(self, request, context):
         if context.user_id == request.reported_user_id:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REPORT_SELF)
