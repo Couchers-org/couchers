@@ -54,7 +54,7 @@ def test_create_request(db):
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
-                    to_user_id=user2.id, from_date=today_minus_3, to_date=today_minus_2, text="Test request"
+                    to_user_id=user2.id, from_date=today_plus_2, to_date=today_minus_2, text="Test request"
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
