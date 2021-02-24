@@ -446,7 +446,7 @@ class Reference(Base):
 
     reference_type = Column(Enum(ReferenceType), nullable=False)
 
-    text = Column(String, nullable=True)  # CommonMark without images
+    text = Column(String, nullable=True)  # plain text
 
     rating = Column(Integer, nullable=False)
     was_safe = Column(Boolean, nullable=False)
@@ -583,7 +583,7 @@ class Message(Base):
     # time sent, timezone should always be UTC
     time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
-    # the CommonMark-compliant message text if not control
+    # the plain-text message text if not control
     text = Column(String, nullable=True)
 
     # the new host request status if the message type is host_request_status_changed
