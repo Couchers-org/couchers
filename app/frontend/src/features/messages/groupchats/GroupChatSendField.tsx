@@ -38,6 +38,7 @@ export default function GroupChatSendField({
     <Box className={classes.root}>
       <form onSubmit={onSubmit} className={classes.container}>
         <TextField
+          id="group-chat-message-field"
           label="Message"
           name="text"
           defaultValue={""}

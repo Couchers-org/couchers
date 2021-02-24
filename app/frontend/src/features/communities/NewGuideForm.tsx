@@ -61,6 +61,7 @@ export default function NewGuideForm() {
       ) : (
         <form onSubmit={onSubmit}>
           <TextField
+            id="new-page-title"
             name="title"
             label="Page Title"
             inputRef={register({

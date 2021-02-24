@@ -30,6 +30,7 @@ export default function NewComment({ onComment }: NewCommentProps) {
       <Grid container spacing={2}>
         <Grid item xs={12} md={preview ? 6 : 12}>
           <TextField
+            id="new-comment"
             label="Text field"
             rowsMax={5}
             multiline

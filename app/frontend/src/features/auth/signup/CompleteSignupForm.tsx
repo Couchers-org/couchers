@@ -107,6 +107,7 @@ export default function CompleteSignup() {
           </InputLabel>
           <TextField
             variant="standard"
+            id="username"
             name="username"
             fullWidth
             inputRef={register({
@@ -145,7 +146,7 @@ export default function CompleteSignup() {
             Birthday
           </InputLabel>
           <TextField
-            id="birthday"
+            id="birthdate"
             fullWidth
             variant="standard"
             name="birthdate"
