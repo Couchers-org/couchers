@@ -2,12 +2,14 @@ import { Box, makeStyles, Typography } from "@material-ui/core";
 import React from "react";
 
 import Avatar from "../../components/Avatar";
-import HostStatus from "../../components/HostStatus";
+import { CouchIcon } from "../../components/Icons";
+import IconText from "../../components/IconText";
 import PageTitle from "../../components/PageTitle";
 import ScoreBar from "../../components/ScoreBar";
 import { User } from "../../pb/api_pb";
 import { timestamp2Date } from "../../utils/date";
 import { timeAgo } from "../../utils/timeAgo";
+import { hostingStatusLabels } from "../profile/constants";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -41,7 +43,7 @@ export default function UserHeader({ children, user }: UserHeaderProps) {
       </div>
       <PageTitle className={classes.name}>{user.name}</PageTitle>
 
-      <HostStatus user={user} />
+      <IconText icon={<CouchIcon />} text={hostingStatusLabels[user.hostingStatus]} />
 
       {user.lastActive && (
         <Box mb={2}>

@@ -132,17 +132,17 @@ class User(Base):
     # community standing score
     community_standing = Column(Float, nullable=True)
 
-    occupation = Column(String, nullable=True)
-    education = Column(String, nullable=True)
-    about_me = Column(String, nullable=True)
-    my_travels = Column(String, nullable=True)
-    things_i_like = Column(String, nullable=True)
-    about_place = Column(String, nullable=True)
+    occupation = Column(String, nullable=True)  # CommonMark without images
+    education = Column(String, nullable=True)  # CommonMark without images
+    about_me = Column(String, nullable=True)  # CommonMark without images
+    my_travels = Column(String, nullable=True)  # CommonMark without images
+    things_i_like = Column(String, nullable=True)  # CommonMark without images
+    about_place = Column(String, nullable=True)  # CommonMark without images
     # TODO: array types once we go postgres
     languages = Column(String, nullable=True)
     countries_visited = Column(String, nullable=True)
     countries_lived = Column(String, nullable=True)
-    additional_information = Column(String, nullable=True)
+    additional_information = Column(String, nullable=True)  # CommonMark without images
 
     is_banned = Column(Boolean, nullable=False, default=False)
 
@@ -151,25 +151,25 @@ class User(Base):
     last_minute = Column(Boolean, nullable=True)
     has_pets = Column(Boolean, nullable=True)
     accepts_pets = Column(Boolean, nullable=True)
-    pet_details = Column(String, nullable=True)
+    pet_details = Column(String, nullable=True)  # CommonMark without images
     has_kids = Column(Boolean, nullable=True)
     accepts_kids = Column(Boolean, nullable=True)
-    kid_details = Column(String, nullable=True)
+    kid_details = Column(String, nullable=True)  # CommonMark without images
     has_housemates = Column(Boolean, nullable=True)
-    housemate_details = Column(String, nullable=True)
+    housemate_details = Column(String, nullable=True)  # CommonMark without images
     wheelchair_accessible = Column(Boolean, nullable=True)
     smoking_allowed = Column(Enum(SmokingLocation), nullable=True)
     smokes_at_home = Column(Boolean, nullable=True)
     drinking_allowed = Column(Boolean, nullable=True)
     drinks_at_home = Column(Boolean, nullable=True)
-    other_host_info = Column(String, nullable=True)
+    other_host_info = Column(String, nullable=True)  # CommonMark without images
 
     sleeping_arrangement = Column(Enum(SleepingArrangement), nullable=True)
-    sleeping_details = Column(String, nullable=True)
-    area = Column(String, nullable=True)
-    house_rules = Column(String, nullable=True)
+    sleeping_details = Column(String, nullable=True)  # CommonMark without images
+    area = Column(String, nullable=True)  # CommonMark without images
+    house_rules = Column(String, nullable=True)  # CommonMark without images
     parking = Column(Boolean, nullable=True)
-    parking_details = Column(Enum(ParkingDetails), nullable=True)
+    parking_details = Column(Enum(ParkingDetails), nullable=True)  # CommonMark without images
     camping_ok = Column(Boolean, nullable=True)
 
     accepted_tos = Column(Integer, nullable=False, default=0)
@@ -442,7 +442,7 @@ class Reference(Base):
 
     reference_type = Column(Enum(ReferenceType), nullable=False)
 
-    text = Column(String, nullable=True)
+    text = Column(String, nullable=True)  # plain text
 
     rating = Column(Integer, nullable=False)
     was_safe = Column(Boolean, nullable=False)
@@ -579,7 +579,7 @@ class Message(Base):
     # time sent, timezone should always be UTC
     time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
-    # the message text if not control
+    # the plain-text message text if not control
     text = Column(String, nullable=True)
 
     # the new host request status if the message type is host_request_status_changed
@@ -938,6 +938,9 @@ class Page(Base):
         ),
     )
 
+    def __repr__(self):
+        return f"Page({self.id=})"
+
 
 class PageVersion(Base):
     """
@@ -951,7 +954,7 @@ class PageVersion(Base):
     page_id = Column(ForeignKey("pages.id"), nullable=False, index=True)
     editor_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     title = Column(String, nullable=False)
-    content = Column(String, nullable=False)
+    content = Column(String, nullable=False)  # CommonMark without images
     photo_key = Column(ForeignKey("uploads.key"), nullable=True)
     # the human-readable address
     address = Column(String, nullable=True)
@@ -971,6 +974,9 @@ class PageVersion(Base):
             return get_coordinates(self.geom)
         else:
             return None
+
+    def __repr__(self):
+        return f"PageVersion({self.id=}, {self.page_id=})"
 
 
 class ClusterEventAssociation(Base):
@@ -1000,7 +1006,7 @@ class Event(Base):
     id = Column(BigInteger, communities_seq, primary_key=True)
 
     title = Column(String, nullable=False)
-    content = Column(String, nullable=False)
+    content = Column(String, nullable=False)  # CommonMark without images
     thread_id = Column(ForeignKey("threads.id"), nullable=False, unique=True)
     geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=False)
     address = Column(String, nullable=False)
@@ -1123,7 +1129,7 @@ class Comment(Base):
 
     thread_id = Column(ForeignKey("threads.id"), nullable=False, index=True)
     author_user_id = Column(ForeignKey("users.id"), nullable=False)
-    content = Column(String, nullable=False)
+    content = Column(String, nullable=False)  # CommonMark without images
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     deleted = Column(DateTime(timezone=True), nullable=True)
 
@@ -1141,7 +1147,7 @@ class Reply(Base):
 
     comment_id = Column(ForeignKey("comments.id"), nullable=False, index=True)
     author_user_id = Column(ForeignKey("users.id"), nullable=False)
-    content = Column(String, nullable=False)
+    content = Column(String, nullable=False)  # CommonMark without images
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     deleted = Column(DateTime(timezone=True), nullable=True)
 

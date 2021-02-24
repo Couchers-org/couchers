@@ -58,7 +58,7 @@ message GetThreadRes {
 
 message Reply {
   int64 thread_id = 1;  // id of this comment
-  string content = 2;   // markdown without images
+  string content = 2;   // CommonMark without images
   int64 author_user_id = 3;
   google.protobuf.Timestamp created_time = 4;
 
@@ -68,7 +68,7 @@ message Reply {
 
 message PostReplyReq {
   int64 thread_id = 1;  // The comment to reply to
-  string content = 2;   // markdown without images
+  string content = 2;   // CommonMark without images
 }
 
 message PostReplyRes {

@@ -1,5 +1,4 @@
 import {
-  Box,
   ListItemAvatar,
   ListItemText,
   makeStyles,
@@ -8,9 +7,11 @@ import {
 import { Skeleton } from "@material-ui/lab";
 import React from "react";
 
+import { hostingStatusLabels } from "../features/profile/constants";
 import { User } from "../pb/api_pb";
 import Avatar from "./Avatar";
-import HostStatus from "./HostStatus";
+import { CouchIcon } from "./Icons";
+import IconText from "./IconText";
 import ScoreBar from "./ScoreBar";
 
 const useStyles = makeStyles((theme) => ({
@@ -36,7 +37,7 @@ interface UserSummaryProps {
 export default function UserSummary({ user }: UserSummaryProps) {
   const classes = useStyles();
   return (
-    <Box className={classes.root}>
+    <div className={classes.root}>
       <ListItemAvatar>
         {!user ? (
           <Skeleton variant="circle" className={classes.avatar} />
@@ -53,17 +54,15 @@ export default function UserSummary({ user }: UserSummaryProps) {
         }
         secondary={
           <>
-            <Box>
-              <ScoreBar value={user?.verification || 0}>
-                Community Standing
-              </ScoreBar>
-              <Box className={classes.hostingAbilityContainer}>
-                {user ? <HostStatus user={user} /> : <Skeleton width={100} />}
-              </Box>
-            </Box>
+            <ScoreBar value={user?.verification || 0}>
+              Community Standing
+            </ScoreBar>
+            <div className={classes.hostingAbilityContainer}>
+              {user ? <IconText icon={<CouchIcon />} text={hostingStatusLabels[user.hostingStatus]} /> : <Skeleton width={100} />}
+            </div>
           </>
         }
       />
-    </Box>
+    </div>
   );
 }

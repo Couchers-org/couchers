@@ -71,7 +71,7 @@ message Community {
   string name = 2;
   // a short URL fragment generated from the name, e.g. New York City: a guide to Phở might become new-york-city-guide-to-pho
   string slug = 3;
-  string description = 4;
+  string description = 4;  // CommonMark without images
   google.protobuf.Timestamp created = 5;
   // list of parents, ordered according to inclusion, e.g. World, US, New York, (NYC)
   repeated org.couchers.api.groups.Parent parents = 6;
