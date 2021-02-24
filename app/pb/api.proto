@@ -276,6 +276,8 @@ message UpdateProfileReq {
   google.protobuf.DoubleValue lng = 23;
   google.protobuf.DoubleValue radius = 24; // metres
 
+  google.protobuf.StringValue avatar_key = 25; // result from media server
+
   google.protobuf.StringValue gender = 3;
   NullableStringValue pronouns = 101;
   NullableStringValue occupation = 4;

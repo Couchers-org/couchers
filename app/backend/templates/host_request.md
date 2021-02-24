@@ -12,7 +12,9 @@ You've received a host request!
 
 {% if html %}
 
-<img src="{{ host_request.from_user.avatar_url }}" alt="Your Guest's Profile Picture" >
+{% if host_request.from_user.avatar %}
+<img src="{{ host_request.from_user.avatar.thumbnail_url }}" alt="Your Guest's Profile Picture" >
+{% endif %}
 
 {% endif %}
 

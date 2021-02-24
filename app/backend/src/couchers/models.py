@@ -122,6 +122,8 @@ class User(Base):
     # name as on official docs for verification, etc. not needed until verification
     full_name = Column(String, nullable=True)
 
+    avatar_key = Column(ForeignKey("uploads.key"), nullable=True)
+
     hosting_status = Column(Enum(HostingStatus), nullable=True)
     meetup_status = Column(Enum(MeetupStatus), nullable=True)
 
@@ -136,7 +138,6 @@ class User(Base):
     my_travels = Column(String, nullable=True)
     things_i_like = Column(String, nullable=True)
     about_place = Column(String, nullable=True)
-    avatar_filename = Column(String, nullable=True)
     # TODO: array types once we go postgres
     languages = Column(String, nullable=True)
     countries_visited = Column(String, nullable=True)
@@ -179,6 +180,8 @@ class User(Base):
     new_email_token_created = Column(DateTime(timezone=True), nullable=True)
     new_email_token_expiry = Column(DateTime(timezone=True), nullable=True)
 
+    avatar = relationship("Upload", foreign_keys="User.avatar_key")
+
     @hybrid_property
     def is_jailed(self):
         return self.accepted_tos < 1 or self.is_missing_location
@@ -219,13 +222,6 @@ class User(Base):
         Returns the last active time rounded down to the nearest 15 minutes.
         """
         return self.last_active.replace(minute=(self.last_active.minute // 15) * 15, second=0, microsecond=0)
-
-    @property
-    def avatar_url(self):
-        if self.avatar_filename:
-            return f"{config['MEDIA_SERVER_BASE_URL']}/img/avatar/{self.avatar_filename}"
-        else:
-            return None
 
     def mutual_friends(self, target_id):
         if target_id == self.id:
@@ -679,8 +675,6 @@ class HostRequest(Base):
 class InitiatedUpload(Base):
     """
     Started downloads, not necessarily complete yet.
-
-    For now we only have avatar images, so it's specific to that.
     """
 
     __tablename__ = "initiated_uploads"
@@ -691,13 +685,42 @@ class InitiatedUpload(Base):
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     expiry = Column(DateTime(timezone=True), nullable=False)
 
-    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    initiator_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
 
-    user = relationship("User")
+    initiator_user = relationship("User")
 
     @hybrid_property
     def is_valid(self):
         return (self.created <= func.now()) & (self.expiry >= func.now())
+
+
+class Upload(Base):
+    """
+    Completed uploads.
+    """
+
+    __tablename__ = "uploads"
+    key = Column(String, primary_key=True)
+
+    filename = Column(String, nullable=False)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    creator_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+
+    # photo credit, etc
+    credit = Column(String, nullable=True)
+
+    creator_user = relationship("User", backref="uploads", foreign_keys="Upload.creator_user_id")
+
+    def _url(self, size):
+        return f"{config['MEDIA_SERVER_BASE_URL']}/img/{size}/{self.filename}"
+
+    @property
+    def thumbnail_url(self):
+        return self._url("avatar")
+
+    @property
+    def full_url(self):
+        return self._url("full")
 
 
 communities_seq = Sequence("communities_seq")
@@ -929,6 +952,7 @@ class PageVersion(Base):
     editor_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     title = Column(String, nullable=False)
     content = Column(String, nullable=False)
+    photo_key = Column(ForeignKey("uploads.key"), nullable=True)
     # the human-readable address
     address = Column(String, nullable=True)
     geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
@@ -938,6 +962,7 @@ class PageVersion(Base):
 
     page = relationship("Page", backref="versions", order_by="PageVersion.id")
     editor_user = relationship("User", backref="edited_pages")
+    photo = relationship("Upload")
 
     @property
     def coordinates(self):

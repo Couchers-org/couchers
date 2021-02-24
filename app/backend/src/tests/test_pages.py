@@ -6,8 +6,9 @@ from google.protobuf import wrappers_pb2
 from sqlalchemy.exc import IntegrityError
 
 from couchers import errors
+from couchers.crypto import random_hex
 from couchers.db import session_scope
-from couchers.models import Cluster, ClusterRole, ClusterSubscription, Node, Page, PageType, PageVersion, Thread
+from couchers.models import Cluster, ClusterRole, ClusterSubscription, Node, Page, PageType, PageVersion, Thread, Upload
 from couchers.utils import create_polygon_lat_lng, now, to_aware_datetime, to_multi
 from pb import pages_pb2
 from tests.test_communities import create_1d_point, create_community
@@ -795,6 +796,117 @@ def test_page_transfer(db):
         assert e.value.details() == errors.PAGE_TRANSFER_PERMISSION_DENIED
         page4 = api.GetPage(pages_pb2.GetPageReq(page_id=page4.page_id))
         assert page4.owner_group_id == group_id
+
+
+def test_page_photo(db):
+    user, token = generate_user()
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Root node", [user], [], None).id
+
+    with pages_session(token) as api:
+        key1 = random_hex(32)
+        filename1 = random_hex(32)
+
+        with session_scope() as session:
+            session.add(
+                Upload(
+                    key=key1,
+                    filename=filename1,
+                    creator_user_id=user.id,
+                )
+            )
+
+        res = api.CreatePlace(
+            pages_pb2.CreatePlaceReq(
+                title="dummy title",
+                content="dummy content",
+                photo_key=key1,
+                address="dummy address",
+                location=pages_pb2.Coordinate(
+                    lat=1,
+                    lng=1,
+                ),
+            )
+        )
+
+        assert filename1 in res.photo_url
+
+        # can't create with non-existent photo
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreatePlace(
+                pages_pb2.CreatePlaceReq(
+                    title="dummy title",
+                    content="dummy content",
+                    photo_key="nonexisten",
+                    address="dummy address",
+                    location=pages_pb2.Coordinate(
+                        lat=1,
+                        lng=1,
+                    ),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.PHOTO_NOT_FOUND
+
+        # can create page with no photo
+        res = api.CreatePlace(
+            pages_pb2.CreatePlaceReq(
+                title="dummy title",
+                content="dummy content",
+                address="dummy address",
+                location=pages_pb2.Coordinate(
+                    lat=1,
+                    lng=1,
+                ),
+            )
+        )
+
+        assert res.photo_url == ""
+
+        page_id = res.page_id
+
+        # can't set it to non-existent stuff
+        with pytest.raises(grpc.RpcError) as e:
+            api.UpdatePage(
+                pages_pb2.UpdatePageReq(
+                    page_id=page_id,
+                    photo_key=wrappers_pb2.StringValue(value="non-existent id"),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.PHOTO_NOT_FOUND
+
+        key2 = random_hex(32)
+        filename2 = random_hex(32)
+
+        with session_scope() as session:
+            session.add(
+                Upload(
+                    key=key2,
+                    filename=filename2,
+                    creator_user_id=user.id,
+                )
+            )
+
+        res = api.UpdatePage(
+            pages_pb2.UpdatePageReq(
+                page_id=page_id,
+                photo_key=wrappers_pb2.StringValue(value=key2),
+            )
+        )
+
+        assert filename2 in res.photo_url
+
+        # can unset it
+
+        res = api.UpdatePage(
+            pages_pb2.UpdatePageReq(
+                page_id=page_id,
+                photo_key=wrappers_pb2.StringValue(value=""),
+            )
+        )
+
+        assert res.photo_url == ""
 
 
 def test_page_constraints(db):

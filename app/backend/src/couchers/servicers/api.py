@@ -209,6 +209,9 @@ class API(api_pb2_grpc.APIServicer):
             if request.HasField("radius"):
                 user.geom_radius = request.radius.value
 
+            if request.HasField("avatar_key"):
+                user.avatar = request.avatar_key.value
+
             if request.HasField("gender"):
                 user.gender = request.gender.value
 
@@ -629,7 +632,7 @@ class API(api_pb2_grpc.APIServicer):
         expiry = created + timedelta(minutes=20)
 
         with session_scope() as session:
-            upload = InitiatedUpload(key=key, created=created, expiry=expiry, user_id=context.user_id)
+            upload = InitiatedUpload(key=key, created=created, expiry=expiry, initiator_user_id=context.user_id)
             session.add(upload)
             session.commit()
 
@@ -718,7 +721,7 @@ def user_model_to_pb(db_user, session, context):
         smoking_allowed=smokinglocation2api[db_user.smoking_allowed],
         sleeping_arrangement=sleepingarrangement2api[db_user.sleeping_arrangement],
         parking_details=parkingdetails2api[db_user.parking_details],
-        avatar_url=db_user.avatar_url,
+        avatar_url=db_user.avatar.thumbnail_url if db_user.avatar else None,
     )
 
     if db_user.max_guests is not None:
