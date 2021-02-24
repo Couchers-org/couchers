@@ -228,6 +228,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
             if not self._username_available(request.username):
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.USERNAME_NOT_AVAILABLE)
 
+            if request.lat == 0 and request.lng == 0:
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
+
             user = User(
                 email=signup_token.email,
                 username=request.username,

@@ -204,6 +204,8 @@ class API(api_pb2_grpc.APIServicer):
                 user.hometown = request.hometown.value
 
             if request.HasField("lat") and request.HasField("lng"):
+                if request.lat.value == 0 and request.lng.value == 0:
+                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
                 user.geom = create_coordinate(request.lat.value, request.lng.value)
 
             if request.HasField("radius"):
