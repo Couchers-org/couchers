@@ -20,3 +20,7 @@ const Template: Story<any> = (args) => (
 );
 
 export const circularIconButton = Template.bind({});
+circularIconButton.args = {
+  label: "Communnity",
+  id: "community-button",
+};
