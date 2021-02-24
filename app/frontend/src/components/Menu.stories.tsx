@@ -5,7 +5,7 @@ import * as React from "react";
 import Menu, { MenuItem } from "./Menu";
 
 export default {
-  title: "Components/Menu",
+  title: "Components/Composite/Menu",
   component: Menu,
 } as Meta;
 

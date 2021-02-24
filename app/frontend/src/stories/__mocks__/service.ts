@@ -1,6 +1,6 @@
 import { MessageProps } from "../../features/messages/messagelist/MessageView";
-import { User } from "../../pb/api_pb";
-import { Message } from "../../pb/conversations_pb";
+import { HostingStatus, User } from "../../pb/api_pb";
+import { HostRequestStatus, Message } from "../../pb/conversations_pb";
 import { service as originalService } from "../../service";
 import funnycat from "../assets/funnycat.jpg";
 import funnydog from "../assets/funnydog.jpg";
@@ -11,9 +11,16 @@ export const user1 = {
   userId: 1,
   username: "funnycat",
   avatarUrl: funnycat,
+  age: 28,
+  city: "Los Angeles",
+  hostingStatus: HostingStatus.HOSTING_STATUS_CAN_HOST,
+  communityStanding: 0.5,
+  verification: 0.5,
+  aboutMe: "I am a user",
 } as User.AsObject;
 
 const user2 = {
+  ...user1,
   name: "Funny Dog",
   userId: 2,
   username: "funnydog",
@@ -21,6 +28,7 @@ const user2 = {
 } as User.AsObject;
 
 const user3 = {
+  ...user1,
   name: "Funny Kid",
   userId: 3,
   username: "funnykid",
@@ -40,9 +48,12 @@ export const mockedService = ({
   },
   api: { listFriends: () => Promise.resolve([user2.userId, user3.userId]) },
   conversations: {
-    listGroupChats: () => Promise.resolve([groupChat]),
+    listGroupChats: () =>
+      Promise.resolve({ groupChatsList: [groupChat], noMore: true }),
     getGroupChatMessages: () => Promise.resolve([message1, message2]),
+    getGroupChat: () => Promise.resolve(groupChat),
   },
+  account: {},
 } as unknown) as typeof originalService;
 
 function wait(milliSeconds: number) {
@@ -105,13 +116,25 @@ const message2: MessageProps["message"] = {
 
 export const groupChat = {
   groupChatId: 3,
-  title: "groupchattitle",
-  memberUserIdsList: [],
-  adminUserIdsList: [],
+  title: "Group chat title",
+  memberUserIdsList: [1, 2],
+  adminUserIdsList: [1],
   onlyAdminsInvite: true,
   isDm: false,
   // created?: google_protobuf_timestamp_pb.Timestamp.AsObject,
   unseenMessageCount: 0,
   lastSeenMessageId: 4,
+  latestMessage: message1,
+};
+
+export const hostRequest = {
+  hostRequestId: 1,
+  fromUserId: 1,
+  toUserId: 2,
+  status: HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED,
+  created: { seconds: Math.floor(+new Date(2020, 0, 1) / 1e3), nanos: 0 },
+  fromDate: "2025-01-01",
+  toDate: "2025-01-05",
+  lastSeenMessageId: 0,
   latestMessage: message1,
 };

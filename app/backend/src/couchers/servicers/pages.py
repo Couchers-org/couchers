@@ -1,18 +1,18 @@
 import grpc
+from sqlalchemy.sql import func
 
 from couchers import errors
-from couchers.db import session_scope
-from couchers.models import Cluster, Page, PageType, PageVersion, User
+from couchers.db import (
+    can_moderate_at,
+    can_moderate_node,
+    get_node_parents_recursively,
+    get_parent_node_at_location,
+    session_scope,
+)
+from couchers.models import Cluster, ClusterRole, ClusterSubscription, Node, Page, PageType, PageVersion, Thread, User
+from couchers.servicers.threads import pack_thread_id
 from couchers.utils import Timestamp_from_datetime, create_coordinate, remove_duplicates_retain_order
 from pb import pages_pb2, pages_pb2_grpc
-
-
-def _check_update_permission(page: Page, user_id):
-    if page.owner_user:
-        return page.owner_user_id == user_id
-    # otherwise owned by a cluster
-    return page.owner_cluster.admins.filter(User.id == user_id).one_or_none() is not None
-
 
 pagetype2sql = {
     pages_pb2.PAGE_TYPE_PLACE: PageType.place,
@@ -27,10 +27,48 @@ pagetype2api = {
 }
 
 
+def _is_page_owner(page: Page, user_id):
+    """
+    Checks whether the user can act as an owner of the page
+    """
+    if page.owner_user:
+        return page.owner_user_id == user_id
+    # otherwise owned by a cluster
+    return page.owner_cluster.admins.filter(User.id == user_id).one_or_none() is not None
+
+
+def _can_moderate_page(page: Page, user_id):
+    """
+    Checks if the user is allowed to moderate this page
+    """
+    # checks if either the page is in the exclusive moderation area of a node
+    with session_scope() as session:
+        latest_version = page.versions[-1]
+
+        # if the page has a location, we firstly check if we are the moderator of any node that contains this page
+        if latest_version.geom is not None and can_moderate_at(session, user_id, latest_version.geom):
+            return True
+
+        # if the page is owned by a cluster, then any moderator of that cluster can moderate this page
+        if page.owner_cluster is not None and can_moderate_node(session, user_id, page.owner_cluster.parent_node_id):
+            return True
+
+        # finally check if the user can moderate the parent node of the cluster
+        return can_moderate_node(session, user_id, page.parent_node_id)
+
+
 def page_to_pb(page: Page, user_id):
     first_version = page.versions[0]
     current_version = page.versions[-1]
-    lat, lng = current_version.coordinates or (0, 0)
+
+    owner_community_id = None
+    owner_group_id = None
+    if page.owner_cluster:
+        if page.owner_cluster.is_official_cluster:
+            owner_community_id = page.owner_cluster.parent_node_id
+        else:
+            owner_group_id = page.owner_cluster.id
+
     return pages_pb2.Page(
         page_id=page.id,
         type=pagetype2api[page.type],
@@ -40,27 +78,26 @@ def page_to_pb(page: Page, user_id):
         last_editor_user_id=current_version.editor_user_id,
         creator_user_id=page.creator_user_id,
         owner_user_id=page.owner_user_id,
-        owner_group_id=page.owner_cluster.id
-        if page.owner_cluster and page.owner_cluster.official_cluster_for_node_id is None
-        else None,
-        owner_community_id=page.owner_cluster.official_cluster_for_node_id
-        if page.owner_cluster and page.owner_cluster.official_cluster_for_node_id is not None
-        else None,
-        thread_id=None,  # TODO
+        owner_community_id=owner_community_id,
+        owner_group_id=owner_group_id,
+        thread_id=pack_thread_id(page.thread_id, 0),
         title=current_version.title,
         content=current_version.content,
         address=current_version.address,
         location=pages_pb2.Coordinate(
-            lat=lat,
-            lng=lng,
-        ),
+            lat=current_version.coordinates[0],
+            lng=current_version.coordinates[1],
+        )
+        if current_version.coordinates
+        else None,
         editor_user_ids=remove_duplicates_retain_order([version.editor_user_id for version in page.versions]),
-        can_edit=_check_update_permission(page, user_id),
+        can_edit=_is_page_owner(page, user_id),
+        can_moderate=_can_moderate_page(page, user_id),
     )
 
 
 class Pages(pages_pb2_grpc.PagesServicer):
-    def CreatePage(self, request, context):
+    def CreatePlace(self, request, context):
         if not request.title:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_TITLE)
         if not request.content:
@@ -69,14 +106,16 @@ class Pages(pages_pb2_grpc.PagesServicer):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_ADDRESS)
         if not request.HasField("location"):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_LOCATION)
-        if request.type not in [pages_pb2.PAGE_TYPE_PLACE, pages_pb2.PAGE_TYPE_GUIDE]:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANNOT_CREATE_PAGE_TYPE)
+
+        geom = create_coordinate(request.location.lat, request.location.lng)
 
         with session_scope() as session:
             page = Page(
-                type=pagetype2sql[request.type],
+                parent_node=get_parent_node_at_location(session, geom),
+                type=PageType.place,
                 creator_user_id=context.user_id,
                 owner_user_id=context.user_id,
+                thread=Thread(),
             )
             session.add(page)
             session.flush()
@@ -86,7 +125,52 @@ class Pages(pages_pb2_grpc.PagesServicer):
                 title=request.title,
                 content=request.content,
                 address=request.address,
-                geom=create_coordinate(request.location.lat, request.location.lng),
+                geom=geom,
+            )
+            session.add(page_version)
+            session.commit()
+            return page_to_pb(page, context.user_id)
+
+    def CreateGuide(self, request, context):
+        if not request.title:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_TITLE)
+        if not request.content:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_CONTENT)
+        if request.address and request.HasField("location"):
+            address = request.address
+            geom = create_coordinate(request.location.lat, request.location.lng)
+        elif not request.address and not request.HasField("location"):
+            address = None
+            geom = None
+        else:
+            # you have to have both or neither
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_GUIDE_LOCATION)
+
+        if not request.parent_community_id:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_PARENT)
+
+        with session_scope() as session:
+            parent_node = session.query(Node).filter(Node.id == request.parent_community_id).one_or_none()
+
+            if not parent_node:
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.COMMUNITY_NOT_FOUND)
+
+            page = Page(
+                parent_node=parent_node,
+                type=PageType.guide,
+                creator_user_id=context.user_id,
+                owner_user_id=context.user_id,
+                thread=Thread(),
+            )
+            session.add(page)
+            session.flush()
+            page_version = PageVersion(
+                page=page,
+                editor_user_id=context.user_id,
+                title=request.title,
+                content=request.content,
+                address=address,
+                geom=geom,
             )
             session.add(page_version)
             session.commit()
@@ -106,7 +190,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
             if not page:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.PAGE_NOT_FOUND)
 
-            if not _check_update_permission(page, context.user_id):
+            if not _is_page_owner(page, context.user_id) and not _can_moderate_page(page, context.user_id):
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.PAGE_UPDATE_PERMISSION_DENIED)
 
             current_version = page.versions[-1]
@@ -153,20 +237,21 @@ class Pages(pages_pb2_grpc.PagesServicer):
             if not page:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.PAGE_NOT_FOUND)
 
-            if not page.owner_user_id == context.user_id:
+            if not _is_page_owner(page, context.user_id) and not _can_moderate_page(page, context.user_id):
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.PAGE_TRANSFER_PERMISSION_DENIED)
 
             if request.WhichOneof("new_owner") == "new_owner_group_id":
                 cluster = (
                     session.query(Cluster)
-                    .filter(Cluster.official_cluster_for_node_id == None)
+                    .filter(~Cluster.is_official_cluster)
                     .filter(Cluster.id == request.new_owner_group_id)
                     .one_or_none()
                 )
             elif request.WhichOneof("new_owner") == "new_owner_community_id":
                 cluster = (
                     session.query(Cluster)
-                    .filter(Cluster.official_cluster_for_node_id == request.new_owner_community_id)
+                    .filter(Cluster.parent_node_id == request.new_owner_community_id)
+                    .filter(Cluster.is_official_cluster)
                     .one_or_none()
                 )
             else:

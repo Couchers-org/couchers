@@ -1,7 +1,7 @@
 import {
   makeStyles,
-  OutlinedTextFieldProps,
   TextField as MuiTextField,
+  TextFieldProps,
 } from "@material-ui/core";
 import classNames from "classnames";
 import React from "react";
@@ -25,13 +25,14 @@ const useStyles = makeStyles((theme) => ({
 
 export default function TextField({
   className,
+  variant = "outlined",
   ...otherProps
-}: Omit<OutlinedTextFieldProps, "variant">) {
+}: TextFieldProps) {
   const classes = useStyles();
   return (
     <MuiTextField
       {...otherProps}
-      variant="outlined"
+      variant={variant}
       className={classNames(classes.root, className, {
         [classes.multiline]: otherProps.multiline,
       })}

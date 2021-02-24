@@ -5,8 +5,9 @@ import {
   UseQueryOptions,
   UseQueryResult,
 } from "react-query";
+import { createLocalStoragePersistor } from "react-query/createLocalStoragePersistor-experimental";
 import { ReactQueryDevtools } from "react-query/devtools";
-import { persistWithLocalStorage } from "react-query/persist-localstorage-experimental";
+import { persistQueryClient } from "react-query/persistQueryClient-experimental";
 
 import { reactQueryRetries } from "./constants";
 
@@ -21,7 +22,13 @@ export const queryClient = new QueryClient({
   },
 });
 
-persistWithLocalStorage(queryClient);
+const persistor = createLocalStoragePersistor();
+
+persistQueryClient({
+  queryClient,
+  persistor,
+  maxAge: 14 * 24 * 60 * 60 * 1000,
+});
 interface ReactQueryClientProviderProps {
   children: React.ReactNode;
 }

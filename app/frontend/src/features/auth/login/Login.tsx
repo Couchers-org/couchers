@@ -1,18 +1,24 @@
-import { Typography } from "@material-ui/core";
+import { Box, makeStyles, Typography } from "@material-ui/core";
 import React, { useEffect } from "react";
-import {
-  Redirect,
-  Route,
-  Switch,
-  useLocation,
-  useParams,
-} from "react-router-dom";
+import { Link, Redirect, useLocation, useParams } from "react-router-dom";
 
-import { loginPasswordRoute, loginRoute } from "../../../AppRoutes";
 import Alert from "../../../components/Alert";
+import AuthHeader from "../../../components/AuthHeader";
+import { loginPasswordRoute, signupRoute } from "../../../routes";
 import { useAuthContext } from "../AuthProvider";
-import PasswordForm from "./PasswordForm";
-import UsernameForm from "./UsernameForm";
+import useAuthStyles from "../useAuthStyles";
+import LoginForm from "./LoginForm";
+
+const useStyles = makeStyles((theme) => ({
+  signUp: {
+    marginTop: "auto",
+  },
+  signUpLink: {
+    textDecoration: "none",
+    color: theme.palette.secondary.main,
+    fontWeight: 700,
+  },
+}));
 
 export default function Login() {
   const { authState, authActions } = useAuthContext();
@@ -22,6 +28,9 @@ export default function Login() {
   const location = useLocation<undefined | { from: Location }>();
   const redirectTo = location.state?.from?.pathname || "/";
   const { urlToken } = useParams<{ urlToken: string }>();
+
+  const authClasses = useAuthStyles();
+  const classes = useStyles();
 
   useEffect(() => {
     //check for a login token
@@ -33,18 +42,32 @@ export default function Login() {
   return (
     <>
       {authenticated && <Redirect to={redirectTo} />}
-      <Typography variant="h2">Login</Typography>
-      {error && <Alert severity="error">{error}</Alert>}
-
-      <Switch>
-        <Route path={loginPasswordRoute}>
-          <PasswordForm />
-        </Route>
-
-        <Route path={loginRoute}>
-          <UsernameForm />
-        </Route>
-      </Switch>
+      <Box className={authClasses.backgroundBlurImage}></Box>
+      <Box className={authClasses.page}>
+        <AuthHeader>Welcome back!</AuthHeader>
+        {error && (
+          <Alert className={authClasses.errorMessage} severity="error">
+            {error}
+          </Alert>
+        )}
+        <LoginForm />
+        {/* <Divider>Or</Divider>  not yet available: https://next.material-ui.com/components/dividers/ */}
+        {/* Disabled for beta:
+        <Divider classes={{ root: authClasses.divider }} flexItem />
+        <MuiButton className={classes.facebookButton}>
+          Login with Facebook
+        </MuiButton>
+        <MuiButton className={classes.googleButton}>
+          Login with Google
+        </MuiButton>
+        */}
+        <Typography className={classes.signUp}>
+          No account yet?{" "}
+          <Link className={classes.signUpLink} to={signupRoute}>
+            Sign up
+          </Link>
+        </Typography>
+      </Box>
     </>
   );
 }

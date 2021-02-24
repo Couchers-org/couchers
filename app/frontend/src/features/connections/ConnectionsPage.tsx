@@ -2,10 +2,10 @@ import { TabContext, TabPanel } from "@material-ui/lab";
 import React from "react";
 import { useHistory, useParams } from "react-router";
 
-import { connectionsRoute } from "../../AppRoutes";
 import NotificationBadge from "../../components/NotificationBadge";
 import PageTitle from "../../components/PageTitle";
 import TabBar from "../../components/TabBar";
+import { connectionsRoute } from "../../routes";
 import useNotifications from "../useNotifications";
 import { FriendsTab } from "./friends";
 

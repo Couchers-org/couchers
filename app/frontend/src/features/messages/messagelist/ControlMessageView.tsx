@@ -1,21 +1,23 @@
 import { Box } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
+import classNames from "classnames";
 import React from "react";
 
+import TextBody from "../../../components/TextBody";
 import { timestamp2Date } from "../../../utils/date";
 import { firstName } from "../../../utils/names";
 import { useAuthContext } from "../../auth/AuthProvider";
 import { useUser } from "../../userQueries/useUsers";
+import useOnVisibleEffect from "../useOnVisibleEffect";
 import { controlMessageText, messageTargetId } from "../utils";
-import { MessageProps } from "./MessageView";
-import TimeInterval from "./MomentIndication";
-import useOnVisibleEffect from "./useOnVisibleEffect";
+import { messageElementId, MessageProps } from "./MessageView";
+import TimeInterval from "./TimeInterval";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    marginTop: theme.spacing(2),
-    marginInline: "auto",
+    marginInlineStart: "auto",
+    marginInlineEnd: "auto",
     textAlign: "center",
   },
   timestamp: theme.typography.caption,
@@ -28,6 +30,7 @@ const useStyles = makeStyles((theme) => ({
 export default function ControlMessageView({
   message,
   onVisible,
+  className,
 }: MessageProps) {
   const classes = useStyles();
   const currentUserId = useAuthContext().authState.userId;
@@ -37,16 +40,17 @@ export default function ControlMessageView({
   const { data: target, isLoading: isTargetLoading } = useUser(
     messageTargetId(message)
   );
-  const { ref } = useOnVisibleEffect(message.messageId, onVisible);
+  const { ref } = useOnVisibleEffect(onVisible);
 
   const isCurrentUser = author?.userId === currentUserId;
   const authorName = isCurrentUser ? "you" : firstName(author?.name);
   const targetName = firstName(target?.name);
   return (
     <Box
-      className={classes.root}
+      className={classNames(classes.root, className)}
       data-testid={`message-${message.messageId}`}
       ref={ref}
+      id={messageElementId(message.messageId)}
     >
       <Box className={classes.timestamp}>
         <TimeInterval date={timestamp2Date(message.time!)} />
@@ -54,7 +58,9 @@ export default function ControlMessageView({
 
       <Box className={classes.message}>
         {!isAuthorLoading && !isTargetLoading ? (
-          controlMessageText(message, authorName, targetName)
+          <TextBody>
+            {controlMessageText(message, authorName, targetName)}
+          </TextBody>
         ) : (
           <Skeleton className={classes.skeleton} />
         )}

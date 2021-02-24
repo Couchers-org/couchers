@@ -1,15 +1,26 @@
-import React, { useEffect } from "react";
-import { Redirect, Route, RouteProps, Switch } from "react-router-dom";
+import React from "react";
+import { Redirect, Switch } from "react-router-dom";
 
+import AppRoute from "./AppRoute";
 import TOS from "./components/TOS";
+import AuthPage from "./features/auth/AuthPage";
 import { useAuthContext } from "./features/auth/AuthProvider";
+import ChangeEmailPage from "./features/auth/email/ChangeEmailPage";
+import ConfirmChangeEmailPage from "./features/auth/email/ConfirmChangeEmailPage";
 import Jail from "./features/auth/jail/Jail";
 import Login from "./features/auth/login/Login";
 import Logout from "./features/auth/Logout";
+import {
+  ChangePasswordPage,
+  CompleteResetPasswordPage,
+  ResetPasswordPage,
+} from "./features/auth/password";
 import Signup from "./features/auth/signup/Signup";
 import CommunityPage from "./features/communities/CommunityPage";
+import DiscussionPage from "./features/communities/DiscussionPage";
 import GroupPage from "./features/communities/GroupPage";
-import NewPagePage from "./features/communities/NewPagePage";
+import NewGuidePage from "./features/communities/NewGuidePage";
+import NewPlacePage from "./features/communities/NewPlacePage";
 import PagePage from "./features/communities/PagePage";
 import { ConnectionsPage } from "./features/connections";
 import Home from "./features/Home";
@@ -24,136 +35,150 @@ import {
 import SearchPage from "./features/search/SearchPage";
 import UserPage from "./features/userPage/UserPage";
 import { PageType } from "./pb/pages_pb";
-
-export const loginRoute = "/login";
-export const loginPasswordRoute = `${loginRoute}/password`;
-
-export const signupRoute = "/signup";
-export const profileRoute = "/profile";
-export const editProfileRoute = "/profile/edit";
-export const editHostingPreferenceRoute = "/hosting-preference/edit";
-export const messagesRoute = "/messages";
-export const mapRoute = "/map";
-export const logoutRoute = "/logout";
-export const connectionsRoute = "/connections";
-export const notFoundRoute = "/notfound";
-
-export const userRoute = "/user";
-export const searchRoute = "/search";
-export const jailRoute = "/restricted";
-export const tosRoute = "/tos";
-
-export const newPlaceRoute = "/place/new";
-export const placeRoute = "/place";
-
-export const newGuideRoute = "/guide/new";
-export const guideRoute = "/guide";
-
-export const communityRoute = "/community"; ///:communityId/:communitySlug";
-export const groupRoute = "/group"; ///:groupId/:groupSlug";
+import {
+  changeEmailRoute,
+  changePasswordRoute,
+  communityRoute,
+  confirmChangeEmailRoute,
+  connectionsRoute,
+  discussionRoute,
+  editHostingPreferenceRoute,
+  editProfileRoute,
+  groupRoute,
+  guideRoute,
+  jailRoute,
+  loginRoute,
+  logoutRoute,
+  mapRoute,
+  messagesRoute,
+  newGuideRoute,
+  newPlaceRoute,
+  notFoundRoute,
+  placeRoute,
+  profileRoute,
+  resetPasswordRoute,
+  searchRoute,
+  signupRoute,
+  tosRoute,
+  userRoute,
+} from "./routes";
 
 export default function AppRoutes() {
+  const { authState } = useAuthContext();
+  const isAuthenticated = authState.authenticated;
+
   return (
     <Switch>
-      <Route path={`${loginRoute}/:urlToken?`}>
+      <AppRoute
+        isPrivate={false}
+        isFullscreen
+        path={`${loginRoute}/:urlToken?`}
+      >
         <Login />
-      </Route>
-      <Route path={`${signupRoute}/:urlToken?`}>
+      </AppRoute>
+      <AppRoute
+        isPrivate={false}
+        isFullscreen
+        path={`${signupRoute}/:urlToken?`}
+      >
         <Signup />
-      </Route>
-      <Route path={tosRoute}>
+      </AppRoute>
+
+      <AppRoute isPrivate={false} isFullscreen exact path={resetPasswordRoute}>
+        <ResetPasswordPage />
+      </AppRoute>
+      <AppRoute
+        isPrivate={false}
+        exact
+        path={`${resetPasswordRoute}/:resetToken`}
+      >
+        <CompleteResetPasswordPage />
+      </AppRoute>
+      <AppRoute
+        isPrivate={false}
+        path={`${confirmChangeEmailRoute}/:resetToken`}
+      >
+        <ConfirmChangeEmailPage />
+      </AppRoute>
+      <AppRoute isFullscreen isPrivate={false} path={tosRoute}>
         <TOS />
-      </Route>
-      <PrivateRoute path={mapRoute}>
+      </AppRoute>
+      <AppRoute isPrivate path={changePasswordRoute}>
+        <ChangePasswordPage />
+      </AppRoute>
+      <AppRoute isPrivate path={changeEmailRoute}>
+        <ChangeEmailPage />
+      </AppRoute>
+      <AppRoute isPrivate path={mapRoute}>
         <MapPage />
-      </PrivateRoute>
-      <Route path={jailRoute}>
+      </AppRoute>
+      <AppRoute isPrivate={false} path={jailRoute}>
         <Jail />
-      </Route>
-      <Route exact path={logoutRoute}>
+      </AppRoute>
+      <AppRoute isPrivate={false} exact path={logoutRoute}>
         <Logout />
-      </Route>
-      <PrivateRoute path={editProfileRoute}>
+      </AppRoute>
+      <AppRoute isPrivate path={editProfileRoute}>
         <EditProfilePage />
-      </PrivateRoute>
-      <PrivateRoute path={editHostingPreferenceRoute}>
+      </AppRoute>
+      <AppRoute isPrivate path={editHostingPreferenceRoute}>
         <EditHostingPreferencePage />
-      </PrivateRoute>
-      <PrivateRoute path={profileRoute}>
+      </AppRoute>
+      <AppRoute isPrivate path={profileRoute}>
         <ProfilePage />
-      </PrivateRoute>
-      <PrivateRoute path={`${messagesRoute}/:type?`}>
+      </AppRoute>
+      <AppRoute isPrivate path={`${messagesRoute}/:type?`}>
         <Messages />
-      </PrivateRoute>
-      <PrivateRoute path={`${userRoute}/:username`}>
+      </AppRoute>
+      <AppRoute isPrivate path={`${userRoute}/:username`}>
         <UserPage />
-      </PrivateRoute>
-      <PrivateRoute path={`${searchRoute}/:query?`}>
+      </AppRoute>
+      <AppRoute isPrivate path={`${searchRoute}/:query?`}>
         <SearchPage />
-      </PrivateRoute>
-      <PrivateRoute path={newPlaceRoute}>
-        <NewPagePage pageType={PageType.PAGE_TYPE_PLACE} />
-      </PrivateRoute>
-      <PrivateRoute path={`${placeRoute}/:pageId/:pageSlug?`}>
+      </AppRoute>
+      <AppRoute isPrivate path={newPlaceRoute}>
+        <NewPlacePage />
+      </AppRoute>
+      <AppRoute isPrivate path={`${placeRoute}/:pageId/:pageSlug?`}>
         <PagePage pageType={PageType.PAGE_TYPE_PLACE} />
-      </PrivateRoute>
-      <PrivateRoute path={newGuideRoute}>
-        <NewPagePage pageType={PageType.PAGE_TYPE_PLACE} />
-      </PrivateRoute>
-      <PrivateRoute path={`${guideRoute}/:pageId/:pageSlug?`}>
+      </AppRoute>
+      <AppRoute isPrivate path={newGuideRoute}>
+        <NewGuidePage />
+      </AppRoute>
+      <AppRoute isPrivate path={`${guideRoute}/:pageId/:pageSlug?`}>
         <PagePage pageType={PageType.PAGE_TYPE_GUIDE} />
-      </PrivateRoute>
-      <PrivateRoute path={`${communityRoute}/:communityId/:communitySlug?`}>
+      </AppRoute>
+      <AppRoute
+        isPrivate
+        path={`${discussionRoute}/:discussionId/:discussionSlug?`}
+      >
+        <DiscussionPage />
+      </AppRoute>
+      <AppRoute
+        isPrivate
+        path={`${communityRoute}/:communityId/:communitySlug?`}
+      >
         <CommunityPage />
-      </PrivateRoute>
-      <PrivateRoute path={`${groupRoute}/:groupId/:groupSlug?`}>
+      </AppRoute>
+      <AppRoute isPrivate path={`${groupRoute}/:groupId/:groupSlug?`}>
         <GroupPage />
-      </PrivateRoute>
-      <PrivateRoute path={`${connectionsRoute}/:type?`}>
+      </AppRoute>
+      <AppRoute isPrivate path={`${connectionsRoute}/:type?`}>
         <ConnectionsPage />
-      </PrivateRoute>
-      <PrivateRoute exact path="/">
-        <Home />
-      </PrivateRoute>
-      <Route exact path={notFoundRoute}>
+      </AppRoute>
+
+      <AppRoute
+        isPrivate={isAuthenticated}
+        isFullscreen={!isAuthenticated}
+        exact
+        path="/"
+      >
+        {isAuthenticated ? <Home /> : <AuthPage />}
+      </AppRoute>
+      <AppRoute isPrivate={false} exact path={notFoundRoute}>
         <NotFoundPage />
-      </Route>
+      </AppRoute>
       <Redirect from="*" to={notFoundRoute} />
     </Switch>
   );
 }
-
-const PrivateRoute = ({ children, ...otherProps }: RouteProps) => {
-  const { authState, authActions } = useAuthContext();
-  const isAuthenticated = authState.authenticated;
-  const isJailed = authState.jailed;
-  useEffect(() => {
-    if (!isAuthenticated) {
-      authActions.authError("Please log in.");
-    }
-  });
-
-  return (
-    <>
-      <Route
-        {...otherProps}
-        render={({ location }) =>
-          isAuthenticated ? (
-            isJailed ? (
-              <Redirect to={jailRoute} />
-            ) : (
-              children
-            )
-          ) : (
-            <Redirect
-              to={{
-                pathname: "/login",
-                state: { from: location },
-              }}
-            />
-          )
-        }
-      />
-    </>
-  );
-};

@@ -3,8 +3,10 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
 import classNames from "classnames";
 import React from "react";
+import { Link } from "react-router-dom";
 
 import { User } from "../../pb/api_pb";
+import { routeToUser } from "../../routes";
 
 const useStyles = makeStyles({
   root: {
@@ -32,15 +34,18 @@ export interface AvatarProps extends BoxProps {
   user?: User.AsObject;
   grow?: boolean;
   className?: string;
+  isProfileLink?: boolean;
 }
 
 export default function Avatar({
   user,
   grow,
   className,
+  isProfileLink = true,
   ...otherProps
 }: AvatarProps) {
   const classes = useStyles();
+
   return (
     <Box
       className={classNames(
@@ -52,13 +57,25 @@ export default function Avatar({
       {...otherProps}
     >
       {user ? (
-        <MuiAvatar
-          className={classes.avatar}
-          alt={user.name}
-          src={user.avatarUrl}
-        >
-          {user.name.split(/\s+/).map((name) => name[0])}
-        </MuiAvatar>
+        isProfileLink ? (
+          <Link to={routeToUser(user.username)}>
+            <MuiAvatar
+              className={classes.avatar}
+              alt={user.name}
+              src={user.avatarUrl}
+            >
+              {user.name.split(/\s+/).map((name) => name[0])}
+            </MuiAvatar>
+          </Link>
+        ) : (
+          <MuiAvatar
+            className={classes.avatar}
+            alt={user.name}
+            src={user.avatarUrl}
+          >
+            {user.name.split(/\s+/).map((name) => name[0])}
+          </MuiAvatar>
+        )
       ) : otherProps.children ? (
         <MuiAvatar className={classes.avatar}>{otherProps.children}</MuiAvatar>
       ) : (

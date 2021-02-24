@@ -7,15 +7,16 @@ import {
   Typography,
 } from "@material-ui/core";
 
+import { useAuthContext } from "../../features/auth/AuthProvider";
+import BugReport from "../../features/BugReport";
+import SearchBox from "../../features/search/SearchBox";
 import {
   connectionsRoute,
   logoutRoute,
   mapRoute,
   messagesRoute,
   profileRoute,
-} from "../../AppRoutes";
-import { useAuthContext } from "../../features/auth/AuthProvider";
-import BugReport from "../../features/BugReport";
+} from "../../routes";
 import {
   CommunityIcon,
   CrossIcon,
@@ -24,7 +25,6 @@ import {
   PeopleIcon,
   PersonIcon,
 } from "../Icons";
-import SearchBox from "../SearchBox";
 import NavButton from "./NavButton";
 
 const menu = [
@@ -103,6 +103,9 @@ export default function Navigation() {
 
   const authenticated = useAuthContext().authState.authenticated;
 
+  if (!authenticated) {
+    return null;
+  }
   return (
     <AppBar
       position="fixed"
@@ -138,11 +141,9 @@ export default function Navigation() {
             </NavButton>
           ))}
           <Hidden smDown>
-            {authenticated && (
-              <NavButton route={logoutRoute} label="Log out">
-                <CrossIcon fontSize="inherit" />
-              </NavButton>
-            )}
+            <NavButton route={logoutRoute} label="Log out">
+              <CrossIcon fontSize="inherit" />
+            </NavButton>
           </Hidden>
         </Grid>
         <div className={classes.search}>

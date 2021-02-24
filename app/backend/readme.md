@@ -2,30 +2,52 @@
 
 You can run the whole thing through Docker and docker-compose (see the readme in the `app/` folder).
 
-## Installation
+## Running tests in docker
 
-Create a virtual environment and install the requirements.
+You can run all tests in docker with the following command, executed in the `app` folder:
+
+```sh
+docker-compose -f docker-compose.test.yml up --build
+```
+
+## Running tests locally
+
+Prerequisites:
+
+If you haven't already, run the first two steps from the [readme in the `app/` folder](https://github.com/Couchers-org/couchers/blob/develop/app/readme.md).
+
+Note that if you've made breaking changes, you may need to re-compile the protocol buffers.
+
+Then make sure the postgres_tests container is running:
+
+```sh
+docker-compose -f docker-compose.test.yml up postgres_tests
+```
+
+1. Create a virtual environment and install the requirements.
 
 ```sh
 virtualenv venv -p python3.9
 pip install -r requirements.txt
 ```
 
-Then enter the virtual environment:
+2. Then enter the virtual environment:
 
 ```sh
 source venv/bin/activate
 ```
 
-## Running tests
+3. Set the necessary env vars:
 
-1. Make sure the postgres_tests container is running: `docker-compose up postgres_tests`. (see the readme in the `app/` folder for getting docker setup). 
+```sh
+export DATABASE_CONNECTION_STRING=postgresql://postgres:06b3890acd2c235c41be0bbfe22f1b386a04bf02eedf8c977486355616be2aa1@localhost:6544/postgres
+```
 
-2. Set the necessary env vars:
+**Windows** note: Replace "export" with "set"
 
-`export DATABASE_CONNECTION_STRING=postgresql://postgres:06b3890acd2c235c41be0bbfe22f1b386a04bf02eedf8c977486355616be2aa1@localhost:6544/postgres`
+(Environment variables are non-persistent and must be set in the exact place where you plan to run the tests. For example, if using an IDE, they must be set within the IDE.)
 
-3. Run `pytest` in the `app/backend/src/` folder.
+4. Run `pytest` in the `app/backend/src/` folder.
 
 ```sh
 cd src

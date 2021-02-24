@@ -2,6 +2,16 @@
 
 We collaborate on code through git, hosted on GitHub. If you are a software engineer (frontend/backend), you should request write access to the codebase.
 
+## Finding an issue
+
+If you are looking for something to help with, have a look at the open issues! They are sorted by tags to help with filtering. Here are some examples:
+
+- [Good first issues](https://github.com/Couchers-org/couchers/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
+- [Design changes in the frontend: frontend, design](https://github.com/Couchers-org/couchers/issues?q=is%3Aopen+is%3Aissue+label%3Afrontend+label%3Adesign)
+- [Bugs in the backend: backend, bug](https://github.com/Couchers-org/couchers/issues?q=is%3Aopen+is%3Aissue+label%3Abackend+label%3Abug+)
+- [New features in the frontend, not currently waiting for backend: frontend, feature, !backend](https://github.com/Couchers-org/couchers/issues?q=is%3Aopen+is%3Aissue+label%3Afrontend+label%3Afeature+-label%3Abackend)
+
+
 ## The development process
 
 All our code is in one repository (monorepo). We currently use the pull request model as our git workflow, our main development branch is `develop`.

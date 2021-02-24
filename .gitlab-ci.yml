@@ -32,6 +32,7 @@ default:
 
 
 protos:
+  needs: []
   stage: protos
   image: $GRPC_TAG
   inherit:
@@ -48,6 +49,7 @@ protos:
 
 
 build:proxy:
+  needs: ["protos"]
   stage: build
   script:
     - docker pull $PROXY_RELEASE_TAG || true
@@ -63,6 +65,7 @@ build:proxy:
       - app/proxy/**/*
 
 build:nginx:
+  needs: []
   stage: build
   script:
     - docker pull $NGINX_RELEASE_TAG || true
@@ -78,6 +81,7 @@ build:nginx:
       - app/nginx/**/*
 
 build:backend:
+  needs: ["protos"]
   stage: build
   script:
     - docker pull $BACKEND_RELEASE_TAG || true
@@ -93,6 +97,7 @@ build:backend:
       - app/backend/**/*
 
 build:media:
+  needs: ["protos"]
   stage: build
   script:
     - docker pull $MEDIA_RELEASE_TAG || true
@@ -108,6 +113,7 @@ build:media:
       - app/media/**/*
 
 build:frontend:
+  needs: ["protos"]
   stage: build
   script:
     - docker pull $FRONTEND_RELEASE_TAG || true
@@ -129,6 +135,7 @@ build:frontend:
 
 
 test:backend:
+  needs: ["build:backend"]
   stage: test
   image: $BACKEND_TAG
   inherit:
@@ -142,12 +149,12 @@ test:backend:
     POSTGRES_PASSWORD: c765064a49d18a95
     DATABASE_CONNECTION_STRING: "postgresql://postgres:c765064a49d18a95@postgres/postgres"
   script:
-    - cd /app && pytest --junitxml=junit.xml --cov=couchers src
+    - cd /app && pytest --junitxml=junit.xml --cov=src src
   after_script:
     - cd /app && coverage xml && coverage html
     - cp /app/junit.xml $CI_PROJECT_DIR/
     - cp /app/coverage.xml $CI_PROJECT_DIR/
-    - cp -a /app/htmlcov $CI_PROJECT_DIR/artifacts/
+    - mkdir -p $CI_PROJECT_DIR/artifacts/htmlcov && cp -a /app/htmlcov $CI_PROJECT_DIR/artifacts/
   coverage: '/^TOTAL.+?(\d+\%)$/'
   artifacts:
     reports:
@@ -165,6 +172,7 @@ test:backend:
       - app/backend/**/*
 
 test:media:
+  needs: ["build:media"]
   stage: test
   image: $MEDIA_TAG
   inherit:
@@ -189,6 +197,7 @@ test:media:
       - app/media/**/*
 
 test:frontend:
+  needs: ["build:frontend"]
   stage: test
   image: $FRONTEND_TAG
   inherit:
@@ -199,7 +208,7 @@ test:frontend:
   after_script:
     - cp /app/junit.xml $CI_PROJECT_DIR/
     - cp /app/coverage/cobertura-coverage.xml $CI_PROJECT_DIR/
-    - mkdir -p artifacts && cp -a /app/coverage/lcov-report $CI_PROJECT_DIR/artifacts/
+    - mkdir -p $CI_PROJECT_DIR/artifacts/lcov-report && cp -a /app/coverage/lcov-report $CI_PROJECT_DIR/artifacts/
   coverage: '/^All files[^|]*\|[^|]*\s+([\d\.]+)/'
   artifacts:
     reports:
@@ -217,6 +226,7 @@ test:frontend:
       - app/frontend/**/*
 
 test:storybook:
+  needs: ["build:frontend"]
   stage: test
   image: $FRONTEND_TAG
   inherit:
@@ -224,7 +234,7 @@ test:storybook:
     default: false
   script:
     - cd /app && yarn build-storybook
-    - mkdir -p artifacts && cp -a /app/storybook-static $CI_PROJECT_DIR/artifacts/
+    - mkdir -p $CI_PROJECT_DIR/artifacts/storybook-static && cp -a /app/storybook-static $CI_PROJECT_DIR/artifacts/
   artifacts:
     paths:
       - artifacts/storybook-static
@@ -238,7 +248,8 @@ test:storybook:
       - app/frontend/**/*
 
 
-preview:backend-coverage:
+preview:bcov:
+  needs: ["test:backend"]
   stage: preview
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
   inherit:
@@ -258,6 +269,7 @@ preview:backend-coverage:
       - app/backend/**/*
 
 preview:frontend:
+  needs: ["build:frontend", "test:frontend"]
   stage: preview
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
   inherit:
@@ -276,7 +288,8 @@ preview:frontend:
       - app/pb/**/*
       - app/frontend/**/*
 
-preview:frontend-coverage:
+preview:fcov:
+  needs: ["test:frontend"]
   stage: preview
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
   inherit:
@@ -296,6 +309,7 @@ preview:frontend-coverage:
       - app/frontend/**/*
 
 preview:storybook:
+  needs: ["test:storybook"]
   stage: preview
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
   inherit:

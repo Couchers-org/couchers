@@ -1,15 +1,18 @@
 import { StatusCode } from "grpc-web";
 
+import { AccountPromiseClient } from "../pb/account_grpc_web_pb";
 import { APIPromiseClient } from "../pb/api_grpc_web_pb";
 import { AuthPromiseClient } from "../pb/auth_grpc_web_pb";
 import { BugsPromiseClient } from "../pb/bugs_grpc_web_pb";
 import { CommunitiesPromiseClient } from "../pb/communities_grpc_web_pb";
 import { ConversationsPromiseClient } from "../pb/conversations_grpc_web_pb";
+import { DiscussionsPromiseClient } from "../pb/discussions_grpc_web_pb";
 import { GroupsPromiseClient } from "../pb/groups_grpc_web_pb";
 import { JailPromiseClient } from "../pb/jail_grpc_web_pb";
 import { PagesPromiseClient } from "../pb/pages_grpc_web_pb";
 import { RequestsPromiseClient } from "../pb/requests_grpc_web_pb";
 import { SSOPromiseClient } from "../pb/sso_grpc_web_pb";
+import { ThreadsPromiseClient } from "../pb/threads_grpc_web_pb";
 
 const URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -44,16 +47,19 @@ const opts = {
 };
 
 const apis = {
+  account: new AccountPromiseClient(URL, null, opts),
   api: new APIPromiseClient(URL, null, opts),
-  bugs: new BugsPromiseClient(URL, null, opts),
-  sso: new SSOPromiseClient(URL, null, opts),
-  conversations: new ConversationsPromiseClient(URL, null, opts),
-  communities: new CommunitiesPromiseClient(URL, null, opts),
-  groups: new GroupsPromiseClient(URL, null, opts),
   auth: new AuthPromiseClient(URL, null, opts),
+  bugs: new BugsPromiseClient(URL, null, opts),
+  communities: new CommunitiesPromiseClient(URL, null, opts),
+  conversations: new ConversationsPromiseClient(URL, null, opts),
+  discussions: new DiscussionsPromiseClient(URL, null, opts),
+  groups: new GroupsPromiseClient(URL, null, opts),
+  jail: new JailPromiseClient(URL, null, opts),
   pages: new PagesPromiseClient(URL, null, opts),
   requests: new RequestsPromiseClient(URL, null, opts),
-  jail: new JailPromiseClient(URL, null, opts),
+  sso: new SSOPromiseClient(URL, null, opts),
+  threads: new ThreadsPromiseClient(URL, null, opts),
 };
 
 if (process.env.NODE_ENV === "development") {
@@ -61,16 +67,19 @@ if (process.env.NODE_ENV === "development") {
   const grpcWebTools = window.__GRPCWEB_DEVTOOLS__ || (() => {});
 
   grpcWebTools([
+    apis.account,
     apis.api,
-    apis.bugs,
-    apis.sso,
-    apis.conversations,
-    apis.communities,
-    apis.groups,
     apis.auth,
+    apis.bugs,
+    apis.communities,
+    apis.conversations,
+    apis.discussions,
+    apis.groups,
+    apis.jail,
     apis.pages,
     apis.requests,
-    apis.jail,
+    apis.sso,
+    apis.threads,
   ]);
 }
 
