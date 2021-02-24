@@ -107,6 +107,7 @@ export default function CompleteSignup() {
           </InputLabel>
           <TextField
             variant="standard"
+            id="username"
             name="username"
             fullWidth
             inputRef={register({
@@ -141,11 +142,11 @@ export default function CompleteSignup() {
             })}
             helperText={errors?.name?.message}
           />
-          <InputLabel className={authClasses.formLabel} htmlFor="full-name">
+          <InputLabel className={authClasses.formLabel} htmlFor="birthdate">
             Birthday
           </InputLabel>
           <TextField
-            id="birthday"
+            id="birthdate"
             fullWidth
             variant="standard"
             name="birthdate"

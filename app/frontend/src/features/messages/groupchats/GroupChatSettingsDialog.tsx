@@ -64,6 +64,7 @@ export default function GroupChatSettingsDialog({
             <Alert severity={"error"}>{mutation.error?.message}</Alert>
           )}
           <TextField
+            id="group-chat-settings-chat-title"
             inputRef={register}
             defaultValue={groupChat.title}
             name="title"
