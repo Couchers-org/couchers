@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+import grpc
 import pytest
 
 from couchers import errors
