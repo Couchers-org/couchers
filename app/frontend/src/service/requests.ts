@@ -99,5 +99,3 @@ export function markLastRequestSeen(hostRequestId: number, messageId: number) {
 
   return client.requests.markLastSeenHostRequest(req);
 }
-
-

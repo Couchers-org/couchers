@@ -1,29 +1,46 @@
 import Avatar from "@material-ui/core/Avatar";
 import IconButton from "@material-ui/core/IconButton";
+import makeStyles from "@material-ui/core/styles/makeStyles";
+import classNames from "classnames";
 import React from "react";
 
-import {ImageInput, ImageInputProps} from "./ImageInput";
+import { ImageInput, ImageInputProps } from "./ImageInput";
 
-export interface AvatarInputProps extends ImageInputProps {
-    src?: string;
-    username?: string;
+const useStyles = makeStyles(() => ({
+  avatar: {
+    "& img": { objectFit: "contain" },
+  },
+}));
+
+export interface AvatarInputProps extends Omit<ImageInputProps, "children"> {
+  src?: string;
+  className?: string;
+  username?: string;
 }
 
-const AvatarInput: React.FC<AvatarInputProps> = ({id, name, username, src, ...rest}) => {
-    return (
-        <ImageInput id={id} name={name} {...rest}>
-            <IconButton component="span">
-                <Avatar
-                    src={src}
-                    imgProps={{style: {objectFit: 'contain'}}}
-                    style={{height: 120, width: 120, objectFit: 'contain'}}
-                    alt={id + ' avatar'}
-                >
-                    {username}
-                </Avatar>
-            </IconButton>
-        </ImageInput>
-    )
+export function AvatarInput({
+  id,
+  name,
+  src,
+  username,
+  className,
+  ...rest
+}: AvatarInputProps) {
+  const classes = useStyles();
+
+  return (
+    <ImageInput id={id} name={name} {...rest}>
+      <IconButton component="span">
+        <Avatar
+          className={classNames(classes.avatar, className)}
+          src={src}
+          alt={id + " avatar"}
+        >
+          {username}
+        </Avatar>
+      </IconButton>
+    </ImageInput>
+  );
 }
 
 export default AvatarInput;
