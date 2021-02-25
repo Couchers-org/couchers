@@ -37,7 +37,7 @@ interface UserSummaryProps {
 export default function UserSummary({ user }: UserSummaryProps) {
   const classes = useStyles();
   return (
-    <div>
+    <div className={classes.root}>
       <ListItemAvatar>
         {!user ? (
           <Skeleton variant="circle" className={classes.avatar} />
