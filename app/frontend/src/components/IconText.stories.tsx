@@ -1,11 +1,13 @@
 import { Meta, Story } from "@storybook/react";
 
+import { hostingStatusLabels } from "../features/profile/constants";
 import { HostingStatus, User } from "../pb/api_pb";
-import HostStatus from "./HostStatus";
+import { CouchIcon } from "./Icons";
+import IconText from "./IconText";
 
 export default {
-  title: "Components/Composite/HostStatus",
-  component: HostStatus,
+  title: "Components/Composite/IconText",
+  component: IconText,
   argTypes: {
     hostingStatus: {
       control: {
@@ -20,7 +22,7 @@ export default {
 
 const Template: Story<any> = (args) => (
   <>
-    <HostStatus user={{ hostingStatus: args.hostingStatus } as User.AsObject} />
+    <IconText icon={CouchIcon} text={hostingStatusLabels[({ hostingStatus: args.hostingStatus } as User.AsObject).hostingStatus]} />
   </>
 );
 
