@@ -29,6 +29,7 @@ def unpack_thread_id(thread_id: int) -> (int, int):
 class Threads(threads_pb2_grpc.ThreadsServicer):
     def GetThread(self, request, context):
         database_id, depth = unpack_thread_id(request.thread_id)
+        request.page_size = request.page_size if request.page_size < 100000 else None  # upper bound
         page_size = request.page_size or 1000
         page_start = unpack_thread_id(int(request.page_token))[0] if request.page_token else 2 ** 50
 
