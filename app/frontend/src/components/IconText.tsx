@@ -1,5 +1,5 @@
 import { makeStyles } from "@material-ui/core";
-import PropTypes from "prop-types";
+import { SvgIconProps } from "@material-ui/core/SvgIcon";
 import React from "react";
 
 import TextBody from "./TextBody";
@@ -15,16 +15,15 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface IconTextProps {
-  icon: PropTypes.element;
+  icon: React.ReactElement<SvgIconProps>;
   text: string;
 }
 
 export default function IconText({ icon, text }: IconTextProps) {
   const classes = useStyles();
-  const Icon = icon.statusImage;
   return (
-    <div>
-      <Icon />
+    <div className={classes.root}>
+      {icon}
       <TextBody className={classes.label}>
         {text}
       </TextBody>
