@@ -47,7 +47,8 @@ export type UpdateUserProfileData = Pick<
   | "countriesVisited"
   | "countriesLived"
   | "additionalInformation"
->;
+  | "avatarKey"
+> & { avatarUrl: string };
 
 export type HostingPreferenceData = Omit<
   ProfileFormData,

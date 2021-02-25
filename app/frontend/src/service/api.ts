@@ -68,6 +68,7 @@ export async function uploadFile(file: File): Promise<ImageInputValues> {
 
   return {
     ...responseJson,
+    thumbnail_url: `https://dev-user-media.coucher.org/media/img/avatar/${responseJson.key}.jpg`,
     file: file,
   };
 }
