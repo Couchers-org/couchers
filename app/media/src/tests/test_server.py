@@ -63,7 +63,7 @@ def client_with_secrets(tmp_path):
         main_server_address="localhost:8088",
         main_server_use_ssl=False,
         media_upload_location=tmp_path,
-        avatar_size=200,
+        thumbnail_size=200,
     )
 
     with app.test_client() as client:
@@ -149,7 +149,7 @@ def test_image_resizing(client_with_secrets):
 
         assert img.width == 2000 or img.height == 1600
 
-def test_avatar_downscaling(client_with_secrets):
+def test_thumbnail_downscaling(client_with_secrets):
     client, secret_key, bearer_token = client_with_secrets
 
     key, request = create_upload_request()
@@ -163,7 +163,7 @@ def test_avatar_downscaling(client_with_secrets):
         assert jd["ok"]
         assert jd["key"] == key
 
-        rv = client.get(f"/img/avatar/{key}.jpg")
+        rv = client.get(f"/img/thumbnail/{key}.jpg")
         assert rv.status_code == 200
 
         img = Image.open(io.BytesIO(rv.data))
@@ -171,7 +171,7 @@ def test_avatar_downscaling(client_with_secrets):
         assert img.width == 200
         assert img.height == 200
 
-def test_avatar_upscaling(client_with_secrets):
+def test_thumbnail_upscaling(client_with_secrets):
     client, secret_key, bearer_token = client_with_secrets
 
     key, request = create_upload_request()
@@ -185,7 +185,7 @@ def test_avatar_upscaling(client_with_secrets):
         assert jd["ok"]
         assert jd["key"] == key
 
-        rv = client.get(f"/img/avatar/{key}.jpg")
+        rv = client.get(f"/img/thumbnail/{key}.jpg")
         assert rv.status_code == 200
 
         img = Image.open(io.BytesIO(rv.data))

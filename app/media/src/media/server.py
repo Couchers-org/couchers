@@ -21,13 +21,13 @@ def create_app(
         main_server_address: str,
         main_server_use_ssl: bool,
         media_upload_location: Path,
-        avatar_size: int
+        thumbnail_size: int
     ):
 
     # Create the directories
     media_upload_location.mkdir(exist_ok=True, parents=True)
     (media_upload_location / "full").mkdir(exist_ok=True, parents=True)
-    (media_upload_location / "avatar").mkdir(exist_ok=True, parents=True)
+    (media_upload_location / "thumbnail").mkdir(exist_ok=True, parents=True)
 
 
     app = Flask(__name__)
@@ -129,16 +129,16 @@ def create_app(
 
         return send_file(path, mimetype="image/jpeg", conditional=True)
 
-    @app.route("/img/avatar/<key>.jpg")
-    def avatar(key):
+    @app.route("/img/thumbnail/<key>.jpg")
+    def thumbnail(key):
         filename = key + ".jpg"
         full_path = get_path(filename)
         if not os.path.isfile(full_path):
             abort(404, "Not found")
 
-        avatar_path = get_path(filename, size="avatar")
-        if not os.path.isfile(avatar_path):
-            # generate the avatar...
+        thumbnail_path = get_path(filename, size="thumbnail")
+        if not os.path.isfile(thumbnail_path):
+            # generate the thumbnail...
             img = pyvips.Image.new_from_file(full_path, access="sequential")
 
             width = img.get("width")
@@ -153,10 +153,10 @@ def create_app(
                 bar = (width - height) // 2
                 img = img.crop(0, bar, width, height - 2 * bar)
 
-            img = img.resize(avatar_size / size)
-            img.write_to_file(avatar_path, strip=True)
+            img = img.resize(thumbnail_size / size)
+            img.write_to_file(thumbnail_path, strip=True)
 
-        return send_file(avatar_path, mimetype="image/jpeg", conditional=True)
+        return send_file(thumbnail_path, mimetype="image/jpeg", conditional=True)
 
     return app
 
@@ -175,7 +175,7 @@ def create_app_from_env():
 
     MEDIA_UPLOAD_LOCATION = Path(os.environ["MEDIA_UPLOAD_LOCATION"])
 
-    AVATAR_SIZE = 200
+    THUMBNAIL_SIZE = 200
 
     return create_app(
         MEDIA_SERVER_SECRET_KEY,
@@ -183,7 +183,7 @@ def create_app_from_env():
         MAIN_SERVER_ADDRESS,
         MAIN_SERVER_USE_SSL,
         MEDIA_UPLOAD_LOCATION,
-        AVATAR_SIZE)
+        THUMBNAIL_SIZE)
 
 if os.environ.get("MEDIA_SERVER_FROM_ENV", "0") == "1":
     app = create_app_from_env()
