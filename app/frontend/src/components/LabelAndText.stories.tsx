@@ -9,11 +9,8 @@ export default {
 
 const Template: Story<any> = () => (
   <>
-    <LabelAndText
-      label="label"
-      text="text"/>
+    <LabelAndText label="label" text="text" />
   </>
 );
 
 export const labelAndText = Template.bind({});
-

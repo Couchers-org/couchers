@@ -16,8 +16,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export interface LabelAndTextProps {
-  label: string,
-  text: string,
+  label: string;
+  text: string;
 }
 
 export default function LabelAndText({ label, text }: LabelAndTextProps) {
@@ -25,7 +25,9 @@ export default function LabelAndText({ label, text }: LabelAndTextProps) {
 
   return (
     <div className={classes.root}>
-      <Typography variant="h3" className={classes.label}>{label}</Typography> 
+      <Typography variant="h3" className={classes.label}>
+        {label}
+      </Typography>
       <TextBody>{text}</TextBody>
     </div>
   );

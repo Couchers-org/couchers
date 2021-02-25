@@ -42,7 +42,7 @@ export default function Overview({ user }: OverviewProps) {
 
   return (
     <Card className={classes.card}>
-      <Avatar {...{user}} className={classes.grow} />
+      <Avatar {...{ user }} className={classes.grow} />
       <Typography variant="h1">{user.name}</Typography>
       <Typography variant="body1">{user.city}</Typography>
       <Divider />

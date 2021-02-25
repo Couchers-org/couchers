@@ -28,7 +28,7 @@ export default function ProfilePage() {
 
   return (
     <>
-      {user ? <Overview {...{user}} /> : <></>}
+      {user ? <Overview {...{ user }} /> : <></>}
       <List>
         <ListItem
           className={classes.linkStyle}
