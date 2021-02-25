@@ -13,7 +13,7 @@ from pb import threads_pb2, threads_pb2_grpc
 logger = logging.getLogger(__name__)
 
 # Since the API exposes a single ID space regardless of nesting level,
-# we construct the API id by appending the the nesting level to the
+# we construct the API id by appending the nesting level to the
 # database ID.
 
 
