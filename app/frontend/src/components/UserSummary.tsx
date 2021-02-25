@@ -58,7 +58,7 @@ export default function UserSummary({ user }: UserSummaryProps) {
               Community Standing
             </ScoreBar>
             <div className={classes.hostingAbilityContainer}>
-              {user ? <IconText icon={CouchIcon} text={hostingStatusLabels[user.hostingStatus]} /> : <Skeleton width={100} />}
+              {user ? <IconText icon={<CouchIcon />} text={hostingStatusLabels[user.hostingStatus]} /> : <Skeleton width={100} />}
             </div>
           </>
         }
