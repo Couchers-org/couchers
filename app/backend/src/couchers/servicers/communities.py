@@ -245,3 +245,26 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             session.query(ClusterSubscription).filter(ClusterSubscription.user_id == context.user_id).delete()
 
             return empty_pb2.Empty()
+    
+    def ListUserCommunities(self, request, context):
+        with session_scope() as session:
+            page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+            next_node_id = int(request.page_token) if request.page_token else 0
+            nodes = (
+                session.query(Node)
+                .filter(Node.id >= next_node_id)
+                .order_by(Node.id)
+                .limit(page_size + 1)
+                .all()
+            )
+
+            # Filter for communities containing user of interest
+            relevant_communities = []
+            for node in nodes:
+                if node.official_cluster.members.filter(User.id == context.user_id).one_or_none() is not None:
+                    relevant_communities.append(node)
+            
+            return communities_pb2.ListUserCommunitiesRes(
+                communities=[community_to_pb(node, context.user_id) for node in relevant_communities[:page_size]],
+                next_page_token=str(relevant_communities[-1].id) if len(relevant_communities) > page_size else None,
+            )
