@@ -4,21 +4,39 @@ import { Link, useHistory, useParams } from "react-router-dom";
 
 import Alert from "../../../components/Alert";
 import CircularProgress from "../../../components/CircularProgress";
+import HorizontalScroller from "../../../components/HorizontalScroller";
+import IconButton from "../../../components/IconButton";
 import {
   CalendarIcon,
   CouchIcon,
+  EmailIcon,
+  InfoIcon,
   LocationIcon,
+  MoreIcon,
 } from "../../../components/Icons";
-import { routeToCommunity } from "../../../routes";
+import TextBody from "../../../components/TextBody";
+import {
+  routeToCommunity,
+  routeToCommunityDiscussions,
+  routeToCommunityEvents,
+  routeToCommunityPlaces,
+} from "../../../routes";
 import {
   useCommunity,
   useListDiscussions,
   useListPlaces,
 } from "../useCommunity";
 import CircularIconButton from "./CircularIconButton";
+import DiscussionCard from "./DiscussionCard";
+import EventCard from "./EventCard";
 import HeaderImage from "./HeaderImage";
+import PlaceCard from "./PlaceCard";
+import SectionTitle from "./SectionTitle";
 
 const useStyles = makeStyles((theme) => ({
+  root: {
+    marginBottom: theme.spacing(2),
+  },
   center: {
     display: "block",
     marginLeft: "auto",
@@ -42,6 +60,17 @@ const useStyles = makeStyles((theme) => ({
   buttonContainer: {
     display: "flex",
     justifyContent: "space-around",
+    marginBottom: theme.spacing(1),
+  },
+  cardContainer: {
+    [theme.breakpoints.down("sm")]: {
+      width: "100vw",
+      position: "relative",
+      left: "50%",
+      right: "50%",
+      marginLeft: "-50vw",
+      marginRight: "-50vw",
+    },
   },
 }));
 
@@ -59,19 +88,19 @@ export default function CommunityPage() {
     data: community,
   } = useCommunity(+communityId);
 
-  /*const {
+  const {
     isLoading: isPlacesLoading,
     error: placesError,
     data: places,
-    //fetchNextPage: fetchNextPlacesPage,
+    hasNextPage: placesHasNextPage,
   } = useListPlaces(+communityId);
 
   const {
     isLoading: isDiscussionsLoading,
     error: discussionsError,
     data: discussions,
-    //fetchNextPage: fetchNextDiscussionsPage,
-  } = useListDiscussions(+communityId);*/
+    hasNextPage: discussionsHasNextPage,
+  } = useListDiscussions(+communityId);
 
   const history = useHistory();
   useEffect(() => {
@@ -96,7 +125,7 @@ export default function CommunityPage() {
     );
 
   return (
-    <>
+    <div className={classes.root}>
       <HeaderImage community={community} className={classes.header} />
       <Breadcrumbs aria-label="breadcrumb" className={classes.breadcrumbs}>
         {community.parentsList
@@ -107,6 +136,7 @@ export default function CommunityPage() {
                 parent.community!.communityId,
                 parent.community!.slug
               )}
+              key={`breadcrumb-${parent.community?.communityId}`}
             >
               {parent.community!.name}
             </Link>
@@ -124,39 +154,128 @@ export default function CommunityPage() {
         <Link to="#"> here.</Link>
       </Typography>
       <div className={classes.buttonContainer}>
-        <CircularIconButton
-          id="findHostButton"
-          label="Find host"
-          onClick={() => {}}
-        >
+        <CircularIconButton id="findHostButton" label="Find host">
           <CouchIcon />
         </CircularIconButton>
-        <CircularIconButton id="eventButton" label="Events" onClick={() => {}}>
+        <CircularIconButton
+          id="eventButton"
+          label="Events"
+          linkTo={routeToCommunityEvents(community.communityId, community.slug)}
+        >
           <CalendarIcon />
         </CircularIconButton>
-        <CircularIconButton
-          id="localPointsButton"
-          label="Local points"
-          onClick={() => {}}
-        >
+        <CircularIconButton id="localPointsButton" label="Local points">
           <LocationIcon />
         </CircularIconButton>
         <CircularIconButton
           id="discussButton"
-          label="Find host"
-          onClick={() => {}}
+          label="Discussions"
+          linkTo={routeToCommunityDiscussions(
+            community.communityId,
+            community.slug
+          )}
         >
-          <CouchIcon />
+          <EmailIcon />
         </CircularIconButton>
-        <CircularIconButton
-          id="hangoutsButton"
-          label="Hangouts"
-          onClick={() => {}}
-          disabled
-        >
+        <CircularIconButton id="hangoutsButton" label="Hangouts" disabled>
           <CouchIcon />
         </CircularIconButton>
       </div>
-    </>
+
+      <SectionTitle icon={<InfoIcon />}>Places</SectionTitle>
+      {placesError && <Alert severity="error">{placesError.message}</Alert>}
+      {isPlacesLoading && <CircularProgress />}
+      <HorizontalScroller className={classes.cardContainer}>
+        {
+          //Is there a better way to check for empty state?
+          places &&
+          places.pages.length > 0 &&
+          places.pages[0].placesList.length === 0 ? (
+            <TextBody>No places to show yet.</TextBody>
+          ) : (
+            places?.pages
+              .flatMap((res) => res.placesList)
+              .map((place) => (
+                <PlaceCard place={place} key={`placecard-${place.pageId}`} />
+              ))
+          )
+        }
+        {placesHasNextPage && (
+          <Link
+            to={routeToCommunityPlaces(community.communityId, community.slug)}
+          >
+            <IconButton aria-label="See more places">
+              <MoreIcon />
+            </IconButton>
+          </Link>
+        )}
+      </HorizontalScroller>
+
+      <SectionTitle icon={<CalendarIcon />}>Events</SectionTitle>
+      {
+        //{eventsError && <Alert severity="error">{eventsError.message}</Alert>}
+        //isEventsLoading && <CircularProgress />
+      }
+      <HorizontalScroller className={classes.cardContainer}>
+        {[0, 1, 2, 3].length === 0 ? (
+          <TextBody>No events at the moment.</TextBody>
+        ) : (
+          [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14].map((i) => (
+            <EventCard
+              key={`eventcard-${i}`}
+              event={{
+                title: "Placeholder event",
+                creatorName: "Bot",
+                location: "Amsterdam",
+                startTime: { seconds: Date.now() / 1000, nanos: 0 },
+              }}
+            />
+          ))
+        )}
+        {true && ( //eventsHasNextPage && (
+          <Link
+            to={routeToCommunityEvents(community.communityId, community.slug)}
+          >
+            <IconButton aria-label="See more events">
+              <MoreIcon />
+            </IconButton>
+          </Link>
+        )}
+      </HorizontalScroller>
+
+      <SectionTitle icon={<EmailIcon />}>
+        {`${community.name} discussions`}
+      </SectionTitle>
+      {discussionsError && (
+        <Alert severity="error">{discussionsError.message}</Alert>
+      )}
+      {isDiscussionsLoading && <CircularProgress />}
+      {discussions &&
+      discussions.pages.length > 0 &&
+      discussions.pages[0].discussionsList.length === 0 ? (
+        <TextBody>No discussions to show yet.</TextBody>
+      ) : (
+        discussions?.pages
+          .flatMap((res) => res.discussionsList)
+          .map((discussion) => (
+            <DiscussionCard
+              discussion={discussion}
+              key={`discussioncard-${discussion.threadId}`}
+            />
+          ))
+      )}
+      {discussionsHasNextPage && (
+        <Link
+          to={routeToCommunityDiscussions(
+            community.communityId,
+            community.slug
+          )}
+        >
+          <IconButton aria-label="See more discussions">
+            <MoreIcon />
+          </IconButton>
+        </Link>
+      )}
+    </div>
   );
 }

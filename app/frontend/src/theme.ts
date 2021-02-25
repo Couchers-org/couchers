@@ -80,7 +80,7 @@ const themeOptions: ThemeOptions = {
   shape: {
     borderRadius,
     navPaddingDesktop: spacing(10),
-    navPaddingMobile: spacing(7),
+    navPaddingMobile: spacing(8),
     scrollBar: {
       paddingInlineEnd: spacing(1),
       overflow: "auto",

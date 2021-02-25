@@ -2,15 +2,18 @@ import { makeStyles, Typography } from "@material-ui/core";
 import classNames from "classnames";
 import React from "react";
 import LinesEllipsis from "react-lines-ellipsis";
+import { Link } from "react-router-dom";
 
 import { Card, CardActionArea, CardContent } from "../../../components/Card";
 import { CalendarIcon, ClockIcon } from "../../../components/Icons";
+import { routeToEvent } from "../../../routes";
 import { timestamp2Date } from "../../../utils/date";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     maxWidth: 120,
   },
+  link: { textDecoration: "none" },
   title: {
     marginTop: 0,
     marginBottom: 0,
@@ -39,6 +42,8 @@ export default function EventCard({
   className,
 }: {
   event: {
+    eventId?: number;
+    slug?: string;
     title: string;
     creatorName: string;
     location: string;
@@ -49,22 +54,26 @@ export default function EventCard({
   const classes = useStyles();
   const date = timestamp2Date(event.startTime);
   return (
-    <Card className={classNames(classes.root, className)}>
-      <CardActionArea>
-        <CardContent>
-          <Typography variant="h3" className={classes.title}>
-            <LinesEllipsis maxLine={2} text={event.title} />
-          </Typography>
-          <Typography
-            variant="caption"
-            component="p"
-            className={classes.subtitle}
-            noWrap
-          >
-            Created by {event.creatorName}
-          </Typography>
-          <ul className={classes.detailsList}>
-            {/*Leaving this here but out for now. Seem
+    <Link
+      to={routeToEvent(event.eventId ?? 0, event.slug ?? "")}
+      className={classes.link}
+    >
+      <Card className={classNames(classes.root, className)}>
+        <CardActionArea>
+          <CardContent>
+            <Typography variant="h3" className={classes.title}>
+              <LinesEllipsis maxLine={2} text={event.title} />
+            </Typography>
+            <Typography
+              variant="caption"
+              component="p"
+              className={classes.subtitle}
+              noWrap
+            >
+              Created by {event.creatorName}
+            </Typography>
+            <ul className={classes.detailsList}>
+              {/*Leaving this here but out for now. Seem
               seems like important info but the card is too small,
               Probably that's why it was left out of the design.
               <li>
@@ -73,27 +82,28 @@ export default function EventCard({
                   {event.location}
                 </Typography>
               </li>*/}
-            <li>
-              <CalendarIcon className={classes.icon} />
-              <Typography variant="body2" noWrap>
-                {date.toLocaleDateString(undefined, {
-                  month: "short",
-                  day: "numeric",
-                })}
-              </Typography>
-            </li>
-            <li>
-              <ClockIcon className={classes.icon} />
-              <Typography variant="body2" noWrap>
-                {date.toLocaleTimeString(undefined, {
-                  hour: "numeric",
-                  minute: "2-digit",
-                })}
-              </Typography>
-            </li>
-          </ul>
-        </CardContent>
-      </CardActionArea>
-    </Card>
+              <li>
+                <CalendarIcon className={classes.icon} />
+                <Typography variant="body2" noWrap>
+                  {date.toLocaleDateString(undefined, {
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </Typography>
+              </li>
+              <li>
+                <ClockIcon className={classes.icon} />
+                <Typography variant="body2" noWrap>
+                  {date.toLocaleTimeString(undefined, {
+                    hour: "numeric",
+                    minute: "2-digit",
+                  })}
+                </Typography>
+              </li>
+            </ul>
+          </CardContent>
+        </CardActionArea>
+      </Card>
+    </Link>
   );
 }

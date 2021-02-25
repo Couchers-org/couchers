@@ -4,12 +4,14 @@ import classNames from "classnames";
 import { Error as GrpcError } from "grpc-web";
 import React, { useMemo } from "react";
 import { useInfiniteQuery } from "react-query";
+import { Link } from "react-router-dom";
 
 import { Card, CardActionArea, CardContent } from "../../../components/Card";
 import CircularProgress from "../../../components/CircularProgress";
 import { Discussion } from "../../../pb/discussions_pb";
 import { GetThreadRes } from "../../../pb/threads_pb";
 import { threadKey } from "../../../queryKeys";
+import { routeToDiscussion } from "../../../routes";
 import { service } from "../../../service";
 import { timestamp2Date } from "../../../utils/date";
 import { firstName } from "../../../utils/names";
@@ -21,6 +23,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     width: "100%",
   },
+  link: { textDecoration: "none" },
   userLoading: { display: "inline-block", width: 80 },
   title: {},
   surtitle: { marginBottom: theme.spacing(0.5) },
@@ -67,57 +70,62 @@ export default function DiscussionCard({
       : strippedText;
 
   return (
-    <Card className={classNames(classes.root, className)}>
-      <CardActionArea>
-        <CardContent>
-          <Typography
-            variant="caption"
-            component="p"
-            className={classes.surtitle}
-            noWrap
-          >
-            By{" "}
-            {creator ? (
-              creator.name
-            ) : (
-              <Skeleton className={classes.userLoading} />
-            )}{" "}
-            • {posted}
-          </Typography>
-          <Typography variant="h2" component="h3" className={classes.title}>
-            {discussion.title}
-          </Typography>
-          <Typography variant="body1">{textTruncated}</Typography>
-          <div className={classes.replies}>
-            {(thread?.pages.length ?? 0) > 0 ? (
-              (thread?.pages[0]?.repliesList.length ?? 0) > 0 && (
-                <>
-                  {thread?.pages[0].repliesList.slice(0, 3).map((reply) => (
-                    <Typography
-                      variant="body2"
-                      className={classes.replies}
-                      key={reply.threadId}
-                      noWrap
-                    >
-                      {replyUsers?.get(reply.authorUserId) ? (
-                        firstName(replyUsers.get(reply.authorUserId)?.name)
-                      ) : (
-                        <Skeleton className={classes.userLoading} />
-                      )}
-                      : {stripMarkdown(reply.content)}
-                    </Typography>
-                  ))}
-                  {(thread?.pages[0].repliesList.length ?? 0) > 3 && (
-                    <Typography variant="body2">More replies...</Typography>
-                  )}
-                </>
-              )
-            ) : (
-              <CircularProgress />
-            )}
-          </div>
-        </CardContent>
-      </CardActionArea>
-    </Card>
+    <Link
+      to={routeToDiscussion(discussion.discussionId, discussion.slug)}
+      className={classes.link}
+    >
+      <Card className={classNames(classes.root, className)}>
+        <CardActionArea>
+          <CardContent>
+            <Typography
+              variant="caption"
+              component="p"
+              className={classes.surtitle}
+              noWrap
+            >
+              By{" "}
+              {creator ? (
+                creator.name
+              ) : (
+                <Skeleton className={classes.userLoading} />
+              )}{" "}
+              • {posted}
+            </Typography>
+            <Typography variant="h2" component="h3" className={classes.title}>
+              {discussion.title}
+            </Typography>
+            <Typography variant="body1">{textTruncated}</Typography>
+            <div className={classes.replies}>
+              {(thread?.pages.length ?? 0) > 0 ? (
+                (thread?.pages[0]?.repliesList.length ?? 0) > 0 && (
+                  <>
+                    {thread?.pages[0].repliesList.slice(0, 3).map((reply) => (
+                      <Typography
+                        variant="body2"
+                        className={classes.replies}
+                        key={reply.threadId}
+                        noWrap
+                      >
+                        {replyUsers?.get(reply.authorUserId) ? (
+                          firstName(replyUsers.get(reply.authorUserId)?.name)
+                        ) : (
+                          <Skeleton className={classes.userLoading} />
+                        )}
+                        : {stripMarkdown(reply.content)}
+                      </Typography>
+                    ))}
+                    {(thread?.pages[0].repliesList.length ?? 0) > 3 && (
+                      <Typography variant="body2">More replies...</Typography>
+                    )}
+                  </>
+                )
+              ) : (
+                <CircularProgress />
+              )}
+            </div>
+          </CardContent>
+        </CardActionArea>
+      </Card>
+    </Link>
   );
 }

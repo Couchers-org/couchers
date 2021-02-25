@@ -38,6 +38,11 @@ import { PageType } from "./pb/pages_pb";
 import {
   changeEmailRoute,
   changePasswordRoute,
+  communityDiscussionsRoute,
+  communityEventsRoute,
+  communityGroupsRoute,
+  communityGuidesRoute,
+  communityPlacesRoute,
   communityRoute,
   confirmChangeEmailRoute,
   connectionsRoute,
@@ -69,6 +74,17 @@ export default function AppRoutes() {
 
   return (
     <Switch>
+      {
+        // AUTH
+      }
+      <AppRoute
+        isPrivate={isAuthenticated}
+        isFullscreen={!isAuthenticated}
+        exact
+        path="/"
+      >
+        {isAuthenticated ? <Home /> : <AuthPage />}
+      </AppRoute>
       <AppRoute
         isPrivate={false}
         isFullscreen
@@ -118,6 +134,10 @@ export default function AppRoutes() {
       <AppRoute isPrivate={false} exact path={logoutRoute}>
         <Logout />
       </AppRoute>
+
+      {
+        // PROFILE
+      }
       <AppRoute isPrivate path={editProfileRoute}>
         <EditProfilePage />
       </AppRoute>
@@ -127,15 +147,72 @@ export default function AppRoutes() {
       <AppRoute isPrivate path={profileRoute}>
         <ProfilePage />
       </AppRoute>
+      <AppRoute isPrivate path={`${connectionsRoute}/:type?`}>
+        <ConnectionsPage />
+      </AppRoute>
+
+      {
+        // MESSAGES
+      }
       <AppRoute isPrivate path={`${messagesRoute}/:type?`}>
         <Messages />
       </AppRoute>
+
+      {
+        // OTHER USER PROFILE
+      }
       <AppRoute isPrivate path={`${userRoute}/:username`}>
         <UserPage />
       </AppRoute>
+
+      {
+        // SEARCH
+      }
       <AppRoute isPrivate path={`${searchRoute}/:query?`}>
         <SearchPage />
       </AppRoute>
+
+      {
+        // COMMUNITIES
+      }
+
+      <AppRoute
+        isPrivate
+        path={`${communityPlacesRoute}/:communityId/:communitySlug?`}
+      >
+        Places
+      </AppRoute>
+      <AppRoute
+        isPrivate
+        path={`${communityGuidesRoute}/:communityId/:communitySlug?`}
+      >
+        Guides
+      </AppRoute>
+      <AppRoute
+        isPrivate
+        path={`${communityGroupsRoute}/:communityId/:communitySlug?`}
+      >
+        Groups
+      </AppRoute>
+      <AppRoute
+        isPrivate
+        path={`${communityDiscussionsRoute}/:communityId/:communitySlug?`}
+      >
+        Discussions
+      </AppRoute>
+      <AppRoute
+        isPrivate
+        path={`${communityEventsRoute}/:communityId/:communitySlug?`}
+      >
+        Events
+      </AppRoute>
+      <AppRoute
+        isPrivate
+        path={`${communityRoute}/:communityId/:communitySlug?`}
+      >
+        <CommunityPage />
+      </AppRoute>
+
       <AppRoute isPrivate path={newPlaceRoute}>
         <NewPlacePage />
       </AppRoute>
@@ -154,27 +231,13 @@ export default function AppRoutes() {
       >
         <DiscussionPage />
       </AppRoute>
-      <AppRoute
-        isPrivate
-        path={`${communityRoute}/:communityId/:communitySlug?`}
-      >
-        <CommunityPage />
-      </AppRoute>
       <AppRoute isPrivate path={`${groupRoute}/:groupId/:groupSlug?`}>
         <GroupPage />
       </AppRoute>
-      <AppRoute isPrivate path={`${connectionsRoute}/:type?`}>
-        <ConnectionsPage />
-      </AppRoute>
 
-      <AppRoute
-        isPrivate={isAuthenticated}
-        isFullscreen={!isAuthenticated}
-        exact
-        path="/"
-      >
-        {isAuthenticated ? <Home /> : <AuthPage />}
-      </AppRoute>
+      {
+        // 404 NOT FOUND
+      }
       <AppRoute isPrivate={false} exact path={notFoundRoute}>
         <NotFoundPage />
       </AppRoute>

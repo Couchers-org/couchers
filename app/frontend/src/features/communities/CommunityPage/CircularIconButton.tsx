@@ -5,21 +5,19 @@ import {
   Typography,
 } from "@material-ui/core";
 import React, { ReactNode } from "react";
+import { Link } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
-  root: {
+  body: {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
   },
+  link: {
+    textDecoration: "none",
+  },
   button: {
-    borderRadius: "50%",
-    boxShadow: "0 2px 4px",
     marginBottom: theme.spacing(0.5),
-    "&:active": {
-      transform: "translateY(1px)",
-      boxShadow: "0 1px 4px",
-    },
   },
 }));
 
@@ -27,25 +25,25 @@ interface CircularIconButtonProps extends IconButtonProps {
   children?: ReactNode;
   label: string;
   id: string;
-  onClick: () => void;
+  linkTo?: string;
   disabled?: boolean;
 }
 
 export default function CircularIconButton({
   children,
-  onClick,
   id,
   label,
+  linkTo,
   disabled = false,
   ...otherProps
 }: CircularIconButtonProps) {
   const classes = useStyles();
-  return (
-    <div className={classes.root}>
+
+  const body = (
+    <div className={classes.body}>
       <IconButton
         {...otherProps}
         id={id}
-        onClick={onClick}
         className={classes.button}
         children={children}
         disabled={disabled}
@@ -55,4 +53,12 @@ export default function CircularIconButton({
       </Typography>
     </div>
   );
+
+  if (linkTo)
+    return (
+      <Link to={linkTo} className={classes.link}>
+        {body}
+      </Link>
+    );
+  else return body;
 }
