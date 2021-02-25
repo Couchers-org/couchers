@@ -7,29 +7,30 @@ from pathlib import Path
 import backoff
 import grpc
 import pyvips
-from media.crypto import verify_hash_signature
 from flask import Flask, abort, request, send_file
 from flask_cors import CORS
-from pb import media_pb2, media_pb2_grpc
 from werkzeug.utils import secure_filename
+
+from media.crypto import verify_hash_signature
+from pb import media_pb2, media_pb2_grpc
 
 logger = logging.getLogger(__name__)
 
+
 def create_app(
-        media_server_secret_key: bytes,
-        media_server_bearer_token: str,
-        media_server_base_url: str,
-        main_server_address: str,
-        main_server_use_ssl: bool,
-        media_upload_location: Path,
-        thumbnail_size: int
-    ):
+    media_server_secret_key: bytes,
+    media_server_bearer_token: str,
+    media_server_base_url: str,
+    main_server_address: str,
+    main_server_use_ssl: bool,
+    media_upload_location: Path,
+    thumbnail_size: int,
+):
 
     # Create the directories
     media_upload_location.mkdir(exist_ok=True, parents=True)
     (media_upload_location / "full").mkdir(exist_ok=True, parents=True)
     (media_upload_location / "thumbnail").mkdir(exist_ok=True, parents=True)
-
 
     app = Flask(__name__)
     CORS(app)
@@ -167,6 +168,7 @@ def create_app(
 
     return app
 
+
 def create_app_from_env():
     # hex-encoded secret key, used for signatures that  verify main & media server
     # are talking to each other
@@ -194,7 +196,9 @@ def create_app_from_env():
         MAIN_SERVER_ADDRESS,
         MAIN_SERVER_USE_SSL,
         MEDIA_UPLOAD_LOCATION,
-        THUMBNAIL_SIZE)
+        THUMBNAIL_SIZE,
+    )
+
 
 if os.environ.get("MEDIA_SERVER_FROM_ENV", "0") == "1":
     app = create_app_from_env()
