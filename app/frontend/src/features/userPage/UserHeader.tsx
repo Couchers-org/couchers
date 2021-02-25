@@ -43,7 +43,7 @@ export default function UserHeader({ children, user }: UserHeaderProps) {
       </div>
       <PageTitle className={classes.name}>{user.name}</PageTitle>
 
-      <IconText icon={CouchIcon} text={hostingStatusLabels[user.hostingStatus]} />
+      <IconText icon={<CouchIcon />} text={hostingStatusLabels[user.hostingStatus]} />
 
       {user.lastActive && (
         <Box mb={2}>
