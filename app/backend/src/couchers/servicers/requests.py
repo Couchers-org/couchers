@@ -115,13 +115,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             host_request.status = HostRequestStatus.pending
             host_request.from_last_seen_message_id = message.id
             session.add(host_request)
-
-            host_request = (
-                session.query(HostRequest)
-                .filter(HostRequest.conversation_id == conversation.id)
-                .filter(or_(HostRequest.from_user_id == context.user_id, HostRequest.to_user_id == host.id))
-                .one_or_none()
-            )
+            session.flush()
+            
             send_host_request_email(host_request)
 
             return requests_pb2.CreateHostRequestRes(host_request_id=host_request.conversation_id)
