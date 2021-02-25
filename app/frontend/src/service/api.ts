@@ -5,7 +5,8 @@ import {
   RespondFriendRequestReq,
   SendFriendRequestReq,
 } from "pb/api_pb";
-import client from "service/client";
+
+import client from "./client";
 
 export function cancelFriendRequest(friendRequestId: number) {
   const req = new CancelFriendRequestReq();
@@ -47,4 +48,19 @@ export async function ping() {
   const response = await client.api.ping(req);
 
   return response.toObject();
+}
+
+export async function uploadFile(file: File): Promise<{ key: string }> {
+  const urlResponse = await client.api.initiateMediaUpload(new Empty());
+  const uploadURL = urlResponse.getUploadUrl();
+
+  const requestBody = new FormData();
+  requestBody.append("file", file);
+
+  const uploadResponse = await fetch(uploadURL, {
+    method: "POST",
+    body: requestBody,
+  });
+
+  return await uploadResponse.json();
 }
