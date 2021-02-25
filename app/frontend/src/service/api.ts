@@ -1,5 +1,6 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 
+import { ImageInputValues } from "../components/ImageInput";
 import {
   CancelFriendRequestReq,
   PingReq,
@@ -51,9 +52,7 @@ export async function ping() {
   return response.toObject();
 }
 
-export async function uploadFile(
-  file: File
-): Promise<{ file: File; key: string; url: string; thumbnailUrl: string }> {
+export async function uploadFile(file: File): Promise<ImageInputValues> {
   const urlResponse = await client.api.initiateMediaUpload(new Empty());
   const uploadURL = urlResponse.getUploadUrl();
 
@@ -65,15 +64,10 @@ export async function uploadFile(
     body: requestBody,
   });
 
-  const responseJson: { key: string } = await uploadResponse.json();
-  const key = responseJson.key;
-
-  // TODO move media endpoint to config
+  const responseJson = await uploadResponse.json();
 
   return {
+    ...responseJson,
     file: file,
-    key: key,
-    url: `https://dev-user-media.coucher.org/media/img/full/${key}.jpg`,
-    thumbnailUrl: `https://dev-user-media.coucher.org/media/img/avatar/${key}.jpg`,
   };
 }

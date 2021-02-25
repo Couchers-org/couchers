@@ -19,15 +19,18 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
+export interface ImageInputValues {
+  file: File;
+  filename: string;
+  key: string;
+  thumbnail_url: string;
+  full_url: string;
+}
+
 export interface ImageInputProps {
   id?: string;
   name?: string;
-  onChange: (values: {
-    file: File;
-    key: string;
-    thumbnailUrl: string;
-    url: string;
-  }) => void;
+  onChange: (values: ImageInputValues) => void;
   children: React.ReactNode;
 }
 
