@@ -72,6 +72,14 @@ service Communities {
   rpc ListUserGroups(ListUserGroupsReq) returns (ListUserGroupsRes) {
     // Gets a list of groups a member belongs to
   }
+
+  rpc ListUserPlaces(ListUserPlacesReq) returns (ListUserPlacesRes) {
+    // Gets a list of groups a member belongs to
+  }
+
+  rpc ListUserGuides(ListUserGuidesReq) returns (ListUserGuidesRes) {
+    // Gets a list of groups a member belongs to
+  }
 }
 
 message Community {
@@ -202,6 +210,19 @@ message ListPlacesRes {
   string next_page_token = 2;
 }
 
+message ListUserPlacesReq {
+  uint32 user_id = 1;
+
+  uint32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListUserPlacesRes {
+  repeated org.couchers.api.pages.Page places = 1;
+
+  string next_page_token = 2;
+}
+
 message ListGuidesReq {
   int64 community_id = 1;
 
@@ -210,6 +231,19 @@ message ListGuidesReq {
 }
 
 message ListGuidesRes {
+  repeated org.couchers.api.pages.Page guides = 1;
+
+  string next_page_token = 2;
+}
+
+message ListUserGuidesReq {
+  uint32 user_id = 1;
+
+  uint32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListUserGuidesRes {
   repeated org.couchers.api.pages.Page guides = 1;
 
   string next_page_token = 2;
