@@ -17,7 +17,7 @@ export function timeAgo(input: Date | string) {
   const diffMillis = Date.now() - date.getTime();
 
   //the backend fuzzes times to 15 minute intervals
-  if (diffMillis < quaterHourMillis) return "less than 15 minutes ago";
+  if (diffMillis < quaterHourMillis) return "< 15 minutes ago";
   if (diffMillis < hourMillis)
     return "" + (diffMillis / minuteMillis).toFixed() + " minutes ago";
 
