@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
 
  interface AccessibleTextFieldProps extends BaseTextFieldProps {
    id: BaseTextFieldProps["id"];
-   onChange?: TextFieldProps["onChange"];
+   onChange?: TextFieldProps["onChange"]
  }
 
 export default function TextField({
