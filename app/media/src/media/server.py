@@ -158,7 +158,7 @@ def create_app(
                 img = img.crop(bar, 0, width - 2 * bar, height)
             else:
                 size = width
-                bar = (width - height) // 2
+                bar = (height - width) // 2
                 img = img.crop(0, bar, width, height - 2 * bar)
 
             img = img.resize(thumbnail_size / size)
