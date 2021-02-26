@@ -195,6 +195,58 @@ def test_thumbnail_downscaling(client_with_secrets):
         assert img.height == 200
 
 
+def test_thumbnail_downscaling_wide(client_with_secrets):
+    client, secret_key, bearer_token = client_with_secrets
+
+    key, request = create_upload_request()
+    upload_path = generate_upload_path(request, secret_key)
+
+    with mock_main_server(bearer_token, lambda x: True):
+        with open(DATADIR / "5000x1000.jpg", "rb") as f:
+            rv = client.post(upload_path, data={"file": (f, "img.jpg")})
+
+        jd = json.loads(rv.data)
+        assert jd["ok"]
+        assert jd["key"] == key
+        assert jd["filename"] == f"{key}.jpg"
+        assert jd["full_url"] == f"https://testing.couchers.invalid/img/full/{key}.jpg"
+        assert jd["thumbnail_url"] == f"https://testing.couchers.invalid/img/thumbnail/{key}.jpg"
+
+        rv = client.get(f"/img/thumbnail/{key}.jpg")
+        assert rv.status_code == 200
+
+        img = Image.open(io.BytesIO(rv.data))
+
+        assert img.width == 200
+        assert img.height == 200
+
+
+def test_thumbnail_downscaling_tall(client_with_secrets):
+    client, secret_key, bearer_token = client_with_secrets
+
+    key, request = create_upload_request()
+    upload_path = generate_upload_path(request, secret_key)
+
+    with mock_main_server(bearer_token, lambda x: True):
+        with open(DATADIR / "1000x5000.jpg", "rb") as f:
+            rv = client.post(upload_path, data={"file": (f, "img.jpg")})
+
+        jd = json.loads(rv.data)
+        assert jd["ok"]
+        assert jd["key"] == key
+        assert jd["filename"] == f"{key}.jpg"
+        assert jd["full_url"] == f"https://testing.couchers.invalid/img/full/{key}.jpg"
+        assert jd["thumbnail_url"] == f"https://testing.couchers.invalid/img/thumbnail/{key}.jpg"
+
+        rv = client.get(f"/img/thumbnail/{key}.jpg")
+        assert rv.status_code == 200
+
+        img = Image.open(io.BytesIO(rv.data))
+
+        assert img.width == 200
+        assert img.height == 200
+
+
 def test_thumbnail_upscaling(client_with_secrets):
     client, secret_key, bearer_token = client_with_secrets
 
