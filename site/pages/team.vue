@@ -240,6 +240,24 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-omer.jpg" alt="Headshot of Omer">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Omer Baddour</p>
+                    <p class="subtitle is-6 role">Backend Developer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>New York City, USA</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
                       <img class="is-rounded" src="/img/head-val.jpg" alt="Headshot of Val">
                     </figure>
                   </div>
