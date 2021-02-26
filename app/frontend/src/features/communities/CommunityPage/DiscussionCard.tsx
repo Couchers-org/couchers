@@ -1,11 +1,16 @@
-import { makeStyles, Typography } from "@material-ui/core";
+import {
+  Card,
+  CardActionArea,
+  CardContent,
+  makeStyles,
+  Typography,
+} from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
 import classNames from "classnames";
 import { Error as GrpcError } from "grpc-web";
 import React, { useMemo } from "react";
 import { useInfiniteQuery } from "react-query";
 
-import { Card, CardActionArea, CardContent } from "../../../components/Card";
 import CircularProgress from "../../../components/CircularProgress";
 import { Discussion } from "../../../pb/discussions_pb";
 import { GetThreadRes } from "../../../pb/threads_pb";

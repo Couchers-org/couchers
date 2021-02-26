@@ -1,14 +1,15 @@
-import { makeStyles, Typography } from "@material-ui/core";
-import classNames from "classnames";
-import React, { useMemo } from "react";
-import LinesEllipsis from "react-lines-ellipsis";
-
 import {
   Card,
   CardActionArea,
   CardContent,
   CardMedia,
-} from "../../../components/Card";
+  makeStyles,
+  Typography,
+} from "@material-ui/core";
+import classNames from "classnames";
+import React, { useMemo } from "react";
+import LinesEllipsis from "react-lines-ellipsis";
+
 import { Page } from "../../../pb/pages_pb";
 import stripMarkdown from "../../../utils/stripMarkdown";
 
