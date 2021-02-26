@@ -250,21 +250,40 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         with session_scope() as session:
             page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
             next_node_id = int(request.page_token) if request.page_token else 0
+            user_id = context.user_id if request.user_id == 0 else request.user_id
             nodes = (
                 session.query(Node)
+                .join(Cluster, Cluster.parent_node_id == Node.id)
+                .join(ClusterSubscription, ClusterSubscription.cluster_id == Cluster.id)
+                .filter(ClusterSubscription.user_id == user_id)
+                .filter(Cluster.is_official_cluster)
                 .filter(Node.id >= next_node_id)
                 .order_by(Node.id)
                 .limit(page_size + 1)
                 .all()
             )
-
-            # Filter for communities containing user of interest
-            relevant_communities = []
-            for node in nodes:
-                if node.official_cluster.members.filter(User.id == context.user_id).one_or_none() is not None:
-                    relevant_communities.append(node)
             
             return communities_pb2.ListUserCommunitiesRes(
-                communities=[community_to_pb(node, context.user_id) for node in relevant_communities[:page_size]],
-                next_page_token=str(relevant_communities[-1].id) if len(relevant_communities) > page_size else None,
+                communities=[community_to_pb(node, user_id) for node in nodes[:page_size]],
+                next_page_token=str(nodes[-1].id) if len(nodes) > page_size else None,
+            )
+    
+    def ListUserGroups(self, request, context):
+        with session_scope() as session:
+            page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+            next_cluster_id = int(request.page_token) if request.page_token else 0
+            user_id = context.user_id if request.user_id == 0 else request.user_id
+            clusters = (
+                session.query(Cluster)
+                .join(ClusterSubscription, ClusterSubscription.cluster_id == Cluster.id)
+                .filter(ClusterSubscription.user_id == user_id)
+                .filter(~Cluster.is_official_cluster)  # not an official group
+                .filter(Cluster.id >= next_cluster_id)
+                .order_by(Cluster.id)
+                .limit(page_size + 1)
+                .all()
+            )
+            return communities_pb2.ListUserGroupsRes(
+                groups=[group_to_pb(cluster, user_id) for cluster in clusters[:page_size]],
+                next_page_token=str(clusters[-1].id) if len(clusters) > page_size else None,
             )
