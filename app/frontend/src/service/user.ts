@@ -48,7 +48,7 @@ export type UpdateUserProfileData = Pick<
   | "countriesLived"
   | "additionalInformation"
   | "avatarKey"
-> & { avatarUrl: string };
+>;
 
 export type HostingPreferenceData = Omit<
   ProfileFormData,
@@ -134,6 +134,7 @@ export async function updateProfile(
 ): Promise<Empty> {
   const req = new UpdateProfileReq();
 
+  const avatarKey = new NullableStringValue().setValue(profile.avatarKey);
   const name = new wrappers.StringValue().setValue(profile.name);
   const city = new wrappers.StringValue().setValue(profile.city);
   const hometown = new NullableStringValue().setValue(profile.hometown);
@@ -163,6 +164,7 @@ export async function updateProfile(
   );
 
   req
+    .setAvatarKey(avatarKey)
     .setName(name)
     .setCity(city)
     .setHometown(hometown)
