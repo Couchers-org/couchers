@@ -199,7 +199,7 @@ export default function CompleteSignup() {
             })}
             render={({ onChange }) => (
               <EditUserLocationMap
-                className={classes.locationMap} // authClasses.formField
+                className={classes.locationMap}
                 // react-hook-forms doesn't set value immediately
                 // so || "" prevents a uncontrolled->controlled warning
                 city={getValues("city") || ""}
