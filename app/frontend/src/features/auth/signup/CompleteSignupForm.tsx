@@ -188,7 +188,7 @@ export default function CompleteSignup() {
             })}
             helperText={errors?.birthdate?.message}
           />
-          <InputLabel className={authClasses.formLabel} htmlFor="city">
+          <InputLabel className={authClasses.formLabel} htmlFor="location">
             Your location
           </InputLabel>
           <Controller
