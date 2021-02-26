@@ -6,14 +6,13 @@ import {
 } from "@material-ui/core";
 import React from "react";
 
-import TextBody from "./TextBody";
+import TextBody from "../TextBody";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     position: "relative",
     height: theme.spacing(3),
     marginInlineStart: 0,
-    marginBottom: theme.spacing(1),
     width: "100%",
     maxWidth: 300,
   },

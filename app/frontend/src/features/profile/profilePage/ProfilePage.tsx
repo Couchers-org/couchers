@@ -2,13 +2,14 @@ import { List, ListItem, makeStyles } from "@material-ui/core";
 import React from "react";
 import { Link } from "react-router-dom";
 
-import PageTitle from "../../components/PageTitle";
 import {
   changeEmailRoute,
   changePasswordRoute,
   editHostingPreferenceRoute,
   editProfileRoute,
-} from "../../routes";
+} from "../../../routes";
+import useCurrentUser from "../../userQueries/useCurrentUser";
+import Overview from "./Overview";
 
 const useStyles = makeStyles({
   linkStyle: {
@@ -23,10 +24,11 @@ const useStyles = makeStyles({
 
 export default function ProfilePage() {
   const classes = useStyles();
+  const { data: user } = useCurrentUser();
 
   return (
     <>
-      <PageTitle>Profile</PageTitle>
+      {user ? <Overview {...{ user }} /> : <></>}
       <List>
         <ListItem
           className={classes.linkStyle}
