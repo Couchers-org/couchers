@@ -7,8 +7,10 @@ import TextBody from "./TextBody";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    display: "flex",
     alignItems: "center",
+    display: "flex",
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(1),
   },
   label: {
     marginInlineStart: theme.spacing(1),
@@ -26,9 +28,7 @@ export default function IconText({ icon, text }: IconTextProps) {
   return (
     <div className={classes.root}>
       <Icon />
-      <TextBody className={classes.label}>
-        {text}
-      </TextBody>
+      <TextBody className={classes.label}>{text}</TextBody>
     </div>
   );
 }

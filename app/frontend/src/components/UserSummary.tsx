@@ -7,12 +7,13 @@ import {
 import { Skeleton } from "@material-ui/lab";
 import React from "react";
 
+import { COMMUNITY_STANDING } from "../features/constants";
 import { hostingStatusLabels } from "../features/profile/constants";
 import { User } from "../pb/api_pb";
 import Avatar from "./Avatar";
+import ScoreBar from "./Bar/ScoreBar";
 import { CouchIcon } from "./Icons";
 import IconText from "./IconText";
-import ScoreBar from "./ScoreBar";
 
 const useStyles = makeStyles((theme) => ({
   root: { display: "flex", alignItems: "center", padding: 0 },
@@ -55,10 +56,17 @@ export default function UserSummary({ user }: UserSummaryProps) {
         secondary={
           <>
             <ScoreBar value={user?.verification || 0}>
-              Community Standing
+              {COMMUNITY_STANDING}
             </ScoreBar>
             <div className={classes.hostingAbilityContainer}>
-              {user ? <IconText icon={CouchIcon} text={hostingStatusLabels[user.hostingStatus]} /> : <Skeleton width={100} />}
+              {user ? (
+                <IconText
+                  icon={CouchIcon}
+                  text={hostingStatusLabels[user.hostingStatus]}
+                />
+              ) : (
+                <Skeleton width={100} />
+              )}
             </div>
           </>
         }

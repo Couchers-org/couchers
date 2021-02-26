@@ -2,13 +2,14 @@ import { Box, makeStyles, Typography } from "@material-ui/core";
 import React from "react";
 
 import Avatar from "../../components/Avatar";
+import ScoreBar from "../../components/Bar/ScoreBar";
 import { CouchIcon } from "../../components/Icons";
 import IconText from "../../components/IconText";
 import PageTitle from "../../components/PageTitle";
-import ScoreBar from "../../components/ScoreBar";
 import { User } from "../../pb/api_pb";
 import { timestamp2Date } from "../../utils/date";
 import { timeAgo } from "../../utils/timeAgo";
+import { COMMUNITY_STANDING } from "../constants";
 import { hostingStatusLabels } from "../profile/constants";
 
 const useStyles = makeStyles((theme) => ({
@@ -42,12 +43,16 @@ export default function UserHeader({ children, user }: UserHeaderProps) {
         <Avatar grow user={user} isProfileLink={false} />
       </div>
       <PageTitle className={classes.name}>{user.name}</PageTitle>
-      <IconText icon={CouchIcon} text={hostingStatusLabels[user.hostingStatus]} />
+
+      <IconText
+        icon={CouchIcon}
+        text={hostingStatusLabels[user.hostingStatus]}
+      />
 
       {user.lastActive && (
         <Box mb={2}>
           <Typography component="p" variant="caption" gutterBottom>
-            Last active {timeAgo(timestamp2Date(user.lastActive))}
+            {timeAgo(timestamp2Date(user.lastActive))}
           </Typography>
         </Box>
       )}
@@ -55,7 +60,7 @@ export default function UserHeader({ children, user }: UserHeaderProps) {
       {children}
 
       <ScoreBar value={user.communityStanding * 100}>
-        Community Standing
+        {COMMUNITY_STANDING}
       </ScoreBar>
       <ScoreBar value={user.verification * 100}>Verification Score</ScoreBar>
     </div>

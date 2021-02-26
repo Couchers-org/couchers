@@ -22,12 +22,18 @@ export default {
 
 const Template: Story<any> = (args) => (
   <>
-    <IconText icon={CouchIcon} text={hostingStatusLabels[({ hostingStatus: args.hostingStatus } as User.AsObject).hostingStatus]} />
+    <IconText
+      icon={CouchIcon}
+      text={
+        hostingStatusLabels[
+          ({ hostingStatus: args.hostingStatus } as User.AsObject).hostingStatus
+        ]
+      }
+    />
   </>
 );
 
-export const hostStatus = Template.bind({});
-hostStatus.args = {
+export const iconText = Template.bind({});
+iconText.args = {
   hostingStatus: HostingStatus.HOSTING_STATUS_CAN_HOST,
 };
-
