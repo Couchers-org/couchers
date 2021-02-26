@@ -1,41 +1,24 @@
-import { Container } from "@material-ui/core";
 import { Meta, Story } from "@storybook/react";
-import { MemoryRouter, Route } from "react-router-dom";
 
-import { useStyles } from "../../AppRoute";
-import { GetReferencesRes, ReferenceType } from "../../pb/api_pb";
-import { userRoute } from "../../routes";
+import { GetReferencesRes, ReferenceType, User } from "../../pb/api_pb";
 import { mockedService } from "../../stories/__mocks__/service";
-import UserPage from "./UserPage";
+import users from "../../test/fixtures/users.json";
+import UserReferences from "./UserReferences";
 
 export default {
-  title: "Profile/UserPage",
-  component: UserPage,
-  decorators: [
-    (Story) => (
-      <MemoryRouter initialEntries={[`${userRoute}/funnycat`]}>
-        <Route path={`${userRoute}/:username`}>
-          <Story />
-        </Route>
-      </MemoryRouter>
-    ),
-  ],
+  title: "Profile/UserReferences",
+  component: UserReferences,
 } as Meta;
 
-export const UserProfilePage: Story<{ data: GetReferencesRes.AsObject }> = ({
+export const userReferences: Story<{ data: GetReferencesRes.AsObject }> = ({
   data,
 }) => {
-  const classes = useStyles();
-
   setMocks(data);
 
-  return (
-    <Container maxWidth="md" className={classes.fullscreenContainer}>
-      <UserPage />
-    </Container>
-  );
+  return <UserReferences user={users[0] as User.AsObject} />;
 };
-UserProfilePage.args = {
+
+userReferences.args = {
   data: {
     totalMatches: 2,
     referencesList: [
@@ -52,7 +35,7 @@ UserProfilePage.args = {
       {
         fromUserId: 3,
         toUserId: 1,
-        referenceType: 1,
+        referenceType: ReferenceType.SURFED,
         text:
           "I had a great time with cat. We talked about similarities between kid and cat food.",
         writtenTime: {
@@ -63,7 +46,7 @@ UserProfilePage.args = {
       {
         fromUserId: 3,
         toUserId: 1,
-        referenceType: 1,
+        referenceType: ReferenceType.SURFED,
         text: `Staying with Cat was such an amazing experience!
         They were generous enough to share their time with me and showed me around the city even though
         they were busy revising for a final year exam! Their housemates were also super nice and friendly.
