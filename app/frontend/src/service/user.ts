@@ -61,9 +61,15 @@ export type SignupArguments = {
   username: string;
   name: string;
   city: string;
+  location: {
+    lat: number;
+    lng: number;
+    radius: number;
+  };
   birthdate: string;
   gender: string;
   hostingStatus: HostingStatus;
+  acceptTOS: boolean;
 };
 
 /**
@@ -281,18 +287,24 @@ export async function completeSignup({
   username,
   name,
   city,
+  location,
   birthdate,
   gender,
   hostingStatus,
+  acceptTOS,
 }: SignupArguments) {
   const req = new CompleteSignupReq();
   req.setSignupToken(signupToken);
   req.setUsername(username);
   req.setName(name);
-  req.setCity(city);
   req.setBirthdate(birthdate);
   req.setGender(gender);
   req.setHostingStatus(hostingStatus);
+  req.setCity(city);
+  req.setLat(location.lat);
+  req.setLng(location.lng);
+  req.setRadius(location.radius);
+  req.setAcceptTos(acceptTOS);
 
   const res = await client.auth.completeSignup(req);
   const jailed = res.getJailed();

@@ -10,8 +10,6 @@ import { JailInfoRes } from "../../../pb/jail_pb";
 import { loginRoute } from "../../../routes";
 import { service } from "../../../service";
 import { useAuthContext } from "../AuthProvider";
-import LocationSection from "./LocationSection";
-import TOSSection from "./TOSSection";
 
 const useStyles = makeStyles((theme) => ({
   bottomMargin: { marginBottom: theme.spacing(4) },
@@ -28,6 +26,7 @@ export default function Jail() {
   const isAuthenticated = authState.authenticated;
 
   const [loading, setLoading] = useState(false);
+  // eslint-disable-next-line
   const [jailInfo, setJailInfo] = useState<null | JailInfoRes.AsObject>(null);
 
   useEffect(() => {
@@ -40,6 +39,7 @@ export default function Jail() {
     })();
   }, [authActions]);
 
+  // eslint-disable-next-line
   const updateJailed = () => {
     authActions.updateJailStatus();
   };
@@ -57,15 +57,6 @@ export default function Jail() {
       <Backdrop open={loading || authLoading}>
         <CircularProgress />
       </Backdrop>
-      {jailInfo?.hasNotAcceptedTos && (
-        <TOSSection updateJailed={updateJailed} className={classes.section} />
-      )}
-      {jailInfo?.hasNotAddedLocation && (
-        <LocationSection
-          updateJailed={updateJailed}
-          className={classes.section}
-        />
-      )}
     </>
   );
 }

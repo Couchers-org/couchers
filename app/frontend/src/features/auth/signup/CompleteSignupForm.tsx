@@ -1,4 +1,5 @@
 import {
+  Box,
   FormControlLabel,
   InputLabel,
   makeStyles,
@@ -12,7 +13,12 @@ import { useHistory, useLocation, useParams } from "react-router-dom";
 import Autocomplete from "../../../components/Autocomplete";
 import Button from "../../../components/Button";
 import CircularProgress from "../../../components/CircularProgress";
+import EditUserLocationMap, {
+  ApproximateLocation,
+} from "../../../components/EditUserLocationMap";
+import TextBody from "../../../components/TextBody";
 import TextField from "../../../components/TextField";
+import TOS from "../../../components/TOS";
 import { HostingStatus } from "../../../pb/api_pb";
 import { signupRoute } from "../../../routes";
 import { service } from "../../../service";
@@ -30,9 +36,11 @@ type SignupInputs = {
   username: string;
   name: string;
   birthdate: string;
-  location: string;
+  city: string;
   gender: string;
+  acceptTOS: boolean;
   hostingStatus: HostingStatus;
+  location: ApproximateLocation;
 };
 
 const useStyles = makeStyles((theme) => ({
@@ -40,7 +48,11 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "row",
   },
-  genderRadioButton: {},
+  locationMap: {
+    width: "100%",
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+  },
 }));
 
 export default function CompleteSignup() {
@@ -52,13 +64,17 @@ export default function CompleteSignup() {
     register,
     handleSubmit,
     setValue,
+    getValues,
     errors,
   } = useForm<SignupInputs>({
+    defaultValues: { city: "", location: {} },
     shouldUnregister: false,
     mode: "onBlur",
   });
 
   const [loading, setLoading] = useState(false);
+  const [isLocationEmpty, setIsLocationEmpty] = useState(false);
+  const [acceptedTOS, setAcceptedTOS] = useState(false);
 
   const { urlToken } = useParams<{ urlToken: string }>();
   const location = useLocation();
@@ -85,14 +101,21 @@ export default function CompleteSignup() {
   }, [urlToken, authActions, location.pathname, setValue, history]);
 
   const completeSignup = handleSubmit(async (data: SignupInputs) => {
+    if (Object.entries(data.location).length === 0) {
+      setIsLocationEmpty(true);
+      return;
+    }
+
     authActions.signup({
       signupToken: urlToken,
       username: data.username,
       name: data.name,
-      city: data.location,
+      city: data.city,
+      location: data.location,
       birthdate: data.birthdate,
       gender: data.gender,
       hostingStatus: data.hostingStatus,
+      acceptTOS: acceptedTOS,
     });
   });
 
@@ -106,6 +129,7 @@ export default function CompleteSignup() {
             Username
           </InputLabel>
           <TextField
+            className={authClasses.formField}
             variant="standard"
             id="username"
             name="username"
@@ -129,6 +153,7 @@ export default function CompleteSignup() {
             Full name
           </InputLabel>
           <TextField
+            className={authClasses.formField}
             id="full-name"
             variant="standard"
             name="name"
@@ -146,6 +171,7 @@ export default function CompleteSignup() {
             Birthday
           </InputLabel>
           <TextField
+            className={authClasses.formField}
             id="birthdate"
             fullWidth
             variant="standard"
@@ -162,19 +188,36 @@ export default function CompleteSignup() {
             })}
             helperText={errors?.birthdate?.message}
           />
-          <InputLabel className={authClasses.formLabel} htmlFor="location">
+          <InputLabel className={authClasses.formLabel} htmlFor="city">
             Your location
           </InputLabel>
-          <TextField
-            id="location"
-            variant="standard"
+          <Controller
             name="location"
-            fullWidth
+            control={control}
             inputRef={register({
               required: "Enter your location",
             })}
-            helperText={errors?.location?.message}
+            render={({ onChange }) => (
+              <EditUserLocationMap
+                className={classes.locationMap} // authClasses.formField
+                // react-hook-forms doesn't set value immediately
+                // so || "" prevents a uncontrolled->controlled warning
+                city={getValues("city") || ""}
+                setCity={(value) => setValue("city", value)}
+                setLocation={(location) => {
+                  setIsLocationEmpty(false);
+                  return onChange({
+                    lat: location.lat,
+                    lng: location.lng,
+                    radius: location.radius,
+                  });
+                }}
+              />
+            )}
           />
+          {isLocationEmpty && (
+            <TextBody>Please, select your location.</TextBody>
+          )}
           <InputLabel
             className={authClasses.formLabel}
             htmlFor="hosting-status"
@@ -187,6 +230,7 @@ export default function CompleteSignup() {
             defaultValue={null}
             render={({ onChange }) => (
               <Autocomplete
+                className={authClasses.formField}
                 id="hosting-status"
                 label=""
                 onChange={(_, option) => onChange(option)}
@@ -216,33 +260,37 @@ export default function CompleteSignup() {
                 className={classes.genderRadio}
                 aria-label="gender"
                 name="gender-radio"
-                // value={value}
                 onChange={onChange}
               >
                 <FormControlLabel
                   value="Woman"
-                  control={
-                    <Radio classes={{ root: classes.genderRadioButton }} />
-                  }
+                  control={<Radio />}
                   label="Woman"
                 />
-                <FormControlLabel
-                  value="Man"
-                  control={
-                    <Radio classes={{ root: classes.genderRadioButton }} />
-                  }
-                  label="Man"
-                />
+                <FormControlLabel value="Man" control={<Radio />} label="Man" />
                 <FormControlLabel
                   value="Non-binary"
-                  control={
-                    <Radio classes={{ root: classes.genderRadioButton }} />
-                  }
+                  control={<Radio />}
                   label="Non-binary"
                 />
               </RadioGroup>
             )}
           />
+          <Box>
+            <TOS />
+            <Button
+              classes={{
+                root: authClasses.button,
+                label: authClasses.buttonText,
+              }}
+              color="secondary"
+              loading={loading}
+              onClick={() => setAcceptedTOS(true)}
+              disabled={acceptedTOS}
+            >
+              {acceptedTOS ? "Thanks!" : "Accept"}
+            </Button>
+          </Box>
           <Button
             classes={{
               root: authClasses.button,
@@ -252,6 +300,7 @@ export default function CompleteSignup() {
             onClick={completeSignup}
             type="submit"
             loading={authLoading || loading}
+            disabled={!acceptedTOS}
           >
             Sign up
           </Button>
