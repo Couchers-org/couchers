@@ -7,7 +7,7 @@ const useStyles = makeStyles((theme) => ({
     paddingBlockStart: theme.spacing(1),
     paddingBlockEnd: theme.spacing(1),
     borderBlockStart: `${theme.typography.pxToRem(1)} solid ${
-      theme.palette.grey[500]
+      theme.palette.grey[300]
     }`,
     "& > * + *": {
       marginBlockStart: theme.spacing(1),
