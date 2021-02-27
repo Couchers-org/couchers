@@ -21,6 +21,7 @@ import { SECTION_LABELS } from "../../constants";
 import useCurrentUser from "../../userQueries/useCurrentUser";
 import useUserByUsername from "../../userQueries/useUserByUsername";
 import About from "./About";
+import Home from "./Home";
 import Overview from "./Overview";
 
 const useStyles = makeStyles((theme) => ({
@@ -87,7 +88,7 @@ export default function ProfilePage() {
                 <About {...{ user }} />
               </TabPanel>
               <TabPanel value="home">
-                <div>home</div>
+                <Home {...{ user }}></Home>
               </TabPanel>
               <TabPanel value="references">
                 <div>references</div>

@@ -10,7 +10,7 @@ export const VERIFICATION_SCORE_DESCRIPTION =
 
 // About Me
 export const ABOUT_ME = "About";
-export const ADDITIONAL = "Additional information about me";
+export const ADDITIONAL = "Additional information";
 export const AGE_GENDER = "Age / Gender";
 export const EDUCATION = "Education";
 export const FAVORITES = "Favorites";
@@ -39,3 +39,28 @@ export const SECTION_LABELS = {
   favorites: FAVORITES,
   photos: PHOTOS,
 };
+
+// Home
+export const ABOUT_HOME = "About my home";
+export const ACCEPT_DRINKING = "Drinking";
+export const ACCEPT_PETS = "Pets";
+export const ACCEPT_SMOKING = "Smoking";
+export const ACCEPT_KIDS = "Kids";
+export const CAMPING = "Camping";
+export const HAS_HOUSEMATES = "Has housemates";
+export const HOME_PHOTOS = "Photos of my home";
+export const HOST_DRINKING = "Drinks at home";
+export const HOST_KIDS = "Has children";
+export const HOST_PETS = "Has pets";
+export const HOST_SMOKING = "Smokes at home";
+export const HOSTING_PREFERENCES = "Hosting Preferences";
+export const HOUSEMATES = "Housemates";
+export const LAST_MINUTE = "Last-minute requests";
+export const MAX_GUESTS = "Max # of guests";
+export const PARKING = "Parking available";
+export const SLEEPING_ARRANGEMENT = "Sleeping arrangement";
+export const SPACE = "Private / shared space";
+export const TRANSPORTATION = "Transportation, Parking, Accessibility";
+export const WHEELCHAIR = "Wheelchair accessible";
+
+// export const = "";
