@@ -9,8 +9,8 @@ import IconText from "../IconText";
 
 const useStyles = makeStyles({
   hostingAbilityContainer: {
-    display: "flex",
     alignItems: "center",
+    display: "flex",
   },
 });
 

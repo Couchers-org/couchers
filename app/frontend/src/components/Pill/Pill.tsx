@@ -8,7 +8,7 @@ const useStyles = makeStyles((theme) => ({
     textAlign: "center",
   },
   rounded: {
-    borderRadius: theme.typography.pxToRem(20),
+    borderRadius: theme.shape.borderRadius * 2,
   },
 }));
 

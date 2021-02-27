@@ -1,24 +1,24 @@
 import { Meta, Story } from "@storybook/react";
 
-import { GetReferencesRes, ReferenceType, User } from "../../pb/api_pb";
-import { mockedService } from "../../stories/__mocks__/service";
-import users from "../../test/fixtures/users.json";
-import UserReferences from "./UserReferences";
+import { GetReferencesRes, ReferenceType, User } from "../../../pb/api_pb";
+import { mockedService } from "../../../stories/__mocks__/service";
+import users from "../../../test/fixtures/users.json";
+import References from "./References";
 
 export default {
   title: "Profile/UserReferences",
-  component: UserReferences,
+  component: References,
 } as Meta;
 
-export const userReferences: Story<{ data: GetReferencesRes.AsObject }> = ({
+export const UserReferences: Story<{ data: GetReferencesRes.AsObject }> = ({
   data,
 }) => {
   setMocks(data);
 
-  return <UserReferences user={users[0] as User.AsObject} />;
+  return <References user={users[0] as User.AsObject} />;
 };
 
-userReferences.args = {
+UserReferences.args = {
   data: {
     totalMatches: 2,
     referencesList: [

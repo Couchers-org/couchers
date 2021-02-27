@@ -2,6 +2,8 @@ import { makeStyles, Typography } from "@material-ui/core";
 import { ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 
+import { baseRoute, profileRoute } from "../../routes";
+
 const useStyles = makeStyles((theme) => ({
   link: {
     transition: theme.transitions.create(["color", "padding-top"], {
@@ -35,7 +37,7 @@ export default function NavButton({
   return (
     <NavLink
       activeClassName={classes.selected}
-      exact={route === "/"}
+      exact={route === baseRoute || route === profileRoute}
       to={route}
       className={classes.link}
     >

@@ -22,6 +22,7 @@ import { hostingStatusLabels, meetupStatusLabels } from "../constants";
 
 const useStyles = makeStyles((theme) => ({
   card: {
+    flexShrink: 0,
     margin: theme.spacing(2),
     padding: theme.spacing(2),
     width: "25%",

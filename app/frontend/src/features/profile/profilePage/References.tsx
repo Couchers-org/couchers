@@ -1,43 +1,43 @@
-import { List, ListItem, makeStyles } from "@material-ui/core";
+import { List, ListItem, makeStyles, Typography } from "@material-ui/core";
 import { Error as GrpcError } from "grpc-web";
 import React from "react";
 import { useQuery } from "react-query";
 
-import Alert from "../../components/Alert";
-import CircularProgress from "../../components/CircularProgress";
-import Pill from "../../components/Pill";
-import TextBody from "../../components/TextBody";
-import UserSummary from "../../components/UserSummary";
+import Alert from "../../../components/Alert";
+import CircularProgress from "../../../components/CircularProgress";
+import Pill from "../../../components/Pill";
+import TextBody from "../../../components/TextBody";
+import UserSummary from "../../../components/UserSummary";
 import {
   GetReferencesRes,
   Reference,
   ReferenceType,
   User,
-} from "../../pb/api_pb";
-import { service } from "../../service";
-import { timestamp2Date } from "../../utils/date";
-import useUsers from "../userQueries/useUsers";
-import UserSection from "./UserSection";
+} from "../../../pb/api_pb";
+import { service } from "../../../service";
+import { dateTimeFormatter, timestamp2Date } from "../../../utils/date";
+import { REFERENCES } from "../../constants";
+import useUsers from "../../userQueries/useUsers";
 
 const useStyles = makeStyles((theme) => ({
   badgesContainer: {
     display: "flex",
     flexDirection: "column",
-    "& > * + *": {
-      marginBlockStart: theme.spacing(2),
-    },
     marginInlineEnd: theme.spacing(2),
     minWidth: theme.spacing(9),
-  },
-  listItem: {
-    flexDirection: "column",
-    alignItems: "flex-start",
     "& > * + *": {
       marginBlockStart: theme.spacing(2),
     },
+  },
+  listItem: {
+    alignItems: "flex-start",
     borderBlockEnd: `${theme.typography.pxToRem(1)} solid ${
       theme.palette.grey[300]
     }`,
+    flexDirection: "column",
+    "& > * + *": {
+      marginBlockStart: theme.spacing(2),
+    },
   },
   referenceBodyContainer: {
     display: "flex",
@@ -77,11 +77,6 @@ function ReferenceTypePill({ type }: { type: ReferenceType }) {
   return <Pill variant="rounded">{badgeLabel}</Pill>;
 }
 
-const dateTimeFormatter = new Intl.DateTimeFormat(navigator.language, {
-  month: "short",
-  year: "numeric",
-});
-
 function ReferenceListItem({ author, reference }: ReferenceListItemProps) {
   const classes = useStyles();
 
@@ -109,7 +104,7 @@ interface UserReferencesProps {
   user: User.AsObject;
 }
 
-export default function UserReferences({ user }: UserReferencesProps) {
+export default function References({ user }: UserReferencesProps) {
   const classes = useStyles();
 
   const {
@@ -133,7 +128,8 @@ export default function UserReferences({ user }: UserReferencesProps) {
   );
 
   return (
-    <UserSection title="References">
+    <>
+      <Typography variant="h1">{REFERENCES}</Typography>
       {referencesReceivedError && (
         <Alert severity="error">{referencesReceivedError.message}</Alert>
       )}
@@ -155,6 +151,6 @@ export default function UserReferences({ user }: UserReferencesProps) {
           </List>
         )
       )}
-    </UserSection>
+    </>
   );
 }

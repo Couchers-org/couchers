@@ -1,14 +1,14 @@
-import { Box, CardProps, makeStyles, Typography } from "@material-ui/core";
+import { CardProps, makeStyles, Typography } from "@material-ui/core";
 import classNames from "classnames";
 import React from "react";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    paddingBlockStart: theme.spacing(1),
-    paddingBlockEnd: theme.spacing(1),
     borderBlockStart: `${theme.typography.pxToRem(1)} solid ${
       theme.palette.grey[300]
     }`,
+    paddingBlockEnd: theme.spacing(1),
+    paddingBlockStart: theme.spacing(1),
     "& > * + *": {
       marginBlockStart: theme.spacing(1),
     },
@@ -27,9 +27,9 @@ export default function UserSection({
 }: UserSectionProps) {
   const classes = useStyles();
   return (
-    <Box className={classNames(className, classes.root)}>
+    <div className={classNames(className, classes.root)}>
       <Typography variant="h2">{title}</Typography>
       {children}
-    </Box>
+    </div>
   );
 }

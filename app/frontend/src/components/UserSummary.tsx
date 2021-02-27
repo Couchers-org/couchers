@@ -13,14 +13,19 @@ import Avatar from "./Avatar";
 import ScoreBar from "./Bar/ScoreBar";
 
 export const useStyles = makeStyles((theme) => ({
-  root: { display: "flex", alignItems: "center", padding: 0, width: "100%" },
+  root: {
+    alignItems: "center",
+    display: "flex",
+    padding: 0,
+    width: "100%",
+  },
   title: {
     marginBottom: theme.spacing(1),
   },
   avatar: {
-    width: theme.spacing(9),
     height: theme.spacing(9),
     marginInlineEnd: theme.spacing(2),
+    width: theme.spacing(9),
   },
 }));
 

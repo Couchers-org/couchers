@@ -1,5 +1,4 @@
 import { Tab, Tabs } from "@material-ui/core";
-import React from "react";
 
 export interface TabBarProps<T extends Record<string, React.ReactNode>> {
   value: keyof T;
