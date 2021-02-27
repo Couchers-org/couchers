@@ -8,9 +8,9 @@ import Avatar from "../../../components/Avatar";
 import TextBody from "../../../components/TextBody";
 import { Message } from "../../../pb/conversations_pb";
 import { timestamp2Date } from "../../../utils/date";
+import useOnVisibleEffect from "../../../utils/useOnVisibleEffect";
 import useCurrentUser from "../../userQueries/useCurrentUser";
 import { useUser } from "../../userQueries/useUsers";
-import useOnVisibleEffect from "../useOnVisibleEffect";
 import TimeInterval from "./TimeInterval";
 
 export const messageElementId = (id: number) => `message-${id}`;

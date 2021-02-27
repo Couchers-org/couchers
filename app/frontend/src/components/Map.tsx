@@ -34,6 +34,7 @@ export interface MapProps extends BoxProps {
   postMapInitialize?: (map: mapboxgl.Map) => void;
   onUpdate?: (center: LngLat, zoom: number) => void;
   grow?: boolean;
+  interactive?: boolean;
 }
 
 export default function Map({
@@ -42,6 +43,7 @@ export default function Map({
   grow,
   postMapInitialize,
   onUpdate,
+  interactive = true,
   className,
   ...otherProps
 }: MapProps) {
@@ -72,10 +74,12 @@ export default function Map({
       center: initialCenter,
       zoom: initialZoom,
       hash: "loc",
+      interactive: interactive,
       transformRequest,
     });
 
-    map.addControl(new mapboxgl.NavigationControl({ showCompass: false }));
+    if (interactive)
+      map.addControl(new mapboxgl.NavigationControl({ showCompass: false }));
 
     if (onUpdate) {
       map.on("moveend", () => onUpdate(map.getCenter(), map.getZoom()));

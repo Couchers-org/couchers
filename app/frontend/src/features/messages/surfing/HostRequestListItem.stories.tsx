@@ -1,6 +1,6 @@
 import { Meta, Story } from "@storybook/react";
 
-import { hostRequest } from "../../../stories/__mocks__/service";
+import hostRequest from "../../../test/fixtures/hostRequest.json";
 import HostRequestListItem from "./HostRequestListItem";
 
 export default {

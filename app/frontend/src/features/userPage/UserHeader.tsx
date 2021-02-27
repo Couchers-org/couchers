@@ -52,7 +52,7 @@ export default function UserHeader({ children, user }: UserHeaderProps) {
       {user.lastActive && (
         <Box mb={2}>
           <Typography component="p" variant="caption" gutterBottom>
-            {timeAgo(timestamp2Date(user.lastActive))}
+            {timeAgo(timestamp2Date(user.lastActive), true)}
           </Typography>
         </Box>
       )}
