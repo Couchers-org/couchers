@@ -1,19 +1,44 @@
-import { Box, makeStyles } from "@material-ui/core";
+import {
+  Box,
+  FormControlLabel,
+  makeStyles,
+  Radio,
+  RadioGroup,
+  TextField,
+  Typography,
+} from "@material-ui/core";
 import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 
-import Alert from "../../components/Alert";
-import Button from "../../components/Button";
-import CircularProgress from "../../components/CircularProgress";
-import EditUserLocationMap from "../../components/EditUserLocationMap";
-import { UpdateUserProfileData } from "../../service/user";
-import { useIsMounted, useSafeState } from "../../utils/hooks";
-import { ABOUT_ME } from "../constants";
-import useCurrentUser from "../userQueries/useCurrentUser";
-import ProfileMarkdownInput from "./ProfileMarkdownInput";
-import ProfileTagInput from "./ProfileTagInput";
-import ProfileTextInput from "./ProfileTextInput";
-import useUpdateUserProfile from "./useUpdateUserProfile";
+import Alert from "../../../components/Alert";
+import Button from "../../../components/Button";
+import CircularProgress from "../../../components/CircularProgress";
+import EditUserLocationMap from "../../../components/EditUserLocationMap";
+import { UpdateUserProfileData } from "../../../service/user";
+import { useIsMounted, useSafeState } from "../../../utils/hooks";
+import {
+  ABOUT_ME,
+  FEMALE,
+  FEMALE_FORM_VALUE,
+  GENDER,
+  HOSTING_STATUS,
+  MALE,
+  MALE_FORM_VALUE,
+  OTHER_FORM_VALUE,
+} from "../../constants";
+import useCurrentUser from "../../userQueries/useCurrentUser";
+import {
+  ACCEPTING,
+  MAYBE_ACCEPTING,
+  MAYBE_MEETUP,
+  MEETUP,
+  NO_MEETUP,
+  NOT_ACCEPTING,
+} from "../constants";
+import ProfileMarkdownInput from "../ProfileMarkdownInput";
+import ProfileTagInput from "../ProfileTagInput";
+import ProfileTextInput from "../ProfileTextInput";
+import useUpdateUserProfile from "../useUpdateUserProfile";
 
 const useStyles = makeStyles((theme) => ({
   buttonContainer: {
@@ -113,12 +138,114 @@ export default function EditProfileForm() {
             )}
           />
           <form onSubmit={onSubmit}>
-            <ProfileTextInput
-              label="Gender"
-              name="gender"
+            <Controller
+              control={control}
+              defaultValue={user.hostingStatus}
+              name="hostingStatus"
+              render={({ onChange, value }) => (
+                <>
+                  <Typography variant="h2">{HOSTING_STATUS}</Typography>
+                  <RadioGroup
+                    row
+                    aria-label="hosting status"
+                    name="hostingStatus"
+                    value={value}
+                    onChange={(_, value) => onChange(value)}
+                  >
+                    <FormControlLabel
+                      value="host"
+                      control={<Radio />}
+                      label={ACCEPTING}
+                    />
+                    <FormControlLabel
+                      value="maybeHost"
+                      control={<Radio />}
+                      label={MAYBE_ACCEPTING}
+                    />
+                    <FormControlLabel
+                      value="noHost"
+                      control={<Radio />}
+                      label={NOT_ACCEPTING}
+                    />
+                  </RadioGroup>
+                </>
+              )}
+            />
+            <Controller
+              control={control}
+              defaultValue={user.meetupStatus}
+              name="meetupStatus"
+              render={({ onChange, value }) => (
+                <>
+                  <Typography variant="h2">{HOSTING_STATUS}</Typography>
+                  <RadioGroup
+                    row
+                    aria-label="meetup status"
+                    name="meetupStatus"
+                    value={value}
+                    onChange={(_, value) => onChange(value)}
+                  >
+                    <FormControlLabel
+                      value="meetup"
+                      control={<Radio />}
+                      label={MEETUP}
+                    />
+                    <FormControlLabel
+                      value="maybeMeetup"
+                      control={<Radio />}
+                      label={MAYBE_MEETUP}
+                    />
+                    <FormControlLabel
+                      value="noMeetup"
+                      control={<Radio />}
+                      label={NO_MEETUP}
+                    />
+                  </RadioGroup>
+                </>
+              )}
+            />
+            <Controller
+              control={control}
               defaultValue={user.gender}
-              inputRef={register}
-              className={classes.field}
+              name="gender"
+              render={({ onChange, value }) => (
+                <>
+                  <Typography variant="h2">{GENDER}</Typography>
+                  <RadioGroup
+                    row
+                    aria-label="gender"
+                    name="gender"
+                    value={value}
+                    onChange={(_, value) => onChange(value)}
+                  >
+                    <FormControlLabel
+                      value={FEMALE_FORM_VALUE}
+                      control={<Radio />}
+                      label={FEMALE}
+                    />
+                    <FormControlLabel
+                      value={MALE_FORM_VALUE}
+                      control={<Radio />}
+                      label={MALE}
+                    />
+                    <FormControlLabel
+                      value={OTHER_FORM_VALUE}
+                      control={<Radio />}
+                      label={
+                        <TextField
+                          onChange={() => onChange(OTHER_FORM_VALUE)}
+                          defaultValue={
+                            user.gender === FEMALE_FORM_VALUE ||
+                            user.gender === MALE_FORM_VALUE
+                              ? ""
+                              : user.gender
+                          }
+                        />
+                      }
+                    />
+                  </RadioGroup>
+                </>
+              )}
             />
             <ProfileTextInput
               label="Occupation"

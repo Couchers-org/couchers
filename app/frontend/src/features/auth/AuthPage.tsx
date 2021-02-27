@@ -5,6 +5,13 @@ import { Link } from "react-router-dom";
 
 import Button from "../../components/Button";
 import { loginRoute, signupRoute } from "../../routes";
+import {
+  ABOUT_US,
+  COLLABORATIVE,
+  INTRODUCTION,
+  LOGIN,
+  SIGN_UP,
+} from "./constants";
 import AuthBg from "./resources/auth-bg.png";
 import useAuthStyles from "./useAuthStyles";
 
@@ -59,9 +66,9 @@ export default function AuthPage() {
   return (
     <Box className={classes.authPage}>
       <Box className={classes.content}>
-        <Typography variant="h1">Connect with the world around you</Typography>
+        <Typography variant="h1">{INTRODUCTION}</Typography>
         <Typography classes={{ root: classes.subtitle }}>
-          Build collaboratively and always free
+          {COLLABORATIVE}
         </Typography>
         <Divider classes={{ root: authClasses.divider }} flexItem />
         <Box className={classes.navigation}>
@@ -74,7 +81,7 @@ export default function AuthPage() {
             }}
             color="secondary"
           >
-            Login
+            {LOGIN}
           </Button>
           <Button
             component={Link}
@@ -85,12 +92,12 @@ export default function AuthPage() {
             }}
             color="secondary"
           >
-            Sign up
+            {SIGN_UP}
           </Button>
         </Box>
         <Box className={classes.aboutUs}>
           <Typography className={classes.aboutUsLink} component={Link} to="#">
-            About us
+            {ABOUT_US}
           </Typography>
           <ExpandMoreIcon />
         </Box>

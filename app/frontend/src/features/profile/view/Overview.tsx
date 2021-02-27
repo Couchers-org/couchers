@@ -1,18 +1,22 @@
-import { Card, makeStyles, Typography } from "@material-ui/core";
+import { Card, CardActions, makeStyles, Typography } from "@material-ui/core";
 import React from "react";
+import { Link } from "react-router-dom";
 
 import Avatar from "../../../components/Avatar";
 import BarWithHelp from "../../../components/Bar/BarWithHelp";
+import Button from "../../../components/Button/Button";
 import Divider from "../../../components/Divider";
 import { CouchIcon, LocationIcon } from "../../../components/Icons";
 import IconText from "../../../components/IconText";
 import LabelAndText from "../../../components/LabelAndText";
 import { HostingStatus, MeetupStatus, User } from "../../../pb/api_pb";
+import { editProfileRoute } from "../../../routes";
 import { timestamp2Date } from "../../../utils/date";
 import { timeAgo } from "../../../utils/timeAgo";
 import {
   COMMUNITY_STANDING,
   COMMUNITY_STANDING_DESCRIPTION,
+  EDIT_PROFILE,
   LAST_ACTIVE,
   REFERENCES,
   VERIFICATION_SCORE,
@@ -34,11 +38,18 @@ const useStyles = makeStyles((theme) => ({
       width: "100%",
     },
   },
+  cardActions: {
+    justifyContent: "center",
+  },
   grow: {
     paddingTop: "100%",
   },
   info: {
     marginTop: theme.spacing(0.5),
+  },
+  intro: {
+    display: "flex",
+    justifyContent: "center",
   },
 }));
 
@@ -52,9 +63,18 @@ export default function Overview({ user }: OverviewProps) {
   return (
     <Card className={classes.card}>
       <Avatar {...{ user }} className={classes.grow} />
-      <Typography variant="h1">{user.name}</Typography>
-      <Typography variant="body1">{user.city}</Typography>
+      <Typography variant="h1" className={classes.intro}>
+        {user.name}
+      </Typography>
+      <Typography variant="body1" className={classes.intro}>
+        {user.city}
+      </Typography>
       <Divider />
+      <CardActions className={classes.cardActions}>
+        <Button component={Link} to={editProfileRoute}>
+          {EDIT_PROFILE}
+        </Button>
+      </CardActions>
       <IconText
         icon={CouchIcon}
         text={
