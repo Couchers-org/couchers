@@ -13,16 +13,17 @@ import {
   ADDITIONAL,
   CAMPING,
   HAS_HOUSEMATES,
-  HOME_PHOTOS,
   HOST_DRINKING,
   HOST_KIDS,
   HOST_PETS,
   HOST_SMOKING,
   HOSTING_PREFERENCES,
-  HOUSEMATES,
+  HOUSE_RULES,
   LAST_MINUTE,
+  LOCAL_AREA,
   MAX_GUESTS,
   PARKING,
+  SLEEPING_ARRANGEMENT,
   SPACE,
   TRANSPORTATION,
   WHEELCHAIR,
@@ -105,14 +106,17 @@ export default function Home({ user }: HomeProps) {
         </div>
       </div>
       <Divider />
-      <Typography variant="h1">{HOUSEMATES}</Typography>
-      <Typography variant="body1">{user.housemateDetails}</Typography>
-      <Divider />
-      <Typography variant="h1">{HOME_PHOTOS}</Typography>
-      <Typography variant="body1">not sure what goes here</Typography>
+      <Typography variant="h1">{LOCAL_AREA}</Typography>
+      <Typography variant="body1">{user.area}</Typography>
       <Divider />
       <Typography variant="h1">{TRANSPORTATION}</Typography>
       <Typography variant="body1">{user.parkingDetails}</Typography>
+      <Divider />
+      <Typography variant="h1">{SLEEPING_ARRANGEMENT}</Typography>
+      <Typography variant="body1">{user.sleepingDetails}</Typography>
+      <Divider />
+      <Typography variant="h1">{HOUSE_RULES}</Typography>
+      <Typography variant="body1">{user.houseRules}</Typography>
       <Divider />
       <Typography variant="h1">{ADDITIONAL}</Typography>
       <Typography variant="body1">{user.otherHostInfo}</Typography>
