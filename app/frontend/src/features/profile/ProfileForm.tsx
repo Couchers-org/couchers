@@ -8,6 +8,7 @@ import CircularProgress from "../../components/CircularProgress";
 import EditUserLocationMap from "../../components/EditUserLocationMap";
 import { UpdateUserProfileData } from "../../service/user";
 import { useIsMounted, useSafeState } from "../../utils/hooks";
+import { ABOUT_ME } from "../constants";
 import useCurrentUser from "../userQueries/useCurrentUser";
 import ProfileMarkdownInput from "./ProfileMarkdownInput";
 import ProfileTagInput from "./ProfileTagInput";
@@ -148,7 +149,7 @@ export default function EditProfileForm() {
               name="aboutMe"
               render={({ onChange, value }) => (
                 <ProfileMarkdownInput
-                  label="About me"
+                  label={ABOUT_ME}
                   onChange={onChange}
                   value={value}
                 />
