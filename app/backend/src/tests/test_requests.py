@@ -68,7 +68,7 @@ def test_create_request(db):
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == errors.DATE_FROM_AFTER_TO
-        
+
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
