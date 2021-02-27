@@ -22,8 +22,17 @@ import { hostingStatusLabels, meetupStatusLabels } from "../constants";
 
 const useStyles = makeStyles((theme) => ({
   card: {
+    margin: theme.spacing(2),
     padding: theme.spacing(2),
-    width: "30%",
+    width: "25%",
+    [theme.breakpoints.down("md")]: {
+      marginBottom: theme.spacing(2),
+    },
+    [theme.breakpoints.down("sm")]: {
+      margin: 0,
+      marginBottom: theme.spacing(1),
+      width: "100%",
+    },
   },
   grow: {
     paddingTop: "100%",

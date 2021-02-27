@@ -74,4 +74,3 @@ export default function UserSummary({ user }: UserSummaryProps) {
     </div>
   );
 }
-

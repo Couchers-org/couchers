@@ -7,6 +7,12 @@ export const confirmChangeEmailRoute = "/confirm-email";
 
 export const signupRoute = "/signup";
 export const profileRoute = "/profile";
+export const aboutRoute = `${profileRoute}/about`;
+export const homeRoute = `${profileRoute}/home`;
+export const referencesRoute = `${profileRoute}/references`;
+export const favoritesRoute = `${profileRoute}/favorites`;
+export const photosRoute = `${profileRoute}/photos`;
+
 export const editProfileRoute = `${profileRoute}/edit`;
 export const editHostingPreferenceRoute = `${profileRoute}/edit-hosting`;
 
