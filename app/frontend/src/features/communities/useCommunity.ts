@@ -1,5 +1,10 @@
 import { Error as GrpcError } from "grpc-web";
-import { useInfiniteQuery, useQuery } from "react-query";
+import {
+  QueryClient,
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+} from "react-query";
 
 import {
   Community,
@@ -12,6 +17,7 @@ import {
   ListNearbyUsersRes,
   ListPlacesRes,
 } from "../../pb/communities_pb";
+import { Discussion } from "../../pb/discussions_pb";
 import {
   communityAdminsKey,
   communityDiscussionsKey,
@@ -118,5 +124,26 @@ export const useListNearbyUsers = (communityId?: number) =>
       enabled: !!communityId,
       getNextPageParam: (lastPage) =>
         lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
+    }
+  );
+
+export const useNewDiscussionMutation = (queryClient: QueryClient) =>
+  useMutation<
+    Discussion.AsObject,
+    GrpcError,
+    {
+      title: string;
+      content: string;
+      ownerCommunityId: number;
+    }
+  >(
+    ({ title, content, ownerCommunityId }) =>
+      service.discussions.createDiscussion(title, content, ownerCommunityId),
+    {
+      onSuccess(_data, { ownerCommunityId }) {
+        queryClient.invalidateQueries(
+          communityDiscussionsKey(ownerCommunityId)
+        );
+      },
     }
   );

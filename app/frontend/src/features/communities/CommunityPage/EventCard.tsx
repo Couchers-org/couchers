@@ -1,5 +1,4 @@
 import { makeStyles, Typography } from "@material-ui/core";
-import classNames from "classnames";
 import React from "react";
 import LinesEllipsis from "react-lines-ellipsis";
 import { Link } from "react-router-dom";
@@ -10,13 +9,12 @@ import { routeToEvent } from "../../../routes";
 import { timestamp2Date } from "../../../utils/date";
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    maxWidth: 120,
-  },
   link: { textDecoration: "none" },
   title: {
+    ...theme.typography.h3,
     marginTop: 0,
     marginBottom: 0,
+    height: `calc(2 * calc(${theme.typography.h3.lineHeight} * ${theme.typography.h3.fontSize}))`,
   },
   subtitle: { marginBottom: theme.spacing(0.5) },
   icon: {
@@ -58,12 +56,15 @@ export default function EventCard({
       to={routeToEvent(event.eventId ?? 0, event.slug ?? "")}
       className={classes.link}
     >
-      <Card className={classNames(classes.root, className)}>
+      <Card className={className}>
         <CardActionArea>
           <CardContent>
-            <Typography variant="h3" className={classes.title}>
-              <LinesEllipsis maxLine={2} text={event.title} />
-            </Typography>
+            <LinesEllipsis
+              maxLine={2}
+              text={event.title}
+              component="h3"
+              className={classes.title}
+            />
             <Typography
               variant="caption"
               component="p"

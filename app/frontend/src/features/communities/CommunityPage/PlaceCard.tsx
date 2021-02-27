@@ -1,5 +1,4 @@
-import { makeStyles, Typography } from "@material-ui/core";
-import classNames from "classnames";
+import { makeStyles } from "@material-ui/core";
 import React, { useMemo } from "react";
 import LinesEllipsis from "react-lines-ellipsis";
 import { Link } from "react-router-dom";
@@ -15,20 +14,26 @@ import { routeToPlace } from "../../../routes";
 import stripMarkdown from "../../../utils/stripMarkdown";
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    maxWidth: 160,
-    "& p": {
-      marginTop: theme.spacing(0.5),
-    },
-  },
   link: { textDecoration: "none" },
   image: {
     height: 80,
     backgroundColor: theme.palette.grey[200],
   },
   title: {
+    ...theme.typography.h3,
     marginTop: 0,
     marginBottom: theme.spacing(0.5),
+    height: `calc(2 * calc(${theme.typography.h3.lineHeight} * ${theme.typography.h3.fontSize}))`,
+  },
+  place: {
+    ...theme.typography.caption,
+    marginTop: theme.spacing(0.5),
+    height: `calc(2 * calc(${theme.typography.caption.lineHeight} * ${theme.typography.caption.fontSize}))`,
+  },
+  preview: {
+    ...theme.typography.caption,
+    marginTop: theme.spacing(0.5),
+    height: `calc(2 * calc(${theme.typography.caption.lineHeight} * ${theme.typography.caption.fontSize}))`,
   },
 }));
 
@@ -46,20 +51,29 @@ export default function PlaceCard({
   );
   return (
     <Link to={routeToPlace(place.pageId, place.slug)} className={classes.link}>
-      <Card className={classNames(classes.root, className)}>
+      <Card className={className}>
         <CardActionArea>
-          <CardMedia image={place.photoUrl} className={classes.image} />
+          <CardMedia src={place.photoUrl} className={classes.image} />
           <CardContent>
-            <Typography variant="h3" className={classes.title}>
-              <LinesEllipsis text={place.title} maxLine={2} />
-            </Typography>
-            <Typography variant="caption" component="p">
-              <LinesEllipsis text={place.address} maxLine={2} />
-            </Typography>
+            <LinesEllipsis
+              text={place.title}
+              maxLine={2}
+              component="h3"
+              className={classes.title}
+            />
+            <LinesEllipsis
+              text={place.address}
+              maxLine={2}
+              component="p"
+              className={classes.place}
+            />
             {contentPreview && (
-              <Typography variant="caption" component="p">
-                <LinesEllipsis text={contentPreview} maxLine={2} />
-              </Typography>
+              <LinesEllipsis
+                text={contentPreview}
+                maxLine={2}
+                component="p"
+                className={classes.preview}
+              />
             )}
           </CardContent>
         </CardActionArea>

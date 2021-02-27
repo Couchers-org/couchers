@@ -1,12 +1,21 @@
-import { Breadcrumbs, makeStyles, Typography } from "@material-ui/core";
-import React, { useEffect } from "react";
+import {
+  Breadcrumbs,
+  Dialog,
+  DialogContent,
+  makeStyles,
+  Typography,
+} from "@material-ui/core";
+import React, { useEffect, useState } from "react";
+import { useQueryClient } from "react-query";
 import { Link, useHistory, useParams } from "react-router-dom";
 
 import Alert from "../../../components/Alert";
 import CircularProgress from "../../../components/CircularProgress";
+import NewComment from "../../../components/Comments/NewComment";
 import HorizontalScroller from "../../../components/HorizontalScroller";
 import IconButton from "../../../components/IconButton";
 import {
+  AddIcon,
   CalendarIcon,
   CouchIcon,
   EmailIcon,
@@ -25,6 +34,7 @@ import {
   useCommunity,
   useListDiscussions,
   useListPlaces,
+  useNewDiscussionMutation,
 } from "../useCommunity";
 import CircularIconButton from "./CircularIconButton";
 import DiscussionCard from "./DiscussionCard";
@@ -72,9 +82,43 @@ const useStyles = makeStyles((theme) => ({
       marginRight: "-50vw",
     },
   },
+  placeCard: {
+    width: 140,
+  },
+  eventCard: {
+    width: 120,
+  },
+  discussionsHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  newPostButton: {
+    margin: theme.spacing(1),
+  },
+  discussionsContainer: {
+    display: "flex",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    "& > *": {
+      width: "100%",
+      [theme.breakpoints.up("md")]: {
+        width: `calc(33.33% - ${theme.spacing(1)})`,
+      },
+      [theme.breakpoints.up("sm")]: {
+        width: `calc(50% - ${theme.spacing(1)})`,
+      },
+    },
+  },
+  discussionCard: {
+    marginBottom: theme.spacing(1),
+  },
 }));
 
 export default function CommunityPage() {
+  //temporary
+  const [isNewCommentOpen, setIsNewCommentOpen] = useState(false);
   const classes = useStyles();
 
   const { communityId, communitySlug } = useParams<{
@@ -101,6 +145,9 @@ export default function CommunityPage() {
     data: discussions,
     hasNextPage: discussionsHasNextPage,
   } = useListDiscussions(+communityId);
+
+  const queryClient = useQueryClient();
+  const newDiscussionMutation = useNewDiscussionMutation(queryClient);
 
   const history = useHistory();
   useEffect(() => {
@@ -196,7 +243,11 @@ export default function CommunityPage() {
             places?.pages
               .flatMap((res) => res.placesList)
               .map((place) => (
-                <PlaceCard place={place} key={`placecard-${place.pageId}`} />
+                <PlaceCard
+                  place={place}
+                  className={classes.placeCard}
+                  key={`placecard-${place.pageId}`}
+                />
               ))
           )
         }
@@ -224,11 +275,12 @@ export default function CommunityPage() {
             <EventCard
               key={`eventcard-${i}`}
               event={{
-                title: "Placeholder event",
+                title: Math.random() > 0.5 ? "Placeholder event" : "Place",
                 creatorName: "Bot",
                 location: "Amsterdam",
                 startTime: { seconds: Date.now() / 1000, nanos: 0 },
               }}
+              className={classes.eventCard}
             />
           ))
         )}
@@ -243,39 +295,74 @@ export default function CommunityPage() {
         )}
       </HorizontalScroller>
 
-      <SectionTitle icon={<EmailIcon />}>
-        {`${community.name} discussions`}
-      </SectionTitle>
+      <div className={classes.discussionsHeader}>
+        <SectionTitle icon={<EmailIcon />}>
+          {`${community.name} discussions`}
+        </SectionTitle>
+        <IconButton
+          aria-label="New post"
+          onClick={() => setIsNewCommentOpen(true)}
+        >
+          <AddIcon />
+        </IconButton>
+      </div>
       {discussionsError && (
         <Alert severity="error">{discussionsError.message}</Alert>
       )}
-      {isDiscussionsLoading && <CircularProgress />}
-      {discussions &&
-      discussions.pages.length > 0 &&
-      discussions.pages[0].discussionsList.length === 0 ? (
-        <TextBody>No discussions to show yet.</TextBody>
-      ) : (
-        discussions?.pages
-          .flatMap((res) => res.discussionsList)
-          .map((discussion) => (
-            <DiscussionCard
-              discussion={discussion}
-              key={`discussioncard-${discussion.threadId}`}
-            />
-          ))
-      )}
-      {discussionsHasNextPage && (
-        <Link
-          to={routeToCommunityDiscussions(
-            community.communityId,
-            community.slug
+      {
+        //This comment adding dialog is temporary
+      }
+      <Dialog
+        open={isNewCommentOpen}
+        onClose={() => setIsNewCommentOpen(false)}
+      >
+        <DialogContent>
+          {newDiscussionMutation.error && (
+            <Alert severity="error">
+              {newDiscussionMutation.error.message}
+            </Alert>
           )}
-        >
-          <IconButton aria-label="See more discussions">
-            <MoreIcon />
-          </IconButton>
-        </Link>
-      )}
+          <NewComment
+            onComment={async (content) =>
+              newDiscussionMutation.mutate({
+                title: "test",
+                content,
+                ownerCommunityId: community.communityId,
+              })
+            }
+          />
+        </DialogContent>
+      </Dialog>
+      <div className={classes.discussionsContainer}>
+        {isDiscussionsLoading && <CircularProgress />}
+        {discussions &&
+        discussions.pages.length > 0 &&
+        discussions.pages[0].discussionsList.length === 0 ? (
+          <TextBody>No discussions to show yet.</TextBody>
+        ) : (
+          discussions?.pages
+            .flatMap((res) => res.discussionsList)
+            .map((discussion) => (
+              <DiscussionCard
+                discussion={discussion}
+                className={classes.discussionCard}
+                key={`discussioncard-${discussion.threadId}`}
+              />
+            ))
+        )}
+        {discussionsHasNextPage && (
+          <Link
+            to={routeToCommunityDiscussions(
+              community.communityId,
+              community.slug
+            )}
+          >
+            <IconButton aria-label="See more discussions">
+              <MoreIcon />
+            </IconButton>
+          </Link>
+        )}
+      </div>
     </div>
   );
 }
