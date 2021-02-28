@@ -55,9 +55,25 @@ const useStyles = makeStyles((theme) => ({
   header: {
     marginBottom: theme.spacing(1),
   },
+  topContainer: {
+    textAlign: "center",
+    [theme.breakpoints.up("md")]: {
+      display: "flex",
+      justifyContent: "space-between",
+      textAlign: "left",
+    },
+  },
+  topInfo: {
+    [theme.breakpoints.up("md")]: {
+      width: "60%",
+    },
+  },
   breadcrumbs: {
     "& ol": {
       justifyContent: "center",
+      [theme.breakpoints.up("md")]: {
+        justifyContent: "flex-start",
+      },
     },
   },
   title: {
@@ -67,13 +83,23 @@ const useStyles = makeStyles((theme) => ({
   description: {
     marginBottom: theme.spacing(1),
   },
-  buttonContainer: {
+  navButtonContainer: {
     display: "flex",
     justifyContent: "space-around",
     marginBottom: theme.spacing(1),
+    [theme.breakpoints.only("sm")]: {
+      justifyContent: "center",
+      "& > * + *": {
+        marginInlineStart: theme.spacing(4),
+      },
+    },
+    [theme.breakpoints.up("md")]: {
+      width: "30%",
+    },
   },
   cardContainer: {
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("xs")]: {
+      //break out of page padding
       width: "100vw",
       position: "relative",
       left: "50%",
@@ -81,12 +107,43 @@ const useStyles = makeStyles((theme) => ({
       marginLeft: "-50vw",
       marginRight: "-50vw",
     },
+    [theme.breakpoints.up("sm")]: {
+      marginTop: theme.spacing(1),
+      marginBottom: theme.spacing(2),
+      display: "flex",
+      flexDirection: "row",
+      flexWrap: "wrap",
+      justifyContent: "space-between",
+      "&::after": {
+        content: "''",
+        flexBasis: "100%",
+        [theme.breakpoints.up("sm")]: {
+          flexBasis: `calc(50% - ${theme.spacing(1)})`,
+        },
+        [theme.breakpoints.up("md")]: {
+          flexBasis: `calc(33.33% - ${theme.spacing(1)})`,
+        },
+      },
+    },
   },
-  placeCard: {
-    width: 140,
+  loadMoreButton: {
+    alignSelf: "center",
+    [theme.breakpoints.up("sm")]: {
+      width: `calc(50% - ${theme.spacing(1)})`,
+    },
+    [theme.breakpoints.up("md")]: {
+      width: `calc(33% - ${theme.spacing(1)})`,
+    },
   },
-  eventCard: {
-    width: 120,
+  placeEventCard: {
+    marginBottom: theme.spacing(1),
+    width: 200,
+    [theme.breakpoints.up("sm")]: {
+      width: `calc(50% - ${theme.spacing(1)})`,
+    },
+    [theme.breakpoints.up("md")]: {
+      width: `calc(33% - ${theme.spacing(1)})`,
+    },
   },
   discussionsHeader: {
     display: "flex",
@@ -103,11 +160,22 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "space-between",
     "& > *": {
       width: "100%",
+      [theme.breakpoints.up("sm")]: {
+        width: `calc(50% - ${theme.spacing(1)})`,
+      },
       [theme.breakpoints.up("md")]: {
         width: `calc(33.33% - ${theme.spacing(1)})`,
       },
+    },
+    //preserve grid in the last row
+    "&::after": {
+      content: "''",
+      flexBasis: "100%",
       [theme.breakpoints.up("sm")]: {
-        width: `calc(50% - ${theme.spacing(1)})`,
+        flexBasis: `calc(50% - ${theme.spacing(1)})`,
+      },
+      [theme.breakpoints.up("md")]: {
+        flexBasis: `calc(33.33% - ${theme.spacing(1)})`,
       },
     },
   },
@@ -174,59 +242,62 @@ export default function CommunityPage() {
   return (
     <div className={classes.root}>
       <HeaderImage community={community} className={classes.header} />
-      <Breadcrumbs aria-label="breadcrumb" className={classes.breadcrumbs}>
-        {community.parentsList
-          .filter((parent) => !!parent.community)
-          .map((parent) => (
-            <Link
-              to={routeToCommunity(
-                parent.community!.communityId,
-                parent.community!.slug
-              )}
-              key={`breadcrumb-${parent.community?.communityId}`}
-            >
-              {parent.community!.name}
-            </Link>
-          ))}
-      </Breadcrumbs>
-      <Typography variant="h1" align="center" className={classes.title}>
-        Welcome to {community.name}!
-      </Typography>
-      <Typography
-        variant="body2"
-        align="center"
-        className={classes.description}
-      >
-        {community.description} More tips and information
-        <Link to="#"> here.</Link>
-      </Typography>
-      <div className={classes.buttonContainer}>
-        <CircularIconButton id="findHostButton" label="Find host">
-          <CouchIcon />
-        </CircularIconButton>
-        <CircularIconButton
-          id="eventButton"
-          label="Events"
-          linkTo={routeToCommunityEvents(community.communityId, community.slug)}
-        >
-          <CalendarIcon />
-        </CircularIconButton>
-        <CircularIconButton id="localPointsButton" label="Local points">
-          <LocationIcon />
-        </CircularIconButton>
-        <CircularIconButton
-          id="discussButton"
-          label="Discussions"
-          linkTo={routeToCommunityDiscussions(
-            community.communityId,
-            community.slug
-          )}
-        >
-          <EmailIcon />
-        </CircularIconButton>
-        <CircularIconButton id="hangoutsButton" label="Hangouts" disabled>
-          <CouchIcon />
-        </CircularIconButton>
+      <div className={classes.topContainer}>
+        <div className={classes.topInfo}>
+          <Breadcrumbs aria-label="breadcrumb" className={classes.breadcrumbs}>
+            {community.parentsList
+              .filter((parent) => !!parent.community)
+              .map((parent) => (
+                <Link
+                  to={routeToCommunity(
+                    parent.community!.communityId,
+                    parent.community!.slug
+                  )}
+                  key={`breadcrumb-${parent.community?.communityId}`}
+                >
+                  {parent.community!.name}
+                </Link>
+              ))}
+          </Breadcrumbs>
+          <Typography variant="h1" className={classes.title}>
+            Welcome to {community.name}!
+          </Typography>
+          <Typography variant="body2" className={classes.description}>
+            {community.description} More tips and information
+            <Link to="#"> here.</Link>
+          </Typography>
+        </div>
+        <div className={classes.navButtonContainer}>
+          <CircularIconButton id="findHostButton" label="Find host">
+            <CouchIcon />
+          </CircularIconButton>
+          <CircularIconButton
+            id="eventButton"
+            label="Events"
+            linkTo={routeToCommunityEvents(
+              community.communityId,
+              community.slug
+            )}
+          >
+            <CalendarIcon />
+          </CircularIconButton>
+          <CircularIconButton id="localPointsButton" label="Local points">
+            <LocationIcon />
+          </CircularIconButton>
+          <CircularIconButton
+            id="discussButton"
+            label="Discussions"
+            linkTo={routeToCommunityDiscussions(
+              community.communityId,
+              community.slug
+            )}
+          >
+            <EmailIcon />
+          </CircularIconButton>
+          <CircularIconButton id="hangoutsButton" label="Hangouts" disabled>
+            <CouchIcon />
+          </CircularIconButton>
+        </div>
       </div>
 
       <SectionTitle icon={<InfoIcon />}>Places</SectionTitle>
@@ -245,53 +316,57 @@ export default function CommunityPage() {
               .map((place) => (
                 <PlaceCard
                   place={place}
-                  className={classes.placeCard}
+                  className={classes.placeEventCard}
                   key={`placecard-${place.pageId}`}
                 />
               ))
           )
         }
         {placesHasNextPage && (
-          <Link
-            to={routeToCommunityPlaces(community.communityId, community.slug)}
-          >
-            <IconButton aria-label="See more places">
-              <MoreIcon />
-            </IconButton>
-          </Link>
+          <div className={classes.loadMoreButton}>
+            <Link
+              to={routeToCommunityPlaces(community.communityId, community.slug)}
+            >
+              <IconButton aria-label="See more places">
+                <MoreIcon />
+              </IconButton>
+            </Link>
+          </div>
         )}
       </HorizontalScroller>
 
       <SectionTitle icon={<CalendarIcon />}>Events</SectionTitle>
       {
         //{eventsError && <Alert severity="error">{eventsError.message}</Alert>}
-        //isEventsLoading && <CircularProgress />
+        //{isEventsLoading && <CircularProgress />}
       }
       <HorizontalScroller className={classes.cardContainer}>
         {[0, 1, 2, 3].length === 0 ? (
           <TextBody>No events at the moment.</TextBody>
         ) : (
-          [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14].map((i) => (
+          [0, 1, 2, 3, 4, 5, 6].map((i) => (
             <EventCard
               key={`eventcard-${i}`}
               event={{
-                title: Math.random() > 0.5 ? "Placeholder event" : "Place",
+                title: "Placeholder event",
                 creatorName: "Bot",
                 location: "Amsterdam",
                 startTime: { seconds: Date.now() / 1000, nanos: 0 },
               }}
-              className={classes.eventCard}
+              className={classes.placeEventCard}
             />
           ))
         )}
         {true && ( //eventsHasNextPage && (
-          <Link
-            to={routeToCommunityEvents(community.communityId, community.slug)}
-          >
-            <IconButton aria-label="See more events">
-              <MoreIcon />
-            </IconButton>
-          </Link>
+          <div className={classes.loadMoreButton}>
+            <Link
+              to={routeToCommunityEvents(community.communityId, community.slug)}
+            >
+              <IconButton aria-label="See more events">
+                <MoreIcon />
+              </IconButton>
+            </Link>
+          </div>
         )}
       </HorizontalScroller>
 
@@ -351,16 +426,18 @@ export default function CommunityPage() {
             ))
         )}
         {discussionsHasNextPage && (
-          <Link
-            to={routeToCommunityDiscussions(
-              community.communityId,
-              community.slug
-            )}
-          >
-            <IconButton aria-label="See more discussions">
-              <MoreIcon />
-            </IconButton>
-          </Link>
+          <div className={classes.loadMoreButton}>
+            <Link
+              to={routeToCommunityDiscussions(
+                community.communityId,
+                community.slug
+              )}
+            >
+              <IconButton aria-label="See more discussions">
+                <MoreIcon />
+              </IconButton>
+            </Link>
+          </div>
         )}
       </div>
     </div>

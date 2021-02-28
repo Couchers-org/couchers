@@ -52,29 +52,29 @@ export default function EventCard({
   const classes = useStyles();
   const date = timestamp2Date(event.startTime);
   return (
-    <Link
-      to={routeToEvent(event.eventId ?? 0, event.slug ?? "")}
-      className={classes.link}
-    >
-      <Card className={className}>
-        <CardActionArea>
-          <CardContent>
-            <LinesEllipsis
-              maxLine={2}
-              text={event.title}
-              component="h3"
-              className={classes.title}
-            />
-            <Typography
-              variant="caption"
-              component="p"
-              className={classes.subtitle}
-              noWrap
-            >
-              Created by {event.creatorName}
-            </Typography>
-            <ul className={classes.detailsList}>
-              {/*Leaving this here but out for now. Seem
+    <Card className={className}>
+      <Link
+        to={routeToEvent(event.eventId ?? 0, event.slug ?? "")}
+        className={classes.link}
+        component={CardActionArea}
+      >
+        <CardContent>
+          <LinesEllipsis
+            maxLine={2}
+            text={event.title}
+            component="h3"
+            className={classes.title}
+          />
+          <Typography
+            variant="caption"
+            component="p"
+            className={classes.subtitle}
+            noWrap
+          >
+            Created by {event.creatorName}
+          </Typography>
+          <ul className={classes.detailsList}>
+            {/*Leaving this here but out for now. Seem
               seems like important info but the card is too small,
               Probably that's why it was left out of the design.
               <li>
@@ -83,28 +83,27 @@ export default function EventCard({
                   {event.location}
                 </Typography>
               </li>*/}
-              <li>
-                <CalendarIcon className={classes.icon} />
-                <Typography variant="body2" noWrap>
-                  {date.toLocaleDateString(undefined, {
-                    month: "short",
-                    day: "numeric",
-                  })}
-                </Typography>
-              </li>
-              <li>
-                <ClockIcon className={classes.icon} />
-                <Typography variant="body2" noWrap>
-                  {date.toLocaleTimeString(undefined, {
-                    hour: "numeric",
-                    minute: "2-digit",
-                  })}
-                </Typography>
-              </li>
-            </ul>
-          </CardContent>
-        </CardActionArea>
-      </Card>
-    </Link>
+            <li>
+              <CalendarIcon className={classes.icon} />
+              <Typography variant="body2" noWrap>
+                {date.toLocaleDateString(undefined, {
+                  month: "short",
+                  day: "numeric",
+                })}
+              </Typography>
+            </li>
+            <li>
+              <ClockIcon className={classes.icon} />
+              <Typography variant="body2" noWrap>
+                {date.toLocaleTimeString(undefined, {
+                  hour: "numeric",
+                  minute: "2-digit",
+                })}
+              </Typography>
+            </li>
+          </ul>
+        </CardContent>
+      </Link>
+    </Card>
   );
 }

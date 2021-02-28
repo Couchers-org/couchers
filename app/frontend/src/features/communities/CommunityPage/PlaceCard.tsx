@@ -50,34 +50,36 @@ export default function PlaceCard({
     [place.content]
   );
   return (
-    <Link to={routeToPlace(place.pageId, place.slug)} className={classes.link}>
-      <Card className={className}>
-        <CardActionArea>
-          <CardMedia src={place.photoUrl} className={classes.image} />
-          <CardContent>
+    <Card className={className}>
+      <Link
+        to={routeToPlace(place.pageId, place.slug)}
+        className={classes.link}
+        component={CardActionArea}
+      >
+        <CardMedia src={place.photoUrl} className={classes.image} />
+        <CardContent>
+          <LinesEllipsis
+            text={place.title}
+            maxLine={2}
+            component="h3"
+            className={classes.title}
+          />
+          <LinesEllipsis
+            text={place.address}
+            maxLine={2}
+            component="p"
+            className={classes.place}
+          />
+          {contentPreview && (
             <LinesEllipsis
-              text={place.title}
-              maxLine={2}
-              component="h3"
-              className={classes.title}
-            />
-            <LinesEllipsis
-              text={place.address}
+              text={contentPreview}
               maxLine={2}
               component="p"
-              className={classes.place}
+              className={classes.preview}
             />
-            {contentPreview && (
-              <LinesEllipsis
-                text={contentPreview}
-                maxLine={2}
-                component="p"
-                className={classes.preview}
-              />
-            )}
-          </CardContent>
-        </CardActionArea>
-      </Card>
-    </Link>
+          )}
+        </CardContent>
+      </Link>
+    </Card>
   );
 }

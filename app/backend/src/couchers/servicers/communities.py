@@ -200,7 +200,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
             discussions = (
                 node.official_cluster.owned_discussions.filter(Discussion.id >= next_page_id)
-                .order_by(Discussion.id)
+                .order_by(Discussion.id.desc())
                 .limit(page_size + 1)
                 .all()
             )

@@ -48,6 +48,7 @@ export default function HeaderImage({
     community.mainPage?.location?.lng ?? 0,
     community.mainPage?.location?.lat ?? 0
   );
+  console.log(community.mainPage);
   return (
     <Box className={classNames(classes.root, className)}>
       <Map grow interactive={false} initialCenter={lngLat} initialZoom={zoom} />

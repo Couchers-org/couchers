@@ -1,4 +1,4 @@
-import { Hidden, makeStyles } from "@material-ui/core";
+import { Hidden, makeStyles, useMediaQuery, useTheme } from "@material-ui/core";
 import classNames from "classnames";
 import React, { ReactNode } from "react";
 
@@ -14,22 +14,14 @@ const useStyles = makeStyles((theme) => ({
     "& > *": {
       flex: "0 0 auto",
       marginInlineEnd: theme.spacing(2),
-      [theme.breakpoints.up("md")]: {
-        marginBottom: theme.spacing(2),
-      },
     },
-    [theme.breakpoints.up("md")]: {
-      flexWrap: "wrap",
-    },
-    [theme.breakpoints.down("sm")]: {
-      overflowX: "auto",
-      WebkitOverflowScrolling: "touch",
-      alignItems: "center",
-      //this and below "padder" are required because browsers
-      //ignore scroll-end padding
-      "& > *:last-child": {
-        marginInlineStart: 0,
-      },
+
+    overflowX: "auto",
+    WebkitOverflowScrolling: "touch",
+    //this and below "padder" are required because browsers
+    //ignore scroll-end padding
+    "& > *:last-child": {
+      marginInlineStart: 0,
     },
   },
   padder: {
@@ -46,6 +38,7 @@ interface HorizontalScrollerProps {
   children?: ReactNode;
 }
 
+/// HorizontalScroller only applies it's scrolling to xs breakpoint
 export default function HorizontalScroller({
   fetchNext,
   isFetching,
@@ -57,8 +50,11 @@ export default function HorizontalScroller({
 
   const { ref: loaderRef } = useOnVisibleEffect(fetchNext);
 
+  const theme = useTheme();
+  const isBelowXs = useMediaQuery(theme.breakpoints.down("xs"));
+
   return (
-    <div className={classNames(classes.root, className)}>
+    <div className={classNames({ [classes.root]: isBelowXs }, className)}>
       {children}
       {fetchNext && hasMore && (
         <div>
@@ -69,7 +65,7 @@ export default function HorizontalScroller({
           )}
         </div>
       )}
-      <Hidden mdUp>
+      <Hidden smUp>
         <div className={classes.padder} />
       </Hidden>
     </div>
