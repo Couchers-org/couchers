@@ -195,7 +195,7 @@ export default function CompleteSignup() {
                   HostingStatus.HOSTING_STATUS_MAYBE,
                   HostingStatus.HOSTING_STATUS_CANT_HOST,
                 ]}
-                getOptionLabel={(option) => hostingStatusLabels.get(option)}
+                getOptionLabel={(option) => hostingStatusLabels[option]}
                 disableClearable
                 // below required for type inference
                 multiple={false}

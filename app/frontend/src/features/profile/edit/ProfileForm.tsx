@@ -33,11 +33,9 @@ import {
 import useCurrentUser from "../../userQueries/useCurrentUser";
 import {
   ACCEPTING,
-  hostingStatusLabels,
   MAYBE_ACCEPTING,
   MAYBE_MEETUP,
   MEETUP,
-  meetupStatusLabels,
   NO_MEETUP,
   NOT_ACCEPTING,
 } from "../constants";
@@ -106,12 +104,6 @@ export default function EditProfileForm() {
 
   const onSubmit = handleSubmit((data) => {
     resetUpdate();
-    data.hostingStatus = hostingStatusLabels.getKey(
-      (data.hostingStatus as unknown) as string
-    );
-    data.meetupStatus = meetupStatusLabels.getKey(
-      (data.meetupStatus as unknown) as string
-    );
     updateUserProfile({ profileData: data, setMutationError: setErrorMessage });
     if (!errorMessage) {
       history.push(profileRoute);
@@ -155,7 +147,7 @@ export default function EditProfileForm() {
           <form onSubmit={onSubmit}>
             <Controller
               control={control}
-              defaultValue={hostingStatusLabels.get(user.hostingStatus)}
+              defaultValue={user.hostingStatus}
               name="hostingStatus"
               render={({ onChange, value }) => (
                 <>
@@ -165,26 +157,20 @@ export default function EditProfileForm() {
                     aria-label="hosting status"
                     name="hostingStatus"
                     value={value}
-                    onChange={(_, value) => onChange(value)}
+                    onChange={(event) => onChange(Number(event.target.value))}
                   >
                     <FormControlLabel
-                      value={hostingStatusLabels.get(
-                        HostingStatus.HOSTING_STATUS_CAN_HOST
-                      )}
+                      value={HostingStatus.HOSTING_STATUS_CAN_HOST}
                       control={<Radio />}
                       label={ACCEPTING}
                     />
                     <FormControlLabel
-                      value={hostingStatusLabels.get(
-                        HostingStatus.HOSTING_STATUS_MAYBE
-                      )}
+                      value={HostingStatus.HOSTING_STATUS_MAYBE}
                       control={<Radio />}
                       label={MAYBE_ACCEPTING}
                     />
                     <FormControlLabel
-                      value={hostingStatusLabels.get(
-                        HostingStatus.HOSTING_STATUS_CANT_HOST
-                      )}
+                      value={HostingStatus.HOSTING_STATUS_CANT_HOST}
                       control={<Radio />}
                       label={NOT_ACCEPTING}
                     />
@@ -194,7 +180,7 @@ export default function EditProfileForm() {
             />
             <Controller
               control={control}
-              defaultValue={meetupStatusLabels.get(user.meetupStatus)}
+              defaultValue={user.meetupStatus}
               name="meetupStatus"
               render={({ onChange, value }) => (
                 <>
@@ -204,26 +190,20 @@ export default function EditProfileForm() {
                     aria-label="meetup status"
                     name="meetupStatus"
                     value={value}
-                    onChange={(_, value) => onChange(value)}
+                    onChange={(event) => onChange(Number(event.target.value))}
                   >
                     <FormControlLabel
-                      value={meetupStatusLabels.get(
-                        MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP
-                      )}
+                      value={MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP}
                       control={<Radio />}
                       label={MEETUP}
                     />
                     <FormControlLabel
-                      value={meetupStatusLabels.get(
-                        MeetupStatus.MEETUP_STATUS_OPEN_TO_MEETUP
-                      )}
+                      value={MeetupStatus.MEETUP_STATUS_OPEN_TO_MEETUP}
                       control={<Radio />}
                       label={MAYBE_MEETUP}
                     />
                     <FormControlLabel
-                      value={meetupStatusLabels.get(
-                        MeetupStatus.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP
-                      )}
+                      value={MeetupStatus.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP}
                       control={<Radio />}
                       label={NO_MEETUP}
                     />

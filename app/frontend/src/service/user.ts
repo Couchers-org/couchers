@@ -147,7 +147,7 @@ export async function updateProfile(
   const myTravels = new NullableStringValue().setValue(profile.myTravels);
   const thingsILike = new NullableStringValue().setValue(profile.thingsILike);
   const aboutPlace = new NullableStringValue().setValue(profile.aboutPlace);
-  const hostingStatus = profile.hostingStatus as HostingStatus;
+  const hostingStatus = profile.hostingStatus;
   const meetupStatus = profile.meetupStatus;
   const languages = new RepeatedStringValue()
     .setValueList(profile.languages)

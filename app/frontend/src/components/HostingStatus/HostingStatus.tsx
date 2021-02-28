@@ -24,10 +24,7 @@ export default function HostingStatus({ hostingStatus }: HostingStatusProps) {
   return (
     <div className={classes.hostingAbilityContainer}>
       {hostingStatus ? (
-        <IconText
-          icon={CouchIcon}
-          text={hostingStatusLabels.get(hostingStatus)}
-        />
+        <IconText icon={CouchIcon} text={hostingStatusLabels[hostingStatus]} />
       ) : (
         <Skeleton width={100} />
       )}

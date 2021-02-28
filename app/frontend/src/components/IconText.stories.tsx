@@ -24,9 +24,11 @@ const Template: Story<any> = (args) => (
   <>
     <IconText
       icon={CouchIcon}
-      text={hostingStatusLabels.get(
-        ({ hostingStatus: args.hostingStatus } as User.AsObject).hostingStatus
-      )}
+      text={
+        hostingStatusLabels[
+          ({ hostingStatus: args.hostingStatus } as User.AsObject).hostingStatus
+        ]
+      }
     />
   </>
 );
