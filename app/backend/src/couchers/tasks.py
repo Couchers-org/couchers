@@ -1,12 +1,12 @@
 import logging
 
+from sqlalchemy import not_
 from sqlalchemy.sql import func
 
 from couchers import email, urls
 from couchers.config import config
 from couchers.db import session_scope
 from couchers.models import ClusterRole, ClusterSubscription, Node, User
-from couchers.standardized_queries import query_users_who_arent_hidden
 
 logger = logging.getLogger(__name__)
 
@@ -165,9 +165,7 @@ def enforce_community_memberships():
                 .subquery()
             )
             users_needing_adding = (
-                query_users_who_arent_hidden(session)
-                .filter(func.ST_Contains(node.geom, User.geom))
-                .filter(~User.id.in_(existing_users))
+                session.query(User).filter(not_(User.is_hidden_for_sql)).filter(func.ST_Contains(node.geom, User.geom)).filter(~User.id.in_(existing_users))
             )
             for user in users_needing_adding.all():
                 node.official_cluster.cluster_subscriptions.append(
