@@ -28,6 +28,7 @@ const useStyles = makeStyles((theme) => ({
     lineHeight: theme.spacing(3),
     verticalAlign: "middle",
     paddingLeft: theme.spacing(3),
+    color: theme.palette.common.white,
   },
 }));
 

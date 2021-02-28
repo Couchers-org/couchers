@@ -26,3 +26,8 @@ export function formatDate(s: string, short: boolean = false): string {
 export function timestamp2Date(timestamp: Timestamp.AsObject): Date {
   return new Date(Math.floor(timestamp.seconds * 1e3 + timestamp.nanos / 1e6));
 }
+
+export const dateTimeFormatter = new Intl.DateTimeFormat(navigator.language, {
+  month: "short",
+  year: "numeric",
+});

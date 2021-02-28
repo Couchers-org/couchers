@@ -1,15 +1,15 @@
-const minuteMillis = 60000;
-const quaterHourMillis = 900000;
-const hourMillis = 3600000;
-const twoHourMillis = 7200000;
-const dayMillis = 86400000;
-const twoDayMillis = 172800000;
-const weekMillis = 604800000;
-const twoWeekMillis = 1209600000;
-const monthMillis = weekMillis * 4;
-const twoMonthMillis = weekMillis * 8;
-const yearMillis = 31557600000;
-const twoYearMillis = 31557600000 * 2;
+export const minuteMillis = 60000;
+export const quaterHourMillis = 900000;
+export const hourMillis = 3600000;
+export const twoHourMillis = 7200000;
+export const dayMillis = 86400000;
+export const twoDayMillis = 172800000;
+export const weekMillis = 604800000;
+export const twoWeekMillis = 1209600000;
+export const monthMillis = weekMillis * 4;
+export const twoMonthMillis = weekMillis * 8;
+export const yearMillis = 31557600000;
+export const twoYearMillis = 31557600000 * 2;
 
 export function timeAgo(input: Date | string) {
   if (input === undefined) return "";

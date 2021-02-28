@@ -6,7 +6,7 @@ import Navigation from "./components/Navigation";
 import { useAuthContext } from "./features/auth/AuthProvider";
 import { jailRoute, loginRoute } from "./routes";
 
-const useStyles = makeStyles((theme) => ({
+export const useStyles = makeStyles((theme) => ({
   standardContainer: {
     paddingBottom: theme.shape.navPaddingMobile,
     paddingLeft: theme.spacing(2),
@@ -17,8 +17,8 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   fullscreenContainer: {
-    padding: 0,
     margin: "0 auto",
+    padding: 0,
   },
 }));
 
@@ -50,7 +50,7 @@ export default function AppRoute({
       render={({ location }) => (
         <>
           {isAuthenticated ? (
-            <Container maxWidth="md" className={classes.standardContainer}>
+            <Container className={classes.standardContainer}>
               {isJailed ? (
                 <Redirect to={jailRoute} />
               ) : (
@@ -74,11 +74,11 @@ export default function AppRoute({
   ) : (
     <>
       {isFullscreen ? (
-        <Container maxWidth="md" className={classes.fullscreenContainer}>
+        <Container className={classes.fullscreenContainer}>
           <Route {...otherProps} render={() => children} />
         </Container>
       ) : (
-        <Container maxWidth="md" className={classes.standardContainer}>
+        <Container className={classes.standardContainer}>
           <Navigation />
           <Route {...otherProps} render={() => children} />
         </Container>
