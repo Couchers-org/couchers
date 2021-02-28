@@ -1,3 +1,5 @@
+export const baseRoute = "/";
+
 export const loginRoute = "/login";
 export const loginPasswordRoute = `${loginRoute}/password`;
 export const resetPasswordRoute = "/password-reset";
@@ -36,7 +38,7 @@ export const friendsRoute = `${connectionsRoute}/friends`;
 export const notFoundRoute = "/notfound";
 
 export const userRoute = "/user";
-export const routeToUser = (username: string) => `${userRoute}/${username}`;
+export const routeToUser = (username: string) => `${profileRoute}/${username}`;
 export const searchRoute = "/search";
 export const routeToSearch = (query: string) => `${searchRoute}/${query}`;
 export const jailRoute = "/restricted";

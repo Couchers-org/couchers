@@ -22,6 +22,7 @@ import useCurrentUser from "../../userQueries/useCurrentUser";
 import useUserByUsername from "../../userQueries/useUserByUsername";
 import About from "./About";
 import Overview from "./Overview";
+import References from "./References";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -74,7 +75,7 @@ export default function ProfilePage() {
         <CircularProgress />
       ) : user ? (
         <div className={classes.root}>
-          <Overview {...{ user }} />
+          <Overview user={user} />
           <Card className={classes.detailsCard}>
             <TabContext value={currentTab}>
               <TabBar
@@ -84,13 +85,13 @@ export default function ProfilePage() {
                 aria-label="tabs for user's details"
               />
               <TabPanel classes={{ root: classes.tabPanel }} value="about">
-                <About {...{ user }} />
+                <About user={user} />
               </TabPanel>
               <TabPanel value="home">
                 <div>home</div>
               </TabPanel>
-              <TabPanel value="references">
-                <div>references</div>
+              <TabPanel classes={{ root: classes.tabPanel }} value="references">
+                <References user={user} />
               </TabPanel>
               <TabPanel value="favorites">
                 <div>favorites</div>
