@@ -1,4 +1,5 @@
-from couchers.standardized_queries import query_users_who_arent_hidden
+from sqlalchemy import not_
+from couchers.models import User
 from tests.test_fixtures import db, generate_user, session_scope
 
 
@@ -9,5 +10,5 @@ def test_hidden_users(db):
     user4, token4 = generate_user(accepted_tos=0)
 
     with session_scope() as session:
-        unhidden_users = query_users_who_arent_hidden(session).all()
+        unhidden_users = session.query(User).filter(not_(User.is_hidden_for_sql)).all()
         assert len(unhidden_users) == 1
