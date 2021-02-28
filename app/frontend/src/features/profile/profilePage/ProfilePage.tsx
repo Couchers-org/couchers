@@ -89,7 +89,7 @@ export default function ProfilePage() {
                 <About user={user} />
               </TabPanel>
               <TabPanel value="home">
-                <Home {...{ user }}></Home>
+                <Home user={user}></Home>
               </TabPanel>
               <TabPanel classes={{ root: classes.tabPanel }} value="references">
                 <References user={user} />

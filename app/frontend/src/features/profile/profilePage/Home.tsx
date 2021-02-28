@@ -23,11 +23,12 @@ import {
   LOCAL_AREA,
   MAX_GUESTS,
   PARKING,
+  PARKING_DETAILS,
   SLEEPING_ARRANGEMENT,
   SPACE,
-  TRANSPORTATION,
   WHEELCHAIR,
 } from "../../constants";
+import booleanConversion, { parkingDetailsLabels, sleepingArrangementLabels, smokingLocationLabels } from "../constants";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -56,70 +57,67 @@ export default function Home({ user }: HomeProps) {
           <Typography variant="h1">{HOSTING_PREFERENCES}</Typography>
           <LabelAndText
             label={LAST_MINUTE}
-            text={`${user.lastMinute?.value || ""}`}
+            text={booleanConversion(user.lastMinute?.value)}
           />
-          <LabelAndText label={MAX_GUESTS} text={`${user.maxGuests}`} />
+          <LabelAndText label={MAX_GUESTS} text={`${user.maxGuests?.value || 1}`} />
           <LabelAndText
             label={ACCEPT_SMOKING}
-            text={`${user.smokingAllowed}`}
+            text={`${smokingLocationLabels[user.smokingAllowed]}`}
           />
           <LabelAndText
             label={ACCEPT_DRINKING}
-            text={`${user.drinkingAllowed}`}
+            text={booleanConversion(user.drinkingAllowed?.value)}
           />
           <LabelAndText
             label={ACCEPT_PETS}
-            text={`${user.acceptsPets?.value || ""}`}
+            text={booleanConversion(user.acceptsPets?.value)}
           />
           <LabelAndText
             label={ACCEPT_KIDS}
-            text={`${user.acceptsKids?.value || ""}`}
+            text={booleanConversion(user.acceptsKids?.value)}
           />
-          <LabelAndText label={CAMPING} text={`${user.campingOk}`} />
+          <LabelAndText label={CAMPING} text={booleanConversion(user.campingOk?.value)} />
           <LabelAndText
             label={WHEELCHAIR}
-            text={`${user.wheelchairAccessible?.value || ""}`}
+            text={booleanConversion(user.wheelchairAccessible?.value)}
           />
         </div>
         <div className={classes.info}>
           <Typography variant="h1">{ABOUT_HOME}</Typography>
           <LabelAndText
             label={SPACE}
-            text={`${user.sleepingArrangement || ""}`}
+            text={`${sleepingArrangementLabels[user.sleepingArrangement]}`}
           />
           <LabelAndText
             label={HAS_HOUSEMATES}
-            text={`${user.hasHousemates} ${user.housemateDetails}`}
+            text={`${booleanConversion(user.hasHousemates?.value)} ${user.housemateDetails ? `, ${user.housemateDetails?.value}` : ''}`}
           />
-          <LabelAndText label={HOST_SMOKING} text={`${user.smokesAtHome}`} />
-          <LabelAndText label={HOST_DRINKING} text={`${user.drinksAtHome}`} />
+          <LabelAndText label={HOST_SMOKING} text={booleanConversion(user.smokesAtHome?.value)} />
+          <LabelAndText label={HOST_DRINKING} text={booleanConversion(user.drinksAtHome?.value)} />
           <LabelAndText
             label={HOST_PETS}
-            text={`${user.hasPets?.value || ""} ${user.petDetails}`}
+            text={`${booleanConversion(user.hasPets?.value)} ${user.petDetails ? `, ${user.petDetails?.value}` : ''}`}
           />
           <LabelAndText
             label={HOST_KIDS}
-            text={`${user.hasKids?.value || ""} ${user.kidDetails}`}
+            text={`${booleanConversion(user.hasKids?.value)} ${user.kidDetails ? `, ${user.kidDetails?.value}` : ''}`}
           />
-          <LabelAndText label={PARKING} text={`${user.parking}`} />
-          <LabelAndText label="" text="" />
+          <LabelAndText label={PARKING} text={booleanConversion(user.parking?.value)} />
+          <LabelAndText label={PARKING_DETAILS} text={parkingDetailsLabels[user.parkingDetails]} />
         </div>
       </div>
       <Divider />
       <Typography variant="h1">{LOCAL_AREA}</Typography>
-      <Typography variant="body1">{user.area}</Typography>
-      <Divider />
-      <Typography variant="h1">{TRANSPORTATION}</Typography>
-      <Typography variant="body1">{user.parkingDetails}</Typography>
+      <Typography variant="body1">{user.area?.value}</Typography>
       <Divider />
       <Typography variant="h1">{SLEEPING_ARRANGEMENT}</Typography>
-      <Typography variant="body1">{user.sleepingDetails}</Typography>
+      <Typography variant="body1">{user.sleepingDetails?.value}</Typography>
       <Divider />
       <Typography variant="h1">{HOUSE_RULES}</Typography>
-      <Typography variant="body1">{user.houseRules}</Typography>
+      <Typography variant="body1">{user.houseRules?.value}</Typography>
       <Divider />
       <Typography variant="h1">{ADDITIONAL}</Typography>
-      <Typography variant="body1">{user.otherHostInfo}</Typography>
+      <Typography variant="body1">{user.otherHostInfo?.value}</Typography>
     </>
   );
 }
