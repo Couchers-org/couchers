@@ -43,22 +43,22 @@ export default function CircularIconButton({
     <div className={classes.body}>
       <IconButton
         {...otherProps}
-        id={id}
+        aria-labelledby={id}
         className={classes.button}
         children={children}
         disabled={disabled}
       />
-      <Typography variant="caption" align="center">
-        <label htmlFor={id}>{label}</label>
+      <Typography id={id} variant="caption" align="center">
+        {label}
       </Typography>
     </div>
   );
 
-  if (linkTo)
-    return (
-      <Link to={linkTo} className={classes.link}>
-        {body}
-      </Link>
-    );
-  else return body;
+  return linkTo ? (
+    <Link to={linkTo} className={classes.link}>
+      {body}
+    </Link>
+  ) : (
+    body
+  );
 }
