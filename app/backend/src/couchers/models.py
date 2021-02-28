@@ -22,7 +22,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import backref, column_property, relationship
 from sqlalchemy.orm.session import Session
-from sqlalchemy.sql import func, text
+from sqlalchemy.sql import func, or_, text
 
 from couchers.config import config
 from couchers.utils import date_in_timezone, get_coordinates, now
@@ -189,9 +189,21 @@ class User(Base):
     def is_jailed(self):
         return self.accepted_tos < 1 or self.is_missing_location
 
+    @hybrid_property
+    def is_jailed_for_sql(self):
+        return or_(self.accepted_tos < 1, self.is_missing_location_for_sql)
+
     @property
     def is_missing_location(self):
         return not self.geom or not self.geom_radius
+
+    @hybrid_property
+    def is_missing_location_for_sql(self):
+        return or_(self.geom is None, self.geom_radius is None)
+
+    @hybrid_property
+    def is_hidden_for_sql(self):
+        return or_(self.is_banned, self.is_jailed_for_sql)
 
     @property
     def coordinates(self):
