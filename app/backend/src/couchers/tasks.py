@@ -146,7 +146,9 @@ def enforce_community_memberships():
                 .subquery()
             )
             users_needing_adding = (
-                query_users_who_arent_hidden(session).filter(func.ST_Contains(node.geom, User.geom)).filter(~User.id.in_(existing_users))
+                query_users_who_arent_hidden(session)
+                .filter(func.ST_Contains(node.geom, User.geom))
+                .filter(~User.id.in_(existing_users))
             )
             for user in users_needing_adding.all():
                 node.official_cluster.cluster_subscriptions.append(
