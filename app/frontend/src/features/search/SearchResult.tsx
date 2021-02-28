@@ -11,9 +11,10 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 import Avatar from "../../components/Avatar";
-import ScoreBar from "../../components/ScoreBar";
+import ScoreBar from "../../components/Bar/ScoreBar";
 import { User } from "../../pb/api_pb";
 import { routeToUser } from "../../routes";
+import { COMMUNITY_STANDING, VERIFICATION_SCORE } from "../constants";
 import { hostingStatusLabels } from "../profile/constants";
 
 const useStyles = makeStyles((theme) => ({
@@ -55,10 +56,10 @@ export default function SearchResult({ user }: { user: User.AsObject }) {
             </Box>
 
             <ScoreBar value={user.communityStanding * 100}>
-              Community Standing
+              {COMMUNITY_STANDING}
             </ScoreBar>
             <ScoreBar value={user.verification * 100}>
-              Verification Score
+              {VERIFICATION_SCORE}
             </ScoreBar>
 
             {user.aboutMe.length < 300

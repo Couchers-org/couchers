@@ -33,9 +33,9 @@ import {
   ProfilePage,
 } from "./features/profile";
 import SearchPage from "./features/search/SearchPage";
-import UserPage from "./features/userPage/UserPage";
 import { PageType } from "./pb/pages_pb";
 import {
+  baseRoute,
   changeEmailRoute,
   changePasswordRoute,
   communityRoute,
@@ -60,7 +60,6 @@ import {
   searchRoute,
   signupRoute,
   tosRoute,
-  userRoute,
 } from "./routes";
 
 export default function AppRoutes() {
@@ -124,14 +123,11 @@ export default function AppRoutes() {
       <AppRoute isPrivate path={editHostingPreferenceRoute}>
         <EditHostingPreferencePage />
       </AppRoute>
-      <AppRoute isPrivate path={profileRoute}>
+      <AppRoute isPrivate path={`${profileRoute}/:username?`}>
         <ProfilePage />
       </AppRoute>
       <AppRoute isPrivate path={`${messagesRoute}/:type?`}>
         <Messages />
-      </AppRoute>
-      <AppRoute isPrivate path={`${userRoute}/:username`}>
-        <UserPage />
       </AppRoute>
       <AppRoute isPrivate path={`${searchRoute}/:query?`}>
         <SearchPage />
@@ -171,7 +167,7 @@ export default function AppRoutes() {
         isPrivate={isAuthenticated}
         isFullscreen={!isAuthenticated}
         exact
-        path="/"
+        path={baseRoute}
       >
         {isAuthenticated ? <Home /> : <AuthPage />}
       </AppRoute>

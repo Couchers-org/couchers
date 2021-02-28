@@ -1,5 +1,6 @@
 import { Meta, Story } from "@storybook/react";
 
+import { COMMUNITY_STANDING } from "../../features/constants";
 import ScoreBar from "./ScoreBar";
 
 export default {
@@ -9,7 +10,7 @@ export default {
 
 const Template: Story<any> = (args) => (
   <>
-    <ScoreBar {...args}>Community standing</ScoreBar>
+    <ScoreBar {...args}>{COMMUNITY_STANDING}</ScoreBar>
   </>
 );
 

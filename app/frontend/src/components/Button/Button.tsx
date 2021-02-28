@@ -12,14 +12,16 @@ import CircularProgress from "../CircularProgress";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    borderRadius: `${theme.shape.borderRadius * 2}px`,
-    boxShadow: "0px 0px 5px rgba(0, 0, 0, 0.25)",
     minHeight: `calc(calc(${theme.typography.button.lineHeight} * ${
       theme.typography.button.fontSize
     }) + ${theme.typography.pxToRem(12)})`, //from padding
   },
   loading: {
     height: theme.typography.button.fontSize,
+  },
+  contained: {
+    borderRadius: `${theme.shape.borderRadius * 2}px`,
+    boxShadow: "0px 0px 5px rgba(0, 0, 0, 0.25)",
   },
 }));
 
@@ -38,6 +40,7 @@ export default function Button<D extends ElementType = "button", P = {}>({
   className,
   loading,
   onClick,
+  variant = "contained",
   color = "primary",
   ...otherProps
 }: AppButtonProps<D, P>) {
@@ -53,14 +56,19 @@ export default function Button<D extends ElementType = "button", P = {}>({
       setWaiting(false);
     }
   }
+  if (variant !== "contained" && color !== "primary") {
+    throw new Error("Only contained buttons should have color.");
+  }
   return (
     <MuiButton
       {...otherProps}
       onClick={onClick && asyncOnClick}
       disabled={disabled ? true : loading || waiting}
-      className={classNames(classes.root, className)}
-      variant="contained"
-      color={color}
+      className={classNames(classes.root, className, {
+        [classes.contained]: variant === "contained",
+      })}
+      variant={variant}
+      color={variant === "contained" ? color : undefined}
     >
       {loading || waiting ? (
         <CircularProgress size={theme.typography.button.fontSize} />

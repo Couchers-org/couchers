@@ -24,6 +24,8 @@ const Template: Story<MapProps> = (args) => (
       <Map {...args} grow />
     </div>
     <p>A Map set to grow to the width of the containing block.</p>
+    <Map {...args} interactive={false} />
+    <p>A default non-interactive map.</p>
   </>
 );
 

@@ -1,4 +1,4 @@
-import { HostingStatus, SmokingLocation } from "../../pb/api_pb";
+import { HostingStatus, MeetupStatus, SmokingLocation } from "../../pb/api_pb";
 
 export const smokingLocationLabels = {
   [SmokingLocation.SMOKING_LOCATION_NO]: "No",
@@ -15,4 +15,12 @@ export const hostingStatusLabels = {
   [HostingStatus.HOSTING_STATUS_CANT_HOST]: "Can't host",
   [HostingStatus.HOSTING_STATUS_UNSPECIFIED]: "Blank hosting ability",
   [HostingStatus.HOSTING_STATUS_UNKNOWN]: "Unknown hosting ability",
+};
+
+export const meetupStatusLabels = {
+  [MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP]: "Wants to meet up",
+  [MeetupStatus.MEETUP_STATUS_OPEN_TO_MEETUP]: "Maybe wants to meet up",
+  [MeetupStatus.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP]: "Can't meet up",
+  [MeetupStatus.MEETUP_STATUS_UNSPECIFIED]: "Blank meetup ability",
+  [MeetupStatus.MEETUP_STATUS_UNKNOWN]: "Unknown meetup ability",
 };
