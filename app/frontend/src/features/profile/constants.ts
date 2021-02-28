@@ -1,7 +1,13 @@
-import { HostingStatus, MeetupStatus, ParkingDetails, SleepingArrangement, SmokingLocation } from "../../pb/api_pb";
+import {
+  HostingStatus,
+  MeetupStatus,
+  ParkingDetails,
+  SleepingArrangement,
+  SmokingLocation,
+} from "../../pb/api_pb";
 
 export default function booleanConversion(value: boolean | undefined) {
-  return value === undefined ? UNSURE : (value ? 'Yes' : 'No');
+  return value === undefined ? UNSURE : value ? "Yes" : "No";
 }
 
 const UNSURE = "Ask me";
@@ -38,7 +44,7 @@ export const sleepingArrangementLabels = {
   [SleepingArrangement.SLEEPING_ARRANGEMENT_COMMON]: "Common",
   [SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_ROOM]: "Shared room",
   [SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_SPACE]: "Shared space",
-}
+};
 
 export const parkingDetailsLabels = {
   [ParkingDetails.PARKING_DETAILS_UNSPECIFIED]: UNSURE,
@@ -47,4 +53,4 @@ export const parkingDetailsLabels = {
   [ParkingDetails.PARKING_DETAILS_FREE_OFFSITE]: "Free offsite parking",
   [ParkingDetails.PARKING_DETAILS_PAID_ONSITE]: "Paid onsite parking",
   [ParkingDetails.PARKING_DETAILS_PAID_OFFSITE]: "Paid offsite parking",
-}
+};
