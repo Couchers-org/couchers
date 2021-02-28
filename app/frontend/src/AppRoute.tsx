@@ -6,7 +6,7 @@ import Navigation from "./components/Navigation";
 import { useAuthContext } from "./features/auth/AuthProvider";
 import { jailRoute, loginRoute } from "./routes";
 
-const useStyles = makeStyles((theme) => ({
+export const useStyles = makeStyles((theme) => ({
   standardContainer: {
     paddingBottom: theme.shape.navPaddingMobile,
     paddingLeft: theme.spacing(2),

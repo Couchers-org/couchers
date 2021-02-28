@@ -1,5 +1,6 @@
 import { Breadcrumbs } from "@material-ui/core";
-import React, { useEffect, useState } from "react";
+import { Skeleton } from "@material-ui/lab";
+import React, { useEffect } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
 
 import Alert from "../../components/Alert";
@@ -9,10 +10,6 @@ import CommentBox from "../../components/Comments/CommentBox";
 import Markdown from "../../components/Markdown";
 import PageTitle from "../../components/PageTitle";
 import TextBody from "../../components/TextBody";
-import { Community } from "../../pb/communities_pb";
-import { Discussion } from "../../pb/discussions_pb";
-import { Group } from "../../pb/groups_pb";
-import { Page } from "../../pb/pages_pb";
 import {
   routeToCommunity,
   routeToDiscussion,
@@ -21,48 +18,87 @@ import {
   routeToPlace,
 } from "../../routes";
 import { service } from "../../service";
+import {
+  useCommunity,
+  useListAdmins,
+  useListDiscussions,
+  useListGroups,
+  useListGuides,
+  useListMembers,
+  useListNearbyUsers,
+  useListPlaces,
+  useListSubCommunities,
+} from "./useCommunity";
 
 export default function CommunityPage() {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [community, setCommunity] = useState<Community.AsObject | null>(null);
-
-  const [subCommunitiesLoading, setSubCommunitiesLoading] = useState(false);
-  const [
-    subCommunities,
-    setSubCommunities,
-  ] = useState<Array<Community.AsObject> | null>(null);
-
-  const [groupsLoading, setGroupsLoading] = useState(false);
-  const [groups, setGroups] = useState<Array<Group.AsObject> | null>(null);
-
-  const [adminsLoading, setAdminsLoading] = useState(false);
-  const [admins, setAdmins] = useState<number[] | null>(null);
-
-  const [membersLoading, setMembersLoading] = useState(false);
-  const [members, setMembers] = useState<number[] | null>(null);
-
-  const [nearbyUsersLoading, setNearbyUsersLoading] = useState(false);
-  const [nearbyUsers, setNearbyUsers] = useState<number[] | null>(null);
-
-  const [placesLoading, setPlacesLoading] = useState(false);
-  const [places, setPlaces] = useState<Array<Page.AsObject> | null>(null);
-
-  const [guidesLoading, setGuidesLoading] = useState(false);
-  const [guides, setGuides] = useState<Array<Page.AsObject> | null>(null);
-
-  const [discussionsLoading, setDiscussionsLoading] = useState(false);
-  const [
-    discussions,
-    setDiscussions,
-  ] = useState<Array<Discussion.AsObject> | null>(null);
-
   const history = useHistory();
 
   const { communityId, communitySlug } = useParams<{
     communityId: string;
     communitySlug?: string;
   }>();
+
+  const {
+    isLoading: isCommunityLoading,
+    error: communityError,
+    data: community,
+  } = useCommunity(+communityId);
+
+  const {
+    isLoading: isSubCommunitiesLoading,
+    error: subCommunitiesError,
+    data: subCommunities,
+    //fetchNextPage: fetchNextSubCommunitiesPage,
+  } = useListSubCommunities(+communityId);
+
+  const {
+    isLoading: isGroupsLoading,
+    error: groupsError,
+    data: groups,
+    //fetchNextPage: fetchNextGroupsPage,
+  } = useListGroups(+communityId);
+
+  const {
+    isLoading: isPlacesLoading,
+    error: placesError,
+    data: places,
+    //fetchNextPage: fetchNextPlacesPage,
+  } = useListPlaces(+communityId);
+
+  const {
+    isLoading: isGuidesLoading,
+    error: guidesError,
+    data: guides,
+    //fetchNextPage: fetchNextGuidesPage,
+  } = useListGuides(+communityId);
+
+  const {
+    isLoading: isDiscussionsLoading,
+    error: discussionsError,
+    data: discussions,
+    //fetchNextPage: fetchNextDiscussionsPage,
+  } = useListDiscussions(+communityId);
+
+  const {
+    isLoading: isAdminsLoading,
+    error: adminsError,
+    data: admins,
+    //fetchNextPage: fetchNextAdminsPage,
+  } = useListAdmins(+communityId);
+
+  const {
+    isLoading: isMembersLoading,
+    error: membersError,
+    data: members,
+    //fetchNextPage: fetchNextMembersPage,
+  } = useListMembers(+communityId);
+
+  const {
+    isLoading: isNearbyUsersLoading,
+    error: nearbyUsersError,
+    data: nearbyUsers,
+    //fetchNextPage: fetchNextNearbyUsersPage,
+  } = useListNearbyUsers(+communityId);
 
   const handleJoin = async () => {
     await service.communities.joinCommunity(community!.communityId);
@@ -73,124 +109,31 @@ export default function CommunityPage() {
   };
 
   useEffect(() => {
-    if (!communityId) return;
-    (async () => {
-      setLoading(true);
-      try {
-        const community = await service.communities.getCommunity(
-          Number(communityId)
-        );
-        setCommunity(community);
-        if (community.slug !== communitySlug) {
-          // if the address is wrong, redirect to the right place
-          history.push(routeToCommunity(community.communityId, community.slug));
-        }
-      } catch (e) {
-        console.error(e);
-        setError(e.message);
-      }
-      setLoading(false);
+    if (!community) return;
+    if (community.slug !== communitySlug) {
+      // if the address is wrong, redirect to the right place
+      history.replace(routeToCommunity(community.communityId, community.slug));
+    }
+  }, [community, communitySlug, history]);
 
-      setSubCommunitiesLoading(true);
-      try {
-        const res = await service.communities.listCommunities(
-          Number(communityId)
-        );
-        setSubCommunities(
-          res.communitiesList.length ? res.communitiesList : null
-        );
-      } catch (e) {
-        console.error(e);
-        setError(e.message);
-      }
-      setSubCommunitiesLoading(false);
-
-      setGroupsLoading(true);
-      try {
-        const res = await service.communities.listGroups(Number(communityId));
-        setGroups(res.groupsList.length ? res.groupsList : null);
-      } catch (e) {
-        console.error(e);
-        setError(e.message);
-      }
-      setGroupsLoading(false);
-
-      setAdminsLoading(true);
-      try {
-        const res = await service.communities.listAdmins(Number(communityId));
-        setAdmins(res.adminUserIdsList.length ? res.adminUserIdsList : null);
-      } catch (e) {
-        console.error(e);
-        setError(e.message);
-      }
-      setAdminsLoading(false);
-
-      setMembersLoading(true);
-      try {
-        const res = await service.communities.listMembers(Number(communityId));
-        setMembers(res.memberUserIdsList.length ? res.memberUserIdsList : null);
-      } catch (e) {
-        console.error(e);
-        setError(e.message);
-      }
-      setMembersLoading(false);
-
-      setNearbyUsersLoading(true);
-      try {
-        const res = await service.communities.listNearbyUsers(
-          Number(communityId)
-        );
-        setNearbyUsers(
-          res.nearbyUserIdsList.length ? res.nearbyUserIdsList : null
-        );
-      } catch (e) {
-        console.error(e);
-        setError(e.message);
-      }
-      setNearbyUsersLoading(false);
-
-      setPlacesLoading(true);
-      try {
-        const res = await service.communities.listPlaces(Number(communityId));
-        setPlaces(res.placesList.length ? res.placesList : null);
-      } catch (e) {
-        console.error(e);
-        setError(e.message);
-      }
-      setPlacesLoading(false);
-
-      setGuidesLoading(true);
-      try {
-        const res = await service.communities.listGuides(Number(communityId));
-        setGuides(res.guidesList.length ? res.guidesList : null);
-      } catch (e) {
-        console.error(e);
-        setError(e.message);
-      }
-      setGuidesLoading(false);
-
-      setDiscussionsLoading(true);
-      try {
-        const res = await service.communities.listDiscussions(
-          Number(communityId)
-        );
-        setDiscussions(res.discussionsList.length ? res.discussionsList : null);
-      } catch (e) {
-        console.error(e);
-        setError(e.message);
-      }
-      setDiscussionsLoading(false);
-    })();
-  }, [communityId, communitySlug, history]);
+  if (!communityId)
+    return <Alert severity="error">Invalid community id.</Alert>;
 
   return (
     <>
-      {error && <Alert severity="error">{error}</Alert>}
-      {loading ? (
-        <CircularProgress />
-      ) : community ? (
+      <PageTitle>
+        {community ? (
+          `${community.name} Community Page`
+        ) : (
+          <Skeleton width={200} />
+        )}
+      </PageTitle>
+      {isCommunityLoading && <CircularProgress />}
+      {communityError && (
+        <Alert severity="error">{communityError.message}</Alert>
+      )}
+      {community && (
         <>
-          <PageTitle>{community.name} Community Page</PageTitle>
           <Breadcrumbs aria-label="breadcrumb">
             {community.parentsList
               .filter((parent) => !!parent.community)
@@ -239,147 +182,172 @@ export default function CommunityPage() {
             this page.
           </p>
           <h1>Sub-communities</h1>
-          {subCommunitiesLoading ? (
-            <CircularProgress />
-          ) : subCommunities ? (
-            subCommunities.map((subCommunity) => (
-              <>
-                <Link
-                  to={routeToCommunity(
-                    subCommunity.communityId,
-                    subCommunity.slug
-                  )}
-                >
-                  {subCommunity.name}
-                </Link>
-                <br />
-              </>
-            ))
-          ) : (
-            <p>This community has no sub-communities.</p>
+          {isSubCommunitiesLoading && <CircularProgress />}
+          {subCommunitiesError && (
+            <Alert severity="error">{subCommunitiesError.message}</Alert>
           )}
+          {subCommunities &&
+            (subCommunities.pages.length === 0 ||
+            subCommunities.pages[0].communitiesList.length === 0 ? (
+              <TextBody>No subCommunities yet.</TextBody>
+            ) : (
+              subCommunities.pages
+                .flatMap((page) => page.communitiesList)
+                .map((subCommunity) => (
+                  <>
+                    <Link
+                      to={routeToCommunity(
+                        subCommunity.communityId,
+                        subCommunity.slug
+                      )}
+                    >
+                      {subCommunity.name}
+                    </Link>
+                    <br />
+                  </>
+                ))
+            ))}
           <h1>Groups</h1>
-          {groupsLoading ? (
-            <CircularProgress />
-          ) : groups ? (
-            groups.map((group) => (
-              <>
-                <Link to={routeToGroup(group.groupId, group.slug)}>
-                  {group.name}
-                </Link>
-                <br />
-              </>
-            ))
-          ) : (
-            <p>This community has no groups.</p>
-          )}
+          {isGroupsLoading && <CircularProgress />}
+          {groupsError && <Alert severity="error">{groupsError.message}</Alert>}
+          {groups &&
+            (groups.pages.length === 0 ||
+            groups.pages[0].groupsList.length === 0 ? (
+              <TextBody>No groups yet.</TextBody>
+            ) : (
+              groups.pages
+                .flatMap((page) => page.groupsList)
+                .map((group) => (
+                  <>
+                    <Link to={routeToGroup(group.groupId, group.slug)}>
+                      {group.name}
+                    </Link>
+                    <br />
+                  </>
+                ))
+            ))}
           <h1>Admins</h1>
-          <p>Total {community.adminCount} admins.</p>
-          {adminsLoading ? (
-            <CircularProgress />
-          ) : admins ? (
-            admins.map((admin) => {
-              return (
-                <>
-                  ID: {admin}
-                  <br />
-                </>
-              );
-            })
-          ) : (
-            <p>This community has no admins.</p>
-          )}
+          {isAdminsLoading && <CircularProgress />}
+          {adminsError && <Alert severity="error">{adminsError.message}</Alert>}
+          {admins &&
+            (admins.pages.length === 0 ||
+            admins.pages[0].adminUserIdsList.length === 0 ? (
+              <TextBody>No admins yet.</TextBody>
+            ) : (
+              admins.pages
+                .flatMap((page) => page.adminUserIdsList)
+                .map((admin) => (
+                  <>
+                    ID: {admin}
+                    <br />
+                  </>
+                ))
+            ))}
           <h1>Members</h1>
-          <p>Total {community.memberCount} members.</p>
-          {membersLoading ? (
-            <CircularProgress />
-          ) : members ? (
-            members.map((member) => {
-              return (
-                <>
-                  ID: {member}
-                  <br />
-                </>
-              );
-            })
-          ) : (
-            <p>This community has no members.</p>
+          {isMembersLoading && <CircularProgress />}
+          {membersError && (
+            <Alert severity="error">{membersError.message}</Alert>
           )}
+          {members &&
+            (members.pages.length === 0 ||
+            members.pages[0].memberUserIdsList.length === 0 ? (
+              <TextBody>No members yet.</TextBody>
+            ) : (
+              members.pages
+                .flatMap((page) => page.memberUserIdsList)
+                .map((member) => (
+                  <>
+                    ID: {member}
+                    <br />
+                  </>
+                ))
+            ))}
           <h1>Users in this community</h1>
-          {nearbyUsersLoading ? (
-            <CircularProgress />
-          ) : nearbyUsers ? (
-            nearbyUsers.map((user) => {
-              return (
-                <>
-                  ID: {user}
-                  <br />
-                </>
-              );
-            })
-          ) : (
-            <p>This community contains no users.</p>
+          {isNearbyUsersLoading && <CircularProgress />}
+          {nearbyUsersError && (
+            <Alert severity="error">{nearbyUsersError.message}</Alert>
           )}
+          {nearbyUsers &&
+            (nearbyUsers.pages.length === 0 ||
+            nearbyUsers.pages[0].nearbyUserIdsList.length === 0 ? (
+              <TextBody>No nearbyUsers yet.</TextBody>
+            ) : (
+              nearbyUsers.pages
+                .flatMap((page) => page.nearbyUserIdsList)
+                .map((user) => (
+                  <>
+                    ID: {user}
+                    <br />
+                  </>
+                ))
+            ))}
+
           <h1>Places</h1>
-          {placesLoading ? (
-            <CircularProgress />
-          ) : places ? (
-            places.map((place) => {
-              return (
-                <>
-                  <Link to={routeToPlace(place.pageId, place.slug)}>
-                    {place.title}
-                  </Link>
-                  <br />
-                </>
-              );
-            })
-          ) : (
-            <p>This community contains no places.</p>
-          )}
+          {isPlacesLoading && <CircularProgress />}
+          {placesError && <Alert severity="error">{placesError.message}</Alert>}
+          {places &&
+            (places.pages.length === 0 ||
+            places.pages[0].placesList.length === 0 ? (
+              <TextBody>No places yet.</TextBody>
+            ) : (
+              places.pages
+                .flatMap((page) => page.placesList)
+                .map((place) => (
+                  <>
+                    <Link to={routeToPlace(place.pageId, place.slug)}>
+                      {place.title}
+                    </Link>
+                    <br />
+                  </>
+                ))
+            ))}
           <h1>Guides</h1>
-          {guidesLoading ? (
-            <CircularProgress />
-          ) : guides ? (
-            guides.map((guide) => {
-              return (
-                <>
-                  <Link to={routeToGuide(guide.pageId, guide.slug)}>
-                    {guide.title}
-                  </Link>
-                  <br />
-                </>
-              );
-            })
-          ) : (
-            <p>This community contains no guides.</p>
-          )}
+          {isGuidesLoading && <CircularProgress />}
+          {guidesError && <Alert severity="error">{guidesError.message}</Alert>}
+          {guides &&
+            (guides.pages.length === 0 ||
+            guides.pages[0].guidesList.length === 0 ? (
+              <TextBody>No guides yet.</TextBody>
+            ) : (
+              guides.pages
+                .flatMap((page) => page.guidesList)
+                .map((guide) => (
+                  <>
+                    <Link to={routeToGuide(guide.pageId, guide.slug)}>
+                      {guide.title}
+                    </Link>
+                    <br />
+                  </>
+                ))
+            ))}
           <h1>Discussions</h1>
-          {discussionsLoading ? (
-            <CircularProgress />
-          ) : discussions ? (
-            discussions.map((discussion) => {
-              return (
-                <>
-                  <Link
-                    to={routeToDiscussion(
-                      discussion.discussionId,
-                      discussion.slug
-                    )}
-                  >
-                    {discussion.title}
-                  </Link>
-                  <br />
-                </>
-              );
-            })
-          ) : (
-            <p>This community contains no discussions.</p>
+          {isDiscussionsLoading && <CircularProgress />}
+          {discussionsError && (
+            <Alert severity="error">{discussionsError.message}</Alert>
           )}
+          {discussions &&
+            (discussions.pages.length === 0 ||
+            discussions.pages[0].discussionsList.length === 0 ? (
+              <TextBody>No discussions yet.</TextBody>
+            ) : (
+              discussions.pages
+                .flatMap((page) => page.discussionsList)
+                .map((discussion) => (
+                  <>
+                    <Link
+                      to={routeToDiscussion(
+                        discussion.discussionId,
+                        discussion.slug
+                      )}
+                    >
+                      {discussion.title}
+                    </Link>
+                    <br />
+                  </>
+                ))
+            ))}
           <CommentBox threadId={community.mainPage!.threadId} />
         </>
-      ) : (
-        <TextBody>Error</TextBody>
       )}
     </>
   );

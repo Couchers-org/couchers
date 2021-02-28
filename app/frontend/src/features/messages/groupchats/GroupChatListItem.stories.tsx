@@ -1,6 +1,6 @@
 import { Meta, Story } from "@storybook/react";
 
-import { groupChat } from "../../../stories/__mocks__/service";
+import groupChat from "../../../test/fixtures/groupChat.json";
 import GroupChatListItem from "./GroupChatListItem";
 
 export default {

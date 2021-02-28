@@ -33,6 +33,7 @@ import ProfilePage from "./features/profile/view/ProfilePage";
 import SearchPage from "./features/search/SearchPage";
 import { PageType } from "./pb/pages_pb";
 import {
+  baseRoute,
   changeEmailRoute,
   changePasswordRoute,
   communityRoute,
@@ -164,7 +165,7 @@ export default function AppRoutes() {
         isPrivate={isAuthenticated}
         isFullscreen={!isAuthenticated}
         exact
-        path="/"
+        path={baseRoute}
       >
         {isAuthenticated ? <Home /> : <AuthPage />}
       </AppRoute>

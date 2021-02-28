@@ -1,0 +1,16 @@
+{
+  "hostRequestId": 1,
+  "fromUserId": 1,
+  "toUserId": 2,
+  "status": 1,
+  "created": { "seconds": 1577800000, "nanos": 0 },
+  "fromDate": "2025-01-01",
+  "toDate": "2025-01-05",
+  "lastSeenMessageId": 0,
+  "latestMessage": {
+    "messageId": 5,
+    "authorUserId": 3,
+    "text": { "text": "In 2 hours?" },
+    "time": { "seconds": 1577900000, "nanos": 0 }
+  }
+}

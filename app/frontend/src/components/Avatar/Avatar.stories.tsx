@@ -1,8 +1,6 @@
 import { Meta, Story } from "@storybook/react";
 import * as React from "react";
 
-// @ts-ignore
-import imageFile from "../../stories/assets/funnycat.jpg";
 import Avatar, { AvatarProps } from ".";
 
 export default {
@@ -14,7 +12,7 @@ export default {
 } as Meta;
 
 const user = {
-  avatarUrl: imageFile,
+  avatarUrl: "https://loremflickr.com/200/200",
   name: "Test User",
 } as AvatarProps["user"];
 

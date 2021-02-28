@@ -113,7 +113,7 @@ describe("cached data", () => {
       name: "Funny Dog",
       userId: 2,
       username: "funnydog",
-      avatarUrl: "funnydog.jpg",
+      avatarUrl: "https://loremflickr.com/200/200?user2",
     });
     await sharedClient.refetchQueries();
   });
@@ -155,7 +155,7 @@ describe("cached data", () => {
         name: "Funny Dog",
         userId: 2,
         username: "funnydog",
-        avatarUrl: "funnydog.jpg",
+        avatarUrl: "https://loremflickr.com/200/200?user2",
       },
     });
   });
