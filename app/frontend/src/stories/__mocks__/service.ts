@@ -4,12 +4,21 @@ import groupChat from "../../test/fixtures/groupChat.json";
 import messages from "../../test/fixtures/messages.json";
 import users from "../../test/fixtures/users.json";
 
-const userMap = new Map(users.map((user) => [user.userId, user]));
+const [user1, user2, user3] = users;
+
+const userMap = {
+  "1": user1,
+  "2": user2,
+  "3": user3,
+  funnycat: user1,
+  funnydog: user2,
+  funnykid: user3,
+};
 
 export const mockedService = ({
   user: {
     getUser: (id: string) => {
-      const result = userMap.get(+id);
+      const result = userMap[id as keyof typeof userMap];
       return Promise.resolve(result);
     },
   },

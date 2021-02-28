@@ -5,6 +5,7 @@ from nacl.bindings.utils import sodium_memcmp
 def secure_compare(val1, val2):
     return sodium_memcmp(val1, val2)
 
+
 def generate_hash_signature(message: bytes, key: bytes) -> bytes:
     """
     Computes a blake2b keyed hash for the message.
@@ -14,6 +15,7 @@ def generate_hash_signature(message: bytes, key: bytes) -> bytes:
     with knowledge of the key.
     """
     return generichash_blake2b_salt_personal(message, key=key, digest_size=32)
+
 
 def verify_hash_signature(message: bytes, key: bytes, sig: bytes) -> bool:
     """

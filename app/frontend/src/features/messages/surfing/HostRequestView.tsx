@@ -2,7 +2,6 @@ import { Box } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
-import * as React from "react";
 import { useRef, useState } from "react";
 import {
   useInfiniteQuery,
@@ -16,6 +15,7 @@ import Alert from "../../../components/Alert";
 import CircularProgress from "../../../components/CircularProgress";
 import Divider from "../../../components/Divider";
 import HeaderButton from "../../../components/HeaderButton";
+import HostingStatus from "../../../components/HostingStatus";
 import { BackIcon, OverflowMenuIcon } from "../../../components/Icons";
 import Menu, { MenuItem } from "../../../components/Menu";
 import PageTitle from "../../../components/PageTitle";
@@ -182,7 +182,9 @@ export default function HostRequestView() {
         </Menu>
       </Box>
 
-      <UserSummary user={otherUser} />
+      <UserSummary user={otherUser}>
+        <HostingStatus hostingStatus={otherUser?.hostingStatus} />
+      </UserSummary>
 
       <Divider />
 

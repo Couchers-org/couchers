@@ -716,7 +716,7 @@ class Upload(Base):
 
     @property
     def thumbnail_url(self):
-        return self._url("avatar")
+        return self._url("thumbnail")
 
     @property
     def full_url(self):
@@ -735,7 +735,7 @@ class Node(Base):
 
     __tablename__ = "nodes"
 
-    id = Column(BigInteger, communities_seq, primary_key=True)
+    id = Column(BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value())
 
     # name and description come from official cluster
     parent_node_id = Column(ForeignKey("nodes.id"), nullable=True, index=True)
@@ -760,7 +760,7 @@ class Cluster(Base):
 
     __tablename__ = "clusters"
 
-    id = Column(BigInteger, communities_seq, primary_key=True)
+    id = Column(BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value())
     parent_node_id = Column(ForeignKey("nodes.id"), nullable=False, index=True)
     name = Column(String, nullable=False)
     # short description
@@ -896,7 +896,7 @@ class Page(Base):
 
     __tablename__ = "pages"
 
-    id = Column(BigInteger, communities_seq, primary_key=True)
+    id = Column(BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value())
 
     parent_node_id = Column(ForeignKey("nodes.id"), nullable=False, index=True)
     type = Column(Enum(PageType), nullable=False)
@@ -1003,7 +1003,7 @@ class Event(Base):
 
     __tablename__ = "events"
 
-    id = Column(BigInteger, communities_seq, primary_key=True)
+    id = Column(BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value())
 
     title = Column(String, nullable=False)
     content = Column(String, nullable=False)  # CommonMark without images
@@ -1066,7 +1066,7 @@ class Discussion(Base):
 
     __tablename__ = "discussions"
 
-    id = Column(BigInteger, communities_seq, primary_key=True)
+    id = Column(BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value())
 
     title = Column(String, nullable=False)
     content = Column(String, nullable=False)

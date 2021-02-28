@@ -1,14 +1,14 @@
-import { makeStyles } from "@material-ui/core";
-import React, { useMemo } from "react";
-import LinesEllipsis from "react-lines-ellipsis";
-import { Link } from "react-router-dom";
-
 import {
   Card,
   CardActionArea,
   CardContent,
   CardMedia,
-} from "../../../components/Card";
+  makeStyles,
+} from "@material-ui/core";
+import React, { useMemo } from "react";
+import LinesEllipsis from "react-lines-ellipsis";
+import { Link } from "react-router-dom";
+
 import { Page } from "../../../pb/pages_pb";
 import { routeToPlace } from "../../../routes";
 import stripMarkdown from "../../../utils/stripMarkdown";

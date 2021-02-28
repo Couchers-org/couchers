@@ -1,3 +1,5 @@
+export const baseRoute = "/";
+
 export const loginRoute = "/login";
 export const loginPasswordRoute = `${loginRoute}/password`;
 export const resetPasswordRoute = "/password-reset";
@@ -7,6 +9,12 @@ export const confirmChangeEmailRoute = "/confirm-email";
 
 export const signupRoute = "/signup";
 export const profileRoute = "/profile";
+export const aboutRoute = `${profileRoute}/about`;
+export const homeRoute = `${profileRoute}/home`;
+export const referencesRoute = `${profileRoute}/references`;
+export const favoritesRoute = `${profileRoute}/favorites`;
+export const photosRoute = `${profileRoute}/photos`;
+
 export const editProfileRoute = `${profileRoute}/edit`;
 export const editHostingPreferenceRoute = `${profileRoute}/edit-hosting`;
 
@@ -30,7 +38,7 @@ export const friendsRoute = `${connectionsRoute}/friends`;
 export const notFoundRoute = "/notfound";
 
 export const userRoute = "/user";
-export const routeToUser = (username: string) => `${userRoute}/${username}`;
+export const routeToUser = (username: string) => `${profileRoute}/${username}`;
 export const searchRoute = "/search";
 export const routeToSearch = (query: string) => `${searchRoute}/${query}`;
 export const jailRoute = "/restricted";

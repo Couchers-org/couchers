@@ -12,6 +12,7 @@ export { default as EmailIcon } from "@material-ui/icons/EmailOutlined";
 export { default as PersonIcon } from "@material-ui/icons/EmojiPeopleOutlined";
 export { default as CalendarIcon } from "@material-ui/icons/EventOutlined";
 export { default as ExpandMoreIcon } from "@material-ui/icons/ExpandMoreOutlined";
+export { default as HelpIcon } from "@material-ui/icons/Help";
 export { default as CouchIcon } from "@material-ui/icons/HotelOutlined";
 export { default as InfoIcon } from "@material-ui/icons/InfoOutlined";
 export { default as LanguageIcon } from "@material-ui/icons/LanguageOutlined";

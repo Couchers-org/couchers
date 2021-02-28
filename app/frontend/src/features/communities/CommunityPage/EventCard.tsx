@@ -1,9 +1,14 @@
-import { makeStyles, Typography } from "@material-ui/core";
+import {
+  Card,
+  CardActionArea,
+  CardContent,
+  makeStyles,
+  Typography,
+} from "@material-ui/core";
 import React from "react";
 import LinesEllipsis from "react-lines-ellipsis";
 import { Link } from "react-router-dom";
 
-import { Card, CardActionArea, CardContent } from "../../../components/Card";
 import { CalendarIcon, ClockIcon } from "../../../components/Icons";
 import { routeToEvent } from "../../../routes";
 import { timestamp2Date } from "../../../utils/date";
@@ -71,7 +76,7 @@ export default function EventCard({
             className={classes.subtitle}
             noWrap
           >
-            Created by {event.creatorName}
+            By {event.creatorName}
           </Typography>
           <ul className={classes.detailsList}>
             {/*Leaving this here but out for now. Seem
