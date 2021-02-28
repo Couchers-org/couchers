@@ -6,9 +6,9 @@ import {
 import classNames from "classnames";
 import React, { ForwardedRef } from "react";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   root: {},
-});
+}));
 
 function _CircularProgress(
   { className, ...otherProps }: CircularProgressProps,

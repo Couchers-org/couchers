@@ -1,6 +1,6 @@
 import { Meta, Story } from "@storybook/react";
 
-import { user1 } from "../stories/__mocks__/service";
+import users from "../test/fixtures/users.json";
 import UserSummary from "./UserSummary";
 
 export default {
@@ -20,5 +20,5 @@ const Template: Story<any> = (args) => (
 
 export const userSummary = Template.bind({});
 userSummary.args = {
-  ...user1,
+  ...users[0],
 };
