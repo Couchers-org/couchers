@@ -1,49 +1,28 @@
-import {
-  Breadcrumbs,
-  Dialog,
-  DialogContent,
-  makeStyles,
-  Typography,
-} from "@material-ui/core";
-import React, { useEffect, useState } from "react";
-import { useQueryClient } from "react-query";
+import { Breadcrumbs, makeStyles, Typography } from "@material-ui/core";
+import React, { useEffect } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
 
 import Alert from "../../../components/Alert";
 import CircularProgress from "../../../components/CircularProgress";
-import NewComment from "../../../components/Comments/NewComment";
-import HorizontalScroller from "../../../components/HorizontalScroller";
-import IconButton from "../../../components/IconButton";
 import {
-  AddIcon,
   CalendarIcon,
   CouchIcon,
   EmailIcon,
-  InfoIcon,
   LocationIcon,
-  MoreIcon,
 } from "../../../components/Icons";
-import TextBody from "../../../components/TextBody";
 import {
   routeToCommunity,
   routeToCommunityDiscussions,
   routeToCommunityEvents,
-  routeToCommunityPlaces,
 } from "../../../routes";
-import {
-  useCommunity,
-  useListDiscussions,
-  useListPlaces,
-  useNewDiscussionMutation,
-} from "../useCommunity";
+import { useCommunity } from "../useCommunity";
 import CircularIconButton from "./CircularIconButton";
-import DiscussionCard from "./DiscussionCard";
-import EventCard from "./EventCard";
+import DiscussionsSection from "./DiscussionsSection";
+import EventsSection from "./EventsSection";
 import HeaderImage from "./HeaderImage";
-import PlaceCard from "./PlaceCard";
-import SectionTitle from "./SectionTitle";
+import PlacesSection from "./PlacesSection";
 
-const useStyles = makeStyles((theme) => ({
+export const useCommunityPageStyles = makeStyles((theme) => ({
   root: {
     marginBottom: theme.spacing(2),
   },
@@ -145,49 +124,10 @@ const useStyles = makeStyles((theme) => ({
       width: `calc(33% - ${theme.spacing(1)})`,
     },
   },
-  discussionsHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  newPostButton: {
-    margin: theme.spacing(1),
-  },
-  discussionsContainer: {
-    display: "flex",
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    "& > *": {
-      width: "100%",
-      [theme.breakpoints.up("sm")]: {
-        width: `calc(50% - ${theme.spacing(1)})`,
-      },
-      [theme.breakpoints.up("md")]: {
-        width: `calc(33.33% - ${theme.spacing(1)})`,
-      },
-    },
-    //preserve grid in the last row
-    "&::after": {
-      content: "''",
-      flexBasis: "100%",
-      [theme.breakpoints.up("sm")]: {
-        flexBasis: `calc(50% - ${theme.spacing(1)})`,
-      },
-      [theme.breakpoints.up("md")]: {
-        flexBasis: `calc(33.33% - ${theme.spacing(1)})`,
-      },
-    },
-  },
-  discussionCard: {
-    marginBottom: theme.spacing(1),
-  },
 }));
 
 export default function CommunityPage() {
-  //temporary
-  const [isNewCommentOpen, setIsNewCommentOpen] = useState(false);
-  const classes = useStyles();
+  const classes = useCommunityPageStyles();
 
   const { communityId, communitySlug } = useParams<{
     communityId: string;
@@ -199,23 +139,6 @@ export default function CommunityPage() {
     error: communityError,
     data: community,
   } = useCommunity(+communityId);
-
-  const {
-    isLoading: isPlacesLoading,
-    error: placesError,
-    data: places,
-    hasNextPage: placesHasNextPage,
-  } = useListPlaces(+communityId);
-
-  const {
-    isLoading: isDiscussionsLoading,
-    error: discussionsError,
-    data: discussions,
-    hasNextPage: discussionsHasNextPage,
-  } = useListDiscussions(+communityId);
-
-  const queryClient = useQueryClient();
-  const newDiscussionMutation = useNewDiscussionMutation(queryClient);
 
   const history = useHistory();
   useEffect(() => {
@@ -300,146 +223,11 @@ export default function CommunityPage() {
         </div>
       </div>
 
-      <SectionTitle icon={<InfoIcon />}>Places</SectionTitle>
-      {placesError && <Alert severity="error">{placesError.message}</Alert>}
-      {isPlacesLoading && <CircularProgress />}
-      <HorizontalScroller className={classes.cardContainer}>
-        {
-          //Is there a better way to check for empty state?
-          places &&
-          places.pages.length > 0 &&
-          places.pages[0].placesList.length === 0 ? (
-            <TextBody>No places to show yet.</TextBody>
-          ) : (
-            places?.pages
-              .flatMap((res) => res.placesList)
-              .map((place) => (
-                <PlaceCard
-                  place={place}
-                  className={classes.placeEventCard}
-                  key={`placecard-${place.pageId}`}
-                />
-              ))
-          )
-        }
-        {placesHasNextPage && (
-          <div className={classes.loadMoreButton}>
-            <Link
-              to={routeToCommunityPlaces(community.communityId, community.slug)}
-            >
-              <IconButton aria-label="See more places">
-                <MoreIcon />
-              </IconButton>
-            </Link>
-          </div>
-        )}
-      </HorizontalScroller>
+      <PlacesSection community={community} />
 
-      <SectionTitle icon={<CalendarIcon />}>Events</SectionTitle>
-      {
-        //{eventsError && <Alert severity="error">{eventsError.message}</Alert>}
-        //{isEventsLoading && <CircularProgress />}
-      }
-      <HorizontalScroller className={classes.cardContainer}>
-        {[0, 1, 2, 3].length === 0 ? (
-          <TextBody>No events at the moment.</TextBody>
-        ) : (
-          [0, 1, 2, 3, 4, 5, 6].map((i) => (
-            <EventCard
-              key={`eventcard-${i}`}
-              event={{
-                title: "Placeholder event",
-                creatorName: "Bot",
-                location: "Amsterdam",
-                startTime: { seconds: Date.now() / 1000, nanos: 0 },
-              }}
-              className={classes.placeEventCard}
-            />
-          ))
-        )}
-        {true && ( //eventsHasNextPage && (
-          <div className={classes.loadMoreButton}>
-            <Link
-              to={routeToCommunityEvents(community.communityId, community.slug)}
-            >
-              <IconButton aria-label="See more events">
-                <MoreIcon />
-              </IconButton>
-            </Link>
-          </div>
-        )}
-      </HorizontalScroller>
+      <EventsSection community={community} />
 
-      <div className={classes.discussionsHeader}>
-        <SectionTitle icon={<EmailIcon />}>
-          {`${community.name} discussions`}
-        </SectionTitle>
-        <IconButton
-          aria-label="New post"
-          onClick={() => setIsNewCommentOpen(true)}
-        >
-          <AddIcon />
-        </IconButton>
-      </div>
-      {discussionsError && (
-        <Alert severity="error">{discussionsError.message}</Alert>
-      )}
-      {
-        //This comment adding dialog is temporary
-      }
-      <Dialog
-        open={isNewCommentOpen}
-        onClose={() => setIsNewCommentOpen(false)}
-      >
-        <DialogContent>
-          {newDiscussionMutation.error && (
-            <Alert severity="error">
-              {newDiscussionMutation.error.message}
-            </Alert>
-          )}
-          <NewComment
-            onComment={async (content) =>
-              newDiscussionMutation.mutate({
-                title: "test",
-                content,
-                ownerCommunityId: community.communityId,
-              })
-            }
-          />
-        </DialogContent>
-      </Dialog>
-      <div className={classes.discussionsContainer}>
-        {isDiscussionsLoading && <CircularProgress />}
-        {discussions &&
-        discussions.pages.length > 0 &&
-        discussions.pages[0].discussionsList.length === 0 ? (
-          <TextBody>No discussions to show yet.</TextBody>
-        ) : (
-          discussions?.pages
-            .flatMap((res) => res.discussionsList)
-            .map((discussion) => (
-              <DiscussionCard
-                discussion={discussion}
-                className={classes.discussionCard}
-                key={`discussioncard-${discussion.threadId}`}
-              />
-            ))
-        )}
-        {discussionsHasNextPage && (
-          <div className={classes.loadMoreButton}>
-            <Link
-              to={routeToCommunityDiscussions(
-                community.communityId,
-                community.slug
-              )}
-            >
-              <IconButton aria-label="See more discussions">
-                <MoreIcon />
-              </IconButton>
-            </Link>
-          </div>
-        )}
-      </div>
+      <DiscussionsSection community={community} />
     </div>
   );
 }
