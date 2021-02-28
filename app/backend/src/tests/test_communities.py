@@ -523,32 +523,32 @@ class TestCommunities:
                 )
             )
             assert [d.title for d in res.discussions] == [
-                "Discussion title 1",
-                "Discussion title 2",
-                "Discussion title 3",
-            ]
-
-            res = api.ListDiscussions(
-                communities_pb2.ListDiscussionsReq(
-                    community_id=w_id,
-                    page_token=res.next_page_token,
-                    page_size=2,
-                )
-            )
-            assert [d.title for d in res.discussions] == [
-                "Discussion title 4",
-                "Discussion title 5",
-            ]
-
-            res = api.ListDiscussions(
-                communities_pb2.ListDiscussionsReq(
-                    community_id=w_id,
-                    page_token=res.next_page_token,
-                    page_size=2,
-                )
-            )
-            assert [d.title for d in res.discussions] == [
                 "Discussion title 6",
+                "Discussion title 5",
+                "Discussion title 4",
+            ]
+
+            res = api.ListDiscussions(
+                communities_pb2.ListDiscussionsReq(
+                    community_id=w_id,
+                    page_token=res.next_page_token,
+                    page_size=2,
+                )
+            )
+            assert [d.title for d in res.discussions] == [
+                "Discussion title 3",
+                "Discussion title 2",
+            ]
+
+            res = api.ListDiscussions(
+                communities_pb2.ListDiscussionsReq(
+                    community_id=w_id,
+                    page_token=res.next_page_token,
+                    page_size=2,
+                )
+            )
+            assert [d.title for d in res.discussions] == [
+                "Discussion title 1",
             ]
 
             res = api.ListDiscussions(
