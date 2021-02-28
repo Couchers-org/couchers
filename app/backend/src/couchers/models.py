@@ -147,6 +147,7 @@ class User(Base):
     additional_information = Column(String, nullable=True)  # CommonMark without images
 
     is_banned = Column(Boolean, nullable=False, default=False)
+    is_deleted = Column(Boolean, nullable=False, default=False)
 
     # hosting preferences
     max_guests = Column(Integer, nullable=True)
@@ -202,7 +203,7 @@ class User(Base):
 
     @hybrid_property
     def is_hidden_for_sql(self):
-        return or_(self.is_banned, self.is_jailed_for_sql)
+        return or_(self.is_banned, self.is_deleted, self.is_jailed_for_sql)
 
     @property
     def coordinates(self):
