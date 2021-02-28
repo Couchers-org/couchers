@@ -15,6 +15,8 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     Integer,
+    or_,
+    not_,
 )
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import MetaData, Sequence, String, UniqueConstraint
@@ -22,7 +24,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import backref, column_property, relationship
 from sqlalchemy.orm.session import Session
-from sqlalchemy.sql import func, or_, text
+from sqlalchemy.sql import func, text
 
 from couchers.config import config
 from couchers.utils import get_coordinates
@@ -269,7 +271,7 @@ class User(Base):
             .filter(FriendRelationship.status == FriendStatus.accepted)
         )
 
-        return session.query(User).filter(User.id.in_(q1.union(q2).intersect(q3.union(q4)).subquery())).all()
+        return session.query(User).filter(not_(User.is_hidden_for_sql)).filter(User.id.in_(q1.union(q2).intersect(q3.union(q4)).subquery())).all()
 
     def __repr__(self):
         return f"User(id={self.id}, email={self.email}, username={self.username})"
