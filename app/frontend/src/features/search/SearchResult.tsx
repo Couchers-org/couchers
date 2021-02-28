@@ -50,7 +50,7 @@ export default function SearchResult({ user }: { user: User.AsObject }) {
               <Container>
                 <Typography variant="h2">{user.name}</Typography>
                 <Typography variant="subtitle1">
-                  {hostingStatusLabels[user.hostingStatus]}
+                  {hostingStatusLabels.get(user.hostingStatus)}
                 </Typography>
               </Container>
             </Box>

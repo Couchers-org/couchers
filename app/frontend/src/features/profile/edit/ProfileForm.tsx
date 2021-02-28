@@ -1,5 +1,4 @@
 import {
-  Box,
   FormControlLabel,
   makeStyles,
   Radio,
@@ -9,14 +8,18 @@ import {
 } from "@material-ui/core";
 import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { useHistory } from "react-router-dom";
 
 import Alert from "../../../components/Alert";
 import Button from "../../../components/Button";
 import CircularProgress from "../../../components/CircularProgress";
 import EditUserLocationMap from "../../../components/EditUserLocationMap";
+import { HostingStatus, MeetupStatus } from "../../../pb/api_pb";
+import { profileRoute } from "../../../routes";
 import { UpdateUserProfileData } from "../../../service/user";
 import { useIsMounted, useSafeState } from "../../../utils/hooks";
 import {
+  ABOUT_HOME,
   ABOUT_ME,
   FEMALE,
   FEMALE_FORM_VALUE,
@@ -25,17 +28,19 @@ import {
   MALE,
   MALE_FORM_VALUE,
   OTHER_FORM_VALUE,
+  SAVE,
 } from "../../constants";
 import useCurrentUser from "../../userQueries/useCurrentUser";
 import {
   ACCEPTING,
+  hostingStatusLabels,
   MAYBE_ACCEPTING,
   MAYBE_MEETUP,
   MEETUP,
+  meetupStatusLabels,
   NO_MEETUP,
   NOT_ACCEPTING,
 } from "../constants";
-import ProfileMarkdownInput from "../ProfileMarkdownInput";
 import ProfileTagInput from "../ProfileTagInput";
 import ProfileTextInput from "../ProfileTextInput";
 import useUpdateUserProfile from "../useUpdateUserProfile";
@@ -66,6 +71,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function EditProfileForm() {
   const classes = useStyles();
+  const history = useHistory();
   const {
     updateUserProfile,
     status: updateStatus,
@@ -100,7 +106,16 @@ export default function EditProfileForm() {
 
   const onSubmit = handleSubmit((data) => {
     resetUpdate();
+    data.hostingStatus = hostingStatusLabels.getKey(
+      (data.hostingStatus as unknown) as string
+    );
+    data.meetupStatus = meetupStatusLabels.getKey(
+      (data.meetupStatus as unknown) as string
+    );
     updateUserProfile({ profileData: data, setMutationError: setErrorMessage });
+    if (!errorMessage) {
+      history.push(profileRoute);
+    }
   });
 
   return (
@@ -140,7 +155,7 @@ export default function EditProfileForm() {
           <form onSubmit={onSubmit}>
             <Controller
               control={control}
-              defaultValue={user.hostingStatus}
+              defaultValue={hostingStatusLabels.get(user.hostingStatus)}
               name="hostingStatus"
               render={({ onChange, value }) => (
                 <>
@@ -153,17 +168,23 @@ export default function EditProfileForm() {
                     onChange={(_, value) => onChange(value)}
                   >
                     <FormControlLabel
-                      value="host"
+                      value={hostingStatusLabels.get(
+                        HostingStatus.HOSTING_STATUS_CAN_HOST
+                      )}
                       control={<Radio />}
                       label={ACCEPTING}
                     />
                     <FormControlLabel
-                      value="maybeHost"
+                      value={hostingStatusLabels.get(
+                        HostingStatus.HOSTING_STATUS_MAYBE
+                      )}
                       control={<Radio />}
                       label={MAYBE_ACCEPTING}
                     />
                     <FormControlLabel
-                      value="noHost"
+                      value={hostingStatusLabels.get(
+                        HostingStatus.HOSTING_STATUS_CANT_HOST
+                      )}
                       control={<Radio />}
                       label={NOT_ACCEPTING}
                     />
@@ -173,7 +194,7 @@ export default function EditProfileForm() {
             />
             <Controller
               control={control}
-              defaultValue={user.meetupStatus}
+              defaultValue={meetupStatusLabels.get(user.meetupStatus)}
               name="meetupStatus"
               render={({ onChange, value }) => (
                 <>
@@ -186,17 +207,23 @@ export default function EditProfileForm() {
                     onChange={(_, value) => onChange(value)}
                   >
                     <FormControlLabel
-                      value="meetup"
+                      value={meetupStatusLabels.get(
+                        MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP
+                      )}
                       control={<Radio />}
                       label={MEETUP}
                     />
                     <FormControlLabel
-                      value="maybeMeetup"
+                      value={meetupStatusLabels.get(
+                        MeetupStatus.MEETUP_STATUS_OPEN_TO_MEETUP
+                      )}
                       control={<Radio />}
                       label={MAYBE_MEETUP}
                     />
                     <FormControlLabel
-                      value="noMeetup"
+                      value={meetupStatusLabels.get(
+                        MeetupStatus.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP
+                      )}
                       control={<Radio />}
                       label={NO_MEETUP}
                     />
@@ -254,7 +281,6 @@ export default function EditProfileForm() {
               inputRef={register}
               className={classes.field}
             />
-
             <Controller
               control={control}
               defaultValue={user.languagesList}
@@ -270,31 +296,20 @@ export default function EditProfileForm() {
                 />
               )}
             />
-            <Controller
-              control={control}
-              defaultValue={user.aboutMe}
+            <ProfileTextInput
+              label={ABOUT_ME}
               name="aboutMe"
-              render={({ onChange, value }) => (
-                <ProfileMarkdownInput
-                  label={ABOUT_ME}
-                  onChange={onChange}
-                  value={value}
-                />
-              )}
+              defaultValue={user.aboutMe}
+              inputRef={register}
+              className={classes.field}
             />
-            <Controller
-              control={control}
-              defaultValue={user.aboutPlace}
+            <ProfileTextInput
+              label={ABOUT_HOME}
               name="aboutPlace"
-              render={({ onChange, value }) => (
-                <ProfileMarkdownInput
-                  label="About my place"
-                  onChange={onChange}
-                  value={value}
-                />
-              )}
+              defaultValue={user.aboutPlace}
+              inputRef={register}
+              className={classes.field}
             />
-
             <Controller
               control={control}
               defaultValue={user.countriesVisitedList}
@@ -310,7 +325,6 @@ export default function EditProfileForm() {
                 />
               )}
             />
-
             <Controller
               control={control}
               defaultValue={user.countriesLivedList}
@@ -326,17 +340,16 @@ export default function EditProfileForm() {
                 />
               )}
             />
-
-            <Box className={classes.buttonContainer}>
+            <div className={classes.buttonContainer}>
               <Button
                 type="submit"
                 variant="contained"
                 color="primary"
                 onClick={onSubmit}
               >
-                Save
+                {SAVE}
               </Button>
-            </Box>
+            </div>
           </form>
         </>
       ) : (

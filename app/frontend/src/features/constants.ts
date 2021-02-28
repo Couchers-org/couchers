@@ -49,6 +49,7 @@ export const HOSTING_STATUS = "Hosting status";
 export const MALE = "Male";
 export const MALE_FORM_VALUE = "male";
 export const OTHER_FORM_VALUE = "other";
+export const SAVE = "save";
 
 // Home
 export const ABOUT_HOME = "About my home";
@@ -73,3 +74,6 @@ export const SLEEPING_ARRANGEMENT = "Sleeping arrangement";
 export const SPACE = "Private / shared space";
 export const TRANSPORTATION = "Transportation, Parking, Accessibility";
 export const WHEELCHAIR = "Wheelchair accessible";
+
+// Edit home
+export const EDIT_HOME = "Edit my place";

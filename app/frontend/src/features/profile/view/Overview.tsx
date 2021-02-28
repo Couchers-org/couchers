@@ -78,19 +78,15 @@ export default function Overview({ user }: OverviewProps) {
       </CardActions>
       <IconText
         icon={CouchIcon}
-        text={
-          hostingStatusLabels[
-            user.hostingStatus || HostingStatus.HOSTING_STATUS_UNKNOWN
-          ]
-        }
+        text={hostingStatusLabels.get(
+          user.hostingStatus || HostingStatus.HOSTING_STATUS_UNKNOWN
+        )}
       />
       <IconText
         icon={LocationIcon}
-        text={
-          meetupStatusLabels[
-            user.meetupStatus || MeetupStatus.MEETUP_STATUS_UNKNOWN
-          ]
-        }
+        text={meetupStatusLabels.get(
+          user.meetupStatus || MeetupStatus.MEETUP_STATUS_UNKNOWN
+        )}
       />
       <Divider />
       <BarWithHelp

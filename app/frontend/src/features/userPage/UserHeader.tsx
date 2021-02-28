@@ -46,7 +46,7 @@ export default function UserHeader({ children, user }: UserHeaderProps) {
 
       <IconText
         icon={CouchIcon}
-        text={hostingStatusLabels[user.hostingStatus]}
+        text={hostingStatusLabels.get(user.hostingStatus)}
       />
 
       {user.lastActive && (
