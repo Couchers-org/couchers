@@ -233,6 +233,20 @@ class TestGroups:
                 "Discussion title 13",
                 "Discussion title 14",
             ]
+    
+    @staticmethod
+    def test_ListUserGroups(testing_communities):
+        with session_scope() as session:
+            user1_id, token1 = get_user_id_and_token(session, "user1")
+            hitchhikers_id = get_group_id(session, "Hitchhikers")
+            foodies_id = get_group_id(session, "Country 1, Region 1, Foodies")
+            skaters_id = get_group_id(session, "Country 1, Region 1, Skaters")
+
+        with groups_session(token1) as api:
+            res = api.ListUserGroups(
+                groups_pb2.ListUserGroupsReq()
+            )
+            assert [g.group_id for g in res.groups] == [hitchhikers_id, foodies_id, skaters_id]
 
 
 def test_JoinGroup_and_LeaveGroup(testing_communities):

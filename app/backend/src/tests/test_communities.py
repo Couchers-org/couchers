@@ -381,7 +381,7 @@ class TestCommunities:
     @staticmethod
     def test_ListUserCommunities(testing_communities):
         with session_scope() as session:
-            user1_id, token1 = get_user_id_and_token(session, "user2")
+            user2_id, token2 = get_user_id_and_token(session, "user2")
             w_id = get_community_id(session, "World")
             c1_id = get_community_id(session, "Country 1")
             c1r1_id = get_community_id(session, "Country 1, Region 1")
@@ -390,7 +390,7 @@ class TestCommunities:
             c1r2_id = get_community_id(session, "Country 1, Region 2")
             c1r2c1_id = get_community_id(session, "Country 1, Region 2, City 1")
 
-        with communities_session(token1) as api:
+        with communities_session(token2) as api:
             res = api.ListUserCommunities(
                 communities_pb2.ListCommunitiesReq()
             )
@@ -423,20 +423,6 @@ class TestCommunities:
             )
             assert len(res.groups) == 1
             assert res.groups[0].group_id == hitchhikers_id
-    
-    @staticmethod
-    def test_ListUserGroups(testing_communities):
-        with session_scope() as session:
-            user1_id, token1 = get_user_id_and_token(session, "user1")
-            hitchhikers_id = get_group_id(session, "Hitchhikers")
-            foodies_id = get_group_id(session, "Country 1, Region 1, Foodies")
-            skaters_id = get_group_id(session, "Country 1, Region 1, Skaters")
-
-        with communities_session(token1) as api:
-            res = api.ListUserGroups(
-                communities_pb2.ListUserGroupsReq()
-            )
-            assert [g.group_id for g in res.groups] == [hitchhikers_id, foodies_id, skaters_id]
 
     @staticmethod
     def test_ListAdmins(testing_communities):

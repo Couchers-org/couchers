@@ -250,7 +250,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         with session_scope() as session:
             page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
             next_node_id = int(request.page_token) if request.page_token else 0
-            user_id = context.user_id if request.user_id == 0 else request.user_id
+            user_id = request.user_id or context.user_id
             nodes = (
                 session.query(Node)
                 .join(Cluster, Cluster.parent_node_id == Node.id)
@@ -266,62 +266,4 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             return communities_pb2.ListUserCommunitiesRes(
                 communities=[community_to_pb(node, user_id) for node in nodes[:page_size]],
                 next_page_token=str(nodes[-1].id) if len(nodes) > page_size else None,
-            )
-    
-    def ListUserGroups(self, request, context):
-        with session_scope() as session:
-            page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-            next_cluster_id = int(request.page_token) if request.page_token else 0
-            user_id = context.user_id if request.user_id == 0 else request.user_id
-            clusters = (
-                session.query(Cluster)
-                .join(ClusterSubscription, ClusterSubscription.cluster_id == Cluster.id)
-                .filter(ClusterSubscription.user_id == user_id)
-                .filter(~Cluster.is_official_cluster)  # not an official group
-                .filter(Cluster.id >= next_cluster_id)
-                .order_by(Cluster.id)
-                .limit(page_size + 1)
-                .all()
-            )
-            return communities_pb2.ListUserGroupsRes(
-                groups=[group_to_pb(cluster, user_id) for cluster in clusters[:page_size]],
-                next_page_token=str(clusters[-1].id) if len(clusters) > page_size else None,
-            )
-    
-    def ListUserPlaces(self, request, context):
-        with session_scope() as session:
-            page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-            next_page_id = int(request.page_token) if request.page_token else 0
-            user_id = context.user_id if request.user_id == 0 else request.user_id
-            places = (
-                session.query(Page)
-                .filter(Page.owner_user_id == user_id)
-                .filter(Page.type == PageType.place)
-                .filter(Page.id >= next_page_id)
-                .order_by(Page.id)
-                .limit(page_size + 1)
-                .all()
-            )
-            return communities_pb2.ListUserPlacesRes(
-                places=[page_to_pb(page, context.user_id) for page in places[:page_size]],
-                next_page_token=str(places[-1].id) if len(places) > page_size else None,
-            )
-
-    def ListUserGuides(self, request, context):
-        with session_scope() as session:
-            page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-            next_page_id = int(request.page_token) if request.page_token else 0
-            user_id = context.user_id if request.user_id == 0 else request.user_id
-            guides = (
-                session.query(Page)
-                .filter(Page.owner_user_id == user_id)
-                .filter(Page.type == PageType.guide)
-                .filter(Page.id >= next_page_id)
-                .order_by(Page.id)
-                .limit(page_size + 1)
-                .all()
-            )
-            return communities_pb2.ListUserGuidesRes(
-                guides=[page_to_pb(page, context.user_id) for page in guides[:page_size]],
-                next_page_token=str(guides[-1].id) if len(guides) > page_size else None,
             )

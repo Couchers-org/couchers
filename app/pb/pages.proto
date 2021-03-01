@@ -27,6 +27,14 @@ service Pages {
   rpc TransferPage(TransferPageReq) returns (Page) {
     // Transfer a page you own to either a group or a community
   }
+
+  rpc ListUserPlaces(ListUserPlacesReq) returns (ListUserPlacesRes) {
+    // Gets a list of groups a member belongs to
+  }
+
+  rpc ListUserGuides(ListUserGuidesReq) returns (ListUserGuidesRes) {
+    // Gets a list of groups a member belongs to
+  }
 }
 
 message Coordinate {
@@ -111,4 +119,30 @@ message TransferPageReq {
     int64 new_owner_community_id = 3;
     int64 new_owner_group_id = 2;
   }
+}
+
+message ListUserPlacesReq {
+  uint32 user_id = 1;
+
+  uint32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListUserPlacesRes {
+  repeated org.couchers.api.pages.Page places = 1;
+
+  string next_page_token = 2;
+}
+
+message ListUserGuidesReq {
+  uint32 user_id = 1;
+
+  uint32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListUserGuidesRes {
+  repeated org.couchers.api.pages.Page guides = 1;
+
+  string next_page_token = 2;
 }

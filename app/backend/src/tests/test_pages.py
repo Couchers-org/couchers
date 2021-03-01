@@ -1033,3 +1033,77 @@ def test_page_constraints(db):
             )
     assert "violates unique constraint" in str(e.value)
     assert "ix_pages_owner_cluster_id_type" in str(e.value)
+
+def test_list_user_places(db):
+    user1, token1 = generate_user()
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Root node", [user1], [], None).id
+
+    with pages_session(token1) as api:
+        place1_id = api.CreatePlace(
+            pages_pb2.CreatePlaceReq(
+                title="dummy title",
+                content="dummy content",
+                address="dummy address",
+                location=pages_pb2.Coordinate(
+                    lat=1,
+                    lng=1,
+                ),
+            )
+        ).page_id
+
+        place2_id = api.CreatePlace(
+            pages_pb2.CreatePlaceReq(
+                title="dummy title 2",
+                content="dummy content 2",
+                address="dummy address 2",
+                location=pages_pb2.Coordinate(
+                    lat=1,
+                    lng=1,
+                ),
+            )
+        ).page_id
+
+    with pages_session(token1) as api:
+        res = api.ListUserPlaces(
+            pages_pb2.ListUserPlacesReq()
+        )
+        assert [p.page_id for p in res.places] == [place1_id, place2_id]
+
+def test_list_user_guides(db):
+    user1, token1 = generate_user()
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Root node", [user1], [], None).id
+
+    with pages_session(token1) as api:
+        guide1_id = api.CreateGuide(
+            pages_pb2.CreateGuideReq(
+                title="dummy title",
+                content="dummy content",
+                address="dummy address",
+                location=pages_pb2.Coordinate(
+                    lat=1,
+                    lng=1,
+                ),
+                parent_community_id=c_id,
+            )
+        ).page_id
+
+        guide2_id = api.CreateGuide(
+            pages_pb2.CreateGuideReq(
+                title="dummy title 2",
+                content="dummy content 2",
+                address="dummy address 2",
+                location=pages_pb2.Coordinate(
+                    lat=1,
+                    lng=1,
+                ),
+                parent_community_id=c_id,
+            )
+        ).page_id
+
+    with pages_session(token1) as api:
+        res = api.ListUserGuides(
+            pages_pb2.ListUserGuidesReq()
+        )
+        assert [p.page_id for p in res.guides] == [guide1_id, guide2_id]
