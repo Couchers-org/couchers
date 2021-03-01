@@ -767,3 +767,40 @@ def test_hosting_preferences(db):
         assert not res.HasField("parking")
         assert res.parking_details == api_pb2.PARKING_DETAILS_UNKNOWN
         assert not res.HasField("camping_ok")
+
+
+def test_user_blocking(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    # Test blocking
+    with api_session(token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.BlockUser(api_pb2.UserBlockingReq(user_id=user1.id))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.CANT_BLOCK_SELF
+
+        api.BlockUser(api_pb2.UserBlockingReq(user_id=user2.id))
+
+    # Test Unblocking
+    with api_session(token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.UnblockUser(api_pb2.UserBlockingReq(user_id=user1.id))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.CANT_UNBLOCK_SELF
+
+        api.UnblockUser(api_pb2.UserBlockingReq(user_id=user2.id))
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.UnblockUser(api_pb2.UserBlockingReq(user_id=user2.id))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.USER_NOT_BLOCKED
+
+        res = api.GetUser(api_pb2.GetUserReq(user=user2.username))
+        assert res.user_id == user2.id
+
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
+
+    with api_session(token2) as api:
+        res = api.Ping(api_pb2.PingReq())
+        assert res.pending_friend_request_count == 1
