@@ -3,7 +3,7 @@ import {
   TextField as MuiTextField,
   TextFieldProps,
 } from "@material-ui/core";
-import { BaseTextFieldProps } from "@material-ui/core/TextField"
+import { BaseTextFieldProps } from "@material-ui/core/TextField";
 import classNames from "classnames";
 import React from "react";
 
@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
 
  interface AccessibleTextFieldProps extends BaseTextFieldProps {
    id: BaseTextFieldProps["id"];
-   onChange?: TextFieldProps["onChange"]
+   onChange?: TextFieldProps["onChange"];
  }
 
 export default function TextField({
