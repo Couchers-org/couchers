@@ -15,7 +15,6 @@ import {
   changeEmailRoute,
   changePasswordRoute,
   editHostingPreferenceRoute,
-  editProfileRoute,
 } from "../../../routes";
 import { SECTION_LABELS } from "../../constants";
 import useCurrentUser from "../../userQueries/useCurrentUser";
@@ -107,13 +106,6 @@ export default function ProfilePage() {
         <></>
       )}
       <List>
-        <ListItem
-          className={classes.linkStyle}
-          component={Link}
-          to={editProfileRoute}
-        >
-          Edit my profile
-        </ListItem>
         <ListItem
           className={classes.linkStyle}
           component={Link}

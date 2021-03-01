@@ -1,6 +1,8 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { useMutation, useQueryClient } from "react-query";
+import { useHistory } from "react-router-dom";
 
+import { profileRoute } from "../../routes";
 import { service, UpdateUserProfileData } from "../../service";
 import { SetMutationError } from "../../utils/types";
 import { useAuthContext } from "../auth/AuthProvider";
@@ -12,6 +14,7 @@ interface UpdateUserProfileVariables {
 
 export default function useUpdateUserProfile() {
   const queryClient = useQueryClient();
+  const history = useHistory();
   const userId = useAuthContext().authState.userId;
   const { mutate: updateUserProfile, status, reset } = useMutation<
     Empty,
@@ -23,6 +26,7 @@ export default function useUpdateUserProfile() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["user", userId]);
+      history.push(profileRoute);
     },
     onError: (error, { setMutationError }) => {
       setMutationError(error.message);
