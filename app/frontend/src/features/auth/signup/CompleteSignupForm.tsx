@@ -194,9 +194,7 @@ export default function CompleteSignup() {
           <Controller
             name="location"
             control={control}
-            inputRef={register({
-              required: "Enter your location",
-            })}
+            inputRef={register}
             render={({ onChange }) => (
               <EditUserLocationMap
                 className={classes.locationMap}
