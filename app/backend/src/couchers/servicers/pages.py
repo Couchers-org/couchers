@@ -302,7 +302,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
         with session_scope() as session:
             page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
             next_page_id = int(request.page_token) if request.page_token else 0
-            user_id = context.user_id if request.user_id == 0 else request.user_id
+            user_id = request.user_id or context.user_id
             places = (
                 session.query(Page)
                 .filter(Page.owner_user_id == user_id)
@@ -321,7 +321,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
         with session_scope() as session:
             page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
             next_page_id = int(request.page_token) if request.page_token else 0
-            user_id = context.user_id if request.user_id == 0 else request.user_id
+            user_id = request.user_id or context.user_id
             guides = (
                 session.query(Page)
                 .filter(Page.owner_user_id == user_id)
