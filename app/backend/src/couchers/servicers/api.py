@@ -27,6 +27,7 @@ from couchers.models import (
     SleepingArrangement,
     SmokingLocation,
     User,
+    UserBlocking,
 )
 from couchers.tasks import send_friend_request_email, send_report_email
 from couchers.utils import Timestamp_from_datetime, create_coordinate, now
@@ -642,6 +643,55 @@ class API(api_pb2_grpc.APIServicer):
             upload_url=urls.media_upload_url(path),
             expiry=Timestamp_from_datetime(expiry),
         )
+
+    def BlockUser(self, request, context):
+        if context.user_id == request.user_id:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_BLOCK_SELF)
+
+        with session_scope() as session:
+            if not session.query(User).filter(User.id == request.user_id).one_or_none():
+                context.abort(grpc.StatusCode.NOT_FOUND, "User not found")
+
+            user_blocking = (
+                session.query(UserBlocking)
+                .filter(UserBlocking.blocking_user == context.user_id)
+                .filter(UserBlocking.blocked_user == request.user_id)
+                .one_or_none()
+            )
+            if user_blocking:
+                user_blocking.blocked = True
+                user_blocking.time_blocked = func.now()
+                session.commit()
+            else:
+                user_blocking = UserBlocking(
+                    blocking_user=context.user_id,
+                    blocked_user=request.user_id,
+                )
+                session.add(user_blocking)
+        return empty_pb2.Empty()
+
+    def UnblockUser(self, request, context):
+        if context.user_id == request.user_id:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_UNBLOCK_SELF)
+
+        with session_scope() as session:
+            if not session.query(User).filter(User.id == request.user_id).one_or_none():
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+
+            user_blocking = (
+                session.query(UserBlocking)
+                .filter(UserBlocking.blocking_user == context.user_id)
+                .filter(UserBlocking.blocked_user == request.user_id)
+                .filter(UserBlocking.blocked)
+                .one_or_none()
+            )
+            if not user_blocking:
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.USER_NOT_BLOCKED)
+
+            user_blocking.blocked = False
+            session.commit()
+
+        return empty_pb2.Empty()
 
 
 def paginate_references_result(request, query):

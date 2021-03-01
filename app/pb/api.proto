@@ -55,6 +55,10 @@ service API {
   rpc InitiateMediaUpload(google.protobuf.Empty) returns (InitiateMediaUploadRes) {
     // Initiate a media upload
   }
+
+  rpc BlockUser(UserBlockingReq) returns (google.protobuf.Empty);
+
+  rpc UnblockUser(UserBlockingReq) returns(google.protobuf.Empty);
 }
 
 message SendFriendRequestReq {
@@ -384,4 +388,8 @@ message InitiateMediaUploadRes {
   // URL to POST the data to
   string upload_url = 1;
   google.protobuf.Timestamp expiry = 2;
+}
+
+message UserBlockingReq {
+  int64 user_id = 1;
 }
