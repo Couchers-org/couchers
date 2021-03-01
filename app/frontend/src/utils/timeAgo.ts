@@ -1,5 +1,6 @@
 export const minuteMillis = 60000;
-export const quaterHourMillis = 900000;
+export const twoMinuteMillis = 120000;
+export const quarterHourMillis = 900000;
 export const hourMillis = 3600000;
 export const twoHourMillis = 7200000;
 export const dayMillis = 86400000;
@@ -11,13 +12,17 @@ export const twoMonthMillis = weekMillis * 8;
 export const yearMillis = 31557600000;
 export const twoYearMillis = 31557600000 * 2;
 
-export function timeAgo(input: Date | string) {
+export function timeAgo(input: Date | string, fuzzy: boolean = false) {
   if (input === undefined) return "";
   const date = new Date(input);
   const diffMillis = Date.now() - date.getTime();
 
-  //the backend fuzzes times to 15 minute intervals
-  if (diffMillis < quaterHourMillis) return "< 15 minutes ago";
+  if (fuzzy && diffMillis < quarterHourMillis) {
+    return "< 15 minutes ago";
+  }
+
+  if (diffMillis <= minuteMillis) return "< 1 minute ago";
+  if (diffMillis <= twoMinuteMillis) return "1 minute ago";
   if (diffMillis < hourMillis)
     return "" + (diffMillis / minuteMillis).toFixed() + " minutes ago";
 

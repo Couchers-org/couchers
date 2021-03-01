@@ -3,10 +3,10 @@ import {
   hourMillis,
   minuteMillis,
   monthMillis,
-  quaterHourMillis,
   timeAgo,
   twoDayMillis,
   twoHourMillis,
+  twoMinuteMillis,
   twoMonthMillis,
   twoWeekMillis,
   twoYearMillis,
@@ -15,8 +15,8 @@ import {
 } from "./timeAgo";
 
 const timeAgoMap = {
-  [minuteMillis]: "< 15 minutes ago",
-  [quaterHourMillis]: "15 minutes ago",
+  [minuteMillis]: "< 1 minute ago",
+  [twoMinuteMillis]: "1 minute ago",
   [hourMillis]: "1 hour ago",
   [twoHourMillis]: "2 hours ago",
   [dayMillis]: "1 day ago",
@@ -30,13 +30,19 @@ const timeAgoMap = {
 };
 
 test("timeAgo function", () => {
-  const now = Date.now();
-
   Object.keys(timeAgoMap).forEach((key: string) => {
+    const now = Date.now();
     const millis = parseInt(key);
-    const value = timeAgoMap[millis];
+    const expectedValue = timeAgoMap[millis];
     const date = new Date(now - millis);
-    const s = timeAgo(date);
-    expect(s).toBe(value);
+    const timeString = timeAgo(date);
+    expect(timeString).toBe(expectedValue);
   });
+});
+
+test("timeAgo function with fuzzy", () => {
+  const now = Date.now();
+  const date = new Date(now - twoMinuteMillis);
+  const timeString = timeAgo(date, true);
+  expect(timeString).toBe("< 15 minutes ago");
 });
