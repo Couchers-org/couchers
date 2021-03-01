@@ -611,6 +611,28 @@ class API(api_pb2_grpc.APIServicer):
                 session.add(user_blocking)
         return empty_pb2.Empty()
 
+    def GetBlockedUsers(self, request, context):
+        with session_scope() as session:
+            blocked_users = (
+                session.query(UserBlocking)
+                .filter(UserBlocking.blocking_user == context.user_id)
+                .filter(UserBlocking.blocked)
+                .all()
+            )
+
+            return api_pb2.GetBlockedUsersRes(
+                blocked_user_relationships=[
+                    api_pb2.BlockedUserRelationship(
+                        id=blocked_user_relationship.id,
+                        blocking_user_id=blocked_user_relationship.blocking_user,
+                        blocked_user_id=blocked_user_relationship.blocked_user,
+                        blocked=blocked_user_relationship.blocked,
+                        time_blocked=blocked_user_relationship.time_blocked,
+                    )
+                    for blocked_user_relationship in blocked_users
+                ],
+            )
+
     def UnblockUser(self, request, context):
         if context.user_id == request.user_id:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_UNBLOCK_SELF)

@@ -780,7 +780,13 @@ def test_user_blocking(db):
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == errors.CANT_BLOCK_SELF
 
+        blocked_user_list = api.GetBlockedUsers()
+        assert len(blocked_user_list) == 0
+
         api.BlockUser(api_pb2.UserBlockingReq(user_id=user2.id))
+
+        blocked_user_list = api.GetBlockedUsers()
+        assert len(blocked_user_list) == 1
 
     # Test Unblocking
     with api_session(token1) as api:
@@ -796,6 +802,9 @@ def test_user_blocking(db):
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == errors.USER_NOT_BLOCKED
 
+        blocked_user_list = api.GetBlockedUsers()
+        assert len(blocked_user_list) == 0
+
         res = api.GetUser(api_pb2.GetUserReq(user=user2.username))
         assert res.user_id == user2.id
 
@@ -804,3 +813,10 @@ def test_user_blocking(db):
     with api_session(token2) as api:
         res = api.Ping(api_pb2.PingReq())
         assert res.pending_friend_request_count == 1
+
+    # Test re-blocking
+    with api_session(token1) as api:
+        api.BlockUser(api_pb2.UserBlockingReq(user_id=user2.id))
+
+        blocked_user_list = api.GetBlockedUsers()
+        assert len(blocked_user_list) == 1
