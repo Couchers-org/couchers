@@ -58,6 +58,8 @@ service API {
 
   rpc BlockUser(UserBlockingReq) returns (google.protobuf.Empty);
 
+  rpc GetBlockedUsers(google.protobuf.Empty) returns (GetBlockedUsersRes);
+
   rpc UnblockUser(UserBlockingReq) returns(google.protobuf.Empty);
 }
 
@@ -392,4 +394,16 @@ message InitiateMediaUploadRes {
 
 message UserBlockingReq {
   int64 user_id = 1;
+}
+
+message BlockedUserRelationship{
+  int64 id = 1;
+  int64 blocking_user_id = 2;
+  int64 blocked_user_id = 3;
+  bool blocked = 4;
+  google.protobuf.Timestamp time_blocked = 5;
+}
+
+message GetBlockedUsersRes {
+  repeated BlockedUserRelationship blocked_user_relationships = 1;
 }
