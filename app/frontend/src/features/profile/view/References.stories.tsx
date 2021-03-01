@@ -6,7 +6,7 @@ import { mockedService } from "stories/__mocks__/service";
 import users from "test/fixtures/users.json";
 
 export default {
-  title: "Profile/UserReferences",
+  title: "Profile/References",
   component: References,
 } as Meta;
 
@@ -23,6 +23,7 @@ UserReferences.args = {
     totalMatches: 2,
     referencesList: [
       {
+        referenceId: 1,
         fromUserId: 2,
         toUserId: 1,
         referenceType: ReferenceType.FRIEND,
@@ -33,6 +34,7 @@ UserReferences.args = {
         },
       },
       {
+        referenceId: 2,
         fromUserId: 3,
         toUserId: 1,
         referenceType: ReferenceType.SURFED,
@@ -44,6 +46,7 @@ UserReferences.args = {
         },
       },
       {
+        referenceId: 3,
         fromUserId: 3,
         toUserId: 1,
         referenceType: ReferenceType.SURFED,

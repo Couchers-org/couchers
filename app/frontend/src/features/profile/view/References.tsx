@@ -132,11 +132,11 @@ export default function References({ user }: UserReferencesProps) {
       ) : (
         referencesReceived && (
           <List className={classes.referencesList}>
-            {referencesReceived.referencesList.map((reference, index) => {
+            {referencesReceived.referencesList.map((reference) => {
               const author = referenceUsers?.get(reference.fromUserId);
               return author ? (
                 <ReferenceListItem
-                  key={`reference-${index}`}
+                  key={reference.referenceId}
                   author={author}
                   reference={reference}
                 />
