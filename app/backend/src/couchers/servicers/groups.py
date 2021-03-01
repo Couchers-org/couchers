@@ -247,7 +247,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
                 .limit(page_size + 1)
                 .all()
             )
-            return communities_pb2.ListUserGroupsRes(
+            return groups_pb2.ListUserGroupsRes(
                 groups=[group_to_pb(cluster, user_id) for cluster in clusters[:page_size]],
                 next_page_token=str(clusters[-1].id) if len(clusters) > page_size else None,
             )
