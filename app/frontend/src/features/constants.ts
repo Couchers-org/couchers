@@ -42,10 +42,13 @@ export const SECTION_LABELS = {
 };
 
 // Edit Profile
+export const COUNTRIES_VISITED = "Countries I've Visited";
+export const COUNTRIES_LIVED = "Countries I've Lived In";
 export const FEMALE = "Female";
 export const FEMALE_FORM_VALUE = "female";
 export const GENDER = "Gender";
 export const HOSTING_STATUS = "Hosting status";
+export const LANGUAGES_SPOKEN = "Languages I speak";
 export const MALE = "Male";
 export const MALE_FORM_VALUE = "male";
 export const OTHER_FORM_VALUE = "other";
@@ -70,6 +73,7 @@ export const LAST_MINUTE = "Last-minute requests";
 export const LOCAL_AREA = "Local area information";
 export const MAX_GUESTS = "Max # of guests";
 export const PARKING = "Parking available";
+export const PARKING_DETAILS = "Parking details";
 export const SLEEPING_ARRANGEMENT = "Sleeping arrangement";
 export const SPACE = "Private / shared space";
 export const TRANSPORTATION = "Transportation, Parking, Accessibility";

@@ -8,25 +8,27 @@ import {
 } from "@material-ui/core";
 import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useHistory } from "react-router-dom";
 
 import Alert from "../../../components/Alert";
 import Button from "../../../components/Button";
 import CircularProgress from "../../../components/CircularProgress";
 import EditUserLocationMap from "../../../components/EditUserLocationMap";
 import { HostingStatus, MeetupStatus } from "../../../pb/api_pb";
-import { profileRoute } from "../../../routes";
 import { UpdateUserProfileData } from "../../../service/user";
 import { useIsMounted, useSafeState } from "../../../utils/hooks";
 import {
   ABOUT_HOME,
   ABOUT_ME,
+  COUNTRIES_LIVED,
+  COUNTRIES_VISITED,
   FEMALE,
   FEMALE_FORM_VALUE,
   GENDER,
   HOSTING_STATUS,
+  LANGUAGES_SPOKEN,
   MALE,
   MALE_FORM_VALUE,
+  OCCUPATION,
   OTHER_FORM_VALUE,
   SAVE,
 } from "../../constants";
@@ -46,8 +48,9 @@ import useUpdateUserProfile from "../useUpdateUserProfile";
 const useStyles = makeStyles((theme) => ({
   buttonContainer: {
     display: "flex",
-    paddingTop: theme.spacing(1),
     justifyContent: "center",
+    paddingBottom: theme.spacing(1),
+    paddingTop: theme.spacing(1),
   },
   field: {
     "& > .MuiInputBase-root": {
@@ -69,7 +72,6 @@ const useStyles = makeStyles((theme) => ({
 
 export default function EditProfileForm() {
   const classes = useStyles();
-  const history = useHistory();
   const {
     updateUserProfile,
     status: updateStatus,
@@ -105,9 +107,6 @@ export default function EditProfileForm() {
   const onSubmit = handleSubmit((data) => {
     resetUpdate();
     updateUserProfile({ profileData: data, setMutationError: setErrorMessage });
-    if (!errorMessage) {
-      history.push(profileRoute);
-    }
   });
 
   return (
@@ -255,7 +254,7 @@ export default function EditProfileForm() {
               )}
             />
             <ProfileTextInput
-              label="Occupation"
+              label={OCCUPATION}
               name="occupation"
               defaultValue={user.occupation}
               inputRef={register}
@@ -270,7 +269,7 @@ export default function EditProfileForm() {
                   onChange={(_, value) => onChange(value)}
                   value={value}
                   options={[]}
-                  label="Languages I speak"
+                  label={LANGUAGES_SPOKEN}
                   id="languages"
                   className={classes.tagInput}
                 />
@@ -299,7 +298,7 @@ export default function EditProfileForm() {
                   onChange={(_, value) => onChange(value)}
                   value={value}
                   options={[]}
-                  label="Countries I've Visited"
+                  label={COUNTRIES_VISITED}
                   id="countries-visited"
                   className={classes.tagInput}
                 />
@@ -314,7 +313,7 @@ export default function EditProfileForm() {
                   onChange={(_, value) => onChange(value)}
                   value={value}
                   options={[]}
-                  label="Countries I've Lived In"
+                  label={COUNTRIES_LIVED}
                   id="countries-lived"
                   className={classes.tagInput}
                 />

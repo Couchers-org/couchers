@@ -20,6 +20,7 @@ import { SECTION_LABELS } from "../../constants";
 import useCurrentUser from "../../userQueries/useCurrentUser";
 import useUserByUsername from "../../userQueries/useUserByUsername";
 import About from "./About";
+import Home from "./Home";
 import Overview from "./Overview";
 import References from "./References";
 
@@ -87,7 +88,7 @@ export default function ProfilePage() {
                 <About user={user} />
               </TabPanel>
               <TabPanel value="home">
-                <div>home</div>
+                <Home user={user}></Home>
               </TabPanel>
               <TabPanel classes={{ root: classes.tabPanel }} value="references">
                 <References user={user} />

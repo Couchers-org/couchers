@@ -13,6 +13,7 @@ import { HostingStatus, MeetupStatus, User } from "../../../pb/api_pb";
 import { editProfileRoute } from "../../../routes";
 import { timestamp2Date } from "../../../utils/date";
 import { timeAgo } from "../../../utils/timeAgo";
+import { useAuthContext } from "../../auth/AuthProvider";
 import {
   COMMUNITY_STANDING,
   COMMUNITY_STANDING_DESCRIPTION,
@@ -60,6 +61,7 @@ interface OverviewProps {
 
 export default function Overview({ user }: OverviewProps) {
   const classes = useStyles();
+  const currentUserId = useAuthContext().authState.userId;
 
   return (
     <Card className={classes.card}>
@@ -71,11 +73,13 @@ export default function Overview({ user }: OverviewProps) {
         {user.city}
       </Typography>
       <Divider />
-      <CardActions className={classes.cardActions}>
-        <Button component={Link} to={editProfileRoute}>
-          {EDIT_PROFILE}
-        </Button>
-      </CardActions>
+      {user.userId === currentUserId && (
+        <CardActions className={classes.cardActions}>
+          <Button component={Link} to={editProfileRoute}>
+            {EDIT_PROFILE}
+          </Button>
+        </CardActions>
+      )}
       <IconText
         icon={CouchIcon}
         text={
