@@ -627,7 +627,7 @@ class API(api_pb2_grpc.APIServicer):
                         blocking_user_id=blocked_user_relationship.blocking_user,
                         blocked_user_id=blocked_user_relationship.blocked_user,
                         blocked=blocked_user_relationship.blocked,
-                        time_blocked=blocked_user_relationship.time_blocked,
+                        time_blocked=Timestamp_from_datetime(blocked_user_relationship.time_blocked),
                     )
                     for blocked_user_relationship in blocked_users
                 ],
