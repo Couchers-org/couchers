@@ -200,8 +200,8 @@ class User(Base):
         return or_(self.geom is None, self.geom_radius is None)
 
     @hybrid_property
-    def is_hidden_for_sql(self):
-        return or_(self.is_banned, self.is_deleted, self.is_jailed_for_sql)
+    def is_visible_for_sql(self):
+        return not_(or_(self.is_banned, self.is_deleted, self.is_jailed_for_sql))
 
     @property
     def coordinates(self):
@@ -272,7 +272,7 @@ class User(Base):
 
         return (
             session.query(User)
-            .filter(not_(User.is_hidden_for_sql))
+            .filter(User.is_visible_for_sql)
             .filter(User.id.in_(q1.union(q2).intersect(q3.union(q4)).subquery()))
             .all()
         )
