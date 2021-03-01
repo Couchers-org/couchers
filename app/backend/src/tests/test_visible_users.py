@@ -10,5 +10,5 @@ def test_hidden_users(db):
     user4, token4 = generate_user(accepted_tos=0)
 
     with session_scope() as session:
-        unhidden_users = session.query(User).filter(not_(User.is_hidden_for_sql)).all()
-        assert len(unhidden_users) == 1
+        visible_users = session.query(User).filter(User.is_visible_for_sql).all()
+        assert len(visible_users) == 1
