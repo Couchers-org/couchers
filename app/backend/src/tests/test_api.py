@@ -788,6 +788,40 @@ def test_user_blocking(db):
         blocked_user_list = api.GetBlockedUsers()
         assert len(blocked_user_list) == 1
 
+        """"
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetUser(
+                api_pb2.GetUserReq(user_id=user2.username)
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.USER_NOT_FOUND
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.SendFriendRequest(
+                api_pb2.SendFriendRequestReq(user_id=user2.id)
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.USER_NOT_FOUND
+        """
+
+    # Test bi-directional invisibility
+    with api_session(token2) as api:
+        """ "
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetUser(
+                api_pb2.GetUserReq(user_id=user1.username)
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.USER_NOT_FOUND
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.SendFriendRequest(
+                api_pb2.SendFriendRequestReq(user_id=user1.id)
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.USER_NOT_FOUND
+        """
+
     # Test Unblocking
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
