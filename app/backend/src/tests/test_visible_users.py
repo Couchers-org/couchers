@@ -1,4 +1,5 @@
 from sqlalchemy import not_
+
 from couchers.models import User
 from tests.test_fixtures import db, generate_user, session_scope
 
