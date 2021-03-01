@@ -16,6 +16,7 @@ const useStyles = makeStyles((theme) => ({
 
 interface AlertProps extends MuiAlertProps {
   severity: MuiAlertProps["severity"];
+  children: string;
 }
 
 export default function Alert({
@@ -25,21 +26,19 @@ export default function Alert({
 }: AlertProps) {
   const classes = useStyles();
 
+  const oldErrorKey = Object.keys(grpcErrorStrings).find((oldError) =>
+    children.includes(oldError)
+  );
+
   return (
     <MuiAlert {...otherProps} className={classNames(classes.root, className)}>
-      {React.Children.map(children, (child) => {
-        if (typeof child !== "string")
-          throw new Error("Alert should only have string children");
-
+      {
         // Search for the error in the ugly grpc error object keys
         // Replace it with the nice error if found
-        const oldErrorKey = Object.keys(grpcErrorStrings).find((oldError) =>
-          child.includes(oldError)
-        );
-        if (oldErrorKey)
-          return grpcErrorStrings[oldErrorKey as keyof typeof grpcErrorStrings];
-        else return child;
-      })}
+        oldErrorKey
+          ? grpcErrorStrings[oldErrorKey as keyof typeof grpcErrorStrings]
+          : children
+      }
     </MuiAlert>
   );
 }
