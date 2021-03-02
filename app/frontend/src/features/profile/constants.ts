@@ -62,3 +62,5 @@ export const parkingDetailsLabels = {
 export default function booleanConversion(value: boolean | undefined) {
   return value === undefined ? UNSURE : value ? "Yes" : "No";
 }
+
+export const referencesQueryStaleTime = 10 * 60 * 1000;

@@ -1,17 +1,27 @@
-import { List, ListItem, makeStyles, Typography } from "@material-ui/core";
-import Alert from "components/Alert";
-import CircularProgress from "components/CircularProgress";
-import Pill from "components/Pill";
-import TextBody from "components/TextBody";
-import UserSummary from "components/UserSummary";
-import { REFERENCES } from "features/constants";
-import useUsers from "features/userQueries/useUsers";
-import { Error as GrpcError } from "grpc-web";
-import { GetReferencesRes, Reference, ReferenceType, User } from "pb/api_pb";
-import React from "react";
-import { useQuery } from "react-query";
-import { service } from "service/index";
-import { dateTimeFormatter, timestamp2Date } from "utils/date";
+import {
+  List,
+  ListItem,
+  makeStyles,
+  Select,
+  Typography,
+} from "@material-ui/core";
+import { Reference, ReferenceType, User } from "pb/api_pb";
+import React, { useState } from "react";
+
+import Alert from "../../../components/Alert";
+import CircularProgress from "../../../components/CircularProgress";
+import { MenuItem } from "../../../components/Menu";
+import Pill from "../../../components/Pill";
+import TextBody from "../../../components/TextBody";
+import UserSummary from "../../../components/UserSummary";
+import { dateTimeFormatter, timestamp2Date } from "../../../utils/date";
+import {
+  NO_REFERENCES,
+  REFERENCES,
+  referencesFilterLabels,
+  REFERENCES_FILTER_A11Y_LABEL,
+} from "../../constants";
+import useReferences from "./useReferences";
 
 const useStyles = makeStyles((theme) => ({
   badgesContainer: {
@@ -23,6 +33,16 @@ const useStyles = makeStyles((theme) => ({
       marginBlockStart: theme.spacing(2),
     },
   },
+  header: {
+    marginTop: 0,
+  },
+  headerContainer: {
+    alignItems: "center",
+    display: "flex",
+    justifyContent: "space-between",
+    paddingBlockStart: theme.spacing(2),
+    width: "100%",
+  },
   listItem: {
     alignItems: "flex-start",
     borderBlockEnd: `${theme.typography.pxToRem(1)} solid ${
@@ -33,14 +53,25 @@ const useStyles = makeStyles((theme) => ({
       marginBlockStart: theme.spacing(2),
     },
   },
+  noReferencesText: {
+    marginBlockStart: theme.spacing(1),
+  },
   referenceBodyContainer: {
     display: "flex",
     width: "100%",
   },
+  referencesContainer: {
+    display: "flex",
+    flexFlow: "row wrap",
+  },
   referencesList: {
+    width: "100%",
     "& > *": {
       paddingBlockEnd: theme.spacing(3),
     },
+  },
+  referenceTypeSelect: {
+    paddingInlineStart: theme.spacing(1),
   },
   userSummary: {
     width: "100%",
@@ -100,51 +131,64 @@ interface UserReferencesProps {
 
 export default function References({ user }: UserReferencesProps) {
   const classes = useStyles();
+  const { error, isLoading, references, referenceUsers } = useReferences(user);
+  const [referenceType, setReferenceType] = useState<"" | ReferenceType>("");
 
-  const {
-    data: referencesReceived,
-    isLoading: isReferencesReceivedLoading,
-    error: referencesReceivedError,
-  } = useQuery<GetReferencesRes.AsObject, GrpcError>(
-    ["references", { userId: user.userId, type: "received" }],
-    () =>
-      service.user.getReferencesReceived({
-        count: 10,
-        userId: user.userId,
-        offset: 0,
-      })
-  );
+  const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+    setReferenceType(event.target.value as "" | ReferenceType);
+  };
 
-  const { data: referenceUsers, isLoading: isReferenceUsersLoading } = useUsers(
-    referencesReceived?.referencesList.map(
-      (reference) => reference.fromUserId
-    ) ?? []
-  );
+  const referencesToRender =
+    referenceType === ""
+      ? references
+      : references?.filter(
+          (reference) => reference.referenceType === referenceType
+        );
 
   return (
-    <>
-      <Typography variant="h1">{REFERENCES}</Typography>
-      {referencesReceivedError && (
-        <Alert severity="error">{referencesReceivedError.message}</Alert>
-      )}
-      {isReferencesReceivedLoading || isReferenceUsersLoading ? (
+    <div className={classes.referencesContainer}>
+      <div className={classes.headerContainer}>
+        <Typography className={classes.header} variant="h1">
+          {REFERENCES}
+        </Typography>
+        <Select
+          classes={{ select: classes.referenceTypeSelect }}
+          displayEmpty
+          inputProps={{ "aria-label": REFERENCES_FILTER_A11Y_LABEL }}
+          onChange={handleChange}
+          value={referenceType}
+        >
+          {Object.entries(referencesFilterLabels).map(([key, label]) => {
+            const value = key === "" ? key : Number(key);
+            return (
+              <MenuItem key={value} value={value}>
+                {label}
+              </MenuItem>
+            );
+          })}
+        </Select>
+      </div>
+      {error && <Alert severity="error">{error.message}</Alert>}
+      {isLoading ? (
         <CircularProgress />
+      ) : referencesToRender && referencesToRender.length > 0 ? (
+        <List className={classes.referencesList}>
+          {referencesToRender.map((reference) => {
+            const author = referenceUsers?.get(reference.fromUserId);
+            return author ? (
+              <ReferenceListItem
+                key={reference.referenceId}
+                author={author}
+                reference={reference}
+              />
+            ) : null;
+          })}
+        </List>
       ) : (
-        referencesReceived && (
-          <List className={classes.referencesList}>
-            {referencesReceived.referencesList.map((reference) => {
-              const author = referenceUsers?.get(reference.fromUserId);
-              return author ? (
-                <ReferenceListItem
-                  key={reference.referenceId}
-                  author={author}
-                  reference={reference}
-                />
-              ) : null;
-            })}
-          </List>
-        )
+        <TextBody className={classes.noReferencesText}>
+          {NO_REFERENCES}
+        </TextBody>
       )}
-    </>
+    </div>
   );
 }

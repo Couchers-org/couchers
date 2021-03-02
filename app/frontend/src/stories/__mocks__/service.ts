@@ -4,15 +4,17 @@ import groupChat from "test/fixtures/groupChat.json";
 import messages from "test/fixtures/messages.json";
 import users from "test/fixtures/users.json";
 
-const [user1, user2, user3] = users;
+const [user1, user2, user3, user4] = users;
 
 const userMap = {
   "1": user1,
   "2": user2,
   "3": user3,
+  "4": user4,
   funnycat: user1,
   funnydog: user2,
   funnykid: user3,
+  funnyChicken: user4,
 };
 
 export const mockedService = ({

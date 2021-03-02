@@ -1,3 +1,5 @@
+import { ReferenceType } from "../pb/api_pb";
+
 // Profile Overview
 export const COMMUNITY_STANDING = "Community Standing";
 export const COMMUNITY_STANDING_DESCRIPTION =
@@ -101,3 +103,13 @@ export const PLACES_EMPTY_STATE = "No places to show yet.";
 export const SEE_MORE_DISCUSSIONS_LABEL = "See more discussions";
 export const SEE_MORE_EVENTS_LABEL = "See more events";
 export const SEE_MORE_PLACES_LABEL = "See more places";
+
+// References
+export const REFERENCES_FILTER_A11Y_LABEL = "Show references: ";
+export const referencesFilterLabels = {
+  [ReferenceType.FRIEND]: "From friends",
+  [ReferenceType.HOSTED]: "From guests",
+  [ReferenceType.SURFED]: "From hosts",
+  "": "All references",
+};
+export const NO_REFERENCES = "No references of this kind yet!";

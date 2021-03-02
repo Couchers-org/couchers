@@ -15,18 +15,24 @@
     "name": "Funny Dog",
     "userId": 2,
     "username": "funnydog",
-    "avatarUrl": ""
+    "avatarUrl": "",
+    "age": 35,
+    "city": "Helsinki, Finland"
   },
   {
     "name": "Funny Kid",
     "userId": 3,
     "username": "funnykid",
+    "age": 28,
+    "city": "London, UK",
     "avatarUrl": "https://loremflickr.com/200/200?user3"
   },
   {
     "name": "Funny Chicken",
     "userId": 4,
     "username": "funnyChicken",
+    "age": 28,
+    "city": "Melbourne, Australia",
     "avatarUrl": "https://loremflickr.com/200/200?user4"
   }
 ]
