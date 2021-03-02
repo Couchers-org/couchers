@@ -1288,6 +1288,7 @@ class UserBlocks(Base):
     """
 
     __tablename__ = "user_blocks"
+    __table_args__ = (UniqueConstraint("blocking_user_id", "blocked_user_id"),)
 
     id = Column(BigInteger, primary_key=True)
 
