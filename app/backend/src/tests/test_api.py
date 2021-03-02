@@ -800,20 +800,20 @@ def test_user_blocking(db):
     # Test blocking
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
-            api.BlockUser(api_pb2.UserBlockingReq(user_id=user1.id))
+            api.BlockUser(api_pb2.BlockUserReq(user_id=user1.id))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == errors.CANT_BLOCK_SELF
 
         blocked_user_list = api.GetBlockedUsers(empty_pb2.Empty())
-        assert len(blocked_user_list.blocked_user_relationships) == 0
+        assert len(blocked_user_list.user_blocks) == 0
 
-        api.BlockUser(api_pb2.UserBlockingReq(user_id=user2.id))
+        api.BlockUser(api_pb2.BlockUserReq(user_id=user2.id))
 
         blocked_user_list = api.GetBlockedUsers(empty_pb2.Empty())
-        assert len(blocked_user_list.blocked_user_relationships) == 1
+        assert len(blocked_user_list.user_blocks) == 1
 
         with pytest.raises(grpc.RpcError) as e:
-            api.BlockUser(api_pb2.UserBlockingReq(user_id=user2.id))
+            api.BlockUser(api_pb2.BlockUserReq(user_id=user2.id))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == errors.USER_ALREADY_BLOCKED
 
@@ -854,19 +854,19 @@ def test_user_blocking(db):
     # Test Unblocking
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
-            api.UnblockUser(api_pb2.UserBlockingReq(user_id=user1.id))
+            api.UnblockUser(api_pb2.UnblockUserReq(user_id=user1.id))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == errors.CANT_UNBLOCK_SELF
 
-        api.UnblockUser(api_pb2.UserBlockingReq(user_id=user2.id))
+        api.UnblockUser(api_pb2.UnblockUserReq(user_id=user2.id))
 
         with pytest.raises(grpc.RpcError) as e:
-            api.UnblockUser(api_pb2.UserBlockingReq(user_id=user2.id))
+            api.UnblockUser(api_pb2.UnblockUserReq(user_id=user2.id))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == errors.USER_NOT_BLOCKED
 
         blocked_user_list = api.GetBlockedUsers(empty_pb2.Empty())
-        assert len(blocked_user_list.blocked_user_relationships) == 0
+        assert len(blocked_user_list.user_blocks) == 0
 
         res = api.GetUser(api_pb2.GetUserReq(user=user2.username))
         assert res.user_id == user2.id
@@ -879,7 +879,7 @@ def test_user_blocking(db):
 
     # Test re-blocking
     with api_session(token1) as api:
-        api.BlockUser(api_pb2.UserBlockingReq(user_id=user2.id))
+        api.BlockUser(api_pb2.BlockUserReq(user_id=user2.id))
 
         blocked_user_list = api.GetBlockedUsers(empty_pb2.Empty())
-        assert len(blocked_user_list.blocked_user_relationships) == 1
+        assert len(blocked_user_list.user_blocks) == 1

@@ -1218,15 +1218,15 @@ class BackgroundJob(Base):
         return f"BackgroundJob(id={self.id}, job_type={self.job_type}, state={self.state}, next_attempt_after={self.next_attempt_after}, try_count={self.try_count}, failure_info={self.failure_info})"
 
 
-class UserBlocking(Base):
+class UserBlocks(Base):
     """
     Table of blocked users
     """
 
-    __tablename__ = "user_blocking"
+    __tablename__ = "user_blocks"
 
     id = Column(BigInteger, primary_key=True)
 
-    blocking_user = Column(ForeignKey("users.id"), nullable=False)
-    blocked_user = Column(ForeignKey("users.id"), nullable=False)
+    blocking_user_id = Column(ForeignKey("users.id"), nullable=False)
+    blocked_user_id = Column(ForeignKey("users.id"), nullable=False)
     time_blocked = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
