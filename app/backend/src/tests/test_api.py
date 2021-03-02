@@ -4,7 +4,6 @@ import grpc
 import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
 
-from couchers import errors
 from couchers.db import session_scope
 from couchers.models import Complaint
 from couchers.utils import now, to_aware_datetime
@@ -767,95 +766,3 @@ def test_hosting_preferences(db):
         assert not res.HasField("parking")
         assert res.parking_details == api_pb2.PARKING_DETAILS_UNKNOWN
         assert not res.HasField("camping_ok")
-
-
-def test_user_blocking(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-
-    # Test blocking
-    with api_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.BlockUser(api_pb2.BlockUserReq(user_id=user1.id))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.CANT_BLOCK_SELF
-
-        blocked_user_list = api.GetBlockedUsers(empty_pb2.Empty())
-        assert len(blocked_user_list.user_blocks) == 0
-
-        api.BlockUser(api_pb2.BlockUserReq(user_id=user2.id))
-
-        blocked_user_list = api.GetBlockedUsers(empty_pb2.Empty())
-        assert len(blocked_user_list.user_blocks) == 1
-
-        with pytest.raises(grpc.RpcError) as e:
-            api.BlockUser(api_pb2.BlockUserReq(user_id=user2.id))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.USER_ALREADY_BLOCKED
-
-        """"
-        with pytest.raises(grpc.RpcError) as e:
-            api.GetUser(
-                api_pb2.GetUserReq(user_id=user2.username)
-            )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.USER_NOT_FOUND
-
-        with pytest.raises(grpc.RpcError) as e:
-            api.SendFriendRequest(
-                api_pb2.SendFriendRequestReq(user_id=user2.id)
-            )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.USER_NOT_FOUND
-        """
-
-    # Test bi-directional invisibility
-    with api_session(token2) as api:
-        """ "
-        with pytest.raises(grpc.RpcError) as e:
-            api.GetUser(
-                api_pb2.GetUserReq(user_id=user1.username)
-            )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.USER_NOT_FOUND
-
-        with pytest.raises(grpc.RpcError) as e:
-            api.SendFriendRequest(
-                api_pb2.SendFriendRequestReq(user_id=user1.id)
-            )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.USER_NOT_FOUND
-        """
-
-    # Test Unblocking
-    with api_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.UnblockUser(api_pb2.UnblockUserReq(user_id=user1.id))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.CANT_UNBLOCK_SELF
-
-        api.UnblockUser(api_pb2.UnblockUserReq(user_id=user2.id))
-
-        with pytest.raises(grpc.RpcError) as e:
-            api.UnblockUser(api_pb2.UnblockUserReq(user_id=user2.id))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.USER_NOT_BLOCKED
-
-        blocked_user_list = api.GetBlockedUsers(empty_pb2.Empty())
-        assert len(blocked_user_list.user_blocks) == 0
-
-        res = api.GetUser(api_pb2.GetUserReq(user=user2.username))
-        assert res.user_id == user2.id
-
-        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
-
-    with api_session(token2) as api:
-        res = api.Ping(api_pb2.PingReq())
-        assert res.pending_friend_request_count == 1
-
-    # Test re-blocking
-    with api_session(token1) as api:
-        api.BlockUser(api_pb2.BlockUserReq(user_id=user2.id))
-
-        blocked_user_list = api.GetBlockedUsers(empty_pb2.Empty())
-        assert len(blocked_user_list.user_blocks) == 1
