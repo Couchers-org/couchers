@@ -1229,5 +1229,4 @@ class UserBlocking(Base):
 
     blocking_user = Column(ForeignKey("users.id"), nullable=False)
     blocked_user = Column(ForeignKey("users.id"), nullable=False)
-    blocked = Column(Boolean, nullable=False, default=True)
     time_blocked = Column(DateTime(timezone=True), nullable=False, server_default=func.now())

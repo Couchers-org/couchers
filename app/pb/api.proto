@@ -400,7 +400,6 @@ message BlockedUserRelationship{
   int64 id = 1;
   int64 blocking_user_id = 2;
   int64 blocked_user_id = 3;
-  bool blocked = 4;
   google.protobuf.Timestamp time_blocked = 5;
 }
 
