@@ -788,6 +788,11 @@ def test_user_blocking(db):
         blocked_user_list = api.GetBlockedUsers(empty_pb2.Empty())
         assert len(blocked_user_list.blocked_user_relationships) == 1
 
+        with pytest.raises(grpc.RpcError) as e:
+            api.BlockUser(api_pb2.UserBlockingReq(user_id=user2.id))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.USER_ALREADY_BLOCKED
+
         """"
         with pytest.raises(grpc.RpcError) as e:
             api.GetUser(
