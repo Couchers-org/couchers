@@ -591,7 +591,7 @@ class API(api_pb2_grpc.APIServicer):
 
         with session_scope() as session:
             if not session.query(User).filter(User.id == request.user_id).one_or_none():
-                context.abort(grpc.StatusCode.NOT_FOUND, "User not found")
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             user_blocking = (
                 session.query(UserBlocking)
@@ -600,9 +600,7 @@ class API(api_pb2_grpc.APIServicer):
                 .one_or_none()
             )
             if user_blocking:
-                user_blocking.blocked = True
-                user_blocking.time_blocked = func.now()
-                session.commit()
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.USER_ALREADY_BLOCKED)
             else:
                 user_blocking = UserBlocking(
                     blocking_user=context.user_id,
@@ -616,7 +614,6 @@ class API(api_pb2_grpc.APIServicer):
             blocked_users = (
                 session.query(UserBlocking)
                 .filter(UserBlocking.blocking_user == context.user_id)
-                .filter(UserBlocking.blocked)
                 .all()
             )
 
@@ -626,7 +623,6 @@ class API(api_pb2_grpc.APIServicer):
                         id=blocked_user_relationship.id,
                         blocking_user_id=blocked_user_relationship.blocking_user,
                         blocked_user_id=blocked_user_relationship.blocked_user,
-                        blocked=blocked_user_relationship.blocked,
                         time_blocked=Timestamp_from_datetime(blocked_user_relationship.time_blocked),
                     )
                     for blocked_user_relationship in blocked_users
@@ -645,13 +641,11 @@ class API(api_pb2_grpc.APIServicer):
                 session.query(UserBlocking)
                 .filter(UserBlocking.blocking_user == context.user_id)
                 .filter(UserBlocking.blocked_user == request.user_id)
-                .filter(UserBlocking.blocked)
-                .one_or_none()
             )
-            if not user_blocking:
+            if not user_blocking.one_or_none():
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.USER_NOT_BLOCKED)
 
-            user_blocking.blocked = False
+            user_blocking.delete()
             session.commit()
 
         return empty_pb2.Empty()
