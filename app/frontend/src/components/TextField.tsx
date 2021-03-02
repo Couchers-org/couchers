@@ -3,6 +3,7 @@ import {
   TextField as MuiTextField,
   TextFieldProps,
 } from "@material-ui/core";
+import { BaseTextFieldProps } from "@material-ui/core/TextField";
 import classNames from "classnames";
 import React from "react";
 
@@ -23,12 +24,17 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+ interface AccessibleTextFieldProps extends BaseTextFieldProps {
+   id: BaseTextFieldProps["id"];
+   onChange?: TextFieldProps["onChange"];
+ }
+
 export default function TextField({
   id,
   className,
   variant = "outlined",
   ...otherProps
-}: TextFieldProps) {
+}: AccessibleTextFieldProps) {
   const classes = useStyles();
   return (
     <MuiTextField
