@@ -23,12 +23,6 @@ message UnblockUserReq {
   int64 user_id = 1;
 }
 
-message UserBlock{
-  int64 id = 1;
-  int64 blocking_user_id = 2;
-  int64 blocked_user_id = 3;
-}
-
 message GetBlockedUsersRes {
-  repeated UserBlock user_blocks = 1;
+  repeated int64 blocked_user_ids = 1;
 }
