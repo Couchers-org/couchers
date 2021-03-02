@@ -26,7 +26,7 @@ from couchers.models import (
     SleepingArrangement,
     SmokingLocation,
     User,
-    UserBlocking,
+    UserBlocks,
 )
 from couchers.tasks import send_friend_request_email, send_report_email
 from couchers.utils import Timestamp_from_datetime, create_coordinate, now
@@ -593,39 +593,33 @@ class API(api_pb2_grpc.APIServicer):
             if not session.query(User).filter(User.id == request.user_id).one_or_none():
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
-            user_blocking = (
-                session.query(UserBlocking)
-                .filter(UserBlocking.blocking_user == context.user_id)
-                .filter(UserBlocking.blocked_user == request.user_id)
-                .one_or_none()
-            )
-            if user_blocking:
+            if session.query(UserBlocks).filter(UserBlocks.blocking_user_id == context.user_id).filter(UserBlocks.blocked_user_id == request.user_id).one_or_none():
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.USER_ALREADY_BLOCKED)
             else:
-                user_blocking = UserBlocking(
-                    blocking_user=context.user_id,
-                    blocked_user=request.user_id,
+                user_block = UserBlocks(
+                    blocking_user_id=context.user_id,
+                    blocked_user_id=request.user_id,
                 )
-                session.add(user_blocking)
+                session.add(user_block)
         return empty_pb2.Empty()
 
     def GetBlockedUsers(self, request, context):
         with session_scope() as session:
             blocked_users = (
-                session.query(UserBlocking)
-                .filter(UserBlocking.blocking_user == context.user_id)
+                session.query(UserBlocks)
+                .filter(UserBlocks.blocking_user_id == context.user_id)
                 .all()
             )
 
             return api_pb2.GetBlockedUsersRes(
-                blocked_user_relationships=[
-                    api_pb2.BlockedUserRelationship(
-                        id=blocked_user_relationship.id,
-                        blocking_user_id=blocked_user_relationship.blocking_user,
-                        blocked_user_id=blocked_user_relationship.blocked_user,
-                        time_blocked=Timestamp_from_datetime(blocked_user_relationship.time_blocked),
+                user_blocks=[
+                    api_pb2.UserBlock(
+                        id=blocked_user.id,
+                        blocking_user_id=blocked_user.blocking_user_id,
+                        blocked_user_id=blocked_user.blocked_user_id,
+                        time_blocked=Timestamp_from_datetime(blocked_user.time_blocked),
                     )
-                    for blocked_user_relationship in blocked_users
+                    for blocked_user in blocked_users
                 ],
             )
 
@@ -637,15 +631,15 @@ class API(api_pb2_grpc.APIServicer):
             if not session.query(User).filter(User.id == request.user_id).one_or_none():
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
-            user_blocking = (
-                session.query(UserBlocking)
-                .filter(UserBlocking.blocking_user == context.user_id)
-                .filter(UserBlocking.blocked_user == request.user_id)
+            user_block = (
+                session.query(UserBlocks)
+                .filter(UserBlocks.blocking_user_id == context.user_id)
+                .filter(UserBlocks.blocked_user_id == request.user_id)
             )
-            if not user_blocking.one_or_none():
+            if not user_block.one_or_none():
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.USER_NOT_BLOCKED)
 
-            user_blocking.delete()
+            user_block.delete()
             session.commit()
 
         return empty_pb2.Empty()
