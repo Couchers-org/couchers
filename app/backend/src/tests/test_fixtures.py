@@ -25,6 +25,7 @@ from couchers.servicers.media import Media, get_media_auth_interceptor
 from couchers.servicers.pages import Pages
 from couchers.servicers.requests import Requests
 from couchers.servicers.search import Search
+from couchers.servicers.user_blocks import UserBlock
 from couchers.utils import create_coordinate
 from pb import (
     account_pb2_grpc,
@@ -40,6 +41,7 @@ from pb import (
     pages_pb2_grpc,
     requests_pb2_grpc,
     search_pb2_grpc,
+    user_blocks_pb2_grpc,
 )
 
 
@@ -356,6 +358,13 @@ def groups_session(token):
     channel = fake_channel(token)
     groups_pb2_grpc.add_GroupsServicer_to_server(Groups(), channel)
     yield groups_pb2_grpc.GroupsStub(channel)
+
+
+@contextmanager
+def user_blocks_session(token):
+    channel = fake_channel(token)
+    user_blocks_pb2_grpc.add_UserBlocksServicer_to_server(UserBlock(), channel)
+    yield user_blocks_pb2_grpc.UserBlocksStub(channel)
 
 
 @contextmanager

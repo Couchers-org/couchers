@@ -55,12 +55,6 @@ service API {
   rpc InitiateMediaUpload(google.protobuf.Empty) returns (InitiateMediaUploadRes) {
     // Initiate a media upload
   }
-
-  rpc BlockUser(BlockUserReq) returns (google.protobuf.Empty);
-
-  rpc GetBlockedUsers(google.protobuf.Empty) returns (GetBlockedUsersRes);
-
-  rpc UnblockUser(UnblockUserReq) returns(google.protobuf.Empty);
 }
 
 message SendFriendRequestReq {
@@ -390,23 +384,4 @@ message InitiateMediaUploadRes {
   // URL to POST the data to
   string upload_url = 1;
   google.protobuf.Timestamp expiry = 2;
-}
-
-message BlockUserReq {
-  int64 user_id = 1;
-}
-
-message UnblockUserReq {
-  int64 user_id = 1;
-}
-
-message UserBlock{
-  int64 id = 1;
-  int64 blocking_user_id = 2;
-  int64 blocked_user_id = 3;
-  google.protobuf.Timestamp time_blocked = 5;
-}
-
-message GetBlockedUsersRes {
-  repeated UserBlock user_blocks = 1;
 }
