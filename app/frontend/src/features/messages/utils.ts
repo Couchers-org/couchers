@@ -1,7 +1,7 @@
-import { GroupChat, Message } from "../../pb/conversations_pb";
-import { firstName } from "../../utils/names";
-import useUsers from "../userQueries/useUsers";
-import { hostRequestStatusLabels } from "./constants";
+import { hostRequestStatusLabels } from "features/messages/constants";
+import useUsers from "features/userQueries/useUsers";
+import { GroupChat, Message } from "pb/conversations_pb";
+import { firstName } from "utils/names";
 
 export function isControlMessage(message: Message.AsObject) {
   return !message.text;

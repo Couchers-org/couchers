@@ -1,21 +1,20 @@
 import { Box, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
+import Alert from "components/Alert";
+import Button from "components/Button";
+import TextField from "components/TextField";
+import { useUser } from "features/userQueries/useUsers";
 import { Error as GrpcError } from "grpc-web";
+import { CreateHostRequestReq } from "pb/requests_pb";
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { useHistory, useParams } from "react-router-dom";
-
-import Alert from "../../../components/Alert";
-import Button from "../../../components/Button";
-import TextField from "../../../components/TextField";
-import { CreateHostRequestReq } from "../../../pb/requests_pb";
-import { routeToHostRequest } from "../../../routes";
-import { service } from "../../../service";
-import { firstName } from "../../../utils/names";
-import { validateFutureDate } from "../../../utils/validation";
-import { useUser } from "../../userQueries/useUsers";
+import { routeToHostRequest } from "routes";
+import { service } from "service";
+import { firstName } from "utils/names";
+import { validateFutureDate } from "utils/validation";
 
 const useStyles = makeStyles((theme) => ({
   buttonContainer: {

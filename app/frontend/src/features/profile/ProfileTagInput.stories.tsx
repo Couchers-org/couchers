@@ -1,7 +1,6 @@
 import { Meta, Story } from "@storybook/react";
+import ProfileTagInput from "features/profile/ProfileTagInput";
 import React, { useState } from "react";
-
-import ProfileTagInput from "./ProfileTagInput";
 
 export default {
   title: "Profile/ProfileTagInput",

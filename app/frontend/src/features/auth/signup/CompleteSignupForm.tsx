@@ -5,25 +5,24 @@ import {
   Radio,
   RadioGroup,
 } from "@material-ui/core";
+import Autocomplete from "components/Autocomplete";
+import Button from "components/Button";
+import CircularProgress from "components/CircularProgress";
+import TextField from "components/TextField";
+import { useAuthContext } from "features/auth/AuthProvider";
+import useAuthStyles from "features/auth/useAuthStyles";
+import { hostingStatusLabels } from "features/profile/constants";
+import { HostingStatus } from "pb/api_pb";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useHistory, useLocation, useParams } from "react-router-dom";
-
-import Autocomplete from "../../../components/Autocomplete";
-import Button from "../../../components/Button";
-import CircularProgress from "../../../components/CircularProgress";
-import TextField from "../../../components/TextField";
-import { HostingStatus } from "../../../pb/api_pb";
-import { signupRoute } from "../../../routes";
-import { service } from "../../../service";
+import { signupRoute } from "routes";
+import { service } from "service";
 import {
   nameValidationPattern,
   usernameValidationPattern,
   validatePastDate,
-} from "../../../utils/validation";
-import { hostingStatusLabels } from "../../profile/constants";
-import { useAuthContext } from "../AuthProvider";
-import useAuthStyles from "../useAuthStyles";
+} from "utils/validation";
 
 type SignupInputs = {
   email: string;

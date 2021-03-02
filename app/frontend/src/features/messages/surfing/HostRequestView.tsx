@@ -1,7 +1,30 @@
 import { Box } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
+import Alert from "components/Alert";
+import CircularProgress from "components/CircularProgress";
+import Divider from "components/Divider";
+import HeaderButton from "components/HeaderButton";
+import HostingStatus from "components/HostingStatus";
+import { BackIcon, OverflowMenuIcon } from "components/Icons";
+import Menu, { MenuItem } from "components/Menu";
+import PageTitle from "components/PageTitle";
+import UserSummary from "components/UserSummary";
+import { useAuthContext } from "features/auth/AuthProvider";
+import { useGroupChatViewStyles } from "features/messages/groupchats/GroupChatView";
+import InfiniteMessageLoader from "features/messages/messagelist/InfiniteMessageLoader";
+import MessageList from "features/messages/messagelist/MessageList";
+import HostRequestSendField from "features/messages/surfing/HostRequestSendField";
+import useMarkLastSeen, {
+  MarkLastSeenVariables,
+} from "features/messages/useMarkLastSeen";
+import { useUser } from "features/userQueries/useUsers";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
+import {
+  GetHostRequestMessagesRes,
+  HostRequest,
+  RespondHostRequestReq,
+} from "pb/requests_pb";
 import { useRef, useState } from "react";
 import {
   useInfiniteQuery,
@@ -10,30 +33,8 @@ import {
   useQueryClient,
 } from "react-query";
 import { useHistory, useParams } from "react-router-dom";
-
-import Alert from "../../../components/Alert";
-import CircularProgress from "../../../components/CircularProgress";
-import Divider from "../../../components/Divider";
-import HeaderButton from "../../../components/HeaderButton";
-import HostingStatus from "../../../components/HostingStatus";
-import { BackIcon, OverflowMenuIcon } from "../../../components/Icons";
-import Menu, { MenuItem } from "../../../components/Menu";
-import PageTitle from "../../../components/PageTitle";
-import UserSummary from "../../../components/UserSummary";
-import {
-  GetHostRequestMessagesRes,
-  HostRequest,
-  RespondHostRequestReq,
-} from "../../../pb/requests_pb";
-import { service } from "../../../service";
-import { firstName } from "../../../utils/names";
-import { useAuthContext } from "../../auth/AuthProvider";
-import { useUser } from "../../userQueries/useUsers";
-import { useGroupChatViewStyles } from "../groupchats/GroupChatView";
-import InfiniteMessageLoader from "../messagelist/InfiniteMessageLoader";
-import MessageList from "../messagelist/MessageList";
-import useMarkLastSeen, { MarkLastSeenVariables } from "../useMarkLastSeen";
-import HostRequestSendField from "./HostRequestSendField";
+import { service } from "service";
+import { firstName } from "utils/names";
 
 export default function HostRequestView() {
   const classes = useGroupChatViewStyles();

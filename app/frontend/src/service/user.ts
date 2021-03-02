@@ -1,6 +1,5 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import wrappers from "google-protobuf/google/protobuf/wrappers_pb";
-
 import {
   GetGivenReferencesReq,
   GetReceivedReferencesReq,
@@ -15,14 +14,10 @@ import {
   RepeatedStringValue,
   UpdateProfileReq,
   User,
-} from "../pb/api_pb";
-import {
-  AuthReq,
-  CompleteSignupReq,
-  CompleteTokenLoginReq,
-} from "../pb/auth_pb";
-import { ProtoToJsTypes } from "../utils/types";
-import client from "./client";
+} from "pb/api_pb";
+import { AuthReq, CompleteSignupReq, CompleteTokenLoginReq } from "pb/auth_pb";
+import client from "service/client";
+import { ProtoToJsTypes } from "utils/types";
 
 type RequiredUpdateProfileReq = Required<UpdateProfileReq.AsObject>;
 type ProfileFormData = {

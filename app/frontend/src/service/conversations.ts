@@ -2,8 +2,7 @@ import {
   BoolValue,
   StringValue,
 } from "google-protobuf/google/protobuf/wrappers_pb";
-
-import { User } from "../pb/api_pb";
+import { User } from "pb/api_pb";
 import {
   CreateGroupChatReq,
   EditGroupChatReq,
@@ -16,8 +15,8 @@ import {
   MarkLastSeenGroupChatReq,
   RemoveGroupChatAdminReq,
   SendMessageReq,
-} from "../pb/conversations_pb";
-import client from "./client";
+} from "pb/conversations_pb";
+import client from "service/client";
 
 export async function listGroupChats(
   lastMessageId: number = 0,

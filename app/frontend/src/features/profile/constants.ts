@@ -4,7 +4,7 @@ import {
   ParkingDetails,
   SleepingArrangement,
   SmokingLocation,
-} from "../../pb/api_pb";
+} from "pb/api_pb";
 
 export const ACCEPTING = "Accepting guests";
 export const MAYBE_ACCEPTING = "Maybe accepting guests";

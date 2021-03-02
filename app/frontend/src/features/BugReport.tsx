@@ -1,22 +1,21 @@
 import { darken, makeStyles, useMediaQuery, useTheme } from "@material-ui/core";
-import { Error as GrpcError } from "grpc-web";
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
-import { useMutation } from "react-query";
-
-import Alert from "../components/Alert";
-import Button from "../components/Button";
+import Alert from "components/Alert";
+import Button from "components/Button";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
-} from "../components/Dialog";
-import { BugIcon } from "../components/Icons";
-import TextField from "../components/TextField";
-import { service } from "../service";
-import { useAuthContext } from "./auth/AuthProvider";
+} from "components/Dialog";
+import { BugIcon } from "components/Icons";
+import TextField from "components/TextField";
+import { useAuthContext } from "features/auth/AuthProvider";
+import { Error as GrpcError } from "grpc-web";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { useMutation } from "react-query";
+import { service } from "service";
 
 export interface BugReportFormData {
   subject: string;

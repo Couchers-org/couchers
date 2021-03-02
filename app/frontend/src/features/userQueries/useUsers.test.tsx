@@ -1,11 +1,10 @@
 import { act, renderHook } from "@testing-library/react-hooks";
+import useUsers, { useUser } from "features/userQueries/useUsers";
 import React, { useState } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
-
-import { service } from "../../service";
-import users from "../../test/fixtures/users.json";
-import { getUser } from "../../test/serviceMockDefaults";
-import useUsers, { useUser } from "./useUsers";
+import { service } from "service";
+import users from "test/fixtures/users.json";
+import { getUser } from "test/serviceMockDefaults";
 
 const getUserMock = service.user.getUser as jest.Mock;
 

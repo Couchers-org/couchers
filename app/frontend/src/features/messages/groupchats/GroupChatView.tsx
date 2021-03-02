@@ -1,8 +1,17 @@
 import { Box } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
+import Alert from "components/Alert";
+import CircularProgress from "components/CircularProgress";
+import HeaderButton from "components/HeaderButton";
+import { BackIcon, OverflowMenuIcon } from "components/Icons";
+import Menu, { MenuItem } from "components/Menu";
+import PageTitle from "components/PageTitle";
+import { useAuthContext } from "features/auth/AuthProvider";
+import useUsers from "features/userQueries/useUsers";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
+import { GetGroupChatMessagesRes, GroupChat } from "pb/conversations_pb";
 import React, { useRef, useState } from "react";
 import {
   useInfiniteQuery,
@@ -11,20 +20,8 @@ import {
   useQueryClient,
 } from "react-query";
 import { useHistory, useParams } from "react-router-dom";
+import { service } from "service";
 
-import Alert from "../../../components/Alert";
-import CircularProgress from "../../../components/CircularProgress";
-import HeaderButton from "../../../components/HeaderButton";
-import { BackIcon, OverflowMenuIcon } from "../../../components/Icons";
-import Menu, { MenuItem } from "../../../components/Menu";
-import PageTitle from "../../../components/PageTitle";
-import {
-  GetGroupChatMessagesRes,
-  GroupChat,
-} from "../../../pb/conversations_pb";
-import { service } from "../../../service";
-import { useAuthContext } from "../../auth/AuthProvider";
-import useUsers from "../../userQueries/useUsers";
 import InfiniteMessageLoader from "../messagelist/InfiniteMessageLoader";
 import MessageList from "../messagelist/MessageList";
 import useMarkLastSeen, { MarkLastSeenVariables } from "../useMarkLastSeen";

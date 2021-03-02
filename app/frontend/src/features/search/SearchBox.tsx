@@ -1,11 +1,10 @@
 import { makeStyles } from "@material-ui/core";
+import TextField from "components/TextField";
+import { SearchQuery } from "features/search/constants";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useHistory } from "react-router-dom";
-
-import TextField from "../../components/TextField";
-import { routeToSearch } from "../../routes";
-import { SearchQuery } from "./constants";
+import { routeToSearch } from "routes";
 
 const useStyles = makeStyles((theme) => ({
   root: {

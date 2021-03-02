@@ -1,24 +1,22 @@
 import {
-  Box,
   FormControlLabel,
   InputLabel,
   makeStyles,
   Switch,
   Typography,
 } from "@material-ui/core";
+import Button from "components/Button";
+import TextBody from "components/TextBody";
+import TextField from "components/TextField";
+import { useAuthContext } from "features/auth/AuthProvider";
+import useAuthStyles from "features/auth/useAuthStyles";
+import { LoginRes } from "pb/auth_pb";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useHistory } from "react-router-dom";
-
-import Button from "../../../components/Button";
-import TextBody from "../../../components/TextBody";
-import TextField from "../../../components/TextField";
-import { LoginRes } from "../../../pb/auth_pb";
-import { loginPasswordRoute, resetPasswordRoute } from "../../../routes";
-import { service } from "../../../service";
-import { useIsMounted, useSafeState } from "../../../utils/hooks";
-import { useAuthContext } from "../AuthProvider";
-import useAuthStyles from "../useAuthStyles";
+import { loginPasswordRoute, resetPasswordRoute } from "routes";
+import { service } from "service";
+import { useIsMounted, useSafeState } from "utils/hooks";
 
 const useStyles = makeStyles((theme) => ({
   loginOptions: {
@@ -126,7 +124,7 @@ export default function UsernameForm() {
           Continue
         </Button>
 
-        <Box className={classes.loginOptions}>
+        <div className={classes.loginOptions}>
           <FormControlLabel
             style={{ marginLeft: "0px" }}
             control={<Switch size="small" />}
@@ -140,7 +138,7 @@ export default function UsernameForm() {
           >
             Forgot password?
           </Typography>
-        </Box>
+        </div>
       </form>
     </>
   );

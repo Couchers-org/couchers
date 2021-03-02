@@ -1,23 +1,17 @@
 import { List, ListItem, makeStyles, Typography } from "@material-ui/core";
+import Alert from "components/Alert";
+import CircularProgress from "components/CircularProgress";
+import Pill from "components/Pill";
+import TextBody from "components/TextBody";
+import UserSummary from "components/UserSummary";
+import { REFERENCES } from "features/constants";
+import useUsers from "features/userQueries/useUsers";
 import { Error as GrpcError } from "grpc-web";
+import { GetReferencesRes, Reference, ReferenceType, User } from "pb/api_pb";
 import React from "react";
 import { useQuery } from "react-query";
-
-import Alert from "../../../components/Alert";
-import CircularProgress from "../../../components/CircularProgress";
-import Pill from "../../../components/Pill";
-import TextBody from "../../../components/TextBody";
-import UserSummary from "../../../components/UserSummary";
-import {
-  GetReferencesRes,
-  Reference,
-  ReferenceType,
-  User,
-} from "../../../pb/api_pb";
-import { service } from "../../../service";
-import { dateTimeFormatter, timestamp2Date } from "../../../utils/date";
-import { REFERENCES } from "../../constants";
-import useUsers from "../../userQueries/useUsers";
+import { service } from "service";
+import { dateTimeFormatter, timestamp2Date } from "utils/date";
 
 const useStyles = makeStyles((theme) => ({
   badgesContainer: {

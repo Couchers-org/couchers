@@ -1,10 +1,9 @@
 import { act, renderHook } from "@testing-library/react-hooks";
+import useCancelFriendRequest from "features/connections/friends/useCancelFriendRequest";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-
-import { ListFriendRequestsRes } from "../../../pb/api_pb";
-import { service } from "../../../service";
-import { getHookWrapperWithClient } from "../../../test/hookWrapper";
-import useCancelFriendRequest from "./useCancelFriendRequest";
+import { ListFriendRequestsRes } from "pb/api_pb";
+import { service } from "service";
+import { getHookWrapperWithClient } from "test/hookWrapper";
 
 const cancelFriendRequestMock = service.api.cancelFriendRequest as jest.Mock<
   ReturnType<typeof service.api.cancelFriendRequest>

@@ -7,11 +7,10 @@ import {
   Typography,
 } from "@material-ui/core";
 import classNames from "classnames";
+import { Page } from "pb/pages_pb";
 import React, { useMemo } from "react";
 import LinesEllipsis from "react-lines-ellipsis";
-
-import { Page } from "../../../pb/pages_pb";
-import stripMarkdown from "../../../utils/stripMarkdown";
+import stripMarkdown from "utils/stripMarkdown";
 
 const useStyles = makeStyles((theme) => ({
   root: {

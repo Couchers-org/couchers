@@ -1,6 +1,5 @@
 import { Meta, Story } from "@storybook/react";
-
-import UserSection from "./UserSection";
+import UserSection from "features/userPage/UserSection";
 
 export default {
   title: "Profile/UserSection",

@@ -6,16 +6,10 @@ import {
   TextField,
   Typography,
 } from "@material-ui/core";
-import React, { useEffect } from "react";
-import { Controller, useForm } from "react-hook-form";
-
-import Alert from "../../../components/Alert";
-import Button from "../../../components/Button";
-import CircularProgress from "../../../components/CircularProgress";
-import EditUserLocationMap from "../../../components/EditUserLocationMap";
-import { HostingStatus, MeetupStatus } from "../../../pb/api_pb";
-import { UpdateUserProfileData } from "../../../service/user";
-import { useIsMounted, useSafeState } from "../../../utils/hooks";
+import Alert from "components/Alert";
+import Button from "components/Button";
+import CircularProgress from "components/CircularProgress";
+import EditUserLocationMap from "components/EditUserLocationMap";
 import {
   ABOUT_HOME,
   ABOUT_ME,
@@ -31,8 +25,7 @@ import {
   OCCUPATION,
   OTHER_FORM_VALUE,
   SAVE,
-} from "../../constants";
-import useCurrentUser from "../../userQueries/useCurrentUser";
+} from "features/constants";
 import {
   ACCEPTING,
   MAYBE_ACCEPTING,
@@ -40,10 +33,16 @@ import {
   MEETUP,
   NO_MEETUP,
   NOT_ACCEPTING,
-} from "../constants";
-import ProfileTagInput from "../ProfileTagInput";
-import ProfileTextInput from "../ProfileTextInput";
-import useUpdateUserProfile from "../useUpdateUserProfile";
+} from "features/profile/constants";
+import ProfileTagInput from "features/profile/ProfileTagInput";
+import ProfileTextInput from "features/profile/ProfileTextInput";
+import useUpdateUserProfile from "features/profile/useUpdateUserProfile";
+import useCurrentUser from "features/userQueries/useCurrentUser";
+import { HostingStatus, MeetupStatus } from "pb/api_pb";
+import React, { useEffect } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { UpdateUserProfileData } from "service";
+import { useIsMounted, useSafeState } from "utils/hooks";
 
 const useStyles = makeStyles((theme) => ({
   buttonContainer: {

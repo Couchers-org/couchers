@@ -1,9 +1,8 @@
+import { useAuthContext } from "features/auth/AuthProvider";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { useMutation, useQueryClient } from "react-query";
-
-import { HostingPreferenceData, service } from "../../service";
-import { SetMutationError } from "../../utils/types";
-import { useAuthContext } from "../auth/AuthProvider";
+import { HostingPreferenceData, service } from "service";
+import { SetMutationError } from "utils/types";
 
 interface UpdateHostingPreferencesVariables {
   preferenceData: HostingPreferenceData;
