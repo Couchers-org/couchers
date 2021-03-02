@@ -97,6 +97,8 @@ describe("when the listFriendRequests succeeds", () => {
           state: 0,
           userId: 2,
           friend: {
+            age: 35,
+            city: "Helsinki, Finland",
             name: "Funny Dog",
             userId: 2,
             username: "funnydog",
@@ -124,6 +126,8 @@ describe("when the listFriendRequests succeeds", () => {
           state: 0,
           userId: 3,
           friend: {
+            age: 28,
+            city: "London, UK",
             name: "Funny Kid",
             userId: 3,
             username: "funnykid",
@@ -135,6 +139,8 @@ describe("when the listFriendRequests succeeds", () => {
           state: 0,
           userId: 4,
           friend: {
+            age: 28,
+            city: "Melbourne, Australia",
             name: "Funny Chicken",
             userId: 4,
             username: "funnyChicken",
@@ -210,6 +216,8 @@ describe("when the listFriendRequests succeeds", () => {
           state: 0,
           userId: 4,
           friend: {
+            age: 28,
+            city: "Melbourne, Australia",
             name: "Funny Chicken",
             userId: 4,
             username: "funnyChicken",
