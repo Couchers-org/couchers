@@ -93,7 +93,7 @@
     "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/react": "^11.2.5",
     "@testing-library/react-hooks": "^5.0.3",
-    "@testing-library/user-event": "^12.7.1",
+    "@testing-library/user-event": "^12.8.0",
     "@types/classnames": "^2.2.11",
     "@types/css-mediaquery": "^0.1.0",
     "@types/google-protobuf": "^3.7.3",
