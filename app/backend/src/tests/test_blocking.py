@@ -29,12 +29,12 @@ def test_user_blocking(db):
         assert e.value.details() == errors.CANT_BLOCK_SELF
 
         blocked_user_list = user_blocks.GetBlockedUsers(empty_pb2.Empty())
-        assert len(blocked_user_list.user_blocks) == 0
+        assert len(blocked_user_list.blocked_user_ids) == 0
 
         user_blocks.BlockUser(user_blocks_pb2.BlockUserReq(user_id=user2.id))
 
         blocked_user_list = user_blocks.GetBlockedUsers(empty_pb2.Empty())
-        assert len(blocked_user_list.user_blocks) == 1
+        assert len(blocked_user_list.blocked_user_ids) == 1
 
         with pytest.raises(grpc.RpcError) as e:
             user_blocks.BlockUser(user_blocks_pb2.BlockUserReq(user_id=user2.id))
@@ -90,7 +90,7 @@ def test_user_blocking(db):
         assert e.value.details() == errors.USER_NOT_BLOCKED
 
         blocked_user_list = user_blocks.GetBlockedUsers(empty_pb2.Empty())
-        assert len(blocked_user_list.user_blocks) == 0
+        assert len(blocked_user_list.blocked_user_ids) == 0
 
     with api_session(token1) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user2.username))
@@ -107,4 +107,4 @@ def test_user_blocking(db):
         user_blocks.BlockUser(user_blocks_pb2.BlockUserReq(user_id=user2.id))
 
         blocked_user_list = user_blocks.GetBlockedUsers(empty_pb2.Empty())
-        assert len(blocked_user_list.user_blocks) == 1
+        assert len(blocked_user_list.blocked_user_ids) == 1

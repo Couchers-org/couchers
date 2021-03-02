@@ -41,12 +41,8 @@ class UserBlock():
             )
 
             return user_blocks_pb2.GetBlockedUsersRes(
-                user_blocks=[
-                    user_blocks_pb2.UserBlock(
-                        id=blocked_user.id,
-                        blocking_user_id=blocked_user.blocking_user_id,
-                        blocked_user_id=blocked_user.blocked_user_id,
-                    )
+                blocked_user_ids=[
+                    blocked_user.id
                     for blocked_user in blocked_users
                 ],
             )
