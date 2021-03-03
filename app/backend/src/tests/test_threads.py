@@ -142,3 +142,32 @@ def test_threads_pagination(db):
     with threads_session(token1) as api:
         comment_id = pagination_test(api, PARENT_THREAD_ID)
         pagination_test(api, comment_id)
+
+def test_threads_num_responses(db):
+    user1, token1 = generate_user()
+
+    # Create a dummy Thread (should be replaced by pages later on)
+    with session_scope() as session:
+        dummy_thread = Thread()
+        session.add(dummy_thread)
+        session.flush()
+        PARENT_THREAD_ID = pack_thread_id(database_id=dummy_thread.id, depth=0)
+
+    with threads_session(token1) as api:
+        bat_id = api.PostReply(threads_pb2.PostReplyReq(thread_id=PARENT_THREAD_ID, content="bat")).thread_id
+
+        cat_id = api.PostReply(threads_pb2.PostReplyReq(thread_id=PARENT_THREAD_ID, content="cat")).thread_id
+
+        dog_id = api.PostReply(threads_pb2.PostReplyReq(thread_id=PARENT_THREAD_ID, content="dog")).thread_id
+
+        dogs = [
+            api.PostReply(threads_pb2.PostReplyReq(thread_id=dog_id, content=animal)).thread_id
+            for animal in ["hyena", "wolf", "prairie wolf"]
+        ]
+        cats = [
+            api.PostReply(threads_pb2.PostReplyReq(thread_id=cat_id, content=animal)).thread_id
+            for animal in ["cheetah", "lynx", "panther"]
+        ]
+
+        ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=PARENT_THREAD_ID))
+        assert len(ret.num_responses) == 9
