@@ -60,12 +60,6 @@ const useStyles = makeStyles((theme) => ({
     "& > .MuiInputBase-root": {
       width: "100%",
     },
-    "& .MuiOutlinedInput-notchedOutline": {
-      borderColor: theme.palette.grey[500],
-    },
-    "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline": {
-      borderColor: theme.palette.grey[900],
-    },
     [theme.breakpoints.up("md")]: {
       "& > .MuiInputBase-root": {
         width: 400,

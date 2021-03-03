@@ -15,10 +15,10 @@ const useStyles = makeStyles((theme) => ({
   },
   multiline: {
     "& .MuiOutlinedInput-notchedOutline": {
-      borderColor: theme.palette.grey[900],
+      borderColor: theme.palette.grey[500],
     },
     "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline": {
-      borderColor: theme.palette.grey[500],
+      borderColor: theme.palette.grey[900],
     },
   },
 }));
