@@ -17,7 +17,7 @@ import useCurrentUser from "features/userQueries/useCurrentUser";
 import { SmokingLocation } from "pb/api_pb";
 import React, { useState } from "react";
 import { Controller, useForm, UseFormMethods } from "react-hook-form";
-import { HostingPreferenceData } from "service";
+import { HostingPreferenceData } from "service/index";
 
 interface HostingPreferenceCheckboxProps {
   className: string;

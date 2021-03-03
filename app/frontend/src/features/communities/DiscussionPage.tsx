@@ -8,7 +8,7 @@ import { Discussion } from "pb/discussions_pb";
 import React, { useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import { routeToDiscussion } from "routes";
-import { service } from "service";
+import { service } from "service/index";
 
 export default function DiscussionPage() {
   const [loading, setLoading] = useState(false);

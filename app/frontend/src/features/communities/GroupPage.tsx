@@ -18,7 +18,7 @@ import {
   routeToGuide,
   routeToPlace,
 } from "routes";
-import { service } from "service";
+import { service } from "service/index";
 
 export default function GroupPage() {
   const [loading, setLoading] = useState(false);

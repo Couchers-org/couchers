@@ -3,7 +3,7 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { useMutation, useQueryClient } from "react-query";
 import { useHistory } from "react-router-dom";
 import { profileRoute } from "routes";
-import { service, UpdateUserProfileData } from "service";
+import { service, UpdateUserProfileData } from "service/index";
 import { SetMutationError } from "utils/types";
 
 interface UpdateUserProfileVariables {

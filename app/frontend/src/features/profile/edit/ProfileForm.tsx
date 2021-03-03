@@ -45,7 +45,7 @@ import useCurrentUser from "features/userQueries/useCurrentUser";
 import { HostingStatus, MeetupStatus } from "pb/api_pb";
 import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { UpdateUserProfileData } from "service";
+import { UpdateUserProfileData } from "service/index";
 import { useIsMounted, useSafeState } from "utils/hooks";
 
 const useStyles = makeStyles((theme) => ({

@@ -10,7 +10,7 @@ import { Error as GrpcError } from "grpc-web";
 import { GetReferencesRes, Reference, ReferenceType, User } from "pb/api_pb";
 import React from "react";
 import { useQuery } from "react-query";
-import { service } from "service";
+import { service } from "service/index";
 import { dateTimeFormatter, timestamp2Date } from "utils/date";
 
 const useStyles = makeStyles((theme) => ({

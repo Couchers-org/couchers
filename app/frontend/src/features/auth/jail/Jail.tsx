@@ -10,7 +10,7 @@ import { JailInfoRes } from "pb/jail_pb";
 import React, { useEffect, useState } from "react";
 import { Redirect } from "react-router-dom";
 import { loginRoute } from "routes";
-import { service } from "service";
+import { service } from "service/index";
 
 const useStyles = makeStyles((theme) => ({
   bottomMargin: { marginBottom: theme.spacing(4) },

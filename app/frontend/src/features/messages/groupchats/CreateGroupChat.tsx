@@ -18,7 +18,7 @@ import { User } from "pb/api_pb";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "react-query";
-import { service } from "service";
+import { service } from "service/index";
 
 const useStyles = makeStyles((theme) => ({
   field: { marginTop: theme.spacing(1) },

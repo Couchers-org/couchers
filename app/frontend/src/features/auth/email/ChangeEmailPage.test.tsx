@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import ChangeEmailPage from "features/auth/email/ChangeEmailPage";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { GetAccountInfoRes } from "pb/account_pb";
-import { service } from "service";
+import { service } from "service/index";
 import wrapper from "test/hookWrapper";
 import { MockedService } from "test/utils";
 

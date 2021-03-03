@@ -8,7 +8,7 @@ import SearchResult from "features/search/SearchResult";
 import { User } from "pb/api_pb";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { service } from "service";
+import { service } from "service/index";
 
 export default function SearchPage() {
   const [loading, setLoading] = useState(false);

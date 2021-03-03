@@ -15,7 +15,7 @@ import { Error as GrpcError } from "grpc-web";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
-import { service } from "service";
+import { service } from "service/index";
 
 export interface BugReportFormData {
   subject: string;

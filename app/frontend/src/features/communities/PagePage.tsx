@@ -8,7 +8,7 @@ import { pageURL } from "features/communities/redirect";
 import { Page, PageType } from "pb/pages_pb";
 import React, { useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
-import { service } from "service";
+import { service } from "service/index";
 
 export default function PagePage({ pageType }: { pageType: PageType }) {
   const [loading, setLoading] = useState(false);

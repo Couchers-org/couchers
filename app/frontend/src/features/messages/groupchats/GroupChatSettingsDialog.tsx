@@ -14,7 +14,7 @@ import { GroupChat } from "pb/conversations_pb";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "react-query";
-import { service } from "service";
+import { service } from "service/index";
 
 interface GroupChatSettingsData {
   title: string;

@@ -11,7 +11,7 @@ import { Error as GrpcError } from "grpc-web";
 import { accountInfoQueryKey } from "queryKeys";
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "react-query";
-import { service } from "service";
+import { service } from "service/index";
 
 interface ChangePasswordVariables {
   oldPassword?: string;

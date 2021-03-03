@@ -26,7 +26,7 @@ import { User } from "pb/api_pb";
 import { GroupChat } from "pb/conversations_pb";
 import React, { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "react-query";
-import { service } from "service";
+import { service } from "service/index";
 
 function AdminListItem({
   groupChatId,

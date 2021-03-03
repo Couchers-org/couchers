@@ -1,7 +1,7 @@
 import { Error } from "grpc-web";
 import { PingRes } from "pb/api_pb";
 import { useQuery } from "react-query";
-import { service } from "service";
+import { service } from "service/index";
 
 import { pingInterval } from "../constants";
 

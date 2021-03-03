@@ -3,7 +3,7 @@ import { Error } from "grpc-web";
 import { User } from "pb/api_pb";
 import { useCallback, useEffect, useRef } from "react";
 import { useQueries, useQueryClient } from "react-query";
-import { service } from "service";
+import { service } from "service/index";
 import { arrayEq } from "utils/arrayEq";
 
 export default function useUsers(

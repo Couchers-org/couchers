@@ -22,7 +22,7 @@ import {
   subCommunitiesKey,
 } from "queryKeys";
 import { useInfiniteQuery, useQuery } from "react-query";
-import { service } from "service";
+import { service } from "service/index";
 
 export const useCommunity = (id: number) =>
   useQuery<Community.AsObject, GrpcError>(communityKey(id), () =>

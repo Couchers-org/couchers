@@ -15,7 +15,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useHistory } from "react-router-dom";
 import { loginPasswordRoute, resetPasswordRoute } from "routes";
-import { service } from "service";
+import { service } from "service/index";
 import { useIsMounted, useSafeState } from "utils/hooks";
 
 const useStyles = makeStyles((theme) => ({

@@ -11,7 +11,7 @@ import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { useHistory } from "react-router-dom";
-import { service } from "service";
+import { service } from "service/index";
 
 type NewGuideInputs = {
   title: string;

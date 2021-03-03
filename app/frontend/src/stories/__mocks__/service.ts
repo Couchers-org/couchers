@@ -1,4 +1,4 @@
-import { service as originalService } from "service";
+import { service as originalService } from "service/index";
 import getThreadRes from "test/fixtures/getThreadRes.json";
 import groupChat from "test/fixtures/groupChat.json";
 import messages from "test/fixtures/messages.json";

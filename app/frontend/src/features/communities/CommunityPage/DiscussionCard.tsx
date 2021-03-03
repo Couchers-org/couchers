@@ -15,7 +15,7 @@ import { GetThreadRes } from "pb/threads_pb";
 import { threadKey } from "queryKeys";
 import React, { useMemo } from "react";
 import { useInfiniteQuery } from "react-query";
-import { service } from "service";
+import { service } from "service/index";
 import { timestamp2Date } from "utils/date";
 import { firstName } from "utils/names";
 import stripMarkdown from "utils/stripMarkdown";
