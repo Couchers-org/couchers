@@ -4,13 +4,8 @@ from google.protobuf import empty_pb2
 
 from couchers import errors
 from pb import api_pb2, user_blocks_pb2
-from tests.test_fixtures import (
-    api_session,
-    db,
-    generate_user,
-    testconfig,
-    user_blocks_session,
-)
+from tests.test_fixtures import api_session, db, generate_user, testconfig, user_blocks_session
+
 
 @pytest.fixture(autouse=True)
 def _(testconfig):
