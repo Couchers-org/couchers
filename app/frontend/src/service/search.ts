@@ -1,6 +1,6 @@
-import { User } from "../pb/api_pb";
-import { SearchReq } from "../pb/search_pb";
-import client from "./client";
+import { User } from "pb/api_pb";
+import { SearchReq } from "pb/search_pb";
+import client from "service/client";
 
 /**
  * Perform a search and return a list of users.

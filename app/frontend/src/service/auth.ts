@@ -3,8 +3,8 @@ import {
   SignupReq,
   SignupTokenInfoReq,
   UsernameValidReq,
-} from "../pb/auth_pb";
-import client from "./client";
+} from "pb/auth_pb";
+import client from "service/client";
 
 export async function checkUsername(username: string) {
   const req = new LoginReq();

@@ -1,13 +1,12 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { StringValue } from "google-protobuf/google/protobuf/wrappers_pb";
-
-import { ChangeEmailReq, ChangePasswordReq } from "../pb/account_pb";
+import { ChangeEmailReq, ChangePasswordReq } from "pb/account_pb";
 import {
   CompleteChangeEmailReq,
   CompletePasswordResetReq,
   ResetPasswordReq,
-} from "../pb/auth_pb";
-import client from "./client";
+} from "pb/auth_pb";
+import client from "service/client";
 
 export async function getAccountInfo() {
   const res = await client.account.getAccountInfo(new Empty());

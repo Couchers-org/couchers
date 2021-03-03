@@ -40,7 +40,9 @@ export default function CompleteResetPasswordPage() {
     </>
   ) : (
     error && (
-      <Alert severity="error">Error resetting password: {error.message}</Alert>
+      <Alert severity="error">
+        {`Error resetting password: ${error.message}`}
+      </Alert>
     )
   );
 }

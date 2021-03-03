@@ -64,7 +64,7 @@ describe("when the listFriends query succeeds", () => {
           name: "Funny Kid",
           userId: 3,
           username: "funnykid",
-          avatarUrl: "funnykid.jpg",
+          avatarUrl: "https://loremflickr.com/200/200?user3",
         },
       ],
     });
@@ -118,7 +118,7 @@ describe("when the listFriends query succeeds", () => {
           name: "Funny Kid",
           userId: 3,
           username: "funnykid",
-          avatarUrl: "funnykid.jpg",
+          avatarUrl: "https://loremflickr.com/200/200?user3",
         },
       ],
     });
@@ -206,7 +206,7 @@ describe("with cached user data", () => {
           name: "Funny Kid",
           userId: 3,
           username: "funnykid",
-          avatarUrl: "funnykid.jpg",
+          avatarUrl: "https://loremflickr.com/200/200?user3",
         },
       ],
     });

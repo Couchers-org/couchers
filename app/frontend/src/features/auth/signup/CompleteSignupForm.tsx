@@ -1,35 +1,33 @@
 import {
-  Box,
   FormControlLabel,
   InputLabel,
   makeStyles,
   Radio,
   RadioGroup,
 } from "@material-ui/core";
+import Autocomplete from "components/Autocomplete";
+import Button from "components/Button";
+import CircularProgress from "components/CircularProgress";
+import EditUserLocationMap, {
+  ApproximateLocation,
+} from "components/EditUserLocationMap";
+import TextBody from "components/TextBody";
+import TextField from "components/TextField";
+import TOS from "components/TOS";
+import { useAuthContext } from "features/auth/AuthProvider";
+import useAuthStyles from "features/auth/useAuthStyles";
+import { hostingStatusLabels } from "features/profile/constants";
+import { HostingStatus } from "pb/api_pb";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useHistory, useLocation, useParams } from "react-router-dom";
-
-import Autocomplete from "../../../components/Autocomplete";
-import Button from "../../../components/Button";
-import CircularProgress from "../../../components/CircularProgress";
-import EditUserLocationMap, {
-  ApproximateLocation,
-} from "../../../components/EditUserLocationMap";
-import TextBody from "../../../components/TextBody";
-import TextField from "../../../components/TextField";
-import TOS from "../../../components/TOS";
-import { HostingStatus } from "../../../pb/api_pb";
-import { signupRoute } from "../../../routes";
-import { service } from "../../../service";
+import { signupRoute } from "routes";
+import { service } from "service/index";
 import {
   nameValidationPattern,
   usernameValidationPattern,
   validatePastDate,
-} from "../../../utils/validation";
-import { hostingStatusLabels } from "../../profile/constants";
-import { useAuthContext } from "../AuthProvider";
-import useAuthStyles from "../useAuthStyles";
+} from "utils/validation";
 
 type SignupInputs = {
   email: string;
@@ -274,7 +272,7 @@ export default function CompleteSignup() {
               </RadioGroup>
             )}
           />
-          <Box>
+          <div>
             <TOS />
             <Button
               classes={{
@@ -288,7 +286,7 @@ export default function CompleteSignup() {
             >
               {acceptedTOS ? "Thanks!" : "Accept"}
             </Button>
-          </Box>
+          </div>
           <Button
             classes={{
               root: authClasses.button,

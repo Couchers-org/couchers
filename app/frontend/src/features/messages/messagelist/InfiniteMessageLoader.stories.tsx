@@ -1,9 +1,8 @@
 import { Meta, Story } from "@storybook/react";
+import InfiniteMessageLoader from "features/messages/messagelist/InfiniteMessageLoader";
+import MessageList from "features/messages/messagelist/MessageList";
 import { useState } from "react";
-
-import { message1 } from "../../../stories/__mocks__/service";
-import InfiniteMessageLoader from "./InfiniteMessageLoader";
-import MessageList from "./MessageList";
+import mockMessages from "test/fixtures/messages.json";
 
 const maxId = 999999;
 
@@ -19,12 +18,12 @@ const Template: Story<any> = (args) => {
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState([
     {
-      ...message1,
+      ...mockMessages[0],
       text: { text: `Message id ${maxId}` },
       messageId: maxId,
     },
     {
-      ...message1,
+      ...mockMessages[0],
       text: { text: `Message id ${maxId - 1}` },
       messageId: maxId - 1,
     },
@@ -33,7 +32,7 @@ const Template: Story<any> = (args) => {
     setLoading(true);
     setTimeout(() => {
       const newMessages = [0, 1, 2, 3].map((index) => ({
-        ...message1,
+        ...mockMessages[0],
         text: { text: `Message id ${maxId - messages.length - index}` },
         messageId: maxId - messages.length - index,
       }));

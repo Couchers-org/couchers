@@ -655,7 +655,7 @@ def test_hosting_preferences(db):
     user2, token2 = generate_user()
 
     with api_session(token1) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=user2.username))
+        res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
         assert not res.HasField("max_guests")
         assert not res.HasField("last_minute")
         assert not res.HasField("has_pets")
@@ -736,8 +736,8 @@ def test_hosting_preferences(db):
         assert res.parking_details == api_pb2.PARKING_DETAILS_PAID_ONSITE
         assert res.camping_ok.value is False
 
+    # test unsetting
     with api_session(token1) as api:
-        # test unsetting
         api.UpdateProfile(
             api_pb2.UpdateProfileReq(
                 max_guests=api_pb2.NullableUInt32Value(is_null=True),

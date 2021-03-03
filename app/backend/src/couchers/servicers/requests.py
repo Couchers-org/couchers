@@ -68,14 +68,15 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if not is_valid_date(request.from_date) or not is_valid_date(request.to_date):
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_DATE)
 
-            if request.from_date < least_current_date():
+            # today is not > from_date
+            if least_current_date() > request.from_date:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_FROM_BEFORE_TODAY)
 
-            if request.to_date < least_current_date():
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_TO_BEFORE_TODAY)
-
+            # from_date is not >= to_date
             if request.from_date >= request.to_date:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_FROM_AFTER_TO)
+
+            # No need to check today > to_date
 
             today = date.fromisoformat(largest_current_date())
             today_plus_one_year = today.replace(year=today.year + 1).isoformat()
@@ -115,6 +116,9 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             host_request.status = HostRequestStatus.pending
             host_request.from_last_seen_message_id = message.id
             session.add(host_request)
+            session.flush()
+
+            send_host_request_email(host_request)
 
             return requests_pb2.CreateHostRequestRes(host_request_id=host_request.conversation_id)
 
@@ -145,8 +149,6 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 .limit(1)
                 .one()
             )
-
-            send_host_request_email(host_request)
 
             return requests_pb2.HostRequest(
                 host_request_id=host_request.conversation_id,

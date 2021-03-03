@@ -1,10 +1,10 @@
 import { act, renderHook } from "@testing-library/react-hooks";
+import useUsers, { useUser } from "features/userQueries/useUsers";
 import React, { useState } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
-
-import { service } from "../../service";
-import { getUser } from "../../test/serviceMockDefaults";
-import useUsers, { useUser } from "./useUsers";
+import { service } from "service/index";
+import users from "test/fixtures/users.json";
+import { getUser } from "test/serviceMockDefaults";
 
 const getUserMock = service.user.getUser as jest.Mock;
 
@@ -59,12 +59,7 @@ describe("useUser (singular)", () => {
       isFetching: false,
       isError: false,
       error: "",
-      data: {
-        name: "Funny Cat current User",
-        userId: 1,
-        username: "funnycat",
-        avatarUrl: "funnycat.jpg",
-      },
+      data: users[0],
     });
   });
 
@@ -117,33 +112,9 @@ describe("when useUsers has loaded", () => {
       isError: false,
       errors: [],
       data: new Map([
-        [
-          1,
-          {
-            name: "Funny Cat current User",
-            userId: 1,
-            username: "funnycat",
-            avatarUrl: "funnycat.jpg",
-          },
-        ],
-        [
-          2,
-          {
-            name: "Funny Dog",
-            userId: 2,
-            username: "funnydog",
-            avatarUrl: "",
-          },
-        ],
-        [
-          3,
-          {
-            name: "Funny Kid",
-            userId: 3,
-            username: "funnykid",
-            avatarUrl: "funnykid.jpg",
-          },
-        ],
+        [1, users[0]],
+        [2, users[1]],
+        [3, users[2]],
       ]),
     });
   });
@@ -169,25 +140,9 @@ describe("when useUsers has loaded", () => {
       isError: true,
       errors: ["Error fetching user 2"],
       data: new Map([
-        [
-          1,
-          {
-            name: "Funny Cat current User",
-            userId: 1,
-            username: "funnycat",
-            avatarUrl: "funnycat.jpg",
-          },
-        ],
+        [1, users[0]],
         [2, undefined],
-        [
-          3,
-          {
-            name: "Funny Kid",
-            userId: 3,
-            username: "funnykid",
-            avatarUrl: "funnykid.jpg",
-          },
-        ],
+        [3, users[2]],
       ]),
     });
   });
@@ -230,24 +185,9 @@ describe("cached data", () => {
   );
   beforeEach(async () => {
     sharedClient.clear();
-    sharedClient.setQueryData(["user", 1], {
-      name: "Funny Cat current User",
-      userId: 1,
-      username: "funnycat",
-      avatarUrl: "funnycat.jpg",
-    });
-    sharedClient.setQueryData(["user", 2], {
-      name: "Funny Dog",
-      userId: 2,
-      username: "funnydog",
-      avatarUrl: "funnydog.jpg",
-    });
-    sharedClient.setQueryData(["user", 3], {
-      name: "Funny Kid",
-      userId: 3,
-      username: "funnykid",
-      avatarUrl: "funnykid.jpg",
-    });
+    sharedClient.setQueryData(["user", 1], users[0]);
+    sharedClient.setQueryData(["user", 2], users[1]);
+    sharedClient.setQueryData(["user", 3], users[2]);
     await sharedClient.refetchQueries();
   });
 
@@ -288,33 +228,9 @@ describe("cached data", () => {
         "Error fetching user data",
       ],
       data: new Map([
-        [
-          1,
-          {
-            name: "Funny Cat current User",
-            userId: 1,
-            username: "funnycat",
-            avatarUrl: "funnycat.jpg",
-          },
-        ],
-        [
-          2,
-          {
-            name: "Funny Dog",
-            userId: 2,
-            username: "funnydog",
-            avatarUrl: "funnydog.jpg",
-          },
-        ],
-        [
-          3,
-          {
-            name: "Funny Kid",
-            userId: 3,
-            username: "funnykid",
-            avatarUrl: "funnykid.jpg",
-          },
-        ],
+        [1, users[0]],
+        [2, users[1]],
+        [3, users[2]],
       ]),
     });
   });

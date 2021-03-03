@@ -2,11 +2,10 @@ import { Avatar as MuiAvatar, Box, BoxProps } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
 import classNames from "classnames";
+import { User } from "pb/api_pb";
 import React from "react";
 import { Link } from "react-router-dom";
-
-import { User } from "../../pb/api_pb";
-import { routeToUser } from "../../routes";
+import { routeToUser } from "routes";
 
 const useStyles = makeStyles({
   root: {

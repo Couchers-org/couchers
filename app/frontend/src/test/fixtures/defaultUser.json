@@ -28,7 +28,7 @@
   "education": "Uni",
   "aboutMe": "Some generic stuff.",
   "myTravels": "I like to travel",
-  "thinksILike": "hospex",
+  "thingsILike": "hospex",
   "aboutPlace": "About Aapeli's place",
   "languagesList": ["English", "Finnish"],
   "countriesVisitedList": ["Australia"],
@@ -36,6 +36,8 @@
   "additionalInformation": "",
   "friends": 3,
   "mutualFriendsList": [],
+  "sleepingArrangement": 2,
+  "parkingDetails": 3,
   "smokingAllowed": 1,
-  "avatarUrl": "http://127.0.0.1:5000/img/avatar/default.jpg"
+  "avatarUrl": "https://loremflickr.com/200/200?user1"
 }

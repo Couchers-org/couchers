@@ -10,8 +10,8 @@ import {
   ListMembersReq,
   ListNearbyUsersReq,
   ListPlacesReq,
-} from "../pb/communities_pb";
-import client from "./client";
+} from "pb/communities_pb";
+import client from "service/client";
 
 export async function getCommunity(communityId: number) {
   const req = new GetCommunityReq();

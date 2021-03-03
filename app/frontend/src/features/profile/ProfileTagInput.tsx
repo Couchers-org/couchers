@@ -7,35 +7,35 @@ import {
   InputBase,
   makeStyles,
   Popper,
+  Typography,
 } from "@material-ui/core";
 import Autocomplete, {
   AutocompleteCloseReason,
 } from "@material-ui/lab/Autocomplete";
+import { CloseIcon, ExpandMoreIcon } from "components/Icons";
 import React, { useRef, useState } from "react";
-
-import { CloseIcon, ExpandMoreIcon } from "../../components/Icons";
 
 const useStyles = makeStyles((theme) =>
   createStyles({
     popper: {
-      borderRadius: theme.shape.borderRadius,
-      borderWidth: 1,
-      borderStyle: "solid",
-      borderColor: "rgba(0, 0, 0, 0.23)",
-      boxShadow: theme.shadows[3],
-      zIndex: 1,
       backgroundColor: theme.palette.background.default,
+      borderColor: "rgba(0, 0, 0, 0.23)",
+      borderRadius: theme.shape.borderRadius,
+      borderStyle: "solid",
+      borderWidth: 1,
+      boxShadow: theme.shadows[3],
       marginTop: theme.spacing(1),
+      zIndex: 1,
     },
     button: {
       borderRadius: theme.shape.borderRadius,
       boxShadow: `0 0 0 1px rgba(0, 0, 0, 0.23)`,
-      padding: "18.5px 14px",
-      margin: theme.spacing(1, 0),
-      width: "100%",
-      fontSize: "16px",
       fontFamily: "inherit",
+      fontSize: "16px",
       justifyContent: "space-between",
+      margin: theme.spacing(1, 0),
+      padding: "18.5px 14px",
+      width: "inherit",
       "&:hover": {
         boxShadow: `0 0 0 1px ${theme.palette.text.primary}`,
       },
@@ -44,36 +44,36 @@ const useStyles = makeStyles((theme) =>
       },
     },
     tag: {
-      padding: "0 14px",
-      margin: theme.spacing(1, 0),
-      fontSize: theme.typography.fontSize,
-      display: "flex",
       alignItems: "center",
+      display: "flex",
+      fontSize: theme.typography.fontSize,
+      margin: theme.spacing(1, 0),
+      padding: "0 14px",
     },
     tagLabel: {
       marginLeft: theme.spacing(1),
     },
     header: {
-      fontSize: theme.typography.fontSize,
-      borderBottomWidth: 1,
-      borderBottomStyle: "solid",
       borderBottomColor: theme.palette.divider,
+      borderBottomStyle: "solid",
+      borderBottomWidth: 1,
+      fontSize: theme.typography.fontSize,
       padding: theme.spacing(1, 2),
     },
     inputBase: {
+      borderBottomColor: theme.palette.divider,
+      borderBottomStyle: "solid",
+      borderBottomWidth: 1,
       padding: theme.spacing(2),
       width: "100%",
-      borderBottomWidth: 1,
-      borderBottomStyle: "solid",
-      borderBottomColor: theme.palette.divider,
       "& input": {
-        borderRadius: theme.shape.borderRadius,
         backgroundColor: theme.palette.common.white,
+        borderColor: theme.palette.divider,
+        borderStyle: "solid",
+        borderRadius: theme.shape.borderRadius,
+        borderWidth: 1,
         padding: theme.spacing(1),
         transition: theme.transitions.create(["border-color", "box-shadow"]),
-        borderWidth: 1,
-        borderStyle: "solid",
-        borderColor: theme.palette.divider,
         "&:focus": {
           boxShadow: `${fade(theme.palette.primary.main, 0.25)} 0 0 0 0.2rem`,
           borderColor: theme.palette.primary.main,
@@ -85,8 +85,8 @@ const useStyles = makeStyles((theme) =>
       margin: 0,
     },
     option: {
-      minHeight: "auto",
       alignItems: "flex-start",
+      minHeight: "auto",
       padding: theme.spacing(1),
       '&[aria-selected="true"]': {
         backgroundColor: "transparent",
@@ -99,8 +99,8 @@ const useStyles = makeStyles((theme) =>
       position: "relative",
     },
     checkbox: {
-      padding: 0,
       marginRight: theme.spacing(1),
+      padding: 0,
     },
   })
 );
@@ -166,7 +166,7 @@ export default function ProfileTagInput({
         }}
         className={className}
       >
-        <span>{label}</span>
+        <Typography variant="body1">{label}</Typography>
         <ExpandMoreIcon />
       </ButtonBase>
       {value.map((tag) => (

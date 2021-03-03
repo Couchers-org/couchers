@@ -1,0 +1,14 @@
+{
+  "communityId": 2,
+  "name": "Amsterdam",
+  "slug": "amsterdam",
+  "description": "This is amsterdam",
+  "created": { "seconds": 1577800000, "nanos": 0 },
+  "parents": 1,
+  "mainPage": { "coordinate": { "lat": 52.3676, "lng": 4.9041 } },
+  "member": true,
+  "admin": false,
+  "memberCount": 5,
+  "adminCount": 2,
+  "nearbyUserCount": 3
+}

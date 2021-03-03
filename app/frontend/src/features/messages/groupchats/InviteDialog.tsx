@@ -1,23 +1,22 @@
 import { DialogProps } from "@material-ui/core";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { Error as GrpcError } from "grpc-web";
-import React from "react";
-import { Controller, useForm } from "react-hook-form";
-import { useMutation, useQueryClient } from "react-query";
-
-import Alert from "../../../components/Alert";
-import Autocomplete from "../../../components/Autocomplete";
-import Button from "../../../components/Button";
+import Alert from "components/Alert";
+import Autocomplete from "components/Autocomplete";
+import Button from "components/Button";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-} from "../../../components/Dialog";
-import { User } from "../../../pb/api_pb";
-import { GroupChat } from "../../../pb/conversations_pb";
-import { service } from "../../../service";
-import useFriendList from "../../connections/friends/useFriendList";
+} from "components/Dialog";
+import useFriendList from "features/connections/friends/useFriendList";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { Error as GrpcError } from "grpc-web";
+import { User } from "pb/api_pb";
+import { GroupChat } from "pb/conversations_pb";
+import React from "react";
+import { Controller, useForm } from "react-hook-form";
+import { useMutation, useQueryClient } from "react-query";
+import { service } from "service/index";
 
 export default function InviteDialog({
   groupChat,

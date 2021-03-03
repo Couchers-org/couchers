@@ -1,0 +1,32 @@
+{
+  "repliesList": [
+    {
+      "threadId": 3,
+      "content": "Very interesting!",
+      "authorUserId": 2,
+      "createdTime": { "seconds": 1577900000, "nanos": 0 },
+      "numReplies": 1
+    },
+    {
+      "threadId": 4,
+      "content": "Thanks so much (:",
+      "authorUserId": 1,
+      "createdTime": { "seconds": 1578000000, "nanos": 0 },
+      "numReplies": 0
+    },
+    {
+      "threadId": 5,
+      "content": "You're welcome, by the way, check out my other favourite place.",
+      "authorUserId": 1,
+      "createdTime": { "seconds": 1578001000, "nanos": 0 },
+      "numReplies": 0
+    },
+    {
+      "threadId": 6,
+      "content": "Sure, I will do that.",
+      "authorUserId": 1,
+      "createdTime": { "seconds": 1578005000, "nanos": 0 },
+      "numReplies": 0
+    }
+  ]
+}

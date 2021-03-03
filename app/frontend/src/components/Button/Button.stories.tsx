@@ -10,15 +10,15 @@ export default {
 
 const Template: Story<any> = (args) => (
   <>
-    <div>
-      <Button {...args}>Click</Button>
-    </div>
-    <div>
-      <Button {...args}>Ok</Button>
-    </div>
-    <div>
-      <Button {...args}>Longer text button</Button>
-    </div>
+    <Button {...args}>Click</Button>
+    <Button {...args}>Ok</Button>
+    <Button {...args}>Longer label button</Button>
+    <Button {...args} variant="text">
+      Text button
+    </Button>
+    <Button {...args} variant="outline">
+      Outline button
+    </Button>
   </>
 );
 
