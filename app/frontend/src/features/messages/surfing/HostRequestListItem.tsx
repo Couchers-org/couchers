@@ -1,5 +1,4 @@
 import {
-  Box,
   capitalize,
   ListItem,
   ListItemAvatar,
@@ -9,23 +8,22 @@ import {
 import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
 import classNames from "classnames";
-import React from "react";
-
-import Avatar from "../../../components/Avatar";
-import TextBody from "../../../components/TextBody";
-import { HostRequestStatus } from "../../../pb/conversations_pb";
-import { HostRequest } from "../../../pb/requests_pb";
-import { formatDate } from "../../../utils/date";
-import { firstName } from "../../../utils/names";
-import useAuthStore from "../../auth/useAuthStore";
-import { useUser } from "../../userQueries/useUsers";
-import { hostRequestStatusLabels } from "../constants";
+import Avatar from "components/Avatar";
+import TextBody from "components/TextBody";
+import useAuthStore from "features/auth/useAuthStore";
+import { hostRequestStatusLabels } from "features/messages/constants";
+import HostRequestStatusIcon from "features/messages/surfing/HostRequestStatusIcon";
 import {
   controlMessageText,
   isControlMessage,
   messageTargetId,
-} from "../utils";
-import HostRequestStatusIcon from "./HostRequestStatusIcon";
+} from "features/messages/utils";
+import { useUser } from "features/userQueries/useUsers";
+import { HostRequestStatus } from "pb/conversations_pb";
+import { HostRequest } from "pb/requests_pb";
+import React from "react";
+import { formatDate } from "utils/date";
+import { firstName } from "utils/names";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -102,7 +100,7 @@ export default function HostRequestListItem({
         }
         secondary={
           <>
-            <Box className={classes.hostStatusContainer}>
+            <div className={classes.hostStatusContainer}>
               <HostRequestStatusIcon
                 hostRequest={hostRequest}
                 className={classes.hostStatusIcon}
@@ -110,7 +108,7 @@ export default function HostRequestListItem({
               <Typography variant="body2">
                 {isOtherUserLoading ? <Skeleton width={200} /> : statusText}
               </Typography>
-            </Box>
+            </div>
             <TextBody noWrap>
               {isOtherUserLoading ? (
                 <Skeleton width={100} />

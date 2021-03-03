@@ -1,21 +1,13 @@
 import { Breadcrumbs, makeStyles, Typography } from "@material-ui/core";
-import React, { useEffect } from "react";
-import { Link, useHistory, useParams } from "react-router-dom";
-
-import Alert from "../../../components/Alert";
-import CircularProgress from "../../../components/CircularProgress";
+import Alert from "components/Alert";
+import CircularProgress from "components/CircularProgress";
 import {
   CalendarIcon,
   CouchIcon,
   EmailIcon,
   LocationIcon,
-} from "../../../components/Icons";
-import { CommunityParent } from "../../../pb/groups_pb";
-import {
-  routeToCommunity,
-  routeToCommunityDiscussions,
-  routeToCommunityEvents,
-} from "../../../routes";
+} from "components/Icons";
+import { useCommunity } from "features/communities/useCommunity";
 import {
   COMMUNITY_HEADING,
   DISCUSSIONS_LABEL,
@@ -26,8 +18,16 @@ import {
   INVALID_COMMUNITY_ID,
   LOCAL_POINTS_LABEL,
   MORE_TIPS,
-} from "../../constants";
-import { useCommunity } from "../useCommunity";
+} from "features/constants";
+import { CommunityParent } from "pb/groups_pb";
+import React, { useEffect } from "react";
+import { Link, useHistory, useParams } from "react-router-dom";
+import {
+  routeToCommunity,
+  routeToCommunityDiscussions,
+  routeToCommunityEvents,
+} from "routes";
+
 import CircularIconButton from "./CircularIconButton";
 import DiscussionsSection from "./DiscussionsSection";
 import EventsSection from "./EventsSection";

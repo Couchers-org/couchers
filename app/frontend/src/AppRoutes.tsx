@@ -27,11 +27,9 @@ import Home from "./features/Home";
 import MapPage from "./features/map/MapPage";
 import Messages from "./features/messages/index";
 import NotFoundPage from "./features/NotFoundPage";
-import {
-  EditHostingPreferencePage,
-  EditProfilePage,
-  ProfilePage,
-} from "./features/profile";
+import EditHostingPreferencePage from "./features/profile/edit/EditHostingPreferencePage";
+import EditProfilePage from "./features/profile/edit/EditProfilePage";
+import ProfilePage from "./features/profile/view/ProfilePage";
 import SearchPage from "./features/search/SearchPage";
 import { PageType } from "./pb/pages_pb";
 import {

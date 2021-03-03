@@ -1,16 +1,15 @@
 import { Box, makeStyles, Typography } from "@material-ui/core";
+import Avatar from "components/Avatar";
+import ScoreBar from "components/Bar/ScoreBar";
+import { CouchIcon } from "components/Icons";
+import IconText from "components/IconText";
+import PageTitle from "components/PageTitle";
+import { COMMUNITY_STANDING } from "features/constants";
+import { hostingStatusLabels } from "features/profile/constants";
+import { User } from "pb/api_pb";
 import React from "react";
-
-import Avatar from "../../components/Avatar";
-import ScoreBar from "../../components/Bar/ScoreBar";
-import { CouchIcon } from "../../components/Icons";
-import IconText from "../../components/IconText";
-import PageTitle from "../../components/PageTitle";
-import { User } from "../../pb/api_pb";
-import { timestamp2Date } from "../../utils/date";
-import { timeAgo } from "../../utils/timeAgo";
-import { COMMUNITY_STANDING } from "../constants";
-import { hostingStatusLabels } from "../profile/constants";
+import { timestamp2Date } from "utils/date";
+import { timeAgo } from "utils/timeAgo";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -52,7 +51,7 @@ export default function UserHeader({ children, user }: UserHeaderProps) {
       {user.lastActive && (
         <Box mb={2}>
           <Typography component="p" variant="caption" gutterBottom>
-            {timeAgo(timestamp2Date(user.lastActive), true)}
+            {timeAgo(timestamp2Date(user.lastActive))}
           </Typography>
         </Box>
       )}

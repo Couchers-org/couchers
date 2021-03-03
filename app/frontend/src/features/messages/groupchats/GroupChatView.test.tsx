@@ -1,4 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
+import { MARK_LAST_SEEN_TIMEOUT } from "features/messages/constants";
+import GroupChatView from "features/messages/groupchats/GroupChatView";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import React from "react";
 import {
@@ -6,18 +8,12 @@ import {
   mockIsIntersecting,
 } from "react-intersection-observer/test-utils";
 import { Route } from "react-router-dom";
-
-import { messagesRoute } from "../../../routes";
-import { service } from "../../../service";
-import messageData from "../../../test/fixtures/messages.json";
-import { getHookWrapperWithClient } from "../../../test/hookWrapper";
-import {
-  getGroupChatMessages,
-  getUser,
-} from "../../../test/serviceMockDefaults";
-import { addDefaultUser, MockedService, wait } from "../../../test/utils";
-import { MARK_LAST_SEEN_TIMEOUT } from "../constants";
-import GroupChatView from "./GroupChatView";
+import { messagesRoute } from "routes";
+import { service } from "service/index";
+import messageData from "test/fixtures/messages.json";
+import { getHookWrapperWithClient } from "test/hookWrapper";
+import { getGroupChatMessages, getUser } from "test/serviceMockDefaults";
+import { addDefaultUser, MockedService, wait } from "test/utils";
 
 const getGroupChatMock = service.conversations.getGroupChat as MockedService<
   typeof service.conversations.getGroupChat

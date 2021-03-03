@@ -1,23 +1,26 @@
 import { Dialog, DialogContent, makeStyles } from "@material-ui/core";
-import React, { useState } from "react";
-import { useQueryClient } from "react-query";
-import { Link } from "react-router-dom";
-
-import Alert from "../../../components/Alert";
-import CircularProgress from "../../../components/CircularProgress";
-import NewComment from "../../../components/Comments/NewComment";
-import IconButton from "../../../components/IconButton";
-import { AddIcon, EmailIcon, MoreIcon } from "../../../components/Icons";
-import TextBody from "../../../components/TextBody";
-import { Community } from "../../../pb/communities_pb";
-import { routeToCommunityDiscussions } from "../../../routes";
+import Alert from "components/Alert";
+import CircularProgress from "components/CircularProgress";
+import NewComment from "components/Comments/NewComment";
+import IconButton from "components/IconButton";
+import { AddIcon, EmailIcon, MoreIcon } from "components/Icons";
+import TextBody from "components/TextBody";
+import {
+  useListDiscussions,
+  useNewDiscussionMutation,
+} from "features/communities/useCommunity";
 import {
   DISCUSSIONS_EMPTY_STATE,
   DISCUSSIONS_TITLE,
   NEW_POST_LABEL,
   SEE_MORE_DISCUSSIONS_LABEL,
-} from "../../constants";
-import { useListDiscussions, useNewDiscussionMutation } from "../useCommunity";
+} from "features/constants";
+import { Community } from "pb/communities_pb";
+import React, { useState } from "react";
+import { useQueryClient } from "react-query";
+import { Link } from "react-router-dom";
+import { routeToCommunityDiscussions } from "routes";
+
 import { useCommunityPageStyles } from "./CommunityPage";
 import DiscussionCard from "./DiscussionCard";
 import SectionTitle from "./SectionTitle";

@@ -1,12 +1,5 @@
 import { Error as GrpcError } from "grpc-web";
 import {
-  QueryClient,
-  useInfiniteQuery,
-  useMutation,
-  useQuery,
-} from "react-query";
-
-import {
   Community,
   ListAdminsRes,
   ListCommunitiesRes,
@@ -16,8 +9,8 @@ import {
   ListMembersRes,
   ListNearbyUsersRes,
   ListPlacesRes,
-} from "../../pb/communities_pb";
-import { Discussion } from "../../pb/discussions_pb";
+} from "pb/communities_pb";
+import { Discussion } from "pb/discussions_pb";
 import {
   communityAdminsKey,
   communityDiscussionsKey,
@@ -28,8 +21,14 @@ import {
   communityNearbyUsersKey,
   communityPlacesKey,
   subCommunitiesKey,
-} from "../../queryKeys";
-import { service } from "../../service";
+} from "queryKeys";
+import {
+  QueryClient,
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+} from "react-query";
+import { service } from "service/index";
 
 export const useCommunity = (id: number) =>
   useQuery<Community.AsObject, GrpcError>(communityKey(id), () =>

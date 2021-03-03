@@ -1,8 +1,29 @@
 import { Box } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
+import Alert from "components/Alert";
+import CircularProgress from "components/CircularProgress";
+import HeaderButton from "components/HeaderButton";
+import { BackIcon, OverflowMenuIcon } from "components/Icons";
+import Menu, { MenuItem } from "components/Menu";
+import PageTitle from "components/PageTitle";
+import { useAuthContext } from "features/auth/AuthProvider";
+import AdminsDialog from "features/messages/groupchats/AdminsDialog";
+import GroupChatSendField from "features/messages/groupchats/GroupChatSendField";
+import GroupChatSettingsDialog from "features/messages/groupchats/GroupChatSettingsDialog";
+import InviteDialog from "features/messages/groupchats/InviteDialog";
+import LeaveDialog from "features/messages/groupchats/LeaveDialog";
+import MembersDialog from "features/messages/groupchats/MembersDialog";
+import InfiniteMessageLoader from "features/messages/messagelist/InfiniteMessageLoader";
+import MessageList from "features/messages/messagelist/MessageList";
+import useMarkLastSeen, {
+  MarkLastSeenVariables,
+} from "features/messages/useMarkLastSeen";
+import { groupChatTitleText } from "features/messages/utils";
+import useUsers from "features/userQueries/useUsers";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
+import { GetGroupChatMessagesRes, GroupChat } from "pb/conversations_pb";
 import React, { useRef, useState } from "react";
 import {
   useInfiniteQuery,
@@ -11,30 +32,7 @@ import {
   useQueryClient,
 } from "react-query";
 import { useHistory, useParams } from "react-router-dom";
-
-import Alert from "../../../components/Alert";
-import CircularProgress from "../../../components/CircularProgress";
-import HeaderButton from "../../../components/HeaderButton";
-import { BackIcon, OverflowMenuIcon } from "../../../components/Icons";
-import Menu, { MenuItem } from "../../../components/Menu";
-import PageTitle from "../../../components/PageTitle";
-import {
-  GetGroupChatMessagesRes,
-  GroupChat,
-} from "../../../pb/conversations_pb";
-import { service } from "../../../service";
-import { useAuthContext } from "../../auth/AuthProvider";
-import useUsers from "../../userQueries/useUsers";
-import InfiniteMessageLoader from "../messagelist/InfiniteMessageLoader";
-import MessageList from "../messagelist/MessageList";
-import useMarkLastSeen, { MarkLastSeenVariables } from "../useMarkLastSeen";
-import { groupChatTitleText } from "../utils";
-import AdminsDialog from "./AdminsDialog";
-import GroupChatSendField from "./GroupChatSendField";
-import GroupChatSettingsDialog from "./GroupChatSettingsDialog";
-import InviteDialog from "./InviteDialog";
-import LeaveDialog from "./LeaveDialog";
-import MembersDialog from "./MembersDialog";
+import { service } from "service/index";
 
 export const useGroupChatViewStyles = makeStyles((theme) => ({
   pageWrapper: {
@@ -258,7 +256,8 @@ export default function GroupChatView() {
             <Alert severity="error">
               {groupChatError?.message ||
                 messagesError?.message ||
-                sendMutation.error?.message}
+                sendMutation.error?.message ||
+                ""}
             </Alert>
           )}
           {isMessagesLoading ? (

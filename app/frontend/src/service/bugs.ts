@@ -1,6 +1,6 @@
-import { BugReportFormData } from "../features/BugReport";
-import { ReportBugReq } from "../pb/bugs_pb";
-import client from "./client";
+import { BugReportFormData } from "features/BugReport";
+import { ReportBugReq } from "pb/bugs_pb";
+import client from "service/client";
 
 export async function reportBug(
   { description, results, steps, subject }: BugReportFormData,

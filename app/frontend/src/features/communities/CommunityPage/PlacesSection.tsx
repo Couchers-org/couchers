@@ -1,16 +1,16 @@
+import Alert from "components/Alert";
+import CircularProgress from "components/CircularProgress";
+import HorizontalScroller from "components/HorizontalScroller";
+import IconButton from "components/IconButton";
+import { InfoIcon, MoreIcon } from "components/Icons";
+import TextBody from "components/TextBody";
+import { useListPlaces } from "features/communities/useCommunity";
+import { PLACES_EMPTY_STATE, SEE_MORE_PLACES_LABEL } from "features/constants";
+import { Community } from "pb/communities_pb";
 import React from "react";
 import { Link } from "react-router-dom";
+import { routeToCommunityPlaces } from "routes";
 
-import Alert from "../../../components/Alert";
-import CircularProgress from "../../../components/CircularProgress";
-import HorizontalScroller from "../../../components/HorizontalScroller";
-import IconButton from "../../../components/IconButton";
-import { InfoIcon, MoreIcon } from "../../../components/Icons";
-import TextBody from "../../../components/TextBody";
-import { Community } from "../../../pb/communities_pb";
-import { routeToCommunityPlaces } from "../../../routes";
-import { PLACES_EMPTY_STATE, SEE_MORE_PLACES_LABEL } from "../../constants";
-import { useListPlaces } from "../useCommunity";
 import { useCommunityPageStyles } from "./CommunityPage";
 import PlaceCard from "./PlaceCard";
 import SectionTitle from "./SectionTitle";

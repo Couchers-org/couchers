@@ -1,21 +1,20 @@
 import { Checkbox, DialogProps, FormControlLabel } from "@material-ui/core";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { Error as GrpcError } from "grpc-web";
-import React from "react";
-import { useForm } from "react-hook-form";
-import { useMutation, useQueryClient } from "react-query";
-
-import Alert from "../../../components/Alert";
-import Button from "../../../components/Button";
+import Alert from "components/Alert";
+import Button from "components/Button";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-} from "../../../components/Dialog";
-import TextField from "../../../components/TextField";
-import { GroupChat } from "../../../pb/conversations_pb";
-import { service } from "../../../service";
+} from "components/Dialog";
+import TextField from "components/TextField";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { Error as GrpcError } from "grpc-web";
+import { GroupChat } from "pb/conversations_pb";
+import React from "react";
+import { useForm } from "react-hook-form";
+import { useMutation, useQueryClient } from "react-query";
+import { service } from "service/index";
 
 interface GroupChatSettingsData {
   title: string;

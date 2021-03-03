@@ -7,23 +7,22 @@ import {
 } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
 import classNames from "classnames";
+import CircularProgress from "components/CircularProgress";
+import { MORE_REPLIES } from "features/constants";
+import useUsers, { useUser } from "features/userQueries/useUsers";
 import { Error as GrpcError } from "grpc-web";
+import { Discussion } from "pb/discussions_pb";
+import { GetThreadRes } from "pb/threads_pb";
+import { threadKey } from "queryKeys";
 import React, { useMemo } from "react";
 import { useInfiniteQuery } from "react-query";
 import { Link } from "react-router-dom";
-
-import CircularProgress from "../../../components/CircularProgress";
-import { Discussion } from "../../../pb/discussions_pb";
-import { GetThreadRes } from "../../../pb/threads_pb";
-import { threadKey } from "../../../queryKeys";
-import { routeToDiscussion } from "../../../routes";
-import { service } from "../../../service";
-import { timestamp2Date } from "../../../utils/date";
-import { firstName } from "../../../utils/names";
-import stripMarkdown from "../../../utils/stripMarkdown";
-import { timeAgo } from "../../../utils/timeAgo";
-import { MORE_REPLIES } from "../../constants";
-import useUsers, { useUser } from "../../userQueries/useUsers";
+import { routeToDiscussion } from "routes";
+import { service } from "service/index";
+import { timestamp2Date } from "utils/date";
+import { firstName } from "utils/names";
+import stripMarkdown from "utils/stripMarkdown";
+import { timeAgo } from "utils/timeAgo";
 
 const useStyles = makeStyles((theme) => ({
   root: {

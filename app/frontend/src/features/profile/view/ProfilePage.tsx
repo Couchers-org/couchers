@@ -6,23 +6,22 @@ import {
   makeStyles,
 } from "@material-ui/core";
 import { TabContext, TabPanel } from "@material-ui/lab";
+import Alert from "components/Alert";
+import TabBar from "components/TabBar";
+import { SECTION_LABELS } from "features/constants";
+import About from "features/profile/view/About";
+import Home from "features/profile/view/Home";
+import Overview from "features/profile/view/Overview";
+import References from "features/profile/view/References";
+import useCurrentUser from "features/userQueries/useCurrentUser";
+import useUserByUsername from "features/userQueries/useUserByUsername";
 import React, { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-
-import Alert from "../../../components/Alert";
-import TabBar from "../../../components/TabBar";
 import {
   changeEmailRoute,
   changePasswordRoute,
   editHostingPreferenceRoute,
-  editProfileRoute,
-} from "../../../routes";
-import { SECTION_LABELS } from "../../constants";
-import useCurrentUser from "../../userQueries/useCurrentUser";
-import useUserByUsername from "../../userQueries/useUserByUsername";
-import About from "./About";
-import Overview from "./Overview";
-import References from "./References";
+} from "routes";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -88,7 +87,7 @@ export default function ProfilePage() {
                 <About user={user} />
               </TabPanel>
               <TabPanel value="home">
-                <div>home</div>
+                <Home user={user}></Home>
               </TabPanel>
               <TabPanel classes={{ root: classes.tabPanel }} value="references">
                 <References user={user} />
@@ -106,13 +105,6 @@ export default function ProfilePage() {
         <></>
       )}
       <List>
-        <ListItem
-          className={classes.linkStyle}
-          component={Link}
-          to={editProfileRoute}
-        >
-          Edit my profile
-        </ListItem>
         <ListItem
           className={classes.linkStyle}
           component={Link}

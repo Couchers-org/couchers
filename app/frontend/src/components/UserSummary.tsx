@@ -5,12 +5,11 @@ import {
   Typography,
 } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
+import Avatar from "components/Avatar";
+import ScoreBar from "components/Bar/ScoreBar";
+import { COMMUNITY_STANDING } from "features/constants";
+import { User } from "pb/api_pb";
 import React from "react";
-
-import { COMMUNITY_STANDING } from "../features/constants";
-import { User } from "../pb/api_pb";
-import Avatar from "./Avatar";
-import ScoreBar from "./Bar/ScoreBar";
 
 export const useStyles = makeStyles((theme) => ({
   root: {

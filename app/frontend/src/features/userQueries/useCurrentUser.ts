@@ -1,5 +1,5 @@
-import { useAuthContext } from "../auth/AuthProvider";
-import { useUser } from "./useUsers";
+import { useAuthContext } from "features/auth/AuthProvider";
+import { useUser } from "features/userQueries/useUsers";
 
 export default function useCurrentUser() {
   const authState = useAuthContext().authState;

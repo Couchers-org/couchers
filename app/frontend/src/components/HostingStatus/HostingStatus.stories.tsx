@@ -1,7 +1,8 @@
 import { Meta, Story } from "@storybook/react";
-
-import { HostingStatus as THostingStatus } from "../../pb/api_pb";
-import HostingStatus, { HostingStatusProps } from "./HostingStatus";
+import HostingStatus, {
+  HostingStatusProps,
+} from "components/HostingStatus/HostingStatus";
+import { HostingStatus as THostingStatus } from "pb/api_pb";
 
 export default {
   title: "Components/Composite/HostingStatus",

@@ -5,13 +5,13 @@ import {
   CardMedia,
   makeStyles,
 } from "@material-ui/core";
+import { Page } from "pb/pages_pb";
 import React, { useMemo } from "react";
 import LinesEllipsis from "react-lines-ellipsis";
 import { Link } from "react-router-dom";
+import { routeToPlace } from "routes";
+import stripMarkdown from "utils/stripMarkdown";
 
-import { Page } from "../../../pb/pages_pb";
-import { routeToPlace } from "../../../routes";
-import stripMarkdown from "../../../utils/stripMarkdown";
 import placeImagePlaceholder from "./placeImagePlaceholder.svg";
 
 const useStyles = makeStyles((theme) => ({

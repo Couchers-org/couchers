@@ -1,13 +1,13 @@
+import HorizontalScroller from "components/HorizontalScroller";
+import IconButton from "components/IconButton";
+import { CalendarIcon, MoreIcon } from "components/Icons";
+import TextBody from "components/TextBody";
+import { EVENTS_EMPTY_STATE, SEE_MORE_EVENTS_LABEL } from "features/constants";
+import { Community } from "pb/communities_pb";
 import React from "react";
 import { Link } from "react-router-dom";
+import { routeToCommunityEvents } from "routes";
 
-import HorizontalScroller from "../../../components/HorizontalScroller";
-import IconButton from "../../../components/IconButton";
-import { CalendarIcon, MoreIcon } from "../../../components/Icons";
-import TextBody from "../../../components/TextBody";
-import { Community } from "../../../pb/communities_pb";
-import { routeToCommunityEvents } from "../../../routes";
-import { EVENTS_EMPTY_STATE, SEE_MORE_EVENTS_LABEL } from "../../constants";
 import { useCommunityPageStyles } from "./CommunityPage";
 import EventCard from "./EventCard";
 import SectionTitle from "./SectionTitle";
