@@ -101,8 +101,8 @@ export default function BugReport() {
             {error && <Alert severity="error">{error.message}</Alert>}
             {reportIdentifier && (
               <Alert severity="success">
-                Thank you for reporting that bug and making Couchers better, a
-                report was sent to the devs! The bug ID is {reportIdentifier}
+                {`Thank you for reporting that bug and making Couchers better, a
+                report was sent to the devs! The bug ID is ${reportIdentifier}`}
               </Alert>
             )}
             <DialogContentText>
