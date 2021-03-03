@@ -24,10 +24,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
- interface AccessibleTextFieldProps extends BaseTextFieldProps {
-   id: BaseTextFieldProps["id"];
-   onChange?: TextFieldProps["onChange"];
- }
+interface AccessibleTextFieldProps extends BaseTextFieldProps {
+  id: BaseTextFieldProps["id"];
+  onChange?: TextFieldProps["onChange"];
+}
 
 export default function TextField({
   id,
