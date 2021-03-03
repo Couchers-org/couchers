@@ -48,51 +48,51 @@ const placeBaseRoute = "/place";
 export const placeRoute = `${placeBaseRoute}/:pageId/:pageSlug?`;
 export const routeToPlace = (id: number, slug: string) =>
   `${placeRoute}/${id}/${slug}`;
-export const newPlaceRoute = `${placeRoute}/new`;
+export const newPlaceRoute = `${placeBaseRoute}/new`;
 
 const guideBaseRoute = "/guide";
 export const guideRoute = `${guideBaseRoute}/:pageId/:pageSlug?`;
 export const routeToGuide = (id: number, slug: string) =>
   `${guideRoute}/${id}/${slug}`;
-export const newGuideRoute = `${guideRoute}/new`;
+export const newGuideRoute = `${guideBaseRoute}/new`;
 
 const groupBaseRoute = "/group";
 export const groupRoute = `${groupBaseRoute}/:groupId/:groupSlug?`;
 export const routeToGroup = (id: number, slug: string) =>
-  `${groupRoute}/${id}/${slug}`;
+  `${groupBaseRoute}/${id}/${slug}`;
 
 const discussionBaseRoute = "/discussion";
 export const discussionRoute = `${discussionBaseRoute}/:discussionId/:discussionSlug?`;
 export const routeToDiscussion = (id: number, slug: string) =>
-  `${discussionRoute}/${id}/${slug}`;
+  `${discussionBaseRoute}/${id}/${slug}`;
 
 const eventBaseRoute = "/event";
 export const eventRoute = `${eventBaseRoute}/:eventId/:eventSlug?`;
 export const routeToEvent = (id: number, slug: string) =>
-  `${eventRoute}/${id}/${slug}`;
+  `${eventBaseRoute}/${id}/${slug}`;
 
 const communityBaseRoute = "/community";
 export const communityRoute = `${communityBaseRoute}/:communityId/:communitySlug?`;
 export const routeToCommunity = (id: number, slug: string) =>
-  `${communityRoute}/${id}/${slug}`;
+  `${communityBaseRoute}/${id}/${slug}`;
 
 const communityPlacesBaseRoute = `${communityRoute}/places`;
 export const communityPlacesRoute = `${communityPlacesBaseRoute}/:communityId/:communitySlug?`;
 export const routeToCommunityPlaces = (id: number, slug: string) =>
-  `${communityPlacesRoute}/${id}/${slug}`;
+  `${communityPlacesBaseRoute}/${id}/${slug}`;
 const communityGuidesBaseRoute = `${communityRoute}/guides`;
 export const communityGuidesRoute = `${communityGuidesBaseRoute}/:communityId/:communitySlug?`;
 export const routeToCommunityGuides = (id: number, slug: string) =>
-  `${communityGuidesRoute}/${id}/${slug}`;
+  `${communityGuidesBaseRoute}/${id}/${slug}`;
 const communityGroupsBaseRoute = `${communityRoute}/groups`;
 export const communityGroupsRoute = `${communityGroupsBaseRoute}/:communityId/:communitySlug?`;
 export const routeToCommunityGroups = (id: number, slug: string) =>
-  `${communityGroupsRoute}/${id}/${slug}`;
+  `${communityGroupsBaseRoute}/${id}/${slug}`;
 const communityDiscussionsBaseRoute = `${communityRoute}/discussions`;
 export const communityDiscussionsRoute = `${communityDiscussionsBaseRoute}/:communityId/:communitySlug?`;
 export const routeToCommunityDiscussions = (id: number, slug: string) =>
-  `${communityDiscussionsRoute}/${id}/${slug}`;
+  `${communityDiscussionsBaseRoute}/${id}/${slug}`;
 const communityEventsBaseRoute = `${communityRoute}/events`;
 export const communityEventsRoute = `${communityEventsBaseRoute}/:communityId/:communitySlug?`;
 export const routeToCommunityEvents = (id: number, slug: string) =>
-  `${communityEventsRoute}/${id}/${slug}`;
+  `${communityEventsBaseRoute}/${id}/${slug}`;
