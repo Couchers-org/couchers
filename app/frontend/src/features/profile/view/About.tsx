@@ -1,9 +1,6 @@
 import { Typography } from "@material-ui/core";
-
-import Divider from "../../../components/Divider";
-import LabelAndText from "../../../components/LabelAndText";
-import { User } from "../../../pb/api_pb";
-import { dateTimeFormatter, timestamp2Date } from "../../../utils/date";
+import Divider from "components/Divider";
+import LabelAndText from "components/LabelAndText";
 import {
   ADDITIONAL,
   AGE_GENDER,
@@ -15,7 +12,10 @@ import {
   OCCUPATION,
   OVERVIEW,
   WHO,
-} from "../../constants";
+} from "features/constants";
+import { User } from "pb/api_pb";
+import React from "react";
+import { dateTimeFormatter, timestamp2Date } from "utils/date";
 
 interface AboutProps {
   user: User.AsObject;

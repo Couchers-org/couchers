@@ -1,7 +1,6 @@
 import { Meta, Story } from "@storybook/react";
-
-import community from "../../../test/fixtures/community.json";
-import HeaderImage from "./HeaderImage";
+import HeaderImage from "features/communities/CommunityPage/HeaderImage";
+import community from "test/fixtures/community.json";
 
 export default {
   title: "Communities/CommunityPage/HeaderImage",

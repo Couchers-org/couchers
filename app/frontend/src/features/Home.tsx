@@ -1,10 +1,9 @@
+import Button from "components/Button";
+import TextBody from "components/TextBody";
+import useCurrentUser from "features/userQueries/useCurrentUser";
 import React from "react";
 import { Link } from "react-router-dom";
-
-import Button from "../components/Button";
-import TextBody from "../components/TextBody";
-import { newGuideRoute, newPlaceRoute } from "../routes";
-import useCurrentUser from "./userQueries/useCurrentUser";
+import { newGuideRoute, newPlaceRoute } from "routes";
 
 export default function Home() {
   const name = useCurrentUser().data?.name.split(" ")[0];

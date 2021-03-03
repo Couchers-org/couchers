@@ -3,8 +3,8 @@ import {
   CreateGuideReq,
   CreatePlaceReq,
   GetPageReq,
-} from "../pb/pages_pb";
-import client from "./client";
+} from "pb/pages_pb";
+import client from "service/client";
 
 export async function createPlace(
   title: string,

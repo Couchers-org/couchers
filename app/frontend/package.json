@@ -29,7 +29,7 @@
     "format": "prettier --write src/",
     "lint": "eslint src/",
     "test-ci": "CI=true react-scripts test --coverageReporters=\"text\" --coverageReporters=\"cobertura\" --coverageReporters=\"lcov\" --reporters=\"default\" --reporters=\"jest-junit\" --coverage",
-    "jest": "jest",
+    "jest": "jest --modulePaths=src",
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "NODE_PATH=. build-storybook -s public"
   },
@@ -48,7 +48,8 @@
       "import/order": "off",
       "import/first": "error",
       "import/newline-after-import": "error",
-      "import/no-duplicates": "error"
+      "import/no-duplicates": "error",
+      "import/no-relative-parent-imports": "error"
     },
     "overrides": [
       {

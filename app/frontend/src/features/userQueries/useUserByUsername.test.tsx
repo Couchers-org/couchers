@@ -1,10 +1,9 @@
 import { renderHook } from "@testing-library/react-hooks";
+import useUserByUsername from "features/userQueries/useUserByUsername";
 import React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
-
-import { service } from "../../service";
-import { getUser } from "../../test/serviceMockDefaults";
-import useUserByUsername from "./useUserByUsername";
+import { service } from "service/index";
+import { getUser } from "test/serviceMockDefaults";
 
 const getUserMock = service.user.getUser as jest.Mock;
 

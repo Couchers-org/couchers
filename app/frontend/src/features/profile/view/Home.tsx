@@ -1,9 +1,6 @@
 import { makeStyles, Typography } from "@material-ui/core";
-import React from "react";
-
-import Divider from "../../../components/Divider";
-import LabelAndText from "../../../components/LabelAndText";
-import { User } from "../../../pb/api_pb";
+import Divider from "components/Divider";
+import LabelAndText from "components/LabelAndText";
 import {
   ABOUT_HOME,
   ACCEPT_DRINKING,
@@ -27,12 +24,14 @@ import {
   SLEEPING_ARRANGEMENT,
   SPACE,
   WHEELCHAIR,
-} from "../../constants";
+} from "features/constants";
 import booleanConversion, {
   parkingDetailsLabels,
   sleepingArrangementLabels,
   smokingLocationLabels,
-} from "../constants";
+} from "features/profile/constants";
+import { User } from "pb/api_pb";
+import React from "react";
 
 const useStyles = makeStyles(() => ({
   root: {

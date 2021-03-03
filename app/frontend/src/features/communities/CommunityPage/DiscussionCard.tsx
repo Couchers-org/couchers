@@ -7,20 +7,19 @@ import {
 } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
 import classNames from "classnames";
+import CircularProgress from "components/CircularProgress";
+import useUsers, { useUser } from "features/userQueries/useUsers";
 import { Error as GrpcError } from "grpc-web";
+import { Discussion } from "pb/discussions_pb";
+import { GetThreadRes } from "pb/threads_pb";
+import { threadKey } from "queryKeys";
 import React, { useMemo } from "react";
 import { useInfiniteQuery } from "react-query";
-
-import CircularProgress from "../../../components/CircularProgress";
-import { Discussion } from "../../../pb/discussions_pb";
-import { GetThreadRes } from "../../../pb/threads_pb";
-import { threadKey } from "../../../queryKeys";
-import { service } from "../../../service";
-import { timestamp2Date } from "../../../utils/date";
-import { firstName } from "../../../utils/names";
-import stripMarkdown from "../../../utils/stripMarkdown";
-import { timeAgo } from "../../../utils/timeAgo";
-import useUsers, { useUser } from "../../userQueries/useUsers";
+import { service } from "service/index";
+import { timestamp2Date } from "utils/date";
+import { firstName } from "utils/names";
+import stripMarkdown from "utils/stripMarkdown";
+import { timeAgo } from "utils/timeAgo";
 
 const useStyles = makeStyles((theme) => ({
   root: {
