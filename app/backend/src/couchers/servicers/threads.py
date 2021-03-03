@@ -58,6 +58,15 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
                     )
                     for r, n in res[:page_size]
                 ]
+                all_res = (
+                    session.query(Comment, func.count(Reply.id))
+                    .outerjoin(Reply, Reply.comment_id == Comment.id)
+                    .filter(Comment.thread_id == database_id)
+                    .group_by(Comment.id)
+                    .order_by(Comment.created.desc())
+                    .all()
+                )
+                num_responses = len(all_res)
 
             elif depth == 1:
                 if not session.query(Comment).filter(Comment.id == database_id).one_or_none():
@@ -81,6 +90,13 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
                     )
                     for r in res[:page_size]
                 ]
+                all_res = (
+                    session.query(Reply)
+                    .filter(Reply.comment_id == database_id)
+                    .order_by(Reply.created.desc())
+                    .all()
+                )
+                num_responses = len(all_res)
 
             else:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.THREAD_NOT_FOUND)
@@ -91,7 +107,7 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
             else:
                 next_page_token = ""
 
-        return threads_pb2.GetThreadRes(replies=replies, next_page_token=next_page_token)
+        return threads_pb2.GetThreadRes(replies=replies, next_page_token=next_page_token, num_responses=num_responses)
 
     def PostReply(self, request, context):
         with session_scope() as session:
