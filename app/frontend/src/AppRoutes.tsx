@@ -168,62 +168,41 @@ export default function AppRoutes() {
         // COMMUNITIES
       }
 
-      <AppRoute
-        isPrivate
-        path={`${communityPlacesRoute}/:communityId/:communitySlug?`}
-      >
+      <AppRoute isPrivate path={communityPlacesRoute}>
         Places
       </AppRoute>
-      <AppRoute
-        isPrivate
-        path={`${communityGuidesRoute}/:communityId/:communitySlug?`}
-      >
+      <AppRoute isPrivate path={communityGuidesRoute}>
         Guides
       </AppRoute>
-      <AppRoute
-        isPrivate
-        path={`${communityGroupsRoute}/:communityId/:communitySlug?`}
-      >
+      <AppRoute isPrivate path={communityGroupsRoute}>
         Groups
       </AppRoute>
-      <AppRoute
-        isPrivate
-        path={`${communityDiscussionsRoute}/:communityId/:communitySlug?`}
-      >
+      <AppRoute isPrivate path={communityDiscussionsRoute}>
         Discussions
       </AppRoute>
-      <AppRoute
-        isPrivate
-        path={`${communityEventsRoute}/:communityId/:communitySlug?`}
-      >
+      <AppRoute isPrivate path={communityEventsRoute}>
         Events
       </AppRoute>
-      <AppRoute
-        isPrivate
-        path={`${communityRoute}/:communityId/:communitySlug?`}
-      >
+      <AppRoute isPrivate path={communityRoute}>
         <CommunityPage />
       </AppRoute>
 
       <AppRoute isPrivate path={newPlaceRoute}>
         <NewPlacePage />
       </AppRoute>
-      <AppRoute isPrivate path={`${placeRoute}/:pageId/:pageSlug?`}>
+      <AppRoute isPrivate path={placeRoute}>
         <PagePage pageType={PageType.PAGE_TYPE_PLACE} />
       </AppRoute>
       <AppRoute isPrivate path={newGuideRoute}>
         <NewGuidePage />
       </AppRoute>
-      <AppRoute isPrivate path={`${guideRoute}/:pageId/:pageSlug?`}>
+      <AppRoute isPrivate path={guideRoute}>
         <PagePage pageType={PageType.PAGE_TYPE_GUIDE} />
       </AppRoute>
-      <AppRoute
-        isPrivate
-        path={`${discussionRoute}/:discussionId/:discussionSlug?`}
-      >
+      <AppRoute isPrivate path={discussionRoute}>
         <DiscussionPage />
       </AppRoute>
-      <AppRoute isPrivate path={`${groupRoute}/:groupId/:groupSlug?`}>
+      <AppRoute isPrivate path={groupRoute}>
         <GroupPage />
       </AppRoute>
 
