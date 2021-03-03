@@ -643,6 +643,7 @@ class API(api_pb2_grpc.APIServicer):
             expiry=Timestamp_from_datetime(expiry),
         )
 
+
 def paginate_references_result(request, query):
     total_matches = query.count()
     references = query.order_by(Reference.time).offset(request.start_at).limit(request.number).all()
