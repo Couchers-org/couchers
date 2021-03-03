@@ -192,7 +192,8 @@ export default function HostRequestView() {
         <Alert severity={"error"}>
           {respondMutation.error?.message ||
             sendMutation.error?.message ||
-            hostRequestError?.message}
+            hostRequestError?.message ||
+            ""}
         </Alert>
       )}
       {isMessagesLoading ? (

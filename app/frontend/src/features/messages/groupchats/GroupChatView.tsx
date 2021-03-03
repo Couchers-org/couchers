@@ -258,7 +258,8 @@ export default function GroupChatView() {
             <Alert severity="error">
               {groupChatError?.message ||
                 messagesError?.message ||
-                sendMutation.error?.message}
+                sendMutation.error?.message ||
+                ""}
             </Alert>
           )}
           {isMessagesLoading ? (

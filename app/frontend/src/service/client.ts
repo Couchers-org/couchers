@@ -1,5 +1,6 @@
 import { StatusCode } from "grpc-web";
 
+import { grpcTimeout } from "../constants";
 import { AccountPromiseClient } from "../pb/account_grpc_web_pb";
 import { APIPromiseClient } from "../pb/api_grpc_web_pb";
 import { AuthPromiseClient } from "../pb/auth_grpc_web_pb";
@@ -38,12 +39,23 @@ export class AuthInterceptor {
   }
 }
 
-const interceptor = new AuthInterceptor();
+class TimeoutInterceptor {
+  async intercept(request: any, invoker: (request: any) => any) {
+    const deadline = Date.now() + grpcTimeout;
+    const metadata = request.getMetadata();
+    metadata.deadline = deadline;
+    const response = await invoker(request);
+    return response;
+  }
+}
+
+const authInterceptor = new AuthInterceptor();
+const timeoutInterceptor = new TimeoutInterceptor();
 
 const opts = {
   // this modifies the behaviour on the API so that it will send cookies on the requests
   withCredentials: true,
-  unaryInterceptors: [interceptor],
+  unaryInterceptors: [authInterceptor, timeoutInterceptor],
   /// TODO: streaming interceptor for auth https://grpc.io/blog/grpc-web-interceptor/
 };
 

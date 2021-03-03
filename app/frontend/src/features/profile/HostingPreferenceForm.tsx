@@ -111,7 +111,7 @@ export default function HostingPreferenceForm() {
         </Alert>
       ) : updateStatus === "error" ? (
         <Alert className={classes.alert} severity="error">
-          {errorMessage}
+          {errorMessage || "Unknown error"}
         </Alert>
       ) : null}
       {user ? (

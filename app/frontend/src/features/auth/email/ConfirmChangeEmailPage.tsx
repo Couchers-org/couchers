@@ -40,7 +40,7 @@ export default function ConfirmChangeEmailPage() {
     </>
   ) : (
     error && (
-      <Alert severity="error">Error changing email: {error.message}</Alert>
+      <Alert severity="error">{`Error changing email: ${error.message}`}</Alert>
     )
   );
 }
