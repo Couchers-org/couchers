@@ -7,6 +7,7 @@ import { CalendarIcon, MoreIcon } from "../../../components/Icons";
 import TextBody from "../../../components/TextBody";
 import { Community } from "../../../pb/communities_pb";
 import { routeToCommunityEvents } from "../../../routes";
+import { EVENTS_EMPTY_STATE, SEE_MORE_EVENTS_LABEL } from "../../constants";
 import { useCommunityPageStyles } from "./CommunityPage";
 import EventCard from "./EventCard";
 import SectionTitle from "./SectionTitle";
@@ -27,7 +28,7 @@ export default function PlacesSection({
       }
       <HorizontalScroller className={classes.cardContainer}>
         {[0, 1, 2, 3].length === 0 ? (
-          <TextBody>No events at the moment.</TextBody>
+          <TextBody>{EVENTS_EMPTY_STATE}</TextBody>
         ) : (
           [0, 1, 2, 3, 4, 5, 6].map((i) => (
             <EventCard
@@ -47,7 +48,7 @@ export default function PlacesSection({
             <Link
               to={routeToCommunityEvents(community.communityId, community.slug)}
             >
-              <IconButton aria-label="See more events">
+              <IconButton aria-label={SEE_MORE_EVENTS_LABEL}>
                 <MoreIcon />
               </IconButton>
             </Link>

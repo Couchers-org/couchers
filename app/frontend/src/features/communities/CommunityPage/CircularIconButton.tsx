@@ -9,9 +9,9 @@ import { Link } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
   body: {
+    alignItems: "center",
     display: "flex",
     flexDirection: "column",
-    alignItems: "center",
   },
   link: {
     textDecoration: "none",

@@ -12,28 +12,30 @@ import { Link } from "react-router-dom";
 import { Page } from "../../../pb/pages_pb";
 import { routeToPlace } from "../../../routes";
 import stripMarkdown from "../../../utils/stripMarkdown";
+import placeImagePlaceholder from "./placeImagePlaceholder.svg";
 
 const useStyles = makeStyles((theme) => ({
   link: { textDecoration: "none" },
   image: {
-    height: 80,
     backgroundColor: theme.palette.grey[200],
+    height: 80,
+    objectFit: "contain",
   },
   title: {
     ...theme.typography.h3,
+    height: `calc(2 * calc(${theme.typography.h3.lineHeight} * ${theme.typography.h3.fontSize}))`,
     marginTop: 0,
     marginBottom: theme.spacing(0.5),
-    height: `calc(2 * calc(${theme.typography.h3.lineHeight} * ${theme.typography.h3.fontSize}))`,
   },
   place: {
     ...theme.typography.caption,
-    marginTop: theme.spacing(0.5),
     height: `calc(2 * calc(${theme.typography.caption.lineHeight} * ${theme.typography.caption.fontSize}))`,
+    marginTop: theme.spacing(0.5),
   },
   preview: {
     ...theme.typography.caption,
-    marginTop: theme.spacing(0.5),
     height: `calc(2 * calc(${theme.typography.caption.lineHeight} * ${theme.typography.caption.fontSize}))`,
+    marginTop: theme.spacing(0.5),
   },
 }));
 
@@ -54,31 +56,36 @@ export default function PlaceCard({
       <Link
         to={routeToPlace(place.pageId, place.slug)}
         className={classes.link}
-        component={CardActionArea}
       >
-        <CardMedia src={place.photoUrl} className={classes.image} />
-        <CardContent>
-          <LinesEllipsis
-            text={place.title}
-            maxLine={2}
-            component="h3"
-            className={classes.title}
+        <CardActionArea>
+          <CardMedia
+            src={place.photoUrl ? place.photoUrl : placeImagePlaceholder}
+            className={classes.image}
+            component="img"
           />
-          <LinesEllipsis
-            text={place.address}
-            maxLine={2}
-            component="p"
-            className={classes.place}
-          />
-          {contentPreview && (
+          <CardContent>
             <LinesEllipsis
-              text={contentPreview}
+              text={place.title}
+              maxLine={2}
+              component="h3"
+              className={classes.title}
+            />
+            <LinesEllipsis
+              text={place.address}
               maxLine={2}
               component="p"
-              className={classes.preview}
+              className={classes.place}
             />
-          )}
-        </CardContent>
+            {contentPreview && (
+              <LinesEllipsis
+                text={contentPreview}
+                maxLine={2}
+                component="p"
+                className={classes.preview}
+              />
+            )}
+          </CardContent>
+        </CardActionArea>
       </Link>
     </Card>
   );

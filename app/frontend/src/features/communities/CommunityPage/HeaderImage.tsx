@@ -1,4 +1,4 @@
-import { Box, makeStyles } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core";
 import classNames from "classnames";
 import { LngLat } from "maplibre-gl";
 import React from "react";
@@ -8,14 +8,14 @@ import { Community } from "../../../pb/communities_pb";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    width: "100vw",
+    backgroundSize: "cover",
     height: "8rem",
-    position: "relative",
     left: "50%",
-    right: "50%",
     marginLeft: "-50vw",
     marginRight: "-50vw",
-    backgroundSize: "cover",
+    position: "relative",
+    right: "50%",
+    width: "100vw",
     [theme.breakpoints.up("md")]: {
       height: "16rem",
       marginTop: theme.spacing(-2),
@@ -48,10 +48,10 @@ export default function HeaderImage({
     community.mainPage?.location?.lng ?? 0,
     community.mainPage?.location?.lat ?? 0
   );
-  console.log(community.mainPage);
+
   return (
-    <Box className={classNames(classes.root, className)}>
+    <div className={classNames(classes.root, className)}>
       <Map grow interactive={false} initialCenter={lngLat} initialZoom={zoom} />
-    </Box>
+    </div>
   );
 }

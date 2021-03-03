@@ -11,6 +11,12 @@ import { AddIcon, EmailIcon, MoreIcon } from "../../../components/Icons";
 import TextBody from "../../../components/TextBody";
 import { Community } from "../../../pb/communities_pb";
 import { routeToCommunityDiscussions } from "../../../routes";
+import {
+  DISCUSSIONS_EMPTY_STATE,
+  DISCUSSIONS_TITLE,
+  NEW_POST_LABEL,
+  SEE_MORE_DISCUSSIONS_LABEL,
+} from "../../constants";
 import { useListDiscussions, useNewDiscussionMutation } from "../useCommunity";
 import { useCommunityPageStyles } from "./CommunityPage";
 import DiscussionCard from "./DiscussionCard";
@@ -18,9 +24,9 @@ import SectionTitle from "./SectionTitle";
 
 const useStyles = makeStyles((theme) => ({
   discussionsHeader: {
+    alignItems: "center",
     display: "flex",
     justifyContent: "space-between",
-    alignItems: "center",
   },
   newPostButton: {
     margin: theme.spacing(1),
@@ -80,10 +86,10 @@ export default function DiscussionsSection({
     <>
       <div className={classes.discussionsHeader}>
         <SectionTitle icon={<EmailIcon />}>
-          {`${community.name} discussions`}
+          {DISCUSSIONS_TITLE(community.name)}
         </SectionTitle>
         <IconButton
-          aria-label="New post"
+          aria-label={NEW_POST_LABEL}
           onClick={() => setIsNewCommentOpen(true)}
         >
           <AddIcon />
@@ -119,20 +125,20 @@ export default function DiscussionsSection({
       <div className={classes.discussionsContainer}>
         {isDiscussionsLoading && <CircularProgress />}
         {discussions &&
-        discussions.pages.length > 0 &&
-        discussions.pages[0].discussionsList.length === 0 ? (
-          <TextBody>No discussions to show yet.</TextBody>
-        ) : (
-          discussions?.pages
-            .flatMap((res) => res.discussionsList)
-            .map((discussion) => (
-              <DiscussionCard
-                discussion={discussion}
-                className={classes.discussionCard}
-                key={`discussioncard-${discussion.threadId}`}
-              />
-            ))
-        )}
+          (discussions.pages.length > 0 &&
+          discussions.pages[0].discussionsList.length === 0 ? (
+            <TextBody>{DISCUSSIONS_EMPTY_STATE}</TextBody>
+          ) : (
+            discussions.pages
+              .flatMap((res) => res.discussionsList)
+              .map((discussion) => (
+                <DiscussionCard
+                  discussion={discussion}
+                  className={classes.discussionCard}
+                  key={`discussioncard-${discussion.threadId}`}
+                />
+              ))
+          ))}
         {discussionsHasNextPage && (
           <div className={classes.loadMoreButton}>
             <Link
@@ -141,7 +147,7 @@ export default function DiscussionsSection({
                 community.slug
               )}
             >
-              <IconButton aria-label="See more discussions">
+              <IconButton aria-label={SEE_MORE_DISCUSSIONS_LABEL}>
                 <MoreIcon />
               </IconButton>
             </Link>

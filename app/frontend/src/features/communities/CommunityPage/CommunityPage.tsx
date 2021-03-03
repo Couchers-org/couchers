@@ -10,11 +10,23 @@ import {
   EmailIcon,
   LocationIcon,
 } from "../../../components/Icons";
+import { CommunityParent } from "../../../pb/groups_pb";
 import {
   routeToCommunity,
   routeToCommunityDiscussions,
   routeToCommunityEvents,
 } from "../../../routes";
+import {
+  COMMUNITY_HEADING,
+  DISCUSSIONS_LABEL,
+  ERROR_LOADING_COMMUNITY,
+  EVENTS_LABEL,
+  FIND_HOST,
+  HANGOUTS_LABEL,
+  INVALID_COMMUNITY_ID,
+  LOCAL_POINTS_LABEL,
+  MORE_TIPS,
+} from "../../constants";
 import { useCommunity } from "../useCommunity";
 import CircularIconButton from "./CircularIconButton";
 import DiscussionsSection from "./DiscussionsSection";
@@ -56,8 +68,8 @@ export const useCommunityPageStyles = makeStyles((theme) => ({
     },
   },
   title: {
-    marginTop: theme.spacing(1),
     marginBottom: theme.spacing(1),
+    marginTop: theme.spacing(1),
   },
   description: {
     marginBottom: theme.spacing(1),
@@ -79,20 +91,20 @@ export const useCommunityPageStyles = makeStyles((theme) => ({
   cardContainer: {
     [theme.breakpoints.down("xs")]: {
       //break out of page padding
-      width: "100vw",
-      position: "relative",
       left: "50%",
-      right: "50%",
       marginLeft: "-50vw",
       marginRight: "-50vw",
+      position: "relative",
+      right: "50%",
+      width: "100vw",
     },
     [theme.breakpoints.up("sm")]: {
-      marginTop: theme.spacing(1),
-      marginBottom: theme.spacing(2),
       display: "flex",
       flexDirection: "row",
       flexWrap: "wrap",
       justifyContent: "space-between",
+      marginBottom: theme.spacing(2),
+      marginTop: theme.spacing(1),
       "&::after": {
         content: "''",
         flexBasis: "100%",
@@ -150,7 +162,7 @@ export default function CommunityPage() {
   }, [community, communitySlug, history]);
 
   if (!communityId)
-    return <Alert severity="error">Invalid community id.</Alert>;
+    return <Alert severity="error">{INVALID_COMMUNITY_ID}</Alert>;
 
   if (isCommunityLoading)
     return <CircularProgress className={classes.center} />;
@@ -158,7 +170,7 @@ export default function CommunityPage() {
   if (!community || communityError)
     return (
       <Alert severity="error">
-        {communityError?.message || "Error loading the community."}
+        {communityError?.message || ERROR_LOADING_COMMUNITY}
       </Alert>
     );
 
@@ -169,34 +181,40 @@ export default function CommunityPage() {
         <div className={classes.topInfo}>
           <Breadcrumbs aria-label="breadcrumb" className={classes.breadcrumbs}>
             {community.parentsList
-              .filter((parent) => !!parent.community)
-              .map((parent) => (
+              .map((parent) => parent.community)
+              .filter(
+                (
+                  communityParent
+                ): communityParent is CommunityParent.AsObject =>
+                  !!communityParent
+              )
+              .map((communityParent) => (
                 <Link
                   to={routeToCommunity(
-                    parent.community!.communityId,
-                    parent.community!.slug
+                    communityParent.communityId,
+                    communityParent.slug
                   )}
-                  key={`breadcrumb-${parent.community?.communityId}`}
+                  key={`breadcrumb-${communityParent?.communityId}`}
                 >
-                  {parent.community!.name}
+                  {communityParent.name}
                 </Link>
               ))}
           </Breadcrumbs>
           <Typography variant="h1" className={classes.title}>
-            Welcome to {community.name}!
+            {COMMUNITY_HEADING(community.name)}
           </Typography>
           <Typography variant="body2" className={classes.description}>
-            {community.description} More tips and information
+            {community.description} {MORE_TIPS}
             <Link to="#"> here.</Link>
           </Typography>
         </div>
         <div className={classes.navButtonContainer}>
-          <CircularIconButton id="findHostButton" label="Find host">
+          <CircularIconButton id="findHostButton" label={FIND_HOST}>
             <CouchIcon />
           </CircularIconButton>
           <CircularIconButton
             id="eventButton"
-            label="Events"
+            label={EVENTS_LABEL}
             linkTo={routeToCommunityEvents(
               community.communityId,
               community.slug
@@ -204,12 +222,12 @@ export default function CommunityPage() {
           >
             <CalendarIcon />
           </CircularIconButton>
-          <CircularIconButton id="localPointsButton" label="Local points">
+          <CircularIconButton id="localPointsButton" label={LOCAL_POINTS_LABEL}>
             <LocationIcon />
           </CircularIconButton>
           <CircularIconButton
             id="discussButton"
-            label="Discussions"
+            label={DISCUSSIONS_LABEL}
             linkTo={routeToCommunityDiscussions(
               community.communityId,
               community.slug
@@ -217,7 +235,11 @@ export default function CommunityPage() {
           >
             <EmailIcon />
           </CircularIconButton>
-          <CircularIconButton id="hangoutsButton" label="Hangouts" disabled>
+          <CircularIconButton
+            id="hangoutsButton"
+            label={HANGOUTS_LABEL}
+            disabled
+          >
             <CouchIcon />
           </CircularIconButton>
         </div>

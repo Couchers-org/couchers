@@ -140,7 +140,7 @@ export const useNewDiscussionMutation = (queryClient: QueryClient) =>
     ({ title, content, ownerCommunityId }) =>
       service.discussions.createDiscussion(title, content, ownerCommunityId),
     {
-      onSuccess(_data, { ownerCommunityId }) {
+      onSuccess(_, { ownerCommunityId }) {
         queryClient.invalidateQueries(
           communityDiscussionsKey(ownerCommunityId)
         );
