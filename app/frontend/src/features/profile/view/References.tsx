@@ -1,38 +1,26 @@
+import { List, makeStyles, Select, Typography } from "@material-ui/core";
+import Alert from "components/Alert";
+import CircularProgress from "components/CircularProgress";
+import { MenuItem } from "components/Menu";
+import TextBody from "components/TextBody";
 import {
-  List,
-  ListItem,
-  makeStyles,
-  Select,
-  Typography,
-} from "@material-ui/core";
-import { Reference, ReferenceType, User } from "pb/api_pb";
-import React, { useState } from "react";
-
-import Alert from "../../../components/Alert";
-import CircularProgress from "../../../components/CircularProgress";
-import { MenuItem } from "../../../components/Menu";
-import Pill from "../../../components/Pill";
-import TextBody from "../../../components/TextBody";
-import UserSummary from "../../../components/UserSummary";
-import { dateTimeFormatter, timestamp2Date } from "../../../utils/date";
-import {
+  getReferencesGivenHeading,
   NO_REFERENCES,
   REFERENCES,
-  referencesFilterLabels,
   REFERENCES_FILTER_A11Y_LABEL,
-} from "../../constants";
-import useReferences from "./useReferences";
+  referencesFilterLabels,
+} from "features/constants";
+import { referencesQueryStaleTime } from "features/profile/constants";
+import useUsers from "features/userQueries/useUsers";
+import { Error as GrpcError } from "grpc-web";
+import { GetReferencesRes, User } from "pb/api_pb";
+import React, { useState } from "react";
+import { useQueries, useQuery } from "react-query";
+import { service } from "service";
+
+import ReferenceListItem from "./ReferenceListItem";
 
 const useStyles = makeStyles((theme) => ({
-  badgesContainer: {
-    display: "flex",
-    flexDirection: "column",
-    marginInlineEnd: theme.spacing(2),
-    minWidth: theme.spacing(9),
-    "& > * + *": {
-      marginBlockStart: theme.spacing(2),
-    },
-  },
   header: {
     marginTop: 0,
   },
@@ -43,23 +31,10 @@ const useStyles = makeStyles((theme) => ({
     paddingBlockStart: theme.spacing(2),
     width: "100%",
   },
-  listItem: {
-    alignItems: "flex-start",
-    borderBlockEnd: `${theme.typography.pxToRem(1)} solid ${
-      theme.palette.grey[300]
-    }`,
-    flexDirection: "column",
-    "& > * + *": {
-      marginBlockStart: theme.spacing(2),
-    },
-  },
   noReferencesText: {
     marginBlockStart: theme.spacing(1),
   },
-  referenceBodyContainer: {
-    display: "flex",
-    width: "100%",
-  },
+
   referencesContainer: {
     display: "flex",
     flexFlow: "row wrap",
@@ -78,72 +53,19 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface ReferenceListItemProps {
-  author: User.AsObject;
-  reference: Reference.AsObject;
-}
-
-function ReferenceTypePill({ type }: { type: ReferenceType }) {
-  let badgeLabel = "";
-  switch (type) {
-    case ReferenceType.FRIEND:
-      badgeLabel = "Friend";
-      break;
-    case ReferenceType.HOSTED:
-      badgeLabel = "Guest";
-      break;
-    case ReferenceType.SURFED:
-      badgeLabel = "Hosted";
-      break;
-    default:
-      break;
-  }
-
-  return <Pill variant="rounded">{badgeLabel}</Pill>;
-}
-
-function ReferenceListItem({ author, reference }: ReferenceListItemProps) {
-  const classes = useStyles();
-
-  return (
-    <ListItem className={classes.listItem}>
-      <UserSummary user={author} />
-      <div className={classes.referenceBodyContainer}>
-        <div className={classes.badgesContainer}>
-          <ReferenceTypePill type={reference.referenceType} />
-          {reference.writtenTime && (
-            <Pill variant="rounded">
-              {dateTimeFormatter.format(timestamp2Date(reference.writtenTime))}
-            </Pill>
-          )}
-        </div>
-        <div>
-          <TextBody>{reference.text}</TextBody>
-        </div>
-      </div>
-    </ListItem>
-  );
-}
-
 interface UserReferencesProps {
   user: User.AsObject;
 }
 
+type ReferenceTypeState = keyof typeof referencesFilterLabels;
+
 export default function References({ user }: UserReferencesProps) {
   const classes = useStyles();
-  const { error, isLoading, references, referenceUsers } = useReferences(user);
-  const [referenceType, setReferenceType] = useState<"" | ReferenceType>("");
+  const [referenceType, setReferenceType] = useState<ReferenceTypeState>("all");
 
   const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-    setReferenceType(event.target.value as "" | ReferenceType);
+    setReferenceType(event.target.value as ReferenceTypeState);
   };
-
-  const referencesToRender =
-    referenceType === ""
-      ? references
-      : references?.filter(
-          (reference) => reference.referenceType === referenceType
-        );
 
   return (
     <div className={classes.referencesContainer}>
@@ -159,7 +81,7 @@ export default function References({ user }: UserReferencesProps) {
           value={referenceType}
         >
           {Object.entries(referencesFilterLabels).map(([key, label]) => {
-            const value = key === "" ? key : Number(key);
+            const value = key === "all" || key === "given" ? key : Number(key);
             return (
               <MenuItem key={value} value={value}>
                 {label}
@@ -168,17 +90,53 @@ export default function References({ user }: UserReferencesProps) {
           })}
         </Select>
       </div>
-      {error && <Alert severity="error">{error.message}</Alert>}
-      {isLoading ? (
+      {referenceType === "all" ? (
+        <AllReferencesList user={user} />
+      ) : referenceType !== "given" ? (
+        <ReferencesReceivedList user={user} referenceType={referenceType} />
+      ) : (
+        <ReferencesGivenList user={user} />
+      )}
+    </div>
+  );
+}
+
+function ReferencesGivenList({ user }: { user: User.AsObject }) {
+  const classes = useStyles();
+  const {
+    data: referencesGiven,
+    isLoading: isReferencesGivenLoading,
+    error: referencesGivenError,
+  } = useQuery<GetReferencesRes.AsObject, GrpcError>(
+    ["references", { userId: user.userId, type: "given" }],
+    () =>
+      service.user.getReferencesGiven({
+        count: 10,
+        userId: user.userId,
+        offset: 0,
+      })
+  );
+
+  const { data: referenceUsers, isLoading: isReferenceUsersLoading } = useUsers(
+    referencesGiven?.referencesList.map((reference) => reference.fromUserId) ??
+      []
+  );
+
+  return (
+    <>
+      {referencesGivenError && (
+        <Alert severity="error">{referencesGivenError.message}</Alert>
+      )}
+      {isReferenceUsersLoading || isReferencesGivenLoading ? (
         <CircularProgress />
-      ) : referencesToRender && referencesToRender.length > 0 ? (
+      ) : referencesGiven && referencesGiven.totalMatches > 0 ? (
         <List className={classes.referencesList}>
-          {referencesToRender.map((reference) => {
-            const author = referenceUsers?.get(reference.fromUserId);
-            return author ? (
+          {referencesGiven.referencesList.map((reference) => {
+            const userToShow = referenceUsers?.get(reference.toUserId);
+            return userToShow ? (
               <ReferenceListItem
                 key={reference.referenceId}
-                author={author}
+                user={userToShow}
                 reference={reference}
               />
             ) : null;
@@ -189,6 +147,170 @@ export default function References({ user }: UserReferencesProps) {
           {NO_REFERENCES}
         </TextBody>
       )}
-    </div>
+    </>
+  );
+}
+
+function ReferencesReceivedList({
+  user,
+  referenceType,
+}: {
+  user: User.AsObject;
+  referenceType: ReferenceTypeState;
+}) {
+  const classes = useStyles();
+  const {
+    data: referencesReceived,
+    isLoading: isReferencesReceivedLoading,
+    error: referencesReceivedError,
+  } = useQuery<GetReferencesRes.AsObject, GrpcError>(
+    ["references", { userId: user.userId, type: "received" }],
+    () =>
+      service.user.getReferencesReceived({
+        count: 10,
+        userId: user.userId,
+        offset: 0,
+      })
+  );
+
+  const { data: referenceUsers, isLoading: isReferenceUsersLoading } = useUsers(
+    referencesReceived?.referencesList.map(
+      (reference) => reference.fromUserId
+    ) ?? []
+  );
+
+  const referencesToRender = referencesReceived?.referencesList.filter(
+    (reference) => reference.referenceType === referenceType
+  );
+
+  return (
+    <>
+      {referencesReceivedError && (
+        <Alert severity="error">{referencesReceivedError.message}</Alert>
+      )}
+      {isReferenceUsersLoading || isReferencesReceivedLoading ? (
+        <CircularProgress />
+      ) : referencesToRender && referencesToRender.length > 0 ? (
+        <List className={classes.referencesList}>
+          {referencesToRender.map((reference) => {
+            const userToShow = referenceUsers?.get(
+              reference.fromUserId === user.userId
+                ? reference.toUserId
+                : reference.fromUserId
+            );
+            return userToShow ? (
+              <ReferenceListItem
+                key={reference.referenceId}
+                user={userToShow}
+                reference={reference}
+              />
+            ) : null;
+          })}
+        </List>
+      ) : (
+        <TextBody className={classes.noReferencesText}>
+          {NO_REFERENCES}
+        </TextBody>
+      )}
+    </>
+  );
+}
+
+function AllReferencesList({ user }: { user: User.AsObject }) {
+  const classes = useStyles();
+  const referencesQueries = useQueries<GetReferencesRes.AsObject, GrpcError>([
+    {
+      queryKey: ["references", { userId: user.userId, type: "received" }],
+      queryFn: () =>
+        service.user.getReferencesReceived({
+          count: 50,
+          userId: user.userId,
+          offset: 0,
+        }),
+      staleTime: referencesQueryStaleTime,
+    },
+    {
+      queryKey: ["references", { userId: user.userId, type: "given" }],
+      queryFn: () =>
+        service.user.getReferencesGiven({
+          count: 50,
+          userId: user.userId,
+          offset: 0,
+        }),
+      staleTime: referencesQueryStaleTime,
+    },
+  ]);
+
+  const userIds = referencesQueries
+    .map((query) => {
+      return (
+        query.data?.referencesList.map((r) =>
+          r.fromUserId === user.userId ? r.toUserId : r.fromUserId
+        ) ?? []
+      );
+    })
+    .flat();
+  const { data: referenceUsers, isLoading: isReferenceUsersLoading } = useUsers(
+    userIds
+  );
+  const [
+    {
+      data: referencesReceived,
+      error: referencesReceivedError,
+      isLoading: isReferencesReceivedLoading,
+    },
+    {
+      data: referencesGiven,
+      error: referencesGivenError,
+      isLoading: isReferencesGivenLoading,
+    },
+  ] = referencesQueries;
+
+  return (
+    <>
+      {referencesReceivedError || referencesGivenError ? (
+        <Alert severity="error">
+          {referencesReceivedError?.message || referencesGivenError?.message}
+        </Alert>
+      ) : null}
+      {isReferencesReceivedLoading ||
+      isReferenceUsersLoading ||
+      isReferencesGivenLoading ? (
+        <CircularProgress />
+      ) : null}
+      {referencesReceived && referencesReceived.totalMatches > 0 && (
+        <List className={classes.referencesList}>
+          {referencesReceived.referencesList.map((reference) => {
+            const userToShow = referenceUsers?.get(reference.fromUserId);
+            return userToShow ? (
+              <ReferenceListItem
+                key={reference.referenceId}
+                user={userToShow}
+                reference={reference}
+              />
+            ) : null;
+          })}
+        </List>
+      )}
+      {referencesGiven && referencesGiven.totalMatches > 0 && (
+        <>
+          <Typography variant="h1">
+            {getReferencesGivenHeading(user.name)}
+          </Typography>
+          <List className={classes.referencesList}>
+            {referencesGiven.referencesList.map((reference) => {
+              const userToShow = referenceUsers?.get(reference.toUserId);
+              return userToShow ? (
+                <ReferenceListItem
+                  key={reference.referenceId}
+                  user={userToShow}
+                  reference={reference}
+                />
+              ) : null;
+            })}
+          </List>
+        </>
+      )}
+    </>
   );
 }

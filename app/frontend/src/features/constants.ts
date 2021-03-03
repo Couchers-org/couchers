@@ -1,4 +1,4 @@
-import { ReferenceType } from "../pb/api_pb";
+import { ReferenceType } from "pb/api_pb";
 
 // Profile Overview
 export const COMMUNITY_STANDING = "Community Standing";
@@ -110,6 +110,9 @@ export const referencesFilterLabels = {
   [ReferenceType.FRIEND]: "From friends",
   [ReferenceType.HOSTED]: "From guests",
   [ReferenceType.SURFED]: "From hosts",
-  "": "All references",
+  all: "All references",
+  given: "Given to others",
 };
 export const NO_REFERENCES = "No references of this kind yet!";
+export const getReferencesGivenHeading = (name: string) =>
+  `References ${name} wrote`;

@@ -1,10 +1,10 @@
+import useUsers from "features/userQueries/useUsers";
 import { Error as GrpcError } from "grpc-web";
+import { Reference, User } from "pb/api_pb";
 import { useQuery } from "react-query";
+import { service } from "service";
+import { timestamp2Date } from "utils/date";
 
-import { Reference, User } from "../../../pb/api_pb";
-import { service } from "../../../service";
-import { timestamp2Date } from "../../../utils/date";
-import useUsers from "../../userQueries/useUsers";
 import { referencesQueryStaleTime } from "../constants";
 
 export default function useReferences(user: User.AsObject) {

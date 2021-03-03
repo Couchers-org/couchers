@@ -1,9 +1,9 @@
 import { Meta, Story } from "@storybook/react";
+import { GetReferencesRes, User } from "pb/api_pb";
+import { mockedService } from "stories/__mocks__/service";
+import references from "test/fixtures/references.json";
+import users from "test/fixtures/users.json";
 
-import { GetReferencesRes, User } from "../../../pb/api_pb";
-import { mockedService } from "../../../stories/__mocks__/service";
-import references from "../../../test/fixtures/references.json";
-import users from "../../../test/fixtures/users.json";
 import References from "./References";
 
 export default {
@@ -11,26 +11,34 @@ export default {
   component: References,
 } as Meta;
 
-export const UserReferences: Story<{ data: GetReferencesRes.AsObject }> = ({
-  data,
+interface UserReferencesArgs {
+  referencesGiven: GetReferencesRes.AsObject;
+  referencesReceived: GetReferencesRes.AsObject;
+}
+
+export const UserReferences: Story<UserReferencesArgs> = ({
+  referencesGiven,
+  referencesReceived,
 }) => {
-  setMocks(data);
+  setMocks({ referencesGiven, referencesReceived });
 
   return <References user={users[0] as User.AsObject} />;
 };
 
 UserReferences.args = {
-  data: {
-    totalMatches: 3,
-    referencesList: references,
+  referencesGiven: {
+    totalMatches: 1,
+    referencesList: references.slice(2),
+  },
+  referencesReceived: {
+    totalMatches: 2,
+    referencesList: references.slice(0, 2),
   },
 };
 
-function setMocks(data: GetReferencesRes.AsObject) {
-  mockedService.user.getReferencesReceived = () => Promise.resolve(data);
+function setMocks({ referencesGiven, referencesReceived }: UserReferencesArgs) {
+  mockedService.user.getReferencesReceived = () =>
+    Promise.resolve(referencesReceived);
   mockedService.user.getReferencesGiven = () =>
-    Promise.resolve({
-      totalMatches: 0,
-      referencesList: [],
-    });
+    Promise.resolve(referencesGiven);
 }
