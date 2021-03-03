@@ -91,10 +91,7 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
                     for r in res[:page_size]
                 ]
                 all_res = (
-                    session.query(Reply)
-                    .filter(Reply.comment_id == database_id)
-                    .order_by(Reply.created.desc())
-                    .all()
+                    session.query(Reply).filter(Reply.comment_id == database_id).order_by(Reply.created.desc()).all()
                 )
                 num_responses = len(all_res)
 

@@ -143,6 +143,7 @@ def test_threads_pagination(db):
         comment_id = pagination_test(api, PARENT_THREAD_ID)
         pagination_test(api, comment_id)
 
+
 def test_threads_num_responses(db):
     user1, token1 = generate_user()
 
@@ -154,6 +155,7 @@ def test_threads_num_responses(db):
         PARENT_THREAD_ID = pack_thread_id(database_id=dummy_thread.id, depth=0)
 
     with threads_session(token1) as api:
+        # add some comments and replies to the dummy Thread
         bat_id = api.PostReply(threads_pb2.PostReplyReq(thread_id=PARENT_THREAD_ID, content="bat")).thread_id
 
         cat_id = api.PostReply(threads_pb2.PostReplyReq(thread_id=PARENT_THREAD_ID, content="cat")).thread_id
@@ -169,5 +171,6 @@ def test_threads_num_responses(db):
             for animal in ["cheetah", "lynx", "panther"]
         ]
 
+        # test num_responses
         ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=PARENT_THREAD_ID))
         assert len(ret.num_responses) == 9
