@@ -19,17 +19,21 @@ import { useIsMounted, useSafeState } from "../../../utils/hooks";
 import {
   ABOUT_HOME,
   ABOUT_ME,
+  ADDITIONAL,
   COUNTRIES_LIVED,
   COUNTRIES_VISITED,
+  EDUCATION,
   FEMALE,
-  FEMALE_FORM_VALUE,
+  FEMALE_PRONOUNS,
   GENDER,
+  HOBBIES,
+  HOMETOWN,
   HOSTING_STATUS,
   LANGUAGES_SPOKEN,
   MALE,
-  MALE_FORM_VALUE,
+  MALE_PRONOUNS,
   OCCUPATION,
-  OTHER_FORM_VALUE,
+  PRONOUNS,
   SAVE,
 } from "../../constants";
 import useCurrentUser from "../../userQueries/useCurrentUser";
@@ -214,49 +218,108 @@ export default function EditProfileForm() {
               control={control}
               defaultValue={user.gender}
               name="gender"
-              render={({ onChange, value }) => (
-                <>
-                  <Typography variant="h2">{GENDER}</Typography>
-                  <RadioGroup
-                    row
-                    aria-label="gender"
-                    name="gender"
-                    value={value}
-                    onChange={(_, value) => onChange(value)}
-                  >
-                    <FormControlLabel
-                      value={FEMALE_FORM_VALUE}
-                      control={<Radio />}
-                      label={FEMALE}
-                    />
-                    <FormControlLabel
-                      value={MALE_FORM_VALUE}
-                      control={<Radio />}
-                      label={MALE}
-                    />
-                    <FormControlLabel
-                      value={OTHER_FORM_VALUE}
-                      control={<Radio />}
-                      label={
-                        <TextField
-                          onChange={() => onChange(OTHER_FORM_VALUE)}
-                          defaultValue={
-                            user.gender === FEMALE_FORM_VALUE ||
-                            user.gender === MALE_FORM_VALUE
-                              ? ""
-                              : user.gender
-                          }
-                        />
-                      }
-                    />
-                  </RadioGroup>
-                </>
-              )}
+              render={({ onChange, value }) => {
+                const other = value === FEMALE || value === MALE ? "" : value;
+                return (
+                  <>
+                    <Typography variant="h2">{GENDER}</Typography>
+                    <RadioGroup
+                      row
+                      aria-label="gender"
+                      name="gender"
+                      value={value}
+                      onChange={(_, value) => onChange(value)}
+                    >
+                      <FormControlLabel
+                        value={FEMALE}
+                        control={<Radio />}
+                        label={FEMALE}
+                      />
+                      <FormControlLabel
+                        value={MALE}
+                        control={<Radio />}
+                        label={MALE}
+                      />
+                      <FormControlLabel
+                        value={other}
+                        control={<Radio />}
+                        checked={value !== FEMALE && value !== MALE}
+                        label={
+                          <TextField
+                            onChange={(event) => onChange(event.target.value)}
+                            defaultValue={other}
+                            value={other}
+                          />
+                        }
+                      />
+                    </RadioGroup>
+                  </>
+                );
+              }}
+            />
+            <Controller
+              control={control}
+              defaultValue={user.pronouns}
+              name="pronouns"
+              render={({ onChange, value }) => {
+                const other =
+                  value === FEMALE_PRONOUNS || value === MALE_PRONOUNS
+                    ? ""
+                    : value;
+                return (
+                  <>
+                    <Typography variant="h2">{PRONOUNS}</Typography>
+                    <RadioGroup
+                      row
+                      aria-label="pronouns"
+                      name="pronouns"
+                      value={value}
+                      onChange={(_, value) => onChange(value)}
+                    >
+                      <FormControlLabel
+                        value={FEMALE_PRONOUNS}
+                        control={<Radio />}
+                        label={FEMALE_PRONOUNS}
+                      />
+                      <FormControlLabel
+                        value={MALE_PRONOUNS}
+                        control={<Radio />}
+                        label={MALE_PRONOUNS}
+                      />
+                      <FormControlLabel
+                        value={other}
+                        control={<Radio />}
+                        label={
+                          <TextField
+                            onChange={(event) => onChange(event.target.value)}
+                            defaultValue={other}
+                            value={other}
+                          />
+                        }
+                      />
+                    </RadioGroup>
+                  </>
+                );
+              }}
+            />
+            <ProfileTextInput
+              label={HOMETOWN}
+              name="hometown"
+              defaultValue={user.hometown}
+              inputRef={register}
+              className={classes.field}
             />
             <ProfileTextInput
               label={OCCUPATION}
               name="occupation"
               defaultValue={user.occupation}
+              inputRef={register}
+              className={classes.field}
+            />
+            <ProfileTextInput
+              label={EDUCATION}
+              name="education"
+              defaultValue={user.education}
               inputRef={register}
               className={classes.field}
             />
@@ -281,6 +344,26 @@ export default function EditProfileForm() {
               defaultValue={user.aboutMe}
               inputRef={register}
               className={classes.field}
+              multiline
+              rows={10}
+            />
+            <ProfileTextInput
+              label={HOBBIES}
+              name="thingsILike"
+              defaultValue={user.thingsILike}
+              inputRef={register}
+              className={classes.field}
+              multiline
+              rows={10}
+            />
+            <ProfileTextInput
+              label={ADDITIONAL}
+              name="additionalInformation"
+              defaultValue={user.additionalInformation}
+              inputRef={register}
+              className={classes.field}
+              multiline
+              rows={10}
             />
             <ProfileTextInput
               label={ABOUT_HOME}
@@ -288,6 +371,8 @@ export default function EditProfileForm() {
               defaultValue={user.aboutPlace}
               inputRef={register}
               className={classes.field}
+              multiline
+              rows={10}
             />
             <Controller
               control={control}
