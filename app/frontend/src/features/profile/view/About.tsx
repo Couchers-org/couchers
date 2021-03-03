@@ -27,11 +27,13 @@ export default function About({ user }: AboutProps) {
       <Typography variant="h1">{OVERVIEW}</Typography>
       <LabelAndText
         label={AGE_GENDER}
-        text={`${user.age} / ${user.gender} (${user.pronouns})`}
+        text={`${user.age} / ${user.gender} ${
+          user.pronouns ? `(${user.pronouns})` : ""
+        }`}
       />
       <LabelAndText
         label={LANGUAGES_FLUENT}
-        text={user.languagesList.toString()}
+        text={user.languagesList.toString().replace(",", ", ")}
       />
       <LabelAndText label={HOMETOWN} text={user.hometown} />
       <LabelAndText label={OCCUPATION} text={user.occupation} />

@@ -45,13 +45,13 @@ export const SECTION_LABELS = {
 export const COUNTRIES_VISITED = "Countries I've Visited";
 export const COUNTRIES_LIVED = "Countries I've Lived In";
 export const FEMALE = "Female";
-export const FEMALE_FORM_VALUE = "female";
+export const FEMALE_PRONOUNS = "she / her";
 export const GENDER = "Gender";
 export const HOSTING_STATUS = "Hosting status";
 export const LANGUAGES_SPOKEN = "Languages I speak";
 export const MALE = "Male";
-export const MALE_FORM_VALUE = "male";
-export const OTHER_FORM_VALUE = "other";
+export const MALE_PRONOUNS = "he / him";
+export const PRONOUNS = "Pronouns";
 export const SAVE = "save";
 
 // Home
