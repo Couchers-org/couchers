@@ -1,10 +1,9 @@
 import { Meta, Story } from "@storybook/react";
+import ChangePasswordPage from "features/auth/password/ChangePasswordPage";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { GetAccountInfoRes } from "pb/account_pb";
 import React from "react";
-
-import { GetAccountInfoRes } from "../../../pb/account_pb";
-import { mockedService } from "../../../stories/__mocks__/service";
-import ChangePasswordPage from "./ChangePasswordPage";
+import { mockedService } from "stories/__mocks__/service";
 
 export default {
   title: "Me/Auth/ChangePasswordPage",

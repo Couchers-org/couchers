@@ -1,18 +1,18 @@
 import { Typography, useMediaQuery, useTheme } from "@material-ui/core";
+import Alert from "components/Alert";
+import Button from "components/Button";
+import CircularProgress from "components/CircularProgress";
+import PageTitle from "components/PageTitle";
+import TextField from "components/TextField";
+import useAccountInfo from "features/auth/useAccountInfo";
+import useChangeDetailsFormStyles from "features/auth/useChangeDetailsFormStyles";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
+import { accountInfoQueryKey } from "queryKeys";
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "react-query";
 
-import Alert from "../../../components/Alert";
-import Button from "../../../components/Button";
-import CircularProgress from "../../../components/CircularProgress";
-import PageTitle from "../../../components/PageTitle";
-import TextField from "../../../components/TextField";
-import { accountInfoQueryKey } from "../../../queryKeys";
 import { service } from "../../../service";
-import useAccountInfo from "../useAccountInfo";
-import useChangeDetailsFormStyles from "../useChangeDetailsFormStyles";
 
 interface ChangePasswordVariables {
   oldPassword?: string;
