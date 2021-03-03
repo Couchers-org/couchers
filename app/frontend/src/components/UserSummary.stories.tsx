@@ -1,7 +1,6 @@
 import { Meta, Story } from "@storybook/react";
-
-import users from "../test/fixtures/users.json";
-import UserSummary from "./UserSummary";
+import UserSummary from "components/UserSummary";
+import users from "test/fixtures/users.json";
 
 export default {
   title: "Components/Composite/UserSummary",

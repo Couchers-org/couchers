@@ -4,9 +4,8 @@ import {
   AlertProps as MuiAlertProps,
 } from "@material-ui/lab/";
 import classNames from "classnames";
+import grpcErrorStrings from "constants";
 import React from "react";
-
-import { grpcErrorStrings } from "../constants";
 
 const useStyles = makeStyles((theme) => ({
   root: {

@@ -1,7 +1,7 @@
 import { IconButton, makeStyles, Tooltip } from "@material-ui/core";
+import { HelpIcon } from "components/Icons";
 import React from "react";
 
-import { HelpIcon } from "../Icons";
 import ScoreBar from "./ScoreBar";
 
 const useStyles = makeStyles((theme) => ({
