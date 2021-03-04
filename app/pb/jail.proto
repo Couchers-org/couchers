@@ -48,5 +48,5 @@ message SetLocationReq {
   string city = 1;
   double lat = 2;
   double lng = 3;
-  double radius = 4;
+  double radius = 4; // meters
 }
