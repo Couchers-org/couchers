@@ -124,18 +124,23 @@ def get_user_by_field(session, field):
     """
     Returns the user based on any of those three
     """
+    query = session.query(User)
+
     if is_valid_user_id(field):
         logger.debug(f"Field matched to type user id")
-        return session.query(User).filter(User.id == field).one_or_none()
+        query = query.filter(User.id == field)
     elif is_valid_username(field):
         logger.debug(f"Field matched to type username")
-        return session.query(User).filter(User.username == field).one_or_none()
+        query = query.filter(User.username == field)
     elif is_valid_email(field):
         logger.debug(f"Field matched to type email")
-        return session.query(User).filter(User.email == field).one_or_none()
+        query = query.filter(User.email == field)
     else:
         logger.debug(f"Field {field=}, didn't match any known types")
         return None
+
+    query = query.filter(User.is_visible).one_or_none()
+    return query
 
 
 def new_signup_token(session, email, hours=2):
