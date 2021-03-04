@@ -124,7 +124,7 @@ def get_user_by_field(session, field):
     """
     Returns the user based on any of those three
     """
-    query = session.query(User)
+    query = session.query(User).filter(User.is_visible)
 
     if is_valid_user_id(field):
         logger.debug(f"Field matched to type user id")
@@ -139,7 +139,7 @@ def get_user_by_field(session, field):
         logger.debug(f"Field {field=}, didn't match any known types")
         return None
 
-    query = query.filter(User.is_visible).one_or_none()
+    query = query.one_or_none()
     return query
 
 
