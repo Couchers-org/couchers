@@ -17,7 +17,7 @@ from sqlalchemy import (
     Integer,
 )
 from sqlalchemy import LargeBinary as Binary
-from sqlalchemy import MetaData, Sequence, String, UniqueConstraint, not_, or_
+from sqlalchemy import MetaData, Sequence, String, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import backref, column_property, relationship
@@ -188,23 +188,15 @@ class User(Base):
 
     @hybrid_property
     def is_jailed(self):
-        return self.accepted_tos < 1 or self.is_missing_location
+        return (self.accepted_tos < 1) | self.is_missing_location
 
     @hybrid_property
-    def is_jailed_for_sql(self):
-        return or_(self.accepted_tos < 1, self.is_missing_location_for_sql)
-
-    @property
     def is_missing_location(self):
-        return not self.geom or not self.geom_radius
+        return (self.geom == None) | (self.geom_radius == None)
 
     @hybrid_property
-    def is_missing_location_for_sql(self):
-        return or_(self.geom is None, self.geom_radius is None)
-
-    @hybrid_property
-    def is_visible_for_sql(self):
-        return not_(or_(self.is_banned, self.is_deleted, self.is_jailed_for_sql))
+    def is_visible(self):
+        return ~(self.is_banned | self.is_deleted | self.is_jailed)
 
     @property
     def coordinates(self):
@@ -275,7 +267,7 @@ class User(Base):
 
         return (
             session.query(User)
-            .filter(User.is_visible_for_sql)
+            .filter(User.is_visible)
             .filter(User.id.in_(q1.union(q2).intersect(q3.union(q4)).subquery()))
             .all()
         )
