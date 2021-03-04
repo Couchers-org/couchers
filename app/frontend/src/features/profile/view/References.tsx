@@ -16,7 +16,7 @@ import { Error as GrpcError } from "grpc-web";
 import { GetReferencesRes, User } from "pb/api_pb";
 import React, { useState } from "react";
 import { useQueries, useQuery } from "react-query";
-import { service } from "service";
+import { service } from "service/index";
 
 import ReferenceListItem from "./ReferenceListItem";
 
@@ -92,111 +92,75 @@ export default function References({ user }: UserReferencesProps) {
       </div>
       {referenceType === "all" ? (
         <AllReferencesList user={user} />
-      ) : referenceType !== "given" ? (
-        <ReferencesReceivedList user={user} referenceType={referenceType} />
       ) : (
-        <ReferencesGivenList user={user} />
+        <FilteredReferencesList
+          isReceived={referenceType !== "given"}
+          user={user}
+          referenceType={referenceType}
+        />
       )}
     </div>
   );
 }
 
-function ReferencesGivenList({ user }: { user: User.AsObject }) {
-  const classes = useStyles();
-  const {
-    data: referencesGiven,
-    isLoading: isReferencesGivenLoading,
-    error: referencesGivenError,
-  } = useQuery<GetReferencesRes.AsObject, GrpcError>(
-    ["references", { userId: user.userId, type: "given" }],
-    () =>
-      service.user.getReferencesGiven({
-        count: 10,
-        userId: user.userId,
-        offset: 0,
-      })
-  );
-
-  const { data: referenceUsers, isLoading: isReferenceUsersLoading } = useUsers(
-    referencesGiven?.referencesList.map((reference) => reference.fromUserId) ??
-      []
-  );
-
-  return (
-    <>
-      {referencesGivenError && (
-        <Alert severity="error">{referencesGivenError.message}</Alert>
-      )}
-      {isReferenceUsersLoading || isReferencesGivenLoading ? (
-        <CircularProgress />
-      ) : referencesGiven && referencesGiven.totalMatches > 0 ? (
-        <List className={classes.referencesList}>
-          {referencesGiven.referencesList.map((reference) => {
-            const userToShow = referenceUsers?.get(reference.toUserId);
-            return userToShow ? (
-              <ReferenceListItem
-                key={reference.referenceId}
-                user={userToShow}
-                reference={reference}
-              />
-            ) : null;
-          })}
-        </List>
-      ) : (
-        <TextBody className={classes.noReferencesText}>
-          {NO_REFERENCES}
-        </TextBody>
-      )}
-    </>
-  );
-}
-
-function ReferencesReceivedList({
+function FilteredReferencesList({
+  isReceived,
   user,
   referenceType,
 }: {
+  isReceived: boolean;
   user: User.AsObject;
   referenceType: ReferenceTypeState;
 }) {
   const classes = useStyles();
   const {
-    data: referencesReceived,
-    isLoading: isReferencesReceivedLoading,
-    error: referencesReceivedError,
-  } = useQuery<GetReferencesRes.AsObject, GrpcError>(
-    ["references", { userId: user.userId, type: "received" }],
-    () =>
-      service.user.getReferencesReceived({
-        count: 10,
-        userId: user.userId,
-        offset: 0,
-      })
-  );
+    data: references,
+    isLoading: isReferencesLoading,
+    error: referencesError,
+  } = useQuery<GetReferencesRes.AsObject, GrpcError>({
+    queryKey: [
+      "references",
+      { userId: user.userId, type: isReceived ? "received" : "given" },
+    ],
+    queryFn: () =>
+      isReceived
+        ? service.user.getReferencesReceived({
+            count: 10,
+            userId: user.userId,
+            offset: 0,
+          })
+        : service.user.getReferencesGiven({
+            count: 10,
+            userId: user.userId,
+            offset: 0,
+          }),
+    staleTime: referencesQueryStaleTime,
+  });
 
   const { data: referenceUsers, isLoading: isReferenceUsersLoading } = useUsers(
-    referencesReceived?.referencesList.map(
-      (reference) => reference.fromUserId
+    references?.referencesList.map((reference) =>
+      isReceived ? reference.fromUserId : reference.toUserId
     ) ?? []
   );
 
-  const referencesToRender = referencesReceived?.referencesList.filter(
-    (reference) => reference.referenceType === referenceType
-  );
+  const referencesToRender = isReceived
+    ? references?.referencesList.filter(
+        (reference) => reference.referenceType === referenceType
+      )
+    : references?.referencesList;
 
   return (
     <>
-      {referencesReceivedError && (
-        <Alert severity="error">{referencesReceivedError.message}</Alert>
+      {referencesError && (
+        <Alert severity="error">{referencesError.message}</Alert>
       )}
-      {isReferenceUsersLoading || isReferencesReceivedLoading ? (
+      {isReferenceUsersLoading || isReferencesLoading ? (
         <CircularProgress />
       ) : referencesToRender && referencesToRender.length > 0 ? (
         <List className={classes.referencesList}>
           {referencesToRender.map((reference) => {
             const userToShow = referenceUsers?.get(
-              reference.fromUserId === user.userId
-                ? reference.toUserId
-                : reference.fromUserId
+              isReceived ? reference.fromUserId : reference.toUserId
             );
             return userToShow ? (
               <ReferenceListItem
@@ -270,7 +234,9 @@ function AllReferencesList({ user }: { user: User.AsObject }) {
     <>
       {referencesReceivedError || referencesGivenError ? (
         <Alert severity="error">
-          {referencesReceivedError?.message || referencesGivenError?.message}
+          {referencesReceivedError?.message ||
+            referencesGivenError?.message ||
+            ""}
         </Alert>
       ) : null}
       {isReferencesReceivedLoading ||
