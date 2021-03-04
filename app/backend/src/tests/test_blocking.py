@@ -36,35 +36,36 @@ def test_user_blocking(db):
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == errors.USER_ALREADY_BLOCKED
 
-        """"
+    with api_session(token1) as api:
+        """""
         with pytest.raises(grpc.RpcError) as e:
-            user_blocks.GetUser(
-                user_blocks_pb2.GetUserReq(user_id=user2.username)
+            api.GetUser(
+                api_pb2.GetUserReq(user=user2.username)
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
         assert e.value.details() == errors.USER_NOT_FOUND
 
         with pytest.raises(grpc.RpcError) as e:
-            user_blocks.SendFriendRequest(
-                user_blocks_pb2.SendFriendRequestReq(user_id=user2.id)
+            api.SendFriendRequest(
+                api_pb2.SendFriendRequestReq(user_id=user2.id)
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
         assert e.value.details() == errors.USER_NOT_FOUND
         """
 
     # Test bi-directional invisibility
-    with user_blocks_session(token2) as user_blocks:
+    with api_session(token2) as api:
         """ "
         with pytest.raises(grpc.RpcError) as e:
-            user_blocks.GetUser(
-                user_blocks_pb2.GetUserReq(user_id=user1.username)
+            api.GetUser(
+                api_pb2.GetUserReq(useruser1.username)
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
         assert e.value.details() == errors.USER_NOT_FOUND
 
         with pytest.raises(grpc.RpcError) as e:
-            user_blocks.SendFriendRequest(
-                user_blocks_pb2.SendFriendRequestReq(user_id=user1.id)
+            api.SendFriendRequest(
+                api_pb2.SendFriendRequestReq(user_id=user1.id)
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
         assert e.value.details() == errors.USER_NOT_FOUND
