@@ -74,20 +74,20 @@ def test_coords(db):
     user1, token1 = generate_user(geom=None, geom_radius=None)
     user2, token2 = generate_user()
 
-    with api_session(token2) as api:
+    with api_session(token1) as api:
         res = api.Ping(api_pb2.PingReq())
-        assert res.user.city == user2.city
-        lat, lng = user2.coordinates or (0, 0)
-        assert res.user.lat == lat
-        assert res.user.lng == lng
-        assert res.user.radius == user2.geom_radius
+        assert res.user.city == user1.city
+        assert res.user.lat == 0.0
+        assert res.user.lng == 0.0
+        assert res.user.radius == 0.0
 
-    with api_session(token2) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
-        assert res.city == user1.city
-        assert res.lat == 0.0
-        assert res.lng == 0.0
-        assert res.radius == 0.0
+    with api_session(token1) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=user2.username))
+        assert res.city == user2.city
+        lat, lng = user2.coordinates or (0, 0)
+        assert res.lat == lat
+        assert res.lng == lng
+        assert res.radius == user2.geom_radius
 
     with real_jail_session(token1) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
