@@ -8,4 +8,4 @@ Attending: Aapeli, Andrea, Darren, Lucas, Sam
 * Events
 * Regions visited/lived
 * User blocking
-* Profile picture stuff still buggy: no way to 
+* Profile picture stuff still buggy: no way to make profile pictures blank
