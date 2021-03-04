@@ -435,7 +435,7 @@ class API(api_pb2_grpc.APIServicer):
             if not from_user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
-            to_user = session.query(User).filter(User.id == request.user_id).one_or_none()
+            to_user = session.query(User).filter(User.id == request.user_id).filter(User.is_visible).one_or_none()
 
             if not to_user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
