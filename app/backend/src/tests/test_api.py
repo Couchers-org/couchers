@@ -128,6 +128,18 @@ def test_get_user(db):
         assert res.username == user2.username
         assert res.name == user2.name
 
+    with api_session(token1) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=str(user2.id)))
+        assert res.user_id == user2.id
+        assert res.username == user2.username
+        assert res.name == user2.name
+
+    with api_session(token1) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=user2.email))
+        assert res.user_id == user2.id
+        assert res.username == user2.username
+        assert res.name == user2.name
+
 
 def test_update_profile(db):
     user, token = generate_user()
