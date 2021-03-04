@@ -1,5 +1,4 @@
 import {
-  Box,
   Card,
   CardActionArea,
   CardContent,
@@ -7,15 +6,14 @@ import {
   makeStyles,
   Typography,
 } from "@material-ui/core";
+import Avatar from "components/Avatar";
+import ScoreBar from "components/Bar/ScoreBar";
+import { COMMUNITY_STANDING, VERIFICATION_SCORE } from "features/constants";
+import { hostingStatusLabels } from "features/profile/constants";
+import { User } from "pb/api_pb";
 import React from "react";
 import { Link } from "react-router-dom";
-
-import Avatar from "../../components/Avatar";
-import ScoreBar from "../../components/Bar/ScoreBar";
-import { User } from "../../pb/api_pb";
-import { routeToUser } from "../../routes";
-import { COMMUNITY_STANDING, VERIFICATION_SCORE } from "../constants";
-import { hostingStatusLabels } from "../profile/constants";
+import { routeToUser } from "routes";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -30,6 +28,8 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: theme.shape.borderRadius,
   },
   resultHeader: {
+    alignItems: "center",
+    display: "flex",
     marginBottom: theme.spacing(1),
   },
 }));
@@ -41,11 +41,7 @@ export default function SearchResult({ user }: { user: User.AsObject }) {
       <Card className={classes.card}>
         <CardActionArea>
           <CardContent>
-            <Box
-              display="flex"
-              alignItems="center"
-              className={classes.resultHeader}
-            >
+            <div className={classes.resultHeader}>
               <Avatar user={user} />
               <Container>
                 <Typography variant="h2">{user.name}</Typography>
@@ -53,7 +49,7 @@ export default function SearchResult({ user }: { user: User.AsObject }) {
                   {hostingStatusLabels[user.hostingStatus]}
                 </Typography>
               </Container>
-            </Box>
+            </div>
 
             <ScoreBar value={user.communityStanding * 100}>
               {COMMUNITY_STANDING}

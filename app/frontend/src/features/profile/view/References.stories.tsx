@@ -1,9 +1,9 @@
 import { Meta, Story } from "@storybook/react";
-
-import { GetReferencesRes, ReferenceType, User } from "../../../pb/api_pb";
-import { mockedService } from "../../../stories/__mocks__/service";
-import users from "../../../test/fixtures/users.json";
-import References from "./References";
+import References from "features/profile/view/References";
+import { GetReferencesRes, ReferenceType, User } from "pb/api_pb";
+import React from "react";
+import { mockedService } from "stories/__mocks__/service";
+import users from "test/fixtures/users.json";
 
 export default {
   title: "Profile/UserReferences",

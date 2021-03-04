@@ -1,9 +1,8 @@
 import { Meta, Story } from "@storybook/react";
+import InfiniteMessageLoader from "features/messages/messagelist/InfiniteMessageLoader";
+import MessageList from "features/messages/messagelist/MessageList";
 import { useState } from "react";
-
-import mockMessages from "../../../test/fixtures/messages.json";
-import InfiniteMessageLoader from "./InfiniteMessageLoader";
-import MessageList from "./MessageList";
+import mockMessages from "test/fixtures/messages.json";
 
 const maxId = 999999;
 

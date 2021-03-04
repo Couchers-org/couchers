@@ -1,8 +1,7 @@
 import { Box, Button, Grid, Link, makeStyles } from "@material-ui/core";
+import Markdown from "components/Markdown";
+import ProfileTextInput from "features/profile/ProfileTextInput";
 import React, { useState } from "react";
-
-import Markdown from "../../components/Markdown";
-import ProfileTextInput from "./ProfileTextInput";
 
 const useStyles = makeStyles({
   reverseAlignment: {

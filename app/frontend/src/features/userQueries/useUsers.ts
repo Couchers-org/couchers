@@ -1,11 +1,10 @@
+import { userStaleTime } from "features/userQueries/constants";
 import { Error } from "grpc-web";
+import { User } from "pb/api_pb";
 import { useCallback, useEffect, useRef } from "react";
 import { useQueries, useQueryClient } from "react-query";
-
-import { User } from "../../pb/api_pb";
-import { service } from "../../service";
-import { arrayEq } from "../../utils/arrayEq";
-import { userStaleTime } from "./constants";
+import { service } from "service/index";
+import { arrayEq } from "utils/arrayEq";
 
 export default function useUsers(
   ids: (number | undefined)[],

@@ -1,5 +1,5 @@
-import { GetThreadReq, PostReplyReq } from "../pb/threads_pb";
-import client from "./client";
+import { GetThreadReq, PostReplyReq } from "pb/threads_pb";
+import client from "service/client";
 
 export async function getThread(threadId: number, pageToken?: string) {
   const req = new GetThreadReq();

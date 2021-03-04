@@ -1,7 +1,6 @@
 import { Meta, Story } from "@storybook/react";
-
-import users from "../../../test/fixtures/users.json";
-import FriendSummaryView from "./FriendSummaryView";
+import FriendSummaryView from "features/connections/friends/FriendSummaryView";
+import users from "test/fixtures/users.json";
 
 export default {
   title: "Me/Connections/FriendSummaryView",

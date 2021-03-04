@@ -1,17 +1,16 @@
 import { Box } from "@material-ui/core";
 import classNames from "classnames";
+import Button from "components/Button";
+import TextField from "components/TextField";
+import useAuthStore from "features/auth/useAuthStore";
+import useSendFieldStyles from "features/messages/useSendFieldStyles";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
+import { HostRequestStatus } from "pb/conversations_pb";
+import { HostRequest, RespondHostRequestReq } from "pb/requests_pb";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { UseMutationResult } from "react-query";
-
-import Button from "../../../components/Button";
-import TextField from "../../../components/TextField";
-import { HostRequestStatus } from "../../../pb/conversations_pb";
-import { HostRequest, RespondHostRequestReq } from "../../../pb/requests_pb";
-import useAuthStore from "../../auth/useAuthStore";
-import useSendFieldStyles from "../useSendFieldStyles";
 
 interface MessageFormData {
   text: string;

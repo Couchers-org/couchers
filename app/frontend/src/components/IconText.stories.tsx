@@ -1,9 +1,8 @@
 import { Meta, Story } from "@storybook/react";
-
-import { hostingStatusLabels } from "../features/profile/constants";
-import { HostingStatus, User } from "../pb/api_pb";
-import { CouchIcon } from "./Icons";
-import IconText from "./IconText";
+import { CouchIcon } from "components/Icons";
+import IconText from "components/IconText";
+import { hostingStatusLabels } from "features/profile/constants";
+import { HostingStatus, User } from "pb/api_pb";
 
 export default {
   title: "Components/Composite/IconText",

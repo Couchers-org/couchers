@@ -1,12 +1,11 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import ChangePasswordPage from "features/auth/password/ChangePasswordPage";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-
-import { GetAccountInfoRes } from "../../../pb/account_pb";
-import { service } from "../../../service";
-import wrapper from "../../../test/hookWrapper";
-import { MockedService } from "../../../test/utils";
-import ChangePasswordPage from "./ChangePasswordPage";
+import { GetAccountInfoRes } from "pb/account_pb";
+import { service } from "service/index";
+import wrapper from "test/hookWrapper";
+import { MockedService } from "test/utils";
 
 const changePasswordMock = service.account.changePassword as MockedService<
   typeof service.account.changePassword

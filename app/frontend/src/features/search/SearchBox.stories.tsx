@@ -1,6 +1,5 @@
 import { Meta, Story } from "@storybook/react";
-
-import SearchBox from "./SearchBox";
+import SearchBox from "features/search/SearchBox";
 
 export default {
   title: "Search/SearchBox",

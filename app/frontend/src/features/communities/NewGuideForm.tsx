@@ -1,18 +1,17 @@
+import Alert from "components/Alert";
+import Button from "components/Button";
+import CircularProgress from "components/CircularProgress";
+import EditLocationMap from "components/EditLocationMap";
+import TextField from "components/TextField";
+import { pageURL } from "features/communities/redirect";
+import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";
 import { Error as GrpcError } from "grpc-web";
+import { Page } from "pb/pages_pb";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { useHistory } from "react-router-dom";
-
-import Alert from "../../components/Alert";
-import Button from "../../components/Button";
-import CircularProgress from "../../components/CircularProgress";
-import EditLocationMap from "../../components/EditLocationMap";
-import TextField from "../../components/TextField";
-import { Page } from "../../pb/pages_pb";
-import { service } from "../../service";
-import ProfileMarkdownInput from "../profile/ProfileMarkdownInput";
-import { pageURL } from "./redirect";
+import { service } from "service/index";
 
 type NewGuideInputs = {
   title: string;
