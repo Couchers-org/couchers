@@ -147,7 +147,7 @@ def enforce_community_memberships():
             )
             users_needing_adding = (
                 session.query(User)
-                .filter(User.is_visible_for_sql)
+                .filter(User.is_visible)
                 .filter(func.ST_Contains(node.geom, User.geom))
                 .filter(~User.id.in_(existing_users))
             )
