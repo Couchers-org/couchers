@@ -2,28 +2,10 @@ import { ListItem, makeStyles } from "@material-ui/core";
 import Pill from "components/Pill";
 import TextBody from "components/TextBody";
 import UserSummary from "components/UserSummary";
-import { Reference, ReferenceType, User } from "pb/api_pb";
+import { referenceBadgeLabel } from "features/constants";
+import { Reference, User } from "pb/api_pb";
 import React from "react";
 import { dateTimeFormatter, timestamp2Date } from "utils/date";
-
-function ReferenceTypePill({ type }: { type: ReferenceType }) {
-  let badgeLabel = "";
-  switch (type) {
-    case ReferenceType.FRIEND:
-      badgeLabel = "Friend";
-      break;
-    case ReferenceType.HOSTED:
-      badgeLabel = "Guest";
-      break;
-    case ReferenceType.SURFED:
-      badgeLabel = "Hosted";
-      break;
-    default:
-      break;
-  }
-
-  return <Pill variant="rounded">{badgeLabel}</Pill>;
-}
 
 const useStyles = makeStyles((theme) => ({
   badgesContainer: {
@@ -51,23 +33,34 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+export const REFERENCE_LIST_ITEM_TEST_ID = "reference-list-item";
+
 interface ReferenceListItemProps {
+  isReceived: boolean;
   user: User.AsObject;
   reference: Reference.AsObject;
 }
 
 export default function ReferenceListItem({
+  isReceived,
   user,
   reference,
 }: ReferenceListItemProps) {
   const classes = useStyles();
 
   return (
-    <ListItem className={classes.listItem}>
+    <ListItem
+      className={classes.listItem}
+      data-testid={REFERENCE_LIST_ITEM_TEST_ID}
+    >
       <UserSummary user={user} />
       <div className={classes.referenceBodyContainer}>
         <div className={classes.badgesContainer}>
-          <ReferenceTypePill type={reference.referenceType} />
+          {isReceived && (
+            <Pill variant="rounded">
+              {referenceBadgeLabel[reference.referenceType]}
+            </Pill>
+          )}
           {reference.writtenTime && (
             <Pill variant="rounded">
               {dateTimeFormatter.format(timestamp2Date(reference.writtenTime))}

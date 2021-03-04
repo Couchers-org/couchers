@@ -113,6 +113,11 @@ export const referencesFilterLabels = {
   all: "All references",
   given: "Given to others",
 };
+export const referenceBadgeLabel = {
+  [ReferenceType.FRIEND]: "Friend",
+  [ReferenceType.HOSTED]: "Guest",
+  [ReferenceType.SURFED]: "Hosted",
+};
 export const NO_REFERENCES = "No references of this kind yet!";
 export const getReferencesGivenHeading = (name: string) =>
   `References ${name} wrote`;

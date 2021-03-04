@@ -19,7 +19,14 @@ export const useStyles = makeStyles((theme) => ({
     width: "100%",
   },
   title: {
-    marginBottom: theme.spacing(1),
+    marginTop: 0,
+  },
+  titleAndBarContainer: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-around",
+    margin: 0,
+    minHeight: theme.spacing(9),
   },
   avatar: {
     height: theme.spacing(9),
@@ -45,6 +52,7 @@ export default function UserSummary({ children, user }: UserSummaryProps) {
         )}
       </ListItemAvatar>
       <ListItemText
+        className={classes.titleAndBarContainer}
         disableTypography
         primary={
           <Typography variant="h2" className={classes.title}>

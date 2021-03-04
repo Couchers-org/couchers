@@ -125,12 +125,12 @@ function FilteredReferencesList({
     queryFn: () =>
       isReceived
         ? service.user.getReferencesReceived({
-            count: 10,
+            count: 50,
             userId: user.userId,
             offset: 0,
           })
         : service.user.getReferencesGiven({
-            count: 10,
+            count: 50,
             userId: user.userId,
             offset: 0,
           }),
@@ -143,6 +143,8 @@ function FilteredReferencesList({
     ) ?? []
   );
 
+  // Show only the matching reference type if viewing received references, otherwise display
+  // all given references
   const referencesToRender = isReceived
     ? references?.referencesList.filter(
         (reference) => reference.referenceType === referenceType
@@ -165,6 +167,7 @@ function FilteredReferencesList({
             return userToShow ? (
               <ReferenceListItem
                 key={reference.referenceId}
+                isReceived={isReceived}
                 user={userToShow}
                 reference={reference}
               />
@@ -251,6 +254,7 @@ function AllReferencesList({ user }: { user: User.AsObject }) {
             return userToShow ? (
               <ReferenceListItem
                 key={reference.referenceId}
+                isReceived
                 user={userToShow}
                 reference={reference}
               />
@@ -269,6 +273,7 @@ function AllReferencesList({ user }: { user: User.AsObject }) {
               return userToShow ? (
                 <ReferenceListItem
                   key={reference.referenceId}
+                  isReceived={false}
                   user={userToShow}
                   reference={reference}
                 />
