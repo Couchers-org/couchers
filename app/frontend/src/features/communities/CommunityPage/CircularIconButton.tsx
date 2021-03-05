@@ -12,12 +12,21 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     display: "flex",
     flexDirection: "column",
+    [theme.breakpoints.up("md")]: {
+      flexDirection: "row",
+    },
   },
   button: {
     marginBottom: theme.spacing(0.5),
   },
   link: {
     textDecoration: "none",
+  },
+  label: {
+    textAlign: "center",
+    [theme.breakpoints.up("md")]: {
+      textAlign: "left",
+    },
   },
 }));
 
@@ -48,7 +57,7 @@ export default function CircularIconButton({
         children={children}
         disabled={disabled}
       />
-      <Typography id={id} variant="caption" align="center">
+      <Typography id={id} variant="caption" className={classes.label}>
         {label}
       </Typography>
     </div>

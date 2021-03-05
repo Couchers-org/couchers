@@ -1,47 +1,74 @@
-import { Breadcrumbs, makeStyles, Typography } from "@material-ui/core";
+import { Breadcrumbs, Hidden, makeStyles, Typography } from "@material-ui/core";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
-import {
-  CalendarIcon,
-  CouchIcon,
-  EmailIcon,
-  LocationIcon,
-} from "components/Icons";
 import { useCommunity } from "features/communities/useCommunity";
 import {
   COMMUNITY_HEADING,
-  DISCUSSIONS_LABEL,
   ERROR_LOADING_COMMUNITY,
-  EVENTS_LABEL,
-  FIND_HOST,
-  HANGOUTS_LABEL,
   INVALID_COMMUNITY_ID,
-  LOCAL_POINTS_LABEL,
   MORE_TIPS,
 } from "features/constants";
 import { CommunityParent } from "pb/groups_pb";
 import React, { useEffect } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
-import {
-  routeToCommunity,
-  routeToCommunityDiscussions,
-  routeToCommunityEvents,
-} from "routes";
+import { routeToCommunity } from "routes";
 
-import CircularIconButton from "./CircularIconButton";
 import DiscussionsSection from "./DiscussionsSection";
 import EventsSection from "./EventsSection";
 import HeaderImage from "./HeaderImage";
+import NavDesktop from "./NavDesktop";
+import NavMobile from "./NavMobile";
 import PlacesSection from "./PlacesSection";
 
 export const useCommunityPageStyles = makeStyles((theme) => ({
+  root: {
+    marginBottom: theme.spacing(2),
+  },
+  center: {
+    display: "block",
+    marginLeft: "auto",
+    marginRight: "auto",
+  },
+  header: {
+    marginBottom: theme.spacing(1),
+  },
+  body: {
+    //sidebar on desktop
+    [theme.breakpoints.up("md")]: {
+      alignItems: "flex-start",
+      display: "flex",
+      justifyContent: "center",
+    },
+  },
+  content: {
+    marginInlineStart: theme.spacing(4),
+  },
+  topContainer: {
+    textAlign: "center",
+    [theme.breakpoints.up("md")]: {
+      display: "flex",
+      justifyContent: "space-between",
+      textAlign: "left",
+    },
+  },
+  topInfo: {
+    [theme.breakpoints.up("md")]: {
+      width: "60%",
+    },
+  },
   breadcrumbs: {
     "& ol": {
       [theme.breakpoints.up("md")]: {
         justifyContent: "flex-start",
       },
-      justifyContent: "center",
     },
+  },
+  title: {
+    marginBottom: theme.spacing(1),
+    marginTop: theme.spacing(1),
+  },
+  description: {
+    marginBottom: theme.spacing(1),
   },
   cardContainer: {
     [theme.breakpoints.down("xs")]: {
@@ -177,79 +204,57 @@ export default function CommunityPage() {
   return (
     <div className={classes.root}>
       <HeaderImage community={community} className={classes.header} />
-      <div className={classes.topContainer}>
-        <div className={classes.topInfo}>
-          <Breadcrumbs aria-label="breadcrumb" className={classes.breadcrumbs}>
-            {community.parentsList
-              .map((parent) => parent.community)
-              .filter(
-                (
-                  communityParent
-                ): communityParent is CommunityParent.AsObject =>
-                  !!communityParent
-              )
-              .map((communityParent) => (
-                <Link
-                  to={routeToCommunity(
-                    communityParent.communityId,
-                    communityParent.slug
-                  )}
-                  key={`breadcrumb-${communityParent?.communityId}`}
-                >
-                  {communityParent.name}
-                </Link>
-              ))}
-          </Breadcrumbs>
-          <Typography variant="h1" className={classes.title}>
-            {COMMUNITY_HEADING(community.name)}
-          </Typography>
-          <Typography variant="body2" className={classes.description}>
-            {community.description} {MORE_TIPS}
-            <Link to="#"> here.</Link>
-          </Typography>
-        </div>
-        <div className={classes.navButtonContainer}>
-          <CircularIconButton id="findHostButton" label={FIND_HOST}>
-            <CouchIcon />
-          </CircularIconButton>
-          <CircularIconButton
-            id="eventButton"
-            label={EVENTS_LABEL}
-            linkTo={routeToCommunityEvents(
-              community.communityId,
-              community.slug
-            )}
-          >
-            <CalendarIcon />
-          </CircularIconButton>
-          <CircularIconButton id="localPointsButton" label={LOCAL_POINTS_LABEL}>
-            <LocationIcon />
-          </CircularIconButton>
-          <CircularIconButton
-            id="discussButton"
-            label={DISCUSSIONS_LABEL}
-            linkTo={routeToCommunityDiscussions(
-              community.communityId,
-              community.slug
-            )}
-          >
-            <EmailIcon />
-          </CircularIconButton>
-          <CircularIconButton
-            id="hangoutsButton"
-            label={HANGOUTS_LABEL}
-            disabled
-          >
-            <CouchIcon />
-          </CircularIconButton>
+      <div className={classes.body}>
+        <Hidden smDown>
+          <NavDesktop community={community} />
+        </Hidden>
+        <div className={classes.content}>
+          <div className={classes.topContainer}>
+            <div className={classes.topInfo}>
+              <Breadcrumbs
+                aria-label="breadcrumb"
+                className={classes.breadcrumbs}
+              >
+                {community.parentsList
+                  .map((parent) => parent.community)
+                  .filter(
+                    (
+                      communityParent
+                    ): communityParent is CommunityParent.AsObject =>
+                      !!communityParent
+                  )
+                  .map((communityParent) => (
+                    <Link
+                      to={routeToCommunity(
+                        communityParent.communityId,
+                        communityParent.slug
+                      )}
+                      key={`breadcrumb-${communityParent?.communityId}`}
+                    >
+                      {communityParent.name}
+                    </Link>
+                  ))}
+              </Breadcrumbs>
+              <Typography variant="h1" className={classes.title}>
+                {COMMUNITY_HEADING(community.name)}
+              </Typography>
+              <Typography variant="body2" className={classes.description}>
+                {community.description} {MORE_TIPS}
+                <Link to="#"> here.</Link>
+              </Typography>
+            </div>
+            <Hidden mdUp>
+              <NavMobile community={community} />
+            </Hidden>
+          </div>
+
+          <PlacesSection community={community} />
+
+          <EventsSection community={community} />
+
+          <DiscussionsSection community={community} />
         </div>
       </div>
-
-      <PlacesSection community={community} />
-
-      <EventsSection community={community} />
-
-      <DiscussionsSection community={community} />
     </div>
   );
 }
