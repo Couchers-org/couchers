@@ -2,13 +2,13 @@ from datetime import timedelta
 
 import grpc
 import pytest
-from google.protobuf import empty_pb2
+from google.protobuf import empty_pb2, wrappers_pb2
 
 from couchers import errors
 from couchers.db import get_user_by_field
 from couchers.models import User
 from couchers.utils import now
-from pb import api_pb2, conversations_pb2, requests_pb2
+from pb import api_pb2, conversations_pb2, requests_pb2, search_pb2
 from tests.test_fixtures import (
     api_session,
     conversations_session,
@@ -16,6 +16,7 @@ from tests.test_fixtures import (
     generate_user,
     make_friends,
     requests_session,
+    search_session,
     session_scope,
     testconfig,
 )
@@ -313,9 +314,24 @@ def test_references_invisible_users(db):
 
 
 def test_search_function_invisible_users(db):
-    pass
-    # Test search
-    # TODO
+    user1, token1 = generate_user()
+    user2, token2 = generate_user(is_deleted=True)
+
+    with search_session(token1) as api:
+        res = api.Search(
+            search_pb2.SearchReq(
+                query='test_user_',
+                include_users=True,
+            )
+        )
+        assert len(res.results) == 1
+
+        res = api.UserSearch(
+            search_pb2.UserSearchReq(
+                query=wrappers_pb2.StringValue(value='test_user_')
+            )
+        )
+        assert len(res.results) == 1
 
 
 """
