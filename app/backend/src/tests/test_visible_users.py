@@ -126,8 +126,7 @@ def test_friend_list_with_invisible_users(generate_invisible_users):
 
     with api_session(token1) as api:
         res = api.ListFriends(empty_pb2.Empty())
-        # assert len(res.user_ids) == 1
-        # TODO: Implement
+        assert len(res.user_ids) == 1
 
 
 def test_host_requests_with_invisible_user(generate_invisible_users):
