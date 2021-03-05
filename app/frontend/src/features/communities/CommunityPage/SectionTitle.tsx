@@ -3,8 +3,8 @@ import React, { ReactNode } from "react";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    display: "flex",
     alignItems: "center",
+    display: "flex",
   },
   text: {
     margin: 0,

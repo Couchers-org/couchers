@@ -1,4 +1,4 @@
-import { Box, makeStyles } from "@material-ui/core";
+import { Hidden, makeStyles, useMediaQuery, useTheme } from "@material-ui/core";
 import classNames from "classnames";
 import React, { ReactNode } from "react";
 
@@ -8,29 +8,41 @@ import CircularProgress from "./CircularProgress";
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
+    padding: theme.spacing(2),
     flexDirection: "row",
     alignItems: "center",
-    overflowX: "auto",
-    WebkitOverflowScrolling: "touch",
-    padding: theme.spacing(2),
     "& > *": {
       flex: "0 0 auto",
+      marginInlineEnd: theme.spacing(2),
+    },
+
+    overflowX: "auto",
+    WebkitOverflowScrolling: "touch",
+    //this and below "padder" are required because browsers
+    //ignore scroll-end padding
+    "& > *:last-child": {
+      marginInlineStart: 0,
     },
   },
+  padder: {
+    width: theme.spacing(2),
+    height: 1,
+  },
 }));
-
-/// TODO: Padding is not showing at end of list (maybe storybook only?)
 
 interface HorizontalScrollerProps {
   fetchNext?: () => void;
   isFetching?: boolean;
+  hasMore?: boolean;
   className?: string;
   children?: ReactNode;
 }
 
+/// HorizontalScroller only applies it's scrolling to xs breakpoint
 export default function HorizontalScroller({
   fetchNext,
   isFetching,
+  hasMore,
   className,
   children,
 }: HorizontalScrollerProps) {
@@ -38,18 +50,24 @@ export default function HorizontalScroller({
 
   const { ref: loaderRef } = useOnVisibleEffect(fetchNext);
 
+  const theme = useTheme();
+  const isBelowXs = useMediaQuery(theme.breakpoints.down("xs"));
+
   return (
-    <Box className={classNames(classes.root, className)}>
+    <div className={classNames({ [classes.root]: isBelowXs }, className)}>
       {children}
-      {fetchNext && (
-        <Box>
+      {fetchNext && hasMore && (
+        <div>
           {isFetching ? (
             <CircularProgress />
           ) : (
             <CircularProgress variant="determinate" value={0} ref={loaderRef} />
           )}
-        </Box>
+        </div>
       )}
-    </Box>
+      <Hidden smUp>
+        <div className={classes.padder} />
+      </Hidden>
+    </div>
   );
 }
