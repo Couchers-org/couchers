@@ -1,4 +1,9 @@
-import { render, screen, within } from "@testing-library/react";
+import {
+  render,
+  screen,
+  waitForElementToBeRemoved,
+  within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {
   NO_REFERENCES,
@@ -26,6 +31,15 @@ const getReferencesReceivedMock = service.user
 const getReferencesGivenMock = service.user.getReferencesGiven as MockedService<
   typeof service.user.getReferencesGiven
 >;
+
+function assertAPIOnlyCalledOnce() {
+  expect(getReferencesGivenMock).toHaveBeenCalledTimes(1);
+  expect(getReferencesReceivedMock).toHaveBeenCalledTimes(1);
+}
+
+function assertDateBadgeIsVisible(reference: ReturnType<typeof within>) {
+  expect(reference.getByText(/\w{3} \d{4}/)).toBeVisible();
+}
 
 describe("References", () => {
   beforeEach(() => {
@@ -65,8 +79,7 @@ describe("References", () => {
       expect(
         reference.getByText(referenceBadgeLabel[referenceType])
       ).toBeVisible();
-      // Date time badge
-      expect(reference.getByText(/\w{3} \d{4}/)).toBeVisible();
+      assertDateBadgeIsVisible(reference);
     }
 
     // Reference given
@@ -82,7 +95,7 @@ describe("References", () => {
     );
     expect(referenceGiven.getByText(references[2].text)).toBeVisible();
     // Date time badge
-    expect(referenceGiven.getByText(/\w{3} \d{4}/)).toBeVisible();
+    assertDateBadgeIsVisible(referenceGiven);
 
     expect(getReferencesGivenMock).toHaveBeenCalledTimes(1);
     expect(getReferencesGivenMock).toHaveBeenCalledWith({
@@ -96,6 +109,25 @@ describe("References", () => {
       userId: 1,
       offset: 0,
     });
+  });
+
+  it("shows the no references message by default if the user doesn't have any", async () => {
+    getReferencesReceivedMock.mockResolvedValue({
+      totalMatches: 0,
+      referencesList: [],
+    });
+    getReferencesGivenMock.mockResolvedValue({
+      totalMatches: 0,
+      referencesList: [],
+    });
+    render(<References user={users[0] as User.AsObject} />, { wrapper });
+
+    await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+
+    expect(screen.getByText(NO_REFERENCES)).toBeVisible();
+    expect(
+      screen.queryByTestId(REFERENCE_LIST_ITEM_TEST_ID)
+    ).not.toBeInTheDocument();
   });
 
   describe("When a specific reference type is selected", () => {
@@ -118,8 +150,8 @@ describe("References", () => {
       expect(
         reference.getByText(referenceBadgeLabel[ReferenceType.FRIEND])
       ).toBeVisible();
-      // Date time badge
-      expect(reference.getByText(/\w{3} \d{4}/)).toBeVisible();
+      assertDateBadgeIsVisible(reference);
+      assertAPIOnlyCalledOnce();
     });
 
     it("only shows references from hosts", async () => {
@@ -134,8 +166,8 @@ describe("References", () => {
       expect(
         reference.getByText(referenceBadgeLabel[ReferenceType.SURFED])
       ).toBeVisible();
-      // Date time badge
-      expect(reference.getByText(/\w{3} \d{4}/)).toBeVisible();
+      assertDateBadgeIsVisible(reference);
+      assertAPIOnlyCalledOnce();
     });
 
     // Since there aren't references from guests in the fixture data
@@ -143,6 +175,9 @@ describe("References", () => {
       userEvent.click(screen.getByRole("option", { name: "From guests" }));
 
       expect(await screen.findByText(NO_REFERENCES)).toBeVisible();
+      expect(
+        screen.queryByTestId(REFERENCE_LIST_ITEM_TEST_ID)
+      ).not.toBeInTheDocument();
     });
 
     it("shows references given to others", async () => {
@@ -155,8 +190,8 @@ describe("References", () => {
         /Funny Chicken/i
       );
       expect(reference.getByText(/Staying with Chicken/)).toBeVisible();
-      // Date time badge
-      expect(reference.getByText(/\w{3} \d{4}/)).toBeVisible();
+      assertDateBadgeIsVisible(reference);
+      assertAPIOnlyCalledOnce();
     });
   });
 

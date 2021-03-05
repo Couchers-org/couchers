@@ -67,9 +67,7 @@ export default function ReferenceListItem({
             </Pill>
           )}
         </div>
-        <div>
-          <TextBody>{reference.text}</TextBody>
-        </div>
+        <TextBody>{reference.text}</TextBody>
       </div>
     </ListItem>
   );

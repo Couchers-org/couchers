@@ -13,7 +13,6 @@ import React from "react";
 
 export const useStyles = makeStyles((theme) => ({
   root: {
-    alignItems: "center",
     display: "flex",
     padding: 0,
     width: "100%",
