@@ -25,6 +25,7 @@ import { signupRoute } from "routes";
 import { service } from "service/index";
 import {
   nameValidationPattern,
+  sanitizeName,
   usernameValidationPattern,
   validatePastDate,
 } from "utils/validation";
@@ -106,7 +107,7 @@ export default function CompleteSignup() {
 
     authActions.signup({
       signupToken: urlToken,
-      username: data.username,
+      username: sanitizeName(data.username),
       name: data.name,
       city: data.city,
       location: data.location,
