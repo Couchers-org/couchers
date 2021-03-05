@@ -76,7 +76,6 @@ def test_friend_requests_with_invisible_users(db):
     user4, token4 = generate_user()
 
     # Test send friend request to invisible user
-    # Necessary? Can't see user, can't send friend request
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.SendFriendRequest(
@@ -119,7 +118,6 @@ def test_friend_requests_with_invisible_users(db):
 
     """""
     # Test view friend request sent by invisible user
-    # Necessary? Can't see user, doesn't show up in list of FR
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.GetFriendRequest(
@@ -132,7 +130,6 @@ def test_friend_requests_with_invisible_users(db):
     """
 
     # Test reply friend request sent by invisible user
-    # Necessary? FR should be hidden, won't be able to reply
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=friend_request_id, accept=True))
@@ -164,7 +161,6 @@ def test_friend_requests_with_invisible_users(db):
         assert len(res.received) == 0
 
     # Test cancel friend request sent to invisible user
-    # Necessary? Can't see user, request doesn't show up in sent request
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.CancelFriendRequest(api_pb2.CancelFriendRequestReq(friend_request_id=friend_request_id_2))
@@ -202,7 +198,6 @@ def test_host_requests_with_invisible_user(db):
     user5, token5 = generate_user()
 
     # Test send host request to invisible user
-    # Necessary? Can't see user, so can't send HR
     today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
     today_plus_3 = (now() + timedelta(days=3)).strftime("%Y-%m-%d")
 
@@ -239,7 +234,6 @@ def test_host_requests_with_invisible_user(db):
         assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
 
         # Test reply to host request sent by invisible user
-        # Necessary? Can't get host request, can't reply to it
         with pytest.raises(grpc.RpcError) as e:
             requests.RespondHostRequest(
                 requests_pb2.RespondHostRequestReq(
@@ -285,7 +279,6 @@ def test_messages_with_invisible_users(db):
     make_friends(user1, user2)
 
     # Test create message
-    # Necessary? If can't see user, can't send message
     with conversations_session(token1) as c:
         with pytest.raises(grpc.RpcError) as e:
             c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id]))
@@ -305,11 +298,9 @@ def test_references_invisible_users(db):
     pass
 
     # Test invisible user writes reference
-    # Necessary? Is this even possible?
     # TODO
 
     # Test user writes reference for invisible user
-    # Necessary? Can't see user, can't write reference
     # TODO
 
 
