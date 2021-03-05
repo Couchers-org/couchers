@@ -117,6 +117,7 @@ def test_host_requests_with_invisible_user(db):
     user2, token2 = generate_user(is_deleted=True)
     user3, token3 = generate_user()
     user4, token4 = generate_user()
+    user5, token5 = generate_user()
 
     # Test send host request to invisible user
     # Necessary?
@@ -133,7 +134,7 @@ def test_host_requests_with_invisible_user(db):
     assert e.value.code() == grpc.StatusCode.NOT_FOUND
     assert e.value.details() == errors.USER_NOT_FOUND
 
-    # Send host request, then delete user
+    # Send host request, then delete requester
     with requests_session(token3) as requests:
         host_request_id = requests.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
@@ -149,13 +150,13 @@ def test_host_requests_with_invisible_user(db):
         session.expunge(user3)
 
     with requests_session(token1) as requests:
-        # Test get host request from invisible user
+        # Test get host request sent by invisible user
         with pytest.raises(grpc.RpcError) as e:
             requests.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
         assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
 
-        # Test reply host request from invisible user
+        # Test reply to host request sent by invisible user
         # Necessary?
         with pytest.raises(grpc.RpcError) as e:
             requests.RespondHostRequest(
@@ -166,11 +167,29 @@ def test_host_requests_with_invisible_user(db):
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
         assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
 
-    # Test view all host requests excluding invisible users
-    with requests_session(token4) as requests:
+    # Send host request, then delete recipient
+    with requests_session(token1) as requests:
         requests.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                to_user_id=user1.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                to_user_id=user4.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+            )
+        )
+
+    with session_scope() as session:
+        user4 = get_user_by_field(session, user4.username)
+        user4.is_deleted = True
+        session.commit()
+        session.refresh(user4)
+        session.expunge(user4)
+
+    # Test view all host requests excluding those involving invisible users
+    with requests_session(token1) as requests:
+        res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
+        assert len(res.host_requests) == 0
+
+        requests.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                to_user_id=user5.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
             )
         )
 
