@@ -104,7 +104,16 @@ def test_friend_list_with_invisible_users(db):
     user2, token2 = generate_user(is_deleted=True)
     user3, token3 = generate_user()
 
+    with api_session(token1) as api:
+        res = api.ListFriends(empty_pb2.Empty())
+        assert len(res.user_ids) == 0
+
     make_friends(user1, user2)
+
+    with api_session(token1) as api:
+        res = api.ListFriends(empty_pb2.Empty())
+        assert len(res.user_ids) == 0
+
     make_friends(user1, user3)
 
     with api_session(token1) as api:
