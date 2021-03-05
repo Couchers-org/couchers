@@ -4,7 +4,7 @@ from sqlalchemy.sql import func, or_
 
 from couchers import errors
 from couchers.db import get_friends_status, session_scope
-from couchers.models import Conversation, GroupChat, GroupChatRole, GroupChatSubscription, Message, MessageType
+from couchers.models import Conversation, GroupChat, GroupChatRole, GroupChatSubscription, Message, MessageType, User
 from couchers.utils import Timestamp_from_datetime
 from pb import api_pb2, conversations_pb2, conversations_pb2_grpc
 
@@ -342,20 +342,31 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             )
 
     def CreateGroupChat(self, request, context):
-        if len(request.recipient_user_ids) < 1:
+        with session_scope() as session:
+            recipient_user_ids = [
+                user.id
+                for user in (
+                    session.query(User.id)
+                    .filter(User.is_visible)
+                    .filter(User.id.in_(request.recipient_user_ids))
+                    .all()
+                )
+            ]
+
+        if len(recipient_user_ids) < 1:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NO_RECIPIENTS)
 
-        if len(request.recipient_user_ids) != len(set(request.recipient_user_ids)):
+        if len(recipient_user_ids) != len(set(recipient_user_ids)):
             # make sure there's no duplicate users
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_RECIPIENTS)
 
-        if context.user_id in request.recipient_user_ids:
+        if context.user_id in recipient_user_ids:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_ADD_SELF)
 
         with session_scope() as session:
-            if len(request.recipient_user_ids) == 1:
+            if len(recipient_user_ids) == 1:
                 # can only have one DM at a time between any two users
-                other_user_id = request.recipient_user_ids[0]
+                other_user_id = recipient_user_ids[0]
 
                 # the following query selects subscriptions that are DMs and have the same group_chat_id, and have
                 # user_id either this user or the recipient user. If you find two subscriptions to the same DM group
@@ -387,7 +398,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 conversation=conversation,
                 title=request.title.value,
                 creator_id=context.user_id,
-                is_dm=True if len(request.recipient_user_ids) == 1 else False,  # TODO
+                is_dm=True if len(recipient_user_ids) == 1 else False,  # TODO
             )
             session.add(group_chat)
 
@@ -398,9 +409,9 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             )
             session.add(your_subscription)
 
-            for recipient in request.recipient_user_ids:
+            for recipient in recipient_user_ids:
                 if get_friends_status(session, context.user_id, recipient) != api_pb2.User.FriendshipStatus.FRIENDS:
-                    if len(request.recipient_user_ids) > 1:
+                    if len(recipient_user_ids) > 1:
                         context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.GROUP_CHAT_ONLY_ADD_FRIENDS)
                     else:
                         context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.DIRECT_MESSAGE_ONLY_FRIENDS)
