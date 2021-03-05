@@ -11,6 +11,7 @@ from couchers.utils import now
 from pb import api_pb2, conversations_pb2, requests_pb2
 from tests.test_fixtures import (
     api_session,
+    conversations_session,
     db,
     generate_user,
     make_friends,
@@ -93,9 +94,7 @@ def test_friend_requests_with_invisible_users(db):
 
     # Send friend request to user 1
     with api_session(token3) as api:
-        friend_request_id = api.SendFriendRequest(
-            api_pb2.SendFriendRequestReq(user_id=user1.id)
-        ).friend_request_id
+        friend_request_id = api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id)).friend_request_id
 
     # Check 1 received FR
     with api_session(token1) as api:
@@ -135,17 +134,13 @@ def test_friend_requests_with_invisible_users(db):
     # Necessary? FR should be hidden, won't be able to reply
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
-            api.RespondFriendRequest(
-                api_pb2.RespondFriendRequestReq(friend_request_id=friend_request_id, accept=True)
-            )
+            api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=friend_request_id, accept=True))
     assert e.value.code() == grpc.StatusCode.NOT_FOUND
     assert e.value.details() == errors.FRIEND_REQUEST_NOT_FOUND
 
     # Send FR from user1
     with api_session(token1) as api:
-        friend_request_id_2 = api.SendFriendRequest(
-            api_pb2.SendFriendRequestReq(user_id=user4.id)
-        ).friend_request_id
+        friend_request_id_2 = api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user4.id)).friend_request_id
 
     # Check one FR sent
     with api_session(token1) as api:
@@ -284,11 +279,17 @@ def test_host_requests_with_invisible_user(db):
 
 
 def test_messages_with_invisible_users(db):
-    pass
+    user1, token1 = generate_user()
+    user2, token2 = generate_user(is_deleted=True)
+    make_friends(user1, user2)
 
-    # Test send message
-    # Necessary? Can't see user, can't send message
-    # TODO
+    # Test create message
+    # Necessary? If can't see user, can't send message
+    with conversations_session(token1) as c:
+        with pytest.raises(grpc.RpcError) as e:
+            c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id]))
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == errors.NO_RECIPIENTS
 
     # Test view messages from invisible user
     # Desired behavior? Should these be viewable or hidden?
