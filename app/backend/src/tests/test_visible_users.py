@@ -8,16 +8,24 @@ from couchers import errors
 from couchers.db import get_user_by_field
 from couchers.models import User
 from couchers.utils import now
-from pb import api_pb2, requests_pb2
-from tests.test_fixtures import api_session, db, generate_user, make_friends, requests_session, session_scope
+from pb import api_pb2, conversations_pb2, requests_pb2
+from tests.test_fixtures import (
+    api_session,
+    db,
+    generate_user,
+    make_friends,
+    requests_session,
+    session_scope,
+    testconfig,
+)
 
 
 @pytest.fixture(autouse=True)
 def _(testconfig):
     pass
 
-@pytest.fixture
-def generate_invisible_users(db):
+
+def test_visible_user_filter(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user(is_deleted=True)
@@ -29,24 +37,13 @@ def generate_invisible_users(db):
         session.refresh(user2)
         session.expunge(user2)
 
-
-def test_visible_user_filter(generate_invisible_users):
-    with session_scope() as session:
         visible_users = session.query(User).filter(User.is_visible).all()
         assert len(visible_users) == 1
 
 
-def test_get_invisible_users(generate_invisible_users):
+def test_get_invisible_users(db):
     user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    user3, token3 = generate_user(is_deleted=True)
-    user4, token4 = generate_user(accepted_tos=0)
-    with session_scope() as session:
-        user2 = get_user_by_field(session, user2.username)
-        user2.is_banned = True
-        session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
+    user2, token2 = generate_user(is_deleted=True)
 
     # Test get invisible user by username
     with api_session(token1) as api:
@@ -58,29 +55,21 @@ def test_get_invisible_users(generate_invisible_users):
     # Test get invisible user by id
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
-            api.GetUser(api_pb2.GetUserReq(user=str(user3.id)))
+            api.GetUser(api_pb2.GetUserReq(user=str(user2.id)))
     assert e.value.code() == grpc.StatusCode.NOT_FOUND
     assert e.value.details() == errors.USER_NOT_FOUND
 
     # Test get invisible user by email
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
-            api.GetUser(api_pb2.GetUserReq(user=user4.email))
+            api.GetUser(api_pb2.GetUserReq(user=user2.email))
     assert e.value.code() == grpc.StatusCode.NOT_FOUND
     assert e.value.details() == errors.USER_NOT_FOUND
 
 
-def test_friend_requests_with_invisible_users(generate_invisible_users):
+def test_friend_requests_with_invisible_users(db):
     user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    user3, token3 = generate_user(is_deleted=True)
-    user4, token4 = generate_user(accepted_tos=0)
-    with session_scope() as session:
-        user2 = get_user_by_field(session, user2.username)
-        user2.is_banned = True
-        session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
+    user2, token2 = generate_user(is_deleted=True)
 
     # Test send friend request to invisible user
     # Necessary?
@@ -110,30 +99,20 @@ def test_friend_requests_with_invisible_users(generate_invisible_users):
     # TODO
 
 
-def test_friend_list_with_invisible_users(generate_invisible_users):
+def test_friend_list_with_invisible_users(db):
     user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    user3, token3 = generate_user(is_deleted=True)
-    user4, token4 = generate_user(accepted_tos=0)
-    with session_scope() as session:
-        user2 = get_user_by_field(session, user2.username)
-        user2.is_banned = True
-        session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
+    user2, token2 = generate_user(is_deleted=True)
+    user3, token3 = generate_user()
 
-    user5, token5 = generate_user()
     make_friends(user1, user2)
     make_friends(user1, user3)
-    make_friends(user1, user4)
-    make_friends(user1, user5)
 
     with api_session(token1) as api:
         res = api.ListFriends(empty_pb2.Empty())
         assert len(res.user_ids) == 1
 
 
-def test_host_requests_with_invisible_user(generate_invisible_users):
+def test_host_requests_with_invisible_user(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user(is_deleted=True)
     user3, token3 = generate_user()
@@ -198,17 +177,9 @@ def test_host_requests_with_invisible_user(generate_invisible_users):
         res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
         assert len(res.host_requests) == 1
 
-def test_messages_with_invisible_users(generate_invisible_users):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    user3, token3 = generate_user(is_deleted=True)
-    user4, token4 = generate_user(accepted_tos=0)
-    with session_scope() as session:
-        user2 = get_user_by_field(session, user2.username)
-        user2.is_banned = True
-        session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
+
+def test_messages_with_invisible_users(db):
+    pass
 
     # Test send message
     # Necessary?
@@ -223,17 +194,8 @@ def test_messages_with_invisible_users(generate_invisible_users):
     # TODO
 
 
-def test_references_invisible_users(generate_invisible_users):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    user3, token3 = generate_user(is_deleted=True)
-    user4, token4 = generate_user(accepted_tos=0)
-    with session_scope() as session:
-        user2 = get_user_by_field(session, user2.username)
-        user2.is_banned = True
-        session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
+def test_references_invisible_users(db):
+    pass
 
     # Test invisible user writes reference
     # Necessary?
@@ -244,18 +206,8 @@ def test_references_invisible_users(generate_invisible_users):
     # TODO
 
 
-def test_search_function_invisible_users(generate_invisible_users):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    user3, token3 = generate_user(is_deleted=True)
-    user4, token4 = generate_user(accepted_tos=0)
-    with session_scope() as session:
-        user2 = get_user_by_field(session, user2.username)
-        user2.is_banned = True
-        session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
-
+def test_search_function_invisible_users(db):
+    pass
     # Test search
     # TODO
 
