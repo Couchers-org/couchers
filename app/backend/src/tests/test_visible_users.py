@@ -70,6 +70,8 @@ def test_get_invisible_users(db):
 def test_friend_requests_with_invisible_users(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user(is_deleted=True)
+    user3, token3 = generate_user()
+    user4, token4 = generate_user()
 
     # Test send friend request to invisible user
     # Necessary? Can't see user, can't send friend request
@@ -83,20 +85,95 @@ def test_friend_requests_with_invisible_users(db):
     assert e.value.code() == grpc.StatusCode.NOT_FOUND
     assert e.value.details() == errors.USER_NOT_FOUND
 
-    # Test view all active friend requests, hide requests from invisible users
-    # TODO
+    # Check no active FR to start
+    with api_session(token1) as api:
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        assert len(res.sent) == 0
+        assert len(res.received) == 0
 
-    # Test view friend request from invisible user
+    # Send friend request to user 1
+    with api_session(token3) as api:
+        friend_request_id = api.SendFriendRequest(
+            api_pb2.SendFriendRequestReq(user_id=user1.id)
+        ).friend_request_id
+
+    # Check 1 received FR
+    with api_session(token1) as api:
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        assert len(res.sent) == 0
+        assert len(res.received) == 1
+
+    # Hide sender
+    with session_scope() as session:
+        user3 = get_user_by_field(session, user3.username)
+        user3.is_banned = True
+        session.commit()
+        session.refresh(user3)
+        session.expunge(user3)
+
+    # Check back to no FR
+    with api_session(token1) as api:
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        assert len(res.sent) == 0
+        assert len(res.received) == 0
+
+    """""
+    # Test view friend request sent by invisible user
     # Necessary? Can't see user, doesn't show up in list of FR
-    # TODO
+    with api_session(token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetFriendRequest(
+                api_pb2.GetFriendRequestReq(
+                    friend_request_id=friend_request_id,
+                )
+            )
+    assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    assert e.value.details() == errors.FRIEND_REQUEST_NOT_FOUND
+    """
 
-    # Test reply friend request from invisible user
+    # Test reply friend request sent by invisible user
     # Necessary? FR should be hidden, won't be able to reply
-    # TODO
+    with api_session(token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.RespondFriendRequest(
+                api_pb2.RespondFriendRequestReq(friend_request_id=friend_request_id, accept=True)
+            )
+    assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    assert e.value.details() == errors.FRIEND_REQUEST_NOT_FOUND
 
-    # Test cancel friend request to invisible user
+    # Send FR from user1
+    with api_session(token1) as api:
+        friend_request_id_2 = api.SendFriendRequest(
+            api_pb2.SendFriendRequestReq(user_id=user4.id)
+        ).friend_request_id
+
+    # Check one FR sent
+    with api_session(token1) as api:
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        assert len(res.sent) == 1
+        assert len(res.received) == 0
+
+    # Hide recipient
+    with session_scope() as session:
+        user4 = get_user_by_field(session, user4.username)
+        user4.is_banned = True
+        session.commit()
+        session.refresh(user4)
+        session.expunge(user4)
+
+    # Check back to no FR
+    with api_session(token1) as api:
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        assert len(res.sent) == 0
+        assert len(res.received) == 0
+
+    # Test cancel friend request sent to invisible user
     # Necessary? Can't see user, request doesn't show up in sent request
-    # TODO
+    with api_session(token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.CancelFriendRequest(api_pb2.CancelFriendRequestReq(friend_request_id=friend_request_id_2))
+    assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    assert e.value.details() == errors.FRIEND_REQUEST_NOT_FOUND
 
 
 def test_friend_list_with_invisible_users(db):
