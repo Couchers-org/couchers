@@ -346,10 +346,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             recipient_user_ids = [
                 user.id
                 for user in (
-                    session.query(User.id)
-                    .filter(User.is_visible)
-                    .filter(User.id.in_(request.recipient_user_ids))
-                    .all()
+                    session.query(User.id).filter(User.is_visible).filter(User.id.in_(request.recipient_user_ids)).all()
                 )
             ]
 
