@@ -72,7 +72,7 @@ def test_friend_requests_with_invisible_users(db):
     user2, token2 = generate_user(is_deleted=True)
 
     # Test send friend request to invisible user
-    # Necessary?
+    # Necessary? Can't see user, can't send friend request
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.SendFriendRequest(
@@ -87,15 +87,15 @@ def test_friend_requests_with_invisible_users(db):
     # TODO
 
     # Test view friend request from invisible user
-    # Necessary?
+    # Necessary? Can't see user, doesn't show up in list of FR
     # TODO
 
     # Test reply friend request from invisible user
-    # Necessary?
+    # Necessary? FR should be hidden, won't be able to reply
     # TODO
 
     # Test cancel friend request to invisible user
-    # Necessary?
+    # Necessary? Can't see user, request doesn't show up in sent request
     # TODO
 
 
@@ -129,7 +129,7 @@ def test_host_requests_with_invisible_user(db):
     user5, token5 = generate_user()
 
     # Test send host request to invisible user
-    # Necessary?
+    # Necessary? Can't see user, so can't send HR
     today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
     today_plus_3 = (now() + timedelta(days=3)).strftime("%Y-%m-%d")
 
@@ -166,7 +166,7 @@ def test_host_requests_with_invisible_user(db):
         assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
 
         # Test reply to host request sent by invisible user
-        # Necessary?
+        # Necessary? Can't get host request, can't reply to it
         with pytest.raises(grpc.RpcError) as e:
             requests.RespondHostRequest(
                 requests_pb2.RespondHostRequestReq(
@@ -210,15 +210,15 @@ def test_messages_with_invisible_users(db):
     pass
 
     # Test send message
-    # Necessary?
+    # Necessary? Can't see user, can't send message
     # TODO
 
     # Test view messages from invisible user
-    # Desired behavior?
+    # Desired behavior? Should these be viewable or hidden?
     # TODO
 
     # Test group chat where one user gets banned
-    # Desired behavior?
+    # Desired behavior? Do their messages remain in the group chat?
     # TODO
 
 
@@ -226,11 +226,11 @@ def test_references_invisible_users(db):
     pass
 
     # Test invisible user writes reference
-    # Necessary?
+    # Necessary? Is this even possible?
     # TODO
 
     # Test user writes reference for invisible user
-    # Necessary?
+    # Necessary? Can't see user, can't write reference
     # TODO
 
 
