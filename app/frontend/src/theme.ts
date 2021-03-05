@@ -43,6 +43,9 @@ const themeOptions: ThemeOptions = {
   spacing: spacing,
   typography: {
     fontFamily: "Ubuntu, sans-serif",
+    allVariants: {
+      lineHeight: 1.5,
+    },
     h1: {
       fontSize: "1.25rem", //20px
       fontWeight: "bold",
