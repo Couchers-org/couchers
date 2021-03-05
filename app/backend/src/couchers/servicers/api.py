@@ -496,7 +496,7 @@ class API(api_pb2_grpc.APIServicer):
         with session_scope() as session:
             sent_requests = (
                 session.query(FriendRelationship)
-                .join(User, User.id==FriendRelationship.to_user_id)
+                .join(User, User.id == FriendRelationship.to_user_id)
                 .filter(User.is_visible)
                 .filter(FriendRelationship.from_user_id == context.user_id)
                 .filter(FriendRelationship.status == FriendStatus.pending)
