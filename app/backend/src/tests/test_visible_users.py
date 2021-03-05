@@ -12,6 +12,10 @@ from pb import api_pb2, requests_pb2
 from tests.test_fixtures import api_session, db, generate_user, make_friends, requests_session, session_scope
 
 
+@pytest.fixture(autouse=True)
+def _(testconfig):
+    pass
+
 @pytest.fixture
 def generate_invisible_users(db):
     user1, token1 = generate_user()
@@ -131,21 +135,15 @@ def test_friend_list_with_invisible_users(generate_invisible_users):
 
 def test_host_requests_with_invisible_user(generate_invisible_users):
     user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    user3, token3 = generate_user(is_deleted=True)
-    user4, token4 = generate_user(accepted_tos=0)
-    with session_scope() as session:
-        user2 = get_user_by_field(session, user2.username)
-        user2.is_banned = True
-        session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
-
-    today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
-    today_plus_3 = (now() + timedelta(days=3)).strftime("%Y-%m-%d")
+    user2, token2 = generate_user(is_deleted=True)
+    user3, token3 = generate_user()
+    user4, token4 = generate_user()
 
     # Test send host request to invisible user
     # Necessary?
+    today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_3 = (now() + timedelta(days=3)).strftime("%Y-%m-%d")
+
     with requests_session(token1) as requests:
         with pytest.raises(grpc.RpcError) as e:
             requests.CreateHostRequest(
@@ -156,16 +154,49 @@ def test_host_requests_with_invisible_user(generate_invisible_users):
     assert e.value.code() == grpc.StatusCode.NOT_FOUND
     assert e.value.details() == errors.USER_NOT_FOUND
 
+    # Send host request, then delete user
+    with requests_session(token3) as requests:
+        host_request_id = requests.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                to_user_id=user1.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+            )
+        ).host_request_id
+
+    with session_scope() as session:
+        user3 = get_user_by_field(session, user3.username)
+        user3.is_deleted = True
+        session.commit()
+        session.refresh(user3)
+        session.expunge(user3)
+
+    with requests_session(token1) as requests:
+        # Test get host request from invisible user
+        with pytest.raises(grpc.RpcError) as e:
+            requests.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
+
+        # Test reply host request from invisible user
+        # Necessary?
+        with pytest.raises(grpc.RpcError) as e:
+            requests.RespondHostRequest(
+                requests_pb2.RespondHostRequestReq(
+                    host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
+
     # Test view all host requests excluding invisible users
-    # TODO
+    with requests_session(token4) as requests:
+        requests.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                to_user_id=user1.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+            )
+        )
 
-    # Test get host request from invisible user
-    # TODO
-
-    # Test reply host request from invisible user
-    # Necessary?
-    # TODO
-
+        res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
+        assert len(res.host_requests) == 1
 
 def test_messages_with_invisible_users(generate_invisible_users):
     user1, token1 = generate_user()
