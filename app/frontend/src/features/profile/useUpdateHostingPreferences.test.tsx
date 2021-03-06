@@ -15,12 +15,12 @@ describe("useUpdateHostingPreference hook", () => {
   const newHostingPreferenceData = {
     acceptsKids: false,
     acceptsPets: false,
-    lastMinute: true,
-    wheelchairAccessible: true,
-    maxGuests: null,
     area: "",
     houseRules: "",
+    lastMinute: true,
+    maxGuests: null,
     smokingAllowed: 1,
+    wheelchairAccessible: true,
   };
 
   it("updates the store with the latest user hosting preference", async () => {
@@ -49,8 +49,8 @@ describe("useUpdateHostingPreference hook", () => {
     });
     const { result, waitFor } = renderHook(
       () => ({
-        mutate: useUpdateHostingPreferences(),
         currentUser: useCurrentUser(),
+        mutate: useUpdateHostingPreferences(),
       }),
       { wrapper }
     );
@@ -75,12 +75,12 @@ describe("useUpdateHostingPreference hook", () => {
     expect(result.current.currentUser.data).toMatchObject({
       acceptsKids: { value: false },
       acceptsPets: { value: false },
-      lastMinute: { value: true },
-      wheelchairAccessible: { value: true },
-      maxGuests: { value: null },
       area: { value: "" },
       houseRules: { value: "" },
+      lastMinute: { value: true },
+      maxGuests: { value: null },
       smokingAllowed: 1,
+      wheelchairAccessible: { value: true },
     });
     // Rest of profile should be the same as before
     expect(result.current.currentUser.data).toMatchObject(defaultUser);

@@ -5,8 +5,8 @@ import HeaderButton from "./HeaderButton";
 import { DoneIcon } from "./Icons";
 
 export default {
-  title: "Components/Simple/HeaderButton",
   component: HeaderButton,
+  title: "Components/Simple/HeaderButton",
 } as Meta;
 
 const Template: Story<any> = () => {

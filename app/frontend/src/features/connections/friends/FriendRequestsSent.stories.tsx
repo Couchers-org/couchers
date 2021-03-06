@@ -6,8 +6,8 @@ import React, { useRef } from "react";
 import { mockedService } from "stories/__mocks__/service";
 
 export default {
-  title: "Me/Connections/FriendRequestsSent",
   component: FriendRequestsSent,
+  title: "Me/Connections/FriendRequestsSent",
 } as Meta;
 
 interface FriendRequestsState {
@@ -41,6 +41,7 @@ const Template: Story<{
 export const WithPendingRequests = Template.bind({});
 WithPendingRequests.args = {
   friendRequests: {
+    receivedList: [],
     sentList: [
       {
         friendRequestId: 1,
@@ -48,13 +49,13 @@ WithPendingRequests.args = {
         userId: 3,
       },
     ],
-    receivedList: [],
   },
 };
 
 export const ErrorCancellingRequest = Template.bind({});
 ErrorCancellingRequest.args = {
   friendRequests: {
+    receivedList: [],
     sentList: [
       {
         friendRequestId: 1,
@@ -62,7 +63,6 @@ ErrorCancellingRequest.args = {
         userId: 3,
       },
     ],
-    receivedList: [],
   },
   overrides: {
     cancelFriendRequest: async () => {
@@ -82,7 +82,7 @@ function setFriendRequestsMocks(
   mockedService.api.cancelFriendRequest =
     overrides.cancelFriendRequest ??
     (async () => {
-      friendRequests.current = { sentList: [], receivedList: [] };
+      friendRequests.current = { receivedList: [], sentList: [] };
       return new Empty();
     });
 }

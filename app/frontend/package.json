@@ -42,9 +42,17 @@
       "simple-import-sort"
     ],
     "rules": {
-      "simple-import-sort/imports": "error",
+      "simple-import-sort/imports": "warn",
       "simple-import-sort/exports": "error",
       "sort-imports": "off",
+      "sort-keys": [
+        "warn",
+        "asc",
+        {
+          "caseSensitive": false,
+          "natural": true
+        }
+      ],
       "import/order": "off",
       "import/first": "error",
       "import/newline-after-import": "error",

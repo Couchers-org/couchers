@@ -3,8 +3,8 @@ import { Meta, Story } from "@storybook/react";
 import FriendTile from "./FriendTile";
 
 export default {
-  title: "Me/Connections/FriendTile",
   component: FriendTile,
+  title: "Me/Connections/FriendTile",
 } as Meta;
 
 const Template: Story<any> = (args) => (

@@ -35,57 +35,12 @@ import HeaderImage from "./HeaderImage";
 import PlacesSection from "./PlacesSection";
 
 export const useCommunityPageStyles = makeStyles((theme) => ({
-  root: {
-    marginBottom: theme.spacing(2),
-  },
-  center: {
-    display: "block",
-    marginLeft: "auto",
-    marginRight: "auto",
-  },
-  header: {
-    marginBottom: theme.spacing(1),
-  },
-  topContainer: {
-    textAlign: "center",
-    [theme.breakpoints.up("md")]: {
-      display: "flex",
-      justifyContent: "space-between",
-      textAlign: "left",
-    },
-  },
-  topInfo: {
-    [theme.breakpoints.up("md")]: {
-      width: "60%",
-    },
-  },
   breadcrumbs: {
     "& ol": {
-      justifyContent: "center",
       [theme.breakpoints.up("md")]: {
         justifyContent: "flex-start",
       },
-    },
-  },
-  title: {
-    marginBottom: theme.spacing(1),
-    marginTop: theme.spacing(1),
-  },
-  description: {
-    marginBottom: theme.spacing(1),
-  },
-  navButtonContainer: {
-    display: "flex",
-    justifyContent: "space-around",
-    marginBottom: theme.spacing(1),
-    [theme.breakpoints.only("sm")]: {
       justifyContent: "center",
-      "& > * + *": {
-        marginInlineStart: theme.spacing(4),
-      },
-    },
-    [theme.breakpoints.up("md")]: {
-      width: "30%",
     },
   },
   cardContainer: {
@@ -99,41 +54,86 @@ export const useCommunityPageStyles = makeStyles((theme) => ({
       width: "100vw",
     },
     [theme.breakpoints.up("sm")]: {
-      display: "flex",
-      flexDirection: "row",
-      flexWrap: "wrap",
-      justifyContent: "space-between",
-      marginBottom: theme.spacing(2),
-      marginTop: theme.spacing(1),
       "&::after": {
-        content: "''",
-        flexBasis: "100%",
         [theme.breakpoints.up("sm")]: {
           flexBasis: `calc(50% - ${theme.spacing(1)})`,
         },
         [theme.breakpoints.up("md")]: {
           flexBasis: `calc(33.33% - ${theme.spacing(1)})`,
         },
+        content: "''",
+        flexBasis: "100%",
       },
+      display: "flex",
+      flexDirection: "row",
+      flexWrap: "wrap",
+      justifyContent: "space-between",
+      marginBottom: theme.spacing(2),
+      marginTop: theme.spacing(1),
     },
+  },
+  center: {
+    display: "block",
+    marginLeft: "auto",
+    marginRight: "auto",
+  },
+  description: {
+    marginBottom: theme.spacing(1),
+  },
+  header: {
+    marginBottom: theme.spacing(1),
   },
   loadMoreButton: {
-    alignSelf: "center",
     [theme.breakpoints.up("sm")]: {
       width: `calc(50% - ${theme.spacing(1)})`,
     },
     [theme.breakpoints.up("md")]: {
       width: `calc(33% - ${theme.spacing(1)})`,
     },
+    alignSelf: "center",
+  },
+  navButtonContainer: {
+    [theme.breakpoints.only("sm")]: {
+      "& > * + *": {
+        marginInlineStart: theme.spacing(4),
+      },
+      justifyContent: "center",
+    },
+    [theme.breakpoints.up("md")]: {
+      width: "30%",
+    },
+    display: "flex",
+    justifyContent: "space-around",
+    marginBottom: theme.spacing(1),
   },
   placeEventCard: {
-    marginBottom: theme.spacing(1),
-    width: 200,
     [theme.breakpoints.up("sm")]: {
       width: `calc(50% - ${theme.spacing(1)})`,
     },
     [theme.breakpoints.up("md")]: {
       width: `calc(33% - ${theme.spacing(1)})`,
+    },
+    marginBottom: theme.spacing(1),
+    width: 200,
+  },
+  root: {
+    marginBottom: theme.spacing(2),
+  },
+  title: {
+    marginBottom: theme.spacing(1),
+    marginTop: theme.spacing(1),
+  },
+  topContainer: {
+    [theme.breakpoints.up("md")]: {
+      display: "flex",
+      justifyContent: "space-between",
+      textAlign: "left",
+    },
+    textAlign: "center",
+  },
+  topInfo: {
+    [theme.breakpoints.up("md")]: {
+      width: "60%",
     },
   },
 }));

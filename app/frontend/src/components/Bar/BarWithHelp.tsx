@@ -5,12 +5,12 @@ import React from "react";
 import ScoreBar from "./ScoreBar";
 
 const useStyles = makeStyles((theme) => ({
+  button: {
+    padding: theme.spacing(1),
+  },
   root: {
     alignItems: "center",
     display: "flex",
-  },
-  button: {
-    padding: theme.spacing(1),
   },
 }));
 

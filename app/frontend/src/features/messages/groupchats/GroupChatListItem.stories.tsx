@@ -3,8 +3,8 @@ import GroupChatListItem from "features/messages/groupchats/GroupChatListItem";
 import groupChat from "test/fixtures/groupChat.json";
 
 export default {
-  title: "Messages/GroupChatListItem",
   component: GroupChatListItem,
+  title: "Messages/GroupChatListItem",
 } as Meta;
 
 const Template: Story<any> = (args) => (

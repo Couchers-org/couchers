@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import Autocomplete from "./Autocomplete";
 
 export default {
-  title: "Components/Simple/Autocomplete",
   component: Autocomplete,
+  title: "Components/Simple/Autocomplete",
 } as Meta;
 
 const Template: Story<any> = (args) => {

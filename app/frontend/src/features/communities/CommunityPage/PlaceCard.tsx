@@ -15,18 +15,12 @@ import stripMarkdown from "utils/stripMarkdown";
 import placeImagePlaceholder from "./placeImagePlaceholder.svg";
 
 const useStyles = makeStyles((theme) => ({
-  link: { textDecoration: "none" },
   image: {
     backgroundColor: theme.palette.grey[200],
     height: 80,
     objectFit: "contain",
   },
-  title: {
-    ...theme.typography.h3,
-    height: `calc(2 * calc(${theme.typography.h3.lineHeight} * ${theme.typography.h3.fontSize}))`,
-    marginTop: 0,
-    marginBottom: theme.spacing(0.5),
-  },
+  link: { textDecoration: "none" },
   place: {
     ...theme.typography.caption,
     height: `calc(2 * calc(${theme.typography.caption.lineHeight} * ${theme.typography.caption.fontSize}))`,
@@ -36,6 +30,12 @@ const useStyles = makeStyles((theme) => ({
     ...theme.typography.caption,
     height: `calc(2 * calc(${theme.typography.caption.lineHeight} * ${theme.typography.caption.fontSize}))`,
     marginTop: theme.spacing(0.5),
+  },
+  title: {
+    ...theme.typography.h3,
+    height: `calc(2 * calc(${theme.typography.h3.lineHeight} * ${theme.typography.h3.fontSize}))`,
+    marginBottom: theme.spacing(0.5),
+    marginTop: 0,
   },
 }));
 

@@ -29,8 +29,8 @@ export default function NewPlaceForm() {
     setValue,
     errors,
   } = useForm<NewPlaceInputs>({
-    shouldUnregister: false,
     mode: "onBlur",
+    shouldUnregister: false,
   });
 
   const history = useHistory();

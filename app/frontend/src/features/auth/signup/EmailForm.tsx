@@ -70,8 +70,8 @@ export default function EmailForm() {
         />
         <Button
           classes={{
-            root: authClasses.button,
             label: authClasses.buttonText,
+            root: authClasses.button,
           }}
           color="secondary"
           onClick={onSubmit}

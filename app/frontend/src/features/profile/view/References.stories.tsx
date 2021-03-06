@@ -7,8 +7,8 @@ import users from "test/fixtures/users.json";
 import References from "./References";
 
 export default {
-  title: "Profile/References",
   component: References,
+  title: "Profile/References",
 } as Meta;
 
 interface UserReferencesArgs {
@@ -27,12 +27,12 @@ export const UserReferences: Story<UserReferencesArgs> = ({
 
 UserReferences.args = {
   referencesGiven: {
-    totalMatches: 1,
     referencesList: references.slice(2),
+    totalMatches: 1,
   },
   referencesReceived: {
-    totalMatches: 2,
     referencesList: references.slice(0, 2),
+    totalMatches: 2,
   },
 };
 

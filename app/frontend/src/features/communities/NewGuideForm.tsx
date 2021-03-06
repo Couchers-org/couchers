@@ -29,8 +29,8 @@ export default function NewGuideForm() {
     setValue,
     errors,
   } = useForm<NewGuideInputs>({
-    shouldUnregister: false,
     mode: "onBlur",
+    shouldUnregister: false,
   });
 
   const history = useHistory();

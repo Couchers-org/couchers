@@ -26,10 +26,10 @@ export interface BugReportFormData {
 
 const useStyles = makeStyles((theme) => ({
   button: {
-    backgroundColor: theme.palette.error.main,
     "&:hover": {
       backgroundColor: darken(theme.palette.error.main, 0.1),
     },
+    backgroundColor: theme.palette.error.main,
   },
   field: {
     "& + &": {

@@ -10,21 +10,21 @@ const URL = process.env.REACT_APP_API_BASE_URL;
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_KEY!;
 
 const useStyles = makeStyles({
-  root: {
-    position: "relative",
-    height: 200,
-    width: 400,
-  },
   grow: {
-    width: "100%",
     height: "100%",
+    width: "100%",
   },
   map: {
+    height: "100%",
+    left: 0,
     position: "absolute",
     top: 0,
-    left: 0,
     width: "100%",
-    height: "100%",
+  },
+  root: {
+    height: 200,
+    position: "relative",
+    width: 400,
   },
 });
 
@@ -59,8 +59,8 @@ export default function Map({
   const transformRequest = (url: string): RequestParameters => {
     if (url.startsWith(URL)) {
       return {
-        url,
         credentials: "include",
+        url,
       };
     }
     return { url };
@@ -69,13 +69,13 @@ export default function Map({
   useEffect(() => {
     if (!containerRef.current) return;
     const map = new mapboxgl.Map({
-      container: containerRef.current,
-      style: "mapbox://styles/mapbox/streets-v11",
       center: initialCenter,
-      zoom: initialZoom,
+      container: containerRef.current,
       hash: "loc",
       interactive: interactive,
+      style: "mapbox://styles/mapbox/streets-v11",
       transformRequest,
+      zoom: initialZoom,
     });
 
     if (interactive)

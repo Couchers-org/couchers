@@ -26,11 +26,11 @@ describe.each`
 `("$name", ({ label, count, Component }) => {
   it("shows the label with the number of unseen messages in a badge", async () => {
     pingMock.mockResolvedValue({
-      user,
       pendingFriendRequestCount: 99,
-      unseenSentHostRequestCount: 34,
-      unseenReceivedHostRequestCount: 12,
       unseenMessageCount: 56,
+      unseenReceivedHostRequestCount: 12,
+      unseenSentHostRequestCount: 34,
+      user,
     });
     render(<Component />, { wrapper });
 

@@ -14,24 +14,30 @@ import {
 import React from "react";
 
 const useStyles = makeStyles((theme) => ({
-  dialog: { padding: 0 },
   actions: {
     display: "flex",
     justifyContent: "space-around",
+    margin: 0,
     padding: theme.spacing(2),
     paddingTop: 0,
-    margin: 0,
   },
-  content: { padding: theme.spacing(2) },
-  contentText: { padding: theme.spacing(2) },
-  title: {
+  content: {
     padding: theme.spacing(2),
-    paddingBottom: 0,
-    textAlign: "center",
+  },
+  contentText: {
+    padding: theme.spacing(2),
+  },
+  dialog: {
+    padding: 0,
+  },
+  title: {
     "& > h2": theme.typography.h2,
     "&:not(:nth-child(1))": {
       paddingTop: 0,
     },
+    padding: theme.spacing(2),
+    paddingBottom: 0,
+    textAlign: "center",
   },
 }));
 

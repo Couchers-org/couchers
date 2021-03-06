@@ -5,18 +5,18 @@ import { hostingStatusLabels } from "features/profile/constants";
 import { HostingStatus, User } from "pb/api_pb";
 
 export default {
-  title: "Components/Composite/IconText",
-  component: IconText,
   argTypes: {
     hostingStatus: {
       control: {
-        type: "select",
         options: Object.keys(HostingStatus).map(
           (key) => (HostingStatus as any)[key]
         ),
+        type: "select",
       },
     },
   },
+  component: IconText,
+  title: "Components/Composite/IconText",
 } as Meta;
 
 const Template: Story<any> = (args) => (

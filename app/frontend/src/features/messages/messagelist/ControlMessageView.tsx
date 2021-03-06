@@ -15,16 +15,16 @@ import { messageElementId, MessageProps } from "./MessageView";
 import TimeInterval from "./TimeInterval";
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    marginInlineStart: "auto",
-    marginInlineEnd: "auto",
-    textAlign: "center",
-  },
-  timestamp: theme.typography.caption,
   message: {
     paddingInlineEnd: theme.spacing(1),
   },
+  root: {
+    marginInlineEnd: "auto",
+    marginInlineStart: "auto",
+    textAlign: "center",
+  },
   skeleton: { minWidth: 100 },
+  timestamp: theme.typography.caption,
 }));
 
 export default function ControlMessageView({
