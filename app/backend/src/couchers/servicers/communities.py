@@ -2,6 +2,7 @@ import logging
 
 import grpc
 from google.protobuf import empty_pb2
+from sqlalchemy.sql.elements import or_
 
 from couchers import errors
 from couchers.db import can_moderate_node, get_node_parents_recursively, session_scope
@@ -199,8 +200,8 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             if not node:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
             discussions = (
-                node.official_cluster.owned_discussions.filter(Discussion.id >= next_page_id)
-                .order_by(Discussion.id)
+                node.official_cluster.owned_discussions.filter(or_(Discussion.id <= next_page_id, next_page_id == 0))
+                .order_by(Discussion.id.desc())
                 .limit(page_size + 1)
                 .all()
             )

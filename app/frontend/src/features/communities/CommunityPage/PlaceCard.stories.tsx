@@ -1,7 +1,6 @@
 import { Meta, Story } from "@storybook/react";
-
-import place from "../../../test/fixtures/place.json";
-import PlaceCard from "./PlaceCard";
+import PlaceCard from "features/communities/CommunityPage/PlaceCard";
+import place from "test/fixtures/place.json";
 
 export default {
   title: "Communities/CommunityPage/PlaceCard",

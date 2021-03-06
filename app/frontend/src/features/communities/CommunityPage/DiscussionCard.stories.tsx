@@ -1,7 +1,6 @@
 import { Meta, Story } from "@storybook/react";
-
-import discussion from "../../../test/fixtures/discussion.json";
-import DiscussionCard from "./DiscussionCard";
+import DiscussionCard from "features/communities/CommunityPage/DiscussionCard";
+import discussion from "test/fixtures/discussion.json";
 
 export default {
   title: "Communities/CommunityPage/DiscussionCard",

@@ -1,12 +1,11 @@
 import { renderHook } from "@testing-library/react-hooks";
+import useUpdateUserProfile from "features/profile/useUpdateUserProfile";
+import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { act } from "react-test-renderer";
-
-import { service } from "../../service";
-import wrapper from "../../test/hookWrapper";
-import { addDefaultUser } from "../../test/utils";
-import useCurrentUser from "../userQueries/useCurrentUser";
-import useUpdateUserProfile from "./useUpdateUserProfile";
+import { service } from "service/index";
+import wrapper from "test/hookWrapper";
+import { addDefaultUser } from "test/utils";
 
 const getUserMock = service.user.getUser as jest.Mock;
 const updateProfileMock = service.user.updateProfile as jest.Mock;

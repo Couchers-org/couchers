@@ -1,15 +1,14 @@
+import Alert from "components/Alert";
+import CircularProgress from "components/CircularProgress";
+import CommentBox from "components/Comments/CommentBox";
+import Markdown from "components/Markdown";
+import PageTitle from "components/PageTitle";
+import TextBody from "components/TextBody";
+import { Discussion } from "pb/discussions_pb";
 import React, { useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
-
-import Alert from "../../components/Alert";
-import CircularProgress from "../../components/CircularProgress";
-import CommentBox from "../../components/Comments/CommentBox";
-import Markdown from "../../components/Markdown";
-import PageTitle from "../../components/PageTitle";
-import TextBody from "../../components/TextBody";
-import { Discussion } from "../../pb/discussions_pb";
-import { routeToDiscussion } from "../../routes";
-import { service } from "../../service";
+import { routeToDiscussion } from "routes";
+import { service } from "service/index";
 
 export default function DiscussionPage() {
   const [loading, setLoading] = useState(false);

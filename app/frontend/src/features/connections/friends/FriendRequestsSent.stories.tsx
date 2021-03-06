@@ -1,10 +1,9 @@
 import { Meta, Story } from "@storybook/react";
+import FriendRequestsSent from "features/connections/friends/FriendRequestsSent";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { FriendRequest } from "pb/api_pb";
 import React, { useRef } from "react";
-
-import { FriendRequest } from "../../../pb/api_pb";
-import { mockedService } from "../../../stories/__mocks__/service";
-import FriendRequestsSent from "./FriendRequestsSent";
+import { mockedService } from "stories/__mocks__/service";
 
 export default {
   title: "Me/Connections/FriendRequestsSent",

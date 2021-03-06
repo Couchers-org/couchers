@@ -7,19 +7,18 @@ import {
 import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
 import classNames from "classnames";
-import React from "react";
-
-import Avatar from "../../../components/Avatar";
-import { GroupChat } from "../../../pb/conversations_pb";
-import { firstName } from "../../../utils/names";
-import { useAuthContext } from "../../auth/AuthProvider";
-import useUsers from "../../userQueries/useUsers";
+import Avatar from "components/Avatar";
+import { useAuthContext } from "features/auth/AuthProvider";
 import {
   controlMessageText,
   groupChatTitleText,
   isControlMessage,
   messageTargetId,
-} from "../utils";
+} from "features/messages/utils";
+import useUsers from "features/userQueries/useUsers";
+import { GroupChat } from "pb/conversations_pb";
+import React from "react";
+import { firstName } from "utils/names";
 
 const useStyles = makeStyles({ root: {} });
 

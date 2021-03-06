@@ -1,5 +1,5 @@
-import { CreateDiscussionReq, GetDiscussionReq } from "../pb/discussions_pb";
-import client from "./client";
+import { CreateDiscussionReq, GetDiscussionReq } from "pb/discussions_pb";
+import client from "service/client";
 
 export async function createDiscussion(
   title: string,

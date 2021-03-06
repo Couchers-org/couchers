@@ -1,15 +1,14 @@
+import Alert from "components/Alert";
+import CircularProgress from "components/CircularProgress";
+import CommentBox from "components/Comments/CommentBox";
+import Markdown from "components/Markdown";
+import PageTitle from "components/PageTitle";
+import TextBody from "components/TextBody";
+import { pageURL } from "features/communities/redirect";
+import { Page, PageType } from "pb/pages_pb";
 import React, { useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
-
-import Alert from "../../components/Alert";
-import CircularProgress from "../../components/CircularProgress";
-import CommentBox from "../../components/Comments/CommentBox";
-import Markdown from "../../components/Markdown";
-import PageTitle from "../../components/PageTitle";
-import TextBody from "../../components/TextBody";
-import { Page, PageType } from "../../pb/pages_pb";
-import { service } from "../../service";
-import { pageURL } from "./redirect";
+import { service } from "service/index";
 
 export default function PagePage({ pageType }: { pageType: PageType }) {
   const [loading, setLoading] = useState(false);

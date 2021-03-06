@@ -1,4 +1,4 @@
-import { HostRequestStatus } from "../../pb/conversations_pb";
+import { HostRequestStatus } from "pb/conversations_pb";
 
 export const hostRequestStatusLabels = {
   [HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED]: "Accepted",

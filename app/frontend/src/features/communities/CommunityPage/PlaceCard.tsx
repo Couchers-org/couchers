@@ -4,26 +4,38 @@ import {
   CardContent,
   CardMedia,
   makeStyles,
-  Typography,
 } from "@material-ui/core";
-import classNames from "classnames";
+import { Page } from "pb/pages_pb";
 import React, { useMemo } from "react";
 import LinesEllipsis from "react-lines-ellipsis";
+import { Link } from "react-router-dom";
+import { routeToPlace } from "routes";
+import stripMarkdown from "utils/stripMarkdown";
 
-import { Page } from "../../../pb/pages_pb";
-import stripMarkdown from "../../../utils/stripMarkdown";
+import placeImagePlaceholder from "./placeImagePlaceholder.svg";
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    maxWidth: 160,
-    "& p": {
-      marginTop: theme.spacing(0.5),
-    },
+  link: { textDecoration: "none" },
+  image: {
+    backgroundColor: theme.palette.grey[200],
+    height: 80,
+    objectFit: "contain",
   },
-  image: { height: 80 },
   title: {
+    ...theme.typography.h3,
+    height: `calc(2 * calc(${theme.typography.h3.lineHeight} * ${theme.typography.h3.fontSize}))`,
     marginTop: 0,
     marginBottom: theme.spacing(0.5),
+  },
+  place: {
+    ...theme.typography.caption,
+    height: `calc(2 * calc(${theme.typography.caption.lineHeight} * ${theme.typography.caption.fontSize}))`,
+    marginTop: theme.spacing(0.5),
+  },
+  preview: {
+    ...theme.typography.caption,
+    height: `calc(2 * calc(${theme.typography.caption.lineHeight} * ${theme.typography.caption.fontSize}))`,
+    marginTop: theme.spacing(0.5),
   },
 }));
 
@@ -40,26 +52,41 @@ export default function PlaceCard({
     [place.content]
   );
   return (
-    <Card className={classNames(classes.root, className)}>
-      <CardActionArea>
-        <CardMedia
-          image="https://loremflickr.com/320/240"
-          className={classes.image}
-        />
-        <CardContent>
-          <Typography variant="h3" className={classes.title}>
-            <LinesEllipsis text={place.title} maxLine={2} />
-          </Typography>
-          <Typography variant="caption" component="p">
-            <LinesEllipsis text={place.address} maxLine={2} />
-          </Typography>
-          {contentPreview && (
-            <Typography variant="caption" component="p">
-              <LinesEllipsis text={contentPreview} maxLine={2} />
-            </Typography>
-          )}
-        </CardContent>
-      </CardActionArea>
+    <Card className={className}>
+      <Link
+        to={routeToPlace(place.pageId, place.slug)}
+        className={classes.link}
+      >
+        <CardActionArea>
+          <CardMedia
+            src={place.photoUrl ? place.photoUrl : placeImagePlaceholder}
+            className={classes.image}
+            component="img"
+          />
+          <CardContent>
+            <LinesEllipsis
+              text={place.title}
+              maxLine={2}
+              component="h3"
+              className={classes.title}
+            />
+            <LinesEllipsis
+              text={place.address}
+              maxLine={2}
+              component="p"
+              className={classes.place}
+            />
+            {contentPreview && (
+              <LinesEllipsis
+                text={contentPreview}
+                maxLine={2}
+                component="p"
+                className={classes.preview}
+              />
+            )}
+          </CardContent>
+        </CardActionArea>
+      </Link>
     </Card>
   );
 }

@@ -1,8 +1,7 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-
-import user from "../test/fixtures/defaultUser.json";
-import client from "./client";
-import { updateHostingPreference, updateProfile } from "./user";
+import client from "service/client";
+import { updateHostingPreference, updateProfile } from "service/user";
+import user from "test/fixtures/defaultUser.json";
 
 jest.mock("./client");
 

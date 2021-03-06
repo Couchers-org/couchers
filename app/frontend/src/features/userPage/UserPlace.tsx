@@ -1,10 +1,9 @@
 import { makeStyles, Typography } from "@material-ui/core";
+import Markdown from "components/Markdown";
+import TextBody from "components/TextBody";
+import { smokingLocationLabels } from "features/profile/constants";
+import { SmokingLocation, User } from "pb/api_pb";
 import React from "react";
-
-import Markdown from "../../components/Markdown";
-import TextBody from "../../components/TextBody";
-import { SmokingLocation, User } from "../../pb/api_pb";
-import { smokingLocationLabels } from "../profile/constants";
 
 const useStyles = makeStyles((theme) => ({
   list: {

@@ -1,8 +1,8 @@
-import { service as originalService } from "../../service";
-import getThreadRes from "../../test/fixtures/getThreadRes.json";
-import groupChat from "../../test/fixtures/groupChat.json";
-import messages from "../../test/fixtures/messages.json";
-import users from "../../test/fixtures/users.json";
+import { service as originalService } from "service/index";
+import getThreadRes from "test/fixtures/getThreadRes.json";
+import groupChat from "test/fixtures/groupChat.json";
+import messages from "test/fixtures/messages.json";
+import users from "test/fixtures/users.json";
 
 const [user1, user2, user3] = users;
 
