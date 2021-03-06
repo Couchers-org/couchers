@@ -1103,7 +1103,7 @@ def test_list_other_user_places(db):
 
     with pages_session(token2) as api:
         res = api.ListUserPlaces(
-            pages_pb2.ListUserPlacesReq(user_id=user1)
+            pages_pb2.ListUserPlacesReq(user_id=user1.id)
         )
         assert [p.page_id for p in res.places] == [place1_id, place2_id]
 
@@ -1180,6 +1180,6 @@ def test_list_other_user_guides(db):
 
     with pages_session(token2) as api:
         res = api.ListUserGuides(
-            pages_pb2.ListUserGuidesReq(user_id=user1)
+            pages_pb2.ListUserGuidesReq(user_id=user1.id)
         )
         assert [p.page_id for p in res.guides] == [guide1_id, guide2_id]
