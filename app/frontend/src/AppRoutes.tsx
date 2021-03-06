@@ -26,6 +26,7 @@ import NewPlacePage from "./features/communities/NewPlacePage";
 import PagePage from "./features/communities/PagePage";
 import { ConnectionsPage } from "./features/connections";
 import Home from "./features/dashboard/Home";
+import DonationPage from "./features/donations/DonationPage";
 import Messages from "./features/messages/index";
 import NotFoundPage from "./features/NotFoundPage";
 import LeaveReferencePage from "./features/profile/view/leaveReference/LeaveReferencePage";
@@ -39,6 +40,7 @@ import {
   connectionsRoute,
   contributeRoute,
   discussionRoute,
+  donationRoute,
   editCommunityPageRoute,
   editProfileRoute,
   eventsRoute,
@@ -213,6 +215,10 @@ export default function AppRoutes() {
           </AppRoute>
         </>
       )}
+
+      <AppRoute isPrivate path={donationRoute}>
+        <DonationPage />
+      </AppRoute>
 
       {
         // 404 NOT FOUND

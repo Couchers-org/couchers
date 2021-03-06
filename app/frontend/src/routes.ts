@@ -130,3 +130,5 @@ export const routeToCommunity = (
 export const editCommunityPageRoute = `${communityBaseRoute}/:communityId/:communitySlug/info/edit`;
 export const routeToEditCommunityPage = (id: number, slug: string) =>
   `${routeToCommunity(id, slug, "info")}/edit`;
+
+export const donationRoute = "/donate";
