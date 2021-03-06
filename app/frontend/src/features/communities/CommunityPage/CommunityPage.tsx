@@ -10,8 +10,14 @@ import {
 } from "features/constants";
 import { CommunityParent } from "pb/groups_pb";
 import React, { useEffect } from "react";
-import { Link, useHistory, useParams } from "react-router-dom";
-import { routeToCommunity } from "routes";
+import { Link, Route, Switch, useHistory, useParams } from "react-router-dom";
+import {
+  communityDiscussionsRoute,
+  communityEventsRoute,
+  communityInfoRoute,
+  communityRoute,
+  routeToCommunity,
+} from "routes";
 
 import DiscussionsSection from "./DiscussionsSection";
 import EventsSection from "./EventsSection";
@@ -41,19 +47,15 @@ export const useCommunityPageStyles = makeStyles((theme) => ({
     },
   },
   content: {
-    marginInlineStart: theme.spacing(4),
-  },
-  topContainer: {
-    textAlign: "center",
     [theme.breakpoints.up("md")]: {
-      display: "flex",
-      justifyContent: "space-between",
-      textAlign: "left",
+      flexGrow: 1,
+      marginInlineStart: theme.spacing(4),
     },
   },
-  topInfo: {
+  mobileCenter: {
+    textAlign: "center",
     [theme.breakpoints.up("md")]: {
-      width: "60%",
+      textAlign: "left",
     },
   },
   breadcrumbs: {
@@ -211,50 +213,62 @@ export default function CommunityPage() {
           <NavDesktop community={community} />
         </Hidden>
         <div className={classes.content}>
-          <div className={classes.topContainer}>
-            <div className={classes.topInfo}>
-              <Breadcrumbs
-                aria-label="breadcrumb"
-                className={classes.breadcrumbs}
-              >
-                {community.parentsList
-                  .map((parent) => parent.community)
-                  .filter(
-                    (
-                      communityParent
-                    ): communityParent is CommunityParent.AsObject =>
-                      !!communityParent
-                  )
-                  .map((communityParent) => (
-                    <Link
-                      to={routeToCommunity(
-                        communityParent.communityId,
-                        communityParent.slug
-                      )}
-                      key={`breadcrumb-${communityParent?.communityId}`}
-                    >
-                      {communityParent.name}
-                    </Link>
-                  ))}
-              </Breadcrumbs>
-              <Typography variant="h1" className={classes.title}>
-                {COMMUNITY_HEADING(community.name)}
-              </Typography>
-              <Typography variant="body2" className={classes.description}>
-                {community.description} {MORE_TIPS}&nbsp;
-                <Link to="#">here.</Link>
-              </Typography>
-            </div>
+          <div className={classes.mobileCenter}>
+            <Breadcrumbs
+              aria-label="breadcrumb"
+              className={classes.breadcrumbs}
+            >
+              {community.parentsList
+                .map((parent) => parent.community)
+                .filter(
+                  (
+                    communityParent
+                  ): communityParent is CommunityParent.AsObject =>
+                    !!communityParent
+                )
+                .map((communityParent) => (
+                  <Link
+                    to={routeToCommunity(
+                      communityParent.communityId,
+                      communityParent.slug
+                    )}
+                    key={`breadcrumb-${communityParent?.communityId}`}
+                  >
+                    {communityParent.name}
+                  </Link>
+                ))}
+            </Breadcrumbs>
+            <Switch>
+              <Route path={communityRoute} exact>
+                <Typography variant="h1" className={classes.title}>
+                  {COMMUNITY_HEADING(community.name)}
+                </Typography>
+                <Typography variant="body2" className={classes.description}>
+                  {community.description} <Link to="#">{MORE_TIPS}</Link>
+                </Typography>
+              </Route>
+            </Switch>
             <Hidden mdUp>
               <NavMobile community={community} />
             </Hidden>
           </div>
 
-          <PlacesSection community={community} />
-
-          <EventsSection community={community} />
-
-          <DiscussionsSection community={community} />
+          <Switch>
+            <Route path={communityInfoRoute}>Info</Route>
+            <Route path={communityEventsRoute}>
+              <p>Replace this with full events page</p>
+              <EventsSection community={community} />
+            </Route>
+            <Route path={communityDiscussionsRoute}>
+              <p>Replace this with full discussions page</p>
+              <DiscussionsSection community={community} />
+            </Route>
+            <Route path={communityRoute} exact>
+              <EventsSection community={community} />
+              <PlacesSection community={community} />
+              <DiscussionsSection community={community} />
+            </Route>
+          </Switch>
         </div>
       </div>
     </div>

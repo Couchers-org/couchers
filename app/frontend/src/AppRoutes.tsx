@@ -32,6 +32,8 @@ import SearchPage from "./features/search/SearchPage";
 import { PageType } from "./pb/pages_pb";
 import {
   baseRoute,
+  changeEmailRoute,
+  changePasswordRoute,
   communityDiscussionsRoute,
   communityEventsRoute,
   communityGroupsRoute,
@@ -167,22 +169,6 @@ export default function AppRoutes() {
       {
         // COMMUNITIES
       }
-
-      <AppRoute isPrivate path={communityPlacesRoute}>
-        Places
-      </AppRoute>
-      <AppRoute isPrivate path={communityGuidesRoute}>
-        Guides
-      </AppRoute>
-      <AppRoute isPrivate path={communityGroupsRoute}>
-        Groups
-      </AppRoute>
-      <AppRoute isPrivate path={communityDiscussionsRoute}>
-        Discussions
-      </AppRoute>
-      <AppRoute isPrivate path={communityEventsRoute}>
-        Events
-      </AppRoute>
       <AppRoute isPrivate path={communityRoute}>
         <CommunityPage />
       </AppRoute>

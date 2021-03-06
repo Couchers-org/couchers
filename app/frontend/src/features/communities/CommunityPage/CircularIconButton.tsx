@@ -5,7 +5,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import React, { ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
   body: {
@@ -20,7 +20,9 @@ const useStyles = makeStyles((theme) => ({
     textDecoration: "none",
     color: "inherit",
   },
+  linkActive: { color: theme.palette.primary.main },
   button: {
+    color: "inherit",
     marginBottom: theme.spacing(0.5),
   },
   link: {
@@ -40,6 +42,7 @@ interface CircularIconButtonProps extends IconButtonProps {
   id: string;
   linkTo?: string;
   disabled?: boolean;
+  exact?: boolean;
 }
 
 export default function CircularIconButton({
@@ -48,6 +51,7 @@ export default function CircularIconButton({
   label,
   linkTo,
   disabled = false,
+  exact,
   ...otherProps
 }: CircularIconButtonProps) {
   const classes = useStyles();
@@ -68,9 +72,14 @@ export default function CircularIconButton({
   );
 
   return linkTo ? (
-    <Link to={linkTo} className={classes.link}>
+    <NavLink
+      to={linkTo}
+      className={classes.link}
+      activeClassName={classes.linkActive}
+      exact={exact}
+    >
       {body}
-    </Link>
+    </NavLink>
   ) : (
     body
   );

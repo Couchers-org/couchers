@@ -88,9 +88,7 @@ export default function DiscussionsSection({
   return (
     <>
       <div className={classes.discussionsHeader}>
-        <SectionTitle icon={<EmailIcon />}>
-          {DISCUSSIONS_TITLE(community.name)}
-        </SectionTitle>
+        <SectionTitle icon={<EmailIcon />}>{DISCUSSIONS_TITLE}</SectionTitle>
         <IconButton
           aria-label={NEW_POST_LABEL}
           onClick={() => setIsNewCommentOpen(true)}

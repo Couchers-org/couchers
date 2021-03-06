@@ -71,23 +71,21 @@ export const communityRoute = `${communityBaseRoute}/:communityId/:communitySlug
 export const routeToCommunity = (id: number, slug: string) =>
   `${communityBaseRoute}/${id}/${slug}`;
 
-const communityPlacesBaseRoute = `${communityRoute}/places`;
-export const communityPlacesRoute = `${communityPlacesBaseRoute}/:communityId/:communitySlug?`;
+export const communityInfoRoute = `${communityRoute}/info`;
+export const routeToCommunityInfo = (id: number, slug: string) =>
+  `${communityBaseRoute}/${id}/${slug}/info`;
+export const communityPlacesRoute = `${communityRoute}/places`;
 export const routeToCommunityPlaces = (id: number, slug: string) =>
-  `${communityPlacesBaseRoute}/${id}/${slug}`;
-const communityGuidesBaseRoute = `${communityRoute}/guides`;
-export const communityGuidesRoute = `${communityGuidesBaseRoute}/:communityId/:communitySlug?`;
+  `${communityBaseRoute}/${id}/${slug}/places`;
+export const communityGuidesRoute = `${communityRoute}/guides`;
 export const routeToCommunityGuides = (id: number, slug: string) =>
-  `${communityGuidesBaseRoute}/${id}/${slug}`;
-const communityGroupsBaseRoute = `${communityRoute}/groups`;
-export const communityGroupsRoute = `${communityGroupsBaseRoute}/:communityId/:communitySlug?`;
+  `${communityBaseRoute}/${id}/${slug}/guides`;
+export const communityGroupsRoute = `${communityRoute}/groups`;
 export const routeToCommunityGroups = (id: number, slug: string) =>
-  `${communityGroupsBaseRoute}/${id}/${slug}`;
-const communityDiscussionsBaseRoute = `${communityRoute}/discussions`;
-export const communityDiscussionsRoute = `${communityDiscussionsBaseRoute}/:communityId/:communitySlug?`;
+  `${communityBaseRoute}/${id}/${slug}/groups`;
+export const communityDiscussionsRoute = `${communityRoute}/discussions`;
 export const routeToCommunityDiscussions = (id: number, slug: string) =>
-  `${communityDiscussionsBaseRoute}/${id}/${slug}`;
-const communityEventsBaseRoute = `${communityRoute}/events`;
-export const communityEventsRoute = `${communityEventsBaseRoute}/:communityId/:communitySlug?`;
+  `${communityBaseRoute}/${id}/${slug}/discussions`;
+export const communityEventsRoute = `${communityRoute}/events`;
 export const routeToCommunityEvents = (id: number, slug: string) =>
-  `${communityEventsBaseRoute}/${id}/${slug}`;
+  `${communityBaseRoute}/${id}/${slug}/events`;
