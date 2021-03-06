@@ -14,6 +14,19 @@ import { routeToEvent } from "../../../routes";
 import { timestamp2Date } from "../../../utils/date";
 
 const useStyles = makeStyles((theme) => ({
+  link: { textDecoration: "none", color: "inherit" },
+  title: {
+    ...theme.typography.h3,
+    height: `calc(2 * calc(${theme.typography.h3.lineHeight} * ${theme.typography.h3.fontSize}))`,
+    marginBottom: 0,
+    marginTop: 0,
+  },
+  subtitle: { marginBottom: theme.spacing(0.5) },
+  icon: {
+    display: "block",
+    fontSize: "1rem",
+    marginInlineEnd: theme.spacing(0.5),
+  },
   detailsList: {
     "& > li": {
       alignItems: "center",

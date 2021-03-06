@@ -16,6 +16,10 @@ const useStyles = makeStyles((theme) => ({
       flexDirection: "row",
     },
   },
+  link: {
+    textDecoration: "none",
+    color: "inherit",
+  },
   button: {
     marginBottom: theme.spacing(0.5),
   },
