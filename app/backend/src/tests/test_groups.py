@@ -242,9 +242,26 @@ class TestGroups:
             foodies_id = get_group_id(session, "Country 1, Region 1, Foodies")
             skaters_id = get_group_id(session, "Country 1, Region 1, Skaters")
 
+        # List user1's groups from user1's account
         with groups_session(token1) as api:
             res = api.ListUserGroups(
                 groups_pb2.ListUserGroupsReq()
+            )
+            assert [g.group_id for g in res.groups] == [hitchhikers_id, foodies_id, skaters_id]
+    
+    @staticmethod
+    def test_ListOtherUserGroups(testing_communities):
+        with session_scope() as session:
+            user1_id, token1 = get_user_id_and_token(session, "user1")
+            user2_id, token2 = get_user_id_and_token(session, "user2")
+            hitchhikers_id = get_group_id(session, "Hitchhikers")
+            foodies_id = get_group_id(session, "Country 1, Region 1, Foodies")
+            skaters_id = get_group_id(session, "Country 1, Region 1, Skaters")
+
+        # List user1's groups from user2's account
+        with groups_session(token2) as api:
+            res = api.ListUserGroups(
+                groups_pb2.ListUserGroupsReq(user_id=user1_id)
             )
             assert [g.group_id for g in res.groups] == [hitchhikers_id, foodies_id, skaters_id]
 

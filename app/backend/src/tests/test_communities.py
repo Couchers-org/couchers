@@ -390,9 +390,30 @@ class TestCommunities:
             c1r2_id = get_community_id(session, "Country 1, Region 2")
             c1r2c1_id = get_community_id(session, "Country 1, Region 2, City 1")
 
+        # Fetch user2's communities from user2's account
         with communities_session(token2) as api:
             res = api.ListUserCommunities(
                 communities_pb2.ListCommunitiesReq()
+            )
+            assert [c.community_id for c in res.communities] == [w_id, c1_id, c1r1_id, c1r1c1_id, c1r1c2_id, c1r2_id, c1r2c1_id]
+    
+    @staticmethod
+    def test_ListOtherUserCommunities(testing_communities):
+        with session_scope() as session:
+            user1_id, token1 = get_user_id_and_token(session, "user1")
+            user2_id, token2 = get_user_id_and_token(session, "user2")
+            w_id = get_community_id(session, "World")
+            c1_id = get_community_id(session, "Country 1")
+            c1r1_id = get_community_id(session, "Country 1, Region 1")
+            c1r1c1_id = get_community_id(session, "Country 1, Region 1, City 1")
+            c1r1c2_id = get_community_id(session, "Country 1, Region 1, City 2")
+            c1r2_id = get_community_id(session, "Country 1, Region 2")
+            c1r2c1_id = get_community_id(session, "Country 1, Region 2, City 1")
+
+        # Fetch user2's communities from user1's account
+        with communities_session(token1) as api:
+            res = api.ListUserCommunities(
+                communities_pb2.ListCommunitiesReq(user_id=user2_id)
             )
             assert [c.community_id for c in res.communities] == [w_id, c1_id, c1r1_id, c1r1c1_id, c1r1c2_id, c1r2_id, c1r2c1_id]
 

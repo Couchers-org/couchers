@@ -29,11 +29,11 @@ service Pages {
   }
 
   rpc ListUserPlaces(ListUserPlacesReq) returns (ListUserPlacesRes) {
-    // Gets a list of groups a member belongs to
+    // Gets a list of places pages a user owns
   }
 
   rpc ListUserGuides(ListUserGuidesReq) returns (ListUserGuidesRes) {
-    // Gets a list of groups a member belongs to
+    // Gets a list of guide pages a user owns
   }
 }
 
