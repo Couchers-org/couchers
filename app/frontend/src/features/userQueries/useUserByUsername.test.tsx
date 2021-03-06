@@ -65,6 +65,8 @@ describe("when user has loaded", () => {
       isError: false,
       error: "",
       data: {
+        age: 35,
+        city: "Helsinki, Finland",
         name: "Funny Dog",
         userId: 2,
         username: "funnydog",

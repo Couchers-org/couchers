@@ -55,12 +55,16 @@ describe("when the listFriends query succeeds", () => {
       errors: [],
       data: [
         {
+          age: 35,
+          city: "Helsinki, Finland",
           name: "Funny Dog",
           userId: 2,
           username: "funnydog",
           avatarUrl: "",
         },
         {
+          age: 28,
+          city: "London, UK",
           name: "Funny Kid",
           userId: 3,
           username: "funnykid",

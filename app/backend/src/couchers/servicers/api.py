@@ -648,12 +648,13 @@ class API(api_pb2_grpc.APIServicer):
 
 def paginate_references_result(request, query):
     total_matches = query.count()
-    references = query.order_by(Reference.time).offset(request.start_at).limit(request.number).all()
+    references = query.order_by(Reference.time.desc()).offset(request.start_at).limit(request.number).all()
     # order by time, pagination
     return api_pb2.GetReferencesRes(
         total_matches=total_matches,
         references=[
             api_pb2.Reference(
+                reference_id=reference.id,
                 from_user_id=reference.from_user_id,
                 to_user_id=reference.to_user_id,
                 reference_type=reftype2api[reference.reference_type],
