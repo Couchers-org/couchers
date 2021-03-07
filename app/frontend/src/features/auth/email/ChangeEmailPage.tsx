@@ -3,6 +3,7 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
+import { sanitizeName } from "utils/validation";
 
 import Alert from "../../../components/Alert";
 import Button from "../../../components/Button";
@@ -29,7 +30,8 @@ export default function ChangeEmailPage() {
     reset: resetForm,
   } = useForm<ChangeEmailFormData>();
   const onSubmit = handleSubmit(({ currentPassword, newEmail }) => {
-    changeEmail({ currentPassword, newEmail });
+    const sanitizedEmail = sanitizeName(newEmail);
+    changeEmail({ currentPassword, newEmail: sanitizedEmail });
   });
 
   const {

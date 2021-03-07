@@ -17,6 +17,7 @@ import { Link, useHistory } from "react-router-dom";
 import { loginPasswordRoute, resetPasswordRoute } from "routes";
 import { service } from "service/index";
 import { useIsMounted, useSafeState } from "utils/hooks";
+import { sanitizeName } from "utils/validation";
 
 const useStyles = makeStyles((theme) => ({
   loginOptions: {
@@ -46,7 +47,8 @@ export default function UsernameForm() {
       setLoading(true);
       authActions.clearError();
       try {
-        const next = await service.auth.checkUsername(data.username);
+        const sanitizedUsername = sanitizeName(data.username);
+        const next = await service.auth.checkUsername(sanitizedUsername);
         switch (next) {
           case LoginRes.LoginStep.INVALID_USER:
             authActions.authError("Couldn't find that user.");
@@ -64,7 +66,7 @@ export default function UsernameForm() {
 
         if (!loginWithLink) {
           authActions.passwordLogin({
-            username: data.username,
+            username: sanitizedUsername,
             password: data.password,
           });
         }
