@@ -75,6 +75,17 @@ def test_friend_requests_with_invisible_users(db):
     user3, token3 = generate_user()
     user4, token4 = generate_user()
 
+    # Test send friend request from invisible user
+    with api_session(token2) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.SendFriendRequest(
+                api_pb2.SendFriendRequestReq(
+                    user_id=user1.id,
+                )
+            )
+    assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    assert e.value.details() == errors.USER_NOT_FOUND
+
     # Test send friend request to invisible user
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
