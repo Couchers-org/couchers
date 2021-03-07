@@ -1,9 +1,9 @@
 import "maplibre-gl/dist/mapbox-gl.css";
 
-import { Box, BoxProps, makeStyles } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core";
 import classNames from "classnames";
 import mapboxgl, { LngLat, RequestParameters } from "maplibre-gl";
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 const URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -11,8 +11,10 @@ mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_KEY!;
 
 const useStyles = makeStyles({
   grow: {
-    height: "100%",
-    width: "100%",
+    "div&": {
+      height: "100%",
+      width: "100%",
+    },
   },
   map: {
     height: "100%",
@@ -28,10 +30,11 @@ const useStyles = makeStyles({
   },
 });
 
-export interface MapProps extends BoxProps {
+export interface MapProps {
   initialCenter: LngLat;
   initialZoom: number;
   postMapInitialize?: (map: mapboxgl.Map) => void;
+  className?: string;
   onUpdate?: (center: LngLat, zoom: number) => void;
   grow?: boolean;
   interactive?: boolean;
@@ -86,20 +89,14 @@ export default function Map({
     }
 
     if (postMapInitialize) postMapInitialize(map);
-  }, []); // eslint-disable-line
+  }, [initialCenter, initialZoom, interactive, onUpdate, postMapInitialize]);
 
   return (
-    <>
-      <Box
-        className={classNames(
-          classes.root,
-          { [classes.grow]: grow },
-          className
-        )}
-        {...otherProps}
-      >
-        <div className={classes.map} ref={containerRef} />
-      </Box>
-    </>
+    <div
+      className={classNames(classes.root, { [classes.grow]: grow }, className)}
+      {...otherProps}
+    >
+      <div className={classes.map} ref={containerRef} />
+    </div>
   );
 }
