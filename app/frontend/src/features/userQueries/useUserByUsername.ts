@@ -1,11 +1,14 @@
+import {
+  username2IdStaleTime,
+  userStaleTime,
+} from "features/userQueries/constants";
 import { Error, StatusCode } from "grpc-web";
+import { User } from "pb/api_pb";
 import { useEffect } from "react";
 import { useQuery, useQueryClient } from "react-query";
+import { service } from "service/index";
 
 import { reactQueryRetries } from "../../constants";
-import { User } from "../../pb/api_pb";
-import { service } from "../../service";
-import { username2IdStaleTime, userStaleTime } from "./constants";
 
 export default function useUserByUsername(
   username: string,

@@ -1,17 +1,16 @@
-import { Box, Card, CardContent, Typography } from "@material-ui/core";
+import { Card, CardContent, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
 import classNames from "classnames";
+import Avatar from "components/Avatar";
+import TextBody from "components/TextBody";
+import TimeInterval from "features/messages/messagelist/TimeInterval";
+import useCurrentUser from "features/userQueries/useCurrentUser";
+import { useUser } from "features/userQueries/useUsers";
+import { Message } from "pb/conversations_pb";
 import React from "react";
-
-import Avatar from "../../../components/Avatar";
-import TextBody from "../../../components/TextBody";
-import { Message } from "../../../pb/conversations_pb";
-import { timestamp2Date } from "../../../utils/date";
-import useOnVisibleEffect from "../../../utils/useOnVisibleEffect";
-import useCurrentUser from "../../userQueries/useCurrentUser";
-import { useUser } from "../../userQueries/useUsers";
-import TimeInterval from "./TimeInterval";
+import { timestamp2Date } from "utils/date";
+import useOnVisibleEffect from "utils/useOnVisibleEffect";
 
 export const messageElementId = (id: number) => `message-${id}`;
 
@@ -97,7 +96,7 @@ export default function MessageView({
   const { ref } = useOnVisibleEffect(onVisible);
 
   return (
-    <Box
+    <div
       className={classNames(classes.root, className, {
         [classes.loadingRoot]: isLoading,
         [classes.userRoot]: isCurrentUser && !isLoading,
@@ -117,7 +116,7 @@ export default function MessageView({
           [classes.otherCard]: !isCurrentUser && !isLoading,
         })}
       >
-        <Box className={classes.header}>
+        <div className={classes.header}>
           {author ? (
             <Typography variant="h5" className={classes.name}>
               {author.name}
@@ -128,21 +127,21 @@ export default function MessageView({
           {!isCurrentUser && (
             <TimeInterval date={timestamp2Date(message.time!)} />
           )}
-        </Box>
+        </div>
 
         <CardContent className={classes.messageBody}>
           <TextBody>{message.text?.text || ""}</TextBody>
         </CardContent>
 
         {isCurrentUser && (
-          <Box className={classes.footer}>
+          <div className={classes.footer}>
             <TimeInterval date={timestamp2Date(message.time!)} />
-          </Box>
+          </div>
         )}
       </Card>
       {author && isCurrentUser && (
         <Avatar user={author} className={classes.avatar} />
       )}
-    </Box>
+    </div>
   );
 }

@@ -7,8 +7,8 @@ import {
   ListGuidesReq,
   ListMembersReq,
   ListPlacesReq,
-} from "../pb/groups_pb";
-import client from "./client";
+} from "pb/groups_pb";
+import client from "service/client";
 
 export async function getGroup(groupId: number) {
   const req = new GetGroupReq();

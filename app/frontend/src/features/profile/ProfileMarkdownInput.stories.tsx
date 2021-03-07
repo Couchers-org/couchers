@@ -1,7 +1,6 @@
 import { Meta, Story } from "@storybook/react";
+import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";
 import { useState } from "react";
-
-import ProfileMarkdownInput from "./ProfileMarkdownInput";
 
 export default {
   title: "Profile/ProfileMarkdownInput",

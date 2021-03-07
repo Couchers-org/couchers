@@ -22,7 +22,7 @@ from couchers.interceptors import AuthValidatorInterceptor
 from couchers.models import LoginToken, PasswordResetToken, SignupToken, User, UserSession
 from couchers.servicers.api import hostingstatus2sql
 from couchers.tasks import send_login_email, send_password_reset_email, send_signup_email
-from couchers.utils import create_session_cookie, now, parse_session_cookie
+from couchers.utils import create_coordinate, create_session_cookie, now, parse_session_cookie
 from pb import auth_pb2, auth_pb2_grpc
 
 logger = logging.getLogger(__name__)
@@ -228,14 +228,20 @@ class Auth(auth_pb2_grpc.AuthServicer):
             if not self._username_available(request.username):
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.USERNAME_NOT_AVAILABLE)
 
+            if request.lat == 0 and request.lng == 0:
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
+
             user = User(
                 email=signup_token.email,
                 username=request.username,
                 name=request.name,
-                city=request.city,
                 gender=request.gender,
                 birthdate=birthdate,
                 hosting_status=hostingstatus2sql[request.hosting_status],
+                city=request.city,
+                geom=create_coordinate(request.lat, request.lng),
+                geom_radius=request.radius,
+                accepted_tos=1 if request.accept_tos else 0,
             )
 
             # happens in same transaction

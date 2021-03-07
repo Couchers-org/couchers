@@ -1,19 +1,12 @@
 import { Card, CardActions, makeStyles, Typography } from "@material-ui/core";
-import React from "react";
-import { Link } from "react-router-dom";
-
-import Avatar from "../../../components/Avatar";
-import BarWithHelp from "../../../components/Bar/BarWithHelp";
-import Button from "../../../components/Button/Button";
-import Divider from "../../../components/Divider";
-import { CouchIcon, LocationIcon } from "../../../components/Icons";
-import IconText from "../../../components/IconText";
-import LabelAndText from "../../../components/LabelAndText";
-import { HostingStatus, MeetupStatus, User } from "../../../pb/api_pb";
-import { editProfileRoute } from "../../../routes";
-import { timestamp2Date } from "../../../utils/date";
-import { timeAgo } from "../../../utils/timeAgo";
-import { useAuthContext } from "../../auth/AuthProvider";
+import Avatar from "components/Avatar";
+import BarWithHelp from "components/Bar/BarWithHelp";
+import Button from "components/Button";
+import Divider from "components/Divider";
+import { CouchIcon, LocationIcon } from "components/Icons";
+import IconText from "components/IconText";
+import LabelAndText from "components/LabelAndText";
+import { useAuthContext } from "features/auth/AuthProvider";
 import {
   COMMUNITY_STANDING,
   COMMUNITY_STANDING_DESCRIPTION,
@@ -22,8 +15,17 @@ import {
   REFERENCES,
   VERIFICATION_SCORE,
   VERIFICATION_SCORE_DESCRIPTION,
-} from "../../constants";
-import { hostingStatusLabels, meetupStatusLabels } from "../constants";
+} from "features/constants";
+import {
+  hostingStatusLabels,
+  meetupStatusLabels,
+} from "features/profile/constants";
+import { HostingStatus, MeetupStatus, User } from "pb/api_pb";
+import React from "react";
+import { Link } from "react-router-dom";
+import { editProfileRoute } from "routes";
+import { timestamp2Date } from "utils/date";
+import { timeAgo } from "utils/timeAgo";
 
 const useStyles = makeStyles((theme) => ({
   card: {

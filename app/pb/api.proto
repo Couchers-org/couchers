@@ -349,6 +349,7 @@ message GetReceivedReferencesReq {
 }
 
 message Reference {
+  int64 reference_id = 6;
   int64 from_user_id = 1;
   int64 to_user_id = 2;
   ReferenceType reference_type = 3;

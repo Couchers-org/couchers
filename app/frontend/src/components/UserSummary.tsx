@@ -5,22 +5,27 @@ import {
   Typography,
 } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
+import Avatar from "components/Avatar";
+import ScoreBar from "components/Bar/ScoreBar";
+import { COMMUNITY_STANDING } from "features/constants";
+import { User } from "pb/api_pb";
 import React from "react";
-
-import { COMMUNITY_STANDING } from "../features/constants";
-import { User } from "../pb/api_pb";
-import Avatar from "./Avatar";
-import ScoreBar from "./Bar/ScoreBar";
 
 export const useStyles = makeStyles((theme) => ({
   root: {
-    alignItems: "center",
     display: "flex",
     padding: 0,
     width: "100%",
   },
   title: {
-    marginBottom: theme.spacing(1),
+    marginTop: 0,
+  },
+  titleAndBarContainer: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-around",
+    margin: 0,
+    minHeight: theme.spacing(9),
   },
   avatar: {
     height: theme.spacing(9),
@@ -46,6 +51,7 @@ export default function UserSummary({ children, user }: UserSummaryProps) {
         )}
       </ListItemAvatar>
       <ListItemText
+        className={classes.titleAndBarContainer}
         disableTypography
         primary={
           <Typography variant="h2" className={classes.title}>

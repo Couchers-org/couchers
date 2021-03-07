@@ -5,27 +5,23 @@ import {
   RadioGroup,
   Typography,
 } from "@material-ui/core";
-import React, { useEffect } from "react";
-import { Controller, useForm } from "react-hook-form";
-
-import Alert from "../../../components/Alert";
-import Button from "../../../components/Button";
-import CircularProgress from "../../../components/CircularProgress";
-import EditUserLocationMap from "../../../components/EditUserLocationMap";
-import { HostingStatus, MeetupStatus } from "../../../pb/api_pb";
-import { UpdateUserProfileData } from "../../../service/user";
-import { useIsMounted, useSafeState } from "../../../utils/hooks";
+import Alert from "components/Alert";
+import Button from "components/Button";
+import CircularProgress from "components/CircularProgress";
+import EditUserLocationMap from "components/EditUserLocationMap";
 import {
   ABOUT_HOME,
   ABOUT_ME,
+  ADDITIONAL,
   COUNTRIES_LIVED,
   COUNTRIES_VISITED,
+  EDUCATION,
+  HOBBIES,
   HOSTING_STATUS,
   LANGUAGES_SPOKEN,
   OCCUPATION,
   SAVE,
-} from "../../constants";
-import useCurrentUser from "../../userQueries/useCurrentUser";
+} from "features/constants";
 import {
   ACCEPTING,
   MAYBE_ACCEPTING,
@@ -33,10 +29,16 @@ import {
   MEETUP,
   NO_MEETUP,
   NOT_ACCEPTING,
-} from "../constants";
-import ProfileTagInput from "../ProfileTagInput";
-import ProfileTextInput from "../ProfileTextInput";
-import useUpdateUserProfile from "../useUpdateUserProfile";
+} from "features/profile/constants";
+import ProfileTagInput from "features/profile/ProfileTagInput";
+import ProfileTextInput from "features/profile/ProfileTextInput";
+import useUpdateUserProfile from "features/profile/useUpdateUserProfile";
+import useCurrentUser from "features/userQueries/useCurrentUser";
+import { HostingStatus, MeetupStatus } from "pb/api_pb";
+import React, { useEffect } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { UpdateUserProfileData } from "service/index";
+import { useIsMounted, useSafeState } from "utils/hooks";
 
 const useStyles = makeStyles((theme) => ({
   buttonContainer: {
@@ -107,7 +109,7 @@ export default function EditProfileForm() {
       {updateStatus === "success" ? (
         <Alert severity="success">Successfully updated profile!</Alert>
       ) : updateStatus === "error" ? (
-        <Alert severity="error">{errorMessage}</Alert>
+        <Alert severity="error">{errorMessage || "Unknown error"}</Alert>
       ) : null}
       {user ? (
         <>
@@ -201,6 +203,13 @@ export default function EditProfileForm() {
               inputRef={register}
               className={classes.field}
             />
+            <ProfileTextInput
+              label={EDUCATION}
+              name="education"
+              defaultValue={user.education}
+              inputRef={register}
+              className={classes.field}
+            />
             <Controller
               control={control}
               defaultValue={user.languagesList}
@@ -222,6 +231,26 @@ export default function EditProfileForm() {
               defaultValue={user.aboutMe}
               inputRef={register}
               className={classes.field}
+              multiline
+              rows={10}
+            />
+            <ProfileTextInput
+              label={HOBBIES}
+              name="thingsILike"
+              defaultValue={user.thingsILike}
+              inputRef={register}
+              className={classes.field}
+              multiline
+              rows={10}
+            />
+            <ProfileTextInput
+              label={ADDITIONAL}
+              name="additionalInformation"
+              defaultValue={user.additionalInformation}
+              inputRef={register}
+              className={classes.field}
+              multiline
+              rows={10}
             />
             <ProfileTextInput
               label={ABOUT_HOME}
@@ -229,6 +258,8 @@ export default function EditProfileForm() {
               defaultValue={user.aboutPlace}
               inputRef={register}
               className={classes.field}
+              multiline
+              rows={10}
             />
             <Controller
               control={control}

@@ -1,18 +1,18 @@
-import { Box, BoxProps, makeStyles, useTheme } from "@material-ui/core";
+import { BoxProps, makeStyles, useTheme } from "@material-ui/core";
 import classNames from "classnames";
+import Alert from "components/Alert";
+import Map from "components/Map";
+import MapSearch from "components/MapSearch";
 import {
   GeoJSONSource,
   LngLat,
   MapMouseEvent,
   MapTouchEvent,
 } from "maplibre-gl";
+import { User } from "pb/api_pb";
 import React, { useRef, useState } from "react";
 
 import { userLocationMaxRadius, userLocationMinRadius } from "../constants";
-import { User } from "../pb/api_pb";
-import Alert from "./Alert";
-import Map from "./Map";
-import MapSearch from "./MapSearch";
 
 const handleRadius = 10;
 
@@ -290,7 +290,7 @@ export default function EditUserLocationMap({
   return (
     <>
       {error && <Alert severity="error">{error}</Alert>}
-      <Box
+      <div
         className={classNames(
           classes.root,
           { [classes.grow]: grow },
@@ -310,7 +310,7 @@ export default function EditUserLocationMap({
           setValue={setCity}
           setMarker={flyToSearch}
         />
-      </Box>
+      </div>
     </>
   );
 }

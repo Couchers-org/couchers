@@ -1,12 +1,11 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import ChangeEmailPage from "features/auth/email/ChangeEmailPage";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-
-import { GetAccountInfoRes } from "../../../pb/account_pb";
-import { service } from "../../../service";
-import wrapper from "../../../test/hookWrapper";
-import { MockedService } from "../../../test/utils";
-import ChangeEmailPage from "./ChangeEmailPage";
+import { GetAccountInfoRes } from "pb/account_pb";
+import { service } from "service/index";
+import wrapper from "test/hookWrapper";
+import { MockedService } from "test/utils";
 
 const getAccountInfoMock = service.account.getAccountInfo as MockedService<
   typeof service.account.getAccountInfo

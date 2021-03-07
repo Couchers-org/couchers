@@ -1,9 +1,8 @@
 import { Box, makeStyles } from "@material-ui/core";
+import TextBody from "components/TextBody";
 import React from "react";
 import { Link } from "react-router-dom";
-
-import TextBody from "../components/TextBody";
-import Graphic from "../resources/404graphic.png";
+import Graphic from "resources/404graphic.png";
 
 const useStyles = makeStyles({
   root: {

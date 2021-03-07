@@ -12,9 +12,8 @@ import {
 import Autocomplete, {
   AutocompleteCloseReason,
 } from "@material-ui/lab/Autocomplete";
+import { CloseIcon, ExpandMoreIcon } from "components/Icons";
 import React, { useRef, useState } from "react";
-
-import { CloseIcon, ExpandMoreIcon } from "../../components/Icons";
 
 const useStyles = makeStyles((theme) =>
   createStyles({

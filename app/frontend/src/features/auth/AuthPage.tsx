@@ -1,19 +1,19 @@
 import { Box, Divider, makeStyles, Typography } from "@material-ui/core";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import React from "react";
-import { Link } from "react-router-dom";
-
-import Button from "../../components/Button";
-import { loginRoute, signupRoute } from "../../routes";
+import Button from "components/Button";
 import {
   ABOUT_US,
   COLLABORATIVE,
   INTRODUCTION,
   LOGIN,
   SIGN_UP,
-} from "./constants";
+} from "features/auth/constants";
+import useAuthStyles from "features/auth/useAuthStyles";
+import React from "react";
+import { Link } from "react-router-dom";
+import { loginRoute, signupRoute } from "routes";
+
 import AuthBg from "./resources/auth-bg.png";
-import useAuthStyles from "./useAuthStyles";
 
 const useStyles = makeStyles((theme) => ({
   authPage: {

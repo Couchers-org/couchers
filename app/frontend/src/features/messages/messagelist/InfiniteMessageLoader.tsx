@@ -1,10 +1,9 @@
 import { Box, makeStyles } from "@material-ui/core";
 import classNames from "classnames";
+import CircularProgress from "components/CircularProgress";
+import { messageElementId } from "features/messages/messagelist/MessageView";
 import React, { ReactNode, useCallback, useLayoutEffect, useRef } from "react";
-
-import CircularProgress from "../../../components/CircularProgress";
-import useOnVisibleEffect from "../../../utils/useOnVisibleEffect";
-import { messageElementId } from "./MessageView";
+import useOnVisibleEffect from "utils/useOnVisibleEffect";
 
 const useStyles = makeStyles((theme) => ({
   loader: {

@@ -7,17 +7,16 @@
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.56",
     "classnames": "^2.2.6",
-    "google-protobuf": "^3.13.0",
+    "google-protobuf": "^3.15.3",
     "grpc-web": "^1.2.1",
     "maplibre-gl": "^1.13.0-rc.4",
     "markdown-it": "^12.0.2",
-    "moment": "^2.29.1",
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
     "react-hook-form": "^6.15.1",
     "react-intersection-observer": "^8.31.0",
     "react-lines-ellipsis": "^0.14.1",
-    "react-query": "^3.9.9",
+    "react-query": "^3.12.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.1",
     "typescript": "~4.1.3"
@@ -30,7 +29,7 @@
     "format": "prettier --write src/",
     "lint": "eslint src/",
     "test-ci": "CI=true react-scripts test --coverageReporters=\"text\" --coverageReporters=\"cobertura\" --coverageReporters=\"lcov\" --reporters=\"default\" --reporters=\"jest-junit\" --coverage",
-    "jest": "jest",
+    "jest": "jest --modulePaths=src",
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "NODE_PATH=. build-storybook -s public"
   },
@@ -49,7 +48,8 @@
       "import/order": "off",
       "import/first": "error",
       "import/newline-after-import": "error",
-      "import/no-duplicates": "error"
+      "import/no-duplicates": "error",
+      "import/no-relative-parent-imports": "error"
     },
     "overrides": [
       {
@@ -93,7 +93,7 @@
     "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/react": "^11.2.5",
     "@testing-library/react-hooks": "^5.0.3",
-    "@testing-library/user-event": "^12.7.1",
+    "@testing-library/user-event": "^12.8.0",
     "@types/classnames": "^2.2.11",
     "@types/css-mediaquery": "^0.1.0",
     "@types/google-protobuf": "^3.7.3",
@@ -104,7 +104,7 @@
     "@types/react": "^17.0.2",
     "@types/react-dom": "^17.0.1",
     "@types/react-router-dom": "^5.1.5",
-    "@types/react-test-renderer": "^17.0.0",
+    "@types/react-test-renderer": "^17.0.1",
     "@types/webpack-env": "^1.15.3",
     "coveralls": "^3.1.0",
     "css-mediaquery": "^0.1.2",

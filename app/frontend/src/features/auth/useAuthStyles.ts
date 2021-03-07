@@ -8,7 +8,7 @@ const useAuthStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    height: "100vh",
+    minHeight: "100vh",
     padding: `${theme.spacing(1, 6)}`,
   },
   backgroundBlurImage: {
@@ -48,6 +48,9 @@ const useAuthStyles = makeStyles((theme) => ({
   formLabel: {
     color: theme.palette.text.primary,
     fontWeight: 700,
+  },
+  formField: {
+    marginBottom: theme.spacing(2),
   },
   button: {
     marginTop: theme.spacing(4),

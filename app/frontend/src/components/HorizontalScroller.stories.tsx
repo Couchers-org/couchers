@@ -41,6 +41,10 @@ const Template: Story<any> = (args) => {
             />
           ))}
       </HorizontalScroller>
+      <p>
+        HorizontalScroller only applies it's scrolling to xs breakpoint and
+        lower.
+      </p>
     </>
   );
 };
