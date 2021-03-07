@@ -12,9 +12,9 @@ const userMap = {
   "3": user3,
   "4": user4,
   funnycat: user1,
+  funnyChicken: user4,
   funnydog: user2,
   funnykid: user3,
-  funnyChicken: user4,
 };
 
 export const mockedService = ({

@@ -41,10 +41,10 @@ const useStyles = makeStyles((theme) => ({
     flexFlow: "row wrap",
   },
   referencesList: {
-    width: "100%",
     "& > *": {
       paddingBlockEnd: theme.spacing(3),
     },
+    width: "100%",
   },
   referenceTypeSelect: {
     paddingInlineStart: theme.spacing(1),

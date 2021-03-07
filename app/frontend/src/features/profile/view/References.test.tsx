@@ -47,12 +47,12 @@ describe("References", () => {
       getUser as (u: string) => Promise<User.AsObject>
     );
     getReferencesReceivedMock.mockResolvedValue({
-      totalMatches: 2,
       referencesList: references.slice(0, 2),
+      totalMatches: 2,
     });
     getReferencesGivenMock.mockResolvedValue({
-      totalMatches: 1,
       referencesList: references.slice(2),
+      totalMatches: 1,
     });
   });
 
@@ -100,25 +100,25 @@ describe("References", () => {
     expect(getReferencesGivenMock).toHaveBeenCalledTimes(1);
     expect(getReferencesGivenMock).toHaveBeenCalledWith({
       count: 50,
-      userId: 1,
       offset: 0,
+      userId: 1,
     });
     expect(getReferencesReceivedMock).toHaveBeenCalledTimes(1);
     expect(getReferencesReceivedMock).toHaveBeenCalledWith({
       count: 50,
-      userId: 1,
       offset: 0,
+      userId: 1,
     });
   });
 
   it("shows the no references message by default if the user doesn't have any", async () => {
     getReferencesReceivedMock.mockResolvedValue({
-      totalMatches: 0,
       referencesList: [],
+      totalMatches: 0,
     });
     getReferencesGivenMock.mockResolvedValue({
-      totalMatches: 0,
       referencesList: [],
+      totalMatches: 0,
     });
     render(<References user={users[0] as User.AsObject} />, { wrapper });
 
