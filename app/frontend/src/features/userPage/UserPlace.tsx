@@ -6,16 +6,16 @@ import { SmokingLocation, User } from "pb/api_pb";
 import React from "react";
 
 const useStyles = makeStyles((theme) => ({
-  list: {
-    listStyle: "none",
-    padding: 0,
-    marginBlockStart: 0,
-    marginBlockEnd: theme.spacing(1),
-  },
-  listItem: {},
   hostingPreferenceResponse: {
     fontWeight: "bold",
   },
+  list: {
+    listStyle: "none",
+    marginBlockEnd: theme.spacing(1),
+    marginBlockStart: 0,
+    padding: 0,
+  },
+  listItem: {},
 }));
 
 export default function UserPlace({ user }: { user: User.AsObject }) {

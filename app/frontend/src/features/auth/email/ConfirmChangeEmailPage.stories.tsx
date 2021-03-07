@@ -8,7 +8,6 @@ import { mockedService } from "../../../stories/__mocks__/service";
 import ConfirmChangeEmailPage from "./ConfirmChangeEmailPage";
 
 export default {
-  title: "Me/Auth/ConfirmChangeEmailPage",
   component: ConfirmChangeEmailPage,
   decorators: [
     (Story) => (
@@ -22,6 +21,7 @@ export default {
       </MemoryRouter>
     ),
   ],
+  title: "Me/Auth/ConfirmChangeEmailPage",
 } as Meta;
 
 interface ConfirmChangeEmailPageArgs {

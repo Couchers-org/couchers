@@ -37,10 +37,10 @@ export const SECTIONS = [ABOUT_ME, HOME, REFERENCES, FAVORITES, PHOTOS];
 
 export const SECTION_LABELS = {
   about: ABOUT_ME,
-  home: HOME,
-  references: REFERENCES,
   favorites: FAVORITES,
+  home: HOME,
   photos: PHOTOS,
+  references: REFERENCES,
 };
 
 // Edit Profile

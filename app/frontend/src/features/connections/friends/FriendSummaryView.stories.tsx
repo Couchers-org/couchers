@@ -3,8 +3,8 @@ import FriendSummaryView from "features/connections/friends/FriendSummaryView";
 import users from "test/fixtures/users.json";
 
 export default {
-  title: "Me/Connections/FriendSummaryView",
   component: FriendSummaryView,
+  title: "Me/Connections/FriendSummaryView",
 } as Meta;
 
 const Template: Story<any> = (args) => (

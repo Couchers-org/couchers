@@ -20,17 +20,17 @@ export default function useUpdateHostingPreferences() {
     ({ preferenceData }) =>
       service.user.updateHostingPreference(preferenceData),
     {
+      onError: (error, { setMutationError }) => {
+        setMutationError(error.message);
+      },
       onMutate: async ({ setMutationError }) => {
         setMutationError(null);
       },
       onSuccess: () => {
         queryClient.invalidateQueries(["user", userId]);
       },
-      onError: (error, { setMutationError }) => {
-        setMutationError(error.message);
-      },
     }
   );
 
-  return { updateHostingPreferences, status, reset };
+  return { reset, status, updateHostingPreferences };
 }

@@ -24,27 +24,27 @@ import {
 } from "routes";
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    [theme.breakpoints.up("md")]: {
-      display: "flex",
-      justifyContent: "space-around",
-    },
-  },
   detailsCard: {
-    flexGrow: 1,
-    margin: theme.spacing(2),
-    padding: theme.spacing(2),
     [theme.breakpoints.down("sm")]: {
       margin: 0,
       width: "100%",
     },
+    flexGrow: 1,
+    margin: theme.spacing(2),
+    padding: theme.spacing(2),
   },
   linkStyle: {
+    "&:hover": {
+      textDecoration: "underline",
+    },
     color: "inherit",
     fontSize: "1rem",
     textDecoration: "none",
-    "&:hover": {
-      textDecoration: "underline",
+  },
+  root: {
+    [theme.breakpoints.up("md")]: {
+      display: "flex",
+      justifyContent: "space-around",
     },
   },
   tabPanel: {

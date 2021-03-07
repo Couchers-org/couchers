@@ -9,23 +9,23 @@ import { dateTimeFormatter, timestamp2Date } from "utils/date";
 
 const useStyles = makeStyles((theme) => ({
   badgesContainer: {
+    "& > * + *": {
+      marginBlockStart: theme.spacing(2),
+    },
     display: "flex",
     flexDirection: "column",
     marginInlineEnd: theme.spacing(2),
     minWidth: theme.spacing(9),
+  },
+  listItem: {
     "& > * + *": {
       marginBlockStart: theme.spacing(2),
     },
-  },
-  listItem: {
     alignItems: "flex-start",
     borderBlockEnd: `${theme.typography.pxToRem(1)} solid ${
       theme.palette.grey[300]
     }`,
     flexDirection: "column",
-    "& > * + *": {
-      marginBlockStart: theme.spacing(2),
-    },
   },
   referenceBodyContainer: {
     display: "flex",

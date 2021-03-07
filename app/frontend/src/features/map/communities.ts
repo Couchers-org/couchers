@@ -4,20 +4,20 @@ const URL = process.env.REACT_APP_API_BASE_URL;
 
 export const sources = {
   communities: {
-    type: "geojson",
     data: URL + "/geojson/communities",
+    type: "geojson",
   },
 };
 
 export const layers = {
   communitiesLayer: {
     id: "communities-layer",
-    source: "communities",
-    type: "fill",
     paint: {
       "fill-color": "#cebf8e",
       "fill-opacity": 0.2,
     },
+    source: "communities",
+    type: "fill",
   },
 };
 

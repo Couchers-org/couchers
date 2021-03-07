@@ -44,11 +44,23 @@ export default function useAuthStore() {
 
   const authActions = useMemo(
     () => ({
+      authError(message: string) {
+        setError(message);
+      },
       clearError() {
         setError(null);
       },
-      authError(message: string) {
-        setError(message);
+      async logout() {
+        setError(null);
+        setLoading(true);
+        try {
+          await service.user.logout();
+          setAuthenticated(false);
+          setUserId(null);
+        } catch (e) {
+          setError(e.message);
+        }
+        setLoading(false);
       },
       async passwordLogin({
         username,
@@ -77,24 +89,6 @@ export default function useAuthStore() {
         }
         setLoading(false);
       },
-      async tokenLogin(loginToken: string) {
-        setError(null);
-        setLoading(true);
-        try {
-          const auth = await service.user.tokenLogin(loginToken);
-
-          if (!auth.jailed) {
-            const user = await service.user.getCurrentUser();
-            setUserId(user.userId);
-            queryClient.setQueryData(["user", user.userId], user);
-          }
-          setJailed(auth.jailed);
-          setAuthenticated(true);
-        } catch (e) {
-          setError(e.message);
-        }
-        setLoading(false);
-      },
       async signup(signupArguments: SignupArguments) {
         setError(null);
         setLoading(true);
@@ -113,6 +107,24 @@ export default function useAuthStore() {
 
         setLoading(false);
       },
+      async tokenLogin(loginToken: string) {
+        setError(null);
+        setLoading(true);
+        try {
+          const auth = await service.user.tokenLogin(loginToken);
+
+          if (!auth.jailed) {
+            const user = await service.user.getCurrentUser();
+            setUserId(user.userId);
+            queryClient.setQueryData(["user", user.userId], user);
+          }
+          setJailed(auth.jailed);
+          setAuthenticated(true);
+        } catch (e) {
+          setError(e.message);
+        }
+        setLoading(false);
+      },
       async updateJailStatus() {
         setError(null);
         setLoading(true);
@@ -128,18 +140,6 @@ export default function useAuthStore() {
         }
         setLoading(false);
       },
-      async logout() {
-        setError(null);
-        setLoading(true);
-        try {
-          await service.user.logout();
-          setAuthenticated(false);
-          setUserId(null);
-        } catch (e) {
-          setError(e.message);
-        }
-        setLoading(false);
-      },
     }),
     //note: there should be no dependenices on the state, or
     //some useEffects will break. Eg. the token login in Login.tsx
@@ -147,14 +147,14 @@ export default function useAuthStore() {
   );
 
   return {
+    authActions,
     authState: {
       authenticated,
-      jailed,
-      userId,
-      loading,
       error,
+      jailed,
+      loading,
+      userId,
     },
-    authActions,
   };
 }
 

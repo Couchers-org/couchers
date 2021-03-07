@@ -68,8 +68,8 @@ describe("passwordLogin action", () => {
     expect(result.current.authState.authenticated).toBe(false);
     await act(() =>
       result.current.authActions.passwordLogin({
-        username: "user",
         password: "pass",
+        username: "user",
       })
     );
     expect(result.current.authState.authenticated).toBe(true);
@@ -83,8 +83,8 @@ describe("passwordLogin action", () => {
     expect(result.current.authState.authenticated).toBe(false);
     await act(() =>
       result.current.authActions.passwordLogin({
-        username: "user",
         password: "pass",
+        username: "user",
       })
     );
     expect(result.current.authState.authenticated).toBe(false);

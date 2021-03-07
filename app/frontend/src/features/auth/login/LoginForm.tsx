@@ -20,13 +20,13 @@ import { useIsMounted, useSafeState } from "utils/hooks";
 import { sanitizeName } from "utils/validation";
 
 const useStyles = makeStyles((theme) => ({
-  loginOptions: {
-    display: "flex",
-    marginTop: theme.spacing(2),
-    alignItems: "center",
-  },
   forgotPasswordLink: {
     color: theme.palette.text.primary,
+  },
+  loginOptions: {
+    alignItems: "center",
+    display: "flex",
+    marginTop: theme.spacing(2),
   },
 }));
 
@@ -66,8 +66,8 @@ export default function UsernameForm() {
 
         if (!loginWithLink) {
           authActions.passwordLogin({
-            username: sanitizedUsername,
             password: data.password,
+            username: sanitizedUsername,
           });
         }
       } catch (e) {
@@ -113,8 +113,8 @@ export default function UsernameForm() {
         )}
         <Button
           classes={{
-            root: authClasses.button,
             label: authClasses.buttonText,
+            root: authClasses.button,
           }}
           type="submit"
           variant="contained"

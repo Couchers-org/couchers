@@ -36,8 +36,8 @@ export default function ChangePasswordPage() {
   } = useForm<ChangePasswordFormData>({
     mode: "onBlur",
   });
-  const onSubmit = handleSubmit(({ oldPassword, newPassword }) => {
-    changePassword({ oldPassword, newPassword });
+  const onSubmit = handleSubmit(({ newPassword, oldPassword }) => {
+    changePassword({ newPassword, oldPassword });
   });
 
   const queryClient = useQueryClient();

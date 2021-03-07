@@ -48,9 +48,9 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "row",
   },
   locationMap: {
-    width: "100%",
-    marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
+    marginTop: theme.spacing(2),
+    width: "100%",
   },
 }));
 
@@ -67,8 +67,8 @@ export default function CompleteSignup() {
     errors,
   } = useForm<SignupInputs>({
     defaultValues: { city: "", location: {} },
-    shouldUnregister: false,
     mode: "onBlur",
+    shouldUnregister: false,
   });
 
   const [loading, setLoading] = useState(false);
@@ -106,15 +106,15 @@ export default function CompleteSignup() {
     }
 
     authActions.signup({
-      signupToken: urlToken,
-      username: sanitizeName(data.username),
-      name: data.name,
-      city: data.city,
-      location: data.location,
+      acceptTOS: acceptedTOS,
       birthdate: data.birthdate,
+      city: data.city,
       gender: data.gender,
       hostingStatus: data.hostingStatus,
-      acceptTOS: acceptedTOS,
+      location: data.location,
+      name: data.name,
+      signupToken: urlToken,
+      username: sanitizeName(data.username),
     });
   });
 
@@ -134,13 +134,13 @@ export default function CompleteSignup() {
             name="username"
             fullWidth
             inputRef={register({
-              required: "Enter your username",
               pattern: {
                 //copied from backend, added ^ at the start
-                value: usernameValidationPattern,
                 message:
                   "Username can only have lowercase letters, numbers or _, starting with a letter.",
+                value: usernameValidationPattern,
               },
+              required: "Enter your username",
               validate: async (username) => {
                 const valid = await service.auth.validateUsername(username);
                 return valid || "This username is taken.";
@@ -158,11 +158,11 @@ export default function CompleteSignup() {
             name="name"
             fullWidth
             inputRef={register({
-              required: "Enter your name",
               pattern: {
-                value: nameValidationPattern,
                 message: "Name can't be just white space.",
+                value: nameValidationPattern,
               },
+              required: "Enter your name",
             })}
             helperText={errors?.name?.message}
           />
@@ -277,8 +277,8 @@ export default function CompleteSignup() {
             <TOS />
             <Button
               classes={{
-                root: authClasses.button,
                 label: authClasses.buttonText,
+                root: authClasses.button,
               }}
               color="secondary"
               loading={loading}
@@ -290,8 +290,8 @@ export default function CompleteSignup() {
           </div>
           <Button
             classes={{
-              root: authClasses.button,
               label: authClasses.buttonText,
+              root: authClasses.button,
             }}
             color="secondary"
             onClick={completeSignup}

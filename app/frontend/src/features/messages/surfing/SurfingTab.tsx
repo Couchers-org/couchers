@@ -33,9 +33,9 @@ export default function SurfingTab({
     hasNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery<ListHostRequestsRes.AsObject, GrpcError>(
-    ["hostRequests", { type, onlyActive }],
+    ["hostRequests", { onlyActive, type }],
     ({ pageParam: lastRequestId }) =>
-      service.requests.listHostRequests({ lastRequestId, type, onlyActive }),
+      service.requests.listHostRequests({ lastRequestId, onlyActive, type }),
     {
       getNextPageParam: (lastPage) =>
         lastPage.noMore ? undefined : lastPage.lastRequestId,

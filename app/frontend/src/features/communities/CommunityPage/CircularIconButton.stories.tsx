@@ -4,11 +4,11 @@ import { CommunityIcon } from "../../../components/Icons";
 import CircularIconButton from "./CircularIconButton";
 
 export default {
-  title: "Communities/CommunityPage/CircularIconButton",
-  component: CircularIconButton,
   argTypes: {
     onClick: { action: "click" },
   },
+  component: CircularIconButton,
+  title: "Communities/CommunityPage/CircularIconButton",
 } as Meta;
 
 const Template: Story<any> = (args) => (
@@ -21,6 +21,6 @@ const Template: Story<any> = (args) => (
 
 export const circularIconButton = Template.bind({});
 circularIconButton.args = {
-  label: "Communnity",
   id: "community-button",
+  label: "Communnity",
 };

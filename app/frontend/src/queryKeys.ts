@@ -36,4 +36,7 @@ export const communityNearbyUsersKey = (communityId: number) => [
 
 export const threadKey = (threadId: number) => ["thread", threadId];
 
-export const referencesKey = (userId: number, type: "received" | "given" | "all") => ["references", { userId, type }]
+export const referencesKey = (
+  userId: number,
+  type: "received" | "given" | "all"
+) => ["references", { type, userId }];

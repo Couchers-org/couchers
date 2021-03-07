@@ -36,11 +36,11 @@ describe("while loading", () => {
     });
 
     expect(result.current).toEqual({
-      isLoading: true,
-      isFetching: true,
-      isError: false,
-      error: "",
       data: undefined,
+      error: "",
+      isError: false,
+      isFetching: true,
+      isLoading: true,
     });
   });
 });
@@ -60,18 +60,18 @@ describe("when user has loaded", () => {
     await waitFor(() => !result.current.isLoading);
 
     expect(result.current).toEqual({
-      isLoading: false,
-      isFetching: false,
-      isError: false,
-      error: "",
       data: {
         age: 35,
+        avatarUrl: "",
         city: "Helsinki, Finland",
         name: "Funny Dog",
         userId: 2,
         username: "funnydog",
-        avatarUrl: "",
       },
+      error: "",
+      isError: false,
+      isFetching: false,
+      isLoading: false,
     });
     expect(getUserMock).toHaveBeenCalledTimes(2);
   });
@@ -88,11 +88,11 @@ describe("when user has loaded", () => {
     await waitForNextUpdate();
 
     expect(result.current).toMatchObject({
-      isLoading: false,
-      isFetching: false,
-      isError: true,
-      error: "Error fetching user funnydog",
       data: undefined,
+      error: "Error fetching user funnydog",
+      isError: true,
+      isFetching: false,
+      isLoading: false,
     });
   });
 });
@@ -107,14 +107,14 @@ describe("cached data", () => {
   beforeEach(async () => {
     sharedClient.clear();
     sharedClient.setQueryData(["username2Id", "funnydog"], {
-      username: "funnydog",
       userId: 2,
+      username: "funnydog",
     });
     sharedClient.setQueryData(["user", 2], {
+      avatarUrl: "https://loremflickr.com/200/200?user2",
       name: "Funny Dog",
       userId: 2,
       username: "funnydog",
-      avatarUrl: "https://loremflickr.com/200/200?user2",
     });
     await sharedClient.refetchQueries();
   });
@@ -148,16 +148,16 @@ describe("cached data", () => {
     await waitForNextUpdate();
 
     expect(result.current).toMatchObject({
-      isLoading: false,
-      isFetching: false,
-      isError: true,
-      error: "Error fetching user data",
       data: {
+        avatarUrl: "https://loremflickr.com/200/200?user2",
         name: "Funny Dog",
         userId: 2,
         username: "funnydog",
-        avatarUrl: "https://loremflickr.com/200/200?user2",
       },
+      error: "Error fetching user data",
+      isError: true,
+      isFetching: false,
+      isLoading: false,
     });
   });
 });

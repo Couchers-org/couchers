@@ -21,6 +21,7 @@ describe("useCancelFriendRequest hook", () => {
 
   beforeEach(() => {
     client.setQueryData<ListFriendRequestsRes.AsObject>("friendRequestsSent", {
+      receivedList: [],
       sentList: [
         {
           friendRequestId: 1,
@@ -28,7 +29,6 @@ describe("useCancelFriendRequest hook", () => {
           userId: 2,
         },
       ],
-      receivedList: [],
     });
   });
 

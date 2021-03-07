@@ -20,6 +20,9 @@ export default function useUpdateUserProfile() {
     Error,
     UpdateUserProfileVariables
   >(({ profileData }) => service.user.updateProfile(profileData), {
+    onError: (error, { setMutationError }) => {
+      setMutationError(error.message);
+    },
     onMutate: async ({ setMutationError }) => {
       setMutationError(null);
     },
@@ -27,10 +30,7 @@ export default function useUpdateUserProfile() {
       queryClient.invalidateQueries(["user", userId]);
       history.push(profileRoute);
     },
-    onError: (error, { setMutationError }) => {
-      setMutationError(error.message);
-    },
   });
 
-  return { updateUserProfile, status, reset };
+  return { reset, status, updateUserProfile };
 }

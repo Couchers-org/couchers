@@ -6,8 +6,8 @@ import React from "react";
 import { mockedService } from "stories/__mocks__/service";
 
 export default {
-  title: "Me/Auth/ChangeEmailPage",
   component: ChangeEmailPage,
+  title: "Me/Auth/ChangeEmailPage",
 } as Meta;
 
 interface ChangeEmailPageArgs {
@@ -25,9 +25,9 @@ const Template: Story<ChangeEmailPageArgs> = ({
 } = {}) => {
   setMocks({
     loginMethod,
-    simulateGetAccountInfoLoading,
     shouldChangeEmailSucceed,
     shouldGetAccountInfoSucceed,
+    simulateGetAccountInfoLoading,
   });
   return <ChangeEmailPage />;
 };

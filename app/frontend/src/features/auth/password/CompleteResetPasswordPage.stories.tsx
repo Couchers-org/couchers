@@ -8,7 +8,6 @@ import { mockedService } from "../../../stories/__mocks__/service";
 import CompleteResetPasswordPage from "./CompleteResetPasswordPage";
 
 export default {
-  title: "Me/Auth/CompleteResetPasswordPage",
   component: CompleteResetPasswordPage,
   decorators: [
     (Story) => (
@@ -22,6 +21,7 @@ export default {
       </MemoryRouter>
     ),
   ],
+  title: "Me/Auth/CompleteResetPasswordPage",
 } as Meta;
 
 interface CompleteResetPasswordPageArgs {

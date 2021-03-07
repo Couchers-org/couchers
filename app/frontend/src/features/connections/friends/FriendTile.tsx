@@ -24,9 +24,9 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: 0,
   },
   header: {
-    marginLeft: theme.spacing(1),
-    marginBottom: theme.spacing(2),
     fontWeight: theme.typography.fontWeightBold,
+    marginBottom: theme.spacing(2),
+    marginLeft: theme.spacing(1),
   },
   noFriendItemText: {
     marginLeft: theme.spacing(1),

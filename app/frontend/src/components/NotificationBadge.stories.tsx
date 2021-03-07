@@ -5,8 +5,8 @@ import NotificationBadge from "./NotificationBadge";
 import TextBody from "./TextBody";
 
 export default {
-  title: "Components/Simple/NotificationBadge",
   component: NotificationBadge,
+  title: "Components/Simple/NotificationBadge",
 } as Meta;
 
 const Template: Story<any> = (args) => (

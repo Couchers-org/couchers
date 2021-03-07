@@ -16,18 +16,30 @@ import { loginRoute, signupRoute } from "routes";
 import AuthBg from "./resources/auth-bg.png";
 
 const useStyles = makeStyles((theme) => ({
+  aboutUs: {
+    color: "#2a2a2a",
+    marginTop: "auto",
+  },
+  aboutUsLink: {
+    color: "#2a2a2a",
+    display: "block",
+    textDecoration: "none",
+  },
   authPage: {
-    boxSizing: "border-box",
+    alignItems: "flex-end",
     backgroundColor: "#f3f3f3",
     backgroundImage: `url(${AuthBg})`,
     backgroundPosition: "top center",
     backgroundRepeat: "no-repeat",
     backgroundSize: "contain",
+    boxSizing: "border-box",
     display: "flex",
-    justifyContent: "center",
-    alignItems: "flex-end",
     height: "100vh",
+    justifyContent: "center",
     padding: `${theme.spacing(1, 4)}`,
+  },
+  button: {
+    width: "45%",
   },
   content: {
     display: "flex",
@@ -36,27 +48,15 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "center",
     textAlign: "center",
   },
-  title: theme.typography.h1,
-  subtitle: {
-    marginTop: theme.spacing(1),
-  },
   navigation: {
     display: "flex",
     justifyContent: "space-around",
     marginTop: theme.spacing(3),
   },
-  button: {
-    width: "45%",
+  subtitle: {
+    marginTop: theme.spacing(1),
   },
-  aboutUs: {
-    marginTop: "auto",
-    color: "#2a2a2a",
-  },
-  aboutUsLink: {
-    textDecoration: "none",
-    display: "block",
-    color: "#2a2a2a",
-  },
+  title: theme.typography.h1,
 }));
 
 export default function AuthPage() {
@@ -76,8 +76,8 @@ export default function AuthPage() {
             component={Link}
             to={loginRoute}
             classes={{
-              root: `${authClasses.button} ${classes.button}`,
               label: authClasses.buttonText,
+              root: `${authClasses.button} ${classes.button}`,
             }}
             color="secondary"
           >
@@ -87,8 +87,8 @@ export default function AuthPage() {
             component={Link}
             to={signupRoute}
             classes={{
-              root: `${authClasses.button} ${classes.button}`,
               label: authClasses.buttonText,
+              root: `${authClasses.button} ${classes.button}`,
             }}
             color="secondary"
           >

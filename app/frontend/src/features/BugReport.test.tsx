@@ -66,8 +66,8 @@ describe("BugReport", () => {
   describe("when displayed in a small screen", () => {
     function createMatchMedia(width: number) {
       return (query: string) => ({
-        matches: mediaQuery.match(query, { width }),
         addListener: jest.fn(),
+        matches: mediaQuery.match(query, { width }),
         removeListener: jest.fn(),
       });
     }
@@ -146,10 +146,10 @@ describe("BugReport", () => {
       expect(reportBugMock).toHaveBeenCalledTimes(1);
       expect(reportBugMock).toHaveBeenCalledWith(
         {
-          subject: "Broken log in",
           description: "Log in is broken",
-          steps: "",
           results: "",
+          steps: "",
+          subject: "Broken log in",
         },
         null
       );
@@ -171,10 +171,10 @@ describe("BugReport", () => {
       });
       expect(reportBugMock).toHaveBeenCalledWith(
         {
-          subject: "Broken log in",
           description: "Log in is broken",
-          steps: "Type in user name and clicked log in",
           results: "Log in didn't work, and I expected it to work",
+          steps: "Type in user name and clicked log in",
+          subject: "Broken log in",
         },
         null
       );
@@ -191,10 +191,10 @@ describe("BugReport", () => {
       });
       expect(reportBugMock).toHaveBeenCalledWith(
         {
-          subject: "Broken log in",
           description: "Log in is broken",
-          steps: "",
           results: "",
+          steps: "",
+          subject: "Broken log in",
         },
         1
       );

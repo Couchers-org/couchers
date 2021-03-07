@@ -11,8 +11,8 @@ import {
 } from "./Dialog";
 
 export default {
-  title: "Components/Composite/Dialog",
   component: Dialog,
+  title: "Components/Composite/Dialog",
 } as Meta;
 
 const Template: Story<any> = (args) => {

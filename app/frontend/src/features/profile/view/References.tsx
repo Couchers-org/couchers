@@ -41,10 +41,10 @@ const useStyles = makeStyles((theme) => ({
     flexFlow: "row wrap",
   },
   referencesList: {
-    width: "100%",
     "& > *": {
       paddingBlockEnd: theme.spacing(3),
     },
+    width: "100%",
   },
   referenceTypeSelect: {
     paddingInlineStart: theme.spacing(1),
@@ -119,21 +119,21 @@ function FilteredReferencesList({
     isLoading: isReferencesLoading,
     error: referencesError,
   } = useQuery<GetReferencesRes.AsObject, GrpcError>({
-    queryKey: referencesKey(user.userId, isReceived ? "received" : "given"),
+    cacheTime: referencesQueryStaleTime,
     queryFn: () =>
       isReceived
         ? service.user.getReferencesReceived({
             count: 50,
-            userId: user.userId,
             offset: 0,
+            userId: user.userId,
           })
         : service.user.getReferencesGiven({
             count: 50,
-            userId: user.userId,
             offset: 0,
+            userId: user.userId,
           }),
+    queryKey: referencesKey(user.userId, isReceived ? "received" : "given"),
     staleTime: referencesQueryStaleTime,
-    cacheTime: referencesQueryStaleTime,
   });
 
   const { data: referenceUsers, isLoading: isReferenceUsersLoading } = useUsers(
@@ -186,26 +186,26 @@ function AllReferencesList({ user }: { user: User.AsObject }) {
   const classes = useStyles();
   const referencesQueries = useQueries<GetReferencesRes.AsObject, GrpcError>([
     {
-      queryKey: referencesKey(user.userId, "received"),
+      cacheTime: referencesQueryStaleTime,
       queryFn: () =>
         service.user.getReferencesReceived({
           count: 50,
-          userId: user.userId,
           offset: 0,
+          userId: user.userId,
         }),
+      queryKey: referencesKey(user.userId, "received"),
       staleTime: referencesQueryStaleTime,
-      cacheTime: referencesQueryStaleTime,
     },
     {
-      queryKey: referencesKey(user.userId, "given"),
+      cacheTime: referencesQueryStaleTime,
       queryFn: () =>
         service.user.getReferencesGiven({
           count: 50,
-          userId: user.userId,
           offset: 0,
+          userId: user.userId,
         }),
+      queryKey: referencesKey(user.userId, "given"),
       staleTime: referencesQueryStaleTime,
-      cacheTime: referencesQueryStaleTime,
     },
   ]);
 

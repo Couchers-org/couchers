@@ -20,15 +20,15 @@ import { GroupChat } from "pb/conversations_pb";
 import React from "react";
 
 export const useMembersDialogStyles = makeStyles((theme) => ({
-  memberListItemContainer: {
-    display: "flex",
-    justifyContent: "flex-start",
-    alignItems: "center",
-  },
   avatar: {
-    width: 30,
     height: 30,
     marginInlineEnd: theme.spacing(1),
+    width: 30,
+  },
+  memberListItemContainer: {
+    alignItems: "center",
+    display: "flex",
+    justifyContent: "flex-start",
   },
 }));
 

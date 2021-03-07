@@ -12,18 +12,18 @@ import { timestamp2Date } from "utils/date";
 import { timeAgo } from "utils/timeAgo";
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    marginBottom: theme.spacing(2),
-  },
   avatar: {
-    maxWidth: 200,
     marginLeft: "auto",
     marginRight: "auto",
+    maxWidth: 200,
+  },
+  editButton: {
+    marginBottom: theme.spacing(2),
   },
   name: {
     marginBottom: theme.spacing(1),
   },
-  editButton: {
+  root: {
     marginBottom: theme.spacing(2),
   },
 }));

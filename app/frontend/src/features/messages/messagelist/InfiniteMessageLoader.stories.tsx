@@ -7,11 +7,11 @@ import mockMessages from "test/fixtures/messages.json";
 const maxId = 999999;
 
 export default {
-  title: "Messages/InfiniteMessageLoader",
-  component: InfiniteMessageLoader,
   argTypes: {
     markLastSeen: { action: "markLastSeen" },
   },
+  component: InfiniteMessageLoader,
+  title: "Messages/InfiniteMessageLoader",
 } as Meta;
 
 const Template: Story<any> = (args) => {
@@ -19,13 +19,13 @@ const Template: Story<any> = (args) => {
   const [messages, setMessages] = useState([
     {
       ...mockMessages[0],
-      text: { text: `Message id ${maxId}` },
       messageId: maxId,
+      text: { text: `Message id ${maxId}` },
     },
     {
       ...mockMessages[0],
-      text: { text: `Message id ${maxId - 1}` },
       messageId: maxId - 1,
+      text: { text: `Message id ${maxId - 1}` },
     },
   ]);
   const addMessages = async () => {
@@ -33,8 +33,8 @@ const Template: Story<any> = (args) => {
     setTimeout(() => {
       const newMessages = [0, 1, 2, 3].map((index) => ({
         ...mockMessages[0],
-        text: { text: `Message id ${maxId - messages.length - index}` },
         messageId: maxId - messages.length - index,
+        text: { text: `Message id ${maxId - messages.length - index}` },
       }));
       setMessages([...messages, ...newMessages]);
       setLoading(false);
