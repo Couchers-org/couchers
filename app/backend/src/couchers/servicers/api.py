@@ -486,6 +486,7 @@ class API(api_pb2_grpc.APIServicer):
 
             friend_relationship = FriendRelationship(from_user=from_user, to_user=to_user, status=FriendStatus.pending)
             session.add(friend_relationship)
+            session.commit()
 
             send_friend_request_email(friend_relationship)
 
@@ -535,6 +536,8 @@ class API(api_pb2_grpc.APIServicer):
         with session_scope() as session:
             friend_request = (
                 session.query(FriendRelationship)
+                .join(User, FriendRelationship.from_user_id == User.id)
+                .filter(User.is_visible)
                 .filter(FriendRelationship.to_user_id == context.user_id)
                 .filter(FriendRelationship.status == FriendStatus.pending)
                 .filter(FriendRelationship.id == request.friend_request_id)
@@ -555,6 +558,8 @@ class API(api_pb2_grpc.APIServicer):
         with session_scope() as session:
             friend_request = (
                 session.query(FriendRelationship)
+                .join(User, FriendRelationship.to_user_id == User.id)
+                .filter(User.is_visible)
                 .filter(FriendRelationship.from_user_id == context.user_id)
                 .filter(FriendRelationship.status == FriendStatus.pending)
                 .filter(FriendRelationship.id == request.friend_request_id)
