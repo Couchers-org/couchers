@@ -43,16 +43,8 @@
     ],
     "rules": {
       "simple-import-sort/imports": "warn",
-      "simple-import-sort/exports": "error",
+      "simple-import-sort/exports": "warn",
       "sort-imports": "off",
-      "sort-keys": [
-        "warn",
-        "asc",
-        {
-          "caseSensitive": false,
-          "natural": true
-        }
-      ],
       "import/order": "off",
       "import/first": "error",
       "import/newline-after-import": "error",
