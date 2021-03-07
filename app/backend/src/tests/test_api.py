@@ -294,7 +294,7 @@ def test_friend_request_flow(db):
 
     # send friend request from user1 to user2
     with api_session(token1) as api:
-        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
+        friend_request_id = api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id)).friend_request_id
 
         # check it went through
         res = api.ListFriendRequests(empty_pb2.Empty())
@@ -303,6 +303,7 @@ def test_friend_request_flow(db):
 
         assert res.sent[0].state == api_pb2.FriendRequest.FriendRequestStatus.PENDING
         assert res.sent[0].user_id == user2.id
+        assert res.sent[0].friend_request_id == friend_request_id
 
     with api_session(token2) as api:
         # check it's there
