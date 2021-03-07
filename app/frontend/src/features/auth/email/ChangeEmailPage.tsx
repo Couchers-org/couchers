@@ -1,6 +1,7 @@
-import { useMediaQuery, useTheme } from "@material-ui/core";
+import { Typography, useMediaQuery, useTheme } from "@material-ui/core";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
+import React from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 
@@ -10,6 +11,13 @@ import CircularProgress from "../../../components/CircularProgress";
 import PageTitle from "../../../components/PageTitle";
 import TextField from "../../../components/TextField";
 import { service } from "../../../service";
+import {
+  CHANGE_NAME_GENDER,
+  CHANGE_PASSWORD,
+  CHECK_EMAIL,
+  CONTACT,
+  SUBMIT,
+} from "../constants";
 import useAccountInfo from "../useAccountInfo";
 import useChangeDetailsFormStyles from "../useChangeDetailsFormStyles";
 
@@ -55,7 +63,9 @@ export default function ChangeEmailPage() {
 
   return (
     <>
-      <PageTitle>Change email</PageTitle>
+      <PageTitle>{CHANGE_NAME_GENDER}</PageTitle>
+      <Typography variant="body1">{CONTACT}</Typography>
+      <PageTitle>{CHANGE_PASSWORD}</PageTitle>
       {isAccountInfoLoading ? (
         <CircularProgress />
       ) : accountInfoError ? (
@@ -66,10 +76,7 @@ export default function ChangeEmailPage() {
             <Alert severity="error">{changeEmailError.message}</Alert>
           )}
           {isChangeEmailSuccess && (
-            <Alert severity="success">
-              Your email change has been received. Check your new email to
-              complete the change.
-            </Alert>
+            <Alert severity="success">{CHECK_EMAIL}</Alert>
           )}
           <form className={classes.form} onSubmit={onSubmit}>
             {accountInfo && accountInfo.hasPassword && (
@@ -94,7 +101,7 @@ export default function ChangeEmailPage() {
               loading={isChangeEmailLoading}
               type="submit"
             >
-              Submit
+              {SUBMIT}
             </Button>
           </form>
         </>

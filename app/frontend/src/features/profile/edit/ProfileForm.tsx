@@ -3,7 +3,6 @@ import {
   makeStyles,
   Radio,
   RadioGroup,
-  TextField,
   Typography,
 } from "@material-ui/core";
 import React, { useEffect } from "react";
@@ -21,15 +20,9 @@ import {
   ABOUT_ME,
   COUNTRIES_LIVED,
   COUNTRIES_VISITED,
-  FEMALE,
-  FEMALE_FORM_VALUE,
-  GENDER,
   HOSTING_STATUS,
   LANGUAGES_SPOKEN,
-  MALE,
-  MALE_FORM_VALUE,
   OCCUPATION,
-  OTHER_FORM_VALUE,
   SAVE,
 } from "../../constants";
 import useCurrentUser from "../../userQueries/useCurrentUser";
@@ -118,15 +111,6 @@ export default function EditProfileForm() {
       ) : null}
       {user ? (
         <>
-          <form onSubmit={onSubmit}>
-            <ProfileTextInput
-              label="Name"
-              name="name"
-              defaultValue={user.name}
-              inputRef={register}
-              className={classes.field}
-            />
-          </form>
           <Controller
             name="city"
             control={control}
@@ -205,49 +189,6 @@ export default function EditProfileForm() {
                       value={MeetupStatus.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP}
                       control={<Radio />}
                       label={NO_MEETUP}
-                    />
-                  </RadioGroup>
-                </>
-              )}
-            />
-            <Controller
-              control={control}
-              defaultValue={user.gender}
-              name="gender"
-              render={({ onChange, value }) => (
-                <>
-                  <Typography variant="h2">{GENDER}</Typography>
-                  <RadioGroup
-                    row
-                    aria-label="gender"
-                    name="gender"
-                    value={value}
-                    onChange={(_, value) => onChange(value)}
-                  >
-                    <FormControlLabel
-                      value={FEMALE_FORM_VALUE}
-                      control={<Radio />}
-                      label={FEMALE}
-                    />
-                    <FormControlLabel
-                      value={MALE_FORM_VALUE}
-                      control={<Radio />}
-                      label={MALE}
-                    />
-                    <FormControlLabel
-                      value={OTHER_FORM_VALUE}
-                      control={<Radio />}
-                      label={
-                        <TextField
-                          onChange={() => onChange(OTHER_FORM_VALUE)}
-                          defaultValue={
-                            user.gender === FEMALE_FORM_VALUE ||
-                            user.gender === MALE_FORM_VALUE
-                              ? ""
-                              : user.gender
-                          }
-                        />
-                      }
                     />
                   </RadioGroup>
                 </>
