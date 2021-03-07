@@ -1,0 +1,191 @@
+syntax = "proto3";
+
+package org.couchers.api.events;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+service Events {
+  // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to auth.proto and jail.proto
+
+  rpc CreateEvent(CreateEventReq) returns (Event) {
+    // Creates an event, only one instance, add more with ScheduleOccurence
+  }
+
+  rpc ScheduleOccurence(ScheduleOccurenceReq) returns (Event) {
+    // Schedules a new occurence for an event that already exists
+  }
+
+  rpc GetEvent(GetEventReq) returns (Event) {
+    // Gets an event
+  }
+
+  rpc UpdateEvent(UpdateEventReq) returns (Event) {
+    // Edit an event
+  }
+
+  rpc UpdateOccurence(UpdateOccurenceReq) returns (Event) {
+    // Edit an event occurence
+  }
+
+  rpc TransferEvent(TransferEventReq) returns (Event) {
+    // Transfer an event you own to either a group or a community
+  }
+
+  rpc SubscribeToEvent(SubscribeToEventReq) returns (Event) {
+    // Subscribe to get notifications about all occurences of an event
+  }
+
+  rpc SetOccurenceAttendance(SetOccurenceAttendanceReq) returns (Event) {
+    // RSVP/change going status for an occurence of an event
+  }
+}
+
+message Coordinate {
+  double lat = 1;
+  double lng = 2;
+}
+
+enum AttendanceState {
+  ATTENDANCE_STATE_UNSET = 0;
+  ATTENDANCE_STATE_NOT_GOING = 1;
+  ATTENDANCE_STATE_MAYBE = 2;
+  ATTENDANCE_STATE_GOING = 3;
+}
+
+message Occurence {
+  int64 event_id = 1;
+  int64 occurence_id = 2;
+  // it's the next event occurence
+  bool is_next = 3;
+  // already happened
+  bool is_past = 4;
+  // in the future
+  bool is_future = 5;
+
+  string content = 6;  // CommonMark without images
+  // empty string if no photo
+  string photo_url = 7;
+  string is_online = 8;
+  string address = 9;
+  Coordinate location = 10;
+
+  google.protobuf.Timestamp created = 11;
+  google.protobuf.Timestamp last_edited = 12;
+  int64 creator_user_id = 13;
+
+  // the UTC timestamps of start and end times
+  google.protobuf.Timestamp start_time = 14;
+  google.protobuf.Timestamp end_time = 15;
+
+  // the tzdata timezone identified
+  string timezone = 16;
+
+  // the start/end times as localized strings (according to timezone)
+  string start_time_display = 17;
+  string end_time_display = 18;
+
+  AttendanceState attendance_state = 19;
+  uint32 going_count = 20;
+  uint32 maybe_count = 21;
+}
+
+message Event {
+  int64 event_id = 1;
+  string title = 2;
+  // a short URL fragment generated from the name, e.g. "New York City: weekly meetup" might become "new-york-city-weekly-meetup"
+  string slug = 3;
+  google.protobuf.Timestamp created = 4;
+  google.protobuf.Timestamp last_edited = 5;
+  int64 creator_user_id = 6;
+  oneof owner {
+    int64 owner_user_id = 7;
+    int64 owner_community_id = 8;
+    int64 owner_group_id = 9;
+  }
+  int64 thread_id = 10;
+  repeated Occurence occurences = 11;
+
+  // whether the current user is a subscriber/organizer to the event
+  // subscribers get emails about stuff
+  bool organizer = 12;
+  bool subscriber = 13;
+  uint32 organizer_count = 14;
+  uint32 subscriber_count = 15;
+
+  bool can_edit = 16;
+  bool can_moderate = 17;
+}
+
+message CreateEventReq {
+  string title = 1;
+  string content = 2;  // CommonMark without images
+  // from media server
+  string photo_key = 3;
+  string is_online = 4;
+  int64 parent_community_id = 5;
+  string address = 6;
+  Coordinate location = 7;
+  google.protobuf.Timestamp start_time = 8;
+  google.protobuf.Timestamp end_time = 9;
+  // the tzdata timezone identified
+  string timezone = 10;
+}
+
+message ScheduleOccurenceReq {
+  int64 parent_event_id = 1;
+  string content = 2;  // CommonMark without images
+  // from media server
+  string photo_key = 3;
+  string is_online = 4;
+  string address = 6;
+  Coordinate location = 7;
+  google.protobuf.Timestamp start_time = 8;
+  google.protobuf.Timestamp end_time = 9;
+  // the tzdata timezone identified
+  string timezone = 10;
+}
+
+message GetEventReq {
+  int64 event_id = 1;
+}
+
+message UpdateEventReq {
+  int64 event_id = 1;
+  google.protobuf.StringValue title = 2;
+}
+
+message UpdateOccurenceReq {
+  int64 occurence_id = 1;
+  google.protobuf.StringValue content = 2;  // CommonMark without images
+  // from media server, set to empty string to clear
+  google.protobuf.StringValue photo_key = 3;
+  google.protobuf.BoolValue is_online = 4;
+  google.protobuf.StringValue address = 5;
+  // we can detect lack of this sub-message and timestamps without *Value stuff, and location/times cannot be set to null
+  Coordinate location = 6;
+  google.protobuf.Timestamp start_time = 7;
+  google.protobuf.Timestamp end_time = 8;
+  // the tzdata timezone identified
+  google.protobuf.StringValue timezone = 9;
+
+  // whether to notify all rsvps about the change
+  bool notify_rsvps = 10;
+}
+
+message TransferEventReq {
+  int64 event_id = 1;
+  oneof new_owner {
+    int64 new_owner_community_id = 3;
+    int64 new_owner_group_id = 2;
+  }
+}
+
+message SubscribeToEventReq {
+  int64 event_id = 1;
+}
+
+message SetOccurenceAttendanceReq {
+  int64 occurence_id = 1;
+  AttendanceState attendance_state = 2;
+}

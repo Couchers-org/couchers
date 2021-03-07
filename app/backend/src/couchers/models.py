@@ -1044,30 +1044,77 @@ class ClusterEventAssociation(Base):
 
 class Event(Base):
     """
-    A happening
+    An event is compose of two parts:
+
+    * An event template (Event)
+    * An occurence (EventOccurence)
+
+    One-off events will have one of each; repeating events will have one Event,
+    multiple EventOccurences, one for each time the event happens.
     """
 
     __tablename__ = "events"
 
     id = Column(BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value())
+    parent_node_id = Column(ForeignKey("nodes.id"), nullable=False, index=True)
 
     title = Column(String, nullable=False)
-    content = Column(String, nullable=False)  # CommonMark without images
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    last_edited = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    owner_user_id = Column(ForeignKey("users.id"), nullable=True, index=True)
+    owner_cluster_id = Column(ForeignKey("clusters.id"), nullable=True, index=True)
     thread_id = Column(ForeignKey("threads.id"), nullable=False, unique=True)
+
+    parent_node = relationship(
+        "Node", backref="child_events", remote_side="Node.id", foreign_keys="Event.parent_node_id"
+    )
+    thread = relationship("Thread", backref="event", uselist=False)
+    suscribers = relationship("User", backref="events", secondary="event_subscriptions")
+    thread = relationship("Thread", backref="event", uselist=False)
+    owner_user = relationship("User", backref="owned_events", foreign_keys="Event.owner_user_id")
+    owner_cluster = relationship(
+        "Cluster",
+        backref=backref("owned_events", lazy="dynamic"),
+        uselist=False,
+        foreign_keys="Event.owner_cluster_id",
+    )
+
+    __table_args__ = (
+        # Only one of owner_user and owner_cluster should be set
+        CheckConstraint(
+            "(owner_user_id IS NULL AND owner_cluster_id IS NOT NULL) OR (owner_user_id IS NOT NULL AND owner_cluster_id IS NULL)",
+            name="one_owner",
+        ),
+    )
+
+
+class EventOccurence(Base):
+    __tablename__ = "event_occurences"
+
+    id = Column(BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value())
+    event_id = Column(ForeignKey("events.id"), nullable=False, index=True)
+
+    content = Column(String, nullable=False)  # CommonMark without images
     geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=False)
     address = Column(String, nullable=False)
-    photo = Column(String, nullable=False)
+    photo_key = Column(ForeignKey("uploads.key"), nullable=True)
+    is_online = Column(Boolean, nullable=False)
+
     start_time = Column(DateTime(timezone=True), nullable=False)
     end_time = Column(DateTime(timezone=True), nullable=False)
+
+    creator_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    owner_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    owner_cluster_id = Column(ForeignKey("clusters.id"), nullable=False, unique=True, index=True)
+    last_edited = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
-    thread = relationship("Thread", backref="event", uselist=False)
-    owner_user = relationship("User", backref="owned_events")
-    owner_cluster = relationship("Cluster", backref="owned event", uselist=False)
+    event = relationship("Event", backref="occurences", remote_side="Event.id", foreign_keys="EventOccurence.event_id")
 
-    suscribers = relationship("User", backref="events", secondary="event_subscriptions")
+    creator_user = relationship(
+        "User", backref="created_event_occurences", foreign_keys="EventOccurence.creator_user_id"
+    )
+    photo = relationship("Upload")
+
+    # TODO: attendance
 
 
 class EventSubscription(Base):
