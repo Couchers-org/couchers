@@ -469,7 +469,7 @@ class API(api_pb2_grpc.APIServicer):
 
     def SendFriendRequest(self, request, context):
         with session_scope() as session:
-            from_user = session.query(User).filter(User.id == context.user_id).one_or_none()
+            from_user = session.query(User).filter(User.is_visible).filter(User.id == context.user_id).one_or_none()
 
             if not from_user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
