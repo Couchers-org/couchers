@@ -4,6 +4,7 @@ import grpc
 import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
 
+from couchers import errors
 from couchers.db import session_scope
 from couchers.models import Complaint
 from couchers.utils import now, to_aware_datetime
@@ -148,6 +149,12 @@ def test_update_profile(db):
         with pytest.raises(grpc.RpcError) as e:
             api.UpdateProfile(api_pb2.UpdateProfileReq(name=wrappers_pb2.StringValue(value="  ")))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.INVALID_NAME
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.UpdateProfile(api_pb2.UpdateProfileReq(lat=wrappers_pb2.DoubleValue(value=0), lng=wrappers_pb2.DoubleValue(value=0)))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.INVALID_COORDINATE
 
         res = api.UpdateProfile(
             api_pb2.UpdateProfileReq(
@@ -570,12 +577,14 @@ def test_reporting(db):
         with pytest.raises(grpc.RpcError) as e:
             api.Report(report_req)
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == errors.CANT_REPORT_SELF
 
     report_req = api_pb2.ReportReq(reported_user_id=0x7FFFFFFFFFFFFFFF, reason="foo", description="bar")
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.Report(report_req)
     assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    assert e.value.details() == errors.USER_NOT_FOUND
 
 
 def test_references(db):
@@ -636,6 +645,7 @@ def test_references(db):
         with pytest.raises(grpc.RpcError) as e:
             api.WriteReference(req)
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.REFERENCE_ALREADY_GIVEN
 
     # Nonexisting user
     req = api_pb2.WriteReferenceReq(
@@ -645,6 +655,7 @@ def test_references(db):
         with pytest.raises(grpc.RpcError) as e:
             api.WriteReference(req)
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.USER_NOT_FOUND
 
     # yourself
     req = api_pb2.WriteReferenceReq(to_user_id=user1.id, reference_type=api_pb2.ReferenceType.HOSTED, text="ok")
@@ -652,6 +663,7 @@ def test_references(db):
         with pytest.raises(grpc.RpcError) as e:
             api.WriteReference(req)
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.CANT_REFER_SELF
 
     with api_session(token2) as api:
         # test the number of references in GetUser and Ping

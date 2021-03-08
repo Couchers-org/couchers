@@ -556,7 +556,7 @@ class API(api_pb2_grpc.APIServicer):
 
     def WriteReference(self, request, context):
         if context.user_id == request.to_user_id:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, "Can't refer yourself")
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REFER_SELF)
 
         reference = Reference(
             from_user_id=context.user_id,
@@ -577,7 +577,7 @@ class API(api_pb2_grpc.APIServicer):
                 .filter(Reference.reference_type == reftype2sql[request.reference_type])
                 .one_or_none()
             ):
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, "Reference already given")
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.REFERENCE_ALREADY_GIVEN)
             session.add(reference)
         return empty_pb2.Empty()
 
