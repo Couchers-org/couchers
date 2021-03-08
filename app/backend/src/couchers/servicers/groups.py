@@ -89,7 +89,13 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             )
             if not cluster:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
-            admins = cluster.admins.filter(User.id >= next_admin_id).order_by(User.id).limit(page_size + 1).all()
+            admins = (
+                cluster.admins.filter(User.is_visible)
+                .filter(User.id >= next_admin_id)
+                .order_by(User.id)
+                .limit(page_size + 1)
+                .all()
+            )
             return groups_pb2.ListAdminsRes(
                 admin_user_ids=[admin.id for admin in admins[:page_size]],
                 next_page_token=str(admins[-1].id) if len(admins) > page_size else None,
@@ -107,7 +113,13 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             )
             if not cluster:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
-            members = cluster.members.filter(User.id >= next_member_id).order_by(User.id).limit(page_size + 1).all()
+            members = (
+                cluster.members.filter(User.is_visible)
+                .filter(User.id >= next_member_id)
+                .order_by(User.id)
+                .limit(page_size + 1)
+                .all()
+            )
             return groups_pb2.ListMembersRes(
                 member_user_ids=[member.id for member in members[:page_size]],
                 next_page_token=str(members[-1].id) if len(members) > page_size else None,
@@ -199,9 +211,13 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             if not cluster:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
 
-            current_membership = cluster.members.filter(User.id == context.user_id).one_or_none()
-            if current_membership:
+            user_in_group = cluster.members.filter(User.id == context.user_id).one_or_none()
+            if user_in_group:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ALREADY_IN_GROUP)
+
+            user_visible = session.query(User).filter(User.is_visible).filter(User.id == context.user_id).one_or_none()
+            if not user_visible:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             cluster.cluster_subscriptions.append(
                 ClusterSubscription(
@@ -223,10 +239,14 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             if not cluster:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
 
-            current_membership = cluster.members.filter(User.id == context.user_id).one_or_none()
-
-            if not current_membership:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NOT_IN_GROUP)
+            user_in_group_and_visible = (
+                cluster.members.filter(User.is_visible).filter(User.id == context.user_id).one_or_none()
+            )
+            if not user_in_group_and_visible:
+                user_in_group = cluster.members.filter(User.id == context.user_id).one_or_none()
+                if not user_in_group:
+                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NOT_IN_GROUP)
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             session.query(ClusterSubscription).filter(ClusterSubscription.user_id == context.user_id).delete()
 
