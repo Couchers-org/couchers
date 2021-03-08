@@ -213,8 +213,105 @@ class TestGroups:
             assert [g.group_id for g in res.groups] == [hitchhikers_id, foodies_id, skaters_id]
 
 
+# These tests are separate from above as they mutate the database
+def test_ListAdmins(testing_communities):
+    with session_scope() as session:
+        user1_id, token1 = get_user_id_and_token(session, "user1")
+        user2_id, token2 = get_user_id_and_token(session, "user2")
+        hitchhikers_id = get_group_id(session, "Hitchhikers")
+        c1r2foodies_id = get_group_id(session, "Country 1, Region 2, Foodies")
+
+    with groups_session(token1) as api:
+        res = api.ListAdmins(
+            groups_pb2.ListAdminsReq(
+                group_id=hitchhikers_id,
+            )
+        )
+        assert res.admin_user_ids == [user1_id, user2_id]
+
+        res = api.ListAdmins(
+            groups_pb2.ListAdminsReq(
+                group_id=c1r2foodies_id,
+            )
+        )
+        assert res.admin_user_ids == [user2_id]
+
+    # Hide user2
+    with session_scope() as session:
+        user2 = get_user_by_field(session, str(user2_id))
+        user2.is_banned = True
+        session.commit()
+        session.refresh(user2)
+        session.expunge(user2)
+
+    # Check user2 invisible
+    with groups_session(token1) as api:
+        res = api.ListAdmins(
+            groups_pb2.ListAdminsReq(
+                group_id=hitchhikers_id,
+            )
+        )
+        assert res.admin_user_ids == [user1_id]
+
+        res = api.ListAdmins(
+            groups_pb2.ListAdminsReq(
+                group_id=c1r2foodies_id,
+            )
+        )
+        assert res.admin_user_ids == []
+
+
+def test_ListMembers(testing_communities):
+    with session_scope() as session:
+        user1_id, token1 = get_user_id_and_token(session, "user1")
+        user2_id, token2 = get_user_id_and_token(session, "user2")
+        user4_id, token4 = get_user_id_and_token(session, "user4")
+        user5_id, token5 = get_user_id_and_token(session, "user5")
+        user8_id, token8 = get_user_id_and_token(session, "user8")
+        hitchhikers_id = get_group_id(session, "Hitchhikers")
+        c1r2foodies_id = get_group_id(session, "Country 1, Region 2, Foodies")
+
+    with groups_session(token1) as api:
+        res = api.ListMembers(
+            groups_pb2.ListMembersReq(
+                group_id=hitchhikers_id,
+            )
+        )
+        assert res.member_user_ids == [user1_id, user2_id, user5_id, user8_id]
+
+        res = api.ListMembers(
+            groups_pb2.ListMembersReq(
+                group_id=c1r2foodies_id,
+            )
+        )
+        assert res.member_user_ids == [user2_id, user4_id, user5_id]
+
+    # Hide user2
+    with session_scope() as session:
+        user2 = get_user_by_field(session, str(user2_id))
+        user2.is_banned = True
+        session.commit()
+        session.refresh(user2)
+        session.expunge(user2)
+
+    # Check user2 invisible
+    with groups_session(token1) as api:
+        res = api.ListMembers(
+            groups_pb2.ListMembersReq(
+                group_id=hitchhikers_id,
+            )
+        )
+        assert res.member_user_ids == [user1_id, user5_id, user8_id]
+
+        res = api.ListMembers(
+            groups_pb2.ListMembersReq(
+                group_id=c1r2foodies_id,
+            )
+        )
+        assert res.member_user_ids == [user4_id, user5_id]
+
+
 def test_JoinGroup_and_LeaveGroup(testing_communities):
-    # these tests are separate from above as they mutate the database
     with session_scope() as session:
         user_id, token = get_user_id_and_token(session, "user3")
         h_id = get_group_id(session, "Hitchhikers")
