@@ -615,8 +615,11 @@ class API(api_pb2_grpc.APIServicer):
             rating=request.rating,
         )
         with session_scope() as session:
-            if not session.query(User).filter(User.is_visible).filter(User.id == request.to_user_id).one_or_none():
-                context.abort(grpc.StatusCode.NOT_FOUND, "User not found")
+            if (
+                not session.query(User).filter(User.is_visible).filter(User.id == reference.from_user_id).one_or_none()
+                or not session.query(User).filter(User.is_visible).filter(User.id == reference.to_user_id).one_or_none()
+            ):
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             if (
                 session.query(Reference)
