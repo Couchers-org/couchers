@@ -300,19 +300,36 @@ def test_messages_with_invisible_users(db):
     # Desired behavior? Should these be viewable or hidden?
     # TODO
 
-    # Test group chat where one user gets banned
+    # Test group chat where one user becomes invisible
     # Desired behavior? Do their messages remain in the group chat?
     # TODO
 
 
 def test_references_invisible_users(db):
-    pass
+    user1, token1 = generate_user()
+    user2, token2 = generate_user(accepted_tos=0)
 
     # Test invisible user writes reference
-    # TODO
+    with api_session(token2) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.WriteReference(
+                api_pb2.WriteReferenceReq(
+                    to_user_id=user1.id, reference_type=api_pb2.ReferenceType.FRIEND, text="smells funny"
+                )
+            )
+    assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    assert e.value.details() == errors.USER_NOT_FOUND
 
     # Test user writes reference for invisible user
-    # TODO
+    with api_session(token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.WriteReference(
+                api_pb2.WriteReferenceReq(
+                    to_user_id=user2.id, reference_type=api_pb2.ReferenceType.FRIEND, text="smells funny"
+                )
+            )
+    assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    assert e.value.details() == errors.USER_NOT_FOUND
 
 
 def test_search_function_invisible_users(db):
