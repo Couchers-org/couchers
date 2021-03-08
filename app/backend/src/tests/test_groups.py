@@ -2,7 +2,7 @@ import grpc
 import pytest
 
 from couchers import errors
-from couchers.db import session_scope
+from couchers.db import get_user_by_field, session_scope
 from pb import groups_pb2, pages_pb2
 from tests.test_communities import get_community_id, get_group_id, get_user_id_and_token, testing_communities
 from tests.test_fixtures import groups_session, testconfig
@@ -154,55 +154,6 @@ class TestGroups:
             assert res.admin_count == 1
 
     @staticmethod
-    def test_ListAdmins(testing_communities):
-        with session_scope() as session:
-            user1_id, token1 = get_user_id_and_token(session, "user1")
-            user2_id, token2 = get_user_id_and_token(session, "user2")
-            hitchhikers_id = get_group_id(session, "Hitchhikers")
-            c1r2foodies_id = get_group_id(session, "Country 1, Region 2, Foodies")
-
-        with groups_session(token1) as api:
-            res = api.ListAdmins(
-                groups_pb2.ListAdminsReq(
-                    group_id=hitchhikers_id,
-                )
-            )
-            assert res.admin_user_ids == [user1_id, user2_id]
-
-            res = api.ListAdmins(
-                groups_pb2.ListAdminsReq(
-                    group_id=c1r2foodies_id,
-                )
-            )
-            assert res.admin_user_ids == [user2_id]
-
-    @staticmethod
-    def test_ListMembers(testing_communities):
-        with session_scope() as session:
-            user1_id, token1 = get_user_id_and_token(session, "user1")
-            user2_id, token2 = get_user_id_and_token(session, "user2")
-            user4_id, token4 = get_user_id_and_token(session, "user4")
-            user5_id, token5 = get_user_id_and_token(session, "user5")
-            user8_id, token8 = get_user_id_and_token(session, "user8")
-            hitchhikers_id = get_group_id(session, "Hitchhikers")
-            c1r2foodies_id = get_group_id(session, "Country 1, Region 2, Foodies")
-
-        with groups_session(token1) as api:
-            res = api.ListMembers(
-                groups_pb2.ListMembersReq(
-                    group_id=hitchhikers_id,
-                )
-            )
-            assert res.member_user_ids == [user1_id, user2_id, user5_id, user8_id]
-
-            res = api.ListMembers(
-                groups_pb2.ListMembersReq(
-                    group_id=c1r2foodies_id,
-                )
-            )
-            assert res.member_user_ids == [user2_id, user4_id, user5_id]
-
-    @staticmethod
     def test_ListDiscussions(testing_communities):
         with session_scope() as session:
             user1_id, token1 = get_user_id_and_token(session, "user1")
@@ -290,6 +241,47 @@ def test_JoinGroup_and_LeaveGroup(testing_communities):
 
         # managed to leave
         assert not api.GetGroup(groups_pb2.GetGroupReq(group_id=h_id)).member
+
+
+def test_invisible_user_JoinGroup_LeaveGroup(testing_communities):
+    with session_scope() as session:
+        user1_id, token1 = get_user_id_and_token(session, "user2")  # In group
+        user2_id, token2 = get_user_id_and_token(session, "user3")  # Not in group
+        h_id = get_group_id(session, "Hitchhikers")
+
+        user1 = get_user_by_field(session, str(user1_id))
+        user1.is_banned = True
+        session.commit()
+        session.refresh(user1)
+        session.expunge(user1)
+
+        user2 = get_user_by_field(session, str(user2_id))
+        user2.is_banned = True
+        session.commit()
+        session.refresh(user2)
+        session.expunge(user2)
+
+        # User1 in group, testing removal
+        with groups_session(token1) as api:
+            with pytest.raises(grpc.RpcError) as e:
+                api.LeaveGroup(
+                    groups_pb2.LeaveGroupReq(
+                        group_id=h_id,
+                    )
+                )
+            assert e.value.code() == grpc.StatusCode.NOT_FOUND
+            assert e.value.details() == errors.USER_NOT_FOUND
+
+        # User2 not in group, testing addition
+        with groups_session(token2) as api:
+            with pytest.raises(grpc.RpcError) as e:
+                api.JoinGroup(
+                    groups_pb2.JoinGroupReq(
+                        group_id=h_id,
+                    )
+                )
+            assert e.value.code() == grpc.StatusCode.NOT_FOUND
+            assert e.value.details() == errors.USER_NOT_FOUND
 
 
 # TODO: also requires implementing content transfer functionality
