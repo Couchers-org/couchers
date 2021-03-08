@@ -191,6 +191,7 @@ message LeaveGroupReq {
 }
 
 message ListUserGroupsReq {
+  // the user to get groups from, set to 0 for current user
   uint32 user_id = 1;
 
   uint32 page_size = 2;

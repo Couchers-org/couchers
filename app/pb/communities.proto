@@ -108,6 +108,7 @@ message ListCommunitiesRes {
 }
 
 message ListUserCommunitiesReq {
+  // the user to get communities from, set to 0 for current user
   uint32 user_id = 1;
 
   uint32 page_size = 2;

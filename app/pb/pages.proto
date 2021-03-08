@@ -122,6 +122,7 @@ message TransferPageReq {
 }
 
 message ListUserPlacesReq {
+  // the user to get places from, set to 0 for current user
   uint32 user_id = 1;
 
   uint32 page_size = 2;
@@ -135,6 +136,7 @@ message ListUserPlacesRes {
 }
 
 message ListUserGuidesReq {
+  // the user to get guides from, set to 0 for current user
   uint32 user_id = 1;
 
   uint32 page_size = 2;
