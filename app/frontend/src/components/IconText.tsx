@@ -6,14 +6,14 @@ import React from "react";
 import TextBody from "./TextBody";
 
 const useStyles = makeStyles((theme) => ({
+  label: {
+    marginInlineStart: theme.spacing(1),
+  },
   root: {
     alignItems: "center",
     display: "flex",
-    marginTop: theme.spacing(1),
     marginBottom: theme.spacing(1),
-  },
-  label: {
-    marginInlineStart: theme.spacing(1),
+    marginTop: theme.spacing(1),
   },
 }));
 

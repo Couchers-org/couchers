@@ -14,6 +14,7 @@ import * as threads from "./threads";
 import * as user from "./user";
 
 export const service = {
+  account,
   api,
   auth,
   bugs,
@@ -27,7 +28,6 @@ export const service = {
   search,
   threads,
   user,
-  account,
 } as const;
 
 export type {

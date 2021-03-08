@@ -17,6 +17,68 @@ import React, { useRef, useState } from "react";
 
 const useStyles = makeStyles((theme) =>
   createStyles({
+    button: {
+      "&:focus": {
+        boxShadow: `0 0 0 2px ${theme.palette.primary.main}`,
+      },
+      "&:hover": {
+        boxShadow: `0 0 0 1px ${theme.palette.text.primary}`,
+      },
+      borderRadius: theme.shape.borderRadius,
+      boxShadow: `0 0 0 1px rgba(0, 0, 0, 0.23)`,
+      fontFamily: "inherit",
+      fontSize: "16px",
+      justifyContent: "space-between",
+      margin: theme.spacing(1, 0),
+      padding: "18.5px 14px",
+      width: "inherit",
+    },
+    checkbox: {
+      marginRight: theme.spacing(1),
+      padding: 0,
+    },
+    header: {
+      borderBottomColor: theme.palette.divider,
+      borderBottomStyle: "solid",
+      borderBottomWidth: 1,
+      fontSize: theme.typography.fontSize,
+      padding: theme.spacing(1, 2),
+    },
+    inputBase: {
+      "& input": {
+        "&:focus": {
+          borderColor: theme.palette.primary.main,
+          boxShadow: `${fade(theme.palette.primary.main, 0.25)} 0 0 0 0.2rem`,
+        },
+        backgroundColor: theme.palette.common.white,
+        borderColor: theme.palette.divider,
+        borderRadius: theme.shape.borderRadius,
+        borderStyle: "solid",
+        borderWidth: 1,
+        padding: theme.spacing(1),
+        transition: theme.transitions.create(["border-color", "box-shadow"]),
+      },
+      borderBottomColor: theme.palette.divider,
+      borderBottomStyle: "solid",
+      borderBottomWidth: 1,
+      padding: theme.spacing(2),
+      width: "100%",
+    },
+    option: {
+      '&[aria-selected="true"]': {
+        backgroundColor: "transparent",
+      },
+      '&[data-focus="true"]': {
+        backgroundColor: theme.palette.action.hover,
+      },
+      alignItems: "flex-start",
+      minHeight: "auto",
+      padding: theme.spacing(1),
+    },
+    paper: {
+      boxShadow: "none",
+      margin: 0,
+    },
     popper: {
       backgroundColor: theme.palette.background.default,
       borderColor: "rgba(0, 0, 0, 0.23)",
@@ -27,21 +89,8 @@ const useStyles = makeStyles((theme) =>
       marginTop: theme.spacing(1),
       zIndex: 1,
     },
-    button: {
-      borderRadius: theme.shape.borderRadius,
-      boxShadow: `0 0 0 1px rgba(0, 0, 0, 0.23)`,
-      fontFamily: "inherit",
-      fontSize: "16px",
-      justifyContent: "space-between",
-      margin: theme.spacing(1, 0),
-      padding: "18.5px 14px",
-      width: "inherit",
-      "&:hover": {
-        boxShadow: `0 0 0 1px ${theme.palette.text.primary}`,
-      },
-      "&:focus": {
-        boxShadow: `0 0 0 2px ${theme.palette.primary.main}`,
-      },
+    popperDisablePortal: {
+      position: "relative",
     },
     tag: {
       alignItems: "center",
@@ -52,55 +101,6 @@ const useStyles = makeStyles((theme) =>
     },
     tagLabel: {
       marginLeft: theme.spacing(1),
-    },
-    header: {
-      borderBottomColor: theme.palette.divider,
-      borderBottomStyle: "solid",
-      borderBottomWidth: 1,
-      fontSize: theme.typography.fontSize,
-      padding: theme.spacing(1, 2),
-    },
-    inputBase: {
-      borderBottomColor: theme.palette.divider,
-      borderBottomStyle: "solid",
-      borderBottomWidth: 1,
-      padding: theme.spacing(2),
-      width: "100%",
-      "& input": {
-        backgroundColor: theme.palette.common.white,
-        borderColor: theme.palette.divider,
-        borderStyle: "solid",
-        borderRadius: theme.shape.borderRadius,
-        borderWidth: 1,
-        padding: theme.spacing(1),
-        transition: theme.transitions.create(["border-color", "box-shadow"]),
-        "&:focus": {
-          boxShadow: `${fade(theme.palette.primary.main, 0.25)} 0 0 0 0.2rem`,
-          borderColor: theme.palette.primary.main,
-        },
-      },
-    },
-    paper: {
-      boxShadow: "none",
-      margin: 0,
-    },
-    option: {
-      alignItems: "flex-start",
-      minHeight: "auto",
-      padding: theme.spacing(1),
-      '&[aria-selected="true"]': {
-        backgroundColor: "transparent",
-      },
-      '&[data-focus="true"]': {
-        backgroundColor: theme.palette.action.hover,
-      },
-    },
-    popperDisablePortal: {
-      position: "relative",
-    },
-    checkbox: {
-      marginRight: theme.spacing(1),
-      padding: 0,
     },
   })
 );
@@ -195,8 +195,8 @@ export default function ProfileTagInput({
           freeSolo
           multiple
           classes={{
-            paper: classes.paper,
             option: classes.option,
+            paper: classes.paper,
             popperDisablePortal: classes.popperDisablePortal,
           }}
           onChange={(_, newValue) => {

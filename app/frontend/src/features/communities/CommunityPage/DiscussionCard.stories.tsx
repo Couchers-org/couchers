@@ -3,8 +3,8 @@ import DiscussionCard from "features/communities/CommunityPage/DiscussionCard";
 import discussion from "test/fixtures/discussion.json";
 
 export default {
-  title: "Communities/CommunityPage/DiscussionCard",
   component: DiscussionCard,
+  title: "Communities/CommunityPage/DiscussionCard",
 } as Meta;
 
 const Template: Story<any> = (args) => (

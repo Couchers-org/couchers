@@ -2,16 +2,16 @@ import { Box, Divider, makeStyles, Typography } from "@material-ui/core";
 import React from "react";
 
 const useStyles = makeStyles((theme) => ({
-  header: {
-    marginBottom: theme.spacing(4),
-    position: "relative",
-  },
   divider: {
     border: "3px solid rgba(246, 138, 12, 0.7)",
     boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    left: theme.spacing(1),
     position: "absolute",
     width: "100%",
-    left: theme.spacing(1),
+  },
+  header: {
+    marginBottom: theme.spacing(4),
+    position: "relative",
   },
 }));
 

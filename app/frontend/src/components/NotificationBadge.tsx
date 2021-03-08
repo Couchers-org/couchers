@@ -3,8 +3,8 @@ import React from "react";
 
 const useStyles = makeStyles((theme) => ({
   badge: {
-    top: "50%",
     right: theme.spacing(-3),
+    top: "50%",
   },
 }));
 

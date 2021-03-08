@@ -5,8 +5,8 @@ import IconButton from "./IconButton";
 import { CouchIcon } from "./Icons";
 
 export default {
-  title: "Components/Simple/IconButton",
   component: IconButton,
+  title: "Components/Simple/IconButton",
 } as Meta;
 
 const Template: Story<any> = (args) => {

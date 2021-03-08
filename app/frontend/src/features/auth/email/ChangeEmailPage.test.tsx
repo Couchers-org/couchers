@@ -91,6 +91,35 @@ describe("ChangeEmailPage", () => {
       expect(screen.getByLabelText("Current password")).not.toHaveValue();
       expect(screen.getByLabelText("New email")).not.toHaveValue();
     });
+
+    it("submits sanitized email to the backend if user uses uppercase characters or adds whitespaces at the start/end", async () => {
+      render(<ChangeEmailPage />, { wrapper });
+
+      userEvent.type(
+        await screen.findByLabelText("Current password"),
+        "password"
+      );
+      userEvent.type(
+        screen.getByLabelText("New email"),
+        "   tEst@examPle.Com   "
+      );
+      userEvent.click(screen.getByRole("button", { name: "Submit" }));
+
+      const successAlert = await screen.findByRole("alert");
+      expect(successAlert).toBeVisible();
+      expect(successAlert).toHaveTextContent(
+        "Your email change has been received. Check your new email to complete the change."
+      );
+      expect(changeEmailMock).toHaveBeenCalledTimes(1);
+      expect(changeEmailMock).toHaveBeenCalledWith(
+        "test@example.com",
+        "password"
+      );
+
+      // Also check form has been cleared
+      expect(screen.getByLabelText("Current password")).not.toHaveValue();
+      expect(screen.getByLabelText("New email")).not.toHaveValue();
+    });
   });
 
   describe("if the user does not have a password", () => {
@@ -117,6 +146,31 @@ describe("ChangeEmailPage", () => {
         await screen.findByLabelText("New email"),
         "test@example.com"
       );
+      userEvent.click(screen.getByRole("button", { name: "Submit" }));
+
+      const successAlert = await screen.findByRole("alert");
+      expect(successAlert).toBeVisible();
+      expect(successAlert).toHaveTextContent(
+        "Your email change has been received. Check your new email to complete the change."
+      );
+      expect(changeEmailMock).toHaveBeenCalledTimes(1);
+      expect(changeEmailMock).toHaveBeenCalledWith(
+        "test@example.com",
+        undefined
+      );
+
+      // Also check form has been cleared
+      expect(screen.getByLabelText("New email")).not.toHaveValue();
+    });
+
+    it("submits sanitized email to the backend if user uses uppercase characters or adds whitespaces at the start/end", async () => {
+      render(<ChangeEmailPage />, { wrapper });
+
+      userEvent.type(
+        await screen.findByLabelText("New email"),
+        "  tesT@eXample.cOm  "
+      );
+
       userEvent.click(screen.getByRole("button", { name: "Submit" }));
 
       const successAlert = await screen.findByRole("alert");

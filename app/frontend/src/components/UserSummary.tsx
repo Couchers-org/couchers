@@ -12,19 +12,25 @@ import { User } from "pb/api_pb";
 import React from "react";
 
 export const useStyles = makeStyles((theme) => ({
+  avatar: {
+    height: theme.spacing(9),
+    marginInlineEnd: theme.spacing(2),
+    width: theme.spacing(9),
+  },
   root: {
-    alignItems: "center",
     display: "flex",
     padding: 0,
     width: "100%",
   },
   title: {
-    marginBottom: theme.spacing(1),
+    marginTop: 0,
   },
-  avatar: {
-    height: theme.spacing(9),
-    marginInlineEnd: theme.spacing(2),
-    width: theme.spacing(9),
+  titleAndBarContainer: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-around",
+    margin: 0,
+    minHeight: theme.spacing(9),
   },
 }));
 
@@ -45,6 +51,7 @@ export default function UserSummary({ children, user }: UserSummaryProps) {
         )}
       </ListItemAvatar>
       <ListItemText
+        className={classes.titleAndBarContainer}
         disableTypography
         primary={
           <Typography variant="h2" className={classes.title}>

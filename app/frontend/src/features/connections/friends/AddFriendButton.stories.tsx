@@ -11,13 +11,13 @@ mockedService.api.sendFriendRequest = async () => {
 };
 
 export default {
-  title: "Me/Connections/AddFriendButton",
-  component: AddFriendButton,
   argTypes: {
     setMutationError: {
       action: "setError",
     },
   },
+  component: AddFriendButton,
+  title: "Me/Connections/AddFriendButton",
 } as Meta;
 
 const Template: Story<any> = (args) => (

@@ -7,8 +7,8 @@ import { routeToUser } from "routes";
 
 const useStyles = makeStyles((theme) => ({
   friendItem: {
-    display: "flex",
     alignItems: "center",
+    display: "flex",
     justifyContent: "space-between",
     padding: `0 ${theme.spacing(1)}`,
   },

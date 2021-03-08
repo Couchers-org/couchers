@@ -6,8 +6,8 @@ import React from "react";
 import { mockedService } from "stories/__mocks__/service";
 
 export default {
-  title: "Me/Auth/ChangePasswordPage",
   component: ChangePasswordPage,
+  title: "Me/Auth/ChangePasswordPage",
 } as Meta;
 
 interface ChangePasswordPageArgs {
@@ -25,9 +25,9 @@ const Template: Story<ChangePasswordPageArgs> = ({
 } = {}) => {
   setMocks({
     loginMethod,
-    simulateGetAccountInfoLoading,
     shouldChangePasswordSucceed,
     shouldGetAccountInfoSucceed,
+    simulateGetAccountInfoLoading,
   });
   return <ChangePasswordPage />;
 };

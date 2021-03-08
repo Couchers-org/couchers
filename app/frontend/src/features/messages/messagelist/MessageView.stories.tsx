@@ -14,10 +14,9 @@ const [controlMessage, message1] = [messages[messages.length - 1], messages[0]];
 addDefaultUser(1);
 
 export default {
-  title: "Messages/MessageView",
   component: Messages,
-  argTypes: {},
   decorators: [(story) => <AuthProvider>{story()}</AuthProvider>],
+  title: "Messages/MessageView",
 } as Meta;
 
 const MessageTemplate: Story<MessageProps> = (args) => (

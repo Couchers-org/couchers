@@ -23,23 +23,25 @@ describe("updateUserProfile action", () => {
       name,
       occupation,
     } = defaultUser;
+    /* eslint-disable sort-keys */
     const newUserProfileData = {
       // Unchanged data
-      name,
-      gender,
-      occupation,
       aboutMe,
       aboutPlace,
       countriesLived: countriesLivedList,
+      gender,
+      name,
+      occupation,
       // Changed data
+      countriesVisited: [...countriesVisitedList, "United States"],
       city: "New York",
+      hostingStatus: 3,
       lat: 40.7306,
       lng: -73.9352,
       radius,
-      hostingStatus: 3,
       languages: ["English", "Finnish", "Spanish"],
-      countriesVisited: [...countriesVisitedList, "United States"],
     };
+    /* eslint-enable sort-keys */
     updateProfileMock.mockResolvedValue(new Empty());
     getUserMock.mockResolvedValue({
       ...newUserProfileData,
@@ -48,8 +50,8 @@ describe("updateUserProfile action", () => {
     });
     const { result, waitFor } = renderHook(
       () => ({
-        mutate: useUpdateUserProfile(),
         currentUser: useCurrentUser(),
+        mutate: useUpdateUserProfile(),
       }),
       { wrapper }
     );
@@ -74,20 +76,20 @@ describe("updateUserProfile action", () => {
     // Things that have been updated are being reflected
     expect(currentUser).toMatchObject({
       city: "New York",
-      hostingStatus: 3,
-      languages: ["English", "Finnish", "Spanish"],
       countriesLivedList: ["Australia", "Finland", "Sweden", "United States"],
       countriesVisitedList: ["Australia", "United States"],
+      hostingStatus: 3,
+      languages: ["English", "Finnish", "Spanish"],
       lat: 40.7306,
       lng: -73.9352,
     });
     // Things haven't been updated should remain the same
     expect(currentUser).toMatchObject({
-      name: "Aapeli Vuorinen",
-      gender: "Male",
-      occupation: "Mathematician",
       aboutMe: "Some generic stuff.",
       aboutPlace: "About Aapeli's place",
+      gender: "Male",
+      name: "Aapeli Vuorinen",
+      occupation: "Mathematician",
       radius: 200,
     });
   });
@@ -110,9 +112,9 @@ describe("updateUserProfile action", () => {
       result.current.mutate.updateUserProfile({
         profileData: {
           ...defaultUser,
-          languages: defaultUser.languagesList,
           countriesLived: ["Ecuador"],
           countriesVisited: defaultUser.countriesVisitedList,
+          languages: defaultUser.languagesList,
         },
         setMutationError: setError,
       })

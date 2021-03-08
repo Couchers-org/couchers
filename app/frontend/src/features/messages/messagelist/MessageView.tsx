@@ -15,13 +15,7 @@ import useOnVisibleEffect from "utils/useOnVisibleEffect";
 export const messageElementId = (id: number) => `message-${id}`;
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    display: "flex",
-    "& > :first-child": { marginRight: theme.spacing(2) },
-  },
-  userRoot: { justifyContent: "flex-end" },
-  otherRoot: { justifyContent: "flex-start" },
-  loadingRoot: { justifyContent: "center" },
+  avatar: { height: 40, width: 40 },
   card: {
     [theme.breakpoints.up("xs")]: {
       width: "100%",
@@ -35,40 +29,46 @@ const useStyles = makeStyles((theme) => ({
     border: "1px solid",
     borderRadius: theme.shape.borderRadius,
   },
-  userCard: {
-    borderColor: theme.palette.secondary.main,
+  footer: {
+    display: "flex",
+    justifyContent: "flex-end",
+    paddingBottom: theme.spacing(2),
+    paddingInlineEnd: theme.spacing(2),
+    paddingInlineStart: theme.spacing(2),
   },
-  otherCard: {
-    borderColor: theme.palette.primary.main,
+  header: {
+    alignItems: "center",
+    display: "flex",
+    padding: theme.spacing(2),
+    paddingBottom: theme.spacing(1),
   },
   loadingCard: {
     borderColor: theme.palette.text.secondary,
   },
-  header: {
-    display: "flex",
-    padding: theme.spacing(2),
+  loadingRoot: { justifyContent: "center" },
+  messageBody: {
+    "&:last-child": { paddingBottom: theme.spacing(2) },
     paddingBottom: theme.spacing(1),
-    alignItems: "center",
+    paddingTop: 0,
   },
-  footer: {
-    display: "flex",
-    paddingInlineStart: theme.spacing(2),
-    paddingInlineEnd: theme.spacing(2),
-    paddingBottom: theme.spacing(2),
-    justifyContent: "flex-end",
-  },
-  avatar: { width: 40, height: 40 },
   name: {
     ...theme.typography.body2,
     flexGrow: 1,
-    margin: 0,
     fontWeight: "bold",
+    margin: 0,
   },
-  messageBody: {
-    paddingTop: 0,
-    paddingBottom: theme.spacing(1),
-    "&:last-child": { paddingBottom: theme.spacing(2) },
+  otherCard: {
+    borderColor: theme.palette.primary.main,
   },
+  otherRoot: { justifyContent: "flex-start" },
+  root: {
+    "& > :first-child": { marginRight: theme.spacing(2) },
+    display: "flex",
+  },
+  userCard: {
+    borderColor: theme.palette.secondary.main,
+  },
+  userRoot: { justifyContent: "flex-end" },
 }));
 
 export interface MessageProps {

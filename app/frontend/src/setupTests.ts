@@ -24,8 +24,6 @@ declare global {
 
 function createLocalStorageMock() {
   return {
-    store: {} as Record<string, string>,
-
     clear() {
       this.store = {};
     },
@@ -34,20 +32,22 @@ function createLocalStorageMock() {
       return this.store[key] || null;
     },
 
-    setItem(key: string, value: string) {
-      this.store[key] = value;
-    },
-
-    removeItem(key: string) {
-      delete this.store[key];
+    key(index: number) {
+      return this.store[Object.keys(this.store)[index]];
     },
 
     get length() {
       return Object.keys(this.store).length;
     },
 
-    key(index: number) {
-      return this.store[Object.keys(this.store)[index]];
+    removeItem(key: string) {
+      delete this.store[key];
     },
+
+    setItem(key: string, value: string) {
+      this.store[key] = value;
+    },
+
+    store: {} as Record<string, string>,
   };
 }

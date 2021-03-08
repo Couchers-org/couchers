@@ -3,8 +3,8 @@ import { Meta, Story } from "@storybook/react";
 import BarWithHelp from "./BarWithHelp";
 
 export default {
-  title: "Components/Composite/BarWithHelp",
   component: BarWithHelp,
+  title: "Components/Composite/BarWithHelp",
 } as Meta;
 
 const Template: Story<any> = (args) => (
@@ -15,7 +15,7 @@ const Template: Story<any> = (args) => (
 
 export const barWithHelp = Template.bind({});
 barWithHelp.args = {
-  value: 36,
-  label: "label",
   description: "some description",
+  label: "label",
+  value: 36,
 };

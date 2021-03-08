@@ -13,8 +13,8 @@ const listFriendRequestsMock = service.api.listFriendRequests as jest.Mock<
 beforeEach(() => {
   getUserMock.mockImplementation(getUser);
   listFriendRequestsMock.mockResolvedValue({
-    sentList: [],
     receivedList: [],
+    sentList: [],
   });
 });
 
@@ -27,10 +27,10 @@ describe("when the listFriendRequests query is loading", () => {
     });
 
     expect(result.current).toEqual({
-      isLoading: true,
-      isError: false,
-      errors: [],
       data: undefined,
+      errors: [],
+      isError: false,
+      isLoading: true,
     });
     expect(getUserMock).not.toHaveBeenCalled();
 
@@ -41,13 +41,6 @@ describe("when the listFriendRequests query is loading", () => {
 describe("when the listFriendRequests succeeds", () => {
   beforeEach(() => {
     listFriendRequestsMock.mockResolvedValue({
-      sentList: [
-        {
-          friendRequestId: 1,
-          state: 0,
-          userId: 2,
-        },
-      ],
       receivedList: [
         {
           friendRequestId: 2,
@@ -58,6 +51,13 @@ describe("when the listFriendRequests succeeds", () => {
           friendRequestId: 3,
           state: 0,
           userId: 4,
+        },
+      ],
+      sentList: [
+        {
+          friendRequestId: 1,
+          state: 0,
+          userId: 2,
         },
       ],
     });
@@ -73,10 +73,10 @@ describe("when the listFriendRequests succeeds", () => {
     await waitForNextUpdate();
 
     expect(result.current).toEqual({
-      isLoading: true,
-      isError: false,
-      errors: [],
       data: undefined,
+      errors: [],
+      isError: false,
+      isLoading: true,
     });
   });
 
@@ -88,22 +88,24 @@ describe("when the listFriendRequests succeeds", () => {
     await waitForNextUpdate();
 
     expect(result.current).toEqual({
-      isLoading: false,
-      isError: false,
-      errors: [],
       data: [
         {
-          friendRequestId: 1,
-          state: 0,
-          userId: 2,
           friend: {
+            age: 35,
+            avatarUrl: "",
+            city: "Helsinki, Finland",
             name: "Funny Dog",
             userId: 2,
             username: "funnydog",
-            avatarUrl: "",
           },
+          friendRequestId: 1,
+          state: 0,
+          userId: 2,
         },
       ],
+      errors: [],
+      isError: false,
+      isLoading: false,
     });
   });
 
@@ -115,40 +117,44 @@ describe("when the listFriendRequests succeeds", () => {
     await waitForNextUpdate();
 
     expect(result.current).toEqual({
-      isLoading: false,
-      isError: false,
-      errors: [],
       data: [
         {
-          friendRequestId: 2,
-          state: 0,
-          userId: 3,
           friend: {
+            age: 28,
+            avatarUrl: "https://loremflickr.com/200/200?user3",
+            city: "London, UK",
             name: "Funny Kid",
             userId: 3,
             username: "funnykid",
-            avatarUrl: "https://loremflickr.com/200/200?user3",
           },
+          friendRequestId: 2,
+          state: 0,
+          userId: 3,
         },
         {
-          friendRequestId: 3,
-          state: 0,
-          userId: 4,
           friend: {
+            age: 28,
+            avatarUrl: "https://loremflickr.com/200/200?user4",
+            city: "Melbourne, Australia",
             name: "Funny Chicken",
             userId: 4,
             username: "funnyChicken",
-            avatarUrl: "https://loremflickr.com/200/200?user4",
           },
+          friendRequestId: 3,
+          state: 0,
+          userId: 4,
         },
       ],
+      errors: [],
+      isError: false,
+      isLoading: false,
     });
   });
 
   it("returns an empty friend requests correctly if none are sent nor received", async () => {
     listFriendRequestsMock.mockResolvedValue({
-      sentList: [],
       receivedList: [],
+      sentList: [],
     });
 
     const {
@@ -159,10 +165,10 @@ describe("when the listFriendRequests succeeds", () => {
     });
     await waitForReceivedFriendRequests();
     expect(receivedRequests.current).toEqual({
-      isLoading: false,
-      isError: false,
-      errors: [],
       data: [],
+      errors: [],
+      isError: false,
+      isLoading: false,
     });
 
     const {
@@ -173,10 +179,10 @@ describe("when the listFriendRequests succeeds", () => {
     });
     await waitForSentFriendRequests();
     expect(sentRequests.current).toEqual({
-      isLoading: false,
-      isError: false,
-      errors: [],
       data: [],
+      errors: [],
+      isError: false,
+      isLoading: false,
     });
   });
 
@@ -195,28 +201,30 @@ describe("when the listFriendRequests succeeds", () => {
     await waitForNextUpdate();
 
     expect(result.current).toEqual({
-      isLoading: false,
-      isError: true,
-      errors: ["Error fetching user 3"],
       data: [
         {
+          friend: undefined,
           friendRequestId: 2,
           state: 0,
           userId: 3,
-          friend: undefined,
         },
         {
-          friendRequestId: 3,
-          state: 0,
-          userId: 4,
           friend: {
+            age: 28,
+            avatarUrl: "https://loremflickr.com/200/200?user4",
+            city: "Melbourne, Australia",
             name: "Funny Chicken",
             userId: 4,
             username: "funnyChicken",
-            avatarUrl: "https://loremflickr.com/200/200?user4",
           },
+          friendRequestId: 3,
+          state: 0,
+          userId: 4,
         },
       ],
+      errors: ["Error fetching user 3"],
+      isError: true,
+      isLoading: false,
     });
   });
 });
@@ -235,10 +243,10 @@ describe("when the listFriendRequests query failed", () => {
     await waitForNextUpdate();
 
     expect(result.current).toEqual({
-      isLoading: false,
-      isError: true,
-      errors: ["Error listing friend requests"],
       data: [],
+      errors: ["Error listing friend requests"],
+      isError: true,
+      isLoading: false,
     });
     expect(getUserMock).not.toHaveBeenCalled();
   });

@@ -25,16 +25,16 @@ import stripMarkdown from "utils/stripMarkdown";
 import { timeAgo } from "utils/timeAgo";
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    width: "100%",
-  },
   cardContent: { height: "100%" },
   link: { height: "100%", textDecoration: "none" },
-  userLoading: { display: "inline-block", width: 80 },
-  surtitle: { marginBottom: theme.spacing(0.5) },
   replies: {
     "&:first-child": { marginTop: theme.spacing(1) },
   },
+  root: {
+    width: "100%",
+  },
+  surtitle: { marginBottom: theme.spacing(0.5) },
+  userLoading: { display: "inline-block", width: 80 },
 }));
 
 export default function DiscussionCard({

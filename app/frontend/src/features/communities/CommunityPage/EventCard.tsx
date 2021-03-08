@@ -14,29 +14,29 @@ import { routeToEvent } from "../../../routes";
 import { timestamp2Date } from "../../../utils/date";
 
 const useStyles = makeStyles((theme) => ({
-  link: { textDecoration: "none" },
-  title: {
-    ...theme.typography.h3,
-    height: `calc(2 * calc(${theme.typography.h3.lineHeight} * ${theme.typography.h3.fontSize}))`,
-    marginBottom: 0,
-    marginTop: 0,
-  },
-  subtitle: { marginBottom: theme.spacing(0.5) },
-  icon: {
-    display: "block",
-    fontSize: "1rem",
-    marginInlineEnd: theme.spacing(0.5),
-  },
   detailsList: {
+    "& > li": {
+      alignItems: "center",
+      display: "flex",
+    },
     "ul&": {
       listStyle: "none",
       margin: 0,
       padding: 0,
     },
-    "& > li": {
-      alignItems: "center",
-      display: "flex",
-    },
+  },
+  icon: {
+    display: "block",
+    fontSize: "1rem",
+    marginInlineEnd: theme.spacing(0.5),
+  },
+  link: { textDecoration: "none" },
+  subtitle: { marginBottom: theme.spacing(0.5) },
+  title: {
+    ...theme.typography.h3,
+    height: `calc(2 * calc(${theme.typography.h3.lineHeight} * ${theme.typography.h3.fontSize}))`,
+    marginBottom: 0,
+    marginTop: 0,
   },
 }));
 
@@ -92,8 +92,8 @@ export default function EventCard({
                 <CalendarIcon className={classes.icon} />
                 <Typography variant="body2" noWrap>
                   {date.toLocaleDateString(undefined, {
-                    month: "short",
                     day: "numeric",
+                    month: "short",
                   })}
                 </Typography>
               </li>

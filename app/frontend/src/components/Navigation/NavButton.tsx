@@ -6,18 +6,18 @@ import { baseRoute, profileRoute } from "../../routes";
 
 const useStyles = makeStyles((theme) => ({
   link: {
+    alignItems: "center",
+    color: theme.palette.text.secondary,
+    display: "flex",
+    flex: "1",
+    flexDirection: "column",
+    fontSize: "2rem",
+    maxWidth: theme.spacing(21),
+    padding: theme.spacing(1, 1.5),
+    textDecoration: "none",
     transition: theme.transitions.create(["color", "padding-top"], {
       duration: theme.transitions.duration.short,
     }),
-    padding: theme.spacing(1, 1.5),
-    maxWidth: theme.spacing(21),
-    color: theme.palette.text.secondary,
-    flex: "1",
-    fontSize: "2rem",
-    textDecoration: "none",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
   },
   selected: {
     color: theme.palette.secondary.dark,

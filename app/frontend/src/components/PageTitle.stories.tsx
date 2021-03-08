@@ -3,8 +3,8 @@ import { Meta, Story } from "@storybook/react";
 import PageTitle from "./PageTitle";
 
 export default {
-  title: "Components/Simple/PageTitle",
   component: PageTitle,
+  title: "Components/Simple/PageTitle",
 } as Meta;
 
 const Template: Story<any> = () => (

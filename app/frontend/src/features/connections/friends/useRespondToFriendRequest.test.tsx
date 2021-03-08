@@ -24,7 +24,6 @@ describe("useRespondToFriendRequest hook", () => {
     client.setQueryData<ListFriendRequestsRes.AsObject>(
       "friendRequestsReceived",
       {
-        sentList: [],
         receivedList: [
           {
             friendRequestId: 1,
@@ -32,6 +31,7 @@ describe("useRespondToFriendRequest hook", () => {
             userId: 2,
           },
         ],
+        sentList: [],
       }
     );
     client.setQueryData<number[]>("friendIds", []);

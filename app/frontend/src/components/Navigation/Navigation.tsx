@@ -29,72 +29,72 @@ import NavButton from "./NavButton";
 
 const menu = [
   {
+    icon: <CommunityIcon fontSize="inherit" />,
     name: "Dashboard",
     route: "/",
-    icon: <CommunityIcon fontSize="inherit" />,
   },
   {
+    icon: <EmailIcon fontSize="inherit" />,
     name: "Messages",
     route: messagesRoute,
-    icon: <EmailIcon fontSize="inherit" />,
   },
   {
+    icon: <LocationIcon fontSize="inherit" />,
     name: "Map",
     route: mapRoute,
-    icon: <LocationIcon fontSize="inherit" />,
   },
   {
+    icon: <PeopleIcon fontSize="inherit" />,
     name: "Profile",
     route: profileRoute,
-    icon: <PeopleIcon fontSize="inherit" />,
   },
   {
+    icon: <PersonIcon fontSize="inherit" />,
     name: "Connections",
     route: connectionsRoute,
-    icon: <PersonIcon fontSize="inherit" />,
   },
 ];
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
+    [theme.breakpoints.up("md")]: {
+      bottom: "auto",
+      top: 0,
+    },
     bottom: 0,
     top: "auto",
+  },
+  flex: {
     [theme.breakpoints.up("md")]: {
-      top: 0,
-      bottom: "auto",
+      flex: 0,
+      justifyContent: "flex-start",
+      paddingLeft: theme.spacing(3),
+      paddingRight: theme.spacing(3),
+      width: "auto",
     },
+    flex: 1,
+    justifyContent: "space-evenly",
+    padding: 0,
+  },
+  gutters: {
+    [theme.breakpoints.up("md")]: {
+      paddingLeft: theme.spacing(3),
+      paddingRight: theme.spacing(3),
+    },
+    paddingLeft: 0,
+    paddingRight: 0,
   },
   search: {
-    flexGrow: 3,
-    display: "flex",
-    justifyContent: "flex-end",
-    alignItems: "center",
     [theme.breakpoints.down("sm")]: {
       marginInlineEnd: theme.spacing(1),
     },
+    alignItems: "center",
+    display: "flex",
+    flexGrow: 3,
+    justifyContent: "flex-end",
   },
   title: {
     fontWeight: "bold",
-  },
-  gutters: {
-    paddingLeft: 0,
-    paddingRight: 0,
-    [theme.breakpoints.up("md")]: {
-      paddingRight: theme.spacing(3),
-      paddingLeft: theme.spacing(3),
-    },
-  },
-  flex: {
-    flex: 1,
-    padding: 0,
-    justifyContent: "space-evenly",
-    [theme.breakpoints.up("md")]: {
-      width: "auto",
-      flex: 0,
-      paddingRight: theme.spacing(3),
-      paddingLeft: theme.spacing(3),
-      justifyContent: "flex-start",
-    },
   },
 }));
 

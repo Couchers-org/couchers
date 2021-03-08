@@ -4,22 +4,22 @@ const URL = process.env.REACT_APP_API_BASE_URL;
 
 export const sources = {
   guides: {
-    type: "geojson",
     data: URL + "/geojson/guides",
+    type: "geojson",
   },
 };
 
 export const layers = {
   guideLayer: {
     id: "guide-points",
-    source: "guides",
-    type: "circle",
     paint: {
       "circle-color": "#8511d9",
       "circle-radius": 8,
-      "circle-stroke-width": 1,
       "circle-stroke-color": "#fff",
+      "circle-stroke-width": 1,
     },
+    source: "guides",
+    type: "circle",
   },
 };
 

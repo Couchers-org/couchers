@@ -3,16 +3,16 @@ import { Meta, Story } from "@storybook/react";
 import Alert from "./Alert";
 
 export default {
-  title: "Components/Simple/Alert",
-  component: Alert,
   argTypes: {
     severity: {
       control: {
-        type: "select",
         options: ["error", "info", "warning", "success"],
+        type: "select",
       },
     },
   },
+  component: Alert,
+  title: "Components/Simple/Alert",
 } as Meta;
 
 const Template: Story<any> = (args) => (

@@ -14,10 +14,10 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "column-reverse",
   },
   message: {
-    marginBottom: theme.spacing(2),
     "&:nth-child(1)": {
       marginBottom: 0,
     },
+    marginBottom: theme.spacing(2),
   },
 }));
 

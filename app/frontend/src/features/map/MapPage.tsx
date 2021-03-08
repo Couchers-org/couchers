@@ -12,9 +12,9 @@ import { addPlacesToMap } from "./places";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    maxWidth: "100vw",
-    height: "80vh",
     border: "1px solid black",
+    height: "80vh",
+    maxWidth: "100vw",
   },
 }));
 

@@ -13,11 +13,11 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "column",
   },
-  link: {
-    textDecoration: "none",
-  },
   button: {
     marginBottom: theme.spacing(0.5),
+  },
+  link: {
+    textDecoration: "none",
   },
 }));
 
