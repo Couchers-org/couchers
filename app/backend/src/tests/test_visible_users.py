@@ -347,12 +347,3 @@ def test_search_function_invisible_users(db):
 
         res = api.UserSearch(search_pb2.UserSearchReq(query=wrappers_pb2.StringValue(value="test_user_")))
         assert len(res.results) == 1
-
-
-def test_group_with_invisible_users(db):
-    pass
-
-
-def test_events_with_invisible_users(db):
-    # TODO
-    pass
