@@ -152,7 +152,9 @@ def test_update_profile(db):
         assert e.value.details() == errors.INVALID_NAME
 
         with pytest.raises(grpc.RpcError) as e:
-            api.UpdateProfile(api_pb2.UpdateProfileReq(lat=wrappers_pb2.DoubleValue(value=0), lng=wrappers_pb2.DoubleValue(value=0)))
+            api.UpdateProfile(
+                api_pb2.UpdateProfileReq(lat=wrappers_pb2.DoubleValue(value=0), lng=wrappers_pb2.DoubleValue(value=0))
+            )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == errors.INVALID_COORDINATE
 
