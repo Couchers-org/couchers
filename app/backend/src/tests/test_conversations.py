@@ -588,6 +588,18 @@ def test_send_message(db):
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
+def test_CreateGroupChat_with_invisible_user(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user(is_deleted=True)
+    make_friends(user1, user2)
+
+    with conversations_session(token1) as c:
+        with pytest.raises(grpc.RpcError) as e:
+            c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id]))
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == errors.NO_RECIPIENTS
+
+
 def test_leave_invite_to_group_chat(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
