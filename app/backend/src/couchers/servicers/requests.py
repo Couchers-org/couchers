@@ -134,25 +134,6 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
     def GetHostRequest(self, request, context):
         with session_scope() as session:
-            """
-            host_request = (
-                session.query(HostRequest)
-                .filter(HostRequest.conversation_id == request.host_request_id)
-                .filter(or_(HostRequest.from_user_id == context.user_id, HostRequest.to_user_id == context.user_id))
-                .one_or_none()
-            )
-
-            visible_users = (
-                session.query(User)
-                .filter(or_(User.id==host_request.from_user_id, User.id==host_request.to_user_id))
-                .filter(User.is_visible)
-                .all()
-            )
-
-            if len(visible_users) < 2:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
-
-            """
             users1 = aliased(User)
             users2 = aliased(User)
             host_request = (
@@ -286,22 +267,6 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         users2 = aliased(User)
 
         with session_scope() as session:
-            """
-            host_request = (
-                session.query(HostRequest).filter(HostRequest.conversation_id == request.host_request_id).one_or_none()
-            )
-
-            visible_users = (
-                session.query(User)
-                .filter(or_(User.id==host_request.from_user_id, User.id==host_request.to_user_id))
-                .filter(User.is_visible)
-                .all()
-            )
-
-            if len(visible_users) < 2:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
-
-            """
             host_request = (
                 session.query(HostRequest)
                 .join(users1, HostRequest.from_user_id == users1.id)
