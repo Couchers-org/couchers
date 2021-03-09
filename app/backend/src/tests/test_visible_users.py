@@ -43,25 +43,31 @@ def test_visible_user_filter(db):
         assert len(visible_users) == 1
 
 
-def test_get_invisible_users(db):
+def test_get_invisible_user_by_username(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user(is_deleted=True)
 
-    # Test get invisible user by username
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.GetUser(api_pb2.GetUserReq(user=user2.username))
     assert e.value.code() == grpc.StatusCode.NOT_FOUND
     assert e.value.details() == errors.USER_NOT_FOUND
 
-    # Test get invisible user by id
+
+def test_get_invisible_user_by_id(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user(is_deleted=True)
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.GetUser(api_pb2.GetUserReq(user=str(user2.id)))
     assert e.value.code() == grpc.StatusCode.NOT_FOUND
     assert e.value.details() == errors.USER_NOT_FOUND
 
-    # Test get invisible user by email
+
+def test_get_invisible_user_by_email(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user(is_deleted=True)
+
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.GetUser(api_pb2.GetUserReq(user=user2.email))
@@ -69,13 +75,9 @@ def test_get_invisible_users(db):
     assert e.value.details() == errors.USER_NOT_FOUND
 
 
-def test_friend_requests_with_invisible_users(db):
+def test_SendFriendRequest_invisible_user_as_sender(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user(is_deleted=True)
-    user3, token3 = generate_user()
-    user4, token4 = generate_user()
-
-    # Test send friend request from invisible user
     with api_session(token2) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.SendFriendRequest(
@@ -86,7 +88,10 @@ def test_friend_requests_with_invisible_users(db):
     assert e.value.code() == grpc.StatusCode.NOT_FOUND
     assert e.value.details() == errors.USER_NOT_FOUND
 
-    # Test send friend request to invisible user
+
+def test_SendFriendRequest_invisible_user_as_recipient(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user(is_deleted=True)
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.SendFriendRequest(
@@ -97,6 +102,93 @@ def test_friend_requests_with_invisible_users(db):
     assert e.value.code() == grpc.StatusCode.NOT_FOUND
     assert e.value.details() == errors.USER_NOT_FOUND
 
+
+"""""
+def test_ViewFriendRequest_invisible_user_as_sender(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    
+    with api_session(token2) as api:
+        friend_request_id = api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id)).friend_request_id
+    
+    with session_scope() as session:
+        user2 = get_user_by_field(session, user2.username)
+        user2.is_banned = True
+        session.commit()
+        session.refresh(user2)
+        session.expunge(user2)
+    
+    with api_session(token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetFriendRequest(
+                api_pb2.GetFriendRequestReq(
+                    friend_request_id=friend_request_id,
+                )
+            )
+    assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    assert e.value.details() == errors.FRIEND_REQUEST_NOT_FOUND
+    
+    
+def test_ViewFriendRequest_invisible_user_as_recipient(db):
+    # TODO
+    pass
+"""
+
+
+def test_RespondFriendRequest_invisible_user_as_sender(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with api_session(token2) as api:
+        friend_request_id = api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id)).friend_request_id
+
+    with session_scope() as session:
+        user2 = get_user_by_field(session, user2.username)
+        user2.is_banned = True
+        session.commit()
+        session.refresh(user2)
+        session.expunge(user2)
+
+    with api_session(token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=friend_request_id, accept=True))
+    assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    assert e.value.details() == errors.FRIEND_REQUEST_NOT_FOUND
+
+def test_RespondFriendRequest_invisible_user_as_recipient(db):
+    # TODO
+    pass
+
+def test_CancelFriendRequest_invisible_user_as_sender():
+    # TODO
+    pass
+
+
+def test_CancelFriendRequest_invisible_user_as_recipient():
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with api_session(token1) as api:
+        friend_request_id = api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id)).friend_request_id
+
+    with session_scope() as session:
+        user2 = get_user_by_field(session, user2.username)
+        user2.is_banned = True
+        session.commit()
+        session.refresh(user2)
+        session.expunge(user2)
+
+    with api_session(token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.CancelFriendRequest(api_pb2.CancelFriendRequestReq(friend_request_id=friend_request_id))
+    assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    assert e.value.details() == errors.FRIEND_REQUEST_NOT_FOUND
+
+
+def test_ListFriendRequests_invisible_user_as_sender(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
     # Check no active FR to start
     with api_session(token1) as api:
         res = api.ListFriendRequests(empty_pb2.Empty())
@@ -104,7 +196,7 @@ def test_friend_requests_with_invisible_users(db):
         assert len(res.received) == 0
 
     # Send friend request to user 1
-    with api_session(token3) as api:
+    with api_session(token2) as api:
         friend_request_id = api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id)).friend_request_id
 
     # Check 1 received FR
@@ -115,11 +207,11 @@ def test_friend_requests_with_invisible_users(db):
 
     # Hide sender
     with session_scope() as session:
-        user3 = get_user_by_field(session, user3.username)
-        user3.is_banned = True
+        user2 = get_user_by_field(session, user2.username)
+        user2.is_banned = True
         session.commit()
-        session.refresh(user3)
-        session.expunge(user3)
+        session.refresh(user2)
+        session.expunge(user2)
 
     # Check back to no FR
     with api_session(token1) as api:
@@ -127,43 +219,32 @@ def test_friend_requests_with_invisible_users(db):
         assert len(res.sent) == 0
         assert len(res.received) == 0
 
-    """""
-    # Test view friend request sent by invisible user
-    with api_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.GetFriendRequest(
-                api_pb2.GetFriendRequestReq(
-                    friend_request_id=friend_request_id,
-                )
-            )
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == errors.FRIEND_REQUEST_NOT_FOUND
-    """
 
-    # Test reply friend request sent by invisible user
-    with api_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=friend_request_id, accept=True))
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == errors.FRIEND_REQUEST_NOT_FOUND
+def test_ListFriendRequests_invisible_user_as_recipient(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
 
-    # Send FR from user1
+    # Check no active FR to start
     with api_session(token1) as api:
-        friend_request_id_2 = api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user4.id)).friend_request_id
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        assert len(res.sent) == 0
+        assert len(res.received) == 0
 
-    # Check one FR sent
-    with api_session(token1) as api:
+        # Send FR from user1
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
+
+        # Check one FR sent
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert len(res.sent) == 1
         assert len(res.received) == 0
 
     # Hide recipient
     with session_scope() as session:
-        user4 = get_user_by_field(session, user4.username)
-        user4.is_banned = True
+        user2 = get_user_by_field(session, user2.username)
+        user2.is_banned = True
         session.commit()
-        session.refresh(user4)
-        session.expunge(user4)
+        session.refresh(user2)
+        session.expunge(user2)
 
     # Check back to no FR
     with api_session(token1) as api:
@@ -171,15 +252,8 @@ def test_friend_requests_with_invisible_users(db):
         assert len(res.sent) == 0
         assert len(res.received) == 0
 
-    # Test cancel friend request sent to invisible user
-    with api_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.CancelFriendRequest(api_pb2.CancelFriendRequestReq(friend_request_id=friend_request_id_2))
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == errors.FRIEND_REQUEST_NOT_FOUND
 
-
-def test_friend_list_with_invisible_users(db):
+def test_ListFriends_with_invisible_users(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user(is_deleted=True)
     user3, token3 = generate_user()
@@ -201,14 +275,14 @@ def test_friend_list_with_invisible_users(db):
         assert len(res.user_ids) == 1
 
 
-def test_host_requests_with_invisible_user(db):
+def test_CreateHostRequest_invisible_user_as_sender(db):
+    # TODO:
+    pass
+
+
+def test_CreateHostRequest_invisible_user_as_recipient(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user(is_deleted=True)
-    user3, token3 = generate_user()
-    user4, token4 = generate_user()
-    user5, token5 = generate_user()
-
-    # Test send host request to invisible user
     today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
     today_plus_3 = (now() + timedelta(days=3)).strftime("%Y-%m-%d")
 
@@ -222,29 +296,64 @@ def test_host_requests_with_invisible_user(db):
     assert e.value.code() == grpc.StatusCode.NOT_FOUND
     assert e.value.details() == errors.USER_NOT_FOUND
 
-    # Send host request, then delete requester
-    with requests_session(token3) as requests:
+
+def test_GetHostRequest_invisible_user_as_sender(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_3 = (now() + timedelta(days=3)).strftime("%Y-%m-%d")
+
+    # Send host request
+    with requests_session(token1) as requests:
         host_request_id = requests.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                to_user_id=user1.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
             )
         ).host_request_id
 
+    # Delete sender
     with session_scope() as session:
-        user3 = get_user_by_field(session, user3.username)
-        user3.is_deleted = True
+        user1 = get_user_by_field(session, user1.username)
+        user1.is_deleted = True
         session.commit()
-        session.refresh(user3)
-        session.expunge(user3)
+        session.refresh(user1)
+        session.expunge(user1)
 
-    with requests_session(token1) as requests:
-        # Test get host request sent by invisible user
+    with requests_session(token2) as requests:
         with pytest.raises(grpc.RpcError) as e:
             requests.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
         assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
 
-        # Test reply to host request sent by invisible user
+
+def test_GetHostRequest_invisible_user_as_recipient(db):
+    # TODO
+    pass
+
+
+def test_RespondHostRequest_invisible_user_as_sender(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_3 = (now() + timedelta(days=3)).strftime("%Y-%m-%d")
+
+    # Send host request
+    with requests_session(token1) as requests:
+        host_request_id = requests.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+            )
+        ).host_request_id
+
+    # Delete sender
+    with session_scope() as session:
+        user1 = get_user_by_field(session, user1.username)
+        user1.is_deleted = True
+        session.commit()
+        session.refresh(user1)
+        session.expunge(user1)
+
+    with requests_session(token2) as requests:
         with pytest.raises(grpc.RpcError) as e:
             requests.RespondHostRequest(
                 requests_pb2.RespondHostRequestReq(
@@ -254,62 +363,95 @@ def test_host_requests_with_invisible_user(db):
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
         assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
 
-    # Send host request, then delete recipient
-    with requests_session(token1) as requests:
-        requests.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                to_user_id=user4.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
-            )
-        )
 
-    with session_scope() as session:
-        user4 = get_user_by_field(session, user4.username)
-        user4.is_deleted = True
-        session.commit()
-        session.refresh(user4)
-        session.expunge(user4)
+def test_RespondHostRequest_invisible_user_as_recipient(db):
+    # TODO
+    pass
 
-    # Test view all host requests excluding those involving invisible users
+
+def test_ListHostRequests_excluding_invisible_user_as_recipient(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_3 = (now() + timedelta(days=3)).strftime("%Y-%m-%d")
+
+
     with requests_session(token1) as requests:
         res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
         assert len(res.host_requests) == 0
 
         requests.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                to_user_id=user5.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
             )
         )
 
         res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
         assert len(res.host_requests) == 1
 
+    with session_scope() as session:
+        user2 = get_user_by_field(session, user2.username)
+        user2.is_deleted = True
+        session.commit()
+        session.refresh(user2)
+        session.expunge(user2)
 
-def test_messages_with_invisible_users(db):
+    with requests_session(token1) as requests:
+        res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
+        assert len(res.host_requests) == 0
+
+
+def test_ListHostRequests_excluding_invisible_user_as_sender(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_3 = (now() + timedelta(days=3)).strftime("%Y-%m-%d")
+
+    with requests_session(token2) as requests:
+        res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
+        assert len(res.host_requests) == 0
+
+    with requests_session(token1) as requests:
+        requests.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+            )
+        )
+
+
+    with requests_session(token2) as requests:
+        res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
+        assert len(res.host_requests) == 1
+
+    with session_scope() as session:
+        user1 = get_user_by_field(session, user1.username)
+        user1.is_deleted = True
+        session.commit()
+        session.refresh(user1)
+        session.expunge(user1)
+
+    with requests_session(token2) as requests:
+        res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
+        assert len(res.host_requests) == 0
+
+
+def test_CreateGroupChat_with_invisible_user(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user(is_deleted=True)
     make_friends(user1, user2)
 
-    # Test create message
     with conversations_session(token1) as c:
         with pytest.raises(grpc.RpcError) as e:
             c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id]))
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
     assert e.value.details() == errors.NO_RECIPIENTS
 
-    # Test view messages from invisible user
-    # Desired behavior? Should these be viewable or hidden?
-    # TODO
-
-    # Test group chat where one user becomes invisible
-    # Desired behavior? Do their messages remain in the group chat?
-    # TODO
 
 
-def test_references_invisible_users(db):
+def test_invisible_user_writes_reference(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user(accepted_tos=0)
 
-    # Test invisible user writes reference
     with api_session(token2) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.WriteReference(
@@ -320,7 +462,11 @@ def test_references_invisible_users(db):
     assert e.value.code() == grpc.StatusCode.NOT_FOUND
     assert e.value.details() == errors.USER_NOT_FOUND
 
-    # Test user writes reference for invisible user
+
+def test_write_reference_for_invisible_user(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user(accepted_tos=0)
+
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.WriteReference(
@@ -332,7 +478,7 @@ def test_references_invisible_users(db):
     assert e.value.details() == errors.USER_NOT_FOUND
 
 
-def test_search_function_invisible_users(db):
+def test_Search_function_invisible_users(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user(is_deleted=True)
 
@@ -345,5 +491,11 @@ def test_search_function_invisible_users(db):
         )
         assert len(res.results) == 1
 
+
+def test_UserSearch_function_invisible_users(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user(is_deleted=True)
+
+    with search_session(token1) as api:
         res = api.UserSearch(search_pb2.UserSearchReq(query=wrappers_pb2.StringValue(value="test_user_")))
         assert len(res.results) == 1
