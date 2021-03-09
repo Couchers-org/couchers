@@ -3,6 +3,7 @@ import {
   makeStyles,
   Radio,
   RadioGroup,
+  TextField,
   Typography,
 } from "@material-ui/core";
 import Alert from "components/Alert";
@@ -16,10 +17,14 @@ import {
   COUNTRIES_LIVED,
   COUNTRIES_VISITED,
   EDUCATION,
+  FEMALE_PRONOUNS,
   HOBBIES,
+  HOMETOWN,
   HOSTING_STATUS,
   LANGUAGES_SPOKEN,
+  MALE_PRONOUNS,
   OCCUPATION,
+  PRONOUNS,
   SAVE,
 } from "features/constants";
 import {
@@ -113,6 +118,15 @@ export default function EditProfileForm() {
       ) : null}
       {user ? (
         <>
+          <form onSubmit={onSubmit}>
+            <ProfileTextInput
+              label="Name"
+              name="name"
+              defaultValue={user.name}
+              inputRef={register}
+              className={classes.field}
+            />
+          </form>
           <Controller
             name="city"
             control={control}
@@ -195,6 +209,58 @@ export default function EditProfileForm() {
                   </RadioGroup>
                 </>
               )}
+            />
+            <Controller
+              control={control}
+              defaultValue={user.pronouns}
+              name="pronouns"
+              render={({ onChange, value }) => {
+                const other =
+                  value === FEMALE_PRONOUNS || value === MALE_PRONOUNS
+                    ? ""
+                    : value;
+                return (
+                  <>
+                    <Typography variant="h2">{PRONOUNS}</Typography>
+                    <RadioGroup
+                      row
+                      aria-label="pronouns"
+                      name="pronouns"
+                      value={value}
+                      onChange={(_, value) => onChange(value)}
+                    >
+                      <FormControlLabel
+                        value={FEMALE_PRONOUNS}
+                        control={<Radio />}
+                        label={FEMALE_PRONOUNS}
+                      />
+                      <FormControlLabel
+                        value={MALE_PRONOUNS}
+                        control={<Radio />}
+                        label={MALE_PRONOUNS}
+                      />
+                      <FormControlLabel
+                        value={other}
+                        control={<Radio />}
+                        label={
+                          <TextField
+                            onChange={(event) => onChange(event.target.value)}
+                            defaultValue={other}
+                            value={other}
+                          />
+                        }
+                      />
+                    </RadioGroup>
+                  </>
+                );
+              }}
+            />
+            <ProfileTextInput
+              label={HOMETOWN}
+              name="hometown"
+              defaultValue={user.hometown}
+              inputRef={register}
+              className={classes.field}
             />
             <ProfileTextInput
               label={OCCUPATION}
