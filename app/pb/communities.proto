@@ -64,6 +64,10 @@ service Communities {
     //
     // Raises: FAILED_PRECONDITION if the user is not part of the community or if their location is within the community
   }
+
+  rpc ListUserCommunities(ListUserCommunitiesReq) returns (ListUserCommunitiesRes) {
+    // Gets a list of communities a member belongs to
+  }
 }
 
 message Community {
@@ -98,6 +102,20 @@ message ListCommunitiesReq {
 }
 
 message ListCommunitiesRes {
+  repeated Community communities = 1;
+
+  string next_page_token = 2;
+}
+
+message ListUserCommunitiesReq {
+  // the user to get communities from, set to 0 for current user
+  uint32 user_id = 1;
+
+  uint32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListUserCommunitiesRes {
   repeated Community communities = 1;
 
   string next_page_token = 2;
