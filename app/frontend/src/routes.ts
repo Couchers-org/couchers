@@ -35,7 +35,6 @@ export const mapRoute = "/map";
 export const logoutRoute = "/logout";
 export const connectionsRoute = "/connections";
 export const friendsRoute = `${connectionsRoute}/friends`;
-export const notFoundRoute = "/notfound";
 
 export const userRoute = "/user";
 export const routeToUser = (username: string) => `${profileRoute}/${username}`;
