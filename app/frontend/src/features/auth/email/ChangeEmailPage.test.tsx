@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { CHANGE_PASSWORD, SUBMIT } from "features/auth/constants";
 import ChangeEmailPage from "features/auth/email/ChangeEmailPage";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { GetAccountInfoRes } from "pb/account_pb";
@@ -31,11 +32,11 @@ describe("ChangeEmailPage", () => {
       render(<ChangeEmailPage />, { wrapper });
 
       expect(
-        screen.getByRole("heading", { name: "Change email" })
+        screen.getByRole("heading", { name: CHANGE_PASSWORD })
       ).toBeVisible();
       expect(await screen.findByLabelText("Current password")).toBeVisible();
       expect(screen.getByLabelText("New email")).toBeVisible();
-      expect(screen.getByRole("button", { name: "Submit" })).toBeVisible();
+      expect(screen.getByRole("button", { name: SUBMIT })).toBeVisible();
     });
 
     it("does not try to submit the form if the user didn't provide their old password", async () => {
