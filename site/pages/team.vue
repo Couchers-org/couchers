@@ -77,13 +77,13 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-heloise.jpg" alt="Headshot of Héloïse">
+                      <img class="is-rounded" src="/img/head-emily.jpg" alt="Headshot of Emily">
                     </figure>
                   </div>
                   <div class="media-content">
-                    <p class="title is-4">Héloïse Garry</p>
-                    <p class="subtitle is-6 role">Community Advocate</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>New York City, USA</p>
+                    <p class="title is-4">Emily Damgali</p>
+                    <p class="subtitle is-6 role">Community Engagement</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Kaitaia, New Zealand</p>
                   </div>
                 </div>
               </div>
@@ -120,24 +120,6 @@
                     <p class="title is-4">Lucas Levin</p>
                     <p class="subtitle is-6 role">Head of Frontend</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>London, United Kingdom</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="column is-one-third">
-            <div class="card">
-              <div class="card-content">
-                <div class="media">
-                  <div class="media-left">
-                    <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-emily.jpg" alt="Headshot of Emily">
-                    </figure>
-                  </div>
-                  <div class="media-content">
-                    <p class="title is-4">Emily Damgali</p>
-                    <p class="subtitle is-6 role">Community Engagement</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Kaitaia, New Zealand</p>
                   </div>
                 </div>
               </div>

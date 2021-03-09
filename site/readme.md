@@ -10,6 +10,9 @@ This site is automatically built on CodeBuild and deployed to S3 + CloudFront ac
 # install dependencies
 $ yarn install
 
+# generate css
+$ yarn css-build
+
 # serve with hot reload at localhost:3000
 $ yarn dev
 
