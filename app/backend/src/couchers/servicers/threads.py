@@ -59,17 +59,14 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
                     for r, n in res[:page_size]
                 ]
 
-                # query without .limit() to get the total number of responses
-                all_res = (
-                    session.query(Comment, func.count(Reply.id))
-                    .outerjoin(Reply, Reply.comment_id == Comment.id)
+                # get the total number of responses
+                num_responses = (
+                    session.query(func.count(Comment.id)).filter(Comment.thread_id == database_id).scalar()
+                    + session.query(func.count(Reply.id))
+                    .join(Comment, Comment.id == Reply.comment_id)
                     .filter(Comment.thread_id == database_id)
-                    .group_by(Comment.id)
-                    .all()
+                    .scalar()
                 )
-                num_responses = 0
-                for r in all_res:
-                    num_responses += 1 + r[1]
 
             elif depth == 1:
                 if not session.query(Comment).filter(Comment.id == database_id).one_or_none():
@@ -93,8 +90,7 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
                     )
                     for r in res[:page_size]
                 ]
-                all_res = session.query(Reply).filter(Reply.comment_id == database_id).all()
-                num_responses = len(all_res)
+                num_responses = session.query(func.count(Reply.id)).filter(Reply.comment_id == database_id).scalar()
 
             else:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.THREAD_NOT_FOUND)
