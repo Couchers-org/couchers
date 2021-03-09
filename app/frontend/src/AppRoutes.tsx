@@ -27,8 +27,8 @@ import Home from "./features/Home";
 import MapPage from "./features/map/MapPage";
 import Messages from "./features/messages/index";
 import NotFoundPage from "./features/NotFoundPage";
-import EditHostingPreferencePage from "./features/profile/edit/EditHostingPreferencePage";
-import EditProfilePage from "./features/profile/edit/EditProfilePage";
+import EditHostingPreference from "./features/profile/edit/EditHostingPreference";
+import EditProfile from "./features/profile/edit/EditProfile";
 import ProfilePage from "./features/profile/view/ProfilePage";
 import SearchPage from "./features/search/SearchPage";
 import { PageType } from "./pb/pages_pb";
@@ -136,10 +136,10 @@ export default function AppRoutes() {
         // PROFILE
       }
       <AppRoute isPrivate path={editProfileRoute}>
-        <EditProfilePage />
+        <EditProfile />
       </AppRoute>
       <AppRoute isPrivate path={editHostingPreferenceRoute}>
-        <EditHostingPreferencePage />
+        <EditHostingPreference />
       </AppRoute>
       <AppRoute isPrivate path={`${profileRoute}/:username?`}>
         <ProfilePage />
