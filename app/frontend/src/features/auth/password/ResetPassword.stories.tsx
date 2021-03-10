@@ -1,24 +1,22 @@
 import { Meta, Story } from "@storybook/react";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import React from "react";
+import { mockedService } from "stories/__mocks__/service";
 
-import { mockedService } from "../../../stories/__mocks__/service";
-import ResetPasswordPage from "./ResetPasswordPage";
+import ResetPassword from "./ResetPassword";
 
 export default {
-  title: "Me/Auth/ResetPasswordPage",
-  component: ResetPasswordPage,
+  title: "Me/Auth/ResetPassword",
+  component: ResetPassword,
 } as Meta;
 
-interface ResetPasswordPageArgs {
+interface ResetPasswordArgs {
   shouldSucceed?: boolean;
 }
 
-const Template: Story<ResetPasswordPageArgs> = ({
-  shouldSucceed = true,
-} = {}) => {
+const Template: Story<ResetPasswordArgs> = ({ shouldSucceed = true } = {}) => {
   setMocks({ shouldSucceed });
-  return <ResetPasswordPage />;
+  return <ResetPassword />;
 };
 
 export const Success = Template.bind({});
@@ -28,7 +26,7 @@ Failed.args = {
   shouldSucceed: false,
 };
 
-function setMocks({ shouldSucceed }: Required<ResetPasswordPageArgs>) {
+function setMocks({ shouldSucceed }: Required<ResetPasswordArgs>) {
   mockedService.account.resetPassword = () =>
     shouldSucceed
       ? Promise.resolve(new Empty())

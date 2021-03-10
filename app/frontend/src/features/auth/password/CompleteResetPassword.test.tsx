@@ -2,12 +2,12 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Route, Switch } from "react-router-dom";
+import { loginRoute, resetPasswordRoute } from "routes";
+import { service } from "service/index";
+import { getHookWrapperWithClient } from "test/hookWrapper";
+import { MockedService } from "test/utils";
 
-import { loginRoute, resetPasswordRoute } from "../../../routes";
-import { service } from "../../../service";
-import { getHookWrapperWithClient } from "../../../test/hookWrapper";
-import { MockedService } from "../../../test/utils";
-import CompleteResetPasswordPage from "./CompleteResetPasswordPage";
+import CompleteResetPassword from "./CompleteResetPassword";
 
 const completePasswordResetMock = service.account
   .completePasswordReset as MockedService<
@@ -22,7 +22,7 @@ function renderPage() {
   render(
     <Switch>
       <Route path={`${resetPasswordRoute}/:resetToken`}>
-        <CompleteResetPasswordPage />
+        <CompleteResetPassword />
       </Route>
       <Route path={loginRoute}>Log in page</Route>
     </Switch>,
@@ -30,7 +30,7 @@ function renderPage() {
   );
 }
 
-describe("CompleteResetPasswordPage", () => {
+describe("CompleteResetPassword", () => {
   it("shows the loading state on initial load", async () => {
     completePasswordResetMock.mockImplementation(
       () => new Promise(() => void 0)

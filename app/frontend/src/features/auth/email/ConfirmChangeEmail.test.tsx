@@ -2,11 +2,11 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Route, Switch } from "react-router-dom";
+import { confirmChangeEmailRoute, loginRoute } from "routes";
+import { service } from "service/index";
+import { getHookWrapperWithClient } from "test/hookWrapper";
+import { MockedService } from "test/utils";
 
-import { confirmChangeEmailRoute, loginRoute } from "../../../routes";
-import { service } from "../../../service";
-import { getHookWrapperWithClient } from "../../../test/hookWrapper";
-import { MockedService } from "../../../test/utils";
 import ConfirmChangeEmail from "./ConfirmChangeEmail";
 
 const completeChangeEmailMock = service.account
@@ -14,7 +14,7 @@ const completeChangeEmailMock = service.account
   typeof service.account.completeChangeEmail
 >;
 
-function render() {
+function renderPage() {
   const { wrapper } = getHookWrapperWithClient({
     initialRouterEntries: [`${confirmChangeEmailRoute}/Em4iLR3seTtok3n`],
   });
@@ -33,7 +33,7 @@ function render() {
 describe("ConfirmChangeEmail", () => {
   it("shows the loading state on initial load", async () => {
     completeChangeEmailMock.mockImplementation(() => new Promise(() => void 0));
-    render();
+    renderPage();
 
     expect(
       await screen.findByText("Email change in progress...")
@@ -43,7 +43,7 @@ describe("ConfirmChangeEmail", () => {
   describe("when the change email completes successfully", () => {
     beforeEach(() => {
       completeChangeEmailMock.mockResolvedValue(new Empty());
-      render();
+      renderPage();
     });
 
     it("shows the success alert", async () => {
@@ -70,7 +70,7 @@ describe("ConfirmChangeEmail", () => {
   it("shows an error alert if the reset password process failed to complete", async () => {
     jest.spyOn(console, "error").mockReturnValue(undefined);
     completeChangeEmailMock.mockRejectedValue(new Error("Invalid token"));
-    render();
+    renderPage();
 
     const errorAlert = await screen.findByRole("alert");
     expect(errorAlert).toBeVisible();

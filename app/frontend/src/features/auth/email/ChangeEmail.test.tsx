@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { CHANGE_PASSWORD, SUBMIT } from "features/auth/constants";
-import Settings from "features/auth/email/Settings";
+import Settings from "features/auth/Settings";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { GetAccountInfoRes } from "pb/account_pb";
 import { service } from "service/index";

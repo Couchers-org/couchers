@@ -1,35 +1,41 @@
 import { Meta, Story } from "@storybook/react";
-import Settings from "features/auth/email/Settings";
+import ChangePassword from "features/auth/password/ChangePassword";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { GetAccountInfoRes } from "pb/account_pb";
 import React from "react";
 import { mockedService } from "stories/__mocks__/service";
 
 export default {
-  title: "Me/Auth/Settings",
-  component: Settings,
+  title: "Me/Auth/ChangePassword",
+  component: ChangePassword,
 } as Meta;
 
-interface SettingsArgs {
+interface ChangePasswordArgs {
   loginMethod?: GetAccountInfoRes.LoginMethod;
   simulateGetAccountInfoLoading?: boolean;
-  shouldChangeEmailSucceed?: boolean;
+  shouldChangePasswordSucceed?: boolean;
   shouldGetAccountInfoSucceed?: boolean;
+  accountInfo?: GetAccountInfoRes.AsObject;
 }
 
-const Template: Story<SettingsArgs> = ({
+const Template: Story<ChangePasswordArgs> = ({
   loginMethod = GetAccountInfoRes.LoginMethod.PASSWORD,
   simulateGetAccountInfoLoading = false,
-  shouldChangeEmailSucceed = true,
+  shouldChangePasswordSucceed = true,
   shouldGetAccountInfoSucceed = true,
+  accountInfo = {
+    loginMethod,
+    hasPassword: true,
+  } as GetAccountInfoRes.AsObject,
 } = {}) => {
   setMocks({
     loginMethod,
     simulateGetAccountInfoLoading,
-    shouldChangeEmailSucceed,
+    shouldChangePasswordSucceed,
     shouldGetAccountInfoSucceed,
+    accountInfo,
   });
-  return <Settings />;
+  return <ChangePassword {...accountInfo} />;
 };
 
 export const HasPassword = Template.bind({});
@@ -49,24 +55,24 @@ ErrorGettingAccountInfo.args = {
   shouldGetAccountInfoSucceed: false,
 };
 
-export const ErrorChangingEmail = Template.bind({});
-ErrorChangingEmail.args = {
-  shouldChangeEmailSucceed: false,
+export const ErrorChangingPassword = Template.bind({});
+ErrorChangingPassword.args = {
+  shouldChangePasswordSucceed: false,
 };
 
-export const ErrorChangingEmail2 = Template.bind({});
-ErrorChangingEmail2.storyName = "Error Changing Email (without password)";
-ErrorChangingEmail2.args = {
+export const ErrorChangingPassword2 = Template.bind({});
+ErrorChangingPassword2.storyName = "Error Changing Password (without password)";
+ErrorChangingPassword2.args = {
   loginMethod: GetAccountInfoRes.LoginMethod.MAGIC_LINK,
-  shouldChangeEmailSucceed: false,
+  shouldChangePasswordSucceed: false,
 };
 
 function setMocks({
   loginMethod,
   simulateGetAccountInfoLoading,
-  shouldChangeEmailSucceed,
+  shouldChangePasswordSucceed: shouldChangeEmailSucceed,
   shouldGetAccountInfoSucceed,
-}: Required<SettingsArgs>) {
+}: Required<ChangePasswordArgs>) {
   mockedService.account.getAccountInfo = () =>
     shouldGetAccountInfoSucceed
       ? simulateGetAccountInfoLoading
@@ -76,8 +82,8 @@ function setMocks({
             loginMethod,
           })
       : Promise.reject(new Error("Error getting account info"));
-  mockedService.account.changeEmail = () =>
+  mockedService.account.changePassword = () =>
     shouldChangeEmailSucceed
       ? Promise.resolve(new Empty())
-      : Promise.reject(new Error("Error completing email change"));
+      : Promise.reject(new Error("Error completing password change"));
 }

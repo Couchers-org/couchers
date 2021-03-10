@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import ChangePasswordPage from "features/auth/password/ChangePasswordPage";
+import ChangePassword from "features/auth/password/ChangePassword";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { GetAccountInfoRes } from "pb/account_pb";
 import { service } from "service/index";
@@ -14,7 +14,7 @@ const getAccountInfoMock = service.account.getAccountInfo as MockedService<
   typeof service.account.getAccountInfo
 >;
 
-describe("ChangePasswordPage", () => {
+describe("ChangePassword", () => {
   beforeEach(() => {
     changePasswordMock.mockResolvedValue(new Empty());
   });
@@ -24,11 +24,11 @@ describe("ChangePasswordPage", () => {
       getAccountInfoMock.mockResolvedValue({
         hasPassword: true,
         loginMethod: GetAccountInfoRes.LoginMethod.PASSWORD,
-      });
+      } as GetAccountInfoRes.AsObject);
     });
 
     it("shows the full change password form", async () => {
-      render(<ChangePasswordPage />, { wrapper });
+      render(<ChangePassword {...getAccountInfoMock} />, { wrapper });
 
       expect(
         screen.getByRole("heading", { name: "Change password" })
@@ -45,7 +45,7 @@ describe("ChangePasswordPage", () => {
     });
 
     it("does not try to submit the form if the user doesn't provide its old password", async () => {
-      render(<ChangePasswordPage />, { wrapper });
+      render(<ChangePassword />, { wrapper });
 
       userEvent.click(await screen.findByRole("button", { name: "Submit" }));
 
@@ -55,7 +55,7 @@ describe("ChangePasswordPage", () => {
     });
 
     it("does not try to submit the form if the new and confirm password values don't match", async () => {
-      render(<ChangePasswordPage />, { wrapper });
+      render(<ChangePassword />, { wrapper });
 
       userEvent.type(await screen.findByLabelText("New password"), "password");
       userEvent.type(screen.getByLabelText("Confirm password"), "password1");
@@ -68,7 +68,7 @@ describe("ChangePasswordPage", () => {
     });
 
     it("updates the user's password successfully if a new password has been given", async () => {
-      render(<ChangePasswordPage />, { wrapper });
+      render(<ChangePassword />, { wrapper });
 
       userEvent.type(
         await screen.findByLabelText("Old password"),
@@ -96,7 +96,7 @@ describe("ChangePasswordPage", () => {
     });
 
     it("clears the user password successfully if no new password has been given", async () => {
-      render(<ChangePasswordPage />, { wrapper });
+      render(<ChangePassword />, { wrapper });
 
       userEvent.type(
         await screen.findByLabelText("Old password"),
@@ -128,7 +128,7 @@ describe("ChangePasswordPage", () => {
     });
 
     it("does not show the old password field", async () => {
-      render(<ChangePasswordPage />, { wrapper });
+      render(<ChangePassword />, { wrapper });
 
       // Wait for new password field/form to show up first, otherwise old password not visible is always
       // gonna be true
@@ -139,7 +139,7 @@ describe("ChangePasswordPage", () => {
 
     // When user doesn't have an old password, new password becomes a required field
     it("does not try to submit the form if the user doesn't provide a new password", async () => {
-      render(<ChangePasswordPage />, { wrapper });
+      render(<ChangePassword />, { wrapper });
 
       userEvent.click(await screen.findByRole("button", { name: "Submit" }));
 
@@ -149,7 +149,7 @@ describe("ChangePasswordPage", () => {
     });
 
     it("submits the change password request successfully if a new password has been given", async () => {
-      render(<ChangePasswordPage />, { wrapper });
+      render(<ChangePassword />, { wrapper });
 
       userEvent.type(
         await screen.findByLabelText("New password"),
@@ -179,7 +179,7 @@ describe("ChangePasswordPage", () => {
       changePasswordMock.mockRejectedValue(
         new Error("The password is insecure")
       );
-      render(<ChangePasswordPage />, { wrapper });
+      render(<ChangePassword />, { wrapper });
 
       userEvent.type(
         await screen.findByLabelText("New password"),

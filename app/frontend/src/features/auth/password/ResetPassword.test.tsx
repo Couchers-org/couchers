@@ -1,23 +1,23 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { service } from "service/index";
+import wrapper from "test/hookWrapper";
+import { MockedService } from "test/utils";
 
-import { service } from "../../../service";
-import wrapper from "../../../test/hookWrapper";
-import { MockedService } from "../../../test/utils";
-import ResetPasswordPage from "./ResetPasswordPage";
+import ResetPassword from "./ResetPassword";
 
 const resetPasswordMock = service.account.resetPassword as MockedService<
   typeof service.account.resetPassword
 >;
 
-describe("ResetPasswordPage", () => {
+describe("ResetPassword", () => {
   beforeEach(() => {
     resetPasswordMock.mockResolvedValue(new Empty());
   });
 
   it("shows the reset password form correctly", () => {
-    render(<ResetPasswordPage />, { wrapper });
+    render(<ResetPassword />, { wrapper });
 
     expect(
       screen.getByRole("heading", { level: 1, name: "Reset your password" })
@@ -33,7 +33,7 @@ describe("ResetPasswordPage", () => {
   });
 
   it("does not try to submit the reset password form if the field is not filled in", async () => {
-    render(<ResetPasswordPage />, { wrapper });
+    render(<ResetPassword />, { wrapper });
 
     userEvent.click(screen.getByRole("button", { name: "Submit" }));
 
@@ -43,7 +43,7 @@ describe("ResetPasswordPage", () => {
   });
 
   it("submits the reset password request successfully", async () => {
-    render(<ResetPasswordPage />, { wrapper });
+    render(<ResetPassword />, { wrapper });
 
     userEvent.type(screen.getByLabelText("Enter your username/email"), "test");
     userEvent.click(screen.getByRole("button", { name: "Submit" }));
@@ -58,7 +58,7 @@ describe("ResetPasswordPage", () => {
   it("shows an error alert if the reset password request failed", async () => {
     jest.spyOn(console, "error").mockReturnValue(undefined);
     resetPasswordMock.mockRejectedValue(new Error("GRPC error"));
-    render(<ResetPasswordPage />, { wrapper });
+    render(<ResetPassword />, { wrapper });
 
     userEvent.type(screen.getByLabelText("Enter your username/email"), "test");
     userEvent.click(screen.getByRole("button", { name: "Submit" }));

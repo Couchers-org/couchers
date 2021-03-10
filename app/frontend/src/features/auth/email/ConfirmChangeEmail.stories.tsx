@@ -2,9 +2,9 @@ import { Meta, Story } from "@storybook/react";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import React from "react";
 import { MemoryRouter, Route } from "react-router-dom";
+import { confirmChangeEmailRoute } from "routes";
+import { mockedService } from "stories/__mocks__/service";
 
-import { confirmChangeEmailRoute } from "../../../routes";
-import { mockedService } from "../../../stories/__mocks__/service";
 import ConfirmChangeEmail from "./ConfirmChangeEmail";
 
 export default {

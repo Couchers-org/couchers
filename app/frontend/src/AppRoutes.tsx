@@ -6,14 +6,11 @@ import TOS from "./components/TOS";
 import AuthPage from "./features/auth/AuthPage";
 import { useAuthContext } from "./features/auth/AuthProvider";
 import ConfirmChangeEmail from "./features/auth/email/ConfirmChangeEmail";
-import Settings from "./features/auth/email/Settings";
 import Jail from "./features/auth/jail/Jail";
 import Login from "./features/auth/login/Login";
 import Logout from "./features/auth/Logout";
-import {
-  CompleteResetPasswordPage,
-  ResetPasswordPage,
-} from "./features/auth/password";
+import { CompleteResetPassword, ResetPassword } from "./features/auth/password";
+import Settings from "./features/auth/Settings";
 import Signup from "./features/auth/signup/Signup";
 import CommunityPage from "./features/communities/CommunityPage";
 import DiscussionPage from "./features/communities/DiscussionPage";
@@ -96,14 +93,14 @@ export default function AppRoutes() {
       </AppRoute>
 
       <AppRoute isPrivate={false} isFullscreen exact path={resetPasswordRoute}>
-        <ResetPasswordPage />
+        <ResetPassword />
       </AppRoute>
       <AppRoute
         isPrivate={false}
         exact
         path={`${resetPasswordRoute}/:resetToken`}
       >
-        <CompleteResetPasswordPage />
+        <CompleteResetPassword />
       </AppRoute>
       <AppRoute
         isPrivate={false}

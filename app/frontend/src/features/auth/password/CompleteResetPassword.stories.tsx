@@ -2,14 +2,14 @@ import { Meta, Story } from "@storybook/react";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import React from "react";
 import { MemoryRouter, Route } from "react-router-dom";
+import { resetPasswordRoute } from "routes";
+import { mockedService } from "stories/__mocks__/service";
 
-import { resetPasswordRoute } from "../../../routes";
-import { mockedService } from "../../../stories/__mocks__/service";
-import CompleteResetPasswordPage from "./CompleteResetPasswordPage";
+import CompleteResetPassword from "./CompleteResetPassword";
 
 export default {
-  title: "Me/Auth/CompleteResetPasswordPage",
-  component: CompleteResetPasswordPage,
+  title: "Me/Auth/CompleteResetPassword",
+  component: CompleteResetPassword,
   decorators: [
     (Story) => (
       <MemoryRouter initialEntries={[`${resetPasswordRoute}/token`]}>
@@ -24,17 +24,17 @@ export default {
   ],
 } as Meta;
 
-interface CompleteResetPasswordPageArgs {
+interface CompleteResetPasswordArgs {
   isLoading?: boolean;
   shouldSucceed?: boolean;
 }
 
-const Template: Story<CompleteResetPasswordPageArgs> = ({
+const Template: Story<CompleteResetPasswordArgs> = ({
   isLoading = false,
   shouldSucceed = true,
 } = {}) => {
   setMocks({ isLoading, shouldSucceed });
-  return <CompleteResetPasswordPage />;
+  return <CompleteResetPassword />;
 };
 
 export const Loading = Template.bind({});
@@ -52,7 +52,7 @@ Failed.args = {
 function setMocks({
   isLoading,
   shouldSucceed,
-}: Required<CompleteResetPasswordPageArgs>) {
+}: Required<CompleteResetPasswordArgs>) {
   mockedService.account.completePasswordReset = () =>
     isLoading
       ? new Promise(() => void 0)
