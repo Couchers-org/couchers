@@ -4,6 +4,7 @@ import {
   CHANGE_EMAIL_PROGRESS,
   CHANGE_EMAIL_SUCCESS,
   CLICK_LOGIN,
+  LOGIN_PAGE,
 } from "features/auth/constants";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Route, Switch } from "react-router-dom";
@@ -29,7 +30,7 @@ function renderPage() {
       <Route path={`${confirmChangeEmailRoute}/:resetToken`}>
         <ConfirmChangeEmail />
       </Route>
-      <Route path={loginRoute}>Log in page</Route>
+      <Route path={loginRoute}>{LOGIN_PAGE}</Route>
     </Switch>,
     { wrapper }
   );
@@ -62,7 +63,7 @@ describe("ConfirmChangeEmail", () => {
     it("shows a link that takes you to the login page when clicked", async () => {
       userEvent.click(await screen.findByRole("link", { name: CLICK_LOGIN }));
 
-      expect(await screen.findByText("Log in page")).toBeInTheDocument();
+      expect(await screen.findByText(LOGIN_PAGE)).toBeInTheDocument();
     });
   });
 

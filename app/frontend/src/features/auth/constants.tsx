@@ -20,6 +20,7 @@ export const CURRENT_PASSWORD = "Current password";
 export const ENTER_EMAIL = "Enter your username/email";
 export const INTRODUCTION = "Connect with the world around you";
 export const LOGIN = "Log in";
+export const LOGIN_PAGE = "Log in page";
 export const NEW_EMAIL = "New email";
 export const NEW_PASSWORD = "New password";
 export const OLD_PASSWORD = "Old password";
