@@ -1,7 +1,14 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { CHANGE_PASSWORD, SUBMIT } from "features/auth/constants";
-import Settings from "features/auth/Settings";
+import {
+  CHANGE_EMAIL,
+  CHANGE_PASSWORD,
+  CHECK_EMAIL,
+  CURRENT_PASSWORD,
+  NEW_EMAIL,
+  SUBMIT,
+} from "features/auth/constants";
+import ChangeEmail from "features/auth/email/ChangeEmail";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { GetAccountInfoRes } from "pb/account_pb";
 import { service } from "service/index";
@@ -15,38 +22,40 @@ const changeEmailMock = service.account.changeEmail as MockedService<
   typeof service.account.changeEmail
 >;
 
-describe("Settings", () => {
+const accountInfo = {
+  hasPassword: true,
+  loginMethod: GetAccountInfoRes.LoginMethod.PASSWORD,
+};
+
+const accountWithLink = {
+  hasPassword: false,
+  loginMethod: GetAccountInfoRes.LoginMethod.MAGIC_LINK,
+};
+
+describe("ChangeEmail", () => {
   beforeEach(() => {
     changeEmailMock.mockResolvedValue(new Empty());
   });
 
   describe("if the user has a password", () => {
     beforeEach(() => {
-      getAccountInfoMock.mockResolvedValue({
-        hasPassword: true,
-        loginMethod: GetAccountInfoRes.LoginMethod.PASSWORD,
-      });
+      getAccountInfoMock.mockResolvedValue(accountInfo);
+      render(<ChangeEmail {...accountInfo} />, { wrapper });
     });
 
     it("shows the full change email form", async () => {
-      render(<Settings />, { wrapper });
-
-      expect(
-        screen.getByRole("heading", { name: CHANGE_PASSWORD })
-      ).toBeVisible();
-      expect(await screen.findByLabelText("Current password")).toBeVisible();
-      expect(screen.getByLabelText("New email")).toBeVisible();
+      expect(screen.getByRole("heading", { name: CHANGE_EMAIL })).toBeVisible();
+      expect(await screen.findByLabelText(CURRENT_PASSWORD)).toBeVisible();
+      expect(screen.getByLabelText(NEW_EMAIL)).toBeVisible();
       expect(screen.getByRole("button", { name: SUBMIT })).toBeVisible();
     });
 
     it("does not try to submit the form if the user didn't provide their old password", async () => {
-      render(<Settings />, { wrapper });
-
       userEvent.type(
-        await screen.findByLabelText("New email"),
+        await screen.findByLabelText(NEW_EMAIL),
         "test@example.com"
       );
-      userEvent.click(screen.getByRole("button", { name: "Submit" }));
+      userEvent.click(screen.getByRole("button", { name: SUBMIT }));
 
       await waitFor(() => {
         expect(changeEmailMock).not.toHaveBeenCalled();
@@ -54,13 +63,11 @@ describe("Settings", () => {
     });
 
     it("does not try to submit the form if the user didn't provide a new email", async () => {
-      render(<Settings />, { wrapper });
-
       userEvent.type(
-        await screen.findByLabelText("Current password"),
+        await screen.findByLabelText(CURRENT_PASSWORD),
         "password"
       );
-      userEvent.click(screen.getByRole("button", { name: "Submit" }));
+      userEvent.click(screen.getByRole("button", { name: SUBMIT }));
 
       await waitFor(() => {
         expect(changeEmailMock).not.toHaveBeenCalled();
@@ -68,20 +75,16 @@ describe("Settings", () => {
     });
 
     it("changes the user's email successfully if all required fields have been filled in", async () => {
-      render(<Settings />, { wrapper });
-
       userEvent.type(
-        await screen.findByLabelText("Current password"),
+        await screen.findByLabelText(CURRENT_PASSWORD),
         "password"
       );
-      userEvent.type(screen.getByLabelText("New email"), "test@example.com");
-      userEvent.click(screen.getByRole("button", { name: "Submit" }));
+      userEvent.type(screen.getByLabelText(NEW_EMAIL), "test@example.com");
+      userEvent.click(screen.getByRole("button", { name: SUBMIT }));
 
       const successAlert = await screen.findByRole("alert");
       expect(successAlert).toBeVisible();
-      expect(successAlert).toHaveTextContent(
-        "Your email change has been received. Check your new email to complete the change."
-      );
+      expect(successAlert).toHaveTextContent(CHECK_EMAIL);
       expect(changeEmailMock).toHaveBeenCalledTimes(1);
       expect(changeEmailMock).toHaveBeenCalledWith(
         "test@example.com",
@@ -89,42 +92,32 @@ describe("Settings", () => {
       );
 
       // Also check form has been cleared
-      expect(screen.getByLabelText("Current password")).not.toHaveValue();
-      expect(screen.getByLabelText("New email")).not.toHaveValue();
+      expect(screen.getByLabelText(CURRENT_PASSWORD)).not.toHaveValue();
+      expect(screen.getByLabelText(NEW_EMAIL)).not.toHaveValue();
     });
   });
 
   describe("if the user does not have a password", () => {
     beforeEach(() => {
-      getAccountInfoMock.mockResolvedValue({
-        hasPassword: false,
-        loginMethod: GetAccountInfoRes.LoginMethod.MAGIC_LINK,
-      });
+      getAccountInfoMock.mockResolvedValue(accountWithLink);
+      render(<ChangeEmail {...accountWithLink} />, { wrapper });
     });
 
     it("does not show the current password field", async () => {
-      render(<Settings />, { wrapper });
-
-      expect(await screen.findByLabelText("New email")).toBeVisible();
-      expect(
-        screen.queryByLabelText("Current password")
-      ).not.toBeInTheDocument();
+      expect(await screen.findByLabelText(NEW_EMAIL)).toBeVisible();
+      expect(screen.queryByLabelText(CURRENT_PASSWORD)).not.toBeInTheDocument();
     });
 
     it("changes the user's email successfully if the user has provided a new email", async () => {
-      render(<Settings />, { wrapper });
-
       userEvent.type(
-        await screen.findByLabelText("New email"),
+        await screen.findByLabelText(NEW_EMAIL),
         "test@example.com"
       );
-      userEvent.click(screen.getByRole("button", { name: "Submit" }));
+      userEvent.click(screen.getByRole("button", { name: SUBMIT }));
 
       const successAlert = await screen.findByRole("alert");
       expect(successAlert).toBeVisible();
-      expect(successAlert).toHaveTextContent(
-        "Your email change has been received. Check your new email to complete the change."
-      );
+      expect(successAlert).toHaveTextContent(CHECK_EMAIL);
       expect(changeEmailMock).toHaveBeenCalledTimes(1);
       expect(changeEmailMock).toHaveBeenCalledWith(
         "test@example.com",
@@ -132,26 +125,23 @@ describe("Settings", () => {
       );
 
       // Also check form has been cleared
-      expect(screen.getByLabelText("New email")).not.toHaveValue();
+      expect(screen.getByLabelText(NEW_EMAIL)).not.toHaveValue();
     });
+  });
 
-    it("shows an error alert if the change password request failed", async () => {
-      jest.spyOn(console, "error").mockReturnValue(undefined);
-      changeEmailMock.mockRejectedValue(new Error("Invalid email"));
-      render(<Settings />, { wrapper });
+  it("shows an error alert if the change password request failed", async () => {
+    jest.spyOn(console, "error").mockReturnValue(undefined);
+    changeEmailMock.mockRejectedValue(new Error("Invalid email"));
+    render(<ChangeEmail {...accountWithLink} />, { wrapper });
 
-      userEvent.type(
-        await screen.findByLabelText("New email"),
-        "test@example.com"
-      );
-      userEvent.click(screen.getByRole("button", { name: "Submit" }));
+    userEvent.type(await screen.findByLabelText(NEW_EMAIL), "test@example.com");
+    userEvent.click(screen.getByRole("button", { name: SUBMIT }));
 
-      const errorAlert = await screen.findByRole("alert");
-      expect(errorAlert).toBeVisible();
-      expect(errorAlert).toHaveTextContent("Invalid email");
-      expect(
-        screen.queryByText(/Your email change has been received/i)
-      ).not.toBeInTheDocument();
-    });
+    const errorAlert = await screen.findByRole("alert");
+    expect(errorAlert).toBeVisible();
+    expect(errorAlert).toHaveTextContent("Invalid email");
+    expect(
+      screen.queryByText(/Your email change has been received/i)
+    ).not.toBeInTheDocument();
   });
 });
