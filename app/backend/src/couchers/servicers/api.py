@@ -212,7 +212,10 @@ class API(api_pb2_grpc.APIServicer):
                 user.geom_radius = request.radius.value
 
             if request.HasField("avatar_key"):
-                user.avatar_key = request.avatar_key.value
+                if request.avatar_key.is_null:
+                    user.avatar_key = None
+                else:
+                    user.avatar_key = request.avatar_key.value
 
             if request.HasField("gender"):
                 user.gender = request.gender.value
@@ -556,7 +559,7 @@ class API(api_pb2_grpc.APIServicer):
 
     def WriteReference(self, request, context):
         if context.user_id == request.to_user_id:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, "Can't refer yourself")
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REFER_SELF)
 
         reference = Reference(
             from_user_id=context.user_id,
@@ -568,7 +571,7 @@ class API(api_pb2_grpc.APIServicer):
         )
         with session_scope() as session:
             if not session.query(User).filter(User.id == request.to_user_id).one_or_none():
-                context.abort(grpc.StatusCode.NOT_FOUND, "User not found")
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             if (
                 session.query(Reference)
@@ -577,7 +580,7 @@ class API(api_pb2_grpc.APIServicer):
                 .filter(Reference.reference_type == reftype2sql[request.reference_type])
                 .one_or_none()
             ):
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, "Reference already given")
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.REFERENCE_ALREADY_GIVEN)
             session.add(reference)
         return empty_pb2.Empty()
 
