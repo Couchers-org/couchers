@@ -12,7 +12,7 @@ import CircularProgress from "components/CircularProgress";
 import PageTitle from "components/PageTitle";
 import { EDIT_HOME, SAVE } from "features/constants";
 import { smokingLocationLabels } from "features/profile/constants";
-import useUpdateHostingPreferences from "features/profile/functions/useUpdateHostingPreferences";
+import useUpdateHostingPreferences from "features/profile/hooks/useUpdateHostingPreferences";
 import ProfileTextInput from "features/profile/ProfileTextInput";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { SmokingLocation } from "pb/api_pb";

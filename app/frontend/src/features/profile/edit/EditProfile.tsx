@@ -40,7 +40,7 @@ import {
   NO_MEETUP,
   NOT_ACCEPTING,
 } from "features/profile/constants";
-import useUpdateUserProfile from "features/profile/functions/useUpdateUserProfile";
+import useUpdateUserProfile from "features/profile/hooks/useUpdateUserProfile";
 import ProfileTagInput from "features/profile/ProfileTagInput";
 import ProfileTextInput from "features/profile/ProfileTextInput";
 import useCurrentUser from "features/userQueries/useCurrentUser";

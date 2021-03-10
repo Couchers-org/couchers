@@ -1,7 +1,6 @@
 import {
   AppBar,
   Drawer,
-  Grid,
   Hidden,
   IconButton,
   List,
@@ -16,9 +15,9 @@ import BugReport from "features/BugReport";
 import SearchBox from "features/search/SearchBox";
 import React from "react";
 import {
-  communityRoute,
   eventRoute,
   logoutRoute,
+  mapRoute,
   messagesRoute,
   profileRoute,
 } from "routes";
@@ -40,8 +39,8 @@ const menu = [
     route: messagesRoute,
   },
   {
-    name: "Communities",
-    route: communityRoute,
+    name: "Map",
+    route: mapRoute,
   },
   {
     name: "Profile",
@@ -64,6 +63,7 @@ const useStyles = makeStyles((theme) => ({
       paddingRight: theme.spacing(3),
       width: "auto",
     },
+    display: "flex",
     flex: 1,
     justifyContent: "space-evenly",
     padding: 0,
@@ -117,7 +117,7 @@ export default function Navigation() {
 
   const logoutButton = <NavButton route={logoutRoute} label={LOG_OUT} />;
 
-  const drawer = (
+  const drawerItems = (
     <div>
       <List>
         {menu.map(({ name, route }) => (
@@ -172,6 +172,7 @@ export default function Navigation() {
               open={open}
               ModalProps={{
                 keepMounted: true, // better open performance on mobile
+                onBackdropClick: handleDrawerClose,
               }}
               classes={{
                 paper: classes.drawerPaper,
@@ -189,20 +190,14 @@ export default function Navigation() {
                   <CloseIcon />
                 </IconButton>
               </div>
-              {drawer}
+              {drawerItems}
             </Drawer>
           </Hidden>
           <Typography variant="h5" className={classes.title}>
             {COUCHERS}
           </Typography>
-          <Hidden mdDown>
-            <Grid
-              container
-              wrap="nowrap"
-              classes={{
-                root: classes.flex,
-              }}
-            >
+          <Hidden smDown>
+            <div className={classes.flex}>
               {menu.map((item) => (
                 <NavButton
                   route={item.route}
@@ -210,7 +205,7 @@ export default function Navigation() {
                   key={`${item.name}-nav-button`}
                 />
               ))}
-            </Grid>
+            </div>
           </Hidden>
         </div>
         <SearchBox />
