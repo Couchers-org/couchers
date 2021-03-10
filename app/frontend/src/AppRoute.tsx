@@ -7,18 +7,18 @@ import { useAuthContext } from "./features/auth/AuthProvider";
 import { jailRoute, loginRoute } from "./routes";
 
 export const useStyles = makeStyles((theme) => ({
+  fullscreenContainer: {
+    margin: "0 auto",
+    padding: 0,
+  },
   standardContainer: {
-    paddingBottom: theme.shape.navPaddingMobile,
-    paddingLeft: theme.spacing(2),
-    paddingRight: theme.spacing(2),
     [theme.breakpoints.up("md")]: {
       paddingBottom: 0,
       paddingTop: theme.shape.navPaddingDesktop,
     },
-  },
-  fullscreenContainer: {
-    margin: "0 auto",
-    padding: 0,
+    paddingBottom: theme.shape.navPaddingMobile,
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
   },
 }));
 

@@ -5,15 +5,15 @@ import NotificationBadge from "../NotificationBadge";
 import TabBar, { TabBarProps } from "./TabBar";
 
 export default {
-  title: "Components/Composite/TabBar",
   component: TabBar,
+  title: "Components/Composite/TabBar",
 } as Meta;
 
 const labels = {
   all: <></>,
-  surfing: "Surfing",
-  meet: "Meet",
   archived: "Archived",
+  meet: "Meet",
+  surfing: "Surfing",
 };
 
 type PartialLabels = Partial<typeof labels>;
@@ -24,30 +24,30 @@ const Template: Story<TabBarProps<PartialLabels>> = (args) => (
 
 export const SimpleLabel = Template.bind({});
 SimpleLabel.args = {
-  value: "meet",
-  setValue: () => {},
   labels: {
     meet: "Meet",
     surfing: "Surfing",
   },
+  setValue: () => {},
+  value: "meet",
 };
 
 export const LabelWithBadge = Template.bind({});
 LabelWithBadge.args = {
-  value: "all",
-  setValue: () => {},
   labels: {
     all: <NotificationBadge count={10}>All</NotificationBadge>,
     surfing: "Surfing",
   },
+  setValue: () => {},
+  value: "all",
 };
 
 export const HighCountBadge = Template.bind(null);
 HighCountBadge.args = {
-  value: "all",
-  setValue: () => {},
   labels: {
     all: <NotificationBadge count={100}>All</NotificationBadge>,
     surfing: "Surfing",
   },
+  setValue: () => {},
+  value: "all",
 };

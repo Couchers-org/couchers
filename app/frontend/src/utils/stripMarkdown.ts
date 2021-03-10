@@ -15,9 +15,9 @@ export default function stripMarkdown(
     gfm,
     useImgAltText,
   }: StripMarkdownOptions = {
+    gfm: true,
     listUnicodeChar: "",
     stripListLeaders: true,
-    gfm: true,
     useImgAltText: true,
   }
 ) {

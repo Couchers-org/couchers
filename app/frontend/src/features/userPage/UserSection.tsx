@@ -4,14 +4,14 @@ import React from "react";
 
 const useStyles = makeStyles((theme) => ({
   root: {
+    "& > * + *": {
+      marginBlockStart: theme.spacing(1),
+    },
     borderBlockStart: `${theme.typography.pxToRem(1)} solid ${
       theme.palette.grey[300]
     }`,
     paddingBlockEnd: theme.spacing(1),
     paddingBlockStart: theme.spacing(1),
-    "& > * + *": {
-      marginBlockStart: theme.spacing(1),
-    },
   },
 }));
 

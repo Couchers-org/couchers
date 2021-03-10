@@ -6,8 +6,8 @@ import React from "react";
 import { mockedService } from "stories/__mocks__/service";
 
 export default {
-  title: "Me/Auth/ChangePassword",
   component: ChangePassword,
+  title: "Me/Auth/ChangePasswordPage",
 } as Meta;
 
 interface ChangePasswordArgs {

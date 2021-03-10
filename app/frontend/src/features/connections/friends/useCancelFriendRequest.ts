@@ -21,15 +21,15 @@ export default function useCancelFriendRequest() {
   } = useMutation<Empty, Error, CancelFriendRequestVariables>(
     ({ friendRequestId }) => service.api.cancelFriendRequest(friendRequestId),
     {
+      onError: (error, { setMutationError }) => {
+        setMutationError(error.message);
+      },
       onMutate: async ({ setMutationError }) => {
         setMutationError("");
       },
       onSuccess: (_, { userId }) => {
         queryClient.invalidateQueries("friendRequestsSent");
         queryClient.invalidateQueries(["user", userId]);
-      },
-      onError: (error, { setMutationError }) => {
-        setMutationError(error.message);
       },
     }
   );

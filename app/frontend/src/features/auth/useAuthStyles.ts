@@ -3,54 +3,20 @@ import { makeStyles } from "@material-ui/core";
 import AuthBg from "./resources/auth-bg.png";
 
 const useAuthStyles = makeStyles((theme) => ({
-  page: {
-    boxSizing: "border-box",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    minHeight: "100vh",
-    padding: `${theme.spacing(1, 6)}`,
-  },
   backgroundBlurImage: {
-    position: "fixed",
-    left: 0,
-    right: 0,
-    zIndex: -1,
-    display: "block",
-    backgroundImage: `url(${AuthBg})`,
     backgroundColor: "#f3f3f3",
+    backgroundImage: `url(${AuthBg})`,
     backgroundPosition: "top center",
     backgroundRepeat: "no-repeat",
     backgroundSize: "contain",
-    height: "100vh",
+    display: "block",
     filter: "blur(5px)",
+    height: "100vh",
+    left: 0,
     opacity: "0.5",
-  },
-  divider: {
-    width: "100%",
-    marginTop: theme.spacing(2),
-    marginLeft: "auto",
-    marginRight: "auto",
-    borderTop: `1px solid ${theme.palette.text.primary}`,
-  },
-  errorMessage: {
-    width: "100%",
-  },
-  feedbackMessage: {
-    textAlign: "center",
-  },
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    marginBottom: theme.spacing(5),
-    width: "100%",
-  },
-  formLabel: {
-    color: theme.palette.text.primary,
-    fontWeight: 700,
-  },
-  formField: {
-    marginBottom: theme.spacing(2),
+    position: "fixed",
+    right: 0,
+    zIndex: -1,
   },
   button: {
     marginTop: theme.spacing(4),
@@ -87,6 +53,40 @@ const useAuthStyles = makeStyles((theme) => ({
     backgroundColor: "#d9472e",
   },
   */
+  divider: {
+    borderTop: `1px solid ${theme.palette.text.primary}`,
+    marginLeft: "auto",
+    marginRight: "auto",
+    marginTop: theme.spacing(2),
+    width: "100%",
+  },
+  errorMessage: {
+    width: "100%",
+  },
+  feedbackMessage: {
+    textAlign: "center",
+  },
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    marginBottom: theme.spacing(5),
+    width: "100%",
+  },
+  formField: {
+    marginBottom: theme.spacing(2),
+  },
+  formLabel: {
+    color: theme.palette.text.primary,
+    fontWeight: 700,
+  },
+  page: {
+    alignItems: "center",
+    boxSizing: "border-box",
+    display: "flex",
+    flexDirection: "column",
+    minHeight: "100vh",
+    padding: `${theme.spacing(1, 6)}`,
+  },
 }));
 
 export default useAuthStyles;

@@ -3,9 +3,8 @@ import ProfileTagInput from "features/profile/ProfileTagInput";
 import React, { useState } from "react";
 
 export default {
-  title: "Profile/ProfileTagInput",
   component: ProfileTagInput,
-  argTypes: {},
+  title: "Profile/ProfileTagInput",
 } as Meta;
 
 const Template: Story<any> = (args) => {
@@ -23,8 +22,8 @@ const Template: Story<any> = (args) => {
 
 export const Default = Template.bind({});
 Default.args = {
-  value: ["English", "Bot"],
-  options: [],
-  label: "Languages Spoken",
   id: "languages-spoken",
+  label: "Languages Spoken",
+  options: [],
+  value: ["English", "Bot"],
 };

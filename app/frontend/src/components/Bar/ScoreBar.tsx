@@ -10,25 +10,25 @@ import TextBody from "../TextBody";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    position: "relative",
     height: theme.spacing(3),
     marginInlineStart: 0,
-    width: "100%",
     maxWidth: 300,
+    position: "relative",
+    width: "100%",
   },
   scoreBar: {
+    borderRadius: theme.spacing(1.5),
+    height: "100%",
     position: "absolute",
     width: "100%",
-    height: "100%",
-    borderRadius: theme.spacing(1.5),
   },
   scoreBarLabel: {
-    position: "absolute",
-    width: "100%",
-    lineHeight: theme.spacing(3),
-    verticalAlign: "middle",
-    paddingLeft: theme.spacing(3),
     color: theme.palette.common.white,
+    lineHeight: theme.spacing(3),
+    paddingLeft: theme.spacing(3),
+    position: "absolute",
+    verticalAlign: "middle",
+    width: "100%",
   },
 }));
 

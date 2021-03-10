@@ -13,14 +13,14 @@ import Map from "./Map";
 import MapSearch from "./MapSearch";
 
 const useStyles = makeStyles({
-  root: {
-    position: "relative",
-    height: 200,
-    width: 400,
-  },
   grow: {
-    width: "100%",
     height: "100%",
+    width: "100%",
+  },
+  root: {
+    height: 200,
+    position: "relative",
+    width: 400,
   },
 });
 
@@ -101,19 +101,19 @@ export default function EditLocationMap({
     map.current = mapRef;
     map.current!.on("load", () => {
       map.current!.addSource("location", {
-        type: "geojson",
         data: pointGeoJson(centerCoords.current!),
+        type: "geojson",
       });
 
       map.current!.addLayer({
         id: "location",
-        type: "circle",
-        source: "location",
         layout: {},
         paint: {
           "circle-color": theme.palette.primary.main,
           "circle-radius": 10,
         },
+        source: "location",
+        type: "circle",
       });
     });
 
@@ -180,16 +180,16 @@ function pointGeoJson(
   coords: LngLat
 ): GeoJSON.FeatureCollection<GeoJSON.Geometry> {
   return {
-    type: "FeatureCollection",
     features: [
       {
-        type: "Feature",
-        properties: {},
         geometry: {
-          type: "Point",
           coordinates: coords.toArray(),
+          type: "Point",
         },
+        properties: {},
+        type: "Feature",
       },
     ],
+    type: "FeatureCollection",
   };
 }

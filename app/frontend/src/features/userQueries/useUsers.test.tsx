@@ -37,11 +37,11 @@ describe("while queries are loading", () => {
     });
 
     expect(result.current).toEqual({
-      isLoading: true,
-      isFetching: true,
-      isError: false,
-      errors: [],
       data: undefined,
+      errors: [],
+      isError: false,
+      isFetching: true,
+      isLoading: true,
     });
   });
 });
@@ -55,11 +55,11 @@ describe("useUser (singular)", () => {
 
     expect(getUserMock).toHaveBeenCalledTimes(1);
     expect(result.current).toEqual({
-      isLoading: false,
-      isFetching: false,
-      isError: false,
-      error: "",
       data: users[0],
+      error: "",
+      isError: false,
+      isFetching: false,
+      isLoading: false,
     });
   });
 
@@ -71,11 +71,11 @@ describe("useUser (singular)", () => {
 
     expect(getUserMock).not.toHaveBeenCalled();
     expect(result.current).toEqual({
-      isLoading: false,
-      isFetching: false,
-      isError: false,
-      error: "",
       data: undefined,
+      error: "",
+      isError: false,
+      isFetching: false,
+      isLoading: false,
     });
   });
 });
@@ -88,11 +88,11 @@ describe("when useUsers has loaded", () => {
     await waitFor(() => !result.current.isLoading);
     expect(getUserMock).not.toHaveBeenCalled();
     expect(result.current).toEqual({
-      isLoading: false,
-      isFetching: false,
-      isError: false,
-      errors: [],
       data: new Map(),
+      errors: [],
+      isError: false,
+      isFetching: false,
+      isLoading: false,
     });
   });
 
@@ -107,15 +107,15 @@ describe("when useUsers has loaded", () => {
 
     expect(getUserMock).toHaveBeenCalledTimes(3);
     expect(result.current).toEqual({
-      isLoading: false,
-      isFetching: false,
-      isError: false,
-      errors: [],
       data: new Map([
         [1, users[0]],
         [2, users[1]],
         [3, users[2]],
       ]),
+      errors: [],
+      isError: false,
+      isFetching: false,
+      isLoading: false,
     });
   });
 
@@ -135,15 +135,15 @@ describe("when useUsers has loaded", () => {
     await waitForNextUpdate();
 
     expect(result.current).toMatchObject({
-      isLoading: false,
-      isFetching: false,
-      isError: true,
-      errors: ["Error fetching user 2"],
       data: new Map([
         [1, users[0]],
         [2, undefined],
         [3, users[2]],
       ]),
+      errors: ["Error fetching user 2"],
+      isError: true,
+      isFetching: false,
+      isLoading: false,
     });
   });
 
@@ -159,19 +159,19 @@ describe("when useUsers has loaded", () => {
     await waitForNextUpdate();
 
     expect(result.current).toMatchObject({
-      isLoading: false,
-      isFetching: false,
-      isError: true,
-      errors: [
-        "Error fetching user data",
-        "Error fetching user data",
-        "Error fetching user data",
-      ],
       data: new Map([
         [1, undefined],
         [2, undefined],
         [3, undefined],
       ]),
+      errors: [
+        "Error fetching user data",
+        "Error fetching user data",
+        "Error fetching user data",
+      ],
+      isError: true,
+      isFetching: false,
+      isLoading: false,
     });
   });
 });
@@ -219,19 +219,19 @@ describe("cached data", () => {
     await waitForNextUpdate();
 
     expect(result.current).toMatchObject({
-      isLoading: false,
-      isFetching: false,
-      isError: true,
-      errors: [
-        "Error fetching user data",
-        "Error fetching user data",
-        "Error fetching user data",
-      ],
       data: new Map([
         [1, users[0]],
         [2, users[1]],
         [3, users[2]],
       ]),
+      errors: [
+        "Error fetching user data",
+        "Error fetching user data",
+        "Error fetching user data",
+      ],
+      isError: true,
+      isFetching: false,
+      isLoading: false,
     });
   });
 
@@ -269,7 +269,7 @@ describe("cached data", () => {
       () => {
         const [ids, setIds] = useState([1, 2, 3]);
         const users = useUsers(ids, true);
-        return { users, setIds };
+        return { setIds, users };
       },
       {
         wrapper: sharedClientWrapper,

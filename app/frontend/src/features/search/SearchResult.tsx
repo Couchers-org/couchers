@@ -16,14 +16,6 @@ import { Link } from "react-router-dom";
 import { routeToUser } from "routes";
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    marginBottom: theme.spacing(2),
-    textDecoration: "none",
-    width: "100%",
-    [theme.breakpoints.up("sm")]: {
-      width: "49%",
-    },
-  },
   card: {
     borderRadius: theme.shape.borderRadius,
   },
@@ -31,6 +23,14 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     display: "flex",
     marginBottom: theme.spacing(1),
+  },
+  root: {
+    [theme.breakpoints.up("sm")]: {
+      width: "49%",
+    },
+    marginBottom: theme.spacing(2),
+    textDecoration: "none",
+    width: "100%",
   },
 }));
 

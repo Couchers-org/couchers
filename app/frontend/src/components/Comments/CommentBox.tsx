@@ -9,9 +9,9 @@ import { service } from "service/index";
 
 const useStyles = makeStyles(() => ({
   card: {
+    border: "1px solid",
     marginTop: "1em",
     padding: "1em",
-    border: "1px solid",
   },
 }));
 

@@ -5,11 +5,11 @@ import Button from "./Button";
 import ConfirmationDialogWrapper from "./ConfirmationDialogWrapper";
 
 export default {
-  title: "Components/Composite/ConfirmationDialogWrapper",
-  component: ConfirmationDialogWrapper,
   argTypes: {
     onConfirm: { action: "confirmed" },
   },
+  component: ConfirmationDialogWrapper,
+  title: "Components/Composite/ConfirmationDialogWrapper",
 } as Meta;
 
 const Template: Story<any> = (args) => (

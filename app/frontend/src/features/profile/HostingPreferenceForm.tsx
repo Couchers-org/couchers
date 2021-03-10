@@ -52,8 +52,18 @@ const useStyles = makeStyles((theme) => ({
   },
   buttonContainer: {
     display: "flex",
-    paddingTop: theme.spacing(1),
     justifyContent: "center",
+    paddingTop: theme.spacing(1),
+  },
+  field: {
+    [theme.breakpoints.up("md")]: {
+      "& > .MuiInputBase-root": {
+        width: 400,
+      },
+    },
+    "& > .MuiInputBase-root": {
+      width: "100%",
+    },
   },
   form: {
     marginBottom: theme.spacing(2),
@@ -63,16 +73,6 @@ const useStyles = makeStyles((theme) => ({
   },
   preferenceSection: {
     paddingTop: theme.spacing(3),
-  },
-  field: {
-    "& > .MuiInputBase-root": {
-      width: "100%",
-    },
-    [theme.breakpoints.up("md")]: {
-      "& > .MuiInputBase-root": {
-        width: 400,
-      },
-    },
   },
 }));
 

@@ -3,8 +3,8 @@ import HeaderImage from "features/communities/CommunityPage/HeaderImage";
 import community from "test/fixtures/community.json";
 
 export default {
-  title: "Communities/CommunityPage/HeaderImage",
   component: HeaderImage,
+  title: "Communities/CommunityPage/HeaderImage",
 } as Meta;
 
 const Template: Story<any> = (args) => (

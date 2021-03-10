@@ -8,9 +8,11 @@ import { Link } from "react-router-dom";
 import { routeToUser } from "routes";
 
 const useStyles = makeStyles({
-  root: {
-    position: "relative",
-    flexShrink: 0,
+  avatar: {
+    height: "100%",
+    position: "absolute",
+    top: 0,
+    width: "100%",
   },
   defaultSize: {
     height: "3rem",
@@ -18,14 +20,12 @@ const useStyles = makeStyles({
   },
   grow: {
     height: 0,
-    width: "100%",
     paddingTop: "100%",
-  },
-  avatar: {
     width: "100%",
-    height: "100%",
-    position: "absolute",
-    top: 0,
+  },
+  root: {
+    flexShrink: 0,
+    position: "relative",
   },
 });
 

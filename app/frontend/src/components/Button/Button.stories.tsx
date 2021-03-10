@@ -4,8 +4,8 @@ import * as React from "react";
 import Button from "./Button";
 
 export default {
-  title: "Components/Simple/Button",
   component: Button,
+  title: "Components/Simple/Button",
 } as Meta;
 
 const Template: Story<any> = (args) => (

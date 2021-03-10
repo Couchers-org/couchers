@@ -6,27 +6,26 @@ import useOnVisibleEffect from "../utils/useOnVisibleEffect";
 import CircularProgress from "./CircularProgress";
 
 const useStyles = makeStyles((theme) => ({
+  padder: {
+    height: 1,
+    width: theme.spacing(2),
+  },
   root: {
-    display: "flex",
-    padding: theme.spacing(2),
-    flexDirection: "row",
-    alignItems: "center",
     "& > *": {
       flex: "0 0 auto",
       marginInlineEnd: theme.spacing(2),
     },
-
-    overflowX: "auto",
-    WebkitOverflowScrolling: "touch",
     //this and below "padder" are required because browsers
     //ignore scroll-end padding
     "& > *:last-child": {
       marginInlineStart: 0,
     },
-  },
-  padder: {
-    width: theme.spacing(2),
-    height: 1,
+    alignItems: "center",
+    display: "flex",
+    flexDirection: "row",
+    overflowX: "auto",
+    padding: theme.spacing(2),
+    WebkitOverflowScrolling: "touch",
   },
 }));
 

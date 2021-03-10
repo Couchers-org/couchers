@@ -25,9 +25,9 @@ export const queryClient = new QueryClient({
 const persistor = createLocalStoragePersistor();
 
 persistQueryClient({
-  queryClient,
-  persistor,
   maxAge: 14 * 24 * 60 * 60 * 1000,
+  persistor,
+  queryClient,
 });
 interface ReactQueryClientProviderProps {
   children: React.ReactNode;

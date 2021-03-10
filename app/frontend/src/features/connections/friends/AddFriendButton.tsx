@@ -31,14 +31,14 @@ export default function AddFriendButton({
     Error,
     AddFriendButtonProps
   >(({ userId }) => service.api.sendFriendRequest(userId), {
+    onError: (error, { setMutationError }) => {
+      setMutationError(error.message);
+    },
     onMutate: ({ setMutationError }) => {
       setMutationError("");
     },
     onSuccess: (_, { userId }) => {
       queryClient.invalidateQueries(["user", userId]);
-    },
-    onError: (error, { setMutationError }) => {
-      setMutationError(error.message);
     },
   });
 
@@ -47,7 +47,7 @@ export default function AddFriendButton({
       startIcon={<PersonAddIcon />}
       className={classes.editButton}
       onClick={() => {
-        sendFriendRequest({ userId, setMutationError });
+        sendFriendRequest({ setMutationError, userId });
       }}
       loading={isLoading}
     >

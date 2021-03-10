@@ -12,6 +12,11 @@ import { User } from "pb/api_pb";
 import React from "react";
 
 export const useStyles = makeStyles((theme) => ({
+  avatar: {
+    height: theme.spacing(9),
+    marginInlineEnd: theme.spacing(2),
+    width: theme.spacing(9),
+  },
   root: {
     display: "flex",
     padding: 0,
@@ -26,11 +31,6 @@ export const useStyles = makeStyles((theme) => ({
     justifyContent: "space-around",
     margin: 0,
     minHeight: theme.spacing(9),
-  },
-  avatar: {
-    height: theme.spacing(9),
-    marginInlineEnd: theme.spacing(2),
-    width: theme.spacing(9),
   },
 }));
 

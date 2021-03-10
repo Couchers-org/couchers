@@ -34,10 +34,10 @@ export default function PlacesSection({
             <EventCard
               key={`eventcard-${i}`}
               event={{
-                title: "Placeholder event",
                 creatorName: "Bot",
                 location: "Amsterdam",
-                startTime: { seconds: Date.now() / 1000, nanos: 0 },
+                startTime: { nanos: 0, seconds: Date.now() / 1000 },
+                title: "Placeholder event",
               }}
               className={classes.placeEventCard}
             />

@@ -3,8 +3,8 @@ import UserSummary from "components/UserSummary";
 import users from "test/fixtures/users.json";
 
 export default {
-  title: "Components/Composite/UserSummary",
   component: UserSummary,
+  title: "Components/Composite/UserSummary",
 } as Meta;
 
 const Template: Story<any> = (args) => (

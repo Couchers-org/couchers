@@ -1,5 +1,5 @@
 import React from "react";
-import { Redirect, Switch } from "react-router-dom";
+import { Switch } from "react-router-dom";
 
 import AppRoute from "./AppRoute";
 import TOS from "./components/TOS";
@@ -50,7 +50,6 @@ import {
   messagesRoute,
   newGuideRoute,
   newPlaceRoute,
-  notFoundRoute,
   placeRoute,
   profileRoute,
   resetPasswordRoute,
@@ -199,10 +198,9 @@ export default function AppRoutes() {
       {
         // 404 NOT FOUND
       }
-      <AppRoute isPrivate={false} exact path={notFoundRoute}>
+      <AppRoute isPrivate={false}>
         <NotFoundPage />
       </AppRoute>
-      <Redirect from="*" to={notFoundRoute} />
     </Switch>
   );
 }

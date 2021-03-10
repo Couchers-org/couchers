@@ -26,6 +26,35 @@ import DiscussionCard from "./DiscussionCard";
 import SectionTitle from "./SectionTitle";
 
 const useStyles = makeStyles((theme) => ({
+  discussionCard: {
+    marginBottom: theme.spacing(1),
+  },
+  discussionsContainer: {
+    "& > *": {
+      [theme.breakpoints.up("sm")]: {
+        width: `calc(50% - ${theme.spacing(1)})`,
+      },
+      [theme.breakpoints.up("md")]: {
+        width: `calc(33.33% - ${theme.spacing(1)})`,
+      },
+      width: "100%",
+    },
+    //preserve grid in the last row
+    "&::after": {
+      [theme.breakpoints.up("sm")]: {
+        flexBasis: `calc(50% - ${theme.spacing(1)})`,
+      },
+      [theme.breakpoints.up("md")]: {
+        flexBasis: `calc(33.33% - ${theme.spacing(1)})`,
+      },
+      content: "''",
+      flexBasis: "100%",
+    },
+    display: "flex",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+  },
   discussionsHeader: {
     alignItems: "center",
     display: "flex",
@@ -33,35 +62,6 @@ const useStyles = makeStyles((theme) => ({
   },
   newPostButton: {
     margin: theme.spacing(1),
-  },
-  discussionsContainer: {
-    display: "flex",
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    "& > *": {
-      width: "100%",
-      [theme.breakpoints.up("sm")]: {
-        width: `calc(50% - ${theme.spacing(1)})`,
-      },
-      [theme.breakpoints.up("md")]: {
-        width: `calc(33.33% - ${theme.spacing(1)})`,
-      },
-    },
-    //preserve grid in the last row
-    "&::after": {
-      content: "''",
-      flexBasis: "100%",
-      [theme.breakpoints.up("sm")]: {
-        flexBasis: `calc(50% - ${theme.spacing(1)})`,
-      },
-      [theme.breakpoints.up("md")]: {
-        flexBasis: `calc(33.33% - ${theme.spacing(1)})`,
-      },
-    },
-  },
-  discussionCard: {
-    marginBottom: theme.spacing(1),
   },
 }));
 
@@ -117,9 +117,9 @@ export default function DiscussionsSection({
           <NewComment
             onComment={async (content) =>
               newDiscussionMutation.mutate({
-                title: "test",
                 content,
                 ownerCommunityId: community.communityId,
+                title: "test",
               })
             }
           />

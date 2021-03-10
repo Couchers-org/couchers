@@ -14,9 +14,9 @@ const useStyles = makeStyles((theme) => ({
     marginTop: "auto",
   },
   signUpLink: {
-    textDecoration: "none",
     color: theme.palette.secondary.main,
     fontWeight: 700,
+    textDecoration: "none",
   },
 }));
 

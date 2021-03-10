@@ -6,8 +6,8 @@ import React from "react";
 import { mockedService } from "stories/__mocks__/service";
 
 export default {
-  title: "Me/Auth/ChangeEmail",
   component: ChangeEmail,
+  title: "Me/Auth/ChangeEmailPage",
 } as Meta;
 
 interface ChangeEmailArgs {

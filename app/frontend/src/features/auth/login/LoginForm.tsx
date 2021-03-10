@@ -17,15 +17,16 @@ import { Link, useHistory } from "react-router-dom";
 import { loginPasswordRoute, resetPasswordRoute } from "routes";
 import { service } from "service/index";
 import { useIsMounted, useSafeState } from "utils/hooks";
+import { sanitizeName } from "utils/validation";
 
 const useStyles = makeStyles((theme) => ({
-  loginOptions: {
-    display: "flex",
-    marginTop: theme.spacing(2),
-    alignItems: "center",
-  },
   forgotPasswordLink: {
     color: theme.palette.text.primary,
+  },
+  loginOptions: {
+    alignItems: "center",
+    display: "flex",
+    marginTop: theme.spacing(2),
   },
 }));
 
@@ -46,7 +47,8 @@ export default function UsernameForm() {
       setLoading(true);
       authActions.clearError();
       try {
-        const next = await service.auth.checkUsername(data.username);
+        const sanitizedUsername = sanitizeName(data.username);
+        const next = await service.auth.checkUsername(sanitizedUsername);
         switch (next) {
           case LoginRes.LoginStep.INVALID_USER:
             authActions.authError("Couldn't find that user.");
@@ -64,8 +66,8 @@ export default function UsernameForm() {
 
         if (!loginWithLink) {
           authActions.passwordLogin({
-            username: data.username,
             password: data.password,
+            username: sanitizedUsername,
           });
         }
       } catch (e) {
@@ -111,8 +113,8 @@ export default function UsernameForm() {
         )}
         <Button
           classes={{
-            root: authClasses.button,
             label: authClasses.buttonText,
+            root: authClasses.button,
           }}
           type="submit"
           variant="contained"

@@ -37,8 +37,8 @@ export default function useUsers(
     ids
       .filter((id): id is number => !!id)
       .map((id) => ({
-        queryKey: ["user", id],
         queryFn: () => service.user.getUser(id.toString()),
+        queryKey: ["user", id],
         staleTime: userStaleTime,
       }))
   );
@@ -55,21 +55,21 @@ export default function useUsers(
     : new Map(queries.map((q, index) => [ids[index], q.data]));
 
   return {
-    isLoading,
-    isFetching,
-    isError,
-    errors,
     data: usersById,
+    errors,
+    isError,
+    isFetching,
+    isLoading,
   };
 }
 
 export function useUser(id: number | undefined, invalidate: boolean = false) {
   const result = useUsers([id], invalidate);
   return {
-    isLoading: result.isLoading,
-    isFetching: result.isFetching,
-    isError: result.isError,
-    error: result.errors.join("\n"),
     data: result.data?.get(id),
+    error: result.errors.join("\n"),
+    isError: result.isError,
+    isFetching: result.isFetching,
+    isLoading: result.isLoading,
   };
 }

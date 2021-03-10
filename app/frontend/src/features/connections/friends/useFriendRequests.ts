@@ -43,9 +43,9 @@ export default function useFriendRequests(
       : void 0;
 
   return {
-    isError: !!errors.length,
-    isLoading,
     data,
     errors,
+    isError: !!errors.length,
+    isLoading,
   };
 }

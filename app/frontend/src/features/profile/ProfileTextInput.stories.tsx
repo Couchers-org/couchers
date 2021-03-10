@@ -2,8 +2,8 @@ import { Meta, Story } from "@storybook/react";
 import ProfileTextInput from "features/profile/ProfileTextInput";
 
 export default {
-  title: "Profile/ProfileTextInput",
   component: ProfileTextInput,
+  title: "Profile/ProfileTextInput",
 } as Meta;
 
 const Template: Story<any> = (args) => (

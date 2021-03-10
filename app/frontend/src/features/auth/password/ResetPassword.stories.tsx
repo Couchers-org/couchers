@@ -6,8 +6,8 @@ import { mockedService } from "stories/__mocks__/service";
 import ResetPassword from "./ResetPassword";
 
 export default {
-  title: "Me/Auth/ResetPassword",
   component: ResetPassword,
+  title: "Me/Auth/ResetPasswordPage",
 } as Meta;
 
 interface ResetPasswordArgs {
