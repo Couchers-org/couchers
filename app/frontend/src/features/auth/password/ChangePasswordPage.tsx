@@ -1,9 +1,16 @@
-import { Typography, useMediaQuery, useTheme } from "@material-ui/core";
+import { useMediaQuery, useTheme } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import PageTitle from "components/PageTitle";
 import TextField from "components/TextField";
+import {
+  CHANGE_PASSWORD,
+  CONFIRM_PASSWORD,
+  NEW_PASSWORD,
+  PASSWORD_CHANGED,
+  SUBMIT,
+} from "features/auth/constants";
 import useAccountInfo from "features/auth/useAccountInfo";
 import useChangeDetailsFormStyles from "features/auth/useChangeDetailsFormStyles";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
@@ -64,7 +71,7 @@ export default function ChangePasswordPage() {
 
   return (
     <>
-      <PageTitle>Change password</PageTitle>
+      <PageTitle>{CHANGE_PASSWORD}</PageTitle>
       {isAccountInfoLoading ? (
         <CircularProgress />
       ) : accountInfoError ? (
@@ -75,16 +82,8 @@ export default function ChangePasswordPage() {
             <Alert severity="error">{changePasswordError.message}</Alert>
           )}
           {isChangePasswordSuccess && (
-            <Alert severity="success">
-              Your password change has been processed. Check your email for
-              confirmation.
-            </Alert>
+            <Alert severity="success">{PASSWORD_CHANGED}</Alert>
           )}
-          <Typography className={classes.infoText} variant="body1">
-            {accountInfo?.hasPassword
-              ? 'Please enter a password, or leave the "New password" and "Confirm password" fields blank to unset your password.'
-              : "Please enter a password."}
-          </Typography>
           <form className={classes.form} onSubmit={onSubmit}>
             {accountInfo && accountInfo.hasPassword && (
               <TextField
@@ -96,11 +95,10 @@ export default function ChangePasswordPage() {
                 fullWidth={!isMdOrWider}
               />
             )}
-
             <TextField
               id="newPassword"
               inputRef={register({ required: !accountInfo?.hasPassword })}
-              label="New password"
+              label={NEW_PASSWORD}
               name="newPassword"
               type="password"
               fullWidth={!isMdOrWider}
@@ -112,7 +110,7 @@ export default function ChangePasswordPage() {
                   value === getValues("newPassword") ||
                   "This does not match the new password you typed above",
               })}
-              label="Confirm password"
+              label={CONFIRM_PASSWORD}
               name="passwordConfirmation"
               fullWidth={!isMdOrWider}
               type="password"
@@ -123,7 +121,7 @@ export default function ChangePasswordPage() {
               loading={isChangePasswordLoading}
               type="submit"
             >
-              Submit
+              {SUBMIT}
             </Button>
           </form>
         </>

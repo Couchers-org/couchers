@@ -1,23 +1,23 @@
 import { Meta, Story } from "@storybook/react";
-import ChangeEmailPage from "features/auth/email/ChangeEmailPage";
+import Settings from "features/auth/email/Settings";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { GetAccountInfoRes } from "pb/account_pb";
 import React from "react";
 import { mockedService } from "stories/__mocks__/service";
 
 export default {
-  title: "Me/Auth/ChangeEmailPage",
-  component: ChangeEmailPage,
+  title: "Me/Auth/Settings",
+  component: Settings,
 } as Meta;
 
-interface ChangeEmailPageArgs {
+interface SettingsArgs {
   loginMethod?: GetAccountInfoRes.LoginMethod;
   simulateGetAccountInfoLoading?: boolean;
   shouldChangeEmailSucceed?: boolean;
   shouldGetAccountInfoSucceed?: boolean;
 }
 
-const Template: Story<ChangeEmailPageArgs> = ({
+const Template: Story<SettingsArgs> = ({
   loginMethod = GetAccountInfoRes.LoginMethod.PASSWORD,
   simulateGetAccountInfoLoading = false,
   shouldChangeEmailSucceed = true,
@@ -29,7 +29,7 @@ const Template: Story<ChangeEmailPageArgs> = ({
     shouldChangeEmailSucceed,
     shouldGetAccountInfoSucceed,
   });
-  return <ChangeEmailPage />;
+  return <Settings />;
 };
 
 export const HasPassword = Template.bind({});
@@ -66,7 +66,7 @@ function setMocks({
   simulateGetAccountInfoLoading,
   shouldChangeEmailSucceed,
   shouldGetAccountInfoSucceed,
-}: Required<ChangeEmailPageArgs>) {
+}: Required<SettingsArgs>) {
   mockedService.account.getAccountInfo = () =>
     shouldGetAccountInfoSucceed
       ? simulateGetAccountInfoLoading

@@ -9,7 +9,7 @@ import Alert from "../../../components/Alert";
 import { loginRoute } from "../../../routes";
 import { service } from "../../../service";
 
-export default function ConfirmChangeEmailPage() {
+export default function ConfirmChangeEmail() {
   const { resetToken } = useParams<{ resetToken?: string }>();
 
   const {

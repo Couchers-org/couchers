@@ -7,14 +7,14 @@ import { confirmChangeEmailRoute, loginRoute } from "../../../routes";
 import { service } from "../../../service";
 import { getHookWrapperWithClient } from "../../../test/hookWrapper";
 import { MockedService } from "../../../test/utils";
-import ConfirmChangeEmailPage from "./ConfirmChangeEmailPage";
+import ConfirmChangeEmail from "./ConfirmChangeEmail";
 
 const completeChangeEmailMock = service.account
   .completeChangeEmail as MockedService<
   typeof service.account.completeChangeEmail
 >;
 
-function renderPage() {
+function render() {
   const { wrapper } = getHookWrapperWithClient({
     initialRouterEntries: [`${confirmChangeEmailRoute}/Em4iLR3seTtok3n`],
   });
@@ -22,7 +22,7 @@ function renderPage() {
   render(
     <Switch>
       <Route path={`${confirmChangeEmailRoute}/:resetToken`}>
-        <ConfirmChangeEmailPage />
+        <ConfirmChangeEmail />
       </Route>
       <Route path={loginRoute}>Log in page</Route>
     </Switch>,
@@ -30,10 +30,10 @@ function renderPage() {
   );
 }
 
-describe("ConfirmChangeEmailPage", () => {
+describe("ConfirmChangeEmail", () => {
   it("shows the loading state on initial load", async () => {
     completeChangeEmailMock.mockImplementation(() => new Promise(() => void 0));
-    renderPage();
+    render();
 
     expect(
       await screen.findByText("Email change in progress...")
@@ -43,7 +43,7 @@ describe("ConfirmChangeEmailPage", () => {
   describe("when the change email completes successfully", () => {
     beforeEach(() => {
       completeChangeEmailMock.mockResolvedValue(new Empty());
-      renderPage();
+      render();
     });
 
     it("shows the success alert", async () => {
@@ -70,7 +70,7 @@ describe("ConfirmChangeEmailPage", () => {
   it("shows an error alert if the reset password process failed to complete", async () => {
     jest.spyOn(console, "error").mockReturnValue(undefined);
     completeChangeEmailMock.mockRejectedValue(new Error("Invalid token"));
-    renderPage();
+    render();
 
     const errorAlert = await screen.findByRole("alert");
     expect(errorAlert).toBeVisible();

@@ -5,11 +5,11 @@ import { MemoryRouter, Route } from "react-router-dom";
 
 import { confirmChangeEmailRoute } from "../../../routes";
 import { mockedService } from "../../../stories/__mocks__/service";
-import ConfirmChangeEmailPage from "./ConfirmChangeEmailPage";
+import ConfirmChangeEmail from "./ConfirmChangeEmail";
 
 export default {
-  title: "Me/Auth/ConfirmChangeEmailPage",
-  component: ConfirmChangeEmailPage,
+  title: "Me/Auth/ConfirmChangeEmail",
+  component: ConfirmChangeEmail,
   decorators: [
     (Story) => (
       <MemoryRouter initialEntries={[`${confirmChangeEmailRoute}/token`]}>
@@ -24,17 +24,17 @@ export default {
   ],
 } as Meta;
 
-interface ConfirmChangeEmailPageArgs {
+interface ConfirmChangeEmailArgs {
   isLoading?: boolean;
   shouldSucceed?: boolean;
 }
 
-const Template: Story<ConfirmChangeEmailPageArgs> = ({
+const Template: Story<ConfirmChangeEmailArgs> = ({
   isLoading = false,
   shouldSucceed = true,
 } = {}) => {
   setMocks({ isLoading, shouldSucceed });
-  return <ConfirmChangeEmailPage />;
+  return <ConfirmChangeEmail />;
 };
 
 export const Loading = Template.bind({});
@@ -52,7 +52,7 @@ Failed.args = {
 function setMocks({
   isLoading,
   shouldSucceed,
-}: Required<ConfirmChangeEmailPageArgs>) {
+}: Required<ConfirmChangeEmailArgs>) {
   mockedService.account.completeChangeEmail = () =>
     isLoading
       ? new Promise(() => void 0)

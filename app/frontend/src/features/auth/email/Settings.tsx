@@ -1,4 +1,5 @@
 import { Typography, useMediaQuery, useTheme } from "@material-ui/core";
+import { ChangePasswordPage } from "features/auth/password";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
 import React from "react";
@@ -12,10 +13,12 @@ import PageTitle from "../../../components/PageTitle";
 import TextField from "../../../components/TextField";
 import { service } from "../../../service";
 import {
+  CHANGE_EMAIL,
   CHANGE_NAME_GENDER,
-  CHANGE_PASSWORD,
   CHECK_EMAIL,
   CONTACT,
+  CURRENT_PASSWORD,
+  NEW_EMAIL,
   SUBMIT,
 } from "../constants";
 import useAccountInfo from "../useAccountInfo";
@@ -26,7 +29,7 @@ interface ChangeEmailFormData {
   currentPassword?: string;
 }
 
-export default function ChangeEmailPage() {
+export default function Settings() {
   const classes = useChangeDetailsFormStyles();
   const theme = useTheme();
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
@@ -65,7 +68,7 @@ export default function ChangeEmailPage() {
     <>
       <PageTitle>{CHANGE_NAME_GENDER}</PageTitle>
       <Typography variant="body1">{CONTACT}</Typography>
-      <PageTitle>{CHANGE_PASSWORD}</PageTitle>
+      <PageTitle>{CHANGE_EMAIL}</PageTitle>
       {isAccountInfoLoading ? (
         <CircularProgress />
       ) : accountInfoError ? (
@@ -83,7 +86,7 @@ export default function ChangeEmailPage() {
               <TextField
                 id="currentPassword"
                 inputRef={register({ required: true })}
-                label="Current password"
+                label={CURRENT_PASSWORD}
                 name="currentPassword"
                 type="password"
                 fullWidth={!isMdOrWider}
@@ -92,7 +95,7 @@ export default function ChangeEmailPage() {
             <TextField
               id="newEmail"
               inputRef={register({ required: true })}
-              label="New email"
+              label={NEW_EMAIL}
               name="newEmail"
               fullWidth={!isMdOrWider}
             />
@@ -104,6 +107,7 @@ export default function ChangeEmailPage() {
               {SUBMIT}
             </Button>
           </form>
+          <ChangePasswordPage />
         </>
       )}
     </>

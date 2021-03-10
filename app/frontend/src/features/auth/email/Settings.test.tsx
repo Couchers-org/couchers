@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { CHANGE_PASSWORD, SUBMIT } from "features/auth/constants";
-import ChangeEmailPage from "features/auth/email/ChangeEmailPage";
+import Settings from "features/auth/email/Settings";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { GetAccountInfoRes } from "pb/account_pb";
 import { service } from "service/index";
@@ -15,7 +15,7 @@ const changeEmailMock = service.account.changeEmail as MockedService<
   typeof service.account.changeEmail
 >;
 
-describe("ChangeEmailPage", () => {
+describe("Settings", () => {
   beforeEach(() => {
     changeEmailMock.mockResolvedValue(new Empty());
   });
@@ -29,7 +29,7 @@ describe("ChangeEmailPage", () => {
     });
 
     it("shows the full change email form", async () => {
-      render(<ChangeEmailPage />, { wrapper });
+      render(<Settings />, { wrapper });
 
       expect(
         screen.getByRole("heading", { name: CHANGE_PASSWORD })
@@ -40,7 +40,7 @@ describe("ChangeEmailPage", () => {
     });
 
     it("does not try to submit the form if the user didn't provide their old password", async () => {
-      render(<ChangeEmailPage />, { wrapper });
+      render(<Settings />, { wrapper });
 
       userEvent.type(
         await screen.findByLabelText("New email"),
@@ -54,7 +54,7 @@ describe("ChangeEmailPage", () => {
     });
 
     it("does not try to submit the form if the user didn't provide a new email", async () => {
-      render(<ChangeEmailPage />, { wrapper });
+      render(<Settings />, { wrapper });
 
       userEvent.type(
         await screen.findByLabelText("Current password"),
@@ -68,7 +68,7 @@ describe("ChangeEmailPage", () => {
     });
 
     it("changes the user's email successfully if all required fields have been filled in", async () => {
-      render(<ChangeEmailPage />, { wrapper });
+      render(<Settings />, { wrapper });
 
       userEvent.type(
         await screen.findByLabelText("Current password"),
@@ -103,7 +103,7 @@ describe("ChangeEmailPage", () => {
     });
 
     it("does not show the current password field", async () => {
-      render(<ChangeEmailPage />, { wrapper });
+      render(<Settings />, { wrapper });
 
       expect(await screen.findByLabelText("New email")).toBeVisible();
       expect(
@@ -112,7 +112,7 @@ describe("ChangeEmailPage", () => {
     });
 
     it("changes the user's email successfully if the user has provided a new email", async () => {
-      render(<ChangeEmailPage />, { wrapper });
+      render(<Settings />, { wrapper });
 
       userEvent.type(
         await screen.findByLabelText("New email"),
@@ -138,7 +138,7 @@ describe("ChangeEmailPage", () => {
     it("shows an error alert if the change password request failed", async () => {
       jest.spyOn(console, "error").mockReturnValue(undefined);
       changeEmailMock.mockRejectedValue(new Error("Invalid email"));
-      render(<ChangeEmailPage />, { wrapper });
+      render(<Settings />, { wrapper });
 
       userEvent.type(
         await screen.findByLabelText("New email"),

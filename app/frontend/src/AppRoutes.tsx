@@ -5,13 +5,12 @@ import AppRoute from "./AppRoute";
 import TOS from "./components/TOS";
 import AuthPage from "./features/auth/AuthPage";
 import { useAuthContext } from "./features/auth/AuthProvider";
-import ChangeEmailPage from "./features/auth/email/ChangeEmailPage";
-import ConfirmChangeEmailPage from "./features/auth/email/ConfirmChangeEmailPage";
+import ConfirmChangeEmail from "./features/auth/email/ConfirmChangeEmail";
+import Settings from "./features/auth/email/Settings";
 import Jail from "./features/auth/jail/Jail";
 import Login from "./features/auth/login/Login";
 import Logout from "./features/auth/Logout";
 import {
-  ChangePasswordPage,
   CompleteResetPasswordPage,
   ResetPasswordPage,
 } from "./features/auth/password";
@@ -34,8 +33,6 @@ import SearchPage from "./features/search/SearchPage";
 import { PageType } from "./pb/pages_pb";
 import {
   baseRoute,
-  changeEmailRoute,
-  changePasswordRoute,
   communityDiscussionsRoute,
   communityEventsRoute,
   communityGroupsRoute,
@@ -61,6 +58,7 @@ import {
   profileRoute,
   resetPasswordRoute,
   searchRoute,
+  settingsRoute,
   signupRoute,
   tosRoute,
 } from "./routes";
@@ -111,16 +109,13 @@ export default function AppRoutes() {
         isPrivate={false}
         path={`${confirmChangeEmailRoute}/:resetToken`}
       >
-        <ConfirmChangeEmailPage />
+        <ConfirmChangeEmail />
       </AppRoute>
       <AppRoute isFullscreen isPrivate={false} path={tosRoute}>
         <TOS />
       </AppRoute>
-      <AppRoute isPrivate path={changePasswordRoute}>
-        <ChangePasswordPage />
-      </AppRoute>
-      <AppRoute isPrivate path={changeEmailRoute}>
-        <ChangeEmailPage />
+      <AppRoute isPrivate path={settingsRoute}>
+        <Settings />
       </AppRoute>
       <AppRoute isPrivate path={mapRoute}>
         <MapPage />
