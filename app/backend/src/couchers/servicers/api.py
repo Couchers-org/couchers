@@ -212,7 +212,10 @@ class API(api_pb2_grpc.APIServicer):
                 user.geom_radius = request.radius.value
 
             if request.HasField("avatar_key"):
-                user.avatar_key = request.avatar_key.value
+                if request.avatar_key.is_null:
+                    user.avatar_key = None
+                else:
+                    user.avatar_key = request.avatar_key.value
 
             if request.HasField("gender"):
                 user.gender = request.gender.value
