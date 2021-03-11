@@ -27,6 +27,7 @@ from couchers.models import (
     SmokingLocation,
     User,
 )
+from couchers.servicers.blocking import GetBlockedAndBlockingUsers
 from couchers.tasks import send_friend_request_email, send_report_email
 from couchers.utils import Timestamp_from_datetime, create_coordinate, now
 from pb import api_pb2, api_pb2_grpc, media_pb2
@@ -447,6 +448,9 @@ class API(api_pb2_grpc.APIServicer):
                 ],
             )
             """
+            blocked_and_blocking_users = GetBlockedAndBlockingUsers(
+                session, context.user_id
+            ).blocked_and_blocking_user_ids
 
             rels = (
                 session.query(FriendRelationship)
@@ -454,6 +458,8 @@ class API(api_pb2_grpc.APIServicer):
                 .join(users2, users2.id == FriendRelationship.to_user_id)
                 .filter(users1.is_visible)
                 .filter(users2.is_visible)
+                .filter(~users1.id.in_(blocked_and_blocking_users))
+                .filter(~users2.id.in_(blocked_and_blocking_users))
                 .filter(
                     or_(
                         FriendRelationship.from_user_id == context.user_id,
