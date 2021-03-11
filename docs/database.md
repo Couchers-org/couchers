@@ -9,7 +9,7 @@ This page is pretty short, but I'll outline basically how to create a migration.
 Alembic is able to do some kinds of merges and whatnot, but we don't need that, it's much easier to have a linear history. Each PR that makes changes to the database should have one migration. Do it right at the end before merging. You might want to make some migrations while working (to get the tests to run, and try it out, etc), but remove all of them before continuing.
 
 ```sh
-In command line, navigate to '...couchers/app'
+# In command line, navigate to '...couchers/app'
 
 # start by clearing current dirty migrations
 pushd backend/src/couchers/migrations/versions
@@ -22,17 +22,17 @@ popd
 # nuke the current database
 rm -rf ./data/postgres/pgdata
 
-*********
-Windows note:
-If you're using WSL, run the next two commands locally, not in linux, then switch back
-*********
+# *********
+# Windows note:
+# If you're using WSL2, run the next two commands locally, not in Linux, then switch back
+# *********
 # start the postgres container in the background
 docker-compose up -d --no-deps postgres
 # and the backend container in the foreground. this will create the database to the current state using migrations from `develop`
 docker-compose up --build --no-deps backend
 # kill it with some Ctrl+C when it's done creating (and you'll end up with backend errors because your tables are out of date)
 
-If you're using a virtual environment, enter it
+# If you're using a virtual environment for couchers, enter it
 
 # now create the migrations, change "Modify the database" to some meaningful message
 cd backend
