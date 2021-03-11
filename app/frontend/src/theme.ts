@@ -57,7 +57,7 @@ const themeOptions: ThemeOptions = {
   shape: {
     borderRadius,
     navPaddingDesktop: spacing(10),
-    navPaddingMobile: spacing(8),
+    navPaddingMobile: spacing(10),
     scrollBar: {
       "&::-webkit-scrollbar": {
         background: "rgba(0,0,0,0)",

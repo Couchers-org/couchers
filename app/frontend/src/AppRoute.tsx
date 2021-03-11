@@ -17,6 +17,7 @@ export const useStyles = makeStyles((theme) => ({
       paddingTop: theme.shape.navPaddingDesktop,
     },
     paddingBottom: theme.shape.navPaddingMobile,
+    paddingTop: theme.shape.navPaddingMobile,
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
   },
