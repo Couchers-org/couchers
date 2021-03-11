@@ -1,18 +1,19 @@
 import useUsers from "features/userQueries/useUsers";
 import { Error } from "grpc-web";
 import { ListFriendRequestsRes } from "pb/api_pb";
+import { friendRequestKey, FriendRequestType } from "queryKeys";
 import { useQuery } from "react-query";
 import { service } from "service/index";
 
 export default function useFriendRequests(
-  friendRequestType: "Sent" | "Received"
+  friendRequestType: FriendRequestType
 ) {
   const {
     data: friendRequestsData,
     isLoading: isFriendReqLoading,
     error,
   } = useQuery<ListFriendRequestsRes.AsObject, Error>(
-    `friendRequests${friendRequestType}`,
+    friendRequestKey(friendRequestType),
     service.api.listFriendRequests
   );
 

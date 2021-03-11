@@ -1,4 +1,5 @@
-import React, { useEffect } from "react";
+import { friendRequestKey } from "queryKeys";
+import { useEffect } from "react";
 import { useQueryClient } from "react-query";
 import { Redirect } from "react-router-dom";
 
@@ -17,6 +18,8 @@ export default function Logout() {
       queryClient.resetQueries("hostRequestMessages");
       queryClient.resetQueries("hostRequests");
       queryClient.resetQueries("ping");
+      queryClient.resetQueries(friendRequestKey("Sent"));
+      queryClient.resetQueries(friendRequestKey("Received"));
     }
   });
 
