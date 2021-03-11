@@ -1,10 +1,10 @@
 syntax = "proto3";
 
-package org.couchers.api.user_blocks;
+package org.couchers.api.blocking;
 
 import "google/protobuf/empty.proto";
 
-service UserBlocks {
+service Blocking {
 
   rpc BlockUser(BlockUserReq) returns (google.protobuf.Empty);
 
