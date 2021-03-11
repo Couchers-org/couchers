@@ -60,8 +60,12 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         with session_scope() as session:
             if request.to_user_id == context.user_id:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REQUEST_SELF)
-            # just to check the host exists
-            host = session.query(User).filter(User.id == request.to_user_id).one_or_none()
+
+            # just to check guest and host exist and are visible
+            guest = session.query(User).filter(User.is_visible).filter(User.id == context.user_id).one_or_none()
+            if not guest:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            host = session.query(User).filter(User.is_visible).filter(User.id == request.to_user_id).one_or_none()
             if not host:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
@@ -117,15 +121,21 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             host_request.from_last_seen_message_id = message.id
             session.add(host_request)
             session.flush()
-            
+
             send_host_request_email(host_request)
 
             return requests_pb2.CreateHostRequestRes(host_request_id=host_request.conversation_id)
 
     def GetHostRequest(self, request, context):
         with session_scope() as session:
+            users1 = aliased(User)
+            users2 = aliased(User)
             host_request = (
                 session.query(HostRequest)
+                .join(users1, users1.id == HostRequest.from_user_id)
+                .join(users2, users2.id == HostRequest.to_user_id)
+                .filter(users1.is_visible)
+                .filter(users2.is_visible)
                 .filter(HostRequest.conversation_id == request.host_request_id)
                 .filter(or_(HostRequest.from_user_id == context.user_id, HostRequest.to_user_id == context.user_id))
                 .one_or_none()
@@ -175,6 +185,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             # By outer joining messages on itself where the second id is bigger, only the highest IDs will have
             # none as message_2.id. So just filter for these ones to get highest messages only.
             # See https://stackoverflow.com/a/27802817/6115336
+            users1 = aliased(User)
+            users2 = aliased(User)
             message_2 = aliased(Message)
             query = (
                 session.query(Message, HostRequest, Conversation)
@@ -183,6 +195,10 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 )
                 .join(HostRequest, HostRequest.conversation_id == Message.conversation_id)
                 .join(Conversation, Conversation.id == HostRequest.conversation_id)
+                .join(users1, HostRequest.from_user_id == users1.id)
+                .join(users2, HostRequest.to_user_id == users2.id)
+                .filter(users1.is_visible)
+                .filter(users2.is_visible)
                 .filter(message_2.id == None)
                 .filter(or_(HostRequest.conversation_id < request.last_request_id, request.last_request_id == 0))
             )
@@ -197,7 +213,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 )
 
             # TODO: I considered having the latest control message be the single source of truth for
-            # the HostRequest.status, but decided agains it because of this filter.
+            # the HostRequest.status, but decided against it because of this filter.
             # Another possibility is to filter in the python instead of SQL, but that's slower
             if request.only_active:
                 query = query.filter(
@@ -244,9 +260,18 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             )
 
     def RespondHostRequest(self, request, context):
+        users1 = aliased(User)
+        users2 = aliased(User)
+
         with session_scope() as session:
             host_request = (
-                session.query(HostRequest).filter(HostRequest.conversation_id == request.host_request_id).one_or_none()
+                session.query(HostRequest)
+                .join(users1, HostRequest.from_user_id == users1.id)
+                .join(users2, HostRequest.to_user_id == users2.id)
+                .filter(users1.is_visible)
+                .filter(users2.is_visible)
+                .filter(HostRequest.conversation_id == request.host_request_id)
+                .one_or_none()
             )
 
             if not host_request:

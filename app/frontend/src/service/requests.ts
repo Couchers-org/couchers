@@ -1,4 +1,4 @@
-import { HostRequestStatus } from "../pb/conversations_pb";
+import { HostRequestStatus } from "pb/conversations_pb";
 import {
   CreateHostRequestReq,
   GetHostRequestMessagesReq,
@@ -7,8 +7,8 @@ import {
   MarkLastSeenHostRequestReq,
   RespondHostRequestReq,
   SendHostRequestMessageReq,
-} from "../pb/requests_pb";
-import client from "./client";
+} from "pb/requests_pb";
+import client from "service/client";
 
 export async function listHostRequests({
   lastRequestId = 0,

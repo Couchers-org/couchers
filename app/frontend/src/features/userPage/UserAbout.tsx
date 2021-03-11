@@ -1,9 +1,8 @@
 import { Typography } from "@material-ui/core";
+import Markdown from "components/Markdown";
+import TextBody from "components/TextBody";
+import { User } from "pb/api_pb";
 import React from "react";
-
-import Markdown from "../../components/Markdown";
-import TextBody from "../../components/TextBody";
-import { User } from "../../pb/api_pb";
 
 export default function UserAbout({ user }: { user: User.AsObject }) {
   return (

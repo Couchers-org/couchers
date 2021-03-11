@@ -22,7 +22,7 @@ service API {
     // *Nullable can be set to null to clear the value. is_null defaults to false.
   }
 
-  rpc SendFriendRequest(SendFriendRequestReq) returns (google.protobuf.Empty);
+  rpc SendFriendRequest(SendFriendRequestReq) returns (SendFriendRequestRes);
 
   rpc ListFriendRequests(google.protobuf.Empty) returns (ListFriendRequestsRes);
 
@@ -59,6 +59,10 @@ service API {
 
 message SendFriendRequestReq {
   int64 user_id = 1;
+}
+
+message SendFriendRequestRes {
+  int64 friend_request_id = 1;
 }
 
 message FriendRequest {

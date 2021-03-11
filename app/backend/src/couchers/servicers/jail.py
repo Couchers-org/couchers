@@ -58,6 +58,9 @@ class Jail(jail_pb2_grpc.JailServicer):
         with session_scope() as session:
             user = session.query(User).filter(User.id == context.user_id).one()
 
+            if request.lat == 0 and request.lng == 0:
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
+
             user.city = request.city
             user.geom = create_coordinate(request.lat, request.lng)
             user.geom_radius = request.radius

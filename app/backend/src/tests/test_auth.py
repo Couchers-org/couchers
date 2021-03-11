@@ -54,6 +54,10 @@ def test_basic_signup(db):
                 birthdate="1980-12-31",
                 gender="Robot",
                 hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                lat=1,
+                lng=1,
+                radius=100,
+                accept_tos=True,
             )
         )
 
@@ -260,6 +264,10 @@ def test_signup_invalid_birthdate(db):
                 birthdate="9999-12-31",  # arbitrary future birthdate
                 gender="Robot",
                 hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                lat=1,
+                lng=1,
+                radius=100,
+                accept_tos=True,
             )
         )
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT

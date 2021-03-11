@@ -1,9 +1,8 @@
 import { Box, makeStyles } from "@material-ui/core";
+import Map from "components/Map";
 import { LngLat } from "maplibre-gl";
+import { Community } from "pb/communities_pb";
 import React from "react";
-
-import Map from "../../../components/Map";
-import { Community } from "../../../pb/communities_pb";
 
 const useStyles = makeStyles((theme) => ({
   root: {

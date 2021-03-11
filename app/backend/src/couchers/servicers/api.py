@@ -204,6 +204,8 @@ class API(api_pb2_grpc.APIServicer):
                 user.hometown = request.hometown.value
 
             if request.HasField("lat") and request.HasField("lng"):
+                if request.lat.value == 0 and request.lng.value == 0:
+                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
                 user.geom = create_coordinate(request.lat.value, request.lng.value)
 
             if request.HasField("radius"):
@@ -410,9 +412,48 @@ class API(api_pb2_grpc.APIServicer):
             return empty_pb2.Empty()
 
     def ListFriends(self, request, context):
+        users1 = aliased(User)
+        users2 = aliased(User)
+
         with session_scope() as session:
+            """
+            subquery = (
+                session.query(FriendRelationship)
+                .filter(
+                    or_(
+                        FriendRelationship.from_user_id == context.user_id,
+                        FriendRelationship.to_user_id == context.user_id,
+                    )
+                )
+                .filter(FriendRelationship.status == FriendStatus.accepted)
+                .subquery()
+            )
+
+            rels = (
+                session.query(subquery.c.from_user_id, subquery.c.to_user_id)
+                .join(users1, users1.id == subquery.c.from_user_id)
+                .join(users2, users2.id == subquery.c.to_user_id)
+                .filter(users1.is_visible)
+                .filter(users2.is_visible)
+                .all()
+            )
+
+            return api_pb2.ListFriendsRes(
+                user_ids=[
+                    rel._asdict()["from_user_id"]
+                    if rel._asdict()["from_user_id"] != context.user_id
+                    else rel._asdict()["to_user_id"]
+                    for rel in rels
+                ],
+            )
+            """
+
             rels = (
                 session.query(FriendRelationship)
+                .join(users1, users1.id == FriendRelationship.from_user_id)
+                .join(users2, users2.id == FriendRelationship.to_user_id)
+                .filter(users1.is_visible)
+                .filter(users2.is_visible)
                 .filter(
                     or_(
                         FriendRelationship.from_user_id == context.user_id,
@@ -428,12 +469,12 @@ class API(api_pb2_grpc.APIServicer):
 
     def SendFriendRequest(self, request, context):
         with session_scope() as session:
-            from_user = session.query(User).filter(User.id == context.user_id).one_or_none()
+            from_user = session.query(User).filter(User.is_visible).filter(User.id == context.user_id).one_or_none()
 
             if not from_user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
-            to_user = session.query(User).filter(User.id == request.user_id).one_or_none()
+            to_user = session.query(User).filter(User.is_visible).filter(User.id == request.user_id).one_or_none()
 
             if not to_user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
@@ -445,16 +486,19 @@ class API(api_pb2_grpc.APIServicer):
 
             friend_relationship = FriendRelationship(from_user=from_user, to_user=to_user, status=FriendStatus.pending)
             session.add(friend_relationship)
+            session.commit()
 
             send_friend_request_email(friend_relationship)
 
-            return empty_pb2.Empty()
+            return api_pb2.SendFriendRequestRes(friend_request_id=friend_relationship.id)
 
     def ListFriendRequests(self, request, context):
         # both sent and received
         with session_scope() as session:
             sent_requests = (
                 session.query(FriendRelationship)
+                .join(User, User.id == FriendRelationship.to_user_id)
+                .filter(User.is_visible)
                 .filter(FriendRelationship.from_user_id == context.user_id)
                 .filter(FriendRelationship.status == FriendStatus.pending)
                 .all()
@@ -462,6 +506,8 @@ class API(api_pb2_grpc.APIServicer):
 
             received_requests = (
                 session.query(FriendRelationship)
+                .join(User, User.id == FriendRelationship.from_user_id)
+                .filter(User.is_visible)
                 .filter(FriendRelationship.to_user_id == context.user_id)
                 .filter(FriendRelationship.status == FriendStatus.pending)
                 .all()
@@ -490,6 +536,8 @@ class API(api_pb2_grpc.APIServicer):
         with session_scope() as session:
             friend_request = (
                 session.query(FriendRelationship)
+                .join(User, FriendRelationship.from_user_id == User.id)
+                .filter(User.is_visible)
                 .filter(FriendRelationship.to_user_id == context.user_id)
                 .filter(FriendRelationship.status == FriendStatus.pending)
                 .filter(FriendRelationship.id == request.friend_request_id)
@@ -510,6 +558,8 @@ class API(api_pb2_grpc.APIServicer):
         with session_scope() as session:
             friend_request = (
                 session.query(FriendRelationship)
+                .join(User, FriendRelationship.to_user_id == User.id)
+                .filter(User.is_visible)
                 .filter(FriendRelationship.from_user_id == context.user_id)
                 .filter(FriendRelationship.status == FriendStatus.pending)
                 .filter(FriendRelationship.id == request.friend_request_id)
@@ -565,8 +615,11 @@ class API(api_pb2_grpc.APIServicer):
             rating=request.rating,
         )
         with session_scope() as session:
-            if not session.query(User).filter(User.id == request.to_user_id).one_or_none():
-                context.abort(grpc.StatusCode.NOT_FOUND, "User not found")
+            if (
+                not session.query(User).filter(User.is_visible).filter(User.id == reference.from_user_id).one_or_none()
+                or not session.query(User).filter(User.is_visible).filter(User.id == reference.to_user_id).one_or_none()
+            ):
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             if (
                 session.query(Reference)

@@ -1,25 +1,24 @@
 import { Breadcrumbs } from "@material-ui/core";
+import Alert from "components/Alert";
+import Button from "components/Button";
+import CircularProgress from "components/CircularProgress";
+import CommentBox from "components/Comments/CommentBox";
+import Markdown from "components/Markdown";
+import PageTitle from "components/PageTitle";
+import TextBody from "components/TextBody";
+import { Discussion } from "pb/discussions_pb";
+import { Group } from "pb/groups_pb";
+import { Page } from "pb/pages_pb";
 import React, { useEffect, useState } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
-
-import Alert from "../../components/Alert";
-import Button from "../../components/Button";
-import CircularProgress from "../../components/CircularProgress";
-import CommentBox from "../../components/Comments/CommentBox";
-import Markdown from "../../components/Markdown";
-import PageTitle from "../../components/PageTitle";
-import TextBody from "../../components/TextBody";
-import { Discussion } from "../../pb/discussions_pb";
-import { Group } from "../../pb/groups_pb";
-import { Page } from "../../pb/pages_pb";
 import {
   routeToCommunity,
   routeToDiscussion,
   routeToGroup,
   routeToGuide,
   routeToPlace,
-} from "../../routes";
-import { service } from "../../service";
+} from "routes";
+import { service } from "service/index";
 
 export default function GroupPage() {
   const [loading, setLoading] = useState(false);

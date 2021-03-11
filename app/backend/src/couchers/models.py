@@ -145,6 +145,7 @@ class User(Base):
     additional_information = Column(String, nullable=True)  # CommonMark without images
 
     is_banned = Column(Boolean, nullable=False, default=False)
+    is_deleted = Column(Boolean, nullable=False, default=False)
 
     # hosting preferences
     max_guests = Column(Integer, nullable=True)
@@ -184,11 +185,15 @@ class User(Base):
 
     @hybrid_property
     def is_jailed(self):
-        return self.accepted_tos < 1 or self.is_missing_location
+        return (self.accepted_tos < 1) | self.is_missing_location
 
-    @property
+    @hybrid_property
     def is_missing_location(self):
-        return not self.geom or not self.geom_radius
+        return (self.geom == None) | (self.geom_radius == None)
+
+    @hybrid_property
+    def is_visible(self):
+        return ~(self.is_banned | self.is_deleted | self.is_jailed)
 
     @property
     def coordinates(self):
@@ -257,7 +262,12 @@ class User(Base):
             .filter(FriendRelationship.status == FriendStatus.accepted)
         )
 
-        return session.query(User).filter(User.id.in_(q1.union(q2).intersect(q3.union(q4)).subquery())).all()
+        return (
+            session.query(User)
+            .filter(User.is_visible)
+            .filter(User.id.in_(q1.union(q2).intersect(q3.union(q4)).subquery()))
+            .all()
+        )
 
     def __repr__(self):
         return f"User(id={self.id}, email={self.email}, username={self.username})"

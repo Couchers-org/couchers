@@ -5,17 +5,16 @@ import {
   ListItemText,
   makeStyles,
 } from "@material-ui/core";
-import React from "react";
-
 import {
   CakeIcon,
   LanguageIcon,
   LocationIcon,
   PersonIcon,
   WorkIcon,
-} from "../../components/Icons";
-import { User } from "../../pb/api_pb";
-import UserSection from "./UserSection";
+} from "components/Icons";
+import UserSection from "features/userPage/UserSection";
+import { User } from "pb/api_pb";
+import React from "react";
 
 const useStyles = makeStyles((theme) => ({
   root: {

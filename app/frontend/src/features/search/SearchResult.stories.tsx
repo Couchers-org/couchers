@@ -1,7 +1,6 @@
 import { Meta, Story } from "@storybook/react";
-
-import users from "../../test/fixtures/users.json";
-import SearchResult from "./SearchResult";
+import SearchResult from "features/search/SearchResult";
+import users from "test/fixtures/users.json";
 
 export default {
   title: "Search/SearchResult",

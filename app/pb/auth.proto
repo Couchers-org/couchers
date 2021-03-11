@@ -115,10 +115,16 @@ message CompleteSignupReq {
   string username = 2;
 
   string name = 3;
-  string city = 4;
   string birthdate = 5; // in YYYY-MM-DD format, in the timezone of the birth place
   string gender = 6;
   org.couchers.api.core.HostingStatus hosting_status = 7;
+
+  string city = 8;
+  double lat = 9;
+  double lng = 10;
+  double radius = 11; // meters
+
+  bool accept_tos = 12;
 }
 
 message LoginReq {

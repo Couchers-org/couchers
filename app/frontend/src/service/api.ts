@@ -1,12 +1,11 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-
 import {
   CancelFriendRequestReq,
   PingReq,
   RespondFriendRequestReq,
   SendFriendRequestReq,
-} from "../pb/api_pb";
-import client from "./client";
+} from "pb/api_pb";
+import client from "service/client";
 
 export function cancelFriendRequest(friendRequestId: number) {
   const req = new CancelFriendRequestReq();

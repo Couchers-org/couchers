@@ -1,5 +1,4 @@
 import {
-  Box,
   Checkbox,
   FormControl,
   FormControlLabel,
@@ -7,18 +6,18 @@ import {
   Typography,
 } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
+import Alert from "components/Alert";
+import Button from "components/Button";
+import CircularProgress from "components/CircularProgress";
+import { SAVE } from "features/constants";
+import { smokingLocationLabels } from "features/profile/constants";
+import ProfileTextInput from "features/profile/ProfileTextInput";
+import useUpdateHostingPreferences from "features/profile/useUpdateHostingPreferences";
+import useCurrentUser from "features/userQueries/useCurrentUser";
+import { SmokingLocation } from "pb/api_pb";
 import React, { useState } from "react";
 import { Controller, useForm, UseFormMethods } from "react-hook-form";
-
-import Alert from "../../components/Alert";
-import Button from "../../components/Button";
-import CircularProgress from "../../components/CircularProgress";
-import { SmokingLocation } from "../../pb/api_pb";
-import { HostingPreferenceData } from "../../service";
-import useCurrentUser from "../userQueries/useCurrentUser";
-import { smokingLocationLabels } from "./constants";
-import ProfileTextInput from "./ProfileTextInput";
-import useUpdateHostingPreferences from "./useUpdateHostingPreferences";
+import { HostingPreferenceData } from "service/index";
 
 interface HostingPreferenceCheckboxProps {
   className: string;
@@ -111,7 +110,7 @@ export default function HostingPreferenceForm() {
         </Alert>
       ) : updateStatus === "error" ? (
         <Alert className={classes.alert} severity="error">
-          {errorMessage}
+          {errorMessage || "Unknown error"}
         </Alert>
       ) : null}
       {user ? (
@@ -227,16 +226,16 @@ export default function HostingPreferenceForm() {
               />
             )}
           />
-          <Box className={classes.buttonContainer}>
+          <div className={classes.buttonContainer}>
             <Button
               type="submit"
               variant="contained"
               color="primary"
               onClick={onSubmit}
             >
-              Save
+              {SAVE}
             </Button>
-          </Box>
+          </div>
         </form>
       ) : (
         <CircularProgress />
