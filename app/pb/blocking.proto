@@ -8,10 +8,13 @@ service Blocking {
 
   rpc BlockUser(BlockUserReq) returns (google.protobuf.Empty);
 
+  rpc UnblockUser(UnblockUserReq) returns(google.protobuf.Empty);
+
   //Returns all users blocked by a given account
   rpc GetBlockedUsers(google.protobuf.Empty) returns (GetBlockedUsersRes);
 
-  rpc UnblockUser(UnblockUserReq) returns(google.protobuf.Empty);
+  //Returns all users related via user_blocks
+  rpc GetBlockedAndBlockingUsers(google.protobuf.Empty) returns (GetBlockedAndBlockingUsersRes);
 
 }
 
@@ -25,4 +28,8 @@ message UnblockUserReq {
 
 message GetBlockedUsersRes {
   repeated int64 blocked_user_ids = 1;
+}
+
+message GetBlockedAndBlockingUsersRes {
+  repeated int64 blocked_and_blocking_user_ids = 1;
 }
