@@ -17,14 +17,11 @@ import {
   COUNTRIES_LIVED,
   COUNTRIES_VISITED,
   EDUCATION,
-  FEMALE,
   FEMALE_PRONOUNS,
-  GENDER,
   HOBBIES,
   HOMETOWN,
   HOSTING_STATUS,
   LANGUAGES_SPOKEN,
-  MALE,
   MALE_PRONOUNS,
   OCCUPATION,
   PRONOUNS,
@@ -212,49 +209,6 @@ export default function EditProfileForm() {
                   </RadioGroup>
                 </>
               )}
-            />
-            <Controller
-              control={control}
-              defaultValue={user.gender}
-              name="gender"
-              render={({ onChange, value }) => {
-                const other = value === FEMALE || value === MALE ? "" : value;
-                return (
-                  <>
-                    <Typography variant="h2">{GENDER}</Typography>
-                    <RadioGroup
-                      row
-                      aria-label="gender"
-                      name="gender"
-                      value={value}
-                      onChange={(_, value) => onChange(value)}
-                    >
-                      <FormControlLabel
-                        value={FEMALE}
-                        control={<Radio />}
-                        label={FEMALE}
-                      />
-                      <FormControlLabel
-                        value={MALE}
-                        control={<Radio />}
-                        label={MALE}
-                      />
-                      <FormControlLabel
-                        value={other}
-                        control={<Radio />}
-                        checked={value !== FEMALE && value !== MALE}
-                        label={
-                          <TextField
-                            onChange={(event) => onChange(event.target.value)}
-                            defaultValue={other}
-                            value={other}
-                          />
-                        }
-                      />
-                    </RadioGroup>
-                  </>
-                );
-              }}
             />
             <Controller
               control={control}

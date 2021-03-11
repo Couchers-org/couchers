@@ -17,11 +17,7 @@ import useCurrentUser from "features/userQueries/useCurrentUser";
 import useUserByUsername from "features/userQueries/useUserByUsername";
 import React, { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import {
-  changeEmailRoute,
-  changePasswordRoute,
-  editHostingPreferenceRoute,
-} from "routes";
+import { editHostingPreferenceRoute } from "routes";
 
 const useStyles = makeStyles((theme) => ({
   detailsCard: {
@@ -92,12 +88,6 @@ export default function ProfilePage() {
               <TabPanel classes={{ root: classes.tabPanel }} value="references">
                 <References user={user} />
               </TabPanel>
-              <TabPanel value="favorites">
-                <div>favorites</div>
-              </TabPanel>
-              <TabPanel value="photos">
-                <div>photos</div>
-              </TabPanel>
             </TabContext>
           </Card>
         </div>
@@ -111,20 +101,6 @@ export default function ProfilePage() {
           to={editHostingPreferenceRoute}
         >
           Edit my place
-        </ListItem>
-        <ListItem
-          className={classes.linkStyle}
-          component={Link}
-          to={changeEmailRoute}
-        >
-          Change my email
-        </ListItem>
-        <ListItem
-          className={classes.linkStyle}
-          component={Link}
-          to={changePasswordRoute}
-        >
-          Change my password
         </ListItem>
       </List>
     </>
