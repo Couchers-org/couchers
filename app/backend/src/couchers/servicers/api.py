@@ -26,6 +26,7 @@ from couchers.models import (
     SleepingArrangement,
     SmokingLocation,
     User,
+    UserBlocks,
 )
 from couchers.servicers.blocking import GetBlockedAndBlockingUsers
 from couchers.tasks import send_friend_request_email, send_report_email
@@ -448,18 +449,25 @@ class API(api_pb2_grpc.APIServicer):
                 ],
             )
             """
-            blocked_and_blocking_users = GetBlockedAndBlockingUsers(
-                session, context.user_id
-            ).blocked_and_blocking_user_ids
+            blocking_1 = aliased(UserBlocks)
+            blocking_2 = aliased(UserBlocks)
+            blocking_3 = aliased(UserBlocks)
+            blocking_4 = aliased(UserBlocks)
 
             rels = (
                 session.query(FriendRelationship)
                 .join(users1, users1.id == FriendRelationship.from_user_id)
                 .join(users2, users2.id == FriendRelationship.to_user_id)
+                .join(blocking_1, FriendRelationship.from_user_id == blocking_1.blocking_user_id, isouter=True)
+                .join(blocking_2, FriendRelationship.from_user_id == blocking_2.blocked_user_id, isouter=True)
+                .join(blocking_3, FriendRelationship.to_user_id == blocking_3.blocking_user_id, isouter=True)
+                .join(blocking_4, FriendRelationship.to_user_id == blocking_4.blocked_user_id, isouter=True)
+                .filter(or_(blocking_1.blocked_user_id == None, blocking_1.blocked_user_id != FriendRelationship.to_user_id))
+                .filter(or_(blocking_2.blocking_user_id == None, blocking_2.blocking_user_id != FriendRelationship.to_user_id))
+                .filter(or_(blocking_3.blocked_user_id == None, blocking_3.blocked_user_id != FriendRelationship.from_user_id))
+                .filter(or_(blocking_4.blocking_user_id == None, blocking_4.blocking_user_id != FriendRelationship.from_user_id))
                 .filter(users1.is_visible)
                 .filter(users2.is_visible)
-                .filter(~users1.id.in_(blocked_and_blocking_users))
-                .filter(~users2.id.in_(blocked_and_blocking_users))
                 .filter(
                     or_(
                         FriendRelationship.from_user_id == context.user_id,
