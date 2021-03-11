@@ -63,19 +63,17 @@ class Blocking(blocking_pb2_grpc.BlockingServicer):
                 blocked_user_ids=[blocked_user.id for blocked_user in blocked_users],
             )
 
-    def GetBlockedAndBLockingUsers(self, request, context):
-        with session_scope() as session:
-            relevant_user_blocks = (
-                session.query(UserBlocks)
-                .filter(or_(UserBlocks.blocking_user_id == context.id, UserBlocks.blocked_user_id == context.id))
-                .all()
-            )
 
-        return blocking_pb2.GetBlockedAndBlockingUserRes(
-            blocked_and_blocking_user_ids=[
-                user_block.blocking_user_id
-                if user_block.blocking_user_id != context.user_id
-                else user_block.blocked_user_id
-                for user_block in relevant_user_blocks
-            ]
-        )
+def GetBlockedAndBlockingUsers(session, user_id):
+    relevant_user_blocks = (
+        session.query(UserBlocks)
+        .filter(or_(UserBlocks.blocking_user_id == user_id, UserBlocks.blocked_user_id == user_id))
+        .all()
+    )
+
+    return blocking_pb2.GetBlockedAndBlockingUsersRes(
+        blocked_and_blocking_user_ids=[
+            user_block.blocking_user_id if user_block.blocking_user_id != user_id else user_block.blocked_user_id
+            for user_block in relevant_user_blocks
+        ]
+    )
