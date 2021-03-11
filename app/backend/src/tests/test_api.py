@@ -8,9 +8,10 @@ from couchers import errors
 from couchers.db import get_user_by_field, session_scope
 from couchers.models import Complaint
 from couchers.utils import now, to_aware_datetime
-from pb import api_pb2, jail_pb2
+from pb import api_pb2, blocking_pb2, jail_pb2
 from tests.test_fixtures import (
     api_session,
+    blocking_session,
     db,
     generate_user,
     make_friends,
@@ -552,6 +553,40 @@ def test_ListFriends_with_invisible_users(db):
     with api_session(token1) as api:
         res = api.ListFriends(empty_pb2.Empty())
         assert len(res.user_ids) == 1
+
+
+def test_ListFriends_with_blocked_user(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    make_friends(user1, user2)
+
+    with api_session(token1) as api:
+        res = api.ListFriends(empty_pb2.Empty())
+        assert len(res.user_ids) == 1
+
+    with blocking_session(token1) as blocking:
+        blocking.BlockUser(blocking_pb2.BlockUserReq(user_id=user2.id))
+
+    with api_session(token1) as api:
+        res = api.ListFriends(empty_pb2.Empty())
+        assert len(res.user_ids) == 0
+
+
+def test_ListFriends_with_blocking_user(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    make_friends(user1, user2)
+
+    with api_session(token1) as api:
+        res = api.ListFriends(empty_pb2.Empty())
+        assert len(res.user_ids) == 1
+
+    with blocking_session(token2) as blocking:
+        blocking.BlockUser(blocking_pb2.BlockUserReq(user_id=user1.id))
+
+    with api_session(token1) as api:
+        res = api.ListFriends(empty_pb2.Empty())
+        assert len(res.user_ids) == 0
 
 
 def test_mutual_friends(db):
