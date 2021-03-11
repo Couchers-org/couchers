@@ -189,6 +189,10 @@ class API(api_pb2_grpc.APIServicer):
             return user_model_to_pb(user, session, context)
 
     def UpdateProfile(self, request, context):
+        # users can't change gender themselves to avoid filter evasion
+        if request.HasField("gender"):
+            context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.CANT_CHANGE_GENDER)
+
         with session_scope() as session:
             user = session.query(User).filter(User.id == context.user_id).one()
 
@@ -217,8 +221,8 @@ class API(api_pb2_grpc.APIServicer):
                 else:
                     user.avatar_key = request.avatar_key.value
 
-            if request.HasField("gender"):
-                user.gender = request.gender.value
+            # if request.HasField("gender"):
+            #     user.gender = request.gender.value
 
             if request.HasField("pronouns"):
                 user.pronouns = request.pronouns.value

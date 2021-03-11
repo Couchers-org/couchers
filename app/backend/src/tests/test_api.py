@@ -149,6 +149,11 @@ def test_update_profile(db):
             api.UpdateProfile(api_pb2.UpdateProfileReq(name=wrappers_pb2.StringValue(value="  ")))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
+        # changing gender shouldn't be allowed
+        with pytest.raises(grpc.RpcError) as e:
+            api.UpdateProfile(api_pb2.UpdateProfileReq(gender=wrappers_pb2.StringValue(value="newgender")))
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+
         res = api.UpdateProfile(
             api_pb2.UpdateProfileReq(
                 name=wrappers_pb2.StringValue(value="New name"),
@@ -157,7 +162,6 @@ def test_update_profile(db):
                 lat=wrappers_pb2.DoubleValue(value=0.01),
                 lng=wrappers_pb2.DoubleValue(value=-2),
                 radius=wrappers_pb2.DoubleValue(value=321),
-                gender=wrappers_pb2.StringValue(value="Bot"),
                 pronouns=api_pb2.NullableStringValue(value="Ro, Robo, Robots"),
                 occupation=api_pb2.NullableStringValue(value="Testing"),
                 education=api_pb2.NullableStringValue(value="Couchers U"),
@@ -188,7 +192,6 @@ def test_update_profile(db):
         assert user.lat == 0.01
         assert user.lng == -2
         assert user.radius == 321
-        assert user.gender == "Bot"
         assert user.occupation == "Testing"
         assert user.about_me == "I rule"
         assert user.about_place == "My place"

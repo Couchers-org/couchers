@@ -3,7 +3,7 @@ export const baseRoute = "/";
 export const loginRoute = "/login";
 export const loginPasswordRoute = `${loginRoute}/password`;
 export const resetPasswordRoute = "/password-reset";
-export const settingsRoute = "/change-email";
+export const settingsRoute = "/account-settings";
 export const confirmChangeEmailRoute = "/confirm-email";
 
 export const signupRoute = "/signup";
