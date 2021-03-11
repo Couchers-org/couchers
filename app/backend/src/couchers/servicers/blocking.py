@@ -4,10 +4,10 @@ from google.protobuf import empty_pb2
 from couchers import errors, urls
 from couchers.db import session_scope
 from couchers.models import User, UserBlocks
-from pb import user_blocks_pb2
+from pb import blocking_pb2, blocking_pb2_grpc
 
 
-class Blocking:
+class Blocking(blocking_pb2_grpc.BlockingServicer):
     def BlockUser(self, request, context):
         if context.user_id == request.user_id:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_BLOCK_SELF)
@@ -29,6 +29,8 @@ class Blocking:
                     blocked_user_id=request.user_id,
                 )
                 session.add(user_block)
+                session.commit()
+
         return empty_pb2.Empty()
 
     def GetBlockedUsers(self, request, context):
