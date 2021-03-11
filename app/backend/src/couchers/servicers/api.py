@@ -416,38 +416,6 @@ class API(api_pb2_grpc.APIServicer):
         users2 = aliased(User)
 
         with session_scope() as session:
-            """
-            subquery = (
-                session.query(FriendRelationship)
-                .filter(
-                    or_(
-                        FriendRelationship.from_user_id == context.user_id,
-                        FriendRelationship.to_user_id == context.user_id,
-                    )
-                )
-                .filter(FriendRelationship.status == FriendStatus.accepted)
-                .subquery()
-            )
-
-            rels = (
-                session.query(subquery.c.from_user_id, subquery.c.to_user_id)
-                .join(users1, users1.id == subquery.c.from_user_id)
-                .join(users2, users2.id == subquery.c.to_user_id)
-                .filter(users1.is_visible)
-                .filter(users2.is_visible)
-                .all()
-            )
-
-            return api_pb2.ListFriendsRes(
-                user_ids=[
-                    rel._asdict()["from_user_id"]
-                    if rel._asdict()["from_user_id"] != context.user_id
-                    else rel._asdict()["to_user_id"]
-                    for rel in rels
-                ],
-            )
-            """
-
             rels = (
                 session.query(FriendRelationship)
                 .join(users1, users1.id == FriendRelationship.from_user_id)
