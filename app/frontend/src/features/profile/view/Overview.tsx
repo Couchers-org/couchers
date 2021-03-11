@@ -1,4 +1,5 @@
 import { Card, CardActions, makeStyles, Typography } from "@material-ui/core";
+import Alert from "components/Alert";
 import Avatar from "components/Avatar";
 import BarWithHelp from "components/Bar/BarWithHelp";
 import Button from "components/Button";
@@ -7,6 +8,7 @@ import { CouchIcon, LocationIcon } from "components/Icons";
 import IconText from "components/IconText";
 import LabelAndText from "components/LabelAndText";
 import { useAuthContext } from "features/auth/AuthProvider";
+import AddFriendButton from "features/connections/friends/AddFriendButton";
 import {
   COMMUNITY_STANDING,
   COMMUNITY_STANDING_DESCRIPTION,
@@ -21,7 +23,7 @@ import {
   meetupStatusLabels,
 } from "features/profile/constants";
 import { HostingStatus, MeetupStatus, User } from "pb/api_pb";
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { editProfileRoute } from "routes";
 import { timestamp2Date } from "utils/date";
@@ -64,6 +66,7 @@ interface OverviewProps {
 export default function Overview({ user }: OverviewProps) {
   const classes = useStyles();
   const currentUserId = useAuthContext().authState.userId;
+  const [mutationError, setMutationError] = useState("");
 
   return (
     <Card className={classes.card}>
@@ -75,11 +78,19 @@ export default function Overview({ user }: OverviewProps) {
         {user.city}
       </Typography>
       <Divider />
-      {user.userId === currentUserId && (
+      {user.userId === currentUserId ? (
         <CardActions className={classes.cardActions}>
           <Button component={Link} to={editProfileRoute}>
             {EDIT_PROFILE}
           </Button>
+        </CardActions>
+      ) : (
+        <CardActions className={classes.cardActions}>
+          {mutationError && <Alert severity="error">{mutationError}</Alert>}
+          <AddFriendButton
+            userId={user.userId}
+            setMutationError={setMutationError}
+          />
         </CardActions>
       )}
       <IconText

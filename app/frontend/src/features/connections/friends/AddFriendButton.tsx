@@ -1,11 +1,11 @@
 import { makeStyles } from "@material-ui/core";
+import Button from "components/Button";
+import { PersonAddIcon } from "components/Icons";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import React from "react";
 import { useMutation, useQueryClient } from "react-query";
+import { service } from "service/index";
 
-import Button from "../../../components/Button";
-import { PersonAddIcon } from "../../../components/Icons";
-import { service } from "../../../service";
 import { SetMutationError } from ".";
 
 const useStyles = makeStyles((theme) => ({
