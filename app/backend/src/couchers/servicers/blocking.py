@@ -7,7 +7,7 @@ from couchers.models import User, UserBlocks
 from pb import user_blocks_pb2
 
 
-class UserBlock:
+class Blocking:
     def BlockUser(self, request, context):
         if context.user_id == request.user_id:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_BLOCK_SELF)
