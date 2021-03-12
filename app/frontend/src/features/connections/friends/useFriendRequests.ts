@@ -1,6 +1,6 @@
 import useUsers from "features/userQueries/useUsers";
 import { Error } from "grpc-web";
-import { ListFriendRequestsRes } from "pb/api_pb";
+import { FriendRequest } from "pb/api_pb";
 import { friendRequestKey, FriendRequestType } from "queryKeys";
 import { useQuery } from "react-query";
 import { service } from "service/index";
@@ -9,21 +9,22 @@ export default function useFriendRequests(
   friendRequestType: FriendRequestType
 ) {
   const {
-    data: friendRequestsData,
+    data: friendRequestLists,
     isLoading: isFriendReqLoading,
     error,
-  } = useQuery<ListFriendRequestsRes.AsObject, Error>(
+  } = useQuery<FriendRequest.AsObject[], Error>(
     friendRequestKey(friendRequestType),
-    service.api.listFriendRequests
+    async () => {
+      const friendRequests = await service.api.listFriendRequests();
+      return friendRequestType === "sent"
+        ? friendRequests.sentList
+        : friendRequests.receivedList;
+    }
   );
 
-  const friendRequestLists = friendRequestsData
-    ? friendRequestType === "Sent"
-      ? friendRequestsData.sentList
-      : friendRequestsData.receivedList
-    : [];
-
-  const userIds = friendRequestLists.map((friendReq) => friendReq.userId);
+  const userIds = (friendRequestLists ?? []).map(
+    (friendReq) => friendReq.userId
+  );
 
   const {
     data: usersData,
@@ -37,7 +38,7 @@ export default function useFriendRequests(
 
   const data =
     !isLoading && usersData
-      ? friendRequestLists.map((friendRequest) => ({
+      ? (friendRequestLists ?? []).map((friendRequest) => ({
           ...friendRequest,
           friend: usersData.get(friendRequest.userId),
         }))

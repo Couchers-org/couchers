@@ -53,7 +53,7 @@ function CancelFriendRequestAction({
 function FriendRequestsSent() {
   const isMounted = useIsMounted();
   const [mutationError, setMutationError] = useSafeState(isMounted, "");
-  const { data, isLoading, isError, errors } = useFriendRequests("Sent");
+  const { data, isLoading, isError, errors } = useFriendRequests("sent");
 
   return (
     <FriendTile

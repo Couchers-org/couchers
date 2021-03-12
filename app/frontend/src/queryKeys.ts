@@ -41,6 +41,8 @@ export const referencesKey = (
   type: "received" | "given" | "all"
 ) => ["references", { type, userId }];
 
-export type FriendRequestType = "Sent" | "Received";
-export const friendRequestKey = (type: FriendRequestType) =>
-  `friendRequests${type}`;
+export type FriendRequestType = "sent" | "received";
+export const friendRequestKey = (type: FriendRequestType) => [
+  "friendRequests",
+  { type },
+];

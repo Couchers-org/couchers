@@ -69,7 +69,7 @@ function RespondToFriendRequestAction({
 function FriendRequestsReceived() {
   const isMounted = useIsMounted();
   const [mutationError, setMutationError] = useSafeState(isMounted, "");
-  const { data, isLoading, isError, errors } = useFriendRequests("Received");
+  const { data, isLoading, isError, errors } = useFriendRequests("received");
 
   return (
     <FriendTile

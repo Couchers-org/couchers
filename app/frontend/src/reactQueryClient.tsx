@@ -20,6 +20,16 @@ export const queryClient = new QueryClient({
   },
 });
 
+// export const OFFLINE_CACHE_KEY = "couchersOfflineCache";
+// const persistor = createLocalStoragePersistor({
+//   localStorageKey: OFFLINE_CACHE_KEY,
+// });
+
+// persistQueryClient({
+//   maxAge: 14 * 24 * 60 * 60 * 1000,
+//   persistor,
+//   queryClient,
+// });
 interface ReactQueryClientProviderProps {
   children: React.ReactNode;
 }

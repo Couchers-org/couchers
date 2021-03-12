@@ -5,8 +5,8 @@ import users from "test/fixtures/users.json";
 
 const userMap = new Map(users.map((user) => [user.userId, user]));
 
-export async function getUser(userId: string) {
-  return userMap.get(+userId) as User.AsObject;
+export async function getUser(userId: string): Promise<User.AsObject> {
+  return userMap.get(+userId)!;
 }
 
 export async function listFriends() {
