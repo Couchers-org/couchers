@@ -78,21 +78,22 @@ export default function Overview({ user }: OverviewProps) {
         {user.city}
       </Typography>
       <Divider />
-      {user.userId === currentUserId ? (
-        <CardActions className={classes.cardActions}>
+      {mutationError && <Alert severity="error">{mutationError}</Alert>}
+      <CardActions className={classes.cardActions}>
+        {user.userId === currentUserId ? (
           <Button component={Link} to={editProfileRoute}>
             {EDIT_PROFILE}
           </Button>
-        </CardActions>
-      ) : (
-        <CardActions className={classes.cardActions}>
-          {mutationError && <Alert severity="error">{mutationError}</Alert>}
-          <AddFriendButton
-            userId={user.userId}
-            setMutationError={setMutationError}
-          />
-        </CardActions>
-      )}
+        ) : (
+          user.friends !== User.FriendshipStatus.FRIENDS && (
+            <AddFriendButton
+              isPending={user.friends === User.FriendshipStatus.PENDING}
+              userId={user.userId}
+              setMutationError={setMutationError}
+            />
+          )
+        )}
+      </CardActions>
       <IconText
         icon={CouchIcon}
         text={

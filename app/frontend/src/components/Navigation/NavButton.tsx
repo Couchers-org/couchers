@@ -1,4 +1,4 @@
-import { makeStyles, Typography } from "@material-ui/core";
+import { makeStyles, Typography, TypographyProps } from "@material-ui/core";
 import { NavLink } from "react-router-dom";
 import { baseRoute, profileRoute } from "routes";
 
@@ -27,22 +27,7 @@ const useStyles = makeStyles((theme) => ({
 interface NavButtonProps {
   route: string;
   label: string;
-  labelVariant:
-    | "h1"
-    | "h2"
-    | "h3"
-    | "h4"
-    | "h5"
-    | "h6"
-    | "subtitle1"
-    | "subtitle2"
-    | "body1"
-    | "body2"
-    | "caption"
-    | "button"
-    | "overline"
-    | "srOnly"
-    | "inherit";
+  labelVariant: Exclude<TypographyProps["variant"], undefined>;
 }
 
 export default function NavButton({

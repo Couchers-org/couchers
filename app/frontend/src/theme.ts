@@ -48,6 +48,9 @@ const themeOptions: ThemeOptions = {
     success: {
       main: "#1ac302",
     },
+    grey: {
+      100: "#aaafb4",
+    },
   },
   props: {
     MuiButtonBase: {
