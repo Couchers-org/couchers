@@ -5,14 +5,11 @@ import Button from "components/Button";
 import Divider from "components/Divider";
 import { CouchIcon, LocationIcon } from "components/Icons";
 import IconText from "components/IconText";
-import LabelAndText from "components/LabelAndText";
 import { useAuthContext } from "features/auth/AuthProvider";
 import {
   COMMUNITY_STANDING,
   COMMUNITY_STANDING_DESCRIPTION,
   EDIT_PROFILE,
-  LAST_ACTIVE,
-  REFERENCES,
   VERIFICATION_SCORE,
   VERIFICATION_SCORE_DESCRIPTION,
 } from "features/constants";
@@ -20,12 +17,11 @@ import {
   hostingStatusLabels,
   meetupStatusLabels,
 } from "features/profile/constants";
+import { UserLastActive, UserReferences } from "features/user/UserDataLabels";
 import { HostingStatus, MeetupStatus, User } from "pb/api_pb";
 import React from "react";
 import { Link } from "react-router-dom";
 import { editProfileRoute } from "routes";
-import { timestamp2Date } from "utils/date";
-import { timeAgo } from "utils/timeAgo";
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -110,15 +106,8 @@ export default function Overview({ user }: OverviewProps) {
         description={VERIFICATION_SCORE_DESCRIPTION}
       />
       <div className={classes.info}>
-        <LabelAndText label={REFERENCES} text={`${user.numReferences || 0}`} />
-        <LabelAndText
-          label={LAST_ACTIVE}
-          text={
-            user.lastActive
-              ? `${timeAgo(timestamp2Date(user.lastActive))}`
-              : "Unknown"
-          }
-        />
+        <UserReferences user={user} />
+        <UserLastActive user={user} />
       </div>
     </Card>
   );
