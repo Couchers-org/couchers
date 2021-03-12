@@ -5,16 +5,12 @@ import AppRoute from "./AppRoute";
 import TOS from "./components/TOS";
 import AuthPage from "./features/auth/AuthPage";
 import { useAuthContext } from "./features/auth/AuthProvider";
-import ChangeEmailPage from "./features/auth/email/ChangeEmailPage";
-import ConfirmChangeEmailPage from "./features/auth/email/ConfirmChangeEmailPage";
+import ConfirmChangeEmail from "./features/auth/email/ConfirmChangeEmail";
 import Jail from "./features/auth/jail/Jail";
 import Login from "./features/auth/login/Login";
 import Logout from "./features/auth/Logout";
-import {
-  ChangePasswordPage,
-  CompleteResetPasswordPage,
-  ResetPasswordPage,
-} from "./features/auth/password";
+import { CompleteResetPassword, ResetPassword } from "./features/auth/password";
+import Settings from "./features/auth/Settings";
 import Signup from "./features/auth/signup/Signup";
 import CommunityPage from "./features/communities/CommunityPage";
 import DiscussionPage from "./features/communities/DiscussionPage";
@@ -34,8 +30,6 @@ import SearchPage from "./features/search/SearchPage";
 import { PageType } from "./pb/pages_pb";
 import {
   baseRoute,
-  changeEmailRoute,
-  changePasswordRoute,
   communityDiscussionsRoute,
   communityEventsRoute,
   communityGroupsRoute,
@@ -60,6 +54,7 @@ import {
   profileRoute,
   resetPasswordRoute,
   searchRoute,
+  settingsRoute,
   signupRoute,
   tosRoute,
 } from "./routes";
@@ -97,29 +92,26 @@ export default function AppRoutes() {
       </AppRoute>
 
       <AppRoute isPrivate={false} isFullscreen exact path={resetPasswordRoute}>
-        <ResetPasswordPage />
+        <ResetPassword />
       </AppRoute>
       <AppRoute
         isPrivate={false}
         exact
         path={`${resetPasswordRoute}/:resetToken`}
       >
-        <CompleteResetPasswordPage />
+        <CompleteResetPassword />
       </AppRoute>
       <AppRoute
         isPrivate={false}
         path={`${confirmChangeEmailRoute}/:resetToken`}
       >
-        <ConfirmChangeEmailPage />
+        <ConfirmChangeEmail />
       </AppRoute>
       <AppRoute isFullscreen isPrivate={false} path={tosRoute}>
         <TOS />
       </AppRoute>
-      <AppRoute isPrivate path={changePasswordRoute}>
-        <ChangePasswordPage />
-      </AppRoute>
-      <AppRoute isPrivate path={changeEmailRoute}>
-        <ChangeEmailPage />
+      <AppRoute isPrivate path={settingsRoute}>
+        <Settings />
       </AppRoute>
       <AppRoute isPrivate path={mapRoute}>
         <MapPage />
