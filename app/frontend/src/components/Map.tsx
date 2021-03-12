@@ -10,11 +10,14 @@ const URL = process.env.REACT_APP_API_BASE_URL;
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_KEY!;
 
 const useStyles = makeStyles({
+  root: {
+    height: 200,
+    position: "relative",
+    width: 400,
+  },
   grow: {
-    "div&": {
-      height: "100%",
-      width: "100%",
-    },
+    height: "100%",
+    width: "100%",
   },
   map: {
     height: "100%",
@@ -22,11 +25,6 @@ const useStyles = makeStyles({
     position: "absolute",
     top: 0,
     width: "100%",
-  },
-  root: {
-    height: 200,
-    position: "relative",
-    width: 400,
   },
 });
 
