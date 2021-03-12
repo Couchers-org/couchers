@@ -10,6 +10,9 @@ import { service } from "service/index";
 import { SetMutationError } from ".";
 
 const useStyles = makeStyles((theme) => ({
+  disabledButton: {
+    backgroundColor: theme.palette.grey[100],
+  },
   editButton: {
     marginBottom: theme.spacing(2),
   },
@@ -48,7 +51,7 @@ export default function AddFriendButton({
   return (
     <Button
       startIcon={<PersonAddIcon />}
-      className={classes.editButton}
+      className={isPending ? classes.disabledButton : classes.editButton}
       disabled={isPending}
       onClick={() => {
         if (!isPending) {
@@ -56,7 +59,6 @@ export default function AddFriendButton({
         }
       }}
       loading={isLoading}
-      color={isPending ? "grey" : "primary"}
     >
       {isPending ? PENDING : ADD_FRIEND}
     </Button>
