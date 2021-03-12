@@ -115,7 +115,9 @@ export default function Navigation() {
   const authenticated = useAuthContext().authState.authenticated;
   const [open, setOpen] = React.useState(false);
 
-  const logoutButton = <NavButton route={logoutRoute} label={LOG_OUT} />;
+  const logoutButton = (
+    <NavButton route={logoutRoute} label={LOG_OUT} labelVariant="h2" />
+  );
 
   const drawerItems = (
     <div>
@@ -170,6 +172,7 @@ export default function Navigation() {
               variant="temporary"
               anchor="left"
               open={open}
+              onClick={handleDrawerClose}
               ModalProps={{
                 keepMounted: true, // better open performance on mobile
                 onBackdropClick: handleDrawerClose,
