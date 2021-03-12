@@ -1,14 +1,19 @@
 import { makeStyles, Typography } from "@material-ui/core";
+import Alert from "components/Alert";
+import Button from "components/Button";
+import PageTitle from "components/PageTitle";
+import TextField from "components/TextField";
+import {
+  ENTER_EMAIL,
+  RESET_PASSWORD,
+  RESET_PASSWORD_LINK,
+  SUBMIT,
+} from "features/auth/constants";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
-
-import Alert from "../../../components/Alert";
-import Button from "../../../components/Button";
-import PageTitle from "../../../components/PageTitle";
-import TextField from "../../../components/TextField";
-import { service } from "../../../service";
+import { service } from "service/index";
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -24,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function ResetPasswordPage() {
+export default function ResetPassword() {
   const classes = useStyles();
   const { handleSubmit, register } = useForm<{ userId: string }>();
 
@@ -40,24 +45,22 @@ export default function ResetPasswordPage() {
 
   return (
     <>
-      <PageTitle>Reset your password</PageTitle>
+      <PageTitle>{RESET_PASSWORD}</PageTitle>
       {error && <Alert severity="error">{error.message}</Alert>}
       <form className={classes.form} onSubmit={onSubmit}>
         <TextField
           classes={{ root: classes.textField }}
           id="userId"
           inputRef={register({ required: true })}
-          label="Enter your username/email"
+          label={ENTER_EMAIL}
           name="userId"
           fullWidth
         />
         <Button loading={isLoading} type="submit">
-          Submit
+          {SUBMIT}
         </Button>
         {isSuccess && (
-          <Typography variant="body1">
-            Check your email for a reset password link!
-          </Typography>
+          <Typography variant="body1">{RESET_PASSWORD_LINK}</Typography>
         )}
       </form>
     </>

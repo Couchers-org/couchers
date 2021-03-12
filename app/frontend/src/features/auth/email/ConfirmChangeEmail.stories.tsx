@@ -2,17 +2,17 @@ import { Meta, Story } from "@storybook/react";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import React from "react";
 import { MemoryRouter, Route } from "react-router-dom";
+import { confirmChangeEmailRoute } from "routes";
+import { mockedService } from "stories/__mocks__/service";
 
-import { resetPasswordRoute } from "../../../routes";
-import { mockedService } from "../../../stories/__mocks__/service";
-import CompleteResetPasswordPage from "./CompleteResetPasswordPage";
+import ConfirmChangeEmail from "./ConfirmChangeEmail";
 
 export default {
-  component: CompleteResetPasswordPage,
+  component: ConfirmChangeEmail,
   decorators: [
     (Story) => (
-      <MemoryRouter initialEntries={[`${resetPasswordRoute}/token`]}>
-        <Route path={`${resetPasswordRoute}/:resetToken`}>
+      <MemoryRouter initialEntries={[`${confirmChangeEmailRoute}/token`]}>
+        <Route path={`${confirmChangeEmailRoute}/:resetToken`}>
           <Story />
         </Route>
         <Route path="/login">
@@ -21,20 +21,20 @@ export default {
       </MemoryRouter>
     ),
   ],
-  title: "Me/Auth/CompleteResetPasswordPage",
+  title: "Me/Auth/ConfirmChangeEmailPage",
 } as Meta;
 
-interface CompleteResetPasswordPageArgs {
+interface ConfirmChangeEmailArgs {
   isLoading?: boolean;
   shouldSucceed?: boolean;
 }
 
-const Template: Story<CompleteResetPasswordPageArgs> = ({
+const Template: Story<ConfirmChangeEmailArgs> = ({
   isLoading = false,
   shouldSucceed = true,
 } = {}) => {
   setMocks({ isLoading, shouldSucceed });
-  return <CompleteResetPasswordPage />;
+  return <ConfirmChangeEmail />;
 };
 
 export const Loading = Template.bind({});
@@ -52,8 +52,8 @@ Failed.args = {
 function setMocks({
   isLoading,
   shouldSucceed,
-}: Required<CompleteResetPasswordPageArgs>) {
-  mockedService.account.completePasswordReset = () =>
+}: Required<ConfirmChangeEmailArgs>) {
+  mockedService.account.completeChangeEmail = () =>
     isLoading
       ? new Promise(() => void 0)
       : shouldSucceed
