@@ -1,133 +1,133 @@
 {
-    "name": "couchers-react",
-    "version": "0.1.0",
-    "private": true,
-    "dependencies": {
-        "@material-ui/core": "^4.11.3",
-        "@material-ui/icons": "^4.9.1",
-        "@material-ui/lab": "^4.0.0-alpha.56",
-        "classnames": "^2.2.6",
-        "google-protobuf": "^3.15.3",
-        "grpc-web": "^1.2.1",
-        "maplibre-gl": "^1.13.0-rc.5",
-        "markdown-it": "^12.0.2",
-        "react": "^17.0.0",
-        "react-dom": "^17.0.0",
-        "react-hook-form": "^6.15.1",
-        "react-intersection-observer": "^8.31.0",
-        "react-lines-ellipsis": "^0.14.1",
-        "react-query": "^3.12.0",
-        "react-router-dom": "^5.2.0",
-        "react-scripts": "4.0.1",
-        "typescript": "~4.1.3"
+  "name": "couchers-react",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@material-ui/core": "^4.11.3",
+    "@material-ui/icons": "^4.9.1",
+    "@material-ui/lab": "^4.0.0-alpha.56",
+    "classnames": "^2.2.6",
+    "google-protobuf": "^3.15.3",
+    "grpc-web": "^1.2.1",
+    "maplibre-gl": "^1.13.0-rc.5",
+    "markdown-it": "^12.0.2",
+    "react": "^17.0.0",
+    "react-dom": "^17.0.0",
+    "react-hook-form": "^6.15.1",
+    "react-intersection-observer": "^8.31.0",
+    "react-lines-ellipsis": "^0.14.1",
+    "react-query": "^3.12.0",
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "4.0.1",
+    "typescript": "~4.1.3"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "CI=true react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "format": "prettier --write src/",
+    "lint": "eslint src/",
+    "test-ci": "CI=true react-scripts test --coverageReporters=\"text\" --coverageReporters=\"cobertura\" --coverageReporters=\"lcov\" --reporters=\"default\" --reporters=\"jest-junit\" --coverage",
+    "jest": "jest --modulePaths=src",
+    "storybook": "start-storybook -p 6006 -s public",
+    "build-storybook": "NODE_PATH=. build-storybook -s public"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "prettier"
+    ],
+    "plugins": [
+      "simple-import-sort"
+    ],
+    "rules": {
+      "simple-import-sort/imports": "warn",
+      "simple-import-sort/exports": "warn",
+      "sort-imports": "off",
+      "import/order": "off",
+      "import/first": "error",
+      "import/newline-after-import": "error",
+      "import/no-duplicates": "error",
+      "import/no-relative-parent-imports": "error"
     },
-    "scripts": {
-        "start": "react-scripts start",
-        "build": "CI=true react-scripts build",
-        "test": "react-scripts test",
-        "eject": "react-scripts eject",
-        "format": "prettier --write src/",
-        "lint": "eslint src/",
-        "test-ci": "CI=true react-scripts test --coverageReporters=\"text\" --coverageReporters=\"cobertura\" --coverageReporters=\"lcov\" --reporters=\"default\" --reporters=\"jest-junit\" --coverage",
-        "jest": "jest --modulePaths=src",
-        "storybook": "start-storybook -p 6006 -s public",
-        "build-storybook": "NODE_PATH=. build-storybook -s public"
-    },
-    "eslintConfig": {
-        "extends": [
-            "react-app",
-            "prettier"
-        ],
-        "plugins": [
-            "simple-import-sort"
+    "overrides": [
+      {
+        "files": [
+          "**/*.ts?(x)"
         ],
         "rules": {
-            "simple-import-sort/imports": "warn",
-            "simple-import-sort/exports": "warn",
-            "sort-imports": "off",
-            "import/order": "off",
-            "import/first": "error",
-            "import/newline-after-import": "error",
-            "import/no-duplicates": "error",
-            "import/no-relative-parent-imports": "error"
-        },
-        "overrides": [
+          "@typescript-eslint/no-unused-vars": [
+            "warn",
             {
-                "files": [
-                    "**/*.ts?(x)"
-                ],
-                "rules": {
-                    "@typescript-eslint/no-unused-vars": [
-                        "warn",
-                        {
-                            "argsIgnorePattern": "theme",
-                            "varsIgnorePattern": "classes|useStyles"
-                        }
-                    ]
-                }
+              "argsIgnorePattern": "theme",
+              "varsIgnorePattern": "classes|useStyles"
             }
-        ]
-    },
-    "eslintIgnore": [
-        "src/pb/**"
+          ]
+        }
+      }
+    ]
+  },
+  "eslintIgnore": [
+    "src/pb/**"
+  ],
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
     ],
-    "browserslist": {
-        "production": [
-            ">0.2%",
-            "not dead",
-            "not op_mini all"
-        ],
-        "development": [
-            "last 1 chrome version",
-            "last 1 firefox version",
-            "last 1 safari version"
-        ]
-    },
-    "devDependencies": {
-        "@storybook/addon-actions": "^6.1.15",
-        "@storybook/addon-essentials": "^6.1.15",
-        "@storybook/addon-links": "^6.1.15",
-        "@storybook/node-logger": "^6.1.15",
-        "@storybook/preset-create-react-app": "^3.1.5",
-        "@storybook/react": "^6.1.15",
-        "@testing-library/jest-dom": "^5.11.9",
-        "@testing-library/react": "^11.2.5",
-        "@testing-library/react-hooks": "^5.0.3",
-        "@testing-library/user-event": "^12.8.0",
-        "@types/classnames": "^2.2.11",
-        "@types/css-mediaquery": "^0.1.0",
-        "@types/google-protobuf": "^3.7.3",
-        "@types/jest": "^26.0.14",
-        "@types/maplibre-gl": "^1.13.0",
-        "@types/markdown-it": "^12.0.1",
-        "@types/node": "^14.14.31",
-        "@types/react": "^17.0.2",
-        "@types/react-dom": "^17.0.1",
-        "@types/react-router-dom": "^5.1.5",
-        "@types/react-test-renderer": "^17.0.1",
-        "@types/webpack-env": "^1.15.3",
-        "coveralls": "^3.1.0",
-        "css-mediaquery": "^0.1.2",
-        "eslint-config-prettier": "^8.0.0",
-        "eslint-plugin-simple-import-sort": "^7.0.0",
-        "jest-junit": "^12.0.0",
-        "lint-staged": "^10.5.1",
-        "prettier": "^2.1.2",
-        "react-test-renderer": "^17.0.0"
-    },
-    "jest": {
-        "collectCoverageFrom": [
-            "src/**/*.{ts,tsx}",
-            "!**/node_modules/**",
-            "!src/pb/**",
-            "!src/stories/**",
-            "!src/**/*.stories.tsx"
-        ],
-        "resetMocks": true
-    },
-    "lint-staged": {
-        "src/**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
-            "prettier --write"
-        ]
-    }
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@storybook/addon-actions": "^6.1.15",
+    "@storybook/addon-essentials": "^6.1.15",
+    "@storybook/addon-links": "^6.1.15",
+    "@storybook/node-logger": "^6.1.15",
+    "@storybook/preset-create-react-app": "^3.1.5",
+    "@storybook/react": "^6.1.15",
+    "@testing-library/jest-dom": "^5.11.9",
+    "@testing-library/react": "^11.2.5",
+    "@testing-library/react-hooks": "^5.0.3",
+    "@testing-library/user-event": "^12.8.0",
+    "@types/classnames": "^2.2.11",
+    "@types/css-mediaquery": "^0.1.0",
+    "@types/google-protobuf": "^3.7.3",
+    "@types/jest": "^26.0.14",
+    "@types/maplibre-gl": "^1.13.0",
+    "@types/markdown-it": "^12.0.1",
+    "@types/node": "^14.14.31",
+    "@types/react": "^17.0.2",
+    "@types/react-dom": "^17.0.1",
+    "@types/react-router-dom": "^5.1.5",
+    "@types/react-test-renderer": "^17.0.1",
+    "@types/webpack-env": "^1.15.3",
+    "coveralls": "^3.1.0",
+    "css-mediaquery": "^0.1.2",
+    "eslint-config-prettier": "^8.0.0",
+    "eslint-plugin-simple-import-sort": "^7.0.0",
+    "jest-junit": "^12.0.0",
+    "lint-staged": "^10.5.1",
+    "prettier": "^2.1.2",
+    "react-test-renderer": "^17.0.0"
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "src/**/*.{ts,tsx}",
+      "!**/node_modules/**",
+      "!src/pb/**",
+      "!src/stories/**",
+      "!src/**/*.stories.tsx"
+    ],
+    "resetMocks": true
+  },
+  "lint-staged": {
+    "src/**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
+      "prettier --write"
+    ]
+  }
 }
