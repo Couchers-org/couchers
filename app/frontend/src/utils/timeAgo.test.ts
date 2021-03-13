@@ -29,6 +29,10 @@ const timeAgoMap = {
   [yearMillis]: "1 year ago",
 };
 
+beforeEach(() => {
+  jest.spyOn(Date, "now").mockReturnValue(1614556800000);
+});
+
 test("timeAgo function", () => {
   Object.keys(timeAgoMap).forEach((key: string) => {
     const now = Date.now();
