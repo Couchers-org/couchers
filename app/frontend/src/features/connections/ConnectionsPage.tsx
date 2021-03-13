@@ -7,6 +7,7 @@ import PageTitle from "../../components/PageTitle";
 import TabBar from "../../components/TabBar";
 import { connectionsRoute } from "../../routes";
 import useNotifications from "../useNotifications";
+import { CONNECTIONS, FRIENDS } from "./constants";
 import { FriendsTab } from "./friends";
 
 function FriendsNotification() {
@@ -14,7 +15,7 @@ function FriendsNotification() {
 
   return (
     <NotificationBadge count={data?.pendingFriendRequestCount}>
-      Friends
+      {FRIENDS}
     </NotificationBadge>
   );
 }
@@ -32,7 +33,7 @@ function ConnectionsPage() {
 
   return (
     <>
-      <PageTitle>My Connections</PageTitle>
+      <PageTitle>{CONNECTIONS}</PageTitle>
       <TabContext value={connectionType}>
         <TabBar
           value={connectionType}
