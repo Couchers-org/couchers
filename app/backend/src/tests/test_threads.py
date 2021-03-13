@@ -177,3 +177,7 @@ def test_threads_num_responses(db):
 
         ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=dog_id))
         assert ret.num_responses == 3
+
+        # test num_responses with page_size < num_responses
+        ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=PARENT_THREAD_ID, page_size=1))
+        assert ret.num_responses == 9
