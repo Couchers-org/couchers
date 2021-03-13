@@ -245,7 +245,6 @@ export default function EditProfileForm() {
                         label={
                           <TextField
                             onChange={(event) => onChange(event.target.value)}
-                            defaultValue={other}
                             value={other}
                           />
                         }
