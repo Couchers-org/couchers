@@ -25,7 +25,18 @@ const useStyles = makeStyles((theme) => ({
   card: {
     borderRadius: theme.shape.borderRadius,
   },
-  statusLabels: {
+  textLabels: {
+    marginTop: theme.spacing(2),
+  },
+  about: {
+    margin: `${theme.spacing(2)} 0`,
+  },
+  statusLabelWrapper: {
+    display: "flex",
+    marginLeft: theme.spacing(11),
+    width: "auto",
+  },
+  statusLabel: {
     marginRight: theme.spacing(2),
   },
   root: {
@@ -49,33 +60,51 @@ export default function SearchResult({ user }: { user: User.AsObject }) {
         <CardActionArea>
           <CardContent>
             <UserSummary user={user}>
-              <Container disableGutters={true}>
+              {/* I think this container would sit more nicely inside UserSummary, to align 
+                  better with the Avater but I don't know whether we want to show
+                  hosting/meetup status in other areas we're using the UserSummary component */}
+              <Container
+                disableGutters={true}
+                className={classes.statusLabelWrapper}
+              >
                 <Typography
-                  className={classes.statusLabels}
+                  className={classes.statusLabel}
+                  display="inline"
                   variant="subtitle1"
                   color="primary"
                 >
-                  {hostingStatusLabels[user.hostingStatus]}
+                  {/* This "ask me about hosting/about meeting up" text can be changed when we add the icons in
+                      but at the moment just having Ask Me without a label is unclear" */}
+                  {hostingStatusLabels[user.hostingStatus] === "Ask me"
+                    ? `${hostingStatusLabels[user.hostingStatus]} about hosting`
+                    : hostingStatusLabels[user.hostingStatus]}
                 </Typography>
                 <Typography
-                  className={classes.statusLabels}
+                  className={classes.statusLabel}
+                  display="inline"
                   variant="subtitle1"
                   color="secondary"
                 >
-                  {meetupStatusLabels[user.meetupStatus]}
+                  {meetupStatusLabels[user.meetupStatus] === "Ask me"
+                    ? `${
+                        meetupStatusLabels[user.meetupStatus]
+                      } about meeting up`
+                    : meetupStatusLabels[user.meetupStatus]}
                 </Typography>
               </Container>
-              <Typography variant="h6">
+              <Typography variant="h6" className={classes.about}>
                 {missingAbout
                   ? `${firstName} hasn't said anything about themselves yet`
                   : user.aboutMe.length < 300
                   ? user.aboutMe
                   : user.aboutMe.substring(0, 300) + "..."}
               </Typography>
-              <UserAgeGenderPronouns user={user} />
-              <UserLanguages user={user} />
-              <UserReferences user={user} />
-              <UserLastActive user={user} />
+              <div className={classes.textLabels}>
+                <UserAgeGenderPronouns user={user} />
+                <UserLanguages user={user} />
+                <UserReferences user={user} />
+                <UserLastActive user={user} />
+              </div>
             </UserSummary>
           </CardContent>
         </CardActionArea>

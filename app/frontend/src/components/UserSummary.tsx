@@ -42,31 +42,33 @@ interface UserSummaryProps {
 export default function UserSummary({ children, user }: UserSummaryProps) {
   const classes = useStyles();
   return (
-    <div className={classes.root}>
-      <ListItemAvatar>
-        {!user ? (
-          <Skeleton variant="circle" className={classes.avatar} />
-        ) : (
-          <Avatar user={user} className={classes.avatar} />
-        )}
-      </ListItemAvatar>
-      <ListItemText
-        className={classes.titleAndBarContainer}
-        disableTypography
-        primary={
-          <Typography variant="h2" className={classes.title}>
-            {!user ? <Skeleton /> : `${user.name}, ${user.age}, ${user.city}`}
-          </Typography>
-        }
-        secondary={
-          <>
-            <ScoreBar value={(user?.communityStanding || 0) * 100}>
-              {COMMUNITY_STANDING}
-            </ScoreBar>
-            {children}
-          </>
-        }
-      />
-    </div>
+    <>
+      <div className={classes.root}>
+        <ListItemAvatar>
+          {!user ? (
+            <Skeleton variant="circle" className={classes.avatar} />
+          ) : (
+            <Avatar user={user} className={classes.avatar} />
+          )}
+        </ListItemAvatar>
+        <ListItemText
+          className={classes.titleAndBarContainer}
+          disableTypography
+          primary={
+            <Typography variant="h2" className={classes.title}>
+              {!user ? <Skeleton /> : `${user.name}, ${user.age}, ${user.city}`}
+            </Typography>
+          }
+          secondary={
+            <>
+              <ScoreBar value={(user?.communityStanding || 0) * 100}>
+                {COMMUNITY_STANDING}
+              </ScoreBar>
+            </>
+          }
+        />
+      </div>
+      {children}
+    </>
   );
 }
