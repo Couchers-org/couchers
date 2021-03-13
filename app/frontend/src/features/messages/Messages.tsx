@@ -71,6 +71,7 @@ export default function Messages() {
     <>
       <PageTitle>Messages</PageTitle>
       <TabBar
+        ariaLabel="Tabs for different message types"
         value={messageType}
         setValue={(newType) => history.push(`${messagesRoute}/${newType}`)}
         labels={labels}
