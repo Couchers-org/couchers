@@ -26,7 +26,7 @@ export default function BarWithHelp({
   description,
 }: BarWithHelpProps) {
   const classes = useStyles();
-  return (
+  return (process.env.REACT_APP_API_BASE_URL ? <></> :
     <div className={classes.root}>
       <ScoreBar value={value} children={label}></ScoreBar>
       <Tooltip title={description}>
