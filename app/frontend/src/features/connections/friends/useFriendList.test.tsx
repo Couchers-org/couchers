@@ -1,11 +1,12 @@
 import { renderHook } from "@testing-library/react-hooks";
 import React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { service } from "service/index";
+import wrapper from "test/hookWrapper";
+import users from "test/fixtures/users.json";
+import { getUser, listFriends } from "test/serviceMockDefaults";
+import { wait } from "test/utils";
 
-import { service } from "../../../service";
-import wrapper from "../../../test/hookWrapper";
-import { getUser, listFriends } from "../../../test/serviceMockDefaults";
-import { wait } from "../../../test/utils";
 import useFriendList from "./useFriendList";
 
 const listFriendsMock = service.api.listFriends as jest.Mock;
@@ -50,24 +51,7 @@ describe("when the listFriends query succeeds", () => {
     // Called twice since the user has two friends in the fixture data
     expect(getUserMock).toHaveBeenCalledTimes(2);
     expect(result.current).toEqual({
-      data: [
-        {
-          age: 35,
-          avatarUrl: "",
-          city: "Helsinki, Finland",
-          name: "Funny Dog",
-          userId: 2,
-          username: "funnydog",
-        },
-        {
-          age: 28,
-          avatarUrl: "https://loremflickr.com/200/200?user3",
-          city: "London, UK",
-          name: "Funny Kid",
-          userId: 3,
-          username: "funnykid",
-        },
-      ],
+      data: [users[1], users[2]],
       errors: [],
       isError: false,
       isLoading: false,
