@@ -25,7 +25,7 @@ Check it out here:
 
 {% if html %}
 
-{{ button("See Messages", group_chats_link) }}
+{{ button("Friend Requests", group_chats_link) }}
 
 Alternatively, click the following link: <{{ group_chats_link }}>.
 
