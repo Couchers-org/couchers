@@ -1,35 +1,41 @@
 import { Meta, Story } from "@storybook/react";
-import ChangeEmailPage from "features/auth/email/ChangeEmailPage";
+import ChangeEmail from "features/auth/email/ChangeEmail";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { GetAccountInfoRes } from "pb/account_pb";
 import React from "react";
 import { mockedService } from "stories/__mocks__/service";
 
 export default {
-  component: ChangeEmailPage,
+  component: ChangeEmail,
   title: "Me/Auth/ChangeEmailPage",
 } as Meta;
 
-interface ChangeEmailPageArgs {
+interface ChangeEmailArgs {
   loginMethod?: GetAccountInfoRes.LoginMethod;
   simulateGetAccountInfoLoading?: boolean;
   shouldChangeEmailSucceed?: boolean;
   shouldGetAccountInfoSucceed?: boolean;
+  accountInfo?: GetAccountInfoRes.AsObject;
 }
 
-const Template: Story<ChangeEmailPageArgs> = ({
+const Template: Story<ChangeEmailArgs> = ({
   loginMethod = GetAccountInfoRes.LoginMethod.PASSWORD,
   simulateGetAccountInfoLoading = false,
   shouldChangeEmailSucceed = true,
   shouldGetAccountInfoSucceed = true,
+  accountInfo = {
+    loginMethod,
+    hasPassword: true,
+  } as GetAccountInfoRes.AsObject,
 } = {}) => {
   setMocks({
     loginMethod,
+    simulateGetAccountInfoLoading,
     shouldChangeEmailSucceed,
     shouldGetAccountInfoSucceed,
-    simulateGetAccountInfoLoading,
+    accountInfo,
   });
-  return <ChangeEmailPage />;
+  return <ChangeEmail {...accountInfo} />;
 };
 
 export const HasPassword = Template.bind({});
@@ -66,7 +72,7 @@ function setMocks({
   simulateGetAccountInfoLoading,
   shouldChangeEmailSucceed,
   shouldGetAccountInfoSucceed,
-}: Required<ChangeEmailPageArgs>) {
+}: Required<ChangeEmailArgs>) {
   mockedService.account.getAccountInfo = () =>
     shouldGetAccountInfoSucceed
       ? simulateGetAccountInfoLoading

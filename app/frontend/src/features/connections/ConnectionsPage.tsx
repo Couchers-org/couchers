@@ -20,7 +20,6 @@ function FriendsNotification() {
 }
 
 const labels = {
-  all: "All",
   friends: <FriendsNotification />,
 };
 
@@ -28,8 +27,8 @@ type ConnectionType = keyof typeof labels;
 
 function ConnectionsPage() {
   const history = useHistory();
-  const { type = "all" } = useParams<{ type: string }>();
-  const connectionType = type in labels ? (type as ConnectionType) : "all";
+  const { type = "friends" } = useParams<{ type: string }>();
+  const connectionType = type in labels ? (type as ConnectionType) : "friends";
 
   return (
     <>
@@ -39,12 +38,11 @@ function ConnectionsPage() {
           value={connectionType}
           setValue={(newType) =>
             history.push(
-              `${connectionsRoute}/${newType !== "all" ? newType : ""}`
+              `${connectionsRoute}/${newType !== "friends" ? newType : ""}`
             )
           }
           labels={labels}
         />
-        <TabPanel value="all">ALL</TabPanel>
         <TabPanel value="friends">
           <FriendsTab />
         </TabPanel>
