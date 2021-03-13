@@ -3,6 +3,7 @@ import useUserByUsername from "features/userQueries/useUserByUsername";
 import React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { service } from "service/index";
+import users from "test/fixtures/users.json";
 import { getUser } from "test/serviceMockDefaults";
 
 const getUserMock = service.user.getUser as jest.Mock;
@@ -60,14 +61,7 @@ describe("when user has loaded", () => {
     await waitFor(() => !result.current.isLoading);
 
     expect(result.current).toEqual({
-      data: {
-        age: 35,
-        avatarUrl: "",
-        city: "Helsinki, Finland",
-        name: "Funny Dog",
-        userId: 2,
-        username: "funnydog",
-      },
+      data: users[1],
       error: "",
       isError: false,
       isFetching: false,

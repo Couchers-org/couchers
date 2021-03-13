@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useQueryClient } from "react-query";
 import { Redirect } from "react-router-dom";
 
@@ -12,11 +12,7 @@ export default function Logout() {
   useEffect(() => {
     if (authState.authenticated) {
       authActions.logout();
-      queryClient.resetQueries("groupChats");
-      queryClient.resetQueries("groupChatMessages");
-      queryClient.resetQueries("hostRequestMessages");
-      queryClient.resetQueries("hostRequests");
-      queryClient.resetQueries("ping");
+      queryClient.resetQueries();
     }
   });
 
