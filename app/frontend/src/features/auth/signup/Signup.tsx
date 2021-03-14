@@ -123,12 +123,15 @@ export default function Signup() {
             </div>
             <Switch>
               <Route exact path={signupRoute}>
-                {error && (
-                  <Alert className={authClasses.errorMessage} severity="error">
-                    {error}
-                  </Alert>
-                )}
                 <div className={authClasses.formWrapper}>
+                  {error && (
+                    <Alert
+                      className={authClasses.errorMessage}
+                      severity="error"
+                    >
+                      {error}
+                    </Alert>
+                  )}
                   <AuthHeader>Let's get started!</AuthHeader>
                   {/* <Divider>Or</Divider>  not yet available: https://next.material-ui.com/components/dividers/ */}
                   {/* Hidden for beta: 

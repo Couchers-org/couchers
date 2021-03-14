@@ -99,12 +99,12 @@ export default function Login() {
                 <Divider className={authClasses.underline}></Divider>
               </Typography>
             </div>
-            {error && (
-              <Alert className={authClasses.errorMessage} severity="error">
-                {error}
-              </Alert>
-            )}
             <div className={authClasses.formWrapper}>
+              {error && (
+                <Alert className={authClasses.errorMessage} severity="error">
+                  {error}
+                </Alert>
+              )}
               <AuthHeader>Welcome back!</AuthHeader>
               {/* <Divider>Or</Divider>  not yet available: https://next.material-ui.com/components/dividers/ */}
               {/*  Disabled for beta:
