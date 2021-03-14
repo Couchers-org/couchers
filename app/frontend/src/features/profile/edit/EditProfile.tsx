@@ -10,12 +10,14 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import EditUserLocationMap from "components/EditUserLocationMap";
+import PageTitle from "components/PageTitle";
 import {
   ABOUT_HOME,
   ABOUT_ME,
   ADDITIONAL,
   COUNTRIES_LIVED,
   COUNTRIES_VISITED,
+  EDIT_PROFILE,
   EDUCATION,
   FEMALE_PRONOUNS,
   HOBBIES,
@@ -35,9 +37,9 @@ import {
   NO_MEETUP,
   NOT_ACCEPTING,
 } from "features/profile/constants";
+import useUpdateUserProfile from "features/profile/hooks/useUpdateUserProfile";
 import ProfileTagInput from "features/profile/ProfileTagInput";
 import ProfileTextInput from "features/profile/ProfileTextInput";
-import useUpdateUserProfile from "features/profile/useUpdateUserProfile";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { HostingStatus, MeetupStatus } from "pb/api_pb";
 import React, { useEffect } from "react";
@@ -111,6 +113,7 @@ export default function EditProfileForm() {
 
   return (
     <>
+      <PageTitle>{EDIT_PROFILE}</PageTitle>
       {updateStatus === "success" ? (
         <Alert severity="success">Successfully updated profile!</Alert>
       ) : updateStatus === "error" ? (
@@ -245,7 +248,6 @@ export default function EditProfileForm() {
                         label={
                           <TextField
                             onChange={(event) => onChange(event.target.value)}
-                            defaultValue={other}
                             value={other}
                           />
                         }

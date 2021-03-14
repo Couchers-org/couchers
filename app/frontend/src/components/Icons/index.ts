@@ -17,6 +17,7 @@ export { default as CouchIcon } from "@material-ui/icons/HotelOutlined";
 export { default as InfoIcon } from "@material-ui/icons/InfoOutlined";
 export { default as LanguageIcon } from "@material-ui/icons/LanguageOutlined";
 export { default as LocationIcon } from "@material-ui/icons/LocationOnOutlined";
+export { default as MenuIcon } from "@material-ui/icons/Menu";
 export { default as QuestionIcon } from "@material-ui/icons/MoreHorizOutlined";
 export { default as MoreIcon } from "@material-ui/icons/MoreHorizOutlined";
 export { default as OverflowMenuIcon } from "@material-ui/icons/MoreVertOutlined";
