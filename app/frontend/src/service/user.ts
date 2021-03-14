@@ -34,6 +34,7 @@ export type UpdateUserProfileData = Pick<
   | "lat"
   | "lng"
   | "radius"
+  | "gender"
   | "pronouns"
   | "occupation"
   | "education"
@@ -51,7 +52,7 @@ export type UpdateUserProfileData = Pick<
 
 export type HostingPreferenceData = Omit<
   ProfileFormData,
-  keyof UpdateUserProfileData | "gender"
+  keyof UpdateUserProfileData
 >;
 
 export type SignupArguments = {
@@ -139,6 +140,7 @@ export async function updateProfile(
   const lat = new wrappers.DoubleValue().setValue(profile.lat);
   const lng = new wrappers.DoubleValue().setValue(profile.lng);
   const radius = new wrappers.DoubleValue().setValue(profile.radius);
+  const gender = new wrappers.StringValue().setValue(profile.gender);
   const pronouns = new NullableStringValue().setValue(profile.pronouns);
   const occupation = new NullableStringValue().setValue(profile.occupation);
   const education = new NullableStringValue().setValue(profile.education);
@@ -168,6 +170,7 @@ export async function updateProfile(
     .setLat(lat)
     .setLng(lng)
     .setRadius(radius)
+    .setGender(gender)
     .setPronouns(pronouns)
     .setOccupation(occupation)
     .setEducation(education)

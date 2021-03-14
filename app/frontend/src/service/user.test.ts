@@ -21,6 +21,7 @@ describe("updateProfile", () => {
     additionalInformation: user.additionalInformation,
     city: user.city,
     education: user.education,
+    gender: user.gender,
     hometown: user.hometown,
     hostingStatus: user.hostingStatus,
     lat: user.lat,
@@ -62,6 +63,9 @@ describe("updateProfile", () => {
       countriesVisited: {
         exists: true,
         valueList: [],
+      },
+      gender: {
+        value: nonEmptyUserValues.gender,
       },
       languages: {
         exists: true,
