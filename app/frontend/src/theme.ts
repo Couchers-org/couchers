@@ -11,6 +11,9 @@ declare module "@material-ui/core/styles/createTypography" {
 
 const spacing = (factor: number) => `${0.5 * factor}rem`;
 const borderRadius = 12;
+const navBarHeight = 7;
+const navBarPadding = 3; // padding below nav bar
+
 const breakpoints = createBreakpoints({});
 declare module "@material-ui/core/styles/shape" {
   interface Shape {
@@ -48,6 +51,9 @@ const themeOptions: ThemeOptions = {
     success: {
       main: "#1ac302",
     },
+    grey: {
+      100: "#aaafb4",
+    },
   },
   props: {
     MuiButtonBase: {
@@ -57,7 +63,7 @@ const themeOptions: ThemeOptions = {
   shape: {
     borderRadius,
     navPaddingDesktop: spacing(10),
-    navPaddingMobile: spacing(8),
+    navPaddingMobile: spacing(navBarHeight + navBarPadding),
     scrollBar: {
       "&::-webkit-scrollbar": {
         background: "rgba(0,0,0,0)",

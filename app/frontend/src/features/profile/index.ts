@@ -1,3 +1,3 @@
-export { default as EditHostingPreferencePage } from "features/profile/edit/EditHostingPreferencePage";
-export { default as EditProfilePage } from "features/profile/edit/EditProfilePage";
+export { default as EditHostingPreference } from "features/profile/edit/EditHostingPreference";
+export { default as EditProfile } from "features/profile/edit/EditProfile";
 export { default as ProfilePage } from "features/profile/view/ProfilePage";

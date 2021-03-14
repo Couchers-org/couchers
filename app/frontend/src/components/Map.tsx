@@ -1,4 +1,4 @@
-import "maplibre-gl/dist/mapbox-gl.css";
+import "maplibre-gl/dist/maplibre-gl.css";
 
 import { makeStyles } from "@material-ui/core";
 import classNames from "classnames";

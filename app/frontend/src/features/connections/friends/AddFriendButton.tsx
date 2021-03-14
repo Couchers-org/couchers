@@ -1,25 +1,31 @@
 import { makeStyles } from "@material-ui/core";
+import Button from "components/Button";
+import { PersonAddIcon } from "components/Icons";
+import { ADD_FRIEND, PENDING } from "features/connections/constants";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import React from "react";
 import { useMutation, useQueryClient } from "react-query";
+import { service } from "service/index";
 
-import Button from "../../../components/Button";
-import { PersonAddIcon } from "../../../components/Icons";
-import { service } from "../../../service";
 import { SetMutationError } from ".";
 
 const useStyles = makeStyles((theme) => ({
+  disabledButton: {
+    backgroundColor: theme.palette.grey[100],
+  },
   editButton: {
     marginBottom: theme.spacing(2),
   },
 }));
 
 interface AddFriendButtonProps {
+  isPending: boolean;
   setMutationError: SetMutationError;
   userId: number;
 }
 
 export default function AddFriendButton({
+  isPending,
   setMutationError,
   userId,
 }: AddFriendButtonProps) {
@@ -45,13 +51,16 @@ export default function AddFriendButton({
   return (
     <Button
       startIcon={<PersonAddIcon />}
-      className={classes.editButton}
+      className={isPending ? classes.disabledButton : classes.editButton}
+      disabled={isPending}
       onClick={() => {
-        sendFriendRequest({ setMutationError, userId });
+        if (!isPending) {
+          sendFriendRequest({ setMutationError, userId, isPending });
+        }
       }}
       loading={isLoading}
     >
-      Add friend
+      {isPending ? PENDING : ADD_FRIEND}
     </Button>
   );
 }
