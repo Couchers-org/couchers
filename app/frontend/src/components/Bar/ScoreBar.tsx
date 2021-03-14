@@ -38,7 +38,7 @@ interface ScoreBarProps extends ContainerProps {
 
 export default function SearchResult({ value, children }: ScoreBarProps) {
   const classes = useStyles();
-  return process.env.REACT_APP_IS_POST_BETA_ENABLED ? null : (
+  return process.env.REACT_APP_IS_POST_BETA_ENABLED ? (
     <Container disableGutters className={classes.root}>
       <LinearProgress
         variant="determinate"
@@ -47,5 +47,5 @@ export default function SearchResult({ value, children }: ScoreBarProps) {
       />
       <TextBody className={classes.scoreBarLabel}>{children}</TextBody>
     </Container>
-  );
+  ) : null;
 }
