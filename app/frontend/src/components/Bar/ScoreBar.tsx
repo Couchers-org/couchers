@@ -40,8 +40,6 @@ export default function SearchResult({ value, children }: ScoreBarProps) {
   const classes = useStyles();
   return process.env.REACT_APP_IS_BETA_ENABLED ? null : (
     <Container disableGutters className={classes.root}>
-      {`hello: ${process.env.REACT_APP_MAPBOX_KEY}`}
-      {/* {`bye: ${process.env.REACT_APP_IS_BETA_ENABLED}`} */}
       <LinearProgress
         variant="determinate"
         value={value}
