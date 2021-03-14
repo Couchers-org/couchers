@@ -1,8 +1,8 @@
 import { Meta, Story } from "@storybook/react";
+import AuthProvider from "features/auth/AuthProvider";
 import * as React from "react";
 import { MemoryRouter as Router } from "react-router-dom";
 
-import AuthProvider from "../../features/auth/AuthProvider";
 import Navigation from ".";
 
 export default {

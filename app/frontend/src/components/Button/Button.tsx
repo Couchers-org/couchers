@@ -6,8 +6,8 @@ import {
 } from "@material-ui/core";
 import classNames from "classnames";
 import React, { ElementType } from "react";
+import { useIsMounted, useSafeState } from "utils/hooks";
 
-import { useIsMounted, useSafeState } from "../../utils/hooks";
 import CircularProgress from "../CircularProgress";
 
 const useStyles = makeStyles((theme) => ({
