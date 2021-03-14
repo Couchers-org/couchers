@@ -54,7 +54,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function CompleteSignup() {
+export default function CompleteSignupForm() {
   const { authState, authActions } = useAuthContext();
   const authLoading = authState.loading;
 

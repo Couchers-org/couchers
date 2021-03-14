@@ -10,6 +10,9 @@ export const useStyles = makeStyles((theme) => ({
   fullscreenContainer: {
     margin: "0 auto",
     padding: 0,
+    [theme.breakpoints.up("md")]: {
+      margin: 0,
+    },
   },
   standardContainer: {
     [theme.breakpoints.up("md")]: {
@@ -74,7 +77,7 @@ export default function AppRoute({
   ) : (
     <>
       {isFullscreen ? (
-        <Container className={classes.fullscreenContainer}>
+        <Container className={classes.fullscreenContainer} maxWidth={false}>
           <Route {...otherProps} render={() => children} />
         </Container>
       ) : (
