@@ -43,7 +43,7 @@ export default function GroupChatSendField({
           defaultValue={""}
           inputRef={register}
           rows={4}
-          rowsMax={6}
+          rowsMax={4}
           multiline
           fullWidth
         />

@@ -13,6 +13,14 @@ import {
 import { AddIcon } from "components/Icons";
 import TextField from "components/TextField";
 import useFriendList from "features/connections/friends/useFriendList";
+import {
+  CREATE,
+  ERROR_USER_LOAD,
+  FRIENDS,
+  NEW_CHAT,
+  NEW_GROUP_CHAT,
+  TITLE,
+} from "features/messages/constants";
 import { Error as GrpcError } from "grpc-web";
 import { User } from "pb/api_pb";
 import React, { useState } from "react";
@@ -21,7 +29,12 @@ import { useMutation, useQueryClient } from "react-query";
 import { service } from "service/index";
 
 const useStyles = makeStyles((theme) => ({
-  field: { marginTop: theme.spacing(1) },
+  field: {
+    marginTop: theme.spacing(1),
+    "& .MuiInputBase-root": {
+      width: "100%",
+    },
+  },
 }));
 
 interface CreateGroupChatFormData {
@@ -80,7 +93,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
             <AddIcon />
           </Avatar>
         </ListItemAvatar>
-        <ListItemText>Create a new group chat</ListItemText>
+        <ListItemText>{NEW_CHAT}</ListItemText>
       </ListItem>
       <Dialog
         aria-labelledby="create-dialog-title"
@@ -88,14 +101,14 @@ export default function CreateGroupChat({ className }: { className?: string }) {
         onClose={handleClose}
       >
         <form onSubmit={onSubmit}>
-          <DialogTitle id="create-dialog-title">Create group chat</DialogTitle>
+          <DialogTitle id="create-dialog-title">{NEW_GROUP_CHAT}</DialogTitle>
           <DialogContent>
             {!!errors.length && (
               <Alert severity={"error"}>{errors.join("\n")}</Alert>
             )}
             <TextField
               id="group-chat-title"
-              label="Title"
+              label={TITLE}
               name="title"
               inputRef={register}
               className={classes.field}
@@ -114,9 +127,9 @@ export default function CreateGroupChat({ className }: { className?: string }) {
                   loading={friends.isLoading}
                   options={friends.data ?? []}
                   getOptionLabel={(friend) => {
-                    return friend?.name ?? "(User load error)";
+                    return friend?.name ?? ERROR_USER_LOAD;
                   }}
-                  label="Friends"
+                  label={FRIENDS}
                   className={classes.field}
                 />
               )}
@@ -130,7 +143,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
               onClick={onSubmit}
               loading={isCreateLoading}
             >
-              Create
+              {CREATE}
             </Button>
           </DialogActions>
         </form>

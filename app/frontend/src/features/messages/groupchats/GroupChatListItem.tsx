@@ -20,7 +20,7 @@ import { GroupChat } from "pb/conversations_pb";
 import React from "react";
 import { firstName } from "utils/names";
 
-const useStyles = makeStyles({ root: {} });
+const useStyles = makeStyles({ root: {}, unread: { fontWeight: "bold" } });
 
 export interface GroupChatListItemProps extends ListItemProps {
   groupChat: GroupChat.AsObject;
@@ -33,6 +33,10 @@ export default function GroupChatListItem({
   const classes = useStyles();
   const currentUserId = useAuthContext().authState.userId!;
   const latestMessageAuthorId = groupChat.latestMessage?.authorUserId;
+  const isUnreadClass =
+    groupChat.lastSeenMessageId !== groupChat.latestMessage?.messageId
+      ? classes.unread
+      : "";
 
   //It is possible the last message is sent by someone who has left
   //so include it just in case
@@ -88,8 +92,8 @@ export default function GroupChatListItem({
       <ListItemText
         primary={groupChatMembersQuery.isLoading ? <Skeleton /> : title}
         secondary={groupChatMembersQuery.isLoading ? <Skeleton /> : text}
-        primaryTypographyProps={{ noWrap: true }}
-        secondaryTypographyProps={{ noWrap: true }}
+        primaryTypographyProps={{ noWrap: true, className: isUnreadClass }}
+        secondaryTypographyProps={{ noWrap: true, className: isUnreadClass }}
       />
     </ListItem>
   );
