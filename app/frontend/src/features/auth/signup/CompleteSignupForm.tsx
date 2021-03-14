@@ -1,4 +1,3 @@
-import DateFnsUtils from "@date-io/dayjs";
 import {
   FormControlLabel,
   InputLabel,
@@ -6,10 +5,10 @@ import {
   Radio,
   RadioGroup,
 } from "@material-ui/core";
-import { KeyboardDatePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
 import Autocomplete from "components/Autocomplete";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
+import DateField from "components/DateField";
 import EditUserLocationMap, {
   ApproximateLocation,
 } from "components/EditUserLocationMap";
@@ -33,7 +32,8 @@ import {
   validatePastDate,
 } from "utils/validation";
 
-import { GENDER_LABEL, LOCATION_LABEL } from "../constants";
+import { BIRTHDATE_LABEL, GENDER_LABEL, LOCATION_LABEL } from "../constants";
+
 
 type SignupInputs = {
   email: string;
@@ -45,7 +45,6 @@ type SignupInputs = {
   acceptTOS: boolean;
   hostingStatus: HostingStatus;
   location: ApproximateLocation;
-  meetingDT: string;
 };
 
 const useStyles = makeStyles((theme) => ({
@@ -72,7 +71,7 @@ export default function CompleteSignupForm() {
     getValues,
     errors,
   } = useForm<SignupInputs>({
-    defaultValues: { city: "", location: {}, meetingDT: "dd.mm.rrrr" },
+    defaultValues: { city: "", location: {}},
     mode: "onBlur",
     shouldUnregister: false,
   });
@@ -175,41 +174,22 @@ export default function CompleteSignupForm() {
           <InputLabel className={authClasses.formLabel} htmlFor="birthdate">
             Birthday
           </InputLabel>
-          <MuiPickersUtilsProvider utils={DateFnsUtils}>
-            <Controller
-              {...{ control }}
-              defaultValue={getValues().meetingDT}
-              name="birthdate"
-              inputRef={register({
+          <DateField 
+            control={control}
+            name="birthdate" 
+            inputRef={register({
                 required: "Enter your birthdate",
                 validate: (stringDate) =>
                   validatePastDate(stringDate) ||
                   "Must be a valid date in the past.",
               })}
-              
-              render={({ onChange, value }) => (
-                <KeyboardDatePicker
-                  className={authClasses.formField}
-                  error={errors.hasOwnProperty("meetingDT")}
-                  helperText={errors?.birthdate?.message}
-                  id="birthdate"
-                  clearable
-                  format="DD.MM.YYYY"
-                  label={getValues().meetingDT}
-                  onChange={onChange}
-                  value={value}
-                  animateYearScrolling={true}
-                  fullWidth
-                  disableToolbar
-                  autoOk
-                  variant="inline"
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                />
-              )}
-            />
-          </MuiPickersUtilsProvider> 
+            className={authClasses.formField}
+            error={!!errors.birthdate}
+            helperText={errors?.birthdate?.message}
+            id="birthdate"
+            label={BIRTHDATE_LABEL}
+
+          />
           <InputLabel className={authClasses.formLabel} htmlFor="location">
             {LOCATION_LABEL}
           </InputLabel>
