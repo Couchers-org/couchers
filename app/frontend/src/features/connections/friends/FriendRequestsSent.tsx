@@ -9,6 +9,8 @@ import { FriendRequest } from "pb/api_pb";
 import React from "react";
 import { useIsMounted, useSafeState } from "utils/hooks";
 
+import { FRIEND_REQUESTS_SENT, NO_FRIEND_REQUESTS_SENT } from "../constants";
+
 interface CancelFriendRequestActionProps {
   friendRequestId: number;
   state: FriendRequest.FriendRequestStatus;
@@ -51,17 +53,17 @@ function CancelFriendRequestAction({
 function FriendRequestsSent() {
   const isMounted = useIsMounted();
   const [mutationError, setMutationError] = useSafeState(isMounted, "");
-  const { data, isLoading, isError, errors } = useFriendRequests("Sent");
+  const { data, isLoading, isError, errors } = useFriendRequests("sent");
 
   return (
     <FriendTile
-      title="Friend requests you sent"
+      title={FRIEND_REQUESTS_SENT}
       errorMessage={
         isError ? errors.join("\n") : mutationError ? mutationError : null
       }
       isLoading={isLoading}
       hasData={!!data?.length}
-      noDataMessage="No pending friend requests!"
+      noDataMessage={NO_FRIEND_REQUESTS_SENT}
     >
       {data &&
         data.map(({ friendRequestId, friend, userId, state }) => (

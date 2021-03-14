@@ -10,21 +10,20 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import EditUserLocationMap from "components/EditUserLocationMap";
+import PageTitle from "components/PageTitle";
 import {
   ABOUT_HOME,
   ABOUT_ME,
   ADDITIONAL,
   COUNTRIES_LIVED,
   COUNTRIES_VISITED,
+  EDIT_PROFILE,
   EDUCATION,
-  FEMALE,
   FEMALE_PRONOUNS,
-  GENDER,
   HOBBIES,
   HOMETOWN,
   HOSTING_STATUS,
   LANGUAGES_SPOKEN,
-  MALE,
   MALE_PRONOUNS,
   OCCUPATION,
   PRONOUNS,
@@ -38,9 +37,9 @@ import {
   NO_MEETUP,
   NOT_ACCEPTING,
 } from "features/profile/constants";
+import useUpdateUserProfile from "features/profile/hooks/useUpdateUserProfile";
 import ProfileTagInput from "features/profile/ProfileTagInput";
 import ProfileTextInput from "features/profile/ProfileTextInput";
-import useUpdateUserProfile from "features/profile/useUpdateUserProfile";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { HostingStatus, MeetupStatus } from "pb/api_pb";
 import React, { useEffect } from "react";
@@ -114,6 +113,7 @@ export default function EditProfileForm() {
 
   return (
     <>
+      <PageTitle>{EDIT_PROFILE}</PageTitle>
       {updateStatus === "success" ? (
         <Alert severity="success">Successfully updated profile!</Alert>
       ) : updateStatus === "error" ? (
@@ -215,49 +215,6 @@ export default function EditProfileForm() {
             />
             <Controller
               control={control}
-              defaultValue={user.gender}
-              name="gender"
-              render={({ onChange, value }) => {
-                const other = value === FEMALE || value === MALE ? "" : value;
-                return (
-                  <>
-                    <Typography variant="h2">{GENDER}</Typography>
-                    <RadioGroup
-                      row
-                      aria-label="gender"
-                      name="gender"
-                      value={value}
-                      onChange={(_, value) => onChange(value)}
-                    >
-                      <FormControlLabel
-                        value={FEMALE}
-                        control={<Radio />}
-                        label={FEMALE}
-                      />
-                      <FormControlLabel
-                        value={MALE}
-                        control={<Radio />}
-                        label={MALE}
-                      />
-                      <FormControlLabel
-                        value={other}
-                        control={<Radio />}
-                        checked={value !== FEMALE && value !== MALE}
-                        label={
-                          <TextField
-                            onChange={(event) => onChange(event.target.value)}
-                            defaultValue={other}
-                            value={other}
-                          />
-                        }
-                      />
-                    </RadioGroup>
-                  </>
-                );
-              }}
-            />
-            <Controller
-              control={control}
               defaultValue={user.pronouns}
               name="pronouns"
               render={({ onChange, value }) => {
@@ -291,7 +248,6 @@ export default function EditProfileForm() {
                         label={
                           <TextField
                             onChange={(event) => onChange(event.target.value)}
-                            defaultValue={other}
                             value={other}
                           />
                         }

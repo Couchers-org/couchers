@@ -3,8 +3,7 @@ export const baseRoute = "/";
 export const loginRoute = "/login";
 export const loginPasswordRoute = `${loginRoute}/password`;
 export const resetPasswordRoute = "/password-reset";
-export const changePasswordRoute = "/change-password";
-export const changeEmailRoute = "/change-email";
+export const settingsRoute = "/account-settings";
 export const confirmChangeEmailRoute = "/confirm-email";
 
 export const signupRoute = "/signup";
@@ -35,7 +34,6 @@ export const mapRoute = "/map";
 export const logoutRoute = "/logout";
 export const connectionsRoute = "/connections";
 export const friendsRoute = `${connectionsRoute}/friends`;
-export const notFoundRoute = "/notfound";
 
 export const userRoute = "/user";
 export const routeToUser = (username: string) => `${profileRoute}/${username}`;

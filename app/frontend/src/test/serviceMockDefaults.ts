@@ -1,11 +1,12 @@
+import { User } from "pb/api_pb";
 import { HostRequestStatus } from "pb/conversations_pb";
 import messages from "test/fixtures/messages.json";
 import users from "test/fixtures/users.json";
 
 const userMap = new Map(users.map((user) => [user.userId, user]));
 
-export async function getUser(userId: string) {
-  return userMap.get(+userId);
+export async function getUser(userId: string): Promise<User.AsObject> {
+  return userMap.get(+userId)!;
 }
 
 export async function listFriends() {
