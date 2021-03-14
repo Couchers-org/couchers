@@ -7,11 +7,7 @@ export default {
   title: "Messages/TimeInterval",
 } as Meta;
 
-const Template: Story<any> = (args) => (
-  <>
-    <TimeInterval {...args} />
-  </>
-);
+const Template: Story<any> = (args) => <TimeInterval {...args} />;
 
 export const timeInterval = Template.bind({});
 timeInterval.args = {

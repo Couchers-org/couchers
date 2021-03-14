@@ -7,9 +7,7 @@ export default {
 } as Meta;
 
 const Template: Story<any> = (args) => (
-  <>
-    <UserSection {...args}>Section content</UserSection>
-  </>
+  <UserSection {...args}>Section content</UserSection>
 );
 
 export const userSection = Template.bind({});

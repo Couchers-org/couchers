@@ -8,9 +8,7 @@ export default {
 } as Meta;
 
 const Template: Story<any> = (args) => (
-  <>
-    <FriendTile {...args}>Content</FriendTile>
-  </>
+  <FriendTile {...args}>Content</FriendTile>
 );
 
 export const friendTile = Template.bind({});

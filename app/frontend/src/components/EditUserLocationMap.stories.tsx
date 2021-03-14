@@ -1,4 +1,3 @@
-import { Box } from "@material-ui/core";
 import { Meta, Story } from "@storybook/react";
 import * as React from "react";
 
@@ -22,11 +21,11 @@ const user = {
 } as EditUserLocationMapProps["user"];
 
 const Template: Story<EditUserLocationMapProps> = (args) => (
-  <Box style={{ height: "60vh", width: "50%" }}>
+  <div style={{ height: "60vh", width: "50%" }}>
     <EditUserLocationMap {...args} grow />
     <p>Press enter to search, then customise the text.</p>
     <p>Changes logged to console.</p>
-  </Box>
+  </div>
 );
 
 export const Primary = Template.bind({});

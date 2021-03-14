@@ -6,11 +6,7 @@ export default {
   title: "Profile/ProfileTextInput",
 } as Meta;
 
-const Template: Story<any> = (args) => (
-  <>
-    <ProfileTextInput {...args} />
-  </>
-);
+const Template: Story<any> = (args) => <ProfileTextInput {...args} />;
 
 export const profileTextInput = Template.bind({});
 profileTextInput.args = {

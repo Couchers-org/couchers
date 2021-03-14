@@ -7,10 +7,6 @@ export default {
   title: "Components/Simple/CircularProgress",
 } as Meta;
 
-const Template: Story<any> = (args) => (
-  <>
-    <CircularProgress {...args} />
-  </>
-);
+const Template: Story<any> = (args) => <CircularProgress {...args} />;
 
 export const circularProgress = Template.bind({});
