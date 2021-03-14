@@ -64,11 +64,11 @@ export default function UserSummary({ children, user }: UserSummaryProps) {
               <ScoreBar value={(user?.communityStanding || 0) * 100}>
                 {COMMUNITY_STANDING}
               </ScoreBar>
+              {children}
             </>
           }
         />
       </div>
-      {children}
     </>
   );
 }

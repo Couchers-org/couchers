@@ -1,15 +1,20 @@
 import { Typography } from "@material-ui/core";
 import Divider from "components/Divider";
-import { ADDITIONAL, HOBBIES, OVERVIEW, WHO } from "features/constants";
+import LabelAndText from "components/LabelAndText";
 import {
-  UserAgeGenderPronouns,
-  UserEducation,
-  UserHomeTown,
-  UserLanguages,
-  UserOccupation,
-  UserSinceJoined,
-} from "features/user/UserDataLabels";
+  ADDITIONAL,
+  AGE_GENDER,
+  EDUCATION,
+  HOBBIES,
+  HOMETOWN,
+  JOINED,
+  LANGUAGES_FLUENT,
+  OCCUPATION,
+  OVERVIEW,
+  WHO,
+} from "features/constants";
 import { User } from "pb/api_pb";
+import { dateTimeFormatter, timestamp2Date } from "utils/date";
 
 interface AboutProps {
   user: User.AsObject;
@@ -19,12 +24,28 @@ export default function About({ user }: AboutProps) {
   return (
     <>
       <Typography variant="h1">{OVERVIEW}</Typography>
-      <UserAgeGenderPronouns user={user} />
-      <UserLanguages user={user} />
-      <UserHomeTown user={user} />
-      <UserOccupation user={user} />
-      <UserEducation user={user} />
-      <UserSinceJoined user={user} />
+
+      <LabelAndText
+        label={AGE_GENDER}
+        text={`${user.age} / ${user.gender} ${
+          user.pronouns ? `(${user.pronouns})` : ""
+        }`}
+      />
+      <LabelAndText
+        label={LANGUAGES_FLUENT}
+        text={user.languagesList.toString().replace(",", ", ") || "Not given"}
+      />
+      <LabelAndText label={HOMETOWN} text={user.hometown} />
+      <LabelAndText label={OCCUPATION} text={user.occupation} />
+      <LabelAndText label={EDUCATION} text={user.education} />
+      <LabelAndText
+        label={JOINED}
+        text={
+          user.joined
+            ? dateTimeFormatter.format(timestamp2Date(user.joined))
+            : ""
+        }
+      />
 
       <Divider />
       <Typography variant="h1">{WHO}</Typography>
