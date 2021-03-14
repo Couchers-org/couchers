@@ -175,20 +175,19 @@ export default function CompleteSignupForm() {
             Birthday
           </InputLabel>
           <DateField 
-            control={control}
-            name="birthdate" 
-            inputRef={register({
-                required: "Enter your birthdate",
-                validate: (stringDate) =>
-                  validatePastDate(stringDate) ||
-                  "Must be a valid date in the past.",
-              })}
             className={authClasses.formField}
+            control={control}
             error={!!errors.birthdate}
             helperText={errors?.birthdate?.message}
             id="birthdate"
+            inputRef={register({
+              required: "Enter your birthdate",
+              validate: (stringDate) =>
+                validatePastDate(stringDate) ||
+                "Must be a valid date in the past.",
+            })}
             label={BIRTHDATE_LABEL}
-
+            name="birthdate" 
           />
           <InputLabel className={authClasses.formLabel} htmlFor="location">
             {LOCATION_LABEL}

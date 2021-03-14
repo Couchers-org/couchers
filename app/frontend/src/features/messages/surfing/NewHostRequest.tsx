@@ -88,29 +88,27 @@ export default function NewHostRequest() {
         <form onSubmit={onSubmit} className={classes.form}>
           <DateField 
             control={control}
-            name="fromDate" 
+            error={!!formErrors.fromDate}
+            helperText={formErrors?.fromDate?.message}
+            id="from-date"
             inputRef={register({
               required: "Enter a from date",
               validate: dateValidate,
             })}
-            className=''
-            error={!!formErrors.fromDate}
-            helperText={formErrors?.fromDate?.message}
-            id="from-date"
             label={DATE_FROM}
+            name="fromDate" 
           />
           <DateField 
             control={control}
-            name="toDate" 
+            error={!!formErrors.toDate}
+            helperText={formErrors?.toDate?.message}
+            id="to-date"
             inputRef={register({
               required: "Enter a to date",
               validate: dateValidate,
             })}
-            className=''
-            error={!!formErrors.toDate}
-            helperText={formErrors?.toDate?.message}
-            id="to-date"
             label={DATE_TO}
+            name="toDate" 
           />
           <TextField
             id="host-request-message"

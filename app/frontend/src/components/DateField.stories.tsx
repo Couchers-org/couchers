@@ -8,10 +8,6 @@ export default {
   title: "Components/Simple/DateField",
 } as Meta;
 
-const Template: Story<any> = (args) => (
-    <>
-      <DateField {...args} />
-    </>
-  );
+const Template: Story<any> = args => <DateField {...args} />;
   
-  export const circularProgress = Template.bind({});
+export const circularProgress = Template.bind({});

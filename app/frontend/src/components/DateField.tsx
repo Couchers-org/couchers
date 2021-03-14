@@ -3,42 +3,49 @@ import { KeyboardDatePicker, MuiPickersUtilsProvider } from "@material-ui/picker
 import { Control, Controller } from "react-hook-form";
 
 interface DateFieldProps {
+  className?: string;
   control: Control;
-  name: string;
-  inputRef: (ref: any) => void;
-  className: string;
-  id: string;
   error: boolean;
+  helperText: any;
+  id: string;
+  inputRef: (ref: any) => void;
   label: string;
-  helperText: any
+  name: string;
 }
 
 export default function DateField({
-  control,
-  name,
-  inputRef,
   className,
-  id,
+  control,
   error,
+  helperText,
+  id,
+  inputRef,
   label,
-  helperText
+  name
 }: DateFieldProps) {
   return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
       <Controller
         control={control}
         defaultValue={new Date().toISOString().split("T")[0]}
-        name={name}
         inputRef={inputRef}
+        name={name}
         
         render={({ onChange, value }) => (
           <KeyboardDatePicker
+            animateYearScrolling={true}
+            autoOk
             className={className}
+            clearable
+            disableToolbar
             error={error}
+            format="DD.MM.YYYY"
+            fullWidth
             helperText={helperText}
             id={id}
-            clearable
-            format="DD.MM.YYYY"
+            InputLabelProps={{
+              shrink: true,
+            }}
             label={label}
             onChange={(date) => {
               //user might be typing, so check the date is valid before doing conversions
@@ -47,14 +54,7 @@ export default function DateField({
                 : onChange(date);
             }} 
             value={value}
-            animateYearScrolling={true}
-            fullWidth
-            disableToolbar
-            autoOk
             variant="inline"
-            InputLabelProps={{
-              shrink: true,
-            }}
           />
         )}
       />
