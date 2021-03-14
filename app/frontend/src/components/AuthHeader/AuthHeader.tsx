@@ -1,10 +1,4 @@
-import {
-  Box,
-  Divider,
-  Hidden,
-  makeStyles,
-  Typography,
-} from "@material-ui/core";
+import { Divider, Hidden, makeStyles, Typography } from "@material-ui/core";
 import React from "react";
 
 const useStyles = makeStyles((theme) => ({
@@ -33,13 +27,13 @@ export default function AuthHeader(props: { children: React.ReactNode }) {
   const classes = useStyles();
 
   return (
-    <Box className={classes.header}>
+    <div className={classes.header}>
       <Typography variant="h1" classes={{ h1: classes.typography }}>
         {props.children}
       </Typography>
       <Hidden mdUp>
         <Divider className={classes.divider} />
       </Hidden>
-    </Box>
+    </div>
   );
 }
