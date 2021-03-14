@@ -213,6 +213,7 @@ describe("BugReport", () => {
     });
 
     it("resets error in the bug report dialog when it is being reopened", async () => {
+      jest.spyOn(console, "error").mockReturnValue(undefined);
       reportBugMock.mockRejectedValue(new Error("Bug tool disabled"));
       render(<BugReport />, { wrapper });
       userEvent.click(screen.getByRole("button", { name: "Report a bug" }));

@@ -6,8 +6,9 @@ import FriendTile from "features/connections/friends/FriendTile";
 import useFriendRequests from "features/connections/friends/useFriendRequests";
 import useRespondToFriendRequest from "features/connections/friends/useRespondToFriendRequest";
 import { FriendRequest } from "pb/api_pb";
-import React from "react";
 import { useIsMounted, useSafeState } from "utils/hooks";
+
+import { FRIEND_REQUESTS, NO_FRIEND_REQUESTS } from "../constants";
 
 interface RespondToFriendRequestActionProps {
   friendRequestId: number;
@@ -68,17 +69,17 @@ function RespondToFriendRequestAction({
 function FriendRequestsReceived() {
   const isMounted = useIsMounted();
   const [mutationError, setMutationError] = useSafeState(isMounted, "");
-  const { data, isLoading, isError, errors } = useFriendRequests("Received");
+  const { data, isLoading, isError, errors } = useFriendRequests("received");
 
   return (
     <FriendTile
-      title="Friend requests"
+      title={FRIEND_REQUESTS}
       errorMessage={
         isError ? errors.join("\n") : mutationError ? mutationError : null
       }
       isLoading={isLoading}
       hasData={!!data?.length}
-      noDataMessage="No pending friend requests!"
+      noDataMessage={NO_FRIEND_REQUESTS}
     >
       {data &&
         data.map((friendRequest) => (
