@@ -67,8 +67,11 @@ export default function Map({
     return { url };
   };
 
+  const mapRef = useRef<mapboxgl.Map>();
   useEffect(() => {
     if (!containerRef.current) return;
+    //don't create a new map if it exists already
+    if (mapRef.current) return;
     const map = new mapboxgl.Map({
       center: initialCenter,
       container: containerRef.current,
@@ -78,6 +81,7 @@ export default function Map({
       transformRequest,
       zoom: initialZoom,
     });
+    mapRef.current = map;
 
     if (interactive)
       map.addControl(new mapboxgl.NavigationControl({ showCompass: false }));
