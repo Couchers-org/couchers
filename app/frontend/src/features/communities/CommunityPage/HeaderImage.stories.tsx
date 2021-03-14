@@ -7,11 +7,7 @@ export default {
   title: "Communities/CommunityPage/HeaderImage",
 } as Meta;
 
-const Template: Story<any> = (args) => (
-  <>
-    <HeaderImage {...args} />
-  </>
-);
+const Template: Story<any> = (args) => <HeaderImage {...args} />;
 
 export const headerImage = Template.bind({});
 headerImage.args = {

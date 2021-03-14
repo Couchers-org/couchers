@@ -20,11 +20,7 @@ export default {
   title: "Me/Connections/AddFriendButton",
 } as Meta;
 
-const Template: Story<any> = (args) => (
-  <>
-    <AddFriendButton {...args} />
-  </>
-);
+const Template: Story<any> = (args) => <AddFriendButton {...args} />;
 
 export const addFriendButton = Template.bind({});
 addFriendButton.args = {

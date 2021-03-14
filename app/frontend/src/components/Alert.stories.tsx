@@ -16,9 +16,7 @@ export default {
 } as Meta;
 
 const Template: Story<any> = (args) => (
-  <>
-    <Alert {...args}>This is an alert</Alert>
-  </>
+  <Alert {...args}>This is an alert</Alert>
 );
 
 export const alert = Template.bind({});

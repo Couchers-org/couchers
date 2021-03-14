@@ -9,9 +9,7 @@ export default {
 } as Meta;
 
 const Template: Story<any> = (args) => (
-  <>
-    <ScoreBar {...args}>{COMMUNITY_STANDING}</ScoreBar>
-  </>
+  <ScoreBar {...args}>{COMMUNITY_STANDING}</ScoreBar>
 );
 
 export const scoreBar = Template.bind({});

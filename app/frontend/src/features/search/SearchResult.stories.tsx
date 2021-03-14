@@ -7,11 +7,7 @@ export default {
   title: "Search/SearchResult",
 } as Meta;
 
-const Template: Story<any> = (args) => (
-  <>
-    <SearchResult {...args} />
-  </>
-);
+const Template: Story<any> = (args) => <SearchResult {...args} />;
 
 export const searchResult = Template.bind({});
 searchResult.args = {

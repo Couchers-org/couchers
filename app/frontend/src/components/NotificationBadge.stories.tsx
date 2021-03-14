@@ -10,11 +10,9 @@ export default {
 } as Meta;
 
 const Template: Story<any> = (args) => (
-  <>
-    <NotificationBadge count={22} {...args}>
-      <TextBody>Messages</TextBody>
-    </NotificationBadge>
-  </>
+  <NotificationBadge count={22} {...args}>
+    <TextBody>Messages</TextBody>
+  </NotificationBadge>
 );
 
 export const notificationBadge = Template.bind({});

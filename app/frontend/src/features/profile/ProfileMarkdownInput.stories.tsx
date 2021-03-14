@@ -10,13 +10,11 @@ export default {
 const Template: Story<any> = (args) => {
   const [value, setValue] = useState("");
   return (
-    <>
-      <ProfileMarkdownInput
-        {...args}
-        value={value}
-        onChange={(v) => setValue(v)}
-      />
-    </>
+    <ProfileMarkdownInput
+      {...args}
+      value={value}
+      onChange={(v) => setValue(v)}
+    />
   );
 };
 
