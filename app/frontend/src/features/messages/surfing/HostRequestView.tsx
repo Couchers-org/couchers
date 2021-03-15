@@ -1,4 +1,4 @@
-import { Box } from "@material-ui/core";
+import { Box, Typography } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
@@ -34,7 +34,10 @@ import {
 } from "react-query";
 import { useHistory, useParams } from "react-router-dom";
 import { service } from "service/index";
+import { daysDifference, formatDate } from "utils/date";
 import { firstName } from "utils/names";
+
+import HostRequestStatusIcon from "./HostRequestStatusIcon";
 
 export default function HostRequestView() {
   const classes = useGroupChatViewStyles();
@@ -168,13 +171,25 @@ export default function HostRequestView() {
           <MenuItem onClick={() => null}>Placeholder</MenuItem>
         </Menu>
       </Box>
-
       <UserSummary user={otherUser}>
         <HostingStatus hostingStatus={otherUser?.hostingStatus} />
+        {hostRequest && (
+          <>
+            <div className={classes.requestStatus}>
+              <Typography component="div" variant="h2">
+                {`Requesting to stay for
+                ${daysDifference(hostRequest.toDate, hostRequest.fromDate)}`}
+              </Typography>
+              <HostRequestStatusIcon hostRequest={hostRequest} />
+            </div>
+            <Typography component="p">
+              {formatDate(hostRequest.fromDate, true)} -{" "}
+              {formatDate(hostRequest?.toDate, true)}
+            </Typography>
+          </>
+        )}
       </UserSummary>
-
       <Divider />
-
       {(respondMutation.error || sendMutation.error || hostRequestError) && (
         <Alert severity={"error"}>
           {respondMutation.error?.message ||

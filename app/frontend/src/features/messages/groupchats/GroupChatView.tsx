@@ -61,6 +61,15 @@ export const useGroupChatViewStyles = makeStyles((theme) => ({
     marginInlineEnd: theme.spacing(2),
     marginInlineStart: theme.spacing(2),
   },
+  requestStatus: {
+    display: "flex",
+    marginBottom: theme.spacing(1),
+    alignItems: "center",
+    "& div": {
+      marginRight: theme.spacing(1),
+      marginTop: 0,
+    },
+  },
 }));
 
 export default function GroupChatView() {
