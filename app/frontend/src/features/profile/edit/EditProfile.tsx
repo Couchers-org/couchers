@@ -79,7 +79,7 @@ export default function EditProfileForm() {
     status: updateStatus,
     reset: resetUpdate,
   } = useUpdateUserProfile();
-  const { data: user } = useCurrentUser();
+  const { data: user, isLoading: userIsLoading } = useCurrentUser();
   const isMounted = useIsMounted();
   const [errorMessage, setErrorMessage] = useSafeState<string | null>(
     isMounted,
@@ -92,12 +92,22 @@ export default function EditProfileForm() {
     setValue,
   } = useForm<UpdateUserProfileData>({
     defaultValues: {
-      city: user?.city ?? undefined,
-      lat: user?.lat ?? undefined,
-      lng: user?.lng ?? undefined,
-      radius: user?.radius ?? undefined,
+      lat: user?.lat,
+      lng: user?.lng,
+      radius: user?.radius,
     },
   });
+
+  //Although the default value was set above, if the page is just loaded,
+  //user will be undefined on first render, so the default values will be undefined.
+  //So make sure to set values when user finshes loading
+  useEffect(() => {
+    if (!userIsLoading && user) {
+      setValue("lat", user.lat);
+      setValue("lng", user.lng);
+      setValue("radius", user.radius);
+    }
+  }, [userIsLoading, setValue, user]);
 
   useEffect(() => {
     //register here because these don't exist as actual fields
@@ -133,6 +143,7 @@ export default function EditProfileForm() {
           <Controller
             name="city"
             control={control}
+            defaultValue={user.city}
             render={({ value, onChange }) => (
               <EditUserLocationMap
                 user={user}

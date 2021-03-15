@@ -45,13 +45,13 @@ export const tosRoute = "/tos";
 const placeBaseRoute = "/place";
 export const placeRoute = `${placeBaseRoute}/:pageId/:pageSlug?`;
 export const routeToPlace = (id: number, slug: string) =>
-  `${placeRoute}/${id}/${slug}`;
+  `${placeBaseRoute}/${id}/${slug}`;
 export const newPlaceRoute = `${placeBaseRoute}/new`;
 
 const guideBaseRoute = "/guide";
 export const guideRoute = `${guideBaseRoute}/:pageId/:pageSlug?`;
 export const routeToGuide = (id: number, slug: string) =>
-  `${guideRoute}/${id}/${slug}`;
+  `${guideBaseRoute}/${id}/${slug}`;
 export const newGuideRoute = `${guideBaseRoute}/new`;
 
 const groupBaseRoute = "/group";
