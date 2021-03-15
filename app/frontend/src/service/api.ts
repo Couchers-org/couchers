@@ -1,6 +1,4 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-
-import { ImageInputValues } from "../components/ImageInput";
 import {
   CancelFriendRequestReq,
   PingReq,
@@ -8,6 +6,7 @@ import {
   SendFriendRequestReq,
 } from "pb/api_pb";
 
+import { ImageInputValues } from "../components/ImageInput";
 import client from "./client";
 
 export function cancelFriendRequest(friendRequestId: number) {

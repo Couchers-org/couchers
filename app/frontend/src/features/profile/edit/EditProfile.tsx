@@ -128,14 +128,15 @@ export default function EditProfileForm() {
         <>
           <form onSubmit={onSubmit}>
             <Controller
-              name={"avatarKey"}
+              name="avatarKey"
               control={control}
+              defaultValue=""
               render={({ onChange }) => {
                 return (
                   <AvatarInput
                     className={classes.avatar}
-                    id={"profile-picture"}
-                    name={"avatarKey"}
+                    id="profile-picture"
+                    name="avatarKey"
                     src={user.avatarUrl}
                     userName={user.name}
                     onChange={onChange}

@@ -38,7 +38,7 @@ export interface ImageInputProps {
 
 export function ImageInput({ id, name, children, onChange }: ImageInputProps) {
   const classes = useStyles();
-  const inputId = id + "-file-input";
+  const inputId = `${id}-file-input`;
   const mutation = useMutation<ImageInputValues, Error, File>((file: File) =>
     service.api.uploadFile(file)
   );
@@ -52,13 +52,10 @@ export function ImageInput({ id, name, children, onChange }: ImageInputProps) {
         name={name}
         type="file"
         onChange={async (event) => {
-          if (!event.target.files?.length) {
-            console.log("No files selected");
-            return;
-          }
+          if (!event.target.files?.length) return;
           const file = event.target.files[0];
           const response = await mutation.mutateAsync(file);
-          onChange && onChange(response);
+          onChange(response);
         }}
       />
       {mutation.isError && (
