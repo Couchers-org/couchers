@@ -132,14 +132,14 @@ export default function UsernameForm() {
         <Button
           classes={{
             label: authClasses.buttonText,
-            root: authClasses.button,
           }}
-          type="submit"
-          variant="contained"
+          className={authClasses.button}
           color="secondary"
-          onClick={onSubmit}
           disabled={sent}
           loading={loading || authLoading}
+          onClick={onSubmit}
+          type="submit"
+          variant="contained"
         >
           Continue
         </Button>

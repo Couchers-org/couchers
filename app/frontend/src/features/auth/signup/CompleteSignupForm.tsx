@@ -16,6 +16,7 @@ import TextField from "components/TextField";
 import TOS from "components/TOS";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
+import { HOSTING_STATUS } from "features/constants";
 import { hostingStatusLabels } from "features/profile/constants";
 import { HostingStatus } from "pb/api_pb";
 import React, { useEffect, useState } from "react";
@@ -29,6 +30,8 @@ import {
   usernameValidationPattern,
   validatePastDate,
 } from "utils/validation";
+
+import { GENDER_LABEL, LOCATION_LABEL } from "../constants";
 
 type SignupInputs = {
   email: string;
@@ -188,7 +191,7 @@ export default function CompleteSignupForm() {
             helperText={errors?.birthdate?.message}
           />
           <InputLabel className={authClasses.formLabel} htmlFor="location">
-            Your location
+            {LOCATION_LABEL}
           </InputLabel>
           <Controller
             name="location"
@@ -219,7 +222,7 @@ export default function CompleteSignupForm() {
             className={authClasses.formLabel}
             htmlFor="hosting-status"
           >
-            Hosting status
+            {HOSTING_STATUS}
           </InputLabel>
           <Controller
             control={control}
@@ -245,7 +248,7 @@ export default function CompleteSignupForm() {
             )}
           />
           <InputLabel className={authClasses.formLabel} htmlFor="gender">
-            I identify as ....
+            {GENDER_LABEL}
           </InputLabel>
           <Controller
             id="gender"

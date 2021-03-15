@@ -6,7 +6,15 @@ import Alert from "../../../components/Alert";
 import AuthHeader from "../../../components/AuthHeader";
 import { loginRoute, signupRoute } from "../../../routes";
 import { useAuthContext } from "../AuthProvider";
-import { COLLABORATIVE, INTRODUCTION } from "../constants";
+import {
+  ACCOUNT_ALREADY_CREATED,
+  INTRODUCTION_SUBTITLE,
+  INTRODUCTION_TITLE,
+  LOGIN,
+  SIGN_UP_AGREEMENT,
+  SIGN_UP_COMPLETE_HEADER,
+  SIGN_UP_HEADER,
+} from "../constants";
 import useAuthStyles from "../useAuthStyles";
 import CompleteSignupForm from "./CompleteSignupForm";
 import EmailForm from "./EmailForm";
@@ -22,8 +30,8 @@ const useStyles = makeStyles((theme) => ({
   logIn: {
     marginTop: "auto",
     [theme.breakpoints.up("md")]: {
-      color: "#ffffff",
-      lineHeight: "40px",
+      color: theme.palette.common.white,
+      lineHeight: "2.5rem",
       marginTop: 0,
     },
   },
@@ -51,12 +59,13 @@ export default function Signup() {
   return (
     <>
       {authenticated && <Redirect to="/" />}
+      {/***** MOBILE ******/}
       <Hidden mdUp>
         <div className={authClasses.backgroundBlurImage}></div>
         <div className={authClasses.page}>
           <Switch>
             <Route exact path={signupRoute}>
-              <AuthHeader>Let's get started!</AuthHeader>
+              <AuthHeader>{SIGN_UP_HEADER}</AuthHeader>
               {error && (
                 <Alert className={authClasses.errorMessage} severity="error">
                   {error}
@@ -74,18 +83,17 @@ export default function Signup() {
             </MuiButton>
             */}
               <Typography variant="body1" className={classes.agreement}>
-                By signing up, you agree with the T&Cs of using the platform and
-                confirm to adhere to our Code of Conduct.
+                {SIGN_UP_AGREEMENT}
               </Typography>
               <Typography className={classes.logIn}>
-                Already have an account?{" "}
+                {ACCOUNT_ALREADY_CREATED + " "}
                 <Link className={classes.logInLink} to={loginRoute}>
-                  Log in
+                  {LOGIN}
                 </Link>
               </Typography>
             </Route>
             <Route path={`${signupRoute}/:urlToken?`}>
-              <AuthHeader>Your basic details</AuthHeader>
+              <AuthHeader>{SIGN_UP_COMPLETE_HEADER}</AuthHeader>
               {error && (
                 <Alert className={authClasses.errorMessage} severity="error">
                   {error}
@@ -96,6 +104,9 @@ export default function Signup() {
           </Switch>
         </div>
       </Hidden>
+
+      {/***** DESKTOP ******/}
+
       <Hidden smDown>
         <div className={authClasses.page}>
           <header className={authClasses.header}>
@@ -103,9 +114,9 @@ export default function Signup() {
             <Switch>
               <Route exact path={signupRoute}>
                 <Typography className={classes.logIn}>
-                  Already have an account?{" "}
+                  {ACCOUNT_ALREADY_CREATED + " "}
                   <Link className={classes.logInLink} to={loginRoute}>
-                    Log In
+                    {LOGIN}
                   </Link>
                 </Typography>
               </Route>
@@ -114,10 +125,10 @@ export default function Signup() {
           <div className={authClasses.content}>
             <div className={authClasses.introduction}>
               <Typography classes={{ root: authClasses.title }} variant="h1">
-                {INTRODUCTION}
+                {INTRODUCTION_TITLE}
               </Typography>
               <Typography classes={{ root: authClasses.subtitle }} variant="h2">
-                {COLLABORATIVE}
+                {INTRODUCTION_SUBTITLE}
                 <Divider className={authClasses.underline}></Divider>
               </Typography>
             </div>
@@ -132,7 +143,7 @@ export default function Signup() {
                       {error}
                     </Alert>
                   )}
-                  <AuthHeader>Let's get started!</AuthHeader>
+                  <AuthHeader>{SIGN_UP_HEADER}</AuthHeader>
                   {/* <Divider>Or</Divider>  not yet available: https://next.material-ui.com/components/dividers/ */}
                   {/* Hidden for beta: 
             <Divider classes={{ root: authClasses.divider }} flexItem />
@@ -145,14 +156,13 @@ export default function Signup() {
             */}
                   <EmailForm />
                   <Typography variant="body1" className={classes.agreement}>
-                    By signing up, you agree with the T&Cs of using the platform
-                    and confirm to adhere to our Code of Conduct.
+                    {SIGN_UP_AGREEMENT}
                   </Typography>
                 </div>
               </Route>
               <Route path={`${signupRoute}/:urlToken?`}>
                 <div className={authClasses.formWrapper}>
-                  <AuthHeader>Your basic details</AuthHeader>
+                  <AuthHeader>{SIGN_UP_COMPLETE_HEADER}</AuthHeader>
                   {error && (
                     <Alert
                       className={authClasses.errorMessage}

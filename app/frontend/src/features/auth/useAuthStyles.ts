@@ -5,7 +5,7 @@ import MobileAuthBg from "./resources/mobile-auth-bg.png";
 
 const useAuthStyles = makeStyles((theme) => ({
   backgroundBlurImage: {
-    backgroundColor: "#f3f3f3",
+    backgroundColor: theme.palette.grey[50],
     backgroundImage: `url(${MobileAuthBg})`,
     backgroundPosition: "top center",
     backgroundRepeat: "no-repeat",
@@ -22,8 +22,7 @@ const useAuthStyles = makeStyles((theme) => ({
   button: {
     marginTop: theme.spacing(4),
     [theme.breakpoints.up("md")]: {
-      borderRadius: "4px",
-      width: "180px",
+      borderRadius: `${theme.shape.borderRadius / 3}px`,
     },
   },
   buttonText: {
@@ -32,12 +31,13 @@ const useAuthStyles = makeStyles((theme) => ({
   },
   content: {
     [theme.breakpoints.up("md")]: {
+      alignItems: "center",
       display: "flex",
       flexDirection: "row",
       height: "100%",
       justifyContent: "space-between",
-      margin: "0 auto",
-      width: "960px",
+      margin: "auto",
+      width: theme.breakpoints.values.md,
     },
   },
   /* disabled for beta:
@@ -90,11 +90,13 @@ const useAuthStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(5),
     width: "100%",
     [theme.breakpoints.up("md")]: {
+      alignItems: "flex-start",
       marginBottom: 0,
     },
   },
   formField: {
     marginBottom: theme.spacing(2),
+    width: "100%",
     [theme.breakpoints.up("md")]: {
       marginBottom: theme.spacing(4),
     },
@@ -108,31 +110,29 @@ const useAuthStyles = makeStyles((theme) => ({
   },
   formWrapper: {
     [theme.breakpoints.up("md")]: {
-      backgroundColor: "#f8f7f4",
-      borderRadius: "4px",
+      backgroundColor: "#f8f7f4", // TODO: check with the palette
+      borderRadius: `${theme.shape.borderRadius / 3}px`,
       padding: theme.spacing(5, 8),
-      width: "547px",
+      width: "53%",
     },
   },
   header: {
     width: "100%",
     display: "flex",
     flexDirection: "row",
-    height: "80px",
     justifyContent: "space-between",
     padding: theme.spacing(2, 4),
     marginBottom: theme.spacing(2),
   },
   introduction: {
-    color: "#ffffff",
-    marginTop: theme.spacing(18),
+    color: theme.palette.common.white,
     textAlign: "left",
-    width: "400px",
+    width: "40%",
   },
   logo: {
     color: theme.palette.secondary.main,
     fontFamily: "'Mansalva', cursive",
-    fontSize: "32px",
+    fontSize: "2rem",
   },
   page: {
     alignItems: "center",
@@ -161,8 +161,8 @@ const useAuthStyles = makeStyles((theme) => ({
   },
   title: {
     [theme.breakpoints.up("md")]: {
-      fontSize: "32px",
-      lineHeight: "37px",
+      fontSize: "2rem",
+      lineHeight: "2.3rem",
       textAlign: "left",
     },
   },

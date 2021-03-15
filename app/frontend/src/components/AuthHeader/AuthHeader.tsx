@@ -12,9 +12,6 @@ const useStyles = makeStyles((theme) => ({
   header: {
     marginBottom: theme.spacing(4),
     position: "relative",
-    [theme.breakpoints.up("md")]: {
-      marginBottom: theme.spacing(6),
-    },
   },
   typography: {
     [theme.breakpoints.up("md")]: {
@@ -28,7 +25,7 @@ export default function AuthHeader(props: { children: React.ReactNode }) {
 
   return (
     <div className={classes.header}>
-      <Typography variant="h1" classes={{ h1: classes.typography }}>
+      <Typography variant="h1" className={classes.typography}>
         {props.children}
       </Typography>
       <Hidden mdUp>

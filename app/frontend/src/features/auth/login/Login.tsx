@@ -6,7 +6,13 @@ import Alert from "../../../components/Alert";
 import AuthHeader from "../../../components/AuthHeader";
 import { loginPasswordRoute, signupRoute } from "../../../routes";
 import { useAuthContext } from "../AuthProvider";
-import { COLLABORATIVE, INTRODUCTION } from "../constants";
+import {
+  INTRODUCTION_SUBTITLE,
+  INTRODUCTION_TITLE,
+  LOGIN_HEADER,
+  NO_ACCOUNT_YET,
+  SIGN_UP,
+} from "../constants";
 import useAuthStyles from "../useAuthStyles";
 import LoginForm from "./LoginForm";
 
@@ -14,8 +20,8 @@ const useStyles = makeStyles((theme) => ({
   signUp: {
     marginTop: "auto",
     [theme.breakpoints.up("md")]: {
-      color: "#ffffff",
-      lineHeight: "40px",
+      color: theme.palette.common.white,
+      lineHeight: "2.5rem",
       marginTop: 0,
     },
   },
@@ -51,10 +57,11 @@ export default function Login() {
   return (
     <>
       {authenticated && <Redirect to={redirectTo} />}
+      {/***** MOBILE ******/}
       <Hidden mdUp>
         <div className={authClasses.backgroundBlurImage}></div>
         <div className={authClasses.page}>
-          <AuthHeader>Welcome back!</AuthHeader>
+          <AuthHeader>{LOGIN_HEADER}</AuthHeader>
           {error && (
             <Alert className={authClasses.errorMessage} severity="error">
               {error}
@@ -71,31 +78,34 @@ export default function Login() {
             Login with Google
           </MuiButton> */}
           <Typography className={classes.signUp}>
-            No account yet?{" "}
+            {NO_ACCOUNT_YET + " "}
             <Link className={classes.signUpLink} to={signupRoute}>
-              Sign up
+              {SIGN_UP}
             </Link>
           </Typography>
         </div>
       </Hidden>
+
+      {/***** DESKTOP ******/}
+
       <Hidden smDown>
         <div className={authClasses.page}>
           <header className={authClasses.header}>
             <div className={authClasses.logo}>Couchers.org</div>
             <Typography className={classes.signUp}>
-              No account yet?{" "}
+              {NO_ACCOUNT_YET + " "}
               <Link className={classes.signUpLink} to={signupRoute}>
-                Sign up
+                {SIGN_UP}
               </Link>
             </Typography>
           </header>
           <div className={authClasses.content}>
             <div className={authClasses.introduction}>
               <Typography classes={{ root: authClasses.title }} variant="h1">
-                {INTRODUCTION}
+                {INTRODUCTION_TITLE}
               </Typography>
               <Typography classes={{ root: authClasses.subtitle }} variant="h2">
-                {COLLABORATIVE}
+                {INTRODUCTION_SUBTITLE}
                 <Divider className={authClasses.underline}></Divider>
               </Typography>
             </div>
@@ -105,7 +115,7 @@ export default function Login() {
                   {error}
                 </Alert>
               )}
-              <AuthHeader>Welcome back!</AuthHeader>
+              <AuthHeader>{LOGIN_HEADER}</AuthHeader>
               {/* <Divider>Or</Divider>  not yet available: https://next.material-ui.com/components/dividers/ */}
               {/*  Disabled for beta:
               <Divider classes={{ root: authClasses.divider }} flexItem />

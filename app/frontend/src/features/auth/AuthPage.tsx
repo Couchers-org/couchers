@@ -3,8 +3,8 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import Button from "components/Button";
 import {
   ABOUT_US,
-  COLLABORATIVE,
-  INTRODUCTION,
+  INTRODUCTION_SUBTITLE,
+  INTRODUCTION_TITLE,
   LOGIN,
   SIGN_UP,
 } from "features/auth/constants";
@@ -25,9 +25,9 @@ const useStyles = makeStyles((theme) => ({
     display: "block",
     textDecoration: "none",
     [theme.breakpoints.up("md")]: {
-      color: "#ffffff",
+      color: theme.palette.common.white,
       fontWeight: 500,
-      fontSize: "20px",
+      fontSize: "1.25rem",
       marginRight: theme.spacing(3),
       padding: theme.spacing(1),
     },
@@ -65,58 +65,51 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.up("md")]: {
       height: "100%",
       margin: "0 auto",
-      width: "960px",
+      width: theme.breakpoints.values.md,
     },
   },
   desktopNavigation: {
     display: "flex",
   },
   introduction: {
-    color: "#ffffff",
+    color: theme.palette.common.white,
     textAlign: "left",
-    width: "742px",
+    width: "72%",
+  },
+  link: {
+    borderRadius: `${theme.shape.borderRadius / 3}px`,
+    color: theme.palette.common.white,
+    fontSize: "1.25rem",
+    fontWeight: 500,
+    textAlign: "center",
+    textDecoration: "none",
+    padding: theme.spacing(1, 2),
   },
   loginLink: {
     border: `1px solid ${theme.palette.primary.main}`,
-    borderRadius: "4px",
-    color: "#ffffff",
-    fontWeight: 500,
-    fontSize: "20px",
     marginRight: theme.spacing(3),
-    padding: theme.spacing(1, 0),
-    textAlign: "center",
-    textDecoration: "none",
-    width: "88px",
   },
   mobileNavigation: {
     display: "flex",
     justifyContent: "space-around",
-    marginTop: theme.spacing(3, 0),
+    marginTop: theme.spacing(3),
   },
   signupLink: {
     backgroundColor: theme.palette.primary.main,
-    borderRadius: "4px",
-    color: "#ffffff",
-    fontWeight: 500,
-    fontSize: "20px",
-    padding: theme.spacing(1),
-    textAlign: "center",
-    textDecoration: "none",
-    width: "88px",
   },
   subtitle: {
     marginTop: theme.spacing(1),
     [theme.breakpoints.up("md")]: {
       display: "inline-block",
-      marginTop: theme.spacing(5),
+      marginTop: theme.spacing(4),
       position: "relative",
     },
   },
   title: {
     ...theme.typography.h1,
     [theme.breakpoints.up("md")]: {
-      fontSize: "64px",
-      lineHeight: "74px",
+      fontSize: "4rem",
+      lineHeight: "4.6rem",
       textAlign: "left",
     },
   },
@@ -135,33 +128,34 @@ export default function AuthPage() {
 
   return (
     <div className={classes.authPage}>
+      {/***** MOBILE ******/}
       <Hidden mdUp>
         <div className={classes.content}>
-          <Typography variant="h1">{INTRODUCTION}</Typography>
-          <Typography classes={{ root: classes.subtitle }}>
-            {COLLABORATIVE}
+          <Typography variant="h1">{INTRODUCTION_TITLE}</Typography>
+          <Typography className={classes.subtitle}>
+            {INTRODUCTION_SUBTITLE}
           </Typography>
           <Divider classes={{ root: authClasses.divider }} flexItem />
           <div className={classes.mobileNavigation}>
             <Button
-              component={Link}
-              to={loginRoute}
               classes={{
                 label: authClasses.buttonText,
-                root: `${authClasses.button} ${classes.button}`,
               }}
+              className={`${authClasses.button} ${classes.button}`}
               color="secondary"
+              component={Link}
+              to={loginRoute}
             >
               {LOGIN}
             </Button>
             <Button
-              component={Link}
-              to={signupRoute}
               classes={{
                 label: authClasses.buttonText,
-                root: `${authClasses.button} ${classes.button}`,
               }}
+              className={`${authClasses.button} ${classes.button}`}
               color="secondary"
+              component={Link}
+              to={signupRoute}
             >
               {SIGN_UP}
             </Button>
@@ -174,28 +168,37 @@ export default function AuthPage() {
           </div>
         </div>
       </Hidden>
+
+      {/***** DESKTOP ******/}
+
       <Hidden smDown>
         <header className={authClasses.header}>
           <div className={authClasses.logo}>Couchers.org</div>
           <nav className={classes.desktopNavigation}>
             <Link to="#" className={classes.aboutUsLink}>
-              About us
+              {ABOUT_US}
             </Link>
-            <Link to={loginRoute} className={classes.loginLink}>
+            <Link
+              to={loginRoute}
+              className={`${classes.link} ${classes.loginLink}`}
+            >
               {LOGIN}
             </Link>
-            <Link to={signupRoute} className={classes.signupLink}>
+            <Link
+              to={signupRoute}
+              className={`${classes.link} ${classes.signupLink}`}
+            >
               {SIGN_UP}
             </Link>
           </nav>
         </header>
         <div className={classes.content}>
           <div className={classes.introduction}>
-            <Typography classes={{ root: classes.title }} variant="h1">
-              {INTRODUCTION}
+            <Typography className={classes.title} variant="h1">
+              {INTRODUCTION_TITLE}
             </Typography>
-            <Typography classes={{ root: classes.subtitle }} variant="h2">
-              {COLLABORATIVE}
+            <Typography className={classes.subtitle} variant="h2">
+              {INTRODUCTION_SUBTITLE}
               <Divider className={classes.underline}></Divider>
             </Typography>
           </div>
