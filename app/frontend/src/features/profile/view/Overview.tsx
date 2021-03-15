@@ -47,6 +47,8 @@ const useStyles = makeStyles((theme) => ({
   },
   cardActions: {
     justifyContent: "center",
+    paddingLeft: 0,
+    paddingRight: 0,
   },
   grow: {
     paddingTop: "100%",
