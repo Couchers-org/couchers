@@ -1,5 +1,8 @@
 import DateFnsUtils from "@date-io/dayjs";
-import { KeyboardDatePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
+import {
+  KeyboardDatePicker,
+  MuiPickersUtilsProvider,
+} from "@material-ui/pickers";
 import { Control, Controller } from "react-hook-form";
 
 interface DateFieldProps {
@@ -21,7 +24,7 @@ export default function DateField({
   id,
   inputRef,
   label,
-  name
+  name,
 }: DateFieldProps) {
   return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -30,7 +33,6 @@ export default function DateField({
         defaultValue={new Date().toISOString().split("T")[0]}
         inputRef={inputRef}
         name={name}
-        
         render={({ onChange, value }) => (
           <KeyboardDatePicker
             animateYearScrolling={true}
@@ -52,7 +54,7 @@ export default function DateField({
               date?.isValid()
                 ? onChange(date?.format().split("T")[0])
                 : onChange(date);
-            }} 
+            }}
             value={value}
             variant="inline"
           />

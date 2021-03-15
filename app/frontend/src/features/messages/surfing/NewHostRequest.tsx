@@ -17,10 +17,7 @@ import { service } from "service/index";
 import { firstName } from "utils/names";
 import { validateFutureDate } from "utils/validation";
 
-import {
-  DATE_FROM, 
-  DATE_TO
-} from "../constants";
+import { DATE_FROM, DATE_TO } from "../constants";
 
 const useStyles = makeStyles((theme) => ({
   buttonContainer: {
@@ -86,7 +83,7 @@ export default function NewHostRequest() {
         <Alert severity={"error"}>{hostError}</Alert>
       ) : (
         <form onSubmit={onSubmit} className={classes.form}>
-          <DateField 
+          <DateField
             control={control}
             error={!!formErrors.fromDate}
             helperText={formErrors?.fromDate?.message}
@@ -96,9 +93,9 @@ export default function NewHostRequest() {
               validate: dateValidate,
             })}
             label={DATE_FROM}
-            name="fromDate" 
+            name="fromDate"
           />
-          <DateField 
+          <DateField
             control={control}
             error={!!formErrors.toDate}
             helperText={formErrors?.toDate?.message}
@@ -108,7 +105,7 @@ export default function NewHostRequest() {
               validate: dateValidate,
             })}
             label={DATE_TO}
-            name="toDate" 
+            name="toDate"
           />
           <TextField
             id="host-request-message"

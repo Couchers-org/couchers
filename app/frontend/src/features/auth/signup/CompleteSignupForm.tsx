@@ -34,7 +34,6 @@ import {
 
 import { BIRTHDATE_LABEL, GENDER_LABEL, LOCATION_LABEL } from "../constants";
 
-
 type SignupInputs = {
   email: string;
   username: string;
@@ -71,7 +70,7 @@ export default function CompleteSignupForm() {
     getValues,
     errors,
   } = useForm<SignupInputs>({
-    defaultValues: { city: "", location: {}},
+    defaultValues: { city: "", location: {} },
     mode: "onBlur",
     shouldUnregister: false,
   });
@@ -174,7 +173,7 @@ export default function CompleteSignupForm() {
           <InputLabel className={authClasses.formLabel} htmlFor="birthdate">
             Birthday
           </InputLabel>
-          <DateField 
+          <DateField
             className={authClasses.formField}
             control={control}
             error={!!errors.birthdate}
@@ -187,7 +186,7 @@ export default function CompleteSignupForm() {
                 "Must be a valid date in the past.",
             })}
             label={BIRTHDATE_LABEL}
-            name="birthdate" 
+            name="birthdate"
           />
           <InputLabel className={authClasses.formLabel} htmlFor="location">
             {LOCATION_LABEL}
