@@ -85,6 +85,8 @@ export default function CreateGroupChat({ className }: { className?: string }) {
   const errors = [...friends.errors];
   if (createError) errors.push(createError.message);
 
+  const [isGroup, setIsGroup] = useState(false);
+
   return (
     <>
       <ListItem button onClick={() => setIsOpen(true)} className={className}>
@@ -101,18 +103,22 @@ export default function CreateGroupChat({ className }: { className?: string }) {
         onClose={handleClose}
       >
         <form onSubmit={onSubmit}>
-          <DialogTitle id="create-dialog-title">{NEW_GROUP_CHAT}</DialogTitle>
+          <DialogTitle id="create-dialog-title">
+            {isGroup ? NEW_GROUP_CHAT : NEW_CHAT}
+          </DialogTitle>
           <DialogContent>
             {!!errors.length && (
               <Alert severity={"error"}>{errors.join("\n")}</Alert>
             )}
-            <TextField
-              id="group-chat-title"
-              label={TITLE}
-              name="title"
-              inputRef={register}
-              className={classes.field}
-            />
+            {isGroup && (
+              <TextField
+                id="group-chat-title"
+                label={TITLE}
+                name="title"
+                inputRef={register}
+                className={classes.field}
+              />
+            )}
             <Controller
               control={control}
               defaultValue={[]}
@@ -122,6 +128,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
                 <Autocomplete
                   onChange={(_, value) => {
                     onChange(value);
+                    setIsGroup(control.getValues().users.length > 1);
                   }}
                   multiple={true}
                   loading={friends.isLoading}
