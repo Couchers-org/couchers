@@ -73,6 +73,7 @@ export default function NewGuideForm() {
             name="content"
             render={({ onChange, value }) => (
               <ProfileMarkdownInput
+                id="content"
                 label="Page content"
                 onChange={onChange}
                 value={value}
