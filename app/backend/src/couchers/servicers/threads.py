@@ -13,7 +13,7 @@ from pb import threads_pb2, threads_pb2_grpc
 logger = logging.getLogger(__name__)
 
 # Since the API exposes a single ID space regardless of nesting level,
-# we construct the API id by appending the the nesting level to the
+# we construct the API id by appending the nesting level to the
 # database ID.
 
 
@@ -29,7 +29,7 @@ def unpack_thread_id(thread_id: int) -> (int, int):
 class Threads(threads_pb2_grpc.ThreadsServicer):
     def GetThread(self, request, context):
         database_id, depth = unpack_thread_id(request.thread_id)
-        page_size = request.page_size or 1000
+        page_size = request.page_size if 0 < request.page_size < 100000 else 1000
         page_start = unpack_thread_id(int(request.page_token))[0] if request.page_token else 2 ** 50
 
         with session_scope() as session:
@@ -58,6 +58,15 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
                     for r, n in res[:page_size]
                 ]
 
+                # get the total number of responses
+                num_responses = (
+                    session.query(func.count(Comment.id)).filter(Comment.thread_id == database_id).scalar()
+                    + session.query(func.count(Reply.id))
+                    .join(Comment, Comment.id == Reply.comment_id)
+                    .filter(Comment.thread_id == database_id)
+                    .scalar()
+                )
+
             elif depth == 1:
                 if not session.query(Comment).filter(Comment.id == database_id).one_or_none():
                     context.abort(grpc.StatusCode.NOT_FOUND, errors.THREAD_NOT_FOUND)
@@ -80,6 +89,7 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
                     )
                     for r in res[:page_size]
                 ]
+                num_responses = session.query(func.count(Reply.id)).filter(Reply.comment_id == database_id).scalar()
 
             else:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.THREAD_NOT_FOUND)
@@ -90,7 +100,7 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
             else:
                 next_page_token = ""
 
-        return threads_pb2.GetThreadRes(replies=replies, next_page_token=next_page_token)
+        return threads_pb2.GetThreadRes(replies=replies, next_page_token=next_page_token, num_responses=num_responses)
 
     def PostReply(self, request, context):
         with session_scope() as session:
