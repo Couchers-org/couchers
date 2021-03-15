@@ -135,7 +135,7 @@ export async function updateProfile(
   const req = new UpdateProfileReq();
 
   const avatarKey = profile.avatarKey
-    ? new wrappers.StringValue().setValue(profile.avatarKey)
+    ? new NullableStringValue().setValue(profile.avatarKey)
     : undefined;
   const name = new wrappers.StringValue().setValue(profile.name);
   const city = new wrappers.StringValue().setValue(profile.city);

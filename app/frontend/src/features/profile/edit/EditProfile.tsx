@@ -7,6 +7,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import Alert from "components/Alert";
+import AvatarInput from "components/AvatarInput";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import EditUserLocationMap from "components/EditUserLocationMap";
@@ -48,6 +49,10 @@ import { UpdateUserProfileData } from "service/index";
 import { useIsMounted, useSafeState } from "utils/hooks";
 
 const useStyles = makeStyles((theme) => ({
+  avatar: {
+    width: 120,
+    height: 120,
+  },
   buttonContainer: {
     display: "flex",
     justifyContent: "center",
@@ -122,6 +127,23 @@ export default function EditProfileForm() {
       {user ? (
         <>
           <form onSubmit={onSubmit}>
+            <Controller
+              name={"avatarKey"}
+              control={control}
+              render={({ onChange }) => {
+                return (
+                  <AvatarInput
+                    className={classes.avatar}
+                    id={"profile-picture"}
+                    name={"avatarKey"}
+                    src={user.avatarUrl}
+                    userName={user.name}
+                    onChange={onChange}
+                  />
+                );
+              }}
+            />
+
             <ProfileTextInput
               label="Name"
               name="name"

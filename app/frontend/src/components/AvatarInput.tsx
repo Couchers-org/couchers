@@ -17,14 +17,14 @@ export interface AvatarInputProps
   src?: string;
   onChange: (key: string) => void;
   className?: string;
-  username?: string;
+  userName?: string;
 }
 
 export function AvatarInput({
   id,
   name,
   src,
-  username,
+  userName,
   className,
   onChange,
   ...rest
@@ -43,9 +43,9 @@ export function AvatarInput({
         <Avatar
           className={classNames(classes.avatar, className)}
           src={imageUrl}
-          alt={id + " avatar"}
+          alt={userName + " avatar"}
         >
-          {username}
+          {userName?.split(/\s+/).map((name) => name[0])}
         </Avatar>
       </IconButton>
     </ImageInput>

@@ -1,18 +1,20 @@
 import { CircularProgress } from "@material-ui/core";
 import makeStyles from "@material-ui/core/styles/makeStyles";
+import Alert from "components/Alert";
 import React from "react";
 import { useMutation } from "react-query";
 
 import { service } from "../service";
 
 const useStyles = makeStyles(() => ({
-  root: {
+  input: {
     display: "none",
   },
   label: {
+    alignItems: "center",
     display: "flex",
     justifyContent: "center",
-    alignItems: "center",
+    width: "fit-content",
   },
   loading: {
     position: "absolute",
@@ -37,12 +39,14 @@ export interface ImageInputProps {
 export function ImageInput({ id, name, children, onChange }: ImageInputProps) {
   const classes = useStyles();
   const inputId = id + "-file-input";
-  const mutation = useMutation((file: File) => service.api.uploadFile(file));
+  const mutation = useMutation<ImageInputValues, Error, File>((file: File) =>
+    service.api.uploadFile(file)
+  );
 
   return (
     <>
       <input
-        className={classes.root}
+        className={classes.input}
         accept="image/*"
         id={inputId}
         name={name}
@@ -57,6 +61,9 @@ export function ImageInput({ id, name, children, onChange }: ImageInputProps) {
           onChange && onChange(response);
         }}
       />
+      {mutation.isError && (
+        <Alert severity="error">{mutation.error?.message || ""}</Alert>
+      )}
       <label className={classes.label} htmlFor={inputId}>
         {children}
         {mutation.isLoading && <CircularProgress className={classes.loading} />}

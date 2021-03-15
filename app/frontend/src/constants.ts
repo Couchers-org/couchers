@@ -14,10 +14,12 @@ export const reactQueryRetries = 1;
 
 export const grpcTimeout = 10000; //milliseconds
 
-export const grpcErrorStrings = {
+export const alertErrorStrings = {
   "Deadline exceeded":
     "Server took too long to respond. Please check your Internet connection or try again later.",
   "Http response at 400 or 500 level":
+    "Couldn't connect to the server. Please check your Internet connection or try again later.",
+  "Failed to fetch":
     "Couldn't connect to the server. Please check your Internet connection or try again later.",
   "upstream connect error or disconnect/reset before headers":
     "There was an internal server error. Please try again later.",

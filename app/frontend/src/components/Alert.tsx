@@ -4,8 +4,9 @@ import {
   AlertProps as MuiAlertProps,
 } from "@material-ui/lab/";
 import classNames from "classnames";
-import grpcErrorStrings from "constants";
 import React from "react";
+
+import { alertErrorStrings } from "../constants";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -25,7 +26,7 @@ export default function Alert({
 }: AlertProps) {
   const classes = useStyles();
 
-  const oldErrorKey = Object.keys(grpcErrorStrings).find((oldError) =>
+  const oldErrorKey = Object.keys(alertErrorStrings).find((oldError) =>
     children.includes(oldError)
   );
 
@@ -35,7 +36,7 @@ export default function Alert({
         // Search for the error in the ugly grpc error object keys
         // Replace it with the nice error if found
         oldErrorKey
-          ? grpcErrorStrings[oldErrorKey as keyof typeof grpcErrorStrings]
+          ? alertErrorStrings[oldErrorKey as keyof typeof alertErrorStrings]
           : children
       }
     </MuiAlert>
