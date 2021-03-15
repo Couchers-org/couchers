@@ -5,7 +5,7 @@ import CircularProgress from "components/CircularProgress";
 import Divider from "components/Divider";
 import HeaderButton from "components/HeaderButton";
 import HostingStatus from "components/HostingStatus";
-import { BackIcon, OverflowMenuIcon } from "components/Icons";
+import { BackIcon } from "components/Icons";
 import Menu, { MenuItem } from "components/Menu";
 import PageTitle from "components/PageTitle";
 import UserSummary from "components/UserSummary";
@@ -41,10 +41,6 @@ export default function HostRequestView() {
 
   const menuAnchor = useRef<HTMLAnchorElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-
-  const handleClick = () => {
-    setMenuOpen(true);
-  };
 
   const handleClose = () => {
     setMenuOpen(false);
@@ -162,16 +158,6 @@ export default function HostRequestView() {
         <PageTitle className={classes.title}>
           {!title || hostRequestError ? <Skeleton width="100" /> : title}
         </PageTitle>
-
-        <HeaderButton
-          onClick={handleClick}
-          aria-label="Menu"
-          aria-haspopup="true"
-          aria-controls="more-menu"
-          innerRef={menuAnchor}
-        >
-          <OverflowMenuIcon />
-        </HeaderButton>
         <Menu
           id="more-menu"
           anchorEl={menuAnchor.current}
