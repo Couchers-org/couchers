@@ -16,6 +16,8 @@ import {
 import { User } from "pb/api_pb";
 import { dateTimeFormatter, timestamp2Date } from "utils/date";
 
+import { LANGUAGES_FLUENT_FALSE } from "../constants";
+
 interface AboutProps {
   user: User.AsObject;
 }
@@ -33,7 +35,10 @@ export default function About({ user }: AboutProps) {
       />
       <LabelAndText
         label={LANGUAGES_FLUENT}
-        text={user.languagesList.toString().replace(",", ", ") || "Not given"}
+        text={
+          user.languagesList.toString().replace(",", ", ") ||
+          LANGUAGES_FLUENT_FALSE
+        }
       />
       <LabelAndText label={HOMETOWN} text={user.hometown} />
       <LabelAndText label={OCCUPATION} text={user.occupation} />

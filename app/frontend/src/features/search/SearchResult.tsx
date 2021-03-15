@@ -2,7 +2,6 @@ import {
   Card,
   CardActionArea,
   CardContent,
-  Container,
   makeStyles,
   Typography,
 } from "@material-ui/core";
@@ -17,6 +16,8 @@ import {
 import {
   aboutText,
   hostingStatusLabels,
+  LANGUAGES_FLUENT_FALSE,
+  LAST_ACTIVE_FALSE,
   meetupStatusLabels,
 } from "features/profile/constants";
 import { User } from "pb/api_pb";
@@ -30,10 +31,11 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: theme.shape.borderRadius,
   },
   about: {
-    margin: `${theme.spacing(1)} 0`,
+    margin: `${theme.spacing(2)} 0`,
   },
   statusLabelWrapper: {
     display: "flex",
+    marginLeft: theme.spacing(11),
   },
   statusLabel: {
     marginRight: theme.spacing(2),
@@ -55,57 +57,53 @@ export default function SearchResult({ user }: { user: User.AsObject }) {
       <Card className={classes.card}>
         <CardActionArea>
           <CardContent>
-            <UserSummary user={user}>
-              <Container
-                disableGutters={true}
-                className={classes.statusLabelWrapper}
+            <UserSummary user={user} />
+            <div className={classes.statusLabelWrapper}>
+              <Typography
+                className={classes.statusLabel}
+                display="inline"
+                variant="subtitle1"
+                color="primary"
               >
-                <Typography
-                  className={classes.statusLabel}
-                  display="inline"
-                  variant="subtitle1"
-                  color="primary"
-                >
-                  {hostingStatusLabels[user.hostingStatus]}
-                </Typography>
-                <Typography
-                  className={classes.statusLabel}
-                  display="inline"
-                  variant="subtitle1"
-                  color="secondary"
-                >
-                  {meetupStatusLabels[user.meetupStatus]}
-                </Typography>
-              </Container>
-              <Typography variant="h6" className={classes.about}>
-                {aboutText(user)}
+                {hostingStatusLabels[user.hostingStatus]}
               </Typography>
-              <LabelAndText
-                label={AGE_GENDER}
-                text={`${user.age} / ${user.gender} ${
-                  user.pronouns ? `(${user.pronouns})` : ""
-                }`}
-              />
-              <LabelAndText
-                label={LANGUAGES_FLUENT}
-                text={
-                  user.languagesList.toString().replace(",", ", ") ||
-                  "Not given"
-                }
-              />
-              <LabelAndText
-                label={REFERENCES}
-                text={`${user.numReferences || 0}`}
-              />
-              <LabelAndText
-                label={LAST_ACTIVE}
-                text={
-                  user.lastActive
-                    ? timeAgo(timestamp2Date(user.lastActive))
-                    : "Unknown"
-                }
-              />
-            </UserSummary>
+              <Typography
+                className={classes.statusLabel}
+                display="inline"
+                variant="subtitle1"
+                color="secondary"
+              >
+                {meetupStatusLabels[user.meetupStatus]}
+              </Typography>
+            </div>
+            <Typography component="h3" variant="h6" className={classes.about}>
+              {aboutText(user)}
+            </Typography>
+            <LabelAndText
+              label={AGE_GENDER}
+              text={`${user.age} / ${user.gender} ${
+                user.pronouns ? `(${user.pronouns})` : ""
+              }`}
+            />
+            <LabelAndText
+              label={LANGUAGES_FLUENT}
+              text={
+                user.languagesList.toString().replace(",", ", ") ||
+                LANGUAGES_FLUENT_FALSE
+              }
+            />
+            <LabelAndText
+              label={REFERENCES}
+              text={`${user.numReferences || 0}`}
+            />
+            <LabelAndText
+              label={LAST_ACTIVE}
+              text={
+                user.lastActive
+                  ? timeAgo(timestamp2Date(user.lastActive))
+                  : LAST_ACTIVE_FALSE
+              }
+            />
           </CardContent>
         </CardActionArea>
       </Card>

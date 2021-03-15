@@ -20,6 +20,7 @@ import {
 } from "features/constants";
 import {
   hostingStatusLabels,
+  LAST_ACTIVE_FALSE,
   meetupStatusLabels,
 } from "features/profile/constants";
 import { HostingStatus, MeetupStatus, User } from "pb/api_pb";
@@ -128,7 +129,7 @@ export default function Overview({ user }: OverviewProps) {
           text={
             user.lastActive
               ? timeAgo(timestamp2Date(user.lastActive))
-              : "Unknown"
+              : LAST_ACTIVE_FALSE
           }
         />
       </div>
