@@ -2,7 +2,11 @@ import Button from "components/Button";
 import Menu, { MenuItem } from "components/Menu";
 import { useRef, useState } from "react";
 
-import { MORE_PROFILE_ACTIONS, REPORT_USER } from "./constants";
+import {
+  MORE_PROFILE_ACTIONS,
+  MORE_PROFILE_ACTIONS_A11Y_TEXT,
+  REPORT_USER,
+} from "../constants";
 import ReportUserDialog from "./ReportUserDialog";
 
 const MORE_PROFILE_ACTIONS_MENU_ID = "more-profile-actions-menu";
@@ -31,6 +35,7 @@ export default function ProfileActionsMenu() {
     <>
       <Button
         aria-controls={MORE_PROFILE_ACTIONS_MENU_ID}
+        aria-label={MORE_PROFILE_ACTIONS_A11Y_TEXT}
         innerRef={menuAnchor}
         onClick={handleClick("menu")}
       >
