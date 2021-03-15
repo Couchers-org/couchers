@@ -5,26 +5,19 @@ import {
   makeStyles,
   Typography,
 } from "@material-ui/core";
-import LabelAndText from "components/LabelAndText";
 import UserSummary from "components/UserSummary";
-import {
-  AGE_GENDER,
-  LANGUAGES_FLUENT,
-  LAST_ACTIVE,
-  REFERENCES,
-} from "features/constants";
 import {
   aboutText,
   hostingStatusLabels,
-  LANGUAGES_FLUENT_FALSE,
-  LAST_ACTIVE_FALSE,
   meetupStatusLabels,
 } from "features/profile/constants";
+import {
+  LabelsAgeGenderLanguages,
+  LabelsReferencesLastActive,
+} from "features/user/UserTextAndLabel";
 import { User } from "pb/api_pb";
 import { Link } from "react-router-dom";
 import { routeToUser } from "routes";
-import { timestamp2Date } from "utils/date";
-import { timeAgo } from "utils/timeAgo";
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -79,31 +72,8 @@ export default function SearchResult({ user }: { user: User.AsObject }) {
             <Typography component="h3" variant="h6" className={classes.about}>
               {aboutText(user)}
             </Typography>
-            <LabelAndText
-              label={AGE_GENDER}
-              text={`${user.age} / ${user.gender} ${
-                user.pronouns ? `(${user.pronouns})` : ""
-              }`}
-            />
-            <LabelAndText
-              label={LANGUAGES_FLUENT}
-              text={
-                user.languagesList.toString().replace(",", ", ") ||
-                LANGUAGES_FLUENT_FALSE
-              }
-            />
-            <LabelAndText
-              label={REFERENCES}
-              text={`${user.numReferences || 0}`}
-            />
-            <LabelAndText
-              label={LAST_ACTIVE}
-              text={
-                user.lastActive
-                  ? timeAgo(timestamp2Date(user.lastActive))
-                  : LAST_ACTIVE_FALSE
-              }
-            />
+            <LabelsAgeGenderLanguages user={user} />
+            <LabelsReferencesLastActive user={user} />
           </CardContent>
         </CardActionArea>
       </Card>

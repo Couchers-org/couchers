@@ -3,20 +3,17 @@ import Divider from "components/Divider";
 import LabelAndText from "components/LabelAndText";
 import {
   ADDITIONAL,
-  AGE_GENDER,
   EDUCATION,
   HOBBIES,
   HOMETOWN,
   JOINED,
-  LANGUAGES_FLUENT,
   OCCUPATION,
   OVERVIEW,
   WHO,
 } from "features/constants";
+import { LabelsAgeGenderLanguages } from "features/user/UserTextAndLabel";
 import { User } from "pb/api_pb";
 import { dateTimeFormatter, timestamp2Date } from "utils/date";
-
-import { LANGUAGES_FLUENT_FALSE } from "../constants";
 
 interface AboutProps {
   user: User.AsObject;
@@ -26,20 +23,7 @@ export default function About({ user }: AboutProps) {
   return (
     <>
       <Typography variant="h1">{OVERVIEW}</Typography>
-
-      <LabelAndText
-        label={AGE_GENDER}
-        text={`${user.age} / ${user.gender} ${
-          user.pronouns ? `(${user.pronouns})` : ""
-        }`}
-      />
-      <LabelAndText
-        label={LANGUAGES_FLUENT}
-        text={
-          user.languagesList.toString().replace(",", ", ") ||
-          LANGUAGES_FLUENT_FALSE
-        }
-      />
+      <LabelsAgeGenderLanguages user={user} />
       <LabelAndText label={HOMETOWN} text={user.hometown} />
       <LabelAndText label={OCCUPATION} text={user.occupation} />
       <LabelAndText label={EDUCATION} text={user.education} />
