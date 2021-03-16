@@ -87,7 +87,6 @@ export default function Login() {
       </Hidden>
 
       {/***** DESKTOP ******/}
-
       <Hidden smDown>
         <div className={authClasses.page}>
           <header className={authClasses.header}>

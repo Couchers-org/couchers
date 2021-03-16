@@ -22,7 +22,7 @@ const useAuthStyles = makeStyles((theme) => ({
   button: {
     marginTop: theme.spacing(4),
     [theme.breakpoints.up("md")]: {
-      borderRadius: `${theme.shape.borderRadius / 3}px`,
+      borderRadius: theme.shape.borderRadius / 3,
     },
   },
   buttonText: {
@@ -44,7 +44,7 @@ const useAuthStyles = makeStyles((theme) => ({
   facebookButton: {
     width: "100%",
     height: "40px",
-    borderRadius: `${theme.shape.borderRadius * 2}px`,
+    borderRadius: theme.shape.borderRadius * 2,
     boxShadow: "0px 0px 5px rgba(0, 0, 0, 0.25)",
     minHeight: `calc(calc(${theme.typography.button.lineHeight} * ${
       theme.typography.button.fontSize
@@ -58,7 +58,7 @@ const useAuthStyles = makeStyles((theme) => ({
   googleButton: {
     width: "100%",
     height: "40px",
-    borderRadius: `${theme.shape.borderRadius * 2}px`,
+    borderRadius: theme.shape.borderRadius * 2,
     boxShadow: "0px 0px 5px rgba(0, 0, 0, 0.25)",
     minHeight: `calc(calc(${theme.typography.button.lineHeight} * ${
       theme.typography.button.fontSize
@@ -111,7 +111,7 @@ const useAuthStyles = makeStyles((theme) => ({
   formWrapper: {
     [theme.breakpoints.up("md")]: {
       backgroundColor: "#f8f7f4", // TODO: check with the palette
-      borderRadius: `${theme.shape.borderRadius / 3}px`,
+      borderRadius: theme.shape.borderRadius / 3,
       padding: theme.spacing(5, 8),
       width: "53%",
     },
@@ -162,7 +162,7 @@ const useAuthStyles = makeStyles((theme) => ({
   title: {
     [theme.breakpoints.up("md")]: {
       fontSize: "2rem",
-      lineHeight: "2.3rem",
+      lineHeight: "1.15",
       textAlign: "left",
     },
   },

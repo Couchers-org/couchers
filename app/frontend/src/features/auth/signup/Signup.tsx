@@ -31,7 +31,7 @@ const useStyles = makeStyles((theme) => ({
     marginTop: "auto",
     [theme.breakpoints.up("md")]: {
       color: theme.palette.common.white,
-      lineHeight: "2.5rem",
+      lineHeight: "2.5",
       marginTop: 0,
     },
   },
@@ -106,7 +106,6 @@ export default function Signup() {
       </Hidden>
 
       {/***** DESKTOP ******/}
-
       <Hidden smDown>
         <div className={authClasses.page}>
           <header className={authClasses.header}>

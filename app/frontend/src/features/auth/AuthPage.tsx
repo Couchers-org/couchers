@@ -1,5 +1,6 @@
 import { Divider, Hidden, makeStyles, Typography } from "@material-ui/core";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import classnames from "classnames";
 import Button from "components/Button";
 import {
   ABOUT_US,
@@ -77,7 +78,7 @@ const useStyles = makeStyles((theme) => ({
     width: "72%",
   },
   link: {
-    borderRadius: `${theme.shape.borderRadius / 3}px`,
+    borderRadius: theme.shape.borderRadius / 3,
     color: theme.palette.common.white,
     fontSize: "1.25rem",
     fontWeight: 500,
@@ -109,7 +110,7 @@ const useStyles = makeStyles((theme) => ({
     ...theme.typography.h1,
     [theme.breakpoints.up("md")]: {
       fontSize: "4rem",
-      lineHeight: "4.6rem",
+      lineHeight: "1.15",
       textAlign: "left",
     },
   },
@@ -141,7 +142,7 @@ export default function AuthPage() {
               classes={{
                 label: authClasses.buttonText,
               }}
-              className={`${authClasses.button} ${classes.button}`}
+              className={classnames(authClasses.button, classes.button)}
               color="secondary"
               component={Link}
               to={loginRoute}
@@ -152,7 +153,7 @@ export default function AuthPage() {
               classes={{
                 label: authClasses.buttonText,
               }}
-              className={`${authClasses.button} ${classes.button}`}
+              className={classnames(authClasses.button, classes.button)}
               color="secondary"
               component={Link}
               to={signupRoute}
@@ -170,7 +171,6 @@ export default function AuthPage() {
       </Hidden>
 
       {/***** DESKTOP ******/}
-
       <Hidden smDown>
         <header className={authClasses.header}>
           <div className={authClasses.logo}>Couchers.org</div>
