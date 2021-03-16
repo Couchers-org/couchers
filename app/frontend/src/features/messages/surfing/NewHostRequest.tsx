@@ -1,20 +1,40 @@
-import { Box, Typography } from "@material-ui/core";
+import {
+  CardActions,
+  FormControlLabel,
+  MenuItem,
+  Radio,
+  RadioGroup,
+  Select,
+  Typography,
+} from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import Datepicker from "components/Date/Datepicker";
 import TextField from "components/TextField";
+import {
+  ARRIVAL_DATE,
+  CANCEL,
+  DEPARTURE_DATE,
+  MEETUP_ONLY,
+  OVERNIGHT_STAY,
+  REQUEST,
+  REQUEST_DESCRIPTION,
+  SEND,
+  sendRequest,
+} from "features/constants";
 import { useUser } from "features/userQueries/useUsers";
 import { Error as GrpcError } from "grpc-web";
 import { CreateHostRequestReq } from "pb/requests_pb";
-import React, { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { send } from "process";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { useHistory, useParams } from "react-router-dom";
 import { routeToHostRequest } from "routes";
 import { service } from "service/index";
 import { firstName } from "utils/names";
-import { validateFutureDate } from "utils/validation";
 
 const useStyles = makeStyles((theme) => ({
   buttonContainer: {
@@ -27,21 +47,50 @@ const useStyles = makeStyles((theme) => ({
       marginTop: theme.spacing(2),
     },
   },
+  title: {
+    marginBottom: theme.spacing(1),
+  },
+  request: {
+    display: "flex",
+    flexDirection: "row",
+  },
+  date: {
+    marginLeft: theme.spacing(2),
+    marginRight: theme.spacing(2),
+  },
+  requestField: {
+    marginTop: theme.spacing(2),
+  },
+  send: {
+    display: "flex",
+    justifyContent: "flex-end",
+    marginTop: theme.spacing(2),
+  },
 }));
 
-export default function NewHostRequest() {
+interface NewHostRequestProps {
+  setIsRequesting: Dispatch<SetStateAction<boolean>>;
+}
+
+export default function NewHostRequest({
+  setIsRequesting,
+}: NewHostRequestProps) {
   const classes = useStyles();
 
   const userId = +useParams<{ userId: string }>().userId;
 
+  const today = new Date();
+  const isPostBetaEnabled = process.env.REACT_APP_IS_POST_BETA_ENABLED;
+  const [numVisitors, setNumVisitors] = useState(1);
+  const [selectedArrivalDate, setSelectedArrivalDate] = useState(today);
+  const [selectedDepartureDate, setSelectedDepartureDate] = useState(today);
+
   const { data: host, isLoading: hostLoading, error: hostError } = useUser(
     userId
   );
-  const title = host
-    ? `Request to be hosted by ${firstName(host.name)}`
-    : undefined;
+  const title = host ? sendRequest(firstName(host.name)) : undefined;
 
-  const { register, handleSubmit, errors: formErrors } = useForm<
+  const { control, register, handleSubmit } = useForm<
     Required<CreateHostRequestReq.AsObject>
   >({ defaultValues: { toUserId: userId } });
 
@@ -65,11 +114,17 @@ export default function NewHostRequest() {
 
   const onSubmit = handleSubmit((data) => mutation.mutate(data));
 
-  const dateValidate = (stringDate: string) =>
-    validateFutureDate(stringDate) || "Must be a valid date in the future.";
+  const guests = Array.from({ length: 8 }, (_, i) => {
+    const num = i + 1;
+    return (
+      <MenuItem key={num} value={num} ref={register}>
+        {num}
+      </MenuItem>
+    );
+  });
 
   return (
-    <Box>
+    <>
       <Typography variant="h1">
         {hostLoading ? <Skeleton width="100" /> : title ?? null}
       </Typography>
@@ -79,58 +134,78 @@ export default function NewHostRequest() {
       {hostError ? (
         <Alert severity={"error"}>{hostError}</Alert>
       ) : (
-        <form onSubmit={onSubmit} className={classes.form}>
-          <TextField
-            id="from-date"
-            name="fromDate"
-            label="Date from"
-            type="date"
-            InputLabelProps={{
-              shrink: true,
-            }}
-            inputRef={register({
-              required: "Enter a from date",
-              validate: dateValidate,
-            })}
-            helperText={formErrors?.fromDate?.message}
-          />
-          <TextField
-            id="to-date"
-            name="toDate"
-            label="Date to"
-            type="date"
-            InputLabelProps={{
-              shrink: true,
-            }}
-            inputRef={register({
-              required: "Enter a to date",
-              validate: dateValidate,
-            })}
-            helperText={formErrors?.toDate?.message}
-          />
-          <TextField
-            id="host-request-message"
-            label="Message"
-            name="text"
-            defaultValue={""}
-            inputRef={register({ required: "Enter a request message" })}
-            rows={4}
-            rowsMax={6}
-            multiline
-            fullWidth
-          />
-          <Box className={classes.buttonContainer}>
-            <Button
-              type="submit"
-              color="primary"
-              onClick={onSubmit}
-              loading={mutation.isLoading}
-            >
-              Send
-            </Button>
-          </Box>
-        </form>
+        <div>
+          <form onSubmit={onSubmit}>
+            <div className={classes.request}>
+              {isPostBetaEnabled && (
+                <Controller
+                  name="stayType"
+                  control={control}
+                  defaultValue={1}
+                  render={({ onChange, value }) => (
+                    <RadioGroup
+                      aria-label="stay type"
+                      name="stay-radio"
+                      value={value}
+                      onChange={(value) => onChange(value)}
+                    >
+                      <FormControlLabel
+                        value={OVERNIGHT_STAY}
+                        control={<Radio />}
+                        label={OVERNIGHT_STAY}
+                      />
+                      <FormControlLabel
+                        value={MEETUP_ONLY}
+                        control={<Radio />}
+                        label={MEETUP_ONLY}
+                      />
+                    </RadioGroup>
+                  )}
+                />
+              )}
+              <Datepicker
+                label={ARRIVAL_DATE}
+                minDate={today}
+                selectedDate={selectedArrivalDate}
+                setSelectedDate={setSelectedArrivalDate}
+              />
+              <Datepicker
+                className={classes.date}
+                label={DEPARTURE_DATE}
+                minDate={selectedArrivalDate}
+                selectedDate={selectedDepartureDate}
+                setSelectedDate={setSelectedDepartureDate}
+              />
+              {isPostBetaEnabled && (
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={numVisitors}
+                  onChange={(event) =>
+                    setNumVisitors(Number(event.target.value))
+                  }
+                >
+                  {guests}
+                </Select>
+              )}
+            </div>
+            <TextField
+              className={classes.requestField}
+              id="request-field"
+              label={REQUEST}
+              name="text"
+              rows={6}
+              multiline
+              fullWidth
+              placeholder={REQUEST_DESCRIPTION}
+            />
+            <CardActions className={classes.send}>
+              <Button onClick={() => setIsRequesting(false)}>{CANCEL}</Button>
+              <Button onClick={send}>{SEND}</Button>
+            </CardActions>
+          </form>
+        </div>
       )}
-    </Box>
+    </>
   );
 }

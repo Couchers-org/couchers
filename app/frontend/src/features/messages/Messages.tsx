@@ -18,7 +18,6 @@ import useNotifications from "../useNotifications";
 import GroupChatsTab from "./groupchats/GroupChatsTab";
 import GroupChatView from "./groupchats/GroupChatView";
 import HostRequestView from "./surfing/HostRequestView";
-import NewHostRequest from "./surfing/NewHostRequest";
 import SurfingTab from "./surfing/SurfingTab";
 
 export function MessagesNotification() {
@@ -88,9 +87,9 @@ export default function Messages() {
           {header}
           <GroupChatsTab />
         </Route>
-        <Route path={`${newHostRequestRoute}/:userId`}>
+        {/* <Route path={`${newHostRequestRoute}/:userId`}>
           <NewHostRequest />
-        </Route>
+        </Route> */}
         <Route path={`${hostRequestRoute}/:hostRequestId`}>
           <HostRequestView />
         </Route>

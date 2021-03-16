@@ -9,6 +9,7 @@ import { TabContext, TabPanel } from "@material-ui/lab";
 import Alert from "components/Alert";
 import TabBar from "components/TabBar";
 import { SECTION_LABELS } from "features/constants";
+import NewHostRequest from "features/messages/surfing/NewHostRequest";
 import About from "features/profile/view/About";
 import Home from "features/profile/view/Home";
 import Overview from "features/profile/view/Overview";
@@ -63,6 +64,8 @@ export default function ProfilePage() {
     username ?? (currentUser.data?.username || "")
   );
 
+  const [isRequesting, setIsRequesting] = useState(false);
+
   return (
     <>
       {error && <Alert severity="error">{error}</Alert>}
@@ -70,7 +73,7 @@ export default function ProfilePage() {
         <CircularProgress />
       ) : user ? (
         <div className={classes.root}>
-          <Overview user={user} />
+          <Overview user={user} setIsRequesting={setIsRequesting} />
           <Card className={classes.detailsCard}>
             <TabContext value={currentTab}>
               <TabBar
@@ -79,6 +82,9 @@ export default function ProfilePage() {
                 labels={SECTION_LABELS}
                 aria-label="tabs for user's details"
               />
+              {isRequesting && (
+                <NewHostRequest setIsRequesting={setIsRequesting} />
+              )}
               <TabPanel classes={{ root: classes.tabPanel }} value="about">
                 <About user={user} />
               </TabPanel>
@@ -91,9 +97,7 @@ export default function ProfilePage() {
             </TabContext>
           </Card>
         </div>
-      ) : (
-        <></>
-      )}
+      ) : null}
       <List>
         <ListItem
           className={classes.linkStyle}

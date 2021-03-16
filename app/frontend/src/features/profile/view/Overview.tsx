@@ -16,6 +16,7 @@ import {
   EDIT_PROFILE,
   LAST_ACTIVE,
   REFERENCES,
+  REQUEST,
   VERIFICATION_SCORE,
   VERIFICATION_SCORE_DESCRIPTION,
 } from "features/constants";
@@ -24,7 +25,7 @@ import {
   meetupStatusLabels,
 } from "features/profile/constants";
 import { HostingStatus, MeetupStatus, User } from "pb/api_pb";
-import React, { useState } from "react";
+import React, { Dispatch, SetStateAction, useState } from "react";
 import { Link } from "react-router-dom";
 import { editProfileRoute } from "routes";
 import { timestamp2Date } from "utils/date";
@@ -62,9 +63,10 @@ const useStyles = makeStyles((theme) => ({
 
 interface OverviewProps {
   user: User.AsObject;
+  setIsRequesting: Dispatch<SetStateAction<boolean>>;
 }
 
-export default function Overview({ user }: OverviewProps) {
+export default function Overview({ user, setIsRequesting }: OverviewProps) {
   const classes = useStyles();
   const currentUserId = useAuthContext().authState.userId;
   const [mutationError, setMutationError] = useState("");
@@ -87,15 +89,15 @@ export default function Overview({ user }: OverviewProps) {
           </Button>
         ) : (
           <>
-            <RequestButton></RequestButton>
-            user.friends !== User.FriendshipStatus.FRIENDS && (
+            <Button onClick={() => setIsRequesting(true)}>{REQUEST}</Button>
+            {user.friends !== User.FriendshipStatus.FRIENDS && (
               <AddFriendButton
                 isPending={user.friends === User.FriendshipStatus.PENDING}
                 userId={user.userId}
                 setMutationError={setMutationError}
               />
+            )}
           </>
-          )
         )}
       </CardActions>
       <IconText
