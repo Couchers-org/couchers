@@ -179,6 +179,7 @@ export default function HostingPreferenceForm() {
             }}
           />
           <ProfileTextInput
+            id="area"
             label="Description of your place"
             name="area"
             defaultValue={user.area?.value ?? ""}
@@ -188,6 +189,7 @@ export default function HostingPreferenceForm() {
             className={classes.field}
           />
           <ProfileTextInput
+            id="houseRules"
             label="House rules"
             name="houseRules"
             defaultValue={user.houseRules?.value ?? ""}

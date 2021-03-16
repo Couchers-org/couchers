@@ -7,11 +7,7 @@ export default {
   title: "Communities/CommunityPage/DiscussionCard",
 } as Meta;
 
-const Template: Story<any> = (args) => (
-  <>
-    <DiscussionCard {...args} />
-  </>
-);
+const Template: Story<any> = (args) => <DiscussionCard {...args} />;
 
 export const discussionCard = Template.bind({});
 discussionCard.args = {

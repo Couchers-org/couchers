@@ -233,7 +233,7 @@ class TestGroups:
                 "Discussion title 13",
                 "Discussion title 14",
             ]
-    
+
     @staticmethod
     def test_ListUserGroups(testing_communities):
         with session_scope() as session:
@@ -244,11 +244,9 @@ class TestGroups:
 
         # List user1's groups from user1's account
         with groups_session(token1) as api:
-            res = api.ListUserGroups(
-                groups_pb2.ListUserGroupsReq()
-            )
+            res = api.ListUserGroups(groups_pb2.ListUserGroupsReq())
             assert [g.group_id for g in res.groups] == [hitchhikers_id, foodies_id, skaters_id]
-    
+
     @staticmethod
     def test_ListOtherUserGroups(testing_communities):
         with session_scope() as session:
@@ -260,9 +258,7 @@ class TestGroups:
 
         # List user1's groups from user2's account
         with groups_session(token2) as api:
-            res = api.ListUserGroups(
-                groups_pb2.ListUserGroupsReq(user_id=user1_id)
-            )
+            res = api.ListUserGroups(groups_pb2.ListUserGroupsReq(user_id=user1_id))
             assert [g.group_id for g in res.groups] == [hitchhikers_id, foodies_id, skaters_id]
 
 

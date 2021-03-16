@@ -13,6 +13,7 @@ import RequestButton from "features/connections/request/RequestButton";
 import {
   COMMUNITY_STANDING,
   COMMUNITY_STANDING_DESCRIPTION,
+  EDIT_HOME,
   EDIT_PROFILE,
   LAST_ACTIVE,
   REFERENCES,
@@ -27,7 +28,7 @@ import {
 import { HostingStatus, MeetupStatus, User } from "pb/api_pb";
 import React, { Dispatch, SetStateAction, useState } from "react";
 import { Link } from "react-router-dom";
-import { editProfileRoute } from "routes";
+import { editHostingPreferenceRoute, editProfileRoute } from "routes";
 import { timestamp2Date } from "utils/date";
 import { timeAgo } from "utils/timeAgo";
 
@@ -84,9 +85,14 @@ export default function Overview({ user, setIsRequesting }: OverviewProps) {
       {mutationError && <Alert severity="error">{mutationError}</Alert>}
       <CardActions className={classes.cardActions}>
         {user.userId === currentUserId ? (
-          <Button component={Link} to={editProfileRoute}>
-            {EDIT_PROFILE}
-          </Button>
+          <>
+            <Button component={Link} to={editProfileRoute}>
+              {EDIT_PROFILE}
+            </Button>
+            <Button component={Link} to={editHostingPreferenceRoute}>
+              {EDIT_HOME}
+            </Button>
+          </>
         ) : (
           <>
             <Button onClick={() => setIsRequesting(true)}>{REQUEST}</Button>

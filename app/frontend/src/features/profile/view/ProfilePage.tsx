@@ -1,10 +1,4 @@
-import {
-  Card,
-  CircularProgress,
-  List,
-  ListItem,
-  makeStyles,
-} from "@material-ui/core";
+import { Card, CircularProgress, makeStyles } from "@material-ui/core";
 import { TabContext, TabPanel } from "@material-ui/lab";
 import Alert from "components/Alert";
 import TabBar from "components/TabBar";
@@ -17,8 +11,7 @@ import References from "features/profile/view/References";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import useUserByUsername from "features/userQueries/useUserByUsername";
 import React, { useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { editHostingPreferenceRoute } from "routes";
+import { useParams } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
   detailsCard: {
@@ -98,15 +91,6 @@ export default function ProfilePage() {
           </Card>
         </div>
       ) : null}
-      <List>
-        <ListItem
-          className={classes.linkStyle}
-          component={Link}
-          to={editHostingPreferenceRoute}
-        >
-          Edit my place
-        </ListItem>
-      </List>
     </>
   );
 }

@@ -301,7 +301,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
 
             session.commit()
             return page_to_pb(page, context.user_id)
-    
+
     def ListUserPlaces(self, request, context):
         with session_scope() as session:
             page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)

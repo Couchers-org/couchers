@@ -7,11 +7,7 @@ export default {
   title: "Components/Composite/BarWithHelp",
 } as Meta;
 
-const Template: Story<any> = (args) => (
-  <>
-    <BarWithHelp {...args} />
-  </>
-);
+const Template: Story<any> = (args) => <BarWithHelp {...args} />;
 
 export const barWithHelp = Template.bind({});
 barWithHelp.args = {
