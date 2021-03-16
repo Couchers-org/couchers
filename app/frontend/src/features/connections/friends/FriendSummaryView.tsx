@@ -27,7 +27,7 @@ function FriendSummaryView({ children, friend }: FriendSummaryViewProps) {
 
   return friend ? (
     <div className={classes.friendItem} data-testid={FRIEND_ITEM_TEST_ID}>
-      <UserSummary user={friend} />
+      <UserSummary headlineComponent="h3" user={friend} />
       {children}
     </div>
   ) : null;
