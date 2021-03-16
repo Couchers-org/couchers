@@ -6,8 +6,8 @@ from google.protobuf import empty_pb2
 
 from couchers import errors
 from couchers.utils import now, to_aware_datetime
-from pb import references_pb2
-from tests.test_fixtures import db, generate_user, references_session, testconfig
+from pb import api_pb2, references_pb2
+from tests.test_fixtures import api_session, db, generate_user, references_session, testconfig
 
 
 @pytest.fixture(autouse=True)
@@ -99,10 +99,10 @@ def test_references(db):
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == errors.CANT_REFER_SELF
 
-    with references_session(token2) as api:
+    with api_session(token2) as api:
         # test the number of references in GetUser and Ping
-        res = api.GetUser(references_pb2.GetUserReq(user=user2.username))
+        res = api.GetUser(api_pb2.GetUserReq(user=user2.username))
         assert res.num_references == 3
 
-        res = api.Ping(references_pb2.PingReq())
+        res = api.Ping(api_pb2.PingReq())
         assert res.user.num_references == 3
