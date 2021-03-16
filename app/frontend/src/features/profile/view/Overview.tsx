@@ -9,6 +9,7 @@ import IconText from "components/IconText";
 import LabelAndText from "components/LabelAndText";
 import { useAuthContext } from "features/auth/AuthProvider";
 import AddFriendButton from "features/connections/friends/AddFriendButton";
+import RequestButton from "features/connections/request/RequestButton";
 import {
   COMMUNITY_STANDING,
   COMMUNITY_STANDING_DESCRIPTION,
@@ -85,12 +86,15 @@ export default function Overview({ user }: OverviewProps) {
             {EDIT_PROFILE}
           </Button>
         ) : (
-          user.friends !== User.FriendshipStatus.FRIENDS && (
-            <AddFriendButton
-              isPending={user.friends === User.FriendshipStatus.PENDING}
-              userId={user.userId}
-              setMutationError={setMutationError}
-            />
+          <>
+            <RequestButton></RequestButton>
+            user.friends !== User.FriendshipStatus.FRIENDS && (
+              <AddFriendButton
+                isPending={user.friends === User.FriendshipStatus.PENDING}
+                userId={user.userId}
+                setMutationError={setMutationError}
+              />
+          </>
           )
         )}
       </CardActions>
