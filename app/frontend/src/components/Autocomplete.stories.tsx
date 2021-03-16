@@ -19,19 +19,17 @@ const Template: Story<any> = (args) => {
     setTimeout(() => setOptions(["Option A", "Option B", "Option C"]), 1000);
   }, [open]);
   return (
-    <>
-      <Autocomplete
-        id="autocomplete-example"
-        options={options || []}
-        loading={!options}
-        open={open}
-        onOpen={() => setOpen(true)}
-        onClose={() => setOpen(false)}
-        label="Autocomplete example"
-        {...args}
-      />
-    </>
+    <Autocomplete
+      id="autocomplete-example"
+      options={options || []}
+      loading={!options}
+      open={open}
+      onOpen={() => setOpen(true)}
+      onClose={() => setOpen(false)}
+      label="Autocomplete example"
+      {...args}
+    />
   );
 };
 
-export const autoomplete = Template.bind({});
+export const autocomplete = Template.bind({});

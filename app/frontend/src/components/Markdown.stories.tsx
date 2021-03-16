@@ -7,11 +7,7 @@ export default {
   title: "Components/Simple/Markdown",
 } as Meta;
 
-const Template: Story<any> = (args) => (
-  <>
-    <Markdown {...args} />
-  </>
-);
+const Template: Story<any> = (args) => <Markdown {...args} />;
 
 export const markdown = Template.bind({});
 markdown.args = {
