@@ -21,7 +21,7 @@ reftype2api = {
 }
 
 
-class References(references_pb2_grpc.APIServicer):
+class References(references_pb2_grpc.ReferencesServicer):
     def WriteReference(self, request, context):
         if context.user_id == request.to_user_id:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REFER_SELF)
