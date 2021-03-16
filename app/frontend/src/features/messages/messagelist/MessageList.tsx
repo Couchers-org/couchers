@@ -2,6 +2,7 @@ import { Box, BoxProps } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import classNames from "classnames";
 import TextBody from "components/TextBody";
+import { NO_MESSAGES } from "features/messages/constants";
 import ControlMessageView from "features/messages/messagelist/ControlMessageView";
 import MessageView from "features/messages/messagelist/MessageView";
 import { isControlMessage } from "features/messages/utils";
@@ -58,7 +59,7 @@ export default function MessageList({
           )
         )
       ) : (
-        <TextBody>No messages</TextBody>
+        <TextBody>{NO_MESSAGES}</TextBody>
       )}
     </Box>
   );
