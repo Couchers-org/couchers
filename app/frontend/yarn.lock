@@ -2886,10 +2886,10 @@
   resolved "https://registry.yarnpkg.com/@types/linkify-it/-/linkify-it-3.0.0.tgz#c0ca4c253664492dbf47a646f31cfd483a6bbc95"
   integrity sha512-x9OaQQTb1N2hPZ/LWJsqushexDvz7NgzuZxiRmZio44WPuolTZNHDBCrOxCzRVOMwamJRO2dWax5NbygOf1OTQ==
 
-"@types/maplibre-gl@^1.13.0":
-  version "1.13.0"
-  resolved "https://registry.yarnpkg.com/@types/maplibre-gl/-/maplibre-gl-1.13.0.tgz#f6cf2a959c8e921ea0620bbbdf5df1d6fb309062"
-  integrity sha512-m8rnD5WQZtEJFxIOkev4HUKBolWQEyqKrwtd1cOvD7AWXsLo2nNG7NFdUEDkhpSWCBcArz3T+PNe+mLDht1oJw==
+"@types/maplibre-gl@^1.13.1":
+  version "1.13.1"
+  resolved "https://registry.yarnpkg.com/@types/maplibre-gl/-/maplibre-gl-1.13.1.tgz#d043f48e9f08e1b6a9aa7e924d2b86306f843f2b"
+  integrity sha512-AD7gFneLUYOWKhiwUvfD3LmQy4agJ2k2fe2V6XWCmt6R41d1q1H+BuyHJxFg31OTtDCag4u9ZZpQbjUmUG0gjQ==
   dependencies:
     "@types/geojson" "*"
 
