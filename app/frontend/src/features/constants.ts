@@ -33,13 +33,9 @@ export const TRAVELS = "My travels";
 export const WHO = "Who I am";
 export const WHY = "Why I use Couchers";
 
-export const SECTIONS = [ABOUT_ME, HOME, REFERENCES, FAVORITES, PHOTOS];
-
 export const SECTION_LABELS = {
   about: ABOUT_ME,
-  favorites: FAVORITES,
   home: HOME,
-  photos: PHOTOS,
   references: REFERENCES,
 };
 
@@ -82,7 +78,7 @@ export const TRANSPORTATION = "Transportation, Parking, Accessibility";
 export const WHEELCHAIR = "Wheelchair accessible";
 
 // Edit home
-export const EDIT_HOME = "Edit my place";
+export const EDIT_HOME = "Edit home";
 
 // Community
 export const COMMUNITY_HEADING = (name: string) => `Welcome to ${name}!`;
