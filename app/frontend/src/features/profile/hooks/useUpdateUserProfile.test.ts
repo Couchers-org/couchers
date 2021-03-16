@@ -1,5 +1,5 @@
 import { renderHook } from "@testing-library/react-hooks";
-import useUpdateUserProfile from "features/profile/useUpdateUserProfile";
+import useUpdateUserProfile from "features/profile/hooks/useUpdateUserProfile";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { act } from "react-test-renderer";

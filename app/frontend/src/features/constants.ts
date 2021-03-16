@@ -121,3 +121,13 @@ export const referenceBadgeLabel = {
 export const NO_REFERENCES = "No references of this kind yet!";
 export const getReferencesGivenHeading = (name: string) =>
   `References ${name} wrote`;
+
+// Bug Report
+export const BUG_DESCRIPTION = "Brief description of the bug";
+export const EXPECT = "What happened? What should have happened?";
+export const PROBLEM = "What's the problem?";
+export const REPORT = "Report a problem";
+export const STEPS = "What did you do to trigger the bug?";
+export const SUBMIT = "Submit";
+export const WARNING =
+  "Please note that this information, as well as diagnostic information including which page you are on, what browser you are using, and your user ID will be saved to a public list of bugs.";

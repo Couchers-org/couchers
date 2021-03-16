@@ -51,9 +51,12 @@ message GetThreadRes {
   // sorted in inverse time order, latest reply first.
   repeated Reply replies = 1;
 
+  // number of responses (comments and replies) associated with the thread
+  uint32 num_responses = 2;
+
   // A token that can be sent as `page_token` to retrieve the next page.
   // If this field is omitted, there are no subsequent pages.
-  string next_page_token = 2;
+  string next_page_token = 3;
 }
 
 message Reply {

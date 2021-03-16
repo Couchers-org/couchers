@@ -9,10 +9,11 @@ import { Autocomplete } from "@material-ui/lab";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
-import { SAVE } from "features/constants";
+import PageTitle from "components/PageTitle";
+import { EDIT_HOME, SAVE } from "features/constants";
 import { smokingLocationLabels } from "features/profile/constants";
+import useUpdateHostingPreferences from "features/profile/hooks/useUpdateHostingPreferences";
 import ProfileTextInput from "features/profile/ProfileTextInput";
-import useUpdateHostingPreferences from "features/profile/useUpdateHostingPreferences";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { SmokingLocation } from "pb/api_pb";
 import React, { useState } from "react";
@@ -104,6 +105,7 @@ export default function HostingPreferenceForm() {
 
   return (
     <>
+      <PageTitle>{EDIT_HOME}</PageTitle>
       {updateStatus === "success" ? (
         <Alert className={classes.alert} severity="success">
           Successfully updated hosting preference!
@@ -177,6 +179,7 @@ export default function HostingPreferenceForm() {
             }}
           />
           <ProfileTextInput
+            id="area"
             label="Description of your place"
             name="area"
             defaultValue={user.area?.value ?? ""}
@@ -186,6 +189,7 @@ export default function HostingPreferenceForm() {
             className={classes.field}
           />
           <ProfileTextInput
+            id="houseRules"
             label="House rules"
             name="houseRules"
             defaultValue={user.houseRules?.value ?? ""}

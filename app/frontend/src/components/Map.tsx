@@ -1,4 +1,4 @@
-import "maplibre-gl/dist/mapbox-gl.css";
+import "maplibre-gl/dist/maplibre-gl.css";
 
 import { makeStyles } from "@material-ui/core";
 import classNames from "classnames";
@@ -10,11 +10,14 @@ const URL = process.env.REACT_APP_API_BASE_URL;
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_KEY!;
 
 const useStyles = makeStyles({
+  root: {
+    height: 200,
+    position: "relative",
+    width: 400,
+  },
   grow: {
-    "div&": {
-      height: "100%",
-      width: "100%",
-    },
+    height: "100%",
+    width: "100%",
   },
   map: {
     height: "100%",
@@ -22,11 +25,6 @@ const useStyles = makeStyles({
     position: "absolute",
     top: 0,
     width: "100%",
-  },
-  root: {
-    height: 200,
-    position: "relative",
-    width: 400,
   },
 });
 
@@ -69,8 +67,11 @@ export default function Map({
     return { url };
   };
 
+  const mapRef = useRef<mapboxgl.Map>();
   useEffect(() => {
     if (!containerRef.current) return;
+    //don't create a new map if it exists already
+    if (mapRef.current) return;
     const map = new mapboxgl.Map({
       center: initialCenter,
       container: containerRef.current,
@@ -80,6 +81,7 @@ export default function Map({
       transformRequest,
       zoom: initialZoom,
     });
+    mapRef.current = map;
 
     if (interactive)
       map.addControl(new mapboxgl.NavigationControl({ showCompass: false }));
