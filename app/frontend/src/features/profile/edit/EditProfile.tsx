@@ -133,6 +133,7 @@ export default function EditProfileForm() {
         <>
           <form onSubmit={onSubmit}>
             <ProfileTextInput
+              id="name"
               label="Name"
               name="name"
               defaultValue={user.name}
@@ -269,6 +270,7 @@ export default function EditProfileForm() {
               }}
             />
             <ProfileTextInput
+              id="hometown"
               label={HOMETOWN}
               name="hometown"
               defaultValue={user.hometown}
@@ -276,6 +278,7 @@ export default function EditProfileForm() {
               className={classes.field}
             />
             <ProfileTextInput
+              id="occupation"
               label={OCCUPATION}
               name="occupation"
               defaultValue={user.occupation}
@@ -283,6 +286,7 @@ export default function EditProfileForm() {
               className={classes.field}
             />
             <ProfileTextInput
+              id="education"
               label={EDUCATION}
               name="education"
               defaultValue={user.education}
@@ -305,6 +309,7 @@ export default function EditProfileForm() {
               )}
             />
             <ProfileTextInput
+              id="aboutMe"
               label={ABOUT_ME}
               name="aboutMe"
               defaultValue={user.aboutMe}
@@ -314,6 +319,7 @@ export default function EditProfileForm() {
               rows={10}
             />
             <ProfileTextInput
+              id="thingsILike"
               label={HOBBIES}
               name="thingsILike"
               defaultValue={user.thingsILike}
@@ -323,6 +329,7 @@ export default function EditProfileForm() {
               rows={10}
             />
             <ProfileTextInput
+              id="additionalInformation"
               label={ADDITIONAL}
               name="additionalInformation"
               defaultValue={user.additionalInformation}
@@ -332,6 +339,7 @@ export default function EditProfileForm() {
               rows={10}
             />
             <ProfileTextInput
+              id="aboutPlace"
               label={ABOUT_HOME}
               name="aboutPlace"
               defaultValue={user.aboutPlace}
