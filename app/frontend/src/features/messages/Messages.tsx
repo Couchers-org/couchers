@@ -1,3 +1,4 @@
+import { TabContext } from "@material-ui/lab";
 import * as React from "react";
 import { Route, Switch, useHistory, useParams } from "react-router-dom";
 
@@ -70,12 +71,14 @@ export default function Messages() {
   const header = (
     <>
       <PageTitle>Messages</PageTitle>
-      <TabBar
-        ariaLabel="Tabs for different message types"
-        value={messageType}
-        setValue={(newType) => history.push(`${messagesRoute}/${newType}`)}
-        labels={labels}
-      />
+      <TabContext value={messageType}>
+        <TabBar
+          ariaLabel="Tabs for different message types"
+          value={messageType}
+          setValue={(newType) => history.push(`${messagesRoute}/${newType}`)}
+          labels={labels}
+        />
+      </TabContext>
     </>
   );
 
