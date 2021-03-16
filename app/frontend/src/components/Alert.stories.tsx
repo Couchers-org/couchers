@@ -15,9 +15,7 @@ export default {
   title: "Components/Simple/Alert",
 } as Meta;
 
-const Template: Story<any> = (args) => (
-  <Alert {...args}>This is an alert</Alert>
-);
+const Template: Story<any> = (args) => <Alert {...args}>This is an alert</Alert>;
 
 export const alert = Template.bind({});
 alert.args = { severity: "error" };
