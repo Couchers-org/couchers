@@ -81,7 +81,7 @@ export default function SearchResult({ user }: { user: User.AsObject }) {
                 </div>
               </div>
             </UserSummary>
-            <Typography component="h3" variant="h6" className={classes.about}>
+            <Typography variant="body1" className={classes.about}>
               {aboutText(user)}
             </Typography>
             <LabelsAgeGenderLanguages user={user} />
