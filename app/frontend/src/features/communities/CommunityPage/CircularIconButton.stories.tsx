@@ -12,11 +12,9 @@ export default {
 } as Meta;
 
 const Template: Story<any> = (args) => (
-  <>
-    <CircularIconButton {...args}>
-      <CommunityIcon />
-    </CircularIconButton>
-  </>
+  <CircularIconButton {...args}>
+    <CommunityIcon />
+  </CircularIconButton>
 );
 
 export const circularIconButton = Template.bind({});

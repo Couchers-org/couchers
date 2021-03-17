@@ -2,14 +2,10 @@ import { TextFieldProps } from "@material-ui/core";
 import TextField from "components/TextField";
 import React from "react";
 
-type ProfileTextInputProps = Omit<TextFieldProps, "margin">;
+interface ProfileTextInputProps extends Omit<TextFieldProps, "margin"> {
+  id: NonNullable<TextFieldProps["id"]>;
+}
 
 export default function ProfileTextInput(props: ProfileTextInputProps) {
-  return (
-    <TextField
-      {...props}
-      margin="normal"
-      id={`profile-text-input-${props.name}`}
-    />
-  );
+  return <TextField {...props} margin="normal" />;
 }

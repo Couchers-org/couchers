@@ -1034,6 +1034,7 @@ def test_page_constraints(db):
     assert "violates unique constraint" in str(e.value)
     assert "ix_pages_owner_cluster_id_type" in str(e.value)
 
+
 def test_list_user_places(db):
     user1, token1 = generate_user()
     with session_scope() as session:
@@ -1065,10 +1066,9 @@ def test_list_user_places(db):
         ).page_id
 
     with pages_session(token1) as api:
-        res = api.ListUserPlaces(
-            pages_pb2.ListUserPlacesReq()
-        )
+        res = api.ListUserPlaces(pages_pb2.ListUserPlacesReq())
         assert [p.page_id for p in res.places] == [place1_id, place2_id]
+
 
 def test_list_other_user_places(db):
     user1, token1 = generate_user()
@@ -1102,10 +1102,9 @@ def test_list_other_user_places(db):
         ).page_id
 
     with pages_session(token2) as api:
-        res = api.ListUserPlaces(
-            pages_pb2.ListUserPlacesReq(user_id=user1.id)
-        )
+        res = api.ListUserPlaces(pages_pb2.ListUserPlacesReq(user_id=user1.id))
         assert [p.page_id for p in res.places] == [place1_id, place2_id]
+
 
 def test_list_user_guides(db):
     user1, token1 = generate_user()
@@ -1140,10 +1139,9 @@ def test_list_user_guides(db):
         ).page_id
 
     with pages_session(token1) as api:
-        res = api.ListUserGuides(
-            pages_pb2.ListUserGuidesReq()
-        )
+        res = api.ListUserGuides(pages_pb2.ListUserGuidesReq())
         assert [p.page_id for p in res.guides] == [guide1_id, guide2_id]
+
 
 def test_list_other_user_guides(db):
     user1, token1 = generate_user()
@@ -1179,7 +1177,5 @@ def test_list_other_user_guides(db):
         ).page_id
 
     with pages_session(token2) as api:
-        res = api.ListUserGuides(
-            pages_pb2.ListUserGuidesReq(user_id=user1.id)
-        )
+        res = api.ListUserGuides(pages_pb2.ListUserGuidesReq(user_id=user1.id))
         assert [p.page_id for p in res.guides] == [guide1_id, guide2_id]

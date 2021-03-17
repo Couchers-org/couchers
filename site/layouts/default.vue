@@ -76,6 +76,10 @@
             FAQ
           </a>
 
+          <a class="navbar-item" href="/blog">
+            Blog
+          </a>
+
           <a class="navbar-item" href="/team">
             Our team &ndash; positions available
           </a>
