@@ -3,7 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import DateField from "components/DateField";
+import Datepicker from "components/Datepicker";
 import TextField from "components/TextField";
 import { useUser } from "features/userQueries/useUsers";
 import { Error as GrpcError } from "grpc-web";
@@ -83,7 +83,7 @@ export default function NewHostRequest() {
         <Alert severity={"error"}>{hostError}</Alert>
       ) : (
         <form onSubmit={onSubmit} className={classes.form}>
-          <DateField
+          <Datepicker
             control={control}
             error={!!formErrors.fromDate}
             helperText={formErrors?.fromDate?.message}
@@ -95,7 +95,7 @@ export default function NewHostRequest() {
             label={DATE_FROM}
             name="fromDate"
           />
-          <DateField
+          <Datepicker
             control={control}
             error={!!formErrors.toDate}
             helperText={formErrors?.toDate?.message}

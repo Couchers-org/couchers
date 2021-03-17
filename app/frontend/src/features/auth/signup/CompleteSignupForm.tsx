@@ -8,7 +8,7 @@ import {
 import Autocomplete from "components/Autocomplete";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
-import DateField from "components/DateField";
+import Datepicker from "components/Datepicker";
 import EditUserLocationMap, {
   ApproximateLocation,
 } from "components/EditUserLocationMap";
@@ -173,7 +173,7 @@ export default function CompleteSignupForm() {
           <InputLabel className={authClasses.formLabel} htmlFor="birthdate">
             Birthday
           </InputLabel>
-          <DateField
+          <Datepicker
             className={authClasses.formField}
             control={control}
             error={!!errors.birthdate}

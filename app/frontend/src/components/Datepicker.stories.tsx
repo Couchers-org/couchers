@@ -1,17 +1,17 @@
 import { Meta, Story } from "@storybook/react";
 import { useForm } from "react-hook-form";
 
-import DateField from "./DateField";
+import Datepicker from "./Datepicker";
 
 export default {
-  component: DateField,
-  title: "Components/Simple/DateField",
+  component: Datepicker,
+  title: "Components/Simple/Datepicker",
 } as Meta;
 
 const Template: Story<any> = (args) => {
   const { control, register } = useForm();
   return (
-    <DateField
+    <Datepicker
       control={control}
       error={false}
       helperText=""

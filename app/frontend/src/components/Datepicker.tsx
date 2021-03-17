@@ -5,7 +5,7 @@ import {
 } from "@material-ui/pickers";
 import { Control, Controller } from "react-hook-form";
 
-interface DateFieldProps {
+interface DatepickerProps {
   className?: string;
   control: Control;
   error: boolean;
@@ -16,7 +16,7 @@ interface DateFieldProps {
   name: string;
 }
 
-export default function DateField({
+export default function Datepicker({
   className,
   control,
   error,
@@ -25,7 +25,7 @@ export default function DateField({
   inputRef,
   label,
   name,
-}: DateFieldProps) {
+}: DatepickerProps) {
   return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
       <Controller
@@ -49,9 +49,10 @@ export default function DateField({
               shrink: true,
             }}
             label={label}
+            minDate={new Date(1899, 12, 1)}
             onChange={(date) => {
               //user might be typing, so check the date is valid before doing conversions
-              date?.isValid()
+              date?.isValid() 
                 ? onChange(date?.format().split("T")[0])
                 : onChange(date);
             }}
