@@ -35,7 +35,6 @@ export default function About({ user }: AboutProps) {
             : ""
         }
       />
-
       <Divider />
       <Typography variant="h1">{WHO}</Typography>
       <Typography variant="body1">{user.aboutMe}</Typography>
