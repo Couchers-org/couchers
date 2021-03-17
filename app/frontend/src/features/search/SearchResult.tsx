@@ -13,8 +13,8 @@ import {
   meetupStatusLabels,
 } from "features/profile/constants";
 import {
-  LabelsAgeGenderLanguages,
   LabelsReferencesLastActive,
+  RemainingAboutLabels,
 } from "features/user/UserTextAndLabel";
 import { User } from "pb/api_pb";
 import { Link } from "react-router-dom";
@@ -29,7 +29,6 @@ const useStyles = makeStyles((theme) => ({
   },
   statusLabelWrapper: {
     display: "flex",
-    marginLeft: theme.spacing(11),
     "& > div": {
       display: "flex",
     },
@@ -84,7 +83,7 @@ export default function SearchResult({ user }: { user: User.AsObject }) {
             <Typography variant="body1" className={classes.about}>
               {aboutText(user)}
             </Typography>
-            <LabelsAgeGenderLanguages user={user} />
+            <RemainingAboutLabels user={user} />
             <LabelsReferencesLastActive user={user} />
           </CardContent>
         </CardActionArea>

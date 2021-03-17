@@ -1,19 +1,11 @@
 import { Typography } from "@material-ui/core";
 import Divider from "components/Divider";
-import LabelAndText from "components/LabelAndText";
+import { ADDITIONAL, HOBBIES, OVERVIEW, WHO } from "features/constants";
 import {
-  ADDITIONAL,
-  EDUCATION,
-  HOBBIES,
-  HOMETOWN,
-  JOINED,
-  OCCUPATION,
-  OVERVIEW,
-  WHO,
-} from "features/constants";
-import { LabelsAgeGenderLanguages } from "features/user/UserTextAndLabel";
+  RemainingAboutLabels,
+  LabelsReferencesLastActive,
+} from "features/user/UserTextAndLabel";
 import { User } from "pb/api_pb";
-import { dateTimeFormatter, timestamp2Date } from "utils/date";
 
 interface AboutProps {
   user: User.AsObject;
@@ -23,18 +15,8 @@ export default function About({ user }: AboutProps) {
   return (
     <>
       <Typography variant="h1">{OVERVIEW}</Typography>
-      <LabelsAgeGenderLanguages user={user} />
-      <LabelAndText label={HOMETOWN} text={user.hometown} />
-      <LabelAndText label={OCCUPATION} text={user.occupation} />
-      <LabelAndText label={EDUCATION} text={user.education} />
-      <LabelAndText
-        label={JOINED}
-        text={
-          user.joined
-            ? dateTimeFormatter.format(timestamp2Date(user.joined))
-            : ""
-        }
-      />
+      <LabelsReferencesLastActive user={user} />
+      <RemainingAboutLabels user={user} />
       <Divider />
       <Typography variant="h1">{WHO}</Typography>
       <Typography variant="body1">{user.aboutMe}</Typography>
