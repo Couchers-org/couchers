@@ -66,7 +66,7 @@ describe("Profile page", () => {
       ).not.toBeInTheDocument();
     });
 
-    it("does not show the button for opening a profile actions menu (viewing via current user's username)", async () => {
+    it("does not show the button for opening a profile actions menu (viewed with username)", async () => {
       renderProfilePage("funnycat");
 
       expect(
@@ -83,7 +83,7 @@ describe("Profile page", () => {
       renderProfilePage("funnydog");
     });
 
-    it("shows the button for opening a profile actions menu if viewing another user's profile", async () => {
+    it("shows the button for opening a profile actions menu", async () => {
       expect(
         await screen.findByRole("heading", { name: "Funny Dog" })
       ).toBeVisible();

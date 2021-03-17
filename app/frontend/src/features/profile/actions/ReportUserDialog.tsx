@@ -1,4 +1,4 @@
-import { DialogProps, makeStyles, Snackbar } from "@material-ui/core";
+import { DialogProps, makeStyles } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import {
@@ -8,10 +8,10 @@ import {
   DialogContentText,
   DialogTitle,
 } from "components/Dialog";
+import SuccessSnackbar from "components/SuccessSnackbar";
 import TextField from "components/TextField";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
-import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service/index";
@@ -31,20 +31,6 @@ import { useProfileUser } from "../hooks/useProfileUser";
 const REPORT_USER_DIALOG_LABEL_ID = "report-user-dialog-title";
 
 type ReportUserFormData = Omit<ReportUserInput, "userId">;
-
-function SuccessSnackbar({ name }: { name: string }) {
-  const [open, setOpen] = useState(true);
-
-  return (
-    <Snackbar
-      autoHideDuration={6000}
-      open={open}
-      onClose={() => setOpen(false)}
-    >
-      <Alert severity="success">{getReportUserSuccessMessage(name)}</Alert>
-    </Snackbar>
-  );
-}
 
 const useStyles = makeStyles((theme) => ({
   textField: {
@@ -85,7 +71,9 @@ export default function ReportUserDialog({ onClose, open }: DialogProps) {
 
   return (
     <>
-      {isSuccess && <SuccessSnackbar name={name} />}
+      {isSuccess && (
+        <SuccessSnackbar>{getReportUserSuccessMessage(name)}</SuccessSnackbar>
+      )}
       <Dialog aria-labelledby={REPORT_USER_DIALOG_LABEL_ID} open={open}>
         <form onSubmit={onSubmit}>
           <DialogTitle id={REPORT_USER_DIALOG_LABEL_ID}>
