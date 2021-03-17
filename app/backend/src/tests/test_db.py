@@ -1,10 +1,10 @@
 from couchers.db import (
     get_parent_node_at_location,
-    is_valid_date,
     is_valid_email,
     is_valid_name,
     is_valid_user_id,
     is_valid_username,
+    parse_date,
     session_scope,
 )
 from tests.test_communities import create_1d_point, get_community_id, testing_communities
@@ -46,16 +46,16 @@ def test_is_valid_name():
     assert not is_valid_name(" ")
 
 
-def test_is_valid_date():
-    assert is_valid_date("2020-01-01")
-    assert is_valid_date("1900-01-01")
-    assert is_valid_date("2099-01-01")
-    assert not is_valid_date("2019-02-29")
-    assert not is_valid_date("2019-22-01")
-    assert not is_valid_date("2020-1-01")
-    assert not is_valid_date("20-01-01")
-    assert not is_valid_date("01-01-2020")
-    assert not is_valid_date("2020/01/01")
+def test_parse_date():
+    assert parse_date("2020-01-01") is not None
+    assert parse_date("1900-01-01") is not None
+    assert parse_date("2099-01-01") is not None
+    assert not parse_date("2019-02-29")
+    assert not parse_date("2019-22-01")
+    assert not parse_date("2020-1-01")
+    assert not parse_date("20-01-01")
+    assert not parse_date("01-01-2020")
+    assert not parse_date("2020/01/01")
 
 
 def test_get_parent_node_at_location(testing_communities):
