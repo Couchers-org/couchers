@@ -30,6 +30,13 @@ def now():
     return datetime.now(utc)
 
 
+def today():
+    """
+    Date only in UTC
+    """
+    return now().date()
+
+
 def largest_current_date():
     """
     Get the largest date that's possible now.
@@ -38,7 +45,7 @@ def largest_current_date():
     """
     # This is not the right way to do it, timezones can change
     # at the time of writing, Samoa observes UTC+14 in Summer
-    return datetime.now(timezone(timedelta(hours=14))).strftime("%Y-%m-%d")
+    return datetime.now(timezone(timedelta(hours=14))).date()
 
 
 def least_current_date():
@@ -47,7 +54,7 @@ def least_current_date():
     """
     # This is not the right way to do it, timezones can change
     # at the time of writing, Baker Island observes UTC-12
-    return datetime.now(timezone(timedelta(hours=-12))).strftime("%Y-%m-%d")
+    return datetime.now(timezone(timedelta(hours=-12))).date()
 
 
 # Note: be very careful with ordering of lat/lng!

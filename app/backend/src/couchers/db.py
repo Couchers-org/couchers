@@ -120,15 +120,14 @@ def is_valid_email(field):
     )
 
 
-def is_valid_date(date):
+def parse_date(date):
     """
-    Checks if it is a date-only string in the format "YYYY-MM-DD"
+    Parses a date-only string in the format "YYYY-MM-DD" returning None if it fails
     """
     try:
-        datetime.date.fromisoformat(date)
+        return datetime.date.fromisoformat(date)
     except ValueError:
-        return False
-    return True
+        return None
 
 
 def get_user_by_field(session, field):
