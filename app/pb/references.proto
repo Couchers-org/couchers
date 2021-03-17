@@ -26,9 +26,9 @@ service References {
 }
 
 enum ReferenceType {
-  FRIEND = 0;  // We met on an event but haven't surfed or hosted
-  SURFED = 1;  // The author have surfed, the referent has hosted
-  HOSTED = 2;  // The author have hosted, the referent has surfed
+  REFERENCE_TYPE_FRIEND = 0;  // We met on an event but haven't surfed or hosted
+  REFERENCE_TYPE_SURFED = 1;  // The author have surfed, the referent has hosted
+  REFERENCE_TYPE_HOSTED = 2;  // The author have hosted, the referent has surfed
 }
 
 message OptionalReferenceType {

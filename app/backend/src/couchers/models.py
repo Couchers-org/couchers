@@ -640,9 +640,9 @@ class HostRequest(Base):
 
 
 class ReferenceType(enum.Enum):
-    FRIEND = enum.auto()
-    SURFED = enum.auto()  # The "from" user have surfed at the "to" user
-    HOSTED = enum.auto()  # The "from" user have hosted the "to" user
+    friend = enum.auto()
+    surfed = enum.auto()  # The "from" user surfed with the "to" user
+    hosted = enum.auto()  # The "from" user hosted the "to" user
 
 
 class Reference(Base):
@@ -651,7 +651,6 @@ class Reference(Base):
     """
 
     __tablename__ = "references"
-    __table_args__ = (UniqueConstraint("from_user_id", "to_user_id", "reference_type"),)
 
     id = Column(BigInteger, primary_key=True)
     # timezone should always be UTC
@@ -669,6 +668,18 @@ class Reference(Base):
 
     from_user = relationship("User", backref="references_from", foreign_keys="Reference.from_user_id")
     to_user = relationship("User", backref="references_to", foreign_keys="Reference.to_user_id")
+
+    __table_args__ = (
+        # Each user can leave at most one friend reference to another user
+        Index(
+            "ix_references_from_user_id",
+            from_user_id,
+            to_user_id,
+            reference_type,
+            unique=True,
+            postgresql_where=(reference_type == ReferenceType.friend),
+        ),
+    )
 
 
 class InitiatedUpload(Base):

@@ -16,15 +16,15 @@ from couchers.utils import Timestamp_from_datetime, now
 from pb import references_pb2, references_pb2_grpc
 
 reftype2sql = {
-    references_pb2.ReferenceType.FRIEND: ReferenceType.FRIEND,
-    references_pb2.ReferenceType.SURFED: ReferenceType.SURFED,
-    references_pb2.ReferenceType.HOSTED: ReferenceType.HOSTED,
+    references_pb2.ReferenceType.REFERENCE_TYPE_FRIEND: ReferenceType.friend,
+    references_pb2.ReferenceType.REFERENCE_TYPE_SURFED: ReferenceType.surfed,
+    references_pb2.ReferenceType.REFERENCE_TYPE_HOSTED: ReferenceType.hosted,
 }
 
 reftype2api = {
-    ReferenceType.FRIEND: references_pb2.ReferenceType.FRIEND,
-    ReferenceType.SURFED: references_pb2.ReferenceType.SURFED,
-    ReferenceType.HOSTED: references_pb2.ReferenceType.HOSTED,
+    ReferenceType.friend: references_pb2.ReferenceType.REFERENCE_TYPE_FRIEND,
+    ReferenceType.surfed: references_pb2.ReferenceType.REFERENCE_TYPE_SURFED,
+    ReferenceType.hosted: references_pb2.ReferenceType.REFERENCE_TYPE_HOSTED,
 }
 
 
@@ -74,9 +74,9 @@ class References(references_pb2_grpc.ReferencesServicer):
 
     def AvailableWriteReferenceTypes(self, request, context):
         available = {
-            ReferenceType.FRIEND,
-            ReferenceType.SURFED,
-            ReferenceType.HOSTED,
+            ReferenceType.friend,
+            ReferenceType.surfed,
+            ReferenceType.hosted,
         }
 
         # Filter out already written ones.
