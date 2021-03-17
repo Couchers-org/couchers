@@ -80,7 +80,6 @@ export default function ReportUserDialog({ onClose, open }: DialogProps) {
   );
 
   const onSubmit = handleSubmit(({ description, reason }) => {
-    // trigger mutation
     reportUser({ description, reason });
   });
 

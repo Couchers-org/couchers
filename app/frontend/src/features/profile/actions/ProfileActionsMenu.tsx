@@ -9,7 +9,7 @@ import {
 } from "../constants";
 import ReportUserDialog from "./ReportUserDialog";
 
-const MORE_PROFILE_ACTIONS_MENU_ID = "more-profile-actions-menu";
+export const MORE_PROFILE_ACTIONS_MENU_ID = "more-profile-actions-menu";
 
 export default function ProfileActionsMenu() {
   const [isOpen, setIsOpen] = useState({
@@ -44,6 +44,7 @@ export default function ProfileActionsMenu() {
       <Menu
         anchorEl={menuAnchor.current}
         id={MORE_PROFILE_ACTIONS_MENU_ID}
+        onClose={handleClose("menu")}
         open={isOpen.menu}
       >
         <MenuItem onClick={handleClick("report")}>{REPORT_USER}</MenuItem>
