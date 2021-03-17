@@ -18,8 +18,16 @@ depends_on = None
 
 def upgrade():
     op.drop_constraint("uq_references_from_user_id", "references", type_="unique")
+    op.execute(
+        """
+    CREATE TYPE referencetype_new AS ENUM ('friend', 'surfed', 'hosted');
+    ALTER TABLE "references" ALTER COLUMN reference_type TYPE referencetype_new USING (LOWER(reference_type::text)::referencetype_new);
+    DROP TYPE referencetype;
+    ALTER TYPE referencetype_new RENAME TO referencetype;
+    """
+    )
     op.create_index(
-        "ix_references_from_user_id",
+        "ix_references_from_user_id_to_user_id_reference_type",
         "references",
         ["from_user_id", "to_user_id", "reference_type"],
         unique=True,
@@ -28,7 +36,15 @@ def upgrade():
 
 
 def downgrade():
-    op.drop_index("ix_references_from_user_id", table_name="references")
+    op.drop_index("ix_references_from_user_id_to_user_id_reference_type", table_name="references")
+    op.execute(
+        """
+    CREATE TYPE referencetype_old AS ENUM ('FRIEND', 'SURFED', 'HOSTED');
+    ALTER TABLE "references" ALTER COLUMN reference_type TYPE referencetype_old USING (UPPER(reference_type::text)::referencetype_old);
+    DROP TYPE referencetype;
+    ALTER TYPE referencetype_old RENAME TO referencetype;
+    """
+    )
     op.create_unique_constraint(
         "uq_references_from_user_id", "references", ["from_user_id", "to_user_id", "reference_type"]
     )

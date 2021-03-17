@@ -672,7 +672,7 @@ class Reference(Base):
     __table_args__ = (
         # Each user can leave at most one friend reference to another user
         Index(
-            "ix_references_from_user_id",
+            "ix_references_from_user_id_to_user_id_reference_type",
             from_user_id,
             to_user_id,
             reference_type,
