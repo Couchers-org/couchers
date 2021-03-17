@@ -55,31 +55,32 @@ export default function SearchResult({ user }: { user: User.AsObject }) {
       <Card className={classes.card}>
         <CardActionArea>
           <CardContent>
-            <UserSummary user={user} />
-            <div className={classes.statusLabelWrapper}>
-              <div>
-                <CouchIcon />
-                <Typography
-                  className={classes.statusLabel}
-                  display="inline"
-                  variant="subtitle1"
-                  color="primary"
-                >
-                  {hostingStatusLabels[user.hostingStatus]}
-                </Typography>
+            <UserSummary user={user}>
+              <div className={classes.statusLabelWrapper}>
+                <div>
+                  <CouchIcon />
+                  <Typography
+                    className={classes.statusLabel}
+                    display="inline"
+                    variant="subtitle1"
+                    color="primary"
+                  >
+                    {hostingStatusLabels[user.hostingStatus]}
+                  </Typography>
+                </div>
+                <div>
+                  <LocationIcon />
+                  <Typography
+                    className={classes.statusLabel}
+                    display="inline"
+                    variant="subtitle1"
+                    color="secondary"
+                  >
+                    {meetupStatusLabels[user.meetupStatus]}
+                  </Typography>
+                </div>
               </div>
-              <div>
-                <LocationIcon />
-                <Typography
-                  className={classes.statusLabel}
-                  display="inline"
-                  variant="subtitle1"
-                  color="secondary"
-                >
-                  {meetupStatusLabels[user.meetupStatus]}
-                </Typography>
-              </div>
-            </div>
+            </UserSummary>
             <Typography component="h3" variant="h6" className={classes.about}>
               {aboutText(user)}
             </Typography>
