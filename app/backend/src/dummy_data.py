@@ -84,9 +84,9 @@ def add_dummy_users():
 
             for reference in data["references"]:
                 reference_type = (
-                    ReferenceType.HOSTED
+                    ReferenceType.hosted
                     if reference["type"] == "hosted"
-                    else (ReferenceType.SURFED if reference["type"] == "surfed" else ReferenceType.FRIEND)
+                    else (ReferenceType.surfed if reference["type"] == "surfed" else ReferenceType.friend)
                 )
                 new_reference = Reference(
                     from_user_id=get_user_by_field(session, reference["from"]).id,

@@ -10,7 +10,7 @@ from couchers import errors
 from couchers.db import session_scope
 from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType, User
 from couchers.tasks import send_host_request_email
-from couchers.utils import Timestamp_from_datetime, largest_current_date, least_current_date, parse_date
+from couchers.utils import Timestamp_from_datetime, date_to_api, largest_current_date, least_current_date, parse_date
 from pb import conversations_pb2, requests_pb2, requests_pb2_grpc
 
 logger = logging.getLogger(__name__)

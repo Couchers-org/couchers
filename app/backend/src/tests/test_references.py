@@ -20,7 +20,11 @@ def test_references(db):
     user2, token2 = generate_user()
 
     alltypes = set(
-        [references_pb2.ReferenceType.FRIEND, references_pb2.ReferenceType.HOSTED, references_pb2.ReferenceType.SURFED]
+        [
+            references_pb2.ReferenceType.REFERENCE_TYPE_FRIEND,
+            references_pb2.ReferenceType.REFERENCE_TYPE_HOSTED,
+            references_pb2.ReferenceType.REFERENCE_TYPE_SURFED,
+        ]
     )
     # write all three reference types
     for typ in alltypes:
@@ -71,7 +75,7 @@ def test_references(db):
 
     # Forbidden to write a second reference of the same type
     req = references_pb2.WriteReferenceReq(
-        to_user_id=user2.id, reference_type=references_pb2.ReferenceType.HOSTED, text="ok"
+        to_user_id=user2.id, reference_type=references_pb2.ReferenceType.REFERENCE_TYPE_HOSTED, text="ok"
     )
     with references_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -81,7 +85,7 @@ def test_references(db):
 
     # Nonexisting user
     req = references_pb2.WriteReferenceReq(
-        to_user_id=0x7FFFFFFFFFFFFFFF, reference_type=references_pb2.ReferenceType.HOSTED, text="ok"
+        to_user_id=0x7FFFFFFFFFFFFFFF, reference_type=references_pb2.ReferenceType.REFERENCE_TYPE_HOSTED, text="ok"
     )
     with references_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -91,7 +95,7 @@ def test_references(db):
 
     # yourself
     req = references_pb2.WriteReferenceReq(
-        to_user_id=user1.id, reference_type=references_pb2.ReferenceType.HOSTED, text="ok"
+        to_user_id=user1.id, reference_type=references_pb2.ReferenceType.REFERENCE_TYPE_HOSTED, text="ok"
     )
     with references_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
