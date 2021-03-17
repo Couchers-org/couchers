@@ -63,6 +63,7 @@ export const REQUEST = "Request";
 export const REQUEST_DESCRIPTION =
   "Share your plans for the visit and include why you're requesting to stay with this particular host";
 export const SEND = "Send";
+export const SEND_REQUEST_SUCCESS = "Request sent!";
 
 // Home
 export const ABOUT_HOME = "About my home";

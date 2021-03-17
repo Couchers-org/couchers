@@ -7,6 +7,7 @@ import React from "react";
 
 interface DatepickerProps {
   className?: string;
+  name: string;
   label: string;
   minDate: Date;
   selectedDate: Date;
@@ -15,6 +16,7 @@ interface DatepickerProps {
 
 export default function Datepicker({
   className,
+  name,
   label,
   minDate,
   selectedDate,
@@ -23,6 +25,7 @@ export default function Datepicker({
   return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
       <KeyboardDatePicker
+        name={name}
         className={className}
         disableToolbar
         variant="inline"

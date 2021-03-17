@@ -13,6 +13,7 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import Datepicker from "components/Date/Datepicker";
 import TextField from "components/TextField";
+import { useAuthContext } from "features/auth/AuthProvider";
 import {
   ARRIVAL_DATE,
   CANCEL,
@@ -23,9 +24,11 @@ import {
   REQUEST_DESCRIPTION,
   SEND,
   sendRequest,
+  SEND_REQUEST_SUCCESS,
 } from "features/constants";
 import { useUser } from "features/userQueries/useUsers";
 import { Error as GrpcError } from "grpc-web";
+import { User } from "pb/api_pb";
 import { CreateHostRequestReq } from "pb/requests_pb";
 import { send } from "process";
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
@@ -70,49 +73,38 @@ const useStyles = makeStyles((theme) => ({
 
 interface NewHostRequestProps {
   setIsRequesting: Dispatch<SetStateAction<boolean>>;
+  user: User.AsObject;
 }
 
 export default function NewHostRequest({
   setIsRequesting,
+  user,
 }: NewHostRequestProps) {
   const classes = useStyles();
-
-  const userId = +useParams<{ userId: string }>().userId;
-
   const today = new Date();
   const isPostBetaEnabled = process.env.REACT_APP_IS_POST_BETA_ENABLED;
   const [numVisitors, setNumVisitors] = useState(1);
   const [selectedArrivalDate, setSelectedArrivalDate] = useState(today);
   const [selectedDepartureDate, setSelectedDepartureDate] = useState(today);
 
-  const { data: host, isLoading: hostLoading, error: hostError } = useUser(
-    userId
-  );
-  const title = host ? sendRequest(firstName(host.name)) : undefined;
-
   const { control, register, handleSubmit } = useForm<
     Required<CreateHostRequestReq.AsObject>
-  >({ defaultValues: { toUserId: userId } });
+  >({ defaultValues: { toUserId: user.userId } });
 
-  useEffect(() => register("toUserId"));
-
-  const history = useHistory();
-
-  const mutation = useMutation<
+  const { error, isSuccess, mutate } = useMutation<
     number,
     GrpcError,
     Required<CreateHostRequestReq.AsObject>
-  >(
-    (data: Required<CreateHostRequestReq.AsObject>) =>
-      service.requests.createHostRequest(data),
-    {
-      onSuccess: (hostRequestId) => {
-        history.push(routeToHostRequest(hostRequestId));
-      },
-    }
+  >((data: Required<CreateHostRequestReq.AsObject>) =>
+    service.requests.createHostRequest(data)
   );
 
-  const onSubmit = handleSubmit((data) => mutation.mutate(data));
+  const { isLoading: hostLoading, error: hostError } = useUser(user.userId);
+
+  const onSubmit = handleSubmit((data) => {
+    console.log(data);
+    return mutate(data);
+  });
 
   const guests = Array.from({ length: 8 }, (_, i) => {
     const num = i + 1;
@@ -126,11 +118,14 @@ export default function NewHostRequest({
   return (
     <>
       <Typography variant="h1">
-        {hostLoading ? <Skeleton width="100" /> : title ?? null}
+        {hostLoading ? (
+          <Skeleton width="100" />
+        ) : (
+          sendRequest(user.name) ?? null
+        )}
       </Typography>
-      {mutation.error && (
-        <Alert severity={"error"}>{mutation.error?.message}</Alert>
-      )}
+      {error && <Alert severity={"error"}>{error.message}</Alert>}
+      {isSuccess && <Alert severity={"success"}>{SEND_REQUEST_SUCCESS}</Alert>}
       {hostError ? (
         <Alert severity={"error"}>{hostError}</Alert>
       ) : (
@@ -164,12 +159,14 @@ export default function NewHostRequest({
                 />
               )}
               <Datepicker
+                name="fromDate"
                 label={ARRIVAL_DATE}
                 minDate={today}
                 selectedDate={selectedArrivalDate}
                 setSelectedDate={setSelectedArrivalDate}
               />
               <Datepicker
+                name="toDate"
                 className={classes.date}
                 label={DEPARTURE_DATE}
                 minDate={selectedArrivalDate}
@@ -178,8 +175,7 @@ export default function NewHostRequest({
               />
               {isPostBetaEnabled && (
                 <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
+                  name="visitorCount"
                   value={numVisitors}
                   onChange={(event) =>
                     setNumVisitors(Number(event.target.value))
@@ -190,8 +186,8 @@ export default function NewHostRequest({
               )}
             </div>
             <TextField
+              id="text"
               className={classes.requestField}
-              id="request-field"
               label={REQUEST}
               name="text"
               rows={6}
@@ -201,7 +197,9 @@ export default function NewHostRequest({
             />
             <CardActions className={classes.send}>
               <Button onClick={() => setIsRequesting(false)}>{CANCEL}</Button>
-              <Button onClick={send}>{SEND}</Button>
+              <Button type="submit" onClick={onSubmit}>
+                {SEND}
+              </Button>
             </CardActions>
           </form>
         </div>

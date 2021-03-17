@@ -76,7 +76,7 @@ export default function ProfilePage() {
                 aria-label="tabs for user's details"
               />
               {isRequesting && (
-                <NewHostRequest setIsRequesting={setIsRequesting} />
+                <NewHostRequest user={user} setIsRequesting={setIsRequesting} />
               )}
               <TabPanel classes={{ root: classes.tabPanel }} value="about">
                 <About user={user} />
