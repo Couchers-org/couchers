@@ -4,9 +4,9 @@ from couchers.db import (
     is_valid_name,
     is_valid_user_id,
     is_valid_username,
-    parse_date,
     session_scope,
 )
+from couchers.utils import parse_date
 from tests.test_communities import create_1d_point, get_community_id, testing_communities
 from tests.test_fixtures import testconfig
 

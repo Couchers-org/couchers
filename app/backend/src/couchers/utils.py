@@ -1,5 +1,5 @@
 import http.cookies
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from email.utils import formatdate
 
 import pytz
@@ -17,6 +17,20 @@ def Timestamp_from_datetime(dt: datetime):
     pb_ts = Timestamp()
     pb_ts.FromDatetime(dt)
     return pb_ts
+
+
+def parse_date(date):
+    """
+    Parses a date-only string in the format "YYYY-MM-DD" returning None if it fails
+    """
+    try:
+        return date.fromisoformat(date)
+    except ValueError:
+        return None
+
+
+def date_to_api(date: date):
+    return date.isoformat()
 
 
 def to_aware_datetime(ts: Timestamp):
