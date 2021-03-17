@@ -16,14 +16,13 @@ from couchers.db import (
     new_login_token,
     new_password_reset_token,
     new_signup_token,
-    parse_date,
     session_scope,
 )
 from couchers.interceptors import AuthValidatorInterceptor
 from couchers.models import LoginToken, PasswordResetToken, SignupToken, User, UserSession
 from couchers.servicers.api import hostingstatus2sql
 from couchers.tasks import send_login_email, send_password_reset_email, send_signup_email
-from couchers.utils import create_coordinate, create_session_cookie, now, parse_session_cookie, today
+from couchers.utils import create_coordinate, create_session_cookie, now, parse_date, parse_session_cookie, today
 from pb import auth_pb2, auth_pb2_grpc
 
 logger = logging.getLogger(__name__)

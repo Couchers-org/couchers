@@ -7,10 +7,10 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, or_
 
 from couchers import errors
-from couchers.db import parse_date, session_scope
+from couchers.db import session_scope
 from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType, User
 from couchers.tasks import send_host_request_email
-from couchers.utils import Timestamp_from_datetime, largest_current_date, least_current_date
+from couchers.utils import Timestamp_from_datetime, largest_current_date, least_current_date, parse_date
 from pb import conversations_pb2, requests_pb2, requests_pb2_grpc
 
 logger = logging.getLogger(__name__)
@@ -158,8 +158,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 to_user_id=host_request.to_user_id,
                 status=hostrequeststatus2api[host_request.status],
                 created=Timestamp_from_datetime(initial_message.time),
-                from_date=host_request.from_date.isoformat(),
-                to_date=host_request.to_date.isoformat(),
+                from_date=date_to_api(host_request.from_date),
+                to_date=date_to_api(host_request.to_date),
                 last_seen_message_id=host_request.from_last_seen_message_id
                 if context.user_id == host_request.from_user_id
                 else host_request.to_last_seen_message_id,
@@ -225,8 +225,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     to_user_id=result.HostRequest.to_user_id,
                     status=hostrequeststatus2api[result.HostRequest.status],
                     created=Timestamp_from_datetime(result.Conversation.created),
-                    from_date=result.HostRequest.from_date.isoformat(),
-                    to_date=result.HostRequest.to_date.isoformat(),
+                    from_date=date_to_api(result.HostRequest.from_date),
+                    to_date=date_to_api(result.HostRequest.to_date),
                     last_seen_message_id=result.HostRequest.from_last_seen_message_id
                     if context.user_id == result.HostRequest.from_user_id
                     else result.HostRequest.to_last_seen_message_id,
