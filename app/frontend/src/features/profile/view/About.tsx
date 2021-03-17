@@ -2,8 +2,8 @@ import { Typography } from "@material-ui/core";
 import Divider from "components/Divider";
 import { ADDITIONAL, HOBBIES, OVERVIEW, WHO } from "features/constants";
 import {
-  RemainingAboutLabels,
   LabelsReferencesLastActive,
+  RemainingAboutLabels,
 } from "features/user/UserTextAndLabel";
 import { User } from "pb/api_pb";
 
