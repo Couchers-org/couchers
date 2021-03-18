@@ -1,5 +1,4 @@
 import {
-  Box,
   Card,
   CircularProgress,
   makeStyles,
@@ -16,8 +15,8 @@ const useStyles = makeStyles((theme) => ({
     margin: `0 auto ${theme.spacing(1)}`,
   },
   container: {
-    "& > :last-child": {
-      marginBottom: theme.spacing(1),
+    "& > *": {
+      marginBottom: theme.spacing(2),
     },
   },
   errorAlert: {
@@ -53,7 +52,7 @@ function FriendTile({
 
   return (
     <Card>
-      <Box className={classes.container}>
+      <div className={classes.container}>
         <Typography className={classes.header} variant="h2">
           {title}
         </Typography>
@@ -71,7 +70,7 @@ function FriendTile({
             {noDataMessage}
           </TextBody>
         )}
-      </Box>
+      </div>
     </Card>
   );
 }

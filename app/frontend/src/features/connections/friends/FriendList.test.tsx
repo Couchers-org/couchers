@@ -37,12 +37,12 @@ describe("FriendList", () => {
 
     // First friend
     expect(
-      firstFriend.getByRole("link", { name: "Funny Dog @funnydog" })
+      firstFriend.getByRole("heading", { name: /Funny Dog/ })
     ).toBeVisible();
 
     // Second friend
     expect(
-      secondFriend.getByRole("link", { name: "Funny Kid @funnykid" })
+      secondFriend.getByRole("heading", { name: /Funny Kid/ })
     ).toBeVisible();
   });
 
