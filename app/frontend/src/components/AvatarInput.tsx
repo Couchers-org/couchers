@@ -6,7 +6,7 @@ import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import IconButton from "components/IconButton";
 import { CheckIcon, CrossIcon } from "components/Icons";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Control, useController } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
@@ -59,6 +59,9 @@ export function AvatarInput({
   className,
 }: AvatarInputProps) {
   const classes = useStyles();
+  //this ref handles the case where the user uploads an image, selects another image,
+  //but then cancels - it should go to the previous image rather than the original
+  const confirmedUpload = useRef<ImageInputValues>();
   const [imageUrl, setImageUrl] = useState(initialPreviewSrc);
   const [file, setFile] = useState<File | null>(null);
   const mutation = useMutation<ImageInputValues, Error>(() =>
@@ -93,12 +96,14 @@ export function AvatarInput({
     //const randomInt = Math.floor(Math.random() * 100); // force reload onChange
     //setImageUrl(response.thumbnail_url + "?rand=" + randomInt);
     field.onChange(response.key);
+    setImageUrl(response.thumbnail_url);
+    confirmedUpload.current = response;
     setFile(null);
   };
 
   const handleCancel = () => {
-    field.onChange("");
-    setImageUrl(initialPreviewSrc);
+    field.onChange(confirmedUpload.current?.key ?? "");
+    setImageUrl(confirmedUpload.current?.thumbnail_url ?? initialPreviewSrc);
     setFile(null);
   };
 
