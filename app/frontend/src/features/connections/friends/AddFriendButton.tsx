@@ -1,4 +1,5 @@
 import { makeStyles } from "@material-ui/core";
+import classNames from "classnames";
 import Button from "components/Button";
 import { PersonAddIcon } from "components/Icons";
 import { ADD_FRIEND, PENDING } from "features/connections/constants";
@@ -48,7 +49,7 @@ export default function AddFriendButton({
   return (
     <Button
       startIcon={<PersonAddIcon />}
-      className={isPending ? classes.disabledButton : void 0}
+      className={classNames({ [classes.disabledButton]: isPending })}
       disabled={isPending}
       onClick={() => {
         if (!isPending) {

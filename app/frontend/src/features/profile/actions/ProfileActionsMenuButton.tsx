@@ -11,7 +11,7 @@ import ReportUserDialog from "./ReportUserDialog";
 
 export const MORE_PROFILE_ACTIONS_MENU_ID = "more-profile-actions-menu";
 
-export default function ProfileActionsMenu() {
+export default function ProfileActionsMenuButton() {
   const [isOpen, setIsOpen] = useState({
     report: false,
     menu: false,

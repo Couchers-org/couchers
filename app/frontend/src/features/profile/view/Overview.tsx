@@ -30,7 +30,7 @@ import { editHostingPreferenceRoute, editProfileRoute } from "routes";
 import { timestamp2Date } from "utils/date";
 import { timeAgo } from "utils/timeAgo";
 
-import ProfileActionsMenu from "../actions/ProfileActionsMenu";
+import ProfileActionsMenuButton from "../actions/ProfileActionsMenuButton";
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -103,7 +103,7 @@ export default function Overview({ user }: OverviewProps) {
                 setMutationError={setMutationError}
               />
             )}
-            <ProfileActionsMenu />
+            <ProfileActionsMenuButton />
           </>
         )}
       </CardActions>

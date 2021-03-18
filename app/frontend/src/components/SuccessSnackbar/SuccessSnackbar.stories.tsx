@@ -11,7 +11,7 @@ export default {
       </div>
     ),
   ],
-  title: "Components/Compound/Pill",
+  title: "Components/Composite/SuccessSnackbar",
 } as Meta;
 
 export const successSnackbar: Story<SuccessSnackbarProps> = (args) => (

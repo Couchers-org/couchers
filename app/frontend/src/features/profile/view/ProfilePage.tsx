@@ -72,7 +72,7 @@ export default function ProfilePage() {
                   value={currentTab}
                   setValue={setCurrentTab}
                   labels={SECTION_LABELS}
-                  aria-label="tabs for user's details"
+                  ariaLabel="tabs for user's details"
                 />
                 <TabPanel classes={{ root: classes.tabPanel }} value="about">
                   <About user={user} />
