@@ -10,7 +10,7 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import PageTitle from "components/PageTitle";
-import { EDIT_HOME, SAVE } from "features/constants";
+import { EDIT_HOME, MAX_GUESTS, SAVE } from "features/constants";
 import { smokingLocationLabels } from "features/profile/constants";
 import useUpdateHostingPreferences from "features/profile/hooks/useUpdateHostingPreferences";
 import ProfileTextInput from "features/profile/ProfileTextInput";
@@ -157,7 +157,7 @@ export default function HostingPreferenceForm() {
                 forcePopupIcon
                 freeSolo
                 getOptionLabel={(option) => option.toString()}
-                options={[0, 1, 2, 3, 4, 5]}
+                options={[1, 2, 3, 4, 5]}
                 onChange={(e, value) => onChange(value)}
                 multiple={false}
                 renderInput={(params) => (
@@ -165,7 +165,7 @@ export default function HostingPreferenceForm() {
                     {...params}
                     error={!!errors?.maxGuests?.message}
                     helperText={errors?.maxGuests?.message}
-                    label="Max. number of guests"
+                    label={MAX_GUESTS}
                     name="maxGuests"
                     onChange={(e) => onChange(Number(e.target.value))}
                     className={classes.field}
@@ -223,7 +223,7 @@ export default function HostingPreferenceForm() {
                   <ProfileTextInput
                     {...params}
                     label="Smoking allowed?"
-                    name="maxGuests"
+                    name="smokingAllowed"
                     className={classes.field}
                   />
                 )}
