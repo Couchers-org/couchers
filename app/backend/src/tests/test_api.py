@@ -6,7 +6,7 @@ from google.protobuf import empty_pb2, wrappers_pb2
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Complaint
+from couchers.models import Complaint, FriendRelationship
 from couchers.utils import now, to_aware_datetime
 from pb import api_pb2, jail_pb2
 from tests.test_fixtures import (
@@ -470,6 +470,35 @@ def test_CancelFriendRequest(db):
 
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert len(res.sent) == 0
+
+
+def test_GetFriendRelationship(db):
+    user1, token1 = generate_user("user1")
+    user2, token2 = generate_user("user2")
+
+    with api_session(token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetFriendRelationship(api_pb2.GetFriendRelationshipReq(user_id_1=user1.id, user_id_2=user2.id))
+    assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    assert e.value.details() == errors.FRIEND_RELATIONSHIP_NOT_FOUND
+
+    make_friends(user1, user2)
+
+    with session_scope() as session:
+        friend_relationships = session.query(FriendRelationship).all()
+        user1_user2_friendship_id = friend_relationships[0].id
+
+        assert len(friend_relationships) == 1
+
+    with api_session(token1) as api:
+        relationship_forward_id = api.GetFriendRelationship(
+            api_pb2.GetFriendRelationshipReq(user_id_1=user1.id, user_id_2=user2.id)
+        ).friend_relationship_id
+        relationship_backward_id = api.GetFriendRelationship(
+            api_pb2.GetFriendRelationshipReq(user_id_1=user2.id, user_id_2=user1.id)
+        ).friend_relationship_id
+
+        assert user1_user2_friendship_id == relationship_forward_id == relationship_backward_id
 
 
 def test_reject_friend_request(db):

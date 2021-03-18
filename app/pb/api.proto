@@ -32,6 +32,10 @@ service API {
 
   rpc CancelFriendRequest(CancelFriendRequestReq) returns (google.protobuf.Empty);
 
+  rpc GetFriendRelationship(GetFriendRelationshipReq) returns (GetFriendRelationshipRes) {
+    // This doubles as GetFriendRequest, since a friend request is just a pending friend relationship
+  }
+
   // Report another user to admin. Raises INVALID_ARGUMENT if you
   // report yourself or NOT_FOUND if the reported user doesn't exist.
   rpc Report(ReportReq) returns (google.protobuf.Empty);
@@ -83,6 +87,15 @@ message RespondFriendRequestReq {
 
 message CancelFriendRequestReq {
   int64 friend_request_id = 1;
+}
+
+message GetFriendRelationshipReq {
+  int64 user_id_1 = 1;
+  int64 user_id_2 = 2;
+}
+
+message GetFriendRelationshipRes {
+  int64 friend_relationship_id = 1;
 }
 
 message ListFriendRequestsRes {

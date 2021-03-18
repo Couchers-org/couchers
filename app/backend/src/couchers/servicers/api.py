@@ -535,6 +535,33 @@ class API(api_pb2_grpc.APIServicer):
 
             return empty_pb2.Empty()
 
+    # This doubles as GetFriendRequest, since a friend request is just a pending friend relationship
+    def GetFriendRelationship(self, request, context):
+        with session_scope() as session:
+            friend_relationship = (
+                session.query(FriendRelationship)
+                .filter(
+                    or_(
+                        (
+                            FriendRelationship.from_user_id == request.user_id_1
+                            and FriendRelationship.to_user_id == request.user_id_2
+                        ),
+                        (
+                            FriendRelationship.from_user_id == request.user_id_2
+                            and FriendRelationship.to_user_id == request.user_id_1
+                        ),
+                    )
+                )
+                .one_or_none()
+            )
+
+            if not friend_relationship:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.FRIEND_RELATIONSHIP_NOT_FOUND)
+
+            return api_pb2.GetFriendRelationshipRes(
+                friend_relationship_id=friend_relationship.id,
+            )
+
     def Report(self, request, context):
         if context.user_id == request.reported_user_id:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REPORT_SELF)
