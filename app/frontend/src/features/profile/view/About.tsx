@@ -2,7 +2,7 @@ import { Typography } from "@material-ui/core";
 import Divider from "components/Divider";
 import { ADDITIONAL, HOBBIES, OVERVIEW, WHO } from "features/constants";
 import {
-  LabelsReferencesLastActive,
+  LabelsAgeGenderLanguages,
   RemainingAboutLabels,
 } from "features/user/UserTextAndLabel";
 import { User } from "pb/api_pb";
@@ -15,7 +15,7 @@ export default function About({ user }: AboutProps) {
   return (
     <>
       <Typography variant="h1">{OVERVIEW}</Typography>
-      <LabelsReferencesLastActive user={user} />
+      <LabelsAgeGenderLanguages user={user} />
       <RemainingAboutLabels user={user} />
       <Divider />
       <Typography variant="h1">{WHO}</Typography>

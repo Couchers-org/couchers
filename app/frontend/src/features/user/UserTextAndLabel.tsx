@@ -35,7 +35,7 @@ export const LabelsReferencesLastActive = ({ user }: Props) => (
   </>
 );
 
-export const RemainingAboutLabels = ({ user }: Props) => (
+export const LabelsAgeGenderLanguages = ({ user }: Props) => (
   <>
     <LabelAndText
       label={AGE_GENDER}
@@ -45,11 +45,13 @@ export const RemainingAboutLabels = ({ user }: Props) => (
     />
     <LabelAndText
       label={LANGUAGES_FLUENT}
-      text={
-        user.languagesList.toString().replace(",", ", ") ||
-        LANGUAGES_FLUENT_FALSE
-      }
+      text={user.languagesList.join(", ") || LANGUAGES_FLUENT_FALSE}
     />
+  </>
+);
+
+export const RemainingAboutLabels = ({ user }: Props) => (
+  <>
     <LabelAndText label={HOMETOWN} text={user.hometown} />
     <LabelAndText label={OCCUPATION} text={user.occupation} />
     <LabelAndText label={EDUCATION} text={user.education} />

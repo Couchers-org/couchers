@@ -13,8 +13,8 @@ import {
   meetupStatusLabels,
 } from "features/profile/constants";
 import {
+  LabelsAgeGenderLanguages,
   LabelsReferencesLastActive,
-  RemainingAboutLabels,
 } from "features/user/UserTextAndLabel";
 import { User } from "pb/api_pb";
 import { Link } from "react-router-dom";
@@ -83,7 +83,7 @@ export default function SearchResult({ user }: { user: User.AsObject }) {
             <Typography variant="body1" className={classes.about}>
               {aboutText(user)}
             </Typography>
-            <RemainingAboutLabels user={user} />
+            <LabelsAgeGenderLanguages user={user} />
             <LabelsReferencesLastActive user={user} />
           </CardContent>
         </CardActionArea>
