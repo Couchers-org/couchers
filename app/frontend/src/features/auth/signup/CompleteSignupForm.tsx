@@ -186,6 +186,7 @@ export default function CompleteSignupForm() {
                 "Must be a valid date in the past.",
             })}
             label={BIRTHDATE_LABEL}
+            minDate={new Date(1899, 12, 1)}
             name="birthdate"
           />
           <InputLabel className={authClasses.formLabel} htmlFor="location">

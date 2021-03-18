@@ -14,6 +14,7 @@ interface DatepickerProps {
   inputRef: (ref: any) => void;
   label: string;
   name: string;
+  minDate?: Date;
 }
 
 export default function Datepicker({
@@ -24,6 +25,7 @@ export default function Datepicker({
   id,
   inputRef,
   label,
+  minDate = new Date(),
   name,
 }: DatepickerProps) {
   return (
@@ -49,7 +51,7 @@ export default function Datepicker({
               shrink: true,
             }}
             label={label}
-            minDate={new Date(1899, 12, 1)}
+            minDate={minDate}
             onChange={(date) => {
               //user might be typing, so check the date is valid before doing conversions
               date?.isValid() 
