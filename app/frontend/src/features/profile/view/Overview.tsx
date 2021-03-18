@@ -22,7 +22,6 @@ import {
 import {
   hostingStatusLabels,
   meetupStatusLabels,
-  MESSAGE,
 } from "features/profile/constants";
 import { HostingStatus, MeetupStatus, User } from "pb/api_pb";
 import React, { useState } from "react";
@@ -92,18 +91,13 @@ export default function Overview({ user }: OverviewProps) {
             </Button>
           </>
         ) : (
-          <div>
-            {user.friends === User.FriendshipStatus.FRIENDS && (
-              <Button>{MESSAGE}</Button>
-            )}
-            {user.friends !== User.FriendshipStatus.FRIENDS && (
-              <AddFriendButton
-                isPending={user.friends === User.FriendshipStatus.PENDING}
-                userId={user.userId}
-                setMutationError={setMutationError}
-              />
-            )}
-          </div>
+          user.friends !== User.FriendshipStatus.FRIENDS && (
+            <AddFriendButton
+              isPending={user.friends === User.FriendshipStatus.PENDING}
+              userId={user.userId}
+              setMutationError={setMutationError}
+            />
+          )
         )}
       </CardActions>
       <IconText
