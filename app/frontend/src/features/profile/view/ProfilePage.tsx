@@ -73,7 +73,7 @@ export default function ProfilePage() {
                 value={currentTab}
                 setValue={setCurrentTab}
                 labels={SECTION_LABELS}
-                aria-label="tabs for user's details"
+                ariaLabel="tabs for user's details"
               />
               {isRequesting && (
                 <NewHostRequest user={user} setIsRequesting={setIsRequesting} />

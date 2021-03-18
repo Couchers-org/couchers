@@ -13,9 +13,6 @@ const useStyles = makeStyles((theme) => ({
   disabledButton: {
     backgroundColor: theme.palette.grey[100],
   },
-  editButton: {
-    marginBottom: theme.spacing(2),
-  },
 }));
 
 interface AddFriendButtonProps {
@@ -51,7 +48,7 @@ export default function AddFriendButton({
   return (
     <Button
       startIcon={<PersonAddIcon />}
-      className={isPending ? classes.disabledButton : classes.editButton}
+      className={isPending ? classes.disabledButton : void 0}
       disabled={isPending}
       onClick={() => {
         if (!isPending) {

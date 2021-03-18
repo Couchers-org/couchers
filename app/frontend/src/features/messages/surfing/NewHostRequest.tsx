@@ -11,9 +11,8 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import Datepicker from "components/Date/Datepicker";
+import Datepicker from "components/Datepicker";
 import TextField from "components/TextField";
-import { useAuthContext } from "features/auth/AuthProvider";
 import {
   ARRIVAL_DATE,
   CANCEL,
@@ -23,21 +22,18 @@ import {
   REQUEST,
   REQUEST_DESCRIPTION,
   SEND,
-  sendRequest,
   SEND_REQUEST_SUCCESS,
+  sendRequest,
 } from "features/constants";
 import { useUser } from "features/userQueries/useUsers";
 import { Error as GrpcError } from "grpc-web";
 import { User } from "pb/api_pb";
 import { CreateHostRequestReq } from "pb/requests_pb";
-import { send } from "process";
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
-import { useHistory, useParams } from "react-router-dom";
-import { routeToHostRequest } from "routes";
 import { service } from "service/index";
-import { firstName } from "utils/names";
+import { validateFutureDate } from "utils/validation";
 
 const useStyles = makeStyles((theme) => ({
   buttonContainer: {
@@ -81,15 +77,14 @@ export default function NewHostRequest({
   user,
 }: NewHostRequestProps) {
   const classes = useStyles();
-  const today = new Date();
   const isPostBetaEnabled = process.env.REACT_APP_IS_POST_BETA_ENABLED;
   const [numVisitors, setNumVisitors] = useState(1);
-  const [selectedArrivalDate, setSelectedArrivalDate] = useState(today);
-  const [selectedDepartureDate, setSelectedDepartureDate] = useState(today);
 
-  const { control, register, handleSubmit } = useForm<
+  const { errors, control, register, handleSubmit } = useForm<
     Required<CreateHostRequestReq.AsObject>
   >({ defaultValues: { toUserId: user.userId } });
+
+  useEffect(() => register("toUserId"));
 
   const { error, isSuccess, mutate } = useMutation<
     number,
@@ -101,10 +96,7 @@ export default function NewHostRequest({
 
   const { isLoading: hostLoading, error: hostError } = useUser(user.userId);
 
-  const onSubmit = handleSubmit((data) => {
-    console.log(data);
-    return mutate(data);
-  });
+  const onSubmit = handleSubmit((data) => mutate(data));
 
   const guests = Array.from({ length: 8 }, (_, i) => {
     const num = i + 1;
@@ -159,19 +151,30 @@ export default function NewHostRequest({
                 />
               )}
               <Datepicker
+                control={control}
                 name="fromDate"
                 label={ARRIVAL_DATE}
-                minDate={today}
-                selectedDate={selectedArrivalDate}
-                setSelectedDate={setSelectedArrivalDate}
+                helperText={errors?.fromDate?.message}
+                id="from-date"
+                error={!!errors.fromDate}
+                inputRef={register({
+                  required: "Enter a from date",
+                })}
               />
               <Datepicker
-                name="toDate"
                 className={classes.date}
+                control={control}
+                name="toDate"
                 label={DEPARTURE_DATE}
-                minDate={selectedArrivalDate}
-                selectedDate={selectedDepartureDate}
-                setSelectedDate={setSelectedDepartureDate}
+                helperText={errors?.toDate?.message}
+                id="to-date"
+                error={!!errors.toDate}
+                inputRef={register({
+                  required: "Enter a to date",
+                  validate: (stringDate) =>
+                    stringDate > control.getValues().fromDate ||
+                    "Departure date must be after arrival date",
+                })}
               />
               {isPostBetaEnabled && (
                 <Select
@@ -191,6 +194,7 @@ export default function NewHostRequest({
               label={REQUEST}
               name="text"
               rows={6}
+              inputRef={register({ required: "Enter a request message" })}
               multiline
               fullWidth
               placeholder={REQUEST_DESCRIPTION}
