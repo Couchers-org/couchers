@@ -54,7 +54,7 @@ export default function Datepicker({
             minDate={minDate}
             onChange={(date) => {
               //user might be typing, so check the date is valid before doing conversions
-              date?.isValid() 
+              date?.isValid()
                 ? onChange(date?.format().split("T")[0])
                 : onChange(date);
             }}

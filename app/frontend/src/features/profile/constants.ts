@@ -64,3 +64,5 @@ export default function booleanConversion(value: boolean | undefined) {
 }
 
 export const referencesQueryStaleTime = 10 * 60 * 1000;
+
+export const MESSAGE = "Message";
