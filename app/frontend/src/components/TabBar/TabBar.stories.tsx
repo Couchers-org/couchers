@@ -1,5 +1,6 @@
+import { TabContext } from "@material-ui/lab";
 import { Meta, Story } from "@storybook/react";
-import React from "react";
+import { useState } from "react";
 
 import NotificationBadge from "../NotificationBadge";
 import TabBar, { TabBarProps } from "./TabBar";
@@ -16,11 +17,16 @@ const labels = {
   surfing: "Surfing",
 };
 
-type PartialLabels = Partial<typeof labels>;
+type Labels = Partial<typeof labels>;
 
-const Template: Story<TabBarProps<PartialLabels>> = (args) => (
-  <TabBar {...args} />
-);
+const Template: Story<TabBarProps<Labels>> = (args) => {
+  const [currentTab, setCurrentTab] = useState(args.value);
+  return (
+    <TabContext value={currentTab}>
+      <TabBar {...args} setValue={setCurrentTab} />
+    </TabContext>
+  );
+};
 
 export const SimpleLabel = Template.bind({});
 SimpleLabel.args = {
@@ -28,7 +34,6 @@ SimpleLabel.args = {
     meet: "Meet",
     surfing: "Surfing",
   },
-  setValue: () => {},
   value: "meet",
 };
 
@@ -38,7 +43,6 @@ LabelWithBadge.args = {
     all: <NotificationBadge count={10}>All</NotificationBadge>,
     surfing: "Surfing",
   },
-  setValue: () => {},
   value: "all",
 };
 
@@ -48,6 +52,5 @@ HighCountBadge.args = {
     all: <NotificationBadge count={100}>All</NotificationBadge>,
     surfing: "Surfing",
   },
-  setValue: () => {},
   value: "all",
 };

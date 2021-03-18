@@ -36,10 +36,15 @@ export const useStyles = makeStyles((theme) => ({
 
 interface UserSummaryProps {
   children?: React.ReactNode;
+  headlineComponent?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
   user?: User.AsObject;
 }
 
-export default function UserSummary({ children, user }: UserSummaryProps) {
+export default function UserSummary({
+  children,
+  headlineComponent = "h2",
+  user,
+}: UserSummaryProps) {
   const classes = useStyles();
   return (
     <div className={classes.root}>
@@ -54,7 +59,11 @@ export default function UserSummary({ children, user }: UserSummaryProps) {
         className={classes.titleAndBarContainer}
         disableTypography
         primary={
-          <Typography variant="h2" className={classes.title}>
+          <Typography
+            component={headlineComponent}
+            variant="h2"
+            className={classes.title}
+          >
             {!user ? <Skeleton /> : `${user.name}, ${user.age}, ${user.city}`}
           </Typography>
         }
