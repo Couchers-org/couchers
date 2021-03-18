@@ -4,6 +4,14 @@ import makeStyles from "@material-ui/core/styles/makeStyles";
 import classNames from "classnames";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
+import {
+  CANCEL_UPLOAD,
+  CONFIRM_UPLOAD,
+  getAvatarLabel,
+  INVALID_FILE,
+  SELECT_AN_IMAGE,
+  UPLOAD_PENDING_ERROR,
+} from "components/constants";
 import IconButton from "components/IconButton";
 import { CheckIcon, CrossIcon } from "components/Icons";
 import React, { useRef, useState } from "react";
@@ -65,7 +73,7 @@ export function AvatarInput({
   const [imageUrl, setImageUrl] = useState(initialPreviewSrc);
   const [file, setFile] = useState<File | null>(null);
   const mutation = useMutation<ImageInputValues, Error>(() =>
-    file ? service.api.uploadFile(file) : Promise.reject("Invalid file.")
+    file ? service.api.uploadFile(file) : Promise.reject(INVALID_FILE)
   );
   const isConfirming = !mutation.isLoading && file !== null;
   const { field } = useController({
@@ -73,8 +81,7 @@ export function AvatarInput({
     control,
     defaultValue: "",
     rules: {
-      validate: () =>
-        !isConfirming || "Confirm or cancel the profile picture upload.",
+      validate: () => !isConfirming || UPLOAD_PENDING_ERROR,
     },
   });
 
@@ -121,11 +128,11 @@ export function AvatarInput({
           onChange={handleChange}
         />
         <label className={classes.label} htmlFor={id} ref={field.ref}>
-          <MuiIconButton component="span" aria-label="Select an image">
+          <MuiIconButton component="span" aria-label={SELECT_AN_IMAGE}>
             <Avatar
               className={classNames(classes.avatar, className)}
               src={imageUrl}
-              alt={userName + " avatar"}
+              alt={getAvatarLabel(userName ?? "")}
             >
               {userName?.split(/\s+/).map((name) => name[0])}
             </Avatar>
@@ -137,14 +144,14 @@ export function AvatarInput({
         {isConfirming && (
           <div className={classes.confirmationButtonContainer}>
             <IconButton
-              aria-label="Cancel upload"
+              aria-label={CANCEL_UPLOAD}
               onClick={handleCancel}
               size="small"
             >
               <CrossIcon />
             </IconButton>
             <IconButton
-              aria-label="Confirm upload"
+              aria-label={CONFIRM_UPLOAD}
               onClick={handleConfirm}
               size="small"
             >
