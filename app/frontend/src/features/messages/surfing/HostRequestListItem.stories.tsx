@@ -7,11 +7,7 @@ export default {
   title: "Messages/HostRequestListItem",
 } as Meta;
 
-const Template: Story<any> = (args) => (
-  <>
-    <HostRequestListItem {...args} />
-  </>
-);
+const Template: Story<any> = (args) => <HostRequestListItem {...args} />;
 
 export const hostRequestListItem = Template.bind({});
 hostRequestListItem.args = {

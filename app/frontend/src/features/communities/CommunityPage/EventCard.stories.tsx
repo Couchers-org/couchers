@@ -8,13 +8,7 @@ export default {
   title: "Communities/CommunityPage/EventCard",
 } as Meta;
 
-const Template: Story<any> = (args) => (
-  <>
-    <div>
-      <EventCard {...args} />
-    </div>
-  </>
-);
+const Template: Story<any> = (args) => <EventCard {...args} />;
 
 export const eventCard = Template.bind({});
 eventCard.args = {

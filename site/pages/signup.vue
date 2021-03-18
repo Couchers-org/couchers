@@ -46,7 +46,7 @@
         <div class="control content">
           <button class="button is-primary">Next</button>
         </div>
-	<p class="content has-text-grey is-italic">Your basic details will be submitted when you press Next</p>
+        <p class="content has-text-grey is-italic">Your basic details will be submitted when you press Next</p>
       </form>
     </section>
 
@@ -134,7 +134,7 @@
 
     <section class="section" v-bind:class="{ 'is-hidden': !second_page_done || loading }">
       <h3 class="title is-3">Thank you!</h3>
-      <p class="subtitle is-5">We appreciate you taking the time to help us build Coucher.org</p>
+      <p class="subtitle is-5">We appreciate you taking the time to help us build Couchers.org</p>
     </section>
 
     <section v-bind:class="{ 'is-hidden': !loading || error }">
@@ -211,7 +211,7 @@ export default {
         }, 12000)
 
         const res = await this.$axios.$post(
-          'https://ja4o9uz9u3.execute-api.us-east-1.amazonaws.com/default/form_handler',
+          'https://ja4o9uz9u3.execute-api.us-east-1.amazonaws.com/form_handler',
           data,
           { cancelToken: source.token }
         ).then(res => {

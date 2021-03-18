@@ -22,13 +22,30 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: 0,
   },
   content: {
-    padding: theme.spacing(2),
+    height: "fit-content",
+    padding: theme.spacing(3),
+    width: "100%",
   },
   contentText: {
     padding: theme.spacing(2),
   },
   dialog: {
     padding: 0,
+    "& .MuiDialog-scrollPaper": {
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "start",
+      [theme.breakpoints.down("sm")]: {
+        alignItems: "inherit",
+      },
+
+      "& .MuiDialog-paper": {
+        width: "25%",
+        [theme.breakpoints.down("sm")]: {
+          width: "80%",
+        },
+      },
+    },
   },
   title: {
     "& > h2": theme.typography.h2,

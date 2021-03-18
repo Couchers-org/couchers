@@ -7,11 +7,7 @@ export default {
   title: "Me/Connections/FriendTile",
 } as Meta;
 
-const Template: Story<any> = (args) => (
-  <>
-    <FriendTile {...args}>Content</FriendTile>
-  </>
-);
+const Template: Story<any> = (args) => <FriendTile {...args}>Content</FriendTile>;
 
 export const friendTile = Template.bind({});
 friendTile.args = {
