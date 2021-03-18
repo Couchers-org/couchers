@@ -34,9 +34,10 @@ import {
 } from "react-query";
 import { useHistory, useParams } from "react-router-dom";
 import { service } from "service/index";
-import { daysDifference, formatDate } from "utils/date";
+import { formatDate } from "utils/date";
 import { firstName } from "utils/names";
 
+import { nightsRequested } from "../constants";
 import HostRequestStatusIcon from "./HostRequestStatusIcon";
 
 export default function HostRequestView() {
@@ -177,14 +178,13 @@ export default function HostRequestView() {
           <>
             <div className={classes.requestStatus}>
               <Typography component="div" variant="h2">
-                {`Requesting to stay for
-                ${daysDifference(hostRequest.toDate, hostRequest.fromDate)}`}
+                {nightsRequested(hostRequest)}
               </Typography>
               <HostRequestStatusIcon hostRequest={hostRequest} />
             </div>
             <Typography component="p">
-              {formatDate(hostRequest.fromDate, true)} -{" "}
-              {formatDate(hostRequest?.toDate, true)}
+              {`${formatDate(hostRequest.fromDate, true)} -
+              ${formatDate(hostRequest?.toDate, true)}`}
             </Typography>
           </>
         )}
