@@ -246,7 +246,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             session.query(ClusterSubscription).filter(ClusterSubscription.user_id == context.user_id).delete()
 
             return empty_pb2.Empty()
-    
+
     def ListUserCommunities(self, request, context):
         with session_scope() as session:
             page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
@@ -263,7 +263,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 .limit(page_size + 1)
                 .all()
             )
-            
+
             return communities_pb2.ListUserCommunitiesRes(
                 communities=[community_to_pb(node, user_id) for node in nodes[:page_size]],
                 next_page_token=str(nodes[-1].id) if len(nodes) > page_size else None,

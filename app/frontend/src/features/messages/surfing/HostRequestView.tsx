@@ -215,7 +215,6 @@ export default function HostRequestView() {
                 isFetchingNextPage={isFetchingNextPage}
                 hasNextPage={!!hasNextPage}
                 isError={!!messagesError}
-                className={classes.messageList}
               >
                 <MessageList
                   markLastSeen={markLastSeen}

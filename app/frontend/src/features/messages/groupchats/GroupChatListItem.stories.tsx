@@ -7,10 +7,6 @@ export default {
   title: "Messages/GroupChatListItem",
 } as Meta;
 
-const Template: Story<any> = (args) => (
-  <>
-    <GroupChatListItem groupChat={groupChat} {...args} />
-  </>
-);
+const Template: Story<any> = (args) => <GroupChatListItem groupChat={groupChat} {...args} />;
 
 export const groupChatListItem = Template.bind({});

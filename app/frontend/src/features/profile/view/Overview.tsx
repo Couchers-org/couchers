@@ -11,6 +11,7 @@ import AddFriendButton from "features/connections/friends/AddFriendButton";
 import {
   COMMUNITY_STANDING,
   COMMUNITY_STANDING_DESCRIPTION,
+  EDIT_HOME,
   EDIT_PROFILE,
   VERIFICATION_SCORE,
   VERIFICATION_SCORE_DESCRIPTION,
@@ -23,7 +24,7 @@ import { LabelsReferencesLastActive } from "features/user/UserTextAndLabel";
 import { HostingStatus, MeetupStatus, User } from "pb/api_pb";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { editProfileRoute } from "routes";
+import { editHostingPreferenceRoute, editProfileRoute } from "routes";
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -77,9 +78,14 @@ export default function Overview({ user }: OverviewProps) {
       {mutationError && <Alert severity="error">{mutationError}</Alert>}
       <CardActions className={classes.cardActions}>
         {user.userId === currentUserId ? (
-          <Button component={Link} to={editProfileRoute}>
-            {EDIT_PROFILE}
-          </Button>
+          <>
+            <Button component={Link} to={editProfileRoute}>
+              {EDIT_PROFILE}
+            </Button>
+            <Button component={Link} to={editHostingPreferenceRoute}>
+              {EDIT_HOME}
+            </Button>
+          </>
         ) : (
           user.friends !== User.FriendshipStatus.FRIENDS && (
             <AddFriendButton

@@ -377,7 +377,7 @@ class TestCommunities:
                 )
             )
             assert [c.community_id for c in res.communities] == [c1r1_id, c1r2_id]
-    
+
     @staticmethod
     def test_ListUserCommunities(testing_communities):
         with session_scope() as session:
@@ -392,11 +392,17 @@ class TestCommunities:
 
         # Fetch user2's communities from user2's account
         with communities_session(token2) as api:
-            res = api.ListUserCommunities(
-                communities_pb2.ListUserCommunitiesReq()
-            )
-            assert [c.community_id for c in res.communities] == [w_id, c1_id, c1r1_id, c1r1c1_id, c1r1c2_id, c1r2_id, c1r2c1_id]
-    
+            res = api.ListUserCommunities(communities_pb2.ListUserCommunitiesReq())
+            assert [c.community_id for c in res.communities] == [
+                w_id,
+                c1_id,
+                c1r1_id,
+                c1r1c1_id,
+                c1r1c2_id,
+                c1r2_id,
+                c1r2c1_id,
+            ]
+
     @staticmethod
     def test_ListOtherUserCommunities(testing_communities):
         with session_scope() as session:
@@ -412,10 +418,16 @@ class TestCommunities:
 
         # Fetch user2's communities from user1's account
         with communities_session(token1) as api:
-            res = api.ListUserCommunities(
-                communities_pb2.ListUserCommunitiesReq(user_id=user2_id)
-            )
-            assert [c.community_id for c in res.communities] == [w_id, c1_id, c1r1_id, c1r1c1_id, c1r1c2_id, c1r2_id, c1r2c1_id]
+            res = api.ListUserCommunities(communities_pb2.ListUserCommunitiesReq(user_id=user2_id))
+            assert [c.community_id for c in res.communities] == [
+                w_id,
+                c1_id,
+                c1r1_id,
+                c1r1c1_id,
+                c1r1c2_id,
+                c1r2_id,
+                c1r2c1_id,
+            ]
 
     @staticmethod
     def test_ListGroups(testing_communities):

@@ -8,11 +8,7 @@ export default {
   title: "Components/Composite/ScoreBar",
 } as Meta;
 
-const Template: Story<any> = (args) => (
-  <>
-    <ScoreBar {...args}>{COMMUNITY_STANDING}</ScoreBar>
-  </>
-);
+const Template: Story<any> = (args) => <ScoreBar {...args}>{COMMUNITY_STANDING}</ScoreBar>;
 
 export const scoreBar = Template.bind({});
 scoreBar.args = {
