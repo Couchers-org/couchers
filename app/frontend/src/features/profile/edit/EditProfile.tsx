@@ -92,6 +92,7 @@ export default function EditProfileForm() {
   );
   const {
     control,
+    errors,
     register,
     handleSubmit,
     setValue,
@@ -124,32 +125,27 @@ export default function EditProfileForm() {
       ) : updateStatus === "error" ? (
         <Alert severity="error">{errorMessage || "Unknown error"}</Alert>
       ) : null}
+      {errors.avatarKey && (
+        <Alert severity="error">{errors.avatarKey?.message || ""}</Alert>
+      )}
       {user ? (
         <>
           <form onSubmit={onSubmit}>
-            <Controller
-              name="avatarKey"
+            <AvatarInput
+              className={classes.avatar}
               control={control}
-              defaultValue=""
-              render={({ onChange }) => {
-                return (
-                  <AvatarInput
-                    className={classes.avatar}
-                    id="profile-picture"
-                    name="avatarKey"
-                    src={user.avatarUrl}
-                    userName={user.name}
-                    onChange={onChange}
-                  />
-                );
-              }}
+              id="profile-picture"
+              name="avatarKey"
+              initialPreviewSrc={user.avatarUrl}
+              userName={user.name}
             />
 
             <ProfileTextInput
               label="Name"
               name="name"
               defaultValue={user.name}
-              inputRef={register}
+              error={!!errors.name}
+              inputRef={register({ required: true })}
               className={classes.field}
             />
           </form>

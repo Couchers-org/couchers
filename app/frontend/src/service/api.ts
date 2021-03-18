@@ -6,7 +6,6 @@ import {
   SendFriendRequestReq,
 } from "pb/api_pb";
 
-import { ImageInputValues } from "../components/ImageInput";
 import client from "./client";
 
 export function cancelFriendRequest(friendRequestId: number) {
@@ -49,6 +48,14 @@ export async function ping() {
   const response = await client.api.ping(req);
 
   return response.toObject();
+}
+
+export interface ImageInputValues {
+  file: File;
+  filename: string;
+  key: string;
+  thumbnail_url: string;
+  full_url: string;
 }
 
 export async function uploadFile(file: File): Promise<ImageInputValues> {
