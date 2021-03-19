@@ -26,17 +26,31 @@ def upgrade():
     ALTER TYPE referencetype_new RENAME TO referencetype;
     """
     )
+    op.create_check_constraint(
+        "ck_references_host_request_id_xor_friend_reference",
+        "references",
+        "(host_request_id IS NULL AND reference_type = 'friend') OR (host_request_id IS NOT NULL AND reference_type != 'friend')",
+    )
     op.create_index(
-        "ix_references_from_user_id_to_user_id_reference_type",
+        "ix_references_unique_friend_reference",
         "references",
         ["from_user_id", "to_user_id", "reference_type"],
         unique=True,
         postgresql_where=sa.text("reference_type = 'friend'"),
     )
+    op.create_index(
+        "ix_references_unique_per_host_request",
+        "references",
+        ["from_user_id", "to_user_id", "host_request_id"],
+        unique=True,
+        postgresql_where=sa.text("host_request_id IS NULL"),
+    )
 
 
 def downgrade():
-    op.drop_index("ix_references_from_user_id_to_user_id_reference_type", table_name="references")
+    op.drop_index("ix_references_unique_friend_reference", table_name="references")
+    op.drop_index("ix_references_unique_per_host_request", table_name="references")
+    op.drop_constraint("ck_pages_main_page_owned_by_cluster")
     op.execute(
         """
     CREATE TYPE referencetype_old AS ENUM ('FRIEND', 'SURFED', 'HOSTED');
