@@ -36,6 +36,7 @@ import { service } from "service/index";
 
 export const useGroupChatViewStyles = makeStyles((theme) => ({
   footer: {
+    marginTop: "auto",
     flexGrow: 0,
     paddingBottom: theme.spacing(2),
   },
