@@ -50,21 +50,21 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface AvatarInputProps {
+  className?: string;
   control: Control;
   id: string;
-  className?: string;
-  name: string;
   initialPreviewSrc?: string;
+  name: string;
   userName?: string;
 }
 
 export function AvatarInput({
+  className,
   control,
   id,
-  name,
   initialPreviewSrc,
+  name,
   userName,
-  className,
 }: AvatarInputProps) {
   const classes = useStyles();
   //this ref handles the case where the user uploads an image, selects another image,
@@ -90,7 +90,7 @@ export function AvatarInput({
     const file = event.target.files[0];
     const base64 = await new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = () => resolve(reader!.result as string);
+      reader.onload = () => resolve(reader.result as string);
       reader.onerror = (error) => reject(error);
       reader.readAsDataURL(file);
     });
@@ -100,8 +100,6 @@ export function AvatarInput({
 
   const handleConfirm = async () => {
     const response = await mutation.mutateAsync();
-    //const randomInt = Math.floor(Math.random() * 100); // force reload onChange
-    //setImageUrl(response.thumbnail_url + "?rand=" + randomInt);
     field.onChange(response.key);
     setImageUrl(response.thumbnail_url);
     confirmedUpload.current = response;
