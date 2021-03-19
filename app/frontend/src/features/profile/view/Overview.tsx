@@ -6,7 +6,6 @@ import Button from "components/Button";
 import Divider from "components/Divider";
 import { CouchIcon, LocationIcon } from "components/Icons";
 import IconText from "components/IconText";
-import LabelAndText from "components/LabelAndText";
 import { useAuthContext } from "features/auth/AuthProvider";
 import AddFriendButton from "features/connections/friends/AddFriendButton";
 import {
@@ -14,8 +13,6 @@ import {
   COMMUNITY_STANDING_DESCRIPTION,
   EDIT_HOME,
   EDIT_PROFILE,
-  LAST_ACTIVE,
-  REFERENCES,
   VERIFICATION_SCORE,
   VERIFICATION_SCORE_DESCRIPTION,
 } from "features/constants";
@@ -23,12 +20,11 @@ import {
   hostingStatusLabels,
   meetupStatusLabels,
 } from "features/profile/constants";
+import { LabelsReferencesLastActive } from "features/user/UserTextAndLabel";
 import { HostingStatus, MeetupStatus, User } from "pb/api_pb";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { editHostingPreferenceRoute, editProfileRoute } from "routes";
-import { timestamp2Date } from "utils/date";
-import { timeAgo } from "utils/timeAgo";
 
 import ProfileActionsMenuButton from "../actions/ProfileActionsMenuButton";
 
@@ -135,15 +131,7 @@ export default function Overview({ user }: OverviewProps) {
         description={VERIFICATION_SCORE_DESCRIPTION}
       />
       <div className={classes.info}>
-        <LabelAndText label={REFERENCES} text={`${user.numReferences || 0}`} />
-        <LabelAndText
-          label={LAST_ACTIVE}
-          text={
-            user.lastActive
-              ? `${timeAgo(timestamp2Date(user.lastActive))}`
-              : "Unknown"
-          }
-        />
+        <LabelsReferencesLastActive user={user} />
       </div>
     </Card>
   );

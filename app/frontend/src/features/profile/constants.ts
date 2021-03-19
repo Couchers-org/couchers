@@ -4,7 +4,9 @@ import {
   ParkingDetails,
   SleepingArrangement,
   SmokingLocation,
+  User,
 } from "pb/api_pb";
+import { firstName } from "utils/names";
 
 export const ACCEPTING = "Accepting guests";
 export const MAYBE_ACCEPTING = "Maybe accepting guests";
@@ -44,16 +46,16 @@ export const hostingStatusLabels = {
   [HostingStatus.HOSTING_STATUS_CAN_HOST]: ACCEPTING,
   [HostingStatus.HOSTING_STATUS_MAYBE]: MAYBE_ACCEPTING,
   [HostingStatus.HOSTING_STATUS_CANT_HOST]: NOT_ACCEPTING,
-  [HostingStatus.HOSTING_STATUS_UNSPECIFIED]: UNSURE,
-  [HostingStatus.HOSTING_STATUS_UNKNOWN]: UNSURE,
+  [HostingStatus.HOSTING_STATUS_UNSPECIFIED]: `${UNSURE} about hosting`,
+  [HostingStatus.HOSTING_STATUS_UNKNOWN]: `${UNSURE} about hosting`,
 };
 
 export const meetupStatusLabels = {
   [MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP]: MEETUP,
   [MeetupStatus.MEETUP_STATUS_OPEN_TO_MEETUP]: MAYBE_MEETUP,
   [MeetupStatus.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP]: NO_MEETUP,
-  [MeetupStatus.MEETUP_STATUS_UNSPECIFIED]: UNSURE,
-  [MeetupStatus.MEETUP_STATUS_UNKNOWN]: UNSURE,
+  [MeetupStatus.MEETUP_STATUS_UNSPECIFIED]: `${UNSURE} about meeting up`,
+  [MeetupStatus.MEETUP_STATUS_UNKNOWN]: `${UNSURE} about meeting up`,
 };
 
 export const sleepingArrangementLabels = {
@@ -80,4 +82,15 @@ export default function booleanConversion(value: boolean | undefined) {
 
 export const referencesQueryStaleTime = 10 * 60 * 1000;
 
+export const aboutText = (user: User.AsObject) => {
+  const missingAbout = user.aboutMe.length === 0;
+  return missingAbout
+    ? `${firstName(user?.name)} hasn't said anything about themselves yet`
+    : user.aboutMe.length < 300
+    ? user.aboutMe
+    : user.aboutMe.substring(0, 300) + "...";
+};
+
+export const LAST_ACTIVE_FALSE = "Unknown";
+export const LANGUAGES_FLUENT_FALSE = "Not given";
 export const MESSAGE = "Message";
