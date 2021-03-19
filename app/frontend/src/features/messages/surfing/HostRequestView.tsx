@@ -173,15 +173,15 @@ export default function HostRequestView() {
         </Menu>
       </Box>
       <UserSummary user={otherUser}>
-        <HostingStatus hostingStatus={otherUser?.hostingStatus} />
         {hostRequest && (
           <>
-            <div className={classes.requestStatus}>
-              <Typography component="div" variant="h2">
-                {nightsRequested(hostRequest)}
-              </Typography>
-              <HostRequestStatusIcon hostRequest={hostRequest} />
-            </div>
+            <Typography
+              component="div"
+              variant="h3"
+              className={classes.requestStatus}
+            >
+              {nightsRequested(hostRequest)}
+            </Typography>
             <Typography component="p">
               {`${formatDate(hostRequest.fromDate, true)} -
               ${formatDate(hostRequest?.toDate, true)}`}
