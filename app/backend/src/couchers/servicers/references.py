@@ -51,22 +51,25 @@ class References(references_pb2_grpc.ReferencesServicer):
     def ListReferences(self, request, context):
         with session_scope() as session:
             page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-            next_page_id = int(request.page_token) if request.page_token else 0
+            next_reference_id = int(request.page_token) if request.page_token else 0
 
-            if not from_user_id and not to_user_id:
+            if not request.from_user_id and not request.to_user_id:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NEED_TO_SPECIFY_AT_LEAT_ONE_USER_ID)
 
-            query = session.query(Reference)
-            if from_user_id:
-                query = query.filter(Reference.from_user_id == from_user_id)
-            if to_user_id:
-                query = query.filter(Reference.to_user_id == to_user_id)
+            query = session.query(Reference).filter(Reference.visible_from < func.now())
+            if request.from_user_id:
+                query = query.filter(Reference.from_user_id == request.from_user_id)
+            if request.to_user_id:
+                query = query.filter(Reference.to_user_id == request.to_user_id)
             if len(request.reference_type_filter) > 0:
                 query = query.filter(
                     Reference.reference_type.in_([reftype2sql[t] for t in request.reference_type_filter])
                 )
 
-            references = query.order_by(Reference.time.desc()).limit(page_size + 1).all()
+            if next_reference_id:
+                query = query.filter(References.id <= next_reference_id)
+
+            references = query.order_by(Reference.id.desc()).limit(page_size + 1).all()
 
             return references_pb2.ListReferencesRes(
                 references=[reference_to_pb(reference, context.user_id) for reference in references[:page_size]],
@@ -97,6 +100,7 @@ class References(references_pb2_grpc.ReferencesServicer):
                 text=request.text,
                 rating=request.rating,
                 was_safe=request.was_safe,
+                visible_from=now(),
             )
             session.add(reference)
             session.flush()
@@ -124,25 +128,46 @@ class References(references_pb2_grpc.ReferencesServicer):
             ):
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.REFERENCE_ALREADY_GIVEN)
 
+            other_reference = (
+                session.query(Reference)
+                .filter(Reference.host_request_id == host_request.conversation_id)
+                .filter(Reference.to_user_id == context.user_id)
+                .one_or_none()
+            )
+
             reference = Reference(
                 from_user_id=context.user_id,
                 host_request_id=host_request.conversation_id,
                 text=request.text,
                 rating=request.rating,
                 was_safe=request.was_safe,
+                visible_from=now() if other_reference else host_request.last_time_to_write_reference,
             )
 
             if host_request.from_user_id == context.user_id:
                 # we requested to surf with someone
                 reference.reference_type = ReferenceType.surfed
                 reference.to_user_id = host_request.to_user_id
+                assert context.user_id == host_request.from_user_id
             else:
                 # we hosted someone
                 reference.reference_type = ReferenceType.hosted
                 reference.to_user_id = host_request.from_user_id
+                assert context.user_id == host_request.to_user_id
 
             session.add(reference)
             session.flush()
+
+            # if both references are written, make them visible, otherwise send the other a message to write a reference
+            if other_reference:
+                # so we neatly get the same timestamp
+                other_reference.visible_from = reference.visible_from
+                session.flush()
+
+                # TODO: send email to both that references were written
+            else:
+                # TODO: send nagging email to other user to write a reference
+                pass
 
             return reference_to_pb(reference, context.user_id)
 
