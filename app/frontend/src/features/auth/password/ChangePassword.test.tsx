@@ -6,7 +6,6 @@ import {
   NEW_PASSWORD,
   OLD_PASSWORD,
   PASSWORD_CHANGED,
-  RESET_PASSWORD,
   SUBMIT,
 } from "features/auth/constants";
 import ChangePassword from "features/auth/password/ChangePassword";

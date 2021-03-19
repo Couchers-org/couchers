@@ -17,8 +17,8 @@ import { CheckIcon, CrossIcon } from "components/Icons";
 import React, { useRef, useState } from "react";
 import { Control, useController } from "react-hook-form";
 import { useMutation } from "react-query";
-import { service } from "service";
 import { ImageInputValues } from "service/api";
+import { service } from "service/index";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -119,6 +119,7 @@ export function AvatarInput({
       )}
       <div className={classes.root}>
         <input
+          aria-label={SELECT_AN_IMAGE}
           className={classes.input}
           accept="image/*"
           id={id}
@@ -126,7 +127,7 @@ export function AvatarInput({
           onChange={handleChange}
         />
         <label className={classes.label} htmlFor={id} ref={field.ref}>
-          <MuiIconButton component="span" aria-label={SELECT_AN_IMAGE}>
+          <MuiIconButton component="span">
             <Avatar
               className={classNames(classes.avatar, className)}
               src={imageUrl}
