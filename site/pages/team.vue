@@ -14,7 +14,7 @@
             <p class="content">At the moment, we are specifically looking for:<ul>
               <li>Senior <b>UI/UX manager</b></li>
               <li><b>Digital marketers</b></li>
-              <li><b>Branding and graphic desginers</b></li>
+              <li><b>Branding and graphic designers</b></li>
               <li><b>Frontend engineers</b> (especially with skills in React and TypeScript)</li>
               <li><b>Backend engineers</b> (we work in Python)</li>
             </ul></p>
