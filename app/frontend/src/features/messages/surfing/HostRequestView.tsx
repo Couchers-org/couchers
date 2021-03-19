@@ -5,7 +5,6 @@ import CircularProgress from "components/CircularProgress";
 import Divider from "components/Divider";
 import HeaderButton from "components/HeaderButton";
 import { BackIcon } from "components/Icons";
-import Menu, { MenuItem } from "components/Menu";
 import PageTitle from "components/PageTitle";
 import UserSummary from "components/UserSummary";
 import { useAuthContext } from "features/auth/AuthProvider";
@@ -24,7 +23,6 @@ import {
   HostRequest,
   RespondHostRequestReq,
 } from "pb/requests_pb";
-import { useRef, useState } from "react";
 import {
   useInfiniteQuery,
   useMutation,
@@ -40,13 +38,6 @@ import { nightsRequested } from "../constants";
 
 export default function HostRequestView() {
   const classes = useGroupChatViewStyles();
-
-  const menuAnchor = useRef<HTMLAnchorElement>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  const handleClose = () => {
-    setMenuOpen(false);
-  };
 
   const hostRequestId = +(
     useParams<{ hostRequestId?: string }>().hostRequestId || 0
@@ -160,15 +151,6 @@ export default function HostRequestView() {
         <PageTitle className={classes.title}>
           {!title || hostRequestError ? <Skeleton width="100" /> : title}
         </PageTitle>
-        <Menu
-          id="more-menu"
-          anchorEl={menuAnchor.current}
-          keepMounted
-          open={menuOpen}
-          onClose={handleClose}
-        >
-          <MenuItem onClick={() => null}>Placeholder</MenuItem>
-        </Menu>
       </Box>
       <UserSummary user={otherUser}>
         {hostRequest && (
