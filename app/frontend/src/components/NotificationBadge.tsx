@@ -3,10 +3,8 @@ import React from "react";
 
 const useStyles = makeStyles((theme) => ({
   badge: {
-    [theme.breakpoints.up("sm")]: {
-      right: theme.spacing(-3),
-      top: "50%",
-    },
+    right: theme.spacing(-3),
+    top: "50%",
   },
 }));
 
