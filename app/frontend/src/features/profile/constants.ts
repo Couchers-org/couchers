@@ -82,7 +82,6 @@ export default function booleanConversion(value: boolean | undefined) {
 
 export const referencesQueryStaleTime = 10 * 60 * 1000;
 
-<<<<<<< HEAD
 export const aboutText = (user: User.AsObject) => {
   const missingAbout = user.aboutMe.length === 0;
   return missingAbout
@@ -94,6 +93,4 @@ export const aboutText = (user: User.AsObject) => {
 
 export const LAST_ACTIVE_FALSE = "Unknown";
 export const LANGUAGES_FLUENT_FALSE = "Not given";
-=======
 export const MESSAGE = "Message";
->>>>>>> develop
