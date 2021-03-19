@@ -32,7 +32,7 @@ reftype2api = {
 
 def reference_to_pb(reference: Reference, user_id):
     return references_pb2.Reference(
-        reference_id=reference.reference_id,
+        reference_id=reference.id,
         from_user_id=reference.from_user_id,
         to_user_id=reference.to_user_id,
         reference_type=reftype2api[reference.reference_type],
@@ -67,7 +67,7 @@ class References(references_pb2_grpc.ReferencesServicer):
                 )
 
             if next_reference_id:
-                query = query.filter(References.id <= next_reference_id)
+                query = query.filter(Reference.id <= next_reference_id)
 
             references = query.order_by(Reference.id.desc()).limit(page_size + 1).all()
 

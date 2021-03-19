@@ -6,7 +6,7 @@ from google.protobuf import empty_pb2
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import HostRequest, HostRequestStatus, Reference, ReferenceType, Conversation, Message, MessageType
+from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType, Reference, ReferenceType
 from couchers.utils import now, to_aware_datetime, today
 from pb import api_pb2, references_pb2
 from tests.test_fixtures import api_session, db, generate_user, references_session, testconfig
@@ -84,9 +84,10 @@ def create_host_reference(session, from_user_id, to_user_id, reference_age, *, s
     )
 
     reference = Reference(
+        time=now() - reference_age,
         from_user_id=from_user_id,
         host_request_id=host_request.conversation_id,
-        text="Dummy request",
+        text="Dummy reference",
         rating=5,
         was_safe=True,
         visible_from=now() if other_reference else host_request.last_time_to_write_reference,
@@ -113,6 +114,22 @@ def create_host_reference(session, from_user_id, to_user_id, reference_age, *, s
     return reference.id, actual_host_request_id
 
 
+def create_friend_reference(session, from_user_id, to_user_id, reference_age):
+    reference = Reference(
+        time=now() - reference_age,
+        from_user_id=from_user_id,
+        to_user_id=to_user_id,
+        reference_type=ReferenceType.friend,
+        text="Test friend request",
+        rating=4,
+        was_safe=True,
+        visible_from=now(),
+    )
+    session.add(reference)
+    session.commit()
+    return reference.id
+
+
 """
 * List pagination
 * List fails when not specifying at least one
@@ -131,7 +148,14 @@ def create_host_reference(session, from_user_id, to_user_id, reference_age, *, s
 """
 
 
-def test_ListReferences(db):
+def test_list_pagination(db):
+    """
+    * List pagination
+    * List fails when not specifying at least one
+    * List gets all from/to
+    * List friend, hosting, surfing, and correct ordering
+    * List hides not yet visible
+    """
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -144,26 +168,154 @@ def test_ListReferences(db):
 
     with session_scope() as session:
         # bidirectional references
-        ref2, hr2 = create_host_reference(session, user1.id, user2.id, timedelta(days=15, seconds=60), surfing=True)
+        ref2, hr2 = create_host_reference(session, user2.id, user1.id, timedelta(days=15, seconds=110), surfing=True)
         ref2b, _ = create_host_reference(
-            session, user2.id, user1.id, timedelta(days=15, seconds=61), host_request_id=hr2
+            session, user1.id, user2.id, timedelta(days=15, seconds=100), host_request_id=hr2
         )
 
-        ref3, _ = create_host_reference(session, user1.id, user3.id, timedelta(days=15, seconds=40), surfing=True)
-        ref4, _ = create_host_reference(session, user1.id, user4.id, timedelta(days=15, seconds=50), surfing=True)
+        ref3, _ = create_host_reference(session, user3.id, user1.id, timedelta(days=15, seconds=90), surfing=False)
+        ref4, _ = create_host_reference(session, user4.id, user1.id, timedelta(days=15, seconds=80), surfing=True)
+        ref4b = create_friend_reference(session, user1.id, user4.id, timedelta(days=15, seconds=70))
 
-        ref5, hr5 = create_host_reference(session, user1.id, user5.id, timedelta(days=15, seconds=70), surfing=True)
+        ref5, hr5 = create_host_reference(session, user5.id, user1.id, timedelta(days=15, seconds=60), surfing=False)
         ref5b, _ = create_host_reference(
-            session, user5.id, user1.id, timedelta(days=15, seconds=70), host_request_id=hr5
+            session, user1.id, user5.id, timedelta(days=15, seconds=50), host_request_id=hr5
         )
 
-        ref6, _ = create_host_reference(session, user1.id, user6.id, timedelta(days=15, seconds=10), surfing=True)
-        ref7, _ = create_host_reference(session, user1.id, user7.id, timedelta(days=15, seconds=30), surfing=True)
-        ref8, _ = create_host_reference(session, user1.id, user8.id, timedelta(days=15, seconds=80), surfing=True)
-        ref9, _ = create_host_reference(session, user1.id, user9.id, timedelta(days=15, seconds=90), surfing=True)
+        ref6, _ = create_host_reference(session, user6.id, user1.id, timedelta(days=15, seconds=40), surfing=True)
 
-    with references_session(token1) as api:
-        res = api.ListReferences(references_pb2.ListReferencesReq())
+        ref7 = create_friend_reference(session, user7.id, user1.id, timedelta(days=15, seconds=30))
+
+        ref8, _ = create_host_reference(session, user8.id, user1.id, timedelta(days=15, seconds=20), surfing=False)
+        ref9, _ = create_host_reference(session, user9.id, user1.id, timedelta(days=15, seconds=10), surfing=False)
+
+        # should be visible even under 2 weeks
+        ref7b = create_friend_reference(session, user1.id, user7.id, timedelta(days=9))
+
+        # hidden because it's less than 2 weeks
+        ref6hidden, _ = create_host_reference(session, user6.id, user1.id, timedelta(days=5), surfing=False)
+
+        # visible because both were written
+        ref8b, hr8 = create_host_reference(session, user8.id, user1.id, timedelta(days=3, seconds=20), surfing=False)
+        ref8c, _ = create_host_reference(
+            session, user1.id, user8.id, timedelta(days=3, seconds=10), host_request_id=hr8
+        )
+
+        # note that visibility tests don't really test real logic
+
+    # these check the right refs are in the right requests and appear in the right order (latest first)
+
+    with references_session(token2) as api:
+        # written by user1
+        res = api.ListReferences(references_pb2.ListReferencesReq(from_user_id=user1.id, page_size=2))
+        assert [ref.reference_id for ref in res.references] == [ref8c, ref7b]
+
+        res = api.ListReferences(
+            references_pb2.ListReferencesReq(from_user_id=user1.id, page_token=res.next_page_token, page_size=2)
+        )
+        assert [ref.reference_id for ref in res.references] == [ref5b, ref4b]
+
+        res = api.ListReferences(
+            references_pb2.ListReferencesReq(from_user_id=user1.id, page_token=res.next_page_token, page_size=2)
+        )
+        assert [ref.reference_id for ref in res.references] == [ref2b]
+        assert not res.next_page_token
+
+        # received by user1
+        res = api.ListReferences(references_pb2.ListReferencesReq(to_user_id=user1.id, page_size=5))
+        assert [ref.reference_id for ref in res.references] == [ref8b, ref9, ref8, ref7, ref6]
+
+        res = api.ListReferences(
+            references_pb2.ListReferencesReq(to_user_id=user1.id, page_token=res.next_page_token, page_size=5)
+        )
+        assert [ref.reference_id for ref in res.references] == [ref5, ref4, ref3, ref2]
+        assert not res.next_page_token
+
+        # same thing but with filters
+        res = api.ListReferences(
+            references_pb2.ListReferencesReq(
+                to_user_id=user1.id,
+                reference_type_filter=[
+                    references_pb2.REFERENCE_TYPE_HOSTED,
+                    references_pb2.REFERENCE_TYPE_SURFED,
+                    references_pb2.REFERENCE_TYPE_FRIEND,
+                ],
+                page_size=5,
+            )
+        )
+        assert [ref.reference_id for ref in res.references] == [ref8b, ref9, ref8, ref7, ref6]
+
+        res = api.ListReferences(
+            references_pb2.ListReferencesReq(
+                to_user_id=user1.id,
+                reference_type_filter=[
+                    references_pb2.REFERENCE_TYPE_HOSTED,
+                    references_pb2.REFERENCE_TYPE_SURFED,
+                    references_pb2.REFERENCE_TYPE_FRIEND,
+                ],
+                page_token=res.next_page_token,
+                page_size=5,
+            )
+        )
+        assert [ref.reference_id for ref in res.references] == [ref5, ref4, ref3, ref2]
+        assert not res.next_page_token
+
+        # received hosting references
+        res = api.ListReferences(
+            references_pb2.ListReferencesReq(
+                to_user_id=user1.id, reference_type_filter=[references_pb2.REFERENCE_TYPE_HOSTED], page_size=3
+            )
+        )
+        assert [ref.reference_id for ref in res.references] == [ref8b, ref9, ref8]
+
+        res = api.ListReferences(
+            references_pb2.ListReferencesReq(
+                to_user_id=user1.id,
+                reference_type_filter=[references_pb2.REFERENCE_TYPE_HOSTED],
+                page_token=res.next_page_token,
+                page_size=3,
+            )
+        )
+        assert [ref.reference_id for ref in res.references] == [ref5, ref3]
+        assert not res.next_page_token
+
+        # written friend references
+        res = api.ListReferences(
+            references_pb2.ListReferencesReq(
+                from_user_id=user1.id, reference_type_filter=[references_pb2.REFERENCE_TYPE_FRIEND]
+            )
+        )
+        assert [ref.reference_id for ref in res.references] == [ref7b, ref4b]
+        assert not res.next_page_token
+
+        # written surfing references
+        res = api.ListReferences(
+            references_pb2.ListReferencesReq(
+                from_user_id=user1.id, reference_type_filter=[references_pb2.REFERENCE_TYPE_SURFED]
+            )
+        )
+        assert [ref.reference_id for ref in res.references] == [ref8c, ref5b]
+        assert not res.next_page_token
+
+    with references_session(token7) as api:
+        # need to set at least one of from or to user
+        with pytest.raises(grpc.RpcError) as e:
+            api.ListReferences(
+                references_pb2.ListReferencesReq(reference_type_filter=[references_pb2.REFERENCE_TYPE_SURFED])
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.NEED_TO_SPECIFY_AT_LEAT_ONE_USER_ID
+
+    with references_session(token5) as api:
+        # from user1 to user2
+        res = api.ListReferences(references_pb2.ListReferencesReq(from_user_id=user1.id, to_user_id=user2.id))
+        assert [ref.reference_id for ref in res.references] == [ref2b]
+        assert not res.next_page_token
+
+        # from user5 to user1
+        res = api.ListReferences(references_pb2.ListReferencesReq(from_user_id=user5.id, to_user_id=user1.id))
+        assert [ref.reference_id for ref in res.references] == [ref5]
+        assert not res.next_page_token
 
 
 def test_WriteFriendReference(db):
