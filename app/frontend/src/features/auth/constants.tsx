@@ -1,5 +1,6 @@
 export const ABOUT_US = "About us";
 export const ACCOUNT_ALREADY_CREATED = "Already have an account?";
+export const BIRTHDATE_LABEL = "Birthdate";
 export const CHANGE_EMAIL = "Change Email";
 export const CHANGE_EMAIL_ERROR = "Error changing email: ";
 export const CHANGE_EMAIL_PROGRESS = "Email change in progress...";

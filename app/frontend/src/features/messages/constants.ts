@@ -9,6 +9,8 @@ export const hostRequestStatusLabels = {
 };
 
 export const CREATE = "Create";
+export const DATE_FROM = "Date from";
+export const DATE_TO = "Date to";
 export const ERROR_USER_LOAD = "(User load error)";
 export const FRIENDS = "Friends";
 export const LOAD_MORE = "Load more";
