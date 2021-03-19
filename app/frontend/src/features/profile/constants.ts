@@ -6,6 +6,7 @@ import {
   SmokingLocation,
   User,
 } from "pb/api_pb";
+import { firstName } from "utils/names";
 
 export const ACCEPTING = "Accepting guests";
 export const MAYBE_ACCEPTING = "Maybe accepting guests";
@@ -82,10 +83,9 @@ export default function booleanConversion(value: boolean | undefined) {
 export const referencesQueryStaleTime = 10 * 60 * 1000;
 
 export const aboutText = (user: User.AsObject) => {
-  const firstName = user.name.split(" ")[0];
   const missingAbout = user.aboutMe.length === 0;
   return missingAbout
-    ? `${firstName} hasn't said anything about themselves yet`
+    ? `${firstName(user?.name)} hasn't said anything about themselves yet`
     : user.aboutMe.length < 300
     ? user.aboutMe
     : user.aboutMe.substring(0, 300) + "...";

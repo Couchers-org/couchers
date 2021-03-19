@@ -5,6 +5,7 @@ import {
   makeStyles,
   Typography,
 } from "@material-ui/core";
+import { CouchIcon, LocationIcon } from "components/Icons";
 import UserSummary from "components/UserSummary";
 import {
   aboutText,
@@ -28,9 +29,12 @@ const useStyles = makeStyles((theme) => ({
   },
   statusLabelWrapper: {
     display: "flex",
-    marginLeft: theme.spacing(11),
+    "& > div": {
+      display: "flex",
+    },
   },
   statusLabel: {
+    marginLeft: theme.spacing(1),
     marginRight: theme.spacing(2),
   },
   root: {
@@ -50,26 +54,33 @@ export default function SearchResult({ user }: { user: User.AsObject }) {
       <Card className={classes.card}>
         <CardActionArea>
           <CardContent>
-            <UserSummary user={user} />
-            <div className={classes.statusLabelWrapper}>
-              <Typography
-                className={classes.statusLabel}
-                display="inline"
-                variant="subtitle1"
-                color="primary"
-              >
-                {hostingStatusLabels[user.hostingStatus]}
-              </Typography>
-              <Typography
-                className={classes.statusLabel}
-                display="inline"
-                variant="subtitle1"
-                color="secondary"
-              >
-                {meetupStatusLabels[user.meetupStatus]}
-              </Typography>
-            </div>
-            <Typography component="h3" variant="h6" className={classes.about}>
+            <UserSummary user={user}>
+              <div className={classes.statusLabelWrapper}>
+                <div>
+                  <CouchIcon />
+                  <Typography
+                    className={classes.statusLabel}
+                    display="inline"
+                    variant="subtitle1"
+                    color="primary"
+                  >
+                    {hostingStatusLabels[user.hostingStatus]}
+                  </Typography>
+                </div>
+                <div>
+                  <LocationIcon />
+                  <Typography
+                    className={classes.statusLabel}
+                    display="inline"
+                    variant="subtitle1"
+                    color="secondary"
+                  >
+                    {meetupStatusLabels[user.meetupStatus]}
+                  </Typography>
+                </div>
+              </div>
+            </UserSummary>
+            <Typography variant="body1" className={classes.about}>
               {aboutText(user)}
             </Typography>
             <LabelsAgeGenderLanguages user={user} />
