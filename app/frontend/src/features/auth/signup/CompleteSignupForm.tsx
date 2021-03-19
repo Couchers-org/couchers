@@ -8,6 +8,7 @@ import {
 import Autocomplete from "components/Autocomplete";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
+import Datepicker from "components/Datepicker";
 import EditUserLocationMap, {
   ApproximateLocation,
 } from "components/EditUserLocationMap";
@@ -31,7 +32,7 @@ import {
   validatePastDate,
 } from "utils/validation";
 
-import { GENDER_LABEL, LOCATION_LABEL } from "../constants";
+import { BIRTHDATE_LABEL, GENDER_LABEL, LOCATION_LABEL } from "../constants";
 
 type SignupInputs = {
   email: string;
@@ -172,23 +173,21 @@ export default function CompleteSignupForm() {
           <InputLabel className={authClasses.formLabel} htmlFor="birthdate">
             Birthday
           </InputLabel>
-          <TextField
+          <Datepicker
             className={authClasses.formField}
+            control={control}
+            error={!!errors.birthdate}
+            helperText={errors?.birthdate?.message}
             id="birthdate"
-            fullWidth
-            variant="standard"
-            name="birthdate"
-            type="date"
-            InputLabelProps={{
-              shrink: true,
-            }}
             inputRef={register({
               required: "Enter your birthdate",
               validate: (stringDate) =>
                 validatePastDate(stringDate) ||
                 "Must be a valid date in the past.",
             })}
-            helperText={errors?.birthdate?.message}
+            label={BIRTHDATE_LABEL}
+            minDate={new Date(1899, 12, 1)}
+            name="birthdate"
           />
           <InputLabel className={authClasses.formLabel} htmlFor="location">
             {LOCATION_LABEL}
