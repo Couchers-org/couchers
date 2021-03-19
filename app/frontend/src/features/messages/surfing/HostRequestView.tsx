@@ -4,7 +4,6 @@ import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import Divider from "components/Divider";
 import HeaderButton from "components/HeaderButton";
-import HostingStatus from "components/HostingStatus";
 import { BackIcon } from "components/Icons";
 import Menu, { MenuItem } from "components/Menu";
 import PageTitle from "components/PageTitle";
@@ -38,7 +37,6 @@ import { formatDate } from "utils/date";
 import { firstName } from "utils/names";
 
 import { nightsRequested } from "../constants";
-import HostRequestStatusIcon from "./HostRequestStatusIcon";
 
 export default function HostRequestView() {
   const classes = useGroupChatViewStyles();
