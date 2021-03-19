@@ -22,3 +22,5 @@ export const grpcErrorStrings = {
   "upstream connect error or disconnect/reset before headers":
     "There was an internal server error. Please try again later.",
 };
+
+export type ObscureGrpcErrorMessages = keyof typeof grpcErrorStrings;
