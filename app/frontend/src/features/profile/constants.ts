@@ -16,6 +16,21 @@ export const NO_MEETUP = "Cannot meet up";
 
 const UNSURE = "Ask me";
 
+// User reporting
+export const CANCEL = "Cancel";
+export const MORE_PROFILE_ACTIONS = "...";
+export const MORE_PROFILE_ACTIONS_A11Y_TEXT = "More profile actions";
+export const REPORT_DETAILS = "Details";
+export const REPORT_REASON = "Reason";
+export const REPORT_USER = "Report this user";
+export const SEND = "Send";
+
+export const getReportDialogTitle = (name: string) => `Report ${name}`;
+export const getReportUserExplainer = (name: string) =>
+  `You can anonymously report ${name} to moderators. Give as much details as you can and are comfortable with.`;
+export const getReportUserSuccessMessage = (name: string) =>
+  `${name} has been reported to the Couchers safety team`;
+
 export const smokingLocationLabels = {
   [SmokingLocation.SMOKING_LOCATION_NO]: "No",
   [SmokingLocation.SMOKING_LOCATION_OUTSIDE]: "Outside",
@@ -64,3 +79,5 @@ export default function booleanConversion(value: boolean | undefined) {
 }
 
 export const referencesQueryStaleTime = 10 * 60 * 1000;
+
+export const MESSAGE = "Message";

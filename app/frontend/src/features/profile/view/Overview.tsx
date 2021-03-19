@@ -30,6 +30,8 @@ import { editHostingPreferenceRoute, editProfileRoute } from "routes";
 import { timestamp2Date } from "utils/date";
 import { timeAgo } from "utils/timeAgo";
 
+import ProfileActionsMenuButton from "../actions/ProfileActionsMenuButton";
+
 const useStyles = makeStyles((theme) => ({
   card: {
     flexShrink: 0,
@@ -47,6 +49,8 @@ const useStyles = makeStyles((theme) => ({
   },
   cardActions: {
     justifyContent: "center",
+    paddingLeft: 0,
+    paddingRight: 0,
   },
   grow: {
     paddingTop: "100%",
@@ -71,7 +75,7 @@ export default function Overview({ user }: OverviewProps) {
 
   return (
     <Card className={classes.card}>
-      <Avatar {...{ user }} className={classes.grow} />
+      <Avatar user={user} className={classes.grow} />
       <Typography variant="h1" className={classes.intro}>
         {user.name}
       </Typography>
@@ -91,13 +95,16 @@ export default function Overview({ user }: OverviewProps) {
             </Button>
           </>
         ) : (
-          user.friends !== User.FriendshipStatus.FRIENDS && (
-            <AddFriendButton
-              isPending={user.friends === User.FriendshipStatus.PENDING}
-              userId={user.userId}
-              setMutationError={setMutationError}
-            />
-          )
+          <>
+            {user.friends !== User.FriendshipStatus.FRIENDS && (
+              <AddFriendButton
+                isPending={user.friends === User.FriendshipStatus.PENDING}
+                userId={user.userId}
+                setMutationError={setMutationError}
+              />
+            )}
+            <ProfileActionsMenuButton />
+          </>
         )}
       </CardActions>
       <IconText
