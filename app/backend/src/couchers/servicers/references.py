@@ -111,14 +111,16 @@ class References(references_pb2_grpc.ReferencesServicer):
         with session_scope() as session:
             host_request = (
                 session.query(HostRequest)
-                .filter(HostRequest.can_write_reference)
                 .filter(HostRequest.conversation_id == request.host_request_id)
                 .filter(or_(HostRequest.from_user_id == context.user_id, HostRequest.to_user_id == context.user_id))
                 .one_or_none()
             )
 
             if not host_request:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.CANT_WRITE_REFERENCE_FOR_REQUEST)
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
+
+            if not host_request.can_write_reference:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_WRITE_REFERENCE_FOR_REQUEST)
 
             if (
                 session.query(Reference)
@@ -141,7 +143,7 @@ class References(references_pb2_grpc.ReferencesServicer):
                 text=request.text,
                 rating=request.rating,
                 was_safe=request.was_safe,
-                visible_from=now() if other_reference else host_request.last_time_to_write_reference,
+                visible_from=now() if other_reference else host_request.end_time_to_write_reference,
             )
 
             if host_request.from_user_id == context.user_id:
@@ -206,14 +208,14 @@ class References(references_pb2_grpc.ReferencesServicer):
                 references_pb2.AvailableWriteReferenceType(
                     host_request_id=host_request.id,
                     reference_type=reftype2api[ReferenceType.surfed],
-                    time_expires=host_request.last_time_to_write_reference,
+                    time_expires=host_request.end_time_to_write_reference,
                 )
                 for host_request in host_requests_surfed
             ] + [
                 references_pb2.AvailableWriteReferenceType(
                     host_request_id=host_request.id,
                     reference_type=reftype2api[ReferenceType.hosted],
-                    time_expires=host_request.last_time_to_write_reference,
+                    time_expires=host_request.end_time_to_write_reference,
                 )
                 for host_request in host_requests_hosted
             ]
@@ -247,14 +249,14 @@ class References(references_pb2_grpc.ReferencesServicer):
                 references_pb2.AvailableWriteReferenceType(
                     host_request_id=host_request.id,
                     reference_type=reftype2api[ReferenceType.surfed],
-                    time_expires=host_request.last_time_to_write_reference,
+                    time_expires=host_request.end_time_to_write_reference,
                 )
                 for host_request in host_requests_surfed
             ] + [
                 references_pb2.AvailableWriteReferenceType(
                     host_request_id=host_request.id,
                     reference_type=reftype2api[ReferenceType.hosted],
-                    time_expires=host_request.last_time_to_write_reference,
+                    time_expires=host_request.end_time_to_write_reference,
                 )
                 for host_request in host_requests_hosted
             ]

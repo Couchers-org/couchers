@@ -90,7 +90,7 @@ def create_host_reference(session, from_user_id, to_user_id, reference_age, *, s
         text="Dummy reference",
         rating=5,
         was_safe=True,
-        visible_from=now() if other_reference else host_request.last_time_to_write_reference,
+        visible_from=now() if other_reference else host_request.end_time_to_write_reference,
     )
 
     if host_request.from_user_id == from_user_id:
@@ -130,25 +130,7 @@ def create_friend_reference(session, from_user_id, to_user_id, reference_age):
     return reference.id
 
 
-"""
-* List pagination
-* List fails when not specifying at least one
-* List gets all from/to
-* List friend, hosting, surfing, and correct ordering
-* List hides not yet visible
-* Write friend reference
-* Fails to write second friend reference
-* Can't write for host request not yet complete
-* Can write for complete host request < 2 weeks after it happened
-* Can't write a second time for same host request
-* Can't write for host request more than 2 weeks after
-* Available write reference friend/non friend available
-* Available write reference surfing, hosting
-* Pending references to write
-"""
-
-
-def test_list_pagination(db):
+def test_ListPagination(db):
     """
     * List pagination
     * List fails when not specifying at least one
@@ -320,16 +302,140 @@ def test_list_pagination(db):
 
 def test_WriteFriendReference(db):
     user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
 
     with references_session(token1) as api:
-        res = api.WriteFriendReference(references_pb2.WriteFriendReferenceReq())
+        # can write normal friend reference
+        res = api.WriteFriendReference(
+            references_pb2.WriteFriendReferenceReq(
+                to_user_id=user2.id,
+                text="A test reference",
+                was_safe=True,
+                rating=5,
+            )
+        )
+        assert res.from_user_id == user1.id
+        assert res.to_user_id == user2.id
+        assert res.reference_type == references_pb2.REFERENCE_TYPE_FRIEND
+        assert res.text == "A test reference"
+        assert now() - timedelta(hours=24) <= to_aware_datetime(res.written_time) <= now()
+        assert not res.host_request_id
+
+    with references_session(token3) as api:
+        # check it shows up
+        res = api.ListReferences(
+            references_pb2.ListReferencesReq(
+                from_user_id=user1.id, to_user_id=user2.id, reference_type_filter=[references_pb2.REFERENCE_TYPE_FRIEND]
+            )
+        )
+        assert len(res.references) == 1
+        ref = res.references[0]
+        assert ref.from_user_id == user1.id
+        assert ref.to_user_id == user2.id
+        assert ref.reference_type == references_pb2.REFERENCE_TYPE_FRIEND
+        assert ref.text == "A test reference"
+        assert now() - timedelta(hours=24) <= to_aware_datetime(ref.written_time) <= now()
+        assert not ref.host_request_id
+
+    with references_session(token1) as api:
+        # can't write a second friend reference
+        with pytest.raises(grpc.RpcError) as e:
+            api.WriteFriendReference(
+                references_pb2.WriteFriendReferenceReq(
+                    to_user_id=user2.id,
+                    text="A test reference",
+                    was_safe=True,
+                    rating=5,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.REFERENCE_ALREADY_GIVEN
+
+    with references_session(token2) as api:
+        # can't write a reference about ourself
+        with pytest.raises(grpc.RpcError) as e:
+            api.WriteFriendReference(
+                references_pb2.WriteFriendReferenceReq(
+                    to_user_id=user2.id,
+                    text="I'm really awesome",
+                    was_safe=True,
+                    rating=10,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.CANT_REFER_SELF
 
 
 def test_WriteHostRequestReference(db):
     user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+
+    with session_scope() as session:
+        # too old
+        hr1 = create_host_request(session, user3.id, user1.id, timedelta(days=20))
+        # valid host req
+        hr2 = create_host_request(session, user3.id, user1.id, timedelta(days=10))
+        # not yet complete
+        hr3 = create_host_request(session, user2.id, user1.id, timedelta(days=1), status=HostRequestStatus.accepted)
 
     with references_session(token1) as api:
-        res = api.WriteHostRequestReference(references_pb2.WriteHostRequestReferenceReq())
+        # can't write reference for a HR that's not yet finished
+        with pytest.raises(grpc.RpcError) as e:
+            api.WriteHostRequestReference(
+                references_pb2.WriteHostRequestReferenceReq(
+                    host_request_id=hr3,
+                    text="Shouldn't work...",
+                    was_safe=True,
+                    rating=9,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.CANT_WRITE_REFERENCE_FOR_REQUEST
+
+        # can't write reference that's more than 2 weeks old
+        with pytest.raises(grpc.RpcError) as e:
+            api.WriteHostRequestReference(
+                references_pb2.WriteHostRequestReferenceReq(
+                    host_request_id=hr1,
+                    text="Shouldn't work...",
+                    was_safe=True,
+                    rating=9,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.CANT_WRITE_REFERENCE_FOR_REQUEST
+
+        # can write for this one
+        api.WriteHostRequestReference(
+            references_pb2.WriteHostRequestReferenceReq(
+                host_request_id=hr2,
+                text="Should work!",
+                was_safe=True,
+                rating=9,
+            )
+        )
+
+        # but can't write a second one for the same one
+        with pytest.raises(grpc.RpcError) as e:
+            api.WriteHostRequestReference(
+                references_pb2.WriteHostRequestReferenceReq(
+                    host_request_id=hr2,
+                    text="Shouldn't work...",
+                    was_safe=True,
+                    rating=9,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.REFERENCE_ALREADY_GIVEN
+
+
+"""
+* Available write reference friend/non friend available
+* Available write reference surfing, hosting
+* Pending references to write
+"""
 
 
 def test_AvailableWriteReferences(db):
