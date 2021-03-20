@@ -127,3 +127,30 @@ export const STEPS = "What did you do to trigger the bug?";
 export const SUBMIT = "Submit";
 export const WARNING =
   "Please note that this information, as well as diagnostic information including which page you are on, what browser you are using, and your user ID will be saved to a public list of bugs.";
+
+// Landing
+export const BUGS = "Bugs";
+export const BUGS_DESCRIPTION_1 = `Bugs are to be expected, as we are still in the testing phase and it's great that you're here to help
+  with that. If you notice any bugs, please report them with the red button in the top right corner.`;
+export const BUGS_DESCRIPTION_2 = `Please discuss anything else about the app on the `;
+export const BUGS_DESCRIPTION_3 = ".";
+export const COMMUNITY_FORUM = "Community Forum";
+export const COMMUNITY_FORUM_LINK = "https://community.couchers.org/";
+export const CREATE_PLACE = "Create a new place";
+export const CREATE_GUIDE = "create a new guide";
+export const FEATURES = "Features";
+export const FEATURES_DESCRIPTION =
+  "We're working on a few more things before we launch, such as events, forums and community pages, as well as improved designs, and we'll let you know as those get released.";
+export const HELP = "Help out";
+export const HELP_DESCRIPTION_1 =
+  "If you're interested in helping out on this project, we'd love for you to ";
+export const HELP_DESCRIPTION_2 =
+  "! We are looking for people with all kinds of experience to help us build this amazing product.";
+export const SIGN_UP = "sign up";
+export const SIGN_UP_LINK = "https://couchers.org/signup";
+export const WELCOME = "Welcome to Couchers.org!";
+export const WELCOME_DESCRIPTION_1 = `We're in the process of building out the platform, so we appreciate your patience as we create new 
+  features.`;
+export const WELCOME_DESCRIPTION_2 = `If you've been here before, you may have noticed that the site has changed, and that's 
+  because we're migrating from our early alpha version to our new beta version. If you were on the alpha 
+  version, don't worry, most of your profile data has been kept!`;
