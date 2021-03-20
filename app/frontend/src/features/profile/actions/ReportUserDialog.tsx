@@ -14,7 +14,7 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
-import { service } from "service/index";
+import { service } from "service";
 import type { ReportUserInput } from "service/user";
 
 import {

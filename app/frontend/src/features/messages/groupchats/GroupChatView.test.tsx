@@ -9,7 +9,7 @@ import {
 } from "react-intersection-observer/test-utils";
 import { Route } from "react-router-dom";
 import { messagesRoute } from "routes";
-import { service } from "service/index";
+import { service } from "service";
 import messageData from "test/fixtures/messages.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 import { getGroupChatMessages, getUser } from "test/serviceMockDefaults";

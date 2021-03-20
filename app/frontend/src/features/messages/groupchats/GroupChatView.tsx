@@ -32,7 +32,7 @@ import {
   useQueryClient,
 } from "react-query";
 import { useHistory, useParams } from "react-router-dom";
-import { service } from "service/index";
+import { service } from "service";
 
 export const useGroupChatViewStyles = makeStyles((theme) => ({
   footer: {

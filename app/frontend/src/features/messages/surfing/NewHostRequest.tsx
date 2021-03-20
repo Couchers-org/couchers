@@ -13,7 +13,7 @@ import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { useHistory, useParams } from "react-router-dom";
 import { routeToHostRequest } from "routes";
-import { service } from "service/index";
+import { service } from "service";
 import { firstName } from "utils/names";
 import { validateFutureDate } from "utils/validation";
 
