@@ -1,7 +1,5 @@
 import { Link, Typography } from "@material-ui/core";
-import Button from "components/Button";
 import Divider from "components/Divider";
-import TextBody from "components/TextBody";
 import {
   BUGS,
   BUGS_DESCRIPTION_1,
@@ -9,8 +7,6 @@ import {
   BUGS_DESCRIPTION_3,
   COMMUNITY_FORUM,
   COMMUNITY_FORUM_LINK,
-  CREATE_GUIDE,
-  CREATE_PLACE,
   FEATURES,
   FEATURES_DESCRIPTION,
   HELP,
@@ -22,26 +18,10 @@ import {
   WELCOME_DESCRIPTION_1,
   WELCOME_DESCRIPTION_2,
 } from "features/constants";
-import useCurrentUser from "features/userQueries/useCurrentUser";
 import React from "react";
-import { Link as RouterLink } from "react-router-dom";
-import { newGuideRoute, newPlaceRoute } from "routes";
 
 export default function Home() {
-  const name = useCurrentUser().data?.name.split(" ")[0];
-  const isPostBetaEnabled = process.env.REACT_APP_IS_POST_BETA_ENABLED;
-
-  return isPostBetaEnabled ? (
-    <>
-      {name ? <TextBody>Hello, {name}.</TextBody> : null}
-      <Button component={RouterLink} to={newPlaceRoute}>
-        {CREATE_PLACE}
-      </Button>
-      <Button component={RouterLink} to={newGuideRoute}>
-        {CREATE_GUIDE}
-      </Button>
-    </>
-  ) : (
+  return (
     <>
       <Typography variant="h1">{WELCOME}</Typography>
       <Typography variant="body1">

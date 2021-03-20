@@ -136,8 +136,6 @@ export const BUGS_DESCRIPTION_2 = `Please discuss anything else about the app on
 export const BUGS_DESCRIPTION_3 = ".";
 export const COMMUNITY_FORUM = "Community Forum";
 export const COMMUNITY_FORUM_LINK = "https://community.couchers.org/";
-export const CREATE_PLACE = "Create a new place";
-export const CREATE_GUIDE = "create a new guide";
 export const FEATURES = "Features";
 export const FEATURES_DESCRIPTION =
   "We're working on a few more things before we launch, such as events, forums and community pages, as well as improved designs, and we'll let you know as those get released.";
