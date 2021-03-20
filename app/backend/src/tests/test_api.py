@@ -163,7 +163,7 @@ def test_update_profile(db):
             api.UpdateProfile(api_pb2.UpdateProfileReq(gender=wrappers_pb2.StringValue(value="newgender")))
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
 
-        res = api.UpdateProfile(
+        api.UpdateProfile(
             api_pb2.UpdateProfileReq(
                 name=wrappers_pb2.StringValue(value="New name"),
                 city=wrappers_pb2.StringValue(value="Timbuktu"),
@@ -186,33 +186,68 @@ def test_update_profile(db):
                 additional_information=api_pb2.NullableStringValue(value="I <3 Couchers"),
             )
         )
-        # all fields changed
-        for field, value in res.ListFields():
-            assert value == True
 
-        user = api.GetUser(api_pb2.GetUserReq(user=user.username))
-        assert user.name == "New name"
-        assert user.city == "Timbuktu"
-        assert user.hometown == "Walla Walla"
-        assert user.pronouns == "Ro, Robo, Robots"
-        assert user.education == "Couchers U"
-        assert user.my_travels == "Oh the places you'll go!"
-        assert user.things_i_like == "Couchers"
-        assert user.lat == 0.01
-        assert user.lng == -2
-        assert user.radius == 321
-        assert user.occupation == "Testing"
-        assert user.about_me == "I rule"
-        assert user.about_place == "My place"
-        assert user.hosting_status == api_pb2.HOSTING_STATUS_CAN_HOST
-        assert user.meetup_status == api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP
-        assert "Binary" in user.languages
-        assert "English" in user.languages
-        assert user.additional_information == "I <3 Couchers"
-        assert "UK" in user.countries_visited
-        assert "Aus" in user.countries_visited
-        assert "UK" in user.countries_lived
-        assert "Aus" in user.countries_lived
+        user_details = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        assert user_details.name == "New name"
+        assert user_details.city == "Timbuktu"
+        assert user_details.hometown == "Walla Walla"
+        assert user_details.pronouns == "Ro, Robo, Robots"
+        assert user_details.education == "Couchers U"
+        assert user_details.my_travels == "Oh the places you'll go!"
+        assert user_details.things_i_like == "Couchers"
+        assert user_details.lat == 0.01
+        assert user_details.lng == -2
+        assert user_details.radius == 321
+        assert user_details.occupation == "Testing"
+        assert user_details.about_me == "I rule"
+        assert user_details.about_place == "My place"
+        assert user_details.hosting_status == api_pb2.HOSTING_STATUS_CAN_HOST
+        assert user_details.meetup_status == api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP
+        assert "Binary" in user_details.languages
+        assert "English" in user_details.languages
+        assert user_details.additional_information == "I <3 Couchers"
+        assert "UK" in user_details.countries_visited
+        assert "Aus" in user_details.countries_visited
+        assert "UK" in user_details.countries_lived
+        assert "Aus" in user_details.countries_lived
+
+        # Test unset values
+        api.UpdateProfile(
+            api_pb2.UpdateProfileReq(
+                hometown=api_pb2.NullableStringValue(is_null=True),
+                radius=wrappers_pb2.DoubleValue(value=0),
+                pronouns=api_pb2.NullableStringValue(is_null=True),
+                occupation=api_pb2.NullableStringValue(is_null=True),
+                education=api_pb2.NullableStringValue(is_null=True),
+                about_me=api_pb2.NullableStringValue(is_null=True),
+                my_travels=api_pb2.NullableStringValue(is_null=True),
+                things_i_like=api_pb2.NullableStringValue(is_null=True),
+                about_place=api_pb2.NullableStringValue(is_null=True),
+                hosting_status=api_pb2.HOSTING_STATUS_UNKNOWN,
+                meetup_status=api_pb2.MEETUP_STATUS_UNKNOWN,
+                languages=api_pb2.RepeatedStringValue(exists=True, value=[]),
+                countries_visited=api_pb2.RepeatedStringValue(exists=True, value=[]),
+                countries_lived=api_pb2.RepeatedStringValue(exists=True, value=[]),
+                additional_information=api_pb2.NullableStringValue(is_null=True),
+            )
+        )
+
+        user_details_2 = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        assert not user_details_2.hometown
+        assert not user_details_2.radius
+        assert not user_details_2.pronouns
+        assert not user_details_2.occupation
+        assert not user_details_2.education
+        assert not user_details_2.about_me
+        assert not user_details_2.my_travels
+        assert not user_details_2.things_i_like
+        assert not user_details_2.about_place
+        assert user_details_2.hosting_status == api_pb2.HOSTING_STATUS_UNKNOWN
+        assert user_details_2.meetup_status == api_pb2.MEETUP_STATUS_UNKNOWN
+        assert not user_details_2.languages
+        assert not user_details_2.countries_visited
+        assert not user_details_2.countries_lived
+        assert not user_details_2.additional_information
 
 
 def test_pending_friend_request_count(db):

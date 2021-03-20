@@ -205,7 +205,10 @@ class API(api_pb2_grpc.APIServicer):
                 user.city = request.city.value
 
             if request.HasField("hometown"):
-                user.hometown = request.hometown.value
+                if request.hometown.is_null:
+                    user.hometown = None
+                else:
+                    user.hometown = request.hometown.value
 
             if request.HasField("lat") and request.HasField("lng"):
                 if request.lat.value == 0 and request.lng.value == 0:
@@ -225,7 +228,10 @@ class API(api_pb2_grpc.APIServicer):
             #     user.gender = request.gender.value
 
             if request.HasField("pronouns"):
-                user.pronouns = request.pronouns.value
+                if request.pronouns.is_null:
+                    user.pronouns = None
+                else:
+                    user.pronouns = request.pronouns.value
 
             if request.HasField("occupation"):
                 if request.occupation.is_null:
