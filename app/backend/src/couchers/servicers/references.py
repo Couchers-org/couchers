@@ -8,7 +8,7 @@
 TODO: timezone handling for dates
 """
 import grpc
-from sqlalchemy.sql import func, or_
+from sqlalchemy.sql import func, literal, or_
 
 from couchers import errors
 from couchers.db import session_scope
@@ -189,91 +189,65 @@ class References(references_pb2_grpc.ReferencesServicer):
                 .one_or_none()
             ) is None
 
-            # TODO: condense into one query
-
-            host_requests_surfed = (
-                session.query(HostRequest)
+            q1 = (
+                session.query(literal(True), HostRequest)
                 .outerjoin(Reference, Reference.host_request_id == HostRequest.conversation_id)
                 .filter(Reference.id == None)
                 .filter(HostRequest.can_write_reference)
                 .filter(HostRequest.from_user_id == context.user_id)
                 .filter(HostRequest.to_user_id == request.to_user_id)
-                .all()
             )
 
-            host_requests_hosted = (
-                session.query(HostRequest)
+            q2 = (
+                session.query(literal(False), HostRequest)
                 .outerjoin(Reference, Reference.host_request_id == HostRequest.conversation_id)
                 .filter(Reference.id == None)
                 .filter(HostRequest.can_write_reference)
                 .filter(HostRequest.from_user_id == request.to_user_id)
                 .filter(HostRequest.to_user_id == context.user_id)
-                .all()
             )
 
-            host_request_references = [
-                references_pb2.AvailableWriteReferenceType(
-                    host_request_id=host_request.conversation_id,
-                    reference_type=reftype2api[ReferenceType.surfed],
-                    time_expires=Timestamp_from_datetime(host_request.end_time_to_write_reference),
-                )
-                for host_request in host_requests_surfed
-            ] + [
-                references_pb2.AvailableWriteReferenceType(
-                    host_request_id=host_request.conversation_id,
-                    reference_type=reftype2api[ReferenceType.hosted],
-                    time_expires=Timestamp_from_datetime(host_request.end_time_to_write_reference),
-                )
-                for host_request in host_requests_hosted
-            ]
-
-            # host_request_references.sort()
+            host_request_references = q1.union_all(q2).order_by(HostRequest.end_time_to_write_reference.asc()).all()
 
             return references_pb2.AvailableWriteReferencesRes(
                 can_write_friend_reference=can_write_friend_reference,
-                available_write_references=host_request_references,
+                available_write_references=[
+                    references_pb2.AvailableWriteReferenceType(
+                        host_request_id=host_request.conversation_id,
+                        reference_type=reftype2api[ReferenceType.surfed if surfed else ReferenceType.hosted],
+                        time_expires=Timestamp_from_datetime(host_request.end_time_to_write_reference),
+                    )
+                    for surfed, host_request in host_request_references
+                ],
             )
 
     def ListPendingReferencesToWrite(self, request, context):
         with session_scope() as session:
-            # TODO: condense into one query
-
-            host_requests_surfed = (
-                session.query(HostRequest)
+            q1 = (
+                session.query(literal(True), HostRequest)
                 .outerjoin(Reference, Reference.host_request_id == HostRequest.conversation_id)
                 .filter(Reference.id == None)
                 .filter(HostRequest.can_write_reference)
                 .filter(HostRequest.from_user_id == context.user_id)
-                .all()
             )
 
-            host_requests_hosted = (
-                session.query(HostRequest)
+            q2 = (
+                session.query(literal(False), HostRequest)
                 .outerjoin(Reference, Reference.host_request_id == HostRequest.conversation_id)
                 .filter(Reference.id == None)
                 .filter(HostRequest.can_write_reference)
                 .filter(HostRequest.to_user_id == context.user_id)
-                .all()
             )
 
-            host_request_references = [
-                references_pb2.AvailableWriteReferenceType(
-                    host_request_id=host_request.conversation_id,
-                    reference_type=reftype2api[ReferenceType.surfed],
-                    time_expires=Timestamp_from_datetime(host_request.end_time_to_write_reference),
-                )
-                for host_request in host_requests_surfed
-            ] + [
-                references_pb2.AvailableWriteReferenceType(
-                    host_request_id=host_request.conversation_id,
-                    reference_type=reftype2api[ReferenceType.hosted],
-                    time_expires=Timestamp_from_datetime(host_request.end_time_to_write_reference),
-                )
-                for host_request in host_requests_hosted
-            ]
-
-            # host_request_references.sort()
+            host_request_references = q1.union_all(q2).order_by(HostRequest.end_time_to_write_reference.asc()).all()
 
             return references_pb2.ListPendingReferencesToWriteRes(
-                pending_references=host_request_references,
+                pending_references=[
+                    references_pb2.AvailableWriteReferenceType(
+                        host_request_id=host_request.conversation_id,
+                        reference_type=reftype2api[ReferenceType.surfed if surfed else ReferenceType.hosted],
+                        time_expires=Timestamp_from_datetime(host_request.end_time_to_write_reference),
+                    )
+                    for surfed, host_request in host_request_references
+                ],
             )
