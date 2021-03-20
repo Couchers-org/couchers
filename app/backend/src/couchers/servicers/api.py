@@ -458,7 +458,7 @@ class API(api_pb2_grpc.APIServicer):
 
             send_friend_request_email(friend_relationship)
 
-            return api_pb2.SendFriendRequestRes(friend_request_id=friend_relationship.id)
+            return empty_pb2.Empty()
 
     def ListFriendRequests(self, request, context):
         # both sent and received
