@@ -299,12 +299,52 @@
       "rating": 8
     },
     {
-      "from": "val",
-      "to": "itsi",
-      "type": "surfed",
-      "text": "Itsi kicked my dog, do not recommend.",
-      "was_safe": false,
-      "rating": 1
+      "from": "aapeli",
+      "to": "lucas",
+      "type": "friend",
+      "text": "I had such a great time with Itsi also, he pitched me his website ideas and we ate sushi.",
+      "was_safe": true,
+      "rating": 9
+    },
+    {
+      "from": "lucas",
+      "to": "aapeli",
+      "type": "friend",
+      "text": "What a dude",
+      "was_safe": true,
+      "rating": 6
+    },
+    {
+      "from": "itsi",
+      "to": "aapeli",
+      "type": "friend",
+      "text": "I had such a great time with Aapeli.",
+      "was_safe": true,
+      "rating": 9
+    },
+    {
+      "from": "aapeli",
+      "to": "val",
+      "type": "friend",
+      "text": "I had such a great time with Itsi also, he pitched me his website ideas and we ate sushi.",
+      "was_safe": true,
+      "rating": 3
+    },
+    {
+      "from": "lucas",
+      "to": "val",
+      "type": "friend",
+      "text": "What a dude",
+      "was_safe": true,
+      "rating": 4
+    },
+    {
+      "from": "itsi",
+      "to": "val",
+      "type": "friend",
+      "text": "I had such a great time with Aapeli.",
+      "was_safe": true,
+      "rating": 6
     }
   ],
   "group_chats": [

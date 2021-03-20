@@ -637,7 +637,6 @@ class HostRequest(Base):
     to_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
     from_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
 
-
     start_time_to_write_reference = column_property(date_in_timezone(to_date, timezone))
     end_time_to_write_reference = column_property(date_in_timezone(to_date, timezone) + text("interval '14 days'"))
 

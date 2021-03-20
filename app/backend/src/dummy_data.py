@@ -30,7 +30,7 @@ from couchers.models import (
     User,
 )
 from couchers.servicers.api import hostingstatus2sql
-from couchers.utils import create_coordinate, create_polygon_lng_lat, geojson_to_geom, to_multi
+from couchers.utils import create_coordinate, create_polygon_lng_lat, geojson_to_geom, now, to_multi
 from pb.api_pb2 import HostingStatus
 
 logger = logging.getLogger(__name__)
@@ -95,6 +95,7 @@ def add_dummy_users():
                     text=reference["text"],
                     rating=reference["rating"],
                     was_safe=reference["was_safe"],
+                    visible_from=now(),
                 )
                 session.add(new_reference)
 
