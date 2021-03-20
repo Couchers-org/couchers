@@ -2,6 +2,7 @@ from datetime import timedelta
 
 import grpc
 import pytest
+from google.protobuf import empty_pb2
 
 from couchers import errors
 from couchers.db import session_scope
@@ -437,15 +438,77 @@ def test_WriteHostRequestReference(db):
 """
 
 
-def test_AvailableWriteReferences(db):
+def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):
     user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+    user4, token4 = generate_user()
+
+    with session_scope() as session:
+        # too old
+        hr1 = create_host_request(session, user3.id, user1.id, timedelta(days=20))
+
+        # already wrote friend ref to user3
+        create_friend_reference(session, user1.id, user3.id, timedelta(days=15, seconds=70))
+
+        # already given
+        _, hr2 = create_host_reference(session, user2.id, user1.id, timedelta(days=10, seconds=110), surfing=True)
+        create_host_reference(session, user1.id, user2.id, timedelta(days=10, seconds=100), host_request_id=hr2)
+        print(hr2)
+
+        # valid hosted
+        hr3 = create_host_request(session, user3.id, user1.id, timedelta(days=8))
+
+        # valid surfed
+        hr4 = create_host_request(session, user1.id, user4.id, timedelta(days=5))
+
+        # not yet complete
+        hr5 = create_host_request(session, user2.id, user1.id, timedelta(days=2), status=HostRequestStatus.accepted)
+
+        # already wrote friend ref to user2
+        create_friend_reference(session, user1.id, user2.id, timedelta(days=1))
 
     with references_session(token1) as api:
-        res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq())
+        # can't write anything to myself
+        res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user1.id))
+        assert not res.can_write_friend_reference
+        assert len(res.available_write_references) == 0
 
+        res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user2.id))
+        # can't write friend ref to user2
+        assert not res.can_write_friend_reference
+        # none we can write for user2
+        assert len(res.available_write_references) == 0
 
-def test_ListPendingReferencesToWrite(db):
-    user1, token1 = generate_user()
+        res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user3.id))
+        # can't write friend ref to user3
+        assert not res.can_write_friend_reference
+        # can write one reference because we hosted user3
+        assert len(res.available_write_references) == 1
+        w = res.available_write_references[0]
+        assert w.host_request_id == hr3
+        assert w.reference_type == references_pb2.REFERENCE_TYPE_HOSTED
+        assert now() + timedelta(days=5) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=6)
 
-    with references_session(token1) as api:
-        res = api.ListPendingReferencesToWrite(references_pb2.google())
+        res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user4.id))
+        # can write friend ref to user4
+        assert res.can_write_friend_reference
+        # can write one reference because we surfed with user4
+        assert len(res.available_write_references) == 1
+        w = res.available_write_references[0]
+        assert w.host_request_id == hr4
+        assert w.reference_type == references_pb2.REFERENCE_TYPE_SURFED
+        assert now() + timedelta(days=8) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=9)
+
+        # finally check the general list
+        res = api.ListPendingReferencesToWrite(empty_pb2.Empty())
+        assert len(res.pending_references) == 2
+        # TODO: ordering
+        w = res.pending_references[1]
+        assert w.host_request_id == hr3
+        assert w.reference_type == references_pb2.REFERENCE_TYPE_HOSTED
+        assert now() + timedelta(days=5) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=6)
+        w = res.pending_references[0]
+        assert w.host_request_id == hr4
+        assert w.reference_type == references_pb2.REFERENCE_TYPE_SURFED
+        assert now() + timedelta(days=8) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=9)

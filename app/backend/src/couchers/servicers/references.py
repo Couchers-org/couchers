@@ -8,8 +8,7 @@
 TODO: timezone handling for dates
 """
 import grpc
-from google.protobuf import empty_pb2
-from sqlalchemy.sql import and_, func, or_
+from sqlalchemy.sql import func, or_
 
 from couchers import errors
 from couchers.db import session_scope
@@ -174,6 +173,10 @@ class References(references_pb2_grpc.ReferencesServicer):
             return reference_to_pb(reference, context.user_id)
 
     def AvailableWriteReferences(self, request, context):
+        # can't write anything for ourselves, but let's return empty so this can be used generically on profile page
+        if request.to_user_id == context.user_id:
+            return references_pb2.AvailableWriteReferencesRes()
+
         with session_scope() as session:
             if not session.query(User).filter(User.id == request.to_user_id).one_or_none():
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
@@ -186,10 +189,12 @@ class References(references_pb2_grpc.ReferencesServicer):
                 .one_or_none()
             ) is None
 
-            # TODO: condence into one query
+            # TODO: condense into one query
 
             host_requests_surfed = (
                 session.query(HostRequest)
+                .outerjoin(Reference, Reference.host_request_id == HostRequest.conversation_id)
+                .filter(Reference.id == None)
                 .filter(HostRequest.can_write_reference)
                 .filter(HostRequest.from_user_id == context.user_id)
                 .filter(HostRequest.to_user_id == request.to_user_id)
@@ -198,6 +203,8 @@ class References(references_pb2_grpc.ReferencesServicer):
 
             host_requests_hosted = (
                 session.query(HostRequest)
+                .outerjoin(Reference, Reference.host_request_id == HostRequest.conversation_id)
+                .filter(Reference.id == None)
                 .filter(HostRequest.can_write_reference)
                 .filter(HostRequest.from_user_id == request.to_user_id)
                 .filter(HostRequest.to_user_id == context.user_id)
@@ -206,21 +213,21 @@ class References(references_pb2_grpc.ReferencesServicer):
 
             host_request_references = [
                 references_pb2.AvailableWriteReferenceType(
-                    host_request_id=host_request.id,
+                    host_request_id=host_request.conversation_id,
                     reference_type=reftype2api[ReferenceType.surfed],
-                    time_expires=host_request.end_time_to_write_reference,
+                    time_expires=Timestamp_from_datetime(host_request.end_time_to_write_reference),
                 )
                 for host_request in host_requests_surfed
             ] + [
                 references_pb2.AvailableWriteReferenceType(
-                    host_request_id=host_request.id,
+                    host_request_id=host_request.conversation_id,
                     reference_type=reftype2api[ReferenceType.hosted],
-                    time_expires=host_request.end_time_to_write_reference,
+                    time_expires=Timestamp_from_datetime(host_request.end_time_to_write_reference),
                 )
                 for host_request in host_requests_hosted
             ]
 
-            sort(host_request_references)
+            # host_request_references.sort()
 
             return references_pb2.AvailableWriteReferencesRes(
                 can_write_friend_reference=can_write_friend_reference,
@@ -229,10 +236,12 @@ class References(references_pb2_grpc.ReferencesServicer):
 
     def ListPendingReferencesToWrite(self, request, context):
         with session_scope() as session:
-            # TODO: condence into one query
+            # TODO: condense into one query
 
             host_requests_surfed = (
                 session.query(HostRequest)
+                .outerjoin(Reference, Reference.host_request_id == HostRequest.conversation_id)
+                .filter(Reference.id == None)
                 .filter(HostRequest.can_write_reference)
                 .filter(HostRequest.from_user_id == context.user_id)
                 .all()
@@ -240,6 +249,8 @@ class References(references_pb2_grpc.ReferencesServicer):
 
             host_requests_hosted = (
                 session.query(HostRequest)
+                .outerjoin(Reference, Reference.host_request_id == HostRequest.conversation_id)
+                .filter(Reference.id == None)
                 .filter(HostRequest.can_write_reference)
                 .filter(HostRequest.to_user_id == context.user_id)
                 .all()
@@ -247,21 +258,21 @@ class References(references_pb2_grpc.ReferencesServicer):
 
             host_request_references = [
                 references_pb2.AvailableWriteReferenceType(
-                    host_request_id=host_request.id,
+                    host_request_id=host_request.conversation_id,
                     reference_type=reftype2api[ReferenceType.surfed],
-                    time_expires=host_request.end_time_to_write_reference,
+                    time_expires=Timestamp_from_datetime(host_request.end_time_to_write_reference),
                 )
                 for host_request in host_requests_surfed
             ] + [
                 references_pb2.AvailableWriteReferenceType(
-                    host_request_id=host_request.id,
+                    host_request_id=host_request.conversation_id,
                     reference_type=reftype2api[ReferenceType.hosted],
-                    time_expires=host_request.end_time_to_write_reference,
+                    time_expires=Timestamp_from_datetime(host_request.end_time_to_write_reference),
                 )
                 for host_request in host_requests_hosted
             ]
 
-            sort(host_request_references)
+            # host_request_references.sort()
 
             return references_pb2.ListPendingReferencesToWriteRes(
                 pending_references=host_request_references,
