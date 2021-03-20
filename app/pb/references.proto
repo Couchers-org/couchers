@@ -19,7 +19,7 @@ service References {
   }
 
   rpc WriteHostRequestReference(WriteHostRequestReferenceReq) returns (Reference) {
-    // Write a reference for someone after a completed host request. Raises NOT_FOUND if the request doesn't exist.
+    // Write a reference for someone after having hosted/surfed with them. Raises NOT_FOUND if the request doesn't exist.
   }
 
   rpc AvailableWriteReferences(AvailableWriteReferencesReq) returns (AvailableWriteReferencesRes) {

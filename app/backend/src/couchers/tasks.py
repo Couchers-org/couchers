@@ -104,7 +104,7 @@ def send_friend_request_email(friend_relationship):
 
 def send_host_reference_email(reference, both_written):
     """
-    both_written iif both the surfer and hoster wrote a reference
+    both_written iff both the surfer and hoster wrote a reference
     """
     assert reference.host_request_id
 

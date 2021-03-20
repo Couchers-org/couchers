@@ -625,6 +625,10 @@ class HostRequest(Base):
     from_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     to_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
 
+    # TODO: proper timezone handling
+    timezone = "Etc/UTC"
+
+    # dates in the timezone above
     from_date = Column(Date, nullable=False)
     to_date = Column(Date, nullable=False)
 
@@ -633,8 +637,6 @@ class HostRequest(Base):
     to_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
     from_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
 
-    # TODO: proper timezone handling
-    timezone = "Etc/UTC"
 
     start_time_to_write_reference = column_property(date_in_timezone(to_date, timezone))
     end_time_to_write_reference = column_property(date_in_timezone(to_date, timezone) + text("interval '14 days'"))
