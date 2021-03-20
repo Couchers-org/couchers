@@ -8,14 +8,11 @@ import { CouchIcon, LocationIcon } from "components/Icons";
 import IconText from "components/IconText";
 import { useAuthContext } from "features/auth/AuthProvider";
 import AddFriendButton from "features/connections/friends/AddFriendButton";
-import RequestButton from "features/connections/request/RequestButton";
 import {
   COMMUNITY_STANDING,
   COMMUNITY_STANDING_DESCRIPTION,
   EDIT_HOME,
   EDIT_PROFILE,
-  LAST_ACTIVE,
-  REFERENCES,
   REQUEST,
   VERIFICATION_SCORE,
   VERIFICATION_SCORE_DESCRIPTION,
@@ -29,8 +26,6 @@ import { HostingStatus, MeetupStatus, User } from "pb/api_pb";
 import React, { Dispatch, SetStateAction, useState } from "react";
 import { Link } from "react-router-dom";
 import { editHostingPreferenceRoute, editProfileRoute } from "routes";
-
-import ProfileActionsMenuButton from "../actions/ProfileActionsMenuButton";
 
 const useStyles = makeStyles((theme) => ({
   card: {

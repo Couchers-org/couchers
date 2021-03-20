@@ -42,7 +42,6 @@ export default function Datepicker({
             className={className}
             disableToolbar
             error={error}
-            inputRef={inputRef}
             format="DD.MM.YYYY"
             fullWidth
             helperText={helperText}
@@ -54,7 +53,6 @@ export default function Datepicker({
             minDate={minDate}
             onChange={(date) => {
               // user might be typing, so check the date is valid before doing conversions
-              console.log(typeof date);
               date?.isValid()
                 ? onChange(date?.format().split("T")[0])
                 : onChange(date);
