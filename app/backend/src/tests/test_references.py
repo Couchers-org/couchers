@@ -370,15 +370,28 @@ def test_WriteHostRequestReference(db):
         hr1 = create_host_request(session, user3.id, user1.id, timedelta(days=20))
         # valid host req
         hr2 = create_host_request(session, user3.id, user1.id, timedelta(days=10))
+        # valid surfing req
+        hr3 = create_host_request(session, user1.id, user3.id, timedelta(days=7))
         # not yet complete
-        hr3 = create_host_request(session, user2.id, user1.id, timedelta(days=1), status=HostRequestStatus.accepted)
+        hr4 = create_host_request(session, user2.id, user1.id, timedelta(days=1), status=HostRequestStatus.accepted)
+
+    with references_session(token3) as api:
+        # can write for this one
+        api.WriteHostRequestReference(
+            references_pb2.WriteHostRequestReferenceReq(
+                host_request_id=hr3,
+                text="Should work!",
+                was_safe=True,
+                rating=9,
+            )
+        )
 
     with references_session(token1) as api:
         # can't write reference for a HR that's not yet finished
         with pytest.raises(grpc.RpcError) as e:
             api.WriteHostRequestReference(
                 references_pb2.WriteHostRequestReferenceReq(
-                    host_request_id=hr3,
+                    host_request_id=hr4,
                     text="Shouldn't work...",
                     was_safe=True,
                     rating=9,
@@ -422,6 +435,16 @@ def test_WriteHostRequestReference(db):
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == errors.REFERENCE_ALREADY_GIVEN
+
+        # can write for this one too
+        api.WriteHostRequestReference(
+            references_pb2.WriteHostRequestReferenceReq(
+                host_request_id=hr3,
+                text="Should work!",
+                was_safe=True,
+                rating=9,
+            )
+        )
 
 
 def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):
