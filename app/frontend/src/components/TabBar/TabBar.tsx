@@ -1,5 +1,14 @@
-import { Tab } from "@material-ui/core";
+import { makeStyles, Tab } from "@material-ui/core";
 import { TabList } from "@material-ui/lab";
+
+export const useStyles = makeStyles((theme) => ({
+  messagesTab: {
+    [theme.breakpoints.down("sm")]: {
+      overflow: "visible",
+      margin: `0 ${theme.spacing(2)}`,
+    },
+  },
+}));
 
 export interface TabBarProps<T extends Record<string, React.ReactNode>> {
   ariaLabel: string;
@@ -14,6 +23,7 @@ export default function TabBar<T extends Record<string, React.ReactNode>>({
   setValue,
   labels,
 }: TabBarProps<T>) {
+  const classes = useStyles();
   const handleChange = (event: any, newValue: keyof T) => {
     setValue(newValue);
   };
@@ -28,7 +38,12 @@ export default function TabBar<T extends Record<string, React.ReactNode>>({
       variant="scrollable"
     >
       {Object.entries(labels).map(([value, label]) => (
-        <Tab key={value} label={label} value={value} />
+        <Tab
+          key={value}
+          label={label}
+          value={value}
+          className={classes.messagesTab}
+        />
       ))}
     </TabList>
   );
