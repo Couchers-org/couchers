@@ -232,22 +232,22 @@ def test_update_profile(db):
             )
         )
 
-        user_details_2 = api.GetUser(api_pb2.GetUserReq(user=user.username))
-        assert not user_details_2.hometown
-        assert not user_details_2.radius
-        assert not user_details_2.pronouns
-        assert not user_details_2.occupation
-        assert not user_details_2.education
-        assert not user_details_2.about_me
-        assert not user_details_2.my_travels
-        assert not user_details_2.things_i_like
-        assert not user_details_2.about_place
-        assert user_details_2.hosting_status == api_pb2.HOSTING_STATUS_UNKNOWN
-        assert user_details_2.meetup_status == api_pb2.MEETUP_STATUS_UNKNOWN
-        assert not user_details_2.languages
-        assert not user_details_2.countries_visited
-        assert not user_details_2.countries_lived
-        assert not user_details_2.additional_information
+        user_details = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        assert not user_details.hometown
+        assert not user_details.radius
+        assert not user_details.pronouns
+        assert not user_details.occupation
+        assert not user_details.education
+        assert not user_details.about_me
+        assert not user_details.my_travels
+        assert not user_details.things_i_like
+        assert not user_details.about_place
+        assert user_details.hosting_status == api_pb2.HOSTING_STATUS_UNKNOWN
+        assert user_details.meetup_status == api_pb2.MEETUP_STATUS_UNKNOWN
+        assert not user_details.languages
+        assert not user_details.countries_visited
+        assert not user_details.countries_lived
+        assert not user_details.additional_information
 
 
 def test_pending_friend_request_count(db):
