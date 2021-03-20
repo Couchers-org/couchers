@@ -4,8 +4,8 @@ import { useState } from "react";
 import HorizontalScroller from "./HorizontalScroller";
 
 export default {
-  title: "Components/Simple/HorizontalScroller",
   component: HorizontalScroller,
+  title: "Components/Simple/HorizontalScroller",
 } as Meta;
 
 const Template: Story<any> = (args) => {
@@ -33,14 +33,18 @@ const Template: Story<any> = (args) => {
             <div
               key={index}
               style={{
+                backgroundColor: "pink",
+                height: 140,
                 margin: "1rem",
                 width: 90,
-                height: 140,
-                backgroundColor: "pink",
               }}
             />
           ))}
       </HorizontalScroller>
+      <p>
+        HorizontalScroller only applies it's scrolling to xs breakpoint and
+        lower.
+      </p>
     </>
   );
 };

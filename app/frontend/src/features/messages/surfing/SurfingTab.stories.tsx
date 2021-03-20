@@ -9,11 +9,11 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import { mockedService } from "stories/__mocks__/service";
 
 const message1: Message.AsObject = {
-  messageId: 1,
   authorUserId: 2,
+  messageId: 1,
   // time?: google_protobuf_timestamp_pb.Timestamp.AsObject,
   text: { text: "Hi Funny Cat, can I surf your couch?" },
-  time: { seconds: Math.floor(+new Date(2020, 0, 1) / 1e3), nanos: 0 },
+  time: { nanos: 0, seconds: Math.floor(+new Date(2020, 0, 1) / 1e3) },
   // chatCreated?: MessageContentChatCreated.AsObject,
   // chatEdited?: MessageContentChatEdited.AsObject,
   // userInvited?: MessageContentUserInvited.AsObject,
@@ -23,11 +23,11 @@ const message1: Message.AsObject = {
   // hostRequestStatusChanged?: MessageContentHostRequestStatusChanged.AsObject,
 };
 const message2: Message.AsObject = {
-  messageId: 2,
   authorUserId: 1,
+  messageId: 2,
   // time?: google_protobuf_timestamp_pb.Timestamp.AsObject,
   text: { text: "Sure." },
-  time: { seconds: Math.floor(+new Date(2020, 0, 1) / 1e3), nanos: 0 },
+  time: { nanos: 0, seconds: Math.floor(+new Date(2020, 0, 1) / 1e3) },
   // chatCreated?: MessageContentChatCreated.AsObject,
   // chatEdited?: MessageContentChatEdited.AsObject,
   // userInvited?: MessageContentUserInvited.AsObject,
@@ -38,15 +38,18 @@ const message2: Message.AsObject = {
 };
 
 const hostRequest1: HostRequest.AsObject = {
-  hostRequestId: 1,
-  fromUserId: 2,
-  toUserId: 1,
-  status: pb_conversations_pb.HostRequestStatus.HOST_REQUEST_STATUS_PENDING,
-  created: { seconds: Math.round(Date.now() / 1e3) - 3 * 60 * 60, nanos: 0 },
+  created: {
+    nanos: 0,
+    seconds: Math.round(Date.now() / 1e3) - 3 * 60 * 60,
+  },
   fromDate: "2021-01-01",
-  toDate: "2021-01-03",
+  fromUserId: 2,
+  hostRequestId: 1,
   lastSeenMessageId: 1,
   latestMessage: message2,
+  status: pb_conversations_pb.HostRequestStatus.HOST_REQUEST_STATUS_PENDING,
+  toDate: "2021-01-03",
+  toUserId: 1,
 };
 
 Object.assign(mockedService, {
@@ -58,9 +61,7 @@ Object.assign(mockedService, {
 });
 
 export default {
-  title: "Messages/SurfingTab",
   component: SurfingTab,
-  argTypes: {},
   decorators: [
     (storyFn) => {
       const queryClient = new QueryClient();
@@ -71,6 +72,7 @@ export default {
       );
     },
   ],
+  title: "Messages/SurfingTab",
 } as Meta;
 
 const Template: Story<any> = (args) => {
@@ -78,7 +80,7 @@ const Template: Story<any> = (args) => {
     if (args.failing) {
       throw new Error("An error happened!");
     }
-    return { hostRequestsList: [hostRequest1], noMore: true, lastRequestId: 0 };
+    return { hostRequestsList: [hostRequest1], lastRequestId: 0, noMore: true };
   };
   return <SurfingTab type="all" />;
 };

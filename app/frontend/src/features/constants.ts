@@ -1,3 +1,5 @@
+import { ReferenceType } from "pb/api_pb";
+
 // Profile Overview
 export const COMMUNITY_STANDING = "Community Standing";
 export const COMMUNITY_STANDING_DESCRIPTION =
@@ -31,14 +33,10 @@ export const TRAVELS = "My travels";
 export const WHO = "Who I am";
 export const WHY = "Why I use Couchers";
 
-export const SECTIONS = [ABOUT_ME, HOME, REFERENCES, FAVORITES, PHOTOS];
-
 export const SECTION_LABELS = {
   about: ABOUT_ME,
   home: HOME,
   references: REFERENCES,
-  favorites: FAVORITES,
-  photos: PHOTOS,
 };
 
 // Edit Profile
@@ -80,4 +78,52 @@ export const TRANSPORTATION = "Transportation, Parking, Accessibility";
 export const WHEELCHAIR = "Wheelchair accessible";
 
 // Edit home
-export const EDIT_HOME = "Edit my place";
+export const EDIT_HOME = "Edit home";
+
+// Community
+export const COMMUNITY_HEADING = (name: string) => `Welcome to ${name}!`;
+export const DISCUSSIONS_EMPTY_STATE = "No discussions at the moment.";
+export const DISCUSSIONS_LABEL = "Discussions";
+export const DISCUSSIONS_TITLE = (name: string) => `${name} discussions`;
+export const ERROR_LOADING_COMMUNITY = "Error loading the community.";
+export const EVENTS_EMPTY_STATE = "No events at the moment.";
+export const EVENTS_LABEL = "Events";
+export const FIND_HOST = "Find host";
+export const HANGOUTS_LABEL = "Hangouts";
+export const INVALID_COMMUNITY_ID = "Invalid community id.";
+export const LOCAL_POINTS_LABEL = "Local points";
+export const MORE_REPLIES = "More replies...";
+export const MORE_TIPS = "More tips and information";
+export const NEW_POST_LABEL = "New post";
+export const PLACES_EMPTY_STATE = "No places to show yet.";
+export const SEE_MORE_DISCUSSIONS_LABEL = "See more discussions";
+export const SEE_MORE_EVENTS_LABEL = "See more events";
+export const SEE_MORE_PLACES_LABEL = "See more places";
+
+// References
+export const REFERENCES_FILTER_A11Y_LABEL = "Show references: ";
+export const referencesFilterLabels = {
+  [ReferenceType.FRIEND]: "From friends",
+  [ReferenceType.HOSTED]: "From guests",
+  [ReferenceType.SURFED]: "From hosts",
+  all: "All references",
+  given: "Given to others",
+};
+export const referenceBadgeLabel = {
+  [ReferenceType.FRIEND]: "Friend",
+  [ReferenceType.HOSTED]: "Guest",
+  [ReferenceType.SURFED]: "Hosted",
+};
+export const NO_REFERENCES = "No references of this kind yet!";
+export const getReferencesGivenHeading = (name: string) =>
+  `References ${name} wrote`;
+
+// Bug Report
+export const BUG_DESCRIPTION = "Brief description of the bug";
+export const EXPECT = "What happened? What should have happened?";
+export const PROBLEM = "What's the problem?";
+export const REPORT = "Report a problem";
+export const STEPS = "What did you do to trigger the bug?";
+export const SUBMIT = "Submit";
+export const WARNING =
+  "Please note that this information, as well as diagnostic information including which page you are on, what browser you are using, and your user ID will be saved to a public list of bugs.";

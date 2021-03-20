@@ -1,15 +1,9 @@
-import { Box, makeStyles, Typography } from "@material-ui/core";
-import TextBody from "components/TextBody";
+import { makeStyles } from "@material-ui/core";
+import UserSummary from "components/UserSummary";
 import { User } from "pb/api_pb";
-import React from "react";
-import { Link } from "react-router-dom";
-import { routeToUser } from "routes";
 
 const useStyles = makeStyles((theme) => ({
   friendItem: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
     padding: `0 ${theme.spacing(1)}`,
   },
   friendLink: {
@@ -26,19 +20,16 @@ interface FriendSummaryViewProps {
   friend?: User.AsObject;
 }
 
+export const FRIEND_ITEM_TEST_ID = "friend-item";
+
 function FriendSummaryView({ children, friend }: FriendSummaryViewProps) {
   const classes = useStyles();
 
   return friend ? (
-    <Box className={classes.friendItem}>
-      <Link className={classes.friendLink} to={routeToUser(friend.username)}>
-        <Typography component="h3" variant="h2">
-          {friend.name}
-        </Typography>
-        <TextBody>@{friend.username}</TextBody>
-      </Link>
+    <div className={classes.friendItem} data-testid={FRIEND_ITEM_TEST_ID}>
+      <UserSummary headlineComponent="h3" user={friend} />
       {children}
-    </Box>
+    </div>
   ) : null;
 }
 

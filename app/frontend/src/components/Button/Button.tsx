@@ -6,22 +6,22 @@ import {
 } from "@material-ui/core";
 import classNames from "classnames";
 import React, { ElementType } from "react";
+import { useIsMounted, useSafeState } from "utils/hooks";
 
-import { useIsMounted, useSafeState } from "../../utils/hooks";
 import CircularProgress from "../CircularProgress";
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    minHeight: `calc(calc(${theme.typography.button.lineHeight} * ${
-      theme.typography.button.fontSize
-    }) + ${theme.typography.pxToRem(12)})`, //from padding
+  contained: {
+    borderRadius: `${theme.shape.borderRadius * 2}px`,
+    boxShadow: "0px 0px 5px rgba(0, 0, 0, 0.25)",
   },
   loading: {
     height: theme.typography.button.fontSize,
   },
-  contained: {
-    borderRadius: `${theme.shape.borderRadius * 2}px`,
-    boxShadow: "0px 0px 5px rgba(0, 0, 0, 0.25)",
+  root: {
+    minHeight: `calc(calc(${theme.typography.button.lineHeight} * ${
+      theme.typography.button.fontSize
+    }) + ${theme.typography.pxToRem(12)})`, //from padding
   },
 }));
 

@@ -1,34 +1,64 @@
-import { IconButton, IconButtonProps, makeStyles } from "@material-ui/core";
+import {
+  IconButton,
+  IconButtonProps,
+  makeStyles,
+  Typography,
+} from "@material-ui/core";
 import React, { ReactNode } from "react";
+import { Link } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    borderRadius: "50%",
-    boxShadow: "0 2px 4px",
-    "&:active": {
-      transform: "translateY(1px)",
-      boxShadow: "0 1px 4px",
-    },
+  body: {
+    alignItems: "center",
+    display: "flex",
+    flexDirection: "column",
+  },
+  button: {
+    marginBottom: theme.spacing(0.5),
+  },
+  link: {
+    textDecoration: "none",
   },
 }));
 
 interface CircularIconButtonProps extends IconButtonProps {
   children?: ReactNode;
-  onClick: () => void;
+  label: string;
+  id: string;
+  linkTo?: string;
+  disabled?: boolean;
 }
 
 export default function CircularIconButton({
   children,
-  onClick,
+  id,
+  label,
+  linkTo,
+  disabled = false,
   ...otherProps
 }: CircularIconButtonProps) {
   const classes = useStyles();
-  return (
-    <IconButton
-      {...otherProps}
-      onClick={onClick}
-      className={classes.root}
-      children={children}
-    />
+
+  const body = (
+    <div className={classes.body}>
+      <IconButton
+        {...otherProps}
+        aria-labelledby={id}
+        className={classes.button}
+        children={children}
+        disabled={disabled}
+      />
+      <Typography id={id} variant="caption" align="center">
+        {label}
+      </Typography>
+    </div>
+  );
+
+  return linkTo ? (
+    <Link to={linkTo} className={classes.link}>
+      {body}
+    </Link>
+  ) : (
+    body
   );
 }

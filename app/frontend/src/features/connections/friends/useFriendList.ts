@@ -12,9 +12,9 @@ function useFriendList() {
   const friendQueries = useQueries<User.AsObject, Error>(
     (friendIds ?? []).map((friendId) => {
       return {
-        queryKey: ["user", friendId],
-        queryFn: () => service.user.getUser(friendId.toString()),
         enabled: !!friendIds,
+        queryFn: () => service.user.getUser(friendId.toString()),
+        queryKey: ["user", friendId],
       };
     })
   );
@@ -28,10 +28,10 @@ function useFriendList() {
   const data = friendIds && friendQueries.map((query) => query.data);
 
   return {
-    isLoading: isLoading || friendQueries.some((query) => query.isLoading),
-    isError: !!errors.length,
-    errors,
     data,
+    errors,
+    isError: !!errors.length,
+    isLoading: isLoading || friendQueries.some((query) => query.isLoading),
   };
 }
 

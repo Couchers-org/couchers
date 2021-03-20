@@ -4,24 +4,18 @@ import { Meta, Story } from "@storybook/react";
 import EventCard from "./EventCard";
 
 export default {
-  title: "Communities/CommunityPage/EventCard",
   component: EventCard,
+  title: "Communities/CommunityPage/EventCard",
 } as Meta;
 
-const Template: Story<any> = (args) => (
-  <>
-    <div>
-      <EventCard {...args} />
-    </div>
-  </>
-);
+const Template: Story<any> = (args) => <EventCard {...args} />;
 
 export const eventCard = Template.bind({});
 eventCard.args = {
   event: {
-    title: "Weekly Meetup",
     creatorName: "John Doherty",
     location: "Concertgebouw",
-    startTime: { seconds: Date.now() / 1000, nanos: 0 },
+    startTime: { nanos: 0, seconds: Date.now() / 1000 },
+    title: "Weekly Meetup",
   },
 };

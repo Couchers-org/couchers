@@ -13,9 +13,8 @@ import messages from "test/fixtures/messages.json";
 const queryClient = new QueryClient();
 
 export default {
-  title: "Messages/GroupChatsTab",
-  component: GroupChatsTab,
   argTypes: {},
+  component: GroupChatsTab,
   decorators: [
     (storyFn) => {
       return (
@@ -25,12 +24,13 @@ export default {
       );
     },
   ],
+  title: "Messages/GroupChatsTab",
 } as Meta;
 
 mockedService.conversations.getGroupChatMessages = async () => ({
+  lastMessageId: 0,
   messagesList: messages,
   noMore: true,
-  lastMessageId: 0,
 });
 
 mockedService.conversations.createGroupChat = async () => {

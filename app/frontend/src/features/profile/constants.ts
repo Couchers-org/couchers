@@ -4,7 +4,9 @@ import {
   ParkingDetails,
   SleepingArrangement,
   SmokingLocation,
+  User,
 } from "pb/api_pb";
+import { firstName } from "utils/names";
 
 export const ACCEPTING = "Accepting guests";
 export const MAYBE_ACCEPTING = "Maybe accepting guests";
@@ -15,6 +17,21 @@ export const MAYBE_MEETUP = "Open to meeting up";
 export const NO_MEETUP = "Cannot meet up";
 
 const UNSURE = "Ask me";
+
+// User reporting
+export const CANCEL = "Cancel";
+export const MORE_PROFILE_ACTIONS = "...";
+export const MORE_PROFILE_ACTIONS_A11Y_TEXT = "More profile actions";
+export const REPORT_DETAILS = "Details";
+export const REPORT_REASON = "Reason";
+export const REPORT_USER = "Report this user";
+export const SEND = "Send";
+
+export const getReportDialogTitle = (name: string) => `Report ${name}`;
+export const getReportUserExplainer = (name: string) =>
+  `You can anonymously report ${name} to moderators. Give as much details as you can and are comfortable with.`;
+export const getReportUserSuccessMessage = (name: string) =>
+  `${name} has been reported to the Couchers safety team`;
 
 export const smokingLocationLabels = {
   [SmokingLocation.SMOKING_LOCATION_NO]: "No",
@@ -29,16 +46,16 @@ export const hostingStatusLabels = {
   [HostingStatus.HOSTING_STATUS_CAN_HOST]: ACCEPTING,
   [HostingStatus.HOSTING_STATUS_MAYBE]: MAYBE_ACCEPTING,
   [HostingStatus.HOSTING_STATUS_CANT_HOST]: NOT_ACCEPTING,
-  [HostingStatus.HOSTING_STATUS_UNSPECIFIED]: UNSURE,
-  [HostingStatus.HOSTING_STATUS_UNKNOWN]: UNSURE,
+  [HostingStatus.HOSTING_STATUS_UNSPECIFIED]: `${UNSURE} about hosting`,
+  [HostingStatus.HOSTING_STATUS_UNKNOWN]: `${UNSURE} about hosting`,
 };
 
 export const meetupStatusLabels = {
   [MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP]: MEETUP,
   [MeetupStatus.MEETUP_STATUS_OPEN_TO_MEETUP]: MAYBE_MEETUP,
   [MeetupStatus.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP]: NO_MEETUP,
-  [MeetupStatus.MEETUP_STATUS_UNSPECIFIED]: UNSURE,
-  [MeetupStatus.MEETUP_STATUS_UNKNOWN]: UNSURE,
+  [MeetupStatus.MEETUP_STATUS_UNSPECIFIED]: `${UNSURE} about meeting up`,
+  [MeetupStatus.MEETUP_STATUS_UNKNOWN]: `${UNSURE} about meeting up`,
 };
 
 export const sleepingArrangementLabels = {
@@ -62,3 +79,18 @@ export const parkingDetailsLabels = {
 export default function booleanConversion(value: boolean | undefined) {
   return value === undefined ? UNSURE : value ? "Yes" : "No";
 }
+
+export const referencesQueryStaleTime = 10 * 60 * 1000;
+
+export const aboutText = (user: User.AsObject) => {
+  const missingAbout = user.aboutMe.length === 0;
+  return missingAbout
+    ? `${firstName(user?.name)} hasn't said anything about themselves yet`
+    : user.aboutMe.length < 300
+    ? user.aboutMe
+    : user.aboutMe.substring(0, 300) + "...";
+};
+
+export const LAST_ACTIVE_FALSE = "Unknown";
+export const LANGUAGES_FLUENT_FALSE = "Not given";
+export const MESSAGE = "Message";

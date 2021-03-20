@@ -129,6 +129,18 @@ def test_get_user(db):
         assert res.username == user2.username
         assert res.name == user2.name
 
+    with api_session(token1) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=str(user2.id)))
+        assert res.user_id == user2.id
+        assert res.username == user2.username
+        assert res.name == user2.name
+
+    with api_session(token1) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=user2.email))
+        assert res.user_id == user2.id
+        assert res.username == user2.username
+        assert res.name == user2.name
+
 
 def test_get_invisible_user_by_username(db):
     user1, token1 = generate_user()
@@ -191,6 +203,19 @@ def test_update_profile(db):
         with pytest.raises(grpc.RpcError) as e:
             api.UpdateProfile(api_pb2.UpdateProfileReq(name=wrappers_pb2.StringValue(value="  ")))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.INVALID_NAME
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.UpdateProfile(
+                api_pb2.UpdateProfileReq(lat=wrappers_pb2.DoubleValue(value=0), lng=wrappers_pb2.DoubleValue(value=0))
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.INVALID_COORDINATE
+
+        # changing gender shouldn't be allowed
+        with pytest.raises(grpc.RpcError) as e:
+            api.UpdateProfile(api_pb2.UpdateProfileReq(gender=wrappers_pb2.StringValue(value="newgender")))
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
 
         res = api.UpdateProfile(
             api_pb2.UpdateProfileReq(
@@ -200,7 +225,6 @@ def test_update_profile(db):
                 lat=wrappers_pb2.DoubleValue(value=0.01),
                 lng=wrappers_pb2.DoubleValue(value=-2),
                 radius=wrappers_pb2.DoubleValue(value=321),
-                gender=wrappers_pb2.StringValue(value="Bot"),
                 pronouns=api_pb2.NullableStringValue(value="Ro, Robo, Robots"),
                 occupation=api_pb2.NullableStringValue(value="Testing"),
                 education=api_pb2.NullableStringValue(value="Couchers U"),
@@ -231,7 +255,6 @@ def test_update_profile(db):
         assert user.lat == 0.01
         assert user.lng == -2
         assert user.radius == 321
-        assert user.gender == "Bot"
         assert user.occupation == "Testing"
         assert user.about_me == "I rule"
         assert user.about_place == "My place"
@@ -828,12 +851,14 @@ def test_reporting(db):
         with pytest.raises(grpc.RpcError) as e:
             api.Report(report_req)
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == errors.CANT_REPORT_SELF
 
     report_req = api_pb2.ReportReq(reported_user_id=0x7FFFFFFFFFFFFFFF, reason="foo", description="bar")
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.Report(report_req)
     assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    assert e.value.details() == errors.USER_NOT_FOUND
 
 
 def test_references(db):
@@ -894,6 +919,7 @@ def test_references(db):
         with pytest.raises(grpc.RpcError) as e:
             api.WriteReference(req)
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.REFERENCE_ALREADY_GIVEN
 
     # Nonexisting user
     req = api_pb2.WriteReferenceReq(
@@ -903,6 +929,7 @@ def test_references(db):
         with pytest.raises(grpc.RpcError) as e:
             api.WriteReference(req)
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.USER_NOT_FOUND
 
     # yourself
     req = api_pb2.WriteReferenceReq(to_user_id=user1.id, reference_type=api_pb2.ReferenceType.HOSTED, text="ok")
@@ -910,6 +937,7 @@ def test_references(db):
         with pytest.raises(grpc.RpcError) as e:
             api.WriteReference(req)
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.CANT_REFER_SELF
 
     with api_session(token2) as api:
         # test the number of references in GetUser and Ping

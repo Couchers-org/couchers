@@ -7,6 +7,7 @@ import PageTitle from "../../components/PageTitle";
 import TabBar from "../../components/TabBar";
 import { connectionsRoute } from "../../routes";
 import useNotifications from "../useNotifications";
+import { CONNECTIONS, FRIENDS } from "./constants";
 import { FriendsTab } from "./friends";
 
 function FriendsNotification() {
@@ -14,13 +15,12 @@ function FriendsNotification() {
 
   return (
     <NotificationBadge count={data?.pendingFriendRequestCount}>
-      Friends
+      {FRIENDS}
     </NotificationBadge>
   );
 }
 
 const labels = {
-  all: "All",
   friends: <FriendsNotification />,
 };
 
@@ -28,23 +28,23 @@ type ConnectionType = keyof typeof labels;
 
 function ConnectionsPage() {
   const history = useHistory();
-  const { type = "all" } = useParams<{ type: string }>();
-  const connectionType = type in labels ? (type as ConnectionType) : "all";
+  const { type = "friends" } = useParams<{ type: string }>();
+  const connectionType = type in labels ? (type as ConnectionType) : "friends";
 
   return (
     <>
-      <PageTitle>My Connections</PageTitle>
+      <PageTitle>{CONNECTIONS}</PageTitle>
       <TabContext value={connectionType}>
         <TabBar
+          ariaLabel="Tabs for different connection types"
           value={connectionType}
           setValue={(newType) =>
             history.push(
-              `${connectionsRoute}/${newType !== "all" ? newType : ""}`
+              `${connectionsRoute}/${newType !== "friends" ? newType : ""}`
             )
           }
           labels={labels}
         />
-        <TabPanel value="all">ALL</TabPanel>
         <TabPanel value="friends">
           <FriendsTab />
         </TabPanel>

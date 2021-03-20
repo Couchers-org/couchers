@@ -11,3 +11,7 @@ export function validateFutureDate(stringDate: string) {
   const date = new Date(stringDate);
   return !isNaN(date.getTime()) && date >= new Date();
 }
+
+export function sanitizeName(name: string) {
+  return name.trim().toLowerCase();
+}

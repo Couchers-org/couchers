@@ -3,20 +3,18 @@ import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";
 import { useState } from "react";
 
 export default {
-  title: "Profile/ProfileMarkdownInput",
   component: ProfileMarkdownInput,
+  title: "Profile/ProfileMarkdownInput",
 } as Meta;
 
 const Template: Story<any> = (args) => {
   const [value, setValue] = useState("");
   return (
-    <>
-      <ProfileMarkdownInput
-        {...args}
-        value={value}
-        onChange={(v) => setValue(v)}
-      />
-    </>
+    <ProfileMarkdownInput
+      {...args}
+      value={value}
+      onChange={(v) => setValue(v)}
+    />
   );
 };
 

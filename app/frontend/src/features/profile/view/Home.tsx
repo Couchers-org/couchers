@@ -34,15 +34,15 @@ import { User } from "pb/api_pb";
 import React from "react";
 
 const useStyles = makeStyles(() => ({
-  root: {
-    display: "flex",
-    justifyContent: "space-between",
-  },
   info: {
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
     width: "50%",
+  },
+  root: {
+    display: "flex",
+    justifyContent: "space-between",
   },
 }));
 

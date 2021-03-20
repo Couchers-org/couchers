@@ -4,18 +4,18 @@ import { HostRequestStatus } from "pb/conversations_pb";
 import { HostRequest } from "pb/requests_pb";
 
 export default {
-  title: "Messages/HostRequestStatusIcon",
-  component: HostRequestStatusIcon,
   argTypes: {
     requestStatus: {
       control: {
-        type: "select",
         options: Object.keys(HostRequestStatus).map(
           (key) => (HostRequestStatus as any)[key]
         ),
+        type: "select",
       },
     },
   },
+  component: HostRequestStatusIcon,
+  title: "Messages/HostRequestStatusIcon",
 } as Meta;
 
 const Template: Story<any> = (args) => (

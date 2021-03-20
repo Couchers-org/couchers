@@ -15,19 +15,23 @@ import {
 } from "./timeAgo";
 
 const timeAgoMap = {
-  [minuteMillis]: "< 1 minute ago",
-  [twoMinuteMillis]: "1 minute ago",
-  [hourMillis]: "1 hour ago",
-  [twoHourMillis]: "2 hours ago",
   [dayMillis]: "1 day ago",
-  [twoDayMillis]: "2 days ago",
-  [weekMillis]: "1 week ago",
-  [twoWeekMillis]: "2 weeks ago",
+  [hourMillis]: "1 hour ago",
+  [minuteMillis]: "< 1 minute ago",
   [monthMillis]: "1 month ago",
+  [twoDayMillis]: "2 days ago",
+  [twoHourMillis]: "2 hours ago",
+  [twoMinuteMillis]: "1 minute ago",
   [twoMonthMillis]: "2 months ago",
-  [yearMillis]: "1 year ago",
+  [twoWeekMillis]: "2 weeks ago",
   [twoYearMillis]: "2 years ago",
+  [weekMillis]: "1 week ago",
+  [yearMillis]: "1 year ago",
 };
+
+beforeEach(() => {
+  jest.spyOn(Date, "now").mockReturnValue(1614556800000);
+});
 
 test("timeAgo function", () => {
   Object.keys(timeAgoMap).forEach((key: string) => {

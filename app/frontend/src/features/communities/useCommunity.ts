@@ -10,6 +10,7 @@ import {
   ListNearbyUsersRes,
   ListPlacesRes,
 } from "pb/communities_pb";
+import { Discussion } from "pb/discussions_pb";
 import {
   communityAdminsKey,
   communityDiscussionsKey,
@@ -21,7 +22,12 @@ import {
   communityPlacesKey,
   subCommunitiesKey,
 } from "queryKeys";
-import { useInfiniteQuery, useQuery } from "react-query";
+import {
+  QueryClient,
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+} from "react-query";
 import { service } from "service/index";
 
 export const useCommunity = (id: number) =>
@@ -117,5 +123,26 @@ export const useListNearbyUsers = (communityId?: number) =>
       enabled: !!communityId,
       getNextPageParam: (lastPage) =>
         lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
+    }
+  );
+
+export const useNewDiscussionMutation = (queryClient: QueryClient) =>
+  useMutation<
+    Discussion.AsObject,
+    GrpcError,
+    {
+      title: string;
+      content: string;
+      ownerCommunityId: number;
+    }
+  >(
+    ({ title, content, ownerCommunityId }) =>
+      service.discussions.createDiscussion(title, content, ownerCommunityId),
+    {
+      onSuccess(_, { ownerCommunityId }) {
+        queryClient.invalidateQueries(
+          communityDiscussionsKey(ownerCommunityId)
+        );
+      },
     }
   );

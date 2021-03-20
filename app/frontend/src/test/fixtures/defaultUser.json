@@ -13,7 +13,6 @@
   "gender": "Male",
   "pronouns": "He/him",
   "age": 30,
-  "color": "#40a6e7",
   "joined": {
     "seconds": 1602806400,
     "nanos": 0

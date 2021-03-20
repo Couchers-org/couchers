@@ -14,24 +14,47 @@ import {
 import React from "react";
 
 const useStyles = makeStyles((theme) => ({
-  dialog: { padding: 0 },
   actions: {
     display: "flex",
     justifyContent: "space-around",
+    margin: 0,
     padding: theme.spacing(2),
     paddingTop: 0,
-    margin: 0,
   },
-  content: { padding: theme.spacing(2) },
-  contentText: { padding: theme.spacing(2) },
-  title: {
+  content: {
+    height: "fit-content",
+    padding: theme.spacing(3),
+    width: "100%",
+  },
+  contentText: {
     padding: theme.spacing(2),
-    paddingBottom: 0,
-    textAlign: "center",
+  },
+  dialog: {
+    padding: 0,
+    "& .MuiDialog-scrollPaper": {
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "start",
+      [theme.breakpoints.down("sm")]: {
+        alignItems: "inherit",
+      },
+
+      "& .MuiDialog-paper": {
+        width: "25%",
+        [theme.breakpoints.down("sm")]: {
+          width: "80%",
+        },
+      },
+    },
+  },
+  title: {
     "& > h2": theme.typography.h2,
     "&:not(:nth-child(1))": {
       paddingTop: 0,
     },
+    padding: theme.spacing(2),
+    paddingBottom: 0,
+    textAlign: "center",
   },
 }));
 

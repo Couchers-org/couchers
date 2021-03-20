@@ -1,5 +1,8 @@
 import { LngLat } from "maplibre-gl";
 
+export const COUCHERS = "Couchers";
+export const LOG_OUT = "Log out";
+
 export const userLocationMaxRadius = 2000;
 export const userLocationMinRadius = 50;
 export const userLocationDefault = new LngLat(-0.1, 51.5);
@@ -19,3 +22,5 @@ export const grpcErrorStrings = {
   "upstream connect error or disconnect/reset before headers":
     "There was an internal server error. Please try again later.",
 };
+
+export type ObscureGrpcErrorMessages = keyof typeof grpcErrorStrings;
