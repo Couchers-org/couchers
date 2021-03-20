@@ -3,9 +3,8 @@
 * Multiple of the other types (one for each stay)
 * Have 2 weeks to write a reference after hosting/surfing
 * References become visible after min{2 weeks, both reciprocal references written}
-* Get bugged about writing reference 1 day after, 1 week after, 2weeks-2days
 
-TODO: timezone handling for dates
+* TODO: Get bugged about writing reference 1 day after, 1 week after, 2weeks-2days
 """
 import grpc
 from sqlalchemy.sql import func, literal, or_

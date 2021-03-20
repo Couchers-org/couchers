@@ -131,13 +131,6 @@ def create_friend_reference(session, from_user_id, to_user_id, reference_age):
 
 
 def test_ListPagination(db):
-    """
-    * List pagination
-    * List fails when not specifying at least one
-    * List gets all from/to
-    * List friend, hosting, surfing, and correct ordering
-    * List hides not yet visible
-    """
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -429,13 +422,6 @@ def test_WriteHostRequestReference(db):
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == errors.REFERENCE_ALREADY_GIVEN
-
-
-"""
-* Available write reference friend/non friend available
-* Available write reference surfing, hosting
-* Pending references to write
-"""
 
 
 def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):
