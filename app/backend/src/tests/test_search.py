@@ -3,7 +3,7 @@ import pytest
 from google.protobuf import wrappers_pb2
 
 from couchers import errors
-from couchers.db import session_scope
+from couchers.db import get_user_by_field, session_scope
 from pb import search_pb2
 from tests.test_communities import get_community_id, get_group_id, get_user_id_and_token, testing_communities
 from tests.test_fixtures import db, generate_user, groups_session, search_session, testconfig
@@ -49,7 +49,14 @@ def test_UserSearch(testing_communities):
 
 def test_Search_function_invisible_users(db):
     user1, token1 = generate_user()
-    user2, token2 = generate_user(is_deleted=True)
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        user2 = get_user_by_field(session, user2.username)
+        user2.is_banned = True
+        session.commit()
+        session.refresh(user2)
+        session.expunge(user2)
 
     with search_session(token1) as api:
         res = api.Search(
@@ -63,7 +70,14 @@ def test_Search_function_invisible_users(db):
 
 def test_UserSearch_function_invisible_users(db):
     user1, token1 = generate_user()
-    user2, token2 = generate_user(is_deleted=True)
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        user2 = get_user_by_field(session, user2.username)
+        user2.is_banned = True
+        session.commit()
+        session.refresh(user2)
+        session.expunge(user2)
 
     with search_session(token1) as api:
         res = api.UserSearch(search_pb2.UserSearchReq(query=wrappers_pb2.StringValue(value="test_user_")))

@@ -1,6 +1,7 @@
 # CAUTION! Changing these messages may break clients.
 
 ACCOUNT_SUSPENDED = "Your account is suspended."
+ACCOUNT_DELETED = "Your account has been deleted."
 ALREADY_ADMIN = "That user is already an admin."
 ALREADY_IN_CHAT = "That user is already in the chat."
 ALREADY_IN_COMMUNITY = "You're already in that community."
