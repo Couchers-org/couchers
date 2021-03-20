@@ -503,12 +503,11 @@ def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):
         # finally check the general list
         res = api.ListPendingReferencesToWrite(empty_pb2.Empty())
         assert len(res.pending_references) == 2
-        # TODO: ordering
-        w = res.pending_references[1]
+        w = res.pending_references[0]
         assert w.host_request_id == hr3
         assert w.reference_type == references_pb2.REFERENCE_TYPE_HOSTED
         assert now() + timedelta(days=5) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=6)
-        w = res.pending_references[0]
+        w = res.pending_references[1]
         assert w.host_request_id == hr4
         assert w.reference_type == references_pb2.REFERENCE_TYPE_SURFED
         assert now() + timedelta(days=8) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=9)
