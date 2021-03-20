@@ -22,10 +22,10 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import backref, column_property, relationship
 from sqlalchemy.orm.session import Session
-from sqlalchemy.sql import func, text
+from sqlalchemy.sql import func, text, type_coerce
 
 from couchers.config import config
-from couchers.utils import get_coordinates, today
+from couchers.utils import date_in_timezone, get_coordinates, now, today
 
 meta = MetaData(
     naming_convention={
@@ -633,30 +633,31 @@ class HostRequest(Base):
     to_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
     from_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
 
-    last_time_to_write_reference = column_property(to_date + text("interval '14 days'"))
+    # TODO: proper timezone handling
+    timezone = "Etc/UTC"
+
+    start_time_to_write_reference = column_property(date_in_timezone(to_date, timezone))
+    end_time_to_write_reference = column_property(date_in_timezone(to_date, timezone) + text("interval '14 days'"))
 
     from_user = relationship("User", backref="host_requests_sent", foreign_keys="HostRequest.from_user_id")
     to_user = relationship("User", backref="host_requests_received", foreign_keys="HostRequest.to_user_id")
     conversation = relationship("Conversation")
 
-    # TODO: tests for both of these
-    # TODO: timezone handling in edge cases, when can you start/end writing a reference?
-
     @hybrid_property
     def can_write_reference(self):
         return (
             (self.status == HostRequestStatus.confirmed)
-            & (today() >= self.to_date)
-            & (self.to_date <= last_time_to_write_reference)
+            & (now() >= self.start_time_to_write_reference)
+            & (now() <= self.end_time_to_write_reference)
         )
 
-    # @can_write_reference.expression
-    # def can_write_reference(cls):
-    #     return (
-    #         (cls.status == HostRequestStatus.confirmed)
-    #         & (cls.to_date <= func.now())
-    #         & (cls.to_date - func.now() <= last_time_to_write_reference)
-    #     )
+    @can_write_reference.expression
+    def can_write_reference(cls):
+        return (
+            (cls.status == HostRequestStatus.confirmed)
+            & (func.now() >= cls.start_time_to_write_reference)
+            & (func.now() <= cls.end_time_to_write_reference)
+        )
 
     def __repr__(self):
         return f"HostRequest(id={self.id}, from_user_id={self.from_user_id}, to_user_id={self.to_user_id}...)"

@@ -6,7 +6,8 @@ import pytz
 from geoalchemy2.shape import from_shape, to_shape
 from google.protobuf.timestamp_pb2 import Timestamp
 from shapely.geometry import Point, Polygon, shape
-from sqlalchemy.sql import func
+from sqlalchemy.sql import cast, func
+from sqlalchemy.types import DateTime
 
 from couchers.config import config
 
@@ -171,3 +172,30 @@ def remove_duplicates_retain_order(list_):
         if item not in out:
             out.append(item)
     return out
+
+
+def date_in_timezone(date_, timezone):
+    """
+    Given a naive postgres date object (postgres doesn't have tzd dates), returns a timezone-aware timestamp for the
+    start of that date in that timezone. E.g. if postgres is in 'America/New_York',
+
+    SET SESSION TIME ZONE 'America/New_York';
+
+    CREATE TABLE tz_trouble (to_date date, timezone text);
+
+    INSERT INTO tz_trouble(to_date, timezone) VALUES
+    ('2021-03-10'::date, 'Australia/Sydney'),
+    ('2021-03-20'::date, 'Europe/Berlin'),
+    ('2021-04-15'::date, 'America/New_York');
+
+    SELECT timezone(timezone, to_date::timestamp) FROM tz_trouble;
+
+    The result is:
+
+            timezone
+    ------------------------
+     2021-03-09 08:00:00-05
+     2021-03-19 19:00:00-04
+     2021-04-15 00:00:00-04
+    """
+    return func.timezone(timezone, cast(date_, DateTime(timezone=False)))
