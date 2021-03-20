@@ -20,12 +20,12 @@ def Timestamp_from_datetime(dt: datetime):
     return pb_ts
 
 
-def parse_date(d: date):
+def parse_date(date_str: str):
     """
     Parses a date-only string in the format "YYYY-MM-DD" returning None if it fails
     """
     try:
-        return date.fromisoformat(d)
+        return date.fromisoformat(date_str)
     except ValueError:
         return None
 

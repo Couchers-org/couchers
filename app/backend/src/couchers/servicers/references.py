@@ -53,7 +53,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             next_reference_id = int(request.page_token) if request.page_token else 0
 
             if not request.from_user_id and not request.to_user_id:
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NEED_TO_SPECIFY_AT_LEAT_ONE_USER_ID)
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NEED_TO_SPECIFY_AT_LEAST_ONE_USER)
 
             query = session.query(Reference).filter(Reference.visible_from < func.now())
             if request.from_user_id:

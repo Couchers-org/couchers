@@ -279,7 +279,7 @@ def test_ListPagination(db):
                 references_pb2.ListReferencesReq(reference_type_filter=[references_pb2.REFERENCE_TYPE_SURFED])
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.NEED_TO_SPECIFY_AT_LEAT_ONE_USER_ID
+        assert e.value.details() == errors.NEED_TO_SPECIFY_AT_LEAST_ONE_USER
 
     with references_session(token5) as api:
         # from user1 to user2
