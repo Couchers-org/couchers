@@ -6,6 +6,7 @@ import {
   CONFIRM_UPLOAD,
   getAvatarLabel,
   SELECT_AN_IMAGE,
+  UPLOAD_PENDING_ERROR,
 } from "components/constants";
 import { SUBMIT } from "features/constants";
 import { useForm } from "react-hook-form";
@@ -33,10 +34,11 @@ describe("AvatarInput component", () => {
       full_url: "full.jpg",
     });
     const Form = () => {
-      const { control, handleSubmit } = useForm();
+      const { control, handleSubmit, errors } = useForm();
       const onSubmit = handleSubmit((data) => submitForm(data));
       return (
         <form onSubmit={onSubmit}>
+          {errors.avatarInput && <p>{errors.avatarInput.message}</p>}
           <AvatarInput
             control={control}
             id="avatar-input"
@@ -154,5 +156,20 @@ describe("AvatarInput component", () => {
     await waitFor(() => {
       expect(submitForm).toHaveBeenCalledWith({ avatarInput: MOCK_KEY });
     });
+  });
+
+  it("doesn't submit without confirming/cancelling", async () => {
+    userEvent.upload(screen.getByLabelText(SELECT_AN_IMAGE), MOCK_FILE);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(CONFIRM_UPLOAD)).toBeVisible();
+    });
+
+    userEvent.click(screen.getByRole("button", { name: SUBMIT }));
+
+    await waitFor(() => {
+      expect(screen.getByText(UPLOAD_PENDING_ERROR)).toBeVisible();
+    });
+    expect(submitForm).not.toHaveBeenCalled();
   });
 });
