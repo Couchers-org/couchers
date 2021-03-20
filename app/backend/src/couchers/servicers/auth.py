@@ -94,6 +94,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
         if user.is_banned:
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ACCOUNT_SUSPENDED)
 
+        if user.is_deleted:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ACCOUNT_DELETED)
+
         token = cookiesafe_secure_token()
 
         headers = dict(context.invocation_metadata())

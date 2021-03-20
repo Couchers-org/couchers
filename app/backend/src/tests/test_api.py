@@ -132,7 +132,14 @@ def test_get_user(db):
 
 def test_get_invisible_user_by_username(db):
     user1, token1 = generate_user()
-    user2, token2 = generate_user(is_deleted=True)
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        user2 = get_user_by_field(session, user2.username)
+        user2.is_banned = True
+        session.commit()
+        session.refresh(user2)
+        session.expunge(user2)
 
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -143,7 +150,15 @@ def test_get_invisible_user_by_username(db):
 
 def test_get_invisible_user_by_id(db):
     user1, token1 = generate_user()
-    user2, token2 = generate_user(is_deleted=True)
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        user2 = get_user_by_field(session, user2.username)
+        user2.is_banned = True
+        session.commit()
+        session.refresh(user2)
+        session.expunge(user2)
+
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.GetUser(api_pb2.GetUserReq(user=str(user2.id)))
@@ -153,7 +168,14 @@ def test_get_invisible_user_by_id(db):
 
 def test_get_invisible_user_by_email(db):
     user1, token1 = generate_user()
-    user2, token2 = generate_user(is_deleted=True)
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        user2 = get_user_by_field(session, user2.username)
+        user2.is_banned = True
+        session.commit()
+        session.refresh(user2)
+        session.expunge(user2)
 
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -318,7 +340,15 @@ def test_friend_request_flow(db):
 
 def test_SendFriendRequest_invisible_user_as_sender(db):
     user1, token1 = generate_user()
-    user2, token2 = generate_user(is_deleted=True)
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        user2 = get_user_by_field(session, user2.username)
+        user2.is_banned = True
+        session.commit()
+        session.refresh(user2)
+        session.expunge(user2)
+
     with api_session(token2) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.SendFriendRequest(
@@ -332,7 +362,15 @@ def test_SendFriendRequest_invisible_user_as_sender(db):
 
 def test_SendFriendRequest_invisible_user_as_recipient(db):
     user1, token1 = generate_user()
-    user2, token2 = generate_user(is_deleted=True)
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        user2 = get_user_by_field(session, user2.username)
+        user2.is_banned = True
+        session.commit()
+        session.refresh(user2)
+        session.expunge(user2)
+
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.SendFriendRequest(
@@ -534,8 +572,15 @@ def test_ListFriends(db):
 
 def test_ListFriends_with_invisible_users(db):
     user1, token1 = generate_user()
-    user2, token2 = generate_user(is_deleted=True)
+    user2, token2 = generate_user()
     user3, token3 = generate_user()
+
+    with session_scope() as session:
+        user2 = get_user_by_field(session, user2.username)
+        user2.is_banned = True
+        session.commit()
+        session.refresh(user2)
+        session.expunge(user2)
 
     with api_session(token1) as api:
         res = api.ListFriends(empty_pb2.Empty())
