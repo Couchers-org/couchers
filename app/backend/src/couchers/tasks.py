@@ -102,6 +102,40 @@ def send_friend_request_email(friend_relationship):
     )
 
 
+def send_host_reference_email(reference, both_written):
+    """
+    both_written iif both the surfer and hoster wrote a reference
+    """
+    assert reference.host_request_id
+
+    logger.info(f"Sending host reference email to {reference.to_user=} for {reference.id=}")
+
+    email.enqueue_email_from_template(
+        reference.to_user.email,
+        "host_reference",
+        template_args={
+            "reference": reference,
+            # if this reference was written by the surfer, then the recipient hosted
+            "surfed": reference.host_request.from_user_id != reference.from_user_id,
+            "both_written": both_written,
+        },
+    )
+
+
+def send_friend_reference_email(reference):
+    assert not reference.host_request_id
+
+    logger.info(f"Sending friend reference email to {reference.to_user=} for {reference.id=}")
+
+    email.enqueue_email_from_template(
+        reference.to_user.email,
+        "friend_reference",
+        template_args={
+            "reference": reference,
+        },
+    )
+
+
 def send_password_changed_email(user):
     """
     Send the user an email saying their password has been changed.

@@ -12,6 +12,7 @@ from sqlalchemy.sql import func, literal, or_
 from couchers import errors
 from couchers.db import session_scope
 from couchers.models import HostRequest, Reference, ReferenceType, User
+from couchers.tasks import send_friend_reference_email, send_host_reference_email
 from couchers.utils import Timestamp_from_datetime, now
 from pb import references_pb2, references_pb2_grpc
 
@@ -101,7 +102,10 @@ class References(references_pb2_grpc.ReferencesServicer):
                 visible_from=now(),
             )
             session.add(reference)
-            session.flush()
+            session.commit()
+
+            # send the recipient of the reference an email
+            send_friend_reference_email(reference)
 
             return reference_to_pb(reference, context.user_id)
 
@@ -162,12 +166,11 @@ class References(references_pb2_grpc.ReferencesServicer):
             if other_reference:
                 # so we neatly get the same timestamp
                 other_reference.visible_from = reference.visible_from
-                session.flush()
 
-                # TODO: send email to both that references were written
-            else:
-                # TODO: send nagging email to other user to write a reference
-                pass
+            session.commit()
+
+            # send the recipient of the reference an email
+            send_host_reference_email(reference, both_written=other_reference is not None)
 
             return reference_to_pb(reference, context.user_id)
 
