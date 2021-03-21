@@ -97,14 +97,17 @@ def get_coordinates(geom):
     return (shp.y, shp.x)
 
 
-def to_timezone_lng_lat(lng, lat):
+def to_timezone(lat, lng):
     """
-    Returns the timezone name corresponding the (lng, lat) input
+    Returns the timezone name corresponding the lat, lng input, or None if the input is
     The timezone names are defined in this timezone database:
     https://www.iana.org/time-zones
     """
-    tf = TimezoneFinder()
-    return tf.timezone_at(lng, lat)
+    tf = TimezoneFinder(in_memory=True)
+    try:
+        return tf.timezone_at(lat=lat, lng=lng)
+    except ValueError as ve:
+        print("Error: to_timezone():", ve)
 
 
 def http_date(dt=None):
