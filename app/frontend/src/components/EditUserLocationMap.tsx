@@ -88,12 +88,12 @@ export default function EditUserLocationMap({
       handleCoords.current!
     );
 
-    centerCoords.current = e.lngLat;
+    centerCoords.current = e.lngLat.wrap();
 
     handleCoords.current = map.current!.unproject(
       offsetPoint(
         map.current!.project(
-          displaceLngLat(e.lngLat, radius.current!, bearing)
+          displaceLngLat(e.lngLat.wrap(), radius.current!, bearing)
         ),
         //I have no idea why this is -handleRadius
         -handleRadius,
@@ -137,7 +137,7 @@ export default function EditUserLocationMap({
   };
 
   const onHandleMove = (e: MapMouseEvent | MapTouchEvent) => {
-    const bearing = calculateBearing(centerCoords.current!, e.lngLat);
+    const bearing = calculateBearing(centerCoords.current!, e.lngLat.wrap());
     radius.current = centerCoords.current!.distanceTo(
       map.current!.unproject(offsetPoint(e.point, handleRadius, bearing))
     );
@@ -145,7 +145,7 @@ export default function EditUserLocationMap({
       Math.min(radius.current, userLocationMaxRadius),
       userLocationMinRadius
     );
-    handleCoords.current = e.lngLat;
+    handleCoords.current = e.lngLat.wrap();
     (map.current!.getSource("circle") as GeoJSONSource).setData(
       circleGeoJson(centerCoords.current!, radius.current!)
     );
@@ -223,7 +223,7 @@ export default function EditUserLocationMap({
       if (!user) {
         navigator.geolocation.getCurrentPosition((position) => {
           flyToSearch(
-            new LngLat(position.coords.longitude, position.coords.latitude)
+            new LngLat(position.coords.longitude, position.coords.latitude).wrap()
           );
         });
       }
