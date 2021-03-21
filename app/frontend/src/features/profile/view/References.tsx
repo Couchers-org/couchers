@@ -17,7 +17,7 @@ import { GetReferencesRes, User } from "pb/api_pb";
 import { referencesKey } from "queryKeys";
 import React, { useState } from "react";
 import { useQueries, useQuery } from "react-query";
-import { service } from "service/index";
+import { service } from "service";
 
 import ReferenceListItem from "./ReferenceListItem";
 

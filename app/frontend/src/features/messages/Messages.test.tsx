@@ -5,7 +5,7 @@ import {
   MessagesNotification,
 } from "features/messages/Messages";
 import React from "react";
-import { service } from "service/index";
+import { service } from "service";
 import user from "test/fixtures/defaultUser.json";
 import wrapper from "test/hookWrapper";
 

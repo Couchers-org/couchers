@@ -15,7 +15,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useHistory } from "react-router-dom";
 import { loginPasswordRoute, resetPasswordRoute } from "routes";
-import { service } from "service/index";
+import { service } from "service";
 import { useIsMounted, useSafeState } from "utils/hooks";
 import { sanitizeName } from "utils/validation";
 

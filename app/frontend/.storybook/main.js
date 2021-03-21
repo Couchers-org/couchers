@@ -6,7 +6,7 @@ module.exports = {
     "@storybook/preset-create-react-app",
   ],
   webpackFinal: (config) => {
-    config.resolve.alias["service/index"] = require.resolve(
+    config.resolve.alias["service$"] = require.resolve(
       "../src/stories/__mocks__/service.ts"
     );
     return config;
