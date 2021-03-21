@@ -11,7 +11,7 @@ import {
   REFERENCES,
 } from "features/constants";
 import { ReferenceType, User } from "pb/api_pb";
-import { service } from "service/index";
+import { service } from "service";
 import references from "test/fixtures/references.json";
 import users from "test/fixtures/users.json";
 import wrapper from "test/hookWrapper";

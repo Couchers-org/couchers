@@ -26,7 +26,7 @@ import { User } from "pb/api_pb";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "react-query";
-import { service } from "service/index";
+import { service } from "service";
 
 const useStyles = makeStyles((theme) => ({
   field: {

@@ -6,7 +6,7 @@ import { ADD_FRIEND, PENDING } from "features/connections/constants";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import React from "react";
 import { useMutation, useQueryClient } from "react-query";
-import { service } from "service/index";
+import { service } from "service";
 
 import { SetMutationError } from ".";
 
