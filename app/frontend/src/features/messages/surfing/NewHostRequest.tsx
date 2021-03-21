@@ -32,8 +32,7 @@ import { CreateHostRequestReq } from "pb/requests_pb";
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
-import { service } from "service/index";
-import { validateFutureDate } from "utils/validation";
+import { service } from "service";
 
 const useStyles = makeStyles((theme) => ({
   buttonContainer: {
@@ -80,7 +79,7 @@ export default function NewHostRequest({
   const isPostBetaEnabled = process.env.REACT_APP_IS_POST_BETA_ENABLED;
   const [numVisitors, setNumVisitors] = useState(1);
 
-  const { errors, control, register, handleSubmit } = useForm<
+  const { control, errors, register, handleSubmit, watch } = useForm<
     Required<CreateHostRequestReq.AsObject>
   >({ defaultValues: { toUserId: user.userId } });
 

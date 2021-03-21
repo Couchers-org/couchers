@@ -8,7 +8,7 @@ import userEvent from "@testing-library/user-event";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Route } from "react-router-dom";
 import { profileRoute } from "routes";
-import { service } from "service/index";
+import { service } from "service";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 import { getUser } from "test/serviceMockDefaults";
 import { addDefaultUser, MockedService } from "test/utils";

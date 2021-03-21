@@ -2,7 +2,7 @@ import { renderHook } from "@testing-library/react-hooks";
 import useUserByUsername from "features/userQueries/useUserByUsername";
 import React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
-import { service } from "service/index";
+import { service } from "service";
 import users from "test/fixtures/users.json";
 import { getUser } from "test/serviceMockDefaults";
 

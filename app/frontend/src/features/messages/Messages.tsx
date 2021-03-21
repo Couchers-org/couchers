@@ -1,5 +1,4 @@
 import { TabContext } from "@material-ui/lab";
-import * as React from "react";
 import { Route, Switch, useHistory, useParams } from "react-router-dom";
 
 import NotificationBadge from "../../components/NotificationBadge";
@@ -16,6 +15,7 @@ import {
   surfingRequestsRoute,
 } from "../../routes";
 import useNotifications from "../useNotifications";
+import { MESSAGES } from "./constants";
 import GroupChatsTab from "./groupchats/GroupChatsTab";
 import GroupChatView from "./groupchats/GroupChatView";
 import HostRequestView from "./surfing/HostRequestView";
@@ -69,7 +69,7 @@ export default function Messages() {
 
   const header = (
     <>
-      <PageTitle>Messages</PageTitle>
+      <PageTitle>{MESSAGES}</PageTitle>
       <TabContext value={messageType}>
         <TabBar
           ariaLabel="Tabs for different message types"

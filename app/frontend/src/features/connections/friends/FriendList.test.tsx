@@ -1,5 +1,5 @@
 import { render, screen, within } from "@testing-library/react";
-import { service } from "service/index";
+import { service } from "service";
 import wrapper from "test/hookWrapper";
 import { getUser, listFriends } from "test/serviceMockDefaults";
 import { MockedService } from "test/utils";
