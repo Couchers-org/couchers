@@ -1,5 +1,6 @@
 import { Meta, Story } from "@storybook/react";
-import { GetReferencesRes, User } from "pb/api_pb";
+import { User } from "pb/api_pb";
+import { ListReferencesRes } from "pb/references_pb";
 import { mockedService } from "stories/__mocks__/service";
 import references from "test/fixtures/references.json";
 import users from "test/fixtures/users.json";
@@ -12,8 +13,8 @@ export default {
 } as Meta;
 
 interface UserReferencesArgs {
-  referencesGiven: GetReferencesRes.AsObject;
-  referencesReceived: GetReferencesRes.AsObject;
+  referencesGiven: ListReferencesRes.AsObject;
+  referencesReceived: ListReferencesRes.AsObject;
 }
 
 export const UserReferences: Story<UserReferencesArgs> = ({
@@ -28,17 +29,17 @@ export const UserReferences: Story<UserReferencesArgs> = ({
 UserReferences.args = {
   referencesGiven: {
     referencesList: references.slice(2),
-    totalMatches: 1,
+    nextPageToken: "",
   },
   referencesReceived: {
     referencesList: references.slice(0, 2),
-    totalMatches: 2,
+    nextPageToken: "",
   },
 };
 
 function setMocks({ referencesGiven, referencesReceived }: UserReferencesArgs) {
-  mockedService.user.getReferencesReceived = () =>
+  mockedService.references.getReferencesReceivedForUser = () =>
     Promise.resolve(referencesReceived);
-  mockedService.user.getReferencesGiven = () =>
+  mockedService.references.getReferencesGivenByUser = () =>
     Promise.resolve(referencesGiven);
 }
