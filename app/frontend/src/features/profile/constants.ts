@@ -6,6 +6,7 @@ import {
   SmokingLocation,
   User,
 } from "pb/api_pb";
+import { ReferenceType } from "pb/references_pb";
 import { firstName } from "utils/names";
 
 export const ACCEPTING = "Accepting guests";
@@ -32,6 +33,24 @@ export const getReportUserExplainer = (name: string) =>
   `You can anonymously report ${name} to moderators. Give as much details as you can and are comfortable with.`;
 export const getReportUserSuccessMessage = (name: string) =>
   `${name} has been reported to the Couchers safety team`;
+
+// References
+export const REFERENCES_FILTER_A11Y_LABEL = "Show references: ";
+export const referencesFilterLabels = {
+  [ReferenceType.REFERENCE_TYPE_FRIEND]: "From friends",
+  [ReferenceType.REFERENCE_TYPE_HOSTED]: "From hosts",
+  [ReferenceType.REFERENCE_TYPE_SURFED]: "From guests",
+  all: "All references",
+  given: "Given to others",
+};
+export const referenceBadgeLabel = {
+  [ReferenceType.REFERENCE_TYPE_FRIEND]: "Friend",
+  [ReferenceType.REFERENCE_TYPE_HOSTED]: "Hosted",
+  [ReferenceType.REFERENCE_TYPE_SURFED]: "Guest",
+};
+export const NO_REFERENCES = "No references of this kind yet!";
+export const getReferencesGivenHeading = (name: string) =>
+  `References ${name} wrote`;
 
 export const smokingLocationLabels = {
   [SmokingLocation.SMOKING_LOCATION_NO]: "No",

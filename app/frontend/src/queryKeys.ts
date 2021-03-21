@@ -1,3 +1,5 @@
+import { ReferenceType } from "pb/references_pb";
+
 export const accountInfoQueryKey = "accountInfo";
 
 export const communityKey = (id: number) => ["community", id];
@@ -35,6 +37,15 @@ export const communityNearbyUsersKey = (communityId: number) => [
 ];
 
 export const threadKey = (threadId: number) => ["thread", threadId];
+
+export const referencesGivenKey = (userId: number) => [
+  "referencesGiven",
+  { userId },
+];
+export const referencesReceivedKey = (
+  userId: number,
+  type: ReferenceType | "all"
+) => ["referencesReceived", { type, userId }];
 
 export const referencesKey = (
   userId: number,

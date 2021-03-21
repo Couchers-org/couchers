@@ -1,23 +1,25 @@
 import { List, makeStyles, Select, Typography } from "@material-ui/core";
 import Alert from "components/Alert";
+import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import { MenuItem } from "components/Menu";
 import TextBody from "components/TextBody";
+import { REFERENCES } from "features/constants";
 import {
   getReferencesGivenHeading,
   NO_REFERENCES,
-  REFERENCES,
   REFERENCES_FILTER_A11Y_LABEL,
   referencesFilterLabels,
-} from "features/constants";
-import { referencesQueryStaleTime } from "features/profile/constants";
+} from "features/profile/constants";
 import useUsers from "features/userQueries/useUsers";
 import { Error as GrpcError } from "grpc-web";
-import { GetReferencesRes, User } from "pb/api_pb";
-import { referencesKey } from "queryKeys";
+import { User } from "pb/api_pb";
+import { ListReferencesRes } from "pb/references_pb";
+import { referencesGivenKey, referencesReceivedKey } from "queryKeys";
 import React, { useState } from "react";
-import { useQueries, useQuery } from "react-query";
+import { useInfiniteQuery } from "react-query";
 import { service } from "service/index";
+import hasPages from "utils/hasPages";
 
 import ReferenceListItem from "./ReferenceListItem";
 
@@ -30,6 +32,11 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     justifyContent: "space-between",
     paddingBlockStart: theme.spacing(2),
+    width: "100%",
+  },
+  seeMoreReferencesButtonContainer: {
+    display: "flex",
+    justifyContent: "center",
     width: "100%",
   },
   noReferencesText: {
@@ -58,7 +65,7 @@ interface UserReferencesProps {
   user: User.AsObject;
 }
 
-type ReferenceTypeState = keyof typeof referencesFilterLabels;
+export type ReferenceTypeState = keyof typeof referencesFilterLabels;
 
 export default function References({ user }: UserReferencesProps) {
   const classes = useStyles();
@@ -93,62 +100,50 @@ export default function References({ user }: UserReferencesProps) {
       </div>
       {referenceType === "all" ? (
         <AllReferencesList user={user} />
+      ) : referenceType !== "given" ? (
+        <ReferencesReceivedList user={user} referenceType={referenceType} />
       ) : (
-        <FilteredReferencesList
-          isReceived={referenceType !== "given"}
-          user={user}
-          referenceType={referenceType}
-        />
+        <p>References given to others...</p>
       )}
     </div>
   );
 }
 
-function FilteredReferencesList({
-  isReceived,
+function ReferencesReceivedList({
   user,
   referenceType,
 }: {
-  isReceived: boolean;
   user: User.AsObject;
-  referenceType: ReferenceTypeState;
+  referenceType: Exclude<ReferenceTypeState, "given">;
 }) {
   const classes = useStyles();
   const {
-    data: references,
+    data: referencesRes,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
     isLoading: isReferencesLoading,
     error: referencesError,
-  } = useQuery<GetReferencesRes.AsObject, GrpcError>({
-    cacheTime: referencesQueryStaleTime,
-    queryFn: () =>
-      isReceived
-        ? service.user.getReferencesReceived({
-            count: 50,
-            offset: 0,
-            userId: user.userId,
-          })
-        : service.user.getReferencesGiven({
-            count: 50,
-            offset: 0,
-            userId: user.userId,
-          }),
-    queryKey: referencesKey(user.userId, isReceived ? "received" : "given"),
-    staleTime: referencesQueryStaleTime,
+  } = useInfiniteQuery<ListReferencesRes.AsObject, GrpcError>({
+    queryFn: ({ pageParam: pageToken }: { pageParam?: string }) =>
+      service.references.getReferencesReceivedForUser({
+        pageToken,
+        referenceType,
+        userId: user.userId,
+      }),
+    queryKey: referencesReceivedKey(user.userId, referenceType),
+    getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
   });
 
-  const { data: referenceUsers, isLoading: isReferenceUsersLoading } = useUsers(
-    references?.referencesList.map((reference) =>
-      isReceived ? reference.fromUserId : reference.toUserId
-    ) ?? []
-  );
-
-  // Show only the matching reference type if viewing received references, otherwise display
-  // all given references
-  const referencesToRender = isReceived
-    ? references?.referencesList.filter(
-        (reference) => reference.referenceType === referenceType
+  const userIds =
+    referencesRes?.pages
+      .map((page) =>
+        page.referencesList.map((reference) => reference.fromUserId)
       )
-    : references?.referencesList;
+      .flat() ?? [];
+  const { data: referenceUsers, isLoading: isReferenceUsersLoading } = useUsers(
+    userIds
+  );
 
   return (
     <>
@@ -157,22 +152,38 @@ function FilteredReferencesList({
       )}
       {isReferenceUsersLoading || isReferencesLoading ? (
         <CircularProgress />
-      ) : referencesToRender && referencesToRender.length > 0 ? (
-        <List className={classes.referencesList}>
-          {referencesToRender.map((reference) => {
-            const userToShow = referenceUsers?.get(
-              isReceived ? reference.fromUserId : reference.toUserId
-            );
-            return userToShow ? (
-              <ReferenceListItem
-                key={reference.referenceId}
-                isReceived={isReceived}
-                user={userToShow}
-                reference={reference}
-              />
-            ) : null;
-          })}
-        </List>
+      ) : referencesRes &&
+        referencesRes.pages.length &&
+        referencesRes.pages[0].referencesList.length ? (
+        <>
+          <List className={classes.referencesList}>
+            {referencesRes.pages
+              .map((page) =>
+                page.referencesList.map((reference) => {
+                  const userToShow = referenceUsers?.get(reference.fromUserId);
+                  return userToShow ? (
+                    <ReferenceListItem
+                      key={reference.referenceId}
+                      isReceived
+                      user={userToShow}
+                      reference={reference}
+                    />
+                  ) : null;
+                })
+              )
+              .flat()}
+          </List>
+          {hasNextPage && (
+            <div className={classes.seeMoreReferencesButtonContainer}>
+              <Button
+                loading={isFetchingNextPage}
+                onClick={() => fetchNextPage()}
+              >
+                See more references
+              </Button>
+            </div>
+          )}
+        </>
       ) : (
         <TextBody className={classes.noReferencesText}>
           {NO_REFERENCES}
@@ -184,55 +195,53 @@ function FilteredReferencesList({
 
 function AllReferencesList({ user }: { user: User.AsObject }) {
   const classes = useStyles();
-  const referencesQueries = useQueries<GetReferencesRes.AsObject, GrpcError>([
-    {
-      cacheTime: referencesQueryStaleTime,
-      queryFn: () =>
-        service.user.getReferencesReceived({
-          count: 50,
-          offset: 0,
-          userId: user.userId,
-        }),
-      queryKey: referencesKey(user.userId, "received"),
-      staleTime: referencesQueryStaleTime,
-    },
-    {
-      cacheTime: referencesQueryStaleTime,
-      queryFn: () =>
-        service.user.getReferencesGiven({
-          count: 50,
-          offset: 0,
-          userId: user.userId,
-        }),
-      queryKey: referencesKey(user.userId, "given"),
-      staleTime: referencesQueryStaleTime,
-    },
-  ]);
+  const {
+    data: referencesGivenRes,
+    error: referencesGivenError,
+    isLoading: isReferencesGivenLoading,
+    fetchNextPage: fetchReferencesGivenNextPage,
+    isFetchingNextPage: isFetchingReferencesGivenNextPage,
+    hasNextPage: hasReferencesGivenNextPage,
+  } = useInfiniteQuery<ListReferencesRes.AsObject, GrpcError>({
+    queryFn: ({ pageParam: pageToken }: { pageParam?: string }) =>
+      service.references.getReferencesGivenByUser({
+        pageToken,
+        userId: user.userId,
+      }),
+    queryKey: referencesGivenKey(user.userId),
+    getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
+  });
+  const {
+    data: referencesReceivedRes,
+    error: referencesReceivedError,
+    isLoading: isReferencesReceivedLoading,
+    fetchNextPage: fetchReferencesReceivedNextPage,
+    isFetchingNextPage: isFetchingReferencesReceivedNextPage,
+    hasNextPage: hasReferencesReceivedNextPage,
+  } = useInfiniteQuery<ListReferencesRes.AsObject, GrpcError>({
+    queryFn: ({ pageParam: pageToken }: { pageParam?: string }) =>
+      service.references.getReferencesReceivedForUser({
+        pageToken,
+        userId: user.userId,
+      }),
+    queryKey: referencesReceivedKey(user.userId, "all"),
+    getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
+  });
 
-  const userIds = referencesQueries
-    .map((query) => {
-      return (
-        query.data?.referencesList.map((r) =>
-          r.fromUserId === user.userId ? r.toUserId : r.fromUserId
-        ) ?? []
-      );
-    })
-    .flat();
-  const { data: referenceUsers, isLoading: isReferenceUsersLoading } = useUsers(
-    userIds
-  );
-  const [
-    {
-      data: referencesReceived,
-      error: referencesReceivedError,
-      isLoading: isReferencesReceivedLoading,
-    },
-    {
-      data: referencesGiven,
-      error: referencesGivenError,
-      isLoading: isReferencesGivenLoading,
-    },
-  ] = referencesQueries;
+  const givenUserIds =
+    referencesGivenRes?.pages
+      .map((page) => page.referencesList.map((reference) => reference.toUserId))
+      .flat() ?? [];
+  const receivedUserIds =
+    referencesReceivedRes?.pages
+      .map((page) =>
+        page.referencesList.map((reference) => reference.fromUserId)
+      )
+      .flat() ?? [];
+  const {
+    data: referenceUsers,
+    isLoading: isReferenceUsersLoading,
+  } = useUsers([...givenUserIds, ...receivedUserIds]);
 
   return (
     <>
@@ -249,47 +258,83 @@ function AllReferencesList({ user }: { user: User.AsObject }) {
         <CircularProgress />
       ) : (
         <>
-          {referencesReceived && referencesReceived.totalMatches > 0 && (
-            <List className={classes.referencesList}>
-              {referencesReceived.referencesList.map((reference) => {
-                const userToShow = referenceUsers?.get(reference.fromUserId);
-                return userToShow ? (
-                  <ReferenceListItem
-                    key={reference.referenceId}
-                    isReceived
-                    user={userToShow}
-                    reference={reference}
-                  />
-                ) : null;
-              })}
-            </List>
+          {hasPages(referencesReceivedRes, "referencesList") && (
+            <>
+              <List className={classes.referencesList}>
+                {referencesReceivedRes.pages
+                  .map((page) =>
+                    page.referencesList.map((reference) => {
+                      const userToShow = referenceUsers?.get(
+                        reference.fromUserId
+                      );
+                      return userToShow ? (
+                        <ReferenceListItem
+                          key={reference.referenceId}
+                          isReceived
+                          user={userToShow}
+                          reference={reference}
+                        />
+                      ) : null;
+                    })
+                  )
+                  .flat()}
+              </List>
+              {hasReferencesReceivedNextPage && (
+                <div className={classes.seeMoreReferencesButtonContainer}>
+                  <Button
+                    loading={isFetchingReferencesReceivedNextPage}
+                    onClick={() => fetchReferencesReceivedNextPage()}
+                  >
+                    See more references for {user.name}
+                  </Button>
+                </div>
+              )}
+            </>
           )}
-          {referencesGiven && referencesGiven.totalMatches > 0 && (
+          {hasPages(referencesGivenRes, "referencesList") && (
             <>
               <Typography variant="h1">
                 {getReferencesGivenHeading(user.name)}
               </Typography>
               <List className={classes.referencesList}>
-                {referencesGiven.referencesList.map((reference) => {
-                  const userToShow = referenceUsers?.get(reference.toUserId);
-                  return userToShow ? (
-                    <ReferenceListItem
-                      key={reference.referenceId}
-                      isReceived={false}
-                      user={userToShow}
-                      reference={reference}
-                    />
-                  ) : null;
-                })}
+                {referencesGivenRes.pages
+                  .map((page) =>
+                    page.referencesList.map((reference) => {
+                      const userToShow = referenceUsers?.get(
+                        reference.toUserId
+                      );
+                      return userToShow ? (
+                        <ReferenceListItem
+                          key={reference.referenceId}
+                          isReceived={false}
+                          user={userToShow}
+                          reference={reference}
+                        />
+                      ) : null;
+                    })
+                  )
+                  .flat()}
               </List>
+              {hasReferencesGivenNextPage && (
+                <div className={classes.seeMoreReferencesButtonContainer}>
+                  <Button
+                    loading={isFetchingReferencesGivenNextPage}
+                    onClick={() => fetchReferencesGivenNextPage()}
+                  >
+                    See more references
+                  </Button>
+                </div>
+              )}
             </>
           )}
-          {!referencesReceived?.totalMatches &&
-            !referencesGiven?.totalMatches && (
-              <TextBody className={classes.noReferencesText}>
-                {NO_REFERENCES}
-              </TextBody>
-            )}
+          {!(
+            hasPages(referencesReceivedRes, "referencesList") ||
+            hasPages(referencesGivenRes, "referencesList")
+          ) && (
+            <TextBody className={classes.noReferencesText}>
+              {NO_REFERENCES}
+            </TextBody>
+          )}
         </>
       )}
     </>

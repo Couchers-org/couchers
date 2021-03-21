@@ -1,16 +1,12 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import wrappers from "google-protobuf/google/protobuf/wrappers_pb";
 import {
-  GetGivenReferencesReq,
-  GetReceivedReferencesReq,
   GetUserReq,
   HostingStatus,
   NullableBoolValue,
   NullableStringValue,
   NullableUInt32Value,
-  OptionalReferenceType,
   PingReq,
-  ReferenceType,
   RepeatedStringValue,
   ReportReq,
   UpdateProfileReq,
@@ -313,49 +309,6 @@ export async function completeSignup({
  */
 export function logout() {
   return client.auth.deauthenticate(new Empty());
-}
-
-interface GetReferencesInput {
-  userId: number;
-  offset: number;
-  count: number;
-  referenceType?: ReferenceType;
-}
-
-export async function getReferencesGiven({
-  count,
-  userId,
-  offset,
-  referenceType,
-}: GetReferencesInput) {
-  const req = new GetGivenReferencesReq();
-  req.setFromUserId(userId);
-  if (referenceType) {
-    req.setTypeFilter(new OptionalReferenceType().setValue(referenceType));
-  }
-  req.setStartAt(offset);
-  req.setNumber(count);
-
-  const res = await client.api.getGivenReferences(req);
-  return res.toObject();
-}
-
-export async function getReferencesReceived({
-  count,
-  userId,
-  offset,
-  referenceType,
-}: GetReferencesInput) {
-  const req = new GetReceivedReferencesReq();
-  req.setToUserId(userId);
-  if (referenceType) {
-    req.setTypeFilter(new OptionalReferenceType().setValue(referenceType));
-  }
-  req.setStartAt(offset);
-  req.setNumber(count);
-
-  const res = await client.api.getReceivedReferences(req);
-  return res.toObject();
 }
 
 export interface ReportUserInput {
