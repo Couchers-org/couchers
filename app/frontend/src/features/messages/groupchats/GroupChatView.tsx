@@ -62,9 +62,17 @@ export const useGroupChatViewStyles = makeStyles((theme) => ({
     marginInlineEnd: theme.spacing(2),
     marginInlineStart: theme.spacing(2),
   },
-  requestStatus: {
-    marginRight: theme.spacing(1),
-    marginTop: 0,
+  requestedDatesWrapper: {
+    display: "flex",
+    "& > *": {
+      margin: 0,
+    },
+  },
+  numNights: {
+    fontWeight: "initial",
+  },
+  requestedDates: {
+    paddingRight: theme.spacing(1),
   },
 }));
 

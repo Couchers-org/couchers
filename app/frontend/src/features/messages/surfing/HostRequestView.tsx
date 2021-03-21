@@ -31,10 +31,8 @@ import {
 } from "react-query";
 import { useHistory, useParams } from "react-router-dom";
 import { service } from "service/index";
-import { formatDate } from "utils/date";
+import { formatDate, numNights } from "utils/date";
 import { firstName } from "utils/names";
-
-import { nightsRequested } from "../constants";
 
 export default function HostRequestView() {
   const classes = useGroupChatViewStyles();
@@ -154,19 +152,23 @@ export default function HostRequestView() {
       </Box>
       <UserSummary user={otherUser}>
         {hostRequest && (
-          <>
+          <div className={classes.requestedDatesWrapper}>
             <Typography
-              component="div"
+              component="p"
               variant="h3"
-              className={classes.requestStatus}
+              className={classes.requestedDates}
             >
-              {nightsRequested(hostRequest)}
-            </Typography>
-            <Typography component="p">
               {`${formatDate(hostRequest.fromDate, true)} -
               ${formatDate(hostRequest?.toDate, true)}`}
             </Typography>
-          </>
+            <Typography
+              component="p"
+              variant="h3"
+              className={classes.numNights}
+            >
+              ({numNights(hostRequest.toDate, hostRequest.fromDate)})
+            </Typography>
+          </div>
         )}
       </UserSummary>
       <Divider />
