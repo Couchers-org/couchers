@@ -120,7 +120,7 @@ def generate_user(*_, **kwargs):
             "about_place": "My place has a lot of testing paraphenelia",
             "countries_visited": "Testing country",
             "countries_lived": "Wonderland",
-            "additional_information": "",
+            "additional_information": "I can be a bit testy",
             # you need to make sure to update this logic to make sure the user is jailed/not on request
             "accepted_tos": 1,
             "geom": create_coordinate(40.7108, -73.9740),
