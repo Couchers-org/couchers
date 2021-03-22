@@ -35,7 +35,9 @@ export const getReportUserSuccessMessage = (name: string) =>
   `${name} has been reported to the Couchers safety team`;
 
 // References
+export const NO_REFERENCES = "No references of this kind yet!";
 export const REFERENCES_FILTER_A11Y_LABEL = "Show references: ";
+export const SEE_MORE_REFERENCES = "See more references";
 export const referencesFilterLabels = {
   [ReferenceType.REFERENCE_TYPE_FRIEND]: "From friends",
   [ReferenceType.REFERENCE_TYPE_HOSTED]: "From hosts",
@@ -48,7 +50,8 @@ export const referenceBadgeLabel = {
   [ReferenceType.REFERENCE_TYPE_HOSTED]: "Hosted",
   [ReferenceType.REFERENCE_TYPE_SURFED]: "Guest",
 };
-export const NO_REFERENCES = "No references of this kind yet!";
+export const getSeeMoreReferences = (name?: string) =>
+  `${SEE_MORE_REFERENCES} for ${name ? firstName(name) : ""}`;
 export const getReferencesGivenHeading = (name: string) =>
   `References ${name} wrote`;
 

@@ -1,14 +1,21 @@
 import { Meta, Story } from "@storybook/react";
-import { User } from "pb/api_pb";
 import { ListReferencesRes } from "pb/references_pb";
 import { mockedService } from "stories/__mocks__/service";
 import references from "test/fixtures/references.json";
 import users from "test/fixtures/users.json";
 
+import { ProfileUserProvider } from "../hooks/useProfileUser";
 import References from "./References";
 
 export default {
   component: References,
+  decorators: [
+    (Story) => (
+      <ProfileUserProvider user={users[0]}>
+        <Story />
+      </ProfileUserProvider>
+    ),
+  ],
   title: "Profile/References",
 } as Meta;
 
@@ -23,7 +30,7 @@ export const UserReferences: Story<UserReferencesArgs> = ({
 }) => {
   setMocks({ referencesGiven, referencesReceived });
 
-  return <References user={users[0] as User.AsObject} />;
+  return <References />;
 };
 
 UserReferences.args = {

@@ -2,8 +2,8 @@ import { renderHook } from "@testing-library/react-hooks";
 import React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { service } from "service/index";
-import wrapper from "test/hookWrapper";
 import users from "test/fixtures/users.json";
+import wrapper from "test/hookWrapper";
 import { getUser, listFriends } from "test/serviceMockDefaults";
 import { wait } from "test/utils";
 

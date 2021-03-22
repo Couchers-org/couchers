@@ -24,12 +24,13 @@ import References from "./References";
 const getUserMock = service.user.getUser as MockedService<
   typeof service.user.getUser
 >;
-const getReferencesReceivedMock = service.user
-  .getReferencesReceived as MockedService<
-  typeof service.user.getReferencesReceived
+const getReferencesReceivedMock = service.references
+  .getReferencesReceivedForUser as MockedService<
+  typeof service.references.getReferencesReceivedForUser
 >;
-const getReferencesGivenMock = service.user.getReferencesGiven as MockedService<
-  typeof service.user.getReferencesGiven
+const getReferencesGivenMock = service.references
+  .getReferencesGivenByUser as MockedService<
+  typeof service.references.getReferencesGivenByUser
 >;
 
 function assertAPIOnlyCalledOnce() {
@@ -43,16 +44,14 @@ function assertDateBadgeIsVisible(reference: ReturnType<typeof within>) {
 
 describe("References", () => {
   beforeEach(() => {
-    getUserMock.mockImplementation(
-      getUser as (u: string) => Promise<User.AsObject>
-    );
+    getUserMock.mockImplementation(getUser);
     getReferencesReceivedMock.mockResolvedValue({
+      nextPageToken: "",
       referencesList: references.slice(0, 2),
-      totalMatches: 2,
     });
     getReferencesGivenMock.mockResolvedValue({
+      nextPageToken: "",
       referencesList: references.slice(2),
-      totalMatches: 1,
     });
   });
 
