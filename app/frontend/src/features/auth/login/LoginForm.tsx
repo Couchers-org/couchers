@@ -105,7 +105,12 @@ export default function UsernameForm() {
               fullWidth
               id="password"
               name="password"
-              inputRef={register({ required: true })}
+              inputRef={inputElement => {
+                if (inputElement) {
+                  inputElement.focus();
+                }
+                register(inputElement, { required: true });
+              }}
               type="password"
               variant="standard"
             />
