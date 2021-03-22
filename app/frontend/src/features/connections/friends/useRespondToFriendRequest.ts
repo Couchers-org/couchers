@@ -27,11 +27,11 @@ export default function useRespondToFriendRequest() {
       },
       onMutate: async ({ setMutationError }) => {
         setMutationError("");
-        await queryClient.cancelQueries("friendRequestsReceived");
+        await queryClient.cancelQueries(["friendRequests", {"type":"received"}]);
       },
       onSuccess: () => {
         queryClient.invalidateQueries("friendIds");
-        queryClient.invalidateQueries("friendRequestsReceived");
+        queryClient.invalidateQueries(["friendRequests", {"type":"received"}]);
         queryClient.invalidateQueries("ping");
       },
     }

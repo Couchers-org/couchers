@@ -28,7 +28,7 @@ export default function useCancelFriendRequest() {
         setMutationError("");
       },
       onSuccess: (_, { userId }) => {
-        queryClient.invalidateQueries("friendRequestsSent");
+        queryClient.invalidateQueries(["friendRequests", {"type":"sent"}]);
         queryClient.invalidateQueries(["user", userId]);
       },
     }

@@ -20,7 +20,7 @@ describe("useCancelFriendRequest hook", () => {
   const setMutationError = jest.fn();
 
   beforeEach(() => {
-    client.setQueryData<ListFriendRequestsRes.AsObject>("friendRequestsSent", {
+    client.setQueryData<ListFriendRequestsRes.AsObject>("friendRequests", {
       receivedList: [],
       sentList: [
         {
@@ -52,7 +52,7 @@ describe("useCancelFriendRequest hook", () => {
     await waitForNextUpdate();
     expect(setMutationError).toHaveBeenCalledTimes(1);
     expect(setMutationError).toHaveBeenCalledWith("");
-    expect(client.getQueryState("friendRequestsSent")?.isInvalidated).toBe(
+    expect(client.getQueryState(["friendRequests", {"type":"sent"}])?.isInvalidated).toBe(
       true
     );
   });
@@ -78,7 +78,7 @@ describe("useCancelFriendRequest hook", () => {
     await waitForNextUpdate();
     expect(setMutationError).toHaveBeenCalledTimes(2);
     expect(setMutationError).toHaveBeenLastCalledWith("API error");
-    expect(client.getQueryState("friendRequestsSent")?.isInvalidated).toBe(
+    expect(client.getQueryState(["friendRequests", {"type":"sent"}])?.isInvalidated).toBe(
       false
     );
   });
