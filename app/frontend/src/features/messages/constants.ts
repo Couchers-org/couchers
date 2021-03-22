@@ -21,3 +21,16 @@ export const NEW_GROUP_CHAT = "Create group chat";
 export const NO_GROUP_CHAT = "No group chats yet";
 export const NO_MESSAGES = "No messages";
 export const TITLE = "Title";
+
+export const hostingStatusText = (isHost: boolean, status: number) => {
+  if (status === 0) {
+    return `This request is still pending`;
+  } else
+    return isHost
+      ? `You have ${Object.values(hostRequestStatusLabels)[
+          status
+        ].toLowerCase()} this request`
+      : `Your request was ${Object.values(hostRequestStatusLabels)[
+          status
+        ].toLowerCase()}`;
+};
