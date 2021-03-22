@@ -4,7 +4,7 @@ import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import TextBody from "components/TextBody";
 import useUsers from "features/userQueries/useUsers";
-import hasPages from "utils/hasPages";
+import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
 import {
   getReferencesGivenHeading,
@@ -70,7 +70,7 @@ export default function AllReferencesList() {
         <CircularProgress />
       ) : (
         <>
-          {hasPages(referencesReceivedRes, "referencesList") && (
+          {hasAtLeastOnePage(referencesReceivedRes, "referencesList") && (
             <>
               <ReferenceList
                 isReceived
@@ -89,7 +89,7 @@ export default function AllReferencesList() {
               )}
             </>
           )}
-          {hasPages(referencesGivenRes, "referencesList") && (
+          {hasAtLeastOnePage(referencesGivenRes, "referencesList") && (
             <>
               <Typography variant="h2">
                 {getReferencesGivenHeading(user.name)}
@@ -111,8 +111,8 @@ export default function AllReferencesList() {
             </>
           )}
           {!(
-            hasPages(referencesReceivedRes, "referencesList") ||
-            hasPages(referencesGivenRes, "referencesList")
+            hasAtLeastOnePage(referencesReceivedRes, "referencesList") ||
+            hasAtLeastOnePage(referencesGivenRes, "referencesList")
           ) && (
             <TextBody className={classes.noReferencesText}>
               {NO_REFERENCES}
