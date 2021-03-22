@@ -2,6 +2,7 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error } from "grpc-web";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
+import { friendRequestKey } from "queryKeys";
 
 import { SetMutationError } from ".";
 
@@ -28,7 +29,7 @@ export default function useCancelFriendRequest() {
         setMutationError("");
       },
       onSuccess: (_, { userId }) => {
-        queryClient.invalidateQueries(["friendRequests", {"type":"sent"}]);
+        queryClient.invalidateQueries(friendRequestKey("sent"));
         queryClient.invalidateQueries(["user", userId]);
       },
     }

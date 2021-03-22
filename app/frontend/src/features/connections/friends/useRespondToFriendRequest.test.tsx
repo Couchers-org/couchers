@@ -4,6 +4,7 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { ListFriendRequestsRes } from "pb/api_pb";
 import { service } from "service";
 import { getHookWrapperWithClient } from "test/hookWrapper";
+import { friendRequestKey } from "queryKeys";
 
 const respondToFriendRequestMock = service.api
   .respondFriendRequest as jest.Mock<
@@ -57,7 +58,7 @@ describe("useRespondToFriendRequest hook", () => {
     expect(setMutationError).toHaveBeenCalledTimes(1);
     expect(setMutationError).toHaveBeenCalledWith("");
     expect(client.getQueryState("friendIds")?.isInvalidated).toBe(true);
-    expect(client.getQueryState(["friendRequests", {"type":"received"}])?.isInvalidated).toBe(
+    expect(client.getQueryState(friendRequestKey("received"))?.isInvalidated).toBe(
       true
     );
   });
@@ -84,7 +85,7 @@ describe("useRespondToFriendRequest hook", () => {
     expect(setMutationError).toHaveBeenCalledTimes(2);
     expect(setMutationError).toHaveBeenLastCalledWith("API error");
     expect(client.getQueryState("friendIds")?.isInvalidated).toBe(false);
-    expect(client.getQueryState(["friendRequests", {"type":"received"}])?.isInvalidated).toBe(
+    expect(client.getQueryState(friendRequestKey("received"))?.isInvalidated).toBe(
       false
     );
   });
