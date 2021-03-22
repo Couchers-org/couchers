@@ -106,6 +106,8 @@ export default function NewHostRequest({
     );
   });
 
+  const watchToDate = (watch("fromDate") as unknown) as Date;
+
   return (
     <>
       <Typography variant="h1">
@@ -162,10 +164,12 @@ export default function NewHostRequest({
               />
               <Datepicker
                 className={classes.date}
+                key={watchToDate ? watchToDate.toString() : ""}
                 control={control}
                 name="toDate"
                 label={DEPARTURE_DATE}
                 helperText={errors?.toDate?.message}
+                minDate={watchToDate ?? undefined}
                 id="to-date"
                 error={!!errors.toDate}
                 inputRef={register({
