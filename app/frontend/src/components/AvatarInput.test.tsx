@@ -155,7 +155,10 @@ describe("AvatarInput component", () => {
     expect(submitForm).not.toHaveBeenCalled();
   });
 
-  it.skip("displays an error for an invalid file", async () => {
+  it("displays an error for an invalid file", async () => {
+    jest.spyOn(FileReader.prototype, "readAsDataURL").mockImplementation(() => {
+      FileReader.prototype.dispatchEvent(new Event("error"));
+    });
     userEvent.upload(
       screen.getByLabelText(SELECT_AN_IMAGE),
       new File([new Blob(undefined)], "")
