@@ -165,4 +165,17 @@ describe("AvatarInput component", () => {
     );
     expect(await screen.findByText(INVALID_FILE)).toBeVisible();
   });
+
+  it("displays an error if the upload fails", async () => {
+    uploadFileMock.mockRejectedValueOnce(new Error("Whoops"));
+    jest.spyOn(console, "error").mockReturnValueOnce(undefined);
+    userEvent.upload(
+      screen.getByLabelText(SELECT_AN_IMAGE),
+      new File([new Blob(undefined)], "")
+    );
+    expect(await screen.findByLabelText(CONFIRM_UPLOAD)).toBeVisible();
+    userEvent.click(screen.getByLabelText(CONFIRM_UPLOAD));
+
+    expect(await screen.findByText("Whoops")).toBeVisible();
+  });
 });

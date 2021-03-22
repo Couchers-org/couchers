@@ -105,11 +105,15 @@ export function AvatarInput({
   };
 
   const handleConfirm = async () => {
-    const response = await mutation.mutateAsync();
-    field.onChange(response.key);
-    setImageUrl(response.thumbnail_url);
-    confirmedUpload.current = response;
-    setFile(null);
+    try {
+      const response = await mutation.mutateAsync();
+      field.onChange(response.key);
+      setImageUrl(response.thumbnail_url);
+      confirmedUpload.current = response;
+      setFile(null);
+    } catch {
+      //no need to do anything here, error goes to mutation.error
+    }
   };
 
   const handleCancel = () => {
