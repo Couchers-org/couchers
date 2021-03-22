@@ -5,6 +5,7 @@ import {
   RespondFriendRequestReq,
   SendFriendRequestReq,
 } from "pb/api_pb";
+import { FETCH_FAILED, INVALID_IMAGE } from "service/constants";
 
 import client from "./client";
 
@@ -68,10 +69,13 @@ export async function uploadFile(file: File): Promise<ImageInputValues> {
   const uploadResponse = await fetch(uploadURL, {
     method: "POST",
     body: requestBody,
+  }).catch(() => {
+    throw new Error(FETCH_FAILED);
   });
 
-  const responseJson = await uploadResponse.json();
-
+  const responseJson = await uploadResponse.json().catch(() => {
+    throw new Error(INVALID_IMAGE);
+  });
   return {
     ...responseJson,
     file: file,

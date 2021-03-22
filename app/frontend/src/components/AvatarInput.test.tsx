@@ -5,6 +5,7 @@ import {
   CANCEL_UPLOAD,
   CONFIRM_UPLOAD,
   getAvatarLabel,
+  INVALID_FILE,
   SELECT_AN_IMAGE,
   UPLOAD_PENDING_ERROR,
 } from "components/constants";
@@ -22,6 +23,7 @@ const submitForm = jest.fn();
 const MOCK_FILE = new File([], "example.jpg");
 const MOCK_KEY = "key123";
 const MOCK_INITIAL_SRC = "https://example.com/initialPreview.jpg";
+const MOCK_THUMB = "thumb.jpg";
 const NAME = "Test User";
 
 describe("AvatarInput component", () => {
@@ -30,7 +32,7 @@ describe("AvatarInput component", () => {
       file: MOCK_FILE,
       filename: MOCK_FILE.name,
       key: MOCK_KEY,
-      thumbnail_url: "thumb.jpg",
+      thumbnail_url: MOCK_THUMB,
       full_url: "full.jpg",
     });
     const Form = () => {
@@ -64,31 +66,28 @@ describe("AvatarInput component", () => {
   it("uploads upon confirmation and submits key", async () => {
     userEvent.upload(screen.getByLabelText(SELECT_AN_IMAGE), MOCK_FILE);
 
-    await waitFor(() => {
-      expect(screen.getByLabelText(CONFIRM_UPLOAD)).toBeVisible();
-      expect(screen.getByLabelText(CANCEL_UPLOAD)).toBeVisible();
-    });
+    expect(await screen.findByLabelText(CONFIRM_UPLOAD)).toBeVisible();
 
     userEvent.click(screen.getByLabelText(CONFIRM_UPLOAD));
 
     await waitFor(() => {
-      expect(uploadFileMock).toHaveBeenCalled();
+      expect(uploadFileMock).toHaveBeenCalledTimes(1);
     });
 
     userEvent.click(screen.getByRole("button", { name: SUBMIT }));
 
     await waitFor(() => {
       expect(submitForm).toHaveBeenCalledWith({ avatarInput: MOCK_KEY });
+      expect(
+        screen.getByAltText(getAvatarLabel(NAME)).getAttribute("src")
+      ).toMatch(new RegExp(MOCK_THUMB));
     });
   });
 
   it("cancels when cancel button pressed and doesn't submit key", async () => {
     userEvent.upload(screen.getByLabelText(SELECT_AN_IMAGE), MOCK_FILE);
 
-    await waitFor(() => {
-      expect(screen.getByLabelText(CONFIRM_UPLOAD)).toBeVisible();
-      expect(screen.getByLabelText(CANCEL_UPLOAD)).toBeVisible();
-    });
+    expect(await screen.findByLabelText(CANCEL_UPLOAD)).toBeVisible();
 
     userEvent.click(screen.getByLabelText(CANCEL_UPLOAD));
 
@@ -117,59 +116,50 @@ describe("AvatarInput component", () => {
       full_url: "full0.jpg",
     });
 
+    //first upload and confirm
     userEvent.upload(screen.getByLabelText(SELECT_AN_IMAGE), OTHER_MOCK_FILE);
-
-    await waitFor(() => {
-      expect(screen.getByLabelText(CONFIRM_UPLOAD)).toBeVisible();
-    });
-
+    expect(await screen.findByLabelText(CONFIRM_UPLOAD)).toBeVisible();
     userEvent.click(screen.getByLabelText(CONFIRM_UPLOAD));
 
     await waitFor(() => {
       expect(uploadFileMock).toHaveBeenCalled();
     });
+    expect(
+      screen.getByAltText(getAvatarLabel(NAME)).getAttribute("src")
+    ).toMatch(/thumb0.jpg/);
 
-    expect(screen.getByAltText(getAvatarLabel(NAME))).not.toHaveProperty(
-      "src",
-      MOCK_INITIAL_SRC
-    );
-
+    //2nd upload and cancel
     userEvent.upload(screen.getByLabelText(SELECT_AN_IMAGE), MOCK_FILE);
+    expect(await screen.findByLabelText(CANCEL_UPLOAD)).toBeVisible();
+    userEvent.click(screen.getByLabelText(CANCEL_UPLOAD));
+    expect(
+      (await screen.findByAltText(getAvatarLabel(NAME))).getAttribute("src")
+    ).toMatch(/thumb0.jpg/);
 
-    await waitFor(() => {
-      expect(screen.getByLabelText(CONFIRM_UPLOAD)).toBeVisible();
-    });
-
-    userEvent.click(screen.getByLabelText(CONFIRM_UPLOAD));
-
-    await waitFor(() => {
-      expect(uploadFileMock).toHaveBeenCalledTimes(2);
-    });
-
-    expect(screen.getByAltText(getAvatarLabel(NAME))).not.toHaveProperty(
-      "src",
-      MOCK_INITIAL_SRC
-    );
-
+    //submit
     userEvent.click(screen.getByRole("button", { name: SUBMIT }));
 
     await waitFor(() => {
-      expect(submitForm).toHaveBeenCalledWith({ avatarInput: MOCK_KEY });
+      expect(submitForm).toHaveBeenCalledWith({ avatarInput: "firstKey" });
     });
   });
 
   it("doesn't submit without confirming/cancelling", async () => {
     userEvent.upload(screen.getByLabelText(SELECT_AN_IMAGE), MOCK_FILE);
 
-    await waitFor(() => {
-      expect(screen.getByLabelText(CONFIRM_UPLOAD)).toBeVisible();
-    });
+    expect(await screen.findByLabelText(CONFIRM_UPLOAD)).toBeVisible();
 
     userEvent.click(screen.getByRole("button", { name: SUBMIT }));
 
-    await waitFor(() => {
-      expect(screen.getByText(UPLOAD_PENDING_ERROR)).toBeVisible();
-    });
+    expect(await screen.findByText(UPLOAD_PENDING_ERROR)).toBeVisible();
     expect(submitForm).not.toHaveBeenCalled();
+  });
+
+  it.skip("displays an error for an invalid file", async () => {
+    userEvent.upload(
+      screen.getByLabelText(SELECT_AN_IMAGE),
+      new File([new Blob(undefined)], "")
+    );
+    expect(await screen.findByText(INVALID_FILE)).toBeVisible();
   });
 });

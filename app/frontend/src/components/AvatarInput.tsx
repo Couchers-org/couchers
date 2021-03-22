@@ -72,6 +72,7 @@ export function AvatarInput({
   const confirmedUpload = useRef<ImageInputValues>();
   const [imageUrl, setImageUrl] = useState(initialPreviewSrc);
   const [file, setFile] = useState<File | null>(null);
+  const [readerError, setReaderError] = useState("");
   const mutation = useMutation<ImageInputValues, Error>(() =>
     file ? service.api.uploadFile(file) : Promise.reject(INVALID_FILE)
   );
@@ -86,16 +87,21 @@ export function AvatarInput({
   });
 
   const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    setReaderError("");
     if (!event.target.files?.length) return;
     const file = event.target.files[0];
-    const base64 = await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = (error) => reject(error);
-      reader.readAsDataURL(file);
-    });
-    setImageUrl(base64);
-    setFile(file);
+    try {
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = (error) => reject(error);
+        reader.readAsDataURL(file);
+      });
+      setImageUrl(base64);
+      setFile(file);
+    } catch {
+      setReaderError(INVALID_FILE);
+    }
   };
 
   const handleConfirm = async () => {
@@ -117,6 +123,7 @@ export function AvatarInput({
       {mutation.isError && (
         <Alert severity="error">{mutation.error?.message || ""}</Alert>
       )}
+      {readerError && <Alert severity="error">{readerError}</Alert>}
       <div className={classes.root}>
         <input
           aria-label={SELECT_AN_IMAGE}
