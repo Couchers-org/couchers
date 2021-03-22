@@ -5,7 +5,14 @@ type ObjectWithListValue<TData> = {
   [Key in keyof TData]: Key extends EndsWithList ? unknown[] : unknown;
 };
 
-export default function hasPages<TData extends ObjectWithListValue<TData>>(
+/**
+ * Utility function for checking if the resultant infinite data has at least one
+ * page of data in.
+ * @returns true if there is at least one page of data, false otherwise.
+ */
+export default function hasAtLeastOnePage<
+  TData extends ObjectWithListValue<TData>
+>(
   data: InfiniteData<TData> | undefined,
   listKey: keyof TData & EndsWithList
 ): data is InfiniteData<TData> {
