@@ -24,7 +24,7 @@ import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useHistory, useLocation, useParams } from "react-router-dom";
 import { signupRoute } from "routes";
-import { service } from "service/index";
+import { service } from "service";
 import {
   nameValidationPattern,
   sanitizeName,

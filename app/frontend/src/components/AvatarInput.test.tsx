@@ -11,7 +11,7 @@ import {
 } from "components/constants";
 import { SUBMIT } from "features/constants";
 import { useForm } from "react-hook-form";
-import { service } from "service/index";
+import { service } from "service";
 import wrapper from "test/hookWrapper";
 import { MockedService } from "test/utils";
 

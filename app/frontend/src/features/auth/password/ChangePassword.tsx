@@ -18,7 +18,7 @@ import { GetAccountInfoRes } from "pb/account_pb";
 import { accountInfoQueryKey } from "queryKeys";
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "react-query";
-import { service } from "service/index";
+import { service } from "service";
 
 interface ChangePasswordVariables {
   oldPassword?: string;

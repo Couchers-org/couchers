@@ -9,8 +9,7 @@ const useMessageListStyles = makeStyles((theme) => ({
     textDecoration: "none",
   },
   list: {
-    //margin won't go on the right, so make the width longer
-    width: `calc(100% + ${theme.spacing(4)})`,
+    width: "100%",
   },
   listItem: {
     marginInline: `-${theme.spacing(2)}`,

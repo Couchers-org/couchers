@@ -18,7 +18,7 @@ import React, { useRef, useState } from "react";
 import { Control, useController } from "react-hook-form";
 import { useMutation } from "react-query";
 import { ImageInputValues } from "service/api";
-import { service } from "service/index";
+import { service } from "service";
 
 const useStyles = makeStyles((theme) => ({
   root: {

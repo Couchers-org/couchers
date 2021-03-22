@@ -12,6 +12,7 @@ import {
   PingReq,
   ReferenceType,
   RepeatedStringValue,
+  ReportReq,
   UpdateProfileReq,
   User,
 } from "pb/api_pb";
@@ -360,4 +361,19 @@ export async function getReferencesReceived({
 
   const res = await client.api.getReceivedReferences(req);
   return res.toObject();
+}
+
+export interface ReportUserInput {
+  description: string;
+  reason: string;
+  userId: number;
+}
+
+export function reportUser({ description, reason, userId }: ReportUserInput) {
+  const req = new ReportReq();
+  req.setDescription(description);
+  req.setReason(reason);
+  req.setReportedUserId(userId);
+
+  return client.api.report(req);
 }

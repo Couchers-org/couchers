@@ -1,7 +1,7 @@
 import { Error } from "grpc-web";
 import { User } from "pb/api_pb";
 import { useQueries, useQuery, UseQueryResult } from "react-query";
-import { service } from "service/index";
+import { service } from "service";
 
 function useFriendList() {
   const { data: friendIds, error, isLoading } = useQuery<number[], Error>(

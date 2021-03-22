@@ -15,8 +15,8 @@ import {
   STEPS,
   SUBMIT,
 } from "features/constants";
+import { service } from "service";
 
-import { service } from "../service";
 import wrapper from "../test/hookWrapper";
 import { addDefaultUser, MockedService } from "../test/utils";
 import BugReport from "./BugReport";

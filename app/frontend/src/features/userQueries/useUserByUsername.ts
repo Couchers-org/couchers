@@ -6,7 +6,7 @@ import { Error, StatusCode } from "grpc-web";
 import { User } from "pb/api_pb";
 import { useEffect } from "react";
 import { useQuery, useQueryClient } from "react-query";
-import { service } from "service/index";
+import { service } from "service";
 
 import { reactQueryRetries } from "../../constants";
 
