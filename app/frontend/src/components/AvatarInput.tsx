@@ -17,8 +17,8 @@ import { CheckIcon, CrossIcon } from "components/Icons";
 import React, { useRef, useState } from "react";
 import { Control, useController } from "react-hook-form";
 import { useMutation } from "react-query";
-import { ImageInputValues } from "service/api";
 import { service } from "service";
+import { ImageInputValues } from "service/api";
 
 const useStyles = makeStyles((theme) => ({
   root: {
