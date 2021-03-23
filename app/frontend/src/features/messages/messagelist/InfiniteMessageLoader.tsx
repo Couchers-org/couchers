@@ -66,11 +66,11 @@ export default function InfiniteMessageLoader({
     messageEl?.scrollIntoView();
   }, [isFetchingNextPage]);
 
-  //scroll to the bottom on page load
+  //scroll to the bottom on page load, or new message
   useLayoutEffect(() => {
     if (!scrollRef.current) return;
     scrollRef.current.scroll(0, scrollRef.current.scrollHeight);
-  }, [scrollRef]);
+  });
 
   return (
     <Box className={classNames(classes.scroll, className)} ref={scrollRef}>
