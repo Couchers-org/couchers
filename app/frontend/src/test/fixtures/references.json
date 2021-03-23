@@ -9,7 +9,7 @@
       "seconds": 1577900000,
       "nanos": 0
     },
-    "hostRequestId": 1
+    "hostRequestId": 0
   },
   {
     "referenceId": 2,
@@ -21,10 +21,22 @@
       "seconds": 1583020800,
       "nanos": 0
     },
-    "hostRequestId": 2
+    "hostRequestId": 1
   },
   {
     "referenceId": 3,
+    "fromUserId": 2,
+    "toUserId": 1,
+    "referenceType": 1,
+    "text": "Funny cat, I'd recommend highly!",
+    "writtenTime": {
+      "seconds": 1525020500,
+      "nanos": 0
+    },
+    "hostRequestId": 2
+  },
+  {
+    "referenceId": 4,
     "fromUserId": 1,
     "toUserId": 4,
     "referenceType": 2,

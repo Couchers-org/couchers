@@ -8,9 +8,9 @@ import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
 import {
   getReferencesGivenHeading,
-  getSeeMoreReferences,
+  getSeeMoreReferencesBy,
+  getSeeMoreReferencesFor,
   NO_REFERENCES,
-  SEE_MORE_REFERENCES,
 } from "../constants";
 import {
   useReferencesGiven,
@@ -83,7 +83,7 @@ export default function AllReferencesList() {
                     loading={isFetchingReferencesReceivedNextPage}
                     onClick={() => fetchReferencesReceivedNextPage()}
                   >
-                    {getSeeMoreReferences(user.name)}
+                    {getSeeMoreReferencesFor(user.name)}
                   </Button>
                 </div>
               )}
@@ -104,7 +104,7 @@ export default function AllReferencesList() {
                     loading={isFetchingReferencesGivenNextPage}
                     onClick={() => fetchReferencesGivenNextPage()}
                   >
-                    {SEE_MORE_REFERENCES}
+                    {getSeeMoreReferencesBy(user.name)}
                   </Button>
                 </div>
               )}
