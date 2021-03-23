@@ -2,7 +2,13 @@ import { Box, makeStyles } from "@material-ui/core";
 import classNames from "classnames";
 import CircularProgress from "components/CircularProgress";
 import { messageElementId } from "features/messages/messagelist/MessageView";
-import React, { ReactNode, useCallback, useLayoutEffect, useRef } from "react";
+import React, {
+  ReactNode,
+  useCallback,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import useOnVisibleEffect from "utils/useOnVisibleEffect";
 
 const useStyles = makeStyles((theme) => ({
@@ -71,6 +77,21 @@ export default function InfiniteMessageLoader({
     if (!scrollRef.current) return;
     scrollRef.current.scroll(0, scrollRef.current.scrollHeight);
   });
+
+  // Save window dimensions so we know if they've changed
+  const [dimensions, setDimensions] = useState({
+    height: window.innerHeight,
+    width: window.innerWidth,
+  });
+
+  // Scroll to bottom on window resize
+  useLayoutEffect(() => {
+    window.addEventListener("resize", () =>
+      setDimensions({ height: window.innerHeight, width: window.innerWidth })
+    );
+    if (!scrollRef.current) return;
+    scrollRef.current.scroll(0, scrollRef.current.scrollHeight);
+  }, [dimensions]);
 
   return (
     <Box className={classNames(classes.scroll, className)} ref={scrollRef}>
