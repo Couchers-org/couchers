@@ -105,7 +105,7 @@ export default function UsernameForm() {
               fullWidth
               id="password"
               name="password"
-              inputRef={inputElement => {
+              inputRef={(inputElement) => {
                 if (inputElement) {
                   inputElement.focus();
                 }
