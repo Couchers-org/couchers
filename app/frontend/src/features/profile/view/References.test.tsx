@@ -249,7 +249,6 @@ describe("References", () => {
     });
 
     it("shows references given to others", async () => {
-      getReferencesGivenMock.mockClear();
       getReferencesGivenMock.mockResolvedValue({
         nextPageToken: "",
         referencesList: [givenReference],
@@ -305,10 +304,7 @@ describe("References", () => {
           name: getSeeMoreReferencesBy("Funny Cat"),
         })
       );
-      // Loading state buttons have no text
-      await waitForElementToBeRemoved(
-        screen.getAllByRole("button", { name: "" })
-      );
+      await waitForElementToBeRemoved(screen.getAllByRole("progressbar"));
 
       // Simpler checks here since the more thorough checks have been done in previous tests already
       expect(
@@ -375,9 +371,7 @@ describe("References", () => {
         userEvent.click(
           await screen.findByRole("button", { name: SEE_MORE_REFERENCES })
         );
-        await waitForElementToBeRemoved(
-          screen.getByRole("button", { name: "" })
-        );
+        await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
         expect(
           screen.getByText("Funny person with dark sense of humour")
