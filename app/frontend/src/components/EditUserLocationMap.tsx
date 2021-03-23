@@ -369,12 +369,20 @@ function circleGeoJson(
 function displaceLngLat(coords: LngLat, distance: number, angle: number) {
   // see https://gis.stackexchange.com/a/2964
   // 111111 m ~ 1 degree
-  const lat = coords.lat + (1 / 111111) * distance * Math.cos(angle);
-  const lng =
+  let lat = coords.lat + (1 / 111111) * distance * Math.cos(angle);
+  let lng =
     coords.lng +
     (1 / (111111 * Math.cos((coords.lat / 360) * 2 * Math.PI))) *
       distance *
       Math.sin(angle);
+
+  // Clip latitude to stay inside valid ranges
+  // Clipping used instead of wrapping to prevent global circle-shape
+  if (lat < -90)      lat = -90;
+  else if (lat > 90)  lat = 90;
+  if (lng < -180)     lng = -180;
+  else if (lng > 180) lng = 180;
+
   return new LngLat(lng, lat);
 }
 
