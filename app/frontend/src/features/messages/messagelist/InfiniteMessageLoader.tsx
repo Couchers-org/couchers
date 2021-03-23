@@ -87,12 +87,10 @@ export default function InfiniteMessageLoader({
   // Scroll to bottom on window resize
   useLayoutEffect(() => {
     const updateDimensions = () => {
-      console.log(dimensions);
       setDimensions({ height: window.innerHeight, width: window.innerWidth });
     };
 
     window.addEventListener("resize", updateDimensions);
-
     if (!scrollRef.current) return;
     scrollRef.current.scroll(0, scrollRef.current.scrollHeight);
     return () => window.removeEventListener("resize", updateDimensions);
