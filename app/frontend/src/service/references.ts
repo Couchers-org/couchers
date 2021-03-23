@@ -25,13 +25,13 @@ export async function getReferencesGivenByUser({
 }
 
 interface GetReferencesReceivedInput extends GetReferencesBaseInput {
-  referenceType?: Exclude<ReferenceTypeState, "given">;
+  referenceType: Exclude<ReferenceTypeState, "given">;
 }
 
 export async function getReferencesReceivedForUser({
   userId,
   pageToken = "0",
-  referenceType = "all",
+  referenceType,
 }: GetReferencesReceivedInput) {
   const req = new ListReferencesReq();
   req.setToUserId(userId);
