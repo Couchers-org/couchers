@@ -5,6 +5,16 @@ import {
 } from "@material-ui/pickers";
 import { Control, Controller } from "react-hook-form";
 
+import { dateFormats } from "./DateFormats";
+
+const getLocaleFormat = () => {
+  for (const [key, value] of Object.entries(dateFormats)) {
+    if (key === navigator.language) {
+      return value.toString();
+    }
+  }
+};
+
 interface DatepickerProps {
   className?: string;
   control: Control;
@@ -42,7 +52,7 @@ export default function Datepicker({
             className={className}
             disableToolbar
             error={error}
-            format="DD.MM.YYYY"
+            format={getLocaleFormat()}
             fullWidth
             helperText={helperText}
             id={id}
