@@ -6,7 +6,6 @@ import Button from "components/Button";
 import Divider from "components/Divider";
 import { CouchIcon, LocationIcon } from "components/Icons";
 import IconText from "components/IconText";
-import LabelAndText from "components/LabelAndText";
 import { useAuthContext } from "features/auth/AuthProvider";
 import AddFriendButton from "features/connections/friends/AddFriendButton";
 import {
@@ -14,8 +13,6 @@ import {
   COMMUNITY_STANDING_DESCRIPTION,
   EDIT_HOME,
   EDIT_PROFILE,
-  LAST_ACTIVE,
-  REFERENCES,
   VERIFICATION_SCORE,
   VERIFICATION_SCORE_DESCRIPTION,
 } from "features/constants";
@@ -23,12 +20,13 @@ import {
   hostingStatusLabels,
   meetupStatusLabels,
 } from "features/profile/constants";
+import { LabelsReferencesLastActive } from "features/user/UserTextAndLabel";
 import { HostingStatus, MeetupStatus, User } from "pb/api_pb";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { editHostingPreferenceRoute, editProfileRoute } from "routes";
-import { timestamp2Date } from "utils/date";
-import { timeAgo } from "utils/timeAgo";
+
+import ProfileActionsMenuButton from "../actions/ProfileActionsMenuButton";
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -47,6 +45,8 @@ const useStyles = makeStyles((theme) => ({
   },
   cardActions: {
     justifyContent: "center",
+    paddingLeft: 0,
+    paddingRight: 0,
   },
   grow: {
     paddingTop: "100%",
@@ -71,7 +71,7 @@ export default function Overview({ user }: OverviewProps) {
 
   return (
     <Card className={classes.card}>
-      <Avatar {...{ user }} className={classes.grow} />
+      <Avatar user={user} className={classes.grow} />
       <Typography variant="h1" className={classes.intro}>
         {user.name}
       </Typography>
@@ -91,13 +91,16 @@ export default function Overview({ user }: OverviewProps) {
             </Button>
           </>
         ) : (
-          user.friends !== User.FriendshipStatus.FRIENDS && (
-            <AddFriendButton
-              isPending={user.friends === User.FriendshipStatus.PENDING}
-              userId={user.userId}
-              setMutationError={setMutationError}
-            />
-          )
+          <>
+            {user.friends !== User.FriendshipStatus.FRIENDS && (
+              <AddFriendButton
+                isPending={user.friends === User.FriendshipStatus.PENDING}
+                userId={user.userId}
+                setMutationError={setMutationError}
+              />
+            )}
+            <ProfileActionsMenuButton />
+          </>
         )}
       </CardActions>
       <IconText
@@ -128,15 +131,7 @@ export default function Overview({ user }: OverviewProps) {
         description={VERIFICATION_SCORE_DESCRIPTION}
       />
       <div className={classes.info}>
-        <LabelAndText label={REFERENCES} text={`${user.numReferences || 0}`} />
-        <LabelAndText
-          label={LAST_ACTIVE}
-          text={
-            user.lastActive
-              ? `${timeAgo(timestamp2Date(user.lastActive))}`
-              : "Unknown"
-          }
-        />
+        <LabelsReferencesLastActive user={user} />
       </div>
     </Card>
   );

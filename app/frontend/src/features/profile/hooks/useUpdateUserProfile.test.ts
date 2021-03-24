@@ -3,7 +3,7 @@ import useUpdateUserProfile from "features/profile/hooks/useUpdateUserProfile";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { act } from "react-test-renderer";
-import { service } from "service/index";
+import { service } from "service";
 import wrapper from "test/hookWrapper";
 import { addDefaultUser } from "test/utils";
 

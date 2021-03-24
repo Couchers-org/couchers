@@ -3,6 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import Datepicker from "components/Datepicker";
 import TextField from "components/TextField";
 import { useUser } from "features/userQueries/useUsers";
 import { Error as GrpcError } from "grpc-web";
@@ -12,9 +13,11 @@ import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { useHistory, useParams } from "react-router-dom";
 import { routeToHostRequest } from "routes";
-import { service } from "service/index";
+import { service } from "service";
 import { firstName } from "utils/names";
 import { validateFutureDate } from "utils/validation";
+
+import { DATE_FROM, DATE_TO } from "../constants";
 
 const useStyles = makeStyles((theme) => ({
   buttonContainer: {
@@ -41,7 +44,7 @@ export default function NewHostRequest() {
     ? `Request to be hosted by ${firstName(host.name)}`
     : undefined;
 
-  const { register, handleSubmit, errors: formErrors } = useForm<
+  const { register, control, handleSubmit, errors: formErrors } = useForm<
     Required<CreateHostRequestReq.AsObject>
   >({ defaultValues: { toUserId: userId } });
 
@@ -80,33 +83,29 @@ export default function NewHostRequest() {
         <Alert severity={"error"}>{hostError}</Alert>
       ) : (
         <form onSubmit={onSubmit} className={classes.form}>
-          <TextField
+          <Datepicker
+            control={control}
+            error={!!formErrors.fromDate}
+            helperText={formErrors?.fromDate?.message}
             id="from-date"
-            name="fromDate"
-            label="Date from"
-            type="date"
-            InputLabelProps={{
-              shrink: true,
-            }}
             inputRef={register({
               required: "Enter a from date",
               validate: dateValidate,
             })}
-            helperText={formErrors?.fromDate?.message}
+            label={DATE_FROM}
+            name="fromDate"
           />
-          <TextField
+          <Datepicker
+            control={control}
+            error={!!formErrors.toDate}
+            helperText={formErrors?.toDate?.message}
             id="to-date"
-            name="toDate"
-            label="Date to"
-            type="date"
-            InputLabelProps={{
-              shrink: true,
-            }}
             inputRef={register({
               required: "Enter a to date",
               validate: dateValidate,
             })}
-            helperText={formErrors?.toDate?.message}
+            label={DATE_TO}
+            name="toDate"
           />
           <TextField
             id="host-request-message"

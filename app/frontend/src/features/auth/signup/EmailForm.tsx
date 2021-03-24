@@ -7,7 +7,7 @@ import useAuthStyles from "features/auth/useAuthStyles";
 import { SignupRes } from "pb/auth_pb";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { service } from "service/index";
+import { service } from "service";
 import { sanitizeName } from "utils/validation";
 
 export default function EmailForm() {
