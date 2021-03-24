@@ -9,6 +9,7 @@ import Alert from "components/Alert";
 import TabBar from "components/TabBar";
 import { SECTION_LABELS } from "features/constants";
 import NewHostRequest from "features/messages/surfing/NewHostRequest";
+import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import About from "features/profile/view/About";
 import Home from "features/profile/view/Home";
 import Overview from "features/profile/view/Overview";
@@ -70,31 +71,39 @@ export default function ProfilePage() {
       {loading ? (
         <CircularProgress />
       ) : user ? (
-        <div className={classes.root}>
-          <Overview user={user} setIsRequesting={setIsRequesting} />
-          <Card className={classes.detailsCard}>
-            <TabContext value={currentTab}>
-              <TabBar
-                value={currentTab}
-                setValue={setCurrentTab}
-                labels={SECTION_LABELS}
-                ariaLabel="tabs for user's details"
-              />
-              <Collapse in={isRequesting}>
-                <NewHostRequest user={user} setIsRequesting={setIsRequesting} />
-              </Collapse>
-              <TabPanel classes={{ root: classes.tabPanel }} value="about">
-                <About user={user} />
-              </TabPanel>
-              <TabPanel value="home">
-                <Home user={user}></Home>
-              </TabPanel>
-              <TabPanel classes={{ root: classes.tabPanel }} value="references">
-                <References user={user} />
-              </TabPanel>
-            </TabContext>
-          </Card>
-        </div>
+        <ProfileUserProvider user={user}>
+          <div className={classes.root}>
+            <Overview user={user} setIsRequesting={setIsRequesting} />
+            <Card className={classes.detailsCard}>
+              <TabContext value={currentTab}>
+                <TabBar
+                  value={currentTab}
+                  setValue={setCurrentTab}
+                  labels={SECTION_LABELS}
+                  ariaLabel="tabs for user's details"
+                />
+                <Collapse in={isRequesting}>
+                  <NewHostRequest
+                    user={user}
+                    setIsRequesting={setIsRequesting}
+                  />
+                </Collapse>
+                <TabPanel classes={{ root: classes.tabPanel }} value="about">
+                  <About user={user} />
+                </TabPanel>
+                <TabPanel value="home">
+                  <Home user={user}></Home>
+                </TabPanel>
+                <TabPanel
+                  classes={{ root: classes.tabPanel }}
+                  value="references"
+                >
+                  <References user={user} />
+                </TabPanel>
+              </TabContext>
+            </Card>
+          </div>
+        </ProfileUserProvider>
       ) : null}
     </>
   );
