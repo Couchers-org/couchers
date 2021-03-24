@@ -1,7 +1,8 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 import useRespondToFriendRequest from "features/connections/friends/useRespondToFriendRequest";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { ListFriendRequestsRes } from "pb/api_pb";
+import { FriendRequest } from "pb/api_pb";
+import { friendRequestKey } from "queryKeys";
 import { service } from "service";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 
@@ -21,18 +22,16 @@ describe("useRespondToFriendRequest hook", () => {
   const setMutationError = jest.fn();
 
   beforeEach(() => {
-    client.setQueryData<ListFriendRequestsRes.AsObject>(
-      "friendRequestsReceived",
+    client.setQueryData<FriendRequest.AsObject[]>(friendRequestKey("sent"), [
       {
-        receivedList: [
-          {
-            friendRequestId: 1,
-            state: 0,
-            userId: 2,
-          },
-        ],
-        sentList: [],
-      }
+        friendRequestId: 1,
+        state: 0,
+        userId: 2,
+      },
+    ]);
+    client.setQueryData<FriendRequest.AsObject[]>(
+      friendRequestKey("received"),
+      []
     );
     client.setQueryData<number[]>("friendIds", []);
   });
@@ -57,9 +56,9 @@ describe("useRespondToFriendRequest hook", () => {
     expect(setMutationError).toHaveBeenCalledTimes(1);
     expect(setMutationError).toHaveBeenCalledWith("");
     expect(client.getQueryState("friendIds")?.isInvalidated).toBe(true);
-    expect(client.getQueryState("friendRequestsReceived")?.isInvalidated).toBe(
-      true
-    );
+    expect(
+      client.getQueryState(friendRequestKey("received"))?.isInvalidated
+    ).toBe(true);
   });
 
   it("does not invalidate existing queries if the API call failed", async () => {
@@ -84,8 +83,8 @@ describe("useRespondToFriendRequest hook", () => {
     expect(setMutationError).toHaveBeenCalledTimes(2);
     expect(setMutationError).toHaveBeenLastCalledWith("API error");
     expect(client.getQueryState("friendIds")?.isInvalidated).toBe(false);
-    expect(client.getQueryState("friendRequestsReceived")?.isInvalidated).toBe(
-      false
-    );
+    expect(
+      client.getQueryState(friendRequestKey("received"))?.isInvalidated
+    ).toBe(false);
   });
 });
