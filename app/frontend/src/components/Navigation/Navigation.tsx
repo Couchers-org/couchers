@@ -7,10 +7,11 @@ import {
   ListItem,
   makeStyles,
   Toolbar,
-  Typography,
 } from "@material-ui/core";
+import classNames from "classnames";
 import { CloseIcon, MenuIcon } from "components/Icons";
 import { useAuthContext } from "features/auth/AuthProvider";
+import useAuthStyles from "features/auth/useAuthStyles";
 import BugReport from "features/BugReport";
 import SearchBox from "features/search/SearchBox";
 import React from "react";
@@ -74,8 +75,12 @@ const useStyles = makeStyles((theme) => ({
   },
   drawerTitle: {
     alignSelf: "center",
+    fontSize: "1.5rem",
     fontWeight: "bold",
     paddingLeft: theme.spacing(1),
+  },
+  logoContainer: {
+    display: "flex",
   },
   gutters: {
     [theme.breakpoints.up("md")]: {
@@ -87,7 +92,13 @@ const useStyles = makeStyles((theme) => ({
     paddingRight: 0,
   },
   nav: {
+    alignItems: "center",
     display: "flex",
+    flex: 0,
+  },
+  logoWidth: {
+    flex: 0,
+    minWidth: theme.typography.pxToRem(50),
   },
   icon: {
     marginLeft: theme.spacing(1),
@@ -108,6 +119,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Navigation() {
   const classes = useStyles();
+  const { logo } = useAuthStyles();
   const authenticated = useAuthContext().authState.authenticated;
   const [open, setOpen] = React.useState(false);
 
@@ -178,9 +190,9 @@ export default function Navigation() {
               }}
             >
               <div className={classes.drawerHeader}>
-                <Typography variant="h5" className={classes.drawerTitle}>
+                <div className={classNames(logo, classes.drawerTitle)}>
                   {COUCHERS}
-                </Typography>
+                </div>
                 <IconButton
                   className={classes.icon}
                   aria-label="close drawer"
@@ -192,7 +204,10 @@ export default function Navigation() {
               {drawerItems}
             </Drawer>
           </Hidden>
-          <Logo style={{ width: 50 }} />
+          <Logo className={classes.logoWidth} />
+          <Hidden smDown>
+            <div className={logo}>{COUCHERS}</div>
+          </Hidden>
           <Hidden smDown>
             <div className={classes.flex}>
               {menu.map((item) => (

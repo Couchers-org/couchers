@@ -52,8 +52,6 @@ const themeOptions: ThemeOptions = {
     secondary: {
       dark: "#fe5e01",
       light: "#fe982a",
-      // there's also #FE762A but not really sure where to put this as MuiTheme only support
-      // three colours under a category...
       main: "#e47701",
     },
     success: {
