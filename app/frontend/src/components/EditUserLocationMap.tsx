@@ -223,7 +223,10 @@ export default function EditUserLocationMap({
       if (!user) {
         navigator.geolocation.getCurrentPosition((position) => {
           flyToSearch(
-            new LngLat(position.coords.longitude, position.coords.latitude).wrap()
+            new LngLat(
+              position.coords.longitude,
+              position.coords.latitude
+            ).wrap()
           );
         });
       }
@@ -378,9 +381,9 @@ function displaceLngLat(coords: LngLat, distance: number, angle: number) {
 
   // Clip latitude to stay inside valid ranges
   // Clipping used instead of wrapping to prevent global circle-shape
-  if (lat < -90)      lat = -90;
-  else if (lat > 90)  lat = 90;
-  if (lng < -180)     lng = -180;
+  if (lat < -90) lat = -90;
+  else if (lat > 90) lat = 90;
+  if (lng < -180) lng = -180;
   else if (lng > 180) lng = 180;
 
   return new LngLat(lng, lat);
