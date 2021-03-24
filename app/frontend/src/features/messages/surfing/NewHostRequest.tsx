@@ -117,8 +117,8 @@ export default function NewHostRequest({
   const watchFromDate = watch("fromDate", new Date().toString());
   useEffect(() => {
     const tomorrow = new Date(watchFromDate);
-    tomorrow.setDate(tomorrow.getDate() + 2).toString();
-    if (watchFromDate ? watchFromDate.toString() : "" > getValues("toDate"))
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    if (watchFromDate ? watchFromDate : "" > getValues("toDate"))
       setValue("toDate", tomorrow);
   });
 
@@ -167,23 +167,23 @@ export default function NewHostRequest({
               )}
               <Datepicker
                 control={control}
-                name="fromDate"
-                label={ARRIVAL_DATE}
+                error={!!errors.fromDate}
                 helperText={errors?.fromDate?.message}
                 id="from-date"
-                error={!!errors.fromDate}
                 inputRef={register}
+                label={ARRIVAL_DATE}
+                name="fromDate"
               />
               <Datepicker
                 className={classes.date}
                 control={control}
-                name="toDate"
-                label={DEPARTURE_DATE}
-                helperText={errors?.toDate?.message}
-                minDate={new Date(watchFromDate)}
-                id="to-date"
                 error={!!errors.toDate}
+                helperText={errors?.toDate?.message}
+                id="to-date"
                 inputRef={register}
+                label={DEPARTURE_DATE}
+                minDate={new Date(watchFromDate)}
+                name="toDate"
               />
               {isPostBetaEnabled && (
                 <Select

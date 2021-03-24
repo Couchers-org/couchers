@@ -32,7 +32,7 @@ export default function Datepicker({
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
       <Controller
         control={control}
-        defaultValue={new Date().toISOString().split("T")[0]}
+        defaultValue={new Date()}
         inputRef={inputRef}
         name={name}
         render={({ onChange, value }) => (
@@ -52,10 +52,8 @@ export default function Datepicker({
             label={label}
             minDate={minDate}
             onChange={(date) => {
-              //user might be typing, so check the date is valid before doing conversions
-              date?.isValid()
-                ? onChange(date?.format().split("T")[0])
-                : onChange(date);
+              // user might be typing, so check the date is valid before doing conversions
+              date?.isValid() ? onChange(date?.format()) : onChange(date);
             }}
             value={value}
             variant="inline"
