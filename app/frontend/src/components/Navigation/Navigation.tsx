@@ -14,6 +14,7 @@ import { useAuthContext } from "features/auth/AuthProvider";
 import BugReport from "features/BugReport";
 import SearchBox from "features/search/SearchBox";
 import React from "react";
+import { ReactComponent as Logo } from "resources/logo.svg";
 import {
   eventRoute,
   logoutRoute,
@@ -56,17 +57,12 @@ const useStyles = makeStyles((theme) => ({
     top: 0,
   },
   flex: {
-    [theme.breakpoints.up("md")]: {
-      flex: 0,
-      justifyContent: "flex-start",
-      paddingLeft: theme.spacing(3),
-      paddingRight: theme.spacing(3),
-      width: "auto",
-    },
     display: "flex",
-    flex: 1,
-    justifyContent: "space-evenly",
-    padding: 0,
+    flex: 0,
+    justifyContent: "flex-start",
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+    width: "auto",
   },
   drawerPaper: {
     padding: theme.spacing(2),
@@ -196,9 +192,7 @@ export default function Navigation() {
               {drawerItems}
             </Drawer>
           </Hidden>
-          <Typography variant="h5" className={classes.title}>
-            {COUCHERS}
-          </Typography>
+          <Logo style={{ width: 50 }} />
           <Hidden smDown>
             <div className={classes.flex}>
               {menu.map((item) => (

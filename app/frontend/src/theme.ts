@@ -35,18 +35,26 @@ const themeOptions: ThemeOptions = {
     },
   },
   palette: {
+    background: {
+      default: "#fcfcfc",
+    },
+    common: {
+      white: "#fcfcfc",
+    },
     error: {
       main: "#ff0000",
     },
     primary: {
-      dark: "#2a0033",
-      light: "#84458b",
-      main: "#55185d",
+      dark: "#20686c",
+      light: "#6bc4a6",
+      main: "#00a398",
     },
     secondary: {
-      dark: "#c7a400",
-      light: "#ffff60",
-      main: "#ffd524",
+      dark: "#fe5e01",
+      light: "#fe982a",
+      // there's also #FE762A but not really sure where to put this as MuiTheme only support
+      // three colours under a category...
+      main: "#e47701",
     },
     success: {
       main: "#1ac302",
