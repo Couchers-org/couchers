@@ -17,6 +17,7 @@ import {
   VERIFICATION_SCORE,
   VERIFICATION_SCORE_DESCRIPTION,
 } from "features/constants";
+import ProfileActionsMenuButton from "features/profile/actions/ProfileActionsMenuButton";
 import {
   hostingStatusLabels,
   meetupStatusLabels,
@@ -100,6 +101,7 @@ export default function Overview({ user, setIsRequesting }: OverviewProps) {
                 setMutationError={setMutationError}
               />
             )}
+            <ProfileActionsMenuButton />
           </>
         )}
       </CardActions>
