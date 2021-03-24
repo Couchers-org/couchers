@@ -7,7 +7,7 @@ import {
   SUBMIT,
 } from "features/auth/constants";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { service } from "service/index";
+import { service } from "service";
 import wrapper from "test/hookWrapper";
 import { MockedService } from "test/utils";
 

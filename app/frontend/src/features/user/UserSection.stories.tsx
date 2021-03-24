@@ -1,5 +1,5 @@
 import { Meta, Story } from "@storybook/react";
-import UserSection from "features/userPage/UserSection";
+import UserSection from "features/user/UserSection";
 
 export default {
   component: UserSection,

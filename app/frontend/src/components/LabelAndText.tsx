@@ -6,7 +6,7 @@ import TextBody from "./TextBody";
 
 const useStyles = makeStyles((theme) => ({
   label: {
-    margin: "inherit",
+    margin: 0,
     width: "50%",
   },
   root: {

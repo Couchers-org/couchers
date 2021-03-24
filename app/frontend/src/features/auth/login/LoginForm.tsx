@@ -15,7 +15,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useHistory } from "react-router-dom";
 import { loginPasswordRoute, resetPasswordRoute } from "routes";
-import { service } from "service/index";
+import { service } from "service";
 import { useIsMounted, useSafeState } from "utils/hooks";
 import { sanitizeName } from "utils/validation";
 
@@ -27,6 +27,9 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     display: "flex",
     marginTop: theme.spacing(2),
+    [theme.breakpoints.up("md")]: {
+      justifyContent: "space-between",
+    },
   },
 }));
 
@@ -116,21 +119,6 @@ export default function UsernameForm() {
             />
           </>
         )}
-        <Button
-          classes={{
-            label: authClasses.buttonText,
-            root: authClasses.button,
-          }}
-          type="submit"
-          variant="contained"
-          color="secondary"
-          onClick={onSubmit}
-          disabled={sent}
-          loading={loading || authLoading}
-        >
-          Continue
-        </Button>
-
         <div className={classes.loginOptions}>
           <FormControlLabel
             style={{ marginLeft: "0px" }}
@@ -146,6 +134,20 @@ export default function UsernameForm() {
             Forgot password?
           </Typography>
         </div>
+        <Button
+          classes={{
+            label: authClasses.buttonText,
+          }}
+          className={authClasses.button}
+          color="secondary"
+          disabled={sent}
+          loading={loading || authLoading}
+          onClick={onSubmit}
+          type="submit"
+          variant="contained"
+        >
+          Continue
+        </Button>
       </form>
     </>
   );

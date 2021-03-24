@@ -24,7 +24,7 @@ const useStyles = makeStyles({
   root: {
     height: 200,
     position: "relative",
-    width: 400,
+    maxWidth: 400,
   },
 });
 

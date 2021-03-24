@@ -28,7 +28,7 @@ import {
   useMutation,
   useQuery,
 } from "react-query";
-import { service } from "service/index";
+import { service } from "service";
 
 export const useCommunity = (id: number) =>
   useQuery<Community.AsObject, GrpcError>(communityKey(id), () =>

@@ -6,13 +6,12 @@ import {
   NEW_PASSWORD,
   OLD_PASSWORD,
   PASSWORD_CHANGED,
-  RESET_PASSWORD,
   SUBMIT,
 } from "features/auth/constants";
 import ChangePassword from "features/auth/password/ChangePassword";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { GetAccountInfoRes } from "pb/account_pb";
-import { service } from "service/index";
+import { service } from "service";
 import wrapper from "test/hookWrapper";
 import { MockedService } from "test/utils";
 

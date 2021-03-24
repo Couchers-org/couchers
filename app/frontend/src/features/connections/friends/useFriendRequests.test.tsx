@@ -1,5 +1,5 @@
 import { renderHook } from "@testing-library/react-hooks";
-import { service } from "service/index";
+import { service } from "service";
 import users from "test/fixtures/users.json";
 import wrapper from "test/hookWrapper";
 import { getUser } from "test/serviceMockDefaults";

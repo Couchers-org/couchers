@@ -1,20 +1,18 @@
 import { makeStyles } from "@material-ui/core";
+import classNames from "classnames";
 import Button from "components/Button";
 import { PersonAddIcon } from "components/Icons";
 import { ADD_FRIEND, PENDING } from "features/connections/constants";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import React from "react";
 import { useMutation, useQueryClient } from "react-query";
-import { service } from "service/index";
+import { service } from "service";
 
 import { SetMutationError } from ".";
 
 const useStyles = makeStyles((theme) => ({
   disabledButton: {
     backgroundColor: theme.palette.grey[100],
-  },
-  editButton: {
-    marginBottom: theme.spacing(2),
   },
 }));
 
@@ -51,7 +49,7 @@ export default function AddFriendButton({
   return (
     <Button
       startIcon={<PersonAddIcon />}
-      className={isPending ? classes.disabledButton : classes.editButton}
+      className={classNames({ [classes.disabledButton]: isPending })}
       disabled={isPending}
       onClick={() => {
         if (!isPending) {

@@ -3,10 +3,21 @@ import { HostRequestStatus } from "pb/conversations_pb";
 import messages from "test/fixtures/messages.json";
 import users from "test/fixtures/users.json";
 
-const userMap = new Map(users.map((user) => [user.userId, user]));
+const [user1, user2, user3, user4] = users;
+
+const userMap: Record<string, User.AsObject> = {
+  "1": user1,
+  "2": user2,
+  "3": user3,
+  "4": user4,
+  funnycat: user1,
+  funnyChicken: user4,
+  funnydog: user2,
+  funnykid: user3,
+};
 
 export async function getUser(userId: string): Promise<User.AsObject> {
-  return userMap.get(+userId)!;
+  return userMap[userId];
 }
 
 export async function listFriends() {

@@ -52,6 +52,7 @@ const themeOptions: ThemeOptions = {
       main: "#1ac302",
     },
     grey: {
+      50: "#f3f3f3",
       100: "#aaafb4",
     },
   },

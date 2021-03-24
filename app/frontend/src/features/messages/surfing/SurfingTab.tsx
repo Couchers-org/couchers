@@ -12,7 +12,7 @@ import * as React from "react";
 import { useInfiniteQuery } from "react-query";
 import { Link } from "react-router-dom";
 import { routeToHostRequest } from "routes";
-import { service } from "service/index";
+import { service } from "service";
 
 export interface GroupChatListProps extends BoxProps {
   groupChats: Array<GroupChat.AsObject>;

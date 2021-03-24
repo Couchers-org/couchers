@@ -1,5 +1,5 @@
 import { render, screen, within } from "@testing-library/react";
-import { service } from "service/index";
+import { service } from "service";
 import wrapper from "test/hookWrapper";
 import { getUser, listFriends } from "test/serviceMockDefaults";
 import { MockedService } from "test/utils";
@@ -37,12 +37,12 @@ describe("FriendList", () => {
 
     // First friend
     expect(
-      firstFriend.getByRole("link", { name: "Funny Dog @funnydog" })
+      firstFriend.getByRole("heading", { name: /Funny Dog/ })
     ).toBeVisible();
 
     // Second friend
     expect(
-      secondFriend.getByRole("link", { name: "Funny Kid @funnykid" })
+      secondFriend.getByRole("heading", { name: /Funny Kid/ })
     ).toBeVisible();
   });
 

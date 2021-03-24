@@ -1,13 +1,12 @@
 import { Box, makeStyles } from "@material-ui/core";
-import React, { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-
-import Button from "../../../components/Button";
+import Button from "components/Button";
 import EditUserLocationMap, {
   ApproximateLocation,
-} from "../../../components/EditUserLocationMap";
-import TextBody from "../../../components/TextBody";
-import { service } from "../../../service";
+} from "components/EditUserLocationMap";
+import TextBody from "components/TextBody";
+import React, { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { service } from "service";
 
 const useStyles = makeStyles({ map: { height: "40vh" } });
 

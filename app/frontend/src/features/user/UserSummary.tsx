@@ -12,7 +12,7 @@ import {
   PersonIcon,
   WorkIcon,
 } from "components/Icons";
-import UserSection from "features/userPage/UserSection";
+import UserSection from "features/user/UserSection";
 import { User } from "pb/api_pb";
 import React from "react";
 

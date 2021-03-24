@@ -2,16 +2,21 @@ import {
   Card,
   CardActionArea,
   CardContent,
-  Container,
   makeStyles,
   Typography,
 } from "@material-ui/core";
-import Avatar from "components/Avatar";
-import ScoreBar from "components/Bar/ScoreBar";
-import { COMMUNITY_STANDING, VERIFICATION_SCORE } from "features/constants";
-import { hostingStatusLabels } from "features/profile/constants";
+import { CouchIcon, LocationIcon } from "components/Icons";
+import UserSummary from "components/UserSummary";
+import {
+  aboutText,
+  hostingStatusLabels,
+  meetupStatusLabels,
+} from "features/profile/constants";
+import {
+  LabelsAgeGenderLanguages,
+  LabelsReferencesLastActive,
+} from "features/user/UserTextAndLabel";
 import { User } from "pb/api_pb";
-import React from "react";
 import { Link } from "react-router-dom";
 import { routeToUser } from "routes";
 
@@ -19,10 +24,18 @@ const useStyles = makeStyles((theme) => ({
   card: {
     borderRadius: theme.shape.borderRadius,
   },
-  resultHeader: {
-    alignItems: "center",
+  about: {
+    margin: `${theme.spacing(2)} 0`,
+  },
+  statusLabelWrapper: {
     display: "flex",
-    marginBottom: theme.spacing(1),
+    "& > div": {
+      display: "flex",
+    },
+  },
+  statusLabel: {
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(2),
   },
   root: {
     [theme.breakpoints.up("sm")]: {
@@ -41,26 +54,37 @@ export default function SearchResult({ user }: { user: User.AsObject }) {
       <Card className={classes.card}>
         <CardActionArea>
           <CardContent>
-            <div className={classes.resultHeader}>
-              <Avatar user={user} />
-              <Container>
-                <Typography variant="h2">{user.name}</Typography>
-                <Typography variant="subtitle1">
-                  {hostingStatusLabels[user.hostingStatus]}
-                </Typography>
-              </Container>
-            </div>
-
-            <ScoreBar value={user.communityStanding * 100}>
-              {COMMUNITY_STANDING}
-            </ScoreBar>
-            <ScoreBar value={user.verification * 100}>
-              {VERIFICATION_SCORE}
-            </ScoreBar>
-
-            {user.aboutMe.length < 300
-              ? user.aboutMe
-              : user.aboutMe.substring(0, 300) + "..."}
+            <UserSummary user={user}>
+              <div className={classes.statusLabelWrapper}>
+                <div>
+                  <CouchIcon />
+                  <Typography
+                    className={classes.statusLabel}
+                    display="inline"
+                    variant="subtitle1"
+                    color="primary"
+                  >
+                    {hostingStatusLabels[user.hostingStatus]}
+                  </Typography>
+                </div>
+                <div>
+                  <LocationIcon />
+                  <Typography
+                    className={classes.statusLabel}
+                    display="inline"
+                    variant="subtitle1"
+                    color="secondary"
+                  >
+                    {meetupStatusLabels[user.meetupStatus]}
+                  </Typography>
+                </div>
+              </div>
+            </UserSummary>
+            <Typography variant="body1" className={classes.about}>
+              {aboutText(user)}
+            </Typography>
+            <LabelsAgeGenderLanguages user={user} />
+            <LabelsReferencesLastActive user={user} />
           </CardContent>
         </CardActionArea>
       </Card>
