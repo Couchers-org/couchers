@@ -1,10 +1,4 @@
-import {
-  Card,
-  CircularProgress,
-  List,
-  ListItem,
-  makeStyles,
-} from "@material-ui/core";
+import { Card, CircularProgress, makeStyles } from "@material-ui/core";
 import { TabContext, TabPanel } from "@material-ui/lab";
 import Alert from "components/Alert";
 import TabBar from "components/TabBar";
@@ -16,12 +10,7 @@ import References from "features/profile/view/References";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import useUserByUsername from "features/userQueries/useUserByUsername";
 import React, { useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import {
-  changeEmailRoute,
-  changePasswordRoute,
-  editHostingPreferenceRoute,
-} from "routes";
+import { useParams } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
   detailsCard: {
@@ -92,41 +81,10 @@ export default function ProfilePage() {
               <TabPanel classes={{ root: classes.tabPanel }} value="references">
                 <References user={user} />
               </TabPanel>
-              <TabPanel value="favorites">
-                <div>favorites</div>
-              </TabPanel>
-              <TabPanel value="photos">
-                <div>photos</div>
-              </TabPanel>
             </TabContext>
           </Card>
         </div>
-      ) : (
-        <></>
-      )}
-      <List>
-        <ListItem
-          className={classes.linkStyle}
-          component={Link}
-          to={editHostingPreferenceRoute}
-        >
-          Edit my place
-        </ListItem>
-        <ListItem
-          className={classes.linkStyle}
-          component={Link}
-          to={changeEmailRoute}
-        >
-          Change my email
-        </ListItem>
-        <ListItem
-          className={classes.linkStyle}
-          component={Link}
-          to={changePasswordRoute}
-        >
-          Change my password
-        </ListItem>
-      </List>
+      ) : null}
     </>
   );
 }

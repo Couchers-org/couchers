@@ -1,4 +1,4 @@
-import { Box, makeStyles, Typography } from "@material-ui/core";
+import { makeStyles, Typography } from "@material-ui/core";
 import TextBody from "components/TextBody";
 import { User } from "pb/api_pb";
 import React from "react";
@@ -26,11 +26,13 @@ interface FriendSummaryViewProps {
   friend?: User.AsObject;
 }
 
+export const FRIEND_ITEM_TEST_ID = "friend-item";
+
 function FriendSummaryView({ children, friend }: FriendSummaryViewProps) {
   const classes = useStyles();
 
   return friend ? (
-    <Box className={classes.friendItem}>
+    <div className={classes.friendItem} data-testid={FRIEND_ITEM_TEST_ID}>
       <Link className={classes.friendLink} to={routeToUser(friend.username)}>
         <Typography component="h3" variant="h2">
           {friend.name}
@@ -38,7 +40,7 @@ function FriendSummaryView({ children, friend }: FriendSummaryViewProps) {
         <TextBody>@{friend.username}</TextBody>
       </Link>
       {children}
-    </Box>
+    </div>
   ) : null;
 }
 

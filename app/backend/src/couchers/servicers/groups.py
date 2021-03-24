@@ -231,3 +231,23 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             session.query(ClusterSubscription).filter(ClusterSubscription.user_id == context.user_id).delete()
 
             return empty_pb2.Empty()
+
+    def ListUserGroups(self, request, context):
+        with session_scope() as session:
+            page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+            next_cluster_id = int(request.page_token) if request.page_token else 0
+            user_id = request.user_id or context.user_id
+            clusters = (
+                session.query(Cluster)
+                .join(ClusterSubscription, ClusterSubscription.cluster_id == Cluster.id)
+                .filter(ClusterSubscription.user_id == user_id)
+                .filter(~Cluster.is_official_cluster)  # not an official group
+                .filter(Cluster.id >= next_cluster_id)
+                .order_by(Cluster.id)
+                .limit(page_size + 1)
+                .all()
+            )
+            return groups_pb2.ListUserGroupsRes(
+                groups=[group_to_pb(cluster, user_id) for cluster in clusters[:page_size]],
+                next_page_token=str(clusters[-1].id) if len(clusters) > page_size else None,
+            )

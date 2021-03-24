@@ -72,6 +72,7 @@ export default function NewPlaceForm() {
             name="content"
             render={({ onChange, value }) => (
               <ProfileMarkdownInput
+                id="content"
                 label="Place content"
                 onChange={onChange}
                 value={value}

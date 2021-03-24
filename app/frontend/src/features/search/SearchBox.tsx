@@ -8,7 +8,16 @@ import { routeToSearch } from "routes";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    marginLeft: theme.spacing(2),
+    flexGrow: 1,
+    marginLeft: "5%",
+  },
+  box: {
+    "& > .MuiOutlinedInput-root": {
+      width: "70%",
+      [theme.breakpoints.down("md")]: {
+        width: "90%",
+      },
+    },
   },
 }));
 
@@ -27,6 +36,7 @@ export default function SearchBox() {
     <>
       <form onSubmit={onSubmit} className={classes.root}>
         <TextField
+          className={classes.box}
           id="search-query"
           name="query"
           label="Search"

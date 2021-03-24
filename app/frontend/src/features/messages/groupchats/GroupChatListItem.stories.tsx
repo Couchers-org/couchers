@@ -8,9 +8,7 @@ export default {
 } as Meta;
 
 const Template: Story<any> = (args) => (
-  <>
-    <GroupChatListItem groupChat={groupChat} {...args} />
-  </>
+  <GroupChatListItem groupChat={groupChat} {...args} />
 );
 
 export const groupChatListItem = Template.bind({});

@@ -3,8 +3,7 @@ export const baseRoute = "/";
 export const loginRoute = "/login";
 export const loginPasswordRoute = `${loginRoute}/password`;
 export const resetPasswordRoute = "/password-reset";
-export const changePasswordRoute = "/change-password";
-export const changeEmailRoute = "/change-email";
+export const settingsRoute = "/account-settings";
 export const confirmChangeEmailRoute = "/confirm-email";
 
 export const signupRoute = "/signup";
@@ -35,7 +34,6 @@ export const mapRoute = "/map";
 export const logoutRoute = "/logout";
 export const connectionsRoute = "/connections";
 export const friendsRoute = `${connectionsRoute}/friends`;
-export const notFoundRoute = "/notfound";
 
 export const userRoute = "/user";
 export const routeToUser = (username: string) => `${profileRoute}/${username}`;
@@ -47,13 +45,13 @@ export const tosRoute = "/tos";
 const placeBaseRoute = "/place";
 export const placeRoute = `${placeBaseRoute}/:pageId/:pageSlug?`;
 export const routeToPlace = (id: number, slug: string) =>
-  `${placeRoute}/${id}/${slug}`;
+  `${placeBaseRoute}/${id}/${slug}`;
 export const newPlaceRoute = `${placeBaseRoute}/new`;
 
 const guideBaseRoute = "/guide";
 export const guideRoute = `${guideBaseRoute}/:pageId/:pageSlug?`;
 export const routeToGuide = (id: number, slug: string) =>
-  `${guideRoute}/${id}/${slug}`;
+  `${guideBaseRoute}/${id}/${slug}`;
 export const newGuideRoute = `${guideBaseRoute}/new`;
 
 const groupBaseRoute = "/group";

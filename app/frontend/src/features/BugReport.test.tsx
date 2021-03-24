@@ -7,6 +7,14 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import mediaQuery from "css-mediaquery";
+import {
+  BUG_DESCRIPTION,
+  EXPECT,
+  PROBLEM,
+  REPORT,
+  STEPS,
+  SUBMIT,
+} from "features/constants";
 
 import { service } from "../service";
 import wrapper from "../test/hookWrapper";
@@ -43,7 +51,7 @@ async function fillInAndSubmitBugReport(
     );
   }
 
-  userEvent.click(screen.getByRole("button", { name: "Submit" }));
+  userEvent.click(screen.getByRole("button", { name: SUBMIT }));
 }
 
 describe("BugReport", () => {
@@ -59,7 +67,7 @@ describe("BugReport", () => {
         name: "Report a bug",
       });
       expect(reportBugButton).toBeVisible();
-      expect(reportBugButton).toHaveTextContent("Report a bug");
+      expect(reportBugButton).toHaveTextContent(REPORT);
     });
   });
 
@@ -98,11 +106,10 @@ describe("BugReport", () => {
   });
 
   describe('when the "report a bug" button is clicked', () => {
-    const subjectFieldLabel = "Brief description of the bug";
-    const descriptionFieldLabel = "What's the problem?";
-    const stepsFieldLabel = "What did you do to trigger the bug?";
-    const resultsFieldLabel =
-      "What happened? What did you expect should have happened?";
+    const subjectFieldLabel = BUG_DESCRIPTION;
+    const descriptionFieldLabel = PROBLEM;
+    const stepsFieldLabel = STEPS;
+    const resultsFieldLabel = EXPECT;
 
     it("shows the bug report dialog correctly when the button is clicked", async () => {
       const infoText =
@@ -125,7 +132,7 @@ describe("BugReport", () => {
       render(<BugReport />, { wrapper });
 
       userEvent.click(screen.getByRole("button", { name: "Report a bug" }));
-      userEvent.click(await screen.findByRole("button", { name: "Submit" }));
+      userEvent.click(await screen.findByRole("button", { name: SUBMIT }));
 
       await waitFor(() => {
         expect(reportBugMock).not.toHaveBeenCalled();
@@ -213,6 +220,7 @@ describe("BugReport", () => {
     });
 
     it("resets error in the bug report dialog when it is being reopened", async () => {
+      jest.spyOn(console, "error").mockReturnValue(undefined);
       reportBugMock.mockRejectedValue(new Error("Bug tool disabled"));
       render(<BugReport />, { wrapper });
       userEvent.click(screen.getByRole("button", { name: "Report a bug" }));
