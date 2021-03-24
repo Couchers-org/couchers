@@ -1,6 +1,6 @@
 # Couchers.org app
 
-**Note**: If you have **any trouble** with this, send Aapeli or Lucas a message on Slack. He's more than happy to spend a bit of time helping you set things up!
+**Note**: If you have **any trouble** with this, send Aapeli or Lucas a message on Slack. They're more than happy to spend a bit of time helping you set things up!
 
 To **run the app locally**, you need to do **four things**:
 
