@@ -15,7 +15,7 @@ import useAuthStyles from "features/auth/useAuthStyles";
 import BugReport from "features/BugReport";
 import SearchBox from "features/search/SearchBox";
 import React from "react";
-import { ReactComponent as Logo } from "resources/logo.svg";
+import CouchersLogo from "resources/CouchersLogo";
 import {
   eventRoute,
   logoutRoute,
@@ -79,9 +79,6 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: "bold",
     paddingLeft: theme.spacing(1),
   },
-  logoContainer: {
-    display: "flex",
-  },
   gutters: {
     [theme.breakpoints.up("md")]: {
       paddingLeft: theme.spacing(3),
@@ -96,9 +93,10 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flex: 0,
   },
-  logoWidth: {
-    flex: 0,
-    minWidth: theme.typography.pxToRem(50),
+  logo: {
+    fill: theme.palette.secondary.main,
+    height: theme.typography.pxToRem(50),
+    width: theme.typography.pxToRem(50),
   },
   icon: {
     marginLeft: theme.spacing(1),
@@ -204,7 +202,7 @@ export default function Navigation() {
               {drawerItems}
             </Drawer>
           </Hidden>
-          <Logo className={classes.logoWidth} />
+          <CouchersLogo className={classes.logo} />
           <Hidden smDown>
             <div className={logo}>{COUCHERS}</div>
           </Hidden>
