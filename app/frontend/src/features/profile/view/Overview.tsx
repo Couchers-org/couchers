@@ -23,7 +23,7 @@ import {
 } from "features/profile/constants";
 import { LabelsReferencesLastActive } from "features/user/UserTextAndLabel";
 import { HostingStatus, MeetupStatus, User } from "pb/api_pb";
-import React, { Dispatch, SetStateAction, useState } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { editHostingPreferenceRoute, editProfileRoute } from "routes";
 
@@ -61,7 +61,7 @@ const useStyles = makeStyles((theme) => ({
 
 interface OverviewProps {
   user: User.AsObject;
-  setIsRequesting: Dispatch<SetStateAction<boolean>>;
+  setIsRequesting: (value: boolean) => void;
 }
 
 export default function Overview({ user, setIsRequesting }: OverviewProps) {

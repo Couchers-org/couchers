@@ -1,9 +1,8 @@
 import { TabContext } from "@material-ui/lab";
+import NotificationBadge from "components/NotificationBadge";
+import PageTitle from "components/PageTitle";
+import TabBar from "components/TabBar";
 import { Route, Switch, useHistory, useParams } from "react-router-dom";
-
-import NotificationBadge from "../../components/NotificationBadge";
-import PageTitle from "../../components/PageTitle";
-import TabBar from "../../components/TabBar";
 import {
   archivedMessagesRoute,
   groupChatsRoute,
@@ -11,9 +10,9 @@ import {
   hostRequestRoute,
   meetRoute,
   messagesRoute,
-  newHostRequestRoute,
   surfingRequestsRoute,
-} from "../../routes";
+} from "routes";
+
 import useNotifications from "../useNotifications";
 import { MESSAGES } from "./constants";
 import GroupChatsTab from "./groupchats/GroupChatsTab";
@@ -91,9 +90,6 @@ export default function Messages() {
           {header}
           <GroupChatsTab />
         </Route>
-        {/* <Route path={`${newHostRequestRoute}/:userId`}>
-          <NewHostRequest />
-        </Route> */}
         <Route path={`${hostRequestRoute}/:hostRequestId`}>
           <HostRequestView />
         </Route>

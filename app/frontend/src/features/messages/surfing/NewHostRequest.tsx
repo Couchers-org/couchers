@@ -29,7 +29,7 @@ import { useUser } from "features/userQueries/useUsers";
 import { Error as GrpcError } from "grpc-web";
 import { User } from "pb/api_pb";
 import { CreateHostRequestReq } from "pb/requests_pb";
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
@@ -67,7 +67,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface NewHostRequestProps {
-  setIsRequesting: Dispatch<SetStateAction<boolean>>;
+  setIsRequesting: (value: boolean) => void;
   user: User.AsObject;
 }
 
@@ -79,9 +79,17 @@ export default function NewHostRequest({
   const isPostBetaEnabled = process.env.REACT_APP_IS_POST_BETA_ENABLED;
   const [numVisitors, setNumVisitors] = useState(1);
 
-  const { control, errors, register, handleSubmit, watch } = useForm<
-    Required<CreateHostRequestReq.AsObject>
-  >({ defaultValues: { toUserId: user.userId } });
+  const {
+    control,
+    errors,
+    getValues,
+    handleSubmit,
+    register,
+    setValue,
+    watch,
+  } = useForm<Required<CreateHostRequestReq.AsObject>>({
+    defaultValues: { toUserId: user.userId },
+  });
 
   useEffect(() => register("toUserId"));
 
@@ -106,7 +114,13 @@ export default function NewHostRequest({
     );
   });
 
-  const watchToDate = (watch("fromDate") as unknown) as Date;
+  const watchFromDate = watch("fromDate", new Date().toString());
+  useEffect(() => {
+    const tomorrow = new Date(watchFromDate);
+    tomorrow.setDate(tomorrow.getDate() + 2).toString();
+    if (watchFromDate ? watchFromDate.toString() : "" > getValues("toDate"))
+      setValue("toDate", tomorrow);
+  });
 
   return (
     <>
@@ -158,26 +172,18 @@ export default function NewHostRequest({
                 helperText={errors?.fromDate?.message}
                 id="from-date"
                 error={!!errors.fromDate}
-                inputRef={register({
-                  required: "Enter a from date",
-                })}
+                inputRef={register}
               />
               <Datepicker
                 className={classes.date}
-                key={watchToDate ? watchToDate.toString() : ""}
                 control={control}
                 name="toDate"
                 label={DEPARTURE_DATE}
                 helperText={errors?.toDate?.message}
-                minDate={watchToDate ?? undefined}
+                minDate={new Date(watchFromDate)}
                 id="to-date"
                 error={!!errors.toDate}
-                inputRef={register({
-                  required: "Enter a to date",
-                  validate: (stringDate) =>
-                    stringDate > control.getValues().fromDate ||
-                    "Departure date must be after arrival date",
-                })}
+                inputRef={register}
               />
               {isPostBetaEnabled && (
                 <Select
@@ -197,7 +203,7 @@ export default function NewHostRequest({
               label={REQUEST}
               name="text"
               rows={6}
-              inputRef={register({ required: "Enter a request message" })}
+              inputRef={register}
               multiline
               fullWidth
               placeholder={REQUEST_DESCRIPTION}

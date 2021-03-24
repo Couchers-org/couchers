@@ -1,4 +1,9 @@
-import { Card, CircularProgress, makeStyles } from "@material-ui/core";
+import {
+  Card,
+  CircularProgress,
+  Collapse,
+  makeStyles,
+} from "@material-ui/core";
 import { TabContext, TabPanel } from "@material-ui/lab";
 import Alert from "components/Alert";
 import TabBar from "components/TabBar";
@@ -75,9 +80,9 @@ export default function ProfilePage() {
                 labels={SECTION_LABELS}
                 ariaLabel="tabs for user's details"
               />
-              {isRequesting && (
+              <Collapse in={isRequesting}>
                 <NewHostRequest user={user} setIsRequesting={setIsRequesting} />
-              )}
+              </Collapse>
               <TabPanel classes={{ root: classes.tabPanel }} value="about">
                 <About user={user} />
               </TabPanel>
