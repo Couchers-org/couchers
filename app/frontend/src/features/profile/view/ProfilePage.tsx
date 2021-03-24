@@ -7,7 +7,7 @@ import {
 import { TabContext, TabPanel } from "@material-ui/lab";
 import Alert from "components/Alert";
 import TabBar from "components/TabBar";
-import { SECTION_LABELS } from "features/constants";
+import { SECTION_LABELS, SECTION_LABELS_A11Y_TEXT } from "features/constants";
 import NewHostRequest from "features/messages/surfing/NewHostRequest";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import About from "features/profile/view/About";
@@ -80,7 +80,7 @@ export default function ProfilePage() {
                   value={currentTab}
                   setValue={setCurrentTab}
                   labels={SECTION_LABELS}
-                  ariaLabel="tabs for user's details"
+                  ariaLabel={SECTION_LABELS_A11Y_TEXT}
                 />
                 <Collapse in={isRequesting}>
                   <NewHostRequest

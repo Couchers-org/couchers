@@ -38,6 +38,7 @@ export const SECTION_LABELS = {
   home: HOME,
   references: REFERENCES,
 };
+export const SECTION_LABELS_A11Y_TEXT = "tabs for user's details";
 
 // Edit Profile
 export const COUNTRIES_VISITED = "Countries I've Visited";
@@ -64,6 +65,7 @@ export const REQUEST_DESCRIPTION =
   "Share your plans for the visit and include why you're requesting to stay with this particular host";
 export const SEND = "Send";
 export const SEND_REQUEST_SUCCESS = "Request sent!";
+export const STAY_TYPE_A11Y_TEXT = "stay type";
 
 // Home
 export const ABOUT_HOME = "About my home";

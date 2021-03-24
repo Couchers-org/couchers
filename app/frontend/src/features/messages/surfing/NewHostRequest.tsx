@@ -24,6 +24,7 @@ import {
   SEND,
   SEND_REQUEST_SUCCESS,
   sendRequest,
+  STAY_TYPE_A11Y_TEXT,
 } from "features/constants";
 import { useUser } from "features/userQueries/useUsers";
 import { Error as GrpcError } from "grpc-web";
@@ -146,7 +147,7 @@ export default function NewHostRequest({
                   defaultValue={1}
                   render={({ onChange, value }) => (
                     <RadioGroup
-                      aria-label="stay type"
+                      aria-label={STAY_TYPE_A11Y_TEXT}
                       name="stay-radio"
                       value={value}
                       onChange={(value) => onChange(value)}
