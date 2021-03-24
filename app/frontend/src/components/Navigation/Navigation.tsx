@@ -93,11 +93,6 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flex: 0,
   },
-  logo: {
-    fill: theme.palette.secondary.main,
-    height: theme.typography.pxToRem(50),
-    width: theme.typography.pxToRem(50),
-  },
   icon: {
     marginLeft: theme.spacing(1),
   },
@@ -202,7 +197,7 @@ export default function Navigation() {
               {drawerItems}
             </Drawer>
           </Hidden>
-          <CouchersLogo className={classes.logo} />
+          <CouchersLogo />
           <Hidden smDown>
             <div className={logo}>{COUCHERS}</div>
           </Hidden>

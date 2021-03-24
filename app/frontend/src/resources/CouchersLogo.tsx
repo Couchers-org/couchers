@@ -1,9 +1,19 @@
-import { SvgIcon, SvgIconProps } from "@material-ui/core";
+import { makeStyles, SvgIcon, SvgIconProps } from "@material-ui/core";
+
+const useStyles = makeStyles((theme) => ({
+  logo: {
+    fill: theme.palette.secondary.main,
+    height: theme.typography.pxToRem(50),
+    width: theme.typography.pxToRem(50),
+  },
+}));
 
 export default function CouchersLogo(props: SvgIconProps) {
+  const classes = useStyles();
   return (
     <SvgIcon
       {...props}
+      className={classes.logo}
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 150 150"
     >
