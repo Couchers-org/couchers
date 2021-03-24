@@ -1,6 +1,6 @@
 # Couchers.org app
 
-**Note**: If you have **any trouble** with this, send Aapeli a message on Slack. He's more than happy to spend a bit of time helping you set things up!
+**Note**: If you have **any trouble** with this, send Aapeli or Lucas a message on Slack. He's more than happy to spend a bit of time helping you set things up!
 
 To **run the app locally**, you need to do **four things**:
 
@@ -9,9 +9,11 @@ To **run the app locally**, you need to do **four things**:
 3. Launch the backend with `docker-compose`
 4. Install and launch the frontend with `yarn`
 
+Are you only developing on the frontend? If you don't want to install docker, you can follow the alterative instructions in `frontend/readme.md`.
+
 ### Note for Windows users
 
-We suggest you use WSL2, it lets you run Linux and docker much easier. Install [WSL2](https://docs.microsoft.com/en-us/windows/wsl/install-win10) and clone the repo there. This will save you a lot of time and avoid lots of issues!
+We suggest you use WSL2, it lets you run Linux and docker much easier. Install [WSL2](https://docs.microsoft.com/en-us/windows/wsl/install-win10) and clone the repo there. This will save you a lot of time and avoid lots of issues! You will need to clone the repo into your WSL distribution, otherwise you will have permissions problems when running the postgres database container.
 
 ## 1. Get the code, navigate to the `app` folder and install `docker` and `docker-compose`
 
