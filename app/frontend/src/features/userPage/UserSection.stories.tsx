@@ -11,4 +11,6 @@ const Template: Story<any> = (args) => (
 );
 
 export const userSection = Template.bind({});
-userSection.args = { title: "Example Section" };
+userSection.args = {
+  title: "Example Section",
+};
