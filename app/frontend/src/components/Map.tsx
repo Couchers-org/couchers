@@ -90,7 +90,7 @@ export default function Map({
       map.on("moveend", () => onUpdate(map.getCenter(), map.getZoom()));
     }
 
-    if (postMapInitialize) postMapInitialize(map);
+    postMapInitialize?.(map);
   }, [initialCenter, initialZoom, interactive, onUpdate, postMapInitialize]);
 
   return (
