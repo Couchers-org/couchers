@@ -29,11 +29,12 @@ import {
 import { useUser } from "features/userQueries/useUsers";
 import { Error as GrpcError } from "grpc-web";
 import { User } from "pb/api_pb";
-import { CreateHostRequestReq } from "pb/requests_pb";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
+import { CreateHostRequestWrapper } from "service/requests";
+import { isSameOrFutureDate } from "utils/date";
 
 const useStyles = makeStyles((theme) => ({
   buttonContainer: {
@@ -88,7 +89,7 @@ export default function NewHostRequest({
     register,
     setValue,
     watch,
-  } = useForm<Required<CreateHostRequestReq.AsObject>>({
+  } = useForm<CreateHostRequestWrapper>({
     defaultValues: { toUserId: user.userId },
   });
 
@@ -97,8 +98,8 @@ export default function NewHostRequest({
   const { error, isSuccess, mutate } = useMutation<
     number,
     GrpcError,
-    Required<CreateHostRequestReq.AsObject>
-  >((data: Required<CreateHostRequestReq.AsObject>) =>
+    CreateHostRequestWrapper
+  >((data: CreateHostRequestWrapper) =>
     service.requests.createHostRequest(data)
   );
 
@@ -115,25 +116,26 @@ export default function NewHostRequest({
     );
   });
 
-  const watchFromDate = watch("fromDate", new Date().toString());
+  const watchFromDate = watch("fromDate", new Date());
   useEffect(() => {
-    const tomorrow = new Date(watchFromDate);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    if (watchFromDate ? watchFromDate : "" > getValues("toDate"))
-      setValue("toDate", tomorrow);
+    if (isSameOrFutureDate(watchFromDate, getValues("toDate"))) {
+      setValue("toDate", tomorrow(watchFromDate));
+    }
   });
+
+  function tomorrow(date: Date): Date {
+    const tomorrow = new Date(date);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return tomorrow;
+  }
 
   return (
     <>
       <Typography variant="h1">
-        {hostLoading ? (
-          <Skeleton width="100" />
-        ) : (
-          sendRequest(user.name) ?? null
-        )}
+        {hostLoading ? <Skeleton width="100" /> : sendRequest(user.name)}
       </Typography>
-      {error && <Alert severity={"error"}>{error.message}</Alert>}
-      {isSuccess && <Alert severity={"success"}>{SEND_REQUEST_SUCCESS}</Alert>}
+      {error && <Alert severity="error">{error.message}</Alert>}
+      {isSuccess && <Alert severity="success">{SEND_REQUEST_SUCCESS}</Alert>}
       {hostError ? (
         <Alert severity={"error"}>{hostError}</Alert>
       ) : (
@@ -183,7 +185,7 @@ export default function NewHostRequest({
                 id="to-date"
                 inputRef={register}
                 label={DEPARTURE_DATE}
-                minDate={new Date(watchFromDate)}
+                minDate={tomorrow(watchFromDate)}
                 name="toDate"
               />
               {isPostBetaEnabled && (
