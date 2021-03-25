@@ -17,7 +17,7 @@ from sqlalchemy import (
     Integer,
 )
 from sqlalchemy import LargeBinary as Binary
-from sqlalchemy import MetaData, Sequence, String, UniqueConstraint
+from sqlalchemy import MetaData, Sequence, String, UniqueConstraint, or_
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import backref, column_property, relationship
@@ -271,6 +271,20 @@ class User(Base):
             .filter(User.id.in_(q1.union(q2).intersect(q3.union(q4)).subquery()))
             .all()
         )
+
+    def blocked_blocking_users(self):
+        session = Session.object_session(self)
+
+        relevant_user_blocks = (
+            session.query(UserBlocks)
+            .filter(or_(UserBlocks.blocking_user_id == self.id, UserBlocks.blocked_user_id == self.id))
+            .all()
+        )
+
+        return [
+            user_block.blocking_user_id if user_block.blocking_user_id != self.id else user_block.blocked_user_id
+            for user_block in relevant_user_blocks
+        ]
 
     def __repr__(self):
         return f"User(id={self.id}, email={self.email}, username={self.username})"
