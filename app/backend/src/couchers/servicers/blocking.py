@@ -62,18 +62,3 @@ class Blocking(blocking_pb2_grpc.BlockingServicer):
             return blocking_pb2.GetBlockedUsersRes(
                 blocked_user_ids=[blocked_user.id for blocked_user in blocked_users],
             )
-
-
-def GetBlockedAndBlockingUsers(session, user_id):
-    relevant_user_blocks = (
-        session.query(UserBlocks)
-        .filter(or_(UserBlocks.blocking_user_id == user_id, UserBlocks.blocked_user_id == user_id))
-        .all()
-    )
-
-    return blocking_pb2.GetBlockedAndBlockingUsersRes(
-        blocked_and_blocking_user_ids=[
-            user_block.blocking_user_id if user_block.blocking_user_id != user_id else user_block.blocked_user_id
-            for user_block in relevant_user_blocks
-        ]
-    )

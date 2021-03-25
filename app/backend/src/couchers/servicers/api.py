@@ -27,9 +27,7 @@ from couchers.models import (
     SleepingArrangement,
     SmokingLocation,
     User,
-    UserBlocks,
 )
-from couchers.servicers.blocking import GetBlockedAndBlockingUsers
 from couchers.tasks import send_friend_request_email, send_report_email
 from couchers.utils import Timestamp_from_datetime, create_coordinate, now
 from pb import api_pb2, api_pb2_grpc, media_pb2
@@ -418,56 +416,17 @@ class API(api_pb2_grpc.APIServicer):
         users2 = aliased(User)
 
         with session_scope() as session:
-            """
-            subquery = (
-                session.query(FriendRelationship)
-                .filter(
-                    or_(
-                        FriendRelationship.from_user_id == context.user_id,
-                        FriendRelationship.to_user_id == context.user_id,
-                    )
-                )
-                .filter(FriendRelationship.status == FriendStatus.accepted)
-                .subquery()
-            )
-
-            rels = (
-                session.query(subquery.c.from_user_id, subquery.c.to_user_id)
-                .join(users1, users1.id == subquery.c.from_user_id)
-                .join(users2, users2.id == subquery.c.to_user_id)
-                .filter(users1.is_visible)
-                .filter(users2.is_visible)
-                .all()
-            )
-
-            return api_pb2.ListFriendsRes(
-                user_ids=[
-                    rel._asdict()["from_user_id"]
-                    if rel._asdict()["from_user_id"] != context.user_id
-                    else rel._asdict()["to_user_id"]
-                    for rel in rels
-                ],
-            )
-            """
-            blocking_1 = aliased(UserBlocks)
-            blocking_2 = aliased(UserBlocks)
-            blocking_3 = aliased(UserBlocks)
-            blocking_4 = aliased(UserBlocks)
+            user = get_user_by_field(session, str(context.user_id))
+            relevant_blocks = user.blocked_blocking_users()
 
             rels = (
                 session.query(FriendRelationship)
-                .join(users1, users1.id == FriendRelationship.from_user_id)
-                .join(users2, users2.id == FriendRelationship.to_user_id)
-                .join(blocking_1, FriendRelationship.from_user_id == blocking_1.blocking_user_id, isouter=True)
-                .join(blocking_2, FriendRelationship.from_user_id == blocking_2.blocked_user_id, isouter=True)
-                .join(blocking_3, FriendRelationship.to_user_id == blocking_3.blocking_user_id, isouter=True)
-                .join(blocking_4, FriendRelationship.to_user_id == blocking_4.blocked_user_id, isouter=True)
-                .filter(or_(blocking_1.blocked_user_id == None, blocking_1.blocked_user_id != FriendRelationship.to_user_id))
-                .filter(or_(blocking_2.blocking_user_id == None, blocking_2.blocking_user_id != FriendRelationship.to_user_id))
-                .filter(or_(blocking_3.blocked_user_id == None, blocking_3.blocked_user_id != FriendRelationship.from_user_id))
-                .filter(or_(blocking_4.blocking_user_id == None, blocking_4.blocking_user_id != FriendRelationship.from_user_id))
+                .join(users1, FriendRelationship.from_user_id == users1.id)
+                .join(users2, FriendRelationship.to_user_id == users2.id)
                 .filter(users1.is_visible)
                 .filter(users2.is_visible)
+                .filter(~users1.id.in_(relevant_blocks))
+                .filter(~users2.id.in_(relevant_blocks))
                 .filter(
                     or_(
                         FriendRelationship.from_user_id == context.user_id,
