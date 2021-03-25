@@ -186,6 +186,9 @@ class User(Base):
 
     avatar = relationship("Upload", foreign_keys="User.avatar_key")
 
+    blocking_user = relationship("UserBlocks", backref="blocking_user", foreign_keys="UserBlocks.blocking_user_id")
+    blocked_user = relationship("UserBlocks", backref="blocked_user", foreign_keys="UserBlocks.blocked_user_id")
+
     @hybrid_property
     def is_jailed(self):
         return (self.accepted_tos < 1) | self.is_missing_location
@@ -273,18 +276,12 @@ class User(Base):
         )
 
     def blocked_blocking_users(self):
-        session = Session.object_session(self)
-
-        relevant_user_blocks = (
-            session.query(UserBlocks)
-            .filter(or_(UserBlocks.blocking_user_id == self.id, UserBlocks.blocked_user_id == self.id))
-            .all()
-        )
-
-        return [
-            user_block.blocking_user_id if user_block.blocking_user_id != self.id else user_block.blocked_user_id
-            for user_block in relevant_user_blocks
-        ]
+        relevant_blocks = []
+        for userblock in self.blocked:
+            relevant_blocks.append(userblock.blocked_user_id)
+        for userblock in self.blocking:
+            relevant_blocks.append(userblock.blocking_user_id)
+        return relevant_blocks
 
     def __repr__(self):
         return f"User(id={self.id}, email={self.email}, username={self.username})"
@@ -1319,3 +1316,6 @@ class UserBlocks(Base):
     blocking_user_id = Column(ForeignKey("users.id"), nullable=False)
     blocked_user_id = Column(ForeignKey("users.id"), nullable=False)
     time_blocked = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    blocked = relationship("User", backref="blocked", foreign_keys="UserBlocks.blocking_user_id")
+    blocking = relationship("User", backref="blocking", foreign_keys="UserBlocks.blocked_user_id")
