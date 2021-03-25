@@ -7,7 +7,6 @@ import {
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
-import classNames from "classnames";
 import Avatar from "components/Avatar";
 import TextBody from "components/TextBody";
 import useAuthStore from "features/auth/useAuthStore";
@@ -26,13 +25,12 @@ import { formatDate } from "utils/date";
 import { firstName } from "utils/names";
 
 const useStyles = makeStyles((theme) => ({
-  root: {},
+  hostStatusContainer: {
+    alignItems: "center",
+    display: "flex",
+  },
   hostStatusIcon: {
     marginInlineEnd: theme.spacing(1),
-  },
-  hostStatusContainer: {
-    display: "flex",
-    alignItems: "center",
   },
 }));
 
@@ -87,7 +85,7 @@ export default function HostRequestListItem({
     : "";
 
   return (
-    <ListItem className={classNames(classes.root, className)}>
+    <ListItem className={className}>
       <ListItemAvatar>
         <Avatar user={otherUser} isProfileLink={false} />
       </ListItemAvatar>

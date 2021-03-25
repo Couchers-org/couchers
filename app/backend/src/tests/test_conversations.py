@@ -3,6 +3,7 @@ import pytest
 from google.protobuf import wrappers_pb2
 
 from couchers import errors
+from couchers.db import get_user_by_field, session_scope
 from couchers.utils import now, to_aware_datetime
 from pb import api_pb2, conversations_pb2
 from tests.test_fixtures import api_session, conversations_session, db, generate_user, make_friends, testconfig
@@ -590,7 +591,15 @@ def test_send_message(db):
 
 def test_CreateGroupChat_with_invisible_user(db):
     user1, token1 = generate_user()
-    user2, token2 = generate_user(is_deleted=True)
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        user2 = get_user_by_field(session, user2.username)
+        user2.is_banned = True
+        session.commit()
+        session.refresh(user2)
+        session.expunge(user2)
+
     make_friends(user1, user2)
 
     with conversations_session(token1) as c:

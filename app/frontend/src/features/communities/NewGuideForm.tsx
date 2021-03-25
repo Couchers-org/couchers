@@ -29,8 +29,8 @@ export default function NewGuideForm() {
     setValue,
     errors,
   } = useForm<NewGuideInputs>({
-    shouldUnregister: false,
     mode: "onBlur",
+    shouldUnregister: false,
   });
 
   const history = useHistory();
@@ -73,6 +73,7 @@ export default function NewGuideForm() {
             name="content"
             render={({ onChange, value }) => (
               <ProfileMarkdownInput
+                id="content"
                 label="Page content"
                 onChange={onChange}
                 value={value}

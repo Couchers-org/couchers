@@ -1,107 +1,146 @@
 import {
   AppBar,
-  Grid,
+  Drawer,
   Hidden,
+  IconButton,
+  List,
+  ListItem,
   makeStyles,
   Toolbar,
   Typography,
 } from "@material-ui/core";
-
-import { useAuthContext } from "../../features/auth/AuthProvider";
-import BugReport from "../../features/BugReport";
-import SearchBox from "../../features/search/SearchBox";
+import { CloseIcon, MenuIcon } from "components/Icons";
+import { useAuthContext } from "features/auth/AuthProvider";
+import BugReport from "features/BugReport";
+import SearchBox from "features/search/SearchBox";
+import React from "react";
 import {
-  connectionsRoute,
+  eventRoute,
   logoutRoute,
   mapRoute,
   messagesRoute,
   profileRoute,
-} from "../../routes";
-import {
-  CommunityIcon,
-  CrossIcon,
-  EmailIcon,
-  LocationIcon,
-  PeopleIcon,
-  PersonIcon,
-} from "../Icons";
+} from "routes";
+
+import { COUCHERS, LOG_OUT } from "../../constants";
 import NavButton from "./NavButton";
 
 const menu = [
   {
     name: "Dashboard",
     route: "/",
-    icon: <CommunityIcon fontSize="inherit" />,
+  },
+  {
+    name: "Events",
+    route: eventRoute,
   },
   {
     name: "Messages",
     route: messagesRoute,
-    icon: <EmailIcon fontSize="inherit" />,
   },
   {
     name: "Map",
     route: mapRoute,
-    icon: <LocationIcon fontSize="inherit" />,
   },
   {
     name: "Profile",
     route: profileRoute,
-    icon: <PeopleIcon fontSize="inherit" />,
-  },
-  {
-    name: "Connections",
-    route: connectionsRoute,
-    icon: <PersonIcon fontSize="inherit" />,
   },
 ];
 
+const drawerWidth = 240;
+
 const useStyles = makeStyles((theme) => ({
   appBar: {
-    bottom: 0,
-    top: "auto",
-    [theme.breakpoints.up("md")]: {
-      top: 0,
-      bottom: "auto",
-    },
+    bottom: "auto",
+    top: 0,
   },
-  search: {
-    flexGrow: 3,
+  flex: {
+    [theme.breakpoints.up("md")]: {
+      flex: 0,
+      justifyContent: "flex-start",
+      paddingLeft: theme.spacing(3),
+      paddingRight: theme.spacing(3),
+      width: "auto",
+    },
+    display: "flex",
+    flex: 1,
+    justifyContent: "space-evenly",
+    padding: 0,
+  },
+  drawerPaper: {
+    padding: theme.spacing(2),
+    width: drawerWidth,
+  },
+  drawerHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+  },
+  drawerTitle: {
+    alignSelf: "center",
+    fontWeight: "bold",
+    paddingLeft: theme.spacing(1),
+  },
+  gutters: {
+    [theme.breakpoints.up("md")]: {
+      paddingLeft: theme.spacing(3),
+      paddingRight: theme.spacing(3),
+    },
+    justifyContent: "space-between",
+    paddingLeft: 0,
+    paddingRight: 0,
+  },
+  nav: {
+    display: "flex",
+  },
+  icon: {
+    marginLeft: theme.spacing(1),
+  },
+  bug: {
+    alignItems: "center",
     display: "flex",
     justifyContent: "flex-end",
-    alignItems: "center",
-    [theme.breakpoints.down("sm")]: {
-      marginInlineEnd: theme.spacing(1),
+    [theme.breakpoints.down("md")]: {
+      paddingRight: theme.spacing(2),
     },
   },
   title: {
+    alignSelf: "center",
     fontWeight: "bold",
-  },
-  gutters: {
-    paddingLeft: 0,
-    paddingRight: 0,
-    [theme.breakpoints.up("md")]: {
-      paddingRight: theme.spacing(3),
-      paddingLeft: theme.spacing(3),
-    },
-  },
-  flex: {
-    flex: 1,
-    padding: 0,
-    justifyContent: "space-evenly",
-    [theme.breakpoints.up("md")]: {
-      width: "auto",
-      flex: 0,
-      paddingRight: theme.spacing(3),
-      paddingLeft: theme.spacing(3),
-      justifyContent: "flex-start",
-    },
   },
 }));
 
 export default function Navigation() {
   const classes = useStyles();
-
   const authenticated = useAuthContext().authState.authenticated;
+  const [open, setOpen] = React.useState(false);
+
+  const logoutButton = (
+    <NavButton route={logoutRoute} label={LOG_OUT} labelVariant="h2" />
+  );
+
+  const drawerItems = (
+    <div>
+      <List>
+        {menu.map(({ name, route }) => (
+          <ListItem button key={name}>
+            <NavButton route={route} label={name} labelVariant="h2" />
+          </ListItem>
+        ))}
+        <ListItem button key="logout">
+          {logoutButton}
+        </ListItem>
+      </List>
+    </div>
+  );
+
+  const handleDrawerOpen = () => {
+    setOpen(true);
+  };
+
+  const handleDrawerClose = () => {
+    setOpen(false);
+  };
 
   if (!authenticated) {
     return null;
@@ -119,38 +158,63 @@ export default function Navigation() {
           gutters: classes.gutters,
         }}
       >
-        <Hidden smDown>
-          <Typography variant="h5" className={classes.title}>
-            Couchers
-          </Typography>
-        </Hidden>
-        <Grid
-          container
-          wrap="nowrap"
-          classes={{
-            root: classes.flex,
-          }}
-        >
-          {menu.map((item) => (
-            <NavButton
-              route={item.route}
-              label={item.name}
-              key={`${item.name}-nav-button`}
+        <div className={classes.nav}>
+          <Hidden mdUp>
+            <IconButton
+              className={classes.icon}
+              aria-label="open drawer"
+              onClick={handleDrawerOpen}
+              edge="start"
             >
-              {item.icon}
-            </NavButton>
-          ))}
-          <Hidden smDown>
-            <NavButton route={logoutRoute} label="Log out">
-              <CrossIcon fontSize="inherit" />
-            </NavButton>
+              <MenuIcon />
+            </IconButton>
+            <Drawer
+              variant="temporary"
+              anchor="left"
+              open={open}
+              onClick={handleDrawerClose}
+              ModalProps={{
+                keepMounted: true, // better open performance on mobile
+                onBackdropClick: handleDrawerClose,
+              }}
+              classes={{
+                paper: classes.drawerPaper,
+              }}
+            >
+              <div className={classes.drawerHeader}>
+                <Typography variant="h5" className={classes.drawerTitle}>
+                  {COUCHERS}
+                </Typography>
+                <IconButton
+                  className={classes.icon}
+                  aria-label="close drawer"
+                  onClick={handleDrawerClose}
+                >
+                  <CloseIcon />
+                </IconButton>
+              </div>
+              {drawerItems}
+            </Drawer>
           </Hidden>
-        </Grid>
-        <div className={classes.search}>
+          <Typography variant="h5" className={classes.title}>
+            {COUCHERS}
+          </Typography>
+          <Hidden smDown>
+            <div className={classes.flex}>
+              {menu.map((item) => (
+                <NavButton
+                  route={item.route}
+                  label={item.name}
+                  key={`${item.name}-nav-button`}
+                />
+              ))}
+            </div>
+          </Hidden>
+        </div>
+        <SearchBox />
+        <div className={classes.bug}>
+          <Hidden smDown>{logoutButton}</Hidden>
           <BugReport />
-          <Hidden smDown>
-            <SearchBox />
-          </Hidden>
         </div>
       </Toolbar>
     </AppBar>

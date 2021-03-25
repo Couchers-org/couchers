@@ -25,6 +25,8 @@ from couchers.servicers.threads import pack_thread_id
 from couchers.utils import Timestamp_from_datetime, create_coordinate, remove_duplicates_retain_order
 from pb import pages_pb2, pages_pb2_grpc
 
+MAX_PAGINATION_LENGTH = 25
+
 pagetype2sql = {
     pages_pb2.PAGE_TYPE_PLACE: PageType.place,
     pages_pb2.PAGE_TYPE_GUIDE: PageType.guide,
@@ -299,3 +301,41 @@ class Pages(pages_pb2_grpc.PagesServicer):
 
             session.commit()
             return page_to_pb(page, context.user_id)
+
+    def ListUserPlaces(self, request, context):
+        with session_scope() as session:
+            page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+            next_page_id = int(request.page_token) if request.page_token else 0
+            user_id = request.user_id or context.user_id
+            places = (
+                session.query(Page)
+                .filter(Page.owner_user_id == user_id)
+                .filter(Page.type == PageType.place)
+                .filter(Page.id >= next_page_id)
+                .order_by(Page.id)
+                .limit(page_size + 1)
+                .all()
+            )
+            return pages_pb2.ListUserPlacesRes(
+                places=[page_to_pb(page, context.user_id) for page in places[:page_size]],
+                next_page_token=str(places[-1].id) if len(places) > page_size else None,
+            )
+
+    def ListUserGuides(self, request, context):
+        with session_scope() as session:
+            page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+            next_page_id = int(request.page_token) if request.page_token else 0
+            user_id = request.user_id or context.user_id
+            guides = (
+                session.query(Page)
+                .filter(Page.owner_user_id == user_id)
+                .filter(Page.type == PageType.guide)
+                .filter(Page.id >= next_page_id)
+                .order_by(Page.id)
+                .limit(page_size + 1)
+                .all()
+            )
+            return pages_pb2.ListUserGuidesRes(
+                guides=[page_to_pb(page, context.user_id) for page in guides[:page_size]],
+                next_page_token=str(guides[-1].id) if len(guides) > page_size else None,
+            )

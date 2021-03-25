@@ -5,12 +5,12 @@ import React from "react";
 import ScoreBar from "./ScoreBar";
 
 const useStyles = makeStyles((theme) => ({
+  button: {
+    padding: theme.spacing(1),
+  },
   root: {
     alignItems: "center",
     display: "flex",
-  },
-  button: {
-    padding: theme.spacing(1),
   },
 }));
 
@@ -26,7 +26,7 @@ export default function BarWithHelp({
   description,
 }: BarWithHelpProps) {
   const classes = useStyles();
-  return (
+  return process.env.REACT_APP_IS_POST_BETA_ENABLED ? (
     <div className={classes.root}>
       <ScoreBar value={value} children={label}></ScoreBar>
       <Tooltip title={description}>
@@ -35,5 +35,5 @@ export default function BarWithHelp({
         </IconButton>
       </Tooltip>
     </div>
-  );
+  ) : null;
 }

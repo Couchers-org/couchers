@@ -55,6 +55,7 @@ function AdminListItem({
   const makeAdmin = useMutation<Empty, GrpcError, void>(
     () => service.conversations.makeGroupChatAdmin(groupChatId, member),
     {
+      onError: handleError,
       onMutate: clearError,
       onSuccess: () => {
         const previousGroupChat = queryClient.getQueryData<GroupChat.AsObject>([
@@ -71,12 +72,12 @@ function AdminListItem({
         });
         invalidate();
       },
-      onError: handleError,
     }
   );
   const removeAdmin = useMutation<Empty, GrpcError, void>(
     () => service.conversations.removeGroupChatAdmin(groupChatId, member),
     {
+      onError: handleError,
       onMutate: clearError,
       onSuccess: () => {
         const previousGroupChat = queryClient.getQueryData<GroupChat.AsObject>([
@@ -96,7 +97,6 @@ function AdminListItem({
         });
         invalidate();
       },
-      onError: handleError,
     }
   );
 

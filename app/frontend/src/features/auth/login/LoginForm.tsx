@@ -17,15 +17,19 @@ import { Link, useHistory } from "react-router-dom";
 import { loginPasswordRoute, resetPasswordRoute } from "routes";
 import { service } from "service/index";
 import { useIsMounted, useSafeState } from "utils/hooks";
+import { sanitizeName } from "utils/validation";
 
 const useStyles = makeStyles((theme) => ({
-  loginOptions: {
-    display: "flex",
-    marginTop: theme.spacing(2),
-    alignItems: "center",
-  },
   forgotPasswordLink: {
     color: theme.palette.text.primary,
+  },
+  loginOptions: {
+    alignItems: "center",
+    display: "flex",
+    marginTop: theme.spacing(2),
+    [theme.breakpoints.up("md")]: {
+      justifyContent: "space-between",
+    },
   },
 }));
 
@@ -46,7 +50,8 @@ export default function UsernameForm() {
       setLoading(true);
       authActions.clearError();
       try {
-        const next = await service.auth.checkUsername(data.username);
+        const sanitizedUsername = sanitizeName(data.username);
+        const next = await service.auth.checkUsername(sanitizedUsername);
         switch (next) {
           case LoginRes.LoginStep.INVALID_USER:
             authActions.authError("Couldn't find that user.");
@@ -64,8 +69,8 @@ export default function UsernameForm() {
 
         if (!loginWithLink) {
           authActions.passwordLogin({
-            username: data.username,
             password: data.password,
+            username: sanitizedUsername,
           });
         }
       } catch (e) {
@@ -109,21 +114,6 @@ export default function UsernameForm() {
             />
           </>
         )}
-        <Button
-          classes={{
-            root: authClasses.button,
-            label: authClasses.buttonText,
-          }}
-          type="submit"
-          variant="contained"
-          color="secondary"
-          onClick={onSubmit}
-          disabled={sent}
-          loading={loading || authLoading}
-        >
-          Continue
-        </Button>
-
         <div className={classes.loginOptions}>
           <FormControlLabel
             style={{ marginLeft: "0px" }}
@@ -139,6 +129,20 @@ export default function UsernameForm() {
             Forgot password?
           </Typography>
         </div>
+        <Button
+          classes={{
+            label: authClasses.buttonText,
+          }}
+          className={authClasses.button}
+          color="secondary"
+          disabled={sent}
+          loading={loading || authLoading}
+          onClick={onSubmit}
+          type="submit"
+          variant="contained"
+        >
+          Continue
+        </Button>
       </form>
     </>
   );

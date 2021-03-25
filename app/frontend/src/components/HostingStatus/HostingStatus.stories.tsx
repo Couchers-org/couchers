@@ -5,17 +5,17 @@ import HostingStatus, {
 import { HostingStatus as THostingStatus } from "pb/api_pb";
 
 export default {
-  title: "Components/Composite/HostingStatus",
-  component: HostingStatus,
   argTypes: {
     hostingStatus: {
       control: {
-        type: "select",
         options: Object.values(THostingStatus),
+        type: "select",
       },
       defaultValue: THostingStatus.HOSTING_STATUS_CANT_HOST,
     },
   },
+  component: HostingStatus,
+  title: "Components/Composite/HostingStatus",
 } as Meta;
 
 export const Status: Story<HostingStatusProps> = (args) => (

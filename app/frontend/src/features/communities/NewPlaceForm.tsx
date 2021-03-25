@@ -29,8 +29,8 @@ export default function NewPlaceForm() {
     setValue,
     errors,
   } = useForm<NewPlaceInputs>({
-    shouldUnregister: false,
     mode: "onBlur",
+    shouldUnregister: false,
   });
 
   const history = useHistory();
@@ -72,6 +72,7 @@ export default function NewPlaceForm() {
             name="content"
             render={({ onChange, value }) => (
               <ProfileMarkdownInput
+                id="content"
                 label="Place content"
                 onChange={onChange}
                 value={value}

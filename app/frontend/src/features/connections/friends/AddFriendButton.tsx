@@ -1,25 +1,29 @@
 import { makeStyles } from "@material-ui/core";
+import classNames from "classnames";
+import Button from "components/Button";
+import { PersonAddIcon } from "components/Icons";
+import { ADD_FRIEND, PENDING } from "features/connections/constants";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import React from "react";
 import { useMutation, useQueryClient } from "react-query";
+import { service } from "service/index";
 
-import Button from "../../../components/Button";
-import { PersonAddIcon } from "../../../components/Icons";
-import { service } from "../../../service";
 import { SetMutationError } from ".";
 
 const useStyles = makeStyles((theme) => ({
-  editButton: {
-    marginBottom: theme.spacing(2),
+  disabledButton: {
+    backgroundColor: theme.palette.grey[100],
   },
 }));
 
 interface AddFriendButtonProps {
+  isPending: boolean;
   setMutationError: SetMutationError;
   userId: number;
 }
 
 export default function AddFriendButton({
+  isPending,
   setMutationError,
   userId,
 }: AddFriendButtonProps) {
@@ -31,27 +35,30 @@ export default function AddFriendButton({
     Error,
     AddFriendButtonProps
   >(({ userId }) => service.api.sendFriendRequest(userId), {
+    onError: (error, { setMutationError }) => {
+      setMutationError(error.message);
+    },
     onMutate: ({ setMutationError }) => {
       setMutationError("");
     },
     onSuccess: (_, { userId }) => {
       queryClient.invalidateQueries(["user", userId]);
     },
-    onError: (error, { setMutationError }) => {
-      setMutationError(error.message);
-    },
   });
 
   return (
     <Button
       startIcon={<PersonAddIcon />}
-      className={classes.editButton}
+      className={classNames({ [classes.disabledButton]: isPending })}
+      disabled={isPending}
       onClick={() => {
-        sendFriendRequest({ userId, setMutationError });
+        if (!isPending) {
+          sendFriendRequest({ setMutationError, userId, isPending });
+        }
       }}
       loading={isLoading}
     >
-      Add friend
+      {isPending ? PENDING : ADD_FRIEND}
     </Button>
   );
 }

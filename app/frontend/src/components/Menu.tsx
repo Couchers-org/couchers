@@ -8,7 +8,6 @@ import {
 import React from "react";
 
 const useStyles = makeStyles((theme) => ({
-  menu: {},
   item: {
     paddingInline: theme.spacing(2),
   },
@@ -16,7 +15,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Menu(props: Omit<MenuProps, "className">) {
   const classes = useStyles();
-  return <MuiMenu {...props} className={classes.menu} />;
+  return <MuiMenu {...props} />;
 }
 
 //forwarding ref is necessary because Menu

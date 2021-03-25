@@ -22,6 +22,9 @@ export default function useRespondToFriendRequest() {
     ({ friendRequestId, accept }) =>
       service.api.respondFriendRequest(friendRequestId, accept),
     {
+      onError: (error, { setMutationError }) => {
+        setMutationError(error.message);
+      },
       onMutate: async ({ setMutationError }) => {
         setMutationError("");
         await queryClient.cancelQueries("friendRequestsReceived");
@@ -30,9 +33,6 @@ export default function useRespondToFriendRequest() {
         queryClient.invalidateQueries("friendIds");
         queryClient.invalidateQueries("friendRequestsReceived");
         queryClient.invalidateQueries("ping");
-      },
-      onError: (error, { setMutationError }) => {
-        setMutationError(error.message);
       },
     }
   );

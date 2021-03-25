@@ -12,28 +12,39 @@ import { User } from "pb/api_pb";
 import React from "react";
 
 export const useStyles = makeStyles((theme) => ({
-  root: {
-    alignItems: "center",
-    display: "flex",
-    padding: 0,
-    width: "100%",
-  },
-  title: {
-    marginBottom: theme.spacing(1),
-  },
   avatar: {
     height: theme.spacing(9),
     marginInlineEnd: theme.spacing(2),
     width: theme.spacing(9),
   },
+  root: {
+    display: "flex",
+    padding: 0,
+    width: "100%",
+  },
+  title: {
+    marginTop: 0,
+  },
+  titleAndBarContainer: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-around",
+    margin: 0,
+    minHeight: theme.spacing(9),
+  },
 }));
 
 interface UserSummaryProps {
   children?: React.ReactNode;
+  headlineComponent?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
   user?: User.AsObject;
 }
 
-export default function UserSummary({ children, user }: UserSummaryProps) {
+export default function UserSummary({
+  children,
+  headlineComponent = "h2",
+  user,
+}: UserSummaryProps) {
   const classes = useStyles();
   return (
     <div className={classes.root}>
@@ -45,9 +56,14 @@ export default function UserSummary({ children, user }: UserSummaryProps) {
         )}
       </ListItemAvatar>
       <ListItemText
+        className={classes.titleAndBarContainer}
         disableTypography
         primary={
-          <Typography variant="h2" className={classes.title}>
+          <Typography
+            component={headlineComponent}
+            variant="h2"
+            className={classes.title}
+          >
             {!user ? <Skeleton /> : `${user.name}, ${user.age}, ${user.city}`}
           </Typography>
         }

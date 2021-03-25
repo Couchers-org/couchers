@@ -35,24 +35,31 @@ import { useHistory, useParams } from "react-router-dom";
 import { service } from "service/index";
 
 export const useGroupChatViewStyles = makeStyles((theme) => ({
-  pageWrapper: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "stretch",
-    height: `calc(100vh - ${theme.shape.navPaddingMobile})`,
-    [theme.breakpoints.up("md")]: {
-      height: `calc(100vh - ${theme.shape.navPaddingDesktop})`,
-    },
+  footer: {
+    flexGrow: 0,
+    paddingBottom: theme.spacing(2),
   },
-  header: { display: "flex", alignItems: "center", flexGrow: 0 },
-  footer: { flexGrow: 0, paddingBottom: theme.spacing(2) },
-  title: {
-    flexGrow: 1,
-    marginInlineStart: theme.spacing(2),
-    marginInlineEnd: theme.spacing(2),
+  header: {
+    alignItems: "center",
+    display: "flex",
+    flexGrow: 0,
   },
   messageList: {
     paddingBlock: theme.spacing(2),
+  },
+  pageWrapper: {
+    [theme.breakpoints.up("md")]: {
+      height: `calc(100vh - ${theme.shape.navPaddingDesktop})`,
+    },
+    alignItems: "stretch",
+    display: "flex",
+    flexDirection: "column",
+    height: `calc(100vh - ${theme.shape.navPaddingMobile})`,
+  },
+  title: {
+    flexGrow: 1,
+    marginInlineEnd: theme.spacing(2),
+    marginInlineStart: theme.spacing(2),
   },
 }));
 
@@ -61,12 +68,12 @@ export default function GroupChatView() {
 
   const menuAnchor = useRef<HTMLAnchorElement>(null);
   const [isOpen, setIsOpen] = useState({
-    menu: false,
-    invite: false,
-    members: false,
     admins: false,
-    settings: false,
+    invite: false,
     leave: false,
+    members: false,
+    menu: false,
+    settings: false,
   });
 
   const handleClick = (item: keyof typeof isOpen) => {

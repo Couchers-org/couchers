@@ -4,14 +4,12 @@ import { COMMUNITY_STANDING } from "../../features/constants";
 import ScoreBar from "./ScoreBar";
 
 export default {
-  title: "Components/Composite/ScoreBar",
   component: ScoreBar,
+  title: "Components/Composite/ScoreBar",
 } as Meta;
 
 const Template: Story<any> = (args) => (
-  <>
-    <ScoreBar {...args}>{COMMUNITY_STANDING}</ScoreBar>
-  </>
+  <ScoreBar {...args}>{COMMUNITY_STANDING}</ScoreBar>
 );
 
 export const scoreBar = Template.bind({});

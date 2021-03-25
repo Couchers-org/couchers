@@ -4,15 +4,11 @@ import { PersonIcon } from "../../../components/Icons";
 import SectionTitle from "./SectionTitle";
 
 export default {
-  title: "Communities/CommunityPage/SectionTitle",
   component: SectionTitle,
+  title: "Communities/CommunityPage/SectionTitle",
 } as Meta;
 
-const Template: Story<any> = (args) => (
-  <>
-    <SectionTitle {...args} />
-  </>
-);
+const Template: Story<any> = (args) => <SectionTitle {...args} />;
 
 export const sectionTitle = Template.bind({});
 sectionTitle.args = {

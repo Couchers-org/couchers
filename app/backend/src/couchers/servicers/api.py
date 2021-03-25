@@ -189,6 +189,10 @@ class API(api_pb2_grpc.APIServicer):
             return user_model_to_pb(user, session, context)
 
     def UpdateProfile(self, request, context):
+        # users can't change gender themselves to avoid filter evasion
+        if request.HasField("gender"):
+            context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.CANT_CHANGE_GENDER)
+
         with session_scope() as session:
             user = session.query(User).filter(User.id == context.user_id).one()
 
@@ -212,10 +216,13 @@ class API(api_pb2_grpc.APIServicer):
                 user.geom_radius = request.radius.value
 
             if request.HasField("avatar_key"):
-                user.avatar_key = request.avatar_key.value
+                if request.avatar_key.is_null:
+                    user.avatar_key = None
+                else:
+                    user.avatar_key = request.avatar_key.value
 
-            if request.HasField("gender"):
-                user.gender = request.gender.value
+            # if request.HasField("gender"):
+            #     user.gender = request.gender.value
 
             if request.HasField("pronouns"):
                 user.pronouns = request.pronouns.value
@@ -463,7 +470,7 @@ class API(api_pb2_grpc.APIServicer):
 
             send_friend_request_email(friend_relationship)
 
-            return api_pb2.SendFriendRequestRes(friend_request_id=friend_relationship.id)
+            return empty_pb2.Empty()
 
     def ListFriendRequests(self, request, context):
         # both sent and received
@@ -577,7 +584,7 @@ class API(api_pb2_grpc.APIServicer):
 
     def WriteReference(self, request, context):
         if context.user_id == request.to_user_id:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, "Can't refer yourself")
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REFER_SELF)
 
         reference = Reference(
             from_user_id=context.user_id,
@@ -601,7 +608,7 @@ class API(api_pb2_grpc.APIServicer):
                 .filter(Reference.reference_type == reftype2sql[request.reference_type])
                 .one_or_none()
             ):
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, "Reference already given")
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.REFERENCE_ALREADY_GIVEN)
             session.add(reference)
         return empty_pb2.Empty()
 
@@ -672,12 +679,13 @@ class API(api_pb2_grpc.APIServicer):
 
 def paginate_references_result(request, query):
     total_matches = query.count()
-    references = query.order_by(Reference.time).offset(request.start_at).limit(request.number).all()
+    references = query.order_by(Reference.time.desc()).offset(request.start_at).limit(request.number).all()
     # order by time, pagination
     return api_pb2.GetReferencesRes(
         total_matches=total_matches,
         references=[
             api_pb2.Reference(
+                reference_id=reference.id,
                 from_user_id=reference.from_user_id,
                 to_user_id=reference.to_user_id,
                 reference_type=reftype2api[reference.reference_type],

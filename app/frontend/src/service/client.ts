@@ -53,9 +53,9 @@ const authInterceptor = new AuthInterceptor();
 const timeoutInterceptor = new TimeoutInterceptor();
 
 const opts = {
+  unaryInterceptors: [authInterceptor, timeoutInterceptor],
   // this modifies the behaviour on the API so that it will send cookies on the requests
   withCredentials: true,
-  unaryInterceptors: [authInterceptor, timeoutInterceptor],
   /// TODO: streaming interceptor for auth https://grpc.io/blog/grpc-web-interceptor/
 };
 

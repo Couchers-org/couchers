@@ -1,8 +1,9 @@
 import { renderHook } from "@testing-library/react-hooks";
+import { service } from "service/index";
+import users from "test/fixtures/users.json";
+import wrapper from "test/hookWrapper";
+import { getUser } from "test/serviceMockDefaults";
 
-import { service } from "../../../service";
-import wrapper from "../../../test/hookWrapper";
-import { getUser } from "../../../test/serviceMockDefaults";
 import useFriendRequests from "./useFriendRequests";
 
 const getUserMock = service.user.getUser as jest.Mock;
@@ -13,8 +14,8 @@ const listFriendRequestsMock = service.api.listFriendRequests as jest.Mock<
 beforeEach(() => {
   getUserMock.mockImplementation(getUser);
   listFriendRequestsMock.mockResolvedValue({
-    sentList: [],
     receivedList: [],
+    sentList: [],
   });
 });
 
@@ -22,15 +23,15 @@ afterEach(() => jest.restoreAllMocks());
 
 describe("when the listFriendRequests query is loading", () => {
   it("returns isLoading as true with no errors and shouldn't try to load users", async () => {
-    const { result, unmount } = renderHook(() => useFriendRequests("Sent"), {
+    const { result, unmount } = renderHook(() => useFriendRequests("sent"), {
       wrapper,
     });
 
     expect(result.current).toEqual({
-      isLoading: true,
-      isError: false,
-      errors: [],
       data: undefined,
+      errors: [],
+      isError: false,
+      isLoading: true,
     });
     expect(getUserMock).not.toHaveBeenCalled();
 
@@ -41,13 +42,6 @@ describe("when the listFriendRequests query is loading", () => {
 describe("when the listFriendRequests succeeds", () => {
   beforeEach(() => {
     listFriendRequestsMock.mockResolvedValue({
-      sentList: [
-        {
-          friendRequestId: 1,
-          state: 0,
-          userId: 2,
-        },
-      ],
       receivedList: [
         {
           friendRequestId: 2,
@@ -60,6 +54,13 @@ describe("when the listFriendRequests succeeds", () => {
           userId: 4,
         },
       ],
+      sentList: [
+        {
+          friendRequestId: 1,
+          state: 0,
+          userId: 2,
+        },
+      ],
     });
   });
 
@@ -67,116 +68,101 @@ describe("when the listFriendRequests succeeds", () => {
     getUserMock.mockImplementation(() => new Promise(() => void 0));
 
     const { result, waitForNextUpdate } = renderHook(
-      () => useFriendRequests("Sent"),
+      () => useFriendRequests("sent"),
       { wrapper }
     );
     await waitForNextUpdate();
 
     expect(result.current).toEqual({
-      isLoading: true,
-      isError: false,
-      errors: [],
       data: undefined,
+      errors: [],
+      isError: false,
+      isLoading: true,
     });
   });
 
   it("returns the friend requests sent if 'Sent' is passed to the hook", async () => {
     const { result, waitForNextUpdate } = renderHook(
-      () => useFriendRequests("Sent"),
+      () => useFriendRequests("sent"),
       { wrapper }
     );
     await waitForNextUpdate();
 
     expect(result.current).toEqual({
-      isLoading: false,
-      isError: false,
-      errors: [],
       data: [
         {
+          friend: users[1],
           friendRequestId: 1,
           state: 0,
           userId: 2,
-          friend: {
-            name: "Funny Dog",
-            userId: 2,
-            username: "funnydog",
-            avatarUrl: "",
-          },
         },
       ],
+      errors: [],
+      isError: false,
+      isLoading: false,
     });
   });
 
   it("returns the friend requests received if 'Received' is passed to the hook", async () => {
     const { result, waitForNextUpdate } = renderHook(
-      () => useFriendRequests("Received"),
+      () => useFriendRequests("received"),
       { wrapper }
     );
     await waitForNextUpdate();
 
     expect(result.current).toEqual({
-      isLoading: false,
-      isError: false,
-      errors: [],
       data: [
         {
+          friend: users[2],
           friendRequestId: 2,
           state: 0,
           userId: 3,
-          friend: {
-            name: "Funny Kid",
-            userId: 3,
-            username: "funnykid",
-            avatarUrl: "https://loremflickr.com/200/200?user3",
-          },
         },
         {
+          friend: users[3],
           friendRequestId: 3,
           state: 0,
           userId: 4,
-          friend: {
-            name: "Funny Chicken",
-            userId: 4,
-            username: "funnyChicken",
-            avatarUrl: "https://loremflickr.com/200/200?user4",
-          },
         },
       ],
+      errors: [],
+      isError: false,
+      isLoading: false,
     });
   });
 
   it("returns an empty friend requests correctly if none are sent nor received", async () => {
     listFriendRequestsMock.mockResolvedValue({
-      sentList: [],
       receivedList: [],
+      sentList: [],
     });
 
     const {
       result: receivedRequests,
       waitForNextUpdate: waitForReceivedFriendRequests,
-    } = renderHook(() => useFriendRequests("Received"), {
+    } = renderHook(() => useFriendRequests("received"), {
       wrapper,
     });
     await waitForReceivedFriendRequests();
     expect(receivedRequests.current).toEqual({
-      isLoading: false,
-      isError: false,
-      errors: [],
       data: [],
+      errors: [],
+      isError: false,
+      isLoading: false,
     });
 
     const {
       result: sentRequests,
       waitForNextUpdate: waitForSentFriendRequests,
-    } = renderHook(() => useFriendRequests("Sent"), {
+    } = renderHook(() => useFriendRequests("sent"), {
       wrapper,
     });
     await waitForSentFriendRequests();
     expect(sentRequests.current).toEqual({
-      isLoading: false,
-      isError: false,
-      errors: [],
       data: [],
+      errors: [],
+      isError: false,
+      isLoading: false,
     });
   });
 
@@ -189,34 +175,29 @@ describe("when the listFriendRequests succeeds", () => {
     jest.spyOn(console, "error").mockReturnValue(undefined);
 
     const { result, waitForNextUpdate } = renderHook(
-      () => useFriendRequests("Received"),
+      () => useFriendRequests("received"),
       { wrapper }
     );
     await waitForNextUpdate();
 
     expect(result.current).toEqual({
-      isLoading: false,
-      isError: true,
-      errors: ["Error fetching user 3"],
       data: [
         {
+          friend: undefined,
           friendRequestId: 2,
           state: 0,
           userId: 3,
-          friend: undefined,
         },
         {
+          friend: users[3],
           friendRequestId: 3,
           state: 0,
           userId: 4,
-          friend: {
-            name: "Funny Chicken",
-            userId: 4,
-            username: "funnyChicken",
-            avatarUrl: "https://loremflickr.com/200/200?user4",
-          },
         },
       ],
+      errors: ["Error fetching user 3"],
+      isError: true,
+      isLoading: false,
     });
   });
 });
@@ -229,16 +210,16 @@ describe("when the listFriendRequests query failed", () => {
     jest.spyOn(console, "error").mockReturnValue(undefined);
 
     const { result, waitForNextUpdate } = renderHook(
-      () => useFriendRequests("Sent"),
+      () => useFriendRequests("sent"),
       { wrapper }
     );
     await waitForNextUpdate();
 
     expect(result.current).toEqual({
-      isLoading: false,
-      isError: true,
-      errors: ["Error listing friend requests"],
       data: [],
+      errors: ["Error listing friend requests"],
+      isError: true,
+      isLoading: false,
     });
     expect(getUserMock).not.toHaveBeenCalled();
   });

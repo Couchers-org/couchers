@@ -10,31 +10,36 @@ import { SearchIcon } from "./Icons";
 const NOMINATIM_URL = process.env.REACT_APP_NOMINATIM_URL;
 
 const useSearchStyles = makeStyles((theme) => ({
+  autocomplete: {
+    flexGrow: 1,
+  },
+  form: {
+    display: "flex",
+    width: "100%",
+  },
   root: {
-    position: "absolute",
-    left: 10,
-    top: 10,
-    width: "70%",
-    padding: theme.spacing(1),
-    borderRadius: theme.shape.borderRadius,
-    zIndex: 1,
-    background: theme.palette.background.default,
-    opacity: 0.9,
     "& *": {
       opacity: 1,
     },
     "& .MuiAutocomplete-input": {
       fontSize: "0.75rem",
     },
-    "& .MuiInputLabel-root": {
-      fontSize: "0.75rem",
-    },
     "& .MuiFormHelperText-root": {
       fontSize: "0.65rem",
     },
+    "& .MuiInputLabel-root": {
+      fontSize: "0.75rem",
+    },
+    background: theme.palette.background.default,
+    borderRadius: theme.shape.borderRadius,
+    left: 10,
+    opacity: 0.9,
+    padding: theme.spacing(1),
+    position: "absolute",
+    top: 10,
+    width: "70%",
+    zIndex: 1,
   },
-  form: { width: "100%", display: "flex" },
-  autocomplete: { flexGrow: 1 },
 }));
 
 interface SearchOption {
@@ -74,11 +79,11 @@ export default function MapSearch({
       value
     )}&addressdetails=1`;
     const options = {
-      method: "GET",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json;charset=UTF-8",
       },
+      method: "GET",
     };
     try {
       const response = await fetch(url, options);
@@ -87,9 +92,9 @@ export default function MapSearch({
       setSearchOptions(
         nominatimResults.map((result) => {
           return {
+            location: new LngLat(Number(result["lon"]), Number(result["lat"])),
             name: result["display_name"],
             simplifiedName: simplifyPlaceDisplayName(result),
-            location: new LngLat(Number(result["lon"]), Number(result["lat"])),
           };
         })
       );

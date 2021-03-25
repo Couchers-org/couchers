@@ -5,13 +5,13 @@ import React from "react";
 import TextBody from "./TextBody";
 
 const useStyles = makeStyles((theme) => ({
+  label: {
+    margin: 0,
+    width: "50%",
+  },
   root: {
     display: "flex",
     marginTop: theme.spacing(0.5),
-  },
-  label: {
-    margin: "inherit",
-    width: "50%",
   },
 }));
 

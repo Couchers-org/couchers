@@ -1,18 +1,18 @@
 import { Card, CardActions, makeStyles, Typography } from "@material-ui/core";
+import Alert from "components/Alert";
 import Avatar from "components/Avatar";
 import BarWithHelp from "components/Bar/BarWithHelp";
 import Button from "components/Button";
 import Divider from "components/Divider";
 import { CouchIcon, LocationIcon } from "components/Icons";
 import IconText from "components/IconText";
-import LabelAndText from "components/LabelAndText";
 import { useAuthContext } from "features/auth/AuthProvider";
+import AddFriendButton from "features/connections/friends/AddFriendButton";
 import {
   COMMUNITY_STANDING,
   COMMUNITY_STANDING_DESCRIPTION,
+  EDIT_HOME,
   EDIT_PROFILE,
-  LAST_ACTIVE,
-  REFERENCES,
   VERIFICATION_SCORE,
   VERIFICATION_SCORE_DESCRIPTION,
 } from "features/constants";
@@ -20,12 +20,13 @@ import {
   hostingStatusLabels,
   meetupStatusLabels,
 } from "features/profile/constants";
+import { LabelsReferencesLastActive } from "features/user/UserTextAndLabel";
 import { HostingStatus, MeetupStatus, User } from "pb/api_pb";
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { editProfileRoute } from "routes";
-import { timestamp2Date } from "utils/date";
-import { timeAgo } from "utils/timeAgo";
+import { editHostingPreferenceRoute, editProfileRoute } from "routes";
+
+import ProfileActionsMenuButton from "../actions/ProfileActionsMenuButton";
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -44,6 +45,8 @@ const useStyles = makeStyles((theme) => ({
   },
   cardActions: {
     justifyContent: "center",
+    paddingLeft: 0,
+    paddingRight: 0,
   },
   grow: {
     paddingTop: "100%",
@@ -64,10 +67,11 @@ interface OverviewProps {
 export default function Overview({ user }: OverviewProps) {
   const classes = useStyles();
   const currentUserId = useAuthContext().authState.userId;
+  const [mutationError, setMutationError] = useState("");
 
   return (
     <Card className={classes.card}>
-      <Avatar {...{ user }} className={classes.grow} />
+      <Avatar user={user} className={classes.grow} />
       <Typography variant="h1" className={classes.intro}>
         {user.name}
       </Typography>
@@ -75,13 +79,30 @@ export default function Overview({ user }: OverviewProps) {
         {user.city}
       </Typography>
       <Divider />
-      {user.userId === currentUserId && (
-        <CardActions className={classes.cardActions}>
-          <Button component={Link} to={editProfileRoute}>
-            {EDIT_PROFILE}
-          </Button>
-        </CardActions>
-      )}
+      {mutationError && <Alert severity="error">{mutationError}</Alert>}
+      <CardActions className={classes.cardActions}>
+        {user.userId === currentUserId ? (
+          <>
+            <Button component={Link} to={editProfileRoute}>
+              {EDIT_PROFILE}
+            </Button>
+            <Button component={Link} to={editHostingPreferenceRoute}>
+              {EDIT_HOME}
+            </Button>
+          </>
+        ) : (
+          <>
+            {user.friends !== User.FriendshipStatus.FRIENDS && (
+              <AddFriendButton
+                isPending={user.friends === User.FriendshipStatus.PENDING}
+                userId={user.userId}
+                setMutationError={setMutationError}
+              />
+            )}
+            <ProfileActionsMenuButton />
+          </>
+        )}
+      </CardActions>
       <IconText
         icon={CouchIcon}
         text={
@@ -110,15 +131,7 @@ export default function Overview({ user }: OverviewProps) {
         description={VERIFICATION_SCORE_DESCRIPTION}
       />
       <div className={classes.info}>
-        <LabelAndText label={REFERENCES} text={`${user.numReferences || 0}`} />
-        <LabelAndText
-          label={LAST_ACTIVE}
-          text={
-            user.lastActive
-              ? `${timeAgo(timestamp2Date(user.lastActive))}`
-              : "Unknown"
-          }
-        />
+        <LabelsReferencesLastActive user={user} />
       </div>
     </Card>
   );

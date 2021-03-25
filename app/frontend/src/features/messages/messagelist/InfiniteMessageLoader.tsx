@@ -7,15 +7,15 @@ import useOnVisibleEffect from "utils/useOnVisibleEffect";
 
 const useStyles = makeStyles((theme) => ({
   loader: {
-    width: "100%",
-    position: "absolute",
-    top: 0,
-    paddingTop: theme.spacing(1),
     "& > *": {
       display: "block",
-      marginInlineStart: "auto",
       marginInlineEnd: "auto",
+      marginInlineStart: "auto",
     },
+    paddingTop: theme.spacing(1),
+    position: "absolute",
+    top: 0,
+    width: "100%",
   },
   scroll: {
     ...theme.shape.scrollBar,

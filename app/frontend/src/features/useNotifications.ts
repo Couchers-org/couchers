@@ -13,5 +13,5 @@ export default function useNotifications() {
       refetchInterval: pingInterval,
     }
   );
-  return { data, isLoading, isError, error };
+  return { data, error, isError, isLoading };
 }

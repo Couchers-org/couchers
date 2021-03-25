@@ -3,7 +3,6 @@ import { Meta, Story } from "@storybook/react";
 import Pill, { PillProps } from "./Pill";
 
 export default {
-  title: "Components/Simple/Pill",
   component: Pill,
   decorators: [
     (Story) => (
@@ -12,6 +11,7 @@ export default {
       </div>
     ),
   ],
+  title: "Components/Simple/Pill",
 } as Meta;
 
 export const pill: Story<PillProps> = (args) => <Pill {...args} />;

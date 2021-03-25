@@ -4,37 +4,42 @@ import groupChat from "test/fixtures/groupChat.json";
 import messages from "test/fixtures/messages.json";
 import users from "test/fixtures/users.json";
 
-const [user1, user2, user3] = users;
+const [user1, user2, user3, user4] = users;
 
 const userMap = {
   "1": user1,
   "2": user2,
   "3": user3,
+  "4": user4,
   funnycat: user1,
+  funnyChicken: user4,
   funnydog: user2,
   funnykid: user3,
 };
 
 export const mockedService = ({
+  account: {},
+  api: {
+    listFriends: () => Promise.resolve([users[1].userId, users[2].userId]),
+  },
+  conversations: {
+    getGroupChat: () => Promise.resolve(groupChat),
+    getGroupChatMessages: () => Promise.resolve([messages[0], messages[1]]),
+    listGroupChats: () =>
+      Promise.resolve({
+        groupChatsList: [groupChat],
+        noMore: true,
+      }),
+  },
+  threads: {
+    getThread: () => Promise.resolve(getThreadRes),
+  },
   user: {
     getUser: (id: string) => {
       const result = userMap[id as keyof typeof userMap];
       return Promise.resolve(result);
     },
   },
-  api: {
-    listFriends: () => Promise.resolve([users[1].userId, users[2].userId]),
-  },
-  conversations: {
-    listGroupChats: () =>
-      Promise.resolve({ groupChatsList: [groupChat], noMore: true }),
-    getGroupChatMessages: () => Promise.resolve([messages[0], messages[1]]),
-    getGroupChat: () => Promise.resolve(groupChat),
-  },
-  threads: {
-    getThread: () => Promise.resolve(getThreadRes),
-  },
-  account: {},
 } as unknown) as typeof originalService;
 
 function wait(milliSeconds: number) {

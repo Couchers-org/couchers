@@ -8,12 +8,6 @@ import classNames from "classnames";
 import React from "react";
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    display: "block",
-    "& .MuiOutlinedInput-root": {
-      borderRadius: theme.shape.borderRadius,
-    },
-  },
   multiline: {
     "& .MuiOutlinedInput-notchedOutline": {
       borderColor: theme.palette.grey[500],
@@ -21,6 +15,12 @@ const useStyles = makeStyles((theme) => ({
     "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline": {
       borderColor: theme.palette.grey[900],
     },
+  },
+  root: {
+    "& .MuiOutlinedInput-root": {
+      borderRadius: theme.shape.borderRadius,
+    },
+    display: "block",
   },
 }));
 

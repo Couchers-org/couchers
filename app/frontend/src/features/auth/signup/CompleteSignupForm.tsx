@@ -8,6 +8,7 @@ import {
 import Autocomplete from "components/Autocomplete";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
+import Datepicker from "components/Datepicker";
 import EditUserLocationMap, {
   ApproximateLocation,
 } from "components/EditUserLocationMap";
@@ -16,6 +17,7 @@ import TextField from "components/TextField";
 import TOS from "components/TOS";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
+import { HOSTING_STATUS } from "features/constants";
 import { hostingStatusLabels } from "features/profile/constants";
 import { HostingStatus } from "pb/api_pb";
 import React, { useEffect, useState } from "react";
@@ -25,9 +27,12 @@ import { signupRoute } from "routes";
 import { service } from "service/index";
 import {
   nameValidationPattern,
+  sanitizeName,
   usernameValidationPattern,
   validatePastDate,
 } from "utils/validation";
+
+import { BIRTHDATE_LABEL, GENDER_LABEL, LOCATION_LABEL } from "../constants";
 
 type SignupInputs = {
   email: string;
@@ -47,13 +52,13 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "row",
   },
   locationMap: {
-    width: "100%",
-    marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
+    marginTop: theme.spacing(2),
+    width: "100%",
   },
 }));
 
-export default function CompleteSignup() {
+export default function CompleteSignupForm() {
   const { authState, authActions } = useAuthContext();
   const authLoading = authState.loading;
 
@@ -66,8 +71,8 @@ export default function CompleteSignup() {
     errors,
   } = useForm<SignupInputs>({
     defaultValues: { city: "", location: {} },
-    shouldUnregister: false,
     mode: "onBlur",
+    shouldUnregister: false,
   });
 
   const [loading, setLoading] = useState(false);
@@ -105,15 +110,15 @@ export default function CompleteSignup() {
     }
 
     authActions.signup({
-      signupToken: urlToken,
-      username: data.username,
-      name: data.name,
-      city: data.city,
-      location: data.location,
+      acceptTOS: acceptedTOS,
       birthdate: data.birthdate,
+      city: data.city,
       gender: data.gender,
       hostingStatus: data.hostingStatus,
-      acceptTOS: acceptedTOS,
+      location: data.location,
+      name: data.name,
+      signupToken: urlToken,
+      username: sanitizeName(data.username),
     });
   });
 
@@ -133,13 +138,13 @@ export default function CompleteSignup() {
             name="username"
             fullWidth
             inputRef={register({
-              required: "Enter your username",
               pattern: {
                 //copied from backend, added ^ at the start
-                value: usernameValidationPattern,
                 message:
                   "Username can only have lowercase letters, numbers or _, starting with a letter.",
+                value: usernameValidationPattern,
               },
+              required: "Enter your username",
               validate: async (username) => {
                 const valid = await service.auth.validateUsername(username);
                 return valid || "This username is taken.";
@@ -157,37 +162,35 @@ export default function CompleteSignup() {
             name="name"
             fullWidth
             inputRef={register({
-              required: "Enter your name",
               pattern: {
-                value: nameValidationPattern,
                 message: "Name can't be just white space.",
+                value: nameValidationPattern,
               },
+              required: "Enter your name",
             })}
             helperText={errors?.name?.message}
           />
           <InputLabel className={authClasses.formLabel} htmlFor="birthdate">
             Birthday
           </InputLabel>
-          <TextField
+          <Datepicker
             className={authClasses.formField}
+            control={control}
+            error={!!errors.birthdate}
+            helperText={errors?.birthdate?.message}
             id="birthdate"
-            fullWidth
-            variant="standard"
-            name="birthdate"
-            type="date"
-            InputLabelProps={{
-              shrink: true,
-            }}
             inputRef={register({
               required: "Enter your birthdate",
               validate: (stringDate) =>
                 validatePastDate(stringDate) ||
                 "Must be a valid date in the past.",
             })}
-            helperText={errors?.birthdate?.message}
+            label={BIRTHDATE_LABEL}
+            minDate={new Date(1899, 12, 1)}
+            name="birthdate"
           />
           <InputLabel className={authClasses.formLabel} htmlFor="location">
-            Your location
+            {LOCATION_LABEL}
           </InputLabel>
           <Controller
             name="location"
@@ -218,7 +221,7 @@ export default function CompleteSignup() {
             className={authClasses.formLabel}
             htmlFor="hosting-status"
           >
-            Hosting status
+            {HOSTING_STATUS}
           </InputLabel>
           <Controller
             control={control}
@@ -244,7 +247,7 @@ export default function CompleteSignup() {
             )}
           />
           <InputLabel className={authClasses.formLabel} htmlFor="gender">
-            I identify as ....
+            {GENDER_LABEL}
           </InputLabel>
           <Controller
             id="gender"
@@ -276,8 +279,8 @@ export default function CompleteSignup() {
             <TOS />
             <Button
               classes={{
-                root: authClasses.button,
                 label: authClasses.buttonText,
+                root: authClasses.button,
               }}
               color="secondary"
               loading={loading}
@@ -289,8 +292,8 @@ export default function CompleteSignup() {
           </div>
           <Button
             classes={{
-              root: authClasses.button,
               label: authClasses.buttonText,
+              root: authClasses.button,
             }}
             color="secondary"
             onClick={completeSignup}

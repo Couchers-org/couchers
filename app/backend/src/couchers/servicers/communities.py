@@ -2,6 +2,7 @@ import logging
 
 import grpc
 from google.protobuf import empty_pb2
+from sqlalchemy.sql.elements import or_
 
 from couchers import errors
 from couchers.db import can_moderate_node, get_node_parents_recursively, session_scope
@@ -199,8 +200,8 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             if not node:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
             discussions = (
-                node.official_cluster.owned_discussions.filter(Discussion.id >= next_page_id)
-                .order_by(Discussion.id)
+                node.official_cluster.owned_discussions.filter(or_(Discussion.id <= next_page_id, next_page_id == 0))
+                .order_by(Discussion.id.desc())
                 .limit(page_size + 1)
                 .all()
             )
@@ -245,3 +246,25 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             session.query(ClusterSubscription).filter(ClusterSubscription.user_id == context.user_id).delete()
 
             return empty_pb2.Empty()
+
+    def ListUserCommunities(self, request, context):
+        with session_scope() as session:
+            page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+            next_node_id = int(request.page_token) if request.page_token else 0
+            user_id = request.user_id or context.user_id
+            nodes = (
+                session.query(Node)
+                .join(Cluster, Cluster.parent_node_id == Node.id)
+                .join(ClusterSubscription, ClusterSubscription.cluster_id == Cluster.id)
+                .filter(ClusterSubscription.user_id == user_id)
+                .filter(Cluster.is_official_cluster)
+                .filter(Node.id >= next_node_id)
+                .order_by(Node.id)
+                .limit(page_size + 1)
+                .all()
+            )
+
+            return communities_pb2.ListUserCommunitiesRes(
+                communities=[community_to_pb(node, user_id) for node in nodes[:page_size]],
+                next_page_token=str(nodes[-1].id) if len(nodes) > page_size else None,
+            )
