@@ -73,8 +73,16 @@ export function AvatarInput({
   const [imageUrl, setImageUrl] = useState(initialPreviewSrc);
   const [file, setFile] = useState<File | null>(null);
   const [readerError, setReaderError] = useState("");
-  const mutation = useMutation<ImageInputValues, Error>(() =>
-    file ? service.api.uploadFile(file) : Promise.reject(INVALID_FILE)
+  const mutation = useMutation<ImageInputValues, Error>(
+    () => (file ? service.api.uploadFile(file) : Promise.reject(INVALID_FILE)),
+    {
+      onSuccess: (data: ImageInputValues) => {
+        field.onChange(data.key);
+        setImageUrl(data.thumbnail_url);
+        confirmedUpload.current = data;
+        setFile(null);
+      },
+    }
   );
   const isConfirming = !mutation.isLoading && file !== null;
   const { field } = useController({
@@ -101,18 +109,6 @@ export function AvatarInput({
       setFile(file);
     } catch {
       setReaderError(INVALID_FILE);
-    }
-  };
-
-  const handleConfirm = async () => {
-    try {
-      const response = await mutation.mutateAsync();
-      field.onChange(response.key);
-      setImageUrl(response.thumbnail_url);
-      confirmedUpload.current = response;
-      setFile(null);
-    } catch {
-      //no need to do anything here, error goes to mutation.error
     }
   };
 
@@ -162,7 +158,7 @@ export function AvatarInput({
             </IconButton>
             <IconButton
               aria-label={CONFIRM_UPLOAD}
-              onClick={handleConfirm}
+              onClick={() => mutation.mutate()}
               size="small"
             >
               <CheckIcon />
