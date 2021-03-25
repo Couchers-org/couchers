@@ -45,7 +45,7 @@ export const useGroupChatViewStyles = makeStyles((theme) => ({
     flexGrow: 0,
   },
   messageList: {
-    paddingBlock: theme.spacing(2),
+    /* paddingBlock: theme.spacing(2), */
   },
   pageWrapper: {
     [theme.breakpoints.up("md")]: {
