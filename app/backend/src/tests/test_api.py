@@ -613,40 +613,6 @@ def test_ListFriends_with_invisible_users(db):
         assert len(res.user_ids) == 1
 
 
-def test_blocking_relationships(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    user3, token3 = generate_user()
-
-    with blocking_session(token1) as blocking:
-        blocking.BlockUser(blocking_pb2.BlockUserReq(user_id=user2.id))
-        blocking.BlockUser(blocking_pb2.BlockUserReq(user_id=user3.id))
-        set_users_blocked_by_user_1 = {2, 3}
-
-    with blocking_session(token2) as blocking:
-        blocking.BlockUser(blocking_pb2.BlockUserReq(user_id=user3.id))
-        set_users_blocking_user_3 = {1, 2}
-
-    with session_scope() as session:
-        user = get_user_by_field(session, user1.username)
-        for userblock in user.blocked:
-            set_users_blocked_by_user_1.remove(userblock.blocked_user_id)
-        assert not set_users_blocked_by_user_1
-
-        user3 = get_user_by_field(session, user3.username)
-        for userblock in user3.blocking:
-            set_users_blocking_user_3.remove(userblock.blocking_user_id)
-        assert not set_users_blocking_user_3
-
-        block = (
-            session.query(UserBlocks)
-            .filter((UserBlocks.blocking_user_id == user1.id) & (UserBlocks.blocked_user_id == user2.id))
-            .one_or_none()
-        )
-        assert block.blocking_user.username == user1.username
-        assert block.blocked_user.username == user2.username
-
-
 def test_ListFriends_with_blocked_user(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
