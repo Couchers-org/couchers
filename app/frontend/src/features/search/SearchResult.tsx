@@ -73,7 +73,6 @@ export default function SearchResult({ user }: { user: User.AsObject }) {
                     className={classes.statusLabel}
                     display="inline"
                     variant="subtitle1"
-                    color="secondary"
                   >
                     {meetupStatusLabels[user.meetupStatus]}
                   </Typography>

@@ -287,13 +287,14 @@ def can_moderate_at(session, user_id, shape):
     """
     Returns True if the user_id can moderate a given geo-shape (i.e., if the shape is contained in any Node that the user is an admin of)
     """
-    cluster_ids = list(
+    cluster_ids = [
+        cluster_id for (cluster_id,) in
         session.query(Cluster.id)
         .join(Node, Node.id == Cluster.parent_node_id)
         .filter(Cluster.is_official_cluster)
         .filter(func.ST_Contains(Node.geom, shape))
         .all()
-    )
+    ]
     return _can_moderate_any_cluster(session, user_id, cluster_ids)
 
 

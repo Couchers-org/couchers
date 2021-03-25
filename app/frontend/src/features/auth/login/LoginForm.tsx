@@ -33,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function UsernameForm() {
+export default function LoginForm() {
   const classes = useStyles();
   const authClasses = useAuthStyles();
   const { authState, authActions } = useAuthContext();
@@ -134,7 +134,6 @@ export default function UsernameForm() {
             label: authClasses.buttonText,
           }}
           className={authClasses.button}
-          color="secondary"
           disabled={sent}
           loading={loading || authLoading}
           onClick={onSubmit}

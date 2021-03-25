@@ -16,6 +16,8 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { loginRoute, signupRoute } from "routes";
 
+import { COUCHERS } from "../../constants";
+
 const useStyles = makeStyles((theme) => ({
   aboutUs: {
     color: "#2a2a2a",
@@ -173,7 +175,7 @@ export default function AuthPage() {
       {/***** DESKTOP ******/}
       <Hidden smDown>
         <header className={authClasses.header}>
-          <div className={authClasses.logo}>Couchers.org</div>
+          <div className={authClasses.logo}>{COUCHERS}</div>
           <nav className={classes.desktopNavigation}>
             <Link to="#" className={classes.aboutUsLink}>
               {ABOUT_US}

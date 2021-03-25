@@ -1,6 +1,8 @@
 // format a date
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 
+import { dayMillis } from "./timeAgo";
+
 const monthNames = [
   "January",
   "February",
@@ -16,6 +18,17 @@ const monthNames = [
   "December",
 ];
 
+const dateTimeFormatter = new Intl.DateTimeFormat(navigator.language, {
+  month: "short",
+  year: "numeric",
+});
+
+const numNights = (date1: string, date2: string): string => {
+  const diffTime = Date.parse(date1) - Date.parse(date2);
+  const diffDays = Math.ceil(diffTime / dayMillis);
+  return diffDays === 1 ? `${diffDays} night` : `${diffDays} nights`;
+};
+
 function formatDate(s: string, short: boolean = false): string {
   const date = new Date(s);
   const monthName = monthNames[date.getMonth()];
@@ -26,11 +39,6 @@ function formatDate(s: string, short: boolean = false): string {
 function timestamp2Date(timestamp: Timestamp.AsObject): Date {
   return new Date(Math.floor(timestamp.seconds * 1e3 + timestamp.nanos / 1e6));
 }
-
-const dateTimeFormatter = new Intl.DateTimeFormat(navigator.language, {
-  month: "short",
-  year: "numeric",
-});
 
 function isSameDate(date1: Date, date2: Date): boolean {
   return (
@@ -48,4 +56,4 @@ function isSameOrFutureDate(date1: Date, date2: Date): boolean {
   );
 }
 
-export { dateTimeFormatter, formatDate, isSameOrFutureDate, timestamp2Date };
+export { dateTimeFormatter, formatDate, isSameOrFutureDate, numNights, timestamp2Date };
