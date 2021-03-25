@@ -13,7 +13,7 @@ import { useAuthContext } from "features/auth/AuthProvider";
 import { useGroupChatViewStyles } from "features/messages/groupchats/GroupChatView";
 import InfiniteMessageLoader from "features/messages/messagelist/InfiniteMessageLoader";
 import MessageList from "features/messages/messagelist/MessageList";
-import HostRequestSendField from "features/messages/surfing/HostRequestSendField";
+import HostRequestSendField from "features/messages/requests/HostRequestSendField";
 import useMarkLastSeen, {
   MarkLastSeenVariables,
 } from "features/messages/useMarkLastSeen";

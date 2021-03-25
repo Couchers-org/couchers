@@ -18,9 +18,9 @@ import useNotifications from "../useNotifications";
 import { MESSAGES } from "./constants";
 import GroupChatsTab from "./groupchats/GroupChatsTab";
 import GroupChatView from "./groupchats/GroupChatView";
-import HostRequestView from "./surfing/HostRequestView";
-import NewHostRequest from "./surfing/NewHostRequest";
-import SurfingTab from "./surfing/SurfingTab";
+import HostRequestView from "./requests/HostRequestView";
+import NewHostRequest from "./requests/NewHostRequest";
+import SurfingTab from "./requests/RequestsTab";
 
 export function MessagesNotification() {
   const { data } = useNotifications();

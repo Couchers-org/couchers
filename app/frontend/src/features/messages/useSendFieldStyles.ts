@@ -28,6 +28,10 @@ const useSendFieldStyles = makeStyles((theme) => ({
       display: "flex",
     },
   },
+  requestClosedLabel: {
+    transform: "none",
+    padding: theme.spacing(2, 2),
+  },
 }));
 
 export default useSendFieldStyles;

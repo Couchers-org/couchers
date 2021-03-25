@@ -11,7 +11,7 @@ import Avatar from "components/Avatar";
 import TextBody from "components/TextBody";
 import useAuthStore from "features/auth/useAuthStore";
 import { hostRequestStatusLabels } from "features/messages/constants";
-import HostRequestStatusIcon from "features/messages/surfing/HostRequestStatusIcon";
+import HostRequestStatusIcon from "features/messages/requests/HostRequestStatusIcon";
 import {
   controlMessageText,
   isControlMessage,
