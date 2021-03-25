@@ -44,9 +44,6 @@ export const useGroupChatViewStyles = makeStyles((theme) => ({
     display: "flex",
     flexGrow: 0,
   },
-  messageList: {
-    /* paddingBlock: theme.spacing(2), */
-  },
   pageWrapper: {
     [theme.breakpoints.up("md")]: {
       height: `calc(100vh - ${theme.shape.navPaddingDesktop})`,
@@ -281,7 +278,6 @@ export default function GroupChatView() {
                   isFetchingNextPage={isFetchingNextPage}
                   hasNextPage={!!hasNextPage}
                   isError={!!messagesError}
-                  className={classes.messageList}
                 >
                   <MessageList
                     markLastSeen={markLastSeen}
