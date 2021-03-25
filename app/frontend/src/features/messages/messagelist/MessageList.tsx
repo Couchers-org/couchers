@@ -13,6 +13,7 @@ const useStyles = makeStyles((theme) => ({
   list: {
     display: "flex",
     flexDirection: "column-reverse",
+    paddingBlock: theme.spacing(2),
   },
   message: {
     "&:nth-child(1)": {
