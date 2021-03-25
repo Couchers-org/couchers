@@ -90,12 +90,12 @@ def test_blocking_relationships(db):
     set_users_blocking_user_3 = {1, 2}
     with session_scope() as session:
         user = get_user_by_field(session, user1.username)
-        for user_block in user.blocked:
+        for user_block in user.is_blocked_user:
             set_users_blocked_by_user_1.remove(user_block.blocked_user_id)
         assert not set_users_blocked_by_user_1
 
         user3 = get_user_by_field(session, user3.username)
-        for user_block in user3.blocking:
+        for user_block in user3.is_blocking_user:
             set_users_blocking_user_3.remove(user_block.blocking_user_id)
         assert not set_users_blocking_user_3
 

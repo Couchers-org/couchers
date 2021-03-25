@@ -17,7 +17,7 @@ from sqlalchemy import (
     Integer,
 )
 from sqlalchemy import LargeBinary as Binary
-from sqlalchemy import MetaData, Sequence, String, UniqueConstraint, or_
+from sqlalchemy import MetaData, Sequence, String, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import backref, column_property, relationship
@@ -277,9 +277,9 @@ class User(Base):
 
     def blocked_blocking_users(self):
         relevant_blocks = []
-        for userblock in self.blocked:
+        for userblock in self.is_blocking_user:
             relevant_blocks.append(userblock.blocked_user_id)
-        for userblock in self.blocking:
+        for userblock in self.is_blocked_user:
             relevant_blocks.append(userblock.blocking_user_id)
         return relevant_blocks
 
@@ -1317,5 +1317,5 @@ class UserBlocks(Base):
     blocked_user_id = Column(ForeignKey("users.id"), nullable=False)
     time_blocked = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
-    blocked = relationship("User", backref="blocked", foreign_keys="UserBlocks.blocking_user_id")
-    blocking = relationship("User", backref="blocking", foreign_keys="UserBlocks.blocked_user_id")
+    is_blocking_user = relationship("User", backref="is_blocking_user", foreign_keys="UserBlocks.blocking_user_id")
+    is_blocked_user = relationship("User", backref="is_blocked_user", foreign_keys="UserBlocks.blocked_user_id")
