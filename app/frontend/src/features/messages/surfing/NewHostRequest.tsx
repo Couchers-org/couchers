@@ -22,14 +22,13 @@ import {
   REQUEST,
   REQUEST_DESCRIPTION,
   SEND,
-  SEND_REQUEST_SUCCESS,
   sendRequest,
   STAY_TYPE_A11Y_TEXT,
 } from "features/constants";
 import { useUser } from "features/userQueries/useUsers";
 import { Error as GrpcError } from "grpc-web";
 import { User } from "pb/api_pb";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
@@ -69,11 +68,13 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface NewHostRequestProps {
+  isSuccessRequest: (value: boolean) => void;
   setIsRequesting: (value: boolean) => void;
   user: User.AsObject;
 }
 
 export default function NewHostRequest({
+  isSuccessRequest,
   setIsRequesting,
   user,
 }: NewHostRequestProps) {
@@ -95,12 +96,19 @@ export default function NewHostRequest({
 
   useEffect(() => register("toUserId"));
 
-  const { error, isSuccess, mutate } = useMutation<
+  const { error, mutate } = useMutation<
     number,
     GrpcError,
     CreateHostRequestWrapper
-  >((data: CreateHostRequestWrapper) =>
-    service.requests.createHostRequest(data)
+  >(
+    (data: CreateHostRequestWrapper) =>
+      service.requests.createHostRequest(data),
+    {
+      onSuccess: () => {
+        setIsRequesting(false);
+        isSuccessRequest(true);
+      },
+    }
   );
 
   const { isLoading: hostLoading, error: hostError } = useUser(user.userId);
@@ -135,7 +143,6 @@ export default function NewHostRequest({
         {hostLoading ? <Skeleton width="100" /> : sendRequest(user.name)}
       </Typography>
       {error && <Alert severity="error">{error.message}</Alert>}
-      {isSuccess && <Alert severity="success">{SEND_REQUEST_SUCCESS}</Alert>}
       {hostError ? (
         <Alert severity={"error"}>{hostError}</Alert>
       ) : (

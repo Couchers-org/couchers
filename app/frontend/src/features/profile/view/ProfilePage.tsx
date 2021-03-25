@@ -3,11 +3,16 @@ import {
   CircularProgress,
   Collapse,
   makeStyles,
+  Snackbar,
 } from "@material-ui/core";
 import { TabContext, TabPanel } from "@material-ui/lab";
 import Alert from "components/Alert";
 import TabBar from "components/TabBar";
-import { SECTION_LABELS, SECTION_LABELS_A11Y_TEXT } from "features/constants";
+import {
+  SECTION_LABELS,
+  SECTION_LABELS_A11Y_TEXT,
+  SEND_REQUEST_SUCCESS,
+} from "features/constants";
 import NewHostRequest from "features/messages/surfing/NewHostRequest";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import About from "features/profile/view/About";
@@ -64,9 +69,24 @@ export default function ProfilePage() {
   );
 
   const [isRequesting, setIsRequesting] = useState(false);
+  const [isSuccessRequest, setIsSuccessRequest] = useState(false);
+
+  const handleClose = () => {
+    setIsSuccessRequest(false);
+  };
 
   return (
     <>
+      <Snackbar
+        open={isSuccessRequest}
+        autoHideDuration={1000}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert severity="success" onClose={handleClose}>
+          {SEND_REQUEST_SUCCESS}
+        </Alert>
+      </Snackbar>
       {error && <Alert severity="error">{error}</Alert>}
       {loading ? (
         <CircularProgress />
@@ -86,6 +106,7 @@ export default function ProfilePage() {
                   <NewHostRequest
                     user={user}
                     setIsRequesting={setIsRequesting}
+                    isSuccessRequest={setIsSuccessRequest}
                   />
                 </Collapse>
                 <TabPanel classes={{ root: classes.tabPanel }} value="about">
