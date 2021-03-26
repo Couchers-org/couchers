@@ -134,8 +134,6 @@ class User(Base):
     things_i_like = Column(String, nullable=True)
     about_place = Column(String, nullable=True)
     avatar_filename = Column(String, nullable=True)
-    countries_visited = Column(String, nullable=True)
-    countries_lived = Column(String, nullable=True)
     additional_information = Column(String, nullable=True)
 
     is_banned = Column(Boolean, nullable=False, default=False)
@@ -285,6 +283,28 @@ class LanguageAbility(Base):
     fluency = Column(Enum(LanguageFluency), nullable=False)
 
     user = relationship("User", backref="language_abilities")
+
+
+class RegionsVisited(Base):
+    __tablename__ = "regions_visited"
+    __table_args__ = (UniqueConstraint("user_id", "region_code"),)
+
+    id = Column(BigInteger, primary_key=True)
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    region_code = Column(String(3), nullable=False)
+
+    user = relationship("User", backref="regions_visited")
+
+
+class RegionsLived(Base):
+    __tablename__ = "regions_lived"
+    __table_args__ = (UniqueConstraint("user_id", "region_code"),)
+
+    id = Column(BigInteger, primary_key=True)
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    region_code = Column(String(3), nullable=False)
+
+    user = relationship("User", backref="regions_lived")
 
 
 class FriendStatus(enum.Enum):

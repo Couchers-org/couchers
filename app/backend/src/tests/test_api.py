@@ -6,7 +6,7 @@ from google.protobuf import empty_pb2, wrappers_pb2
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Complaint
+from couchers.models import Complaint, User
 from couchers.utils import now, to_aware_datetime
 from pb import api_pb2, jail_pb2
 from tests.test_fixtures import (
@@ -30,6 +30,12 @@ def test_ping(db):
 
     with real_api_session(token) as api:
         res = api.Ping(api_pb2.PingReq())
+
+    # TODO grab languages as well
+    with session_scope() as session:
+        u = session.query(User).filter(User.id == user.id).one()
+        regions_visited = [region.region_code for region in u.regions_visited]
+        regions_lived = [region.region_code for region in u.regions_lived]
 
     assert res.user.user_id == user.id
     assert res.user.username == user.username
@@ -60,9 +66,8 @@ def test_ping(db):
     assert res.user.my_travels == user.my_travels
     assert res.user.things_i_like == user.things_i_like
     assert res.user.about_place == user.about_place
-    # TODO: this list serialisation will be fixed hopefully soon
-    assert res.user.countries_visited == user.countries_visited.split("|")
-    assert res.user.countries_lived == user.countries_lived.split("|")
+    assert res.user.regions_visited == regions_visited
+    assert res.user.regions_lived == regions_lived
     assert res.user.additional_information == user.additional_information
 
     assert res.user.friends == api_pb2.User.FriendshipStatus.NA
@@ -137,6 +142,22 @@ def test_update_profile(db):
             api.UpdateProfile(api_pb2.UpdateProfileReq(name=wrappers_pb2.StringValue(value="  ")))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
+        with pytest.raises(grpc.RpcError) as e:
+            api.UpdateProfile(
+                api_pb2.UpdateProfileReq(
+                    regions_visited=api_pb2.RepeatedStringValue(exists=True, value="United States")
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.INVALID_REGION
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.UpdateProfile(
+                api_pb2.UpdateProfileReq(regions_lived=api_pb2.RepeatedStringValue(exists=True, value="United Kingdom"))
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.INVALID_REGION
+
         res = api.UpdateProfile(
             api_pb2.UpdateProfileReq(
                 name=wrappers_pb2.StringValue(value="New name"),
@@ -163,8 +184,8 @@ def test_update_profile(db):
                         )
                     ],
                 ),
-                countries_visited=api_pb2.RepeatedStringValue(exists=True, value=["UK", "Aus"]),
-                countries_lived=api_pb2.RepeatedStringValue(exists=True, value=["UK", "Aus"]),
+                regions_visited=api_pb2.RepeatedStringValue(exists=True, value=["CXR", "NAM"]),
+                regions_lived=api_pb2.RepeatedStringValue(exists=True, value=["USA", "ITA"]),
                 additional_information=api_pb2.NullableStringValue(value="I <3 Couchers"),
             )
         )
@@ -190,10 +211,8 @@ def test_update_profile(db):
         assert user.hosting_status == api_pb2.HOSTING_STATUS_CAN_HOST
         assert user.meetup_status == api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP
         assert user.additional_information == "I <3 Couchers"
-        assert "UK" in user.countries_visited
-        assert "Aus" in user.countries_visited
-        assert "UK" in user.countries_lived
-        assert "Aus" in user.countries_lived
+        assert set(user.regions_visited) == {"CXR", "NAM"}
+        assert set(user.regions_lived) == {"USA", "ITA"}
         assert user.language_abilities[0].code == "eng"
         assert user.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE
 

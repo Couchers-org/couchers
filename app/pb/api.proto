@@ -231,8 +231,8 @@ message User {
   string my_travels = 104;
   string things_i_like = 105;
   string about_place = 16;
-  repeated string countries_visited = 18;
-  repeated string countries_lived = 19;
+  repeated string regions_visited = 40;
+  repeated string regions_lived = 41;
   string additional_information = 106;
 
   FriendshipStatus friends = 20;
@@ -308,8 +308,8 @@ message UpdateProfileReq {
   HostingStatus hosting_status = 8;
   MeetupStatus meetup_status = 105;
 
-  RepeatedStringValue countries_visited = 10;
-  RepeatedStringValue countries_lived = 11;
+  RepeatedStringValue regions_visited = 30;
+  RepeatedStringValue regions_lived = 31;
   NullableStringValue additional_information = 106;
 
   NullableUInt32Value max_guests = 12;

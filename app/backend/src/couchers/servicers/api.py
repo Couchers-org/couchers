@@ -27,10 +27,13 @@ from couchers.models import (
     ParkingDetails,
     Reference,
     ReferenceType,
+    RegionsLived,
+    RegionsVisited,
     SleepingArrangement,
     SmokingLocation,
     User,
 )
+from couchers.regions import region_is_allowed
 from couchers.tasks import send_friend_request_email, send_report_email
 from couchers.utils import Timestamp_from_datetime, create_coordinate, now
 from pb import api_pb2, api_pb2_grpc, media_pb2
@@ -295,11 +298,33 @@ class API(api_pb2_grpc.APIServicer):
                         )
                     )
 
-            if request.countries_visited.exists:
-                user.countries_visited = "|".join(request.countries_visited.value)
+            if request.regions_visited.exists:
+                for region in user.regions_visited:
+                    session.delete(region)
 
-            if request.countries_lived.exists:
-                user.countries_lived = "|".join(request.countries_lived.value)
+                for region in request.regions_visited.value:
+                    if not region_is_allowed(region):
+                        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_REGION)
+                    session.add(
+                        RegionsVisited(
+                            user_id=user.id,
+                            region_code=region,
+                        )
+                    )
+
+            if request.regions_lived.exists:
+                for region in user.regions_lived:
+                    session.delete(region)
+
+                for region in request.regions_lived.value:
+                    if not region_is_allowed(region):
+                        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_REGION)
+                    session.add(
+                        RegionsLived(
+                            user_id=user.id,
+                            region_code=region,
+                        )
+                    )
 
             if request.HasField("additional_information"):
                 if request.additional_information.is_null:
@@ -745,8 +770,8 @@ def user_model_to_pb(db_user, session, context):
             api_pb2.LanguageAbility(code=ability.language_code, fluency=fluency2api[ability.fluency])
             for ability in db_user.language_abilities
         ],
-        countries_visited=db_user.countries_visited.split("|") if db_user.countries_visited else [],
-        countries_lived=db_user.countries_lived.split("|") if db_user.countries_lived else [],
+        regions_visited=[region.region_code for region in db_user.regions_visited],
+        regions_lived=[region.region_code for region in db_user.regions_lived],
         additional_information=db_user.additional_information,
         friends=get_friends_status(session, context.user_id, db_user.id),
         mutual_friends=[
