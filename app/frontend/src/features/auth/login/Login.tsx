@@ -4,7 +4,7 @@ import { Link, Redirect, useLocation, useParams } from "react-router-dom";
 
 import Alert from "../../../components/Alert";
 import AuthHeader from "../../../components/AuthHeader";
-import { loginPasswordRoute, signupRoute } from "../../../routes";
+import { signupRoute } from "../../../routes";
 import { useAuthContext } from "../AuthProvider";
 import {
   INTRODUCTION_SUBTITLE,
@@ -48,8 +48,8 @@ export default function Login() {
   const classes = useStyles();
 
   useEffect(() => {
-    //check for a login token
-    if (urlToken && location.pathname !== loginPasswordRoute) {
+    // check for a login token
+    if (urlToken) {
       authActions.tokenLogin(urlToken);
     }
   }, [urlToken, authActions, location.pathname]);
