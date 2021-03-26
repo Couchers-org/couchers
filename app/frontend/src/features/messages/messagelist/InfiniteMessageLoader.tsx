@@ -92,10 +92,9 @@ export default function InfiniteMessageLoader({
     const updateMessagePosition = () => {
       if (!scrollRef.current) return;
       const currentlyAtBottom =
-        scrollRef.current.scrollHeight -
-          scrollRef.current.scrollTop -
-          currentClientHeight <=
-        0;
+        scrollRef.current.scrollHeight <=
+        scrollRef.current.scrollTop + currentClientHeight;
+
       if (currentlyAtBottom) {
         // Send to bottom on window resize
         scrollRef.current.scroll(0, scrollRef.current.scrollHeight);
