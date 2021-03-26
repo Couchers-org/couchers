@@ -3,10 +3,10 @@ import {
   CircularProgress,
   Collapse,
   makeStyles,
-  Snackbar,
 } from "@material-ui/core";
 import { TabContext, TabPanel } from "@material-ui/lab";
 import Alert from "components/Alert";
+import SuccessSnackbar from "components/SuccessSnackbar";
 import TabBar from "components/TabBar";
 import {
   SECTION_LABELS,
@@ -21,7 +21,7 @@ import Overview from "features/profile/view/Overview";
 import References from "features/profile/view/References";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import useUserByUsername from "features/userQueries/useUserByUsername";
-import React, { useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
@@ -53,6 +53,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const REQUEST_ID = "request";
+
 export default function ProfilePage() {
   const classes = useStyles();
   const [currentTab, setCurrentTab] = useState<keyof typeof SECTION_LABELS>(
@@ -71,22 +73,18 @@ export default function ProfilePage() {
   const [isRequesting, setIsRequesting] = useState(false);
   const [isSuccessRequest, setIsSuccessRequest] = useState(false);
 
-  const handleClose = () => {
-    setIsSuccessRequest(false);
-  };
+  useLayoutEffect(() => {
+    if (isRequesting) {
+      const requestEl = document.getElementById(REQUEST_ID);
+      requestEl?.scrollIntoView();
+    }
+  }, [isRequesting]);
 
   return (
     <>
-      <Snackbar
-        open={isSuccessRequest}
-        autoHideDuration={1000}
-        onClose={handleClose}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert severity="success" onClose={handleClose}>
-          {SEND_REQUEST_SUCCESS}
-        </Alert>
-      </Snackbar>
+      {isSuccessRequest && (
+        <SuccessSnackbar>{SEND_REQUEST_SUCCESS}</SuccessSnackbar>
+      )}
       {error && <Alert severity="error">{error}</Alert>}
       {loading ? (
         <CircularProgress />
@@ -94,7 +92,7 @@ export default function ProfilePage() {
         <ProfileUserProvider user={user}>
           <div className={classes.root}>
             <Overview user={user} setIsRequesting={setIsRequesting} />
-            <Card className={classes.detailsCard}>
+            <Card className={classes.detailsCard} id={REQUEST_ID}>
               <TabContext value={currentTab}>
                 <TabBar
                   value={currentTab}
@@ -106,7 +104,7 @@ export default function ProfilePage() {
                   <NewHostRequest
                     user={user}
                     setIsRequesting={setIsRequesting}
-                    isSuccessRequest={setIsSuccessRequest}
+                    setIsRequestSuccess={setIsSuccessRequest}
                   />
                 </Collapse>
                 <TabPanel classes={{ root: classes.tabPanel }} value="about">

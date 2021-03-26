@@ -68,13 +68,13 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface NewHostRequestProps {
-  isSuccessRequest: (value: boolean) => void;
+  setIsRequestSuccess: (value: boolean) => void;
   setIsRequesting: (value: boolean) => void;
   user: User.AsObject;
 }
 
 export default function NewHostRequest({
-  isSuccessRequest,
+  setIsRequestSuccess,
   setIsRequesting,
   user,
 }: NewHostRequestProps) {
@@ -106,7 +106,7 @@ export default function NewHostRequest({
     {
       onSuccess: () => {
         setIsRequesting(false);
-        isSuccessRequest(true);
+        setIsRequestSuccess(true);
       },
     }
   );
@@ -146,86 +146,82 @@ export default function NewHostRequest({
       {hostError ? (
         <Alert severity={"error"}>{hostError}</Alert>
       ) : (
-        <div>
-          <form onSubmit={onSubmit}>
-            <div className={classes.request}>
-              {isPostBetaEnabled && (
-                <Controller
-                  name="stayType"
-                  control={control}
-                  defaultValue={1}
-                  render={({ onChange, value }) => (
-                    <RadioGroup
-                      aria-label={STAY_TYPE_A11Y_TEXT}
-                      name="stay-radio"
-                      value={value}
-                      onChange={(value) => onChange(value)}
-                    >
-                      <FormControlLabel
-                        value={OVERNIGHT_STAY}
-                        control={<Radio />}
-                        label={OVERNIGHT_STAY}
-                      />
-                      <FormControlLabel
-                        value={MEETUP_ONLY}
-                        control={<Radio />}
-                        label={MEETUP_ONLY}
-                      />
-                    </RadioGroup>
-                  )}
-                />
-              )}
-              <Datepicker
+        <form onSubmit={onSubmit}>
+          <div className={classes.request}>
+            {isPostBetaEnabled && (
+              <Controller
+                name="stayType"
                 control={control}
-                error={!!errors.fromDate}
-                helperText={errors?.fromDate?.message}
-                id="from-date"
-                inputRef={register}
-                label={ARRIVAL_DATE}
-                name="fromDate"
+                defaultValue={1}
+                render={({ onChange, value }) => (
+                  <RadioGroup
+                    aria-label={STAY_TYPE_A11Y_TEXT}
+                    name="stay-radio"
+                    value={value}
+                    onChange={(value) => onChange(value)}
+                  >
+                    <FormControlLabel
+                      value={OVERNIGHT_STAY}
+                      control={<Radio />}
+                      label={OVERNIGHT_STAY}
+                    />
+                    <FormControlLabel
+                      value={MEETUP_ONLY}
+                      control={<Radio />}
+                      label={MEETUP_ONLY}
+                    />
+                  </RadioGroup>
+                )}
               />
-              <Datepicker
-                className={classes.date}
-                control={control}
-                error={!!errors.toDate}
-                helperText={errors?.toDate?.message}
-                id="to-date"
-                inputRef={register}
-                label={DEPARTURE_DATE}
-                minDate={tomorrow(watchFromDate)}
-                name="toDate"
-              />
-              {isPostBetaEnabled && (
-                <Select
-                  name="visitorCount"
-                  value={numVisitors}
-                  onChange={(event) =>
-                    setNumVisitors(Number(event.target.value))
-                  }
-                >
-                  {guests}
-                </Select>
-              )}
-            </div>
-            <TextField
-              id="text"
-              className={classes.requestField}
-              label={REQUEST}
-              name="text"
-              rows={6}
+            )}
+            <Datepicker
+              control={control}
+              error={!!errors.fromDate}
+              helperText={errors?.fromDate?.message}
+              id="from-date"
               inputRef={register}
-              multiline
-              fullWidth
-              placeholder={REQUEST_DESCRIPTION}
+              label={ARRIVAL_DATE}
+              name="fromDate"
             />
-            <CardActions className={classes.send}>
-              <Button onClick={() => setIsRequesting(false)}>{CANCEL}</Button>
-              <Button type="submit" onClick={onSubmit}>
-                {SEND}
-              </Button>
-            </CardActions>
-          </form>
-        </div>
+            <Datepicker
+              className={classes.date}
+              control={control}
+              error={!!errors.toDate}
+              helperText={errors?.toDate?.message}
+              id="to-date"
+              inputRef={register}
+              label={DEPARTURE_DATE}
+              minDate={tomorrow(watchFromDate)}
+              name="toDate"
+            />
+            {isPostBetaEnabled && (
+              <Select
+                name="visitorCount"
+                value={numVisitors}
+                onChange={(event) => setNumVisitors(Number(event.target.value))}
+              >
+                {guests}
+              </Select>
+            )}
+          </div>
+          <TextField
+            id="text"
+            className={classes.requestField}
+            label={REQUEST}
+            name="text"
+            rows={6}
+            inputRef={register}
+            multiline
+            fullWidth
+            placeholder={REQUEST_DESCRIPTION}
+          />
+          <CardActions className={classes.send}>
+            <Button onClick={() => setIsRequesting(false)}>{CANCEL}</Button>
+            <Button type="submit" onClick={onSubmit}>
+              {SEND}
+            </Button>
+          </CardActions>
+        </form>
       )}
     </>
   );

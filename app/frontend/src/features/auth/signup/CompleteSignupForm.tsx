@@ -32,13 +32,21 @@ import {
   validatePastDate,
 } from "utils/validation";
 
-import { BIRTHDATE_LABEL, GENDER_LABEL, LOCATION_LABEL } from "../constants";
+import {
+  BIRTHDATE_LABEL,
+  FULL_NAME,
+  GENDER_LABEL,
+  LOCATION_LABEL,
+  SELECT_LOCATION,
+  SIGN_UP,
+  USERNAME,
+} from "../constants";
 
 type SignupInputs = {
   email: string;
   username: string;
   name: string;
-  birthdate: string;
+  birthdate: Date;
   city: string;
   gender: string;
   acceptTOS: boolean;
@@ -111,7 +119,7 @@ export default function CompleteSignupForm() {
 
     authActions.signup({
       acceptTOS: acceptedTOS,
-      birthdate: data.birthdate,
+      birthdate: data.birthdate.toISOString(),
       city: data.city,
       gender: data.gender,
       hostingStatus: data.hostingStatus,
@@ -129,7 +137,7 @@ export default function CompleteSignupForm() {
       ) : (
         <form className={authClasses.form} onSubmit={completeSignup}>
           <InputLabel className={authClasses.formLabel} htmlFor="username">
-            Username
+            {USERNAME}
           </InputLabel>
           <TextField
             className={authClasses.formField}
@@ -153,7 +161,7 @@ export default function CompleteSignupForm() {
             helperText={errors?.username?.message}
           />
           <InputLabel className={authClasses.formLabel} htmlFor="full-name">
-            Full name
+            {FULL_NAME}
           </InputLabel>
           <TextField
             className={authClasses.formField}
@@ -171,7 +179,7 @@ export default function CompleteSignupForm() {
             helperText={errors?.name?.message}
           />
           <InputLabel className={authClasses.formLabel} htmlFor="birthdate">
-            Birthday
+            {BIRTHDATE_LABEL}
           </InputLabel>
           <Datepicker
             className={authClasses.formField}
@@ -214,9 +222,7 @@ export default function CompleteSignupForm() {
               />
             )}
           />
-          {isLocationEmpty && (
-            <TextBody>Please, select your location.</TextBody>
-          )}
+          {isLocationEmpty && <TextBody>{SELECT_LOCATION}</TextBody>}
           <InputLabel
             className={authClasses.formLabel}
             htmlFor="hosting-status"
@@ -299,7 +305,7 @@ export default function CompleteSignupForm() {
             loading={authLoading || loading}
             disabled={!acceptedTOS}
           >
-            Sign up
+            {SIGN_UP}
           </Button>
         </form>
       )}

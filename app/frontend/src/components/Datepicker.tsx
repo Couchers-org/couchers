@@ -51,10 +51,7 @@ export default function Datepicker({
             }}
             label={label}
             minDate={minDate}
-            onChange={(date) => {
-              // user might be typing, so check the date is valid before doing conversions
-              date?.isValid() ? onChange(date.toDate()) : onChange(date);
-            }}
+            onChange={(date) => onChange(date)}
             value={value}
             variant="inline"
           />

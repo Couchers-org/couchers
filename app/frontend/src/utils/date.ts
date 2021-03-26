@@ -56,4 +56,10 @@ function isSameOrFutureDate(date1: Date, date2: Date): boolean {
   );
 }
 
-export { dateTimeFormatter, formatDate, isSameOrFutureDate, numNights, timestamp2Date };
+export {
+  dateTimeFormatter,
+  formatDate,
+  isSameOrFutureDate,
+  numNights,
+  timestamp2Date,
+};

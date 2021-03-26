@@ -84,7 +84,6 @@ export type CreateHostRequestWrapper = Omit<
 > & { toDate: Date; fromDate: Date };
 
 export async function createHostRequest(data: CreateHostRequestWrapper) {
-  console.log(data);
   const req = new CreateHostRequestReq();
   req.setToUserId(data.toUserId);
   req.setFromDate(data.fromDate.toISOString().split("T")[0]);
