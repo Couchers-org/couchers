@@ -52,7 +52,7 @@ export default function Login() {
     if (urlToken) {
       authActions.tokenLogin(urlToken);
     }
-  }, [urlToken, authActions, location.pathname]);
+  }, [urlToken, authActions]);
 
   return (
     <>
