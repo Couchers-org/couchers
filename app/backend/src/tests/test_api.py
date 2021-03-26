@@ -137,6 +137,24 @@ def test_update_profile(db):
             api.UpdateProfile(api_pb2.UpdateProfileReq(name=wrappers_pb2.StringValue(value="  ")))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
+        with pytest.raises(grpc.RpcError) as e:
+            api.UpdateProfile(
+                api_pb2.UpdateProfileReq(
+                    countries_visited=api_pb2.RepeatedStringValue(exists=True, value="United States")
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.INVALID_COUNTRY
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.UpdateProfile(
+                api_pb2.UpdateProfileReq(
+                    countries_lived=api_pb2.RepeatedStringValue(exists=True, value="United Kingdom")
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.INVALID_COUNTRY
+
         res = api.UpdateProfile(
             api_pb2.UpdateProfileReq(
                 name=wrappers_pb2.StringValue(value="New name"),
@@ -163,8 +181,8 @@ def test_update_profile(db):
                         )
                     ],
                 ),
-                countries_visited=api_pb2.RepeatedStringValue(exists=True, value=["UK", "Aus"]),
-                countries_lived=api_pb2.RepeatedStringValue(exists=True, value=["UK", "Aus"]),
+                countries_visited=api_pb2.RepeatedStringValue(exists=True, value=["CO", "CH", "RS"]),
+                countries_lived=api_pb2.RepeatedStringValue(exists=True, value=["US", "IT"]),
                 additional_information=api_pb2.NullableStringValue(value="I <3 Couchers"),
             )
         )
@@ -190,10 +208,11 @@ def test_update_profile(db):
         assert user.hosting_status == api_pb2.HOSTING_STATUS_CAN_HOST
         assert user.meetup_status == api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP
         assert user.additional_information == "I <3 Couchers"
-        assert "UK" in user.countries_visited
-        assert "Aus" in user.countries_visited
-        assert "UK" in user.countries_lived
-        assert "Aus" in user.countries_lived
+        assert "CO" in user.countries_visited
+        assert "CH" in user.countries_visited
+        assert "RS" in user.countries_visited
+        assert "US" in user.countries_lived
+        assert "IT" in user.countries_lived
         assert user.language_abilities[0].code == "eng"
         assert user.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE
 

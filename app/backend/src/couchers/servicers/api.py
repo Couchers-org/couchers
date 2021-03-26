@@ -9,6 +9,7 @@ from sqlalchemy.sql import and_, func, or_
 
 from couchers import errors, urls
 from couchers.config import config
+from couchers.countries import country_is_allowed
 from couchers.crypto import generate_hash_signature, random_hex
 from couchers.db import get_friends_status, get_user_by_field, is_valid_name, session_scope
 from couchers.languages import language_is_allowed
@@ -296,10 +297,26 @@ class API(api_pb2_grpc.APIServicer):
                     )
 
             if request.countries_visited.exists:
-                user.countries_visited = "|".join(request.countries_visited.value)
+                user.countries_visited = ""
+
+                for country in request.countries_visited.value:
+                    if not country_is_allowed(country):
+                        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COUNTRY)
+                    else:
+                        if user.countries_visited != "":
+                            user.countries_visited += "|"
+                        user.countries_visited += country
 
             if request.countries_lived.exists:
-                user.countries_lived = "|".join(request.countries_lived.value)
+                user.countries_lived = ""
+
+                for country in request.countries_lived.value:
+                    if not country_is_allowed(country):
+                        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COUNTRY)
+                    else:
+                        if user.countries_lived != "":
+                            user.countries_lived += "|"
+                        user.countries_lived += country
 
             if request.HasField("additional_information"):
                 if request.additional_information.is_null:

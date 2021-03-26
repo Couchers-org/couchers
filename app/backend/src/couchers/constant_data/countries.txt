@@ -1,0 +1,7 @@
+Country data taken from:
+https://datahub.io/core/country-list
+
+Formatted with:
+https://jsonformatter.curiousconcept.com/
+
+Be sure to lowercase "code" and "name" for each country
