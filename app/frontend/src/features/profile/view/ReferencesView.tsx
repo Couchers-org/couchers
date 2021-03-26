@@ -7,6 +7,7 @@ import useUsers from "features/userQueries/useUsers";
 import { Error as GrpcError } from "grpc-web";
 import { ListReferencesRes } from "pb/references_pb";
 import { UseInfiniteQueryResult } from "react-query";
+import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
 import { NO_REFERENCES, SEE_MORE_REFERENCES } from "../constants";
 import ReferenceList from "./ReferenceList";
@@ -54,9 +55,7 @@ export default function ReferencesView({
       )}
       {isReferenceUsersLoading || isReferencesLoading ? (
         <CircularProgress />
-      ) : referencesRes &&
-        referencesRes.pages.length &&
-        referencesRes.pages[0].referencesList.length ? (
+      ) : hasAtLeastOnePage(referencesRes, "referencesList") ? (
         <>
           <ReferenceList
             isReceived={isReceived}
