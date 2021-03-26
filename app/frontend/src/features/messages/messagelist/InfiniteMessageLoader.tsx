@@ -2,9 +2,9 @@ import { Box, makeStyles } from "@material-ui/core";
 import classNames from "classnames";
 import CircularProgress from "components/CircularProgress";
 import { messageElementId } from "features/messages/messagelist/MessageView";
-import React, {
-  ReactNode,
+import {
   useCallback,
+  useEffect,
   useLayoutEffect,
   useRef,
   useState,
@@ -36,7 +36,10 @@ interface InfiniteMessageLoaderProps {
   hasNextPage: boolean;
   isError: boolean;
   className?: string;
-  children: ReactNode;
+  // I'm not sure on the appropriate type, but I needed children.props
+  // and kept getting "Error: Property 'props' does not exist on type 'boolean | ReactChild | ReactFragment | ReactPortal'"".
+  // and "Error: Property 'props' does not exist on type 'string'" even though props DOES exist
+  children: any;
 }
 
 export default function InfiniteMessageLoader({
@@ -72,29 +75,52 @@ export default function InfiniteMessageLoader({
     messageEl?.scrollIntoView();
   }, [isFetchingNextPage]);
 
-  //scroll to the bottom on page load, or new message
+  // Scroll to bottom on load
   useLayoutEffect(() => {
     if (!scrollRef.current) return;
     scrollRef.current.scroll(0, scrollRef.current.scrollHeight);
-  });
+  }, []);
 
-  // Save window dimensions so we know if they've changed
-  const [dimensions, setDimensions] = useState({
-    height: window.innerHeight,
-    width: window.innerWidth,
-  });
-
-  // Scroll to bottom on window resize
+  //**  Keep place or keep at bottom on window resize (i.e. keyboard popup on mobile (hopefully)) **//
+  // Save the current height outside of the eventlistener
+  const [currentClientHeight, setCurrentClientHeight] = useState(0);
   useLayoutEffect(() => {
-    const updateDimensions = () => {
-      setDimensions({ height: window.innerHeight, width: window.innerWidth });
+    scrollRef.current && setCurrentClientHeight(scrollRef.current.clientHeight);
+  });
+
+  useLayoutEffect(() => {
+    const updateMessagePosition = () => {
+      if (!scrollRef.current) return;
+      const currentlyAtBottom =
+        scrollRef.current.scrollHeight -
+          scrollRef.current.scrollTop -
+          currentClientHeight <=
+        0;
+      if (currentlyAtBottom) {
+        // Send to bottom on window resize
+        scrollRef.current.scroll(0, scrollRef.current.scrollHeight);
+      }
+      setCurrentClientHeight(scrollRef.current.clientHeight);
     };
 
-    window.addEventListener("resize", updateDimensions);
     if (!scrollRef.current) return;
-    scrollRef.current.scroll(0, scrollRef.current.scrollHeight);
-    return () => window.removeEventListener("resize", updateDimensions);
-  }, [dimensions]);
+    window.addEventListener("resize", updateMessagePosition);
+    return () => window.removeEventListener("resize", updateMessagePosition);
+  }, [currentClientHeight]);
+
+  //** Scroll to the bottom on new message  **//
+  // Saving messages count to know whether a new message has been created
+  const { messageId } = children.props.messages[0];
+  const [newestMessageID, setNewestMessageID] = useState(messageId);
+
+  useEffect(() => {
+    if (!scrollRef.current) return;
+    // If messageID has changed, new message has come in, so scroll to bottom
+    if (messageId !== newestMessageID) {
+      scrollRef.current.scroll(0, scrollRef.current.scrollHeight);
+      setNewestMessageID(messageId);
+    }
+  });
 
   return (
     <Box className={classNames(classes.scroll, className)} ref={scrollRef}>
