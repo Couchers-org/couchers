@@ -3,6 +3,8 @@ import { ListReferencesReq } from "pb/references_pb";
 
 import client from "./client";
 
+const REFERENCES_PAGE_SIZE = 5;
+
 interface GetReferencesBaseInput {
   userId: number;
   pageToken?: string;
@@ -17,7 +19,7 @@ export async function getReferencesGivenByUser({
   const req = new ListReferencesReq();
   req.setFromUserId(userId);
   req.setReferenceTypeFilterList([]);
-  req.setPageSize(25);
+  req.setPageSize(REFERENCES_PAGE_SIZE);
   req.setPageToken(pageToken);
 
   const res = await client.references.listReferences(req);
@@ -38,7 +40,7 @@ export async function getReferencesReceivedForUser({
   req.setReferenceTypeFilterList(
     referenceType !== "all" ? [referenceType] : []
   );
-  req.setPageSize(25);
+  req.setPageSize(REFERENCES_PAGE_SIZE);
   req.setPageToken(pageToken);
 
   const res = await client.references.listReferences(req);
