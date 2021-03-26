@@ -1,6 +1,8 @@
 // format a date
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 
+import { dayMillis } from "./timeAgo";
+
 const monthNames = [
   "January",
   "February",
@@ -31,3 +33,9 @@ export const dateTimeFormatter = new Intl.DateTimeFormat(navigator.language, {
   month: "short",
   year: "numeric",
 });
+
+export const numNights = (date1: string, date2: string): string => {
+  const diffTime = Date.parse(date1) - Date.parse(date2);
+  const diffDays = Math.ceil(diffTime / dayMillis);
+  return diffDays === 1 ? `${diffDays} night` : `${diffDays} nights`;
+};

@@ -282,7 +282,6 @@ export default function CompleteSignupForm() {
                 label: authClasses.buttonText,
                 root: authClasses.button,
               }}
-              color="secondary"
               loading={loading}
               onClick={() => setAcceptedTOS(true)}
               disabled={acceptedTOS}
@@ -295,7 +294,6 @@ export default function CompleteSignupForm() {
               label: authClasses.buttonText,
               root: authClasses.button,
             }}
-            color="secondary"
             onClick={completeSignup}
             type="submit"
             loading={authLoading || loading}
