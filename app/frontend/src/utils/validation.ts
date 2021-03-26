@@ -1,4 +1,4 @@
-//these are taken from the backend
+// taken from backend
 export const nameValidationPattern = /\S+/;
 export const usernameValidationPattern = /^[a-z][0-9a-z_]*[a-z0-9]$/;
 
