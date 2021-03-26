@@ -119,7 +119,7 @@ export default function CompleteSignupForm() {
 
     authActions.signup({
       acceptTOS: acceptedTOS,
-      birthdate: data.birthdate.toISOString(),
+      birthdate: data.birthdate.toISOString().split("T")[0],
       city: data.city,
       gender: data.gender,
       hostingStatus: data.hostingStatus,
