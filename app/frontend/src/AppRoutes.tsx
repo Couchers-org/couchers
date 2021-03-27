@@ -1,3 +1,5 @@
+import PageTitle from "components/PageTitle";
+import TextBody from "components/TextBody";
 import React from "react";
 import { Switch } from "react-router-dom";
 
@@ -41,6 +43,7 @@ import {
   discussionRoute,
   editHostingPreferenceRoute,
   editProfileRoute,
+  eventsRoute,
   groupRoute,
   guideRoute,
   jailRoute,
@@ -144,6 +147,14 @@ export default function AppRoutes() {
       }
       <AppRoute isPrivate path={`${messagesRoute}/:type?`}>
         <Messages />
+      </AppRoute>
+
+      {
+        // EVENTS
+      }
+      <AppRoute isPrivate path={eventsRoute}>
+        <PageTitle>Events</PageTitle>
+        <TextBody>Events are coming soon!</TextBody>
       </AppRoute>
 
       {
