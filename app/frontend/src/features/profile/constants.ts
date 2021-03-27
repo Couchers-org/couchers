@@ -50,12 +50,6 @@ export const referenceBadgeLabel = {
   [ReferenceType.REFERENCE_TYPE_HOSTED]: "Hosted",
   [ReferenceType.REFERENCE_TYPE_SURFED]: "Guest",
 };
-export const getSeeMoreReferencesBy = (name: string) =>
-  `${SEE_MORE_REFERENCES} by ${firstName(name)}`;
-export const getSeeMoreReferencesFor = (name: string) =>
-  `${SEE_MORE_REFERENCES} for ${firstName(name)}`;
-export const getReferencesGivenHeading = (name: string) =>
-  `References ${name} wrote`;
 
 export const smokingLocationLabels = {
   [SmokingLocation.SMOKING_LOCATION_NO]: "No",
