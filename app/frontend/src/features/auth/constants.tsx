@@ -24,6 +24,7 @@ export const CONTACT =
   "Admins will be happy to change your name and/or gender label. Please contact contact@couchers.org!";
 export const CURRENT_PASSWORD = "Current password";
 export const ENTER_EMAIL = "Enter your username/email";
+export const FEMALE = "Female";
 export const FULL_NAME = "Full name";
 export const GENDER_LABEL = "I identify as ...";
 export const HOSTING_STATUS = "Hosting status";
@@ -33,7 +34,7 @@ export const LOCATION_LABEL = "Your location";
 export const LOGIN = "Log in";
 export const LOGIN_HEADER = "Welcome back!";
 export const LOGIN_PAGE = "Log in page";
-export const MAN = "Man";
+export const MALE = "Male";
 export const NAME_REQUIRED = "Enter your name";
 export const NAME_EMPTY = "Name can't be just white space.";
 export const NEW_EMAIL = "New email";
@@ -65,5 +66,3 @@ export const THANKS = "Thanks!";
 export const USERNAME = "Username";
 export const USERNAME_REQUIRED = "Enter your username";
 export const USERNAME_TAKEN = "This username is taken.";
-
-export const WOMAN = "Woman";
