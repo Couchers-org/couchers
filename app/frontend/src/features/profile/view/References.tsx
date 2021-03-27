@@ -7,7 +7,6 @@ import {
 } from "features/profile/constants";
 import React, { useState } from "react";
 
-import AllReferencesList from "./AllReferencesList";
 import ReferencesGivenList from "./ReferencesGivenList";
 import ReferencesReceivedList from "./ReferencesReceivedList";
 
@@ -64,9 +63,7 @@ export default function References() {
           })}
         </Select>
       </div>
-      {referenceType === "all" ? (
-        <AllReferencesList />
-      ) : referenceType !== "given" ? (
+      {referenceType !== "given" ? (
         <ReferencesReceivedList referenceType={referenceType} />
       ) : (
         <ReferencesGivenList />

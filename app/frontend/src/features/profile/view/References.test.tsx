@@ -15,8 +15,6 @@ import { getUser } from "test/serviceMockDefaults";
 import { MockedService } from "test/utils";
 
 import {
-  getSeeMoreReferencesBy,
-  getSeeMoreReferencesFor,
   NO_REFERENCES,
   referenceBadgeLabel,
   REFERENCES_FILTER_A11Y_LABEL,
@@ -98,25 +96,6 @@ describe("References", () => {
       assertDateBadgeIsVisible(reference);
     }
 
-    // Reference given
-    expect(
-      screen.getByRole("heading", {
-        name: /References Funny Cat current User wrote/,
-      })
-    ).toBeVisible();
-    const referenceGiven = within(referenceListItems[3]);
-    const user = await getUser(references[3].toUserId.toString());
-    expect(referenceGiven.getByRole("heading")).toHaveTextContent(
-      new RegExp(user!.name, "i")
-    );
-    expect(referenceGiven.getByText(references[3].text)).toBeVisible();
-    // Date time badge
-    assertDateBadgeIsVisible(referenceGiven);
-
-    expect(getReferencesGivenMock).toHaveBeenCalledTimes(1);
-    expect(getReferencesGivenMock).toHaveBeenCalledWith({
-      userId: 1,
-    });
     expect(getReferencesReceivedMock).toHaveBeenCalledTimes(1);
     expect(getReferencesReceivedMock).toHaveBeenCalledWith({
       referenceType: "all",
@@ -129,14 +108,10 @@ describe("References", () => {
       nextPageToken: "",
       referencesList: [],
     });
-    getReferencesGivenMock.mockResolvedValue({
-      nextPageToken: "",
-      referencesList: [],
-    });
+
     renderReferences();
 
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
-
     expect(screen.getByText(NO_REFERENCES)).toBeVisible();
     expect(
       screen.queryByTestId(REFERENCE_LIST_ITEM_TEST_ID)
@@ -281,27 +256,11 @@ describe("References", () => {
           nextPageToken: "",
           referencesList: [guestReference1],
         });
-      getReferencesGivenMock
-        .mockResolvedValueOnce({
-          nextPageToken: "5",
-          referencesList: [givenReference],
-        })
-        .mockResolvedValueOnce({
-          nextPageToken: "",
-          referencesList: [
-            { ...givenReference, referenceId: 5, text: "Chicken is the best!" },
-          ],
-        });
       renderReferences();
 
       userEvent.click(
         await screen.findByRole("button", {
-          name: getSeeMoreReferencesFor("Funny Cat"),
-        })
-      );
-      userEvent.click(
-        screen.getByRole("button", {
-          name: getSeeMoreReferencesBy("Funny Cat"),
+          name: SEE_MORE_REFERENCES,
         })
       );
       await waitForElementToBeRemoved(screen.getAllByRole("progressbar"));
@@ -311,13 +270,6 @@ describe("References", () => {
         screen.getByText(/Funny person with dark sense of humour/i)
       ).toBeVisible();
       expect(screen.getByText(/I had a great time with cat/i)).toBeVisible();
-      expect(
-        screen.getByText(
-          /Staying with Chicken was such an amazing experience!/i
-        )
-      ).toBeVisible();
-      expect(screen.getByText(/Chicken is the best/i)).toBeVisible();
-      expect(getReferencesGivenMock).toHaveBeenCalledTimes(2);
       expect(getReferencesReceivedMock).toHaveBeenCalledTimes(2);
       expect(getReferencesReceivedMock).toHaveBeenNthCalledWith(1, {
         referenceType: "all",
@@ -326,13 +278,6 @@ describe("References", () => {
       expect(getReferencesReceivedMock).toHaveBeenNthCalledWith(2, {
         pageToken: "2",
         referenceType: "all",
-        userId: 1,
-      });
-      expect(getReferencesGivenMock).toHaveBeenNthCalledWith(1, {
-        userId: 1,
-      });
-      expect(getReferencesGivenMock).toHaveBeenNthCalledWith(2, {
-        pageToken: "5",
         userId: 1,
       });
     });
@@ -429,7 +374,7 @@ describe("References", () => {
 
       userEvent.click(
         await screen.findByRole("button", {
-          name: getSeeMoreReferencesFor("Funny Cat"),
+          name: SEE_MORE_REFERENCES,
         })
       );
 
