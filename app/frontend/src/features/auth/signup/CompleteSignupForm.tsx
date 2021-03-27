@@ -32,7 +32,28 @@ import {
   validatePastDate,
 } from "utils/validation";
 
-import { BIRTHDATE_LABEL, GENDER_LABEL, LOCATION_LABEL } from "../constants";
+import {
+  BIRTHDATE_LABEL,
+  BIRTHDAY_REQUIRED,
+  GENDER_LABEL,
+  LOCATION_LABEL,
+  NAME_REQUIRED,
+  SIGN_UP,
+  SIGN_UP_BIRTHDAY,
+  SIGN_UP_FULL_NAME,
+  SIGN_UP_LOCATION_MISSING,
+  SIGN_UP_USERNAME_ERROR,
+  USERNAME_REQUIRED,
+  USERNAME_TAKEN,
+  USERNAME,
+  NAME_EMPTY,
+  BIRTHDAY_PAST_ERROR,
+  THANKS,
+  ACCEPT,
+  NON_BINARY,
+  WOMAN,
+  MAN,
+} from "../constants";
 
 type SignupInputs = {
   email: string;
@@ -136,7 +157,7 @@ export default function CompleteSignupForm() {
             onSubmit={completeSignup}
           >
             <InputLabel className={authClasses.formLabel} htmlFor="username">
-              Username
+              {USERNAME}
             </InputLabel>
             <TextField
               className={authClasses.formField}
@@ -146,21 +167,20 @@ export default function CompleteSignupForm() {
               fullWidth
               inputRef={register({
                 pattern: {
-                  //copied from backend, added ^ at the start
-                  message:
-                    "Username can only have lowercase letters, numbers or _, starting with a letter.",
+                  // copied from backend, added ^ at the start
+                  message: SIGN_UP_USERNAME_ERROR,
                   value: usernameValidationPattern,
                 },
-                required: "Enter your username",
+                required: USERNAME_REQUIRED,
                 validate: async (username) => {
                   const valid = await service.auth.validateUsername(username);
-                  return valid || "This username is taken.";
+                  return valid || USERNAME_TAKEN;
                 },
               })}
               helperText={errors?.username?.message}
             />
             <InputLabel className={authClasses.formLabel} htmlFor="full-name">
-              Full name
+              {SIGN_UP_FULL_NAME}
             </InputLabel>
             <TextField
               className={authClasses.formField}
@@ -170,15 +190,15 @@ export default function CompleteSignupForm() {
               fullWidth
               inputRef={register({
                 pattern: {
-                  message: "Name can't be just white space.",
+                  message: NAME_EMPTY,
                   value: nameValidationPattern,
                 },
-                required: "Enter your name",
+                required: NAME_REQUIRED,
               })}
               helperText={errors?.name?.message}
             />
             <InputLabel className={authClasses.formLabel} htmlFor="birthdate">
-              Birthday
+              {SIGN_UP_BIRTHDAY}
             </InputLabel>
             <Datepicker
               className={authClasses.formField}
@@ -187,10 +207,9 @@ export default function CompleteSignupForm() {
               helperText={errors?.birthdate?.message}
               id="birthdate"
               inputRef={register({
-                required: "Enter your birthdate",
+                required: BIRTHDAY_REQUIRED,
                 validate: (stringDate) =>
-                  validatePastDate(stringDate) ||
-                  "Must be a valid date in the past.",
+                  validatePastDate(stringDate) || BIRTHDAY_PAST_ERROR,
               })}
               label={BIRTHDATE_LABEL}
               minDate={new Date(1899, 12, 1)}
@@ -222,9 +241,7 @@ export default function CompleteSignupForm() {
               />
             )}
           />
-          {isLocationEmpty && (
-            <TextBody>Please, select your location.</TextBody>
-          )}
+          {isLocationEmpty && <TextBody>{SIGN_UP_LOCATION_MISSING}</TextBody>}
           <form className={authClasses.form} onSubmit={completeSignup}>
             <InputLabel
               className={authClasses.formLabel}
@@ -273,17 +290,17 @@ export default function CompleteSignupForm() {
                   <FormControlLabel
                     value="Woman"
                     control={<Radio />}
-                    label="Woman"
+                    label={WOMAN}
                   />
                   <FormControlLabel
                     value="Man"
                     control={<Radio />}
-                    label="Man"
+                    label={MAN}
                   />
                   <FormControlLabel
                     value="Non-binary"
                     control={<Radio />}
-                    label="Non-binary"
+                    label={NON_BINARY}
                   />
                 </RadioGroup>
               )}
@@ -299,7 +316,7 @@ export default function CompleteSignupForm() {
                 onClick={() => setAcceptedTOS(true)}
                 disabled={acceptedTOS}
               >
-                {acceptedTOS ? "Thanks!" : "Accept"}
+                {acceptedTOS ? THANKS : ACCEPT}
               </Button>
             </div>
             <Button
@@ -312,7 +329,7 @@ export default function CompleteSignupForm() {
               loading={authLoading || loading}
               disabled={!acceptedTOS}
             >
-              Sign up
+              {SIGN_UP}
             </Button>
           </form>
         </>

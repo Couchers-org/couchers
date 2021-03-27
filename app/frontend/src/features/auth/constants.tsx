@@ -1,6 +1,10 @@
 export const ABOUT_US = "About us";
+export const ACCEPT = "Accept";
 export const ACCOUNT_ALREADY_CREATED = "Already have an account?";
 export const BIRTHDATE_LABEL = "Birthdate";
+export const BIRTHDAY_REQUIRED = "Enter your birthdate";
+export const BIRTHDAY_PAST_ERROR = "Must be a valid date in the past.";
+
 export const CHANGE_EMAIL = "Change Email";
 export const CHANGE_EMAIL_ERROR = "Error changing email: ";
 export const CHANGE_EMAIL_PROGRESS = "Email change in progress...";
@@ -28,9 +32,13 @@ export const LOCATION_LABEL = "Your location";
 export const LOGIN = "Log in";
 export const LOGIN_HEADER = "Welcome back!";
 export const LOGIN_PAGE = "Log in page";
+export const MAN = "Man";
+export const NAME_REQUIRED = "Enter your name";
+export const NAME_EMPTY = "Name can't be just white space.";
 export const NEW_EMAIL = "New email";
 export const NEW_PASSWORD = "New password";
 export const NO_ACCOUNT_YET = "No account yet?";
+export const NON_BINARY = "Non-binary";
 export const OLD_PASSWORD = "Old password";
 export const PASSWORD_CHANGED =
   "Your password change has been processed. Check your email for confirmation.";
@@ -41,7 +49,20 @@ export const RESET_PASSWORD_LINK =
 export const SIGN_UP = "Sign up";
 export const SIGN_UP_AGREEMENT =
   "By signing up, you agree with the T&Cs of using the platform and confirm to adhere to our Code of Conduct.";
-export const SIGN_UP_HEADER = "Let's get started!";
+export const SIGN_UP_BIRTHDAY = "Birthday";
 export const SIGN_UP_COMPLETE_HEADER = "Your basic details";
+export const SIGN_UP_FULL_NAME = "Full name";
+export const SIGN_UP_HEADER = "Let's get started!";
+export const SIGN_UP_LOCATION_MISSING = "Please, select your location.";
+export const SIGN_UP_USERNAME_ERROR =
+  "Username can only have lowercase letters, numbers or _, starting with a letter.";
 
 export const SUBMIT = "Submit";
+
+export const THANKS = "Thanks!";
+
+export const USERNAME = "Username";
+export const USERNAME_REQUIRED = "Enter your username";
+export const USERNAME_TAKEN = "This username is taken.";
+
+export const WOMAN = "Woman";
