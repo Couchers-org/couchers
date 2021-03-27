@@ -13,7 +13,7 @@ import {
   SECTION_LABELS_A11Y_TEXT,
   SEND_REQUEST_SUCCESS,
 } from "features/constants";
-import NewHostRequest from "features/messages/surfing/NewHostRequest";
+import NewHostRequest from "features/messages/requests/NewHostRequest";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import About from "features/profile/view/About";
 import Home from "features/profile/view/Home";

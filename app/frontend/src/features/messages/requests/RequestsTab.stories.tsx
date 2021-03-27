@@ -1,6 +1,6 @@
 import { Meta, Story } from "@storybook/react";
 import AuthProvider from "features/auth/AuthProvider";
-import SurfingTab from "features/messages/surfing/SurfingTab";
+import RequestsTab from "features/messages/requests/RequestsTab";
 import * as pb_conversations_pb from "pb/conversations_pb";
 import { Message } from "pb/conversations_pb";
 import { HostRequest } from "pb/requests_pb";
@@ -61,7 +61,7 @@ Object.assign(mockedService, {
 });
 
 export default {
-  component: SurfingTab,
+  component: RequestsTab,
   decorators: [
     (storyFn) => {
       const queryClient = new QueryClient();
@@ -82,7 +82,7 @@ const Template: Story<any> = (args) => {
     }
     return { hostRequestsList: [hostRequest1], lastRequestId: 0, noMore: true };
   };
-  return <SurfingTab type="all" />;
+  return <RequestsTab type="all" />;
 };
 
 export const Tab = Template.bind({});
