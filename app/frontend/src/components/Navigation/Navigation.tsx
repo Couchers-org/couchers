@@ -17,7 +17,7 @@ import SearchBox from "features/search/SearchBox";
 import React from "react";
 import CouchersLogo from "resources/CouchersLogo";
 import {
-  eventRoute,
+  eventsRoute,
   logoutRoute,
   mapRoute,
   messagesRoute,
@@ -34,7 +34,7 @@ const menu = [
   },
   {
     name: "Events",
-    route: eventRoute,
+    route: eventsRoute,
   },
   {
     name: "Messages",
