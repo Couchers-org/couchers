@@ -7,6 +7,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import Alert from "components/Alert";
+import AvatarInput from "components/AvatarInput";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import EditUserLocationMap from "components/EditUserLocationMap";
@@ -48,6 +49,10 @@ import { UpdateUserProfileData } from "service/index";
 import { useIsMounted, useSafeState } from "utils/hooks";
 
 const useStyles = makeStyles((theme) => ({
+  avatar: {
+    width: 120,
+    height: 120,
+  },
   buttonContainer: {
     display: "flex",
     justifyContent: "center",
@@ -87,6 +92,7 @@ export default function EditProfileForm() {
   );
   const {
     control,
+    errors,
     register,
     handleSubmit,
     setValue,
@@ -129,15 +135,28 @@ export default function EditProfileForm() {
       ) : updateStatus === "error" ? (
         <Alert severity="error">{errorMessage || "Unknown error"}</Alert>
       ) : null}
+      {errors.avatarKey && (
+        <Alert severity="error">{errors.avatarKey?.message || ""}</Alert>
+      )}
       {user ? (
         <>
           <form onSubmit={onSubmit}>
+            <AvatarInput
+              className={classes.avatar}
+              control={control}
+              id="profile-picture"
+              name="avatarKey"
+              initialPreviewSrc={user.avatarUrl}
+              userName={user.name}
+            />
+
             <ProfileTextInput
               id="name"
               label="Name"
               name="name"
               defaultValue={user.name}
-              inputRef={register}
+              error={!!errors.name}
+              inputRef={register({ required: true })}
               className={classes.field}
             />
           </form>
