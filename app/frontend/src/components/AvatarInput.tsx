@@ -74,7 +74,10 @@ export function AvatarInput({
   const [file, setFile] = useState<File | null>(null);
   const [readerError, setReaderError] = useState("");
   const mutation = useMutation<ImageInputValues, Error>(
-    () => (file ? service.api.uploadFile(file) : Promise.reject(INVALID_FILE)),
+    () =>
+      file
+        ? service.api.uploadFile(file)
+        : Promise.reject(new Error(INVALID_FILE)),
     {
       onSuccess: (data: ImageInputValues) => {
         field.onChange(data.key);
@@ -112,6 +115,12 @@ export function AvatarInput({
     }
   };
 
+  //without this, onChange is not fired when the same file is selected after cancelling
+  const inputRef = useRef<HTMLInputElement>(null);
+  const handleClick = () => {
+    if (inputRef.current) inputRef.current.value = "";
+  };
+
   const handleCancel = () => {
     field.onChange(confirmedUpload.current?.key ?? "");
     setImageUrl(confirmedUpload.current?.thumbnail_url ?? initialPreviewSrc);
@@ -131,7 +140,9 @@ export function AvatarInput({
           accept="image/*"
           id={id}
           type="file"
+          onClick={handleClick}
           onChange={handleChange}
+          ref={inputRef}
         />
         <label className={classes.label} htmlFor={id} ref={field.ref}>
           <MuiIconButton component="span">
