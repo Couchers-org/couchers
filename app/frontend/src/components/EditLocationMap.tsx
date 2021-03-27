@@ -81,7 +81,7 @@ export default function EditLocationMap({
   };
 
   const onMove = (e: MapMouseEvent | MapTouchEvent) => {
-    centerCoords.current = e.lngLat;
+    centerCoords.current = e.lngLat.wrap();
 
     (map.current!.getSource("location") as GeoJSONSource).setData(
       pointGeoJson(centerCoords.current!)

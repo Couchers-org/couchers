@@ -10,9 +10,10 @@ export default function SuccessSnackbar({ children }: SuccessSnackbarProps) {
   const [open, setOpen] = useState(true);
   return (
     <MuiSnackbar
-      autoHideDuration={6000}
+      autoHideDuration={1000}
       open={open}
       onClose={() => setOpen(false)}
+      anchorOrigin={{ vertical: "top", horizontal: "center" }}
     >
       <Alert severity="success">{children}</Alert>
     </MuiSnackbar>

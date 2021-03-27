@@ -13,9 +13,11 @@ import {
   COMMUNITY_STANDING_DESCRIPTION,
   EDIT_HOME,
   EDIT_PROFILE,
+  REQUEST,
   VERIFICATION_SCORE,
   VERIFICATION_SCORE_DESCRIPTION,
 } from "features/constants";
+import ProfileActionsMenuButton from "features/profile/actions/ProfileActionsMenuButton";
 import {
   hostingStatusLabels,
   meetupStatusLabels,
@@ -25,8 +27,6 @@ import { HostingStatus, MeetupStatus, User } from "pb/api_pb";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { editHostingPreferenceRoute, editProfileRoute } from "routes";
-
-import ProfileActionsMenuButton from "../actions/ProfileActionsMenuButton";
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -62,9 +62,10 @@ const useStyles = makeStyles((theme) => ({
 
 interface OverviewProps {
   user: User.AsObject;
+  setIsRequesting: (value: boolean) => void;
 }
 
-export default function Overview({ user }: OverviewProps) {
+export default function Overview({ user, setIsRequesting }: OverviewProps) {
   const classes = useStyles();
   const currentUserId = useAuthContext().authState.userId;
   const [mutationError, setMutationError] = useState("");
@@ -92,6 +93,7 @@ export default function Overview({ user }: OverviewProps) {
           </>
         ) : (
           <>
+            <Button onClick={() => setIsRequesting(true)}>{REQUEST}</Button>
             {user.friends !== User.FriendshipStatus.FRIENDS && (
               <AddFriendButton
                 isPending={user.friends === User.FriendshipStatus.PENDING}

@@ -110,7 +110,7 @@ const useAuthStyles = makeStyles((theme) => ({
   },
   formWrapper: {
     [theme.breakpoints.up("md")]: {
-      backgroundColor: "#f8f7f4", // TODO: check with the palette
+      backgroundColor: theme.palette.background.default,
       borderRadius: theme.shape.borderRadius / 3,
       padding: theme.spacing(5, 8),
       width: "53%",

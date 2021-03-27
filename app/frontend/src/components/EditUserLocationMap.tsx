@@ -94,12 +94,12 @@ export default function EditUserLocationMap({
       handleCoords.current!
     );
 
-    centerCoords.current = e.lngLat;
+    centerCoords.current = e.lngLat.wrap();
 
     handleCoords.current = map.current!.unproject(
       offsetPoint(
         map.current!.project(
-          displaceLngLat(e.lngLat, radius.current!, bearing)
+          displaceLngLat(e.lngLat.wrap(), radius.current!, bearing)
         ),
         //I have no idea why this is -handleRadius
         -handleRadius,
@@ -149,7 +149,7 @@ export default function EditUserLocationMap({
   };
 
   const onHandleMove = (e: MapMouseEvent | MapTouchEvent) => {
-    const bearing = calculateBearing(centerCoords.current!, e.lngLat);
+    const bearing = calculateBearing(centerCoords.current!, e.lngLat.wrap());
     radius.current = centerCoords.current!.distanceTo(
       map.current!.unproject(offsetPoint(e.point, handleRadius, bearing))
     );
@@ -157,7 +157,7 @@ export default function EditUserLocationMap({
       Math.min(radius.current, userLocationMaxRadius),
       userLocationMinRadius
     );
-    handleCoords.current = e.lngLat;
+    handleCoords.current = e.lngLat.wrap();
     (map.current!.getSource("circle") as GeoJSONSource).setData(
       circleGeoJson(centerCoords.current!, radius.current!)
     );
@@ -235,7 +235,10 @@ export default function EditUserLocationMap({
       if (!user) {
         navigator.geolocation.getCurrentPosition((position) => {
           flyToSearch(
-            new LngLat(position.coords.longitude, position.coords.latitude)
+            new LngLat(
+              position.coords.longitude,
+              position.coords.latitude
+            ).wrap()
           );
         });
       }
@@ -389,12 +392,20 @@ function circleGeoJson(
 function displaceLngLat(coords: LngLat, distance: number, angle: number) {
   // see https://gis.stackexchange.com/a/2964
   // 111111 m ~ 1 degree
-  const lat = coords.lat + (1 / 111111) * distance * Math.cos(angle);
-  const lng =
+  let lat = coords.lat + (1 / 111111) * distance * Math.cos(angle);
+  let lng =
     coords.lng +
     (1 / (111111 * Math.cos((coords.lat / 360) * 2 * Math.PI))) *
       distance *
       Math.sin(angle);
+
+  // Clip latitude to stay inside valid ranges
+  // Clipping used instead of wrapping to prevent global circle-shape
+  if (lat < -90) lat = -90;
+  else if (lat > 90) lat = 90;
+  if (lng < -180) lng = -180;
+  else if (lng > 180) lng = 180;
+
   return new LngLat(lng, lat);
 }
 

@@ -36,6 +36,7 @@ import { service } from "service";
 
 export const useGroupChatViewStyles = makeStyles((theme) => ({
   footer: {
+    marginTop: "auto",
     flexGrow: 0,
     paddingBottom: theme.spacing(2),
   },
@@ -43,9 +44,6 @@ export const useGroupChatViewStyles = makeStyles((theme) => ({
     alignItems: "center",
     display: "flex",
     flexGrow: 0,
-  },
-  messageList: {
-    paddingBlock: theme.spacing(2),
   },
   pageWrapper: {
     [theme.breakpoints.up("md")]: {
@@ -60,6 +58,18 @@ export const useGroupChatViewStyles = makeStyles((theme) => ({
     flexGrow: 1,
     marginInlineEnd: theme.spacing(2),
     marginInlineStart: theme.spacing(2),
+  },
+  requestedDatesWrapper: {
+    display: "flex",
+    "& > *": {
+      margin: 0,
+    },
+  },
+  numNights: {
+    fontWeight: "initial",
+  },
+  requestedDates: {
+    paddingRight: theme.spacing(1),
   },
 }));
 
@@ -281,7 +291,6 @@ export default function GroupChatView() {
                   isFetchingNextPage={isFetchingNextPage}
                   hasNextPage={!!hasNextPage}
                   isError={!!messagesError}
-                  className={classes.messageList}
                 >
                   <MessageList
                     markLastSeen={markLastSeen}

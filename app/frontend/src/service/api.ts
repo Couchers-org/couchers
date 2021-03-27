@@ -5,7 +5,9 @@ import {
   RespondFriendRequestReq,
   SendFriendRequestReq,
 } from "pb/api_pb";
-import client from "service/client";
+import { FETCH_FAILED, INVALID_IMAGE } from "service/constants";
+
+import client from "./client";
 
 export function cancelFriendRequest(friendRequestId: number) {
   const req = new CancelFriendRequestReq();
@@ -47,4 +49,35 @@ export async function ping() {
   const response = await client.api.ping(req);
 
   return response.toObject();
+}
+
+export interface ImageInputValues {
+  file: File;
+  filename: string;
+  key: string;
+  thumbnail_url: string;
+  full_url: string;
+}
+
+export async function uploadFile(file: File): Promise<ImageInputValues> {
+  const urlResponse = await client.api.initiateMediaUpload(new Empty());
+  const uploadURL = urlResponse.getUploadUrl();
+
+  const requestBody = new FormData();
+  requestBody.append("file", file);
+
+  const uploadResponse = await fetch(uploadURL, {
+    method: "POST",
+    body: requestBody,
+  }).catch(() => {
+    throw new Error(FETCH_FAILED);
+  });
+
+  const responseJson = await uploadResponse.json().catch(() => {
+    throw new Error(INVALID_IMAGE);
+  });
+  return {
+    ...responseJson,
+    file: file,
+  };
 }

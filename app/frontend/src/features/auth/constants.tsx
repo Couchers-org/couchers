@@ -20,6 +20,7 @@ export const CONTACT =
   "Admins will be happy to change your name and/or gender label. Please contact contact@couchers.org!";
 export const CURRENT_PASSWORD = "Current password";
 export const ENTER_EMAIL = "Enter your username/email";
+export const FULL_NAME = "Full name";
 export const GENDER_LABEL = "I identify as ...";
 export const HOSTING_STATUS = "Hosting status";
 export const INTRODUCTION_SUBTITLE = "Built by the community and always free";
@@ -37,11 +38,11 @@ export const PASSWORD_CHANGED =
 export const RESET_PASSWORD = "Reset password";
 export const RESET_PASSWORD_LINK =
   "Check your email for a reset password link!";
-
+export const SELECT_LOCATION = "Please select your location.";
 export const SIGN_UP = "Sign up";
 export const SIGN_UP_AGREEMENT =
   "By signing up, you agree with the T&Cs of using the platform and confirm to adhere to our Code of Conduct.";
 export const SIGN_UP_HEADER = "Let's get started!";
 export const SIGN_UP_COMPLETE_HEADER = "Your basic details";
-
 export const SUBMIT = "Submit";
+export const USERNAME = "Username";

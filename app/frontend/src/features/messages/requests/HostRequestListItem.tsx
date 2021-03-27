@@ -10,19 +10,18 @@ import { Skeleton } from "@material-ui/lab";
 import Avatar from "components/Avatar";
 import TextBody from "components/TextBody";
 import useAuthStore from "features/auth/useAuthStore";
-import { hostRequestStatusLabels } from "features/messages/constants";
-import HostRequestStatusIcon from "features/messages/surfing/HostRequestStatusIcon";
+import HostRequestStatusIcon from "features/messages/requests/HostRequestStatusIcon";
 import {
   controlMessageText,
   isControlMessage,
   messageTargetId,
 } from "features/messages/utils";
 import { useUser } from "features/userQueries/useUsers";
-import { HostRequestStatus } from "pb/conversations_pb";
 import { HostRequest } from "pb/requests_pb";
-import React from "react";
 import { formatDate } from "utils/date";
 import { firstName } from "utils/names";
+
+import { hostingStatusText } from "../constants";
 
 const useStyles = makeStyles((theme) => ({
   hostStatusContainer: {
@@ -48,17 +47,6 @@ export default function HostRequestListItem({
   const isHost = currentUserId === hostRequest.toUserId;
   const { data: otherUser, isLoading: isOtherUserLoading } = useUser(
     isHost ? hostRequest.fromUserId : hostRequest.toUserId
-  );
-
-  const statusText = capitalize(
-    `${
-      hostRequest.status !== HostRequestStatus.HOST_REQUEST_STATUS_PENDING
-        ? hostRequestStatusLabels[hostRequest.status] + " "
-        : ""
-    }${!isHost ? "your " : ""}request to stay ${formatDate(
-      hostRequest.fromDate,
-      true
-    )} - ${formatDate(hostRequest.toDate, true)}`
   );
 
   //define the latest message author's name and
@@ -104,9 +92,19 @@ export default function HostRequestListItem({
                 className={classes.hostStatusIcon}
               />
               <Typography variant="body2">
-                {isOtherUserLoading ? <Skeleton width={200} /> : statusText}
+                {isOtherUserLoading ? (
+                  <Skeleton width={200} />
+                ) : (
+                  hostingStatusText(isHost, hostRequest.status)
+                )}
               </Typography>
             </div>
+            <Typography component="div" display="inline" variant="h3">
+              {`${formatDate(hostRequest.fromDate, true)} - ${formatDate(
+                hostRequest.toDate,
+                true
+              )}`}
+            </Typography>
             <TextBody noWrap>
               {isOtherUserLoading ? (
                 <Skeleton width={100} />
