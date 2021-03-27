@@ -117,10 +117,10 @@ export default function EditUserLocationMap({
 
   const onCircleUp = (
     e: MapMouseEvent | MapTouchEvent,
-    moveEvent: (x: any) => void
+    moveHandler: (x: any) => void
   ) => {
-    map.current!.off("mousemove", moveEvent);
-    map.current!.off("touchmove", moveEvent);
+    map.current!.off("mousemove", moveHandler);
+    map.current!.off("touchmove", moveHandler);
     map.current!.getCanvas().style.cursor = "move";
 
     onCircleMove(e);
@@ -168,10 +168,10 @@ export default function EditUserLocationMap({
 
   const onHandleUp = (
     e: MapMouseEvent | MapTouchEvent,
-    moveEvent: (x: any) => void
+    moveHandler: (x: any) => void
   ) => {
-    map.current!.off("mousemove", moveEvent);
-    map.current!.off("touchmove", moveEvent);
+    map.current!.off("mousemove", moveHandler);
+    map.current!.off("touchmove", moveHandler);
     map.current!.getCanvas().style.cursor = "move";
 
     onHandleMove(e);
