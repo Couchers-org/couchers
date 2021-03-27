@@ -78,13 +78,16 @@ export async function getHostRequestMessages(
   return response.toObject();
 }
 
-export async function createHostRequest(
-  data: Required<CreateHostRequestReq.AsObject>
-) {
+export type CreateHostRequestWrapper = Omit<
+  Required<CreateHostRequestReq.AsObject>,
+  "toDate" | "fromDate"
+> & { toDate: Date; fromDate: Date };
+
+export async function createHostRequest(data: CreateHostRequestWrapper) {
   const req = new CreateHostRequestReq();
   req.setToUserId(data.toUserId);
-  req.setFromDate(data.fromDate);
-  req.setToDate(data.toDate);
+  req.setFromDate(data.fromDate.toISOString().split("T")[0]);
+  req.setToDate(data.toDate.toISOString().split("T")[0]);
   req.setText(data.text);
 
   const response = await client.requests.createHostRequest(req);

@@ -59,7 +59,7 @@ type SignupInputs = {
   email: string;
   username: string;
   name: string;
-  birthdate: string;
+  birthdate: Date;
   city: string;
   gender: string;
   acceptTOS: boolean;
@@ -135,7 +135,7 @@ export default function CompleteSignupForm() {
 
     authActions.signup({
       acceptTOS: acceptedTOS,
-      birthdate: data.birthdate,
+      birthdate: data.birthdate.toISOString().split("T")[0],
       city: data.city,
       gender: data.gender,
       hostingStatus: data.hostingStatus,

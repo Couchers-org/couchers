@@ -9,7 +9,7 @@ interface DatepickerProps {
   className?: string;
   control: Control;
   error: boolean;
-  helperText: any;
+  helperText: string | undefined;
   id: string;
   inputRef: (ref: any) => void;
   label: string;
@@ -32,7 +32,7 @@ export default function Datepicker({
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
       <Controller
         control={control}
-        defaultValue={new Date().toISOString().split("T")[0]}
+        defaultValue={minDate}
         inputRef={inputRef}
         name={name}
         render={({ onChange, value }) => (
@@ -40,7 +40,6 @@ export default function Datepicker({
             animateYearScrolling={true}
             autoOk
             className={className}
-            clearable
             disableToolbar
             error={error}
             format="DD.MM.YYYY"
@@ -52,12 +51,7 @@ export default function Datepicker({
             }}
             label={label}
             minDate={minDate}
-            onChange={(date) => {
-              //user might be typing, so check the date is valid before doing conversions
-              date?.isValid()
-                ? onChange(date?.format().split("T")[0])
-                : onChange(date);
-            }}
+            onChange={onChange}
             value={value}
             variant="inline"
           />
