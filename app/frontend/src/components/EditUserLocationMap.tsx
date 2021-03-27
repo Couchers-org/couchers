@@ -78,13 +78,13 @@ export default function EditUserLocationMap({
     map.current!.getCanvas().style.cursor = "grab";
 
     if (e.type === "touchstart") {
-      const touchMoveEvent = (e: MapTouchEvent) => onCircleMove(e);
-      map.current!.on("touchmove", touchMoveEvent);
-      map.current!.once("touchend", (e) => onCircleUp(e, touchMoveEvent));
+      const handleTouchMove = (e: MapTouchEvent) => onCircleMove(e);
+      map.current!.on("touchmove", handleTouchMove);
+      map.current!.once("touchend", (e) => onCircleUp(e, handleTouchMove));
     } else {
-      const moveEvent = (e: MapMouseEvent) => onCircleMove(e);
-      map.current!.on("mousemove", moveEvent);
-      map.current!.once("mouseup", (e) => onCircleUp(e, moveEvent));
+      const handleMove = (e: MapMouseEvent) => onCircleMove(e);
+      map.current!.on("mousemove", handleMove);
+      map.current!.once("mouseup", (e) => onCircleUp(e, handleMove));
     }
   };
 
@@ -138,13 +138,13 @@ export default function EditUserLocationMap({
     map.current!.getCanvas().style.cursor = "grab";
 
     if (e.type === "touchstart") {
-      const touchMoveEvent = (e: MapTouchEvent) => onHandleMove(e);
-      map.current!.on("touchmove", touchMoveEvent);
-      map.current!.once("touchend", (e) => onHandleUp(e, touchMoveEvent));
+      const handleTouchMove = (e: MapTouchEvent) => onHandleMove(e);
+      map.current!.on("touchmove", handleTouchMove);
+      map.current!.once("touchend", (e) => onHandleUp(e, handleTouchMove));
     } else {
-      const moveEvent = (e: MapMouseEvent) => onHandleMove(e);
-      map.current!.on("mousemove", moveEvent);
-      map.current!.once("mouseup", (e) => onHandleUp(e, moveEvent));
+      const handleMove = (e: MapMouseEvent) => onHandleMove(e);
+      map.current!.on("mousemove", handleMove);
+      map.current!.once("mouseup", (e) => onHandleUp(e, handleMove));
     }
   };
 

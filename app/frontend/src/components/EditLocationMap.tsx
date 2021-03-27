@@ -70,13 +70,13 @@ export default function EditLocationMap({
     map.current!.getCanvas().style.cursor = "grab";
 
     if (e.type === "touchstart") {
-      const touchMoveEvent = (e: MapTouchEvent) => onMove(e);
-      map.current!.on("touchmove", touchMoveEvent);
-      map.current!.once("touchend", (e) => onUp(e, touchMoveEvent));
+      const handleTouchMove = (e: MapTouchEvent) => onMove(e);
+      map.current!.on("touchmove", handleTouchMove);
+      map.current!.once("touchend", (e) => onUp(e, handleTouchMove));
     } else {
-      const moveEvent = (e: MapMouseEvent) => onMove(e);
-      map.current!.on("mousemove", moveEvent);
-      map.current!.once("mouseup", (e) => onUp(e, moveEvent));
+      const handleMove = (e: MapMouseEvent) => onMove(e);
+      map.current!.on("mousemove", handleMove);
+      map.current!.once("mouseup", (e) => onUp(e, handleMove));
     }
   };
 
