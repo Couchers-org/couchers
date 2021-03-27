@@ -93,6 +93,8 @@ export default function Map({
     postMapInitialize?.(map);
   }, [initialCenter, initialZoom, interactive, onUpdate, postMapInitialize]);
 
+  useEffect(() => () => mapRef?.current?.remove(), []);
+
   return (
     <div
       className={classNames(classes.root, { [classes.grow]: grow }, className)}
