@@ -1065,6 +1065,8 @@ class Event(Base):
     owner_cluster_id = Column(ForeignKey("clusters.id"), nullable=True, index=True)
     thread_id = Column(ForeignKey("threads.id"), nullable=False, unique=True)
 
+    slug = column_property(func.slugify(title))
+
     parent_node = relationship(
         "Node", backref="child_events", remote_side="Node.id", foreign_keys="Event.parent_node_id"
     )
@@ -1096,10 +1098,12 @@ class EventOccurence(Base):
 
     content = Column(String, nullable=False)  # CommonMark without images
     geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=False)
-    address = Column(String, nullable=False)
+    address = Column(String, nullable=True)
     photo_key = Column(ForeignKey("uploads.key"), nullable=True)
     is_online = Column(Boolean, nullable=False)
+    link = Column(String, nullable=True)
 
+    timezone = "Etc/UTC"
     start_time = Column(DateTime(timezone=True), nullable=False)
     end_time = Column(DateTime(timezone=True), nullable=False)
 
