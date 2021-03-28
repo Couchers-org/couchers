@@ -20,6 +20,13 @@ service Events {
     // Gets an event
   }
 
+  // TODO: ListEventAttendees
+  // TODO: ListEventSubscribers
+  // TODO: ListEventOrganizers
+  // TODO: ListEvents/SearchEvents/etc
+
+  // TODO: occurences need to be paginated
+
   rpc UpdateEvent(UpdateEventReq) returns (Event) {
     // Edit an event
   }
@@ -67,8 +74,11 @@ message Occurence {
   // empty string if no photo
   string photo_url = 7;
   string is_online = 8;
-  string address = 9;
+  // empty iff online
   Coordinate location = 10;
+  // videoconferencing link, etc
+  string link = 22;
+  string address = 9;
 
   google.protobuf.Timestamp created = 11;
   google.protobuf.Timestamp last_edited = 12;
@@ -81,13 +91,16 @@ message Occurence {
   // the tzdata timezone identified
   string timezone = 16;
 
-  // the start/end times as localized strings (according to timezone)
+  // the start/end times as localized strings (according to the above timezone)
   string start_time_display = 17;
   string end_time_display = 18;
 
+  // the user's attendance state
   AttendanceState attendance_state = 19;
   uint32 going_count = 20;
   uint32 maybe_count = 21;
+
+  uint32 organizer_count = 23;
 }
 
 message Event {
@@ -95,8 +108,6 @@ message Event {
   string title = 2;
   // a short URL fragment generated from the name, e.g. "New York City: weekly meetup" might become "new-york-city-weekly-meetup"
   string slug = 3;
-  google.protobuf.Timestamp created = 4;
-  google.protobuf.Timestamp last_edited = 5;
   int64 creator_user_id = 6;
   oneof owner {
     int64 owner_user_id = 7;
@@ -122,13 +133,17 @@ message CreateEventReq {
   string content = 2;  // CommonMark without images
   // from media server
   string photo_key = 3;
+  // events are either online and have an optional link, or in person with address + location
   string is_online = 4;
+  // only if online
+  string link = 11;
   int64 parent_community_id = 5;
   string address = 6;
   Coordinate location = 7;
+  // timestamps are in UTC
   google.protobuf.Timestamp start_time = 8;
   google.protobuf.Timestamp end_time = 9;
-  // the tzdata timezone identified
+  // the tzdata timezone identified, empty string means tz of creating user
   string timezone = 10;
 }
 
@@ -138,11 +153,13 @@ message ScheduleOccurenceReq {
   // from media server
   string photo_key = 3;
   string is_online = 4;
+  string link = 11;
   string address = 6;
   Coordinate location = 7;
+  // timestamps are in UTC
   google.protobuf.Timestamp start_time = 8;
   google.protobuf.Timestamp end_time = 9;
-  // the tzdata timezone identified
+  // the tzdata timezone identified, empty string means tz of creating user
   string timezone = 10;
 }
 
