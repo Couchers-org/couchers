@@ -1,13 +1,13 @@
 server {
     listen 443 http2 ssl default_server;
 
-    server_name dev-api.coucher.org;
+    server_name dev-api.couchershq.org;
 
-    access_log /var/log/nginx/dev-api.coucher.org.access.log;
-    error_log /var/log/nginx/dev-api.coucher.org.error.log;
+    access_log /var/log/nginx/dev-api.couchershq.org.access.log;
+    error_log /var/log/nginx/dev-api.couchershq.org.error.log;
 
-    ssl_certificate /certs/live/dev-api.coucher.org/fullchain.pem;
-    ssl_certificate_key /certs/live/dev-api.coucher.org/privkey.pem;
+    ssl_certificate /certs/live/dev-api.couchershq.org/fullchain.pem;
+    ssl_certificate_key /certs/live/dev-api.couchershq.org/privkey.pem;
 
     location = / {
         add_header Content-Type text/plain;
