@@ -69,11 +69,13 @@ export async function uploadFile(file: File): Promise<ImageInputValues> {
   const uploadResponse = await fetch(uploadURL, {
     method: "POST",
     body: requestBody,
-  }).catch(() => {
+  }).catch((e) => {
+    console.error(e);
     throw new Error(FETCH_FAILED);
   });
 
-  const responseJson = await uploadResponse.json().catch(() => {
+  const responseJson = await uploadResponse.json().catch((e) => {
+    console.error(e);
     throw new Error(INVALID_IMAGE);
   });
   return {
