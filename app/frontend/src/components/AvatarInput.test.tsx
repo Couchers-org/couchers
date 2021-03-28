@@ -179,7 +179,8 @@ describe("AvatarInput component", () => {
     expect(await screen.findByText("Whoops")).toBeVisible();
   });
 
-  //this test passes even when it fails in browser
+  //This doesn't work https://github.com/testing-library/user-event/issues/632
+  //We reset by setting input.value = "" but this doesn't do anything for @testing-library
   it.skip("previews the image after cancelling and selecting the same image", async () => {
     userEvent.upload(screen.getByLabelText(SELECT_AN_IMAGE), MOCK_FILE);
     expect(await screen.findByLabelText(CANCEL_UPLOAD)).toBeVisible();

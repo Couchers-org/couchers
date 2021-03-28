@@ -140,8 +140,8 @@ export function AvatarInput({
           accept="image/*"
           id={id}
           type="file"
-          onClick={handleClick}
           onChange={handleChange}
+          onClick={handleClick}
           ref={inputRef}
         />
         <label className={classes.label} htmlFor={id} ref={field.ref}>
