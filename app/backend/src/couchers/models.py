@@ -1002,9 +1002,9 @@ class PageVersion(Base):
     title = Column(String, nullable=False)
     content = Column(String, nullable=False)  # CommonMark without images
     photo_key = Column(ForeignKey("uploads.key"), nullable=True)
+    geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
     # the human-readable address
     address = Column(String, nullable=True)
-    geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     slug = column_property(func.slugify(title))
@@ -1012,6 +1012,14 @@ class PageVersion(Base):
     page = relationship("Page", backref="versions", order_by="PageVersion.id")
     editor_user = relationship("User", backref="edited_pages")
     photo = relationship("Upload")
+
+    __table_args__ = (
+        # Geom and address must either both be null or both be set
+        CheckConstraint(
+            "(geom IS NULL AND address IS NULL) OR (geom IS NOT NULL AND address IS NOT NULL)",
+            name="geom_iff_andress",
+        ),
+    )
 
     @property
     def coordinates(self):
@@ -1058,20 +1066,17 @@ class Event(Base):
     id = Column(BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value())
     parent_node_id = Column(ForeignKey("nodes.id"), nullable=False, index=True)
 
-    title = Column(String, nullable=False)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    last_edited = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     owner_user_id = Column(ForeignKey("users.id"), nullable=True, index=True)
     owner_cluster_id = Column(ForeignKey("clusters.id"), nullable=True, index=True)
     thread_id = Column(ForeignKey("threads.id"), nullable=False, unique=True)
-
-    slug = column_property(func.slugify(title))
 
     parent_node = relationship(
         "Node", backref="child_events", remote_side="Node.id", foreign_keys="Event.parent_node_id"
     )
     thread = relationship("Thread", backref="event", uselist=False)
     suscribers = relationship("User", backref="events", secondary="event_subscriptions")
+    organizers = relationship("User", backref="events", secondary="event_organizers")
     thread = relationship("Thread", backref="event", uselist=False)
     owner_user = relationship("User", backref="owned_events", foreign_keys="Event.owner_user_id")
     owner_cluster = relationship(
@@ -1096,18 +1101,23 @@ class EventOccurence(Base):
     id = Column(BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value())
     event_id = Column(ForeignKey("events.id"), nullable=False, index=True)
 
+    title = Column(String, nullable=False)
     content = Column(String, nullable=False)  # CommonMark without images
-    geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=False)
-    address = Column(String, nullable=True)
     photo_key = Column(ForeignKey("uploads.key"), nullable=True)
-    is_online = Column(Boolean, nullable=False)
+
+    slug = column_property(func.slugify(title))
+
+    # a null geom is an online-only event
+    geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
+    # physical address, iff geom is not null
+    address = Column(String, nullable=True)
+    # videoconferencing link, etc, must be specified if no geom, otherwise optional
     link = Column(String, nullable=True)
 
     timezone = "Etc/UTC"
     start_time = Column(DateTime(timezone=True), nullable=False)
     end_time = Column(DateTime(timezone=True), nullable=False)
 
-    creator_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     last_edited = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
@@ -1118,7 +1128,31 @@ class EventOccurence(Base):
     )
     photo = relationship("Upload")
 
-    # TODO: attendance
+    __table_args__ = (
+        # Geom and address go together
+        CheckConstraint(
+            "(geom IS NULL AND address IS NULL) OR (geom IS NOT NULL AND address IS NOT NULL)",
+            name="geom_iff_andress",
+        ),
+        # Online-only events need a link, note that online events may also have a link
+        CheckConstraint(
+            "geom IS NOT NULL OR link IS NOT NULL",
+            name="link_required_for_online_events",
+        ),
+        # Must end after it starts
+        CheckConstraint(
+            "start_time < end_time",
+            name="start_before_end",
+        ),
+    )
+
+    @property
+    def coordinates(self):
+        # returns (lat, lng) or None
+        if self.geom:
+            return get_coordinates(self.geom)
+        else:
+            return None
 
 
 class EventSubscription(Base):
@@ -1135,8 +1169,50 @@ class EventSubscription(Base):
     event_id = Column(ForeignKey("events.id"), nullable=False, index=True)
     joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
-    user = relationship("User", backref="event_subscriptions")
-    event = relationship("Event", backref="event_subscriptions")
+    user = relationship("User")
+    event = relationship("Event")
+
+
+class EventOrganizer(Base):
+    """
+    Organizers for events
+    """
+
+    __tablename__ = "event_organizers"
+    __table_args__ = (UniqueConstraint("event_id", "user_id"),)
+
+    id = Column(BigInteger, primary_key=True)
+
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    event_id = Column(ForeignKey("events.id"), nullable=False, index=True)
+    joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    user = relationship("User")
+    event = relationship("Event")
+
+
+class AttendeeStatus(enum.Enum):
+    going = enum.auto()
+    maybe = enum.auto()
+
+
+class EventOccurenceAttendee(Base):
+    """
+    Attendees for events
+    """
+
+    __tablename__ = "event_occurence_attendees"
+    __table_args__ = (UniqueConstraint("occurence_id", "user_id"),)
+
+    id = Column(BigInteger, primary_key=True)
+
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    occurence_id = Column(ForeignKey("occurences.id"), nullable=False, index=True)
+    responded = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    attendee_status = Column(Enum(AttendeeStatus), nullable=False)
+
+    user = relationship("User")
+    occurence = relationship("EventOccurence")
 
 
 class ClusterDiscussionAssociation(Base):
