@@ -92,13 +92,16 @@ class References(references_pb2_grpc.ReferencesServicer):
             ):
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.REFERENCE_ALREADY_GIVEN)
 
+            if rating < 0 or rating > 1:
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.REFERENCE_INVALID_RATING)
+
             reference = Reference(
                 from_user_id=context.user_id,
                 to_user_id=request.to_user_id,
                 reference_type=ReferenceType.friend,
                 text=request.text,
                 rating=request.rating,
-                was_safe=request.was_safe,
+                was_appropriate=request.was_appropriate,
                 visible_from=now(),
             )
             session.add(reference)
@@ -132,6 +135,9 @@ class References(references_pb2_grpc.ReferencesServicer):
             ):
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.REFERENCE_ALREADY_GIVEN)
 
+            if rating < 0 or rating > 1:
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.REFERENCE_INVALID_RATING)
+
             other_reference = (
                 session.query(Reference)
                 .filter(Reference.host_request_id == host_request.conversation_id)
@@ -144,7 +150,7 @@ class References(references_pb2_grpc.ReferencesServicer):
                 host_request_id=host_request.conversation_id,
                 text=request.text,
                 rating=request.rating,
-                was_safe=request.was_safe,
+                was_appropriate=request.was_appropriate,
                 visible_from=now() if other_reference else host_request.end_time_to_write_reference,
             )
 

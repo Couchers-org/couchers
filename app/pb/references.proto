@@ -72,15 +72,17 @@ message ListReferencesRes {
 message WriteFriendReferenceReq {
   int64 to_user_id = 1;
   string text = 2;  // plain text
-  bool was_safe = 3;
-  int32 rating = 4;
+  bool was_appropriate = 3;
+  // rating is in [0,1]
+  double rating = 4;
 }
 
 message WriteHostRequestReferenceReq {
   int64 host_request_id = 1;
   string text = 2;  // plain text
-  bool was_safe = 3;
-  int32 rating = 4;
+  bool was_appropriate = 3;
+  // rating is in [0,1]
+  double rating = 4;
 }
 
 message AvailableWriteReferencesReq {

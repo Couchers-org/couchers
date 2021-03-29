@@ -88,8 +88,8 @@ def create_host_reference(session, from_user_id, to_user_id, reference_age, *, s
         from_user_id=from_user_id,
         host_request_id=host_request.conversation_id,
         text="Dummy reference",
-        rating=5,
-        was_safe=True,
+        rating=0.5,
+        was_appropriate=True,
         visible_from=now() if other_reference else host_request.end_time_to_write_reference,
     )
 
@@ -121,8 +121,8 @@ def create_friend_reference(session, from_user_id, to_user_id, reference_age):
         to_user_id=to_user_id,
         reference_type=ReferenceType.friend,
         text="Test friend request",
-        rating=4,
-        was_safe=True,
+        rating=0.4,
+        was_appropriate=True,
         visible_from=now(),
     )
     session.add(reference)
@@ -304,8 +304,8 @@ def test_WriteFriendReference(db):
             references_pb2.WriteFriendReferenceReq(
                 to_user_id=user2.id,
                 text="A test reference",
-                was_safe=True,
-                rating=5,
+                was_appropriate=True,
+                rating=0.5,
             )
         )
         assert res.from_user_id == user1.id
@@ -338,8 +338,8 @@ def test_WriteFriendReference(db):
                 references_pb2.WriteFriendReferenceReq(
                     to_user_id=user2.id,
                     text="A test reference",
-                    was_safe=True,
-                    rating=5,
+                    was_appropriate=True,
+                    rating=0.5,
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
@@ -352,8 +352,8 @@ def test_WriteFriendReference(db):
                 references_pb2.WriteFriendReferenceReq(
                     to_user_id=user2.id,
                     text="I'm really awesome",
-                    was_safe=True,
-                    rating=10,
+                    was_appropriate=True,
+                    rating=1.0,
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -381,8 +381,8 @@ def test_WriteHostRequestReference(db):
             references_pb2.WriteHostRequestReferenceReq(
                 host_request_id=hr3,
                 text="Should work!",
-                was_safe=True,
-                rating=9,
+                was_appropriate=True,
+                rating=0.9,
             )
         )
 
@@ -393,8 +393,8 @@ def test_WriteHostRequestReference(db):
                 references_pb2.WriteHostRequestReferenceReq(
                     host_request_id=hr4,
                     text="Shouldn't work...",
-                    was_safe=True,
-                    rating=9,
+                    was_appropriate=True,
+                    rating=0.9,
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
@@ -406,8 +406,8 @@ def test_WriteHostRequestReference(db):
                 references_pb2.WriteHostRequestReferenceReq(
                     host_request_id=hr1,
                     text="Shouldn't work...",
-                    was_safe=True,
-                    rating=9,
+                    was_appropriate=True,
+                    rating=0.9,
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
@@ -418,8 +418,8 @@ def test_WriteHostRequestReference(db):
             references_pb2.WriteHostRequestReferenceReq(
                 host_request_id=hr2,
                 text="Should work!",
-                was_safe=True,
-                rating=9,
+                was_appropriate=True,
+                rating=0.9,
             )
         )
 
@@ -429,8 +429,8 @@ def test_WriteHostRequestReference(db):
                 references_pb2.WriteHostRequestReferenceReq(
                     host_request_id=hr2,
                     text="Shouldn't work...",
-                    was_safe=True,
-                    rating=9,
+                    was_appropriate=True,
+                    rating=0.9,
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
@@ -441,8 +441,8 @@ def test_WriteHostRequestReference(db):
             references_pb2.WriteHostRequestReferenceReq(
                 host_request_id=hr3,
                 text="Should work!",
-                was_safe=True,
-                rating=9,
+                was_appropriate=True,
+                rating=0.9,
             )
         )
 

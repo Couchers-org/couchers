@@ -287,64 +287,64 @@
       "to": "itsi",
       "type": "friend",
       "text": "I had such a great time with Itsi, he pitched me his website ideas and we ate ramen.",
-      "was_safe": true,
-      "rating": 5
+      "was_appropriate": true,
+      "rating": 0.5
     },
     {
       "from": "lucas",
       "to": "itsi",
       "type": "friend",
       "text": "I had such a great time with Itsi also, he pitched me his website ideas and we ate sushi.",
-      "was_safe": true,
-      "rating": 8
+      "was_appropriate": true,
+      "rating": 0.8
     },
     {
       "from": "aapeli",
       "to": "lucas",
       "type": "friend",
       "text": "I had such a great time with Itsi also, he pitched me his website ideas and we ate sushi.",
-      "was_safe": true,
-      "rating": 9
+      "was_appropriate": true,
+      "rating": 0.9
     },
     {
       "from": "lucas",
       "to": "aapeli",
       "type": "friend",
       "text": "What a dude",
-      "was_safe": true,
-      "rating": 6
+      "was_appropriate": true,
+      "rating": 0.6
     },
     {
       "from": "itsi",
       "to": "aapeli",
       "type": "friend",
       "text": "I had such a great time with Aapeli.",
-      "was_safe": true,
-      "rating": 9
+      "was_appropriate": true,
+      "rating": 0.9
     },
     {
       "from": "aapeli",
       "to": "val",
       "type": "friend",
       "text": "I had such a great time with Itsi also, he pitched me his website ideas and we ate sushi.",
-      "was_safe": true,
-      "rating": 3
+      "was_appropriate": true,
+      "rating": 0.3
     },
     {
       "from": "lucas",
       "to": "val",
       "type": "friend",
       "text": "What a dude",
-      "was_safe": true,
-      "rating": 4
+      "was_appropriate": true,
+      "rating": 0.4
     },
     {
       "from": "itsi",
       "to": "val",
       "type": "friend",
       "text": "I had such a great time with Aapeli.",
-      "was_safe": true,
-      "rating": 6
+      "was_appropriate": true,
+      "rating": 0.6
     }
   ],
   "group_chats": [

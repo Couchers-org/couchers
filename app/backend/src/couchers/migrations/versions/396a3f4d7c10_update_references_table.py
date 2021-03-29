@@ -43,6 +43,12 @@ def upgrade():
         "references",
         "(host_request_id IS NULL AND reference_type = 'friend') OR (host_request_id IS NOT NULL AND reference_type != 'friend')",
     )
+    op.execute('ALTER TABLE "references" ALTER COLUMN rating TYPE double precision USING rating::double precision / 10')
+    op.create_check_constraint(
+        "ck_references_rating_between_0_and_1",
+        "references",
+        "rating BETWEEN 0 AND 1",
+    )
     op.create_index(
         "ix_references_unique_friend_reference",
         "references",
@@ -50,10 +56,14 @@ def upgrade():
         unique=True,
         postgresql_where=sa.text("reference_type = 'friend'"),
     )
+    op.execute('ALTER TABLE "references" RENAME COLUMN was_safe TO was_appropriate')
 
 
 def downgrade():
+    op.execute('ALTER TABLE "references" RENAME COLUMN was_appropriate TO was_safe')
     op.drop_index("ix_references_unique_friend_reference", table_name="references")
+    op.drop_constraint("ck_references_rating_between_0_and_1")
+    op.execute('ALTER TABLE "references" ALTER COLUMN rating TYPE int USING round(rating * 10)')
     op.drop_constraint("ck_references_host_request_id_xor_friend_reference")
     op.drop_index("ix_references_unique_per_host_request", table_name="references")
     op.drop_constraint(op.f("fk_references_host_request_id_host_requests"), "references", type_="foreignkey")

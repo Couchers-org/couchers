@@ -690,8 +690,8 @@ class Reference(Base):
 
     text = Column(String, nullable=True)  # plain text
 
-    rating = Column(Integer, nullable=False)
-    was_safe = Column(Boolean, nullable=False)
+    rating = Column(Float, nullable=False)
+    was_appropriate = Column(Boolean, nullable=False)
 
     visible_from = Column(DateTime(timezone=True), nullable=False)
 
@@ -701,6 +701,11 @@ class Reference(Base):
     host_request = relationship("HostRequest", backref="references")
 
     __table_args__ = (
+        # Rating must be between 0 and 1, inclusive
+        CheckConstraint(
+            "rating BETWEEN 0 AND 1",
+            name="rating_between_0_and_1",
+        ),
         # Has a host_request_id iff it's not a friend reference
         CheckConstraint(
             "(host_request_id IS NULL AND reference_type = 'friend') OR (host_request_id IS NOT NULL AND reference_type != 'friend')",

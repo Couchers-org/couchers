@@ -94,7 +94,7 @@ def add_dummy_users():
                     reference_type=reference_type,
                     text=reference["text"],
                     rating=reference["rating"],
-                    was_safe=reference["was_safe"],
+                    was_appropriate=reference["was_appropriate"],
                     visible_from=now(),
                 )
                 session.add(new_reference)
