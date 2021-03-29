@@ -92,7 +92,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             ):
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.REFERENCE_ALREADY_GIVEN)
 
-            if rating < 0 or rating > 1:
+            if request.rating < 0 or request.rating > 1:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.REFERENCE_INVALID_RATING)
 
             reference = Reference(
@@ -135,7 +135,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             ):
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.REFERENCE_ALREADY_GIVEN)
 
-            if rating < 0 or rating > 1:
+            if request.rating < 0 or request.rating > 1:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.REFERENCE_INVALID_RATING)
 
             other_reference = (
