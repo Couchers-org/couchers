@@ -4,31 +4,21 @@ import grpc
 from sqlalchemy.sql import func
 
 from couchers import errors
-from couchers.db import (
-    can_moderate_at,
-    can_moderate_node,
-    get_node_parents_recursively,
-    get_parent_node_at_location,
-    session_scope,
-)
+from couchers.db import can_moderate_node, get_parent_node_at_location, session_scope
 from couchers.models import (
     AttendeeStatus,
     Cluster,
-    ClusterRole,
-    ClusterSubscription,
     Event,
     EventOccurence,
     EventOccurenceAttendee,
     EventOrganizer,
     EventSubscription,
     EventType,
-    EventVersion,
     Node,
     Thread,
     Upload,
     User,
 )
-from couchers.servicers.threads import pack_thread_id
 from couchers.utils import Timestamp_from_datetime, create_coordinate, to_aware_datetime
 from pb import events_pb2, events_pb2_grpc
 

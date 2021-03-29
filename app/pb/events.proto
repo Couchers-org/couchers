@@ -189,7 +189,7 @@ message UpdateEventReq {
   google.protobuf.StringValue timezone = 11;
 
   // whether to notify all attendees about the change
-  bool notify_attendees = 12;
+  // bool notify_attendees = 12;
 }
 
 message GetEventReq {
