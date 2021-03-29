@@ -1075,8 +1075,8 @@ class Event(Base):
         "Node", backref="child_events", remote_side="Node.id", foreign_keys="Event.parent_node_id"
     )
     thread = relationship("Thread", backref="event", uselist=False)
-    suscribers = relationship("User", backref="events", secondary="event_subscriptions")
-    organizers = relationship("User", backref="events", secondary="event_organizers")
+    suscribers = relationship("User", backref="subscribed_events", secondary="event_subscriptions")
+    organizers = relationship("User", backref="organized_events", secondary="event_organizers")
     thread = relationship("Thread", backref="event", uselist=False)
     owner_user = relationship("User", backref="owned_events", foreign_keys="Event.owner_user_id")
     owner_cluster = relationship(
@@ -1207,7 +1207,7 @@ class EventOccurenceAttendee(Base):
     id = Column(BigInteger, primary_key=True)
 
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    occurence_id = Column(ForeignKey("occurences.id"), nullable=False, index=True)
+    occurence_id = Column(ForeignKey("event_occurences.id"), nullable=False, index=True)
     responded = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     attendee_status = Column(Enum(AttendeeStatus), nullable=False)
 
