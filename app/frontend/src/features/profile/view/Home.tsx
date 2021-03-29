@@ -100,7 +100,9 @@ export default function Home({ user }: HomeProps) {
           <LabelAndText
             label={HAS_HOUSEMATES}
             text={`${booleanConversion(user.hasHousemates?.value)} ${
-              user.housemateDetails ? `, ${user.housemateDetails?.value}` : ""
+              user.housemateDetails?.value
+                ? `, ${user.housemateDetails?.value}`
+                : ""
             }`}
           />
           <LabelAndText
@@ -114,13 +116,13 @@ export default function Home({ user }: HomeProps) {
           <LabelAndText
             label={HOST_PETS}
             text={`${booleanConversion(user.hasPets?.value)} ${
-              user.petDetails ? `, ${user.petDetails?.value}` : ""
+              user.petDetails?.value ? `, ${user.petDetails?.value}` : ""
             }`}
           />
           <LabelAndText
             label={HOST_KIDS}
             text={`${booleanConversion(user.hasKids?.value)} ${
-              user.kidDetails ? `, ${user.kidDetails?.value}` : ""
+              user.kidDetails?.value ? `, ${user.kidDetails?.value}` : ""
             }`}
           />
           <LabelAndText
