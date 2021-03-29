@@ -13,7 +13,6 @@ from couchers.models import (
     EventOccurenceAttendee,
     EventOrganizer,
     EventSubscription,
-    EventType,
     Node,
     Thread,
     Upload,
@@ -61,7 +60,7 @@ def _can_edit_event(event, user_id):
     return _is_event_owner(event, user_id) or _can_moderate_event(event, user_id)
 
 
-def event_to_pb(occurence: Occurence, user_id):
+def event_to_pb(occurence: EventOccurence, user_id):
     next_occurence = (
         event.occurences.filter(EventOccurence.end_time >= now()).order_by(EventOccurence.end_time.asc()).first()
     )
@@ -289,14 +288,14 @@ class Events(events_pb2_grpc.EventsServicer):
             # when editing all future events, we edit all which have not yet ended
 
             if request.update_all_future:
-                session.query(Occurence).filter(Occurence.end_time >= now() - timedelta(hours=24)).filter(
-                    Occurence.start_time >= occurence.start_time
+                session.query(EventOccurence).filter(EventOccurence.end_time >= now() - timedelta(hours=24)).filter(
+                    EventOccurence.start_time >= occurence.start_time
                 ).update(occurence_update)
             else:
                 if occurence.end_time < now() - timedelta(hours=24):
                     context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_UPDATE_OLD_EVENT)
-                session.query(Occurence).filter(Occurence.end_time >= now() - timedelta(hours=24)).filter(
-                    Occurence.id == occurence.id
+                session.query(EventOccurence).filter(EventOccurence.end_time >= now() - timedelta(hours=24)).filter(
+                    EventOccurence.id == occurence.id
                 ).update(occurence_update)
 
             # TODO notify_attendees
