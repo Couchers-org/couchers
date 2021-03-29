@@ -12,7 +12,7 @@ If you'd like to contribute to the blog, please [sign up](/signup) and let us kn
 
 Get to know our forum admin: Nolo! 
 
-[Read more.](/blog/2021/03/29/couch-surfing-online-events-community)
+[Read more.](/blog/2021/03/29/qa-couchers-volunteers-nolo)
 
 ## [Couchsurfing&#8482; has Banned Online Events](/blog/2021/03/25/couch-surfing-online-events-community)
 
@@ -20,12 +20,4 @@ Get to know our forum admin: Nolo!
 
 Couchsurfing&#8482; support has released an update, changing the policy to ban virtual events across the platform.
 
-[Read more.](/blog/2021/03/29/couch-surfing-online-events-community)
-
-## [Welcome to the blog](/blog/2021/03/17/welcome-to-the-blog)
-
-2021/03/17 by Itsi Weinstock.
-
-This is the start of our blog! Come read here! Hooray!
-
-[Read more.](/blog/2021/03/17/welcome-to-the-blog)
+[Read more.](/blog/2021/03/25/couch-surfing-online-events-community/)
