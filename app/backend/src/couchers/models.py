@@ -1066,6 +1066,7 @@ class Event(Base):
     id = Column(BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value())
     parent_node_id = Column(ForeignKey("nodes.id"), nullable=False, index=True)
 
+    creator_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     owner_user_id = Column(ForeignKey("users.id"), nullable=True, index=True)
     owner_cluster_id = Column(ForeignKey("clusters.id"), nullable=True, index=True)
@@ -1078,6 +1079,7 @@ class Event(Base):
     suscribers = relationship("User", backref="subscribed_events", secondary="event_subscriptions")
     organizers = relationship("User", backref="organized_events", secondary="event_organizers")
     thread = relationship("Thread", backref="event", uselist=False)
+    creator_user = relationship("User", backref="created_event_occurences", foreign_keys="Event.creator_user_id")
     owner_user = relationship("User", backref="owned_events", foreign_keys="Event.owner_user_id")
     owner_cluster = relationship(
         "Cluster",
@@ -1123,9 +1125,6 @@ class EventOccurence(Base):
 
     event = relationship("Event", backref="occurences", remote_side="Event.id", foreign_keys="EventOccurence.event_id")
 
-    creator_user = relationship(
-        "User", backref="created_event_occurences", foreign_keys="EventOccurence.creator_user_id"
-    )
     photo = relationship("Upload")
 
     __table_args__ = (
