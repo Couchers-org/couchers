@@ -1,6 +1,12 @@
 import { Typography } from "@material-ui/core";
 import Divider from "components/Divider";
-import { ADDITIONAL, HOBBIES, OVERVIEW, WHO } from "features/constants";
+import {
+  ABOUT_HOME,
+  ADDITIONAL,
+  HOBBIES,
+  OVERVIEW,
+  WHO,
+} from "features/constants";
 import {
   LabelsAgeGenderLanguages,
   RemainingAboutLabels,
@@ -23,6 +29,9 @@ export default function About({ user }: AboutProps) {
       <Divider />
       <Typography variant="h1">{HOBBIES}</Typography>
       <Typography variant="body1">{user.thingsILike}</Typography>
+      <Divider />
+      <Typography variant="h1">{ABOUT_HOME}</Typography>
+      <Typography variant="body1">{user.aboutPlace}</Typography>
       <Divider />
       <Typography variant="h1">{ADDITIONAL}</Typography>
       <Typography variant="body1">{user.additionalInformation}</Typography>

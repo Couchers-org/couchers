@@ -14,7 +14,6 @@ import EditUserLocationMap from "components/EditUserLocationMap";
 import PageTitle from "components/PageTitle";
 import {
   ABOUT_HOME,
-  ABOUT_ME,
   ADDITIONAL,
   COUNTRIES_LIVED,
   COUNTRIES_VISITED,
@@ -29,6 +28,7 @@ import {
   OCCUPATION,
   PRONOUNS,
   SAVE,
+  WHO,
 } from "features/constants";
 import {
   ACCEPTING,
@@ -288,6 +288,21 @@ export default function EditProfileForm() {
                 );
               }}
             />
+            <Controller
+              control={control}
+              defaultValue={user.languagesList}
+              name="languages"
+              render={({ onChange, value }) => (
+                <ProfileTagInput
+                  onChange={(_, value) => onChange(value)}
+                  value={value}
+                  options={[]}
+                  label={LANGUAGES_SPOKEN}
+                  id="languages"
+                  className={classes.tagInput}
+                />
+              )}
+            />
             <ProfileTextInput
               id="hometown"
               label={HOMETOWN}
@@ -312,24 +327,10 @@ export default function EditProfileForm() {
               inputRef={register}
               className={classes.field}
             />
-            <Controller
-              control={control}
-              defaultValue={user.languagesList}
-              name="languages"
-              render={({ onChange, value }) => (
-                <ProfileTagInput
-                  onChange={(_, value) => onChange(value)}
-                  value={value}
-                  options={[]}
-                  label={LANGUAGES_SPOKEN}
-                  id="languages"
-                  className={classes.tagInput}
-                />
-              )}
-            />
+
             <ProfileTextInput
               id="aboutMe"
-              label={ABOUT_ME}
+              label={WHO}
               name="aboutMe"
               defaultValue={user.aboutMe}
               inputRef={register}
@@ -348,20 +349,20 @@ export default function EditProfileForm() {
               rows={10}
             />
             <ProfileTextInput
-              id="additionalInformation"
-              label={ADDITIONAL}
-              name="additionalInformation"
-              defaultValue={user.additionalInformation}
+              id="aboutPlace"
+              label={ABOUT_HOME}
+              name="aboutPlace"
+              defaultValue={user.aboutPlace}
               inputRef={register}
               className={classes.field}
               multiline
               rows={10}
             />
             <ProfileTextInput
-              id="aboutPlace"
-              label={ABOUT_HOME}
-              name="aboutPlace"
-              defaultValue={user.aboutPlace}
+              id="additionalInformation"
+              label={ADDITIONAL}
+              name="additionalInformation"
+              defaultValue={user.additionalInformation}
               inputRef={register}
               className={classes.field}
               multiline
