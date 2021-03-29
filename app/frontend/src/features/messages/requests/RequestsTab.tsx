@@ -3,7 +3,7 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import TextBody from "components/TextBody";
-import HostRequestListItem from "features/messages/surfing/HostRequestListItem";
+import HostRequestListItem from "features/messages/requests/HostRequestListItem";
 import useMessageListStyles from "features/messages/useMessageListStyles";
 import { Error as GrpcError } from "grpc-web";
 import { GroupChat } from "pb/conversations_pb";

@@ -31,7 +31,6 @@ const useAuthStyles = makeStyles((theme) => ({
   },
   content: {
     [theme.breakpoints.up("md")]: {
-      alignItems: "center",
       display: "flex",
       flexDirection: "row",
       height: "100%",
@@ -128,6 +127,9 @@ const useAuthStyles = makeStyles((theme) => ({
     color: theme.palette.common.white,
     textAlign: "left",
     width: "40%",
+    [theme.breakpoints.up("md")]: {
+      marginTop: theme.spacing(10),
+    },
   },
   logo: {
     color: theme.palette.secondary.main,

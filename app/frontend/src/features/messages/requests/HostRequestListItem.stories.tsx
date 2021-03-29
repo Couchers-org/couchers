@@ -1,5 +1,5 @@
 import { Meta, Story } from "@storybook/react";
-import HostRequestListItem from "features/messages/surfing/HostRequestListItem";
+import HostRequestListItem from "features/messages/requests/HostRequestListItem";
 import hostRequest from "test/fixtures/hostRequest.json";
 
 export default {

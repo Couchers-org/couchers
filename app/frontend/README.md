@@ -40,7 +40,7 @@ If you don't want to install docker, you can target the live development api and
 
 Then you need to target the dev preview api instead of localhost.
 
-- In `couchers/app/frontend/.env.development`, change `REACT_APP_API_BASE_URL=http://localhost:8888` to `REACT_APP_API_BASE_URL=https://dev-api.coucher.org`
+- In `couchers/app/frontend/.env.development`, change `REACT_APP_API_BASE_URL=http://localhost:8888` to `REACT_APP_API_BASE_URL=https://dev-api.couchershq.org`
 - Remember not to commit this file to any pull requests!
 
 ### Then

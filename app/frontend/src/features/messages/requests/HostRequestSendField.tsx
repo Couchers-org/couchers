@@ -1,6 +1,7 @@
 import Button from "components/Button";
 import TextField from "components/TextField";
 import useAuthStore from "features/auth/useAuthStore";
+import { REQUEST_CLOSED_MESSAGE } from "features/messages/constants";
 import useSendFieldStyles from "features/messages/useSendFieldStyles";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
@@ -31,21 +32,24 @@ export interface HostRequestSendFieldProps {
 function FieldButton({
   children,
   callback,
+  disabled,
   isLoading,
 }: {
   children: string;
   callback: () => void;
+  disabled?: boolean;
   isLoading: boolean;
 }) {
   const classes = useSendFieldStyles();
   return (
     <Button
+      className={classes.button}
+      color="primary"
+      disabled={disabled}
+      loading={isLoading}
+      onClick={callback}
       type="submit"
       variant="contained"
-      color="primary"
-      onClick={callback}
-      loading={isLoading}
-      className={classes.button}
     >
       {children}
     </Button>
@@ -97,6 +101,11 @@ export default function HostRequestSendField({
 
   const isButtonLoading = isLoading || isResponseLoading;
 
+  const isRequestClosed =
+    hostRequest.toDate < new Date().toISOString().split("T")[0] ||
+    hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED ||
+    hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_REJECTED;
+
   return (
     <form onSubmit={onSubmit}>
       <div className={classes.buttonContainer}>
@@ -147,17 +156,26 @@ export default function HostRequestSendField({
       </div>
       <div className={classes.container}>
         <TextField
-          id="host-request-message"
-          label="Message"
-          name="text"
           defaultValue={""}
+          disabled={isRequestClosed}
+          fullWidth
+          label={isRequestClosed ? REQUEST_CLOSED_MESSAGE : "Message"}
+          id="host-request-message"
+          InputLabelProps={{
+            className: isRequestClosed ? classes.requestClosedLabel : undefined,
+            shrink: isRequestClosed ? false : undefined,
+          }}
           inputRef={register}
+          multiline
+          name="text"
           rows={4}
           rowsMax={6}
-          multiline
-          fullWidth
         />
-        <FieldButton callback={onSubmit} isLoading={isButtonLoading}>
+        <FieldButton
+          callback={onSubmit}
+          disabled={isRequestClosed}
+          isLoading={isButtonLoading}
+        >
           Send
         </FieldButton>
       </div>

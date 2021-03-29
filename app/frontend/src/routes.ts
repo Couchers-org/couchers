@@ -1,7 +1,6 @@
 export const baseRoute = "/";
 
 export const loginRoute = "/login";
-export const loginPasswordRoute = `${loginRoute}/password`;
 export const resetPasswordRoute = "/password-reset";
 export const settingsRoute = "/account-settings";
 export const confirmChangeEmailRoute = "/confirm-email";
@@ -22,15 +21,13 @@ export const groupChatsRoute = `${messagesRoute}/chats`;
 export const surfingRequestsRoute = `${messagesRoute}/surfing`;
 export const hostingRequestsRoute = `${messagesRoute}/hosting`;
 export const meetRoute = `${messagesRoute}/meet`;
-export const newHostRequestRoute = `${messagesRoute}/request/new`;
 export const hostRequestRoute = `${messagesRoute}/request`;
 export const archivedMessagesRoute = `${messagesRoute}/archived`;
 export const routeToGroupChat = (id: number) => `${groupChatsRoute}/${id}`;
-export const routeToNewHostRequest = (hostId: number) =>
-  `${newHostRequestRoute}/${hostId}`;
 export const routeToHostRequest = (id: number) => `${hostRequestRoute}/${id}`;
 
 export const mapRoute = "/map";
+export const eventsRoute = "/events";
 export const logoutRoute = "/logout";
 export const connectionsRoute = "/connections";
 export const friendsRoute = `${connectionsRoute}/friends`;

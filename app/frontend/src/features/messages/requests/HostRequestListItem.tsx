@@ -10,7 +10,7 @@ import { Skeleton } from "@material-ui/lab";
 import Avatar from "components/Avatar";
 import TextBody from "components/TextBody";
 import useAuthStore from "features/auth/useAuthStore";
-import HostRequestStatusIcon from "features/messages/surfing/HostRequestStatusIcon";
+import HostRequestStatusIcon from "features/messages/requests/HostRequestStatusIcon";
 import {
   controlMessageText,
   isControlMessage,
