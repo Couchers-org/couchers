@@ -3,7 +3,7 @@ import classNames from "classnames";
 import CircularProgress from "components/CircularProgress";
 import { messageElementId } from "features/messages/messagelist/MessageView";
 import {
-  ReactChild,
+  ReactNode,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -32,18 +32,20 @@ const useStyles = makeStyles((theme) => ({
 
 interface InfiniteMessageLoaderProps {
   earliestMessageId?: number;
-  latestMessageId?: number;
+  latestMessage?: { messageId: number; authorUserId: number };
+  currentUserId?: number;
   fetchNextPage: () => void;
   isFetchingNextPage: boolean;
   hasNextPage: boolean;
   isError: boolean;
   className?: string;
-  children: ReactChild;
+  children: ReactNode;
 }
 
 export default function InfiniteMessageLoader({
   earliestMessageId,
-  latestMessageId,
+  latestMessage,
+  currentUserId,
   fetchNextPage,
   isFetchingNextPage,
   hasNextPage,
@@ -91,15 +93,25 @@ export default function InfiniteMessageLoader({
     return () => window.removeEventListener("resize", updateMessagePosition);
   }, []);
 
-  //** Scroll to the bottom on new message  **//
-  const [savedMessageId, setSavedMessageId] = useState(latestMessageId);
-  useEffect(() => {
+  //** Scroll to the bottom after sending own new message  **//
+  const [savedMessageId, setSavedMessageId] = useState(
+    latestMessage?.messageId
+  );
+  useLayoutEffect(() => {
     if (!scrollRef.current) return;
-    if (latestMessageId !== savedMessageId) {
+    if (
+      latestMessage?.messageId !== savedMessageId &&
+      latestMessage?.authorUserId === currentUserId
+    ) {
       scrollRef.current.scroll(0, scrollRef.current.scrollHeight);
-      setSavedMessageId(latestMessageId);
+      setSavedMessageId(latestMessage?.messageId);
     }
-  }, [savedMessageId, latestMessageId]);
+  }, [
+    savedMessageId,
+    latestMessage?.messageId,
+    latestMessage?.authorUserId,
+    currentUserId,
+  ]);
 
   return (
     <Box className={classNames(classes.scroll, className)} ref={scrollRef}>
