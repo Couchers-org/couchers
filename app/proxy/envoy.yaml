@@ -46,7 +46,7 @@ static_resources:
                 # main site
                 - exact: https://app.couchers.org
                 # deploy preview sites
-                - suffix: .preview.coucher.org
+                - suffix: .preview.couchershq.org
                 # react
                 - exact: http://127.0.0.1:3000
                 - exact: http://localhost:3000

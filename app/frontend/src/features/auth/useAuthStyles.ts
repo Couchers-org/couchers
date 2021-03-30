@@ -31,7 +31,6 @@ const useAuthStyles = makeStyles((theme) => ({
   },
   content: {
     [theme.breakpoints.up("md")]: {
-      alignItems: "center",
       display: "flex",
       flexDirection: "row",
       height: "100%",
@@ -110,7 +109,7 @@ const useAuthStyles = makeStyles((theme) => ({
   },
   formWrapper: {
     [theme.breakpoints.up("md")]: {
-      backgroundColor: "#f8f7f4", // TODO: check with the palette
+      backgroundColor: theme.palette.background.default,
       borderRadius: theme.shape.borderRadius / 3,
       padding: theme.spacing(5, 8),
       width: "53%",
@@ -128,6 +127,9 @@ const useAuthStyles = makeStyles((theme) => ({
     color: theme.palette.common.white,
     textAlign: "left",
     width: "40%",
+    [theme.breakpoints.up("md")]: {
+      marginTop: theme.spacing(10),
+    },
   },
   logo: {
     color: theme.palette.secondary.main,

@@ -388,15 +388,13 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if host_request.from_user_id != context.user_id and host_request.to_user_id != context.user_id:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
 
-            # TODO: It is not very user-friendly to prevent messages for confirmed requests
-            # but we also don't want people to use requests as normal messages...
-
-            if (
-                host_request.status == HostRequestStatus.rejected
-                or host_request.status == HostRequestStatus.confirmed
-                or host_request.status == HostRequestStatus.cancelled
-            ):
+            if host_request.status == HostRequestStatus.rejected or host_request.status == HostRequestStatus.cancelled:
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.HOST_REQUEST_CLOSED)
+
+            # also don't allow messages to requests in the past
+            today = least_current_date()
+            if host_request.to_date < today:
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.HOST_REQUEST_IN_PAST)
 
             message = Message()
             message.conversation_id = host_request.conversation_id

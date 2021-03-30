@@ -1,8 +1,7 @@
 import { Page, PageType } from "pb/pages_pb";
-import { guideRoute, placeRoute } from "routes";
+import { routeToGuide, routeToPlace } from "routes";
 
-export const pageURL = (page: Page.AsObject) => {
-  return `${page.type === PageType.PAGE_TYPE_GUIDE ? guideRoute : placeRoute}/${
-    page.pageId
-  }/${page.slug}`;
-};
+export const pageURL = (page: Page.AsObject) =>
+  page.type === PageType.PAGE_TYPE_GUIDE
+    ? routeToGuide(page.pageId, page.slug)
+    : routeToPlace(page.pageId, page.slug);

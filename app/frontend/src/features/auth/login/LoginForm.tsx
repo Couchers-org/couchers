@@ -13,8 +13,8 @@ import useAuthStyles from "features/auth/useAuthStyles";
 import { LoginRes } from "pb/auth_pb";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useHistory } from "react-router-dom";
-import { loginPasswordRoute, resetPasswordRoute } from "routes";
+import { Link } from "react-router-dom";
+import { resetPasswordRoute } from "routes";
 import { service } from "service";
 import { useIsMounted, useSafeState } from "utils/hooks";
 import { sanitizeName } from "utils/validation";
@@ -33,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function UsernameForm() {
+export default function LoginForm() {
   const classes = useStyles();
   const authClasses = useAuthStyles();
   const { authState, authActions } = useAuthContext();
@@ -43,7 +43,6 @@ export default function UsernameForm() {
   const [loginWithLink, setLoginWithLink] = useState(true);
 
   const { handleSubmit, register } = useForm<{ username: string }>();
-  const history = useHistory();
 
   const onSubmit = handleSubmit(
     async (data: { username: string; password: string }) => {
@@ -58,7 +57,6 @@ export default function UsernameForm() {
             break;
 
           case LoginRes.LoginStep.NEED_PASSWORD:
-            history.push(loginPasswordRoute, data);
             setLoginWithLink(false);
             break;
 
@@ -92,6 +90,7 @@ export default function UsernameForm() {
           Email/Username
         </InputLabel>
         <TextField
+          className={authClasses.formField}
           disabled={sent}
           fullWidth
           id="username"
@@ -105,10 +104,16 @@ export default function UsernameForm() {
               Password
             </InputLabel>
             <TextField
+              className={authClasses.formField}
               fullWidth
               id="password"
               name="password"
-              inputRef={register({ required: true })}
+              inputRef={(inputElement) => {
+                if (inputElement) {
+                  inputElement.focus();
+                }
+                register(inputElement, { required: true });
+              }}
               type="password"
               variant="standard"
             />
@@ -134,7 +139,6 @@ export default function UsernameForm() {
             label: authClasses.buttonText,
           }}
           className={authClasses.button}
-          color="secondary"
           disabled={sent}
           loading={loading || authLoading}
           onClick={onSubmit}

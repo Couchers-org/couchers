@@ -73,7 +73,6 @@ export default function EmailForm() {
             label: authClasses.buttonText,
             root: authClasses.button,
           }}
-          color="secondary"
           onClick={onSubmit}
           type="submit"
           disabled={sent}

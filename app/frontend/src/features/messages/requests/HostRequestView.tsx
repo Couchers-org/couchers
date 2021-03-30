@@ -1,19 +1,17 @@
-import { Box } from "@material-ui/core";
+import { Box, Typography } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import Divider from "components/Divider";
 import HeaderButton from "components/HeaderButton";
-import HostingStatus from "components/HostingStatus";
-import { BackIcon, OverflowMenuIcon } from "components/Icons";
-import Menu, { MenuItem } from "components/Menu";
+import { BackIcon } from "components/Icons";
 import PageTitle from "components/PageTitle";
 import UserSummary from "components/UserSummary";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useGroupChatViewStyles } from "features/messages/groupchats/GroupChatView";
 import InfiniteMessageLoader from "features/messages/messagelist/InfiniteMessageLoader";
 import MessageList from "features/messages/messagelist/MessageList";
-import HostRequestSendField from "features/messages/surfing/HostRequestSendField";
+import HostRequestSendField from "features/messages/requests/HostRequestSendField";
 import useMarkLastSeen, {
   MarkLastSeenVariables,
 } from "features/messages/useMarkLastSeen";
@@ -25,7 +23,6 @@ import {
   HostRequest,
   RespondHostRequestReq,
 } from "pb/requests_pb";
-import { useRef, useState } from "react";
 import {
   useInfiniteQuery,
   useMutation,
@@ -34,21 +31,13 @@ import {
 } from "react-query";
 import { useHistory, useParams } from "react-router-dom";
 import { service } from "service";
+import { formatDate, numNights } from "utils/date";
 import { firstName } from "utils/names";
+
+import { hostRequestStatusLabels } from "../constants";
 
 export default function HostRequestView() {
   const classes = useGroupChatViewStyles();
-
-  const menuAnchor = useRef<HTMLAnchorElement>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  const handleClick = () => {
-    setMenuOpen(true);
-  };
-
-  const handleClose = () => {
-    setMenuOpen(false);
-  };
 
   const hostRequestId = +(
     useParams<{ hostRequestId?: string }>().hostRequestId || 0
@@ -160,35 +149,37 @@ export default function HostRequestView() {
         </HeaderButton>
 
         <PageTitle className={classes.title}>
-          {!title || hostRequestError ? <Skeleton width="100" /> : title}
+          {!title || hostRequestError ? (
+            <Skeleton width="100" />
+          ) : (
+            `${title} - ${
+              hostRequest && hostRequestStatusLabels[hostRequest.status]
+            }`
+          )}
         </PageTitle>
-
-        <HeaderButton
-          onClick={handleClick}
-          aria-label="Menu"
-          aria-haspopup="true"
-          aria-controls="more-menu"
-          innerRef={menuAnchor}
-        >
-          <OverflowMenuIcon />
-        </HeaderButton>
-        <Menu
-          id="more-menu"
-          anchorEl={menuAnchor.current}
-          keepMounted
-          open={menuOpen}
-          onClose={handleClose}
-        >
-          <MenuItem onClick={() => null}>Placeholder</MenuItem>
-        </Menu>
       </Box>
-
       <UserSummary user={otherUser}>
-        <HostingStatus hostingStatus={otherUser?.hostingStatus} />
+        {hostRequest && (
+          <div className={classes.requestedDatesWrapper}>
+            <Typography
+              component="p"
+              variant="h3"
+              className={classes.requestedDates}
+            >
+              {`${formatDate(hostRequest.fromDate, true)} -
+              ${formatDate(hostRequest?.toDate, true)}`}
+            </Typography>
+            <Typography
+              component="p"
+              variant="h3"
+              className={classes.numNights}
+            >
+              ({numNights(hostRequest.toDate, hostRequest.fromDate)})
+            </Typography>
+          </div>
+        )}
       </UserSummary>
-
       <Divider />
-
       {(respondMutation.error || sendMutation.error || hostRequestError) && (
         <Alert severity={"error"}>
           {respondMutation.error?.message ||

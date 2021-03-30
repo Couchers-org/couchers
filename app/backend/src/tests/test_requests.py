@@ -490,12 +490,9 @@ def test_send_message(db):
                 host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED
             )
         )
-        with pytest.raises(grpc.RpcError) as e:
-            api.SendHostRequestMessage(
-                requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 3")
-            )
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == errors.HOST_REQUEST_CLOSED
+        api.SendHostRequestMessage(
+            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 3")
+        )
 
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
