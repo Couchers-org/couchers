@@ -92,6 +92,7 @@ export const PARKING = "Parking available";
 export const PARKING_DETAILS = "Parking details";
 export const PET_DETAILS = "Pet details";
 export const SLEEPING_ARRANGEMENT = "Sleeping arrangement";
+export const SPACE = "Private / shared space";
 export const TRANSPORTATION = "Transportation, Parking, Accessibility";
 export const WHEELCHAIR = "Wheelchair accessible";
 

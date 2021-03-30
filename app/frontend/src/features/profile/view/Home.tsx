@@ -22,6 +22,7 @@ import {
   PARKING,
   PARKING_DETAILS,
   SLEEPING_ARRANGEMENT,
+  SPACE,
   WHEELCHAIR,
 } from "features/constants";
 import booleanConversion, {
@@ -93,7 +94,7 @@ export default function Home({ user }: HomeProps) {
         <div className={classes.info}>
           <Typography variant="h1">{ABOUT_HOME}</Typography>
           <LabelAndText
-            label={SLEEPING_ARRANGEMENT}
+            label={SPACE}
             text={`${sleepingArrangementLabels[user.sleepingArrangement]}`}
           />
           <LabelAndText
@@ -141,6 +142,9 @@ export default function Home({ user }: HomeProps) {
       <Divider />
       <Typography variant="h1">{LOCAL_AREA}</Typography>
       <Typography variant="body1">{user.area?.value}</Typography>
+      <Divider />
+      <Typography variant="h1">{SLEEPING_ARRANGEMENT}</Typography>
+      <Typography variant="body1">{user.sleepingDetails?.value}</Typography>
       <Divider />
       <Typography variant="h1">{HOUSE_RULES}</Typography>
       <Typography variant="body1">{user.houseRules?.value}</Typography>

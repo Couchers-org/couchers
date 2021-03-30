@@ -23,6 +23,8 @@ import {
   MAX_GUESTS,
   PET_DETAILS,
   SAVE,
+  SLEEPING_ARRANGEMENT,
+  SPACE,
 } from "features/constants";
 import {
   parkingDetailsLabels,
@@ -281,7 +283,7 @@ export default function HostingPreferenceForm() {
                 renderInput={(params) => (
                   <ProfileTextInput
                     {...params}
-                    label="Sleeping arrangement"
+                    label={SPACE}
                     name="sleepingArrangement"
                     className={classes.field}
                   />
@@ -411,6 +413,16 @@ export default function HostingPreferenceForm() {
             label={LOCAL_AREA}
             name="area"
             defaultValue={user.area?.value ?? ""}
+            inputRef={register}
+            rowsMax={5}
+            multiline
+            className={classes.field}
+          />
+          <ProfileTextInput
+            id="sleepingDetails"
+            label={SLEEPING_ARRANGEMENT}
+            name="sleepingDetails"
+            defaultValue={user.sleepingDetails?.value ?? ""}
             inputRef={register}
             rowsMax={5}
             multiline
