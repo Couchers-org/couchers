@@ -10,7 +10,7 @@ If you'd like to contribute to the blog, please [sign up](/signup) and let us kn
 
 2021/03/29 by Emily.
 
-Get to know our forum admin: Nolo! 
+Get to know our forum admin: Nolo!
 
 [Read more.](/blog/2021/03/29/qa-couchers-volunteers-nolo)
 
