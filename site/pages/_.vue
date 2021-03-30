@@ -85,6 +85,12 @@ export default {
         { hid: 'twitter:description', name: 'twitter:description', content: this.attributes.description }
       )
     }
+    if (this.attributes.share_image) {
+      metas.push(
+        { hid: 'og:image', property: 'og:image', content: this.attributes.share_image },
+        { hid: 'twitter:image', name: 'twitter:image', content: this.attributes.share_image },
+      )
+    }
     return {
       title: this.attributes.title,
       meta: metas
