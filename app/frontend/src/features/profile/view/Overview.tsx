@@ -27,6 +27,7 @@ import { HostingStatus, MeetupStatus, User } from "pb/api_pb";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { editHostingPreferenceRoute, editProfileRoute } from "routes";
+import RespondToFriendRequestProfileButton from "features/connections/friends/RespondToFriendRequestProfileButton";
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -94,9 +95,15 @@ export default function Overview({ user, setIsRequesting }: OverviewProps) {
         ) : (
           <>
             <Button onClick={() => setIsRequesting(true)}>{REQUEST}</Button>
-            {user.friends !== User.FriendshipStatus.FRIENDS && (
+            {(user.friends !== User.FriendshipStatus.FRIENDS && user.friends !== User.FriendshipStatus.PENDING) && (
               <AddFriendButton
-                isPending={user.friends === User.FriendshipStatus.PENDING}
+                isPending={false}
+                userId={user.userId}
+                setMutationError={setMutationError}
+              />
+            )}
+            {(user.friends == User.FriendshipStatus.PENDING) && (
+              <RespondToFriendRequestProfileButton
                 userId={user.userId}
                 setMutationError={setMutationError}
               />
