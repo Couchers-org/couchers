@@ -1,10 +1,13 @@
-import { Typography } from "@material-ui/core";
+import { makeStyles, Typography } from "@material-ui/core";
 import Divider from "components/Divider";
 import {
   ABOUT_HOME,
   ADDITIONAL,
   HOBBIES,
+  LIVED_IN,
   OVERVIEW,
+  TRAVELED_TO,
+  TRAVELS,
   WHO,
 } from "features/constants";
 import {
@@ -16,8 +19,21 @@ import { User } from "pb/api_pb";
 interface AboutProps {
   user: User.AsObject;
 }
+const useStyles = makeStyles((theme) => ({
+  countriesContainer: {
+    display: "flex",
+    placeContent: "space-around",
+  },
+  countriesList: {
+    // columns: 2,
+    // "& li": {
+    //   marginLeft: theme.spacing(1),
+    // },
+  },
+}));
 
 export default function About({ user }: AboutProps) {
+  const classes = useStyles();
   return (
     <>
       <Typography variant="h1">{OVERVIEW}</Typography>
@@ -35,6 +51,26 @@ export default function About({ user }: AboutProps) {
       <Divider />
       <Typography variant="h1">{ADDITIONAL}</Typography>
       <Typography variant="body1">{user.additionalInformation}</Typography>
+      <Divider />
+      <Typography variant="h1">{TRAVELS}</Typography>
+      <div className={classes.countriesContainer}>
+        <div>
+          <Typography variant="body1">{TRAVELED_TO}</Typography>
+          <ul className={classes.countriesList}>
+            {user.countriesVisitedList.map((country) => (
+              <li>{country}</li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <Typography variant="body1">{LIVED_IN}</Typography>
+          <ul className={classes.countriesList}>
+            {user.countriesLivedList.map((country) => (
+              <li>{country}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
     </>
   );
 }
