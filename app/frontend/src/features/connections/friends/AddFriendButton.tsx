@@ -10,24 +10,16 @@ import { service } from "service";
 
 import { SetMutationError } from ".";
 
-const useStyles = makeStyles((theme) => ({
-  disabledButton: {
-    backgroundColor: theme.palette.grey[100],
-  },
-}));
 
 interface AddFriendButtonProps {
-  isPending: boolean;
   setMutationError: SetMutationError;
   userId: number;
 }
 
 export default function AddFriendButton({
-  isPending,
   setMutationError,
   userId,
 }: AddFriendButtonProps) {
-  const classes = useStyles();
   const queryClient = useQueryClient();
 
   const { isLoading, mutate: sendFriendRequest } = useMutation<
@@ -49,16 +41,13 @@ export default function AddFriendButton({
   return (
     <Button
       startIcon={<PersonAddIcon />}
-      className={classNames({ [classes.disabledButton]: isPending })}
-      disabled={isPending}
+      className={classNames()}
       onClick={() => {
-        if (!isPending) {
-          sendFriendRequest({ setMutationError, userId, isPending });
-        }
+          sendFriendRequest({ setMutationError, userId });
       }}
       loading={isLoading}
     >
-      {isPending ? PENDING : ADD_FRIEND}
+      {ADD_FRIEND}
     </Button>
   );
 }
