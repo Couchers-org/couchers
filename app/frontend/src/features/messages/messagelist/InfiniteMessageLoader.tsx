@@ -1,14 +1,15 @@
 import { Box, makeStyles } from "@material-ui/core";
 import classNames from "classnames";
 import CircularProgress from "components/CircularProgress";
+import useAuthStore from "features/auth/useAuthStore";
 import { messageElementId } from "features/messages/messagelist/MessageView";
+import { Message } from "pb/conversations_pb";
 import {
   ReactNode,
   useCallback,
   useEffect,
   useLayoutEffect,
   useRef,
-  useState,
 } from "react";
 import useOnVisibleEffect from "utils/useOnVisibleEffect";
 
@@ -32,8 +33,7 @@ const useStyles = makeStyles((theme) => ({
 
 interface InfiniteMessageLoaderProps {
   earliestMessageId?: number;
-  latestMessage?: { messageId: number; authorUserId: number };
-  currentUserId?: number;
+  latestMessage?: Message.AsObject;
   fetchNextPage: () => void;
   isFetchingNextPage: boolean;
   hasNextPage: boolean;
@@ -45,7 +45,6 @@ interface InfiniteMessageLoaderProps {
 export default function InfiniteMessageLoader({
   earliestMessageId,
   latestMessage,
-  currentUserId,
   fetchNextPage,
   isFetchingNextPage,
   hasNextPage,
@@ -54,6 +53,7 @@ export default function InfiniteMessageLoader({
   children,
 }: InfiniteMessageLoaderProps) {
   const classes = useStyles();
+  const currentUserId = useAuthStore().authState.userId;
 
   const scrollRef = useRef<HTMLElement>(null);
   const prevScrollHeight = useRef<number | undefined>(undefined);
@@ -94,24 +94,16 @@ export default function InfiniteMessageLoader({
   }, []);
 
   //** Scroll to the bottom after sending own new message  **//
-  const [savedMessageId, setSavedMessageId] = useState(
-    latestMessage?.messageId
-  );
-  useLayoutEffect(() => {
+  const savedMessageId = useRef(latestMessage?.messageId);
+  useEffect(() => {
     if (!scrollRef.current) return;
-    if (
-      latestMessage?.messageId !== savedMessageId &&
-      latestMessage?.authorUserId === currentUserId
-    ) {
+    const isUserMessage = latestMessage?.authorUserId === currentUserId;
+    const isNewMessage = latestMessage?.messageId !== savedMessageId.current;
+    if (isUserMessage && isNewMessage) {
       scrollRef.current.scroll(0, scrollRef.current.scrollHeight);
-      setSavedMessageId(latestMessage?.messageId);
+      savedMessageId.current = latestMessage?.messageId;
     }
-  }, [
-    savedMessageId,
-    latestMessage?.messageId,
-    latestMessage?.authorUserId,
-    currentUserId,
-  ]);
+  }, [latestMessage?.messageId, latestMessage?.authorUserId, currentUserId]);
 
   return (
     <Box className={classNames(classes.scroll, className)} ref={scrollRef}>
