@@ -70,6 +70,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   tagInput: {
+    display: "flex",
     width: "100%",
     [theme.breakpoints.up("md")]: {
       width: 400,
