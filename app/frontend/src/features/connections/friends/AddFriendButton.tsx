@@ -10,7 +10,6 @@ import { service } from "service";
 
 import { SetMutationError } from ".";
 
-
 interface AddFriendButtonProps {
   setMutationError: SetMutationError;
   userId: number;
@@ -43,7 +42,7 @@ export default function AddFriendButton({
       startIcon={<PersonAddIcon />}
       className={classNames()}
       onClick={() => {
-          sendFriendRequest({ setMutationError, userId });
+        sendFriendRequest({ setMutationError, userId });
       }}
       loading={isLoading}
     >

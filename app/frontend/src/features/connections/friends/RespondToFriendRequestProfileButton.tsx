@@ -11,7 +11,7 @@ import Button from "components/Button";
 import Menu, { MenuItem } from "components/Menu";
 import { SetMutationError } from ".";
 import { PENDING } from "features/connections/constants";
-import RespondToFriendRequestAction from "features/connections/friends/FriendRequestsReceived"
+import RespondToFriendRequestAction from "features/connections/friends/FriendRequestsReceived";
 
 const useStyles = makeStyles((theme) => ({}));
 
@@ -35,7 +35,8 @@ interface RespondToFriendRequestProfileButtonProps {
   setMutationError: SetMutationError;
 }
 
-export const RESPOND_TO_FRIEND_REQUEST_MENU_ID = "respond-to-friend-request-actions-menu";
+export const RESPOND_TO_FRIEND_REQUEST_MENU_ID =
+  "respond-to-friend-request-actions-menu";
 
 function RespondToFriendRequestProfileButton({
   userId,
@@ -46,7 +47,7 @@ function RespondToFriendRequestProfileButton({
     menu: false,
   });
   const menuAnchor = useRef<HTMLButtonElement>(null);
-    
+
   const handleClick = (item: keyof typeof isOpen) => () => {
     //close the menu if a menu item was selected
     if (item !== "menu") {
@@ -55,7 +56,7 @@ function RespondToFriendRequestProfileButton({
       setIsOpen((prevState) => ({ ...prevState, menu: true }));
     }
   };
-    
+
   const handleClose = (item: keyof typeof isOpen) => () => {
     setIsOpen((prevState) => ({ ...prevState, [item]: false }));
   };
@@ -76,12 +77,10 @@ function RespondToFriendRequestProfileButton({
         onClose={handleClose("menu")}
         open={isOpen.menu}
       >
-
-            <MenuItem onClick={handleClick("respond")}>{"Respond"}</MenuItem>
-          
-      </Menu> 
+        <MenuItem onClick={handleClick("respond")}>{"Respond"}</MenuItem>
+      </Menu>
     </>
-  )
-};
+  );
+}
 
 export default RespondToFriendRequestProfileButton;
