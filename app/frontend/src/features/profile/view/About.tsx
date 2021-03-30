@@ -22,13 +22,13 @@ interface AboutProps {
 const useStyles = makeStyles((theme) => ({
   countriesContainer: {
     display: "flex",
-    placeContent: "space-around",
+    "& div": {
+      display: "flex",
+      flexDirection: "column",
+    },
   },
   countriesList: {
-    // columns: 2,
-    // "& li": {
-    //   marginLeft: theme.spacing(1),
-    // },
+    margin: `0 ${theme.spacing(1)}`,
   },
 }));
 
@@ -56,20 +56,22 @@ export default function About({ user }: AboutProps) {
       <div className={classes.countriesContainer}>
         <div>
           <Typography variant="body1">{TRAVELED_TO}</Typography>
-          <ul className={classes.countriesList}>
-            {user.countriesVisitedList.map((country) => (
-              <li>{country}</li>
-            ))}
-          </ul>
-        </div>
-        <div>
           <Typography variant="body1">{LIVED_IN}</Typography>
-          <ul className={classes.countriesList}>
-            {user.countriesLivedList.map((country) => (
-              <li>{country}</li>
-            ))}
-          </ul>
         </div>
+        <ul className={classes.countriesList}>
+          {user.countriesVisitedList.map((country) => (
+            <li>
+              <Typography variant="body1">{country}</Typography>
+            </li>
+          ))}
+        </ul>
+        <ul className={classes.countriesList}>
+          {user.countriesLivedList.map((country) => (
+            <li>
+              <Typography variant="body1">{country}</Typography>
+            </li>
+          ))}
+        </ul>
       </div>
     </>
   );
