@@ -21,7 +21,13 @@ describe("CreateGroupChat with router state", () => {
   it("initially shows the create dialog with a user pre-filled", async () => {
     expect(screen.getByLabelText(FRIENDS)).toBeVisible();
     expect(screen.getByText(users[0].name)).toBeVisible();
-    expect(screen.getByText(NEW_CHAT, { selector: "h2" })).toBeVisible();
+    expect(
+      screen.queryByRole("heading", {
+        name: NEW_CHAT,
+        level: 2,
+        hidden: true,
+      })
+    ).toBeVisible();
   });
 });
 
@@ -33,6 +39,12 @@ describe("CreateGroupChat without router state", () => {
 
   it("doesn't initially show the create dialog", async () => {
     expect(screen.getByLabelText(FRIENDS)).not.toBeVisible();
-    expect(screen.getByText(NEW_CHAT, { selector: "h2" })).not.toBeVisible();
+    expect(
+      screen.queryByRole("heading", {
+        name: NEW_CHAT,
+        level: 2,
+        hidden: true,
+      })
+    ).toBeNull();
   });
 });

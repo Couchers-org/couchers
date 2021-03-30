@@ -1,34 +1,23 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import MessageUserButton from "features/profile/actions/MessageUserButton";
 import { User } from "pb/api_pb";
 import React from "react";
-import { useHistory } from "react-router-dom";
+import { Route, Switch, useLocation, useParams } from "react-router-dom";
 import { groupChatsRoute, routeToGroupChat } from "routes";
 import { service } from "service";
 import users from "test/fixtures/users.json";
 import wrapper from "test/hookWrapper";
 import { MockedService } from "test/utils";
 
-const pushMock = jest.fn();
 const setErrorMock = jest.fn();
 const getDirectMessageMock = service.conversations
   .getDirectMessage as MockedService<
   typeof service.conversations.getDirectMessage
 >;
-jest.mock("react-router-dom", () => {
-  const pushMock = jest.fn();
-  return {
-    ...jest.requireActual("react-router-dom"),
-    useHistory: () => ({
-      push: pushMock,
-    }),
-  };
-});
 
-describe("CreateGroupChat with router state", () => {
+describe("MessageUserButton", () => {
   beforeEach(() => {
-    pushMock.mockClear();
     setErrorMock.mockClear();
   });
 
@@ -48,30 +37,58 @@ describe("CreateGroupChat with router state", () => {
   it("redirects to thread if dm exists", async () => {
     getDirectMessageMock.mockResolvedValueOnce(99);
     const user = { ...users[0], friends: User.FriendshipStatus.FRIENDS };
-    render(<MessageUserButton user={user} setMutationError={setErrorMock} />, {
-      wrapper,
-    });
+    const MockChatRoute = () => {
+      const groupChatId = useParams<{ groupChatId?: string }>().groupChatId;
+      return <>Group chat, id: {groupChatId}</>;
+    };
+    render(
+      <Switch>
+        <Route path={`${groupChatsRoute}/:groupChatId`}>
+          <MockChatRoute />
+        </Route>
+        <Route>
+          <MessageUserButton user={user} setMutationError={setErrorMock} />
+        </Route>
+      </Switch>,
+      {
+        wrapper,
+      }
+    );
 
     userEvent.click(screen.getByRole("button"));
 
-    await waitFor(() => {
-      expect(useHistory().push).toBeCalledWith(routeToGroupChat(99));
-    });
+    expect(await screen.findByText("Group chat, id: 99")).toBeVisible();
   });
 
   it("redirects to chat tab with state if dm doesn't exist", async () => {
     getDirectMessageMock.mockResolvedValueOnce(false);
     const user = { ...users[0], friends: User.FriendshipStatus.FRIENDS };
-    render(<MessageUserButton user={user} setMutationError={setErrorMock} />, {
-      wrapper,
-    });
+    const MockGroupChatsRoute = () => {
+      const createMessageToId = useLocation<{
+        createMessageTo: User.AsObject;
+      }>()?.state?.createMessageTo?.userId;
+      return <>Group chats route, message to: {createMessageToId}</>;
+    };
+    render(
+      <Switch>
+        <Route path={groupChatsRoute}>
+          <MockGroupChatsRoute />
+        </Route>
+        <Route>
+          <MessageUserButton user={user} setMutationError={setErrorMock} />
+        </Route>
+      </Switch>,
+      {
+        wrapper,
+      }
+    );
 
     userEvent.click(screen.getByRole("button"));
 
-    await waitFor(() => {
-      expect(useHistory().push).toBeCalledWith(groupChatsRoute, {
-        createMessageTo: user,
-      });
-    });
+    expect(
+      await screen.findByText(
+        `Group chats route, message to: ${users[0].userId}`
+      )
+    ).toBeVisible();
   });
 });
