@@ -55,19 +55,6 @@ const useStyles = makeStyles((theme) => ({
       padding: 0,
     },
   },
-  icon: {
-    display: "block",
-    fontSize: "1rem",
-    marginInlineEnd: theme.spacing(0.5),
-  },
-  link: { textDecoration: "none" },
-  subtitle: { marginBottom: theme.spacing(0.5) },
-  title: {
-    ...theme.typography.h3,
-    height: `calc(2 * calc(${theme.typography.h3.lineHeight} * ${theme.typography.h3.fontSize}))`,
-    marginBottom: 0,
-    marginTop: 0,
-  },
   detailsText: theme.typography.body2,
 }));
 

@@ -6,20 +6,20 @@ import IconButton from "components/IconButton";
 import { AddIcon, EmailIcon, MoreIcon } from "components/Icons";
 import TextBody from "components/TextBody";
 import {
-  useListDiscussions,
-  useNewDiscussionMutation,
-} from "features/communities/useCommunity";
-import {
   DISCUSSIONS_EMPTY_STATE,
   DISCUSSIONS_TITLE,
   NEW_POST_LABEL,
   SEE_MORE_DISCUSSIONS_LABEL,
-} from "features/constants";
+} from "features/communities/constants";
+import {
+  useListDiscussions,
+  useNewDiscussionMutation,
+} from "features/communities/useCommunity";
 import { Community } from "pb/communities_pb";
 import React, { useState } from "react";
 import { useQueryClient } from "react-query";
 import { Link } from "react-router-dom";
-import { routeToCommunityDiscussions } from "routes";
+import { routeToCommunity } from "routes";
 
 import { useCommunityPageStyles } from "./CommunityPage";
 import DiscussionCard from "./DiscussionCard";
@@ -143,9 +143,10 @@ export default function DiscussionsSection({
         {discussionsHasNextPage && (
           <div className={classes.loadMoreButton}>
             <Link
-              to={routeToCommunityDiscussions(
+              to={routeToCommunity(
                 community.communityId,
-                community.slug
+                community.slug,
+                "discussions"
               )}
             >
               <IconButton aria-label={SEE_MORE_DISCUSSIONS_LABEL}>

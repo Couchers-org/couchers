@@ -29,6 +29,14 @@ declare module "@material-ui/core/styles/shape" {
 const themeOptions: ThemeOptions = {
   breakpoints,
   overrides: {
+    MuiCssBaseline: {
+      "@global": {
+        a: {
+          textDecoration: "none",
+          color: "inherit",
+        },
+      },
+    },
     MuiListItem: { gutters: { paddingLeft: 0, paddingRight: 0 } },
     MuiTabPanel: {
       root: {

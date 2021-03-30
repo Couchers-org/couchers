@@ -16,10 +16,6 @@ const useStyles = makeStyles((theme) => ({
       flexDirection: "row",
     },
   },
-  link: {
-    textDecoration: "none",
-    color: "inherit",
-  },
   linkActive: { color: theme.palette.primary.main },
   button: {
     color: "inherit",
@@ -27,6 +23,7 @@ const useStyles = makeStyles((theme) => ({
   },
   link: {
     textDecoration: "none",
+    color: "inherit",
   },
   label: {
     textAlign: "center",

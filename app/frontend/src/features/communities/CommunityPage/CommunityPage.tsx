@@ -1,29 +1,42 @@
-import { Breadcrumbs, Hidden, makeStyles, Typography } from "@material-ui/core";
+import {
+  Breadcrumbs,
+  Link as MuiLink,
+  makeStyles,
+  Typography,
+} from "@material-ui/core";
+import { TabContext } from "@material-ui/lab";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
-import { useCommunity } from "features/communities/useCommunity";
+import TabBar from "components/TabBar";
 import {
   COMMUNITY_HEADING,
+  COMMUNITY_TABS_A11Y_LABEL,
+  communityTabBarLabels,
   ERROR_LOADING_COMMUNITY,
   INVALID_COMMUNITY_ID,
   MORE_TIPS,
-} from "features/constants";
+} from "features/communities/constants";
+import { useCommunity } from "features/communities/useCommunity";
 import { CommunityParent } from "pb/groups_pb";
 import React, { useEffect } from "react";
-import { Link, Route, Switch, useHistory, useParams } from "react-router-dom";
 import {
-  communityDiscussionsRoute,
-  communityEventsRoute,
-  communityInfoRoute,
+  Link,
+  Redirect,
+  Route,
+  Switch,
+  useHistory,
+  useParams,
+} from "react-router-dom";
+import {
   communityRoute,
+  CommunityTab,
   routeToCommunity,
+  searchRoute,
 } from "routes";
 
 import DiscussionsSection from "./DiscussionsSection";
 import EventsSection from "./EventsSection";
 import HeaderImage from "./HeaderImage";
-import NavDesktop from "./NavDesktop";
-import NavMobile from "./NavMobile";
 import PlacesSection from "./PlacesSection";
 
 export const useCommunityPageStyles = makeStyles((theme) => ({
@@ -38,37 +51,15 @@ export const useCommunityPageStyles = makeStyles((theme) => ({
   header: {
     marginBottom: theme.spacing(1),
   },
-  body: {
-    //sidebar on desktop
-    [theme.breakpoints.up("md")]: {
-      alignItems: "flex-start",
-      display: "flex",
-      justifyContent: "center",
-    },
-  },
-  content: {
-    [theme.breakpoints.up("md")]: {
-      flexGrow: 1,
-      marginInlineStart: theme.spacing(4),
-    },
-  },
-  mobileCenter: {
-    textAlign: "center",
-    [theme.breakpoints.up("md")]: {
-      textAlign: "left",
-    },
+  title: {
+    marginBottom: 0,
+    marginTop: 0,
+    ...theme.typography.h1Large,
   },
   breadcrumbs: {
     "& ol": {
-      [theme.breakpoints.up("md")]: {
-        justifyContent: "flex-start",
-      },
+      justifyContent: "flex-start",
     },
-  },
-  title: {
-    marginBottom: theme.spacing(1),
-    marginTop: theme.spacing(1),
-    [theme.breakpoints.up("md")]: theme.typography.h1Large,
   },
   description: {
     marginBottom: theme.spacing(1),
@@ -103,17 +94,6 @@ export const useCommunityPageStyles = makeStyles((theme) => ({
       marginTop: theme.spacing(1),
     },
   },
-  center: {
-    display: "block",
-    marginLeft: "auto",
-    marginRight: "auto",
-  },
-  description: {
-    marginBottom: theme.spacing(1),
-  },
-  header: {
-    marginBottom: theme.spacing(1),
-  },
   loadMoreButton: {
     [theme.breakpoints.up("sm")]: {
       width: `calc(50% - ${theme.spacing(1)})`,
@@ -122,20 +102,6 @@ export const useCommunityPageStyles = makeStyles((theme) => ({
       width: `calc(33% - ${theme.spacing(1)})`,
     },
     alignSelf: "center",
-  },
-  navButtonContainer: {
-    [theme.breakpoints.only("sm")]: {
-      "& > * + *": {
-        marginInlineStart: theme.spacing(4),
-      },
-      justifyContent: "center",
-    },
-    [theme.breakpoints.up("md")]: {
-      width: "30%",
-    },
-    display: "flex",
-    justifyContent: "space-around",
-    marginBottom: theme.spacing(1),
   },
   placeEventCard: {
     [theme.breakpoints.up("sm")]: {
@@ -146,26 +112,6 @@ export const useCommunityPageStyles = makeStyles((theme) => ({
     },
     marginBottom: theme.spacing(1),
     width: 200,
-  },
-  root: {
-    marginBottom: theme.spacing(2),
-  },
-  title: {
-    marginBottom: theme.spacing(1),
-    marginTop: theme.spacing(1),
-  },
-  topContainer: {
-    [theme.breakpoints.up("md")]: {
-      display: "flex",
-      justifyContent: "space-between",
-      textAlign: "left",
-    },
-    textAlign: "center",
-  },
-  topInfo: {
-    [theme.breakpoints.up("md")]: {
-      width: "60%",
-    },
   },
 }));
 
@@ -192,6 +138,10 @@ export default function CommunityPage() {
     }
   }, [community, communitySlug, history]);
 
+  const { page = "overview" } = useParams<{ page: CommunityTab }>();
+  const tab =
+    page in communityTabBarLabels ? (page as CommunityTab) : "overview";
+
   if (!communityId)
     return <Alert severity="error">{INVALID_COMMUNITY_ID}</Alert>;
 
@@ -208,69 +158,110 @@ export default function CommunityPage() {
   return (
     <div className={classes.root}>
       <HeaderImage community={community} className={classes.header} />
-      <div className={classes.body}>
-        <Hidden smDown>
-          <NavDesktop community={community} />
-        </Hidden>
-        <div className={classes.content}>
-          <div className={classes.mobileCenter}>
-            <Breadcrumbs
-              aria-label="breadcrumb"
-              className={classes.breadcrumbs}
+      <Breadcrumbs aria-label="breadcrumb" className={classes.breadcrumbs}>
+        {community.parentsList
+          .map((parent) => parent.community)
+          .filter(
+            (communityParent): communityParent is CommunityParent.AsObject =>
+              !!communityParent
+          )
+          .map((communityParent) => (
+            <MuiLink
+              component={Link}
+              to={routeToCommunity(
+                communityParent.communityId,
+                communityParent.slug
+              )}
+              key={`breadcrumb-${communityParent?.communityId}`}
             >
-              {community.parentsList
-                .map((parent) => parent.community)
-                .filter(
-                  (
-                    communityParent
-                  ): communityParent is CommunityParent.AsObject =>
-                    !!communityParent
-                )
-                .map((communityParent) => (
-                  <Link
-                    to={routeToCommunity(
-                      communityParent.communityId,
-                      communityParent.slug
-                    )}
-                    key={`breadcrumb-${communityParent?.communityId}`}
-                  >
-                    {communityParent.name}
-                  </Link>
-                ))}
-            </Breadcrumbs>
-            <Switch>
-              <Route path={communityRoute} exact>
-                <Typography variant="h1" className={classes.title}>
-                  {COMMUNITY_HEADING(community.name)}
-                </Typography>
-                <Typography variant="body2" className={classes.description}>
-                  {community.description} <Link to="#">{MORE_TIPS}</Link>
-                </Typography>
-              </Route>
-            </Switch>
-            <Hidden mdUp>
-              <NavMobile community={community} />
-            </Hidden>
-          </div>
+              {communityParent.name}
+            </MuiLink>
+          ))}
+      </Breadcrumbs>
+      <TabContext value={tab}>
+        <TabBar
+          ariaLabel={COMMUNITY_TABS_A11Y_LABEL}
+          value={tab}
+          setValue={(newTab) =>
+            history.push(
+              `${routeToCommunity(
+                community.communityId,
+                community.slug,
+                newTab === "overview" ? undefined : newTab
+              )}`
+            )
+          }
+          labels={communityTabBarLabels}
+        />
+      </TabContext>
+      <Switch>
+        <Route
+          path={routeToCommunity(community.communityId, community.slug)}
+          exact
+        >
+          <Typography variant="h1" className={classes.title}>
+            {COMMUNITY_HEADING(community.name)}
+          </Typography>
+          <Typography variant="body2" className={classes.description}>
+            {community.description} <Link to="#">{MORE_TIPS}</Link>
+          </Typography>
+        </Route>
+      </Switch>
 
-          <Switch>
-            <Route path={communityInfoRoute}>Info</Route>
-            <Route path={communityEventsRoute}>
-              <p>Replace this with full events page</p>
-              <EventsSection community={community} />
-            </Route>
-            <Route path={communityDiscussionsRoute}>
-              <p>Replace this with full discussions page</p>
-              <DiscussionsSection community={community} />
-            </Route>
-            <Route path={communityRoute} exact>
-              <EventsSection community={community} />
-              <PlacesSection community={community} />
-              <DiscussionsSection community={community} />
-            </Route>
-          </Switch>
-        </div>
-      </div>
+      <Switch>
+        <Route
+          path={routeToCommunity(
+            community.communityId,
+            community.slug,
+            "find-host"
+          )}
+        >
+          <Redirect to={searchRoute} />
+        </Route>
+        <Route
+          path={routeToCommunity(
+            community.communityId,
+            community.slug,
+            "events"
+          )}
+        >
+          <p>Replace this with full events page</p>
+          <EventsSection community={community} />
+        </Route>
+        <Route
+          path={routeToCommunity(
+            community.communityId,
+            community.slug,
+            "local-points"
+          )}
+        >
+          <p>Local points coming soon</p>
+        </Route>
+        <Route
+          path={routeToCommunity(
+            community.communityId,
+            community.slug,
+            "discussions"
+          )}
+        >
+          <p>Replace this with full discussions page</p>
+          <DiscussionsSection community={community} />
+        </Route>
+        <Route
+          path={routeToCommunity(
+            community.communityId,
+            community.slug,
+            "hangouts"
+          )}
+        >
+          <p>Hangouts coming soon!</p>
+        </Route>
+        <Route path={communityRoute} exact>
+          <EventsSection community={community} />
+          <PlacesSection community={community} />
+          <DiscussionsSection community={community} />
+        </Route>
+      </Switch>
     </div>
   );
 }

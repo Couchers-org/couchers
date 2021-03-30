@@ -32,13 +32,6 @@ import SearchPage from "./features/search/SearchPage";
 import { PageType } from "./pb/pages_pb";
 import {
   baseRoute,
-  changeEmailRoute,
-  changePasswordRoute,
-  communityDiscussionsRoute,
-  communityEventsRoute,
-  communityGroupsRoute,
-  communityGuidesRoute,
-  communityPlacesRoute,
   communityRoute,
   confirmChangeEmailRoute,
   connectionsRoute,

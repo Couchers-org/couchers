@@ -6,11 +6,11 @@ import {
   EVENTS_EMPTY_STATE,
   EVENTS_TITLE,
   SEE_MORE_EVENTS_LABEL,
-} from "features/constants";
+} from "features/communities/constants";
 import { Community } from "pb/communities_pb";
 import React from "react";
 import { Link } from "react-router-dom";
-import { routeToCommunityEvents } from "routes";
+import { routeToCommunity } from "routes";
 
 import { useCommunityPageStyles } from "./CommunityPage";
 import EventCard from "./EventCard";
@@ -38,6 +38,7 @@ export default function PlacesSection({
             <EventCard
               key={`eventcard-${i}`}
               event={{
+                title: "An event",
                 creatorName: "Bot",
                 location:
                   "Restaurant name, No 2, Something street, Suburb, Amsterdam",
@@ -50,7 +51,11 @@ export default function PlacesSection({
         {true && ( //eventsHasNextPage && (
           <div className={classes.loadMoreButton}>
             <Link
-              to={routeToCommunityEvents(community.communityId, community.slug)}
+              to={routeToCommunity(
+                community.communityId,
+                community.slug,
+                "events"
+              )}
             >
               <IconButton aria-label={SEE_MORE_EVENTS_LABEL}>
                 <MoreIcon />

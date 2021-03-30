@@ -95,29 +95,6 @@ export const WHEELCHAIR = "Wheelchair accessible";
 // Edit home
 export const EDIT_HOME = "Edit home";
 
-// Community
-export const COMMUNITY_HEADING = (name: string) => `Welcome to ${name}!`;
-export const DISCUSSIONS_EMPTY_STATE = "No discussions at the moment.";
-export const DISCUSSIONS_LABEL = "Discussions";
-export const DISCUSSIONS_TITLE = "Discussions";
-export const ERROR_LOADING_COMMUNITY = "Error loading the community.";
-export const EVENTS_EMPTY_STATE = "No events at the moment.";
-export const EVENTS_LABEL = "Events";
-export const EVENTS_TITLE = "Events";
-export const FIND_HOST = "Find host";
-export const HANGOUTS_LABEL = "Hangouts";
-export const INVALID_COMMUNITY_ID = "Invalid community id.";
-export const LOCAL_INFO_LABEL = "Local info";
-export const MORE_REPLIES = "More replies...";
-export const MORE_TIPS = "More tips and information";
-export const NEW_POST_LABEL = "New post";
-export const OVERVIEW_LABEL = "Overview";
-export const PLACES_EMPTY_STATE = "No places to show yet.";
-export const PLACES_TITLE = "Places";
-export const SEE_MORE_DISCUSSIONS_LABEL = "See more discussions";
-export const SEE_MORE_EVENTS_LABEL = "See more events";
-export const SEE_MORE_PLACES_LABEL = "See more places";
-
 // References
 export const REFERENCES_FILTER_A11Y_LABEL = "Show references: ";
 export const referencesFilterLabels = {

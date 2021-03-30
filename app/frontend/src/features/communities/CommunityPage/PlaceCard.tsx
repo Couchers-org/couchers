@@ -29,7 +29,6 @@ const useStyles = makeStyles((theme) => ({
       height: 120,
     },
   },
-  link: { textDecoration: "none" },
   place: {
     ...theme.typography.caption,
     marginTop: theme.spacing(0.5),

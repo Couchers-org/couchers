@@ -67,25 +67,18 @@ export const routeToEvent = (id: number, slug: string) =>
   `${eventBaseRoute}/${id}/${slug}`;
 
 const communityBaseRoute = "/community";
-export const communityRoute = `${communityBaseRoute}/:communityId/:communitySlug?`;
-export const routeToCommunity = (id: number, slug: string) =>
-  `${communityBaseRoute}/${id}/${slug}`;
-
-export const communityInfoRoute = `${communityRoute}/info`;
-export const routeToCommunityInfo = (id: number, slug: string) =>
-  `${communityBaseRoute}/${id}/${slug}/info`;
-export const communityPlacesRoute = `${communityRoute}/places`;
-export const routeToCommunityPlaces = (id: number, slug: string) =>
-  `${communityBaseRoute}/${id}/${slug}/places`;
-export const communityGuidesRoute = `${communityRoute}/guides`;
-export const routeToCommunityGuides = (id: number, slug: string) =>
-  `${communityBaseRoute}/${id}/${slug}/guides`;
-export const communityGroupsRoute = `${communityRoute}/groups`;
-export const routeToCommunityGroups = (id: number, slug: string) =>
-  `${communityBaseRoute}/${id}/${slug}/groups`;
-export const communityDiscussionsRoute = `${communityRoute}/discussions`;
-export const routeToCommunityDiscussions = (id: number, slug: string) =>
-  `${communityBaseRoute}/${id}/${slug}/discussions`;
-export const communityEventsRoute = `${communityRoute}/events`;
-export const routeToCommunityEvents = (id: number, slug: string) =>
-  `${communityBaseRoute}/${id}/${slug}/events`;
+const communityTabs = [
+  "overview",
+  "find-host",
+  "events",
+  "local-points",
+  "discussions",
+  "hangouts",
+] as const;
+export type CommunityTab = typeof communityTabs[number];
+export const communityRoute = `${communityBaseRoute}/:communityId/:communitySlug/:page?`;
+export const routeToCommunity = (
+  id: number,
+  slug: string,
+  page?: CommunityTab
+) => `${communityBaseRoute}/${id}/${slug}` + (page ? `/${page}` : "");

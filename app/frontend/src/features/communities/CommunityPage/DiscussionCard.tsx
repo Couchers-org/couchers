@@ -8,7 +8,7 @@ import {
 import { Skeleton } from "@material-ui/lab";
 import classNames from "classnames";
 import CircularProgress from "components/CircularProgress";
-import { MORE_REPLIES } from "features/constants";
+import { MORE_REPLIES } from "features/communities/constants";
 import useUsers, { useUser } from "features/userQueries/useUsers";
 import { Error as GrpcError } from "grpc-web";
 import { Discussion } from "pb/discussions_pb";
@@ -35,8 +35,6 @@ const useStyles = makeStyles((theme) => ({
   root: {
     width: "100%",
   },
-  surtitle: { marginBottom: theme.spacing(0.5) },
-  userLoading: { display: "inline-block", width: 80 },
 }));
 
 export default function DiscussionCard({
