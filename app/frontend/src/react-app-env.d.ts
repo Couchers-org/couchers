@@ -7,5 +7,6 @@ declare namespace NodeJS {
     REACT_APP_API_BASE_URL: string;
     REACT_APP_IS_POST_BETA_ENABLED: boolean;
     REACT_APP_VERSION: string;
+    REACT_APP_IS_COMMUNITIES_ENABLED: string;
   }
 }

@@ -4,9 +4,12 @@ import { useHistory, useLocation } from "react-router-dom";
 
 import Map from "../../components/Map";
 import PageTitle from "../../components/PageTitle";
-import { routeToUser } from "../../routes";
+import { routeToGuide, routeToPlace, routeToUser } from "../../routes";
 import { addClusteredUsersToMap } from "./clusteredUsers";
+import addCommunitiesToMap from "./communities";
 import { MAP_PAGE } from "./constants";
+import addGuidesToMap from "./guides";
+import addPlacesToMap from "./places";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -30,8 +33,7 @@ export default function MapPage() {
 
   const classes = useStyles();
 
-/*   Disabling for soft beta:
-    const handlePlaceClick = (ev: any) => {
+  const handlePlaceClick = (ev: any) => {
     const properties = ev.features[0].properties as {
       id: number;
       slug: string;
@@ -45,7 +47,7 @@ export default function MapPage() {
       slug: string;
     };
     history.push(routeToGuide(properties.id, properties.slug), location.state);
-  }; */
+  };
 
   const handleClick = (ev: any) => {
     const username = ev.features[0].properties.username;
@@ -54,9 +56,11 @@ export default function MapPage() {
 
   const initializeMap = (map: MaplibreMap) => {
     map.on("load", () => {
-      // addCommunitiesToMap(map);
-      // addPlacesToMap(map, handlePlaceClick);
-      // addGuidesToMap(map, handleGuideClick);
+      if (process.env.REACT_APP_IS_COMMUNITIES_ENABLED === "true") {
+        addCommunitiesToMap(map);
+        addPlacesToMap(map, handlePlaceClick);
+        addGuidesToMap(map, handleGuideClick);
+      }
       addClusteredUsersToMap(map, handleClick);
     });
   };
