@@ -159,7 +159,7 @@ export default {
         { hid: 'og:image', property: 'og:image', content: 'https://couchers.org/img/share.jpg' },
         { hid: 'twitter:image', name: 'twitter:image', content: 'https://couchers.org/img/share.jpg' },
 
-        { hid: 'og:url', property: 'og:url', content: 'https://couchers.org' },
+        // { hid: 'og:url', property: 'og:url', content: 'https://couchers.org' },
         { hid: 'og:type', property: 'og:type', content: 'website' },
         { hid: 'twitter:card', name: 'twitter:card', content: 'summary_large_image' }
       ]
