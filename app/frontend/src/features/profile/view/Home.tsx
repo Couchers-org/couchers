@@ -22,7 +22,6 @@ import {
   PARKING,
   PARKING_DETAILS,
   SLEEPING_ARRANGEMENT,
-  SPACE,
   WHEELCHAIR,
 } from "features/constants";
 import booleanConversion, {
@@ -63,67 +62,39 @@ export default function Home({ user }: HomeProps) {
             text={booleanConversion(user.lastMinute?.value)}
           />
           <LabelAndText
-            label={MAX_GUESTS}
-            text={`${user.maxGuests?.value || 1}`}
-          />
-          <LabelAndText
-            label={ACCEPT_SMOKING}
-            text={`${smokingLocationLabels[user.smokingAllowed]}`}
-          />
-          <LabelAndText
-            label={ACCEPT_DRINKING}
-            text={booleanConversion(user.drinkingAllowed?.value)}
-          />
-          <LabelAndText
-            label={ACCEPT_PETS}
-            text={booleanConversion(user.acceptsPets?.value)}
-          />
-          <LabelAndText
-            label={ACCEPT_KIDS}
-            text={booleanConversion(user.acceptsKids?.value)}
+            label={WHEELCHAIR}
+            text={booleanConversion(user.wheelchairAccessible?.value)}
           />
           <LabelAndText
             label={CAMPING}
             text={booleanConversion(user.campingOk?.value)}
           />
           <LabelAndText
-            label={WHEELCHAIR}
-            text={booleanConversion(user.wheelchairAccessible?.value)}
+            label={MAX_GUESTS}
+            text={`${user.maxGuests?.value || 1}`}
+          />
+          <LabelAndText
+            label={ACCEPT_KIDS}
+            text={booleanConversion(user.acceptsKids?.value)}
+          />
+          <LabelAndText
+            label={ACCEPT_PETS}
+            text={booleanConversion(user.acceptsPets?.value)}
+          />
+          <LabelAndText
+            label={ACCEPT_DRINKING}
+            text={booleanConversion(user.drinkingAllowed?.value)}
+          />
+          <LabelAndText
+            label={ACCEPT_SMOKING}
+            text={`${smokingLocationLabels[user.smokingAllowed]}`}
           />
         </div>
         <div className={classes.info}>
           <Typography variant="h1">{ABOUT_HOME}</Typography>
           <LabelAndText
-            label={SPACE}
+            label={SLEEPING_ARRANGEMENT}
             text={`${sleepingArrangementLabels[user.sleepingArrangement]}`}
-          />
-          <LabelAndText
-            label={HAS_HOUSEMATES}
-            text={`${booleanConversion(user.hasHousemates?.value)} ${
-              user.housemateDetails?.value
-                ? `, ${user.housemateDetails?.value}`
-                : ""
-            }`}
-          />
-          <LabelAndText
-            label={HOST_SMOKING}
-            text={booleanConversion(user.smokesAtHome?.value)}
-          />
-          <LabelAndText
-            label={HOST_DRINKING}
-            text={booleanConversion(user.drinksAtHome?.value)}
-          />
-          <LabelAndText
-            label={HOST_PETS}
-            text={`${booleanConversion(user.hasPets?.value)} ${
-              user.petDetails?.value ? `, ${user.petDetails?.value}` : ""
-            }`}
-          />
-          <LabelAndText
-            label={HOST_KIDS}
-            text={`${booleanConversion(user.hasKids?.value)} ${
-              user.kidDetails?.value ? `, ${user.kidDetails?.value}` : ""
-            }`}
           />
           <LabelAndText
             label={PARKING}
@@ -133,14 +104,39 @@ export default function Home({ user }: HomeProps) {
             label={PARKING_DETAILS}
             text={parkingDetailsLabels[user.parkingDetails]}
           />
+          <LabelAndText
+            label={HAS_HOUSEMATES}
+            text={`${booleanConversion(user.hasHousemates?.value)}${
+              user.housemateDetails?.value
+                ? `, ${user.housemateDetails?.value}`
+                : ""
+            }`}
+          />
+          <LabelAndText
+            label={HOST_KIDS}
+            text={`${booleanConversion(user.hasKids?.value)}${
+              user.kidDetails?.value ? `, ${user.kidDetails?.value}` : ""
+            }`}
+          />
+          <LabelAndText
+            label={HOST_PETS}
+            text={`${booleanConversion(user.hasPets?.value)}${
+              user.petDetails?.value ? `, ${user.petDetails?.value}` : ""
+            }`}
+          />
+          <LabelAndText
+            label={HOST_DRINKING}
+            text={booleanConversion(user.drinksAtHome?.value)}
+          />
+          <LabelAndText
+            label={HOST_SMOKING}
+            text={booleanConversion(user.smokesAtHome?.value)}
+          />
         </div>
       </div>
       <Divider />
       <Typography variant="h1">{LOCAL_AREA}</Typography>
       <Typography variant="body1">{user.area?.value}</Typography>
-      <Divider />
-      <Typography variant="h1">{SLEEPING_ARRANGEMENT}</Typography>
-      <Typography variant="body1">{user.sleepingDetails?.value}</Typography>
       <Divider />
       <Typography variant="h1">{HOUSE_RULES}</Typography>
       <Typography variant="body1">{user.houseRules?.value}</Typography>
