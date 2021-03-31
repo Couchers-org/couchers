@@ -102,6 +102,10 @@ const useStyles = makeStyles((theme) =>
     tagLabel: {
       marginLeft: theme.spacing(1),
     },
+    tagsContainer: {
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit, minmax(auto, 250px))",
+    },
   })
 );
 
@@ -169,18 +173,20 @@ export default function ProfileTagInput({
         <Typography variant="body1">{label}</Typography>
         <ExpandMoreIcon />
       </ButtonBase>
-      {value.map((tag) => (
-        <div key={tag} className={classes.tag}>
-          <IconButton
-            aria-label={`Remove ${tag}`}
-            edge="start"
-            onClick={() => handleRemove(tag)}
-          >
-            <CloseIcon fontSize="small" />
-          </IconButton>
-          <span className={classes.tagLabel}>{tag}</span>
-        </div>
-      ))}
+      <div className={classes.tagsContainer}>
+        {value.map((tag) => (
+          <div key={tag} className={classes.tag}>
+            <IconButton
+              aria-label={`Remove ${tag}`}
+              edge="start"
+              onClick={() => handleRemove(tag)}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+            <span className={classes.tagLabel}>{tag}</span>
+          </div>
+        ))}
+      </div>
       <Popper
         id={popperId}
         open={open}
