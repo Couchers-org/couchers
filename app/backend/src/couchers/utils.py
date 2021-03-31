@@ -52,24 +52,18 @@ def today():
     return now().date()
 
 
-def largest_current_date():
+def now_in_timezone(tz):
     """
-    Get the largest date that's possible now.
-
-    That is, get the largest date that is in effect in some part of the world now, somewhere presumably very far east.
+    tz should be tzdata identifier, e.g. America/New_York
     """
-    # This is not the right way to do it, timezones can change
-    # at the time of writing, Samoa observes UTC+14 in Summer
-    return datetime.now(timezone(timedelta(hours=14))).date()
+    return datetime.now(pytz.timezone(tz))
 
 
-def least_current_date():
+def today_in_timezone(tz):
     """
-    Same as above for earliest date (west)
+    tz should be tzdata identifier, e.g. America/New_York
     """
-    # This is not the right way to do it, timezones can change
-    # at the time of writing, Baker Island observes UTC-12
-    return datetime.now(timezone(timedelta(hours=-12))).date()
+    return now_in_timezone(tz).date()
 
 
 # Note: be very careful with ordering of lat/lng!
