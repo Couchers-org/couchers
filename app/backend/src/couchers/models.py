@@ -636,7 +636,7 @@ class HostRequest(Base):
     to_date = Column(Date, nullable=False)
 
     # timezone aware start and end times of the request, can be compared to now()
-    start_time = column_property(date_in_timezone(to_date, timezone))
+    start_time = column_property(date_in_timezone(from_date, timezone))
     end_time = column_property(date_in_timezone(to_date, timezone) + text("interval '1 days'"))
 
     status = Column(Enum(HostRequestStatus), nullable=False)
