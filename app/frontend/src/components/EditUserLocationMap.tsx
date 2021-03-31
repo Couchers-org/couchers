@@ -22,9 +22,10 @@ const useStyles = makeStyles({
     width: "100%",
   },
   root: {
-    height: 200,
+    height: 400,
     position: "relative",
-    maxWidth: 400,
+    margin: "auto",
+    maxWidth: 700,
   },
 });
 
