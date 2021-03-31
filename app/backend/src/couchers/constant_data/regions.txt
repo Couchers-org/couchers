@@ -1,5 +1,0 @@
-Region data taken from:
-https://github.com/lukes/ISO-3166-Countries-with-Regional-Codes/tree/master/slim-3
-
-Formatted with:
-https://jsonformatter.curiousconcept.com/
