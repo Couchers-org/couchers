@@ -7,6 +7,7 @@ from geoalchemy2.shape import from_shape, to_shape
 from google.protobuf.timestamp_pb2 import Timestamp
 from shapely.geometry import Point, Polygon, shape
 from sqlalchemy.sql import func
+from timezonefinder import TimezoneFinder
 
 from couchers.config import config
 
@@ -94,6 +95,19 @@ def get_coordinates(geom):
     shp = to_shape(geom)
     # note the funiness with 4326 normally being (x, y) = (lng, lat)
     return (shp.y, shp.x)
+
+
+def timezone_at_coordinate(lat, lng):
+    """
+    Returns the timezone name corresponding the lat, lng input, or None if the input does not correspond to a timezone or is invalid.
+    The timezone names are defined in this timezone database:
+    https://www.iana.org/time-zones
+    """
+    tf = TimezoneFinder(in_memory=True)
+    try:
+        return tf.timezone_at(lat=lat, lng=lng)
+    except ValueError as ve:
+        print("Error: timezone_at_coordinate():", ve)
 
 
 def http_date(dt=None):
