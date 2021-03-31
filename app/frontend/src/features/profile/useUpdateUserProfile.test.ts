@@ -18,8 +18,8 @@ describe("updateUserProfile action", () => {
       aboutMe,
       aboutPlace,
       radius,
-      countriesLivedList,
-      countriesVisitedList,
+      regionsLivedList,
+      regionsVisitedList,
       gender,
       name,
       occupation,
@@ -31,7 +31,7 @@ describe("updateUserProfile action", () => {
       occupation,
       aboutMe,
       aboutPlace,
-      countriesLived: countriesLivedList,
+      regionsLived: regionsLivedList,
       // Changed data
       city: "New York",
       lat: 40.7306,
@@ -39,13 +39,13 @@ describe("updateUserProfile action", () => {
       radius,
       hostingStatus: 3,
       languages: ["English", "Finnish", "Spanish"],
-      countriesVisited: [...countriesVisitedList, "United States"],
+      regionsVisited: [...regionsVisitedList, "United States"],
     };
     updateProfileMock.mockResolvedValue(new Empty());
     getUserMock.mockResolvedValue({
       ...newUserProfileData,
-      countriesLivedList,
-      countriesVisitedList: newUserProfileData.countriesVisited,
+      regionsLivedList,
+      regionsVisitedList: newUserProfileData.regionsVisited,
     });
     const { result, waitFor } = renderHook(
       () => ({
@@ -77,8 +77,8 @@ describe("updateUserProfile action", () => {
       city: "New York",
       hostingStatus: 3,
       languages: ["English", "Finnish", "Spanish"],
-      countriesLivedList: ["Australia", "Finland", "Sweden", "United States"],
-      countriesVisitedList: ["Australia", "United States"],
+      regionsLivedList: ["Australia", "Finland", "Sweden", "United States"],
+      regionsVisitedList: ["Australia", "United States"],
       lat: 40.7306,
       lng: -73.9352,
     });
@@ -112,8 +112,8 @@ describe("updateUserProfile action", () => {
         profileData: {
           ...defaultUser,
           languages: defaultUser.languagesList,
-          countriesLived: ["Ecuador"],
-          countriesVisited: defaultUser.countriesVisitedList,
+          regionsLived: ["Ecuador"],
+          regionsVisited: defaultUser.regionsVisitedList,
         },
         setMutationError: setError,
       })

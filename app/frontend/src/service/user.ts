@@ -46,8 +46,8 @@ export type UpdateUserProfileData = Pick<
   | "hostingStatus"
   | "meetupStatus"
   | "languages"
-  | "countriesVisited"
-  | "countriesLived"
+  | "regionsVisited"
+  | "regionsLived"
   | "additionalInformation"
 >;
 
@@ -148,12 +148,12 @@ export async function updateProfile(
   const languages = new RepeatedStringValue()
     .setValueList(profile.languages)
     .setExists(!!profile.languages);
-  const countriesVisited = new RepeatedStringValue()
-    .setValueList(profile.countriesVisited)
-    .setExists(!!profile.countriesVisited);
-  const countriesLived = new RepeatedStringValue()
-    .setValueList(profile.countriesLived)
-    .setExists(!!profile.countriesLived);
+  const regionsVisited = new RepeatedStringValue()
+    .setValueList(profile.regionsVisited)
+    .setExists(!!profile.regionsVisited);
+  const regionsLived = new RepeatedStringValue()
+    .setValueList(profile.regionsLived)
+    .setExists(!!profile.regionsLived);
   const additionalInformation = new NullableStringValue().setValue(
     profile.additionalInformation
   );
@@ -177,8 +177,8 @@ export async function updateProfile(
     .setHostingStatus(hostingStatus)
     .setMeetupStatus(meetupStatus)
     .setLanguages(languages)
-    .setCountriesVisited(countriesVisited)
-    .setCountriesLived(countriesLived)
+    .setregionsVisited(regionsVisited)
+    .setregionsLived(regionsLived)
     .setAdditionalInformation(additionalInformation);
 
   return client.api.updateProfile(req);

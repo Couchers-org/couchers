@@ -90,9 +90,9 @@
           </div>
         </div>
         <div class="field">
-          <label class="label">Country and city</label>
+          <label class="label">Region and city</label>
           <div class="control">
-            <input class="input" type="text" placeholder="Country and/or city where you live" v-model="location">
+            <input class="input" type="text" placeholder="Region and/or city where you live" v-model="location">
           </div>
         </div>
         <div class="field">
