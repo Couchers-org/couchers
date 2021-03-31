@@ -95,7 +95,7 @@ export default function InfiniteMessageLoader({
 
   //** Scroll to the bottom after sending own new message  **//
   const savedMessageId = useRef(latestMessage?.messageId);
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!scrollRef.current) return;
     const isUserMessage = latestMessage?.authorUserId === currentUserId;
     const isNewMessage = latestMessage?.messageId !== savedMessageId.current;
