@@ -179,8 +179,8 @@ def test_update_profile(db):
                         )
                     ],
                 ),
-                regions_visited=api_pb2.RepeatedStringValue(exists=True, value=["CO", "CH", "RS"]),
-                regions_lived=api_pb2.RepeatedStringValue(exists=True, value=["US", "IT"]),
+                regions_visited=api_pb2.RepeatedStringValue(exists=True, value=["CXR", "NAM"]),
+                regions_lived=api_pb2.RepeatedStringValue(exists=True, value=["USA", "ITA"]),
                 additional_information=api_pb2.NullableStringValue(value="I <3 Couchers"),
             )
         )
@@ -206,11 +206,10 @@ def test_update_profile(db):
         assert user.hosting_status == api_pb2.HOSTING_STATUS_CAN_HOST
         assert user.meetup_status == api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP
         assert user.additional_information == "I <3 Couchers"
-        assert "CO" in user.regions_visited
-        assert "CH" in user.regions_visited
-        assert "RS" in user.regions_visited
-        assert "US" in user.regions_lived
-        assert "IT" in user.regions_lived
+        assert "CXR" in user.regions_visited
+        assert "NAM" in user.regions_visited
+        assert "USA" in user.regions_lived
+        assert "ITA" in user.regions_lived
         assert user.language_abilities[0].code == "eng"
         assert user.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE
 
