@@ -17,6 +17,7 @@ import {
   VERIFICATION_SCORE,
   VERIFICATION_SCORE_DESCRIPTION,
 } from "features/constants";
+import MessageUserButton from "features/profile/actions/MessageUserButton";
 import ProfileActionsMenuButton from "features/profile/actions/ProfileActionsMenuButton";
 import {
   hostingStatusLabels,
@@ -94,10 +95,15 @@ export default function Overview({ user, setIsRequesting }: OverviewProps) {
         ) : (
           <>
             <Button onClick={() => setIsRequesting(true)}>{REQUEST}</Button>
-            {user.friends !== User.FriendshipStatus.FRIENDS && (
+            {user.friends !== User.FriendshipStatus.FRIENDS ? (
               <AddFriendButton
                 isPending={user.friends === User.FriendshipStatus.PENDING}
                 userId={user.userId}
+                setMutationError={setMutationError}
+              />
+            ) : (
+              <MessageUserButton
+                user={user}
                 setMutationError={setMutationError}
               />
             )}
