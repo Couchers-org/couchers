@@ -1,4 +1,11 @@
+import difflib
+import re
+import subprocess
+
+from couchers.config import config
 from couchers.db import (
+    apply_migrations,
+    get_engine,
     get_parent_node_at_location,
     is_valid_date,
     is_valid_email,
@@ -7,8 +14,9 @@ from couchers.db import (
     is_valid_username,
     session_scope,
 )
+from couchers.models import Base
 from tests.test_communities import create_1d_point, get_community_id, testing_communities
-from tests.test_fixtures import testconfig
+from tests.test_fixtures import create_schema_from_models, drop_all, testconfig
 
 
 def test_is_valid_user_id():
@@ -77,3 +85,45 @@ def test_get_parent_node_at_location(testing_communities):
         assert get_parent_node_at_location(session, create_1d_point(8)).id == c1r1c2_id
         assert get_parent_node_at_location(session, create_1d_point(15)).id == c1_id
         assert get_parent_node_at_location(session, create_1d_point(51)).id == w_id
+
+
+def pg_dump():
+    return subprocess.run(
+        ["pg_dump", "-s", config["DATABASE_CONNECTION_STRING"]], stdout=subprocess.PIPE, encoding="ascii", check=True
+    ).stdout
+
+
+def sort_pg_dump_output(output):
+    # Temporary replace newline with another character for easier
+    # pattern matching.
+    s = output.replace("\n", "§")
+
+    s = re.sub(r" \(§(.*?)§\);", lambda m: " (§" + ",§".join(sorted(m.group(1).split(",§"))) + "§);", s)
+
+    s = "§-- ".join(sorted(s.split("§-- ")))
+
+    return s.replace("§", "\n")
+
+
+def test_sort_pg_dump_output():
+    assert sort_pg_dump_output("(\nb,\nc,\na\n);\n") == "(\na,\nb,\nc\n);\n"
+
+
+def test_migrations():
+    drop_all()
+    # rebuild it with alembic migrations
+    apply_migrations()
+
+    with_migrations = sort_pg_dump_output(pg_dump())
+
+    drop_all()
+    # create everything from the current models, not incrementally
+    # through migrations
+    create_schema_from_models()
+
+    from_scratch = sort_pg_dump_output(pg_dump())
+
+    diff = "\n".join(difflib.unified_diff(with_migrations.splitlines(), from_scratch.splitlines()))
+    print(diff)
+    success = diff == ""
+    assert success
