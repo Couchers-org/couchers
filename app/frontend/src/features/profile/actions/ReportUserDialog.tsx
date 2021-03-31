@@ -77,7 +77,7 @@ export default function ReportUserDialog({ onClose, open }: DialogProps) {
       <Dialog aria-labelledby={REPORT_USER_DIALOG_LABEL_ID} open={open}>
         <form onSubmit={onSubmit}>
           <DialogTitle id={REPORT_USER_DIALOG_LABEL_ID}>
-            {getReportDialogTitle("Itsi")}
+            {getReportDialogTitle(name)}
           </DialogTitle>
           <DialogContent>
             {error && <Alert severity="error">{error.message}</Alert>}
