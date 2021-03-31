@@ -53,27 +53,45 @@ const useStyles = makeStyles((theme) => ({
     width: 120,
     height: 120,
   },
+  topFormContainer: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    [theme.breakpoints.up("md")]: {
+      flexDirection: "row",
+      margin: theme.spacing(0, 10),
+    },
+    "& .MuiTextField-root": {
+      width: "100%",
+    },
+  },
   buttonContainer: {
     display: "flex",
     justifyContent: "center",
     paddingBottom: theme.spacing(1),
     paddingTop: theme.spacing(1),
   },
+  // Everything under the mapbox
+  bottomFormContainer: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    [theme.breakpoints.up("md")]: {
+      margin: theme.spacing(0, 10),
+    },
+  },
+  // .field is the free text fields
   field: {
     "& > .MuiInputBase-root": {
       width: "100%",
     },
-    [theme.breakpoints.up("md")]: {
-      "& > .MuiInputBase-root": {
-        width: 400,
-      },
-    },
   },
-  tagInput: {
+  radioButtons: {
     display: "flex",
-    width: "100%",
-    [theme.breakpoints.up("md")]: {
-      width: 400,
+    flexDirection: "column",
+    [theme.breakpoints.up("sm")]: {
+      display: "grid",
+      gridTemplateColumns: "repeat(3, 1fr)",
     },
   },
 }));
@@ -141,7 +159,7 @@ export default function EditProfileForm() {
       )}
       {user ? (
         <>
-          <form onSubmit={onSubmit}>
+          <form onSubmit={onSubmit} className={classes.topFormContainer}>
             <AvatarInput
               className={classes.avatar}
               control={control}
@@ -150,7 +168,6 @@ export default function EditProfileForm() {
               initialPreviewSrc={user.avatarUrl}
               userName={user.name}
             />
-
             <ProfileTextInput
               id="name"
               label="Name"
@@ -178,7 +195,7 @@ export default function EditProfileForm() {
               />
             )}
           />
-          <form onSubmit={onSubmit}>
+          <form onSubmit={onSubmit} className={classes.bottomFormContainer}>
             <Controller
               control={control}
               defaultValue={user.hostingStatus}
@@ -192,6 +209,7 @@ export default function EditProfileForm() {
                     name="hostingStatus"
                     value={value}
                     onChange={(event) => onChange(Number(event.target.value))}
+                    className={classes.radioButtons}
                   >
                     <FormControlLabel
                       value={HostingStatus.HOSTING_STATUS_CAN_HOST}
@@ -225,6 +243,7 @@ export default function EditProfileForm() {
                     name="meetupStatus"
                     value={value}
                     onChange={(event) => onChange(Number(event.target.value))}
+                    className={classes.radioButtons}
                   >
                     <FormControlLabel
                       value={MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP}
@@ -263,6 +282,7 @@ export default function EditProfileForm() {
                       name="pronouns"
                       value={value}
                       onChange={(_, value) => onChange(value)}
+                      className={classes.radioButtons}
                     >
                       <FormControlLabel
                         value={FEMALE_PRONOUNS}
@@ -300,7 +320,6 @@ export default function EditProfileForm() {
                   options={[]}
                   label={LANGUAGES_SPOKEN}
                   id="languages"
-                  className={classes.tagInput}
                 />
               )}
             />
@@ -328,7 +347,6 @@ export default function EditProfileForm() {
               inputRef={register}
               className={classes.field}
             />
-
             <ProfileTextInput
               id="aboutMe"
               label={WHO}
@@ -380,7 +398,6 @@ export default function EditProfileForm() {
                   options={[]}
                   label={COUNTRIES_VISITED}
                   id="countries-visited"
-                  className={classes.tagInput}
                 />
               )}
             />
@@ -395,7 +412,6 @@ export default function EditProfileForm() {
                   options={[]}
                   label={COUNTRIES_LIVED}
                   id="countries-lived"
-                  className={classes.tagInput}
                 />
               )}
             />
