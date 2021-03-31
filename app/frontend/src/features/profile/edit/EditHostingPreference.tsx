@@ -12,19 +12,33 @@ import CircularProgress from "components/CircularProgress";
 import PageTitle from "components/PageTitle";
 import {
   ABOUT_HOME,
+  ACCEPT_CAMPING,
+  ACCEPT_DRINKING,
+  ACCEPT_KIDS,
+  ACCEPT_PETS,
+  ACCEPT_SMOKING,
   ADDITIONAL,
   EDIT_HOME,
   GENERAL,
+  HOST_DRINKING,
+  HOST_KIDS,
+  HOST_PETS,
+  HOST_SMOKING,
   HOSTING_PREFERENCES,
   HOUSE_RULES,
   HOUSEMATE_DETAILS,
+  HOUSEMATES,
   KID_DETAILS,
+  LAST_MINUTE,
   LOCAL_AREA,
   MAX_GUESTS,
+  PARKING,
+  PARKING_DETAILS,
   PET_DETAILS,
   SAVE,
   SLEEPING_ARRANGEMENT,
   SPACE,
+  WHEELCHAIR,
 } from "features/constants";
 import {
   parkingDetailsLabels,
@@ -151,42 +165,42 @@ export default function HostingPreferenceForm() {
             <HostingPreferenceCheckbox
               className={classes.formControl}
               defaultValue={!!user.lastMinute?.value}
-              label="Last-minute requests OK"
+              label={LAST_MINUTE}
               name="lastMinute"
               register={register}
             />
             <HostingPreferenceCheckbox
               className={classes.formControl}
               defaultValue={!!user.wheelchairAccessible?.value}
-              label="Wheelchair accessible"
+              label={WHEELCHAIR}
               name="wheelchairAccessible"
               register={register}
             />
             <HostingPreferenceCheckbox
               className={classes.formControl}
               defaultValue={!!user.campingOk?.value}
-              label="Camping OK"
+              label={ACCEPT_CAMPING}
               name="campingOk"
               register={register}
             />
             <HostingPreferenceCheckbox
               className={classes.formControl}
               defaultValue={!!user.acceptsKids?.value}
-              label="Children OK"
+              label={ACCEPT_KIDS}
               name="acceptsKids"
               register={register}
             />
             <HostingPreferenceCheckbox
               className={classes.formControl}
               defaultValue={!!user.acceptsPets?.value}
-              label="Pets OK"
+              label={ACCEPT_PETS}
               name="acceptsPets"
               register={register}
             />
             <HostingPreferenceCheckbox
               className={classes.formControl}
               defaultValue={!!user.drinkingAllowed?.value}
-              label="Drinking OK"
+              label={ACCEPT_DRINKING}
               name="drinkingAllowed"
               register={register}
             />
@@ -247,7 +261,7 @@ export default function HostingPreferenceForm() {
                 renderInput={(params) => (
                   <ProfileTextInput
                     {...params}
-                    label="Smoking allowed?"
+                    label={ACCEPT_SMOKING}
                     name="smokingAllowed"
                     className={classes.field}
                   />
@@ -296,7 +310,7 @@ export default function HostingPreferenceForm() {
               <HostingPreferenceCheckbox
                 className={classes.formControl}
                 defaultValue={!!user.hasHousemates?.value}
-                label="Housemates"
+                label={HOUSEMATES}
                 name="hasHousemates"
                 register={register}
               />
@@ -315,7 +329,7 @@ export default function HostingPreferenceForm() {
               <HostingPreferenceCheckbox
                 className={classes.formControl}
                 defaultValue={!!user.hasKids?.value}
-                label="Children"
+                label={HOST_KIDS}
                 name="hasKids"
                 register={register}
               />
@@ -334,7 +348,7 @@ export default function HostingPreferenceForm() {
               <HostingPreferenceCheckbox
                 className={classes.formControl}
                 defaultValue={!!user.hasPets?.value}
-                label="Pets"
+                label={HOST_PETS}
                 name="hasPets"
                 register={register}
               />
@@ -353,7 +367,7 @@ export default function HostingPreferenceForm() {
               <HostingPreferenceCheckbox
                 className={classes.formControl}
                 defaultValue={!!user.parking?.value}
-                label="Parking available"
+                label={PARKING}
                 name="parking"
                 register={register}
               />
@@ -383,7 +397,7 @@ export default function HostingPreferenceForm() {
                     renderInput={(params) => (
                       <ProfileTextInput
                         {...params}
-                        label="Parking details"
+                        label={PARKING_DETAILS}
                         name="parkingDetails"
                         className={classes.field}
                       />
@@ -395,14 +409,14 @@ export default function HostingPreferenceForm() {
             <HostingPreferenceCheckbox
               className={classes.formControl}
               defaultValue={!!user.drinksAtHome?.value}
-              label="Drinks at home"
+              label={HOST_DRINKING}
               name="drinksAtHome"
               register={register}
             />
             <HostingPreferenceCheckbox
               className={classes.formControl}
               defaultValue={!!user.smokesAtHome?.value}
-              label="Smokes at home"
+              label={HOST_SMOKING}
               name="smokesAtHome"
               register={register}
             />

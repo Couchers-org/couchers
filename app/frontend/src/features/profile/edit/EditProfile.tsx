@@ -25,6 +25,8 @@ import {
   HOSTING_STATUS,
   LANGUAGES_SPOKEN,
   MALE_PRONOUNS,
+  MEETUP_STATUS,
+  NAME,
   OCCUPATION,
   PRONOUNS,
   SAVE,
@@ -170,7 +172,7 @@ export default function EditProfileForm() {
             />
             <ProfileTextInput
               id="name"
-              label="Name"
+              label={NAME}
               name="name"
               defaultValue={user.name}
               error={!!errors.name}
@@ -205,7 +207,7 @@ export default function EditProfileForm() {
                   <Typography variant="h2">{HOSTING_STATUS}</Typography>
                   <RadioGroup
                     row
-                    aria-label="hosting status"
+                    aria-label={HOSTING_STATUS}
                     name="hostingStatus"
                     value={value}
                     onChange={(event) => onChange(Number(event.target.value))}
@@ -239,7 +241,7 @@ export default function EditProfileForm() {
                   <Typography variant="h2">{HOSTING_STATUS}</Typography>
                   <RadioGroup
                     row
-                    aria-label="meetup status"
+                    aria-label={MEETUP_STATUS}
                     name="meetupStatus"
                     value={value}
                     onChange={(event) => onChange(Number(event.target.value))}
@@ -278,7 +280,7 @@ export default function EditProfileForm() {
                     <Typography variant="h2">{PRONOUNS}</Typography>
                     <RadioGroup
                       row
-                      aria-label="pronouns"
+                      aria-label={PRONOUNS}
                       name="pronouns"
                       value={value}
                       onChange={(_, value) => onChange(value)}

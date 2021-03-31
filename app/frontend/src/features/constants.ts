@@ -50,6 +50,8 @@ export const HOSTING_STATUS = "Hosting status";
 export const LANGUAGES_SPOKEN = "Languages I speak";
 export const MALE = "Male";
 export const MALE_PRONOUNS = "he / him";
+export const MEETUP_STATUS = "Meetup status";
+export const NAME = "name";
 export const PRONOUNS = "Pronouns";
 export const SAVE = "save";
 
@@ -69,21 +71,21 @@ export const STAY_TYPE_A11Y_TEXT = "stay type";
 
 // Home
 export const ABOUT_HOME = "About my home";
-export const ACCEPT_DRINKING = "Drinking";
-export const ACCEPT_PETS = "Pets";
-export const ACCEPT_SMOKING = "Smoking";
-export const ACCEPT_KIDS = "Children";
-export const CAMPING = "Camping";
+export const ACCEPT_DRINKING = "Accept drinking";
+export const ACCEPT_PETS = "Accept pets";
+export const ACCEPT_SMOKING = "Accept smoking";
+export const ACCEPT_KIDS = "Accept children";
+export const ACCEPT_CAMPING = "Accept Camping";
 export const GENERAL = "General";
 export const HAS_HOUSEMATES = "Has housemates";
 export const HOST_DRINKING = "Drinks at home";
 export const HOST_KIDS = "Has children";
 export const HOST_PETS = "Has pets";
-export const HOUSEMATE_DETAILS = "Housemate details";
 export const HOST_SMOKING = "Smokes at home";
 export const HOSTING_PREFERENCES = "Hosting Preferences";
 export const HOUSE_RULES = "House rules";
 export const HOUSEMATES = "Housemates";
+export const HOUSEMATE_DETAILS = "Housemate details";
 export const KID_DETAILS = "Children details";
 export const LAST_MINUTE = "Last-minute requests";
 export const LOCAL_AREA = "Local area information";

@@ -3,12 +3,12 @@ import Divider from "components/Divider";
 import LabelAndText from "components/LabelAndText";
 import {
   ABOUT_HOME,
+  ACCEPT_CAMPING,
   ACCEPT_DRINKING,
   ACCEPT_KIDS,
   ACCEPT_PETS,
   ACCEPT_SMOKING,
   ADDITIONAL,
-  CAMPING,
   HAS_HOUSEMATES,
   HOST_DRINKING,
   HOST_KIDS,
@@ -67,7 +67,7 @@ export default function Home({ user }: HomeProps) {
             text={booleanConversion(user.wheelchairAccessible?.value)}
           />
           <LabelAndText
-            label={CAMPING}
+            label={ACCEPT_CAMPING}
             text={booleanConversion(user.campingOk?.value)}
           />
           <LabelAndText
