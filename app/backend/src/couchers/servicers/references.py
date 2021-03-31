@@ -55,7 +55,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             if not request.from_user_id and not request.to_user_id:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NEED_TO_SPECIFY_AT_LEAST_ONE_USER)
 
-            query = session.query(Reference).filter(Reference.visible_from < func.now())
+            query = session.query(Reference)
             if request.from_user_id:
                 query = query.filter(Reference.from_user_id == request.from_user_id)
             if request.to_user_id:
@@ -67,6 +67,34 @@ class References(references_pb2_grpc.ReferencesServicer):
 
             if next_reference_id:
                 query = query.filter(Reference.id <= next_reference_id)
+
+            # Reference visibility logic:
+            # A reference is visible if any of the following apply:
+            # 1. It is a friend reference
+            # 2. Both references have been written
+            # 3. It has been over 2 weeks since the host request ended
+
+            # we get the matching other references through this subquery
+            sub = session.query(Reference.id.label("sub_id"), Reference.host_request_id).filter(
+                Reference.reference_type != ReferenceType.friend
+            )
+            if request.from_user_id:
+                sub = sub.filter(Reference.to_user_id == request.from_user_id)
+            if request.to_user_id:
+                sub = sub.filter(Reference.from_user_id == request.to_user_id)
+
+            sub = sub.subquery()
+            query = (
+                query.outerjoin(sub, sub.c.host_request_id == Reference.host_request_id)
+                .outerjoin(HostRequest, HostRequest.conversation_id == Reference.host_request_id)
+                .filter(
+                    or_(
+                        Reference.reference_type == ReferenceType.friend,
+                        sub.c.sub_id != None,
+                        HostRequest.end_time_to_write_reference < func.now(),
+                    )
+                )
+            )
 
             references = query.order_by(Reference.id.desc()).limit(page_size + 1).all()
 
@@ -102,7 +130,6 @@ class References(references_pb2_grpc.ReferencesServicer):
                 text=request.text,
                 rating=request.rating,
                 was_appropriate=request.was_appropriate,
-                visible_from=now(),
             )
             session.add(reference)
             session.commit()
@@ -151,7 +178,6 @@ class References(references_pb2_grpc.ReferencesServicer):
                 text=request.text,
                 rating=request.rating,
                 was_appropriate=request.was_appropriate,
-                visible_from=now() if other_reference else host_request.end_time_to_write_reference,
             )
 
             if host_request.from_user_id == context.user_id:
@@ -166,13 +192,6 @@ class References(references_pb2_grpc.ReferencesServicer):
                 assert context.user_id == host_request.to_user_id
 
             session.add(reference)
-            session.flush()
-
-            # if both references are written, make them visible, otherwise send the other a message to write a reference
-            if other_reference:
-                # so we neatly get the same timestamp
-                other_reference.visible_from = reference.visible_from
-
             session.commit()
 
             # send the recipient of the reference an email

@@ -90,7 +90,6 @@ def create_host_reference(session, from_user_id, to_user_id, reference_age, *, s
         text="Dummy reference",
         rating=0.5,
         was_appropriate=True,
-        visible_from=now() if other_reference else host_request.end_time_to_write_reference,
     )
 
     if host_request.from_user_id == from_user_id:
@@ -103,13 +102,6 @@ def create_host_reference(session, from_user_id, to_user_id, reference_age, *, s
         assert from_user_id == host_request.to_user_id
 
     session.add(reference)
-    session.flush()
-
-    # if both references are written, make them visible, otherwise send the other a message to write a reference
-    if other_reference:
-        # so we neatly get the same timestamp
-        other_reference.visible_from = reference.visible_from
-
     session.commit()
     return reference.id, actual_host_request_id
 
@@ -123,7 +115,6 @@ def create_friend_reference(session, from_user_id, to_user_id, reference_age):
         text="Test friend request",
         rating=0.4,
         was_appropriate=True,
-        visible_from=now(),
     )
     session.add(reference)
     session.commit()

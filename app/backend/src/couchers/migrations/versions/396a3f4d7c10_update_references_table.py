@@ -26,7 +26,6 @@ def upgrade():
     ALTER TYPE referencetype_new RENAME TO referencetype;
     """
     )
-    op.add_column("references", sa.Column("visible_from", sa.DateTime(timezone=True), nullable=False))
     op.add_column("references", sa.Column("host_request_id", sa.BigInteger(), nullable=True))
     op.create_foreign_key(
         op.f("fk_references_host_request_id_host_requests"), "references", "host_requests", ["host_request_id"], ["id"]
@@ -68,7 +67,6 @@ def downgrade():
     op.drop_index("ix_references_unique_per_host_request", table_name="references")
     op.drop_constraint(op.f("fk_references_host_request_id_host_requests"), "references", type_="foreignkey")
     op.drop_column("references", "host_request_id")
-    op.drop_column("references", "visible_from")
     op.execute(
         """
     CREATE TYPE referencetype_old AS ENUM ('FRIEND', 'SURFED', 'HOSTED');
