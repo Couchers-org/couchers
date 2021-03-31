@@ -28,6 +28,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { editHostingPreferenceRoute, editProfileRoute } from "routes";
 import RespondToFriendRequestProfileButton from "features/connections/friends/RespondToFriendRequestProfileButton";
+import PendingRequest from "features/connections/friends/PendingRequest";
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -103,7 +104,8 @@ export default function Overview({ user, setIsRequesting }: OverviewProps) {
                 />
               )}
             {user.friends == User.FriendshipStatus.PENDING && (
-              <RespondToFriendRequestProfileButton
+              // check if it is recieved or sent
+              <PendingRequest
                 userId={user.userId}
                 setMutationError={setMutationError}
               />

@@ -1,37 +1,15 @@
 import React, { useRef, useState } from "react";
-import { useQuery } from "react-query";
-import { Error } from "grpc-web";
-
 import useFriendRequests from "features/connections/friends/useFriendRequests";
-import { FriendRequest } from "pb/api_pb";
-
-import { makeStyles } from "@material-ui/core";
-import { PersonAddIcon } from "components/Icons";
+import { CheckIcon, CloseIcon, PersonAddIcon } from "components/Icons";
 import Button from "components/Button";
 import Menu, { MenuItem } from "components/Menu";
 import { SetMutationError } from ".";
 import { PENDING } from "features/connections/constants";
-import RespondToFriendRequestAction from "features/connections/friends/FriendRequestsReceived";
-
-const useStyles = makeStyles((theme) => ({}));
-
-/*interface RespondToFriendRequestActionProps {
-  friendRequestId: number;
-  state: FriendRequest.FriendRequestStatus;
-  setMutationError: SetMutationError;
-}
-
-function RespondToFriendRequestAction({
-  friendRequestId,
-  state,
-  setMutationError,
-}: RespondToFriendRequestActionProps) };{*/
-/* HOW TO DO THIS:
-map user id to friend request id
-*/
+import useRespondToFriendRequest from "./useRespondToFriendRequest";
+import IconButton from "components/IconButton";
 
 interface RespondToFriendRequestProfileButtonProps {
-  userId: number;
+  friendRequestId: number;
   setMutationError: SetMutationError;
 }
 
@@ -39,13 +17,22 @@ export const RESPOND_TO_FRIEND_REQUEST_MENU_ID =
   "respond-to-friend-request-actions-menu";
 
 function RespondToFriendRequestProfileButton({
-  userId,
+  friendRequestId,
   setMutationError,
 }: RespondToFriendRequestProfileButtonProps) {
   const [isOpen, setIsOpen] = useState({
-    respond: false,
+    accepted: false,
+    rejected: false,
     menu: false,
   });
+
+  const {
+    isLoading,
+    isSuccess,
+    reset,
+    respondToFriendRequest,
+  } = useRespondToFriendRequest();
+
   const menuAnchor = useRef<HTMLButtonElement>(null);
 
   const handleClick = (item: keyof typeof isOpen) => () => {
@@ -77,7 +64,40 @@ function RespondToFriendRequestProfileButton({
         onClose={handleClose("menu")}
         open={isOpen.menu}
       >
-        <MenuItem onClick={handleClick("respond")}>{"Respond"}</MenuItem>
+        <MenuItem onClick={handleClick("accepted")}>
+          {
+            <IconButton
+              aria-label="Accept request"
+              onClick={() => {
+                reset();
+                respondToFriendRequest({
+                  accept: true,
+                  friendRequestId,
+                  setMutationError,
+                });
+              }}
+            >
+              <CheckIcon />
+            </IconButton>
+          }
+        </MenuItem>
+        <MenuItem onClick={handleClick("rejected")}>
+          {
+            <IconButton
+              aria-label="Decline request"
+              onClick={() => {
+                reset();
+                respondToFriendRequest({
+                  accept: false,
+                  friendRequestId,
+                  setMutationError,
+                });
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          }
+        </MenuItem>
       </Menu>
     </>
   );

@@ -9,3 +9,4 @@ export const NO_FRIENDS = "No friends available";
 export const NO_FRIEND_REQUESTS = "No pending friend requests";
 export const NO_FRIEND_REQUESTS_SENT = "No pending friend requests";
 export const PENDING = "Pending";
+export const PENDING_REQUEST_SENT = "Request sent";
