@@ -22,10 +22,10 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import backref, column_property, relationship
 from sqlalchemy.orm.session import Session
-from sqlalchemy.sql import func, text, type_coerce
+from sqlalchemy.sql import func, text
 
 from couchers.config import config
-from couchers.utils import date_in_timezone, get_coordinates, now, today
+from couchers.utils import date_in_timezone, get_coordinates, now
 
 meta = MetaData(
     naming_convention={
