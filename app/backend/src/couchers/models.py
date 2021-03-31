@@ -107,6 +107,9 @@ class User(Base):
     city = Column(String, nullable=False)
     hometown = Column(String, nullable=True)
 
+    # TODO: proper timezone handling
+    timezone = "Etc/UTC"
+
     joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     last_active = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
@@ -631,6 +634,10 @@ class HostRequest(Base):
     # dates in the timezone above
     from_date = Column(Date, nullable=False)
     to_date = Column(Date, nullable=False)
+
+    # timezone aware start and end times of the request, can be compared to now()
+    start_time = column_property(date_in_timezone(to_date, timezone))
+    end_time = column_property(date_in_timezone(to_date, timezone) + text("interval '1 days'"))
 
     status = Column(Enum(HostRequestStatus), nullable=False)
 

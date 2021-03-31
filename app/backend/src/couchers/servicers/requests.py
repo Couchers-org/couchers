@@ -4,13 +4,13 @@ from datetime import date, timedelta
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy.orm import aliased
-from sqlalchemy.sql import and_, or_
+from sqlalchemy.sql import and_, func, or_
 
 from couchers import errors
 from couchers.db import session_scope
 from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType, User
 from couchers.tasks import send_host_request_email
-from couchers.utils import Timestamp_from_datetime, date_in_timezone, date_to_api, parse_date
+from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date, today_in_timezone
 from pb import conversations_pb2, requests_pb2, requests_pb2_grpc
 
 logger = logging.getLogger(__name__)
@@ -71,10 +71,10 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if not from_date or not to_date:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_DATE)
 
-            today_for_host = today_in_timezone(host.timezone)
+            today = today_in_timezone(host.timezone)
 
             # request starts from the past
-            if from_date < today_for_host:
+            if from_date < today:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_FROM_BEFORE_TODAY)
 
             # from_date is not >= to_date
@@ -83,7 +83,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
             # No need to check today > to_date
 
-            if from_date - today_for_host > timedelta(days=365):
+            if from_date - today > timedelta(days=365):
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_FROM_AFTER_ONE_YEAR)
 
             if to_date - from_date > timedelta(days=365):
@@ -118,6 +118,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 to_date=to_date,
                 status=HostRequestStatus.pending,
                 from_last_seen_message_id=message.id,
+                # TODO: tz
+                # timezone=host.timezone,
             )
             session.add(host_request)
             session.flush()
@@ -211,7 +213,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                         HostRequest.status == HostRequestStatus.confirmed,
                     )
                 )
-                query = query.filter(date_in_timezone(HostRequest.to_date, HostRequest.timezone) <= func.now())
+                query = query.filter(HostRequest.end_time <= func.now())
 
             query = query.order_by(Message.id.desc()).limit(pagination + 1)
 
@@ -259,9 +261,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if request.status == conversations_pb2.HOST_REQUEST_STATUS_PENDING:
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
 
-            today_for_host = today_in_timezone(host.timezone)
-
-            if host_request.to_date < today_for_host:
+            if host_request.end_time < now():
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.HOST_REQUEST_IN_PAST)
 
             control_message = Message()
@@ -392,10 +392,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if host_request.status == HostRequestStatus.rejected or host_request.status == HostRequestStatus.cancelled:
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.HOST_REQUEST_CLOSED)
 
-            # also don't allow messages to requests in the past
-            today_for_host = today_in_timezone(host.timezone)
-
-            if host_request.to_date < today_for_host:
+            if host_request.end_time < now():
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.HOST_REQUEST_IN_PAST)
 
             message = Message()
