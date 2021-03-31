@@ -25,7 +25,6 @@ describe("CreateGroupChat with router state", () => {
       screen.queryByRole("heading", {
         name: NEW_CHAT,
         level: 2,
-        hidden: true,
       })
     ).toBeVisible();
   });
