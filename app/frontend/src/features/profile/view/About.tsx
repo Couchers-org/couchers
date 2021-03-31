@@ -22,13 +22,36 @@ interface AboutProps {
 const useStyles = makeStyles((theme) => ({
   countriesContainer: {
     display: "flex",
-    "& div": {
+    "& > div": {
       display: "flex",
       flexDirection: "column",
     },
   },
+  countryLabel: {
+    display: "flex",
+    alignItems: "center",
+  },
+  traveledToColor: {
+    width: "100%",
+    display: "block",
+    height: theme.spacing(0.5),
+    backgroundColor: "#00A398",
+  },
+  livedInColor: {
+    width: "100%",
+    display: "block",
+    height: theme.spacing(0.5),
+    backgroundColor: "#E47701",
+  },
+  labelMarker: {
+    fontWeight: "bold",
+    display: "inline-block",
+    width: theme.spacing(1),
+    height: theme.spacing(1),
+    marginRight: theme.spacing(2),
+  },
   countriesList: {
-    margin: `0 ${theme.spacing(1)}`,
+    margin: theme.spacing(0, 1),
   },
 }));
 
@@ -55,19 +78,31 @@ export default function About({ user }: AboutProps) {
       <Typography variant="h1">{TRAVELS}</Typography>
       <div className={classes.countriesContainer}>
         <div>
-          <Typography variant="body1">{TRAVELED_TO}</Typography>
-          <Typography variant="body1">{LIVED_IN}</Typography>
+          <div className={classes.countryLabel}>
+            <span
+              className={`${classes.traveledToColor} ${classes.labelMarker}`}
+            ></span>
+            <Typography variant="body1">{TRAVELED_TO}</Typography>
+          </div>
+          <div className={classes.countryLabel}>
+            <span
+              className={`${classes.livedInColor} ${classes.labelMarker}`}
+            ></span>
+            <Typography variant="body1">{LIVED_IN}</Typography>
+          </div>
         </div>
         <ul className={classes.countriesList}>
+          <span className={classes.traveledToColor}></span>
           {user.countriesVisitedList.map((country) => (
-            <li>
+            <li key={`Visited ${country}`}>
               <Typography variant="body1">{country}</Typography>
             </li>
           ))}
         </ul>
         <ul className={classes.countriesList}>
+          <span className={classes.livedInColor}></span>
           {user.countriesLivedList.map((country) => (
-            <li>
+            <li key={`Lived in ${country}`}>
               <Typography variant="body1">{country}</Typography>
             </li>
           ))}
