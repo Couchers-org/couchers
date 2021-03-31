@@ -1,3 +1,5 @@
+# TODO: The tests here should be edited to reflect coucher's use of "region" instead of "country"
+
 import grpc
 import pytest
 from sqlalchemy.exc import IntegrityError

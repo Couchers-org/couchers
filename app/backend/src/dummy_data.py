@@ -61,8 +61,8 @@ def add_dummy_users():
                     occupation=user["occupation"],
                     about_me=user["about_me"],
                     about_place=user["about_place"],
-                    countries_visited="|".join(user["countries_visited"]),
-                    countries_lived="|".join(user["countries_lived"]),
+                    regions_visited="|".join(user["regions_visited"]),
+                    regions_lived="|".join(user["regions_lived"]),
                     hosting_status=hostingstatus2sql[HostingStatus.Value(user["hosting_status"])]
                     if "hosting_status" in user
                     else None,

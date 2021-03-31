@@ -9,7 +9,6 @@ from sqlalchemy.sql import and_, func, or_
 
 from couchers import errors, urls
 from couchers.config import config
-from couchers.countries import country_is_allowed
 from couchers.crypto import generate_hash_signature, random_hex
 from couchers.db import get_friends_status, get_user_by_field, is_valid_name, session_scope
 from couchers.languages import language_is_allowed
@@ -32,6 +31,7 @@ from couchers.models import (
     SmokingLocation,
     User,
 )
+from couchers.regions import region_is_allowed
 from couchers.tasks import send_friend_request_email, send_report_email
 from couchers.utils import Timestamp_from_datetime, create_coordinate, now
 from pb import api_pb2, api_pb2_grpc, media_pb2
@@ -296,27 +296,27 @@ class API(api_pb2_grpc.APIServicer):
                         )
                     )
 
-            if request.countries_visited.exists:
-                user.countries_visited = ""
+            if request.regions_visited.exists:
+                user.regions_visited = ""
 
-                for country in request.countries_visited.value:
-                    if not country_is_allowed(country):
-                        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COUNTRY)
+                for region in request.regions_visited.value:
+                    if not region_is_allowed(region):
+                        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_REGION)
                     else:
-                        if user.countries_visited != "":
-                            user.countries_visited += "|"
-                        user.countries_visited += country
+                        if user.regions_visited != "":
+                            user.regions_visited += "|"
+                        user.regions_visited += region
 
-            if request.countries_lived.exists:
-                user.countries_lived = ""
+            if request.regions_lived.exists:
+                user.regions_lived = ""
 
-                for country in request.countries_lived.value:
-                    if not country_is_allowed(country):
-                        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COUNTRY)
+                for region in request.regions_lived.value:
+                    if not region_is_allowed(region):
+                        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_REGION)
                     else:
-                        if user.countries_lived != "":
-                            user.countries_lived += "|"
-                        user.countries_lived += country
+                        if user.regions_lived != "":
+                            user.regions_lived += "|"
+                        user.regions_lived += region
 
             if request.HasField("additional_information"):
                 if request.additional_information.is_null:
@@ -762,8 +762,8 @@ def user_model_to_pb(db_user, session, context):
             api_pb2.LanguageAbility(code=ability.language_code, fluency=fluency2api[ability.fluency])
             for ability in db_user.language_abilities
         ],
-        countries_visited=db_user.countries_visited.split("|") if db_user.countries_visited else [],
-        countries_lived=db_user.countries_lived.split("|") if db_user.countries_lived else [],
+        regions_visited=db_user.regions_visited.split("|") if db_user.regions_visited else [],
+        regions_lived=db_user.regions_lived.split("|") if db_user.regions_lived else [],
         additional_information=db_user.additional_information,
         friends=get_friends_status(session, context.user_id, db_user.id),
         mutual_friends=[

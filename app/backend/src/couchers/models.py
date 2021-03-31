@@ -134,8 +134,8 @@ class User(Base):
     things_i_like = Column(String, nullable=True)
     about_place = Column(String, nullable=True)
     avatar_filename = Column(String, nullable=True)
-    countries_visited = Column(String, nullable=True)
-    countries_lived = Column(String, nullable=True)
+    regions_visited = Column(String, nullable=True)
+    regions_lived = Column(String, nullable=True)
     additional_information = Column(String, nullable=True)
 
     is_banned = Column(Boolean, nullable=False, default=False)

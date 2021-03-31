@@ -1,3 +1,5 @@
+# TODO: The tests here should be edited to reflect coucher's use of "region" instead of "country"
+
 from couchers.db import (
     get_parent_node_at_location,
     is_valid_date,

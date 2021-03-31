@@ -113,8 +113,8 @@ def generate_user(*_, **kwargs):
             "my_travels": "Places",
             "things_i_like": "Code",
             "about_place": "My place has a lot of testing paraphenelia",
-            "countries_visited": "FI|RE",
-            "countries_lived": "FR|EE",
+            "regions_visited": "FI|RE",
+            "regions_lived": "FR|EE",
             "additional_information": "",
             # you need to make sure to update this logic to make sure the user is jailed/not on request
             "accepted_tos": 1,

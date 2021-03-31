@@ -61,8 +61,8 @@ def test_ping(db):
     assert res.user.things_i_like == user.things_i_like
     assert res.user.about_place == user.about_place
     # TODO: this list serialisation will be fixed hopefully soon
-    assert res.user.countries_visited == user.countries_visited.split("|")
-    assert res.user.countries_lived == user.countries_lived.split("|")
+    assert res.user.regions_visited == user.regions_visited.split("|")
+    assert res.user.regions_lived == user.regions_lived.split("|")
     assert res.user.additional_information == user.additional_information
 
     assert res.user.friends == api_pb2.User.FriendshipStatus.NA
@@ -140,20 +140,18 @@ def test_update_profile(db):
         with pytest.raises(grpc.RpcError) as e:
             api.UpdateProfile(
                 api_pb2.UpdateProfileReq(
-                    countries_visited=api_pb2.RepeatedStringValue(exists=True, value="United States")
+                    regions_visited=api_pb2.RepeatedStringValue(exists=True, value="United States")
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_COUNTRY
+        assert e.value.details() == errors.INVALID_REGION
 
         with pytest.raises(grpc.RpcError) as e:
             api.UpdateProfile(
-                api_pb2.UpdateProfileReq(
-                    countries_lived=api_pb2.RepeatedStringValue(exists=True, value="United Kingdom")
-                )
+                api_pb2.UpdateProfileReq(regions_lived=api_pb2.RepeatedStringValue(exists=True, value="United Kingdom"))
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_COUNTRY
+        assert e.value.details() == errors.INVALID_REGION
 
         res = api.UpdateProfile(
             api_pb2.UpdateProfileReq(
@@ -181,8 +179,8 @@ def test_update_profile(db):
                         )
                     ],
                 ),
-                countries_visited=api_pb2.RepeatedStringValue(exists=True, value=["CO", "CH", "RS"]),
-                countries_lived=api_pb2.RepeatedStringValue(exists=True, value=["US", "IT"]),
+                regions_visited=api_pb2.RepeatedStringValue(exists=True, value=["CO", "CH", "RS"]),
+                regions_lived=api_pb2.RepeatedStringValue(exists=True, value=["US", "IT"]),
                 additional_information=api_pb2.NullableStringValue(value="I <3 Couchers"),
             )
         )
@@ -208,11 +206,11 @@ def test_update_profile(db):
         assert user.hosting_status == api_pb2.HOSTING_STATUS_CAN_HOST
         assert user.meetup_status == api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP
         assert user.additional_information == "I <3 Couchers"
-        assert "CO" in user.countries_visited
-        assert "CH" in user.countries_visited
-        assert "RS" in user.countries_visited
-        assert "US" in user.countries_lived
-        assert "IT" in user.countries_lived
+        assert "CO" in user.regions_visited
+        assert "CH" in user.regions_visited
+        assert "RS" in user.regions_visited
+        assert "US" in user.regions_lived
+        assert "IT" in user.regions_lived
         assert user.language_abilities[0].code == "eng"
         assert user.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE
 
