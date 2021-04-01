@@ -134,8 +134,6 @@ class User(Base):
     things_i_like = Column(String, nullable=True)
     about_place = Column(String, nullable=True)
     avatar_filename = Column(String, nullable=True)
-    regions_visited = Column(String, nullable=True)
-    regions_lived = Column(String, nullable=True)
     additional_information = Column(String, nullable=True)
 
     is_banned = Column(Boolean, nullable=False, default=False)
@@ -173,6 +171,14 @@ class User(Base):
     new_email_token = Column(String, nullable=True)
     new_email_token_created = Column(DateTime(timezone=True), nullable=True)
     new_email_token_expiry = Column(DateTime(timezone=True), nullable=True)
+
+    @property
+    def regions_visited(self):
+        return "|".join(region.region_code for region in self._regions_visited)
+
+    @property
+    def regions_lived(self):
+        return "|".join(region.region_code for region in self._regions_lived)
 
     @hybrid_property
     def is_jailed(self):
@@ -285,6 +291,28 @@ class LanguageAbility(Base):
     fluency = Column(Enum(LanguageFluency), nullable=False)
 
     user = relationship("User", backref="language_abilities")
+
+
+class RegionsVisited(Base):
+    __tablename__ = "regions_visited"
+    __table_args__ = (UniqueConstraint("user_id", "region_code"),)
+
+    id = Column(BigInteger, primary_key=True)
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    region_code = Column(String(3), nullable=False)
+
+    user = relationship("User", backref="_regions_visited")
+
+
+class RegionsLived(Base):
+    __tablename__ = "regions_lived"
+    __table_args__ = (UniqueConstraint("user_id", "region_code"),)
+
+    id = Column(BigInteger, primary_key=True)
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    region_code = Column(String(3), nullable=False)
+
+    user = relationship("User", backref="_regions_lived")
 
 
 class FriendStatus(enum.Enum):

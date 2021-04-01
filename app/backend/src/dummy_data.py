@@ -26,6 +26,8 @@ from couchers.models import (
     PageVersion,
     Reference,
     ReferenceType,
+    RegionsLived,
+    RegionsVisited,
     Thread,
     User,
 )
@@ -61,13 +63,18 @@ def add_dummy_users():
                     occupation=user["occupation"],
                     about_me=user["about_me"],
                     about_place=user["about_place"],
-                    regions_visited="|".join(user["regions_visited"]),
-                    regions_lived="|".join(user["regions_lived"]),
                     hosting_status=hostingstatus2sql[HostingStatus.Value(user["hosting_status"])]
                     if "hosting_status" in user
                     else None,
                 )
                 session.add(new_user)
+                session.flush()
+
+                for region in user["regions_visited"]:
+                    session.add(RegionsVisited(user_id=user.id, region_code=region))
+                for region in user["regions_lived"]:
+                    session.add(RegionsLived(user_id=user.id, region_code=region))
+
                 # todo: languages not handled
 
             session.commit()

@@ -11,7 +11,7 @@ import pytest
 from couchers.config import config
 from couchers.crypto import random_hex
 from couchers.db import apply_migrations, get_engine, session_scope
-from couchers.models import Base, FriendRelationship, FriendStatus, User
+from couchers.models import Base, FriendRelationship, FriendStatus, RegionsLived, RegionsVisited, User
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
@@ -113,8 +113,6 @@ def generate_user(*_, **kwargs):
             "my_travels": "Places",
             "things_i_like": "Code",
             "about_place": "My place has a lot of testing paraphernalia",
-            "regions_visited": "FIN|REU",
-            "regions_lived": "FRA|EST",
             "additional_information": "",
             # you need to make sure to update this logic to make sure the user is jailed/not on request
             "accepted_tos": 1,
@@ -126,8 +124,13 @@ def generate_user(*_, **kwargs):
             user_opts[key] = value
 
         user = User(**user_opts)
-
         session.add(user)
+        session.flush()
+
+        session.add(RegionsVisited(user_id=user.id, region_code="FIN"))
+        session.add(RegionsVisited(user_id=user.id, region_code="REU"))
+        session.add(RegionsLived(user_id=user.id, region_code="FRA"))
+        session.add(RegionsLived(user_id=user.id, region_code="EST"))
 
         # this expires the user, so now it's "dirty"
         session.commit()

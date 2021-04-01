@@ -27,6 +27,8 @@ from couchers.models import (
     ParkingDetails,
     Reference,
     ReferenceType,
+    RegionsLived,
+    RegionsVisited,
     SleepingArrangement,
     SmokingLocation,
     User,
@@ -297,26 +299,34 @@ class API(api_pb2_grpc.APIServicer):
                     )
 
             if request.regions_visited.exists:
-                user.regions_visited = ""
+                for region in user._regions_visited:
+                    session.delete(region)
 
                 for region in request.regions_visited.value:
                     if not region_is_allowed(region):
                         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_REGION)
                     else:
-                        if user.regions_visited != "":
-                            user.regions_visited += "|"
-                        user.regions_visited += region
+                        session.add(
+                            RegionsVisited(
+                                user_id=user.id,
+                                region_code=region,
+                            )
+                        )
 
             if request.regions_lived.exists:
-                user.regions_lived = ""
+                for region in user._regions_lived:
+                    session.delete(region)
 
                 for region in request.regions_lived.value:
                     if not region_is_allowed(region):
                         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_REGION)
                     else:
-                        if user.regions_lived != "":
-                            user.regions_lived += "|"
-                        user.regions_lived += region
+                        session.add(
+                            RegionsLived(
+                                user_id=user.id,
+                                region_code=region,
+                            )
+                        )
 
             if request.HasField("additional_information"):
                 if request.additional_information.is_null:

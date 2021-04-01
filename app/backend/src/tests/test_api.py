@@ -6,7 +6,7 @@ from google.protobuf import empty_pb2, wrappers_pb2
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Complaint
+from couchers.models import Complaint, User
 from couchers.utils import now, to_aware_datetime
 from pb import api_pb2, jail_pb2
 from tests.test_fixtures import (
@@ -31,42 +31,47 @@ def test_ping(db):
     with real_api_session(token) as api:
         res = api.Ping(api_pb2.PingReq())
 
-    assert res.user.user_id == user.id
-    assert res.user.username == user.username
-    assert res.user.name == user.name
-    assert res.user.city == user.city
-    assert res.user.hometown == user.hometown
-    assert res.user.verification == user.verification
-    assert res.user.community_standing == user.community_standing
-    assert res.user.num_references == 0
-    assert res.user.gender == user.gender
-    assert res.user.pronouns == user.pronouns
-    assert res.user.age == user.age
+    # Need the user to have a live database connection to pull region and language data
+    # Alternatively, could remove these from api.ping
+    with session_scope() as session:
+        user = session.query(User).filter(User.id == user.id).one()
 
-    assert (res.user.lat, res.user.lng) == (user.coordinates or (0, 0))
+        assert res.user.user_id == user.id
+        assert res.user.username == user.username
+        assert res.user.name == user.name
+        assert res.user.city == user.city
+        assert res.user.hometown == user.hometown
+        assert res.user.verification == user.verification
+        assert res.user.community_standing == user.community_standing
+        assert res.user.num_references == 0
+        assert res.user.gender == user.gender
+        assert res.user.pronouns == user.pronouns
+        assert res.user.age == user.age
 
-    # the joined time is fuzzed
-    # but shouldn't be before actual joined time, or more than one hour behind
-    assert user.joined - timedelta(hours=1) <= to_aware_datetime(res.user.joined) <= user.joined
-    # same for last_active
-    assert user.last_active - timedelta(hours=1) <= to_aware_datetime(res.user.last_active) <= user.last_active
+        assert (res.user.lat, res.user.lng) == (user.coordinates or (0, 0))
 
-    assert res.user.hosting_status == api_pb2.HOSTING_STATUS_UNKNOWN
-    assert res.user.meetup_status == api_pb2.MEETUP_STATUS_UNKNOWN
+        # the joined time is fuzzed
+        # but shouldn't be before actual joined time, or more than one hour behind
+        assert user.joined - timedelta(hours=1) <= to_aware_datetime(res.user.joined) <= user.joined
+        # same for last_active
+        assert user.last_active - timedelta(hours=1) <= to_aware_datetime(res.user.last_active) <= user.last_active
 
-    assert res.user.occupation == user.occupation
-    assert res.user.education == user.education
-    assert res.user.about_me == user.about_me
-    assert res.user.my_travels == user.my_travels
-    assert res.user.things_i_like == user.things_i_like
-    assert res.user.about_place == user.about_place
-    # TODO: this list serialisation will be fixed hopefully soon
-    assert res.user.regions_visited == user.regions_visited.split("|")
-    assert res.user.regions_lived == user.regions_lived.split("|")
-    assert res.user.additional_information == user.additional_information
+        assert res.user.hosting_status == api_pb2.HOSTING_STATUS_UNKNOWN
+        assert res.user.meetup_status == api_pb2.MEETUP_STATUS_UNKNOWN
 
-    assert res.user.friends == api_pb2.User.FriendshipStatus.NA
-    assert len(res.user.mutual_friends) == 0
+        assert res.user.occupation == user.occupation
+        assert res.user.education == user.education
+        assert res.user.about_me == user.about_me
+        assert res.user.my_travels == user.my_travels
+        assert res.user.things_i_like == user.things_i_like
+        assert res.user.about_place == user.about_place
+        # TODO: this list serialisation will be fixed hopefully soon
+        assert res.user.regions_visited == user.regions_visited.split("|")
+        assert res.user.regions_lived == user.regions_lived.split("|")
+        assert res.user.additional_information == user.additional_information
+
+        assert res.user.friends == api_pb2.User.FriendshipStatus.NA
+        assert len(res.user.mutual_friends) == 0
 
 
 def test_coords(db):
@@ -206,10 +211,14 @@ def test_update_profile(db):
         assert user.hosting_status == api_pb2.HOSTING_STATUS_CAN_HOST
         assert user.meetup_status == api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP
         assert user.additional_information == "I <3 Couchers"
-        assert "CXR" in user.regions_visited
-        assert "NAM" in user.regions_visited
-        assert "USA" in user.regions_lived
-        assert "ITA" in user.regions_lived
+        regions_visited = {"CXR", "NAM"}
+        regions_lived = {"USA", "ITA"}
+        for region in user.regions_visited:
+            regions_visited.remove(region)
+        for region in user.regions_lived:
+            regions_lived.remove(region)
+        assert not regions_visited
+        assert not regions_lived
         assert user.language_abilities[0].code == "eng"
         assert user.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE
 
