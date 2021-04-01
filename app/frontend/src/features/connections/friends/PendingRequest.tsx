@@ -18,14 +18,14 @@ interface PendingRequestProps {
 }
 
 function CheckSentRequests(userId: number) {
-  const { data } = useFriendRequests("sent");
-  const friendRequestsSent = data;
+  //const { data } = useFriendRequests("sent");
+  const friendRequestsSent = useFriendRequests("sent").data;
   const friendRequestToUser = friendRequestsSent?.find(
     (e) => e.userId === userId
   );
   if (friendRequestToUser !== undefined) {
-    const requestId = friendRequestToUser.friendRequestId;
-    return requestId;
+    const request = friendRequestToUser;
+    return request;
   } else {
     return false;
   }
@@ -38,30 +38,30 @@ function CheckReceivedRequests(userId: number) {
     (e) => e.userId === userId
   );
   if (friendRequestFromUser !== undefined) {
-    const requestId = friendRequestFromUser.friendRequestId;
-    return requestId;
+    const request = friendRequestFromUser;
+    return request;
   } else {
     return false;
   }
 }
 
 function PendingRequest({ userId, setMutationError }: PendingRequestProps) {
-  if (
-    CheckSentRequests(userId) === false &&
-    CheckReceivedRequests(userId) !== false
-  ) {
-    const requestId = CheckReceivedRequests(userId);
-    if (requestId !== false) {
-      const safeRequestId = requestId;
+  if (CheckSentRequests(userId) === false) {
+    const request = CheckReceivedRequests(userId);
+    if (request !== false) {
+      //const safeRequestId = requestId;
       return (
         <RespondToFriendRequestProfileButton
-          friendRequestId={safeRequestId}
+          friendRequestId={request.friendRequestId}
+          state={request.state}
           setMutationError={setMutationError}
         />
       );
     }
+  } else if (CheckSentRequests(userId) !== false) {
+    return <PendingFriendRequestSent />;
   }
-  return <PendingFriendRequestSent />;
+  return null;
 }
 
 export default PendingRequest;

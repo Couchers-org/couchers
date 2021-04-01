@@ -1,4 +1,5 @@
 import React, { useRef, useState } from "react";
+import { CircularProgress } from "@material-ui/core";
 import useFriendRequests from "features/connections/friends/useFriendRequests";
 import { CheckIcon, CloseIcon, PersonAddIcon } from "components/Icons";
 import Button from "components/Button";
@@ -7,9 +8,11 @@ import { SetMutationError } from ".";
 import { PENDING } from "features/connections/constants";
 import useRespondToFriendRequest from "./useRespondToFriendRequest";
 import IconButton from "components/IconButton";
+import { FriendRequest } from "pb/api_pb";
 
 interface RespondToFriendRequestProfileButtonProps {
   friendRequestId: number;
+  state: FriendRequest.FriendRequestStatus;
   setMutationError: SetMutationError;
 }
 
@@ -18,6 +21,7 @@ export const RESPOND_TO_FRIEND_REQUEST_MENU_ID =
 
 function RespondToFriendRequestProfileButton({
   friendRequestId,
+  state,
   setMutationError,
 }: RespondToFriendRequestProfileButtonProps) {
   const [isOpen, setIsOpen] = useState({
@@ -48,7 +52,7 @@ function RespondToFriendRequestProfileButton({
     setIsOpen((prevState) => ({ ...prevState, [item]: false }));
   };
 
-  return (
+  return state === FriendRequest.FriendRequestStatus.PENDING ? (
     <>
       <Button
         startIcon={<PersonAddIcon />}
@@ -63,7 +67,10 @@ function RespondToFriendRequestProfileButton({
         id={RESPOND_TO_FRIEND_REQUEST_MENU_ID}
         onClose={handleClose("menu")}
         open={isOpen.menu}
-      >
+      > {isLoading || isSuccess ? (
+        <CircularProgress />
+      ) : (
+        <>
         <MenuItem onClick={handleClick("accepted")}>
           {
             <IconButton
@@ -98,9 +105,11 @@ function RespondToFriendRequestProfileButton({
             </IconButton>
           }
         </MenuItem>
+        </>
+      )}
       </Menu>
     </>
-  );
+  ): null;
 }
 
 export default RespondToFriendRequestProfileButton;
