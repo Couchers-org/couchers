@@ -33,6 +33,7 @@ def test_ping(db):
 
     # Need the user to have a live database connection to pull region and language data
     # Alternatively, could remove these from api.ping
+    # TODO on that note, test for language
     with session_scope() as session:
         user = session.query(User).filter(User.id == user.id).one()
 

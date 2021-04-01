@@ -127,6 +127,8 @@ def generate_user(*_, **kwargs):
         session.add(user)
         session.flush()
 
+        # TODO Add languages
+
         session.add(RegionsVisited(user_id=user.id, region_code="FIN"))
         session.add(RegionsVisited(user_id=user.id, region_code="REU"))
         session.add(RegionsLived(user_id=user.id, region_code="FRA"))
