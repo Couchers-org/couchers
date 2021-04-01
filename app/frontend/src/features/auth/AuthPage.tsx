@@ -15,8 +15,8 @@ import {
   LOGIN,
   SIGN_UP,
 } from "features/auth/constants";
-import DesktopAuthBg from "features/auth/resources/desktop-auth-bg.png";
-import MobileAuthBg from "features/auth/resources/mobile-auth-bg.png";
+import DesktopAuthBg from "features/auth/resources/desktop-auth-bg.jpg";
+import MobileAuthBg from "features/auth/resources/mobile-auth-bg.jpg";
 import useAuthStyles from "features/auth/useAuthStyles";
 import React from "react";
 import { Link } from "react-router-dom";

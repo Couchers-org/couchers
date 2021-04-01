@@ -1,7 +1,7 @@
 import { makeStyles } from "@material-ui/core";
 
-import DesktopAuthBg from "./resources/desktop-auth-bg.png";
-import MobileAuthBg from "./resources/mobile-auth-bg.png";
+import DesktopAuthBg from "./resources/desktop-auth-bg.jpg";
+import MobileAuthBg from "./resources/mobile-auth-bg.jpg";
 
 const useAuthStyles = makeStyles((theme) => ({
   backgroundBlurImage: {
