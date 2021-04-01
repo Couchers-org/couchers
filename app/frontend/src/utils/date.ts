@@ -30,10 +30,9 @@ const numNights = (date1: string, date2: string): string => {
 };
 
 function formatDate(s: string, short: boolean = false): string {
-  const date = new Date(s);
-  const monthName = monthNames[date.getMonth()];
-  if (short) return `${date.getDate()} ${monthName}`;
-  return `${date.getDate()} ${monthName.substr(0, 3)} ${date.getFullYear()}`;
+  const monthName = monthNames[Number.parseInt(s.split("-")[1])];
+  if (short) return `${s.split("-")[2]} ${monthName}`;
+  return `${s.split("-")[2]} ${monthName.substr(0, 3)} ${s.split("-")[1]}`;
 }
 
 function timestamp2Date(timestamp: Timestamp.AsObject): Date {
