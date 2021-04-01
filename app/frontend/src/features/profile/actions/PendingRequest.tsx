@@ -14,7 +14,6 @@ interface PendingRequestProps {
 }
 
 function CheckSentRequests(userId: number) {
-  //const { data } = useFriendRequests("sent");
   const friendRequestsSent = useFriendRequests("sent").data;
   const friendRequestToUser = friendRequestsSent?.find(
     (e) => e.userId === userId
