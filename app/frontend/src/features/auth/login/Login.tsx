@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   signUpLink: {
-    color: theme.palette.secondary.main,
+    color: theme.palette.primary.main,
     fontWeight: 700,
     textDecoration: "none",
     [theme.breakpoints.up("md")]: {

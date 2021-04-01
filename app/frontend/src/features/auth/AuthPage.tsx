@@ -6,7 +6,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import classnames from "classnames";
+import classNames from "classnames";
 import Button from "components/Button";
 import {
   ABOUT_US,
@@ -80,6 +80,9 @@ const useStyles = makeStyles((theme) => ({
   desktopNavigation: {
     display: "flex",
   },
+  mobileIntroduction: {
+    color: theme.palette.common.white,
+  },
   introduction: {
     color: theme.palette.common.white,
     textAlign: "left",
@@ -140,17 +143,21 @@ export default function AuthPage() {
       {/***** MOBILE ******/}
       <Hidden mdUp>
         <div className={classes.content}>
-          <Typography variant="h1">{INTRODUCTION_TITLE}</Typography>
-          <Typography className={classes.subtitle}>
+          <Typography variant="h1" className={classes.mobileIntroduction}>
+            {INTRODUCTION_TITLE}
+          </Typography>
+          <Typography
+            className={classNames(classes.mobileIntroduction, classes.subtitle)}
+          >
             {INTRODUCTION_SUBTITLE}
           </Typography>
-          <Divider classes={{ root: authClasses.divider }} flexItem />
+          <Divider className={authClasses.divider} flexItem />
           <div className={classes.mobileNavigation}>
             <Button
               classes={{
                 label: authClasses.buttonText,
               }}
-              className={classnames(authClasses.button, classes.button)}
+              className={classNames(authClasses.button, classes.button)}
               color="secondary"
               component={Link}
               to={loginRoute}
@@ -161,7 +168,7 @@ export default function AuthPage() {
               classes={{
                 label: authClasses.buttonText,
               }}
-              className={classnames(authClasses.button, classes.button)}
+              className={classNames(authClasses.button, classes.button)}
               color="secondary"
               component={Link}
               to={signupRoute}

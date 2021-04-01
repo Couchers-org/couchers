@@ -68,11 +68,14 @@ const useAuthStyles = makeStyles((theme) => ({
   },
   */
   divider: {
-    borderTop: `1px solid ${theme.palette.text.primary}`,
+    borderTop: `1px solid ${theme.palette.common.white}`,
     marginLeft: "auto",
     marginRight: "auto",
     marginTop: theme.spacing(2),
     width: "100%",
+    [theme.breakpoints.up("md")]: {
+      borderTop: `1px solid ${theme.palette.text.primary}`,
+    },
   },
   errorMessage: {
     width: "100%",
