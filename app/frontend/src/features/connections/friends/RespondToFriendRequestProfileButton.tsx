@@ -67,49 +67,51 @@ function RespondToFriendRequestProfileButton({
         id={RESPOND_TO_FRIEND_REQUEST_MENU_ID}
         onClose={handleClose("menu")}
         open={isOpen.menu}
-      > {isLoading || isSuccess ? (
-        <CircularProgress />
-      ) : (
-        <>
-        <MenuItem onClick={handleClick("accepted")}>
-          {
-            <IconButton
-              aria-label="Accept request"
-              onClick={() => {
-                reset();
-                respondToFriendRequest({
-                  accept: true,
-                  friendRequestId,
-                  setMutationError,
-                });
-              }}
-            >
-              <CheckIcon />
-            </IconButton>
-          }
-        </MenuItem>
-        <MenuItem onClick={handleClick("rejected")}>
-          {
-            <IconButton
-              aria-label="Decline request"
-              onClick={() => {
-                reset();
-                respondToFriendRequest({
-                  accept: false,
-                  friendRequestId,
-                  setMutationError,
-                });
-              }}
-            >
-              <CloseIcon />
-            </IconButton>
-          }
-        </MenuItem>
-        </>
-      )}
+      >
+        {" "}
+        {isLoading || isSuccess ? (
+          <CircularProgress />
+        ) : (
+          <>
+            <MenuItem onClick={handleClick("accepted")}>
+              {
+                <IconButton
+                  aria-label="Accept request"
+                  onClick={() => {
+                    reset();
+                    respondToFriendRequest({
+                      accept: true,
+                      friendRequestId,
+                      setMutationError,
+                    });
+                  }}
+                >
+                  <CheckIcon />
+                </IconButton>
+              }
+            </MenuItem>
+            <MenuItem onClick={handleClick("rejected")}>
+              {
+                <IconButton
+                  aria-label="Decline request"
+                  onClick={() => {
+                    reset();
+                    respondToFriendRequest({
+                      accept: false,
+                      friendRequestId,
+                      setMutationError,
+                    });
+                  }}
+                >
+                  <CloseIcon />
+                </IconButton>
+              }
+            </MenuItem>
+          </>
+        )}
       </Menu>
     </>
-  ): null;
+  ) : null;
 }
 
 export default RespondToFriendRequestProfileButton;
