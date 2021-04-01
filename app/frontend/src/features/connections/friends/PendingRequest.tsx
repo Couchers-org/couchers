@@ -1,16 +1,12 @@
 /* has to check whether request is sent or received
 if sent, return a simple disabled "pending request" button
 if recieved, return the response button*/
-import React, { useRef, useState } from "react";
 import useFriendRequests from "features/connections/friends/useFriendRequests";
-import { PersonAddIcon } from "components/Icons";
-import Button from "components/Button";
-import Menu, { MenuItem } from "components/Menu";
+import React from "react";
+
 import { SetMutationError } from ".";
-import { PENDING } from "features/connections/constants";
-import useRespondToFriendRequest from "./useRespondToFriendRequest";
-import RespondToFriendRequestProfileButton from "./RespondToFriendRequestProfileButton";
 import PendingFriendRequestSent from "./PendingFriendRequestSent";
+import RespondToFriendRequestProfileButton from "./RespondToFriendRequestProfileButton";
 
 interface PendingRequestProps {
   userId: number;
@@ -49,7 +45,6 @@ function PendingRequest({ userId, setMutationError }: PendingRequestProps) {
   if (CheckSentRequests(userId) === false) {
     const request = CheckReceivedRequests(userId);
     if (request !== false) {
-      //const safeRequestId = requestId;
       return (
         <RespondToFriendRequestProfileButton
           friendRequestId={request.friendRequestId}

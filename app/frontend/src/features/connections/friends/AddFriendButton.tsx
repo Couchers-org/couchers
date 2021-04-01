@@ -1,8 +1,7 @@
-import { makeStyles } from "@material-ui/core";
 import classNames from "classnames";
 import Button from "components/Button";
 import { PersonAddIcon } from "components/Icons";
-import { ADD_FRIEND, PENDING } from "features/connections/constants";
+import { ADD_FRIEND } from "features/connections/constants";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import React from "react";
 import { useMutation, useQueryClient } from "react-query";
