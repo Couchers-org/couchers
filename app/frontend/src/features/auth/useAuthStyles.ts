@@ -9,7 +9,7 @@ const useAuthStyles = makeStyles((theme) => ({
     backgroundImage: `url(${MobileAuthBg})`,
     backgroundPosition: "top center",
     backgroundRepeat: "no-repeat",
-    backgroundSize: "contain",
+    backgroundSize: "cover",
     display: "block",
     filter: "blur(5px)",
     height: "100vh",
