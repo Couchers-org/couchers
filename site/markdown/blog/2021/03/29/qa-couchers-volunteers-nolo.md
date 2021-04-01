@@ -8,6 +8,8 @@ share_image: /img/blog/20210329_nolo.jpg
 
 Couchers.org talks to Nolo from Las Palmas, Spain about his experience becoming a forum admin and moderator—plus his next big travel plans.
 
+![photo of nolo](/img/blog/20210329_nolo.jpg)
+
 ### Couchers.org: How did you get involved in the Couchers.org project?
 
 Nolo: It started with a call with you! But I have been interested in alternatives to Couchsurfing&#8482; for years. When Trustroots started four or five years ago, I followed its development, but didn’t have much time to spare to actually volunteer. With Couchers.org, I got drawn into the forum discussions quite quickly.
