@@ -8,6 +8,7 @@ import { CouchIcon, LocationIcon } from "components/Icons";
 import IconText from "components/IconText";
 import { useAuthContext } from "features/auth/AuthProvider";
 import AddFriendButton from "features/connections/friends/AddFriendButton";
+import PendingRequest from "features/connections/friends/PendingRequest";
 import {
   COMMUNITY_STANDING,
   COMMUNITY_STANDING_DESCRIPTION,
@@ -27,8 +28,6 @@ import { HostingStatus, MeetupStatus, User } from "pb/api_pb";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { editHostingPreferenceRoute, editProfileRoute } from "routes";
-import RespondToFriendRequestProfileButton from "features/connections/friends/RespondToFriendRequestProfileButton";
-import PendingRequest from "features/connections/friends/PendingRequest";
 
 const useStyles = makeStyles((theme) => ({
   card: {

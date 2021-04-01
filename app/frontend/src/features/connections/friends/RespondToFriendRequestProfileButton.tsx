@@ -1,14 +1,14 @@
-import React, { useRef, useState } from "react";
 import { CircularProgress } from "@material-ui/core";
-import useFriendRequests from "features/connections/friends/useFriendRequests";
-import { CheckIcon, CloseIcon, PersonAddIcon } from "components/Icons";
 import Button from "components/Button";
-import Menu, { MenuItem } from "components/Menu";
-import { SetMutationError } from ".";
-import { PENDING } from "features/connections/constants";
-import useRespondToFriendRequest from "./useRespondToFriendRequest";
 import IconButton from "components/IconButton";
+import { CheckIcon, CloseIcon, PersonAddIcon } from "components/Icons";
+import Menu, { MenuItem } from "components/Menu";
+import { PENDING } from "features/connections/constants";
 import { FriendRequest } from "pb/api_pb";
+import React, { useRef, useState } from "react";
+
+import { SetMutationError } from ".";
+import useRespondToFriendRequest from "./useRespondToFriendRequest";
 
 interface RespondToFriendRequestProfileButtonProps {
   friendRequestId: number;
@@ -42,7 +42,7 @@ function RespondToFriendRequestProfileButton({
   const handleClick = (item: keyof typeof isOpen) => () => {
     //close the menu if a menu item was selected
     if (item !== "menu") {
-      setIsOpen((prevState) => ({ ...prevState, [item]: true, menu: false }));
+      setIsOpen((prevState) => ({ ...prevState, menu: false }));
     } else {
       setIsOpen((prevState) => ({ ...prevState, menu: true }));
     }
