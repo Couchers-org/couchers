@@ -1,5 +1,5 @@
 ---
-subject: "You've received a friend reference!"
+subject: "You've received a friend reference from {{ escape(reference.from_user.name) }}!"
 ---
 
 {% from "macros.html" import button %}
