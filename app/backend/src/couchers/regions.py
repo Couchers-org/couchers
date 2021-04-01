@@ -9,7 +9,7 @@ def get_region_list():
     Get list of allowed regions as a set.
     """
     with open(Path(__file__).parent / "constant_data" / "regions.json", "r") as f:
-        return set(regions["alpha-3"] for regions in json.load(f))
+        return set(regions["alpha3"] for regions in json.load(f))
 
 
 def region_is_allowed(code):
