@@ -1,10 +1,10 @@
 /* has to check whether request is sent or received
 if sent, return a simple disabled "pending request" button
 if recieved, return the response button*/
+import { SetMutationError } from "features/connections/friends";
 import useFriendRequests from "features/connections/friends/useFriendRequests";
 import React from "react";
 
-import { SetMutationError } from ".";
 import PendingFriendRequestSent from "./PendingFriendRequestSent";
 import RespondToFriendRequestProfileButton from "./RespondToFriendRequestProfileButton";
 

@@ -4,11 +4,10 @@ import IconButton from "components/IconButton";
 import { CheckIcon, CloseIcon, PersonAddIcon } from "components/Icons";
 import Menu, { MenuItem } from "components/Menu";
 import { PENDING } from "features/connections/constants";
+import { SetMutationError } from "features/connections/friends";
+import useRespondToFriendRequest from "features/connections/friends/useRespondToFriendRequest";
 import { FriendRequest } from "pb/api_pb";
 import React, { useRef, useState } from "react";
-
-import { SetMutationError } from ".";
-import useRespondToFriendRequest from "./useRespondToFriendRequest";
 
 interface RespondToFriendRequestProfileButtonProps {
   friendRequestId: number;
