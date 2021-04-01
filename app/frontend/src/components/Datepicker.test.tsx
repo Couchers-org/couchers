@@ -1,5 +1,4 @@
 import {
-  fireEvent,
   Queries,
   render,
   RenderResult,
@@ -7,7 +6,7 @@ import {
   waitFor,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { SUBMIT } from "features/constants";
+import { CHANGE_DATE,SUBMIT } from "features/constants";
 import mockdate from "mockdate";
 import { useForm } from "react-hook-form";
 
@@ -52,10 +51,8 @@ describe("DatePicker", () => {
 
   it("should submit with proper date for clicking", async () => {
     await waitFor(() => {
-      fireEvent.click(
-        testWrapper.container.querySelector(".MuiIconButton-label") as Element
-      );
-      fireEvent.click(screen.getByText("23"));
+      userEvent.click(testWrapper.container.querySelector('.MuiIconButton-label') as Element);
+      userEvent.click(screen.getByText("23"));
 
       userEvent.click(screen.getByRole("button", { name: SUBMIT }));
     });

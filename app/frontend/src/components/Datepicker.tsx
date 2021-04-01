@@ -3,6 +3,7 @@ import {
   KeyboardDatePicker,
   MuiPickersUtilsProvider,
 } from "@material-ui/pickers";
+import { CHANGE_DATE } from "features/constants";
 import { Control, Controller } from "react-hook-form";
 
 import { dateFormats } from "./DateFormats";
@@ -19,7 +20,7 @@ interface DatepickerProps {
   className?: string;
   control: Control;
   error: boolean;
-  helperText: string | undefined;
+  helperText: React.ReactNode;
   id: string;
   inputRef: (ref: any) => void;
   label: string;
@@ -56,6 +57,9 @@ export default function Datepicker({
             fullWidth
             helperText={helperText}
             id={id}
+            KeyboardButtonProps={{
+              'aria-label': CHANGE_DATE,
+            }}
             InputLabelProps={{
               shrink: true,
             }}
