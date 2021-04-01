@@ -25,7 +25,7 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func, text
 
 from couchers.config import config
-from couchers.utils import get_coordinates
+from couchers.utils import date_in_timezone, get_coordinates, now
 
 meta = MetaData(
     naming_convention={
@@ -106,6 +106,9 @@ class User(Base):
     # the display address (text) shown on their profile
     city = Column(String, nullable=False)
     hometown = Column(String, nullable=True)
+
+    # TODO: proper timezone handling
+    timezone = "Etc/UTC"
 
     joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     last_active = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
@@ -410,6 +413,8 @@ class UserSession(Base):
         It must have been created and not be expired or deleted.
 
         Also, if it's a short lived token, it must have been used in the last 168 hours.
+
+        TODO: this probably won't run in python (instance level), only in sql (class level)
         """
         return (
             (self.created <= func.now())
@@ -417,38 +422,6 @@ class UserSession(Base):
             & (self.deleted == None)
             & (self.long_lived | (func.now() - self.last_seen < text("interval '168 hours'")))
         )
-
-
-class ReferenceType(enum.Enum):
-    FRIEND = enum.auto()
-    SURFED = enum.auto()  # The "from" user have surfed at the "to" user
-    HOSTED = enum.auto()  # The "from" user have hosted the "to" user
-
-
-class Reference(Base):
-    """
-    Reference from one user to another
-    """
-
-    __tablename__ = "references"
-    __table_args__ = (UniqueConstraint("from_user_id", "to_user_id", "reference_type"),)
-
-    id = Column(BigInteger, primary_key=True)
-    # timezone should always be UTC
-    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-
-    from_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    to_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-
-    reference_type = Column(Enum(ReferenceType), nullable=False)
-
-    text = Column(String, nullable=True)  # plain text
-
-    rating = Column(Integer, nullable=False)
-    was_safe = Column(Boolean, nullable=False)
-
-    from_user = relationship("User", backref="references_from", foreign_keys="Reference.from_user_id")
-    to_user = relationship("User", backref="references_to", foreign_keys="Reference.to_user_id")
 
 
 class Conversation(Base):
@@ -655,21 +628,113 @@ class HostRequest(Base):
     from_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     to_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
 
-    # dates as "YYYY-MM-DD", in the timezone of the host
-    from_date = Column(String, nullable=False)
-    to_date = Column(String, nullable=False)
+    # TODO: proper timezone handling
+    timezone = "Etc/UTC"
+
+    # dates in the timezone above
+    from_date = Column(Date, nullable=False)
+    to_date = Column(Date, nullable=False)
+
+    # timezone aware start and end times of the request, can be compared to now()
+    start_time = column_property(date_in_timezone(from_date, timezone))
+    end_time = column_property(date_in_timezone(to_date, timezone) + text("interval '1 days'"))
 
     status = Column(Enum(HostRequestStatus), nullable=False)
 
     to_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
     from_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
 
+    start_time_to_write_reference = column_property(date_in_timezone(to_date, timezone))
+    end_time_to_write_reference = column_property(date_in_timezone(to_date, timezone) + text("interval '14 days'"))
+
     from_user = relationship("User", backref="host_requests_sent", foreign_keys="HostRequest.from_user_id")
     to_user = relationship("User", backref="host_requests_received", foreign_keys="HostRequest.to_user_id")
     conversation = relationship("Conversation")
 
+    @hybrid_property
+    def can_write_reference(self):
+        return (
+            (self.status == HostRequestStatus.confirmed)
+            & (now() >= self.start_time_to_write_reference)
+            & (now() <= self.end_time_to_write_reference)
+        )
+
+    @can_write_reference.expression
+    def can_write_reference(cls):
+        return (
+            (cls.status == HostRequestStatus.confirmed)
+            & (func.now() >= cls.start_time_to_write_reference)
+            & (func.now() <= cls.end_time_to_write_reference)
+        )
+
     def __repr__(self):
         return f"HostRequest(id={self.id}, from_user_id={self.from_user_id}, to_user_id={self.to_user_id}...)"
+
+
+class ReferenceType(enum.Enum):
+    friend = enum.auto()
+    surfed = enum.auto()  # The "from" user surfed with the "to" user
+    hosted = enum.auto()  # The "from" user hosted the "to" user
+
+
+class Reference(Base):
+    """
+    Reference from one user to another
+    """
+
+    __tablename__ = "references"
+
+    id = Column(BigInteger, primary_key=True)
+    # timezone should always be UTC
+    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    from_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    to_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+
+    reference_type = Column(Enum(ReferenceType), nullable=False)
+
+    host_request_id = Column(ForeignKey("host_requests.id"), nullable=True)
+
+    text = Column(String, nullable=True)  # plain text
+
+    rating = Column(Float, nullable=False)
+    was_appropriate = Column(Boolean, nullable=False)
+
+    from_user = relationship("User", backref="references_from", foreign_keys="Reference.from_user_id")
+    to_user = relationship("User", backref="references_to", foreign_keys="Reference.to_user_id")
+
+    host_request = relationship("HostRequest", backref="references")
+
+    __table_args__ = (
+        # Rating must be between 0 and 1, inclusive
+        CheckConstraint(
+            "rating BETWEEN 0 AND 1",
+            name="rating_between_0_and_1",
+        ),
+        # Has a host_request_id iff it's not a friend reference
+        CheckConstraint(
+            "(host_request_id IS NULL AND reference_type = 'friend') OR (host_request_id IS NOT NULL AND reference_type != 'friend')",
+            name="host_request_id_xor_friend_reference",
+        ),
+        # Each user can leave at most one friend reference to another user
+        Index(
+            "ix_references_unique_friend_reference",
+            from_user_id,
+            to_user_id,
+            reference_type,
+            unique=True,
+            postgresql_where=(reference_type == ReferenceType.friend),
+        ),
+        # Each user can leave at most one reference to another user for each stay
+        Index(
+            "ix_references_unique_per_host_request",
+            from_user_id,
+            to_user_id,
+            host_request_id,
+            unique=True,
+            postgresql_where=(host_request_id != None),
+        ),
+    )
 
 
 class InitiatedUpload(Base):

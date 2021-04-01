@@ -287,6 +287,7 @@ export default function GroupChatView() {
                     messagesRes.pages[messagesRes.pages.length - 1]
                       .lastMessageId
                   }
+                  latestMessage={messagesRes.pages[0].messagesList[0]}
                   fetchNextPage={fetchNextPage}
                   isFetchingNextPage={isFetchingNextPage}
                   hasNextPage={!!hasNextPage}

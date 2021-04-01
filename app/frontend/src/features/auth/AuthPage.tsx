@@ -1,4 +1,10 @@
-import { Divider, Hidden, makeStyles, Typography } from "@material-ui/core";
+import {
+  Divider,
+  Hidden,
+  Link as MuiLink,
+  makeStyles,
+  Typography,
+} from "@material-ui/core";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import classnames from "classnames";
 import Button from "components/Button";
@@ -164,10 +170,14 @@ export default function AuthPage() {
             </Button>
           </div>
           <div className={classes.aboutUs}>
-            <Typography className={classes.aboutUsLink} component={Link} to="#">
+            <MuiLink
+              className={classes.aboutUsLink}
+              href="https://couchers.org"
+            >
               {ABOUT_US}
-            </Typography>
-            <ExpandMoreIcon />
+              <br />
+              <ExpandMoreIcon />
+            </MuiLink>
           </div>
         </div>
       </Hidden>
@@ -177,9 +187,12 @@ export default function AuthPage() {
         <header className={authClasses.header}>
           <div className={authClasses.logo}>{COUCHERS}</div>
           <nav className={classes.desktopNavigation}>
-            <Link to="#" className={classes.aboutUsLink}>
+            <MuiLink
+              className={classes.aboutUsLink}
+              href="https://couchers.org"
+            >
               {ABOUT_US}
-            </Link>
+            </MuiLink>
             <Link
               to={loginRoute}
               className={`${classes.link} ${classes.loginLink}`}

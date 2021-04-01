@@ -115,13 +115,17 @@ describe("Profile page", () => {
       });
 
       it("opens the report user dialog", async () => {
-        expect(await screen.findByText(/Report Funny Dog/i)).toBeVisible();
+        expect(
+          await screen.findByRole("heading", { name: /Report Funny Dog/i })
+        ).toBeVisible();
       });
 
       it("closes the report user dialog if the 'Cancel' button is clicked", async () => {
         userEvent.click(await screen.findByRole("button", { name: CANCEL }));
 
-        await waitForElementToBeRemoved(screen.getByText(/Report Funny Dog/i));
+        await waitForElementToBeRemoved(
+          screen.getByRole("heading", { name: /Report Funny Dog/i })
+        );
         expect(screen.queryByRole("presentation")).not.toBeInTheDocument();
       });
 
@@ -150,7 +154,9 @@ describe("Profile page", () => {
       it("does not submit the user report if the required fields are not filled in", async () => {
         userEvent.click(screen.getByRole("button", { name: SEND }));
 
-        expect(await screen.findByText(/Report Funny Dog/i)).toBeVisible();
+        expect(
+          await screen.findByRole("heading", { name: /Report Funny Dog/i })
+        ).toBeVisible();
         expect(reportUserMock).not.toHaveBeenCalled();
       });
 
