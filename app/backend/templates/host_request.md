@@ -1,5 +1,5 @@
 ---
-subject: "You've received a host request!"
+subject: "You've received a host request from {{ escape(host_request.from_user.name) }}!"
 ---
 
 {% from "macros.html" import button %}
@@ -30,6 +30,6 @@ Alternatively, click the following link: <{{ host_request_link }}>.
 <{{ host_request_link }}>
 {% endif %}
 
-We hope you make a new friend!
+Thanks for using Couchers!
 
 The Couchers.org team
