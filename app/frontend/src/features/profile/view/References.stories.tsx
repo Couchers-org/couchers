@@ -1,44 +1,70 @@
 import { Meta, Story } from "@storybook/react";
-import { GetReferencesRes, User } from "pb/api_pb";
+import { ListReferencesRes, ReferenceType } from "pb/references_pb";
 import { mockedService } from "stories/__mocks__/service";
 import references from "test/fixtures/references.json";
 import users from "test/fixtures/users.json";
 
+import { ProfileUserProvider } from "../hooks/useProfileUser";
 import References from "./References";
+
+const [
+  friendReference,
+  guestReference1,
+  guestReference2,
+  givenReference,
+] = references;
 
 export default {
   component: References,
+  decorators: [
+    (Story) => (
+      <ProfileUserProvider user={users[0]}>
+        <Story />
+      </ProfileUserProvider>
+    ),
+  ],
   title: "Profile/References",
 } as Meta;
 
-interface UserReferencesArgs {
-  referencesGiven: GetReferencesRes.AsObject;
-  referencesReceived: GetReferencesRes.AsObject;
-}
+export const UserReferences: Story<{}> = () => {
+  setMocks();
 
-export const UserReferences: Story<UserReferencesArgs> = ({
-  referencesGiven,
-  referencesReceived,
-}) => {
-  setMocks({ referencesGiven, referencesReceived });
-
-  return <References user={users[0] as User.AsObject} />;
+  return <References />;
 };
 
-UserReferences.args = {
-  referencesGiven: {
-    referencesList: references.slice(2),
-    totalMatches: 1,
-  },
-  referencesReceived: {
-    referencesList: references.slice(0, 2),
-    totalMatches: 2,
-  },
-};
-
-function setMocks({ referencesGiven, referencesReceived }: UserReferencesArgs) {
-  mockedService.user.getReferencesReceived = () =>
-    Promise.resolve(referencesReceived);
-  mockedService.user.getReferencesGiven = () =>
-    Promise.resolve(referencesGiven);
+function setMocks() {
+  mockedService.references.getReferencesReceivedForUser = async ({
+    referenceType,
+    pageToken,
+  }) => {
+    const referencesReceived: ListReferencesRes.AsObject = {
+      nextPageToken: "",
+      referencesList: [],
+    };
+    switch (referenceType) {
+      case ReferenceType.REFERENCE_TYPE_HOSTED:
+        return referencesReceived;
+      case ReferenceType.REFERENCE_TYPE_FRIEND:
+        referencesReceived.referencesList = [friendReference];
+        return referencesReceived;
+      case ReferenceType.REFERENCE_TYPE_SURFED:
+        referencesReceived.referencesList = pageToken
+          ? [guestReference2]
+          : [guestReference1];
+        referencesReceived.nextPageToken = pageToken ? "" : "1";
+        return referencesReceived;
+      case "all":
+        referencesReceived.referencesList = [
+          friendReference,
+          guestReference1,
+          guestReference2,
+        ];
+        return referencesReceived;
+    }
+  };
+  mockedService.references.getReferencesGivenByUser = () =>
+    Promise.resolve({
+      referencesList: [givenReference],
+      nextPageToken: "",
+    });
 }

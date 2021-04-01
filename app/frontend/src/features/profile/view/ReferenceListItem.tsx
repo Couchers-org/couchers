@@ -2,9 +2,9 @@ import { ListItem, makeStyles } from "@material-ui/core";
 import Pill from "components/Pill";
 import TextBody from "components/TextBody";
 import UserSummary from "components/UserSummary";
-import { referenceBadgeLabel } from "features/constants";
-import { Reference, User } from "pb/api_pb";
-import React from "react";
+import { referenceBadgeLabel } from "features/profile/constants";
+import { User } from "pb/api_pb";
+import { Reference } from "pb/references_pb";
 import { dateTimeFormatter, timestamp2Date } from "utils/date";
 
 const useStyles = makeStyles((theme) => ({
