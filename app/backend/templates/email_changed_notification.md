@@ -4,9 +4,7 @@ subject: "Couchers.org email change requested"
 
 Hi {{ escape(user.name) }}!
 
-Your email on Couchers.org was changed.
-
-The new email is:
+You requested that your email on Couchers.org be changed to:
 
 {{ escape(user.new_email) }}
 
