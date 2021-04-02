@@ -172,14 +172,6 @@ class User(Base):
     new_email_token_created = Column(DateTime(timezone=True), nullable=True)
     new_email_token_expiry = Column(DateTime(timezone=True), nullable=True)
 
-    @property
-    def regions_visited(self):
-        return "|".join(region.region_code for region in self._regions_visited)
-
-    @property
-    def regions_lived(self):
-        return "|".join(region.region_code for region in self._regions_lived)
-
     @hybrid_property
     def is_jailed(self):
         return self.accepted_tos < 1 or self.is_missing_location
@@ -301,7 +293,7 @@ class RegionsVisited(Base):
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     region_code = Column(String(3), nullable=False)
 
-    user = relationship("User", backref="_regions_visited")
+    user = relationship("User", backref="regions_visited")
 
 
 class RegionsLived(Base):
@@ -312,7 +304,7 @@ class RegionsLived(Base):
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     region_code = Column(String(3), nullable=False)
 
-    user = relationship("User", backref="_regions_lived")
+    user = relationship("User", backref="regions_lived")
 
 
 class FriendStatus(enum.Enum):

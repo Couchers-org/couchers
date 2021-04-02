@@ -31,11 +31,11 @@ def test_ping(db):
     with real_api_session(token) as api:
         res = api.Ping(api_pb2.PingReq())
 
-    # TODO test for language
+    # TODO grab languages as well
     with session_scope() as session:
-        user = session.query(User).filter(User.id == user.id).one()
-        regions_visited = user.regions_visited.split("|")
-        regions_lived = user.regions_lived.split("|")
+        u = session.query(User).filter(User.id == user.id).one()
+        regions_visited = [region.region_code for region in u.regions_visited]
+        regions_lived = [region.region_code for region in u.regions_lived]
 
     assert res.user.user_id == user.id
     assert res.user.username == user.username
@@ -66,7 +66,6 @@ def test_ping(db):
     assert res.user.my_travels == user.my_travels
     assert res.user.things_i_like == user.things_i_like
     assert res.user.about_place == user.about_place
-    # TODO: this list serialisation will be fixed hopefully soon
     assert res.user.regions_visited == regions_visited
     assert res.user.regions_lived == regions_lived
     assert res.user.additional_information == user.additional_information
