@@ -174,11 +174,11 @@ class User(Base):
 
     @property
     def regions_visited(self):
-        return [(region.region_code for region in self._regions_visited)]
+        return [region.region_code for region in self._regions_visited]
 
     @property
     def regions_lived(self):
-        return [(region.region_code for region in self._regions_lived)]
+        return [region.region_code for region in self._regions_lived]
 
     @hybrid_property
     def is_jailed(self):
