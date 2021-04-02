@@ -17,8 +17,8 @@ import {
   VERIFICATION_SCORE,
   VERIFICATION_SCORE_DESCRIPTION,
 } from "features/constants";
-import PendingRequest from "features/profile/actions/PendingRequest";
 import MessageUserButton from "features/profile/actions/MessageUserButton";
+import PendingRequest from "features/profile/actions/PendingRequest";
 import ProfileActionsMenuButton from "features/profile/actions/ProfileActionsMenuButton";
 import {
   hostingStatusLabels,
@@ -110,12 +110,12 @@ export default function Overview({ user, setIsRequesting }: OverviewProps) {
                 userId={user.userId}
                 setMutationError={setMutationError}
               />
-            ) : (
+            )} : (
               <MessageUserButton
                 user={user}
                 setMutationError={setMutationError}
               />
-            )}
+            )
             <ProfileActionsMenuButton />
           </>
         )}
