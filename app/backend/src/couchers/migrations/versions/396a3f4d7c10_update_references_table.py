@@ -17,7 +17,7 @@ depends_on = None
 
 
 def upgrade():
-    op.drop_constraint("uq_references_from_user_id", "references", type_="unique")
+    # op.drop_constraint("uq_references_from_user_id", "references", type_="unique")
     op.execute(
         """
     CREATE TYPE referencetype_new AS ENUM ('friend', 'surfed', 'hosted');
