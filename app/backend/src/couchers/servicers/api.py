@@ -299,10 +299,10 @@ class API(api_pb2_grpc.APIServicer):
                     )
 
             if request.regions_visited.exists:
-                for region in user.regions_visited:
+                for region in user._regions_visited:
                     session.delete(region)
 
-                for region in request.regions_visited.value:
+                for region in request._regions_visited.value:
                     if not region_is_allowed(region):
                         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_REGION)
                     session.add(
