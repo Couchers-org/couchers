@@ -6,7 +6,6 @@ import Button from "components/Button";
 import Divider from "components/Divider";
 import { CouchIcon, LocationIcon } from "components/Icons";
 import IconText from "components/IconText";
-import LabelAndText from "components/LabelAndText";
 import { useAuthContext } from "features/auth/AuthProvider";
 import AddFriendButton from "features/connections/friends/AddFriendButton";
 import {
@@ -14,21 +13,21 @@ import {
   COMMUNITY_STANDING_DESCRIPTION,
   EDIT_HOME,
   EDIT_PROFILE,
-  LAST_ACTIVE,
-  REFERENCES,
+  REQUEST,
   VERIFICATION_SCORE,
   VERIFICATION_SCORE_DESCRIPTION,
 } from "features/constants";
+import MessageUserButton from "features/profile/actions/MessageUserButton";
+import ProfileActionsMenuButton from "features/profile/actions/ProfileActionsMenuButton";
 import {
   hostingStatusLabels,
   meetupStatusLabels,
 } from "features/profile/constants";
+import { LabelsReferencesLastActive } from "features/user/UserTextAndLabel";
 import { HostingStatus, MeetupStatus, User } from "pb/api_pb";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { editHostingPreferenceRoute, editProfileRoute } from "routes";
-import { timestamp2Date } from "utils/date";
-import { timeAgo } from "utils/timeAgo";
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -47,6 +46,8 @@ const useStyles = makeStyles((theme) => ({
   },
   cardActions: {
     justifyContent: "center",
+    paddingLeft: 0,
+    paddingRight: 0,
   },
   grow: {
     paddingTop: "100%",
@@ -62,16 +63,17 @@ const useStyles = makeStyles((theme) => ({
 
 interface OverviewProps {
   user: User.AsObject;
+  setIsRequesting: (value: boolean) => void;
 }
 
-export default function Overview({ user }: OverviewProps) {
+export default function Overview({ user, setIsRequesting }: OverviewProps) {
   const classes = useStyles();
   const currentUserId = useAuthContext().authState.userId;
   const [mutationError, setMutationError] = useState("");
 
   return (
     <Card className={classes.card}>
-      <Avatar {...{ user }} className={classes.grow} />
+      <Avatar user={user} className={classes.grow} />
       <Typography variant="h1" className={classes.intro}>
         {user.name}
       </Typography>
@@ -91,13 +93,22 @@ export default function Overview({ user }: OverviewProps) {
             </Button>
           </>
         ) : (
-          user.friends !== User.FriendshipStatus.FRIENDS && (
-            <AddFriendButton
-              isPending={user.friends === User.FriendshipStatus.PENDING}
-              userId={user.userId}
-              setMutationError={setMutationError}
-            />
-          )
+          <>
+            <Button onClick={() => setIsRequesting(true)}>{REQUEST}</Button>
+            {user.friends !== User.FriendshipStatus.FRIENDS ? (
+              <AddFriendButton
+                isPending={user.friends === User.FriendshipStatus.PENDING}
+                userId={user.userId}
+                setMutationError={setMutationError}
+              />
+            ) : (
+              <MessageUserButton
+                user={user}
+                setMutationError={setMutationError}
+              />
+            )}
+            <ProfileActionsMenuButton />
+          </>
         )}
       </CardActions>
       <IconText
@@ -128,15 +139,7 @@ export default function Overview({ user }: OverviewProps) {
         description={VERIFICATION_SCORE_DESCRIPTION}
       />
       <div className={classes.info}>
-        <LabelAndText label={REFERENCES} text={`${user.numReferences || 0}`} />
-        <LabelAndText
-          label={LAST_ACTIVE}
-          text={
-            user.lastActive
-              ? `${timeAgo(timestamp2Date(user.lastActive))}`
-              : "Unknown"
-          }
-        />
+        <LabelsReferencesLastActive user={user} />
       </div>
     </Card>
   );

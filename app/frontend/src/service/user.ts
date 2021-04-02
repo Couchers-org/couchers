@@ -1,17 +1,14 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import wrappers from "google-protobuf/google/protobuf/wrappers_pb";
 import {
-  GetGivenReferencesReq,
-  GetReceivedReferencesReq,
   GetUserReq,
   HostingStatus,
   NullableBoolValue,
   NullableStringValue,
   NullableUInt32Value,
-  OptionalReferenceType,
   PingReq,
-  ReferenceType,
   RepeatedStringValue,
+  ReportReq,
   UpdateProfileReq,
   User,
 } from "pb/api_pb";
@@ -47,6 +44,7 @@ export type UpdateUserProfileData = Pick<
   | "countriesVisited"
   | "countriesLived"
   | "additionalInformation"
+  | "avatarKey"
 >;
 
 export type HostingPreferenceData = Omit<
@@ -133,6 +131,9 @@ export async function updateProfile(
 ): Promise<Empty> {
   const req = new UpdateProfileReq();
 
+  const avatarKey = profile.avatarKey
+    ? new NullableStringValue().setValue(profile.avatarKey)
+    : undefined;
   const name = new wrappers.StringValue().setValue(profile.name);
   const city = new wrappers.StringValue().setValue(profile.city);
   const hometown = new NullableStringValue().setValue(profile.hometown);
@@ -162,6 +163,7 @@ export async function updateProfile(
   );
 
   req
+    .setAvatarKey(avatarKey)
     .setName(name)
     .setCity(city)
     .setHometown(hometown)
@@ -314,45 +316,17 @@ export function logout() {
   return client.auth.deauthenticate(new Empty());
 }
 
-interface GetReferencesInput {
+export interface ReportUserInput {
+  description: string;
+  reason: string;
   userId: number;
-  offset: number;
-  count: number;
-  referenceType?: ReferenceType;
 }
 
-export async function getReferencesGiven({
-  count,
-  userId,
-  offset,
-  referenceType,
-}: GetReferencesInput) {
-  const req = new GetGivenReferencesReq();
-  req.setFromUserId(userId);
-  if (referenceType) {
-    req.setTypeFilter(new OptionalReferenceType().setValue(referenceType));
-  }
-  req.setStartAt(offset);
-  req.setNumber(count);
+export function reportUser({ description, reason, userId }: ReportUserInput) {
+  const req = new ReportReq();
+  req.setDescription(description);
+  req.setReason(reason);
+  req.setReportedUserId(userId);
 
-  const res = await client.api.getGivenReferences(req);
-  return res.toObject();
-}
-
-export async function getReferencesReceived({
-  count,
-  userId,
-  offset,
-  referenceType,
-}: GetReferencesInput) {
-  const req = new GetReceivedReferencesReq();
-  req.setToUserId(userId);
-  if (referenceType) {
-    req.setTypeFilter(new OptionalReferenceType().setValue(referenceType));
-  }
-  req.setStartAt(offset);
-  req.setNumber(count);
-
-  const res = await client.api.getReceivedReferences(req);
-  return res.toObject();
+  return client.api.report(req);
 }

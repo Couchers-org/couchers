@@ -4,15 +4,13 @@ const useSendFieldStyles = makeStyles((theme) => ({
   button: {
     [theme.breakpoints.up("md")]: {
       marginInlineStart: theme.spacing(2),
-      marginBottom: theme.spacing(1),
-      marginTop: theme.spacing(1),
     },
     display: "block",
     flexShrink: 0,
     marginInlineEnd: "auto",
     marginInlineStart: "auto",
-    marginBottom: theme.spacing(2),
-    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(1),
+    marginTop: theme.spacing(1),
   },
   buttonContainer: {
     "& > button": {
@@ -27,6 +25,10 @@ const useSendFieldStyles = makeStyles((theme) => ({
       alignItems: "flex-start",
       display: "flex",
     },
+  },
+  requestClosedLabel: {
+    transform: "none",
+    padding: theme.spacing(2, 2),
   },
 }));
 

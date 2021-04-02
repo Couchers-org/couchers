@@ -1,5 +1,3 @@
-import { ReferenceType } from "pb/api_pb";
-
 // Profile Overview
 export const COMMUNITY_STANDING = "Community Standing";
 export const COMMUNITY_STANDING_DESCRIPTION =
@@ -38,6 +36,7 @@ export const SECTION_LABELS = {
   home: HOME,
   references: REFERENCES,
 };
+export const SECTION_LABELS_A11Y_TEXT = "tabs for user's details";
 
 // Edit Profile
 export const COUNTRIES_VISITED = "Countries I've Visited";
@@ -51,6 +50,20 @@ export const MALE = "Male";
 export const MALE_PRONOUNS = "he / him";
 export const PRONOUNS = "Pronouns";
 export const SAVE = "save";
+
+// Make Request
+export const sendRequest = (name: string) => `Send ${name} a request`;
+export const ARRIVAL_DATE = "Arrival Date";
+export const CANCEL = "Cancel";
+export const DEPARTURE_DATE = "Departure Date";
+export const MEETUP_ONLY = "Meet up only";
+export const OVERNIGHT_STAY = "Overnight stay";
+export const REQUEST = "Request";
+export const REQUEST_DESCRIPTION =
+  "Share your plans for the visit and include why you're requesting to stay with this particular host";
+export const SEND = "Send";
+export const SEND_REQUEST_SUCCESS = "Request sent!";
+export const STAY_TYPE_A11Y_TEXT = "stay type";
 
 // Home
 export const ABOUT_HOME = "About my home";
@@ -100,24 +113,6 @@ export const SEE_MORE_DISCUSSIONS_LABEL = "See more discussions";
 export const SEE_MORE_EVENTS_LABEL = "See more events";
 export const SEE_MORE_PLACES_LABEL = "See more places";
 
-// References
-export const REFERENCES_FILTER_A11Y_LABEL = "Show references: ";
-export const referencesFilterLabels = {
-  [ReferenceType.FRIEND]: "From friends",
-  [ReferenceType.HOSTED]: "From guests",
-  [ReferenceType.SURFED]: "From hosts",
-  all: "All references",
-  given: "Given to others",
-};
-export const referenceBadgeLabel = {
-  [ReferenceType.FRIEND]: "Friend",
-  [ReferenceType.HOSTED]: "Guest",
-  [ReferenceType.SURFED]: "Hosted",
-};
-export const NO_REFERENCES = "No references of this kind yet!";
-export const getReferencesGivenHeading = (name: string) =>
-  `References ${name} wrote`;
-
 // Bug Report
 export const BUG_DESCRIPTION = "Brief description of the bug";
 export const EXPECT = "What happened? What should have happened?";
@@ -127,3 +122,28 @@ export const STEPS = "What did you do to trigger the bug?";
 export const SUBMIT = "Submit";
 export const WARNING =
   "Please note that this information, as well as diagnostic information including which page you are on, what browser you are using, and your user ID will be saved to a public list of bugs.";
+
+// Landing
+export const BUGS = "Bugs";
+export const BUGS_DESCRIPTION_1 = `Bugs are to be expected, as we are still in the testing phase and it's great that you're here to help
+  with that. If you notice any bugs, please report them with the red button in the top right corner.`;
+export const BUGS_DESCRIPTION_2 = `Please discuss anything else about the app on the `;
+export const BUGS_DESCRIPTION_3 = ".";
+export const COMMUNITY_FORUM = "Community Forum";
+export const COMMUNITY_FORUM_LINK = "https://community.couchers.org/";
+export const FEATURES = "Features";
+export const FEATURES_DESCRIPTION =
+  "We're working on a few more things before we launch, such as events, forums and community pages, as well as improved designs, and we'll let you know as those get released.";
+export const HELP = "Help out";
+export const HELP_DESCRIPTION_1 =
+  "If you're interested in helping out on this project, we'd love for you to ";
+export const HELP_DESCRIPTION_2 =
+  "! We are looking for people with all kinds of experience to help us build this amazing product.";
+export const SIGN_UP = "sign up";
+export const SIGN_UP_LINK = "https://couchers.org/signup";
+export const WELCOME = "Welcome to Couchers.org!";
+export const WELCOME_DESCRIPTION_1 = `We're in the process of building out the platform, so we appreciate your patience as we create new 
+  features.`;
+export const WELCOME_DESCRIPTION_2 = `If you've been here before, you may have noticed that the site has changed, and that's 
+  because we're migrating from our early alpha version to our new beta version. If you were on the alpha 
+  version, don't worry, most of your profile data has been kept!`;

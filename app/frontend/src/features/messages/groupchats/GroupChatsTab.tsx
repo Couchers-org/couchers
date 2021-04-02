@@ -13,7 +13,7 @@ import React from "react";
 import { useInfiniteQuery } from "react-query";
 import { Link } from "react-router-dom";
 import { routeToGroupChat } from "routes";
-import { service } from "service/index";
+import { service } from "service";
 
 export default function GroupChatsTab() {
   const classes = useMessageListStyles();

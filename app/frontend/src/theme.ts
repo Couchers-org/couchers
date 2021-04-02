@@ -33,25 +33,37 @@ const themeOptions: ThemeOptions = {
         paddingTop: spacing(1),
       },
     },
+    MuiInputBase: {
+      input: {
+        fontSize: "1rem",
+      },
+    },
   },
   palette: {
+    background: {
+      default: "#fcfcfc",
+    },
+    common: {
+      white: "#fcfcfc",
+    },
     error: {
       main: "#ff0000",
     },
     primary: {
-      dark: "#2a0033",
-      light: "#84458b",
-      main: "#55185d",
+      dark: "#20686c",
+      light: "#6bc4a6",
+      main: "#00a398",
     },
     secondary: {
-      dark: "#c7a400",
-      light: "#ffff60",
-      main: "#ffd524",
+      dark: "#fe5e01",
+      light: "#fe982a",
+      main: "#e47701",
     },
     success: {
       main: "#1ac302",
     },
     grey: {
+      50: "#f3f3f3",
       100: "#aaafb4",
     },
   },

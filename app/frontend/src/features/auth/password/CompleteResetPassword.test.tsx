@@ -10,7 +10,7 @@ import {
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Route, Switch } from "react-router-dom";
 import { loginRoute, resetPasswordRoute } from "routes";
-import { service } from "service/index";
+import { service } from "service";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 import { MockedService } from "test/utils";
 

@@ -18,7 +18,7 @@ import React, { useMemo } from "react";
 import { useInfiniteQuery } from "react-query";
 import { Link } from "react-router-dom";
 import { routeToDiscussion } from "routes";
-import { service } from "service/index";
+import { service } from "service";
 import { timestamp2Date } from "utils/date";
 import { firstName } from "utils/names";
 import stripMarkdown from "utils/stripMarkdown";

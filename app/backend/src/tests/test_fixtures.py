@@ -23,6 +23,7 @@ from couchers.servicers.groups import Groups
 from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
 from couchers.servicers.pages import Pages
+from couchers.servicers.references import References
 from couchers.servicers.requests import Requests
 from couchers.servicers.search import Search
 from couchers.utils import create_coordinate
@@ -38,6 +39,7 @@ from pb import (
     jail_pb2_grpc,
     media_pb2_grpc,
     pages_pb2_grpc,
+    references_pb2_grpc,
     requests_pb2_grpc,
     search_pb2_grpc,
 )
@@ -120,7 +122,7 @@ def generate_user(*_, **kwargs):
             "about_place": "My place has a lot of testing paraphenelia",
             "countries_visited": "Testing country",
             "countries_lived": "Wonderland",
-            "additional_information": "",
+            "additional_information": "I can be a bit testy",
             # you need to make sure to update this logic to make sure the user is jailed/not on request
             "accepted_tos": 1,
             "geom": create_coordinate(40.7108, -73.9740),
@@ -376,6 +378,16 @@ def search_session(token):
     channel = fake_channel(token)
     search_pb2_grpc.add_SearchServicer_to_server(Search(), channel)
     yield search_pb2_grpc.SearchStub(channel)
+
+
+@contextmanager
+def references_session(token):
+    """
+    Create a References API for testing, uses the token for auth
+    """
+    channel = fake_channel(token)
+    references_pb2_grpc.add_ReferencesServicer_to_server(References(), channel)
+    yield references_pb2_grpc.ReferencesStub(channel)
 
 
 @contextmanager

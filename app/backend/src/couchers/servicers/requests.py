@@ -1,16 +1,16 @@
 import logging
-from datetime import date
+from datetime import date, timedelta
 
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy.orm import aliased
-from sqlalchemy.sql import and_, or_
+from sqlalchemy.sql import and_, func, or_
 
 from couchers import errors
-from couchers.db import is_valid_date, session_scope
+from couchers.db import session_scope
 from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType, User
 from couchers.tasks import send_host_request_email
-from couchers.utils import Timestamp_from_datetime, largest_current_date, least_current_date
+from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date, today_in_timezone
 from pb import conversations_pb2, requests_pb2, requests_pb2_grpc
 
 logger = logging.getLogger(__name__)
@@ -65,56 +65,62 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if not host:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
-            if not is_valid_date(request.from_date) or not is_valid_date(request.to_date):
+            from_date = parse_date(request.from_date)
+            to_date = parse_date(request.to_date)
+
+            if not from_date or not to_date:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_DATE)
 
-            # today is not > from_date
-            if least_current_date() > request.from_date:
+            today = today_in_timezone(host.timezone)
+
+            # request starts from the past
+            if from_date < today:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_FROM_BEFORE_TODAY)
 
             # from_date is not >= to_date
-            if request.from_date >= request.to_date:
+            if from_date >= to_date:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_FROM_AFTER_TO)
 
             # No need to check today > to_date
 
-            today = date.fromisoformat(largest_current_date())
-            today_plus_one_year = today.replace(year=today.year + 1).isoformat()
-            if request.from_date > today_plus_one_year:
+            if from_date - today > timedelta(days=365):
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_FROM_AFTER_ONE_YEAR)
 
-            from_date = date.fromisoformat(request.from_date)
-            from_date_plus_one_year = (from_date.replace(year=from_date.year + 1)).isoformat()
-            if request.to_date > from_date_plus_one_year:
+            if to_date - from_date > timedelta(days=365):
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_TO_AFTER_ONE_YEAR)
 
             conversation = Conversation()
             session.add(conversation)
             session.flush()
 
-            created_message = Message()
-            created_message.conversation_id = conversation.id
-            created_message.author_id = context.user_id
-            created_message.message_type = MessageType.chat_created
-            session.add(created_message)
-            session.commit()
+            session.add(
+                Message(
+                    conversation_id=conversation.id,
+                    author_id=context.user_id,
+                    message_type=MessageType.chat_created,
+                )
+            )
 
-            message = Message()
-            message.conversation_id = conversation.id
-            message.author_id = context.user_id
-            message.text = request.text
-            message.message_type = MessageType.text
+            message = Message(
+                conversation_id=conversation.id,
+                author_id=context.user_id,
+                text=request.text,
+                message_type=MessageType.text,
+            )
             session.add(message)
             session.flush()
 
-            host_request = HostRequest()
-            host_request.conversation_id = conversation.id
-            host_request.from_user_id = context.user_id
-            host_request.to_user_id = host.id
-            host_request.from_date = request.from_date
-            host_request.to_date = request.to_date
-            host_request.status = HostRequestStatus.pending
-            host_request.from_last_seen_message_id = message.id
+            host_request = HostRequest(
+                conversation_id=conversation.id,
+                from_user_id=context.user_id,
+                to_user_id=host.id,
+                from_date=from_date,
+                to_date=to_date,
+                status=HostRequestStatus.pending,
+                from_last_seen_message_id=message.id,
+                # TODO: tz
+                # timezone=host.timezone,
+            )
             session.add(host_request)
             session.flush()
 
@@ -156,8 +162,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 to_user_id=host_request.to_user_id,
                 status=hostrequeststatus2api[host_request.status],
                 created=Timestamp_from_datetime(initial_message.time),
-                from_date=host_request.from_date,
-                to_date=host_request.to_date,
+                from_date=date_to_api(host_request.from_date),
+                to_date=date_to_api(host_request.to_date),
                 last_seen_message_id=host_request.from_last_seen_message_id
                 if context.user_id == host_request.from_user_id
                 else host_request.to_last_seen_message_id,
@@ -207,10 +213,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                         HostRequest.status == HostRequestStatus.confirmed,
                     )
                 )
-                # As we don't store the user's timezone yet, assume far east
-                today = largest_current_date()
-                # Is this string comparison a bad idea?
-                query = query.filter(HostRequest.to_date <= today)
+                query = query.filter(HostRequest.end_time <= func.now())
 
             query = query.order_by(Message.id.desc()).limit(pagination + 1)
 
@@ -223,8 +226,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     to_user_id=result.HostRequest.to_user_id,
                     status=hostrequeststatus2api[result.HostRequest.status],
                     created=Timestamp_from_datetime(result.Conversation.created),
-                    from_date=result.HostRequest.from_date,
-                    to_date=result.HostRequest.to_date,
+                    from_date=date_to_api(result.HostRequest.from_date),
+                    to_date=date_to_api(result.HostRequest.to_date),
                     last_seen_message_id=result.HostRequest.from_last_seen_message_id
                     if context.user_id == result.HostRequest.from_user_id
                     else result.HostRequest.to_last_seen_message_id,
@@ -258,9 +261,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if request.status == conversations_pb2.HOST_REQUEST_STATUS_PENDING:
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
 
-            # As we don't store user's timezone yet, assume far west
-            today = least_current_date()
-            if host_request.to_date < today:
+            if host_request.end_time < now():
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.HOST_REQUEST_IN_PAST)
 
             control_message = Message()
@@ -388,15 +389,11 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if host_request.from_user_id != context.user_id and host_request.to_user_id != context.user_id:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
 
-            # TODO: It is not very user-friendly to prevent messages for confirmed requests
-            # but we also don't want people to use requests as normal messages...
-
-            if (
-                host_request.status == HostRequestStatus.rejected
-                or host_request.status == HostRequestStatus.confirmed
-                or host_request.status == HostRequestStatus.cancelled
-            ):
+            if host_request.status == HostRequestStatus.rejected or host_request.status == HostRequestStatus.cancelled:
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.HOST_REQUEST_CLOSED)
+
+            if host_request.end_time < now():
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.HOST_REQUEST_IN_PAST)
 
             message = Message()
             message.conversation_id = host_request.conversation_id

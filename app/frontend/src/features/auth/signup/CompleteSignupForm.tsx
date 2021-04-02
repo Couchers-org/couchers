@@ -8,6 +8,7 @@ import {
 import Autocomplete from "components/Autocomplete";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
+import Datepicker from "components/Datepicker";
 import EditUserLocationMap, {
   ApproximateLocation,
 } from "components/EditUserLocationMap";
@@ -16,13 +17,14 @@ import TextField from "components/TextField";
 import TOS from "components/TOS";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
+import { HOSTING_STATUS } from "features/constants";
 import { hostingStatusLabels } from "features/profile/constants";
 import { HostingStatus } from "pb/api_pb";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useHistory, useLocation, useParams } from "react-router-dom";
 import { signupRoute } from "routes";
-import { service } from "service/index";
+import { service } from "service";
 import {
   nameValidationPattern,
   sanitizeName,
@@ -30,11 +32,34 @@ import {
   validatePastDate,
 } from "utils/validation";
 
+import {
+  ACCEPT,
+  BIRTHDATE_LABEL,
+  BIRTHDAY_PAST_ERROR,
+  BIRTHDAY_REQUIRED,
+  FEMALE,
+  GENDER_LABEL,
+  LOCATION_LABEL,
+  MALE,
+  NAME_EMPTY,
+  NAME_REQUIRED,
+  NON_BINARY,
+  SIGN_UP,
+  SIGN_UP_BIRTHDAY,
+  SIGN_UP_FULL_NAME,
+  SIGN_UP_LOCATION_MISSING,
+  SIGN_UP_USERNAME_ERROR,
+  THANKS,
+  USERNAME,
+  USERNAME_REQUIRED,
+  USERNAME_TAKEN,
+} from "../constants";
+
 type SignupInputs = {
   email: string;
   username: string;
   name: string;
-  birthdate: string;
+  birthdate: Date;
   city: string;
   gender: string;
   acceptTOS: boolean;
@@ -52,9 +77,12 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(2),
     width: "100%",
   },
+  firstForm: {
+    paddingBottom: 0,
+  },
 }));
 
-export default function CompleteSignup() {
+export default function CompleteSignupForm() {
   const { authState, authActions } = useAuthContext();
   const authLoading = authState.loading;
 
@@ -107,7 +135,7 @@ export default function CompleteSignup() {
 
     authActions.signup({
       acceptTOS: acceptedTOS,
-      birthdate: data.birthdate,
+      birthdate: data.birthdate.toISOString().split("T")[0],
       city: data.city,
       gender: data.gender,
       hostingStatus: data.hostingStatus,
@@ -123,73 +151,74 @@ export default function CompleteSignup() {
       {loading ? (
         <CircularProgress />
       ) : (
-        <form className={authClasses.form} onSubmit={completeSignup}>
-          <InputLabel className={authClasses.formLabel} htmlFor="username">
-            Username
-          </InputLabel>
-          <TextField
-            className={authClasses.formField}
-            variant="standard"
-            id="username"
-            name="username"
-            fullWidth
-            inputRef={register({
-              pattern: {
-                //copied from backend, added ^ at the start
-                message:
-                  "Username can only have lowercase letters, numbers or _, starting with a letter.",
-                value: usernameValidationPattern,
-              },
-              required: "Enter your username",
-              validate: async (username) => {
-                const valid = await service.auth.validateUsername(username);
-                return valid || "This username is taken.";
-              },
-            })}
-            helperText={errors?.username?.message}
-          />
-          <InputLabel className={authClasses.formLabel} htmlFor="full-name">
-            Full name
-          </InputLabel>
-          <TextField
-            className={authClasses.formField}
-            id="full-name"
-            variant="standard"
-            name="name"
-            fullWidth
-            inputRef={register({
-              pattern: {
-                message: "Name can't be just white space.",
-                value: nameValidationPattern,
-              },
-              required: "Enter your name",
-            })}
-            helperText={errors?.name?.message}
-          />
-          <InputLabel className={authClasses.formLabel} htmlFor="birthdate">
-            Birthday
-          </InputLabel>
-          <TextField
-            className={authClasses.formField}
-            id="birthdate"
-            fullWidth
-            variant="standard"
-            name="birthdate"
-            type="date"
-            InputLabelProps={{
-              shrink: true,
-            }}
-            inputRef={register({
-              required: "Enter your birthdate",
-              validate: (stringDate) =>
-                validatePastDate(stringDate) ||
-                "Must be a valid date in the past.",
-            })}
-            helperText={errors?.birthdate?.message}
-          />
-          <InputLabel className={authClasses.formLabel} htmlFor="location">
-            Your location
-          </InputLabel>
+        <>
+          <form
+            className={`${authClasses.form} ${classes.firstForm}`}
+            onSubmit={completeSignup}
+          >
+            <InputLabel className={authClasses.formLabel} htmlFor="username">
+              {USERNAME}
+            </InputLabel>
+            <TextField
+              className={authClasses.formField}
+              variant="standard"
+              id="username"
+              name="username"
+              fullWidth
+              inputRef={register({
+                pattern: {
+                  // copied from backend, added ^ at the start
+                  message: SIGN_UP_USERNAME_ERROR,
+                  value: usernameValidationPattern,
+                },
+                required: USERNAME_REQUIRED,
+                validate: async (username) => {
+                  const valid = await service.auth.validateUsername(username);
+                  return valid || USERNAME_TAKEN;
+                },
+              })}
+              helperText={errors?.username?.message}
+            />
+            <InputLabel className={authClasses.formLabel} htmlFor="full-name">
+              {SIGN_UP_FULL_NAME}
+            </InputLabel>
+            <TextField
+              className={authClasses.formField}
+              id="full-name"
+              variant="standard"
+              name="name"
+              fullWidth
+              inputRef={register({
+                pattern: {
+                  message: NAME_EMPTY,
+                  value: nameValidationPattern,
+                },
+                required: NAME_REQUIRED,
+              })}
+              helperText={errors?.name?.message}
+            />
+            <InputLabel className={authClasses.formLabel} htmlFor="birthdate">
+              {SIGN_UP_BIRTHDAY}
+            </InputLabel>
+            <Datepicker
+              className={authClasses.formField}
+              control={control}
+              error={!!errors.birthdate}
+              helperText={errors?.birthdate?.message}
+              id="birthdate"
+              inputRef={register({
+                required: BIRTHDAY_REQUIRED,
+                validate: (stringDate) =>
+                  validatePastDate(stringDate) || BIRTHDAY_PAST_ERROR,
+              })}
+              label={BIRTHDATE_LABEL}
+              minDate={new Date(1899, 12, 1)}
+              name="birthdate"
+            />
+            <InputLabel className={authClasses.formLabel} htmlFor="location">
+              {LOCATION_LABEL}
+            </InputLabel>
+          </form>
           <Controller
             name="location"
             control={control}
@@ -212,96 +241,98 @@ export default function CompleteSignup() {
               />
             )}
           />
-          {isLocationEmpty && (
-            <TextBody>Please, select your location.</TextBody>
-          )}
-          <InputLabel
-            className={authClasses.formLabel}
-            htmlFor="hosting-status"
-          >
-            Hosting status
-          </InputLabel>
-          <Controller
-            control={control}
-            name="hostingStatus"
-            defaultValue={null}
-            render={({ onChange }) => (
-              <Autocomplete
-                className={authClasses.formField}
-                id="hosting-status"
-                label=""
-                onChange={(_, option) => onChange(option)}
-                options={[
-                  HostingStatus.HOSTING_STATUS_CAN_HOST,
-                  HostingStatus.HOSTING_STATUS_MAYBE,
-                  HostingStatus.HOSTING_STATUS_CANT_HOST,
-                ]}
-                getOptionLabel={(option) => hostingStatusLabels[option]}
-                disableClearable
-                // below required for type inference
-                multiple={false}
-                freeSolo={false}
-              />
-            )}
-          />
-          <InputLabel className={authClasses.formLabel} htmlFor="gender">
-            I identify as ....
-          </InputLabel>
-          <Controller
-            id="gender"
-            control={control}
-            name="gender"
-            defaultValue=""
-            render={({ onChange }) => (
-              <RadioGroup
-                className={classes.genderRadio}
-                aria-label="gender"
-                name="gender-radio"
-                onChange={onChange}
+          {isLocationEmpty && <TextBody>{SIGN_UP_LOCATION_MISSING}</TextBody>}
+          <form className={authClasses.form} onSubmit={completeSignup}>
+            <InputLabel
+              className={authClasses.formLabel}
+              htmlFor="hosting-status"
+            >
+              {HOSTING_STATUS}
+            </InputLabel>
+            <Controller
+              control={control}
+              name="hostingStatus"
+              defaultValue={null}
+              render={({ onChange }) => (
+                <Autocomplete
+                  className={authClasses.formField}
+                  id="hosting-status"
+                  label=""
+                  onChange={(_, option) => onChange(option)}
+                  options={[
+                    HostingStatus.HOSTING_STATUS_CAN_HOST,
+                    HostingStatus.HOSTING_STATUS_MAYBE,
+                    HostingStatus.HOSTING_STATUS_CANT_HOST,
+                  ]}
+                  getOptionLabel={(option) => hostingStatusLabels[option]}
+                  disableClearable
+                  // below required for type inference
+                  multiple={false}
+                  freeSolo={false}
+                />
+              )}
+            />
+            <InputLabel className={authClasses.formLabel} htmlFor="gender">
+              {GENDER_LABEL}
+            </InputLabel>
+            <Controller
+              id="gender"
+              control={control}
+              name="gender"
+              defaultValue=""
+              render={({ onChange }) => (
+                <RadioGroup
+                  className={classes.genderRadio}
+                  aria-label="gender"
+                  name="gender-radio"
+                  onChange={onChange}
+                >
+                  <FormControlLabel
+                    value="Female"
+                    control={<Radio />}
+                    label={FEMALE}
+                  />
+                  <FormControlLabel
+                    value="Male"
+                    control={<Radio />}
+                    label={MALE}
+                  />
+                  <FormControlLabel
+                    value="Non-binary"
+                    control={<Radio />}
+                    label={NON_BINARY}
+                  />
+                </RadioGroup>
+              )}
+            />
+            <div>
+              <TOS />
+              <Button
+                classes={{
+                  label: authClasses.buttonText,
+                  root: authClasses.button,
+                }}
+                loading={loading}
+                onClick={() => setAcceptedTOS(true)}
+                disabled={acceptedTOS}
               >
-                <FormControlLabel
-                  value="Woman"
-                  control={<Radio />}
-                  label="Woman"
-                />
-                <FormControlLabel value="Man" control={<Radio />} label="Man" />
-                <FormControlLabel
-                  value="Non-binary"
-                  control={<Radio />}
-                  label="Non-binary"
-                />
-              </RadioGroup>
-            )}
-          />
-          <div>
-            <TOS />
+                {acceptedTOS ? THANKS : ACCEPT}
+              </Button>
+            </div>
             <Button
               classes={{
                 label: authClasses.buttonText,
                 root: authClasses.button,
               }}
-              color="secondary"
-              loading={loading}
-              onClick={() => setAcceptedTOS(true)}
-              disabled={acceptedTOS}
+              onClick={completeSignup}
+              type="submit"
+              loading={authLoading || loading}
+              disabled={!acceptedTOS}
             >
-              {acceptedTOS ? "Thanks!" : "Accept"}
+              {SIGN_UP}
             </Button>
-          </div>
-          <Button
-            classes={{
-              label: authClasses.buttonText,
-              root: authClasses.button,
-            }}
-            color="secondary"
-            onClick={completeSignup}
-            type="submit"
-            loading={authLoading || loading}
-            disabled={!acceptedTOS}
-          >
-            Sign up
-          </Button>
-        </form>
+          </form>
+        </>
       )}
     </>
   );

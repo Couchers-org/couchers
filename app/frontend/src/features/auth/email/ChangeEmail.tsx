@@ -9,7 +9,7 @@ import { GetAccountInfoRes } from "pb/account_pb";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
-import { service } from "service/index";
+import { service } from "service";
 
 import {
   CHANGE_EMAIL,

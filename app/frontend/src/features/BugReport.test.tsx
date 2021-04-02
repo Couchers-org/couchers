@@ -15,10 +15,10 @@ import {
   STEPS,
   SUBMIT,
 } from "features/constants";
+import { service } from "service";
 
-import { service } from "../service";
 import wrapper from "../test/hookWrapper";
-import { addDefaultUser, MockedService } from "../test/utils";
+import { addDefaultUser, MockedService, wait } from "../test/utils";
 import BugReport from "./BugReport";
 
 const reportBugMock = service.bugs.reportBug as MockedService<
@@ -140,6 +140,10 @@ describe("BugReport", () => {
     });
 
     it("submits the bug report successfully if all required fields are filled in", async () => {
+      reportBugMock.mockImplementation(async () => {
+        await wait(10);
+        return "1";
+      });
       render(<BugReport />, { wrapper });
       userEvent.click(screen.getByRole("button", { name: "Report a bug" }));
 
@@ -148,7 +152,7 @@ describe("BugReport", () => {
       expect(await screen.findByRole("progressbar")).toBeVisible();
       const successMessage =
         "Thank you for reporting that bug and making Couchers better, a report was sent to the devs! The bug ID is 1";
-      const successAlert = screen.getByRole("alert");
+      const successAlert = await screen.findByRole("alert");
       expect(within(successAlert).getByText(successMessage)).toBeVisible();
       expect(reportBugMock).toHaveBeenCalledTimes(1);
       expect(reportBugMock).toHaveBeenCalledWith(
