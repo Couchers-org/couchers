@@ -37,6 +37,7 @@ def test_ping(db):
         regions_visited = u.regions_visited
         regions_lived = u.regions_lived
 
+
     assert res.user.user_id == user.id
     assert res.user.username == user.username
     assert res.user.name == user.name
