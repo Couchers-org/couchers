@@ -22,10 +22,14 @@ interface AboutProps {
 const useStyles = makeStyles((theme) => ({
   countriesContainer: {
     display: "flex",
+    marginTop: theme.spacing(1),
     "& > div": {
       display: "flex",
       flexDirection: "column",
     },
+  },
+  countriesList: {
+    margin: theme.spacing(0, 1),
   },
   countryLabel: {
     display: "flex",
@@ -49,9 +53,6 @@ const useStyles = makeStyles((theme) => ({
     width: theme.spacing(1),
     height: theme.spacing(1),
     marginRight: theme.spacing(2),
-  },
-  countriesList: {
-    margin: theme.spacing(0, 1),
   },
 }));
 
