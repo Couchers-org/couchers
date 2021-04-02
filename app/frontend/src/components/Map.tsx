@@ -77,7 +77,7 @@ export default function Map({
       container: containerRef.current,
       hash: "loc",
       interactive: interactive,
-      style: "mapbox://styles/mapbox/streets-v11",
+      style: "mapbox://styles/mapbox/light-v10",
       transformRequest,
       zoom: initialZoom,
     });
@@ -90,8 +90,10 @@ export default function Map({
       map.on("moveend", () => onUpdate(map.getCenter(), map.getZoom()));
     }
 
-    if (postMapInitialize) postMapInitialize(map);
+    postMapInitialize?.(map);
   }, [initialCenter, initialZoom, interactive, onUpdate, postMapInitialize]);
+
+  useEffect(() => () => mapRef?.current?.remove(), []);
 
   return (
     <div

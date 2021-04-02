@@ -2,10 +2,12 @@ import {
   BoolValue,
   StringValue,
 } from "google-protobuf/google/protobuf/wrappers_pb";
+import { StatusCode } from "grpc-web";
 import { User } from "pb/api_pb";
 import {
   CreateGroupChatReq,
   EditGroupChatReq,
+  GetDirectMessageReq,
   GetGroupChatMessagesReq,
   GetGroupChatReq,
   InviteToGroupChatReq,
@@ -124,4 +126,19 @@ export function markLastSeenGroupChat(
   req.setGroupChatId(groupChatId);
   req.setLastSeenMessageId(lastSeenMessageId);
   return client.conversations.markLastSeenGroupChat(req);
+}
+
+export async function getDirectMessage(userId: number) {
+  const req = new GetDirectMessageReq();
+  req.setUserId(userId);
+  try {
+    const res = await client.conversations.getDirectMessage(req);
+    return res.getGroupChatId();
+  } catch (e) {
+    if (e?.code === StatusCode.NOT_FOUND) {
+      return false;
+    } else {
+      throw e;
+    }
+  }
 }

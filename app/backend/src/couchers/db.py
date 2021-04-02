@@ -1,9 +1,9 @@
-import datetime
 import functools
 import logging
 import os
 import re
 from contextlib import contextmanager
+from datetime import time, timedelta
 
 from alembic import command
 from alembic.config import Config
@@ -120,17 +120,6 @@ def is_valid_email(field):
     )
 
 
-def is_valid_date(date):
-    """
-    Checks if it is a date-only string in the format "YYYY-MM-DD"
-    """
-    try:
-        datetime.date.fromisoformat(date)
-    except ValueError:
-        return False
-    return True
-
-
 def get_user_by_field(session, field):
     """
     Returns the user based on any of those three
@@ -156,7 +145,7 @@ def new_signup_token(session, email, hours=2):
     Returns token and expiry text
     """
     token = urlsafe_secure_token()
-    signup_token = SignupToken(token=token, email=email, expiry=now() + datetime.timedelta(hours=hours))
+    signup_token = SignupToken(token=token, email=email, expiry=now() + timedelta(hours=hours))
     session.add(signup_token)
     session.commit()
     return signup_token, f"{hours} hours"
@@ -169,7 +158,7 @@ def new_login_token(session, user, hours=2):
     Returns token and expiry text
     """
     token = urlsafe_secure_token()
-    login_token = LoginToken(token=token, user=user, expiry=now() + datetime.timedelta(hours=hours))
+    login_token = LoginToken(token=token, user=user, expiry=now() + timedelta(hours=hours))
     session.add(login_token)
     session.commit()
     return login_token, f"{hours} hours"
@@ -182,7 +171,7 @@ def new_password_reset_token(session, user, hours=2):
     Returns token and expiry text
     """
     token = urlsafe_secure_token()
-    password_reset_token = PasswordResetToken(token=token, user=user, expiry=now() + datetime.timedelta(hours=hours))
+    password_reset_token = PasswordResetToken(token=token, user=user, expiry=now() + timedelta(hours=hours))
     session.add(password_reset_token)
     session.commit()
     return password_reset_token, f"{hours} hours"
@@ -199,7 +188,7 @@ def set_email_change_token(session, user, hours=2):
     token = urlsafe_secure_token()
     user.new_email_token = token
     user.new_email_token_created = now()
-    user.new_email_token_expiry = now() + datetime.timedelta(hours=hours)
+    user.new_email_token_expiry = now() + timedelta(hours=hours)
     return token, f"{hours} hours"
 
 

@@ -26,6 +26,7 @@ import { User } from "pb/api_pb";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "react-query";
+import { useHistory } from "react-router-dom";
 import { service } from "service";
 
 const useStyles = makeStyles((theme) => ({
@@ -45,7 +46,12 @@ interface CreateGroupChatFormData {
 export default function CreateGroupChat({ className }: { className?: string }) {
   const classes = useStyles();
 
-  const [isOpen, setIsOpen] = useState(false);
+  //handle redirects which want to create a new message with someone
+  const history = useHistory<{ createMessageTo?: User.AsObject } | null>();
+  const [isOpen, setIsOpen] = useState(
+    !!history.location.state?.createMessageTo
+  );
+  //adding the user to the form is handled below as a default value
 
   const friends = useFriendList();
   const {
@@ -53,7 +59,13 @@ export default function CreateGroupChat({ className }: { className?: string }) {
     register,
     handleSubmit,
     reset: resetForm,
-  } = useForm<CreateGroupChatFormData>();
+  } = useForm<CreateGroupChatFormData>({
+    defaultValues: {
+      users: history.location.state?.createMessageTo
+        ? [history.location.state.createMessageTo]
+        : [],
+    },
+  });
 
   const queryClient = useQueryClient();
   const {
@@ -78,7 +90,6 @@ export default function CreateGroupChat({ className }: { className?: string }) {
 
   const handleClose = () => {
     setIsOpen(false);
-    resetForm();
     resetMutationStatus();
   };
 
@@ -101,6 +112,10 @@ export default function CreateGroupChat({ className }: { className?: string }) {
         aria-labelledby="create-dialog-title"
         open={isOpen}
         onClose={handleClose}
+        keepMounted={
+          //prevents the form state being lost
+          true
+        }
       >
         <form onSubmit={onSubmit}>
           <DialogTitle id="create-dialog-title">
@@ -121,25 +136,26 @@ export default function CreateGroupChat({ className }: { className?: string }) {
             )}
             <Controller
               control={control}
-              defaultValue={[]}
               name="users"
-              onChange={([, data]: any) => data}
-              render={({ onChange }) => (
-                <Autocomplete
-                  onChange={(_, value) => {
-                    onChange(value);
-                    setIsGroup(control.getValues().users.length > 1);
-                  }}
-                  multiple={true}
-                  loading={friends.isLoading}
-                  options={friends.data ?? []}
-                  getOptionLabel={(friend) => {
-                    return friend?.name ?? ERROR_USER_LOAD;
-                  }}
-                  label={FRIENDS}
-                  className={classes.field}
-                />
-              )}
+              render={({ onChange, value }) => {
+                return (
+                  <Autocomplete
+                    onChange={(_, newValue) => {
+                      onChange(newValue);
+                      setIsGroup((newValue?.length ?? 0) > 1);
+                    }}
+                    multiple={true}
+                    loading={friends.isLoading}
+                    options={friends.data ?? []}
+                    getOptionLabel={(friend) => {
+                      return friend?.name ?? ERROR_USER_LOAD;
+                    }}
+                    label={FRIENDS}
+                    className={classes.field}
+                    value={value ?? []}
+                  />
+                );
+              }}
             />
           </DialogContent>
           <DialogActions>

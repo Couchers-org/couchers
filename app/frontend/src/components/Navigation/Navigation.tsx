@@ -116,10 +116,6 @@ export default function Navigation() {
   const authenticated = useAuthContext().authState.authenticated;
   const [open, setOpen] = React.useState(false);
 
-  const logoutButton = (
-    <NavButton route={logoutRoute} label={LOG_OUT} labelVariant="h2" />
-  );
-
   const drawerItems = (
     <div>
       <List>
@@ -129,7 +125,7 @@ export default function Navigation() {
           </ListItem>
         ))}
         <ListItem button key="logout">
-          {logoutButton}
+          <NavButton route={logoutRoute} label={LOG_OUT} labelVariant="h2" />
         </ListItem>
       </List>
     </div>
@@ -215,7 +211,9 @@ export default function Navigation() {
         </div>
         <SearchBox />
         <div className={classes.bug}>
-          <Hidden smDown>{logoutButton}</Hidden>
+          <Hidden smDown>
+            <NavButton route={logoutRoute} label={LOG_OUT} />
+          </Hidden>
           <BugReport />
         </div>
       </Toolbar>

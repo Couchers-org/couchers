@@ -69,9 +69,15 @@ export default function EditLocationMap({
 
     map.current!.getCanvas().style.cursor = "grab";
 
-    const moveEvent = (e: MapMouseEvent | MapTouchEvent) => onMove(e);
-    map.current!.on("mousemove", moveEvent);
-    map.current!.once("mouseup", (e) => onUp(e, moveEvent));
+    if (e.type === "touchstart") {
+      const handleTouchMove = (e: MapTouchEvent) => onMove(e);
+      map.current!.on("touchmove", handleTouchMove);
+      map.current!.once("touchend", (e) => onUp(e, handleTouchMove));
+    } else {
+      const handleMove = (e: MapMouseEvent) => onMove(e);
+      map.current!.on("mousemove", handleMove);
+      map.current!.once("mouseup", (e) => onUp(e, handleMove));
+    }
   };
 
   const onMove = (e: MapMouseEvent | MapTouchEvent) => {
@@ -117,25 +123,32 @@ export default function EditLocationMap({
       });
     });
 
-    map.current!.on("dblclick", (e) => {
+    const onDblClick = (
+      e: MapMouseEvent & {
+        features?: mapboxgl.MapboxGeoJSONFeature[] | undefined;
+      } & mapboxgl.EventData
+    ) => {
       e.preventDefault();
       onUp(e, () => null);
-    });
+    };
+    map.current!.on("dblclick", onDblClick);
 
-    map.current!.on("mousedown", "location", onMouseDown);
-
-    map.current!.on("touchstart", "location", (e) => {
+    const onTouch = (
+      e: MapTouchEvent & {
+        features?: mapboxgl.MapboxGeoJSONFeature[] | undefined;
+      } & mapboxgl.EventData
+    ) => {
       if (e.points.length !== 1) return;
       onMouseDown(e);
-    });
+    };
+    map.current!.on("mousedown", "location", onMouseDown);
+    map.current!.on("touchstart", "location", onTouch);
 
     const canvas = map.current!.getCanvas();
-    map.current!.on("mouseenter", "location", () => {
-      canvas.style.cursor = "move";
-    });
-    map.current!.on("mouseleave", "location", () => {
-      canvas.style.cursor = "";
-    });
+    const setCursorMove = () => (canvas.style.cursor = "move");
+    const unsetCursor = () => (canvas.style.cursor = "");
+    map.current!.on("mouseenter", "location", setCursorMove);
+    map.current!.on("mouseleave", "location", unsetCursor);
   };
 
   const flyToSearch = (location: LngLat) => {

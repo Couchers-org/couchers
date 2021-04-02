@@ -1,6 +1,12 @@
-import { Divider, Hidden, makeStyles, Typography } from "@material-ui/core";
+import {
+  Divider,
+  Hidden,
+  Link as MuiLink,
+  makeStyles,
+  Typography,
+} from "@material-ui/core";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import classnames from "classnames";
+import classNames from "classnames";
 import Button from "components/Button";
 import {
   ABOUT_US,
@@ -9,8 +15,8 @@ import {
   LOGIN,
   SIGN_UP,
 } from "features/auth/constants";
-import DesktopAuthBg from "features/auth/resources/desktop-auth-bg.png";
-import MobileAuthBg from "features/auth/resources/mobile-auth-bg.png";
+import DesktopAuthBg from "features/auth/resources/desktop-auth-bg.jpg";
+import MobileAuthBg from "features/auth/resources/mobile-auth-bg.jpg";
 import useAuthStyles from "features/auth/useAuthStyles";
 import React from "react";
 import { Link } from "react-router-dom";
@@ -41,7 +47,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundImage: `url(${MobileAuthBg})`,
     backgroundPosition: "top center",
     backgroundRepeat: "no-repeat",
-    backgroundSize: "contain",
+    backgroundSize: "cover",
     boxSizing: "border-box",
     display: "flex",
     height: "100vh",
@@ -73,6 +79,9 @@ const useStyles = makeStyles((theme) => ({
   },
   desktopNavigation: {
     display: "flex",
+  },
+  mobileIntroduction: {
+    color: theme.palette.common.white,
   },
   introduction: {
     color: theme.palette.common.white,
@@ -134,17 +143,21 @@ export default function AuthPage() {
       {/***** MOBILE ******/}
       <Hidden mdUp>
         <div className={classes.content}>
-          <Typography variant="h1">{INTRODUCTION_TITLE}</Typography>
-          <Typography className={classes.subtitle}>
+          <Typography variant="h1" className={classes.mobileIntroduction}>
+            {INTRODUCTION_TITLE}
+          </Typography>
+          <Typography
+            className={classNames(classes.mobileIntroduction, classes.subtitle)}
+          >
             {INTRODUCTION_SUBTITLE}
           </Typography>
-          <Divider classes={{ root: authClasses.divider }} flexItem />
+          <Divider className={authClasses.divider} flexItem />
           <div className={classes.mobileNavigation}>
             <Button
               classes={{
                 label: authClasses.buttonText,
               }}
-              className={classnames(authClasses.button, classes.button)}
+              className={classNames(authClasses.button, classes.button)}
               color="secondary"
               component={Link}
               to={loginRoute}
@@ -155,7 +168,7 @@ export default function AuthPage() {
               classes={{
                 label: authClasses.buttonText,
               }}
-              className={classnames(authClasses.button, classes.button)}
+              className={classNames(authClasses.button, classes.button)}
               color="secondary"
               component={Link}
               to={signupRoute}
@@ -164,10 +177,14 @@ export default function AuthPage() {
             </Button>
           </div>
           <div className={classes.aboutUs}>
-            <Typography className={classes.aboutUsLink} component={Link} to="#">
+            <MuiLink
+              className={classes.aboutUsLink}
+              href="https://couchers.org"
+            >
               {ABOUT_US}
-            </Typography>
-            <ExpandMoreIcon />
+              <br />
+              <ExpandMoreIcon />
+            </MuiLink>
           </div>
         </div>
       </Hidden>
@@ -177,9 +194,12 @@ export default function AuthPage() {
         <header className={authClasses.header}>
           <div className={authClasses.logo}>{COUCHERS}</div>
           <nav className={classes.desktopNavigation}>
-            <Link to="#" className={classes.aboutUsLink}>
+            <MuiLink
+              className={classes.aboutUsLink}
+              href="https://couchers.org"
+            >
               {ABOUT_US}
-            </Link>
+            </MuiLink>
             <Link
               to={loginRoute}
               className={`${classes.link} ${classes.loginLink}`}

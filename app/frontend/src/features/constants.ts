@@ -1,4 +1,4 @@
-import { ReferenceType } from "pb/api_pb";
+import { ReferenceType } from "pb/references_pb";
 
 // Profile Overview
 export const COMMUNITY_STANDING = "Community Standing";
@@ -23,12 +23,14 @@ export const HOMETOWN = "Grew up in";
 export const JOINED = "Coucher since";
 export const LANGUAGES_CONVERSATIONAL = "Conversational in";
 export const LANGUAGES_FLUENT = "Fluent languages";
+export const LIVED_IN = "Lived in";
 export const MEDIA = "Art, Books, Movies, and Music I like";
 export const MISSION = "Current mission";
 export const OCCUPATION = "Occupation";
 export const OVERVIEW = "Overview";
 export const PHOTOS = "Photos";
 export const STORY = "My favorite hosting or travel story";
+export const TRAVELED_TO = "Traveled to";
 export const TRAVELS = "My travels";
 export const WHO = "Who I am";
 export const WHY = "Why I use Couchers";
@@ -50,6 +52,8 @@ export const HOSTING_STATUS = "Hosting status";
 export const LANGUAGES_SPOKEN = "Languages I speak";
 export const MALE = "Male";
 export const MALE_PRONOUNS = "he / him";
+export const MEETUP_STATUS = "Meetup status";
+export const NAME = "name";
 export const PRONOUNS = "Pronouns";
 export const SAVE = "save";
 
@@ -69,24 +73,28 @@ export const STAY_TYPE_A11Y_TEXT = "stay type";
 
 // Home
 export const ABOUT_HOME = "About my home";
-export const ACCEPT_DRINKING = "Drinking";
-export const ACCEPT_PETS = "Pets";
-export const ACCEPT_SMOKING = "Smoking";
-export const ACCEPT_KIDS = "Kids";
-export const CAMPING = "Camping";
+export const ACCEPT_DRINKING = "Accept drinking";
+export const ACCEPT_PETS = "Accept pets";
+export const ACCEPT_SMOKING = "Accept smoking";
+export const ACCEPT_KIDS = "Accept children";
+export const ACCEPT_CAMPING = "Accept Camping";
+export const GENERAL = "General";
 export const HAS_HOUSEMATES = "Has housemates";
 export const HOST_DRINKING = "Drinks at home";
 export const HOST_KIDS = "Has children";
 export const HOST_PETS = "Has pets";
 export const HOST_SMOKING = "Smokes at home";
 export const HOSTING_PREFERENCES = "Hosting Preferences";
-export const HOUSE_RULES = "House Rules";
+export const HOUSE_RULES = "House rules";
 export const HOUSEMATES = "Housemates";
+export const HOUSEMATE_DETAILS = "Housemate details";
+export const KID_DETAILS = "Children details";
 export const LAST_MINUTE = "Last-minute requests";
 export const LOCAL_AREA = "Local area information";
 export const MAX_GUESTS = "Max # of guests";
 export const PARKING = "Parking available";
 export const PARKING_DETAILS = "Parking details";
+export const PET_DETAILS = "Pet details";
 export const SLEEPING_ARRANGEMENT = "Sleeping arrangement";
 export const SPACE = "Private / shared space";
 export const TRANSPORTATION = "Transportation, Parking, Accessibility";
@@ -98,20 +106,39 @@ export const EDIT_HOME = "Edit home";
 // References
 export const REFERENCES_FILTER_A11Y_LABEL = "Show references: ";
 export const referencesFilterLabels = {
-  [ReferenceType.FRIEND]: "From friends",
-  [ReferenceType.HOSTED]: "From guests",
-  [ReferenceType.SURFED]: "From hosts",
+  [ReferenceType.REFERENCE_TYPE_FRIEND]: "From friends",
+  [ReferenceType.REFERENCE_TYPE_HOSTED]: "From guests",
+  [ReferenceType.REFERENCE_TYPE_SURFED]: "From hosts",
   all: "All references",
   given: "Given to others",
 };
 export const referenceBadgeLabel = {
-  [ReferenceType.FRIEND]: "Friend",
-  [ReferenceType.HOSTED]: "Guest",
-  [ReferenceType.SURFED]: "Hosted",
+  [ReferenceType.REFERENCE_TYPE_FRIEND]: "Friend",
+  [ReferenceType.REFERENCE_TYPE_HOSTED]: "Guest",
+  [ReferenceType.REFERENCE_TYPE_SURFED]: "Hosted",
 };
 export const NO_REFERENCES = "No references of this kind yet!";
 export const getReferencesGivenHeading = (name: string) =>
   `References ${name} wrote`;
+// Community
+export const COMMUNITY_HEADING = (name: string) => `Welcome to ${name}!`;
+export const DISCUSSIONS_EMPTY_STATE = "No discussions at the moment.";
+export const DISCUSSIONS_LABEL = "Discussions";
+export const DISCUSSIONS_TITLE = (name: string) => `${name} discussions`;
+export const ERROR_LOADING_COMMUNITY = "Error loading the community.";
+export const EVENTS_EMPTY_STATE = "No events at the moment.";
+export const EVENTS_LABEL = "Events";
+export const FIND_HOST = "Find host";
+export const HANGOUTS_LABEL = "Hangouts";
+export const INVALID_COMMUNITY_ID = "Invalid community id.";
+export const LOCAL_POINTS_LABEL = "Local points";
+export const MORE_REPLIES = "More replies...";
+export const MORE_TIPS = "More tips and information";
+export const NEW_POST_LABEL = "New post";
+export const PLACES_EMPTY_STATE = "No places to show yet.";
+export const SEE_MORE_DISCUSSIONS_LABEL = "See more discussions";
+export const SEE_MORE_EVENTS_LABEL = "See more events";
+export const SEE_MORE_PLACES_LABEL = "See more places";
 
 // Bug Report
 export const BUG_DESCRIPTION = "Brief description of the bug";

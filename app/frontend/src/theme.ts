@@ -44,6 +44,11 @@ const themeOptions: ThemeOptions = {
         paddingTop: spacing(1),
       },
     },
+    MuiInputBase: {
+      input: {
+        fontSize: "1rem",
+      },
+    },
   },
   palette: {
     background: {

@@ -9,6 +9,7 @@ import { DiscussionsPromiseClient } from "pb/discussions_grpc_web_pb";
 import { GroupsPromiseClient } from "pb/groups_grpc_web_pb";
 import { JailPromiseClient } from "pb/jail_grpc_web_pb";
 import { PagesPromiseClient } from "pb/pages_grpc_web_pb";
+import { ReferencesPromiseClient } from "pb/references_grpc_web_pb";
 import { RequestsPromiseClient } from "pb/requests_grpc_web_pb";
 import { SearchPromiseClient } from "pb/search_grpc_web_pb";
 import { SSOPromiseClient } from "pb/sso_grpc_web_pb";
@@ -70,6 +71,7 @@ const apis = {
   groups: new GroupsPromiseClient(URL, null, opts),
   jail: new JailPromiseClient(URL, null, opts),
   pages: new PagesPromiseClient(URL, null, opts),
+  references: new ReferencesPromiseClient(URL, null, opts),
   requests: new RequestsPromiseClient(URL, null, opts),
   search: new SearchPromiseClient(URL, null, opts),
   sso: new SSOPromiseClient(URL, null, opts),
@@ -91,6 +93,7 @@ if (process.env.NODE_ENV === "development") {
     apis.groups,
     apis.jail,
     apis.pages,
+    apis.references,
     apis.requests,
     apis.search,
     apis.sso,

@@ -10,7 +10,7 @@ export default function SuccessSnackbar({ children }: SuccessSnackbarProps) {
   const [open, setOpen] = useState(true);
   return (
     <MuiSnackbar
-      autoHideDuration={1000}
+      autoHideDuration={3000}
       open={open}
       onClose={() => setOpen(false)}
       anchorOrigin={{ vertical: "top", horizontal: "center" }}
