@@ -30,9 +30,9 @@ def upgrade():
         "ALTER TABLE pages RENAME CONSTRAINT ck_pages_ck_pages_main_page_owned_by_cluster TO ck_pages_main_page_owned_by_cluster"
     )
     op.execute("ALTER TABLE pages RENAME CONSTRAINT ck_pages_ck_pages_one_owner TO ck_pages_one_owner")
-    op.execute(
-        "ALTER TABLE initiated_uploads RENAME CONSTRAINT fk_initiated_uploads_user_id_users TO fk_initiated_uploads_initiator_user_id_users"
-    )
+    # op.execute(
+    #     "ALTER TABLE initiated_uploads RENAME CONSTRAINT fk_initiated_uploads_user_id_users TO fk_initiated_uploads_initiator_user_id_users"
+    # )
     # fix sequence types
     op.execute("ALTER SEQUENCE complaints_id_seq AS bigint")
     op.execute("ALTER SEQUENCE conversations_id_seq AS bigint")
