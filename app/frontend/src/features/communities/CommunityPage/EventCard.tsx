@@ -20,7 +20,6 @@ import { timestamp2Date } from "../../../utils/date";
 import eventImagePlaceholder from "./eventImagePlaceholder.svg";
 
 const useStyles = makeStyles((theme) => ({
-  link: { textDecoration: "none", color: "inherit" },
   image: {
     backgroundColor: theme.palette.grey[200],
     height: 80,
@@ -77,10 +76,7 @@ export default function EventCard({
   const date = timestamp2Date(event.startTime);
   return (
     <Card className={className}>
-      <Link
-        to={routeToEvent(event.eventId ?? 0, event.slug ?? "")}
-        className={classes.link}
-      >
+      <Link to={routeToEvent(event.eventId ?? 0, event.slug ?? "")}>
         <CardActionArea>
           <CardMedia
             src={event.photoUrl ? event.photoUrl : eventImagePlaceholder}

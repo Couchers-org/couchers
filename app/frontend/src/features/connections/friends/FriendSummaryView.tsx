@@ -8,7 +8,6 @@ const useStyles = makeStyles((theme) => ({
   },
   friendLink: {
     color: theme.palette.text.primary,
-    textDecoration: "none",
   },
   userLoadErrorAlert: {
     borderRadius: 0,

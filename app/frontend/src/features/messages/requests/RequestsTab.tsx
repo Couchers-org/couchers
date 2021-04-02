@@ -63,7 +63,6 @@ export default function SurfingTab({
                     <Link
                       to={routeToHostRequest(hostRequest.hostRequestId)}
                       key={hostRequest.hostRequestId}
-                      className={classes.link}
                     >
                       <HostRequestListItem
                         hostRequest={hostRequest}

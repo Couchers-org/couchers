@@ -138,7 +138,7 @@ export default function CommunityPage() {
     }
   }, [community, communitySlug, history]);
 
-  const { page = "overview" } = useParams<{ page: CommunityTab }>();
+  const { page = "overview" } = useParams<{ page: string }>();
   const tab =
     page in communityTabBarLabels ? (page as CommunityTab) : "overview";
 

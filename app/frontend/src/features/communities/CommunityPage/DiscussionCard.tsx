@@ -26,7 +26,6 @@ import { timeAgo } from "utils/timeAgo";
 
 const useStyles = makeStyles((theme) => ({
   cardContent: { height: "100%" },
-  link: { height: "100%", textDecoration: "none", color: "inherit" },
   userLoading: { display: "inline-block", width: 80 },
   surtitle: { marginBottom: theme.spacing(0.5) },
   replies: {
@@ -76,10 +75,7 @@ export default function DiscussionCard({
 
   return (
     <Card className={classNames(classes.root, className)}>
-      <Link
-        to={routeToDiscussion(discussion.discussionId, discussion.slug)}
-        className={classes.link}
-      >
+      <Link to={routeToDiscussion(discussion.discussionId, discussion.slug)}>
         <CardActionArea>
           <CardContent className={classes.cardContent}>
             <Typography

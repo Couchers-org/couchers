@@ -17,7 +17,6 @@ import stripMarkdown from "utils/stripMarkdown";
 import placeImagePlaceholder from "./placeImagePlaceholder.svg";
 
 const useStyles = makeStyles((theme) => ({
-  link: { textDecoration: "none", color: "inherit" },
   image: {
     backgroundColor: theme.palette.grey[200],
     height: 80,
@@ -67,10 +66,7 @@ export default function PlaceCard({
   );
   return (
     <Card className={className}>
-      <Link
-        to={routeToPlace(place.pageId, place.slug)}
-        className={classes.link}
-      >
+      <Link to={routeToPlace(place.pageId, place.slug)}>
         <CardActionArea>
           <CardMedia
             src={place.photoUrl ? place.photoUrl : placeImagePlaceholder}

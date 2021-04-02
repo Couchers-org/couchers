@@ -10,7 +10,6 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "2rem",
     maxWidth: theme.spacing(21),
     padding: theme.spacing(1, 1.5),
-    textDecoration: "none",
     transition: theme.transitions.create(["color", "padding-top"], {
       duration: theme.transitions.duration.short,
     }),

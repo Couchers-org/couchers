@@ -67,18 +67,16 @@ export const routeToEvent = (id: number, slug: string) =>
   `${eventBaseRoute}/${id}/${slug}`;
 
 const communityBaseRoute = "/community";
-const communityTabs = [
-  "overview",
-  "find-host",
-  "events",
-  "local-points",
-  "discussions",
-  "hangouts",
-] as const;
-export type CommunityTab = typeof communityTabs[number];
+export type CommunityTab =
+  | "overview"
+  | "find-host"
+  | "events"
+  | "local-points"
+  | "discussions"
+  | "hangouts";
 export const communityRoute = `${communityBaseRoute}/:communityId/:communitySlug/:page?`;
 export const routeToCommunity = (
   id: number,
   slug: string,
   page?: CommunityTab
-) => `${communityBaseRoute}/${id}/${slug}` + (page ? `/${page}` : "");
+) => `${communityBaseRoute}/${id}/${slug}${page ? `/${page}` : ""}`;
