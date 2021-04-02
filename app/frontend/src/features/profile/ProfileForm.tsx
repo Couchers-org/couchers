@@ -169,15 +169,15 @@ export default function EditProfileForm() {
 
             <Controller
               control={control}
-              defaultValue={user.regionsVisitedList}
-              name="regionsVisited"
+              defaultValue={user.countriesVisitedList}
+              name="countriesVisited"
               render={({ onChange, value }) => (
                 <ProfileTagInput
                   onChange={(_, value) => onChange(value)}
                   value={value}
                   options={[]}
-                  label="Regions I've Visited"
-                  id="regions-visited"
+                  label="Countries I've Visited"
+                  id="countries-visited"
                   className={classes.tagInput}
                 />
               )}
@@ -185,15 +185,15 @@ export default function EditProfileForm() {
 
             <Controller
               control={control}
-              defaultValue={user.regionsLivedList}
-              name="regionsLived"
+              defaultValue={user.countriesLivedList}
+              name="countriesLived"
               render={({ onChange, value }) => (
                 <ProfileTagInput
                   onChange={(_, value) => onChange(value)}
                   value={value}
                   options={[]}
-                  label="Regions I've Lived In"
-                  id="regions-lived"
+                  label="Countries I've Lived In"
+                  id="countries-lived"
                   className={classes.tagInput}
                 />
               )}

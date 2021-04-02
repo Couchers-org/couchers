@@ -39,8 +39,8 @@ describe("updateProfile", () => {
     await updateProfile({
       ...nonEmptyUserValues,
       languages: [],
-      regionsLived: [],
-      regionsVisited: [],
+      countriesLived: [],
+      countriesVisited: [],
     });
 
     expect(updateProfileMock).toHaveBeenCalledTimes(1);
@@ -53,30 +53,30 @@ describe("updateProfile", () => {
       languages: { exists: true, valueList: [] },
       aboutMe: { isNull: false, value: nonEmptyUserValues.aboutMe },
       aboutPlace: { isNull: false, value: nonEmptyUserValues.aboutPlace },
-      regionsVisited: { exists: true, valueList: [] },
-      regionsLived: { exists: true, valueList: [] },
+      countriesVisited: { exists: true, valueList: [] },
+      countriesLived: { exists: true, valueList: [] },
     });
   });
 
   it("updates the profile correctly when repeated value fields exist", async () => {
     const {
       languagesList: languages,
-      regionsLivedList: regionsLived,
-      regionsVisitedList: regionsVisited,
+      countriesLivedList: countriesLived,
+      countriesVisitedList: countriesVisited,
     } = user;
     await updateProfile({
       ...nonEmptyUserValues,
       languages,
-      regionsLived,
-      regionsVisited,
+      countriesLived,
+      countriesVisited,
     });
 
     expect(updateProfileMock).toHaveBeenCalledTimes(1);
     const callArg = updateProfileMock.mock.calls[0][0];
     expect(callArg.toObject()).toMatchObject({
       languages: { exists: true, valueList: languages },
-      regionsVisited: { exists: true, valueList: regionsVisited },
-      regionsLived: { exists: true, valueList: regionsLived },
+      countriesVisited: { exists: true, valueList: countriesVisited },
+      countriesLived: { exists: true, valueList: countriesLived },
     });
   });
 });

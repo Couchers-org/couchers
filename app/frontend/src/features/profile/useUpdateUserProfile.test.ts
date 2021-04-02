@@ -18,8 +18,8 @@ describe("updateUserProfile action", () => {
       aboutMe,
       aboutPlace,
       radius,
-      regionsLivedList,
-      regionsVisitedList,
+      countriesLivedList,
+      countriesVisitedList,
       gender,
       name,
       occupation,
@@ -31,7 +31,7 @@ describe("updateUserProfile action", () => {
       occupation,
       aboutMe,
       aboutPlace,
-      regionsLived: regionsLivedList,
+      countriesLived: countriesLivedList,
       // Changed data
       city: "New York",
       lat: 40.7306,
@@ -39,13 +39,13 @@ describe("updateUserProfile action", () => {
       radius,
       hostingStatus: 3,
       languages: ["English", "Finnish", "Spanish"],
-      regionsVisited: [...regionsVisitedList, "United States"],
+      countriesVisited: [...countriesVisitedList, "United States"],
     };
     updateProfileMock.mockResolvedValue(new Empty());
     getUserMock.mockResolvedValue({
       ...newUserProfileData,
-      regionsLivedList,
-      regionsVisitedList: newUserProfileData.regionsVisited,
+      countriesLivedList,
+      countriesVisitedList: newUserProfileData.countriesVisited,
     });
     const { result, waitFor } = renderHook(
       () => ({
@@ -77,8 +77,8 @@ describe("updateUserProfile action", () => {
       city: "New York",
       hostingStatus: 3,
       languages: ["English", "Finnish", "Spanish"],
-      regionsLivedList: ["Australia", "Finland", "Sweden", "United States"],
-      regionsVisitedList: ["Australia", "United States"],
+      countriesLivedList: ["Australia", "Finland", "Sweden", "United States"],
+      countriesVisitedList: ["Australia", "United States"],
       lat: 40.7306,
       lng: -73.9352,
     });
@@ -112,8 +112,8 @@ describe("updateUserProfile action", () => {
         profileData: {
           ...defaultUser,
           languages: defaultUser.languagesList,
-          regionsLived: ["Ecuador"],
-          regionsVisited: defaultUser.regionsVisitedList,
+          countriesLived: ["Ecuador"],
+          countriesVisited: defaultUser.countriesVisitedList,
         },
         setMutationError: setError,
       })
