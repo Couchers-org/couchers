@@ -203,7 +203,10 @@ export default function CommunityPage() {
             {COMMUNITY_HEADING(community.name)}
           </Typography>
           <Typography variant="body2" className={classes.description}>
-            {community.description} <Link to="#">{MORE_TIPS}</Link>
+            {community.description}{" "}
+            <MuiLink component={Link} to="#">
+              {MORE_TIPS}
+            </MuiLink>
           </Typography>
         </Route>
       </Switch>
