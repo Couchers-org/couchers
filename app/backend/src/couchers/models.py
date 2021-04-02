@@ -638,14 +638,12 @@ class HostRequest(Base):
     # timezone aware start and end times of the request, can be compared to now()
     start_time = column_property(date_in_timezone(from_date, timezone))
     end_time = column_property(date_in_timezone(to_date, timezone) + text("interval '1 days'"))
+    end_time_to_write_reference = column_property(end_time + text("interval '14 days'"))
 
     status = Column(Enum(HostRequestStatus), nullable=False)
 
     to_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
     from_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
-
-    start_time_to_write_reference = column_property(date_in_timezone(to_date, timezone))
-    end_time_to_write_reference = column_property(date_in_timezone(to_date, timezone) + text("interval '14 days'"))
 
     from_user = relationship("User", backref="host_requests_sent", foreign_keys="HostRequest.from_user_id")
     to_user = relationship("User", backref="host_requests_received", foreign_keys="HostRequest.to_user_id")
@@ -655,7 +653,7 @@ class HostRequest(Base):
     def can_write_reference(self):
         return (
             (self.status == HostRequestStatus.confirmed)
-            & (now() >= self.start_time_to_write_reference)
+            & (now() >= self.end_time)
             & (now() <= self.end_time_to_write_reference)
         )
 
@@ -663,7 +661,7 @@ class HostRequest(Base):
     def can_write_reference(cls):
         return (
             (cls.status == HostRequestStatus.confirmed)
-            & (func.now() >= cls.start_time_to_write_reference)
+            & (func.now() >= cls.end_time)
             & (func.now() <= cls.end_time_to_write_reference)
         )
 
