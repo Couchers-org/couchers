@@ -30,7 +30,7 @@ const numNights = (date1: string, date2: string): string => {
 };
 
 function formatDate(s: string, short: boolean = false): string {
-  const monthName = monthNames[Number.parseInt(s.split("-")[1])];
+  const monthName = monthNames[Number.parseInt(s.split("-")[1]) - 1];
   if (short) return `${s.split("-")[2]} ${monthName}`;
   return `${s.split("-")[2]} ${monthName.substr(0, 3)} ${s.split("-")[0]}`;
 }
