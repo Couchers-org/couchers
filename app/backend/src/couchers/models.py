@@ -179,7 +179,7 @@ class User(Base):
     @property
     def regions_lived(self):
         return [(region.region_code for region in self._regions_lived)]
-      
+
     @hybrid_property
     def is_jailed(self):
         return self.accepted_tos < 1 or self.is_missing_location
