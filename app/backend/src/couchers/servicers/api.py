@@ -305,13 +305,12 @@ class API(api_pb2_grpc.APIServicer):
                 for region in request.regions_visited.value:
                     if not region_is_allowed(region):
                         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_REGION)
-                    else:
-                        session.add(
-                            RegionsVisited(
-                                user_id=user.id,
-                                region_code=region,
-                            )
+                    session.add(
+                        RegionsVisited(
+                            user_id=user.id,
+                            region_code=region,
                         )
+                    )
 
             if request.regions_lived.exists:
                 for region in user._regions_lived:
@@ -320,13 +319,12 @@ class API(api_pb2_grpc.APIServicer):
                 for region in request.regions_lived.value:
                     if not region_is_allowed(region):
                         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_REGION)
-                    else:
-                        session.add(
-                            RegionsLived(
-                                user_id=user.id,
-                                region_code=region,
-                            )
+                    session.add(
+                        RegionsLived(
+                            user_id=user.id,
+                            region_code=region,
                         )
+                    )
 
             if request.HasField("additional_information"):
                 if request.additional_information.is_null:
