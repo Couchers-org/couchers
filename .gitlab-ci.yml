@@ -134,6 +134,43 @@ build:frontend:
     paths:
       - artifacts/frontend/
 
+build:nginx-next:
+  needs: []
+  stage: build
+  script:
+    - docker pull $NGINX_RELEASE_TAG || true
+    - docker build --build-arg version=$SLUG --cache-from $NGINX_RELEASE_TAG -t $NGINX_NEXT_TAG app/nginx/
+    - docker push $NGINX_NEXT_TAG
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+      changes:
+      - app/**/*
+    - if: '$CI_COMMIT_BRANCH =~ $RELEASE_BRANCH'
+      changes:
+      - app/pb/**/*
+      - app/nginx/**/*
+
+build:frontend-next:
+  needs: ["protos"]
+  stage: build
+  script:
+    - docker pull $FRONTEND_RELEASE_TAG || true
+    - docker build --build-arg version=$SLUG --build-arg environment=preview --cache-from $FRONTEND_RELEASE_TAG -t $FRONTEND_NEXT_TAG app/frontend/
+    - docker push $FRONTEND_NEXT_TAG
+    # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
+    - mkdir -p artifacts && docker cp $(docker create $FRONTEND_NEXT_TAG):/app/build artifacts/frontend-next
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+      changes:
+      - app/**/*
+    - if: '$CI_COMMIT_BRANCH =~ $RELEASE_BRANCH'
+      changes:
+      - app/pb/**/*
+      - app/frontend/**/*
+  artifacts:
+    paths:
+      - artifacts/frontend-next/
+
 
 test:backend:
   needs: ["build:backend"]
@@ -249,6 +286,26 @@ test:storybook:
       - app/frontend/**/*
 
 
+preview:frontend:
+  needs: ["build:frontend-next"]
+  stage: preview
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - aws s3 cp artifacts/frontend-next s3://$AWS_PREVIEW_BUCKET/frontend/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 cp artifacts/frontend-next s3://$AWS_PREVIEW_BUCKET/frontend/$CI_COMMIT_REF_SLUG/ --recursive
+    - echo "Done, preview available at https://$CI_COMMIT_SHORT_SHA--frontend.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--frontend.$PREVIEW_DOMAIN/"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+      changes:
+      - app/**/*
+    - if: '$CI_COMMIT_BRANCH =~ $RELEASE_BRANCH'
+      changes:
+      - app/pb/**/*
+      - app/frontend/**/*
+
 preview:bcov:
   needs: ["test:backend"]
   stage: preview
@@ -268,26 +325,6 @@ preview:bcov:
       changes:
       - app/pb/**/*
       - app/backend/**/*
-
-preview:frontend:
-  needs: ["build:frontend", "test:frontend"]
-  stage: preview
-  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
-  inherit:
-    # no docker login
-    default: false
-  script:
-    - aws s3 cp artifacts/frontend s3://$AWS_PREVIEW_BUCKET/frontend/$CI_COMMIT_SHORT_SHA/ --recursive
-    - aws s3 cp artifacts/frontend s3://$AWS_PREVIEW_BUCKET/frontend/$CI_COMMIT_REF_SLUG/ --recursive
-    - echo "Done, preview available at https://$CI_COMMIT_SHORT_SHA--frontend.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--frontend.$PREVIEW_DOMAIN/"
-  rules:
-    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
-      changes:
-      - app/**/*
-    - if: '$CI_COMMIT_BRANCH =~ $RELEASE_BRANCH'
-      changes:
-      - app/pb/**/*
-      - app/frontend/**/*
 
 preview:fcov:
   needs: ["test:frontend"]
@@ -328,6 +365,18 @@ preview:storybook:
       changes:
       - app/pb/**/*
       - app/frontend/**/*
+
+preview:nginx-next:
+  needs: ["build:nginx-next"]
+  stage: preview
+  script:
+    - docker pull $NGINX_NEXT_TAG
+    - docker tag $NGINX_NEXT_TAG $NGINX_NEXT_RELEASE_TAG
+    - docker push $NGINX_NEXT_RELEASE_TAG
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+      changes:
+      - app/**/*
 
 
 release:proxy:
