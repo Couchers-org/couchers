@@ -245,6 +245,32 @@ test:media:
       - app/media/**/*
 
 test:frontend:
+  needs: ["build:frontend"]
+  stage: test
+  image: $FRONTEND_TAG
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - cd /app && yarn test-ci
+  after_script:
+    - cp /app/junit.xml $CI_PROJECT_DIR/
+    - cp /app/coverage/cobertura-coverage.xml $CI_PROJECT_DIR/
+    - mkdir -p $CI_PROJECT_DIR/artifacts/lcov-report && cp -a /app/coverage/lcov-report $CI_PROJECT_DIR/artifacts/
+  coverage: '/^All files[^|]*\|[^|]*\s+([\d\.]+)/'
+  artifacts:
+    reports:
+      cobertura: cobertura-coverage.xml
+      junit: junit.xml
+    paths:
+      - artifacts/lcov-report
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+      changes:
+      - .gitlab-ci.yml
+      - app/**/*
+
+test:frontend-next:
   needs: ["build:frontend-next"]
   stage: test
   image: $FRONTEND_NEXT_TAG
@@ -275,7 +301,7 @@ test:frontend:
       - app/pb/**/*
       - app/frontend/**/*
 
-test:storybook:
+test:storybook-next:
   needs: ["build:frontend-next"]
   stage: test
   image: $FRONTEND_TAG
@@ -300,7 +326,7 @@ test:storybook:
       - app/frontend/**/*
 
 
-preview:frontend:
+preview:frontend-next:
   needs: ["build:frontend-next"]
   stage: preview
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
@@ -345,7 +371,7 @@ preview:bcov:
       - app/backend/**/*
 
 preview:fcov:
-  needs: ["test:frontend"]
+  needs: ["test:frontend-next"]
   stage: preview
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
   inherit:
