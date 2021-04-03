@@ -41,7 +41,7 @@ def test_bugs():
                 "body": (
                     "Subject: subject\nDescription:\ndescription\n\nSteps:\nsteps\n\nResults:\nresults\n\nBackend version: "
                     + config["VERSION"]
-                    + "\nFrontend version: frontend_version\nUser Agent: user_agent\nPage: page\nUser (spoofable): test (99)"
+                    + "\nFrontend version: frontend_version\nUser Agent: user_agent\nPage: page\nUser (spoofable): <unknown> (99)"
                 ),
                 "labels": ["bug tool"],
             }
