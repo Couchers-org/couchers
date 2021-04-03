@@ -6,14 +6,22 @@ import {
 import { CHANGE_DATE } from "features/constants";
 import { Control, Controller } from "react-hook-form";
 
-import { dateFormats } from "./DateFormats";
+import { dateFormats } from "./constants";
 
 const getLocaleFormat = () => {
-  for (const [key, value] of Object.entries(dateFormats)) {
-    if (key === navigator.language) {
-      return value.toString();
-    }
-  }
+  let locale =
+    navigator.language in dateFormats
+      ? dateFormats[navigator.language as keyof typeof dateFormats]
+      : "DD/MM/YYYY";
+  //convoluted way to convert and single letter date formats to double letter
+  //eg. "M/D/YYYY" to "MM/DD/YYYY"
+  //this is because keyboard typing is a total disaster for single letter formats
+  locale = locale
+    .replace("DD", "D")
+    .replace("MM", "M")
+    .replace("D", "DD")
+    .replace("M", "MM");
+  return locale;
 };
 
 interface DatepickerProps {
@@ -58,14 +66,16 @@ export default function Datepicker({
             helperText={helperText}
             id={id}
             KeyboardButtonProps={{
-              'aria-label': CHANGE_DATE,
+              "aria-label": CHANGE_DATE,
             }}
             InputLabelProps={{
               shrink: true,
             }}
             label={label}
             minDate={minDate}
-            onChange={onChange}
+            onChange={(date) => {
+              if (date?.isValid()) onChange(date?.toDate());
+            }}
             value={value}
             variant="inline"
           />
