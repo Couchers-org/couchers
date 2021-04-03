@@ -23,7 +23,7 @@ function RespondToFriendRequestButton({
   friendRequestId,
   state,
   setMutationError,
-}: RespondToFriendRequestProfileButtonProps) {
+}: RespondToFriendRequestButtonProps) {
   const [isOpen, setIsOpen] = useState({
     accepted: false,
     rejected: false,
