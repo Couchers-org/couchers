@@ -19,7 +19,7 @@ interface RespondToFriendRequestProfileButtonProps {
 export const RESPOND_TO_FRIEND_REQUEST_MENU_ID =
   "respond-to-friend-request-actions-menu";
 
-function RespondToFriendRequestProfileButton({
+function RespondToFriendRequestButton({
   friendRequestId,
   state,
   setMutationError,
