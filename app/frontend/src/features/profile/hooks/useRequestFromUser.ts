@@ -5,9 +5,7 @@ interface RequestSentToUserProps {
   userId: number;
 }
 
-export default function useRequestFromUser({
-  userId,
-}: RequestSentToUserProps) {
+export default function useRequestFromUser({ userId }: RequestSentToUserProps) {
   const { data: friendRequestReceived } = useFriendRequests("received");
   const friendRequestFromUser = friendRequestReceived?.find(
     (e) => e.userId === userId

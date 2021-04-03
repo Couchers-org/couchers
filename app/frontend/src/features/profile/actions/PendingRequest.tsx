@@ -15,8 +15,8 @@ interface PendingRequestProps {
 }
 
 function PendingRequest({ userId, setMutationError }: PendingRequestProps) {
-  const sentRequest = useRequestSentToUser({userId})
-  const receivedRequest = useRequestFromUser({userId})
+  const sentRequest = useRequestSentToUser({ userId });
+  const receivedRequest = useRequestFromUser({ userId });
   if (sentRequest === false) {
     if (receivedRequest !== false) {
       return (

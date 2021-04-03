@@ -14,4 +14,3 @@ export default function useRequestSentToUser({
   );
   return friendRequestToUser ? friendRequestToUser : false;
 }
-
