@@ -8,7 +8,6 @@ import backoff
 import grpc
 import pyvips
 from flask import Flask, abort, request, send_file
-from flask_cors import CORS
 from werkzeug.utils import secure_filename
 
 from media.crypto import verify_hash_signature
@@ -33,7 +32,6 @@ def create_app(
     (media_upload_location / "thumbnail").mkdir(exist_ok=True, parents=True)
 
     app = Flask(__name__)
-    CORS(app)
 
     def get_path(filename, size="full"):
         return str(media_upload_location / size / filename)
@@ -113,7 +111,7 @@ def create_app(
             img = img.resize(scale)
 
         # strip removes EXIF (e.g. GPS location) and other metadata
-        img.write_to_file(path, strip=True)
+        img.jpegsave(path, strip=True, interlace=True, Q=75)
 
         # let the main server know the upload succeeded, or delete the file
         try:
@@ -162,7 +160,7 @@ def create_app(
                 img = img.crop(0, bar, width, height - 2 * bar)
 
             img = img.resize(thumbnail_size / size)
-            img.write_to_file(thumbnail_path, strip=True)
+            img.jpegsave(thumbnail_path, strip=True, interlace=True, Q=75)
 
         return send_file(thumbnail_path, mimetype="image/jpeg", conditional=True)
 
