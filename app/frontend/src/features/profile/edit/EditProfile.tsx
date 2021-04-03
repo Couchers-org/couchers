@@ -238,7 +238,7 @@ export default function EditProfileForm() {
               name="meetupStatus"
               render={({ onChange, value }) => (
                 <>
-                  <Typography variant="h2">{HOSTING_STATUS}</Typography>
+                  <Typography variant="h2">{MEETUP_STATUS}</Typography>
                   <RadioGroup
                     row
                     aria-label={MEETUP_STATUS}
