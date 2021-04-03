@@ -158,11 +158,6 @@ build:nginx-next:
       changes:
       - .gitlab-ci.yml
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH =~ $RELEASE_BRANCH'
-      changes:
-      - .gitlab-ci.yml
-      - app/pb/**/*
-      - app/nginx/**/*
 
 build:frontend-next:
   needs: ["protos"]
@@ -397,19 +392,6 @@ preview:storybook:
       - app/pb/**/*
       - app/frontend/**/*
 
-preview:nginx-next:
-  needs: ["build:nginx-next"]
-  stage: preview
-  script:
-    - docker pull $NGINX_NEXT_TAG
-    - docker tag $NGINX_NEXT_TAG $NGINX_NEXT_RELEASE_TAG
-    - docker push $NGINX_NEXT_RELEASE_TAG
-  rules:
-    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
-      changes:
-      - .gitlab-ci.yml
-      - app/**/*
-
 
 release:proxy:
   stage: release
@@ -465,6 +447,18 @@ release:frontend:
     - docker pull $FRONTEND_TAG
     - docker tag $FRONTEND_TAG $FRONTEND_RELEASE_TAG
     - docker push $FRONTEND_RELEASE_TAG
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+      changes:
+      - .gitlab-ci.yml
+      - app/**/*
+
+release:nginx-next:
+  stage: release
+  script:
+    - docker pull $NGINX_NEXT_TAG
+    - docker tag $NGINX_NEXT_TAG $NGINX_NEXT_RELEASE_TAG
+    - docker push $NGINX_NEXT_RELEASE_TAG
   rules:
     - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
       changes:
