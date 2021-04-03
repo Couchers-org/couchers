@@ -7,6 +7,7 @@ import Divider from "components/Divider";
 import { CouchIcon, LocationIcon } from "components/Icons";
 import IconText from "components/IconText";
 import { useAuthContext } from "features/auth/AuthProvider";
+import { CONNECTIONS } from "features/connections/constants";
 import AddFriendButton from "features/connections/friends/AddFriendButton";
 import {
   COMMUNITY_STANDING,
@@ -27,7 +28,11 @@ import { LabelsReferencesLastActive } from "features/user/UserTextAndLabel";
 import { HostingStatus, MeetupStatus, User } from "pb/api_pb";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { editHostingPreferenceRoute, editProfileRoute } from "routes";
+import {
+  connectionsRoute,
+  editHostingPreferenceRoute,
+  editProfileRoute,
+} from "routes";
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -45,9 +50,14 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   cardActions: {
+    flexWrap: "wrap",
     justifyContent: "center",
     paddingLeft: 0,
     paddingRight: 0,
+    paddingTop: 0,
+    "& > *": {
+      marginBlockStart: theme.spacing(1),
+    },
   },
   grow: {
     paddingTop: "100%",
@@ -90,6 +100,9 @@ export default function Overview({ user, setIsRequesting }: OverviewProps) {
             </Button>
             <Button component={Link} to={editHostingPreferenceRoute}>
               {EDIT_HOME}
+            </Button>
+            <Button component={Link} to={connectionsRoute}>
+              {CONNECTIONS}
             </Button>
           </>
         ) : (

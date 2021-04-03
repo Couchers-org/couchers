@@ -77,7 +77,7 @@ export default function Map({
       container: containerRef.current,
       hash: "loc",
       interactive: interactive,
-      style: "mapbox://styles/mapbox/streets-v11",
+      style: "mapbox://styles/mapbox/light-v10",
       transformRequest,
       zoom: initialZoom,
     });

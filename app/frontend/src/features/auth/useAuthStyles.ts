@@ -1,7 +1,7 @@
 import { makeStyles } from "@material-ui/core";
 
-import DesktopAuthBg from "./resources/desktop-auth-bg.png";
-import MobileAuthBg from "./resources/mobile-auth-bg.png";
+import DesktopAuthBg from "./resources/desktop-auth-bg.jpg";
+import MobileAuthBg from "./resources/mobile-auth-bg.jpg";
 
 const useAuthStyles = makeStyles((theme) => ({
   backgroundBlurImage: {
@@ -9,7 +9,7 @@ const useAuthStyles = makeStyles((theme) => ({
     backgroundImage: `url(${MobileAuthBg})`,
     backgroundPosition: "top center",
     backgroundRepeat: "no-repeat",
-    backgroundSize: "contain",
+    backgroundSize: "cover",
     display: "block",
     filter: "blur(5px)",
     height: "100vh",
@@ -68,11 +68,14 @@ const useAuthStyles = makeStyles((theme) => ({
   },
   */
   divider: {
-    borderTop: `1px solid ${theme.palette.text.primary}`,
+    borderTop: `1px solid ${theme.palette.common.white}`,
     marginLeft: "auto",
     marginRight: "auto",
     marginTop: theme.spacing(2),
     width: "100%",
+    [theme.breakpoints.up("md")]: {
+      borderTop: `1px solid ${theme.palette.text.primary}`,
+    },
   },
   errorMessage: {
     width: "100%",
