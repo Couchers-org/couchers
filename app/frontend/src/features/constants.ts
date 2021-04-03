@@ -1,5 +1,3 @@
-import { ReferenceType } from "pb/references_pb";
-
 // Profile Overview
 export const COMMUNITY_STANDING = "Community Standing";
 export const COMMUNITY_STANDING_DESCRIPTION =
@@ -103,23 +101,6 @@ export const WHEELCHAIR = "Wheelchair accessible";
 // Edit home
 export const EDIT_HOME = "Edit home";
 
-// References
-export const REFERENCES_FILTER_A11Y_LABEL = "Show references: ";
-export const referencesFilterLabels = {
-  [ReferenceType.REFERENCE_TYPE_FRIEND]: "From friends",
-  [ReferenceType.REFERENCE_TYPE_HOSTED]: "From guests",
-  [ReferenceType.REFERENCE_TYPE_SURFED]: "From hosts",
-  all: "All references",
-  given: "Given to others",
-};
-export const referenceBadgeLabel = {
-  [ReferenceType.REFERENCE_TYPE_FRIEND]: "Friend",
-  [ReferenceType.REFERENCE_TYPE_HOSTED]: "Guest",
-  [ReferenceType.REFERENCE_TYPE_SURFED]: "Hosted",
-};
-export const NO_REFERENCES = "No references of this kind yet!";
-export const getReferencesGivenHeading = (name: string) =>
-  `References ${name} wrote`;
 // Community
 export const COMMUNITY_HEADING = (name: string) => `Welcome to ${name}!`;
 export const DISCUSSIONS_EMPTY_STATE = "No discussions at the moment.";
