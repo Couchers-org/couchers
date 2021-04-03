@@ -57,6 +57,9 @@ message FriendRequest {
   FriendRequestStatus state = 2;
 
   int64 user_id = 3;
+
+  // we sent the request if true, received it if false
+  bool sent = 4;
 }
 
 message RespondFriendRequestReq {
@@ -195,6 +198,8 @@ message User {
   string additional_information = 106;  // CommonMark without images
 
   FriendshipStatus friends = 20;
+  // only present if friends == FriendshipStatus.PENDING
+  FriendRequest pending_friend_request = 36;
   repeated MutualFriend mutual_friends = 21;
 
   google.protobuf.UInt32Value max_guests = 22;
