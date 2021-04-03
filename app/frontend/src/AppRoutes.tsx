@@ -54,12 +54,12 @@ import {
   newGuideRoute,
   newPlaceRoute,
   placeRoute,
-  profileRoute,
   resetPasswordRoute,
   searchRoute,
   settingsRoute,
   signupRoute,
   tosRoute,
+  userRoute,
 } from "./routes";
 
 export default function AppRoutes() {
@@ -135,7 +135,7 @@ export default function AppRoutes() {
       <AppRoute isPrivate path={editHostingPreferenceRoute}>
         <EditHostingPreference />
       </AppRoute>
-      <AppRoute isPrivate path={`${profileRoute}/:username?`}>
+      <AppRoute isPrivate path={`${userRoute}/:username?`}>
         <ProfilePage />
       </AppRoute>
       <AppRoute isPrivate path={`${connectionsRoute}/:type?`}>

@@ -1,6 +1,6 @@
 import { makeStyles, Typography, TypographyProps } from "@material-ui/core";
 import { NavLink } from "react-router-dom";
-import { baseRoute, profileRoute } from "routes";
+import { baseRoute, userRoute } from "routes";
 
 const useStyles = makeStyles((theme) => ({
   link: {
@@ -39,7 +39,7 @@ export default function NavButton({
   return (
     <NavLink
       activeClassName={classes.selected}
-      exact={route === baseRoute || route === profileRoute}
+      exact={route === baseRoute || route === userRoute}
       to={route}
       className={classes.link}
     >
