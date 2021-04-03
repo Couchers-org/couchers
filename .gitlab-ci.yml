@@ -60,7 +60,7 @@ build:proxy:
     - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
       changes:
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH ~= $RELEASE_BRANCH'
+    - if: '$CI_COMMIT_BRANCH =~ $RELEASE_BRANCH'
       changes:
       - app/pb/**/*
       - app/proxy/**/*
@@ -76,7 +76,7 @@ build:nginx:
     - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
       changes:
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH ~= $RELEASE_BRANCH'
+    - if: '$CI_COMMIT_BRANCH =~ $RELEASE_BRANCH'
       changes:
       - app/pb/**/*
       - app/nginx/**/*
@@ -92,7 +92,7 @@ build:backend:
     - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
       changes:
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH ~= $RELEASE_BRANCH'
+    - if: '$CI_COMMIT_BRANCH =~ $RELEASE_BRANCH'
       changes:
       - app/pb/**/*
       - app/backend/**/*
@@ -108,7 +108,7 @@ build:media:
     - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
       changes:
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH ~= $RELEASE_BRANCH'
+    - if: '$CI_COMMIT_BRANCH =~ $RELEASE_BRANCH'
       changes:
       - app/pb/**/*
       - app/media/**/*
@@ -126,7 +126,7 @@ build:frontend:
     - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
       changes:
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH ~= $RELEASE_BRANCH'
+    - if: '$CI_COMMIT_BRANCH =~ $RELEASE_BRANCH'
       changes:
       - app/pb/**/*
       - app/frontend/**/*
@@ -167,7 +167,7 @@ test:backend:
     - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
       changes:
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH ~= $RELEASE_BRANCH'
+    - if: '$CI_COMMIT_BRANCH =~ $RELEASE_BRANCH'
       changes:
       - app/pb/**/*
       - app/backend/**/*
@@ -192,7 +192,7 @@ test:media:
     - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
       changes:
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH ~= $RELEASE_BRANCH'
+    - if: '$CI_COMMIT_BRANCH =~ $RELEASE_BRANCH'
       changes:
       - app/pb/**/*
       - app/media/**/*
@@ -221,7 +221,7 @@ test:frontend:
     - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
       changes:
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH ~= $RELEASE_BRANCH'
+    - if: '$CI_COMMIT_BRANCH =~ $RELEASE_BRANCH'
       changes:
       - app/pb/**/*
       - app/frontend/**/*
@@ -243,7 +243,7 @@ test:storybook:
     - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
       changes:
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH ~= $RELEASE_BRANCH'
+    - if: '$CI_COMMIT_BRANCH =~ $RELEASE_BRANCH'
       changes:
       - app/pb/**/*
       - app/frontend/**/*
@@ -264,7 +264,7 @@ preview:bcov:
     - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
       changes:
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH ~= $RELEASE_BRANCH'
+    - if: '$CI_COMMIT_BRANCH =~ $RELEASE_BRANCH'
       changes:
       - app/pb/**/*
       - app/backend/**/*
@@ -284,7 +284,7 @@ preview:frontend:
     - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
       changes:
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH ~= $RELEASE_BRANCH'
+    - if: '$CI_COMMIT_BRANCH =~ $RELEASE_BRANCH'
       changes:
       - app/pb/**/*
       - app/frontend/**/*
@@ -304,7 +304,7 @@ preview:fcov:
     - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
       changes:
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH ~= $RELEASE_BRANCH'
+    - if: '$CI_COMMIT_BRANCH =~ $RELEASE_BRANCH'
       changes:
       - app/pb/**/*
       - app/frontend/**/*
@@ -324,7 +324,7 @@ preview:storybook:
     - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
       changes:
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH ~= $RELEASE_BRANCH'
+    - if: '$CI_COMMIT_BRANCH =~ $RELEASE_BRANCH'
       changes:
       - app/pb/**/*
       - app/frontend/**/*
