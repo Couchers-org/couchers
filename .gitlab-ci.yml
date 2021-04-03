@@ -44,7 +44,8 @@ protos:
   script:
     - cd app && ./generate_protos.sh
   rules:
-    - changes:
+    - if: 'true'
+      changes:
       - app/**/*
   artifacts:
     paths:
@@ -454,6 +455,7 @@ release:frontend:
       - app/**/*
 
 release:nginx-next:
+  needs: ["build:nginx-next"]
   stage: release
   script:
     - docker pull $NGINX_NEXT_TAG
