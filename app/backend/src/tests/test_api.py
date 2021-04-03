@@ -32,13 +32,11 @@ def test_ping(db):
         res = api.Ping(api_pb2.PingReq())
 
     with session_scope() as session:
-        u = session.query(User).filter(User.id == user.id).one()
-        # NB: This is empty for now, but may change at some point
-        language_abilities = set(
-            language_ability.language_code for language_ability in u.language_abilities
-        )
-        regions_visited = [region.region_code for region in u.regions_visited]
-        regions_lived = [region.region_code for region in u.regions_lived]
+        db_user = session.query(User).filter(User.id == user.id).one()
+        # This is empty for now, but may change at some point
+        language_abilities = set(language_ability.language_code for language_ability in db_user.language_abilities)
+        regions_visited = [region.region_code for region in db_user.regions_visited]
+        regions_lived = [region.region_code for region in db_user.regions_lived]
 
     assert res.user.user_id == user.id
     assert res.user.username == user.username

@@ -141,7 +141,6 @@ class User(Base):
     my_travels = Column(String, nullable=True)  # CommonMark without images
     things_i_like = Column(String, nullable=True)  # CommonMark without images
     about_place = Column(String, nullable=True)  # CommonMark without images
-    avatar_filename = Column(String, nullable=True)
     additional_information = Column(String, nullable=True)  # CommonMark without images
 
     is_banned = Column(Boolean, nullable=False, default=False)

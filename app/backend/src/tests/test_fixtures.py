@@ -142,7 +142,7 @@ def generate_user(*_, **kwargs):
         session.add(user)
         session.flush()
 
-        # NB: We've elected not to include language_abilities here
+        # We've elected not to include language_abilities here
         session.add(RegionsVisited(user_id=user.id, region_code="FIN"))
         session.add(RegionsVisited(user_id=user.id, region_code="REU"))
         session.add(RegionsLived(user_id=user.id, region_code="FRA"))
