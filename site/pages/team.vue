@@ -318,6 +318,24 @@
                     </figure>
                   </div>
                   <div class="media-content">
+                    <p class="title is-4">Max Vuorinen</p>
+                    <p class="subtitle is-6 role">Graphic Designer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Helsinki, Finland</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-tina.jpg" alt="Headshot of Tina">
+                    </figure>
+                  </div>
+                  <div class="media-content">
                     <p class="title is-4">Martina Ferrari</p>
                     <p class="subtitle is-6 role">Community Structure Designer</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Dublin, Ireland</p>
