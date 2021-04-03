@@ -443,8 +443,14 @@ class API(api_pb2_grpc.APIServicer):
                 session.query(FriendRelationship)
                 .filter(
                     or_(
-                        and_(FriendRelationship.from_user_id == user1_id, FriendRelationship.to_user_id == user2_id),
-                        and_(FriendRelationship.from_user_id == user2_id, FriendRelationship.to_user_id == user1_id),
+                        and_(
+                            FriendRelationship.from_user_id == context.user_id,
+                            FriendRelationship.to_user_id == request.user_id,
+                        ),
+                        and_(
+                            FriendRelationship.from_user_id == request.user_id,
+                            FriendRelationship.to_user_id == context.user_id,
+                        ),
                     )
                 )
                 .filter(
@@ -618,8 +624,12 @@ def user_model_to_pb(db_user, session, context):
             session.query(FriendRelationship)
             .filter(
                 or_(
-                    and_(FriendRelationship.from_user_id == user1_id, FriendRelationship.to_user_id == user2_id),
-                    and_(FriendRelationship.from_user_id == user2_id, FriendRelationship.to_user_id == user1_id),
+                    and_(
+                        FriendRelationship.from_user_id == context.user_id, FriendRelationship.to_user_id == db_user.id
+                    ),
+                    and_(
+                        FriendRelationship.from_user_id == db_user.id, FriendRelationship.to_user_id == context.user_id
+                    ),
                 )
             )
             .filter(
