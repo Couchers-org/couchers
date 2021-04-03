@@ -26,7 +26,7 @@ COPY domains ./
 # copy the proper environment file into the container
 COPY .env.${ENVIRONMENT} ./.env
 # source it and use sed to substitute the variables in all config files
-RUN [ "sh", "-c", "source .env && sed -i 's/{API_DOMAIN}/${API_DOMAIN}/;s/{MEDIA_DOMAIN}/${MEDIA_DOMAIN}/' /etc/nginx/nginx.conf /etc/nginx/sites-enabled/*"]
+RUN [ "sh", "-c", ". .env && sed -i 's/{API_DOMAIN}/${API_DOMAIN}/;s/{MEDIA_DOMAIN}/${MEDIA_DOMAIN}/' /etc/nginx/nginx.conf /etc/nginx/sites-enabled/*"]
 
 ARG version
 ENV VERSION=$version
