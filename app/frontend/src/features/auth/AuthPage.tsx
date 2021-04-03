@@ -18,7 +18,6 @@ import {
 import DesktopAuthBg from "features/auth/resources/desktop-auth-bg.jpg";
 import MobileAuthBg from "features/auth/resources/mobile-auth-bg.jpg";
 import useAuthStyles from "features/auth/useAuthStyles";
-import React from "react";
 import { Link } from "react-router-dom";
 import { loginRoute, signupRoute } from "routes";
 
@@ -26,11 +25,11 @@ import { COUCHERS } from "../../constants";
 
 const useStyles = makeStyles((theme) => ({
   aboutUs: {
-    color: "#2a2a2a",
-    marginTop: "auto",
+    color: theme.palette.common.white,
+    marginTop: theme.spacing(2),
   },
   aboutUsLink: {
-    color: "#2a2a2a",
+    color: theme.palette.common.white,
     display: "block",
     textDecoration: "none",
     [theme.breakpoints.up("md")]: {
@@ -43,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
   },
   authPage: {
     alignItems: "flex-end",
-    backgroundColor: "#f3f3f3",
+    backgroundColor: theme.palette.common.white,
     backgroundImage: `url(${MobileAuthBg})`,
     backgroundPosition: "top center",
     backgroundRepeat: "no-repeat",
@@ -158,7 +157,6 @@ export default function AuthPage() {
                 label: authClasses.buttonText,
               }}
               className={classNames(authClasses.button, classes.button)}
-              color="secondary"
               component={Link}
               to={loginRoute}
             >
@@ -169,7 +167,6 @@ export default function AuthPage() {
                 label: authClasses.buttonText,
               }}
               className={classNames(authClasses.button, classes.button)}
-              color="secondary"
               component={Link}
               to={signupRoute}
             >
