@@ -1,4 +1,3 @@
-import classNames from "classnames";
 import Button from "components/Button";
 import { PersonAddIcon } from "components/Icons";
 import { ADD_FRIEND } from "features/connections/constants";

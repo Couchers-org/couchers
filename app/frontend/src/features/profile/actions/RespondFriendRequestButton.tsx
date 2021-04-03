@@ -21,7 +21,6 @@ export const RESPOND_TO_FRIEND_REQUEST_MENU_ID =
 
 function RespondToFriendRequestButton({
   friendRequestId,
-  state,
   setMutationError,
 }: RespondToFriendRequestButtonProps) {
   const [isOpen, setIsOpen] = useState({
