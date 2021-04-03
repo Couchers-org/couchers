@@ -82,11 +82,6 @@ build:nginx:
       changes:
       - .gitlab-ci.yml
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
-      changes:
-      - .gitlab-ci.yml
-      - app/pb/**/*
-      - app/nginx/**/*
 
 build:backend:
   needs: ["protos"]
@@ -138,11 +133,6 @@ build:frontend:
       changes:
       - .gitlab-ci.yml
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
-      changes:
-      - .gitlab-ci.yml
-      - app/pb/**/*
-      - app/frontend/**/*
   artifacts:
     paths:
       - artifacts/frontend/
@@ -159,6 +149,11 @@ build:nginx-next:
       changes:
       - .gitlab-ci.yml
       - app/**/*
+    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
+      changes:
+      - .gitlab-ci.yml
+      - app/pb/**/*
+      - app/nginx/**/*
 
 build:frontend-next:
   needs: ["protos"]
@@ -250,9 +245,9 @@ test:media:
       - app/media/**/*
 
 test:frontend:
-  needs: ["build:frontend"]
+  needs: ["build:frontend-next"]
   stage: test
-  image: $FRONTEND_TAG
+  image: $FRONTEND_NEXT_TAG
   inherit:
     # no docker login
     default: false
@@ -281,7 +276,7 @@ test:frontend:
       - app/frontend/**/*
 
 test:storybook:
-  needs: ["build:frontend"]
+  needs: ["build:frontend-next"]
   stage: test
   image: $FRONTEND_TAG
   inherit:
