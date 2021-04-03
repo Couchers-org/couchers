@@ -1,6 +1,4 @@
-/* has to check whether request is sent or received
-if sent, return a simple disabled "pending request" button
-if recieved, return the response button*/
+import CircularProgress from "components/CircularProgress"
 import { SetMutationError } from "features/connections/friends";
 import useRequestFromUser from "features/profile/hooks/useRequestFromUser";
 import React from "react";
@@ -14,12 +12,11 @@ interface PendingRequestProps {
 }
 
 function PendingRequest({ userId, setMutationError }: PendingRequestProps) {
-  /*const sentRequest = useRequestSentToUser({ userId });*/
-  const receivedRequest = useRequestFromUser({ userId });
 
-  return receivedRequest ? <RespondToFriendRequestProfileButton
-    friendRequestId={receivedRequest.friendRequestId}
-    state={receivedRequest.state}
+  const receivedRequest = useRequestFromUser({ userId });
+  return receivedRequest ? receivedRequest.isLoading ? <CircularProgress/> : <RespondToFriendRequestProfileButton
+    friendRequestId={receivedRequest.friendRequestFromUser.friendRequestId}
+    state={receivedRequest.friendRequestFromUser.state}
     setMutationError={setMutationError}
   /> : <PendingFriendRequestSent />;
 }
