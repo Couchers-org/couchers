@@ -9,12 +9,16 @@ const useStyles = makeStyles((theme) => ({
   root: {
     backgroundSize: "cover",
     height: "8rem",
-    left: "50%",
-    marginLeft: "-50vw",
-    marginRight: "-50vw",
-    position: "relative",
-    right: "50%",
-    width: "100vw",
+    width: "100%",
+    [theme.breakpoints.down("md")]: {
+      //break out of page margins
+      left: "50%",
+      marginLeft: "-50vw",
+      marginRight: "-50vw",
+      position: "relative",
+      right: "50%",
+      width: "100vw",
+    },
     [theme.breakpoints.up("md")]: {
       height: "16rem",
       marginTop: theme.spacing(-2),

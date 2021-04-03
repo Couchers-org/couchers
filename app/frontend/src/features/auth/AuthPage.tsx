@@ -32,7 +32,6 @@ const useStyles = makeStyles((theme) => ({
   aboutUsLink: {
     color: "#2a2a2a",
     display: "block",
-    textDecoration: "none",
     [theme.breakpoints.up("md")]: {
       color: theme.palette.common.white,
       fontWeight: 500,
@@ -94,7 +93,6 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "1.25rem",
     fontWeight: 500,
     textAlign: "center",
-    textDecoration: "none",
     padding: theme.spacing(1, 2),
   },
   loginLink: {

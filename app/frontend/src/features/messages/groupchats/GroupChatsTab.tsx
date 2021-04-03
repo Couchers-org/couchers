@@ -55,7 +55,6 @@ export default function GroupChatsTab() {
                     <Link
                       key={groupChat.groupChatId}
                       to={routeToGroupChat(groupChat.groupChatId)}
-                      className={classes.link}
                     >
                       <GroupChatListItem
                         groupChat={groupChat}

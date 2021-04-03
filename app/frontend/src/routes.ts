@@ -68,27 +68,16 @@ export const routeToEvent = (id: number, slug: string) =>
   `${eventBaseRoute}/${id}/${slug}`;
 
 const communityBaseRoute = "/community";
-export const communityRoute = `${communityBaseRoute}/:communityId/:communitySlug?`;
-export const routeToCommunity = (id: number, slug: string) =>
-  `${communityBaseRoute}/${id}/${slug}`;
-
-const communityPlacesBaseRoute = `${communityRoute}/places`;
-export const communityPlacesRoute = `${communityPlacesBaseRoute}/:communityId/:communitySlug?`;
-export const routeToCommunityPlaces = (id: number, slug: string) =>
-  `${communityPlacesBaseRoute}/${id}/${slug}`;
-const communityGuidesBaseRoute = `${communityRoute}/guides`;
-export const communityGuidesRoute = `${communityGuidesBaseRoute}/:communityId/:communitySlug?`;
-export const routeToCommunityGuides = (id: number, slug: string) =>
-  `${communityGuidesBaseRoute}/${id}/${slug}`;
-const communityGroupsBaseRoute = `${communityRoute}/groups`;
-export const communityGroupsRoute = `${communityGroupsBaseRoute}/:communityId/:communitySlug?`;
-export const routeToCommunityGroups = (id: number, slug: string) =>
-  `${communityGroupsBaseRoute}/${id}/${slug}`;
-const communityDiscussionsBaseRoute = `${communityRoute}/discussions`;
-export const communityDiscussionsRoute = `${communityDiscussionsBaseRoute}/:communityId/:communitySlug?`;
-export const routeToCommunityDiscussions = (id: number, slug: string) =>
-  `${communityDiscussionsBaseRoute}/${id}/${slug}`;
-const communityEventsBaseRoute = `${communityRoute}/events`;
-export const communityEventsRoute = `${communityEventsBaseRoute}/:communityId/:communitySlug?`;
-export const routeToCommunityEvents = (id: number, slug: string) =>
-  `${communityEventsBaseRoute}/${id}/${slug}`;
+export type CommunityTab =
+  | "overview"
+  | "find-host"
+  | "events"
+  | "local-points"
+  | "discussions"
+  | "hangouts";
+export const communityRoute = `${communityBaseRoute}/:communityId/:communitySlug/:page?`;
+export const routeToCommunity = (
+  id: number,
+  slug: string,
+  page?: CommunityTab
+) => `${communityBaseRoute}/${id}/${slug}${page ? `/${page}` : ""}`;
