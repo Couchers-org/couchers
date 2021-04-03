@@ -39,7 +39,6 @@ export default function AddFriendButton({
   return (
     <Button
       startIcon={<PersonAddIcon />}
-      className={classNames()}
       onClick={() => {
         sendFriendRequest({ setMutationError, userId });
       }}
