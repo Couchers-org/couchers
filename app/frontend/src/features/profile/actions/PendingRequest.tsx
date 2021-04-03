@@ -1,4 +1,4 @@
-import CircularProgress from "components/CircularProgress"
+import CircularProgress from "components/CircularProgress";
 import { SetMutationError } from "features/connections/friends";
 import useRequestFromUser from "features/profile/hooks/useRequestFromUser";
 import React from "react";
@@ -12,13 +12,20 @@ interface PendingRequestProps {
 }
 
 function PendingRequest({ userId, setMutationError }: PendingRequestProps) {
-
   const receivedRequest = useRequestFromUser({ userId });
-  return receivedRequest ? receivedRequest.isLoading ? <CircularProgress/> : <RespondToFriendRequestProfileButton
-    friendRequestId={receivedRequest.friendRequestFromUser.friendRequestId}
-    state={receivedRequest.friendRequestFromUser.state}
-    setMutationError={setMutationError}
-  /> : <PendingFriendRequestSent />;
+  return receivedRequest ? (
+    receivedRequest.isLoading ? (
+      <CircularProgress />
+    ) : (
+      <RespondToFriendRequestProfileButton
+        friendRequestId={receivedRequest.friendRequestFromUser.friendRequestId}
+        state={receivedRequest.friendRequestFromUser.state}
+        setMutationError={setMutationError}
+      />
+    )
+  ) : (
+    <PendingFriendRequestSent />
+  );
 }
 
 export default PendingRequest;

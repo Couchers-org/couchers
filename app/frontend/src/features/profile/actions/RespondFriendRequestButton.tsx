@@ -30,7 +30,7 @@ function RespondToFriendRequestProfileButton({
     menu: false,
   });
 
-  const { isLoading, respondToFriendRequest } = useRespondToFriendRequest();
+  const { respondToFriendRequest } = useRespondToFriendRequest();
 
   const menuAnchor = useRef<HTMLButtonElement>(null);
 
