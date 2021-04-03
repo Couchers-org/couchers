@@ -17,8 +17,8 @@ variables:
   NGINX_NEXT_RELEASE_TAG: $CI_REGISTRY_IMAGE/nginx-next:latest
   BACKEND_RELEASE_TAG: $CI_REGISTRY_IMAGE/backend:latest
   MEDIA_RELEASE_TAG: $CI_REGISTRY_IMAGE/media:latest
-  FRONTEND_RELEASE_TAG: $CI_REGISTRY_IMAGE/frontend-next:latest
-  FRONTEND_NEXT_RELEASE_TAG: $CI_REGISTRY_IMAGE/frontend:latest
+  FRONTEND_RELEASE_TAG: $CI_REGISTRY_IMAGE/frontend:latest
+  FRONTEND_NEXT_RELEASE_TAG: $CI_REGISTRY_IMAGE/frontend-next:latest
   SLUG: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   PROXY_TAG: $CI_REGISTRY_IMAGE/proxy:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   NGINX_TAG: $CI_REGISTRY_IMAGE/nginx:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
@@ -317,7 +317,9 @@ preview:bcov:
     # no docker login
     default: false
   script:
+    - aws s3 rm //$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_SHORT_SHA/ --recursive
     - aws s3 cp artifacts/htmlcov s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 rm //$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_REF_SLUG/ --recursive
     - aws s3 cp artifacts/htmlcov s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_REF_SLUG/ --recursive
     - echo "Done, coverage report available at https://$CI_COMMIT_SHORT_SHA--bcov.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--bcov.$PREVIEW_DOMAIN/"
   rules:
@@ -337,7 +339,9 @@ preview:fcov:
     # no docker login
     default: false
   script:
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/fcov/$CI_COMMIT_SHORT_SHA/ --recursive
     - aws s3 cp artifacts/lcov-report s3://$AWS_PREVIEW_BUCKET/fcov/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/fcov/$CI_COMMIT_REF_SLUG/ --recursive
     - aws s3 cp artifacts/lcov-report s3://$AWS_PREVIEW_BUCKET/fcov/$CI_COMMIT_REF_SLUG/ --recursive
     - echo "Done, coverage report available at https://$CI_COMMIT_SHORT_SHA--fcov.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--fcov.$PREVIEW_DOMAIN/"
   rules:
@@ -357,7 +361,9 @@ preview:storybook:
     # no docker login
     default: false
   script:
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/storybook/$CI_COMMIT_SHORT_SHA/ --recursive
     - aws s3 cp artifacts/storybook-static s3://$AWS_PREVIEW_BUCKET/storybook/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/storybook/$CI_COMMIT_REF_SLUG/ --recursive
     - aws s3 cp artifacts/storybook-static s3://$AWS_PREVIEW_BUCKET/storybook/$CI_COMMIT_REF_SLUG/ --recursive
     - echo "Done, storybook available at https://$CI_COMMIT_SHORT_SHA--storybook.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--storybook.$PREVIEW_DOMAIN/"
   rules:
@@ -377,7 +383,9 @@ preview:frontend-next:
     # no docker login
     default: false
   script:
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/frontend/$CI_COMMIT_SHORT_SHA/ --recursive
     - aws s3 cp artifacts/frontend-next s3://$AWS_PREVIEW_BUCKET/frontend/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/frontend/$CI_COMMIT_REF_SLUG/ --recursive
     - aws s3 cp artifacts/frontend-next s3://$AWS_PREVIEW_BUCKET/frontend/$CI_COMMIT_REF_SLUG/ --recursive
     - echo "Done, preview available at https://$CI_COMMIT_SHORT_SHA--frontend.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--frontend.$PREVIEW_DOMAIN/"
   rules:
