@@ -55,6 +55,7 @@ const themeOptions: ThemeOptions = {
       default: "#fcfcfc",
     },
     common: {
+      black: "#313539",
       white: "#fcfcfc",
     },
     error: {
