@@ -135,7 +135,7 @@ build:nginx-next:
   stage: build
   script:
     - docker pull $NGINX_RELEASE_TAG || true
-    - docker build --build-arg version=$SLUG-next --cache-from $NGINX_RELEASE_TAG -t $NGINX_NEXT_TAG app/nginx/
+    - docker build --build-arg version=$SLUG-next --build-arg environment=preview --cache-from $NGINX_RELEASE_TAG -t $NGINX_NEXT_TAG app/nginx/
     - docker push $NGINX_NEXT_TAG
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH

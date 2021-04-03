@@ -1,7 +1,7 @@
 FROM nginx:1.19
 
 # 'production' or 'preview'
-ARG ENVIRONMENT=production
+ARG environment=production
 
 RUN apt-get update -y
 RUN apt-get install -y cron bash ssl-cert wget
@@ -24,7 +24,7 @@ COPY scripts/ ./
 COPY domains ./
 
 # copy the proper environment file into the container
-COPY .env.${ENVIRONMENT} .env
+COPY .env.${environment} .env
 # source it and use sed to substitute the variables in all config files
 RUN sh -c ". /scripts/.env && \
        replace=\"s#{API_DOMAIN}#\${API_DOMAIN}#;s#{MEDIA_DOMAIN}#\${MEDIA_DOMAIN}#;s#{MEDIA_CORS_ORIGIN}#\${MEDIA_CORS_ORIGIN}#\" && \
