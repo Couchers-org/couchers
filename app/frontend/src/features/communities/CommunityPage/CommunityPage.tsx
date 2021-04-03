@@ -11,7 +11,7 @@ import {
   INVALID_COMMUNITY_ID,
   MORE_TIPS,
 } from "features/communities/constants";
-import { useCommunity } from "features/communities/useCommunity";
+import { useCommunity } from "features/communities/hooks";
 import { CommunityParent } from "pb/groups_pb";
 import React, { useEffect } from "react";
 import {

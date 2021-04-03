@@ -14,7 +14,7 @@ import {
 import {
   useListDiscussions,
   useNewDiscussionMutation,
-} from "features/communities/useCommunity";
+} from "features/communities/hooks";
 import { Community } from "pb/communities_pb";
 import React, { useState } from "react";
 import { useQueryClient } from "react-query";
