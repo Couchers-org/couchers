@@ -18,6 +18,8 @@ from couchers.models import (
     GroupChat,
     GroupChatRole,
     GroupChatSubscription,
+    LanguageAbility,
+    LanguageFluency,
     Message,
     MessageType,
     Node,
@@ -70,12 +72,14 @@ def add_dummy_users():
                 session.add(new_user)
                 session.flush()
 
+                for language in user["languages"]:
+                    session.add(
+                        LanguageAbility(user_id=user.id, language_code=language[0], fluency=LanguageFluency.language[1])
+                    )
                 for region in user["regions_visited"]:
                     session.add(RegionsVisited(user_id=user.id, region_code=region))
                 for region in user["regions_lived"]:
                     session.add(RegionsLived(user_id=user.id, region_code=region))
-
-                # todo: languages not handled
 
             session.commit()
 

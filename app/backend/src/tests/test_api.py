@@ -31,9 +31,12 @@ def test_ping(db):
     with real_api_session(token) as api:
         res = api.Ping(api_pb2.PingReq())
 
-    # TODO grab languages as well
     with session_scope() as session:
         u = session.query(User).filter(User.id == user.id).one()
+        # NB: This is empty for now, but may change at some point
+        language_abilities = set(
+            language_ability.language_code for language_ability in u.language_abilities
+        )
         regions_visited = [region.region_code for region in u.regions_visited]
         regions_lived = [region.region_code for region in u.regions_lived]
 
@@ -65,6 +68,7 @@ def test_ping(db):
     assert res.user.about_me == user.about_me
     assert res.user.my_travels == user.my_travels
     assert res.user.things_i_like == user.things_i_like
+    assert set(language_ability.code for language_ability in res.user.language_abilities) == language_abilities
     assert res.user.about_place == user.about_place
     assert res.user.regions_visited == regions_visited
     assert res.user.regions_lived == regions_lived

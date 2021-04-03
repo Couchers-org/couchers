@@ -11,7 +11,16 @@ import pytest
 from couchers.config import config
 from couchers.crypto import random_hex
 from couchers.db import apply_migrations, get_engine, session_scope
-from couchers.models import Base, FriendRelationship, FriendStatus, RegionsLived, RegionsVisited, User
+from couchers.models import (
+    Base,
+    FriendRelationship,
+    FriendStatus,
+    LanguageAbility,
+    LanguageFluency,
+    RegionsLived,
+    RegionsVisited,
+    User,
+)
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
@@ -133,8 +142,7 @@ def generate_user(*_, **kwargs):
         session.add(user)
         session.flush()
 
-        # TODO Add languages
-
+        # NB: We've elected not to include language_abilities here
         session.add(RegionsVisited(user_id=user.id, region_code="FIN"))
         session.add(RegionsVisited(user_id=user.id, region_code="REU"))
         session.add(RegionsLived(user_id=user.id, region_code="FRA"))
