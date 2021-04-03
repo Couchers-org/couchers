@@ -1,13 +1,13 @@
 server {
     listen 443 http2 ssl;
 
-    server_name dev-user-media.couchershq.org;
+    server_name user-media.couchershq.org;
 
-    access_log /var/log/nginx/dev-user-media.couchershq.org.access.log;
-    error_log /var/log/nginx/dev-user-media.couchershq.org.error.log;
+    access_log /var/log/nginx/user-media.couchershq.org.access.log;
+    error_log /var/log/nginx/user-media.couchershq.org.error.log;
 
-    ssl_certificate /certs/live/dev-user-media.couchershq.org/fullchain.pem;
-    ssl_certificate_key /certs/live/dev-user-media.couchershq.org/privkey.pem;
+    ssl_certificate /certs/live/user-media.couchershq.org/fullchain.pem;
+    ssl_certificate_key /certs/live/user-media.couchershq.org/privkey.pem;
 
     location /media/ {
         proxy_http_version 1.1;

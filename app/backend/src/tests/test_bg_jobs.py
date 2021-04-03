@@ -281,11 +281,11 @@ def test_process_send_message_notifications_basic(db):
     with session_scope() as session:
         assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 0
 
-    def now_30_min_in_future():
-        return now() + timedelta(minutes=30)
+    def now_5_min_in_future():
+        return now() + timedelta(minutes=5)
 
     # this should generate emails for both user2 and user3
-    with patch("couchers.jobs.handlers.now", now_30_min_in_future):
+    with patch("couchers.jobs.handlers.now", now_5_min_in_future):
         process_send_message_notifications(empty_pb2.Empty())
 
     with session_scope() as session:
@@ -294,7 +294,7 @@ def test_process_send_message_notifications_basic(db):
         session.query(BackgroundJob).delete(synchronize_session=False)
 
     # shouldn't generate any more emails
-    with patch("couchers.jobs.handlers.now", now_30_min_in_future):
+    with patch("couchers.jobs.handlers.now", now_5_min_in_future):
         process_send_message_notifications(empty_pb2.Empty())
 
     with session_scope() as session:
