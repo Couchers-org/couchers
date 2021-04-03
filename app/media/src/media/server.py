@@ -111,7 +111,7 @@ def create_app(
             img = img.resize(scale)
 
         # strip removes EXIF (e.g. GPS location) and other metadata
-        img.jpegsave(path, strip=True, interlace=True, subsample_mode="4:2:2", Q=75)
+        img.jpegsave(path, strip=True, interlace=True, subsample_mode="auto", Q=75)
 
         # let the main server know the upload succeeded, or delete the file
         try:
@@ -160,7 +160,7 @@ def create_app(
                 img = img.crop(0, bar, width, height - 2 * bar)
 
             img = img.resize(thumbnail_size / size)
-            img.jpegsave(thumbnail_path, strip=True, interlace=True, subsample_mode="4:2:2", Q=75)
+            img.jpegsave(thumbnail_path, strip=True, interlace=True, subsample_mode="auto", Q=75)
 
         return send_file(thumbnail_path, mimetype="image/jpeg", conditional=True)
 
