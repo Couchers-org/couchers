@@ -8,7 +8,6 @@ import backoff
 import grpc
 import pyvips
 from flask import Flask, abort, request, send_file
-from flask_cors import CORS
 from werkzeug.utils import secure_filename
 
 from media.crypto import verify_hash_signature
@@ -33,7 +32,6 @@ def create_app(
     (media_upload_location / "thumbnail").mkdir(exist_ok=True, parents=True)
 
     app = Flask(__name__)
-    CORS(app)
 
     def get_path(filename, size="full"):
         return str(media_upload_location / size / filename)

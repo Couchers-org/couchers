@@ -10,7 +10,7 @@ variables:
   GIT_DEPTH: 10
   DOCKER_HOST: tcp://docker:2376
   DOCKER_TLS_CERTDIR: "/certs"
-  RELEASE_BRANCH: devops/feature/separate-preview-build
+  RELEASE_BRANCH: develop
   GRPC_TAG: $CI_REGISTRY/couchers/grpc:latest
   PROXY_RELEASE_TAG: $CI_REGISTRY_IMAGE/proxy:latest
   NGINX_RELEASE_TAG: $CI_REGISTRY_IMAGE/nginx:latest
@@ -317,9 +317,9 @@ preview:bcov:
     # no docker login
     default: false
   script:
-    - aws s3 rm //$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_SHORT_SHA/ --recursive
     - aws s3 cp artifacts/htmlcov s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_SHORT_SHA/ --recursive
-    - aws s3 rm //$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_REF_SLUG/ --recursive
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_REF_SLUG/ --recursive
     - aws s3 cp artifacts/htmlcov s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_REF_SLUG/ --recursive
     - echo "Done, coverage report available at https://$CI_COMMIT_SHORT_SHA--bcov.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--bcov.$PREVIEW_DOMAIN/"
   rules:
