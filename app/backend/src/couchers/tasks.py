@@ -70,21 +70,6 @@ def send_host_request_email(host_request):
     )
 
 
-def send_message_received_email(user_recipient):
-    messages_link = urls.messages_link()
-    logger.info(f"Sending message received email to {user_recipient=}:")
-    logger.info(f"Email for {user_recipient.username=} sent to {user_recipient.email=}")
-
-    email.enqueue_email_from_template(
-        user_recipient.email,
-        "message_received",
-        template_args={
-            "user": user_recipient,
-            "messages_link": messages_link,
-        },
-    )
-
-
 def send_friend_request_email(friend_relationship):
     friend_requests_link = urls.friend_requests_link()
 

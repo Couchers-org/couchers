@@ -20,7 +20,6 @@ from couchers.tasks import (
     send_friend_request_email,
     send_host_request_email,
     send_login_email,
-    send_message_received_email,
     send_report_email,
     send_signup_email,
 )
@@ -151,21 +150,6 @@ def test_host_request_email(db):
         assert from_user.avatar.thumbnail_url in html
         assert f"{config['BASE_URL']}/messages/hosting/" in plain
         assert f"{config['BASE_URL']}/messages/hosting/" in html
-
-
-def test_message_received_email(db):
-    user, api_token = generate_user()
-
-    with patch("couchers.email.queue_email") as mock:
-        send_message_received_email(user)
-
-    assert mock.call_count == 1
-
-    (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
-    assert recipient == user.email
-    assert "mail" in subject.lower()
-    assert f"{config['BASE_URL']}/messages/" in plain
-    assert f"{config['BASE_URL']}/messages/" in html
 
 
 def test_friend_request_email(db):

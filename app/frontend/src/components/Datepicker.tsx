@@ -51,7 +51,7 @@ export default function Datepicker({
             }}
             label={label}
             minDate={minDate}
-            onChange={onChange}
+            onChange={(date) => onChange(date?.toDate())}
             value={value}
             variant="inline"
           />
