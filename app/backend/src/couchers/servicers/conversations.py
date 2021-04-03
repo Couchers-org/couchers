@@ -602,7 +602,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
             # TODO: race condition!
 
-            if not are_friends(session, context.user_id, recipient):
+            if not are_friends(session, context.user_id, request.user_id):
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.GROUP_CHAT_ONLY_INVITE_FRIENDS)
 
             subscription = GroupChatSubscription(
