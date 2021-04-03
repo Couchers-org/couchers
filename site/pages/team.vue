@@ -314,7 +314,7 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-tina.jpg" alt="Headshot of Tina">
+                      <img class="is-rounded" src="/img/head-max.jpg" alt="Headshot of Max">
                     </figure>
                   </div>
                   <div class="media-content">
