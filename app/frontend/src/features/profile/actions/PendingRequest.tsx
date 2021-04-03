@@ -2,57 +2,32 @@
 if sent, return a simple disabled "pending request" button
 if recieved, return the response button*/
 import { SetMutationError } from "features/connections/friends";
-import useFriendRequests from "features/connections/friends/useFriendRequests";
+import useRequestFromUser from "features/profile/hooks/useRequestFromUser";
+import useRequestSentToUser from "features/profile/hooks/useRequestSentToUser";
 import React from "react";
 
 import PendingFriendRequestSent from "./PendingFriendRequestSent";
-import RespondToFriendRequestProfileButton from "./RespondToFriendRequestProfileButton";
+import RespondToFriendRequestProfileButton from "./RespondFriendRequestButton";
 
 interface PendingRequestProps {
   userId: number;
   setMutationError: SetMutationError;
 }
 
-function CheckSentRequests(userId: number) {
-  const friendRequestsSent = useFriendRequests("sent").data;
-  const friendRequestToUser = friendRequestsSent?.find(
-    (e) => e.userId === userId
-  );
-  if (friendRequestToUser !== undefined) {
-    const request = friendRequestToUser;
-    return request;
-  } else {
-    return false;
-  }
-}
-
-function CheckReceivedRequests(userId: number) {
-  const { data } = useFriendRequests("received");
-  const friendRequestsReceived = data;
-  const friendRequestFromUser = friendRequestsReceived?.find(
-    (e) => e.userId === userId
-  );
-  if (friendRequestFromUser !== undefined) {
-    const request = friendRequestFromUser;
-    return request;
-  } else {
-    return false;
-  }
-}
-
 function PendingRequest({ userId, setMutationError }: PendingRequestProps) {
-  if (CheckSentRequests(userId) === false) {
-    const request = CheckReceivedRequests(userId);
-    if (request !== false) {
+  const sentRequest = useRequestSentToUser({userId})
+  const receivedRequest = useRequestFromUser({userId})
+  if (sentRequest === false) {
+    if (receivedRequest !== false) {
       return (
         <RespondToFriendRequestProfileButton
-          friendRequestId={request.friendRequestId}
-          state={request.state}
+          friendRequestId={receivedRequest.friendRequestId}
+          state={receivedRequest.state}
           setMutationError={setMutationError}
         />
       );
     }
-  } else if (CheckSentRequests(userId) !== false) {
+  } else {
     return <PendingFriendRequestSent />;
   }
   return null;
