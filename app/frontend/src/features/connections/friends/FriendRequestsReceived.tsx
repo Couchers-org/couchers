@@ -1,14 +1,14 @@
 import { Box, CircularProgress, IconButton } from "@material-ui/core";
-import React from "react";
+import { CheckIcon, CloseIcon } from "components/Icons";
+import type { SetMutationError } from "features/connections/friends";
+import FriendSummaryView from "features/connections/friends/FriendSummaryView";
+import FriendTile from "features/connections/friends/FriendTile";
+import useFriendRequests from "features/connections/friends/useFriendRequests";
+import useRespondToFriendRequest from "features/connections/friends/useRespondToFriendRequest";
+import { FriendRequest } from "pb/api_pb";
+import { useIsMounted, useSafeState } from "utils/hooks";
 
-import { CheckIcon, CloseIcon } from "../../../components/Icons";
-import { FriendRequest } from "../../../pb/api_pb";
-import { useIsMounted, useSafeState } from "../../../utils/hooks";
-import type { SetMutationError } from ".";
-import FriendSummaryView from "./FriendSummaryView";
-import FriendTile from "./FriendTile";
-import useFriendRequests from "./useFriendRequests";
-import useRespondToFriendRequest from "./useRespondToFriendRequest";
+import { FRIEND_REQUESTS, NO_FRIEND_REQUESTS } from "../constants";
 
 interface RespondToFriendRequestActionProps {
   friendRequestId: number;
@@ -69,17 +69,17 @@ function RespondToFriendRequestAction({
 function FriendRequestsReceived() {
   const isMounted = useIsMounted();
   const [mutationError, setMutationError] = useSafeState(isMounted, "");
-  const { data, isLoading, isError, errors } = useFriendRequests("Received");
+  const { data, isLoading, isError, errors } = useFriendRequests("received");
 
   return (
     <FriendTile
-      title="Friend requests"
+      title={FRIEND_REQUESTS}
       errorMessage={
         isError ? errors.join("\n") : mutationError ? mutationError : null
       }
       isLoading={isLoading}
       hasData={!!data?.length}
-      noDataMessage="No pending friend requests!"
+      noDataMessage={NO_FRIEND_REQUESTS}
     >
       {data &&
         data.map((friendRequest) => (

@@ -1,11 +1,12 @@
 import { renderHook } from "@testing-library/react-hooks";
 import React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { service } from "service";
+import users from "test/fixtures/users.json";
+import wrapper from "test/hookWrapper";
+import { getUser, listFriends } from "test/serviceMockDefaults";
+import { wait } from "test/utils";
 
-import { service } from "../../../service";
-import wrapper from "../../../test/hookWrapper";
-import { getUser, listFriends } from "../../../test/serviceMockDefaults";
-import { wait } from "../../../test/utils";
 import useFriendList from "./useFriendList";
 
 const listFriendsMock = service.api.listFriends as jest.Mock;
@@ -29,10 +30,10 @@ describe("when the listFriends query is loading", () => {
     });
 
     expect(result.current).toEqual({
-      isLoading: true,
-      isError: false,
-      errors: [],
       data: undefined,
+      errors: [],
+      isError: false,
+      isLoading: true,
     });
     expect(getUserMock).not.toHaveBeenCalled();
 
@@ -50,23 +51,10 @@ describe("when the listFriends query succeeds", () => {
     // Called twice since the user has two friends in the fixture data
     expect(getUserMock).toHaveBeenCalledTimes(2);
     expect(result.current).toEqual({
-      isLoading: false,
-      isError: false,
+      data: [users[1], users[2]],
       errors: [],
-      data: [
-        {
-          name: "Funny Dog",
-          userId: 2,
-          username: "funnydog",
-          avatarUrl: "",
-        },
-        {
-          name: "Funny Kid",
-          userId: 3,
-          username: "funnykid",
-          avatarUrl: "funnykid.jpg",
-        },
-      ],
+      isError: false,
+      isLoading: false,
     });
   });
 
@@ -81,18 +69,18 @@ describe("when the listFriends query succeeds", () => {
     await waitForNextUpdate();
 
     expect(result.current).toMatchObject({
-      isLoading: true,
-      isError: false,
-      errors: [],
       data: [
         {
+          avatarUrl: "",
           name: "Funny Dog",
           userId: 2,
           username: "funnydog",
-          avatarUrl: "",
         },
         undefined,
       ],
+      errors: [],
+      isError: false,
+      isLoading: true,
     });
   });
 
@@ -109,18 +97,18 @@ describe("when the listFriends query succeeds", () => {
     await waitForNextUpdate();
 
     expect(result.current).toMatchObject({
-      isLoading: false,
-      isError: true,
-      errors: ["Error fetching user 2"],
       data: [
         undefined,
         {
+          avatarUrl: "https://loremflickr.com/200/200?user3",
           name: "Funny Kid",
           userId: 3,
           username: "funnykid",
-          avatarUrl: "funnykid.jpg",
         },
       ],
+      errors: ["Error fetching user 2"],
+      isError: true,
+      isLoading: false,
     });
   });
 
@@ -133,10 +121,10 @@ describe("when the listFriends query succeeds", () => {
     await waitForNextUpdate();
 
     expect(result.current).toMatchObject({
-      isLoading: false,
-      isError: true,
-      errors: ["Error fetching user data", "Error fetching user data"],
       data: [undefined, undefined],
+      errors: ["Error fetching user data", "Error fetching user data"],
+      isError: true,
+      isLoading: false,
     });
   });
 });
@@ -151,10 +139,10 @@ describe("when the listFriends query failed", () => {
     await waitForNextUpdate();
 
     expect(result.current).toMatchObject({
-      isLoading: false,
-      isError: true,
-      errors: ["Error listing friends"],
       data: undefined,
+      errors: ["Error listing friends"],
+      isError: true,
+      isLoading: false,
     });
     expect(getUserMock).not.toHaveBeenCalled();
   });
@@ -188,27 +176,27 @@ describe("with cached user data", () => {
     await waitForNextUpdate();
 
     expect(result.current).toMatchObject({
-      isLoading: false,
-      isError: true,
+      data: [
+        {
+          avatarUrl: "",
+          name: "Funny Dog",
+          userId: 2,
+          username: "funnydog",
+        },
+        {
+          avatarUrl: "https://loremflickr.com/200/200?user3",
+          name: "Funny Kid",
+          userId: 3,
+          username: "funnykid",
+        },
+      ],
       errors: [
         "Error listing friends",
         "Error fetching user data",
         "Error fetching user data",
       ],
-      data: [
-        {
-          name: "Funny Dog",
-          userId: 2,
-          username: "funnydog",
-          avatarUrl: "",
-        },
-        {
-          name: "Funny Kid",
-          userId: 3,
-          username: "funnykid",
-          avatarUrl: "funnykid.jpg",
-        },
-      ],
+      isError: true,
+      isLoading: false,
     });
   });
 });

@@ -2,22 +2,27 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import React, { useState } from "react";
+import { service } from "service";
+import wrapper from "test/hookWrapper";
 
-import { service } from "../../../service";
-import wrapper from "../../../test/hookWrapper";
+import { ADD_FRIEND, PENDING } from "../constants";
 import AddFriendButton from "./AddFriendButton";
 
 const sendFriendRequestMock = service.api.sendFriendRequest as jest.Mock<
   ReturnType<typeof service.api.sendFriendRequest>
 >;
 
-function TestComponent() {
+function TestComponent({ isPending = false }: { isPending?: boolean }) {
   const [mutationError, setMutationError] = useState("");
 
   return (
     <>
       {mutationError ? <p>{mutationError}</p> : <p>Success!</p>}
-      <AddFriendButton userId={2} setMutationError={setMutationError} />
+      <AddFriendButton
+        isPending={isPending}
+        userId={2}
+        setMutationError={setMutationError}
+      />
     </>
   );
 }
@@ -29,7 +34,14 @@ afterEach(() => {
 describe("AddFriendButton", () => {
   it("renders the button correctly", () => {
     render(<TestComponent />, { wrapper });
-    expect(screen.getByRole("button", { name: "Add friend" })).toBeVisible();
+    expect(screen.getByRole("button", { name: ADD_FRIEND })).toBeVisible();
+  });
+
+  it("renders the button as pending if a friend request has already been sent", () => {
+    render(<TestComponent isPending />, { wrapper });
+    const addFriendButton = screen.getByRole("button", { name: PENDING });
+    expect(addFriendButton).toBeVisible();
+    expect(addFriendButton).toBeDisabled();
   });
 
   it("shows loading state correctly if the add friend action is still running", async () => {
@@ -37,7 +49,7 @@ describe("AddFriendButton", () => {
     sendFriendRequestMock.mockImplementation(() => new Promise(() => void 0));
     render(<TestComponent />, { wrapper });
 
-    userEvent.click(screen.getByRole("button", { name: "Add friend" }));
+    userEvent.click(screen.getByRole("button", { name: ADD_FRIEND }));
     expect(await screen.findByRole("progressbar")).toBeVisible();
   });
 
@@ -45,7 +57,7 @@ describe("AddFriendButton", () => {
     sendFriendRequestMock.mockResolvedValue(new Empty());
     render(<TestComponent />, { wrapper });
 
-    userEvent.click(screen.getByRole("button", { name: "Add friend" }));
+    userEvent.click(screen.getByRole("button", { name: ADD_FRIEND }));
 
     expect(await screen.findByText(/Success/)).toBeInTheDocument();
   });
@@ -57,7 +69,7 @@ describe("AddFriendButton", () => {
     );
     render(<TestComponent />, { wrapper });
 
-    userEvent.click(screen.getByRole("button", { name: "Add friend" }));
+    userEvent.click(screen.getByRole("button", { name: ADD_FRIEND }));
     expect(
       await screen.findByText("Failed to add funny dog")
     ).toBeInTheDocument();

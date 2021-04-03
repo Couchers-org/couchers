@@ -1,10 +1,9 @@
 import { Meta, Story } from "@storybook/react";
-
-import SearchBox from "./SearchBox";
+import SearchBox from "features/search/SearchBox";
 
 export default {
-  title: "Search/SearchBox",
   component: SearchBox,
+  title: "Search/SearchBox",
 } as Meta;
 
 const Template: Story<any> = () => (

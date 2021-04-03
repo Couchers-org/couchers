@@ -1,6 +1,6 @@
-import { AcceptTOSReq, JailInfoRes, SetLocationReq } from "../pb/jail_pb";
-import client from "./client";
-import { getCurrentUser } from "./user";
+import { AcceptTOSReq, JailInfoRes, SetLocationReq } from "pb/jail_pb";
+import client from "service/client";
+import { getCurrentUser } from "service/user";
 
 export async function getIsJailed() {
   const req = new JailInfoRes();

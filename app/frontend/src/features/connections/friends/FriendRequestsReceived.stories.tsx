@@ -1,14 +1,13 @@
 import { Meta, Story } from "@storybook/react";
+import FriendRequestsReceived from "features/connections/friends/FriendRequestsReceived";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { FriendRequest } from "pb/api_pb";
 import React, { useRef } from "react";
-
-import { FriendRequest } from "../../../pb/api_pb";
-import { mockedService } from "../../../stories/__mocks__/service";
-import FriendRequestsReceived from "./FriendRequestsReceived";
+import { mockedService } from "stories/__mocks__/service";
 
 export default {
-  title: "Me/Connections/FriendRequestsReceived",
   component: FriendRequestsReceived,
+  title: "Me/Connections/FriendRequestsReceived",
 } as Meta;
 
 interface FriendRequestsState {
@@ -42,7 +41,6 @@ const Template: Story<{
 export const WithPendingRequests = Template.bind({});
 WithPendingRequests.args = {
   friendRequests: {
-    sentList: [],
     receivedList: [
       {
         friendRequestId: 1,
@@ -50,13 +48,13 @@ WithPendingRequests.args = {
         userId: 3,
       },
     ],
+    sentList: [],
   },
 };
 
 export const ErrorRespondingToRequest = Template.bind({});
 ErrorRespondingToRequest.args = {
   friendRequests: {
-    sentList: [],
     receivedList: [
       {
         friendRequestId: 1,
@@ -64,6 +62,7 @@ ErrorRespondingToRequest.args = {
         userId: 3,
       },
     ],
+    sentList: [],
   },
   overrides: {
     respondFriendRequest: async () => {
@@ -83,7 +82,7 @@ function setFriendRequestsMocks(
   mockedService.api.respondFriendRequest =
     overrides.respondFriendRequest ??
     (async () => {
-      friendRequests.current = { sentList: [], receivedList: [] };
+      friendRequests.current = { receivedList: [], sentList: [] };
       return new Empty();
     });
 }

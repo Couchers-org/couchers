@@ -56,6 +56,7 @@ class TestGroups:
             assert res.main_page.title == "Main page for the Hitchhikers community"
             assert res.main_page.content == "There is nothing here yet..."
             assert res.main_page.can_edit
+            assert not res.main_page.can_moderate
             assert res.main_page.editor_user_ids == [1]
             assert res.member
             assert res.admin
@@ -100,6 +101,7 @@ class TestGroups:
             assert res.main_page.title == "Main page for the Country 1, Region 2, Foodies community"
             assert res.main_page.content == "There is nothing here yet..."
             assert res.main_page.can_edit
+            assert res.main_page.can_moderate
             assert res.main_page.editor_user_ids == [2]
             assert res.member
             assert res.admin
@@ -144,6 +146,7 @@ class TestGroups:
             assert res.main_page.title == "Main page for the Country 2, Region 1, Foodies community"
             assert res.main_page.content == "There is nothing here yet..."
             assert not res.main_page.can_edit
+            assert not res.main_page.can_moderate
             assert res.main_page.editor_user_ids == [6]
             assert not res.member
             assert not res.admin
@@ -230,6 +233,33 @@ class TestGroups:
                 "Discussion title 13",
                 "Discussion title 14",
             ]
+
+    @staticmethod
+    def test_ListUserGroups(testing_communities):
+        with session_scope() as session:
+            user1_id, token1 = get_user_id_and_token(session, "user1")
+            hitchhikers_id = get_group_id(session, "Hitchhikers")
+            foodies_id = get_group_id(session, "Country 1, Region 1, Foodies")
+            skaters_id = get_group_id(session, "Country 1, Region 1, Skaters")
+
+        # List user1's groups from user1's account
+        with groups_session(token1) as api:
+            res = api.ListUserGroups(groups_pb2.ListUserGroupsReq())
+            assert [g.group_id for g in res.groups] == [hitchhikers_id, foodies_id, skaters_id]
+
+    @staticmethod
+    def test_ListOtherUserGroups(testing_communities):
+        with session_scope() as session:
+            user1_id, token1 = get_user_id_and_token(session, "user1")
+            user2_id, token2 = get_user_id_and_token(session, "user2")
+            hitchhikers_id = get_group_id(session, "Hitchhikers")
+            foodies_id = get_group_id(session, "Country 1, Region 1, Foodies")
+            skaters_id = get_group_id(session, "Country 1, Region 1, Skaters")
+
+        # List user1's groups from user2's account
+        with groups_session(token2) as api:
+            res = api.ListUserGroups(groups_pb2.ListUserGroupsReq(user_id=user1_id))
+            assert [g.group_id for g in res.groups] == [hitchhikers_id, foodies_id, skaters_id]
 
 
 def test_JoinGroup_and_LeaveGroup(testing_communities):

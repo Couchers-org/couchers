@@ -5,7 +5,7 @@ from google.protobuf import empty_pb2
 from sqlalchemy.sql import literal
 
 from couchers import errors
-from couchers.db import session_scope
+from couchers.db import can_moderate_node, get_node_parents_recursively, session_scope
 from couchers.models import Cluster, ClusterRole, ClusterSubscription, Discussion, Node, Page, PageType, User
 from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.pages import page_to_pb
@@ -20,25 +20,7 @@ MAX_PAGINATION_LENGTH = 25
 
 def _parents_to_pb(cluster: Cluster, user_id):
     with session_scope() as session:
-        top = (
-            session.query(Node.id, Node.parent_node_id, literal(0).label("level"))
-            .filter(Node.id == cluster.parent_node_id)
-            .cte("parents", recursive=True)
-        )
-        subquery = session.query(
-            top.union(
-                session.query(Node.id, Node.parent_node_id, (top.c.level + 1).label("level")).join(
-                    top, Node.id == top.c.parent_node_id
-                )
-            )
-        ).subquery()
-        parents = (
-            session.query(subquery, Cluster)
-            .join(Cluster, Cluster.parent_node_id == subquery.c.id)
-            .filter(Cluster.is_official_cluster)
-            .order_by(subquery.c.level.desc())
-            .all()
-        )
+        parents = get_node_parents_recursively(session, cluster.parent_node_id)
         return [
             groups_pb2.Parent(
                 community=groups_pb2.CommunityParent(
@@ -62,6 +44,9 @@ def _parents_to_pb(cluster: Cluster, user_id):
 
 
 def group_to_pb(cluster: Cluster, user_id):
+    with session_scope() as session:
+        can_moderate = can_moderate_node(session, user_id, cluster.parent_node_id)
+
     return groups_pb2.Group(
         group_id=cluster.id,
         name=cluster.name,
@@ -74,6 +59,7 @@ def group_to_pb(cluster: Cluster, user_id):
         admin=cluster.admins.filter(User.id == user_id).one_or_none() is not None,
         member_count=cluster.members.count(),
         admin_count=cluster.admins.count(),
+        can_moderate=can_moderate,
     )
 
 
@@ -245,3 +231,23 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             session.query(ClusterSubscription).filter(ClusterSubscription.user_id == context.user_id).delete()
 
             return empty_pb2.Empty()
+
+    def ListUserGroups(self, request, context):
+        with session_scope() as session:
+            page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+            next_cluster_id = int(request.page_token) if request.page_token else 0
+            user_id = request.user_id or context.user_id
+            clusters = (
+                session.query(Cluster)
+                .join(ClusterSubscription, ClusterSubscription.cluster_id == Cluster.id)
+                .filter(ClusterSubscription.user_id == user_id)
+                .filter(~Cluster.is_official_cluster)  # not an official group
+                .filter(Cluster.id >= next_cluster_id)
+                .order_by(Cluster.id)
+                .limit(page_size + 1)
+                .all()
+            )
+            return groups_pb2.ListUserGroupsRes(
+                groups=[group_to_pb(cluster, user_id) for cluster in clusters[:page_size]],
+                next_page_token=str(clusters[-1].id) if len(clusters) > page_size else None,
+            )

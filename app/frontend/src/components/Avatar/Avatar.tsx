@@ -2,16 +2,17 @@ import { Avatar as MuiAvatar, Box, BoxProps } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
 import classNames from "classnames";
+import { User } from "pb/api_pb";
 import React from "react";
 import { Link } from "react-router-dom";
-
-import { User } from "../../pb/api_pb";
-import { routeToUser } from "../../routes";
+import { routeToUser } from "routes";
 
 const useStyles = makeStyles({
-  root: {
-    position: "relative",
-    flexShrink: 0,
+  avatar: {
+    height: "100%",
+    position: "absolute",
+    top: 0,
+    width: "100%",
   },
   defaultSize: {
     height: "3rem",
@@ -19,14 +20,12 @@ const useStyles = makeStyles({
   },
   grow: {
     height: 0,
-    width: "100%",
     paddingTop: "100%",
-  },
-  avatar: {
     width: "100%",
-    height: "100%",
-    position: "absolute",
-    top: 0,
+  },
+  root: {
+    flexShrink: 0,
+    position: "relative",
   },
 });
 

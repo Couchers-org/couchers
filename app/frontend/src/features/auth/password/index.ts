@@ -1,3 +1,3 @@
-export { default as ChangePasswordPage } from "./ChangePasswordPage";
-export { default as CompleteResetPasswordPage } from "./CompleteResetPasswordPage";
-export { default as ResetPasswordPage } from "./ResetPasswordPage";
+export { default as ChangePassword } from "./ChangePassword";
+export { default as CompleteResetPassword } from "./CompleteResetPassword";
+export { default as ResetPassword } from "./ResetPassword";

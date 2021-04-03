@@ -70,21 +70,6 @@ def send_host_request_email(host_request):
     )
 
 
-def send_message_received_email(user_recipient):
-    messages_link = urls.messages_link()
-    logger.info(f"Sending message received email to {user_recipient=}:")
-    logger.info(f"Email for {user_recipient.username=} sent to {user_recipient.email=}")
-
-    email.enqueue_email_from_template(
-        user_recipient.email,
-        "message_received",
-        template_args={
-            "user": user_recipient,
-            "messages_link": messages_link,
-        },
-    )
-
-
 def send_friend_request_email(friend_relationship):
     friend_requests_link = urls.friend_requests_link()
 
@@ -98,6 +83,40 @@ def send_friend_request_email(friend_relationship):
         template_args={
             "friend_relationship": friend_relationship,
             "friend_requests_link": friend_requests_link,
+        },
+    )
+
+
+def send_host_reference_email(reference, both_written):
+    """
+    both_written iff both the surfer and hoster wrote a reference
+    """
+    assert reference.host_request_id
+
+    logger.info(f"Sending host reference email to {reference.to_user=} for {reference.id=}")
+
+    email.enqueue_email_from_template(
+        reference.to_user.email,
+        "host_reference",
+        template_args={
+            "reference": reference,
+            # if this reference was written by the surfer, then the recipient hosted
+            "surfed": reference.host_request.from_user_id != reference.from_user_id,
+            "both_written": both_written,
+        },
+    )
+
+
+def send_friend_reference_email(reference):
+    assert not reference.host_request_id
+
+    logger.info(f"Sending friend reference email to {reference.to_user=} for {reference.id=}")
+
+    email.enqueue_email_from_template(
+        reference.to_user.email,
+        "friend_reference",
+        template_args={
+            "reference": reference,
         },
     )
 

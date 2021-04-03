@@ -1,22 +1,22 @@
 import { Meta, Story } from "@storybook/react";
+import AuthProvider from "features/auth/AuthProvider";
+import Messages from "features/messages/index";
+import ControlMessageView from "features/messages/messagelist/ControlMessageView";
+import MessageView, {
+  MessageProps,
+} from "features/messages/messagelist/MessageView";
 import * as React from "react";
-
-import messages from "../../../test/fixtures/messages.json";
-import { addDefaultUser } from "../../../test/utils";
-import AuthProvider from "../../auth/AuthProvider";
-import Messages from "../index";
-import ControlMessageView from "./ControlMessageView";
-import MessageView, { MessageProps } from "./MessageView";
+import messages from "test/fixtures/messages.json";
+import { addDefaultUser } from "test/utils";
 
 const [controlMessage, message1] = [messages[messages.length - 1], messages[0]];
 
 addDefaultUser(1);
 
 export default {
-  title: "Messages/MessageView",
   component: Messages,
-  argTypes: {},
   decorators: [(story) => <AuthProvider>{story()}</AuthProvider>],
+  title: "Messages/MessageView",
 } as Meta;
 
 const MessageTemplate: Story<MessageProps> = (args) => (

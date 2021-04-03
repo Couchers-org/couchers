@@ -1,20 +1,17 @@
 import { Meta, Story } from "@storybook/react";
-
-import { user1 } from "../../../stories/__mocks__/service";
-import FriendSummaryView from "./FriendSummaryView";
+import FriendSummaryView from "features/connections/friends/FriendSummaryView";
+import users from "test/fixtures/users.json";
 
 export default {
-  title: "Me/Connections/FriendSummaryView",
   component: FriendSummaryView,
+  title: "Me/Connections/FriendSummaryView",
 } as Meta;
 
 const Template: Story<any> = (args) => (
-  <>
-    <FriendSummaryView {...args}>Children</FriendSummaryView>
-  </>
+  <FriendSummaryView {...args}>Children</FriendSummaryView>
 );
 
 export const friendSummaryView = Template.bind({});
 friendSummaryView.args = {
-  friend: user1,
+  friend: users[0],
 };

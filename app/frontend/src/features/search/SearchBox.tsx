@@ -1,15 +1,23 @@
 import { makeStyles } from "@material-ui/core";
+import TextField from "components/TextField";
+import { SearchQuery } from "features/search/constants";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useHistory } from "react-router-dom";
-
-import TextField from "../../components/TextField";
-import { routeToSearch } from "../../routes";
-import { SearchQuery } from "./constants";
+import { routeToSearch } from "routes";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    marginLeft: theme.spacing(2),
+    flexGrow: 1,
+    marginLeft: "5%",
+  },
+  box: {
+    "& > .MuiOutlinedInput-root": {
+      width: "70%",
+      [theme.breakpoints.down("md")]: {
+        width: "90%",
+      },
+    },
   },
 }));
 
@@ -27,7 +35,13 @@ export default function SearchBox() {
   return (
     <>
       <form onSubmit={onSubmit} className={classes.root}>
-        <TextField name="query" label="Search" inputRef={register}></TextField>
+        <TextField
+          className={classes.box}
+          id="search-query"
+          name="query"
+          label="Search"
+          inputRef={register}
+        ></TextField>
       </form>
     </>
   );

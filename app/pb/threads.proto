@@ -51,14 +51,17 @@ message GetThreadRes {
   // sorted in inverse time order, latest reply first.
   repeated Reply replies = 1;
 
+  // number of responses (comments and replies) associated with the thread
+  uint32 num_responses = 2;
+
   // A token that can be sent as `page_token` to retrieve the next page.
   // If this field is omitted, there are no subsequent pages.
-  string next_page_token = 2;
+  string next_page_token = 3;
 }
 
 message Reply {
   int64 thread_id = 1;  // id of this comment
-  string content = 2;   // markdown without images
+  string content = 2;   // CommonMark without images
   int64 author_user_id = 3;
   google.protobuf.Timestamp created_time = 4;
 
@@ -68,7 +71,7 @@ message Reply {
 
 message PostReplyReq {
   int64 thread_id = 1;  // The comment to reply to
-  string content = 2;   // markdown without images
+  string content = 2;   // CommonMark without images
 }
 
 message PostReplyRes {

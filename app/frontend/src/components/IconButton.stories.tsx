@@ -5,25 +5,23 @@ import IconButton from "./IconButton";
 import { CouchIcon } from "./Icons";
 
 export default {
-  title: "Components/Simple/IconButton",
   component: IconButton,
+  title: "Components/Simple/IconButton",
 } as Meta;
 
 const Template: Story<any> = (args) => {
   const [loading, setLoading] = React.useState(false);
   return (
-    <>
-      <IconButton
-        {...args}
-        loading={loading}
-        onClick={() => {
-          setLoading(true);
-          setTimeout(() => setLoading(false), 2000);
-        }}
-      >
-        <CouchIcon />
-      </IconButton>
-    </>
+    <IconButton
+      {...args}
+      loading={loading}
+      onClick={() => {
+        setLoading(true);
+        setTimeout(() => setLoading(false), 2000);
+      }}
+    >
+      <CouchIcon />
+    </IconButton>
   );
 };
 

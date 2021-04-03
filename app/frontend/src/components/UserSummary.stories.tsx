@@ -1,11 +1,10 @@
 import { Meta, Story } from "@storybook/react";
-
-import { user1 } from "../stories/__mocks__/service";
-import UserSummary from "./UserSummary";
+import UserSummary from "components/UserSummary";
+import users from "test/fixtures/users.json";
 
 export default {
-  title: "Components/Composite/UserSummary",
   component: UserSummary,
+  title: "Components/Composite/UserSummary",
 } as Meta;
 
 const Template: Story<any> = (args) => (
@@ -20,5 +19,5 @@ const Template: Story<any> = (args) => (
 
 export const userSummary = Template.bind({});
 userSummary.args = {
-  ...user1,
+  ...users[0],
 };

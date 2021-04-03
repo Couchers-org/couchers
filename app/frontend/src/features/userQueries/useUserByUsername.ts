@@ -1,11 +1,14 @@
+import {
+  username2IdStaleTime,
+  userStaleTime,
+} from "features/userQueries/constants";
 import { Error, StatusCode } from "grpc-web";
+import { User } from "pb/api_pb";
 import { useEffect } from "react";
 import { useQuery, useQueryClient } from "react-query";
+import { service } from "service";
 
 import { reactQueryRetries } from "../../constants";
-import { User } from "../../pb/api_pb";
-import { service } from "../../service";
-import { username2IdStaleTime, userStaleTime } from "./constants";
 
 export default function useUserByUsername(
   username: string,
@@ -15,19 +18,22 @@ export default function useUserByUsername(
   //This causes a duplicate query, but it is not made stale for a long time
   //and ensures no duplication of users in the queryCache.
   const usernameQuery = useQuery<{ username: string; userId: number }, Error>({
-    queryKey: ["username2Id", username],
+    cacheTime: username2IdStaleTime,
     queryFn: async () => {
       const user = await service.user.getUser(username);
-      return { username: user.username, userId: user.userId };
+      return {
+        userId: user.userId,
+        username: user.username,
+      };
     },
-    staleTime: username2IdStaleTime,
-    cacheTime: username2IdStaleTime,
+    queryKey: ["username2Id", username],
     retry: (failureCount, error) => {
       //don't retry if the user isn't found
       return (
         error.code !== StatusCode.NOT_FOUND && failureCount <= reactQueryRetries
       );
     },
+    staleTime: username2IdStaleTime,
   });
 
   const queryClient = useQueryClient();
@@ -38,11 +44,11 @@ export default function useUserByUsername(
   }, [invalidate, queryClient, usernameQuery.data?.userId]);
 
   const query = useQuery<User.AsObject, Error>({
-    queryKey: ["user", usernameQuery.data?.userId],
+    enabled: !!usernameQuery.data,
     queryFn: () =>
       service.user.getUser(usernameQuery.data?.userId.toString() || ""),
+    queryKey: ["user", usernameQuery.data?.userId],
     staleTime: userStaleTime,
-    enabled: !!usernameQuery.data,
   });
 
   const errors = [];
@@ -59,10 +65,10 @@ export default function useUserByUsername(
   const isError = usernameQuery.isError || query.isError;
 
   return {
-    isLoading,
-    isFetching,
-    isError,
-    error,
     data: query.data,
+    error,
+    isError,
+    isFetching,
+    isLoading,
   };
 }

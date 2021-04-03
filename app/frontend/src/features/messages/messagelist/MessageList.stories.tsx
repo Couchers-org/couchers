@@ -1,64 +1,45 @@
 import { Meta, Story } from "@storybook/react";
+import AuthProvider from "features/auth/AuthProvider";
+import MessageList, {
+  MessageListProps,
+} from "features/messages/messagelist/MessageList";
+import { Message } from "pb/conversations_pb";
 import * as React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 
-import { Message } from "../../../pb/conversations_pb";
-import AuthProvider from "../../auth/AuthProvider";
-import MessageList, { MessageListProps } from "./MessageList";
-
 const message1: Message.AsObject = {
-  messageId: 1,
   authorUserId: 1,
-  // time?: google_protobuf_timestamp_pb.Timestamp.AsObject,
-  text: { text: "See you then!" },
-  time: { seconds: Math.floor(+new Date(2020, 0, 1) / 1e3), nanos: 0 },
-  // chatCreated?: MessageContentChatCreated.AsObject,
-  // chatEdited?: MessageContentChatEdited.AsObject,
-  // userInvited?: MessageContentUserInvited.AsObject,
-  // userLeft?: MessageContentUserLeft.AsObject,
-  // userMadeAdmin?: MessageContentUserMadeAdmin.AsObject,
-  // userRemovedAdmin?: MessageContentUserRemovedAdmin.AsObject,
-  // hostRequestStatusChanged?: MessageContentHostRequestStatusChanged.AsObject,
+  messageId: 1,
+  text: {
+    text: "See you then!",
+  },
+  time: {
+    nanos: 0,
+    seconds: Math.floor(+new Date(2020, 0, 1) / 1e3),
+  },
 };
 const message2: Message.AsObject = {
-  messageId: 2,
   authorUserId: 2,
-  // time?: google_protobuf_timestamp_pb.Timestamp.AsObject,
+  messageId: 2,
   text: {
     text: `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent iaculis pharetra auctor. Mauris vel malesuada sapien. Nam interdum lorem cursus nibh pulvinar sollicitudin. Nullam consectetur nunc augue, sit amet consequat orci egestas in. Sed elementum metus et risus rhoncus commodo.`,
   },
-  time: { seconds: Math.floor(+new Date(2020, 0, 1) / 1e3), nanos: 0 },
-  // chatCreated?: MessageContentChatCreated.AsObject,
-  // chatEdited?: MessageContentChatEdited.AsObject,
-  // userInvited?: MessageContentUserInvited.AsObject,
-  // userLeft?: MessageContentUserLeft.AsObject,
-  // userMadeAdmin?: MessageContentUserMadeAdmin.AsObject,
-  // userRemovedAdmin?: MessageContentUserRemovedAdmin.AsObject,
-  // hostRequestStatusChanged?: MessageContentHostRequestStatusChanged.AsObject,
+  time: { nanos: 0, seconds: Math.floor(+new Date(2020, 0, 1) / 1e3) },
 };
 const message3: Message.AsObject = {
-  messageId: 3,
   authorUserId: 1,
-  // time?: google_protobuf_timestamp_pb.Timestamp.AsObject,
+  messageId: 3,
   text: { text: "Could I surf your couch?" },
-  time: { seconds: Math.floor(+new Date(2020, 0, 1) / 1e3), nanos: 0 },
-  // chatCreated?: MessageContentChatCreated.AsObject,
-  // chatEdited?: MessageContentChatEdited.AsObject,
-  // userInvited?: MessageContentUserInvited.AsObject,
-  // userLeft?: MessageContentUserLeft.AsObject,
-  // userMadeAdmin?: MessageContentUserMadeAdmin.AsObject,
-  // userRemovedAdmin?: MessageContentUserRemovedAdmin.AsObject,
-  // hostRequestStatusChanged?: MessageContentHostRequestStatusChanged.AsObject,
+  time: { nanos: 0, seconds: Math.floor(+new Date(2020, 0, 1) / 1e3) },
 };
 
 export default {
-  title: "Messages/MessageList",
-  component: MessageList,
   argTypes: {
     markLastSeen: {
       action: "markLastSeen",
     },
   },
+  component: MessageList,
   decorators: [
     (storyFn) => {
       const queryClient = new QueryClient();
@@ -69,6 +50,7 @@ export default {
       );
     },
   ],
+  title: "Messages/MessageList",
 } as Meta;
 
 const Template: Story<MessageListProps> = (args) => <MessageList {...args} />;

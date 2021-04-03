@@ -3,8 +3,8 @@ import { Meta, Story } from "@storybook/react";
 import TextBody from "./TextBody";
 
 export default {
-  title: "Components/Simple/TextBody",
   component: TextBody,
+  title: "Components/Simple/TextBody",
 } as Meta;
 
 const Template: Story<any> = (args) => (

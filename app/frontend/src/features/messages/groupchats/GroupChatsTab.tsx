@@ -1,19 +1,19 @@
 import { Box, List } from "@material-ui/core";
+import Alert from "components/Alert";
+import Button from "components/Button";
+import CircularProgress from "components/CircularProgress";
+import TextBody from "components/TextBody";
+import { LOAD_MORE, NO_GROUP_CHAT } from "features/messages/constants";
+import CreateGroupChat from "features/messages/groupchats/CreateGroupChat";
+import GroupChatListItem from "features/messages/groupchats/GroupChatListItem";
+import useMessageListStyles from "features/messages/useMessageListStyles";
 import { Error as GrpcError } from "grpc-web";
+import { ListGroupChatsRes } from "pb/conversations_pb";
 import React from "react";
 import { useInfiniteQuery } from "react-query";
 import { Link } from "react-router-dom";
-
-import Alert from "../../../components/Alert";
-import Button from "../../../components/Button";
-import CircularProgress from "../../../components/CircularProgress";
-import TextBody from "../../../components/TextBody";
-import { ListGroupChatsRes } from "../../../pb/conversations_pb";
-import { routeToGroupChat } from "../../../routes";
-import { service } from "../../../service";
-import useMessageListStyles from "../useMessageListStyles";
-import CreateGroupChat from "./CreateGroupChat";
-import GroupChatListItem from "./GroupChatListItem";
+import { routeToGroupChat } from "routes";
+import { service } from "service";
 
 export default function GroupChatsTab() {
   const classes = useMessageListStyles();
@@ -48,7 +48,7 @@ export default function GroupChatsTab() {
             <CreateGroupChat className={classes.listItem} />
             {data.pages.map((groupChatsRes, pageNumber) =>
               pageNumber === 0 && groupChatsRes.groupChatsList.length === 0 ? (
-                <TextBody key="no-chats-text">No group chats yet.</TextBody>
+                <TextBody key="no-chats-text">{NO_GROUP_CHAT}</TextBody>
               ) : (
                 <React.Fragment key={`group-chats-page-${pageNumber}`}>
                   {groupChatsRes.groupChatsList.map((groupChat) => (
@@ -69,7 +69,7 @@ export default function GroupChatsTab() {
 
             {hasNextPage && (
               <Button onClick={loadMoreChats} loading={isFetchingNextPage}>
-                Load more
+                {LOAD_MORE}
               </Button>
             )}
           </List>

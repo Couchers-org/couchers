@@ -133,6 +133,18 @@ def test_get_user(db):
         assert res.username == user2.username
         assert res.name == user2.name
 
+    with api_session(token1) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=str(user2.id)))
+        assert res.user_id == user2.id
+        assert res.username == user2.username
+        assert res.name == user2.name
+
+    with api_session(token1) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=user2.email))
+        assert res.user_id == user2.id
+        assert res.username == user2.username
+        assert res.name == user2.name
+
 
 def test_update_profile(db):
     user, token = generate_user()
@@ -141,6 +153,14 @@ def test_update_profile(db):
         with pytest.raises(grpc.RpcError) as e:
             api.UpdateProfile(api_pb2.UpdateProfileReq(name=wrappers_pb2.StringValue(value="  ")))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.INVALID_NAME
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.UpdateProfile(
+                api_pb2.UpdateProfileReq(lat=wrappers_pb2.DoubleValue(value=0), lng=wrappers_pb2.DoubleValue(value=0))
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.INVALID_COORDINATE
 
         with pytest.raises(grpc.RpcError) as e:
             api.UpdateProfile(
@@ -158,7 +178,12 @@ def test_update_profile(db):
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == errors.INVALID_REGION
 
-        res = api.UpdateProfile(
+        # changing gender shouldn't be allowed
+        with pytest.raises(grpc.RpcError) as e:
+            api.UpdateProfile(api_pb2.UpdateProfileReq(gender=wrappers_pb2.StringValue(value="newgender")))
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+
+        api.UpdateProfile(
             api_pb2.UpdateProfileReq(
                 name=wrappers_pb2.StringValue(value="New name"),
                 city=wrappers_pb2.StringValue(value="Timbuktu"),
@@ -166,7 +191,6 @@ def test_update_profile(db):
                 lat=wrappers_pb2.DoubleValue(value=0.01),
                 lng=wrappers_pb2.DoubleValue(value=-2),
                 radius=wrappers_pb2.DoubleValue(value=321),
-                gender=wrappers_pb2.StringValue(value="Bot"),
                 pronouns=api_pb2.NullableStringValue(value="Ro, Robo, Robots"),
                 occupation=api_pb2.NullableStringValue(value="Testing"),
                 education=api_pb2.NullableStringValue(value="Couchers U"),
@@ -189,34 +213,68 @@ def test_update_profile(db):
                 additional_information=api_pb2.NullableStringValue(value="I <3 Couchers"),
             )
         )
-        # all fields changed
-        for field, value in res.ListFields():
-            assert value == True
 
-        user = api.GetUser(api_pb2.GetUserReq(user=user.username))
-        assert user.name == "New name"
-        assert user.city == "Timbuktu"
-        assert user.hometown == "Walla Walla"
-        assert user.pronouns == "Ro, Robo, Robots"
-        assert user.education == "Couchers U"
-        assert user.my_travels == "Oh the places you'll go!"
-        assert user.things_i_like == "Couchers"
-        assert user.lat == 0.01
-        assert user.lng == -2
-        assert user.radius == 321
-        assert user.gender == "Bot"
-        assert user.occupation == "Testing"
-        assert user.about_me == "I rule"
-        assert user.about_place == "My place"
-        assert user.hosting_status == api_pb2.HOSTING_STATUS_CAN_HOST
-        assert user.meetup_status == api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP
-        assert user.additional_information == "I <3 Couchers"
-        assert set(user.regions_visited) == {"CXR", "NAM"}
-        assert set(user.regions_lived) == {"USA", "ITA"}
-        assert user.language_abilities[0].code == "eng"
-        assert user.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE
 
-    return user, token
+        user_details = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        assert user_details.name == "New name"
+        assert user_details.city == "Timbuktu"
+        assert user_details.hometown == "Walla Walla"
+        assert user_details.pronouns == "Ro, Robo, Robots"
+        assert user_details.education == "Couchers U"
+        assert user_details.my_travels == "Oh the places you'll go!"
+        assert user_details.things_i_like == "Couchers"
+        assert user_details.lat == 0.01
+        assert user_details.lng == -2
+        assert user_details.radius == 321
+        assert user_details.occupation == "Testing"
+        assert user_details.about_me == "I rule"
+        assert user_details.about_place == "My place"
+        assert user_details.hosting_status == api_pb2.HOSTING_STATUS_CAN_HOST
+        assert user_details.meetup_status == api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP
+        assert user_details.language_abilities[0].code == "eng"
+        assert user_details.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE
+        assert user_details.additional_information == "I <3 Couchers"
+        assert set(user_details.regions_visited) == {"CXR", "NAM"}
+        assert set(user_details.regions_lived) == {"USA", "ITA"}
+
+        # Test unset values
+        api.UpdateProfile(
+            api_pb2.UpdateProfileReq(
+                hometown=api_pb2.NullableStringValue(is_null=True),
+                radius=wrappers_pb2.DoubleValue(value=0),
+                pronouns=api_pb2.NullableStringValue(is_null=True),
+                occupation=api_pb2.NullableStringValue(is_null=True),
+                education=api_pb2.NullableStringValue(is_null=True),
+                about_me=api_pb2.NullableStringValue(is_null=True),
+                my_travels=api_pb2.NullableStringValue(is_null=True),
+                things_i_like=api_pb2.NullableStringValue(is_null=True),
+                about_place=api_pb2.NullableStringValue(is_null=True),
+                hosting_status=api_pb2.HOSTING_STATUS_UNKNOWN,
+                meetup_status=api_pb2.MEETUP_STATUS_UNKNOWN,
+                # TODO Fix languages
+                #languages=api_pb2.RepeatedStringValue(exists=True, value=[]),
+                regions_visited=api_pb2.RepeatedStringValue(exists=True, value=[]),
+                regions_lived=api_pb2.RepeatedStringValue(exists=True, value=[]),
+                additional_information=api_pb2.NullableStringValue(is_null=True),
+            )
+        )
+
+        user_details = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        assert not user_details.hometown
+        assert not user_details.radius
+        assert not user_details.pronouns
+        assert not user_details.occupation
+        assert not user_details.education
+        assert not user_details.about_me
+        assert not user_details.my_travels
+        assert not user_details.things_i_like
+        assert not user_details.about_place
+        assert user_details.hosting_status == api_pb2.HOSTING_STATUS_UNKNOWN
+        assert user_details.meetup_status == api_pb2.MEETUP_STATUS_UNKNOWN
+        assert not user_details.languages
+        assert not user_details.countries_visited
+        assert not user_details.countries_lived
+        assert not user_details.additional_information
 
 
 def test_language_abilities(db):
@@ -324,7 +382,6 @@ def test_language_abilities(db):
 
         res = api.GetUser(api_pb2.GetUserReq(user=user.username))
         assert len(res.language_abilities) == 0
-
 
 def test_pending_friend_request_count(db):
     user1, token1 = generate_user("user1")
@@ -631,20 +688,6 @@ def test_reject_friend_request(db):
         assert res.sent[0].user_id == user2.id
 
 
-def test_search(db):
-    user1, token1 = generate_user("user1")
-    user2, token2 = generate_user("user2")
-    user3, token3 = generate_user("user3")
-    user4, token4 = generate_user("user4")
-
-    with api_session(token1) as api:
-        res = api.Search(api_pb2.SearchReq(query="user"))
-        assert len(res.users) == 4
-
-        res = api.Search(api_pb2.SearchReq(query="user5"))
-        assert len(res.users) == 0
-
-
 def test_mutual_friends_self(db):
     user1, token1 = generate_user("user1")
     user2, token2 = generate_user("user2")
@@ -707,96 +750,14 @@ def test_reporting(db):
         with pytest.raises(grpc.RpcError) as e:
             api.Report(report_req)
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == errors.CANT_REPORT_SELF
 
     report_req = api_pb2.ReportReq(reported_user_id=0x7FFFFFFFFFFFFFFF, reason="foo", description="bar")
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.Report(report_req)
     assert e.value.code() == grpc.StatusCode.NOT_FOUND
-
-
-def test_references(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-
-    alltypes = set([api_pb2.ReferenceType.FRIEND, api_pb2.ReferenceType.HOSTED, api_pb2.ReferenceType.SURFED])
-    # write all three reference types
-    for typ in alltypes:
-        req = api_pb2.WriteReferenceReq(to_user_id=user2.id, reference_type=typ, text="kinda weird sometimes")
-        with api_session(token1) as api:
-            res = api.WriteReference(req)
-        assert isinstance(res, empty_pb2.Empty)
-
-    # See what I have written. Paginate it.
-    seen_types = set()
-    for i in range(3):
-        req = api_pb2.GetGivenReferencesReq(from_user_id=user1.id, number=1, start_at=i)
-        with api_session(token1) as api:
-            res = api.GetGivenReferences(req)
-        assert res.total_matches == 3
-        assert len(res.references) == 1
-        assert res.references[0].from_user_id == user1.id
-        assert res.references[0].to_user_id == user2.id
-        assert res.references[0].text == "kinda weird sometimes"
-        assert abs(to_aware_datetime(res.references[0].written_time) - now()) <= timedelta(days=32)
-        assert res.references[0].reference_type not in seen_types
-        seen_types.add(res.references[0].reference_type)
-    assert seen_types == alltypes
-
-    # See what user2 have received. Paginate it.
-    seen_types = set()
-    for i in range(3):
-        req = api_pb2.GetReceivedReferencesReq(to_user_id=user2.id, number=1, start_at=i)
-        with api_session(token1) as api:
-            res = api.GetReceivedReferences(req)
-        assert res.total_matches == 3
-        assert len(res.references) == 1
-        assert res.references[0].from_user_id == user1.id
-        assert res.references[0].to_user_id == user2.id
-        assert res.references[0].text == "kinda weird sometimes"
-        assert res.references[0].reference_type not in seen_types
-        seen_types.add(res.references[0].reference_type)
-    assert seen_types == alltypes
-
-    # Check available types
-    with api_session(token1) as api:
-        res = api.AvailableWriteReferenceTypes(api_pb2.AvailableWriteReferenceTypesReq(to_user_id=user2.id))
-    assert res.reference_types == []
-
-    with api_session(token2) as api:
-        res = api.AvailableWriteReferenceTypes(api_pb2.AvailableWriteReferenceTypesReq(to_user_id=user1.id))
-    assert set(res.reference_types) == alltypes
-
-    # Forbidden to write a second reference of the same type
-    req = api_pb2.WriteReferenceReq(to_user_id=user2.id, reference_type=api_pb2.ReferenceType.HOSTED, text="ok")
-    with api_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.WriteReference(req)
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-
-    # Nonexisting user
-    req = api_pb2.WriteReferenceReq(
-        to_user_id=0x7FFFFFFFFFFFFFFF, reference_type=api_pb2.ReferenceType.HOSTED, text="ok"
-    )
-    with api_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.WriteReference(req)
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-
-    # yourself
-    req = api_pb2.WriteReferenceReq(to_user_id=user1.id, reference_type=api_pb2.ReferenceType.HOSTED, text="ok")
-    with api_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.WriteReference(req)
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-
-    with api_session(token2) as api:
-        # test the number of references in GetUser and Ping
-        res = api.GetUser(api_pb2.GetUserReq(user=user2.username))
-        assert res.num_references == 3
-
-        res = api.Ping(api_pb2.PingReq())
-        assert res.user.num_references == 3
+    assert e.value.details() == errors.USER_NOT_FOUND
 
 
 def test_hosting_preferences(db):
@@ -804,7 +765,7 @@ def test_hosting_preferences(db):
     user2, token2 = generate_user()
 
     with api_session(token1) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=user2.username))
+        res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
         assert not res.HasField("max_guests")
         assert not res.HasField("last_minute")
         assert not res.HasField("has_pets")
@@ -832,9 +793,28 @@ def test_hosting_preferences(db):
         api.UpdateProfile(
             api_pb2.UpdateProfileReq(
                 max_guests=api_pb2.NullableUInt32Value(value=3),
-                wheelchair_accessible=api_pb2.NullableBoolValue(value=False),
+                last_minute=api_pb2.NullableBoolValue(value=True),
+                has_pets=api_pb2.NullableBoolValue(value=False),
+                accepts_pets=api_pb2.NullableBoolValue(value=True),
+                pet_details=api_pb2.NullableStringValue(value="I love dogs"),
+                has_kids=api_pb2.NullableBoolValue(value=False),
+                accepts_kids=api_pb2.NullableBoolValue(value=True),
+                kid_details=api_pb2.NullableStringValue(value="I hate kids"),
+                has_housemates=api_pb2.NullableBoolValue(value=False),
+                housemate_details=api_pb2.NullableStringValue(value="I have 7 housemates"),
+                wheelchair_accessible=api_pb2.NullableBoolValue(value=True),
                 smoking_allowed=api_pb2.SMOKING_LOCATION_WINDOW,
+                area=api_pb2.NullableStringValue(value="area!"),
+                smokes_at_home=api_pb2.NullableBoolValue(value=False),
+                drinking_allowed=api_pb2.NullableBoolValue(value=True),
+                drinks_at_home=api_pb2.NullableBoolValue(value=False),
+                other_host_info=api_pb2.NullableStringValue(value="I'm pretty swell"),
+                sleeping_arrangement=api_pb2.SLEEPING_ARRANGEMENT_COMMON,
+                sleeping_details=api_pb2.NullableStringValue(value="Couch in living room"),
                 house_rules=api_pb2.NullableStringValue(value="RULES!"),
+                parking=api_pb2.NullableBoolValue(value=True),
+                parking_details=api_pb2.PARKING_DETAILS_PAID_ONSITE,
+                camping_ok=api_pb2.NullableBoolValue(value=False),
             )
         )
 
@@ -843,38 +823,56 @@ def test_hosting_preferences(db):
     with api_session(token2) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
         assert res.max_guests.value == 3
-        assert not res.HasField("last_minute")
-        assert not res.HasField("has_pets")
-        assert not res.HasField("accepts_pets")
-        assert not res.HasField("pet_details")
-        assert not res.HasField("has_kids")
-        assert not res.HasField("accepts_kids")
-        assert not res.HasField("kid_details")
-        assert not res.HasField("has_housemates")
-        assert not res.HasField("housemate_details")
-        assert not res.wheelchair_accessible.value
+        assert res.last_minute.value is True
+        assert res.has_pets.value is False
+        assert res.accepts_pets.value is True
+        assert res.pet_details.value == "I love dogs"
+        assert res.has_kids.value is False
+        assert res.accepts_kids.value is True
+        assert res.kid_details.value == "I hate kids"
+        assert res.has_housemates.value is False
+        assert res.housemate_details.value == "I have 7 housemates"
+        assert res.wheelchair_accessible.value is True
         assert res.smoking_allowed == api_pb2.SMOKING_LOCATION_WINDOW
-        assert not res.HasField("smokes_at_home")
-        assert not res.HasField("drinking_allowed")
-        assert not res.HasField("drinks_at_home")
-        assert not res.HasField("other_host_info")
-        assert res.sleeping_arrangement == api_pb2.SLEEPING_ARRANGEMENT_UNKNOWN
-        assert not res.HasField("sleeping_details")
-        assert not res.HasField("area")
+        assert res.smokes_at_home.value is False
+        assert res.drinking_allowed.value is True
+        assert res.drinks_at_home.value is False
+        assert res.other_host_info.value == "I'm pretty swell"
+        assert res.sleeping_arrangement == api_pb2.SLEEPING_ARRANGEMENT_COMMON
+        assert res.sleeping_details.value == "Couch in living room"
+        assert res.area.value == "area!"
         assert res.house_rules.value == "RULES!"
-        assert not res.HasField("parking")
-        assert res.parking_details == api_pb2.PARKING_DETAILS_UNKNOWN
-        assert not res.HasField("camping_ok")
+        assert res.parking.value is True
+        assert res.parking_details == api_pb2.PARKING_DETAILS_PAID_ONSITE
+        assert res.camping_ok.value is False
 
+    # test unsetting
     with api_session(token1) as api:
-        # test unsetting
         api.UpdateProfile(
             api_pb2.UpdateProfileReq(
                 max_guests=api_pb2.NullableUInt32Value(is_null=True),
-                wheelchair_accessible=api_pb2.NullableBoolValue(value=True),
+                last_minute=api_pb2.NullableBoolValue(is_null=True),
+                has_pets=api_pb2.NullableBoolValue(is_null=True),
+                accepts_pets=api_pb2.NullableBoolValue(is_null=True),
+                pet_details=api_pb2.NullableStringValue(is_null=True),
+                has_kids=api_pb2.NullableBoolValue(is_null=True),
+                accepts_kids=api_pb2.NullableBoolValue(is_null=True),
+                kid_details=api_pb2.NullableStringValue(is_null=True),
+                has_housemates=api_pb2.NullableBoolValue(is_null=True),
+                housemate_details=api_pb2.NullableStringValue(is_null=True),
+                wheelchair_accessible=api_pb2.NullableBoolValue(is_null=True),
                 smoking_allowed=api_pb2.SMOKING_LOCATION_UNKNOWN,
-                area=api_pb2.NullableStringValue(value="area!"),
+                area=api_pb2.NullableStringValue(is_null=True),
+                smokes_at_home=api_pb2.NullableBoolValue(is_null=True),
+                drinking_allowed=api_pb2.NullableBoolValue(is_null=True),
+                drinks_at_home=api_pb2.NullableBoolValue(is_null=True),
+                other_host_info=api_pb2.NullableStringValue(is_null=True),
+                sleeping_arrangement=api_pb2.SLEEPING_ARRANGEMENT_UNKNOWN,
+                sleeping_details=api_pb2.NullableStringValue(is_null=True),
                 house_rules=api_pb2.NullableStringValue(is_null=True),
+                parking=api_pb2.NullableBoolValue(is_null=True),
+                parking_details=api_pb2.PARKING_DETAILS_UNKNOWN,
+                camping_ok=api_pb2.NullableBoolValue(is_null=True),
             )
         )
 
@@ -889,7 +887,7 @@ def test_hosting_preferences(db):
         assert not res.HasField("kid_details")
         assert not res.HasField("has_housemates")
         assert not res.HasField("housemate_details")
-        assert res.wheelchair_accessible.value
+        assert not res.HasField("wheelchair_accessible")
         assert res.smoking_allowed == api_pb2.SMOKING_LOCATION_UNKNOWN
         assert not res.HasField("smokes_at_home")
         assert not res.HasField("drinking_allowed")
@@ -897,7 +895,7 @@ def test_hosting_preferences(db):
         assert not res.HasField("other_host_info")
         assert res.sleeping_arrangement == api_pb2.SLEEPING_ARRANGEMENT_UNKNOWN
         assert not res.HasField("sleeping_details")
-        assert res.area.value == "area!"
+        assert not res.HasField("area")
         assert not res.HasField("house_rules")
         assert not res.HasField("parking")
         assert res.parking_details == api_pb2.PARKING_DETAILS_UNKNOWN

@@ -1,18 +1,22 @@
+import { InputLabel } from "@material-ui/core";
+import Button from "components/Button";
+import TextBody from "components/TextBody";
+import TextField from "components/TextField";
+import { useAuthContext } from "features/auth/AuthProvider";
+import useAuthStyles from "features/auth/useAuthStyles";
+import { SignupRes } from "pb/auth_pb";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-
-import Button from "../../../components/Button";
-import TextBody from "../../../components/TextBody";
-import TextField from "../../../components/TextField";
-import { SignupRes } from "../../../pb/auth_pb";
-import { service } from "../../../service";
-import { useAuthContext } from "../AuthProvider";
+import { service } from "service";
+import { sanitizeName } from "utils/validation";
 
 export default function EmailForm() {
   const { authActions } = useAuthContext();
 
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const authClasses = useAuthStyles();
 
   const { register, handleSubmit, getValues } = useForm<{ email: string }>({
     shouldUnregister: false,
@@ -22,7 +26,8 @@ export default function EmailForm() {
     setLoading(true);
     authActions.clearError();
     try {
-      const next = await service.auth.createEmailSignup(email);
+      const sanitizedEmail = sanitizeName(email);
+      const next = await service.auth.createEmailSignup(sanitizedEmail);
       switch (next) {
         case SignupRes.SignupStep.EMAIL_EXISTS:
           authActions.authError("That email is already in use.");
@@ -42,7 +47,7 @@ export default function EmailForm() {
 
   if (sent) {
     return (
-      <TextBody>
+      <TextBody className={authClasses.feedbackMessage}>
         A link to continue has been sent to {getValues("email")}.
       </TextBody>
     );
@@ -50,16 +55,30 @@ export default function EmailForm() {
 
   return (
     <>
-      <form onSubmit={onSubmit}>
+      <form className={authClasses.form} onSubmit={onSubmit}>
+        <InputLabel className={authClasses.formLabel} htmlFor="email">
+          Email
+        </InputLabel>
         <TextField
+          id="email"
+          fullWidth
           name="email"
-          label="Email"
+          variant="standard"
           inputRef={register({
             required: true,
           })}
         />
-        <Button onClick={onSubmit} loading={loading} type="submit">
-          Sign up
+        <Button
+          classes={{
+            label: authClasses.buttonText,
+            root: authClasses.button,
+          }}
+          onClick={onSubmit}
+          type="submit"
+          disabled={sent}
+          loading={loading}
+        >
+          Continue
         </Button>
       </form>
     </>

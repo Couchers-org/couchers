@@ -1,21 +1,20 @@
 import { Box, makeStyles } from "@material-ui/core";
+import TextBody from "components/TextBody";
 import React from "react";
 import { Link } from "react-router-dom";
-
-import TextBody from "../components/TextBody";
-import Graphic from "../resources/404graphic.png";
+import Graphic from "resources/404graphic.png";
 
 const useStyles = makeStyles({
-  root: {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%,-50%)",
-    textAlign: "center",
-  },
   graphic: {
     height: "75%",
     width: "75%",
+  },
+  root: {
+    left: "50%",
+    position: "absolute",
+    textAlign: "center",
+    top: "50%",
+    transform: "translate(-50%,-50%)",
   },
 });
 

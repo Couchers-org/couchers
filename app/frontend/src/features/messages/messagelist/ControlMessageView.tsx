@@ -7,24 +7,24 @@ import React from "react";
 import TextBody from "../../../components/TextBody";
 import { timestamp2Date } from "../../../utils/date";
 import { firstName } from "../../../utils/names";
+import useOnVisibleEffect from "../../../utils/useOnVisibleEffect";
 import { useAuthContext } from "../../auth/AuthProvider";
 import { useUser } from "../../userQueries/useUsers";
-import useOnVisibleEffect from "../useOnVisibleEffect";
 import { controlMessageText, messageTargetId } from "../utils";
 import { messageElementId, MessageProps } from "./MessageView";
 import TimeInterval from "./TimeInterval";
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    marginInlineStart: "auto",
-    marginInlineEnd: "auto",
-    textAlign: "center",
-  },
-  timestamp: theme.typography.caption,
   message: {
     paddingInlineEnd: theme.spacing(1),
   },
+  root: {
+    marginInlineEnd: "auto",
+    marginInlineStart: "auto",
+    textAlign: "center",
+  },
   skeleton: { minWidth: 100 },
+  timestamp: theme.typography.caption,
 }));
 
 export default function ControlMessageView({

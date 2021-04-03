@@ -26,7 +26,6 @@ from couchers.models import (
     Message,
     ParkingDetails,
     Reference,
-    ReferenceType,
     RegionsLived,
     RegionsVisited,
     SleepingArrangement,
@@ -37,18 +36,6 @@ from couchers.regions import region_is_allowed
 from couchers.tasks import send_friend_request_email, send_report_email
 from couchers.utils import Timestamp_from_datetime, create_coordinate, now
 from pb import api_pb2, api_pb2_grpc, media_pb2
-
-reftype2sql = {
-    api_pb2.ReferenceType.FRIEND: ReferenceType.FRIEND,
-    api_pb2.ReferenceType.SURFED: ReferenceType.SURFED,
-    api_pb2.ReferenceType.HOSTED: ReferenceType.HOSTED,
-}
-
-reftype2api = {
-    ReferenceType.FRIEND: api_pb2.ReferenceType.FRIEND,
-    ReferenceType.SURFED: api_pb2.ReferenceType.SURFED,
-    ReferenceType.HOSTED: api_pb2.ReferenceType.HOSTED,
-}
 
 hostingstatus2sql = {
     api_pb2.HOSTING_STATUS_UNKNOWN: None,
@@ -213,6 +200,10 @@ class API(api_pb2_grpc.APIServicer):
             return user_model_to_pb(user, session, context)
 
     def UpdateProfile(self, request, context):
+        # users can't change gender themselves to avoid filter evasion
+        if request.HasField("gender"):
+            context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.CANT_CHANGE_GENDER)
+
         with session_scope() as session:
             user = session.query(User).filter(User.id == context.user_id).one()
 
@@ -225,19 +216,33 @@ class API(api_pb2_grpc.APIServicer):
                 user.city = request.city.value
 
             if request.HasField("hometown"):
-                user.hometown = request.hometown.value
+                if request.hometown.is_null:
+                    user.hometown = None
+                else:
+                    user.hometown = request.hometown.value
 
             if request.HasField("lat") and request.HasField("lng"):
+                if request.lat.value == 0 and request.lng.value == 0:
+                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
                 user.geom = create_coordinate(request.lat.value, request.lng.value)
 
             if request.HasField("radius"):
                 user.geom_radius = request.radius.value
 
-            if request.HasField("gender"):
-                user.gender = request.gender.value
+            if request.HasField("avatar_key"):
+                if request.avatar_key.is_null:
+                    user.avatar_key = None
+                else:
+                    user.avatar_key = request.avatar_key.value
+
+            # if request.HasField("gender"):
+            #     user.gender = request.gender.value
 
             if request.HasField("pronouns"):
-                user.pronouns = request.pronouns.value
+                if request.pronouns.is_null:
+                    user.pronouns = None
+                else:
+                    user.pronouns = request.pronouns.value
 
             if request.HasField("occupation"):
                 if request.occupation.is_null:
@@ -425,8 +430,8 @@ class API(api_pb2_grpc.APIServicer):
                 else:
                     user.other_host_info = request.other_host_info.value
 
-            if request.sleeping_arrangement != api_pb2.SLEEPING_ARRANGEMENT_UNKNOWN:
-                user.sleeping_arrangement = smokinglocation2sql[request.sleeping_arrangement]
+            if request.sleeping_arrangement != api_pb2.SLEEPING_ARRANGEMENT_UNSPECIFIED:
+                user.sleeping_arrangement = sleepingarrangement2sql[request.sleeping_arrangement]
 
             if request.HasField("sleeping_details"):
                 if request.sleeping_details.is_null:
@@ -452,7 +457,7 @@ class API(api_pb2_grpc.APIServicer):
                 else:
                     user.parking = request.parking.value
 
-            if request.parking_details != api_pb2.PARKING_DETAILS_UNKNOWN:
+            if request.parking_details != api_pb2.PARKING_DETAILS_UNSPECIFIED:
                 user.parking_details = parkingdetails2sql[request.parking_details]
 
             if request.HasField("camping_ok"):
@@ -583,18 +588,6 @@ class API(api_pb2_grpc.APIServicer):
 
             return empty_pb2.Empty()
 
-    def Search(self, request, context):
-        with session_scope() as session:
-            users = []
-            for user in (
-                session.query(User)
-                .filter(or_(User.name.ilike(f"%{request.query}%"), User.username.ilike(f"%{request.query}%")))
-                .all()
-            ):
-                users.append(user_model_to_pb(user, session, context))
-
-            return api_pb2.SearchRes(users=users)
-
     def Report(self, request, context):
         if context.user_id == request.reported_user_id:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REPORT_SELF)
@@ -621,67 +614,6 @@ class API(api_pb2_grpc.APIServicer):
 
             return empty_pb2.Empty()
 
-    def WriteReference(self, request, context):
-        if context.user_id == request.to_user_id:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, "Can't refer yourself")
-
-        reference = Reference(
-            from_user_id=context.user_id,
-            to_user_id=request.to_user_id,
-            reference_type=reftype2sql[request.reference_type],
-            text=request.text,
-            was_safe=request.was_safe,
-            rating=request.rating,
-        )
-        with session_scope() as session:
-            if not session.query(User).filter(User.id == request.to_user_id).one_or_none():
-                context.abort(grpc.StatusCode.NOT_FOUND, "User not found")
-
-            if (
-                session.query(Reference)
-                .filter(Reference.from_user_id == context.user_id)
-                .filter(Reference.to_user_id == request.to_user_id)
-                .filter(Reference.reference_type == reftype2sql[request.reference_type])
-                .one_or_none()
-            ):
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, "Reference already given")
-            session.add(reference)
-        return empty_pb2.Empty()
-
-    def GetGivenReferences(self, request, context):
-        with session_scope() as session:
-            query = session.query(Reference)
-            query = query.filter(Reference.from_user_id == request.from_user_id)
-            if request.HasField("type_filter"):
-                query = query.filter(Reference.reference_type == reftype2sql[request.type_filter.value])
-            return paginate_references_result(request, query)
-
-    def GetReceivedReferences(self, request, context):
-        with session_scope() as session:
-            query = session.query(Reference)
-            query = query.filter(Reference.to_user_id == request.to_user_id)
-            if request.HasField("type_filter"):
-                query = query.filter(Reference.reference_type == reftype2sql[request.type_filter.value])
-            return paginate_references_result(request, query)
-
-    def AvailableWriteReferenceTypes(self, request, context):
-        available = {
-            ReferenceType.FRIEND,
-            ReferenceType.SURFED,
-            ReferenceType.HOSTED,
-        }
-
-        # Filter out already written ones.
-        with session_scope() as session:
-            query = session.query(Reference)
-            query = query.filter(Reference.from_user_id == context.user_id)
-            query = query.filter(Reference.to_user_id == request.to_user_id)
-            for reference in query.all():
-                available.remove(reference.reference_type)
-
-        # TODO: make surfing/hosted only available if you actually have been surfing/hosting
-        return api_pb2.AvailableWriteReferenceTypesRes(reference_types=[reftype2api[r] for r in available])
-
     def InitiateMediaUpload(self, request, context):
         key = random_hex()
 
@@ -689,7 +621,7 @@ class API(api_pb2_grpc.APIServicer):
         expiry = created + timedelta(minutes=20)
 
         with session_scope() as session:
-            upload = InitiatedUpload(key=key, created=created, expiry=expiry, user_id=context.user_id)
+            upload = InitiatedUpload(key=key, created=created, expiry=expiry, initiator_user_id=context.user_id)
             session.add(upload)
             session.commit()
 
@@ -711,26 +643,6 @@ class API(api_pb2_grpc.APIServicer):
             upload_url=urls.media_upload_url(path),
             expiry=Timestamp_from_datetime(expiry),
         )
-
-
-def paginate_references_result(request, query):
-    total_matches = query.count()
-    references = query.order_by(Reference.time).offset(request.start_at).limit(request.number).all()
-    # order by time, pagination
-    return api_pb2.GetReferencesRes(
-        total_matches=total_matches,
-        references=[
-            api_pb2.Reference(
-                from_user_id=reference.from_user_id,
-                to_user_id=reference.to_user_id,
-                reference_type=reftype2api[reference.reference_type],
-                text=reference.text,
-                # Fuzz reference written time
-                written_time=Timestamp_from_datetime(reference.time.replace(hour=0, minute=0, second=0, microsecond=0)),
-            )
-            for reference in references
-        ],
-    )
 
 
 def user_model_to_pb(db_user, session, context):
@@ -781,7 +693,7 @@ def user_model_to_pb(db_user, session, context):
         smoking_allowed=smokinglocation2api[db_user.smoking_allowed],
         sleeping_arrangement=sleepingarrangement2api[db_user.sleeping_arrangement],
         parking_details=parkingdetails2api[db_user.parking_details],
-        avatar_url=db_user.avatar_url,
+        avatar_url=db_user.avatar.thumbnail_url if db_user.avatar else None,
     )
 
     if db_user.max_guests is not None:

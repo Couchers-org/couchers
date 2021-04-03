@@ -1,22 +1,29 @@
 import { Box, makeStyles } from "@material-ui/core";
-import CircularProgress from "@material-ui/core/CircularProgress";
 import classNames from "classnames";
-import React, { ReactNode, useCallback, useLayoutEffect, useRef } from "react";
-
-import useOnVisibleEffect from "../useOnVisibleEffect";
-import { messageElementId } from "./MessageView";
+import CircularProgress from "components/CircularProgress";
+import useAuthStore from "features/auth/useAuthStore";
+import { messageElementId } from "features/messages/messagelist/MessageView";
+import { Message } from "pb/conversations_pb";
+import {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+} from "react";
+import useOnVisibleEffect from "utils/useOnVisibleEffect";
 
 const useStyles = makeStyles((theme) => ({
   loader: {
-    width: "100%",
-    position: "absolute",
-    top: 0,
-    paddingTop: theme.spacing(1),
     "& > *": {
       display: "block",
-      marginInlineStart: "auto",
       marginInlineEnd: "auto",
+      marginInlineStart: "auto",
     },
+    paddingTop: theme.spacing(1),
+    position: "absolute",
+    top: 0,
+    width: "100%",
   },
   scroll: {
     ...theme.shape.scrollBar,
@@ -26,6 +33,7 @@ const useStyles = makeStyles((theme) => ({
 
 interface InfiniteMessageLoaderProps {
   earliestMessageId?: number;
+  latestMessage?: Message.AsObject;
   fetchNextPage: () => void;
   isFetchingNextPage: boolean;
   hasNextPage: boolean;
@@ -36,6 +44,7 @@ interface InfiniteMessageLoaderProps {
 
 export default function InfiniteMessageLoader({
   earliestMessageId,
+  latestMessage,
   fetchNextPage,
   isFetchingNextPage,
   hasNextPage,
@@ -44,6 +53,7 @@ export default function InfiniteMessageLoader({
   children,
 }: InfiniteMessageLoaderProps) {
   const classes = useStyles();
+  const currentUserId = useAuthStore().authState.userId;
 
   const scrollRef = useRef<HTMLElement>(null);
   const prevScrollHeight = useRef<number | undefined>(undefined);
@@ -67,11 +77,33 @@ export default function InfiniteMessageLoader({
     messageEl?.scrollIntoView();
   }, [isFetchingNextPage]);
 
-  //scroll to the bottom on page load
+  // Scroll to bottom on load
   useLayoutEffect(() => {
     if (!scrollRef.current) return;
     scrollRef.current.scroll(0, scrollRef.current.scrollHeight);
-  }, [scrollRef]);
+  }, []);
+
+  //**  Keep place or keep at bottom on window resize (i.e. keyboard popup on mobile (hopefully)) **//
+  useEffect(() => {
+    const updateMessagePosition = () => {
+      if (!scrollRef.current) return;
+      scrollRef.current.scroll(0, scrollRef.current.scrollHeight);
+    };
+    window.addEventListener("resize", updateMessagePosition);
+    return () => window.removeEventListener("resize", updateMessagePosition);
+  }, []);
+
+  //** Scroll to the bottom after sending own new message  **//
+  const savedMessageId = useRef(latestMessage?.messageId);
+  useLayoutEffect(() => {
+    if (!scrollRef.current) return;
+    const isUserMessage = latestMessage?.authorUserId === currentUserId;
+    const isNewMessage = latestMessage?.messageId !== savedMessageId.current;
+    if (isUserMessage && isNewMessage) {
+      scrollRef.current.scroll(0, scrollRef.current.scrollHeight);
+      savedMessageId.current = latestMessage?.messageId;
+    }
+  }, [latestMessage?.messageId, latestMessage?.authorUserId, currentUserId]);
 
   return (
     <Box className={classNames(classes.scroll, className)} ref={scrollRef}>

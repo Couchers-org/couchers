@@ -1,22 +1,30 @@
 import { darken, makeStyles, useMediaQuery, useTheme } from "@material-ui/core";
-import { Error as GrpcError } from "grpc-web";
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
-import { useMutation } from "react-query";
-
-import Alert from "../components/Alert";
-import Button from "../components/Button";
+import Alert from "components/Alert";
+import Button from "components/Button";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
-} from "../components/Dialog";
-import { BugIcon } from "../components/Icons";
-import TextField from "../components/TextField";
-import { service } from "../service";
-import { useAuthContext } from "./auth/AuthProvider";
+} from "components/Dialog";
+import { BugIcon } from "components/Icons";
+import TextField from "components/TextField";
+import { useAuthContext } from "features/auth/AuthProvider";
+import {
+  BUG_DESCRIPTION,
+  EXPECT,
+  PROBLEM,
+  REPORT,
+  STEPS,
+  SUBMIT,
+  WARNING,
+} from "features/constants";
+import { Error as GrpcError } from "grpc-web";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { useMutation } from "react-query";
+import { service } from "service";
 
 export interface BugReportFormData {
   subject: string;
@@ -27,10 +35,10 @@ export interface BugReportFormData {
 
 const useStyles = makeStyles((theme) => ({
   button: {
-    backgroundColor: theme.palette.error.main,
     "&:hover": {
       backgroundColor: darken(theme.palette.error.main, 0.1),
     },
+    backgroundColor: theme.palette.error.main,
   },
   field: {
     "& + &": {
@@ -89,7 +97,7 @@ export default function BugReport() {
           startIcon: classes.startIcon,
         }}
       >
-        {!isBelowMd && "Report a bug"}
+        {!isBelowMd && REPORT}
       </Button>
       <Dialog
         aria-labelledby="bug-reporter"
@@ -97,24 +105,20 @@ export default function BugReport() {
         onClose={handleClose}
       >
         <form onSubmit={onSubmit}>
-          <DialogTitle id="bug-reporter">Report a problem</DialogTitle>
+          <DialogTitle id="bug-reporter">{REPORT}</DialogTitle>
           <DialogContent>
             {error && <Alert severity="error">{error.message}</Alert>}
             {reportIdentifier && (
               <Alert severity="success">
-                Thank you for reporting that bug and making Couchers better, a
-                report was sent to the devs! The bug ID is {reportIdentifier}
+                {`Thank you for reporting that bug and making Couchers better, a
+                report was sent to the devs! The bug ID is ${reportIdentifier}`}
               </Alert>
             )}
-            <DialogContentText>
-              Please note that this information, as well as diagnostic
-              information including which page you are on, what browser you are
-              using, and your user ID will be saved to a public list of bugs.
-            </DialogContentText>
+            <DialogContentText>{WARNING}</DialogContentText>
             <TextField
               id="bug-report-subject"
               className={classes.field}
-              label="Brief description of the bug"
+              label={BUG_DESCRIPTION}
               name="subject"
               inputRef={register({ required: true })}
               fullWidth
@@ -122,7 +126,7 @@ export default function BugReport() {
             <TextField
               className={classes.field}
               id="bug-report-description"
-              label="What's the problem?"
+              label={PROBLEM}
               name="description"
               inputRef={register({ required: true })}
               fullWidth
@@ -134,7 +138,7 @@ export default function BugReport() {
               className={classes.field}
               id="bug-report-steps"
               defaultValue=""
-              label="What did you do to trigger the bug?"
+              label={STEPS}
               name="steps"
               inputRef={register}
               fullWidth
@@ -146,7 +150,7 @@ export default function BugReport() {
               className={classes.field}
               id="bug-report-results"
               defaultValue=""
-              label="What happened? What did you expect should have happened?"
+              label={EXPECT}
               name="results"
               inputRef={register}
               fullWidth
@@ -163,7 +167,7 @@ export default function BugReport() {
               loading={isLoading}
               onClick={onSubmit}
             >
-              Submit
+              {SUBMIT}
             </Button>
           </DialogActions>
         </form>

@@ -7,10 +7,18 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import mediaQuery from "css-mediaquery";
+import {
+  BUG_DESCRIPTION,
+  EXPECT,
+  PROBLEM,
+  REPORT,
+  STEPS,
+  SUBMIT,
+} from "features/constants";
+import { service } from "service";
 
-import { service } from "../service";
 import wrapper from "../test/hookWrapper";
-import { addDefaultUser, MockedService } from "../test/utils";
+import { addDefaultUser, MockedService, wait } from "../test/utils";
 import BugReport from "./BugReport";
 
 const reportBugMock = service.bugs.reportBug as MockedService<
@@ -43,7 +51,7 @@ async function fillInAndSubmitBugReport(
     );
   }
 
-  userEvent.click(screen.getByRole("button", { name: "Submit" }));
+  userEvent.click(screen.getByRole("button", { name: SUBMIT }));
 }
 
 describe("BugReport", () => {
@@ -59,15 +67,15 @@ describe("BugReport", () => {
         name: "Report a bug",
       });
       expect(reportBugButton).toBeVisible();
-      expect(reportBugButton).toHaveTextContent("Report a bug");
+      expect(reportBugButton).toHaveTextContent(REPORT);
     });
   });
 
   describe("when displayed in a small screen", () => {
     function createMatchMedia(width: number) {
       return (query: string) => ({
-        matches: mediaQuery.match(query, { width }),
         addListener: jest.fn(),
+        matches: mediaQuery.match(query, { width }),
         removeListener: jest.fn(),
       });
     }
@@ -98,11 +106,10 @@ describe("BugReport", () => {
   });
 
   describe('when the "report a bug" button is clicked', () => {
-    const subjectFieldLabel = "Brief description of the bug";
-    const descriptionFieldLabel = "What's the problem?";
-    const stepsFieldLabel = "What did you do to trigger the bug?";
-    const resultsFieldLabel =
-      "What happened? What did you expect should have happened?";
+    const subjectFieldLabel = BUG_DESCRIPTION;
+    const descriptionFieldLabel = PROBLEM;
+    const stepsFieldLabel = STEPS;
+    const resultsFieldLabel = EXPECT;
 
     it("shows the bug report dialog correctly when the button is clicked", async () => {
       const infoText =
@@ -125,7 +132,7 @@ describe("BugReport", () => {
       render(<BugReport />, { wrapper });
 
       userEvent.click(screen.getByRole("button", { name: "Report a bug" }));
-      userEvent.click(await screen.findByRole("button", { name: "Submit" }));
+      userEvent.click(await screen.findByRole("button", { name: SUBMIT }));
 
       await waitFor(() => {
         expect(reportBugMock).not.toHaveBeenCalled();
@@ -133,6 +140,10 @@ describe("BugReport", () => {
     });
 
     it("submits the bug report successfully if all required fields are filled in", async () => {
+      reportBugMock.mockImplementation(async () => {
+        await wait(10);
+        return "1";
+      });
       render(<BugReport />, { wrapper });
       userEvent.click(screen.getByRole("button", { name: "Report a bug" }));
 
@@ -141,15 +152,15 @@ describe("BugReport", () => {
       expect(await screen.findByRole("progressbar")).toBeVisible();
       const successMessage =
         "Thank you for reporting that bug and making Couchers better, a report was sent to the devs! The bug ID is 1";
-      const successAlert = screen.getByRole("alert");
+      const successAlert = await screen.findByRole("alert");
       expect(within(successAlert).getByText(successMessage)).toBeVisible();
       expect(reportBugMock).toHaveBeenCalledTimes(1);
       expect(reportBugMock).toHaveBeenCalledWith(
         {
-          subject: "Broken log in",
           description: "Log in is broken",
-          steps: "",
           results: "",
+          steps: "",
+          subject: "Broken log in",
         },
         null
       );
@@ -171,10 +182,10 @@ describe("BugReport", () => {
       });
       expect(reportBugMock).toHaveBeenCalledWith(
         {
-          subject: "Broken log in",
           description: "Log in is broken",
-          steps: "Type in user name and clicked log in",
           results: "Log in didn't work, and I expected it to work",
+          steps: "Type in user name and clicked log in",
+          subject: "Broken log in",
         },
         null
       );
@@ -191,10 +202,10 @@ describe("BugReport", () => {
       });
       expect(reportBugMock).toHaveBeenCalledWith(
         {
-          subject: "Broken log in",
           description: "Log in is broken",
-          steps: "",
           results: "",
+          steps: "",
+          subject: "Broken log in",
         },
         1
       );
@@ -213,6 +224,7 @@ describe("BugReport", () => {
     });
 
     it("resets error in the bug report dialog when it is being reopened", async () => {
+      jest.spyOn(console, "error").mockReturnValue(undefined);
       reportBugMock.mockRejectedValue(new Error("Bug tool disabled"));
       render(<BugReport />, { wrapper });
       userEvent.click(screen.getByRole("button", { name: "Report a bug" }));

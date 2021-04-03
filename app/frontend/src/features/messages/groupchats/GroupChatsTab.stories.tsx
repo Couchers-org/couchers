@@ -1,22 +1,20 @@
 import { Meta, Story } from "@storybook/react";
+import AuthProvider from "features/auth/AuthProvider";
+import GroupChatsTab from "features/messages/groupchats/GroupChatsTab";
+import GroupChatView from "features/messages/groupchats/GroupChatView";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import * as React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { MemoryRouter, Route } from "react-router-dom";
-
-import { groupChatsRoute, routeToGroupChat } from "../../../routes";
-import { mockedService } from "../../../stories/__mocks__/service";
-import messages from "../../../test/fixtures/messages.json";
-import AuthProvider from "../../auth/AuthProvider";
-import GroupChatsTab from "./GroupChatsTab";
-import GroupChatView from "./GroupChatView";
+import { groupChatsRoute, routeToGroupChat } from "routes";
+import { mockedService } from "stories/__mocks__/service";
+import messages from "test/fixtures/messages.json";
 
 const queryClient = new QueryClient();
 
 export default {
-  title: "Messages/GroupChatsTab",
-  component: GroupChatsTab,
   argTypes: {},
+  component: GroupChatsTab,
   decorators: [
     (storyFn) => {
       return (
@@ -26,12 +24,13 @@ export default {
       );
     },
   ],
+  title: "Messages/GroupChatsTab",
 } as Meta;
 
 mockedService.conversations.getGroupChatMessages = async () => ({
+  lastMessageId: 0,
   messagesList: messages,
   noMore: true,
-  lastMessageId: 0,
 });
 
 mockedService.conversations.createGroupChat = async () => {

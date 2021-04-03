@@ -4,30 +4,29 @@ import {
   List,
   ListItem,
 } from "@material-ui/core";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { Error as GrpcError } from "grpc-web";
-import React, { useEffect, useState } from "react";
-import { useMutation, useQueryClient } from "react-query";
-
-import Alert from "../../../components/Alert";
-import Avatar from "../../../components/Avatar";
-import Button from "../../../components/Button";
-import ConfirmationDialogWrapper from "../../../components/ConfirmationDialogWrapper";
+import Alert from "components/Alert";
+import Avatar from "components/Avatar";
+import Button from "components/Button";
+import ConfirmationDialogWrapper from "components/ConfirmationDialogWrapper";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-} from "../../../components/Dialog";
-import IconButton from "../../../components/IconButton";
-import { AddIcon, CloseIcon } from "../../../components/Icons";
-import TextBody from "../../../components/TextBody";
-import { User } from "../../../pb/api_pb";
-import { GroupChat } from "../../../pb/conversations_pb";
-import { service } from "../../../service";
-import { useAuthContext } from "../../auth/AuthProvider";
-import useUsers from "../../userQueries/useUsers";
-import { useMembersDialogStyles } from "./MembersDialog";
+} from "components/Dialog";
+import IconButton from "components/IconButton";
+import { AddIcon, CloseIcon } from "components/Icons";
+import TextBody from "components/TextBody";
+import { useAuthContext } from "features/auth/AuthProvider";
+import { useMembersDialogStyles } from "features/messages/groupchats/MembersDialog";
+import useUsers from "features/userQueries/useUsers";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { Error as GrpcError } from "grpc-web";
+import { User } from "pb/api_pb";
+import { GroupChat } from "pb/conversations_pb";
+import React, { useEffect, useState } from "react";
+import { useMutation, useQueryClient } from "react-query";
+import { service } from "service";
 
 function AdminListItem({
   groupChatId,
@@ -56,6 +55,7 @@ function AdminListItem({
   const makeAdmin = useMutation<Empty, GrpcError, void>(
     () => service.conversations.makeGroupChatAdmin(groupChatId, member),
     {
+      onError: handleError,
       onMutate: clearError,
       onSuccess: () => {
         const previousGroupChat = queryClient.getQueryData<GroupChat.AsObject>([
@@ -72,12 +72,12 @@ function AdminListItem({
         });
         invalidate();
       },
-      onError: handleError,
     }
   );
   const removeAdmin = useMutation<Empty, GrpcError, void>(
     () => service.conversations.removeGroupChatAdmin(groupChatId, member),
     {
+      onError: handleError,
       onMutate: clearError,
       onSuccess: () => {
         const previousGroupChat = queryClient.getQueryData<GroupChat.AsObject>([
@@ -97,7 +97,6 @@ function AdminListItem({
         });
         invalidate();
       },
-      onError: handleError,
     }
   );
 

@@ -25,7 +25,7 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func, text
 
 from couchers.config import config
-from couchers.utils import get_coordinates
+from couchers.utils import date_in_timezone, get_coordinates, now
 
 meta = MetaData(
     naming_convention={
@@ -107,8 +107,14 @@ class User(Base):
     city = Column(String, nullable=False)
     hometown = Column(String, nullable=True)
 
+    # TODO: proper timezone handling
+    timezone = "Etc/UTC"
+
     joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     last_active = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    # id of the last message that they received a notification about
+    last_notified_message_id = Column(BigInteger, nullable=False, default=0)
 
     # display name
     name = Column(String, nullable=False)
@@ -119,6 +125,8 @@ class User(Base):
     # name as on official docs for verification, etc. not needed until verification
     full_name = Column(String, nullable=True)
 
+    avatar_key = Column(ForeignKey("uploads.key"), nullable=True)
+
     hosting_status = Column(Enum(HostingStatus), nullable=True)
     meetup_status = Column(Enum(MeetupStatus), nullable=True)
 
@@ -127,14 +135,14 @@ class User(Base):
     # community standing score
     community_standing = Column(Float, nullable=True)
 
-    occupation = Column(String, nullable=True)
-    education = Column(String, nullable=True)
-    about_me = Column(String, nullable=True)
-    my_travels = Column(String, nullable=True)
-    things_i_like = Column(String, nullable=True)
-    about_place = Column(String, nullable=True)
+    occupation = Column(String, nullable=True)  # CommonMark without images
+    education = Column(String, nullable=True)  # CommonMark without images
+    about_me = Column(String, nullable=True)  # CommonMark without images
+    my_travels = Column(String, nullable=True)  # CommonMark without images
+    things_i_like = Column(String, nullable=True)  # CommonMark without images
+    about_place = Column(String, nullable=True)  # CommonMark without images
     avatar_filename = Column(String, nullable=True)
-    additional_information = Column(String, nullable=True)
+    additional_information = Column(String, nullable=True)  # CommonMark without images
 
     is_banned = Column(Boolean, nullable=False, default=False)
 
@@ -143,25 +151,25 @@ class User(Base):
     last_minute = Column(Boolean, nullable=True)
     has_pets = Column(Boolean, nullable=True)
     accepts_pets = Column(Boolean, nullable=True)
-    pet_details = Column(String, nullable=True)
+    pet_details = Column(String, nullable=True)  # CommonMark without images
     has_kids = Column(Boolean, nullable=True)
     accepts_kids = Column(Boolean, nullable=True)
-    kid_details = Column(String, nullable=True)
+    kid_details = Column(String, nullable=True)  # CommonMark without images
     has_housemates = Column(Boolean, nullable=True)
-    housemate_details = Column(String, nullable=True)
+    housemate_details = Column(String, nullable=True)  # CommonMark without images
     wheelchair_accessible = Column(Boolean, nullable=True)
     smoking_allowed = Column(Enum(SmokingLocation), nullable=True)
     smokes_at_home = Column(Boolean, nullable=True)
     drinking_allowed = Column(Boolean, nullable=True)
     drinks_at_home = Column(Boolean, nullable=True)
-    other_host_info = Column(String, nullable=True)
+    other_host_info = Column(String, nullable=True)  # CommonMark without images
 
     sleeping_arrangement = Column(Enum(SleepingArrangement), nullable=True)
-    sleeping_details = Column(String, nullable=True)
-    area = Column(String, nullable=True)
-    house_rules = Column(String, nullable=True)
+    sleeping_details = Column(String, nullable=True)  # CommonMark without images
+    area = Column(String, nullable=True)  # CommonMark without images
+    house_rules = Column(String, nullable=True)  # CommonMark without images
     parking = Column(Boolean, nullable=True)
-    parking_details = Column(Enum(ParkingDetails), nullable=True)
+    parking_details = Column(Enum(ParkingDetails), nullable=True)  # CommonMark without images
     camping_ok = Column(Boolean, nullable=True)
 
     accepted_tos = Column(Integer, nullable=False, default=0)
@@ -171,6 +179,8 @@ class User(Base):
     new_email_token = Column(String, nullable=True)
     new_email_token_created = Column(DateTime(timezone=True), nullable=True)
     new_email_token_expiry = Column(DateTime(timezone=True), nullable=True)
+
+    avatar = relationship("Upload", foreign_keys="User.avatar_key")
 
     @hybrid_property
     def is_jailed(self):
@@ -212,13 +222,6 @@ class User(Base):
         Returns the last active time rounded down to the nearest 15 minutes.
         """
         return self.last_active.replace(minute=(self.last_active.minute // 15) * 15, second=0, microsecond=0)
-
-    @property
-    def avatar_url(self):
-        if self.avatar_filename:
-            return f"{config['MEDIA_SERVER_BASE_URL']}/img/avatar/{self.avatar_filename}"
-        else:
-            return None
 
     def mutual_friends(self, target_id):
         if target_id == self.id:
@@ -454,6 +457,8 @@ class UserSession(Base):
         It must have been created and not be expired or deleted.
 
         Also, if it's a short lived token, it must have been used in the last 168 hours.
+
+        TODO: this probably won't run in python (instance level), only in sql (class level)
         """
         return (
             (self.created <= func.now())
@@ -461,38 +466,6 @@ class UserSession(Base):
             & (self.deleted == None)
             & (self.long_lived | (func.now() - self.last_seen < text("interval '168 hours'")))
         )
-
-
-class ReferenceType(enum.Enum):
-    FRIEND = enum.auto()
-    SURFED = enum.auto()  # The "from" user have surfed at the "to" user
-    HOSTED = enum.auto()  # The "from" user have hosted the "to" user
-
-
-class Reference(Base):
-    """
-    Reference from one user to another
-    """
-
-    __tablename__ = "references"
-    __table_args__ = (UniqueConstraint("from_user_id", "to_user_id", "reference_type"),)
-
-    id = Column(BigInteger, primary_key=True)
-    # timezone should always be UTC
-    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-
-    from_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    to_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-
-    reference_type = Column(Enum(ReferenceType), nullable=False)
-
-    text = Column(String, nullable=True)
-
-    rating = Column(Integer, nullable=False)
-    was_safe = Column(Boolean, nullable=False)
-
-    from_user = relationship("User", backref="references_from", foreign_keys="Reference.from_user_id")
-    to_user = relationship("User", backref="references_to", foreign_keys="Reference.to_user_id")
 
 
 class Conversation(Base):
@@ -561,12 +534,9 @@ class GroupChatSubscription(Base):
 
     @property
     def unseen_message_count(self):
-        # TODO: possibly slow
-
-        session = Session.object_session(self)
-
         return (
-            session.query(Message.id)
+            Session.object_session(self)
+            .query(Message.id)
             .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
             .filter(GroupChatSubscription.id == self.id)
             .filter(Message.id > GroupChatSubscription.last_seen_message_id)
@@ -626,7 +596,7 @@ class Message(Base):
     # time sent, timezone should always be UTC
     time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
-    # the message text if not control
+    # the plain-text message text if not control
     text = Column(String, nullable=True)
 
     # the new host request status if the message type is host_request_status_changed
@@ -702,28 +672,118 @@ class HostRequest(Base):
     from_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     to_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
 
-    # dates as "YYYY-MM-DD", in the timezone of the host
-    from_date = Column(String, nullable=False)
-    to_date = Column(String, nullable=False)
+    # TODO: proper timezone handling
+    timezone = "Etc/UTC"
+
+    # dates in the timezone above
+    from_date = Column(Date, nullable=False)
+    to_date = Column(Date, nullable=False)
+
+    # timezone aware start and end times of the request, can be compared to now()
+    start_time = column_property(date_in_timezone(from_date, timezone))
+    end_time = column_property(date_in_timezone(to_date, timezone) + text("interval '1 days'"))
 
     status = Column(Enum(HostRequestStatus), nullable=False)
 
     to_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
     from_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
 
+    start_time_to_write_reference = column_property(date_in_timezone(to_date, timezone))
+    end_time_to_write_reference = column_property(date_in_timezone(to_date, timezone) + text("interval '14 days'"))
+
     from_user = relationship("User", backref="host_requests_sent", foreign_keys="HostRequest.from_user_id")
     to_user = relationship("User", backref="host_requests_received", foreign_keys="HostRequest.to_user_id")
     conversation = relationship("Conversation")
+
+    @hybrid_property
+    def can_write_reference(self):
+        return (
+            (self.status == HostRequestStatus.confirmed)
+            & (now() >= self.start_time_to_write_reference)
+            & (now() <= self.end_time_to_write_reference)
+        )
+
+    @can_write_reference.expression
+    def can_write_reference(cls):
+        return (
+            (cls.status == HostRequestStatus.confirmed)
+            & (func.now() >= cls.start_time_to_write_reference)
+            & (func.now() <= cls.end_time_to_write_reference)
+        )
 
     def __repr__(self):
         return f"HostRequest(id={self.id}, from_user_id={self.from_user_id}, to_user_id={self.to_user_id}...)"
 
 
+class ReferenceType(enum.Enum):
+    friend = enum.auto()
+    surfed = enum.auto()  # The "from" user surfed with the "to" user
+    hosted = enum.auto()  # The "from" user hosted the "to" user
+
+
+class Reference(Base):
+    """
+    Reference from one user to another
+    """
+
+    __tablename__ = "references"
+
+    id = Column(BigInteger, primary_key=True)
+    # timezone should always be UTC
+    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    from_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    to_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+
+    reference_type = Column(Enum(ReferenceType), nullable=False)
+
+    host_request_id = Column(ForeignKey("host_requests.id"), nullable=True)
+
+    text = Column(String, nullable=True)  # plain text
+
+    rating = Column(Float, nullable=False)
+    was_appropriate = Column(Boolean, nullable=False)
+
+    from_user = relationship("User", backref="references_from", foreign_keys="Reference.from_user_id")
+    to_user = relationship("User", backref="references_to", foreign_keys="Reference.to_user_id")
+
+    host_request = relationship("HostRequest", backref="references")
+
+    __table_args__ = (
+        # Rating must be between 0 and 1, inclusive
+        CheckConstraint(
+            "rating BETWEEN 0 AND 1",
+            name="rating_between_0_and_1",
+        ),
+        # Has a host_request_id iff it's not a friend reference
+        CheckConstraint(
+            "(host_request_id IS NULL AND reference_type = 'friend') OR (host_request_id IS NOT NULL AND reference_type != 'friend')",
+            name="host_request_id_xor_friend_reference",
+        ),
+        # Each user can leave at most one friend reference to another user
+        Index(
+            "ix_references_unique_friend_reference",
+            from_user_id,
+            to_user_id,
+            reference_type,
+            unique=True,
+            postgresql_where=(reference_type == ReferenceType.friend),
+        ),
+        # Each user can leave at most one reference to another user for each stay
+        Index(
+            "ix_references_unique_per_host_request",
+            from_user_id,
+            to_user_id,
+            host_request_id,
+            unique=True,
+            postgresql_where=(host_request_id != None),
+        ),
+    )
+
+
 class InitiatedUpload(Base):
     """
     Started downloads, not necessarily complete yet.
-
-    For now we only have avatar images, so it's specific to that.
     """
 
     __tablename__ = "initiated_uploads"
@@ -734,13 +794,42 @@ class InitiatedUpload(Base):
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     expiry = Column(DateTime(timezone=True), nullable=False)
 
-    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    initiator_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
 
-    user = relationship("User")
+    initiator_user = relationship("User")
 
     @hybrid_property
     def is_valid(self):
         return (self.created <= func.now()) & (self.expiry >= func.now())
+
+
+class Upload(Base):
+    """
+    Completed uploads.
+    """
+
+    __tablename__ = "uploads"
+    key = Column(String, primary_key=True)
+
+    filename = Column(String, nullable=False)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    creator_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+
+    # photo credit, etc
+    credit = Column(String, nullable=True)
+
+    creator_user = relationship("User", backref="uploads", foreign_keys="Upload.creator_user_id")
+
+    def _url(self, size):
+        return f"{config['MEDIA_SERVER_BASE_URL']}/img/{size}/{self.filename}"
+
+    @property
+    def thumbnail_url(self):
+        return self._url("thumbnail")
+
+    @property
+    def full_url(self):
+        return self._url("full")
 
 
 communities_seq = Sequence("communities_seq")
@@ -755,7 +844,7 @@ class Node(Base):
 
     __tablename__ = "nodes"
 
-    id = Column(BigInteger, communities_seq, primary_key=True)
+    id = Column(BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value())
 
     # name and description come from official cluster
     parent_node_id = Column(ForeignKey("nodes.id"), nullable=True, index=True)
@@ -780,7 +869,7 @@ class Cluster(Base):
 
     __tablename__ = "clusters"
 
-    id = Column(BigInteger, communities_seq, primary_key=True)
+    id = Column(BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value())
     parent_node_id = Column(ForeignKey("nodes.id"), nullable=False, index=True)
     name = Column(String, nullable=False)
     # short description
@@ -916,7 +1005,7 @@ class Page(Base):
 
     __tablename__ = "pages"
 
-    id = Column(BigInteger, communities_seq, primary_key=True)
+    id = Column(BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value())
 
     parent_node_id = Column(ForeignKey("nodes.id"), nullable=False, index=True)
     type = Column(Enum(PageType), nullable=False)
@@ -958,6 +1047,9 @@ class Page(Base):
         ),
     )
 
+    def __repr__(self):
+        return f"Page({self.id=})"
+
 
 class PageVersion(Base):
     """
@@ -971,7 +1063,8 @@ class PageVersion(Base):
     page_id = Column(ForeignKey("pages.id"), nullable=False, index=True)
     editor_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     title = Column(String, nullable=False)
-    content = Column(String, nullable=False)
+    content = Column(String, nullable=False)  # CommonMark without images
+    photo_key = Column(ForeignKey("uploads.key"), nullable=True)
     # the human-readable address
     address = Column(String, nullable=True)
     geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
@@ -981,6 +1074,7 @@ class PageVersion(Base):
 
     page = relationship("Page", backref="versions", order_by="PageVersion.id")
     editor_user = relationship("User", backref="edited_pages")
+    photo = relationship("Upload")
 
     @property
     def coordinates(self):
@@ -989,6 +1083,9 @@ class PageVersion(Base):
             return get_coordinates(self.geom)
         else:
             return None
+
+    def __repr__(self):
+        return f"PageVersion({self.id=}, {self.page_id=})"
 
 
 class ClusterEventAssociation(Base):
@@ -1015,10 +1112,10 @@ class Event(Base):
 
     __tablename__ = "events"
 
-    id = Column(BigInteger, communities_seq, primary_key=True)
+    id = Column(BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value())
 
     title = Column(String, nullable=False)
-    content = Column(String, nullable=False)
+    content = Column(String, nullable=False)  # CommonMark without images
     thread_id = Column(ForeignKey("threads.id"), nullable=False, unique=True)
     geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=False)
     address = Column(String, nullable=False)
@@ -1078,7 +1175,7 @@ class Discussion(Base):
 
     __tablename__ = "discussions"
 
-    id = Column(BigInteger, communities_seq, primary_key=True)
+    id = Column(BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value())
 
     title = Column(String, nullable=False)
     content = Column(String, nullable=False)
@@ -1141,7 +1238,7 @@ class Comment(Base):
 
     thread_id = Column(ForeignKey("threads.id"), nullable=False, index=True)
     author_user_id = Column(ForeignKey("users.id"), nullable=False)
-    content = Column(String, nullable=False)
+    content = Column(String, nullable=False)  # CommonMark without images
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     deleted = Column(DateTime(timezone=True), nullable=True)
 
@@ -1159,7 +1256,7 @@ class Reply(Base):
 
     comment_id = Column(ForeignKey("comments.id"), nullable=False, index=True)
     author_user_id = Column(ForeignKey("users.id"), nullable=False)
-    content = Column(String, nullable=False)
+    content = Column(String, nullable=False)  # CommonMark without images
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     deleted = Column(DateTime(timezone=True), nullable=True)
 
@@ -1173,6 +1270,8 @@ class BackgroundJobType(enum.Enum):
     purge_login_tokens = 2
     # payload: google.protobuf.Empty
     purge_signup_tokens = 3
+    # payload: google.protobuf.Empty
+    send_message_notifications = 4
 
 
 class BackgroundJobState(enum.Enum):

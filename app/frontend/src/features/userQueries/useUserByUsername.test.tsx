@@ -1,10 +1,10 @@
 import { renderHook } from "@testing-library/react-hooks";
+import useUserByUsername from "features/userQueries/useUserByUsername";
 import React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
-
-import { service } from "../../service";
-import { getUser } from "../../test/serviceMockDefaults";
-import useUserByUsername from "./useUserByUsername";
+import { service } from "service";
+import users from "test/fixtures/users.json";
+import { getUser } from "test/serviceMockDefaults";
 
 const getUserMock = service.user.getUser as jest.Mock;
 
@@ -37,11 +37,11 @@ describe("while loading", () => {
     });
 
     expect(result.current).toEqual({
-      isLoading: true,
-      isFetching: true,
-      isError: false,
-      error: "",
       data: undefined,
+      error: "",
+      isError: false,
+      isFetching: true,
+      isLoading: true,
     });
   });
 });
@@ -61,16 +61,11 @@ describe("when user has loaded", () => {
     await waitFor(() => !result.current.isLoading);
 
     expect(result.current).toEqual({
-      isLoading: false,
-      isFetching: false,
-      isError: false,
+      data: users[1],
       error: "",
-      data: {
-        name: "Funny Dog",
-        userId: 2,
-        username: "funnydog",
-        avatarUrl: "",
-      },
+      isError: false,
+      isFetching: false,
+      isLoading: false,
     });
     expect(getUserMock).toHaveBeenCalledTimes(2);
   });
@@ -87,11 +82,11 @@ describe("when user has loaded", () => {
     await waitForNextUpdate();
 
     expect(result.current).toMatchObject({
-      isLoading: false,
-      isFetching: false,
-      isError: true,
-      error: "Error fetching user funnydog",
       data: undefined,
+      error: "Error fetching user funnydog",
+      isError: true,
+      isFetching: false,
+      isLoading: false,
     });
   });
 });
@@ -106,14 +101,14 @@ describe("cached data", () => {
   beforeEach(async () => {
     sharedClient.clear();
     sharedClient.setQueryData(["username2Id", "funnydog"], {
-      username: "funnydog",
       userId: 2,
+      username: "funnydog",
     });
     sharedClient.setQueryData(["user", 2], {
+      avatarUrl: "https://loremflickr.com/200/200?user2",
       name: "Funny Dog",
       userId: 2,
       username: "funnydog",
-      avatarUrl: "funnydog.jpg",
     });
     await sharedClient.refetchQueries();
   });
@@ -147,16 +142,16 @@ describe("cached data", () => {
     await waitForNextUpdate();
 
     expect(result.current).toMatchObject({
-      isLoading: false,
-      isFetching: false,
-      isError: true,
-      error: "Error fetching user data",
       data: {
+        avatarUrl: "https://loremflickr.com/200/200?user2",
         name: "Funny Dog",
         userId: 2,
         username: "funnydog",
-        avatarUrl: "funnydog.jpg",
       },
+      error: "Error fetching user data",
+      isError: true,
+      isFetching: false,
+      isLoading: false,
     });
   });
 });

@@ -1,10 +1,10 @@
 import { act, renderHook } from "@testing-library/react-hooks";
+import useUsers, { useUser } from "features/userQueries/useUsers";
 import React, { useState } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
-
-import { service } from "../../service";
-import { getUser } from "../../test/serviceMockDefaults";
-import useUsers, { useUser } from "./useUsers";
+import { service } from "service";
+import users from "test/fixtures/users.json";
+import { getUser } from "test/serviceMockDefaults";
 
 const getUserMock = service.user.getUser as jest.Mock;
 
@@ -37,11 +37,11 @@ describe("while queries are loading", () => {
     });
 
     expect(result.current).toEqual({
-      isLoading: true,
-      isFetching: true,
-      isError: false,
-      errors: [],
       data: undefined,
+      errors: [],
+      isError: false,
+      isFetching: true,
+      isLoading: true,
     });
   });
 });
@@ -55,16 +55,11 @@ describe("useUser (singular)", () => {
 
     expect(getUserMock).toHaveBeenCalledTimes(1);
     expect(result.current).toEqual({
-      isLoading: false,
-      isFetching: false,
-      isError: false,
+      data: users[0],
       error: "",
-      data: {
-        name: "Funny Cat current User",
-        userId: 1,
-        username: "funnycat",
-        avatarUrl: "funnycat.jpg",
-      },
+      isError: false,
+      isFetching: false,
+      isLoading: false,
     });
   });
 
@@ -76,11 +71,11 @@ describe("useUser (singular)", () => {
 
     expect(getUserMock).not.toHaveBeenCalled();
     expect(result.current).toEqual({
-      isLoading: false,
-      isFetching: false,
-      isError: false,
-      error: "",
       data: undefined,
+      error: "",
+      isError: false,
+      isFetching: false,
+      isLoading: false,
     });
   });
 });
@@ -93,11 +88,11 @@ describe("when useUsers has loaded", () => {
     await waitFor(() => !result.current.isLoading);
     expect(getUserMock).not.toHaveBeenCalled();
     expect(result.current).toEqual({
-      isLoading: false,
-      isFetching: false,
-      isError: false,
-      errors: [],
       data: new Map(),
+      errors: [],
+      isError: false,
+      isFetching: false,
+      isLoading: false,
     });
   });
 
@@ -112,39 +107,15 @@ describe("when useUsers has loaded", () => {
 
     expect(getUserMock).toHaveBeenCalledTimes(3);
     expect(result.current).toEqual({
-      isLoading: false,
-      isFetching: false,
-      isError: false,
-      errors: [],
       data: new Map([
-        [
-          1,
-          {
-            name: "Funny Cat current User",
-            userId: 1,
-            username: "funnycat",
-            avatarUrl: "funnycat.jpg",
-          },
-        ],
-        [
-          2,
-          {
-            name: "Funny Dog",
-            userId: 2,
-            username: "funnydog",
-            avatarUrl: "",
-          },
-        ],
-        [
-          3,
-          {
-            name: "Funny Kid",
-            userId: 3,
-            username: "funnykid",
-            avatarUrl: "funnykid.jpg",
-          },
-        ],
+        [1, users[0]],
+        [2, users[1]],
+        [3, users[2]],
       ]),
+      errors: [],
+      isError: false,
+      isFetching: false,
+      isLoading: false,
     });
   });
 
@@ -164,31 +135,15 @@ describe("when useUsers has loaded", () => {
     await waitForNextUpdate();
 
     expect(result.current).toMatchObject({
-      isLoading: false,
-      isFetching: false,
-      isError: true,
-      errors: ["Error fetching user 2"],
       data: new Map([
-        [
-          1,
-          {
-            name: "Funny Cat current User",
-            userId: 1,
-            username: "funnycat",
-            avatarUrl: "funnycat.jpg",
-          },
-        ],
+        [1, users[0]],
         [2, undefined],
-        [
-          3,
-          {
-            name: "Funny Kid",
-            userId: 3,
-            username: "funnykid",
-            avatarUrl: "funnykid.jpg",
-          },
-        ],
+        [3, users[2]],
       ]),
+      errors: ["Error fetching user 2"],
+      isError: true,
+      isFetching: false,
+      isLoading: false,
     });
   });
 
@@ -204,19 +159,19 @@ describe("when useUsers has loaded", () => {
     await waitForNextUpdate();
 
     expect(result.current).toMatchObject({
-      isLoading: false,
-      isFetching: false,
-      isError: true,
-      errors: [
-        "Error fetching user data",
-        "Error fetching user data",
-        "Error fetching user data",
-      ],
       data: new Map([
         [1, undefined],
         [2, undefined],
         [3, undefined],
       ]),
+      errors: [
+        "Error fetching user data",
+        "Error fetching user data",
+        "Error fetching user data",
+      ],
+      isError: true,
+      isFetching: false,
+      isLoading: false,
     });
   });
 });
@@ -230,24 +185,9 @@ describe("cached data", () => {
   );
   beforeEach(async () => {
     sharedClient.clear();
-    sharedClient.setQueryData(["user", 1], {
-      name: "Funny Cat current User",
-      userId: 1,
-      username: "funnycat",
-      avatarUrl: "funnycat.jpg",
-    });
-    sharedClient.setQueryData(["user", 2], {
-      name: "Funny Dog",
-      userId: 2,
-      username: "funnydog",
-      avatarUrl: "funnydog.jpg",
-    });
-    sharedClient.setQueryData(["user", 3], {
-      name: "Funny Kid",
-      userId: 3,
-      username: "funnykid",
-      avatarUrl: "funnykid.jpg",
-    });
+    sharedClient.setQueryData(["user", 1], users[0]);
+    sharedClient.setQueryData(["user", 2], users[1]);
+    sharedClient.setQueryData(["user", 3], users[2]);
     await sharedClient.refetchQueries();
   });
 
@@ -279,43 +219,19 @@ describe("cached data", () => {
     await waitForNextUpdate();
 
     expect(result.current).toMatchObject({
-      isLoading: false,
-      isFetching: false,
-      isError: true,
+      data: new Map([
+        [1, users[0]],
+        [2, users[1]],
+        [3, users[2]],
+      ]),
       errors: [
         "Error fetching user data",
         "Error fetching user data",
         "Error fetching user data",
       ],
-      data: new Map([
-        [
-          1,
-          {
-            name: "Funny Cat current User",
-            userId: 1,
-            username: "funnycat",
-            avatarUrl: "funnycat.jpg",
-          },
-        ],
-        [
-          2,
-          {
-            name: "Funny Dog",
-            userId: 2,
-            username: "funnydog",
-            avatarUrl: "funnydog.jpg",
-          },
-        ],
-        [
-          3,
-          {
-            name: "Funny Kid",
-            userId: 3,
-            username: "funnykid",
-            avatarUrl: "funnykid.jpg",
-          },
-        ],
-      ]),
+      isError: true,
+      isFetching: false,
+      isLoading: false,
     });
   });
 
@@ -353,7 +269,7 @@ describe("cached data", () => {
       () => {
         const [ids, setIds] = useState([1, 2, 3]);
         const users = useUsers(ids, true);
-        return { users, setIds };
+        return { setIds, users };
       },
       {
         wrapper: sharedClientWrapper,

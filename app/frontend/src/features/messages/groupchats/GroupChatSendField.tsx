@@ -1,4 +1,3 @@
-import { Box } from "@material-ui/core";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
 import React from "react";
@@ -35,15 +34,16 @@ export default function GroupChatSendField({
   });
 
   return (
-    <Box className={classes.root}>
+    <div>
       <form onSubmit={onSubmit} className={classes.container}>
         <TextField
+          id="group-chat-message-field"
           label="Message"
           name="text"
           defaultValue={""}
           inputRef={register}
           rows={4}
-          rowsMax={6}
+          rowsMax={4}
           multiline
           fullWidth
         />
@@ -59,6 +59,6 @@ export default function GroupChatSendField({
           Send
         </Button>
       </form>
-    </Box>
+    </div>
   );
 }

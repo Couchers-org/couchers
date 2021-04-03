@@ -77,14 +77,13 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-marlies.jpg" alt="Headshot of Marlies">
+                      <img class="is-rounded" src="/img/head-emily.jpg" alt="Headshot of Emily">
                     </figure>
                   </div>
                   <div class="media-content">
-                    <p class="title is-4">Marlies Iserlohe</p>
-                    <p class="subtitle is-6 role">Community Outreach</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Copenhagen, Denmark</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/in/marlies-iserlohe-90282a89">Marlies Iserlohe</a></p>
+                    <p class="title is-4">Emily Damgali</p>
+                    <p class="subtitle is-6 role">Community Engagement</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Kaitaia, New Zealand</p>
                   </div>
                 </div>
               </div>
@@ -121,24 +120,6 @@
                     <p class="title is-4">Lucas Levin</p>
                     <p class="subtitle is-6 role">Head of Frontend</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>London, United Kingdom</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="column is-one-third">
-            <div class="card">
-              <div class="card-content">
-                <div class="media">
-                  <div class="media-left">
-                    <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-emily.jpg" alt="Headshot of Emily">
-                    </figure>
-                  </div>
-                  <div class="media-content">
-                    <p class="title is-4">Emily Damgali</p>
-                    <p class="subtitle is-6 role">Community Engagement</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Kaitaia, New Zealand</p>
                   </div>
                 </div>
               </div>
@@ -241,6 +222,24 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-omer.jpg" alt="Headshot of Omer">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Omer Baddour</p>
+                    <p class="subtitle is-6 role">Backend Developer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>New York City, USA</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
                       <img class="is-rounded" src="/img/head-val.jpg" alt="Headshot of Val">
                     </figure>
                   </div>
@@ -278,6 +277,25 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-andrea.jpg" alt="Headshot of Andrea">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Andrea Wu</p>
+                    <p class="subtitle is-6 role">Frontend Developer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>USA</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="http://www.linkedin.com/in/andreaowu">andreaowu</a></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
                       <img class="is-rounded" src="/img/head-julia.jpg" alt="Headshot of Julia">
                     </figure>
                   </div>
@@ -285,6 +303,25 @@
                     <p class="title is-4">Julia Evteeva</p>
                     <p class="subtitle is-6 role">UX Designer</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Vancouver, Canada</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-krzysztof.jpg" alt="Headshot of Krzysztof">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Krzysztof Kosecki</p>
+                    <p class="subtitle is-6 role">Frontend Developer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Kraków, Poland</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/in/krzysztof-kosecki">krzysztof-kosecki</a></p>
                   </div>
                 </div>
               </div>
@@ -448,6 +485,25 @@
                     <p class="subtitle is-6 role">Backend Developer</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Melbourne, Australia</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-web"></i></span><a href="https://www.lesinskis.com/">lesinskis.com</a></p>                    
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-marlies.jpg" alt="Headshot of Marlies">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Marlies Iserlohe</p>
+                    <p class="subtitle is-6 role">Community Outreach</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Copenhagen, Denmark</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/in/marlies-iserlohe-90282a89">Marlies Iserlohe</a></p>
                   </div>
                 </div>
               </div>

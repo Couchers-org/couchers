@@ -1,19 +1,31 @@
 import grpc
+from sqlalchemy.sql import func
 
 from couchers import errors
-from couchers.db import get_parent_node_at_location, session_scope
-from couchers.models import Cluster, Node, Page, PageType, PageVersion, Thread, User
+from couchers.db import (
+    can_moderate_at,
+    can_moderate_node,
+    get_node_parents_recursively,
+    get_parent_node_at_location,
+    session_scope,
+)
+from couchers.models import (
+    Cluster,
+    ClusterRole,
+    ClusterSubscription,
+    Node,
+    Page,
+    PageType,
+    PageVersion,
+    Thread,
+    Upload,
+    User,
+)
 from couchers.servicers.threads import pack_thread_id
 from couchers.utils import Timestamp_from_datetime, create_coordinate, remove_duplicates_retain_order
 from pb import pages_pb2, pages_pb2_grpc
 
-
-def _check_update_permission(page: Page, user_id):
-    if page.owner_user:
-        return page.owner_user_id == user_id
-    # otherwise owned by a cluster
-    return page.owner_cluster.admins.filter(User.id == user_id).one_or_none() is not None
-
+MAX_PAGINATION_LENGTH = 25
 
 pagetype2sql = {
     pages_pb2.PAGE_TYPE_PLACE: PageType.place,
@@ -26,6 +38,36 @@ pagetype2api = {
     PageType.guide: pages_pb2.PAGE_TYPE_GUIDE,
     PageType.main_page: pages_pb2.PAGE_TYPE_MAIN_PAGE,
 }
+
+
+def _is_page_owner(page: Page, user_id):
+    """
+    Checks whether the user can act as an owner of the page
+    """
+    if page.owner_user:
+        return page.owner_user_id == user_id
+    # otherwise owned by a cluster
+    return page.owner_cluster.admins.filter(User.id == user_id).one_or_none() is not None
+
+
+def _can_moderate_page(page: Page, user_id):
+    """
+    Checks if the user is allowed to moderate this page
+    """
+    # checks if either the page is in the exclusive moderation area of a node
+    with session_scope() as session:
+        latest_version = page.versions[-1]
+
+        # if the page has a location, we firstly check if we are the moderator of any node that contains this page
+        if latest_version.geom is not None and can_moderate_at(session, user_id, latest_version.geom):
+            return True
+
+        # if the page is owned by a cluster, then any moderator of that cluster can moderate this page
+        if page.owner_cluster is not None and can_moderate_node(session, user_id, page.owner_cluster.parent_node_id):
+            return True
+
+        # finally check if the user can moderate the parent node of the cluster
+        return can_moderate_node(session, user_id, page.parent_node_id)
 
 
 def page_to_pb(page: Page, user_id):
@@ -54,6 +96,7 @@ def page_to_pb(page: Page, user_id):
         thread_id=pack_thread_id(page.thread_id, 0),
         title=current_version.title,
         content=current_version.content,
+        photo_url=current_version.photo.full_url if current_version.photo_key else None,
         address=current_version.address,
         location=pages_pb2.Coordinate(
             lat=current_version.coordinates[0],
@@ -62,7 +105,8 @@ def page_to_pb(page: Page, user_id):
         if current_version.coordinates
         else None,
         editor_user_ids=remove_duplicates_retain_order([version.editor_user_id for version in page.versions]),
-        can_edit=_check_update_permission(page, user_id),
+        can_edit=_is_page_owner(page, user_id),
+        can_moderate=_can_moderate_page(page, user_id),
     )
 
 
@@ -76,10 +120,15 @@ class Pages(pages_pb2_grpc.PagesServicer):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_ADDRESS)
         if not request.HasField("location"):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_LOCATION)
+        if request.location.lat == 0 and request.location.lng == 0:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
 
         geom = create_coordinate(request.location.lat, request.location.lng)
 
         with session_scope() as session:
+            if request.photo_key and not session.query(Upload).filter(Upload.key == request.photo_key).one_or_none():
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.PHOTO_NOT_FOUND)
+
             page = Page(
                 parent_node=get_parent_node_at_location(session, geom),
                 type=PageType.place,
@@ -94,6 +143,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
                 editor_user_id=context.user_id,
                 title=request.title,
                 content=request.content,
+                photo_key=request.photo_key if request.photo_key else None,
                 address=request.address,
                 geom=geom,
             )
@@ -108,6 +158,8 @@ class Pages(pages_pb2_grpc.PagesServicer):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_CONTENT)
         if request.address and request.HasField("location"):
             address = request.address
+            if request.location.lat == 0 and request.location.lng == 0:
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
             geom = create_coordinate(request.location.lat, request.location.lng)
         elif not request.address and not request.HasField("location"):
             address = None
@@ -125,6 +177,9 @@ class Pages(pages_pb2_grpc.PagesServicer):
             if not parent_node:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.COMMUNITY_NOT_FOUND)
 
+            if request.photo_key and not session.query(Upload).filter(Upload.key == request.photo_key).one_or_none():
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.PHOTO_NOT_FOUND)
+
             page = Page(
                 parent_node=parent_node,
                 type=PageType.guide,
@@ -139,6 +194,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
                 editor_user_id=context.user_id,
                 title=request.title,
                 content=request.content,
+                photo_key=request.photo_key if request.photo_key else None,
                 address=address,
                 geom=geom,
             )
@@ -160,7 +216,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
             if not page:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.PAGE_NOT_FOUND)
 
-            if not _check_update_permission(page, context.user_id):
+            if not _is_page_owner(page, context.user_id) and not _can_moderate_page(page, context.user_id):
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.PAGE_UPDATE_PERMISSION_DENIED)
 
             current_version = page.versions[-1]
@@ -170,6 +226,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
                 editor_user_id=context.user_id,
                 title=current_version.title,
                 content=current_version.content,
+                photo_key=current_version.photo_key,
                 address=current_version.address,
                 geom=current_version.geom,
             )
@@ -183,6 +240,14 @@ class Pages(pages_pb2_grpc.PagesServicer):
                 if not request.content.value:
                     context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_CONTENT)
                 page_version.content = request.content.value
+
+            if request.HasField("photo_key"):
+                if not request.photo_key.value:
+                    page_version.photo_key = None
+                else:
+                    if not session.query(Upload).filter(Upload.key == request.photo_key.value).one_or_none():
+                        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.PHOTO_NOT_FOUND)
+                    page_version.photo_key = request.photo_key.value
 
             if request.HasField("address"):
                 if not request.address.value:
@@ -207,7 +272,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
             if not page:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.PAGE_NOT_FOUND)
 
-            if not page.owner_user_id == context.user_id:
+            if not _is_page_owner(page, context.user_id) and not _can_moderate_page(page, context.user_id):
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.PAGE_TRANSFER_PERMISSION_DENIED)
 
             if request.WhichOneof("new_owner") == "new_owner_group_id":
@@ -236,3 +301,41 @@ class Pages(pages_pb2_grpc.PagesServicer):
 
             session.commit()
             return page_to_pb(page, context.user_id)
+
+    def ListUserPlaces(self, request, context):
+        with session_scope() as session:
+            page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+            next_page_id = int(request.page_token) if request.page_token else 0
+            user_id = request.user_id or context.user_id
+            places = (
+                session.query(Page)
+                .filter(Page.owner_user_id == user_id)
+                .filter(Page.type == PageType.place)
+                .filter(Page.id >= next_page_id)
+                .order_by(Page.id)
+                .limit(page_size + 1)
+                .all()
+            )
+            return pages_pb2.ListUserPlacesRes(
+                places=[page_to_pb(page, context.user_id) for page in places[:page_size]],
+                next_page_token=str(places[-1].id) if len(places) > page_size else None,
+            )
+
+    def ListUserGuides(self, request, context):
+        with session_scope() as session:
+            page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+            next_page_id = int(request.page_token) if request.page_token else 0
+            user_id = request.user_id or context.user_id
+            guides = (
+                session.query(Page)
+                .filter(Page.owner_user_id == user_id)
+                .filter(Page.type == PageType.guide)
+                .filter(Page.id >= next_page_id)
+                .order_by(Page.id)
+                .limit(page_size + 1)
+                .all()
+            )
+            return pages_pb2.ListUserGuidesRes(
+                guides=[page_to_pb(page, context.user_id) for page in guides[:page_size]],
+                next_page_token=str(guides[-1].id) if len(guides) > page_size else None,
+            )

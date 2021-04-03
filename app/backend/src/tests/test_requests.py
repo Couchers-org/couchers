@@ -6,7 +6,7 @@ import pytest
 from couchers import errors
 from couchers.db import session_scope
 from couchers.models import Message, MessageType
-from couchers.utils import now
+from couchers.utils import today
 from pb import api_pb2, conversations_pb2, requests_pb2
 from tests.test_fixtures import api_session, db, generate_user, requests_session, testconfig
 
@@ -19,10 +19,10 @@ def _(testconfig):
 def test_create_request(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
-    today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
-    today_plus_3 = (now() + timedelta(days=3)).strftime("%Y-%m-%d")
-    today_minus_2 = (now() - timedelta(days=2)).strftime("%Y-%m-%d")
-    today_minus_3 = (now() - timedelta(days=3)).strftime("%Y-%m-%d")
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    today_minus_2 = (today() - timedelta(days=2)).isoformat()
+    today_minus_3 = (today() - timedelta(days=3)).isoformat()
     with requests_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
@@ -54,11 +54,20 @@ def test_create_request(db):
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
-                    to_user_id=user2.id, from_date=today_minus_3, to_date=today_minus_2, text="Test request"
+                    to_user_id=user2.id, from_date=today_minus_3, to_date=today_plus_2, text="Test request"
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.DATE_TO_BEFORE_TODAY
+        assert e.value.details() == errors.DATE_FROM_BEFORE_TODAY
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    to_user_id=user2.id, from_date=today_plus_2, to_date=today_minus_2, text="Test request"
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.DATE_FROM_AFTER_TO
 
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
@@ -81,8 +90,8 @@ def test_create_request(db):
             == "Test request"
         )
 
-    today = now().date()
-    today_plus_one_year = today.replace(year=today.year + 1)
+    today_ = today()
+    today_plus_one_year = today_.replace(year=today_.year + 1)
     today_plus_one_year_plus_2 = (today_plus_one_year + timedelta(days=2)).isoformat()
     today_plus_one_year_plus_3 = (today_plus_one_year + timedelta(days=3)).isoformat()
     with pytest.raises(grpc.RpcError) as e:
@@ -123,8 +132,8 @@ def test_get_host_request(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
-    today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
-    today_plus_3 = (now() + timedelta(days=3)).strftime("%Y-%m-%d")
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
@@ -148,8 +157,8 @@ def test_list_requests(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
-    today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
-    today_plus_3 = (now() + timedelta(days=3)).strftime("%Y-%m-%d")
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
     with requests_session(token1) as api:
         host_request_1 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
@@ -209,8 +218,8 @@ def test_list_requests(db):
 def test_list_host_requests_active_filter(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
-    today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
-    today_plus_3 = (now() + timedelta(days=3)).strftime("%Y-%m-%d")
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
 
     with requests_session(token1) as api:
         request_id = api.CreateHostRequest(
@@ -235,8 +244,8 @@ def test_respond_host_requests(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
-    today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
-    today_plus_3 = (now() + timedelta(days=3)).strftime("%Y-%m-%d")
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
 
     with requests_session(token1) as api:
         request_id = api.CreateHostRequest(
@@ -346,8 +355,8 @@ def test_respond_host_requests(db):
 def test_get_host_request_messages(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
-    today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
-    today_plus_3 = (now() + timedelta(days=3)).strftime("%Y-%m-%d")
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
     with requests_session(token1) as api:
         res = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
@@ -412,8 +421,8 @@ def test_send_message(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
-    today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
-    today_plus_3 = (now() + timedelta(days=3)).strftime("%Y-%m-%d")
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
@@ -481,12 +490,9 @@ def test_send_message(db):
                 host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED
             )
         )
-        with pytest.raises(grpc.RpcError) as e:
-            api.SendHostRequestMessage(
-                requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 3")
-            )
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == errors.HOST_REQUEST_CLOSED
+        api.SendHostRequestMessage(
+            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 3")
+        )
 
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
@@ -505,8 +511,8 @@ def test_get_updates(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
-    today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
-    today_plus_3 = (now() + timedelta(days=3)).strftime("%Y-%m-%d")
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
@@ -580,8 +586,8 @@ def test_mark_last_seen(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
-    today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
-    today_plus_3 = (now() + timedelta(days=3)).strftime("%Y-%m-%d")
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(

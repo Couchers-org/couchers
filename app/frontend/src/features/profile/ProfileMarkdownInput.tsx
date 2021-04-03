@@ -1,8 +1,7 @@
 import { Box, Button, Grid, Link, makeStyles } from "@material-ui/core";
+import Markdown from "components/Markdown";
+import ProfileTextInput from "features/profile/ProfileTextInput";
 import React, { useState } from "react";
-
-import Markdown from "../../components/Markdown";
-import ProfileTextInput from "./ProfileTextInput";
 
 const useStyles = makeStyles({
   reverseAlignment: {
@@ -11,12 +10,14 @@ const useStyles = makeStyles({
 });
 
 interface ProfileMarkdownInputProps {
+  id: string;
   onChange: (value: string) => void;
   value: string;
   label: string;
 }
 
 export default function ProfileMarkdownInput({
+  id,
   onChange,
   value,
   label,
@@ -28,6 +29,7 @@ export default function ProfileMarkdownInput({
       <Grid container spacing={2}>
         <Grid item xs={12} md={preview ? 6 : 12}>
           <ProfileTextInput
+            id={id}
             label={label}
             rowsMax={5}
             multiline

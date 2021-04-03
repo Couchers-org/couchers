@@ -1,6 +1,5 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import wrappers from "google-protobuf/google/protobuf/wrappers_pb";
-
 import {
   GetUserReq,
   HostingStatus,
@@ -9,16 +8,13 @@ import {
   NullableUInt32Value,
   PingReq,
   RepeatedStringValue,
+  ReportReq,
   UpdateProfileReq,
   User,
-} from "../pb/api_pb";
-import {
-  AuthReq,
-  CompleteSignupReq,
-  CompleteTokenLoginReq,
-} from "../pb/auth_pb";
-import { ProtoToJsTypes } from "../utils/types";
-import client from "./client";
+} from "pb/api_pb";
+import { AuthReq, CompleteSignupReq, CompleteTokenLoginReq } from "pb/auth_pb";
+import client from "service/client";
+import { ProtoToJsTypes } from "utils/types";
 
 type RequiredUpdateProfileReq = Required<UpdateProfileReq.AsObject>;
 type ProfileFormData = {
@@ -35,7 +31,6 @@ export type UpdateUserProfileData = Pick<
   | "lat"
   | "lng"
   | "radius"
-  | "gender"
   | "pronouns"
   | "occupation"
   | "education"
@@ -49,11 +44,12 @@ export type UpdateUserProfileData = Pick<
   | "countriesVisited"
   | "countriesLived"
   | "additionalInformation"
+  | "avatarKey"
 >;
 
 export type HostingPreferenceData = Omit<
   ProfileFormData,
-  keyof UpdateUserProfileData
+  keyof UpdateUserProfileData | "gender"
 >;
 
 export type SignupArguments = {
@@ -61,9 +57,15 @@ export type SignupArguments = {
   username: string;
   name: string;
   city: string;
+  location: {
+    lat: number;
+    lng: number;
+    radius: number;
+  };
   birthdate: string;
   gender: string;
   hostingStatus: HostingStatus;
+  acceptTOS: boolean;
 };
 
 /**
@@ -129,13 +131,15 @@ export async function updateProfile(
 ): Promise<Empty> {
   const req = new UpdateProfileReq();
 
+  const avatarKey = profile.avatarKey
+    ? new NullableStringValue().setValue(profile.avatarKey)
+    : undefined;
   const name = new wrappers.StringValue().setValue(profile.name);
   const city = new wrappers.StringValue().setValue(profile.city);
   const hometown = new NullableStringValue().setValue(profile.hometown);
   const lat = new wrappers.DoubleValue().setValue(profile.lat);
   const lng = new wrappers.DoubleValue().setValue(profile.lng);
   const radius = new wrappers.DoubleValue().setValue(profile.radius);
-  const gender = new wrappers.StringValue().setValue(profile.gender);
   const pronouns = new NullableStringValue().setValue(profile.pronouns);
   const occupation = new NullableStringValue().setValue(profile.occupation);
   const education = new NullableStringValue().setValue(profile.education);
@@ -159,13 +163,13 @@ export async function updateProfile(
   );
 
   req
+    .setAvatarKey(avatarKey)
     .setName(name)
     .setCity(city)
     .setHometown(hometown)
     .setLat(lat)
     .setLng(lng)
     .setRadius(radius)
-    .setGender(gender)
     .setPronouns(pronouns)
     .setOccupation(occupation)
     .setEducation(education)
@@ -282,18 +286,24 @@ export async function completeSignup({
   username,
   name,
   city,
+  location,
   birthdate,
   gender,
   hostingStatus,
+  acceptTOS,
 }: SignupArguments) {
   const req = new CompleteSignupReq();
   req.setSignupToken(signupToken);
   req.setUsername(username);
   req.setName(name);
-  req.setCity(city);
   req.setBirthdate(birthdate);
   req.setGender(gender);
   req.setHostingStatus(hostingStatus);
+  req.setCity(city);
+  req.setLat(location.lat);
+  req.setLng(location.lng);
+  req.setRadius(location.radius);
+  req.setAcceptTos(acceptTOS);
 
   const res = await client.auth.completeSignup(req);
   const jailed = res.getJailed();
@@ -305,4 +315,19 @@ export async function completeSignup({
  */
 export function logout() {
   return client.auth.deauthenticate(new Empty());
+}
+
+export interface ReportUserInput {
+  description: string;
+  reason: string;
+  userId: number;
+}
+
+export function reportUser({ description, reason, userId }: ReportUserInput) {
+  const req = new ReportReq();
+  req.setDescription(description);
+  req.setReason(reason);
+  req.setReportedUserId(userId);
+
+  return client.api.report(req);
 }

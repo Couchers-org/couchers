@@ -8,12 +8,14 @@ import * as discussions from "./discussions";
 import * as groups from "./groups";
 import * as jail from "./jail";
 import * as pages from "./pages";
+import * as references from "./references";
 import * as requests from "./requests";
 import * as search from "./search";
 import * as threads from "./threads";
 import * as user from "./user";
 
 export const service = {
+  account,
   api,
   auth,
   bugs,
@@ -23,11 +25,11 @@ export const service = {
   groups,
   jail,
   pages,
+  references,
   requests,
   search,
   threads,
   user,
-  account,
 } as const;
 
 export type {

@@ -1,31 +1,34 @@
 import { makeStyles } from "@material-ui/core";
 
 const useSendFieldStyles = makeStyles((theme) => ({
-  root: {},
-  container: {
+  button: {
     [theme.breakpoints.up("md")]: {
-      display: "flex",
-      alignItems: "flex-start",
+      marginInlineStart: theme.spacing(2),
     },
+    display: "block",
+    flexShrink: 0,
+    marginInlineEnd: "auto",
+    marginInlineStart: "auto",
+    marginBottom: theme.spacing(1),
+    marginTop: theme.spacing(1),
   },
   buttonContainer: {
-    display: "flex",
-    justifyContent: "center",
-    flexWrap: "wrap",
     "& > button": {
       marginInline: theme.spacing(2),
     },
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent: "center",
   },
-  button: {
-    display: "block",
-    marginInline: "auto",
-    marginTop: theme.spacing(2),
-    flexShrink: 0,
+  container: {
     [theme.breakpoints.up("md")]: {
-      margin: 0,
-      marginTop: theme.spacing(1),
-      marginInlineStart: theme.spacing(2),
+      alignItems: "flex-start",
+      display: "flex",
     },
+  },
+  requestClosedLabel: {
+    transform: "none",
+    padding: theme.spacing(2, 2),
   },
 }));
 

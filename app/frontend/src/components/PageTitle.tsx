@@ -3,8 +3,8 @@ import React from "react";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
+    marginTop: theme.spacing(2),
   },
 }));
 

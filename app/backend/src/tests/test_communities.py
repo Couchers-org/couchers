@@ -275,6 +275,7 @@ class TestCommunities:
             assert res.main_page.title == "Main page for the World community"
             assert res.main_page.content == "There is nothing here yet..."
             assert not res.main_page.can_edit
+            assert not res.main_page.can_moderate
             assert res.main_page.editor_user_ids == [1]
             assert res.member
             assert not res.admin
@@ -319,6 +320,7 @@ class TestCommunities:
             assert res.main_page.title == "Main page for the Country 1, Region 1, City 1 community"
             assert res.main_page.content == "There is nothing here yet..."
             assert res.main_page.can_edit
+            assert res.main_page.can_moderate
             assert res.main_page.editor_user_ids == [2]
             assert res.member
             assert res.admin
@@ -353,6 +355,7 @@ class TestCommunities:
             assert res.main_page.title == "Main page for the Country 2 community"
             assert res.main_page.content == "There is nothing here yet..."
             assert not res.main_page.can_edit
+            assert not res.main_page.can_moderate
             assert res.main_page.editor_user_ids == [6]
             assert not res.member
             assert not res.admin
@@ -374,6 +377,57 @@ class TestCommunities:
                 )
             )
             assert [c.community_id for c in res.communities] == [c1r1_id, c1r2_id]
+
+    @staticmethod
+    def test_ListUserCommunities(testing_communities):
+        with session_scope() as session:
+            user2_id, token2 = get_user_id_and_token(session, "user2")
+            w_id = get_community_id(session, "World")
+            c1_id = get_community_id(session, "Country 1")
+            c1r1_id = get_community_id(session, "Country 1, Region 1")
+            c1r1c1_id = get_community_id(session, "Country 1, Region 1, City 1")
+            c1r1c2_id = get_community_id(session, "Country 1, Region 1, City 2")
+            c1r2_id = get_community_id(session, "Country 1, Region 2")
+            c1r2c1_id = get_community_id(session, "Country 1, Region 2, City 1")
+
+        # Fetch user2's communities from user2's account
+        with communities_session(token2) as api:
+            res = api.ListUserCommunities(communities_pb2.ListUserCommunitiesReq())
+            assert [c.community_id for c in res.communities] == [
+                w_id,
+                c1_id,
+                c1r1_id,
+                c1r1c1_id,
+                c1r1c2_id,
+                c1r2_id,
+                c1r2c1_id,
+            ]
+
+    @staticmethod
+    def test_ListOtherUserCommunities(testing_communities):
+        with session_scope() as session:
+            user1_id, token1 = get_user_id_and_token(session, "user1")
+            user2_id, token2 = get_user_id_and_token(session, "user2")
+            w_id = get_community_id(session, "World")
+            c1_id = get_community_id(session, "Country 1")
+            c1r1_id = get_community_id(session, "Country 1, Region 1")
+            c1r1c1_id = get_community_id(session, "Country 1, Region 1, City 1")
+            c1r1c2_id = get_community_id(session, "Country 1, Region 1, City 2")
+            c1r2_id = get_community_id(session, "Country 1, Region 2")
+            c1r2c1_id = get_community_id(session, "Country 1, Region 2, City 1")
+
+        # Fetch user2's communities from user1's account
+        with communities_session(token1) as api:
+            res = api.ListUserCommunities(communities_pb2.ListUserCommunitiesReq(user_id=user2_id))
+            assert [c.community_id for c in res.communities] == [
+                w_id,
+                c1_id,
+                c1r1_id,
+                c1r1c1_id,
+                c1r1c2_id,
+                c1r2_id,
+                c1r2c1_id,
+            ]
 
     @staticmethod
     def test_ListGroups(testing_communities):
@@ -520,32 +574,32 @@ class TestCommunities:
                 )
             )
             assert [d.title for d in res.discussions] == [
-                "Discussion title 1",
-                "Discussion title 2",
-                "Discussion title 3",
-            ]
-
-            res = api.ListDiscussions(
-                communities_pb2.ListDiscussionsReq(
-                    community_id=w_id,
-                    page_token=res.next_page_token,
-                    page_size=2,
-                )
-            )
-            assert [d.title for d in res.discussions] == [
-                "Discussion title 4",
-                "Discussion title 5",
-            ]
-
-            res = api.ListDiscussions(
-                communities_pb2.ListDiscussionsReq(
-                    community_id=w_id,
-                    page_token=res.next_page_token,
-                    page_size=2,
-                )
-            )
-            assert [d.title for d in res.discussions] == [
                 "Discussion title 6",
+                "Discussion title 5",
+                "Discussion title 4",
+            ]
+
+            res = api.ListDiscussions(
+                communities_pb2.ListDiscussionsReq(
+                    community_id=w_id,
+                    page_token=res.next_page_token,
+                    page_size=2,
+                )
+            )
+            assert [d.title for d in res.discussions] == [
+                "Discussion title 3",
+                "Discussion title 2",
+            ]
+
+            res = api.ListDiscussions(
+                communities_pb2.ListDiscussionsReq(
+                    community_id=w_id,
+                    page_token=res.next_page_token,
+                    page_size=2,
+                )
+            )
+            assert [d.title for d in res.discussions] == [
+                "Discussion title 1",
             ]
 
             res = api.ListDiscussions(

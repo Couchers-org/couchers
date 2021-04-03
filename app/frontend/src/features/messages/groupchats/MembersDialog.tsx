@@ -5,31 +5,30 @@ import {
   ListItem,
   makeStyles,
 } from "@material-ui/core";
-import React from "react";
-
-import Avatar from "../../../components/Avatar";
-import Button from "../../../components/Button";
+import Avatar from "components/Avatar";
+import Button from "components/Button";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-} from "../../../components/Dialog";
-import TextBody from "../../../components/TextBody";
-import { User } from "../../../pb/api_pb";
-import { GroupChat } from "../../../pb/conversations_pb";
-import useUsers from "../../userQueries/useUsers";
+} from "components/Dialog";
+import TextBody from "components/TextBody";
+import useUsers from "features/userQueries/useUsers";
+import { User } from "pb/api_pb";
+import { GroupChat } from "pb/conversations_pb";
+import React from "react";
 
 export const useMembersDialogStyles = makeStyles((theme) => ({
-  memberListItemContainer: {
-    display: "flex",
-    justifyContent: "flex-start",
-    alignItems: "center",
-  },
   avatar: {
-    width: 30,
     height: 30,
     marginInlineEnd: theme.spacing(1),
+    width: 30,
+  },
+  memberListItemContainer: {
+    alignItems: "center",
+    display: "flex",
+    justifyContent: "flex-start",
   },
 }));
 

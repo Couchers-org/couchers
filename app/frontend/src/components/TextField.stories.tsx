@@ -3,8 +3,8 @@ import { Meta, Story } from "@storybook/react";
 import TextField from "./TextField";
 
 export default {
-  title: "Components/Simple/TextField",
   component: TextField,
+  title: "Components/Simple/TextField",
 } as Meta;
 
 const Template: Story<any> = () => (

@@ -7,100 +7,104 @@ import {
   InputBase,
   makeStyles,
   Popper,
+  Typography,
 } from "@material-ui/core";
 import Autocomplete, {
   AutocompleteCloseReason,
 } from "@material-ui/lab/Autocomplete";
+import { CloseIcon, ExpandMoreIcon } from "components/Icons";
 import React, { useRef, useState } from "react";
-
-import { CloseIcon, ExpandMoreIcon } from "../../components/Icons";
 
 const useStyles = makeStyles((theme) =>
   createStyles({
-    popper: {
-      borderRadius: theme.shape.borderRadius,
-      borderWidth: 1,
-      borderStyle: "solid",
-      borderColor: "rgba(0, 0, 0, 0.23)",
-      boxShadow: theme.shadows[3],
-      zIndex: 1,
-      backgroundColor: theme.palette.background.default,
-      marginTop: theme.spacing(1),
-    },
     button: {
-      borderRadius: theme.shape.borderRadius,
-      boxShadow: `0 0 0 1px rgba(0, 0, 0, 0.23)`,
-      padding: "18.5px 14px",
-      margin: theme.spacing(1, 0),
-      width: "100%",
-      fontSize: "16px",
-      fontFamily: "inherit",
-      justifyContent: "space-between",
-      "&:hover": {
-        boxShadow: `0 0 0 1px ${theme.palette.text.primary}`,
-      },
       "&:focus": {
         boxShadow: `0 0 0 2px ${theme.palette.primary.main}`,
       },
-    },
-    tag: {
-      padding: "0 14px",
+      "&:hover": {
+        boxShadow: `0 0 0 1px ${theme.palette.text.primary}`,
+      },
+      borderRadius: theme.shape.borderRadius,
+      boxShadow: `0 0 0 1px rgba(0, 0, 0, 0.23)`,
+      fontFamily: "inherit",
+      fontSize: "16px",
+      justifyContent: "space-between",
       margin: theme.spacing(1, 0),
-      fontSize: theme.typography.fontSize,
-      display: "flex",
-      alignItems: "center",
+      padding: "18.5px 14px",
+      width: "inherit",
     },
-    tagLabel: {
-      marginLeft: theme.spacing(1),
+    checkbox: {
+      marginRight: theme.spacing(1),
+      padding: 0,
     },
     header: {
-      fontSize: theme.typography.fontSize,
-      borderBottomWidth: 1,
-      borderBottomStyle: "solid",
       borderBottomColor: theme.palette.divider,
+      borderBottomStyle: "solid",
+      borderBottomWidth: 1,
+      fontSize: theme.typography.fontSize,
       padding: theme.spacing(1, 2),
     },
     inputBase: {
-      padding: theme.spacing(2),
-      width: "100%",
-      borderBottomWidth: 1,
-      borderBottomStyle: "solid",
-      borderBottomColor: theme.palette.divider,
       "& input": {
-        borderRadius: theme.shape.borderRadius,
+        "&:focus": {
+          borderColor: theme.palette.primary.main,
+          boxShadow: `${fade(theme.palette.primary.main, 0.25)} 0 0 0 0.2rem`,
+        },
         backgroundColor: theme.palette.common.white,
+        borderColor: theme.palette.divider,
+        borderRadius: theme.shape.borderRadius,
+        borderStyle: "solid",
+        borderWidth: 1,
         padding: theme.spacing(1),
         transition: theme.transitions.create(["border-color", "box-shadow"]),
-        borderWidth: 1,
-        borderStyle: "solid",
-        borderColor: theme.palette.divider,
-        "&:focus": {
-          boxShadow: `${fade(theme.palette.primary.main, 0.25)} 0 0 0 0.2rem`,
-          borderColor: theme.palette.primary.main,
-        },
       },
-    },
-    paper: {
-      boxShadow: "none",
-      margin: 0,
+      borderBottomColor: theme.palette.divider,
+      borderBottomStyle: "solid",
+      borderBottomWidth: 1,
+      padding: theme.spacing(2),
+      width: "100%",
     },
     option: {
-      minHeight: "auto",
-      alignItems: "flex-start",
-      padding: theme.spacing(1),
       '&[aria-selected="true"]': {
         backgroundColor: "transparent",
       },
       '&[data-focus="true"]': {
         backgroundColor: theme.palette.action.hover,
       },
+      alignItems: "flex-start",
+      minHeight: "auto",
+      padding: theme.spacing(1),
+    },
+    paper: {
+      boxShadow: "none",
+      margin: 0,
+    },
+    popper: {
+      backgroundColor: theme.palette.background.default,
+      borderColor: "rgba(0, 0, 0, 0.23)",
+      borderRadius: theme.shape.borderRadius,
+      borderStyle: "solid",
+      borderWidth: 1,
+      boxShadow: theme.shadows[3],
+      marginTop: theme.spacing(1),
+      zIndex: 1,
     },
     popperDisablePortal: {
       position: "relative",
     },
-    checkbox: {
-      padding: 0,
-      marginRight: theme.spacing(1),
+    tag: {
+      alignItems: "center",
+      display: "flex",
+      fontSize: theme.typography.fontSize,
+      margin: theme.spacing(1, 0),
+      padding: "0 14px",
+    },
+    tagLabel: {
+      marginLeft: theme.spacing(1),
+    },
+    tagsContainer: {
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit, minmax(auto, 250px))",
     },
   })
 );
@@ -166,21 +170,23 @@ export default function ProfileTagInput({
         }}
         className={className}
       >
-        <span>{label}</span>
+        <Typography variant="body1">{label}</Typography>
         <ExpandMoreIcon />
       </ButtonBase>
-      {value.map((tag) => (
-        <div key={tag} className={classes.tag}>
-          <IconButton
-            aria-label={`Remove ${tag}`}
-            edge="start"
-            onClick={() => handleRemove(tag)}
-          >
-            <CloseIcon fontSize="small" />
-          </IconButton>
-          <span className={classes.tagLabel}>{tag}</span>
-        </div>
-      ))}
+      <div className={classes.tagsContainer}>
+        {value.map((tag) => (
+          <div key={tag} className={classes.tag}>
+            <IconButton
+              aria-label={`Remove ${tag}`}
+              edge="start"
+              onClick={() => handleRemove(tag)}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+            <span className={classes.tagLabel}>{tag}</span>
+          </div>
+        ))}
+      </div>
       <Popper
         id={popperId}
         open={open}
@@ -195,8 +201,8 @@ export default function ProfileTagInput({
           freeSolo
           multiple
           classes={{
-            paper: classes.paper,
             option: classes.option,
+            paper: classes.paper,
             popperDisablePortal: classes.popperDisablePortal,
           }}
           onChange={(_, newValue) => {

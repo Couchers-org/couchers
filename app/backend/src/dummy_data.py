@@ -32,7 +32,7 @@ from couchers.models import (
     User,
 )
 from couchers.servicers.api import hostingstatus2sql
-from couchers.utils import create_coordinate, create_polygon_lng_lat, geojson_to_geom, to_multi
+from couchers.utils import create_coordinate, create_polygon_lng_lat, geojson_to_geom, now, to_multi
 from pb.api_pb2 import HostingStatus
 
 logger = logging.getLogger(__name__)
@@ -91,9 +91,9 @@ def add_dummy_users():
 
             for reference in data["references"]:
                 reference_type = (
-                    ReferenceType.HOSTED
+                    ReferenceType.hosted
                     if reference["type"] == "hosted"
-                    else (ReferenceType.SURFED if reference["type"] == "surfed" else ReferenceType.FRIEND)
+                    else (ReferenceType.surfed if reference["type"] == "surfed" else ReferenceType.friend)
                 )
                 new_reference = Reference(
                     from_user_id=get_user_by_field(session, reference["from"]).id,
@@ -101,7 +101,7 @@ def add_dummy_users():
                     reference_type=reference_type,
                     text=reference["text"],
                     rating=reference["rating"],
-                    was_safe=reference["was_safe"],
+                    was_appropriate=reference["was_appropriate"],
                 )
                 session.add(new_reference)
 

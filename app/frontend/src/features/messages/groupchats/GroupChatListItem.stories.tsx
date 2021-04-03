@@ -1,17 +1,14 @@
 import { Meta, Story } from "@storybook/react";
-
-import { groupChat } from "../../../stories/__mocks__/service";
-import GroupChatListItem from "./GroupChatListItem";
+import GroupChatListItem from "features/messages/groupchats/GroupChatListItem";
+import groupChat from "test/fixtures/groupChat.json";
 
 export default {
-  title: "Messages/GroupChatListItem",
   component: GroupChatListItem,
+  title: "Messages/GroupChatListItem",
 } as Meta;
 
 const Template: Story<any> = (args) => (
-  <>
-    <GroupChatListItem groupChat={groupChat} {...args} />
-  </>
+  <GroupChatListItem groupChat={groupChat} {...args} />
 );
 
 export const groupChatListItem = Template.bind({});

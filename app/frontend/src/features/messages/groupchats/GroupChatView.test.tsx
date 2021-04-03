@@ -1,4 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
+import { MARK_LAST_SEEN_TIMEOUT } from "features/messages/constants";
+import GroupChatView from "features/messages/groupchats/GroupChatView";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import React from "react";
 import {
@@ -6,18 +8,12 @@ import {
   mockIsIntersecting,
 } from "react-intersection-observer/test-utils";
 import { Route } from "react-router-dom";
-
-import { messagesRoute } from "../../../routes";
-import { service } from "../../../service";
-import messageData from "../../../test/fixtures/messages.json";
-import { getHookWrapperWithClient } from "../../../test/hookWrapper";
-import {
-  getGroupChatMessages,
-  getUser,
-} from "../../../test/serviceMockDefaults";
-import { addDefaultUser, MockedService, wait } from "../../../test/utils";
-import { MARK_LAST_SEEN_TIMEOUT } from "../constants";
-import GroupChatView from "./GroupChatView";
+import { messagesRoute } from "routes";
+import { service } from "service";
+import messageData from "test/fixtures/messages.json";
+import { getHookWrapperWithClient } from "test/hookWrapper";
+import { getGroupChatMessages, getUser } from "test/serviceMockDefaults";
+import { addDefaultUser, MockedService, wait } from "test/utils";
 
 const getGroupChatMock = service.conversations.getGroupChat as MockedService<
   typeof service.conversations.getGroupChat
@@ -29,20 +25,25 @@ const getGroupChatMessagesMock = service.conversations
   typeof service.conversations.getGroupChatMessages
 >;
 const baseGroupChatMockResponse = {
-  groupChatId: 1,
-  title: "Test group chat",
-  memberUserIdsList: [1, 2, 3],
   adminUserIdsList: [1],
-  onlyAdminsInvite: false,
+  groupChatId: 1,
   isDm: false,
-  unseenMessageCount: 4,
   lastSeenMessageId: 1,
   latestMessage: {
-    messageId: 5,
     authorUserId: 3,
-    text: { text: "In 2 hours?" },
-    time: { seconds: 1577900000, nanos: 0 },
+    messageId: 5,
+    text: {
+      text: "In 2 hours?",
+    },
+    time: {
+      nanos: 0,
+      seconds: 1577900000,
+    },
   },
+  memberUserIdsList: [1, 2, 3],
+  onlyAdminsInvite: false,
+  title: "Test group chat",
+  unseenMessageCount: 4,
 };
 
 const markLastSeenGroupChatMock = service.conversations
@@ -158,8 +159,8 @@ describe("GroupChatView", () => {
   it("should not try to mark any message as seen if they have all been seen", async () => {
     getGroupChatMock.mockResolvedValue({
       ...baseGroupChatMockResponse,
-      unseenMessageCount: 0,
       lastSeenMessageId: 5,
+      unseenMessageCount: 0,
     });
     renderGroupChatView();
     // For React Query queries to resolve
