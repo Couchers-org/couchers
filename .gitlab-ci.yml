@@ -14,12 +14,14 @@ variables:
   GRPC_TAG: $CI_REGISTRY/couchers/grpc:latest
   PROXY_RELEASE_TAG: $CI_REGISTRY_IMAGE/proxy:latest
   NGINX_RELEASE_TAG: $CI_REGISTRY_IMAGE/nginx:latest
+  NGINX_NEXT_RELEASE_TAG: $CI_REGISTRY_IMAGE/nginx-next:latest
   BACKEND_RELEASE_TAG: $CI_REGISTRY_IMAGE/backend:latest
   MEDIA_RELEASE_TAG: $CI_REGISTRY_IMAGE/media:latest
   FRONTEND_RELEASE_TAG: $CI_REGISTRY_IMAGE/frontend:latest
   SLUG: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   PROXY_TAG: $CI_REGISTRY_IMAGE/proxy:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   NGINX_TAG: $CI_REGISTRY_IMAGE/nginx:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+  NGINX_NEXT_TAG: $CI_REGISTRY_IMAGE/nginx-next:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   BACKEND_TAG: $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   MEDIA_TAG: $CI_REGISTRY_IMAGE/media:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   FRONTEND_TAG: $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
@@ -167,10 +169,9 @@ build:frontend-next:
   stage: build
   script:
     - docker pull $FRONTEND_RELEASE_TAG || true
-    - docker build --build-arg version=$SLUG --build-arg environment=preview --cache-from $FRONTEND_RELEASE_TAG -t $FRONTEND_NEXT_TAG app/frontend/
-    - docker push $FRONTEND_NEXT_TAG
+    - docker build --build-arg version=$SLUG --build-arg environment=preview --cache-from $FRONTEND_RELEASE_TAG -t $FRONTEND_TAG app/frontend/
     # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
-    - mkdir -p artifacts && docker cp $(docker create $FRONTEND_NEXT_TAG):/app/build artifacts/frontend-next
+    - mkdir -p artifacts && docker cp $(docker create $FRONTEND_TAG):/app/build artifacts/frontend-next
   rules:
     - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
       changes:
