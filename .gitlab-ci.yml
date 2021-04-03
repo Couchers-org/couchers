@@ -301,7 +301,7 @@ test:frontend-next:
       - app/pb/**/*
       - app/frontend/**/*
 
-test:storybook-next:
+test:storybook:
   needs: ["build:frontend-next"]
   stage: test
   image: $FRONTEND_TAG
