@@ -446,7 +446,6 @@ release:frontend:
       - app/**/*
 
 release:nginx-next:
-  needs: ["build:nginx-next"]
   stage: release
   script:
     - docker pull $NGINX_NEXT_TAG
