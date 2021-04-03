@@ -67,6 +67,7 @@ def test_ping(db):
     assert res.user.additional_information == user.additional_information
 
     assert res.user.friends == api_pb2.User.FriendshipStatus.NA
+    assert not res.user.HasField("pending_friend_request")
     assert len(res.user.mutual_friends) == 0
 
 

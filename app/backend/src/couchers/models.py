@@ -278,6 +278,7 @@ class FriendRelationship(Base):
     Friendship relations between users
 
     TODO: make this better with sqlalchemy self-referential stuff
+    TODO: constraint on only one row per user pair where accepted or pending
     """
 
     __tablename__ = "friend_relationships"
