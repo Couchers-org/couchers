@@ -47,7 +47,7 @@ function RespondToFriendRequestButton({
     setIsOpen((prevState) => ({ ...prevState, [item]: false }));
   };
 
-  return state === FriendRequest.FriendRequestStatus.PENDING ? (
+  return (
     <>
       <Button
         startIcon={<PersonAddIcon />}
@@ -93,7 +93,7 @@ function RespondToFriendRequestButton({
         </MenuItem>
       </Menu>
     </>
-  ) : null;
+  )
 }
 
-export default RespondToFriendRequestProfileButton;
+export default RespondToFriendRequestButton;
