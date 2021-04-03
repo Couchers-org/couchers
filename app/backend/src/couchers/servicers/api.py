@@ -466,7 +466,7 @@ class API(api_pb2_grpc.APIServicer):
 
             # TODO: Race condition where we can create two friend reqs, needs db constraint! See comment in table
 
-            friend_relationship = FriendRelationship(from_user=from_user, to_user=to_user, status=FriendStatus.pending)
+            friend_relationship = FriendRelationship(from_user=user, to_user=to_user, status=FriendStatus.pending)
             session.add(friend_relationship)
 
             send_friend_request_email(friend_relationship)
