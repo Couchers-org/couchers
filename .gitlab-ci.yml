@@ -44,8 +44,7 @@ protos:
   script:
     - cd app && ./generate_protos.sh
   rules:
-    - if: 'true'
-      changes:
+    - changes:
       - app/**/*
   artifacts:
     paths:
@@ -64,7 +63,7 @@ build:proxy:
       changes:
       - .gitlab-ci.yml
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH =~ $RELEASE_BRANCH'
+    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
       changes:
       - .gitlab-ci.yml
       - app/pb/**/*
@@ -82,7 +81,7 @@ build:nginx:
       changes:
       - .gitlab-ci.yml
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH =~ $RELEASE_BRANCH'
+    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
       changes:
       - .gitlab-ci.yml
       - app/pb/**/*
@@ -100,7 +99,7 @@ build:backend:
       changes:
       - .gitlab-ci.yml
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH =~ $RELEASE_BRANCH'
+    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
       changes:
       - .gitlab-ci.yml
       - app/pb/**/*
@@ -118,7 +117,7 @@ build:media:
       changes:
       - .gitlab-ci.yml
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH =~ $RELEASE_BRANCH'
+    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
       changes:
       - .gitlab-ci.yml
       - app/pb/**/*
@@ -138,7 +137,7 @@ build:frontend:
       changes:
       - .gitlab-ci.yml
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH =~ $RELEASE_BRANCH'
+    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
       changes:
       - .gitlab-ci.yml
       - app/pb/**/*
@@ -173,7 +172,7 @@ build:frontend-next:
       changes:
       - .gitlab-ci.yml
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH =~ $RELEASE_BRANCH'
+    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
       changes:
       - .gitlab-ci.yml
       - app/pb/**/*
@@ -216,7 +215,7 @@ test:backend:
       changes:
       - .gitlab-ci.yml
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH =~ $RELEASE_BRANCH'
+    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
       changes:
       - .gitlab-ci.yml
       - app/pb/**/*
@@ -243,7 +242,7 @@ test:media:
       changes:
       - .gitlab-ci.yml
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH =~ $RELEASE_BRANCH'
+    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
       changes:
       - .gitlab-ci.yml
       - app/pb/**/*
@@ -274,7 +273,7 @@ test:frontend:
       changes:
       - .gitlab-ci.yml
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH =~ $RELEASE_BRANCH'
+    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
       changes:
       - .gitlab-ci.yml
       - app/pb/**/*
@@ -298,7 +297,7 @@ test:storybook:
       changes:
       - .gitlab-ci.yml
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH =~ $RELEASE_BRANCH'
+    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
       changes:
       - .gitlab-ci.yml
       - app/pb/**/*
@@ -321,7 +320,7 @@ preview:frontend:
       changes:
       - .gitlab-ci.yml
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH =~ $RELEASE_BRANCH'
+    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
       changes:
       - .gitlab-ci.yml
       - app/pb/**/*
@@ -343,7 +342,7 @@ preview:bcov:
       changes:
       - .gitlab-ci.yml
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH =~ $RELEASE_BRANCH'
+    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
       changes:
       - .gitlab-ci.yml
       - app/pb/**/*
@@ -365,7 +364,7 @@ preview:fcov:
       changes:
       - .gitlab-ci.yml
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH =~ $RELEASE_BRANCH'
+    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
       changes:
       - .gitlab-ci.yml
       - app/pb/**/*
@@ -387,7 +386,7 @@ preview:storybook:
       changes:
       - .gitlab-ci.yml
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH =~ $RELEASE_BRANCH'
+    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
       changes:
       - .gitlab-ci.yml
       - app/pb/**/*
