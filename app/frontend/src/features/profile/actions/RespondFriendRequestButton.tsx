@@ -1,9 +1,10 @@
-import { CircularProgress } from "@material-ui/core";
+//import { CircularProgress } from "@material-ui/core";
 import Button from "components/Button";
 import IconButton from "components/IconButton";
 import { CheckIcon, CloseIcon, PersonAddIcon } from "components/Icons";
 import Menu, { MenuItem } from "components/Menu";
 import { PENDING } from "features/connections/constants";
+import { ACCEPT_REQUEST, DECLINE_REQUEST } from "features/profile/constants";
 import { SetMutationError } from "features/connections/friends";
 import useRespondToFriendRequest from "features/connections/friends/useRespondToFriendRequest";
 import { FriendRequest } from "pb/api_pb";
@@ -67,47 +68,36 @@ function RespondToFriendRequestProfileButton({
         onClose={handleClose("menu")}
         open={isOpen.menu}
       >
-        {" "}
-        {isLoading || isSuccess ? (
-          <CircularProgress />
-        ) : (
-          <>
-            <MenuItem onClick={handleClick("accepted")}>
-              {
-                <IconButton
-                  aria-label="Accept request"
-                  onClick={() => {
-                    reset();
-                    respondToFriendRequest({
-                      accept: true,
-                      friendRequestId,
-                      setMutationError,
-                    });
-                  }}
-                >
-                  <CheckIcon />
-                </IconButton>
-              }
-            </MenuItem>
-            <MenuItem onClick={handleClick("rejected")}>
-              {
-                <IconButton
-                  aria-label="Decline request"
-                  onClick={() => {
-                    reset();
-                    respondToFriendRequest({
-                      accept: false,
-                      friendRequestId,
-                      setMutationError,
-                    });
-                  }}
-                >
-                  <CloseIcon />
-                </IconButton>
-              }
-            </MenuItem>
-          </>
-        )}
+        <MenuItem onClick={handleClick("accepted")}>
+          <IconButton
+            aria-label={ACCEPT_REQUEST}
+            onClick={() => {
+              reset();
+              respondToFriendRequest({
+                accept: true,
+                friendRequestId,
+                setMutationError,
+              });
+            }}
+          >
+            <CheckIcon />
+          </IconButton>
+        </MenuItem>
+        <MenuItem onClick={handleClick("rejected")}>
+          <IconButton
+            aria-label={DECLINE_REQUEST}
+            onClick={() => {
+              reset();
+              respondToFriendRequest({
+                accept: false,
+                friendRequestId,
+                setMutationError,
+              });
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </MenuItem>
       </Menu>
     </>
   ) : null;

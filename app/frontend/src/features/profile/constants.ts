@@ -112,3 +112,7 @@ export const aboutText = (user: User.AsObject) => {
 export const LAST_ACTIVE_FALSE = "Unknown";
 export const LANGUAGES_FLUENT_FALSE = "Not given";
 export const MESSAGE = "Message";
+
+export const ACCEPT_REQUEST = "Accept friend request";
+export const DECLINE_REQUEST = "Decline friend request";
+export const PENDING_REQUEST_SENT = "Request sent";

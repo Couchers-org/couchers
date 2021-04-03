@@ -1,6 +1,6 @@
 import Button from "components/Button";
 import { PersonAddIcon } from "components/Icons";
-import { PENDING_REQUEST_SENT } from "features/connections/constants";
+import { PENDING_REQUEST_SENT } from "features/profile/constants";
 import React from "react";
 
 export default function PendingFriendRequestSent() {
