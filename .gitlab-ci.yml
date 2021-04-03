@@ -252,6 +252,28 @@ test:frontend:
       changes:
       - app/**/*
 
+test:storybook:
+  needs: ["build:frontend-next"]
+  stage: test
+  image: $FRONTEND_TAG
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - cd /app && yarn build-storybook
+    - mkdir -p $CI_PROJECT_DIR/artifacts/storybook-static && cp -a /app/storybook-static $CI_PROJECT_DIR/artifacts/
+  artifacts:
+    paths:
+      - artifacts/storybook-static
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+      - app/**/*
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
+      changes:
+      - app/pb/**/*
+      - app/frontend/**/*
+
 test:frontend-next:
   needs: ["build:frontend-next"]
   stage: test
@@ -281,48 +303,6 @@ test:frontend-next:
       - app/pb/**/*
       - app/frontend/**/*
 
-test:storybook:
-  needs: ["build:frontend-next"]
-  stage: test
-  image: $FRONTEND_TAG
-  inherit:
-    # no docker login
-    default: false
-  script:
-    - cd /app && yarn build-storybook
-    - mkdir -p $CI_PROJECT_DIR/artifacts/storybook-static && cp -a /app/storybook-static $CI_PROJECT_DIR/artifacts/
-  artifacts:
-    paths:
-      - artifacts/storybook-static
-  rules:
-    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
-      changes:
-      - app/**/*
-    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
-      changes:
-      - app/pb/**/*
-      - app/frontend/**/*
-
-
-preview:frontend-next:
-  needs: ["build:frontend-next"]
-  stage: preview
-  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
-  inherit:
-    # no docker login
-    default: false
-  script:
-    - aws s3 cp artifacts/frontend-next s3://$AWS_PREVIEW_BUCKET/frontend/$CI_COMMIT_SHORT_SHA/ --recursive
-    - aws s3 cp artifacts/frontend-next s3://$AWS_PREVIEW_BUCKET/frontend/$CI_COMMIT_REF_SLUG/ --recursive
-    - echo "Done, preview available at https://$CI_COMMIT_SHORT_SHA--frontend.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--frontend.$PREVIEW_DOMAIN/"
-  rules:
-    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
-      changes:
-      - app/**/*
-    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
-      changes:
-      - app/pb/**/*
-      - app/frontend/**/*
 
 preview:bcov:
   needs: ["test:backend"]
@@ -375,6 +355,26 @@ preview:storybook:
     - aws s3 cp artifacts/storybook-static s3://$AWS_PREVIEW_BUCKET/storybook/$CI_COMMIT_SHORT_SHA/ --recursive
     - aws s3 cp artifacts/storybook-static s3://$AWS_PREVIEW_BUCKET/storybook/$CI_COMMIT_REF_SLUG/ --recursive
     - echo "Done, storybook available at https://$CI_COMMIT_SHORT_SHA--storybook.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--storybook.$PREVIEW_DOMAIN/"
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+      - app/**/*
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
+      changes:
+      - app/pb/**/*
+      - app/frontend/**/*
+
+preview:frontend-next:
+  needs: ["build:frontend-next"]
+  stage: preview
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - aws s3 cp artifacts/frontend-next s3://$AWS_PREVIEW_BUCKET/frontend/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 cp artifacts/frontend-next s3://$AWS_PREVIEW_BUCKET/frontend/$CI_COMMIT_REF_SLUG/ --recursive
+    - echo "Done, preview available at https://$CI_COMMIT_SHORT_SHA--frontend.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--frontend.$PREVIEW_DOMAIN/"
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
