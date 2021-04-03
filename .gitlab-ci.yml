@@ -60,11 +60,11 @@ build:proxy:
     - docker build --build-arg version=$SLUG --cache-from $PROXY_RELEASE_TAG -t $PROXY_TAG app/proxy/
     - docker push $PROXY_TAG
   rules:
-    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
       - .gitlab-ci.yml
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
       - .gitlab-ci.yml
       - app/pb/**/*
@@ -78,7 +78,7 @@ build:nginx:
     - docker build --build-arg version=$SLUG --cache-from $NGINX_RELEASE_TAG -t $NGINX_TAG app/nginx/
     - docker push $NGINX_TAG
   rules:
-    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
       - .gitlab-ci.yml
       - app/**/*
@@ -91,11 +91,11 @@ build:backend:
     - docker build --build-arg version=$SLUG --cache-from $BACKEND_RELEASE_TAG -t $BACKEND_TAG app/backend/
     - docker push $BACKEND_TAG
   rules:
-    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
       - .gitlab-ci.yml
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
       - .gitlab-ci.yml
       - app/pb/**/*
@@ -109,11 +109,11 @@ build:media:
     - docker build --build-arg version=$SLUG --cache-from $MEDIA_RELEASE_TAG -t $MEDIA_TAG app/media/
     - docker push $MEDIA_TAG
   rules:
-    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
       - .gitlab-ci.yml
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
       - .gitlab-ci.yml
       - app/pb/**/*
@@ -129,7 +129,7 @@ build:frontend:
     # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
     - mkdir -p artifacts && docker cp $(docker create $FRONTEND_TAG):/app/build artifacts/frontend
   rules:
-    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
       - .gitlab-ci.yml
       - app/**/*
@@ -145,11 +145,11 @@ build:nginx-next:
     - docker build --build-arg version=$SLUG --cache-from $NGINX_RELEASE_TAG -t $NGINX_NEXT_TAG app/nginx/
     - docker push $NGINX_NEXT_TAG
   rules:
-    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
       - .gitlab-ci.yml
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
       - .gitlab-ci.yml
       - app/pb/**/*
@@ -164,11 +164,11 @@ build:frontend-next:
     # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
     - mkdir -p artifacts && docker cp $(docker create $FRONTEND_TAG):/app/build artifacts/frontend-next
   rules:
-    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
       - .gitlab-ci.yml
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
       - .gitlab-ci.yml
       - app/pb/**/*
@@ -207,11 +207,11 @@ test:backend:
     paths:
       - artifacts/htmlcov
   rules:
-    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
       - .gitlab-ci.yml
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
       - .gitlab-ci.yml
       - app/pb/**/*
@@ -234,11 +234,11 @@ test:media:
     reports:
       junit: junit.xml
   rules:
-    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
       - .gitlab-ci.yml
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
       - .gitlab-ci.yml
       - app/pb/**/*
@@ -265,7 +265,7 @@ test:frontend:
     paths:
       - artifacts/lcov-report
   rules:
-    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
       - .gitlab-ci.yml
       - app/**/*
@@ -291,11 +291,11 @@ test:frontend-next:
     paths:
       - artifacts/lcov-report
   rules:
-    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
       - .gitlab-ci.yml
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
       - .gitlab-ci.yml
       - app/pb/**/*
@@ -315,11 +315,11 @@ test:storybook:
     paths:
       - artifacts/storybook-static
   rules:
-    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
       - .gitlab-ci.yml
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
       - .gitlab-ci.yml
       - app/pb/**/*
@@ -338,11 +338,11 @@ preview:frontend-next:
     - aws s3 cp artifacts/frontend-next s3://$AWS_PREVIEW_BUCKET/frontend/$CI_COMMIT_REF_SLUG/ --recursive
     - echo "Done, preview available at https://$CI_COMMIT_SHORT_SHA--frontend.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--frontend.$PREVIEW_DOMAIN/"
   rules:
-    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
       - .gitlab-ci.yml
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
       - .gitlab-ci.yml
       - app/pb/**/*
@@ -360,11 +360,11 @@ preview:bcov:
     - aws s3 cp artifacts/htmlcov s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_REF_SLUG/ --recursive
     - echo "Done, coverage report available at https://$CI_COMMIT_SHORT_SHA--bcov.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--bcov.$PREVIEW_DOMAIN/"
   rules:
-    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
       - .gitlab-ci.yml
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
       - .gitlab-ci.yml
       - app/pb/**/*
@@ -382,11 +382,11 @@ preview:fcov:
     - aws s3 cp artifacts/lcov-report s3://$AWS_PREVIEW_BUCKET/fcov/$CI_COMMIT_REF_SLUG/ --recursive
     - echo "Done, coverage report available at https://$CI_COMMIT_SHORT_SHA--fcov.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--fcov.$PREVIEW_DOMAIN/"
   rules:
-    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
       - .gitlab-ci.yml
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
       - .gitlab-ci.yml
       - app/pb/**/*
@@ -404,11 +404,11 @@ preview:storybook:
     - aws s3 cp artifacts/storybook-static s3://$AWS_PREVIEW_BUCKET/storybook/$CI_COMMIT_REF_SLUG/ --recursive
     - echo "Done, storybook available at https://$CI_COMMIT_SHORT_SHA--storybook.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--storybook.$PREVIEW_DOMAIN/"
   rules:
-    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
       - .gitlab-ci.yml
       - app/**/*
-    - if: '$CI_COMMIT_BRANCH != $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
       - .gitlab-ci.yml
       - app/pb/**/*
@@ -422,7 +422,7 @@ release:proxy:
     - docker tag $PROXY_TAG $PROXY_RELEASE_TAG
     - docker push $PROXY_RELEASE_TAG
   rules:
-    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
       - .gitlab-ci.yml
       - app/**/*
@@ -434,7 +434,7 @@ release:nginx:
     - docker tag $NGINX_TAG $NGINX_RELEASE_TAG
     - docker push $NGINX_RELEASE_TAG
   rules:
-    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
       - .gitlab-ci.yml
       - app/**/*
@@ -446,7 +446,7 @@ release:backend:
     - docker tag $BACKEND_TAG $BACKEND_RELEASE_TAG
     - docker push $BACKEND_RELEASE_TAG
   rules:
-    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
       - .gitlab-ci.yml
       - app/**/*
@@ -458,7 +458,7 @@ release:media:
     - docker tag $MEDIA_TAG $MEDIA_RELEASE_TAG
     - docker push $MEDIA_RELEASE_TAG
   rules:
-    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
       - .gitlab-ci.yml
       - app/**/*
@@ -470,7 +470,7 @@ release:frontend:
     - docker tag $FRONTEND_TAG $FRONTEND_RELEASE_TAG
     - docker push $FRONTEND_RELEASE_TAG
   rules:
-    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
       - .gitlab-ci.yml
       - app/**/*
@@ -483,7 +483,7 @@ release:nginx-next:
     - docker tag $NGINX_NEXT_TAG $NGINX_NEXT_RELEASE_TAG
     - docker push $NGINX_NEXT_RELEASE_TAG
   rules:
-    - if: '$CI_COMMIT_BRANCH == $RELEASE_BRANCH'
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
       - .gitlab-ci.yml
       - app/**/*
