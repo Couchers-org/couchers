@@ -13,7 +13,7 @@ def _(testconfig):
     pass
 
 
-def test_bug_tool_disabled():
+def test_bugs_disabled():
     with bugs_session() as bugs, pytest.raises(grpc.RpcError) as e:
         bugs.ReportBug(
             bugs_pb2.ReportBugReq(
@@ -30,7 +30,7 @@ def test_bug_tool_disabled():
     assert e.value.code() == grpc.StatusCode.UNAVAILABLE
 
 
-def test_bug_tool():
+def test_bugs():
     with bugs_session() as bugs:
 
         def dud_post(url, auth, json):
@@ -41,7 +41,7 @@ def test_bug_tool():
                 "body": (
                     "Subject: subject\nDescription:\ndescription\n\nSteps:\nsteps\n\nResults:\nresults\n\nBackend version: "
                     + config["VERSION"]
-                    + "\nFrontend version: frontend_version\nUser Agent: user_agent\nPage: page\nUser ID: 99"
+                    + "\nFrontend version: frontend_version\nUser Agent: user_agent\nPage: page\nUser (spoofable): test (99)"
                 ),
                 "labels": ["bug tool"],
             }
@@ -75,7 +75,7 @@ def test_bug_tool():
     assert res.report_identifier == "#11"
 
 
-def test_bug_tool_fails_on_network_error():
+def test_bugs_fails_on_network_error():
     with bugs_session() as bugs:
 
         def dud_post(url, auth, json):
