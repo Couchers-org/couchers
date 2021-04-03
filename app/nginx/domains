@@ -1,2 +1,2 @@
-api.couchers.org
-user-media.couchershq.org
+{API_DOMAIN}
+{MEDIA_DOMAIN}
