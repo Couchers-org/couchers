@@ -10,7 +10,7 @@ import { ACCEPT_REQUEST, DECLINE_REQUEST } from "features/profile/constants";
 import { FriendRequest } from "pb/api_pb";
 import React, { useRef, useState } from "react";
 
-interface RespondToFriendRequestProfileButtonProps {
+interface RespondToFriendRequestButtonProps {
   friendRequestId: number;
   state: FriendRequest.FriendRequestStatus;
   setMutationError: SetMutationError;
