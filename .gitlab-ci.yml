@@ -45,6 +45,7 @@ protos:
     - cd app && ./generate_protos.sh
   rules:
     - changes:
+      - .gitlab-ci.yml
       - app/**/*
   artifacts:
     paths:
