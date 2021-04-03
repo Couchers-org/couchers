@@ -4,9 +4,9 @@ import IconButton from "components/IconButton";
 import { CheckIcon, CloseIcon, PersonAddIcon } from "components/Icons";
 import Menu, { MenuItem } from "components/Menu";
 import { PENDING } from "features/connections/constants";
-import { ACCEPT_REQUEST, DECLINE_REQUEST } from "features/profile/constants";
 import { SetMutationError } from "features/connections/friends";
 import useRespondToFriendRequest from "features/connections/friends/useRespondToFriendRequest";
+import { ACCEPT_REQUEST, DECLINE_REQUEST } from "features/profile/constants";
 import { FriendRequest } from "pb/api_pb";
 import React, { useRef, useState } from "react";
 
@@ -30,12 +30,7 @@ function RespondToFriendRequestProfileButton({
     menu: false,
   });
 
-  const {
-    isLoading,
-    isSuccess,
-    reset,
-    respondToFriendRequest,
-  } = useRespondToFriendRequest();
+  const { isLoading, respondToFriendRequest } = useRespondToFriendRequest();
 
   const menuAnchor = useRef<HTMLButtonElement>(null);
 
@@ -72,7 +67,6 @@ function RespondToFriendRequestProfileButton({
           <IconButton
             aria-label={ACCEPT_REQUEST}
             onClick={() => {
-              reset();
               respondToFriendRequest({
                 accept: true,
                 friendRequestId,
@@ -87,7 +81,6 @@ function RespondToFriendRequestProfileButton({
           <IconButton
             aria-label={DECLINE_REQUEST}
             onClick={() => {
-              reset();
               respondToFriendRequest({
                 accept: false,
                 friendRequestId,
