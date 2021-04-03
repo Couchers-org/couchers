@@ -57,3 +57,14 @@ export const friendRequestKey = (type: FriendRequestType) => [
   "friendRequests",
   { type },
 ];
+
+// Group chats
+export const groupChatBaseKey = "groupChat";
+export const groupChatKey = (groupChatId: number) => [
+  groupChatBaseKey,
+  groupChatId,
+];
+export const groupChatMessagesKey = (groupChatId: number) => [
+  "groupChatMessages",
+  groupChatId,
+];
