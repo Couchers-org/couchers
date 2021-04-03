@@ -6,15 +6,15 @@ export const settingsRoute = "/account-settings";
 export const confirmChangeEmailRoute = "/confirm-email";
 
 export const signupRoute = "/signup";
-export const profileRoute = "/profile";
-export const aboutRoute = `${profileRoute}/about`;
-export const homeRoute = `${profileRoute}/home`;
-export const referencesRoute = `${profileRoute}/references`;
-export const favoritesRoute = `${profileRoute}/favorites`;
-export const photosRoute = `${profileRoute}/photos`;
+export const userRoute = "/user";
+export const aboutRoute = `${userRoute}/about`;
+export const homeRoute = `${userRoute}/home`;
+export const referencesRoute = `${userRoute}/references`;
+export const favoritesRoute = `${userRoute}/favorites`;
+export const photosRoute = `${userRoute}/photos`;
 
-export const editProfileRoute = `${profileRoute}/edit`;
-export const editHostingPreferenceRoute = `${profileRoute}/edit-hosting`;
+export const editProfileRoute = `${userRoute}/edit`;
+export const editHostingPreferenceRoute = `${userRoute}/edit-hosting`;
 
 export const messagesRoute = "/messages";
 export const groupChatsRoute = `${messagesRoute}/chats`;
@@ -32,8 +32,7 @@ export const logoutRoute = "/logout";
 export const connectionsRoute = "/connections";
 export const friendsRoute = `${connectionsRoute}/friends`;
 
-export const userRoute = "/user";
-export const routeToUser = (username: string) => `${profileRoute}/${username}`;
+export const routeToUser = (username: string) => `${userRoute}/${username}`;
 export const searchRoute = "/search";
 export const routeToSearch = (query: string) => `${searchRoute}/${query}`;
 export const jailRoute = "/restricted";
