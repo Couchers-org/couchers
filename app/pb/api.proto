@@ -313,7 +313,7 @@ message UpdateProfileReq {
   NullableBoolValue camping_ok = 121;
   // replaces the current language abilities with a new list
   // only a subset of language codes can be used, see languages.json for that list
-  RepeatedLanguageAbilityValue language_abilities = 25;
+  RepeatedLanguageAbilityValue language_abilities = 26;
 }
 
 message ReportReq {

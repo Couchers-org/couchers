@@ -214,7 +214,6 @@ def test_update_profile(db):
             )
         )
 
-
         user_details = api.GetUser(api_pb2.GetUserReq(user=user.username))
         assert user_details.name == "New name"
         assert user_details.city == "Timbuktu"
@@ -251,8 +250,7 @@ def test_update_profile(db):
                 about_place=api_pb2.NullableStringValue(is_null=True),
                 hosting_status=api_pb2.HOSTING_STATUS_UNKNOWN,
                 meetup_status=api_pb2.MEETUP_STATUS_UNKNOWN,
-                # TODO Fix languages
-                #languages=api_pb2.RepeatedStringValue(exists=True, value=[]),
+                language_abilities=api_pb2.RepeatedLanguageAbilityValue(value=[]),
                 regions_visited=api_pb2.RepeatedStringValue(exists=True, value=[]),
                 regions_lived=api_pb2.RepeatedStringValue(exists=True, value=[]),
                 additional_information=api_pb2.NullableStringValue(is_null=True),
@@ -271,9 +269,9 @@ def test_update_profile(db):
         assert not user_details.about_place
         assert user_details.hosting_status == api_pb2.HOSTING_STATUS_UNKNOWN
         assert user_details.meetup_status == api_pb2.MEETUP_STATUS_UNKNOWN
-        assert not user_details.languages
-        assert not user_details.countries_visited
-        assert not user_details.countries_lived
+        assert not user_details.language_abilities
+        assert not user_details.regions_visited
+        assert not user_details.regions_lived
         assert not user_details.additional_information
 
 
@@ -382,6 +380,7 @@ def test_language_abilities(db):
 
         res = api.GetUser(api_pb2.GetUserReq(user=user.username))
         assert len(res.language_abilities) == 0
+
 
 def test_pending_friend_request_count(db):
     user1, token1 = generate_user("user1")
