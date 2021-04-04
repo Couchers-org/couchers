@@ -1,5 +1,10 @@
 import { makeStyles } from "@material-ui/core";
-import TextField from "components/TextField";
+import FormControl from "@material-ui/core/FormControl";
+import IconButton from "@material-ui/core/IconButton";
+import Input from "@material-ui/core/Input";
+import InputAdornment from "@material-ui/core/InputAdornment";
+import InputLabel from "@material-ui/core/InputLabel";
+import SearchIcon from "@material-ui/icons/Search";
 import { SearchQuery } from "features/search/constants";
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -35,13 +40,24 @@ export default function SearchBox() {
   return (
     <>
       <form onSubmit={onSubmit} className={classes.root}>
-        <TextField
-          className={classes.box}
-          id="search-query"
-          name="query"
-          label="Search"
-          inputRef={register}
-        ></TextField>
+        <FormControl>
+          <InputLabel htmlFor="search-query">
+            Search for users...
+          </InputLabel>
+          <Input
+            id="search-query"
+            type="text"
+            inputRef={register}
+            name="query"
+            endAdornment={
+              <InputAdornment position="end">
+                <IconButton aria-label="search" onClick={onSubmit}>
+                  <SearchIcon />
+                </IconButton>
+              </InputAdornment>
+            }
+          />
+        </FormControl>
       </form>
     </>
   );
