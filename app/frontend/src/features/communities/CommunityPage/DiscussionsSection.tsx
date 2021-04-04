@@ -20,6 +20,7 @@ import React, { useState } from "react";
 import { useQueryClient } from "react-query";
 import { Link } from "react-router-dom";
 import { routeToCommunity } from "routes";
+import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";
 
 import { useCommunityPageStyles } from "./CommunityPage";
@@ -32,24 +33,7 @@ const useStyles = makeStyles((theme) => ({
   },
   discussionsContainer: {
     "& > *": {
-      [theme.breakpoints.up("sm")]: {
-        width: `calc(50% - ${theme.spacing(1)})`,
-      },
-      [theme.breakpoints.up("md")]: {
-        width: `calc(33.33% - ${theme.spacing(1)})`,
-      },
       width: "100%",
-    },
-    //preserve grid in the last row
-    "&::after": {
-      [theme.breakpoints.up("sm")]: {
-        flexBasis: `calc(50% - ${theme.spacing(1)})`,
-      },
-      [theme.breakpoints.up("md")]: {
-        flexBasis: `calc(33.33% - ${theme.spacing(1)})`,
-      },
-      content: "''",
-      flexBasis: "100%",
     },
     display: "flex",
     flexDirection: "row",
@@ -114,33 +98,31 @@ export default function DiscussionsSection({
             </Alert>
           )}
           <NewComment
-            onComment={async (content) =>
+            onComment={async (content) => {
               newDiscussionMutation.mutate({
                 content,
                 ownerCommunityId: community.communityId,
                 title: "test",
-              })
-            }
+              });
+            }}
           />
         </DialogContent>
       </Dialog>
       <div className={classes.discussionsContainer}>
         {isDiscussionsLoading && <CircularProgress />}
-        {discussions &&
-          (discussions.pages.length > 0 &&
-          discussions.pages[0].discussionsList.length === 0 ? (
-            <TextBody>{DISCUSSIONS_EMPTY_STATE}</TextBody>
-          ) : (
-            discussions.pages
-              .flatMap((res) => res.discussionsList)
-              .map((discussion) => (
-                <DiscussionCard
-                  discussion={discussion}
-                  className={classes.discussionCard}
-                  key={`discussioncard-${discussion.threadId}`}
-                />
-              ))
-          ))}
+        {hasAtLeastOnePage(discussions, "discussionsList") ? (
+          discussions.pages
+            .flatMap((res) => res.discussionsList)
+            .map((discussion) => (
+              <DiscussionCard
+                discussion={discussion}
+                className={classes.discussionCard}
+                key={`discussioncard-${discussion.threadId}`}
+              />
+            ))
+        ) : (
+          <TextBody>{DISCUSSIONS_EMPTY_STATE}</TextBody>
+        )}
         {discussionsHasNextPage && (
           <div className={classes.loadMoreButton}>
             <Link
