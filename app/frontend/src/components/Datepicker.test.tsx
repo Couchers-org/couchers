@@ -36,11 +36,6 @@ const Form = () => {
 };
 
 describe("DatePicker", () => {
-  beforeEach(() => {
-    submitForm.mockClear();
-    cleanup();
-  });
-
   it("should submit with proper date for clicking", async () => {
     render(<Form />, { wrapper });
     userEvent.click(screen.getByLabelText(CHANGE_DATE));
