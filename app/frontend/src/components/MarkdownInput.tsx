@@ -52,17 +52,20 @@ export default function MarkdownInput({
     defaultValue: defaultValue ?? "",
   });
 
+  const initialDefaultValue = useRef(defaultValue);
+  const { ref: fieldRef, onBlur: fieldOnBlur, onChange: fieldOnChange } = field;
+
   const rootEl = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    field.ref.current = new ToastUIEditor({
+    fieldRef.current = new ToastUIEditor({
       el: rootEl.current!,
       events: {
-        blur: () => field.onBlur(),
+        blur: () => fieldOnBlur(),
         change: () =>
-          field.onChange((field.ref.current as ToastUIEditor).getMarkdown()),
+          fieldOnChange((fieldRef.current as ToastUIEditor).getMarkdown()),
       },
       initialEditType: "wysiwyg",
-      initialValue: defaultValue ?? "",
+      initialValue: initialDefaultValue.current ?? "",
       usageStatistics: false,
       toolbarItems: [
         "heading",
@@ -89,8 +92,8 @@ export default function MarkdownInput({
       );
     }
 
-    return () => (field.ref.current as ToastUIEditor).remove();
-  }, [defaultValue, field, id, labelId]);
+    return () => (fieldRef.current as ToastUIEditor).remove();
+  }, [fieldRef, fieldOnBlur, fieldOnChange, id, labelId]);
 
   return <div className={classes.root} ref={rootEl} id={id} />;
 }

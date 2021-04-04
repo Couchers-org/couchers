@@ -1,9 +1,10 @@
-import { Box, BoxProps, makeStyles } from "@material-ui/core";
-import MarkdownIt from "markdown-it";
+import "@toast-ui/editor/dist/toastui-editor-viewer.css";
 
-const md = new MarkdownIt().disable("image");
+import { makeStyles } from "@material-ui/core";
+import ToastUIViewer from "@toast-ui/editor/dist/toastui-editor-viewer";
+import { useEffect, useRef } from "react";
 
-interface MarkdownProps extends BoxProps {
+interface MarkdownProps {
   source: string;
   topHeaderLevel?: number;
 }
@@ -33,19 +34,20 @@ const useStyles = makeStyles((theme) => ({
 export default function Markdown({
   source,
   topHeaderLevel = 2,
-  ...otherProps
 }: MarkdownProps) {
   const classes = useStyles();
 
-  return (
-    <Box
-      className={classes.root}
-      dangerouslySetInnerHTML={{
-        __html: md.render(increaseMarkdownHeaderLevel(source, topHeaderLevel)),
-      }}
-      {...otherProps}
-    />
-  );
+  const rootEl = useRef<HTMLDivElement>(null);
+  const viewer = useRef<ToastUIViewer>();
+  useEffect(() => {
+    viewer.current = new ToastUIViewer({
+      el: rootEl.current!,
+      initialValue: increaseMarkdownHeaderLevel(source, topHeaderLevel),
+    });
+    return () => viewer.current?.remove();
+  }, [source, topHeaderLevel]);
+
+  return <div className={classes.root} ref={rootEl} />;
 }
 
 export function increaseMarkdownHeaderLevel(
