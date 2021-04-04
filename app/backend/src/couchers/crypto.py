@@ -1,4 +1,4 @@
-from base64 import b64decode, b64encode, urlsafe_b64encode
+from base64 import urlsafe_b64encode
 from hmac import HMAC, compare_digest
 
 import nacl.pwhash
@@ -10,13 +10,11 @@ from nacl.utils import random as random_bytes
 def urlsafe_random_bytes(length=32):
     return urlsafe_b64encode(random_bytes(length)).decode("utf8")
 
-
 def urlsafe_secure_token():
     """
     A cryptographically secure random token that can be put in a URL
     """
     return urlsafe_random_bytes(32)
-
 
 def cookiesafe_secure_token():
     return random_hex(32)
