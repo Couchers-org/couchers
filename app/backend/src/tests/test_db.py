@@ -106,7 +106,7 @@ def sort_pg_dump_output(output):
 
 
 def test_sort_pg_dump_output():
-    assert sort_pg_dump_output("(\nb,\nc,\na\n);\n") == "(\na,\nb,\nc\n);\n"
+    assert sort_pg_dump_output(" (\nb,\nc,\na\n);\n") == " (\na,\nb,\nc\n);\n"
 
 
 def test_migrations():
