@@ -7,20 +7,6 @@ from nacl.bindings.utils import sodium_memcmp
 from nacl.exceptions import InvalidkeyError
 from nacl.utils import random as random_bytes
 
-
-def base64encode(msg):
-    """
-    Base 64 encode strings to strings
-    """
-    return b64encode(msg.encode("utf8")).decode("utf8")
-
-
-def base64decode(msg):
-    """
-    Base 64 decode strings to strings
-    """
-    return b64decode(msg).decode("utf8")
-
 def urlsafe_random_bytes(length=32):
     return urlsafe_b64encode(random_bytes(length)).decode("utf8")
 
