@@ -1,9 +1,11 @@
-import { makeStyles } from "@material-ui/core";
-import FormControl from "@material-ui/core/FormControl";
-import IconButton from "@material-ui/core/IconButton";
-import Input from "@material-ui/core/Input";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import InputLabel from "@material-ui/core/InputLabel";
+import {
+  FormControl,
+  IconButton,
+  Input,
+  InputAdornment,
+  InputLabel,
+  makeStyles,
+} from "@material-ui/core";
 import SearchIcon from "@material-ui/icons/Search";
 import { SearchQuery } from "features/search/constants";
 import React from "react";
