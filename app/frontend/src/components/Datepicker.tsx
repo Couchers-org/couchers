@@ -3,13 +3,22 @@ import {
   KeyboardDatePicker,
   MuiPickersUtilsProvider,
 } from "@material-ui/pickers";
+import { CHANGE_DATE } from "features/constants";
 import { Control, Controller } from "react-hook-form";
+
+import { dateFormats } from "./constants";
+
+const getLocaleFormat = () => {
+  return navigator.language in dateFormats
+    ? dateFormats[navigator.language as keyof typeof dateFormats]
+    : "DD/MM/YYYY";
+};
 
 interface DatepickerProps {
   className?: string;
   control: Control;
   error: boolean;
-  helperText: string | undefined;
+  helperText: React.ReactNode;
   id: string;
   inputRef: (ref: any) => void;
   label: string;
@@ -42,16 +51,21 @@ export default function Datepicker({
             className={className}
             disableToolbar
             error={error}
-            format="DD.MM.YYYY"
+            format={getLocaleFormat()}
             fullWidth
             helperText={helperText}
             id={id}
+            KeyboardButtonProps={{
+              "aria-label": CHANGE_DATE,
+            }}
             InputLabelProps={{
               shrink: true,
             }}
             label={label}
             minDate={minDate}
-            onChange={(date) => onChange(date?.toDate())}
+            onChange={(date) => {
+              if (date?.isValid()) onChange(date?.toDate());
+            }}
             value={value}
             variant="inline"
           />
