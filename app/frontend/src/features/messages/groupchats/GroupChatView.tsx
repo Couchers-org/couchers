@@ -24,9 +24,9 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
 import { GetGroupChatMessagesRes, GroupChat } from "pb/conversations_pb";
 import {
-  groupChatBaseKey,
   groupChatKey,
   groupChatMessagesKey,
+  groupChatsListKey,
 } from "queryKeys";
 import { useRef, useState } from "react";
 import {
@@ -146,7 +146,7 @@ export default function GroupChatView() {
     {
       onSuccess: () => {
         queryClient.invalidateQueries(groupChatMessagesKey(groupChatId));
-        queryClient.invalidateQueries([groupChatBaseKey]);
+        queryClient.invalidateQueries([groupChatsListKey]);
       },
     }
   );
@@ -244,18 +244,18 @@ export default function GroupChatView() {
                     </MenuItem>
                   )}
                 </Menu>
-                <InviteDialog
-                  open={isOpen.invite}
-                  onClose={() => handleClose("invite")}
-                  groupChat={groupChat}
-                />
-                <MembersDialog
-                  open={isOpen.members}
-                  onClose={() => handleClose("members")}
-                  groupChat={groupChat}
-                />
                 {groupChat && (
                   <>
+                    <InviteDialog
+                      open={isOpen.invite}
+                      onClose={() => handleClose("invite")}
+                      groupChat={groupChat}
+                    />
+                    <MembersDialog
+                      open={isOpen.members}
+                      onClose={() => handleClose("members")}
+                      groupChat={groupChat}
+                    />
                     <AdminsDialog
                       open={isOpen.admins}
                       onClose={() => handleClose("admins")}
