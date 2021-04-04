@@ -21,22 +21,6 @@ def base64decode(msg):
     """
     return b64decode(msg).decode("utf8")
 
-
-def sso_check_hmac(msg, key, digest):
-    """
-    Checks that the given Discourse SSO HMAC (HMAS-SHA256) matches the message
-    """
-    mac = HMAC(key.encode("utf8"), msg.encode("utf8"), "sha256").hexdigest()
-    return compare_digest(mac, digest)
-
-
-def sso_create_hmac(msg, key):
-    """
-    "Signs" a message with a SHA256 hmac.
-    """
-    return HMAC(key.encode("utf8"), msg.encode("utf8"), "sha256").hexdigest()
-
-
 def urlsafe_random_bytes(length=32):
     return urlsafe_b64encode(random_bytes(length)).decode("utf8")
 
