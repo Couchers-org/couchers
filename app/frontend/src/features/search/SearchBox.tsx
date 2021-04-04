@@ -17,11 +17,9 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: "5%",
   },
   box: {
-    "& > .MuiOutlinedInput-root": {
-      width: "70%",
-      [theme.breakpoints.down("md")]: {
-        width: "90%",
-      },
+    width: "70%",
+    [theme.breakpoints.down("md")]: {
+      width: "90%",
     },
   },
 }));
@@ -40,10 +38,8 @@ export default function SearchBox() {
   return (
     <>
       <form onSubmit={onSubmit} className={classes.root}>
-        <FormControl>
-          <InputLabel htmlFor="search-query">
-            Search for users...
-          </InputLabel>
+        <FormControl className={classes.box}>
+          <InputLabel htmlFor="search-query">Search for a user...</InputLabel>
           <Input
             id="search-query"
             type="text"
