@@ -68,17 +68,11 @@ export default function NewGuideForm() {
             })}
             helperText={errors?.title?.message}
           />
-          <Controller
-            control={control}
+          <ProfileMarkdownInput
+            id="content"
             name="content"
-            render={({ onChange, value }) => (
-              <ProfileMarkdownInput
-                id="content"
-                label="Page content"
-                onChange={onChange}
-                value={value}
-              />
-            )}
+            label="Page content"
+            control={control}
           />
 
           <Controller

@@ -160,6 +160,30 @@ const themeOptions: ThemeOptions = {
         fontSize: "0.875rem", //14px
       },
     },
+    h4: {
+      fontSize: "0.75rem", //12px
+      fontWeight: "bold",
+      marginTop: spacing(1),
+      [breakpoints.up("md")]: {
+        fontSize: "0.875rem", //14px
+      },
+    },
+    h5: {
+      fontSize: "0.75rem", //12px
+      fontWeight: "bold",
+      marginTop: spacing(1),
+      [breakpoints.up("md")]: {
+        fontSize: "0.875rem", //14px
+      },
+    },
+    h6: {
+      fontSize: "0.75rem", //12px
+      fontWeight: "bold",
+      marginTop: spacing(1),
+      [breakpoints.up("md")]: {
+        fontSize: "0.875rem", //14px
+      },
+    },
     overline: {
       fontSize: "0.875rem", //14px
       fontStyle: "italic",

@@ -67,17 +67,11 @@ export default function NewPlaceForm() {
             })}
             helperText={errors?.title?.message}
           />
-          <Controller
+          <ProfileMarkdownInput
+            id="content"
+            label="Place content"
             control={control}
             name="content"
-            render={({ onChange, value }) => (
-              <ProfileMarkdownInput
-                id="content"
-                label="Place content"
-                onChange={onChange}
-                value={value}
-              />
-            )}
           />
 
           <Controller
