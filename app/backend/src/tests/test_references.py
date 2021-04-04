@@ -134,26 +134,26 @@ def test_ListPagination(db):
 
     with session_scope() as session:
         # bidirectional references
-        ref2, hr2 = create_host_reference(session, user2.id, user1.id, timedelta(days=15, seconds=110), surfing=True)
+        ref2, hr2 = create_host_reference(session, user2.id, user1.id, timedelta(days=16, seconds=110), surfing=True)
         ref2b, _ = create_host_reference(
-            session, user1.id, user2.id, timedelta(days=15, seconds=100), host_request_id=hr2
+            session, user1.id, user2.id, timedelta(days=16, seconds=100), host_request_id=hr2
         )
 
-        ref3, _ = create_host_reference(session, user3.id, user1.id, timedelta(days=15, seconds=90), surfing=False)
-        ref4, _ = create_host_reference(session, user4.id, user1.id, timedelta(days=15, seconds=80), surfing=True)
-        ref4b = create_friend_reference(session, user1.id, user4.id, timedelta(days=15, seconds=70))
+        ref3, _ = create_host_reference(session, user3.id, user1.id, timedelta(days=16, seconds=90), surfing=False)
+        ref4, _ = create_host_reference(session, user4.id, user1.id, timedelta(days=16, seconds=80), surfing=True)
+        ref4b = create_friend_reference(session, user1.id, user4.id, timedelta(days=16, seconds=70))
 
-        ref5, hr5 = create_host_reference(session, user5.id, user1.id, timedelta(days=15, seconds=60), surfing=False)
+        ref5, hr5 = create_host_reference(session, user5.id, user1.id, timedelta(days=16, seconds=60), surfing=False)
         ref5b, _ = create_host_reference(
-            session, user1.id, user5.id, timedelta(days=15, seconds=50), host_request_id=hr5
+            session, user1.id, user5.id, timedelta(days=16, seconds=50), host_request_id=hr5
         )
 
-        ref6, _ = create_host_reference(session, user6.id, user1.id, timedelta(days=15, seconds=40), surfing=True)
+        ref6, _ = create_host_reference(session, user6.id, user1.id, timedelta(days=16, seconds=40), surfing=True)
 
-        ref7 = create_friend_reference(session, user7.id, user1.id, timedelta(days=15, seconds=30))
+        ref7 = create_friend_reference(session, user7.id, user1.id, timedelta(days=16, seconds=30))
 
-        ref8, _ = create_host_reference(session, user8.id, user1.id, timedelta(days=15, seconds=20), surfing=False)
-        ref9, _ = create_host_reference(session, user9.id, user1.id, timedelta(days=15, seconds=10), surfing=False)
+        ref8, _ = create_host_reference(session, user8.id, user1.id, timedelta(days=16, seconds=20), surfing=False)
+        ref9, _ = create_host_reference(session, user9.id, user1.id, timedelta(days=16, seconds=10), surfing=False)
 
         # should be visible even under 2 weeks
         ref7b = create_friend_reference(session, user1.id, user7.id, timedelta(days=9))
@@ -488,7 +488,7 @@ def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):
         w = res.available_write_references[0]
         assert w.host_request_id == hr3
         assert w.reference_type == references_pb2.REFERENCE_TYPE_HOSTED
-        assert now() + timedelta(days=5) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=6)
+        assert now() + timedelta(days=6) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=7)
 
         res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user4.id))
         # can write friend ref to user4
@@ -498,7 +498,7 @@ def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):
         w = res.available_write_references[0]
         assert w.host_request_id == hr4
         assert w.reference_type == references_pb2.REFERENCE_TYPE_SURFED
-        assert now() + timedelta(days=8) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=9)
+        assert now() + timedelta(days=9) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=10)
 
         # finally check the general list
         res = api.ListPendingReferencesToWrite(empty_pb2.Empty())
@@ -506,8 +506,8 @@ def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):
         w = res.pending_references[0]
         assert w.host_request_id == hr3
         assert w.reference_type == references_pb2.REFERENCE_TYPE_HOSTED
-        assert now() + timedelta(days=5) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=6)
+        assert now() + timedelta(days=6) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=7)
         w = res.pending_references[1]
         assert w.host_request_id == hr4
         assert w.reference_type == references_pb2.REFERENCE_TYPE_SURFED
-        assert now() + timedelta(days=8) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=9)
+        assert now() + timedelta(days=9) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=10)
