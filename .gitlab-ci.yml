@@ -149,6 +149,7 @@ test:backend:
   variables:
     POSTGRES_PASSWORD: c765064a49d18a95
     DATABASE_CONNECTION_STRING: "postgresql://postgres:c765064a49d18a95@postgres/postgres"
+    PG_DUMP: "docker run postgis/postgis:13-3.0 pg_dump"
   script:
     - cd /app && pytest --junitxml=junit.xml --cov=src src
   after_script:

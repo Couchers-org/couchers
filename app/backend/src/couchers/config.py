@@ -47,6 +47,8 @@ CONFIG_OPTIONS = [
     ("BUG_TOOL_GITHUB_TOKEN", str),
     # Whether we're in test
     ("IN_TEST", bool, "0"),
+    # path to pg_dump command, only used in unit tests
+    ("PG_DUMP", str),
 ]
 
 config = {}
