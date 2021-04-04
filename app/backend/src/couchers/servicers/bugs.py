@@ -22,7 +22,7 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
         auth = (config["BUG_TOOL_GITHUB_USERNAME"], config["BUG_TOOL_GITHUB_TOKEN"])
 
         with session_scope() as session:
-            username = session.query(User.username).filter(User.id == request.user_id).one_or_none() or "<unknown>"
+            username = session.query(User.username).filter(User.id == request.user_id).scalar() or "<unknown>"
 
         issue_title = request.subject
         issue_body = (
