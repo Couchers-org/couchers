@@ -33,9 +33,6 @@ const useStyles = makeStyles((theme) => ({
     "& > *": {
       width: "100%",
     },
-    "& > :not(:last-child)": {
-      marginBlockEnd: theme.spacing(3),
-    },
     display: "flex",
     flexDirection: "row",
     flexWrap: "wrap",
