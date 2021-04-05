@@ -78,6 +78,7 @@ export default function EditUserLocationMap({
       ? new LngLat(rLocation.lng, rLocation.lat)
       : new LngLat(151.2099, -33.865143)
   );
+  const radius = useRef<number>(rLocation.radius);
 
   const onCircleMouseDown = (e: MapMouseEvent | MapTouchEvent) => {
     // Prevent the default map drag behavior.
@@ -116,10 +117,11 @@ export default function EditUserLocationMap({
 
   const redrawMap = () => {
     (map.current!.getSource("circle") as GeoJSONSource).setData(
-      circleGeoJson(centerCoords.current!, rLocation.radius)
+      circleGeoJson(centerCoords.current!, radius.current)
     );
   };
 
+  // syncs imperative coordinates into the reactive location object
   const syncCoords = () => {
     const wrapped = centerCoords.current!.wrap();
     setRLocation((rLocation) => {
@@ -135,7 +137,7 @@ export default function EditUserLocationMap({
     map.current = mapRef;
     map.current!.once("load", () => {
       map.current!.addSource("circle", {
-        data: circleGeoJson(centerCoords.current!, rLocation.radius),
+        data: circleGeoJson(centerCoords.current!, radius.current),
         type: "geojson",
       });
 
@@ -188,7 +190,7 @@ export default function EditUserLocationMap({
     map.current!.flyTo({ center: location, zoom: 13 });
     const randomizedLocation = displaceLngLat(
       location,
-      Math.random() * rLocation.radius,
+      Math.random() * radius.current,
       Math.random() * 2 * Math.PI
     );
     onCircleUp(
@@ -235,11 +237,12 @@ export default function EditUserLocationMap({
           value={rLocation.radius}
           min={100}
           max={2000}
-          onChange={async (_, value) => {
-            await setRLocation((rLocation) => {
+          onChange={(_, value) => {
+            radius.current = value as number;
+            redrawMap();
+            setRLocation((rLocation) => {
               return { ...rLocation, radius: value as number };
             });
-            redrawMap();
           }}
         />
         <TextField
