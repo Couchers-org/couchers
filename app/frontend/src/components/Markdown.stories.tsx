@@ -4,7 +4,7 @@ import Markdown from "./Markdown";
 
 export default {
   component: Markdown,
-  title: "Components/Simple/Markdown",
+  title: "Components/Composite/Markdown",
 } as Meta;
 
 const Template: Story<any> = (args) => <Markdown {...args} />;
