@@ -12,9 +12,9 @@ import Autocomplete from "components/Autocomplete";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import Datepicker from "components/Datepicker";
-import EditUserLocationMap, {
+import EditLocationMap, {
   ApproximateLocation,
-} from "components/EditUserLocationMap";
+} from "components/EditLocationMap";
 import TextBody from "components/TextBody";
 import TextField from "components/TextField";
 import TOS from "components/TOS";
@@ -234,7 +234,7 @@ export default function CompleteSignupForm() {
             control={control}
             inputRef={register}
             render={({ onChange }) => (
-              <EditUserLocationMap
+              <EditLocationMap
                 className={classes.locationMap}
                 hideRadiusSlider={true}
                 // react-hook-forms doesn't set value immediately

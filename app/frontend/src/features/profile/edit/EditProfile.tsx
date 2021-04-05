@@ -11,7 +11,7 @@ import Alert from "components/Alert";
 import AvatarInput from "components/AvatarInput";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
-import EditUserLocationMap from "components/EditUserLocationMap";
+import EditLocationMap from "components/EditLocationMap";
 import PageTitle from "components/PageTitle";
 import {
   ABOUT_HOME,
@@ -206,7 +206,7 @@ export default function EditProfileForm() {
             name="city"
             control={control}
             render={() => (
-              <EditUserLocationMap
+              <EditLocationMap
                 location={{
                   address: user.city,
                   lat: user.lat,

@@ -1,16 +1,14 @@
 import { Meta, Story } from "@storybook/react";
 import * as React from "react";
 
-import EditUserLocationMap, {
-  EditUserLocationMapProps,
-} from "./EditUserLocationMap";
+import EditLocationMap, { EditLocationMapProps } from "./EditLocationMap";
 
 export default {
   argTypes: {
     backgroundColor: { control: "color" },
   },
-  component: EditUserLocationMap,
-  title: "Components/Composite/EditUserLocationMap",
+  component: EditLocationMap,
+  title: "Components/Composite/EditLocationMap",
 } as Meta;
 
 const london = {
@@ -18,18 +16,18 @@ const london = {
   lat: 51.5,
   lng: -0.1,
   radius: 250,
-} as EditUserLocationMapProps["location"];
+} as EditLocationMapProps["location"];
 
 const new_york = {
   address: "New York",
   lat: 40.71387,
   lng: -74.00566,
   radius: 1000,
-} as EditUserLocationMapProps["location"];
+} as EditLocationMapProps["location"];
 
-const Template: Story<EditUserLocationMapProps> = (args) => (
+const Template: Story<EditLocationMapProps> = (args) => (
   <div style={{ height: "60vh", width: "50%" }}>
-    <EditUserLocationMap {...args} grow />
+    <EditLocationMap {...args} grow />
     <p>Press enter to search, then customise the text.</p>
     <p>Changes logged to console.</p>
   </div>
@@ -58,4 +56,19 @@ export const NoLocation = Template.bind({});
 NoLocation.args = {
   setLocation: console.log,
   hideRadiusSlider: true,
+};
+
+export const Exact = Template.bind({});
+Exact.args = {
+  setLocation: console.log,
+  hideRadiusSlider: true,
+  exact: true,
+};
+
+export const ExactNewYork = Template.bind({});
+ExactNewYork.args = {
+  setLocation: console.log,
+  location: new_york,
+  hideRadiusSlider: true,
+  exact: true,
 };

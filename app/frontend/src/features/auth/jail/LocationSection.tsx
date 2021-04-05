@@ -1,8 +1,8 @@
 import { Box, makeStyles } from "@material-ui/core";
 import Button from "components/Button";
-import EditUserLocationMap, {
+import EditLocationMap, {
   ApproximateLocation,
-} from "components/EditUserLocationMap";
+} from "components/EditLocationMap";
 import TextBody from "components/TextBody";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -59,7 +59,7 @@ export default function LocationSection({
           name="location"
           control={control}
           render={({ onChange }) => (
-            <EditUserLocationMap
+            <EditLocationMap
               className={classes.map}
               //react-hook-forms doesn't set value immediately
               //so || "" prevents a uncontrolled->controlled warning

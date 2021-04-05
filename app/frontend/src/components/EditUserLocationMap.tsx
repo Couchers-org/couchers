@@ -48,22 +48,26 @@ export interface ApproximateLocation {
   radius: number;
 }
 
-export interface EditUserLocationMapProps extends BoxProps {
+export interface EditLocationMapProps extends BoxProps {
   location?: ApproximateLocation;
   // this function is called on mouse release
   setLocation: (value: ApproximateLocation) => void;
   grow?: boolean;
+  // whether to hide the radius slider
   hideRadiusSlider?: boolean;
+  // whether we are selecting an exact point (for pages, etc) or approx circle, doesn't maeks ense with radius slider
+  exact?: boolean;
 }
 
-export default function EditUserLocationMap({
+export default function EditLocationMap({
   location,
   setLocation,
   className,
   grow,
   hideRadiusSlider,
+  exact,
   ...otherProps
-}: EditUserLocationMapProps) {
+}: EditLocationMapProps) {
   const classes = useStyles();
   const theme = useTheme();
 
@@ -123,9 +127,15 @@ export default function EditUserLocationMap({
   };
 
   const redrawMap = () => {
-    (map.current!.getSource("circle") as GeoJSONSource).setData(
-      circleGeoJson(centerCoords.current!, radius.current)
-    );
+    if (!exact) {
+      (map.current!.getSource("circle") as GeoJSONSource).setData(
+        circleGeoJson(centerCoords.current!, radius.current)
+      );
+    } else {
+      (map.current!.getSource("circle") as GeoJSONSource).setData(
+        pointGeoJson(centerCoords.current!)
+      );
+    }
   };
 
   // syncs imperative coordinates into the reactive location object
@@ -150,21 +160,41 @@ export default function EditUserLocationMap({
   const initializeMap = (mapRef: mapboxgl.Map) => {
     map.current = mapRef;
     map.current!.once("load", () => {
-      map.current!.addSource("circle", {
-        data: circleGeoJson(centerCoords.current!, radius.current),
-        type: "geojson",
-      });
+      if (!exact) {
+        map.current!.addSource("circle", {
+          data: circleGeoJson(centerCoords.current!, radius.current),
+          type: "geojson",
+        });
 
-      map.current!.addLayer({
-        id: "circle",
-        layout: {},
-        paint: {
-          "fill-color": theme.palette.primary.main,
-          "fill-opacity": 0.5,
-        },
-        source: "circle",
-        type: "fill",
-      });
+        map.current!.addLayer({
+          id: "circle",
+          layout: {},
+          paint: {
+            "fill-color": theme.palette.primary.main,
+            "fill-opacity": 0.5,
+          },
+          source: "circle",
+          type: "fill",
+        });
+      } else {
+        map.current!.addSource("circle", {
+          data: pointGeoJson(centerCoords.current!),
+          type: "geojson",
+        });
+
+        map.current!.addLayer({
+          id: "circle",
+          layout: {},
+          paint: {
+            "circle-color": theme.palette.primary.main,
+            "circle-radius": 8,
+            "circle-stroke-color": "#fff",
+            "circle-stroke-width": 1,
+          },
+          source: "circle",
+          type: "circle",
+        });
+      }
 
       // if no user is specified, ask to get the location from browser
       if (!location && navigator.geolocation) {
@@ -202,17 +232,26 @@ export default function EditUserLocationMap({
 
   const flyToSearch = (location: LngLat) => {
     map.current!.flyTo({ center: location, zoom: 13 });
-    const randomizedLocation = displaceLngLat(
-      location,
-      Math.random() * radius.current,
-      Math.random() * 2 * Math.PI
-    );
-    onCircleUp(
-      {
-        lngLat: randomizedLocation,
-      } as MapMouseEvent,
-      () => null
-    );
+    if (!exact) {
+      const randomizedLocation = displaceLngLat(
+        location,
+        Math.random() * radius.current,
+        Math.random() * 2 * Math.PI
+      );
+      onCircleUp(
+        {
+          lngLat: randomizedLocation,
+        } as MapMouseEvent,
+        () => null
+      );
+    } else {
+      onCircleUp(
+        {
+          lngLat: location,
+        } as MapMouseEvent,
+        () => null
+      );
+    }
   };
 
   return (
@@ -277,7 +316,7 @@ export default function EditUserLocationMap({
           fullWidth
           variant="standard"
           label="Display location"
-          helperText="This will be displayed on your profile"
+          helperText="This will be publicly visible"
         />
       </div>
     </>

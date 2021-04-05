@@ -2,6 +2,7 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import EditLocationMap from "components/EditLocationMap";
+import { ApproximateLocation } from "components/EditUserLocationMap";
 import TextField from "components/TextField";
 import { pageURL } from "features/communities/redirect";
 import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";
@@ -78,10 +79,12 @@ export default function NewGuideForm() {
           <Controller
             name="address"
             control={control}
-            render={({ value, onChange }) => (
+            render={() => (
               <EditLocationMap
-                setAddress={(newValue) => onChange(newValue)}
-                setLocation={(location) => {
+                exact
+                hideRadiusSlider
+                setLocation={(location: ApproximateLocation) => {
+                  setValue("address", location.address);
                   setValue("lat", location.lat);
                   setValue("lng", location.lng);
                 }}
