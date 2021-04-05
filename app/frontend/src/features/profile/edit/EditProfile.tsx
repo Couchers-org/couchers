@@ -32,6 +32,7 @@ import {
   OCCUPATION,
   PRONOUNS,
   SAVE,
+  USER_LOCATION,
   WHO,
 } from "features/constants";
 import {
@@ -205,8 +206,7 @@ export default function EditProfileForm() {
           <Controller
             name="city"
             control={control}
-            defaultValue={user.city}
-            render={({ value, onChange }) => (
+            render={() => (
               <EditUserLocationMap
                 location={{
                   address: user.city,

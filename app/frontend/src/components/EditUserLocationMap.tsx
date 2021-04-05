@@ -1,4 +1,10 @@
-import { BoxProps, makeStyles, Slider, useTheme } from "@material-ui/core";
+import {
+  BoxProps,
+  makeStyles,
+  Slider,
+  Typography,
+  useTheme,
+} from "@material-ui/core";
 import classNames from "classnames";
 import Alert from "components/Alert";
 import Map from "components/Map";
@@ -124,13 +130,20 @@ export default function EditUserLocationMap({
   // syncs imperative coordinates into the reactive location object
   const syncCoords = () => {
     const wrapped = centerCoords.current!.wrap();
-    setRLocation((rLocation) => {
+    commit((rLocation) => {
       return {
         ...rLocation,
         lat: wrapped.lat,
         lng: wrapped.lng,
       };
     });
+  };
+
+  const commit = async (
+    update: (s: ApproximateLocation) => ApproximateLocation
+  ) => {
+    await setRLocation(update);
+    setLocation(rLocation);
   };
 
   const initializeMap = (mapRef: mapboxgl.Map) => {
@@ -222,7 +235,7 @@ export default function EditUserLocationMap({
           <MapSearch
             setError={setError}
             setAddress={(_, simplified) =>
-              setRLocation((rLocation) => {
+              commit((rLocation) => {
                 return { ...rLocation, address: simplified };
               })
             }
@@ -230,17 +243,20 @@ export default function EditUserLocationMap({
           />
         </div>
         <div className={classes.coordinateBox}>
-          ({rLocation.lat.toFixed(5)}, {rLocation.lng.toFixed(5)})<br />
-          {JSON.stringify(rLocation)}
+          ({rLocation.lat.toFixed(5)}, {rLocation.lng.toFixed(5)})
         </div>
+        <Typography id="location-radius" gutterBottom>
+          Location accuracy
+        </Typography>
         <Slider
+          aria-labelledby="location-radius"
           value={rLocation.radius}
           min={100}
           max={2000}
           onChange={(_, value) => {
             radius.current = value as number;
             redrawMap();
-            setRLocation((rLocation) => {
+            commit((rLocation) => {
               return { ...rLocation, radius: value as number };
             });
           }}
@@ -248,7 +264,7 @@ export default function EditUserLocationMap({
         <TextField
           value={rLocation.address}
           onChange={(e) =>
-            setRLocation((rLocation) => {
+            commit((rLocation) => {
               return { ...rLocation, address: e.target.value };
             })
           }
