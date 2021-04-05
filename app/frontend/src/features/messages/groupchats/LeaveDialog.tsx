@@ -10,6 +10,11 @@ import {
 } from "components/Dialog";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
+import {
+  groupChatKey,
+  groupChatMessagesKey,
+  groupChatsListKey,
+} from "queryKeys";
 import React from "react";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
@@ -23,9 +28,9 @@ export default function MembersDialog({
     () => service.conversations.leaveGroupChat(groupChatId),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(["groupChatMessages", groupChatId]);
-        queryClient.invalidateQueries(["groupChats"]);
-        queryClient.invalidateQueries(["groupChat", groupChatId]);
+        queryClient.invalidateQueries(groupChatMessagesKey(groupChatId));
+        queryClient.invalidateQueries(groupChatsListKey);
+        queryClient.invalidateQueries(groupChatKey(groupChatId));
         if (props.onClose) props.onClose({}, "escapeKeyDown");
       },
     }

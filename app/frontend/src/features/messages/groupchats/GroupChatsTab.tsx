@@ -9,6 +9,7 @@ import GroupChatListItem from "features/messages/groupchats/GroupChatListItem";
 import useMessageListStyles from "features/messages/useMessageListStyles";
 import { Error as GrpcError } from "grpc-web";
 import { ListGroupChatsRes } from "pb/conversations_pb";
+import { groupChatsListKey } from "queryKeys";
 import React from "react";
 import { useInfiniteQuery } from "react-query";
 import { Link } from "react-router-dom";
@@ -26,7 +27,7 @@ export default function GroupChatsTab() {
     fetchNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery<ListGroupChatsRes.AsObject, GrpcError>(
-    ["groupChats"],
+    groupChatsListKey,
     ({ pageParam: lastMessageId }) =>
       service.conversations.listGroupChats(lastMessageId),
     {
