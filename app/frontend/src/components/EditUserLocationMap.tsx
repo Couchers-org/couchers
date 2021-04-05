@@ -83,10 +83,7 @@ export default function EditUserLocationMap({
 
   // map is imperative so these don't need to cause re-render
   const centerCoords = useRef<LngLat | null>(
-    // TODO: better default?
-    location
-      ? new LngLat(rLocation.lng, rLocation.lat)
-      : new LngLat(151.2099, -33.865143)
+    location ? new LngLat(rLocation.lng, rLocation.lat) : new LngLat(35, 10)
   );
   const radius = useRef<number>(rLocation.radius);
 
@@ -170,7 +167,7 @@ export default function EditUserLocationMap({
       });
 
       // if no user is specified, ask to get the location from browser
-      if (!location) {
+      if (!location && navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((position) => {
           flyToSearch(
             new LngLat(position.coords.longitude, position.coords.latitude)
@@ -230,7 +227,7 @@ export default function EditUserLocationMap({
         {error && <Alert severity="error">{error}</Alert>}
         <div className={classNames(classes.map)}>
           <Map
-            initialZoom={location ? 13 : 2}
+            initialZoom={location ? 13 : 0.5}
             initialCenter={centerCoords.current!}
             postMapInitialize={initializeMap}
             grow

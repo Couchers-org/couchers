@@ -56,7 +56,7 @@ export const SIGN_UP_BIRTHDAY = "Birthday";
 export const SIGN_UP_COMPLETE_HEADER = "Your basic details";
 export const SIGN_UP_FULL_NAME = "Full name";
 export const SIGN_UP_HEADER = "Let's get started!";
-export const SIGN_UP_LOCATION_MISSING = "Please, select your location.";
+export const SIGN_UP_LOCATION_MISSING = "Please select a location.";
 export const SIGN_UP_USERNAME_ERROR =
   "Username can only have lowercase letters, numbers or _, starting with a letter.";
 

@@ -28,8 +28,8 @@ const new_york = {
 } as EditUserLocationMapProps["location"];
 
 const Template: Story<EditUserLocationMapProps> = (args) => (
-  <div style={{ height: args.height, width: "50%" }}>
-    <EditUserLocationMap {...args} />
+  <div style={{ height: "60vh", width: "50%" }}>
+    <EditUserLocationMap {...args} grow />
     <p>Press enter to search, then customise the text.</p>
     <p>Changes logged to console.</p>
   </div>
@@ -37,25 +37,25 @@ const Template: Story<EditUserLocationMapProps> = (args) => (
 
 export const Primary = Template.bind({});
 Primary.args = {
-  height: "60vh",
-  grow: true,
   setLocation: console.log,
   location: london,
 };
 
 export const NewYork = Template.bind({});
 NewYork.args = {
-  height: "40vh",
-  grow: false,
   setLocation: console.log,
   location: new_york,
 };
 
 export const HiddenRadiusSlider = Template.bind({});
 HiddenRadiusSlider.args = {
-  height: "40vh",
-  grow: true,
   setLocation: console.log,
   location: new_york,
+  hideRadiusSlider: true,
+};
+
+export const NoLocation = Template.bind({});
+NoLocation.args = {
+  setLocation: console.log,
   hideRadiusSlider: true,
 };

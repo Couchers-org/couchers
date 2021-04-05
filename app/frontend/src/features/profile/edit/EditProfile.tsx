@@ -32,7 +32,6 @@ import {
   OCCUPATION,
   PRONOUNS,
   SAVE,
-  USER_LOCATION,
   WHO,
 } from "features/constants";
 import {

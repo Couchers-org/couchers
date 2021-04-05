@@ -7,6 +7,7 @@ import {
   Radio,
   RadioGroup,
 } from "@material-ui/core";
+import Alert from "components/Alert";
 import Autocomplete from "components/Autocomplete";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
@@ -82,6 +83,9 @@ const useStyles = makeStyles((theme) => ({
   },
   firstForm: {
     paddingBottom: 0,
+  },
+  missingLocationAlert: {
+    marginTop: theme.spacing(2),
   },
 }));
 
@@ -232,6 +236,7 @@ export default function CompleteSignupForm() {
             render={({ onChange }) => (
               <EditUserLocationMap
                 className={classes.locationMap}
+                hideRadiusSlider={true}
                 // react-hook-forms doesn't set value immediately
                 // so || "" prevents a uncontrolled->controlled warning
                 setLocation={(location) => {
@@ -246,7 +251,6 @@ export default function CompleteSignupForm() {
               />
             )}
           />
-          {isLocationEmpty && <TextBody>{SIGN_UP_LOCATION_MISSING}</TextBody>}
           <form className={authClasses.form} onSubmit={completeSignup}>
             <InputLabel
               className={authClasses.formLabel}
@@ -330,6 +334,11 @@ export default function CompleteSignupForm() {
                 {acceptedTOS ? THANKS : ACCEPT}
               </Button>
             </div>
+            {isLocationEmpty && (
+              <Alert className={classes.missingLocationAlert} severity="error">
+                {SIGN_UP_LOCATION_MISSING}
+              </Alert>
+            )}
             <Button
               classes={{
                 label: authClasses.buttonText,
