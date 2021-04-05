@@ -208,10 +208,14 @@ export default function EditProfileForm() {
             defaultValue={user.city}
             render={({ value, onChange }) => (
               <EditUserLocationMap
-                user={user}
-                city={value}
-                setCity={(newValue) => onChange(newValue)}
+                location={{
+                  address: user.city,
+                  lat: user.lat,
+                  lng: user.lng,
+                  radius: user.radius,
+                }}
                 setLocation={(location) => {
+                  setValue("city", location.address);
                   setValue("lat", location.lat);
                   setValue("lng", location.lng);
                   setValue("radius", location.radius);

@@ -54,7 +54,7 @@ export const MALE_PRONOUNS = "he / him";
 export const MEETUP_STATUS = "Meetup status";
 export const NAME = "Name";
 export const PRONOUNS = "Pronouns";
-export const SAVE = "save";
+export const SAVE = "Save";
 
 // Make Request
 export const sendRequest = (name: string) => `Send ${name} a request`;

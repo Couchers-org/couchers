@@ -30,8 +30,6 @@ export interface Location {
 }
 
 export interface EditLocationMapProps extends BoxProps {
-  // text
-  address?: string;
   // lat+lng
   location?: Location;
   setAddress: (value: string) => void;
@@ -41,7 +39,6 @@ export interface EditLocationMapProps extends BoxProps {
 }
 
 export default function EditLocationMap({
-  address,
   location,
   setAddress,
   setLocation,
@@ -179,9 +176,8 @@ export default function EditLocationMap({
           {...otherProps}
         />
         <MapSearch
-          value={address || ""}
           setError={setError}
-          setValue={setAddress}
+          setAddress={(_, simplified) => setAddress(simplified)}
           setMarker={flyToSearch}
         />
       </Box>

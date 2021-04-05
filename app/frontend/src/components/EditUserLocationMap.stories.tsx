@@ -13,12 +13,12 @@ export default {
   title: "Components/Composite/EditUserLocationMap",
 } as Meta;
 
-const user = {
-  city: "London",
+const location = {
+  address: "London",
   lat: 51.5,
   lng: -0.1,
   radius: 250,
-} as EditUserLocationMapProps["user"];
+} as EditUserLocationMapProps["location"];
 
 const Template: Story<EditUserLocationMapProps> = (args) => (
   <div style={{ height: "60vh", width: "50%" }}>
@@ -32,5 +32,5 @@ export const Primary = Template.bind({});
 Primary.args = {
   grow: true,
   setLocation: console.log,
-  user,
+  location,
 };

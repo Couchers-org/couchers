@@ -234,11 +234,10 @@ export default function CompleteSignupForm() {
                 className={classes.locationMap}
                 // react-hook-forms doesn't set value immediately
                 // so || "" prevents a uncontrolled->controlled warning
-                city={getValues("city") || ""}
-                setCity={(value) => setValue("city", value)}
                 setLocation={(location) => {
                   setIsLocationEmpty(false);
                   return onChange({
+                    address: location.address,
                     lat: location.lat,
                     lng: location.lng,
                     radius: location.radius,

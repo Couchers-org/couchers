@@ -79,7 +79,6 @@ export default function NewPlaceForm() {
             control={control}
             render={({ value, onChange }) => (
               <EditLocationMap
-                address={value}
                 setAddress={(newValue) => onChange(newValue)}
                 setLocation={(location) => {
                   setValue("lat", location.lat);
