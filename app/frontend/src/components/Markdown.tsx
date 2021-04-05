@@ -48,7 +48,7 @@ export default function Markdown({
     //remove all html except <br>
     sanitizedSource = sanitizedSource.replace(/<(?!br)([^>]+)>/gi, "");
     //change images ![]() to links []()
-    sanitizedSource = sanitizedSource.replace(/!(?!\[.*\]\(.*\))/gi, "");
+    sanitizedSource = sanitizedSource.replace(/!(?=\[.*\]\(.*\))/gi, "");
     viewer.current = new ToastUIViewer({
       el: rootEl.current!,
       initialValue: sanitizedSource,
