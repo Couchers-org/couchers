@@ -1,4 +1,4 @@
-import { BoxProps, makeStyles, useTheme } from "@material-ui/core";
+import { BoxProps, makeStyles, Slider, useTheme } from "@material-ui/core";
 import classNames from "classnames";
 import Alert from "components/Alert";
 import Map from "components/Map";
@@ -61,14 +61,23 @@ export default function EditUserLocationMap({
 
   const map = useRef<mapboxgl.Map | null>(null);
 
-  const [displayAddress, setDisplayAddress] = useState<string>(location?.address ?? "")
+  // reactive location
+  const [rLocation, setRLocation] = useState<ApproximateLocation>(
+    location ?? {
+      address: "",
+      lat: 0,
+      lng: 0,
+      radius: 250,
+    }
+  );
 
   // map is imperative so these don't need to cause re-render
   const centerCoords = useRef<LngLat | null>(
     // TODO: better default?
-    location ? new LngLat(location.lng, location.lat) : new LngLat(151.2099, -33.865143)
+    location
+      ? new LngLat(rLocation.lng, rLocation.lat)
+      : new LngLat(151.2099, -33.865143)
   );
-  const radius = useRef<number | null>(location?.radius ?? 250);
 
   const onCircleMouseDown = (e: MapMouseEvent | MapTouchEvent) => {
     // Prevent the default map drag behavior.
@@ -89,10 +98,7 @@ export default function EditUserLocationMap({
 
   const onCircleMove = (e: MapMouseEvent | MapTouchEvent) => {
     centerCoords.current = e.lngLat;
-
-    (map.current!.getSource("circle") as GeoJSONSource).setData(
-      circleGeoJson(centerCoords.current!, radius.current!)
-    );
+    redrawMap();
   };
 
   const onCircleUp = (
@@ -103,15 +109,33 @@ export default function EditUserLocationMap({
     map.current!.off("touchmove", moveHandler);
     map.current!.getCanvas().style.cursor = "move";
 
-    onCircleMove(e);
-    bubble()
+    centerCoords.current = e.lngLat;
+    redrawMap();
+    syncCoords();
+  };
+
+  const redrawMap = () => {
+    (map.current!.getSource("circle") as GeoJSONSource).setData(
+      circleGeoJson(centerCoords.current!, rLocation.radius)
+    );
+  };
+
+  const syncCoords = () => {
+    const wrapped = centerCoords.current!.wrap();
+    setRLocation((rLocation) => {
+      return {
+        ...rLocation,
+        lat: wrapped.lat,
+        lng: wrapped.lng,
+      };
+    });
   };
 
   const initializeMap = (mapRef: mapboxgl.Map) => {
     map.current = mapRef;
     map.current!.once("load", () => {
       map.current!.addSource("circle", {
-        data: circleGeoJson(centerCoords.current!, radius.current!),
+        data: circleGeoJson(centerCoords.current!, rLocation.radius),
         type: "geojson",
       });
 
@@ -164,7 +188,7 @@ export default function EditUserLocationMap({
     map.current!.flyTo({ center: location, zoom: 13 });
     const randomizedLocation = displaceLngLat(
       location,
-      Math.random() * radius.current!,
+      Math.random() * rLocation.radius,
       Math.random() * 2 * Math.PI
     );
     onCircleUp(
@@ -174,16 +198,6 @@ export default function EditUserLocationMap({
       () => null
     );
   };
-
-  const bubble = () => {
-    const wrapped = centerCoords.current!.wrap();
-    setLocation({
-      address: displayAddress,
-      lat: wrapped.lat,
-      lng: wrapped.lng,
-      radius: radius.current!,
-    });
-  }
 
   return (
     <>
@@ -205,16 +219,36 @@ export default function EditUserLocationMap({
           />
           <MapSearch
             setError={setError}
-            setAddress={(_, simplified) => setDisplayAddress(simplified)}
+            setAddress={(_, simplified) =>
+              setRLocation((rLocation) => {
+                return { ...rLocation, address: simplified };
+              })
+            }
             setMarker={flyToSearch}
           />
         </div>
         <div className={classes.coordinateBox}>
-          ({centerCoords.current!.lat.toFixed(5)}, {centerCoords.current!.lng.toFixed(5)})
+          ({rLocation.lat.toFixed(5)}, {rLocation.lng.toFixed(5)})<br />
+          {JSON.stringify(rLocation)}
         </div>
+        <Slider
+          value={rLocation.radius}
+          min={100}
+          max={2000}
+          onChange={async (_, value) => {
+            await setRLocation((rLocation) => {
+              return { ...rLocation, radius: value as number };
+            });
+            redrawMap();
+          }}
+        />
         <TextField
-          value={displayAddress}
-          onChange={e => setDisplayAddress(e.target.value)}
+          value={rLocation.address}
+          onChange={(e) =>
+            setRLocation((rLocation) => {
+              return { ...rLocation, address: e.target.value };
+            })
+          }
           id="display-address"
           fullWidth
           variant="standard"

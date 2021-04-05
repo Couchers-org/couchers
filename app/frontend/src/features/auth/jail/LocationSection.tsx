@@ -65,8 +65,8 @@ export default function LocationSection({
               //so || "" prevents a uncontrolled->controlled warning
               setLocation={(location) =>
                 onChange({
-                    address: location.address,
-                    lat: location.lat,
+                  address: location.address,
+                  lat: location.lat,
                   lng: location.lng,
                   radius: location.radius,
                 })
