@@ -25,6 +25,10 @@ const useStyles = makeStyles((theme) => ({
     "& h4": theme.typography.h4,
     "& h5": theme.typography.h5,
     "& h6": theme.typography.h6,
+    "& p": theme.typography.body1,
+    "& ol": theme.typography.body1,
+    "& ul": theme.typography.body1,
+    "& blockquote": theme.typography.body1,
     "& a": {
       color: theme.palette.primary.main,
     },
@@ -40,9 +44,14 @@ export default function Markdown({
   const rootEl = useRef<HTMLDivElement>(null);
   const viewer = useRef<ToastUIViewer>();
   useEffect(() => {
+    let sanitizedSource = increaseMarkdownHeaderLevel(source, topHeaderLevel);
+    //remove all html except <br>
+    sanitizedSource = sanitizedSource.replace(/<(?!br)([^>]+)>/gi, "");
+    //change images ![]() to links []()
+    sanitizedSource = sanitizedSource.replace(/!(?!\[.*\]\(.*\))/gi, "");
     viewer.current = new ToastUIViewer({
       el: rootEl.current!,
-      initialValue: increaseMarkdownHeaderLevel(source, topHeaderLevel),
+      initialValue: sanitizedSource,
     });
     return () => viewer.current?.remove();
   }, [source, topHeaderLevel]);

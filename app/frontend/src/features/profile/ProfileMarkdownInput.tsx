@@ -22,7 +22,7 @@ export default function ProfileMarkdownInput({
 }: ProfileMarkdownInputProps) {
   return (
     <div className={className}>
-      <Typography variant="h2" id={id}>
+      <Typography variant="h2" id={`${id}-label`}>
         {label}
       </Typography>
       <MarkdownInput
