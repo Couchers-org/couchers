@@ -163,6 +163,7 @@ export default function MapSearch({
           onBlur={() => setOpen(false)}
           onChange={(e, inputValue, reason) => {
             // setAddress(inputValue ?? "", inputValue ?? "");
+            setValue(inputValue ?? "");
             searchSubmit(inputValue ?? "", reason);
           }}
           // onInputChange={(_, inputValue) => setAddress(inputValue, inputValue)}

@@ -18,6 +18,8 @@ import {
 } from "maplibre-gl";
 import React, { useRef, useState } from "react";
 
+import { userLocationMaxRadius, userLocationMinRadius } from "../constants";
+
 const useStyles = makeStyles({
   root: {
     margin: "auto",
@@ -51,6 +53,7 @@ export interface EditUserLocationMapProps extends BoxProps {
   // this function is called on mouse release
   setLocation: (value: ApproximateLocation) => void;
   grow?: boolean;
+  hideRadiusSlider?: boolean;
 }
 
 export default function EditUserLocationMap({
@@ -58,6 +61,7 @@ export default function EditUserLocationMap({
   setLocation,
   className,
   grow,
+  hideRadiusSlider,
   ...otherProps
 }: EditUserLocationMapProps) {
   const classes = useStyles();
@@ -216,15 +220,15 @@ export default function EditUserLocationMap({
 
   return (
     <>
-      <div className={classes.root}>
+      <div
+        className={classNames(
+          classes.root,
+          { [classes.grow]: grow },
+          className
+        )}
+      >
         {error && <Alert severity="error">{error}</Alert>}
-        <div
-          className={classNames(
-            classes.map,
-            { [classes.grow]: grow },
-            className
-          )}
-        >
+        <div className={classNames(classes.map)}>
           <Map
             initialZoom={location ? 13 : 2}
             initialCenter={centerCoords.current!}
@@ -245,22 +249,26 @@ export default function EditUserLocationMap({
         <div className={classes.coordinateBox}>
           ({rLocation.lat.toFixed(5)}, {rLocation.lng.toFixed(5)})
         </div>
-        <Typography id="location-radius" gutterBottom>
-          Location accuracy
-        </Typography>
-        <Slider
-          aria-labelledby="location-radius"
-          value={rLocation.radius}
-          min={100}
-          max={2000}
-          onChange={(_, value) => {
-            radius.current = value as number;
-            redrawMap();
-            commit((rLocation) => {
-              return { ...rLocation, radius: value as number };
-            });
-          }}
-        />
+        {!hideRadiusSlider && (
+          <>
+            <Typography id="location-radius" gutterBottom>
+              Location accuracy
+            </Typography>
+            <Slider
+              aria-labelledby="location-radius"
+              value={rLocation.radius}
+              min={userLocationMinRadius}
+              max={userLocationMaxRadius}
+              onChange={(_, value) => {
+                radius.current = value as number;
+                redrawMap();
+                commit((rLocation) => {
+                  return { ...rLocation, radius: value as number };
+                });
+              }}
+            />
+          </>
+        )}
         <TextField
           value={rLocation.address}
           onChange={(e) =>
