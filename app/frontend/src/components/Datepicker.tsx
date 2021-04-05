@@ -41,7 +41,7 @@ export default function Datepicker({
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
       <Controller
         control={control}
-        defaultValue={minDate}
+        defaultValue={new Date("01-01-2000")}
         inputRef={inputRef}
         name={name}
         render={({ onChange, value }) => (
@@ -66,6 +66,8 @@ export default function Datepicker({
             onChange={(date) => {
               if (date?.isValid()) onChange(date?.toDate());
             }}
+            openTo="year"
+            views={["year", "month", "date"]}
             value={value}
             variant="inline"
           />
