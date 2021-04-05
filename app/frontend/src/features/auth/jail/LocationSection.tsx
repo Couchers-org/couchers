@@ -28,13 +28,7 @@ export default function LocationSection({
 
   const [completed, setCompleted] = useState(false);
 
-  const {
-    control,
-    register,
-    handleSubmit,
-    getValues,
-    setValue,
-  } = useForm<LocationInfo>({
+  const { control, register, handleSubmit } = useForm<LocationInfo>({
     defaultValues: { city: "", location: {} },
   });
 

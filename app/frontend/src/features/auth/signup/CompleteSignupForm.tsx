@@ -15,7 +15,6 @@ import Datepicker from "components/Datepicker";
 import EditLocationMap, {
   ApproximateLocation,
 } from "components/EditLocationMap";
-import TextBody from "components/TextBody";
 import TextField from "components/TextField";
 import TOS from "components/TOS";
 import { useAuthContext } from "features/auth/AuthProvider";
@@ -98,7 +97,6 @@ export default function CompleteSignupForm() {
     register,
     handleSubmit,
     setValue,
-    getValues,
     errors,
   } = useForm<SignupInputs>({
     defaultValues: { city: "", location: {} },
