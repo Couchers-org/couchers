@@ -216,8 +216,8 @@ export default function Navigation() {
         <SearchBox />
         <div className={classes.bug}>
           <Hidden smDown>
-            <NavButton route={logoutRoute} label={LOG_OUT} />
             <NavButton route={settingsRoute} label={SETTINGS} />
+            <NavButton route={logoutRoute} label={LOG_OUT} />
           </Hidden>
           <BugReport />
         </div>
