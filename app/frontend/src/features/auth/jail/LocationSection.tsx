@@ -9,6 +9,8 @@ import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { service } from "service";
 
+import { SIGN_UP_LOCATION_MISSING } from "../constants";
+
 const useStyles = makeStyles({ map: { height: "40vh" } });
 
 interface LocationInfo {
@@ -36,12 +38,16 @@ export default function LocationSection({
   const save = handleSubmit(async ({ location }) => {
     try {
       const { address, lat, lng, radius } = location;
-      const info = await service.jail.setLocation(address, lat, lng, radius);
-      if (!info.isJailed) {
-        updateJailed();
+      if (address === "") {
+        setError(SIGN_UP_LOCATION_MISSING);
       } else {
-        //if user is no longer jailed, this component will be unmounted anyway
-        setCompleted(true);
+        const info = await service.jail.setLocation(address, lat, lng, radius);
+        if (!info.isJailed) {
+          updateJailed();
+        } else {
+          //if user is no longer jailed, this component will be unmounted anyway
+          setCompleted(true);
+        }
       }
     } catch (e) {
       console.error(e);
@@ -55,17 +61,24 @@ export default function LocationSection({
         <Controller
           name="location"
           control={control}
+          rules={{ required: true }}
           render={({ onChange }) => (
             <EditLocationMap
               className={classes.map}
-              updateLocation={(location) =>
-                onChange({
-                  address: location.address,
-                  lat: location.lat,
-                  lng: location.lng,
-                  radius: location.radius,
-                })
-              }
+              updateLocation={(location) => {
+                if (location) {
+                  onChange({
+                    address: location.address,
+                    lat: location.lat,
+                    lng: location.lng,
+                    radius: location.radius,
+                  });
+                } else {
+                  onChange({
+                    address: "",
+                  });
+                }
+              }}
             />
           )}
         />

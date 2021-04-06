@@ -205,7 +205,8 @@ export default function EditProfileForm() {
           <Controller
             name="city"
             control={control}
-            render={() => (
+            rules={{ required: true }}
+            render={({ onChange }) => (
               <EditLocationMap
                 showRadiusSlider
                 initialLocation={{
@@ -215,10 +216,14 @@ export default function EditProfileForm() {
                   radius: user.radius,
                 }}
                 updateLocation={(location) => {
-                  setValue("city", location.address);
-                  setValue("lat", location.lat);
-                  setValue("lng", location.lng);
-                  setValue("radius", location.radius);
+                  if (location) {
+                    onChange(location.address);
+                    setValue("lat", location.lat);
+                    setValue("lng", location.lng);
+                    setValue("radius", location.radius);
+                  } else {
+                    onChange("");
+                  }
                 }}
               />
             )}

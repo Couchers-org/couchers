@@ -16,7 +16,7 @@ import {
   MapMouseEvent,
   MapTouchEvent,
 } from "maplibre-gl";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 
 import { userLocationMaxRadius, userLocationMinRadius } from "../constants";
 import { DISPLAY_LOCATION, LOCATION_PUBLICLY_VISIBLE } from "./constants";
