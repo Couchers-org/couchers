@@ -158,13 +158,13 @@ export default function EditLocationMap({
       address: address.current,
       lat: centerCoords.current.lat,
       lng: centerCoords.current.lng,
-      radius: radius.current,
+      radius: exact ? 0 : radius.current,
     } as ApproximateLocation;
     if ("address" in updates) {
       address.current = updates.address!;
       current.address = updates.address!;
     }
-    if ("radius" in updates) {
+    if ("radius" in updates && !exact) {
       radius.current = updates.radius!;
       current.radius = updates.radius!;
     }
@@ -275,7 +275,7 @@ export default function EditLocationMap({
   };
 
   const flyToSearch = (coords: LngLat) => {
-    map.current!.flyTo({ center: coords, zoom: 13 });
+    map.current!.flyTo({ center: coords, zoom: 12.5 });
     if (!exact) {
       const randomizedLocation = displaceLngLat(
         coords,
