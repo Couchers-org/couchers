@@ -14,8 +14,8 @@ import { timeAgo } from "utils/timeAgo";
 
 const useStyles = makeStyles((theme) => ({
   avatar: {
-    height: theme.spacing(6),
-    width: theme.spacing(6),
+    height: "3rem",
+    width: "3rem",
   },
   cardContent: {
     display: "flex",
@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
   discussionSummary: {
     display: "flex",
     flexDirection: "column",
-    marginInlineStart: theme.spacing(3),
+    marginInlineStart: theme.spacing(2),
   },
   userLoading: { display: "inline-block", width: 80 },
   surtitle: { marginBottom: theme.spacing(0.5) },
@@ -35,6 +35,9 @@ const useStyles = makeStyles((theme) => ({
     "&:first-child": { marginTop: theme.spacing(1) },
   },
   root: {
+    "&:hover": {
+      backgroundColor: theme.palette.grey[50],
+    },
     width: "100%",
   },
 }));
@@ -64,7 +67,11 @@ export default function DiscussionCard({
     <Card className={classNames(classes.root, className)}>
       <Link to={routeToDiscussion(discussion.discussionId, discussion.slug)}>
         <CardContent className={classes.cardContent}>
-          <Avatar user={creator} className={classes.avatar} />
+          <Avatar
+            user={creator}
+            className={classes.avatar}
+            isProfileLink={false}
+          />
           <div className={classes.discussionSummary}>
             <Typography
               variant="body2"
