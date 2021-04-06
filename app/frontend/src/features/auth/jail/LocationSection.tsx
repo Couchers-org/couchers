@@ -1,10 +1,11 @@
 import { Box, makeStyles } from "@material-ui/core";
+import Alert from "components/Alert";
 import Button from "components/Button";
 import EditLocationMap, {
   ApproximateLocation,
 } from "components/EditLocationMap";
 import TextBody from "components/TextBody";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { service } from "service";
 
@@ -26,19 +27,25 @@ export default function LocationSection({
   const classes = useStyles();
 
   const [completed, setCompleted] = useState(false);
+  const [error, setError] = useState("");
 
   const { control, handleSubmit } = useForm<LocationInfo>({
     defaultValues: { location: {} },
   });
 
   const save = handleSubmit(async ({ location }) => {
-    const { address, lat, lng, radius } = location;
-    const info = await service.jail.setLocation(address, lat, lng, radius);
-    if (!info.isJailed) {
-      updateJailed();
-    } else {
-      //if user is no longer jailed, this component will be unmounted anyway
-      setCompleted(true);
+    try {
+      const { address, lat, lng, radius } = location;
+      const info = await service.jail.setLocation(address, lat, lng, radius);
+      if (!info.isJailed) {
+        updateJailed();
+      } else {
+        //if user is no longer jailed, this component will be unmounted anyway
+        setCompleted(true);
+      }
+    } catch (e) {
+      console.error(e);
+      setError(e.message);
     }
   });
 
@@ -64,6 +71,7 @@ export default function LocationSection({
         />
 
         <TextBody>
+          {error && <Alert severity="error">{error}</Alert>}
           <Button onClick={save} disabled={completed}>
             {completed ? "Thanks!" : "Save"}
           </Button>

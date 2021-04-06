@@ -82,7 +82,7 @@ const useStyles = makeStyles((theme) => ({
   firstForm: {
     paddingBottom: 0,
   },
-  missingLocationAlert: {
+  errorAlert: {
     marginTop: theme.spacing(2),
   },
 }));
@@ -104,7 +104,7 @@ export default function CompleteSignupForm() {
   });
 
   const [loading, setLoading] = useState(false);
-  const [isLocationEmpty, setIsLocationEmpty] = useState(false);
+  const [error, setError] = useState("");
   const [acceptedTOS, setAcceptedTOS] = useState(false);
 
   const { urlToken } = useParams<{ urlToken: string }>();
@@ -133,20 +133,27 @@ export default function CompleteSignupForm() {
 
   const completeSignup = handleSubmit(async (data: SignupInputs) => {
     if (Object.entries(data.location).length === 0) {
-      setIsLocationEmpty(true);
+      setError(SIGN_UP_LOCATION_MISSING);
       return;
     }
 
-    authActions.signup({
-      acceptTOS: acceptedTOS,
-      birthdate: data.birthdate.toISOString().split("T")[0],
-      gender: data.gender,
-      hostingStatus: data.hostingStatus,
-      location: data.location,
-      name: data.name,
-      signupToken: urlToken,
-      username: sanitizeName(data.username),
-    });
+    setError("");
+
+    try {
+      authActions.signup({
+        acceptTOS: acceptedTOS,
+        birthdate: data.birthdate.toISOString().split("T")[0],
+        gender: data.gender,
+        hostingStatus: data.hostingStatus,
+        location: data.location,
+        name: data.name,
+        signupToken: urlToken,
+        username: sanitizeName(data.username),
+      });
+    } catch (e) {
+      console.error(e);
+      setError(e.message);
+    }
   });
 
   return (
@@ -233,7 +240,6 @@ export default function CompleteSignupForm() {
               <EditLocationMap
                 className={classes.locationMap}
                 updateLocation={(location) => {
-                  setIsLocationEmpty(false);
                   return onChange({
                     address: location.address,
                     lat: location.lat,
@@ -327,9 +333,9 @@ export default function CompleteSignupForm() {
                 {acceptedTOS ? THANKS : ACCEPT}
               </Button>
             </div>
-            {isLocationEmpty && (
-              <Alert className={classes.missingLocationAlert} severity="error">
-                {SIGN_UP_LOCATION_MISSING}
+            {error && (
+              <Alert className={classes.errorAlert} severity="error">
+                {error}
               </Alert>
             )}
             <Button
