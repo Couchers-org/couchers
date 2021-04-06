@@ -166,7 +166,15 @@ export default function EditProfileForm() {
     <>
       <Box className={classes.headerBar}>
         <PageTitle className={classes.pageTitle}>{EDIT_PROFILE}</PageTitle>
-        <Button className={classes.accountSettingsButton} component={Link} to={settingsRoute}></Button>
+        <Button 
+          className={classes.accountSettingsButton} 
+          component={Link} 
+          to={settingsRoute}
+          variant="contained"
+          color="primary"
+        >
+          {ACCOUNT_SETTINGS}
+        </Button>
       </Box>
       {updateStatus === "success" ? (
         <Alert severity="success">Successfully updated profile!</Alert>
