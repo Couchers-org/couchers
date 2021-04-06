@@ -157,5 +157,10 @@ export const WELCOME_DESCRIPTION_2 = `If you've been here before, you may have n
   because we're migrating from our early alpha version to our new beta version. If you were on the alpha 
   version, don't worry, most of your profile data has been kept!`;
 
+// Jail
+export const PLEASE_CHECK_JAIL =
+  "Please check the following in order to continue.";
+export const LOCATION_SECTION_HEADING = "Please add your location";
+
 // Datepicker
 export const CHANGE_DATE = "Change date";

@@ -1,17 +1,16 @@
-import { Box, makeStyles } from "@material-ui/core";
+import { Box, Typography } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import EditLocationMap, {
   ApproximateLocation,
 } from "components/EditLocationMap";
 import TextBody from "components/TextBody";
+import { LOCATION_SECTION_HEADING } from "features/constants";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { service } from "service";
 
 import { SIGN_UP_LOCATION_MISSING } from "../constants";
-
-const useStyles = makeStyles({ map: { height: "40vh" } });
 
 interface LocationInfo {
   location: ApproximateLocation;
@@ -26,8 +25,6 @@ export default function LocationSection({
   updateJailed,
   className,
 }: LocationSectionProps) {
-  const classes = useStyles();
-
   const [completed, setCompleted] = useState(false);
   const [error, setError] = useState("");
 
@@ -57,14 +54,15 @@ export default function LocationSection({
 
   return (
     <>
+      <Typography variant="h2">{LOCATION_SECTION_HEADING}</Typography>
       <Box className={className}>
+        {error && <Alert severity="error">{error}</Alert>}
         <Controller
           name="location"
           control={control}
           rules={{ required: true }}
           render={({ onChange }) => (
             <EditLocationMap
-              className={classes.map}
               updateLocation={(location) => {
                 if (location) {
                   onChange({
@@ -84,7 +82,6 @@ export default function LocationSection({
         />
 
         <TextBody>
-          {error && <Alert severity="error">{error}</Alert>}
           <Button onClick={save} disabled={completed}>
             {completed ? "Thanks!" : "Save"}
           </Button>
