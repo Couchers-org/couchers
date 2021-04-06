@@ -8,8 +8,10 @@ export const UPLOAD_PENDING_ERROR =
 
 export const DISPLAY_LOCATION = "Display location";
 export const INVALID_COORDINATE =
-  "Missing coordinates, please search for a location with the map above";
-export const DISPLAY_LOCATION_NOT_EMPTY = "Display location cannot be empty";
+  "Missing coordinates, please select a location with the map above";
+export const MAP_IS_BLANK =
+  "Missing coordinates, start by searching for a location with the map above";
+export const DISPLAY_LOCATION_NOT_EMPTY = "Please fill in a display address";
 export const LOCATION_PUBLICLY_VISIBLE = "This will be publicly visible";
 export const NO_LOCATION_RESULTS_TEXT =
   "No results. Try searching for just the city.";

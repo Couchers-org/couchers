@@ -15,7 +15,7 @@ import {
   MapMouseEvent,
   MapTouchEvent,
 } from "maplibre-gl";
-import React, { createRef, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 
 import { userLocationMaxRadius, userLocationMinRadius } from "../constants";
 import {
@@ -23,9 +23,8 @@ import {
   DISPLAY_LOCATION_NOT_EMPTY,
   INVALID_COORDINATE,
   LOCATION_PUBLICLY_VISIBLE,
+  MAP_IS_BLANK,
 } from "./constants";
-
-const DEFAULT_LAT_LNG = { lat: 35, lng: 10 };
 
 const useStyles = makeStyles({
   root: {
@@ -85,10 +84,11 @@ export default function EditLocationMap({
   const address = useRef<string>(initialLocation?.address ?? "");
   const radius = useRef<number>(initialLocation?.radius ?? 250);
   const centerCoords = useRef<LngLat>(
-    new LngLat(
-      initialLocation?.lng ?? DEFAULT_LAT_LNG.lng,
-      initialLocation?.lat ?? DEFAULT_LAT_LNG.lat
-    )
+    new LngLat(initialLocation?.lng ?? 0, initialLocation?.lat ?? 0)
+  );
+  // have not selected a location in any way yet
+  const isBlank = useRef<boolean>(
+    initialLocation?.lng && initialLocation?.lat ? false : true
   );
 
   const onCircleMouseDown = (e: MapMouseEvent | MapTouchEvent) => {
@@ -122,11 +122,14 @@ export default function EditLocationMap({
     map.current!.getCanvas().style.cursor = "move";
 
     centerCoords.current = e.lngLat.wrap();
-    redrawMap();
     syncCoords();
+    redrawMap();
   };
 
   const redrawMap = () => {
+    if (!isBlank.current) {
+      map.current!.setLayoutProperty("circle", "visibility", "visible");
+    }
     if (!exact) {
       (map.current!.getSource("circle") as GeoJSONSource).setData(
         circleGeoJson(centerCoords.current, radius.current)
@@ -169,20 +172,22 @@ export default function EditLocationMap({
       centerCoords.current = new LngLat(updates.lng!, updates.lat!);
       current.lat = updates.lat!;
       current.lng = updates.lng!;
+      isBlank.current = false;
     }
 
     if (update) {
-      if (
-        (current.lat === DEFAULT_LAT_LNG.lat &&
-          current.lng === DEFAULT_LAT_LNG.lng) ||
-        (current.lat === 0 && current.lng === 0)
-      ) {
+      if (isBlank.current) {
+        // haven't selected a location yet
+        setError(MAP_IS_BLANK);
         updateLocation(null);
+      } else if (current.lat === 0 && current.lng === 0) {
+        // somehow have lat/lng == 0
         setError(INVALID_COORDINATE);
-      } else if (current.address === "") {
-        // invalid location, send back null
         updateLocation(null);
+      } else if (current.address === "") {
+        // missing display address
         setError(DISPLAY_LOCATION_NOT_EMPTY);
+        updateLocation(null);
       } else {
         updateLocation(current);
         setError("");
@@ -203,7 +208,9 @@ export default function EditLocationMap({
 
         map.current!.addLayer({
           id: "circle",
-          layout: {},
+          layout: {
+            visibility: isBlank.current ? "none" : "visible",
+          },
           paint: {
             "fill-color": theme.palette.primary.main,
             "fill-opacity": 0.5,
@@ -219,7 +226,9 @@ export default function EditLocationMap({
 
         map.current!.addLayer({
           id: "circle",
-          layout: {},
+          layout: {
+            visibility: isBlank.current ? "none" : "visible",
+          },
           paint: {
             "circle-color": theme.palette.primary.main,
             "circle-radius": 8,
@@ -300,8 +309,11 @@ export default function EditLocationMap({
       >
         <div className={classNames(classes.map)}>
           <Map
-            initialZoom={initialLocation ? 13 : 0.5}
-            initialCenter={centerCoords.current}
+            // (10, 35, 0.5) is just a pretty view
+            initialZoom={isBlank.current ? 0.5 : 12.5}
+            initialCenter={
+              isBlank.current ? new LngLat(10, 35) : centerCoords.current
+            }
             postMapInitialize={initializeMap}
             grow
             {...otherProps}
