@@ -1,4 +1,5 @@
 import {
+  Box,
   FormControlLabel,
   makeStyles,
   Radio,
@@ -57,6 +58,16 @@ const useStyles = makeStyles((theme) => ({
   avatar: {
     width: 120,
     height: 120,
+  },
+  headerBar: {
+    display: "flex",
+    flexDirection: "column"
+  },
+  pageTitle: {
+    align: "left",
+  },
+  accountSettingsButton: {
+    align: "right",
   },
   topFormContainer: {
     display: "flex",
@@ -153,8 +164,10 @@ export default function EditProfileForm() {
 
   return (
     <>
-      <PageTitle>{EDIT_PROFILE}</PageTitle>
-      <Link to={settingsRoute}>{ACCOUNT_SETTINGS}</Link>
+      <Box className={classes.headerBar}>
+        <PageTitle className={classes.pageTitle}>{EDIT_PROFILE}</PageTitle>
+        <Button className={classes.accountSettingsButton} component={Link} to={settingsRoute}></Button>
+      </Box>
       {updateStatus === "success" ? (
         <Alert severity="success">Successfully updated profile!</Alert>
       ) : updateStatus === "error" ? (
