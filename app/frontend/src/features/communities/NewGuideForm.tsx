@@ -83,8 +83,7 @@ export default function NewGuideForm() {
             render={() => (
               <EditLocationMap
                 exact
-                hideRadiusSlider
-                setLocation={(location: ApproximateLocation) => {
+                updateLocation={(location: ApproximateLocation) => {
                   setValue("address", location.address);
                   setValue("lat", location.lat);
                   setValue("lng", location.lng);

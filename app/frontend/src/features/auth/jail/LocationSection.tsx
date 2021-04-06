@@ -11,7 +11,6 @@ import { service } from "service";
 const useStyles = makeStyles({ map: { height: "40vh" } });
 
 interface LocationInfo {
-  city: string;
   location: ApproximateLocation;
 }
 
@@ -28,16 +27,13 @@ export default function LocationSection({
 
   const [completed, setCompleted] = useState(false);
 
-  const { control, register, handleSubmit } = useForm<LocationInfo>({
-    defaultValues: { city: "", location: {} },
+  const { control, handleSubmit } = useForm<LocationInfo>({
+    defaultValues: { location: {} },
   });
 
-  //city isn't an actual field anywhere, so register here
-  useEffect(() => register("city"), [register]);
-
-  const save = handleSubmit(async ({ city, location }) => {
-    const { lat, lng, radius } = location;
-    const info = await service.jail.setLocation(city, lat, lng, radius);
+  const save = handleSubmit(async ({ location }) => {
+    const { address, lat, lng, radius } = location;
+    const info = await service.jail.setLocation(address, lat, lng, radius);
     if (!info.isJailed) {
       updateJailed();
     } else {
@@ -55,9 +51,7 @@ export default function LocationSection({
           render={({ onChange }) => (
             <EditLocationMap
               className={classes.map}
-              //react-hook-forms doesn't set value immediately
-              //so || "" prevents a uncontrolled->controlled warning
-              setLocation={(location) =>
+              updateLocation={(location) =>
                 onChange({
                   address: location.address,
                   lat: location.lat,

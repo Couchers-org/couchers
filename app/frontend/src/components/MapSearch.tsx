@@ -5,11 +5,10 @@ import React, { useState } from "react";
 
 import { NominatimPlace, simplifyPlaceDisplayName } from "../utils/nominatim";
 import Autocomplete from "./Autocomplete";
+import { NO_LOCATION_RESULTS_TEXT, SEARCH_FOR_LOCATION } from "./constants";
 import { SearchIcon } from "./Icons";
 
 const NOMINATIM_URL = process.env.REACT_APP_NOMINATIM_URL;
-
-const NO_RESULTS_TEXT = "No results. Try searching for just the city.";
 
 const useSearchStyles = makeStyles((theme) => ({
   autocomplete: {
@@ -91,14 +90,12 @@ export default function MapSearch({
       const response = await fetch(url, options);
       const nominatimResults = (await response.json()) as Array<NominatimPlace>;
 
-      console.log(nominatimResults);
-
       if (nominatimResults.length === 0) {
         console.log("populating with empty place");
         setSearchOptions([
           {
             location: new LngLat(0, 0),
-            name: NO_RESULTS_TEXT,
+            name: NO_LOCATION_RESULTS_TEXT,
             simplifiedName: "",
           },
         ]);
@@ -131,7 +128,6 @@ export default function MapSearch({
     const searchOption = searchOptions.find((o) => value === o.name);
 
     if (!searchOption) {
-      // setAddress(value, value);
       //create-option is when enter is pressed on user-entered string
       if (reason === "create-option") {
         loadSearchOptions(value);
@@ -143,7 +139,6 @@ export default function MapSearch({
     }
   };
 
-  // <Box>
   return (
     <Box className={classes.root}>
       <form
@@ -154,7 +149,7 @@ export default function MapSearch({
         className={classes.form}
       >
         <Autocomplete
-          label="Search for location"
+          label={SEARCH_FOR_LOCATION}
           value={value}
           size="small"
           options={searchOptions.map((o) => o.name)}
@@ -162,25 +157,22 @@ export default function MapSearch({
           open={open}
           onBlur={() => setOpen(false)}
           onChange={(e, inputValue, reason) => {
-            // setAddress(inputValue ?? "", inputValue ?? "");
             setValue(inputValue ?? "");
             searchSubmit(inputValue ?? "", reason);
           }}
-          // onInputChange={(_, inputValue) => setAddress(inputValue, inputValue)}
           freeSolo
           multiple={false}
           // show all returned results, don't do a filter client side
           filterOptions={(x) => x}
           disableClearable={false}
           className={classes.autocomplete}
-          getOptionDisabled={(option) => option === NO_RESULTS_TEXT}
+          getOptionDisabled={(option) => option === NO_LOCATION_RESULTS_TEXT}
           helperText="Press enter to search"
         />
         <IconButton
           aria-label="Search location"
           size="small"
           onClick={() => {
-            // setAddress(value, value);
             searchSubmit(value, "create-option");
           }}
         >

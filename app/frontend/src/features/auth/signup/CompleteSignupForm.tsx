@@ -63,7 +63,6 @@ type SignupInputs = {
   username: string;
   name: string;
   birthdate: Date;
-  city: string;
   gender: string;
   acceptTOS: boolean;
   hostingStatus: HostingStatus;
@@ -99,7 +98,7 @@ export default function CompleteSignupForm() {
     setValue,
     errors,
   } = useForm<SignupInputs>({
-    defaultValues: { city: "", location: {} },
+    defaultValues: { location: {} },
     mode: "onBlur",
     shouldUnregister: false,
   });
@@ -141,7 +140,6 @@ export default function CompleteSignupForm() {
     authActions.signup({
       acceptTOS: acceptedTOS,
       birthdate: data.birthdate.toISOString().split("T")[0],
-      city: data.city,
       gender: data.gender,
       hostingStatus: data.hostingStatus,
       location: data.location,
@@ -234,10 +232,7 @@ export default function CompleteSignupForm() {
             render={({ onChange }) => (
               <EditLocationMap
                 className={classes.locationMap}
-                hideRadiusSlider={true}
-                // react-hook-forms doesn't set value immediately
-                // so || "" prevents a uncontrolled->controlled warning
-                setLocation={(location) => {
+                updateLocation={(location) => {
                   setIsLocationEmpty(false);
                   return onChange({
                     address: location.address,

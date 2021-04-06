@@ -16,14 +16,14 @@ const london = {
   lat: 51.5,
   lng: -0.1,
   radius: 250,
-} as EditLocationMapProps["location"];
+} as EditLocationMapProps["initialLocation"];
 
 const new_york = {
   address: "New York",
   lat: 40.71387,
   lng: -74.00566,
   radius: 1000,
-} as EditLocationMapProps["location"];
+} as EditLocationMapProps["initialLocation"];
 
 const Template: Story<EditLocationMapProps> = (args) => (
   <div style={{ height: "60vh", width: "50%" }}>
@@ -35,40 +35,38 @@ const Template: Story<EditLocationMapProps> = (args) => (
 
 export const Primary = Template.bind({});
 Primary.args = {
-  setLocation: console.log,
-  location: london,
+  updateLocation: console.log,
+  initialLocation: london,
+  showRadiusSlider: true,
 };
 
 export const NewYork = Template.bind({});
 NewYork.args = {
-  setLocation: console.log,
-  location: new_york,
+  updateLocation: console.log,
+  initialLocation: new_york,
+  showRadiusSlider: true,
 };
 
 export const HiddenRadiusSlider = Template.bind({});
 HiddenRadiusSlider.args = {
-  setLocation: console.log,
-  location: new_york,
-  hideRadiusSlider: true,
+  updateLocation: console.log,
+  initialLocation: new_york,
 };
 
 export const NoLocation = Template.bind({});
 NoLocation.args = {
-  setLocation: console.log,
-  hideRadiusSlider: true,
+  updateLocation: console.log,
 };
 
 export const Exact = Template.bind({});
 Exact.args = {
-  setLocation: console.log,
-  hideRadiusSlider: true,
+  updateLocation: console.log,
   exact: true,
 };
 
 export const ExactNewYork = Template.bind({});
 ExactNewYork.args = {
-  setLocation: console.log,
-  location: new_york,
-  hideRadiusSlider: true,
+  updateLocation: console.log,
+  initialLocation: new_york,
   exact: true,
 };

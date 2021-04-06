@@ -19,6 +19,7 @@ import {
 import React, { useRef, useState } from "react";
 
 import { userLocationMaxRadius, userLocationMinRadius } from "../constants";
+import { DISPLAY_LOCATION, LOCATION_PUBLICLY_VISIBLE } from "./constants";
 
 const useStyles = makeStyles({
   root: {
@@ -33,9 +34,6 @@ const useStyles = makeStyles({
     height: "100%",
     width: "100%",
   },
-  coordinateBox: {
-    textAlign: "right",
-  },
   displayLocation: {
     width: "100%",
   },
@@ -49,35 +47,34 @@ export interface ApproximateLocation {
 }
 
 export interface EditLocationMapProps extends BoxProps {
-  location?: ApproximateLocation;
+  initialLocation?: ApproximateLocation;
   // this function is called on mouse release
-  setLocation: (value: ApproximateLocation) => void;
+  updateLocation: (value: ApproximateLocation) => void;
   grow?: boolean;
   // whether to hide the radius slider
-  hideRadiusSlider?: boolean;
+  showRadiusSlider?: boolean;
   // whether we are selecting an exact point (for pages, etc) or approx circle, doesn't maeks ense with radius slider
   exact?: boolean;
 }
 
 export default function EditLocationMap({
-  location,
-  setLocation,
+  initialLocation,
+  updateLocation,
   className,
   grow,
-  hideRadiusSlider,
+  showRadiusSlider,
   exact,
   ...otherProps
 }: EditLocationMapProps) {
   const classes = useStyles();
   const theme = useTheme();
-
   const [error, setError] = useState("");
 
   const map = useRef<mapboxgl.Map | null>(null);
 
   // reactive location
-  const [rLocation, setRLocation] = useState<ApproximateLocation>(
-    location ?? {
+  const [location, setLocation] = useState<ApproximateLocation>(
+    initialLocation ?? {
       address: "",
       lat: 0,
       lng: 0,
@@ -87,9 +84,11 @@ export default function EditLocationMap({
 
   // map is imperative so these don't need to cause re-render
   const centerCoords = useRef<LngLat | null>(
-    location ? new LngLat(rLocation.lng, rLocation.lat) : new LngLat(35, 10)
+    initialLocation
+      ? new LngLat(location.lng, location.lat)
+      : new LngLat(35, 10)
   );
-  const radius = useRef<number>(rLocation.radius);
+  const radius = useRef(location.radius);
 
   const onCircleMouseDown = (e: MapMouseEvent | MapTouchEvent) => {
     // Prevent the default map drag behavior.
@@ -141,20 +140,18 @@ export default function EditLocationMap({
   // syncs imperative coordinates into the reactive location object
   const syncCoords = () => {
     const wrapped = centerCoords.current!.wrap();
-    commit((rLocation) => {
+    commit((location) => {
       return {
-        ...rLocation,
+        ...location,
         lat: wrapped.lat,
         lng: wrapped.lng,
       };
     });
   };
 
-  const commit = async (
-    update: (s: ApproximateLocation) => ApproximateLocation
-  ) => {
-    await setRLocation(update);
-    setLocation(rLocation);
+  const commit = (update: (s: ApproximateLocation) => ApproximateLocation) => {
+    setLocation(update);
+    updateLocation(location);
   };
 
   const initializeMap = (mapRef: mapboxgl.Map) => {
@@ -197,7 +194,7 @@ export default function EditLocationMap({
       }
 
       // if no user is specified, ask to get the location from browser
-      if (!location && navigator.geolocation) {
+      if (!initialLocation && navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((position) => {
           flyToSearch(
             new LngLat(position.coords.longitude, position.coords.latitude)
@@ -256,6 +253,7 @@ export default function EditLocationMap({
 
   return (
     <>
+      {error && <Alert severity="error">{error}</Alert>}
       <div
         className={classNames(
           classes.root,
@@ -263,10 +261,9 @@ export default function EditLocationMap({
           className
         )}
       >
-        {error && <Alert severity="error">{error}</Alert>}
         <div className={classNames(classes.map)}>
           <Map
-            initialZoom={location ? 13 : 0.5}
+            initialZoom={initialLocation ? 13 : 0.5}
             initialCenter={centerCoords.current!}
             postMapInitialize={initializeMap}
             grow
@@ -275,48 +272,45 @@ export default function EditLocationMap({
           <MapSearch
             setError={setError}
             setAddress={(_, simplified) =>
-              commit((rLocation) => {
-                return { ...rLocation, address: simplified };
+              commit((location) => {
+                return { ...location, address: simplified };
               })
             }
             setMarker={flyToSearch}
           />
         </div>
-        <div className={classes.coordinateBox}>
-          ({rLocation.lat.toFixed(5)}, {rLocation.lng.toFixed(5)})
-        </div>
-        {!hideRadiusSlider && (
+        {showRadiusSlider && (
           <>
             <Typography id="location-radius" gutterBottom>
               Location accuracy
             </Typography>
             <Slider
               aria-labelledby="location-radius"
-              value={rLocation.radius}
+              value={location.radius}
               min={userLocationMinRadius}
               max={userLocationMaxRadius}
               onChange={(_, value) => {
                 radius.current = value as number;
                 redrawMap();
-                commit((rLocation) => {
-                  return { ...rLocation, radius: value as number };
+                commit((location) => {
+                  return { ...location, radius: value as number };
                 });
               }}
             />
           </>
         )}
         <TextField
-          value={rLocation.address}
+          value={location.address}
           onChange={(e) =>
-            commit((rLocation) => {
-              return { ...rLocation, address: e.target.value };
+            commit((location) => {
+              return { ...location, address: e.target.value };
             })
           }
           id="display-address"
           fullWidth
           variant="standard"
-          label="Display location"
-          helperText="This will be publicly visible"
+          label={DISPLAY_LOCATION}
+          helperText={LOCATION_PUBLICLY_VISIBLE}
         />
       </div>
     </>

@@ -207,13 +207,14 @@ export default function EditProfileForm() {
             control={control}
             render={() => (
               <EditLocationMap
-                location={{
+                showRadiusSlider
+                initialLocation={{
                   address: user.city,
                   lat: user.lat,
                   lng: user.lng,
                   radius: user.radius,
                 }}
-                setLocation={(location) => {
+                updateLocation={(location) => {
                   setValue("city", location.address);
                   setValue("lat", location.lat);
                   setValue("lng", location.lng);
