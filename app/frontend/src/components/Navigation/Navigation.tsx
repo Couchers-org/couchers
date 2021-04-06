@@ -21,11 +21,10 @@ import {
   logoutRoute,
   mapRoute,
   messagesRoute,
-  settingsRoute,
   userRoute,
 } from "routes";
 
-import { COUCHERS, LOG_OUT, SETTINGS } from "../../constants";
+import { COUCHERS, LOG_OUT } from "../../constants";
 import NavButton from "./NavButton";
 
 const menu = [
@@ -125,9 +124,6 @@ export default function Navigation() {
             <NavButton route={route} label={name} labelVariant="h2" />
           </ListItem>
         ))}
-        <ListItem button key="settings">
-          <NavButton route={settingsRoute} label={SETTINGS} labelVariant="h2" />
-        </ListItem>
         <ListItem button key="logout">
           <NavButton route={logoutRoute} label={LOG_OUT} labelVariant="h2" />
         </ListItem>
@@ -216,7 +212,6 @@ export default function Navigation() {
         <SearchBox />
         <div className={classes.bug}>
           <Hidden smDown>
-            <NavButton route={settingsRoute} label={SETTINGS} />
             <NavButton route={logoutRoute} label={LOG_OUT} />
           </Hidden>
           <BugReport />

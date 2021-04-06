@@ -14,6 +14,7 @@ import EditUserLocationMap from "components/EditUserLocationMap";
 import PageTitle from "components/PageTitle";
 import {
   ABOUT_HOME,
+  ACCOUNT_SETTINGS,
   ADDITIONAL,
   COUNTRIES_LIVED,
   COUNTRIES_VISITED,
@@ -47,6 +48,8 @@ import useCurrentUser from "features/userQueries/useCurrentUser";
 import { HostingStatus, MeetupStatus } from "pb/api_pb";
 import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { Link } from "react-router-dom";
+import { settingsRoute } from "routes";
 import { UpdateUserProfileData } from "service/index";
 import { useIsMounted, useSafeState } from "utils/hooks";
 
@@ -151,6 +154,7 @@ export default function EditProfileForm() {
   return (
     <>
       <PageTitle>{EDIT_PROFILE}</PageTitle>
+      <Link to={settingsRoute}>{ACCOUNT_SETTINGS}</Link>
       {updateStatus === "success" ? (
         <Alert severity="success">Successfully updated profile!</Alert>
       ) : updateStatus === "error" ? (
