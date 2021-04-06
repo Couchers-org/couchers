@@ -41,7 +41,7 @@ export default function Datepicker({
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
       <Controller
         control={control}
-        defaultValue={Date()}
+        defaultValue={new Date()}
         inputRef={inputRef}
         name={name}
         render={({ onChange, value }) => (
