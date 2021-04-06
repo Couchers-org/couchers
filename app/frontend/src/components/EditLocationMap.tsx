@@ -6,7 +6,6 @@ import {
   useTheme,
 } from "@material-ui/core";
 import classNames from "classnames";
-import Alert from "components/Alert";
 import Map from "components/Map";
 import MapSearch from "components/MapSearch";
 import TextField from "components/TextField";
@@ -16,7 +15,7 @@ import {
   MapMouseEvent,
   MapTouchEvent,
 } from "maplibre-gl";
-import React, { useRef, useState } from "react";
+import React, { createRef, useRef, useState } from "react";
 
 import { userLocationMaxRadius, userLocationMinRadius } from "../constants";
 import {
@@ -78,6 +77,9 @@ export default function EditLocationMap({
   const [error, setError] = useState("");
 
   const map = useRef<mapboxgl.Map | null>(null);
+
+  const updater = useState(0);
+  const setUpdater = updater[1];
 
   // map is imperative so these don't need to cause re-render
   const address = useRef<string>(initialLocation?.address ?? "");
@@ -186,6 +188,8 @@ export default function EditLocationMap({
         setError("");
       }
     }
+
+    setUpdater(Date.now());
   };
 
   const initializeMap = (mapRef: mapboxgl.Map) => {
@@ -317,10 +321,16 @@ export default function EditLocationMap({
             </Typography>
             <Slider
               aria-labelledby="location-radius"
+              aria-valuetext={radius.current + " meters"}
               value={radius.current}
+              step={5}
               min={userLocationMinRadius}
               max={userLocationMaxRadius}
               onChange={(_, value) => {
+                commit({ radius: value as number }, false);
+                redrawMap();
+              }}
+              onChangeCommitted={(_, value) => {
                 commit({ radius: value as number });
                 redrawMap();
               }}

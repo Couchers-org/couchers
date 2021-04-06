@@ -69,6 +69,7 @@ export default function MapPage() {
     <div className={classes.container}>
       <PageTitle>{MAP_PAGE}</PageTitle>
       <Map
+        hash
         initialZoom={1}
         initialCenter={new LngLat(0, 0)}
         grow
