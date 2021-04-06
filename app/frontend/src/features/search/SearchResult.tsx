@@ -2,6 +2,7 @@ import {
   Card,
   CardActionArea,
   CardContent,
+  Hidden,
   Typography,
 } from "@material-ui/core";
 import { CouchIcon, LocationIcon } from "components/Icons";
@@ -21,11 +22,16 @@ import { routeToUser } from "routes";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
-  card: {
-    borderRadius: theme.shape.borderRadius * 3,
-  },
   about: {
     margin: `${theme.spacing(2)} 0`,
+  },
+  card: {
+    boxShadow: "5px 5px 5px rgba(196, 196, 196, 0.5)", // todo
+    paddingLeft: theme.spacing(3),
+    paddingRight: theme.spacing(1),
+  },
+  cardContent: {
+    padding: 0,
   },
   statusLabelWrapper: {
     display: "flex",
@@ -38,12 +44,10 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(2),
   },
   root: {
-    [theme.breakpoints.up("sm")]: {
-      width: "49%",
-    },
+    marginRight: theme.spacing(2),
     marginBottom: theme.spacing(2),
     textDecoration: "none",
-    width: "100%",
+    // width: "100%",
   },
 }));
 
@@ -53,7 +57,7 @@ export default function SearchResult({ user }: { user: User.AsObject }) {
     <Link to={routeToUser(user.username)} className={classes.root}>
       <Card className={classes.card}>
         <CardActionArea>
-          <CardContent>
+          <CardContent className={classes.cardContent}>
             <UserSummary user={user}>
               <div className={classes.statusLabelWrapper}>
                 <div>
@@ -82,8 +86,10 @@ export default function SearchResult({ user }: { user: User.AsObject }) {
             <Typography variant="body1" className={classes.about}>
               {aboutText(user)}
             </Typography>
-            <LabelsAgeGenderLanguages user={user} />
-            <LabelsReferencesLastActive user={user} />
+            <Hidden mdDown>
+              <LabelsAgeGenderLanguages user={user} />
+              <LabelsReferencesLastActive user={user} />
+            </Hidden>
           </CardContent>
         </CardActionArea>
       </Card>
