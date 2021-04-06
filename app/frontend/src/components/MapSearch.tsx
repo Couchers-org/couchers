@@ -5,7 +5,11 @@ import React, { useState } from "react";
 
 import { NominatimPlace, simplifyPlaceDisplayName } from "../utils/nominatim";
 import Autocomplete from "./Autocomplete";
-import { NO_LOCATION_RESULTS_TEXT, SEARCH_FOR_LOCATION } from "./constants";
+import {
+  NO_LOCATION_RESULTS_TEXT,
+  PRESS_ENTER_TO_SEARCH,
+  SEARCH_FOR_LOCATION,
+} from "./constants";
 import { SearchIcon } from "./Icons";
 
 const NOMINATIM_URL = process.env.REACT_APP_NOMINATIM_URL;
@@ -50,16 +54,15 @@ interface SearchOption {
 }
 
 interface MapSearchProps {
-  setAddress: (address: string, simplifiedAddress: string) => void;
   setError: (error: string) => void;
-  setMarker: (lngLat: LngLat) => void;
+  setResult: (
+    lngLat: LngLat,
+    address: string,
+    simplifiedAddress: string
+  ) => void;
 }
 
-export default function MapSearch({
-  setAddress,
-  setError,
-  setMarker,
-}: MapSearchProps) {
+export default function MapSearch({ setError, setResult }: MapSearchProps) {
   const classes = useSearchStyles();
 
   const [searchOptionsLoading, setSearchOptionsLoading] = useState(false);
@@ -133,8 +136,11 @@ export default function MapSearch({
         loadSearchOptions(value);
       }
     } else {
-      setMarker(searchOption.location);
-      setAddress(searchOption.name, searchOption.simplifiedName);
+      setResult(
+        searchOption.location,
+        searchOption.name,
+        searchOption.simplifiedName
+      );
       setOpen(false);
     }
   };
@@ -167,7 +173,7 @@ export default function MapSearch({
           disableClearable={false}
           className={classes.autocomplete}
           getOptionDisabled={(option) => option === NO_LOCATION_RESULTS_TEXT}
-          helperText="Press enter to search"
+          helperText={PRESS_ENTER_TO_SEARCH}
         />
         <IconButton
           aria-label="Search location"

@@ -16,10 +16,12 @@ import {
   MapMouseEvent,
   MapTouchEvent,
 } from "maplibre-gl";
-import React, { useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 import { userLocationMaxRadius, userLocationMinRadius } from "../constants";
 import { DISPLAY_LOCATION, LOCATION_PUBLICLY_VISIBLE } from "./constants";
+
+const DEFAULT_LAT_LNG = { lat: 35, lng: 10 };
 
 const useStyles = makeStyles({
   root: {
@@ -49,7 +51,7 @@ export interface ApproximateLocation {
 export interface EditLocationMapProps extends BoxProps {
   initialLocation?: ApproximateLocation;
   // this function is called on mouse release
-  updateLocation: (value: ApproximateLocation) => void;
+  updateLocation: (value: ApproximateLocation | null) => void;
   grow?: boolean;
   // whether to hide the radius slider
   showRadiusSlider?: boolean;
@@ -72,23 +74,15 @@ export default function EditLocationMap({
 
   const map = useRef<mapboxgl.Map | null>(null);
 
-  // reactive location
-  const [location, setLocation] = useState<ApproximateLocation>(
-    initialLocation ?? {
-      address: "",
-      lat: 0,
-      lng: 0,
-      radius: 250,
-    }
-  );
-
   // map is imperative so these don't need to cause re-render
-  const centerCoords = useRef<LngLat | null>(
-    initialLocation
-      ? new LngLat(location.lng, location.lat)
-      : new LngLat(35, 10)
+  const address = useRef<string>(initialLocation?.address ?? "");
+  const radius = useRef<number>(initialLocation?.radius ?? 250);
+  const centerCoords = useRef<LngLat>(
+    new LngLat(
+      initialLocation?.lng ?? DEFAULT_LAT_LNG.lng,
+      initialLocation?.lat ?? DEFAULT_LAT_LNG.lat
+    )
   );
-  const radius = useRef(location.radius);
 
   const onCircleMouseDown = (e: MapMouseEvent | MapTouchEvent) => {
     // Prevent the default map drag behavior.
@@ -108,7 +102,7 @@ export default function EditLocationMap({
   };
 
   const onCircleMove = (e: MapMouseEvent | MapTouchEvent) => {
-    centerCoords.current = e.lngLat;
+    centerCoords.current = e.lngLat.wrap();
     redrawMap();
   };
 
@@ -120,7 +114,7 @@ export default function EditLocationMap({
     map.current!.off("touchmove", moveHandler);
     map.current!.getCanvas().style.cursor = "move";
 
-    centerCoords.current = e.lngLat;
+    centerCoords.current = e.lngLat.wrap();
     redrawMap();
     syncCoords();
   };
@@ -128,30 +122,61 @@ export default function EditLocationMap({
   const redrawMap = () => {
     if (!exact) {
       (map.current!.getSource("circle") as GeoJSONSource).setData(
-        circleGeoJson(centerCoords.current!, radius.current)
+        circleGeoJson(centerCoords.current, radius.current)
       );
     } else {
       (map.current!.getSource("circle") as GeoJSONSource).setData(
-        pointGeoJson(centerCoords.current!)
+        pointGeoJson(centerCoords.current)
       );
     }
   };
 
   // syncs imperative coordinates into the reactive location object
   const syncCoords = () => {
-    const wrapped = centerCoords.current!.wrap();
-    commit((location) => {
-      return {
-        ...location,
-        lat: wrapped.lat,
-        lng: wrapped.lng,
-      };
+    const wrapped = centerCoords.current;
+    commit({
+      lat: wrapped.lat,
+      lng: wrapped.lng,
     });
   };
 
-  const commit = (update: (s: ApproximateLocation) => ApproximateLocation) => {
-    setLocation(update);
-    updateLocation(location);
+  const commit = (
+    updates: Partial<ApproximateLocation>,
+    update: boolean = true
+  ) => {
+    const current = {
+      address: address.current,
+      lat: centerCoords.current.lat,
+      lng: centerCoords.current.lng,
+      radius: radius.current,
+    } as ApproximateLocation;
+    if ("address" in updates) {
+      address.current = updates.address!;
+      current.address = updates.address!;
+    }
+    if ("radius" in updates) {
+      radius.current = updates.radius!;
+      current.radius = updates.radius!;
+    }
+    if ("lat" in updates && "lng" in updates) {
+      centerCoords.current = new LngLat(updates.lng!, updates.lat!);
+      current.lat = updates.lat!;
+      current.lng = updates.lng!;
+    }
+
+    if (update) {
+      if (
+        (current.lat === DEFAULT_LAT_LNG.lat &&
+          current.lng === DEFAULT_LAT_LNG.lng) ||
+        (current.lat === 0 && current.lng === 0) ||
+        current.address === ""
+      ) {
+        // invalid location, send back null
+        updateLocation(null);
+      } else {
+        updateLocation(current);
+      }
+    }
   };
 
   const initializeMap = (mapRef: mapboxgl.Map) => {
@@ -159,7 +184,7 @@ export default function EditLocationMap({
     map.current!.once("load", () => {
       if (!exact) {
         map.current!.addSource("circle", {
-          data: circleGeoJson(centerCoords.current!, radius.current),
+          data: circleGeoJson(centerCoords.current, radius.current),
           type: "geojson",
         });
 
@@ -175,7 +200,7 @@ export default function EditLocationMap({
         });
       } else {
         map.current!.addSource("circle", {
-          data: pointGeoJson(centerCoords.current!),
+          data: pointGeoJson(centerCoords.current),
           type: "geojson",
         });
 
@@ -227,11 +252,11 @@ export default function EditLocationMap({
     map.current!.on("mouseleave", "circle", unsetCursor);
   };
 
-  const flyToSearch = (location: LngLat) => {
-    map.current!.flyTo({ center: location, zoom: 13 });
+  const flyToSearch = (coords: LngLat) => {
+    map.current!.flyTo({ center: coords, zoom: 13 });
     if (!exact) {
       const randomizedLocation = displaceLngLat(
-        location,
+        coords,
         Math.random() * radius.current,
         Math.random() * 2 * Math.PI
       );
@@ -244,7 +269,7 @@ export default function EditLocationMap({
     } else {
       onCircleUp(
         {
-          lngLat: location,
+          lngLat: coords,
         } as MapMouseEvent,
         () => null
       );
@@ -264,19 +289,17 @@ export default function EditLocationMap({
         <div className={classNames(classes.map)}>
           <Map
             initialZoom={initialLocation ? 13 : 0.5}
-            initialCenter={centerCoords.current!}
+            initialCenter={centerCoords.current}
             postMapInitialize={initializeMap}
             grow
             {...otherProps}
           />
           <MapSearch
             setError={setError}
-            setAddress={(_, simplified) =>
-              commit((location) => {
-                return { ...location, address: simplified };
-              })
-            }
-            setMarker={flyToSearch}
+            setResult={(coordinate, _, simplified) => {
+              commit({ address: simplified }, false);
+              flyToSearch(coordinate);
+            }}
           />
         </div>
         {showRadiusSlider && (
@@ -286,26 +309,21 @@ export default function EditLocationMap({
             </Typography>
             <Slider
               aria-labelledby="location-radius"
-              value={location.radius}
+              value={radius.current}
               min={userLocationMinRadius}
               max={userLocationMaxRadius}
               onChange={(_, value) => {
-                radius.current = value as number;
+                commit({ radius: value as number });
                 redrawMap();
-                commit((location) => {
-                  return { ...location, radius: value as number };
-                });
               }}
             />
           </>
         )}
         <TextField
-          value={location.address}
-          onChange={(e) =>
-            commit((location) => {
-              return { ...location, address: e.target.value };
-            })
-          }
+          value={address.current}
+          onChange={(e) => {
+            commit({ address: e.target.value });
+          }}
           id="display-address"
           fullWidth
           variant="standard"

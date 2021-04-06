@@ -236,16 +236,12 @@ export default function CompleteSignupForm() {
             name="location"
             control={control}
             inputRef={register}
-            render={({ onChange }) => (
+            render={() => (
               <EditLocationMap
                 className={classes.locationMap}
                 updateLocation={(location) => {
-                  return onChange({
-                    address: location.address,
-                    lat: location.lat,
-                    lng: location.lng,
-                    radius: location.radius,
-                  });
+                  console.log(location);
+                  setValue("location", location);
                 }}
               />
             )}

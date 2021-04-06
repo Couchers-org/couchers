@@ -11,6 +11,7 @@ export const LOCATION_PUBLICLY_VISIBLE = "This will be publicly visible";
 export const NO_LOCATION_RESULTS_TEXT =
   "No results. Try searching for just the city.";
 export const SEARCH_FOR_LOCATION = "Search for location";
+export const PRESS_ENTER_TO_SEARCH = "Press enter to search";
 
 //these come from https://github.com/unicode-org/cldr-json/tree/master/cldr-json/cldr-dates-modern/main
 //but really https://stackoverflow.com/a/9893752

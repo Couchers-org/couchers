@@ -1,7 +1,10 @@
 import { Meta, Story } from "@storybook/react";
 import * as React from "react";
 
-import EditLocationMap, { EditLocationMapProps } from "./EditLocationMap";
+import EditLocationMap, {
+  ApproximateLocation,
+  EditLocationMapProps,
+} from "./EditLocationMap";
 
 export default {
   argTypes: {
@@ -25,48 +28,58 @@ const new_york = {
   radius: 1000,
 } as EditLocationMapProps["initialLocation"];
 
-const Template: Story<EditLocationMapProps> = (args) => (
-  <div style={{ height: "60vh", width: "50%" }}>
-    <EditLocationMap {...args} grow />
-    <p>Press enter to search, then customise the text.</p>
-    <p>Changes logged to console.</p>
-  </div>
-);
+const Template: Story<EditLocationMapProps> = (args) => {
+  const [loc, setLoc] = React.useState<ApproximateLocation | null>(null);
+  const [hist, setHist] = React.useState<(ApproximateLocation | null)[]>([]);
+
+  const updateLoc = (l: ApproximateLocation | null) => {
+    setLoc(l);
+    setHist((hist) => hist.concat(l));
+  };
+
+  return (
+    <div style={{ width: "500" }}>
+      <p>Current loc: {JSON.stringify(loc)}</p>
+      <EditLocationMap {...args} grow updateLocation={updateLoc} />
+      <p>History:</p>
+      <ul>
+        {hist.map((l, i) => (
+          <li key={i}>
+            {i}: {JSON.stringify(l)}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
 
 export const Primary = Template.bind({});
 Primary.args = {
-  updateLocation: console.log,
   initialLocation: london,
   showRadiusSlider: true,
 };
 
 export const NewYork = Template.bind({});
 NewYork.args = {
-  updateLocation: console.log,
   initialLocation: new_york,
   showRadiusSlider: true,
 };
 
 export const HiddenRadiusSlider = Template.bind({});
 HiddenRadiusSlider.args = {
-  updateLocation: console.log,
   initialLocation: new_york,
 };
 
 export const NoLocation = Template.bind({});
-NoLocation.args = {
-  updateLocation: console.log,
-};
+NoLocation.args = {};
 
 export const Exact = Template.bind({});
 Exact.args = {
-  updateLocation: console.log,
   exact: true,
 };
 
 export const ExactNewYork = Template.bind({});
 ExactNewYork.args = {
-  updateLocation: console.log,
   initialLocation: new_york,
   exact: true,
 };
