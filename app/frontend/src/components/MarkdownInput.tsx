@@ -75,7 +75,6 @@ export default function MarkdownInput({
         "heading",
         "bold",
         "italic",
-        "strike",
         "divider",
         "hr",
         "quote",
