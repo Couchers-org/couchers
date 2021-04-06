@@ -41,7 +41,7 @@ export default function Datepicker({
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
       <Controller
         control={control}
-        defaultValue={null}
+        defaultValue={Date()}
         inputRef={inputRef}
         name={name}
         render={({ onChange, value }) => (
@@ -49,7 +49,6 @@ export default function Datepicker({
             animateYearScrolling={true}
             autoOk
             className={className}
-            disableToolbar
             error={error}
             format={getLocaleFormat()}
             fullWidth
@@ -66,8 +65,6 @@ export default function Datepicker({
             onChange={(date) => {
               if (date?.isValid()) onChange(date?.toDate());
             }}
-            openTo="year"
-            placeholder="dd/mm/yyyy"
             views={["year", "month", "date"]}
             value={value}
             variant="inline"
