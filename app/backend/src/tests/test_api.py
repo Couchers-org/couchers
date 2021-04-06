@@ -33,7 +33,7 @@ def test_ping(db):
 
     with session_scope() as session:
         db_user = session.query(User).filter(User.id == user.id).one()
-        # This is empty for now, but may change at some point
+        # language_abilities is empty for now, but may change at some point
         language_abilities = set(language_ability.language_code for language_ability in db_user.language_abilities)
         regions_visited = [region.region_code for region in db_user.regions_visited]
         regions_lived = [region.region_code for region in db_user.regions_lived]
