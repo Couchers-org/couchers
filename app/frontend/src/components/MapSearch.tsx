@@ -20,6 +20,7 @@ const useSearchStyles = makeStyles((theme) => ({
   },
   form: {
     display: "flex",
+    alignItems: "center",
     width: "100%",
   },
   root: {
@@ -177,7 +178,7 @@ export default function MapSearch({ setError, setResult }: MapSearchProps) {
         />
         <IconButton
           aria-label="Search location"
-          size="small"
+          size="medium"
           onClick={() => {
             searchSubmit(value, "create-option");
           }}
