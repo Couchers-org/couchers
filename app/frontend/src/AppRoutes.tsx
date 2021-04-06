@@ -162,28 +162,32 @@ export default function AppRoutes() {
       {
         // COMMUNITIES
       }
-      <AppRoute isPrivate path={communityRoute}>
-        <CommunityPage />
-      </AppRoute>
+      {process.env.REACT_APP_IS_COMMUNITIES_ENABLED && (
+        <>
+          <AppRoute isPrivate path={communityRoute}>
+            <CommunityPage />
+          </AppRoute>
 
-      <AppRoute isPrivate path={newPlaceRoute}>
-        <NewPlacePage />
-      </AppRoute>
-      <AppRoute isPrivate path={placeRoute}>
-        <PagePage pageType={PageType.PAGE_TYPE_PLACE} />
-      </AppRoute>
-      <AppRoute isPrivate path={newGuideRoute}>
-        <NewGuidePage />
-      </AppRoute>
-      <AppRoute isPrivate path={guideRoute}>
-        <PagePage pageType={PageType.PAGE_TYPE_GUIDE} />
-      </AppRoute>
-      <AppRoute isPrivate path={discussionRoute}>
-        <DiscussionPage />
-      </AppRoute>
-      <AppRoute isPrivate path={groupRoute}>
-        <GroupPage />
-      </AppRoute>
+          <AppRoute isPrivate path={newPlaceRoute}>
+            <NewPlacePage />
+          </AppRoute>
+          <AppRoute isPrivate path={placeRoute}>
+            <PagePage pageType={PageType.PAGE_TYPE_PLACE} />
+          </AppRoute>
+          <AppRoute isPrivate path={newGuideRoute}>
+            <NewGuidePage />
+          </AppRoute>
+          <AppRoute isPrivate path={guideRoute}>
+            <PagePage pageType={PageType.PAGE_TYPE_GUIDE} />
+          </AppRoute>
+          <AppRoute isPrivate path={discussionRoute}>
+            <DiscussionPage />
+          </AppRoute>
+          <AppRoute isPrivate path={groupRoute}>
+            <GroupPage />
+          </AppRoute>
+        </>
+      )}
 
       {
         // 404 NOT FOUND
