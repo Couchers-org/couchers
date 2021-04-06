@@ -98,13 +98,12 @@ export default function CompleteSignupForm() {
     setValue,
     errors,
   } = useForm<SignupInputs>({
-    defaultValues: { location: {} },
+    defaultValues: { location: { address: "" } },
     mode: "onBlur",
     shouldUnregister: false,
   });
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [acceptedTOS, setAcceptedTOS] = useState(false);
 
   const { urlToken } = useParams<{ urlToken: string }>();
@@ -132,28 +131,22 @@ export default function CompleteSignupForm() {
   }, [urlToken, authActions, location.pathname, setValue, history]);
 
   const completeSignup = handleSubmit(async (data: SignupInputs) => {
-    if (Object.entries(data.location).length === 0) {
-      setError(SIGN_UP_LOCATION_MISSING);
+    if ((data.location?.address ?? "") === "") {
+      authActions.authError(SIGN_UP_LOCATION_MISSING);
       return;
     }
 
-    setError("");
-
-    try {
-      authActions.signup({
-        acceptTOS: acceptedTOS,
-        birthdate: data.birthdate.toISOString().split("T")[0],
-        gender: data.gender,
-        hostingStatus: data.hostingStatus,
-        location: data.location,
-        name: data.name,
-        signupToken: urlToken,
-        username: sanitizeName(data.username),
-      });
-    } catch (e) {
-      console.error(e);
-      setError(e.message);
-    }
+    // authActions catches errors here
+    authActions.signup({
+      acceptTOS: acceptedTOS,
+      birthdate: data.birthdate.toISOString().split("T")[0],
+      gender: data.gender,
+      hostingStatus: data.hostingStatus,
+      location: data.location,
+      name: data.name,
+      signupToken: urlToken,
+      username: sanitizeName(data.username),
+    });
   });
 
   return (
@@ -236,12 +229,23 @@ export default function CompleteSignupForm() {
             name="location"
             control={control}
             inputRef={register}
-            render={() => (
+            render={({ onChange }) => (
               <EditLocationMap
                 className={classes.locationMap}
                 updateLocation={(location) => {
                   console.log(location);
-                  setValue("location", location);
+                  if (location) {
+                    onChange({
+                      address: location.address,
+                      lat: location.lat,
+                      lng: location.lng,
+                      radius: location.radius,
+                    });
+                  } else {
+                    onChange({
+                      address: "",
+                    });
+                  }
                 }}
               />
             )}
@@ -329,11 +333,6 @@ export default function CompleteSignupForm() {
                 {acceptedTOS ? THANKS : ACCEPT}
               </Button>
             </div>
-            {error && (
-              <Alert className={classes.errorAlert} severity="error">
-                {error}
-              </Alert>
-            )}
             <Button
               classes={{
                 label: authClasses.buttonText,

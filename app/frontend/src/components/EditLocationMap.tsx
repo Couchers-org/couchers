@@ -19,7 +19,12 @@ import {
 import React, { useRef, useState } from "react";
 
 import { userLocationMaxRadius, userLocationMinRadius } from "../constants";
-import { DISPLAY_LOCATION, LOCATION_PUBLICLY_VISIBLE } from "./constants";
+import {
+  DISPLAY_LOCATION,
+  DISPLAY_LOCATION_NOT_EMPTY,
+  INVALID_COORDINATE,
+  LOCATION_PUBLICLY_VISIBLE,
+} from "./constants";
 
 const DEFAULT_LAT_LNG = { lat: 35, lng: 10 };
 
@@ -168,13 +173,17 @@ export default function EditLocationMap({
       if (
         (current.lat === DEFAULT_LAT_LNG.lat &&
           current.lng === DEFAULT_LAT_LNG.lng) ||
-        (current.lat === 0 && current.lng === 0) ||
-        current.address === ""
+        (current.lat === 0 && current.lng === 0)
       ) {
+        updateLocation(null);
+        setError(INVALID_COORDINATE);
+      } else if (current.address === "") {
         // invalid location, send back null
         updateLocation(null);
+        setError(DISPLAY_LOCATION_NOT_EMPTY);
       } else {
         updateLocation(current);
+        setError("");
       }
     }
   };
@@ -278,7 +287,6 @@ export default function EditLocationMap({
 
   return (
     <>
-      {error && <Alert severity="error">{error}</Alert>}
       <div
         className={classNames(
           classes.root,
@@ -324,11 +332,12 @@ export default function EditLocationMap({
           onChange={(e) => {
             commit({ address: e.target.value });
           }}
+          error={error !== ""}
           id="display-address"
           fullWidth
           variant="standard"
           label={DISPLAY_LOCATION}
-          helperText={LOCATION_PUBLICLY_VISIBLE}
+          helperText={error !== "" ? error : LOCATION_PUBLICLY_VISIBLE}
         />
       </div>
     </>
