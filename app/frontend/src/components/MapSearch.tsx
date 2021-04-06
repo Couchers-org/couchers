@@ -95,7 +95,6 @@ export default function MapSearch({ setError, setResult }: MapSearchProps) {
       const nominatimResults = (await response.json()) as Array<NominatimPlace>;
 
       if (nominatimResults.length === 0) {
-        console.log("populating with empty place");
         setSearchOptions([
           {
             location: new LngLat(0, 0),
@@ -163,15 +162,16 @@ export default function MapSearch({ setError, setResult }: MapSearchProps) {
           loading={searchOptionsLoading}
           open={open}
           onBlur={() => setOpen(false)}
-          onChange={(e, inputValue, reason) => {
-            setValue(inputValue ?? "");
-            searchSubmit(inputValue ?? "", reason);
+          onInputChange={(e, v) => setValue(v)}
+          onChange={(e, v, reason) => {
+            setValue(v);
+            searchSubmit(v, reason);
           }}
           freeSolo
           multiple={false}
           // show all returned results, don't do a filter client side
           filterOptions={(x) => x}
-          disableClearable={false}
+          disableClearable
           className={classes.autocomplete}
           getOptionDisabled={(option) => option === NO_LOCATION_RESULTS_TEXT}
           helperText={PRESS_ENTER_TO_SEARCH}
