@@ -157,7 +157,7 @@ export default function EditProfileForm() {
       <Grid
         container
         direction="row"
-        justify="space-around"
+        justify="space-between"
         alignItems="center"
       >
         <PageTitle>{EDIT_PROFILE}</PageTitle>
