@@ -1,6 +1,6 @@
 import {
-  Box,
   FormControlLabel,
+  Grid,
   makeStyles,
   Radio,
   RadioGroup,
@@ -58,16 +58,6 @@ const useStyles = makeStyles((theme) => ({
   avatar: {
     width: 120,
     height: 120,
-  },
-  headerBar: {
-    display: "flex",
-    flexDirection: "column"
-  },
-  pageTitle: {
-    align: "left",
-  },
-  accountSettingsButton: {
-    align: "right",
   },
   topFormContainer: {
     display: "flex",
@@ -164,18 +154,24 @@ export default function EditProfileForm() {
 
   return (
     <>
-      <Box className={classes.headerBar}>
-        <PageTitle className={classes.pageTitle}>{EDIT_PROFILE}</PageTitle>
-        <Button 
-          className={classes.accountSettingsButton} 
-          component={Link} 
-          to={settingsRoute}
-          variant="contained"
-          color="primary"
-        >
-          {ACCOUNT_SETTINGS}
-        </Button>
-      </Box>
+      <Grid
+        container
+        direction="row"
+        justify="space-around"
+        alignItems="center"
+      >
+        <PageTitle>{EDIT_PROFILE}</PageTitle>
+        <div className={classes.buttonContainer}>
+          <Button 
+            component={Link} 
+            to={settingsRoute}
+            variant="contained"
+            color="primary"
+          >
+            {ACCOUNT_SETTINGS}
+          </Button>
+        </div>
+      </Grid>
       {updateStatus === "success" ? (
         <Alert severity="success">Successfully updated profile!</Alert>
       ) : updateStatus === "error" ? (
