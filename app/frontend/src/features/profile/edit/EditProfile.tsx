@@ -124,6 +124,7 @@ export default function EditProfileForm() {
     setValue,
   } = useForm<UpdateUserProfileData>({
     defaultValues: {
+      city: user?.city,
       lat: user?.lat,
       lng: user?.lng,
       radius: user?.radius,
@@ -135,6 +136,7 @@ export default function EditProfileForm() {
   //So make sure to set values when user finshes loading
   useEffect(() => {
     if (!userIsLoading && user) {
+      setValue("city", user.city);
       setValue("lat", user.lat);
       setValue("lng", user.lng);
       setValue("radius", user.radius);
@@ -143,6 +145,7 @@ export default function EditProfileForm() {
 
   useEffect(() => {
     //register here because these don't exist as actual fields
+    register("city");
     register("lat");
     register("lng");
     register("radius");
@@ -203,10 +206,9 @@ export default function EditProfileForm() {
             />
           </form>
           <Controller
-            name="city"
+            name="location"
             control={control}
-            rules={{ required: true }}
-            render={({ onChange }) => (
+            render={() => (
               <EditLocationMap
                 showRadiusSlider
                 initialLocation={{
@@ -217,12 +219,10 @@ export default function EditProfileForm() {
                 }}
                 updateLocation={(location) => {
                   if (location) {
-                    onChange(location.address);
+                    setValue("city", location.address);
                     setValue("lat", location.lat);
                     setValue("lng", location.lng);
                     setValue("radius", location.radius);
-                  } else {
-                    onChange("");
                   }
                 }}
               />
