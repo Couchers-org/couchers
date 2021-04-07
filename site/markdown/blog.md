@@ -6,6 +6,14 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/signup) and let us know!
 
+## [Q&A with Couchers.org Volunteers: Lucas](/blog/2021/04/07/qa-couchers-volunteers-lucas)
+
+2021/04/07 by Emily.
+
+Meet our frontend development team lead: Lucas!
+
+[Read more.](/blog/2021/04/07/qa-couchers-volunteers-lucas)
+
 ## [Q&A With Couchers.org Volunteers: Nolo](/blog/2021/03/29/qa-couchers-volunteers-nolo)
 
 2021/03/29 by Emily.
