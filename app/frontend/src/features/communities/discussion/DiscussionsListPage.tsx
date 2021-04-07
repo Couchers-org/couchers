@@ -81,6 +81,7 @@ export default function DiscussionsListPage({
         <CreateDiscussionForm
           communityId={community.communityId}
           onCancel={() => setIsCreatingNewPost(false)}
+          onPost={() => setIsCreatingNewPost(false)}
         />
       </Collapse>
       <div className={classes.discussionsContainer}>

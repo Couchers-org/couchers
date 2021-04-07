@@ -132,13 +132,14 @@ export interface CreateDiscussionInput {
   ownerCommunityId: number;
 }
 
-export const useNewDiscussionMutation = () => {
+export const useNewDiscussionMutation = (onSuccess?: () => void) => {
   const queryClient = useQueryClient();
   return useMutation<Discussion.AsObject, GrpcError, CreateDiscussionInput>(
     ({ title, content, ownerCommunityId }) =>
       service.discussions.createDiscussion(title, content, ownerCommunityId),
     {
       onSuccess(_, { ownerCommunityId }) {
+        onSuccess?.();
         queryClient.invalidateQueries(
           communityDiscussionsKey(ownerCommunityId)
         );
