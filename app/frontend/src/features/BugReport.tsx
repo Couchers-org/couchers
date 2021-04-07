@@ -1,4 +1,10 @@
-import { darken, makeStyles, useMediaQuery, useTheme } from "@material-ui/core";
+import {
+  darken,
+  Link,
+  makeStyles,
+  useMediaQuery,
+  useTheme,
+} from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import {
@@ -30,7 +36,6 @@ import { ReportBugRes } from "pb/bugs_pb";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
-import { Link } from "react-router-dom";
 import { service } from "service";
 
 export interface BugReportFormData {
@@ -101,7 +106,10 @@ export default function BugReport() {
         <SuccessSnackbar>
           <>
             {BUG_REPORT_SUCCESS}
-            <Link to={bug.bugUrl}>{bug.bugId}</Link>.
+            <Link href={bug.bugUrl} target="_blank">
+              {bug.bugId}
+            </Link>
+            .
           </>
         </SuccessSnackbar>
       )}
