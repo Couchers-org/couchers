@@ -101,11 +101,13 @@ export default function EditLocationMap({
     if (e.type === "touchstart") {
       const handleTouchMove = (e: MapTouchEvent) => onCircleMove(e);
       map.current!.on("touchmove", handleTouchMove);
-      map.current!.once("touchend", (e) => coordinateMoved(e, handleTouchMove));
+      map.current!.once("touchend", (e) =>
+        handleCoordinateMoved(e, handleTouchMove)
+      );
     } else {
       const handleMove = (e: MapMouseEvent) => onCircleMove(e);
       map.current!.on("mousemove", handleMove);
-      map.current!.once("mouseup", (e) => coordinateMoved(e, handleMove));
+      map.current!.once("mouseup", (e) => handleCoordinateMoved(e, handleMove));
     }
   };
 
@@ -121,7 +123,7 @@ export default function EditLocationMap({
     redrawMap();
   };
 
-  const coordinateMoved = (
+  const handleCoordinateMoved = (
     e: MapMouseEvent | MapTouchEvent,
     moveHandler: (x: any) => void = () => null
   ) => {
@@ -248,7 +250,7 @@ export default function EditLocationMap({
 
     const onDblClick = (e: MapMouseEvent & mapboxgl.EventData) => {
       e.preventDefault();
-      coordinateMoved(e);
+      handleCoordinateMoved(e);
     };
     map.current!.on("dblclick", onDblClick);
 
@@ -278,11 +280,11 @@ export default function EditLocationMap({
         Math.random() * location.current.radius,
         Math.random() * 2 * Math.PI
       );
-      coordinateMoved({
+      handleCoordinateMoved({
         lngLat: randomizedLocation,
       } as MapMouseEvent);
     } else {
-      coordinateMoved({
+      handleCoordinateMoved({
         lngLat: coords,
       } as MapMouseEvent);
     }
