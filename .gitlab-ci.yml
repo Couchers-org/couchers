@@ -14,15 +14,19 @@ variables:
   GRPC_TAG: $CI_REGISTRY/couchers/grpc:latest
   PROXY_RELEASE_TAG: $CI_REGISTRY_IMAGE/proxy:latest
   NGINX_RELEASE_TAG: $CI_REGISTRY_IMAGE/nginx:latest
+  NGINX_NEXT_RELEASE_TAG: $CI_REGISTRY_IMAGE/nginx-next:latest
   BACKEND_RELEASE_TAG: $CI_REGISTRY_IMAGE/backend:latest
   MEDIA_RELEASE_TAG: $CI_REGISTRY_IMAGE/media:latest
   FRONTEND_RELEASE_TAG: $CI_REGISTRY_IMAGE/frontend:latest
+  FRONTEND_NEXT_RELEASE_TAG: $CI_REGISTRY_IMAGE/frontend-next:latest
   SLUG: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   PROXY_TAG: $CI_REGISTRY_IMAGE/proxy:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   NGINX_TAG: $CI_REGISTRY_IMAGE/nginx:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+  NGINX_NEXT_TAG: $CI_REGISTRY_IMAGE/nginx-next:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   BACKEND_TAG: $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   MEDIA_TAG: $CI_REGISTRY_IMAGE/media:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   FRONTEND_TAG: $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+  FRONTEND_NEXT_TAG: $CI_REGISTRY_IMAGE/frontend-next:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
 
 default:
   image: docker
@@ -76,10 +80,6 @@ build:nginx:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
       - app/**/*
-    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
-      changes:
-      - app/pb/**/*
-      - app/nginx/**/*
 
 build:backend:
   needs: ["protos"]
@@ -126,13 +126,48 @@ build:frontend:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
       - app/**/*
+  artifacts:
+    paths:
+      - artifacts/frontend/
+
+build:nginx-next:
+  needs: []
+  stage: build
+  script:
+    - docker pull $NGINX_RELEASE_TAG || true
+    - docker build --build-arg version=$SLUG-next --build-arg environment=preview --cache-from $NGINX_RELEASE_TAG -t $NGINX_NEXT_TAG app/nginx/
+    - docker push $NGINX_NEXT_TAG
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+      - app/**/*
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
+      changes:
+      - app/pb/**/*
+      - app/nginx/**/*
+
+build:frontend-next:
+  needs: ["protos"]
+  stage: build
+  script:
+    - docker pull $FRONTEND_RELEASE_TAG || true
+    # this is a bit hacky, but I don't see any other good way to get the preview env vars into the container
+    - cp app/frontend/.env.preview app/frontend/.env.production
+    - docker build --build-arg version=$SLUG-next --cache-from $FRONTEND_RELEASE_TAG -t $FRONTEND_NEXT_TAG app/frontend/
+    - docker push $FRONTEND_NEXT_TAG
+    # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
+    - mkdir -p artifacts && docker cp $(docker create $FRONTEND_NEXT_TAG):/app/build artifacts/frontend-next
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+      - app/**/*
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
       - app/pb/**/*
       - app/frontend/**/*
   artifacts:
     paths:
-      - artifacts/frontend/
+      - artifacts/frontend-next/
 
 
 test:backend:
@@ -221,15 +256,11 @@ test:frontend:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
       - app/**/*
-    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
-      changes:
-      - app/pb/**/*
-      - app/frontend/**/*
 
 test:storybook:
-  needs: ["build:frontend"]
+  needs: ["build:frontend-next"]
   stage: test
-  image: $FRONTEND_TAG
+  image: $FRONTEND_NEXT_TAG
   inherit:
     # no docker login
     default: false
@@ -248,6 +279,35 @@ test:storybook:
       - app/pb/**/*
       - app/frontend/**/*
 
+test:frontend-next:
+  needs: ["build:frontend-next"]
+  stage: test
+  image: $FRONTEND_NEXT_TAG
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - cd /app && yarn test-ci
+  after_script:
+    - cp /app/junit.xml $CI_PROJECT_DIR/
+    - cp /app/coverage/cobertura-coverage.xml $CI_PROJECT_DIR/
+    - mkdir -p $CI_PROJECT_DIR/artifacts/lcov-report && cp -a /app/coverage/lcov-report $CI_PROJECT_DIR/artifacts/
+  coverage: '/^All files[^|]*\|[^|]*\s+([\d\.]+)/'
+  artifacts:
+    reports:
+      cobertura: cobertura-coverage.xml
+      junit: junit.xml
+    paths:
+      - artifacts/lcov-report
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+      - app/**/*
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
+      changes:
+      - app/pb/**/*
+      - app/frontend/**/*
+
 
 preview:bcov:
   needs: ["test:backend"]
@@ -257,7 +317,9 @@ preview:bcov:
     # no docker login
     default: false
   script:
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_SHORT_SHA/ --recursive
     - aws s3 cp artifacts/htmlcov s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_REF_SLUG/ --recursive
     - aws s3 cp artifacts/htmlcov s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_REF_SLUG/ --recursive
     - echo "Done, coverage report available at https://$CI_COMMIT_SHORT_SHA--bcov.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--bcov.$PREVIEW_DOMAIN/"
   rules:
@@ -269,35 +331,17 @@ preview:bcov:
       - app/pb/**/*
       - app/backend/**/*
 
-preview:frontend:
-  needs: ["build:frontend", "test:frontend"]
-  stage: preview
-  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
-  inherit:
-    # no docker login
-    default: false
-  script:
-    - aws s3 cp artifacts/frontend s3://$AWS_PREVIEW_BUCKET/frontend/$CI_COMMIT_SHORT_SHA/ --recursive
-    - aws s3 cp artifacts/frontend s3://$AWS_PREVIEW_BUCKET/frontend/$CI_COMMIT_REF_SLUG/ --recursive
-    - echo "Done, preview available at https://$CI_COMMIT_SHORT_SHA--frontend.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--frontend.$PREVIEW_DOMAIN/"
-  rules:
-    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
-      changes:
-      - app/**/*
-    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
-      changes:
-      - app/pb/**/*
-      - app/frontend/**/*
-
 preview:fcov:
-  needs: ["test:frontend"]
+  needs: ["test:frontend-next"]
   stage: preview
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
   inherit:
     # no docker login
     default: false
   script:
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/fcov/$CI_COMMIT_SHORT_SHA/ --recursive
     - aws s3 cp artifacts/lcov-report s3://$AWS_PREVIEW_BUCKET/fcov/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/fcov/$CI_COMMIT_REF_SLUG/ --recursive
     - aws s3 cp artifacts/lcov-report s3://$AWS_PREVIEW_BUCKET/fcov/$CI_COMMIT_REF_SLUG/ --recursive
     - echo "Done, coverage report available at https://$CI_COMMIT_SHORT_SHA--fcov.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--fcov.$PREVIEW_DOMAIN/"
   rules:
@@ -317,9 +361,33 @@ preview:storybook:
     # no docker login
     default: false
   script:
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/storybook/$CI_COMMIT_SHORT_SHA/ --recursive
     - aws s3 cp artifacts/storybook-static s3://$AWS_PREVIEW_BUCKET/storybook/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/storybook/$CI_COMMIT_REF_SLUG/ --recursive
     - aws s3 cp artifacts/storybook-static s3://$AWS_PREVIEW_BUCKET/storybook/$CI_COMMIT_REF_SLUG/ --recursive
     - echo "Done, storybook available at https://$CI_COMMIT_SHORT_SHA--storybook.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--storybook.$PREVIEW_DOMAIN/"
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+      - app/**/*
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
+      changes:
+      - app/pb/**/*
+      - app/frontend/**/*
+
+preview:frontend-next:
+  needs: ["build:frontend-next"]
+  stage: preview
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/frontend/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 cp artifacts/frontend-next s3://$AWS_PREVIEW_BUCKET/frontend/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/frontend/$CI_COMMIT_REF_SLUG/ --recursive
+    - aws s3 cp artifacts/frontend-next s3://$AWS_PREVIEW_BUCKET/frontend/$CI_COMMIT_REF_SLUG/ --recursive
+    - echo "Done, preview available at https://$CI_COMMIT_SHORT_SHA--frontend.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--frontend.$PREVIEW_DOMAIN/"
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
@@ -380,6 +448,28 @@ release:frontend:
     - docker pull $FRONTEND_TAG
     - docker tag $FRONTEND_TAG $FRONTEND_RELEASE_TAG
     - docker push $FRONTEND_RELEASE_TAG
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+      - app/**/*
+
+release:nginx-next:
+  stage: release
+  script:
+    - docker pull $NGINX_NEXT_TAG
+    - docker tag $NGINX_NEXT_TAG $NGINX_NEXT_RELEASE_TAG
+    - docker push $NGINX_NEXT_RELEASE_TAG
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+      - app/**/*
+
+release:frontend-next:
+  stage: release
+  script:
+    - docker pull $FRONTEND_NEXT_TAG
+    - docker tag $FRONTEND_NEXT_TAG $FRONTEND_NEXT_RELEASE_TAG
+    - docker push $FRONTEND_NEXT_RELEASE_TAG
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:

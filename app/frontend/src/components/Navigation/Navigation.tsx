@@ -21,7 +21,7 @@ import {
   logoutRoute,
   mapRoute,
   messagesRoute,
-  profileRoute,
+  userRoute,
 } from "routes";
 
 import { COUCHERS, LOG_OUT } from "../../constants";
@@ -46,7 +46,7 @@ const menu = [
   },
   {
     name: "Profile",
-    route: profileRoute,
+    route: userRoute,
   },
 ];
 

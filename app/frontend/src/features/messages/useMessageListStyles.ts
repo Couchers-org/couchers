@@ -1,13 +1,6 @@
 import makeStyles from "@material-ui/core/styles/makeStyles";
 
 const useMessageListStyles = makeStyles((theme) => ({
-  link: {
-    "&:hover": {
-      textDecoration: "none",
-    },
-    color: "inherit",
-    textDecoration: "none",
-  },
   list: {
     width: "100%",
   },

@@ -8,7 +8,7 @@ import {
 import { Skeleton } from "@material-ui/lab";
 import classNames from "classnames";
 import CircularProgress from "components/CircularProgress";
-import { MORE_REPLIES } from "features/constants";
+import { MORE_REPLIES } from "features/communities/constants";
 import useUsers, { useUser } from "features/userQueries/useUsers";
 import { Error as GrpcError } from "grpc-web";
 import { Discussion } from "pb/discussions_pb";
@@ -26,15 +26,14 @@ import { timeAgo } from "utils/timeAgo";
 
 const useStyles = makeStyles((theme) => ({
   cardContent: { height: "100%" },
-  link: { height: "100%", textDecoration: "none" },
+  userLoading: { display: "inline-block", width: 80 },
+  surtitle: { marginBottom: theme.spacing(0.5) },
   replies: {
     "&:first-child": { marginTop: theme.spacing(1) },
   },
   root: {
     width: "100%",
   },
-  surtitle: { marginBottom: theme.spacing(0.5) },
-  userLoading: { display: "inline-block", width: 80 },
 }));
 
 export default function DiscussionCard({
@@ -76,10 +75,7 @@ export default function DiscussionCard({
 
   return (
     <Card className={classNames(classes.root, className)}>
-      <Link
-        to={routeToDiscussion(discussion.discussionId, discussion.slug)}
-        className={classes.link}
-      >
+      <Link to={routeToDiscussion(discussion.discussionId, discussion.slug)}>
         <CardActionArea>
           <CardContent className={classes.cardContent}>
             <Typography

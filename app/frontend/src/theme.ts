@@ -5,7 +5,10 @@ import type {} from "@material-ui/lab/themeAugmentation";
 
 declare module "@material-ui/core/styles/createTypography" {
   interface TypographyOptions {
-    h1Large?: TypographyStyleOptions;
+    h1Large: TypographyStyleOptions;
+  }
+  interface Typography {
+    h1Large: TypographyStyleOptions;
   }
 }
 
@@ -26,6 +29,14 @@ declare module "@material-ui/core/styles/shape" {
 const themeOptions: ThemeOptions = {
   breakpoints,
   overrides: {
+    MuiCssBaseline: {
+      "@global": {
+        a: {
+          textDecoration: "none",
+          color: "inherit",
+        },
+      },
+    },
     MuiListItem: { gutters: { paddingLeft: 0, paddingRight: 0 } },
     MuiTabPanel: {
       root: {
@@ -44,6 +55,7 @@ const themeOptions: ThemeOptions = {
       default: "#fcfcfc",
     },
     common: {
+      black: "#313539",
       white: "#fcfcfc",
     },
     error: {

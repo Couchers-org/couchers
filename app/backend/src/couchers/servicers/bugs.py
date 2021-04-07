@@ -2,6 +2,8 @@ import grpc
 import requests
 
 from couchers.config import config
+from couchers.db import session_scope
+from couchers.models import User
 from pb import bugs_pb2, bugs_pb2_grpc
 
 
@@ -19,6 +21,9 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
         repo = config["BUG_TOOL_GITHUB_REPO"]
         auth = (config["BUG_TOOL_GITHUB_USERNAME"], config["BUG_TOOL_GITHUB_TOKEN"])
 
+        with session_scope() as session:
+            username = session.query(User.username).filter(User.id == request.user_id).scalar() or "<unknown>"
+
         issue_title = request.subject
         issue_body = (
             f"Subject: {request.subject}\n"
@@ -35,7 +40,7 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
             f"Frontend version: {request.frontend_version}\n"
             f"User Agent: {request.user_agent}\n"
             f"Page: {request.page}\n"
-            f"User ID: {request.user_id}"
+            f"User (spoofable): {username} ({request.user_id})"
         )
         issue_labels = ["bug tool"]
 

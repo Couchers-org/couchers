@@ -7,7 +7,7 @@ import {
 import userEvent from "@testing-library/user-event";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Route } from "react-router-dom";
-import { profileRoute } from "routes";
+import { userRoute } from "routes";
 import { service } from "service";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 import { getUser } from "test/serviceMockDefaults";
@@ -32,11 +32,11 @@ const reportUserMock = service.user.reportUser as MockedService<
 
 function renderProfilePage(username?: string) {
   const { wrapper } = getHookWrapperWithClient({
-    initialRouterEntries: [`${profileRoute}${username ? `/${username}` : ""}`],
+    initialRouterEntries: [`${userRoute}${username ? `/${username}` : ""}`],
   });
 
   render(
-    <Route path={`${profileRoute}/:username?`}>
+    <Route path={`${userRoute}/:username?`}>
       <ProfilePage />
     </Route>,
     { wrapper }

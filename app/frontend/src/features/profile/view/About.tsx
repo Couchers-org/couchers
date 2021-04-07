@@ -39,13 +39,13 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
     display: "block",
     height: theme.spacing(0.5),
-    backgroundColor: "#00A398",
+    backgroundColor: theme.palette.primary.main,
   },
   livedInColor: {
     width: "100%",
     display: "block",
     height: theme.spacing(0.5),
-    backgroundColor: "#E47701",
+    backgroundColor: theme.palette.secondary.main,
   },
   labelMarker: {
     fontWeight: "bold",

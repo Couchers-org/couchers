@@ -32,11 +32,6 @@ import SearchPage from "./features/search/SearchPage";
 import { PageType } from "./pb/pages_pb";
 import {
   baseRoute,
-  communityDiscussionsRoute,
-  communityEventsRoute,
-  communityGroupsRoute,
-  communityGuidesRoute,
-  communityPlacesRoute,
   communityRoute,
   confirmChangeEmailRoute,
   connectionsRoute,
@@ -54,12 +49,12 @@ import {
   newGuideRoute,
   newPlaceRoute,
   placeRoute,
-  profileRoute,
   resetPasswordRoute,
   searchRoute,
   settingsRoute,
   signupRoute,
   tosRoute,
+  userRoute,
 } from "./routes";
 
 export default function AppRoutes() {
@@ -135,7 +130,7 @@ export default function AppRoutes() {
       <AppRoute isPrivate path={editHostingPreferenceRoute}>
         <EditHostingPreference />
       </AppRoute>
-      <AppRoute isPrivate path={`${profileRoute}/:username?`}>
+      <AppRoute isPrivate path={`${userRoute}/:username?`}>
         <ProfilePage />
       </AppRoute>
       <AppRoute isPrivate path={`${connectionsRoute}/:type?`}>
@@ -167,22 +162,6 @@ export default function AppRoutes() {
       {
         // COMMUNITIES
       }
-
-      <AppRoute isPrivate path={communityPlacesRoute}>
-        Places
-      </AppRoute>
-      <AppRoute isPrivate path={communityGuidesRoute}>
-        Guides
-      </AppRoute>
-      <AppRoute isPrivate path={communityGroupsRoute}>
-        Groups
-      </AppRoute>
-      <AppRoute isPrivate path={communityDiscussionsRoute}>
-        Discussions
-      </AppRoute>
-      <AppRoute isPrivate path={communityEventsRoute}>
-        Events
-      </AppRoute>
       <AppRoute isPrivate path={communityRoute}>
         <CommunityPage />
       </AppRoute>

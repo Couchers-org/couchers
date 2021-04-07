@@ -38,7 +38,6 @@ const useStyles = makeStyles((theme) => ({
   logInLink: {
     color: theme.palette.secondary.main,
     fontWeight: 700,
-    textDecoration: "none",
     [theme.breakpoints.up("md")]: {
       color: theme.palette.primary.main,
     },

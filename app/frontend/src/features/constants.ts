@@ -155,3 +155,6 @@ export const WELCOME_DESCRIPTION_1 = `We're in the process of building out the p
 export const WELCOME_DESCRIPTION_2 = `If you've been here before, you may have noticed that the site has changed, and that's 
   because we're migrating from our early alpha version to our new beta version. If you were on the alpha 
   version, don't worry, most of your profile data has been kept!`;
+
+// Datepicker
+export const CHANGE_DATE = "Change date";
