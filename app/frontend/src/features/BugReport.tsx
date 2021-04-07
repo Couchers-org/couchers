@@ -9,6 +9,7 @@ import {
   DialogTitle,
 } from "components/Dialog";
 import { BugIcon } from "components/Icons";
+import SuccessSnackbar from "components/SuccessSnackbar";
 import TextField from "components/TextField";
 import { useAuthContext } from "features/auth/AuthProvider";
 import {
@@ -17,6 +18,7 @@ import {
   CANCEL,
   EXPECT_HELPER,
   EXPECT_NAME,
+  getBugReportSuccessMessage,
   PROBLEM_HELPER,
   PROBLEM_NAME,
   REPORT,
@@ -72,8 +74,13 @@ export default function BugReport() {
     isLoading,
     mutate: reportBug,
     reset: resetMutation,
-  } = useMutation<string, GrpcError, BugReportFormData>((formData) =>
-    service.bugs.reportBug(formData, userId)
+  } = useMutation<string, GrpcError, BugReportFormData>(
+    (formData) => service.bugs.reportBug(formData, userId),
+    {
+      onSuccess: () => {
+        setIsOpen(false);
+      },
+    }
   );
 
   const handleClose = () => {
@@ -88,6 +95,11 @@ export default function BugReport() {
 
   return (
     <>
+      {reportIdentifier && (
+        <SuccessSnackbar>
+          {getBugReportSuccessMessage(reportIdentifier)}
+        </SuccessSnackbar>
+      )}
       <Button
         aria-label="Report a bug"
         onClick={() => setIsOpen(true)}
@@ -110,12 +122,6 @@ export default function BugReport() {
           <DialogTitle id="bug-reporter">{REPORT}</DialogTitle>
           <DialogContent>
             {error && <Alert severity="error">{error.message}</Alert>}
-            {reportIdentifier && (
-              <Alert severity="success">
-                {`Thank you for reporting that bug and making Couchers better, a
-                report was sent to the devs! The bug ID is ${reportIdentifier}`}
-              </Alert>
-            )}
             <DialogContentText>{WARNING}</DialogContentText>
             <TextField
               id="bug-report-subject"
