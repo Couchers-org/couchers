@@ -60,7 +60,6 @@ export default function LocationSection({
         <Controller
           name="location"
           control={control}
-          rules={{ required: true }}
           render={({ onChange }) => (
             <EditLocationMap
               updateLocation={(location) => {
