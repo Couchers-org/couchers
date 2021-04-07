@@ -439,7 +439,7 @@ class API(api_pb2_grpc.APIServicer):
             if not to_user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
-            if (
+            existing_relationship = (
                 session.query(FriendRelationship)
                 .filter(
                     or_(
@@ -453,16 +453,16 @@ class API(api_pb2_grpc.APIServicer):
                         ),
                     )
                 )
-                .filter(
-                    or_(
-                        FriendRelationship.status == FriendStatus.accepted,
-                        FriendRelationship.status == FriendStatus.pending,
-                    )
-                )
                 .one_or_none()
-                is not None
-            ):
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.FRIENDS_ALREADY_OR_PENDING)
+            )
+
+            if existing_relationship:
+                if (
+                    existing_relationship.status == FriendStatus.accepted
+                    or existing_relationship.status == FriendStatus.pending
+                ):
+                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.FRIENDS_ALREADY_OR_PENDING)
+                session.delete(existing_relationship)
 
             # TODO: Race condition where we can create two friend reqs, needs db constraint! See comment in table
 

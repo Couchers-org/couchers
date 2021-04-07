@@ -13,6 +13,7 @@ from tests.test_fixtures import (
     api_session,
     db,
     generate_user,
+    get_FriendRelationship,
     make_friends,
     real_api_session,
     real_jail_session,
@@ -504,8 +505,36 @@ def test_CancelFriendRequest(db):
 
         api.CancelFriendRequest(api_pb2.CancelFriendRequestReq(friend_request_id=fr_id))
 
+        # check it's gone
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert len(res.sent) == 0
+        assert len(res.received) == 0
+
+        # check not friends
+        res = api.ListFriends(empty_pb2.Empty())
+        assert len(res.user_ids) == 0
+
+    with api_session(token2) as api:
+        # check it's gone
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        assert len(res.sent) == 0
+        assert len(res.received) == 0
+
+        # check we're not friends
+        res = api.ListFriends(empty_pb2.Empty())
+        assert len(res.user_ids) == 0
+
+    with api_session(token1) as api:
+        # check we can send another friend req
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
+
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        assert res.sent[0].state == api_pb2.FriendRequest.FriendRequestStatus.PENDING
+        assert res.sent[0].user_id == user2.id
+
+        # Check only one existing fr
+        fr = get_FriendRelationship(user1, user2)
+        assert fr is not None  # If multiple, would have already excepted
 
 
 def test_reject_friend_request(db):
@@ -554,6 +583,10 @@ def test_reject_friend_request(db):
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert res.sent[0].state == api_pb2.FriendRequest.FriendRequestStatus.PENDING
         assert res.sent[0].user_id == user2.id
+
+        # Check only one existing fr
+        fr = get_FriendRelationship(user1, user2)
+        assert fr is not None  # If multiple, would have already excepted
 
 
 def test_mutual_friends_self(db):
