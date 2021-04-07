@@ -6,6 +6,8 @@ author: Emily
 share_image: /img/blog/20210407_lucas.jpg
 ---
 
+## Lucas: Couchers.org Frontend Development Lead
+
 Couchers.org talks to Lucas, the frontend team lead based in London, about what it’s like leading a team, how volunteers collaborate, and the speed of development.
 
 ![photo of lucas](/img/blog/20210407_lucas.jpg)

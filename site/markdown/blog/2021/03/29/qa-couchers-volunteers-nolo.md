@@ -6,6 +6,8 @@ author: Emily
 share_image: /img/blog/20210329_nolo.jpg
 ---
 
+## Nolo: Couchers.org Forum Admin
+
 Couchers.org talks to Nolo from Las Palmas, Spain about his experience becoming a forum admin and moderator—plus his next big travel plans.
 
 ![photo of nolo](/img/blog/20210329_nolo.jpg)

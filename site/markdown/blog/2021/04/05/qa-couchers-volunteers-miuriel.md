@@ -6,6 +6,8 @@ author: Emily
 share_image: /img/blog/20210405_miuriel.jpg
 ---
 
+## Miuriel: Couchers.org Graphic Design Lead
+
 Couchers.org talks to Miuriel, the graphic design team lead based in Amsterdam, about joining the project, what she’s learned, and what she hopes for the future users.
 
 ![photo of miuriel](/img/blog/20210405_miuriel.jpg)

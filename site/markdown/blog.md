@@ -2,7 +2,7 @@
 title: Blog
 ---
 
-#### Welcome to the Couchers.org blog
+**Welcome to the Couchers.org blog**
 
 If you'd like to contribute to the blog, please [sign up](/signup) and let us know!
 
