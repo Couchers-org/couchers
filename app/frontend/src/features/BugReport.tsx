@@ -14,6 +14,7 @@ import { useAuthContext } from "features/auth/AuthProvider";
 import {
   BUG_DESCRIPTION_HELPER,
   BUG_DESCRIPTION_NAME,
+  CANCEL,
   EXPECT_HELPER,
   EXPECT_NAME,
   PROBLEM_HELPER,
@@ -152,15 +153,10 @@ export default function BugReport() {
             />
           </DialogContent>
           <DialogActions>
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              loading={isLoading}
-              onClick={onSubmit}
-            >
+            <Button type="submit" loading={isLoading} onClick={onSubmit}>
               {SUBMIT}
             </Button>
+            <Button onClick={handleClose}>{CANCEL}</Button>
           </DialogActions>
         </form>
       </Dialog>
