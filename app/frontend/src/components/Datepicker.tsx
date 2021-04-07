@@ -1,5 +1,6 @@
 import DateFnsUtils from "@date-io/dayjs";
 import {
+  DatePickerView,
   KeyboardDatePicker,
   MuiPickersUtilsProvider,
 } from "@material-ui/pickers";
@@ -24,6 +25,7 @@ interface DatepickerProps {
   label: string;
   name: string;
   minDate?: Date;
+  openTo?: DatePickerView;
 }
 
 export default function Datepicker({
@@ -36,6 +38,7 @@ export default function Datepicker({
   label,
   minDate = new Date(),
   name,
+  openTo = "date",
 }: DatepickerProps) {
   return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -65,6 +68,7 @@ export default function Datepicker({
             onChange={(date) => {
               if (date?.isValid()) onChange(date?.toDate());
             }}
+            openTo={openTo}
             views={["year", "month", "date"]}
             value={value}
             variant="inline"
