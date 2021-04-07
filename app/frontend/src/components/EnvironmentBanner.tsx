@@ -27,7 +27,7 @@ export function EnvironmentBanner() {
   const isBelowSm = useMediaQuery(theme.breakpoints.down("sm"));
 
   if (process.env.REACT_APP_COUCHERS_ENV === "prod") {
-    return <></>;
+    return null;
   } else {
     return (
       <div className={classes.banner}>
