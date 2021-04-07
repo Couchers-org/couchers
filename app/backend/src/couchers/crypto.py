@@ -7,14 +7,17 @@ from nacl.bindings.utils import sodium_memcmp
 from nacl.exceptions import InvalidkeyError
 from nacl.utils import random as random_bytes
 
+
 def urlsafe_random_bytes(length=32):
     return urlsafe_b64encode(random_bytes(length)).decode("utf8")
+
 
 def urlsafe_secure_token():
     """
     A cryptographically secure random token that can be put in a URL
     """
     return urlsafe_random_bytes(32)
+
 
 def cookiesafe_secure_token():
     return random_hex(32)

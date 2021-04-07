@@ -163,8 +163,8 @@ export default function EditProfileForm() {
       >
         <PageTitle>{EDIT_PROFILE}</PageTitle>
         <div className={classes.buttonContainer}>
-          <Button 
-            component={Link} 
+          <Button
+            component={Link}
             to={settingsRoute}
             variant="contained"
             color="primary"

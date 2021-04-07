@@ -41,7 +41,7 @@ export const SECTION_LABELS = {
 export const SECTION_LABELS_A11Y_TEXT = "tabs for user's details";
 
 // Edit Profile
-export const ACCOUNT_SETTINGS = "Account Settings"
+export const ACCOUNT_SETTINGS = "Account Settings";
 export const COUNTRIES_VISITED = "Countries I've Visited";
 export const COUNTRIES_LIVED = "Countries I've Lived In";
 export const FEMALE = "Female";
