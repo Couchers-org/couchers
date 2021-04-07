@@ -52,7 +52,10 @@ async function fillInAndSubmitBugReport(
 
 describe("BugReport", () => {
   beforeEach(() => {
-    reportBugMock.mockResolvedValue("1");
+    reportBugMock.mockResolvedValue({
+      bugId: "1",
+      bugUrl: "https://github.com/Couchers-org/couchers/issues/1",
+    });
   });
 
   describe("when displayed on a screen at the medium breakpoint or above", () => {
@@ -135,7 +138,10 @@ describe("BugReport", () => {
     it("submits the bug report successfully if all required fields are filled in", async () => {
       reportBugMock.mockImplementation(async () => {
         await wait(10);
-        return "1";
+        return {
+          bugId: "1",
+          bugUrl: "https://github.com/Couchers-org/couchers/issues/1",
+        };
       });
       render(<BugReport />, { wrapper });
       userEvent.click(screen.getByRole("button", { name: "Report a bug" }));

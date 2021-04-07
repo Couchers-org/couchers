@@ -135,7 +135,8 @@ export const REPORT = "Report a problem";
 export const SUBMIT = "Submit";
 export const WARNING =
   "Please note that this information, as well as diagnostic information including which page you are on, what browser you are using, and your username will be saved to a public list of bugs.";
-export const BUG_REPORT_SUCCESS = `Thank you for reporting that bug and making Couchers better, a report was sent to the developers! The bug ID is `;
+export const BUG_REPORT_SUCCESS =
+  "Thank you for reporting that bug and making Couchers better, a report was sent to the developers! The bug ID is ";
 
 // Landing
 export const BUGS = "Bugs";

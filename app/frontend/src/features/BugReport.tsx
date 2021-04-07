@@ -106,10 +106,7 @@ export default function BugReport() {
         <SuccessSnackbar>
           <>
             {BUG_REPORT_SUCCESS}
-            <Link href={bug.bugUrl}>
-              {bug.bugId}
-            </Link>
-            .
+            <Link href={bug.bugUrl}>{bug.bugId}</Link>.
           </>
         </SuccessSnackbar>
       )}
