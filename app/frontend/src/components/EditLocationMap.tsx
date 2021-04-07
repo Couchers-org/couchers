@@ -81,11 +81,12 @@ export default function EditLocationMap({
   const [_, setDirty] = useState(0);
 
   // map is imperative so these don't need to cause re-render
-  const address = useRef<string>(initialLocation?.address ?? "");
-  const radius = useRef<number>(initialLocation?.radius ?? 250);
-  const centerCoords = useRef<LngLat>(
-    new LngLat(initialLocation?.lng ?? 0, initialLocation?.lat ?? 0)
-  );
+  const location = useRef<ApproximateLocation>({
+    address: initialLocation?.address ?? "",
+    radius: initialLocation?.radius ?? (exact ? 0 : 250),
+    lat: initialLocation?.lat ?? 0,
+    lng: initialLocation?.lng ?? 0,
+  });
   // have not selected a location in any way yet
   const isBlank = useRef<boolean>(
     !(initialLocation?.lng || initialLocation?.lat)
@@ -109,7 +110,14 @@ export default function EditLocationMap({
   };
 
   const onCircleMove = (e: MapMouseEvent | MapTouchEvent) => {
-    centerCoords.current = e.lngLat.wrap();
+    const wrapped = e.lngLat.wrap();
+    commit(
+      {
+        lat: wrapped.lat,
+        lng: wrapped.lng,
+      },
+      false
+    );
     redrawMap();
   };
 
@@ -121,8 +129,11 @@ export default function EditLocationMap({
     map.current!.off("touchmove", moveHandler);
     map.current!.getCanvas().style.cursor = "move";
 
-    centerCoords.current = e.lngLat.wrap();
-    syncCoords();
+    const wrapped = e.lngLat.wrap();
+    commit({
+      lat: wrapped.lat,
+      lng: wrapped.lng,
+    });
     if (!isBlank.current) {
       map.current!.setLayoutProperty("circle", "visibility", "visible");
     }
@@ -132,45 +143,28 @@ export default function EditLocationMap({
   const redrawMap = () => {
     if (!exact) {
       (map.current!.getSource("circle") as GeoJSONSource).setData(
-        circleGeoJson(centerCoords.current, radius.current)
+        circleGeoJson(extractLngLat(location.current), location.current.radius)
       );
     } else {
       (map.current!.getSource("circle") as GeoJSONSource).setData(
-        pointGeoJson(centerCoords.current)
+        pointGeoJson(extractLngLat(location.current))
       );
     }
-  };
-
-  // syncs imperative coordinates into the reactive location object
-  const syncCoords = () => {
-    commit({
-      lat: centerCoords.current.lat,
-      lng: centerCoords.current.lng,
-    });
   };
 
   const commit = (
     updates: Partial<ApproximateLocation>,
     update: boolean = true
   ) => {
-    const current = {
-      address: address.current,
-      lat: centerCoords.current.lat,
-      lng: centerCoords.current.lng,
-      radius: exact ? 0 : radius.current,
-    } as ApproximateLocation;
     if (updates.address) {
-      address.current = updates.address;
-      current.address = updates.address;
+      location.current.address = updates.address;
     }
     if (updates.radius && !exact) {
-      radius.current = updates.radius;
-      current.radius = updates.radius;
+      location.current.radius = updates.radius;
     }
     if (updates.lat && updates.lng) {
-      centerCoords.current = new LngLat(updates.lng, updates.lat);
-      current.lat = updates.lat;
-      current.lng = updates.lng;
+      location.current.lat = updates.lat;
+      location.current.lng = updates.lng;
       isBlank.current = false;
     }
 
@@ -179,16 +173,16 @@ export default function EditLocationMap({
         // haven't selected a location yet
         setError(MAP_IS_BLANK);
         updateLocation(null);
-      } else if (current.lat === 0 && current.lng === 0) {
+      } else if (location.current.lat === 0 && location.current.lng === 0) {
         // somehow have lat/lng == 0
         setError(INVALID_COORDINATE);
         updateLocation(null);
-      } else if (current.address === "") {
+      } else if (location.current.address === "") {
         // missing display address
         setError(DISPLAY_LOCATION_NOT_EMPTY);
         updateLocation(null);
       } else {
-        updateLocation(current);
+        updateLocation(location.current);
         setError("");
       }
     }
@@ -201,7 +195,10 @@ export default function EditLocationMap({
     map.current!.once("load", () => {
       if (!exact) {
         map.current!.addSource("circle", {
-          data: circleGeoJson(centerCoords.current, radius.current),
+          data: circleGeoJson(
+            extractLngLat(location.current),
+            location.current.radius
+          ),
           type: "geojson",
         });
 
@@ -219,7 +216,7 @@ export default function EditLocationMap({
         });
       } else {
         map.current!.addSource("circle", {
-          data: pointGeoJson(centerCoords.current),
+          data: pointGeoJson(extractLngLat(location.current)),
           type: "geojson",
         });
 
@@ -278,7 +275,7 @@ export default function EditLocationMap({
     if (!exact) {
       const randomizedLocation = displaceLngLat(
         coords,
-        Math.random() * radius.current,
+        Math.random() * location.current.radius,
         Math.random() * 2 * Math.PI
       );
       coordinateMoved({
@@ -305,7 +302,9 @@ export default function EditLocationMap({
             // (10, 35, 0.5) is just a pretty view
             initialZoom={isBlank.current ? 0.5 : 12.5}
             initialCenter={
-              isBlank.current ? new LngLat(10, 35) : centerCoords.current
+              isBlank.current
+                ? new LngLat(10, 35)
+                : extractLngLat(location.current)
             }
             postMapInitialize={initializeMap}
             grow
@@ -326,8 +325,8 @@ export default function EditLocationMap({
             </Typography>
             <Slider
               aria-labelledby="location-radius"
-              aria-valuetext={getRadiusText(radius.current)}
-              value={radius.current}
+              aria-valuetext={getRadiusText(location.current.radius)}
+              value={location.current.radius}
               step={5}
               min={userLocationMinRadius}
               max={userLocationMaxRadius}
@@ -343,7 +342,7 @@ export default function EditLocationMap({
           </>
         )}
         <TextField
-          value={address.current}
+          value={location.current.address}
           onChange={(e) => {
             commit({ address: e.target.value });
           }}
@@ -357,6 +356,10 @@ export default function EditLocationMap({
       </div>
     </>
   );
+}
+
+function extractLngLat(loc: ApproximateLocation): LngLat {
+  return new LngLat(loc.lng, loc.lat);
 }
 
 function pointGeoJson(
