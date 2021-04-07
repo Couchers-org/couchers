@@ -1,4 +1,4 @@
-import { makeStyles } from "@material-ui/core";
+import { makeStyles, useMediaQuery, useTheme } from "@material-ui/core";
 import React from "react";
 
 const useStyles = makeStyles((theme) => ({
@@ -19,15 +19,13 @@ const useStyles = makeStyles((theme) => ({
     whiteSpace: "nowrap",
     overflow: "hidden",
   },
-  hideOnMobile: {
-    [theme.breakpoints.down("sm")]: {
-      display: "none",
-    },
-  },
 }));
 
 export function EnvironmentBanner() {
+  const theme = useTheme();
   const classes = useStyles();
+  const isBelowSm = useMediaQuery(theme.breakpoints.down("sm"));
+
   if (process.env.REACT_APP_COUCHERS_ENV === "prod") {
     return <></>;
   } else {
@@ -38,10 +36,7 @@ export function EnvironmentBanner() {
           ? "preview"
           : "development"}{" "}
         build of the app.
-        <span className={classes.hideOnMobile}>
-          {" "}
-          It uses a separate database to the production app.
-        </span>
+        {!isBelowSm && " It uses a separate database to the production app."}
       </div>
     );
   }
