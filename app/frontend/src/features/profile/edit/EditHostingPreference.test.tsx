@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Route, Switch } from "react-router-dom";
-import { profileRoute } from "routes";
+import { userRoute } from "routes";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
 import { getUser } from "test/serviceMockDefaults";
@@ -25,7 +25,7 @@ describe("EditHostingPreference", () => {
   it("should redirect to Profile route after successful update", async () => {
     render(
       <Switch>
-        <Route path={profileRoute}>
+        <Route path={userRoute}>
           <MockProfileComponent />
         </Route>
         <Route>
