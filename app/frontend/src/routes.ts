@@ -81,3 +81,5 @@ export const routeToCommunity = (
   slug: string,
   page?: CommunityTab
 ) => `${communityBaseRoute}/${id}/${slug}${page ? `/${page}` : ""}`;
+
+export const donationRoute = "/donate";

@@ -8,6 +8,7 @@
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.56",
     "@material-ui/pickers": "3.3.10",
+    "@stripe/stripe-js": "^1.13.1",
     "classnames": "^2.3.1",
     "dayjs": "^1.10.4",
     "google-protobuf": "^3.15.3",

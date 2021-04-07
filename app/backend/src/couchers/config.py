@@ -24,6 +24,10 @@ CONFIG_OPTIONS = [
     ("DATABASE_CONNECTION_STRING", str),
     # Whether to try adding dummy data
     ("ADD_DUMMY_DATA", bool),
+    # Donations
+    ("ENABLE_DONATIONS", bool),
+    ("STRIPE_API_KEY", str, ""),
+    ("STRIPE_RECURRING_PRODUCT_ID", str, ""),
     # Email
     ("ENABLE_EMAIL", bool),
     # Sender email, e.g. "notify@couchers.org"
@@ -103,3 +107,7 @@ def check_config():
             raise Exception("Production site must have email enabled")
         if config["IN_TEST"]:
             raise Exception("IN_TEST while not DEV")
+
+    if config["ENABLE_DONATIONS"]:
+        if not config["STRIPE_API_KEY"] or not config["STRIPE_RECURRING_PRODUCT_ID"]:
+            raise Exception("No Stripe API key/recurring donation ID but donations enabled")

@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package org.couchers.api.donations;
+
+service Donations {
+  // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to auth.proto and jail.proto
+
+  rpc InitiateDonation(InitiateDonationReq) returns (InitiateDonationRes) {
+    // Initiate a donation
+  }
+}
+
+message InitiateDonationReq {
+  // amount in USD, integral for now
+  uint32 amount = 1;
+  // whether to create a monthly recurring donation
+  bool recurring = 2;
+}
+
+message InitiateDonationRes {
+  string stripe_checkout_session_id = 1;
+}

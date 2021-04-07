@@ -31,3 +31,11 @@ def media_upload_url(path):
 
 def change_email_link(confirmation_token):
     return f"{config['BASE_URL']}/confirm-email/{confirmation_token}"
+
+
+def donation_cancelled_url():
+    return f"{config['BASE_URL']}/donate?cancelled=true"
+
+
+def donation_success_url():
+    return f"{config['BASE_URL']}/donate?success=true&session={{CHECKOUT_SESSION_ID}}"

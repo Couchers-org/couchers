@@ -17,3 +17,4 @@ pyyaml
 requests
 Shapely
 sqlalchemy
+stripe>=2.48.0,<3.0
