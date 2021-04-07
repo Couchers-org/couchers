@@ -34,31 +34,29 @@ export default function GroupChatSendField({
   });
 
   return (
-    <div>
-      <form onSubmit={onSubmit} className={classes.container}>
-        <TextField
-          id="group-chat-message-field"
-          label="Message"
-          name="text"
-          defaultValue={""}
-          inputRef={register}
-          rows={4}
-          rowsMax={4}
-          multiline
-          fullWidth
-        />
+    <form onSubmit={onSubmit} className={classes.container}>
+      <TextField
+        id="group-chat-message-field"
+        label="Message"
+        name="text"
+        defaultValue={""}
+        inputRef={register}
+        rows={4}
+        rowsMax={4}
+        multiline
+        fullWidth
+      />
 
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          onClick={onSubmit}
-          loading={isLoading}
-          className={classes.button}
-        >
-          Send
-        </Button>
-      </form>
-    </div>
+      <Button
+        type="submit"
+        variant="contained"
+        color="primary"
+        onClick={onSubmit}
+        loading={isLoading}
+        className={classes.button}
+      >
+        Send
+      </Button>
+    </form>
   );
 }
