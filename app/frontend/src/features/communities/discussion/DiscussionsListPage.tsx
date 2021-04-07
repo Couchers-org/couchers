@@ -1,10 +1,8 @@
-import { Dialog, DialogContent, makeStyles } from "@material-ui/core";
+import { Collapse, makeStyles } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
-import NewComment from "components/Comments/NewComment";
-import IconButton from "components/IconButton";
-import { AddIcon, EmailIcon } from "components/Icons";
+import { EmailIcon } from "components/Icons";
 import TextBody from "components/TextBody";
 import {
   DiscussionCard,
@@ -17,14 +15,12 @@ import {
   NEW_POST_LABEL,
   SEE_MORE_DISCUSSIONS_LABEL,
 } from "features/communities/constants";
-import {
-  useListDiscussions,
-  useNewDiscussionMutation,
-} from "features/communities/hooks";
+import { useListDiscussions } from "features/communities/hooks";
 import { Community } from "pb/communities_pb";
 import { useState } from "react";
-import { useQueryClient } from "react-query";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
+
+import CreateDiscussionForm from "./CreateDiscussionForm";
 
 const useStyles = makeStyles((theme) => ({
   discussionsContainer: {
@@ -42,10 +38,10 @@ const useStyles = makeStyles((theme) => ({
   discussionsHeader: {
     alignItems: "center",
     display: "flex",
-    justifyContent: "space-between",
   },
   newPostButton: {
-    margin: theme.spacing(1),
+    marginBlockStart: theme.spacing(3),
+    marginBlockEnd: theme.spacing(3),
   },
 }));
 
@@ -57,7 +53,7 @@ export default function DiscussionsListPage({
   const classes = { ...useCommunityPageStyles(), ...useStyles() };
 
   //temporary
-  const [isNewCommentOpen, setIsNewCommentOpen] = useState(false);
+  const [isCreatingNewPost, setIsCreatingNewPost] = useState(false);
 
   const {
     isLoading: isDiscussionsLoading,
@@ -67,47 +63,26 @@ export default function DiscussionsListPage({
     fetchNextPage,
   } = useListDiscussions(community.communityId);
 
-  const queryClient = useQueryClient();
-  const newDiscussionMutation = useNewDiscussionMutation(queryClient);
-
   return (
     <>
       <div className={classes.discussionsHeader}>
         <SectionTitle icon={<EmailIcon />}>{DISCUSSIONS_TITLE}</SectionTitle>
-        <IconButton
-          aria-label={NEW_POST_LABEL}
-          onClick={() => setIsNewCommentOpen(true)}
-        >
-          <AddIcon />
-        </IconButton>
       </div>
+      <Button
+        className={classes.newPostButton}
+        onClick={() => setIsCreatingNewPost(true)}
+      >
+        {NEW_POST_LABEL}
+      </Button>
       {discussionsError && (
         <Alert severity="error">{discussionsError.message}</Alert>
       )}
-      {
-        //This comment adding dialog is temporary
-      }
-      <Dialog
-        open={isNewCommentOpen}
-        onClose={() => setIsNewCommentOpen(false)}
-      >
-        <DialogContent>
-          {newDiscussionMutation.error && (
-            <Alert severity="error">
-              {newDiscussionMutation.error.message}
-            </Alert>
-          )}
-          <NewComment
-            onComment={async (content) => {
-              newDiscussionMutation.mutate({
-                content,
-                ownerCommunityId: community.communityId,
-                title: "test",
-              });
-            }}
-          />
-        </DialogContent>
-      </Dialog>
+      <Collapse in={isCreatingNewPost}>
+        <CreateDiscussionForm
+          communityId={community.communityId}
+          onCancel={() => setIsCreatingNewPost(false)}
+        />
+      </Collapse>
       <div className={classes.discussionsContainer}>
         {isDiscussionsLoading && <CircularProgress />}
         {hasAtLeastOnePage(discussions, "discussionsList") ? (

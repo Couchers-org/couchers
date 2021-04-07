@@ -23,10 +23,10 @@ import {
   subCommunitiesKey,
 } from "queryKeys";
 import {
-  QueryClient,
   useInfiniteQuery,
   useMutation,
   useQuery,
+  useQueryClient,
 } from "react-query";
 import { service } from "service";
 
@@ -126,16 +126,15 @@ export const useListNearbyUsers = (communityId?: number) =>
     }
   );
 
-export const useNewDiscussionMutation = (queryClient: QueryClient) =>
-  useMutation<
-    Discussion.AsObject,
-    GrpcError,
-    {
-      title: string;
-      content: string;
-      ownerCommunityId: number;
-    }
-  >(
+export interface CreateDiscussionInput {
+  title: string;
+  content: string;
+  ownerCommunityId: number;
+}
+
+export const useNewDiscussionMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation<Discussion.AsObject, GrpcError, CreateDiscussionInput>(
     ({ title, content, ownerCommunityId }) =>
       service.discussions.createDiscussion(title, content, ownerCommunityId),
     {
@@ -146,3 +145,4 @@ export const useNewDiscussionMutation = (queryClient: QueryClient) =>
       },
     }
   );
+};
