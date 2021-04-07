@@ -21,6 +21,7 @@ import { userLocationMaxRadius, userLocationMinRadius } from "../constants";
 import {
   DISPLAY_LOCATION,
   DISPLAY_LOCATION_NOT_EMPTY,
+  getRadiusText,
   INVALID_COORDINATE,
   LOCATION_PUBLICLY_VISIBLE,
   MAP_IS_BLANK,
@@ -77,8 +78,7 @@ export default function EditLocationMap({
 
   const map = useRef<mapboxgl.Map | null>(null);
 
-  const updater = useState(0);
-  const setUpdater = updater[1];
+  const [_, setDirty] = useState(0);
 
   // map is imperative so these don't need to cause re-render
   const address = useRef<string>(initialLocation?.address ?? "");
@@ -88,7 +88,7 @@ export default function EditLocationMap({
   );
   // have not selected a location in any way yet
   const isBlank = useRef<boolean>(
-    initialLocation?.lng && initialLocation?.lat ? false : true
+    !(initialLocation?.lng || initialLocation?.lat)
   );
 
   const onCircleMouseDown = (e: MapMouseEvent | MapTouchEvent) => {
@@ -100,11 +100,11 @@ export default function EditLocationMap({
     if (e.type === "touchstart") {
       const handleTouchMove = (e: MapTouchEvent) => onCircleMove(e);
       map.current!.on("touchmove", handleTouchMove);
-      map.current!.once("touchend", (e) => onCircleUp(e, handleTouchMove));
+      map.current!.once("touchend", (e) => coordinateMoved(e, handleTouchMove));
     } else {
       const handleMove = (e: MapMouseEvent) => onCircleMove(e);
       map.current!.on("mousemove", handleMove);
-      map.current!.once("mouseup", (e) => onCircleUp(e, handleMove));
+      map.current!.once("mouseup", (e) => coordinateMoved(e, handleMove));
     }
   };
 
@@ -113,9 +113,9 @@ export default function EditLocationMap({
     redrawMap();
   };
 
-  const onCircleUp = (
+  const coordinateMoved = (
     e: MapMouseEvent | MapTouchEvent,
-    moveHandler: (x: any) => void
+    moveHandler: (x: any) => void = () => null
   ) => {
     map.current!.off("mousemove", moveHandler);
     map.current!.off("touchmove", moveHandler);
@@ -123,13 +123,13 @@ export default function EditLocationMap({
 
     centerCoords.current = e.lngLat.wrap();
     syncCoords();
+    if (!isBlank.current) {
+      map.current!.setLayoutProperty("circle", "visibility", "visible");
+    }
     redrawMap();
   };
 
   const redrawMap = () => {
-    if (!isBlank.current) {
-      map.current!.setLayoutProperty("circle", "visibility", "visible");
-    }
     if (!exact) {
       (map.current!.getSource("circle") as GeoJSONSource).setData(
         circleGeoJson(centerCoords.current, radius.current)
@@ -143,10 +143,9 @@ export default function EditLocationMap({
 
   // syncs imperative coordinates into the reactive location object
   const syncCoords = () => {
-    const wrapped = centerCoords.current;
     commit({
-      lat: wrapped.lat,
-      lng: wrapped.lng,
+      lat: centerCoords.current.lat,
+      lng: centerCoords.current.lng,
     });
   };
 
@@ -160,18 +159,18 @@ export default function EditLocationMap({
       lng: centerCoords.current.lng,
       radius: exact ? 0 : radius.current,
     } as ApproximateLocation;
-    if ("address" in updates) {
-      address.current = updates.address!;
-      current.address = updates.address!;
+    if (updates.address) {
+      address.current = updates.address;
+      current.address = updates.address;
     }
-    if ("radius" in updates && !exact) {
-      radius.current = updates.radius!;
-      current.radius = updates.radius!;
+    if (updates.radius && !exact) {
+      radius.current = updates.radius;
+      current.radius = updates.radius;
     }
-    if ("lat" in updates && "lng" in updates) {
-      centerCoords.current = new LngLat(updates.lng!, updates.lat!);
-      current.lat = updates.lat!;
-      current.lng = updates.lng!;
+    if (updates.lat && updates.lng) {
+      centerCoords.current = new LngLat(updates.lng, updates.lat);
+      current.lat = updates.lat;
+      current.lng = updates.lng;
       isBlank.current = false;
     }
 
@@ -194,7 +193,7 @@ export default function EditLocationMap({
       }
     }
 
-    setUpdater(Date.now());
+    setDirty(Date.now());
   };
 
   const initializeMap = (mapRef: mapboxgl.Map) => {
@@ -252,7 +251,7 @@ export default function EditLocationMap({
 
     const onDblClick = (e: MapMouseEvent & mapboxgl.EventData) => {
       e.preventDefault();
-      onCircleUp(e, () => null);
+      coordinateMoved(e);
     };
     map.current!.on("dblclick", onDblClick);
 
@@ -282,19 +281,13 @@ export default function EditLocationMap({
         Math.random() * radius.current,
         Math.random() * 2 * Math.PI
       );
-      onCircleUp(
-        {
-          lngLat: randomizedLocation,
-        } as MapMouseEvent,
-        () => null
-      );
+      coordinateMoved({
+        lngLat: randomizedLocation,
+      } as MapMouseEvent);
     } else {
-      onCircleUp(
-        {
-          lngLat: coords,
-        } as MapMouseEvent,
-        () => null
-      );
+      coordinateMoved({
+        lngLat: coords,
+      } as MapMouseEvent);
     }
   };
 
@@ -333,7 +326,7 @@ export default function EditLocationMap({
             </Typography>
             <Slider
               aria-labelledby="location-radius"
-              aria-valuetext={radius.current + " meters"}
+              aria-valuetext={getRadiusText(radius.current)}
               value={radius.current}
               step={5}
               min={userLocationMinRadius}

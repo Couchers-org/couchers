@@ -232,7 +232,6 @@ export default function CompleteSignupForm() {
               <EditLocationMap
                 className={classes.locationMap}
                 updateLocation={(location) => {
-                  console.log(location);
                   if (location) {
                     onChange({
                       address: location.address,

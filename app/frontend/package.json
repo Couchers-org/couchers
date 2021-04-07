@@ -64,7 +64,7 @@
             "warn",
             {
               "argsIgnorePattern": "theme",
-              "varsIgnorePattern": "classes|useStyles"
+              "varsIgnorePattern": "classes|useStyles|_"
             }
           ]
         }
