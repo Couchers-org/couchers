@@ -1,9 +1,9 @@
 import { Snackbar as MuiSnackbar } from "@material-ui/core";
 import Alert from "components/Alert";
-import { ReactNode, useState } from "react";
+import { useState } from "react";
 
 export interface SuccessSnackbarProps {
-  children: ReactNode;
+  children: string;
 }
 
 export default function SuccessSnackbar({ children }: SuccessSnackbarProps) {

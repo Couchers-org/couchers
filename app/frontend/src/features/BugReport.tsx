@@ -15,10 +15,10 @@ import { useAuthContext } from "features/auth/AuthProvider";
 import {
   BUG_DESCRIPTION_HELPER,
   BUG_DESCRIPTION_NAME,
-  BUG_REPORT_SUCCESS,
   CANCEL,
   EXPECT_HELPER,
   EXPECT_NAME,
+  getBugReportSuccessMessage,
   PROBLEM_HELPER,
   PROBLEM_NAME,
   REPORT,
@@ -30,7 +30,6 @@ import { ReportBugRes } from "pb/bugs_pb";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
-import { Link } from "react-router-dom";
 import { service } from "service";
 
 export interface BugReportFormData {
@@ -99,10 +98,7 @@ export default function BugReport() {
     <>
       {bug && (
         <SuccessSnackbar>
-          <>
-            {BUG_REPORT_SUCCESS}
-            <Link to={bug.bugUrl}>{bug.bugId}</Link>
-          </>
+          {getBugReportSuccessMessage(bug.bugId)}
         </SuccessSnackbar>
       )}
       <Button
