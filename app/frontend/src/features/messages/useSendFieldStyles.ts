@@ -8,9 +8,9 @@ const useSendFieldStyles = makeStyles((theme) => ({
     display: "block",
     flexShrink: 0,
     marginInlineEnd: "auto",
-    marginInlineStart: "auto",
     marginBottom: theme.spacing(1),
     marginTop: theme.spacing(1),
+    marginLeft: theme.spacing(1),
   },
   buttonContainer: {
     "& > button": {
@@ -21,10 +21,8 @@ const useSendFieldStyles = makeStyles((theme) => ({
     justifyContent: "center",
   },
   container: {
-    [theme.breakpoints.up("md")]: {
-      alignItems: "flex-start",
-      display: "flex",
-    },
+    alignItems: "flex-start",
+    display: "flex",
   },
   requestClosedLabel: {
     transform: "none",
