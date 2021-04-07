@@ -41,6 +41,7 @@ import {
   NOT_ACCEPTING,
 } from "features/profile/constants";
 import useUpdateUserProfile from "features/profile/hooks/useUpdateUserProfile";
+import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";
 import ProfileTagInput from "features/profile/ProfileTagInput";
 import ProfileTextInput from "features/profile/ProfileTextInput";
 import useCurrentUser from "features/userQueries/useCurrentUser";
@@ -349,45 +350,37 @@ export default function EditProfileForm() {
               inputRef={register}
               className={classes.field}
             />
-            <ProfileTextInput
+            <ProfileMarkdownInput
               id="aboutMe"
               label={WHO}
               name="aboutMe"
               defaultValue={user.aboutMe}
-              inputRef={register}
+              control={control}
               className={classes.field}
-              multiline
-              rows={10}
             />
-            <ProfileTextInput
+            <ProfileMarkdownInput
               id="thingsILike"
               label={HOBBIES}
               name="thingsILike"
               defaultValue={user.thingsILike}
-              inputRef={register}
+              control={control}
               className={classes.field}
-              multiline
-              rows={10}
             />
-            <ProfileTextInput
+            <ProfileMarkdownInput
               id="aboutPlace"
               label={ABOUT_HOME}
               name="aboutPlace"
               defaultValue={user.aboutPlace}
-              inputRef={register}
+              control={control}
               className={classes.field}
-              multiline
-              rows={10}
             />
-            <ProfileTextInput
+            <ProfileMarkdownInput
               id="additionalInformation"
               label={ADDITIONAL}
               name="additionalInformation"
               defaultValue={user.additionalInformation}
-              inputRef={register}
+              control={control}
               className={classes.field}
-              multiline
-              rows={10}
             />
             <Controller
               control={control}

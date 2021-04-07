@@ -1,6 +1,7 @@
 import { makeStyles, Typography } from "@material-ui/core";
 import Divider from "components/Divider";
 import LabelAndText from "components/LabelAndText";
+import Markdown from "components/Markdown";
 import {
   ABOUT_HOME,
   ACCEPT_CAMPING,
@@ -140,17 +141,33 @@ export default function Home({ user }: HomeProps) {
         </div>
       </div>
       <Divider />
-      <Typography variant="h1">{LOCAL_AREA}</Typography>
-      <Typography variant="body1">{user.area?.value}</Typography>
-      <Divider />
-      <Typography variant="h1">{SLEEPING_ARRANGEMENT}</Typography>
-      <Typography variant="body1">{user.sleepingDetails?.value}</Typography>
-      <Divider />
-      <Typography variant="h1">{HOUSE_RULES}</Typography>
-      <Typography variant="body1">{user.houseRules?.value}</Typography>
-      <Divider />
-      <Typography variant="h1">{ADDITIONAL}</Typography>
-      <Typography variant="body1">{user.otherHostInfo?.value}</Typography>
+      {user.area && (
+        <>
+          <Typography variant="h1">{LOCAL_AREA}</Typography>
+          <Markdown source={user.area?.value} />
+          <Divider />
+        </>
+      )}
+      {user.sleepingDetails && (
+        <>
+          <Typography variant="h1">{SLEEPING_ARRANGEMENT}</Typography>
+          <Markdown source={user.sleepingDetails?.value} />
+          <Divider />
+        </>
+      )}
+      {user.houseRules && (
+        <>
+          <Typography variant="h1">{HOUSE_RULES}</Typography>
+          <Markdown source={user.houseRules?.value} />
+          <Divider />
+        </>
+      )}
+      {user.otherHostInfo && (
+        <>
+          <Typography variant="h1">{ADDITIONAL}</Typography>
+          <Markdown source={user.otherHostInfo?.value} />
+        </>
+      )}
     </>
   );
 }

@@ -1,22 +1,24 @@
 import { Meta, Story } from "@storybook/react";
-import Button from "components/Button";
-import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";
 import { useForm } from "react-hook-form";
 
+import Button from "./Button";
+import MarkdownInput from "./MarkdownInput";
+
 export default {
-  component: ProfileMarkdownInput,
-  title: "Profile/ProfileMarkdownInput",
+  component: MarkdownInput,
+  title: "Components/Composite/MarkdownInput",
 } as Meta;
 
 const Template: Story<any> = (args) => {
   const { control, handleSubmit } = useForm();
   return (
     <>
-      <ProfileMarkdownInput
+      <span id="md-input-label">Markdown input</span>
+      <MarkdownInput
         name="markdownInput"
         control={control}
         id="md-input"
-        label="Profile md input"
+        labelId="md-input-label"
         {...args}
       />
       <Button onClick={handleSubmit(console.log)} type="submit">
@@ -26,7 +28,4 @@ const Template: Story<any> = (args) => {
   );
 };
 
-export const profileMarkdownInput = Template.bind({});
-profileMarkdownInput.args = {
-  label: "Markdown input",
-};
+export const markdownInput = Template.bind({});
