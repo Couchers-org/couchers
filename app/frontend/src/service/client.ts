@@ -76,7 +76,7 @@ const apis = {
   threads: new ThreadsPromiseClient(URL, null, opts),
 };
 
-if (process.env.NODE_ENV === "development") {
+if (process.env.REACT_APP_COUCHERS_ENV !== "prod") {
   // @ts-ignore
   const grpcWebTools = window.__GRPCWEB_DEVTOOLS__ || (() => {});
 
@@ -93,7 +93,7 @@ if (process.env.NODE_ENV === "development") {
     apis.pages,
     apis.references,
     apis.requests,
-    apis.search,    
+    apis.search,
     apis.threads,
   ]);
 }
