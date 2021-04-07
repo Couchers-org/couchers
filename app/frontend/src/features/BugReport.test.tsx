@@ -10,6 +10,7 @@ import mediaQuery from "css-mediaquery";
 import {
   BUG_DESCRIPTION_NAME,
   EXPECT_NAME,
+  getBugReportSuccessMessage,
   PROBLEM_NAME,
   REPORT,
   SUBMIT,
@@ -142,8 +143,7 @@ describe("BugReport", () => {
       await fillInAndSubmitBugReport(subjectFieldLabel, descriptionFieldLabel);
 
       expect(await screen.findByRole("progressbar")).toBeVisible();
-      const successMessage =
-        "Thank you for reporting that bug and making Couchers better, a report was sent to the developers! The bug ID is 1";
+      const successMessage = getBugReportSuccessMessage("1");
       const successAlert = await screen.findByRole("alert");
       expect(within(successAlert).getByText(successMessage)).toBeVisible();
       expect(reportBugMock).toHaveBeenCalledTimes(1);
