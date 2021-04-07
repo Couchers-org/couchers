@@ -18,7 +18,7 @@ Meet our frontend development team lead: Lucas!
 
 2021/04/05 by Emily.
 
-Meet our frontend development team lead: Lucas!
+We're chatting with Miuriel, our graphic design team lead!
 
 [Read more.](/blog/2021/04/05/qa-couchers-volunteers-miuriel)
 
@@ -26,7 +26,7 @@ Meet our frontend development team lead: Lucas!
 
 2021/03/29 by Emily.
 
-We're chatting with Miuriel, our graphic design team lead.
+Get to know our forum admin: Nolo!
 
 [Read more.](/blog/2021/03/29/qa-couchers-volunteers-nolo)
 
