@@ -1,16 +1,16 @@
 import { Snackbar as MuiSnackbar } from "@material-ui/core";
 import Alert from "components/Alert";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 
 export interface SuccessSnackbarProps {
-  children: string;
+  children: ReactNode;
 }
 
 export default function SuccessSnackbar({ children }: SuccessSnackbarProps) {
   const [open, setOpen] = useState(true);
   return (
     <MuiSnackbar
-      autoHideDuration={3000}
+      autoHideDuration={8000}
       open={open}
       onClose={() => setOpen(false)}
       anchorOrigin={{ vertical: "top", horizontal: "center" }}

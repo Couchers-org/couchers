@@ -70,7 +70,8 @@ def test_bugs(db):
                     )
                 )
 
-    assert res.report_identifier == "#11"
+    assert res.bug_id == "#11"
+    assert res.bug_url == "https://github.com/Couchers-org/couchers/issues/11"
 
 
 def test_bugs_with_user(db):
@@ -116,7 +117,8 @@ def test_bugs_with_user(db):
                     )
                 )
 
-    assert res.report_identifier == "#11"
+    assert res.bug_id == "#11"
+    assert res.bug_url == "https://github.com/Couchers-org/couchers/issues/11"
 
 
 def test_bugs_fails_on_network_error(db):

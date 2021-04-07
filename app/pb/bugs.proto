@@ -32,5 +32,6 @@ message ReportBugReq {
 }
 
 message ReportBugRes {
-  string report_identifier = 1;
+  string bug_id = 2;
+  string bug_url = 3;
 }

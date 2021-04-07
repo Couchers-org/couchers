@@ -15,10 +15,10 @@ import { useAuthContext } from "features/auth/AuthProvider";
 import {
   BUG_DESCRIPTION_HELPER,
   BUG_DESCRIPTION_NAME,
+  BUG_REPORT_SUCCESS,
   CANCEL,
   EXPECT_HELPER,
   EXPECT_NAME,
-  getBugReportSuccessMessage,
   PROBLEM_HELPER,
   PROBLEM_NAME,
   REPORT,
@@ -26,9 +26,11 @@ import {
   WARNING,
 } from "features/constants";
 import { Error as GrpcError } from "grpc-web";
+import { ReportBugRes } from "pb/bugs_pb";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
+import { Link } from "react-router-dom";
 import { service } from "service";
 
 export interface BugReportFormData {
@@ -69,12 +71,12 @@ export default function BugReport() {
   } = useForm<BugReportFormData>();
   const userId = useAuthContext().authState.userId;
   const {
-    data: reportIdentifier,
+    data: bug,
     error,
     isLoading,
     mutate: reportBug,
     reset: resetMutation,
-  } = useMutation<string, GrpcError, BugReportFormData>(
+  } = useMutation<ReportBugRes.AsObject, GrpcError, BugReportFormData>(
     (formData) => service.bugs.reportBug(formData, userId),
     {
       onSuccess: () => {
@@ -95,9 +97,12 @@ export default function BugReport() {
 
   return (
     <>
-      {reportIdentifier && (
+      {bug && (
         <SuccessSnackbar>
-          {getBugReportSuccessMessage(reportIdentifier)}
+          <>
+            {BUG_REPORT_SUCCESS}
+            <Link to={bug.bugUrl}>{bug.bugId}</Link>
+          </>
         </SuccessSnackbar>
       )}
       <Button

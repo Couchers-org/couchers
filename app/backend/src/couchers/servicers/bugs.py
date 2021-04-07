@@ -47,6 +47,8 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
         if not r.status_code == 201:
             context.abort(grpc.StatusCode.INTERNAL, "Request failed")
 
-        report_identifier = f'#{r.json()["number"]}'
+        issue_number = r.json()["number"]
 
-        return bugs_pb2.ReportBugRes(report_identifier=report_identifier)
+        return bugs_pb2.ReportBugRes(
+            bug_id=f"#{issue_number}", bug_url=f"https://github.com/Couchers-org/couchers/issues/{issue_number}"
+        )

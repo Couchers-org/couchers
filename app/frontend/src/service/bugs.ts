@@ -17,5 +17,5 @@ export async function reportBug(
   req.setUserId(Number(userId));
 
   const res = await client.bugs.reportBug(req);
-  return res.getReportIdentifier();
+  return res.toObject();
 }
