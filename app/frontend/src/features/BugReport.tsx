@@ -12,11 +12,13 @@ import { BugIcon } from "components/Icons";
 import TextField from "components/TextField";
 import { useAuthContext } from "features/auth/AuthProvider";
 import {
-  BUG_DESCRIPTION,
-  EXPECT,
-  PROBLEM,
+  BUG_DESCRIPTION_HELPER,
+  BUG_DESCRIPTION_NAME,
+  EXPECT_HELPER,
+  EXPECT_NAME,
+  PROBLEM_HELPER,
+  PROBLEM_NAME,
   REPORT,
-  STEPS,
   SUBMIT,
   WARNING,
 } from "features/constants";
@@ -29,7 +31,6 @@ import { service } from "service";
 export interface BugReportFormData {
   subject: string;
   description: string;
-  steps: string;
   results: string;
 }
 
@@ -118,7 +119,8 @@ export default function BugReport() {
             <TextField
               id="bug-report-subject"
               className={classes.field}
-              label={BUG_DESCRIPTION}
+              label={BUG_DESCRIPTION_NAME}
+              helperText={BUG_DESCRIPTION_HELPER}
               name="subject"
               inputRef={register({ required: true })}
               fullWidth
@@ -126,7 +128,8 @@ export default function BugReport() {
             <TextField
               className={classes.field}
               id="bug-report-description"
-              label={PROBLEM}
+              label={PROBLEM_NAME}
+              helperText={PROBLEM_HELPER}
               name="description"
               inputRef={register({ required: true })}
               fullWidth
@@ -136,21 +139,10 @@ export default function BugReport() {
             />
             <TextField
               className={classes.field}
-              id="bug-report-steps"
-              defaultValue=""
-              label={STEPS}
-              name="steps"
-              inputRef={register}
-              fullWidth
-              multiline
-              rows={4}
-              rowsMax={6}
-            />
-            <TextField
-              className={classes.field}
               id="bug-report-results"
               defaultValue=""
-              label={EXPECT}
+              label={EXPECT_NAME}
+              helperText={EXPECT_HELPER}
               name="results"
               inputRef={register}
               fullWidth

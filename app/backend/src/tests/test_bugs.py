@@ -19,7 +19,6 @@ def test_bugs_disabled():
             bugs_pb2.ReportBugReq(
                 subject="subject",
                 description="description",
-                steps="steps",
                 results="results",
                 frontend_version="frontend_version",
                 user_agent="user_agent",
@@ -39,7 +38,7 @@ def test_bugs(db):
             assert json == {
                 "title": "subject",
                 "body": (
-                    "Subject: subject\nDescription:\ndescription\n\nSteps:\nsteps\n\nResults:\nresults\n\nBackend version: "
+                    "Subject: subject\nDescription:\ndescription\n\nResults:\nresults\n\nBackend version: "
                     + config["VERSION"]
                     + "\nFrontend version: frontend_version\nUser Agent: user_agent\nPage: page\nUser (spoofable): <unknown> (99)"
                 ),
@@ -63,7 +62,6 @@ def test_bugs(db):
                     bugs_pb2.ReportBugReq(
                         subject="subject",
                         description="description",
-                        steps="steps",
                         results="results",
                         frontend_version="frontend_version",
                         user_agent="user_agent",
@@ -86,7 +84,7 @@ def test_bugs_with_user(db):
             assert json == {
                 "title": "subject",
                 "body": (
-                    "Subject: subject\nDescription:\ndescription\n\nSteps:\nsteps\n\nResults:\nresults\n\nBackend version: "
+                    "Subject: subject\nDescription:\ndescription\n\nResults:\nresults\n\nBackend version: "
                     + config["VERSION"]
                     + "\nFrontend version: frontend_version\nUser Agent: user_agent\nPage: page\nUser (spoofable): testing_user (1)"
                 ),
@@ -110,7 +108,6 @@ def test_bugs_with_user(db):
                     bugs_pb2.ReportBugReq(
                         subject="subject",
                         description="description",
-                        steps="steps",
                         results="results",
                         frontend_version="frontend_version",
                         user_agent="user_agent",
@@ -141,7 +138,6 @@ def test_bugs_fails_on_network_error(db):
                         bugs_pb2.ReportBugReq(
                             subject="subject",
                             description="description",
-                            steps="steps",
                             results="results",
                             frontend_version="frontend_version",
                             user_agent="user_agent",

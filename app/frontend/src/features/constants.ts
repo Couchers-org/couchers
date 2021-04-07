@@ -123,14 +123,18 @@ export const SEE_MORE_EVENTS_LABEL = "See more events";
 export const SEE_MORE_PLACES_LABEL = "See more places";
 
 // Bug Report
-export const BUG_DESCRIPTION = "Brief description of the bug";
-export const EXPECT = "What happened? What should have happened?";
-export const PROBLEM = "What's the problem?";
+export const BUG_DESCRIPTION_NAME = "Report title";
+export const BUG_DESCRIPTION_HELPER = "Brief description of the bug";
+export const PROBLEM_NAME = "What did you do to trigger the bug?";
+export const PROBLEM_HELPER =
+  "Brief description of the problem and how to reproduce it";
+export const EXPECT_NAME = "What happened? What should have happened?";
+export const EXPECT_HELPER =
+  "Brief description of what you expected to happen instead";
 export const REPORT = "Report a problem";
-export const STEPS = "What did you do to trigger the bug?";
 export const SUBMIT = "Submit";
 export const WARNING =
-  "Please note that this information, as well as diagnostic information including which page you are on, what browser you are using, and your user ID will be saved to a public list of bugs.";
+  "Please note that this information, as well as diagnostic information including which page you are on, what browser you are using, and your username will be saved to a public list of bugs.";
 
 // Landing
 export const BUGS = "Bugs";

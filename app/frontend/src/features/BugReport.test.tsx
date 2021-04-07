@@ -8,12 +8,12 @@ import {
 import userEvent from "@testing-library/user-event";
 import mediaQuery from "css-mediaquery";
 import {
-  BUG_DESCRIPTION,
-  EXPECT,
-  PROBLEM,
+  BUG_DESCRIPTION_NAME,
+  EXPECT_NAME,
+  PROBLEM_NAME,
   REPORT,
-  STEPS,
   SUBMIT,
+  WARNING,
 } from "features/constants";
 import { service } from "service";
 
@@ -30,20 +30,15 @@ afterEach(() => jest.restoreAllMocks);
 async function fillInAndSubmitBugReport(
   subjectFieldLabel: string,
   descriptionFieldLabel: string,
-  stepsFieldLabel: string = "",
   resultsFieldLabel: string = ""
 ) {
   const subjectField = await screen.findByLabelText(subjectFieldLabel);
   const descriptionField = await screen.findByLabelText(descriptionFieldLabel);
-  const stepsField = screen.queryByLabelText(stepsFieldLabel);
   const resultsField = screen.queryByLabelText(resultsFieldLabel);
 
   userEvent.type(subjectField, "Broken log in");
   userEvent.type(descriptionField, "Log in is broken");
 
-  if (stepsField) {
-    userEvent.type(stepsField, "Type in user name and clicked log in");
-  }
   if (resultsField) {
     userEvent.type(
       resultsField,
@@ -106,14 +101,12 @@ describe("BugReport", () => {
   });
 
   describe('when the "report a bug" button is clicked', () => {
-    const subjectFieldLabel = BUG_DESCRIPTION;
-    const descriptionFieldLabel = PROBLEM;
-    const stepsFieldLabel = STEPS;
-    const resultsFieldLabel = EXPECT;
+    const subjectFieldLabel = BUG_DESCRIPTION_NAME;
+    const descriptionFieldLabel = PROBLEM_NAME;
+    const resultsFieldLabel = EXPECT_NAME;
 
     it("shows the bug report dialog correctly when the button is clicked", async () => {
-      const infoText =
-        "Please note that this information, as well as diagnostic information including which page you are on, what browser you are using, and your user ID will be saved to a public list of bugs.";
+      const infoText = WARNING;
       render(<BugReport />, { wrapper });
 
       userEvent.click(screen.getByRole("button", { name: "Report a bug" }));
@@ -124,7 +117,6 @@ describe("BugReport", () => {
       expect(screen.getByText(infoText)).toBeVisible();
       expect(screen.getByLabelText(subjectFieldLabel)).toBeVisible();
       expect(screen.getByLabelText(descriptionFieldLabel)).toBeVisible();
-      expect(screen.getByLabelText(stepsFieldLabel)).toBeVisible();
       expect(screen.getByLabelText(resultsFieldLabel)).toBeVisible();
     });
 
@@ -159,7 +151,6 @@ describe("BugReport", () => {
         {
           description: "Log in is broken",
           results: "",
-          steps: "",
           subject: "Broken log in",
         },
         null
@@ -173,7 +164,6 @@ describe("BugReport", () => {
       await fillInAndSubmitBugReport(
         subjectFieldLabel,
         descriptionFieldLabel,
-        stepsFieldLabel,
         resultsFieldLabel
       );
 
@@ -184,7 +174,6 @@ describe("BugReport", () => {
         {
           description: "Log in is broken",
           results: "Log in didn't work, and I expected it to work",
-          steps: "Type in user name and clicked log in",
           subject: "Broken log in",
         },
         null
@@ -204,7 +193,6 @@ describe("BugReport", () => {
         {
           description: "Log in is broken",
           results: "",
-          steps: "",
           subject: "Broken log in",
         },
         1
