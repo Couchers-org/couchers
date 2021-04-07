@@ -23,7 +23,7 @@ An already fractured community, disillusioned by the sudden implementation of a 
 
 The platform had every chance to connect people, foster collaboration, and build an even more tightly-knit global community of couch surfers—at a time when many of us are feeling more isolated than ever. Members were doing their best to keep their communities together through the pandemic—something that should have been appreciated, praised, and encouraged. 
 
-## A better approach in [Couchers.org](/)
+## A better approach
 
 Virtual events are powerful, helping build communities that may have never formed prior to the pandemic. In the future, they could completely revolutionize the way we travel—connecting and meeting people at our destination before we’ve even planned the trip.
 
