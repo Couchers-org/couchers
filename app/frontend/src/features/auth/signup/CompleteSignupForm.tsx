@@ -1,5 +1,7 @@
 import {
+  FormControl,
   FormControlLabel,
+  FormHelperText,
   InputLabel,
   makeStyles,
   Radio,
@@ -39,6 +41,7 @@ import {
   BIRTHDAY_REQUIRED,
   FEMALE,
   GENDER_LABEL,
+  GENDER_REQUIRED,
   LOCATION_LABEL,
   MALE,
   NAME_EMPTY,
@@ -177,7 +180,8 @@ export default function CompleteSignupForm() {
                   return valid || USERNAME_TAKEN;
                 },
               })}
-              helperText={errors?.username?.message}
+              helperText={errors?.username?.message ?? " "}
+              error={!!errors?.username?.message}
             />
             <InputLabel className={authClasses.formLabel} htmlFor="full-name">
               {SIGN_UP_FULL_NAME}
@@ -195,7 +199,8 @@ export default function CompleteSignupForm() {
                 },
                 required: NAME_REQUIRED,
               })}
-              helperText={errors?.name?.message}
+              helperText={errors?.name?.message ?? " "}
+              error={!!errors?.name?.message}
             />
             <InputLabel className={authClasses.formLabel} htmlFor="birthdate">
               {SIGN_UP_BIRTHDAY}
@@ -203,8 +208,8 @@ export default function CompleteSignupForm() {
             <Datepicker
               className={authClasses.formField}
               control={control}
-              error={!!errors.birthdate}
-              helperText={errors?.birthdate?.message}
+              error={!!errors?.birthdate?.message}
+              helperText={errors?.birthdate?.message ?? " "}
               id="birthdate"
               inputRef={register({
                 required: BIRTHDAY_REQUIRED,
@@ -281,29 +286,35 @@ export default function CompleteSignupForm() {
               control={control}
               name="gender"
               defaultValue=""
+              rules={{ required: GENDER_REQUIRED }}
               render={({ onChange }) => (
-                <RadioGroup
-                  className={classes.genderRadio}
-                  aria-label="gender"
-                  name="gender-radio"
-                  onChange={onChange}
-                >
-                  <FormControlLabel
-                    value="Female"
-                    control={<Radio />}
-                    label={FEMALE}
-                  />
-                  <FormControlLabel
-                    value="Male"
-                    control={<Radio />}
-                    label={MALE}
-                  />
-                  <FormControlLabel
-                    value="Non-binary"
-                    control={<Radio />}
-                    label={NON_BINARY}
-                  />
-                </RadioGroup>
+                <FormControl>
+                  <RadioGroup
+                    className={classes.genderRadio}
+                    aria-label="gender"
+                    name="gender-radio"
+                    onChange={onChange}
+                  >
+                    <FormControlLabel
+                      value="Female"
+                      control={<Radio />}
+                      label={FEMALE}
+                    />
+                    <FormControlLabel
+                      value="Male"
+                      control={<Radio />}
+                      label={MALE}
+                    />
+                    <FormControlLabel
+                      value="Non-binary"
+                      control={<Radio />}
+                      label={NON_BINARY}
+                    />
+                  </RadioGroup>
+                  <FormHelperText error={!!errors?.gender?.message}>
+                    {errors?.gender?.message ?? " "}
+                  </FormHelperText>
+                </FormControl>
               )}
             />
             <div>

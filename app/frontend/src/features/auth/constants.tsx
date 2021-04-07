@@ -27,6 +27,7 @@ export const ENTER_EMAIL = "Enter your username/email";
 export const FEMALE = "Female";
 export const FULL_NAME = "Full name";
 export const GENDER_LABEL = "I identify as ...";
+export const GENDER_REQUIRED = "Please select your gender identity";
 export const HOSTING_STATUS = "Hosting status";
 export const INTRODUCTION_SUBTITLE = "Built by the community and always free";
 export const INTRODUCTION_TITLE = "Connect with the world around you";
