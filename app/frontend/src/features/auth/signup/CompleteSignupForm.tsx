@@ -214,6 +214,7 @@ export default function CompleteSignupForm() {
               label={BIRTHDATE_LABEL}
               minDate={new Date(1899, 12, 1)}
               name="birthdate"
+              openTo="year"
             />
             <InputLabel className={authClasses.formLabel} htmlFor="location">
               {LOCATION_LABEL}

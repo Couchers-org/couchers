@@ -1,8 +1,7 @@
-import { render, screen, within } from "@testing-library/react";
+import { act, render, screen, within } from "@testing-library/react";
 import { MARK_LAST_SEEN_TIMEOUT } from "features/messages/constants";
 import GroupChatView from "features/messages/groupchats/GroupChatView";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import React from "react";
 import {
   mockAllIsIntersecting,
   mockIsIntersecting,
@@ -14,6 +13,8 @@ import messageData from "test/fixtures/messages.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 import { getGroupChatMessages, getUser } from "test/serviceMockDefaults";
 import { addDefaultUser, MockedService, wait } from "test/utils";
+
+import { GROUP_CHAT_REFETCH_INTERVAL } from "./constants";
 
 const getGroupChatMock = service.conversations.getGroupChat as MockedService<
   typeof service.conversations.getGroupChat
@@ -125,6 +126,79 @@ describe("GroupChatView", () => {
         expect(messageElement.getByText("You created the chat")).toBeVisible();
       }
     }
+    expect(getGroupChatMock).toHaveBeenCalledTimes(1);
+    // 1 is groupChatId here
+    expect(getGroupChatMock).toHaveBeenCalledWith(1);
+    expect(getGroupChatMessagesMock).toHaveBeenCalledTimes(1);
+    expect(getGroupChatMessagesMock).toHaveBeenCalledWith(1, undefined);
+  });
+
+  describe("when there are new messages due to come in", () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+    });
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it("shows the new messages", async () => {
+      getGroupChatMock
+        .mockResolvedValueOnce(baseGroupChatMockResponse)
+        .mockResolvedValue({
+          ...baseGroupChatMockResponse,
+          latestMessage: {
+            authorUserId: 1,
+            messageId: 6,
+            text: {
+              text: "Sounds good",
+            },
+            time: {
+              nanos: 0,
+              seconds: 1577962000,
+            },
+          },
+        });
+      getGroupChatMessagesMock
+        .mockImplementationOnce(getGroupChatMessages)
+        .mockResolvedValue({
+          lastMessageId: 6,
+          messagesList: [
+            {
+              messageId: 6,
+              authorUserId: 1,
+              text: { text: "Sounds good" },
+              time: { seconds: 1577962000, nanos: 0 },
+            },
+            ...messageData,
+          ],
+          noMore: true,
+        });
+      renderGroupChatView();
+
+      act(() => {
+        jest.runOnlyPendingTimers();
+      });
+
+      let messages = await screen.findAllByTestId(/message-\d/);
+      expect(messages).toHaveLength(5);
+      expect(getGroupChatMock).toHaveBeenCalledTimes(1);
+      expect(getGroupChatMessagesMock).toHaveBeenCalledTimes(1);
+
+      await act(async () => {
+        jest.advanceTimersByTime(GROUP_CHAT_REFETCH_INTERVAL);
+      });
+
+      messages = screen.getAllByTestId(/message-\d/);
+      expect(messages).toHaveLength(6);
+      expect(within(messages[0]).getByText("Sounds good")).toBeVisible();
+      expect(getGroupChatMock).toHaveBeenCalledTimes(2);
+      expect(getGroupChatMock.mock.calls).toEqual([[1], [1]]);
+      expect(getGroupChatMessagesMock).toHaveBeenCalledTimes(2);
+      expect(getGroupChatMessagesMock.mock.calls).toEqual([
+        [1, undefined],
+        [1, undefined],
+      ]);
+    });
   });
 
   it("should mark the message seen with the latest message if they are all visible", async () => {

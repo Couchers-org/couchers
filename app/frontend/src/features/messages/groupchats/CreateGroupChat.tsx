@@ -23,6 +23,7 @@ import {
 } from "features/messages/constants";
 import { Error as GrpcError } from "grpc-web";
 import { User } from "pb/api_pb";
+import { groupChatsListKey } from "queryKeys";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "react-query";
@@ -77,7 +78,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
     ({ title, users }) => service.conversations.createGroupChat(title, users),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(["groupChats"]);
+        queryClient.invalidateQueries(groupChatsListKey);
         resetForm();
         setIsOpen(false);
       },
