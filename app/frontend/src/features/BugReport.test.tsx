@@ -9,8 +9,8 @@ import userEvent from "@testing-library/user-event";
 import mediaQuery from "css-mediaquery";
 import {
   BUG_DESCRIPTION_NAME,
+  BUG_REPORT_SUCCESS,
   EXPECT_NAME,
-  getBugReportSuccessMessage,
   PROBLEM_NAME,
   REPORT,
   SUBMIT,
@@ -143,7 +143,7 @@ describe("BugReport", () => {
       await fillInAndSubmitBugReport(subjectFieldLabel, descriptionFieldLabel);
 
       expect(await screen.findByRole("progressbar")).toBeVisible();
-      const successMessage = getBugReportSuccessMessage("1");
+      const successMessage = BUG_REPORT_SUCCESS;
       const successAlert = await screen.findByRole("alert");
       expect(within(successAlert).getByText(successMessage)).toBeVisible();
       expect(reportBugMock).toHaveBeenCalledTimes(1);
