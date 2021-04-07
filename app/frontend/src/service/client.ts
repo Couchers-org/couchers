@@ -93,7 +93,7 @@ if (process.env.NODE_ENV === "development") {
     apis.pages,
     apis.references,
     apis.requests,
-    apis.search,    
+    apis.search,
     apis.threads,
   ]);
 }
