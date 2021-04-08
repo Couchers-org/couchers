@@ -53,7 +53,7 @@ async function fillInAndSubmitBugReport(
 describe("BugReport", () => {
   beforeEach(() => {
     reportBugMock.mockResolvedValue({
-      bugId: "1",
+      bugId: "#1",
       bugUrl: "https://github.com/Couchers-org/couchers/issues/1",
     });
   });
@@ -139,7 +139,7 @@ describe("BugReport", () => {
       reportBugMock.mockImplementation(async () => {
         await wait(10);
         return {
-          bugId: "1",
+          bugId: "#1",
           bugUrl: "https://github.com/Couchers-org/couchers/issues/1",
         };
       });
