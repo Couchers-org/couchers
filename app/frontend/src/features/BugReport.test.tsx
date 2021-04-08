@@ -10,6 +10,7 @@ import mediaQuery from "css-mediaquery";
 import {
   BUG_DESCRIPTION_NAME,
   BUG_REPORT_SUCCESS,
+  CANCEL,
   EXPECT_NAME,
   PROBLEM_NAME,
   REPORT,
@@ -229,8 +230,8 @@ describe("BugReport", () => {
       await fillInAndSubmitBugReport(subjectFieldLabel, descriptionFieldLabel);
       await screen.findByRole("alert");
 
-      // Close dialog by clicking on background
-      userEvent.click(document.querySelector(".MuiBackdrop-root")!);
+      // Close dialog by clicking on close button
+      userEvent.click(screen.getByRole("button", { name: CANCEL }));
       // Wait for the dialog to close properly first before trying to reopen
       await waitForElementToBeRemoved(screen.getByRole("presentation"));
       userEvent.click(screen.getByRole("button", { name: "Report a bug" }));
