@@ -129,8 +129,6 @@ export default function BugReport() {
         onClose={handleClose}
         // won't close when clicking outside
         disableBackdropClick
-        // won't clsoe when pressing esc
-        disableEscapeKeyDown
       >
         <form onSubmit={onSubmit}>
           <DialogTitle id="bug-reporter">{REPORT}</DialogTitle>
