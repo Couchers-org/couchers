@@ -149,9 +149,13 @@ describe("BugReport", () => {
       await fillInAndSubmitBugReport(subjectFieldLabel, descriptionFieldLabel);
 
       expect(await screen.findByRole("progressbar")).toBeVisible();
-      const successMessage = BUG_REPORT_SUCCESS;
       const successAlert = await screen.findByRole("alert");
-      expect(within(successAlert).getByText(successMessage)).toBeVisible();
+      expect(
+        within(successAlert).getByText(BUG_REPORT_SUCCESS, { exact: false })
+      ).toBeVisible();
+      expect(await within(successAlert).findByRole("link")).toHaveTextContent(
+        "#1"
+      );
       expect(reportBugMock).toHaveBeenCalledTimes(1);
       expect(reportBugMock).toHaveBeenCalledWith(
         {
