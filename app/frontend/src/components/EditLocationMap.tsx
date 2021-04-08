@@ -158,13 +158,13 @@ export default function EditLocationMap({
     updates: Partial<ApproximateLocation>,
     update: boolean = true
   ) => {
-    if (updates.address) {
+    if (updates.address !== undefined) {
       location.current.address = updates.address;
     }
-    if (updates.radius && !exact) {
+    if (updates.radius !== undefined && !exact) {
       location.current.radius = updates.radius;
     }
-    if (updates.lat && updates.lng) {
+    if (updates.lat !== undefined && updates.lng !== undefined) {
       location.current.lat = updates.lat;
       location.current.lng = updates.lng;
       isBlank.current = false;
@@ -184,8 +184,8 @@ export default function EditLocationMap({
         setError(DISPLAY_LOCATION_NOT_EMPTY);
         updateLocation(null);
       } else {
-        updateLocation(location.current);
         setError("");
+        updateLocation({ ...location.current });
       }
     }
 
