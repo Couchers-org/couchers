@@ -22,7 +22,7 @@ describe("EditHostingPreference", () => {
     addDefaultUser();
   });
 
-  it("should redirect to Profile route after successful update", async () => {
+  it.skip("should redirect to Profile route after successful update", async () => {
     render(
       <Switch>
         <Route path={userRoute}>
