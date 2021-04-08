@@ -13,7 +13,7 @@ from tests.test_fixtures import (
     api_session,
     db,
     generate_user,
-    get_FriendRelationship,
+    get_friend_relationship,
     make_friends,
     real_api_session,
     real_jail_session,
@@ -533,7 +533,7 @@ def test_CancelFriendRequest(db):
         assert res.sent[0].user_id == user2.id
 
         # Check only one existing fr
-        fr = get_FriendRelationship(user1, user2)
+        fr = get_friend_relationship(user1, user2)
         assert fr is not None  # If multiple, would have already excepted
 
 
@@ -585,7 +585,7 @@ def test_reject_friend_request(db):
         assert res.sent[0].user_id == user2.id
 
         # Check only one existing fr
-        fr = get_FriendRelationship(user1, user2)
+        fr = get_friend_relationship(user1, user2)
         assert fr is not None  # If multiple, would have already excepted
 
 

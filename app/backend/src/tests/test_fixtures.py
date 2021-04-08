@@ -165,7 +165,7 @@ def make_friends(user1, user2):
 
 
 # This doubles as get_FriendRequest, since a friend request is just a pending friend relationship
-def get_FriendRelationship(user1, user2):
+def get_friend_relationship(user1, user2):
     with session_scope() as session:
         friend_relationship = (
             session.query(FriendRelationship)
