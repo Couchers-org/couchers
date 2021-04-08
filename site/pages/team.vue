@@ -14,7 +14,7 @@
             <p class="content">At the moment, we are specifically looking for:<ul>
               <li>Senior <b>UI/UX manager</b></li>
               <li><b>Digital marketers</b></li>
-              <li><b>Branding and graphic desginers</b></li>
+              <li><b>Branding and graphic designers</b></li>
               <li><b>Frontend engineers</b> (especially with skills in React and TypeScript)</li>
               <li><b>Backend engineers</b> (we work in Python)</li>
             </ul></p>
@@ -263,28 +263,9 @@
                     </figure>
                   </div>
                   <div class="media-content">
-                    <p class="title is-4">Manuel Mohammady</p>
+                    <p class="title is-4">Nolo</p>
                     <p class="subtitle is-6 role">Community Forum</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Las Palmas, Spain</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="column is-one-third">
-            <div class="card">
-              <div class="card-content">
-                <div class="media">
-                  <div class="media-left">
-                    <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-andrea.jpg" alt="Headshot of Andrea">
-                    </figure>
-                  </div>
-                  <div class="media-content">
-                    <p class="title is-4">Andrea Wu</p>
-                    <p class="subtitle is-6 role">Frontend Developer</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>USA</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="http://www.linkedin.com/in/andreaowu">andreaowu</a></p>
                   </div>
                 </div>
               </div>
@@ -322,6 +303,24 @@
                     <p class="subtitle is-6 role">Frontend Developer</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Kraków, Poland</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/in/krzysztof-kosecki">krzysztof-kosecki</a></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-max.jpg" alt="Headshot of Max">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Max Vuorinen</p>
+                    <p class="subtitle is-6 role">Graphic Designer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Helsinki, Finland</p>
                   </div>
                 </div>
               </div>
