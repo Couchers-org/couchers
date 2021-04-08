@@ -1,5 +1,6 @@
 import PageTitle from "components/PageTitle";
 import TextBody from "components/TextBody";
+import Contribute from "features/Contribute";
 import React from "react";
 import { Switch } from "react-router-dom";
 
@@ -35,6 +36,7 @@ import {
   communityRoute,
   confirmChangeEmailRoute,
   connectionsRoute,
+  contributeRoute,
   discussionRoute,
   editHostingPreferenceRoute,
   editProfileRoute,
@@ -119,6 +121,13 @@ export default function AppRoutes() {
       </AppRoute>
       <AppRoute isPrivate={false} exact path={logoutRoute}>
         <Logout />
+      </AppRoute>
+
+      {
+        // CONTRIBUTE
+      }
+      <AppRoute isPrivate={false} isFullscreen exact path={contributeRoute}>
+        <Contribute />
       </AppRoute>
 
       {

@@ -20,6 +20,12 @@ import {
 } from "features/constants";
 import React from "react";
 
+import ContributorForm, {
+  CONTRIBUTE,
+  FILL_IN_THE_FORM,
+  JOIN_THE_TEAM,
+} from "./contributorForm";
+
 export default function Home() {
   return (
     <>
@@ -30,10 +36,10 @@ export default function Home() {
         <br /> {WELCOME_DESCRIPTION_2}
       </Typography>
       <Divider />
-      <Typography variant="h1">{FEATURES}</Typography>
+      <Typography variant="h2">{FEATURES}</Typography>
       <Typography variant="body1">{FEATURES_DESCRIPTION}</Typography>
       <Divider />
-      <Typography variant="h1">{BUGS}</Typography>
+      <Typography variant="h2">{BUGS}</Typography>
       <Typography variant="body1">
         {BUGS_DESCRIPTION_1}
         <br />
@@ -45,7 +51,7 @@ export default function Home() {
         {BUGS_DESCRIPTION_3}
       </Typography>
       <Divider />
-      <Typography variant="h1">{HELP}</Typography>
+      <Typography variant="h2">{HELP}</Typography>
       <Typography variant="body1">
         {HELP_DESCRIPTION_1}
         <Link href={SIGN_UP_LINK} target="_blank">
@@ -53,6 +59,11 @@ export default function Home() {
         </Link>
         {HELP_DESCRIPTION_2}
       </Typography>
+      <Divider />
+      <Typography variant="h2">{CONTRIBUTE}</Typography>
+      <Typography variant="subtitle2">{JOIN_THE_TEAM}</Typography>
+      <p>{FILL_IN_THE_FORM}</p>
+      <ContributorForm />
     </>
   );
 }
