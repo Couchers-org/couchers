@@ -11,10 +11,9 @@ import Autocomplete from "components/Autocomplete";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import Datepicker from "components/Datepicker";
-import EditUserLocationMap, {
+import EditLocationMap, {
   ApproximateLocation,
-} from "components/EditUserLocationMap";
-import TextBody from "components/TextBody";
+} from "components/EditLocationMap";
 import TextField from "components/TextField";
 import TOS from "components/TOS";
 import { useAuthContext } from "features/auth/AuthProvider";
@@ -63,7 +62,6 @@ type SignupInputs = {
   username: string;
   name: string;
   birthdate: Date;
-  city: string;
   gender: string;
   acceptTOS: boolean;
   hostingStatus: HostingStatus;
@@ -83,6 +81,9 @@ const useStyles = makeStyles((theme) => ({
   firstForm: {
     paddingBottom: 0,
   },
+  errorAlert: {
+    marginTop: theme.spacing(2),
+  },
 }));
 
 export default function CompleteSignupForm() {
@@ -94,16 +95,14 @@ export default function CompleteSignupForm() {
     register,
     handleSubmit,
     setValue,
-    getValues,
     errors,
   } = useForm<SignupInputs>({
-    defaultValues: { city: "", location: {} },
+    defaultValues: { location: { address: "" } },
     mode: "onBlur",
     shouldUnregister: false,
   });
 
   const [loading, setLoading] = useState(false);
-  const [isLocationEmpty, setIsLocationEmpty] = useState(false);
   const [acceptedTOS, setAcceptedTOS] = useState(false);
 
   const { urlToken } = useParams<{ urlToken: string }>();
@@ -131,15 +130,15 @@ export default function CompleteSignupForm() {
   }, [urlToken, authActions, location.pathname, setValue, history]);
 
   const completeSignup = handleSubmit(async (data: SignupInputs) => {
-    if (Object.entries(data.location).length === 0) {
-      setIsLocationEmpty(true);
+    if ((data.location?.address ?? "") === "") {
+      authActions.authError(SIGN_UP_LOCATION_MISSING);
       return;
     }
 
+    // authActions catches errors here
     authActions.signup({
       acceptTOS: acceptedTOS,
       birthdate: data.birthdate.toISOString().split("T")[0],
-      city: data.city,
       gender: data.gender,
       hostingStatus: data.hostingStatus,
       location: data.location,
@@ -230,24 +229,25 @@ export default function CompleteSignupForm() {
             control={control}
             inputRef={register}
             render={({ onChange }) => (
-              <EditUserLocationMap
+              <EditLocationMap
                 className={classes.locationMap}
-                // react-hook-forms doesn't set value immediately
-                // so || "" prevents a uncontrolled->controlled warning
-                city={getValues("city") || ""}
-                setCity={(value) => setValue("city", value)}
-                setLocation={(location) => {
-                  setIsLocationEmpty(false);
-                  return onChange({
-                    lat: location.lat,
-                    lng: location.lng,
-                    radius: location.radius,
-                  });
+                updateLocation={(location) => {
+                  if (location) {
+                    onChange({
+                      address: location.address,
+                      lat: location.lat,
+                      lng: location.lng,
+                      radius: location.radius,
+                    });
+                  } else {
+                    onChange({
+                      address: "",
+                    });
+                  }
                 }}
               />
             )}
           />
-          {isLocationEmpty && <TextBody>{SIGN_UP_LOCATION_MISSING}</TextBody>}
           <form className={authClasses.form} onSubmit={completeSignup}>
             <InputLabel
               className={authClasses.formLabel}

@@ -54,7 +54,7 @@ export const MALE_PRONOUNS = "he / him";
 export const MEETUP_STATUS = "Meetup status";
 export const NAME = "Name";
 export const PRONOUNS = "Pronouns";
-export const SAVE = "save";
+export const SAVE = "Save";
 
 // Make Request
 export const sendRequest = (name: string) => `Send ${name} a request`;
@@ -156,6 +156,11 @@ export const WELCOME_DESCRIPTION_1 = `We're in the process of building out the p
 export const WELCOME_DESCRIPTION_2 = `If you've been here before, you may have noticed that the site has changed, and that's 
   because we're migrating from our early alpha version to our new beta version. If you were on the alpha 
   version, don't worry, most of your profile data has been kept!`;
+
+// Jail
+export const PLEASE_CHECK_JAIL =
+  "Please check the following in order to continue.";
+export const LOCATION_SECTION_HEADING = "Please add your location";
 
 // Datepicker
 export const CHANGE_DATE = "Change date";

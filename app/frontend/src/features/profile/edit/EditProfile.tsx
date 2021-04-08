@@ -11,7 +11,7 @@ import Alert from "components/Alert";
 import AvatarInput from "components/AvatarInput";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
-import EditUserLocationMap from "components/EditUserLocationMap";
+import EditLocationMap from "components/EditLocationMap";
 import PageTitle from "components/PageTitle";
 import {
   ABOUT_HOME,
@@ -124,6 +124,7 @@ export default function EditProfileForm() {
     setValue,
   } = useForm<UpdateUserProfileData>({
     defaultValues: {
+      city: user?.city,
       lat: user?.lat,
       lng: user?.lng,
       radius: user?.radius,
@@ -135,6 +136,7 @@ export default function EditProfileForm() {
   //So make sure to set values when user finshes loading
   useEffect(() => {
     if (!userIsLoading && user) {
+      setValue("city", user.city);
       setValue("lat", user.lat);
       setValue("lng", user.lng);
       setValue("radius", user.radius);
@@ -143,6 +145,7 @@ export default function EditProfileForm() {
 
   useEffect(() => {
     //register here because these don't exist as actual fields
+    register("city");
     register("lat");
     register("lng");
     register("radius");
@@ -203,18 +206,24 @@ export default function EditProfileForm() {
             />
           </form>
           <Controller
-            name="city"
+            name="location"
             control={control}
-            defaultValue={user.city}
-            render={({ value, onChange }) => (
-              <EditUserLocationMap
-                user={user}
-                city={value}
-                setCity={(newValue) => onChange(newValue)}
-                setLocation={(location) => {
-                  setValue("lat", location.lat);
-                  setValue("lng", location.lng);
-                  setValue("radius", location.radius);
+            render={() => (
+              <EditLocationMap
+                showRadiusSlider
+                initialLocation={{
+                  address: user.city,
+                  lat: user.lat,
+                  lng: user.lng,
+                  radius: user.radius,
+                }}
+                updateLocation={(location) => {
+                  if (location) {
+                    setValue("city", location.address);
+                    setValue("lat", location.lat);
+                    setValue("lng", location.lng);
+                    setValue("radius", location.radius);
+                  }
                 }}
               />
             )}

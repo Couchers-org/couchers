@@ -6,6 +6,7 @@ import TextBody from "components/TextBody";
 import { useAuthContext } from "features/auth/AuthProvider";
 import LocationSection from "features/auth/jail/LocationSection";
 import TOSSection from "features/auth/jail/TOSSection";
+import { PLEASE_CHECK_JAIL } from "features/constants";
 import { JailInfoRes } from "pb/jail_pb";
 import React, { useEffect, useState } from "react";
 import { Redirect } from "react-router-dom";
@@ -50,9 +51,7 @@ export default function Jail() {
       {!isJailed && <Redirect to="/" />}
       <PageTitle>More information required</PageTitle>
       {authError && <Alert severity="error">{authError}</Alert>}
-      <TextBody className={classes.bottomMargin}>
-        Please check the following in order to continue.
-      </TextBody>
+      <TextBody className={classes.bottomMargin}>{PLEASE_CHECK_JAIL}</TextBody>
       <Backdrop open={loading || authLoading}>
         <CircularProgress />
       </Backdrop>
