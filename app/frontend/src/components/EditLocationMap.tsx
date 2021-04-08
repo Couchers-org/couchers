@@ -185,7 +185,7 @@ export default function EditLocationMap({
         updateLocation(null);
       } else {
         setError("");
-        updateLocation(location.current);
+        updateLocation({ ...location.current });
       }
     }
 
