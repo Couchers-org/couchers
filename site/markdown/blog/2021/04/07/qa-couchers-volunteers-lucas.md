@@ -35,7 +35,7 @@ We’re listening to the community, we have almost 100 people working on it, and
 
 ### It seems like the frontend team gets work done very quickly!
 
-**Lucas**: That’s the nice thing. If I’m working on a feature, like a messaging service, frontend is the last step. If I don’t like something about the feature, I’m the one who gets to decide to make a quick update last minute. 
+**Lucas**: That’s the nice thing. If I’m working on a feature, like a messaging service, frontend is the last step. If we don’t like something about the feature, we can sneak in a quick change last minute!
 
 ### In doing something open source where everyone can collaborate, do you ever find that your work gets overridden?
 
