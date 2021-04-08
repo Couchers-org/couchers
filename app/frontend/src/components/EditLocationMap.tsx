@@ -185,7 +185,12 @@ export default function EditLocationMap({
         updateLocation(null);
       } else {
         setError("");
-        updateLocation(location.current);
+        updateLocation({
+          address: location.current.address,
+          lat: location.current.lat,
+          lng: location.current.lng,
+          radius: location.current.radius,
+        });
       }
     }
 
