@@ -532,10 +532,6 @@ def test_CancelFriendRequest(db):
         assert res.sent[0].state == api_pb2.FriendRequest.FriendRequestStatus.PENDING
         assert res.sent[0].user_id == user2.id
 
-        # Check only one existing fr
-        fr = get_friend_relationship(user1, user2)
-        assert fr is not None  # If multiple, would have already excepted
-
 
 def test_reject_friend_request(db):
     user1, token1 = generate_user("user1")
@@ -583,10 +579,6 @@ def test_reject_friend_request(db):
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert res.sent[0].state == api_pb2.FriendRequest.FriendRequestStatus.PENDING
         assert res.sent[0].user_id == user2.id
-
-        # Check only one existing fr
-        fr = get_friend_relationship(user1, user2)
-        assert fr is not None  # If multiple, would have already excepted
 
 
 def test_mutual_friends_self(db):
