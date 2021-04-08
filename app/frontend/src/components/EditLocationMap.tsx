@@ -78,7 +78,7 @@ export default function EditLocationMap({
 
   const map = useRef<mapboxgl.Map | null>(null);
 
-  const [_, setDirty] = useState(0);
+  const [, setDirty] = useState(0);
 
   // map is imperative so these don't need to cause re-render
   const location = useRef<ApproximateLocation>({
