@@ -33,7 +33,7 @@ def test_bugs(db):
     with bugs_session() as bugs:
 
         def dud_post(url, auth, json):
-            assert url == "https://api.github.com/repos/user/repo/issues"
+            assert url == "https://api.github.com/repos/org/repo/issues"
             assert auth == ("user", "token")
             assert json == {
                 "title": "subject",
@@ -71,7 +71,7 @@ def test_bugs(db):
                 )
 
     assert res.bug_id == "#11"
-    assert res.bug_url == "https://github.com/Couchers-org/couchers/issues/11"
+    assert res.bug_url == "https://github.com/org/repo/issues/11"
 
 
 def test_bugs_with_user(db):
@@ -80,7 +80,7 @@ def test_bugs_with_user(db):
     with bugs_session() as bugs:
 
         def dud_post(url, auth, json):
-            assert url == "https://api.github.com/repos/user/repo/issues"
+            assert url == "https://api.github.com/repos/org/repo/issues"
             assert auth == ("user", "token")
             assert json == {
                 "title": "subject",
@@ -118,7 +118,7 @@ def test_bugs_with_user(db):
                 )
 
     assert res.bug_id == "#11"
-    assert res.bug_url == "https://github.com/Couchers-org/couchers/issues/11"
+    assert res.bug_url == "https://github.com/org/repo/issues/11"
 
 
 def test_bugs_fails_on_network_error(db):

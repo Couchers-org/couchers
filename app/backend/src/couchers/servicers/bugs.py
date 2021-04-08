@@ -50,5 +50,5 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
         issue_number = r.json()["number"]
 
         return bugs_pb2.ReportBugRes(
-            bug_id=f"#{issue_number}", bug_url=f"https://github.com/Couchers-org/couchers/issues/{issue_number}"
+            bug_id=f"#{issue_number}", bug_url=f"https://github.com/{repo}/issues/{issue_number}"
         )
