@@ -151,7 +151,7 @@ describe("BugReport", () => {
       expect(await screen.findByRole("progressbar")).toBeVisible();
       const successMessage = BUG_REPORT_SUCCESS;
       const successAlert = await screen.findByRole("alert");
-      expect(within(successAlert).getByText(successMessage)).toBeVisible();
+      expect(within(successAlert).findByText(successMessage)).toBeVisible();
       expect(reportBugMock).toHaveBeenCalledTimes(1);
       expect(reportBugMock).toHaveBeenCalledWith(
         {
