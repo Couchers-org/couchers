@@ -47,7 +47,7 @@ from pb import (
 
 config.check_config()
 
-logging.basicConfig(format="%(asctime)s: %(name)d: %(message)s", level=logging.INFO)
+logging.basicConfig(format="%(asctime)s: %(name)s: %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 logging.getLogger("couchers.jobs.worker").setLevel(logging.INFO)
