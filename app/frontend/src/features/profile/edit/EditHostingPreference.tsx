@@ -55,7 +55,7 @@ import {
 } from "pb/api_pb";
 import { useState } from "react";
 import { Controller, useForm, UseFormMethods } from "react-hook-form";
-import { HostingPreferenceData } from "service/index";
+import { HostingPreferenceData } from "service";
 import makeStyles from "utils/makeStyles";
 
 interface HostingPreferenceCheckboxProps {

@@ -8,7 +8,7 @@ import { getHookWrapperWithClient } from "test/hookWrapper";
 import { getUser } from "test/serviceMockDefaults";
 
 import { addDefaultUser, MockedService } from "../../../test/utils";
-import { HOSTING_PREFERENCES, SAVE } from "../../constants";
+import { SAVE } from "../../constants";
 import EditHostingPreference from "./EditHostingPreference";
 
 const getUserMock = service.user.getUser as MockedService<
@@ -30,11 +30,11 @@ const renderPage = () => {
 
   render(
     <Switch>
-      <Route exact path={userRoute}>
-        <MockProfileComponent />
-      </Route>
-      <Route exact path={editHostingPreferenceRoute}>
+      <Route path={editHostingPreferenceRoute}>
         <EditHostingPreference />
+      </Route>
+      <Route path={userRoute}>
+        <MockProfileComponent />
       </Route>
     </Switch>,
     { wrapper }
@@ -51,14 +51,8 @@ describe("EditHostingPreference", () => {
   it("should redirect to Profile route after successful update", async () => {
     renderPage();
 
-    expect(
-      await screen.findByRole("heading", { name: HOSTING_PREFERENCES })
-    ).toBeInTheDocument();
+    userEvent.click(await screen.findByRole("button", { name: SAVE }));
 
-    // Need to fill in the required fields in the form before submitting...
-
-    // userEvent.click(await screen.findByRole("button", { name: SAVE }));
-
-    // expect(await screen.findByTestId("user-profile")).toBeInTheDocument();
+    expect(await screen.findByTestId("user-profile")).toBeInTheDocument();
   });
 });
