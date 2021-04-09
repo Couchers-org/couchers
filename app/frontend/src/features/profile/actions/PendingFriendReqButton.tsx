@@ -1,5 +1,4 @@
 import Button from "components/Button";
-import IconButton from "components/IconButton";
 import { CheckIcon, CloseIcon, PersonAddIcon } from "components/Icons";
 import Menu, { MenuItem } from "components/Menu";
 import { PENDING } from "features/connections/constants";
@@ -65,7 +64,8 @@ function PendingFriendReqButton({
         open={isOpen.menu}
       >
         <MenuItem onClick={handleClick("accepted")}>
-          <IconButton
+          <Button
+            startIcon={<CheckIcon />}
             aria-label={ACCEPT_FRIEND_LABEL}
             onClick={() => {
               respondToFriendRequest({
@@ -75,11 +75,12 @@ function PendingFriendReqButton({
               });
             }}
           >
-            <CheckIcon /> {ACCEPT_FRIEND_ACTION}
-          </IconButton>
+            {ACCEPT_FRIEND_ACTION}
+          </Button>
         </MenuItem>
         <MenuItem onClick={handleClick("rejected")}>
-          <IconButton
+          <Button
+            startIcon={<CloseIcon />}
             aria-label={DECLINE_FRIEND_LABEL}
             onClick={() => {
               respondToFriendRequest({
@@ -89,8 +90,8 @@ function PendingFriendReqButton({
               });
             }}
           >
-            <CloseIcon /> {DECLINE_FRIEND_ACTION}
-          </IconButton>
+            {DECLINE_FRIEND_ACTION}
+          </Button>
         </MenuItem>
       </Menu>
     </>
