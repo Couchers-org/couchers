@@ -24,7 +24,7 @@ import {
   userRoute,
 } from "routes";
 
-import { COUCHERS, LOG_OUT } from "../../constants";
+import { COUCHERS, LOG_OUT, ABOUT, FORUM } from "../../constants";
 import NavButton from "./NavButton";
 
 const menu = [
@@ -212,6 +212,8 @@ export default function Navigation() {
         <SearchBox />
         <div className={classes.bug}>
           <Hidden smDown>
+            <NavButton route={"https://couchers.org"} label={ABOUT} />
+            <NavButton route={"https://community.couchers.org"} label={FORUM} />
             <NavButton route={logoutRoute} label={LOG_OUT} />
           </Hidden>
           <BugReport />
