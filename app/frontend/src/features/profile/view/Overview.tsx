@@ -121,7 +121,7 @@ export default function Overview({ user, setIsRequesting }: OverviewProps) {
               />
             ) : user.friends === User.FriendshipStatus.PENDING &&
               user.pendingFriendRequest ? (
-              user.pendingFriendRequest.sent ? (
+              user.pendingFriendRequest.sent === false ? (
                 <PendingFriendReqButton
                   friendRequestId={user.pendingFriendRequest.friendRequestId}
                   setMutationError={setMutationError}
