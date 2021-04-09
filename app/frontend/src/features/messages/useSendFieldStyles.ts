@@ -2,15 +2,11 @@ import { makeStyles } from "@material-ui/core";
 
 const useSendFieldStyles = makeStyles((theme) => ({
   button: {
-    [theme.breakpoints.up("md")]: {
-      marginInlineStart: theme.spacing(2),
-    },
     display: "block",
     flexShrink: 0,
-    marginInlineEnd: "auto",
+    marginInlineStart: theme.spacing(1),
     marginBottom: theme.spacing(1),
     marginTop: theme.spacing(1),
-    marginLeft: theme.spacing(1),
   },
   buttonContainer: {
     "& > button": {
