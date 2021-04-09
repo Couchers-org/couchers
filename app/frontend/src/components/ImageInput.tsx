@@ -27,13 +27,19 @@ const useStyles = makeStyles((theme) => ({
   avatar: {
     "& img": { objectFit: "cover" },
   },
-  image: { objectFit: "cover" },
   confirmationButtonContainer: {
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
     "& > * + *": {
       marginTop: theme.spacing(1),
+    },
+  },
+  image: {
+    objectFit: "cover",
+    cursor: "pointer",
+    "&:hover": {
+      backgroundColor: theme.palette.action.hover,
     },
   },
   input: {
@@ -151,8 +157,8 @@ export function ImageInput(
           ref={inputRef}
         />
         <label className={classes.label} htmlFor={id} ref={field.ref}>
-          <MuiIconButton component="span">
-            {props.type === "avatar" ? (
+          {props.type === "avatar" ? (
+            <MuiIconButton component="span">
               <Avatar
                 className={classNames(classes.avatar, className)}
                 src={imageUrl}
@@ -160,14 +166,16 @@ export function ImageInput(
               >
                 {props.userName?.split(/\s+/).map((name) => name[0])}
               </Avatar>
-            ) : (
-              <img
-                className={classNames(classes.image, className)}
-                src={imageUrl}
-                alt={props.alt}
-              />
-            )}
-          </MuiIconButton>
+            </MuiIconButton>
+          ) : (
+            <img
+              className={classes.image}
+              src={imageUrl}
+              alt={props.alt}
+              width={300}
+              height={150}
+            />
+          )}
           {mutation.isLoading && (
             <CircularProgress className={classes.loading} />
           )}
