@@ -44,12 +44,12 @@ def to_aware_datetime(ts: Timestamp):
 def now():
     return datetime.now(utc)
 
-def required_birthdate():
+def minimum_allowed_birthdate():
     """
     Most recent birthdate allowed to register (must be 18 years minimum)
     """
-    dt = now().date()
-    return dt.replace(dt.year - 18)
+    today_ = today()
+    return today_.replace(today_.year - 18)
 
 def today():
     """

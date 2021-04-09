@@ -254,26 +254,26 @@ def test_signup_invalid_birthdate(db):
 
     assert reply.email == "a@b.com"
 
-    with auth_api_session() as (auth_api, metadata_interceptor), pytest.raises(grpc.RpcError) as e:
-        reply = auth_api.CompleteSignup(
-            auth_pb2.CompleteSignupReq(
-                signup_token=signup_token,
-                username="frodo",
-                name="Räksmörgås",
-                city="Minas Tirith",
-                birthdate="9999-12-31",  # arbitrary future birthdate
-                gender="Robot",
-                hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
-                lat=1,
-                lng=1,
-                radius=100,
-                accept_tos=True,
-            )
-        )        
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == errors.INVALID_BIRTHDATE
-
     with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            reply = auth_api.CompleteSignup(
+                auth_pb2.CompleteSignupReq(
+                    signup_token=signup_token,
+                    username="frodo",
+                    name="Räksmörgås",
+                    city="Minas Tirith",
+                    birthdate="9999-12-31",  # arbitrary future birthdate
+                    gender="Robot",
+                    hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                    lat=1,
+                    lng=1,
+                    radius=100,
+                    accept_tos=True,
+                )
+            )
+            assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+            assert e.value.details() == errors.INVALID_BIRTHDATE
+
         reply = auth_api.CompleteSignup(
             auth_pb2.CompleteSignupReq(
                 signup_token=signup_token,
@@ -289,5 +289,23 @@ def test_signup_invalid_birthdate(db):
                 accept_tos=True
             )
         )
+        with pytest.raises(grpc.RpcError) as e:
+            reply = auth_api.CompleteSignup(
+                auth_pb2.CompleteSignupReq(
+                    signup_token=signup_token,
+                    username="franklin",
+                    name="Franklin",
+                    city="Los Santos",
+                    birthdate="2004-04-09", # arbitrary birthdate around 17 years 
+                    gender="Male",
+                    hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                    lat=1,
+                    lng=1,
+                    radius=100,
+                    accept_tos=True
+                )
+            )
+            assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+            assert e.value.details() == errors.INVALID_BIRTHDATE
 
 # CompleteChangeEmail tested in test_account.py
