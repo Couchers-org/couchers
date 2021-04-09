@@ -18,10 +18,7 @@ function TestComponent() {
   return (
     <>
       {mutationError ? <p>{mutationError}</p> : <p>Success!</p>}
-      <AddFriendButton
-        userId={2}
-        setMutationError={setMutationError}
-      />
+      <AddFriendButton userId={2} setMutationError={setMutationError} />
     </>
   );
 }
