@@ -269,9 +269,25 @@ def test_signup_invalid_birthdate(db):
                 radius=100,
                 accept_tos=True,
             )
-        )
+        )        
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
     assert e.value.details() == errors.INVALID_BIRTHDATE
 
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        reply = auth_api.CompleteSignup(
+            auth_pb2.CompleteSignupReq(
+                signup_token=signup_token,
+                username="ceelo",
+                name="Christopher",
+                city="New York City",
+                birthdate="2000-12-31", # arbitrary birthdate older than 18 years
+                gender="Helicopter",
+                hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                lat=1,
+                lng=1,
+                radius=100,
+                accept_tos=True
+            )
+        )
 
 # CompleteChangeEmail tested in test_account.py
