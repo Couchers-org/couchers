@@ -110,7 +110,6 @@ export default function Overview({ user, setIsRequesting }: OverviewProps) {
             <Button onClick={() => setIsRequesting(true)}>{REQUEST}</Button>
             {user.friends !== User.FriendshipStatus.FRIENDS ? (
               <AddFriendButton
-                isPending={user.friends === User.FriendshipStatus.PENDING}
                 userId={user.userId}
                 setMutationError={setMutationError}
               />
