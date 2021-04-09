@@ -1,6 +1,6 @@
-import { makeStyles } from "@material-ui/core";
 import UserSummary from "components/UserSummary";
 import { User } from "pb/api_pb";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   friendItem: {

@@ -1,4 +1,3 @@
-import { makeStyles } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
@@ -8,6 +7,7 @@ import { Error as GrpcError } from "grpc-web";
 import { ListReferencesRes } from "pb/references_pb";
 import { UseInfiniteQueryResult } from "react-query";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
+import makeStyles from "utils/makeStyles";
 
 import { NO_REFERENCES, SEE_MORE_REFERENCES } from "../constants";
 import ReferenceList from "./ReferenceList";

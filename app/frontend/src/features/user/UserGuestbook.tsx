@@ -1,6 +1,6 @@
-import { makeStyles } from "@material-ui/core";
 import { User } from "pb/api_pb";
 import React from "react";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
