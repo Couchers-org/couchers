@@ -17,11 +17,18 @@ from couchers.db import (
     new_password_reset_token,
     new_signup_token,
     session_scope,
+    set_change_token_new_email,
+    set_change_token_old_email,
 )
 from couchers.interceptors import AuthValidatorInterceptor
 from couchers.models import LoginToken, PasswordResetToken, SignupToken, User, UserSession
 from couchers.servicers.api import hostingstatus2sql
-from couchers.tasks import send_login_email, send_password_reset_email, send_signup_email
+from couchers.tasks import (
+    send_email_changed_confirmation_email,
+    send_login_email,
+    send_password_reset_email,
+    send_signup_email,
+)
 from couchers.utils import create_coordinate, create_session_cookie, now, parse_date, parse_session_cookie, today
 from pb import auth_pb2, auth_pb2_grpc
 
@@ -409,6 +416,27 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 session.delete(password_reset_token)
                 user.hashed_password = None
                 session.commit()
+                return empty_pb2.Empty()
+            else:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
+
+    def ChangeEmailSecondStep(self, request, context):
+        with session_scope() as session:
+            user = (
+                session.query(User)
+                .filter(User.old_email_token == request.change_email_token)
+                .filter(User.old_email_token_created <= func.now())
+                .filter(User.old_email_token_expiry >= func.now())
+                .one_or_none()
+            )
+            if user:
+                user.old_email_token = None
+                user.old_email_token_created = None
+                user.old_email_token_expiry = None
+                session.commit()
+
+                token, expiry_text = set_change_token_new_email(session, user)
+                send_email_changed_confirmation_email(user, token, expiry_text, old=False)
                 return empty_pb2.Empty()
             else:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)

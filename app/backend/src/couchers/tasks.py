@@ -139,16 +139,22 @@ def send_email_changed_notification_email(user):
     email.enqueue_email_from_template(user.email, "email_changed_notification", template_args={"user": user})
 
 
-def send_email_changed_confirmation_email(user, token, expiry_text):
+def send_email_changed_confirmation_email(user, token, expiry_text, old):
     """
-    Send the user an email confirming their new email. Goes to the new address
+    Send an email confirming the user's new email address. If 'old', sends to old email address, otherwise new
     """
+    if old:
+        new_or_old = "old"
+    else:
+        new_or_old = "new"
+    name_email_template = f"email_changed_confirmation_{new_or_old}_email"
+
     logger.info(
-        f"Sending email changed (confirmation) email to {user=} (old email: {user.email=}, new email: {user.new_email=})"
+        f"Sending email changed (confirmation) email to {user=}'s {new_or_old} email address, (old email: {user.email}, new email: {user.new_email=})"
     )
     confirmation_link = urls.change_email_link(confirmation_token=token)
     email.enqueue_email_from_template(
-        user.email, "email_changed_confirmation", template_args={"user": user, "confirmation_link": confirmation_link}
+        user.email, name_email_template, template_args={"user": user, "confirmation_link": confirmation_link}
     )
 
 

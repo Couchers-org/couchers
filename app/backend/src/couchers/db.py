@@ -177,9 +177,24 @@ def new_password_reset_token(session, user, hours=2):
     return password_reset_token, f"{hours} hours"
 
 
-def set_email_change_token(session, user, hours=2):
+def set_change_token_old_email(session, user, hours=2):
     """
-    Make a new email change token that's valid for `hours` hours for this user
+    Make an email change token for user's old email address that's valid for `hours` hours
+
+    Note: does not call session.commit()
+
+    Returns token and expiry text
+    """
+    token = urlsafe_secure_token()
+    user.old_email_token = token
+    user.old_email_token_created = now()
+    user.old_email_token_expiry = now() + timedelta(hours=hours)
+    return token, f"{hours} hours"
+
+
+def set_change_token_new_email(session, user, hours=2):
+    """
+    Make an email change token for user's new email address that's valid for `hours` hours
 
     Note: does not call session.commit()
 
