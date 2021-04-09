@@ -39,7 +39,7 @@ export default function AddFriendButton({
     <Button
       startIcon={<PersonAddIcon />}
       onClick={() => {
-        sendFriendRequest({ setMutationError, userId, isPending });
+        sendFriendRequest({ setMutationError, userId });
       }}
       loading={isLoading}
     >
