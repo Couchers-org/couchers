@@ -3,7 +3,7 @@ import {
   MutableRefObject,
   SetStateAction,
   useCallback,
-  useEffect,
+  useLayoutEffect,
   useRef,
   useState,
 } from "react";
@@ -11,7 +11,7 @@ import {
 function useIsMounted() {
   const isMounted = useRef(false);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     isMounted.current = true;
     return () => {
       isMounted.current = false;
