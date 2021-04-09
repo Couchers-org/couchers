@@ -3,8 +3,8 @@ import { useForm } from "react-hook-form";
 import { ImageInputValues } from "service/api";
 import { mockedService } from "stories/__mocks__/service";
 
-import ImageInput from "./ImageInput";
 import Button from "./Button";
+import ImageInput from "./ImageInput";
 
 export default {
   component: ImageInput,

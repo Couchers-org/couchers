@@ -1,6 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import AvatarInput from "components/AvatarInput";
 import {
   CANCEL_UPLOAD,
   CONFIRM_UPLOAD,
@@ -9,6 +8,7 @@ import {
   SELECT_AN_IMAGE,
   UPLOAD_PENDING_ERROR,
 } from "components/constants";
+import ImageInput from "components/ImageInput";
 import { SUBMIT } from "features/constants";
 import { useForm } from "react-hook-form";
 import { service } from "service";
@@ -41,12 +41,13 @@ describe("ImageInput component", () => {
       return (
         <form onSubmit={onSubmit}>
           {errors.avatarInput && <p>{errors.avatarInput.message}</p>}
-          <AvatarInput
+          <ImageInput
             control={control}
             id="avatar-input"
             initialPreviewSrc={MOCK_INITIAL_SRC}
             name="avatarInput"
             userName={NAME}
+            type="avatar"
           />
           <input type="submit" name={SUBMIT} />
         </form>
