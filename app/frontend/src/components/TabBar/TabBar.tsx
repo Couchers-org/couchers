@@ -1,5 +1,6 @@
-import { makeStyles, Tab } from "@material-ui/core";
+import { Tab } from "@material-ui/core";
 import { TabList } from "@material-ui/lab";
+import makeStyles from "utils/makeStyles";
 
 export const useStyles = makeStyles((theme) => ({
   messagesTab: {

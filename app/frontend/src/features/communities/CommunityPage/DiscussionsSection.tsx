@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, makeStyles } from "@material-ui/core";
+import { Dialog, DialogContent } from "@material-ui/core";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import NewComment from "components/Comments/NewComment";
@@ -20,6 +20,7 @@ import React, { useState } from "react";
 import { useQueryClient } from "react-query";
 import { Link } from "react-router-dom";
 import { routeToCommunity } from "routes";
+import makeStyles from "utils/makeStyles";
 
 import { useCommunityPageStyles } from "./CommunityPage";
 import DiscussionCard from "./DiscussionCard";

@@ -1,4 +1,4 @@
-import { makeStyles, Typography } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 import Divider from "components/Divider";
 import Markdown from "components/Markdown";
 import {
@@ -16,6 +16,7 @@ import {
   RemainingAboutLabels,
 } from "features/user/UserTextAndLabel";
 import { User } from "pb/api_pb";
+import makeStyles from "utils/makeStyles";
 
 interface AboutProps {
   user: User.AsObject;

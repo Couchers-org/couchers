@@ -1,10 +1,6 @@
-import {
-  Container,
-  ContainerProps,
-  LinearProgress,
-  makeStyles,
-} from "@material-ui/core";
+import { Container, ContainerProps, LinearProgress } from "@material-ui/core";
 import React from "react";
+import makeStyles from "utils/makeStyles";
 
 import TextBody from "../TextBody";
 

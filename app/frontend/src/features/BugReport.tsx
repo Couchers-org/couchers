@@ -1,10 +1,4 @@
-import {
-  darken,
-  Link,
-  makeStyles,
-  useMediaQuery,
-  useTheme,
-} from "@material-ui/core";
+import { darken, Link , useMediaQuery, useTheme } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import {
@@ -37,6 +31,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
+import makeStyles from "utils/makeStyles";
 
 export interface BugReportFormData {
   subject: string;

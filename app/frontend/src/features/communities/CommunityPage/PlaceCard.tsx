@@ -3,15 +3,13 @@ import {
   CardActionArea,
   CardContent,
   CardMedia,
-  makeStyles,
-  useMediaQuery,
-  useTheme,
-} from "@material-ui/core";
+ useMediaQuery, useTheme } from "@material-ui/core";
 import { Page } from "pb/pages_pb";
 import React, { useMemo } from "react";
 import LinesEllipsis from "react-lines-ellipsis";
 import { Link } from "react-router-dom";
 import { routeToPlace } from "routes";
+import makeStyles from "utils/makeStyles";
 import stripMarkdown from "utils/stripMarkdown";
 
 import placeImagePlaceholder from "./placeImagePlaceholder.svg";

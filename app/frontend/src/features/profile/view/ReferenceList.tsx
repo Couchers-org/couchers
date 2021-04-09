@@ -1,6 +1,7 @@
-import { List, makeStyles } from "@material-ui/core";
+import { List } from "@material-ui/core";
 import useUsers from "features/userQueries/useUsers";
 import { ListReferencesRes } from "pb/references_pb";
+import makeStyles from "utils/makeStyles";
 
 import ReferenceListItem from "./ReferenceListItem";
 

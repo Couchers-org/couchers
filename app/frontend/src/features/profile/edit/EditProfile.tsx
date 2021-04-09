@@ -1,12 +1,4 @@
-import {
-  FormControlLabel,
-  Grid,
-  makeStyles,
-  Radio,
-  RadioGroup,
-  TextField,
-  Typography,
-} from "@material-ui/core";
+import { FormControlLabel, Grid , Radio, RadioGroup, TextField, Typography } from "@material-ui/core";
 import Alert from "components/Alert";
 import AvatarInput from "components/AvatarInput";
 import Button from "components/Button";
@@ -54,6 +46,7 @@ import { Link } from "react-router-dom";
 import { settingsRoute } from "routes";
 import { UpdateUserProfileData } from "service/index";
 import { useIsMounted, useSafeState } from "utils/hooks";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   avatar: {

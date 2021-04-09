@@ -1,12 +1,8 @@
-import {
-  Button as MuiButton,
-  ButtonProps,
-  makeStyles,
-  useTheme,
-} from "@material-ui/core";
+import { Button as MuiButton, ButtonProps , useTheme } from "@material-ui/core";
 import classNames from "classnames";
 import React, { ElementType } from "react";
 import { useIsMounted, useSafeState } from "utils/hooks";
+import makeStyles from "utils/makeStyles";
 
 import CircularProgress from "../CircularProgress";
 

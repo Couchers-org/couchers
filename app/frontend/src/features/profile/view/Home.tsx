@@ -1,4 +1,4 @@
-import { makeStyles, Typography } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 import Divider from "components/Divider";
 import LabelAndText from "components/LabelAndText";
 import Markdown from "components/Markdown";
@@ -33,6 +33,7 @@ import booleanConversion, {
 } from "features/profile/constants";
 import { User } from "pb/api_pb";
 import React from "react";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles(() => ({
   info: {

@@ -1,10 +1,4 @@
-import {
-  Divider,
-  Hidden,
-  Link as MuiLink,
-  makeStyles,
-  Typography,
-} from "@material-ui/core";
+import { Divider, Hidden, Link as MuiLink , Typography } from "@material-ui/core";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import classNames from "classnames";
 import Button from "components/Button";
@@ -20,6 +14,7 @@ import MobileAuthBg from "features/auth/resources/mobile-auth-bg.jpg";
 import useAuthStyles from "features/auth/useAuthStyles";
 import { Link } from "react-router-dom";
 import { loginRoute, signupRoute } from "routes";
+import makeStyles from "utils/makeStyles";
 
 import { COUCHERS } from "../../constants";
 

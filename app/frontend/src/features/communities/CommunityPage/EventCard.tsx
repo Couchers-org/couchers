@@ -3,12 +3,11 @@ import {
   CardActionArea,
   CardContent,
   CardMedia,
-  makeStyles,
-  Typography,
-} from "@material-ui/core";
+ Typography } from "@material-ui/core";
 import React from "react";
 import LinesEllipsis from "react-lines-ellipsis";
 import { Link } from "react-router-dom";
+import makeStyles from "utils/makeStyles";
 
 import {
   CalendarIcon,

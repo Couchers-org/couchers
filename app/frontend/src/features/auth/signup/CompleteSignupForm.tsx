@@ -3,10 +3,7 @@ import {
   FormControlLabel,
   FormHelperText,
   InputLabel,
-  makeStyles,
-  Radio,
-  RadioGroup,
-} from "@material-ui/core";
+ Radio, RadioGroup } from "@material-ui/core";
 import Autocomplete from "components/Autocomplete";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
@@ -26,6 +23,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useHistory, useLocation, useParams } from "react-router-dom";
 import { signupRoute } from "routes";
 import { service } from "service";
+import makeStyles from "utils/makeStyles";
 import {
   nameValidationPattern,
   sanitizeName,

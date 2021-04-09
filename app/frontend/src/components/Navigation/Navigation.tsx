@@ -5,9 +5,7 @@ import {
   IconButton,
   List,
   ListItem,
-  makeStyles,
-  Toolbar,
-} from "@material-ui/core";
+ Toolbar } from "@material-ui/core";
 import classNames from "classnames";
 import { CloseIcon, MenuIcon } from "components/Icons";
 import { useAuthContext } from "features/auth/AuthProvider";
@@ -23,6 +21,7 @@ import {
   messagesRoute,
   userRoute,
 } from "routes";
+import makeStyles from "utils/makeStyles";
 
 import { COUCHERS, LOG_OUT } from "../../constants";
 import NavButton from "./NavButton";
