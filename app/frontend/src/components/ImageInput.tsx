@@ -27,6 +27,7 @@ const useStyles = makeStyles((theme) => ({
   avatar: {
     "& img": { objectFit: "cover" },
   },
+  image: { objectFit: "cover" },
   confirmationButtonContainer: {
     display: "flex",
     flexDirection: "column",
@@ -49,23 +50,28 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface AvatarInputProps {
+type ImageInputProps = {
   className?: string;
   control: Control;
   id: string;
   initialPreviewSrc?: string;
   name: string;
-  userName?: string;
-}
+};
 
-export function AvatarInput({
-  className,
-  control,
-  id,
-  initialPreviewSrc,
-  name,
-  userName,
-}: AvatarInputProps) {
+type AvatarInputProps = {
+  type: "avatar";
+  userName: string;
+};
+
+type SquareImgInputProps = {
+  type: "square";
+  alt: string;
+};
+
+export function ImageInput(
+  props: (AvatarInputProps | SquareImgInputProps) & ImageInputProps
+) {
+  const { className, control, id, initialPreviewSrc, name } = props;
   const classes = useStyles();
   //this ref handles the case where the user uploads an image, selects another image,
   //but then cancels - it should go to the previous image rather than the original
@@ -146,13 +152,21 @@ export function AvatarInput({
         />
         <label className={classes.label} htmlFor={id} ref={field.ref}>
           <MuiIconButton component="span">
-            <Avatar
-              className={classNames(classes.avatar, className)}
-              src={imageUrl}
-              alt={getAvatarLabel(userName ?? "")}
-            >
-              {userName?.split(/\s+/).map((name) => name[0])}
-            </Avatar>
+            {props.type === "avatar" ? (
+              <Avatar
+                className={classNames(classes.avatar, className)}
+                src={imageUrl}
+                alt={getAvatarLabel(props.userName ?? "")}
+              >
+                {props.userName?.split(/\s+/).map((name) => name[0])}
+              </Avatar>
+            ) : (
+              <img
+                className={classNames(classes.image, className)}
+                src={imageUrl}
+                alt={props.alt}
+              />
+            )}
           </MuiIconButton>
           {mutation.isLoading && (
             <CircularProgress className={classes.loading} />
@@ -181,4 +195,4 @@ export function AvatarInput({
   );
 }
 
-export default AvatarInput;
+export default ImageInput;

@@ -26,7 +26,7 @@ const MOCK_INITIAL_SRC = "https://example.com/initialPreview.jpg";
 const MOCK_THUMB = "thumb.jpg";
 const NAME = "Test User";
 
-describe("AvatarInput component", () => {
+describe("ImageInput component", () => {
   beforeEach(() => {
     uploadFileMock.mockResolvedValue({
       file: MOCK_FILE,
