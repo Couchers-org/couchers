@@ -80,6 +80,8 @@ type SquareImgInputProps = {
   type: "rect";
   alt: string;
   grow?: boolean;
+  height?: number;
+  width?: number;
 };
 
 export function ImageInput(
@@ -183,8 +185,8 @@ export function ImageInput(
               src={imageUrl ?? imagePlaceholder}
               style={{ objectFit: !imageUrl ? "contain" : undefined }}
               alt={props.alt}
-              width={DEFAULT_WIDTH}
-              height={DEFAULT_HEIGHT}
+              width={props.width ?? DEFAULT_WIDTH}
+              height={props.height ?? DEFAULT_HEIGHT}
             />
           )}
           {mutation.isLoading && (

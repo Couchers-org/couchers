@@ -45,22 +45,22 @@ describe.each`
       const onSubmit = handleSubmit((data) => submitForm(data));
       return (
         <form onSubmit={onSubmit}>
-          {errors.avatarInput && <p>{errors.avatarInput.message}</p>}
+          {errors.imageInput && <p>{errors.imageInput.message}</p>}
           {type === "avatar" ? (
             <ImageInput
               control={control}
-              id="avatar-input"
+              id="image-input"
               initialPreviewSrc={MOCK_INITIAL_SRC}
-              name="avatarInput"
+              name="imageInput"
               userName={NAME}
               type="avatar"
             />
           ) : (
             <ImageInput
               control={control}
-              id="avatar-input"
+              id="image-input"
               initialPreviewSrc={MOCK_INITIAL_SRC}
-              name="avatarInput"
+              name="imageInput"
               alt={getAvatarLabel(NAME)}
               type="rect"
             />
@@ -94,7 +94,7 @@ describe.each`
     userEvent.click(screen.getByRole("button", { name: SUBMIT }));
 
     await waitFor(() => {
-      expect(submitForm).toHaveBeenCalledWith({ avatarInput: MOCK_KEY });
+      expect(submitForm).toHaveBeenCalledWith({ imageInput: MOCK_KEY });
       expect(
         screen.getByAltText(getAvatarLabel(NAME)).getAttribute("src")
       ).toMatch(new RegExp(MOCK_THUMB));
@@ -115,7 +115,7 @@ describe.each`
     userEvent.click(screen.getByRole("button", { name: SUBMIT }));
 
     await waitFor(() => {
-      expect(submitForm).toHaveBeenCalledWith({ avatarInput: "" });
+      expect(submitForm).toHaveBeenCalledWith({ imageInput: "" });
     });
     expect(screen.getByAltText(getAvatarLabel(NAME))).toHaveProperty(
       "src",
@@ -157,7 +157,7 @@ describe.each`
     userEvent.click(screen.getByRole("button", { name: SUBMIT }));
 
     await waitFor(() => {
-      expect(submitForm).toHaveBeenCalledWith({ avatarInput: "firstKey" });
+      expect(submitForm).toHaveBeenCalledWith({ imageInput: "firstKey" });
     });
   });
 
