@@ -22,7 +22,7 @@ import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   card: {
-    borderRadius: theme.shape.borderRadius,
+    borderRadius: theme.shape.borderRadius * 3,
   },
   about: {
     margin: `${theme.spacing(2)} 0`,

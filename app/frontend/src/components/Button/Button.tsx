@@ -8,7 +8,7 @@ import CircularProgress from "../CircularProgress";
 
 const useStyles = makeStyles((theme) => ({
   contained: {
-    borderRadius: theme.spacing(0.5),
+    borderRadius: theme.shape.borderRadius,
     boxShadow: "0px 0px 5px rgba(0, 0, 0, 0.25)",
   },
   loading: {

@@ -15,7 +15,7 @@ const useStyles = makeStyles((theme) => ({
   },
   root: {
     "& .MuiOutlinedInput-root": {
-      borderRadius: theme.shape.borderRadius,
+      borderRadius: theme.shape.borderRadius * 3,
     },
     display: "block",
   },
