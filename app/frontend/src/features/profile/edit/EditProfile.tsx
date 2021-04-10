@@ -1,4 +1,11 @@
-import { FormControlLabel, Grid , Radio, RadioGroup, TextField, Typography } from "@material-ui/core";
+import {
+  FormControlLabel,
+  Grid,
+  Radio,
+  RadioGroup,
+  TextField,
+  Typography,
+} from "@material-ui/core";
 import Alert from "components/Alert";
 import AvatarInput from "components/AvatarInput";
 import Button from "components/Button";

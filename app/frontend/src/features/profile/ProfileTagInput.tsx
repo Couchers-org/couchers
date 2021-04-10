@@ -5,7 +5,9 @@ import {
   fade,
   IconButton,
   InputBase,
- Popper, Typography } from "@material-ui/core";
+  Popper,
+  Typography,
+} from "@material-ui/core";
 import Autocomplete, {
   AutocompleteCloseReason,
 } from "@material-ui/lab/Autocomplete";

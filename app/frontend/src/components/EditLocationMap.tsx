@@ -1,4 +1,4 @@
-import { BoxProps , Slider, Typography, useTheme } from "@material-ui/core";
+import { BoxProps, Slider, Typography, useTheme } from "@material-ui/core";
 import classNames from "classnames";
 import Map from "components/Map";
 import MapSearch from "components/MapSearch";

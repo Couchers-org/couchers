@@ -3,7 +3,8 @@ import {
   CardActionArea,
   CardContent,
   CardMedia,
- Typography } from "@material-ui/core";
+  Typography,
+} from "@material-ui/core";
 import React from "react";
 import LinesEllipsis from "react-lines-ellipsis";
 import { Link } from "react-router-dom";

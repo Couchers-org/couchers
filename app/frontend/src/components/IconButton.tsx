@@ -1,7 +1,8 @@
 import {
   IconButton as MuiIconButton,
   IconButtonProps as MuiIconButtonProps,
- useTheme } from "@material-ui/core";
+  useTheme,
+} from "@material-ui/core";
 import React from "react";
 import makeStyles from "utils/makeStyles";
 

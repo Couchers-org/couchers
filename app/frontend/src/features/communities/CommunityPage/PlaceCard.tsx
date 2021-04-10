@@ -3,7 +3,9 @@ import {
   CardActionArea,
   CardContent,
   CardMedia,
- useMediaQuery, useTheme } from "@material-ui/core";
+  useMediaQuery,
+  useTheme,
+} from "@material-ui/core";
 import { Page } from "pb/pages_pb";
 import React, { useMemo } from "react";
 import LinesEllipsis from "react-lines-ellipsis";

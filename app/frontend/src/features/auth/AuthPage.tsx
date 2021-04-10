@@ -1,4 +1,9 @@
-import { Divider, Hidden, Link as MuiLink , Typography } from "@material-ui/core";
+import {
+  Divider,
+  Hidden,
+  Link as MuiLink,
+  Typography,
+} from "@material-ui/core";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import classNames from "classnames";
 import Button from "components/Button";

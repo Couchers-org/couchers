@@ -5,7 +5,8 @@ import {
   IconButton,
   List,
   ListItem,
- Toolbar } from "@material-ui/core";
+  Toolbar,
+} from "@material-ui/core";
 import classNames from "classnames";
 import { CloseIcon, MenuIcon } from "components/Icons";
 import { useAuthContext } from "features/auth/AuthProvider";

@@ -1,4 +1,9 @@
-import { Card, CardActionArea, CardContent , Typography } from "@material-ui/core";
+import {
+  Card,
+  CardActionArea,
+  CardContent,
+  Typography,
+} from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
 import classNames from "classnames";
 import CircularProgress from "components/CircularProgress";

@@ -1,4 +1,9 @@
-import { FormControlLabel, InputLabel , Switch, Typography } from "@material-ui/core";
+import {
+  FormControlLabel,
+  InputLabel,
+  Switch,
+  Typography,
+} from "@material-ui/core";
 import Button from "components/Button";
 import TextBody from "components/TextBody";
 import TextField from "components/TextField";
