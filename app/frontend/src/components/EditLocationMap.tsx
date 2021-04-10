@@ -1,10 +1,4 @@
-import {
-  BoxProps,
-  makeStyles,
-  Slider,
-  Typography,
-  useTheme,
-} from "@material-ui/core";
+import { BoxProps, Slider, Typography, useTheme } from "@material-ui/core";
 import classNames from "classnames";
 import Map from "components/Map";
 import MapSearch from "components/MapSearch";
@@ -16,6 +10,7 @@ import {
   MapTouchEvent,
 } from "maplibre-gl";
 import React, { useRef, useState } from "react";
+import makeStyles from "utils/makeStyles";
 
 import { userLocationMaxRadius, userLocationMinRadius } from "../constants";
 import {

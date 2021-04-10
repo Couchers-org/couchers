@@ -1,4 +1,4 @@
-import { makeStyles } from "@material-ui/core";
+import makeStyles from "utils/makeStyles";
 
 import DesktopAuthBg from "./resources/desktop-auth-bg.jpg";
 import MobileAuthBg from "./resources/mobile-auth-bg.jpg";

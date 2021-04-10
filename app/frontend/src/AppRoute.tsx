@@ -1,6 +1,7 @@
-import { Container, makeStyles } from "@material-ui/core";
+import { Container } from "@material-ui/core";
 import React, { useEffect } from "react";
 import { Redirect, Route, RouteProps } from "react-router-dom";
+import makeStyles from "utils/makeStyles";
 
 import Navigation from "./components/Navigation";
 import { useAuthContext } from "./features/auth/AuthProvider";

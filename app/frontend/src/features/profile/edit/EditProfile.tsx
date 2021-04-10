@@ -1,7 +1,6 @@
 import {
   FormControlLabel,
   Grid,
-  makeStyles,
   Radio,
   RadioGroup,
   TextField,
@@ -54,6 +53,7 @@ import { Link } from "react-router-dom";
 import { settingsRoute } from "routes";
 import { UpdateUserProfileData } from "service/index";
 import { useIsMounted, useSafeState } from "utils/hooks";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   avatar: {

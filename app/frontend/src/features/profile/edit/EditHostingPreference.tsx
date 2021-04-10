@@ -2,7 +2,6 @@ import {
   Checkbox,
   FormControl,
   FormControlLabel,
-  makeStyles,
   Typography,
 } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
@@ -57,6 +56,7 @@ import {
 import { useState } from "react";
 import { Controller, useForm, UseFormMethods } from "react-hook-form";
 import { HostingPreferenceData } from "service/index";
+import makeStyles from "utils/makeStyles";
 
 interface HostingPreferenceCheckboxProps {
   className: string;

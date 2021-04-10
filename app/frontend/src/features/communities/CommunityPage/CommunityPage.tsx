@@ -1,9 +1,4 @@
-import {
-  Breadcrumbs,
-  Link as MuiLink,
-  makeStyles,
-  Typography,
-} from "@material-ui/core";
+import { Breadcrumbs, Link as MuiLink, Typography } from "@material-ui/core";
 import { TabContext } from "@material-ui/lab";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
@@ -33,6 +28,7 @@ import {
   routeToCommunity,
   searchRoute,
 } from "routes";
+import makeStyles from "utils/makeStyles";
 
 import DiscussionsSection from "./DiscussionsSection";
 import EventsSection from "./EventsSection";

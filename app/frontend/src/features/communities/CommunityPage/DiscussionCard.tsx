@@ -2,7 +2,6 @@ import {
   Card,
   CardActionArea,
   CardContent,
-  makeStyles,
   Typography,
 } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
@@ -20,6 +19,7 @@ import { Link } from "react-router-dom";
 import { routeToDiscussion } from "routes";
 import { service } from "service";
 import { timestamp2Date } from "utils/date";
+import makeStyles from "utils/makeStyles";
 import { firstName } from "utils/names";
 import stripMarkdown from "utils/stripMarkdown";
 import { timeAgo } from "utils/timeAgo";

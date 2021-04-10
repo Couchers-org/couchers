@@ -1,4 +1,4 @@
-import { DialogProps, makeStyles } from "@material-ui/core";
+import { DialogProps } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import {
@@ -16,6 +16,7 @@ import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
 import type { ReportUserInput } from "service/user";
+import makeStyles from "utils/makeStyles";
 
 import {
   CANCEL,

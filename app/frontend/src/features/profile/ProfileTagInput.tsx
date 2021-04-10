@@ -5,7 +5,6 @@ import {
   fade,
   IconButton,
   InputBase,
-  makeStyles,
   Popper,
   Typography,
 } from "@material-ui/core";
@@ -14,6 +13,7 @@ import Autocomplete, {
 } from "@material-ui/lab/Autocomplete";
 import { CloseIcon, ExpandMoreIcon } from "components/Icons";
 import React, { useRef, useState } from "react";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) =>
   createStyles({

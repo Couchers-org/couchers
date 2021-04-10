@@ -2,7 +2,6 @@ import {
   Card,
   CardActionArea,
   CardContent,
-  makeStyles,
   Typography,
 } from "@material-ui/core";
 import { CouchIcon, LocationIcon } from "components/Icons";
@@ -19,6 +18,7 @@ import {
 import { User } from "pb/api_pb";
 import { Link } from "react-router-dom";
 import { routeToUser } from "routes";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   card: {

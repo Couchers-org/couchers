@@ -1,10 +1,10 @@
-import { makeStyles } from "@material-ui/core";
 import {
   Alert as MuiAlert,
   AlertProps as MuiAlertProps,
 } from "@material-ui/lab/";
 import classNames from "classnames";
 import React from "react";
+import makeStyles from "utils/makeStyles";
 
 import { grpcErrorStrings, ObscureGrpcErrorMessages } from "../constants";
 

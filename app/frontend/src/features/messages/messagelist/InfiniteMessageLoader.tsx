@@ -1,4 +1,4 @@
-import { Box, makeStyles } from "@material-ui/core";
+import { Box } from "@material-ui/core";
 import classNames from "classnames";
 import CircularProgress from "components/CircularProgress";
 import useAuthStore from "features/auth/useAuthStore";
@@ -11,6 +11,7 @@ import {
   useLayoutEffect,
   useRef,
 } from "react";
+import makeStyles from "utils/makeStyles";
 import useOnVisibleEffect from "utils/useOnVisibleEffect";
 
 const useStyles = makeStyles((theme) => ({
