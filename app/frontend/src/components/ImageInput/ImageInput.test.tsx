@@ -8,12 +8,13 @@ import {
   SELECT_AN_IMAGE,
   UPLOAD_PENDING_ERROR,
 } from "components/constants";
-import ImageInput from "components/ImageInput";
 import { SUBMIT } from "features/constants";
 import { useForm } from "react-hook-form";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
 import { MockedService } from "test/utils";
+
+import ImageInput from "./ImageInput";
 
 const uploadFileMock = service.api.uploadFile as MockedService<
   typeof service.api.uploadFile
@@ -26,7 +27,11 @@ const MOCK_INITIAL_SRC = "https://example.com/initialPreview.jpg";
 const MOCK_THUMB = "thumb.jpg";
 const NAME = "Test User";
 
-describe("ImageInput component", () => {
+describe.each`
+  type
+  ${"avatar"}
+  ${"rect"}
+`("ImageInput component ($type)", ({ type }) => {
   beforeEach(() => {
     uploadFileMock.mockResolvedValue({
       file: MOCK_FILE,
@@ -41,14 +46,25 @@ describe("ImageInput component", () => {
       return (
         <form onSubmit={onSubmit}>
           {errors.avatarInput && <p>{errors.avatarInput.message}</p>}
-          <ImageInput
-            control={control}
-            id="avatar-input"
-            initialPreviewSrc={MOCK_INITIAL_SRC}
-            name="avatarInput"
-            userName={NAME}
-            type="avatar"
-          />
+          {type === "avatar" ? (
+            <ImageInput
+              control={control}
+              id="avatar-input"
+              initialPreviewSrc={MOCK_INITIAL_SRC}
+              name="avatarInput"
+              userName={NAME}
+              type="avatar"
+            />
+          ) : (
+            <ImageInput
+              control={control}
+              id="avatar-input"
+              initialPreviewSrc={MOCK_INITIAL_SRC}
+              name="avatarInput"
+              alt={getAvatarLabel(NAME)}
+              type="rect"
+            />
+          )}
           <input type="submit" name={SUBMIT} />
         </form>
       );

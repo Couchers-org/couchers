@@ -1,9 +1,9 @@
 import { Meta, Story } from "@storybook/react";
+import Button from "components/Button";
 import { useForm } from "react-hook-form";
 import { ImageInputValues } from "service/api";
 import { mockedService } from "stories/__mocks__/service";
 
-import Button from "./Button";
 import ImageInput from "./ImageInput";
 
 export default {
@@ -11,7 +11,7 @@ export default {
   title: "Components/Composite/ImageInput",
 } as Meta;
 
-const Template: Story<any> = (args) => {
+const AvatarTemplate: Story<any> = (args) => {
   setMocks();
   const { control, handleSubmit } = useForm();
   return (
@@ -23,15 +23,6 @@ const Template: Story<any> = (args) => {
         type="avatar"
         {...args}
       />
-      <div style={{ width: 300, height: 150 }}>
-        <ImageInput
-          id="image-input"
-          name="imageInput"
-          control={control}
-          type="square"
-          {...args}
-        />
-      </div>
       <Button onClick={handleSubmit(console.log)} type="submit">
         Submit
       </Button>
@@ -39,7 +30,27 @@ const Template: Story<any> = (args) => {
   );
 };
 
-export const imageInput = Template.bind({});
+export const avatarInput = AvatarTemplate.bind({});
+
+const ImageTemplate: Story<any> = (args) => {
+  setMocks();
+  const { control, handleSubmit } = useForm();
+  return (
+    <>
+      <ImageInput
+        id="image-input"
+        name="imageInput"
+        control={control}
+        type="rect"
+        {...args}
+      />
+      <Button onClick={handleSubmit(console.log)} type="submit">
+        Submit
+      </Button>
+    </>
+  );
+};
+export const imageInput = ImageTemplate.bind({ grow: false });
 
 function setMocks() {
   mockedService.api.uploadFile = (file: File) =>

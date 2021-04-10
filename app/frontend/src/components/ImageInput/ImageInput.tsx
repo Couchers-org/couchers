@@ -20,6 +20,9 @@ import { useMutation } from "react-query";
 import { service } from "service";
 import { ImageInputValues } from "service/api";
 
+import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from "./constants";
+import imagePlaceholder from "./imagePlaceholder.svg";
+
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
@@ -41,6 +44,10 @@ const useStyles = makeStyles((theme) => ({
     "&:hover": {
       backgroundColor: theme.palette.action.hover,
     },
+  },
+  imageGrow: {
+    maxWidth: "100%",
+    height: "auto",
   },
   input: {
     display: "none",
@@ -70,8 +77,9 @@ type AvatarInputProps = {
 };
 
 type SquareImgInputProps = {
-  type: "square";
+  type: "rect";
   alt: string;
+  grow?: boolean;
 };
 
 export function ImageInput(
@@ -169,11 +177,14 @@ export function ImageInput(
             </MuiIconButton>
           ) : (
             <img
-              className={classes.image}
-              src={imageUrl}
+              className={classNames(classes.image, className, {
+                [classes.imageGrow]: props.grow,
+              })}
+              src={imageUrl ?? imagePlaceholder}
+              style={{ objectFit: !imageUrl ? "contain" : undefined }}
               alt={props.alt}
-              width={300}
-              height={150}
+              width={DEFAULT_WIDTH}
+              height={DEFAULT_HEIGHT}
             />
           )}
           {mutation.isLoading && (
