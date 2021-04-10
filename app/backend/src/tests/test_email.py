@@ -3,7 +3,7 @@ from unittest.mock import create_autospec, patch
 import pytest
 
 from couchers.config import config
-from couchers.crypto import random_hex
+from couchers.crypto import random_hex, urlsafe_secure_token
 from couchers.db import new_login_token, new_signup_token, session_scope
 from couchers.models import (
     Complaint,
@@ -22,6 +22,8 @@ from couchers.tasks import (
     send_login_email,
     send_report_email,
     send_signup_email,
+    send_email_changed_notification_email,
+    send_email_changed_confirmation_email,
 )
 from tests.test_fixtures import db, generate_user, testconfig
 
@@ -209,3 +211,68 @@ def test_email_patching_fails(db):
             with patch("couchers.email.queue_email", mock_queue_email):
                 send_friend_request_email(friend_relationship)
         assert str(e.value) == patched_msg
+
+def test_email_changed_notification_email(db):
+    user, token = generate_user()
+    user.new_email = f"{random_hex(12)}@couchers.org.invalid"
+    with patch("couchers.email.queue_email") as mock:
+        send_email_changed_notification_email(user)
+
+    assert mock.call_count == 1
+    (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
+    assert "change requested" in subject
+    assert recipient == user.email
+    assert user.name in plain
+    assert user.name in html
+    assert user.new_email in plain
+    assert user.new_email in html
+    assert "A confirmation was sent to that email address" in plain
+    assert "A confirmation was sent to that email address" in html
+    assert "support@couchers.org" in plain
+    assert "support@couchers.org" in html
+
+def test_email_changed_confirmation_email_old(db):
+    user, user_token = generate_user()
+    user.new_email = f"{random_hex(12)}@couchers.org.invalid"
+    confirmation_token = urlsafe_secure_token()
+    expiry_text = None # Not currently used in the email
+    with patch("couchers.email.queue_email") as mock:
+        send_email_changed_confirmation_email(user, confirmation_token, expiry_text, old=True)
+
+    assert mock.call_count == 1
+    (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
+    assert "new email" in subject
+    assert recipient == user.email
+    assert user.name in plain
+    assert user.name in html
+    assert user.new_email in plain
+    assert user.new_email in html
+    assert "the final step will be" in plain
+    assert "the final step will be" in html
+    assert f"{config['BASE_URL']}/confirm-email/{confirmation_token}" in plain
+    assert f"{config['BASE_URL']}/confirm-email/{confirmation_token}" in html
+    assert "support@couchers.org" in plain
+    assert "support@couchers.org" in html
+
+def test_email_changed_confirmation_email_new(db):
+    user, user_token = generate_user()
+    user.new_email = f"{random_hex(12)}@couchers.org.invalid"
+    confirmation_token = urlsafe_secure_token()
+    expiry_text = None # Not currently used in the email
+    with patch("couchers.email.queue_email") as mock:
+        send_email_changed_confirmation_email(user, confirmation_token, expiry_text, old=False)
+
+    assert mock.call_count == 1
+    (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
+    assert "new email" in subject
+    assert recipient == user.new_email
+    assert user.name in plain
+    assert user.name in html
+    assert user.email in plain
+    assert user.email in html
+    assert "This is the final step" in plain
+    assert "This is the final step" in html
+    assert f"{config['BASE_URL']}/confirm-email/{confirmation_token}" in plain
+    assert f"{config['BASE_URL']}/confirm-email/{confirmation_token}" in html
+    assert "support@couchers.org" in plain
+    assert "support@couchers.org" in html

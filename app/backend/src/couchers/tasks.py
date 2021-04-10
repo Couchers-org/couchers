@@ -145,8 +145,10 @@ def send_email_changed_confirmation_email(user, token, expiry_text, old):
     """
     if old:
         new_or_old = "old"
+        email_address = user.email
     else:
         new_or_old = "new"
+        email_address = user.new_email
     name_email_template = f"email_changed_confirmation_{new_or_old}_email"
 
     logger.info(
@@ -154,7 +156,7 @@ def send_email_changed_confirmation_email(user, token, expiry_text, old):
     )
     confirmation_link = urls.change_email_link(confirmation_token=token)
     email.enqueue_email_from_template(
-        user.email, name_email_template, template_args={"user": user, "confirmation_link": confirmation_link}
+        email_address, name_email_template, template_args={"user": user, "confirmation_link": confirmation_link}
     )
 
 
