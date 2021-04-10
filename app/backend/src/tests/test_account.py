@@ -431,7 +431,6 @@ def test_ChangeEmail_wrong_token(db, fast_passwords):
         assert user_updated2.email == user.email
 
 
-# TODO confirm notification email sent to old email address
 def test_ChangeEmail_has_password(db, fast_passwords):
     password = random_hex()
     new_email = f"{random_hex()}@couchers.org.invalid"

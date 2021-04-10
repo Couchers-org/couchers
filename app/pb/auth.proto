@@ -74,11 +74,11 @@ service Auth {
   }
 
   rpc ChangeEmailSecondStep(ChangeEmailSecondStepReq) returns (google.protobuf.Empty) {
-    // When a user opens a changed email confirmation, the frontend should call this function with the token
+    // When a user without a password confirms their new email for the first time (i.e. via an email sent to their *old* email address), the frontend should call this function with the token
   }
 
   rpc CompleteChangeEmail(CompleteChangeEmailReq) returns (google.protobuf.Empty) {
-    // When user confirms via their old email address their desire to change their email address, the frontend should call this function next
+    // When user confirms their new email for the final time (i.e. via an email sent to their *new* email address), the frontend should call this function
   }
 }
 

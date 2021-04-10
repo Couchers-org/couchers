@@ -17,13 +17,13 @@ from couchers.models import (
     Upload,
 )
 from couchers.tasks import (
+    send_email_changed_confirmation_email,
+    send_email_changed_notification_email,
     send_friend_request_email,
     send_host_request_email,
     send_login_email,
     send_report_email,
     send_signup_email,
-    send_email_changed_notification_email,
-    send_email_changed_confirmation_email,
 )
 from tests.test_fixtures import db, generate_user, testconfig
 
@@ -212,6 +212,7 @@ def test_email_patching_fails(db):
                 send_friend_request_email(friend_relationship)
         assert str(e.value) == patched_msg
 
+
 def test_email_changed_notification_email(db):
     user, token = generate_user()
     user.new_email = f"{random_hex(12)}@couchers.org.invalid"
@@ -231,11 +232,12 @@ def test_email_changed_notification_email(db):
     assert "support@couchers.org" in plain
     assert "support@couchers.org" in html
 
+
 def test_email_changed_confirmation_email_old(db):
     user, user_token = generate_user()
     user.new_email = f"{random_hex(12)}@couchers.org.invalid"
     confirmation_token = urlsafe_secure_token()
-    expiry_text = None # Not currently used in the email
+    expiry_text = None  # Not currently used in the email
     with patch("couchers.email.queue_email") as mock:
         send_email_changed_confirmation_email(user, confirmation_token, expiry_text, old=True)
 
@@ -254,11 +256,12 @@ def test_email_changed_confirmation_email_old(db):
     assert "support@couchers.org" in plain
     assert "support@couchers.org" in html
 
+
 def test_email_changed_confirmation_email_new(db):
     user, user_token = generate_user()
     user.new_email = f"{random_hex(12)}@couchers.org.invalid"
     confirmation_token = urlsafe_secure_token()
-    expiry_text = None # Not currently used in the email
+    expiry_text = None  # Not currently used in the email
     with patch("couchers.email.queue_email") as mock:
         send_email_changed_confirmation_email(user, confirmation_token, expiry_text, old=False)
 

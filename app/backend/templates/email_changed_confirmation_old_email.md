@@ -5,7 +5,7 @@ subject: "Confirm your new email for Couchers.org"
 {% from "macros.html" import button %}
 Hi {{ escape(user.name) }}!
 
-You asked for your email to be changed on Couchers.org.
+You requested that your email be changed on Couchers.org.
 
 The new email address is {{ escape(user.new_email) }}.
 
