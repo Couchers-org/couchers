@@ -280,13 +280,13 @@ def test_signup_invalid_birthdate(db):
                 username="ceelo",
                 name="Christopher",
                 city="New York City",
-                birthdate="2000-12-31", # arbitrary birthdate older than 18 years
+                birthdate="2000-12-31",  # arbitrary birthdate older than 18 years
                 gender="Helicopter",
                 hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
                 lat=1,
                 lng=1,
                 radius=100,
-                accept_tos=True
+                accept_tos=True,
             )
         )
         with pytest.raises(grpc.RpcError) as e:
@@ -296,16 +296,17 @@ def test_signup_invalid_birthdate(db):
                     username="franklin",
                     name="Franklin",
                     city="Los Santos",
-                    birthdate="2004-04-09", # arbitrary birthdate around 17 years 
+                    birthdate="2004-04-09",  # arbitrary birthdate around 17 years
                     gender="Male",
                     hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
                     lat=1,
                     lng=1,
                     radius=100,
-                    accept_tos=True
+                    accept_tos=True,
                 )
             )
             assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
             assert e.value.details() == errors.INVALID_BIRTHDATE
+
 
 # CompleteChangeEmail tested in test_account.py
