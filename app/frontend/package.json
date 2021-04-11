@@ -34,7 +34,8 @@
     "test-ci": "CI=true tsc && react-scripts test --coverageReporters=\"text\" --coverageReporters=\"cobertura\" --coverageReporters=\"lcov\" --reporters=\"default\" --reporters=\"jest-junit\" --coverage",
     "jest": "jest --modulePaths=src",
     "storybook": "start-storybook -p 6006 -s public",
-    "build-storybook": "NODE_PATH=. build-storybook -s public"
+    "build-storybook": "NODE_PATH=. build-storybook -s public",
+    "tsc": "tsc"
   },
   "eslintConfig": {
     "extends": [
