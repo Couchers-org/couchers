@@ -606,26 +606,6 @@ class API(api_pb2_grpc.APIServicer):
         )
 
 
-def paginate_references_result(request, query):
-    total_matches = query.count()
-    references = query.order_by(Reference.time).offset(request.start_at).limit(request.number).all()
-    # order by time, pagination
-    return api_pb2.GetReferencesRes(
-        total_matches=total_matches,
-        references=[
-            api_pb2.Reference(
-                from_user_id=reference.from_user_id,
-                to_user_id=reference.to_user_id,
-                reference_type=reftype2api[reference.reference_type],
-                text=reference.text,
-                # Fuzz reference written time
-                written_time=Timestamp_from_datetime(reference.time.replace(hour=0, minute=0, second=0, microsecond=0)),
-            )
-            for reference in references
-        ],
-    )
-
-
 def user_model_to_pb(db_user, session, context):
     num_references = session.query(Reference.from_user_id).filter(Reference.to_user_id == db_user.id).count()
 
