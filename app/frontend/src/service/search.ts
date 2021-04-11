@@ -12,10 +12,6 @@ export async function search(query: string): Promise<User.AsObject[]> {
   const req = new SearchReq();
   req.setQuery(query);
   req.setIncludeUsers(true);
-  req.setIncludeCommunities(true);
-  req.setIncludeGroups(true);
-  req.setIncludeGuides(true);
-  req.setIncludePlaces(true);
 
   const response = await client.search.search(req);
   const users = response
