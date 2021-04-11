@@ -1,6 +1,6 @@
 import { Map as MaplibreMap } from "maplibre-gl";
 
-import userPin from "./userPin.png";
+import userPin from "./resources/userPin.png";
 
 const URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -67,21 +67,18 @@ export const layers = {
       "icon-image": "user-pin",
       "icon-allow-overlap": true,
     },
-    /* paint: {
-      "circle-color": "#51bbd6",
-    }, */
     source: "all-objects",
     type: "symbol",
   },
 };
 
 const addPinImages = (map: MaplibreMap) => {
-  const PIN_WIDTH = 36;
-  const PIN_HEIGHT = 42;
-
-  const image = new Image(PIN_WIDTH, PIN_HEIGHT);
-  image.src = userPin;
-  map.addImage("user-pin", image);
+  map.loadImage(userPin, (error: Error, image: HTMLImageElement) => {
+    if (error) {
+      throw error;
+    }
+    map.addImage("user-pin", image);
+  });
 };
 
 export const addClusteredUsersToMap = (

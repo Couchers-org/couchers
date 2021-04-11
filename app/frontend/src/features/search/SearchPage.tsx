@@ -44,6 +44,7 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(3, 3),
     position: "absolute",
     width: "100%",
+    zIndex: 3,
     [theme.breakpoints.up("md")]: {
       alignItems: "flex-start",
       bottom: "auto",
