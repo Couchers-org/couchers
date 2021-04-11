@@ -6,6 +6,7 @@ export const BIRTHDAY_REQUIRED = "Enter your birthdate";
 export const BIRTHDAY_PAST_ERROR = "Must be a valid date in the past.";
 
 export const CHANGE_EMAIL = "Change Email";
+export const YOUR_EMAIL_IS = "Your email address is currently";
 export const CHANGE_EMAIL_ERROR = "Error changing email: ";
 export const CHANGE_EMAIL_PROGRESS = "Email change in progress...";
 export const CHANGE_EMAIL_SUCCESS = "Your email has been changed successfully!";

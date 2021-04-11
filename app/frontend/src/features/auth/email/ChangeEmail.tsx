@@ -17,6 +17,7 @@ import {
   CURRENT_PASSWORD,
   NEW_EMAIL,
   SUBMIT,
+  YOUR_EMAIL_IS,
 } from "../constants";
 import useChangeDetailsFormStyles from "../useChangeDetailsFormStyles";
 
@@ -58,6 +59,9 @@ export default function ChangeEmail(accountInfo: GetAccountInfoRes.AsObject) {
     <>
       <PageTitle>{CHANGE_EMAIL}</PageTitle>
       <>
+        <p>
+          {YOUR_EMAIL_IS} <pre>{accountInfo.email}</pre>
+        </p>
         {changeEmailError && (
           <Alert severity="error">{changeEmailError.message}</Alert>
         )}
