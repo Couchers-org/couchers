@@ -1,7 +1,7 @@
 """Adding user blocking
 
 Revision ID: 170cd7fed5e4
-Revises: 17362f602f12
+Revises: 27a2782784d0
 Create Date: 2021-03-10 21:16:47.762154
 
 """
@@ -11,7 +11,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "170cd7fed5e4"
-down_revision = "17362f602f12"
+down_revision = "27a2782784d0"
 branch_labels = None
 depends_on = None
 
