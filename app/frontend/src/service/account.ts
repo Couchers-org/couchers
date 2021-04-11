@@ -1,6 +1,10 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { StringValue } from "google-protobuf/google/protobuf/wrappers_pb";
-import { ChangeEmailReq, ChangePasswordReq } from "pb/account_pb";
+import {
+  ChangeEmailReq,
+  ChangePasswordReq,
+  MarkContributorFormFilledReq,
+} from "pb/account_pb";
 import {
   CompleteChangeEmailReq,
   CompletePasswordResetReq,
@@ -51,4 +55,15 @@ export function completeChangeEmail(resetToken: string) {
   const req = new CompleteChangeEmailReq();
   req.setChangeEmailToken(resetToken);
   return client.auth.completeChangeEmail(req);
+}
+
+export async function getContributorFormInfo() {
+  const res = await client.account.getContributorFormInfo(new Empty());
+  return res.toObject();
+}
+
+export async function markContributorFormFilled() {
+  const req = new MarkContributorFormFilledReq();
+  req.setFilledContributorForm(true);
+  await client.account.markContributorFormFilled(req);
 }

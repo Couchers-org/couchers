@@ -65,10 +65,11 @@ message GetContributorFormInfoRes {
   bool filled_contributor_form = 1;
 
   string username = 2;
-  string email = 3;
-  uint32 age = 4;
-  string gender = 5;
-  string location = 6;
+  string name = 3;
+  string email = 4;
+  uint32 age = 5;
+  string gender = 6;
+  string location = 7;
 }
 
 message MarkContributorFormFilledReq {

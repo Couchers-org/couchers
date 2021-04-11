@@ -4,6 +4,10 @@ export const JOIN_THE_TEAM =
 export const FILL_IN_THE_FORM =
   "Fill in the form below to tell us your experience, ideas, and expertise. We'll keep you in the loop as we make progress on this exciting project!";
 
+export const ALREADY_FILLED_IN =
+  "You've already filled in the contributor form. Thanks! If you'd like to fill it in again, please click the below button.";
+export const FILL_IN_AGAIN = "Fill the form in again";
+
 export const YOUR_DETAILS = "Your details";
 export const BASICS = "The basics about you";
 
@@ -63,8 +67,7 @@ export const EXPERTISE_LABEL =
 export const EXPERTISE_HELPER =
   "Have technical or community/non-profit experience? Anything else you think could get us moving forward?";
 
-export const THANK_YOU = "Thank you!";
-export const APPRECIATE_YOUR_TIME =
-  "We appreciate you taking the time to help us build Couchers.org";
+export const SUCCESS_MSG =
+  "Thank you. We appreciate you taking the time to help us build Couchers.org!";
 
 export const SUBMIT = "Submit";

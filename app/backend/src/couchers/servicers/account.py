@@ -136,6 +136,7 @@ class Account(account_pb2_grpc.AccountServicer):
             return account_pb2.GetContributorFormInfoRes(
                 filled_contributor_form=user.filled_contributor_form,
                 username=user.username,
+                name=user.name,
                 email=user.email,
                 age=user.age,
                 gender=user.gender,

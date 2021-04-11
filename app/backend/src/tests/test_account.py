@@ -486,6 +486,7 @@ def test_contributor_form(db):
         res = account.GetContributorFormInfo(empty_pb2.Empty())
         assert not res.filled_contributor_form
         assert res.username == user.username
+        assert res.name == user.name
         assert res.email == user.email
         assert res.age == user.age
         assert res.gender == user.gender
@@ -496,6 +497,7 @@ def test_contributor_form(db):
         res = account.GetContributorFormInfo(empty_pb2.Empty())
         assert res.filled_contributor_form
         assert res.username == user.username
+        assert res.name == user.name
         assert res.email == user.email
         assert res.age == user.age
         assert res.gender == user.gender
@@ -506,6 +508,7 @@ def test_contributor_form(db):
         res = account.GetContributorFormInfo(empty_pb2.Empty())
         assert not res.filled_contributor_form
         assert res.username == user.username
+        assert res.name == user.name
         assert res.email == user.email
         assert res.age == user.age
         assert res.gender == user.gender
