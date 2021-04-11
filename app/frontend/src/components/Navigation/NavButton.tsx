@@ -39,7 +39,7 @@ export default function NavButton({
     <NavLink
       activeClassName={classes.selected}
       exact={route === baseRoute || route === userRoute}
-      to={route}
+      to={{pathname: route}}
       className={classes.link}
     >
       <Typography variant={labelVariant} className={classes.label} noWrap>
