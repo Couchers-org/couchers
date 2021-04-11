@@ -3,7 +3,7 @@ import useUpdateHostingPreferences from "features/profile/hooks/useUpdateHosting
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { act } from "react-test-renderer";
-import { service } from "service";
+import { HostingPreferenceData, service } from "service";
 import wrapper from "test/hookWrapper";
 import { addDefaultUser } from "test/utils";
 
@@ -12,8 +12,7 @@ const updateHostingPreferenceMock = service.user
   .updateHostingPreference as jest.Mock;
 
 describe("useUpdateHostingPreference hook", () => {
-  const newHostingPreferenceData = {
-    acceptsKids: false,
+  const newHostingPreferenceData: HostingPreferenceData = {
     acceptsPets: false,
     area: "",
     houseRules: "",
@@ -21,20 +20,45 @@ describe("useUpdateHostingPreference hook", () => {
     maxGuests: null,
     smokingAllowed: 1,
     wheelchairAccessible: true,
+    hasPets: false,
+    petDetails: "",
+    hasKids: false,
+    acceptsKids: false,
+    kidDetails: "",
+    hasHousemates: false,
+    housemateDetails: "",
+    smokesAtHome: false,
+    drinkingAllowed: false,
+    drinksAtHome: false,
+    otherHostInfo: "",
+    campingOk: true,
+    parking: true,
+    parkingDetails: 3,
+    sleepingArrangement: 2,
+    sleepingDetails: "",
   };
 
   it("updates the store with the latest user hosting preference", async () => {
     addDefaultUser();
-    const newUserPref = Object.entries(newHostingPreferenceData).reduce(
-      (acc: Record<string, unknown>, [key, value]) => {
-        if (key !== "smokingAllowed") {
-          acc[key] = { value };
-        } else {
-          acc[key] = value;
+
+    const newUserPref = (Object.keys(
+      newHostingPreferenceData
+    ) as (keyof HostingPreferenceData)[]).reduce(
+      (acc, key: keyof HostingPreferenceData) => {
+        switch (key) {
+          case "smokingAllowed":
+          case "parkingDetails":
+          case "sleepingArrangement":
+            acc[key] = newHostingPreferenceData[key];
+            return acc;
+          default:
+            acc[key] = {
+              value: newHostingPreferenceData[key],
+            };
+            return acc;
         }
-        return acc;
       },
-      {}
+      {} as Record<string, unknown>
     );
     updateHostingPreferenceMock.mockResolvedValue(new Empty());
     getUserMock.mockImplementation(() => {
