@@ -80,6 +80,7 @@ function setMocks({
         : Promise.resolve({
             hasPassword: loginMethod === GetAccountInfoRes.LoginMethod.PASSWORD,
             loginMethod,
+            email: "user@couchers.invalid",
           })
       : Promise.reject(new Error("Error getting account info"));
   mockedService.account.changeEmail = () =>

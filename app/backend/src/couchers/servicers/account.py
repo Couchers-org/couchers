@@ -57,11 +57,13 @@ class Account(account_pb2_grpc.AccountServicer):
                 return account_pb2.GetAccountInfoRes(
                     login_method=account_pb2.GetAccountInfoRes.LoginMethod.MAGIC_LINK,
                     has_password=False,
+                    email=user.email,
                 )
             else:
                 return account_pb2.GetAccountInfoRes(
                     login_method=account_pb2.GetAccountInfoRes.LoginMethod.PASSWORD,
                     has_password=True,
+                    email=user.email,
                 )
 
     def ChangePassword(self, request, context):

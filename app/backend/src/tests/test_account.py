@@ -20,20 +20,22 @@ def _(testconfig):
 
 def test_GetAccountInfo(db, fast_passwords):
     # without password
-    user1, token1 = generate_user(hashed_password=None)
+    user1, token1 = generate_user(hashed_password=None, email="funkybot@couchers.invalid")
 
     with account_session(token1) as account:
         res = account.GetAccountInfo(empty_pb2.Empty())
         assert res.login_method == account_pb2.GetAccountInfoRes.LoginMethod.MAGIC_LINK
         assert not res.has_password
+        assert res.email == "funkybot@couchers.invalid"
 
     # with password
-    user1, token1 = generate_user(hashed_password=hash_password(random_hex()))
+    user1, token1 = generate_user(hashed_password=hash_password(random_hex()), email="user@couchers.invalid")
 
     with account_session(token1) as account:
         res = account.GetAccountInfo(empty_pb2.Empty())
         assert res.login_method == account_pb2.GetAccountInfoRes.LoginMethod.PASSWORD
         assert res.has_password
+        assert res.email == "user@couchers.invalid"
 
 
 def test_ChangePassword_normal(db, fast_passwords):
