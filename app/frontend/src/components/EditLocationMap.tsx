@@ -18,6 +18,7 @@ import {
   DISPLAY_LOCATION_NOT_EMPTY,
   getRadiusText,
   INVALID_COORDINATE,
+  LOCATION_ACCURACY,
   LOCATION_PUBLICLY_VISIBLE,
   MAP_IS_BLANK,
 } from "./constants";
@@ -73,8 +74,6 @@ export default function EditLocationMap({
 
   const map = useRef<mapboxgl.Map | null>(null);
 
-  const [, setDirty] = useState(0);
-
   // map is imperative so these don't need to cause re-render
   const location = useRef<ApproximateLocation>({
     address: initialLocation?.address ?? "",
@@ -108,13 +107,10 @@ export default function EditLocationMap({
 
   const onCircleMove = (e: MapMouseEvent | MapTouchEvent) => {
     const wrapped = e.lngLat.wrap();
-    commit(
-      {
-        lat: wrapped.lat,
-        lng: wrapped.lng,
-      },
-      false
-    );
+    commit({
+      lat: wrapped.lat,
+      lng: wrapped.lng,
+    });
     redrawMap();
   };
 
@@ -149,10 +145,7 @@ export default function EditLocationMap({
     }
   };
 
-  const commit = (
-    updates: Partial<ApproximateLocation>,
-    update: boolean = true
-  ) => {
+  const commit = (updates: Partial<ApproximateLocation>) => {
     if (updates.address !== undefined) {
       location.current.address = updates.address;
     }
@@ -165,26 +158,22 @@ export default function EditLocationMap({
       isBlank.current = false;
     }
 
-    if (update) {
-      if (isBlank.current) {
-        // haven't selected a location yet
-        setError(MAP_IS_BLANK);
-        updateLocation(null);
-      } else if (location.current.lat === 0 && location.current.lng === 0) {
-        // somehow have lat/lng == 0
-        setError(INVALID_COORDINATE);
-        updateLocation(null);
-      } else if (location.current.address === "") {
-        // missing display address
-        setError(DISPLAY_LOCATION_NOT_EMPTY);
-        updateLocation(null);
-      } else {
-        setError("");
-        updateLocation({ ...location.current });
-      }
+    if (isBlank.current) {
+      // haven't selected a location yet
+      setError(MAP_IS_BLANK);
+      updateLocation(null);
+    } else if (location.current.lat === 0 && location.current.lng === 0) {
+      // somehow have lat/lng == 0
+      setError(INVALID_COORDINATE);
+      updateLocation(null);
+    } else if (location.current.address === "") {
+      // missing display address
+      setError(DISPLAY_LOCATION_NOT_EMPTY);
+      updateLocation(null);
+    } else {
+      setError("");
+      updateLocation({ ...location.current });
     }
-
-    setDirty(Date.now());
   };
 
   const initializeMap = (mapRef: mapboxgl.Map) => {
@@ -310,36 +299,20 @@ export default function EditLocationMap({
           <MapSearch
             setError={setError}
             setResult={(coordinate, _, simplified) => {
-              commit({ address: simplified }, false);
+              commit({ address: simplified });
               flyToSearch(coordinate);
             }}
           />
         </div>
         {showRadiusSlider && (
-          <>
-            <Typography id="location-radius" gutterBottom>
-              Location accuracy
-            </Typography>
-            <Slider
-              aria-labelledby="location-radius"
-              aria-valuetext={getRadiusText(location.current.radius)}
-              value={location.current.radius}
-              step={5}
-              min={userLocationMinRadius}
-              max={userLocationMaxRadius}
-              onChange={(_, value) => {
-                commit({ radius: value as number }, false);
-                redrawMap();
-              }}
-              onChangeCommitted={(_, value) => {
-                commit({ radius: value as number });
-                redrawMap();
-              }}
-            />
-          </>
+          <RadiusSlider
+            commit={commit}
+            initialRadius={location.current.radius}
+            redrawMap={redrawMap}
+          />
         )}
         <TextField
-          value={location.current.address}
+          defaultValue={location.current.address}
           onChange={(e) => {
             commit({ address: e.target.value });
           }}
@@ -351,6 +324,40 @@ export default function EditLocationMap({
           helperText={error !== "" ? error : LOCATION_PUBLICLY_VISIBLE}
         />
       </div>
+    </>
+  );
+}
+
+interface RadiusSliderProps {
+  commit(updates: Partial<ApproximateLocation>): void;
+  initialRadius: number;
+  redrawMap(): void;
+}
+
+function RadiusSlider({ commit, initialRadius, redrawMap }: RadiusSliderProps) {
+  const [radius, setRadius] = useState(initialRadius);
+  return (
+    <>
+      <Typography id="location-radius" gutterBottom>
+        {LOCATION_ACCURACY}
+      </Typography>
+      <Slider
+        aria-labelledby="location-radius"
+        aria-valuetext={getRadiusText(radius)}
+        value={radius}
+        step={5}
+        min={userLocationMinRadius}
+        max={userLocationMaxRadius}
+        onChange={(_, value) => {
+          setRadius(value as number);
+          commit({ radius: value as number });
+          redrawMap();
+        }}
+        onChangeCommitted={(_, value) => {
+          commit({ radius: value as number });
+          redrawMap();
+        }}
+      />
     </>
   );
 }
