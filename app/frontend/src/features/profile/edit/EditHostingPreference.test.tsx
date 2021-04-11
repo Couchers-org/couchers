@@ -44,11 +44,11 @@ describe("EditHostingPreference", () => {
     updateHostingPreferenceMock.mockResolvedValue(new Empty());
   });
 
-  it("should redirect to Profile route after successful update", async () => {
+  it("should redirect to the user profile route after successful update", async () => {
     renderPage();
 
     userEvent.click(await screen.findByRole("button", { name: SAVE }));
 
     expect(await screen.findByTestId("user-profile")).toBeInTheDocument();
-  });
+  }, 20000);
 });
