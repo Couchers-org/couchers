@@ -462,10 +462,27 @@ class API(api_pb2_grpc.APIServicer):
                 .join(blocking_2, FriendRelationship.from_user_id == blocking_2.blocked_user_id, isouter=True)
                 .join(blocking_3, FriendRelationship.to_user_id == blocking_3.blocking_user_id, isouter=True)
                 .join(blocking_4, FriendRelationship.to_user_id == blocking_4.blocked_user_id, isouter=True)
-                .filter(or_(blocking_1.blocked_user_id == None, blocking_1.blocked_user_id != FriendRelationship.to_user_id))
-                .filter(or_(blocking_2.blocking_user_id == None, blocking_2.blocking_user_id != FriendRelationship.to_user_id))
-                .filter(or_(blocking_3.blocked_user_id == None, blocking_3.blocked_user_id != FriendRelationship.from_user_id))
-                .filter(or_(blocking_4.blocking_user_id == None, blocking_4.blocking_user_id != FriendRelationship.from_user_id))
+                .filter(
+                    or_(blocking_1.blocked_user_id == None, blocking_1.blocked_user_id != FriendRelationship.to_user_id)
+                )
+                .filter(
+                    or_(
+                        blocking_2.blocking_user_id == None,
+                        blocking_2.blocking_user_id != FriendRelationship.to_user_id,
+                    )
+                )
+                .filter(
+                    or_(
+                        blocking_3.blocked_user_id == None,
+                        blocking_3.blocked_user_id != FriendRelationship.from_user_id,
+                    )
+                )
+                .filter(
+                    or_(
+                        blocking_4.blocking_user_id == None,
+                        blocking_4.blocking_user_id != FriendRelationship.from_user_id,
+                    )
+                )
                 .filter(users1.is_visible)
                 .filter(users2.is_visible)
                 .filter(
@@ -654,7 +671,12 @@ class API(api_pb2_grpc.APIServicer):
             if not session.query(User).filter(User.id == request.user_id).one_or_none():
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
-            if session.query(UserBlocks).filter(UserBlocks.blocking_user_id == context.user_id).filter(UserBlocks.blocked_user_id == request.user_id).one_or_none():
+            if (
+                session.query(UserBlocks)
+                .filter(UserBlocks.blocking_user_id == context.user_id)
+                .filter(UserBlocks.blocked_user_id == request.user_id)
+                .one_or_none()
+            ):
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.USER_ALREADY_BLOCKED)
             else:
                 user_block = UserBlocks(
@@ -666,11 +688,7 @@ class API(api_pb2_grpc.APIServicer):
 
     def GetBlockedUsers(self, request, context):
         with session_scope() as session:
-            blocked_users = (
-                session.query(UserBlocks)
-                .filter(UserBlocks.blocking_user_id == context.user_id)
-                .all()
-            )
+            blocked_users = session.query(UserBlocks).filter(UserBlocks.blocking_user_id == context.user_id).all()
 
             return api_pb2.GetBlockedUsersRes(
                 user_blocks=[
@@ -704,6 +722,7 @@ class API(api_pb2_grpc.APIServicer):
             session.commit()
 
         return empty_pb2.Empty()
+
 
 def paginate_references_result(request, query):
     total_matches = query.count()
