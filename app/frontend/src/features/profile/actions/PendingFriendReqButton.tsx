@@ -1,3 +1,4 @@
+import { CircularProgress } from "@material-ui/core";
 import Button from "components/Button";
 import { CheckIcon, CloseIcon, PersonAddIcon } from "components/Icons";
 import Menu, { MenuItem } from "components/Menu";
@@ -10,10 +11,12 @@ import {
   DECLINE_FRIEND_ACTION,
   DECLINE_FRIEND_LABEL,
 } from "features/profile/constants";
+import { FriendRequest } from "pb/api_pb";
 import React, { useRef, useState } from "react";
 
 interface PendingFriendReqButtonProps {
   friendRequestId: number;
+  state: FriendRequest.FriendRequestStatus;
   setMutationError: SetMutationError;
 }
 
@@ -22,6 +25,7 @@ export const RESPOND_TO_FRIEND_REQUEST_MENU_ID =
 
 function PendingFriendReqButton({
   friendRequestId,
+  state,
   setMutationError,
 }: PendingFriendReqButtonProps) {
   const [isOpen, setIsOpen] = useState({
@@ -30,7 +34,12 @@ function PendingFriendReqButton({
     menu: false,
   });
 
-  const { respondToFriendRequest } = useRespondToFriendRequest();
+  const { 
+    isLoading,
+    isSuccess,
+    reset,
+    respondToFriendRequest,
+  } = useRespondToFriendRequest();
 
   const menuAnchor = useRef<HTMLButtonElement>(null);
 
@@ -47,7 +56,11 @@ function PendingFriendReqButton({
     setIsOpen((prevState) => ({ ...prevState, [item]: false }));
   };
 
-  return (
+  return state === FriendRequest.FriendRequestStatus.PENDING ? (
+    <>
+    { isLoading || isSuccess ? (
+      <CircularProgress />
+    ) : (
     <>
       <Button
         startIcon={<PersonAddIcon />}
@@ -68,6 +81,7 @@ function PendingFriendReqButton({
             startIcon={<CheckIcon />}
             aria-label={ACCEPT_FRIEND_LABEL}
             onClick={() => {
+              reset();
               respondToFriendRequest({
                 accept: true,
                 friendRequestId,
@@ -83,6 +97,7 @@ function PendingFriendReqButton({
             startIcon={<CloseIcon />}
             aria-label={DECLINE_FRIEND_LABEL}
             onClick={() => {
+              reset();
               respondToFriendRequest({
                 accept: false,
                 friendRequestId,
@@ -95,7 +110,9 @@ function PendingFriendReqButton({
         </MenuItem>
       </Menu>
     </>
-  );
+    )}
+    </>
+  ) : null;
 }
 
 export default PendingFriendReqButton;
