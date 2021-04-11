@@ -248,9 +248,7 @@ message UpdateProfileReq {
   google.protobuf.DoubleValue lng = 23;
   google.protobuf.DoubleValue radius = 24; // metres
 
-  NullableStringValue avatar_key = 25; // result from media server
-
-  google.protobuf.StringValue gender = 3;
+  NullableStringValue avatar_key = 25; // result from media server  
   NullableStringValue pronouns = 101;
   NullableStringValue occupation = 4;
   NullableStringValue education = 102;  // CommonMark without images
