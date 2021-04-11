@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme) =>
       "&:hover": {
         boxShadow: `0 0 0 1px ${theme.palette.text.primary}`,
       },
-      borderRadius: theme.shape.borderRadius,
+      borderRadius: theme.shape.borderRadius * 3,
       boxShadow: `0 0 0 1px rgba(0, 0, 0, 0.23)`,
       fontFamily: "inherit",
       fontSize: "16px",
@@ -52,7 +52,7 @@ const useStyles = makeStyles((theme) =>
         },
         backgroundColor: theme.palette.common.white,
         borderColor: theme.palette.divider,
-        borderRadius: theme.shape.borderRadius,
+        borderRadius: theme.shape.borderRadius * 3,
         borderStyle: "solid",
         borderWidth: 1,
         padding: theme.spacing(1),
@@ -82,7 +82,7 @@ const useStyles = makeStyles((theme) =>
     popper: {
       backgroundColor: theme.palette.background.default,
       borderColor: "rgba(0, 0, 0, 0.23)",
-      borderRadius: theme.shape.borderRadius,
+      borderRadius: theme.shape.borderRadius * 3,
       borderStyle: "solid",
       borderWidth: 1,
       boxShadow: theme.shadows[3],

@@ -87,7 +87,7 @@ const useStyles = makeStyles((theme) => ({
     width: "72%",
   },
   link: {
-    borderRadius: theme.shape.borderRadius / 3,
+    borderRadius: theme.shape.borderRadius,
     color: theme.palette.common.white,
     fontSize: "1.25rem",
     fontWeight: 500,

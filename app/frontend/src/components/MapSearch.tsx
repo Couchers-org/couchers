@@ -38,7 +38,7 @@ const useSearchStyles = makeStyles((theme) => ({
       fontSize: "0.75rem",
     },
     background: theme.palette.background.default,
-    borderRadius: theme.shape.borderRadius,
+    borderRadius: theme.shape.borderRadius * 3,
     left: 10,
     opacity: 0.9,
     padding: theme.spacing(1),
