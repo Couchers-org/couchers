@@ -86,7 +86,7 @@ export default function SearchResult({ user }: { user: User.AsObject }) {
             <Typography variant="body1" className={classes.about}>
               {aboutText(user)}
             </Typography>
-            <Hidden mdDown>
+            <Hidden smDown>
               <LabelsAgeGenderLanguages user={user} />
               <LabelsReferencesLastActive user={user} />
             </Hidden>
