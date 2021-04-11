@@ -1,6 +1,8 @@
 import {
+  Checkbox,
   FormControl,
   FormControlLabel,
+  FormGroup,
   FormHelperText,
   FormLabel,
   makeStyles,
@@ -103,7 +105,6 @@ export default function ContributorForm() {
 
   useEffect(() => {
     if (authState.authenticated) {
-      console.log("auth'd");
       (async () => {
         const info = await service.account.getContributorFormInfo();
         setValue("username", info.username);
@@ -151,6 +152,19 @@ export default function ContributorForm() {
     }
     setLoading(false);
   });
+
+  const toggleCheckbox = (
+    option: string,
+    contribute: string,
+    setContribute: (s: string) => void
+  ) => {
+    const currentChoices = contribute.split(",").filter((v) => !!v);
+    if (currentChoices.includes(option)) {
+      setContribute(currentChoices.filter((opt) => opt !== option).join(","));
+    } else {
+      setContribute(currentChoices.concat(option).join(","));
+    }
+  };
 
   return (
     <>
@@ -228,23 +242,27 @@ export default function ContributorForm() {
                     name="contribute"
                     defaultValue=""
                     rules={{ required: CONTRIBUTE_REQUIRED }}
-                    render={({ onChange }) => (
+                    render={({ onChange, value }) => (
                       <FormControl>
                         <FormLabel>{CONTRIBUTE_LABEL}</FormLabel>
-                        <RadioGroup
-                          aria-label="contribute"
-                          name="contribute-radio"
-                          onChange={onChange}
-                        >
-                          {CONTRIBUTE_OPTIONS.map((opt) => (
+                        <FormGroup aria-label="contribute">
+                          {CONTRIBUTE_OPTIONS.map(({ name, description }) => (
                             <FormControlLabel
-                              key={opt}
-                              value={opt}
-                              control={<Radio />}
-                              label={opt}
+                              key={name}
+                              value={name}
+                              control={
+                                <Checkbox
+                                  checked={value.includes(name)}
+                                  onChange={() =>
+                                    toggleCheckbox(name, value, onChange)
+                                  }
+                                  name={name}
+                                />
+                              }
+                              label={description}
                             />
                           ))}
-                        </RadioGroup>
+                        </FormGroup>
                         <FormHelperText error={!!errors?.contribute?.message}>
                           {errors?.contribute?.message ?? " "}
                         </FormHelperText>

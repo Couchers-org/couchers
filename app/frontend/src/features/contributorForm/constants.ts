@@ -18,13 +18,34 @@ export const CONTRIBUTE_LABEL =
   "How you like to help in creating Couchers.org?";
 export const CONTRIBUTE_REQUIRED = "This field is required";
 export const CONTRIBUTE_OPTIONS = [
-  "Design (graphic/UI/UX)",
-  "Development, mobile (iOS/Android)",
-  "Development, backend (python/gRPC/postgres)",
-  "Development, web (TS/React)",
-  "Marketing",
-  "Community organizer (events, moderation, outreach, etc)",
-  "Blog writing",
+  {
+    name: "design",
+    description: "Design (graphic/UI/UX)",
+  },
+  {
+    name: "mobile",
+    description: "Development, mobile (iOS/Android)",
+  },
+  {
+    name: "backend",
+    description: "Development, backend (python/gRPC/postgres)",
+  },
+  {
+    name: "web",
+    description: "Development, web (TS/React)",
+  },
+  {
+    name: "marketing",
+    description: "Marketing",
+  },
+  {
+    name: "community",
+    description: "Community organizer (events, moderation, outreach, etc)",
+  },
+  {
+    name: "blog",
+    description: "Blog writing",
+  },
 ];
 
 export const QUESTIONS_OPTIONAL =
