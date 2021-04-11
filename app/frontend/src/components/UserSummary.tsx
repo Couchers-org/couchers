@@ -60,7 +60,7 @@ export default function UserSummary({
             variant="h2"
             className={classes.title}
           >
-            {!user ? <Skeleton /> : `${user.name}, ${user.age}, ${user.city}`}
+            {!user ? <Skeleton /> : `${user.name}, ${user.age}`}
           </Typography>
         }
         secondary={

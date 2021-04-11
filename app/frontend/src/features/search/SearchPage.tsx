@@ -2,10 +2,10 @@ import { makeStyles } from "@material-ui/core";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import TextBody from "components/TextBody";
-import addClusteredUsersToMap from "features/map/clusteredUsers";
 import addCommunitiesToMap from "features/map/communities";
 import addGuidesToMap from "features/map/guides";
 import addPlacesToMap from "features/map/places";
+import { addUsersToMap } from "features/map/users";
 import { SearchQuery } from "features/search/constants";
 import SearchResult from "features/search/SearchResult";
 import { LngLat, Map as MaplibreMap } from "maplibre-gl";
@@ -109,22 +109,13 @@ export default function SearchPage() {
         addPlacesToMap(map, handlePlaceClick);
         addGuidesToMap(map, handleGuideClick);
       }
-      addClusteredUsersToMap(map, handleClick);
+      addUsersToMap(map, handleClick);
 
       const resultIds = results.map((result) => {
         return result.userId;
       });
 
-      map.setFilter("unclustered-points", [
-        "in",
-        ["get", "id"],
-        ["literal", resultIds],
-      ]);
-
-      // todo: disable clustering for search
-
-      map.removeLayer("clusters-count");
-      map.removeLayer("clusters");
+      map.setFilter("users", ["in", ["get", "id"], ["literal", resultIds]]);
     });
   };
 

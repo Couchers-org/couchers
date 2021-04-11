@@ -1,8 +1,15 @@
 import { Map as MaplibreMap } from "maplibre-gl";
 
+import userPin from "./userPin.png";
+
 const URL = process.env.REACT_APP_API_BASE_URL;
 
 export const sources = {
+  "all-objects": {
+    cluster: false,
+    data: URL + "/geojson/users",
+    type: "geojson",
+  },
   "clustered-users": {
     cluster: true,
     clusterMaxZoom: 14,
@@ -45,15 +52,36 @@ export const layers = {
   unclusteredPointLayer: {
     filter: ["!", ["has", "point_count"]],
     id: "unclustered-points",
-    paint: {
-      "circle-color": "#11b4da",
-      "circle-radius": 8,
-      "circle-stroke-color": "#fff",
-      "circle-stroke-width": 1,
+    layout: {
+      "icon-image": "user-pin",
+      "icon-allow-overlap": true,
     },
     source: "clustered-users",
-    type: "circle",
+    type: "symbol",
   },
+
+  users: {
+    filter: ["!", ["has", "point_count"]],
+    id: "users",
+    layout: {
+      "icon-image": "user-pin",
+      "icon-allow-overlap": true,
+    },
+    /* paint: {
+      "circle-color": "#51bbd6",
+    }, */
+    source: "all-objects",
+    type: "symbol",
+  },
+};
+
+const addPinImages = (map: MaplibreMap) => {
+  const PIN_WIDTH = 36;
+  const PIN_HEIGHT = 42;
+
+  const image = new Image(PIN_WIDTH, PIN_HEIGHT);
+  image.src = userPin;
+  map.addImage("user-pin", image);
 };
 
 export const addClusteredUsersToMap = (
@@ -61,6 +89,7 @@ export const addClusteredUsersToMap = (
   userClickedCallback?: (ev: any) => void
 ) => {
   map.addSource("clustered-users", sources["clustered-users"] as any);
+  addPinImages(map);
   map.addLayer(layers["clusterLayer"] as any);
   map.addLayer(layers["clusterCountLayer"] as any);
   map.addLayer(layers["unclusteredPointLayer"] as any);
@@ -69,4 +98,15 @@ export const addClusteredUsersToMap = (
   }
 };
 
-export default addClusteredUsersToMap;
+export const addUsersToMap = (
+  map: MaplibreMap,
+  userClickedCallback?: (ev: any) => void
+) => {
+  map.addSource("all-objects", sources["all-objects"] as any);
+  addPinImages(map);
+  map.addLayer(layers["users"] as any);
+
+  if (userClickedCallback) {
+    map.on("click", layers["users"].id, userClickedCallback);
+  }
+};
