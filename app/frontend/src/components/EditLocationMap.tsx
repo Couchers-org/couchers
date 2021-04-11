@@ -85,6 +85,7 @@ export default function EditLocationMap({
   const isBlank = useRef<boolean>(
     !(initialLocation?.lng || initialLocation?.lat)
   );
+  const locationDisplayRef = useRef<HTMLInputElement>(null);
 
   const onCircleMouseDown = (e: MapMouseEvent | MapTouchEvent) => {
     // Prevent the default map drag behavior.
@@ -300,6 +301,9 @@ export default function EditLocationMap({
             setError={setError}
             setResult={(coordinate, _, simplified) => {
               commit({ address: simplified });
+              if (locationDisplayRef.current) {
+                locationDisplayRef.current.value = simplified;
+              }
               flyToSearch(coordinate);
             }}
           />
@@ -318,6 +322,7 @@ export default function EditLocationMap({
           }}
           error={error !== ""}
           id="display-address"
+          inputRef={locationDisplayRef}
           fullWidth
           variant="standard"
           label={DISPLAY_LOCATION}
