@@ -149,13 +149,6 @@ export const COMMUNITY_FORUM_LINK = "https://community.couchers.org/";
 export const FEATURES = "Features";
 export const FEATURES_DESCRIPTION =
   "We're working on a few more things before we launch, such as events, forums and community pages, as well as improved designs, and we'll let you know as those get released.";
-export const HELP = "Help out";
-export const HELP_DESCRIPTION_1 =
-  "If you're interested in helping out on this project, we'd love for you to ";
-export const HELP_DESCRIPTION_2 =
-  "! We are looking for people with all kinds of experience to help us build this amazing product.";
-export const SIGN_UP = "sign up";
-export const SIGN_UP_LINK = "https://couchers.org/signup";
 export const WELCOME = "Welcome to Couchers.org!";
 export const WELCOME_DESCRIPTION_1 = `We're in the process of building out the platform, so we appreciate your patience as we create new 
   features.`;

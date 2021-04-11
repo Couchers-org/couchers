@@ -3,13 +3,12 @@ export const JOIN_THE_TEAM =
   "Join the worldwide team of couch-surfers bringing this community-run platform to life";
 export const FILL_IN_THE_FORM =
   "Fill in the form below to tell us your experience, ideas, and expertise. We'll keep you in the loop as we make progress on this exciting project!";
+export const YOU_CAN_ALSO =
+  "You can also sign up or log in first and fill in this form on the dashboard. That way you don't need to enter your basic details again!";
 
 export const ALREADY_FILLED_IN =
   "You've already filled in the contributor form. Thanks! If you'd like to fill it in again, please click the below button.";
 export const FILL_IN_AGAIN = "Fill the form in again";
-
-export const YOUR_DETAILS = "Your details";
-export const BASICS = "The basics about you";
 
 export const NAME = "Name";
 export const NAME_REQUIRED = "Name required";
@@ -27,14 +26,9 @@ export const CONTRIBUTE_OPTIONS = [
   "Community organizer (events, moderation, outreach, etc)",
   "Blog writing",
 ];
-export const NEXT = "Next";
-export const DETAILS_SUBMITTED =
-  "Your basic details will be submitted when you press Next";
 
-export const BIT_MORE = "A bit more about you";
-export const FEEL_FREE =
-  "Feel free to fill out the form below and tell us a bit more about yourself and what you think we should concentrate on.";
-export const QUESTIONS_OPTIONAL = "All questions below are optional.";
+export const QUESTIONS_OPTIONAL =
+  "All questions below are optional. Please fill them in to tell us a bit more about yourself and what you think we should concentrate on.";
 
 export const IDEAS_LABEL =
   "Please share any ideas you have that would improve the couch-surfing experience for you and for the community.";
@@ -58,16 +52,15 @@ export const EXPERIENCE_LABEL =
 export const EXPERIENCE_HELPER =
   "How many times you've surfed, hosted, and used other features of similar platforms. Have you been part of communities? Anything else you'd like to tell us.";
 
-export const HELP_GROW_COUCHERS =
-  "Would you like to help in developing or growing Couchers.org?";
-export const HELP_GROW_COUCHERS_OPTIONS = ["Yes", "Maybe", "No"];
-
 export const EXPERTISE_LABEL =
   "What kinds of expertise do you have that could help us build and grow this platform? Feel free to share a link to your portfolio, github, linkedin or anything else.";
 export const EXPERTISE_HELPER =
   "Have technical or community/non-profit experience? Anything else you think could get us moving forward?";
 
+export const SUBMIT = "Submit";
+
 export const SUCCESS_MSG =
   "Thank you. We appreciate you taking the time to help us build Couchers.org!";
 
-export const SUBMIT = "Submit";
+export const PLEASE_SIGN_UP = "Please continue by signing up for the app.";
+export const SIGN_UP = "Sign up for the app";

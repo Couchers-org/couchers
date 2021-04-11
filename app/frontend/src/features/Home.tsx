@@ -9,22 +9,13 @@ import {
   COMMUNITY_FORUM_LINK,
   FEATURES,
   FEATURES_DESCRIPTION,
-  HELP,
-  HELP_DESCRIPTION_1,
-  HELP_DESCRIPTION_2,
-  SIGN_UP,
-  SIGN_UP_LINK,
   WELCOME,
   WELCOME_DESCRIPTION_1,
   WELCOME_DESCRIPTION_2,
 } from "features/constants";
 import React from "react";
 
-import ContributorForm, {
-  CONTRIBUTE,
-  FILL_IN_THE_FORM,
-  JOIN_THE_TEAM,
-} from "./contributorForm";
+import ContributorForm, { CONTRIBUTE, JOIN_THE_TEAM } from "./contributorForm";
 
 export default function Home() {
   return (
@@ -51,18 +42,8 @@ export default function Home() {
         {BUGS_DESCRIPTION_3}
       </Typography>
       <Divider />
-      <Typography variant="h2">{HELP}</Typography>
-      <Typography variant="body1">
-        {HELP_DESCRIPTION_1}
-        <Link href={SIGN_UP_LINK} target="_blank">
-          {SIGN_UP}
-        </Link>
-        {HELP_DESCRIPTION_2}
-      </Typography>
-      <Divider />
       <Typography variant="h2">{CONTRIBUTE}</Typography>
       <Typography variant="subtitle2">{JOIN_THE_TEAM}</Typography>
-      <p>{FILL_IN_THE_FORM}</p>
       <ContributorForm />
     </>
   );

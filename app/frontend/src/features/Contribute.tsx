@@ -5,11 +5,7 @@ import { Link } from "react-router-dom";
 import { loginRoute } from "routes";
 
 import { COUCHERS } from "../constants";
-import ContributorForm, {
-  CONTRIBUTE,
-  FILL_IN_THE_FORM,
-  JOIN_THE_TEAM,
-} from "./contributorForm";
+import ContributorForm, { CONTRIBUTE, JOIN_THE_TEAM } from "./contributorForm";
 
 const useStyles = makeStyles((theme) => ({
   bg: {
@@ -94,7 +90,6 @@ export default function Contribute() {
         <div className={classes.formWrapper}>
           <Typography variant="h1">{CONTRIBUTE}</Typography>
           <Typography variant="subtitle1">{JOIN_THE_TEAM}</Typography>
-          <p>{FILL_IN_THE_FORM}</p>
           <ContributorForm />
         </div>
       </div>

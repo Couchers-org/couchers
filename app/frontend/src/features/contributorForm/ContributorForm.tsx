@@ -15,6 +15,8 @@ import TextField from "components/TextField";
 import { useAuthContext } from "features/auth/AuthProvider";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { Link } from "react-router-dom";
+import { signupRoute } from "routes";
 import { service } from "service";
 
 import {
@@ -32,6 +34,7 @@ import {
   FEATURES_HELPER,
   FEATURES_LABEL,
   FILL_IN_AGAIN,
+  FILL_IN_THE_FORM,
   GENDER,
   GENDER_OPTIONS,
   IDEAS_HELPER,
@@ -40,9 +43,12 @@ import {
   LOCATION_LABEL,
   NAME,
   NAME_REQUIRED,
+  PLEASE_SIGN_UP,
   QUESTIONS_OPTIONAL,
+  SIGN_UP,
   SUBMIT,
   SUCCESS_MSG,
+  YOU_CAN_ALSO,
 } from "./constants";
 
 type ContributorInputs = {
@@ -160,9 +166,28 @@ export default function ContributorForm() {
           ) : (
             <>
               {success ? (
-                <>{SUCCESS_MSG}</>
+                <>
+                  <p>{SUCCESS_MSG}</p>
+                  {!authState.authenticated && (
+                    <>
+                      <p>{PLEASE_SIGN_UP}</p>
+                      <Button component={Link} to={signupRoute}>
+                        {SIGN_UP}
+                      </Button>
+                    </>
+                  )}
+                </>
               ) : (
                 <form onSubmit={submit}>
+                  <p>{FILL_IN_THE_FORM}</p>
+                  {!authState.authenticated && (
+                    <>
+                      <Button component={Link} to={signupRoute}>
+                        {SIGN_UP}
+                      </Button>
+                      <p>{YOU_CAN_ALSO}</p>
+                    </>
+                  )}
                   {error && <Alert severity="error">{error}</Alert>}
                   {!authState.authenticated && (
                     <>
