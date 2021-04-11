@@ -23,6 +23,14 @@ service Account {
     // we will send and email saying the email changed to the old email, and confirmation email to the new email
     // Raises INVALID_ARGUMENT if password is too small or too large or insecure or wrong or not supplied.
   }
+
+  rpc GetContributorFormInfo(google.protobuf.Empty) returns (GetContributorFormInfoRes) {
+    // Returns info related to filling out the contributor form
+  }
+
+  rpc MarkContributorFormFilled(MarkContributorFormFilledReq) returns (google.protobuf.Empty) {
+    // Marks the contributor form as filled
+  }
 }
 
 message GetAccountInfoRes {
@@ -51,4 +59,18 @@ message ChangePasswordReq {
 message ChangeEmailReq {
   google.protobuf.StringValue password = 1;
   string new_email = 2;
+}
+
+message GetContributorFormInfoRes {
+  bool filled_contributor_form = 1;
+
+  string username = 2;
+  string email = 3;
+  uint32 age = 4;
+  string gender = 5;
+  string location = 6;
+}
+
+message MarkContributorFormFilledReq {
+  bool filled_contributor_form = 1;
 }
