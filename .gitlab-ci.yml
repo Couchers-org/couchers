@@ -149,7 +149,12 @@ test:backend:
   variables:
     POSTGRES_PASSWORD: c765064a49d18a95
     DATABASE_CONNECTION_STRING: "postgresql://postgres:c765064a49d18a95@postgres/postgres"
-    PG_DUMP: "docker run postgis/postgis:13-3.0 pg_dump"
+  before_script:
+    # install latest postgres from their repos to get pg_dump compatible with postgres 13
+    - sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+    - wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+    - sudo apt-get update
+    - sudo apt-get -y install postgresql
   script:
     - cd /app && pytest --junitxml=junit.xml --cov=src src
   after_script:
