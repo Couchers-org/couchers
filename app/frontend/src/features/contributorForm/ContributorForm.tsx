@@ -10,14 +10,15 @@ import {
   RadioGroup,
   Typography,
 } from "@material-ui/core";
-import classNames from "classnames";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import TextField from "components/TextField";
 import { useAuthContext } from "features/auth/AuthProvider";
+import { GetContributorFormInfoRes } from "pb/account_pb";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { useQuery } from "react-query";
 import { Link } from "react-router-dom";
 import { signupRoute } from "routes";
 import { service } from "service";
@@ -87,7 +88,7 @@ export default function ContributorForm() {
   const { authState } = useAuthContext();
 
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [filled, setFilled] = useState(false);
 
@@ -103,23 +104,21 @@ export default function ContributorForm() {
     shouldUnregister: false,
   });
 
-  useEffect(() => {
-    if (authState.authenticated) {
-      (async () => {
-        const info = await service.account.getContributorFormInfo();
-        setValue("username", info.username);
-        setValue("name", info.name);
-        setValue("email", info.email);
-        setValue("age", info.age);
-        setValue("gender", info.gender);
-        setValue("location", info.location);
-        setFilled(info.filledContributorForm);
-        setLoading(false);
-      })();
-    } else {
-      setLoading(false);
-    }
-  }, [authState, setLoading, setValue, setFilled]);
+  const { isLoading: queryLoading, error: queryError } = useQuery<
+    GetContributorFormInfoRes.AsObject,
+    Error
+  >("contributorFormInfo", service.account.getContributorFormInfo, {
+    enabled: authState.authenticated,
+    onSuccess: (data) => {
+      setValue("username", data.username);
+      setValue("name", data.name);
+      setValue("email", data.email);
+      setValue("age", data.age);
+      setValue("gender", data.gender);
+      setValue("location", data.location);
+      setFilled(data.filledContributorForm);
+    },
+  });
 
   const submit = handleSubmit(async (data: ContributorInputs) => {
     setError("");
@@ -166,10 +165,11 @@ export default function ContributorForm() {
     }
   };
 
-  return loading || authState.loading ? (
+  return loading || authState.loading || queryLoading ? (
     <CircularProgress />
   ) : (
     <>
+      {queryError && <Alert severity="error">{queryError?.message}</Alert>}
       {filled ? (
         <>
           <Typography variant="body1">{ALREADY_FILLED_IN}</Typography>
@@ -300,6 +300,7 @@ export default function ContributorForm() {
                 id="gender"
                 control={control}
                 name="gender"
+                defaultValue=""
                 render={({ onChange }) => (
                   <FormControl>
                     <FormLabel component="legend">{GENDER}</FormLabel>
