@@ -108,10 +108,13 @@ export default function EditLocationMap({
 
   const onCircleMove = (e: MapMouseEvent | MapTouchEvent) => {
     const wrapped = e.lngLat.wrap();
-    commit({
-      lat: wrapped.lat,
-      lng: wrapped.lng,
-    });
+    commit(
+      {
+        lat: wrapped.lat,
+        lng: wrapped.lng,
+      },
+      false
+    );
     redrawMap();
   };
 
@@ -146,7 +149,10 @@ export default function EditLocationMap({
     }
   };
 
-  const commit = (updates: Partial<ApproximateLocation>) => {
+  const commit = (
+    updates: Partial<ApproximateLocation>,
+    shouldUpdate = true
+  ) => {
     if (updates.address !== undefined) {
       location.current.address = updates.address;
     }
@@ -159,21 +165,23 @@ export default function EditLocationMap({
       isBlank.current = false;
     }
 
-    if (isBlank.current) {
-      // haven't selected a location yet
-      setError(MAP_IS_BLANK);
-      updateLocation(null);
-    } else if (location.current.lat === 0 && location.current.lng === 0) {
-      // somehow have lat/lng == 0
-      setError(INVALID_COORDINATE);
-      updateLocation(null);
-    } else if (location.current.address === "") {
-      // missing display address
-      setError(DISPLAY_LOCATION_NOT_EMPTY);
-      updateLocation(null);
-    } else {
-      setError("");
-      updateLocation({ ...location.current });
+    if (shouldUpdate) {
+      if (isBlank.current) {
+        // haven't selected a location yet
+        setError(MAP_IS_BLANK);
+        updateLocation(null);
+      } else if (location.current.lat === 0 && location.current.lng === 0) {
+        // somehow have lat/lng == 0
+        setError(INVALID_COORDINATE);
+        updateLocation(null);
+      } else if (location.current.address === "") {
+        // missing display address
+        setError(DISPLAY_LOCATION_NOT_EMPTY);
+        updateLocation(null);
+      } else {
+        setError("");
+        updateLocation({ ...location.current });
+      }
     }
   };
 
@@ -300,7 +308,7 @@ export default function EditLocationMap({
           <MapSearch
             setError={setError}
             setResult={(coordinate, _, simplified) => {
-              commit({ address: simplified });
+              commit({ address: simplified }, false);
               if (locationDisplayRef.current) {
                 locationDisplayRef.current.value = simplified;
               }
@@ -334,7 +342,7 @@ export default function EditLocationMap({
 }
 
 interface RadiusSliderProps {
-  commit(updates: Partial<ApproximateLocation>): void;
+  commit(updates: Partial<ApproximateLocation>, shouldUpdate?: boolean): void;
   initialRadius: number;
   redrawMap(): void;
 }
@@ -355,7 +363,7 @@ function RadiusSlider({ commit, initialRadius, redrawMap }: RadiusSliderProps) {
         max={userLocationMaxRadius}
         onChange={(_, value) => {
           setRadius(value as number);
-          commit({ radius: value as number });
+          commit({ radius: value as number }, false);
           redrawMap();
         }}
         onChangeCommitted={(_, value) => {
