@@ -345,8 +345,8 @@ def test_signup_existing_email(db):
     assert reply.next_step == auth_pb2.SignupRes.SignupStep.EMAIL_EXISTS
 
 
-def test_successful_authenticate(db):
-    user, _ = generate_user()
+def test_successful_authenticate(db, fast_passwords):
+    user, _ = generate_user(hashed_password=hash_password("password"))
 
     # Authenticate with username
     with auth_api_session() as (auth_api, metadata_interceptor):
@@ -358,9 +358,14 @@ def test_successful_authenticate(db):
         reply = auth_api.Authenticate(auth_pb2.AuthReq(user=user.email, password="password"))
     assert reply.jailed == False
 
+    # Authenticate with id
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        reply = auth_api.Authenticate(auth_pb2.AuthReq(user=str(user.id), password="password"))
+    assert reply.jailed == False
 
-def test_unsuccessful_authenticate(db):
-    user, _ = generate_user()
+
+def test_unsuccessful_authenticate(db, fast_passwords):
+    user, _ = generate_user(hashed_password=hash_password("password"))
 
     # Invalid password
     with auth_api_session() as (auth_api, metadata_interceptor):
@@ -372,16 +377,33 @@ def test_unsuccessful_authenticate(db):
     # Invalid username
     with auth_api_session() as (auth_api, metadata_interceptor):
         with pytest.raises(grpc.RpcError) as e:
-            reply = auth_api.Authenticate(auth_pb2.AuthReq(user="Notarealusername", password="password"))
+            reply = auth_api.Authenticate(auth_pb2.AuthReq(user="notarealusername", password="password"))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
         assert e.value.details() == errors.INVALID_USERNAME_OR_PASSWORD
 
+    # Invalid email
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            reply = auth_api.Authenticate(
+                auth_pb2.AuthReq(user=f"{random_hex(12)}@couchers.org.invalid", password="password")
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.INVALID_USERNAME_OR_PASSWORD
+
+    # Invalid id
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            reply = auth_api.Authenticate(auth_pb2.AuthReq(user="-1", password="password"))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.INVALID_USERNAME_OR_PASSWORD
+
+    testing_email = f"{random_hex(12)}@couchers.org.invalid"
     # No Password
     with auth_api_session() as (auth_api, metadata_interceptor):
-        reply = auth_api.Signup(auth_pb2.SignupReq(email="a@b.com"))
+        reply = auth_api.Signup(auth_pb2.SignupReq(email=testing_email))
 
     with session_scope() as session:
-        entry = session.query(SignupToken).filter(SignupToken.email == "a@b.com").one()
+        entry = session.query(SignupToken).filter(SignupToken.email == testing_email).one()
         signup_token = entry.token
 
     with auth_api_session() as (auth_api, metadata_interceptor):
@@ -403,7 +425,7 @@ def test_unsuccessful_authenticate(db):
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         with pytest.raises(grpc.RpcError) as e:
-            reply = auth_api.Authenticate(auth_pb2.AuthReq(user="a@b.com", password="password"))
+            reply = auth_api.Authenticate(auth_pb2.AuthReq(user=testing_email, password="password"))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == errors.NO_PASSWORD
 
@@ -422,22 +444,28 @@ def test_successful_login(db):
 
 
 def test_unsuccessful_login(db):
-    # Invalid email
+    # Invalid email, user doesn't exist
     with auth_api_session() as (auth_api, metadata_interceptor):
-        reply = auth_api.Login(auth_pb2.LoginReq(user="fake@email.com"))
+        reply = auth_api.Login(auth_pb2.LoginReq(user=f"{random_hex(12)}@couchers.org.invalid"))
+    assert reply.next_step == auth_pb2.LoginRes.LoginStep.INVALID_USER
+
+    # Invalid id
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        reply = auth_api.Login(auth_pb2.LoginReq(user="-1"))
     assert reply.next_step == auth_pb2.LoginRes.LoginStep.INVALID_USER
 
     # Invalid username
     with auth_api_session() as (auth_api, metadata_interceptor):
-        reply = auth_api.Login(auth_pb2.LoginReq(user="Notarealusername"))
+        reply = auth_api.Login(auth_pb2.LoginReq(user="notarealusername"))
     assert reply.next_step == auth_pb2.LoginRes.LoginStep.INVALID_USER
 
+    testing_email = f"{random_hex(12)}@couchers.org.invalid"
     # No Password
     with auth_api_session() as (auth_api, metadata_interceptor):
-        reply = auth_api.Signup(auth_pb2.SignupReq(email="a@b.com"))
+        reply = auth_api.Signup(auth_pb2.SignupReq(email=testing_email))
 
     with session_scope() as session:
-        entry = session.query(SignupToken).filter(SignupToken.email == "a@b.com").one()
+        entry = session.query(SignupToken).filter(SignupToken.email == testing_email).one()
         signup_token = entry.token
 
     with auth_api_session() as (auth_api, metadata_interceptor):
@@ -458,16 +486,17 @@ def test_unsuccessful_login(db):
         )
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        reply = auth_api.Login(auth_pb2.LoginReq(user="a@b.com"))
+        reply = auth_api.Login(auth_pb2.LoginReq(user=testing_email))
     assert reply.next_step == auth_pb2.LoginRes.LoginStep.SENT_LOGIN_EMAIL
 
 
 def test_complete_signup(db):
+    testing_email = f"{random_hex(12)}@couchers.org.invalid"
     with auth_api_session() as (auth_api, metadata_interceptor):
-        reply = auth_api.Signup(auth_pb2.SignupReq(email="a@b.com"))
+        reply = auth_api.Signup(auth_pb2.SignupReq(email=testing_email))
 
     with session_scope() as session:
-        entry = session.query(SignupToken).filter(SignupToken.email == "a@b.com").one()
+        entry = session.query(SignupToken).filter(SignupToken.email == testing_email).one()
         signup_token = entry.token
 
     with auth_api_session() as (auth_api, metadata_interceptor):
