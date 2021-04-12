@@ -16,7 +16,9 @@ import SearchBox from "features/search/SearchBox";
 import React from "react";
 import CouchersLogo from "resources/CouchersLogo";
 import {
+  couchersRoute,
   eventsRoute,
+  forumRoute,
   logoutRoute,
   mapRoute,
   messagesRoute,
@@ -24,7 +26,7 @@ import {
 } from "routes";
 import makeStyles from "utils/makeStyles";
 
-import { COUCHERS, LOG_OUT } from "../../constants";
+import { ABOUT, COUCHERS, FORUM, LOG_OUT } from "../../constants";
 import NavButton from "./NavButton";
 
 const menu = [
@@ -124,6 +126,12 @@ export default function Navigation() {
             <NavButton route={route} label={name} labelVariant="h2" />
           </ListItem>
         ))}
+        <ListItem button key="about">
+          <NavButton route={couchersRoute} label={ABOUT} labelVariant="h2" />
+        </ListItem>
+        <ListItem button key="forum">
+          <NavButton route={forumRoute} label={FORUM} labelVariant="h2" />
+        </ListItem>
         <ListItem button key="logout">
           <NavButton route={logoutRoute} label={LOG_OUT} labelVariant="h2" />
         </ListItem>
@@ -212,6 +220,8 @@ export default function Navigation() {
         <SearchBox />
         <div className={classes.bug}>
           <Hidden smDown>
+            <NavButton route={couchersRoute} label={ABOUT} />
+            <NavButton route={forumRoute} label={FORUM} />
             <NavButton route={logoutRoute} label={LOG_OUT} />
           </Hidden>
           <BugReport />
