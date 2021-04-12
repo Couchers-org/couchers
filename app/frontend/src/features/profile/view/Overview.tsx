@@ -124,15 +124,10 @@ export default function Overview({ user, setIsRequesting }: OverviewProps) {
               user.pendingFriendRequest.sent === false ? (
                 <PendingFriendReqButton
                   friendRequestId={user.pendingFriendRequest.friendRequestId}
-                  state={user.pendingFriendRequest.state}
                   setMutationError={setMutationError}
                 />
-              ) : (
-                ""
-              )
-            ) : (
-              ""
-            )}
+              ) : null
+            ) : null}
             <ProfileActionsMenuButton />
           </>
         )}
