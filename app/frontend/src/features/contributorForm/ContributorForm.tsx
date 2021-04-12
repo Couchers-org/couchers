@@ -130,7 +130,7 @@ export default function ContributorForm() {
         body: JSON.stringify(data),
       }
     );
-    return (await response.json()) as FormResponse;
+    return response.json();
   };
 
   const {
