@@ -16,9 +16,9 @@ import CircularProgress from "components/CircularProgress";
 import TextField from "components/TextField";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { GetContributorFormInfoRes } from "pb/account_pb";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useQuery } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import { Link } from "react-router-dom";
 import { signupRoute } from "routes";
 import { service } from "service";
@@ -87,10 +87,7 @@ export default function ContributorForm() {
   const classes = useStyles();
   const { authState } = useAuthContext();
 
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [filled, setFilled] = useState(false);
+  const [alreadyFilled, setAlreadyFilled] = useState(false);
 
   const {
     control,
@@ -116,40 +113,41 @@ export default function ContributorForm() {
       setValue("age", data.age);
       setValue("gender", data.gender);
       setValue("location", data.location);
-      setFilled(data.filledContributorForm);
+      setAlreadyFilled(data.filledContributorForm);
     },
   });
 
-  const submit = handleSubmit(async (data: ContributorInputs) => {
-    setError("");
-    setLoading(true);
-
-    try {
-      const response = await fetch(
-        "https://ja4o9uz9u3.execute-api.us-east-1.amazonaws.com/form_handler",
-        {
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json;charset=UTF-8",
-          },
-          mode: "cors",
-          method: "POST",
-          body: JSON.stringify(data),
-        }
-      );
-      const result = (await response.json()) as FormResponse;
-      if (result.success) {
-        if (authState.authenticated) {
-          await service.account.markContributorFormFilled();
-        }
-        setSuccess(true);
-      } else {
-        setError("An unknown error occured");
+  const postForm = async (data: ContributorInputs) => {
+    const response = await fetch(
+      "https://ja4o9uz9u3.execute-api.us-east-1.amazonaws.com/form_handler",
+      {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json;charset=UTF-8",
+        },
+        mode: "cors",
+        method: "POST",
+        body: JSON.stringify(data),
       }
-    } catch (e) {
-      setError(e.message);
-    }
-    setLoading(false);
+    );
+    return (await response.json()) as FormResponse;
+  };
+
+  const {
+    error,
+    isLoading: loading,
+    isSuccess: success,
+    mutate: submitForm,
+  } = useMutation<FormResponse, Error, ContributorInputs>(postForm, {
+    onSuccess: async () => {
+      if (authState.authenticated) {
+        await service.account.markContributorFormFilled();
+      }
+    },
+  });
+
+  const submit = handleSubmit((data: ContributorInputs) => {
+    submitForm(data);
   });
 
   const toggleCheckbox = (
@@ -170,10 +168,12 @@ export default function ContributorForm() {
   ) : (
     <>
       {queryError && <Alert severity="error">{queryError?.message}</Alert>}
-      {filled ? (
+      {alreadyFilled ? (
         <>
           <Typography variant="body1">{ALREADY_FILLED_IN}</Typography>
-          <Button onClick={() => setFilled(false)}>{FILL_IN_AGAIN}</Button>
+          <Button onClick={() => setAlreadyFilled(false)}>
+            {FILL_IN_AGAIN}
+          </Button>
         </>
       ) : success ? (
         <>
@@ -198,7 +198,7 @@ export default function ContributorForm() {
               <Typography variant="body1">{YOU_CAN_ALSO}</Typography>
             </>
           )}
-          {error && <Alert severity="error">{error}</Alert>}
+          {error && <Alert severity="error">{error?.message}</Alert>}
           {!authState.authenticated && (
             <>
               <TextField
