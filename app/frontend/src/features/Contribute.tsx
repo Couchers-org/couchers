@@ -12,7 +12,6 @@ const useStyles = makeStyles((theme) => ({
     height: "100%",
     width: "100%",
     backgroundColor: theme.palette.common.white,
-    // backgroundAttachment: "scroll, local",
     backgroundPosition: "top center",
     backgroundRepeat: "no-repeat",
     backgroundImage: `url(${DesktopAuthBg})`,
@@ -38,7 +37,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
   },
   link: {
-    borderRadius: theme.shape.borderRadius / 3,
+    borderRadius: theme.shape.borderRadius,
     color: theme.palette.common.white,
     fontSize: "1.25rem",
     fontWeight: 500,
@@ -51,7 +50,7 @@ const useStyles = makeStyles((theme) => ({
   },
   formWrapper: {
     backgroundColor: theme.palette.background.default,
-    borderRadius: theme.shape.borderRadius / 3,
+    borderRadius: theme.shape.borderRadius,
     padding: theme.spacing(5, 3),
   },
   header: {

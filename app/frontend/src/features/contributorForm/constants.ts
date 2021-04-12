@@ -47,6 +47,7 @@ export const CONTRIBUTE_OPTIONS = [
     description: "Blog writing",
   },
 ];
+export const CONTRIBUTE_ARIA_LABEL = "contribute";
 
 export const QUESTIONS_OPTIONAL =
   "All questions below are optional. Please fill them in to tell us a bit more about yourself and what you think we should concentrate on.";
@@ -64,6 +65,7 @@ export const FEATURES_HELPER =
 export const AGE = "Age";
 export const GENDER = "Gender";
 export const GENDER_OPTIONS = ["Female", "Male", "Non-binary"];
+export const GENDER_ARIA_LABEL = "gender";
 export const LOCATION_LABEL = "Country and city";
 export const LOCATION_HELPER =
   "Maybe you can help us grow Couchers in your city?";

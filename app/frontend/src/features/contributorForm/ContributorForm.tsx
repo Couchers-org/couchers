@@ -8,6 +8,7 @@ import {
   makeStyles,
   Radio,
   RadioGroup,
+  Typography,
 } from "@material-ui/core";
 import classNames from "classnames";
 import Alert from "components/Alert";
@@ -24,6 +25,7 @@ import { service } from "service";
 import {
   AGE,
   ALREADY_FILLED_IN,
+  CONTRIBUTE_ARIA_LABEL,
   CONTRIBUTE_LABEL,
   CONTRIBUTE_OPTIONS,
   CONTRIBUTE_REQUIRED,
@@ -38,6 +40,7 @@ import {
   FILL_IN_AGAIN,
   FILL_IN_THE_FORM,
   GENDER,
+  GENDER_ARIA_LABEL,
   GENDER_OPTIONS,
   IDEAS_HELPER,
   IDEAS_LABEL,
@@ -76,9 +79,6 @@ const useStyles = makeStyles((theme) => ({
   genderRadio: {
     display: "flex",
     flexDirection: "row",
-  },
-  hidden: {
-    display: "none",
   },
 }));
 
@@ -166,218 +166,200 @@ export default function ContributorForm() {
     }
   };
 
-  return (
+  return loading || authState.loading ? (
+    <CircularProgress />
+  ) : (
     <>
-      {loading || authState.loading ? (
-        <CircularProgress />
-      ) : (
+      {filled ? (
         <>
-          {filled ? (
+          <Typography variant="body1">{ALREADY_FILLED_IN}</Typography>
+          <Button onClick={() => setFilled(false)}>{FILL_IN_AGAIN}</Button>
+        </>
+      ) : success ? (
+        <>
+          <Typography variant="body1">{SUCCESS_MSG}</Typography>
+          {!authState.authenticated && (
             <>
-              <p>{ALREADY_FILLED_IN}</p>
-              <Button onClick={() => setFilled(false)}>{FILL_IN_AGAIN}</Button>
-            </>
-          ) : (
-            <>
-              {success ? (
-                <>
-                  <p>{SUCCESS_MSG}</p>
-                  {!authState.authenticated && (
-                    <>
-                      <p>{PLEASE_SIGN_UP}</p>
-                      <Button component={Link} to={signupRoute}>
-                        {SIGN_UP}
-                      </Button>
-                    </>
-                  )}
-                </>
-              ) : (
-                <form onSubmit={submit}>
-                  <p>{FILL_IN_THE_FORM}</p>
-                  {!authState.authenticated && (
-                    <>
-                      <Button component={Link} to={signupRoute}>
-                        {SIGN_UP}
-                      </Button>
-                      <p>{YOU_CAN_ALSO}</p>
-                    </>
-                  )}
-                  {error && <Alert severity="error">{error}</Alert>}
-                  {!authState.authenticated && (
-                    <>
-                      <TextField
-                        id="name"
-                        label={NAME}
-                        variant="standard"
-                        margin="normal"
-                        fullWidth
-                        name="name"
-                        inputRef={register({
-                          required: NAME_REQUIRED,
-                        })}
-                        helperText={errors?.name?.message ?? " "}
-                        error={!!errors?.name?.message}
-                      />
-                      <TextField
-                        id="email"
-                        label={EMAIL}
-                        variant="standard"
-                        margin="normal"
-                        fullWidth
-                        name="email"
-                        inputRef={register({
-                          required: EMAIL_REQUIRED,
-                        })}
-                        helperText={errors?.email?.message ?? " "}
-                        error={!!errors?.email?.message}
-                        className={classNames({
-                          [classes.hidden]: authState.authenticated,
-                        })}
-                      />
-                    </>
-                  )}
-                  <Controller
-                    id="contribute"
-                    control={control}
-                    name="contribute"
-                    defaultValue=""
-                    rules={{ required: CONTRIBUTE_REQUIRED }}
-                    render={({ onChange, value }) => (
-                      <FormControl>
-                        <FormLabel>{CONTRIBUTE_LABEL}</FormLabel>
-                        <FormGroup aria-label="contribute">
-                          {CONTRIBUTE_OPTIONS.map(({ name, description }) => (
-                            <FormControlLabel
-                              key={name}
-                              value={name}
-                              control={
-                                <Checkbox
-                                  checked={value.includes(name)}
-                                  onChange={() =>
-                                    toggleCheckbox(name, value, onChange)
-                                  }
-                                  name={name}
-                                />
-                              }
-                              label={description}
-                            />
-                          ))}
-                        </FormGroup>
-                        <FormHelperText error={!!errors?.contribute?.message}>
-                          {errors?.contribute?.message ?? " "}
-                        </FormHelperText>
-                      </FormControl>
-                    )}
-                  />
-                  <p>{QUESTIONS_OPTIONAL}</p>
-                  <TextField
-                    inputRef={register}
-                    id="ideas"
-                    margin="normal"
-                    name="ideas"
-                    label={IDEAS_LABEL}
-                    helperText={IDEAS_HELPER}
-                    fullWidth
-                    multiline
-                    rows={4}
-                    rowsMax={6}
-                  />
-                  <TextField
-                    inputRef={register}
-                    id="features"
-                    margin="normal"
-                    name="features"
-                    label={FEATURES_LABEL}
-                    helperText={FEATURES_HELPER}
-                    fullWidth
-                    multiline
-                    rows={4}
-                    rowsMax={6}
-                  />
-                  {!authState.authenticated && (
-                    <>
-                      <TextField
-                        inputRef={register}
-                        id="age"
-                        type="number"
-                        margin="normal"
-                        name="age"
-                        label={AGE}
-                        fullWidth
-                      />
-                      <Controller
-                        id="gender"
-                        control={control}
-                        name="gender"
-                        render={({ onChange }) => (
-                          <FormControl>
-                            <FormLabel component="legend">{GENDER}</FormLabel>
-                            <RadioGroup
-                              className={classes.genderRadio}
-                              aria-label="gender"
-                              name="gender-radio"
-                              onChange={onChange}
-                            >
-                              {GENDER_OPTIONS.map((opt) => (
-                                <FormControlLabel
-                                  key={opt}
-                                  value={opt}
-                                  control={<Radio />}
-                                  label={opt}
-                                />
-                              ))}
-                            </RadioGroup>
-                          </FormControl>
-                        )}
-                      />
-                      <TextField
-                        inputRef={register}
-                        id="location"
-                        margin="normal"
-                        name="location"
-                        label={LOCATION_LABEL}
-                        helperText={LOCATION_HELPER}
-                        fullWidth
-                      />
-                    </>
-                  )}
-                  <TextField
-                    inputRef={register}
-                    id="experience"
-                    margin="normal"
-                    name="experience"
-                    label={EXPERIENCE_LABEL}
-                    helperText={EXPERIENCE_HELPER}
-                    fullWidth
-                    multiline
-                    rows={4}
-                    rowsMax={6}
-                  />
-                  <TextField
-                    inputRef={register}
-                    id="expertise"
-                    margin="normal"
-                    name="expertise"
-                    label={EXPERTISE_LABEL}
-                    helperText={EXPERTISE_HELPER}
-                    fullWidth
-                    multiline
-                    rows={4}
-                    rowsMax={6}
-                  />
-                  <Button
-                    classes={{}}
-                    onClick={submit}
-                    type="submit"
-                    loading={loading}
-                  >
-                    {SUBMIT}
-                  </Button>
-                </form>
-              )}
+              <Typography variant="body1">{PLEASE_SIGN_UP}</Typography>
+              <Button component={Link} to={signupRoute}>
+                {SIGN_UP}
+              </Button>
             </>
           )}
         </>
+      ) : (
+        <form onSubmit={submit}>
+          <Typography variant="body1">{FILL_IN_THE_FORM}</Typography>
+          {!authState.authenticated && (
+            <>
+              <Button component={Link} to={signupRoute}>
+                {SIGN_UP}
+              </Button>
+              <Typography variant="body1">{YOU_CAN_ALSO}</Typography>
+            </>
+          )}
+          {error && <Alert severity="error">{error}</Alert>}
+          {!authState.authenticated && (
+            <>
+              <TextField
+                id="name"
+                label={NAME}
+                variant="standard"
+                margin="normal"
+                fullWidth
+                name="name"
+                inputRef={register({
+                  required: NAME_REQUIRED,
+                })}
+                helperText={errors?.name?.message ?? " "}
+                error={!!errors?.name?.message}
+              />
+              <TextField
+                id="email"
+                label={EMAIL}
+                variant="standard"
+                margin="normal"
+                fullWidth
+                name="email"
+                inputRef={register({
+                  required: EMAIL_REQUIRED,
+                })}
+                helperText={errors?.email?.message ?? " "}
+                error={!!errors?.email?.message}
+              />
+            </>
+          )}
+          <Controller
+            id="contribute"
+            control={control}
+            name="contribute"
+            defaultValue=""
+            rules={{ required: CONTRIBUTE_REQUIRED }}
+            render={({ onChange, value }) => (
+              <FormControl>
+                <FormLabel>{CONTRIBUTE_LABEL}</FormLabel>
+                <FormGroup aria-label={CONTRIBUTE_ARIA_LABEL}>
+                  {CONTRIBUTE_OPTIONS.map(({ name, description }) => (
+                    <FormControlLabel
+                      key={name}
+                      value={name}
+                      control={
+                        <Checkbox
+                          checked={value.includes(name)}
+                          onChange={() => toggleCheckbox(name, value, onChange)}
+                          name={name}
+                        />
+                      }
+                      label={description}
+                    />
+                  ))}
+                </FormGroup>
+                <FormHelperText error={!!errors?.contribute?.message}>
+                  {errors?.contribute?.message ?? " "}
+                </FormHelperText>
+              </FormControl>
+            )}
+          />
+          <Typography variant="body1">{QUESTIONS_OPTIONAL}</Typography>
+          <TextField
+            inputRef={register}
+            id="ideas"
+            margin="normal"
+            name="ideas"
+            label={IDEAS_LABEL}
+            helperText={IDEAS_HELPER}
+            fullWidth
+            multiline
+            rows={4}
+            rowsMax={6}
+          />
+          <TextField
+            inputRef={register}
+            id="features"
+            margin="normal"
+            name="features"
+            label={FEATURES_LABEL}
+            helperText={FEATURES_HELPER}
+            fullWidth
+            multiline
+            rows={4}
+            rowsMax={6}
+          />
+          {!authState.authenticated && (
+            <>
+              <TextField
+                inputRef={register}
+                id="age"
+                type="number"
+                margin="normal"
+                name="age"
+                label={AGE}
+                fullWidth
+              />
+              <Controller
+                id="gender"
+                control={control}
+                name="gender"
+                render={({ onChange }) => (
+                  <FormControl>
+                    <FormLabel component="legend">{GENDER}</FormLabel>
+                    <RadioGroup
+                      className={classes.genderRadio}
+                      aria-label={GENDER_ARIA_LABEL}
+                      name="gender-radio"
+                      onChange={onChange}
+                    >
+                      {GENDER_OPTIONS.map((opt) => (
+                        <FormControlLabel
+                          key={opt}
+                          value={opt}
+                          control={<Radio />}
+                          label={opt}
+                        />
+                      ))}
+                    </RadioGroup>
+                  </FormControl>
+                )}
+              />
+              <TextField
+                inputRef={register}
+                id="location"
+                margin="normal"
+                name="location"
+                label={LOCATION_LABEL}
+                helperText={LOCATION_HELPER}
+                fullWidth
+              />
+            </>
+          )}
+          <TextField
+            inputRef={register}
+            id="experience"
+            margin="normal"
+            name="experience"
+            label={EXPERIENCE_LABEL}
+            helperText={EXPERIENCE_HELPER}
+            fullWidth
+            multiline
+            rows={4}
+            rowsMax={6}
+          />
+          <TextField
+            inputRef={register}
+            id="expertise"
+            margin="normal"
+            name="expertise"
+            label={EXPERTISE_LABEL}
+            helperText={EXPERTISE_HELPER}
+            fullWidth
+            multiline
+            rows={4}
+            rowsMax={6}
+          />
+          <Button onClick={submit} type="submit" loading={loading}>
+            {SUBMIT}
+          </Button>
+        </form>
       )}
     </>
   );
