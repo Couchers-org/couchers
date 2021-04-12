@@ -111,7 +111,7 @@
     <footer class="footer">
       <div class="content has-text-centered">
         <p>
-          Read <a href="/team">the Blog</a>.
+          Read <a href="/blog">the Blog</a>.
         </p>
         <p>
           <b>Couchers.org</b> by <a href="/team">the <b>Couchers.org team</b></a>.
