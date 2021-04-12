@@ -19,7 +19,6 @@ def test_bugs_disabled():
             bugs_pb2.ReportBugReq(
                 subject="subject",
                 description="description",
-                steps="steps",
                 results="results",
                 frontend_version="frontend_version",
                 user_agent="user_agent",
@@ -34,12 +33,12 @@ def test_bugs(db):
     with bugs_session() as bugs:
 
         def dud_post(url, auth, json):
-            assert url == "https://api.github.com/repos/user/repo/issues"
+            assert url == "https://api.github.com/repos/org/repo/issues"
             assert auth == ("user", "token")
             assert json == {
                 "title": "subject",
                 "body": (
-                    "Subject: subject\nDescription:\ndescription\n\nSteps:\nsteps\n\nResults:\nresults\n\nBackend version: "
+                    "Subject: subject\nDescription:\ndescription\n\nResults:\nresults\n\nBackend version: "
                     + config["VERSION"]
                     + "\nFrontend version: frontend_version\nUser Agent: user_agent\nPage: page\nUser (spoofable): <unknown> (99)"
                 ),
@@ -63,7 +62,6 @@ def test_bugs(db):
                     bugs_pb2.ReportBugReq(
                         subject="subject",
                         description="description",
-                        steps="steps",
                         results="results",
                         frontend_version="frontend_version",
                         user_agent="user_agent",
@@ -72,7 +70,8 @@ def test_bugs(db):
                     )
                 )
 
-    assert res.report_identifier == "#11"
+    assert res.bug_id == "#11"
+    assert res.bug_url == "https://github.com/org/repo/issues/11"
 
 
 def test_bugs_with_user(db):
@@ -81,12 +80,12 @@ def test_bugs_with_user(db):
     with bugs_session() as bugs:
 
         def dud_post(url, auth, json):
-            assert url == "https://api.github.com/repos/user/repo/issues"
+            assert url == "https://api.github.com/repos/org/repo/issues"
             assert auth == ("user", "token")
             assert json == {
                 "title": "subject",
                 "body": (
-                    "Subject: subject\nDescription:\ndescription\n\nSteps:\nsteps\n\nResults:\nresults\n\nBackend version: "
+                    "Subject: subject\nDescription:\ndescription\n\nResults:\nresults\n\nBackend version: "
                     + config["VERSION"]
                     + "\nFrontend version: frontend_version\nUser Agent: user_agent\nPage: page\nUser (spoofable): testing_user (1)"
                 ),
@@ -110,7 +109,6 @@ def test_bugs_with_user(db):
                     bugs_pb2.ReportBugReq(
                         subject="subject",
                         description="description",
-                        steps="steps",
                         results="results",
                         frontend_version="frontend_version",
                         user_agent="user_agent",
@@ -119,7 +117,8 @@ def test_bugs_with_user(db):
                     )
                 )
 
-    assert res.report_identifier == "#11"
+    assert res.bug_id == "#11"
+    assert res.bug_url == "https://github.com/org/repo/issues/11"
 
 
 def test_bugs_fails_on_network_error(db):
@@ -141,7 +140,6 @@ def test_bugs_fails_on_network_error(db):
                         bugs_pb2.ReportBugReq(
                             subject="subject",
                             description="description",
-                            steps="steps",
                             results="results",
                             frontend_version="frontend_version",
                             user_agent="user_agent",

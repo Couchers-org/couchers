@@ -1,4 +1,5 @@
-import { makeStyles, SvgIcon, SvgIconProps } from "@material-ui/core";
+import { SvgIcon, SvgIconProps } from "@material-ui/core";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   logo: {

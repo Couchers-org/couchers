@@ -36,6 +36,11 @@ export const communityNearbyUsersKey = (communityId: number) => [
   communityId,
 ];
 
+export const discussionKey = (discussionId: number) => [
+  "discussion",
+  discussionId,
+];
+
 export const threadKey = (threadId: number) => ["thread", threadId];
 
 export const referencesGivenKey = (userId: number) => [

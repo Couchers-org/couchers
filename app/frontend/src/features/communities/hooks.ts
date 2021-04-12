@@ -80,11 +80,11 @@ export const useListGuides = (communityId?: number) =>
     }
   );
 
-export const useListDiscussions = (communityId?: number) =>
+export const useListDiscussions = (communityId: number) =>
   useInfiniteQuery<ListDiscussionsRes.AsObject, GrpcError>(
-    communityDiscussionsKey(communityId!),
+    communityDiscussionsKey(communityId),
     ({ pageParam }) =>
-      service.communities.listDiscussions(communityId!, pageParam),
+      service.communities.listDiscussions(communityId, pageParam),
     {
       enabled: !!communityId,
       getNextPageParam: (lastPage) =>

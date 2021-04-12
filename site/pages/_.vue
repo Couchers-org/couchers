@@ -15,7 +15,7 @@
       <p v-if="attributes.bustitle" class="subtitle is-4" v-html="attributes.bustitle" />
     </section>
     <section class="section">
-      <h4 class="title is-4">Have some thoughts or ideas on how we could make this even better?</h4>
+      <h2 class="title is-4">Have some thoughts or ideas on how we could make this even better?</h2>
       <p class="subtitle is-6">Couchers.org is a community project, built by folks like you for the benefit of the global couch-surfing community. If you would like to be a part of this great new project, or leave your feedback on our ideas, click the button below and fill out the short form.</p>
       <p><a class="button is-primary" href = "/signup">Tell us what you think!</a></p>
     </section>
@@ -83,6 +83,12 @@ export default {
         { hid: 'description', name: 'description', content: this.attributes.description },
         { hid: 'og:description', property: 'og:description', content: this.attributes.description },
         { hid: 'twitter:description', name: 'twitter:description', content: this.attributes.description }
+      )
+    }
+    if (this.attributes.share_image) {
+      metas.push(
+        { hid: 'og:image', property: 'og:image', content: this.attributes.share_image },
+        { hid: 'twitter:image', name: 'twitter:image', content: this.attributes.share_image },
       )
     }
     return {

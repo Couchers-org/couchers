@@ -21,7 +21,7 @@ export const CLICK_LOGIN = "Click here to log in";
 
 export const CONFIRM_PASSWORD = "Confirm password";
 export const CONTACT =
-  "Admins will be happy to change your name and/or gender label. Please contact contact@couchers.org!";
+  "Admins will be happy to change your name and/or gender label. Please contact support@couchers.org!";
 export const CURRENT_PASSWORD = "Current password";
 export const ENTER_EMAIL = "Enter your username/email";
 export const FEMALE = "Female";
@@ -48,7 +48,6 @@ export const PASSWORD_CHANGED =
 export const RESET_PASSWORD = "Reset password";
 export const RESET_PASSWORD_LINK =
   "Check your email for a reset password link!";
-export const SELECT_LOCATION = "Please select your location.";
 export const SIGN_UP = "Sign up";
 export const SIGN_UP_AGREEMENT =
   "By signing up, you agree with the T&Cs of using the platform and confirm to adhere to our Code of Conduct.";
@@ -56,7 +55,7 @@ export const SIGN_UP_BIRTHDAY = "Birthday";
 export const SIGN_UP_COMPLETE_HEADER = "Your basic details";
 export const SIGN_UP_FULL_NAME = "Full name";
 export const SIGN_UP_HEADER = "Let's get started!";
-export const SIGN_UP_LOCATION_MISSING = "Please, select your location.";
+export const SIGN_UP_LOCATION_MISSING = "Please select a valid location.";
 export const SIGN_UP_USERNAME_ERROR =
   "Username can only have lowercase letters, numbers or _, starting with a letter.";
 

@@ -30,9 +30,6 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
             f"Description:\n"
             f"{request.description}\n"
             f"\n"
-            f"Steps:\n"
-            f"{request.steps}\n"
-            f"\n"
             f"Results:\n"
             f"{request.results}\n"
             f"\n"
@@ -50,6 +47,8 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
         if not r.status_code == 201:
             context.abort(grpc.StatusCode.INTERNAL, "Request failed")
 
-        report_identifier = f'#{r.json()["number"]}'
+        issue_number = r.json()["number"]
 
-        return bugs_pb2.ReportBugRes(report_identifier=report_identifier)
+        return bugs_pb2.ReportBugRes(
+            bug_id=f"#{issue_number}", bug_url=f"https://github.com/{repo}/issues/{issue_number}"
+        )

@@ -77,13 +77,16 @@ export default function NewPlaceForm() {
           <Controller
             name="address"
             control={control}
-            render={({ value, onChange }) => (
+            render={() => (
               <EditLocationMap
-                address={value}
-                setAddress={(newValue) => onChange(newValue)}
-                setLocation={(location) => {
-                  setValue("lat", location.lat);
-                  setValue("lng", location.lng);
+                exact
+                updateLocation={(location) => {
+                  if (location) {
+                    // TODO: error handling
+                    setValue("address", location.address);
+                    setValue("lat", location.lat);
+                    setValue("lng", location.lng);
+                  }
                 }}
               />
             )}

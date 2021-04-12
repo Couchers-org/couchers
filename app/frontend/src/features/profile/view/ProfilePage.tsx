@@ -1,9 +1,4 @@
-import {
-  Card,
-  CircularProgress,
-  Collapse,
-  makeStyles,
-} from "@material-ui/core";
+import { Card, CircularProgress, Collapse } from "@material-ui/core";
 import { TabContext, TabPanel } from "@material-ui/lab";
 import Alert from "components/Alert";
 import SuccessSnackbar from "components/SuccessSnackbar";
@@ -23,6 +18,7 @@ import useCurrentUser from "features/userQueries/useCurrentUser";
 import useUserByUsername from "features/userQueries/useUserByUsername";
 import { useLayoutEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   detailsCard: {

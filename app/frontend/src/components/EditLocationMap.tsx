@@ -1,5 +1,8 @@
-import { Box, BoxProps, makeStyles, useTheme } from "@material-ui/core";
+import { BoxProps, Slider, Typography, useTheme } from "@material-ui/core";
 import classNames from "classnames";
+import Map from "components/Map";
+import MapSearch from "components/MapSearch";
+import TextField from "components/TextField";
 import {
   GeoJSONSource,
   LngLat,
@@ -7,186 +10,353 @@ import {
   MapTouchEvent,
 } from "maplibre-gl";
 import React, { useRef, useState } from "react";
+import makeStyles from "utils/makeStyles";
 
-import Alert from "./Alert";
-import Map from "./Map";
-import MapSearch from "./MapSearch";
+import { userLocationMaxRadius, userLocationMinRadius } from "../constants";
+import {
+  DISPLAY_LOCATION,
+  DISPLAY_LOCATION_NOT_EMPTY,
+  getRadiusText,
+  INVALID_COORDINATE,
+  LOCATION_PUBLICLY_VISIBLE,
+  MAP_IS_BLANK,
+} from "./constants";
 
 const useStyles = makeStyles({
+  root: {
+    margin: "auto",
+    maxWidth: 700,
+  },
+  map: {
+    height: 400,
+    position: "relative",
+  },
   grow: {
     height: "100%",
     width: "100%",
   },
-  root: {
-    height: 200,
-    position: "relative",
-    width: 400,
+  displayLocation: {
+    width: "100%",
   },
 });
 
-export interface Location {
+export interface ApproximateLocation {
+  address: string;
   lat: number;
   lng: number;
+  radius: number;
 }
 
 export interface EditLocationMapProps extends BoxProps {
-  // text
-  address?: string;
-  // lat+lng
-  location?: Location;
-  setAddress: (value: string) => void;
-  //this function is called on mouse release
-  setLocation: (value: Location) => void;
+  initialLocation?: ApproximateLocation;
+  // this function is called on mouse release
+  updateLocation: (value: ApproximateLocation | null) => void;
   grow?: boolean;
+  // whether to hide the radius slider
+  showRadiusSlider?: boolean;
+  // whether we are selecting an exact point (for pages, etc) or approx circle, doesn't maeks ense with radius slider
+  exact?: boolean;
 }
 
 export default function EditLocationMap({
-  address,
-  location,
-  setAddress,
-  setLocation,
+  initialLocation,
+  updateLocation,
   className,
   grow,
+  showRadiusSlider,
+  exact,
   ...otherProps
 }: EditLocationMapProps) {
   const classes = useStyles();
   const theme = useTheme();
-
   const [error, setError] = useState("");
 
   const map = useRef<mapboxgl.Map | null>(null);
-  //map is imperative so these don't need to cause re-render
-  const centerCoords = useRef<LngLat | null>(
-    // TODO: better default?
-    location
-      ? new LngLat(location.lng, location.lat)
-      : new LngLat(151.2099, -33.865143)
+
+  const [, setDirty] = useState(0);
+
+  // map is imperative so these don't need to cause re-render
+  const location = useRef<ApproximateLocation>({
+    address: initialLocation?.address ?? "",
+    radius: initialLocation?.radius ?? (exact ? 0 : 250),
+    lat: initialLocation?.lat ?? 0,
+    lng: initialLocation?.lng ?? 0,
+  });
+  // have not selected a location in any way yet
+  const isBlank = useRef<boolean>(
+    !(initialLocation?.lng || initialLocation?.lat)
   );
 
-  const onMouseDown = (e: MapMouseEvent | MapTouchEvent) => {
+  const onCircleMouseDown = (e: MapMouseEvent | MapTouchEvent) => {
     // Prevent the default map drag behavior.
     e.preventDefault();
 
     map.current!.getCanvas().style.cursor = "grab";
 
     if (e.type === "touchstart") {
-      const handleTouchMove = (e: MapTouchEvent) => onMove(e);
+      const handleTouchMove = (e: MapTouchEvent) => onCircleMove(e);
       map.current!.on("touchmove", handleTouchMove);
-      map.current!.once("touchend", (e) => onUp(e, handleTouchMove));
+      map.current!.once("touchend", (e) =>
+        handleCoordinateMoved(e, handleTouchMove)
+      );
     } else {
-      const handleMove = (e: MapMouseEvent) => onMove(e);
+      const handleMove = (e: MapMouseEvent) => onCircleMove(e);
       map.current!.on("mousemove", handleMove);
-      map.current!.once("mouseup", (e) => onUp(e, handleMove));
+      map.current!.once("mouseup", (e) => handleCoordinateMoved(e, handleMove));
     }
   };
 
-  const onMove = (e: MapMouseEvent | MapTouchEvent) => {
-    centerCoords.current = e.lngLat.wrap();
-
-    (map.current!.getSource("location") as GeoJSONSource).setData(
-      pointGeoJson(centerCoords.current!)
+  const onCircleMove = (e: MapMouseEvent | MapTouchEvent) => {
+    const wrapped = e.lngLat.wrap();
+    commit(
+      {
+        lat: wrapped.lat,
+        lng: wrapped.lng,
+      },
+      false
     );
+    redrawMap();
   };
 
-  const onUp = (
+  const handleCoordinateMoved = (
     e: MapMouseEvent | MapTouchEvent,
-    moveEvent: (x: any) => void
+    moveHandler: (x: any) => void = () => null
   ) => {
-    map.current!.off("mousemove", moveEvent);
-    map.current!.off("touchmove", moveEvent);
+    map.current!.off("mousemove", moveHandler);
+    map.current!.off("touchmove", moveHandler);
     map.current!.getCanvas().style.cursor = "move";
 
-    onMove(e);
-    setLocation({
-      lat: centerCoords.current!.lat,
-      lng: centerCoords.current!.lng,
+    const wrapped = e.lngLat.wrap();
+    commit({
+      lat: wrapped.lat,
+      lng: wrapped.lng,
     });
+    if (!isBlank.current) {
+      map.current!.setLayoutProperty("circle", "visibility", "visible");
+    }
+    redrawMap();
+  };
+
+  const redrawMap = () => {
+    if (!exact) {
+      (map.current!.getSource("circle") as GeoJSONSource).setData(
+        circleGeoJson(extractLngLat(location.current), location.current.radius)
+      );
+    } else {
+      (map.current!.getSource("circle") as GeoJSONSource).setData(
+        pointGeoJson(extractLngLat(location.current))
+      );
+    }
+  };
+
+  const commit = (
+    updates: Partial<ApproximateLocation>,
+    update: boolean = true
+  ) => {
+    if (updates.address !== undefined) {
+      location.current.address = updates.address;
+    }
+    if (updates.radius !== undefined && !exact) {
+      location.current.radius = updates.radius;
+    }
+    if (updates.lat !== undefined && updates.lng !== undefined) {
+      location.current.lat = updates.lat;
+      location.current.lng = updates.lng;
+      isBlank.current = false;
+    }
+
+    if (update) {
+      if (isBlank.current) {
+        // haven't selected a location yet
+        setError(MAP_IS_BLANK);
+        updateLocation(null);
+      } else if (location.current.lat === 0 && location.current.lng === 0) {
+        // somehow have lat/lng == 0
+        setError(INVALID_COORDINATE);
+        updateLocation(null);
+      } else if (location.current.address === "") {
+        // missing display address
+        setError(DISPLAY_LOCATION_NOT_EMPTY);
+        updateLocation(null);
+      } else {
+        setError("");
+        updateLocation({ ...location.current });
+      }
+    }
+
+    setDirty(Date.now());
   };
 
   const initializeMap = (mapRef: mapboxgl.Map) => {
     map.current = mapRef;
-    map.current!.on("load", () => {
-      map.current!.addSource("location", {
-        data: pointGeoJson(centerCoords.current!),
-        type: "geojson",
-      });
+    map.current!.once("load", () => {
+      if (!exact) {
+        map.current!.addSource("circle", {
+          data: circleGeoJson(
+            extractLngLat(location.current),
+            location.current.radius
+          ),
+          type: "geojson",
+        });
 
-      map.current!.addLayer({
-        id: "location",
-        layout: {},
-        paint: {
-          "circle-color": theme.palette.primary.main,
-          "circle-radius": 10,
-        },
-        source: "location",
-        type: "circle",
-      });
+        map.current!.addLayer({
+          id: "circle",
+          layout: {
+            visibility: isBlank.current ? "none" : "visible",
+          },
+          paint: {
+            "fill-color": theme.palette.primary.main,
+            "fill-opacity": 0.5,
+          },
+          source: "circle",
+          type: "fill",
+        });
+      } else {
+        map.current!.addSource("circle", {
+          data: pointGeoJson(extractLngLat(location.current)),
+          type: "geojson",
+        });
+
+        map.current!.addLayer({
+          id: "circle",
+          layout: {
+            visibility: isBlank.current ? "none" : "visible",
+          },
+          paint: {
+            "circle-color": theme.palette.primary.main,
+            "circle-radius": 8,
+            "circle-stroke-color": "#fff",
+            "circle-stroke-width": 1,
+          },
+          source: "circle",
+          type: "circle",
+        });
+      }
+
+      // if no user is specified, ask to get the location from browser
+      if (!initialLocation && navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position) => {
+          flyToSearch(
+            new LngLat(position.coords.longitude, position.coords.latitude)
+          );
+        });
+      }
     });
 
-    const onDblClick = (
-      e: MapMouseEvent & {
-        features?: mapboxgl.MapboxGeoJSONFeature[] | undefined;
-      } & mapboxgl.EventData
-    ) => {
+    const onDblClick = (e: MapMouseEvent & mapboxgl.EventData) => {
       e.preventDefault();
-      onUp(e, () => null);
+      handleCoordinateMoved(e);
     };
     map.current!.on("dblclick", onDblClick);
 
-    const onTouch = (
+    const onCircleTouch = (
       e: MapTouchEvent & {
         features?: mapboxgl.MapboxGeoJSONFeature[] | undefined;
       } & mapboxgl.EventData
     ) => {
       if (e.points.length !== 1) return;
-      onMouseDown(e);
+      onCircleMouseDown(e);
     };
-    map.current!.on("mousedown", "location", onMouseDown);
-    map.current!.on("touchstart", "location", onTouch);
+    map.current!.on("mousedown", "circle", onCircleMouseDown);
+    map.current!.on("touchstart", "circle", onCircleTouch);
 
     const canvas = map.current!.getCanvas();
     const setCursorMove = () => (canvas.style.cursor = "move");
     const unsetCursor = () => (canvas.style.cursor = "");
-    map.current!.on("mouseenter", "location", setCursorMove);
-    map.current!.on("mouseleave", "location", unsetCursor);
+    map.current!.on("mouseenter", "circle", setCursorMove);
+    map.current!.on("mouseleave", "circle", unsetCursor);
   };
 
-  const flyToSearch = (location: LngLat) => {
-    map.current!.flyTo({ center: location, zoom: 13 });
-    onUp(
-      {
-        lngLat: location,
-      } as MapMouseEvent,
-      () => null
-    );
+  const flyToSearch = (coords: LngLat) => {
+    map.current!.flyTo({ center: coords, zoom: 12.5 });
+    if (!exact) {
+      const randomizedLocation = displaceLngLat(
+        coords,
+        Math.random() * location.current.radius,
+        Math.random() * 2 * Math.PI
+      );
+      handleCoordinateMoved({
+        lngLat: randomizedLocation,
+      } as MapMouseEvent);
+    } else {
+      handleCoordinateMoved({
+        lngLat: coords,
+      } as MapMouseEvent);
+    }
   };
 
   return (
     <>
-      {error && <Alert severity="error">{error}</Alert>}
-      <Box
+      <div
         className={classNames(
           classes.root,
           { [classes.grow]: grow },
           className
         )}
       >
-        <Map
-          initialZoom={location ? 13 : 2}
-          initialCenter={centerCoords.current!}
-          postMapInitialize={initializeMap}
-          grow
-          {...otherProps}
+        <div className={classNames(classes.map)}>
+          <Map
+            // (10, 35, 0.5) is just a pretty view
+            initialZoom={isBlank.current ? 0.5 : 12.5}
+            initialCenter={
+              isBlank.current
+                ? new LngLat(10, 35)
+                : extractLngLat(location.current)
+            }
+            postMapInitialize={initializeMap}
+            grow
+            {...otherProps}
+          />
+          <MapSearch
+            setError={setError}
+            setResult={(coordinate, _, simplified) => {
+              commit({ address: simplified }, false);
+              flyToSearch(coordinate);
+            }}
+          />
+        </div>
+        {showRadiusSlider && (
+          <>
+            <Typography id="location-radius" gutterBottom>
+              Location accuracy
+            </Typography>
+            <Slider
+              aria-labelledby="location-radius"
+              aria-valuetext={getRadiusText(location.current.radius)}
+              value={location.current.radius}
+              step={5}
+              min={userLocationMinRadius}
+              max={userLocationMaxRadius}
+              onChange={(_, value) => {
+                commit({ radius: value as number }, false);
+                redrawMap();
+              }}
+              onChangeCommitted={(_, value) => {
+                commit({ radius: value as number });
+                redrawMap();
+              }}
+            />
+          </>
+        )}
+        <TextField
+          value={location.current.address}
+          onChange={(e) => {
+            commit({ address: e.target.value });
+          }}
+          error={error !== ""}
+          id="display-address"
+          fullWidth
+          variant="standard"
+          label={DISPLAY_LOCATION}
+          helperText={error !== "" ? error : LOCATION_PUBLICLY_VISIBLE}
         />
-        <MapSearch
-          value={address || ""}
-          setError={setError}
-          setValue={setAddress}
-          setMarker={flyToSearch}
-        />
-      </Box>
+      </div>
     </>
   );
+}
+
+function extractLngLat(loc: ApproximateLocation): LngLat {
+  return new LngLat(loc.lng, loc.lat);
 }
 
 function pointGeoJson(
@@ -205,4 +375,50 @@ function pointGeoJson(
     ],
     type: "FeatureCollection",
   };
+}
+
+function circleGeoJson(
+  coords: LngLat,
+  radius: number
+): GeoJSON.FeatureCollection<GeoJSON.Geometry> {
+  return {
+    features: [
+      {
+        geometry: {
+          //create a circle of 60 points
+          coordinates: [
+            [
+              ...Array(60)
+                .fill(0)
+                .map((_, index) => {
+                  return displaceLngLat(
+                    coords,
+                    radius,
+                    (index * 2 * Math.PI) / 60
+                  ).toArray();
+                }),
+              displaceLngLat(coords, radius, 0).toArray(),
+            ],
+          ],
+          type: "Polygon",
+        },
+        properties: {},
+        type: "Feature",
+      },
+    ],
+    type: "FeatureCollection",
+  };
+}
+
+function displaceLngLat(coords: LngLat, distance: number, angle: number) {
+  // see https://gis.stackexchange.com/a/2964
+  // 111111 m ~ 1 degree
+  let lat = coords.lat + (1 / 111111) * distance * Math.cos(angle);
+  let lng =
+    coords.lng +
+    (1 / (111111 * Math.cos((coords.lat / 360) * 2 * Math.PI))) *
+      distance *
+      Math.sin(angle);
+
+  return new LngLat(lng, lat);
 }

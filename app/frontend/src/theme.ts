@@ -13,7 +13,7 @@ declare module "@material-ui/core/styles/createTypography" {
 }
 
 const spacing = (factor: number) => `${0.5 * factor}rem`;
-const borderRadius = 12;
+const borderRadius = 4;
 const navBarHeight = 7;
 const navBarPadding = 3; // padding below nav bar
 

@@ -9,7 +9,7 @@ import {
   PLACES_TITLE,
   SEE_MORE_PLACES_LABEL,
 } from "features/communities/constants";
-import { useListPlaces } from "features/communities/useCommunity";
+import { useListPlaces } from "features/communities/hooks";
 import { Community } from "pb/communities_pb";
 import React from "react";
 import { Link } from "react-router-dom";

@@ -1,11 +1,8 @@
-import {
-  makeStyles,
-  TextField as MuiTextField,
-  TextFieldProps,
-} from "@material-ui/core";
+import { TextField as MuiTextField, TextFieldProps } from "@material-ui/core";
 import { BaseTextFieldProps } from "@material-ui/core/TextField";
 import classNames from "classnames";
 import React from "react";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   multiline: {
@@ -18,7 +15,7 @@ const useStyles = makeStyles((theme) => ({
   },
   root: {
     "& .MuiOutlinedInput-root": {
-      borderRadius: theme.shape.borderRadius,
+      borderRadius: theme.shape.borderRadius * 3,
     },
     display: "block",
   },

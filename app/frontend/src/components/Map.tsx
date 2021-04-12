@@ -1,9 +1,9 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 
-import { makeStyles } from "@material-ui/core";
 import classNames from "classnames";
 import mapboxgl, { LngLat, RequestParameters } from "maplibre-gl";
 import { useEffect, useRef } from "react";
+import makeStyles from "utils/makeStyles";
 
 const URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -36,6 +36,7 @@ export interface MapProps {
   onUpdate?: (center: LngLat, zoom: number) => void;
   grow?: boolean;
   interactive?: boolean;
+  hash?: boolean;
 }
 
 export default function Map({
@@ -44,6 +45,7 @@ export default function Map({
   grow,
   postMapInitialize,
   onUpdate,
+  hash,
   interactive = true,
   className,
   ...otherProps
@@ -75,7 +77,7 @@ export default function Map({
     const map = new mapboxgl.Map({
       center: initialCenter,
       container: containerRef.current,
-      hash: "loc",
+      hash: hash ? "loc" : false,
       interactive: interactive,
       style: "mapbox://styles/mapbox/light-v10",
       transformRequest,
@@ -91,7 +93,14 @@ export default function Map({
     }
 
     postMapInitialize?.(map);
-  }, [initialCenter, initialZoom, interactive, onUpdate, postMapInitialize]);
+  }, [
+    initialCenter,
+    initialZoom,
+    interactive,
+    onUpdate,
+    postMapInitialize,
+    hash,
+  ]);
 
   useEffect(() => () => mapRef?.current?.remove(), []);
 

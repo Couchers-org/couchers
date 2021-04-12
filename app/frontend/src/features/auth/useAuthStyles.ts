@@ -1,4 +1,4 @@
-import { makeStyles } from "@material-ui/core";
+import makeStyles from "utils/makeStyles";
 
 import DesktopAuthBg from "./resources/desktop-auth-bg.jpg";
 import MobileAuthBg from "./resources/mobile-auth-bg.jpg";
@@ -22,7 +22,7 @@ const useAuthStyles = makeStyles((theme) => ({
   button: {
     marginTop: theme.spacing(4),
     [theme.breakpoints.up("md")]: {
-      borderRadius: theme.shape.borderRadius / 3,
+      borderRadius: theme.shape.borderRadius,
     },
   },
   buttonText: {
@@ -43,7 +43,7 @@ const useAuthStyles = makeStyles((theme) => ({
   facebookButton: {
     width: "100%",
     height: "40px",
-    borderRadius: theme.shape.borderRadius * 2,
+    borderRadius: theme.shape.borderRadius * 6,
     boxShadow: "0px 0px 5px rgba(0, 0, 0, 0.25)",
     minHeight: `calc(calc(${theme.typography.button.lineHeight} * ${
       theme.typography.button.fontSize
@@ -57,7 +57,7 @@ const useAuthStyles = makeStyles((theme) => ({
   googleButton: {
     width: "100%",
     height: "40px",
-    borderRadius: theme.shape.borderRadius * 2,
+    borderRadius: theme.shape.borderRadius * 6,
     boxShadow: "0px 0px 5px rgba(0, 0, 0, 0.25)",
     minHeight: `calc(calc(${theme.typography.button.lineHeight} * ${
       theme.typography.button.fontSize
@@ -113,7 +113,7 @@ const useAuthStyles = makeStyles((theme) => ({
   formWrapper: {
     [theme.breakpoints.up("md")]: {
       backgroundColor: theme.palette.background.default,
-      borderRadius: theme.shape.borderRadius / 3,
+      borderRadius: theme.shape.borderRadius,
       padding: theme.spacing(5, 8),
       width: "53%",
     },

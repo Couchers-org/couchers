@@ -7,6 +7,7 @@ import {
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
+import classNames from "classnames";
 import Avatar from "components/Avatar";
 import TextBody from "components/TextBody";
 import useAuthStore from "features/auth/useAuthStore";
@@ -31,6 +32,7 @@ const useStyles = makeStyles((theme) => ({
   hostStatusIcon: {
     marginInlineEnd: theme.spacing(1),
   },
+  unread: { fontWeight: "bold" },
 }));
 
 export interface HostRequestListItemProps {
@@ -48,7 +50,8 @@ export default function HostRequestListItem({
   const { data: otherUser, isLoading: isOtherUserLoading } = useUser(
     isHost ? hostRequest.fromUserId : hostRequest.toUserId
   );
-
+  const isUnread =
+    hostRequest.lastSeenMessageId !== hostRequest.latestMessage?.messageId;
   //define the latest message author's name and
   //control message target to use in short message preview
   const authorName =
@@ -105,7 +108,10 @@ export default function HostRequestListItem({
                 true
               )}`}
             </Typography>
-            <TextBody noWrap>
+            <TextBody
+              noWrap
+              className={classNames({ [classes.unread]: isUnread })}
+            >
               {isOtherUserLoading ? (
                 <Skeleton width={100} />
               ) : (

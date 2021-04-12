@@ -6,6 +6,19 @@ export const SELECT_AN_IMAGE = "Select an image";
 export const UPLOAD_PENDING_ERROR =
   "Confirm or cancel the picture upload before saving.";
 
+export const DISPLAY_LOCATION = "Display location";
+export const INVALID_COORDINATE =
+  "Missing coordinates, please select a location with the map above";
+export const MAP_IS_BLANK =
+  "Missing coordinates, start by searching for a location with the map above";
+export const DISPLAY_LOCATION_NOT_EMPTY = "Please fill in a display address";
+export const LOCATION_PUBLICLY_VISIBLE = "This will be publicly visible";
+export const NO_LOCATION_RESULTS_TEXT =
+  "No results. Try searching for just the city.";
+export const SEARCH_FOR_LOCATION = "Search for location";
+export const PRESS_ENTER_TO_SEARCH = "Press enter to search";
+export const getRadiusText = (radius: number) => `${radius} meters`;
+
 //these come from https://github.com/unicode-org/cldr-json/tree/master/cldr-json/cldr-dates-modern/main
 //but really https://stackoverflow.com/a/9893752
 //all D and M have been replaced with DD and MM, because otherwise keyboard input is buggy

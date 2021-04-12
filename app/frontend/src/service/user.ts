@@ -56,8 +56,8 @@ export type SignupArguments = {
   signupToken: string;
   username: string;
   name: string;
-  city: string;
   location: {
+    address: string;
     lat: number;
     lng: number;
     radius: number;
@@ -284,7 +284,6 @@ export async function completeSignup({
   signupToken,
   username,
   name,
-  city,
   location,
   birthdate,
   gender,
@@ -298,7 +297,7 @@ export async function completeSignup({
   req.setBirthdate(birthdate);
   req.setGender(gender);
   req.setHostingStatus(hostingStatus);
-  req.setCity(city);
+  req.setCity(location.address);
   req.setLat(location.lat);
   req.setLng(location.lng);
   req.setRadius(location.radius);

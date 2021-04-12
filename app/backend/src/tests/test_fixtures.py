@@ -450,7 +450,7 @@ def testconfig():
     config["MEDIA_SERVER_BASE_URL"] = "http://127.0.0.1:5000"
 
     config["BUG_TOOL_ENABLED"] = False
-    config["BUG_TOOL_GITHUB_REPO"] = "user/repo"
+    config["BUG_TOOL_GITHUB_REPO"] = "org/repo"
     config["BUG_TOOL_GITHUB_USERNAME"] = "user"
     config["BUG_TOOL_GITHUB_TOKEN"] = "token"
 

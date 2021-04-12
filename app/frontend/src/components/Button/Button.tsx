@@ -1,18 +1,14 @@
-import {
-  Button as MuiButton,
-  ButtonProps,
-  makeStyles,
-  useTheme,
-} from "@material-ui/core";
+import { Button as MuiButton, ButtonProps, useTheme } from "@material-ui/core";
 import classNames from "classnames";
 import React, { ElementType } from "react";
 import { useIsMounted, useSafeState } from "utils/hooks";
+import makeStyles from "utils/makeStyles";
 
 import CircularProgress from "../CircularProgress";
 
 const useStyles = makeStyles((theme) => ({
   contained: {
-    borderRadius: `${theme.shape.borderRadius * 2}px`,
+    borderRadius: theme.shape.borderRadius,
     boxShadow: "0px 0px 5px rgba(0, 0, 0, 0.25)",
   },
   loading: {

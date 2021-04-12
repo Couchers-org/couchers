@@ -3,7 +3,7 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { useMutation, useQueryClient } from "react-query";
 import { useHistory } from "react-router-dom";
 import { userRoute } from "routes";
-import { HostingPreferenceData, service } from "service/index";
+import { HostingPreferenceData, service } from "service";
 import { SetMutationError } from "utils/types";
 
 interface UpdateHostingPreferencesVariables {

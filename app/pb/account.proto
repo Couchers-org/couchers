@@ -34,6 +34,9 @@ message GetAccountInfoRes {
   LoginMethod login_method = 1;
   bool has_password = 2;
 
+  // user's current email address
+  string email = 3;
+
   // e.g. bool account_public = 3;
 }
 

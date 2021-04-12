@@ -1,4 +1,4 @@
-import { makeStyles, Select, Typography } from "@material-ui/core";
+import { Select, Typography } from "@material-ui/core";
 import { MenuItem } from "components/Menu";
 import { REFERENCES } from "features/constants";
 import {
@@ -6,6 +6,7 @@ import {
   referencesFilterLabels,
 } from "features/profile/constants";
 import React, { useState } from "react";
+import makeStyles from "utils/makeStyles";
 
 import ReferencesGivenList from "./ReferencesGivenList";
 import ReferencesReceivedList from "./ReferencesReceivedList";
