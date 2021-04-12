@@ -1,4 +1,4 @@
-import { useMediaQuery, useTheme } from "@material-ui/core";
+import { Typography, useMediaQuery, useTheme } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import PageTitle from "components/PageTitle";
@@ -59,9 +59,9 @@ export default function ChangeEmail(accountInfo: GetAccountInfoRes.AsObject) {
     <>
       <PageTitle>{CHANGE_EMAIL}</PageTitle>
       <>
-        <p>
+        <Typography variant="body1">
           {YOUR_EMAIL_IS} <pre>{accountInfo.email}</pre>
-        </p>
+        </Typography>
         {changeEmailError && (
           <Alert severity="error">{changeEmailError.message}</Alert>
         )}
