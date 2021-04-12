@@ -477,3 +477,39 @@ def test_ChangeEmail(db, fast_passwords):
             .filter(User.new_email_token_created <= func.now())
             .filter(User.new_email_token_expiry >= func.now())
         ).count() == 0
+
+
+def test_contributor_form(db):
+    user, token = generate_user()
+
+    with account_session(token) as account:
+        res = account.GetContributorFormInfo(empty_pb2.Empty())
+        assert not res.filled_contributor_form
+        assert res.username == user.username
+        assert res.name == user.name
+        assert res.email == user.email
+        assert res.age == user.age
+        assert res.gender == user.gender
+        assert res.location == user.city
+
+        account.MarkContributorFormFilled(account_pb2.MarkContributorFormFilledReq(filled_contributor_form=True))
+
+        res = account.GetContributorFormInfo(empty_pb2.Empty())
+        assert res.filled_contributor_form
+        assert res.username == user.username
+        assert res.name == user.name
+        assert res.email == user.email
+        assert res.age == user.age
+        assert res.gender == user.gender
+        assert res.location == user.city
+
+        account.MarkContributorFormFilled(account_pb2.MarkContributorFormFilledReq(filled_contributor_form=False))
+
+        res = account.GetContributorFormInfo(empty_pb2.Empty())
+        assert not res.filled_contributor_form
+        assert res.username == user.username
+        assert res.name == user.name
+        assert res.email == user.email
+        assert res.age == user.age
+        assert res.gender == user.gender
+        assert res.location == user.city

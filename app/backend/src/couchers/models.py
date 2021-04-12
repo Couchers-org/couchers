@@ -176,6 +176,8 @@ class User(Base):
     camping_ok = Column(Boolean, nullable=True)
 
     accepted_tos = Column(Integer, nullable=False, default=0)
+    # whether the user has yet filled in the contributor form
+    filled_contributor_form = Column(Boolean, nullable=False, server_default="false")
 
     # for changing their email
     new_email = Column(String, nullable=True)

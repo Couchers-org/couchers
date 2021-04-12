@@ -128,3 +128,23 @@ class Account(account_pb2_grpc.AccountServicer):
             send_email_changed_confirmation_email(user, token, expiry_text)
             # session autocommit
         return empty_pb2.Empty()
+
+    def GetContributorFormInfo(self, request, context):
+        with session_scope() as session:
+            user = session.query(User).filter(User.id == context.user_id).one()
+
+            return account_pb2.GetContributorFormInfoRes(
+                filled_contributor_form=user.filled_contributor_form,
+                username=user.username,
+                name=user.name,
+                email=user.email,
+                age=user.age,
+                gender=user.gender,
+                location=user.city,
+            )
+
+    def MarkContributorFormFilled(self, request, context):
+        with session_scope() as session:
+            user = session.query(User).filter(User.id == context.user_id).one()
+            user.filled_contributor_form = request.filled_contributor_form
+        return empty_pb2.Empty()
