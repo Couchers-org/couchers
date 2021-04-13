@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
 interface ExternalNavButtonProps {
   route: string;
   label: string;
-  labelVariant?: Exclude<TypographyProps["variant"], undefined>;
+  labelVariant: Exclude<TypographyProps["variant"], undefined>;
 }
 
 export default function ExternalNavButton({
