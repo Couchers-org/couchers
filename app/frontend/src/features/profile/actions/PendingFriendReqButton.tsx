@@ -3,7 +3,8 @@ import Button from "components/Button";
 import { CheckIcon, CloseIcon, PersonAddIcon } from "components/Icons";
 import Menu, { MenuItem } from "components/Menu";
 import { PENDING } from "features/connections/constants";
-import { SetMutationError } from "features/connections/friends";
+import type { SetMutationError } from "features/connections/friends";
+import useFriendRequests from "features/connections/friends/useFriendRequests";
 import useRespondToFriendRequest from "features/connections/friends/useRespondToFriendRequest";
 import {
   ACCEPT_FRIEND_ACTION,
@@ -25,20 +26,21 @@ function PendingFriendReqButton({
   friendRequestId,
   setMutationError,
 }: PendingFriendReqButtonProps) {
+  const { data, isLoading: isFriendRequestsLoading } = useFriendRequests(
+    "received"
+  );
   const [isOpen, setIsOpen] = useState({
     accepted: false,
     rejected: false,
     menu: false,
   });
-
   const {
-    isLoading,
+    isLoading: isRespondToFriendRequestLoading,
     isSuccess,
     respondToFriendRequest,
   } = useRespondToFriendRequest();
-
   const menuAnchor = useRef<HTMLButtonElement>(null);
-
+  const isLoading = isFriendRequestsLoading || isRespondToFriendRequestLoading;
   const handleClick = (item: keyof typeof isOpen) => () => {
     //close the menu if a menu item was selected
     if (item !== "menu") {
@@ -52,7 +54,9 @@ function PendingFriendReqButton({
     setIsOpen((prevState) => ({ ...prevState, [item]: false }));
   };
 
-  return (
+  const isItPending = data?.find((e) => e.friendRequestId === friendRequestId);
+
+  return isItPending ? (
     <>
       {isLoading ? (
         <CircularProgress />
@@ -106,7 +110,7 @@ function PendingFriendReqButton({
         </>
       )}
     </>
-  );
+  ) : null;
 }
 
 export default PendingFriendReqButton;
