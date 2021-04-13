@@ -88,6 +88,7 @@ export default function ContributorForm() {
   const { authState } = useAuthContext();
 
   const [alreadyFilled, setAlreadyFilled] = useState(false);
+  const [loadingFilled, setLoadingFilled] = useState(authState.authenticated);
 
   const {
     control,
@@ -114,6 +115,7 @@ export default function ContributorForm() {
       setValue("gender", data.gender);
       setValue("location", data.location);
       setAlreadyFilled(data.filledContributorForm);
+      setLoadingFilled(false);
     },
   });
 
@@ -163,7 +165,7 @@ export default function ContributorForm() {
     }
   };
 
-  return loading || authState.loading || queryLoading ? (
+  return loading || authState.loading || queryLoading || loadingFilled ? (
     <CircularProgress />
   ) : (
     <>
