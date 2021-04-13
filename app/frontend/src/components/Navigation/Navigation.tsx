@@ -9,6 +9,7 @@ import {
 } from "@material-ui/core";
 import classNames from "classnames";
 import { CloseIcon, MenuIcon } from "components/Icons";
+import ExternalNavButton from "components/Navigation/ExternalNavButton";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
 import BugReport from "features/BugReport";
@@ -127,10 +128,18 @@ export default function Navigation() {
           </ListItem>
         ))}
         <ListItem button key="about">
-          <NavButton route={couchersRoute} label={ABOUT} labelVariant="h2" />
+          <ExternalNavButton
+            route={couchersRoute}
+            label={ABOUT}
+            labelVariant="h2"
+          />
         </ListItem>
         <ListItem button key="forum">
-          <NavButton route={forumRoute} label={FORUM} labelVariant="h2" />
+          <ExternalNavButton
+            route={forumRoute}
+            label={FORUM}
+            labelVariant="h2"
+          />
         </ListItem>
         <ListItem button key="logout">
           <NavButton route={logoutRoute} label={LOG_OUT} labelVariant="h2" />
@@ -220,8 +229,8 @@ export default function Navigation() {
         <SearchBox />
         <div className={classes.bug}>
           <Hidden smDown>
-            <NavButton route={couchersRoute} label={ABOUT} />
-            <NavButton route={forumRoute} label={FORUM} />
+            <ExternalNavButton route={couchersRoute} label={ABOUT} />
+            <ExternalNavButton route={forumRoute} label={FORUM} />
             <NavButton route={logoutRoute} label={LOG_OUT} />
           </Hidden>
           <BugReport />
