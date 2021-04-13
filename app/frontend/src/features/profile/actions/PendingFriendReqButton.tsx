@@ -31,12 +31,12 @@ function PendingFriendReqButton({
     menu: false,
   });
 
-  const { 
+  const {
     isLoading,
     isSuccess,
     respondToFriendRequest,
   } = useRespondToFriendRequest();
- 
+
   const menuAnchor = useRef<HTMLButtonElement>(null);
 
   const handleClick = (item: keyof typeof isOpen) => () => {
@@ -54,57 +54,57 @@ function PendingFriendReqButton({
 
   return (
     <>
-    { isLoading ? (
-      <CircularProgress />
-    ) : isSuccess ? null :(
-    <>
-      <Button
-        startIcon={<PersonAddIcon />}
-        innerRef={menuAnchor}
-        onClick={handleClick("menu")}
-        aria-controls={RESPOND_TO_FRIEND_REQUEST_MENU_ID}
-      >
-        {PENDING}
-      </Button>
-      <Menu
-        anchorEl={menuAnchor.current}
-        id={RESPOND_TO_FRIEND_REQUEST_MENU_ID}
-        onClose={handleClose("menu")}
-        open={isOpen.menu}
-      >
-        <MenuItem onClick={handleClick("accepted")}>
+      {isLoading ? (
+        <CircularProgress />
+      ) : isSuccess ? null : (
+        <>
           <Button
-            startIcon={<CheckIcon />}
-            aria-label={ACCEPT_FRIEND_LABEL}
-            onClick={() => {
-              respondToFriendRequest({
-                accept: true,
-                friendRequestId,
-                setMutationError,
-              });
-            }}
+            startIcon={<PersonAddIcon />}
+            innerRef={menuAnchor}
+            onClick={handleClick("menu")}
+            aria-controls={RESPOND_TO_FRIEND_REQUEST_MENU_ID}
           >
-            {ACCEPT_FRIEND_ACTION}
+            {PENDING}
           </Button>
-        </MenuItem>
-        <MenuItem onClick={handleClick("rejected")}>
-          <Button
-            startIcon={<CloseIcon />}
-            aria-label={DECLINE_FRIEND_LABEL}
-            onClick={() => {
-              respondToFriendRequest({
-                accept: false,
-                friendRequestId,
-                setMutationError,
-              });
-            }}
+          <Menu
+            anchorEl={menuAnchor.current}
+            id={RESPOND_TO_FRIEND_REQUEST_MENU_ID}
+            onClose={handleClose("menu")}
+            open={isOpen.menu}
           >
-            {DECLINE_FRIEND_ACTION}
-          </Button>
-        </MenuItem>
-      </Menu>
-    </>
-    )}
+            <MenuItem onClick={handleClick("accepted")}>
+              <Button
+                startIcon={<CheckIcon />}
+                aria-label={ACCEPT_FRIEND_LABEL}
+                onClick={() => {
+                  respondToFriendRequest({
+                    accept: true,
+                    friendRequestId,
+                    setMutationError,
+                  });
+                }}
+              >
+                {ACCEPT_FRIEND_ACTION}
+              </Button>
+            </MenuItem>
+            <MenuItem onClick={handleClick("rejected")}>
+              <Button
+                startIcon={<CloseIcon />}
+                aria-label={DECLINE_FRIEND_LABEL}
+                onClick={() => {
+                  respondToFriendRequest({
+                    accept: false,
+                    friendRequestId,
+                    setMutationError,
+                  });
+                }}
+              >
+                {DECLINE_FRIEND_ACTION}
+              </Button>
+            </MenuItem>
+          </Menu>
+        </>
+      )}
     </>
   );
 }
