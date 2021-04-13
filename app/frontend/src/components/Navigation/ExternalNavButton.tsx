@@ -6,7 +6,6 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.text.secondary,
     display: "flex",
     flex: "1",
-    fontSize: "2rem",
     maxWidth: theme.spacing(21),
     padding: theme.spacing(1, 1.5),
     transition: theme.transitions.create(["color", "padding-top"], {
@@ -16,6 +15,7 @@ const useStyles = makeStyles((theme) => ({
   label: {
     alignSelf: "center",
     marginTop: 0,
+    fontSize: "2rem",
   },
 }));
 
