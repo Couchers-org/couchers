@@ -232,12 +232,12 @@ export default function Navigation() {
             <ExternalNavButton
               route={couchersRoute}
               label={ABOUT}
-              labelVariant="h2"
+              labelVariant="h3"
             />
             <ExternalNavButton
               route={forumRoute}
               label={FORUM}
-              labelVariant="h2"
+              labelVariant="h3"
             />
             <NavButton route={logoutRoute} label={LOG_OUT} />
           </Hidden>
