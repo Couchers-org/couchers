@@ -229,8 +229,8 @@ export default function Navigation() {
         <SearchBox />
         <div className={classes.bug}>
           <Hidden smDown>
-            <ExternalNavButton route={couchersRoute} label={ABOUT} />
-            <ExternalNavButton route={forumRoute} label={FORUM} />
+            <ExternalNavButton route={couchersRoute} label={ABOUT} labelVariant="h2"/>
+            <ExternalNavButton route={forumRoute} label={FORUM} labelVariant="h2"/>
             <NavButton route={logoutRoute} label={LOG_OUT} />
           </Hidden>
           <BugReport />
