@@ -3,7 +3,7 @@ title: "Q&A with Couchers.org Volunteers: Lucas"
 description: "Meet our frontend development team lead: Lucas!"
 date: 2021/04/07
 author: Emily
-share_image: /img/blog/20210407_lucas.jpg
+share_image: https://couchers.org/img/blog/20210407_lucas.jpg
 ---
 
 ## Lucas: Couchers.org Frontend Development Lead

@@ -3,7 +3,7 @@ title: "Q&A with Couchers.org Volunteers: Nolo"
 description: "Get to know our forum admin: Nolo!"
 date: 2021/03/29
 author: Emily
-share_image: /img/blog/20210329_nolo.jpg
+share_image: https://couchers.org/img/blog/20210329_nolo.jpg
 ---
 
 ## Nolo: Couchers.org Forum Admin

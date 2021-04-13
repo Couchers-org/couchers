@@ -3,7 +3,7 @@ title: "Q&A with Couchers.org Volunteers: Miuriel"
 description: "We're chatting with Miuriel, our graphic design team lead."
 date: 2021/04/05
 author: Emily
-share_image: /img/blog/20210405_miuriel.jpg
+share_image: https://couchers.org/img/blog/20210405_miuriel.jpg
 ---
 
 ## Miuriel: Couchers.org Graphic Design Lead
