@@ -1,5 +1,5 @@
 ---
-title: "Q&A with Couchers.org Volunteers: Lucas"
+title: "Q&A with the Contributors: Lucas"
 description: "Meet our frontend development team lead: Lucas!"
 date: 2021/04/07
 author: Emily

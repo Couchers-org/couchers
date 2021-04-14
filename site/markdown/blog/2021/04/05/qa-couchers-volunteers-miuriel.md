@@ -1,5 +1,5 @@
 ---
-title: "Q&A with Couchers.org Volunteers: Miuriel"
+title: "Q&A with the Contributors: Miuriel"
 description: "We're chatting with Miuriel, our graphic design team lead."
 date: 2021/04/05
 author: Emily

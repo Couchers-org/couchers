@@ -1,5 +1,5 @@
 ---
-title: "Q&A with Couchers.org Volunteers: Nolo"
+title: "Q&A with the Contributors: Nolo"
 description: "Get to know our forum admin: Nolo!"
 date: 2021/03/29
 author: Emily
