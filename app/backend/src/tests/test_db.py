@@ -109,6 +109,10 @@ def test_sort_pg_dump_output():
     assert sort_pg_dump_output(" (\nb,\nc,\na\n);\n") == " (\na,\nb,\nc\n);\n"
 
 
+def strip_leading_whitespace(lines):
+    return [s.lstrip() for s in lines]
+
+
 def test_migrations():
     drop_all()
     # rebuild it with alembic migrations
@@ -123,7 +127,17 @@ def test_migrations():
 
     from_scratch = sort_pg_dump_output(pg_dump())
 
-    diff = "\n".join(difflib.unified_diff(with_migrations.splitlines(), from_scratch.splitlines()))
+    def massage(s):
+        # filter out alembic tables
+        s = "\n-- ".join(x for x in s.split("\n-- ")
+                         if not x.startswith("Name: alembic_"))
+
+        return strip_leading_whitespace(s.splitlines())
+
+    diff = "\n".join(difflib.unified_diff(massage(with_migrations),
+                                          massage(from_scratch),
+                                          fromfile="migrations",
+                                          tofile="model"))
     print(diff)
     success = diff == ""
     assert success
