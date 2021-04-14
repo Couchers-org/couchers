@@ -18,7 +18,7 @@ depends_on = None
 
 def upgrade():
     op.execute(
-        """
+        r"""
     CREATE EXTENSION IF NOT EXISTS "unaccent";
 
     -- slugify takes an arbitrary piece of text and turns it into a "slug" by replacing occurences of non-alphanumber
@@ -32,7 +32,7 @@ def upgrade():
         substring(
           regexp_replace(
             lower(unaccent("text")),
-            '[^a-z0-9\\-_]+', '-', 'gi'
+            '[^a-z0-9_-]+', '-', 'gi'
           ) from 0 for 64
         ), '\-+$', ''
       ), '^\-', ''
