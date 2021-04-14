@@ -1,8 +1,8 @@
 """Adding is_deleted
 
-Revision ID: d09b671bccce
-Revises: 17362f602f12
-Create Date: 2021-03-04 01:12:14.125624
+Revision ID: 7d85a030a700
+Revises: 723394ace6b5
+Create Date: 2021-04-14 01:13:00.345557
 
 """
 import geoalchemy2
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "d09b671bccce"
-down_revision = "17362f602f12"
+revision = "7d85a030a700"
+down_revision = "723394ace6b5"
 branch_labels = None
 depends_on = None
 

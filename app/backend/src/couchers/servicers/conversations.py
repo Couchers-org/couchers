@@ -355,7 +355,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
         # make sure all requested users are visible
         if len(recipient_user_ids) != len(request.recipient_user_ids):
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.USER_NOT_FOUND)
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.USER_NOT_FOUND)
 
         if len(recipient_user_ids) != len(set(recipient_user_ids)):
             # make sure there's no duplicate users
