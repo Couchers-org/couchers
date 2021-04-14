@@ -130,8 +130,8 @@ def test_CreateHostRequest_invisible_user_as_sender(db):
         session.refresh(user2)
         session.expunge(user2)
 
-    today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
-    today_plus_3 = (now() + timedelta(days=3)).strftime("%Y-%m-%d")
+    today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_3 = (today() + timedelta(days=3)).strftime("%Y-%m-%d")
 
     with requests_session(token2) as requests:
         with pytest.raises(grpc.RpcError) as e:
@@ -155,8 +155,8 @@ def test_CreateHostRequest_invisible_user_as_recipient(db):
         session.refresh(user2)
         session.expunge(user2)
 
-    today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
-    today_plus_3 = (now() + timedelta(days=3)).strftime("%Y-%m-%d")
+    today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_3 = (today() + timedelta(days=3)).strftime("%Y-%m-%d")
 
     with requests_session(token1) as requests:
         with pytest.raises(grpc.RpcError) as e:
@@ -206,8 +206,8 @@ def test_get_host_request(db):
 def test_GetHostRequest_invisible_user_as_sender(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
-    today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
-    today_plus_3 = (now() + timedelta(days=3)).strftime("%Y-%m-%d")
+    today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_3 = (today() + timedelta(days=3)).strftime("%Y-%m-%d")
 
     # Send host request
     with requests_session(token1) as requests:
@@ -235,8 +235,8 @@ def test_GetHostRequest_invisible_user_as_sender(db):
 def test_GetHostRequest_invisible_user_as_recipient(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
-    today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
-    today_plus_3 = (now() + timedelta(days=3)).strftime("%Y-%m-%d")
+    today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_3 = (today() + timedelta(days=3)).strftime("%Y-%m-%d")
 
     # Send host request
     with requests_session(token1) as requests:
@@ -351,8 +351,8 @@ def test_list_host_requests_active_filter(db):
 def test_ListHostRequests_excluding_invisible_user_as_recipient(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
-    today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
-    today_plus_3 = (now() + timedelta(days=3)).strftime("%Y-%m-%d")
+    today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_3 = (today() + timedelta(days=3)).strftime("%Y-%m-%d")
 
     with requests_session(token1) as requests:
         res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
@@ -382,8 +382,8 @@ def test_ListHostRequests_excluding_invisible_user_as_recipient(db):
 def test_ListHostRequests_excluding_invisible_user_as_sender(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
-    today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
-    today_plus_3 = (now() + timedelta(days=3)).strftime("%Y-%m-%d")
+    today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_3 = (today() + timedelta(days=3)).strftime("%Y-%m-%d")
 
     with requests_session(token2) as requests:
         res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
@@ -527,8 +527,8 @@ def test_respond_host_requests(db):
 def test_RespondHostRequest_invisible_user_as_sender(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
-    today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
-    today_plus_3 = (now() + timedelta(days=3)).strftime("%Y-%m-%d")
+    today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_3 = (today() + timedelta(days=3)).strftime("%Y-%m-%d")
 
     # Send host request
     with requests_session(token1) as requests:
@@ -560,8 +560,8 @@ def test_RespondHostRequest_invisible_user_as_sender(db):
 def test_RespondHostRequest_invisible_user_as_recipient(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
-    today_plus_2 = (now() + timedelta(days=2)).strftime("%Y-%m-%d")
-    today_plus_3 = (now() + timedelta(days=3)).strftime("%Y-%m-%d")
+    today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_3 = (today() + timedelta(days=3)).strftime("%Y-%m-%d")
 
     # Send host request
     with requests_session(token1) as requests:
