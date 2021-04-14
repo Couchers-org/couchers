@@ -18,7 +18,7 @@
           <p class="content">We are building a new platform that takes all the best features from existing platforms while tackling their main issues. Free for everyone to use forever. Modern, useful, and evolving with the community's needs.</p>
           <p class="content">Are you a leader in your community? Have experience in non-profit startups or marketing? Want to offer your technical expertise in development? Love working on graphics or UI/UX design? We’d love to have you on board our team.</p>
           <p class="content">If you've got ideas, just want to stay updated, or would like to join the volunteer team in any capacity &mdash; please sign up!</p>
-          <p><a class="button is-primary" href = "/signup">Sign up for Couchers.org</a></p>
+          <p><a class="button is-primary" href = "https://app.couchers.org">Log in to Couchers.org</a> <a class="button is-primary" href = "/signup">Sign up to contribute</a></p>
         </div>
       </div>
     </section>

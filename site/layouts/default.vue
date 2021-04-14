@@ -95,8 +95,8 @@
           </div>
           <div class="navbar-item">
             <div class="buttons">
-              <a class="button is-light" href="/signup">
-                <strong>Sign up!</strong>
+              <a class="button is-light" href="https://app.couchers.org">
+                <strong>Log in!</strong>
               </a>
             </div>
           </div>
