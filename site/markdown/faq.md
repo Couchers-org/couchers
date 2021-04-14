@@ -6,7 +6,7 @@ title: Frequently asked questions
 
 If you have any other questions, please [sign up](/signup) and include your question.
 
-### Is Couchers.org an alternative to Couchsurfing&#8482;
+### Is Couchers.org an alternative to Couchsurfing&#8482;?
 
 Yes. Our goal is to be a viable alternative to Couchsurfing&#8482; and the home for the global couch surfing community going forward. We aim to build all the features people have come to love across all platforms, but with the necessary improvements that we outline in our [plan](/solutions/).
 
