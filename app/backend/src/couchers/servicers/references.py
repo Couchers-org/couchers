@@ -7,6 +7,7 @@
 * TODO: Get bugged about writing reference 1 day after, 1 week after, 2weeks-2days
 """
 import grpc
+from sqlalchemy.orm import aliased
 from sqlalchemy.sql import func, literal, or_
 
 from couchers import errors
@@ -55,11 +56,23 @@ class References(references_pb2_grpc.ReferencesServicer):
             if not request.from_user_id and not request.to_user_id:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NEED_TO_SPECIFY_AT_LEAST_ONE_USER)
 
+            users1 = aliased(User)
+            users2 = aliased(User)
             query = session.query(Reference)
             if request.from_user_id:
-                query = query.filter(Reference.from_user_id == request.from_user_id)
+                # join the to_users, because only interested if the recipient is visible
+                query = (
+                    query.join(users1, users1.id == Reference.to_user_id)
+                    .filter(users1.is_visible)
+                    .filter(Reference.from_user_id == request.from_user_id)
+                )
             if request.to_user_id:
-                query = query.filter(Reference.to_user_id == request.to_user_id)
+                # join the from_users, because only interested if the writer is visible
+                query = (
+                    query.join(users2, users2.id == Reference.from_user_id)
+                    .filter(users2.is_visible)
+                    .filter(Reference.to_user_id == request.to_user_id)
+                )
             if len(request.reference_type_filter) > 0:
                 query = query.filter(
                     Reference.reference_type.in_([reftype2sql[t] for t in request.reference_type_filter])
@@ -108,7 +121,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REFER_SELF)
 
         with session_scope() as session:
-            if not session.query(User).filter(User.id == request.to_user_id).one_or_none():
+            if not session.query(User).filter(User.is_visible).filter(User.id == request.to_user_id).one_or_none():
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             if (
@@ -141,8 +154,15 @@ class References(references_pb2_grpc.ReferencesServicer):
 
     def WriteHostRequestReference(self, request, context):
         with session_scope() as session:
+            users1 = aliased(User)
+            users2 = aliased(User)
+
             host_request = (
                 session.query(HostRequest)
+                .join(users1, users1.id == HostRequest.from_user_id)
+                .join(users2, users2.id == HostRequest.to_user_id)
+                .filter(users1.is_visible)
+                .filter(users2.is_visible)
                 .filter(HostRequest.conversation_id == request.host_request_id)
                 .filter(or_(HostRequest.from_user_id == context.user_id, HostRequest.to_user_id == context.user_id))
                 .one_or_none()
@@ -205,7 +225,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             return references_pb2.AvailableWriteReferencesRes()
 
         with session_scope() as session:
-            if not session.query(User).filter(User.id == request.to_user_id).one_or_none():
+            if not session.query(User).filter(User.is_visible).filter(User.id == request.to_user_id).one_or_none():
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             can_write_friend_reference = (
@@ -253,6 +273,8 @@ class References(references_pb2_grpc.ReferencesServicer):
             q1 = (
                 session.query(literal(True), HostRequest)
                 .outerjoin(Reference, Reference.host_request_id == HostRequest.conversation_id)
+                .join(User, User.id == HostRequest.to_user_id)
+                .filter(User.is_visible)
                 .filter(Reference.id == None)
                 .filter(HostRequest.can_write_reference)
                 .filter(HostRequest.from_user_id == context.user_id)
@@ -261,6 +283,8 @@ class References(references_pb2_grpc.ReferencesServicer):
             q2 = (
                 session.query(literal(False), HostRequest)
                 .outerjoin(Reference, Reference.host_request_id == HostRequest.conversation_id)
+                .join(User, User.id == HostRequest.from_user_id)
+                .filter(User.is_visible)
                 .filter(Reference.id == None)
                 .filter(HostRequest.can_write_reference)
                 .filter(HostRequest.to_user_id == context.user_id)

@@ -337,7 +337,7 @@ def test_WriteFriendReference(db):
         assert e.value.details() == errors.REFERENCE_ALREADY_GIVEN
 
     with references_session(token2) as api:
-        # can't write a reference about ourself
+        # can't write a reference about yourself
         with pytest.raises(grpc.RpcError) as e:
             api.WriteFriendReference(
                 references_pb2.WriteFriendReferenceReq(
@@ -349,6 +349,21 @@ def test_WriteFriendReference(db):
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == errors.CANT_REFER_SELF
+
+
+def test_WriteFriendReference_for_invisible_user(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user(accepted_tos=0)
+
+    with references_session(token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.WriteFriendReference(
+                references_pb2.WriteFriendReferenceReq(
+                    to_user_id=user2.id, text="excellent sense of humor", was_appropriate=True, rating=0.8
+                )
+            )
+    assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    assert e.value.details() == errors.USER_NOT_FOUND
 
 
 def test_WriteHostRequestReference(db):
@@ -438,11 +453,30 @@ def test_WriteHostRequestReference(db):
         )
 
 
+def test_WriteHostReference_for_invisible_user(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user(accepted_tos=0)
+
+    with session_scope() as session:
+        hr_id = create_host_request(session, user2.id, user1.id, timedelta(days=5))
+
+    with references_session(token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.WriteHostRequestReference(
+                references_pb2.WriteHostRequestReferenceReq(
+                    host_request_id=hr_id, text="meh", was_appropriate=True, rating=0.5
+                )
+            )
+    assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
+
+
 def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
     user4, token4 = generate_user()
+    user5, token5 = generate_user(is_deleted=True)
 
     with session_scope() as session:
         # too old
@@ -468,7 +502,15 @@ def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):
         # already wrote friend ref to user2
         create_friend_reference(session, user1.id, user2.id, timedelta(days=1))
 
+        # user5 deleted, reference won't show up as pending
+        create_host_request(session, user1.id, user5.id, timedelta(days=5))
+
     with references_session(token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user5.id))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.USER_NOT_FOUND
+
         # can't write anything to myself
         res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user1.id))
         assert not res.can_write_friend_reference
