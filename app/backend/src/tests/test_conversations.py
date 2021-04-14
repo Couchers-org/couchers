@@ -592,21 +592,22 @@ def test_send_message(db):
 def test_CreateGroupChat_with_invisible_user(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
+    user3, token3 = generate_user()
+    make_friends(user1, user2)
+    make_friends(user1, user3)
 
     with session_scope() as session:
-        user2 = get_user_by_field(session, user2.username)
-        user2.is_banned = True
+        user3 = get_user_by_field(session, user3.username)
+        user3.is_banned = True
         session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
-
-    make_friends(user1, user2)
+        session.refresh(user3)
+        session.expunge(user3)
 
     with conversations_session(token1) as c:
         with pytest.raises(grpc.RpcError) as e:
-            c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id]))
+            c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id]))
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == errors.NO_RECIPIENTS
+    assert e.value.details() == errors.USER_NOT_FOUND
 
 
 def test_leave_invite_to_group_chat(db):
