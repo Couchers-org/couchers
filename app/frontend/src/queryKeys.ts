@@ -1,5 +1,7 @@
 import { ReferenceType } from "pb/references_pb";
 
+export const contributorFormInfoQueryKey = "contributorFormInfo";
+
 export const accountInfoQueryKey = "accountInfo";
 
 export const communityKey = (id: number) => ["community", id];

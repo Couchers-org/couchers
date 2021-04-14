@@ -16,9 +16,10 @@ import CircularProgress from "components/CircularProgress";
 import TextField from "components/TextField";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { GetContributorFormInfoRes } from "pb/account_pb";
+import { contributorFormInfoQueryKey } from "queryKeys";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useMutation, useQuery } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { Link } from "react-router-dom";
 import { signupRoute } from "routes";
 import { service } from "service";
@@ -86,9 +87,9 @@ const useStyles = makeStyles((theme) => ({
 export default function ContributorForm() {
   const classes = useStyles();
   const { authState } = useAuthContext();
+  const queryClient = useQueryClient();
 
-  const [alreadyFilled, setAlreadyFilled] = useState(false);
-  const [loadingFilled, setLoadingFilled] = useState(authState.authenticated);
+  const [fillAgain, setFillAgain] = useState(false);
 
   const {
     control,
@@ -102,10 +103,10 @@ export default function ContributorForm() {
     shouldUnregister: false,
   });
 
-  const { isLoading: queryLoading, error: queryError } = useQuery<
+  const { data, isLoading: queryLoading, error: queryError } = useQuery<
     GetContributorFormInfoRes.AsObject,
     Error
-  >("contributorFormInfo", service.account.getContributorFormInfo, {
+  >(contributorFormInfoQueryKey, service.account.getContributorFormInfo, {
     enabled: authState.authenticated,
     onSuccess: (data) => {
       setValue("username", data.username);
@@ -114,8 +115,6 @@ export default function ContributorForm() {
       setValue("age", data.age);
       setValue("gender", data.gender);
       setValue("location", data.location);
-      setAlreadyFilled(data.filledContributorForm);
-      setLoadingFilled(false);
     },
   });
 
@@ -144,6 +143,7 @@ export default function ContributorForm() {
     onSuccess: async () => {
       if (authState.authenticated) {
         await service.account.markContributorFormFilled();
+        queryClient.invalidateQueries(contributorFormInfoQueryKey);
       }
     },
   });
@@ -165,17 +165,15 @@ export default function ContributorForm() {
     }
   };
 
-  return loading || authState.loading || queryLoading || loadingFilled ? (
+  return loading || authState.loading || queryLoading ? (
     <CircularProgress />
   ) : (
     <>
       {queryError && <Alert severity="error">{queryError?.message}</Alert>}
-      {alreadyFilled ? (
+      {data && data.filledContributorForm && !fillAgain ? (
         <>
           <Typography variant="body1">{ALREADY_FILLED_IN}</Typography>
-          <Button onClick={() => setAlreadyFilled(false)}>
-            {FILL_IN_AGAIN}
-          </Button>
+          <Button onClick={() => setFillAgain(true)}>{FILL_IN_AGAIN}</Button>
         </>
       ) : success ? (
         <>
