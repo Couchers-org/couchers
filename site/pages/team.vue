@@ -7,8 +7,8 @@
             <h2 class="title is-2">
               The Couchers.org team
             </h2>
-            <p class="content">We are all couch-surfers. Hosts, surfers, community members and community leaders who are putting in our time and skills to bring this project to life! Our team is made of dozens of designers, software engineers, data scientists, digital marketers, and other skilled professionals; with the team's couch-surfing experience going back to the early 2000s.</p>
-            <p class="content">The team spans every continent (except Antarctica, sorry penguins), and although many of us have only met in the last few months, what brings us together is that we've all gotten a lot of joy out of couch-surfing and would like to spend our time making that experience better. We want to build an improved, safer and more inclusive platform that can support and sustainably grow the couch-surfing community and bring its values to the world. If you feel the same way and you'd like to contribute, then we'd love to talk to you.</p>
+            <p class="content">We are all couch surfers. Hosts, surfers, community members and community leaders who are putting in our time and skills to bring this project to life! Our team is made of dozens of designers, software engineers, data scientists, digital marketers, and other skilled professionals; with the team's couch surfing experience going back to the early 2000s.</p>
+            <p class="content">The team spans every continent (except Antarctica, sorry penguins), and although many of us have only met in the last few months, what brings us together is that we've all gotten a lot of joy out of couch surfing and would like to spend our time making that experience better. We want to build an improved, safer and more inclusive platform that can support and sustainably grow the couch surfing community and bring its values to the world. If you feel the same way and you'd like to contribute, then we'd love to talk to you.</p>
             <p class="content">We are actively looking for people to join the team. We need a broad range of experiences, expertise, and cultural backgrounds. Please consider joining us, whether you have skills, ideas, complaints, or just want to see this done right.</p>
             <h3 class="title is-3">Positions available</h3>
             <p class="content">At the moment, we are specifically looking for:<ul>
@@ -550,7 +550,7 @@
     <div class="container">
       <section class="section">
         <h4 class="title is-4">Have skills you want to contribute?</h4>
-        <p class="subtitle is-6">Couchers.org is a community project, built by folks like you for the benefit of the global couch-surfing community. If you would like to be a part of this great new project, or leave your feedback on our ideas, click the button below and fill out the short form.</p>
+        <p class="subtitle is-6">Couchers.org is a community project, built by folks like you for the benefit of the global couch surfing community. If you would like to be a part of this great new project, or leave your feedback on our ideas, click the button below and fill out the short form.</p>
         <p><a class="button is-primary" href="/signup">Join our team</a></p>
       </section>
     </div>

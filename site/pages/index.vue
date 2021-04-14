@@ -13,7 +13,7 @@
     <section class="section second-box">
       <div class="container">
         <div class="box">
-          <h2 class="title is-3">Join us as we build the new online platform for couch-surfers</h2>
+          <h2 class="title is-3">Join us as we build the new online platform for couch surfers</h2>
           <p class="subtitle is-4">Non&#8209;profit. Community&#8209;focused. Well&nbsp;built.</p>
           <p class="content">We are building a new platform that takes all the best features from existing platforms while tackling their main issues. Free for everyone to use forever. Modern, useful, and evolving with the community's needs.</p>
           <p class="content">Are you a leader in your community? Have experience in non-profit startups or marketing? Want to offer your technical expertise in development? Love working on graphics or UI/UX design? We’d love to have you on board our team.</p>
@@ -25,7 +25,7 @@
     <div class="container">
       <section class="section">
         <h2 class="title is-3">Our plan: fix the problems with Couchsurfing&#8482;</h2>
-        <p class="content">We're sure that you, like all of us, have had great experiences that couldn't have happened without Couchsurfing&#8482;. But we all know it's got its issues. For the next generation in couch-surfing apps, we need to fix those issues.</p>
+        <p class="content">We're sure that you, like all of us, have had great experiences that couldn't have happened without Couchsurfing&#8482;. But we all know it's got its issues. For the next generation in couch surfing apps, we need to fix those issues.</p>
         <p class="content">If there's any problems you've found with Couchsurfing&#8482; or any other platforms, we'd love to hear about it so we can try to fix them.</p>
         <p class="content"><a class="button is-primary" href = "https://community.couchers.org/">Tell us what you think</a></p>
       </section>
@@ -124,7 +124,7 @@
       <section class="section">
         <div class="container">
           <h3 class="title is-3">The team</h3>
-          <p class="content">Our growing team is a mix of couch-surfing software specialists and community organizers who are committed to building this platform for you. <a href="/team">Read more about the team</a>.</p>
+          <p class="content">Our growing team is a mix of couch surfing software specialists and community organizers who are committed to building this platform for you. <a href="/team">Read more about the team</a>.</p>
         </div>
       </section>
     </div>

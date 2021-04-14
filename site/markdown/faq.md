@@ -2,13 +2,21 @@
 title: Frequently asked questions
 ---
 
-## Commonly asked questions from the couch-surfing community
+## Commonly asked questions from the couch surfing community
 
 If you have any other questions, please [sign up](/signup) and include your question.
 
+### Is Couchers.org an alternative website/platform/app to Couchsurfing&#8482;
+
+Yes. Our goal is to be a viable alternative to Couchsurfing&#8482; and the home for the global couch surfing community going forward. We aim to build all the features people have come to love across all platforms, but with the necessary improvements that we outline in our [plan](/solutions/).
+
+### Is there going to be a mobile app for Couchers.org on both iOS and Android?
+
+Yes, mobile apps are critical for all travel platforms. We will first be implementing our [web app](https://app.couchers.org) as a prototype, then creating native apps for iOS and Android.
+
 ### How will you prevent this platform from ever becoming a for-profit like Couchsurfing&#8482; did?
 
-We fundamentally believe that [attempting to make a profit out of couch-surfing is a bad idea](/issues/profit-and-incentives). It introduces incentives that damage the community and would not make financial sense — the couch-surfing idea, based on non-transactional experiences, is not monetizable. This is about societal value, not monetary value.
+We fundamentally believe that [attempting to make a profit out of couch surfing is a bad idea](/issues/profit-and-incentives). It introduces incentives that damage the community and would not make financial sense — the couch surfing idea, based on non-transactional experiences, is not monetizable. This is about societal value, not monetary value.
 
 We intend to keep the platform as non-profit forever. Our plan to follow this relies on three fundamental pillars:
 
