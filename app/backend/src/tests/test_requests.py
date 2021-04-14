@@ -119,31 +119,6 @@ def test_create_request(db):
     assert e.value.details() == errors.DATE_TO_AFTER_ONE_YEAR
 
 
-def test_CreateHostRequest_invisible_user_as_sender(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-
-    with session_scope() as session:
-        user2 = get_user_by_field(session, user2.username)
-        user2.is_banned = True
-        session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
-
-    today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
-    today_plus_3 = (today() + timedelta(days=3)).strftime("%Y-%m-%d")
-
-    with requests_session(token2) as requests:
-        with pytest.raises(grpc.RpcError) as e:
-            requests.CreateHostRequest(
-                requests_pb2.CreateHostRequestReq(
-                    to_user_id=user1.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
-                )
-            )
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == errors.USER_NOT_FOUND
-
-
 def test_CreateHostRequest_invisible_user_as_recipient(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()

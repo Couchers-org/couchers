@@ -418,8 +418,19 @@ class API(api_pb2_grpc.APIServicer):
         with session_scope() as session:
             rels = (
                 session.query(FriendRelationship)
-                .join(users1, users1.id == FriendRelationship.from_user_id)
-                .join(users2, users2.id == FriendRelationship.to_user_id)
+                .join(
+                    users1,
+                    and_(
+                        users1.id == FriendRelationship.from_user_id,
+                        FriendRelationship.from_user_id is not context.user_id,
+                    ),
+                )
+                .join(
+                    users2,
+                    and_(
+                        users2.id == FriendRelationship.to_user_id, FriendRelationship.to_user_id is not context.user_id
+                    ),
+                )
                 .filter(users1.is_visible)
                 .filter(users2.is_visible)
                 .filter(
@@ -437,11 +448,7 @@ class API(api_pb2_grpc.APIServicer):
 
     def SendFriendRequest(self, request, context):
         with session_scope() as session:
-            from_user = session.query(User).filter(User.is_visible).filter(User.id == context.user_id).one_or_none()
-
-            if not from_user:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
-
+            from_user = session.query(User).filter(User.id == context.user_id).one_or_none()
             to_user = session.query(User).filter(User.is_visible).filter(User.id == request.user_id).one_or_none()
 
             if not to_user:

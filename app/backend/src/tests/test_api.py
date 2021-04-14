@@ -405,28 +405,6 @@ def test_friend_request_flow(db):
         assert res.user_ids[0] == user2.id
 
 
-def test_SendFriendRequest_invisible_user_as_sender(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-
-    with session_scope() as session:
-        user2 = get_user_by_field(session, user2.username)
-        user2.is_banned = True
-        session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
-
-    with api_session(token2) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.SendFriendRequest(
-                api_pb2.SendFriendRequestReq(
-                    user_id=user1.id,
-                )
-            )
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == errors.USER_NOT_FOUND
-
-
 def test_SendFriendRequest_invisible_user_as_recipient(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()

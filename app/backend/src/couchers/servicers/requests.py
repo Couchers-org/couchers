@@ -61,10 +61,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if request.to_user_id == context.user_id:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REQUEST_SELF)
 
-            # just to check guest and host exist and are visible
-            guest = session.query(User).filter(User.is_visible).filter(User.id == context.user_id).one_or_none()
-            if not guest:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            # just to check host exist and is visible
             host = session.query(User).filter(User.is_visible).filter(User.id == request.to_user_id).one_or_none()
             if not host:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
@@ -138,8 +135,10 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             users2 = aliased(User)
             host_request = (
                 session.query(HostRequest)
-                .join(users1, users1.id == HostRequest.from_user_id)
-                .join(users2, users2.id == HostRequest.to_user_id)
+                .join(
+                    users1, and_(users1.id == HostRequest.from_user_id, HostRequest.from_user_id is not context.user_id)
+                )
+                .join(users2, and_(users2.id == HostRequest.to_user_id, HostRequest.to_user_id is not context.user_id))
                 .filter(users1.is_visible)
                 .filter(users2.is_visible)
                 .filter(HostRequest.conversation_id == request.host_request_id)
@@ -201,8 +200,10 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 )
                 .join(HostRequest, HostRequest.conversation_id == Message.conversation_id)
                 .join(Conversation, Conversation.id == HostRequest.conversation_id)
-                .join(users1, HostRequest.from_user_id == users1.id)
-                .join(users2, HostRequest.to_user_id == users2.id)
+                .join(
+                    users1, and_(users1.id == HostRequest.from_user_id, HostRequest.from_user_id is not context.user_id)
+                )
+                .join(users2, and_(users2.id == HostRequest.to_user_id, HostRequest.to_user_id is not context.user_id))
                 .filter(users1.is_visible)
                 .filter(users2.is_visible)
                 .filter(message_2.id == None)
@@ -269,8 +270,10 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         with session_scope() as session:
             host_request = (
                 session.query(HostRequest)
-                .join(users1, HostRequest.from_user_id == users1.id)
-                .join(users2, HostRequest.to_user_id == users2.id)
+                .join(
+                    users1, and_(users1.id == HostRequest.from_user_id, HostRequest.from_user_id is not context.user_id)
+                )
+                .join(users2, and_(users2.id == HostRequest.to_user_id, HostRequest.to_user_id is not context.user_id))
                 .filter(users1.is_visible)
                 .filter(users2.is_visible)
                 .filter(HostRequest.conversation_id == request.host_request_id)

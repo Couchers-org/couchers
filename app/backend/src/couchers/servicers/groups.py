@@ -215,10 +215,6 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             if user_in_group:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ALREADY_IN_GROUP)
 
-            user_visible = session.query(User).filter(User.is_visible).filter(User.id == context.user_id).one_or_none()
-            if not user_visible:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
-
             cluster.cluster_subscriptions.append(
                 ClusterSubscription(
                     user_id=context.user_id,
@@ -239,14 +235,9 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             if not cluster:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
 
-            user_in_group_and_visible = (
-                cluster.members.filter(User.is_visible).filter(User.id == context.user_id).one_or_none()
-            )
-            if not user_in_group_and_visible:
-                user_in_group = cluster.members.filter(User.id == context.user_id).one_or_none()
-                if not user_in_group:
-                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NOT_IN_GROUP)
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            user_in_group = cluster.members.filter(User.id == context.user_id).one_or_none()
+            if not user_in_group:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NOT_IN_GROUP)
 
             session.query(ClusterSubscription).filter(ClusterSubscription.user_id == context.user_id).delete()
 
