@@ -136,21 +136,13 @@ def test_banned_user(db):
 
 def test_deleted_user(db):
     test_basic_signup(db)
-    with auth_api_session() as (auth_api, metadata_interceptor):
-        reply = auth_api.Login(auth_pb2.LoginReq(user="frodo"))
-    assert reply.next_step == auth_pb2.LoginRes.LoginStep.SENT_LOGIN_EMAIL
-
-    with session_scope() as session:
-        login_token = session.query(LoginToken).one().token
 
     with session_scope() as session:
         session.query(User).one().is_deleted = True
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
-            auth_api.CompleteTokenLogin(auth_pb2.CompleteTokenLoginReq(login_token=login_token))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.ACCOUNT_DELETED
+        reply = auth_api.Login(auth_pb2.LoginReq(user="frodo"))
+    assert reply.next_step == auth_pb2.LoginRes.LoginStep.INVALID_USER
 
 
 def test_invalid_token(db):

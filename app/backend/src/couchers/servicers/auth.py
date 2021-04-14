@@ -102,9 +102,6 @@ class Auth(auth_pb2_grpc.AuthServicer):
         if user.is_banned:
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ACCOUNT_SUSPENDED)
 
-        if user.is_deleted:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ACCOUNT_DELETED)
-
         token = cookiesafe_secure_token()
 
         headers = dict(context.invocation_metadata())
@@ -273,7 +270,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         The user is searched for using their id, username, or email.
 
-        If the user does not exist, returns a LOGIN_NO_SUCH_USER.
+        If the user does not exist or has been deleted, returns a LOGIN_NO_SUCH_USER.
 
         If the user has a password, returns NEED_PASSWORD.
 
@@ -283,7 +280,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         with session_scope() as session:
             # Gets user by one of id/username/email or None if not found
             user = get_user_by_field(session, request.user)
-            if user:
+            if user and not user.is_deleted:
                 if user.hashed_password is not None:
                     logger.debug(f"Found user with password")
                     return auth_pb2.LoginRes(next_step=auth_pb2.LoginRes.LoginStep.NEED_PASSWORD)
