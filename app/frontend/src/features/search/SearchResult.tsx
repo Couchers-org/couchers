@@ -2,7 +2,6 @@ import {
   Card,
   CardActionArea,
   CardContent,
-  makeStyles,
   Typography,
 } from "@material-ui/core";
 import { CouchIcon, LocationIcon } from "components/Icons";
@@ -19,10 +18,11 @@ import {
 import { User } from "pb/api_pb";
 import { Link } from "react-router-dom";
 import { routeToUser } from "routes";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   card: {
-    borderRadius: theme.shape.borderRadius,
+    borderRadius: theme.shape.borderRadius * 3,
   },
   about: {
     margin: `${theme.spacing(2)} 0`,
@@ -73,7 +73,6 @@ export default function SearchResult({ user }: { user: User.AsObject }) {
                     className={classes.statusLabel}
                     display="inline"
                     variant="subtitle1"
-                    color="secondary"
                   >
                     {meetupStatusLabels[user.meetupStatus]}
                   </Typography>

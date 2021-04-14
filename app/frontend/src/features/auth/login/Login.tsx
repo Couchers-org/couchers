@@ -1,10 +1,11 @@
-import { Divider, Hidden, makeStyles, Typography } from "@material-ui/core";
+import { Divider, Hidden, Typography } from "@material-ui/core";
 import React, { useEffect } from "react";
 import { Link, Redirect, useLocation, useParams } from "react-router-dom";
+import makeStyles from "utils/makeStyles";
 
 import Alert from "../../../components/Alert";
 import AuthHeader from "../../../components/AuthHeader";
-import { loginPasswordRoute, signupRoute } from "../../../routes";
+import { signupRoute } from "../../../routes";
 import { useAuthContext } from "../AuthProvider";
 import {
   INTRODUCTION_SUBTITLE,
@@ -26,9 +27,8 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   signUpLink: {
-    color: theme.palette.secondary.main,
+    color: theme.palette.primary.main,
     fontWeight: 700,
-    textDecoration: "none",
     [theme.breakpoints.up("md")]: {
       color: theme.palette.primary.main,
     },
@@ -48,11 +48,11 @@ export default function Login() {
   const classes = useStyles();
 
   useEffect(() => {
-    //check for a login token
-    if (urlToken && location.pathname !== loginPasswordRoute) {
+    // check for a login token
+    if (urlToken) {
       authActions.tokenLogin(urlToken);
     }
-  }, [urlToken, authActions, location.pathname]);
+  }, [urlToken, authActions]);
 
   return (
     <>

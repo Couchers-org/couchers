@@ -1,6 +1,7 @@
-import { Divider, Hidden, makeStyles, Typography } from "@material-ui/core";
+import { Divider, Hidden, Typography } from "@material-ui/core";
 import React, { useEffect } from "react";
 import { Link, Redirect, Route, Switch } from "react-router-dom";
+import makeStyles from "utils/makeStyles";
 
 import Alert from "../../../components/Alert";
 import AuthHeader from "../../../components/AuthHeader";
@@ -38,7 +39,6 @@ const useStyles = makeStyles((theme) => ({
   logInLink: {
     color: theme.palette.secondary.main,
     fontWeight: 700,
-    textDecoration: "none",
     [theme.breakpoints.up("md")]: {
       color: theme.palette.primary.main,
     },

@@ -1,6 +1,7 @@
-import { makeStyles, Typography, TypographyProps } from "@material-ui/core";
+import { Typography, TypographyProps } from "@material-ui/core";
 import { NavLink } from "react-router-dom";
-import { baseRoute, profileRoute } from "routes";
+import { baseRoute, userRoute } from "routes";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   link: {
@@ -10,7 +11,6 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "2rem",
     maxWidth: theme.spacing(21),
     padding: theme.spacing(1, 1.5),
-    textDecoration: "none",
     transition: theme.transitions.create(["color", "padding-top"], {
       duration: theme.transitions.duration.short,
     }),
@@ -39,8 +39,8 @@ export default function NavButton({
   return (
     <NavLink
       activeClassName={classes.selected}
-      exact={route === baseRoute || route === profileRoute}
-      to={route}
+      exact={route === baseRoute || route === userRoute}
+      to={{ pathname: route }}
       className={classes.link}
     >
       <Typography variant={labelVariant} className={classes.label} noWrap>

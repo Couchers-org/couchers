@@ -21,9 +21,9 @@ from couchers.servicers.groups import Groups
 from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
 from couchers.servicers.pages import Pages
+from couchers.servicers.references import References
 from couchers.servicers.requests import Requests
 from couchers.servicers.search import Search
-from couchers.servicers.sso import SSO
 from couchers.servicers.threads import Threads
 from dummy_data import add_dummy_data
 from pb import (
@@ -39,15 +39,15 @@ from pb import (
     jail_pb2_grpc,
     media_pb2_grpc,
     pages_pb2_grpc,
+    references_pb2_grpc,
     requests_pb2_grpc,
     search_pb2_grpc,
-    sso_pb2_grpc,
     threads_pb2_grpc,
 )
 
 config.check_config()
 
-logging.basicConfig(format="%(asctime)s: %(name)d: %(message)s", level=logging.INFO)
+logging.basicConfig(format="%(asctime)s: %(name)s: %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 logging.getLogger("couchers.jobs.worker").setLevel(logging.INFO)
@@ -118,12 +118,12 @@ if config.config["ROLE"] in ["api", "all"]:
     communities_pb2_grpc.add_CommunitiesServicer_to_server(Communities(), server)
     conversations_pb2_grpc.add_ConversationsServicer_to_server(Conversations(), server)
     discussions_pb2_grpc.add_DiscussionsServicer_to_server(Discussions(), server)
-    pages_pb2_grpc.add_PagesServicer_to_server(Pages(), server)
     gis_pb2_grpc.add_GISServicer_to_server(GIS(), server)
     groups_pb2_grpc.add_GroupsServicer_to_server(Groups(), server)
+    pages_pb2_grpc.add_PagesServicer_to_server(Pages(), server)
+    references_pb2_grpc.add_ReferencesServicer_to_server(References(), server)
     requests_pb2_grpc.add_RequestsServicer_to_server(Requests(), server)
     search_pb2_grpc.add_SearchServicer_to_server(Search(), server)
-    sso_pb2_grpc.add_SSOServicer_to_server(SSO(), server)
     threads_pb2_grpc.add_ThreadsServicer_to_server(Threads(), server)
 
     server.start()

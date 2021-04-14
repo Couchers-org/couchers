@@ -1,4 +1,4 @@
-import { useMediaQuery, useTheme } from "@material-ui/core";
+import { Typography, useMediaQuery, useTheme } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import PageTitle from "components/PageTitle";
@@ -9,7 +9,7 @@ import { GetAccountInfoRes } from "pb/account_pb";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
-import { service } from "service/index";
+import { service } from "service";
 
 import {
   CHANGE_EMAIL,
@@ -17,6 +17,7 @@ import {
   CURRENT_PASSWORD,
   NEW_EMAIL,
   SUBMIT,
+  YOUR_EMAIL_IS,
 } from "../constants";
 import useChangeDetailsFormStyles from "../useChangeDetailsFormStyles";
 
@@ -58,6 +59,9 @@ export default function ChangeEmail(accountInfo: GetAccountInfoRes.AsObject) {
     <>
       <PageTitle>{CHANGE_EMAIL}</PageTitle>
       <>
+        <Typography variant="body1">
+          {YOUR_EMAIL_IS} <pre>{accountInfo.email}</pre>
+        </Typography>
         {changeEmailError && (
           <Alert severity="error">{changeEmailError.message}</Alert>
         )}

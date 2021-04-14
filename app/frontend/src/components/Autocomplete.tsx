@@ -1,10 +1,10 @@
-import { makeStyles } from "@material-ui/core";
 import {
   Autocomplete as MuiAutocomplete,
   AutocompleteProps as MuiAutocompleteProps,
 } from "@material-ui/lab";
 import classNames from "classnames";
 import React from "react";
+import makeStyles from "utils/makeStyles";
 
 import TextField from "./TextField";
 
@@ -24,6 +24,7 @@ export type AutocompleteProps<
   "renderInput"
 > & {
   label: string;
+  helperText?: string;
 };
 
 export default function Autocomplete<
@@ -33,6 +34,7 @@ export default function Autocomplete<
   FreeSolo extends boolean | undefined
 >({
   label,
+  helperText,
   className,
   ...otherProps
 }: AutocompleteProps<T, Multiple, DisableClearable, FreeSolo>) {
@@ -43,7 +45,12 @@ export default function Autocomplete<
       {...otherProps}
       className={classNames(classes.root, className)}
       renderInput={(params) => (
-        <TextField variant="standard" {...params} label={label} />
+        <TextField
+          variant="standard"
+          {...params}
+          label={label}
+          helperText={helperText}
+        />
       )}
     ></MuiAutocomplete>
   );

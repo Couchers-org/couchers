@@ -54,7 +54,7 @@ def process_send_message_notifications(payload):
     logger.info(f"Sending out email notifications for unseen messages")
 
     with session_scope() as session:
-        # users who have unnotified messages older than 30 minutes in any group chat
+        # users who have unnotified messages older than 5 minutes in any group chat
         users = (
             session.query(User)
             .join(GroupChatSubscription, GroupChatSubscription.user_id == User.id)
@@ -63,13 +63,13 @@ def process_send_message_notifications(payload):
             .filter(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
             .filter(Message.id > User.last_notified_message_id)
             .filter(Message.id > GroupChatSubscription.last_seen_message_id)
-            .filter(Message.time < now() - timedelta(minutes=30))
+            .filter(Message.time < now() - timedelta(minutes=5))
             .filter(Message.message_type == MessageType.text)  # TODO: only text messages for now
             .all()
         )
 
         for user in users:
-            # now actually grab all the group chats, not just less than 30 min old
+            # now actually grab all the group chats, not just less than 5 min old
             subquery = (
                 session.query(
                     GroupChatSubscription.group_chat_id.label("group_chat_id"),

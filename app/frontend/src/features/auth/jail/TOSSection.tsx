@@ -1,9 +1,8 @@
 import { Box } from "@material-ui/core";
+import Button from "components/Button";
+import TOS from "components/TOS";
 import React, { useState } from "react";
-
-import Button from "../../../components/Button";
-import TOS from "../../../components/TOS";
-import { service } from "../../../service";
+import { service } from "service";
 
 interface TOSSectionProps {
   updateJailed: () => void;
