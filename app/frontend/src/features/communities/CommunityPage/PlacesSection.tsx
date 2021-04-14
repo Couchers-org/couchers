@@ -2,14 +2,18 @@ import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import HorizontalScroller from "components/HorizontalScroller";
 import IconButton from "components/IconButton";
-import { InfoIcon, MoreIcon } from "components/Icons";
+import { LocationIcon, MoreIcon } from "components/Icons";
 import TextBody from "components/TextBody";
-import { useListPlaces } from "features/communities/useCommunity";
-import { PLACES_EMPTY_STATE, SEE_MORE_PLACES_LABEL } from "features/constants";
+import {
+  PLACES_EMPTY_STATE,
+  PLACES_TITLE,
+  SEE_MORE_PLACES_LABEL,
+} from "features/communities/constants";
+import { useListPlaces } from "features/communities/hooks";
 import { Community } from "pb/communities_pb";
 import React from "react";
 import { Link } from "react-router-dom";
-import { routeToCommunityPlaces } from "routes";
+import { routeToCommunity } from "routes";
 
 import { useCommunityPageStyles } from "./CommunityPage";
 import PlaceCard from "./PlaceCard";
@@ -31,7 +35,7 @@ export default function PlacesSection({
 
   return (
     <>
-      <SectionTitle icon={<InfoIcon />}>Places</SectionTitle>
+      <SectionTitle icon={<LocationIcon />}>{PLACES_TITLE}</SectionTitle>
       {placesError && <Alert severity="error">{placesError.message}</Alert>}
       {isPlacesLoading && <CircularProgress />}
       <HorizontalScroller className={classes.cardContainer}>
@@ -53,7 +57,11 @@ export default function PlacesSection({
         {placesHasNextPage && (
           <div className={classes.loadMoreButton}>
             <Link
-              to={routeToCommunityPlaces(community.communityId, community.slug)}
+              to={routeToCommunity(
+                community.communityId,
+                community.slug,
+                "local-points"
+              )}
             >
               <IconButton aria-label={SEE_MORE_PLACES_LABEL}>
                 <MoreIcon />

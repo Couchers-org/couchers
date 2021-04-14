@@ -63,7 +63,7 @@ type MessageType = keyof typeof labels;
 
 export default function Messages() {
   const history = useHistory();
-  const { type = "chats" } = useParams<{ type: keyof typeof labels }>();
+  const { type = "chats" } = useParams<{ type: string }>();
   const messageType = type in labels ? (type as MessageType) : "chats";
 
   const header = (

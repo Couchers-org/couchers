@@ -1,10 +1,16 @@
-import { Box, IconButton, makeStyles } from "@material-ui/core";
+import { Box, IconButton } from "@material-ui/core";
 import { AutocompleteChangeReason } from "@material-ui/lab/Autocomplete";
 import { LngLat } from "maplibre-gl";
 import React, { useState } from "react";
+import makeStyles from "utils/makeStyles";
 
 import { NominatimPlace, simplifyPlaceDisplayName } from "../utils/nominatim";
 import Autocomplete from "./Autocomplete";
+import {
+  NO_LOCATION_RESULTS_TEXT,
+  PRESS_ENTER_TO_SEARCH,
+  SEARCH_FOR_LOCATION,
+} from "./constants";
 import { SearchIcon } from "./Icons";
 
 const NOMINATIM_URL = process.env.REACT_APP_NOMINATIM_URL;
@@ -15,6 +21,7 @@ const useSearchStyles = makeStyles((theme) => ({
   },
   form: {
     display: "flex",
+    alignItems: "center",
     width: "100%",
   },
   root: {
@@ -31,7 +38,7 @@ const useSearchStyles = makeStyles((theme) => ({
       fontSize: "0.75rem",
     },
     background: theme.palette.background.default,
-    borderRadius: theme.shape.borderRadius,
+    borderRadius: theme.shape.borderRadius * 3,
     left: 10,
     opacity: 0.9,
     padding: theme.spacing(1),
@@ -49,23 +56,22 @@ interface SearchOption {
 }
 
 interface MapSearchProps {
-  value: string;
-  setValue: (value: string) => void;
   setError: (error: string) => void;
-  setMarker: (lngLat: LngLat) => void;
+  setResult: (
+    lngLat: LngLat,
+    address: string,
+    simplifiedAddress: string
+  ) => void;
 }
 
-export default function MapSearch({
-  value,
-  setValue,
-  setError,
-  setMarker,
-}: MapSearchProps) {
+export default function MapSearch({ setError, setResult }: MapSearchProps) {
   const classes = useSearchStyles();
 
   const [searchOptionsLoading, setSearchOptionsLoading] = useState(false);
   const [searchOptions, setSearchOptions] = useState<SearchOption[]>([]);
   const [open, setOpen] = useState(false);
+
+  const [value, setValue] = useState("");
 
   const loadSearchOptions = async (value: string) => {
     setError("");
@@ -89,15 +95,28 @@ export default function MapSearch({
       const response = await fetch(url, options);
       const nominatimResults = (await response.json()) as Array<NominatimPlace>;
 
-      setSearchOptions(
-        nominatimResults.map((result) => {
-          return {
-            location: new LngLat(Number(result["lon"]), Number(result["lat"])),
-            name: result["display_name"],
-            simplifiedName: simplifyPlaceDisplayName(result),
-          };
-        })
-      );
+      if (nominatimResults.length === 0) {
+        setSearchOptions([
+          {
+            location: new LngLat(0, 0),
+            name: NO_LOCATION_RESULTS_TEXT,
+            simplifiedName: "",
+          },
+        ]);
+      } else {
+        setSearchOptions(
+          nominatimResults.map((result) => {
+            return {
+              location: new LngLat(
+                Number(result["lon"]),
+                Number(result["lat"])
+              ),
+              name: result["display_name"],
+              simplifiedName: simplifyPlaceDisplayName(result),
+            };
+          })
+        );
+      }
     } catch (e) {
       setError(e.message);
       setOpen(false);
@@ -113,14 +132,16 @@ export default function MapSearch({
     const searchOption = searchOptions.find((o) => value === o.name);
 
     if (!searchOption) {
-      setValue(value);
       //create-option is when enter is pressed on user-entered string
       if (reason === "create-option") {
         loadSearchOptions(value);
       }
     } else {
-      setMarker(searchOption.location);
-      setValue(searchOption.simplifiedName);
+      setResult(
+        searchOption.location,
+        searchOption.name,
+        searchOption.simplifiedName
+      );
       setOpen(false);
     }
   };
@@ -135,28 +156,31 @@ export default function MapSearch({
         className={classes.form}
       >
         <Autocomplete
-          label="My location"
+          label={SEARCH_FOR_LOCATION}
           value={value}
           size="small"
           options={searchOptions.map((o) => o.name)}
           loading={searchOptionsLoading}
           open={open}
           onBlur={() => setOpen(false)}
-          onChange={(e, inputValue, reason) => {
-            setValue(inputValue ?? "");
-            searchSubmit(inputValue ?? "", reason);
+          onInputChange={(e, v) => setValue(v)}
+          onChange={(e, v, reason) => {
+            setValue(v);
+            searchSubmit(v, reason);
           }}
-          onInputChange={(_, inputValue) => setValue(inputValue)}
           freeSolo
           multiple={false}
-          disableClearable={false}
+          // show all returned results, don't do a filter client side
+          filterOptions={(x) => x}
+          disableClearable
           className={classes.autocomplete}
+          getOptionDisabled={(option) => option === NO_LOCATION_RESULTS_TEXT}
+          helperText={PRESS_ENTER_TO_SEARCH}
         />
         <IconButton
           aria-label="Search location"
-          size="small"
+          size="medium"
           onClick={() => {
-            setValue(value);
             searchSubmit(value, "create-option");
           }}
         >

@@ -5,12 +5,15 @@ import type {} from "@material-ui/lab/themeAugmentation";
 
 declare module "@material-ui/core/styles/createTypography" {
   interface TypographyOptions {
-    h1Large?: TypographyStyleOptions;
+    h1Large: TypographyStyleOptions;
+  }
+  interface Typography {
+    h1Large: TypographyStyleOptions;
   }
 }
 
 const spacing = (factor: number) => `${0.5 * factor}rem`;
-const borderRadius = 12;
+const borderRadius = 4;
 const navBarHeight = 7;
 const navBarPadding = 3; // padding below nav bar
 
@@ -26,6 +29,14 @@ declare module "@material-ui/core/styles/shape" {
 const themeOptions: ThemeOptions = {
   breakpoints,
   overrides: {
+    MuiCssBaseline: {
+      "@global": {
+        a: {
+          textDecoration: "none",
+          color: "inherit",
+        },
+      },
+    },
     MuiListItem: { gutters: { paddingLeft: 0, paddingRight: 0 } },
     MuiTabPanel: {
       root: {
@@ -44,6 +55,7 @@ const themeOptions: ThemeOptions = {
       default: "#fcfcfc",
     },
     common: {
+      black: "#313539",
       white: "#fcfcfc",
     },
     error: {
@@ -141,6 +153,30 @@ const themeOptions: ThemeOptions = {
       },
     },
     h3: {
+      fontSize: "0.75rem", //12px
+      fontWeight: "bold",
+      marginTop: spacing(1),
+      [breakpoints.up("md")]: {
+        fontSize: "0.875rem", //14px
+      },
+    },
+    h4: {
+      fontSize: "0.75rem", //12px
+      fontWeight: "bold",
+      marginTop: spacing(1),
+      [breakpoints.up("md")]: {
+        fontSize: "0.875rem", //14px
+      },
+    },
+    h5: {
+      fontSize: "0.75rem", //12px
+      fontWeight: "bold",
+      marginTop: spacing(1),
+      [breakpoints.up("md")]: {
+        fontSize: "0.875rem", //14px
+      },
+    },
+    h6: {
       fontSize: "0.75rem", //12px
       fontWeight: "bold",
       marginTop: spacing(1),

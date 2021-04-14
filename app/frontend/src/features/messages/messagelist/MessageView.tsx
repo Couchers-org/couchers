@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
       width: "70%",
     },
     border: "1px solid",
-    borderRadius: theme.shape.borderRadius,
+    borderRadius: theme.shape.borderRadius * 3,
   },
   footer: {
     display: "flex",

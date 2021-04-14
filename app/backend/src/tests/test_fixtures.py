@@ -23,6 +23,7 @@ from couchers.servicers.groups import Groups
 from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
 from couchers.servicers.pages import Pages
+from couchers.servicers.references import References
 from couchers.servicers.requests import Requests
 from couchers.servicers.search import Search
 from couchers.utils import create_coordinate
@@ -38,6 +39,7 @@ from pb import (
     jail_pb2_grpc,
     media_pb2_grpc,
     pages_pb2_grpc,
+    references_pb2_grpc,
     requests_pb2_grpc,
     search_pb2_grpc,
 )
@@ -393,6 +395,16 @@ def search_session(token):
 
 
 @contextmanager
+def references_session(token):
+    """
+    Create a References API for testing, uses the token for auth
+    """
+    channel = fake_channel(token)
+    references_pb2_grpc.add_ReferencesServicer_to_server(References(), channel)
+    yield references_pb2_grpc.ReferencesStub(channel)
+
+
+@contextmanager
 def bugs_session():
     channel = FakeChannel()
     bugs_pb2_grpc.add_BugsServicer_to_server(Bugs(), channel)
@@ -452,7 +464,7 @@ def testconfig():
     config["MEDIA_SERVER_BASE_URL"] = "http://127.0.0.1:5000"
 
     config["BUG_TOOL_ENABLED"] = False
-    config["BUG_TOOL_GITHUB_REPO"] = "user/repo"
+    config["BUG_TOOL_GITHUB_REPO"] = "org/repo"
     config["BUG_TOOL_GITHUB_USERNAME"] = "user"
     config["BUG_TOOL_GITHUB_TOKEN"] = "token"
 

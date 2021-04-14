@@ -23,7 +23,6 @@ message VersionInfo {
 message ReportBugReq {
   string subject = 1;
   string description = 2;
-  string steps = 3;
   string results = 4;
 
   string frontend_version = 5;
@@ -33,5 +32,6 @@ message ReportBugReq {
 }
 
 message ReportBugRes {
-  string report_identifier = 1;
+  string bug_id = 2;
+  string bug_url = 3;
 }

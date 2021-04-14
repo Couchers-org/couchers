@@ -1,5 +1,5 @@
 ---
-subject: "You've received a host request!"
+subject: "You've received a host request from {{ escape(host_request.from_user.name) }}!"
 ---
 
 {% from "macros.html" import button %}
@@ -13,7 +13,7 @@ You've received a host request!
 {% if html %}
 
 {% if host_request.from_user.avatar %}
-<img src="{{ host_request.from_user.avatar.thumbnail_url }}" alt="Your Guest's Profile Picture" >
+<img src="{{ host_request.from_user.avatar.full_url }}" alt="Your Guest's Profile Picture" >
 {% endif %}
 
 {% endif %}
@@ -30,6 +30,6 @@ Alternatively, click the following link: <{{ host_request_link }}>.
 <{{ host_request_link }}>
 {% endif %}
 
-We hope you make a new friend!
+Thanks for using Couchers!
 
 The Couchers.org team

@@ -1,4 +1,4 @@
-import { Card, CardActions, makeStyles, Typography } from "@material-ui/core";
+import { Card, CardActions, Typography } from "@material-ui/core";
 import Alert from "components/Alert";
 import Avatar from "components/Avatar";
 import BarWithHelp from "components/Bar/BarWithHelp";
@@ -7,6 +7,7 @@ import Divider from "components/Divider";
 import { CouchIcon, LocationIcon } from "components/Icons";
 import IconText from "components/IconText";
 import { useAuthContext } from "features/auth/AuthProvider";
+import { CONNECTIONS } from "features/connections/constants";
 import AddFriendButton from "features/connections/friends/AddFriendButton";
 import {
   COMMUNITY_STANDING,
@@ -17,6 +18,7 @@ import {
   VERIFICATION_SCORE,
   VERIFICATION_SCORE_DESCRIPTION,
 } from "features/constants";
+import MessageUserButton from "features/profile/actions/MessageUserButton";
 import ProfileActionsMenuButton from "features/profile/actions/ProfileActionsMenuButton";
 import {
   hostingStatusLabels,
@@ -26,7 +28,12 @@ import { LabelsReferencesLastActive } from "features/user/UserTextAndLabel";
 import { HostingStatus, MeetupStatus, User } from "pb/api_pb";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { editHostingPreferenceRoute, editProfileRoute } from "routes";
+import {
+  connectionsRoute,
+  editHostingPreferenceRoute,
+  editProfileRoute,
+} from "routes";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -44,9 +51,14 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   cardActions: {
+    flexWrap: "wrap",
     justifyContent: "center",
     paddingLeft: 0,
     paddingRight: 0,
+    paddingTop: 0,
+    "& > *": {
+      marginBlockStart: theme.spacing(1),
+    },
   },
   grow: {
     paddingTop: "100%",
@@ -90,14 +102,22 @@ export default function Overview({ user, setIsRequesting }: OverviewProps) {
             <Button component={Link} to={editHostingPreferenceRoute}>
               {EDIT_HOME}
             </Button>
+            <Button component={Link} to={connectionsRoute}>
+              {CONNECTIONS}
+            </Button>
           </>
         ) : (
           <>
             <Button onClick={() => setIsRequesting(true)}>{REQUEST}</Button>
-            {user.friends !== User.FriendshipStatus.FRIENDS && (
+            {user.friends !== User.FriendshipStatus.FRIENDS ? (
               <AddFriendButton
                 isPending={user.friends === User.FriendshipStatus.PENDING}
                 userId={user.userId}
+                setMutationError={setMutationError}
+              />
+            ) : (
+              <MessageUserButton
+                user={user}
                 setMutationError={setMutationError}
               />
             )}

@@ -1,6 +1,6 @@
 import {
   FormControlLabel,
-  makeStyles,
+  Grid,
   Radio,
   RadioGroup,
   TextField,
@@ -10,11 +10,11 @@ import Alert from "components/Alert";
 import AvatarInput from "components/AvatarInput";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
-import EditUserLocationMap from "components/EditUserLocationMap";
+import EditLocationMap from "components/EditLocationMap";
 import PageTitle from "components/PageTitle";
 import {
   ABOUT_HOME,
-  ABOUT_ME,
+  ACCOUNT_SETTINGS,
   ADDITIONAL,
   COUNTRIES_LIVED,
   COUNTRIES_VISITED,
@@ -26,9 +26,12 @@ import {
   HOSTING_STATUS,
   LANGUAGES_SPOKEN,
   MALE_PRONOUNS,
+  MEETUP_STATUS,
+  NAME,
   OCCUPATION,
   PRONOUNS,
   SAVE,
+  WHO,
 } from "features/constants";
 import {
   ACCEPTING,
@@ -39,19 +42,35 @@ import {
   NOT_ACCEPTING,
 } from "features/profile/constants";
 import useUpdateUserProfile from "features/profile/hooks/useUpdateUserProfile";
+import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";
 import ProfileTagInput from "features/profile/ProfileTagInput";
 import ProfileTextInput from "features/profile/ProfileTextInput";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { HostingStatus, MeetupStatus } from "pb/api_pb";
 import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { Link } from "react-router-dom";
+import { settingsRoute } from "routes";
 import { UpdateUserProfileData } from "service/index";
 import { useIsMounted, useSafeState } from "utils/hooks";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   avatar: {
     width: 120,
     height: 120,
+  },
+  topFormContainer: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    [theme.breakpoints.up("md")]: {
+      flexDirection: "row",
+      margin: theme.spacing(0, 10),
+    },
+    "& .MuiTextField-root": {
+      width: "100%",
+    },
   },
   buttonContainer: {
     display: "flex",
@@ -59,20 +78,27 @@ const useStyles = makeStyles((theme) => ({
     paddingBottom: theme.spacing(1),
     paddingTop: theme.spacing(1),
   },
+  // Everything under the mapbox
+  bottomFormContainer: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    [theme.breakpoints.up("md")]: {
+      margin: theme.spacing(0, 10),
+    },
+  },
+  // .field is the free text fields
   field: {
     "& > .MuiInputBase-root": {
       width: "100%",
     },
-    [theme.breakpoints.up("md")]: {
-      "& > .MuiInputBase-root": {
-        width: 400,
-      },
-    },
   },
-  tagInput: {
-    width: "100%",
-    [theme.breakpoints.up("md")]: {
-      width: 400,
+  radioButtons: {
+    display: "flex",
+    flexDirection: "column",
+    [theme.breakpoints.up("sm")]: {
+      display: "grid",
+      gridTemplateColumns: "repeat(3, 1fr)",
     },
   },
 }));
@@ -98,6 +124,7 @@ export default function EditProfileForm() {
     setValue,
   } = useForm<UpdateUserProfileData>({
     defaultValues: {
+      city: user?.city,
       lat: user?.lat,
       lng: user?.lng,
       radius: user?.radius,
@@ -109,6 +136,7 @@ export default function EditProfileForm() {
   //So make sure to set values when user finshes loading
   useEffect(() => {
     if (!userIsLoading && user) {
+      setValue("city", user.city);
       setValue("lat", user.lat);
       setValue("lng", user.lng);
       setValue("radius", user.radius);
@@ -117,6 +145,7 @@ export default function EditProfileForm() {
 
   useEffect(() => {
     //register here because these don't exist as actual fields
+    register("city");
     register("lat");
     register("lng");
     register("radius");
@@ -129,7 +158,24 @@ export default function EditProfileForm() {
 
   return (
     <>
-      <PageTitle>{EDIT_PROFILE}</PageTitle>
+      <Grid
+        container
+        direction="row"
+        justify="space-between"
+        alignItems="center"
+      >
+        <PageTitle>{EDIT_PROFILE}</PageTitle>
+        <div className={classes.buttonContainer}>
+          <Button
+            component={Link}
+            to={settingsRoute}
+            variant="contained"
+            color="primary"
+          >
+            {ACCOUNT_SETTINGS}
+          </Button>
+        </div>
+      </Grid>
       {updateStatus === "success" ? (
         <Alert severity="success">Successfully updated profile!</Alert>
       ) : updateStatus === "error" ? (
@@ -140,7 +186,7 @@ export default function EditProfileForm() {
       )}
       {user ? (
         <>
-          <form onSubmit={onSubmit}>
+          <form onSubmit={onSubmit} className={classes.topFormContainer}>
             <AvatarInput
               className={classes.avatar}
               control={control}
@@ -149,10 +195,9 @@ export default function EditProfileForm() {
               initialPreviewSrc={user.avatarUrl}
               userName={user.name}
             />
-
             <ProfileTextInput
               id="name"
-              label="Name"
+              label={NAME}
               name="name"
               defaultValue={user.name}
               error={!!errors.name}
@@ -161,23 +206,29 @@ export default function EditProfileForm() {
             />
           </form>
           <Controller
-            name="city"
+            name="location"
             control={control}
-            defaultValue={user.city}
-            render={({ value, onChange }) => (
-              <EditUserLocationMap
-                user={user}
-                city={value}
-                setCity={(newValue) => onChange(newValue)}
-                setLocation={(location) => {
-                  setValue("lat", location.lat);
-                  setValue("lng", location.lng);
-                  setValue("radius", location.radius);
+            render={() => (
+              <EditLocationMap
+                showRadiusSlider
+                initialLocation={{
+                  address: user.city,
+                  lat: user.lat,
+                  lng: user.lng,
+                  radius: user.radius,
+                }}
+                updateLocation={(location) => {
+                  if (location) {
+                    setValue("city", location.address);
+                    setValue("lat", location.lat);
+                    setValue("lng", location.lng);
+                    setValue("radius", location.radius);
+                  }
                 }}
               />
             )}
           />
-          <form onSubmit={onSubmit}>
+          <form onSubmit={onSubmit} className={classes.bottomFormContainer}>
             <Controller
               control={control}
               defaultValue={user.hostingStatus}
@@ -187,10 +238,11 @@ export default function EditProfileForm() {
                   <Typography variant="h2">{HOSTING_STATUS}</Typography>
                   <RadioGroup
                     row
-                    aria-label="hosting status"
+                    aria-label={HOSTING_STATUS}
                     name="hostingStatus"
                     value={value}
                     onChange={(event) => onChange(Number(event.target.value))}
+                    className={classes.radioButtons}
                   >
                     <FormControlLabel
                       value={HostingStatus.HOSTING_STATUS_CAN_HOST}
@@ -217,13 +269,14 @@ export default function EditProfileForm() {
               name="meetupStatus"
               render={({ onChange, value }) => (
                 <>
-                  <Typography variant="h2">{HOSTING_STATUS}</Typography>
+                  <Typography variant="h2">{MEETUP_STATUS}</Typography>
                   <RadioGroup
                     row
-                    aria-label="meetup status"
+                    aria-label={MEETUP_STATUS}
                     name="meetupStatus"
                     value={value}
                     onChange={(event) => onChange(Number(event.target.value))}
+                    className={classes.radioButtons}
                   >
                     <FormControlLabel
                       value={MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP}
@@ -258,10 +311,11 @@ export default function EditProfileForm() {
                     <Typography variant="h2">{PRONOUNS}</Typography>
                     <RadioGroup
                       row
-                      aria-label="pronouns"
+                      aria-label={PRONOUNS}
                       name="pronouns"
                       value={value}
                       onChange={(_, value) => onChange(value)}
+                      className={classes.radioButtons}
                     >
                       <FormControlLabel
                         value={FEMALE_PRONOUNS}
@@ -288,6 +342,20 @@ export default function EditProfileForm() {
                 );
               }}
             />
+            <Controller
+              control={control}
+              defaultValue={user.languagesList}
+              name="languages"
+              render={({ onChange, value }) => (
+                <ProfileTagInput
+                  onChange={(_, value) => onChange(value)}
+                  value={value}
+                  options={[]}
+                  label={LANGUAGES_SPOKEN}
+                  id="languages"
+                />
+              )}
+            />
             <ProfileTextInput
               id="hometown"
               label={HOMETOWN}
@@ -312,60 +380,37 @@ export default function EditProfileForm() {
               inputRef={register}
               className={classes.field}
             />
-            <Controller
-              control={control}
-              defaultValue={user.languagesList}
-              name="languages"
-              render={({ onChange, value }) => (
-                <ProfileTagInput
-                  onChange={(_, value) => onChange(value)}
-                  value={value}
-                  options={[]}
-                  label={LANGUAGES_SPOKEN}
-                  id="languages"
-                  className={classes.tagInput}
-                />
-              )}
-            />
-            <ProfileTextInput
+            <ProfileMarkdownInput
               id="aboutMe"
-              label={ABOUT_ME}
+              label={WHO}
               name="aboutMe"
               defaultValue={user.aboutMe}
-              inputRef={register}
+              control={control}
               className={classes.field}
-              multiline
-              rows={10}
             />
-            <ProfileTextInput
+            <ProfileMarkdownInput
               id="thingsILike"
               label={HOBBIES}
               name="thingsILike"
               defaultValue={user.thingsILike}
-              inputRef={register}
+              control={control}
               className={classes.field}
-              multiline
-              rows={10}
             />
-            <ProfileTextInput
-              id="additionalInformation"
-              label={ADDITIONAL}
-              name="additionalInformation"
-              defaultValue={user.additionalInformation}
-              inputRef={register}
-              className={classes.field}
-              multiline
-              rows={10}
-            />
-            <ProfileTextInput
+            <ProfileMarkdownInput
               id="aboutPlace"
               label={ABOUT_HOME}
               name="aboutPlace"
               defaultValue={user.aboutPlace}
-              inputRef={register}
+              control={control}
               className={classes.field}
-              multiline
-              rows={10}
+            />
+            <ProfileMarkdownInput
+              id="additionalInformation"
+              label={ADDITIONAL}
+              name="additionalInformation"
+              defaultValue={user.additionalInformation}
+              control={control}
+              className={classes.field}
             />
             <Controller
               control={control}
@@ -378,7 +423,6 @@ export default function EditProfileForm() {
                   options={[]}
                   label={COUNTRIES_VISITED}
                   id="countries-visited"
-                  className={classes.tagInput}
                 />
               )}
             />
@@ -393,7 +437,6 @@ export default function EditProfileForm() {
                   options={[]}
                   label={COUNTRIES_LIVED}
                   id="countries-lived"
-                  className={classes.tagInput}
                 />
               )}
             />

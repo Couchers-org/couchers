@@ -1,4 +1,4 @@
-import { Card, makeStyles } from "@material-ui/core";
+import { Card } from "@material-ui/core";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import NewComment from "components/Comments/NewComment";
@@ -6,6 +6,7 @@ import Markdown from "components/Markdown";
 import { Reply } from "pb/threads_pb";
 import React, { useEffect, useState } from "react";
 import { service } from "service";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles(() => ({
   card: {

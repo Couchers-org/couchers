@@ -1,12 +1,13 @@
 import http.cookies
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from email.utils import formatdate
 
 import pytz
 from geoalchemy2.shape import from_shape, to_shape
 from google.protobuf.timestamp_pb2 import Timestamp
 from shapely.geometry import Point, Polygon, shape
-from sqlalchemy.sql import func
+from sqlalchemy.sql import cast, func
+from sqlalchemy.types import DateTime
 
 from couchers.config import config
 
@@ -17,6 +18,20 @@ def Timestamp_from_datetime(dt: datetime):
     pb_ts = Timestamp()
     pb_ts.FromDatetime(dt)
     return pb_ts
+
+
+def parse_date(date_str: str):
+    """
+    Parses a date-only string in the format "YYYY-MM-DD" returning None if it fails
+    """
+    try:
+        return date.fromisoformat(date_str)
+    except ValueError:
+        return None
+
+
+def date_to_api(date: date):
+    return date.isoformat()
 
 
 def to_aware_datetime(ts: Timestamp):
@@ -30,24 +45,33 @@ def now():
     return datetime.now(utc)
 
 
-def largest_current_date():
+def minimum_allowed_birthdate():
     """
-    Get the largest date that's possible now.
-
-    That is, get the largest date that is in effect in some part of the world now, somewhere presumably very far east.
+    Most recent birthdate allowed to register (must be 18 years minimum)
     """
-    # This is not the right way to do it, timezones can change
-    # at the time of writing, Samoa observes UTC+14 in Summer
-    return datetime.now(timezone(timedelta(hours=14))).strftime("%Y-%m-%d")
+    today_ = today()
+    return today_.replace(today_.year - 18)
 
 
-def least_current_date():
+def today():
     """
-    Same as above for earliest date (west)
+    Date only in UTC
     """
-    # This is not the right way to do it, timezones can change
-    # at the time of writing, Baker Island observes UTC-12
-    return datetime.now(timezone(timedelta(hours=-12))).strftime("%Y-%m-%d")
+    return now().date()
+
+
+def now_in_timezone(tz):
+    """
+    tz should be tzdata identifier, e.g. America/New_York
+    """
+    return datetime.now(pytz.timezone(tz))
+
+
+def today_in_timezone(tz):
+    """
+    tz should be tzdata identifier, e.g. America/New_York
+    """
+    return now_in_timezone(tz).date()
 
 
 # Note: be very careful with ordering of lat/lng!
@@ -150,3 +174,30 @@ def remove_duplicates_retain_order(list_):
         if item not in out:
             out.append(item)
     return out
+
+
+def date_in_timezone(date_, timezone):
+    """
+    Given a naive postgres date object (postgres doesn't have tzd dates), returns a timezone-aware timestamp for the
+    start of that date in that timezone. E.g. if postgres is in 'America/New_York',
+
+    SET SESSION TIME ZONE 'America/New_York';
+
+    CREATE TABLE tz_trouble (to_date date, timezone text);
+
+    INSERT INTO tz_trouble(to_date, timezone) VALUES
+    ('2021-03-10'::date, 'Australia/Sydney'),
+    ('2021-03-20'::date, 'Europe/Berlin'),
+    ('2021-04-15'::date, 'America/New_York');
+
+    SELECT timezone(timezone, to_date::timestamp) FROM tz_trouble;
+
+    The result is:
+
+            timezone
+    ------------------------
+     2021-03-09 08:00:00-05
+     2021-03-19 19:00:00-04
+     2021-04-15 00:00:00-04
+    """
+    return func.timezone(timezone, cast(date_, DateTime(timezone=False)))

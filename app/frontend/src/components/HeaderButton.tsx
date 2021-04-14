@@ -1,5 +1,6 @@
-import { IconButton, IconButtonProps, makeStyles } from "@material-ui/core";
+import { IconButton, IconButtonProps } from "@material-ui/core";
 import React, { ReactNode } from "react";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   root: {

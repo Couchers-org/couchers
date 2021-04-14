@@ -111,7 +111,10 @@
     <footer class="footer">
       <div class="content has-text-centered">
         <p>
-          <strong>Couchers.org</strong> by <a href="/team">the <b>Couchers.org team</b></a>.
+          Read <a href="/team">the Blog</a>.
+        </p>
+        <p>
+          <b>Couchers.org</b> by <a href="/team">the <b>Couchers.org team</b></a>.
         </p>
         <p>It's like Couchsurfing&#8482;, but better.</p>
       </div>
@@ -156,7 +159,7 @@ export default {
         { hid: 'og:image', property: 'og:image', content: 'https://couchers.org/img/share.jpg' },
         { hid: 'twitter:image', name: 'twitter:image', content: 'https://couchers.org/img/share.jpg' },
 
-        { hid: 'og:url', property: 'og:url', content: 'https://couchers.org' },
+        // { hid: 'og:url', property: 'og:url', content: 'https://couchers.org' },
         { hid: 'og:type', property: 'og:type', content: 'website' },
         { hid: 'twitter:card', name: 'twitter:card', content: 'summary_large_image' }
       ]

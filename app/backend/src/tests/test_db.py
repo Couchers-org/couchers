@@ -7,7 +7,6 @@ from couchers.db import (
     apply_migrations,
     get_engine,
     get_parent_node_at_location,
-    is_valid_date,
     is_valid_email,
     is_valid_name,
     is_valid_user_id,
@@ -15,6 +14,7 @@ from couchers.db import (
     session_scope,
 )
 from couchers.models import Base
+from couchers.utils import parse_date
 from tests.test_communities import create_1d_point, get_community_id, testing_communities
 from tests.test_fixtures import create_schema_from_models, drop_all, testconfig
 
@@ -54,16 +54,16 @@ def test_is_valid_name():
     assert not is_valid_name(" ")
 
 
-def test_is_valid_date():
-    assert is_valid_date("2020-01-01")
-    assert is_valid_date("1900-01-01")
-    assert is_valid_date("2099-01-01")
-    assert not is_valid_date("2019-02-29")
-    assert not is_valid_date("2019-22-01")
-    assert not is_valid_date("2020-1-01")
-    assert not is_valid_date("20-01-01")
-    assert not is_valid_date("01-01-2020")
-    assert not is_valid_date("2020/01/01")
+def test_parse_date():
+    assert parse_date("2020-01-01") is not None
+    assert parse_date("1900-01-01") is not None
+    assert parse_date("2099-01-01") is not None
+    assert not parse_date("2019-02-29")
+    assert not parse_date("2019-22-01")
+    assert not parse_date("2020-1-01")
+    assert not parse_date("20-01-01")
+    assert not parse_date("01-01-2020")
+    assert not parse_date("2020/01/01")
 
 
 def test_get_parent_node_at_location(testing_communities):
@@ -129,15 +129,13 @@ def test_migrations():
 
     def massage(s):
         # filter out alembic tables
-        s = "\n-- ".join(x for x in s.split("\n-- ")
-                         if not x.startswith("Name: alembic_"))
+        s = "\n-- ".join(x for x in s.split("\n-- ") if not x.startswith("Name: alembic_"))
 
         return strip_leading_whitespace(s.splitlines())
 
-    diff = "\n".join(difflib.unified_diff(massage(with_migrations),
-                                          massage(from_scratch),
-                                          fromfile="migrations",
-                                          tofile="model"))
+    diff = "\n".join(
+        difflib.unified_diff(massage(with_migrations), massage(from_scratch), fromfile="migrations", tofile="model")
+    )
     print(diff)
     success = diff == ""
     assert success

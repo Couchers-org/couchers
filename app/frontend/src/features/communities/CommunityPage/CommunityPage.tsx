@@ -1,49 +1,68 @@
-import { Breadcrumbs, makeStyles, Typography } from "@material-ui/core";
+import { Breadcrumbs, Link as MuiLink, Typography } from "@material-ui/core";
+import { TabContext } from "@material-ui/lab";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
-import {
-  CalendarIcon,
-  CouchIcon,
-  EmailIcon,
-  LocationIcon,
-} from "components/Icons";
-import { useCommunity } from "features/communities/useCommunity";
+import TabBar from "components/TabBar";
 import {
   COMMUNITY_HEADING,
-  DISCUSSIONS_LABEL,
+  COMMUNITY_TABS_A11Y_LABEL,
+  communityTabBarLabels,
   ERROR_LOADING_COMMUNITY,
-  EVENTS_LABEL,
-  FIND_HOST,
-  HANGOUTS_LABEL,
   INVALID_COMMUNITY_ID,
-  LOCAL_POINTS_LABEL,
   MORE_TIPS,
-} from "features/constants";
+} from "features/communities/constants";
+import { useCommunity } from "features/communities/hooks";
 import { CommunityParent } from "pb/groups_pb";
-import React, { useEffect } from "react";
-import { Link, useHistory, useParams } from "react-router-dom";
+import { useEffect } from "react";
 import {
+  Link,
+  Redirect,
+  Route,
+  Switch,
+  useHistory,
+  useParams,
+} from "react-router-dom";
+import {
+  communityRoute,
+  CommunityTab,
   routeToCommunity,
-  routeToCommunityDiscussions,
-  routeToCommunityEvents,
+  searchRoute,
 } from "routes";
+import makeStyles from "utils/makeStyles";
 
-import CircularIconButton from "./CircularIconButton";
+import { DiscussionsListPage } from "../discussion";
 import DiscussionsSection from "./DiscussionsSection";
 import EventsSection from "./EventsSection";
 import HeaderImage from "./HeaderImage";
 import PlacesSection from "./PlacesSection";
 
 export const useCommunityPageStyles = makeStyles((theme) => ({
+  root: {
+    marginBottom: theme.spacing(2),
+  },
+  center: {
+    display: "block",
+    marginLeft: "auto",
+    marginRight: "auto",
+  },
+  header: {
+    marginBottom: theme.spacing(1),
+  },
+  title: {
+    marginBottom: 0,
+    marginTop: 0,
+    ...theme.typography.h1Large,
+  },
   breadcrumbs: {
     "& ol": {
-      [theme.breakpoints.up("md")]: {
-        justifyContent: "flex-start",
-      },
-      justifyContent: "center",
+      justifyContent: "flex-start",
     },
   },
+  description: {
+    marginBottom: theme.spacing(1),
+  },
   cardContainer: {
+    alignItems: "flex-start",
     [theme.breakpoints.down("xs")]: {
       //break out of page padding
       left: "50%",
@@ -72,39 +91,11 @@ export const useCommunityPageStyles = makeStyles((theme) => ({
       marginTop: theme.spacing(1),
     },
   },
-  center: {
-    display: "block",
-    marginLeft: "auto",
-    marginRight: "auto",
-  },
-  description: {
-    marginBottom: theme.spacing(1),
-  },
-  header: {
-    marginBottom: theme.spacing(1),
-  },
   loadMoreButton: {
-    [theme.breakpoints.up("sm")]: {
-      width: `calc(50% - ${theme.spacing(1)})`,
-    },
-    [theme.breakpoints.up("md")]: {
-      width: `calc(33% - ${theme.spacing(1)})`,
-    },
     alignSelf: "center",
-  },
-  navButtonContainer: {
-    [theme.breakpoints.only("sm")]: {
-      "& > * + *": {
-        marginInlineStart: theme.spacing(4),
-      },
-      justifyContent: "center",
-    },
-    [theme.breakpoints.up("md")]: {
-      width: "30%",
-    },
     display: "flex",
-    justifyContent: "space-around",
-    marginBottom: theme.spacing(1),
+    justifyContent: "center",
+    width: "100%",
   },
   placeEventCard: {
     [theme.breakpoints.up("sm")]: {
@@ -115,26 +106,6 @@ export const useCommunityPageStyles = makeStyles((theme) => ({
     },
     marginBottom: theme.spacing(1),
     width: 200,
-  },
-  root: {
-    marginBottom: theme.spacing(2),
-  },
-  title: {
-    marginBottom: theme.spacing(1),
-    marginTop: theme.spacing(1),
-  },
-  topContainer: {
-    [theme.breakpoints.up("md")]: {
-      display: "flex",
-      justifyContent: "space-between",
-      textAlign: "left",
-    },
-    textAlign: "center",
-  },
-  topInfo: {
-    [theme.breakpoints.up("md")]: {
-      width: "60%",
-    },
   },
 }));
 
@@ -161,6 +132,10 @@ export default function CommunityPage() {
     }
   }, [community, communitySlug, history]);
 
+  const { page = "overview" } = useParams<{ page: string }>();
+  const tab =
+    page in communityTabBarLabels ? (page as CommunityTab) : "overview";
+
   if (!communityId)
     return <Alert severity="error">{INVALID_COMMUNITY_ID}</Alert>;
 
@@ -177,79 +152,112 @@ export default function CommunityPage() {
   return (
     <div className={classes.root}>
       <HeaderImage community={community} className={classes.header} />
-      <div className={classes.topContainer}>
-        <div className={classes.topInfo}>
-          <Breadcrumbs aria-label="breadcrumb" className={classes.breadcrumbs}>
-            {community.parentsList
-              .map((parent) => parent.community)
-              .filter(
-                (
-                  communityParent
-                ): communityParent is CommunityParent.AsObject =>
-                  !!communityParent
-              )
-              .map((communityParent) => (
-                <Link
-                  to={routeToCommunity(
-                    communityParent.communityId,
-                    communityParent.slug
-                  )}
-                  key={`breadcrumb-${communityParent?.communityId}`}
-                >
-                  {communityParent.name}
-                </Link>
-              ))}
-          </Breadcrumbs>
+      <Breadcrumbs aria-label="breadcrumb" className={classes.breadcrumbs}>
+        {community.parentsList
+          .map((parent) => parent.community)
+          .filter(
+            (communityParent): communityParent is CommunityParent.AsObject =>
+              !!communityParent
+          )
+          .map((communityParent) => (
+            <MuiLink
+              component={Link}
+              to={routeToCommunity(
+                communityParent.communityId,
+                communityParent.slug
+              )}
+              key={`breadcrumb-${communityParent?.communityId}`}
+            >
+              {communityParent.name}
+            </MuiLink>
+          ))}
+      </Breadcrumbs>
+      <TabContext value={tab}>
+        <TabBar
+          ariaLabel={COMMUNITY_TABS_A11Y_LABEL}
+          value={tab}
+          setValue={(newTab) =>
+            history.push(
+              `${routeToCommunity(
+                community.communityId,
+                community.slug,
+                newTab === "overview" ? undefined : newTab
+              )}`
+            )
+          }
+          labels={communityTabBarLabels}
+        />
+      </TabContext>
+      <Switch>
+        <Route
+          path={routeToCommunity(community.communityId, community.slug)}
+          exact
+        >
           <Typography variant="h1" className={classes.title}>
             {COMMUNITY_HEADING(community.name)}
           </Typography>
           <Typography variant="body2" className={classes.description}>
-            {community.description} {MORE_TIPS}
-            <Link to="#"> here.</Link>
+            {community.description}{" "}
+            <MuiLink component={Link} to="#">
+              {MORE_TIPS}
+            </MuiLink>
           </Typography>
-        </div>
-        <div className={classes.navButtonContainer}>
-          <CircularIconButton id="findHostButton" label={FIND_HOST}>
-            <CouchIcon />
-          </CircularIconButton>
-          <CircularIconButton
-            id="eventButton"
-            label={EVENTS_LABEL}
-            linkTo={routeToCommunityEvents(
-              community.communityId,
-              community.slug
-            )}
-          >
-            <CalendarIcon />
-          </CircularIconButton>
-          <CircularIconButton id="localPointsButton" label={LOCAL_POINTS_LABEL}>
-            <LocationIcon />
-          </CircularIconButton>
-          <CircularIconButton
-            id="discussButton"
-            label={DISCUSSIONS_LABEL}
-            linkTo={routeToCommunityDiscussions(
-              community.communityId,
-              community.slug
-            )}
-          >
-            <EmailIcon />
-          </CircularIconButton>
-          <CircularIconButton
-            id="hangoutsButton"
-            label={HANGOUTS_LABEL}
-            disabled
-          >
-            <CouchIcon />
-          </CircularIconButton>
-        </div>
-      </div>
+        </Route>
+      </Switch>
 
-      <PlacesSection community={community} />
-
-      <EventsSection community={community} />
-
-      <DiscussionsSection community={community} />
+      <Switch>
+        <Route
+          path={routeToCommunity(
+            community.communityId,
+            community.slug,
+            "find-host"
+          )}
+        >
+          <Redirect to={searchRoute} />
+        </Route>
+        <Route
+          path={routeToCommunity(
+            community.communityId,
+            community.slug,
+            "events"
+          )}
+        >
+          <p>Replace this with full events page</p>
+          <EventsSection community={community} />
+        </Route>
+        <Route
+          path={routeToCommunity(
+            community.communityId,
+            community.slug,
+            "local-points"
+          )}
+        >
+          <p>Local points coming soon</p>
+        </Route>
+        <Route
+          path={routeToCommunity(
+            community.communityId,
+            community.slug,
+            "discussions"
+          )}
+        >
+          <DiscussionsListPage community={community} />
+        </Route>
+        <Route
+          path={routeToCommunity(
+            community.communityId,
+            community.slug,
+            "hangouts"
+          )}
+        >
+          <p>Hangouts coming soon!</p>
+        </Route>
+        <Route path={communityRoute} exact>
+          <EventsSection community={community} />
+          <PlacesSection community={community} />
+          <DiscussionsSection community={community} />
+        </Route>
+      </Switch>
     </div>
   );
 }

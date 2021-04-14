@@ -1,4 +1,4 @@
-import { darken, makeStyles, useMediaQuery, useTheme } from "@material-ui/core";
+import { darken, Link, useMediaQuery, useTheme } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import {
@@ -9,27 +9,33 @@ import {
   DialogTitle,
 } from "components/Dialog";
 import { BugIcon } from "components/Icons";
+import SuccessSnackbar from "components/SuccessSnackbar";
 import TextField from "components/TextField";
 import { useAuthContext } from "features/auth/AuthProvider";
 import {
-  BUG_DESCRIPTION,
-  EXPECT,
-  PROBLEM,
+  BUG_DESCRIPTION_HELPER,
+  BUG_DESCRIPTION_NAME,
+  BUG_REPORT_SUCCESS,
+  CANCEL,
+  EXPECT_HELPER,
+  EXPECT_NAME,
+  PROBLEM_HELPER,
+  PROBLEM_NAME,
   REPORT,
-  STEPS,
   SUBMIT,
   WARNING,
 } from "features/constants";
 import { Error as GrpcError } from "grpc-web";
+import { ReportBugRes } from "pb/bugs_pb";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
+import makeStyles from "utils/makeStyles";
 
 export interface BugReportFormData {
   subject: string;
   description: string;
-  steps: string;
   results: string;
 }
 
@@ -65,13 +71,18 @@ export default function BugReport() {
   } = useForm<BugReportFormData>();
   const userId = useAuthContext().authState.userId;
   const {
-    data: reportIdentifier,
+    data: bug,
     error,
     isLoading,
     mutate: reportBug,
     reset: resetMutation,
-  } = useMutation<string, GrpcError, BugReportFormData>((formData) =>
-    service.bugs.reportBug(formData, userId)
+  } = useMutation<ReportBugRes.AsObject, GrpcError, BugReportFormData>(
+    (formData) => service.bugs.reportBug(formData, userId),
+    {
+      onSuccess: () => {
+        setIsOpen(false);
+      },
+    }
   );
 
   const handleClose = () => {
@@ -86,6 +97,14 @@ export default function BugReport() {
 
   return (
     <>
+      {bug && (
+        <SuccessSnackbar>
+          <>
+            {BUG_REPORT_SUCCESS}
+            <Link href={bug.bugUrl}>{bug.bugId}</Link>.
+          </>
+        </SuccessSnackbar>
+      )}
       <Button
         aria-label="Report a bug"
         onClick={() => setIsOpen(true)}
@@ -103,22 +122,19 @@ export default function BugReport() {
         aria-labelledby="bug-reporter"
         open={isOpen}
         onClose={handleClose}
+        // won't close when clicking outside
+        disableBackdropClick
       >
         <form onSubmit={onSubmit}>
           <DialogTitle id="bug-reporter">{REPORT}</DialogTitle>
           <DialogContent>
             {error && <Alert severity="error">{error.message}</Alert>}
-            {reportIdentifier && (
-              <Alert severity="success">
-                {`Thank you for reporting that bug and making Couchers better, a
-                report was sent to the devs! The bug ID is ${reportIdentifier}`}
-              </Alert>
-            )}
             <DialogContentText>{WARNING}</DialogContentText>
             <TextField
               id="bug-report-subject"
               className={classes.field}
-              label={BUG_DESCRIPTION}
+              label={BUG_DESCRIPTION_NAME}
+              helperText={BUG_DESCRIPTION_HELPER}
               name="subject"
               inputRef={register({ required: true })}
               fullWidth
@@ -126,7 +142,8 @@ export default function BugReport() {
             <TextField
               className={classes.field}
               id="bug-report-description"
-              label={PROBLEM}
+              label={PROBLEM_NAME}
+              helperText={PROBLEM_HELPER}
               name="description"
               inputRef={register({ required: true })}
               fullWidth
@@ -136,21 +153,10 @@ export default function BugReport() {
             />
             <TextField
               className={classes.field}
-              id="bug-report-steps"
-              defaultValue=""
-              label={STEPS}
-              name="steps"
-              inputRef={register}
-              fullWidth
-              multiline
-              rows={4}
-              rowsMax={6}
-            />
-            <TextField
-              className={classes.field}
               id="bug-report-results"
               defaultValue=""
-              label={EXPECT}
+              label={EXPECT_NAME}
+              helperText={EXPECT_HELPER}
               name="results"
               inputRef={register}
               fullWidth
@@ -160,15 +166,10 @@ export default function BugReport() {
             />
           </DialogContent>
           <DialogActions>
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              loading={isLoading}
-              onClick={onSubmit}
-            >
+            <Button type="submit" loading={isLoading} onClick={onSubmit}>
               {SUBMIT}
             </Button>
+            <Button onClick={handleClose}>{CANCEL}</Button>
           </DialogActions>
         </form>
       </Dialog>

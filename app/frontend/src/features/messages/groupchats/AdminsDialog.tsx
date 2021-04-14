@@ -24,6 +24,11 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
 import { User } from "pb/api_pb";
 import { GroupChat } from "pb/conversations_pb";
+import {
+  groupChatKey,
+  groupChatMessagesKey,
+  groupChatsListKey,
+} from "queryKeys";
 import React, { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
@@ -47,9 +52,9 @@ function AdminListItem({
   const clearError = () => setError("");
   const handleError = (error: GrpcError) => setError(error.message);
   const invalidate = () => {
-    queryClient.invalidateQueries(["groupChatMessages", groupChatId]);
-    queryClient.invalidateQueries(["groupChats"]);
-    queryClient.invalidateQueries(["groupChat", groupChatId]);
+    queryClient.invalidateQueries(groupChatMessagesKey(groupChatId));
+    queryClient.invalidateQueries(groupChatsListKey);
+    queryClient.invalidateQueries(groupChatKey(groupChatId));
   };
 
   const makeAdmin = useMutation<Empty, GrpcError, void>(
@@ -66,7 +71,7 @@ function AdminListItem({
           previousGroupChat?.adminUserIdsList ?? []
         );
         newAdminUserIdsList.push(member.userId);
-        queryClient.setQueryData(["groupChat", groupChatId], {
+        queryClient.setQueryData(groupChatKey(groupChatId), {
           ...previousGroupChat,
           adminUserIdsList: newAdminUserIdsList,
         });
@@ -80,10 +85,9 @@ function AdminListItem({
       onError: handleError,
       onMutate: clearError,
       onSuccess: () => {
-        const previousGroupChat = queryClient.getQueryData<GroupChat.AsObject>([
-          "groupChat",
-          groupChatId,
-        ]);
+        const previousGroupChat = queryClient.getQueryData<GroupChat.AsObject>(
+          groupChatKey(groupChatId)
+        );
         const newAdminUserIdsList = Array.from(
           previousGroupChat?.adminUserIdsList ?? []
         );
@@ -91,7 +95,7 @@ function AdminListItem({
           newAdminUserIdsList.indexOf(member.userId),
           1
         );
-        queryClient.setQueryData(["groupChat", groupChatId], {
+        queryClient.setQueryData(groupChatKey(groupChatId), {
           ...previousGroupChat,
           adminUserIdsList: newAdminUserIdsList,
         });

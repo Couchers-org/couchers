@@ -120,7 +120,7 @@
           </div>
         </div>
         <div class="field">
-          <label class="label">What kinds of expertise do you have that could help us build and grow this platform?&#13;&#10;Feel free to share a link to your portfolio, github, linkedin or anything else.</label>
+          <label class="label">What kinds of expertise do you have that could help us build and grow this platform? Feel free to share a link to your portfolio, github, linkedin or anything else.</label>
           <div class="control">
             <textarea class="textarea" placeholder="" v-model="expertise"></textarea>
           </div>

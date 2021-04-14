@@ -1,10 +1,4 @@
-import {
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  makeStyles,
-} from "@material-ui/core";
+import { List, ListItem, ListItemIcon, ListItemText } from "@material-ui/core";
 import {
   CakeIcon,
   LanguageIcon,
@@ -15,6 +9,7 @@ import {
 import UserSection from "features/user/UserSection";
 import { User } from "pb/api_pb";
 import React from "react";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   root: {

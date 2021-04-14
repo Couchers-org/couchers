@@ -2,11 +2,10 @@ import {
   Divider,
   Hidden,
   Link as MuiLink,
-  makeStyles,
   Typography,
 } from "@material-ui/core";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import classnames from "classnames";
+import classNames from "classnames";
 import Button from "components/Button";
 import {
   ABOUT_US,
@@ -15,24 +14,23 @@ import {
   LOGIN,
   SIGN_UP,
 } from "features/auth/constants";
-import DesktopAuthBg from "features/auth/resources/desktop-auth-bg.png";
-import MobileAuthBg from "features/auth/resources/mobile-auth-bg.png";
+import DesktopAuthBg from "features/auth/resources/desktop-auth-bg.jpg";
+import MobileAuthBg from "features/auth/resources/mobile-auth-bg.jpg";
 import useAuthStyles from "features/auth/useAuthStyles";
-import React from "react";
 import { Link } from "react-router-dom";
 import { loginRoute, signupRoute } from "routes";
+import makeStyles from "utils/makeStyles";
 
 import { COUCHERS } from "../../constants";
 
 const useStyles = makeStyles((theme) => ({
   aboutUs: {
-    color: "#2a2a2a",
-    marginTop: "auto",
+    color: theme.palette.common.white,
+    marginTop: theme.spacing(2),
   },
   aboutUsLink: {
-    color: "#2a2a2a",
+    color: theme.palette.common.white,
     display: "block",
-    textDecoration: "none",
     [theme.breakpoints.up("md")]: {
       color: theme.palette.common.white,
       fontWeight: 500,
@@ -43,11 +41,11 @@ const useStyles = makeStyles((theme) => ({
   },
   authPage: {
     alignItems: "flex-end",
-    backgroundColor: "#f3f3f3",
+    backgroundColor: theme.palette.common.white,
     backgroundImage: `url(${MobileAuthBg})`,
     backgroundPosition: "top center",
     backgroundRepeat: "no-repeat",
-    backgroundSize: "contain",
+    backgroundSize: "cover",
     boxSizing: "border-box",
     display: "flex",
     height: "100vh",
@@ -80,18 +78,20 @@ const useStyles = makeStyles((theme) => ({
   desktopNavigation: {
     display: "flex",
   },
+  mobileIntroduction: {
+    color: theme.palette.common.white,
+  },
   introduction: {
     color: theme.palette.common.white,
     textAlign: "left",
     width: "72%",
   },
   link: {
-    borderRadius: theme.shape.borderRadius / 3,
+    borderRadius: theme.shape.borderRadius,
     color: theme.palette.common.white,
     fontSize: "1.25rem",
     fontWeight: 500,
     textAlign: "center",
-    textDecoration: "none",
     padding: theme.spacing(1, 2),
   },
   loginLink: {
@@ -140,18 +140,21 @@ export default function AuthPage() {
       {/***** MOBILE ******/}
       <Hidden mdUp>
         <div className={classes.content}>
-          <Typography variant="h1">{INTRODUCTION_TITLE}</Typography>
-          <Typography className={classes.subtitle}>
+          <Typography variant="h1" className={classes.mobileIntroduction}>
+            {INTRODUCTION_TITLE}
+          </Typography>
+          <Typography
+            className={classNames(classes.mobileIntroduction, classes.subtitle)}
+          >
             {INTRODUCTION_SUBTITLE}
           </Typography>
-          <Divider classes={{ root: authClasses.divider }} flexItem />
+          <Divider className={authClasses.divider} flexItem />
           <div className={classes.mobileNavigation}>
             <Button
               classes={{
                 label: authClasses.buttonText,
               }}
-              className={classnames(authClasses.button, classes.button)}
-              color="secondary"
+              className={classNames(authClasses.button, classes.button)}
               component={Link}
               to={loginRoute}
             >
@@ -161,8 +164,7 @@ export default function AuthPage() {
               classes={{
                 label: authClasses.buttonText,
               }}
-              className={classnames(authClasses.button, classes.button)}
-              color="secondary"
+              className={classNames(authClasses.button, classes.button)}
               component={Link}
               to={signupRoute}
             >

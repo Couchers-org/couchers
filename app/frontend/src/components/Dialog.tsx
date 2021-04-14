@@ -9,9 +9,9 @@ import {
   DialogProps,
   DialogTitle as MuiDialogTitle,
   DialogTitleProps,
-  makeStyles,
 } from "@material-ui/core";
 import React from "react";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   actions: {
@@ -29,24 +29,6 @@ const useStyles = makeStyles((theme) => ({
   contentText: {
     padding: theme.spacing(2),
   },
-  dialog: {
-    padding: 0,
-    "& .MuiDialog-scrollPaper": {
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "start",
-      [theme.breakpoints.down("sm")]: {
-        alignItems: "inherit",
-      },
-
-      "& .MuiDialog-paper": {
-        width: "25%",
-        [theme.breakpoints.down("sm")]: {
-          width: "80%",
-        },
-      },
-    },
-  },
   title: {
     "& > h2": theme.typography.h2,
     "&:not(:nth-child(1))": {
@@ -63,8 +45,7 @@ export interface AccessibleDialogProps extends Omit<DialogProps, "className"> {
 }
 
 export function Dialog(props: AccessibleDialogProps) {
-  const classes = useStyles();
-  return <MuiDialog {...props} className={classes.dialog} />;
+  return <MuiDialog {...props} fullWidth maxWidth="sm" />;
 }
 
 export function DialogActions(props: Omit<DialogActionsProps, "className">) {
