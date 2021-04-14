@@ -188,6 +188,10 @@ class User(Base):
 
     avatar = relationship("Upload", foreign_keys="User.avatar_key")
 
+    @property
+    def has_password(self):
+        return self.hashed_password is not None
+
     @hybrid_property
     def is_jailed(self):
         return self.accepted_tos < 1 or self.is_missing_location

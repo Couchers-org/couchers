@@ -121,7 +121,7 @@ class Account(account_pb2_grpc.AccountServicer):
             user = session.query(User).filter(User.id == context.user_id).one()
 
             user.new_email = request.new_email
-            if user.hashed_password is None:
+            if not user.has_password:
                 token, expiry_text = set_change_token_old_email(session, user)
                 old = True
             else:

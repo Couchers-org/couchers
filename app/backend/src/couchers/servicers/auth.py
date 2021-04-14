@@ -280,7 +280,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             # Gets user by one of id/username/email or None if not found
             user = get_user_by_field(session, request.user)
             if user:
-                if user.hashed_password is not None:
+                if user.has_password:
                     logger.debug(f"Found user with password")
                     return auth_pb2.LoginRes(next_step=auth_pb2.LoginRes.LoginStep.NEED_PASSWORD)
                 else:
