@@ -88,9 +88,8 @@ def test_get_parent_node_at_location(testing_communities):
 
 
 def pg_dump():
-    base_command = config.get("PG_DUMP", "pg_dump").split()
     return subprocess.run(
-        base_command + ["-s", config["DATABASE_CONNECTION_STRING"]], stdout=subprocess.PIPE, encoding="ascii", check=True
+        ["pg_dump", "-s", config["DATABASE_CONNECTION_STRING"]], stdout=subprocess.PIPE, encoding="ascii", check=True
     ).stdout
 
 
