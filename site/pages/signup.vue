@@ -7,7 +7,7 @@
           <p class="subtitle is-4">Join the worldwide team of couch surfers bringing this community-run platform to life</p>
           <p class="content">Fill in the forms below to tell us your experience, ideas, and expertise. We'll keep you in the loop as we make progress on this exciting project!</p>
           <p class="content">If you just want to sign up for the platform, click the button below!</p>
-          <p><a class="button is-primary" href = "https://app.couchers.org">Log in to Couchers.org</a></p>
+          <p><a class="button is-primary" href = "https://app.couchers.org">Create an account on Couchers.org</a></p>
         </div>
       </div>
     </section>
