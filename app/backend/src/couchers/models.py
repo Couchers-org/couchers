@@ -272,7 +272,8 @@ class User(Base):
             .all()
         )
 
-    def blocked_blocking_users(self):
+    # returns all users involved either blocking or blocked by this user
+    def all_blocked_or_blocking_users(self):
         relevant_blocks = []
         for userblock in self.is_blocking_user:
             relevant_blocks.append(userblock.blocked_user_id)

@@ -423,8 +423,8 @@ class API(api_pb2_grpc.APIServicer):
         users2 = aliased(User)
 
         with session_scope() as session:
-            user = get_user_by_field(session, str(context.user_id))
-            relevant_blocks = user.blocked_blocking_users()
+            user = session.query(User).filter(User.id == context.user_id).one()
+            relevant_blocks = user.all_blocked_or_blocking_users()
 
             rels = (
                 session.query(FriendRelationship)
