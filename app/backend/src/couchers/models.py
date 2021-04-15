@@ -198,7 +198,7 @@ class User(Base):
 
     @hybrid_property
     def is_visible(self):
-        return ~(self.is_banned | self.is_deleted | self.is_jailed)
+        return ~(self.is_banned | self.is_deleted)
 
     @property
     def coordinates(self):
