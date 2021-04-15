@@ -154,6 +154,7 @@ export default function EditProfileForm() {
   const onSubmit = handleSubmit((data) => {
     resetUpdate();
     updateUserProfile({ profileData: data, setMutationError: setErrorMessage });
+    window.scroll({ top: 0 });
   });
 
   return (
