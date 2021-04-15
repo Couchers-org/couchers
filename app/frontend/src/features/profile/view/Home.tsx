@@ -111,24 +111,20 @@ export default function Home({ user }: HomeProps) {
             label={HAS_HOUSEMATES}
             text={`${booleanConversion(user.hasHousemates?.value)}${
               user.housemateDetails?.value
-                ? `, ${user.housemateDetails?.value.toLowerCase()}`
+                ? `, ${user.housemateDetails?.value}`
                 : ""
             }`}
           />
           <LabelAndText
             label={HOST_KIDS}
             text={`${booleanConversion(user.hasKids?.value)}${
-              user.kidDetails?.value
-                ? `, ${user.kidDetails?.value.toLowerCase()}`
-                : ""
+              user.kidDetails?.value ? `, ${user.kidDetails?.value}` : ""
             }`}
           />
           <LabelAndText
             label={HOST_PETS}
             text={`${booleanConversion(user.hasPets?.value)}${
-              user.petDetails?.value
-                ? `, ${user.petDetails?.value.toLowerCase()}`
-                : ""
+              user.petDetails?.value ? `, ${user.petDetails?.value}` : ""
             }`}
           />
           <LabelAndText
