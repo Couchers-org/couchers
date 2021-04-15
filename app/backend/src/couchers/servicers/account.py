@@ -3,7 +3,7 @@ from google.protobuf import empty_pb2
 
 from couchers import errors
 from couchers.crypto import hash_password, verify_password
-from couchers.db import is_valid_email, session_scope, set_change_token_new_email, set_change_token_old_email
+from couchers.db import is_valid_email, session_scope, set_email_change_tokens
 from couchers.models import User
 from couchers.tasks import (
     send_email_changed_confirmation_email,
@@ -119,17 +119,19 @@ class Account(account_pb2_grpc.AccountServicer):
 
         with session_scope() as session:
             user = session.query(User).filter(User.id == context.user_id).one()
-
             user.new_email = request.new_email
-            if not user.has_password:
-                token, expiry_text = set_change_token_old_email(session, user)
-                old = True
-            else:
-                token, expiry_text = set_change_token_new_email(session, user)
 
+            if user.has_password:
+                old_email_token, new_email_token, expiry_text = set_email_change_tokens(
+                    session, user, double_confirmation=False
+                )
                 send_email_changed_notification_email(user)
-                old = False
+            else:
+                old_email_token, new_email_token, expiry_text = set_email_change_tokens(
+                    session, user, double_confirmation=True
+                )
+                send_email_changed_confirmation_email(user, old_email_token, expiry_text, old=True)
 
-            send_email_changed_confirmation_email(user, token, expiry_text, old=old)
+            send_email_changed_confirmation_email(user, new_email_token, expiry_text, old=False)
             # session autocommit
         return empty_pb2.Empty()

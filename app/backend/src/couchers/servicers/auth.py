@@ -17,8 +17,6 @@ from couchers.db import (
     new_password_reset_token,
     new_signup_token,
     session_scope,
-    set_change_token_new_email,
-    set_change_token_old_email,
 )
 from couchers.interceptors import AuthValidatorInterceptor
 from couchers.models import LoginToken, PasswordResetToken, SignupToken, User, UserSession
@@ -420,7 +418,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
             else:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
 
-    def ChangeEmailSecondStep(self, request, context):
+    # Only called if user doesn't have password
+    def ConfirmChangeEmailWithOldAddress(self, request, context):
         with session_scope() as session:
             user = (
                 session.query(User)
@@ -433,20 +432,17 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 user.old_email_token = None
                 user.old_email_token_created = None
                 user.old_email_token_expiry = None
-                session.commit()
 
-                token, expiry_text = set_change_token_new_email(session, user)
-                send_email_changed_confirmation_email(user, token, expiry_text, old=False)
+                if user.new_email_token == None:
+                    user.email = user.new_email
+                    user.new_email = None
+
+                session.commit()
                 return empty_pb2.Empty()
             else:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
 
-    def CompleteChangeEmail(self, request, context):
-        """
-        Completes an email change request.
-
-        Removes the old email and replaces with the new
-        """
+    def ConfirmChangeEmailWithNewAddress(self, request, context):
         with session_scope() as session:
             user = (
                 session.query(User)
@@ -456,11 +452,14 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 .one_or_none()
             )
             if user:
-                user.email = user.new_email
-                user.new_email = None
                 user.new_email_token = None
                 user.new_email_token_created = None
                 user.new_email_token_expiry = None
+
+                if user.old_email_token == None:
+                    user.email = user.new_email
+                    user.new_email = None
+
                 session.commit()
                 return empty_pb2.Empty()
             else:

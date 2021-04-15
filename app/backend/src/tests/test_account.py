@@ -9,6 +9,7 @@ from couchers import errors
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
 from couchers.models import User
+from couchers.utils import now
 from pb import account_pb2, auth_pb2
 from tests.test_fixtures import account_session, auth_api_session, db, fast_passwords, generate_user, testconfig
 
@@ -418,8 +419,8 @@ def test_ChangeEmail_wrong_token(db, fast_passwords):
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         with pytest.raises(grpc.RpcError) as e:
-            res = auth_api.CompleteChangeEmail(
-                auth_pb2.CompleteChangeEmailReq(
+            res = auth_api.ConfirmChangeEmailWithNewAddress(
+                auth_pb2.ConfirmChangeEmailWithNewAddressReq(
                     change_email_token="wrongtoken",
                 )
             )
@@ -456,8 +457,8 @@ def test_ChangeEmail_has_password(db, fast_passwords):
         token = user_updated.new_email_token
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        res = auth_api.CompleteChangeEmail(
-            auth_pb2.CompleteChangeEmailReq(
+        res = auth_api.ConfirmChangeEmailWithNewAddress(
+            auth_pb2.ConfirmChangeEmailWithNewAddressReq(
                 change_email_token=token,
             )
         )
@@ -477,7 +478,7 @@ def test_ChangeEmail_has_password(db, fast_passwords):
         ).count() == 0
 
 
-def test_ChangeEmail_no_password(db, fast_passwords):
+def test_ChangeEmail_no_password_confirm_with_old_email_first(db, fast_passwords):
     new_email = f"{random_hex()}@couchers.org.invalid"
     user, token = generate_user(hashed_password=None)
 
@@ -489,58 +490,109 @@ def test_ChangeEmail_no_password(db, fast_passwords):
         )
 
     with session_scope() as session:
-        user_updated = (
-            session.query(User)
-            .filter(User.id == user.id)
-            .filter(User.new_email == new_email)
-            .filter(User.old_email_token_created <= func.now())
-            .filter(User.old_email_token_expiry >= func.now())
-        ).one()
+        user_updated = session.query(User).filter(User.id == user.id).one()
+        assert user_updated.email == user.email
+        assert user_updated.new_email == new_email
+        assert user_updated.old_email_token_created <= now()
+        assert user_updated.old_email_token_expiry >= now()
+        assert user_updated.new_email_token_created <= now()
+        assert user_updated.new_email_token_expiry >= now()
 
         token = user_updated.old_email_token
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        res = auth_api.ChangeEmailSecondStep(
-            auth_pb2.ChangeEmailSecondStepReq(
+        res = auth_api.ConfirmChangeEmailWithOldAddress(
+            auth_pb2.ConfirmChangeEmailWithOldAddressReq(
                 change_email_token=token,
             )
         )
 
     with session_scope() as session:
-        user_updated = (
-            session.query(User)
-            .filter(User.id == user.id)
-            .filter(User.new_email == new_email)
-            .filter(User.new_email_token_created <= func.now())
-            .filter(User.new_email_token_expiry >= func.now())
-        ).one()
+        user_updated = session.query(User).filter(User.id == user.id).one()
+        assert user_updated.email == user.email
+        assert user_updated.new_email == new_email
+        assert user.old_email_token is None
+        assert user_updated.old_email_token_created == None
+        assert user_updated.old_email_token_expiry == None
+        assert user_updated.new_email_token_created <= now()
+        assert user_updated.new_email_token_expiry >= now()
 
         token = user_updated.new_email_token
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        res = auth_api.CompleteChangeEmail(
-            auth_pb2.CompleteChangeEmailReq(
+        res = auth_api.ConfirmChangeEmailWithNewAddress(
+            auth_pb2.ConfirmChangeEmailWithNewAddressReq(
                 change_email_token=token,
             )
         )
 
     with session_scope() as session:
-        user_updated2 = session.query(User).filter(User.id == user.id).one()
-        assert user_updated2.email == new_email
-        assert user_updated2.old_email_token is None
-        assert user_updated2.new_email is None
-        assert user_updated2.new_email_token is None
+        user = session.query(User).filter(User.id == user.id).one()
+        assert user.email == new_email
+        assert user.new_email is None
+        assert user.old_email_token is None
+        assert user.new_email_token is None
+        assert user.old_email_token_created is None
+        assert user.old_email_token_expiry is None
+        assert user.new_email_token_created is None
+        assert user.new_email_token_expiry is None
 
-    # check there's no valid tokens left
+
+def test_ChangeEmail_no_password_confirm_with_new_email_first(db, fast_passwords):
+    new_email = f"{random_hex()}@couchers.org.invalid"
+    user, token = generate_user(hashed_password=None)
+
+    with account_session(token) as account:
+        account.ChangeEmail(
+            account_pb2.ChangeEmailReq(
+                new_email=new_email,
+            )
+        )
+
     with session_scope() as session:
-        assert (
-            session.query(User)
-            .filter(User.old_email_token_created <= func.now())
-            .filter(User.old_email_token_expiry >= func.now())
-        ).count() == 0
+        user_updated = session.query(User).filter(User.id == user.id).one()
+        assert user_updated.email == user.email
+        assert user_updated.new_email == new_email
+        assert user_updated.old_email_token_created <= now()
+        assert user_updated.old_email_token_expiry >= now()
+        assert user_updated.new_email_token_created <= now()
+        assert user_updated.new_email_token_expiry >= now()
 
-        assert (
-            session.query(User)
-            .filter(User.new_email_token_created <= func.now())
-            .filter(User.new_email_token_expiry >= func.now())
-        ).count() == 0
+        token = user_updated.new_email_token
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.ConfirmChangeEmailWithNewAddress(
+            auth_pb2.ConfirmChangeEmailWithNewAddressReq(
+                change_email_token=token,
+            )
+        )
+
+    with session_scope() as session:
+        user_updated = session.query(User).filter(User.id == user.id).one()
+        assert user_updated.email == user.email
+        assert user_updated.new_email == new_email
+        assert user_updated.old_email_token_created <= now()
+        assert user_updated.old_email_token_expiry >= now()
+        assert user.new_email_token is None
+        assert user_updated.new_email_token_created == None
+        assert user_updated.new_email_token_expiry == None
+
+        token = user_updated.old_email_token
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.ConfirmChangeEmailWithOldAddress(
+            auth_pb2.ConfirmChangeEmailWithOldAddressReq(
+                change_email_token=token,
+            )
+        )
+
+    with session_scope() as session:
+        user = session.query(User).filter(User.id == user.id).one()
+        assert user.email == new_email
+        assert user.new_email is None
+        assert user.old_email_token is None
+        assert user.new_email_token is None
+        assert user.old_email_token_created is None
+        assert user.old_email_token_expiry is None
+        assert user.new_email_token_created is None
+        assert user.new_email_token_expiry is None

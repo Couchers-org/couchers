@@ -177,34 +177,26 @@ def new_password_reset_token(session, user, hours=2):
     return password_reset_token, f"{hours} hours"
 
 
-def set_change_token_old_email(session, user, hours=2):
+def set_email_change_tokens(session, user, double_confirmation, hours=2):
     """
-    Make an email change token for user's old email address that's valid for `hours` hours
+    Make email change tokens which are valid for `hours` hours
 
     Note: does not call session.commit()
 
-    Returns token and expiry text
+    Returns both tokens and expiry text
     """
-    token = urlsafe_secure_token()
-    user.old_email_token = token
-    user.old_email_token_created = now()
-    user.old_email_token_expiry = now() + timedelta(hours=hours)
-    return token, f"{hours} hours"
+    old_email_token = ""
+    if double_confirmation:
+        old_email_token = urlsafe_secure_token()
+        user.old_email_token = old_email_token
+        user.old_email_token_created = now()
+        user.old_email_token_expiry = now() + timedelta(hours=hours)
 
-
-def set_change_token_new_email(session, user, hours=2):
-    """
-    Make an email change token for user's new email address that's valid for `hours` hours
-
-    Note: does not call session.commit()
-
-    Returns token and expiry text
-    """
-    token = urlsafe_secure_token()
-    user.new_email_token = token
+    new_email_token = urlsafe_secure_token()
+    user.new_email_token = new_email_token
     user.new_email_token_created = now()
     user.new_email_token_expiry = now() + timedelta(hours=hours)
-    return token, f"{hours} hours"
+    return old_email_token, new_email_token, f"{hours} hours"
 
 
 def get_friends_status(session, user1_id, user2_id):

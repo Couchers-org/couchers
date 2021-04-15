@@ -274,4 +274,5 @@ def test_signup_invalid_birthdate(db):
     assert e.value.details() == errors.INVALID_BIRTHDATE
 
 
-# CompleteChangeEmail tested in test_account.py
+# tests for ConfirmChangeEmailWithOld/NewAddress within test_account tests for test_ChangeEmail_no_password
+# TODO disentangle

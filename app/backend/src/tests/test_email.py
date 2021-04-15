@@ -249,8 +249,8 @@ def test_email_changed_confirmation_email_old(db):
     assert user.name in html
     assert user.new_email in plain
     assert user.new_email in html
-    assert "the final step will be" in plain
-    assert "the final step will be" in html
+    assert "via a similar email sent to your new email address" in plain
+    assert "via a similar email sent to your new email address" in html
     assert f"{config['BASE_URL']}/confirm-email/{confirmation_token}" in plain
     assert f"{config['BASE_URL']}/confirm-email/{confirmation_token}" in html
     assert "support@couchers.org" in plain
@@ -273,8 +273,8 @@ def test_email_changed_confirmation_email_new(db):
     assert user.name in html
     assert user.email in plain
     assert user.email in html
-    assert "This is the final step" in plain
-    assert "This is the final step" in html
+    assert "via a similar email sent to your old email address" in plain
+    assert "via a similar email sent to your old email address" in html
     assert f"{config['BASE_URL']}/confirm-email/{confirmation_token}" in plain
     assert f"{config['BASE_URL']}/confirm-email/{confirmation_token}" in html
     assert "support@couchers.org" in plain
