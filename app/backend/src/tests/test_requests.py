@@ -121,14 +121,7 @@ def test_create_request(db):
 
 def test_CreateHostRequest_invisible_user_as_recipient(db):
     user1, token1 = generate_user()
-    user2, token2 = generate_user()
-
-    with session_scope() as session:
-        user2 = get_user_by_field(session, user2.username)
-        user2.is_banned = True
-        session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
+    user2, token2 = generate_user(is_deleted=True)
 
     today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
     today_plus_3 = (today() + timedelta(days=3)).strftime("%Y-%m-%d")

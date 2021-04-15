@@ -592,16 +592,9 @@ def test_send_message(db):
 def test_CreateGroupChat_with_invisible_user(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
-    user3, token3 = generate_user()
+    user3, token3 = generate_user(is_deleted=True)
     make_friends(user1, user2)
     make_friends(user1, user3)
-
-    with session_scope() as session:
-        user3 = get_user_by_field(session, user3.username)
-        user3.is_banned = True
-        session.commit()
-        session.refresh(user3)
-        session.expunge(user3)
 
     with conversations_session(token1) as c:
         with pytest.raises(grpc.RpcError) as e:
