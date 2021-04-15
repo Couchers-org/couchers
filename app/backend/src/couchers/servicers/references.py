@@ -63,14 +63,14 @@ class References(references_pb2_grpc.ReferencesServicer):
                 # join the to_users, because only interested if the recipient is visible
                 query = (
                     query.join(users1, users1.id == Reference.to_user_id)
-                    .filter(users1.is_visible)
+                    .filter(~users1.is_banned)  # instead of is_visible; if user is deleted, reference still visible
                     .filter(Reference.from_user_id == request.from_user_id)
                 )
             if request.to_user_id:
                 # join the from_users, because only interested if the writer is visible
                 query = (
                     query.join(users2, users2.id == Reference.from_user_id)
-                    .filter(users2.is_visible)
+                    .filter(~users2.is_banned)  # instead of is_visible; if user is deleted, reference still visible
                     .filter(Reference.to_user_id == request.to_user_id)
                 )
             if len(request.reference_type_filter) > 0:

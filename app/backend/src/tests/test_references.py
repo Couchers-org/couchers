@@ -5,7 +5,7 @@ import pytest
 from google.protobuf import empty_pb2
 
 from couchers import errors
-from couchers.db import session_scope
+from couchers.db import get_user_by_field, session_scope
 from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType, Reference, ReferenceType
 from couchers.utils import now, to_aware_datetime, today
 from pb import references_pb2
@@ -282,6 +282,54 @@ def test_ListPagination(db):
         res = api.ListReferences(references_pb2.ListReferencesReq(from_user_id=user5.id, to_user_id=user1.id))
         assert [ref.reference_id for ref in res.references] == [ref5]
         assert not res.next_page_token
+
+
+def test_ListReference_banned_deleted_users(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+
+    with session_scope() as session:
+        create_friend_reference(session, user2.id, user1.id, timedelta(days=15))
+        create_friend_reference(session, user3.id, user1.id, timedelta(days=16))
+        create_friend_reference(session, user1.id, user2.id, timedelta(days=15))
+        create_friend_reference(session, user1.id, user3.id, timedelta(days=16))
+
+    with references_session(token1) as api:
+        refs_rec = api.ListReferences(references_pb2.ListReferencesReq(to_user_id=user1.id)).references
+        refs_sent = api.ListReferences(references_pb2.ListReferencesReq(from_user_id=user1.id)).references
+        assert len(refs_rec) == 2
+        assert len(refs_sent) == 2
+
+    # ban user2
+    with session_scope() as session:
+        user2 = get_user_by_field(session, user2.username)
+        user2.is_banned = True
+        session.commit()
+        session.refresh(user2)
+        session.expunge(user2)
+
+    # reference to and from banned user is hidden
+    with references_session(token1) as api:
+        refs_rec = api.ListReferences(references_pb2.ListReferencesReq(to_user_id=user1.id)).references
+        refs_sent = api.ListReferences(references_pb2.ListReferencesReq(from_user_id=user1.id)).references
+        assert len(refs_rec) == 1
+        assert len(refs_sent) == 1
+
+    # delete user3
+    with session_scope() as session:
+        user3 = get_user_by_field(session, user3.username)
+        user3.is_deleted = True
+        session.commit()
+        session.refresh(user3)
+        session.expunge(user3)
+
+    # doesn't change; references to and from deleted users remain
+    with references_session(token1) as api:
+        refs_rec = api.ListReferences(references_pb2.ListReferencesReq(to_user_id=user1.id)).references
+        refs_sent = api.ListReferences(references_pb2.ListReferencesReq(from_user_id=user1.id)).references
+        assert len(refs_rec) == 1
+        assert len(refs_sent) == 1
 
 
 def test_WriteFriendReference(db):

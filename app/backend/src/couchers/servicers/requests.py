@@ -61,7 +61,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if request.to_user_id == context.user_id:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REQUEST_SELF)
 
-            # just to check host exist and is visible
+            # just to check host exists and is visible
             host = session.query(User).filter(User.is_visible).filter(User.id == request.to_user_id).one_or_none()
             if not host:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
