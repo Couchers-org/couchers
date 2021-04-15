@@ -7,6 +7,7 @@
 * TODO: Get bugged about writing reference 1 day after, 1 week after, 2weeks-2days
 """
 import grpc
+from sqlalchemy import and_
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import func, literal, or_
 
@@ -159,8 +160,10 @@ class References(references_pb2_grpc.ReferencesServicer):
 
             host_request = (
                 session.query(HostRequest)
-                .join(users1, users1.id == HostRequest.from_user_id)
-                .join(users2, users2.id == HostRequest.to_user_id)
+                .join(
+                    users1, and_(users1.id == HostRequest.from_user_id, HostRequest.from_user_id is not context.user_id)
+                )
+                .join(users2, and_(users2.id == HostRequest.to_user_id, HostRequest.to_user_id is not context.user_id))
                 .filter(users1.is_visible)
                 .filter(users2.is_visible)
                 .filter(HostRequest.conversation_id == request.host_request_id)

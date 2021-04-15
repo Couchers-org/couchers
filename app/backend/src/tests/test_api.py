@@ -75,10 +75,6 @@ def test_coords(db):
     user1, token1 = generate_user(geom=None, geom_radius=None)
     user2, token2 = generate_user()
 
-    # make them have not added a location
-    user1, token1 = generate_user(geom=None, geom_radius=None)
-    user2, token2 = generate_user()
-
     with api_session(token2) as api:
         res = api.Ping(api_pb2.PingReq())
         assert res.user.city == user2.city

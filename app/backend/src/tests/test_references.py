@@ -554,6 +554,7 @@ def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):
         create_host_request(session, user1.id, user5.id, timedelta(days=5))
 
     with references_session(token1) as api:
+        # can't write reference for invisible user
         with pytest.raises(grpc.RpcError) as e:
             api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user5.id))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND

@@ -229,7 +229,7 @@ def test_GetHostRequest_invisible_user_as_recipient(db):
         assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
 
 
-def test_list_host_requests(db):
+def test_ListHostRequests(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -291,7 +291,7 @@ def test_list_host_requests(db):
         assert len(res.host_requests) == 3
 
 
-def test_list_host_requests_active_filter(db):
+def test_ListHostRequests_active_filter(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     today_plus_2 = (today() + timedelta(days=2)).isoformat()
@@ -335,6 +335,7 @@ def test_ListHostRequests_excluding_invisible_user_as_recipient(db):
         res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
         assert len(res.host_requests) == 1
 
+    # delete host
     with session_scope() as session:
         user2 = get_user_by_field(session, user2.username)
         user2.is_deleted = True
@@ -368,6 +369,7 @@ def test_ListHostRequests_excluding_invisible_user_as_sender(db):
         res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
         assert len(res.host_requests) == 1
 
+    # delete guest
     with session_scope() as session:
         user1 = get_user_by_field(session, user1.username)
         user1.is_deleted = True
@@ -380,7 +382,7 @@ def test_ListHostRequests_excluding_invisible_user_as_sender(db):
         assert len(res.host_requests) == 0
 
 
-def test_respond_host_requests(db):
+def test_RespondHostRequests(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -513,39 +515,6 @@ def test_RespondHostRequest_invisible_user_as_sender(db):
         session.commit()
         session.refresh(user1)
         session.expunge(user1)
-
-    with requests_session(token2) as requests:
-        with pytest.raises(grpc.RpcError) as e:
-            requests.RespondHostRequest(
-                requests_pb2.RespondHostRequestReq(
-                    host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
-
-
-def test_RespondHostRequest_invisible_user_as_recipient(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
-    today_plus_3 = (today() + timedelta(days=3)).strftime("%Y-%m-%d")
-
-    # Send host request
-    with requests_session(token1) as requests:
-        host_request_id = requests.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
-            )
-        ).host_request_id
-
-    # Delete recipient
-    with session_scope() as session:
-        user2 = get_user_by_field(session, user2.username)
-        user2.is_deleted = True
-        session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
 
     with requests_session(token2) as requests:
         with pytest.raises(grpc.RpcError) as e:
