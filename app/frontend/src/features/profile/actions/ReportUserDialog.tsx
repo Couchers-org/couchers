@@ -1,4 +1,4 @@
-import { DialogProps, makeStyles } from "@material-ui/core";
+import { DialogProps } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import {
@@ -14,8 +14,9 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
-import { service } from "service/index";
+import { service } from "service";
 import type { ReportUserInput } from "service/user";
+import makeStyles from "utils/makeStyles";
 
 import {
   CANCEL,
@@ -77,7 +78,7 @@ export default function ReportUserDialog({ onClose, open }: DialogProps) {
       <Dialog aria-labelledby={REPORT_USER_DIALOG_LABEL_ID} open={open}>
         <form onSubmit={onSubmit}>
           <DialogTitle id={REPORT_USER_DIALOG_LABEL_ID}>
-            {getReportDialogTitle("Itsi")}
+            {getReportDialogTitle(name)}
           </DialogTitle>
           <DialogContent>
             {error && <Alert severity="error">{error.message}</Alert>}

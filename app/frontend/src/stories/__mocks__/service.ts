@@ -31,6 +31,7 @@ export const mockedService = ({
         noMore: true,
       }),
   },
+  references: {},
   threads: {
     getThread: () => Promise.resolve(getThreadRes),
   },

@@ -2,10 +2,10 @@ import grpc
 import pytest
 
 from couchers import errors
-from couchers.db import get_user_by_field, session_scope
+from couchers.db import session_scope
 from pb import groups_pb2, pages_pb2
 from tests.test_communities import get_community_id, get_group_id, get_user_id_and_token, testing_communities
-from tests.test_fixtures import groups_session, testconfig
+from tests.test_fixtures import groups_session, make_user_invisible, testconfig
 
 
 @pytest.fixture(autouse=True)
@@ -236,16 +236,9 @@ def test_ListAdmins(testing_communities):
         )
         assert res.admin_user_ids == [user2_id]
 
-    # Hide user2
-    with session_scope() as session:
-        user2 = get_user_by_field(session, str(user2_id))
-        user2.is_banned = True
-        session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
+        make_user_invisible(user2_id)
 
-    # Check user2 invisible
-    with groups_session(token1) as api:
+        # Check user2 invisible
         res = api.ListAdmins(
             groups_pb2.ListAdminsReq(
                 group_id=hitchhikers_id,
@@ -286,16 +279,9 @@ def test_ListMembers(testing_communities):
         )
         assert res.member_user_ids == [user2_id, user4_id, user5_id]
 
-    # Hide user2
-    with session_scope() as session:
-        user2 = get_user_by_field(session, str(user2_id))
-        user2.is_banned = True
-        session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
+        make_user_invisible(user2_id)
 
-    # Check user2 invisible
-    with groups_session(token1) as api:
+        # Check user2 invisible
         res = api.ListMembers(
             groups_pb2.ListMembersReq(
                 group_id=hitchhikers_id,
@@ -365,47 +351,6 @@ def test_JoinGroup_and_LeaveGroup(testing_communities):
 
         # managed to leave
         assert not api.GetGroup(groups_pb2.GetGroupReq(group_id=h_id)).member
-
-
-def test_invisible_user_JoinGroup_LeaveGroup(testing_communities):
-    with session_scope() as session:
-        user1_id, token1 = get_user_id_and_token(session, "user2")  # In group
-        user2_id, token2 = get_user_id_and_token(session, "user3")  # Not in group
-        h_id = get_group_id(session, "Hitchhikers")
-
-        user1 = get_user_by_field(session, str(user1_id))
-        user1.is_banned = True
-        session.commit()
-        session.refresh(user1)
-        session.expunge(user1)
-
-        user2 = get_user_by_field(session, str(user2_id))
-        user2.is_banned = True
-        session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
-
-        # User1 in group, testing removal
-        with groups_session(token1) as api:
-            with pytest.raises(grpc.RpcError) as e:
-                api.LeaveGroup(
-                    groups_pb2.LeaveGroupReq(
-                        group_id=h_id,
-                    )
-                )
-            assert e.value.code() == grpc.StatusCode.NOT_FOUND
-            assert e.value.details() == errors.USER_NOT_FOUND
-
-        # User2 not in group, testing addition
-        with groups_session(token2) as api:
-            with pytest.raises(grpc.RpcError) as e:
-                api.JoinGroup(
-                    groups_pb2.JoinGroupReq(
-                        group_id=h_id,
-                    )
-                )
-            assert e.value.code() == grpc.StatusCode.NOT_FOUND
-            assert e.value.details() == errors.USER_NOT_FOUND
 
 
 # TODO: also requires implementing content transfer functionality

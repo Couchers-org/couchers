@@ -11,7 +11,7 @@ import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { useHistory } from "react-router-dom";
-import { service } from "service/index";
+import { service } from "service";
 
 type NewGuideInputs = {
   title: string;
@@ -68,29 +68,26 @@ export default function NewGuideForm() {
             })}
             helperText={errors?.title?.message}
           />
-          <Controller
-            control={control}
+          <ProfileMarkdownInput
+            id="content"
             name="content"
-            render={({ onChange, value }) => (
-              <ProfileMarkdownInput
-                id="content"
-                label="Page content"
-                onChange={onChange}
-                value={value}
-              />
-            )}
+            label="Page content"
+            control={control}
           />
 
           <Controller
             name="address"
             control={control}
-            render={({ value, onChange }) => (
+            render={() => (
               <EditLocationMap
-                address={value}
-                setAddress={(newValue) => onChange(newValue)}
-                setLocation={(location) => {
-                  setValue("lat", location.lat);
-                  setValue("lng", location.lng);
+                exact
+                updateLocation={(location) => {
+                  if (location) {
+                    // TODO: error handling
+                    setValue("address", location.address);
+                    setValue("lat", location.lat);
+                    setValue("lng", location.lng);
+                  }
                 }}
               />
             )}

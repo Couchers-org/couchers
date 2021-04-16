@@ -1,20 +1,28 @@
-import { makeStyles } from "@material-ui/core";
 import { LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { useHistory, useLocation } from "react-router-dom";
+import makeStyles from "utils/makeStyles";
 
 import Map from "../../components/Map";
 import PageTitle from "../../components/PageTitle";
 import { routeToGuide, routeToPlace, routeToUser } from "../../routes";
 import { addClusteredUsersToMap } from "./clusteredUsers";
-import { addCommunitiesToMap } from "./communities";
-import { addGuidesToMap } from "./guides";
-import { addPlacesToMap } from "./places";
+import addCommunitiesToMap from "./communities";
+import { MAP_PAGE } from "./constants";
+import addGuidesToMap from "./guides";
+import addPlacesToMap from "./places";
 
 const useStyles = makeStyles((theme) => ({
+  container: {
+    display: "flex",
+    flexDirection: "column",
+    height: `calc(100vh - ${theme.shape.navPaddingMobile})`,
+    paddingBlockEnd: theme.spacing(2),
+    [theme.breakpoints.up("md")]: {
+      height: `calc(100vh - ${theme.shape.navPaddingDesktop})`,
+    },
+  },
   root: {
     border: "1px solid black",
-    height: "80vh",
-    maxWidth: "100vw",
   },
 }));
 
@@ -48,23 +56,26 @@ export default function MapPage() {
 
   const initializeMap = (map: MaplibreMap) => {
     map.on("load", () => {
-      addCommunitiesToMap(map);
-      addPlacesToMap(map, handlePlaceClick);
-      addGuidesToMap(map, handleGuideClick);
+      if (process.env.REACT_APP_IS_COMMUNITIES_ENABLED === "true") {
+        addCommunitiesToMap(map);
+        addPlacesToMap(map, handlePlaceClick);
+        addGuidesToMap(map, handleGuideClick);
+      }
       addClusteredUsersToMap(map, handleClick);
     });
   };
 
   return (
-    <>
-      <PageTitle>MapPage</PageTitle>
+    <div className={classes.container}>
+      <PageTitle>{MAP_PAGE}</PageTitle>
       <Map
+        hash
         initialZoom={1}
         initialCenter={new LngLat(0, 0)}
         grow
         postMapInitialize={initializeMap}
         className={classes.root}
       />
-    </>
+    </div>
   );
 }

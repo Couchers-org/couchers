@@ -20,6 +20,6 @@ Alternatively, click the following link: <{{ confirmation_link }}>.
 {% endif %}
 
 
-If this wasn't you, please contact us so we can sort this out!
+If this wasn't you, please contact us by emailing {% if html %}<a href="mailto:support@couchers.org">support@couchers.org</a>{% else %}<support@couchers.org>{% endif %} so we can sort this out as soon as possible!
 
 The Couchers.org team

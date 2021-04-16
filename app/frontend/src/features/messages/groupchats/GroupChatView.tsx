@@ -1,4 +1,3 @@
-import { Box } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
 import Alert from "components/Alert";
@@ -24,7 +23,12 @@ import useUsers from "features/userQueries/useUsers";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
 import { GetGroupChatMessagesRes, GroupChat } from "pb/conversations_pb";
-import React, { useRef, useState } from "react";
+import {
+  groupChatKey,
+  groupChatMessagesKey,
+  groupChatsListKey,
+} from "queryKeys";
+import { useRef, useState } from "react";
 import {
   useInfiniteQuery,
   useMutation,
@@ -32,10 +36,13 @@ import {
   useQueryClient,
 } from "react-query";
 import { useHistory, useParams } from "react-router-dom";
-import { service } from "service/index";
+import { service } from "service";
+
+import { GROUP_CHAT_REFETCH_INTERVAL } from "./constants";
 
 export const useGroupChatViewStyles = makeStyles((theme) => ({
   footer: {
+    marginTop: "auto",
     flexGrow: 0,
     paddingBottom: theme.spacing(2),
   },
@@ -43,9 +50,6 @@ export const useGroupChatViewStyles = makeStyles((theme) => ({
     alignItems: "center",
     display: "flex",
     flexGrow: 0,
-  },
-  messageList: {
-    paddingBlock: theme.spacing(2),
   },
   pageWrapper: {
     [theme.breakpoints.up("md")]: {
@@ -60,6 +64,18 @@ export const useGroupChatViewStyles = makeStyles((theme) => ({
     flexGrow: 1,
     marginInlineEnd: theme.spacing(2),
     marginInlineStart: theme.spacing(2),
+  },
+  requestedDatesWrapper: {
+    display: "flex",
+    "& > *": {
+      margin: 0,
+    },
+  },
+  numNights: {
+    fontWeight: "initial",
+  },
+  requestedDates: {
+    paddingRight: theme.spacing(1),
   },
 }));
 
@@ -95,9 +111,9 @@ export default function GroupChatView() {
     GroupChat.AsObject,
     GrpcError
   >(
-    ["groupChat", groupChatId],
+    groupChatKey(groupChatId),
     () => service.conversations.getGroupChat(groupChatId),
-    { enabled: !!groupChatId }
+    { enabled: !!groupChatId, refetchInterval: GROUP_CHAT_REFETCH_INTERVAL }
   );
 
   //for title text
@@ -113,13 +129,14 @@ export default function GroupChatView() {
     isFetchingNextPage,
     hasNextPage,
   } = useInfiniteQuery<GetGroupChatMessagesRes.AsObject, GrpcError>(
-    ["groupChatMessages", groupChatId],
+    groupChatMessagesKey(groupChatId),
     ({ pageParam: lastMessageId }) =>
       service.conversations.getGroupChatMessages(groupChatId, lastMessageId),
     {
       enabled: !!groupChatId,
       getNextPageParam: (lastPage) =>
         lastPage.noMore ? undefined : lastPage.lastMessageId,
+      refetchInterval: GROUP_CHAT_REFETCH_INTERVAL,
     }
   );
 
@@ -128,8 +145,8 @@ export default function GroupChatView() {
     (text) => service.conversations.sendMessage(groupChatId, text),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(["groupChatMessages", groupChatId]);
-        queryClient.invalidateQueries(["groupChats"]);
+        queryClient.invalidateQueries(groupChatMessagesKey(groupChatId));
+        queryClient.invalidateQueries([groupChatsListKey]);
       },
     }
   );
@@ -143,7 +160,7 @@ export default function GroupChatView() {
       service.conversations.markLastSeenGroupChat(groupChatId, messageId),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(["groupChat", groupChatId]);
+        queryClient.invalidateQueries(groupChatKey(groupChatId));
       },
     }
   );
@@ -157,12 +174,12 @@ export default function GroupChatView() {
   const handleBack = () => history.goBack();
 
   return (
-    <Box>
+    <div>
       {!groupChatId ? (
         <Alert severity="error">Invalid chat id.</Alert>
       ) : (
-        <Box className={classes.pageWrapper}>
-          <Box className={classes.header}>
+        <div className={classes.pageWrapper}>
+          <div className={classes.header}>
             <HeaderButton onClick={handleBack} aria-label="Back">
               <BackIcon />
             </HeaderButton>
@@ -227,18 +244,18 @@ export default function GroupChatView() {
                     </MenuItem>
                   )}
                 </Menu>
-                <InviteDialog
-                  open={isOpen.invite}
-                  onClose={() => handleClose("invite")}
-                  groupChat={groupChat}
-                />
-                <MembersDialog
-                  open={isOpen.members}
-                  onClose={() => handleClose("members")}
-                  groupChat={groupChat}
-                />
                 {groupChat && (
                   <>
+                    <InviteDialog
+                      open={isOpen.invite}
+                      onClose={() => handleClose("invite")}
+                      groupChat={groupChat}
+                    />
+                    <MembersDialog
+                      open={isOpen.members}
+                      onClose={() => handleClose("members")}
+                      groupChat={groupChat}
+                    />
                     <AdminsDialog
                       open={isOpen.admins}
                       onClose={() => handleClose("admins")}
@@ -258,7 +275,7 @@ export default function GroupChatView() {
                 />
               </>
             )}
-          </Box>
+          </div>
           {(groupChatError || messagesError || sendMutation.error) && (
             <Alert severity="error">
               {groupChatError?.message ||
@@ -277,11 +294,11 @@ export default function GroupChatView() {
                     messagesRes.pages[messagesRes.pages.length - 1]
                       .lastMessageId
                   }
+                  latestMessage={messagesRes.pages[0].messagesList[0]}
                   fetchNextPage={fetchNextPage}
                   isFetchingNextPage={isFetchingNextPage}
                   hasNextPage={!!hasNextPage}
                   isError={!!messagesError}
-                  className={classes.messageList}
                 >
                   <MessageList
                     markLastSeen={markLastSeen}
@@ -290,14 +307,14 @@ export default function GroupChatView() {
                       .flat()}
                   />
                 </InfiniteMessageLoader>
-                <Box className={classes.footer}>
+                <div className={classes.footer}>
                   <GroupChatSendField sendMutation={sendMutation} />
-                </Box>
+                </div>
               </>
             )
           )}
-        </Box>
+        </div>
       )}
-    </Box>
+    </div>
   );
 }

@@ -24,9 +24,28 @@ Communication with the backend is via [protobuf messages](https://github.com/pro
 
 ## Setting up the dev environment
 
-You will need to first [follow the instructions in the main repository](https://github.com/Couchers-org/couchers/blob/develop/app/readme.md) to start the docker containers and generate the protocol buffer code.
+### Option 1: Use Docker to run the backend, proxy and database locally
 
-Then, you should clone into this repo, and copy the `couchers/app/frontend/pb` folder from the main repo into this one.
+[Follow the instructions in the main repository](https://github.com/Couchers-org/couchers/blob/develop/app/readme.md) to start the docker containers and generate the protocol buffer code.
+
+### Option 2: Target the preview api and backend
+
+If you don't want to install docker, you can target the live development api and backend. However, you will first need to download the auto-generated gRPC code, since normally this is done by docker.
+
+- Go to the [CI pipelines](https://gitlab.com/couchers/couchers/-/pipelines/).
+- Search for the branch you want to generate the gRPC code from (usually `develop`).
+- Click the pipeline number.
+- Click the first pipeline step, "protos".
+- Click "download artifacts" on the right. This is a copy of the repo, but it has the generated gRPC code in it, so you can copy that from `couchers/app/frontend/src/pb` to your local clone of the repo.
+
+Then you need to target the dev preview api instead of localhost.
+
+- In `couchers/app/frontend/.env.development`, change `REACT_APP_API_BASE_URL=http://localhost:8888` to `REACT_APP_API_BASE_URL=https://dev-api.couchershq.org`
+- Remember not to commit this file to any pull requests!
+
+### Then
+
+You should then have the gRPC code in `couchers/app/frontend/src/pb`, and you can use the below `yarn` commands to run the frontend.
 
 If you have any trouble, someone will be happy to help, just ask!
 

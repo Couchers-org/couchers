@@ -3,10 +3,17 @@ import pytest
 from google.protobuf import wrappers_pb2
 
 from couchers import errors
-from couchers.db import get_user_by_field, session_scope
 from couchers.utils import now, to_aware_datetime
 from pb import api_pb2, conversations_pb2
-from tests.test_fixtures import api_session, conversations_session, db, generate_user, make_friends, testconfig
+from tests.test_fixtures import (
+    api_session,
+    conversations_session,
+    db,
+    generate_user,
+    make_friends,
+    make_user_invisible,
+    testconfig,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -592,21 +599,15 @@ def test_send_message(db):
 def test_CreateGroupChat_with_invisible_user(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
-
-    with session_scope() as session:
-        user2 = get_user_by_field(session, user2.username)
-        user2.is_banned = True
-        session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
-
+    user3, token3 = generate_user(is_deleted=True)
     make_friends(user1, user2)
+    make_friends(user1, user3)
 
     with conversations_session(token1) as c:
         with pytest.raises(grpc.RpcError) as e:
-            c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id]))
+            c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id]))
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == errors.NO_RECIPIENTS
+    assert e.value.details() == errors.USER_NOT_FOUND
 
 
 def test_leave_invite_to_group_chat(db):
@@ -615,6 +616,7 @@ def test_leave_invite_to_group_chat(db):
     user3, token3 = generate_user()
     user4, token4 = generate_user()
     user5, token5 = generate_user()
+    user6, token6 = generate_user(is_deleted=True)
 
     make_friends(user1, user2)
     make_friends(user1, user3)
@@ -654,6 +656,16 @@ def test_leave_invite_to_group_chat(db):
         c.LeaveGroupChat(conversations_pb2.LeaveGroupChatReq(group_chat_id=group_chat_id))
 
     with conversations_session(token1) as c:
+        # invite invisible user fails
+        with pytest.raises(grpc.RpcError) as e:
+            c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user6.id))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.USER_NOT_FOUND
+        # invite fake user fails
+        with pytest.raises(grpc.RpcError) as e:
+            c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=999))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.USER_NOT_FOUND
         # can't invite non-friend
         with pytest.raises(grpc.RpcError) as e:
             c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user4.id))
@@ -848,12 +860,48 @@ def test_admin_behaviour(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
+    user4, token4 = generate_user()
+    user5, token5 = generate_user()
 
     make_friends(user1, user2)
     make_friends(user1, user3)
+    make_friends(user1, user4)
+    make_friends(user1, user5)
     make_friends(user2, user3)
 
     with conversations_session(token1) as c:
+        gcid = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user4.id, user5.id])
+        ).group_chat_id
+        c.MakeGroupChatAdmin(conversations_pb2.MakeGroupChatAdminReq(group_chat_id=gcid, user_id=user5.id))
+
+        make_user_invisible(user4.id)
+        make_user_invisible(user5.id)
+
+        # make non-existent user admin
+        with pytest.raises(grpc.RpcError) as e:
+            c.MakeGroupChatAdmin(conversations_pb2.MakeGroupChatAdminReq(group_chat_id=gcid, user_id=999))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.USER_NOT_FOUND
+
+        # make invisible user admin
+        with pytest.raises(grpc.RpcError) as e:
+            c.MakeGroupChatAdmin(conversations_pb2.MakeGroupChatAdminReq(group_chat_id=gcid, user_id=user4.id))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.USER_NOT_FOUND
+
+        # remove non-existent user admin
+        with pytest.raises(grpc.RpcError) as e:
+            c.RemoveGroupChatAdmin(conversations_pb2.RemoveGroupChatAdminReq(group_chat_id=gcid, user_id=999))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.USER_NOT_FOUND
+
+        # remove invisible admin
+        with pytest.raises(grpc.RpcError) as e:
+            c.RemoveGroupChatAdmin(conversations_pb2.RemoveGroupChatAdminReq(group_chat_id=gcid, user_id=user4.id))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.USER_NOT_FOUND
+
         gcid = c.CreateGroupChat(
             conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id])
         ).group_chat_id

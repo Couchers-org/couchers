@@ -2,6 +2,10 @@
 title: Frequently asked questions
 ---
 
+## Commonly asked questions from the couch-surfing community
+
+If you have any other questions, please [sign up](/signup) and include your question.
+
 ### How will you prevent this platform from ever becoming a for-profit like Couchsurfing&#8482; did?
 
 We fundamentally believe that [attempting to make a profit out of couch-surfing is a bad idea](/issues/profit-and-incentives). It introduces incentives that damage the community and would not make financial sense — the couch-surfing idea, based on non-transactional experiences, is not monetizable. This is about societal value, not monetary value.

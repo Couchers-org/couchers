@@ -49,14 +49,7 @@ def test_UserSearch(testing_communities):
 
 def test_Search_function_invisible_users(db):
     user1, token1 = generate_user()
-    user2, token2 = generate_user()
-
-    with session_scope() as session:
-        user2 = get_user_by_field(session, user2.username)
-        user2.is_banned = True
-        session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
+    user2, token2 = generate_user(is_deleted=True)
 
     with search_session(token1) as api:
         res = api.Search(
@@ -70,14 +63,7 @@ def test_Search_function_invisible_users(db):
 
 def test_UserSearch_function_invisible_users(db):
     user1, token1 = generate_user()
-    user2, token2 = generate_user()
-
-    with session_scope() as session:
-        user2 = get_user_by_field(session, user2.username)
-        user2.is_banned = True
-        session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
+    user2, token2 = generate_user(is_deleted=True)
 
     with search_session(token1) as api:
         res = api.UserSearch(search_pb2.UserSearchReq(query=wrappers_pb2.StringValue(value="test_user_")))

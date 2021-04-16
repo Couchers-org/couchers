@@ -1,4 +1,4 @@
-import { makeStyles, Typography } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import PageTitle from "components/PageTitle";
@@ -13,7 +13,8 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
-import { service } from "service/index";
+import { service } from "service";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   form: {

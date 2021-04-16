@@ -1,3 +1,4 @@
+import { LocationDescriptor } from "history";
 import React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { MemoryRouter } from "react-router-dom";
@@ -26,7 +27,7 @@ export default function hookWrapper({
 }
 
 interface HookWrapperConfig {
-  initialRouterEntries?: string[];
+  initialRouterEntries?: LocationDescriptor[];
 }
 
 /**

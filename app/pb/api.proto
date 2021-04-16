@@ -36,22 +36,6 @@ service API {
   // report yourself or NOT_FOUND if the reported user doesn't exist.
   rpc Report(ReportReq) returns (google.protobuf.Empty);
 
-  // Filter references based on from user and type, and
-  // paginate the results according to client's wish.
-  rpc GetGivenReferences(GetGivenReferencesReq) returns (GetReferencesRes);
-
-  // Filter references based on to user or type, and
-  // paginate the results according to client's wish.
-  rpc GetReceivedReferences(GetReceivedReferencesReq) returns (GetReferencesRes);
-
-  // Return the reference types that is, at the moment, possible to write to a user.
-  rpc AvailableWriteReferenceTypes(AvailableWriteReferenceTypesReq) returns (AvailableWriteReferenceTypesRes);
-
-  // Write a reference for someone. Raises INVALID_ARGUMENT if you
-  // try to write for yourself, or NOT_FOUND if the user doesn't exist.
-  // Raises FAILED_PRECONDITION if you try to write a reference twice.
-  rpc WriteReference(WriteReferenceReq) returns (google.protobuf.Empty);
-
   rpc InitiateMediaUpload(google.protobuf.Empty) returns (InitiateMediaUploadRes) {
     // Initiate a media upload
   }
@@ -316,69 +300,6 @@ message ReportReq {
 
   // multi-line free text
   string description = 3;
-}
-
-enum ReferenceType {
-  FRIEND = 0;  // We met on an event but haven't surfed or hosted
-  SURFED = 1;  // The author have surfed, the referent has hosted
-  HOSTED = 2;  // The author have hosted, the referent has surfed
-}
-
-message OptionalReferenceType {
-  ReferenceType value = 1;
-}
-
-message GetGivenReferencesReq {
-  int64 from_user_id = 2;
-  OptionalReferenceType type_filter = 3;                // optional
-
-  // Pagination; default is to get the N latest references that matches the filter,
-  // skipping the start_at most recent ones.
-  uint32 number = 5;
-  uint32 start_at = 4;
-}
-
-message GetReceivedReferencesReq {
-  int64 to_user_id = 2;
-  OptionalReferenceType type_filter = 3;
-
-  // Pagination; default is to get the N latest references that matches the filter,
-  // skipping the start_at most recent ones.
-  uint32 number = 5;
-  uint32 start_at = 4;
-}
-
-message Reference {
-  int64 reference_id = 6;
-  int64 from_user_id = 1;
-  int64 to_user_id = 2;
-  ReferenceType reference_type = 3;
-  string text = 4;  // plain text
-  google.protobuf.Timestamp written_time = 5;  // not exact
-}
-
-message GetReferencesRes {
-  // Total number of records that matches the filter
-  uint32 total_matches = 1;
-
-  // A list of zero to `number` references
-  repeated Reference references = 2;
-}
-
-message AvailableWriteReferenceTypesReq {
-  int64 to_user_id = 1;
-}
-
-message AvailableWriteReferenceTypesRes {
-  repeated ReferenceType reference_types = 1;
-}
-
-message WriteReferenceReq {
-  int64 to_user_id = 1;
-  ReferenceType reference_type = 2;
-  string text = 3;  // plain text
-  bool was_safe = 4;
-  int32 rating = 5;
 }
 
 message InitiateMediaUploadRes {

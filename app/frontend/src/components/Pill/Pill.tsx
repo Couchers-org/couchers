@@ -1,5 +1,6 @@
-import { makeStyles, Typography } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 import classNames from "classnames";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -8,7 +9,7 @@ const useStyles = makeStyles((theme) => ({
     textAlign: "center",
   },
   rounded: {
-    borderRadius: theme.shape.borderRadius * 2,
+    borderRadius: theme.shape.borderRadius * 6,
   },
 }));
 

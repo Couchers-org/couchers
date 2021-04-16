@@ -12,7 +12,7 @@ import { useEffect } from "react";
 import { useMutation } from "react-query";
 import { Link, useParams } from "react-router-dom";
 import { loginRoute } from "routes";
-import { service } from "service/index";
+import { service } from "service";
 
 export default function CompleteResetPassword() {
   const { resetToken } = useParams<{ resetToken?: string }>();

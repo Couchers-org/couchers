@@ -10,7 +10,7 @@ import pytest
 
 from couchers.config import config
 from couchers.crypto import random_hex
-from couchers.db import apply_migrations, get_engine, session_scope
+from couchers.db import apply_migrations, get_engine, get_user_by_field, session_scope
 from couchers.models import Base, FriendRelationship, FriendStatus, User
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
@@ -24,6 +24,7 @@ from couchers.servicers.groups import Groups
 from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
 from couchers.servicers.pages import Pages
+from couchers.servicers.references import References
 from couchers.servicers.requests import Requests
 from couchers.servicers.search import Search
 from couchers.utils import create_coordinate
@@ -40,6 +41,7 @@ from pb import (
     jail_pb2_grpc,
     media_pb2_grpc,
     pages_pb2_grpc,
+    references_pb2_grpc,
     requests_pb2_grpc,
     search_pb2_grpc,
 )
@@ -122,7 +124,7 @@ def generate_user(*_, **kwargs):
             "about_place": "My place has a lot of testing paraphenelia",
             "countries_visited": "Testing country",
             "countries_lived": "Wonderland",
-            "additional_information": "",
+            "additional_information": "I can be a bit testy",
             # you need to make sure to update this logic to make sure the user is jailed/not on request
             "accepted_tos": 1,
             "geom": create_coordinate(40.7108, -73.9740),
@@ -161,6 +163,13 @@ def make_friends(user1, user2):
             status=FriendStatus.accepted,
         )
         session.add(friend_relationship)
+
+
+def make_user_invisible(user_id):
+    with session_scope() as session:
+        user = get_user_by_field(session, str(user_id))
+        user.is_banned = True
+        session.commit()
 
 
 class CookieMetadataPlugin(grpc.AuthMetadataPlugin):
@@ -388,6 +397,16 @@ def search_session(token):
 
 
 @contextmanager
+def references_session(token):
+    """
+    Create a References API for testing, uses the token for auth
+    """
+    channel = fake_channel(token)
+    references_pb2_grpc.add_ReferencesServicer_to_server(References(), channel)
+    yield references_pb2_grpc.ReferencesStub(channel)
+
+
+@contextmanager
 def bugs_session():
     channel = FakeChannel()
     bugs_pb2_grpc.add_BugsServicer_to_server(Bugs(), channel)
@@ -447,7 +466,7 @@ def testconfig():
     config["MEDIA_SERVER_BASE_URL"] = "http://127.0.0.1:5000"
 
     config["BUG_TOOL_ENABLED"] = False
-    config["BUG_TOOL_GITHUB_REPO"] = "user/repo"
+    config["BUG_TOOL_GITHUB_REPO"] = "org/repo"
     config["BUG_TOOL_GITHUB_USERNAME"] = "user"
     config["BUG_TOOL_GITHUB_TOKEN"] = "token"
 

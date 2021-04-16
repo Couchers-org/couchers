@@ -5,7 +5,7 @@ import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
 
 from couchers import errors
-from couchers.db import get_user_by_field, session_scope
+from couchers.db import session_scope
 from couchers.models import Complaint, FriendRelationship, UserBlocks
 from couchers.utils import now, to_aware_datetime
 from pb import api_pb2, blocking_pb2, jail_pb2
@@ -15,6 +15,7 @@ from tests.test_fixtures import (
     db,
     generate_user,
     make_friends,
+    make_user_invisible,
     real_api_session,
     real_jail_session,
     testconfig,
@@ -76,20 +77,20 @@ def test_coords(db):
     user1, token1 = generate_user(geom=None, geom_radius=None)
     user2, token2 = generate_user()
 
-    with api_session(token1) as api:
+    with api_session(token2) as api:
         res = api.Ping(api_pb2.PingReq())
-        assert res.user.city == user1.city
-        assert res.user.lat == 0.0
-        assert res.user.lng == 0.0
-        assert res.user.radius == 0.0
-
-    with api_session(token1) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=user2.username))
-        assert res.city == user2.city
+        assert res.user.city == user2.city
         lat, lng = user2.coordinates or (0, 0)
-        assert res.lat == lat
-        assert res.lng == lng
-        assert res.radius == user2.geom_radius
+        assert res.user.lat == lat
+        assert res.user.lng == lng
+        assert res.user.radius == user2.geom_radius
+
+    with api_session(token2) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
+        assert res.city == user1.city
+        assert res.lat == 0.0
+        assert res.lng == 0.0
+        assert res.radius == 0.0
 
     with real_jail_session(token1) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
@@ -145,14 +146,7 @@ def test_get_user(db):
 
 def test_get_invisible_user_by_username(db):
     user1, token1 = generate_user()
-    user2, token2 = generate_user()
-
-    with session_scope() as session:
-        user2 = get_user_by_field(session, user2.username)
-        user2.is_banned = True
-        session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
+    user2, token2 = generate_user(is_deleted=True)
 
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -163,14 +157,7 @@ def test_get_invisible_user_by_username(db):
 
 def test_get_invisible_user_by_id(db):
     user1, token1 = generate_user()
-    user2, token2 = generate_user()
-
-    with session_scope() as session:
-        user2 = get_user_by_field(session, user2.username)
-        user2.is_banned = True
-        session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
+    user2, token2 = generate_user(is_deleted=True)
 
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -181,14 +168,7 @@ def test_get_invisible_user_by_id(db):
 
 def test_get_invisible_user_by_email(db):
     user1, token1 = generate_user()
-    user2, token2 = generate_user()
-
-    with session_scope() as session:
-        user2 = get_user_by_field(session, user2.username)
-        user2.is_banned = True
-        session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
+    user2, token2 = generate_user(is_deleted=True)
 
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -218,7 +198,7 @@ def test_update_profile(db):
             api.UpdateProfile(api_pb2.UpdateProfileReq(gender=wrappers_pb2.StringValue(value="newgender")))
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
 
-        res = api.UpdateProfile(
+        api.UpdateProfile(
             api_pb2.UpdateProfileReq(
                 name=wrappers_pb2.StringValue(value="New name"),
                 city=wrappers_pb2.StringValue(value="Timbuktu"),
@@ -241,33 +221,68 @@ def test_update_profile(db):
                 additional_information=api_pb2.NullableStringValue(value="I <3 Couchers"),
             )
         )
-        # all fields changed
-        for field, value in res.ListFields():
-            assert value == True
 
-        user = api.GetUser(api_pb2.GetUserReq(user=user.username))
-        assert user.name == "New name"
-        assert user.city == "Timbuktu"
-        assert user.hometown == "Walla Walla"
-        assert user.pronouns == "Ro, Robo, Robots"
-        assert user.education == "Couchers U"
-        assert user.my_travels == "Oh the places you'll go!"
-        assert user.things_i_like == "Couchers"
-        assert user.lat == 0.01
-        assert user.lng == -2
-        assert user.radius == 321
-        assert user.occupation == "Testing"
-        assert user.about_me == "I rule"
-        assert user.about_place == "My place"
-        assert user.hosting_status == api_pb2.HOSTING_STATUS_CAN_HOST
-        assert user.meetup_status == api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP
-        assert "Binary" in user.languages
-        assert "English" in user.languages
-        assert user.additional_information == "I <3 Couchers"
-        assert "UK" in user.countries_visited
-        assert "Aus" in user.countries_visited
-        assert "UK" in user.countries_lived
-        assert "Aus" in user.countries_lived
+        user_details = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        assert user_details.name == "New name"
+        assert user_details.city == "Timbuktu"
+        assert user_details.hometown == "Walla Walla"
+        assert user_details.pronouns == "Ro, Robo, Robots"
+        assert user_details.education == "Couchers U"
+        assert user_details.my_travels == "Oh the places you'll go!"
+        assert user_details.things_i_like == "Couchers"
+        assert user_details.lat == 0.01
+        assert user_details.lng == -2
+        assert user_details.radius == 321
+        assert user_details.occupation == "Testing"
+        assert user_details.about_me == "I rule"
+        assert user_details.about_place == "My place"
+        assert user_details.hosting_status == api_pb2.HOSTING_STATUS_CAN_HOST
+        assert user_details.meetup_status == api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP
+        assert "Binary" in user_details.languages
+        assert "English" in user_details.languages
+        assert user_details.additional_information == "I <3 Couchers"
+        assert "UK" in user_details.countries_visited
+        assert "Aus" in user_details.countries_visited
+        assert "UK" in user_details.countries_lived
+        assert "Aus" in user_details.countries_lived
+
+        # Test unset values
+        api.UpdateProfile(
+            api_pb2.UpdateProfileReq(
+                hometown=api_pb2.NullableStringValue(is_null=True),
+                radius=wrappers_pb2.DoubleValue(value=0),
+                pronouns=api_pb2.NullableStringValue(is_null=True),
+                occupation=api_pb2.NullableStringValue(is_null=True),
+                education=api_pb2.NullableStringValue(is_null=True),
+                about_me=api_pb2.NullableStringValue(is_null=True),
+                my_travels=api_pb2.NullableStringValue(is_null=True),
+                things_i_like=api_pb2.NullableStringValue(is_null=True),
+                about_place=api_pb2.NullableStringValue(is_null=True),
+                hosting_status=api_pb2.HOSTING_STATUS_UNKNOWN,
+                meetup_status=api_pb2.MEETUP_STATUS_UNKNOWN,
+                languages=api_pb2.RepeatedStringValue(exists=True, value=[]),
+                countries_visited=api_pb2.RepeatedStringValue(exists=True, value=[]),
+                countries_lived=api_pb2.RepeatedStringValue(exists=True, value=[]),
+                additional_information=api_pb2.NullableStringValue(is_null=True),
+            )
+        )
+
+        user_details = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        assert not user_details.hometown
+        assert not user_details.radius
+        assert not user_details.pronouns
+        assert not user_details.occupation
+        assert not user_details.education
+        assert not user_details.about_me
+        assert not user_details.my_travels
+        assert not user_details.things_i_like
+        assert not user_details.about_place
+        assert user_details.hosting_status == api_pb2.HOSTING_STATUS_UNKNOWN
+        assert user_details.meetup_status == api_pb2.MEETUP_STATUS_UNKNOWN
+        assert not user_details.languages
+        assert not user_details.countries_visited
+        assert not user_details.countries_lived
+        assert not user_details.additional_information
 
 
 def test_pending_friend_request_count(db):
@@ -371,38 +386,9 @@ def test_friend_request_flow(db):
         assert res.user_ids[0] == user2.id
 
 
-def test_SendFriendRequest_invisible_user_as_sender(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-
-    with session_scope() as session:
-        user2 = get_user_by_field(session, user2.username)
-        user2.is_banned = True
-        session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
-
-    with api_session(token2) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.SendFriendRequest(
-                api_pb2.SendFriendRequestReq(
-                    user_id=user1.id,
-                )
-            )
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == errors.USER_NOT_FOUND
-
-
 def test_SendFriendRequest_invisible_user_as_recipient(db):
     user1, token1 = generate_user()
-    user2, token2 = generate_user()
-
-    with session_scope() as session:
-        user2 = get_user_by_field(session, user2.username)
-        user2.is_banned = True
-        session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
+    user2, token2 = generate_user(is_deleted=True)
 
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -425,34 +411,19 @@ def test_ListFriendRequests_invisible_user_as_sender(db):
         assert len(res.sent) == 0
         assert len(res.received) == 0
 
-    # Send friend request to user 1
+    # Send FR to user 1
     with api_session(token2) as api:
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
 
-    with session_scope() as session:
-        friend_request_id = (
-            session.query(FriendRelationship)
-            .filter(FriendRelationship.from_user_id == user2.id and FriendRelationship.to_user_id == user1.id)
-            .one_or_none()
-        )
-        session.expunge(friend_request_id)
-
-    # Check 1 received FR
     with api_session(token1) as api:
+        # Check 1 received FR
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert len(res.sent) == 0
         assert len(res.received) == 1
 
-    # Hide sender
-    with session_scope() as session:
-        user2 = get_user_by_field(session, user2.username)
-        user2.is_banned = True
-        session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
+        make_user_invisible(user2.id)
 
-    # Check back to no FR
-    with api_session(token1) as api:
+        # Check back to no FR
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert len(res.sent) == 0
         assert len(res.received) == 0
@@ -462,8 +433,8 @@ def test_ListFriendRequests_invisible_user_as_recipient(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    # Check no active FR to start
     with api_session(token1) as api:
+        # Check no active FR to start
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert len(res.sent) == 0
         assert len(res.received) == 0
@@ -476,16 +447,9 @@ def test_ListFriendRequests_invisible_user_as_recipient(db):
         assert len(res.sent) == 1
         assert len(res.received) == 0
 
-    # Hide recipient
-    with session_scope() as session:
-        user2 = get_user_by_field(session, user2.username)
-        user2.is_banned = True
-        session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
+        make_user_invisible(user2.id)
 
-    # Check back to no FR
-    with api_session(token1) as api:
+        # Check back to no FR
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert len(res.sent) == 0
         assert len(res.received) == 0
@@ -582,30 +546,23 @@ def test_ListFriends(db):
 def test_ListFriends_with_invisible_users(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
-    user3, token3 = generate_user()
-
-    with session_scope() as session:
-        user2 = get_user_by_field(session, user2.username)
-        user2.is_banned = True
-        session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
 
     with api_session(token1) as api:
+        # check no friends to start
         res = api.ListFriends(empty_pb2.Empty())
         assert len(res.user_ids) == 0
 
-    make_friends(user1, user2)
+        make_friends(user1, user2)
 
-    with api_session(token1) as api:
-        res = api.ListFriends(empty_pb2.Empty())
-        assert len(res.user_ids) == 0
-
-    make_friends(user1, user3)
-
-    with api_session(token1) as api:
+        # check now one friend
         res = api.ListFriends(empty_pb2.Empty())
         assert len(res.user_ids) == 1
+
+        make_user_invisible(user2.id)
+
+        # check now no friends
+        res = api.ListFriends(empty_pb2.Empty())
+        assert len(res.user_ids) == 0
 
 
 def test_ListFriends_with_blocked_user(db):
@@ -728,22 +685,17 @@ def test_RespondFriendRequest_invisible_user_as_sender(db):
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
 
     with session_scope() as session:
-        friend_request = (
+        friend_request_id = (
             session.query(FriendRelationship)
             .filter(FriendRelationship.from_user_id == user2.id and FriendRelationship.to_user_id == user1.id)
             .one_or_none()
-        )
-        session.expunge(friend_request)
+        ).id
 
-        user2 = get_user_by_field(session, user2.username)
-        user2.is_banned = True
-        session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
+    make_user_invisible(user2.id)
 
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
-            api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=friend_request.id, accept=True))
+            api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=friend_request_id, accept=True))
     assert e.value.code() == grpc.StatusCode.NOT_FOUND
     assert e.value.details() == errors.FRIEND_REQUEST_NOT_FOUND
 
@@ -763,11 +715,7 @@ def test_CancelFriendRequest_invisible_user_as_recipient():
         )
         session.expunge(friend_request)
 
-        user2 = get_user_by_field(session, user2.username)
-        user2.is_banned = True
-        session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
+    make_user_invisible(user2.id)
 
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -892,123 +840,6 @@ def test_reporting(db):
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.Report(report_req)
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == errors.USER_NOT_FOUND
-
-
-def test_references(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-
-    alltypes = set([api_pb2.ReferenceType.FRIEND, api_pb2.ReferenceType.HOSTED, api_pb2.ReferenceType.SURFED])
-    # write all three reference types
-    for typ in alltypes:
-        req = api_pb2.WriteReferenceReq(to_user_id=user2.id, reference_type=typ, text="kinda weird sometimes")
-        with api_session(token1) as api:
-            res = api.WriteReference(req)
-        assert isinstance(res, empty_pb2.Empty)
-
-    # See what I have written. Paginate it.
-    seen_types = set()
-    for i in range(3):
-        req = api_pb2.GetGivenReferencesReq(from_user_id=user1.id, number=1, start_at=i)
-        with api_session(token1) as api:
-            res = api.GetGivenReferences(req)
-        assert res.total_matches == 3
-        assert len(res.references) == 1
-        assert res.references[0].from_user_id == user1.id
-        assert res.references[0].to_user_id == user2.id
-        assert res.references[0].text == "kinda weird sometimes"
-        assert abs(to_aware_datetime(res.references[0].written_time) - now()) <= timedelta(days=32)
-        assert res.references[0].reference_type not in seen_types
-        seen_types.add(res.references[0].reference_type)
-    assert seen_types == alltypes
-
-    # See what user2 have received. Paginate it.
-    seen_types = set()
-    for i in range(3):
-        req = api_pb2.GetReceivedReferencesReq(to_user_id=user2.id, number=1, start_at=i)
-        with api_session(token1) as api:
-            res = api.GetReceivedReferences(req)
-        assert res.total_matches == 3
-        assert len(res.references) == 1
-        assert res.references[0].from_user_id == user1.id
-        assert res.references[0].to_user_id == user2.id
-        assert res.references[0].text == "kinda weird sometimes"
-        assert res.references[0].reference_type not in seen_types
-        seen_types.add(res.references[0].reference_type)
-    assert seen_types == alltypes
-
-    # Check available types
-    with api_session(token1) as api:
-        res = api.AvailableWriteReferenceTypes(api_pb2.AvailableWriteReferenceTypesReq(to_user_id=user2.id))
-    assert res.reference_types == []
-
-    with api_session(token2) as api:
-        res = api.AvailableWriteReferenceTypes(api_pb2.AvailableWriteReferenceTypesReq(to_user_id=user1.id))
-    assert set(res.reference_types) == alltypes
-
-    # Forbidden to write a second reference of the same type
-    req = api_pb2.WriteReferenceReq(to_user_id=user2.id, reference_type=api_pb2.ReferenceType.HOSTED, text="ok")
-    with api_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.WriteReference(req)
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.REFERENCE_ALREADY_GIVEN
-
-    # Nonexisting user
-    req = api_pb2.WriteReferenceReq(
-        to_user_id=0x7FFFFFFFFFFFFFFF, reference_type=api_pb2.ReferenceType.HOSTED, text="ok"
-    )
-    with api_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.WriteReference(req)
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.USER_NOT_FOUND
-
-    # yourself
-    req = api_pb2.WriteReferenceReq(to_user_id=user1.id, reference_type=api_pb2.ReferenceType.HOSTED, text="ok")
-    with api_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.WriteReference(req)
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.CANT_REFER_SELF
-
-    with api_session(token2) as api:
-        # test the number of references in GetUser and Ping
-        res = api.GetUser(api_pb2.GetUserReq(user=user2.username))
-        assert res.num_references == 3
-
-        res = api.Ping(api_pb2.PingReq())
-        assert res.user.num_references == 3
-
-
-def test_invisible_user_writes_reference(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user(accepted_tos=0)
-
-    with api_session(token2) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.WriteReference(
-                api_pb2.WriteReferenceReq(
-                    to_user_id=user1.id, reference_type=api_pb2.ReferenceType.FRIEND, text="smells funny"
-                )
-            )
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == errors.USER_NOT_FOUND
-
-
-def test_write_reference_for_invisible_user(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user(accepted_tos=0)
-
-    with api_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.WriteReference(
-                api_pb2.WriteReferenceReq(
-                    to_user_id=user2.id, reference_type=api_pb2.ReferenceType.FRIEND, text="smells funny"
-                )
-            )
     assert e.value.code() == grpc.StatusCode.NOT_FOUND
     assert e.value.details() == errors.USER_NOT_FOUND
 

@@ -11,7 +11,7 @@ import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { useHistory } from "react-router-dom";
-import { service } from "service/index";
+import { service } from "service";
 
 type NewPlaceInputs = {
   title: string;
@@ -67,29 +67,26 @@ export default function NewPlaceForm() {
             })}
             helperText={errors?.title?.message}
           />
-          <Controller
+          <ProfileMarkdownInput
+            id="content"
+            label="Place content"
             control={control}
             name="content"
-            render={({ onChange, value }) => (
-              <ProfileMarkdownInput
-                id="content"
-                label="Place content"
-                onChange={onChange}
-                value={value}
-              />
-            )}
           />
 
           <Controller
             name="address"
             control={control}
-            render={({ value, onChange }) => (
+            render={() => (
               <EditLocationMap
-                address={value}
-                setAddress={(newValue) => onChange(newValue)}
-                setLocation={(location) => {
-                  setValue("lat", location.lat);
-                  setValue("lng", location.lng);
+                exact
+                updateLocation={(location) => {
+                  if (location) {
+                    // TODO: error handling
+                    setValue("address", location.address);
+                    setValue("lat", location.lat);
+                    setValue("lng", location.lng);
+                  }
                 }}
               />
             )}

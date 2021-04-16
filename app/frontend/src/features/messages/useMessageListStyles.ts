@@ -1,16 +1,8 @@
 import makeStyles from "@material-ui/core/styles/makeStyles";
 
 const useMessageListStyles = makeStyles((theme) => ({
-  link: {
-    "&:hover": {
-      textDecoration: "none",
-    },
-    color: "inherit",
-    textDecoration: "none",
-  },
   list: {
-    //margin won't go on the right, so make the width longer
-    width: `calc(100% + ${theme.spacing(4)})`,
+    width: "100%",
   },
   listItem: {
     marginInline: `-${theme.spacing(2)}`,

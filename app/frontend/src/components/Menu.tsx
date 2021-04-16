@@ -1,11 +1,11 @@
 import {
-  makeStyles,
   Menu as MuiMenu,
   MenuItem as MuiMenuItem,
   MenuItemProps,
   MenuProps,
 } from "@material-ui/core";
 import React from "react";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   item: {

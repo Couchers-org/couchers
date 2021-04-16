@@ -1,7 +1,7 @@
-import { makeStyles } from "@material-ui/core";
+import makeStyles from "utils/makeStyles";
 
-import DesktopAuthBg from "./resources/desktop-auth-bg.png";
-import MobileAuthBg from "./resources/mobile-auth-bg.png";
+import DesktopAuthBg from "./resources/desktop-auth-bg.jpg";
+import MobileAuthBg from "./resources/mobile-auth-bg.jpg";
 
 const useAuthStyles = makeStyles((theme) => ({
   backgroundBlurImage: {
@@ -9,7 +9,7 @@ const useAuthStyles = makeStyles((theme) => ({
     backgroundImage: `url(${MobileAuthBg})`,
     backgroundPosition: "top center",
     backgroundRepeat: "no-repeat",
-    backgroundSize: "contain",
+    backgroundSize: "cover",
     display: "block",
     filter: "blur(5px)",
     height: "100vh",
@@ -22,7 +22,7 @@ const useAuthStyles = makeStyles((theme) => ({
   button: {
     marginTop: theme.spacing(4),
     [theme.breakpoints.up("md")]: {
-      borderRadius: theme.shape.borderRadius / 3,
+      borderRadius: theme.shape.borderRadius,
     },
   },
   buttonText: {
@@ -31,7 +31,6 @@ const useAuthStyles = makeStyles((theme) => ({
   },
   content: {
     [theme.breakpoints.up("md")]: {
-      alignItems: "center",
       display: "flex",
       flexDirection: "row",
       height: "100%",
@@ -44,7 +43,7 @@ const useAuthStyles = makeStyles((theme) => ({
   facebookButton: {
     width: "100%",
     height: "40px",
-    borderRadius: theme.shape.borderRadius * 2,
+    borderRadius: theme.shape.borderRadius * 6,
     boxShadow: "0px 0px 5px rgba(0, 0, 0, 0.25)",
     minHeight: `calc(calc(${theme.typography.button.lineHeight} * ${
       theme.typography.button.fontSize
@@ -58,7 +57,7 @@ const useAuthStyles = makeStyles((theme) => ({
   googleButton: {
     width: "100%",
     height: "40px",
-    borderRadius: theme.shape.borderRadius * 2,
+    borderRadius: theme.shape.borderRadius * 6,
     boxShadow: "0px 0px 5px rgba(0, 0, 0, 0.25)",
     minHeight: `calc(calc(${theme.typography.button.lineHeight} * ${
       theme.typography.button.fontSize
@@ -69,11 +68,14 @@ const useAuthStyles = makeStyles((theme) => ({
   },
   */
   divider: {
-    borderTop: `1px solid ${theme.palette.text.primary}`,
+    borderTop: `1px solid ${theme.palette.common.white}`,
     marginLeft: "auto",
     marginRight: "auto",
     marginTop: theme.spacing(2),
     width: "100%",
+    [theme.breakpoints.up("md")]: {
+      borderTop: `1px solid ${theme.palette.text.primary}`,
+    },
   },
   errorMessage: {
     width: "100%",
@@ -110,8 +112,8 @@ const useAuthStyles = makeStyles((theme) => ({
   },
   formWrapper: {
     [theme.breakpoints.up("md")]: {
-      backgroundColor: "#f8f7f4", // TODO: check with the palette
-      borderRadius: theme.shape.borderRadius / 3,
+      backgroundColor: theme.palette.background.default,
+      borderRadius: theme.shape.borderRadius,
       padding: theme.spacing(5, 8),
       width: "53%",
     },
@@ -128,6 +130,9 @@ const useAuthStyles = makeStyles((theme) => ({
     color: theme.palette.common.white,
     textAlign: "left",
     width: "40%",
+    [theme.breakpoints.up("md")]: {
+      marginTop: theme.spacing(10),
+    },
   },
   logo: {
     color: theme.palette.secondary.main,

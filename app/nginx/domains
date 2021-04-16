@@ -1,3 +1,2 @@
-dev-api.coucher.org
-dev-user-media.coucher.org
-*.preview.coucher.org
+{API_DOMAIN}
+{MEDIA_DOMAIN}

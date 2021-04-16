@@ -1,10 +1,10 @@
 import {
   CircularProgress as MuiCircularProgress,
   CircularProgressProps,
-  makeStyles,
 } from "@material-ui/core";
 import classNames from "classnames";
 import React, { ForwardedRef } from "react";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   root: {},

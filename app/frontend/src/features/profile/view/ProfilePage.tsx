@@ -1,8 +1,14 @@
-import { Card, CircularProgress, makeStyles } from "@material-ui/core";
+import { Card, CircularProgress, Collapse } from "@material-ui/core";
 import { TabContext, TabPanel } from "@material-ui/lab";
 import Alert from "components/Alert";
+import SuccessSnackbar from "components/SuccessSnackbar";
 import TabBar from "components/TabBar";
-import { SECTION_LABELS } from "features/constants";
+import {
+  SECTION_LABELS,
+  SECTION_LABELS_A11Y_TEXT,
+  SEND_REQUEST_SUCCESS,
+} from "features/constants";
+import NewHostRequest from "features/messages/requests/NewHostRequest";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import About from "features/profile/view/About";
 import Home from "features/profile/view/Home";
@@ -10,8 +16,9 @@ import Overview from "features/profile/view/Overview";
 import References from "features/profile/view/References";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import useUserByUsername from "features/userQueries/useUserByUsername";
-import React, { useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   detailsCard: {
@@ -42,6 +49,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const REQUEST_ID = "request";
+
 export default function ProfilePage() {
   const classes = useStyles();
   const [currentTab, setCurrentTab] = useState<keyof typeof SECTION_LABELS>(
@@ -57,23 +66,43 @@ export default function ProfilePage() {
     username ?? (currentUser.data?.username || "")
   );
 
+  const [isRequesting, setIsRequesting] = useState(false);
+  const [isSuccessRequest, setIsSuccessRequest] = useState(false);
+
+  useLayoutEffect(() => {
+    if (isRequesting) {
+      const requestEl = document.getElementById(REQUEST_ID);
+      requestEl?.scrollIntoView();
+    }
+  }, [isRequesting]);
+
   return (
     <>
+      {isSuccessRequest && (
+        <SuccessSnackbar>{SEND_REQUEST_SUCCESS}</SuccessSnackbar>
+      )}
       {error && <Alert severity="error">{error}</Alert>}
       {loading ? (
         <CircularProgress />
       ) : user ? (
         <ProfileUserProvider user={user}>
           <div className={classes.root}>
-            <Overview user={user} />
-            <Card className={classes.detailsCard}>
+            <Overview user={user} setIsRequesting={setIsRequesting} />
+            <Card className={classes.detailsCard} id={REQUEST_ID}>
               <TabContext value={currentTab}>
                 <TabBar
                   value={currentTab}
                   setValue={setCurrentTab}
                   labels={SECTION_LABELS}
-                  ariaLabel="tabs for user's details"
+                  ariaLabel={SECTION_LABELS_A11Y_TEXT}
                 />
+                <Collapse in={isRequesting}>
+                  <NewHostRequest
+                    user={user}
+                    setIsRequesting={setIsRequesting}
+                    setIsRequestSuccess={setIsSuccessRequest}
+                  />
+                </Collapse>
                 <TabPanel classes={{ root: classes.tabPanel }} value="about">
                   <About user={user} />
                 </TabPanel>
@@ -84,7 +113,7 @@ export default function ProfilePage() {
                   classes={{ root: classes.tabPanel }}
                   value="references"
                 >
-                  <References user={user} />
+                  <References />
                 </TabPanel>
               </TabContext>
             </Card>

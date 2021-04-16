@@ -1,54 +1,40 @@
-import { Dialog, DialogContent, makeStyles } from "@material-ui/core";
+import { Dialog, DialogContent } from "@material-ui/core";
 import Alert from "components/Alert";
+import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import NewComment from "components/Comments/NewComment";
 import IconButton from "components/IconButton";
-import { AddIcon, EmailIcon, MoreIcon } from "components/Icons";
+import { AddIcon, EmailIcon } from "components/Icons";
 import TextBody from "components/TextBody";
-import {
-  useListDiscussions,
-  useNewDiscussionMutation,
-} from "features/communities/useCommunity";
 import {
   DISCUSSIONS_EMPTY_STATE,
   DISCUSSIONS_TITLE,
   NEW_POST_LABEL,
   SEE_MORE_DISCUSSIONS_LABEL,
-} from "features/constants";
+} from "features/communities/constants";
+import {
+  useListDiscussions,
+  useNewDiscussionMutation,
+} from "features/communities/hooks";
 import { Community } from "pb/communities_pb";
-import React, { useState } from "react";
+import { useState } from "react";
 import { useQueryClient } from "react-query";
-import { Link } from "react-router-dom";
-import { routeToCommunityDiscussions } from "routes";
+import { useHistory } from "react-router-dom";
+import { routeToCommunity } from "routes";
+import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
+import makeStyles from "utils/makeStyles";
 
 import { useCommunityPageStyles } from "./CommunityPage";
 import DiscussionCard from "./DiscussionCard";
 import SectionTitle from "./SectionTitle";
 
 const useStyles = makeStyles((theme) => ({
-  discussionCard: {
-    marginBottom: theme.spacing(1),
-  },
   discussionsContainer: {
     "& > *": {
-      [theme.breakpoints.up("sm")]: {
-        width: `calc(50% - ${theme.spacing(1)})`,
-      },
-      [theme.breakpoints.up("md")]: {
-        width: `calc(33.33% - ${theme.spacing(1)})`,
-      },
       width: "100%",
     },
-    //preserve grid in the last row
-    "&::after": {
-      [theme.breakpoints.up("sm")]: {
-        flexBasis: `calc(50% - ${theme.spacing(1)})`,
-      },
-      [theme.breakpoints.up("md")]: {
-        flexBasis: `calc(33.33% - ${theme.spacing(1)})`,
-      },
-      content: "''",
-      flexBasis: "100%",
+    "& > :not(:last-child)": {
+      marginBlockEnd: theme.spacing(3),
     },
     display: "flex",
     flexDirection: "row",
@@ -84,13 +70,12 @@ export default function DiscussionsSection({
 
   const queryClient = useQueryClient();
   const newDiscussionMutation = useNewDiscussionMutation(queryClient);
+  const history = useHistory();
 
   return (
     <>
       <div className={classes.discussionsHeader}>
-        <SectionTitle icon={<EmailIcon />}>
-          {DISCUSSIONS_TITLE(community.name)}
-        </SectionTitle>
+        <SectionTitle icon={<EmailIcon />}>{DISCUSSIONS_TITLE}</SectionTitle>
         <IconButton
           aria-label={NEW_POST_LABEL}
           onClick={() => setIsNewCommentOpen(true)}
@@ -115,45 +100,45 @@ export default function DiscussionsSection({
             </Alert>
           )}
           <NewComment
-            onComment={async (content) =>
+            onComment={async (content) => {
               newDiscussionMutation.mutate({
                 content,
                 ownerCommunityId: community.communityId,
                 title: "test",
-              })
-            }
+              });
+            }}
           />
         </DialogContent>
       </Dialog>
       <div className={classes.discussionsContainer}>
         {isDiscussionsLoading && <CircularProgress />}
-        {discussions &&
-          (discussions.pages.length > 0 &&
-          discussions.pages[0].discussionsList.length === 0 ? (
-            <TextBody>{DISCUSSIONS_EMPTY_STATE}</TextBody>
-          ) : (
-            discussions.pages
-              .flatMap((res) => res.discussionsList)
-              .map((discussion) => (
-                <DiscussionCard
-                  discussion={discussion}
-                  className={classes.discussionCard}
-                  key={`discussioncard-${discussion.threadId}`}
-                />
-              ))
-          ))}
+        {hasAtLeastOnePage(discussions, "discussionsList") ? (
+          discussions.pages
+            .flatMap((res) => res.discussionsList)
+            .map((discussion) => (
+              <DiscussionCard
+                discussion={discussion}
+                key={`discussioncard-${discussion.threadId}`}
+              />
+            ))
+        ) : (
+          <TextBody>{DISCUSSIONS_EMPTY_STATE}</TextBody>
+        )}
         {discussionsHasNextPage && (
           <div className={classes.loadMoreButton}>
-            <Link
-              to={routeToCommunityDiscussions(
-                community.communityId,
-                community.slug
-              )}
+            <Button
+              onClick={() =>
+                history.push(
+                  routeToCommunity(
+                    community.communityId,
+                    community.slug,
+                    "discussions"
+                  )
+                )
+              }
             >
-              <IconButton aria-label={SEE_MORE_DISCUSSIONS_LABEL}>
-                <MoreIcon />
-              </IconButton>
-            </Link>
+              {SEE_MORE_DISCUSSIONS_LABEL}
+            </Button>
           </div>
         )}
       </div>
