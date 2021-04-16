@@ -1,21 +1,46 @@
-import { makeStyles, Typography } from "@material-ui/core";
+import { Card, Typography } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import TextField from "components/TextField";
 import { CANCEL } from "features/constants";
 import { useForm } from "react-hook-form";
+import makeStyles from "utils/makeStyles";
 
 import {
   CREATE_NEW_DISCUSSION_TITLE,
   CREATE_NEW_DISCUSSION_TOPIC,
   NEW_DISCUSSION_TITLE,
+  NEW_DISCUSSION_TOPIC,
   POST,
 } from "../constants";
 import { CreateDiscussionInput, useNewDiscussionMutation } from "../hooks";
 
-const useStyles = makeStyles((theme) => ({}));
+const useStyles = makeStyles((theme) => ({
+  root: {
+    "& > :not(:last-child)": {
+      marginBlockEnd: theme.spacing(3),
+    },
+    marginBlockEnd: theme.spacing(5),
+    padding: theme.spacing(3),
+  },
+  title: {
+    marginTop: 0,
+  },
+  form: {
+    "& > * + *": {
+      marginBlockStart: theme.spacing(3),
+    },
+  },
+  actionButtonsContainer: {
+    "& > * + *": {
+      marginInlineStart: theme.spacing(3),
+    },
+    display: "flex",
+    justifyContent: "flex-end",
+  },
+}));
 
-interface CreateDiscussionFormProps {
+export interface CreateDiscussionFormProps {
   communityId: number;
   onCancel?(): void;
   onPost?(): void;
@@ -28,11 +53,14 @@ export default function CreateDiscussionForm({
   onCancel,
   onPost,
 }: CreateDiscussionFormProps) {
+  const classes = useStyles();
   const {
     handleSubmit,
     reset: resetForm,
     register,
-  } = useForm<CreateDiscussionData>();
+  } = useForm<CreateDiscussionData>({
+    mode: "onBlur",
+  });
 
   const {
     error,
@@ -59,33 +87,37 @@ export default function CreateDiscussionForm({
     createDiscussion({ ...data, ownerCommunityId: communityId });
   });
 
-  // TODO: style/wrap in card
   return (
-    <>
-      <Typography variant="h2">{CREATE_NEW_DISCUSSION_TITLE}</Typography>
+    <Card className={classes.root}>
+      <Typography className={classes.title} variant="h2">
+        {CREATE_NEW_DISCUSSION_TITLE}
+      </Typography>
       {error && <Alert severity="error">{error.message}</Alert>}
-      <form onSubmit={onSubmit}>
+      <form className={classes.form} onSubmit={onSubmit}>
         <TextField
           fullWidth
           id="title"
           name="title"
-          inputRef={register}
+          inputRef={register({ required: true })}
           label={NEW_DISCUSSION_TITLE}
         />
         <TextField
           fullWidth
           id="content"
           name="content"
-          inputRef={register}
-          label={CREATE_NEW_DISCUSSION_TOPIC}
+          inputRef={register({ required: true })}
+          label={NEW_DISCUSSION_TOPIC}
           multiline
+          placeholder={CREATE_NEW_DISCUSSION_TOPIC}
           rows={6}
         />
-        <Button onClick={handlePost} type="submit">
-          {POST}
-        </Button>
-        <Button onClick={handleCancel}>{CANCEL}</Button>
+        <div className={classes.actionButtonsContainer}>
+          <Button onClick={handlePost} type="submit">
+            {POST}
+          </Button>
+          <Button onClick={handleCancel}>{CANCEL}</Button>
+        </div>
       </form>
-    </>
+    </Card>
   );
 }

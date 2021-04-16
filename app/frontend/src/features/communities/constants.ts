@@ -28,6 +28,7 @@ export const LOCAL_INFO_LABEL = "Local info";
 export const MORE_REPLIES = "More replies...";
 export const MORE_TIPS = "More tips and information";
 export const NEW_DISCUSSION_TITLE = "Discussion title";
+export const NEW_DISCUSSION_TOPIC = "Discussion topic";
 export const NEW_POST_LABEL = "New post";
 export const OVERVIEW_LABEL = "Overview";
 export const PLACES_EMPTY_STATE = "No places to show yet.";

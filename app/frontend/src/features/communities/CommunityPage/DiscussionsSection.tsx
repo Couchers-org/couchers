@@ -1,4 +1,3 @@
-import { Collapse } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
@@ -7,18 +6,15 @@ import TextBody from "components/TextBody";
 import {
   DISCUSSIONS_EMPTY_STATE,
   DISCUSSIONS_TITLE,
-  NEW_POST_LABEL,
   SEE_MORE_DISCUSSIONS_LABEL,
 } from "features/communities/constants";
 import { useListDiscussions } from "features/communities/hooks";
 import { Community } from "pb/communities_pb";
-import { useState } from "react";
 import { useHistory } from "react-router-dom";
 import { routeToCommunity } from "routes";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";
 
-import CreateDiscussionForm from "../discussion/CreateDiscussionForm";
 import { useCommunityPageStyles } from "./CommunityPage";
 import DiscussionCard from "./DiscussionCard";
 import SectionTitle from "./SectionTitle";
@@ -53,8 +49,6 @@ export default function DiscussionsSection({
 }) {
   const classes = { ...useCommunityPageStyles(), ...useStyles() };
 
-  const [isCreatingNewPost, setIsCreatingNewPost] = useState(false);
-
   const {
     isLoading: isDiscussionsLoading,
     error: discussionsError,
@@ -72,18 +66,6 @@ export default function DiscussionsSection({
       {discussionsError && (
         <Alert severity="error">{discussionsError.message}</Alert>
       )}
-      <Button
-        className={classes.newPostButton}
-        onClick={() => setIsCreatingNewPost(true)}
-      >
-        {NEW_POST_LABEL}
-      </Button>
-      <Collapse in={isCreatingNewPost}>
-        <CreateDiscussionForm
-          communityId={community.communityId}
-          onCancel={() => setIsCreatingNewPost(false)}
-        />
-      </Collapse>
       <div className={classes.discussionsContainer}>
         {isDiscussionsLoading && <CircularProgress />}
         {hasAtLeastOnePage(discussions, "discussionsList") ? (
