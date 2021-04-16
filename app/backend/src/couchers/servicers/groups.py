@@ -55,10 +55,10 @@ def group_to_pb(cluster: Cluster, user_id):
         created=Timestamp_from_datetime(cluster.created),
         parents=_parents_to_pb(cluster, user_id),
         main_page=page_to_pb(cluster.main_page, user_id),
-        member=cluster.members.filter(User.id == user_id).one_or_none() is not None,
-        admin=cluster.admins.filter(User.id == user_id).one_or_none() is not None,
-        member_count=cluster.members.count(),
-        admin_count=cluster.admins.count(),
+        member=cluster.members.filter(User.is_visible).filter(User.id == user_id).one_or_none() is not None,
+        admin=cluster.admins.filter(User.is_visible).filter(User.id == user_id).one_or_none() is not None,
+        member_count=cluster.members.filter(User.is_visible).count(),
+        admin_count=cluster.admins.filter(User.is_visible).count(),
         can_moderate=can_moderate,
     )
 
