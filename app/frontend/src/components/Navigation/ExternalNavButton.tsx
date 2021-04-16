@@ -1,23 +1,6 @@
 import { Typography, TypographyProps } from "@material-ui/core";
-import makeStyles from "utils/makeStyles";
 
-const useStyles = makeStyles((theme) => ({
-  link: {
-    color: theme.palette.text.secondary,
-    display: "flex",
-    flex: "1",
-    fontSize: "2rem",
-    maxWidth: "10.5rem",
-    padding: theme.spacing(1, 1.5),
-    transition: theme.transitions.create(["color", "padding-top"], {
-      duration: theme.transitions.duration.short,
-    }),
-  },
-  label: {
-    alignSelf: "center",
-    marginTop: 0,
-  },
-}));
+import { useNavLinkStyles } from "./useNavLinkStyles";
 
 interface ExternalNavButtonProps {
   route: string;
@@ -30,7 +13,7 @@ export default function ExternalNavButton({
   label,
   labelVariant,
 }: ExternalNavButtonProps) {
-  const classes = useStyles();
+  const classes = useNavLinkStyles();
   return (
     <a href={route} className={classes.link}>
       <Typography variant={labelVariant} className={classes.label} noWrap>
