@@ -412,27 +412,19 @@ class API(api_pb2_grpc.APIServicer):
             return empty_pb2.Empty()
 
     def ListFriends(self, request, context):
-        users1 = aliased(User)
-        users2 = aliased(User)
+        from_users = aliased(User)
+        to_users = aliased(User)
 
         with session_scope() as session:
             rels = (
                 session.query(FriendRelationship)
                 .join(
-                    users1,
-                    and_(
-                        users1.id == FriendRelationship.from_user_id,
-                        FriendRelationship.from_user_id is not context.user_id,
-                    ),
+                    from_users,
+                    FriendRelationship.from_user_id == from_users.id,
                 )
-                .join(
-                    users2,
-                    and_(
-                        users2.id == FriendRelationship.to_user_id, FriendRelationship.to_user_id is not context.user_id
-                    ),
-                )
-                .filter(users1.is_visible)
-                .filter(users2.is_visible)
+                .join(to_users, FriendRelationship.to_user_id == to_users.id)
+                .filter(from_users.is_visible)
+                .filter(to_users.is_visible)
                 .filter(
                     or_(
                         FriendRelationship.from_user_id == context.user_id,

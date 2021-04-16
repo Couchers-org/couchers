@@ -1,6 +1,5 @@
 import logging
 
-from sqlalchemy import not_
 from sqlalchemy.sql import func
 
 from couchers import email, urls

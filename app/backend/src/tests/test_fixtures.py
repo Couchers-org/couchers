@@ -165,9 +165,7 @@ def make_friends(user1, user2):
 
 def make_user_invisible(user_id):
     with session_scope() as session:
-        user = get_user_by_field(session, str(user_id))
-        user.is_banned = True
-        session.commit()
+        session.query(User).filter(User.id == user_id).one().is_banned = True
 
 
 class CookieMetadataPlugin(grpc.AuthMetadataPlugin):

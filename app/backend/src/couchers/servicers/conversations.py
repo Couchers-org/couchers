@@ -354,7 +354,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         if len(recipient_user_ids) != len(request.recipient_user_ids):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.USER_NOT_FOUND)
 
-        if len(recipient_user_ids) < 1:
+        if not recipient_user_ids:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NO_RECIPIENTS)
 
         if len(recipient_user_ids) != len(set(recipient_user_ids)):
