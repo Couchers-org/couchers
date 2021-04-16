@@ -306,8 +306,6 @@ def test_ListReference_banned_deleted_users(db):
         user2 = get_user_by_field(session, user2.username)
         user2.is_banned = True
         session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
 
     # reference to and from banned user is hidden
     with references_session(token1) as api:
@@ -321,8 +319,6 @@ def test_ListReference_banned_deleted_users(db):
         user3 = get_user_by_field(session, user3.username)
         user3.is_deleted = True
         session.commit()
-        session.refresh(user3)
-        session.expunge(user3)
 
     # doesn't change; references to and from deleted users remain
     with references_session(token1) as api:

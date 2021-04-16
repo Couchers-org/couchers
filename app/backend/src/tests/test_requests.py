@@ -8,7 +8,7 @@ from couchers.db import get_user_by_field, session_scope
 from couchers.models import Message, MessageType
 from couchers.utils import today
 from pb import api_pb2, conversations_pb2, requests_pb2
-from tests.test_fixtures import api_session, db, generate_user, requests_session, testconfig
+from tests.test_fixtures import api_session, db, generate_user, make_user_invisible, requests_session, testconfig
 
 
 @pytest.fixture(autouse=True)
@@ -185,13 +185,7 @@ def test_GetHostRequest_invisible_user_as_sender(db):
             )
         ).host_request_id
 
-    # Delete sender
-    with session_scope() as session:
-        user1 = get_user_by_field(session, user1.username)
-        user1.is_deleted = True
-        session.commit()
-        session.refresh(user1)
-        session.expunge(user1)
+    make_user_invisible(user1.id)
 
     with requests_session(token2) as requests:
         with pytest.raises(grpc.RpcError) as e:
@@ -214,13 +208,7 @@ def test_GetHostRequest_invisible_user_as_recipient(db):
             )
         ).host_request_id
 
-    # Delete recipient
-    with session_scope() as session:
-        user2 = get_user_by_field(session, user2.username)
-        user2.is_deleted = True
-        session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
+    make_user_invisible(user2.id)
 
     with requests_session(token1) as requests:
         with pytest.raises(grpc.RpcError) as e:
@@ -335,13 +323,7 @@ def test_ListHostRequests_excluding_invisible_user_as_recipient(db):
         res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
         assert len(res.host_requests) == 1
 
-    # delete host
-    with session_scope() as session:
-        user2 = get_user_by_field(session, user2.username)
-        user2.is_deleted = True
-        session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
+    make_user_invisible(user2.id)
 
     with requests_session(token1) as requests:
         res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
@@ -369,13 +351,7 @@ def test_ListHostRequests_excluding_invisible_user_as_sender(db):
         res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
         assert len(res.host_requests) == 1
 
-    # delete guest
-    with session_scope() as session:
-        user1 = get_user_by_field(session, user1.username)
-        user1.is_deleted = True
-        session.commit()
-        session.refresh(user1)
-        session.expunge(user1)
+    make_user_invisible(user1.id)
 
     with requests_session(token2) as requests:
         res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
@@ -508,13 +484,7 @@ def test_RespondHostRequest_invisible_user_as_sender(db):
             )
         ).host_request_id
 
-    # Delete sender
-    with session_scope() as session:
-        user1 = get_user_by_field(session, user1.username)
-        user1.is_deleted = True
-        session.commit()
-        session.refresh(user1)
-        session.expunge(user1)
+    make_user_invisible(user1.id)
 
     with requests_session(token2) as requests:
         with pytest.raises(grpc.RpcError) as e:

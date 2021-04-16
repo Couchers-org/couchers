@@ -6,7 +6,15 @@ from couchers import errors
 from couchers.db import get_user_by_field, session_scope
 from couchers.utils import now, to_aware_datetime
 from pb import api_pb2, conversations_pb2
-from tests.test_fixtures import api_session, conversations_session, db, generate_user, make_friends, testconfig
+from tests.test_fixtures import (
+    api_session,
+    conversations_session,
+    db,
+    generate_user,
+    make_friends,
+    make_user_invisible,
+    testconfig,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -868,17 +876,8 @@ def test_admin_behaviour(db):
         ).group_chat_id
         c.MakeGroupChatAdmin(conversations_pb2.MakeGroupChatAdminReq(group_chat_id=gcid, user_id=user5.id))
 
-    # hide users 4 and 5
-    with session_scope() as session:
-        user4 = get_user_by_field(session, user4.username)
-        user4.is_banned = True
-        user5 = get_user_by_field(session, user5.username)
-        user5.is_banned = True
-        session.commit()
-        session.refresh(user4)
-        session.expunge(user4)
-        session.refresh(user5)
-        session.expunge(user5)
+    make_user_invisible(user4.id)
+    make_user_invisible(user5.id)
 
     with conversations_session(token1) as c:
         # make non-existent user admin

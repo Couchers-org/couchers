@@ -14,6 +14,7 @@ from tests.test_fixtures import (
     db,
     generate_user,
     make_friends,
+    make_user_invisible,
     real_api_session,
     real_jail_session,
     testconfig,
@@ -413,27 +414,13 @@ def test_ListFriendRequests_invisible_user_as_sender(db):
     with api_session(token2) as api:
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
 
-    with session_scope() as session:
-        friend_request_id = (
-            session.query(FriendRelationship)
-            .filter(FriendRelationship.from_user_id == user2.id and FriendRelationship.to_user_id == user1.id)
-            .one_or_none()
-        )
-        session.expunge(friend_request_id)
-
     # Check 1 received FR
     with api_session(token1) as api:
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert len(res.sent) == 0
         assert len(res.received) == 1
 
-    # Hide sender
-    with session_scope() as session:
-        user2 = get_user_by_field(session, user2.username)
-        user2.is_banned = True
-        session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
+    make_user_invisible(user2.id)
 
     # Check back to no FR
     with api_session(token1) as api:
@@ -460,13 +447,7 @@ def test_ListFriendRequests_invisible_user_as_recipient(db):
         assert len(res.sent) == 1
         assert len(res.received) == 0
 
-    # Hide recipient
-    with session_scope() as session:
-        user2 = get_user_by_field(session, user2.username)
-        user2.is_banned = True
-        session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
+    make_user_invisible(user2.id)
 
     # Check back to no FR
     with api_session(token1) as api:
@@ -565,24 +546,26 @@ def test_ListFriends(db):
 
 def test_ListFriends_with_invisible_users(db):
     user1, token1 = generate_user()
-    user2, token2 = generate_user(is_deleted=True)
-    user3, token3 = generate_user()
+    user2, token2 = generate_user()
 
+    # check no friends to start
     with api_session(token1) as api:
         res = api.ListFriends(empty_pb2.Empty())
         assert len(res.user_ids) == 0
 
     make_friends(user1, user2)
 
-    with api_session(token1) as api:
-        res = api.ListFriends(empty_pb2.Empty())
-        assert len(res.user_ids) == 0
-
-    make_friends(user1, user3)
-
+    # check now one friend
     with api_session(token1) as api:
         res = api.ListFriends(empty_pb2.Empty())
         assert len(res.user_ids) == 1
+
+    make_user_invisible(user2.id)
+
+    # check now no friends
+    with api_session(token1) as api:
+        res = api.ListFriends(empty_pb2.Empty())
+        assert len(res.user_ids) == 0
 
 
 def test_mutual_friends(db):
@@ -671,22 +654,17 @@ def test_RespondFriendRequest_invisible_user_as_sender(db):
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
 
     with session_scope() as session:
-        friend_request = (
+        friend_request_id = (
             session.query(FriendRelationship)
             .filter(FriendRelationship.from_user_id == user2.id and FriendRelationship.to_user_id == user1.id)
             .one_or_none()
-        )
-        session.expunge(friend_request)
+        ).id
 
-        user2 = get_user_by_field(session, user2.username)
-        user2.is_banned = True
-        session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
+        make_user_invisible(user2.id)
 
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
-            api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=friend_request.id, accept=True))
+            api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=friend_request_id, accept=True))
     assert e.value.code() == grpc.StatusCode.NOT_FOUND
     assert e.value.details() == errors.FRIEND_REQUEST_NOT_FOUND
 
@@ -706,11 +684,7 @@ def test_CancelFriendRequest_invisible_user_as_recipient():
         )
         session.expunge(friend_request)
 
-        user2 = get_user_by_field(session, user2.username)
-        user2.is_banned = True
-        session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
+    make_user_invisible(user2.id)
 
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:

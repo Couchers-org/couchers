@@ -10,7 +10,7 @@ import pytest
 
 from couchers.config import config
 from couchers.crypto import random_hex
-from couchers.db import apply_migrations, get_engine, session_scope
+from couchers.db import apply_migrations, get_engine, get_user_by_field, session_scope
 from couchers.models import Base, FriendRelationship, FriendStatus, User
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
@@ -161,6 +161,13 @@ def make_friends(user1, user2):
             status=FriendStatus.accepted,
         )
         session.add(friend_relationship)
+
+
+def make_user_invisible(user_id):
+    with session_scope() as session:
+        user = get_user_by_field(session, str(user_id))
+        user.is_banned = True
+        session.commit()
 
 
 class CookieMetadataPlugin(grpc.AuthMetadataPlugin):

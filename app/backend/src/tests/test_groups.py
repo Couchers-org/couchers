@@ -4,6 +4,7 @@ import pytest
 from couchers import errors
 from couchers.db import get_user_by_field, session_scope
 from pb import groups_pb2, pages_pb2
+from src.tests.test_fixtures import make_user_invisible
 from tests.test_communities import get_community_id, get_group_id, get_user_id_and_token, testing_communities
 from tests.test_fixtures import groups_session, testconfig
 
@@ -236,13 +237,7 @@ def test_ListAdmins(testing_communities):
         )
         assert res.admin_user_ids == [user2_id]
 
-    # Hide user2
-    with session_scope() as session:
-        user2 = get_user_by_field(session, str(user2_id))
-        user2.is_banned = True
-        session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
+    make_user_invisible(user2_id)
 
     # Check user2 invisible
     with groups_session(token1) as api:
@@ -286,13 +281,7 @@ def test_ListMembers(testing_communities):
         )
         assert res.member_user_ids == [user2_id, user4_id, user5_id]
 
-    # Hide user2
-    with session_scope() as session:
-        user2 = get_user_by_field(session, str(user2_id))
-        user2.is_banned = True
-        session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
+    make_user_invisible(user2_id)
 
     # Check user2 invisible
     with groups_session(token1) as api:
