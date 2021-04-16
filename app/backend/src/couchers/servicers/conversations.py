@@ -350,12 +350,12 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 )
             ]
 
-        if len(recipient_user_ids) < 1:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NO_RECIPIENTS)
-
         # make sure all requested users are visible
         if len(recipient_user_ids) != len(request.recipient_user_ids):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.USER_NOT_FOUND)
+
+        if len(recipient_user_ids) < 1:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NO_RECIPIENTS)
 
         if len(recipient_user_ids) != len(set(recipient_user_ids)):
             # make sure there's no duplicate users
@@ -485,6 +485,9 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
     def MakeGroupChatAdmin(self, request, context):
         with session_scope() as session:
+            if not session.query(User).filter(User.is_visible).filter(User.id == request.user_id).one_or_none():
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+
             your_subscription = (
                 session.query(GroupChatSubscription)
                 .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
@@ -526,6 +529,9 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
     def RemoveGroupChatAdmin(self, request, context):
         with session_scope() as session:
+            if not session.query(User).filter(User.is_visible).filter(User.id == request.user_id).one_or_none():
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+
             your_subscription = (
                 session.query(GroupChatSubscription)
                 .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
@@ -575,6 +581,9 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
     def InviteToGroupChat(self, request, context):
         with session_scope() as session:
+            if not session.query(User).filter(User.is_visible).filter(User.id == request.user_id).one_or_none():
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+
             result = (
                 session.query(GroupChatSubscription, GroupChat)
                 .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
