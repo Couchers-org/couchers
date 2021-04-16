@@ -1,8 +1,8 @@
-"""Adding user blocking
+"""Adding is_deleted and Userblocks
 
-Revision ID: 170cd7fed5e4
-Revises: 17362f602f12
-Create Date: 2021-03-10 21:16:47.762154
+Revision ID: 87cfd4c70e1e
+Revises: 723394ace6b5
+Create Date: 2021-04-16 03:49:52.816897
 
 """
 import geoalchemy2
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "170cd7fed5e4"
-down_revision = "17362f602f12"
+revision = "87cfd4c70e1e"
+down_revision = "723394ace6b5"
 branch_labels = None
 depends_on = None
 
