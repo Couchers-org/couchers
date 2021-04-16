@@ -3,7 +3,6 @@ import pytest
 from google.protobuf import wrappers_pb2
 
 from couchers import errors
-from couchers.db import get_user_by_field, session_scope
 from couchers.utils import now, to_aware_datetime
 from pb import api_pb2, conversations_pb2
 from tests.test_fixtures import (
@@ -876,10 +875,9 @@ def test_admin_behaviour(db):
         ).group_chat_id
         c.MakeGroupChatAdmin(conversations_pb2.MakeGroupChatAdminReq(group_chat_id=gcid, user_id=user5.id))
 
-    make_user_invisible(user4.id)
-    make_user_invisible(user5.id)
+        make_user_invisible(user4.id)
+        make_user_invisible(user5.id)
 
-    with conversations_session(token1) as c:
         # make non-existent user admin
         with pytest.raises(grpc.RpcError) as e:
             c.MakeGroupChatAdmin(conversations_pb2.MakeGroupChatAdminReq(group_chat_id=gcid, user_id=999))

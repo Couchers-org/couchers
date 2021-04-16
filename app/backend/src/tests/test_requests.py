@@ -4,7 +4,7 @@ import grpc
 import pytest
 
 from couchers import errors
-from couchers.db import get_user_by_field, session_scope
+from couchers.db import session_scope
 from couchers.models import Message, MessageType
 from couchers.utils import today
 from pb import api_pb2, conversations_pb2, requests_pb2
@@ -187,6 +187,7 @@ def test_GetHostRequest_invisible_user_as_sender(db):
 
     make_user_invisible(user1.id)
 
+    # check can't get host request
     with requests_session(token2) as requests:
         with pytest.raises(grpc.RpcError) as e:
             requests.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
@@ -200,17 +201,17 @@ def test_GetHostRequest_invisible_user_as_recipient(db):
     today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
     today_plus_3 = (today() + timedelta(days=3)).strftime("%Y-%m-%d")
 
-    # Send host request
     with requests_session(token1) as requests:
+        # Send host request
         host_request_id = requests.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
             )
         ).host_request_id
 
-    make_user_invisible(user2.id)
+        make_user_invisible(user2.id)
 
-    with requests_session(token1) as requests:
+        # check can't get host request
         with pytest.raises(grpc.RpcError) as e:
             requests.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
@@ -311,21 +312,24 @@ def test_ListHostRequests_excluding_invisible_user_as_recipient(db):
     today_plus_3 = (today() + timedelta(days=3)).strftime("%Y-%m-%d")
 
     with requests_session(token1) as requests:
+        # check no HR
         res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
         assert len(res.host_requests) == 0
 
+        # send HR
         requests.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
             )
         )
 
+        # confirm one HR
         res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
         assert len(res.host_requests) == 1
 
-    make_user_invisible(user2.id)
+        make_user_invisible(user2.id)
 
-    with requests_session(token1) as requests:
+        # check back to None
         res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
         assert len(res.host_requests) == 0
 
@@ -336,10 +340,12 @@ def test_ListHostRequests_excluding_invisible_user_as_sender(db):
     today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
     today_plus_3 = (today() + timedelta(days=3)).strftime("%Y-%m-%d")
 
+    # check no HR
     with requests_session(token2) as requests:
         res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
         assert len(res.host_requests) == 0
 
+    # send HR
     with requests_session(token1) as requests:
         requests.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
@@ -348,12 +354,13 @@ def test_ListHostRequests_excluding_invisible_user_as_sender(db):
         )
 
     with requests_session(token2) as requests:
+        # check one HR
         res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
         assert len(res.host_requests) == 1
 
-    make_user_invisible(user1.id)
+        make_user_invisible(user1.id)
 
-    with requests_session(token2) as requests:
+        # check back to none
         res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
         assert len(res.host_requests) == 0
 
@@ -486,6 +493,7 @@ def test_RespondHostRequest_invisible_user_as_sender(db):
 
     make_user_invisible(user1.id)
 
+    # check can't respond to HR
     with requests_session(token2) as requests:
         with pytest.raises(grpc.RpcError) as e:
             requests.RespondHostRequest(

@@ -2,11 +2,10 @@ import grpc
 import pytest
 
 from couchers import errors
-from couchers.db import get_user_by_field, session_scope
+from couchers.db import session_scope
 from pb import groups_pb2, pages_pb2
-from src.tests.test_fixtures import make_user_invisible
 from tests.test_communities import get_community_id, get_group_id, get_user_id_and_token, testing_communities
-from tests.test_fixtures import groups_session, testconfig
+from tests.test_fixtures import groups_session, make_user_invisible, testconfig
 
 
 @pytest.fixture(autouse=True)
@@ -237,10 +236,9 @@ def test_ListAdmins(testing_communities):
         )
         assert res.admin_user_ids == [user2_id]
 
-    make_user_invisible(user2_id)
+        make_user_invisible(user2_id)
 
-    # Check user2 invisible
-    with groups_session(token1) as api:
+        # Check user2 invisible
         res = api.ListAdmins(
             groups_pb2.ListAdminsReq(
                 group_id=hitchhikers_id,
@@ -281,10 +279,9 @@ def test_ListMembers(testing_communities):
         )
         assert res.member_user_ids == [user2_id, user4_id, user5_id]
 
-    make_user_invisible(user2_id)
+        make_user_invisible(user2_id)
 
-    # Check user2 invisible
-    with groups_session(token1) as api:
+        # Check user2 invisible
         res = api.ListMembers(
             groups_pb2.ListMembersReq(
                 group_id=hitchhikers_id,

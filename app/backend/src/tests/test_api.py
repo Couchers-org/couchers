@@ -5,7 +5,7 @@ import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
 
 from couchers import errors
-from couchers.db import get_user_by_field, session_scope
+from couchers.db import session_scope
 from couchers.models import Complaint, FriendRelationship
 from couchers.utils import now, to_aware_datetime
 from pb import api_pb2, jail_pb2
@@ -410,20 +410,19 @@ def test_ListFriendRequests_invisible_user_as_sender(db):
         assert len(res.sent) == 0
         assert len(res.received) == 0
 
-    # Send friend request to user 1
+    # Send FR to user 1
     with api_session(token2) as api:
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
 
-    # Check 1 received FR
     with api_session(token1) as api:
+        # Check 1 received FR
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert len(res.sent) == 0
         assert len(res.received) == 1
 
-    make_user_invisible(user2.id)
+        make_user_invisible(user2.id)
 
-    # Check back to no FR
-    with api_session(token1) as api:
+        # Check back to no FR
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert len(res.sent) == 0
         assert len(res.received) == 0
@@ -433,8 +432,8 @@ def test_ListFriendRequests_invisible_user_as_recipient(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    # Check no active FR to start
     with api_session(token1) as api:
+        # Check no active FR to start
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert len(res.sent) == 0
         assert len(res.received) == 0
@@ -447,10 +446,9 @@ def test_ListFriendRequests_invisible_user_as_recipient(db):
         assert len(res.sent) == 1
         assert len(res.received) == 0
 
-    make_user_invisible(user2.id)
+        make_user_invisible(user2.id)
 
-    # Check back to no FR
-    with api_session(token1) as api:
+        # Check back to no FR
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert len(res.sent) == 0
         assert len(res.received) == 0
@@ -548,22 +546,20 @@ def test_ListFriends_with_invisible_users(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    # check no friends to start
     with api_session(token1) as api:
+        # check no friends to start
         res = api.ListFriends(empty_pb2.Empty())
         assert len(res.user_ids) == 0
 
-    make_friends(user1, user2)
+        make_friends(user1, user2)
 
-    # check now one friend
-    with api_session(token1) as api:
+        # check now one friend
         res = api.ListFriends(empty_pb2.Empty())
         assert len(res.user_ids) == 1
 
-    make_user_invisible(user2.id)
+        make_user_invisible(user2.id)
 
-    # check now no friends
-    with api_session(token1) as api:
+        # check now no friends
         res = api.ListFriends(empty_pb2.Empty())
         assert len(res.user_ids) == 0
 
@@ -660,7 +656,7 @@ def test_RespondFriendRequest_invisible_user_as_sender(db):
             .one_or_none()
         ).id
 
-        make_user_invisible(user2.id)
+    make_user_invisible(user2.id)
 
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
