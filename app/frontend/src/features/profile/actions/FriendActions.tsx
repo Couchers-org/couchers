@@ -32,8 +32,7 @@ export default function FriendActions({
     ? (component = (
         <MessageUserButton user={user} setMutationError={setMutationError} />
       ))
-    : user.friends === User.FriendshipStatus.PENDING &&
-      user.pendingFriendRequest &&
+    : user.pendingFriendRequest &&
       user.pendingFriendRequest.sent === false &&
       (component = (
         <PendingFriendReqButton
