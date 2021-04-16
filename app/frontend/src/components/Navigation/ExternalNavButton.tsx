@@ -7,7 +7,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flex: "1",
     fontSize: "2rem",
-    maxWidth: theme.spacing(21),
+    maxWidth: "10.5rem",
     padding: theme.spacing(1, 1.5),
     transition: theme.transitions.create(["color", "padding-top"], {
       duration: theme.transitions.duration.short,
