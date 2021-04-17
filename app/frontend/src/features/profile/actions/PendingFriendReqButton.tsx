@@ -11,10 +11,11 @@ import {
   DECLINE_FRIEND_ACTION,
   DECLINE_FRIEND_LABEL,
 } from "features/profile/constants";
+import { FriendRequest } from "pb/api_pb";
 import React, { useRef, useState } from "react";
 
 interface PendingFriendReqButtonProps {
-  friendRequestId: number;
+  friendRequest: FriendRequest.AsObject;
   setMutationError: SetMutationError;
 }
 
@@ -22,7 +23,7 @@ export const RESPOND_TO_FRIEND_REQUEST_MENU_ID =
   "respond-to-friend-request-actions-menu";
 
 function PendingFriendReqButton({
-  friendRequestId,
+  friendRequest,
   setMutationError,
 }: PendingFriendReqButtonProps) {
   const [isOpen, setIsOpen] = useState({
@@ -76,7 +77,7 @@ function PendingFriendReqButton({
                 onClick={() => {
                   respondToFriendRequest({
                     accept: true,
-                    friendRequestId,
+                    friendRequest,
                     setMutationError,
                   });
                 }}
@@ -91,7 +92,7 @@ function PendingFriendReqButton({
                 onClick={() => {
                   respondToFriendRequest({
                     accept: false,
-                    friendRequestId,
+                    friendRequest,
                     setMutationError,
                   });
                 }}

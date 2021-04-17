@@ -36,7 +36,7 @@ export default function FriendActions({
       user.pendingFriendRequest.sent === false &&
       (component = (
         <PendingFriendReqButton
-          friendRequestId={user.pendingFriendRequest.friendRequestId}
+          friendRequest={user.pendingFriendRequest}
           setMutationError={setMutationError}
         />
       ));

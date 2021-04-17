@@ -1,5 +1,6 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error } from "grpc-web";
+import { FriendRequest } from "pb/api_pb";
 import { friendRequestKey } from "queryKeys";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
@@ -8,7 +9,7 @@ import { SetMutationError } from ".";
 
 interface RespondToFriendRequestVariables {
   accept: boolean;
-  friendRequestId: number;
+  friendRequest: FriendRequest.AsObject;
   setMutationError: SetMutationError;
 }
 
@@ -20,8 +21,8 @@ export default function useRespondToFriendRequest() {
     isSuccess,
     reset,
   } = useMutation<Empty, Error, RespondToFriendRequestVariables>(
-    ({ friendRequestId, accept }) =>
-      service.api.respondFriendRequest(friendRequestId, accept),
+    ({ friendRequest, accept }) =>
+      service.api.respondFriendRequest(friendRequest.friendRequestId, accept),
     {
       onError: (error, { setMutationError }) => {
         setMutationError(error.message);
@@ -30,9 +31,10 @@ export default function useRespondToFriendRequest() {
         setMutationError("");
         await queryClient.cancelQueries(friendRequestKey("received"));
       },
-      onSuccess: () => {
+      onSuccess: (_, { friendRequest }) => {
         queryClient.invalidateQueries("friendIds");
         queryClient.invalidateQueries(friendRequestKey("received"));
+        queryClient.invalidateQueries(["user", friendRequest.userId]);
         queryClient.invalidateQueries("ping");
       },
     }
