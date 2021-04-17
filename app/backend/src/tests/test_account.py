@@ -495,8 +495,10 @@ def test_ChangeEmail_no_password_confirm_with_old_email_first(db, fast_passwords
         assert user_updated.new_email == new_email
         assert user_updated.old_email_token_created <= now()
         assert user_updated.old_email_token_expiry >= now()
+        assert not user_updated.confirmed_email_change_via_old_email
         assert user_updated.new_email_token_created <= now()
         assert user_updated.new_email_token_expiry >= now()
+        assert not user_updated.confirmed_email_change_via_new_email
 
         token = user_updated.old_email_token
 
@@ -511,11 +513,13 @@ def test_ChangeEmail_no_password_confirm_with_old_email_first(db, fast_passwords
         user_updated = session.query(User).filter(User.id == user.id).one()
         assert user_updated.email == user.email
         assert user_updated.new_email == new_email
-        assert user.old_email_token is None
+        assert user_updated.old_email_token is None
         assert user_updated.old_email_token_created == None
         assert user_updated.old_email_token_expiry == None
+        assert user_updated.confirmed_email_change_via_old_email
         assert user_updated.new_email_token_created <= now()
         assert user_updated.new_email_token_expiry >= now()
+        assert not user_updated.confirmed_email_change_via_new_email
 
         token = user_updated.new_email_token
 
@@ -531,11 +535,13 @@ def test_ChangeEmail_no_password_confirm_with_old_email_first(db, fast_passwords
         assert user.email == new_email
         assert user.new_email is None
         assert user.old_email_token is None
-        assert user.new_email_token is None
         assert user.old_email_token_created is None
         assert user.old_email_token_expiry is None
+        assert not user.confirmed_email_change_via_old_email
+        assert user.new_email_token is None
         assert user.new_email_token_created is None
         assert user.new_email_token_expiry is None
+        assert not user.confirmed_email_change_via_new_email
 
 
 def test_ChangeEmail_no_password_confirm_with_new_email_first(db, fast_passwords):
@@ -555,8 +561,10 @@ def test_ChangeEmail_no_password_confirm_with_new_email_first(db, fast_passwords
         assert user_updated.new_email == new_email
         assert user_updated.old_email_token_created <= now()
         assert user_updated.old_email_token_expiry >= now()
+        assert not user_updated.confirmed_email_change_via_old_email
         assert user_updated.new_email_token_created <= now()
         assert user_updated.new_email_token_expiry >= now()
+        assert not user_updated.confirmed_email_change_via_new_email
 
         token = user_updated.new_email_token
 
@@ -573,9 +581,11 @@ def test_ChangeEmail_no_password_confirm_with_new_email_first(db, fast_passwords
         assert user_updated.new_email == new_email
         assert user_updated.old_email_token_created <= now()
         assert user_updated.old_email_token_expiry >= now()
-        assert user.new_email_token is None
+        assert not user_updated.confirmed_email_change_via_old_email
+        assert user_updated.new_email_token is None
         assert user_updated.new_email_token_created == None
         assert user_updated.new_email_token_expiry == None
+        assert user_updated.confirmed_email_change_via_new_email
 
         token = user_updated.old_email_token
 
@@ -591,8 +601,10 @@ def test_ChangeEmail_no_password_confirm_with_new_email_first(db, fast_passwords
         assert user.email == new_email
         assert user.new_email is None
         assert user.old_email_token is None
-        assert user.new_email_token is None
         assert user.old_email_token_created is None
         assert user.old_email_token_expiry is None
+        assert not user.confirmed_email_change_via_old_email
+        assert user.new_email_token is None
         assert user.new_email_token_created is None
         assert user.new_email_token_expiry is None
+        assert not user.confirmed_email_change_via_new_email

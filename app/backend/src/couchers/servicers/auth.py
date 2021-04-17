@@ -429,10 +429,13 @@ class Auth(auth_pb2_grpc.AuthServicer):
             user.old_email_token = None
             user.old_email_token_created = None
             user.old_email_token_expiry = None
+            user.confirmed_email_change_via_old_email = True
 
-            if not user.new_email_token:
+            if user.confirmed_email_change_via_new_email:
                 user.email = user.new_email
                 user.new_email = None
+                user.confirmed_email_change_via_old_email = False
+                user.confirmed_email_change_via_new_email = False
 
             session.commit()
             return empty_pb2.Empty()
@@ -452,10 +455,13 @@ class Auth(auth_pb2_grpc.AuthServicer):
             user.new_email_token = None
             user.new_email_token_created = None
             user.new_email_token_expiry = None
+            user.confirmed_email_change_via_new_email = True
 
-            if not user.old_email_token:
+            if user.confirmed_email_change_via_old_email:
                 user.email = user.new_email
                 user.new_email = None
+                user.confirmed_email_change_via_old_email = False
+                user.confirmed_email_change_via_new_email = False
 
             session.commit()
             return empty_pb2.Empty()

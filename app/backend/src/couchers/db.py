@@ -195,6 +195,7 @@ def set_email_change_tokens(session, user, double_confirmation, hours=2):
         user.old_email_token = None
         user.old_email_token_created = None
         user.old_email_token_expiry = None
+        user.confirmed_email_change_via_old_email = True
 
     new_email_token = urlsafe_secure_token()
     user.new_email_token = new_email_token
