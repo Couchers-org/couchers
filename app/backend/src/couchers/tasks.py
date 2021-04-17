@@ -131,7 +131,7 @@ def send_password_changed_email(user):
 
 def send_email_changed_notification_email(user):
     """
-    Send the user an email saying their email has changed. Goes to the old address
+    Send an email to user's original address notifying that it has been changed
     """
     logger.info(
         f"Sending email changed (notification) email to {user=} (old email: {user.email=}, new email: {user.new_email=})"
@@ -139,24 +139,35 @@ def send_email_changed_notification_email(user):
     email.enqueue_email_from_template(user.email, "email_changed_notification", template_args={"user": user})
 
 
-def send_email_changed_confirmation_email(user, token, expiry_text, old):
+def send_email_changed_confirmation_to_old_email(user, token, expiry_text):
     """
-    Send an email confirming the user's new email address. If 'old', sends to old email address, otherwise new
+    Send an email to user's original email address requesting confirmation of email change
     """
-    if old:
-        new_or_old = "old"
-        email_address = user.email
-    else:
-        new_or_old = "new"
-        email_address = user.new_email
-
     logger.info(
-        f"Sending email changed (confirmation) email to {user=}'s {new_or_old} email address, (old email: {user.email}, new email: {user.new_email=})"
+        f"Sending email changed (confirmation) email to {user=}'s old email address, (old email: {user.email}, new email: {user.new_email=})"
     )
-    name_email_template = f"email_changed_confirmation_{new_or_old}_email"
+
     confirmation_link = urls.change_email_link(confirmation_token=token)
     email.enqueue_email_from_template(
-        email_address, name_email_template, template_args={"user": user, "confirmation_link": confirmation_link}
+        user.email,
+        "email_changed_confirmation_old_email",
+        template_args={"user": user, "confirmation_link": confirmation_link},
+    )
+
+
+def send_email_changed_confirmation_to_new_email(user, token, expiry_text):
+    """
+    Send an email to user's new email address requesting confirmation of email change
+    """
+    logger.info(
+        f"Sending email changed (confirmation) email to {user=}'s new email address, (old email: {user.email}, new email: {user.new_email=})"
+    )
+
+    confirmation_link = urls.change_email_link(confirmation_token=token)
+    email.enqueue_email_from_template(
+        user.new_email,
+        "email_changed_confirmation_new_email",
+        template_args={"user": user, "confirmation_link": confirmation_link},
     )
 
 

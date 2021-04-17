@@ -17,7 +17,8 @@ from couchers.models import (
     Upload,
 )
 from couchers.tasks import (
-    send_email_changed_confirmation_email,
+    send_email_changed_confirmation_to_new_email,
+    send_email_changed_confirmation_to_old_email,
     send_email_changed_notification_email,
     send_friend_request_email,
     send_host_request_email,
@@ -239,7 +240,7 @@ def test_email_changed_confirmation_email_old(db):
     confirmation_token = urlsafe_secure_token()
     expiry_text = None  # Not currently used in the email
     with patch("couchers.email.queue_email") as mock:
-        send_email_changed_confirmation_email(user, confirmation_token, expiry_text, old=True)
+        send_email_changed_confirmation_to_old_email(user, confirmation_token, expiry_text)
 
     assert mock.call_count == 1
     (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
@@ -263,7 +264,7 @@ def test_email_changed_confirmation_email_new(db):
     confirmation_token = urlsafe_secure_token()
     expiry_text = None  # Not currently used in the email
     with patch("couchers.email.queue_email") as mock:
-        send_email_changed_confirmation_email(user, confirmation_token, expiry_text, old=False)
+        send_email_changed_confirmation_to_new_email(user, confirmation_token, expiry_text)
 
     assert mock.call_count == 1
     (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args

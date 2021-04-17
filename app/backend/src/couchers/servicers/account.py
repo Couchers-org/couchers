@@ -6,7 +6,8 @@ from couchers.crypto import hash_password, verify_password
 from couchers.db import is_valid_email, session_scope, set_email_change_tokens
 from couchers.models import User
 from couchers.tasks import (
-    send_email_changed_confirmation_email,
+    send_email_changed_confirmation_to_new_email,
+    send_email_changed_confirmation_to_old_email,
     send_email_changed_notification_email,
     send_password_changed_email,
 )
@@ -99,7 +100,7 @@ class Account(account_pb2_grpc.AccountServicer):
 
         If the user has a password, a notification is sent to the old email, and a confirmation is sent to the new one.
 
-        Otherwise they need to first confirm from their old email before confirming with their new one.
+        Otherwise they need to confirm twice, via an email sent to each of their old and new emails.
 
         In all confirmation emails, the user must click on the confirmation link.
         """
@@ -126,12 +127,13 @@ class Account(account_pb2_grpc.AccountServicer):
                     session, user, double_confirmation=False
                 )
                 send_email_changed_notification_email(user)
+                send_email_changed_confirmation_to_old_email(user, new_email_token, expiry_text)
             else:
                 old_email_token, new_email_token, expiry_text = set_email_change_tokens(
                     session, user, double_confirmation=True
                 )
-                send_email_changed_confirmation_email(user, old_email_token, expiry_text, old=True)
-
-            send_email_changed_confirmation_email(user, new_email_token, expiry_text, old=False)
+                send_email_changed_confirmation_to_old_email(user, old_email_token, expiry_text)
+                send_email_changed_confirmation_to_new_email(user, new_email_token, expiry_text)
             # session autocommit
+
         return empty_pb2.Empty()

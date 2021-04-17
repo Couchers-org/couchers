@@ -21,12 +21,7 @@ from couchers.db import (
 from couchers.interceptors import AuthValidatorInterceptor
 from couchers.models import LoginToken, PasswordResetToken, SignupToken, User, UserSession
 from couchers.servicers.api import hostingstatus2sql
-from couchers.tasks import (
-    send_email_changed_confirmation_email,
-    send_login_email,
-    send_password_reset_email,
-    send_signup_email,
-)
+from couchers.tasks import send_login_email, send_password_reset_email, send_signup_email
 from couchers.utils import create_coordinate, create_session_cookie, now, parse_date, parse_session_cookie, today
 from pb import auth_pb2, auth_pb2_grpc
 
@@ -428,19 +423,19 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 .filter(User.old_email_token_expiry >= func.now())
                 .one_or_none()
             )
-            if user:
-                user.old_email_token = None
-                user.old_email_token_created = None
-                user.old_email_token_expiry = None
-
-                if user.new_email_token == None:
-                    user.email = user.new_email
-                    user.new_email = None
-
-                session.commit()
-                return empty_pb2.Empty()
-            else:
+            if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
+
+            user.old_email_token = None
+            user.old_email_token_created = None
+            user.old_email_token_expiry = None
+
+            if not user.new_email_token:
+                user.email = user.new_email
+                user.new_email = None
+
+            session.commit()
+            return empty_pb2.Empty()
 
     def ConfirmChangeEmailWithNewAddress(self, request, context):
         with session_scope() as session:
@@ -451,16 +446,16 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 .filter(User.new_email_token_expiry >= func.now())
                 .one_or_none()
             )
-            if user:
-                user.new_email_token = None
-                user.new_email_token_created = None
-                user.new_email_token_expiry = None
-
-                if user.old_email_token == None:
-                    user.email = user.new_email
-                    user.new_email = None
-
-                session.commit()
-                return empty_pb2.Empty()
-            else:
+            if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
+
+            user.new_email_token = None
+            user.new_email_token_created = None
+            user.new_email_token_expiry = None
+
+            if not user.old_email_token:
+                user.email = user.new_email
+                user.new_email = None
+
+            session.commit()
+            return empty_pb2.Empty()
