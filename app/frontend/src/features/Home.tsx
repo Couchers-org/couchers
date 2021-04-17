@@ -1,5 +1,6 @@
 import { Link, Typography } from "@material-ui/core";
 import Divider from "components/Divider";
+import Markdown from "components/Markdown";
 import {
   BUGS,
   BUGS_DESCRIPTION_1,
@@ -8,7 +9,7 @@ import {
   COMMUNITY_FORUM,
   COMMUNITY_FORUM_LINK,
   FEATURES,
-  FEATURES_DESCRIPTION,
+  FEATURES_MARKDOWN,
   WELCOME,
   WELCOME_DESCRIPTION_1,
   WELCOME_DESCRIPTION_2,
@@ -28,7 +29,7 @@ export default function Home() {
       </Typography>
       <Divider />
       <Typography variant="h2">{FEATURES}</Typography>
-      <Typography variant="body1">{FEATURES_DESCRIPTION}</Typography>
+      <Markdown source={FEATURES_MARKDOWN} />
       <Divider />
       <Typography variant="h2">{BUGS}</Typography>
       <Typography variant="body1">
