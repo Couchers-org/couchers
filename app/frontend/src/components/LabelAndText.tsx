@@ -1,5 +1,6 @@
 import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
+import classNames from "classnames";
 import React from "react";
 
 import TextBody from "./TextBody";
@@ -13,6 +14,9 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     marginTop: theme.spacing(0.5),
   },
+  flexItem: {
+    flex: "1 1 0px",
+  },
 }));
 
 export interface LabelAndTextProps {
@@ -25,10 +29,13 @@ export default function LabelAndText({ label, text }: LabelAndTextProps) {
 
   return (
     <div className={classes.root}>
-      <Typography variant="h3" className={classes.label}>
+      <Typography
+        variant="h3"
+        className={classNames(classes.label, classes.flexItem)}
+      >
         {label}
       </Typography>
-      <TextBody>{text}</TextBody>
+      <TextBody className={classes.flexItem}>{text}</TextBody>
     </div>
   );
 }
