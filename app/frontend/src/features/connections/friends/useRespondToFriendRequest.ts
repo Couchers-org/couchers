@@ -1,6 +1,6 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error } from "grpc-web";
-import { FriendRequest } from "pb/api_pb";
+import { FriendRequest, User } from "pb/api_pb";
 import { friendRequestKey } from "queryKeys";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
@@ -24,12 +24,41 @@ export default function useRespondToFriendRequest() {
     ({ friendRequest, accept }) =>
       service.api.respondFriendRequest(friendRequest.friendRequestId, accept),
     {
-      onError: (error, { setMutationError }) => {
-        setMutationError(error.message);
-      },
-      onMutate: async ({ setMutationError }) => {
+      onMutate: async ({ setMutationError, friendRequest, accept }) => {
         setMutationError("");
         await queryClient.cancelQueries(friendRequestKey("received"));
+
+        const cachedUser = queryClient.getQueryData<User.AsObject>([
+          "user",
+          friendRequest.userId,
+        ]);
+
+        if (cachedUser) {
+          if (accept === true) {
+            queryClient.setQueryData<User.AsObject>(
+              ["user", friendRequest.userId],
+              {
+                ...cachedUser,
+                friends: User.FriendshipStatus.FRIENDS,
+              }
+            );
+          } else {
+            queryClient.setQueryData<User.AsObject>(
+              ["user", friendRequest.userId],
+              {
+                ...cachedUser,
+                friends: User.FriendshipStatus.NOT_FRIENDS,
+              }
+            );
+          }
+        }
+        return cachedUser;
+      },
+      onError: (error, { setMutationError, friendRequest }, cachedUser) => {
+        setMutationError(error.message);
+        if (cachedUser) {
+          queryClient.setQueryData(["user", friendRequest.userId], cachedUser);
+        }
       },
       onSuccess: (_, { friendRequest }) => {
         queryClient.invalidateQueries("friendIds");

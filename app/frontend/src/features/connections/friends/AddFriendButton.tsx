@@ -30,15 +30,16 @@ export default function AddFriendButton({
 
       await queryClient.cancelQueries(["user", userId]);
 
-      const cachedUser = queryClient.getQueryData<User.AsObject>([ "user", userId, ]);
+      const cachedUser = queryClient.getQueryData<User.AsObject>([
+        "user",
+        userId,
+      ]);
 
       if (cachedUser) {
-        queryClient.setQueryData<User.AsObject>(
-          ["user", userId], { 
-            ...cachedUser, 
-            friends: User.FriendshipStatus.PENDING, 
-          }
-        );
+        queryClient.setQueryData<User.AsObject>(["user", userId], {
+          ...cachedUser,
+          friends: User.FriendshipStatus.PENDING,
+        });
       }
       return cachedUser;
     },
@@ -49,7 +50,7 @@ export default function AddFriendButton({
       }
     },
     onSuccess: (_, { userId }) => {
-      queryClient.invalidateQueries(["user", userId])
+      queryClient.invalidateQueries(["user", userId]);
     },
   });
 
