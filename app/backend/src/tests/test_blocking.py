@@ -52,20 +52,35 @@ def test_unblock_user(db):
 
         user_blocks.UnblockUser(blocking_pb2.UnblockUserReq(user_id=user2.id))
 
-        blocked_user_list = user_blocks.GetBlockedUsers(empty_pb2.Empty())
-        assert len(blocked_user_list.blocked_user_ids) == 0
+    with session_scope() as session:
+        blocked_users = session.query(UserBlocks).filter(UserBlocks.blocking_user_id == user1.id).all()
+        assert len(blocked_users) == 0
 
+    with blocking_session(token1) as user_blocks:
         with pytest.raises(grpc.RpcError) as e:
             user_blocks.UnblockUser(blocking_pb2.UnblockUserReq(user_id=user2.id))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == errors.USER_NOT_BLOCKED
 
-    # Test re-blocking
-    with blocking_session(token1) as user_blocks:
+        # Test re-blocking
         user_blocks.BlockUser(blocking_pb2.BlockUserReq(user_id=user2.id))
 
+    with session_scope() as session:
+        blocked_users = session.query(UserBlocks).filter(UserBlocks.blocking_user_id == user1.id).all()
+        assert len(blocked_users) == 1
+
+
+def test_GetBlockedUsers(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+
+    make_user_block(user1, user2)
+    make_user_block(user1, user3)
+
+    with blocking_session(token1) as user_blocks:
         blocked_user_list = user_blocks.GetBlockedUsers(empty_pb2.Empty())
-        assert len(blocked_user_list.blocked_user_ids) == 1
+        assert len(blocked_user_list.blocked_user_ids) == 2
 
 
 def test_blocking_relationships(db):
