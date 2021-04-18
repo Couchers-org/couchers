@@ -10,7 +10,7 @@ from sqlalchemy.sql import and_, func, or_
 from couchers import errors, urls
 from couchers.config import config
 from couchers.crypto import generate_hash_signature, random_hex
-from couchers.db import get_friends_status, get_user_by_field, is_valid_name, session_scope
+from couchers.db import get_friends_status, get_user_by_field, is_valid_name, session_scope, all_blocked_or_blocking_users
 from couchers.models import (
     Complaint,
     FriendRelationship,
@@ -416,8 +416,7 @@ class API(api_pb2_grpc.APIServicer):
         to_users = aliased(User)
 
         with session_scope() as session:
-            user = session.query(User).filter(User.id == context.user_id).one()
-            relevant_blocks = user.all_blocked_or_blocking_users()
+            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
 
             rels = (
                 session.query(FriendRelationship)

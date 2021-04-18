@@ -25,7 +25,7 @@ from couchers.models import (
     Node,
     PasswordResetToken,
     SignupToken,
-    User,
+    User, UserBlocks,
 )
 from couchers.utils import now
 from pb import api_pb2
@@ -298,3 +298,17 @@ def can_moderate_node(session, user_id, node_id):
     return _can_moderate_any_cluster(
         session, user_id, [cluster.id for _, _, _, cluster in get_node_parents_recursively(session, node_id)]
     )
+
+
+def all_blocked_or_blocking_users(user_id):
+    with session_scope() as session:
+        relevant_user_blocks = (
+            session.query(UserBlocks)
+            .filter(or_(UserBlocks.blocking_user_id == user_id, UserBlocks.blocked_user_id == user_id))
+            .all()
+        )
+
+        return [
+            user_block.blocking_user_id if user_block.blocking_user_id != user_id else user_block.blocked_user_id
+            for user_block in relevant_user_blocks
+        ]
