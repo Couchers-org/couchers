@@ -1,4 +1,3 @@
-import { CircularProgress } from "@material-ui/core";
 import Button from "components/Button";
 import { CheckIcon, CloseIcon, PersonAddIcon } from "components/Icons";
 import Menu, { MenuItem } from "components/Menu";
@@ -7,9 +6,7 @@ import type { SetMutationError } from "features/connections/friends";
 import useRespondToFriendRequest from "features/connections/friends/useRespondToFriendRequest";
 import {
   ACCEPT_FRIEND_ACTION,
-  ACCEPT_FRIEND_LABEL,
   DECLINE_FRIEND_ACTION,
-  DECLINE_FRIEND_LABEL,
 } from "features/profile/constants";
 import { FriendRequest } from "pb/api_pb";
 import React, { useRef, useState } from "react";
@@ -28,7 +25,7 @@ function PendingFriendReqButton({
 }: PendingFriendReqButtonProps) {
   const [isOpen, setIsOpen] = useState({
     accepted: false,
-    rejected: false,
+    declined: false,
     menu: false,
   });
   const {
@@ -39,8 +36,20 @@ function PendingFriendReqButton({
   const menuAnchor = useRef<HTMLButtonElement>(null);
 
   const handleClick = (item: keyof typeof isOpen) => () => {
-    if (item !== "menu") {
+    if (item === "accepted") {
       setIsOpen((prevState) => ({ ...prevState, menu: false }));
+      respondToFriendRequest({
+        accept: true,
+        friendRequest,
+        setMutationError,
+      });
+    } else if (item === "declined") {
+      setIsOpen((prevState) => ({ ...prevState, menu: false }));
+      respondToFriendRequest({
+        accept: false,
+        friendRequest,
+        setMutationError,
+      });
     } else {
       setIsOpen((prevState) => ({ ...prevState, menu: true }));
     }
@@ -52,15 +61,14 @@ function PendingFriendReqButton({
 
   return (
     <>
-      {isLoading ? (
-        <CircularProgress />
-      ) : isSuccess ? null : (
+      {isSuccess ? null : (
         <>
           <Button
             startIcon={<PersonAddIcon />}
             innerRef={menuAnchor}
             onClick={handleClick("menu")}
             aria-controls={RESPOND_TO_FRIEND_REQUEST_MENU_ID}
+            loading={isLoading}
           >
             {PENDING}
           </Button>
@@ -71,34 +79,12 @@ function PendingFriendReqButton({
             open={isOpen.menu}
           >
             <MenuItem onClick={handleClick("accepted")}>
-              <Button
-                startIcon={<CheckIcon />}
-                aria-label={ACCEPT_FRIEND_LABEL}
-                onClick={() => {
-                  respondToFriendRequest({
-                    accept: true,
-                    friendRequest,
-                    setMutationError,
-                  });
-                }}
-              >
-                {ACCEPT_FRIEND_ACTION}
-              </Button>
+              <CheckIcon />
+              {ACCEPT_FRIEND_ACTION}
             </MenuItem>
-            <MenuItem onClick={handleClick("rejected")}>
-              <Button
-                startIcon={<CloseIcon />}
-                aria-label={DECLINE_FRIEND_LABEL}
-                onClick={() => {
-                  respondToFriendRequest({
-                    accept: false,
-                    friendRequest,
-                    setMutationError,
-                  });
-                }}
-              >
-                {DECLINE_FRIEND_ACTION}
-              </Button>
+            <MenuItem onClick={handleClick("declined")}>
+              <CloseIcon />
+              {DECLINE_FRIEND_ACTION}
             </MenuItem>
           </Menu>
         </>
