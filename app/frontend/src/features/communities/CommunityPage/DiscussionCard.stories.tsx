@@ -1,6 +1,6 @@
 import { Meta, Story } from "@storybook/react";
 import DiscussionCard from "features/communities/CommunityPage/DiscussionCard";
-import discussion from "test/fixtures/discussion.json";
+import discussions from "test/fixtures/discussions.json";
 
 export default {
   component: DiscussionCard,
@@ -11,5 +11,5 @@ const Template: Story<any> = (args) => <DiscussionCard {...args} />;
 
 export const discussionCard = Template.bind({});
 discussionCard.args = {
-  discussion,
+  discussions,
 };
