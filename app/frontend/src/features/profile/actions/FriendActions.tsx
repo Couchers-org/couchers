@@ -20,28 +20,34 @@ export default function FriendActions({
   const { isLoading: isFriendRequestsLoading } = useFriendRequests("received");
   const { isLoading: isFriendsLoading } = useFriendList();
 
-  let component;
-  user.friends === User.FriendshipStatus.NOT_FRIENDS
-    ? (component = (
-        <AddFriendButton
-          userId={user.userId}
-          setMutationError={setMutationError}
-        />
-      ))
-    : user.friends === User.FriendshipStatus.FRIENDS
-    ? (component = (
-        <MessageUserButton user={user} setMutationError={setMutationError} />
-      ))
-    : user.pendingFriendRequest &&
-      user.pendingFriendRequest.sent === false &&
-      (component = (
-        <PendingFriendReqButton
-          friendRequest={user.pendingFriendRequest}
-          setMutationError={setMutationError}
-        />
-      ));
-
   const isLoading = isFriendRequestsLoading || isFriendsLoading;
 
-  return isLoading ? <CircularProgress /> : <>{component}</>;
+  if (isLoading === true) {
+    return <CircularProgress />;
+  }
+
+  if (user.friends === User.FriendshipStatus.NOT_FRIENDS) {
+    return (
+      <AddFriendButton
+        userId={user.userId}
+        setMutationError={setMutationError}
+      />
+    );
+  } else if (user.friends === User.FriendshipStatus.FRIENDS) {
+    return (
+      <MessageUserButton user={user} setMutationError={setMutationError} />
+    );
+  } else if (
+    user.pendingFriendRequest &&
+    user.pendingFriendRequest.sent === false
+  ) {
+    return (
+      <PendingFriendReqButton
+        friendRequest={user.pendingFriendRequest}
+        setMutationError={setMutationError}
+      />
+    );
+  } else {
+    return null;
+  }
 }
