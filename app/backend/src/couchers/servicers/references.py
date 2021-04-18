@@ -7,7 +7,6 @@
 * TODO: Get bugged about writing reference 1 day after, 1 week after, 2weeks-2days
 """
 import grpc
-from sqlalchemy import and_
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import func, literal, or_
 
@@ -57,21 +56,21 @@ class References(references_pb2_grpc.ReferencesServicer):
             if not request.from_user_id and not request.to_user_id:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NEED_TO_SPECIFY_AT_LEAST_ONE_USER)
 
-            users1 = aliased(User)
-            users2 = aliased(User)
+            to_users = aliased(User)
+            from_users = aliased(User)
             query = session.query(Reference)
             if request.from_user_id:
                 # join the to_users, because only interested if the recipient is visible
                 query = (
-                    query.join(users1, users1.id == Reference.to_user_id)
-                    .filter(~users1.is_banned)  # instead of is_visible; if user is deleted, reference still visible
+                    query.join(to_users, Reference.to_user_id == to_users.id)
+                    .filter(~to_users.is_banned)  # instead of is_visible; if user is deleted, reference still visible
                     .filter(Reference.from_user_id == request.from_user_id)
                 )
             if request.to_user_id:
                 # join the from_users, because only interested if the writer is visible
                 query = (
-                    query.join(users2, users2.id == Reference.from_user_id)
-                    .filter(~users2.is_banned)  # instead of is_visible; if user is deleted, reference still visible
+                    query.join(from_users, Reference.from_user_id == from_users.id)
+                    .filter(~from_users.is_banned)  # instead of is_visible; if user is deleted, reference still visible
                     .filter(Reference.to_user_id == request.to_user_id)
                 )
             if len(request.reference_type_filter) > 0:
@@ -155,17 +154,15 @@ class References(references_pb2_grpc.ReferencesServicer):
 
     def WriteHostRequestReference(self, request, context):
         with session_scope() as session:
-            users1 = aliased(User)
-            users2 = aliased(User)
+            from_users = aliased(User)
+            to_users = aliased(User)
 
             host_request = (
                 session.query(HostRequest)
-                .join(
-                    users1, and_(users1.id == HostRequest.from_user_id, HostRequest.from_user_id is not context.user_id)
-                )
-                .join(users2, and_(users2.id == HostRequest.to_user_id, HostRequest.to_user_id is not context.user_id))
-                .filter(users1.is_visible)
-                .filter(users2.is_visible)
+                .join(from_users, HostRequest.from_user_id == from_users.id)
+                .join(to_users, HostRequest.to_user_id == to_users.id)
+                .filter(from_users.is_visible)
+                .filter(to_users.is_visible)
                 .filter(HostRequest.conversation_id == request.host_request_id)
                 .filter(or_(HostRequest.from_user_id == context.user_id, HostRequest.to_user_id == context.user_id))
                 .one_or_none()
@@ -275,8 +272,8 @@ class References(references_pb2_grpc.ReferencesServicer):
         with session_scope() as session:
             q1 = (
                 session.query(literal(True), HostRequest)
-                .outerjoin(Reference, Reference.host_request_id == HostRequest.conversation_id)
-                .join(User, User.id == HostRequest.to_user_id)
+                .outerjoin(Reference, HostRequest.conversation_id == Reference.host_request_id)
+                .join(User, HostRequest.to_user_id == User.id)
                 .filter(User.is_visible)
                 .filter(Reference.id == None)
                 .filter(HostRequest.can_write_reference)

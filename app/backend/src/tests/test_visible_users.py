@@ -1,6 +1,5 @@
 import pytest
 
-from couchers.db import get_user_by_field
 from couchers.models import User
 from tests.test_fixtures import db, generate_user, make_user_invisible, session_scope
 
@@ -12,11 +11,7 @@ def test_visible_user_filter(db):
     user4, token4 = generate_user(is_deleted=True)
 
     with session_scope() as session:
-        user2 = get_user_by_field(session, user2.username)
-        user2.is_banned = True
-        session.commit()
-        session.refresh(user2)
-        session.expunge(user2)
+        session.query(User).filter(User.id == user2.id).one().is_banned = True
 
         make_user_invisible(user3.id)
 

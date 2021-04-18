@@ -131,16 +131,14 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
     def GetHostRequest(self, request, context):
         with session_scope() as session:
-            users1 = aliased(User)
-            users2 = aliased(User)
+            from_users = aliased(User)
+            to_users = aliased(User)
             host_request = (
                 session.query(HostRequest)
-                .join(
-                    users1, and_(users1.id == HostRequest.from_user_id, HostRequest.from_user_id is not context.user_id)
-                )
-                .join(users2, and_(users2.id == HostRequest.to_user_id, HostRequest.to_user_id is not context.user_id))
-                .filter(users1.is_visible)
-                .filter(users2.is_visible)
+                .join(from_users, HostRequest.from_user_id == from_users.id)
+                .join(to_users, HostRequest.to_user_id == to_users.id)
+                .filter(from_users.is_visible)
+                .filter(to_users.is_visible)
                 .filter(HostRequest.conversation_id == request.host_request_id)
                 .filter(or_(HostRequest.from_user_id == context.user_id, HostRequest.to_user_id == context.user_id))
                 .one_or_none()
@@ -190,8 +188,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             # By outer joining messages on itself where the second id is bigger, only the highest IDs will have
             # none as message_2.id. So just filter for these ones to get highest messages only.
             # See https://stackoverflow.com/a/27802817/6115336
-            users1 = aliased(User)
-            users2 = aliased(User)
+            from_users = aliased(User)
+            to_users = aliased(User)
             message_2 = aliased(Message)
             query = (
                 session.query(Message, HostRequest, Conversation)
@@ -200,12 +198,10 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 )
                 .join(HostRequest, HostRequest.conversation_id == Message.conversation_id)
                 .join(Conversation, Conversation.id == HostRequest.conversation_id)
-                .join(
-                    users1, and_(users1.id == HostRequest.from_user_id, HostRequest.from_user_id is not context.user_id)
-                )
-                .join(users2, and_(users2.id == HostRequest.to_user_id, HostRequest.to_user_id is not context.user_id))
-                .filter(users1.is_visible)
-                .filter(users2.is_visible)
+                .join(from_users, HostRequest.from_user_id == from_users.id)
+                .join(to_users, HostRequest.to_user_id == to_users.id)
+                .filter(from_users.is_visible)
+                .filter(to_users.is_visible)
                 .filter(message_2.id == None)
                 .filter(or_(HostRequest.conversation_id < request.last_request_id, request.last_request_id == 0))
             )
@@ -264,18 +260,16 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             )
 
     def RespondHostRequest(self, request, context):
-        users1 = aliased(User)
-        users2 = aliased(User)
+        from_users = aliased(User)
+        to_users = aliased(User)
 
         with session_scope() as session:
             host_request = (
                 session.query(HostRequest)
-                .join(
-                    users1, and_(users1.id == HostRequest.from_user_id, HostRequest.from_user_id is not context.user_id)
-                )
-                .join(users2, and_(users2.id == HostRequest.to_user_id, HostRequest.to_user_id is not context.user_id))
-                .filter(users1.is_visible)
-                .filter(users2.is_visible)
+                .join(from_users, HostRequest.from_user_id == from_users.id)
+                .join(to_users, HostRequest.to_user_id == to_users.id)
+                .filter(from_users.is_visible)
+                .filter(to_users.is_visible)
                 .filter(HostRequest.conversation_id == request.host_request_id)
                 .one_or_none()
             )

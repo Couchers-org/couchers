@@ -196,24 +196,25 @@ def testing_communities(request):
     user6, token6 = generate_user(username="user6", geom=create_1d_point(65), geom_radius=0.1)
     user7, token7 = generate_user(username="user7", geom=create_1d_point(80), geom_radius=0.1)
     user8, token8 = generate_user(username="user8", geom=create_1d_point(51), geom_radius=0.1)
+    user9, token9 = generate_user(username="user9", geom=create_1d_point(10), geom_radius=0.1, is_deleted=True)
 
     with session_scope() as session:
-        w = create_community(session, 0, 100, "World", [user1, user3, user7], [], None)
-        c1 = create_community(session, 0, 50, "Country 1", [user1, user2], [], w)
-        c1r1 = create_community(session, 0, 10, "Country 1, Region 1", [user1, user2], [], c1)
-        c1r1c1 = create_community(session, 0, 5, "Country 1, Region 1, City 1", [user2], [], c1r1)
-        c1r1c2 = create_community(session, 7, 10, "Country 1, Region 1, City 2", [user4, user5], [user2], c1r1)
-        c1r2 = create_community(session, 20, 25, "Country 1, Region 2", [user2], [], c1)
-        c1r2c1 = create_community(session, 21, 23, "Country 1, Region 2, City 1", [user2], [], c1r2)
-        c2 = create_community(session, 52, 100, "Country 2", [user6, user7], [], w)
-        c2r1 = create_community(session, 52, 71, "Country 2, Region 1", [user6], [user8], c2)
-        c2r1c1 = create_community(session, 53, 70, "Country 2, Region 1, City 1", [user8], [], c2r1)
+        w = create_community(session, 0, 100, "World", [user1, user3, user7, user9], [], None)
+        c1 = create_community(session, 0, 50, "Country 1", [user1, user2, user9], [], w)
+        c1r1 = create_community(session, 0, 10, "Country 1, Region 1", [user1, user2, user9], [], c1)
+        c1r1c1 = create_community(session, 0, 5, "Country 1, Region 1, City 1", [user2, user9], [], c1r1)
+        c1r1c2 = create_community(session, 7, 10, "Country 1, Region 1, City 2", [user4, user5, user9], [user2], c1r1)
+        c1r2 = create_community(session, 20, 25, "Country 1, Region 2", [user2, user9], [], c1)
+        c1r2c1 = create_community(session, 21, 23, "Country 1, Region 2, City 1", [user2, user9], [], c1r2)
+        c2 = create_community(session, 52, 100, "Country 2", [user6, user7, user9], [], w)
+        c2r1 = create_community(session, 52, 71, "Country 2, Region 1", [user6, user9], [user8], c2)
+        c2r1c1 = create_community(session, 53, 70, "Country 2, Region 1, City 1", [user8, user9], [], c2r1)
 
-        h = create_group(session, "Hitchhikers", [user1, user2], [user5, user8], w)
-        create_group(session, "Country 1, Region 1, Foodies", [user1], [user2, user4], c1r1)
-        create_group(session, "Country 1, Region 1, Skaters", [user2], [user1], c1r1)
-        create_group(session, "Country 1, Region 2, Foodies", [user2], [user4, user5], c1r2)
-        create_group(session, "Country 2, Region 1, Foodies", [user6], [user7], c2r1)
+        h = create_group(session, "Hitchhikers", [user1, user2, user9], [user5, user8], w)
+        create_group(session, "Country 1, Region 1, Foodies", [user1, user9], [user2, user4], c1r1)
+        create_group(session, "Country 1, Region 1, Skaters", [user2, user9], [user1], c1r1)
+        create_group(session, "Country 1, Region 2, Foodies", [user2, user9], [user4, user5], c1r2)
+        create_group(session, "Country 2, Region 1, Foodies", [user6, user9], [user7], c2r1)
 
         create_discussion(token1, w.id, None, "Discussion title 1", "Discussion content 1")
         create_discussion(token3, w.id, None, "Discussion title 2", "Discussion content 2")
@@ -244,6 +245,7 @@ def testing_communities(request):
 class TestCommunities:
     @staticmethod
     def test_GetCommunity(testing_communities):
+        # implicitly tests visibility, since all communities have invisible member and admin
         with session_scope() as session:
             user2_id, token2 = get_user_id_and_token(session, "user2")
             w_id = get_community_id(session, "World")
@@ -459,6 +461,7 @@ class TestCommunities:
 
     @staticmethod
     def test_ListAdmins(testing_communities):
+        # implicitly tests visibility, since both communities have invisible admin
         with session_scope() as session:
             user1_id, token1 = get_user_id_and_token(session, "user1")
             user3_id, token3 = get_user_id_and_token(session, "user3")
@@ -485,6 +488,7 @@ class TestCommunities:
 
     @staticmethod
     def test_ListMembers(testing_communities):
+        # implicitly tests visibility, since both communities have invisible member
         with session_scope() as session:
             user1_id, token1 = get_user_id_and_token(session, "user1")
             user2_id, token2 = get_user_id_and_token(session, "user2")
@@ -523,6 +527,7 @@ class TestCommunities:
 
     @staticmethod
     def test_ListNearbyUsers(testing_communities):
+        # implicitly tests visibility, since both communities have invisible member
         with session_scope() as session:
             user1_id, token1 = get_user_id_and_token(session, "user1")
             user2_id, token2 = get_user_id_and_token(session, "user2")

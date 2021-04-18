@@ -333,12 +333,11 @@ def test_friend_request_flow(db):
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
 
     with session_scope() as session:
-        friend_request = (
+        friend_request_id = (
             session.query(FriendRelationship)
             .filter(FriendRelationship.from_user_id == user1.id and FriendRelationship.to_user_id == user2.id)
             .one_or_none()
-        )
-        session.expunge(friend_request)
+        ).id
 
     with api_session(token1) as api:
         # check it went through
@@ -348,7 +347,7 @@ def test_friend_request_flow(db):
 
         assert res.sent[0].state == api_pb2.FriendRequest.FriendRequestStatus.PENDING
         assert res.sent[0].user_id == user2.id
-        assert res.sent[0].friend_request_id == friend_request.id
+        assert res.sent[0].friend_request_id == friend_request_id
 
     with api_session(token2) as api:
         # check it's there
@@ -708,18 +707,17 @@ def test_CancelFriendRequest_invisible_user_as_recipient():
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
 
     with session_scope() as session:
-        friend_request = (
+        friend_request_id = (
             session.query(FriendRelationship)
             .filter(FriendRelationship.from_user_id == user1.id and FriendRelationship.to_user_id == user2.id)
             .one_or_none()
-        )
-        session.expunge(friend_request)
+        ).id
 
     make_user_invisible(user2.id)
 
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
-            api.CancelFriendRequest(api_pb2.CancelFriendRequestReq(friend_request_id=friend_request.id))
+            api.CancelFriendRequest(api_pb2.CancelFriendRequestReq(friend_request_id=friend_request_id))
     assert e.value.code() == grpc.StatusCode.NOT_FOUND
     assert e.value.details() == errors.FRIEND_REQUEST_NOT_FOUND
 
