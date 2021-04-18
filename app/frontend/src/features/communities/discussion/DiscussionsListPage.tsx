@@ -85,8 +85,9 @@ export default function DiscussionsListPage({
         />
       </Collapse>
       <div className={classes.discussionsContainer}>
-        {isDiscussionsLoading && <CircularProgress />}
-        {hasAtLeastOnePage(discussions, "discussionsList") ? (
+        {isDiscussionsLoading ? (
+          <CircularProgress />
+        ) : hasAtLeastOnePage(discussions, "discussionsList") ? (
           discussions.pages
             .flatMap((res) => res.discussionsList)
             .map((discussion) => (

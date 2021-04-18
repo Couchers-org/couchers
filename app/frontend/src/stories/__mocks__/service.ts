@@ -17,8 +17,16 @@ const userMap = {
   funnykid: user3,
 };
 
+const serviceStubs = Object.keys(originalService).reduce(
+  (serviceStub: Record<string, unknown>, serviceKey) => {
+    serviceStub[serviceKey] = {};
+    return serviceStub;
+  },
+  {}
+);
+
 export const mockedService = ({
-  account: {},
+  ...serviceStubs,
   api: {
     listFriends: () => Promise.resolve([users[1].userId, users[2].userId]),
   },
@@ -31,8 +39,6 @@ export const mockedService = ({
         noMore: true,
       }),
   },
-  discussions: {},
-  references: {},
   threads: {
     getThread: () => Promise.resolve(getThreadRes),
   },

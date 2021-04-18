@@ -67,8 +67,9 @@ export default function DiscussionsSection({
         <Alert severity="error">{discussionsError.message}</Alert>
       )}
       <div className={classes.discussionsContainer}>
-        {isDiscussionsLoading && <CircularProgress />}
-        {hasAtLeastOnePage(discussions, "discussionsList") ? (
+        {isDiscussionsLoading ? (
+          <CircularProgress />
+        ) : hasAtLeastOnePage(discussions, "discussionsList") ? (
           discussions.pages
             .flatMap((res) => res.discussionsList)
             .map((discussion) => (

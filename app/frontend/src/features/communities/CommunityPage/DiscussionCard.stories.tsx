@@ -11,5 +11,5 @@ const Template: Story<any> = (args) => <DiscussionCard {...args} />;
 
 export const discussionCard = Template.bind({});
 discussionCard.args = {
-  discussions,
+  discussion: discussions[0],
 };
