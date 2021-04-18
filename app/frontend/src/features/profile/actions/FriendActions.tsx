@@ -1,4 +1,4 @@
-import { CircularProgress } from "@material-ui/core";
+import CircularProgress from "components/CircularProgress";
 import { SetMutationError } from "features/connections/friends";
 import AddFriendButton from "features/connections/friends/AddFriendButton";
 import useFriendList from "features/connections/friends/useFriendList";
