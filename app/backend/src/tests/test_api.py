@@ -545,14 +545,9 @@ def test_ListFriends(db):
 def test_ListFriends_with_invisible_users(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
+    make_friends(user1, user2)
 
     with api_session(token1) as api:
-        # check no friends to start
-        res = api.ListFriends(empty_pb2.Empty())
-        assert len(res.user_ids) == 0
-
-        make_friends(user1, user2)
-
         # check now one friend
         res = api.ListFriends(empty_pb2.Empty())
         assert len(res.user_ids) == 1
@@ -659,6 +654,46 @@ def test_mutual_friends(db):
         assert res.mutual_friends[0].user_id == user3.id
 
 
+def test_mutual_friends_self(db):
+    user1, token1 = generate_user("user1")
+    user2, token2 = generate_user("user2")
+    user3, token3 = generate_user("user3")
+    user4, token4 = generate_user("user4")
+
+    make_friends(user1, user2)
+    make_friends(user2, user3)
+    make_friends(user1, user4)
+
+    with api_session(token1) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=user3.username))
+        assert len(res.mutual_friends) == 1
+        assert res.mutual_friends[0].user_id == user2.id
+
+    with api_session(token3) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
+        assert len(res.mutual_friends) == 1
+        assert res.mutual_friends[0].user_id == user2.id
+
+    with api_session(token1) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
+        assert len(res.mutual_friends) == 0
+
+    with api_session(token2) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=user2.username))
+        assert len(res.mutual_friends) == 0
+
+    with api_session(token3) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=user3.username))
+        assert len(res.mutual_friends) == 0
+
+    with api_session(token4) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=user4.username))
+        assert len(res.mutual_friends) == 0
+
+
+# TODO mutual friends tests with invisible users
+
+
 def test_CancelFriendRequest(db):
     user1, token1 = generate_user("user1")
     user2, token2 = generate_user("user2")
@@ -674,29 +709,6 @@ def test_CancelFriendRequest(db):
 
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert len(res.sent) == 0
-
-
-def test_RespondFriendRequest_invisible_user_as_sender(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-
-    with api_session(token2) as api:
-        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
-
-    with session_scope() as session:
-        friend_request_id = (
-            session.query(FriendRelationship)
-            .filter(FriendRelationship.from_user_id == user2.id and FriendRelationship.to_user_id == user1.id)
-            .one_or_none()
-        ).id
-
-    make_user_invisible(user2.id)
-
-    with api_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=friend_request_id, accept=True))
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == errors.FRIEND_REQUEST_NOT_FOUND
 
 
 def test_CancelFriendRequest_invisible_user_as_recipient():
@@ -770,41 +782,27 @@ def test_reject_friend_request(db):
         assert res.sent[0].user_id == user2.id
 
 
-def test_mutual_friends_self(db):
-    user1, token1 = generate_user("user1")
-    user2, token2 = generate_user("user2")
-    user3, token3 = generate_user("user3")
-    user4, token4 = generate_user("user4")
-
-    make_friends(user1, user2)
-    make_friends(user2, user3)
-    make_friends(user1, user4)
-
-    with api_session(token1) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=user3.username))
-        assert len(res.mutual_friends) == 1
-        assert res.mutual_friends[0].user_id == user2.id
-
-    with api_session(token3) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
-        assert len(res.mutual_friends) == 1
-        assert res.mutual_friends[0].user_id == user2.id
-
-    with api_session(token1) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
-        assert len(res.mutual_friends) == 0
+def test_RespondFriendRequest_invisible_user_as_sender(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
 
     with api_session(token2) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=user2.username))
-        assert len(res.mutual_friends) == 0
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
 
-    with api_session(token3) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=user3.username))
-        assert len(res.mutual_friends) == 0
+    with session_scope() as session:
+        friend_request_id = (
+            session.query(FriendRelationship)
+            .filter(FriendRelationship.from_user_id == user2.id and FriendRelationship.to_user_id == user1.id)
+            .one_or_none()
+        ).id
 
-    with api_session(token4) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=user4.username))
-        assert len(res.mutual_friends) == 0
+    make_user_invisible(user2.id)
+
+    with api_session(token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=friend_request_id, accept=True))
+    assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    assert e.value.details() == errors.FRIEND_REQUEST_NOT_FOUND
 
 
 def test_reporting(db):
