@@ -14,7 +14,7 @@ class Blocking(blocking_pb2_grpc.BlockingServicer):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_BLOCK_SELF)
 
         with session_scope() as session:
-            if not session.query(User).filter(User.id == request.user_id).one_or_none():
+            if not session.query(User).filter(User.is_visible).filter(User.id == request.user_id).one_or_none():
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             if (
@@ -39,7 +39,7 @@ class Blocking(blocking_pb2_grpc.BlockingServicer):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_UNBLOCK_SELF)
 
         with session_scope() as session:
-            if not session.query(User).filter(User.id == request.user_id).one_or_none():
+            if not session.query(User).filter(User.is_visible).filter(User.id == request.user_id).one_or_none():
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             user_block = (
@@ -57,7 +57,13 @@ class Blocking(blocking_pb2_grpc.BlockingServicer):
 
     def GetBlockedUsers(self, request, context):
         with session_scope() as session:
-            blocked_users = session.query(UserBlocks).filter(UserBlocks.blocking_user_id == context.user_id).all()
+            blocked_users = (
+                session.query(UserBlocks)
+                .join(User, UserBlocks.blocked_user_id == User.id)
+                .filter(User.is_visible)
+                .filter(UserBlocks.blocking_user_id == context.user_id)
+                .all()
+            )
 
             return blocking_pb2.GetBlockedUsersRes(
                 blocked_user_ids=[blocked_user.id for blocked_user in blocked_users],
