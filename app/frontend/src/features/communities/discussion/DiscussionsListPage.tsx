@@ -51,10 +51,7 @@ export default function DiscussionsListPage({
   community: Community.AsObject;
 }) {
   const classes = { ...useCommunityPageStyles(), ...useStyles() };
-
-  //temporary
   const [isCreatingNewPost, setIsCreatingNewPost] = useState(false);
-
   const {
     isLoading: isDiscussionsLoading,
     error: discussionsError,

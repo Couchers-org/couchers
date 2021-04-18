@@ -42,6 +42,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+export const DISCUSSION_CARD_TEST_ID = "discussion-card";
+
 export default function DiscussionCard({
   discussion,
   className,
@@ -64,7 +66,10 @@ export default function DiscussionCard({
   }, [discussion.content]);
 
   return (
-    <Card className={classNames(classes.root, className)}>
+    <Card
+      className={classNames(classes.root, className)}
+      data-testid={DISCUSSION_CARD_TEST_ID}
+    >
       <Link to={routeToDiscussion(discussion.discussionId, discussion.slug)}>
         <CardContent className={classes.cardContent}>
           <Avatar
