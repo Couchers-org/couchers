@@ -3,8 +3,7 @@ import pytest
 from google.protobuf import empty_pb2
 
 from couchers import errors
-from couchers.db import get_user_by_field
-from couchers.models import UserBlocks
+from couchers.models import User, UserBlocks
 from pb import blocking_pb2
 from tests.test_fixtures import blocking_session, db, generate_user, make_user_block, session_scope, testconfig
 
@@ -83,31 +82,34 @@ def test_GetBlockedUsers(db):
         assert len(blocked_user_list.blocked_user_ids) == 2
 
 
-def test_blocking_relationships(db):
+def test_relationships_in_userblock_model(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
 
-    with blocking_session(token1) as blocking:
-        blocking.BlockUser(blocking_pb2.BlockUserReq(user_id=user2.id))
-        blocking.BlockUser(blocking_pb2.BlockUserReq(user_id=user3.id))
+    make_user_block(user1, user2)
+    make_user_block(user1, user3)
+    make_user_block(user2, user3)
 
-    with blocking_session(token2) as blocking:
-        blocking.BlockUser(blocking_pb2.BlockUserReq(user_id=user3.id))
-
-    set_users_blocked_by_user_1 = {2, 3}
-    set_users_blocking_user_3 = {1, 2}
+    set_users_blocked_by_user_1 = {user2.id, user3.id}
+    set_users_blocking_user_3 = {user1.id, user2.id}
     with session_scope() as session:
-        user = get_user_by_field(session, user1.username)
-        for user_block in user.is_blocking_user:
-            set_users_blocked_by_user_1.remove(user_block.blocked_user_id)
-        assert not set_users_blocked_by_user_1
+        user1_from_db = session.query(User).filter(User.id == user1.id).one()
+        new_set = set(block.blocked_user_id for block in user1_from_db.is_blocking_user)
+        assert set_users_blocked_by_user_1 == new_set
 
-        user3 = get_user_by_field(session, user3.username)
-        for user_block in user3.is_blocked_user:
-            set_users_blocking_user_3.remove(user_block.blocking_user_id)
-        assert not set_users_blocking_user_3
+        user3_from_db = session.query(User).filter(User.id == user3.id).one()
+        new_set = set(block.blocking_user_id for block in user3_from_db.is_blocked_user)
+        assert set_users_blocking_user_3 == new_set
 
+
+def test_blocking_relationships_in_user_model(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    make_user_block(user1, user2)
+
+    with session_scope() as session:
         block = (
             session.query(UserBlocks)
             .filter((UserBlocks.blocking_user_id == user1.id) & (UserBlocks.blocked_user_id == user2.id))
