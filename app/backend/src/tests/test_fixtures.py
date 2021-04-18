@@ -11,7 +11,7 @@ import pytest
 from couchers.config import config
 from couchers.crypto import random_hex
 from couchers.db import apply_migrations, get_engine, get_user_by_field, session_scope
-from couchers.models import Base, FriendRelationship, FriendStatus, User
+from couchers.models import Base, FriendRelationship, FriendStatus, User, UserBlocks
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
@@ -163,6 +163,16 @@ def make_friends(user1, user2):
             status=FriendStatus.accepted,
         )
         session.add(friend_relationship)
+
+
+def make_user_block(user1, user2):
+    with session_scope() as session:
+        user_block = UserBlocks(
+            blocking_user_id=user1.id,
+            blocked_user_id=user2.id,
+        )
+        session.add(user_block)
+        session.commit()
 
 
 def make_user_invisible(user_id):

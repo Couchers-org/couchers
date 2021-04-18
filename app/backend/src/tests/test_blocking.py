@@ -5,8 +5,8 @@ from google.protobuf import empty_pb2
 from couchers import errors
 from couchers.db import get_user_by_field
 from couchers.models import UserBlocks
-from pb import api_pb2, blocking_pb2
-from tests.test_fixtures import api_session, blocking_session, db, generate_user, session_scope, testconfig
+from pb import blocking_pb2
+from tests.test_fixtures import blocking_session, db, generate_user, make_user_block, session_scope, testconfig
 
 
 @pytest.fixture(autouse=True)
@@ -42,13 +42,7 @@ def test_unblock_user(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    with session_scope() as session:
-        user_block = UserBlocks(
-            blocking_user_id=user1.id,
-            blocked_user_id=user2.id,
-        )
-        session.add(user_block)
-        session.commit()
+    make_user_block(user1, user2)
 
     with blocking_session(token1) as user_blocks:
         with pytest.raises(grpc.RpcError) as e:
