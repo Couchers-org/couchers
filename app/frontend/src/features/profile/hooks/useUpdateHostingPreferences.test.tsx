@@ -41,25 +41,22 @@ describe("useUpdateHostingPreference hook", () => {
   it("updates the store with the latest user hosting preference", async () => {
     addDefaultUser();
 
-    const newUserPref = (Object.keys(
-      newHostingPreferenceData
-    ) as (keyof HostingPreferenceData)[]).reduce(
-      (acc, key: keyof HostingPreferenceData) => {
-        switch (key) {
-          case "smokingAllowed":
-          case "parkingDetails":
-          case "sleepingArrangement":
-            acc[key] = newHostingPreferenceData[key];
-            return acc;
-          default:
-            acc[key] = {
-              value: newHostingPreferenceData[key],
-            };
-            return acc;
-        }
-      },
-      {} as Record<string, unknown>
-    );
+    const newUserPref = (Object.entries(newHostingPreferenceData) as [
+      keyof HostingPreferenceData,
+      string | number | boolean | null
+    ][]).reduce((acc, [key, value]) => {
+      switch (key) {
+        case "smokingAllowed":
+        case "parkingDetails":
+        case "sleepingArrangement":
+          acc[key] = value;
+          return acc;
+        default:
+          acc[key] = { value: value };
+          return acc;
+      }
+    }, {} as Record<string, string | number | boolean | null | { value: string | number | boolean | null }>);
+
     updateHostingPreferenceMock.mockResolvedValue(new Empty());
     getUserMock.mockImplementation(() => {
       if (!updateHostingPreferenceMock.mock.calls.length) {
