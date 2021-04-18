@@ -426,23 +426,18 @@ class API(api_pb2_grpc.APIServicer):
 
     def SendFriendRequest(self, request, context):
         with session_scope() as session:
-            from_user = session.query(User).filter(User.id == context.user_id).one_or_none()
-
-            if not from_user:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
-
             to_user = session.query(User).filter(User.id == request.user_id).one_or_none()
-
             if not to_user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
-            if get_friends_status(session, from_user.id, to_user.id) != api_pb2.User.FriendshipStatus.NOT_FRIENDS:
+            if get_friends_status(session, context.user_id, request.user_id) != api_pb2.User.FriendshipStatus.NOT_FRIENDS:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.FRIENDS_ALREADY_OR_PENDING)
 
             # Race condition!
 
-            friend_relationship = FriendRelationship(from_user=from_user, to_user=to_user, status=FriendStatus.pending)
+            friend_relationship = FriendRelationship(from_user_id=context.user_id, to_user_id=request.user_id, status=FriendStatus.pending)
             session.add(friend_relationship)
+            session.commit()
 
             send_friend_request_email(friend_relationship)
 
