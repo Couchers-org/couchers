@@ -158,11 +158,6 @@ def test_update_profile(db):
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == errors.INVALID_COORDINATE
 
-        # changing gender shouldn't be allowed
-        with pytest.raises(grpc.RpcError) as e:
-            api.UpdateProfile(api_pb2.UpdateProfileReq(gender=wrappers_pb2.StringValue(value="newgender")))
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-
         api.UpdateProfile(
             api_pb2.UpdateProfileReq(
                 name=wrappers_pb2.StringValue(value="New name"),

@@ -1,6 +1,7 @@
 import "./App.css";
 
 import { CssBaseline, ThemeProvider } from "@material-ui/core";
+import { EnvironmentBanner } from "components/EnvironmentBanner";
 import React from "react";
 import { BrowserRouter as Router } from "react-router-dom";
 
@@ -16,6 +17,7 @@ function App() {
         <ReactQueryClientProvider>
           <AuthProvider>
             <CssBaseline />
+            <EnvironmentBanner />
             <AppRoutes />
           </AuthProvider>
         </ReactQueryClientProvider>
