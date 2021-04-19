@@ -43,7 +43,6 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.up("md")]: {
       paddingTop: 0,
       display: "flex",
-      justifyContent: "space-around",
     },
   },
   tabPanel: {
