@@ -1,6 +1,7 @@
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import { INVALID_REFERENCE_TYPE } from "features/communities/constants";
+import ReferenceForm from "features/communities/leavereference/ReferenceForm";
 import RevieweeOverview from "features/communities/leavereference/RevieweeOverview";
 import { useUser } from "features/userQueries/useUsers";
 import { ReferenceType } from "pb/references_pb";
@@ -38,7 +39,10 @@ export default function LeaveReferencePage() {
       {loading ? (
         <CircularProgress />
       ) : user ? (
-        <RevieweeOverview user={user} />
+        <>
+          <RevieweeOverview user={user} />
+          <ReferenceForm />
+        </>
       ) : null}
     </div>
   );
