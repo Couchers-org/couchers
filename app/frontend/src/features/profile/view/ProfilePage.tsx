@@ -41,6 +41,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     paddingTop: theme.spacing(3),
     [theme.breakpoints.up("md")]: {
+      paddingTop: 0,
       display: "flex",
       justifyContent: "space-around",
     },
