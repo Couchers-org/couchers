@@ -146,9 +146,7 @@ export const BUGS_DESCRIPTION_2 = `Please discuss anything else about the app on
 export const BUGS_DESCRIPTION_3 = ".";
 export const COMMUNITY_FORUM = "Community Forum";
 export const COMMUNITY_FORUM_LINK = "https://community.couchers.org/";
-export const FEATURES = "Features";
-export const FEATURES_DESCRIPTION =
-  "We're working on a few more things before we launch, such as events, forums and community pages, as well as improved designs, and we'll let you know as those get released.";
+export const FEATURES = "Features and current progress";
 export const WELCOME = "Welcome to Couchers.org!";
 export const WELCOME_DESCRIPTION_1 = `We're in the process of building out the platform, so we appreciate your patience as we create new 
   features.`;
@@ -163,3 +161,23 @@ export const LOCATION_SECTION_HEADING = "Please add your location";
 
 // Datepicker
 export const CHANGE_DATE = "Change date";
+
+export const FEATURES_MARKDOWN = `*Last updated: 17 April, 2021.*
+
+## Finding a host
+
+Use the **map** to find a host, or **search by name** in the search bar (if you know who you're looking for). Go to the user's profile and click the "Request" button: the other user will receive an email. For now, you will need to check back on the "Messages" page (under the "Surfing" tab) to see if they've responded, we will add email notifications for this soon.
+
+We are **currently working on a dedicated host finding feature** so you can search by city and filter based on a variety of options (e.g. gender, max guests). This will be released soon.
+
+## Community features
+
+We are working on a large set of community features, such as events, forums, and pages for communities. These will be released in the coming weeks. We'll send an email on the newsletter once these become available (you're automatically on the newsletter if you have an account, you can unsubscribe within).
+
+## Mobile applications for iOS and Android
+
+We're ramping up our effort to develop native mobile apps that you can install on your phone. We're currently looking for people experienced in the relevant technologies (React Native, Flutter, Swift/Kotlin, etc) to help us make good architectural decisions before we move our focus to the mobile apps. If you have the skills to help, please fill in the contributor form below and we'll be in touch.
+
+This process will take some time, but you can expect to hear more about these apps later this year.
+
+*The Beta is still being worked on at a rapid rate, and things will continue to change quickly for the foreseeable future, so check back often for updates.*`;
