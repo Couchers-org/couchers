@@ -5,7 +5,7 @@ from google.protobuf import empty_pb2
 from sqlalchemy.sql.elements import or_
 
 from couchers import errors
-from couchers.db import can_moderate_node, get_node_parents_recursively, session_scope
+from couchers.db import all_blocked_or_blocking_users, can_moderate_node, get_node_parents_recursively, session_scope
 from couchers.models import Cluster, ClusterRole, ClusterSubscription, Discussion, Node, Page, PageType, User
 from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.groups import group_to_pb
@@ -38,6 +38,7 @@ def _parents_to_pb(node_id, user_id):
 def community_to_pb(node: Node, user_id):
     with session_scope() as session:
         can_moderate = can_moderate_node(session, user_id, node.id)
+        relevant_blocks = all_blocked_or_blocking_users(user_id)
 
     return communities_pb2.Community(
         community_id=node.id,
@@ -47,11 +48,20 @@ def community_to_pb(node: Node, user_id):
         created=Timestamp_from_datetime(node.created),
         parents=_parents_to_pb(node.id, user_id),
         main_page=page_to_pb(node.official_cluster.main_page, user_id),
-        member=node.official_cluster.members.filter(User.is_visible).filter(User.id == user_id).one_or_none()
+        member=node.official_cluster.members.filter(User.is_visible)
+        .filter(~User.id.in_(relevant_blocks))
+        .filter(User.id == user_id)
+        .one_or_none()
         is not None,
-        admin=node.official_cluster.admins.filter(User.is_visible).filter(User.id == user_id).one_or_none() is not None,
-        member_count=node.official_cluster.members.filter(User.is_visible).count(),
-        admin_count=node.official_cluster.admins.filter(User.is_visible).count(),
+        admin=node.official_cluster.admins.filter(User.is_visible)
+        .filter(~User.id.in_(relevant_blocks))
+        .filter(User.id == user_id)
+        .one_or_none()
+        is not None,
+        member_count=node.official_cluster.members.filter(User.is_visible)
+        .filter(~User.id.in_(relevant_blocks))
+        .count(),
+        admin_count=node.official_cluster.admins.filter(User.is_visible).filter(~User.id.in_(relevant_blocks)).count(),
         can_moderate=can_moderate,
     )
 
@@ -107,8 +117,10 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             node = session.query(Node).filter(Node.id == request.community_id).one_or_none()
             if not node:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
             admins = (
                 node.official_cluster.admins.filter(User.is_visible)
+                .filter(~User.id.in_(relevant_blocks))
                 .filter(User.id >= next_admin_id)
                 .order_by(User.id)
                 .limit(page_size + 1)
@@ -126,8 +138,10 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             node = session.query(Node).filter(Node.id == request.community_id).one_or_none()
             if not node:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
             members = (
                 node.official_cluster.members.filter(User.is_visible)
+                .filter(~User.id.in_(relevant_blocks))
                 .filter(User.id >= next_member_id)
                 .order_by(User.id)
                 .limit(page_size + 1)
@@ -145,8 +159,10 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             node = session.query(Node).filter(Node.id == request.community_id).one_or_none()
             if not node:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
             nearbys = (
                 node.contained_users.filter(User.is_visible)
+                .filter(~User.id.in_(relevant_blocks))
                 .filter(User.id >= next_nearby_id)
                 .order_by(User.id)
                 .limit(page_size + 1)

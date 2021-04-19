@@ -16,7 +16,7 @@ def _(testconfig):
 class TestGroups:
     @staticmethod
     def test_GetGroup(testing_communities):
-        # implicitly tests visibility, since all groups have invisible member and admin
+        # implicitly tests visibility and blocking, since all groups have invisible, blocked, and blocking member and admin
         with session_scope() as session:
             user2_id, token2 = get_user_id_and_token(session, "user2")
             w_id = get_community_id(session, "World")
@@ -156,7 +156,7 @@ class TestGroups:
 
     @staticmethod
     def test_ListAdmins(testing_communities):
-        # implicitly tests visibility, since both groups have invisible admin
+        # implicitly tests visibility and blocking, since all groups have invisible, blocked, and blocking admin
         with session_scope() as session:
             user1_id, token1 = get_user_id_and_token(session, "user1")
             user2_id, token2 = get_user_id_and_token(session, "user2")
@@ -180,7 +180,7 @@ class TestGroups:
 
     @staticmethod
     def test_ListMembers(testing_communities):
-        # implicitly tests visibility, since both groups have invisible member
+        # implicitly tests visibility and blocking, since all groups have invisible, blocked, and blocking member
         with session_scope() as session:
             user1_id, token1 = get_user_id_and_token(session, "user1")
             user2_id, token2 = get_user_id_and_token(session, "user2")

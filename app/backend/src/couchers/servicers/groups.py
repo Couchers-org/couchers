@@ -5,7 +5,7 @@ from google.protobuf import empty_pb2
 from sqlalchemy.sql import literal
 
 from couchers import errors
-from couchers.db import can_moderate_node, get_node_parents_recursively, session_scope
+from couchers.db import all_blocked_or_blocking_users, can_moderate_node, get_node_parents_recursively, session_scope
 from couchers.models import Cluster, ClusterRole, ClusterSubscription, Discussion, Node, Page, PageType, User
 from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.pages import page_to_pb
@@ -45,6 +45,7 @@ def _parents_to_pb(cluster: Cluster, user_id):
 
 def group_to_pb(cluster: Cluster, user_id):
     with session_scope() as session:
+        relevant_blocks = all_blocked_or_blocking_users(user_id)
         can_moderate = can_moderate_node(session, user_id, cluster.parent_node_id)
 
     return groups_pb2.Group(
@@ -55,10 +56,18 @@ def group_to_pb(cluster: Cluster, user_id):
         created=Timestamp_from_datetime(cluster.created),
         parents=_parents_to_pb(cluster, user_id),
         main_page=page_to_pb(cluster.main_page, user_id),
-        member=cluster.members.filter(User.is_visible).filter(User.id == user_id).one_or_none() is not None,
-        admin=cluster.admins.filter(User.is_visible).filter(User.id == user_id).one_or_none() is not None,
-        member_count=cluster.members.filter(User.is_visible).count(),
-        admin_count=cluster.admins.filter(User.is_visible).count(),
+        member=cluster.members.filter(User.is_visible)
+        .filter(~User.id.in_(relevant_blocks))
+        .filter(User.id == user_id)
+        .one_or_none()
+        is not None,
+        admin=cluster.admins.filter(User.is_visible)
+        .filter(~User.id.in_(relevant_blocks))
+        .filter(User.id == user_id)
+        .one_or_none()
+        is not None,
+        member_count=cluster.members.filter(User.is_visible).filter(~User.id.in_(relevant_blocks)).count(),
+        admin_count=cluster.admins.filter(User.is_visible).filter(~User.id.in_(relevant_blocks)).count(),
         can_moderate=can_moderate,
     )
 
@@ -89,8 +98,11 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             )
             if not cluster:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
+
+            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
             admins = (
                 cluster.admins.filter(User.is_visible)
+                .filter(~User.id.in_(relevant_blocks))
                 .filter(User.id >= next_admin_id)
                 .order_by(User.id)
                 .limit(page_size + 1)
@@ -113,8 +125,11 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             )
             if not cluster:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
+
+            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
             members = (
                 cluster.members.filter(User.is_visible)
+                .filter(~User.id.in_(relevant_blocks))
                 .filter(User.id >= next_member_id)
                 .order_by(User.id)
                 .limit(page_size + 1)
