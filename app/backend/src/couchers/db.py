@@ -192,34 +192,19 @@ def set_email_change_token(session, user, hours=2):
     return token, f"{hours} hours"
 
 
-def get_friends_status(session, user1_id, user2_id):
-    if user1_id == user2_id:
-        return api_pb2.User.FriendshipStatus.NA
-    else:
-        current_friend_relationship = (
-            session.query(FriendRelationship)
-            .filter(
-                or_(
-                    and_(FriendRelationship.from_user_id == user1_id, FriendRelationship.to_user_id == user2_id),
-                    and_(FriendRelationship.from_user_id == user2_id, FriendRelationship.to_user_id == user1_id),
-                )
+def are_friends(session, user1_id, user2_id):
+    return (
+        session.query(FriendRelationship)
+        .filter(
+            or_(
+                and_(FriendRelationship.from_user_id == user1_id, FriendRelationship.to_user_id == user2_id),
+                and_(FriendRelationship.from_user_id == user2_id, FriendRelationship.to_user_id == user1_id),
             )
-            .filter(
-                or_(
-                    FriendRelationship.status == FriendStatus.accepted,
-                    FriendRelationship.status == FriendStatus.pending,
-                )
-            )
-            .one_or_none()
         )
-
-        if not current_friend_relationship:
-            return api_pb2.User.FriendshipStatus.NOT_FRIENDS
-        else:
-            if current_friend_relationship.status == FriendStatus.accepted:
-                return api_pb2.User.FriendshipStatus.FRIENDS
-            else:
-                return api_pb2.User.FriendshipStatus.PENDING
+        .filter(FriendRelationship.status == FriendStatus.accepted)
+        .one_or_none()
+        is not None
+    )
 
 
 def get_parent_node_at_location(session, shape):
