@@ -1,6 +1,7 @@
-import { CardProps, makeStyles, Typography } from "@material-ui/core";
+import { CardProps, Typography } from "@material-ui/core";
 import classNames from "classnames";
 import React from "react";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   root: {

@@ -175,11 +175,7 @@ class API(api_pb2_grpc.APIServicer):
 
             return user_model_to_pb(user, session, context)
 
-    def UpdateProfile(self, request, context):
-        # users can't change gender themselves to avoid filter evasion
-        if request.HasField("gender"):
-            context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.CANT_CHANGE_GENDER)
-
+    def UpdateProfile(self, request, context):        
         with session_scope() as session:
             user = session.query(User).filter(User.id == context.user_id).one()
 
@@ -703,7 +699,7 @@ def user_model_to_pb(db_user, session, context):
         smoking_allowed=smokinglocation2api[db_user.smoking_allowed],
         sleeping_arrangement=sleepingarrangement2api[db_user.sleeping_arrangement],
         parking_details=parkingdetails2api[db_user.parking_details],
-        avatar_url=db_user.avatar.thumbnail_url if db_user.avatar else None,
+        avatar_url=db_user.avatar.full_url if db_user.avatar else None,
     )
 
     if db_user.max_guests is not None:

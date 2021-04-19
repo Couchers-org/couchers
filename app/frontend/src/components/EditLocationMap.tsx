@@ -1,10 +1,4 @@
-import {
-  BoxProps,
-  makeStyles,
-  Slider,
-  Typography,
-  useTheme,
-} from "@material-ui/core";
+import { BoxProps, Slider, Typography, useTheme } from "@material-ui/core";
 import classNames from "classnames";
 import Map from "components/Map";
 import MapSearch from "components/MapSearch";
@@ -16,6 +10,7 @@ import {
   MapTouchEvent,
 } from "maplibre-gl";
 import React, { useRef, useState } from "react";
+import makeStyles from "utils/makeStyles";
 
 import { userLocationMaxRadius, userLocationMinRadius } from "../constants";
 import {
@@ -23,6 +18,7 @@ import {
   DISPLAY_LOCATION_NOT_EMPTY,
   getRadiusText,
   INVALID_COORDINATE,
+  LOCATION_ACCURACY,
   LOCATION_PUBLICLY_VISIBLE,
   MAP_IS_BLANK,
 } from "./constants";
@@ -78,8 +74,6 @@ export default function EditLocationMap({
 
   const map = useRef<mapboxgl.Map | null>(null);
 
-  const [, setDirty] = useState(0);
-
   // map is imperative so these don't need to cause re-render
   const location = useRef<ApproximateLocation>({
     address: initialLocation?.address ?? "",
@@ -91,6 +85,7 @@ export default function EditLocationMap({
   const isBlank = useRef<boolean>(
     !(initialLocation?.lng || initialLocation?.lat)
   );
+  const locationDisplayRef = useRef<HTMLInputElement>(null);
 
   const onCircleMouseDown = (e: MapMouseEvent | MapTouchEvent) => {
     // Prevent the default map drag behavior.
@@ -156,21 +151,21 @@ export default function EditLocationMap({
 
   const commit = (
     updates: Partial<ApproximateLocation>,
-    update: boolean = true
+    shouldUpdate = true
   ) => {
-    if (updates.address) {
+    if (updates.address !== undefined) {
       location.current.address = updates.address;
     }
-    if (updates.radius && !exact) {
+    if (updates.radius !== undefined && !exact) {
       location.current.radius = updates.radius;
     }
-    if (updates.lat && updates.lng) {
+    if (updates.lat !== undefined && updates.lng !== undefined) {
       location.current.lat = updates.lat;
       location.current.lng = updates.lng;
       isBlank.current = false;
     }
 
-    if (update) {
+    if (shouldUpdate) {
       if (isBlank.current) {
         // haven't selected a location yet
         setError(MAP_IS_BLANK);
@@ -184,12 +179,10 @@ export default function EditLocationMap({
         setError(DISPLAY_LOCATION_NOT_EMPTY);
         updateLocation(null);
       } else {
-        updateLocation(location.current);
         setError("");
+        updateLocation({ ...location.current });
       }
     }
-
-    setDirty(Date.now());
   };
 
   const initializeMap = (mapRef: mapboxgl.Map) => {
@@ -316,46 +309,68 @@ export default function EditLocationMap({
             setError={setError}
             setResult={(coordinate, _, simplified) => {
               commit({ address: simplified }, false);
+              if (locationDisplayRef.current) {
+                locationDisplayRef.current.value = simplified;
+              }
               flyToSearch(coordinate);
             }}
           />
         </div>
         {showRadiusSlider && (
-          <>
-            <Typography id="location-radius" gutterBottom>
-              Location accuracy
-            </Typography>
-            <Slider
-              aria-labelledby="location-radius"
-              aria-valuetext={getRadiusText(location.current.radius)}
-              value={location.current.radius}
-              step={5}
-              min={userLocationMinRadius}
-              max={userLocationMaxRadius}
-              onChange={(_, value) => {
-                commit({ radius: value as number }, false);
-                redrawMap();
-              }}
-              onChangeCommitted={(_, value) => {
-                commit({ radius: value as number });
-                redrawMap();
-              }}
-            />
-          </>
+          <RadiusSlider
+            commit={commit}
+            initialRadius={location.current.radius}
+            redrawMap={redrawMap}
+          />
         )}
         <TextField
-          value={location.current.address}
+          defaultValue={location.current.address}
           onChange={(e) => {
             commit({ address: e.target.value });
           }}
           error={error !== ""}
           id="display-address"
+          inputRef={locationDisplayRef}
           fullWidth
           variant="standard"
           label={DISPLAY_LOCATION}
           helperText={error !== "" ? error : LOCATION_PUBLICLY_VISIBLE}
         />
       </div>
+    </>
+  );
+}
+
+interface RadiusSliderProps {
+  commit(updates: Partial<ApproximateLocation>, shouldUpdate?: boolean): void;
+  initialRadius: number;
+  redrawMap(): void;
+}
+
+function RadiusSlider({ commit, initialRadius, redrawMap }: RadiusSliderProps) {
+  const [radius, setRadius] = useState(initialRadius);
+  return (
+    <>
+      <Typography id="location-radius" gutterBottom>
+        {LOCATION_ACCURACY}
+      </Typography>
+      <Slider
+        aria-labelledby="location-radius"
+        aria-valuetext={getRadiusText(radius)}
+        value={radius}
+        step={5}
+        min={userLocationMinRadius}
+        max={userLocationMaxRadius}
+        onChange={(_, value) => {
+          setRadius(value as number);
+          commit({ radius: value as number }, false);
+          redrawMap();
+        }}
+        onChangeCommitted={(_, value) => {
+          commit({ radius: value as number });
+          redrawMap();
+        }}
+      />
     </>
   );
 }

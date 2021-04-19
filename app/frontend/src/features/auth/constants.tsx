@@ -6,6 +6,7 @@ export const BIRTHDAY_REQUIRED = "Enter your birthdate";
 export const BIRTHDAY_PAST_ERROR = "Must be a valid date in the past.";
 
 export const CHANGE_EMAIL = "Change Email";
+export const YOUR_EMAIL_IS = "Your email address is currently";
 export const CHANGE_EMAIL_ERROR = "Error changing email: ";
 export const CHANGE_EMAIL_PROGRESS = "Email change in progress...";
 export const CHANGE_EMAIL_SUCCESS = "Your email has been changed successfully!";
@@ -21,7 +22,7 @@ export const CLICK_LOGIN = "Click here to log in";
 
 export const CONFIRM_PASSWORD = "Confirm password";
 export const CONTACT =
-  "Admins will be happy to change your name and/or gender label. Please contact contact@couchers.org!";
+  "Admins will be happy to change your name and/or gender label. Please contact support@couchers.org!";
 export const CURRENT_PASSWORD = "Current password";
 export const ENTER_EMAIL = "Enter your username/email";
 export const FEMALE = "Female";

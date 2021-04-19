@@ -1,10 +1,10 @@
-import { makeStyles } from "@material-ui/core";
 import {
   Autocomplete as MuiAutocomplete,
   AutocompleteProps as MuiAutocompleteProps,
 } from "@material-ui/lab";
 import classNames from "classnames";
 import React from "react";
+import makeStyles from "utils/makeStyles";
 
 import TextField from "./TextField";
 

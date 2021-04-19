@@ -1,6 +1,6 @@
-import { makeStyles } from "@material-ui/core";
 import { LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { useHistory, useLocation } from "react-router-dom";
+import makeStyles from "utils/makeStyles";
 
 import Map from "../../components/Map";
 import PageTitle from "../../components/PageTitle";

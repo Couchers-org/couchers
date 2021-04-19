@@ -1,5 +1,7 @@
 import { ReferenceType } from "pb/references_pb";
 
+export const contributorFormInfoQueryKey = "contributorFormInfo";
+
 export const accountInfoQueryKey = "accountInfo";
 
 export const communityKey = (id: number) => ["community", id];
@@ -34,6 +36,11 @@ export const communityMembersKey = (communityId: number) => [
 export const communityNearbyUsersKey = (communityId: number) => [
   "communityNearbyUsers",
   communityId,
+];
+
+export const discussionKey = (discussionId: number) => [
+  "discussion",
+  discussionId,
 ];
 
 export const threadKey = (threadId: number) => ["thread", threadId];

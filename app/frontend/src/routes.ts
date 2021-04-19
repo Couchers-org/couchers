@@ -1,5 +1,7 @@
 export const baseRoute = "/";
 
+export const contributeRoute = "/contribute";
+
 export const loginRoute = "/login";
 export const resetPasswordRoute = "/password-reset";
 export const settingsRoute = "/account-settings";
@@ -81,3 +83,6 @@ export const routeToCommunity = (
   slug: string,
   page?: CommunityTab
 ) => `${communityBaseRoute}/${id}/${slug}${page ? `/${page}` : ""}`;
+
+export const couchersRoute = "https://couchers.org";
+export const forumRoute = "https://community.couchers.org";

@@ -5,11 +5,11 @@ import {
   IconButton,
   List,
   ListItem,
-  makeStyles,
   Toolbar,
 } from "@material-ui/core";
 import classNames from "classnames";
 import { CloseIcon, MenuIcon } from "components/Icons";
+import ExternalNavButton from "components/Navigation/ExternalNavButton";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
 import BugReport from "features/BugReport";
@@ -17,14 +17,17 @@ import SearchBox from "features/search/SearchBox";
 import React from "react";
 import CouchersLogo from "resources/CouchersLogo";
 import {
+  couchersRoute,
   eventsRoute,
+  forumRoute,
   logoutRoute,
   mapRoute,
   messagesRoute,
   userRoute,
 } from "routes";
+import makeStyles from "utils/makeStyles";
 
-import { COUCHERS, LOG_OUT } from "../../constants";
+import { ABOUT, COUCHERS, FORUM, LOG_OUT } from "../../constants";
 import NavButton from "./NavButton";
 
 const menu = [
@@ -124,6 +127,20 @@ export default function Navigation() {
             <NavButton route={route} label={name} labelVariant="h2" />
           </ListItem>
         ))}
+        <ListItem button key="about">
+          <ExternalNavButton
+            route={couchersRoute}
+            label={ABOUT}
+            labelVariant="h2"
+          />
+        </ListItem>
+        <ListItem button key="forum">
+          <ExternalNavButton
+            route={forumRoute}
+            label={FORUM}
+            labelVariant="h2"
+          />
+        </ListItem>
         <ListItem button key="logout">
           <NavButton route={logoutRoute} label={LOG_OUT} labelVariant="h2" />
         </ListItem>
@@ -212,6 +229,16 @@ export default function Navigation() {
         <SearchBox />
         <div className={classes.bug}>
           <Hidden smDown>
+            <ExternalNavButton
+              route={couchersRoute}
+              label={ABOUT}
+              labelVariant="h3"
+            />
+            <ExternalNavButton
+              route={forumRoute}
+              label={FORUM}
+              labelVariant="h3"
+            />
             <NavButton route={logoutRoute} label={LOG_OUT} />
           </Hidden>
           <BugReport />

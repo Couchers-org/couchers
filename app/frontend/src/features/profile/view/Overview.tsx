@@ -1,4 +1,4 @@
-import { Card, CardActions, makeStyles, Typography } from "@material-ui/core";
+import { Card, CardActions, Typography } from "@material-ui/core";
 import Alert from "components/Alert";
 import Avatar from "components/Avatar";
 import BarWithHelp from "components/Bar/BarWithHelp";
@@ -32,6 +32,7 @@ import {
   editHostingPreferenceRoute,
   editProfileRoute,
 } from "routes";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   card: {

@@ -3,7 +3,6 @@ import {
   FormControlLabel,
   FormHelperText,
   InputLabel,
-  makeStyles,
   Radio,
   RadioGroup,
 } from "@material-ui/core";
@@ -26,6 +25,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useHistory, useLocation, useParams } from "react-router-dom";
 import { signupRoute } from "routes";
 import { service } from "service";
+import makeStyles from "utils/makeStyles";
 import {
   nameValidationPattern,
   sanitizeName,

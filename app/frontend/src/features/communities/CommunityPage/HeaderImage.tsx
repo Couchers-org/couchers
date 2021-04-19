@@ -1,9 +1,9 @@
-import { makeStyles } from "@material-ui/core";
 import classNames from "classnames";
 import Map from "components/Map";
 import { LngLat } from "maplibre-gl";
 import { Community } from "pb/communities_pb";
 import React from "react";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   root: {

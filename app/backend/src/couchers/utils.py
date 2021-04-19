@@ -45,6 +45,14 @@ def now():
     return datetime.now(utc)
 
 
+def minimum_allowed_birthdate():
+    """
+    Most recent birthdate allowed to register (must be 18 years minimum)
+    """
+    today_ = today()
+    return today_.replace(today_.year - 18)
+
+
 def today():
     """
     Date only in UTC

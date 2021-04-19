@@ -1,8 +1,8 @@
 import "@toast-ui/editor/dist/toastui-editor-viewer.css";
 
-import { makeStyles } from "@material-ui/core";
 import ToastUIViewer from "@toast-ui/editor/dist/toastui-editor-viewer";
 import { useEffect, useRef } from "react";
+import makeStyles from "utils/makeStyles";
 
 interface MarkdownProps {
   source: string;

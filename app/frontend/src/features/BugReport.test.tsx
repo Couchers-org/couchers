@@ -8,12 +8,14 @@ import {
 import userEvent from "@testing-library/user-event";
 import mediaQuery from "css-mediaquery";
 import {
-  BUG_DESCRIPTION,
-  EXPECT,
-  PROBLEM,
+  BUG_DESCRIPTION_NAME,
+  BUG_REPORT_SUCCESS,
+  CANCEL,
+  EXPECT_NAME,
+  PROBLEM_NAME,
   REPORT,
-  STEPS,
   SUBMIT,
+  WARNING,
 } from "features/constants";
 import { service } from "service";
 
@@ -30,20 +32,15 @@ afterEach(() => jest.restoreAllMocks);
 async function fillInAndSubmitBugReport(
   subjectFieldLabel: string,
   descriptionFieldLabel: string,
-  stepsFieldLabel: string = "",
   resultsFieldLabel: string = ""
 ) {
   const subjectField = await screen.findByLabelText(subjectFieldLabel);
   const descriptionField = await screen.findByLabelText(descriptionFieldLabel);
-  const stepsField = screen.queryByLabelText(stepsFieldLabel);
   const resultsField = screen.queryByLabelText(resultsFieldLabel);
 
   userEvent.type(subjectField, "Broken log in");
   userEvent.type(descriptionField, "Log in is broken");
 
-  if (stepsField) {
-    userEvent.type(stepsField, "Type in user name and clicked log in");
-  }
   if (resultsField) {
     userEvent.type(
       resultsField,
@@ -56,7 +53,10 @@ async function fillInAndSubmitBugReport(
 
 describe("BugReport", () => {
   beforeEach(() => {
-    reportBugMock.mockResolvedValue("1");
+    reportBugMock.mockResolvedValue({
+      bugId: "#1",
+      bugUrl: "https://github.com/Couchers-org/couchers/issues/1",
+    });
   });
 
   describe("when displayed on a screen at the medium breakpoint or above", () => {
@@ -106,14 +106,12 @@ describe("BugReport", () => {
   });
 
   describe('when the "report a bug" button is clicked', () => {
-    const subjectFieldLabel = BUG_DESCRIPTION;
-    const descriptionFieldLabel = PROBLEM;
-    const stepsFieldLabel = STEPS;
-    const resultsFieldLabel = EXPECT;
+    const subjectFieldLabel = BUG_DESCRIPTION_NAME;
+    const descriptionFieldLabel = PROBLEM_NAME;
+    const resultsFieldLabel = EXPECT_NAME;
 
     it("shows the bug report dialog correctly when the button is clicked", async () => {
-      const infoText =
-        "Please note that this information, as well as diagnostic information including which page you are on, what browser you are using, and your user ID will be saved to a public list of bugs.";
+      const infoText = WARNING;
       render(<BugReport />, { wrapper });
 
       userEvent.click(screen.getByRole("button", { name: "Report a bug" }));
@@ -124,7 +122,6 @@ describe("BugReport", () => {
       expect(screen.getByText(infoText)).toBeVisible();
       expect(screen.getByLabelText(subjectFieldLabel)).toBeVisible();
       expect(screen.getByLabelText(descriptionFieldLabel)).toBeVisible();
-      expect(screen.getByLabelText(stepsFieldLabel)).toBeVisible();
       expect(screen.getByLabelText(resultsFieldLabel)).toBeVisible();
     });
 
@@ -142,7 +139,10 @@ describe("BugReport", () => {
     it("submits the bug report successfully if all required fields are filled in", async () => {
       reportBugMock.mockImplementation(async () => {
         await wait(10);
-        return "1";
+        return {
+          bugId: "#1",
+          bugUrl: "https://github.com/Couchers-org/couchers/issues/1",
+        };
       });
       render(<BugReport />, { wrapper });
       userEvent.click(screen.getByRole("button", { name: "Report a bug" }));
@@ -150,16 +150,18 @@ describe("BugReport", () => {
       await fillInAndSubmitBugReport(subjectFieldLabel, descriptionFieldLabel);
 
       expect(await screen.findByRole("progressbar")).toBeVisible();
-      const successMessage =
-        "Thank you for reporting that bug and making Couchers better, a report was sent to the devs! The bug ID is 1";
       const successAlert = await screen.findByRole("alert");
-      expect(within(successAlert).getByText(successMessage)).toBeVisible();
+      expect(
+        within(successAlert).getByText(BUG_REPORT_SUCCESS, { exact: false })
+      ).toBeVisible();
+      expect(await within(successAlert).findByRole("link")).toHaveTextContent(
+        "#1"
+      );
       expect(reportBugMock).toHaveBeenCalledTimes(1);
       expect(reportBugMock).toHaveBeenCalledWith(
         {
           description: "Log in is broken",
           results: "",
-          steps: "",
           subject: "Broken log in",
         },
         null
@@ -173,7 +175,6 @@ describe("BugReport", () => {
       await fillInAndSubmitBugReport(
         subjectFieldLabel,
         descriptionFieldLabel,
-        stepsFieldLabel,
         resultsFieldLabel
       );
 
@@ -184,7 +185,6 @@ describe("BugReport", () => {
         {
           description: "Log in is broken",
           results: "Log in didn't work, and I expected it to work",
-          steps: "Type in user name and clicked log in",
           subject: "Broken log in",
         },
         null
@@ -204,7 +204,6 @@ describe("BugReport", () => {
         {
           description: "Log in is broken",
           results: "",
-          steps: "",
           subject: "Broken log in",
         },
         1
@@ -231,8 +230,8 @@ describe("BugReport", () => {
       await fillInAndSubmitBugReport(subjectFieldLabel, descriptionFieldLabel);
       await screen.findByRole("alert");
 
-      // Close dialog by clicking on background
-      userEvent.click(document.querySelector(".MuiBackdrop-root")!);
+      // Close dialog by clicking on close button
+      userEvent.click(screen.getByRole("button", { name: CANCEL }));
       // Wait for the dialog to close properly first before trying to reopen
       await waitForElementToBeRemoved(screen.getByRole("presentation"));
       userEvent.click(screen.getByRole("button", { name: "Report a bug" }));

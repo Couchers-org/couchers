@@ -1,4 +1,4 @@
-import { makeStyles, Typography } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 import Divider from "components/Divider";
 import LabelAndText from "components/LabelAndText";
 import Markdown from "components/Markdown";
@@ -33,6 +33,7 @@ import booleanConversion, {
 } from "features/profile/constants";
 import { User } from "pb/api_pb";
 import React from "react";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles(() => ({
   info: {
@@ -110,24 +111,20 @@ export default function Home({ user }: HomeProps) {
             label={HAS_HOUSEMATES}
             text={`${booleanConversion(user.hasHousemates?.value)}${
               user.housemateDetails?.value
-                ? `, ${user.housemateDetails?.value.toLowerCase()}`
+                ? `, ${user.housemateDetails?.value}`
                 : ""
             }`}
           />
           <LabelAndText
             label={HOST_KIDS}
             text={`${booleanConversion(user.hasKids?.value)}${
-              user.kidDetails?.value
-                ? `, ${user.kidDetails?.value.toLowerCase()}`
-                : ""
+              user.kidDetails?.value ? `, ${user.kidDetails?.value}` : ""
             }`}
           />
           <LabelAndText
             label={HOST_PETS}
             text={`${booleanConversion(user.hasPets?.value)}${
-              user.petDetails?.value
-                ? `, ${user.petDetails?.value.toLowerCase()}`
-                : ""
+              user.petDetails?.value ? `, ${user.petDetails?.value}` : ""
             }`}
           />
           <LabelAndText

@@ -1,6 +1,6 @@
+import Button from "components/Button";
 import HorizontalScroller from "components/HorizontalScroller";
-import IconButton from "components/IconButton";
-import { CalendarIcon, MoreIcon } from "components/Icons";
+import { CalendarIcon } from "components/Icons";
 import TextBody from "components/TextBody";
 import {
   EVENTS_EMPTY_STATE,
@@ -8,8 +8,7 @@ import {
   SEE_MORE_EVENTS_LABEL,
 } from "features/communities/constants";
 import { Community } from "pb/communities_pb";
-import React from "react";
-import { Link } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { routeToCommunity } from "routes";
 
 import { useCommunityPageStyles } from "./CommunityPage";
@@ -22,6 +21,7 @@ export default function PlacesSection({
   community: Community.AsObject;
 }) {
   const classes = useCommunityPageStyles();
+  const history = useHistory();
 
   return (
     <>
@@ -50,17 +50,19 @@ export default function PlacesSection({
         )}
         {true && ( //eventsHasNextPage && (
           <div className={classes.loadMoreButton}>
-            <Link
-              to={routeToCommunity(
-                community.communityId,
-                community.slug,
-                "events"
-              )}
+            <Button
+              onClick={() =>
+                history.push(
+                  routeToCommunity(
+                    community.communityId,
+                    community.slug,
+                    "events"
+                  )
+                )
+              }
             >
-              <IconButton aria-label={SEE_MORE_EVENTS_LABEL}>
-                <MoreIcon />
-              </IconButton>
-            </Link>
+              {SEE_MORE_EVENTS_LABEL}
+            </Button>
           </div>
         )}
       </HorizontalScroller>

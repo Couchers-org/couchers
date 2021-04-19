@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
       width: "70%",
     },
     border: "1px solid",
-    borderRadius: theme.shape.borderRadius,
+    borderRadius: theme.shape.borderRadius * 3,
   },
   footer: {
     display: "flex",
@@ -50,6 +50,7 @@ const useStyles = makeStyles((theme) => ({
     "&:last-child": { paddingBottom: theme.spacing(2) },
     paddingBottom: theme.spacing(1),
     paddingTop: 0,
+    overflowWrap: "break-word",
   },
   name: {
     ...theme.typography.body2,

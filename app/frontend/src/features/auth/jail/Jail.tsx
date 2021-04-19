@@ -1,4 +1,4 @@
-import { Backdrop, makeStyles } from "@material-ui/core";
+import { Backdrop } from "@material-ui/core";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import PageTitle from "components/PageTitle";
@@ -12,6 +12,7 @@ import React, { useEffect, useState } from "react";
 import { Redirect } from "react-router-dom";
 import { loginRoute } from "routes";
 import { service } from "service";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   bottomMargin: { marginBottom: theme.spacing(4) },

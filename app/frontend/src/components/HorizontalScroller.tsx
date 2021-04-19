@@ -1,6 +1,7 @@
-import { Hidden, makeStyles, useMediaQuery, useTheme } from "@material-ui/core";
+import { Hidden, useMediaQuery, useTheme } from "@material-ui/core";
 import classNames from "classnames";
 import React, { ReactNode } from "react";
+import makeStyles from "utils/makeStyles";
 
 import useOnVisibleEffect from "../utils/useOnVisibleEffect";
 import CircularProgress from "./CircularProgress";

@@ -4,7 +4,6 @@ import {
   Input,
   InputAdornment,
   InputLabel,
-  makeStyles,
 } from "@material-ui/core";
 import SearchIcon from "@material-ui/icons/Search";
 import { SearchQuery } from "features/search/constants";
@@ -12,6 +11,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { useHistory } from "react-router-dom";
 import { routeToSearch } from "routes";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   root: {
