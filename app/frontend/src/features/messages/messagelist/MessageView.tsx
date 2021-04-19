@@ -50,6 +50,7 @@ const useStyles = makeStyles((theme) => ({
     "&:last-child": { paddingBottom: theme.spacing(2) },
     paddingBottom: theme.spacing(1),
     paddingTop: 0,
+    overflowWrap: "break-word",
   },
   name: {
     ...theme.typography.body2,

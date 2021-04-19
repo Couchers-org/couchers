@@ -28,6 +28,8 @@ service API {
 
   rpc ListFriends(google.protobuf.Empty) returns (ListFriendsRes);
 
+  rpc ListMutualFriends(ListMutualFriendsReq) returns (ListMutualFriendsRes);
+
   rpc RespondFriendRequest(RespondFriendRequestReq) returns (google.protobuf.Empty);
 
   rpc CancelFriendRequest(CancelFriendRequestReq) returns (google.protobuf.Empty);
@@ -76,6 +78,14 @@ message ListFriendRequestsRes {
 
 message ListFriendsRes {
   repeated int64 user_ids = 1;
+}
+
+message ListMutualFriendsReq{
+  int64 user_id = 1;
+}
+
+message ListMutualFriendsRes {
+  repeated MutualFriend mutual_friends = 1;
 }
 
 message PingReq {}
@@ -248,9 +258,7 @@ message UpdateProfileReq {
   google.protobuf.DoubleValue lng = 23;
   google.protobuf.DoubleValue radius = 24; // metres
 
-  NullableStringValue avatar_key = 25; // result from media server
-
-  google.protobuf.StringValue gender = 3;
+  NullableStringValue avatar_key = 25; // result from media server  
   NullableStringValue pronouns = 101;
   NullableStringValue occupation = 4;
   NullableStringValue education = 102;  // CommonMark without images
