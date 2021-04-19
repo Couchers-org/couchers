@@ -6,7 +6,7 @@ from google.protobuf import empty_pb2, wrappers_pb2
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Complaint
+from couchers.models import Complaint, FriendRelationship, FriendStatus
 from couchers.utils import now, to_aware_datetime
 from pb import api_pb2, jail_pb2
 from tests.test_fixtures import (
@@ -344,21 +344,43 @@ def test_cant_friend_request_twice(db):
     with api_session(token1) as api:
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
 
-        with pytest.raises(grpc.RpcError):
+        with pytest.raises(grpc.RpcError) as e:
             api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.FRIENDS_ALREADY_OR_PENDING
 
 
 def test_cant_friend_request_pending(db):
     user1, token1 = generate_user("user1")
     user2, token2 = generate_user("user2")
-    user3, token3 = generate_user("user3")
 
     # send friend request from user1 to user2
     with api_session(token1) as api:
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
 
-    with api_session(token2) as api, pytest.raises(grpc.RpcError):
-        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
+    with api_session(token2) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.FRIENDS_ALREADY_OR_PENDING
+
+
+def test_cant_friend_request_already_friends(db):
+    user1, token1 = generate_user("user1")
+    user2, token2 = generate_user("user2")
+    make_friends(user1, user2)
+
+    with api_session(token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.FRIENDS_ALREADY_OR_PENDING
+
+    with api_session(token2) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.FRIENDS_ALREADY_OR_PENDING
 
 
 def test_ListFriends(db):
@@ -424,7 +446,7 @@ def test_ListFriends(db):
         assert user3.id in res.user_ids
 
 
-def test_mutual_friends(db):
+def test_ListMutualFriends(db):
     user1, token1 = generate_user("user1")
     user2, token2 = generate_user("user2")
     user3, token3 = generate_user("user3")
@@ -432,57 +454,52 @@ def test_mutual_friends(db):
     user5, token5 = generate_user("user5")
 
     # arrange friends like this: 1<->2, 1<->3, 1<->4, 1<->5, 3<->2, 3<->4,
-    # 2<->5 pending
     # so 1 and 2 should have mutual friend 3 only
-    with api_session(token1) as api:
-        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
-        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user3.id))
-        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user4.id))
-        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user5.id))
-
-    with api_session(token3) as api:
-        res = api.ListFriendRequests(empty_pb2.Empty())
-        assert res.received[0].user_id == user1.id
-        fr_id = res.received[0].friend_request_id
-        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
-        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
-        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user4.id))
-
-    with api_session(token5) as api:
-        res = api.ListFriendRequests(empty_pb2.Empty())
-        assert res.received[0].user_id == user1.id
-        fr_id = res.received[0].friend_request_id
-        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
-
-    with api_session(token2) as api:
-        res = api.ListFriendRequests(empty_pb2.Empty())
-        assert res.received[0].user_id == user1.id
-        fr_id = res.received[0].friend_request_id
-        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
-        assert res.received[1].user_id == user3.id
-        fr_id = res.received[1].friend_request_id
-        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
-
-    with api_session(token4) as api:
-        res = api.ListFriendRequests(empty_pb2.Empty())
-        assert res.received[0].user_id == user1.id
-        fr_id = res.received[0].friend_request_id
-        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
-        assert res.received[1].user_id == user3.id
-        fr_id = res.received[1].friend_request_id
-        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
-        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user5.id))
+    make_friends(user1, user2)
+    make_friends(user1, user3)
+    make_friends(user1, user4)
+    make_friends(user1, user5)
+    make_friends(user3, user2)
+    make_friends(user3, user4)
 
     with api_session(token1) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=str(user2.username)))
-        assert len(res.mutual_friends) == 1
-        assert res.mutual_friends[0].user_id == user3.id
+        mutual_friends = api.ListMutualFriends(api_pb2.ListMutualFriendsReq(user_id=user2.id)).mutual_friends
+        assert len(mutual_friends) == 1
+        assert mutual_friends[0].user_id == user3.id
 
     # and other way around same
     with api_session(token2) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=str(user1.username)))
-        assert len(res.mutual_friends) == 1
-        assert res.mutual_friends[0].user_id == user3.id
+        mutual_friends = api.ListMutualFriends(api_pb2.ListMutualFriendsReq(user_id=user1.id)).mutual_friends
+        assert len(mutual_friends) == 1
+        assert mutual_friends[0].user_id == user3.id
+
+        # Check pending request doesn't have effect
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user5.id))
+
+        mutual_friends = api.ListMutualFriends(api_pb2.ListMutualFriendsReq(user_id=user1.id)).mutual_friends
+        assert len(mutual_friends) == 1
+        assert mutual_friends[0].user_id == user3.id
+
+    # both ways
+    with api_session(token1) as api:
+        mutual_friends = api.ListMutualFriends(api_pb2.ListMutualFriendsReq(user_id=user2.id)).mutual_friends
+        assert len(mutual_friends) == 1
+        assert mutual_friends[0].user_id == user3.id
+
+
+def test_mutual_friends_from_user_proto_message(db):
+    user1, token1 = generate_user("user1")
+    user2, token2 = generate_user("user2")
+    user3, token3 = generate_user("user3")
+    user4, token4 = generate_user("user4")
+    make_friends(user1, user2)
+    make_friends(user1, user3)
+    make_friends(user4, user2)
+    make_friends(user4, user3)
+
+    with api_session(token1) as api:
+        user3_from_db = api.GetUser(api_pb2.GetUserReq(user=user4.username))
+        assert len(user3_from_db.mutual_friends) == 2
 
 
 def test_CancelFriendRequest(db):
@@ -500,6 +517,46 @@ def test_CancelFriendRequest(db):
 
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert len(res.sent) == 0
+
+
+def test_accept_friend_request(db):
+    user1, token1 = generate_user("user1")
+    user2, token2 = generate_user("user2")
+
+    with session_scope() as session:
+        friend_request = FriendRelationship(from_user_id=user1.id, to_user_id=user2.id, status=FriendStatus.pending)
+        session.add(friend_request)
+        session.commit()
+        friend_request_id = friend_request.id
+
+    with api_session(token2) as api:
+        # check request pending
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        assert len(res.received) == 1
+        assert res.received[0].user_id == user1.id
+
+        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=friend_request_id, accept=True))
+
+        # check request is gone
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        assert len(res.sent) == 0
+        assert len(res.received) == 0
+
+        # check now friends
+        res = api.ListFriends(empty_pb2.Empty())
+        assert len(res.user_ids) == 1
+        assert res.user_ids[0] == user1.id
+
+    with api_session(token1) as api:
+        # check request gone
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        assert len(res.sent) == 0
+        assert len(res.received) == 0
+
+        # check now friends
+        res = api.ListFriends(empty_pb2.Empty())
+        assert len(res.user_ids) == 1
+        assert res.user_ids[0] == user2.id
 
 
 def test_reject_friend_request(db):
@@ -561,29 +618,19 @@ def test_mutual_friends_self(db):
     make_friends(user1, user4)
 
     with api_session(token1) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=user3.username))
-        assert len(res.mutual_friends) == 1
-        assert res.mutual_friends[0].user_id == user2.id
-
-    with api_session(token3) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
-        assert len(res.mutual_friends) == 1
-        assert res.mutual_friends[0].user_id == user2.id
-
-    with api_session(token1) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
+        res = api.ListMutualFriends(api_pb2.ListMutualFriendsReq(user_id=user1.id))
         assert len(res.mutual_friends) == 0
 
     with api_session(token2) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=user2.username))
+        res = api.ListMutualFriends(api_pb2.ListMutualFriendsReq(user_id=user2.id))
         assert len(res.mutual_friends) == 0
 
     with api_session(token3) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=user3.username))
+        res = api.ListMutualFriends(api_pb2.ListMutualFriendsReq(user_id=user3.id))
         assert len(res.mutual_friends) == 0
 
     with api_session(token4) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=user4.username))
+        res = api.ListMutualFriends(api_pb2.ListMutualFriendsReq(user_id=user4.id))
         assert len(res.mutual_friends) == 0
 
 

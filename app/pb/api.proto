@@ -28,6 +28,8 @@ service API {
 
   rpc ListFriends(google.protobuf.Empty) returns (ListFriendsRes);
 
+  rpc ListMutualFriends(ListMutualFriendsReq) returns (ListMutualFriendsRes);
+
   rpc RespondFriendRequest(RespondFriendRequestReq) returns (google.protobuf.Empty);
 
   rpc CancelFriendRequest(CancelFriendRequestReq) returns (google.protobuf.Empty);
@@ -76,6 +78,14 @@ message ListFriendRequestsRes {
 
 message ListFriendsRes {
   repeated int64 user_ids = 1;
+}
+
+message ListMutualFriendsReq{
+  int64 user_id = 1;
+}
+
+message ListMutualFriendsRes {
+  repeated MutualFriend mutual_friends = 1;
 }
 
 message PingReq {}
