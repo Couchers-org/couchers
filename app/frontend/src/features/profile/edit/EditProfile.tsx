@@ -207,6 +207,7 @@ export default function EditProfileForm() {
             />
           </form>
           <Controller
+            defaultValue=""
             name="location"
             control={control}
             render={() => (
