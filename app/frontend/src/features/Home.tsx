@@ -1,5 +1,6 @@
 import { Link, Typography } from "@material-ui/core";
 import Divider from "components/Divider";
+import PageTitle from "components/PageTitle";
 import {
   BUGS,
   BUGS_DESCRIPTION_1,
@@ -20,7 +21,7 @@ import ContributorForm, { CONTRIBUTE, JOIN_THE_TEAM } from "./contributorForm";
 export default function Home() {
   return (
     <>
-      <Typography variant="h1">{WELCOME}</Typography>
+      <PageTitle> {WELCOME}</PageTitle>
       <Typography variant="body1">
         {WELCOME_DESCRIPTION_1}
         <br />
