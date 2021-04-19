@@ -21,6 +21,7 @@ export const EVENTS_TITLE = "Events";
 export const FIND_HOST = "Find host";
 export const HANGOUTS_LABEL = "Hangouts";
 export const INVALID_COMMUNITY_ID = "Invalid community id.";
+export const INVALID_REFERENCE_TYPE = "Invalid reference type";
 export const LOCAL_INFO_LABEL = "Local info";
 export const MORE_REPLIES = "More replies...";
 export const MORE_TIPS = "More tips and information";

@@ -35,7 +35,7 @@ import {
 } from "routes";
 import makeStyles from "utils/makeStyles";
 
-const useStyles = makeStyles((theme) => ({
+export const useStyles = makeStyles((theme) => ({
   card: {
     flexShrink: 0,
     margin: theme.spacing(2),

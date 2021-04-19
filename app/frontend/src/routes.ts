@@ -39,8 +39,10 @@ export const routeToHostRequest = (id: number) => `${hostRequestRoute}/${id}`;
 // REFERENCES
 export const leaveReferenceBaseRoute = "/leave-reference";
 export const leaveReferenceRoute = `${leaveReferenceBaseRoute}/:referenceType/:userId`;
-export const routeToLeaveReference = (referenceType: ReferenceType, id: number) => 
-  `${leaveReferenceBaseRoute}/${referenceType}/${id}`;
+export const routeToLeaveReference = (
+  referenceType: ReferenceType,
+  id: number
+) => `${leaveReferenceBaseRoute}/${referenceType}/${id}`;
 
 export const mapRoute = "/map";
 export const eventsRoute = "/events";
@@ -94,5 +96,3 @@ export const routeToCommunity = (
   slug: string,
   page?: CommunityTab
 ) => `${communityBaseRoute}/${id}/${slug}${page ? `/${page}` : ""}`;
-
-
