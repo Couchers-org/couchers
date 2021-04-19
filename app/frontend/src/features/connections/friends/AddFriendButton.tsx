@@ -6,7 +6,6 @@ import { User } from "pb/api_pb";
 import React from "react";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
-import makeStyles from "utils/makeStyles";
 
 import { SetMutationError } from ".";
 
