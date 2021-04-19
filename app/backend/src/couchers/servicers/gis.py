@@ -4,7 +4,7 @@ import logging
 from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.sql import func
 
-from couchers.db import session_scope
+from couchers.db import all_blocked_or_blocking_users, session_scope
 from couchers.models import Node, Page, PageType, PageVersion, User
 from pb import gis_pb2_grpc
 from pb.google.api import httpbody_pb2
@@ -37,7 +37,13 @@ def _query_to_geojson_response(session, query):
 class GIS(gis_pb2_grpc.GISServicer):
     def GetUsers(self, request, context):
         with session_scope() as session:
-            query = session.query(User.username, User.id, User.geom).filter(User.is_visible).filter(User.geom != None)
+            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
+            query = (
+                session.query(User.username, User.id, User.geom)
+                .filter(User.is_visible)
+                .filter(~User.id.in_(relevant_blocks))
+                .filter(User.geom != None)
+            )
 
             return _query_to_geojson_response(session, query)
 
