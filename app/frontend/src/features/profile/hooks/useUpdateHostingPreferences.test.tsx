@@ -6,6 +6,7 @@ import { act } from "react-test-renderer";
 import { HostingPreferenceData, service } from "service";
 import wrapper from "test/hookWrapper";
 import { addDefaultUser } from "test/utils";
+import { Primitives, ServicePrimitives } from "utils/types";
 
 const getUserMock = service.user.getUser as jest.Mock;
 const updateHostingPreferenceMock = service.user
@@ -43,19 +44,22 @@ describe("useUpdateHostingPreference hook", () => {
 
     const newUserPref = (Object.entries(newHostingPreferenceData) as [
       keyof HostingPreferenceData,
-      string | number | boolean | null
+      Primitives
     ][]).reduce((acc, [key, value]) => {
       switch (key) {
         case "smokingAllowed":
         case "parkingDetails":
         case "sleepingArrangement":
+          if (typeof value !== "number") {
+            throw new Error(`Value of enum ${key} must be a number.`);
+          }
           acc[key] = value;
           return acc;
         default:
-          acc[key] = { value: value };
+          acc[key] = { value };
           return acc;
       }
-    }, {} as Record<string, string | number | boolean | null | { value: string | number | boolean | null }>);
+    }, {} as Record<string, ServicePrimitives>);
 
     updateHostingPreferenceMock.mockResolvedValue(new Empty());
     getUserMock.mockImplementation(() => {
