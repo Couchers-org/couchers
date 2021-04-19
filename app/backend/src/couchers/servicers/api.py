@@ -175,7 +175,7 @@ class API(api_pb2_grpc.APIServicer):
 
             return user_model_to_pb(user, session, context)
 
-    def UpdateProfile(self, request, context):        
+    def UpdateProfile(self, request, context):
         with session_scope() as session:
             user = session.query(User).filter(User.id == context.user_id).one()
 
