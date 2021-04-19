@@ -154,7 +154,7 @@
                   </div>
                   <div class="media-content">
                     <p class="title is-4">Jakub Szwedo</p>
-                    <p class="subtitle is-6 role">Head of UX</p>
+                    <p class="subtitle is-6 role">UX Designer</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Poznań, Poland</p>
                   </div>
                 </div>
@@ -174,6 +174,24 @@
                     <p class="title is-4">Miuriel Feliks Kochva</p>
                     <p class="subtitle is-6 role">Head of Graphic Design &amp; UX designer</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Amsterdam, Netherlands</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-dom.jpg" alt="Headshot of Dom">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Dominic Nayan</p>
+                    <p class="subtitle is-6 role">Head of UX</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Louisville, USA</p>
                   </div>
                 </div>
               </div>
@@ -357,24 +375,6 @@
                     <p class="title is-4">Colin Ashby</p>
                     <p class="subtitle is-6 role">Digital Marketer</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Houston, USA</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="column is-one-third">
-            <div class="card">
-              <div class="card-content">
-                <div class="media">
-                  <div class="media-left">
-                    <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-dom.jpg" alt="Headshot of Dom">
-                    </figure>
-                  </div>
-                  <div class="media-content">
-                    <p class="title is-4">Dominic Nayan</p>
-                    <p class="subtitle is-6 role">UX Designer</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Louisville, USA</p>
                   </div>
                 </div>
               </div>
