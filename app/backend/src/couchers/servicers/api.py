@@ -441,7 +441,7 @@ class API(api_pb2_grpc.APIServicer):
         with session_scope() as session:
             user = session.query(User).filter(User.is_visible).filter(User.id == request.user_id).one_or_none()
             if not user:
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.USER_NOT_FOUND)
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             q1 = (
                 session.query(FriendRelationship.from_user_id.label("user_id"))
@@ -472,7 +472,10 @@ class API(api_pb2_grpc.APIServicer):
             )
 
             mutual_friends = (
-                session.query(User).filter(User.is_visible).filter(User.id.in_(q1.union(q2).intersect(q3.union(q4)).subquery())).all()
+                session.query(User)
+                .filter(User.is_visible)
+                .filter(User.id.in_(q1.union(q2).intersect(q3.union(q4)).subquery()))
+                .all()
             )
 
             return api_pb2.ListMutualFriendsRes(

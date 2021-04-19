@@ -621,6 +621,35 @@ def test_ListMutualFriends(db):
         assert mutual_friends[0].user_id == user3.id
 
 
+def test_ListMutualFriends_with_invisible_user(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user(is_deleted=True)
+
+    with api_session(token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.ListMutualFriends(api_pb2.ListMutualFriendsReq(user_id=user2.id))
+    assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    assert e.value.details() == errors.USER_NOT_FOUND
+
+
+def test_ListMutualFriends_with_invisible_mutual_friend(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+    make_friends(user1, user2)
+    make_friends(user2, user3)
+
+    with api_session(token1) as api:
+        mutual_friends = api.ListMutualFriends(api_pb2.ListMutualFriendsReq(user_id=user3.id)).mutual_friends
+        assert len(mutual_friends) == 1
+        assert mutual_friends[0].user_id == user2.id
+
+        make_user_invisible(user2.id)
+
+        mutual_friends = api.ListMutualFriends(api_pb2.ListMutualFriendsReq(user_id=user3.id)).mutual_friends
+        assert len(mutual_friends) == 0
+
+
 def test_mutual_friends_from_user_proto_message(db):
     user1, token1 = generate_user("user1")
     user2, token2 = generate_user("user2")
