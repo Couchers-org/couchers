@@ -450,7 +450,15 @@ class API(api_pb2_grpc.APIServicer):
             return api_pb2.ListMutualFriendsRes(mutual_friends=[])
 
         with session_scope() as session:
-            user = session.query(User).filter(User.is_visible).filter(User.id == request.user_id).one_or_none()
+            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
+
+            user = (
+                session.query(User)
+                .filter(User.is_visible)
+                .filter(~User.id.in_(relevant_blocks))
+                .filter(User.id == request.user_id)
+                .one_or_none()
+            )
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
@@ -485,6 +493,7 @@ class API(api_pb2_grpc.APIServicer):
             mutual_friends = (
                 session.query(User)
                 .filter(User.is_visible)
+                .filter(~User.id.in_(relevant_blocks))
                 .filter(User.id.in_(q1.union(q2).intersect(q3.union(q4)).subquery()))
                 .all()
             )

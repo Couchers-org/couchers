@@ -887,24 +887,64 @@ def test_mutual_friends_self(db):
         assert len(res.mutual_friends) == 0
 
 
-# TODO
 def test_mutual_friends_with_blocked_user(db):
-    pass
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    make_user_block(user1, user2)
+
+    with api_session(token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.ListMutualFriends(api_pb2.ListMutualFriendsReq(user_id=user2.id))
+    assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    assert e.value.details() == errors.USER_NOT_FOUND
 
 
-# TODO
 def test_mutual_friends_with_blocking_user(db):
-    pass
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    make_user_block(user2, user1)
+
+    with api_session(token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.ListMutualFriends(api_pb2.ListMutualFriendsReq(user_id=user2.id))
+    assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    assert e.value.details() == errors.USER_NOT_FOUND
 
 
-# TODO
 def test_mutual_friends_with_blocked_mutual_friend(db):
-    pass
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+    make_friends(user1, user2)
+    make_friends(user2, user3)
+
+    with api_session(token1) as api:
+        mutual_friends = api.ListMutualFriends(api_pb2.ListMutualFriendsReq(user_id=user3.id)).mutual_friends
+        assert len(mutual_friends) == 1
+        assert mutual_friends[0].user_id == user2.id
+
+        make_user_block(user1, user2)
+
+        mutual_friends = api.ListMutualFriends(api_pb2.ListMutualFriendsReq(user_id=user3.id)).mutual_friends
+        assert len(mutual_friends) == 0
 
 
-# TODO
 def test_mutual_friends_with_blocking_mutual_friend(db):
-    pass
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+    make_friends(user1, user2)
+    make_friends(user2, user3)
+
+    with api_session(token1) as api:
+        mutual_friends = api.ListMutualFriends(api_pb2.ListMutualFriendsReq(user_id=user3.id)).mutual_friends
+        assert len(mutual_friends) == 1
+        assert mutual_friends[0].user_id == user2.id
+
+        make_user_block(user2, user1)
+
+        mutual_friends = api.ListMutualFriends(api_pb2.ListMutualFriendsReq(user_id=user3.id)).mutual_friends
+        assert len(mutual_friends) == 0
 
 
 def test_CancelFriendRequest(db):
@@ -1148,6 +1188,7 @@ def test_RespondFriendRequest_blocked_user_as_sender(db):
             api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=friend_request_id, accept=True))
     assert e.value.code() == grpc.StatusCode.NOT_FOUND
     assert e.value.details() == errors.FRIEND_REQUEST_NOT_FOUND
+
 
 def test_reporting(db):
     user1, token1 = generate_user()
