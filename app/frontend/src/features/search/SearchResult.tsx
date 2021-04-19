@@ -5,6 +5,7 @@ import {
   Hidden,
   Typography,
 } from "@material-ui/core";
+import classNames from "classnames";
 import { CouchIcon, LocationIcon } from "components/Icons";
 import UserSummary from "components/UserSummary";
 import {
@@ -17,22 +18,19 @@ import {
   LabelsReferencesLastActive,
 } from "features/user/UserTextAndLabel";
 import { User } from "pb/api_pb";
-import { Link } from "react-router-dom";
-import { routeToUser } from "routes";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
+  root: {
+    marginRight: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+    textDecoration: "none",
+    // width: "100%",
+  },
   about: {
     margin: `${theme.spacing(2)} 0`,
   },
-  card: {
-    boxShadow: "5px 5px 5px rgba(196, 196, 196, 0.5)", // todo
-    paddingLeft: theme.spacing(3),
-    paddingRight: theme.spacing(1),
-  },
-  cardContent: {
-    padding: 0,
-  },
+  card: {},
   statusLabelWrapper: {
     display: "flex",
     "& > div": {
@@ -43,56 +41,67 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(2),
   },
-  root: {
-    marginRight: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-    textDecoration: "none",
-    // width: "100%",
-  },
 }));
 
-export default function SearchResult({ user }: { user: User.AsObject }) {
+interface SearchResultProps {
+  className?: string;
+  id?: string;
+  user: User.AsObject;
+  onClick: (user: User.AsObject) => void;
+  highlight?: boolean;
+}
+
+export default function SearchResult({
+  className,
+  id,
+  user,
+  onClick,
+  highlight = false,
+}: SearchResultProps) {
   const classes = useStyles();
   return (
-    <Link to={routeToUser(user.username)} className={classes.root}>
-      <Card className={classes.card}>
-        <CardActionArea>
-          <CardContent className={classes.cardContent}>
-            <UserSummary user={user}>
-              <div className={classes.statusLabelWrapper}>
-                <div>
-                  <CouchIcon />
-                  <Typography
-                    className={classes.statusLabel}
-                    display="inline"
-                    variant="subtitle1"
-                    color="primary"
-                  >
-                    {hostingStatusLabels[user.hostingStatus]}
-                  </Typography>
-                </div>
-                <div>
-                  <LocationIcon />
-                  <Typography
-                    className={classes.statusLabel}
-                    display="inline"
-                    variant="subtitle1"
-                  >
-                    {meetupStatusLabels[user.meetupStatus]}
-                  </Typography>
-                </div>
+    <Card
+      id={id}
+      className={classNames(classes.card, classes.root, className)}
+      onClick={() => onClick(user)}
+      elevation={highlight ? 4 : undefined}
+    >
+      <CardActionArea>
+        <CardContent>
+          <UserSummary user={user} avatarIsLink={false}>
+            <div className={classes.statusLabelWrapper}>
+              <div>
+                <CouchIcon />
+                <Typography
+                  className={classes.statusLabel}
+                  display="inline"
+                  variant="subtitle1"
+                  color="primary"
+                >
+                  {hostingStatusLabels[user.hostingStatus]}
+                </Typography>
               </div>
-            </UserSummary>
-            <Typography variant="body1" className={classes.about}>
-              {aboutText(user)}
-            </Typography>
-            <Hidden smDown>
-              <LabelsAgeGenderLanguages user={user} />
-              <LabelsReferencesLastActive user={user} />
-            </Hidden>
-          </CardContent>
-        </CardActionArea>
-      </Card>
-    </Link>
+              <div>
+                <LocationIcon />
+                <Typography
+                  className={classes.statusLabel}
+                  display="inline"
+                  variant="subtitle1"
+                >
+                  {meetupStatusLabels[user.meetupStatus]}
+                </Typography>
+              </div>
+            </div>
+          </UserSummary>
+          <Typography variant="body1" className={classes.about}>
+            {aboutText(user)}
+          </Typography>
+          <Hidden smDown>
+            <LabelsAgeGenderLanguages user={user} />
+            <LabelsReferencesLastActive user={user} />
+          </Hidden>
+        </CardContent>
+      </CardActionArea>
+    </Card>
   );
 }

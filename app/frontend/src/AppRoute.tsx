@@ -51,7 +51,14 @@ export default function AppRoute({
       render={({ location }) => (
         <>
           {isAuthenticated ? (
-            <Container className={classes.standardContainer}>
+            <Container
+              className={
+                isFullscreen
+                  ? classes.fullscreenContainer
+                  : classes.standardContainer
+              }
+              maxWidth={isFullscreen ? false : undefined}
+            >
               {isJailed ? (
                 <Redirect to={jailRoute} />
               ) : (
@@ -73,17 +80,13 @@ export default function AppRoute({
       )}
     />
   ) : (
-    <>
-      {isFullscreen ? (
-        <Container className={classes.fullscreenContainer} maxWidth={false}>
-          <Route {...otherProps} render={() => children} />
-        </Container>
-      ) : (
-        <Container className={classes.standardContainer}>
-          <Navigation />
-          <Route {...otherProps} render={() => children} />
-        </Container>
-      )}
-    </>
+    <Container
+      className={
+        isFullscreen ? classes.fullscreenContainer : classes.standardContainer
+      }
+      maxWidth={isFullscreen ? false : undefined}
+    >
+      <Route {...otherProps} render={() => children} />
+    </Container>
   );
 }

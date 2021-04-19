@@ -31,12 +31,14 @@ export const useStyles = makeStyles((theme) => ({
 }));
 
 interface UserSummaryProps {
+  avatarIsLink?: boolean;
   children?: React.ReactNode;
   headlineComponent?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
   user?: User.AsObject;
 }
 
 export default function UserSummary({
+  avatarIsLink = true,
   children,
   headlineComponent = "h2",
   user,
@@ -48,7 +50,11 @@ export default function UserSummary({
         {!user ? (
           <Skeleton variant="circle" className={classes.avatar} />
         ) : (
-          <Avatar user={user} className={classes.avatar} />
+          <Avatar
+            user={user}
+            className={classes.avatar}
+            isProfileLink={avatarIsLink}
+          />
         )}
       </ListItemAvatar>
       <ListItemText
@@ -60,7 +66,7 @@ export default function UserSummary({
             variant="h2"
             className={classes.title}
           >
-            {!user ? <Skeleton /> : `${user.name}, ${user.age}`}
+            {!user ? <Skeleton /> : `${user.name}, ${user.age}, ${user.city}`}
           </Typography>
         }
         secondary={

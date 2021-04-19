@@ -107,7 +107,7 @@ export default function AppRoutes() {
       >
         <ConfirmChangeEmail />
       </AppRoute>
-      <AppRoute isFullscreen isPrivate={false} path={tosRoute}>
+      <AppRoute isPrivate={false} path={tosRoute}>
         <TOS />
       </AppRoute>
       <AppRoute isPrivate path={settingsRoute}>
@@ -164,7 +164,7 @@ export default function AppRoutes() {
       {
         // SEARCH
       }
-      <AppRoute isPrivate path={`${searchRoute}/:query?`}>
+      <AppRoute isPrivate isFullscreen={true} path={`${searchRoute}/:query?`}>
         <SearchPage />
       </AppRoute>
 
