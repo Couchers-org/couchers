@@ -1,4 +1,9 @@
+import { ReferenceType } from "./pb/references_pb";
+
 export const baseRoute = "/";
+
+export const couchersRoute = "https://couchers.org";
+export const forumRoute = "https://community.couchers.org";
 
 export const contributeRoute = "/contribute";
 
@@ -30,6 +35,12 @@ export const hostRequestRoute = `${messagesRoute}/request`;
 export const archivedMessagesRoute = `${messagesRoute}/archived`;
 export const routeToGroupChat = (id: number) => `${groupChatsRoute}/${id}`;
 export const routeToHostRequest = (id: number) => `${hostRequestRoute}/${id}`;
+
+// REFERENCES
+export const leaveReferenceBaseRoute = "/leave-reference";
+export const leaveReferenceRoute = `${leaveReferenceBaseRoute}/:referenceType/:userId`;
+export const routeToLeaveReference = (referenceType: ReferenceType, id: number) => 
+  `${leaveReferenceBaseRoute}/${referenceType}/${id}`;
 
 export const mapRoute = "/map";
 export const eventsRoute = "/events";
@@ -84,5 +95,4 @@ export const routeToCommunity = (
   page?: CommunityTab
 ) => `${communityBaseRoute}/${id}/${slug}${page ? `/${page}` : ""}`;
 
-export const couchersRoute = "https://couchers.org";
-export const forumRoute = "https://community.couchers.org";
+
