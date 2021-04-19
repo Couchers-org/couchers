@@ -132,7 +132,6 @@ const themeOptions: ThemeOptions = {
     h1: {
       fontSize: "1.25rem", //20px
       fontWeight: "bold",
-      marginTop: spacing(2),
       [breakpoints.up("md")]: {
         fontSize: "1.5rem", //24px
       },
@@ -146,7 +145,6 @@ const themeOptions: ThemeOptions = {
     h2: {
       fontSize: "1rem", //16px
       fontWeight: "bold",
-      marginTop: spacing(1),
       [breakpoints.up("md")]: {
         fontSize: "1.25rem", //20px
       },
@@ -154,7 +152,6 @@ const themeOptions: ThemeOptions = {
     h3: {
       fontSize: "0.75rem", //12px
       fontWeight: "bold",
-      marginTop: spacing(1),
       [breakpoints.up("md")]: {
         fontSize: "0.875rem", //14px
       },
@@ -162,7 +159,6 @@ const themeOptions: ThemeOptions = {
     h4: {
       fontSize: "0.75rem", //12px
       fontWeight: "bold",
-      marginTop: spacing(1),
       [breakpoints.up("md")]: {
         fontSize: "0.875rem", //14px
       },
@@ -170,7 +166,6 @@ const themeOptions: ThemeOptions = {
     h5: {
       fontSize: "0.75rem", //12px
       fontWeight: "bold",
-      marginTop: spacing(1),
       [breakpoints.up("md")]: {
         fontSize: "0.875rem", //14px
       },
@@ -178,7 +173,6 @@ const themeOptions: ThemeOptions = {
     h6: {
       fontSize: "0.75rem", //12px
       fontWeight: "bold",
-      marginTop: spacing(1),
       [breakpoints.up("md")]: {
         fontSize: "0.875rem", //14px
       },
