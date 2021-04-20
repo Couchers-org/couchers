@@ -18,6 +18,7 @@ import Signup from "./features/auth/signup/Signup";
 import CommunityPage from "./features/communities/CommunityPage";
 import { DiscussionPage } from "./features/communities/discussion";
 import GroupPage from "./features/communities/GroupPage";
+import LeaveReferencePage from "./features/communities/leavereference/LeaveReferencePage";
 import NewGuidePage from "./features/communities/NewGuidePage";
 import NewPlacePage from "./features/communities/NewPlacePage";
 import PagePage from "./features/communities/PagePage";
@@ -44,6 +45,7 @@ import {
   groupRoute,
   guideRoute,
   jailRoute,
+  leaveReferenceRoute,
   loginRoute,
   logoutRoute,
   mapRoute,
@@ -194,6 +196,9 @@ export default function AppRoutes() {
           </AppRoute>
           <AppRoute isPrivate path={groupRoute}>
             <GroupPage />
+          </AppRoute>
+          <AppRoute isPrivate path={leaveReferenceRoute}>
+            <LeaveReferencePage />
           </AppRoute>
         </>
       )}

@@ -1,4 +1,4 @@
-import { ReferenceType } from "./pb/references_pb";
+import { ReferenceType } from "./features/communities/leavereference/LeaveReferencePage";
 
 export const baseRoute = "/";
 
@@ -38,7 +38,7 @@ export const routeToHostRequest = (id: number) => `${hostRequestRoute}/${id}`;
 
 // REFERENCES
 export const leaveReferenceBaseRoute = "/leave-reference";
-export const leaveReferenceRoute = `${leaveReferenceBaseRoute}/:referenceType/:userId`;
+export const leaveReferenceRoute = `${leaveReferenceBaseRoute}/:referenceType/:id`;
 export const routeToLeaveReference = (
   referenceType: ReferenceType,
   id: number
