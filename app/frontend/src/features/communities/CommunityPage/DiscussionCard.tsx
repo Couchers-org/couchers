@@ -12,6 +12,8 @@ import makeStyles from "utils/makeStyles";
 import stripMarkdown from "utils/stripMarkdown";
 import { timeAgo } from "utils/timeAgo";
 
+import { getByCreator } from "../constants";
+
 const useStyles = makeStyles((theme) => ({
   avatar: {
     height: "3rem",
@@ -84,9 +86,8 @@ export default function DiscussionCard({
               className={classes.surtitle}
               noWrap
             >
-              By{" "}
               {creator ? (
-                creator.name
+                getByCreator(creator.name)
               ) : (
                 <Skeleton className={classes.userLoading} />
               )}{" "}
