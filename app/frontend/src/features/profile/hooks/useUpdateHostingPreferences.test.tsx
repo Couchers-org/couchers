@@ -45,7 +45,7 @@ describe("useUpdateHostingPreference hook", () => {
     const newUserPref = (Object.entries(newHostingPreferenceData) as [
       keyof HostingPreferenceData,
       Primitives
-    ][]).reduce((acc, [key, value]) => {
+    ][]).reduce((acc: Record<string, ServicePrimitives>, [key, value]) => {
       switch (key) {
         case "smokingAllowed":
         case "parkingDetails":
@@ -59,7 +59,7 @@ describe("useUpdateHostingPreference hook", () => {
           acc[key] = { value };
           return acc;
       }
-    }, {} as Record<string, ServicePrimitives>);
+    }, {});
 
     updateHostingPreferenceMock.mockResolvedValue(new Empty());
     getUserMock.mockImplementation(() => {
