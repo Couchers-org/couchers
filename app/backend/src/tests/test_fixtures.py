@@ -34,6 +34,7 @@ from pb import (
     auth_pb2_grpc,
     bugs_pb2_grpc,
     communities_pb2_grpc,
+    events_pb2_grpc,
     conversations_pb2_grpc,
     discussions_pb2_grpc,
     groups_pb2_grpc,
@@ -419,6 +420,13 @@ def bugs_session():
     channel = FakeChannel()
     bugs_pb2_grpc.add_BugsServicer_to_server(Bugs(), channel)
     yield bugs_pb2_grpc.BugsStub(channel)
+
+
+@contextmanager
+def events_session():
+    channel = FakeChannel()
+    events_pb2_grpc.add_EventsServicer_to_server(Events(), channel)
+    yield events_pb2_grpc.EventsStub(channel)
 
 
 @contextmanager
