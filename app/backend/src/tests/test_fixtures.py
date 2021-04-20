@@ -38,6 +38,7 @@ from pb import (
     blocking_pb2_grpc,
     bugs_pb2_grpc,
     communities_pb2_grpc,
+    events_pb2_grpc,
     conversations_pb2_grpc,
     discussions_pb2_grpc,
     groups_pb2_grpc,
@@ -459,6 +460,13 @@ def resources_session():
     channel = FakeChannel()
     resources_pb2_grpc.add_ResourcesServicer_to_server(Resources(), channel)
     yield resources_pb2_grpc.ResourcesStub(channel)
+
+
+@contextmanager
+def events_session():
+    channel = FakeChannel()
+    events_pb2_grpc.add_EventsServicer_to_server(Events(), channel)
+    yield events_pb2_grpc.EventsStub(channel)
 
 
 @contextmanager
