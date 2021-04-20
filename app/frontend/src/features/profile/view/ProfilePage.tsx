@@ -39,9 +39,10 @@ const useStyles = makeStyles((theme) => ({
     textDecoration: "none",
   },
   root: {
+    paddingTop: theme.spacing(3),
     [theme.breakpoints.up("md")]: {
+      paddingTop: 0,
       display: "flex",
-      justifyContent: "space-around",
     },
   },
   tabPanel: {

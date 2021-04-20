@@ -27,6 +27,7 @@ describe("useRespondToFriendRequest hook", () => {
         friendRequestId: 1,
         state: 0,
         userId: 2,
+        sent: false,
       },
     ]);
     client.setQueryData<FriendRequest.AsObject[]>(
@@ -47,7 +48,12 @@ describe("useRespondToFriendRequest hook", () => {
     act(() => {
       result.current.respondToFriendRequest({
         accept: true,
-        friendRequestId: 1,
+        friendRequest: {
+          friendRequestId: 1,
+          state: 0,
+          userId: 2,
+          sent: false,
+        },
         setMutationError,
       });
     });
@@ -74,7 +80,12 @@ describe("useRespondToFriendRequest hook", () => {
     act(() => {
       result.current.respondToFriendRequest({
         accept: true,
-        friendRequestId: 1,
+        friendRequest: {
+          friendRequestId: 1,
+          state: 0,
+          userId: 2,
+          sent: false,
+        },
         setMutationError,
       });
     });
