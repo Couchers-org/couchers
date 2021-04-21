@@ -7,7 +7,7 @@ import CreateDiscussionForm, {
 
 export default {
   component: CreateDiscussionForm,
-  title: "Communities/discussion/CreateDiscussionForm",
+  title: "Communities/Discussions/CreateDiscussionForm",
   argTypes: {
     onCancel: {
       action: "cancelled",

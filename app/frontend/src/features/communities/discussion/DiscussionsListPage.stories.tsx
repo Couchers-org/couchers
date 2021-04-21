@@ -7,7 +7,7 @@ import DiscussionsListPage from "./DiscussionsListPage";
 
 export default {
   component: DiscussionsListPage,
-  title: "Communities/discussion/DiscussionsListPage",
+  title: "Communities/Discussions/DiscussionsListPage",
 } as Meta;
 
 interface DiscussionsListArgs {
