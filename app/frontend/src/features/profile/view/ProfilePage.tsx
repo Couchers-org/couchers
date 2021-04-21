@@ -64,7 +64,8 @@ export default function ProfilePage() {
 
   const currentUser = useCurrentUser();
   const { data: user, isLoading: loading, error } = useUserByUsername(
-    username ?? (currentUser.data?.username || ""), true
+    username ?? (currentUser.data?.username || ""),
+    true
   );
 
   const [isRequesting, setIsRequesting] = useState(false);
