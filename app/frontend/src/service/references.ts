@@ -1,5 +1,8 @@
 import type { ReferenceTypeState } from "features/profile/view/References";
-import { ListReferencesReq } from "pb/references_pb";
+import {
+  AvailableWriteReferencesReq,
+  ListReferencesReq,
+} from "pb/references_pb";
 
 import client from "./client";
 
@@ -8,6 +11,10 @@ const REFERENCES_PAGE_SIZE = 5;
 interface GetReferencesBaseInput {
   userId: number;
   pageToken?: string;
+}
+
+interface GetAvailableReferencesInput {
+  userId: number;
 }
 
 type GetReferencesGivenInput = GetReferencesBaseInput;
@@ -44,5 +51,15 @@ export async function getReferencesReceivedForUser({
   req.setPageToken(pageToken);
 
   const res = await client.references.listReferences(req);
+  return res.toObject();
+}
+
+export async function getAvailableReferences({
+  userId,
+}: GetAvailableReferencesInput) {
+  const req = new AvailableWriteReferencesReq();
+  req.setToUserId(userId);
+
+  const res = await client.references.availableWriteReferences(req);
   return res.toObject();
 }

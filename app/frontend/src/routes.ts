@@ -38,11 +38,11 @@ export const routeToHostRequest = (id: number) => `${hostRequestRoute}/${id}`;
 
 // REFERENCES
 export const leaveReferenceBaseRoute = "/leave-reference";
-export const leaveReferenceRoute = `${leaveReferenceBaseRoute}/:referenceType/:id`;
+export const leaveReferenceRoute = `${leaveReferenceBaseRoute}/:referenceType/:userId`;
 export const routeToLeaveReference = (
   referenceType: ReferenceType,
-  id: number
-) => `${leaveReferenceBaseRoute}/${referenceType}/${id}`;
+  userId: number
+) => `${leaveReferenceBaseRoute}/${referenceType}/${userId}`;
 
 export const mapRoute = "/map";
 export const eventsRoute = "/events";

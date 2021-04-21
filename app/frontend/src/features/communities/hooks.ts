@@ -11,6 +11,7 @@ import {
   ListPlacesRes,
 } from "pb/communities_pb";
 import { Discussion } from "pb/discussions_pb";
+import { AvailableWriteReferencesRes } from "pb/references_pb";
 import {
   communityAdminsKey,
   communityDiscussionsKey,
@@ -146,3 +147,17 @@ export const useNewDiscussionMutation = (queryClient: QueryClient) =>
       },
     }
   );
+
+export function useListAvailableReferences(userId: number) {
+  const availableReferencesQuery = useQuery<
+    AvailableWriteReferencesRes.AsObject,
+    GrpcError
+  >({
+    queryFn: () =>
+      service.references.getAvailableReferences({
+        userId,
+      }),
+  });
+
+  return availableReferencesQuery;
+}
