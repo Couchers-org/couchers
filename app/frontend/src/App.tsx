@@ -2,7 +2,10 @@ import "./App.css";
 
 import { CssBaseline, ThemeProvider } from "@material-ui/core";
 import { EnvironmentBanner } from "components/EnvironmentBanner";
+import ErrorBoundary from "components/ErrorBoundary";
+import ErrorFallback from "components/ErrorFallback";
 import React from "react";
+import { ErrorBoundary as FatalErrorBoundary } from "react-error-boundary";
 import { BrowserRouter as Router } from "react-router-dom";
 
 import AppRoutes from "./AppRoutes";
@@ -14,13 +17,17 @@ function App() {
   return (
     <Router>
       <ThemeProvider theme={theme}>
-        <ReactQueryClientProvider>
-          <AuthProvider>
-            <CssBaseline />
-            <EnvironmentBanner />
-            <AppRoutes />
-          </AuthProvider>
-        </ReactQueryClientProvider>
+        <FatalErrorBoundary fallbackRender={() => <ErrorFallback isFatal />}>
+          <ReactQueryClientProvider>
+            <AuthProvider>
+              <ErrorBoundary>
+                <CssBaseline />
+                <EnvironmentBanner />
+                <AppRoutes />
+              </ErrorBoundary>
+            </AuthProvider>
+          </ReactQueryClientProvider>
+        </FatalErrorBoundary>
       </ThemeProvider>
     </Router>
   );

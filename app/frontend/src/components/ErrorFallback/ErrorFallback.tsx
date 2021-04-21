@@ -10,6 +10,7 @@ import makeStyles from "utils/makeStyles";
 import {
   ERROR_HEADING,
   ERROR_INFO,
+  ERROR_INFO_FATAL,
   GO_TO_HOMEPAGE,
   REFRESH_PAGE,
 } from "./constants";
@@ -20,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function ErrorFallback() {
+export default function ErrorFallback({ isFatal }: { isFatal?: boolean }) {
   const classes = useStyles();
 
   const history = useHistory();
@@ -30,16 +31,22 @@ export default function ErrorFallback() {
   return (
     <>
       <PageTitle>{ERROR_HEADING}</PageTitle>
-      <Typography variant="body1">{ERROR_INFO}</Typography>
-      <div className={classes.report}>
-        <BugReport isResponsive={false} />
-      </div>
+      <Typography variant="body1">
+        {isFatal ? ERROR_INFO_FATAL : ERROR_INFO}
+      </Typography>
+      {!isFatal && (
+        <div className={classes.report}>
+          <BugReport isResponsive={false} />
+        </div>
+      )}
 
       <Actions>
-        <Link
-          to={{ pathname: baseRoute }}
-          component={() => <Button variant="outlined">{GO_TO_HOMEPAGE}</Button>}
-        />
+        {!isFatal && (
+          <Link to={{ pathname: baseRoute }}>
+            <Button variant="outlined">{GO_TO_HOMEPAGE}</Button>
+          </Link>
+        )}
+
         <Button onClick={handleRefresh}>{REFRESH_PAGE}</Button>
       </Actions>
     </>
