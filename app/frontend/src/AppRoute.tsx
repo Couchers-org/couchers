@@ -47,8 +47,6 @@ export default function AppRoute({
 
   const classes = useStyles();
 
-  const RouteContent = () => <ErrorBoundary>{children}</ErrorBoundary>;
-
   return isPrivate ? (
     <Route
       {...otherProps}
@@ -61,7 +59,7 @@ export default function AppRoute({
               ) : (
                 <>
                   <Navigation />
-                  <RouteContent />
+                  <ErrorBoundary>{children}</ErrorBoundary>
                 </>
               )}
             </Container>
@@ -80,12 +78,15 @@ export default function AppRoute({
     <>
       {isFullscreen ? (
         <Container className={classes.fullscreenContainer} maxWidth={false}>
-          <Route {...otherProps} render={() => <RouteContent />} />
+          <Route {...otherProps} render={() => children} />
         </Container>
       ) : (
         <Container className={classes.standardContainer}>
           <Navigation />
-          <Route {...otherProps} render={() => <RouteContent />} />
+          <Route
+            {...otherProps}
+            render={() => <ErrorBoundary>{children}</ErrorBoundary>}
+          />
         </Container>
       )}
     </>
