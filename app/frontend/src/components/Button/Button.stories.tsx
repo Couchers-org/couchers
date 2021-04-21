@@ -8,7 +8,7 @@ export default {
   title: "Components/Simple/Button",
 } as Meta;
 
-const Template: Story<any> = (args) => (
+const Template: Story<AppButtonProps> = (args) => (
   <>
     <Button {...args}>Click</Button>
     <Button {...args}>Ok</Button>
@@ -16,7 +16,7 @@ const Template: Story<any> = (args) => (
     <Button {...args} variant="text">
       Text button
     </Button>
-    <Button {...args} variant="outline">
+    <Button {...args} variant="outlined">
       Outline button
     </Button>
   </>
