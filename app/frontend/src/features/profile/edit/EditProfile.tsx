@@ -107,8 +107,9 @@ export default function EditProfileForm() {
   const classes = useStyles();
   const {
     updateUserProfile,
-    status: updateStatus,
     reset: resetUpdate,
+    isLoading: updateIsLoading,
+    isError: updateError,
   } = useUpdateUserProfile();
   const { data: user, isLoading: userIsLoading } = useCurrentUser();
   const isMounted = useIsMounted();
@@ -151,11 +152,25 @@ export default function EditProfileForm() {
     register("radius");
   }, [register]);
 
-  const onSubmit = handleSubmit((data) => {
-    resetUpdate();
-    updateUserProfile({ profileData: data, setMutationError: setErrorMessage });
+  const scrollToTop = () => {
     window.scroll({ top: 0 });
-  });
+  };
+
+  const onSubmit = handleSubmit(
+    (data) => {
+      resetUpdate();
+      updateUserProfile(
+        {
+          profileData: data,
+          setMutationError: setErrorMessage,
+        },
+        // Scoll to top on submission error
+        { onError: scrollToTop }
+      );
+    },
+    // Scroll to top on validation error
+    scrollToTop
+  );
 
   return (
     <>
@@ -177,11 +192,9 @@ export default function EditProfileForm() {
           </Button>
         </div>
       </Grid>
-      {updateStatus === "success" ? (
-        <Alert severity="success">Successfully updated profile!</Alert>
-      ) : updateStatus === "error" ? (
+      {updateError && (
         <Alert severity="error">{errorMessage || "Unknown error"}</Alert>
-      ) : null}
+      )}
       {errors.avatarKey && (
         <Alert severity="error">{errors.avatarKey?.message || ""}</Alert>
       )}
@@ -447,6 +460,7 @@ export default function EditProfileForm() {
                 type="submit"
                 variant="contained"
                 color="primary"
+                loading={updateIsLoading}
                 onClick={onSubmit}
               >
                 {SAVE}

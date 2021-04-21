@@ -122,10 +122,12 @@ const useStyles = makeStyles((theme) => ({
 
 export default function HostingPreferenceForm() {
   const classes = useStyles();
+
   const {
     updateHostingPreferences,
-    status: updateStatus,
     reset: resetUpdate,
+    isLoading: updateIsLoading,
+    isError: updateError,
   } = useUpdateHostingPreferences();
   const { data: user } = useCurrentUser();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -138,27 +140,33 @@ export default function HostingPreferenceForm() {
     mode: "onBlur",
   });
 
-  const onSubmit = handleSubmit((data) => {
-    resetUpdate();
-    updateHostingPreferences({
-      preferenceData: data,
-      setMutationError: setErrorMessage,
-    });
+  const scrollToTop = () => {
     window.scroll({ top: 0 });
-  });
+  };
+
+  const onSubmit = handleSubmit(
+    (data) => {
+      resetUpdate();
+      updateHostingPreferences(
+        {
+          preferenceData: data,
+          setMutationError: setErrorMessage,
+        }, // Scoll to top on submission error
+        { onError: scrollToTop }
+      );
+    },
+    // Scroll to top on validation error
+    scrollToTop
+  );
 
   return (
     <>
       <PageTitle>{EDIT_HOME}</PageTitle>
-      {updateStatus === "success" ? (
-        <Alert className={classes.alert} severity="success">
-          Successfully updated hosting preference!
-        </Alert>
-      ) : updateStatus === "error" ? (
+      {updateError && (
         <Alert className={classes.alert} severity="error">
           {errorMessage || "Unknown error"}
         </Alert>
-      ) : null}
+      )}
       {user ? (
         <form className={classes.form} onSubmit={onSubmit}>
           <Typography variant="h2">{HOSTING_PREFERENCES}</Typography>
@@ -460,6 +468,7 @@ export default function HostingPreferenceForm() {
               type="submit"
               variant="contained"
               color="primary"
+              loading={updateIsLoading}
               onClick={onSubmit}
             >
               {SAVE}
