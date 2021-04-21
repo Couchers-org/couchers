@@ -63,30 +63,28 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-type ImageInputProps = {
+interface ImageInputProps {
   className?: string;
   control: Control;
   id: string;
   initialPreviewSrc?: string;
   name: string;
-};
+}
 
-type AvatarInputProps = {
+interface AvatarInputProps extends ImageInputProps {
   type: "avatar";
   userName: string;
-};
+}
 
-type SquareImgInputProps = {
+interface RectImgInputProps extends ImageInputProps {
   type: "rect";
   alt: string;
   grow?: boolean;
   height?: number;
   width?: number;
-};
+}
 
-export function ImageInput(
-  props: (AvatarInputProps | SquareImgInputProps) & ImageInputProps
-) {
+export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
   const { className, control, id, initialPreviewSrc, name } = props;
   const classes = useStyles();
   //this ref handles the case where the user uploads an image, selects another image,
