@@ -78,7 +78,10 @@ export default function AppRoute({
     <>
       {isFullscreen ? (
         <Container className={classes.fullscreenContainer} maxWidth={false}>
-          <Route {...otherProps} render={() => children} />
+          <Route
+            {...otherProps}
+            render={() => <ErrorBoundary>{children}</ErrorBoundary>}
+          />
         </Container>
       ) : (
         <Container className={classes.standardContainer}>
