@@ -1,16 +1,10 @@
 import ErrorFallback from "components/ErrorFallback";
-import { PropsWithChildren, useCallback } from "react";
+import { ReactNode } from "react";
 import { ErrorBoundary as ReactErrorBoundary } from "react-error-boundary";
 
-export default function ErrorBoundary({
-  children,
-}: PropsWithChildren<unknown>) {
-  const onError = useCallback(() => {
-    // TODO: log error to backend?
-  }, []);
-
+export default function ErrorBoundary({ children }: { children: ReactNode }) {
   return (
-    <ReactErrorBoundary FallbackComponent={ErrorFallback} onError={onError}>
+    <ReactErrorBoundary FallbackComponent={ErrorFallback}>
       {children}
     </ReactErrorBoundary>
   );

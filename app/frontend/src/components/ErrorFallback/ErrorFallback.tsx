@@ -1,9 +1,9 @@
-import { Box, CardActions, Typography } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
+import Actions from "components/Actions";
 import Button from "components/Button";
 import PageTitle from "components/PageTitle";
 import BugReport from "features/BugReport";
-import { useCallback } from "react";
-import { NavLink, useHistory } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { baseRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
@@ -15,37 +15,33 @@ import {
 } from "./constants";
 
 const useStyles = makeStyles((theme) => ({
-  actions: {
-    display: "flex",
-    justifyContent: "flex-end",
-    marginTop: theme.spacing(2),
-  },
   report: {
     marginTop: theme.spacing(2),
   },
 }));
 
 export default function ErrorFallback() {
-  const { actions, report } = useStyles();
+  const classes = useStyles();
 
   const history = useHistory();
 
-  const handleRefresh = useCallback(() => history.go(0), [history]);
+  const handleRefresh = () => history.go(0);
 
   return (
     <>
       <PageTitle>{ERROR_HEADING}</PageTitle>
       <Typography variant="body1">{ERROR_INFO}</Typography>
-      <Box className={report}>
+      <div className={classes.report}>
         <BugReport isResponsive={false} />
-      </Box>
+      </div>
 
-      <CardActions className={actions}>
-        <NavLink exact to={{ pathname: baseRoute }}>
-          <Button variant="outlined">{GO_TO_HOMEPAGE}</Button>
-        </NavLink>
+      <Actions>
+        <Link
+          to={{ pathname: baseRoute }}
+          component={() => <Button variant="outlined">{GO_TO_HOMEPAGE}</Button>}
+        />
         <Button onClick={handleRefresh}>{REFRESH_PAGE}</Button>
-      </CardActions>
+      </Actions>
     </>
   );
 }

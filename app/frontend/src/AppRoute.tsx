@@ -1,6 +1,6 @@
 import { Container } from "@material-ui/core";
 import ErrorBoundary from "components/ErrorBoundary";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { Redirect, Route, RouteProps } from "react-router-dom";
 import makeStyles from "utils/makeStyles";
 
@@ -47,10 +47,7 @@ export default function AppRoute({
 
   const classes = useStyles();
 
-  const RouteContent = useMemo(
-    () => () => <ErrorBoundary>{children}</ErrorBoundary>,
-    [children]
-  );
+  const RouteContent = () => <ErrorBoundary>{children}</ErrorBoundary>;
 
   return isPrivate ? (
     <Route
@@ -83,12 +80,12 @@ export default function AppRoute({
     <>
       {isFullscreen ? (
         <Container className={classes.fullscreenContainer} maxWidth={false}>
-          <Route {...otherProps} component={RouteContent} />
+          <Route {...otherProps} render={() => <RouteContent />} />
         </Container>
       ) : (
         <Container className={classes.standardContainer}>
           <Navigation />
-          <Route {...otherProps} component={RouteContent} />
+          <Route {...otherProps} render={() => <RouteContent />} />
         </Container>
       )}
     </>
