@@ -15,7 +15,7 @@ export default function useUpdateUserProfile() {
   const queryClient = useQueryClient();
   const history = useHistory();
   const userId = useAuthContext().authState.userId;
-  const { mutate: updateUserProfile, status, reset } = useMutation<
+  const { mutate: updateUserProfile, reset, isLoading, isError } = useMutation<
     Empty,
     Error,
     UpdateUserProfileVariables
@@ -32,5 +32,5 @@ export default function useUpdateUserProfile() {
     },
   });
 
-  return { reset, status, updateUserProfile };
+  return { reset, updateUserProfile, isLoading, isError };
 }
