@@ -138,26 +138,24 @@ export default function HostingPreferenceForm() {
     handleSubmit,
   } = useForm<HostingPreferenceData>({
     mode: "onBlur",
+    shouldFocusError: true,
   });
 
-  const scrollToTop = () => {
-    window.scroll({ top: 0 });
-  };
-
-  const onSubmit = handleSubmit(
-    (data) => {
-      resetUpdate();
-      updateHostingPreferences(
-        {
-          preferenceData: data,
-          setMutationError: setErrorMessage,
-        }, // Scoll to top on submission error
-        { onError: scrollToTop }
-      );
-    },
-    // Scroll to top on validation error
-    scrollToTop
-  );
+  const onSubmit = handleSubmit((data) => {
+    resetUpdate();
+    updateHostingPreferences(
+      {
+        preferenceData: data,
+        setMutationError: setErrorMessage,
+      },
+      {
+        // Scoll to top on submission error
+        onError: () => {
+          window.scroll({ top: 0 });
+        },
+      }
+    );
+  });
 
   return (
     <>
@@ -218,7 +216,7 @@ export default function HostingPreferenceForm() {
             control={control}
             defaultValue={user.maxGuests?.value ?? null}
             name="maxGuests"
-            render={({ onChange }) => (
+            render={({ onChange, ref }) => (
               <Autocomplete
                 disableClearable={false}
                 defaultValue={user.maxGuests?.value}
@@ -236,6 +234,7 @@ export default function HostingPreferenceForm() {
                     label={MAX_GUESTS}
                     name="maxGuests"
                     onChange={(e) => onChange(Number(e.target.value))}
+                    inputRef={ref}
                     className={classes.field}
                   />
                 )}
