@@ -13,7 +13,6 @@ import CircularProgress from "components/CircularProgress";
 import EditLocationMap from "components/EditLocationMap";
 import PageTitle from "components/PageTitle";
 import {
-  ABOUT_HOME,
   ACCOUNT_SETTINGS,
   ADDITIONAL,
   COUNTRIES_LIVED,
@@ -394,14 +393,6 @@ export default function EditProfileForm() {
               label={HOBBIES}
               name="thingsILike"
               defaultValue={user.thingsILike}
-              control={control}
-              className={classes.field}
-            />
-            <ProfileMarkdownInput
-              id="aboutPlace"
-              label={ABOUT_HOME}
-              name="aboutPlace"
-              defaultValue={user.aboutPlace}
               control={control}
               className={classes.field}
             />

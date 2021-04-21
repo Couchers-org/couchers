@@ -91,6 +91,7 @@ export const KID_DETAILS = "Children details";
 export const LAST_MINUTE = "Last-minute requests";
 export const LOCAL_AREA = "Local area information";
 export const MAX_GUESTS = "Max # of guests";
+export const MY_HOME = "My home";
 export const PARKING = "Parking available";
 export const PARKING_DETAILS = "Parking details";
 export const PET_DETAILS = "Pet details";
