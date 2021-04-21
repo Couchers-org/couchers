@@ -1,7 +1,7 @@
 import { Meta, Story } from "@storybook/react";
 import * as React from "react";
 
-import Button from "./Button";
+import Button, { AppButtonProps } from "./Button";
 
 export default {
   component: Button,
@@ -21,6 +21,25 @@ const Template: Story<any> = (args) => (
     </Button>
   </>
 );
+
+export const Default: Story<AppButtonProps> = (args) => <Button {...args} />;
+Default.args = {
+  children: "Click me",
+  variant: "contained",
+  color: "primary",
+};
+
+export const Outlined: Story<AppButtonProps> = (args) => <Button {...args} />;
+Outlined.args = {
+  ...Default.args,
+  variant: "outlined",
+};
+
+export const Text: Story<AppButtonProps> = (args) => <Button {...args} />;
+Text.args = {
+  ...Default.args,
+  variant: "text",
+};
 
 function wait(milliSeconds: number) {
   return new Promise((resolve) => setTimeout(resolve, milliSeconds));
