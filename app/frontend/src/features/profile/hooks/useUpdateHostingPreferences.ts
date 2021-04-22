@@ -20,6 +20,7 @@ export default function useUpdateHostingPreferences() {
     reset,
     isLoading,
     isError,
+    status,
   } = useMutation<Empty, Error, UpdateHostingPreferencesVariables>(
     ({ preferenceData }) =>
       service.user.updateHostingPreference(preferenceData),
@@ -42,5 +43,6 @@ export default function useUpdateHostingPreferences() {
     updateHostingPreferences,
     isLoading,
     isError,
+    status,
   };
 }

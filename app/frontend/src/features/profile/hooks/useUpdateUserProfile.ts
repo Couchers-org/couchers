@@ -15,22 +15,27 @@ export default function useUpdateUserProfile() {
   const queryClient = useQueryClient();
   const history = useHistory();
   const userId = useAuthContext().authState.userId;
-  const { mutate: updateUserProfile, reset, isLoading, isError } = useMutation<
-    Empty,
-    Error,
-    UpdateUserProfileVariables
-  >(({ profileData }) => service.user.updateProfile(profileData), {
-    onError: (error, { setMutationError }) => {
-      setMutationError(error.message);
-    },
-    onMutate: async ({ setMutationError }) => {
-      setMutationError(null);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(["user", userId]);
-      history.push(userRoute);
-    },
-  });
+  const {
+    mutate: updateUserProfile,
+    reset,
+    isLoading,
+    isError,
+    status,
+  } = useMutation<Empty, Error, UpdateUserProfileVariables>(
+    ({ profileData }) => service.user.updateProfile(profileData),
+    {
+      onError: (error, { setMutationError }) => {
+        setMutationError(error.message);
+      },
+      onMutate: async ({ setMutationError }) => {
+        setMutationError(null);
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries(["user", userId]);
+        history.push(userRoute);
+      },
+    }
+  );
 
-  return { reset, updateUserProfile, isLoading, isError };
+  return { reset, updateUserProfile, isLoading, isError, status };
 }
