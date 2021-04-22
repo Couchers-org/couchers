@@ -7,7 +7,7 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, or_
 
 from couchers import errors
-from couchers.db import session_scope
+from couchers.db import all_blocked_or_blocking_users, session_scope
 from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType, User
 from couchers.tasks import send_host_request_email
 from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date, today_in_timezone
@@ -62,7 +62,14 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REQUEST_SELF)
 
             # just to check host exists and is visible
-            host = session.query(User).filter(User.is_visible).filter(User.id == request.to_user_id).one_or_none()
+            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
+            host = (
+                session.query(User)
+                .filter(User.is_visible)
+                .filter(~User.id.in_(relevant_blocks))
+                .filter(User.id == request.to_user_id)
+                .one_or_none()
+            )
             if not host:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
@@ -133,12 +140,15 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         with session_scope() as session:
             from_users = aliased(User)
             to_users = aliased(User)
+            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
             host_request = (
                 session.query(HostRequest)
                 .join(from_users, HostRequest.from_user_id == from_users.id)
                 .join(to_users, HostRequest.to_user_id == to_users.id)
                 .filter(from_users.is_visible)
                 .filter(to_users.is_visible)
+                .filter(~from_users.id.in_(relevant_blocks))
+                .filter(~to_users.id.in_(relevant_blocks))
                 .filter(HostRequest.conversation_id == request.host_request_id)
                 .filter(or_(HostRequest.from_user_id == context.user_id, HostRequest.to_user_id == context.user_id))
                 .one_or_none()
@@ -191,6 +201,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             from_users = aliased(User)
             to_users = aliased(User)
             message_2 = aliased(Message)
+            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
             query = (
                 session.query(Message, HostRequest, Conversation)
                 .outerjoin(
@@ -202,6 +213,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 .join(to_users, HostRequest.to_user_id == to_users.id)
                 .filter(from_users.is_visible)
                 .filter(to_users.is_visible)
+                .filter(~from_users.id.in_(relevant_blocks))
+                .filter(~to_users.id.in_(relevant_blocks))
                 .filter(message_2.id == None)
                 .filter(or_(HostRequest.conversation_id < request.last_request_id, request.last_request_id == 0))
             )
@@ -264,12 +277,16 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         to_users = aliased(User)
 
         with session_scope() as session:
+            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
+
             host_request = (
                 session.query(HostRequest)
                 .join(from_users, HostRequest.from_user_id == from_users.id)
                 .join(to_users, HostRequest.to_user_id == to_users.id)
                 .filter(from_users.is_visible)
                 .filter(to_users.is_visible)
+                .filter(~from_users.id.in_(relevant_blocks))
+                .filter(~to_users.id.in_(relevant_blocks))
                 .filter(HostRequest.conversation_id == request.host_request_id)
                 .one_or_none()
             )
