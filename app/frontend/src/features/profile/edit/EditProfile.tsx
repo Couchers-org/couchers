@@ -130,6 +130,7 @@ export default function EditProfileForm() {
       lng: user?.lng,
       radius: user?.radius,
     },
+    shouldFocusError: true,
   });
 
   //Although the default value was set above, if the page is just loaded,
@@ -152,10 +153,6 @@ export default function EditProfileForm() {
     register("radius");
   }, [register]);
 
-  const scrollToTop = () => {
-    window.scroll({ top: 0 });
-  };
-
   const onSubmit = handleSubmit(
     (data) => {
       resetUpdate();
@@ -164,12 +161,21 @@ export default function EditProfileForm() {
           profileData: data,
           setMutationError: setErrorMessage,
         },
-        // Scoll to top on submission error
-        { onError: scrollToTop }
+        {
+          // Scoll to top on submission error
+          onError: () => {
+            window.scroll({ top: 0 });
+          },
+        }
       );
     },
-    // Scroll to top on validation error
-    scrollToTop
+    () => {
+      // All field validation errors should scroll to their respective field
+      // Except the avatar, so this scrolls to top on avatar validation error
+      if (errors.avatarKey) {
+        window.scroll({ top: 0 });
+      }
+    }
   );
 
   return (
