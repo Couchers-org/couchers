@@ -8,9 +8,9 @@ import makeStyles from "utils/makeStyles";
 
 import {
   CREATE_NEW_DISCUSSION_TITLE,
-  CREATE_NEW_DISCUSSION_TOPIC,
   NEW_DISCUSSION_TITLE,
   NEW_DISCUSSION_TOPIC,
+  NEW_DISCUSSION_TOPIC_PLACEHOLDER,
   POST,
 } from "../constants";
 import { CreateDiscussionInput, useNewDiscussionMutation } from "../hooks";
@@ -43,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
 export interface CreateDiscussionFormProps {
   communityId: number;
   onCancel?(): void;
-  onPost?(): void;
+  onPostSuccess?(): void;
 }
 
 type CreateDiscussionData = Omit<CreateDiscussionInput, "ownerCommunityId">;
@@ -51,7 +51,7 @@ type CreateDiscussionData = Omit<CreateDiscussionInput, "ownerCommunityId">;
 export default function CreateDiscussionForm({
   communityId,
   onCancel,
-  onPost,
+  onPostSuccess,
 }: CreateDiscussionFormProps) {
   const classes = useStyles();
   const {
@@ -64,6 +64,7 @@ export default function CreateDiscussionForm({
 
   const {
     error,
+    isLoading,
     mutate: createDiscussion,
     reset: resetMutation,
   } = useNewDiscussionMutation(handleSuccess);
@@ -71,16 +72,13 @@ export default function CreateDiscussionForm({
   function handleSuccess() {
     resetForm();
     resetMutation();
+    onPostSuccess?.();
   }
 
   const handleCancel = () => {
     onCancel?.();
     resetForm();
     resetMutation();
-  };
-
-  const handlePost = () => {
-    onPost?.();
   };
 
   const onSubmit = handleSubmit((data) => {
@@ -108,11 +106,11 @@ export default function CreateDiscussionForm({
           inputRef={register({ required: true })}
           label={NEW_DISCUSSION_TOPIC}
           multiline
-          placeholder={CREATE_NEW_DISCUSSION_TOPIC}
+          placeholder={NEW_DISCUSSION_TOPIC_PLACEHOLDER}
           rows={6}
         />
         <div className={classes.actionButtonsContainer}>
-          <Button onClick={handlePost} type="submit">
+          <Button loading={isLoading} type="submit">
             {POST}
           </Button>
           <Button onClick={handleCancel}>{CANCEL}</Button>

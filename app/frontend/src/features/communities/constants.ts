@@ -14,8 +14,6 @@ export const getByCreator = (name: string) => `By ${name}`;
 export const COMMUNITY_HEADING = (name: string) => `Welcome to ${name}!`;
 export const COMMUNITY_TABS_A11Y_LABEL = "Tabs for community sub-pages";
 export const CREATE_NEW_DISCUSSION_TITLE = "Create new post";
-export const CREATE_NEW_DISCUSSION_TOPIC =
-  "Create a new discussion topic - e.g. My favourite Amsterdam moment is when...";
 export const DISCUSSIONS_EMPTY_STATE = "No discussions at the moment.";
 export const DISCUSSIONS_LABEL = "Discussions";
 export const DISCUSSIONS_TITLE = "Discussions";
@@ -31,6 +29,8 @@ export const MORE_REPLIES = "More replies...";
 export const MORE_TIPS = "More tips and information";
 export const NEW_DISCUSSION_TITLE = "Discussion title";
 export const NEW_DISCUSSION_TOPIC = "Discussion topic";
+export const NEW_DISCUSSION_TOPIC_PLACEHOLDER =
+  "Create a new discussion topic - e.g. My favourite Amsterdam moment is when...";
 export const NEW_POST_LABEL = "New post";
 export const OVERVIEW_LABEL = "Overview";
 export const PLACES_EMPTY_STATE = "No places to show yet.";

@@ -21,7 +21,7 @@ export default {
 interface CreateDiscussionArgs {
   shouldSucceed: boolean;
   onCancel: CreateDiscussionFormProps["onCancel"];
-  onPost: CreateDiscussionFormProps["onPost"];
+  onPostSuccess: CreateDiscussionFormProps["onPostSuccess"];
 }
 
 const Template: Story<CreateDiscussionArgs> = ({

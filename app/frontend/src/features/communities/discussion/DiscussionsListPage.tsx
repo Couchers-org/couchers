@@ -54,6 +54,7 @@ export default function DiscussionsListPage({
   const [isCreatingNewPost, setIsCreatingNewPost] = useState(false);
   const {
     isLoading: isDiscussionsLoading,
+    isFetching: isDiscussionsFetching,
     error: discussionsError,
     data: discussions,
     hasNextPage: discussionsHasNextPage,
@@ -78,10 +79,11 @@ export default function DiscussionsListPage({
         <CreateDiscussionForm
           communityId={community.communityId}
           onCancel={() => setIsCreatingNewPost(false)}
-          onPost={() => setIsCreatingNewPost(false)}
+          onPostSuccess={() => setIsCreatingNewPost(false)}
         />
       </Collapse>
       <div className={classes.discussionsContainer}>
+        {!isDiscussionsLoading && isDiscussionsFetching && <CircularProgress />}
         {isDiscussionsLoading ? (
           <CircularProgress />
         ) : hasAtLeastOnePage(discussions, "discussionsList") ? (
