@@ -50,7 +50,7 @@ export default function PagePage({ pageType }: { pageType: PageType }) {
       ) : page ? (
         <>
           {page.photoUrl && (
-            <img src={page.photoUrl} alt={`${page.title} photo`} />
+            <img src={page.photoUrl} alt="" />
           )}
           <PageTitle>{page.title}</PageTitle>
           <p>
