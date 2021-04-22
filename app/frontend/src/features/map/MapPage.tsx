@@ -15,7 +15,7 @@ const useStyles = makeStyles((theme) => ({
   container: {
     display: "flex",
     flexDirection: "column",
-    height: `calc(100vh - ${theme.shape.navPaddingMobile})`,
+    height: "100%",
     paddingBlockEnd: theme.spacing(2),
     [theme.breakpoints.up("md")]: {
       height: `calc(100vh - ${theme.shape.navPaddingDesktop})`,
