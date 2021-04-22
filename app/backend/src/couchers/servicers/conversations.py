@@ -3,7 +3,7 @@ from google.protobuf import empty_pb2
 from sqlalchemy.sql import func, or_
 
 from couchers import errors
-from couchers.db import get_friends_status, session_scope
+from couchers.db import all_blocked_or_blocking_users, get_friends_status, session_scope
 from couchers.models import Conversation, GroupChat, GroupChatRole, GroupChatSubscription, Message, MessageType, User
 from couchers.utils import Timestamp_from_datetime
 from pb import api_pb2, conversations_pb2, conversations_pb2_grpc
@@ -343,10 +343,15 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
     def CreateGroupChat(self, request, context):
         with session_scope() as session:
+            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
             recipient_user_ids = [
                 user.id
                 for user in (
-                    session.query(User.id).filter(User.is_visible).filter(User.id.in_(request.recipient_user_ids)).all()
+                    session.query(User.id)
+                    .filter(User.is_visible)
+                    .filter(~User.id.in_(relevant_blocks))
+                    .filter(User.id.in_(request.recipient_user_ids))
+                    .all()
                 )
             ]
 
@@ -485,7 +490,14 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
     def MakeGroupChatAdmin(self, request, context):
         with session_scope() as session:
-            if not session.query(User).filter(User.is_visible).filter(User.id == request.user_id).one_or_none():
+            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
+            if (
+                not session.query(User)
+                .filter(User.is_visible)
+                .filter(~User.id.in_(relevant_blocks))
+                .filter(User.id == request.user_id)
+                .one_or_none()
+            ):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             your_subscription = (
@@ -529,7 +541,14 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
     def RemoveGroupChatAdmin(self, request, context):
         with session_scope() as session:
-            if not session.query(User).filter(User.is_visible).filter(User.id == request.user_id).one_or_none():
+            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
+            if (
+                not session.query(User)
+                .filter(User.is_visible)
+                .filter(~User.id.in_(relevant_blocks))
+                .filter(User.id == request.user_id)
+                .one_or_none()
+            ):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             your_subscription = (
@@ -581,7 +600,14 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
     def InviteToGroupChat(self, request, context):
         with session_scope() as session:
-            if not session.query(User).filter(User.is_visible).filter(User.id == request.user_id).one_or_none():
+            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
+            if (
+                not session.query(User)
+                .filter(User.is_visible)
+                .filter(~User.id.in_(relevant_blocks))
+                .filter(User.id == request.user_id)
+                .one_or_none()
+            ):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             result = (
