@@ -84,15 +84,16 @@ export default function DiscussionsSection({
         {discussionsHasNextPage && (
           <div className={classes.loadMoreButton}>
             <Button
-              onClick={() =>
+              onClick={() => {
                 history.push(
                   routeToCommunity(
                     community.communityId,
                     community.slug,
                     "discussions"
                   )
-                )
-              }
+                );
+                window.scroll({ top: 0 });
+              }}
             >
               {SEE_MORE_DISCUSSIONS_LABEL}
             </Button>
