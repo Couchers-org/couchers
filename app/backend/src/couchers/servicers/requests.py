@@ -136,7 +136,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
             return requests_pb2.CreateHostRequestRes(host_request_id=host_request.conversation_id)
 
-    def GetHostRequest(self, request, context):
+    def GetHostRequest(self, request, context, pb=True):
         with session_scope() as session:
             from_users = aliased(User)
             to_users = aliased(User)
@@ -156,6 +156,9 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
             if not host_request:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
+
+            if not pb:
+                return host_request
 
             initial_message = (
                 session.query(Message.time)
@@ -279,23 +282,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         with session_scope() as session:
             relevant_blocks = all_blocked_or_blocking_users(context.user_id)
 
-            host_request = (
-                session.query(HostRequest)
-                .join(from_users, HostRequest.from_user_id == from_users.id)
-                .join(to_users, HostRequest.to_user_id == to_users.id)
-                .filter(from_users.is_visible)
-                .filter(to_users.is_visible)
-                .filter(~from_users.id.in_(relevant_blocks))
-                .filter(~to_users.id.in_(relevant_blocks))
-                .filter(HostRequest.conversation_id == request.host_request_id)
-                .one_or_none()
-            )
-
-            if not host_request:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
-
-            if host_request.from_user_id != context.user_id and host_request.to_user_id != context.user_id:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
+            host_request = self.GetHostRequest(request, context, pb=False)
+            host_request = session.merge(host_request)
 
             if request.status == conversations_pb2.HOST_REQUEST_STATUS_PENDING:
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
@@ -382,15 +370,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
     def GetHostRequestMessages(self, request, context):
         with session_scope() as session:
-            host_request = (
-                session.query(HostRequest).filter(HostRequest.conversation_id == request.host_request_id).one_or_none()
-            )
-
-            if not host_request:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
-
-            if host_request.from_user_id != context.user_id and host_request.to_user_id != context.user_id:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
+            host_request = self.GetHostRequest(request, context, pb=False)
+            host_request = session.merge(host_request)
 
             pagination = request.number if request.number > 0 else DEFAULT_PAGINATION_LENGTH
             pagination = min(pagination, MAX_PAGE_SIZE)
@@ -418,15 +399,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if request.text == "":
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_MESSAGE)
         with session_scope() as session:
-            host_request = (
-                session.query(HostRequest).filter(HostRequest.conversation_id == request.host_request_id).one_or_none()
-            )
-
-            if not host_request:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
-
-            if host_request.from_user_id != context.user_id and host_request.to_user_id != context.user_id:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
+            host_request = self.GetHostRequest(request, context, pb=False)
+            host_request = session.merge(host_request)
 
             if host_request.status == HostRequestStatus.rejected or host_request.status == HostRequestStatus.cancelled:
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.HOST_REQUEST_CLOSED)
@@ -504,15 +478,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
     def MarkLastSeenHostRequest(self, request, context):
         with session_scope() as session:
-            host_request = (
-                session.query(HostRequest).filter(HostRequest.conversation_id == request.host_request_id).one_or_none()
-            )
-
-            if not host_request:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
-
-            if host_request.from_user_id != context.user_id and host_request.to_user_id != context.user_id:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
+            host_request = self.GetHostRequest(request, context, pb=False)
+            host_request = session.merge(host_request)
 
             if host_request.from_user_id == context.user_id:
                 if not host_request.from_last_seen_message_id <= request.last_seen_message_id:
