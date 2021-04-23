@@ -39,7 +39,12 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     display: "flex",
   },
-  newPostButton: {
+  newPostButtonContainer: {
+    "& > * + *": {
+      marginInlineStart: theme.spacing(2),
+    },
+    display: "flex",
+    minHeight: theme.typography.pxToRem(40),
     marginBlockStart: theme.spacing(3),
     marginBlockEnd: theme.spacing(3),
   },
@@ -61,17 +66,20 @@ export default function DiscussionsListPage({
     fetchNextPage,
   } = useListDiscussions(community.communityId);
 
+  // loading is false when refetched since there's old data in cache already
+  const isRefetching = !isDiscussionsLoading && isDiscussionsFetching;
+
   return (
     <>
       <div className={classes.discussionsHeader}>
         <SectionTitle icon={<EmailIcon />}>{DISCUSSIONS_TITLE}</SectionTitle>
       </div>
-      <Button
-        className={classes.newPostButton}
-        onClick={() => setIsCreatingNewPost(true)}
-      >
-        {NEW_POST_LABEL}
-      </Button>
+      <div className={classes.newPostButtonContainer}>
+        <Button onClick={() => setIsCreatingNewPost(true)}>
+          {NEW_POST_LABEL}
+        </Button>
+        {isRefetching && <CircularProgress />}
+      </div>
       {discussionsError && (
         <Alert severity="error">{discussionsError.message}</Alert>
       )}
@@ -83,7 +91,6 @@ export default function DiscussionsListPage({
         />
       </Collapse>
       <div className={classes.discussionsContainer}>
-        {!isDiscussionsLoading && isDiscussionsFetching && <CircularProgress />}
         {isDiscussionsLoading ? (
           <CircularProgress />
         ) : hasAtLeastOnePage(discussions, "discussionsList") ? (
