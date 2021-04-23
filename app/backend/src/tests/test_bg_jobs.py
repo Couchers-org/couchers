@@ -13,11 +13,27 @@ from couchers.email.dev import print_dev_email
 from couchers.jobs.enqueue import queue_job
 from couchers.jobs.handlers import process_send_message_notifications
 from couchers.jobs.worker import _run_job_and_schedule, process_job, run_scheduler, service_jobs
-from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType, Email, LoginToken, SignupToken
+from couchers.models import (
+    BackgroundJob,
+    BackgroundJobState,
+    BackgroundJobType,
+    Email,
+    HostRequest,
+    LoginToken,
+    SignupToken,
+)
 from couchers.tasks import send_login_email
-from couchers.utils import now
-from pb import auth_pb2, conversations_pb2
-from tests.test_fixtures import auth_api_session, conversations_session, db, generate_user, make_friends, testconfig
+from couchers.utils import now, today
+from pb import auth_pb2, conversations_pb2, requests_pb2
+from tests.test_fixtures import (
+    auth_api_session,
+    conversations_session,
+    db,
+    generate_user,
+    make_friends,
+    requests_session,
+    testconfig,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -244,6 +260,10 @@ def test_no_jobs_no_problem(db):
         assert session.query(BackgroundJob).count() == 0
 
 
+def now_5_min_in_future():
+    return now() + timedelta(minutes=5)
+
+
 def test_process_send_message_notifications_basic(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
@@ -281,9 +301,6 @@ def test_process_send_message_notifications_basic(db):
     with session_scope() as session:
         assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 0
 
-    def now_5_min_in_future():
-        return now() + timedelta(minutes=5)
-
     # this should generate emails for both user2 and user3
     with patch("couchers.jobs.handlers.now", now_5_min_in_future):
         process_send_message_notifications(empty_pb2.Empty())
@@ -297,6 +314,51 @@ def test_process_send_message_notifications_basic(db):
     with patch("couchers.jobs.handlers.now", now_5_min_in_future):
         process_send_message_notifications(empty_pb2.Empty())
 
+    with session_scope() as session:
+        assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 0
+
+
+def test_process_send_message_notifications_host_request(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+
+    process_send_message_notifications(empty_pb2.Empty())
+
+    # should find no jobs, since there's no messages
+    with session_scope() as session:
+        assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 0
+
+    with requests_session(token1) as requests:
+        host_request_id = requests.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+            )
+        ).host_request_id
+
+    with session_scope() as session:
+        # delete send_email BackgroundJob created by CreateHostRequest
+        session.query(BackgroundJob).delete(synchronize_session=False)
+
+    with patch("couchers.jobs.handlers.now", now_5_min_in_future):
+        process_send_message_notifications(empty_pb2.Empty())
+
+    with session_scope() as session:
+        assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 1
+
+        # delete all BackgroundJobs
+        session.query(BackgroundJob).delete(synchronize_session=False)
+
+        host_request = session.query(HostRequest).filter(HostRequest.conversation_id == host_request_id).one()
+        host_request.to_last_seen_message_id = host_request.from_last_seen_message_id
+        session.flush()
+
+    with patch("couchers.jobs.handlers.now", now_5_min_in_future):
+        process_send_message_notifications(empty_pb2.Empty())
+
+    # Should find no messages since it's been seen
     with session_scope() as session:
         assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 0
 
@@ -335,11 +397,8 @@ def test_process_send_message_notifications_seen(db):
     with session_scope() as session:
         assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 0
 
-    def now_30_min_in_future():
-        return now() + timedelta(minutes=30)
-
     # still shouldn't generate emails as user2 has seen all messages
-    with patch("couchers.jobs.handlers.now", now_30_min_in_future):
+    with patch("couchers.jobs.handlers.now", now_5_min_in_future):
         process_send_message_notifications(empty_pb2.Empty())
 
     with session_scope() as session:

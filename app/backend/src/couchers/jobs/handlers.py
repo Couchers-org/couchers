@@ -5,13 +5,26 @@ Background job servicers
 import logging
 from datetime import timedelta
 
+from sqlalchemy import and_, desc
+from sqlalchemy.orm import aliased
 from sqlalchemy.sql import func, or_
 
 from couchers import config, email, urls
 from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email
-from couchers.models import GroupChat, GroupChatSubscription, LoginToken, Message, MessageType, SignupToken, User
+from couchers.models import (
+    Conversation,
+    GroupChat,
+    GroupChatSubscription,
+    HostRequest,
+    HostRequestStatus,
+    LoginToken,
+    Message,
+    MessageType,
+    SignupToken,
+    User,
+)
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)
@@ -48,69 +61,88 @@ def process_purge_signup_tokens(payload):
 
 def process_send_message_notifications(payload):
     """
-    Sends out email notifications for messages that have been unseen for a long enough time
+    Sends out email notifications for groupchat messages that have been unseen for a long enough time #FIX
     """
-    # very crude and dumb algorithm
     logger.info(f"Sending out email notifications for unseen messages")
 
     with session_scope() as session:
-        # users who have unnotified messages older than 5 minutes in any group chat
-        users = (
-            session.query(User)
-            .join(GroupChatSubscription, GroupChatSubscription.user_id == User.id)
-            .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
-            .filter(Message.time >= GroupChatSubscription.joined)
-            .filter(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
-            .filter(Message.id > User.last_notified_message_id)
-            .filter(Message.id > GroupChatSubscription.last_seen_message_id)
+        Hosts = aliased(HostRequest)
+        Guests = aliased(HostRequest)
+        recent_messages = (
+            session.query(
+                Message.conversation_id.label("conversation_id"),
+                Conversation.type.label("conversation_type"),
+                func.count(Message.id).label("count_unseen_messages"),
+                func.max(GroupChatSubscription.user_id, Hosts.to_user_id, Guests.from_user_id).label("user_id"),
+            )
+            .join(
+                GroupChatSubscription,
+                and_(
+                    Message.conversation_id == GroupChatSubscription.group_chat_id,
+                    Message.time >= GroupChatSubscription.joined,
+                    or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None),
+                    Message.id > GroupChatSubscription.last_seen_message_id,
+                ),
+            )
+            .join(
+                Hosts,
+                and_(Message.conversation_id == Hosts.conversation_id, Message.id > Hosts.to_last_seen_message_id),
+            )
+            .join(
+                Guests,
+                and_(Message.conversation_id == Guests.conversation_id, Message.id > Guests.from_last_seen_message_id),
+            )
+            .join(Conversation, Conversation.id == Message.conversation_id)
             .filter(Message.time < now() - timedelta(minutes=5))
-            .filter(Message.message_type == MessageType.text)  # TODO: only text messages for now
+            .filter(Message.time > now() - timedelta(minutes=10))
+            .filter(Message.id > User.last_notified_message_id)
+            .group_by(Message.conversation_id)
+            .group_by("user_id")
+            .subquery()
+        )
+
+        user_data = (
+            session.query(
+                User,
+                func.first(Message),
+                recent_messages.c.conversation_type,
+                recent_messages.c.count_unseen_messages,
+            )
+            .join(recent_messages, User.id == recent_messages.c.user_id)
+            .join(Message, recent_messages.c.conversation_id == Message.conversation_id)
+            .group_by(Message.conversation_id)
+            .order_by(desc(Message.id))  # needs to be descending for func.first
+            .order_by(User.id)
             .all()
         )
 
-        for user in users:
-            # now actually grab all the group chats, not just less than 5 min old
-            subquery = (
-                session.query(
-                    GroupChatSubscription.group_chat_id.label("group_chat_id"),
-                    func.max(GroupChatSubscription.id).label("group_chat_subscriptions_id"),
-                    func.max(Message.id).label("message_id"),
-                    func.count(Message.id).label("count_unseen"),
+        unseen_messages = []
+        total_unseen_messages = 0
+        # in reverse so the last message accessed will be the biggest id for last_notified_message
+        for i in reversed(range(len(user_data))):
+            data = user_data[i]
+            user = data[0]
+            latest_message = data[1]
+            conversation_type = data[2]
+            count = data[3]
+
+            # adds to beginning of list, so conversations remain in order
+            unseen_messages.insert(0, (conversation_type, latest_message, count))
+            total_unseen_messages += count
+
+            if i == 0 or user_data[i - 1][0].id != user.id:  # end of loop or new user
+                user.last_notified_message_id = latest_message.id  # ordered desc, so will always be biggest
+                session.commit()
+
+                email.enqueue_email_from_template(
+                    user.email,
+                    "unseen_messages",
+                    template_args={
+                        "user": user,
+                        "total_unseen_message_count": total_unseen_messages,
+                        "unseen_messages": unseen_messages,
+                        "group_chats_link": urls.messages_link(),
+                    },
                 )
-                .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
-                .filter(GroupChatSubscription.user_id == user.id)
-                .filter(Message.id > user.last_notified_message_id)
-                .filter(Message.id > GroupChatSubscription.last_seen_message_id)
-                .filter(Message.time >= GroupChatSubscription.joined)
-                .filter(Message.message_type == MessageType.text)  # TODO: only text messages for now
-                .filter(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
-                .group_by(GroupChatSubscription.group_chat_id)
-                .order_by(func.max(Message.id).desc())
-                .subquery()
-            )
-
-            unseen_messages = (
-                session.query(GroupChat, Message, subquery.c.count_unseen)
-                .join(subquery, subquery.c.message_id == Message.id)
-                .join(GroupChat, GroupChat.conversation_id == subquery.c.group_chat_id)
-                .order_by(subquery.c.message_id.desc())
-                .all()
-            )
-
-            user.last_notified_message_id = max(message.id for _, message, _ in unseen_messages)
-            session.commit()
-
-            total_unseen_message_count = sum(count for _, _, count in unseen_messages)
-
-            email.enqueue_email_from_template(
-                user.email,
-                "unseen_messages",
-                template_args={
-                    "user": user,
-                    "total_unseen_message_count": total_unseen_message_count,
-                    "unseen_messages": [
-                        (group_chat, latest_message, count) for group_chat, latest_message, count in unseen_messages
-                    ],
-                    "group_chats_link": urls.messages_link(),
-                },
-            )
+                unseen_messages = []
+                total_unseen_messages = 0

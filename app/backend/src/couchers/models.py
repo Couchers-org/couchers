@@ -427,6 +427,12 @@ class UserSession(Base):
         )
 
 
+class ConversationType(enum.Enum):
+    host_request = enum.auto()
+    group_chat = enum.auto()
+    dm = enum.auto()
+
+
 class Conversation(Base):
     """
     Conversation brings together the different types of message/conversation types
@@ -437,9 +443,10 @@ class Conversation(Base):
     id = Column(BigInteger, primary_key=True)
     # timezone should always be UTC
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    type = Column(Enum(ConversationType), nullable=False)
 
     def __repr__(self):
-        return f"Conversation(id={self.id}, created={self.created})"
+        return f"Conversation(id={self.id}, created={self.created}, type={self.type})"
 
 
 class GroupChat(Base):
