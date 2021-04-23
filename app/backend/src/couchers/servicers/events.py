@@ -476,3 +476,21 @@ class Events(events_pb2_grpc.EventsServicer):
             session.flush()
 
             return event_to_pb(occurence, context.user_id)
+
+    def ListEvents(self, request, context):
+        pass
+
+    def InviteToEvent(self, request, context):
+        pass
+
+    def InviteEventOrganizer(self, request, context):
+        pass
+
+    def ListSubscribedEvents(self, request, context):
+        pass
+
+    def ListAttendingEvents(self, request, context):
+        pass
+
+    def ListEventInvites(self, request, context):
+        pass

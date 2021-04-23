@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package org.couchers.api.events;
 
+import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
 
@@ -13,7 +14,7 @@ service Events {
   }
 
   rpc ScheduleEvent(ScheduleEventReq) returns (Event) {
-    // Schedules a new occurence for an event that already exists
+    // Schedules a new occurence of an existing event
   }
 
   rpc UpdateEvent(UpdateEventReq) returns (Event) {
@@ -53,10 +54,26 @@ service Events {
     // TODO: what is this??
   }
 
-  // TODO: InviteToEvent/SendEventInvite
-  // TODO: InviteEventOrganizer/edit/remove?/SetEventOrganizer
-  // TODO: ListSubscribedEvents
-  // TODO: ListAttendingEvents
+  rpc InviteToEvent(InviteToEventReq) returns (google.protobuf.Empty) {
+    // Invite friends to this event
+  }
+
+  rpc InviteEventOrganizer(InviteEventOrganizerReq) returns (google.protobuf.Empty) {
+    // Invite another user to become an organizer of this event
+  }
+
+  rpc ListSubscribedEvents(ListSubscribedEventsReq) returns (ListSubscribedEventsRes) {
+    // Paginated list of all events the user is subscribed to
+  }
+
+  rpc ListAttendingEvents(ListAttendingEventsReq) returns (ListAttendingEventsRes) {
+    // Paginated list of all events the user is attending
+  }
+
+  rpc ListEventInvites(ListEventInvitesReq) returns (ListEventInvitesRes) {
+    // Paginated list of event invitations
+  }
+
   // TODO: ListEventSiblings?
   // TODO: DownloadCalendarInvite
   // TODO: ...
@@ -133,6 +150,12 @@ message Event {
   bool can_moderate = 33;
 }
 
+message EventInvite {
+  Event event = 1;
+  int64 inviting_user = 2;
+  google.protobuf.Timestamp inviting_sent = 3;
+}
+
 message CreateEventReq {
   string title = 1;
   string content = 2;  // CommonMark without images
@@ -205,6 +228,8 @@ message ListEventAttendeesReq {
 
 message ListEventAttendeesRes {
   repeated int64 attendee_user_ids = 1;
+
+  string next_page_token = 2;
 }
 
 message ListEventSubscribersReq {
@@ -216,6 +241,8 @@ message ListEventSubscribersReq {
 
 message ListEventSubscribersRes {
   repeated int64 subscriber_user_ids = 1;
+
+  string next_page_token = 2;
 }
 
 message ListEventOrganizersReq {
@@ -226,7 +253,9 @@ message ListEventOrganizersReq {
 }
 
 message ListEventOrganizersRes {
-  repeated int64 tOrganizer_user_ids = 1;
+  repeated int64 organizer_user_ids = 1;
+
+  string next_page_token = 2;
 }
 
 message ListEventsReq {
@@ -238,6 +267,8 @@ message ListEventsReq {
 
 message ListEventsRes {
   repeated Event events = 1;
+
+  string next_page_token = 2;
 }
 
 message TransferEventReq {
@@ -256,4 +287,47 @@ message SetEventSubscriptionReq {
 message SetEventAttendanceReq {
   int64 event_id = 1;
   AttendanceState attendance_state = 2;
+}
+
+message InviteToEventReq {
+  int64 event_id = 1;
+  repeated int64 user_ids = 2;
+}
+
+message InviteEventOrganizerReq {
+  int64 event_id = 1;
+  repeated int64 user_ids = 2;
+}
+
+message ListSubscribedEventsReq {
+  uint32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListSubscribedEventsRes {
+  repeated Event events = 1;
+
+  string next_page_token = 2;
+}
+
+message ListAttendingEventsReq {
+  uint32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListAttendingEventsRes {
+  repeated Event events = 1;
+
+  string next_page_token = 2;
+}
+
+message ListEventInvitesReq {
+  uint32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListEventInvitesRes {
+  repeated EventInvite event_invites = 1;
+
+  string next_page_token = 2;
 }
