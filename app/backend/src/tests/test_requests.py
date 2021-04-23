@@ -650,15 +650,6 @@ def test_RespondHostRequests(db):
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
     with requests_session(token2) as api:
-        # non existing id
-        with pytest.raises(grpc.RpcError) as e:
-            api.RespondHostRequest(
-                requests_pb2.RespondHostRequestReq(
-                    host_request_id=9999, status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-
         # host can't confirm or cancel (host should accept/reject)
         with pytest.raises(grpc.RpcError) as e:
             api.RespondHostRequest(
@@ -814,12 +805,6 @@ def test_send_message(db):
                 to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 1"
             )
         ).host_request_id
-
-        with pytest.raises(grpc.RpcError) as e:
-            api.SendHostRequestMessage(
-                requests_pb2.SendHostRequestMessageReq(host_request_id=999, text="Test message 1")
-            )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
         with pytest.raises(grpc.RpcError) as e:
             api.SendHostRequestMessage(requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text=""))

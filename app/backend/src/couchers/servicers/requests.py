@@ -276,12 +276,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             )
 
     def RespondHostRequest(self, request, context):
-        from_users = aliased(User)
-        to_users = aliased(User)
-
         with session_scope() as session:
-            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
-
             host_request = self.GetHostRequest(request, context, pb=False)
             host_request = session.merge(host_request)
 
