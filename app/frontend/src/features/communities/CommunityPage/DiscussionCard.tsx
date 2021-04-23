@@ -12,6 +12,8 @@ import makeStyles from "utils/makeStyles";
 import stripMarkdown from "utils/stripMarkdown";
 import { timeAgo } from "utils/timeAgo";
 
+import { getByCreator } from "../constants";
+
 const useStyles = makeStyles((theme) => ({
   avatar: {
     height: "3rem",
@@ -42,6 +44,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+export const DISCUSSION_CARD_TEST_ID = "discussion-card";
+
 export default function DiscussionCard({
   discussion,
   className,
@@ -64,7 +68,10 @@ export default function DiscussionCard({
   }, [discussion.content]);
 
   return (
-    <Card className={classNames(classes.root, className)}>
+    <Card
+      className={classNames(classes.root, className)}
+      data-testid={DISCUSSION_CARD_TEST_ID}
+    >
       <Link to={routeToDiscussion(discussion.discussionId, discussion.slug)}>
         <CardContent className={classes.cardContent}>
           <Avatar
@@ -79,9 +86,8 @@ export default function DiscussionCard({
               className={classes.surtitle}
               noWrap
             >
-              By{" "}
               {creator ? (
-                creator.name
+                getByCreator(creator.name)
               ) : (
                 <Skeleton className={classes.userLoading} />
               )}{" "}
