@@ -7,7 +7,8 @@ import {
 import ReferenceForm from "features/communities/leavereference/ReferenceForm";
 import RevieweeOverview from "features/communities/leavereference/RevieweeOverview";
 import { useUser } from "features/userQueries/useUsers";
-import React, { useState } from "react";
+import { User } from "pb/api_pb";
+import React from "react";
 import { useParams } from "react-router-dom";
 import makeStyles from "utils/makeStyles";
 
@@ -44,14 +45,12 @@ interface LeaveReferenceProps {
 export default function LeaveReferencePage({
   hostRequest,
 }: LeaveReferenceProps) {
-  const classes = useStyles();
-  const [available, setAvailable] = useState(false);
+  const classes = useStyles(Boolean);
   const { referenceType, userId } = useParams<{
     referenceType: string;
     userId: string;
   }>();
 
-  // get user object from userId
   const { data: user, isLoading: isUserLoading, error } = useUser(
     +userId,
     false
@@ -59,29 +58,28 @@ export default function LeaveReferencePage({
   const {
     data: availableRefrences,
     isLoading: isAvailableReferencesLoading,
-  } = useListAvailableReferences(+userId);
-  /* HAS TO CHECK:
-      [x] whether reference type is valid
-      [] whether friends/ surfed/ couched is true
-  */
+  } = useListAvailableReferences(+userId, "all");
 
   if (!(referenceType in ReferenceType)) {
     return <Alert severity="error">{INVALID_REFERENCE_TYPE}</Alert>;
   }
 
-  if (availableRefrences !== undefined && hostRequest) {
+  let available = false;
+  if (availableRefrences && user) {
     if (referenceType === "friend") {
-      availableRefrences.canWriteFriendReference && setAvailable(true);
-    } else if (referenceType === "surfed") {
+      availableRefrences.canWriteFriendReference &&
+      user.friends === User.FriendshipStatus.FRIENDS &&
+      (available = true);
+    } else if (referenceType === "surfed" && hostRequest) {
       availableRefrences.availableWriteReferencesList.includes({
         hostRequestId: hostRequest,
         referenceType: 2,
-      }) && setAvailable(true);
-    } else if (referenceType === "hosted") {
+      }) && (available = true);
+    } else if (referenceType === "hosted" && hostRequest) {
       availableRefrences.availableWriteReferencesList.includes({
         hostRequestId: hostRequest,
         referenceType: 3,
-      }) && setAvailable(true);
+      }) && (available = true);
     }
   }
 
@@ -92,7 +90,7 @@ export default function LeaveReferencePage({
       {error && <Alert severity="error">{error}</Alert>}
       {loading ? (
         <CircularProgress />
-      ) : user && available === true ? (
+      ) : user && available ? (
         <>
           <RevieweeOverview user={user} />
           <div className={classes.form}>

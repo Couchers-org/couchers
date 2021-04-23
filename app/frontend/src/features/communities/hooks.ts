@@ -21,6 +21,7 @@ import {
   communityMembersKey,
   communityNearbyUsersKey,
   communityPlacesKey,
+  referencesKey,
   subCommunitiesKey,
 } from "queryKeys";
 import {
@@ -148,16 +149,14 @@ export const useNewDiscussionMutation = (queryClient: QueryClient) =>
     }
   );
 
-export function useListAvailableReferences(userId: number) {
-  const availableReferencesQuery = useQuery<
-    AvailableWriteReferencesRes.AsObject,
-    GrpcError
-  >({
-    queryFn: () =>
+export const useListAvailableReferences = (
+  userId: number,
+  type: "received" | "given" | "all"
+) =>
+  useQuery<AvailableWriteReferencesRes.AsObject, GrpcError>(
+    referencesKey(userId, type),
+    () =>
       service.references.getAvailableReferences({
         userId,
-      }),
-  });
-
-  return availableReferencesQuery;
-}
+      })
+  );
