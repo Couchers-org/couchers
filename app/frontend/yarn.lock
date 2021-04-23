@@ -2736,10 +2736,10 @@
   dependencies:
     "@babel/runtime" "^7.12.5"
 
-"@toast-ui/editor@^2.5.1":
-  version "2.5.1"
-  resolved "https://registry.yarnpkg.com/@toast-ui/editor/-/editor-2.5.1.tgz#42671c52ca4b97c84f684d09c2966711b36f41a7"
-  integrity sha512-LVNo/YaNItUemEaRFvFAVn7w/0U7yxEheMdn6GEGxqo727rRZD1MH7OTDVq6NeQ+P93VwFpa0i9GGRBhNNEbPQ==
+"@toast-ui/editor@^2.5.2":
+  version "2.5.2"
+  resolved "https://registry.yarnpkg.com/@toast-ui/editor/-/editor-2.5.2.tgz#0637e1bbdb205c1ab53b6d3722ced26399b2f0ca"
+  integrity sha512-ldTOMCVKpSIummf9X3JqPuOUMjlAxyFePniHChmCMst9j+ZbHxdalOhEUDV/ASrq4jkjgRm4m0nCCUvjdljZSw==
   dependencies:
     "@types/codemirror" "0.0.71"
     codemirror "^5.48.4"
