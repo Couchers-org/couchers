@@ -182,8 +182,8 @@ def test_friend_request_email(db):
         assert from_user.name in subject
         assert from_user.name in plain
         assert from_user.name in html
-        assert from_user.avatar.full_url not in plain
-        assert from_user.avatar.full_url in html
+        assert from_user.avatar.thumbnail_url not in plain
+        assert from_user.avatar.thumbnail_url in html
         assert f"{config['BASE_URL']}/connections/friends/" in plain
         assert f"{config['BASE_URL']}/connections/friends/" in html
 
